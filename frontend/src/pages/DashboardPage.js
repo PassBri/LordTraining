@@ -291,70 +291,85 @@ const DashboardPage = () => {
           
           {/* Sub-navigation tabs */}
           <div className="bg-gray-50 border-t flex">
-            {['Plan Gráfico', 'Macrociclo', 'Mesociclos', 'Microciclos', 'Sesión'].map((tab, idx) => (
+            {[
+              { id: 'plan-grafico', label: 'Plan Gráfico' },
+              { id: 'macrociclo', label: 'Macrociclo' },
+              { id: 'mesociclos', label: 'Mesociclos' },
+              { id: 'microciclos', label: 'Microciclos' },
+              { id: 'sesion', label: 'Sesión' }
+            ].map((tab) => (
               <button 
-                key={tab}
+                key={tab.id}
+                onClick={() => setActiveSubTab(tab.id)}
                 className={`flex-1 py-3 text-sm font-medium transition-colors ${
-                  idx === 0 ? 'text-blue-600 border-b-2 border-blue-600 bg-white' : 'text-gray-500 hover:text-gray-700'
+                  activeSubTab === tab.id 
+                    ? 'text-blue-600 border-b-2 border-blue-600 bg-white' 
+                    : 'text-gray-500 hover:text-gray-700'
                 }`}
+                data-testid={`subtab-${tab.id}`}
               >
-                {tab}
+                {tab.label}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="shadow-lg">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-semibold text-gray-800">Planificación Anual</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RechartsLineChart data={trainingData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="week" tick={{ fontSize: 12 }} stroke="#9ca3af" />
-                    <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" />
-                    <Tooltip 
-                      contentStyle={{ 
-                        background: 'white', 
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
-                      }} 
-                    />
-                    <Line type="monotone" dataKey="volume" stroke="#2563eb" name="Volumen" strokeWidth={2} dot={{ r: 4 }} />
-                    <Line type="monotone" dataKey="intensity" stroke="#dc2626" name="Intensidad" strokeWidth={2} dot={{ r: 4 }} />
-                    <Line type="monotone" dataKey="fatigue" stroke="#7c3aed" name="Fatiga" strokeWidth={2} dot={{ r: 4 }} />
-                  </RechartsLineChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Render content based on sub-tab */}
+        {activeSubTab === 'sesion' ? (
+          <SessionPlanning athleteId={selectedAthleteId} />
+        ) : (
+          <>
+            {/* Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="shadow-lg">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg font-semibold text-gray-800">Planificación Anual</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsLineChart data={trainingData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <XAxis dataKey="week" tick={{ fontSize: 12 }} stroke="#9ca3af" />
+                        <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" />
+                        <Tooltip 
+                          contentStyle={{ 
+                            background: 'white', 
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
+                          }} 
+                        />
+                        <Line type="monotone" dataKey="volume" stroke="#2563eb" name="Volumen" strokeWidth={2} dot={{ r: 4 }} />
+                        <Line type="monotone" dataKey="intensity" stroke="#dc2626" name="Intensidad" strokeWidth={2} dot={{ r: 4 }} />
+                        <Line type="monotone" dataKey="fatigue" stroke="#7c3aed" name="Fatiga" strokeWidth={2} dot={{ r: 4 }} />
+                      </RechartsLineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
 
-          <Card className="shadow-lg">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-semibold text-gray-800">Perfil de Rendimiento</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart data={performanceData}>
-                    <PolarGrid stroke="#e5e7eb" />
-                    <PolarAngleAxis dataKey="ability" tick={{ fontSize: 12 }} />
-                    <PolarRadiusAxis tick={{ fontSize: 10 }} />
-                    <Radar dataKey="value" stroke="#2563eb" fill="#3b82f6" fillOpacity={0.5} />
-                  </RadarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              <Card className="shadow-lg">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg font-semibold text-gray-800">Perfil de Rendimiento</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadarChart data={performanceData}>
+                        <PolarGrid stroke="#e5e7eb" />
+                        <PolarAngleAxis dataKey="ability" tick={{ fontSize: 12 }} />
+                        <PolarRadiusAxis tick={{ fontSize: 10 }} />
+                        <Radar dataKey="value" stroke="#2563eb" fill="#3b82f6" fillOpacity={0.5} />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
           <Card className="bg-blue-50 border-blue-100">
             <CardContent className="p-4 text-center">
               <p className="text-3xl font-bold text-blue-600">{stats?.athletes_count || 0}</p>
