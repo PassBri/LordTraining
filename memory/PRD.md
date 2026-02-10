@@ -437,3 +437,44 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 
 ### Test Report
 - `/app/test_reports/iteration_8.json` - 100% tests pasados (18/18 frontend)
+
+### Feb 10, 2026 - Integración de Datos Reales y Exportación PDF
+- ✅ **Nuevo Endpoint API - Control Panel Stats** (`GET /api/control-panel/stats`):
+  - Agregación de datos de todos los atletas y periodizaciones
+  - Retorna: athletes_count, volume_data, intensity_data, phase_distribution, upcoming_events
+  - Badge "Datos en tiempo real" cuando los datos vienen de la API
+
+- ✅ **Exportación PDF Personalizable** (`POST /api/control-panel/export-pdf`):
+  - Modal con 4 checkboxes seleccionables:
+    - Resumen del Plan de Entrenamiento
+    - Gráficos de Volumen
+    - Gráficos de Intensidad
+    - Calendario de Sesiones y Eventos
+  - Genera PDF con tablas estilizadas usando reportlab/platypus
+  - Descarga automática con nombre: `reporte_train_YYYY-MM-DD.pdf`
+
+- ✅ **Alertas Inteligentes Mejoradas**:
+  - Detección de eventos próximos (< 7 días) con nombre del atleta
+  - Alerta "Evento próximo (X días) - Juan García: Campeonato Nacional"
+  - Alerta de baja tasa de completación (< 70%)
+  - Alerta cuando no hay atletas o macrociclos activos
+
+- ✅ **Botones de Acción Rápida Conectados**:
+  - "Nuevo Atleta" → Navega a Datos > Atletas
+  - "Programar Evento" → Navega a Datos > Calendario de Eventos
+  - "Crear Macrociclo" → Navega a Datos > Modelos de Periodización
+  - "Ver Reportes" → Abre modal de exportación PDF
+
+- ✅ **Gráficos con Datos Reales**:
+  - Volumen por Semana (S1-S12) con Objetivo vs Real
+  - Intensidad % y Recuperación %
+  - Distribución de Fases (Prep. General, Específico, Competitivo)
+  - Carga Acumulada y Índice de Fatiga
+
+### Archivos Creados/Modificados
+- `/app/frontend/src/components/ControlPanel.js` - ACTUALIZADO: Integración con API y exportación PDF
+- `/app/backend/server.py` - NUEVOS ENDPOINTS: /api/control-panel/stats, /api/control-panel/export-pdf
+- `/app/backend/tests/test_control_panel.py` - NUEVO: Tests del Panel de Control
+
+### Test Report
+- `/app/test_reports/iteration_9.json` - 100% tests pasados (Backend: 10/10, Frontend: 100%)
