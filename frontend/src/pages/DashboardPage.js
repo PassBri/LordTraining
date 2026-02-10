@@ -339,41 +339,44 @@ const DashboardPage = () => {
     if (activeDataSection === 'ai-generator') {
       return (
         <div className="p-4 space-y-4">
-          <Card>
-            <CardHeader className="bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
+          <Card className="border-0 shadow-md overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-amber-500 to-amber-600 text-white py-4">
+              <CardTitle className="flex items-center gap-2 text-lg font-semibold">
                 <Brain className="w-5 h-5" />
                 Generar Plan con Inteligencia Artificial
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-4">
+            <CardContent className="p-5">
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Formulario */}
                 <div className="space-y-4">
-                  <h4 className="font-medium text-gray-700">Parámetros del Plan</h4>
-                  <div className="space-y-3">
+                  <h4 className="font-semibold text-slate-800 flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-amber-500" />
+                    Parámetros del Plan
+                  </h4>
+                  <div className="space-y-4">
                     <div>
-                      <label className="text-xs font-medium text-gray-500">Objetivo Principal</label>
-                      <Input placeholder="Ej: Mejorar resistencia aeróbica" />
+                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Objetivo Principal</label>
+                      <Input placeholder="Ej: Mejorar resistencia aeróbica" className="mt-1 border-amber-200 focus:border-amber-400" />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="text-xs font-medium text-gray-500">Duración (semanas)</label>
-                        <Input type="number" placeholder="12" />
+                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Duración (semanas)</label>
+                        <Input type="number" placeholder="12" className="mt-1 border-amber-200 focus:border-amber-400" />
                       </div>
                       <div>
-                        <label className="text-xs font-medium text-gray-500">Sesiones/semana</label>
-                        <Input type="number" placeholder="5" />
+                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Sesiones/semana</label>
+                        <Input type="number" placeholder="5" className="mt-1 border-amber-200 focus:border-amber-400" />
                       </div>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-500">Deporte</label>
-                      <Input placeholder="Ej: Atletismo - Fondo" />
+                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Deporte</label>
+                      <Input placeholder="Ej: Atletismo - Fondo" className="mt-1 border-amber-200 focus:border-amber-400" />
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-500">Nivel del Atleta</label>
+                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Nivel del Atleta</label>
                       <Select>
-                        <SelectTrigger><SelectValue placeholder="Seleccionar nivel" /></SelectTrigger>
+                        <SelectTrigger className="border-amber-200"><SelectValue placeholder="Seleccionar nivel" /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="principiante">Principiante (0-1 año)</SelectItem>
                           <SelectItem value="intermedio">Intermedio (1-3 años)</SelectItem>
@@ -383,14 +386,14 @@ const DashboardPage = () => {
                       </Select>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-500">Competencia Objetivo</label>
-                      <Input type="date" />
+                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Competencia Objetivo</label>
+                      <Input type="date" className="mt-1 border-amber-200 focus:border-amber-400" />
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-500">Observaciones adicionales</label>
-                      <textarea className="w-full border rounded-lg p-2 text-sm h-20" placeholder="Lesiones previas, limitaciones, preferencias..." />
+                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Observaciones adicionales</label>
+                      <textarea className="w-full border border-amber-200 rounded-lg p-3 text-sm h-24 mt-1 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400" placeholder="Lesiones previas, limitaciones, preferencias..." />
                     </div>
-                    <Button className="w-full bg-orange-500 hover:bg-orange-600">
+                    <Button className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 font-semibold h-11">
                       <Brain className="w-4 h-4 mr-2" />
                       Generar Plan con IA
                     </Button>
@@ -398,12 +401,12 @@ const DashboardPage = () => {
                 </div>
                 
                 {/* Preview */}
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-medium text-gray-700 mb-3">Vista Previa del Plan</h4>
-                  <div className="text-center py-12 text-gray-400">
-                    <Brain className="w-16 h-16 mx-auto mb-3 opacity-30" />
-                    <p>Configura los parámetros y genera tu plan personalizado</p>
-                    <p className="text-sm mt-2">El plan incluirá macrociclos, mesociclos, microciclos y sesiones detalladas</p>
+                <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-100">
+                  <h4 className="font-semibold text-amber-900 mb-4">Vista Previa del Plan</h4>
+                  <div className="text-center py-12 text-amber-700/60">
+                    <Brain className="w-20 h-20 mx-auto mb-4 opacity-30" />
+                    <p className="font-medium">Configura los parámetros y genera tu plan personalizado</p>
+                    <p className="text-sm mt-2 opacity-75">El plan incluirá macrociclos, mesociclos, microciclos y sesiones detalladas</p>
                   </div>
                 </div>
               </div>
