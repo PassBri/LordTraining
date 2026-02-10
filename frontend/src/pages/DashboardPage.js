@@ -788,181 +788,77 @@ const DashboardPage = () => {
               {isNavExpanded ? <ChevronLeft className="w-5 h-5 text-gray-400" /> : <ChevronRight className="w-5 h-5 text-gray-400" />}
             </button>
             <div className="flex-1 overflow-y-auto">
-              {/* MATERIAL DESIGN 3 COLORS - Sección headers */}
-              {/* 1. REGISTRO - Indigo 500 (#6366F1) */}
-              {isNavExpanded && (
-                <div className="px-3 py-2.5 bg-indigo-500 text-white text-xs font-semibold uppercase tracking-wider flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                  Registro y Caracterización
-                </div>
-              )}
-              {navItems.filter(i => i.section === 'registro').map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveDataSection(item.id)}
-                    className={`w-full p-3 flex items-center gap-3 transition-all duration-200 text-left ${
-                      activeDataSection === item.id 
-                        ? 'bg-indigo-50 border-l-4 border-indigo-500 text-indigo-700 font-medium' 
-                        : 'text-slate-600 hover:bg-indigo-50/50 border-l-4 border-transparent'
-                    }`}
-                  >
-                    <Icon className={`h-4 w-4 flex-shrink-0 ${activeDataSection === item.id ? 'text-indigo-500' : 'text-slate-400'}`} />
-                    {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
-                  </button>
-                );
-              })}
-              
-              {/* 2. EVALUACIÓN - Emerald 500 (#10B981) */}
-              {isNavExpanded && (
-                <div className="px-3 py-2.5 bg-emerald-500 text-white text-xs font-semibold uppercase tracking-wider mt-1 flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                  Evaluación Inicial
-                </div>
-              )}
-              {navItems.filter(i => i.section === 'evaluacion').map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveDataSection(item.id)}
-                    className={`w-full p-3 flex items-center gap-3 transition-all duration-200 text-left ${
-                      activeDataSection === item.id 
-                        ? 'bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 font-medium' 
-                        : 'text-slate-600 hover:bg-emerald-50/50 border-l-4 border-transparent'
-                    }`}
-                  >
-                    <Icon className={`h-4 w-4 flex-shrink-0 ${activeDataSection === item.id ? 'text-emerald-500' : 'text-slate-400'}`} />
-                    {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
-                  </button>
-                );
-              })}
-              
-              {/* 3. ANÁLISIS - Amber 500 (#F59E0B) */}
-              {isNavExpanded && (
-                <div className="px-3 py-2.5 bg-amber-500 text-white text-xs font-semibold uppercase tracking-wider mt-1 flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                  Análisis Previo
-                </div>
-              )}
-              {navItems.filter(i => i.section === 'analisis').map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveDataSection(item.id)}
-                    className={`w-full p-3 flex items-center gap-3 transition-all duration-200 text-left ${
-                      activeDataSection === item.id 
-                        ? 'bg-amber-50 border-l-4 border-amber-500 text-amber-700 font-medium' 
-                        : 'text-slate-600 hover:bg-amber-50/50 border-l-4 border-transparent'
-                    }`}
-                  >
-                    <Icon className={`h-4 w-4 flex-shrink-0 ${activeDataSection === item.id ? 'text-amber-500' : 'text-slate-400'}`} />
-                    {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
-                  </button>
-                );
-              })}
-              
-              {/* 4. OBJETIVOS - Violet 500 (#8B5CF6) */}
-              {isNavExpanded && (
-                <div className="px-3 py-2.5 bg-violet-500 text-white text-xs font-semibold uppercase tracking-wider mt-1 flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                  Definición de Objetivos
-                </div>
-              )}
-              {navItems.filter(i => i.section === 'objetivos').map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveDataSection(item.id)}
-                    className={`w-full p-3 flex items-center gap-3 transition-all duration-200 text-left ${
-                      activeDataSection === item.id 
-                        ? 'bg-violet-50 border-l-4 border-violet-500 text-violet-700 font-medium' 
-                        : 'text-slate-600 hover:bg-violet-50/50 border-l-4 border-transparent'
-                    }`}
-                  >
-                    <Icon className={`h-4 w-4 flex-shrink-0 ${activeDataSection === item.id ? 'text-violet-500' : 'text-slate-400'}`} />
-                    {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
-                  </button>
-                );
-              })}
-              
-              {/* 5. PLANIFICACIÓN - Cyan 500 (#06B6D4) */}
-              {isNavExpanded && (
-                <div className="px-3 py-2.5 bg-cyan-500 text-white text-xs font-semibold uppercase tracking-wider mt-1 flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                  Planificación
-                </div>
-              )}
-              {navItems.filter(i => i.section === 'planificacion').map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveDataSection(item.id)}
-                    className={`w-full p-3 flex items-center gap-3 transition-all duration-200 text-left ${
-                      activeDataSection === item.id 
-                        ? 'bg-cyan-50 border-l-4 border-cyan-500 text-cyan-700 font-medium' 
-                        : 'text-slate-600 hover:bg-cyan-50/50 border-l-4 border-transparent'
-                    }`}
-                  >
-                    <Icon className={`h-4 w-4 flex-shrink-0 ${activeDataSection === item.id ? 'text-cyan-500' : 'text-slate-400'}`} />
-                    {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
-                  </button>
-                );
-              })}
-              
-              {/* 6. CONTROL - Rose 500 (#F43F5E) */}
-              {isNavExpanded && (
-                <div className="px-3 py-2.5 bg-rose-500 text-white text-xs font-semibold uppercase tracking-wider mt-1 flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                  Control y Seguimiento
-                </div>
-              )}
-              {navItems.filter(i => i.section === 'control').map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveDataSection(item.id)}
-                    className={`w-full p-3 flex items-center gap-3 transition-all duration-200 text-left ${
-                      activeDataSection === item.id 
-                        ? 'bg-rose-50 border-l-4 border-rose-500 text-rose-700 font-medium' 
-                        : 'text-slate-600 hover:bg-rose-50/50 border-l-4 border-transparent'
-                    }`}
-                  >
-                    <Icon className={`h-4 w-4 flex-shrink-0 ${activeDataSection === item.id ? 'text-rose-500' : 'text-slate-400'}`} />
-                    {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
-                  </button>
-                );
-              })}
-              
-              {/* 7. HERRAMIENTAS - Slate 600 (#475569) */}
-              {isNavExpanded && (
-                <div className="px-3 py-2.5 bg-slate-600 text-white text-xs font-semibold uppercase tracking-wider mt-1 flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                  Herramientas
-                </div>
-              )}
-              {navItems.filter(i => i.section === 'herramientas').map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveDataSection(item.id)}
-                    className={`w-full p-3 flex items-center gap-3 transition-all duration-200 text-left ${
-                      activeDataSection === item.id 
-                        ? 'bg-slate-100 border-l-4 border-slate-600 text-slate-800 font-medium' 
-                        : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'
-                    }`}
-                  >
-                    <Icon className={`h-4 w-4 flex-shrink-0 ${activeDataSection === item.id ? 'text-slate-600' : 'text-slate-400'}`} />
-                    {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
-                  </button>
-                );
-              })}
+              {/* Función para toggle de secciones */}
+              {(() => {
+                const toggleSection = (section) => {
+                  setCollapsedSections(prev => ({
+                    ...prev,
+                    [section]: !prev[section]
+                  }));
+                };
+
+                const sections = [
+                  { key: 'registro', title: 'Registro y Caracterización', color: 'indigo' },
+                  { key: 'evaluacion', title: 'Evaluación Inicial', color: 'emerald' },
+                  { key: 'analisis', title: 'Análisis Previo', color: 'amber' },
+                  { key: 'objetivos', title: 'Definición de Objetivos', color: 'violet' },
+                  { key: 'planificacion', title: 'Planificación', color: 'cyan' },
+                  { key: 'control', title: 'Control y Seguimiento', color: 'rose' },
+                  { key: 'herramientas', title: 'Herramientas', color: 'slate' },
+                ];
+
+                const colorClasses = {
+                  indigo: { header: 'bg-indigo-500', item: 'indigo', active: 'bg-indigo-50 border-indigo-500 text-indigo-700', hover: 'hover:bg-indigo-50/50' },
+                  emerald: { header: 'bg-emerald-500', item: 'emerald', active: 'bg-emerald-50 border-emerald-500 text-emerald-700', hover: 'hover:bg-emerald-50/50' },
+                  amber: { header: 'bg-amber-500', item: 'amber', active: 'bg-amber-50 border-amber-500 text-amber-700', hover: 'hover:bg-amber-50/50' },
+                  violet: { header: 'bg-violet-500', item: 'violet', active: 'bg-violet-50 border-violet-500 text-violet-700', hover: 'hover:bg-violet-50/50' },
+                  cyan: { header: 'bg-cyan-500', item: 'cyan', active: 'bg-cyan-50 border-cyan-500 text-cyan-700', hover: 'hover:bg-cyan-50/50' },
+                  rose: { header: 'bg-rose-500', item: 'rose', active: 'bg-rose-50 border-rose-500 text-rose-700', hover: 'hover:bg-rose-50/50' },
+                  slate: { header: 'bg-slate-600', item: 'slate', active: 'bg-slate-100 border-slate-600 text-slate-800', hover: 'hover:bg-slate-50' },
+                };
+
+                return sections.map((section, idx) => {
+                  const colors = colorClasses[section.color];
+                  const isCollapsed = collapsedSections[section.key];
+                  const sectionItems = navItems.filter(i => i.section === section.key);
+
+                  return (
+                    <div key={section.key}>
+                      {/* Section Header - Clickeable para colapsar */}
+                      {isNavExpanded && (
+                        <button
+                          onClick={() => toggleSection(section.key)}
+                          className={`w-full px-3 py-2.5 ${colors.header} text-white text-xs font-semibold uppercase tracking-wider flex items-center justify-between gap-2 ${idx > 0 ? 'mt-1' : ''} hover:opacity-90 transition-opacity`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                            {section.title}
+                          </div>
+                          {isCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+                        </button>
+                      )}
+                      {/* Section Items */}
+                      {!isCollapsed && sectionItems.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <button
+                            key={item.id}
+                            onClick={() => setActiveDataSection(item.id)}
+                            className={`w-full p-3 flex items-center gap-3 transition-all duration-200 text-left ${
+                              activeDataSection === item.id 
+                                ? `${colors.active} border-l-4 font-medium` 
+                                : `text-slate-600 ${colors.hover} border-l-4 border-transparent`
+                            }`}
+                          >
+                            <Icon className={`h-4 w-4 flex-shrink-0 ${activeDataSection === item.id ? `text-${section.color}-500` : 'text-slate-400'}`} />
+                            {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                });
+              })()}
             </div>
           </div>
           {/* Data Content */}
