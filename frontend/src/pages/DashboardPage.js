@@ -22,6 +22,7 @@ import SessionPlanning from '../components/SessionPlanning';
 import SportCharacterization from '../components/SportCharacterization';
 import AthleteCharacterization from '../components/AthleteCharacterization';
 import HealthRecords from '../components/HealthRecords';
+import CompetitionAnalysis from '../components/CompetitionAnalysis';
 
 const DashboardPage = () => {
   const { user, logout } = useAuth();
