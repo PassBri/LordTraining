@@ -52,6 +52,7 @@ const DashboardPage = () => {
 
   // Navigation items for "Datos" panel
   const navItems = [
+    { id: 'graphic-plan', label: 'Plan Gráfico', icon: Layers },
     { id: 'prev-plan', label: 'Análisis del plan anterior', icon: FileText, component: 'analysis' },
     { id: 'sport-char', label: 'Caracterización del deporte', icon: Target },
     { id: 'athlete-char', label: 'Caracterización de deportistas', icon: Users },
@@ -62,7 +63,7 @@ const DashboardPage = () => {
     { id: 'tests', label: 'Test', icon: Clipboard },
     { id: 'events', label: 'Calendario de eventos', icon: Calendar },
     { id: 'competitions', label: 'Análisis de competencias', icon: Award },
-    { id: 'periodization-models', label: 'Modelos de periodización', icon: Layers },
+    { id: 'periodization-models', label: 'Modelos de periodización', icon: BookOpen },
     { id: 'macrocycle-stages', label: 'Etapas del macrociclo', icon: BookOpen },
     { id: 'exercises', label: 'Medios de entrenamiento', icon: Activity },
     { id: 'load', label: 'Carga de entrenamiento', icon: BarChart },
