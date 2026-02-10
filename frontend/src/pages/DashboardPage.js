@@ -26,6 +26,7 @@ import CompetitionAnalysis from '../components/CompetitionAnalysis';
 import TrainingStages from '../components/TrainingStages';
 import PeriodizationModels from '../components/PeriodizationModels';
 import ComprehensiveTrainingPlanner from '../components/ComprehensiveTrainingPlanner';
+import TrainingMethods from '../components/TrainingMethods';
 
 const DashboardPage = () => {
   const { user, logout } = useAuth();
