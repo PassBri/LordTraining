@@ -203,6 +203,26 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 
 ## CHANGELOG
 
+### Feb 10, 2026 - Sistema de Periodización con Generación Automática
+- ✅ **Generación Automática de Estructura Completa**:
+  - Al crear un Macrociclo se generan automáticamente Mesociclos, Microciclos y Sesiones
+  - Respeta principios del entrenamiento (progresión, especificidad, variabilidad, supercompensación, recuperación)
+  - Semanas de descarga automáticas cada 4 semanas
+- ✅ **Visualizaciones Gráficas con Recharts**:
+  - Gráfico de barras: Volumen por semana (52 semanas)
+  - Gráfico de áreas: Evolución Volumen vs Intensidad
+  - Gráficos de torta: Distribución de componentes y Semanas por fase
+- ✅ **Configuración Flexible**:
+  - Duración: Anual (52 sem), Semestral (26 sem), Trimestral (13 sem)
+  - Sesiones por semana: 3-7
+  - Modelo de periodización: Tradicional, ATR, Por Bloques
+- ✅ **Fases Automáticas**: Prep General → Prep Específico → Precompetitivo → Competitivo → Transición
+
+### Archivos Creados/Modificados
+- `/app/frontend/src/components/PeriodizationSystem.js` - Nuevo componente completo
+- `/app/backend/server.py` - Endpoint POST/GET /api/periodization
+- Instalado: recharts para gráficos
+
 ### Feb 10, 2026 - Backend Funcional para Panel de Datos
 - ✅ **Atletas (CRUD completo)**: Crear, listar, seleccionar y eliminar atletas
 - ✅ **Calendario de Eventos (CRUD)**: Crear, listar y eliminar eventos vinculados a atletas
