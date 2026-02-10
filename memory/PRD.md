@@ -203,8 +203,23 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 
 ## CHANGELOG
 
-### Feb 10, 2026 - Biblioteca de Ejercicios Completa
-- ✅ **Completada la Biblioteca de Ejercicios** con todas las categorías solicitadas:
+### Feb 10, 2026 - Mejoras UI/UX Material Design
+- ✅ **Biblioteca de Ejercicios completada** con categorías de Fuerza, Velocidad y Resistencia
+- ✅ **Colores Material Design** aplicados al sidebar del panel de Datos:
+  - Registro y Caracterización: Indigo
+  - Evaluación Inicial: Emerald
+  - Análisis Previo: Amber
+  - Definición de Objetivos: Violet
+  - Planificación: Cyan
+  - Control y Seguimiento: Rose
+  - Herramientas: Slate
+- ✅ **Secciones colapsables** - Click en los headers de sección para ocultar/mostrar contenido
+- ✅ **Números removidos** de los títulos del menú (ej: "1. Atletas" → "Atletas")
+- ✅ **Iconos y nombres** mantenidos en todos los elementos del menú
+
+### Archivos Modificados
+- `/app/frontend/src/pages/DashboardPage.js` - Sidebar colapsable con colores Material Design
+- `/app/frontend/src/components/ExerciseLibrary.js` - Biblioteca de ejercicios completa
   - **Fuerza** (77 ejercicios) - 10 subcategorías:
     - Hombro y Brazo (Shoulder and Arm) - 9 ejercicios
     - Pierna y Glúteo (Leg and Glute) - 16 ejercicios
