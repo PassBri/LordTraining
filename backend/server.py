@@ -1452,6 +1452,105 @@ async def get_training_methods(user: dict = Depends(get_current_user)):
     
     return data
 
+# =============== ANTHROPOMETRIC DATA ===============
+class AnthropometricCreate(BaseModel):
+    athlete_id: Optional[str] = None
+    records: List[Dict[str, Any]] = []
+
+@api_router.post("/anthropometric")
+async def save_anthropometric(data: AnthropometricCreate, user: dict = Depends(get_current_user)):
+    existing = await db.anthropometric.find_one({"coach_id": user["id"], "athlete_id": data.athlete_id})
+    
+    if existing:
+        await db.anthropometric.update_one(
+            {"id": existing["id"]},
+            {"$set": {"records": data.records, "updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        return {"message": "Anthropometric data updated", "id": existing["id"]}
+    else:
+        doc_id = str(uuid.uuid4())
+        await db.anthropometric.insert_one({
+            "id": doc_id,
+            "coach_id": user["id"],
+            "athlete_id": data.athlete_id,
+            "records": data.records,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+        return {"message": "Anthropometric data saved", "id": doc_id}
+
+@api_router.get("/anthropometric/{athlete_id}")
+async def get_anthropometric(athlete_id: str, user: dict = Depends(get_current_user)):
+    data = await db.anthropometric.find_one({"coach_id": user["id"], "athlete_id": athlete_id}, {"_id": 0})
+    if not data:
+        raise HTTPException(status_code=404, detail="No anthropometric data found")
+    return data
+
+# =============== TEST EVALUATIONS ===============
+class TestEvaluationsCreate(BaseModel):
+    athlete_id: Optional[str] = None
+    evaluations: List[Dict[str, Any]] = []
+
+@api_router.post("/test-evaluations")
+async def save_test_evaluations(data: TestEvaluationsCreate, user: dict = Depends(get_current_user)):
+    existing = await db.test_evaluations.find_one({"coach_id": user["id"], "athlete_id": data.athlete_id})
+    
+    if existing:
+        await db.test_evaluations.update_one(
+            {"id": existing["id"]},
+            {"$set": {"evaluations": data.evaluations, "updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        return {"message": "Test evaluations updated", "id": existing["id"]}
+    else:
+        doc_id = str(uuid.uuid4())
+        await db.test_evaluations.insert_one({
+            "id": doc_id,
+            "coach_id": user["id"],
+            "athlete_id": data.athlete_id,
+            "evaluations": data.evaluations,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+        return {"message": "Test evaluations saved", "id": doc_id}
+
+@api_router.get("/test-evaluations/{athlete_id}")
+async def get_test_evaluations(athlete_id: str, user: dict = Depends(get_current_user)):
+    data = await db.test_evaluations.find_one({"coach_id": user["id"], "athlete_id": athlete_id}, {"_id": 0})
+    if not data:
+        raise HTTPException(status_code=404, detail="No test evaluations found")
+    return data
+
+# =============== TRAINING LOAD ===============
+class TrainingLoadCreate(BaseModel):
+    athlete_id: Optional[str] = None
+    records: List[Dict[str, Any]] = []
+
+@api_router.post("/training-load")
+async def save_training_load(data: TrainingLoadCreate, user: dict = Depends(get_current_user)):
+    existing = await db.training_load.find_one({"coach_id": user["id"], "athlete_id": data.athlete_id})
+    
+    if existing:
+        await db.training_load.update_one(
+            {"id": existing["id"]},
+            {"$set": {"records": data.records, "updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        return {"message": "Training load updated", "id": existing["id"]}
+    else:
+        doc_id = str(uuid.uuid4())
+        await db.training_load.insert_one({
+            "id": doc_id,
+            "coach_id": user["id"],
+            "athlete_id": data.athlete_id,
+            "records": data.records,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+        return {"message": "Training load saved", "id": doc_id}
+
+@api_router.get("/training-load/{athlete_id}")
+async def get_training_load(athlete_id: str, user: dict = Depends(get_current_user)):
+    data = await db.training_load.find_one({"coach_id": user["id"], "athlete_id": athlete_id}, {"_id": 0})
+    if not data:
+        raise HTTPException(status_code=404, detail="No training load data found")
+    return data
+
 # =============== ROOT & HEALTH ===============
 @api_router.get("/")
 async def root():
