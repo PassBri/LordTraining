@@ -529,11 +529,19 @@ const PeriodizationSystem = ({ athleteId, athleteName }) => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="olympic">Ciclo Olímpico (4 años - 208 sem)</SelectItem>
+                    <SelectItem value="biannual">Bianual (2 años - 104 sem)</SelectItem>
                     <SelectItem value="annual">Anual (52 semanas)</SelectItem>
                     <SelectItem value="semester">Semestral (26 semanas)</SelectItem>
                     <SelectItem value="quarter">Trimestral (13 semanas)</SelectItem>
+                    <SelectItem value="monthly">Mensual (4 semanas)</SelectItem>
                   </SelectContent>
                 </Select>
+                {macrocycleConfig.duration && CYCLE_DURATIONS[macrocycleConfig.duration] && (
+                  <p className="text-xs text-slate-500 mt-1">
+                    {CYCLE_DURATIONS[macrocycleConfig.duration].description}
+                  </p>
+                )}
               </div>
 
               <div>
