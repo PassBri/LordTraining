@@ -424,10 +424,10 @@ const DashboardPage = () => {
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-lg">T</span>
           </div>
-          <h1 className="text-xl font-bold">
-            <span className="text-blue-600">Tr</span>
-            <span className="text-blue-400">AI</span>
-            <span className="text-blue-600">n</span>
+          <h1 className="text-xl font-bold tracking-tight">
+            <span className="text-gray-800">Tr</span>
+            <span className="text-blue-600">AI</span>
+            <span className="text-gray-800">n</span>
           </h1>
         </div>
         
