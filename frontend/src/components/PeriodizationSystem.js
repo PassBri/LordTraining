@@ -14,6 +14,8 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   LineChart, Line, PieChart as RechartsPie, Pie, Cell, Area, AreaChart
 } from 'recharts';
+import SessionEditor from './SessionEditor';
+import { EJERCICIOS_INICIALES } from './ExerciseLibrary';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
