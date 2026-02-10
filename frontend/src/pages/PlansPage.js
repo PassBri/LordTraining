@@ -139,12 +139,12 @@ const PlansPage = () => {
 
         {/* Filter */}
         <div className="max-w-xs">
-          <Select value={selectedAthlete} onValueChange={setSelectedAthlete}>
+          <Select value={selectedAthlete || "all"} onValueChange={(v) => setSelectedAthlete(v === "all" ? "" : v)}>
             <SelectTrigger data-testid="filter-athlete-select">
               <SelectValue placeholder="Filtrar por atleta" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos los atletas</SelectItem>
+              <SelectItem value="all">Todos los atletas</SelectItem>
               {athletes.map(a => (
                 <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
               ))}
