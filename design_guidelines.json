@@ -1,0 +1,123 @@
+{
+  "identity": {
+    "name": "Sistema TRAIN",
+    "persona": "E1 - The Anti-AI Designer",
+    "tone": "Professional, Athletic, Precise, Scientific",
+    "archetype": "The Performance Pro (Swiss Sport Variant)"
+  },
+  "typography": {
+    "font_family_heading": "Barlow Condensed, sans-serif",
+    "font_family_body": "Inter, sans-serif",
+    "import_url": "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap",
+    "scale": {
+      "h1": "text-6xl md:text-8xl font-black tracking-tight uppercase leading-[0.9]",
+      "h2": "text-4xl md:text-6xl font-bold tracking-tight uppercase",
+      "h3": "text-2xl md:text-3xl font-bold tracking-tight uppercase",
+      "body_lg": "text-lg font-medium leading-relaxed",
+      "body_base": "text-base font-normal leading-relaxed text-slate-600",
+      "label": "text-xs font-bold tracking-widest uppercase text-slate-500"
+    }
+  },
+  "colors": {
+    "palette": {
+      "primary": "#0f172a",
+      "secondary": "#f8fafc",
+      "accent_blue": "#007AFF",
+      "accent_lime": "#CCFF00",
+      "success": "#22c55e",
+      "warning": "#f59e0b",
+      "error": "#ef4444",
+      "background": "#ffffff",
+      "surface": "#f8fafc",
+      "border": "#e2e8f0"
+    },
+    "theme_strategy": "Light Mode Dominant (Clean Lab Aesthetic)",
+    "usage": {
+      "primary_text": "text-slate-900",
+      "secondary_text": "text-slate-500",
+      "accent_text": "text-blue-600",
+      "border_default": "border-slate-200",
+      "border_active": "border-blue-600",
+      "bg_canvas": "bg-white",
+      "bg_surface": "bg-slate-50"
+    }
+  },
+  "layout_strategy": {
+    "spacing": {
+      "container_padding": "p-4 md:p-8 lg:p-12",
+      "section_gap": "gap-8 md:gap-16",
+      "component_gap": "gap-4 md:gap-6"
+    },
+    "grid_system": {
+      "dashboard": "grid grid-cols-1 md:grid-cols-12 gap-6",
+      "landing": "grid grid-cols-1 md:grid-cols-12 gap-y-12 gap-x-8"
+    },
+    "bento_grid": {
+      "hero_card": "col-span-12 md:col-span-8 row-span-2",
+      "stat_card": "col-span-6 md:col-span-4",
+      "list_card": "col-span-12 md:col-span-4 row-span-2"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-slate-900 text-white hover:bg-slate-800 rounded-none font-bold uppercase tracking-wide px-8 py-4 transition-all active:scale-95",
+      "secondary": "bg-white border border-slate-200 text-slate-900 hover:bg-slate-50 rounded-none font-bold uppercase tracking-wide px-8 py-4",
+      "accent": "bg-[#007AFF] text-white hover:bg-blue-700 rounded-none font-bold uppercase tracking-wide px-8 py-4"
+    },
+    "cards": {
+      "base": "bg-white border border-slate-200 p-6 md:p-8 hover:border-slate-300 transition-colors rounded-xl md:rounded-2xl",
+      "active": "border-blue-600 ring-1 ring-blue-600 shadow-lg shadow-blue-900/5",
+      "glass": "bg-white/80 backdrop-blur-xl border border-white/40 shadow-sm"
+    },
+    "inputs": {
+      "base": "h-12 bg-slate-50 border border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 rounded-lg px-4 transition-all"
+    }
+  },
+  "visual_enhancers": {
+    "shadows": {
+      "soft": "shadow-[0_8px_30px_rgb(0,0,0,0.04)]",
+      "sharp": "shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+      "glow": "shadow-[0_0_20px_rgba(0,122,255,0.3)]"
+    },
+    "borders": {
+      "tracing_beam": "relative after:absolute after:inset-0 after:rounded-xl after:border after:border-blue-500/50 after:opacity-0 hover:after:opacity-100 after:transition-opacity",
+      "glass_edge": "border-t border-white/50"
+    },
+    "textures": {
+      "dot_grid": "bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]",
+      "noise": "bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"
+    }
+  },
+  "image_urls": {
+    "hero_track": "https://images.unsplash.com/photo-1526676317768-d9b14f15615a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MjJ8MHwxfHNlYXJjaHwxfHxhdGhsZXRlJTIwcnVubmluZyUyMHRyYWNrJTIwc3ByaW50fGVufDB8fHx8MTc3MDY5MzM5NXww&ixlib=rb-4.1.0&q=85",
+    "feature_swimmer": "https://images.unsplash.com/photo-1569464371078-75f4a4ecc863?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzd8MHwxfHNlYXJjaHwxfHxzd2ltbWVyJTIwdW5kZXJ3YXRlcnxlbnwwfHx8fDE3NzA2OTMzOTZ8MA&ixlib=rb-4.1.0&q=85",
+    "feature_cyclist": "https://images.unsplash.com/photo-1575995330221-c20326537393?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MjJ8MHwxfHNlYXJjaHwxfHxjeWNsaXN0JTIwcm9hZCUyMG1ldHJpY3N8ZW58MHx8fHwxNzcwNjkzMzk3fDA&ixlib=rb-4.1.0&q=85",
+    "feature_gym": "https://images.unsplash.com/photo-1766287451380-999a0d37880d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxOTF8MHwxfHNlYXJjaHwyfHxneW0lMjB3ZWlnaHRsaWZ0aW5nJTIwZm9jdXN8ZW58MHx8fHwxNzcwNjkzMzk3fDA&ixlib=rb-4.1.0&q=85",
+    "testimonial_trainer": "https://images.unsplash.com/photo-1750698545009-679820502908?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODl8MHwxfHNlYXJjaHw0fHxmaXRuZXNzJTIwdHJhaW5lciUyMHBvcnRyYWl0fGVufDB8fHx8MTc3MDY5MzM5OHww&ixlib=rb-4.1.0&q=85"
+  },
+  "accessibility": {
+    "contrast_check": "Ensure 4.5:1 ratio for normal text. Use slate-900 on white.",
+    "focus_states": "focus:ring-2 focus:ring-blue-600 focus:outline-none",
+    "reduced_motion": "motion-reduce:transition-none motion-reduce:animate-none"
+  },
+  "instructions_to_main_agent": {
+    "general": "Do not build a generic template. This is a PRO tool. Think 'Swiss Sport Watch' precision. Use the provided fonts. Use white space aggressively.",
+    "landing_page": "Use the 'Tetris' grid. Hero section must be bold with the track runner image. Use the 'dot_grid' texture in the background of feature sections.",
+    "dashboard": "Use the 'Bento' grid. Dense but organized. No rounded corners greater than 'rounded-xl'. Use 'Barlow Condensed' for all data labels and metrics.",
+    "charts": "Use Recharts or Shadcn Charts. Colors: Blue for progress, Lime for success/peaks, Slate for baseline.",
+    "navigation": "Sidebar for dashboard, Sticky glass header for landing."
+  },
+  "universal_guidelines": [
+    "You tend to converge toward generic, 'on distribution' outputs. Avoid this.",
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients.",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur).",
+    "You MUST NOT apply universal transition. Eg: 'transition: all'.",
+    "You MUST NOT center align the app container.",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations.",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠 etc.",
+    "Every interaction needs micro-animations - hover states, transitions, parallax effects.",
+    "Use 2-3x more spacing than feels comfortable."
+  ]
+}
