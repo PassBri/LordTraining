@@ -239,12 +239,12 @@ const ExercisesPage = () => {
               ))}
             </SelectContent>
           </Select>
-          <Select value={filterCategory} onValueChange={setFilterCategory}>
+          <Select value={filterCategory || "all"} onValueChange={(v) => setFilterCategory(v === "all" ? "" : v)}>
             <SelectTrigger className="w-[180px]" data-testid="filter-category-select">
               <SelectValue placeholder="Todas las categorías" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todas las categorías</SelectItem>
+              <SelectItem value="all">Todas las categorías</SelectItem>
               {CATEGORIES.map(c => (
                 <SelectItem key={c} value={c} className="capitalize">{c}</SelectItem>
               ))}
