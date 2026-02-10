@@ -1324,6 +1324,52 @@ async def get_training_stages(athlete_id: str, user: dict = Depends(get_current_
     
     return data
 
+# =============== PERIODIZATION MODELS ===============
+class PeriodizationModelsCreate(BaseModel):
+    athlete_id: Optional[str] = None
+    planData: Dict[str, Any] = {}
+    selectedModel: str = 'traditional'
+
+@api_router.post("/periodization-models")
+async def save_periodization_models(data: PeriodizationModelsCreate, user: dict = Depends(get_current_user)):
+    doc_id = str(uuid.uuid4())
+    doc = {
+        "id": doc_id,
+        "coach_id": user["id"],
+        "athlete_id": data.athlete_id,
+        "planData": data.planData,
+        "selectedModel": data.selectedModel,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    existing = await db.periodization_models.find_one({
+        "coach_id": user["id"],
+        "athlete_id": data.athlete_id
+    })
+    
+    if existing:
+        await db.periodization_models.update_one(
+            {"id": existing["id"]},
+            {"$set": {"planData": data.planData, "selectedModel": data.selectedModel, "updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        return {"message": "Periodization model updated", "id": existing["id"]}
+    else:
+        await db.periodization_models.insert_one(doc)
+        return {"message": "Periodization model saved", "id": doc_id}
+
+@api_router.get("/periodization-models/{athlete_id}")
+async def get_periodization_models(athlete_id: str, user: dict = Depends(get_current_user)):
+    data = await db.periodization_models.find_one({
+        "coach_id": user["id"],
+        "athlete_id": athlete_id
+    }, {"_id": 0})
+    
+    if not data:
+        raise HTTPException(status_code=404, detail="Periodization model not found")
+    
+    return data
+
 # =============== ROOT & HEALTH ===============
 @api_router.get("/")
 async def root():
