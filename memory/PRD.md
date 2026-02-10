@@ -47,7 +47,8 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 - ✅ Dashboard con estadísticas
 - ✅ Exportación PDF de planes
 - ✅ Cálculo automático de carga (volumen × intensidad)
-- ✅ **NEW**: Endpoint /api/training-stages para etapas de periodización
+- ✅ **NEW**: Endpoint /api/training-stages para etapas del macrociclo
+- ✅ **NEW**: Endpoint /api/periodization-models para modelos de periodización
 
 ### Frontend (React + Tailwind + Shadcn UI)
 - ✅ Landing page con pricing
