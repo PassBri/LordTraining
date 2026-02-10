@@ -1711,6 +1711,40 @@ async def get_periodization_plan(athlete_id: str, user: dict = Depends(get_curre
         raise HTTPException(status_code=404, detail="No periodization plan found")
     return data
 
+# =============== EXERCISE LIBRARY ===============
+class ExerciseLibraryCreate(BaseModel):
+    categories: Dict[str, Any] = {}
+
+@api_router.post("/exercise-library")
+async def save_exercise_library(data: ExerciseLibraryCreate, user: dict = Depends(get_current_user)):
+    existing = await db.exercise_libraries.find_one({"coach_id": user["id"]})
+    
+    if existing:
+        await db.exercise_libraries.update_one(
+            {"id": existing["id"]},
+            {"$set": {
+                "categories": data.categories,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        return {"message": "Exercise library updated", "id": existing["id"]}
+    else:
+        doc_id = str(uuid.uuid4())
+        await db.exercise_libraries.insert_one({
+            "id": doc_id,
+            "coach_id": user["id"],
+            "categories": data.categories,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+        return {"message": "Exercise library saved", "id": doc_id}
+
+@api_router.get("/exercise-library")
+async def get_exercise_library(user: dict = Depends(get_current_user)):
+    data = await db.exercise_libraries.find_one({"coach_id": user["id"]}, {"_id": 0})
+    if not data:
+        raise HTTPException(status_code=404, detail="No exercise library found")
+    return data
+
 # =============== ROOT & HEALTH ===============
 @api_router.get("/")
 async def root():
