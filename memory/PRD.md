@@ -47,8 +47,9 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 - ✅ Dashboard con estadísticas
 - ✅ Exportación PDF de planes
 - ✅ Cálculo automático de carga (volumen × intensidad)
-- ✅ **NEW**: Endpoint /api/training-stages para etapas del macrociclo
-- ✅ **NEW**: Endpoint /api/periodization-models para modelos de periodización
+- ✅ Endpoint /api/training-stages para etapas del macrociclo
+- ✅ Endpoint /api/periodization-models para modelos de periodización
+- ✅ **NEW (Feb 10)**: Endpoint /api/graphic-plan para Plan Gráfico de Periodización
 
 ### Frontend (React + Tailwind + Shadcn UI)
 - ✅ Landing page con pricing
@@ -71,9 +72,9 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 - ✅ TrainingStages.js - Etapas del macrociclo (Períodos: Preparatorio, Competitivo, Transitorio)
 - ✅ PeriodizationModels.js - Modelos de periodización (Tradicional/Matveyev, ATR/Issurin, Contemporáneo/Bondarchuk)
 - ✅ TrainingMethods.js - Métodos de entrenamiento (Estándar, Variables, Combinados)
-- ✅ **NEW**: AnthropometricData.js - Datos antropométricos (Peso, Talla, IMC, Circunferencias, Pliegues)
-- ✅ **NEW**: TestEvaluations.js - Test y evaluaciones deportivas (Físicos, Fuerza, Cardio, Específicos)
-- ✅ **NEW**: TrainingLoad.js - Carga de entrenamiento con gráficos Matveyev (Volumen, Intensidad, ACWR)
+- ✅ AnthropometricData.js - Datos antropométricos (Peso, Talla, IMC, Circunferencias, Pliegues)
+- ✅ TestEvaluations.js - Test y evaluaciones deportivas (Físicos, Fuerza, Cardio, Específicos)
+- ✅ TrainingLoad.js - Carga de entrenamiento con gráficos Matveyev (Volumen, Intensidad, ACWR)
 
 ### Components Implemented in "Periodizar" Panel
 - ✅ **ComprehensiveTrainingPlanner.js** - Sistema integral de planificación FUSIONADO:
@@ -84,28 +85,38 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
   - **Estructura de Ciclos**: Macrociclos, Mesociclos, Microciclos
   - Secciones colapsables para mejor navegación
 
+### NEW: Plan Gráfico de Periodización (Feb 10, 2025)
+- ✅ **GraphicPlan.js** - Matriz completa de periodización visual:
+  - **Información General**: Deporte, Categoría, Atleta, Entrenador, Tipo de Periodización
+  - **Selector de Duración**: Ciclo Olímpico (4 años), Anual (52 sem), Semestral (26 sem), Trimestral (12 sem)
+  - **Navegación por Semanas**: Botones izquierda/derecha, mostrar 12/24/36/52 semanas
+  - **Sección Ciclo**: Macrociclo, Duración, Período, Fase/Etapa, Mesociclo, Mes, Microciclo
+  - **Magnitud de Carga**: 5 niveles de intensidad (Muy alta 98-100%, Alta 85-95%, Media 70-80%, Baja 55-65%, Recuperación hasta 50%)
+  - **Preparación**: Física general/específica, Técnica, Táctica, Psicológica, Teórica
+  - **Preparación Física**: Resistencia, Fuerza, Velocidad, Coordinación, Flexibilidad
+  - **Actividad**: Entrenamiento, Control de dopaje, Competencia principal/secundaria, Recuperación
+  - **Monitoreo/Evaluaciones**: Control médico, físico, técnico, táctico, psicológico, teórico
+  - **Celdas Interactivas**: Click para marcar niveles (escala 1-5 con colores)
+  - **Persistencia MongoDB**: Guardar y cargar planes por atleta
+
 ## Prioritized Backlog
 
 ### P0 - Critical (Next Sprint)
-- [ ] Integración PayPal como método de pago alternativo
-- [ ] Datos antropométricos - Formulario de medidas corporales
-- [ ] Test - Sección de pruebas/evaluaciones
-- [ ] Medios de entrenamiento - Biblioteca de medios
-
-### P1 - High Priority
-- [ ] Carga de entrenamiento - Gestión de cargas
+- [ ] Calendario de eventos / Análisis de competencias (merged)
 - [ ] Objetivos e indicadores - KPIs deportivos
 - [ ] Control de entrenamiento - Seguimiento
-- [ ] Calendario de eventos - Programación
+- [ ] Integración PayPal como método de pago alternativo
+
+### P1 - High Priority
 - [ ] Plantillas de planes predefinidas por deporte
 - [ ] Exportación a Excel además de PDF
+- [ ] Gráfico ACWR (Acute:Chronic Workload Ratio) mejorado
 
 ### P2 - Medium Priority
 - [ ] App móvil nativa (React Native)
 - [ ] Integración con dispositivos wearables (Garmin, Polar)
 - [ ] Módulo multimedia (videos de ejercicios)
 - [ ] Chat entre entrenador y atleta
-- [ ] Gráfico ACWR (Acute:Chronic Workload Ratio)
 
 ### P3 - Future Enhancements
 - [ ] IA más avanzada con historial de rendimiento
@@ -126,22 +137,27 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 /app
 ├── backend
 │   ├── server.py          # Main FastAPI server with all routes
+│   ├── tests/             # Pytest test files
 │   ├── .env               # Environment variables
 │   └── requirements.txt
 ├── frontend
 │   ├── src
 │   │   ├── components
 │   │   │   ├── ui/               # Shadcn components
+│   │   │   ├── AnthropometricData.js
 │   │   │   ├── AthleteCharacterization.js
 │   │   │   ├── CompetitionAnalysis.js
-│   │   │   ├── ComprehensiveTrainingPlanner.js  # NEW - Sistema integral
+│   │   │   ├── ComprehensiveTrainingPlanner.js
+│   │   │   ├── GraphicPlan.js    # NEW - Plan Gráfico de Periodización
 │   │   │   ├── HealthRecords.js
-│   │   │   ├── PeriodizationModels.js  # NEW - Modelos de periodización
+│   │   │   ├── PeriodizationModels.js
 │   │   │   ├── PreviousPlanAnalysis.js
 │   │   │   ├── SessionPlanning.js
 │   │   │   ├── SportCharacterization.js
-│   │   │   ├── TrainingMethods.js           # NEW - Métodos de entrenamiento
-│   │   │   └── TrainingStages.js            # Etapas del macrociclo
+│   │   │   ├── TestEvaluations.js
+│   │   │   ├── TrainingLoad.js
+│   │   │   ├── TrainingMethods.js
+│   │   │   └── TrainingStages.js
 │   │   ├── pages
 │   │   │   ├── AuthPage.js
 │   │   │   ├── DashboardPage.js
@@ -149,6 +165,7 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 │   │   ├── services/api.js
 │   │   └── context/AuthContext.js
 │   └── package.json
+├── test_reports/          # Testing agent reports
 └── memory
     └── PRD.md
 ```
@@ -159,19 +176,25 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 - `/api/exercises` - Exercise library
 - `/api/macrocycles`, `/api/mesocycles`, `/api/microcycles`, `/api/sessions` - Training cycles
 - `/api/competitions/analysis` - Competition analysis
-- `/api/training-stages` - Macrocycle training stages (NEW)
-- `/api/periodization-models` - Periodization models (Traditional, ATR, Contemporary)
+- `/api/training-stages` - Macrocycle training stages
+- `/api/periodization-models` - Periodization models
 - `/api/comprehensive-plan` - Comprehensive training plan
-- `/api/training-methods` - Training methods (Standard, Variable, Combined)
-- `/api/anthropometric` - Anthropometric data (NEW)
-- `/api/test-evaluations` - Test and sport evaluations (NEW)
-- `/api/training-load` - Training load with Matveyev charts (NEW)
+- `/api/training-methods` - Training methods
+- `/api/anthropometric` - Anthropometric data
+- `/api/test-evaluations` - Test and sport evaluations
+- `/api/training-load` - Training load
+- `/api/graphic-plan` - **NEW** Graphic periodization plan (GET/POST)
 - `/api/characterization/sport`, `/api/characterization/athlete` - Characterizations
 - `/api/health/records` - Health records
 - `/api/plans/generate` - AI plan generation
 - `/api/payments/checkout` - Stripe checkout
 
+## Test Credentials
+- **Email**: demo@test.com
+- **Password**: demo123
+
 ## Notes
 - Charts in dashboard use mock data currently
 - User's preferred language: Spanish
+- Test reports at /app/test_reports/
 
