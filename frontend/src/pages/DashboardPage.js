@@ -165,22 +165,141 @@ const DashboardPage = () => {
       );
     }
 
-    // Navigate to dedicated pages
+    // Render Atletas section inline
     if (activeDataSection === 'athletes') {
-      navigate('/athletes');
-      return null;
+      return (
+        <div className="p-6">
+          <Card>
+            <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
+              <CardTitle className="flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                Gestión de Atletas
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <p className="text-gray-600">Total: {athletes.length} atletas registrados</p>
+                  <Button className="bg-blue-600 hover:bg-blue-700">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Nuevo Atleta
+                  </Button>
+                </div>
+                {athletes.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <Users className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                    <p>No hay atletas registrados</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-3">
+                    {athletes.map(athlete => (
+                      <div key={athlete.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span className="text-blue-600 font-bold">{athlete.name?.charAt(0)}</span>
+                          </div>
+                          <div>
+                            <p className="font-medium">{athlete.name}</p>
+                            <p className="text-sm text-gray-500">{athlete.sport || 'Sin deporte asignado'}</p>
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm" onClick={() => setSelectedAthleteId(athlete.id)}>
+                          Seleccionar
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
     }
+
+    // Render Ejercicios section inline
     if (activeDataSection === 'exercises-lib') {
-      navigate('/exercises');
-      return null;
+      return (
+        <div className="p-6">
+          <Card>
+            <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white rounded-t-lg">
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="w-5 h-5" />
+                Biblioteca de Ejercicios
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="text-center py-8 text-gray-500">
+                <Activity className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                <p>Biblioteca de ejercicios por categoría</p>
+                <p className="text-sm mt-2">Fuerza, Resistencia, Velocidad, Flexibilidad, Coordinación</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
     }
+
+    // Render Calendario section inline
     if (activeDataSection === 'calendar-view') {
-      navigate('/calendar');
-      return null;
+      return (
+        <div className="p-6">
+          <Card>
+            <CardHeader className="bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-t-lg">
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="w-5 h-5" />
+                Calendario de Entrenamiento
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="text-center py-8 text-gray-500">
+                <Calendar className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                <p>Vista de calendario con sesiones planificadas</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
     }
+
+    // Render Generar con IA section inline
     if (activeDataSection === 'ai-generator') {
-      navigate('/ai-generator');
-      return null;
+      return (
+        <div className="p-6">
+          <Card>
+            <CardHeader className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-t-lg">
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="w-5 h-5" />
+                Generar Plan con IA
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="space-y-4">
+                <p className="text-gray-600">Genera un plan de entrenamiento personalizado usando inteligencia artificial.</p>
+                <div className="grid gap-3">
+                  <Input placeholder="Objetivo principal del plan" />
+                  <Input placeholder="Duración del plan (semanas)" type="number" />
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Nivel del atleta" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="principiante">Principiante</SelectItem>
+                      <SelectItem value="intermedio">Intermedio</SelectItem>
+                      <SelectItem value="avanzado">Avanzado</SelectItem>
+                      <SelectItem value="elite">Elite</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button className="bg-orange-500 hover:bg-orange-600">
+                    <Brain className="w-4 h-4 mr-2" />
+                    Generar Plan
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
     }
 
     // Render Analysis component for prev-plan section
