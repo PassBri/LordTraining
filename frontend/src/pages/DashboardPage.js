@@ -183,35 +183,38 @@ const DashboardPage = () => {
     if (activeDataSection === 'athletes') {
       return (
         <div className="p-4 space-y-4">
-          <Card>
-            <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3">
+          <Card className="border-0 shadow-md overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white py-4">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg">
+                <CardTitle className="flex items-center gap-2 text-lg font-semibold">
                   <Users className="w-5 h-5" />
                   Gestión de Atletas
                 </CardTitle>
-                <span className="text-sm bg-white/20 px-2 py-1 rounded">{athletes.length} registrados</span>
+                <span className="text-sm bg-white/20 px-3 py-1 rounded-full">{athletes.length} registrados</span>
               </div>
             </CardHeader>
-            <CardContent className="p-4">
+            <CardContent className="p-5">
               {/* Formulario nuevo atleta */}
-              <div className="bg-gray-50 p-4 rounded-lg mb-4">
-                <h4 className="font-medium mb-3 text-gray-700">Registrar Nuevo Atleta</h4>
+              <div className="bg-indigo-50/50 p-4 rounded-xl mb-5 border border-indigo-100">
+                <h4 className="font-semibold mb-3 text-indigo-900 flex items-center gap-2">
+                  <Plus className="w-4 h-4" />
+                  Registrar Nuevo Atleta
+                </h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <Input placeholder="Nombre completo" className="h-9" />
-                  <Input placeholder="Email" type="email" className="h-9" />
-                  <Input placeholder="Fecha nacimiento" type="date" className="h-9" />
+                  <Input placeholder="Nombre completo" className="h-10 border-indigo-200 focus:border-indigo-400" />
+                  <Input placeholder="Email" type="email" className="h-10 border-indigo-200 focus:border-indigo-400" />
+                  <Input placeholder="Fecha nacimiento" type="date" className="h-10 border-indigo-200 focus:border-indigo-400" />
                   <Select>
-                    <SelectTrigger className="h-9"><SelectValue placeholder="Género" /></SelectTrigger>
+                    <SelectTrigger className="h-10 border-indigo-200"><SelectValue placeholder="Género" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="masculino">Masculino</SelectItem>
                       <SelectItem value="femenino">Femenino</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Input placeholder="Deporte" className="h-9" />
-                  <Input placeholder="Categoría" className="h-9" />
+                  <Input placeholder="Deporte" className="h-10 border-indigo-200 focus:border-indigo-400" />
+                  <Input placeholder="Categoría" className="h-10 border-indigo-200 focus:border-indigo-400" />
                   <Select>
-                    <SelectTrigger className="h-9"><SelectValue placeholder="Nivel" /></SelectTrigger>
+                    <SelectTrigger className="h-10 border-indigo-200"><SelectValue placeholder="Nivel" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="principiante">Principiante</SelectItem>
                       <SelectItem value="intermedio">Intermedio</SelectItem>
@@ -219,34 +222,35 @@ const DashboardPage = () => {
                       <SelectItem value="elite">Elite</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button className="bg-blue-600 hover:bg-blue-700 h-9">
+                  <Button className="bg-indigo-500 hover:bg-indigo-600 h-10 font-medium">
                     <Plus className="w-4 h-4 mr-1" /> Agregar
                   </Button>
                 </div>
               </div>
               
               {/* Lista de atletas */}
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {athletes.length === 0 ? (
-                  <div className="text-center py-8 text-gray-400">
-                    <Users className="w-12 h-12 mx-auto mb-2 opacity-30" />
-                    <p>No hay atletas registrados</p>
+                  <div className="text-center py-12 text-slate-400">
+                    <Users className="w-16 h-16 mx-auto mb-3 opacity-30" />
+                    <p className="font-medium">No hay atletas registrados</p>
+                    <p className="text-sm mt-1">Agrega tu primer atleta usando el formulario arriba</p>
                   </div>
                 ) : (
                   athletes.map(athlete => (
-                    <div key={athlete.id} className="flex items-center justify-between p-3 bg-white border rounded-lg hover:shadow-sm transition-shadow">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <span className="text-blue-600 font-bold">{athlete.name?.charAt(0)}</span>
+                    <div key={athlete.id} className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl hover:shadow-md hover:border-indigo-200 transition-all duration-200">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-full flex items-center justify-center shadow-sm">
+                          <span className="text-white font-bold text-lg">{athlete.name?.charAt(0)}</span>
                         </div>
                         <div>
-                          <p className="font-medium">{athlete.name}</p>
-                          <p className="text-xs text-gray-500">{athlete.sport} • {athlete.category || 'Sin categoría'}</p>
+                          <p className="font-semibold text-slate-800">{athlete.name}</p>
+                          <p className="text-sm text-slate-500">{athlete.sport} • {athlete.category || 'Sin categoría'}</p>
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm" onClick={() => setSelectedAthleteId(athlete.id)}>Seleccionar</Button>
-                        <Button variant="ghost" size="sm" className="text-red-500">Eliminar</Button>
+                        <Button variant="outline" size="sm" onClick={() => setSelectedAthleteId(athlete.id)} className="border-indigo-200 text-indigo-600 hover:bg-indigo-50">Seleccionar</Button>
+                        <Button variant="ghost" size="sm" className="text-rose-500 hover:text-rose-600 hover:bg-rose-50">Eliminar</Button>
                       </div>
                     </div>
                   ))
