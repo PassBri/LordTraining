@@ -100,14 +100,53 @@ const ControlPanel = ({
   const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
 
   return (
-    <div className="p-6 space-y-6 overflow-y-auto h-full bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Header */}
+    <div className="overflow-y-auto h-full bg-gradient-to-br from-slate-50 to-blue-50">
+      {/* Header Bar con inputs y botones */}
+      <div className="rounded-xl overflow-hidden border border-gray-200 shadow-lg mx-6 mt-6 mb-4">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+            <h2 className="text-xl font-bold text-white">Panel de Control</h2>
+            <div className="flex items-center gap-4">
+              <div className="flex flex-wrap gap-2 text-white">
+                <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg text-sm">
+                  <Heart className="h-4 w-4" />
+                  <span>75 bpm</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg text-sm">
+                  <Zap className="h-4 w-4" />
+                  <span>85%</span>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" className="bg-green-500 hover:bg-green-600 text-white">
+                  <Save className="w-4 h-4 mr-1" />
+                  Guardar
+                </Button>
+                <Button size="sm" className="bg-red-500 hover:bg-red-600 text-white">
+                  <Download className="w-4 h-4 mr-1" />
+                  PDF
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Form inputs row */}
+        <div className="bg-white p-3 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          <Input placeholder="Competencia" className="h-9" />
+          <Input placeholder="Tipo de Competencia" className="h-9" />
+          <Input placeholder="Deporte" className="h-9" />
+          <Input placeholder="Modalidad" className="h-9" />
+          <Input placeholder="Categoría" className="h-9" />
+          <Input placeholder="Entrenador" className="h-9" />
+        </div>
+      </div>
+
+      <div className="p-6 pt-0 space-y-6">
+      {/* Stats info row */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-            Panel de Control
-          </h1>
-          <p className="text-slate-500 mt-1">Resumen general del sistema de entrenamiento</p>
+          <p className="text-slate-500">Resumen general del sistema de entrenamiento</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="text-right">
