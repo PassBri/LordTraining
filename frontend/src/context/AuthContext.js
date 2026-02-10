@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -6,40 +6,54 @@ const API = `${BACKEND_URL}/api`;
 
 const AuthContext = createContext(null);
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('train_token'));
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (token) {
-      fetchUser();
-    } else {
-      setLoading(false);
-    }
-  }, [token]);
+  // Get token from localStorage
+  const getToken = useCallback(() => {
+    return localStorage.getItem('train_token');
+  }, []);
 
-  const fetchUser = async () => {
+  const fetchUser = useCallback(async () => {
+    const currentToken = getToken();
+    if (!currentToken) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await axios.get(`${API}/auth/me`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${currentToken}` }
       });
       setUser(response.data);
     } catch (error) {
       console.error('Auth error:', error);
-      logout();
+      // Clear invalid token
+      localStorage.removeItem('train_token');
+      setUser(null);
     } finally {
       setLoading(false);
     }
-  };
+  }, [getToken]);
+
+  // Initial auth check
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
 
   const login = async (email, password) => {
     const response = await axios.post(`${API}/auth/login`, { email, password });
     const { token: newToken, user: userData } = response.data;
     localStorage.setItem('train_token', newToken);
-    setToken(newToken);
     setUser(userData);
     return userData;
   };
@@ -51,16 +65,18 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('train_token');
-    setToken(null);
     setUser(null);
   };
 
-  const getAuthHeader = () => ({
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const getAuthHeader = () => {
+    const currentToken = getToken();
+    return { headers: { Authorization: `Bearer ${currentToken}` } };
+  };
+
+  const token = getToken();
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, getAuthHeader, setUser }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, getAuthHeader, setUser, fetchUser }}>
       {children}
     </AuthContext.Provider>
   );
