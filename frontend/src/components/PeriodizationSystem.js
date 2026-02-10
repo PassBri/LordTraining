@@ -1080,6 +1080,40 @@ const PeriodizationSystem = ({ athleteId, athleteName }) => {
               </div>
             </div>
           </div>
+          
+          {/* Distribución visual de fases */}
+          <div className="p-4 bg-white">
+            <p className="text-xs font-semibold text-slate-500 uppercase mb-2">Distribución de Fases</p>
+            <div className="flex rounded-lg overflow-hidden h-8 mb-2">
+              {macrocycle.mesocycles?.map((meso, idx) => {
+                const percentage = (meso.weeks / macrocycle.totalWeeks) * 100;
+                return (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-center text-xs font-medium text-white transition-all hover:opacity-80"
+                    style={{ 
+                      backgroundColor: meso.phaseColor, 
+                      width: `${percentage}%`,
+                      minWidth: percentage > 5 ? 'auto' : '20px'
+                    }}
+                    title={`${meso.phaseName}: ${meso.weeks} semanas`}
+                  >
+                    {percentage > 12 && meso.phaseName?.split(' ')[0]}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {macrocycle.mesocycles?.filter((meso, idx, arr) => 
+                arr.findIndex(m => m.phaseName === meso.phaseName) === idx
+              ).map((meso, idx) => (
+                <div key={idx} className="flex items-center gap-1.5 text-xs">
+                  <div className="w-3 h-3 rounded" style={{ backgroundColor: meso.phaseColor }} />
+                  <span className="text-slate-600">{meso.phaseName}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </Card>
 
         {/* Instrucciones de drag & drop */}
