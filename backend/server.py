@@ -2232,6 +2232,39 @@ async def get_periodization(athlete_id: str, user: dict = Depends(get_current_us
         return None  # Return null instead of 404 to allow frontend to handle empty state
     return data
 
+@api_router.delete("/periodization/{athlete_id}/{plan_id}")
+async def delete_periodization(athlete_id: str, plan_id: str, user: dict = Depends(get_current_user)):
+    """Elimina un plan de periodización específico"""
+    result = await db.periodizations.delete_one({
+        "coach_id": user["id"],
+        "athlete_id": athlete_id,
+        "periodization_id": plan_id
+    })
+    
+    if result.deleted_count == 0:
+        # Try with id field as fallback
+        result = await db.periodizations.delete_one({
+            "coach_id": user["id"],
+            "athlete_id": athlete_id,
+            "id": plan_id
+        })
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    
+    return {"message": "Periodization deleted successfully"}
+
+@api_router.get("/periodization-all/{athlete_id}")
+async def get_all_periodizations(athlete_id: str, user: dict = Depends(get_current_user)):
+    """Obtiene todos los planes de periodización de un atleta"""
+    query_athlete_id = None if athlete_id in ["null", "undefined", "", "default"] else athlete_id
+    cursor = db.periodizations.find(
+        {"coach_id": user["id"], "athlete_id": query_athlete_id}, 
+        {"_id": 0}
+    )
+    plans = await cursor.to_list(100)
+    return plans
+
 @api_router.post("/exercise-library")
 async def save_exercise_library(data: ExerciseLibraryCreate, user: dict = Depends(get_current_user)):
     existing = await db.exercise_libraries.find_one({"coach_id": user["id"]})
