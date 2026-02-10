@@ -23,6 +23,7 @@ import SportCharacterization from '../components/SportCharacterization';
 import AthleteCharacterization from '../components/AthleteCharacterization';
 import HealthRecords from '../components/HealthRecords';
 import CompetitionAnalysis from '../components/CompetitionAnalysis';
+import TrainingStages from '../components/TrainingStages';
 
 const DashboardPage = () => {
   const { user, logout } = useAuth();
