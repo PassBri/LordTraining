@@ -346,85 +346,10 @@ const DashboardPage = () => {
         {/* Render content based on sub-tab */}
         {activeSubTab === 'sesion' ? (
           <SessionPlanning athleteId={selectedAthleteId} />
+        ) : activeSubTab === 'macrociclo' ? (
+          <TrainingStages athleteId={selectedAthleteId} />
         ) : (
-          <>
-            {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="shadow-lg">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg font-semibold text-gray-800">Planificación Anual</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RechartsLineChart data={trainingData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                        <XAxis dataKey="week" tick={{ fontSize: 12 }} stroke="#9ca3af" />
-                        <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" />
-                        <Tooltip 
-                          contentStyle={{ 
-                            background: 'white', 
-                            border: '1px solid #e5e7eb',
-                            borderRadius: '8px',
-                            boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
-                          }} 
-                        />
-                        <Line type="monotone" dataKey="volume" stroke="#2563eb" name="Volumen" strokeWidth={2} dot={{ r: 4 }} />
-                        <Line type="monotone" dataKey="intensity" stroke="#dc2626" name="Intensidad" strokeWidth={2} dot={{ r: 4 }} />
-                        <Line type="monotone" dataKey="fatigue" stroke="#7c3aed" name="Fatiga" strokeWidth={2} dot={{ r: 4 }} />
-                      </RechartsLineChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-lg">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg font-semibold text-gray-800">Perfil de Rendimiento</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RadarChart data={performanceData}>
-                        <PolarGrid stroke="#e5e7eb" />
-                        <PolarAngleAxis dataKey="ability" tick={{ fontSize: 12 }} />
-                        <PolarRadiusAxis tick={{ fontSize: 10 }} />
-                        <Radar dataKey="value" stroke="#2563eb" fill="#3b82f6" fillOpacity={0.5} />
-                      </RadarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-          <Card className="bg-blue-50 border-blue-100">
-            <CardContent className="p-4 text-center">
-              <p className="text-3xl font-bold text-blue-600">{stats?.athletes_count || 0}</p>
-              <p className="text-sm text-blue-600/70">Atletas</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-green-50 border-green-100">
-            <CardContent className="p-4 text-center">
-              <p className="text-3xl font-bold text-green-600">{stats?.macrocycles_count || 0}</p>
-              <p className="text-sm text-green-600/70">Planes</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-purple-50 border-purple-100">
-            <CardContent className="p-4 text-center">
-              <p className="text-3xl font-bold text-purple-600">{stats?.completed_sessions || 0}</p>
-              <p className="text-sm text-purple-600/70">Sesiones</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-amber-50 border-amber-100">
-            <CardContent className="p-4 text-center">
-              <p className="text-3xl font-bold text-amber-600">{stats?.ai_generations_used || 0}</p>
-              <p className="text-sm text-amber-600/70">IA Usadas</p>
-            </CardContent>
-          </Card>
-        </div>
-          </>
+          <ComprehensiveTrainingPlanner athleteId={selectedAthleteId} />
         )}
       </div>
     );
