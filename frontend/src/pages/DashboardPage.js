@@ -32,6 +32,7 @@ const DashboardPage = () => {
   const [activePanel, setActivePanel] = useState('periodizar');
   const [activeDataSection, setActiveDataSection] = useState(null);
   const [selectedAthleteId, setSelectedAthleteId] = useState(null);
+  const [activeSubTab, setActiveSubTab] = useState('plan-grafico');
   const [chatMessages, setChatMessages] = useState([
     { type: 'ai', text: 'Bienvenido al asistente de planificación deportiva. ¿En qué puedo ayudarte hoy?' }
   ]);
