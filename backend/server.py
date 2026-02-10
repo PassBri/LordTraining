@@ -1620,6 +1620,48 @@ async def get_training_control(athlete_id: str, user: dict = Depends(get_current
         raise HTTPException(status_code=404, detail="No control data found")
     return data
 
+# =============== GRAPHIC PLAN ===============
+class GraphicPlanCreate(BaseModel):
+    athlete_id: Optional[str] = None
+    generalInfo: Dict[str, Any] = {}
+    planData: Dict[str, Any] = {}
+    cycleDuration: str = 'annual'
+
+@api_router.post("/graphic-plan")
+async def save_graphic_plan(data: GraphicPlanCreate, user: dict = Depends(get_current_user)):
+    existing = await db.graphic_plans.find_one({"coach_id": user["id"], "athlete_id": data.athlete_id})
+    
+    if existing:
+        await db.graphic_plans.update_one(
+            {"id": existing["id"]},
+            {"$set": {
+                "generalInfo": data.generalInfo,
+                "planData": data.planData,
+                "cycleDuration": data.cycleDuration,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        return {"message": "Graphic plan updated", "id": existing["id"]}
+    else:
+        doc_id = str(uuid.uuid4())
+        await db.graphic_plans.insert_one({
+            "id": doc_id,
+            "coach_id": user["id"],
+            "athlete_id": data.athlete_id,
+            "generalInfo": data.generalInfo,
+            "planData": data.planData,
+            "cycleDuration": data.cycleDuration,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+        return {"message": "Graphic plan saved", "id": doc_id}
+
+@api_router.get("/graphic-plan/{athlete_id}")
+async def get_graphic_plan(athlete_id: str, user: dict = Depends(get_current_user)):
+    data = await db.graphic_plans.find_one({"coach_id": user["id"], "athlete_id": athlete_id}, {"_id": 0})
+    if not data:
+        raise HTTPException(status_code=404, detail="No graphic plan found")
+    return data
+
 # =============== ROOT & HEALTH ===============
 @api_router.get("/")
 async def root():
