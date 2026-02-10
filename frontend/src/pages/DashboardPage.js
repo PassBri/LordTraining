@@ -52,6 +52,197 @@ const DashboardPage = () => {
   ]);
   const [inputMessage, setInputMessage] = useState('');
 
+  // Form States
+  const [newAthlete, setNewAthlete] = useState({
+    name: '', email: '', birthDate: '', gender: '', sport: '', category: '', level: ''
+  });
+  const [newEvent, setNewEvent] = useState({
+    name: '', type: '', date: '', location: '', objective: '', priority: ''
+  });
+  const [events, setEvents] = useState([]);
+  const [objectives, setObjectives] = useState([]);
+  const [savingAthlete, setSavingAthlete] = useState(false);
+  const [savingEvent, setSavingEvent] = useState(false);
+
+  // API Base URL
+  const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+  // Fetch athletes from backend
+  const fetchAthletes = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/api/athletes`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setAthletes(data);
+      }
+    } catch (error) {
+      console.error('Error fetching athletes:', error);
+    }
+  };
+
+  // Create new athlete
+  const handleCreateAthlete = async () => {
+    if (!newAthlete.name || !newAthlete.sport) {
+      alert('Por favor ingresa al menos el nombre y el deporte');
+      return;
+    }
+    setSavingAthlete(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/api/athletes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: newAthlete.name,
+          email: newAthlete.email || null,
+          sport: newAthlete.sport.toLowerCase() || 'other',
+          age: newAthlete.birthDate ? new Date().getFullYear() - new Date(newAthlete.birthDate).getFullYear() : 20,
+          level: newAthlete.level || 'intermedio',
+          notes: `Categoría: ${newAthlete.category || 'N/A'}, Género: ${newAthlete.gender || 'N/A'}`
+        })
+      });
+      if (response.ok) {
+        await fetchAthletes();
+        setNewAthlete({ name: '', email: '', birthDate: '', gender: '', sport: '', category: '', level: '' });
+      } else {
+        const error = await response.json();
+        alert(error.detail || 'Error al crear atleta');
+      }
+    } catch (error) {
+      console.error('Error creating athlete:', error);
+      alert('Error al crear atleta');
+    }
+    setSavingAthlete(false);
+  };
+
+  // Delete athlete
+  const handleDeleteAthlete = async (athleteId) => {
+    if (!window.confirm('¿Estás seguro de eliminar este atleta?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/api/athletes/${athleteId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        await fetchAthletes();
+        if (selectedAthleteId === athleteId) setSelectedAthleteId(null);
+      }
+    } catch (error) {
+      console.error('Error deleting athlete:', error);
+    }
+  };
+
+  // Fetch events for selected athlete
+  const fetchEvents = async (athleteId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/api/events-calendar/${athleteId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setEvents(data.events || []);
+      } else {
+        setEvents([]);
+      }
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      setEvents([]);
+    }
+  };
+
+  // Save events
+  const handleSaveEvent = async () => {
+    if (!selectedAthleteId) {
+      alert('Selecciona un atleta primero');
+      return;
+    }
+    if (!newEvent.name || !newEvent.date) {
+      alert('Por favor ingresa al menos el nombre y la fecha');
+      return;
+    }
+    setSavingEvent(true);
+    try {
+      const token = localStorage.getItem('token');
+      const updatedEvents = [...events, { ...newEvent, id: Date.now().toString() }];
+      const response = await fetch(`${API_URL}/api/events-calendar`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          athlete_id: selectedAthleteId,
+          events: updatedEvents
+        })
+      });
+      if (response.ok) {
+        setEvents(updatedEvents);
+        setNewEvent({ name: '', type: '', date: '', location: '', objective: '', priority: '' });
+      }
+    } catch (error) {
+      console.error('Error saving event:', error);
+    }
+    setSavingEvent(false);
+  };
+
+  // Delete event
+  const handleDeleteEvent = async (eventId) => {
+    if (!selectedAthleteId) return;
+    try {
+      const token = localStorage.getItem('token');
+      const updatedEvents = events.filter(e => e.id !== eventId);
+      await fetch(`${API_URL}/api/events-calendar`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          athlete_id: selectedAthleteId,
+          events: updatedEvents
+        })
+      });
+      setEvents(updatedEvents);
+    } catch (error) {
+      console.error('Error deleting event:', error);
+    }
+  };
+
+  // Fetch objectives for selected athlete
+  const fetchObjectives = async (athleteId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/api/objectives/${athleteId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setObjectives(data.objectives || []);
+      } else {
+        setObjectives([]);
+      }
+    } catch (error) {
+      console.error('Error fetching objectives:', error);
+      setObjectives([]);
+    }
+  };
+
+  // Effect to fetch data when athlete is selected
+  useEffect(() => {
+    if (selectedAthleteId) {
+      fetchEvents(selectedAthleteId);
+      fetchObjectives(selectedAthleteId);
+    }
+  }, [selectedAthleteId]);
+
   // Navigation items for "Datos" panel - Ordenados por flujo de trabajo del entrenador
   const navItems = [
     // === 1. REGISTRO Y CARACTERIZACIÓN ===
