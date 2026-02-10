@@ -1217,6 +1217,7 @@ const DashboardPage = () => {
                   { key: 'planificacion', title: 'Planificación', color: 'cyan' },
                   { key: 'control', title: 'Control y Seguimiento', color: 'rose' },
                   { key: 'herramientas', title: 'Herramientas', color: 'slate' },
+                  { key: 'organizacion', title: 'Organización', color: 'orange' },
                 ];
 
                 const colorClasses = {
@@ -1227,6 +1228,7 @@ const DashboardPage = () => {
                   cyan: { header: 'bg-cyan-500', item: 'cyan', active: 'bg-cyan-50 border-cyan-500 text-cyan-700', hover: 'hover:bg-cyan-50/50' },
                   rose: { header: 'bg-rose-500', item: 'rose', active: 'bg-rose-50 border-rose-500 text-rose-700', hover: 'hover:bg-rose-50/50' },
                   slate: { header: 'bg-slate-600', item: 'slate', active: 'bg-slate-100 border-slate-600 text-slate-800', hover: 'hover:bg-slate-50' },
+                  orange: { header: 'bg-orange-500', item: 'orange', active: 'bg-orange-50 border-orange-500 text-orange-700', hover: 'hover:bg-orange-50/50' },
                 };
 
                 return sections.map((section, idx) => {
