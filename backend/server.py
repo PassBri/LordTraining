@@ -1664,6 +1664,53 @@ async def get_graphic_plan(athlete_id: str, user: dict = Depends(get_current_use
         raise HTTPException(status_code=404, detail="No graphic plan found")
     return data
 
+# =============== PERIODIZATION PLAN (Hierarchical) ===============
+class PeriodizationPlanCreate(BaseModel):
+    athlete_id: Optional[str] = None
+    macrociclo: Dict[str, Any] = {}
+    mesociclos: List[Dict[str, Any]] = []
+    microciclos: List[Dict[str, Any]] = []
+    sesiones: List[Dict[str, Any]] = []
+
+@api_router.post("/periodization-plan")
+async def save_periodization_plan(data: PeriodizationPlanCreate, user: dict = Depends(get_current_user)):
+    athlete_id = None if data.athlete_id in ["null", "undefined", "", "default"] else data.athlete_id
+    existing = await db.periodization_plans.find_one({"coach_id": user["id"], "athlete_id": athlete_id})
+    
+    if existing:
+        await db.periodization_plans.update_one(
+            {"id": existing["id"]},
+            {"$set": {
+                "macrociclo": data.macrociclo,
+                "mesociclos": data.mesociclos,
+                "microciclos": data.microciclos,
+                "sesiones": data.sesiones,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        return {"message": "Periodization plan updated", "id": existing["id"]}
+    else:
+        doc_id = str(uuid.uuid4())
+        await db.periodization_plans.insert_one({
+            "id": doc_id,
+            "coach_id": user["id"],
+            "athlete_id": athlete_id,
+            "macrociclo": data.macrociclo,
+            "mesociclos": data.mesociclos,
+            "microciclos": data.microciclos,
+            "sesiones": data.sesiones,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+        return {"message": "Periodization plan saved", "id": doc_id}
+
+@api_router.get("/periodization-plan/{athlete_id}")
+async def get_periodization_plan(athlete_id: str, user: dict = Depends(get_current_user)):
+    query_athlete_id = None if athlete_id in ["null", "undefined", "", "default"] else athlete_id
+    data = await db.periodization_plans.find_one({"coach_id": user["id"], "athlete_id": query_athlete_id}, {"_id": 0})
+    if not data:
+        raise HTTPException(status_code=404, detail="No periodization plan found")
+    return data
+
 # =============== ROOT & HEALTH ===============
 @api_router.get("/")
 async def root():
