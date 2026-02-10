@@ -1094,6 +1094,15 @@ const PeriodizationSystem = ({ athleteId, athleteName }) => {
             </Card>
           ))}
         </div>
+
+        {/* Editor de Sesión Completo (Modal) */}
+        <SessionEditor
+          isOpen={!!fullEditorSession}
+          onClose={closeFullSessionEditor}
+          session={fullEditorSession}
+          onSave={saveFullEditorSession}
+          exercises={EJERCICIOS_INICIALES}
+        />
       </div>
     );
   };
