@@ -420,26 +420,29 @@ const DashboardPage = () => {
     if (activeDataSection === 'events') {
       return (
         <div className="p-4 space-y-4">
-          <Card>
-            <CardHeader className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-3">
+          <Card className="border-0 shadow-md overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-violet-500 to-violet-600 text-white py-4">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg">
+                <CardTitle className="flex items-center gap-2 text-lg font-semibold">
                   <Calendar className="w-5 h-5" />
                   Calendario de Eventos y Competencias
                 </CardTitle>
-                <Button size="sm" className="bg-white/20 hover:bg-white/30">
+                <Button size="sm" className="bg-white/20 hover:bg-white/30 font-medium">
                   <Plus className="w-4 h-4 mr-1" /> Nuevo Evento
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="p-4">
+            <CardContent className="p-5">
               {/* Formulario nuevo evento */}
-              <div className="bg-gray-50 p-4 rounded-lg mb-4">
-                <h4 className="font-medium mb-3 text-gray-700">Agregar Evento/Competencia</h4>
+              <div className="bg-violet-50/50 p-4 rounded-xl mb-5 border border-violet-100">
+                <h4 className="font-semibold mb-3 text-violet-900 flex items-center gap-2">
+                  <Plus className="w-4 h-4" />
+                  Agregar Evento/Competencia
+                </h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <Input placeholder="Nombre del evento" className="h-9" />
+                  <Input placeholder="Nombre del evento" className="h-10 border-violet-200 focus:border-violet-400" />
                   <Select>
-                    <SelectTrigger className="h-9"><SelectValue placeholder="Tipo" /></SelectTrigger>
+                    <SelectTrigger className="h-10 border-violet-200"><SelectValue placeholder="Tipo" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="competencia_principal">Competencia Principal</SelectItem>
                       <SelectItem value="competencia_secundaria">Competencia Secundaria</SelectItem>
@@ -448,56 +451,56 @@ const DashboardPage = () => {
                       <SelectItem value="viaje">Viaje</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Input type="date" className="h-9" />
-                  <Input placeholder="Lugar" className="h-9" />
+                  <Input type="date" className="h-10 border-violet-200 focus:border-violet-400" />
+                  <Input placeholder="Lugar" className="h-10 border-violet-200 focus:border-violet-400" />
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
-                  <Input placeholder="Objetivo" className="h-9 col-span-2" />
+                  <Input placeholder="Objetivo" className="h-10 col-span-2 border-violet-200 focus:border-violet-400" />
                   <Select>
-                    <SelectTrigger className="h-9"><SelectValue placeholder="Prioridad" /></SelectTrigger>
+                    <SelectTrigger className="h-10 border-violet-200"><SelectValue placeholder="Prioridad" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="alta">Alta (A)</SelectItem>
                       <SelectItem value="media">Media (B)</SelectItem>
                       <SelectItem value="baja">Baja (C)</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button className="bg-indigo-600 hover:bg-indigo-700 h-9">
+                  <Button className="bg-violet-500 hover:bg-violet-600 h-10 font-medium">
                     <Plus className="w-4 h-4 mr-1" /> Agregar
                   </Button>
                 </div>
               </div>
               
               {/* Lista de eventos */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-12 bg-green-500 rounded"></div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-4 bg-emerald-50 border border-emerald-200 rounded-xl hover:shadow-sm transition-all">
+                  <div className="flex items-center gap-4">
+                    <div className="w-1.5 h-14 bg-emerald-500 rounded-full"></div>
                     <div>
-                      <p className="font-medium">Campeonato Nacional</p>
-                      <p className="text-xs text-gray-500">Competencia Principal • 15 Mar 2025 • Ciudad Capital</p>
+                      <p className="font-semibold text-slate-800">Campeonato Nacional</p>
+                      <p className="text-sm text-slate-500">Competencia Principal • 15 Mar 2025 • Ciudad Capital</p>
                     </div>
                   </div>
-                  <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">Prioridad A</span>
+                  <span className="px-3 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-semibold">Prioridad A</span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-12 bg-yellow-500 rounded"></div>
+                <div className="flex items-center justify-between p-4 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-sm transition-all">
+                  <div className="flex items-center gap-4">
+                    <div className="w-1.5 h-14 bg-amber-500 rounded-full"></div>
                     <div>
-                      <p className="font-medium">Torneo Regional</p>
-                      <p className="text-xs text-gray-500">Competencia Secundaria • 28 Feb 2025 • Región Norte</p>
+                      <p className="font-semibold text-slate-800">Torneo Regional</p>
+                      <p className="text-sm text-slate-500">Competencia Secundaria • 28 Feb 2025 • Región Norte</p>
                     </div>
                   </div>
-                  <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-medium">Prioridad B</span>
+                  <span className="px-3 py-1.5 bg-amber-100 text-amber-700 rounded-full text-xs font-semibold">Prioridad B</span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-12 bg-blue-500 rounded"></div>
+                <div className="flex items-center justify-between p-4 bg-indigo-50 border border-indigo-200 rounded-xl hover:shadow-sm transition-all">
+                  <div className="flex items-center gap-4">
+                    <div className="w-1.5 h-14 bg-indigo-500 rounded-full"></div>
                     <div>
-                      <p className="font-medium">Test de Rendimiento</p>
-                      <p className="text-xs text-gray-500">Evaluación • 10 Feb 2025 • Centro de Alto Rendimiento</p>
+                      <p className="font-semibold text-slate-800">Test de Rendimiento</p>
+                      <p className="text-sm text-slate-500">Evaluación • 10 Feb 2025 • Centro de Alto Rendimiento</p>
                     </div>
                   </div>
-                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">Test</span>
+                  <span className="px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold">Test</span>
                 </div>
               </div>
             </CardContent>
