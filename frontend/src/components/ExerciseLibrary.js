@@ -15,6 +15,179 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 // Datos iniciales de ejercicios organizados
 const EJERCICIOS_INICIALES = {
+  'fuerza': {
+    nombre: 'Fuerza',
+    color: 'bg-red-100 text-red-700 border-red-300',
+    subcategorias: {
+      'fuerza_maxima': {
+        nombre: 'Fuerza Máxima',
+        ejercicios: [
+          { nombre: 'Sentadilla', musculos: 'Cuádriceps, Glúteos, Isquiotibiales', equipo: 'Barra, Rack' },
+          { nombre: 'Press de banca', musculos: 'Pectorales, Tríceps, Deltoides anterior', equipo: 'Barra, Banco' },
+          { nombre: 'Peso muerto', musculos: 'Espalda baja, Glúteos, Isquiotibiales', equipo: 'Barra' },
+          { nombre: 'Press militar', musculos: 'Deltoides, Tríceps', equipo: 'Barra' },
+          { nombre: 'Remo con barra', musculos: 'Dorsal, Bíceps, Romboides', equipo: 'Barra' },
+          { nombre: 'Dominadas', musculos: 'Dorsal, Bíceps', equipo: 'Barra de dominadas' },
+          { nombre: 'Sentadilla frontal', musculos: 'Cuádriceps, Core', equipo: 'Barra, Rack' },
+          { nombre: 'Press inclinado', musculos: 'Pectoral superior, Deltoides', equipo: 'Barra, Banco inclinado' }
+        ]
+      },
+      'fuerza_explosiva': {
+        nombre: 'Fuerza Explosiva / Potencia',
+        ejercicios: [
+          { nombre: 'Cargada de potencia (Power clean)', musculos: 'Cuerpo completo', equipo: 'Barra' },
+          { nombre: 'Arrancada (Snatch)', musculos: 'Cuerpo completo', equipo: 'Barra' },
+          { nombre: 'Envión (Clean & Jerk)', musculos: 'Cuerpo completo', equipo: 'Barra' },
+          { nombre: 'Salto al cajón', musculos: 'Piernas, Glúteos', equipo: 'Cajón pliométrico' },
+          { nombre: 'Salto vertical', musculos: 'Cuádriceps, Glúteos', equipo: 'Ninguno' },
+          { nombre: 'Salto horizontal', musculos: 'Piernas, Core', equipo: 'Ninguno' },
+          { nombre: 'Lanzamiento de balón medicinal', musculos: 'Core, Hombros', equipo: 'Balón medicinal' },
+          { nombre: 'Push press', musculos: 'Hombros, Piernas', equipo: 'Barra' },
+          { nombre: 'Salto con contramovimiento (CMJ)', musculos: 'Piernas', equipo: 'Ninguno' },
+          { nombre: 'Drop jump', musculos: 'Piernas, Tendones', equipo: 'Cajón' }
+        ]
+      },
+      'fuerza_resistencia': {
+        nombre: 'Fuerza Resistencia',
+        ejercicios: [
+          { nombre: 'Circuito de pesas', musculos: 'Cuerpo completo', equipo: 'Mancuernas, Barras' },
+          { nombre: 'Sentadilla con peso corporal', musculos: 'Piernas', equipo: 'Ninguno' },
+          { nombre: 'Flexiones de brazos', musculos: 'Pectorales, Tríceps', equipo: 'Ninguno' },
+          { nombre: 'Fondos en paralelas', musculos: 'Tríceps, Pectorales', equipo: 'Paralelas' },
+          { nombre: 'Burpees', musculos: 'Cuerpo completo', equipo: 'Ninguno' },
+          { nombre: 'Mountain climbers', musculos: 'Core, Hombros', equipo: 'Ninguno' },
+          { nombre: 'Zancadas con peso', musculos: 'Piernas, Glúteos', equipo: 'Mancuernas' },
+          { nombre: 'Planchas', musculos: 'Core', equipo: 'Ninguno' }
+        ]
+      },
+      'fuerza_funcional': {
+        nombre: 'Fuerza Funcional',
+        ejercicios: [
+          { nombre: 'Kettlebell swing', musculos: 'Glúteos, Core, Hombros', equipo: 'Kettlebell' },
+          { nombre: 'Turkish get-up', musculos: 'Cuerpo completo', equipo: 'Kettlebell' },
+          { nombre: 'Farmer walk', musculos: 'Agarre, Core, Piernas', equipo: 'Mancuernas/Kettlebells' },
+          { nombre: 'Sentadilla goblet', musculos: 'Piernas, Core', equipo: 'Kettlebell' },
+          { nombre: 'Renegade rows', musculos: 'Core, Dorsal', equipo: 'Mancuernas' },
+          { nombre: 'Thruster', musculos: 'Cuerpo completo', equipo: 'Barra/Mancuernas' }
+        ]
+      }
+    }
+  },
+  'velocidad': {
+    nombre: 'Velocidad',
+    color: 'bg-yellow-100 text-yellow-700 border-yellow-300',
+    subcategorias: {
+      'velocidad_reaccion': {
+        nombre: 'Velocidad de Reacción',
+        ejercicios: [
+          { nombre: 'Salidas con señal visual', musculos: 'Sistema nervioso, Piernas', equipo: 'Conos, Luces' },
+          { nombre: 'Salidas con señal auditiva', musculos: 'Sistema nervioso, Piernas', equipo: 'Silbato' },
+          { nombre: 'Ejercicios de reacción con balón', musculos: 'Coordinación', equipo: 'Balón' },
+          { nombre: 'Cambios de dirección reactivos', musculos: 'Piernas, Core', equipo: 'Conos' },
+          { nombre: 'Atrapar objetos en caída', musculos: 'Manos, Coordinación', equipo: 'Pelotas' },
+          { nombre: 'Salidas desde diferentes posiciones', musculos: 'Piernas', equipo: 'Ninguno' }
+        ]
+      },
+      'velocidad_desplazamiento': {
+        nombre: 'Velocidad de Desplazamiento',
+        ejercicios: [
+          { nombre: 'Sprint 10m', musculos: 'Piernas, Glúteos', equipo: 'Ninguno' },
+          { nombre: 'Sprint 20m', musculos: 'Piernas, Glúteos', equipo: 'Ninguno' },
+          { nombre: 'Sprint 30m', musculos: 'Piernas, Glúteos', equipo: 'Ninguno' },
+          { nombre: 'Sprint 40m', musculos: 'Piernas, Glúteos', equipo: 'Ninguno' },
+          { nombre: 'Sprint 60m', musculos: 'Piernas, Glúteos', equipo: 'Ninguno' },
+          { nombre: 'Sprint 100m', musculos: 'Piernas, Glúteos', equipo: 'Ninguno' },
+          { nombre: 'Sprint lanzado', musculos: 'Piernas', equipo: 'Ninguno' },
+          { nombre: 'Sprint resistido (trineo)', musculos: 'Piernas, Glúteos', equipo: 'Trineo' },
+          { nombre: 'Sprint asistido (elásticos)', musculos: 'Piernas', equipo: 'Bandas elásticas' },
+          { nombre: 'Sprint en cuesta', musculos: 'Piernas, Glúteos', equipo: 'Cuesta' }
+        ]
+      },
+      'velocidad_gestual': {
+        nombre: 'Velocidad Gestual / Acíclica',
+        ejercicios: [
+          { nombre: 'Golpeo rápido de balón', musculos: 'Piernas', equipo: 'Balón' },
+          { nombre: 'Lanzamientos rápidos', musculos: 'Brazos, Hombros', equipo: 'Balón' },
+          { nombre: 'Movimientos técnicos a máxima velocidad', musculos: 'Específico del deporte', equipo: 'Específico' },
+          { nombre: 'Cambios de dirección a máxima velocidad', musculos: 'Piernas, Core', equipo: 'Conos' },
+          { nombre: 'Fintas y amagues', musculos: 'Piernas, Coordinación', equipo: 'Ninguno' }
+        ]
+      },
+      'frecuencia_movimiento': {
+        nombre: 'Frecuencia de Movimiento',
+        ejercicios: [
+          { nombre: 'Skipping alto', musculos: 'Flexores de cadera', equipo: 'Ninguno' },
+          { nombre: 'Skipping bajo', musculos: 'Tobillos, Gemelos', equipo: 'Ninguno' },
+          { nombre: 'Escalera de agilidad - Pies rápidos', musculos: 'Piernas, Coordinación', equipo: 'Escalera' },
+          { nombre: 'Tapping', musculos: 'Piernas', equipo: 'Ninguno' },
+          { nombre: 'Carrera de frecuencia', musculos: 'Piernas', equipo: 'Ninguno' },
+          { nombre: 'Dribling rápido', musculos: 'Coordinación', equipo: 'Balón' }
+        ]
+      },
+      'aceleracion': {
+        nombre: 'Aceleración',
+        ejercicios: [
+          { nombre: 'Salidas de tacos', musculos: 'Piernas, Core', equipo: 'Tacos de salida' },
+          { nombre: 'Salidas en 3 puntos', musculos: 'Piernas', equipo: 'Ninguno' },
+          { nombre: 'Salidas en 4 puntos', musculos: 'Piernas', equipo: 'Ninguno' },
+          { nombre: 'Aceleraciones progresivas', musculos: 'Piernas', equipo: 'Ninguno' },
+          { nombre: 'Aceleraciones desde diferentes posiciones', musculos: 'Piernas', equipo: 'Ninguno' }
+        ]
+      }
+    }
+  },
+  'resistencia': {
+    nombre: 'Resistencia',
+    color: 'bg-cyan-100 text-cyan-700 border-cyan-300',
+    subcategorias: {
+      'resistencia_aerobica': {
+        nombre: 'Resistencia Aeróbica',
+        ejercicios: [
+          { nombre: 'Carrera continua', musculos: 'Piernas, Sistema cardiovascular', equipo: 'Ninguno', duracion: '20-60 min' },
+          { nombre: 'Fartlek', musculos: 'Piernas, Sistema cardiovascular', equipo: 'Ninguno', duracion: '20-45 min' },
+          { nombre: 'Carrera progresiva', musculos: 'Piernas', equipo: 'Ninguno', duracion: '20-40 min' },
+          { nombre: 'Natación continua', musculos: 'Cuerpo completo', equipo: 'Piscina', duracion: '20-60 min' },
+          { nombre: 'Ciclismo', musculos: 'Piernas', equipo: 'Bicicleta', duracion: '30-120 min' },
+          { nombre: 'Remo ergómetro', musculos: 'Cuerpo completo', equipo: 'Remo', duracion: '20-40 min' },
+          { nombre: 'Elíptica', musculos: 'Cuerpo completo', equipo: 'Elíptica', duracion: '20-45 min' },
+          { nombre: 'Caminata rápida', musculos: 'Piernas', equipo: 'Ninguno', duracion: '30-60 min' }
+        ]
+      },
+      'resistencia_anaerobica': {
+        nombre: 'Resistencia Anaeróbica',
+        ejercicios: [
+          { nombre: 'Intervalos cortos (30" - 30")', musculos: 'Piernas', equipo: 'Ninguno' },
+          { nombre: 'Intervalos medios (1\' - 1\')', musculos: 'Piernas', equipo: 'Ninguno' },
+          { nombre: 'Intervalos largos (3\' - 3\')', musculos: 'Piernas', equipo: 'Ninguno' },
+          { nombre: 'Series de 200m', musculos: 'Piernas', equipo: 'Pista' },
+          { nombre: 'Series de 400m', musculos: 'Piernas', equipo: 'Pista' },
+          { nombre: 'Series de 800m', musculos: 'Piernas', equipo: 'Pista' },
+          { nombre: 'Tabata', musculos: 'Cuerpo completo', equipo: 'Varios' },
+          { nombre: 'HIIT', musculos: 'Cuerpo completo', equipo: 'Varios' },
+          { nombre: 'Sprint intervals', musculos: 'Piernas', equipo: 'Ninguno' }
+        ]
+      },
+      'resistencia_especifica': {
+        nombre: 'Resistencia Específica',
+        ejercicios: [
+          { nombre: 'Circuito técnico-táctico', musculos: 'Específico del deporte', equipo: 'Específico' },
+          { nombre: 'Juegos reducidos', musculos: 'Específico del deporte', equipo: 'Específico' },
+          { nombre: 'Partidos de entrenamiento', musculos: 'Específico del deporte', equipo: 'Específico' },
+          { nombre: 'Simulación de competencia', musculos: 'Específico del deporte', equipo: 'Específico' },
+          { nombre: 'Repeticiones de gestos técnicos', musculos: 'Específico del deporte', equipo: 'Específico' }
+        ]
+      },
+      'resistencia_mixta': {
+        nombre: 'Resistencia Mixta',
+        ejercicios: [
+          { nombre: 'Cross training', musculos: 'Cuerpo completo', equipo: 'Varios' },
+          { nombre: 'Circuito aeróbico-anaeróbico', musculos: 'Cuerpo completo', equipo: 'Varios' },
+          { nombre: 'Carrera con cambios de ritmo', musculos: 'Piernas', equipo: 'Ninguno' },
+          { nombre: 'Entrenamiento por estaciones', musculos: 'Cuerpo completo', equipo: 'Varios' }
+        ]
+      }
+    }
+  },
   'movilidad_articular': {
     nombre: 'Movilidad Articular',
     color: 'bg-blue-100 text-blue-700 border-blue-300',
