@@ -1416,6 +1416,42 @@ async def get_comprehensive_plan(athlete_id: str, user: dict = Depends(get_curre
     
     return data
 
+# =============== TRAINING METHODS ===============
+class TrainingMethodsCreate(BaseModel):
+    methods: Dict[str, Any] = {}
+
+@api_router.post("/training-methods")
+async def save_training_methods(data: TrainingMethodsCreate, user: dict = Depends(get_current_user)):
+    doc_id = str(uuid.uuid4())
+    doc = {
+        "id": doc_id,
+        "coach_id": user["id"],
+        "methods": data.methods,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    existing = await db.training_methods.find_one({"coach_id": user["id"]})
+    
+    if existing:
+        await db.training_methods.update_one(
+            {"id": existing["id"]},
+            {"$set": {"methods": data.methods, "updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        return {"message": "Training methods updated", "id": existing["id"]}
+    else:
+        await db.training_methods.insert_one(doc)
+        return {"message": "Training methods saved", "id": doc_id}
+
+@api_router.get("/training-methods")
+async def get_training_methods(user: dict = Depends(get_current_user)):
+    data = await db.training_methods.find_one({"coach_id": user["id"]}, {"_id": 0})
+    
+    if not data:
+        raise HTTPException(status_code=404, detail="Training methods not found")
+    
+    return data
+
 # =============== ROOT & HEALTH ===============
 @api_router.get("/")
 async def root():
