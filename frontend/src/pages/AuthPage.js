@@ -5,8 +5,19 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { Target, Mail, Lock, User, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { Target, Mail, Lock, User, Loader2, Eye, EyeOff, Shield, Users, Dumbbell, UserCheck, UserCircle } from 'lucide-react';
 import { toast } from 'sonner';
+
+// Roles disponibles con sus descripciones e iconos
+const USER_ROLES = [
+  { id: 'admin', name: 'Administrador', description: 'Acceso total al sistema', icon: Shield },
+  { id: 'coach', name: 'Entrenador', description: 'Puede crear planes para múltiples atletas', icon: UserCheck },
+  { id: 'personal_trainer', name: 'Entrenador Personal', description: 'Enfocado en clientes individuales', icon: Dumbbell },
+  { id: 'athlete', name: 'Atleta', description: 'Solo puede ver su propio plan', icon: User },
+  { id: 'team', name: 'Equipo', description: 'Grupo de atletas con plan compartido', icon: Users },
+  { id: 'user', name: 'Usuario', description: 'Rol básico sin atletas asignados', icon: UserCircle }
+];
 
 const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,6 +33,7 @@ const AuthPage = () => {
   const [registerName, setRegisterName] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
+  const [registerRole, setRegisterRole] = useState('coach');
 
   const handleLogin = async (e) => {
     e.preventDefault();
