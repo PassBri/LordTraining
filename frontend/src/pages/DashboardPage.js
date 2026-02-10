@@ -335,7 +335,7 @@ const DashboardPage = () => {
     { id: 'objectives', label: 'Objetivos e indicadores', icon: Target, section: 'objetivos' },
     
     // === 5. PLANIFICACIÓN ===
-    { id: 'periodization-models', label: 'Modelos de periodización', icon: BookOpen, section: 'planificacion' },
+    { id: 'periodization-models', label: 'Sistema de Periodización', icon: BookOpen, section: 'planificacion' },
     { id: 'macrocycle-stages', label: 'Etapas del macrociclo', icon: BookOpen, section: 'planificacion' },
     { id: 'exercises', label: 'Medios de entrenamiento', icon: Activity, section: 'planificacion' },
     { id: 'exercises-lib', label: 'Biblioteca de ejercicios', icon: Dumbbell, section: 'planificacion' },
