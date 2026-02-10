@@ -1349,21 +1349,26 @@ const DashboardPage = () => {
         
         {/* Panel Tabs */}
         <div className="flex gap-2 mb-4">
-          {['datos', 'periodizar'].map((panel) => (
+          {['datos', 'panel'].map((panelType) => (
             <button
-              key={panel}
+              key={panelType}
               onClick={() => {
-                setActivePanel(panel);
-                if (panel === 'datos') setActiveDataSection(null);
+                setActivePanel(panelType);
+                if (panelType === 'datos') setActiveDataSection(null);
               }}
-              className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                activePanel === panel 
+              className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-1 ${
+                activePanel === panelType 
                   ? 'bg-blue-600 text-white' 
                   : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
               }`}
-              data-testid={`tab-${panel}`}
+              data-testid={`tab-${panelType}`}
             >
-              {panel === 'datos' ? 'Datos' : 'Periodizar'}
+              {panelType === 'datos' ? 'Datos' : (
+                <>
+                  <LayoutDashboard className="w-4 h-4" />
+                  Panel de Control
+                </>
+              )}
             </button>
           ))}
         </div>
