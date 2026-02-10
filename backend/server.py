@@ -44,8 +44,12 @@ logger = logging.getLogger(__name__)
 
 # =============== ENUMS ===============
 class UserRole(str, Enum):
-    COACH = "coach"
-    ATHLETE = "athlete"
+    ADMIN = "admin"  # Administrador - Acceso total al sistema
+    COACH = "coach"  # Entrenador - Puede crear planes para múltiples atletas
+    PERSONAL_TRAINER = "personal_trainer"  # Entrenador Personal - Similar a coach pero enfocado en clientes individuales
+    ATHLETE = "athlete"  # Atleta - Solo puede ver su propio plan
+    TEAM = "team"  # Equipo - Grupo de atletas con plan compartido
+    USER = "user"  # Usuario - Rol básico sin atletas asignados
 
 class SubscriptionPlan(str, Enum):
     FREE = "free"
@@ -54,11 +58,34 @@ class SubscriptionPlan(str, Enum):
     ENTERPRISE = "enterprise"
 
 class PlanningModel(str, Enum):
-    TRADITIONAL = "traditional"
-    ATR = "atr"
-    BLOCKS = "blocks"
-    UNDULATING = "undulating"
-    CONCURRENT = "concurrent"
+    # Modelos Clásicos
+    TRADITIONAL = "traditional"  # Tradicional (Matveiev) - Periodización lineal clásica
+    ATR = "atr"  # ATR (Issurin) - Acumulación-Transformación-Realización
+    BLOCKS = "blocks"  # Por Bloques (Verkhoshansky) - Cargas concentradas
+    
+    # Modelos Ondulatorios
+    UNDULATING_DAILY = "undulating_daily"  # Ondulatorio Diario - Variación día a día
+    UNDULATING_WEEKLY = "undulating_weekly"  # Ondulatorio Semanal - Variación semana a semana
+    
+    # Modelos Avanzados
+    PENDULUM = "pendulum"  # Péndulo (Arosiev) - Alternancia de énfasis
+    STRUCTURAL_BELLS = "structural_bells"  # Campanas Estructurales (Forteza)
+    CONTEMPORARY = "contemporary"  # Contemporáneo (Bondarchuk)
+    INVERSE = "inverse"  # Periodización Inversa - Para deportes de resistencia
+    TACTICAL = "tactical"  # Táctico - Para deportes de equipo
+    
+    # Modelos Específicos
+    CONCURRENT = "concurrent"  # Concurrente - Desarrollo simultáneo de cualidades
+    CONJUGATE = "conjugate"  # Conjugado (Westside) - Para fuerza/potencia
+    POLARIZED = "polarized"  # Polarizado - Alta intensidad vs baja intensidad
+
+class CycleDuration(str, Enum):
+    OLYMPIC = "olympic"  # Ciclo Olímpico - 4 años (208 semanas)
+    BIANNUAL = "biannual"  # Bianual - 2 años (104 semanas)
+    ANNUAL = "annual"  # Anual - 1 año (52 semanas)
+    SEMESTER = "semester"  # Semestral - 6 meses (26 semanas)
+    QUARTER = "quarter"  # Trimestral - 3 meses (13 semanas)
+    MONTHLY = "monthly"  # Mensual - 4 semanas
 
 class Sport(str, Enum):
     FOOTBALL = "football"
