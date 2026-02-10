@@ -675,82 +675,135 @@ const DashboardPage = () => {
                   <Calendar className="w-5 h-5" />
                   Calendario de Eventos y Competencias
                 </div>
-                <Button size="sm" className="bg-white/20 hover:bg-white/30 font-medium rounded-full">
-                  <Plus className="w-4 h-4 mr-1" /> Nuevo Evento
-                </Button>
+                {selectedAthleteId && (
+                  <span className="text-sm bg-white/20 px-3 py-1 rounded-full">{events.length} eventos</span>
+                )}
               </div>
             </div>
             <CardContent className="p-5">
-              {/* Formulario nuevo evento */}
-              <div className="bg-violet-50/50 p-4 rounded-xl mb-5 border border-violet-100">
-                <h4 className="font-semibold mb-3 text-violet-900 flex items-center gap-2">
-                  <Plus className="w-4 h-4" />
-                  Agregar Evento/Competencia
-                </h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <Input placeholder="Nombre del evento" className="h-10 border-violet-200 focus:border-violet-400" />
-                  <Select>
-                    <SelectTrigger className="h-10 border-violet-200"><SelectValue placeholder="Tipo" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="competencia_principal">Competencia Principal</SelectItem>
-                      <SelectItem value="competencia_secundaria">Competencia Secundaria</SelectItem>
-                      <SelectItem value="test">Test/Evaluación</SelectItem>
-                      <SelectItem value="concentracion">Concentración</SelectItem>
-                      <SelectItem value="viaje">Viaje</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Input type="date" className="h-10 border-violet-200 focus:border-violet-400" />
-                  <Input placeholder="Lugar" className="h-10 border-violet-200 focus:border-violet-400" />
+              {!selectedAthleteId ? (
+                <div className="text-center py-12 text-slate-400">
+                  <Users className="w-16 h-16 mx-auto mb-3 opacity-30" />
+                  <p className="font-medium">Selecciona un atleta primero</p>
+                  <p className="text-sm mt-1">Ve a la sección "Atletas" y selecciona uno para gestionar sus eventos</p>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
-                  <Input placeholder="Objetivo" className="h-10 col-span-2 border-violet-200 focus:border-violet-400" />
-                  <Select>
-                    <SelectTrigger className="h-10 border-violet-200"><SelectValue placeholder="Prioridad" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="alta">Alta (A)</SelectItem>
-                      <SelectItem value="media">Media (B)</SelectItem>
-                      <SelectItem value="baja">Baja (C)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Button className="bg-violet-500 hover:bg-violet-600 h-10 font-medium">
-                    <Plus className="w-4 h-4 mr-1" /> Agregar
-                  </Button>
-                </div>
-              </div>
-              
-              {/* Lista de eventos */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-4 bg-emerald-50 border border-emerald-200 rounded-xl hover:shadow-sm transition-all">
-                  <div className="flex items-center gap-4">
-                    <div className="w-1.5 h-14 bg-emerald-500 rounded-full"></div>
-                    <div>
-                      <p className="font-semibold text-slate-800">Campeonato Nacional</p>
-                      <p className="text-sm text-slate-500">Competencia Principal • 15 Mar 2025 • Ciudad Capital</p>
+              ) : (
+                <>
+                  {/* Formulario nuevo evento */}
+                  <div className="bg-violet-50/50 p-4 rounded-xl mb-5 border border-violet-100">
+                    <h4 className="font-semibold mb-3 text-violet-900 flex items-center gap-2">
+                      <Plus className="w-4 h-4" />
+                      Agregar Evento/Competencia
+                    </h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <Input 
+                        placeholder="Nombre del evento" 
+                        className="h-10 border-violet-200 focus:border-violet-400" 
+                        value={newEvent.name}
+                        onChange={(e) => setNewEvent({...newEvent, name: e.target.value})}
+                      />
+                      <Select value={newEvent.type} onValueChange={(v) => setNewEvent({...newEvent, type: v})}>
+                        <SelectTrigger className="h-10 border-violet-200"><SelectValue placeholder="Tipo" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="competencia_principal">Competencia Principal</SelectItem>
+                          <SelectItem value="competencia_secundaria">Competencia Secundaria</SelectItem>
+                          <SelectItem value="test">Test/Evaluación</SelectItem>
+                          <SelectItem value="concentracion">Concentración</SelectItem>
+                          <SelectItem value="viaje">Viaje</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Input 
+                        type="date" 
+                        className="h-10 border-violet-200 focus:border-violet-400" 
+                        value={newEvent.date}
+                        onChange={(e) => setNewEvent({...newEvent, date: e.target.value})}
+                      />
+                      <Input 
+                        placeholder="Lugar" 
+                        className="h-10 border-violet-200 focus:border-violet-400" 
+                        value={newEvent.location}
+                        onChange={(e) => setNewEvent({...newEvent, location: e.target.value})}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+                      <Input 
+                        placeholder="Objetivo" 
+                        className="h-10 col-span-2 border-violet-200 focus:border-violet-400" 
+                        value={newEvent.objective}
+                        onChange={(e) => setNewEvent({...newEvent, objective: e.target.value})}
+                      />
+                      <Select value={newEvent.priority} onValueChange={(v) => setNewEvent({...newEvent, priority: v})}>
+                        <SelectTrigger className="h-10 border-violet-200"><SelectValue placeholder="Prioridad" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="alta">Alta (A)</SelectItem>
+                          <SelectItem value="media">Media (B)</SelectItem>
+                          <SelectItem value="baja">Baja (C)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button 
+                        className="bg-violet-500 hover:bg-violet-600 h-10 font-medium"
+                        onClick={handleSaveEvent}
+                        disabled={savingEvent}
+                      >
+                        {savingEvent ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Plus className="w-4 h-4 mr-1" />}
+                        Agregar
+                      </Button>
                     </div>
                   </div>
-                  <span className="px-3 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-semibold">Prioridad A</span>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-sm transition-all">
-                  <div className="flex items-center gap-4">
-                    <div className="w-1.5 h-14 bg-amber-500 rounded-full"></div>
-                    <div>
-                      <p className="font-semibold text-slate-800">Torneo Regional</p>
-                      <p className="text-sm text-slate-500">Competencia Secundaria • 28 Feb 2025 • Región Norte</p>
-                    </div>
+                  
+                  {/* Lista de eventos */}
+                  <div className="space-y-3">
+                    {events.length === 0 ? (
+                      <div className="text-center py-8 text-slate-400">
+                        <Calendar className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                        <p>No hay eventos registrados para este atleta</p>
+                      </div>
+                    ) : (
+                      events.map(event => {
+                        const priorityColors = {
+                          alta: { bg: 'bg-emerald-50', border: 'border-emerald-200', bar: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-700' },
+                          media: { bg: 'bg-amber-50', border: 'border-amber-200', bar: 'bg-amber-500', badge: 'bg-amber-100 text-amber-700' },
+                          baja: { bg: 'bg-indigo-50', border: 'border-indigo-200', bar: 'bg-indigo-500', badge: 'bg-indigo-100 text-indigo-700' }
+                        };
+                        const colors = priorityColors[event.priority] || priorityColors.media;
+                        const typeLabels = {
+                          competencia_principal: 'Competencia Principal',
+                          competencia_secundaria: 'Competencia Secundaria',
+                          test: 'Test/Evaluación',
+                          concentracion: 'Concentración',
+                          viaje: 'Viaje'
+                        };
+                        return (
+                          <div key={event.id} className={`flex items-center justify-between p-4 ${colors.bg} border ${colors.border} rounded-xl hover:shadow-sm transition-all`}>
+                            <div className="flex items-center gap-4">
+                              <div className={`w-1.5 h-14 ${colors.bar} rounded-full`}></div>
+                              <div>
+                                <p className="font-semibold text-slate-800">{event.name}</p>
+                                <p className="text-sm text-slate-500">
+                                  {typeLabels[event.type] || event.type} • {event.date} {event.location && `• ${event.location}`}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className={`px-3 py-1.5 ${colors.badge} rounded-full text-xs font-semibold`}>
+                                Prioridad {event.priority?.charAt(0).toUpperCase()}
+                              </span>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="text-rose-500 hover:text-rose-600 hover:bg-rose-50"
+                                onClick={() => handleDeleteEvent(event.id)}
+                              >
+                                ✕
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
                   </div>
-                  <span className="px-3 py-1.5 bg-amber-100 text-amber-700 rounded-full text-xs font-semibold">Prioridad B</span>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-indigo-50 border border-indigo-200 rounded-xl hover:shadow-sm transition-all">
-                  <div className="flex items-center gap-4">
-                    <div className="w-1.5 h-14 bg-indigo-500 rounded-full"></div>
-                    <div>
-                      <p className="font-semibold text-slate-800">Test de Rendimiento</p>
-                      <p className="text-sm text-slate-500">Evaluación • 10 Feb 2025 • Centro de Alto Rendimiento</p>
-                    </div>
-                  </div>
-                  <span className="px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold">Test</span>
-                </div>
-              </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>
