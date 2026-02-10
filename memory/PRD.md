@@ -478,3 +478,30 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 
 ### Test Report
 - `/app/test_reports/iteration_9.json` - 100% tests pasados (Backend: 10/10, Frontend: 100%)
+
+### Feb 10, 2026 - Sistema de Periodización y Gestión de Planes
+- ✅ **Cambio de nombre**: "Modelos de Periodización" → "Sistema de Periodización"
+- ✅ **Wizard de Creación de Planes** (`PeriodizationWizard.js`):
+  - **Paso 1**: Selección de Modelo (10 modelos en 4 categorías: Clásico, Ondulatorio, Avanzado, Específico)
+  - **Paso 2**: Selección de Duración (Olímpico 4 años, Bianual, Anual, Semestral, Cuatrimestral, Trimestral)
+  - **Paso 3**: Configuración (nombre, fecha inicio, sesiones/semana, competencia principal)
+  - **Paso 4**: Vista de Estructura (distribución de fases, lista de mesociclos con microciclos)
+  - **Paso 5**: Confirmación y guardado del plan
+
+- ✅ **Lista de Planes** (`PlansList.js`):
+  - Vista de todos los planes del atleta seleccionado
+  - Barra de progreso del plan
+  - Indicador de fase actual
+  - Acciones: Ver detalles, Editar, Eliminar
+  - Estado vacío elegante con "Crear Primer Plan"
+  - Modal de confirmación para eliminar
+
+- ✅ **Nuevos Endpoints Backend**:
+  - `DELETE /api/periodization/{athlete_id}/{plan_id}` - Eliminar plan
+  - `GET /api/periodization-all/{athlete_id}` - Obtener todos los planes
+
+### Archivos Creados/Modificados
+- `/app/frontend/src/components/PeriodizationWizard.js` - CREADO: Wizard de 5 pasos
+- `/app/frontend/src/components/PlansList.js` - CREADO: Lista de planes con CRUD
+- `/app/frontend/src/pages/DashboardPage.js` - ACTUALIZADO: Integración de nuevos componentes
+- `/app/backend/server.py` - ACTUALIZADO: Endpoints DELETE y GET all plans
