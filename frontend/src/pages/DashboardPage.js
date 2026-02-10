@@ -164,6 +164,21 @@ const DashboardPage = () => {
       return <AthleteCharacterization athleteId={selectedAthleteId} />;
     }
 
+    // Render Health Records for injuries
+    if (activeDataSection === 'injuries') {
+      return <HealthRecords athleteId={selectedAthleteId} recordType="lesion" />;
+    }
+
+    // Render Health Records for diseases
+    if (activeDataSection === 'diseases') {
+      return <HealthRecords athleteId={selectedAthleteId} recordType="enfermedad" />;
+    }
+
+    // Render Health Records for diagnosis (all types)
+    if (activeDataSection === 'diagnostic') {
+      return <HealthRecords athleteId={selectedAthleteId} recordType="all" />;
+    }
+
     const sectionLabel = navItems.find(item => item.id === activeDataSection)?.label;
     
     return (
