@@ -1103,6 +1103,72 @@ async def get_sport_characterization(athlete_id: str, user: dict = Depends(get_c
     
     return data
 
+# =============== ATHLETE CHARACTERIZATION ===============
+class AthleteCharacterizationCreate(BaseModel):
+    athlete_id: Optional[str] = None
+    name: str = ''
+    experience: str = ''
+    age: str = ''
+    position: str = ''
+    level: str = ''
+    observation: str = ''
+    inheritance: str = ''
+    biologicalAge: str = ''
+    optimalSelectionAge: str = ''
+    healthStatus: str = ''
+    anthropometricParams: str = ''
+    physicalQualities: str = ''
+    cognitiveCapabilities: str = ''
+    psychologicalCharacteristics: str = ''
+    socioeconomicCharacteristics: str = ''
+    environment: str = ''
+    nutritionalStatus: str = ''
+    sportsTrajectory: str = ''
+    otherSportsExperience: str = ''
+    previousSeasonPerformance: str = ''
+    objectives: str = ''
+    trainingLevels: str = ''
+    currentForm: str = ''
+    injuries: str = ''
+
+@api_router.post("/characterization/athlete")
+async def save_athlete_characterization(data: AthleteCharacterizationCreate, user: dict = Depends(get_current_user)):
+    doc_id = str(uuid.uuid4())
+    doc = {
+        "id": doc_id,
+        "coach_id": user["id"],
+        **data.model_dump(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    existing = await db.athlete_characterization.find_one({
+        "coach_id": user["id"],
+        "athlete_id": data.athlete_id
+    })
+    
+    if existing:
+        await db.athlete_characterization.update_one(
+            {"id": existing["id"]},
+            {"$set": {**data.model_dump(), "updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        return {"message": "Characterization updated", "id": existing["id"]}
+    else:
+        await db.athlete_characterization.insert_one(doc)
+        return {"message": "Characterization saved", "id": doc_id}
+
+@api_router.get("/characterization/athlete/{athlete_id}")
+async def get_athlete_characterization(athlete_id: str, user: dict = Depends(get_current_user)):
+    data = await db.athlete_characterization.find_one({
+        "coach_id": user["id"],
+        "athlete_id": athlete_id
+    }, {"_id": 0})
+    
+    if not data:
+        raise HTTPException(status_code=404, detail="Characterization not found")
+    
+    return data
+
 # =============== ROOT & HEALTH ===============
 @api_router.get("/")
 async def root():
