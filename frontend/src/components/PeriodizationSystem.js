@@ -6,8 +6,9 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '.
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
 import {
   Plus, Save, Loader2, Calendar, Target, Activity, 
-  ChevronDown, ChevronRight, Trash2, Edit2, BarChart3,
-  TrendingUp, PieChart, Layers, Zap, Heart, Brain, GripVertical, X, Check
+  ChevronDown, ChevronRight, ChevronLeft, Trash2, Edit2, BarChart3,
+  TrendingUp, PieChart, Layers, Zap, Heart, Brain, GripVertical, X, Check,
+  CheckCircle, Clock, BookOpen
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
