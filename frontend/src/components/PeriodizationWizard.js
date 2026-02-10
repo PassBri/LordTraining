@@ -1042,9 +1042,9 @@ const PeriodizationWizard = ({ athleteId, athleteName, onComplete, onCancel }) =
   // =============== RENDER PRINCIPAL ===============
 
   return (
-    <div className="h-full flex flex-col bg-white rounded-xl shadow-lg overflow-hidden">
+    <div className="h-full flex flex-col bg-white rounded-xl shadow-lg overflow-hidden" style={{ maxHeight: 'calc(100vh - 120px)' }}>
       {/* Header con pasos */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6">
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 flex-shrink-0">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-xl font-bold">Sistema de Periodización</h1>
