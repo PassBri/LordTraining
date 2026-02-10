@@ -31,6 +31,7 @@ import AnthropometricData from '../components/AnthropometricData';
 import TestEvaluations from '../components/TestEvaluations';
 import TrainingLoad from '../components/TrainingLoad';
 import GraphicPlan from '../components/GraphicPlan';
+import PeriodizationPlanner from '../components/PeriodizationPlanner';
 
 const DashboardPage = () => {
   const { user, logout } = useAuth();
