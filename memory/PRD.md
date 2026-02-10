@@ -47,6 +47,7 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 - ✅ Dashboard con estadísticas
 - ✅ Exportación PDF de planes
 - ✅ Cálculo automático de carga (volumen × intensidad)
+- ✅ **NEW**: Endpoint /api/training-stages para etapas de periodización
 
 ### Frontend (React + Tailwind + Shadcn UI)
 - ✅ Landing page con pricing
@@ -60,24 +61,36 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 - ✅ Diseño responsive (web + móvil)
 - ✅ Estilo Swiss Sport con Barlow Condensed + Inter
 
+### Components Implemented in "Datos" Panel
+- ✅ PreviousPlanAnalysis.js - Análisis del plan anterior
+- ✅ SportCharacterization.js - Caracterización del deporte
+- ✅ AthleteCharacterization.js - Caracterización de deportistas
+- ✅ HealthRecords.js - Lesiones, enfermedades, diagnóstico
+- ✅ CompetitionAnalysis.js - Análisis y calendario de competencias
+- ✅ **NEW**: TrainingStages.js - Principios del entrenamiento (Periodización)
+
 ## Prioritized Backlog
 
 ### P0 - Critical (Next Sprint)
 - [ ] Integración PayPal como método de pago alternativo
-- [ ] Edición de atletas existentes (UI)
-- [ ] Edición de sesiones y marcado de completadas desde calendario
+- [ ] Datos antropométricos - Formulario de medidas corporales
+- [ ] Test - Sección de pruebas/evaluaciones
+- [ ] Medios de entrenamiento - Biblioteca de medios
 
 ### P1 - High Priority
+- [ ] Carga de entrenamiento - Gestión de cargas
+- [ ] Objetivos e indicadores - KPIs deportivos
+- [ ] Control de entrenamiento - Seguimiento
+- [ ] Calendario de eventos - Programación
 - [ ] Plantillas de planes predefinidas por deporte
 - [ ] Exportación a Excel además de PDF
-- [ ] Notificaciones por email de sesiones próximas
-- [ ] Gráfico ACWR (Acute:Chronic Workload Ratio)
 
 ### P2 - Medium Priority
 - [ ] App móvil nativa (React Native)
 - [ ] Integración con dispositivos wearables (Garmin, Polar)
 - [ ] Módulo multimedia (videos de ejercicios)
 - [ ] Chat entre entrenador y atleta
+- [ ] Gráfico ACWR (Acute:Chronic Workload Ratio)
 
 ### P3 - Future Enhancements
 - [ ] IA más avanzada con historial de rendimiento
@@ -93,8 +106,48 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 - **Payments**: Stripe (test key configurado)
 - **Fonts**: Barlow Condensed (headings), Inter (body)
 
-## Next Tasks
-1. Implementar PayPal como segundo método de pago
-2. Mejorar UI de edición de planes existentes
-3. Añadir gráfico ACWR en dashboard
-4. Implementar envío de planes por email
+## Code Architecture
+```
+/app
+├── backend
+│   ├── server.py          # Main FastAPI server with all routes
+│   ├── .env               # Environment variables
+│   └── requirements.txt
+├── frontend
+│   ├── src
+│   │   ├── components
+│   │   │   ├── ui/               # Shadcn components
+│   │   │   ├── AthleteCharacterization.js
+│   │   │   ├── CompetitionAnalysis.js
+│   │   │   ├── HealthRecords.js
+│   │   │   ├── PreviousPlanAnalysis.js
+│   │   │   ├── SessionPlanning.js
+│   │   │   ├── SportCharacterization.js
+│   │   │   └── TrainingStages.js    # NEW
+│   │   ├── pages
+│   │   │   ├── AuthPage.js
+│   │   │   ├── DashboardPage.js
+│   │   │   └── LandingPage.js
+│   │   ├── services/api.js
+│   │   └── context/AuthContext.js
+│   └── package.json
+└── memory
+    └── PRD.md
+```
+
+## Key API Endpoints
+- `/api/auth/register`, `/api/auth/login` - Authentication
+- `/api/athletes` - CRUD athletes
+- `/api/exercises` - Exercise library
+- `/api/macrocycles`, `/api/mesocycles`, `/api/microcycles`, `/api/sessions` - Training cycles
+- `/api/competitions/analysis` - Competition analysis
+- `/api/training-stages` - Training periodization stages (NEW)
+- `/api/characterization/sport`, `/api/characterization/athlete` - Characterizations
+- `/api/health/records` - Health records
+- `/api/plans/generate` - AI plan generation
+- `/api/payments/checkout` - Stripe checkout
+
+## Notes
+- Charts in dashboard use mock data currently
+- User's preferred language: Spanish
+
