@@ -5,11 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 import { getDashboardStats, getAthletes, seedExercises } from '../services/api';
 import { 
   Target, Send, Heart, Zap, Brain, ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
   FileText, Users, Clipboard, Calendar, Award, BookOpen, 
-  Activity, BarChart, LineChart, Loader2, LogOut, Save, Download, Layers, Plus, Dumbbell
+  Activity, BarChart, LineChart, Loader2, LogOut, Save, Download, Layers, Plus, Dumbbell,
+  Shield, UserCheck, User, UserCircle, Settings
 } from 'lucide-react';
 import { 
   LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, 
@@ -35,12 +37,24 @@ import PeriodizationPlanner from '../components/PeriodizationPlanner';
 import ExerciseLibrary from '../components/ExerciseLibrary';
 import PeriodizationSystem from '../components/PeriodizationSystem';
 
+// Definición de roles disponibles
+const USER_ROLES = [
+  { id: 'admin', name: 'Administrador', description: 'Acceso total al sistema', icon: Shield },
+  { id: 'coach', name: 'Entrenador', description: 'Puede crear planes para múltiples atletas', icon: UserCheck },
+  { id: 'personal_trainer', name: 'Entrenador Personal', description: 'Enfocado en clientes individuales', icon: Dumbbell },
+  { id: 'athlete', name: 'Atleta', description: 'Solo puede ver su propio plan', icon: User },
+  { id: 'team', name: 'Equipo', description: 'Grupo de atletas con plan compartido', icon: Users },
+  { id: 'user', name: 'Usuario', description: 'Rol básico sin atletas asignados', icon: UserCircle }
+];
+
 const DashboardPage = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [athletes, setAthletes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showProfileDialog, setShowProfileDialog] = useState(false);
+  const [updatingProfile, setUpdatingProfile] = useState(false);
   
   // UI State
   const [isNavExpanded, setIsNavExpanded] = useState(true);
