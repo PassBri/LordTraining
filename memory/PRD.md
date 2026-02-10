@@ -162,7 +162,10 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 - `/api/training-stages` - Macrocycle training stages (NEW)
 - `/api/periodization-models` - Periodization models (Traditional, ATR, Contemporary)
 - `/api/comprehensive-plan` - Comprehensive training plan
-- `/api/training-methods` - Training methods (Standard, Variable, Combined) (NEW)
+- `/api/training-methods` - Training methods (Standard, Variable, Combined)
+- `/api/anthropometric` - Anthropometric data (NEW)
+- `/api/test-evaluations` - Test and sport evaluations (NEW)
+- `/api/training-load` - Training load with Matveyev charts (NEW)
 - `/api/characterization/sport`, `/api/characterization/athlete` - Characterizations
 - `/api/health/records` - Health records
 - `/api/plans/generate` - AI plan generation
