@@ -1370,6 +1370,52 @@ async def get_periodization_models(athlete_id: str, user: dict = Depends(get_cur
     
     return data
 
+# =============== COMPREHENSIVE TRAINING PLAN ===============
+class ComprehensivePlanCreate(BaseModel):
+    athlete_id: Optional[str] = None
+    planData: Dict[str, Any] = {}
+    planType: str = 'individual'
+
+@api_router.post("/comprehensive-plan")
+async def save_comprehensive_plan(data: ComprehensivePlanCreate, user: dict = Depends(get_current_user)):
+    doc_id = str(uuid.uuid4())
+    doc = {
+        "id": doc_id,
+        "coach_id": user["id"],
+        "athlete_id": data.athlete_id,
+        "planData": data.planData,
+        "planType": data.planType,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    existing = await db.comprehensive_plans.find_one({
+        "coach_id": user["id"],
+        "athlete_id": data.athlete_id
+    })
+    
+    if existing:
+        await db.comprehensive_plans.update_one(
+            {"id": existing["id"]},
+            {"$set": {"planData": data.planData, "planType": data.planType, "updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        return {"message": "Comprehensive plan updated", "id": existing["id"]}
+    else:
+        await db.comprehensive_plans.insert_one(doc)
+        return {"message": "Comprehensive plan saved", "id": doc_id}
+
+@api_router.get("/comprehensive-plan/{athlete_id}")
+async def get_comprehensive_plan(athlete_id: str, user: dict = Depends(get_current_user)):
+    data = await db.comprehensive_plans.find_one({
+        "coach_id": user["id"],
+        "athlete_id": athlete_id
+    }, {"_id": 0})
+    
+    if not data:
+        raise HTTPException(status_code=404, detail="Comprehensive plan not found")
+    
+    return data
+
 # =============== ROOT & HEALTH ===============
 @api_router.get("/")
 async def root():
