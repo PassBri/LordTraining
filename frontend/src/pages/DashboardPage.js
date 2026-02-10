@@ -184,15 +184,15 @@ const DashboardPage = () => {
       return (
         <div className="p-4 space-y-4">
           <Card className="border-0 shadow-md overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white py-4">
+            <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white py-4 px-5">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+                <div className="flex items-center gap-2 text-lg font-semibold">
                   <Users className="w-5 h-5" />
                   Gestión de Atletas
-                </CardTitle>
+                </div>
                 <span className="text-sm bg-white/20 px-3 py-1 rounded-full">{athletes.length} registrados</span>
               </div>
-            </CardHeader>
+            </div>
             <CardContent className="p-5">
               {/* Formulario nuevo atleta */}
               <div className="bg-indigo-50/50 p-4 rounded-xl mb-5 border border-indigo-100">
