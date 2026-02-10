@@ -9,7 +9,7 @@ import { getDashboardStats, getAthletes, seedExercises } from '../services/api';
 import { 
   Target, Send, Heart, Zap, Brain, ChevronLeft, ChevronRight,
   FileText, Users, Clipboard, Calendar, Award, BookOpen, 
-  Activity, BarChart, LineChart, Loader2, LogOut, Save, Download
+  Activity, BarChart, LineChart, Loader2, LogOut, Save, Download, Layers
 } from 'lucide-react';
 import { 
   LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, 
@@ -24,6 +24,7 @@ import AthleteCharacterization from '../components/AthleteCharacterization';
 import HealthRecords from '../components/HealthRecords';
 import CompetitionAnalysis from '../components/CompetitionAnalysis';
 import TrainingStages from '../components/TrainingStages';
+import PeriodizationModels from '../components/PeriodizationModels';
 
 const DashboardPage = () => {
   const { user, logout } = useAuth();
