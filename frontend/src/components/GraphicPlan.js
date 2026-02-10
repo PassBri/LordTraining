@@ -170,7 +170,7 @@ const GraphicPlan = ({ athleteId }) => {
       if (!athleteId) return;
       
       setLoading(true);
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('train_token');
       
       try {
         const response = await axios.get(
@@ -198,7 +198,7 @@ const GraphicPlan = ({ athleteId }) => {
   // Save plan
   const handleSave = async () => {
     setSaving(true);
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('train_token');
     
     try {
       await axios.post(
