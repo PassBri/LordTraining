@@ -592,12 +592,38 @@ const PeriodizationSystem = ({ athleteId, athleteName }) => {
                   <SelectTrigger className="mt-1">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-80">
+                    {/* Modelos Clásicos */}
+                    <div className="px-2 py-1 text-xs font-bold text-slate-500 bg-slate-100">Clásicos</div>
                     <SelectItem value="traditional">Tradicional (Matveiev)</SelectItem>
-                    <SelectItem value="atr">ATR (Acumulación-Transformación-Realización)</SelectItem>
+                    <SelectItem value="atr">ATR (Issurin)</SelectItem>
                     <SelectItem value="blocks">Por Bloques (Verkhoshansky)</SelectItem>
+                    
+                    {/* Modelos Ondulatorios */}
+                    <div className="px-2 py-1 text-xs font-bold text-slate-500 bg-slate-100 mt-1">Ondulatorios</div>
+                    <SelectItem value="undulating_daily">Ondulatorio Diario</SelectItem>
+                    <SelectItem value="undulating_weekly">Ondulatorio Semanal</SelectItem>
+                    
+                    {/* Modelos Avanzados */}
+                    <div className="px-2 py-1 text-xs font-bold text-slate-500 bg-slate-100 mt-1">Avanzados</div>
+                    <SelectItem value="pendulum">Péndulo (Arosiev)</SelectItem>
+                    <SelectItem value="structural_bells">Campanas Estructurales (Forteza)</SelectItem>
+                    <SelectItem value="contemporary">Contemporáneo (Bondarchuk)</SelectItem>
+                    <SelectItem value="inverse">Periodización Inversa</SelectItem>
+                    <SelectItem value="tactical">Táctico (Deportes de Equipo)</SelectItem>
+                    
+                    {/* Modelos Específicos */}
+                    <div className="px-2 py-1 text-xs font-bold text-slate-500 bg-slate-100 mt-1">Específicos</div>
+                    <SelectItem value="concurrent">Concurrente</SelectItem>
+                    <SelectItem value="conjugate">Conjugado (Westside)</SelectItem>
+                    <SelectItem value="polarized">Polarizado</SelectItem>
                   </SelectContent>
                 </Select>
+                {macrocycleConfig.model && PERIODIZATION_MODELS[macrocycleConfig.model] && (
+                  <p className="text-xs text-slate-500 mt-1">
+                    {PERIODIZATION_MODELS[macrocycleConfig.model].description}
+                  </p>
+                )}
               </div>
 
               {/* Preview de fases */}
