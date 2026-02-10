@@ -421,7 +421,7 @@ const DashboardPage = () => {
       return (
         <div className="p-4 space-y-4">
           <Card className="border-0 shadow-md overflow-hidden">
-            <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white py-4 px-5 rounded-t-xl">
+            <div style={{ background: 'linear-gradient(to right, #8b5cf6, #7c3aed)' }} className="text-white py-4 px-5 rounded-t-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-lg font-semibold">
                   <Calendar className="w-5 h-5" />
