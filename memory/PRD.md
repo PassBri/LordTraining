@@ -284,3 +284,40 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 ### Archivos Modificados
 - `/app/frontend/src/components/ExerciseLibrary.js` - Biblioteca de ejercicios con CRUD completo
 
+### Feb 10, 2026 - Editor de Sesiones, Drag & Drop e Integración Plan Gráfico
+- ✅ **Editor de Sesiones Completo**:
+  - Edición inline de sesiones individuales
+  - Campos editables: Día, Tipo de sesión, Duración (min), Intensidad
+  - Tipos de sesión: Fuerza, Resistencia, Velocidad, Técnica, Recuperación, Táctica, Flexibilidad
+  - Niveles de intensidad: Baja, Media, Alta
+  - Botones de guardar (✓) y cancelar (✕)
+  - Función de eliminar sesión con confirmación
+  - Función de agregar nueva sesión
+
+- ✅ **Drag and Drop de Sesiones**:
+  - Implementación con HTML5 native drag API
+  - Icono de arrastre (GripVertical) visible en cada tarjeta
+  - Tip visual: "Arrastra las sesiones para reorganizarlas. Haz clic en una sesión para editarla."
+  - Reorganización de sesiones dentro del mismo microciclo
+  - Reorganización entre diferentes microciclos
+  - Auto-guardado en backend al reorganizar
+
+- ✅ **Integración PeriodizationSystem → GraphicPlan**:
+  - Función `importPeriodizationData()` en GraphicPlan.js
+  - Mapeo automático de datos del macrociclo a la matriz del plan gráfico
+  - Transformación de fases, mesociclos y microciclos
+  - Cálculo automático de niveles de intensidad (escala 1-5)
+  - Distribución de preparación física según fase
+  - Botón "Sincronizar" para reimportar datos
+  - Badge "Datos importados" con mensaje de éxito
+
+- ✅ **Corrección de Bug Token**:
+  - GraphicPlan.js ahora usa `train_token` (antes usaba `token` incorrecto)
+
+### Archivos Modificados
+- `/app/frontend/src/components/PeriodizationSystem.js` - StructureView con editor y drag-drop (líneas 582-978)
+- `/app/frontend/src/components/GraphicPlan.js` - Función importPeriodizationData, botón Sincronizar, corrección token
+- `/app/frontend/src/pages/DashboardPage.js` - Pasa periodizationData al GraphicPlan, carga datos de periodización
+
+### Test Report
+- `/app/test_reports/iteration_5.json` - 100% tests pasados (30/30)
