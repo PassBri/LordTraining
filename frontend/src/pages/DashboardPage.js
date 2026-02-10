@@ -831,17 +831,149 @@ const DashboardPage = () => {
               {isNavExpanded ? <ChevronLeft className="w-5 h-5 text-gray-400" /> : <ChevronRight className="w-5 h-5 text-gray-400" />}
             </button>
             <div className="flex-1 overflow-y-auto">
-              {navItems.map((item) => {
+              {/* Sección headers */}
+              {isNavExpanded && (
+                <div className="px-3 py-2 bg-blue-600 text-white text-xs font-bold uppercase tracking-wide">
+                  Registro y Caracterización
+                </div>
+              )}
+              {navItems.filter(i => i.section === 'registro').map((item) => {
                 const Icon = item.icon;
                 return (
                   <button
                     key={item.id}
                     onClick={() => setActiveDataSection(item.id)}
-                    className={`w-full p-4 flex items-center gap-3 hover:bg-blue-50 transition-colors text-left ${
+                    className={`w-full p-3 flex items-center gap-3 hover:bg-blue-50 transition-colors text-left ${
                       activeDataSection === item.id ? 'bg-blue-50 border-l-4 border-blue-600 text-blue-600' : 'text-gray-600'
                     }`}
                   >
-                    <Icon className="h-5 w-5 flex-shrink-0" />
+                    <Icon className="h-4 w-4 flex-shrink-0" />
+                    {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
+                  </button>
+                );
+              })}
+              
+              {isNavExpanded && (
+                <div className="px-3 py-2 bg-green-600 text-white text-xs font-bold uppercase tracking-wide mt-1">
+                  Evaluación Inicial
+                </div>
+              )}
+              {navItems.filter(i => i.section === 'evaluacion').map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveDataSection(item.id)}
+                    className={`w-full p-3 flex items-center gap-3 hover:bg-green-50 transition-colors text-left ${
+                      activeDataSection === item.id ? 'bg-green-50 border-l-4 border-green-600 text-green-600' : 'text-gray-600'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4 flex-shrink-0" />
+                    {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
+                  </button>
+                );
+              })}
+              
+              {isNavExpanded && (
+                <div className="px-3 py-2 bg-orange-500 text-white text-xs font-bold uppercase tracking-wide mt-1">
+                  Análisis Previo
+                </div>
+              )}
+              {navItems.filter(i => i.section === 'analisis').map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveDataSection(item.id)}
+                    className={`w-full p-3 flex items-center gap-3 hover:bg-orange-50 transition-colors text-left ${
+                      activeDataSection === item.id ? 'bg-orange-50 border-l-4 border-orange-500 text-orange-600' : 'text-gray-600'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4 flex-shrink-0" />
+                    {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
+                  </button>
+                );
+              })}
+              
+              {isNavExpanded && (
+                <div className="px-3 py-2 bg-purple-600 text-white text-xs font-bold uppercase tracking-wide mt-1">
+                  Definición de Objetivos
+                </div>
+              )}
+              {navItems.filter(i => i.section === 'objetivos').map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveDataSection(item.id)}
+                    className={`w-full p-3 flex items-center gap-3 hover:bg-purple-50 transition-colors text-left ${
+                      activeDataSection === item.id ? 'bg-purple-50 border-l-4 border-purple-600 text-purple-600' : 'text-gray-600'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4 flex-shrink-0" />
+                    {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
+                  </button>
+                );
+              })}
+              
+              {isNavExpanded && (
+                <div className="px-3 py-2 bg-teal-600 text-white text-xs font-bold uppercase tracking-wide mt-1">
+                  Planificación
+                </div>
+              )}
+              {navItems.filter(i => i.section === 'planificacion').map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveDataSection(item.id)}
+                    className={`w-full p-3 flex items-center gap-3 hover:bg-teal-50 transition-colors text-left ${
+                      activeDataSection === item.id ? 'bg-teal-50 border-l-4 border-teal-600 text-teal-600' : 'text-gray-600'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4 flex-shrink-0" />
+                    {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
+                  </button>
+                );
+              })}
+              
+              {isNavExpanded && (
+                <div className="px-3 py-2 bg-red-600 text-white text-xs font-bold uppercase tracking-wide mt-1">
+                  Control y Seguimiento
+                </div>
+              )}
+              {navItems.filter(i => i.section === 'control').map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveDataSection(item.id)}
+                    className={`w-full p-3 flex items-center gap-3 hover:bg-red-50 transition-colors text-left ${
+                      activeDataSection === item.id ? 'bg-red-50 border-l-4 border-red-600 text-red-600' : 'text-gray-600'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4 flex-shrink-0" />
+                    {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
+                  </button>
+                );
+              })}
+              
+              {isNavExpanded && (
+                <div className="px-3 py-2 bg-gray-700 text-white text-xs font-bold uppercase tracking-wide mt-1">
+                  Herramientas
+                </div>
+              )}
+              {navItems.filter(i => i.section === 'herramientas').map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveDataSection(item.id)}
+                    className={`w-full p-3 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left ${
+                      activeDataSection === item.id ? 'bg-gray-100 border-l-4 border-gray-700 text-gray-800' : 'text-gray-600'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4 flex-shrink-0" />
                     {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
                   </button>
                 );
