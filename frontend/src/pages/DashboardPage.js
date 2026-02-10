@@ -1077,7 +1077,43 @@ const DashboardPage = () => {
     // Render Periodization System (Auto-generation with charts)
     if (activeDataSection === 'periodization-models') {
       const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
-      return <PeriodizationSystem athleteId={selectedAthleteId} athleteName={selectedAthlete?.name} />;
+      
+      // Si no hay atleta seleccionado, mostrar pantalla de selección o wizard
+      if (!selectedAthleteId) {
+        return (
+          <div className="h-full flex flex-col items-center justify-center p-8">
+            <div className="text-center max-w-md">
+              <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Activity className="w-10 h-10 text-blue-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-slate-800 mb-3">Selecciona un Atleta</h2>
+              <p className="text-slate-500 mb-6">
+                Ve a la sección "Atletas" y selecciona uno para crear su periodización
+              </p>
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700"
+                onClick={() => setActiveDataSection('athletes')}
+              >
+                <Users className="w-4 h-4 mr-2" />
+                Ir a Atletas
+              </Button>
+            </div>
+          </div>
+        );
+      }
+      
+      return (
+        <PeriodizationWizard 
+          athleteId={selectedAthleteId} 
+          athleteName={selectedAthlete?.name}
+          onComplete={(structure) => {
+            toast.success('Plan creado exitosamente');
+            // Opcional: navegar a la vista del plan
+            setActiveDataSection('graphic-plan');
+          }}
+          onCancel={() => setActiveDataSection('athletes')}
+        />
+      );
     }
 
     // Render Macrocycle Stages (Training Stages)
