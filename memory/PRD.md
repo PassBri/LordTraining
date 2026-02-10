@@ -122,10 +122,11 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 │   │   │   ├── AthleteCharacterization.js
 │   │   │   ├── CompetitionAnalysis.js
 │   │   │   ├── HealthRecords.js
+│   │   │   ├── PeriodizationModels.js  # NEW - Modelos de periodización
 │   │   │   ├── PreviousPlanAnalysis.js
 │   │   │   ├── SessionPlanning.js
 │   │   │   ├── SportCharacterization.js
-│   │   │   └── TrainingStages.js    # NEW
+│   │   │   └── TrainingStages.js       # Etapas del macrociclo
 │   │   ├── pages
 │   │   │   ├── AuthPage.js
 │   │   │   ├── DashboardPage.js
