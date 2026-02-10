@@ -215,7 +215,9 @@ const SessionEditor = ({
       if (cat.subcategorias) {
         Object.entries(cat.subcategorias).forEach(([subId, sub]) => {
           sub.ejercicios?.forEach(ej => {
-            if (ej.nombre.toLowerCase().includes(term) || 
+            // Si no hay término de búsqueda, mostrar todos
+            // Si hay término, filtrar por nombre de ejercicio o categoría
+            if (!term || ej.nombre.toLowerCase().includes(term) || 
                 cat.nombre.toLowerCase().includes(term)) {
               results.push({
                 ...ej,
