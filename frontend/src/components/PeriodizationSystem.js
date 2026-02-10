@@ -78,12 +78,43 @@ const PeriodizationSystem = ({ athleteId, athleteName }) => {
   const [macrocycleConfig, setMacrocycleConfig] = useState({
     name: '',
     startDate: '',
-    duration: 'annual', // annual, semester, quarter
+    duration: 'annual', // olympic, biannual, annual, semester, quarter, monthly
     mainCompetition: '',
     mainCompetitionDate: '',
     sessionsPerWeek: 5,
-    model: 'traditional' // traditional, atr, blocks
+    model: 'traditional' // Ver PERIODIZATION_MODELS
   });
+
+  // Duraciones de ciclo disponibles
+  const CYCLE_DURATIONS = {
+    olympic: { label: 'Ciclo Olímpico (4 años)', weeks: 208, description: 'Planificación para competencias olímpicas' },
+    biannual: { label: 'Bianual (2 años)', weeks: 104, description: 'Dos temporadas completas' },
+    annual: { label: 'Anual (52 semanas)', weeks: 52, description: 'Macrociclo tradicional' },
+    semester: { label: 'Semestral (26 semanas)', weeks: 26, description: 'Media temporada' },
+    quarter: { label: 'Trimestral (13 semanas)', weeks: 13, description: 'Ciclo corto' },
+    monthly: { label: 'Mensual (4 semanas)', weeks: 4, description: 'Mesociclo individual' }
+  };
+
+  // Modelos de periodización disponibles
+  const PERIODIZATION_MODELS = {
+    // Clásicos
+    traditional: { label: 'Tradicional (Matveiev)', category: 'Clásico', description: 'Periodización lineal clásica' },
+    atr: { label: 'ATR (Issurin)', category: 'Clásico', description: 'Acumulación-Transformación-Realización' },
+    blocks: { label: 'Por Bloques (Verkhoshansky)', category: 'Clásico', description: 'Cargas concentradas' },
+    // Ondulatorios
+    undulating_daily: { label: 'Ondulatorio Diario', category: 'Ondulatorio', description: 'Variación día a día' },
+    undulating_weekly: { label: 'Ondulatorio Semanal', category: 'Ondulatorio', description: 'Variación semanal' },
+    // Avanzados
+    pendulum: { label: 'Péndulo (Arosiev)', category: 'Avanzado', description: 'Alternancia de énfasis' },
+    structural_bells: { label: 'Campanas Estructurales (Forteza)', category: 'Avanzado', description: 'Acentuación de direcciones' },
+    contemporary: { label: 'Contemporáneo (Bondarchuk)', category: 'Avanzado', description: 'Para alto rendimiento' },
+    inverse: { label: 'Periodización Inversa', category: 'Avanzado', description: 'Para deportes de resistencia' },
+    tactical: { label: 'Táctico', category: 'Avanzado', description: 'Para deportes de equipo' },
+    // Específicos
+    concurrent: { label: 'Concurrente', category: 'Específico', description: 'Desarrollo simultáneo' },
+    conjugate: { label: 'Conjugado (Westside)', category: 'Específico', description: 'Para fuerza/potencia' },
+    polarized: { label: 'Polarizado', category: 'Específico', description: '80% baja / 20% alta intensidad' }
+  };
 
   // Datos para gráficos
   const [chartData, setChartData] = useState({
