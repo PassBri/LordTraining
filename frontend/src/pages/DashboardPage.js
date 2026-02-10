@@ -53,7 +53,11 @@ const DashboardPage = () => {
   // Navigation items for "Datos" panel
   const navItems = [
     { id: 'graphic-plan', label: 'Plan Gráfico', icon: Layers },
-    { id: 'prev-plan', label: 'Análisis del plan anterior', icon: FileText, component: 'analysis' },
+    { id: 'athletes', label: 'Atletas', icon: Users },
+    { id: 'exercises-lib', label: 'Ejercicios', icon: Activity },
+    { id: 'calendar-view', label: 'Calendario', icon: Calendar },
+    { id: 'ai-generator', label: 'Generar con IA', icon: Brain },
+    { id: 'prev-plan', label: 'Análisis del plan anterior', icon: FileText },
     { id: 'sport-char', label: 'Caracterización del deporte', icon: Target },
     { id: 'athlete-char', label: 'Caracterización de deportistas', icon: Users },
     { id: 'diagnostic', label: 'Diagnóstico', icon: Clipboard },
