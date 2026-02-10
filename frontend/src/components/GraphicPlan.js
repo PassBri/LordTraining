@@ -20,7 +20,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Maximize2,
-  Minimize2
+  Minimize2,
+  FileInput,
+  RefreshCw
 } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
