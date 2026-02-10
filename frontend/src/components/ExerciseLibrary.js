@@ -233,17 +233,61 @@ const EJERCICIOS_INICIALES = {
     nombre: 'Resistencia',
     color: 'bg-cyan-100 text-cyan-700 border-cyan-300',
     subcategorias: {
-      'resistencia_aerobica': {
-        nombre: 'Resistencia Aeróbica',
+      'carrera_continua': {
+        nombre: 'Carrera - Series Largas (Long Sets)',
         ejercicios: [
-          { nombre: 'Carrera continua', musculos: 'Piernas, Sistema cardiovascular', equipo: 'Ninguno', duracion: '20-60 min' },
+          { nombre: 'Timed Run (Carrera por tiempo)', musculos: 'Piernas, Sistema cardiovascular', equipo: 'Ninguno', duracion: '20-60 min' },
           { nombre: 'Fartlek', musculos: 'Piernas, Sistema cardiovascular', equipo: 'Ninguno', duracion: '20-45 min' },
-          { nombre: 'Carrera progresiva', musculos: 'Piernas', equipo: 'Ninguno', duracion: '20-40 min' },
-          { nombre: 'Natación continua', musculos: 'Cuerpo completo', equipo: 'Piscina', duracion: '20-60 min' },
-          { nombre: 'Ciclismo', musculos: 'Piernas', equipo: 'Bicicleta', duracion: '30-120 min' },
-          { nombre: 'Remo ergómetro', musculos: 'Cuerpo completo', equipo: 'Remo', duracion: '20-40 min' },
-          { nombre: 'Elíptica', musculos: 'Cuerpo completo', equipo: 'Elíptica', duracion: '20-45 min' },
-          { nombre: 'Caminata rápida', musculos: 'Piernas', equipo: 'Ninguno', duracion: '30-60 min' }
+          { nombre: 'Threshold Runs (Carreras de umbral)', musculos: 'Piernas, Sistema cardiovascular', equipo: 'Ninguno', duracion: '20-40 min' },
+          { nombre: 'Long Intervals (Intervalos largos)', musculos: 'Piernas, Sistema cardiovascular', equipo: 'Ninguno' }
+        ]
+      },
+      'modalidades_cardio': {
+        nombre: 'Modalidades Cardiovasculares',
+        ejercicios: [
+          { nombre: 'Running (Carrera)', musculos: 'Piernas, Sistema cardiovascular', equipo: 'Ninguno' },
+          { nombre: 'Cycling (Ciclismo)', musculos: 'Piernas', equipo: 'Bicicleta' },
+          { nombre: 'Jump Rope (Cuerda de saltar)', musculos: 'Piernas, Coordinación', equipo: 'Cuerda' },
+          { nombre: 'Rowing (Remo)', musculos: 'Cuerpo completo', equipo: 'Ergómetro' },
+          { nombre: 'Swimming (Natación)', musculos: 'Cuerpo completo', equipo: 'Piscina' }
+        ]
+      },
+      'hiit': {
+        nombre: 'Ejercicios de Intervalos de Alta Intensidad (High-Intensity Interval Training)',
+        ejercicios: [
+          { nombre: 'Burpees', musculos: 'Cuerpo completo', equipo: 'Ninguno' },
+          { nombre: 'Mountain Climbers (Escaladores)', musculos: 'Core, Hombros, Piernas', equipo: 'Ninguno' },
+          { nombre: 'Box Jumps (Saltos al cajón)', musculos: 'Piernas, Glúteos', equipo: 'Cajón' },
+          { nombre: 'Windmill', musculos: 'Core, Oblicuos', equipo: 'Kettlebell' },
+          { nombre: 'Twist', musculos: 'Core, Oblicuos', equipo: 'Ninguno' },
+          { nombre: 'Shoulder Tap Plank (Plancha con toque de hombro)', musculos: 'Core, Hombros', equipo: 'Ninguno' },
+          { nombre: 'Jumping Jacks', musculos: 'Cuerpo completo', equipo: 'Ninguno' }
+        ]
+      },
+      'resistencia_cardiovascular': {
+        nombre: 'Ejercicios de Resistencia Cardiovascular',
+        ejercicios: [
+          { nombre: 'Mountain Climbers', musculos: 'Core, Hombros, Piernas', equipo: 'Ninguno' }
+        ]
+      },
+      'eventos_pista': {
+        nombre: 'Eventos de Resistencia en Pista (Track Endurance Events)',
+        ejercicios: [
+          { nombre: '800 metros', musculos: 'Piernas, Sistema cardiovascular', equipo: 'Pista' },
+          { nombre: '1500 metros', musculos: 'Piernas, Sistema cardiovascular', equipo: 'Pista' },
+          { nombre: '3000 metros', musculos: 'Piernas, Sistema cardiovascular', equipo: 'Pista' },
+          { nombre: '5000 metros', musculos: 'Piernas, Sistema cardiovascular', equipo: 'Pista' },
+          { nombre: '10000 metros', musculos: 'Piernas, Sistema cardiovascular', equipo: 'Pista' }
+        ]
+      },
+      'eventos_carretera': {
+        nombre: 'Eventos de Resistencia en Carretera (Road Endurance Events)',
+        ejercicios: [
+          { nombre: '5 kilómetros (5K)', musculos: 'Piernas, Sistema cardiovascular', equipo: 'Ninguno' },
+          { nombre: '10 kilómetros (10K)', musculos: 'Piernas, Sistema cardiovascular', equipo: 'Ninguno' },
+          { nombre: 'Media Maratón (21 kilómetros)', musculos: 'Piernas, Sistema cardiovascular', equipo: 'Ninguno' },
+          { nombre: 'Maratón (42 kilómetros)', musculos: 'Piernas, Sistema cardiovascular', equipo: 'Ninguno' },
+          { nombre: 'Trail Running / Mountain Running', musculos: 'Piernas, Core, Sistema cardiovascular', equipo: 'Terreno montañoso' }
         ]
       },
       'resistencia_anaerobica': {
