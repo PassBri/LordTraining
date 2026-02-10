@@ -7,7 +7,7 @@ import { Input } from '../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { getDashboardStats, getAthletes, seedExercises } from '../services/api';
 import { 
-  Target, Send, Heart, Zap, Brain, ChevronLeft, ChevronRight,
+  Target, Send, Heart, Zap, Brain, ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
   FileText, Users, Clipboard, Calendar, Award, BookOpen, 
   Activity, BarChart, LineChart, Loader2, LogOut, Save, Download, Layers, Plus, Dumbbell
 } from 'lucide-react';
