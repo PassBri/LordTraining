@@ -949,6 +949,107 @@ async def seed_exercises():
     
     return {"message": "Exercises seeded successfully", "count": len(exercises)}
 
+# =============== PREVIOUS PLAN ANALYSIS ===============
+class PreviousPlanAnalysisCreate(BaseModel):
+    athlete_id: Optional[str] = None
+    initialObjectives: str = ''
+    achievementLevel: str = ''
+    performanceIndicators: str = ''
+    objectivesCompliance: str = ''
+    recoveryProcess: str = ''
+    fatiguePeriods: str = ''
+    injuries: str = ''
+    injuryImpact: str = ''
+    injuryMeasures: str = ''
+    planPositiveAspects: str = ''
+    planImprovementAreas: str = ''
+    nutritionHabits: str = ''
+    hydrationHabits: str = ''
+    nutritionImpact: str = ''
+    stressManagement: str = ''
+    competitionPressure: str = ''
+    psychSupport: str = ''
+    equipmentAdequacy: str = ''
+    techNeeds: str = ''
+    specificChanges: str = ''
+    nextCycleChanges: str = ''
+    stagnationPhases: str = ''
+    stagnationReasons: str = ''
+    performanceResults: str = ''
+    planningCompliance: str = ''
+    trainingLevels: str = ''
+    difficulties: str = ''
+
+@api_router.post("/analysis/previous-plan")
+async def save_previous_plan_analysis(analysis: PreviousPlanAnalysisCreate, user: dict = Depends(get_current_user)):
+    analysis_id = str(uuid.uuid4())
+    doc = {
+        "id": analysis_id,
+        "coach_id": user["id"],
+        **analysis.model_dump(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    # Check if analysis exists for this athlete
+    existing = await db.plan_analysis.find_one({
+        "coach_id": user["id"],
+        "athlete_id": analysis.athlete_id
+    })
+    
+    if existing:
+        await db.plan_analysis.update_one(
+            {"id": existing["id"]},
+            {"$set": {**analysis.model_dump(), "updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        return {"message": "Analysis updated", "id": existing["id"]}
+    else:
+        await db.plan_analysis.insert_one(doc)
+        return {"message": "Analysis saved", "id": analysis_id}
+
+@api_router.get("/analysis/previous-plan/{athlete_id}")
+async def get_previous_plan_analysis(athlete_id: str, user: dict = Depends(get_current_user)):
+    analysis = await db.plan_analysis.find_one({
+        "coach_id": user["id"],
+        "athlete_id": athlete_id
+    }, {"_id": 0})
+    
+    if not analysis:
+        raise HTTPException(status_code=404, detail="Analysis not found")
+    
+    return analysis
+
+# =============== SESSION PLANNING ===============
+class SessionPlanningCreate(BaseModel):
+    athlete_id: Optional[str] = None
+    macrocycle_id: Optional[str] = None
+    date: str
+    sessionNumber: int = 1
+    objectives: Dict[str, str] = {}
+    phases: Dict[str, List[Dict[str, Any]]] = {}
+    heartRate: Dict[str, Any] = {}
+    feedback: str = ''
+
+@api_router.post("/sessions/planning")
+async def save_session_planning(session: SessionPlanningCreate, user: dict = Depends(get_current_user)):
+    session_id = str(uuid.uuid4())
+    doc = {
+        "id": session_id,
+        "coach_id": user["id"],
+        **session.model_dump(),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.session_plans.insert_one(doc)
+    return {"message": "Session planning saved", "id": session_id}
+
+@api_router.get("/sessions/planning/{athlete_id}")
+async def get_session_plannings(athlete_id: str, user: dict = Depends(get_current_user)):
+    sessions = await db.session_plans.find({
+        "coach_id": user["id"],
+        "athlete_id": athlete_id
+    }, {"_id": 0}).to_list(100)
+    return sessions
+
 # =============== ROOT & HEALTH ===============
 @api_router.get("/")
 async def root():
