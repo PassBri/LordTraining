@@ -70,6 +70,7 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 - ✅ CompetitionAnalysis.js - Análisis y calendario de competencias
 - ✅ TrainingStages.js - Etapas del macrociclo (Períodos: Preparatorio, Competitivo, Transitorio)
 - ✅ PeriodizationModels.js - Modelos de periodización (Tradicional/Matveyev, ATR/Issurin, Contemporáneo/Bondarchuk)
+- ✅ **NEW**: TrainingMethods.js - Métodos de entrenamiento (Estándar, Variables, Combinados)
 
 ### Components Implemented in "Periodizar" Panel
 - ✅ **NEW**: ComprehensiveTrainingPlanner.js - Sistema integral de planificación:
