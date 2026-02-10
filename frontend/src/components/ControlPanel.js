@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
+import { Input } from './ui/input';
 import { 
   Users, Calendar, Target, Activity, Dumbbell, TrendingUp, 
   BarChart3, Clock, Award, Heart, Zap, ArrowUpRight, ArrowDownRight,
-  ChevronRight, Flag, Timer, Flame
+  ChevronRight, Flag, Timer, Flame, Save, Download
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  LineChart, Line, PieChart, Pie, Cell, AreaChart, Area, RadialBarChart, RadialBar
+  LineChart, Line, PieChart, Pie, Cell, AreaChart, Area
 } from 'recharts';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
