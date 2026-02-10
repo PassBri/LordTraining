@@ -186,6 +186,11 @@ const DashboardPage = () => {
       return <CompetitionAnalysis athleteId={selectedAthleteId} />;
     }
 
+    // Render Training Stages (Principles)
+    if (activeDataSection === 'principles') {
+      return <TrainingStages athleteId={selectedAthleteId} />;
+    }
+
     const sectionLabel = navItems.find(item => item.id === activeDataSection)?.label;
     
     return (
