@@ -200,6 +200,11 @@ const DashboardPage = () => {
       return <TrainingStages athleteId={selectedAthleteId} />;
     }
 
+    // Render Training Methods (Medios de entrenamiento)
+    if (activeDataSection === 'exercises') {
+      return <TrainingMethods athleteId={selectedAthleteId} />;
+    }
+
     // For sections without specific components, show placeholder
     const sectionLabel = navItems.find(item => item.id === activeDataSection)?.label;
     
