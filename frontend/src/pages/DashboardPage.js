@@ -395,19 +395,54 @@ const DashboardPage = () => {
                   Registrar Nuevo Atleta
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <Input placeholder="Nombre completo" className="h-10 border-indigo-200 focus:border-indigo-400" />
-                  <Input placeholder="Email" type="email" className="h-10 border-indigo-200 focus:border-indigo-400" />
-                  <Input placeholder="Fecha nacimiento" type="date" className="h-10 border-indigo-200 focus:border-indigo-400" />
-                  <Select>
+                  <Input 
+                    placeholder="Nombre completo" 
+                    className="h-10 border-indigo-200 focus:border-indigo-400" 
+                    value={newAthlete.name}
+                    onChange={(e) => setNewAthlete({...newAthlete, name: e.target.value})}
+                  />
+                  <Input 
+                    placeholder="Email" 
+                    type="email" 
+                    className="h-10 border-indigo-200 focus:border-indigo-400" 
+                    value={newAthlete.email}
+                    onChange={(e) => setNewAthlete({...newAthlete, email: e.target.value})}
+                  />
+                  <Input 
+                    placeholder="Fecha nacimiento" 
+                    type="date" 
+                    className="h-10 border-indigo-200 focus:border-indigo-400" 
+                    value={newAthlete.birthDate}
+                    onChange={(e) => setNewAthlete({...newAthlete, birthDate: e.target.value})}
+                  />
+                  <Select value={newAthlete.gender} onValueChange={(v) => setNewAthlete({...newAthlete, gender: v})}>
                     <SelectTrigger className="h-10 border-indigo-200"><SelectValue placeholder="Género" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="masculino">Masculino</SelectItem>
                       <SelectItem value="femenino">Femenino</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Input placeholder="Deporte" className="h-10 border-indigo-200 focus:border-indigo-400" />
-                  <Input placeholder="Categoría" className="h-10 border-indigo-200 focus:border-indigo-400" />
-                  <Select>
+                  <Select value={newAthlete.sport} onValueChange={(v) => setNewAthlete({...newAthlete, sport: v})}>
+                    <SelectTrigger className="h-10 border-indigo-200"><SelectValue placeholder="Deporte" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="football">Fútbol</SelectItem>
+                      <SelectItem value="athletics">Atletismo</SelectItem>
+                      <SelectItem value="swimming">Natación</SelectItem>
+                      <SelectItem value="cycling">Ciclismo</SelectItem>
+                      <SelectItem value="basketball">Baloncesto</SelectItem>
+                      <SelectItem value="tennis">Tenis</SelectItem>
+                      <SelectItem value="crossfit">CrossFit</SelectItem>
+                      <SelectItem value="weightlifting">Levantamiento</SelectItem>
+                      <SelectItem value="other">Otro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input 
+                    placeholder="Categoría" 
+                    className="h-10 border-indigo-200 focus:border-indigo-400" 
+                    value={newAthlete.category}
+                    onChange={(e) => setNewAthlete({...newAthlete, category: e.target.value})}
+                  />
+                  <Select value={newAthlete.level} onValueChange={(v) => setNewAthlete({...newAthlete, level: v})}>
                     <SelectTrigger className="h-10 border-indigo-200"><SelectValue placeholder="Nivel" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="principiante">Principiante</SelectItem>
@@ -416,8 +451,13 @@ const DashboardPage = () => {
                       <SelectItem value="elite">Elite</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button className="bg-indigo-500 hover:bg-indigo-600 h-10 font-medium">
-                    <Plus className="w-4 h-4 mr-1" /> Agregar
+                  <Button 
+                    className="bg-indigo-500 hover:bg-indigo-600 h-10 font-medium"
+                    onClick={handleCreateAthlete}
+                    disabled={savingAthlete}
+                  >
+                    {savingAthlete ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Plus className="w-4 h-4 mr-1" />}
+                    Agregar
                   </Button>
                 </div>
               </div>
@@ -432,19 +472,33 @@ const DashboardPage = () => {
                   </div>
                 ) : (
                   athletes.map(athlete => (
-                    <div key={athlete.id} className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl hover:shadow-md hover:border-indigo-200 transition-all duration-200">
+                    <div key={athlete.id} className={`flex items-center justify-between p-4 bg-white border rounded-xl hover:shadow-md transition-all duration-200 ${selectedAthleteId === athlete.id ? 'border-indigo-400 ring-2 ring-indigo-200' : 'border-slate-200 hover:border-indigo-200'}`}>
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-full flex items-center justify-center shadow-sm">
                           <span className="text-white font-bold text-lg">{athlete.name?.charAt(0)}</span>
                         </div>
                         <div>
                           <p className="font-semibold text-slate-800">{athlete.name}</p>
-                          <p className="text-sm text-slate-500">{athlete.sport} • {athlete.category || 'Sin categoría'}</p>
+                          <p className="text-sm text-slate-500">{athlete.sport} • {athlete.level || 'Sin nivel'} • {athlete.age} años</p>
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm" onClick={() => setSelectedAthleteId(athlete.id)} className="border-indigo-200 text-indigo-600 hover:bg-indigo-50">Seleccionar</Button>
-                        <Button variant="ghost" size="sm" className="text-rose-500 hover:text-rose-600 hover:bg-rose-50">Eliminar</Button>
+                        <Button 
+                          variant={selectedAthleteId === athlete.id ? "default" : "outline"} 
+                          size="sm" 
+                          onClick={() => setSelectedAthleteId(selectedAthleteId === athlete.id ? null : athlete.id)} 
+                          className={selectedAthleteId === athlete.id ? "bg-indigo-500" : "border-indigo-200 text-indigo-600 hover:bg-indigo-50"}
+                        >
+                          {selectedAthleteId === athlete.id ? '✓ Seleccionado' : 'Seleccionar'}
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-rose-500 hover:text-rose-600 hover:bg-rose-50"
+                          onClick={() => handleDeleteAthlete(athlete.id)}
+                        >
+                          Eliminar
+                        </Button>
                       </div>
                     </div>
                   ))
