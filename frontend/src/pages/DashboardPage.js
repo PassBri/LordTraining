@@ -1005,9 +1005,10 @@ const DashboardPage = () => {
       return <CompetitionAnalysis athleteId={selectedAthleteId} />;
     }
 
-    // Render Periodization Models
+    // Render Periodization System (Auto-generation with charts)
     if (activeDataSection === 'periodization-models') {
-      return <PeriodizationModels athleteId={selectedAthleteId} />;
+      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
+      return <PeriodizationSystem athleteId={selectedAthleteId} athleteName={selectedAthlete?.name} />;
     }
 
     // Render Macrocycle Stages (Training Stages)
