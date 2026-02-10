@@ -138,6 +138,56 @@ class UserResponse(BaseModel):
     subscription: SubscriptionPlan
     created_at: str
 
+# =============== ENTITY MODELS ===============
+class EntityCreate(BaseModel):
+    """Modelo para crear Federación, Club, Escuela, etc."""
+    name: str
+    entity_type: EntityType
+    description: Optional[str] = None
+    logo_url: Optional[str] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    country: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    website: Optional[str] = None
+    # Datos completos
+    legal_representative: Optional[str] = None
+    tax_id: Optional[str] = None  # RUC/NIT
+    foundation_date: Optional[str] = None
+    # Redes sociales
+    facebook: Optional[str] = None
+    instagram: Optional[str] = None
+    twitter: Optional[str] = None
+    # Relaciones jerárquicas
+    parent_entity_id: Optional[str] = None  # ID de la entidad padre (ej: club padre de escuela)
+    sport: Optional[str] = None
+
+class EntityResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    coach_id: str
+    name: str
+    entity_type: EntityType
+    description: Optional[str] = None
+    logo_url: Optional[str] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    country: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    website: Optional[str] = None
+    legal_representative: Optional[str] = None
+    tax_id: Optional[str] = None
+    foundation_date: Optional[str] = None
+    facebook: Optional[str] = None
+    instagram: Optional[str] = None
+    twitter: Optional[str] = None
+    parent_entity_id: Optional[str] = None
+    sport: Optional[str] = None
+    athletes_count: Optional[int] = 0
+    created_at: str
+
 class AthleteCreate(BaseModel):
     name: str
     email: Optional[str] = None
@@ -145,6 +195,8 @@ class AthleteCreate(BaseModel):
     age: int
     level: str
     notes: Optional[str] = None
+    # Afiliaciones a entidades
+    affiliations: Optional[List[str]] = []  # Lista de IDs de entidades
 
 class AthleteResponse(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -156,6 +208,7 @@ class AthleteResponse(BaseModel):
     age: int
     level: str
     notes: Optional[str] = None
+    affiliations: Optional[List[str]] = []
     created_at: str
 
 class ExerciseCreate(BaseModel):
