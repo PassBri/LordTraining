@@ -237,11 +237,33 @@ const DashboardPage = () => {
     }
   };
 
+  // Fetch periodization data for selected athlete
+  const fetchPeriodizationData = async (athleteId) => {
+    try {
+      const token = localStorage.getItem('train_token');
+      const response = await fetch(`${API_URL}/api/periodization/${athleteId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setPeriodizationData(data);
+      } else {
+        setPeriodizationData(null);
+      }
+    } catch (error) {
+      console.error('Error fetching periodization:', error);
+      setPeriodizationData(null);
+    }
+  };
+
   // Effect to fetch data when athlete is selected
   useEffect(() => {
     if (selectedAthleteId) {
       fetchEvents(selectedAthleteId);
       fetchObjectives(selectedAthleteId);
+      fetchPeriodizationData(selectedAthleteId);
+    } else {
+      setPeriodizationData(null);
     }
   }, [selectedAthleteId]);
 
