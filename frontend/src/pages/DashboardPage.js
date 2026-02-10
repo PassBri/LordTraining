@@ -55,40 +55,43 @@ const DashboardPage = () => {
   // Navigation items for "Datos" panel - Ordenados por flujo de trabajo del entrenador
   const navItems = [
     // === 1. REGISTRO Y CARACTERIZACIÓN ===
-    { id: 'athletes', label: '1. Atletas', icon: Users, section: 'registro' },
-    { id: 'sport-char', label: '2. Caracterización del deporte', icon: Target, section: 'registro' },
-    { id: 'athlete-char', label: '3. Caracterización del deportista', icon: Users, section: 'registro' },
+    { id: 'athletes', label: 'Atletas', icon: Users, section: 'registro' },
+    { id: 'sport-char', label: 'Caracterización del deporte', icon: Target, section: 'registro' },
+    { id: 'athlete-char', label: 'Caracterización del deportista', icon: Users, section: 'registro' },
     
     // === 2. EVALUACIÓN INICIAL ===
-    { id: 'anthropometric', label: '4. Datos antropométricos', icon: LineChart, section: 'evaluacion' },
-    { id: 'tests', label: '5. Test y evaluaciones', icon: Clipboard, section: 'evaluacion' },
-    { id: 'diagnostic', label: '6. Diagnóstico', icon: Clipboard, section: 'evaluacion' },
-    { id: 'injuries', label: '7. Lesiones', icon: Heart, section: 'evaluacion' },
-    { id: 'diseases', label: '8. Enfermedades', icon: Activity, section: 'evaluacion' },
+    { id: 'anthropometric', label: 'Datos antropométricos', icon: LineChart, section: 'evaluacion' },
+    { id: 'tests', label: 'Test y evaluaciones', icon: Clipboard, section: 'evaluacion' },
+    { id: 'diagnostic', label: 'Diagnóstico', icon: Clipboard, section: 'evaluacion' },
+    { id: 'injuries', label: 'Lesiones', icon: Heart, section: 'evaluacion' },
+    { id: 'diseases', label: 'Enfermedades', icon: Activity, section: 'evaluacion' },
     
     // === 3. ANÁLISIS PREVIO ===
-    { id: 'prev-plan', label: '9. Análisis del plan anterior', icon: FileText, section: 'analisis' },
-    { id: 'competitions', label: '10. Análisis de competencias', icon: Award, section: 'analisis' },
+    { id: 'prev-plan', label: 'Análisis del plan anterior', icon: FileText, section: 'analisis' },
+    { id: 'competitions', label: 'Análisis de competencias', icon: Award, section: 'analisis' },
     
     // === 4. DEFINICIÓN DE OBJETIVOS ===
-    { id: 'events', label: '11. Calendario de eventos', icon: Calendar, section: 'objetivos' },
-    { id: 'objectives', label: '12. Objetivos e indicadores', icon: Target, section: 'objetivos' },
+    { id: 'events', label: 'Calendario de eventos', icon: Calendar, section: 'objetivos' },
+    { id: 'objectives', label: 'Objetivos e indicadores', icon: Target, section: 'objetivos' },
     
     // === 5. PLANIFICACIÓN ===
-    { id: 'periodization-models', label: '13. Modelos de periodización', icon: BookOpen, section: 'planificacion' },
-    { id: 'macrocycle-stages', label: '14. Etapas del macrociclo', icon: BookOpen, section: 'planificacion' },
-    { id: 'exercises', label: '15. Medios de entrenamiento', icon: Activity, section: 'planificacion' },
-    { id: 'exercises-lib', label: '16. Biblioteca de ejercicios', icon: Dumbbell, section: 'planificacion' },
+    { id: 'periodization-models', label: 'Modelos de periodización', icon: BookOpen, section: 'planificacion' },
+    { id: 'macrocycle-stages', label: 'Etapas del macrociclo', icon: BookOpen, section: 'planificacion' },
+    { id: 'exercises', label: 'Medios de entrenamiento', icon: Activity, section: 'planificacion' },
+    { id: 'exercises-lib', label: 'Biblioteca de ejercicios', icon: Dumbbell, section: 'planificacion' },
     
     // === 6. CONTROL Y SEGUIMIENTO ===
-    { id: 'load', label: '17. Carga de entrenamiento', icon: BarChart, section: 'control' },
-    { id: 'control', label: '18. Control de entrenamiento', icon: LineChart, section: 'control' },
+    { id: 'load', label: 'Carga de entrenamiento', icon: BarChart, section: 'control' },
+    { id: 'control', label: 'Control de entrenamiento', icon: LineChart, section: 'control' },
     
     // === 7. HERRAMIENTAS ===
     { id: 'graphic-plan', label: 'Plan Gráfico', icon: Layers, section: 'herramientas' },
     { id: 'calendar-view', label: 'Calendario', icon: Calendar, section: 'herramientas' },
     { id: 'ai-generator', label: 'Generar con IA', icon: Brain, section: 'herramientas' },
   ];
+
+  // Estado para secciones colapsadas
+  const [collapsedSections, setCollapsedSections] = useState({});
 
   // Mock data for charts
   const trainingData = stats?.weekly_load?.length > 0 
