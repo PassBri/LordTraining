@@ -53,7 +53,7 @@ const AuthPage = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await register(registerEmail, registerPassword, registerName, 'coach');
+      await register(registerEmail, registerPassword, registerName, registerRole);
       toast.success('Cuenta creada. Ahora inicia sesión.');
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Error al registrarse');
