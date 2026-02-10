@@ -1103,64 +1103,11 @@ const DashboardPage = () => {
         );
       }
       
-      // Estado para controlar si estamos creando un nuevo plan
-      // Siempre mostrar la lista de planes con opción de crear nuevo
+      // Mostrar el PeriodizationSystem completo con todas las funcionalidades de edición
       return (
-        <PlansList 
-          athleteId={selectedAthleteId}
-          athleteName={selectedAthlete?.name}
-          onCreateNew={() => {
-            // Navegar al wizard de creación
-            setActiveDataSection('periodization-wizard');
-          }}
-          onEditPlan={(plan) => {
-            toast.info('Función de edición próximamente disponible');
-          }}
-          onViewPlan={(plan) => {
-            // Navegar a la vista del plan gráfico
-            setActiveDataSection('graphic-plan');
-          }}
-        />
-      );
-    }
-    
-    // Render Periodization Wizard (Crear nuevo plan)
-    if (activeDataSection === 'periodization-wizard') {
-      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
-      
-      if (!selectedAthleteId) {
-        return (
-          <div className="h-full flex flex-col items-center justify-center p-8">
-            <div className="text-center max-w-md">
-              <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Activity className="w-10 h-10 text-blue-600" />
-              </div>
-              <h2 className="text-2xl font-bold text-slate-800 mb-3">Selecciona un Atleta</h2>
-              <p className="text-slate-500 mb-6">
-                Primero selecciona un atleta para crear su plan de periodización
-              </p>
-              <Button 
-                className="bg-blue-600 hover:bg-blue-700"
-                onClick={() => setActiveDataSection('athletes')}
-              >
-                <Users className="w-4 h-4 mr-2" />
-                Ir a Atletas
-              </Button>
-            </div>
-          </div>
-        );
-      }
-      
-      return (
-        <PeriodizationWizard 
+        <PeriodizationSystem 
           athleteId={selectedAthleteId} 
           athleteName={selectedAthlete?.name}
-          onComplete={(structure) => {
-            toast.success('¡Plan creado exitosamente!');
-            // Volver a la lista de planes
-            setActiveDataSection('periodization-models');
-          }}
-          onCancel={() => setActiveDataSection('periodization-models')}
         />
       );
     }
