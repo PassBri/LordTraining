@@ -36,6 +36,7 @@ import GraphicPlan from '../components/GraphicPlan';
 import PeriodizationPlanner from '../components/PeriodizationPlanner';
 import ExerciseLibrary from '../components/ExerciseLibrary';
 import PeriodizationSystem from '../components/PeriodizationSystem';
+import PeriodizationWizard from '../components/PeriodizationWizard';
 import ControlPanel from '../components/ControlPanel';
 
 // Definición de roles disponibles
