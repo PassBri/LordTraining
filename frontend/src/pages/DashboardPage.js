@@ -11,7 +11,7 @@ import {
   Target, Send, Heart, Zap, Brain, ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
   FileText, Users, Clipboard, Calendar, Award, BookOpen, 
   Activity, BarChart, LineChart, Loader2, LogOut, Save, Download, Layers, Plus, Dumbbell,
-  Shield, UserCheck, User, UserCircle, Settings
+  Shield, UserCheck, User, UserCircle, Settings, LayoutDashboard
 } from 'lucide-react';
 import { 
   LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, 
@@ -36,6 +36,7 @@ import GraphicPlan from '../components/GraphicPlan';
 import PeriodizationPlanner from '../components/PeriodizationPlanner';
 import ExerciseLibrary from '../components/ExerciseLibrary';
 import PeriodizationSystem from '../components/PeriodizationSystem';
+import ControlPanel from '../components/ControlPanel';
 
 // Definición de roles disponibles
 const USER_ROLES = [
