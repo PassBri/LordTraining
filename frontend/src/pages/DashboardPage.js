@@ -191,6 +191,7 @@ const DashboardPage = () => {
       return <TrainingStages athleteId={selectedAthleteId} />;
     }
 
+    // For sections without specific components, show placeholder
     const sectionLabel = navItems.find(item => item.id === activeDataSection)?.label;
     
     return (
@@ -211,33 +212,13 @@ const DashboardPage = () => {
           )}
         </div>
         <Card className="bg-white shadow-lg">
-          <CardContent className="p-6">
-            <p className="text-gray-600 mb-4">
-              Contenido detallado para {sectionLabel}
+          <CardContent className="p-6 text-center">
+            <p className="text-gray-500 mb-4">
+              Esta sección está en desarrollo
             </p>
-            {activeDataSection === 'athlete-char' && athletes.length > 0 && (
-              <div className="space-y-3">
-                {athletes.map(athlete => (
-                  <div key={athlete.id} className="p-4 bg-gray-50 rounded-lg flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">
-                      {athlete.name.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">{athlete.name}</p>
-                      <p className="text-sm text-gray-500 capitalize">{athlete.sport} • {athlete.level}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            {activeDataSection === 'athlete-char' && athletes.length === 0 && (
-              <Link to="/athletes">
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  <Users className="w-4 h-4 mr-2" />
-                  Añadir Atletas
-                </Button>
-              </Link>
-            )}
+            <p className="text-sm text-gray-400">
+              Pronto podrás gestionar {sectionLabel?.toLowerCase()}
+            </p>
           </CardContent>
         </Card>
       </div>
