@@ -420,7 +420,7 @@ const ControlPanel = ({
     if (onCreateMacrocycle) {
       onCreateMacrocycle();
     }
-    toast.success('Navega a Modelos de Periodización');
+    toast.success('Navega al Sistema de Periodización');
   };
 
   const handleViewReports = () => {
