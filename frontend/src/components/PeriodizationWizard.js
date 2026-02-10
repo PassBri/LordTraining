@@ -1104,7 +1104,7 @@ const PeriodizationWizard = ({ athleteId, athleteName, onComplete, onCancel }) =
       </div>
 
       {/* Footer con botones de navegación */}
-      <div className="border-t bg-slate-50 p-4 flex items-center justify-between relative z-50">
+      <div className="border-t bg-slate-50 p-4 flex items-center justify-between relative z-50 flex-shrink-0" style={{ minHeight: '70px' }}>
         <Button
           variant="outline"
           onClick={prevStep}
