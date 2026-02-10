@@ -99,6 +99,36 @@ const DashboardPage = () => {
     }
   };
 
+  // Update user profile (including role)
+  const handleUpdateProfile = async (newRole) => {
+    setUpdatingProfile(true);
+    try {
+      const token = localStorage.getItem('train_token');
+      const response = await fetch(`${API_URL}/api/auth/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ role: newRole })
+      });
+      if (response.ok) {
+        const updatedUser = await response.json();
+        if (updateUser) {
+          updateUser(updatedUser);
+        }
+        toast.success('Rol actualizado correctamente');
+        setShowProfileDialog(false);
+      } else {
+        toast.error('Error al actualizar el perfil');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error('Error al actualizar el perfil');
+    }
+    setUpdatingProfile(false);
+  };
+
   // Create new athlete
   const handleCreateAthlete = async () => {
     if (!newAthlete.name || !newAthlete.sport) {
