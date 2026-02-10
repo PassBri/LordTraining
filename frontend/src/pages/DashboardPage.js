@@ -1414,8 +1414,62 @@ const DashboardPage = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">{user?.name}</p>
-              <p className="text-xs text-gray-500 uppercase">{user?.subscription || 'Free'}</p>
+              <p className="text-xs text-gray-500">
+                {USER_ROLES.find(r => r.id === user?.role)?.name || user?.role || 'Usuario'}
+              </p>
             </div>
+            <Dialog open={showProfileDialog} onOpenChange={setShowProfileDialog}>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="p-1" data-testid="profile-settings-btn">
+                  <Settings className="w-4 h-4 text-gray-400" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Configuración de Perfil</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div>
+                    <p className="text-sm text-gray-500 mb-2">Nombre</p>
+                    <p className="font-medium">{user?.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 mb-2">Email</p>
+                    <p className="font-medium">{user?.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 mb-3">Cambiar tipo de cuenta</p>
+                    <div className="grid gap-2">
+                      {USER_ROLES.map(role => {
+                        const IconComponent = role.icon;
+                        const isSelected = user?.role === role.id;
+                        return (
+                          <Button
+                            key={role.id}
+                            variant={isSelected ? "default" : "outline"}
+                            className={`justify-start h-auto py-3 ${isSelected ? 'bg-blue-600' : ''}`}
+                            onClick={() => handleUpdateProfile(role.id)}
+                            disabled={updatingProfile || isSelected}
+                            data-testid={`role-${role.id}-btn`}
+                          >
+                            <IconComponent className="w-4 h-4 mr-3" />
+                            <div className="text-left">
+                              <div className="font-medium">{role.name}</div>
+                              <div className={`text-xs ${isSelected ? 'text-blue-100' : 'text-gray-500'}`}>
+                                {role.description}
+                              </div>
+                            </div>
+                            {isSelected && (
+                              <span className="ml-auto text-xs bg-white/20 px-2 py-1 rounded">Actual</span>
+                            )}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
           <Button 
             variant="ghost" 
