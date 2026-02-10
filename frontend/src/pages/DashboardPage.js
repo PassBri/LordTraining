@@ -9,7 +9,7 @@ import { getDashboardStats, getAthletes, seedExercises } from '../services/api';
 import { 
   Target, Send, Heart, Zap, Brain, ChevronLeft, ChevronRight,
   FileText, Users, Clipboard, Calendar, Award, BookOpen, 
-  Activity, BarChart, LineChart, Loader2, LogOut, Save, Download, Layers, Plus
+  Activity, BarChart, LineChart, Loader2, LogOut, Save, Download, Layers, Plus, Dumbbell
 } from 'lucide-react';
 import { 
   LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, 
