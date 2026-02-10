@@ -111,13 +111,14 @@ const MICROCYCLE_TYPES = [
   { id: 'restablecimiento', label: 'Restablecimiento', color: 'bg-purple-200' }
 ];
 
-const GraphicPlan = ({ athleteId }) => {
+const GraphicPlan = ({ athleteId, periodizationData, athleteName }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [cycleDuration, setCycleDuration] = useState('annual');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [viewOffset, setViewOffset] = useState(0);
   const [visibleWeeks, setVisibleWeeks] = useState(24);
+  const [hasImportedData, setHasImportedData] = useState(false);
   
   // General information
   const [generalInfo, setGeneralInfo] = useState({
@@ -149,6 +150,152 @@ const GraphicPlan = ({ athleteId }) => {
     // Monitoring
     monitoring: {}
   });
+
+  // Import periodization data when available
+  const importPeriodizationData = useCallback((macrocycle) => {
+    if (!macrocycle || !macrocycle.mesocycles) return;
+
+    const newPlanData = {
+      macrocycles: {},
+      periods: {},
+      phases: {},
+      mesocycles: {},
+      microcycles: {},
+      intensity: {},
+      volume: {},
+      frequency: {},
+      preparation: {},
+      physical: {},
+      activities: {},
+      monitoring: {}
+    };
+
+    // Map phase IDs to our types
+    const phaseMapping = {
+      'preparatory_general': 'preparatory_general',
+      'preparatory_specific': 'preparatory_specific',
+      'precompetitive': 'precompetitive',
+      'competitive': 'competitive',
+      'transition': 'transition'
+    };
+
+    // Map mesocycle types
+    const mesoTypeMapping = {
+      'entrante': 'entrante',
+      'desarrollo': 'basico_desarrollador',
+      'choque': 'basico_desarrollador',
+      'estabilizador': 'basico_estabilizador',
+      'competitivo': 'competitivo',
+      'recuperacion': 'recuperacion'
+    };
+
+    // Map microcycle types  
+    const microTypeMapping = {
+      'ordinario': 'corriente',
+      'choque': 'choque',
+      'aproximacion': 'aproximacion',
+      'competitivo': 'competitivo',
+      'recuperacion': 'restablecimiento'
+    };
+
+    // Process each mesocycle
+    macrocycle.mesocycles.forEach(meso => {
+      meso.microcycles?.forEach(micro => {
+        const week = micro.weekNumber;
+        
+        // Set macrocycle phase
+        const phaseId = phaseMapping[meso.phase] || 'preparatory_general';
+        newPlanData.macrocycles[week] = phaseId;
+        newPlanData.phases[week] = phaseId;
+        
+        // Set period based on phase
+        if (['preparatory_general', 'preparatory_specific'].includes(meso.phase)) {
+          newPlanData.periods[week] = 'preparatorio';
+        } else if (['competitive', 'precompetitive'].includes(meso.phase)) {
+          newPlanData.periods[week] = 'competitivo';
+        } else {
+          newPlanData.periods[week] = 'transicion';
+        }
+
+        // Set mesocycle type
+        const mesoTypeId = mesoTypeMapping[meso.type?.id] || 'basico_desarrollador';
+        newPlanData.mesocycles[week] = mesoTypeId;
+
+        // Set microcycle type
+        const microTypeId = microTypeMapping[micro.type?.id] || 'corriente';
+        newPlanData.microcycles[week] = microTypeId;
+
+        // Set volume and intensity levels (convert 0-100 to 1-5 scale)
+        const volumeLevel = Math.min(5, Math.max(1, Math.ceil(micro.volume / 20)));
+        const intensityLevel = Math.min(5, Math.max(1, Math.ceil(micro.intensity / 20)));
+        
+        // Set intensity by level
+        const intensityLevels = ['recovery', 'low', 'medium', 'high', 'very_high'];
+        newPlanData.intensity[`${intensityLevels[intensityLevel - 1]}_${week}`] = intensityLevel;
+        
+        // Set frequency based on sessions
+        const sessionsCount = micro.sessions?.length || 5;
+        newPlanData.frequency[week] = String(sessionsCount);
+
+        // Set preparation emphasis based on phase
+        if (meso.phase === 'preparatory_general') {
+          newPlanData.preparation[`general_physical_${week}`] = volumeLevel;
+          newPlanData.physical[`endurance_${week}`] = volumeLevel;
+          newPlanData.physical[`strength_${week}`] = Math.max(1, volumeLevel - 1);
+        } else if (meso.phase === 'preparatory_specific') {
+          newPlanData.preparation[`specific_physical_${week}`] = volumeLevel;
+          newPlanData.preparation[`technical_${week}`] = volumeLevel;
+          newPlanData.physical[`strength_${week}`] = volumeLevel;
+          newPlanData.physical[`speed_${week}`] = Math.max(1, volumeLevel - 1);
+        } else if (meso.phase === 'precompetitive') {
+          newPlanData.preparation[`technical_${week}`] = volumeLevel;
+          newPlanData.preparation[`tactical_${week}`] = volumeLevel;
+          newPlanData.physical[`speed_${week}`] = volumeLevel;
+        } else if (meso.phase === 'competitive') {
+          newPlanData.preparation[`tactical_${week}`] = volumeLevel;
+          newPlanData.preparation[`psychological_${week}`] = volumeLevel;
+          newPlanData.activities[`main_competition_${week}`] = micro.sessions?.some(s => s.type === 'competition');
+        }
+
+        // Set training activity for all weeks
+        newPlanData.activities[`training_${week}`] = true;
+
+        // Deload weeks get recovery
+        if (micro.isDeload) {
+          newPlanData.activities[`recovery_${week}`] = true;
+          newPlanData.microcycles[week] = 'restablecimiento';
+        }
+      });
+    });
+
+    setPlanData(newPlanData);
+    
+    // Update cycle duration based on total weeks
+    if (macrocycle.totalWeeks <= 13) {
+      setCycleDuration('quarter');
+    } else if (macrocycle.totalWeeks <= 26) {
+      setCycleDuration('semester');
+    } else {
+      setCycleDuration('annual');
+    }
+
+    // Update general info
+    setGeneralInfo(prev => ({
+      ...prev,
+      athlete: athleteName || prev.athlete,
+      periodizationType: macrocycle.model || 'tradicional'
+    }));
+
+    setHasImportedData(true);
+    toast.success('Datos de periodización importados correctamente');
+  }, [athleteName]);
+
+  // Watch for periodization data changes
+  useEffect(() => {
+    if (periodizationData && !hasImportedData) {
+      importPeriodizationData(periodizationData);
+    }
+  }, [periodizationData, hasImportedData, importPeriodizationData]);
 
   const totalWeeks = CYCLE_DURATIONS[cycleDuration].weeks;
   
