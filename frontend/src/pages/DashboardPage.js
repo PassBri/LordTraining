@@ -772,9 +772,11 @@ const DashboardPage = () => {
               {isNavExpanded ? <ChevronLeft className="w-5 h-5 text-gray-400" /> : <ChevronRight className="w-5 h-5 text-gray-400" />}
             </button>
             <div className="flex-1 overflow-y-auto">
-              {/* Sección headers */}
+              {/* MATERIAL DESIGN 3 COLORS - Sección headers */}
+              {/* 1. REGISTRO - Indigo 500 (#6366F1) */}
               {isNavExpanded && (
-                <div className="px-3 py-2 bg-blue-600 text-white text-xs font-bold uppercase tracking-wide">
+                <div className="px-3 py-2.5 bg-indigo-500 text-white text-xs font-semibold uppercase tracking-wider flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
                   Registro y Caracterización
                 </div>
               )}
@@ -784,18 +786,22 @@ const DashboardPage = () => {
                   <button
                     key={item.id}
                     onClick={() => setActiveDataSection(item.id)}
-                    className={`w-full p-3 flex items-center gap-3 hover:bg-blue-50 transition-colors text-left ${
-                      activeDataSection === item.id ? 'bg-blue-50 border-l-4 border-blue-600 text-blue-600' : 'text-gray-600'
+                    className={`w-full p-3 flex items-center gap-3 transition-all duration-200 text-left ${
+                      activeDataSection === item.id 
+                        ? 'bg-indigo-50 border-l-4 border-indigo-500 text-indigo-700 font-medium' 
+                        : 'text-slate-600 hover:bg-indigo-50/50 border-l-4 border-transparent'
                     }`}
                   >
-                    <Icon className="h-4 w-4 flex-shrink-0" />
+                    <Icon className={`h-4 w-4 flex-shrink-0 ${activeDataSection === item.id ? 'text-indigo-500' : 'text-slate-400'}`} />
                     {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
                   </button>
                 );
               })}
               
+              {/* 2. EVALUACIÓN - Emerald 500 (#10B981) */}
               {isNavExpanded && (
-                <div className="px-3 py-2 bg-green-600 text-white text-xs font-bold uppercase tracking-wide mt-1">
+                <div className="px-3 py-2.5 bg-emerald-500 text-white text-xs font-semibold uppercase tracking-wider mt-1 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
                   Evaluación Inicial
                 </div>
               )}
@@ -805,18 +811,22 @@ const DashboardPage = () => {
                   <button
                     key={item.id}
                     onClick={() => setActiveDataSection(item.id)}
-                    className={`w-full p-3 flex items-center gap-3 hover:bg-green-50 transition-colors text-left ${
-                      activeDataSection === item.id ? 'bg-green-50 border-l-4 border-green-600 text-green-600' : 'text-gray-600'
+                    className={`w-full p-3 flex items-center gap-3 transition-all duration-200 text-left ${
+                      activeDataSection === item.id 
+                        ? 'bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 font-medium' 
+                        : 'text-slate-600 hover:bg-emerald-50/50 border-l-4 border-transparent'
                     }`}
                   >
-                    <Icon className="h-4 w-4 flex-shrink-0" />
+                    <Icon className={`h-4 w-4 flex-shrink-0 ${activeDataSection === item.id ? 'text-emerald-500' : 'text-slate-400'}`} />
                     {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
                   </button>
                 );
               })}
               
+              {/* 3. ANÁLISIS - Amber 500 (#F59E0B) */}
               {isNavExpanded && (
-                <div className="px-3 py-2 bg-orange-500 text-white text-xs font-bold uppercase tracking-wide mt-1">
+                <div className="px-3 py-2.5 bg-amber-500 text-white text-xs font-semibold uppercase tracking-wider mt-1 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
                   Análisis Previo
                 </div>
               )}
@@ -826,18 +836,22 @@ const DashboardPage = () => {
                   <button
                     key={item.id}
                     onClick={() => setActiveDataSection(item.id)}
-                    className={`w-full p-3 flex items-center gap-3 hover:bg-orange-50 transition-colors text-left ${
-                      activeDataSection === item.id ? 'bg-orange-50 border-l-4 border-orange-500 text-orange-600' : 'text-gray-600'
+                    className={`w-full p-3 flex items-center gap-3 transition-all duration-200 text-left ${
+                      activeDataSection === item.id 
+                        ? 'bg-amber-50 border-l-4 border-amber-500 text-amber-700 font-medium' 
+                        : 'text-slate-600 hover:bg-amber-50/50 border-l-4 border-transparent'
                     }`}
                   >
-                    <Icon className="h-4 w-4 flex-shrink-0" />
+                    <Icon className={`h-4 w-4 flex-shrink-0 ${activeDataSection === item.id ? 'text-amber-500' : 'text-slate-400'}`} />
                     {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
                   </button>
                 );
               })}
               
+              {/* 4. OBJETIVOS - Violet 500 (#8B5CF6) */}
               {isNavExpanded && (
-                <div className="px-3 py-2 bg-purple-600 text-white text-xs font-bold uppercase tracking-wide mt-1">
+                <div className="px-3 py-2.5 bg-violet-500 text-white text-xs font-semibold uppercase tracking-wider mt-1 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
                   Definición de Objetivos
                 </div>
               )}
@@ -847,18 +861,22 @@ const DashboardPage = () => {
                   <button
                     key={item.id}
                     onClick={() => setActiveDataSection(item.id)}
-                    className={`w-full p-3 flex items-center gap-3 hover:bg-purple-50 transition-colors text-left ${
-                      activeDataSection === item.id ? 'bg-purple-50 border-l-4 border-purple-600 text-purple-600' : 'text-gray-600'
+                    className={`w-full p-3 flex items-center gap-3 transition-all duration-200 text-left ${
+                      activeDataSection === item.id 
+                        ? 'bg-violet-50 border-l-4 border-violet-500 text-violet-700 font-medium' 
+                        : 'text-slate-600 hover:bg-violet-50/50 border-l-4 border-transparent'
                     }`}
                   >
-                    <Icon className="h-4 w-4 flex-shrink-0" />
+                    <Icon className={`h-4 w-4 flex-shrink-0 ${activeDataSection === item.id ? 'text-violet-500' : 'text-slate-400'}`} />
                     {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
                   </button>
                 );
               })}
               
+              {/* 5. PLANIFICACIÓN - Cyan 500 (#06B6D4) */}
               {isNavExpanded && (
-                <div className="px-3 py-2 bg-teal-600 text-white text-xs font-bold uppercase tracking-wide mt-1">
+                <div className="px-3 py-2.5 bg-cyan-500 text-white text-xs font-semibold uppercase tracking-wider mt-1 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
                   Planificación
                 </div>
               )}
@@ -868,18 +886,22 @@ const DashboardPage = () => {
                   <button
                     key={item.id}
                     onClick={() => setActiveDataSection(item.id)}
-                    className={`w-full p-3 flex items-center gap-3 hover:bg-teal-50 transition-colors text-left ${
-                      activeDataSection === item.id ? 'bg-teal-50 border-l-4 border-teal-600 text-teal-600' : 'text-gray-600'
+                    className={`w-full p-3 flex items-center gap-3 transition-all duration-200 text-left ${
+                      activeDataSection === item.id 
+                        ? 'bg-cyan-50 border-l-4 border-cyan-500 text-cyan-700 font-medium' 
+                        : 'text-slate-600 hover:bg-cyan-50/50 border-l-4 border-transparent'
                     }`}
                   >
-                    <Icon className="h-4 w-4 flex-shrink-0" />
+                    <Icon className={`h-4 w-4 flex-shrink-0 ${activeDataSection === item.id ? 'text-cyan-500' : 'text-slate-400'}`} />
                     {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
                   </button>
                 );
               })}
               
+              {/* 6. CONTROL - Rose 500 (#F43F5E) */}
               {isNavExpanded && (
-                <div className="px-3 py-2 bg-red-600 text-white text-xs font-bold uppercase tracking-wide mt-1">
+                <div className="px-3 py-2.5 bg-rose-500 text-white text-xs font-semibold uppercase tracking-wider mt-1 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
                   Control y Seguimiento
                 </div>
               )}
@@ -889,18 +911,22 @@ const DashboardPage = () => {
                   <button
                     key={item.id}
                     onClick={() => setActiveDataSection(item.id)}
-                    className={`w-full p-3 flex items-center gap-3 hover:bg-red-50 transition-colors text-left ${
-                      activeDataSection === item.id ? 'bg-red-50 border-l-4 border-red-600 text-red-600' : 'text-gray-600'
+                    className={`w-full p-3 flex items-center gap-3 transition-all duration-200 text-left ${
+                      activeDataSection === item.id 
+                        ? 'bg-rose-50 border-l-4 border-rose-500 text-rose-700 font-medium' 
+                        : 'text-slate-600 hover:bg-rose-50/50 border-l-4 border-transparent'
                     }`}
                   >
-                    <Icon className="h-4 w-4 flex-shrink-0" />
+                    <Icon className={`h-4 w-4 flex-shrink-0 ${activeDataSection === item.id ? 'text-rose-500' : 'text-slate-400'}`} />
                     {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
                   </button>
                 );
               })}
               
+              {/* 7. HERRAMIENTAS - Slate 600 (#475569) */}
               {isNavExpanded && (
-                <div className="px-3 py-2 bg-gray-700 text-white text-xs font-bold uppercase tracking-wide mt-1">
+                <div className="px-3 py-2.5 bg-slate-600 text-white text-xs font-semibold uppercase tracking-wider mt-1 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
                   Herramientas
                 </div>
               )}
@@ -910,11 +936,13 @@ const DashboardPage = () => {
                   <button
                     key={item.id}
                     onClick={() => setActiveDataSection(item.id)}
-                    className={`w-full p-3 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left ${
-                      activeDataSection === item.id ? 'bg-gray-100 border-l-4 border-gray-700 text-gray-800' : 'text-gray-600'
+                    className={`w-full p-3 flex items-center gap-3 transition-all duration-200 text-left ${
+                      activeDataSection === item.id 
+                        ? 'bg-slate-100 border-l-4 border-slate-600 text-slate-800 font-medium' 
+                        : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'
                     }`}
                   >
-                    <Icon className="h-4 w-4 flex-shrink-0" />
+                    <Icon className={`h-4 w-4 flex-shrink-0 ${activeDataSection === item.id ? 'text-slate-600' : 'text-slate-400'}`} />
                     {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
                   </button>
                 );
