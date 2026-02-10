@@ -513,124 +513,124 @@ const DashboardPage = () => {
     if (activeDataSection === 'objectives') {
       return (
         <div className="p-4 space-y-4">
-          <Card>
-            <CardHeader className="bg-gradient-to-r from-teal-600 to-teal-700 text-white py-3">
+          <Card className="border-0 shadow-md overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-violet-500 to-violet-600 text-white py-4">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg">
+                <CardTitle className="flex items-center gap-2 text-lg font-semibold">
                   <Target className="w-5 h-5" />
                   Objetivos e Indicadores del Plan
                 </CardTitle>
-                <Button size="sm" className="bg-white/20 hover:bg-white/30">
+                <Button size="sm" className="bg-white/20 hover:bg-white/30 font-medium">
                   <Plus className="w-4 h-4 mr-1" /> Nuevo Objetivo
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="p-4">
+            <CardContent className="p-5">
               {/* Objetivos por categoría */}
               <div className="grid md:grid-cols-2 gap-4 mb-6">
-                {/* Objetivos Físicos */}
-                <div className="border rounded-lg overflow-hidden">
-                  <div className="bg-red-100 px-3 py-2 font-medium text-red-700 flex items-center gap-2">
+                {/* Objetivos Físicos - Rose */}
+                <div className="border border-rose-200 rounded-xl overflow-hidden">
+                  <div className="bg-rose-100 px-4 py-3 font-semibold text-rose-700 flex items-center gap-2">
                     <Dumbbell className="w-4 h-4" /> Objetivos Físicos
                   </div>
-                  <div className="p-3 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">VO2 Max</span>
+                  <div className="p-4 space-y-3 bg-white">
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-rose-50/50">
+                      <span className="text-sm font-medium text-slate-700">VO2 Max</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-500">Actual: 52</span>
+                        <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded">52</span>
                         <span className="text-xs">→</span>
-                        <span className="text-xs font-medium text-green-600">Meta: 58 ml/kg/min</span>
+                        <span className="text-xs font-semibold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded">58 ml/kg/min</span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Fuerza máxima (Sentadilla)</span>
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-rose-50/50">
+                      <span className="text-sm font-medium text-slate-700">Fuerza máxima (Sentadilla)</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-500">Actual: 120kg</span>
+                        <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded">120kg</span>
                         <span className="text-xs">→</span>
-                        <span className="text-xs font-medium text-green-600">Meta: 140kg</span>
+                        <span className="text-xs font-semibold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded">140kg</span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Velocidad 100m</span>
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-rose-50/50">
+                      <span className="text-sm font-medium text-slate-700">Velocidad 100m</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-500">Actual: 11.5s</span>
+                        <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded">11.5s</span>
                         <span className="text-xs">→</span>
-                        <span className="text-xs font-medium text-green-600">Meta: 10.8s</span>
+                        <span className="text-xs font-semibold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded">10.8s</span>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" className="w-full text-xs mt-2">
+                    <Button variant="ghost" size="sm" className="w-full text-xs text-rose-600 hover:bg-rose-50">
                       <Plus className="w-3 h-3 mr-1" /> Agregar indicador
                     </Button>
                   </div>
                 </div>
 
-                {/* Objetivos Técnicos */}
-                <div className="border rounded-lg overflow-hidden">
-                  <div className="bg-blue-100 px-3 py-2 font-medium text-blue-700 flex items-center gap-2">
+                {/* Objetivos Técnicos - Indigo */}
+                <div className="border border-indigo-200 rounded-xl overflow-hidden">
+                  <div className="bg-indigo-100 px-4 py-3 font-semibold text-indigo-700 flex items-center gap-2">
                     <Target className="w-4 h-4" /> Objetivos Técnicos
                   </div>
-                  <div className="p-3 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Eficiencia técnica salida</span>
+                  <div className="p-4 space-y-3 bg-white">
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-indigo-50/50">
+                      <span className="text-sm font-medium text-slate-700">Eficiencia técnica salida</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-500">Actual: 70%</span>
+                        <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded">70%</span>
                         <span className="text-xs">→</span>
-                        <span className="text-xs font-medium text-green-600">Meta: 90%</span>
+                        <span className="text-xs font-semibold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded">90%</span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Tiempo de reacción</span>
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-indigo-50/50">
+                      <span className="text-sm font-medium text-slate-700">Tiempo de reacción</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-500">Actual: 0.18s</span>
+                        <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded">0.18s</span>
                         <span className="text-xs">→</span>
-                        <span className="text-xs font-medium text-green-600">Meta: 0.14s</span>
+                        <span className="text-xs font-semibold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded">0.14s</span>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" className="w-full text-xs mt-2">
+                    <Button variant="ghost" size="sm" className="w-full text-xs text-indigo-600 hover:bg-indigo-50">
                       <Plus className="w-3 h-3 mr-1" /> Agregar indicador
                     </Button>
                   </div>
                 </div>
 
-                {/* Objetivos Tácticos */}
-                <div className="border rounded-lg overflow-hidden">
-                  <div className="bg-yellow-100 px-3 py-2 font-medium text-yellow-700 flex items-center gap-2">
+                {/* Objetivos Tácticos - Amber */}
+                <div className="border border-amber-200 rounded-xl overflow-hidden">
+                  <div className="bg-amber-100 px-4 py-3 font-semibold text-amber-700 flex items-center gap-2">
                     <Brain className="w-4 h-4" /> Objetivos Tácticos
                   </div>
-                  <div className="p-3 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Gestión de carrera</span>
-                      <span className="text-xs font-medium text-green-600">Mejorar distribución de esfuerzo</span>
+                  <div className="p-4 space-y-3 bg-white">
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-amber-50/50">
+                      <span className="text-sm font-medium text-slate-700">Gestión de carrera</span>
+                      <span className="text-xs font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded">Mejorar distribución</span>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Estrategia competitiva</span>
-                      <span className="text-xs font-medium text-green-600">Dominar 3 variantes tácticas</span>
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-amber-50/50">
+                      <span className="text-sm font-medium text-slate-700">Estrategia competitiva</span>
+                      <span className="text-xs font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded">3 variantes tácticas</span>
                     </div>
-                    <Button variant="ghost" size="sm" className="w-full text-xs mt-2">
+                    <Button variant="ghost" size="sm" className="w-full text-xs text-amber-600 hover:bg-amber-50">
                       <Plus className="w-3 h-3 mr-1" /> Agregar indicador
                     </Button>
                   </div>
                 </div>
 
-                {/* Objetivos Psicológicos */}
-                <div className="border rounded-lg overflow-hidden">
-                  <div className="bg-purple-100 px-3 py-2 font-medium text-purple-700 flex items-center gap-2">
+                {/* Objetivos Psicológicos - Violet */}
+                <div className="border border-violet-200 rounded-xl overflow-hidden">
+                  <div className="bg-violet-100 px-4 py-3 font-semibold text-violet-700 flex items-center gap-2">
                     <Heart className="w-4 h-4" /> Objetivos Psicológicos
                   </div>
-                  <div className="p-3 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Control de ansiedad</span>
-                      <span className="text-xs font-medium text-green-600">Escala 3→7/10</span>
+                  <div className="p-4 space-y-3 bg-white">
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-violet-50/50">
+                      <span className="text-sm font-medium text-slate-700">Control de ansiedad</span>
+                      <span className="text-xs font-semibold text-violet-700 bg-violet-100 px-2 py-0.5 rounded">Escala 3→7/10</span>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Concentración</span>
-                      <span className="text-xs font-medium text-green-600">Mantener foco 100%</span>
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-violet-50/50">
+                      <span className="text-sm font-medium text-slate-700">Concentración</span>
+                      <span className="text-xs font-semibold text-violet-700 bg-violet-100 px-2 py-0.5 rounded">Mantener foco 100%</span>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Motivación</span>
-                      <span className="text-xs font-medium text-green-600">Alta constante</span>
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-violet-50/50">
+                      <span className="text-sm font-medium text-slate-700">Motivación</span>
+                      <span className="text-xs font-semibold text-violet-700 bg-violet-100 px-2 py-0.5 rounded">Alta constante</span>
                     </div>
-                    <Button variant="ghost" size="sm" className="w-full text-xs mt-2">
+                    <Button variant="ghost" size="sm" className="w-full text-xs text-violet-600 hover:bg-violet-50">
                       <Plus className="w-3 h-3 mr-1" /> Agregar indicador
                     </Button>
                   </div>
@@ -638,24 +638,27 @@ const DashboardPage = () => {
               </div>
 
               {/* KPIs Generales */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-medium mb-3 text-gray-700">Indicadores Clave de Rendimiento (KPIs)</h4>
+              <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-5 rounded-xl border border-slate-200">
+                <h4 className="font-semibold mb-4 text-slate-800 flex items-center gap-2">
+                  <BarChart className="w-4 h-4 text-violet-500" />
+                  Indicadores Clave de Rendimiento (KPIs)
+                </h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-white p-3 rounded-lg border text-center">
-                    <p className="text-2xl font-bold text-blue-600">85%</p>
-                    <p className="text-xs text-gray-500">Cumplimiento Plan</p>
+                  <div className="bg-white p-4 rounded-xl border border-indigo-100 text-center shadow-sm">
+                    <p className="text-3xl font-bold text-indigo-500">85%</p>
+                    <p className="text-xs text-slate-500 mt-1 font-medium">Cumplimiento Plan</p>
                   </div>
-                  <div className="bg-white p-3 rounded-lg border text-center">
-                    <p className="text-2xl font-bold text-green-600">+12%</p>
-                    <p className="text-xs text-gray-500">Mejora Rendimiento</p>
+                  <div className="bg-white p-4 rounded-xl border border-emerald-100 text-center shadow-sm">
+                    <p className="text-3xl font-bold text-emerald-500">+12%</p>
+                    <p className="text-xs text-slate-500 mt-1 font-medium">Mejora Rendimiento</p>
                   </div>
-                  <div className="bg-white p-3 rounded-lg border text-center">
-                    <p className="text-2xl font-bold text-orange-600">0.85</p>
-                    <p className="text-xs text-gray-500">Ratio Carga (ACWR)</p>
+                  <div className="bg-white p-4 rounded-xl border border-amber-100 text-center shadow-sm">
+                    <p className="text-3xl font-bold text-amber-500">0.85</p>
+                    <p className="text-xs text-slate-500 mt-1 font-medium">Ratio Carga (ACWR)</p>
                   </div>
-                  <div className="bg-white p-3 rounded-lg border text-center">
-                    <p className="text-2xl font-bold text-purple-600">92%</p>
-                    <p className="text-xs text-gray-500">Asistencia</p>
+                  <div className="bg-white p-4 rounded-xl border border-violet-100 text-center shadow-sm">
+                    <p className="text-3xl font-bold text-violet-500">92%</p>
+                    <p className="text-xs text-slate-500 mt-1 font-medium">Asistencia</p>
                   </div>
                 </div>
               </div>
