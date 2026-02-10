@@ -215,6 +215,33 @@ const AuthPage = () => {
                     </button>
                   </div>
                 </div>
+                
+                {/* Selector de Rol */}
+                <div className="space-y-2">
+                  <Label className="text-gray-600">Tipo de cuenta</Label>
+                  <Select value={registerRole} onValueChange={setRegisterRole}>
+                    <SelectTrigger className="h-12 border-gray-200 focus:border-blue-500" data-testid="register-role-select">
+                      <SelectValue placeholder="Selecciona tu rol" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {USER_ROLES.map(role => {
+                        const IconComponent = role.icon;
+                        return (
+                          <SelectItem key={role.id} value={role.id} className="py-3">
+                            <div className="flex items-center gap-3">
+                              <IconComponent className="w-4 h-4 text-blue-500" />
+                              <div>
+                                <div className="font-medium">{role.name}</div>
+                                <div className="text-xs text-gray-500">{role.description}</div>
+                              </div>
+                            </div>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <Button 
                   type="submit" 
                   className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg" 
