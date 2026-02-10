@@ -73,10 +73,13 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 - ✅ **NEW**: TrainingMethods.js - Métodos de entrenamiento (Estándar, Variables, Combinados)
 
 ### Components Implemented in "Periodizar" Panel
-- ✅ **NEW**: ComprehensiveTrainingPlanner.js - Sistema integral de planificación:
+- ✅ **ComprehensiveTrainingPlanner.js** - Sistema integral de planificación FUSIONADO:
   - Tipo de Plan: Individual, Grupal, Ciclo Olímpico
-  - Componentes: Físico, Técnico, Táctico, Psicológico, Teórico
-  - Estructura de Ciclos: Macrociclos, Mesociclos, Microciclos
+  - **Información Básica**: Deporte, Categoría, Rango de Edad, Clasificación, Fechas, Entrenador
+  - **Objetivos del Plan**: Corto plazo (1-3 meses), Medio plazo (3-6 meses), Largo plazo (6-12 meses)
+  - **Componentes del Entrenamiento**: Físico General, Físico Especial, Técnico, Táctico, Teórico, Psicológico
+  - **Estructura de Ciclos**: Macrociclos, Mesociclos, Microciclos
+  - Secciones colapsables para mejor navegación
 
 ## Prioritized Backlog
 
