@@ -164,6 +164,24 @@ const DashboardPage = () => {
       );
     }
 
+    // Navigate to dedicated pages
+    if (activeDataSection === 'athletes') {
+      navigate('/athletes');
+      return null;
+    }
+    if (activeDataSection === 'exercises-lib') {
+      navigate('/exercises');
+      return null;
+    }
+    if (activeDataSection === 'calendar-view') {
+      navigate('/calendar');
+      return null;
+    }
+    if (activeDataSection === 'ai-generator') {
+      navigate('/ai-generator');
+      return null;
+    }
+
     // Render Analysis component for prev-plan section
     if (activeDataSection === 'prev-plan') {
       return <PreviousPlanAnalysis athleteId={selectedAthleteId} />;
