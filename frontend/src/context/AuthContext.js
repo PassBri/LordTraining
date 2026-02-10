@@ -68,6 +68,10 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateUser = (updatedUserData) => {
+    setUser(prev => ({ ...prev, ...updatedUserData }));
+  };
+
   const getAuthHeader = () => {
     const currentToken = getToken();
     return { headers: { Authorization: `Bearer ${currentToken}` } };
@@ -76,7 +80,7 @@ export const AuthProvider = ({ children }) => {
   const token = getToken();
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, getAuthHeader, setUser, fetchUser }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, getAuthHeader, setUser, fetchUser, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
