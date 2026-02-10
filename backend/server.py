@@ -1266,6 +1266,64 @@ async def delete_competition_analysis(comp_id: str, user: dict = Depends(get_cur
         raise HTTPException(status_code=404, detail="Competition not found")
     return {"message": "Competition deleted"}
 
+# =============== TRAINING STAGES (PERIODIZATION) ===============
+class TrainingStageData(BaseModel):
+    duration: str = ''
+    volume: str = ''
+    intensity: str = ''
+    focus: str = ''
+    objective: str = ''
+    keyPoints: List[str] = []
+
+class TrainingStagesCreate(BaseModel):
+    athlete_id: Optional[str] = None
+    stages: Dict[str, TrainingStageData] = {}
+
+@api_router.post("/training-stages")
+async def save_training_stages(data: TrainingStagesCreate, user: dict = Depends(get_current_user)):
+    doc_id = str(uuid.uuid4())
+    
+    # Convert stages to dict for MongoDB
+    stages_dict = {}
+    for key, stage in data.stages.items():
+        stages_dict[key] = stage.model_dump() if hasattr(stage, 'model_dump') else dict(stage)
+    
+    doc = {
+        "id": doc_id,
+        "coach_id": user["id"],
+        "athlete_id": data.athlete_id,
+        "stages": stages_dict,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    existing = await db.training_stages.find_one({
+        "coach_id": user["id"],
+        "athlete_id": data.athlete_id
+    })
+    
+    if existing:
+        await db.training_stages.update_one(
+            {"id": existing["id"]},
+            {"$set": {"stages": stages_dict, "updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        return {"message": "Training stages updated", "id": existing["id"]}
+    else:
+        await db.training_stages.insert_one(doc)
+        return {"message": "Training stages saved", "id": doc_id}
+
+@api_router.get("/training-stages/{athlete_id}")
+async def get_training_stages(athlete_id: str, user: dict = Depends(get_current_user)):
+    data = await db.training_stages.find_one({
+        "coach_id": user["id"],
+        "athlete_id": athlete_id
+    }, {"_id": 0})
+    
+    if not data:
+        raise HTTPException(status_code=404, detail="Training stages not found")
+    
+    return data
+
 # =============== ROOT & HEALTH ===============
 @api_router.get("/")
 async def root():
