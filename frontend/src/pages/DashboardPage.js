@@ -70,7 +70,7 @@ const DashboardPage = () => {
   // Fetch athletes from backend
   const fetchAthletes = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('train_token');
       const response = await fetch(`${API_URL}/api/athletes`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -91,7 +91,7 @@ const DashboardPage = () => {
     }
     setSavingAthlete(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('train_token');
       const response = await fetch(`${API_URL}/api/athletes`, {
         method: 'POST',
         headers: {
@@ -125,7 +125,7 @@ const DashboardPage = () => {
   const handleDeleteAthlete = async (athleteId) => {
     if (!window.confirm('¿Estás seguro de eliminar este atleta?')) return;
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('train_token');
       const response = await fetch(`${API_URL}/api/athletes/${athleteId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
@@ -142,7 +142,7 @@ const DashboardPage = () => {
   // Fetch events for selected athlete
   const fetchEvents = async (athleteId) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('train_token');
       const response = await fetch(`${API_URL}/api/events-calendar/${athleteId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -170,7 +170,7 @@ const DashboardPage = () => {
     }
     setSavingEvent(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('train_token');
       const updatedEvents = [...events, { ...newEvent, id: Date.now().toString() }];
       const response = await fetch(`${API_URL}/api/events-calendar`, {
         method: 'POST',
@@ -197,7 +197,7 @@ const DashboardPage = () => {
   const handleDeleteEvent = async (eventId) => {
     if (!selectedAthleteId) return;
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('train_token');
       const updatedEvents = events.filter(e => e.id !== eventId);
       await fetch(`${API_URL}/api/events-calendar`, {
         method: 'POST',
@@ -219,7 +219,7 @@ const DashboardPage = () => {
   // Fetch objectives for selected athlete
   const fetchObjectives = async (athleteId) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('train_token');
       const response = await fetch(`${API_URL}/api/objectives/${athleteId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
