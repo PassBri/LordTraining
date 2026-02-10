@@ -481,38 +481,205 @@ const PeriodizationSystem = ({ athleteId, athleteName }) => {
   );
 
   // Vista de creación
-  const CreateView = () => (
-    <div className="space-y-6">
-      <PrinciplesInfo />
-      
-      <Card className="border-0 shadow-md">
-        <CardHeader className="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-t-xl">
-          <CardTitle className="flex items-center gap-2">
-            <Plus className="w-5 h-5" />
-            Crear Nuevo Macrociclo
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Configuración básica */}
-            <div className="space-y-4">
-              <h4 className="font-semibold text-slate-800 flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-cyan-500" />
-                Configuración del Ciclo
-              </h4>
-              
+  // ============ WIZARD DE CREACIÓN INTEGRADO ============
+  const [wizardStep, setWizardStep] = useState(1);
+  
+  // Vista de creación con wizard de pasos
+  const CreateView = () => {
+    const steps = [
+      { number: 1, title: 'Modelo', subtitle: 'Tipo de periodización' },
+      { number: 2, title: 'Duración', subtitle: 'Ciclo temporal' },
+      { number: 3, title: 'Configuración', subtitle: 'Detalles del plan' }
+    ];
+    
+    const isStepValid = (step) => {
+      switch(step) {
+        case 1: return !!macrocycleConfig.model;
+        case 2: return !!macrocycleConfig.duration;
+        case 3: return !!macrocycleConfig.startDate && !!macrocycleConfig.name;
+        default: return false;
+      }
+    };
+    
+    const nextStep = () => {
+      if (isStepValid(wizardStep) && wizardStep < 3) {
+        setWizardStep(wizardStep + 1);
+      }
+    };
+    
+    const prevStep = () => {
+      if (wizardStep > 1) {
+        setWizardStep(wizardStep - 1);
+      }
+    };
+
+    // Paso 1: Selección de Modelo
+    const renderStep1 = () => (
+      <div className="space-y-4">
+        <p className="text-slate-600 text-center mb-4">El modelo determina cómo se distribuirán las cargas de entrenamiento</p>
+        
+        {/* Modelos Clásicos */}
+        <div className="mb-4">
+          <h4 className="text-xs font-bold text-slate-500 uppercase mb-2 flex items-center gap-2">
+            <BookOpen className="w-3 h-3" /> Clásicos
+          </h4>
+          <div className="grid md:grid-cols-3 gap-2">
+            {[
+              { id: 'traditional', name: 'Tradicional (Matveiev)', icon: '📊', desc: 'Progresión lineal clásica' },
+              { id: 'atr', name: 'ATR (Issurin)', icon: '🔄', desc: 'Bloques concentrados' },
+              { id: 'blocks', name: 'Por Bloques', icon: '📦', desc: 'Cargas concentradas' }
+            ].map(model => (
+              <Card 
+                key={model.id}
+                className={`cursor-pointer hover:shadow-md transition-all ${macrocycleConfig.model === model.id ? 'ring-2 ring-blue-500 bg-blue-50' : ''}`}
+                onClick={() => setMacrocycleConfig({...macrocycleConfig, model: model.id})}
+              >
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{model.icon}</span>
+                    <div>
+                      <p className="font-medium text-sm">{model.name}</p>
+                      <p className="text-xs text-slate-500">{model.desc}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+        
+        {/* Modelos Ondulatorios */}
+        <div className="mb-4">
+          <h4 className="text-xs font-bold text-slate-500 uppercase mb-2">Ondulatorios</h4>
+          <div className="grid md:grid-cols-2 gap-2">
+            {[
+              { id: 'undulating_daily', name: 'Ondulatorio Diario', icon: '📈', desc: 'Variación diaria' },
+              { id: 'undulating_weekly', name: 'Ondulatorio Semanal', icon: '🌊', desc: 'Variación semanal' }
+            ].map(model => (
+              <Card 
+                key={model.id}
+                className={`cursor-pointer hover:shadow-md transition-all ${macrocycleConfig.model === model.id ? 'ring-2 ring-blue-500 bg-blue-50' : ''}`}
+                onClick={() => setMacrocycleConfig({...macrocycleConfig, model: model.id})}
+              >
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{model.icon}</span>
+                    <div>
+                      <p className="font-medium text-sm">{model.name}</p>
+                      <p className="text-xs text-slate-500">{model.desc}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+        
+        {/* Modelos Avanzados */}
+        <div>
+          <h4 className="text-xs font-bold text-slate-500 uppercase mb-2">Avanzados / Específicos</h4>
+          <div className="grid md:grid-cols-3 gap-2">
+            {[
+              { id: 'pendulum', name: 'Péndulo', icon: '⚖️', desc: 'Alternancia técnico-físico' },
+              { id: 'conjugate', name: 'Conjugado', icon: '💪', desc: 'Fuerza máxima + velocidad' },
+              { id: 'polarized', name: 'Polarizado', icon: '🎯', desc: '80% bajo / 20% alto' }
+            ].map(model => (
+              <Card 
+                key={model.id}
+                className={`cursor-pointer hover:shadow-md transition-all ${macrocycleConfig.model === model.id ? 'ring-2 ring-blue-500 bg-blue-50' : ''}`}
+                onClick={() => setMacrocycleConfig({...macrocycleConfig, model: model.id})}
+              >
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{model.icon}</span>
+                    <div>
+                      <p className="font-medium text-sm">{model.name}</p>
+                      <p className="text-xs text-slate-500">{model.desc}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+        
+        {macrocycleConfig.model && PERIODIZATION_MODELS[macrocycleConfig.model] && (
+          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <p className="text-sm text-blue-800">
+              <strong>Seleccionado:</strong> {PERIODIZATION_MODELS[macrocycleConfig.model].name}
+            </p>
+            <p className="text-xs text-blue-600 mt-1">{PERIODIZATION_MODELS[macrocycleConfig.model].description}</p>
+          </div>
+        )}
+      </div>
+    );
+    
+    // Paso 2: Selección de Duración
+    const renderStep2 = () => (
+      <div className="space-y-4">
+        <p className="text-slate-600 text-center mb-4">Define el período de tiempo que abarcará tu plan</p>
+        
+        <div className="grid md:grid-cols-3 gap-3">
+          {[
+            { id: 'olympic', name: 'Ciclo Olímpico', duration: '4 años', weeks: 208, icon: '🏅', color: '#FFD700' },
+            { id: 'biannual', name: 'Bianual', duration: '2 años', weeks: 104, icon: '📅', color: '#3B82F6' },
+            { id: 'annual', name: 'Anual', duration: '1 año', weeks: 52, icon: '🗓️', color: '#10B981' },
+            { id: 'semester', name: 'Semestral', duration: '6 meses', weeks: 26, icon: '📆', color: '#F59E0B' },
+            { id: 'quarter', name: 'Trimestral', duration: '3 meses', weeks: 12, icon: '🔥', color: '#EF4444' },
+            { id: 'monthly', name: 'Mensual', duration: '1 mes', weeks: 4, icon: '⚡', color: '#8B5CF6' }
+          ].map(duration => (
+            <Card 
+              key={duration.id}
+              className={`cursor-pointer hover:shadow-md transition-all ${macrocycleConfig.duration === duration.id ? 'ring-2 ring-blue-500' : ''}`}
+              onClick={() => setMacrocycleConfig({...macrocycleConfig, duration: duration.id})}
+            >
+              <CardContent className="p-4 text-center">
+                <span className="text-3xl block mb-2">{duration.icon}</span>
+                <p className="font-bold">{duration.name}</p>
+                <p className="text-sm font-medium" style={{ color: duration.color }}>{duration.duration}</p>
+                <p className="text-xs text-slate-500">{duration.weeks} semanas</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        
+        {macrocycleConfig.duration && (
+          <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200 flex items-center gap-3">
+            <Clock className="w-5 h-5 text-green-600" />
+            <div>
+              <p className="text-sm text-green-800">
+                <strong>{CYCLE_DURATIONS[macrocycleConfig.duration]?.weeks}</strong> semanas de planificación
+              </p>
+              <p className="text-xs text-green-600">{CYCLE_DURATIONS[macrocycleConfig.duration]?.description}</p>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+    
+    // Paso 3: Configuración Final
+    const renderStep3 = () => (
+      <div className="space-y-6">
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-blue-500" />
+                Información del Ciclo
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div>
-                <label className="text-xs font-semibold text-slate-500 uppercase">Nombre del Macrociclo</label>
+                <label className="text-xs font-semibold text-slate-500 uppercase">Nombre del Plan *</label>
                 <Input
-                  placeholder="Ej: Temporada 2025"
+                  placeholder="Ej: Preparación Campeonato 2026"
                   value={macrocycleConfig.name}
                   onChange={(e) => setMacrocycleConfig({...macrocycleConfig, name: e.target.value})}
                   className="mt-1"
                 />
               </div>
-
               <div>
-                <label className="text-xs font-semibold text-slate-500 uppercase">Fecha de Inicio</label>
+                <label className="text-xs font-semibold text-slate-500 uppercase">Fecha de Inicio *</label>
                 <Input
                   type="date"
                   value={macrocycleConfig.startDate}
@@ -520,32 +687,6 @@ const PeriodizationSystem = ({ athleteId, athleteName }) => {
                   className="mt-1"
                 />
               </div>
-
-              <div>
-                <label className="text-xs font-semibold text-slate-500 uppercase">Duración</label>
-                <Select 
-                  value={macrocycleConfig.duration} 
-                  onValueChange={(v) => setMacrocycleConfig({...macrocycleConfig, duration: v})}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="olympic">Ciclo Olímpico (4 años - 208 sem)</SelectItem>
-                    <SelectItem value="biannual">Bianual (2 años - 104 sem)</SelectItem>
-                    <SelectItem value="annual">Anual (52 semanas)</SelectItem>
-                    <SelectItem value="semester">Semestral (26 semanas)</SelectItem>
-                    <SelectItem value="quarter">Trimestral (13 semanas)</SelectItem>
-                    <SelectItem value="monthly">Mensual (4 semanas)</SelectItem>
-                  </SelectContent>
-                </Select>
-                {macrocycleConfig.duration && CYCLE_DURATIONS[macrocycleConfig.duration] && (
-                  <p className="text-xs text-slate-500 mt-1">
-                    {CYCLE_DURATIONS[macrocycleConfig.duration].description}
-                  </p>
-                )}
-              </div>
-
               <div>
                 <label className="text-xs font-semibold text-slate-500 uppercase">Sesiones por Semana</label>
                 <Select 
@@ -560,19 +701,21 @@ const PeriodizationSystem = ({ athleteId, athleteName }) => {
                     <SelectItem value="4">4 sesiones</SelectItem>
                     <SelectItem value="5">5 sesiones</SelectItem>
                     <SelectItem value="6">6 sesiones</SelectItem>
-                    <SelectItem value="7">7 sesiones (diario)</SelectItem>
+                    <SelectItem value="7">7 sesiones</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-
-            {/* Competencia objetivo */}
-            <div className="space-y-4">
-              <h4 className="font-semibold text-slate-800 flex items-center gap-2">
-                <Target className="w-4 h-4 text-cyan-500" />
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Target className="w-4 h-4 text-amber-500" />
                 Objetivo Principal
-              </h4>
-
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div>
                 <label className="text-xs font-semibold text-slate-500 uppercase">Competencia Principal</label>
                 <Input
@@ -582,7 +725,6 @@ const PeriodizationSystem = ({ athleteId, athleteName }) => {
                   className="mt-1"
                 />
               </div>
-
               <div>
                 <label className="text-xs font-semibold text-slate-500 uppercase">Fecha de Competencia</label>
                 <Input
@@ -592,83 +734,126 @@ const PeriodizationSystem = ({ athleteId, athleteName }) => {
                   className="mt-1"
                 />
               </div>
-
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Resumen */}
+        <Card className="bg-slate-50">
+          <CardContent className="p-4">
+            <h4 className="font-semibold text-slate-800 mb-3">Resumen de configuración:</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <label className="text-xs font-semibold text-slate-500 uppercase">Modelo de Periodización</label>
-                <Select 
-                  value={macrocycleConfig.model} 
-                  onValueChange={(v) => setMacrocycleConfig({...macrocycleConfig, model: v})}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-80">
-                    {/* Modelos Clásicos */}
-                    <div className="px-2 py-1 text-xs font-bold text-slate-500 bg-slate-100">Clásicos</div>
-                    <SelectItem value="traditional">Tradicional (Matveiev)</SelectItem>
-                    <SelectItem value="atr">ATR (Issurin)</SelectItem>
-                    <SelectItem value="blocks">Por Bloques (Verkhoshansky)</SelectItem>
-                    
-                    {/* Modelos Ondulatorios */}
-                    <div className="px-2 py-1 text-xs font-bold text-slate-500 bg-slate-100 mt-1">Ondulatorios</div>
-                    <SelectItem value="undulating_daily">Ondulatorio Diario</SelectItem>
-                    <SelectItem value="undulating_weekly">Ondulatorio Semanal</SelectItem>
-                    
-                    {/* Modelos Avanzados */}
-                    <div className="px-2 py-1 text-xs font-bold text-slate-500 bg-slate-100 mt-1">Avanzados</div>
-                    <SelectItem value="pendulum">Péndulo (Arosiev)</SelectItem>
-                    <SelectItem value="structural_bells">Campanas Estructurales (Forteza)</SelectItem>
-                    <SelectItem value="contemporary">Contemporáneo (Bondarchuk)</SelectItem>
-                    <SelectItem value="inverse">Periodización Inversa</SelectItem>
-                    <SelectItem value="tactical">Táctico (Deportes de Equipo)</SelectItem>
-                    
-                    {/* Modelos Específicos */}
-                    <div className="px-2 py-1 text-xs font-bold text-slate-500 bg-slate-100 mt-1">Específicos</div>
-                    <SelectItem value="concurrent">Concurrente</SelectItem>
-                    <SelectItem value="conjugate">Conjugado (Westside)</SelectItem>
-                    <SelectItem value="polarized">Polarizado</SelectItem>
-                  </SelectContent>
-                </Select>
-                {macrocycleConfig.model && PERIODIZATION_MODELS[macrocycleConfig.model] && (
-                  <p className="text-xs text-slate-500 mt-1">
-                    {PERIODIZATION_MODELS[macrocycleConfig.model].description}
-                  </p>
-                )}
+                <span className="text-slate-500">Modelo:</span>
+                <p className="font-medium">{PERIODIZATION_MODELS[macrocycleConfig.model]?.name || '-'}</p>
               </div>
-
-              {/* Preview de fases */}
-              <div className="bg-slate-50 p-3 rounded-lg mt-4">
-                <p className="text-xs font-semibold text-slate-500 uppercase mb-2">Fases que se generarán:</p>
-                <div className="flex flex-wrap gap-2">
-                  {MACROCYCLE_PHASES.map(phase => (
-                    <span 
-                      key={phase.id} 
-                      className="px-2 py-1 rounded text-xs font-medium text-white"
-                      style={{ backgroundColor: phase.color }}
-                    >
-                      {phase.name}
-                    </span>
-                  ))}
-                </div>
+              <div>
+                <span className="text-slate-500">Duración:</span>
+                <p className="font-medium">{CYCLE_DURATIONS[macrocycleConfig.duration]?.name || '-'}</p>
+              </div>
+              <div>
+                <span className="text-slate-500">Semanas:</span>
+                <p className="font-medium">{CYCLE_DURATIONS[macrocycleConfig.duration]?.weeks || '-'}</p>
+              </div>
+              <div>
+                <span className="text-slate-500">Sesiones/sem:</span>
+                <p className="font-medium">{macrocycleConfig.sessionsPerWeek}</p>
               </div>
             </div>
+            
+            {/* Preview de fases */}
+            <div className="mt-4 pt-4 border-t">
+              <p className="text-xs font-semibold text-slate-500 uppercase mb-2">Fases que se generarán:</p>
+              <div className="flex rounded overflow-hidden h-6">
+                {MACROCYCLE_PHASES.map((phase, idx) => (
+                  <div 
+                    key={phase.id} 
+                    className="flex-1 flex items-center justify-center text-xs font-medium text-white"
+                    style={{ backgroundColor: phase.color }}
+                    title={phase.name}
+                  >
+                    {idx < 3 && phase.name.split(' ')[0]}
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {MACROCYCLE_PHASES.map(phase => (
+                  <span key={phase.id} className="flex items-center gap-1 text-xs">
+                    <div className="w-2 h-2 rounded" style={{ backgroundColor: phase.color }} />
+                    {phase.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+    
+    return (
+      <div className="space-y-6">
+        {/* Header con pasos */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-xl">
+          <div className="flex items-center justify-between mb-4">
+            {steps.map((step, idx) => (
+              <React.Fragment key={step.number}>
+                <div className="flex flex-col items-center">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
+                    wizardStep === step.number ? 'bg-white text-blue-600 ring-4 ring-blue-300' :
+                    wizardStep > step.number ? 'bg-green-500 text-white' :
+                    'bg-blue-500/30 text-blue-100'
+                  }`}>
+                    {wizardStep > step.number ? <CheckCircle className="w-5 h-5" /> : step.number}
+                  </div>
+                  <span className="text-xs mt-1 font-medium">{step.title}</span>
+                  <span className="text-xs text-blue-200">{step.subtitle}</span>
+                </div>
+                {idx < steps.length - 1 && (
+                  <div className={`flex-1 h-1 mx-4 rounded ${wizardStep > step.number ? 'bg-green-400' : 'bg-blue-500/30'}`} />
+                )}
+              </React.Fragment>
+            ))}
           </div>
-
-          <Button 
-            className="w-full mt-6 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 h-12 text-lg font-semibold"
-            onClick={handleCreateMacrocycle}
-            disabled={saving || !athleteId}
-          >
-            {saving ? (
-              <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Generando estructura...</>
-            ) : (
-              <><Zap className="w-5 h-5 mr-2" /> Generar Macrociclo Automáticamente</>
-            )}
+        </div>
+        
+        {/* Contenido del paso */}
+        <Card className="border-0 shadow-md">
+          <CardContent className="p-6">
+            {wizardStep === 1 && renderStep1()}
+            {wizardStep === 2 && renderStep2()}
+            {wizardStep === 3 && renderStep3()}
+          </CardContent>
+        </Card>
+        
+        {/* Botones de navegación */}
+        <div className="flex items-center justify-between">
+          <Button variant="outline" onClick={prevStep} disabled={wizardStep === 1}>
+            <ChevronLeft className="w-4 h-4 mr-1" /> Anterior
           </Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
+          
+          <span className="text-sm text-slate-500">Paso {wizardStep} de 3</span>
+          
+          {wizardStep < 3 ? (
+            <Button onClick={nextStep} disabled={!isStepValid(wizardStep)} className="bg-blue-600 hover:bg-blue-700">
+              Siguiente <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          ) : (
+            <Button 
+              onClick={handleCreateMacrocycle} 
+              disabled={saving || !isStepValid(3) || !athleteId}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {saving ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generando...</>
+              ) : (
+                <><Zap className="w-4 h-4 mr-2" /> Generar Plan</>
+              )}
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   // Vista de estructura con edición de sesiones y drag & drop
   const StructureView = () => {
