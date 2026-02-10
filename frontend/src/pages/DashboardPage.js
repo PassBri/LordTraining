@@ -421,8 +421,14 @@ const DashboardPage = () => {
       <div className="w-72 p-4 border-r flex flex-col bg-white shadow-lg">
         {/* Logo and Title */}
         <div className="flex items-center gap-2 mb-4">
-          <Target className="h-6 w-6 text-blue-600" />
-          <h1 className="text-xl font-bold text-blue-600">Training AI</h1>
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-lg">T</span>
+          </div>
+          <h1 className="text-xl font-bold">
+            <span className="text-blue-600">Tr</span>
+            <span className="text-blue-400">AI</span>
+            <span className="text-blue-600">n</span>
+          </h1>
         </div>
         
         {/* Panel Tabs */}
