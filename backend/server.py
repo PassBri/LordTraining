@@ -1657,7 +1657,9 @@ async def save_graphic_plan(data: GraphicPlanCreate, user: dict = Depends(get_cu
 
 @api_router.get("/graphic-plan/{athlete_id}")
 async def get_graphic_plan(athlete_id: str, user: dict = Depends(get_current_user)):
-    data = await db.graphic_plans.find_one({"coach_id": user["id"], "athlete_id": athlete_id}, {"_id": 0})
+    # Handle "null" string as None
+    query_athlete_id = None if athlete_id in ["null", "undefined", ""] else athlete_id
+    data = await db.graphic_plans.find_one({"coach_id": user["id"], "athlete_id": query_athlete_id}, {"_id": 0})
     if not data:
         raise HTTPException(status_code=404, detail="No graphic plan found")
     return data
