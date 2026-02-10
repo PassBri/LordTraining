@@ -280,19 +280,19 @@ const DashboardPage = () => {
       return (
         <div className="p-4 space-y-4">
           <Card className="border-0 shadow-md overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white py-4">
+            <div className="bg-gradient-to-r from-slate-600 to-slate-700 text-white py-4 px-5">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+                <div className="flex items-center gap-2 text-lg font-semibold">
                   <Calendar className="w-5 h-5" />
                   Calendario de Entrenamiento
-                </CardTitle>
+                </div>
                 <div className="flex gap-2 items-center">
                   <Button size="sm" variant="ghost" className="text-white hover:bg-white/20 rounded-full w-8 h-8 p-0">◀</Button>
                   <span className="px-4 py-1.5 bg-white/20 rounded-full text-sm font-medium">{hoy.toLocaleDateString('es', { month: 'long', year: 'numeric' })}</span>
                   <Button size="sm" variant="ghost" className="text-white hover:bg-white/20 rounded-full w-8 h-8 p-0">▶</Button>
                 </div>
               </div>
-            </CardHeader>
+            </div>
             <CardContent className="p-5">
               {/* Leyenda */}
               <div className="flex flex-wrap gap-4 mb-5 text-sm">
