@@ -407,3 +407,33 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 
 ### Test Report
 - `/app/test_reports/iteration_7.json` - 100% tests pasados (38/38 frontend)
+
+### Feb 10, 2026 - Panel de Control (Dashboard Visual)
+- ✅ **Renombrado**: "Periodizar" → "Panel de Control" con ícono LayoutDashboard
+- ✅ **Cards de Estadísticas** (5 cards con gradientes coloridos):
+  - Total Atletas (azul), Eventos Próximos (verde), Sesiones (naranja)
+  - Macrociclos Activos (púrpura), Ejercicios en Biblioteca (rosa)
+  - Cada card con icono, número grande y subtexto
+
+- ✅ **Gráficos con Recharts**:
+  - **📊 BarChart**: Volumen de Entrenamiento por Semana (Volumen Real vs Objetivo)
+  - **📈 LineChart**: Progreso de Intensidad (Intensidad % vs Recuperación %)
+  - **🥧 PieChart**: Distribución de Fases (Prep.General 30%, Prep.Específico 25%, etc.)
+  - **📉 AreaChart**: Carga de Entrenamiento Acumulada (Carga vs Índice de Fatiga)
+
+- ✅ **Resumen del Atleta Seleccionado** (card oscura):
+  - Datos básicos (Deporte, Nivel, Edad)
+  - Estado del Plan (Fase actual, Semana, Barra de progreso)
+  - Próximo Evento
+  - Rendimiento (Adherencia, Carga semanal, Tendencia)
+
+- ✅ **Botones de Acciones Rápidas**:
+  - Nuevo Atleta (azul), Programar Evento (verde)
+  - Crear Macrociclo (púrpura), Ver Reportes (amarillo)
+
+### Archivos Creados/Modificados
+- `/app/frontend/src/components/ControlPanel.js` - NUEVO: Componente del Panel de Control
+- `/app/frontend/src/pages/DashboardPage.js` - Integración y cambio de tabs
+
+### Test Report
+- `/app/test_reports/iteration_8.json` - 100% tests pasados (18/18 frontend)
