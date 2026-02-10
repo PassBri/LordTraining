@@ -1,15 +1,25 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request, Header
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from pydantic import BaseModel, Field, ConfigDict, EmailStr
+from typing import List, Optional, Dict, Any
 import uuid
-from datetime import datetime, timezone
-
+from datetime import datetime, timezone, timedelta
+import bcrypt
+import jwt
+from enum import Enum
+from io import BytesIO
+from fastapi.responses import StreamingResponse
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib.colors import HexColor
+from emergentintegrations.llm.chat import LlmChat, UserMessage
+from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionResponse, CheckoutStatusResponse, CheckoutSessionRequest
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -19,54 +29,936 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Create the main app without a prefix
-app = FastAPI()
+# JWT Config
+JWT_SECRET = os.environ.get('JWT_SECRET', 'train-secret-key')
+JWT_ALGORITHM = "HS256"
 
-# Create a router with the /api prefix
+# App config
+app = FastAPI(title="Sistema TRAIN API")
 api_router = APIRouter(prefix="/api")
+security = HTTPBearer()
 
+# Logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
+# =============== ENUMS ===============
+class UserRole(str, Enum):
+    COACH = "coach"
+    ATHLETE = "athlete"
+
+class SubscriptionPlan(str, Enum):
+    FREE = "free"
+    BASIC = "basic"
+    PRO = "pro"
+    ENTERPRISE = "enterprise"
+
+class PlanningModel(str, Enum):
+    TRADITIONAL = "traditional"
+    ATR = "atr"
+    BLOCKS = "blocks"
+    UNDULATING = "undulating"
+    CONCURRENT = "concurrent"
+
+class Sport(str, Enum):
+    FOOTBALL = "football"
+    ATHLETICS = "athletics"
+    SWIMMING = "swimming"
+    CYCLING = "cycling"
+    BASKETBALL = "basketball"
+    TENNIS = "tennis"
+    CROSSFIT = "crossfit"
+    WEIGHTLIFTING = "weightlifting"
+    OTHER = "other"
+
+class SessionType(str, Enum):
+    PHYSICAL = "physical"
+    TECHNICAL = "technical"
+    TACTICAL = "tactical"
+    RECOVERY = "recovery"
+
+class Intensity(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    MAXIMUM = "maximum"
+
+# =============== MODELS ===============
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+    name: str
+    role: UserRole = UserRole.COACH
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class UserResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    email: str
+    name: str
+    role: UserRole
+    subscription: SubscriptionPlan
+    created_at: str
+
+class AthleteCreate(BaseModel):
+    name: str
+    email: Optional[str] = None
+    sport: Sport
+    age: int
+    level: str
+    notes: Optional[str] = None
+
+class AthleteResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    coach_id: str
+    name: str
+    email: Optional[str] = None
+    sport: Sport
+    age: int
+    level: str
+    notes: Optional[str] = None
+    created_at: str
+
+class ExerciseCreate(BaseModel):
+    name: str
+    sport: Sport
+    category: str
+    description: Optional[str] = None
+    muscles: List[str] = []
+    video_url: Optional[str] = None
+
+class ExerciseResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    name: str
+    sport: Sport
+    category: str
+    description: Optional[str] = None
+    muscles: List[str] = []
+    video_url: Optional[str] = None
+    coach_id: Optional[str] = None
+    is_public: bool = True
+
+class SessionCreate(BaseModel):
+    date: str
+    session_type: SessionType
+    duration_minutes: int
+    volume: float
+    intensity: Intensity
+    exercises: List[Dict[str, Any]] = []
+    notes: Optional[str] = None
+    time_of_day: str = "morning"
+
+class SessionResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    microcycle_id: str
+    date: str
+    session_type: SessionType
+    duration_minutes: int
+    volume: float
+    intensity: Intensity
+    load: float
+    exercises: List[Dict[str, Any]] = []
+    notes: Optional[str] = None
+    time_of_day: str
+    completed: bool = False
+
+class MicrocycleCreate(BaseModel):
+    name: str
+    start_date: str
+    end_date: str
+    objective: Optional[str] = None
+
+class MicrocycleResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    mesocycle_id: str
+    name: str
+    start_date: str
+    end_date: str
+    objective: Optional[str] = None
+    sessions: List[SessionResponse] = []
+
+class MesocycleCreate(BaseModel):
+    name: str
+    start_date: str
+    end_date: str
+    phase: str
+    objective: Optional[str] = None
+
+class MesocycleResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    macrocycle_id: str
+    name: str
+    start_date: str
+    end_date: str
+    phase: str
+    objective: Optional[str] = None
+    microcycles: List[MicrocycleResponse] = []
+
+class MacrocycleCreate(BaseModel):
+    name: str
+    start_date: str
+    end_date: str
+    sport: Sport
+    planning_model: PlanningModel
+    objective: Optional[str] = None
+
+class MacrocycleResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    athlete_id: str
+    name: str
+    start_date: str
+    end_date: str
+    sport: Sport
+    planning_model: PlanningModel
+    objective: Optional[str] = None
+    mesocycles: List[MesocycleResponse] = []
+
+class CompetitionCreate(BaseModel):
+    name: str
+    date: str
+    level: str
+    location: Optional[str] = None
+    notes: Optional[str] = None
+
+class CompetitionResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    athlete_id: str
+    name: str
+    date: str
+    level: str
+    location: Optional[str] = None
+    notes: Optional[str] = None
+
+class TrainingPlanGenerateRequest(BaseModel):
+    athlete_id: str
+    sport: Sport
+    planning_model: PlanningModel
+    duration_weeks: int
+    objective: str
+    competitions: List[str] = []
+    current_level: str
+    available_days_per_week: int = 5
+
+class CheckoutRequest(BaseModel):
+    plan: SubscriptionPlan
+    origin_url: str
+
+class PaymentStatusResponse(BaseModel):
+    status: str
+    payment_status: str
+    plan: Optional[str] = None
+
+# =============== HELPERS ===============
+def hash_password(password: str) -> str:
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+
+def verify_password(password: str, hashed: str) -> bool:
+    return bcrypt.checkpw(password.encode(), hashed.encode())
+
+def create_token(user_id: str, email: str, role: str) -> str:
+    payload = {
+        "user_id": user_id,
+        "email": email,
+        "role": role,
+        "exp": datetime.now(timezone.utc) + timedelta(days=7)
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        user = await db.users.find_one({"id": payload["user_id"]}, {"_id": 0})
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found")
+        return user
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+def calculate_load(volume: float, intensity: Intensity) -> float:
+    intensity_map = {"low": 0.5, "medium": 0.7, "high": 0.85, "maximum": 1.0}
+    return round(volume * intensity_map.get(intensity.value, 0.7), 2)
+
+# =============== SUBSCRIPTION PLANS ===============
+SUBSCRIPTION_PRICES = {
+    SubscriptionPlan.BASIC: 9.99,
+    SubscriptionPlan.PRO: 29.99,
+    SubscriptionPlan.ENTERPRISE: 99.99
+}
+
+SUBSCRIPTION_LIMITS = {
+    SubscriptionPlan.FREE: {"athletes": 2, "plans": 1, "ai_generations": 3},
+    SubscriptionPlan.BASIC: {"athletes": 10, "plans": 5, "ai_generations": 20},
+    SubscriptionPlan.PRO: {"athletes": 50, "plans": 999, "ai_generations": 100},
+    SubscriptionPlan.ENTERPRISE: {"athletes": 999, "plans": 999, "ai_generations": 999}
+}
+
+# =============== AUTH ROUTES ===============
+@api_router.post("/auth/register", response_model=UserResponse)
+async def register(user: UserCreate):
+    existing = await db.users.find_one({"email": user.email})
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
     
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    user_id = str(uuid.uuid4())
+    user_doc = {
+        "id": user_id,
+        "email": user.email,
+        "password": hash_password(user.password),
+        "name": user.name,
+        "role": user.role.value,
+        "subscription": SubscriptionPlan.FREE.value,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "ai_generations_used": 0
+    }
+    await db.users.insert_one(user_doc)
+    del user_doc["password"]
+    del user_doc["_id"] if "_id" in user_doc else None
+    return UserResponse(**user_doc)
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+@api_router.post("/auth/login")
+async def login(credentials: UserLogin):
+    user = await db.users.find_one({"email": credentials.email})
+    if not user or not verify_password(credentials.password, user["password"]):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    token = create_token(user["id"], user["email"], user["role"])
+    return {
+        "token": token,
+        "user": {
+            "id": user["id"],
+            "email": user["email"],
+            "name": user["name"],
+            "role": user["role"],
+            "subscription": user["subscription"]
+        }
+    }
 
-# Add your routes to the router instead of directly to app
+@api_router.get("/auth/me", response_model=UserResponse)
+async def get_me(user: dict = Depends(get_current_user)):
+    return UserResponse(**user)
+
+# =============== ATHLETES ROUTES ===============
+@api_router.post("/athletes", response_model=AthleteResponse)
+async def create_athlete(athlete: AthleteCreate, user: dict = Depends(get_current_user)):
+    limits = SUBSCRIPTION_LIMITS[SubscriptionPlan(user["subscription"])]
+    count = await db.athletes.count_documents({"coach_id": user["id"]})
+    if count >= limits["athletes"]:
+        raise HTTPException(status_code=403, detail=f"Athlete limit reached for {user['subscription']} plan")
+    
+    athlete_id = str(uuid.uuid4())
+    doc = {
+        "id": athlete_id,
+        "coach_id": user["id"],
+        **athlete.model_dump(),
+        "sport": athlete.sport.value,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.athletes.insert_one(doc)
+    doc.pop("_id", None)
+    return AthleteResponse(**doc)
+
+@api_router.get("/athletes", response_model=List[AthleteResponse])
+async def get_athletes(user: dict = Depends(get_current_user)):
+    athletes = await db.athletes.find({"coach_id": user["id"]}, {"_id": 0}).to_list(1000)
+    return [AthleteResponse(**a) for a in athletes]
+
+@api_router.get("/athletes/{athlete_id}", response_model=AthleteResponse)
+async def get_athlete(athlete_id: str, user: dict = Depends(get_current_user)):
+    athlete = await db.athletes.find_one({"id": athlete_id, "coach_id": user["id"]}, {"_id": 0})
+    if not athlete:
+        raise HTTPException(status_code=404, detail="Athlete not found")
+    return AthleteResponse(**athlete)
+
+@api_router.put("/athletes/{athlete_id}", response_model=AthleteResponse)
+async def update_athlete(athlete_id: str, athlete: AthleteCreate, user: dict = Depends(get_current_user)):
+    result = await db.athletes.update_one(
+        {"id": athlete_id, "coach_id": user["id"]},
+        {"$set": {**athlete.model_dump(), "sport": athlete.sport.value}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Athlete not found")
+    updated = await db.athletes.find_one({"id": athlete_id}, {"_id": 0})
+    return AthleteResponse(**updated)
+
+@api_router.delete("/athletes/{athlete_id}")
+async def delete_athlete(athlete_id: str, user: dict = Depends(get_current_user)):
+    result = await db.athletes.delete_one({"id": athlete_id, "coach_id": user["id"]})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Athlete not found")
+    return {"message": "Athlete deleted"}
+
+# =============== EXERCISES ROUTES ===============
+@api_router.post("/exercises", response_model=ExerciseResponse)
+async def create_exercise(exercise: ExerciseCreate, user: dict = Depends(get_current_user)):
+    exercise_id = str(uuid.uuid4())
+    doc = {
+        "id": exercise_id,
+        "coach_id": user["id"],
+        **exercise.model_dump(),
+        "sport": exercise.sport.value,
+        "is_public": False
+    }
+    await db.exercises.insert_one(doc)
+    doc.pop("_id", None)
+    return ExerciseResponse(**doc)
+
+@api_router.get("/exercises", response_model=List[ExerciseResponse])
+async def get_exercises(sport: Optional[Sport] = None, category: Optional[str] = None, user: dict = Depends(get_current_user)):
+    query = {"$or": [{"is_public": True}, {"coach_id": user["id"]}]}
+    if sport:
+        query["sport"] = sport.value
+    if category:
+        query["category"] = category
+    exercises = await db.exercises.find(query, {"_id": 0}).to_list(1000)
+    return [ExerciseResponse(**e) for e in exercises]
+
+# =============== MACROCYCLES ROUTES ===============
+@api_router.post("/macrocycles", response_model=MacrocycleResponse)
+async def create_macrocycle(macrocycle: MacrocycleCreate, athlete_id: str, user: dict = Depends(get_current_user)):
+    athlete = await db.athletes.find_one({"id": athlete_id, "coach_id": user["id"]})
+    if not athlete:
+        raise HTTPException(status_code=404, detail="Athlete not found")
+    
+    macro_id = str(uuid.uuid4())
+    doc = {
+        "id": macro_id,
+        "athlete_id": athlete_id,
+        "coach_id": user["id"],
+        **macrocycle.model_dump(),
+        "sport": macrocycle.sport.value,
+        "planning_model": macrocycle.planning_model.value,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.macrocycles.insert_one(doc)
+    doc.pop("_id", None)
+    doc["mesocycles"] = []
+    return MacrocycleResponse(**doc)
+
+@api_router.get("/macrocycles", response_model=List[MacrocycleResponse])
+async def get_macrocycles(athlete_id: Optional[str] = None, user: dict = Depends(get_current_user)):
+    query = {"coach_id": user["id"]}
+    if athlete_id:
+        query["athlete_id"] = athlete_id
+    macros = await db.macrocycles.find(query, {"_id": 0}).to_list(1000)
+    for macro in macros:
+        macro["mesocycles"] = await db.mesocycles.find({"macrocycle_id": macro["id"]}, {"_id": 0}).to_list(100)
+    return [MacrocycleResponse(**m) for m in macros]
+
+@api_router.get("/macrocycles/{macro_id}", response_model=MacrocycleResponse)
+async def get_macrocycle(macro_id: str, user: dict = Depends(get_current_user)):
+    macro = await db.macrocycles.find_one({"id": macro_id, "coach_id": user["id"]}, {"_id": 0})
+    if not macro:
+        raise HTTPException(status_code=404, detail="Macrocycle not found")
+    macro["mesocycles"] = await db.mesocycles.find({"macrocycle_id": macro_id}, {"_id": 0}).to_list(100)
+    for meso in macro["mesocycles"]:
+        meso["microcycles"] = await db.microcycles.find({"mesocycle_id": meso["id"]}, {"_id": 0}).to_list(100)
+        for micro in meso["microcycles"]:
+            micro["sessions"] = await db.sessions.find({"microcycle_id": micro["id"]}, {"_id": 0}).to_list(100)
+    return MacrocycleResponse(**macro)
+
+# =============== MESOCYCLES ROUTES ===============
+@api_router.post("/mesocycles", response_model=MesocycleResponse)
+async def create_mesocycle(mesocycle: MesocycleCreate, macrocycle_id: str, user: dict = Depends(get_current_user)):
+    macro = await db.macrocycles.find_one({"id": macrocycle_id, "coach_id": user["id"]})
+    if not macro:
+        raise HTTPException(status_code=404, detail="Macrocycle not found")
+    
+    meso_id = str(uuid.uuid4())
+    doc = {
+        "id": meso_id,
+        "macrocycle_id": macrocycle_id,
+        **mesocycle.model_dump(),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.mesocycles.insert_one(doc)
+    doc.pop("_id", None)
+    doc["microcycles"] = []
+    return MesocycleResponse(**doc)
+
+# =============== MICROCYCLES ROUTES ===============
+@api_router.post("/microcycles", response_model=MicrocycleResponse)
+async def create_microcycle(microcycle: MicrocycleCreate, mesocycle_id: str, user: dict = Depends(get_current_user)):
+    meso = await db.mesocycles.find_one({"id": mesocycle_id})
+    if not meso:
+        raise HTTPException(status_code=404, detail="Mesocycle not found")
+    
+    micro_id = str(uuid.uuid4())
+    doc = {
+        "id": micro_id,
+        "mesocycle_id": mesocycle_id,
+        **microcycle.model_dump(),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.microcycles.insert_one(doc)
+    doc.pop("_id", None)
+    doc["sessions"] = []
+    return MicrocycleResponse(**doc)
+
+# =============== SESSIONS ROUTES ===============
+@api_router.post("/sessions", response_model=SessionResponse)
+async def create_session(session: SessionCreate, microcycle_id: str, user: dict = Depends(get_current_user)):
+    micro = await db.microcycles.find_one({"id": microcycle_id})
+    if not micro:
+        raise HTTPException(status_code=404, detail="Microcycle not found")
+    
+    session_id = str(uuid.uuid4())
+    load = calculate_load(session.volume, session.intensity)
+    doc = {
+        "id": session_id,
+        "microcycle_id": microcycle_id,
+        **session.model_dump(),
+        "session_type": session.session_type.value,
+        "intensity": session.intensity.value,
+        "load": load,
+        "completed": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.sessions.insert_one(doc)
+    doc.pop("_id", None)
+    return SessionResponse(**doc)
+
+@api_router.put("/sessions/{session_id}/complete")
+async def complete_session(session_id: str, user: dict = Depends(get_current_user)):
+    result = await db.sessions.update_one({"id": session_id}, {"$set": {"completed": True}})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return {"message": "Session marked as completed"}
+
+@api_router.get("/sessions/calendar")
+async def get_calendar_sessions(athlete_id: str, start_date: str, end_date: str, user: dict = Depends(get_current_user)):
+    macros = await db.macrocycles.find({"athlete_id": athlete_id, "coach_id": user["id"]}, {"_id": 0}).to_list(100)
+    all_sessions = []
+    for macro in macros:
+        mesos = await db.mesocycles.find({"macrocycle_id": macro["id"]}, {"_id": 0}).to_list(100)
+        for meso in mesos:
+            micros = await db.microcycles.find({"mesocycle_id": meso["id"]}, {"_id": 0}).to_list(100)
+            for micro in micros:
+                sessions = await db.sessions.find({
+                    "microcycle_id": micro["id"],
+                    "date": {"$gte": start_date, "$lte": end_date}
+                }, {"_id": 0}).to_list(1000)
+                for s in sessions:
+                    s["macrocycle_name"] = macro["name"]
+                    s["mesocycle_name"] = meso["name"]
+                    s["microcycle_name"] = micro["name"]
+                all_sessions.extend(sessions)
+    return all_sessions
+
+# =============== COMPETITIONS ROUTES ===============
+@api_router.post("/competitions", response_model=CompetitionResponse)
+async def create_competition(competition: CompetitionCreate, athlete_id: str, user: dict = Depends(get_current_user)):
+    athlete = await db.athletes.find_one({"id": athlete_id, "coach_id": user["id"]})
+    if not athlete:
+        raise HTTPException(status_code=404, detail="Athlete not found")
+    
+    comp_id = str(uuid.uuid4())
+    doc = {
+        "id": comp_id,
+        "athlete_id": athlete_id,
+        "coach_id": user["id"],
+        **competition.model_dump(),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.competitions.insert_one(doc)
+    doc.pop("_id", None)
+    return CompetitionResponse(**doc)
+
+@api_router.get("/competitions", response_model=List[CompetitionResponse])
+async def get_competitions(athlete_id: Optional[str] = None, user: dict = Depends(get_current_user)):
+    query = {"coach_id": user["id"]}
+    if athlete_id:
+        query["athlete_id"] = athlete_id
+    comps = await db.competitions.find(query, {"_id": 0}).to_list(1000)
+    return [CompetitionResponse(**c) for c in comps]
+
+# =============== AI PLAN GENERATION ===============
+@api_router.post("/plans/generate")
+async def generate_training_plan(request: TrainingPlanGenerateRequest, user: dict = Depends(get_current_user)):
+    limits = SUBSCRIPTION_LIMITS[SubscriptionPlan(user["subscription"])]
+    if user.get("ai_generations_used", 0) >= limits["ai_generations"]:
+        raise HTTPException(status_code=403, detail=f"AI generation limit reached for {user['subscription']} plan")
+    
+    athlete = await db.athletes.find_one({"id": request.athlete_id, "coach_id": user["id"]})
+    if not athlete:
+        raise HTTPException(status_code=404, detail="Athlete not found")
+    
+    api_key = os.environ.get("EMERGENT_LLM_KEY")
+    chat = LlmChat(
+        api_key=api_key,
+        session_id=f"plan-{user['id']}-{str(uuid.uuid4())[:8]}",
+        system_message="""Eres un experto en planificación de entrenamiento deportivo. 
+        Genera planes de entrenamiento detallados basados en los principios científicos del entrenamiento.
+        Incluye macrociclos, mesociclos, microciclos y sesiones específicas.
+        Responde SOLO en formato JSON válido."""
+    ).with_model("openai", "gpt-5.2")
+    
+    prompt = f"""Genera un plan de entrenamiento completo en JSON:
+    
+    - Deporte: {request.sport.value}
+    - Modelo de planificación: {request.planning_model.value}
+    - Duración: {request.duration_weeks} semanas
+    - Objetivo: {request.objective}
+    - Nivel actual: {request.current_level}
+    - Días disponibles por semana: {request.available_days_per_week}
+    - Competiciones objetivo: {', '.join(request.competitions) if request.competitions else 'Sin competiciones específicas'}
+    
+    Estructura del JSON:
+    {{
+        "macrocycle": {{
+            "name": "string",
+            "objective": "string",
+            "mesocycles": [
+                {{
+                    "name": "string",
+                    "phase": "accumulation|transformation|realization|recovery",
+                    "weeks": number,
+                    "objective": "string",
+                    "microcycles": [
+                        {{
+                            "name": "string",
+                            "sessions": [
+                                {{
+                                    "day": number,
+                                    "session_type": "physical|technical|tactical|recovery",
+                                    "duration_minutes": number,
+                                    "intensity": "low|medium|high|maximum",
+                                    "volume": number,
+                                    "exercises": ["string"],
+                                    "notes": "string"
+                                }}
+                            ]
+                        }}
+                    ]
+                }}
+            ]
+        }}
+    }}
+    
+    Genera un plan realista y progresivo."""
+    
+    try:
+        response = await chat.send_message(UserMessage(text=prompt))
+        
+        # Update AI usage count
+        await db.users.update_one({"id": user["id"]}, {"$inc": {"ai_generations_used": 1}})
+        
+        # Try to parse JSON from response
+        import json
+        import re
+        json_match = re.search(r'\{[\s\S]*\}', response)
+        if json_match:
+            plan_data = json.loads(json_match.group())
+            return {"plan": plan_data, "raw_response": response}
+        return {"plan": None, "raw_response": response}
+    except Exception as e:
+        logger.error(f"AI generation error: {e}")
+        raise HTTPException(status_code=500, detail=f"Error generating plan: {str(e)}")
+
+# =============== DASHBOARD STATS ===============
+@api_router.get("/dashboard/stats")
+async def get_dashboard_stats(user: dict = Depends(get_current_user)):
+    athletes_count = await db.athletes.count_documents({"coach_id": user["id"]})
+    macrocycles_count = await db.macrocycles.count_documents({"coach_id": user["id"]})
+    
+    # Get recent sessions
+    macros = await db.macrocycles.find({"coach_id": user["id"]}, {"_id": 0, "id": 1}).to_list(100)
+    total_sessions = 0
+    completed_sessions = 0
+    weekly_load = []
+    
+    for macro in macros:
+        mesos = await db.mesocycles.find({"macrocycle_id": macro["id"]}, {"_id": 0, "id": 1}).to_list(100)
+        for meso in mesos:
+            micros = await db.microcycles.find({"mesocycle_id": meso["id"]}, {"_id": 0, "id": 1}).to_list(100)
+            for micro in micros:
+                sessions = await db.sessions.find({"microcycle_id": micro["id"]}, {"_id": 0}).to_list(1000)
+                total_sessions += len(sessions)
+                completed_sessions += sum(1 for s in sessions if s.get("completed", False))
+                for s in sessions:
+                    weekly_load.append({"date": s.get("date"), "load": s.get("load", 0)})
+    
+    limits = SUBSCRIPTION_LIMITS[SubscriptionPlan(user["subscription"])]
+    
+    return {
+        "athletes_count": athletes_count,
+        "athletes_limit": limits["athletes"],
+        "macrocycles_count": macrocycles_count,
+        "total_sessions": total_sessions,
+        "completed_sessions": completed_sessions,
+        "completion_rate": round(completed_sessions / total_sessions * 100, 1) if total_sessions > 0 else 0,
+        "weekly_load": sorted(weekly_load, key=lambda x: x.get("date", ""))[-30:],
+        "ai_generations_used": user.get("ai_generations_used", 0),
+        "ai_generations_limit": limits["ai_generations"],
+        "subscription": user["subscription"]
+    }
+
+# =============== PAYMENT ROUTES ===============
+@api_router.post("/payments/checkout")
+async def create_checkout(request: CheckoutRequest, http_request: Request, user: dict = Depends(get_current_user)):
+    if request.plan == SubscriptionPlan.FREE:
+        raise HTTPException(status_code=400, detail="Cannot checkout free plan")
+    
+    amount = SUBSCRIPTION_PRICES.get(request.plan)
+    if not amount:
+        raise HTTPException(status_code=400, detail="Invalid plan")
+    
+    api_key = os.environ.get("STRIPE_API_KEY")
+    webhook_url = f"{str(http_request.base_url).rstrip('/')}/api/webhook/stripe"
+    stripe_checkout = StripeCheckout(api_key=api_key, webhook_url=webhook_url)
+    
+    success_url = f"{request.origin_url}/subscription?session_id={{CHECKOUT_SESSION_ID}}"
+    cancel_url = f"{request.origin_url}/pricing"
+    
+    checkout_request = CheckoutSessionRequest(
+        amount=float(amount),
+        currency="usd",
+        success_url=success_url,
+        cancel_url=cancel_url,
+        metadata={"user_id": user["id"], "plan": request.plan.value, "user_email": user["email"]}
+    )
+    
+    session = await stripe_checkout.create_checkout_session(checkout_request)
+    
+    # Create payment transaction record
+    await db.payment_transactions.insert_one({
+        "id": str(uuid.uuid4()),
+        "session_id": session.session_id,
+        "user_id": user["id"],
+        "user_email": user["email"],
+        "amount": amount,
+        "currency": "usd",
+        "plan": request.plan.value,
+        "payment_status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {"url": session.url, "session_id": session.session_id}
+
+@api_router.get("/payments/status/{session_id}")
+async def get_payment_status(session_id: str, user: dict = Depends(get_current_user)):
+    api_key = os.environ.get("STRIPE_API_KEY")
+    stripe_checkout = StripeCheckout(api_key=api_key, webhook_url="")
+    
+    try:
+        status = await stripe_checkout.get_checkout_status(session_id)
+        
+        # Update transaction and user subscription if paid
+        if status.payment_status == "paid":
+            transaction = await db.payment_transactions.find_one({"session_id": session_id})
+            if transaction and transaction.get("payment_status") != "paid":
+                await db.payment_transactions.update_one(
+                    {"session_id": session_id},
+                    {"$set": {"payment_status": "paid", "updated_at": datetime.now(timezone.utc).isoformat()}}
+                )
+                await db.users.update_one(
+                    {"id": user["id"]},
+                    {"$set": {"subscription": transaction["plan"]}}
+                )
+        
+        transaction = await db.payment_transactions.find_one({"session_id": session_id}, {"_id": 0})
+        return PaymentStatusResponse(
+            status=status.status,
+            payment_status=status.payment_status,
+            plan=transaction.get("plan") if transaction else None
+        )
+    except Exception as e:
+        logger.error(f"Payment status error: {e}")
+        raise HTTPException(status_code=500, detail="Error checking payment status")
+
+@api_router.post("/webhook/stripe")
+async def stripe_webhook(request: Request):
+    body = await request.body()
+    signature = request.headers.get("Stripe-Signature", "")
+    
+    api_key = os.environ.get("STRIPE_API_KEY")
+    stripe_checkout = StripeCheckout(api_key=api_key, webhook_url="")
+    
+    try:
+        webhook_response = await stripe_checkout.handle_webhook(body, signature)
+        
+        if webhook_response.payment_status == "paid":
+            await db.payment_transactions.update_one(
+                {"session_id": webhook_response.session_id},
+                {"$set": {"payment_status": "paid", "updated_at": datetime.now(timezone.utc).isoformat()}}
+            )
+            
+            transaction = await db.payment_transactions.find_one({"session_id": webhook_response.session_id})
+            if transaction:
+                await db.users.update_one(
+                    {"id": transaction["user_id"]},
+                    {"$set": {"subscription": transaction["plan"]}}
+                )
+        
+        return {"status": "received"}
+    except Exception as e:
+        logger.error(f"Webhook error: {e}")
+        return {"status": "error", "message": str(e)}
+
+# =============== PDF EXPORT ===============
+@api_router.get("/export/plan/{macrocycle_id}/pdf")
+async def export_plan_pdf(macrocycle_id: str, user: dict = Depends(get_current_user)):
+    macro = await db.macrocycles.find_one({"id": macrocycle_id, "coach_id": user["id"]}, {"_id": 0})
+    if not macro:
+        raise HTTPException(status_code=404, detail="Macrocycle not found")
+    
+    athlete = await db.athletes.find_one({"id": macro["athlete_id"]}, {"_id": 0})
+    
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+    
+    # Header
+    c.setFillColor(HexColor("#0f172a"))
+    c.setFont("Helvetica-Bold", 24)
+    c.drawString(50, height - 50, "SISTEMA TRAIN")
+    
+    c.setFont("Helvetica", 12)
+    c.setFillColor(HexColor("#64748b"))
+    c.drawString(50, height - 70, "Plan de Entrenamiento")
+    
+    # Macrocycle info
+    y = height - 120
+    c.setFillColor(HexColor("#0f172a"))
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(50, y, macro["name"])
+    
+    y -= 25
+    c.setFont("Helvetica", 11)
+    c.setFillColor(HexColor("#475569"))
+    c.drawString(50, y, f"Atleta: {athlete['name'] if athlete else 'N/A'}")
+    y -= 18
+    c.drawString(50, y, f"Deporte: {macro['sport']}")
+    y -= 18
+    c.drawString(50, y, f"Modelo: {macro['planning_model']}")
+    y -= 18
+    c.drawString(50, y, f"Período: {macro['start_date']} - {macro['end_date']}")
+    y -= 18
+    if macro.get("objective"):
+        c.drawString(50, y, f"Objetivo: {macro['objective']}")
+    
+    # Get mesocycles
+    mesos = await db.mesocycles.find({"macrocycle_id": macrocycle_id}, {"_id": 0}).to_list(100)
+    
+    y -= 40
+    for meso in mesos:
+        if y < 100:
+            c.showPage()
+            y = height - 50
+        
+        c.setFillColor(HexColor("#007AFF"))
+        c.setFont("Helvetica-Bold", 14)
+        c.drawString(50, y, f"Mesociclo: {meso['name']}")
+        y -= 20
+        
+        c.setFont("Helvetica", 10)
+        c.setFillColor(HexColor("#475569"))
+        c.drawString(60, y, f"Fase: {meso['phase']} | {meso['start_date']} - {meso['end_date']}")
+        y -= 15
+        if meso.get("objective"):
+            c.drawString(60, y, f"Objetivo: {meso['objective']}")
+            y -= 20
+        else:
+            y -= 5
+        
+        micros = await db.microcycles.find({"mesocycle_id": meso["id"]}, {"_id": 0}).to_list(100)
+        for micro in micros:
+            if y < 100:
+                c.showPage()
+                y = height - 50
+            
+            c.setFillColor(HexColor("#0f172a"))
+            c.setFont("Helvetica-Bold", 11)
+            c.drawString(70, y, f"Microciclo: {micro['name']}")
+            y -= 15
+            
+            sessions = await db.sessions.find({"microcycle_id": micro["id"]}, {"_id": 0}).to_list(100)
+            for session in sessions:
+                if y < 80:
+                    c.showPage()
+                    y = height - 50
+                
+                c.setFont("Helvetica", 9)
+                c.setFillColor(HexColor("#64748b"))
+                session_text = f"  {session['date']} - {session['session_type']} | {session['duration_minutes']}min | Intensidad: {session['intensity']} | Carga: {session['load']}"
+                c.drawString(80, y, session_text)
+                y -= 12
+            y -= 10
+        y -= 15
+    
+    # Footer
+    c.setFont("Helvetica", 8)
+    c.setFillColor(HexColor("#94a3b8"))
+    c.drawString(50, 30, f"Generado por Sistema TRAIN - {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    
+    c.save()
+    buffer.seek(0)
+    
+    return StreamingResponse(
+        buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename=plan_{macro['name'].replace(' ', '_')}.pdf"}
+    )
+
+# =============== SEED DEFAULT EXERCISES ===============
+@api_router.post("/seed/exercises")
+async def seed_exercises():
+    exercises = [
+        # Football
+        {"name": "Sprint 30m", "sport": "football", "category": "velocidad", "description": "Sprint corto de alta intensidad", "muscles": ["cuadriceps", "isquiotibiales", "gluteos"], "is_public": True},
+        {"name": "Rondo 4v2", "sport": "football", "category": "tecnico", "description": "Ejercicio de posesión y presión", "muscles": [], "is_public": True},
+        {"name": "Circuito de fuerza", "sport": "football", "category": "fuerza", "description": "Trabajo de fuerza general", "muscles": ["tren_superior", "core", "tren_inferior"], "is_public": True},
+        # Athletics
+        {"name": "Series 200m", "sport": "athletics", "category": "resistencia", "description": "Series de velocidad resistencia", "muscles": ["cuadriceps", "isquiotibiales"], "is_public": True},
+        {"name": "Técnica de carrera", "sport": "athletics", "category": "tecnico", "description": "Drills de técnica", "muscles": ["flexores_cadera", "gluteos"], "is_public": True},
+        {"name": "Saltos pliométricos", "sport": "athletics", "category": "potencia", "description": "Trabajo de potencia de piernas", "muscles": ["cuadriceps", "gemelos"], "is_public": True},
+        # Swimming
+        {"name": "Series 100m crol", "sport": "swimming", "category": "resistencia", "description": "Series aeróbicas de crol", "muscles": ["dorsal", "deltoides", "triceps"], "is_public": True},
+        {"name": "Técnica de viraje", "sport": "swimming", "category": "tecnico", "description": "Práctica de virajes", "muscles": ["core", "piernas"], "is_public": True},
+        {"name": "Nado con palas", "sport": "swimming", "category": "fuerza", "description": "Trabajo de fuerza en agua", "muscles": ["dorsal", "pectoral", "triceps"], "is_public": True},
+        # Cycling
+        {"name": "Intervalos 4x4", "sport": "cycling", "category": "potencia", "description": "Intervalos de alta intensidad", "muscles": ["cuadriceps", "gluteos"], "is_public": True},
+        {"name": "Rodaje largo", "sport": "cycling", "category": "resistencia", "description": "Entrenamiento de base aeróbica", "muscles": ["cuadriceps", "isquiotibiales"], "is_public": True},
+        {"name": "Series de subida", "sport": "cycling", "category": "fuerza", "description": "Trabajo de fuerza en subida", "muscles": ["cuadriceps", "gluteos", "core"], "is_public": True},
+        # Crossfit
+        {"name": "AMRAP 20min", "sport": "crossfit", "category": "metabolico", "description": "Circuito metabólico de alta intensidad", "muscles": ["cuerpo_completo"], "is_public": True},
+        {"name": "Clean & Jerk", "sport": "crossfit", "category": "tecnico", "description": "Levantamiento olímpico", "muscles": ["piernas", "espalda", "hombros"], "is_public": True},
+        {"name": "Muscle-ups", "sport": "crossfit", "category": "fuerza", "description": "Ejercicio de gimnasia", "muscles": ["dorsal", "triceps", "pectoral"], "is_public": True},
+        # Weightlifting
+        {"name": "Sentadilla trasera", "sport": "weightlifting", "category": "fuerza", "description": "Ejercicio fundamental de fuerza", "muscles": ["cuadriceps", "gluteos", "core"], "is_public": True},
+        {"name": "Press banca", "sport": "weightlifting", "category": "fuerza", "description": "Empuje horizontal", "muscles": ["pectoral", "deltoides", "triceps"], "is_public": True},
+        {"name": "Peso muerto", "sport": "weightlifting", "category": "fuerza", "description": "Tirón de suelo", "muscles": ["isquiotibiales", "gluteos", "espalda_baja"], "is_public": True},
+    ]
+    
+    for ex in exercises:
+        existing = await db.exercises.find_one({"name": ex["name"], "sport": ex["sport"]})
+        if not existing:
+            ex["id"] = str(uuid.uuid4())
+            await db.exercises.insert_one(ex)
+    
+    return {"message": "Exercises seeded successfully", "count": len(exercises)}
+
+# =============== ROOT & HEALTH ===============
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Sistema TRAIN API", "version": "1.0.0"}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
-    
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
+@api_router.get("/health")
+async def health():
+    return {"status": "healthy"}
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
-    
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
-    
-    return status_checks
-
-# Include the router in the main app
+# Include router
 app.include_router(api_router)
 
 app.add_middleware(
@@ -76,13 +968,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
