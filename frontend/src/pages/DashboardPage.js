@@ -19,6 +19,7 @@ import {
 import { toast } from 'sonner';
 import PreviousPlanAnalysis from '../components/PreviousPlanAnalysis';
 import SessionPlanning from '../components/SessionPlanning';
+import SportCharacterization from '../components/SportCharacterization';
 
 const DashboardPage = () => {
   const { user, logout } = useAuth();
