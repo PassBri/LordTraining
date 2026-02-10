@@ -505,6 +505,7 @@ const ControlPanel = ({
           <span>Ver Reportes</span>
         </Button>
       </div>
+      </div>
     </div>
   );
 };
