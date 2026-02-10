@@ -578,10 +578,173 @@ const PeriodizationSystem = ({ athleteId, athleteName }) => {
     </div>
   );
 
-  // Vista de estructura
+  // Vista de estructura con edición de sesiones y drag & drop
   const StructureView = () => {
     const [expandedMeso, setExpandedMeso] = useState(null);
     const [expandedMicro, setExpandedMicro] = useState(null);
+    const [editingSession, setEditingSession] = useState(null);
+    const [editedSessionData, setEditedSessionData] = useState({});
+    const [draggedSession, setDraggedSession] = useState(null);
+    const [dragOverSession, setDragOverSession] = useState(null);
+
+    // Session types for editing
+    const SESSION_TYPES = [
+      { id: 'strength', name: 'Fuerza', color: 'bg-red-100 border-red-300' },
+      { id: 'endurance', name: 'Resistencia', color: 'bg-blue-100 border-blue-300' },
+      { id: 'speed', name: 'Velocidad', color: 'bg-yellow-100 border-yellow-300' },
+      { id: 'technical', name: 'Técnica', color: 'bg-green-100 border-green-300' },
+      { id: 'recovery', name: 'Recuperación', color: 'bg-violet-100 border-violet-300' },
+      { id: 'tactical', name: 'Táctica', color: 'bg-orange-100 border-orange-300' },
+      { id: 'flexibility', name: 'Flexibilidad', color: 'bg-pink-100 border-pink-300' }
+    ];
+
+    // Start editing a session
+    const startEditSession = (mesoIdx, microIdx, sessionIdx, session) => {
+      setEditingSession({ mesoIdx, microIdx, sessionIdx });
+      setEditedSessionData({ ...session });
+    };
+
+    // Save edited session
+    const saveEditedSession = () => {
+      if (!editingSession) return;
+      
+      const { mesoIdx, microIdx, sessionIdx } = editingSession;
+      const updatedMacrocycle = { ...macrocycle };
+      updatedMacrocycle.mesocycles[mesoIdx].microcycles[microIdx].sessions[sessionIdx] = {
+        ...updatedMacrocycle.mesocycles[mesoIdx].microcycles[microIdx].sessions[sessionIdx],
+        ...editedSessionData
+      };
+      
+      setMacrocycle(updatedMacrocycle);
+      setEditingSession(null);
+      setEditedSessionData({});
+      toast.success('Sesión actualizada');
+      
+      // Save to backend
+      saveMacrocycleToBackend(updatedMacrocycle);
+    };
+
+    // Cancel editing
+    const cancelEdit = () => {
+      setEditingSession(null);
+      setEditedSessionData({});
+    };
+
+    // Drag and drop handlers
+    const handleDragStart = (e, mesoIdx, microIdx, sessionIdx, session) => {
+      setDraggedSession({ mesoIdx, microIdx, sessionIdx, session });
+      e.dataTransfer.effectAllowed = 'move';
+    };
+
+    const handleDragOver = (e, mesoIdx, microIdx, sessionIdx) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      setDragOverSession({ mesoIdx, microIdx, sessionIdx });
+    };
+
+    const handleDragLeave = () => {
+      setDragOverSession(null);
+    };
+
+    const handleDrop = (e, targetMesoIdx, targetMicroIdx, targetSessionIdx) => {
+      e.preventDefault();
+      
+      if (!draggedSession) return;
+      
+      const { mesoIdx: sourceMesoIdx, microIdx: sourceMicroIdx, sessionIdx: sourceSessionIdx } = draggedSession;
+      
+      // Same position - do nothing
+      if (sourceMesoIdx === targetMesoIdx && sourceMicroIdx === targetMicroIdx && sourceSessionIdx === targetSessionIdx) {
+        setDraggedSession(null);
+        setDragOverSession(null);
+        return;
+      }
+
+      const updatedMacrocycle = { ...macrocycle };
+      const sourceSessions = [...updatedMacrocycle.mesocycles[sourceMesoIdx].microcycles[sourceMicroIdx].sessions];
+      const targetSessions = sourceMesoIdx === targetMesoIdx && sourceMicroIdx === targetMicroIdx 
+        ? sourceSessions 
+        : [...updatedMacrocycle.mesocycles[targetMesoIdx].microcycles[targetMicroIdx].sessions];
+
+      // Get the dragged session
+      const [movedSession] = sourceSessions.splice(sourceSessionIdx, 1);
+      
+      // If same microcycle, adjust target index
+      let adjustedTargetIdx = targetSessionIdx;
+      if (sourceMesoIdx === targetMesoIdx && sourceMicroIdx === targetMicroIdx && sourceSessionIdx < targetSessionIdx) {
+        adjustedTargetIdx--;
+      }
+      
+      // Insert at new position
+      if (sourceMesoIdx === targetMesoIdx && sourceMicroIdx === targetMicroIdx) {
+        sourceSessions.splice(adjustedTargetIdx, 0, movedSession);
+        updatedMacrocycle.mesocycles[sourceMesoIdx].microcycles[sourceMicroIdx].sessions = sourceSessions;
+      } else {
+        targetSessions.splice(targetSessionIdx, 0, movedSession);
+        updatedMacrocycle.mesocycles[sourceMesoIdx].microcycles[sourceMicroIdx].sessions = sourceSessions;
+        updatedMacrocycle.mesocycles[targetMesoIdx].microcycles[targetMicroIdx].sessions = targetSessions;
+      }
+
+      setMacrocycle(updatedMacrocycle);
+      setDraggedSession(null);
+      setDragOverSession(null);
+      toast.success('Sesión reorganizada');
+      
+      // Save to backend
+      saveMacrocycleToBackend(updatedMacrocycle);
+    };
+
+    // Save macrocycle to backend
+    const saveMacrocycleToBackend = async (data) => {
+      try {
+        const token = getToken();
+        await fetch(`${API_URL}/api/periodization`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            ...data,
+            athleteId: athleteId
+          })
+        });
+      } catch (error) {
+        console.error('Error saving macrocycle:', error);
+      }
+    };
+
+    // Delete session
+    const deleteSession = (mesoIdx, microIdx, sessionIdx) => {
+      if (!window.confirm('¿Eliminar esta sesión?')) return;
+      
+      const updatedMacrocycle = { ...macrocycle };
+      updatedMacrocycle.mesocycles[mesoIdx].microcycles[microIdx].sessions.splice(sessionIdx, 1);
+      setMacrocycle(updatedMacrocycle);
+      toast.success('Sesión eliminada');
+      saveMacrocycleToBackend(updatedMacrocycle);
+    };
+
+    // Add new session
+    const addSession = (mesoIdx, microIdx) => {
+      const micro = macrocycle.mesocycles[mesoIdx].microcycles[microIdx];
+      const newSession = {
+        id: `session-new-${Date.now()}`,
+        date: micro.startDate,
+        dayName: 'Nuevo',
+        type: 'strength',
+        intensity: 'medium',
+        duration: 60,
+        volume: 50,
+        completed: false
+      };
+      
+      const updatedMacrocycle = { ...macrocycle };
+      updatedMacrocycle.mesocycles[mesoIdx].microcycles[microIdx].sessions.push(newSession);
+      setMacrocycle(updatedMacrocycle);
+      toast.success('Sesión agregada');
+      saveMacrocycleToBackend(updatedMacrocycle);
+    };
 
     if (!macrocycle) {
       return (
@@ -612,6 +775,14 @@ const PeriodizationSystem = ({ athleteId, athleteName }) => {
             </div>
           </div>
         </Card>
+
+        {/* Instrucciones de drag & drop */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center gap-3">
+          <GripVertical className="w-5 h-5 text-blue-500" />
+          <p className="text-sm text-blue-700">
+            <strong>Tip:</strong> Arrastra las sesiones para reorganizarlas. Haz clic en una sesión para editarla.
+          </p>
+        </div>
 
         {/* Lista de mesociclos */}
         <div className="space-y-3">
@@ -665,25 +836,133 @@ const PeriodizationSystem = ({ athleteId, athleteName }) => {
                         </button>
 
                         {expandedMicro === `${mesoIdx}-${microIdx}` && (
-                          <div className="mt-2 ml-6 p-3 bg-white rounded-lg border">
-                            <p className="text-xs font-semibold text-slate-500 uppercase mb-2">Sesiones de la semana:</p>
-                            <div className="grid grid-cols-7 gap-2">
-                              {micro.sessions?.map((session, sIdx) => (
-                                <div 
-                                  key={session.id}
-                                  className={`p-2 rounded text-center text-xs ${
-                                    session.type === 'recovery' ? 'bg-violet-100' :
-                                    session.type === 'strength' ? 'bg-red-100' :
-                                    session.type === 'endurance' ? 'bg-blue-100' :
-                                    session.type === 'speed' ? 'bg-yellow-100' :
-                                    'bg-green-100'
-                                  }`}
-                                >
-                                  <p className="font-semibold">{session.dayName}</p>
-                                  <p className="capitalize">{session.type}</p>
-                                  <p className="text-slate-500">{session.duration}min</p>
-                                </div>
-                              ))}
+                          <div className="mt-2 ml-6 p-4 bg-white rounded-lg border">
+                            <div className="flex items-center justify-between mb-3">
+                              <p className="text-xs font-semibold text-slate-500 uppercase">Sesiones de la semana:</p>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => addSession(mesoIdx, microIdx)}
+                                className="h-7 text-xs"
+                              >
+                                <Plus className="w-3 h-3 mr-1" /> Agregar sesión
+                              </Button>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
+                              {micro.sessions?.map((session, sIdx) => {
+                                const isEditing = editingSession?.mesoIdx === mesoIdx && 
+                                                  editingSession?.microIdx === microIdx && 
+                                                  editingSession?.sessionIdx === sIdx;
+                                const isDragOver = dragOverSession?.mesoIdx === mesoIdx && 
+                                                   dragOverSession?.microIdx === microIdx && 
+                                                   dragOverSession?.sessionIdx === sIdx;
+                                const sessionType = SESSION_TYPES.find(t => t.id === session.type) || SESSION_TYPES[0];
+
+                                return (
+                                  <div 
+                                    key={session.id}
+                                    draggable={!isEditing}
+                                    onDragStart={(e) => handleDragStart(e, mesoIdx, microIdx, sIdx, session)}
+                                    onDragOver={(e) => handleDragOver(e, mesoIdx, microIdx, sIdx)}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={(e) => handleDrop(e, mesoIdx, microIdx, sIdx)}
+                                    className={`relative p-3 rounded-lg border-2 transition-all ${
+                                      isEditing ? 'ring-2 ring-cyan-400 border-cyan-400' :
+                                      isDragOver ? 'border-dashed border-cyan-500 bg-cyan-50' :
+                                      sessionType.color
+                                    } ${!isEditing ? 'cursor-grab active:cursor-grabbing hover:shadow-md' : ''}`}
+                                  >
+                                    {!isEditing ? (
+                                      <>
+                                        {/* Normal view */}
+                                        <div className="flex items-center justify-between mb-2">
+                                          <GripVertical className="w-4 h-4 text-slate-400" />
+                                          <div className="flex gap-1">
+                                            <button 
+                                              onClick={(e) => { e.stopPropagation(); startEditSession(mesoIdx, microIdx, sIdx, session); }}
+                                              className="p-1 hover:bg-white rounded"
+                                            >
+                                              <Edit2 className="w-3 h-3 text-slate-500" />
+                                            </button>
+                                            <button 
+                                              onClick={(e) => { e.stopPropagation(); deleteSession(mesoIdx, microIdx, sIdx); }}
+                                              className="p-1 hover:bg-white rounded"
+                                            >
+                                              <Trash2 className="w-3 h-3 text-red-500" />
+                                            </button>
+                                          </div>
+                                        </div>
+                                        <p className="font-bold text-sm">{session.dayName}</p>
+                                        <p className="text-xs font-medium capitalize text-slate-700">{sessionType.name}</p>
+                                        <p className="text-xs text-slate-500 mt-1">{session.duration} min</p>
+                                        <div className="mt-2 flex gap-1">
+                                          <span className={`px-1.5 py-0.5 text-[10px] rounded ${
+                                            session.intensity === 'high' ? 'bg-red-200 text-red-800' :
+                                            session.intensity === 'medium' ? 'bg-yellow-200 text-yellow-800' :
+                                            'bg-green-200 text-green-800'
+                                          }`}>
+                                            {session.intensity === 'high' ? 'Alta' : session.intensity === 'medium' ? 'Media' : 'Baja'}
+                                          </span>
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <>
+                                        {/* Edit mode */}
+                                        <div className="space-y-2">
+                                          <Input
+                                            value={editedSessionData.dayName || ''}
+                                            onChange={(e) => setEditedSessionData({...editedSessionData, dayName: e.target.value})}
+                                            placeholder="Día"
+                                            className="h-7 text-xs"
+                                          />
+                                          <Select 
+                                            value={editedSessionData.type} 
+                                            onValueChange={(v) => setEditedSessionData({...editedSessionData, type: v})}
+                                          >
+                                            <SelectTrigger className="h-7 text-xs">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              {SESSION_TYPES.map(t => (
+                                                <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                                              ))}
+                                            </SelectContent>
+                                          </Select>
+                                          <Input
+                                            type="number"
+                                            value={editedSessionData.duration || 60}
+                                            onChange={(e) => setEditedSessionData({...editedSessionData, duration: parseInt(e.target.value)})}
+                                            placeholder="Duración (min)"
+                                            className="h-7 text-xs"
+                                          />
+                                          <Select 
+                                            value={editedSessionData.intensity} 
+                                            onValueChange={(v) => setEditedSessionData({...editedSessionData, intensity: v})}
+                                          >
+                                            <SelectTrigger className="h-7 text-xs">
+                                              <SelectValue placeholder="Intensidad" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="low">Baja</SelectItem>
+                                              <SelectItem value="medium">Media</SelectItem>
+                                              <SelectItem value="high">Alta</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                          <div className="flex gap-1 mt-2">
+                                            <Button size="sm" onClick={saveEditedSession} className="h-6 text-xs flex-1 bg-green-500 hover:bg-green-600">
+                                              <Check className="w-3 h-3" />
+                                            </Button>
+                                            <Button size="sm" variant="outline" onClick={cancelEdit} className="h-6 text-xs flex-1">
+                                              <X className="w-3 h-3" />
+                                            </Button>
+                                          </div>
+                                        </div>
+                                      </>
+                                    )}
+                                  </div>
+                                );
+                              })}
                             </div>
                           </div>
                         )}
