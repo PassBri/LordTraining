@@ -190,11 +190,52 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 - `/api/payments/checkout` - Stripe checkout
 
 ## Test Credentials
-- **Email**: demo@test.com
-- **Password**: demo123
+- **Email**: test@train.com
+- **Password**: test123456
+- **Alternative**: demo@test.com / demo123
 
 ## Notes
 - Charts in dashboard use mock data currently
 - User's preferred language: Spanish
 - Test reports at /app/test_reports/
+
+---
+
+## CHANGELOG
+
+### Feb 10, 2026 - Biblioteca de Ejercicios Completa
+- ✅ **Completada la Biblioteca de Ejercicios** con todas las categorías solicitadas:
+  - **Fuerza** (77 ejercicios) - 10 subcategorías:
+    - Hombro y Brazo (Shoulder and Arm) - 9 ejercicios
+    - Pierna y Glúteo (Leg and Glute) - 16 ejercicios
+    - Pecho y Espalda (Chest and Back) - 6 ejercicios
+    - Abdomen - 6 ejercicios
+    - Oblicuos (Oblique Abs) - 3 ejercicios
+    - Kettlebell Cuerpo Completo (Full Body Kettlebell) - 7 ejercicios
+    - Fuerza Máxima - 6 ejercicios
+    - Fuerza Explosiva / Potencia - 10 ejercicios
+    - Fuerza Resistencia - 8 ejercicios
+    - Fuerza Funcional - 6 ejercicios
+  - **Velocidad** (40 ejercicios) - 7 subcategorías:
+    - Sprints - Pruebas de Velocidad en Pista (Track Sprint Speed Tests) - 8 ejercicios
+    - Sprints - Intervalos Cortos (Short Intervals) - 5 ejercicios
+    - Pruebas de Velocidad en Natación (Swimming Speed Tests) - 4 ejercicios
+    - Pruebas de Velocidad en Remo (Rowing Sprint Events) - 6 ejercicios
+    - Velocidad de Reacción - 6 ejercicios
+    - Frecuencia de Movimiento - 6 ejercicios
+    - Aceleración - 5 ejercicios
+  - **Resistencia** (45 ejercicios) - 9 subcategorías:
+    - Carrera - Series Largas (Long Sets) - 4 ejercicios
+    - Modalidades Cardiovasculares - 5 ejercicios
+    - Ejercicios de Intervalos de Alta Intensidad (HIIT) - 7 ejercicios
+    - Ejercicios de Resistencia Cardiovascular - 1 ejercicio
+    - Eventos de Resistencia en Pista (Track Endurance Events) - 5 ejercicios
+    - Eventos de Resistencia en Carretera (Road Endurance Events) - 5 ejercicios
+    - Resistencia Anaeróbica - 9 ejercicios
+    - Resistencia Específica - 5 ejercicios
+    - Resistencia Mixta - 4 ejercicios
+  - Otras categorías existentes: Movilidad Articular, Flexibilidad, Equilibrio y Estabilidad, Habilidades Motrices, Capacidades Coordinativas, Desplazamientos y Agilidad
+
+### Archivos Modificados
+- `/app/frontend/src/components/ExerciseLibrary.js` - Biblioteca de ejercicios con CRUD completo
 
