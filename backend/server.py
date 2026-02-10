@@ -1551,6 +1551,75 @@ async def get_training_load(athlete_id: str, user: dict = Depends(get_current_us
         raise HTTPException(status_code=404, detail="No training load data found")
     return data
 
+# =============== EVENTS CALENDAR ===============
+class EventsCalendarCreate(BaseModel):
+    athlete_id: Optional[str] = None
+    events: List[Dict[str, Any]] = []
+
+@api_router.post("/events-calendar")
+async def save_events_calendar(data: EventsCalendarCreate, user: dict = Depends(get_current_user)):
+    existing = await db.events_calendar.find_one({"coach_id": user["id"], "athlete_id": data.athlete_id})
+    if existing:
+        await db.events_calendar.update_one({"id": existing["id"]}, {"$set": {"events": data.events, "updated_at": datetime.now(timezone.utc).isoformat()}})
+        return {"message": "Events updated", "id": existing["id"]}
+    else:
+        doc_id = str(uuid.uuid4())
+        await db.events_calendar.insert_one({"id": doc_id, "coach_id": user["id"], "athlete_id": data.athlete_id, "events": data.events, "created_at": datetime.now(timezone.utc).isoformat()})
+        return {"message": "Events saved", "id": doc_id}
+
+@api_router.get("/events-calendar/{athlete_id}")
+async def get_events_calendar(athlete_id: str, user: dict = Depends(get_current_user)):
+    data = await db.events_calendar.find_one({"coach_id": user["id"], "athlete_id": athlete_id}, {"_id": 0})
+    if not data:
+        raise HTTPException(status_code=404, detail="No events found")
+    return data
+
+# =============== OBJECTIVES & INDICATORS ===============
+class ObjectivesCreate(BaseModel):
+    athlete_id: Optional[str] = None
+    objectives: List[Dict[str, Any]] = []
+
+@api_router.post("/objectives")
+async def save_objectives(data: ObjectivesCreate, user: dict = Depends(get_current_user)):
+    existing = await db.objectives.find_one({"coach_id": user["id"], "athlete_id": data.athlete_id})
+    if existing:
+        await db.objectives.update_one({"id": existing["id"]}, {"$set": {"objectives": data.objectives, "updated_at": datetime.now(timezone.utc).isoformat()}})
+        return {"message": "Objectives updated", "id": existing["id"]}
+    else:
+        doc_id = str(uuid.uuid4())
+        await db.objectives.insert_one({"id": doc_id, "coach_id": user["id"], "athlete_id": data.athlete_id, "objectives": data.objectives, "created_at": datetime.now(timezone.utc).isoformat()})
+        return {"message": "Objectives saved", "id": doc_id}
+
+@api_router.get("/objectives/{athlete_id}")
+async def get_objectives(athlete_id: str, user: dict = Depends(get_current_user)):
+    data = await db.objectives.find_one({"coach_id": user["id"], "athlete_id": athlete_id}, {"_id": 0})
+    if not data:
+        raise HTTPException(status_code=404, detail="No objectives found")
+    return data
+
+# =============== TRAINING CONTROL ===============
+class TrainingControlCreate(BaseModel):
+    athlete_id: Optional[str] = None
+    records: List[Dict[str, Any]] = []
+
+@api_router.post("/training-control")
+async def save_training_control(data: TrainingControlCreate, user: dict = Depends(get_current_user)):
+    existing = await db.training_control.find_one({"coach_id": user["id"], "athlete_id": data.athlete_id})
+    if existing:
+        await db.training_control.update_one({"id": existing["id"]}, {"$set": {"records": data.records, "updated_at": datetime.now(timezone.utc).isoformat()}})
+        return {"message": "Control updated", "id": existing["id"]}
+    else:
+        doc_id = str(uuid.uuid4())
+        await db.training_control.insert_one({"id": doc_id, "coach_id": user["id"], "athlete_id": data.athlete_id, "records": data.records, "created_at": datetime.now(timezone.utc).isoformat()})
+        return {"message": "Control saved", "id": doc_id}
+
+@api_router.get("/training-control/{athlete_id}")
+async def get_training_control(athlete_id: str, user: dict = Depends(get_current_user)):
+    data = await db.training_control.find_one({"coach_id": user["id"], "athlete_id": athlete_id}, {"_id": 0})
+    if not data:
+        raise HTTPException(status_code=404, detail="No control data found")
+    return data
+
 # =============== ROOT & HEALTH ===============
 @api_router.get("/")
 async def root():
