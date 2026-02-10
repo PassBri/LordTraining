@@ -1169,6 +1169,54 @@ async def get_athlete_characterization(athlete_id: str, user: dict = Depends(get
     
     return data
 
+# =============== HEALTH RECORDS ===============
+class HealthRecordCreate(BaseModel):
+    athlete_id: Optional[str] = None
+    type: str = ''
+    description: str = ''
+    dosage: str = ''
+    frequency: str = ''
+    affectedArea: str = ''
+    date: str = ''
+    treatment: str = ''
+    severity: str = ''
+    status: str = 'active'
+    notes: str = ''
+
+@api_router.post("/health/records")
+async def create_health_record(data: HealthRecordCreate, user: dict = Depends(get_current_user)):
+    record_id = str(uuid.uuid4())
+    doc = {
+        "id": record_id,
+        "coach_id": user["id"],
+        **data.model_dump(),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.health_records.insert_one(doc)
+    return {"message": "Record created", "id": record_id}
+
+@api_router.get("/health/records/{athlete_id}")
+async def get_health_records(athlete_id: str, type: Optional[str] = None, user: dict = Depends(get_current_user)):
+    query = {
+        "coach_id": user["id"],
+        "athlete_id": athlete_id
+    }
+    if type:
+        query["type"] = type
+    
+    records = await db.health_records.find(query, {"_id": 0}).sort("date", -1).to_list(100)
+    return records
+
+@api_router.delete("/health/records/{record_id}")
+async def delete_health_record(record_id: str, user: dict = Depends(get_current_user)):
+    result = await db.health_records.delete_one({
+        "id": record_id,
+        "coach_id": user["id"]
+    })
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Record not found")
+    return {"message": "Record deleted"}
+
 # =============== ROOT & HEALTH ===============
 @api_router.get("/")
 async def root():
