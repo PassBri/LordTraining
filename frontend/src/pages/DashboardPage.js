@@ -27,6 +27,9 @@ import TrainingStages from '../components/TrainingStages';
 import PeriodizationModels from '../components/PeriodizationModels';
 import ComprehensiveTrainingPlanner from '../components/ComprehensiveTrainingPlanner';
 import TrainingMethods from '../components/TrainingMethods';
+import AnthropometricData from '../components/AnthropometricData';
+import TestEvaluations from '../components/TestEvaluations';
+import TrainingLoad from '../components/TrainingLoad';
 
 const DashboardPage = () => {
   const { user, logout } = useAuth();
