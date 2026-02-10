@@ -261,9 +261,13 @@ const LandingPage = () => {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center">
-              <Target className="w-4 h-4 text-white" />
+              <span className="text-white font-bold text-sm">T</span>
             </div>
-            <span className="font-bold text-blue-600">TrAIn</span>
+            <span className="font-bold tracking-tight">
+              <span className="text-gray-800">Tr</span>
+              <span className="text-blue-600">AI</span>
+              <span className="text-gray-800">n</span>
+            </span>
           </div>
           <p className="text-sm text-gray-500">© 2025 TrAIn. Todos los derechos reservados.</p>
         </div>
