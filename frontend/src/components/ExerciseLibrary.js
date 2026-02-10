@@ -19,6 +19,83 @@ const EJERCICIOS_INICIALES = {
     nombre: 'Fuerza',
     color: 'bg-red-100 text-red-700 border-red-300',
     subcategorias: {
+      'hombro_brazo': {
+        nombre: 'Hombro y Brazo (Shoulder and Arm)',
+        ejercicios: [
+          { nombre: 'Lateral Raise (Elevación lateral)', musculos: 'Deltoides lateral', equipo: 'Mancuernas' },
+          { nombre: 'Front Raise (Elevación frontal)', musculos: 'Deltoides anterior', equipo: 'Mancuernas' },
+          { nombre: 'Push-ups (Flexiones)', musculos: 'Pectorales, Tríceps, Deltoides', equipo: 'Ninguno' },
+          { nombre: 'Military Press (Press militar)', musculos: 'Deltoides, Tríceps', equipo: 'Barra/Mancuernas' },
+          { nombre: 'Bicep Curl (Curl de bíceps)', musculos: 'Bíceps', equipo: 'Mancuernas/Barra' },
+          { nombre: 'Triceps Extension', musculos: 'Tríceps', equipo: 'Mancuernas/Cable' },
+          { nombre: 'Bench Dips (Fondos en banco)', musculos: 'Tríceps, Pectorales', equipo: 'Banco' },
+          { nombre: 'Reverse Fly (Vuelo invertido)', musculos: 'Deltoides posterior, Romboides', equipo: 'Mancuernas' },
+          { nombre: 'Close-Grip Press (Press agarre cerrado)', musculos: 'Tríceps, Pectorales', equipo: 'Barra' }
+        ]
+      },
+      'pierna_gluteo': {
+        nombre: 'Pierna y Glúteo (Leg and Glute)',
+        ejercicios: [
+          { nombre: 'Hip Lift (Elevación de cadera)', musculos: 'Glúteos, Isquiotibiales', equipo: 'Ninguno' },
+          { nombre: 'Goblet Squat on Plate', musculos: 'Cuádriceps, Glúteos, Core', equipo: 'Mancuerna/Kettlebell, Plato' },
+          { nombre: 'Front Squat (Sentadilla frontal)', musculos: 'Cuádriceps, Core', equipo: 'Barra, Rack' },
+          { nombre: 'Weighted Squat (Sentadilla con peso)', musculos: 'Cuádriceps, Glúteos, Isquiotibiales', equipo: 'Barra' },
+          { nombre: 'Jump Squat (Sentadilla con salto)', musculos: 'Piernas, Glúteos', equipo: 'Ninguno' },
+          { nombre: 'Step-Up (Box Step)', musculos: 'Cuádriceps, Glúteos', equipo: 'Cajón/Step' },
+          { nombre: 'Jump Lunges (Zancadas con salto)', musculos: 'Piernas, Glúteos', equipo: 'Ninguno' },
+          { nombre: 'Isometric Squats (Sentadilla isométrica)', musculos: 'Cuádriceps', equipo: 'Ninguno' },
+          { nombre: 'Leg Raise (Elevación de pierna)', musculos: 'Flexores de cadera, Abdomen', equipo: 'Ninguno' },
+          { nombre: 'Abduction (Abducción)', musculos: 'Glúteo medio', equipo: 'Máquina/Banda' },
+          { nombre: 'Adduction (Aducción)', musculos: 'Aductores', equipo: 'Máquina/Banda' },
+          { nombre: 'Lateral Lunge (Zancada lateral)', musculos: 'Aductores, Cuádriceps', equipo: 'Ninguno' },
+          { nombre: 'Calf Raise (Elevación de pantorrilla)', musculos: 'Gemelos, Sóleo', equipo: 'Ninguno/Máquina' },
+          { nombre: 'Hip Thrust', musculos: 'Glúteos, Isquiotibiales', equipo: 'Banco, Barra' },
+          { nombre: 'Romanian Deadlift (Peso muerto rumano)', musculos: 'Isquiotibiales, Glúteos, Espalda baja', equipo: 'Barra/Mancuernas' },
+          { nombre: 'Reverse Lunge (Zancada inversa)', musculos: 'Cuádriceps, Glúteos', equipo: 'Ninguno/Mancuernas' }
+        ]
+      },
+      'pecho_espalda': {
+        nombre: 'Pecho y Espalda (Chest and Back)',
+        ejercicios: [
+          { nombre: 'Decline Press (Press declinado)', musculos: 'Pectoral inferior, Tríceps', equipo: 'Barra, Banco declinado' },
+          { nombre: 'Incline Press (Press inclinado)', musculos: 'Pectoral superior, Deltoides', equipo: 'Barra, Banco inclinado' },
+          { nombre: 'Chest Fly (Aperturas de pecho)', musculos: 'Pectorales', equipo: 'Mancuernas/Cable' },
+          { nombre: 'Pullover', musculos: 'Dorsal, Pectorales, Tríceps', equipo: 'Mancuerna, Banco' },
+          { nombre: 'One-Arm Row (Remo a una mano)', musculos: 'Dorsal, Bíceps, Romboides', equipo: 'Mancuerna, Banco' },
+          { nombre: 'Row (Remo)', musculos: 'Dorsal, Bíceps, Romboides', equipo: 'Barra/Mancuernas' }
+        ]
+      },
+      'abdomen': {
+        nombre: 'Abdomen',
+        ejercicios: [
+          { nombre: 'Superman', musculos: 'Espalda baja, Glúteos', equipo: 'Colchoneta' },
+          { nombre: 'Isometric Plank (Plancha isométrica)', musculos: 'Core completo', equipo: 'Colchoneta' },
+          { nombre: 'Reverse Plank (Plancha inversa)', musculos: 'Core, Glúteos, Hombros', equipo: 'Colchoneta' },
+          { nombre: 'Spiderman Plank', musculos: 'Core, Oblicuos, Flexores de cadera', equipo: 'Colchoneta' },
+          { nombre: 'Mountain Climbers (Escaladores)', musculos: 'Core, Hombros, Piernas', equipo: 'Ninguno' },
+          { nombre: 'Crunches (Abdominales)', musculos: 'Recto abdominal', equipo: 'Colchoneta' }
+        ]
+      },
+      'oblicuos': {
+        nombre: 'Oblicuos (Oblique Abs)',
+        ejercicios: [
+          { nombre: 'Bicycle Crunch (Abdominales de bicicleta)', musculos: 'Oblicuos, Recto abdominal', equipo: 'Colchoneta' },
+          { nombre: 'Abdominales de tijera', musculos: 'Oblicuos, Recto abdominal', equipo: 'Colchoneta' },
+          { nombre: 'Side Twisting Plank (Plancha con giro lateral)', musculos: 'Oblicuos, Core', equipo: 'Colchoneta' }
+        ]
+      },
+      'kettlebell_cuerpo_completo': {
+        nombre: 'Kettlebell Cuerpo Completo (Full Body Kettlebell)',
+        ejercicios: [
+          { nombre: 'Half Squat with Arm Raise', musculos: 'Piernas, Hombros, Core', equipo: 'Kettlebell' },
+          { nombre: 'Swing', musculos: 'Glúteos, Isquiotibiales, Core, Hombros', equipo: 'Kettlebell' },
+          { nombre: 'Around the Body', musculos: 'Core, Hombros, Brazos', equipo: 'Kettlebell' },
+          { nombre: 'Windmill', musculos: 'Core, Oblicuos, Hombros, Cadera', equipo: 'Kettlebell' },
+          { nombre: 'Twist', musculos: 'Oblicuos, Core', equipo: 'Kettlebell' },
+          { nombre: 'Reverse Lunge Around the Body', musculos: 'Piernas, Glúteos, Core', equipo: 'Kettlebell' },
+          { nombre: 'Abs (Abdominales con Kettlebell)', musculos: 'Core completo', equipo: 'Kettlebell' }
+        ]
+      },
       'fuerza_maxima': {
         nombre: 'Fuerza Máxima',
         ejercicios: [
@@ -27,9 +104,7 @@ const EJERCICIOS_INICIALES = {
           { nombre: 'Peso muerto', musculos: 'Espalda baja, Glúteos, Isquiotibiales', equipo: 'Barra' },
           { nombre: 'Press militar', musculos: 'Deltoides, Tríceps', equipo: 'Barra' },
           { nombre: 'Remo con barra', musculos: 'Dorsal, Bíceps, Romboides', equipo: 'Barra' },
-          { nombre: 'Dominadas', musculos: 'Dorsal, Bíceps', equipo: 'Barra de dominadas' },
-          { nombre: 'Sentadilla frontal', musculos: 'Cuádriceps, Core', equipo: 'Barra, Rack' },
-          { nombre: 'Press inclinado', musculos: 'Pectoral superior, Deltoides', equipo: 'Barra, Banco inclinado' }
+          { nombre: 'Dominadas', musculos: 'Dorsal, Bíceps', equipo: 'Barra de dominadas' }
         ]
       },
       'fuerza_explosiva': {
