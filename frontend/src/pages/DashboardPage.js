@@ -41,10 +41,10 @@ const DashboardPage = () => {
   
   // UI State
   const [isNavExpanded, setIsNavExpanded] = useState(true);
-  const [activePanel, setActivePanel] = useState('periodizar');
-  const [activeDataSection, setActiveDataSection] = useState(null);
+  const [activePanel, setActivePanel] = useState('datos');
+  const [activeDataSection, setActiveDataSection] = useState('graphic-plan');
   const [selectedAthleteId, setSelectedAthleteId] = useState(null);
-  const [activeSubTab, setActiveSubTab] = useState('plan-grafico');
+  const [activeSubTab, setActiveSubTab] = useState('macrociclo');
   const [chatMessages, setChatMessages] = useState([
     { type: 'ai', text: 'Bienvenido al asistente de planificación deportiva. ¿En qué puedo ayudarte hoy?' }
   ]);
