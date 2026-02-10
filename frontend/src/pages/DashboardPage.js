@@ -408,7 +408,7 @@ const DashboardPage = () => {
         
         {/* Panel Tabs */}
         <div className="flex gap-2 mb-4">
-          {['datos', 'periodizar', 'plan-grafico'].map((panel) => (
+          {['datos', 'periodizar'].map((panel) => (
             <button
               key={panel}
               onClick={() => {
@@ -422,7 +422,7 @@ const DashboardPage = () => {
               }`}
               data-testid={`tab-${panel}`}
             >
-              {panel === 'datos' ? 'Datos' : panel === 'periodizar' ? 'Periodizar' : 'Plan-gráfico'}
+              {panel === 'datos' ? 'Datos' : 'Periodizar'}
             </button>
           ))}
         </div>
