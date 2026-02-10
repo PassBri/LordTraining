@@ -30,6 +30,7 @@ import TrainingMethods from '../components/TrainingMethods';
 import AnthropometricData from '../components/AnthropometricData';
 import TestEvaluations from '../components/TestEvaluations';
 import TrainingLoad from '../components/TrainingLoad';
+import GraphicPlan from '../components/GraphicPlan';
 
 const DashboardPage = () => {
   const { user, logout } = useAuth();
