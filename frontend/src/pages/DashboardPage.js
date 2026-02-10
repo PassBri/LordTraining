@@ -258,69 +258,9 @@ const DashboardPage = () => {
       );
     }
 
-    // Render Ejercicios section inline - COMPLETE
+    // Render Ejercicios section - Usando componente completo
     if (activeDataSection === 'exercises-lib') {
-      const ejerciciosPorCategoria = [
-        { categoria: 'Fuerza', ejercicios: ['Sentadilla', 'Press banca', 'Peso muerto', 'Press militar', 'Remo'], color: 'bg-red-100 text-red-700' },
-        { categoria: 'Resistencia', ejercicios: ['Carrera continua', 'Natación', 'Ciclismo', 'Remo ergómetro', 'Elíptica'], color: 'bg-blue-100 text-blue-700' },
-        { categoria: 'Velocidad', ejercicios: ['Sprints 30m', 'Sprints 60m', 'Skipping', 'Salidas de tacos', 'Relevos'], color: 'bg-yellow-100 text-yellow-700' },
-        { categoria: 'Flexibilidad', ejercicios: ['Estiramientos dinámicos', 'Yoga', 'PNF', 'Foam roller', 'Movilidad articular'], color: 'bg-green-100 text-green-700' },
-        { categoria: 'Coordinación', ejercicios: ['Escalera agilidad', 'Slalom', 'Ejercicios con balón', 'Saltos coordinados', 'Multisaltos'], color: 'bg-purple-100 text-purple-700' },
-        { categoria: 'Potencia', ejercicios: ['Salto vertical', 'Salto horizontal', 'Lanzamientos', 'Cargadas', 'Arrancadas'], color: 'bg-orange-100 text-orange-700' }
-      ];
-      
-      return (
-        <div className="p-4 space-y-4">
-          <Card>
-            <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white py-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Activity className="w-5 h-5" />
-                  Biblioteca de Ejercicios
-                </CardTitle>
-                <Button size="sm" className="bg-white/20 hover:bg-white/30">
-                  <Plus className="w-4 h-4 mr-1" /> Nuevo Ejercicio
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="p-4">
-              {/* Buscador */}
-              <div className="flex gap-3 mb-4">
-                <Input placeholder="Buscar ejercicio..." className="flex-1" />
-                <Select>
-                  <SelectTrigger className="w-40"><SelectValue placeholder="Categoría" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todas</SelectItem>
-                    <SelectItem value="fuerza">Fuerza</SelectItem>
-                    <SelectItem value="resistencia">Resistencia</SelectItem>
-                    <SelectItem value="velocidad">Velocidad</SelectItem>
-                    <SelectItem value="flexibilidad">Flexibilidad</SelectItem>
-                    <SelectItem value="coordinacion">Coordinación</SelectItem>
-                    <SelectItem value="potencia">Potencia</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {/* Grid de categorías */}
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {ejerciciosPorCategoria.map(cat => (
-                  <div key={cat.categoria} className="border rounded-lg overflow-hidden">
-                    <div className={`px-3 py-2 font-medium ${cat.color}`}>{cat.categoria}</div>
-                    <div className="p-3 space-y-1">
-                      {cat.ejercicios.map(ej => (
-                        <div key={ej} className="flex items-center justify-between py-1 px-2 hover:bg-gray-50 rounded text-sm">
-                          <span>{ej}</span>
-                          <Button variant="ghost" size="sm" className="h-6 text-xs">Añadir</Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      );
+      return <ExerciseLibrary athleteId={selectedAthleteId} />;
     }
 
     // Render Calendario section inline - COMPLETE
