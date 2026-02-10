@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
 import {
   Plus, Save, Loader2, Calendar, Target, Activity, 
   ChevronDown, ChevronRight, Trash2, Edit2, BarChart3,
-  TrendingUp, PieChart, Layers, Zap, Heart, Brain
+  TrendingUp, PieChart, Layers, Zap, Heart, Brain, GripVertical, X, Check
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
