@@ -58,13 +58,17 @@ const AuthPage = () => {
           {/* Logo */}
           <div className="flex items-center gap-3 mb-8">
             <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Target className="w-6 h-6 text-white" />
+              <span className="text-white font-bold text-xl">T</span>
             </div>
-            <span className="text-2xl font-bold text-blue-600">TrAIn</span>
+            <span className="text-2xl font-bold tracking-tight">
+              <span className="text-gray-800">Tr</span>
+              <span className="text-blue-600">AI</span>
+              <span className="text-gray-800">n</span>
+            </span>
           </div>
 
           {/* Title */}
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Bienvenido a TrAIn</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Bienvenido a <span className="text-gray-800">Tr</span><span className="text-blue-600">AI</span><span className="text-gray-800">n</span></h1>
           <p className="text-gray-500 mb-2">Planifica, optimiza y alcanza el máximo rendimiento</p>
           <p className="text-sm text-gray-400 mb-8">
             14 días gratis • <Link to="/pricing" className="text-blue-600 hover:underline">Ver planes desde $9/mes</Link>
