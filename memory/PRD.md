@@ -67,7 +67,8 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 - ✅ AthleteCharacterization.js - Caracterización de deportistas
 - ✅ HealthRecords.js - Lesiones, enfermedades, diagnóstico
 - ✅ CompetitionAnalysis.js - Análisis y calendario de competencias
-- ✅ **NEW**: TrainingStages.js - Principios del entrenamiento (Periodización)
+- ✅ TrainingStages.js - Etapas del macrociclo (Períodos: Preparatorio, Competitivo, Transitorio)
+- ✅ **NEW**: PeriodizationModels.js - Modelos de periodización (Tradicional/Matveyev, ATR/Issurin, Contemporáneo/Bondarchuk)
 
 ## Prioritized Backlog
 
