@@ -678,6 +678,10 @@ const PeriodizationSystem = ({ athleteId, athleteName }) => {
     const [editedSessionData, setEditedSessionData] = useState({});
     const [draggedSession, setDraggedSession] = useState(null);
     const [dragOverSession, setDragOverSession] = useState(null);
+    
+    // Estado para el editor de sesión completo (modal)
+    const [fullEditorSession, setFullEditorSession] = useState(null);
+    const [fullEditorLocation, setFullEditorLocation] = useState(null);
 
     // Session types for editing
     const SESSION_TYPES = [
@@ -690,10 +694,34 @@ const PeriodizationSystem = ({ athleteId, athleteName }) => {
       { id: 'flexibility', name: 'Flexibilidad', color: 'bg-pink-100 border-pink-300' }
     ];
 
-    // Start editing a session
+    // Abrir el editor completo de sesión
+    const openFullSessionEditor = (mesoIdx, microIdx, sessionIdx, session) => {
+      setFullEditorSession(session);
+      setFullEditorLocation({ mesoIdx, microIdx, sessionIdx });
+    };
+
+    // Cerrar el editor completo
+    const closeFullSessionEditor = () => {
+      setFullEditorSession(null);
+      setFullEditorLocation(null);
+    };
+
+    // Guardar sesión desde el editor completo
+    const saveFullEditorSession = (updatedSession) => {
+      if (!fullEditorLocation) return;
+      
+      const { mesoIdx, microIdx, sessionIdx } = fullEditorLocation;
+      const updatedMacrocycle = { ...macrocycle };
+      updatedMacrocycle.mesocycles[mesoIdx].microcycles[microIdx].sessions[sessionIdx] = updatedSession;
+      
+      setMacrocycle(updatedMacrocycle);
+      saveMacrocycleToBackend(updatedMacrocycle);
+    };
+
+    // Start editing a session (inline - ahora solo para edición rápida)
     const startEditSession = (mesoIdx, microIdx, sessionIdx, session) => {
-      setEditingSession({ mesoIdx, microIdx, sessionIdx });
-      setEditedSessionData({ ...session });
+      // Abrir el editor completo en vez del inline
+      openFullSessionEditor(mesoIdx, microIdx, sessionIdx, session);
     };
 
     // Save edited session
