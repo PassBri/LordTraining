@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { getDashboardStats, getAthletes, seedExercises } from '../services/api';
 import { 
   Target, Send, Heart, Zap, Brain, ChevronLeft, ChevronRight,
@@ -16,6 +17,8 @@ import {
   PolarAngleAxis, PolarRadiusAxis 
 } from 'recharts';
 import { toast } from 'sonner';
+import PreviousPlanAnalysis from '../components/PreviousPlanAnalysis';
+import SessionPlanning from '../components/SessionPlanning';
 
 const DashboardPage = () => {
   const { user, logout } = useAuth();
