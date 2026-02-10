@@ -152,6 +152,49 @@ const EJERCICIOS_INICIALES = {
     nombre: 'Velocidad',
     color: 'bg-yellow-100 text-yellow-700 border-yellow-300',
     subcategorias: {
+      'sprints_pista': {
+        nombre: 'Sprints - Pruebas de Velocidad en Pista (Track Sprint Speed Tests)',
+        ejercicios: [
+          { nombre: 'Sprint 10 metros', musculos: 'Piernas, Glúteos', equipo: 'Pista' },
+          { nombre: 'Sprint 20 metros', musculos: 'Piernas, Glúteos', equipo: 'Pista' },
+          { nombre: 'Sprint 40 metros', musculos: 'Piernas, Glúteos', equipo: 'Pista' },
+          { nombre: 'Sprint 60 metros', musculos: 'Piernas, Glúteos', equipo: 'Pista' },
+          { nombre: 'Sprint 100 metros', musculos: 'Piernas, Glúteos', equipo: 'Pista' },
+          { nombre: 'Sprint 200 metros', musculos: 'Piernas, Glúteos', equipo: 'Pista' },
+          { nombre: 'Sprint 400 metros', musculos: 'Piernas, Glúteos, Resistencia', equipo: 'Pista' },
+          { nombre: 'Floating Sprints (Sprints flotantes)', musculos: 'Piernas, Glúteos', equipo: 'Pista' }
+        ]
+      },
+      'sprints_intervalos_cortos': {
+        nombre: 'Sprints - Intervalos Cortos (Short Intervals)',
+        ejercicios: [
+          { nombre: 'Intervalos 10 metros', musculos: 'Piernas, Sistema anaeróbico', equipo: 'Ninguno' },
+          { nombre: 'Intervalos 20 metros', musculos: 'Piernas, Sistema anaeróbico', equipo: 'Ninguno' },
+          { nombre: 'Intervalos 40 metros', musculos: 'Piernas, Sistema anaeróbico', equipo: 'Ninguno' },
+          { nombre: 'Intervalos 60 metros', musculos: 'Piernas, Sistema anaeróbico', equipo: 'Ninguno' },
+          { nombre: 'Series mixtas (Mixed sets)', musculos: 'Piernas, Sistema anaeróbico', equipo: 'Ninguno' }
+        ]
+      },
+      'natacion_velocidad': {
+        nombre: 'Pruebas de Velocidad en Natación (Swimming Speed Tests)',
+        ejercicios: [
+          { nombre: 'Sprint Freestyle (Crol)', musculos: 'Cuerpo completo', equipo: 'Piscina' },
+          { nombre: 'Sprint Backstroke (Espalda)', musculos: 'Cuerpo completo', equipo: 'Piscina' },
+          { nombre: 'Sprint Butterfly (Mariposa)', musculos: 'Cuerpo completo', equipo: 'Piscina' },
+          { nombre: 'Sprint Breaststroke (Pecho)', musculos: 'Cuerpo completo', equipo: 'Piscina' }
+        ]
+      },
+      'remo_velocidad': {
+        nombre: 'Pruebas de Velocidad en Remo (Rowing Sprint Events)',
+        ejercicios: [
+          { nombre: 'Sprint 100 metros', musculos: 'Piernas, Espalda, Brazos', equipo: 'Ergómetro/Bote' },
+          { nombre: 'Sprint 250 metros', musculos: 'Piernas, Espalda, Brazos', equipo: 'Ergómetro/Bote' },
+          { nombre: 'Sprint 500 metros', musculos: 'Piernas, Espalda, Brazos', equipo: 'Ergómetro/Bote' },
+          { nombre: 'Sprint 1000 metros', musculos: 'Piernas, Espalda, Brazos', equipo: 'Ergómetro/Bote' },
+          { nombre: 'Sprint 2000 metros', musculos: 'Piernas, Espalda, Brazos', equipo: 'Ergómetro/Bote' },
+          { nombre: 'Intervalos mixtos (Mixed Intervals)', musculos: 'Cuerpo completo', equipo: 'Ergómetro/Bote' }
+        ]
+      },
       'velocidad_reaccion': {
         nombre: 'Velocidad de Reacción',
         ejercicios: [
@@ -161,31 +204,6 @@ const EJERCICIOS_INICIALES = {
           { nombre: 'Cambios de dirección reactivos', musculos: 'Piernas, Core', equipo: 'Conos' },
           { nombre: 'Atrapar objetos en caída', musculos: 'Manos, Coordinación', equipo: 'Pelotas' },
           { nombre: 'Salidas desde diferentes posiciones', musculos: 'Piernas', equipo: 'Ninguno' }
-        ]
-      },
-      'velocidad_desplazamiento': {
-        nombre: 'Velocidad de Desplazamiento',
-        ejercicios: [
-          { nombre: 'Sprint 10m', musculos: 'Piernas, Glúteos', equipo: 'Ninguno' },
-          { nombre: 'Sprint 20m', musculos: 'Piernas, Glúteos', equipo: 'Ninguno' },
-          { nombre: 'Sprint 30m', musculos: 'Piernas, Glúteos', equipo: 'Ninguno' },
-          { nombre: 'Sprint 40m', musculos: 'Piernas, Glúteos', equipo: 'Ninguno' },
-          { nombre: 'Sprint 60m', musculos: 'Piernas, Glúteos', equipo: 'Ninguno' },
-          { nombre: 'Sprint 100m', musculos: 'Piernas, Glúteos', equipo: 'Ninguno' },
-          { nombre: 'Sprint lanzado', musculos: 'Piernas', equipo: 'Ninguno' },
-          { nombre: 'Sprint resistido (trineo)', musculos: 'Piernas, Glúteos', equipo: 'Trineo' },
-          { nombre: 'Sprint asistido (elásticos)', musculos: 'Piernas', equipo: 'Bandas elásticas' },
-          { nombre: 'Sprint en cuesta', musculos: 'Piernas, Glúteos', equipo: 'Cuesta' }
-        ]
-      },
-      'velocidad_gestual': {
-        nombre: 'Velocidad Gestual / Acíclica',
-        ejercicios: [
-          { nombre: 'Golpeo rápido de balón', musculos: 'Piernas', equipo: 'Balón' },
-          { nombre: 'Lanzamientos rápidos', musculos: 'Brazos, Hombros', equipo: 'Balón' },
-          { nombre: 'Movimientos técnicos a máxima velocidad', musculos: 'Específico del deporte', equipo: 'Específico' },
-          { nombre: 'Cambios de dirección a máxima velocidad', musculos: 'Piernas, Core', equipo: 'Conos' },
-          { nombre: 'Fintas y amagues', musculos: 'Piernas, Coordinación', equipo: 'Ninguno' }
         ]
       },
       'frecuencia_movimiento': {
