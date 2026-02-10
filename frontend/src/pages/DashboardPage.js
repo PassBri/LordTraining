@@ -1245,6 +1245,13 @@ const DashboardPage = () => {
     }
     
     // Panel de Control - Resumen visual con estadísticas y gráficos
+    const handleNavigateFromPanel = (panel, section) => {
+      setActivePanel(panel);
+      if (section) {
+        setActiveDataSection(section);
+      }
+    };
+
     return (
       <ControlPanel
         athletes={athletes}
@@ -1252,6 +1259,7 @@ const DashboardPage = () => {
         selectedAthleteId={selectedAthleteId}
         periodizationData={periodizationData}
         stats={stats}
+        onNavigate={handleNavigateFromPanel}
       />
     );
   };
