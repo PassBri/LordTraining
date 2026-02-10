@@ -1104,12 +1104,13 @@ const PeriodizationWizard = ({ athleteId, athleteName, onComplete, onCancel }) =
       </div>
 
       {/* Footer con botones de navegación */}
-      <div className="border-t bg-slate-50 p-4 flex items-center justify-between">
+      <div className="border-t bg-slate-50 p-4 flex items-center justify-between relative z-50">
         <Button
           variant="outline"
           onClick={prevStep}
           disabled={currentStep === 1}
           className="gap-2"
+          data-testid="wizard-anterior-btn"
         >
           <ArrowLeft className="w-4 h-4" />
           Anterior
@@ -1124,6 +1125,7 @@ const PeriodizationWizard = ({ athleteId, athleteName, onComplete, onCancel }) =
             onClick={nextStep}
             disabled={!isStepValid(currentStep)}
             className="gap-2 bg-blue-600 hover:bg-blue-700"
+            data-testid="wizard-siguiente-btn"
           >
             Siguiente
             <ArrowRight className="w-4 h-4" />
