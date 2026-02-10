@@ -124,17 +124,51 @@ const DashboardPage = () => {
   const renderDataContent = () => {
     if (!activeDataSection) {
       return (
-        <div className="flex items-center justify-center h-full">
+        <div className="flex flex-col items-center justify-center h-full gap-4">
           <p className="text-gray-400">Seleccione una sección para ver los detalles</p>
+          {athletes.length > 0 && (
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-500">Atleta:</span>
+              <Select value={selectedAthleteId || ''} onValueChange={setSelectedAthleteId}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Seleccionar atleta" />
+                </SelectTrigger>
+                <SelectContent>
+                  {athletes.map(a => (
+                    <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
       );
+    }
+
+    // Render Analysis component for prev-plan section
+    if (activeDataSection === 'prev-plan') {
+      return <PreviousPlanAnalysis athleteId={selectedAthleteId} />;
     }
 
     const sectionLabel = navItems.find(item => item.id === activeDataSection)?.label;
     
     return (
       <div className="p-6">
-        <h2 className="text-2xl font-bold text-blue-600 mb-6">{sectionLabel}</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-blue-600">{sectionLabel}</h2>
+          {athletes.length > 0 && (
+            <Select value={selectedAthleteId || ''} onValueChange={setSelectedAthleteId}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Seleccionar atleta" />
+              </SelectTrigger>
+              <SelectContent>
+                {athletes.map(a => (
+                  <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
         <Card className="bg-white shadow-lg">
           <CardContent className="p-6">
             <p className="text-gray-600 mb-4">
