@@ -128,20 +128,38 @@ const PeriodizationSystem = ({ athleteId, athleteName }) => {
 
   // Generar estructura automática del macrociclo
   const generateMacrocycleStructure = useCallback(() => {
-    const { duration, startDate, sessionsPerWeek, mainCompetitionDate } = macrocycleConfig;
+    const { duration, startDate, sessionsPerWeek, mainCompetitionDate, model } = macrocycleConfig;
     
-    const durationWeeks = {
-      annual: 52,
-      semester: 26,
-      quarter: 13
-    }[duration] || 52;
+    // Usar el objeto CYCLE_DURATIONS para obtener las semanas
+    const durationWeeks = CYCLE_DURATIONS[duration]?.weeks || 52;
 
     const start = new Date(startDate);
     const competitionDate = mainCompetitionDate ? new Date(mainCompetitionDate) : null;
     
-    // Calcular distribución de fases según duración
+    // Calcular distribución de fases según duración y modelo
     let phases = [];
-    if (duration === 'annual') {
+    
+    // Distribución de fases para modelo tradicional y otros similares
+    if (duration === 'olympic') {
+      // Ciclo olímpico: 4 macrociclos anuales
+      phases = [
+        { ...MACROCYCLE_PHASES[0], weeks: 48 },  // Prep General - Año 1
+        { ...MACROCYCLE_PHASES[1], weeks: 40 },  // Prep Específico
+        { ...MACROCYCLE_PHASES[0], weeks: 24 },  // Prep General - Año 2
+        { ...MACROCYCLE_PHASES[1], weeks: 24 },  // Prep Específico
+        { ...MACROCYCLE_PHASES[2], weeks: 20 },  // Precompetitivo
+        { ...MACROCYCLE_PHASES[3], weeks: 40 },  // Competitivo
+        { ...MACROCYCLE_PHASES[4], weeks: 12 }   // Transición
+      ];
+    } else if (duration === 'biannual') {
+      phases = [
+        { ...MACROCYCLE_PHASES[0], weeks: 24 },  // Prep General
+        { ...MACROCYCLE_PHASES[1], weeks: 20 },  // Prep Específico
+        { ...MACROCYCLE_PHASES[2], weeks: 12 },  // Precompetitivo
+        { ...MACROCYCLE_PHASES[3], weeks: 40 },  // Competitivo
+        { ...MACROCYCLE_PHASES[4], weeks: 8 }    // Transición
+      ];
+    } else if (duration === 'annual') {
       phases = [
         { ...MACROCYCLE_PHASES[0], weeks: 12 }, // Prep General
         { ...MACROCYCLE_PHASES[1], weeks: 10 }, // Prep Específico
@@ -156,6 +174,13 @@ const PeriodizationSystem = ({ athleteId, athleteName }) => {
         { ...MACROCYCLE_PHASES[2], weeks: 3 },
         { ...MACROCYCLE_PHASES[3], weeks: 10 },
         { ...MACROCYCLE_PHASES[4], weeks: 2 }
+      ];
+    } else if (duration === 'monthly') {
+      // Mesociclo individual
+      phases = [
+        { ...MACROCYCLE_PHASES[0], weeks: 1 },
+        { ...MACROCYCLE_PHASES[1], weeks: 2 },
+        { ...MACROCYCLE_PHASES[4], weeks: 1 }
       ];
     } else {
       phases = [
