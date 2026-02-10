@@ -1282,7 +1282,7 @@ const DashboardPage = () => {
         
         {/* Panel Tabs */}
         <div className="flex gap-2 mb-4">
-          {['datos', 'panel'].map((panelType) => (
+          {['panel', 'datos'].map((panelType) => (
             <button
               key={panelType}
               onClick={() => {
@@ -1296,12 +1296,7 @@ const DashboardPage = () => {
               }`}
               data-testid={`tab-${panelType}`}
             >
-              {panelType === 'datos' ? 'Datos' : (
-                <>
-                  <LayoutDashboard className="w-4 h-4" />
-                  Panel de Control
-                </>
-              )}
+              {panelType === 'panel' ? 'Panel de Control' : 'Datos'}
             </button>
           ))}
         </div>
