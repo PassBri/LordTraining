@@ -412,7 +412,7 @@ const DashboardPage = () => {
       setTimeout(() => {
         setChatMessages(prev => [...prev, { 
           type: 'ai', 
-          text: 'Gracias por tu consulta. Para generar un plan personalizado, ve a la sección "Periodizar" y configura los parámetros del atleta.' 
+          text: 'Gracias por tu consulta. Para generar un plan personalizado, ve al "Panel de Control" para ver un resumen de todos tus datos y gráficas.' 
         }]);
       }, 1000);
     }
