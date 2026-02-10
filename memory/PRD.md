@@ -321,3 +321,40 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 
 ### Test Report
 - `/app/test_reports/iteration_5.json` - 100% tests pasados (30/30)
+
+### Feb 10, 2026 - Sistema de Roles de Usuario y Modelos de Periodización
+- ✅ **Sistema de Roles de Usuario**:
+  - 6 roles implementados: Administrador, Entrenador, Entrenador Personal, Atleta, Equipo, Usuario
+  - Selector de rol "Tipo de cuenta" en formulario de registro
+  - Cada rol con nombre, descripción e ícono
+  - Diálogo de "Configuración de Perfil" en dashboard para cambiar rol
+  - Botón de configuración (⚙️) junto al nombre de usuario
+  - Badge "Actual" para indicar rol seleccionado
+  - Backend: UserRole enum, endpoints PUT /api/auth/profile, GET /api/auth/roles
+
+- ✅ **Modelos de Periodización Completos** (13 modelos en 4 categorías):
+  - **Clásicos**: Tradicional (Matveiev), ATR (Issurin), Por Bloques (Verkhoshansky)
+  - **Ondulatorios**: Ondulatorio Diario, Ondulatorio Semanal
+  - **Avanzados**: Péndulo (Arosiev), Campanas Estructurales (Forteza), Contemporáneo (Bondarchuk), Periodización Inversa, Táctico
+  - **Específicos**: Concurrente, Conjugado (Westside), Polarizado
+  - Dropdown organizado por categorías con descripciones
+  - Backend: PlanningModel enum, endpoint GET /api/periodization-models-catalog
+
+- ✅ **Ciclos de Planificación** (6 duraciones):
+  - Ciclo Olímpico (4 años - 208 semanas)
+  - Bianual (2 años - 104 semanas)
+  - Anual (52 semanas)
+  - Semestral (26 semanas)
+  - Trimestral (13 semanas)
+  - Mensual (4 semanas)
+  - Backend: CycleDuration enum, endpoint GET /api/cycle-durations
+
+### Archivos Modificados
+- `/app/backend/server.py` - UserRole, PlanningModel, CycleDuration enums y nuevos endpoints
+- `/app/frontend/src/pages/AuthPage.js` - USER_ROLES array, selector de rol en registro
+- `/app/frontend/src/pages/DashboardPage.js` - USER_ROLES, Dialog de configuración de perfil
+- `/app/frontend/src/components/PeriodizationSystem.js` - CYCLE_DURATIONS, PERIODIZATION_MODELS
+- `/app/frontend/src/context/AuthContext.js` - Función updateUser
+
+### Test Report
+- `/app/test_reports/iteration_6.json` - 100% tests pasados (Backend: 24/24, Frontend: todas las UI features)
