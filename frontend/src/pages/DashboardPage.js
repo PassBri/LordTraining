@@ -373,6 +373,8 @@ const DashboardPage = () => {
           <SessionPlanning athleteId={selectedAthleteId} />
         ) : activeSubTab === 'macrociclo' ? (
           <TrainingStages athleteId={selectedAthleteId} />
+        ) : activeSubTab === 'plan-grafico' ? (
+          <GraphicPlan athleteId={selectedAthleteId} />
         ) : (
           <ComprehensiveTrainingPlanner athleteId={selectedAthleteId} />
         )}
