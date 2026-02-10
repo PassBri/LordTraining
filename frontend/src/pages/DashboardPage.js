@@ -59,7 +59,7 @@ const DashboardPage = () => {
   
   // UI State
   const [isNavExpanded, setIsNavExpanded] = useState(true);
-  const [activePanel, setActivePanel] = useState('datos');
+  const [activePanel, setActivePanel] = useState('panel');
   const [activeDataSection, setActiveDataSection] = useState('athletes');
   const [selectedAthleteId, setSelectedAthleteId] = useState(null);
   const [activeSubTab, setActiveSubTab] = useState('macrociclo');
