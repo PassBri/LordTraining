@@ -32,6 +32,7 @@ import TestEvaluations from '../components/TestEvaluations';
 import TrainingLoad from '../components/TrainingLoad';
 import GraphicPlan from '../components/GraphicPlan';
 import PeriodizationPlanner from '../components/PeriodizationPlanner';
+import ExerciseLibrary from '../components/ExerciseLibrary';
 
 const DashboardPage = () => {
   const { user, logout } = useAuth();
