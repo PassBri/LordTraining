@@ -228,12 +228,12 @@ const ExercisesPage = () => {
               data-testid="exercise-search-input"
             />
           </div>
-          <Select value={filterSport} onValueChange={setFilterSport}>
+          <Select value={filterSport || "all"} onValueChange={(v) => setFilterSport(v === "all" ? "" : v)}>
             <SelectTrigger className="w-[180px]" data-testid="filter-sport-select">
               <SelectValue placeholder="Todos los deportes" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos los deportes</SelectItem>
+              <SelectItem value="all">Todos los deportes</SelectItem>
               {SPORTS.map(s => (
                 <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
               ))}
