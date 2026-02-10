@@ -700,29 +700,6 @@ const DashboardPage = () => {
         </div>
       );
     }
-                  <Input placeholder="Duración del plan (semanas)" type="number" />
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Nivel del atleta" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="principiante">Principiante</SelectItem>
-                      <SelectItem value="intermedio">Intermedio</SelectItem>
-                      <SelectItem value="avanzado">Avanzado</SelectItem>
-                      <SelectItem value="elite">Elite</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Button className="bg-orange-500 hover:bg-orange-600">
-                    <Brain className="w-4 h-4 mr-2" />
-                    Generar Plan
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      );
-    }
 
     // Render Analysis component for prev-plan section
     if (activeDataSection === 'prev-plan') {
