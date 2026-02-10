@@ -562,6 +562,9 @@ const EJERCICIOS_INICIALES = {
   }
 };
 
+// Exportar para uso en otros componentes
+export { EJERCICIOS_INICIALES };
+
 const ExerciseLibrary = ({ athleteId }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
