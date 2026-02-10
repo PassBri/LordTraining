@@ -64,6 +64,7 @@ const DashboardPage = () => {
   const [objectives, setObjectives] = useState([]);
   const [savingAthlete, setSavingAthlete] = useState(false);
   const [savingEvent, setSavingEvent] = useState(false);
+  const [periodizationData, setPeriodizationData] = useState(null);
 
   // API Base URL
   const API_URL = process.env.REACT_APP_BACKEND_URL;
