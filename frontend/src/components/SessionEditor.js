@@ -278,7 +278,8 @@ const SessionEditor = ({
                       data-testid={`exercise-input-${faseKey}-${idx}`}
                     />
                     {showExercisePicker === `${faseKey}-${idx}` && (
-                      <div className="absolute z-50 top-full left-0 w-80 bg-white border rounded-lg shadow-xl mt-1 max-h-60 overflow-y-auto">
+                      <div className="fixed z-[100] bg-white border rounded-lg shadow-xl max-h-60 overflow-y-auto"
+                           style={{ width: '320px', transform: 'translateY(8px)' }}>
                         <div className="p-2 border-b sticky top-0 bg-white">
                           <Input
                             placeholder="Buscar ejercicio..."
@@ -288,7 +289,7 @@ const SessionEditor = ({
                             autoFocus
                           />
                         </div>
-                        <div className="p-1">
+                        <div className="p-1 max-h-48 overflow-y-auto">
                           {getFilteredExercises().map((ej, ejIdx) => (
                             <button
                               key={`${ej.nombre}-${ejIdx}`}
