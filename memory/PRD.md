@@ -127,6 +127,7 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 │   │   │   ├── ui/               # Shadcn components
 │   │   │   ├── AthleteCharacterization.js
 │   │   │   ├── CompetitionAnalysis.js
+│   │   │   ├── ComprehensiveTrainingPlanner.js  # NEW - Sistema integral
 │   │   │   ├── HealthRecords.js
 │   │   │   ├── PeriodizationModels.js  # NEW - Modelos de periodización
 │   │   │   ├── PreviousPlanAnalysis.js
