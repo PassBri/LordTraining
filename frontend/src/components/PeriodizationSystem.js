@@ -1002,12 +1002,14 @@ const PeriodizationSystem = ({ athleteId, athleteName }) => {
                                             <button 
                                               onClick={(e) => { e.stopPropagation(); startEditSession(mesoIdx, microIdx, sIdx, session); }}
                                               className="p-1 hover:bg-white rounded"
+                                              data-testid={`edit-session-${mesoIdx}-${microIdx}-${sIdx}`}
                                             >
                                               <Edit2 className="w-3 h-3 text-slate-500" />
                                             </button>
                                             <button 
                                               onClick={(e) => { e.stopPropagation(); deleteSession(mesoIdx, microIdx, sIdx); }}
                                               className="p-1 hover:bg-white rounded"
+                                              data-testid={`delete-session-${mesoIdx}-${microIdx}-${sIdx}`}
                                             >
                                               <Trash2 className="w-3 h-3 text-red-500" />
                                             </button>
