@@ -350,6 +350,9 @@ const DashboardPage = () => {
     { id: 'graphic-plan', label: 'Plan Gráfico', icon: Layers, section: 'herramientas' },
     { id: 'calendar-view', label: 'Calendario', icon: Calendar, section: 'herramientas' },
     { id: 'ai-generator', label: 'Generar con IA', icon: Brain, section: 'herramientas' },
+    
+    // === 8. ORGANIZACIÓN ===
+    { id: 'entities', label: 'Entidades', icon: Landmark, section: 'organizacion' },
   ];
 
   // Estado para secciones colapsadas
