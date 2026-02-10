@@ -208,6 +208,21 @@ const DashboardPage = () => {
       return <TrainingMethods athleteId={selectedAthleteId} />;
     }
 
+    // Render Anthropometric Data
+    if (activeDataSection === 'anthropometric') {
+      return <AnthropometricData athleteId={selectedAthleteId} />;
+    }
+
+    // Render Test Evaluations
+    if (activeDataSection === 'tests') {
+      return <TestEvaluations athleteId={selectedAthleteId} />;
+    }
+
+    // Render Training Load
+    if (activeDataSection === 'load') {
+      return <TrainingLoad athleteId={selectedAthleteId} />;
+    }
+
     // For sections without specific components, show placeholder
     const sectionLabel = navItems.find(item => item.id === activeDataSection)?.label;
     
