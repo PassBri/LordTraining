@@ -279,34 +279,34 @@ const DashboardPage = () => {
       
       return (
         <div className="p-4 space-y-4">
-          <Card>
-            <CardHeader className="bg-gradient-to-r from-purple-600 to-purple-700 text-white py-3">
+          <Card className="border-0 shadow-md overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white py-4">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg">
+                <CardTitle className="flex items-center gap-2 text-lg font-semibold">
                   <Calendar className="w-5 h-5" />
                   Calendario de Entrenamiento
                 </CardTitle>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="ghost" className="text-white hover:bg-white/20">◀ Anterior</Button>
-                  <span className="px-3 py-1 bg-white/20 rounded">{hoy.toLocaleDateString('es', { month: 'long', year: 'numeric' })}</span>
-                  <Button size="sm" variant="ghost" className="text-white hover:bg-white/20">Siguiente ▶</Button>
+                <div className="flex gap-2 items-center">
+                  <Button size="sm" variant="ghost" className="text-white hover:bg-white/20 rounded-full w-8 h-8 p-0">◀</Button>
+                  <span className="px-4 py-1.5 bg-white/20 rounded-full text-sm font-medium">{hoy.toLocaleDateString('es', { month: 'long', year: 'numeric' })}</span>
+                  <Button size="sm" variant="ghost" className="text-white hover:bg-white/20 rounded-full w-8 h-8 p-0">▶</Button>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="p-4">
+            <CardContent className="p-5">
               {/* Leyenda */}
-              <div className="flex gap-4 mb-4 text-sm">
-                <span className="flex items-center gap-1"><div className="w-3 h-3 bg-blue-500 rounded"></div> Entrenamiento</span>
-                <span className="flex items-center gap-1"><div className="w-3 h-3 bg-green-500 rounded"></div> Competencia</span>
-                <span className="flex items-center gap-1"><div className="w-3 h-3 bg-yellow-500 rounded"></div> Test</span>
-                <span className="flex items-center gap-1"><div className="w-3 h-3 bg-gray-300 rounded"></div> Descanso</span>
+              <div className="flex flex-wrap gap-4 mb-5 text-sm">
+                <span className="flex items-center gap-2"><div className="w-3 h-3 bg-indigo-500 rounded-full"></div> Entrenamiento</span>
+                <span className="flex items-center gap-2"><div className="w-3 h-3 bg-emerald-500 rounded-full"></div> Competencia</span>
+                <span className="flex items-center gap-2"><div className="w-3 h-3 bg-amber-500 rounded-full"></div> Test</span>
+                <span className="flex items-center gap-2"><div className="w-3 h-3 bg-slate-300 rounded-full"></div> Descanso</span>
               </div>
               
               {/* Calendario */}
-              <div className="border rounded-lg overflow-hidden">
-                <div className="grid grid-cols-7 bg-gray-100">
+              <div className="border border-slate-200 rounded-xl overflow-hidden">
+                <div className="grid grid-cols-7 bg-slate-100">
                   {diasSemana.map(dia => (
-                    <div key={dia} className="p-2 text-center font-medium text-sm text-gray-600">{dia}</div>
+                    <div key={dia} className="p-3 text-center font-semibold text-sm text-slate-600">{dia}</div>
                   ))}
                 </div>
                 <div className="grid grid-cols-7">
@@ -316,13 +316,13 @@ const DashboardPage = () => {
                     return (
                       <div 
                         key={i} 
-                        className={`min-h-[80px] p-1 border-t border-l cursor-pointer hover:bg-gray-50 ${!esMesActual ? 'bg-gray-50 text-gray-400' : ''} ${esHoy ? 'bg-blue-50' : ''}`}
+                        className={`min-h-[85px] p-2 border-t border-l border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors ${!esMesActual ? 'bg-slate-50/50 text-slate-400' : ''} ${esHoy ? 'bg-indigo-50' : ''}`}
                       >
-                        <div className={`text-sm font-medium ${esHoy ? 'bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center' : ''}`}>
+                        <div className={`text-sm font-medium mb-1 ${esHoy ? 'bg-indigo-500 text-white w-7 h-7 rounded-full flex items-center justify-center' : ''}`}>
                           {fecha.getDate()}
                         </div>
                         {esMesActual && i % 3 === 0 && (
-                          <div className="mt-1 text-xs bg-blue-100 text-blue-700 px-1 rounded truncate">Sesión</div>
+                          <div className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full truncate font-medium">Sesión</div>
                         )}
                       </div>
                     );
