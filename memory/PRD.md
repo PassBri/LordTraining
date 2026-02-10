@@ -134,7 +134,8 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 │   │   │   ├── PreviousPlanAnalysis.js
 │   │   │   ├── SessionPlanning.js
 │   │   │   ├── SportCharacterization.js
-│   │   │   └── TrainingStages.js       # Etapas del macrociclo
+│   │   │   ├── TrainingMethods.js           # NEW - Métodos de entrenamiento
+│   │   │   └── TrainingStages.js            # Etapas del macrociclo
 │   │   ├── pages
 │   │   │   ├── AuthPage.js
 │   │   │   ├── DashboardPage.js
