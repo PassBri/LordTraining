@@ -324,7 +324,7 @@ async def register(user: UserCreate):
     }
     await db.users.insert_one(user_doc)
     del user_doc["password"]
-    del user_doc["_id"] if "_id" in user_doc else None
+    user_doc.pop("_id", None)
     return UserResponse(**user_doc)
 
 @api_router.post("/auth/login")
