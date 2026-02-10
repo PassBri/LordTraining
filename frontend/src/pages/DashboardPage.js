@@ -188,8 +188,13 @@ const DashboardPage = () => {
       return <CompetitionAnalysis athleteId={selectedAthleteId} />;
     }
 
-    // Render Training Stages (Principles)
-    if (activeDataSection === 'principles') {
+    // Render Periodization Models
+    if (activeDataSection === 'periodization-models') {
+      return <PeriodizationModels athleteId={selectedAthleteId} />;
+    }
+
+    // Render Macrocycle Stages (Training Stages)
+    if (activeDataSection === 'macrocycle-stages') {
       return <TrainingStages athleteId={selectedAthleteId} />;
     }
 
