@@ -1061,7 +1061,14 @@ const DashboardPage = () => {
 
     // Render Graphic Plan
     if (activeDataSection === 'graphic-plan') {
-      return <GraphicPlan athleteId={selectedAthleteId} />;
+      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
+      return (
+        <GraphicPlan 
+          athleteId={selectedAthleteId} 
+          periodizationData={periodizationData}
+          athleteName={selectedAthlete?.name}
+        />
+      );
     }
 
     // For sections without specific components, show placeholder
