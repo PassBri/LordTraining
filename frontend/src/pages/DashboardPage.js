@@ -421,17 +421,17 @@ const DashboardPage = () => {
       return (
         <div className="p-4 space-y-4">
           <Card className="border-0 shadow-md overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-violet-500 to-violet-600 text-white py-4">
+            <div className="bg-gradient-to-r from-violet-500 to-violet-600 text-white py-4 px-5">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+                <div className="flex items-center gap-2 text-lg font-semibold">
                   <Calendar className="w-5 h-5" />
                   Calendario de Eventos y Competencias
-                </CardTitle>
+                </div>
                 <Button size="sm" className="bg-white/20 hover:bg-white/30 font-medium">
                   <Plus className="w-4 h-4 mr-1" /> Nuevo Evento
                 </Button>
               </div>
-            </CardHeader>
+            </div>
             <CardContent className="p-5">
               {/* Formulario nuevo evento */}
               <div className="bg-violet-50/50 p-4 rounded-xl mb-5 border border-violet-100">
