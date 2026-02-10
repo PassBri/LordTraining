@@ -25,6 +25,7 @@ import HealthRecords from '../components/HealthRecords';
 import CompetitionAnalysis from '../components/CompetitionAnalysis';
 import TrainingStages from '../components/TrainingStages';
 import PeriodizationModels from '../components/PeriodizationModels';
+import ComprehensiveTrainingPlanner from '../components/ComprehensiveTrainingPlanner';
 
 const DashboardPage = () => {
   const { user, logout } = useAuth();
