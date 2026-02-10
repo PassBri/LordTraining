@@ -31,6 +31,7 @@ const DashboardPage = () => {
   const [isNavExpanded, setIsNavExpanded] = useState(true);
   const [activePanel, setActivePanel] = useState('periodizar');
   const [activeDataSection, setActiveDataSection] = useState(null);
+  const [selectedAthleteId, setSelectedAthleteId] = useState(null);
   const [chatMessages, setChatMessages] = useState([
     { type: 'ai', text: 'Bienvenido al asistente de planificación deportiva. ¿En qué puedo ayudarte hoy?' }
   ]);
@@ -38,7 +39,7 @@ const DashboardPage = () => {
 
   // Navigation items for "Datos" panel
   const navItems = [
-    { id: 'prev-plan', label: 'Análisis del plan anterior', icon: FileText },
+    { id: 'prev-plan', label: 'Análisis del plan anterior', icon: FileText, component: 'analysis' },
     { id: 'sport-char', label: 'Caracterización del deporte', icon: Target },
     { id: 'athlete-char', label: 'Caracterización de deportistas', icon: Users },
     { id: 'diagnostic', label: 'Diagnóstico', icon: Clipboard },
