@@ -325,85 +325,10 @@ const DashboardPage = () => {
       );
     }
     
-    // Periodizar panel
+    // Periodizar panel - New hierarchical structure
     return (
-      <div className="p-6 overflow-y-auto">
-        {/* Header with metrics */}
-        <div className="rounded-xl overflow-hidden border border-gray-200 shadow-lg mb-6">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-4">
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-              <h2 className="text-2xl font-bold text-white">Planificador de Entrenamiento</h2>
-              <div className="flex items-center gap-4">
-                <div className="flex flex-wrap gap-3 text-white">
-                  <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-lg text-sm">
-                    <Heart className="h-4 w-4" />
-                    <span>75 bpm</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-lg text-sm">
-                    <Zap className="h-4 w-4" />
-                    <span>85%</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-lg text-sm">
-                    <Brain className="h-4 w-4" />
-                    <span>Fatiga: Baja</span>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button size="sm" className="bg-green-500 hover:bg-green-600 text-white">
-                    <Save className="w-4 h-4 mr-1" />
-                    Guardar
-                  </Button>
-                  <Button size="sm" className="bg-red-500 hover:bg-red-600 text-white">
-                    <Download className="w-4 h-4 mr-1" />
-                    PDF
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Form inputs row */}
-          <div className="bg-white p-4 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            <Input placeholder="Competencia" className="h-10" />
-            <Input placeholder="Tipo de Competencia" className="h-10" />
-            <Input placeholder="Deporte" className="h-10" />
-            <Input placeholder="Modalidad" className="h-10" />
-            <Input placeholder="Categoría" className="h-10" />
-            <Input placeholder="Entrenador" className="h-10" />
-          </div>
-          
-          {/* Sub-navigation tabs */}
-          <div className="bg-gray-50 border-t flex">
-            {[
-              { id: 'macrociclo', label: 'Macrociclo' },
-              { id: 'mesociclos', label: 'Mesociclos' },
-              { id: 'microciclos', label: 'Microciclos' },
-              { id: 'sesion', label: 'Sesión' }
-            ].map((tab) => (
-              <button 
-                key={tab.id}
-                onClick={() => setActiveSubTab(tab.id)}
-                className={`flex-1 py-3 text-sm font-medium transition-colors ${
-                  activeSubTab === tab.id 
-                    ? 'text-blue-600 border-b-2 border-blue-600 bg-white' 
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-                data-testid={`subtab-${tab.id}`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Render content based on sub-tab */}
-        {activeSubTab === 'sesion' ? (
-          <SessionPlanning athleteId={selectedAthleteId} />
-        ) : activeSubTab === 'macrociclo' ? (
-          <TrainingStages athleteId={selectedAthleteId} />
-        ) : (
-          <ComprehensiveTrainingPlanner athleteId={selectedAthleteId} />
-        )}
+      <div className="p-4 overflow-y-auto h-full">
+        <PeriodizationPlanner athleteId={selectedAthleteId} />
       </div>
     );
   };
