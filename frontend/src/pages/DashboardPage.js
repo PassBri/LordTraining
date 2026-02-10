@@ -180,6 +180,11 @@ const DashboardPage = () => {
       return <HealthRecords athleteId={selectedAthleteId} recordType="all" />;
     }
 
+    // Render Competition Analysis
+    if (activeDataSection === 'competitions') {
+      return <CompetitionAnalysis athleteId={selectedAthleteId} />;
+    }
+
     const sectionLabel = navItems.find(item => item.id === activeDataSection)?.label;
     
     return (
