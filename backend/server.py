@@ -376,6 +376,100 @@ async def login(credentials: UserLogin):
 async def get_me(user: dict = Depends(get_current_user)):
     return UserResponse(**user)
 
+# Endpoint para actualizar el perfil del usuario (incluyendo rol)
+class UserProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    role: Optional[UserRole] = None
+
+@api_router.put("/auth/profile")
+async def update_profile(update_data: UserProfileUpdate, user: dict = Depends(get_current_user)):
+    update_fields = {}
+    if update_data.name:
+        update_fields["name"] = update_data.name
+    if update_data.role:
+        update_fields["role"] = update_data.role.value
+    
+    if update_fields:
+        await db.users.update_one(
+            {"id": user["id"]},
+            {"$set": update_fields}
+        )
+    
+    updated_user = await db.users.find_one({"id": user["id"]}, {"_id": 0, "password": 0})
+    return updated_user
+
+# Endpoint para obtener roles disponibles
+@api_router.get("/auth/roles")
+async def get_available_roles():
+    roles = [
+        {"id": "admin", "name": "Administrador", "description": "Acceso total al sistema"},
+        {"id": "coach", "name": "Entrenador", "description": "Puede crear planes para múltiples atletas"},
+        {"id": "personal_trainer", "name": "Entrenador Personal", "description": "Enfocado en clientes individuales"},
+        {"id": "athlete", "name": "Atleta", "description": "Solo puede ver su propio plan"},
+        {"id": "team", "name": "Equipo", "description": "Grupo de atletas con plan compartido"},
+        {"id": "user", "name": "Usuario", "description": "Rol básico sin atletas asignados"}
+    ]
+    return roles
+
+# Endpoint para obtener modelos de periodización disponibles
+@api_router.get("/periodization-models-catalog")
+async def get_periodization_models_catalog():
+    models = [
+        # Modelos Clásicos
+        {"id": "traditional", "name": "Tradicional (Matveiev)", "category": "Clásico", 
+         "description": "Periodización lineal clásica con fases bien definidas. Alto volumen inicial, baja intensidad progresando a bajo volumen, alta intensidad."},
+        {"id": "atr", "name": "ATR (Issurin)", "category": "Clásico",
+         "description": "Acumulación-Transformación-Realización. Mesociclos cortos y concentrados con objetivos específicos."},
+        {"id": "blocks", "name": "Por Bloques (Verkhoshansky)", "category": "Clásico",
+         "description": "Cargas concentradas unidireccionales. Desarrollo secuencial de cualidades físicas."},
+        
+        # Modelos Ondulatorios
+        {"id": "undulating_daily", "name": "Ondulatorio Diario", "category": "Ondulatorio",
+         "description": "Variación de volumen e intensidad día a día. Ideal para deportes con alta frecuencia de competencias."},
+        {"id": "undulating_weekly", "name": "Ondulatorio Semanal", "category": "Ondulatorio",
+         "description": "Variación semana a semana. Permite adaptación más gradual."},
+        
+        # Modelos Avanzados
+        {"id": "pendulum", "name": "Péndulo (Arosiev)", "category": "Avanzado",
+         "description": "Alternancia pendular entre preparación general y específica. Mantiene ambas cualidades."},
+        {"id": "structural_bells", "name": "Campanas Estructurales (Forteza)", "category": "Avanzado",
+         "description": "Acentuación de direcciones del entrenamiento en diferentes momentos del macrociclo."},
+        {"id": "contemporary", "name": "Contemporáneo (Bondarchuk)", "category": "Avanzado",
+         "description": "Basado en ejercicios de competición y especiales. Para atletas de alto rendimiento."},
+        {"id": "inverse", "name": "Periodización Inversa", "category": "Avanzado",
+         "description": "Comienza con alta intensidad y bajo volumen. Ideal para deportes de resistencia."},
+        {"id": "tactical", "name": "Táctico", "category": "Avanzado",
+         "description": "Diseñado para deportes de equipo. Integra preparación física con táctica."},
+        
+        # Modelos Específicos
+        {"id": "concurrent", "name": "Concurrente", "category": "Específico",
+         "description": "Desarrollo simultáneo de múltiples cualidades físicas. Para deportistas polivalentes."},
+        {"id": "conjugate", "name": "Conjugado (Westside)", "category": "Específico",
+         "description": "Método de esfuerzo máximo y dinámico. Principalmente para fuerza y potencia."},
+        {"id": "polarized", "name": "Polarizado", "category": "Específico",
+         "description": "80% baja intensidad, 20% alta intensidad. Muy usado en deportes de resistencia."}
+    ]
+    return models
+
+# Endpoint para obtener duraciones de ciclo disponibles
+@api_router.get("/cycle-durations")
+async def get_cycle_durations():
+    durations = [
+        {"id": "olympic", "name": "Ciclo Olímpico", "weeks": 208, "months": 48, "years": 4,
+         "description": "Planificación a largo plazo para competencias olímpicas"},
+        {"id": "biannual", "name": "Bianual", "weeks": 104, "months": 24, "years": 2,
+         "description": "Planificación de dos temporadas completas"},
+        {"id": "annual", "name": "Anual", "weeks": 52, "months": 12, "years": 1,
+         "description": "Macrociclo tradicional de una temporada"},
+        {"id": "semester", "name": "Semestral", "weeks": 26, "months": 6, "years": 0.5,
+         "description": "Media temporada o pretemporada extendida"},
+        {"id": "quarter", "name": "Trimestral", "weeks": 13, "months": 3, "years": 0.25,
+         "description": "Ciclo corto para objetivos específicos"},
+        {"id": "monthly", "name": "Mensual", "weeks": 4, "months": 1, "years": 0,
+         "description": "Mesociclo individual para ajustes rápidos"}
+    ]
+    return durations
+
 # =============== ATHLETES ROUTES ===============
 @api_router.post("/athletes", response_model=AthleteResponse)
 async def create_athlete(athlete: AthleteCreate, user: dict = Depends(get_current_user)):
