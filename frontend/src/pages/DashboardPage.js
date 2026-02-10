@@ -158,6 +158,11 @@ const DashboardPage = () => {
       return <SportCharacterization athleteId={selectedAthleteId} />;
     }
 
+    // Render Athlete Characterization component
+    if (activeDataSection === 'athlete-char') {
+      return <AthleteCharacterization athleteId={selectedAthleteId} />;
+    }
+
     const sectionLabel = navItems.find(item => item.id === activeDataSection)?.label;
     
     return (
