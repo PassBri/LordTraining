@@ -1715,6 +1715,69 @@ async def get_periodization_plan(athlete_id: str, user: dict = Depends(get_curre
 class ExerciseLibraryCreate(BaseModel):
     categories: Dict[str, Any] = {}
 
+# =============== PERIODIZATION SYSTEM (AUTO-GENERATION) ===============
+class PeriodizationCreate(BaseModel):
+    id: str
+    name: str
+    athleteId: Optional[str] = None
+    startDate: str
+    endDate: str
+    duration: str
+    totalWeeks: int
+    mainCompetition: Optional[str] = None
+    mainCompetitionDate: Optional[str] = None
+    sessionsPerWeek: int
+    model: str
+    phases: List[Dict[str, Any]] = []
+    mesocycles: List[Dict[str, Any]] = []
+    createdAt: str
+
+@api_router.post("/periodization")
+async def save_periodization(data: PeriodizationCreate, user: dict = Depends(get_current_user)):
+    athlete_id = None if data.athleteId in ["null", "undefined", "", "default", None] else data.athleteId
+    existing = await db.periodizations.find_one({"coach_id": user["id"], "athlete_id": athlete_id})
+    
+    doc = {
+        "periodization_id": data.id,
+        "coach_id": user["id"],
+        "athlete_id": athlete_id,
+        "name": data.name,
+        "start_date": data.startDate,
+        "end_date": data.endDate,
+        "duration": data.duration,
+        "total_weeks": data.totalWeeks,
+        "main_competition": data.mainCompetition,
+        "main_competition_date": data.mainCompetitionDate,
+        "sessions_per_week": data.sessionsPerWeek,
+        "model": data.model,
+        "phases": data.phases,
+        "mesocycles": data.mesocycles,
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    if existing:
+        await db.periodizations.update_one(
+            {"id": existing["id"]},
+            {"$set": doc}
+        )
+        return {"message": "Periodization updated", "id": existing["id"]}
+    else:
+        doc["id"] = str(uuid.uuid4())
+        doc["created_at"] = datetime.now(timezone.utc).isoformat()
+        await db.periodizations.insert_one(doc)
+        return {"message": "Periodization saved", "id": doc["id"]}
+
+@api_router.get("/periodization/{athlete_id}")
+async def get_periodization(athlete_id: str, user: dict = Depends(get_current_user)):
+    query_athlete_id = None if athlete_id in ["null", "undefined", "", "default"] else athlete_id
+    data = await db.periodizations.find_one(
+        {"coach_id": user["id"], "athlete_id": query_athlete_id}, 
+        {"_id": 0}
+    )
+    if not data:
+        return None  # Return null instead of 404 to allow frontend to handle empty state
+    return data
+
 @api_router.post("/exercise-library")
 async def save_exercise_library(data: ExerciseLibraryCreate, user: dict = Depends(get_current_user)):
     existing = await db.exercise_libraries.find_one({"coach_id": user["id"]})
