@@ -51,11 +51,15 @@ const DashboardLayout = ({ children }) => {
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="p-6 border-b border-slate-200">
           <Link to="/dashboard" className="flex items-center gap-2" onClick={() => setSidebarOpen(false)}>
-            <div className="w-10 h-10 bg-slate-900 flex items-center justify-center">
-              <span className="text-white font-black text-lg" style={{ fontFamily: 'Barlow Condensed' }}>T</span>
+            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-xl">T</span>
             </div>
             <div>
-              <div className="font-black text-xl tracking-tight" style={{ fontFamily: 'Barlow Condensed' }}>TRAIN</div>
+              <div className="font-bold text-xl tracking-tight">
+                <span className="text-gray-800">Tr</span>
+                <span className="text-blue-600">AI</span>
+                <span className="text-gray-800">n</span>
+              </div>
               <div className="text-xs text-slate-500 uppercase tracking-wider">Pro System</div>
             </div>
           </Link>
