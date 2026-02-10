@@ -203,6 +203,16 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 
 ## CHANGELOG
 
+### Feb 10, 2026 - Backend Funcional para Panel de Datos
+- ✅ **Atletas (CRUD completo)**: Crear, listar, seleccionar y eliminar atletas
+- ✅ **Calendario de Eventos (CRUD)**: Crear, listar y eliminar eventos vinculados a atletas
+- ✅ **Persistencia en MongoDB**: Todos los datos se guardan en la base de datos
+- ✅ **Autenticación**: Todas las llamadas API usan el token `train_token`
+
+### Archivos Modificados
+- `/app/frontend/src/pages/DashboardPage.js` - Integración completa con backend API
+- `/app/backend/server.py` - Endpoints ya existentes funcionando
+
 ### Feb 10, 2026 - Mejoras UI/UX Material Design
 - ✅ **Biblioteca de Ejercicios completada** con categorías de Fuerza, Velocidad y Resistencia
 - ✅ **Colores Material Design** aplicados al sidebar del panel de Datos:
