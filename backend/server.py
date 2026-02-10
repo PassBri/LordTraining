@@ -1217,6 +1217,55 @@ async def delete_health_record(record_id: str, user: dict = Depends(get_current_
         raise HTTPException(status_code=404, detail="Record not found")
     return {"message": "Record deleted"}
 
+# =============== COMPETITION ANALYSIS ===============
+class CompetitionAnalysisCreate(BaseModel):
+    athlete_id: Optional[str] = None
+    name: str = ''
+    type: str = ''
+    category: str = ''
+    date: str = ''
+    result: str = ''
+    objective: str = ''
+    competitionFormat: str = ''
+    location: str = ''
+    duration: str = ''
+    opponents: str = ''
+    observations: str = ''
+    preparationPhase: str = ''
+    keyPerformanceIndicators: str = ''
+    recoveryStrategy: str = ''
+    status: str = 'pending'
+
+@api_router.post("/competitions/analysis")
+async def create_competition_analysis(data: CompetitionAnalysisCreate, user: dict = Depends(get_current_user)):
+    comp_id = str(uuid.uuid4())
+    doc = {
+        "id": comp_id,
+        "coach_id": user["id"],
+        **data.model_dump(),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.competition_analysis.insert_one(doc)
+    return {"message": "Competition created", "id": comp_id}
+
+@api_router.get("/competitions/analysis/{athlete_id}")
+async def get_competition_analysis(athlete_id: str, user: dict = Depends(get_current_user)):
+    comps = await db.competition_analysis.find({
+        "coach_id": user["id"],
+        "athlete_id": athlete_id
+    }, {"_id": 0}).to_list(100)
+    return comps
+
+@api_router.delete("/competitions/analysis/{comp_id}")
+async def delete_competition_analysis(comp_id: str, user: dict = Depends(get_current_user)):
+    result = await db.competition_analysis.delete_one({
+        "id": comp_id,
+        "coach_id": user["id"]
+    })
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Competition not found")
+    return {"message": "Competition deleted"}
+
 # =============== ROOT & HEALTH ===============
 @api_router.get("/")
 async def root():
