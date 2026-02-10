@@ -28,6 +28,14 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 
 ## What's Been Implemented (Feb 2025)
 
+### UI Redesign (Feb 10, 2025)
+- ✅ Auth page: Split-screen design (form izquierda, gradiente azul derecha)
+- ✅ Dashboard: Nuevo layout con sidebar de chat IA
+- ✅ Tabs: Datos, Periodizar, Plan-gráfico
+- ✅ Gráficos: Líneas (Planificación Anual) + Radar (Perfil de Rendimiento)
+- ✅ Panel Datos: Navegación expandible con 16 secciones
+- ✅ Landing page: Diseño minimalista centrado
+
 ### Backend (FastAPI + MongoDB)
 - ✅ Autenticación completa (registro, login, JWT)
 - ✅ CRUD de atletas con límites por suscripción
