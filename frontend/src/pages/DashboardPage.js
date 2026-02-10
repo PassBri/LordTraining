@@ -301,15 +301,6 @@ const DashboardPage = () => {
         </div>
       );
     }
-
-    // Plan-grafico panel - render GraphicPlan directly
-    if (activePanel === 'plan-grafico') {
-      return (
-        <div className="p-6 overflow-y-auto h-full">
-          <GraphicPlan athleteId={selectedAthleteId} />
-        </div>
-      );
-    }
     
     // Periodizar panel
     return (
