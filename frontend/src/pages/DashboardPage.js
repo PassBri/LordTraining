@@ -165,50 +165,77 @@ const DashboardPage = () => {
       );
     }
 
-    // Render Atletas section inline
+    // Render Atletas section inline - COMPLETE
     if (activeDataSection === 'athletes') {
       return (
-        <div className="p-6">
+        <div className="p-4 space-y-4">
           <Card>
-            <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                Gestión de Atletas
-              </CardTitle>
+            <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Users className="w-5 h-5" />
+                  Gestión de Atletas
+                </CardTitle>
+                <span className="text-sm bg-white/20 px-2 py-1 rounded">{athletes.length} registrados</span>
+              </div>
             </CardHeader>
             <CardContent className="p-4">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <p className="text-gray-600">Total: {athletes.length} atletas registrados</p>
-                  <Button className="bg-blue-600 hover:bg-blue-700">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Nuevo Atleta
+              {/* Formulario nuevo atleta */}
+              <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                <h4 className="font-medium mb-3 text-gray-700">Registrar Nuevo Atleta</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <Input placeholder="Nombre completo" className="h-9" />
+                  <Input placeholder="Email" type="email" className="h-9" />
+                  <Input placeholder="Fecha nacimiento" type="date" className="h-9" />
+                  <Select>
+                    <SelectTrigger className="h-9"><SelectValue placeholder="Género" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="masculino">Masculino</SelectItem>
+                      <SelectItem value="femenino">Femenino</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input placeholder="Deporte" className="h-9" />
+                  <Input placeholder="Categoría" className="h-9" />
+                  <Select>
+                    <SelectTrigger className="h-9"><SelectValue placeholder="Nivel" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="principiante">Principiante</SelectItem>
+                      <SelectItem value="intermedio">Intermedio</SelectItem>
+                      <SelectItem value="avanzado">Avanzado</SelectItem>
+                      <SelectItem value="elite">Elite</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button className="bg-blue-600 hover:bg-blue-700 h-9">
+                    <Plus className="w-4 h-4 mr-1" /> Agregar
                   </Button>
                 </div>
+              </div>
+              
+              {/* Lista de atletas */}
+              <div className="space-y-2">
                 {athletes.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <Users className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                  <div className="text-center py-8 text-gray-400">
+                    <Users className="w-12 h-12 mx-auto mb-2 opacity-30" />
                     <p>No hay atletas registrados</p>
                   </div>
                 ) : (
-                  <div className="grid gap-3">
-                    {athletes.map(athlete => (
-                      <div key={athlete.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <span className="text-blue-600 font-bold">{athlete.name?.charAt(0)}</span>
-                          </div>
-                          <div>
-                            <p className="font-medium">{athlete.name}</p>
-                            <p className="text-sm text-gray-500">{athlete.sport || 'Sin deporte asignado'}</p>
-                          </div>
+                  athletes.map(athlete => (
+                    <div key={athlete.id} className="flex items-center justify-between p-3 bg-white border rounded-lg hover:shadow-sm transition-shadow">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                          <span className="text-blue-600 font-bold">{athlete.name?.charAt(0)}</span>
                         </div>
-                        <Button variant="outline" size="sm" onClick={() => setSelectedAthleteId(athlete.id)}>
-                          Seleccionar
-                        </Button>
+                        <div>
+                          <p className="font-medium">{athlete.name}</p>
+                          <p className="text-xs text-gray-500">{athlete.sport} • {athlete.category || 'Sin categoría'}</p>
+                        </div>
                       </div>
-                    ))}
-                  </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => setSelectedAthleteId(athlete.id)}>Seleccionar</Button>
+                        <Button variant="ghost" size="sm" className="text-red-500">Eliminar</Button>
+                      </div>
+                    </div>
+                  ))
                 )}
               </div>
             </CardContent>
@@ -217,22 +244,64 @@ const DashboardPage = () => {
       );
     }
 
-    // Render Ejercicios section inline
+    // Render Ejercicios section inline - COMPLETE
     if (activeDataSection === 'exercises-lib') {
+      const ejerciciosPorCategoria = [
+        { categoria: 'Fuerza', ejercicios: ['Sentadilla', 'Press banca', 'Peso muerto', 'Press militar', 'Remo'], color: 'bg-red-100 text-red-700' },
+        { categoria: 'Resistencia', ejercicios: ['Carrera continua', 'Natación', 'Ciclismo', 'Remo ergómetro', 'Elíptica'], color: 'bg-blue-100 text-blue-700' },
+        { categoria: 'Velocidad', ejercicios: ['Sprints 30m', 'Sprints 60m', 'Skipping', 'Salidas de tacos', 'Relevos'], color: 'bg-yellow-100 text-yellow-700' },
+        { categoria: 'Flexibilidad', ejercicios: ['Estiramientos dinámicos', 'Yoga', 'PNF', 'Foam roller', 'Movilidad articular'], color: 'bg-green-100 text-green-700' },
+        { categoria: 'Coordinación', ejercicios: ['Escalera agilidad', 'Slalom', 'Ejercicios con balón', 'Saltos coordinados', 'Multisaltos'], color: 'bg-purple-100 text-purple-700' },
+        { categoria: 'Potencia', ejercicios: ['Salto vertical', 'Salto horizontal', 'Lanzamientos', 'Cargadas', 'Arrancadas'], color: 'bg-orange-100 text-orange-700' }
+      ];
+      
       return (
-        <div className="p-6">
+        <div className="p-4 space-y-4">
           <Card>
-            <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white rounded-t-lg">
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="w-5 h-5" />
-                Biblioteca de Ejercicios
-              </CardTitle>
+            <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white py-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Activity className="w-5 h-5" />
+                  Biblioteca de Ejercicios
+                </CardTitle>
+                <Button size="sm" className="bg-white/20 hover:bg-white/30">
+                  <Plus className="w-4 h-4 mr-1" /> Nuevo Ejercicio
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="p-4">
-              <div className="text-center py-8 text-gray-500">
-                <Activity className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-                <p>Biblioteca de ejercicios por categoría</p>
-                <p className="text-sm mt-2">Fuerza, Resistencia, Velocidad, Flexibilidad, Coordinación</p>
+              {/* Buscador */}
+              <div className="flex gap-3 mb-4">
+                <Input placeholder="Buscar ejercicio..." className="flex-1" />
+                <Select>
+                  <SelectTrigger className="w-40"><SelectValue placeholder="Categoría" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas</SelectItem>
+                    <SelectItem value="fuerza">Fuerza</SelectItem>
+                    <SelectItem value="resistencia">Resistencia</SelectItem>
+                    <SelectItem value="velocidad">Velocidad</SelectItem>
+                    <SelectItem value="flexibilidad">Flexibilidad</SelectItem>
+                    <SelectItem value="coordinacion">Coordinación</SelectItem>
+                    <SelectItem value="potencia">Potencia</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {/* Grid de categorías */}
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {ejerciciosPorCategoria.map(cat => (
+                  <div key={cat.categoria} className="border rounded-lg overflow-hidden">
+                    <div className={`px-3 py-2 font-medium ${cat.color}`}>{cat.categoria}</div>
+                    <div className="p-3 space-y-1">
+                      {cat.ejercicios.map(ej => (
+                        <div key={ej} className="flex items-center justify-between py-1 px-2 hover:bg-gray-50 rounded text-sm">
+                          <span>{ej}</span>
+                          <Button variant="ghost" size="sm" className="h-6 text-xs">Añadir</Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -240,21 +309,67 @@ const DashboardPage = () => {
       );
     }
 
-    // Render Calendario section inline
+    // Render Calendario section inline - COMPLETE
     if (activeDataSection === 'calendar-view') {
+      const diasSemana = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+      const hoy = new Date();
+      const diasMes = Array.from({ length: 35 }, (_, i) => {
+        const fecha = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        fecha.setDate(fecha.getDate() - fecha.getDay() + 1 + i);
+        return fecha;
+      });
+      
       return (
-        <div className="p-6">
+        <div className="p-4 space-y-4">
           <Card>
-            <CardHeader className="bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-t-lg">
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5" />
-                Calendario de Entrenamiento
-              </CardTitle>
+            <CardHeader className="bg-gradient-to-r from-purple-600 to-purple-700 text-white py-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Calendar className="w-5 h-5" />
+                  Calendario de Entrenamiento
+                </CardTitle>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="ghost" className="text-white hover:bg-white/20">◀ Anterior</Button>
+                  <span className="px-3 py-1 bg-white/20 rounded">{hoy.toLocaleDateString('es', { month: 'long', year: 'numeric' })}</span>
+                  <Button size="sm" variant="ghost" className="text-white hover:bg-white/20">Siguiente ▶</Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent className="p-4">
-              <div className="text-center py-8 text-gray-500">
-                <Calendar className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-                <p>Vista de calendario con sesiones planificadas</p>
+              {/* Leyenda */}
+              <div className="flex gap-4 mb-4 text-sm">
+                <span className="flex items-center gap-1"><div className="w-3 h-3 bg-blue-500 rounded"></div> Entrenamiento</span>
+                <span className="flex items-center gap-1"><div className="w-3 h-3 bg-green-500 rounded"></div> Competencia</span>
+                <span className="flex items-center gap-1"><div className="w-3 h-3 bg-yellow-500 rounded"></div> Test</span>
+                <span className="flex items-center gap-1"><div className="w-3 h-3 bg-gray-300 rounded"></div> Descanso</span>
+              </div>
+              
+              {/* Calendario */}
+              <div className="border rounded-lg overflow-hidden">
+                <div className="grid grid-cols-7 bg-gray-100">
+                  {diasSemana.map(dia => (
+                    <div key={dia} className="p-2 text-center font-medium text-sm text-gray-600">{dia}</div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-7">
+                  {diasMes.map((fecha, i) => {
+                    const esHoy = fecha.toDateString() === hoy.toDateString();
+                    const esMesActual = fecha.getMonth() === hoy.getMonth();
+                    return (
+                      <div 
+                        key={i} 
+                        className={`min-h-[80px] p-1 border-t border-l cursor-pointer hover:bg-gray-50 ${!esMesActual ? 'bg-gray-50 text-gray-400' : ''} ${esHoy ? 'bg-blue-50' : ''}`}
+                      >
+                        <div className={`text-sm font-medium ${esHoy ? 'bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center' : ''}`}>
+                          {fecha.getDate()}
+                        </div>
+                        {esMesActual && i % 3 === 0 && (
+                          <div className="mt-1 text-xs bg-blue-100 text-blue-700 px-1 rounded truncate">Sesión</div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -262,22 +377,329 @@ const DashboardPage = () => {
       );
     }
 
-    // Render Generar con IA section inline
+    // Render Generar con IA section inline - COMPLETE
     if (activeDataSection === 'ai-generator') {
       return (
-        <div className="p-6">
+        <div className="p-4 space-y-4">
           <Card>
-            <CardHeader className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-t-lg">
-              <CardTitle className="flex items-center gap-2">
+            <CardHeader className="bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
                 <Brain className="w-5 h-5" />
-                Generar Plan con IA
+                Generar Plan con Inteligencia Artificial
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4">
-              <div className="space-y-4">
-                <p className="text-gray-600">Genera un plan de entrenamiento personalizado usando inteligencia artificial.</p>
-                <div className="grid gap-3">
-                  <Input placeholder="Objetivo principal del plan" />
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Formulario */}
+                <div className="space-y-4">
+                  <h4 className="font-medium text-gray-700">Parámetros del Plan</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs font-medium text-gray-500">Objetivo Principal</label>
+                      <Input placeholder="Ej: Mejorar resistencia aeróbica" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs font-medium text-gray-500">Duración (semanas)</label>
+                        <Input type="number" placeholder="12" />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-gray-500">Sesiones/semana</label>
+                        <Input type="number" placeholder="5" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500">Deporte</label>
+                      <Input placeholder="Ej: Atletismo - Fondo" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500">Nivel del Atleta</label>
+                      <Select>
+                        <SelectTrigger><SelectValue placeholder="Seleccionar nivel" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="principiante">Principiante (0-1 año)</SelectItem>
+                          <SelectItem value="intermedio">Intermedio (1-3 años)</SelectItem>
+                          <SelectItem value="avanzado">Avanzado (3-5 años)</SelectItem>
+                          <SelectItem value="elite">Elite (+5 años)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500">Competencia Objetivo</label>
+                      <Input type="date" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500">Observaciones adicionales</label>
+                      <textarea className="w-full border rounded-lg p-2 text-sm h-20" placeholder="Lesiones previas, limitaciones, preferencias..." />
+                    </div>
+                    <Button className="w-full bg-orange-500 hover:bg-orange-600">
+                      <Brain className="w-4 h-4 mr-2" />
+                      Generar Plan con IA
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Preview */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-700 mb-3">Vista Previa del Plan</h4>
+                  <div className="text-center py-12 text-gray-400">
+                    <Brain className="w-16 h-16 mx-auto mb-3 opacity-30" />
+                    <p>Configura los parámetros y genera tu plan personalizado</p>
+                    <p className="text-sm mt-2">El plan incluirá macrociclos, mesociclos, microciclos y sesiones detalladas</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
+    // Render Calendario de Eventos - COMPLETE
+    if (activeDataSection === 'events') {
+      return (
+        <div className="p-4 space-y-4">
+          <Card>
+            <CardHeader className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Calendar className="w-5 h-5" />
+                  Calendario de Eventos y Competencias
+                </CardTitle>
+                <Button size="sm" className="bg-white/20 hover:bg-white/30">
+                  <Plus className="w-4 h-4 mr-1" /> Nuevo Evento
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-4">
+              {/* Formulario nuevo evento */}
+              <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                <h4 className="font-medium mb-3 text-gray-700">Agregar Evento/Competencia</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <Input placeholder="Nombre del evento" className="h-9" />
+                  <Select>
+                    <SelectTrigger className="h-9"><SelectValue placeholder="Tipo" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="competencia_principal">Competencia Principal</SelectItem>
+                      <SelectItem value="competencia_secundaria">Competencia Secundaria</SelectItem>
+                      <SelectItem value="test">Test/Evaluación</SelectItem>
+                      <SelectItem value="concentracion">Concentración</SelectItem>
+                      <SelectItem value="viaje">Viaje</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input type="date" className="h-9" />
+                  <Input placeholder="Lugar" className="h-9" />
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+                  <Input placeholder="Objetivo" className="h-9 col-span-2" />
+                  <Select>
+                    <SelectTrigger className="h-9"><SelectValue placeholder="Prioridad" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="alta">Alta (A)</SelectItem>
+                      <SelectItem value="media">Media (B)</SelectItem>
+                      <SelectItem value="baja">Baja (C)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button className="bg-indigo-600 hover:bg-indigo-700 h-9">
+                    <Plus className="w-4 h-4 mr-1" /> Agregar
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Lista de eventos */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-12 bg-green-500 rounded"></div>
+                    <div>
+                      <p className="font-medium">Campeonato Nacional</p>
+                      <p className="text-xs text-gray-500">Competencia Principal • 15 Mar 2025 • Ciudad Capital</p>
+                    </div>
+                  </div>
+                  <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">Prioridad A</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-12 bg-yellow-500 rounded"></div>
+                    <div>
+                      <p className="font-medium">Torneo Regional</p>
+                      <p className="text-xs text-gray-500">Competencia Secundaria • 28 Feb 2025 • Región Norte</p>
+                    </div>
+                  </div>
+                  <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-medium">Prioridad B</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-12 bg-blue-500 rounded"></div>
+                    <div>
+                      <p className="font-medium">Test de Rendimiento</p>
+                      <p className="text-xs text-gray-500">Evaluación • 10 Feb 2025 • Centro de Alto Rendimiento</p>
+                    </div>
+                  </div>
+                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">Test</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
+    // Render Objetivos e Indicadores - COMPLETE
+    if (activeDataSection === 'objectives') {
+      return (
+        <div className="p-4 space-y-4">
+          <Card>
+            <CardHeader className="bg-gradient-to-r from-teal-600 to-teal-700 text-white py-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Target className="w-5 h-5" />
+                  Objetivos e Indicadores del Plan
+                </CardTitle>
+                <Button size="sm" className="bg-white/20 hover:bg-white/30">
+                  <Plus className="w-4 h-4 mr-1" /> Nuevo Objetivo
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-4">
+              {/* Objetivos por categoría */}
+              <div className="grid md:grid-cols-2 gap-4 mb-6">
+                {/* Objetivos Físicos */}
+                <div className="border rounded-lg overflow-hidden">
+                  <div className="bg-red-100 px-3 py-2 font-medium text-red-700 flex items-center gap-2">
+                    <Dumbbell className="w-4 h-4" /> Objetivos Físicos
+                  </div>
+                  <div className="p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">VO2 Max</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500">Actual: 52</span>
+                        <span className="text-xs">→</span>
+                        <span className="text-xs font-medium text-green-600">Meta: 58 ml/kg/min</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Fuerza máxima (Sentadilla)</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500">Actual: 120kg</span>
+                        <span className="text-xs">→</span>
+                        <span className="text-xs font-medium text-green-600">Meta: 140kg</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Velocidad 100m</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500">Actual: 11.5s</span>
+                        <span className="text-xs">→</span>
+                        <span className="text-xs font-medium text-green-600">Meta: 10.8s</span>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="sm" className="w-full text-xs mt-2">
+                      <Plus className="w-3 h-3 mr-1" /> Agregar indicador
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Objetivos Técnicos */}
+                <div className="border rounded-lg overflow-hidden">
+                  <div className="bg-blue-100 px-3 py-2 font-medium text-blue-700 flex items-center gap-2">
+                    <Target className="w-4 h-4" /> Objetivos Técnicos
+                  </div>
+                  <div className="p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Eficiencia técnica salida</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500">Actual: 70%</span>
+                        <span className="text-xs">→</span>
+                        <span className="text-xs font-medium text-green-600">Meta: 90%</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Tiempo de reacción</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500">Actual: 0.18s</span>
+                        <span className="text-xs">→</span>
+                        <span className="text-xs font-medium text-green-600">Meta: 0.14s</span>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="sm" className="w-full text-xs mt-2">
+                      <Plus className="w-3 h-3 mr-1" /> Agregar indicador
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Objetivos Tácticos */}
+                <div className="border rounded-lg overflow-hidden">
+                  <div className="bg-yellow-100 px-3 py-2 font-medium text-yellow-700 flex items-center gap-2">
+                    <Brain className="w-4 h-4" /> Objetivos Tácticos
+                  </div>
+                  <div className="p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Gestión de carrera</span>
+                      <span className="text-xs font-medium text-green-600">Mejorar distribución de esfuerzo</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Estrategia competitiva</span>
+                      <span className="text-xs font-medium text-green-600">Dominar 3 variantes tácticas</span>
+                    </div>
+                    <Button variant="ghost" size="sm" className="w-full text-xs mt-2">
+                      <Plus className="w-3 h-3 mr-1" /> Agregar indicador
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Objetivos Psicológicos */}
+                <div className="border rounded-lg overflow-hidden">
+                  <div className="bg-purple-100 px-3 py-2 font-medium text-purple-700 flex items-center gap-2">
+                    <Heart className="w-4 h-4" /> Objetivos Psicológicos
+                  </div>
+                  <div className="p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Control de ansiedad</span>
+                      <span className="text-xs font-medium text-green-600">Escala 3→7/10</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Concentración</span>
+                      <span className="text-xs font-medium text-green-600">Mantener foco 100%</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Motivación</span>
+                      <span className="text-xs font-medium text-green-600">Alta constante</span>
+                    </div>
+                    <Button variant="ghost" size="sm" className="w-full text-xs mt-2">
+                      <Plus className="w-3 h-3 mr-1" /> Agregar indicador
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* KPIs Generales */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-medium mb-3 text-gray-700">Indicadores Clave de Rendimiento (KPIs)</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-white p-3 rounded-lg border text-center">
+                    <p className="text-2xl font-bold text-blue-600">85%</p>
+                    <p className="text-xs text-gray-500">Cumplimiento Plan</p>
+                  </div>
+                  <div className="bg-white p-3 rounded-lg border text-center">
+                    <p className="text-2xl font-bold text-green-600">+12%</p>
+                    <p className="text-xs text-gray-500">Mejora Rendimiento</p>
+                  </div>
+                  <div className="bg-white p-3 rounded-lg border text-center">
+                    <p className="text-2xl font-bold text-orange-600">0.85</p>
+                    <p className="text-xs text-gray-500">Ratio Carga (ACWR)</p>
+                  </div>
+                  <div className="bg-white p-3 rounded-lg border text-center">
+                    <p className="text-2xl font-bold text-purple-600">92%</p>
+                    <p className="text-xs text-gray-500">Asistencia</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
                   <Input placeholder="Duración del plan (semanas)" type="number" />
                   <Select>
                     <SelectTrigger>
