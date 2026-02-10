@@ -490,6 +490,26 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName }) => {
               Plan Gráfico de Periodización
             </CardTitle>
             <div className="flex items-center gap-2">
+              {periodizationData && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-white hover:bg-white/10"
+                  onClick={() => {
+                    setHasImportedData(false);
+                    importPeriodizationData(periodizationData);
+                  }}
+                  title="Reimportar datos de periodización"
+                >
+                  <RefreshCw className="w-4 h-4 mr-1" />
+                  Sincronizar
+                </Button>
+              )}
+              {hasImportedData && (
+                <span className="text-xs bg-green-400 px-2 py-1 rounded-full">
+                  Datos importados
+                </span>
+              )}
               <Select value={cycleDuration} onValueChange={setCycleDuration}>
                 <SelectTrigger className="w-48 bg-white/10 border-white/20 text-white">
                   <SelectValue />
