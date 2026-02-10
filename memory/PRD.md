@@ -154,7 +154,8 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 - `/api/competitions/analysis` - Competition analysis
 - `/api/training-stages` - Macrocycle training stages (NEW)
 - `/api/periodization-models` - Periodization models (Traditional, ATR, Contemporary)
-- `/api/comprehensive-plan` - Comprehensive training plan (NEW)
+- `/api/comprehensive-plan` - Comprehensive training plan
+- `/api/training-methods` - Training methods (Standard, Variable, Combined) (NEW)
 - `/api/characterization/sport`, `/api/characterization/athlete` - Characterizations
 - `/api/health/records` - Health records
 - `/api/plans/generate` - AI plan generation
