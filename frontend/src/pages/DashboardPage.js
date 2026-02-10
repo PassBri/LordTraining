@@ -428,26 +428,6 @@ const DashboardPage = () => {
           ))}
         </div>
 
-        {/* Quick Links */}
-        <div className="space-y-1 mb-4">
-          <Link to="/athletes" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
-            <Users className="w-4 h-4" />
-            Atletas
-          </Link>
-          <Link to="/exercises" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
-            <Activity className="w-4 h-4" />
-            Ejercicios
-          </Link>
-          <Link to="/calendar" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
-            <Calendar className="w-4 h-4" />
-            Calendario
-          </Link>
-          <Link to="/ai-generator" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
-            <Brain className="w-4 h-4" />
-            Generar con IA
-          </Link>
-        </div>
-
         {/* AI Chat Card */}
         <Card className="flex-grow flex flex-col shadow-lg overflow-hidden">
           <CardHeader className="bg-blue-600 py-3 px-4">
