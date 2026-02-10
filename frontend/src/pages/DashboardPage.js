@@ -152,6 +152,11 @@ const DashboardPage = () => {
       return <PreviousPlanAnalysis athleteId={selectedAthleteId} />;
     }
 
+    // Render Sport Characterization component
+    if (activeDataSection === 'sport-char') {
+      return <SportCharacterization athleteId={selectedAthleteId} />;
+    }
+
     const sectionLabel = navItems.find(item => item.id === activeDataSection)?.label;
     
     return (
