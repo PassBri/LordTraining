@@ -81,9 +81,13 @@ const LandingPage = () => {
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center gap-2">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Target className="w-5 h-5 text-white" />
+                <span className="text-white font-bold text-lg">T</span>
               </div>
-              <span className="text-xl font-bold text-blue-600">TrAIn</span>
+              <span className="text-xl font-bold tracking-tight">
+                <span className="text-gray-800">Tr</span>
+                <span className="text-blue-600">AI</span>
+                <span className="text-gray-800">n</span>
+              </span>
             </Link>
 
             <div className="hidden md:flex items-center gap-8">
