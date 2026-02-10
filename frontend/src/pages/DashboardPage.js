@@ -33,6 +33,7 @@ import TrainingLoad from '../components/TrainingLoad';
 import GraphicPlan from '../components/GraphicPlan';
 import PeriodizationPlanner from '../components/PeriodizationPlanner';
 import ExerciseLibrary from '../components/ExerciseLibrary';
+import PeriodizationSystem from '../components/PeriodizationSystem';
 
 const DashboardPage = () => {
   const { user, logout } = useAuth();
