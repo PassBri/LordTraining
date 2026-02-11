@@ -703,6 +703,16 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName }) => {
               </Button>
               <Button
                 size="sm"
+                className="bg-indigo-500 hover:bg-indigo-600"
+                onClick={handleExportAsImage}
+                disabled={exportingImage}
+                data-testid="export-image-btn"
+              >
+                {exportingImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Image className="w-4 h-4" />}
+                <span className="ml-1">Imagen</span>
+              </Button>
+              <Button
+                size="sm"
                 className="bg-green-500 hover:bg-green-600"
                 onClick={handleSave}
                 disabled={saving}
