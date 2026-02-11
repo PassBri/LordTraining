@@ -2110,6 +2110,104 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                     "Durante la preparación general se prioriza el volumen, mientras que en fase competitiva se prioriza la intensidad.",
                     styles['BodyText']
                 ))
+                elements.append(Spacer(1, 0.1*inch))
+                
+                # Volume/Intensity table
+                vol_int_data = plan_data.get('volume_intensity', {})
+                weeks_count = min(12, len(vol_int_data) if vol_int_data else 12)
+                
+                vi_header = ['Semana'] + [f'S{i}' for i in range(1, weeks_count + 1)]
+                
+                # Volume row (decreases over time generally)
+                volume_row = ['Volumen']
+                for i in range(1, weeks_count + 1):
+                    week_key = f'S{i}'
+                    if vol_int_data.get(week_key, {}).get('volume'):
+                        volume_row.append(vol_int_data[week_key]['volume'])
+                    else:
+                        # Default: high at start, low at end
+                        if i <= weeks_count // 3:
+                            volume_row.append('Alto')
+                        elif i <= 2 * weeks_count // 3:
+                            volume_row.append('Medio')
+                        else:
+                            volume_row.append('Bajo')
+                
+                # Intensity row (increases over time generally)
+                intensity_pct_row = ['Intensidad']
+                for i in range(1, weeks_count + 1):
+                    week_key = f'S{i}'
+                    if vol_int_data.get(week_key, {}).get('intensity'):
+                        intensity_pct_row.append(f"{vol_int_data[week_key]['intensity']}%")
+                    else:
+                        base = 55 + (i * 3)
+                        intensity_pct_row.append(f'{min(base, 95)}%')
+                
+                vi_data = [vi_header, volume_row, intensity_pct_row]
+                vi_table = Table(vi_data, colWidths=[1*inch] + [0.5*inch]*weeks_count)
+                vi_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), primary_color),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                    ('BACKGROUND', (0, 1), (0, -1), bg_color),
+                    ('BACKGROUND', (1, 1), (-1, 1), colors.HexColor('#22C55E')),  # Green for volume
+                    ('BACKGROUND', (1, 2), (-1, 2), colors.HexColor('#8B5CF6')),  # Purple for intensity
+                    ('TEXTCOLOR', (1, 1), (-1, 2), colors.white),
+                    ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, -1), 7),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.white),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                ]))
+                elements.append(vi_table)
+                
+                # Add legend
+                elements.append(Spacer(1, 0.1*inch))
+                elements.append(Paragraph(
+                    "<font color='#22C55E'>■</font> Volumen &nbsp;&nbsp;&nbsp; <font color='#8B5CF6'>■</font> Intensidad (%)",
+                    styles['BodyText']
+                ))
+                elements.append(Spacer(1, 0.2*inch))
+            
+            if 'phase_timeline' in items:
+                elements.append(Paragraph("Línea de Tiempo de Fases", styles['SubSection']))
+                
+                # Create phase timeline table
+                phases_info = plan_data.get('phases', [
+                    {'name': 'Preparación General', 'weeks': 4, 'color': '#22C55E'},
+                    {'name': 'Preparación Específica', 'weeks': 4, 'color': '#3B82F6'},
+                    {'name': 'Precompetitiva', 'weeks': 2, 'color': '#F59E0B'},
+                    {'name': 'Competitiva', 'weeks': 2, 'color': '#EF4444'},
+                ])
+                
+                phase_data = [['Fase', 'Duración', 'Objetivo Principal']]
+                phase_objectives = {
+                    'Preparación General': 'Desarrollo de capacidades físicas básicas',
+                    'Preparación Específica': 'Transferencia al deporte específico',
+                    'Precompetitiva': 'Ajuste fino y reducción de volumen',
+                    'Competitiva': 'Máximo rendimiento',
+                    'Transición': 'Recuperación activa',
+                }
+                
+                for phase in phases_info:
+                    phase_name = phase.get('name', 'N/A')
+                    phase_data.append([
+                        phase_name,
+                        f"{phase.get('weeks', 'N/A')} semanas",
+                        phase_objectives.get(phase_name, 'Desarrollo deportivo')
+                    ])
+                
+                phase_table = Table(phase_data, colWidths=[2*inch, 1.2*inch, 3*inch])
+                phase_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), primary_color),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                    ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, -1), 9),
+                    ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+                    ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
+                ]))
+                elements.append(phase_table)
                 elements.append(Spacer(1, 0.2*inch))
         
         # ===== CALENDAR =====
