@@ -2669,12 +2669,12 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                 elements.append(Spacer(1, 0.1*inch))
                 elements.append(Paragraph(
                     "<font color='#22C55E'>■</font> Volumen &nbsp;&nbsp;&nbsp; <font color='#8B5CF6'>■</font> Intensidad (%)",
-                    styles['CustomBody']
+                    styles['AnswerText']
                 ))
                 elements.append(Spacer(1, 0.2*inch))
             
             if 'phase_timeline' in items:
-                elements.append(Paragraph("Línea de Tiempo de Fases", styles['SubSection']))
+                elements.append(Paragraph("Línea de Tiempo de Fases", styles['SubSectionTitle']))
                 
                 # Create phase timeline table
                 phases_info = plan_data.get('phases', [
