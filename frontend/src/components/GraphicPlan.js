@@ -982,6 +982,169 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName }) => {
             </table>
           </div>
 
+          {/* CHARTS SECTION */}
+          <div className="mt-6 space-y-6">
+            {/* Load Magnitude Chart - Carga y Recuperación */}
+            <Card className="border-2 border-red-200">
+              <CardHeader className="bg-gradient-to-r from-red-50 to-orange-50 py-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base flex items-center gap-2 text-red-800">
+                    <Activity className="w-5 h-5" />
+                    Magnitud de Carga y Recuperación
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-600">Tipo de gráfica:</span>
+                    <Select value={loadChartType} onValueChange={setLoadChartType}>
+                      <SelectTrigger className="w-40 h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="bars">Barras (Matveyev)</SelectItem>
+                        <SelectItem value="lines">Líneas superpuestas</SelectItem>
+                        <SelectItem value="areas">Áreas apiladas</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <ResponsiveContainer width="100%" height={250}>
+                  {loadChartType === 'bars' ? (
+                    <BarChart data={loadChartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} domain={[0, 100]} />
+                      <Tooltip 
+                        content={({ active, payload, label }) => {
+                          if (active && payload?.length) {
+                            return (
+                              <div className="bg-white p-2 border rounded shadow text-xs">
+                                <p className="font-bold">{label}</p>
+                                <p className="text-red-600">Carga: {payload[0]?.value}%</p>
+                                <p className="text-blue-600">Recuperación: {payload[1]?.value}%</p>
+                                {payload[0]?.payload?.fase && (
+                                  <p className="text-gray-500">Fase: {payload[0].payload.fase}</p>
+                                )}
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
+                      />
+                      <Legend />
+                      <Bar dataKey="carga" name="Carga" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="recuperacion" name="Recuperación" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  ) : loadChartType === 'lines' ? (
+                    <LineChart data={loadChartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} domain={[0, 100]} />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="carga" name="Carga" stroke="#ef4444" strokeWidth={2} dot={{ fill: '#ef4444', r: 3 }} />
+                      <Line type="monotone" dataKey="recuperacion" name="Recuperación" stroke="#3b82f6" strokeWidth={2} dot={{ fill: '#3b82f6', r: 3 }} />
+                    </LineChart>
+                  ) : (
+                    <AreaChart data={loadChartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} domain={[0, 100]} />
+                      <Tooltip />
+                      <Legend />
+                      <Area type="monotone" dataKey="carga" name="Carga" fill="#ef4444" fillOpacity={0.6} stroke="#ef4444" />
+                      <Area type="monotone" dataKey="recuperacion" name="Recuperación" fill="#3b82f6" fillOpacity={0.4} stroke="#3b82f6" />
+                    </AreaChart>
+                  )}
+                </ResponsiveContainer>
+                <div className="mt-2 flex justify-center gap-6 text-xs text-slate-500">
+                  <span className="flex items-center gap-1"><div className="w-3 h-3 bg-red-500 rounded"></div> Carga de entrenamiento</span>
+                  <span className="flex items-center gap-1"><div className="w-3 h-3 bg-blue-500 rounded"></div> Nivel de recuperación</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Volume and Intensity Chart */}
+            <Card className="border-2 border-green-200">
+              <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 py-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base flex items-center gap-2 text-green-800">
+                    <TrendingUp className="w-5 h-5" />
+                    Volumen e Intensidad por Semanas
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-600">Tipo de gráfica:</span>
+                    <Select value={volumeIntensityChartType} onValueChange={setVolumeIntensityChartType}>
+                      <SelectTrigger className="w-44 h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="lines">Líneas (Vol vs Int)</SelectItem>
+                        <SelectItem value="bars">Barras agrupadas</SelectItem>
+                        <SelectItem value="combined">Combinación (Barras + Línea)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <ResponsiveContainer width="100%" height={250}>
+                  {volumeIntensityChartType === 'lines' ? (
+                    <LineChart data={volumeIntensityChartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} domain={[0, 100]} />
+                      <Tooltip 
+                        content={({ active, payload, label }) => {
+                          if (active && payload?.length) {
+                            return (
+                              <div className="bg-white p-2 border rounded shadow text-xs">
+                                <p className="font-bold">{label}</p>
+                                <p className="text-green-600">Volumen: {payload[0]?.value}%</p>
+                                <p className="text-purple-600">Intensidad: {payload[1]?.value}%</p>
+                                {payload[0]?.payload?.mesociclo && (
+                                  <p className="text-gray-500">Mesociclo: {payload[0].payload.mesociclo}</p>
+                                )}
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
+                      />
+                      <Legend />
+                      <Line type="monotone" dataKey="volumen" name="Volumen" stroke="#22c55e" strokeWidth={2} dot={{ fill: '#22c55e', r: 3 }} />
+                      <Line type="monotone" dataKey="intensidad" name="Intensidad" stroke="#a855f7" strokeWidth={2} dot={{ fill: '#a855f7', r: 3 }} />
+                    </LineChart>
+                  ) : volumeIntensityChartType === 'bars' ? (
+                    <BarChart data={volumeIntensityChartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} domain={[0, 100]} />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="volumen" name="Volumen" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="intensidad" name="Intensidad" fill="#a855f7" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  ) : (
+                    <ComposedChart data={volumeIntensityChartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} domain={[0, 100]} />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="volumen" name="Volumen" fill="#22c55e" radius={[4, 4, 0, 0]} fillOpacity={0.8} />
+                      <Line type="monotone" dataKey="intensidad" name="Intensidad" stroke="#a855f7" strokeWidth={3} dot={{ fill: '#a855f7', r: 4 }} />
+                    </ComposedChart>
+                  )}
+                </ResponsiveContainer>
+                <div className="mt-2 flex justify-center gap-6 text-xs text-slate-500">
+                  <span className="flex items-center gap-1"><div className="w-3 h-3 bg-green-500 rounded"></div> Volumen de entrenamiento</span>
+                  <span className="flex items-center gap-1"><div className="w-3 h-3 bg-purple-500 rounded"></div> Intensidad del entrenamiento</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           {/* Legend */}
           <div className="mt-4 p-3 bg-gray-50 rounded-lg border">
             <h4 className="font-medium text-sm mb-2">Leyenda</h4>
