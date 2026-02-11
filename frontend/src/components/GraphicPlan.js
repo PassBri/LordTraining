@@ -1007,6 +1007,44 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName }) => {
                   </tr>
                 ))}
 
+                {/* EVENTS ROW - Calendar Events */}
+                <tr className="bg-purple-100">
+                  <td colSpan={displayedWeeks.length + 1} className="px-2 py-1 font-bold text-purple-800 border border-gray-300">
+                    <div className="flex items-center gap-1">
+                      <Trophy className="w-4 h-4" />
+                      Eventos / Competencias
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="sticky left-0 bg-gray-50 px-2 py-1 text-xs border border-gray-300">
+                    Calendario
+                  </td>
+                  {displayedWeeks.map(week => {
+                    const weekEvents = eventsByWeek[week] || [];
+                    const hasEvent = weekEvents.length > 0;
+                    const isCompetition = weekEvents.some(e => e.type === 'competition' || e.priority === 'high');
+                    
+                    return (
+                      <td 
+                        key={week} 
+                        className={`border border-gray-300 text-center text-[10px] cursor-pointer ${
+                          hasEvent 
+                            ? isCompetition 
+                              ? 'bg-red-400 text-white font-bold' 
+                              : 'bg-purple-200 text-purple-800'
+                            : 'bg-white hover:bg-gray-100'
+                        }`}
+                        title={weekEvents.length > 0 ? weekEvents.map(e => e.name).join(', ') : 'Sin eventos'}
+                      >
+                        {hasEvent && (
+                          <span>{isCompetition ? '🏆' : '📅'}</span>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+
                 {/* MONITORING SECTION */}
                 <tr className="bg-cyan-100">
                   <td colSpan={displayedWeeks.length + 1} className="px-2 py-1 font-bold text-cyan-800 border border-gray-300">
