@@ -756,6 +756,16 @@ const DashboardPage = () => {
               </div>
             </CardContent>
           </Card>
+            </div>
+
+            {/* Athlete Summary - 1 column */}
+            <div className="lg:col-span-1">
+              <AthleteSummary 
+                athlete={selectedAthlete} 
+                onNavigate={(section) => setActiveDataSection(section)}
+              />
+            </div>
+          </div>
         </div>
       );
     }
