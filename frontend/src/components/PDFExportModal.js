@@ -28,6 +28,17 @@ const EXPORT_SECTIONS = {
       { id: 'contact', label: 'Información de contacto' }
     ]
   },
+  characterization: {
+    id: 'characterization',
+    label: 'Caracterización',
+    icon: Target,
+    description: 'Caracterización del deporte y deportista',
+    items: [
+      { id: 'sport_char', label: 'Caracterización del deporte' },
+      { id: 'athlete_char', label: 'Caracterización del deportista' },
+      { id: 'performance_model', label: 'Modelo de rendimiento' }
+    ]
+  },
   anthropometric: {
     id: 'anthropometric',
     label: 'Datos Antropométricos',
@@ -50,17 +61,62 @@ const EXPORT_SECTIONS = {
       { id: 'performance_history', label: 'Historial de rendimiento' }
     ]
   },
+  medical: {
+    id: 'medical',
+    label: 'Historial Médico',
+    icon: Heart,
+    description: 'Diagnóstico, lesiones y enfermedades',
+    items: [
+      { id: 'diagnostic', label: 'Diagnóstico general' },
+      { id: 'injuries', label: 'Historial de lesiones' },
+      { id: 'diseases', label: 'Enfermedades y condiciones' }
+    ]
+  },
+  analysis: {
+    id: 'analysis',
+    label: 'Análisis Previo',
+    icon: FileText,
+    description: 'Análisis de planes y competencias anteriores',
+    items: [
+      { id: 'previous_plan', label: 'Análisis del plan anterior' },
+      { id: 'competition_analysis', label: 'Análisis de competencias' },
+      { id: 'strengths_weaknesses', label: 'Fortalezas y debilidades' }
+    ]
+  },
+  objectives: {
+    id: 'objectives',
+    label: 'Objetivos e Indicadores',
+    icon: Target,
+    description: 'Metas y KPIs del plan',
+    items: [
+      { id: 'general_objectives', label: 'Objetivos generales' },
+      { id: 'specific_objectives', label: 'Objetivos específicos' },
+      { id: 'kpis', label: 'Indicadores de rendimiento (KPIs)' }
+    ]
+  },
   periodization: {
     id: 'periodization',
     label: 'Plan de Periodización',
     icon: Layers,
     description: 'Estructura del plan de entrenamiento',
     items: [
+      { id: 'periodization_model', label: 'Modelo de periodización' },
+      { id: 'macrocycle_stages', label: 'Etapas del macrociclo' },
       { id: 'macrocycles', label: 'Macrociclos' },
       { id: 'mesocycles', label: 'Mesociclos' },
       { id: 'microcycles', label: 'Microciclos' },
-      { id: 'sessions', label: 'Sesiones de entrenamiento' },
-      { id: 'objectives', label: 'Objetivos por fase' }
+      { id: 'sessions', label: 'Sesiones de entrenamiento' }
+    ]
+  },
+  training_methods: {
+    id: 'training_methods',
+    label: 'Medios de Entrenamiento',
+    icon: Dumbbell,
+    description: 'Ejercicios y métodos utilizados',
+    items: [
+      { id: 'exercises', label: 'Ejercicios seleccionados' },
+      { id: 'methods', label: 'Métodos de entrenamiento' },
+      { id: 'progressions', label: 'Progresiones' }
     ]
   },
   graphic_plan: {
@@ -69,10 +125,21 @@ const EXPORT_SECTIONS = {
     icon: BarChart3,
     description: 'Gráficas de carga, volumen e intensidad',
     items: [
+      { id: 'training_table', label: 'Tabla de planificación semanal' },
       { id: 'load_chart', label: 'Gráfica de Magnitud de Carga y Recuperación' },
       { id: 'volume_intensity_chart', label: 'Gráfica de Volumen e Intensidad' },
-      { id: 'training_table', label: 'Tabla de planificación semanal' },
       { id: 'phase_timeline', label: 'Línea de tiempo de fases' }
+    ]
+  },
+  control: {
+    id: 'control',
+    label: 'Control y Seguimiento',
+    icon: LineChart,
+    description: 'Monitoreo de carga y control',
+    items: [
+      { id: 'load_monitoring', label: 'Monitoreo de carga' },
+      { id: 'training_control', label: 'Control de entrenamiento' },
+      { id: 'alerts', label: 'Alertas y recomendaciones' }
     ]
   },
   calendar: {
