@@ -1443,6 +1443,18 @@ const DashboardPage = () => {
           ))}
         </div>
 
+        {/* Export PDF Button */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsPdfModalOpen(true)}
+          className="mb-4 w-full flex items-center justify-center gap-2 border-indigo-300 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-400"
+          data-testid="export-pdf-btn"
+        >
+          <Download className="h-4 w-4" />
+          Exportar Reporte PDF
+        </Button>
+
         {/* AI Chat Card */}
         <Card className="flex-grow flex flex-col shadow-lg overflow-hidden">
           <CardHeader className="bg-blue-600 py-3 px-4">
