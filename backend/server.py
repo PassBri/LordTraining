@@ -1062,7 +1062,7 @@ async def get_control_panel_stats(user: dict = Depends(get_current_user)):
                                 "athleteId": athlete["id"],
                                 "athleteName": athlete.get("name", "")
                             })
-                    except:
+                    except Exception:
                         pass
     
     # Ordenar eventos por fecha
