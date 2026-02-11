@@ -505,3 +505,39 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 - `/app/frontend/src/components/PlansList.js` - CREADO: Lista de planes con CRUD
 - `/app/frontend/src/pages/DashboardPage.js` - ACTUALIZADO: Integración de nuevos componentes
 - `/app/backend/server.py` - ACTUALIZADO: Endpoints DELETE y GET all plans
+
+### Feb 11, 2026 - Sistema de Gestión de Entidades
+- ✅ **EntityManager Component** (`EntityManager.js`):
+  - Gestión de 6 tipos de entidades: Federación, Club, Escuela, Selección Nacional, Equipo, Liga/Torneo
+  - CRUD completo para todas las entidades
+  - Estadísticas por tipo con cards clickables para filtrar
+  - Búsqueda de entidades por nombre
+  - Modal de creación/edición con 17 campos:
+    - Tipo de Entidad, Nombre, Deporte Principal, Descripción
+    - Dirección, Ciudad, País, Teléfono, Email, Sitio Web
+    - Representante Legal, RUC/NIT, Fecha de Fundación
+    - Facebook, Instagram, Twitter/X, Entidad Padre
+  - Cards de entidad con ubicación y contador de atletas
+  - Modal de confirmación para eliminar
+
+- ✅ **Integración en Dashboard**:
+  - Nueva sección "ORGANIZACIÓN" (naranja) en sidebar de Datos
+  - Item "Entidades" con icono Landmark
+  - Renderizado de EntityManager cuando activeDataSection === 'entities'
+
+- ✅ **Endpoints Backend** (ya existentes):
+  - `GET /api/entities` - Listar todas las entidades
+  - `GET /api/entities?entity_type={type}` - Filtrar por tipo
+  - `GET /api/entities/{id}` - Obtener entidad por ID
+  - `POST /api/entities` - Crear nueva entidad
+  - `PUT /api/entities/{id}` - Actualizar entidad
+  - `DELETE /api/entities/{id}` - Eliminar entidad
+  - `GET /api/entities-hierarchy` - Jerarquía organizada por tipo
+  - `GET /api/entities/{id}/athletes` - Atletas afiliados a entidad
+
+### Archivos Creados/Modificados
+- `/app/frontend/src/components/EntityManager.js` - Componente completo de gestión
+- `/app/frontend/src/pages/DashboardPage.js` - Integración del EntityManager
+
+### Test Report
+- `/app/test_reports/iteration_10.json` - 100% tests pasados (Backend: 16/16, Frontend: 100%)
