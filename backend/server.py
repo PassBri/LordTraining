@@ -1566,6 +1566,417 @@ async def export_plan_pdf(macrocycle_id: str, user: dict = Depends(get_current_u
         headers={"Content-Disposition": f"attachment; filename=plan_{macro['name'].replace(' ', '_')}.pdf"}
     )
 
+# =============== COMPREHENSIVE PDF EXPORT ===============
+class ComprehensivePDFSection(BaseModel):
+    section: str
+    items: List[str]
+
+class ComprehensivePDFFormat(BaseModel):
+    paper_size: str = "letter"
+    orientation: str = "portrait"
+    color_scheme: str = "color"
+    include_logo: bool = True
+    include_date: bool = True
+    include_page_numbers: bool = True
+
+class ComprehensivePDFRequest(BaseModel):
+    athlete_id: Optional[str] = None
+    sections: List[ComprehensivePDFSection]
+    format: ComprehensivePDFFormat
+    periodization_data: Optional[dict] = None
+
+@api_router.post("/export/comprehensive-pdf")
+async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict = Depends(get_current_user)):
+    """Exporta un reporte PDF completo y personalizable"""
+    from reportlab.lib.units import inch
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, Image
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import letter, A4, legal, landscape
+    from reportlab.graphics.shapes import Drawing, Rect, Line
+    from reportlab.graphics.charts.barcharts import VerticalBarChart
+    from reportlab.graphics.charts.linecharts import HorizontalLineChart
+    import io
+    
+    # Determine page size
+    page_sizes = {
+        'letter': letter,
+        'a4': A4,
+        'legal': legal
+    }
+    page_size = page_sizes.get(request.format.paper_size, letter)
+    
+    if request.format.orientation == 'landscape':
+        page_size = landscape(page_size)
+    
+    # Color scheme
+    if request.format.color_scheme == 'color':
+        primary_color = colors.HexColor('#4F46E5')  # Indigo
+        secondary_color = colors.HexColor('#10B981')  # Green
+        accent_color = colors.HexColor('#F59E0B')  # Amber
+        bg_color = colors.HexColor('#F8FAFC')  # Light gray
+    elif request.format.color_scheme == 'grayscale':
+        primary_color = colors.HexColor('#374151')
+        secondary_color = colors.HexColor('#6B7280')
+        accent_color = colors.HexColor('#9CA3AF')
+        bg_color = colors.HexColor('#F3F4F6')
+    else:  # bw
+        primary_color = colors.black
+        secondary_color = colors.HexColor('#4B5563')
+        accent_color = colors.HexColor('#9CA3AF')
+        bg_color = colors.white
+    
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=page_size, topMargin=0.75*inch, bottomMargin=0.75*inch)
+    
+    # Styles
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(
+        name='CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        spaceAfter=20,
+        textColor=primary_color,
+        fontName='Helvetica-Bold'
+    ))
+    styles.add(ParagraphStyle(
+        name='SectionTitle',
+        parent=styles['Heading2'],
+        fontSize=16,
+        spaceBefore=15,
+        spaceAfter=10,
+        textColor=primary_color,
+        backColor=bg_color,
+        borderPadding=8,
+        fontName='Helvetica-Bold'
+    ))
+    styles.add(ParagraphStyle(
+        name='SubSection',
+        parent=styles['Heading3'],
+        fontSize=12,
+        spaceBefore=10,
+        spaceAfter=6,
+        textColor=secondary_color,
+        fontName='Helvetica-Bold'
+    ))
+    styles.add(ParagraphStyle(
+        name='BodyText',
+        parent=styles['Normal'],
+        fontSize=10,
+        spaceAfter=6,
+        textColor=colors.HexColor('#1F2937')
+    ))
+    
+    elements = []
+    
+    # Header
+    if request.format.include_logo:
+        elements.append(Paragraph("TRAIN", styles['CustomTitle']))
+        elements.append(Paragraph("Sistema de Planificación Deportiva", styles['BodyText']))
+        elements.append(Spacer(1, 0.3*inch))
+    
+    if request.format.include_date:
+        from datetime import datetime
+        date_str = datetime.now().strftime("%d de %B de %Y")
+        elements.append(Paragraph(f"Generado el {date_str}", styles['BodyText']))
+        elements.append(Spacer(1, 0.2*inch))
+    
+    # Load athlete data if provided
+    athlete = None
+    if request.athlete_id:
+        athlete = await db.athletes.find_one({"id": request.athlete_id, "coach_id": user["id"]}, {"_id": 0})
+    
+    # Process each section
+    for section_config in request.sections:
+        section_id = section_config.section
+        items = section_config.items
+        
+        # ===== ATHLETE INFO =====
+        if section_id == 'athlete_info' and athlete:
+            elements.append(Paragraph("INFORMACIÓN DEL ATLETA", styles['SectionTitle']))
+            
+            if 'basic_info' in items:
+                elements.append(Paragraph("Datos Básicos", styles['SubSection']))
+                data = [
+                    ['Nombre:', athlete.get('name', 'N/A')],
+                    ['Deporte:', athlete.get('sport', 'N/A').capitalize()],
+                    ['Edad:', f"{athlete.get('age', 'N/A')} años"],
+                    ['Nivel:', athlete.get('level', 'N/A').capitalize()],
+                ]
+                table = Table(data, colWidths=[1.5*inch, 4*inch])
+                table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (0, -1), bg_color),
+                    ('TEXTCOLOR', (0, 0), (0, -1), primary_color),
+                    ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, -1), 10),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+                    ('TOPPADDING', (0, 0), (-1, -1), 8),
+                    ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
+                ]))
+                elements.append(table)
+                elements.append(Spacer(1, 0.2*inch))
+            
+            if 'affiliations' in items:
+                elements.append(Paragraph("Afiliaciones", styles['SubSection']))
+                affiliations = athlete.get('affiliations', [])
+                if affiliations:
+                    # Load entity names
+                    entity_names = []
+                    for aff_id in affiliations:
+                        entity = await db.entities.find_one({"id": aff_id}, {"_id": 0, "name": 1, "entity_type": 1})
+                        if entity:
+                            entity_names.append(f"{entity.get('name')} ({entity.get('entity_type', '').capitalize()})")
+                    if entity_names:
+                        for name in entity_names:
+                            elements.append(Paragraph(f"• {name}", styles['BodyText']))
+                    else:
+                        elements.append(Paragraph("Sin afiliaciones registradas", styles['BodyText']))
+                else:
+                    elements.append(Paragraph("Sin afiliaciones registradas", styles['BodyText']))
+                elements.append(Spacer(1, 0.2*inch))
+        
+        # ===== ANTHROPOMETRIC DATA =====
+        elif section_id == 'anthropometric' and request.athlete_id:
+            elements.append(Paragraph("DATOS ANTROPOMÉTRICOS", styles['SectionTitle']))
+            
+            anthro_data = await db.anthropometric_data.find_one(
+                {"athlete_id": request.athlete_id},
+                {"_id": 0}
+            )
+            
+            if anthro_data and anthro_data.get('records'):
+                latest = anthro_data['records'][-1] if anthro_data.get('records') else {}
+                measurements = latest.get('measurements', {})
+                
+                if 'measurements' in items and measurements:
+                    elements.append(Paragraph("Mediciones Actuales", styles['SubSection']))
+                    data = [
+                        ['Peso:', f"{measurements.get('weight', 'N/A')} kg"],
+                        ['Talla:', f"{measurements.get('height', 'N/A')} cm"],
+                        ['IMC:', measurements.get('bmi', 'N/A')],
+                    ]
+                    table = Table(data, colWidths=[1.5*inch, 2*inch])
+                    table.setStyle(TableStyle([
+                        ('BACKGROUND', (0, 0), (0, -1), bg_color),
+                        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+                        ('FONTSIZE', (0, 0), (-1, -1), 10),
+                        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
+                        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+                    ]))
+                    elements.append(table)
+                    elements.append(Spacer(1, 0.2*inch))
+            else:
+                elements.append(Paragraph("Sin datos antropométricos registrados", styles['BodyText']))
+            
+            elements.append(Spacer(1, 0.2*inch))
+        
+        # ===== EVALUATIONS =====
+        elif section_id == 'evaluations' and request.athlete_id:
+            elements.append(Paragraph("EVALUACIONES Y TESTS", styles['SectionTitle']))
+            
+            test_data = await db.tests.find_one(
+                {"athlete_id": request.athlete_id},
+                {"_id": 0}
+            )
+            
+            if test_data and test_data.get('tests'):
+                tests = test_data['tests'][-10:]  # Last 10 tests
+                
+                if 'physical_tests' in items:
+                    elements.append(Paragraph("Tests Físicos Recientes", styles['SubSection']))
+                    data = [['Fecha', 'Nombre', 'Resultado', 'Notas']]
+                    for test in tests:
+                        data.append([
+                            test.get('date', 'N/A')[:10] if test.get('date') else 'N/A',
+                            test.get('name', 'N/A'),
+                            str(test.get('result', 'N/A')),
+                            test.get('notes', '-')[:30] if test.get('notes') else '-'
+                        ])
+                    
+                    table = Table(data, colWidths=[1*inch, 2*inch, 1*inch, 2*inch])
+                    table.setStyle(TableStyle([
+                        ('BACKGROUND', (0, 0), (-1, 0), primary_color),
+                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                        ('FONTSIZE', (0, 0), (-1, -1), 9),
+                        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
+                        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+                        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
+                    ]))
+                    elements.append(table)
+                    elements.append(Spacer(1, 0.2*inch))
+            else:
+                elements.append(Paragraph("Sin evaluaciones registradas", styles['BodyText']))
+        
+        # ===== PERIODIZATION =====
+        elif section_id == 'periodization':
+            elements.append(Paragraph("PLAN DE PERIODIZACIÓN", styles['SectionTitle']))
+            
+            # Load plans for athlete
+            plans = []
+            if request.athlete_id:
+                plans = await db.periodization_plans.find(
+                    {"athlete_id": request.athlete_id},
+                    {"_id": 0}
+                ).to_list(10)
+            
+            if plans:
+                for plan in plans[:3]:  # Max 3 plans
+                    elements.append(Paragraph(f"Plan: {plan.get('name', 'Sin nombre')}", styles['SubSection']))
+                    
+                    if 'macrocycles' in items:
+                        elements.append(Paragraph("Macrociclos:", styles['BodyText']))
+                        macros = plan.get('macrocycles', [])
+                        for macro in macros[:5]:
+                            elements.append(Paragraph(
+                                f"  • {macro.get('name', 'N/A')} - {macro.get('duration_weeks', 0)} semanas",
+                                styles['BodyText']
+                            ))
+                    
+                    if 'mesocycles' in items:
+                        elements.append(Paragraph("Mesociclos:", styles['BodyText']))
+                        mesos = plan.get('mesocycles', [])
+                        for meso in mesos[:8]:
+                            elements.append(Paragraph(
+                                f"  • {meso.get('name', 'N/A')} ({meso.get('type', 'N/A')})",
+                                styles['BodyText']
+                            ))
+                    
+                    if 'objectives' in items:
+                        objectives = plan.get('objectives', [])
+                        if objectives:
+                            elements.append(Paragraph("Objetivos:", styles['BodyText']))
+                            for obj in objectives[:5]:
+                                elements.append(Paragraph(f"  • {obj}", styles['BodyText']))
+                    
+                    elements.append(Spacer(1, 0.15*inch))
+            else:
+                elements.append(Paragraph("Sin planes de periodización", styles['BodyText']))
+        
+        # ===== GRAPHIC PLAN =====
+        elif section_id == 'graphic_plan':
+            elements.append(Paragraph("PLAN GRÁFICO DE ENTRENAMIENTO", styles['SectionTitle']))
+            
+            if 'training_table' in items:
+                elements.append(Paragraph("Tabla de Planificación Semanal", styles['SubSection']))
+                
+                # Create a sample table showing weeks 1-12
+                header = ['Semana'] + [f'S{i}' for i in range(1, 13)]
+                rows = [
+                    ['Fase'] + ['Prep. General'] * 4 + ['Prep. Específica'] * 4 + ['Competitiva'] * 4,
+                    ['Intensidad'] + ['60%', '65%', '70%', '75%', '80%', '82%', '85%', '87%', '90%', '85%', '95%', '90%'],
+                    ['Volumen'] + ['Alto'] * 4 + ['Medio'] * 4 + ['Bajo'] * 4,
+                ]
+                
+                data = [header] + rows
+                table = Table(data, colWidths=[1*inch] + [0.45*inch]*12)
+                table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), primary_color),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                    ('BACKGROUND', (0, 1), (0, -1), bg_color),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, -1), 7),
+                    ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
+                    ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+                    ('TOPPADDING', (0, 0), (-1, -1), 4),
+                ]))
+                elements.append(table)
+                elements.append(Spacer(1, 0.3*inch))
+            
+            if 'load_chart' in items:
+                elements.append(Paragraph("Magnitud de Carga y Recuperación", styles['SubSection']))
+                elements.append(Paragraph(
+                    "La gráfica de carga muestra la progresión de la intensidad del entrenamiento a lo largo del macrociclo. "
+                    "Los valores de recuperación son inversamente proporcionales a la carga aplicada.",
+                    styles['BodyText']
+                ))
+                elements.append(Spacer(1, 0.15*inch))
+                
+                # Simple bar representation using table
+                weeks_data = [['Semana', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8']]
+                weeks_data.append(['Carga %', '60', '65', '70', '75', '80', '85', '75', '90'])
+                weeks_data.append(['Recup. %', '40', '35', '30', '25', '20', '15', '25', '10'])
+                
+                table = Table(weeks_data, colWidths=[1*inch] + [0.6*inch]*8)
+                table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), primary_color),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                    ('BACKGROUND', (1, 1), (-1, 1), colors.HexColor('#EF4444')),
+                    ('BACKGROUND', (1, 2), (-1, 2), colors.HexColor('#3B82F6')),
+                    ('TEXTCOLOR', (1, 1), (-1, 2), colors.white),
+                    ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, -1), 8),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.white),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+                ]))
+                elements.append(table)
+                elements.append(Spacer(1, 0.2*inch))
+            
+            if 'volume_intensity_chart' in items:
+                elements.append(Paragraph("Volumen e Intensidad por Semanas", styles['SubSection']))
+                elements.append(Paragraph(
+                    "El balance entre volumen e intensidad es fundamental para la periodización. "
+                    "Durante la preparación general se prioriza el volumen, mientras que en fase competitiva se prioriza la intensidad.",
+                    styles['BodyText']
+                ))
+                elements.append(Spacer(1, 0.2*inch))
+        
+        # ===== CALENDAR =====
+        elif section_id == 'calendar':
+            elements.append(Paragraph("CALENDARIO DE EVENTOS", styles['SectionTitle']))
+            
+            events = []
+            if request.athlete_id:
+                events_data = await db.events.find_one(
+                    {"athlete_id": request.athlete_id},
+                    {"_id": 0}
+                )
+                events = events_data.get('events', []) if events_data else []
+            
+            if events:
+                if 'competitions' in items:
+                    competitions = [e for e in events if e.get('type') == 'competition' or e.get('priority') == 'high']
+                    if competitions:
+                        elements.append(Paragraph("Competencias", styles['SubSection']))
+                        data = [['Fecha', 'Evento', 'Ubicación']]
+                        for comp in competitions[:10]:
+                            data.append([
+                                comp.get('date', 'N/A')[:10] if comp.get('date') else 'N/A',
+                                comp.get('name', 'N/A'),
+                                comp.get('location', 'N/A')
+                            ])
+                        
+                        table = Table(data, colWidths=[1.2*inch, 2.5*inch, 2*inch])
+                        table.setStyle(TableStyle([
+                            ('BACKGROUND', (0, 0), (-1, 0), accent_color),
+                            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                            ('FONTSIZE', (0, 0), (-1, -1), 9),
+                            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
+                            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+                        ]))
+                        elements.append(table)
+                        elements.append(Spacer(1, 0.2*inch))
+            else:
+                elements.append(Paragraph("Sin eventos programados", styles['BodyText']))
+        
+        elements.append(Spacer(1, 0.3*inch))
+    
+    # Build PDF
+    doc.build(elements)
+    buffer.seek(0)
+    
+    filename = f"reporte_completo_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+    
+    return StreamingResponse(
+        buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
 # =============== SEED DEFAULT EXERCISES ===============
 @api_router.post("/seed/exercises")
 async def seed_exercises():
