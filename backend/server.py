@@ -1717,23 +1717,27 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                     elements.append(table)
                     elements.append(Spacer(1, 0.2*inch))
             
-            if 'affiliations' in items:
-                elements.append(Paragraph("Afiliaciones", styles['SubSection']))
-                affiliations = athlete.get('affiliations', [])
-                if affiliations:
-                    # Load entity names
-                    entity_names = []
-                    for aff_id in affiliations:
-                        entity = await db.entities.find_one({"id": aff_id}, {"_id": 0, "name": 1, "entity_type": 1})
-                        if entity:
-                            entity_names.append(f"{entity.get('name')} ({entity.get('entity_type', '').capitalize()})")
-                    if entity_names:
-                        for name in entity_names:
-                            elements.append(Paragraph(f"• {name}", styles['CustomBody']))
+                if 'affiliations' in items:
+                    elements.append(Paragraph("Afiliaciones", styles['SubSection']))
+                    affiliations = athlete.get('affiliations', []) if athlete else []
+                    if affiliations:
+                        # Load entity names
+                        entity_names = []
+                        for aff_id in affiliations:
+                            entity = await db.entities.find_one({"id": aff_id}, {"_id": 0, "name": 1, "entity_type": 1})
+                            if entity:
+                                entity_names.append(f"{entity.get('name')} ({entity.get('entity_type', '').capitalize()})")
+                        if entity_names:
+                            for name in entity_names:
+                                elements.append(Paragraph(f"• {name}", styles['CustomBody']))
+                        else:
+                            elements.append(Paragraph("Sin afiliaciones registradas", styles['CustomBody']))
                     else:
                         elements.append(Paragraph("Sin afiliaciones registradas", styles['CustomBody']))
-                else:
-                    elements.append(Paragraph("Sin afiliaciones registradas", styles['CustomBody']))
+                    elements.append(Spacer(1, 0.2*inch))
+            else:
+                # No athlete selected
+                elements.append(Paragraph("Seleccione un atleta para ver sus datos", styles['CustomBody']))
                 elements.append(Spacer(1, 0.2*inch))
         
         # ===== CHARACTERIZATION =====
