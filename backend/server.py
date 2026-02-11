@@ -1660,7 +1660,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         fontName='Helvetica-Bold'
     ))
     styles.add(ParagraphStyle(
-        name='BodyText',
+        name='CustomBody',
         parent=styles['Normal'],
         fontSize=10,
         spaceAfter=6,
@@ -1672,7 +1672,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
     # Header
     if request.format.include_logo:
         elements.append(Paragraph("TRAIN", styles['CustomTitle']))
-        elements.append(Paragraph("Sistema de Planificación Deportiva", styles['BodyText']))
+        elements.append(Paragraph("Sistema de Planificación Deportiva", styles['CustomBody']))
         elements.append(Spacer(1, 0.3*inch))
     
     if request.format.include_date:
