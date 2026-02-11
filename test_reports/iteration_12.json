@@ -1,0 +1,91 @@
+{
+  "summary": "Completed comprehensive frontend testing of Plan Gráfico enhancements and AthleteSummary 2-column layout. All new features verified: chart type selectors work correctly, Eventos/Competencias row is present, and AthleteSummary component displays athlete data in 2-column layout. Found and fixed 1 bug: API_URL was undefined in GraphicPlan.js.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "passed_tests": [
+    "Plan Gráfico: 'Magnitud de Carga y Recuperación' chart renders correctly with Bars (Matveyev) default",
+    "Plan Gráfico: Chart type selector for Carga chart opens and shows 3 options (Barras, Líneas, Áreas)",
+    "Plan Gráfico: Selecting 'Líneas superpuestas' changes chart type to line chart",
+    "Plan Gráfico: 'Volumen e Intensidad por Semanas' chart renders with Combination (Bars + Line) type",
+    "Plan Gráfico: Second chart has its own type selector dropdown",
+    "Plan Gráfico: 'Eventos / Competencias' row visible in periodization table with 'Calendario' sub-row",
+    "Atletas: 2-column layout working - athlete list on left, AthleteSummary on right",
+    "AthleteSummary: Placeholder shown when no athlete selected ('Selecciona un atleta')",
+    "AthleteSummary: When athlete selected, shows athlete name, sport, level, age",
+    "AthleteSummary: Displays 'Datos Antropométricos' section with 'Ver más' link",
+    "AthleteSummary: Displays 'Test y Evaluaciones' section with 'Ver más' link",
+    "AthleteSummary: Displays 'Carga Recomendada' section",
+    "AthleteSummary: Shows 'Acciones rápidas' with 'Plan de Entrenamiento' and 'Plan Gráfico' buttons",
+    "AthleteSummary: Quick action buttons navigate correctly"
+  ],
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "FIXED: GraphicPlan.js line 322 used undefined 'API_URL' instead of 'BACKEND_URL' - this would cause events loading to fail"
+  ],
+  "updated_files": [
+    "/app/frontend/src/components/GraphicPlan.js"
+  ],
+  "success_rate": {
+    "backend": "N/A - Frontend only testing",
+    "frontend": "100% (14/14 tests passed)"
+  },
+  "test_credentials": {
+    "email": "test@test.com",
+    "password": "test"
+  },
+  "seed_data_creation": "Created and deleted test athlete 'UI Test Athlete' via API for testing AthleteSummary component",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Plan Gráfico new features verified: 2 charts with type selectors work correctly. AthleteSummary 2-column layout in Atletas section works. Events row in periodization table visible. Bug fixed in GraphicPlan.js (API_URL -> BACKEND_URL).",
+  "features_verified": {
+    "plan_grafico_carga_chart": {
+      "status": "WORKING",
+      "chart_title": "Magnitud de Carga y Recuperación",
+      "selector_options": ["Barras (Matveyev)", "Líneas superpuestas", "Áreas apiladas"],
+      "default_type": "Barras (Matveyev)",
+      "chart_data": ["Carga", "Recuperación"],
+      "selector_tested": true
+    },
+    "plan_grafico_volumen_chart": {
+      "status": "WORKING",
+      "chart_title": "Volumen e Intensidad por Semanas",
+      "selector_options": ["Líneas (Vol vs Int)", "Barras agrupadas", "Combinación (Barras + Línea)"],
+      "default_type": "Combinación (Barras + Línea)",
+      "chart_data": ["Volumen", "Intensidad"]
+    },
+    "eventos_competencias_row": {
+      "status": "WORKING",
+      "location": "Periodization table under 'Actividad' section",
+      "sub_row": "Calendario",
+      "description": "Row shows 🏆 for competitions and 📅 for other events when events exist"
+    },
+    "athlete_summary_2_column_layout": {
+      "status": "WORKING",
+      "layout": "Left: Athletes list (2/3 width), Right: AthleteSummary card (1/3 width)",
+      "sections_displayed": [
+        "Athlete header (name, sport, level, age)",
+        "Datos Antropométricos with Ver más link",
+        "Test y Evaluaciones with Ver más link",
+        "Carga Recomendada",
+        "Acciones rápidas (Plan de Entrenamiento, Plan Gráfico)"
+      ]
+    }
+  },
+  "bugs_fixed": {
+    "graphicplan_api_url": {
+      "file": "/app/frontend/src/components/GraphicPlan.js",
+      "line": 322,
+      "issue": "Used undefined variable 'API_URL' instead of 'BACKEND_URL'",
+      "impact": "Events loading would fail silently",
+      "fix_applied": "Changed API_URL to BACKEND_URL"
+    }
+  }
+}
