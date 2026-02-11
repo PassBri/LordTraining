@@ -728,3 +728,20 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 
 ### Test Report
 - `/app/test_reports/iteration_16.json` - 100% tests pasados (Backend: 11/11, Frontend: 100%)
+
+
+### Feb 11, 2026 - Corrección de Bugs en Exportación PDF
+- ✅ **BUGS CORREGIDOS** en función `export_comprehensive_pdf` en server.py:
+  - **Bug 1 (competition_analysis)**: Código de procesamiento estaba fuera del bloque `if 'competition_analysis' in items` - líneas 1951-1964
+  - **Bug 2 (methods)**: Similar problema de indentación en sección de métodos - líneas 2086-2098
+  - **Bug 3 (alerts)**: Similar problema de indentación en sección de alertas - líneas 2151-2165
+- ✅ **Resultado**: PDF ahora genera TODAS las 12 secciones correctamente
+- ✅ **Verificado**: Modal tiene fondo blanco sólido, no transparente
+- ✅ **Probado**: Con y sin atleta seleccionado
+
+### Archivos Modificados
+- `/app/backend/server.py` - Corregida indentación en 3 secciones del endpoint export_comprehensive_pdf
+
+### Test Report
+- `/app/test_reports/iteration_17.json` - 100% tests pasados (Backend: 11/11, Frontend: 100%)
+
