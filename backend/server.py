@@ -1953,14 +1953,14 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                     comp_analysis = await db.competition_analysis.find(
                         {"athlete_id": request.athlete_id}, {"_id": 0}
                     ).to_list(5)
-                if comp_analysis:
-                    for comp in comp_analysis:
-                        elements.append(Paragraph(
-                            f"• {comp.get('competition_name', 'N/A')} - Posición: {comp.get('position', 'N/A')}",
-                            styles['CustomBody']
-                        ))
-                else:
-                    elements.append(Paragraph("Sin análisis de competencias", styles['CustomBody']))
+                    if comp_analysis:
+                        for comp in comp_analysis:
+                            elements.append(Paragraph(
+                                f"• {comp.get('competition_name', 'N/A')} - Posición: {comp.get('position', 'N/A')}",
+                                styles['CustomBody']
+                            ))
+                    else:
+                        elements.append(Paragraph("Sin análisis de competencias", styles['CustomBody']))
             elements.append(Spacer(1, 0.2*inch))
         
         # ===== OBJECTIVES =====
