@@ -413,6 +413,7 @@ const DashboardPage = () => {
 
   useEffect(() => {
     fetchData();
+    fetchEntities();
   }, []);
 
   const fetchData = async () => {
