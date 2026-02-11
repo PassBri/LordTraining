@@ -1842,39 +1842,43 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         elif section_id == 'evaluations' :
             elements.append(Paragraph("EVALUACIONES Y TESTS", styles['SectionTitle']))
             
-            test_data = await db.tests.find_one(
-                {"athlete_id": request.athlete_id},
-                {"_id": 0}
-            )
-            
-            if test_data and test_data.get('tests'):
-                tests = test_data['tests'][-10:]  # Last 10 tests
-                
-                if 'physical_tests' in items:
-                    elements.append(Paragraph("Tests Físicos Recientes", styles['SubSection']))
-                    data = [['Fecha', 'Nombre', 'Resultado', 'Notas']]
-                    for test in tests:
-                        data.append([
-                            test.get('date', 'N/A')[:10] if test.get('date') else 'N/A',
-                            test.get('name', 'N/A'),
-                            str(test.get('result', 'N/A')),
-                            test.get('notes', '-')[:30] if test.get('notes') else '-'
-                        ])
-                    
-                    table = Table(data, colWidths=[1*inch, 2*inch, 1*inch, 2*inch])
-                    table.setStyle(TableStyle([
-                        ('BACKGROUND', (0, 0), (-1, 0), primary_color),
-                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-                        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                        ('FONTSIZE', (0, 0), (-1, -1), 9),
-                        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
-                        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-                        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
-                    ]))
-                    elements.append(table)
-                    elements.append(Spacer(1, 0.2*inch))
+            if not request.athlete_id:
+                elements.append(Paragraph("Seleccione un atleta para ver evaluaciones", styles['CustomBody']))
             else:
-                elements.append(Paragraph("Sin evaluaciones registradas", styles['CustomBody']))
+                test_data = await db.tests.find_one(
+                    {"athlete_id": request.athlete_id},
+                    {"_id": 0}
+                )
+                
+                if test_data and test_data.get('tests'):
+                    tests = test_data['tests'][-10:]  # Last 10 tests
+                    
+                    if 'physical_tests' in items:
+                        elements.append(Paragraph("Tests Físicos Recientes", styles['SubSection']))
+                        data = [['Fecha', 'Nombre', 'Resultado', 'Notas']]
+                        for test in tests:
+                            data.append([
+                                test.get('date', 'N/A')[:10] if test.get('date') else 'N/A',
+                                test.get('name', 'N/A'),
+                                str(test.get('result', 'N/A')),
+                                test.get('notes', '-')[:30] if test.get('notes') else '-'
+                            ])
+                        
+                        table = Table(data, colWidths=[1*inch, 2*inch, 1*inch, 2*inch])
+                        table.setStyle(TableStyle([
+                            ('BACKGROUND', (0, 0), (-1, 0), primary_color),
+                            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                            ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                            ('FONTSIZE', (0, 0), (-1, -1), 9),
+                            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
+                            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+                            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
+                        ]))
+                        elements.append(table)
+                else:
+                    elements.append(Paragraph("Sin evaluaciones registradas", styles['CustomBody']))
+            elements.append(Spacer(1, 0.2*inch))
         
         # ===== MEDICAL HISTORY =====
         elif section_id == 'medical' :
