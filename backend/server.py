@@ -1678,7 +1678,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
     if request.format.include_date:
         from datetime import datetime
         date_str = datetime.now().strftime("%d de %B de %Y")
-        elements.append(Paragraph(f"Generado el {date_str}", styles['BodyText']))
+        elements.append(Paragraph(f"Generado el {date_str}", styles['CustomBody']))
         elements.append(Spacer(1, 0.2*inch))
     
     # Load athlete data if provided
@@ -1728,11 +1728,11 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                             entity_names.append(f"{entity.get('name')} ({entity.get('entity_type', '').capitalize()})")
                     if entity_names:
                         for name in entity_names:
-                            elements.append(Paragraph(f"• {name}", styles['BodyText']))
+                            elements.append(Paragraph(f"• {name}", styles['CustomBody']))
                     else:
-                        elements.append(Paragraph("Sin afiliaciones registradas", styles['BodyText']))
+                        elements.append(Paragraph("Sin afiliaciones registradas", styles['CustomBody']))
                 else:
-                    elements.append(Paragraph("Sin afiliaciones registradas", styles['BodyText']))
+                    elements.append(Paragraph("Sin afiliaciones registradas", styles['CustomBody']))
                 elements.append(Spacer(1, 0.2*inch))
         
         # ===== ANTHROPOMETRIC DATA =====
@@ -1766,7 +1766,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                     elements.append(table)
                     elements.append(Spacer(1, 0.2*inch))
             else:
-                elements.append(Paragraph("Sin datos antropométricos registrados", styles['BodyText']))
+                elements.append(Paragraph("Sin datos antropométricos registrados", styles['CustomBody']))
             
             elements.append(Spacer(1, 0.2*inch))
         
@@ -1806,7 +1806,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                     elements.append(table)
                     elements.append(Spacer(1, 0.2*inch))
             else:
-                elements.append(Paragraph("Sin evaluaciones registradas", styles['BodyText']))
+                elements.append(Paragraph("Sin evaluaciones registradas", styles['CustomBody']))
         
         # ===== PERIODIZATION =====
         elif section_id == 'periodization':
@@ -1834,16 +1834,16 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                     elements.append(Paragraph(f"Plan: {plan.get('name', 'Sin nombre')}", styles['SubSection']))
                     
                     if 'macrocycles' in items:
-                        elements.append(Paragraph("Macrociclos:", styles['BodyText']))
+                        elements.append(Paragraph("Macrociclos:", styles['CustomBody']))
                         macros = plan.get('macrocycles', [])
                         for macro in macros[:5]:
                             elements.append(Paragraph(
                                 f"  • {macro.get('name', 'N/A')} - {macro.get('duration_weeks', 0)} semanas - Fase: {macro.get('phase', 'N/A')}",
-                                styles['BodyText']
+                                styles['CustomBody']
                             ))
                     
                     if 'mesocycles' in items:
-                        elements.append(Paragraph("Mesociclos:", styles['BodyText']))
+                        elements.append(Paragraph("Mesociclos:", styles['CustomBody']))
                         mesos = plan.get('mesocycles', [])
                         if mesos:
                             # Create a table for mesocycles
@@ -1871,7 +1871,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                             elements.append(Spacer(1, 0.15*inch))
                     
                     if 'microcycles' in items:
-                        elements.append(Paragraph("Microciclos:", styles['BodyText']))
+                        elements.append(Paragraph("Microciclos:", styles['CustomBody']))
                         micros = plan.get('microcycles', [])
                         if micros:
                             micro_data = [['Semana', 'Tipo', 'Volumen', 'Intensidad', 'Sesiones']]
@@ -1898,7 +1898,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                             elements.append(Spacer(1, 0.15*inch))
                     
                     if 'sessions' in items:
-                        elements.append(Paragraph("Sesiones de Entrenamiento:", styles['BodyText']))
+                        elements.append(Paragraph("Sesiones de Entrenamiento:", styles['CustomBody']))
                         # Get sessions from microcycles
                         all_sessions = []
                         for micro in plan.get('microcycles', [])[:5]:
@@ -1929,18 +1929,18 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                             ]))
                             elements.append(session_table)
                         else:
-                            elements.append(Paragraph("  Sin sesiones programadas", styles['BodyText']))
+                            elements.append(Paragraph("  Sin sesiones programadas", styles['CustomBody']))
                         elements.append(Spacer(1, 0.15*inch))
                     
                     if 'objectives' in items:
                         objectives = plan.get('objectives', [])
                         if objectives:
-                            elements.append(Paragraph("Objetivos:", styles['BodyText']))
+                            elements.append(Paragraph("Objetivos:", styles['CustomBody']))
                             for obj in objectives[:5]:
                                 if isinstance(obj, dict):
-                                    elements.append(Paragraph(f"  • {obj.get('title', obj.get('name', str(obj)))}", styles['BodyText']))
+                                    elements.append(Paragraph(f"  • {obj.get('title', obj.get('name', str(obj)))}", styles['CustomBody']))
                                 else:
-                                    elements.append(Paragraph(f"  • {obj}", styles['BodyText']))
+                                    elements.append(Paragraph(f"  • {obj}", styles['CustomBody']))
                     
                     elements.append(Spacer(1, 0.2*inch))
                 
@@ -1948,11 +1948,11 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                 for macro in macrocycles[:2]:
                     if not plans:  # Only show if no plans exist
                         elements.append(Paragraph(f"Macrociclo: {macro.get('name', 'Sin nombre')}", styles['SubSection']))
-                        elements.append(Paragraph(f"Duración: {macro.get('duration_weeks', 'N/A')} semanas", styles['BodyText']))
-                        elements.append(Paragraph(f"Modelo: {macro.get('model', 'N/A')}", styles['BodyText']))
+                        elements.append(Paragraph(f"Duración: {macro.get('duration_weeks', 'N/A')} semanas", styles['CustomBody']))
+                        elements.append(Paragraph(f"Modelo: {macro.get('model', 'N/A')}", styles['CustomBody']))
                         elements.append(Spacer(1, 0.15*inch))
             else:
-                elements.append(Paragraph("Sin planes de periodización registrados", styles['BodyText']))
+                elements.append(Paragraph("Sin planes de periodización registrados", styles['CustomBody']))
         
         # ===== GRAPHIC PLAN =====
         elif section_id == 'graphic_plan':
@@ -2044,7 +2044,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                 elements.append(Paragraph(
                     "La gráfica de carga muestra la progresión de la intensidad del entrenamiento a lo largo del macrociclo. "
                     "Los valores de recuperación son inversamente proporcionales a la carga aplicada.",
-                    styles['BodyText']
+                    styles['CustomBody']
                 ))
                 elements.append(Spacer(1, 0.15*inch))
                 
@@ -2099,7 +2099,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                 elements.append(Spacer(1, 0.1*inch))
                 elements.append(Paragraph(
                     "<font color='#EF4444'>■</font> Carga (%) &nbsp;&nbsp;&nbsp; <font color='#3B82F6'>■</font> Recuperación (%)",
-                    styles['BodyText']
+                    styles['CustomBody']
                 ))
                 elements.append(Spacer(1, 0.2*inch))
             
@@ -2108,7 +2108,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                 elements.append(Paragraph(
                     "El balance entre volumen e intensidad es fundamental para la periodización. "
                     "Durante la preparación general se prioriza el volumen, mientras que en fase competitiva se prioriza la intensidad.",
-                    styles['BodyText']
+                    styles['CustomBody']
                 ))
                 elements.append(Spacer(1, 0.1*inch))
                 
@@ -2164,7 +2164,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                 elements.append(Spacer(1, 0.1*inch))
                 elements.append(Paragraph(
                     "<font color='#22C55E'>■</font> Volumen &nbsp;&nbsp;&nbsp; <font color='#8B5CF6'>■</font> Intensidad (%)",
-                    styles['BodyText']
+                    styles['CustomBody']
                 ))
                 elements.append(Spacer(1, 0.2*inch))
             
@@ -2247,7 +2247,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                         elements.append(table)
                         elements.append(Spacer(1, 0.2*inch))
             else:
-                elements.append(Paragraph("Sin eventos programados", styles['BodyText']))
+                elements.append(Paragraph("Sin eventos programados", styles['CustomBody']))
         
         elements.append(Spacer(1, 0.3*inch))
     
