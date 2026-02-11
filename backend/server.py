@@ -1691,29 +1691,31 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         items = section_config.items
         
         # ===== ATHLETE INFO =====
-        if section_id == 'athlete_info' and athlete:
+        if section_id == 'athlete_info':
             elements.append(Paragraph("INFORMACIÓN DEL ATLETA", styles['SectionTitle']))
             
-            if 'basic_info' in items:
-                elements.append(Paragraph("Datos Básicos", styles['SubSection']))
-                data = [
-                    ['Nombre:', athlete.get('name', 'N/A')],
-                    ['Deporte:', athlete.get('sport', 'N/A').capitalize()],
-                    ['Edad:', f"{athlete.get('age', 'N/A')} años"],
-                    ['Nivel:', athlete.get('level', 'N/A').capitalize()],
-                ]
-                table = Table(data, colWidths=[1.5*inch, 4*inch])
-                table.setStyle(TableStyle([
-                    ('BACKGROUND', (0, 0), (0, -1), bg_color),
-                    ('TEXTCOLOR', (0, 0), (0, -1), primary_color),
-                    ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-                    ('FONTSIZE', (0, 0), (-1, -1), 10),
-                    ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-                    ('TOPPADDING', (0, 0), (-1, -1), 8),
-                    ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
-                ]))
-                elements.append(table)
-                elements.append(Spacer(1, 0.2*inch))
+            if athlete:
+                if 'basic_info' in items:
+                    elements.append(Paragraph("Datos Básicos", styles['SubSection']))
+                    data = [
+                        ['Nombre:', athlete.get('name', 'N/A')],
+                        ['Deporte:', athlete.get('sport', 'N/A').capitalize() if athlete.get('sport') else 'N/A'],
+                        ['Edad:', f"{athlete.get('age', 'N/A')} años" if athlete.get('age') else 'N/A'],
+                        ['Nivel:', athlete.get('level', 'N/A').capitalize() if athlete.get('level') else 'N/A'],
+                    ]
+                    table = Table(data, colWidths=[1.5*inch, 4*inch])
+                    table.setStyle(TableStyle([
+                        ('BACKGROUND', (0, 0), (0, -1), bg_color),
+                        ('BACKGROUND', (1, 0), (1, -1), colors.white),
+                        ('TEXTCOLOR', (0, 0), (0, -1), primary_color),
+                        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+                        ('FONTSIZE', (0, 0), (-1, -1), 10),
+                        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+                        ('TOPPADDING', (0, 0), (-1, -1), 8),
+                        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
+                    ]))
+                    elements.append(table)
+                    elements.append(Spacer(1, 0.2*inch))
             
             if 'affiliations' in items:
                 elements.append(Paragraph("Afiliaciones", styles['SubSection']))
