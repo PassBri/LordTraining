@@ -378,6 +378,7 @@ const DashboardPage = () => {
     // === 6. CONTROL Y SEGUIMIENTO ===
     { id: 'load', label: 'Carga de entrenamiento', icon: BarChart, section: 'control' },
     { id: 'control', label: 'Control de entrenamiento', icon: LineChart, section: 'control' },
+    { id: 'smart-alerts', label: 'Alertas Inteligentes', icon: Zap, section: 'control' },
     
     // === 7. HERRAMIENTAS ===
     { id: 'graphic-plan', label: 'Plan Gráfico', icon: Layers, section: 'herramientas' },
@@ -386,6 +387,7 @@ const DashboardPage = () => {
     
     // === 8. ORGANIZACIÓN ===
     { id: 'entities', label: 'Entidades', icon: Landmark, section: 'organizacion' },
+    { id: 'entity-dashboard', label: 'Dashboard Entidades', icon: BarChart, section: 'organizacion' },
   ];
 
   // Estado para secciones colapsadas
