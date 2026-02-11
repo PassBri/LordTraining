@@ -2604,16 +2604,16 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                 elements.append(Spacer(1, 0.1*inch))
                 elements.append(Paragraph(
                     "<font color='#EF4444'>■</font> Carga (%) &nbsp;&nbsp;&nbsp; <font color='#3B82F6'>■</font> Recuperación (%)",
-                    styles['CustomBody']
+                    styles['AnswerText']
                 ))
                 elements.append(Spacer(1, 0.2*inch))
             
             if 'volume_intensity_chart' in items:
-                elements.append(Paragraph("Volumen e Intensidad por Semanas", styles['SubSection']))
+                elements.append(Paragraph("Volumen e Intensidad por Semanas", styles['SubSectionTitle']))
                 elements.append(Paragraph(
                     "El balance entre volumen e intensidad es fundamental para la periodización. "
                     "Durante la preparación general se prioriza el volumen, mientras que en fase competitiva se prioriza la intensidad.",
-                    styles['CustomBody']
+                    styles['AnswerText']
                 ))
                 elements.append(Spacer(1, 0.1*inch))
                 
