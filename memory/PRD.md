@@ -599,3 +599,35 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 
 ### Test Report
 - `/app/test_reports/iteration_12.json` - 100% tests pasados (Frontend: 14/14)
+
+### Feb 11, 2026 - Dashboard por Entidad y Alertas Inteligentes
+
+#### Dashboard por Entidad (`EntityDashboard.js`)
+- ✅ **Cards de resumen** por tipo de entidad (Federación, Club, Escuela, Selección)
+- ✅ **Gráfica de distribución** de atletas por entidad (PieChart)
+- ✅ **Gráfica de actividad mensual** con sesiones y evaluaciones (BarChart)
+- ✅ **Próximas competencias** del calendario
+- ✅ **Alertas y notificaciones** automáticas
+- ✅ **Selector de entidad** para ver detalle específico
+- ✅ **Vista de detalle** con lista de atletas afiliados y estadísticas
+
+#### Alertas Inteligentes (`SmartAlerts.js`)
+- ✅ **Alertas basadas en evaluaciones**:
+  - Riesgo de sobreentrenamiento (descenso en resultados)
+  - Evaluación pendiente (sin tests recientes)
+  
+- ✅ **Alertas de competencias**:
+  - Competencia próxima (1-2 semanas)
+  - Fase de Taper recomendada
+
+- ✅ **Recomendaciones de carga**:
+  - Aumento/reducción de carga según fase
+  - Semana de descarga
+  - Ajustes por calendario
+
+#### Nuevas secciones en Sidebar
+- ✅ Control y Seguimiento → "Alertas Inteligentes"
+- ✅ Organización → "Dashboard Entidades"
+
+### Test Report
+- `/app/test_reports/iteration_13.json` - 100% tests pasados (Frontend: 19/19)
