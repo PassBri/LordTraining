@@ -1884,69 +1884,75 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         elif section_id == 'medical' :
             elements.append(Paragraph("HISTORIAL MÉDICO", styles['SectionTitle']))
             
-            if 'diagnostic' in items:
-                elements.append(Paragraph("Diagnóstico General", styles['SubSection']))
-                diagnostic = await db.diagnostics.find_one(
-                    {"athlete_id": request.athlete_id}, {"_id": 0}
-                )
-                if diagnostic:
-                    elements.append(Paragraph(f"Estado general: {diagnostic.get('general_status', 'N/A')}", styles['CustomBody']))
-                    elements.append(Paragraph(f"Observaciones: {diagnostic.get('observations', 'N/A')}", styles['CustomBody']))
-                else:
-                    elements.append(Paragraph("Sin diagnóstico registrado", styles['CustomBody']))
-                elements.append(Spacer(1, 0.15*inch))
-            
-            if 'injuries' in items:
-                elements.append(Paragraph("Historial de Lesiones", styles['SubSection']))
-                injuries = await db.injuries.find(
-                    {"athlete_id": request.athlete_id}, {"_id": 0}
-                ).to_list(10)
-                if injuries:
-                    for injury in injuries[:5]:
-                        elements.append(Paragraph(
-                            f"• {injury.get('type', 'N/A')} - {injury.get('location', 'N/A')} ({injury.get('date', 'N/A')[:10] if injury.get('date') else 'N/A'})",
-                            styles['CustomBody']
-                        ))
-                else:
-                    elements.append(Paragraph("Sin lesiones registradas", styles['CustomBody']))
-                elements.append(Spacer(1, 0.15*inch))
-            
-            if 'diseases' in items:
-                elements.append(Paragraph("Enfermedades y Condiciones", styles['SubSection']))
-                diseases = await db.diseases.find(
-                    {"athlete_id": request.athlete_id}, {"_id": 0}
-                ).to_list(10)
-                if diseases:
-                    for disease in diseases[:5]:
-                        elements.append(Paragraph(
-                            f"• {disease.get('name', 'N/A')} - {disease.get('status', 'N/A')}",
-                            styles['CustomBody']
-                        ))
-                else:
-                    elements.append(Paragraph("Sin enfermedades registradas", styles['CustomBody']))
+            if not request.athlete_id:
+                elements.append(Paragraph("Seleccione un atleta para ver historial médico", styles['CustomBody']))
+            else:
+                if 'diagnostic' in items:
+                    elements.append(Paragraph("Diagnóstico General", styles['SubSection']))
+                    diagnostic = await db.diagnostics.find_one(
+                        {"athlete_id": request.athlete_id}, {"_id": 0}
+                    )
+                    if diagnostic:
+                        elements.append(Paragraph(f"Estado general: {diagnostic.get('general_status', 'N/A')}", styles['CustomBody']))
+                        elements.append(Paragraph(f"Observaciones: {diagnostic.get('observations', 'N/A')}", styles['CustomBody']))
+                    else:
+                        elements.append(Paragraph("Sin diagnóstico registrado", styles['CustomBody']))
+                    elements.append(Spacer(1, 0.15*inch))
+                
+                if 'injuries' in items:
+                    elements.append(Paragraph("Historial de Lesiones", styles['SubSection']))
+                    injuries = await db.injuries.find(
+                        {"athlete_id": request.athlete_id}, {"_id": 0}
+                    ).to_list(10)
+                    if injuries:
+                        for injury in injuries[:5]:
+                            elements.append(Paragraph(
+                                f"• {injury.get('type', 'N/A')} - {injury.get('location', 'N/A')} ({injury.get('date', 'N/A')[:10] if injury.get('date') else 'N/A'})",
+                                styles['CustomBody']
+                            ))
+                    else:
+                        elements.append(Paragraph("Sin lesiones registradas", styles['CustomBody']))
+                    elements.append(Spacer(1, 0.15*inch))
+                
+                if 'diseases' in items:
+                    elements.append(Paragraph("Enfermedades y Condiciones", styles['SubSection']))
+                    diseases = await db.diseases.find(
+                        {"athlete_id": request.athlete_id}, {"_id": 0}
+                    ).to_list(10)
+                    if diseases:
+                        for disease in diseases[:5]:
+                            elements.append(Paragraph(
+                                f"• {disease.get('name', 'N/A')} - {disease.get('status', 'N/A')}",
+                                styles['CustomBody']
+                            ))
+                    else:
+                        elements.append(Paragraph("Sin enfermedades registradas", styles['CustomBody']))
             elements.append(Spacer(1, 0.2*inch))
         
         # ===== ANALYSIS =====
         elif section_id == 'analysis' :
             elements.append(Paragraph("ANÁLISIS PREVIO", styles['SectionTitle']))
             
-            if 'previous_plan' in items:
-                elements.append(Paragraph("Análisis del Plan Anterior", styles['SubSection']))
-                prev_analysis = await db.previous_plan_analysis.find_one(
-                    {"athlete_id": request.athlete_id}, {"_id": 0}
-                )
-                if prev_analysis:
-                    elements.append(Paragraph(f"Cumplimiento: {prev_analysis.get('compliance_percentage', 'N/A')}%", styles['CustomBody']))
-                    elements.append(Paragraph(f"Resultados: {prev_analysis.get('results_summary', 'N/A')}", styles['CustomBody']))
-                else:
-                    elements.append(Paragraph("Sin análisis de plan anterior", styles['CustomBody']))
-                elements.append(Spacer(1, 0.15*inch))
-            
-            if 'competition_analysis' in items:
-                elements.append(Paragraph("Análisis de Competencias", styles['SubSection']))
-                comp_analysis = await db.competition_analysis.find(
-                    {"athlete_id": request.athlete_id}, {"_id": 0}
-                ).to_list(5)
+            if not request.athlete_id:
+                elements.append(Paragraph("Seleccione un atleta para ver análisis previo", styles['CustomBody']))
+            else:
+                if 'previous_plan' in items:
+                    elements.append(Paragraph("Análisis del Plan Anterior", styles['SubSection']))
+                    prev_analysis = await db.previous_plan_analysis.find_one(
+                        {"athlete_id": request.athlete_id}, {"_id": 0}
+                    )
+                    if prev_analysis:
+                        elements.append(Paragraph(f"Cumplimiento: {prev_analysis.get('compliance_percentage', 'N/A')}%", styles['CustomBody']))
+                        elements.append(Paragraph(f"Resultados: {prev_analysis.get('results_summary', 'N/A')}", styles['CustomBody']))
+                    else:
+                        elements.append(Paragraph("Sin análisis de plan anterior", styles['CustomBody']))
+                    elements.append(Spacer(1, 0.15*inch))
+                
+                if 'competition_analysis' in items:
+                    elements.append(Paragraph("Análisis de Competencias", styles['SubSection']))
+                    comp_analysis = await db.competition_analysis.find(
+                        {"athlete_id": request.athlete_id}, {"_id": 0}
+                    ).to_list(5)
                 if comp_analysis:
                     for comp in comp_analysis:
                         elements.append(Paragraph(
