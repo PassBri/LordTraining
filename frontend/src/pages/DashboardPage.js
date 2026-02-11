@@ -1351,6 +1351,52 @@ const DashboardPage = () => {
       );
     }
 
+    // Render Entity Dashboard
+    if (activeDataSection === 'entity-dashboard') {
+      return (
+        <EntityDashboard 
+          onNavigate={(section, athleteId) => {
+            if (athleteId) setSelectedAthleteId(athleteId);
+            setActiveDataSection(section);
+          }}
+        />
+      );
+    }
+
+    // Render Smart Alerts
+    if (activeDataSection === 'smart-alerts') {
+      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
+      return (
+        <div className="p-4">
+          <div className="max-w-3xl mx-auto">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">Alertas Inteligentes de Entrenamiento</h2>
+              <p className="text-slate-500">Recomendaciones basadas en evaluaciones y calendario de competencias</p>
+              {athletes.length > 0 && (
+                <div className="mt-4">
+                  <Select value={selectedAthleteId || ''} onValueChange={setSelectedAthleteId}>
+                    <SelectTrigger className="w-64">
+                      <SelectValue placeholder="Seleccionar atleta" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {athletes.map(a => (
+                        <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+            <SmartAlerts 
+              athleteId={selectedAthleteId} 
+              athleteName={selectedAthlete?.name}
+              onNavigate={(section) => setActiveDataSection(section)}
+            />
+          </div>
+        </div>
+      );
+    }
+
     // For sections without specific components, show placeholder
     const sectionLabel = navItems.find(item => item.id === activeDataSection)?.label;
     
