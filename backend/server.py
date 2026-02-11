@@ -1676,7 +1676,6 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         elements.append(Spacer(1, 0.3*inch))
     
     if request.format.include_date:
-        from datetime import datetime
         date_str = datetime.now().strftime("%d de %B de %Y")
         elements.append(Paragraph(f"Generado el {date_str}", styles['CustomBody']))
         elements.append(Spacer(1, 0.2*inch))
