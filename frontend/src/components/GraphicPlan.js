@@ -128,6 +128,10 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName }) => {
   const [visibleWeeks, setVisibleWeeks] = useState(24);
   const [hasImportedData, setHasImportedData] = useState(false);
   
+  // Chart type selections
+  const [loadChartType, setLoadChartType] = useState('bars'); // 'bars', 'lines', 'areas'
+  const [volumeIntensityChartType, setVolumeIntensityChartType] = useState('combined'); // 'lines', 'bars', 'combined'
+  
   // General information
   const [generalInfo, setGeneralInfo] = useState({
     sport: '',
