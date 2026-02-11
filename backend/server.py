@@ -1861,70 +1861,102 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                             elements.append(Paragraph("Sin afiliaciones registradas", styles['CustomBody']))
                     else:
                         elements.append(Paragraph("Sin afiliaciones registradas", styles['CustomBody']))
-                    elements.append(Spacer(1, 0.2*inch))
+                    elements.append(Spacer(1, 0.1*inch))
             else:
                 # No athlete selected
-                elements.append(Paragraph("Seleccione un atleta para ver sus datos", styles['CustomBody']))
+                elements.append(Paragraph("Seleccione un atleta para ver sus datos", styles['NoDataText']))
                 elements.append(Spacer(1, 0.2*inch))
         
         # ===== CHARACTERIZATION =====
-        elif section_id == 'characterization' :
-            elements.append(Paragraph("CARACTERIZACIÓN", styles['SectionTitle']))
+        elif section_id == 'characterization':
+            elements.append(create_section_header("🎯 CARACTERIZACIÓN", section_id))
+            elements.append(Spacer(1, 0.15*inch))
             
             if not request.athlete_id:
-                elements.append(Paragraph("Seleccione un atleta para ver la caracterización", styles['CustomBody']))
+                elements.append(Paragraph("Seleccione un atleta para ver la caracterización", styles['NoDataText']))
                 elements.append(Spacer(1, 0.2*inch))
             else:
                 if 'sport_char' in items:
                     sport_char = await db.sport_characterizations.find_one(
                         {"athlete_id": request.athlete_id}, {"_id": 0}
                     )
+                    elements.append(Paragraph("1. Caracterización del Deporte", styles['SubSectionTitle']))
                     if sport_char:
-                        elements.append(Paragraph("Caracterización del Deporte", styles['SubSection']))
-                        char_data = [
-                            ['Deporte:', sport_char.get('sportName', 'N/A')],
-                            ['Organización del movimiento:', sport_char.get('movementOrganization', 'N/A')],
-                            ['Energía predominante:', sport_char.get('predominantEnergy', 'N/A')],
-                            ['Tipo de competencia:', sport_char.get('competitionType', 'N/A')],
-                        ]
-                        table = Table(char_data, colWidths=[2*inch, 3.5*inch])
-                        table.setStyle(TableStyle([
-                            ('BACKGROUND', (0, 0), (0, -1), bg_color),
-                            ('BACKGROUND', (1, 0), (1, -1), colors.white),
-                            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-                            ('FONTSIZE', (0, 0), (-1, -1), 9),
-                            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
-                            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-                        ]))
-                        elements.append(table)
+                        elements.extend(create_qa_block("Nombre del deporte o actividad física", sport_char.get('sportName', ''), section_id))
+                        elements.extend(create_qa_block("Descripción general", sport_char.get('description', ''), section_id))
+                        elements.extend(create_qa_block("Organización de los movimientos", sport_char.get('movementOrganization', ''), section_id))
+                        elements.extend(create_qa_block("Sistema energético predominante", sport_char.get('predominantEnergy', ''), section_id))
+                        elements.extend(create_qa_block("Sistema energético determinante", sport_char.get('determinantEnergy', ''), section_id))
+                        elements.extend(create_qa_block("Tipos de fibras musculares predominantes", sport_char.get('muscularFibers', ''), section_id))
+                        elements.extend(create_qa_block("Sustrato energético utilizado", sport_char.get('energySubstrate', ''), section_id))
+                        elements.extend(create_qa_block("Cualidades motrices generales", sport_char.get('generalMotor', ''), section_id))
+                        elements.extend(create_qa_block("Cualidades motrices especiales", sport_char.get('specialMotor', ''), section_id))
+                        elements.extend(create_qa_block("Tipo de esfuerzo predominante", sport_char.get('effortType', ''), section_id))
+                        if sport_char.get('observation'):
+                            elements.extend(create_qa_block("Observaciones adicionales", sport_char.get('observation', ''), section_id))
                     else:
-                        elements.append(Paragraph("Sin caracterización del deporte registrada", styles['CustomBody']))
+                        elements.append(Paragraph("Sin caracterización del deporte registrada", styles['NoDataText']))
                     elements.append(Spacer(1, 0.15*inch))
                 
                 if 'athlete_char' in items:
                     athlete_char = await db.athlete_characterizations.find_one(
                         {"athlete_id": request.athlete_id}, {"_id": 0}
                     )
+                    elements.append(Paragraph("2. Caracterización del Deportista", styles['SubSectionTitle']))
                     if athlete_char:
-                        elements.append(Paragraph("Caracterización del Deportista", styles['SubSection']))
-                        char_data = [
-                            ['Nivel:', athlete_char.get('level', 'N/A')],
-                            ['Experiencia:', athlete_char.get('experience', 'N/A')],
-                            ['Perfil técnico:', athlete_char.get('technicalProfile', 'N/A')],
-                            ['Perfil físico:', athlete_char.get('physicalProfile', 'N/A')],
-                        ]
-                        table = Table(char_data, colWidths=[2*inch, 3.5*inch])
-                        table.setStyle(TableStyle([
-                            ('BACKGROUND', (0, 0), (0, -1), bg_color),
-                            ('BACKGROUND', (1, 0), (1, -1), colors.white),
-                            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-                            ('FONTSIZE', (0, 0), (-1, -1), 9),
-                            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
-                            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-                        ]))
-                        elements.append(table)
+                        # Información General
+                        elements.append(Paragraph("Información General", styles['QuestionText']))
+                        elements.extend(create_qa_block("Nombre del deportista", athlete_char.get('name', ''), section_id))
+                        elements.extend(create_qa_block("Edad", athlete_char.get('age', ''), section_id))
+                        elements.extend(create_qa_block("Años de experiencia", athlete_char.get('experience', ''), section_id))
+                        elements.extend(create_qa_block("Posición o especialidad", athlete_char.get('position', ''), section_id))
+                        elements.extend(create_qa_block("Nivel competitivo", athlete_char.get('level', ''), section_id))
+                        elements.extend(create_qa_block("Observaciones generales", athlete_char.get('observation', ''), section_id))
+                        
+                        # Aspectos Biológicos
+                        elements.append(Paragraph("Aspectos Biológicos y Hereditarios", styles['QuestionText']))
+                        elements.extend(create_qa_block("Herencia genética", athlete_char.get('inheritance', ''), section_id))
+                        elements.extend(create_qa_block("Edad biológica vs cronológica", athlete_char.get('biologicalAge', ''), section_id))
+                        elements.extend(create_qa_block("Edad óptima de selección", athlete_char.get('optimalSelectionAge', ''), section_id))
+                        
+                        # Estado de Salud
+                        elements.append(Paragraph("Estado de Salud y Condición Física", styles['QuestionText']))
+                        elements.extend(create_qa_block("Estado de salud general", athlete_char.get('healthStatus', ''), section_id))
+                        elements.extend(create_qa_block("Parámetros antropométricos", athlete_char.get('anthropometricParams', ''), section_id))
+                        elements.extend(create_qa_block("Desarrollo de cualidades físicas y coordinativas", athlete_char.get('physicalQualities', ''), section_id))
+                        
+                        # Aspectos Psicológicos
+                        elements.append(Paragraph("Aspectos Psicológicos y Cognitivos", styles['QuestionText']))
+                        elements.extend(create_qa_block("Características psicológicas", athlete_char.get('psychologicalCharacteristics', ''), section_id))
+                        elements.extend(create_qa_block("Capacidades cognitivas", athlete_char.get('cognitiveCapabilities', ''), section_id))
+                        
+                        # Entorno Socioeconómico
+                        elements.append(Paragraph("Entorno Socioeconómico", styles['QuestionText']))
+                        elements.extend(create_qa_block("Características socio-económicas", athlete_char.get('socioeconomicCharacteristics', ''), section_id))
+                        elements.extend(create_qa_block("Conocimiento de su entorno", athlete_char.get('environment', ''), section_id))
+                        
+                        # Nutrición
+                        elements.extend(create_qa_block("Estado nutricional del deportista", athlete_char.get('nutritionalStatus', ''), section_id))
+                        
+                        # Trayectoria
+                        elements.append(Paragraph("Trayectoria Deportiva", styles['QuestionText']))
+                        elements.extend(create_qa_block("Trayectoria deportiva", athlete_char.get('sportsTrajectory', ''), section_id))
+                        elements.extend(create_qa_block("Experiencia en otros deportes", athlete_char.get('otherSportsExperience', ''), section_id))
+                        
+                        # Rendimiento
+                        elements.append(Paragraph("Rendimiento y Objetivos", styles['QuestionText']))
+                        elements.extend(create_qa_block("¿Cuál fue su rendimiento en la temporada anterior?", athlete_char.get('previousSeasonPerformance', ''), section_id))
+                        elements.extend(create_qa_block("¿Qué objetivos se plantearon y qué porcentaje se cumplió?", athlete_char.get('objectives', ''), section_id))
+                        
+                        # Entrenamiento
+                        elements.append(Paragraph("Entrenamiento y Forma Actual", styles['QuestionText']))
+                        elements.extend(create_qa_block("Niveles de entrenamiento realizados", athlete_char.get('trainingLevels', ''), section_id))
+                        elements.extend(create_qa_block("¿Cuál es su forma actual?", athlete_char.get('currentForm', ''), section_id))
+                        
+                        # Lesiones
+                        elements.extend(create_qa_block("Historial de lesiones", athlete_char.get('injuries', ''), section_id))
                     else:
-                        elements.append(Paragraph("Sin caracterización del deportista registrada", styles['CustomBody']))
+                        elements.append(Paragraph("Sin caracterización del deportista registrada", styles['NoDataText']))
                 elements.append(Spacer(1, 0.2*inch))
         
         # ===== ANTHROPOMETRIC DATA =====
