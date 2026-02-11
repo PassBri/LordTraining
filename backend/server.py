@@ -2038,10 +2038,10 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                         {"athlete_id": request.athlete_id}, {"_id": 0}
                     )
                     if diagnostic:
-                        elements.append(Paragraph(f"Estado general: {diagnostic.get('general_status', 'N/A')}", styles['CustomBody']))
-                        elements.append(Paragraph(f"Observaciones: {diagnostic.get('observations', 'N/A')}", styles['CustomBody']))
+                        elements.extend(create_qa_block("Estado general de salud", diagnostic.get('general_status', ''), section_id))
+                        elements.extend(create_qa_block("Observaciones médicas", diagnostic.get('observations', ''), section_id))
                     else:
-                        elements.append(Paragraph("Sin diagnóstico registrado", styles['CustomBody']))
+                        elements.append(Paragraph("Sin diagnóstico registrado", styles['NoDataText']))
                     elements.append(Spacer(1, 0.15*inch))
                 
                 if 'injuries' in items:
