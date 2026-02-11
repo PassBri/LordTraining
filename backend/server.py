@@ -1820,8 +1820,17 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                     {"_id": 0}
                 ).to_list(10)
             
-            if plans:
-                for plan in plans[:3]:  # Max 3 plans
+            # Also check for macrocycles directly
+            macrocycles = []
+            if request.athlete_id:
+                macrocycles = await db.macrocycles.find(
+                    {"athlete_id": request.athlete_id},
+                    {"_id": 0}
+                ).to_list(5)
+            
+            if plans or macrocycles:
+                # Process plans
+                for plan in plans[:3]:
                     elements.append(Paragraph(f"Plan: {plan.get('name', 'Sin nombre')}", styles['SubSection']))
                     
                     if 'macrocycles' in items:
@@ -1829,29 +1838,121 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                         macros = plan.get('macrocycles', [])
                         for macro in macros[:5]:
                             elements.append(Paragraph(
-                                f"  • {macro.get('name', 'N/A')} - {macro.get('duration_weeks', 0)} semanas",
+                                f"  • {macro.get('name', 'N/A')} - {macro.get('duration_weeks', 0)} semanas - Fase: {macro.get('phase', 'N/A')}",
                                 styles['BodyText']
                             ))
                     
                     if 'mesocycles' in items:
                         elements.append(Paragraph("Mesociclos:", styles['BodyText']))
                         mesos = plan.get('mesocycles', [])
-                        for meso in mesos[:8]:
-                            elements.append(Paragraph(
-                                f"  • {meso.get('name', 'N/A')} ({meso.get('type', 'N/A')})",
-                                styles['BodyText']
-                            ))
+                        if mesos:
+                            # Create a table for mesocycles
+                            meso_data = [['Nombre', 'Tipo', 'Semanas', 'Intensidad']]
+                            for meso in mesos[:10]:
+                                meso_data.append([
+                                    meso.get('name', 'N/A'),
+                                    meso.get('type', 'N/A'),
+                                    str(meso.get('duration_weeks', meso.get('weeks', 'N/A'))),
+                                    meso.get('intensity', 'N/A')
+                                ])
+                            meso_table = Table(meso_data, colWidths=[1.8*inch, 1.2*inch, 0.8*inch, 1*inch])
+                            meso_table.setStyle(TableStyle([
+                                ('BACKGROUND', (0, 0), (-1, 0), primary_color),
+                                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                                ('FONTSIZE', (0, 0), (-1, -1), 8),
+                                ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
+                                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                                ('TOPPADDING', (0, 0), (-1, -1), 5),
+                                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
+                            ]))
+                            elements.append(meso_table)
+                            elements.append(Spacer(1, 0.15*inch))
+                    
+                    if 'microcycles' in items:
+                        elements.append(Paragraph("Microciclos:", styles['BodyText']))
+                        micros = plan.get('microcycles', [])
+                        if micros:
+                            micro_data = [['Semana', 'Tipo', 'Volumen', 'Intensidad', 'Sesiones']]
+                            for micro in micros[:15]:
+                                micro_data.append([
+                                    f"Sem {micro.get('week_number', micro.get('week', 'N/A'))}",
+                                    micro.get('type', micro.get('focus', 'Normal')),
+                                    micro.get('volume', 'N/A'),
+                                    micro.get('intensity', 'N/A'),
+                                    str(len(micro.get('sessions', [])))
+                                ])
+                            micro_table = Table(micro_data, colWidths=[0.8*inch, 1.2*inch, 0.8*inch, 0.8*inch, 0.8*inch])
+                            micro_table.setStyle(TableStyle([
+                                ('BACKGROUND', (0, 0), (-1, 0), secondary_color),
+                                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                                ('FONTSIZE', (0, 0), (-1, -1), 8),
+                                ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
+                                ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+                                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
+                            ]))
+                            elements.append(micro_table)
+                            elements.append(Spacer(1, 0.15*inch))
+                    
+                    if 'sessions' in items:
+                        elements.append(Paragraph("Sesiones de Entrenamiento:", styles['BodyText']))
+                        # Get sessions from microcycles
+                        all_sessions = []
+                        for micro in plan.get('microcycles', [])[:5]:
+                            for session in micro.get('sessions', []):
+                                session['week'] = micro.get('week_number', micro.get('week', 'N/A'))
+                                all_sessions.append(session)
+                        
+                        if all_sessions:
+                            session_data = [['Semana', 'Día', 'Tipo', 'Duración', 'Intensidad']]
+                            for sess in all_sessions[:20]:
+                                session_data.append([
+                                    f"Sem {sess.get('week', 'N/A')}",
+                                    sess.get('day', sess.get('day_of_week', 'N/A')),
+                                    sess.get('type', sess.get('session_type', 'N/A')),
+                                    f"{sess.get('duration', sess.get('duration_minutes', 'N/A'))} min",
+                                    sess.get('intensity', 'N/A')
+                                ])
+                            session_table = Table(session_data, colWidths=[0.7*inch, 0.8*inch, 1.2*inch, 0.8*inch, 0.8*inch])
+                            session_table.setStyle(TableStyle([
+                                ('BACKGROUND', (0, 0), (-1, 0), accent_color),
+                                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                                ('FONTSIZE', (0, 0), (-1, -1), 7),
+                                ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
+                                ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+                                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
+                            ]))
+                            elements.append(session_table)
+                        else:
+                            elements.append(Paragraph("  Sin sesiones programadas", styles['BodyText']))
+                        elements.append(Spacer(1, 0.15*inch))
                     
                     if 'objectives' in items:
                         objectives = plan.get('objectives', [])
                         if objectives:
                             elements.append(Paragraph("Objetivos:", styles['BodyText']))
                             for obj in objectives[:5]:
-                                elements.append(Paragraph(f"  • {obj}", styles['BodyText']))
+                                if isinstance(obj, dict):
+                                    elements.append(Paragraph(f"  • {obj.get('title', obj.get('name', str(obj)))}", styles['BodyText']))
+                                else:
+                                    elements.append(Paragraph(f"  • {obj}", styles['BodyText']))
                     
-                    elements.append(Spacer(1, 0.15*inch))
+                    elements.append(Spacer(1, 0.2*inch))
+                
+                # Process standalone macrocycles
+                for macro in macrocycles[:2]:
+                    if not plans:  # Only show if no plans exist
+                        elements.append(Paragraph(f"Macrociclo: {macro.get('name', 'Sin nombre')}", styles['SubSection']))
+                        elements.append(Paragraph(f"Duración: {macro.get('duration_weeks', 'N/A')} semanas", styles['BodyText']))
+                        elements.append(Paragraph(f"Modelo: {macro.get('model', 'N/A')}", styles['BodyText']))
+                        elements.append(Spacer(1, 0.15*inch))
             else:
-                elements.append(Paragraph("Sin planes de periodización", styles['BodyText']))
+                elements.append(Paragraph("Sin planes de periodización registrados", styles['BodyText']))
         
         # ===== GRAPHIC PLAN =====
         elif section_id == 'graphic_plan':
