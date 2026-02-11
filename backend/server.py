@@ -1861,6 +1861,273 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
             else:
                 elements.append(Paragraph("Sin evaluaciones registradas", styles['CustomBody']))
         
+        # ===== MEDICAL HISTORY =====
+        elif section_id == 'medical' and request.athlete_id:
+            elements.append(Paragraph("HISTORIAL MÉDICO", styles['SectionTitle']))
+            
+            if 'diagnostic' in items:
+                elements.append(Paragraph("Diagnóstico General", styles['SubSection']))
+                diagnostic = await db.diagnostics.find_one(
+                    {"athlete_id": request.athlete_id}, {"_id": 0}
+                )
+                if diagnostic:
+                    elements.append(Paragraph(f"Estado general: {diagnostic.get('general_status', 'N/A')}", styles['CustomBody']))
+                    elements.append(Paragraph(f"Observaciones: {diagnostic.get('observations', 'N/A')}", styles['CustomBody']))
+                else:
+                    elements.append(Paragraph("Sin diagnóstico registrado", styles['CustomBody']))
+                elements.append(Spacer(1, 0.15*inch))
+            
+            if 'injuries' in items:
+                elements.append(Paragraph("Historial de Lesiones", styles['SubSection']))
+                injuries = await db.injuries.find(
+                    {"athlete_id": request.athlete_id}, {"_id": 0}
+                ).to_list(10)
+                if injuries:
+                    for injury in injuries[:5]:
+                        elements.append(Paragraph(
+                            f"• {injury.get('type', 'N/A')} - {injury.get('location', 'N/A')} ({injury.get('date', 'N/A')[:10] if injury.get('date') else 'N/A'})",
+                            styles['CustomBody']
+                        ))
+                else:
+                    elements.append(Paragraph("Sin lesiones registradas", styles['CustomBody']))
+                elements.append(Spacer(1, 0.15*inch))
+            
+            if 'diseases' in items:
+                elements.append(Paragraph("Enfermedades y Condiciones", styles['SubSection']))
+                diseases = await db.diseases.find(
+                    {"athlete_id": request.athlete_id}, {"_id": 0}
+                ).to_list(10)
+                if diseases:
+                    for disease in diseases[:5]:
+                        elements.append(Paragraph(
+                            f"• {disease.get('name', 'N/A')} - {disease.get('status', 'N/A')}",
+                            styles['CustomBody']
+                        ))
+                else:
+                    elements.append(Paragraph("Sin enfermedades registradas", styles['CustomBody']))
+            elements.append(Spacer(1, 0.2*inch))
+        
+        # ===== ANALYSIS =====
+        elif section_id == 'analysis' and request.athlete_id:
+            elements.append(Paragraph("ANÁLISIS PREVIO", styles['SectionTitle']))
+            
+            if 'previous_plan' in items:
+                elements.append(Paragraph("Análisis del Plan Anterior", styles['SubSection']))
+                prev_analysis = await db.previous_plan_analysis.find_one(
+                    {"athlete_id": request.athlete_id}, {"_id": 0}
+                )
+                if prev_analysis:
+                    elements.append(Paragraph(f"Cumplimiento: {prev_analysis.get('compliance_percentage', 'N/A')}%", styles['CustomBody']))
+                    elements.append(Paragraph(f"Resultados: {prev_analysis.get('results_summary', 'N/A')}", styles['CustomBody']))
+                else:
+                    elements.append(Paragraph("Sin análisis de plan anterior", styles['CustomBody']))
+                elements.append(Spacer(1, 0.15*inch))
+            
+            if 'competition_analysis' in items:
+                elements.append(Paragraph("Análisis de Competencias", styles['SubSection']))
+                comp_analysis = await db.competition_analysis.find(
+                    {"athlete_id": request.athlete_id}, {"_id": 0}
+                ).to_list(5)
+                if comp_analysis:
+                    for comp in comp_analysis:
+                        elements.append(Paragraph(
+                            f"• {comp.get('competition_name', 'N/A')} - Posición: {comp.get('position', 'N/A')}",
+                            styles['CustomBody']
+                        ))
+                else:
+                    elements.append(Paragraph("Sin análisis de competencias", styles['CustomBody']))
+            elements.append(Spacer(1, 0.2*inch))
+        
+        # ===== OBJECTIVES =====
+        elif section_id == 'objectives' and request.athlete_id:
+            elements.append(Paragraph("OBJETIVOS E INDICADORES", styles['SectionTitle']))
+            
+            objectives_data = await db.objectives.find_one(
+                {"athlete_id": request.athlete_id}, {"_id": 0}
+            )
+            
+            if objectives_data and objectives_data.get('objectives'):
+                objs = objectives_data['objectives']
+                
+                if 'general_objectives' in items:
+                    elements.append(Paragraph("Objetivos Generales", styles['SubSection']))
+                    general = [o for o in objs if o.get('type') == 'general' or o.get('category') == 'general']
+                    if general:
+                        for obj in general[:5]:
+                            elements.append(Paragraph(f"• {obj.get('title', obj.get('name', 'N/A'))}", styles['CustomBody']))
+                    else:
+                        elements.append(Paragraph("Sin objetivos generales definidos", styles['CustomBody']))
+                    elements.append(Spacer(1, 0.15*inch))
+                
+                if 'specific_objectives' in items:
+                    elements.append(Paragraph("Objetivos Específicos", styles['SubSection']))
+                    specific = [o for o in objs if o.get('type') != 'general' and o.get('category') != 'general']
+                    if specific:
+                        # Group by category
+                        categories = {}
+                        for obj in specific:
+                            cat = obj.get('category', 'Otros')
+                            if cat not in categories:
+                                categories[cat] = []
+                            categories[cat].append(obj)
+                        
+                        for cat, cat_objs in categories.items():
+                            elements.append(Paragraph(f"{cat.capitalize()}:", styles['CustomBody']))
+                            for obj in cat_objs[:3]:
+                                progress = obj.get('progress', 0)
+                                elements.append(Paragraph(
+                                    f"  • {obj.get('title', obj.get('name', 'N/A'))} - Progreso: {progress}%",
+                                    styles['CustomBody']
+                                ))
+                    else:
+                        elements.append(Paragraph("Sin objetivos específicos definidos", styles['CustomBody']))
+                    elements.append(Spacer(1, 0.15*inch))
+                
+                if 'kpis' in items:
+                    elements.append(Paragraph("Indicadores de Rendimiento (KPIs)", styles['SubSection']))
+                    # Collect all indicators from objectives
+                    kpis = []
+                    for obj in objs:
+                        for ind in obj.get('indicators', []):
+                            kpis.append(ind)
+                    
+                    if kpis:
+                        kpi_data = [['Indicador', 'Base', 'Meta', 'Actual']]
+                        for kpi in kpis[:8]:
+                            kpi_data.append([
+                                kpi.get('name', 'N/A'),
+                                str(kpi.get('baseline', 'N/A')),
+                                str(kpi.get('target', 'N/A')),
+                                str(kpi.get('current', 'N/A'))
+                            ])
+                        table = Table(kpi_data, colWidths=[2.5*inch, 1*inch, 1*inch, 1*inch])
+                        table.setStyle(TableStyle([
+                            ('BACKGROUND', (0, 0), (-1, 0), secondary_color),
+                            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                            ('FONTSIZE', (0, 0), (-1, -1), 9),
+                            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
+                            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
+                        ]))
+                        elements.append(table)
+                    else:
+                        elements.append(Paragraph("Sin indicadores definidos", styles['CustomBody']))
+            else:
+                elements.append(Paragraph("Sin objetivos registrados", styles['CustomBody']))
+            elements.append(Spacer(1, 0.2*inch))
+        
+        # ===== TRAINING METHODS =====
+        elif section_id == 'training_methods' and request.athlete_id:
+            elements.append(Paragraph("MEDIOS DE ENTRENAMIENTO", styles['SectionTitle']))
+            
+            if 'exercises' in items:
+                elements.append(Paragraph("Ejercicios Seleccionados", styles['SubSection']))
+                # Get exercises assigned to athlete
+                athlete_exercises = await db.athlete_exercises.find(
+                    {"athlete_id": request.athlete_id}, {"_id": 0}
+                ).to_list(20)
+                if athlete_exercises:
+                    ex_data = [['Ejercicio', 'Categoría', 'Músculo Principal']]
+                    for ex in athlete_exercises[:10]:
+                        ex_data.append([
+                            ex.get('name', 'N/A'),
+                            ex.get('category', 'N/A'),
+                            ex.get('primary_muscle', 'N/A')
+                        ])
+                    table = Table(ex_data, colWidths=[2.5*inch, 1.5*inch, 1.5*inch])
+                    table.setStyle(TableStyle([
+                        ('BACKGROUND', (0, 0), (-1, 0), accent_color),
+                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                        ('FONTSIZE', (0, 0), (-1, -1), 9),
+                        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
+                        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
+                    ]))
+                    elements.append(table)
+                else:
+                    elements.append(Paragraph("Sin ejercicios asignados", styles['CustomBody']))
+                elements.append(Spacer(1, 0.15*inch))
+            
+            if 'methods' in items:
+                elements.append(Paragraph("Métodos de Entrenamiento", styles['SubSection']))
+                methods = await db.training_methods.find(
+                    {"athlete_id": request.athlete_id}, {"_id": 0}
+                ).to_list(10)
+                if methods:
+                    for method in methods[:5]:
+                        elements.append(Paragraph(
+                            f"• {method.get('name', 'N/A')} - {method.get('description', 'N/A')[:50]}",
+                            styles['CustomBody']
+                        ))
+                else:
+                    elements.append(Paragraph("Sin métodos definidos", styles['CustomBody']))
+            elements.append(Spacer(1, 0.2*inch))
+        
+        # ===== CONTROL =====
+        elif section_id == 'control' and request.athlete_id:
+            elements.append(Paragraph("CONTROL Y SEGUIMIENTO", styles['SectionTitle']))
+            
+            if 'load_monitoring' in items:
+                elements.append(Paragraph("Monitoreo de Carga", styles['SubSection']))
+                load_data = await db.training_load.find(
+                    {"athlete_id": request.athlete_id}, {"_id": 0}
+                ).sort("date", -1).to_list(10)
+                if load_data:
+                    load_table = [['Fecha', 'Carga Planificada', 'Carga Real', 'RPE']]
+                    for load in load_data[:7]:
+                        load_table.append([
+                            load.get('date', 'N/A')[:10] if load.get('date') else 'N/A',
+                            str(load.get('planned_load', 'N/A')),
+                            str(load.get('actual_load', 'N/A')),
+                            str(load.get('rpe', 'N/A'))
+                        ])
+                    table = Table(load_table, colWidths=[1.2*inch, 1.3*inch, 1.3*inch, 0.8*inch])
+                    table.setStyle(TableStyle([
+                        ('BACKGROUND', (0, 0), (-1, 0), primary_color),
+                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                        ('FONTSIZE', (0, 0), (-1, -1), 9),
+                        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
+                        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
+                    ]))
+                    elements.append(table)
+                else:
+                    elements.append(Paragraph("Sin datos de carga registrados", styles['CustomBody']))
+                elements.append(Spacer(1, 0.15*inch))
+            
+            if 'training_control' in items:
+                elements.append(Paragraph("Control de Entrenamiento", styles['SubSection']))
+                control_data = await db.training_control.find_one(
+                    {"athlete_id": request.athlete_id}, {"_id": 0}
+                )
+                if control_data:
+                    elements.append(Paragraph(f"Cumplimiento: {control_data.get('compliance', 'N/A')}%", styles['CustomBody']))
+                    elements.append(Paragraph(f"ACWR: {control_data.get('acwr', 'N/A')}", styles['CustomBody']))
+                    elements.append(Paragraph(f"Estado: {control_data.get('status', 'N/A')}", styles['CustomBody']))
+                else:
+                    elements.append(Paragraph("Sin datos de control", styles['CustomBody']))
+                elements.append(Spacer(1, 0.15*inch))
+            
+            if 'alerts' in items:
+                elements.append(Paragraph("Alertas y Recomendaciones", styles['SubSection']))
+                alerts = await db.alerts.find(
+                    {"athlete_id": request.athlete_id, "active": True}, {"_id": 0}
+                ).to_list(5)
+                if alerts:
+                    for alert in alerts:
+                        severity = alert.get('severity', 'info')
+                        icon = "⚠️" if severity == 'warning' else "ℹ️" if severity == 'info' else "🔴"
+                        elements.append(Paragraph(
+                            f"{icon} {alert.get('message', 'N/A')}",
+                            styles['CustomBody']
+                        ))
+                else:
+                    elements.append(Paragraph("Sin alertas activas", styles['CustomBody']))
+            elements.append(Spacer(1, 0.2*inch))
+        
         # ===== PERIODIZATION =====
         elif section_id == 'periodization':
             elements.append(Paragraph("PLAN DE PERIODIZACIÓN", styles['SectionTitle']))
