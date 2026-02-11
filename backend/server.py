@@ -1967,11 +1967,14 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         elif section_id == 'objectives' :
             elements.append(Paragraph("OBJETIVOS E INDICADORES", styles['SectionTitle']))
             
-            objectives_data = await db.objectives.find_one(
-                {"athlete_id": request.athlete_id}, {"_id": 0}
-            )
-            
-            if objectives_data and objectives_data.get('objectives'):
+            if not request.athlete_id:
+                elements.append(Paragraph("Seleccione un atleta para ver objetivos", styles['CustomBody']))
+            else:
+                objectives_data = await db.objectives.find_one(
+                    {"athlete_id": request.athlete_id}, {"_id": 0}
+                )
+                
+                if objectives_data and objectives_data.get('objectives'):
                 objs = objectives_data['objectives']
                 
                 if 'general_objectives' in items:
