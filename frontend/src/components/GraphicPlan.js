@@ -333,6 +333,9 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName }) => {
     loadEvents();
   }, [athleteId]);
 
+  // Total weeks based on cycle duration - MUST be defined before useMemo that uses it
+  const totalWeeks = CYCLE_DURATIONS[cycleDuration].weeks;
+
   // Calculate which weeks have events
   const eventsByWeek = useMemo(() => {
     const result = {};
@@ -355,8 +358,6 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName }) => {
     
     return result;
   }, [events, totalWeeks]);
-
-  const totalWeeks = CYCLE_DURATIONS[cycleDuration].weeks;
   
   // Generate week numbers for display
   const weeks = useMemo(() => {
