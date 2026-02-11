@@ -1734,6 +1734,60 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                     elements.append(Paragraph("Sin afiliaciones registradas", styles['CustomBody']))
                 elements.append(Spacer(1, 0.2*inch))
         
+        # ===== CHARACTERIZATION =====
+        elif section_id == 'characterization' and request.athlete_id:
+            elements.append(Paragraph("CARACTERIZACIÓN", styles['SectionTitle']))
+            
+            if 'sport_char' in items:
+                sport_char = await db.sport_characterizations.find_one(
+                    {"athlete_id": request.athlete_id}, {"_id": 0}
+                )
+                if sport_char:
+                    elements.append(Paragraph("Caracterización del Deporte", styles['SubSection']))
+                    char_data = [
+                        ['Deporte:', sport_char.get('sportName', 'N/A')],
+                        ['Organización del movimiento:', sport_char.get('movementOrganization', 'N/A')],
+                        ['Energía predominante:', sport_char.get('predominantEnergy', 'N/A')],
+                        ['Tipo de competencia:', sport_char.get('competitionType', 'N/A')],
+                    ]
+                    table = Table(char_data, colWidths=[2*inch, 3.5*inch])
+                    table.setStyle(TableStyle([
+                        ('BACKGROUND', (0, 0), (0, -1), bg_color),
+                        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+                        ('FONTSIZE', (0, 0), (-1, -1), 9),
+                        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
+                        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                    ]))
+                    elements.append(table)
+                else:
+                    elements.append(Paragraph("Sin caracterización del deporte", styles['CustomBody']))
+                elements.append(Spacer(1, 0.15*inch))
+            
+            if 'athlete_char' in items:
+                athlete_char = await db.athlete_characterizations.find_one(
+                    {"athlete_id": request.athlete_id}, {"_id": 0}
+                )
+                if athlete_char:
+                    elements.append(Paragraph("Caracterización del Deportista", styles['SubSection']))
+                    char_data = [
+                        ['Nivel:', athlete_char.get('level', 'N/A')],
+                        ['Experiencia:', athlete_char.get('experience', 'N/A')],
+                        ['Perfil técnico:', athlete_char.get('technicalProfile', 'N/A')],
+                        ['Perfil físico:', athlete_char.get('physicalProfile', 'N/A')],
+                    ]
+                    table = Table(char_data, colWidths=[2*inch, 3.5*inch])
+                    table.setStyle(TableStyle([
+                        ('BACKGROUND', (0, 0), (0, -1), bg_color),
+                        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+                        ('FONTSIZE', (0, 0), (-1, -1), 9),
+                        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
+                        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                    ]))
+                    elements.append(table)
+                else:
+                    elements.append(Paragraph("Sin caracterización del deportista", styles['CustomBody']))
+            elements.append(Spacer(1, 0.2*inch))
+        
         # ===== ANTHROPOMETRIC DATA =====
         elif section_id == 'anthropometric' and request.athlete_id:
             elements.append(Paragraph("DATOS ANTROPOMÉTRICOS", styles['SectionTitle']))
