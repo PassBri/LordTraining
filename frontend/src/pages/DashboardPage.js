@@ -743,57 +743,6 @@ const DashboardPage = () => {
         </div>
       );
     }
-                  </Button>
-                </div>
-              </div>
-              
-              {/* Lista de atletas */}
-              <div className="space-y-3">
-                {athletes.length === 0 ? (
-                  <div className="text-center py-12 text-slate-400">
-                    <Users className="w-16 h-16 mx-auto mb-3 opacity-30" />
-                    <p className="font-medium">No hay atletas registrados</p>
-                    <p className="text-sm mt-1">Agrega tu primer atleta usando el formulario arriba</p>
-                  </div>
-                ) : (
-                  athletes.map(athlete => (
-                    <div key={athlete.id} className={`flex items-center justify-between p-4 bg-white border rounded-xl hover:shadow-md transition-all duration-200 ${selectedAthleteId === athlete.id ? 'border-indigo-400 ring-2 ring-indigo-200' : 'border-slate-200 hover:border-indigo-200'}`}>
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-full flex items-center justify-center shadow-sm">
-                          <span className="text-white font-bold text-lg">{athlete.name?.charAt(0)}</span>
-                        </div>
-                        <div>
-                          <p className="font-semibold text-slate-800">{athlete.name}</p>
-                          <p className="text-sm text-slate-500">{athlete.sport} • {athlete.level || 'Sin nivel'} • {athlete.age} años</p>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          variant={selectedAthleteId === athlete.id ? "default" : "outline"} 
-                          size="sm" 
-                          onClick={() => setSelectedAthleteId(selectedAthleteId === athlete.id ? null : athlete.id)} 
-                          className={selectedAthleteId === athlete.id ? "bg-indigo-500" : "border-indigo-200 text-indigo-600 hover:bg-indigo-50"}
-                        >
-                          {selectedAthleteId === athlete.id ? '✓ Seleccionado' : 'Seleccionar'}
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="text-rose-500 hover:text-rose-600 hover:bg-rose-50"
-                          onClick={() => handleDeleteAthlete(athlete.id)}
-                        >
-                          Eliminar
-                        </Button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      );
-    }
 
     // Render Ejercicios section - Usando componente completo
     if (activeDataSection === 'exercises-lib') {
