@@ -2450,16 +2450,17 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                 # Process standalone macrocycles
                 for macro in macrocycles[:2]:
                     if not plans:  # Only show if no plans exist
-                        elements.append(Paragraph(f"Macrociclo: {macro.get('name', 'Sin nombre')}", styles['SubSection']))
-                        elements.append(Paragraph(f"Duración: {macro.get('duration_weeks', 'N/A')} semanas", styles['CustomBody']))
-                        elements.append(Paragraph(f"Modelo: {macro.get('model', 'N/A')}", styles['CustomBody']))
+                        elements.append(Paragraph(f"Macrociclo: {macro.get('name', 'Sin nombre')}", styles['SubSectionTitle']))
+                        elements.extend(create_qa_block("Duración total", f"{macro.get('duration_weeks', 'N/A')} semanas", section_id))
+                        elements.extend(create_qa_block("Modelo de periodización", macro.get('model', 'N/A'), section_id))
                         elements.append(Spacer(1, 0.15*inch))
             else:
-                elements.append(Paragraph("Sin planes de periodización registrados", styles['CustomBody']))
+                elements.append(Paragraph("Sin planes de periodización registrados", styles['NoDataText']))
         
         # ===== GRAPHIC PLAN =====
         elif section_id == 'graphic_plan':
-            elements.append(Paragraph("PLAN GRÁFICO DE ENTRENAMIENTO", styles['SectionTitle']))
+            elements.append(create_section_header("📊 PLAN GRÁFICO DE ENTRENAMIENTO", section_id))
+            elements.append(Spacer(1, 0.15*inch))
             
             # Load graphic plan data from database
             graphic_plan_data = None
@@ -2473,7 +2474,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
             plan_data = request.periodization_data or graphic_plan_data or {}
             
             if 'training_table' in items:
-                elements.append(Paragraph("Tabla de Planificación Semanal", styles['SubSection']))
+                elements.append(Paragraph("Tabla de Planificación Semanal", styles['SubSectionTitle']))
                 
                 # Get data from graphic plan if available
                 intensity_data = plan_data.get('intensity', {})
