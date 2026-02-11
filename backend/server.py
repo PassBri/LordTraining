@@ -1831,36 +1831,24 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         
         # ===== ATHLETE INFO =====
         if section_id == 'athlete_info':
-            elements.append(Paragraph("INFORMACIÓN DEL ATLETA", styles['SectionTitle']))
+            elements.append(create_section_header("📋 INFORMACIÓN DEL ATLETA", section_id))
+            elements.append(Spacer(1, 0.15*inch))
             
             if athlete:
                 if 'basic_info' in items:
-                    elements.append(Paragraph("Datos Básicos", styles['SubSection']))
-                    data = [
-                        ['Nombre:', athlete.get('name', 'N/A')],
-                        ['Deporte:', athlete.get('sport', 'N/A').capitalize() if athlete.get('sport') else 'N/A'],
-                        ['Edad:', f"{athlete.get('age', 'N/A')} años" if athlete.get('age') else 'N/A'],
-                        ['Nivel:', athlete.get('level', 'N/A').capitalize() if athlete.get('level') else 'N/A'],
-                    ]
-                    table = Table(data, colWidths=[1.5*inch, 4*inch])
-                    table.setStyle(TableStyle([
-                        ('BACKGROUND', (0, 0), (0, -1), bg_color),
-                        ('BACKGROUND', (1, 0), (1, -1), colors.white),
-                        ('TEXTCOLOR', (0, 0), (0, -1), primary_color),
-                        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-                        ('FONTSIZE', (0, 0), (-1, -1), 10),
-                        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-                        ('TOPPADDING', (0, 0), (-1, -1), 8),
-                        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
-                    ]))
-                    elements.append(table)
-                    elements.append(Spacer(1, 0.2*inch))
+                    elements.append(Paragraph("Datos Básicos del Deportista", styles['SubSectionTitle']))
+                    elements.extend(create_qa_block("Nombre completo", athlete.get('name', ''), section_id))
+                    elements.extend(create_qa_block("Deporte que practica", athlete.get('sport', '').capitalize() if athlete.get('sport') else '', section_id))
+                    elements.extend(create_qa_block("Edad", f"{athlete.get('age', '')} años" if athlete.get('age') else '', section_id))
+                    elements.extend(create_qa_block("Nivel competitivo", athlete.get('level', '').capitalize() if athlete.get('level') else '', section_id))
+                    if athlete.get('email'):
+                        elements.extend(create_qa_block("Email de contacto", athlete.get('email', ''), section_id))
+                    elements.append(Spacer(1, 0.1*inch))
             
                 if 'affiliations' in items:
-                    elements.append(Paragraph("Afiliaciones", styles['SubSection']))
+                    elements.append(Paragraph("Afiliaciones a Entidades", styles['SubSectionTitle']))
                     affiliations = athlete.get('affiliations', []) if athlete else []
                     if affiliations:
-                        # Load entity names
                         entity_names = []
                         for aff_id in affiliations:
                             entity = await db.entities.find_one({"id": aff_id}, {"_id": 0, "name": 1, "entity_type": 1})
