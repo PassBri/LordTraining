@@ -312,6 +312,50 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName }) => {
     }
   }, [periodizationData, hasImportedData, importPeriodizationData]);
 
+  // Load calendar events
+  useEffect(() => {
+    const loadEvents = async () => {
+      if (!athleteId) return;
+      try {
+        const token = localStorage.getItem('train_token');
+        const response = await axios.get(
+          `${API_URL}/api/events/${athleteId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (response.data?.events) {
+          setEvents(response.data.events);
+        }
+      } catch (error) {
+        // No events found - that's ok
+        console.log('No events loaded');
+      }
+    };
+    loadEvents();
+  }, [athleteId]);
+
+  // Calculate which weeks have events
+  const eventsByWeek = useMemo(() => {
+    const result = {};
+    const startDate = new Date();
+    startDate.setMonth(0, 1); // Start of current year
+    
+    events.forEach(event => {
+      if (event.date) {
+        const eventDate = new Date(event.date);
+        const diffTime = Math.abs(eventDate - startDate);
+        const diffWeeks = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 7));
+        const weekNum = Math.min(diffWeeks, totalWeeks);
+        
+        if (!result[weekNum]) {
+          result[weekNum] = [];
+        }
+        result[weekNum].push(event);
+      }
+    });
+    
+    return result;
+  }, [events, totalWeeks]);
+
   const totalWeeks = CYCLE_DURATIONS[cycleDuration].weeks;
   
   // Generate week numbers for display
