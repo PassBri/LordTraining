@@ -2740,7 +2740,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                         
                         table = Table(data, colWidths=[1.2*inch, 2.5*inch, 2*inch])
                         table.setStyle(TableStyle([
-                            ('BACKGROUND', (0, 0), (-1, 0), accent_color),
+                            ('BACKGROUND', (0, 0), (-1, 0), get_section_color('calendar')),
                             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
                             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
                             ('FONTSIZE', (0, 0), (-1, -1), 9),
@@ -2750,7 +2750,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                         elements.append(table)
                         elements.append(Spacer(1, 0.2*inch))
             else:
-                elements.append(Paragraph("Sin eventos programados", styles['CustomBody']))
+                elements.append(Paragraph("Sin eventos programados", styles['NoDataText']))
         
         elements.append(Spacer(1, 0.3*inch))
     
