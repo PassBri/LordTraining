@@ -5,6 +5,10 @@ import { Button } from '../components/ui/button';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../components/ui/select';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
 import {
+  BarChart, Bar, LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, 
+  Tooltip, Legend, ResponsiveContainer, ComposedChart
+} from 'recharts';
+import {
   Save,
   Loader2,
   Download,
@@ -22,7 +26,9 @@ import {
   Maximize2,
   Minimize2,
   FileInput,
-  RefreshCw
+  RefreshCw,
+  BarChart3,
+  TrendingUp
 } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
