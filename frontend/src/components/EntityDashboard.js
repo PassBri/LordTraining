@@ -48,7 +48,7 @@ const EntityDashboard = ({ onNavigate }) => {
       const [entitiesRes, athletesRes, eventsRes] = await Promise.all([
         axios.get(`${API_URL}/api/entities`, { headers }),
         axios.get(`${API_URL}/api/athletes`, { headers }),
-        axios.get(`${API_URL}/api/events`, { headers }).catch(() => ({ data: { events: [] } }))
+        axios.get(`${API_URL}/api/events-calendar/all`, { headers }).catch(() => ({ data: { events: [] } }))
       ]);
 
       setEntities(entitiesRes.data || []);
