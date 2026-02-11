@@ -1856,11 +1856,11 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                                 entity_names.append(f"{entity.get('name')} ({entity.get('entity_type', '').capitalize()})")
                         if entity_names:
                             for name in entity_names:
-                                elements.append(Paragraph(f"• {name}", styles['CustomBody']))
+                                elements.append(Paragraph(f"• {name}", styles['AnswerText']))
                         else:
-                            elements.append(Paragraph("Sin afiliaciones registradas", styles['CustomBody']))
+                            elements.append(Paragraph("Sin afiliaciones registradas", styles['NoDataText']))
                     else:
-                        elements.append(Paragraph("Sin afiliaciones registradas", styles['CustomBody']))
+                        elements.append(Paragraph("Sin afiliaciones registradas", styles['NoDataText']))
                     elements.append(Spacer(1, 0.1*inch))
             else:
                 # No athlete selected
