@@ -2101,53 +2101,57 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         elif section_id == 'control' :
             elements.append(Paragraph("CONTROL Y SEGUIMIENTO", styles['SectionTitle']))
             
-            if 'load_monitoring' in items:
-                elements.append(Paragraph("Monitoreo de Carga", styles['SubSection']))
-                load_data = await db.training_load.find(
-                    {"athlete_id": request.athlete_id}, {"_id": 0}
-                ).sort("date", -1).to_list(10)
-                if load_data:
-                    load_table = [['Fecha', 'Carga Planificada', 'Carga Real', 'RPE']]
-                    for load in load_data[:7]:
-                        load_table.append([
-                            load.get('date', 'N/A')[:10] if load.get('date') else 'N/A',
-                            str(load.get('planned_load', 'N/A')),
-                            str(load.get('actual_load', 'N/A')),
-                            str(load.get('rpe', 'N/A'))
-                        ])
-                    table = Table(load_table, colWidths=[1.2*inch, 1.3*inch, 1.3*inch, 0.8*inch])
-                    table.setStyle(TableStyle([
-                        ('BACKGROUND', (0, 0), (-1, 0), primary_color),
-                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-                        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                        ('FONTSIZE', (0, 0), (-1, -1), 9),
-                        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
-                        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-                        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
-                    ]))
-                    elements.append(table)
-                else:
-                    elements.append(Paragraph("Sin datos de carga registrados", styles['CustomBody']))
-                elements.append(Spacer(1, 0.15*inch))
-            
-            if 'training_control' in items:
-                elements.append(Paragraph("Control de Entrenamiento", styles['SubSection']))
-                control_data = await db.training_control.find_one(
-                    {"athlete_id": request.athlete_id}, {"_id": 0}
-                )
-                if control_data:
-                    elements.append(Paragraph(f"Cumplimiento: {control_data.get('compliance', 'N/A')}%", styles['CustomBody']))
-                    elements.append(Paragraph(f"ACWR: {control_data.get('acwr', 'N/A')}", styles['CustomBody']))
-                    elements.append(Paragraph(f"Estado: {control_data.get('status', 'N/A')}", styles['CustomBody']))
-                else:
-                    elements.append(Paragraph("Sin datos de control", styles['CustomBody']))
-                elements.append(Spacer(1, 0.15*inch))
-            
-            if 'alerts' in items:
-                elements.append(Paragraph("Alertas y Recomendaciones", styles['SubSection']))
-                alerts = await db.alerts.find(
-                    {"athlete_id": request.athlete_id, "active": True}, {"_id": 0}
-                ).to_list(5)
+            if not request.athlete_id:
+                elements.append(Paragraph("Seleccione un atleta para ver control y seguimiento", styles['CustomBody']))
+            else:
+                if 'load_monitoring' in items:
+                    elements.append(Paragraph("Monitoreo de Carga", styles['SubSection']))
+                    load_data = await db.training_load.find(
+                        {"athlete_id": request.athlete_id}, {"_id": 0}
+                    ).sort("date", -1).to_list(10)
+                    if load_data:
+                        load_table = [['Fecha', 'Carga Planificada', 'Carga Real', 'RPE']]
+                        for load in load_data[:7]:
+                            load_table.append([
+                                load.get('date', 'N/A')[:10] if load.get('date') else 'N/A',
+                                str(load.get('planned_load', 'N/A')),
+                                str(load.get('actual_load', 'N/A')),
+                                str(load.get('rpe', 'N/A'))
+                            ])
+                        table = Table(load_table, colWidths=[1.2*inch, 1.3*inch, 1.3*inch, 0.8*inch])
+                        table.setStyle(TableStyle([
+                            ('BACKGROUND', (0, 0), (-1, 0), primary_color),
+                            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                            ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                            ('FONTSIZE', (0, 0), (-1, -1), 9),
+                            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
+                            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
+                        ]))
+                        elements.append(table)
+                    else:
+                        elements.append(Paragraph("Sin datos de carga registrados", styles['CustomBody']))
+                    elements.append(Spacer(1, 0.15*inch))
+                
+                if 'training_control' in items:
+                    elements.append(Paragraph("Control de Entrenamiento", styles['SubSection']))
+                    control_data = await db.training_control.find_one(
+                        {"athlete_id": request.athlete_id}, {"_id": 0}
+                    )
+                    if control_data:
+                        elements.append(Paragraph(f"Cumplimiento: {control_data.get('compliance', 'N/A')}%", styles['CustomBody']))
+                        elements.append(Paragraph(f"ACWR: {control_data.get('acwr', 'N/A')}", styles['CustomBody']))
+                        elements.append(Paragraph(f"Estado: {control_data.get('status', 'N/A')}", styles['CustomBody']))
+                    else:
+                        elements.append(Paragraph("Sin datos de control", styles['CustomBody']))
+                    elements.append(Spacer(1, 0.15*inch))
+                
+                if 'alerts' in items:
+                    elements.append(Paragraph("Alertas y Recomendaciones", styles['SubSection']))
+                    alerts = await db.alerts.find(
+                        {"athlete_id": request.athlete_id, "active": True}, {"_id": 0}
+                    ).to_list(5)
                 if alerts:
                     for alert in alerts:
                         severity = alert.get('severity', 'info')
