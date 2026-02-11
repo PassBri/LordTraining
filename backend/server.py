@@ -2378,59 +2378,39 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                         elements.append(Paragraph("Mesociclos:", styles['CustomBody']))
                         mesos = plan.get('mesocycles', [])
                         if mesos:
-                            # Create a table for mesocycles
-                            meso_data = [['Nombre', 'Tipo', 'Semanas', 'Intensidad']]
-                            for meso in mesos[:10]:
-                                meso_data.append([
+                            table = create_data_table(
+                                ['Nombre', 'Tipo', 'Semanas', 'Intensidad'],
+                                [[
                                     meso.get('name', 'N/A'),
                                     meso.get('type', 'N/A'),
-                                    str(meso.get('duration_weeks', meso.get('weeks', 'N/A'))),
+                                    str(meso.get('duration_weeks', meso.get('weeks', '-'))),
                                     meso.get('intensity', 'N/A')
-                                ])
-                            meso_table = Table(meso_data, colWidths=[1.8*inch, 1.2*inch, 0.8*inch, 1*inch])
-                            meso_table.setStyle(TableStyle([
-                                ('BACKGROUND', (0, 0), (-1, 0), primary_color),
-                                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-                                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-                                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                                ('FONTSIZE', (0, 0), (-1, -1), 8),
-                                ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
-                                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-                                ('TOPPADDING', (0, 0), (-1, -1), 5),
-                                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
-                            ]))
-                            elements.append(meso_table)
+                                ] for meso in mesos[:10]],
+                                section_id
+                            )
+                            elements.append(table)
                             elements.append(Spacer(1, 0.15*inch))
                     
                     if 'microcycles' in items:
-                        elements.append(Paragraph("Microciclos:", styles['CustomBody']))
+                        elements.append(Paragraph("Microciclos (Semanas de Entrenamiento):", styles['QuestionText']))
                         micros = plan.get('microcycles', [])
                         if micros:
-                            micro_data = [['Semana', 'Tipo', 'Volumen', 'Intensidad', 'Sesiones']]
-                            for micro in micros[:15]:
-                                micro_data.append([
-                                    f"Sem {micro.get('week_number', micro.get('week', 'N/A'))}",
+                            table = create_data_table(
+                                ['Semana', 'Tipo/Enfoque', 'Volumen', 'Intensidad', 'Sesiones'],
+                                [[
+                                    f"Sem {micro.get('week_number', micro.get('week', '-'))}",
                                     micro.get('type', micro.get('focus', 'Normal')),
-                                    micro.get('volume', 'N/A'),
-                                    micro.get('intensity', 'N/A'),
+                                    str(micro.get('volume', '-')),
+                                    str(micro.get('intensity', '-')),
                                     str(len(micro.get('sessions', [])))
-                                ])
-                            micro_table = Table(micro_data, colWidths=[0.8*inch, 1.2*inch, 0.8*inch, 0.8*inch, 0.8*inch])
-                            micro_table.setStyle(TableStyle([
-                                ('BACKGROUND', (0, 0), (-1, 0), secondary_color),
-                                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-                                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-                                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                                ('FONTSIZE', (0, 0), (-1, -1), 8),
-                                ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
-                                ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-                                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
-                            ]))
-                            elements.append(micro_table)
+                                ] for micro in micros[:15]],
+                                section_id
+                            )
+                            elements.append(table)
                             elements.append(Spacer(1, 0.15*inch))
                     
                     if 'sessions' in items:
-                        elements.append(Paragraph("Sesiones de Entrenamiento:", styles['CustomBody']))
+                        elements.append(Paragraph("Sesiones de Entrenamiento Programadas:", styles['QuestionText']))
                         # Get sessions from microcycles
                         all_sessions = []
                         for micro in plan.get('microcycles', [])[:5]:
@@ -2439,40 +2419,31 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                                 all_sessions.append(session)
                         
                         if all_sessions:
-                            session_data = [['Semana', 'Día', 'Tipo', 'Duración', 'Intensidad']]
-                            for sess in all_sessions[:20]:
-                                session_data.append([
-                                    f"Sem {sess.get('week', 'N/A')}",
-                                    sess.get('day', sess.get('day_of_week', 'N/A')),
-                                    sess.get('type', sess.get('session_type', 'N/A')),
-                                    f"{sess.get('duration', sess.get('duration_minutes', 'N/A'))} min",
-                                    sess.get('intensity', 'N/A')
-                                ])
-                            session_table = Table(session_data, colWidths=[0.7*inch, 0.8*inch, 1.2*inch, 0.8*inch, 0.8*inch])
-                            session_table.setStyle(TableStyle([
-                                ('BACKGROUND', (0, 0), (-1, 0), accent_color),
-                                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-                                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-                                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                                ('FONTSIZE', (0, 0), (-1, -1), 7),
-                                ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
-                                ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
-                                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
-                            ]))
-                            elements.append(session_table)
+                            table = create_data_table(
+                                ['Semana', 'Día', 'Tipo', 'Duración', 'Intensidad'],
+                                [[
+                                    f"Sem {sess.get('week', '-')}",
+                                    sess.get('day', sess.get('day_of_week', '-')),
+                                    sess.get('type', sess.get('session_type', '-')),
+                                    f"{sess.get('duration', sess.get('duration_minutes', '-'))} min",
+                                    sess.get('intensity', '-')
+                                ] for sess in all_sessions[:20]],
+                                section_id
+                            )
+                            elements.append(table)
                         else:
-                            elements.append(Paragraph("  Sin sesiones programadas", styles['CustomBody']))
+                            elements.append(Paragraph("Sin sesiones programadas", styles['NoDataText']))
                         elements.append(Spacer(1, 0.15*inch))
                     
                     if 'objectives' in items:
                         objectives = plan.get('objectives', [])
                         if objectives:
-                            elements.append(Paragraph("Objetivos:", styles['CustomBody']))
+                            elements.append(Paragraph("Objetivos del Plan:", styles['QuestionText']))
                             for obj in objectives[:5]:
                                 if isinstance(obj, dict):
-                                    elements.append(Paragraph(f"  • {obj.get('title', obj.get('name', str(obj)))}", styles['CustomBody']))
+                                    elements.append(Paragraph(f"  • {obj.get('title', obj.get('name', str(obj)))}", styles['AnswerText']))
                                 else:
-                                    elements.append(Paragraph(f"  • {obj}", styles['CustomBody']))
+                                    elements.append(Paragraph(f"  • {obj}", styles['AnswerText']))
                     
                     elements.append(Spacer(1, 0.2*inch))
                 
