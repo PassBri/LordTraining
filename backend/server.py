@@ -2073,7 +2073,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         
         # ===== ANALYSIS =====
         elif section_id == 'analysis':
-            elements.append(create_section_header("🔍 ANÁLISIS PREVIO", section_id))
+            elements.append(create_section_header("ANÁLISIS PREVIO", section_id))
             elements.append(Spacer(1, 0.15*inch))
             
             if not request.athlete_id:
@@ -2083,42 +2083,40 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                     elements.append(Paragraph("Análisis del Plan Anterior", styles['SubSectionTitle']))
                     prev_analysis = await db.previous_plan_analysis.find_one(
                         {"athlete_id": request.athlete_id}, {"_id": 0}
-                    )
-                    if prev_analysis:
-                        # Objetivos y Cumplimiento
-                        elements.extend(create_qa_block("¿Cuáles eran los objetivos al inicio del plan de entrenamiento?", prev_analysis.get('initialObjectives', ''), section_id))
-                        elements.extend(create_qa_block("¿En qué medida se alcanzaron estos objetivos?", prev_analysis.get('achievementLevel', ''), section_id))
-                        elements.extend(create_qa_block("Nivel de cumplimiento de objetivos planteados", prev_analysis.get('objectivesCompliance', ''), section_id))
-                        
-                        # Rendimiento
-                        elements.extend(create_qa_block("¿Cómo evolucionó el rendimiento en los indicadores clave?", prev_analysis.get('performanceIndicators', ''), section_id))
-                        elements.extend(create_qa_block("Resultados obtenidos - nivel de rendimiento de la temporada anterior", prev_analysis.get('performanceResults', ''), section_id))
-                        
-                        # Recuperación
-                        elements.extend(create_qa_block("¿Cómo calificarías el proceso de recuperación entre sesiones?", prev_analysis.get('recoveryProcess', ''), section_id))
-                        elements.extend(create_qa_block("¿Experimentaste algún periodo de fatiga prolongada?", prev_analysis.get('fatiguePeriods', ''), section_id))
-                        
-                        # Lesiones
-                        elements.extend(create_qa_block("¿Sufriste alguna lesión durante el plan?", prev_analysis.get('injuries', ''), section_id))
-                        elements.extend(create_qa_block("¿Cómo afectaron las lesiones tu entrenamiento?", prev_analysis.get('injuryImpact', ''), section_id))
-                        
-                        # Fortalezas y Debilidades
-                        elements.extend(create_qa_block("Aspectos positivos del plan", prev_analysis.get('planPositiveAspects', ''), section_id))
-                        elements.extend(create_qa_block("Áreas de mejora del plan", prev_analysis.get('planImprovementAreas', ''), section_id))
-                        
-                        # Nutrición
-                        elements.extend(create_qa_block("Hábitos de nutrición", prev_analysis.get('nutritionHabits', ''), section_id))
-                        elements.extend(create_qa_block("Hábitos de hidratación", prev_analysis.get('hydrationHabits', ''), section_id))
-                        
-                        # Psicológico
-                        elements.extend(create_qa_block("Manejo del estrés", prev_analysis.get('stressManagement', ''), section_id))
-                        elements.extend(create_qa_block("Presión en competencias", prev_analysis.get('competitionPressure', ''), section_id))
-                        
-                        # Cambios propuestos
-                        elements.extend(create_qa_block("¿Qué cambios específicos se proponen?", prev_analysis.get('specificChanges', ''), section_id))
-                        elements.extend(create_qa_block("Cambios para el próximo ciclo", prev_analysis.get('nextCycleChanges', ''), section_id))
-                    else:
-                        elements.append(Paragraph("Sin análisis de plan anterior", styles['NoDataText']))
+                    ) or {}  # Use empty dict if no data
+                    
+                    # Always show all questions - Objetivos y Cumplimiento
+                    elements.extend(create_qa_block("¿Cuáles eran los objetivos al inicio del plan de entrenamiento?", prev_analysis.get('initialObjectives', ''), section_id))
+                    elements.extend(create_qa_block("¿En qué medida se alcanzaron estos objetivos?", prev_analysis.get('achievementLevel', ''), section_id))
+                    elements.extend(create_qa_block("Nivel de cumplimiento de objetivos planteados", prev_analysis.get('objectivesCompliance', ''), section_id))
+                    
+                    # Rendimiento
+                    elements.extend(create_qa_block("¿Cómo evolucionó el rendimiento en los indicadores clave?", prev_analysis.get('performanceIndicators', ''), section_id))
+                    elements.extend(create_qa_block("Resultados obtenidos - nivel de rendimiento de la temporada anterior", prev_analysis.get('performanceResults', ''), section_id))
+                    
+                    # Recuperación
+                    elements.extend(create_qa_block("¿Cómo calificarías el proceso de recuperación entre sesiones?", prev_analysis.get('recoveryProcess', ''), section_id))
+                    elements.extend(create_qa_block("¿Experimentaste algún periodo de fatiga prolongada?", prev_analysis.get('fatiguePeriods', ''), section_id))
+                    
+                    # Lesiones
+                    elements.extend(create_qa_block("¿Sufriste alguna lesión durante el plan?", prev_analysis.get('injuries', ''), section_id))
+                    elements.extend(create_qa_block("¿Cómo afectaron las lesiones tu entrenamiento?", prev_analysis.get('injuryImpact', ''), section_id))
+                    
+                    # Fortalezas y Debilidades
+                    elements.extend(create_qa_block("Aspectos positivos del plan", prev_analysis.get('planPositiveAspects', ''), section_id))
+                    elements.extend(create_qa_block("Áreas de mejora del plan", prev_analysis.get('planImprovementAreas', ''), section_id))
+                    
+                    # Nutrición
+                    elements.extend(create_qa_block("Hábitos de nutrición", prev_analysis.get('nutritionHabits', ''), section_id))
+                    elements.extend(create_qa_block("Hábitos de hidratación", prev_analysis.get('hydrationHabits', ''), section_id))
+                    
+                    # Psicológico
+                    elements.extend(create_qa_block("Manejo del estrés", prev_analysis.get('stressManagement', ''), section_id))
+                    elements.extend(create_qa_block("Presión en competencias", prev_analysis.get('competitionPressure', ''), section_id))
+                    
+                    # Cambios propuestos
+                    elements.extend(create_qa_block("¿Qué cambios específicos se proponen?", prev_analysis.get('specificChanges', ''), section_id))
+                    elements.extend(create_qa_block("Cambios para el próximo ciclo", prev_analysis.get('nextCycleChanges', ''), section_id))
                     elements.append(Spacer(1, 0.15*inch))
                 
                 if 'competition_analysis' in items:
