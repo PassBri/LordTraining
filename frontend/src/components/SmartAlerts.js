@@ -77,7 +77,7 @@ const SmartAlerts = ({ athleteId, athleteName, onNavigate }) => {
       // Load athlete tests, events, and periodization data
       const [testsRes, eventsRes, plansRes] = await Promise.all([
         axios.get(`${API_URL}/api/tests/${athleteId}`, { headers }).catch(() => ({ data: null })),
-        axios.get(`${API_URL}/api/events/${athleteId}`, { headers }).catch(() => ({ data: { events: [] } })),
+        axios.get(`${API_URL}/api/events-calendar/${athleteId}`, { headers }).catch(() => ({ data: { events: [] } })),
         axios.get(`${API_URL}/api/periodization/athlete/${athleteId}`, { headers }).catch(() => ({ data: [] }))
       ]);
 
