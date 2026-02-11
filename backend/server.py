@@ -1744,10 +1744,14 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         elif section_id == 'characterization' :
             elements.append(Paragraph("CARACTERIZACIÓN", styles['SectionTitle']))
             
-            if 'sport_char' in items:
-                sport_char = await db.sport_characterizations.find_one(
-                    {"athlete_id": request.athlete_id}, {"_id": 0}
-                )
+            if not request.athlete_id:
+                elements.append(Paragraph("Seleccione un atleta para ver la caracterización", styles['CustomBody']))
+                elements.append(Spacer(1, 0.2*inch))
+            else:
+                if 'sport_char' in items:
+                    sport_char = await db.sport_characterizations.find_one(
+                        {"athlete_id": request.athlete_id}, {"_id": 0}
+                    )
                 if sport_char:
                     elements.append(Paragraph("Caracterización del Deporte", styles['SubSection']))
                     char_data = [
