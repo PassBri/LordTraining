@@ -1976,33 +1976,26 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                     measurements = latest.get('measurements', {})
                     
                     if 'measurements' in items and measurements:
-                        elements.append(Paragraph("Mediciones Actuales", styles['SubSection']))
-                        data = [
-                            ['Peso:', f"{measurements.get('weight', 'N/A')} kg"],
-                            ['Talla:', f"{measurements.get('height', 'N/A')} cm"],
-                            ['IMC:', measurements.get('bmi', 'N/A')],
-                        ]
-                        table = Table(data, colWidths=[1.5*inch, 2*inch])
-                        table.setStyle(TableStyle([
-                            ('BACKGROUND', (0, 0), (0, -1), bg_color),
-                            ('BACKGROUND', (1, 0), (1, -1), colors.white),
-                            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-                            ('FONTSIZE', (0, 0), (-1, -1), 10),
-                            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
-                            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-                        ]))
-                        elements.append(table)
+                        elements.append(Paragraph("Mediciones Antropométricas Actuales", styles['SubSectionTitle']))
+                        elements.extend(create_qa_block("Peso corporal", f"{measurements.get('weight', '')} kg" if measurements.get('weight') else '', section_id))
+                        elements.extend(create_qa_block("Talla / Estatura", f"{measurements.get('height', '')} cm" if measurements.get('height') else '', section_id))
+                        elements.extend(create_qa_block("Índice de Masa Corporal (IMC)", str(measurements.get('bmi', '')) if measurements.get('bmi') else '', section_id))
+                        if measurements.get('body_fat'):
+                            elements.extend(create_qa_block("Porcentaje de grasa corporal", f"{measurements.get('body_fat', '')}%", section_id))
+                        if measurements.get('muscle_mass'):
+                            elements.extend(create_qa_block("Masa muscular", f"{measurements.get('muscle_mass', '')} kg", section_id))
                 else:
-                    elements.append(Paragraph("Sin datos antropométricos registrados", styles['CustomBody']))
+                    elements.append(Paragraph("Sin datos antropométricos registrados", styles['NoDataText']))
             
             elements.append(Spacer(1, 0.2*inch))
         
         # ===== EVALUATIONS =====
-        elif section_id == 'evaluations' :
-            elements.append(Paragraph("EVALUACIONES Y TESTS", styles['SectionTitle']))
+        elif section_id == 'evaluations':
+            elements.append(create_section_header("📊 EVALUACIONES Y TESTS", section_id))
+            elements.append(Spacer(1, 0.15*inch))
             
             if not request.athlete_id:
-                elements.append(Paragraph("Seleccione un atleta para ver evaluaciones", styles['CustomBody']))
+                elements.append(Paragraph("Seleccione un atleta para ver evaluaciones", styles['NoDataText']))
             else:
                 test_data = await db.tests.find_one(
                     {"athlete_id": request.athlete_id},
@@ -2013,41 +2006,33 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                     tests = test_data['tests'][-10:]  # Last 10 tests
                     
                     if 'physical_tests' in items:
-                        elements.append(Paragraph("Tests Físicos Recientes", styles['SubSection']))
-                        data = [['Fecha', 'Nombre', 'Resultado', 'Notas']]
-                        for test in tests:
-                            data.append([
+                        elements.append(Paragraph("Tests Físicos Recientes", styles['SubSectionTitle']))
+                        table = create_data_table(
+                            ['Fecha', 'Nombre del Test', 'Resultado', 'Notas'],
+                            [[
                                 test.get('date', 'N/A')[:10] if test.get('date') else 'N/A',
                                 test.get('name', 'N/A'),
                                 str(test.get('result', 'N/A')),
                                 test.get('notes', '-')[:30] if test.get('notes') else '-'
-                            ])
-                        
-                        table = Table(data, colWidths=[1*inch, 2*inch, 1*inch, 2*inch])
-                        table.setStyle(TableStyle([
-                            ('BACKGROUND', (0, 0), (-1, 0), primary_color),
-                            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-                            ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-                            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                            ('FONTSIZE', (0, 0), (-1, -1), 9),
-                            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
-                            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-                            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
-                        ]))
+                            ] for test in tests],
+                            section_id
+                        )
                         elements.append(table)
+                        elements.append(Spacer(1, 0.15*inch))
                 else:
-                    elements.append(Paragraph("Sin evaluaciones registradas", styles['CustomBody']))
+                    elements.append(Paragraph("Sin evaluaciones registradas", styles['NoDataText']))
             elements.append(Spacer(1, 0.2*inch))
         
         # ===== MEDICAL HISTORY =====
-        elif section_id == 'medical' :
-            elements.append(Paragraph("HISTORIAL MÉDICO", styles['SectionTitle']))
+        elif section_id == 'medical':
+            elements.append(create_section_header("❤️ HISTORIAL MÉDICO", section_id))
+            elements.append(Spacer(1, 0.15*inch))
             
             if not request.athlete_id:
-                elements.append(Paragraph("Seleccione un atleta para ver historial médico", styles['CustomBody']))
+                elements.append(Paragraph("Seleccione un atleta para ver historial médico", styles['NoDataText']))
             else:
                 if 'diagnostic' in items:
-                    elements.append(Paragraph("Diagnóstico General", styles['SubSection']))
+                    elements.append(Paragraph("Diagnóstico General", styles['SubSectionTitle']))
                     diagnostic = await db.diagnostics.find_one(
                         {"athlete_id": request.athlete_id}, {"_id": 0}
                     )
