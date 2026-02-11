@@ -1983,66 +1983,67 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                         if general:
                             for obj in general[:5]:
                                 elements.append(Paragraph(f"• {obj.get('title', obj.get('name', 'N/A'))}", styles['CustomBody']))
-                    else:
-                        elements.append(Paragraph("Sin objetivos generales definidos", styles['CustomBody']))
-                    elements.append(Spacer(1, 0.15*inch))
-                
-                if 'specific_objectives' in items:
-                    elements.append(Paragraph("Objetivos Específicos", styles['SubSection']))
-                    specific = [o for o in objs if o.get('type') != 'general' and o.get('category') != 'general']
-                    if specific:
-                        # Group by category
-                        categories = {}
-                        for obj in specific:
-                            cat = obj.get('category', 'Otros')
-                            if cat not in categories:
-                                categories[cat] = []
-                            categories[cat].append(obj)
-                        
-                        for cat, cat_objs in categories.items():
-                            elements.append(Paragraph(f"{cat.capitalize()}:", styles['CustomBody']))
-                            for obj in cat_objs[:3]:
-                                progress = obj.get('progress', 0)
-                                elements.append(Paragraph(
-                                    f"  • {obj.get('title', obj.get('name', 'N/A'))} - Progreso: {progress}%",
-                                    styles['CustomBody']
-                                ))
-                    else:
-                        elements.append(Paragraph("Sin objetivos específicos definidos", styles['CustomBody']))
-                    elements.append(Spacer(1, 0.15*inch))
-                
-                if 'kpis' in items:
-                    elements.append(Paragraph("Indicadores de Rendimiento (KPIs)", styles['SubSection']))
-                    # Collect all indicators from objectives
-                    kpis = []
-                    for obj in objs:
-                        for ind in obj.get('indicators', []):
-                            kpis.append(ind)
+                        else:
+                            elements.append(Paragraph("Sin objetivos generales definidos", styles['CustomBody']))
+                        elements.append(Spacer(1, 0.15*inch))
                     
-                    if kpis:
-                        kpi_data = [['Indicador', 'Base', 'Meta', 'Actual']]
-                        for kpi in kpis[:8]:
-                            kpi_data.append([
-                                kpi.get('name', 'N/A'),
-                                str(kpi.get('baseline', 'N/A')),
-                                str(kpi.get('target', 'N/A')),
-                                str(kpi.get('current', 'N/A'))
-                            ])
-                        table = Table(kpi_data, colWidths=[2.5*inch, 1*inch, 1*inch, 1*inch])
-                        table.setStyle(TableStyle([
-                            ('BACKGROUND', (0, 0), (-1, 0), secondary_color),
-                            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-                            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                            ('FONTSIZE', (0, 0), (-1, -1), 9),
-                            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
-                            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-                            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
-                        ]))
-                        elements.append(table)
-                    else:
-                        elements.append(Paragraph("Sin indicadores definidos", styles['CustomBody']))
-            else:
-                elements.append(Paragraph("Sin objetivos registrados", styles['CustomBody']))
+                    if 'specific_objectives' in items:
+                        elements.append(Paragraph("Objetivos Específicos", styles['SubSection']))
+                        specific = [o for o in objs if o.get('type') != 'general' and o.get('category') != 'general']
+                        if specific:
+                            # Group by category
+                            categories = {}
+                            for obj in specific:
+                                cat = obj.get('category', 'Otros')
+                                if cat not in categories:
+                                    categories[cat] = []
+                                categories[cat].append(obj)
+                            
+                            for cat, cat_objs in categories.items():
+                                elements.append(Paragraph(f"{cat.capitalize()}:", styles['CustomBody']))
+                                for obj in cat_objs[:3]:
+                                    progress = obj.get('progress', 0)
+                                    elements.append(Paragraph(
+                                        f"  • {obj.get('title', obj.get('name', 'N/A'))} - Progreso: {progress}%",
+                                        styles['CustomBody']
+                                    ))
+                        else:
+                            elements.append(Paragraph("Sin objetivos específicos definidos", styles['CustomBody']))
+                        elements.append(Spacer(1, 0.15*inch))
+                    
+                    if 'kpis' in items:
+                        elements.append(Paragraph("Indicadores de Rendimiento (KPIs)", styles['SubSection']))
+                        # Collect all indicators from objectives
+                        kpis = []
+                        for obj in objs:
+                            for ind in obj.get('indicators', []):
+                                kpis.append(ind)
+                        
+                        if kpis:
+                            kpi_data = [['Indicador', 'Base', 'Meta', 'Actual']]
+                            for kpi in kpis[:8]:
+                                kpi_data.append([
+                                    kpi.get('name', 'N/A'),
+                                    str(kpi.get('baseline', 'N/A')),
+                                    str(kpi.get('target', 'N/A')),
+                                    str(kpi.get('current', 'N/A'))
+                                ])
+                            table = Table(kpi_data, colWidths=[2.5*inch, 1*inch, 1*inch, 1*inch])
+                            table.setStyle(TableStyle([
+                                ('BACKGROUND', (0, 0), (-1, 0), secondary_color),
+                                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                                ('FONTSIZE', (0, 0), (-1, -1), 9),
+                                ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
+                                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
+                            ]))
+                            elements.append(table)
+                        else:
+                            elements.append(Paragraph("Sin indicadores definidos", styles['CustomBody']))
+                else:
+                    elements.append(Paragraph("Sin objetivos registrados", styles['CustomBody']))
             elements.append(Spacer(1, 0.2*inch))
         
         # ===== TRAINING METHODS =====
