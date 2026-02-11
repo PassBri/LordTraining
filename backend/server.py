@@ -2230,93 +2230,35 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                             elements.append(Paragraph("Sin indicadores definidos", styles['NoDataText']))
                 else:
                     elements.append(Paragraph("Sin objetivos registrados", styles['NoDataText']))
-                                cat = obj.get('category', 'Otros')
-                                if cat not in categories:
-                                    categories[cat] = []
-                                categories[cat].append(obj)
-                            
-                            for cat, cat_objs in categories.items():
-                                elements.append(Paragraph(f"{cat.capitalize()}:", styles['CustomBody']))
-                                for obj in cat_objs[:3]:
-                                    progress = obj.get('progress', 0)
-                                    elements.append(Paragraph(
-                                        f"  • {obj.get('title', obj.get('name', 'N/A'))} - Progreso: {progress}%",
-                                        styles['CustomBody']
-                                    ))
-                        else:
-                            elements.append(Paragraph("Sin objetivos específicos definidos", styles['CustomBody']))
-                        elements.append(Spacer(1, 0.15*inch))
-                    
-                    if 'kpis' in items:
-                        elements.append(Paragraph("Indicadores de Rendimiento (KPIs)", styles['SubSection']))
-                        # Collect all indicators from objectives
-                        kpis = []
-                        for obj in objs:
-                            for ind in obj.get('indicators', []):
-                                kpis.append(ind)
-                        
-                        if kpis:
-                            kpi_data = [['Indicador', 'Base', 'Meta', 'Actual']]
-                            for kpi in kpis[:8]:
-                                kpi_data.append([
-                                    kpi.get('name', 'N/A'),
-                                    str(kpi.get('baseline', 'N/A')),
-                                    str(kpi.get('target', 'N/A')),
-                                    str(kpi.get('current', 'N/A'))
-                                ])
-                            table = Table(kpi_data, colWidths=[2.5*inch, 1*inch, 1*inch, 1*inch])
-                            table.setStyle(TableStyle([
-                                ('BACKGROUND', (0, 0), (-1, 0), secondary_color),
-                                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-                                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-                                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                                ('FONTSIZE', (0, 0), (-1, -1), 9),
-                                ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
-                                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-                                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
-                            ]))
-                            elements.append(table)
-                        else:
-                            elements.append(Paragraph("Sin indicadores definidos", styles['CustomBody']))
-                else:
-                    elements.append(Paragraph("Sin objetivos registrados", styles['CustomBody']))
             elements.append(Spacer(1, 0.2*inch))
         
         # ===== TRAINING METHODS =====
-        elif section_id == 'training_methods' :
-            elements.append(Paragraph("MEDIOS DE ENTRENAMIENTO", styles['SectionTitle']))
+        elif section_id == 'training_methods':
+            elements.append(create_section_header("🏋️ MEDIOS DE ENTRENAMIENTO", section_id))
+            elements.append(Spacer(1, 0.15*inch))
             
             if not request.athlete_id:
-                elements.append(Paragraph("Seleccione un atleta para ver medios de entrenamiento", styles['CustomBody']))
+                elements.append(Paragraph("Seleccione un atleta para ver medios de entrenamiento", styles['NoDataText']))
             else:
                 if 'exercises' in items:
-                    elements.append(Paragraph("Ejercicios Seleccionados", styles['SubSection']))
+                    elements.append(Paragraph("Ejercicios Seleccionados", styles['SubSectionTitle']))
                     # Get exercises assigned to athlete
                     athlete_exercises = await db.athlete_exercises.find(
                         {"athlete_id": request.athlete_id}, {"_id": 0}
                     ).to_list(20)
                     if athlete_exercises:
-                        ex_data = [['Ejercicio', 'Categoría', 'Músculo Principal']]
-                        for ex in athlete_exercises[:10]:
-                            ex_data.append([
+                        table = create_data_table(
+                            ['Ejercicio', 'Categoría', 'Músculo Principal'],
+                            [[
                                 ex.get('name', 'N/A'),
                                 ex.get('category', 'N/A'),
                                 ex.get('primary_muscle', 'N/A')
-                            ])
-                        table = Table(ex_data, colWidths=[2.5*inch, 1.5*inch, 1.5*inch])
-                        table.setStyle(TableStyle([
-                            ('BACKGROUND', (0, 0), (-1, 0), accent_color),
-                            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-                            ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-                            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                            ('FONTSIZE', (0, 0), (-1, -1), 9),
-                            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
-                            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-                            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
-                        ]))
+                            ] for ex in athlete_exercises[:10]],
+                            section_id
+                        )
                         elements.append(table)
                     else:
-                        elements.append(Paragraph("Sin ejercicios asignados", styles['CustomBody']))
+                        elements.append(Paragraph("Sin ejercicios asignados", styles['NoDataText']))
                     elements.append(Spacer(1, 0.15*inch))
                 
                 if 'methods' in items:
