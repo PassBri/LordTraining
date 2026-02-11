@@ -745,3 +745,35 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 ### Test Report
 - `/app/test_reports/iteration_17.json` - 100% tests pasados (Backend: 11/11, Frontend: 100%)
 
+
+
+### Feb 11, 2026 - Mejora del Diseño PDF con Material Design y Formato Q&A
+
+**Cambios Implementados:**
+- ✅ **Rediseño completo** de la función `export_comprehensive_pdf` en server.py
+- ✅ **Paleta de colores Material Design** por sección (12 colores únicos)
+- ✅ **Formato de preguntas y respuestas** para secciones: characterization, analysis, objectives, medical
+- ✅ **Headers de sección** con colores específicos y fondos sólidos
+- ✅ **Tablas mejoradas** con headers coloridos y filas alternadas
+- ✅ **Funciones helper** creadas:
+  - `create_section_header()` - Headers con color de sección
+  - `create_qa_block()` - Bloques de pregunta/respuesta
+  - `create_data_table()` - Tablas con estilos consistentes
+- ✅ **Estilos nuevos definidos**:
+  - `MainTitle`, `Subtitle` - Título principal
+  - `SectionHeader` - Headers de sección (fondo colorido)
+  - `SubSectionTitle` - Subtítulos
+  - `QuestionText` - Preguntas (azul/bold)
+  - `AnswerText` - Respuestas (texto normal)
+  - `NoDataText` - Mensajes "sin datos" (gris/itálica)
+  - `TableHeader`, `TableCell` - Tablas
+
+**Secciones del PDF con Q&A:**
+1. Caracterización del Deporte (10+ preguntas)
+2. Caracterización del Deportista (20+ preguntas)
+3. Análisis del Plan Anterior (15+ preguntas)
+4. Objetivos por Categoría (con indicadores y progreso)
+
+**Test Report:**
+- `/app/test_reports/iteration_18.json` - 100% tests pasados (Backend: 28/28, Frontend: 100%)
+
