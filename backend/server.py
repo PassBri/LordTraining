@@ -1975,14 +1975,14 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                 )
                 
                 if objectives_data and objectives_data.get('objectives'):
-                objs = objectives_data['objectives']
-                
-                if 'general_objectives' in items:
-                    elements.append(Paragraph("Objetivos Generales", styles['SubSection']))
-                    general = [o for o in objs if o.get('type') == 'general' or o.get('category') == 'general']
-                    if general:
-                        for obj in general[:5]:
-                            elements.append(Paragraph(f"• {obj.get('title', obj.get('name', 'N/A'))}", styles['CustomBody']))
+                    objs = objectives_data['objectives']
+                    
+                    if 'general_objectives' in items:
+                        elements.append(Paragraph("Objetivos Generales", styles['SubSection']))
+                        general = [o for o in objs if o.get('type') == 'general' or o.get('category') == 'general']
+                        if general:
+                            for obj in general[:5]:
+                                elements.append(Paragraph(f"• {obj.get('title', obj.get('name', 'N/A'))}", styles['CustomBody']))
                     else:
                         elements.append(Paragraph("Sin objetivos generales definidos", styles['CustomBody']))
                     elements.append(Spacer(1, 0.15*inch))
