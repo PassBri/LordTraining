@@ -585,34 +585,43 @@ const DashboardPage = () => {
                     Afiliación a Entidades (opcional)
                   </h5>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <Select value={newAthlete.federation} onValueChange={(v) => setNewAthlete({...newAthlete, federation: v})}>
+                    <Select 
+                      value={newAthlete.federation || 'none'} 
+                      onValueChange={(v) => setNewAthlete({...newAthlete, federation: v === 'none' ? '' : v})}
+                    >
                       <SelectTrigger className="h-10 border-amber-200 bg-amber-50/50">
                         <SelectValue placeholder="🏛️ Federación" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Sin federación</SelectItem>
+                        <SelectItem value="none">Sin federación</SelectItem>
                         {federations.map(f => (
                           <SelectItem key={f.id} value={f.id}>🏛️ {f.name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <Select value={newAthlete.club} onValueChange={(v) => setNewAthlete({...newAthlete, club: v})}>
+                    <Select 
+                      value={newAthlete.club || 'none'} 
+                      onValueChange={(v) => setNewAthlete({...newAthlete, club: v === 'none' ? '' : v})}
+                    >
                       <SelectTrigger className="h-10 border-blue-200 bg-blue-50/50">
                         <SelectValue placeholder="🏢 Club" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Sin club</SelectItem>
+                        <SelectItem value="none">Sin club</SelectItem>
                         {clubs.map(c => (
                           <SelectItem key={c.id} value={c.id}>🏢 {c.name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <Select value={newAthlete.school} onValueChange={(v) => setNewAthlete({...newAthlete, school: v})}>
+                    <Select 
+                      value={newAthlete.school || 'none'} 
+                      onValueChange={(v) => setNewAthlete({...newAthlete, school: v === 'none' ? '' : v})}
+                    >
                       <SelectTrigger className="h-10 border-emerald-200 bg-emerald-50/50">
                         <SelectValue placeholder="🏫 Escuela" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Sin escuela</SelectItem>
+                        <SelectItem value="none">Sin escuela</SelectItem>
                         {schools.map(s => (
                           <SelectItem key={s.id} value={s.id}>🏫 {s.name}</SelectItem>
                         ))}
