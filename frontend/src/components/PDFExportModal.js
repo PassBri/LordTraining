@@ -8,7 +8,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
 import {
   FileText, Download, Loader2, Users, Calendar, BarChart3, 
   Target, Activity, Layers, CheckSquare, Square, ChevronDown,
-  Printer, FileDown, Settings
+  Printer, FileDown, Settings, Heart, Dumbbell, LineChart, Image
 } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
