@@ -43,6 +43,7 @@ import EntityManager from '../components/EntityManager';
 import ControlPanel from '../components/ControlPanel';
 import EntityDashboard from '../components/EntityDashboard';
 import SmartAlerts from '../components/SmartAlerts';
+import PDFExportModal from '../components/PDFExportModal';
 
 // Definición de roles disponibles
 const USER_ROLES = [
