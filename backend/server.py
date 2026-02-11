@@ -1831,7 +1831,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         
         # ===== ATHLETE INFO =====
         if section_id == 'athlete_info':
-            elements.append(create_section_header("📋 INFORMACIÓN DEL ATLETA", section_id))
+            elements.append(create_section_header("INFORMACIÓN DEL ATLETA", section_id))
             elements.append(Spacer(1, 0.15*inch))
             
             if athlete:
@@ -1869,7 +1869,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         
         # ===== CHARACTERIZATION =====
         elif section_id == 'characterization':
-            elements.append(create_section_header("🎯 CARACTERIZACIÓN", section_id))
+            elements.append(create_section_header("CARACTERIZACIÓN", section_id))
             elements.append(Spacer(1, 0.15*inch))
             
             if not request.athlete_id:
@@ -1956,7 +1956,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         
         # ===== ANTHROPOMETRIC DATA =====
         elif section_id == 'anthropometric':
-            elements.append(create_section_header("📐 DATOS ANTROPOMÉTRICOS", section_id))
+            elements.append(create_section_header("DATOS ANTROPOMÉTRICOS", section_id))
             elements.append(Spacer(1, 0.15*inch))
             
             if not request.athlete_id:
@@ -1987,7 +1987,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         
         # ===== EVALUATIONS =====
         elif section_id == 'evaluations':
-            elements.append(create_section_header("📊 EVALUACIONES Y TESTS", section_id))
+            elements.append(create_section_header("EVALUACIONES Y TESTS", section_id))
             elements.append(Spacer(1, 0.15*inch))
             
             if not request.athlete_id:
@@ -2021,7 +2021,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         
         # ===== MEDICAL HISTORY =====
         elif section_id == 'medical':
-            elements.append(create_section_header("❤️ HISTORIAL MÉDICO", section_id))
+            elements.append(create_section_header("HISTORIAL MÉDICO", section_id))
             elements.append(Spacer(1, 0.15*inch))
             
             if not request.athlete_id:
@@ -2137,7 +2137,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         
         # ===== OBJECTIVES =====
         elif section_id == 'objectives':
-            elements.append(create_section_header("🎯 OBJETIVOS E INDICADORES", section_id))
+            elements.append(create_section_header("OBJETIVOS E INDICADORES", section_id))
             elements.append(Spacer(1, 0.15*inch))
             
             if not request.athlete_id:
@@ -2228,7 +2228,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         
         # ===== TRAINING METHODS =====
         elif section_id == 'training_methods':
-            elements.append(create_section_header("🏋️ MEDIOS DE ENTRENAMIENTO", section_id))
+            elements.append(create_section_header("MEDIOS DE ENTRENAMIENTO", section_id))
             elements.append(Spacer(1, 0.15*inch))
             
             if not request.athlete_id:
@@ -2273,7 +2273,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         
         # ===== CONTROL =====
         elif section_id == 'control':
-            elements.append(create_section_header("📈 CONTROL Y SEGUIMIENTO", section_id))
+            elements.append(create_section_header("CONTROL Y SEGUIMIENTO", section_id))
             elements.append(Spacer(1, 0.15*inch))
             
             if not request.athlete_id:
@@ -2334,7 +2334,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         
         # ===== PERIODIZATION =====
         elif section_id == 'periodization':
-            elements.append(create_section_header("📅 PLAN DE PERIODIZACIÓN", section_id))
+            elements.append(create_section_header("PLAN DE PERIODIZACIÓN", section_id))
             elements.append(Spacer(1, 0.15*inch))
             
             # Load plans for athlete
@@ -2453,7 +2453,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         
         # ===== GRAPHIC PLAN =====
         elif section_id == 'graphic_plan':
-            elements.append(create_section_header("📊 PLAN GRÁFICO DE ENTRENAMIENTO", section_id))
+            elements.append(create_section_header("PLAN GRÁFICO DE ENTRENAMIENTO", section_id))
             elements.append(Spacer(1, 0.15*inch))
             
             # Load graphic plan data from database
@@ -2704,7 +2704,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         
         # ===== CALENDAR =====
         elif section_id == 'calendar':
-            elements.append(create_section_header("📆 CALENDARIO DE EVENTOS", section_id))
+            elements.append(create_section_header("CALENDARIO DE EVENTOS", section_id))
             elements.append(Spacer(1, 0.15*inch))
             
             events = []
