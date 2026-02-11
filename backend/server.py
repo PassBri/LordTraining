@@ -2693,29 +2693,24 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                 
                 for phase in phases_info:
                     phase_name = phase.get('name', 'N/A')
-                    phase_data.append([
+                phase_data.append([
                         phase_name,
                         f"{phase.get('weeks', 'N/A')} semanas",
                         phase_objectives.get(phase_name, 'Desarrollo deportivo')
                     ])
                 
-                phase_table = Table(phase_data, colWidths=[2*inch, 1.2*inch, 3*inch])
-                phase_table.setStyle(TableStyle([
-                    ('BACKGROUND', (0, 0), (-1, 0), primary_color),
-                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-                    ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                    ('FONTSIZE', (0, 0), (-1, -1), 9),
-                    ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
-                    ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-                    ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
-                ]))
-                elements.append(phase_table)
+                table = create_data_table(
+                    ['Fase', 'Duración', 'Objetivos'],
+                    [[row[0], row[1], row[2]] for row in phase_data[1:]],
+                    section_id
+                )
+                elements.append(table)
                 elements.append(Spacer(1, 0.2*inch))
         
         # ===== CALENDAR =====
         elif section_id == 'calendar':
-            elements.append(Paragraph("CALENDARIO DE EVENTOS", styles['SectionTitle']))
+            elements.append(create_section_header("📆 CALENDARIO DE EVENTOS", section_id))
+            elements.append(Spacer(1, 0.15*inch))
             
             events = []
             if request.athlete_id:
@@ -2729,14 +2724,19 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                 if 'competitions' in items:
                     competitions = [e for e in events if e.get('type') == 'competition' or e.get('priority') == 'high']
                     if competitions:
-                        elements.append(Paragraph("Competencias", styles['SubSection']))
-                        data = [['Fecha', 'Evento', 'Ubicación']]
-                        for comp in competitions[:10]:
-                            data.append([
+                        elements.append(Paragraph("Competencias Programadas", styles['SubSectionTitle']))
+                        table = create_data_table(
+                            ['Fecha', 'Evento', 'Ubicación', 'Importancia'],
+                            [[
                                 comp.get('date', 'N/A')[:10] if comp.get('date') else 'N/A',
                                 comp.get('name', 'N/A'),
-                                comp.get('location', 'N/A')
-                            ])
+                                comp.get('location', 'N/A'),
+                                comp.get('priority', 'N/A').capitalize() if comp.get('priority') else '-'
+                            ] for comp in competitions[:10]],
+                            section_id
+                        )
+                        elements.append(table)
+                        elements.append(Spacer(1, 0.2*inch))
                         
                         table = Table(data, colWidths=[1.2*inch, 2.5*inch, 2*inch])
                         table.setStyle(TableStyle([
