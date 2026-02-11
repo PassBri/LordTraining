@@ -73,7 +73,8 @@ const DashboardPage = () => {
 
   // Form States
   const [newAthlete, setNewAthlete] = useState({
-    name: '', email: '', birthDate: '', gender: '', sport: '', category: '', level: ''
+    name: '', email: '', birthDate: '', gender: '', sport: '', category: '', level: '',
+    federation: '', club: '', school: ''
   });
   const [newEvent, setNewEvent] = useState({
     name: '', type: '', date: '', location: '', objective: '', priority: ''
@@ -83,6 +84,10 @@ const DashboardPage = () => {
   const [savingAthlete, setSavingAthlete] = useState(false);
   const [savingEvent, setSavingEvent] = useState(false);
   const [periodizationData, setPeriodizationData] = useState(null);
+  
+  // Entity States for Athlete Affiliations
+  const [entities, setEntities] = useState([]);
+  const [athleteFilterEntity, setAthleteFilterEntity] = useState('all');
 
   // API Base URL
   const API_URL = process.env.REACT_APP_BACKEND_URL;
