@@ -330,13 +330,13 @@ const PDFExportModal = ({ isOpen, onClose, athleteId, athleteName, periodization
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white -m-6 mb-0 p-6 rounded-t-lg">
-          <DialogTitle className="text-xl flex items-center gap-3">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col bg-white shadow-2xl border-0">
+        <DialogHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white -m-6 mb-0 p-6 rounded-t-lg">
+          <DialogTitle className="text-xl flex items-center gap-3 font-bold">
             <FileText className="w-6 h-6" />
-            Exportar Reporte PDF
+            EXPORTAR REPORTE PDF
           </DialogTitle>
-          <p className="text-indigo-100 text-sm mt-1">
+          <p className="text-blue-100 text-sm mt-1">
             Selecciona las secciones que deseas incluir en tu reporte
           </p>
         </DialogHeader>
