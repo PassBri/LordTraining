@@ -108,6 +108,22 @@ const DashboardPage = () => {
     }
   };
 
+  // Fetch entities for athlete affiliations
+  const fetchEntities = async () => {
+    try {
+      const token = localStorage.getItem('train_token');
+      const response = await fetch(`${API_URL}/api/entities`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setEntities(data);
+      }
+    } catch (error) {
+      console.error('Error fetching entities:', error);
+    }
+  };
+
   // Update user profile (including role)
   const handleUpdateProfile = async (newRole) => {
     setUpdatingProfile(true);
