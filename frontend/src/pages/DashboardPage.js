@@ -500,24 +500,30 @@ const DashboardPage = () => {
           return entity ? { name: entity.name, type: entity.entity_type } : null;
         }).filter(Boolean);
       };
+
+      // Get selected athlete for summary
+      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
       
       return (
-        <div className="p-4 space-y-4">
-          <Card className="border-0 shadow-md overflow-hidden">
-            <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white py-4 px-5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-lg font-semibold">
-                  <Users className="w-5 h-5" />
-                  Gestión de Atletas
+        <div className="p-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Main Athletes List - 2 columns */}
+            <div className="lg:col-span-2 space-y-4">
+              <Card className="border-0 shadow-md overflow-hidden">
+                <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white py-4 px-5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-lg font-semibold">
+                      <Users className="w-5 h-5" />
+                      Gestión de Atletas
+                    </div>
+                    <span className="text-sm bg-white/20 px-3 py-1 rounded-full">{filteredAthletes.length} de {athletes.length}</span>
+                  </div>
                 </div>
-                <span className="text-sm bg-white/20 px-3 py-1 rounded-full">{filteredAthletes.length} de {athletes.length}</span>
-              </div>
-            </div>
-            <CardContent className="p-5">
-              {/* Formulario nuevo atleta */}
-              <div className="bg-indigo-50/50 p-4 rounded-xl mb-5 border border-indigo-100">
-                <h4 className="font-semibold mb-3 text-indigo-900 flex items-center gap-2">
-                  <Plus className="w-4 h-4" />
+                <CardContent className="p-5">
+                  {/* Formulario nuevo atleta */}
+                  <div className="bg-indigo-50/50 p-4 rounded-xl mb-5 border border-indigo-100">
+                    <h4 className="font-semibold mb-3 text-indigo-900 flex items-center gap-2">
+                      <Plus className="w-4 h-4" />
                   Registrar Nuevo Atleta
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
