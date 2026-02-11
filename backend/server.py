@@ -1587,15 +1587,13 @@ class ComprehensivePDFRequest(BaseModel):
 
 @api_router.post("/export/comprehensive-pdf")
 async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict = Depends(get_current_user)):
-    """Exporta un reporte PDF completo y personalizable"""
+    """Exporta un reporte PDF completo y personalizable con diseño Material Design"""
     from reportlab.lib.units import inch
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, Image
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, KeepTogether
     from reportlab.lib import colors
     from reportlab.lib.pagesizes import letter, A4, legal, landscape
-    from reportlab.graphics.shapes import Drawing, Rect, Line
-    from reportlab.graphics.charts.barcharts import VerticalBarChart
-    from reportlab.graphics.charts.linecharts import HorizontalLineChart
+    from reportlab.lib.enums import TA_LEFT, TA_CENTER
     import io
     
     # Determine page size
@@ -1605,79 +1603,220 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         'legal': legal
     }
     page_size = page_sizes.get(request.format.paper_size, letter)
+    page_width = page_size[0] - 1.5*inch  # Available width
     
     if request.format.orientation == 'landscape':
         page_size = landscape(page_size)
+        page_width = page_size[0] - 1.5*inch
     
-    # Color scheme
-    if request.format.color_scheme == 'color':
-        primary_color = colors.HexColor('#4F46E5')  # Indigo
-        secondary_color = colors.HexColor('#10B981')  # Green
-        accent_color = colors.HexColor('#F59E0B')  # Amber
-        bg_color = colors.HexColor('#F8FAFC')  # Light gray
-    elif request.format.color_scheme == 'grayscale':
+    # Material Design Color Palette
+    SECTION_COLORS = {
+        'athlete_info': {'primary': '#1976D2', 'light': '#E3F2FD', 'dark': '#0D47A1'},
+        'characterization': {'primary': '#7B1FA2', 'light': '#F3E5F5', 'dark': '#4A148C'},
+        'anthropometric': {'primary': '#388E3C', 'light': '#E8F5E9', 'dark': '#1B5E20'},
+        'evaluations': {'primary': '#F57C00', 'light': '#FFF3E0', 'dark': '#E65100'},
+        'medical': {'primary': '#D32F2F', 'light': '#FFEBEE', 'dark': '#B71C1C'},
+        'analysis': {'primary': '#00796B', 'light': '#E0F2F1', 'dark': '#004D40'},
+        'objectives': {'primary': '#512DA8', 'light': '#EDE7F6', 'dark': '#311B92'},
+        'periodization': {'primary': '#303F9F', 'light': '#E8EAF6', 'dark': '#1A237E'},
+        'training_methods': {'primary': '#C2185B', 'light': '#FCE4EC', 'dark': '#880E4F'},
+        'graphic_plan': {'primary': '#0097A7', 'light': '#E0F7FA', 'dark': '#006064'},
+        'control': {'primary': '#455A64', 'light': '#ECEFF1', 'dark': '#263238'},
+        'calendar': {'primary': '#FFA000', 'light': '#FFF8E1', 'dark': '#FF6F00'},
+    }
+    
+    # Color scheme handling
+    use_colors = request.format.color_scheme == 'color'
+    if request.format.color_scheme == 'grayscale':
         primary_color = colors.HexColor('#374151')
-        secondary_color = colors.HexColor('#6B7280')
-        accent_color = colors.HexColor('#9CA3AF')
         bg_color = colors.HexColor('#F3F4F6')
-    else:  # bw
+    elif request.format.color_scheme == 'bw':
         primary_color = colors.black
-        secondary_color = colors.HexColor('#4B5563')
-        accent_color = colors.HexColor('#9CA3AF')
         bg_color = colors.white
+    else:
+        primary_color = colors.HexColor('#1976D2')
+        bg_color = colors.HexColor('#F5F5F5')
     
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=page_size, topMargin=0.75*inch, bottomMargin=0.75*inch)
+    doc = SimpleDocTemplate(buffer, pagesize=page_size, topMargin=0.6*inch, bottomMargin=0.6*inch, leftMargin=0.75*inch, rightMargin=0.75*inch)
     
     # Styles
     styles = getSampleStyleSheet()
     styles.add(ParagraphStyle(
-        name='CustomTitle',
+        name='MainTitle',
         parent=styles['Heading1'],
-        fontSize=24,
-        spaceAfter=20,
-        textColor=primary_color,
-        fontName='Helvetica-Bold'
+        fontSize=28,
+        spaceAfter=6,
+        textColor=colors.HexColor('#1976D2') if use_colors else colors.black,
+        fontName='Helvetica-Bold',
+        alignment=TA_CENTER
     ))
     styles.add(ParagraphStyle(
-        name='SectionTitle',
-        parent=styles['Heading2'],
-        fontSize=16,
-        spaceBefore=15,
-        spaceAfter=10,
-        textColor=primary_color,
-        backColor=bg_color,
-        borderPadding=8,
-        fontName='Helvetica-Bold'
-    ))
-    styles.add(ParagraphStyle(
-        name='SubSection',
-        parent=styles['Heading3'],
+        name='Subtitle',
+        parent=styles['Normal'],
         fontSize=12,
+        spaceAfter=20,
+        textColor=colors.HexColor('#616161'),
+        alignment=TA_CENTER
+    ))
+    styles.add(ParagraphStyle(
+        name='SectionHeader',
+        parent=styles['Heading2'],
+        fontSize=14,
+        spaceBefore=20,
+        spaceAfter=12,
+        textColor=colors.white,
+        fontName='Helvetica-Bold',
+        leftIndent=10,
+        rightIndent=10
+    ))
+    styles.add(ParagraphStyle(
+        name='SubSectionTitle',
+        parent=styles['Heading3'],
+        fontSize=11,
         spaceBefore=10,
         spaceAfter=6,
-        textColor=secondary_color,
+        textColor=colors.HexColor('#424242'),
         fontName='Helvetica-Bold'
     ))
     styles.add(ParagraphStyle(
-        name='CustomBody',
+        name='QuestionText',
         parent=styles['Normal'],
         fontSize=10,
-        spaceAfter=6,
-        textColor=colors.HexColor('#1F2937')
+        textColor=colors.HexColor('#1976D2') if use_colors else colors.HexColor('#424242'),
+        fontName='Helvetica-Bold',
+        spaceAfter=2
     ))
+    styles.add(ParagraphStyle(
+        name='AnswerText',
+        parent=styles['Normal'],
+        fontSize=10,
+        textColor=colors.HexColor('#212121'),
+        spaceAfter=10,
+        leftIndent=10
+    ))
+    styles.add(ParagraphStyle(
+        name='NoDataText',
+        parent=styles['Normal'],
+        fontSize=10,
+        textColor=colors.HexColor('#9E9E9E'),
+        fontStyle='italic',
+        spaceAfter=10,
+        leftIndent=10
+    ))
+    styles.add(ParagraphStyle(
+        name='TableHeader',
+        parent=styles['Normal'],
+        fontSize=9,
+        textColor=colors.white,
+        fontName='Helvetica-Bold',
+        alignment=TA_CENTER
+    ))
+    styles.add(ParagraphStyle(
+        name='TableCell',
+        parent=styles['Normal'],
+        fontSize=9,
+        textColor=colors.HexColor('#212121')
+    ))
+    
+    def get_section_color(section_id):
+        """Get color for section based on Material Design palette"""
+        if not use_colors:
+            return colors.HexColor('#424242')
+        return colors.HexColor(SECTION_COLORS.get(section_id, {'primary': '#607D8B'})['primary'])
+    
+    def get_section_bg(section_id):
+        """Get light background color for section"""
+        if not use_colors:
+            return colors.HexColor('#F5F5F5')
+        return colors.HexColor(SECTION_COLORS.get(section_id, {'light': '#ECEFF1'})['light'])
+    
+    def create_section_header(title, section_id):
+        """Create a colored section header"""
+        color = get_section_color(section_id)
+        header_data = [[Paragraph(title, styles['SectionHeader'])]]
+        header_table = Table(header_data, colWidths=[page_width])
+        header_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), color),
+            ('TOPPADDING', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+            ('LEFTPADDING', (0, 0), (-1, -1), 12),
+            ('ROUNDEDCORNERS', [4, 4, 4, 4]),
+        ]))
+        return header_table
+    
+    def create_qa_block(question, answer, section_id=None):
+        """Create a question-answer block with Material Design styling"""
+        if not answer or answer == 'N/A' or answer.strip() == '':
+            answer_para = Paragraph("Sin información registrada", styles['NoDataText'])
+        else:
+            answer_para = Paragraph(str(answer), styles['AnswerText'])
+        return [
+            Paragraph(f"▸ {question}", styles['QuestionText']),
+            answer_para
+        ]
+    
+    def create_data_table(headers, rows, section_id):
+        """Create a styled data table with Material Design colors"""
+        color = get_section_color(section_id)
+        light_bg = get_section_bg(section_id)
+        
+        # Create header row with Paragraph objects
+        header_row = [Paragraph(h, styles['TableHeader']) for h in headers]
+        data = [header_row] + rows
+        
+        col_widths = [page_width / len(headers)] * len(headers)
+        table = Table(data, colWidths=col_widths)
+        
+        style_commands = [
+            ('BACKGROUND', (0, 0), (-1, 0), color),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+            ('TOPPADDING', (0, 0), (-1, 0), 10),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E0E0E0')),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+            ('TOPPADDING', (0, 1), (-1, -1), 6),
+        ]
+        
+        # Alternate row colors
+        for i in range(1, len(data)):
+            if i % 2 == 0:
+                style_commands.append(('BACKGROUND', (0, i), (-1, i), light_bg))
+        
+        table.setStyle(TableStyle(style_commands))
+        return table
     
     elements = []
     
-    # Header
+    # Header with Material Design styling
     if request.format.include_logo:
-        elements.append(Paragraph("TRAIN", styles['CustomTitle']))
-        elements.append(Paragraph("Sistema de Planificación Deportiva", styles['CustomBody']))
-        elements.append(Spacer(1, 0.3*inch))
+        # Create header card
+        header_data = [[
+            Paragraph("TRAIN", styles['MainTitle']),
+        ], [
+            Paragraph("Sistema de Planificación Deportiva", styles['Subtitle'])
+        ]]
+        header_table = Table(header_data, colWidths=[page_width])
+        header_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('TOPPADDING', (0, 0), (-1, -1), 15),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+            ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#E0E0E0')),
+        ]))
+        elements.append(header_table)
+        elements.append(Spacer(1, 0.2*inch))
     
     if request.format.include_date:
         date_str = datetime.now().strftime("%d de %B de %Y")
-        elements.append(Paragraph(f"Generado el {date_str}", styles['CustomBody']))
+        elements.append(Paragraph(f"Reporte generado el {date_str}", styles['Subtitle']))
         elements.append(Spacer(1, 0.2*inch))
     
     # Load athlete data if provided
