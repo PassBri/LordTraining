@@ -631,3 +631,24 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 
 ### Test Report
 - `/app/test_reports/iteration_13.json` - 100% tests pasados (Frontend: 19/19)
+
+### Feb 11, 2026 - Bug Fix: Funcionalidad de Guardar en Caracterización y Objetivos
+- ✅ **BUG CORREGIDO**: La sección "Objetivos e Indicadores" mostraba datos estáticos hardcodeados sin funcionalidad de guardado
+- ✅ **Solución**: Se conectó el componente `ObjectivesIndicators.js` existente en `DashboardPage.js`
+  - Importación añadida en línea 47
+  - Componente usado en línea 1081 (reemplazando ~150 líneas de código estático)
+- ✅ **Funcionalidades verificadas**:
+  - Caracterización del Deporte (`/api/characterization/sport`) - CRUD completo
+  - Caracterización del Deportista (`/api/characterization/athlete`) - CRUD completo
+  - Objetivos e Indicadores (`/api/objectives`) - CRUD completo con progreso automático
+- ✅ **UI mejorada**:
+  - Cards de resumen (Total, Activos, Completados, Progreso Promedio)
+  - Lista de objetivos con barras de progreso
+  - Modal para crear/editar objetivos con indicadores
+  - Botón flotante para agregar nuevos objetivos
+
+### Archivos Modificados
+- `/app/frontend/src/pages/DashboardPage.js` - Import y uso de ObjectivesIndicators
+
+### Test Report
+- `/app/test_reports/iteration_14.json` - 100% tests pasados (Backend: 10/10, Frontend: 100%)
