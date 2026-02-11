@@ -652,3 +652,45 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 
 ### Test Report
 - `/app/test_reports/iteration_14.json` - 100% tests pasados (Backend: 10/10, Frontend: 100%)
+
+
+### Feb 11, 2026 - Reportes PDF Personalizables
+- ✅ **FEATURE COMPLETADA**: Sistema de exportación PDF personalizable
+- ✅ **Modal de Exportación** (`PDFExportModal.js`):
+  - Integrado en `DashboardPage.js` con botón "Exportar Reporte PDF"
+  - 2 tabs: "Contenido" (selección de secciones) y "Formato" (opciones de formato)
+  - 6 secciones seleccionables con sub-items:
+    - Información del Atleta (datos básicos, afiliaciones, contacto)
+    - Datos Antropométricos (mediciones, composición corporal, historial)
+    - Evaluaciones y Tests (tests físicos, técnicos, historial de rendimiento)
+    - Plan de Periodización (macrociclos, mesociclos, microciclos, sesiones, objetivos)
+    - Plan Gráfico (tabla de planificación, gráfica de carga, volumen/intensidad, línea de tiempo)
+    - Calendario de Eventos (competencias, concentraciones, evaluaciones)
+  - Botones "Seleccionar todo" y "Limpiar"
+  - Opciones de formato: tamaño de papel (Letter/A4/Legal), orientación (vertical/horizontal), esquema de colores
+
+- ✅ **Backend endpoint** (`/api/export/comprehensive-pdf`):
+  - Genera PDFs válidos con ReportLab
+  - Tablas con fondos sólidos (sin transparencia) - colores por sección
+  - Incluye datos reales de la base de datos cuando están disponibles
+  - Soporte para todos los formatos de papel y orientaciones
+  - Headers con logo TRAIN y fecha de generación (opcionales)
+
+- ✅ **Mejoras en secciones de periodización**:
+  - Tablas de mesociclos con nombre, tipo, semanas, intensidad
+  - Tablas de microciclos con semana, tipo, volumen, intensidad, sesiones
+  - Tablas de sesiones con semana, día, tipo, duración, intensidad
+  - Tabla de fases con objetivos principales
+
+- ✅ **Plan Gráfico mejorado**:
+  - Tabla de planificación semanal dinámica
+  - Gráfica de Carga y Recuperación con leyenda
+  - Gráfica de Volumen e Intensidad con leyenda
+  - Línea de tiempo de fases con objetivos
+
+### Archivos Modificados
+- `/app/frontend/src/pages/DashboardPage.js` - Estado isPdfModalOpen, botón exportar, modal PDFExportModal
+- `/app/backend/server.py` - Endpoint mejorado con microciclos, sesiones, tablas dinámicas
+
+### Test Report
+- `/app/test_reports/iteration_15.json` - 100% tests pasados (Backend: 15/15, Frontend: 100%)
