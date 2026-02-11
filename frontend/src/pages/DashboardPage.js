@@ -93,6 +93,9 @@ const DashboardPage = () => {
   // Entity States for Athlete Affiliations
   const [entities, setEntities] = useState([]);
   const [athleteFilterEntity, setAthleteFilterEntity] = useState('all');
+  
+  // PDF Export Modal State
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
   // API Base URL
   const API_URL = process.env.REACT_APP_BACKEND_URL;
