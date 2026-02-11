@@ -132,6 +132,9 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName }) => {
   const [loadChartType, setLoadChartType] = useState('bars'); // 'bars', 'lines', 'areas'
   const [volumeIntensityChartType, setVolumeIntensityChartType] = useState('combined'); // 'lines', 'bars', 'combined'
   
+  // Calendar events
+  const [events, setEvents] = useState([]);
+  
   // General information
   const [generalInfo, setGeneralInfo] = useState({
     sport: '',
