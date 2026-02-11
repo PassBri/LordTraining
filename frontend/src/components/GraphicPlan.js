@@ -319,7 +319,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName }) => {
       try {
         const token = localStorage.getItem('train_token');
         const response = await axios.get(
-          `${BACKEND_URL}/api/events/${athleteId}`,
+          `${BACKEND_URL}/api/events-calendar/${athleteId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (response.data?.events) {
