@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import uuid
 
 class TrainSystemTester:
-    def __init__(self, base_url="https://entity-manager-6.preview.emergentagent.com"):
+    def __init__(self, base_url="https://periodization-app.preview.emergentagent.com"):
         self.base_url = base_url
         self.token = None
         self.tests_run = 0
@@ -352,7 +352,7 @@ class TrainSystemTester:
 
 def main():
     print("Sistema TRAIN - Backend API Testing")
-    print("Testing against: https://entity-manager-6.preview.emergentagent.com")
+    print("Testing against: https://periodization-app.preview.emergentagent.com")
     
     tester = TrainSystemTester()
     success = tester.run_full_test_suite()
