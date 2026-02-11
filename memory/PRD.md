@@ -777,3 +777,18 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 **Test Report:**
 - `/app/test_reports/iteration_18.json` - 100% tests pasados (Backend: 28/28, Frontend: 100%)
 
+
+### Feb 11, 2026 - Corrección: Mostrar Preguntas Siempre
+
+**Problema reportado:** El PDF mostraba "Sin caracterización registrada" en lugar de mostrar las preguntas/campos.
+
+**Cambios realizados:**
+- ✅ Modificado el código para mostrar SIEMPRE todas las preguntas de cada sección
+- ✅ Si no hay datos, muestra "Sin información registrada" como respuesta
+- ✅ Removidos emojis de los headers de sección para mejor compatibilidad con PDF
+- ✅ Sección Caracterización ahora muestra 30+ preguntas estructuradas por categoría
+- ✅ Sección Análisis muestra 18 preguntas incluso sin datos guardados
+
+**Nota importante:** Para que el PDF tenga datos reales, el usuario debe primero guardar información en cada sección desde la aplicación. El PDF refleja los datos guardados en la base de datos.
+
+
