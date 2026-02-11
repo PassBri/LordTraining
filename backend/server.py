@@ -1804,34 +1804,37 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         elif section_id == 'anthropometric' :
             elements.append(Paragraph("DATOS ANTROPOMÉTRICOS", styles['SectionTitle']))
             
-            anthro_data = await db.anthropometric_data.find_one(
-                {"athlete_id": request.athlete_id},
-                {"_id": 0}
-            )
-            
-            if anthro_data and anthro_data.get('records'):
-                latest = anthro_data['records'][-1] if anthro_data.get('records') else {}
-                measurements = latest.get('measurements', {})
-                
-                if 'measurements' in items and measurements:
-                    elements.append(Paragraph("Mediciones Actuales", styles['SubSection']))
-                    data = [
-                        ['Peso:', f"{measurements.get('weight', 'N/A')} kg"],
-                        ['Talla:', f"{measurements.get('height', 'N/A')} cm"],
-                        ['IMC:', measurements.get('bmi', 'N/A')],
-                    ]
-                    table = Table(data, colWidths=[1.5*inch, 2*inch])
-                    table.setStyle(TableStyle([
-                        ('BACKGROUND', (0, 0), (0, -1), bg_color),
-                        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-                        ('FONTSIZE', (0, 0), (-1, -1), 10),
-                        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
-                        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-                    ]))
-                    elements.append(table)
-                    elements.append(Spacer(1, 0.2*inch))
+            if not request.athlete_id:
+                elements.append(Paragraph("Seleccione un atleta para ver datos antropométricos", styles['CustomBody']))
             else:
-                elements.append(Paragraph("Sin datos antropométricos registrados", styles['CustomBody']))
+                anthro_data = await db.anthropometric_data.find_one(
+                    {"athlete_id": request.athlete_id},
+                    {"_id": 0}
+                )
+                
+                if anthro_data and anthro_data.get('records'):
+                    latest = anthro_data['records'][-1] if anthro_data.get('records') else {}
+                    measurements = latest.get('measurements', {})
+                    
+                    if 'measurements' in items and measurements:
+                        elements.append(Paragraph("Mediciones Actuales", styles['SubSection']))
+                        data = [
+                            ['Peso:', f"{measurements.get('weight', 'N/A')} kg"],
+                            ['Talla:', f"{measurements.get('height', 'N/A')} cm"],
+                            ['IMC:', measurements.get('bmi', 'N/A')],
+                        ]
+                        table = Table(data, colWidths=[1.5*inch, 2*inch])
+                        table.setStyle(TableStyle([
+                            ('BACKGROUND', (0, 0), (0, -1), bg_color),
+                            ('BACKGROUND', (1, 0), (1, -1), colors.white),
+                            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+                            ('FONTSIZE', (0, 0), (-1, -1), 10),
+                            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
+                            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+                        ]))
+                        elements.append(table)
+                else:
+                    elements.append(Paragraph("Sin datos antropométricos registrados", styles['CustomBody']))
             
             elements.append(Spacer(1, 0.2*inch))
         
