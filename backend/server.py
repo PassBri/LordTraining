@@ -2044,75 +2044,110 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                     elements.append(Spacer(1, 0.15*inch))
                 
                 if 'injuries' in items:
-                    elements.append(Paragraph("Historial de Lesiones", styles['SubSection']))
+                    elements.append(Paragraph("Historial de Lesiones", styles['SubSectionTitle']))
                     injuries = await db.injuries.find(
                         {"athlete_id": request.athlete_id}, {"_id": 0}
                     ).to_list(10)
                     if injuries:
                         for injury in injuries[:5]:
-                            elements.append(Paragraph(
-                                f"• {injury.get('type', 'N/A')} - {injury.get('location', 'N/A')} ({injury.get('date', 'N/A')[:10] if injury.get('date') else 'N/A'})",
-                                styles['CustomBody']
+                            elements.extend(create_qa_block(
+                                f"Lesión - {injury.get('location', 'Sin ubicación')}",
+                                f"Tipo: {injury.get('type', 'N/A')} | Fecha: {injury.get('date', 'N/A')[:10] if injury.get('date') else 'N/A'} | Severidad: {injury.get('severity', 'N/A')} | Tratamiento: {injury.get('treatment', 'N/A')}",
+                                section_id
                             ))
                     else:
-                        elements.append(Paragraph("Sin lesiones registradas", styles['CustomBody']))
+                        elements.append(Paragraph("Sin lesiones registradas", styles['NoDataText']))
                     elements.append(Spacer(1, 0.15*inch))
                 
                 if 'diseases' in items:
-                    elements.append(Paragraph("Enfermedades y Condiciones", styles['SubSection']))
+                    elements.append(Paragraph("Enfermedades y Condiciones", styles['SubSectionTitle']))
                     diseases = await db.diseases.find(
                         {"athlete_id": request.athlete_id}, {"_id": 0}
                     ).to_list(10)
                     if diseases:
                         for disease in diseases[:5]:
-                            elements.append(Paragraph(
-                                f"• {disease.get('name', 'N/A')} - {disease.get('status', 'N/A')}",
-                                styles['CustomBody']
+                            elements.extend(create_qa_block(
+                                disease.get('name', 'Condición sin nombre'),
+                                f"Estado: {disease.get('status', 'N/A')} | Descripción: {disease.get('description', 'N/A')}",
+                                section_id
                             ))
                     else:
-                        elements.append(Paragraph("Sin enfermedades registradas", styles['CustomBody']))
+                        elements.append(Paragraph("Sin enfermedades registradas", styles['NoDataText']))
             elements.append(Spacer(1, 0.2*inch))
         
         # ===== ANALYSIS =====
-        elif section_id == 'analysis' :
-            elements.append(Paragraph("ANÁLISIS PREVIO", styles['SectionTitle']))
+        elif section_id == 'analysis':
+            elements.append(create_section_header("🔍 ANÁLISIS PREVIO", section_id))
+            elements.append(Spacer(1, 0.15*inch))
             
             if not request.athlete_id:
-                elements.append(Paragraph("Seleccione un atleta para ver análisis previo", styles['CustomBody']))
+                elements.append(Paragraph("Seleccione un atleta para ver análisis previo", styles['NoDataText']))
             else:
                 if 'previous_plan' in items:
-                    elements.append(Paragraph("Análisis del Plan Anterior", styles['SubSection']))
+                    elements.append(Paragraph("Análisis del Plan Anterior", styles['SubSectionTitle']))
                     prev_analysis = await db.previous_plan_analysis.find_one(
                         {"athlete_id": request.athlete_id}, {"_id": 0}
                     )
                     if prev_analysis:
-                        elements.append(Paragraph(f"Cumplimiento: {prev_analysis.get('compliance_percentage', 'N/A')}%", styles['CustomBody']))
-                        elements.append(Paragraph(f"Resultados: {prev_analysis.get('results_summary', 'N/A')}", styles['CustomBody']))
+                        # Objetivos y Cumplimiento
+                        elements.extend(create_qa_block("¿Cuáles eran los objetivos al inicio del plan de entrenamiento?", prev_analysis.get('initialObjectives', ''), section_id))
+                        elements.extend(create_qa_block("¿En qué medida se alcanzaron estos objetivos?", prev_analysis.get('achievementLevel', ''), section_id))
+                        elements.extend(create_qa_block("Nivel de cumplimiento de objetivos planteados", prev_analysis.get('objectivesCompliance', ''), section_id))
+                        
+                        # Rendimiento
+                        elements.extend(create_qa_block("¿Cómo evolucionó el rendimiento en los indicadores clave?", prev_analysis.get('performanceIndicators', ''), section_id))
+                        elements.extend(create_qa_block("Resultados obtenidos - nivel de rendimiento de la temporada anterior", prev_analysis.get('performanceResults', ''), section_id))
+                        
+                        # Recuperación
+                        elements.extend(create_qa_block("¿Cómo calificarías el proceso de recuperación entre sesiones?", prev_analysis.get('recoveryProcess', ''), section_id))
+                        elements.extend(create_qa_block("¿Experimentaste algún periodo de fatiga prolongada?", prev_analysis.get('fatiguePeriods', ''), section_id))
+                        
+                        # Lesiones
+                        elements.extend(create_qa_block("¿Sufriste alguna lesión durante el plan?", prev_analysis.get('injuries', ''), section_id))
+                        elements.extend(create_qa_block("¿Cómo afectaron las lesiones tu entrenamiento?", prev_analysis.get('injuryImpact', ''), section_id))
+                        
+                        # Fortalezas y Debilidades
+                        elements.extend(create_qa_block("Aspectos positivos del plan", prev_analysis.get('planPositiveAspects', ''), section_id))
+                        elements.extend(create_qa_block("Áreas de mejora del plan", prev_analysis.get('planImprovementAreas', ''), section_id))
+                        
+                        # Nutrición
+                        elements.extend(create_qa_block("Hábitos de nutrición", prev_analysis.get('nutritionHabits', ''), section_id))
+                        elements.extend(create_qa_block("Hábitos de hidratación", prev_analysis.get('hydrationHabits', ''), section_id))
+                        
+                        # Psicológico
+                        elements.extend(create_qa_block("Manejo del estrés", prev_analysis.get('stressManagement', ''), section_id))
+                        elements.extend(create_qa_block("Presión en competencias", prev_analysis.get('competitionPressure', ''), section_id))
+                        
+                        # Cambios propuestos
+                        elements.extend(create_qa_block("¿Qué cambios específicos se proponen?", prev_analysis.get('specificChanges', ''), section_id))
+                        elements.extend(create_qa_block("Cambios para el próximo ciclo", prev_analysis.get('nextCycleChanges', ''), section_id))
                     else:
-                        elements.append(Paragraph("Sin análisis de plan anterior", styles['CustomBody']))
+                        elements.append(Paragraph("Sin análisis de plan anterior", styles['NoDataText']))
                     elements.append(Spacer(1, 0.15*inch))
                 
                 if 'competition_analysis' in items:
-                    elements.append(Paragraph("Análisis de Competencias", styles['SubSection']))
+                    elements.append(Paragraph("Análisis de Competencias", styles['SubSectionTitle']))
                     comp_analysis = await db.competition_analysis.find(
                         {"athlete_id": request.athlete_id}, {"_id": 0}
                     ).to_list(5)
                     if comp_analysis:
                         for comp in comp_analysis:
-                            elements.append(Paragraph(
-                                f"• {comp.get('competition_name', 'N/A')} - Posición: {comp.get('position', 'N/A')}",
-                                styles['CustomBody']
+                            elements.extend(create_qa_block(
+                                comp.get('competition_name', 'Competencia'),
+                                f"Posición: {comp.get('position', 'N/A')} | Resultado: {comp.get('result', 'N/A')} | Observaciones: {comp.get('observations', 'N/A')}",
+                                section_id
                             ))
                     else:
-                        elements.append(Paragraph("Sin análisis de competencias", styles['CustomBody']))
+                        elements.append(Paragraph("Sin análisis de competencias", styles['NoDataText']))
             elements.append(Spacer(1, 0.2*inch))
         
         # ===== OBJECTIVES =====
-        elif section_id == 'objectives' :
-            elements.append(Paragraph("OBJETIVOS E INDICADORES", styles['SectionTitle']))
+        elif section_id == 'objectives':
+            elements.append(create_section_header("🎯 OBJETIVOS E INDICADORES", section_id))
+            elements.append(Spacer(1, 0.15*inch))
             
             if not request.athlete_id:
-                elements.append(Paragraph("Seleccione un atleta para ver objetivos", styles['CustomBody']))
+                elements.append(Paragraph("Seleccione un atleta para ver objetivos", styles['NoDataText']))
             else:
                 objectives_data = await db.objectives.find_one(
                     {"athlete_id": request.athlete_id}, {"_id": 0}
@@ -2121,23 +2156,80 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                 if objectives_data and objectives_data.get('objectives'):
                     objs = objectives_data['objectives']
                     
+                    # Categorías de objetivos
+                    category_labels = {
+                        'performance': 'Rendimiento',
+                        'physical': 'Físico',
+                        'technical': 'Técnico',
+                        'tactical': 'Táctico',
+                        'psychological': 'Psicológico',
+                        'competition': 'Competitivo',
+                        'general': 'General'
+                    }
+                    
+                    timeframe_labels = {
+                        'short': 'Corto Plazo (1-3 meses)',
+                        'medium': 'Medio Plazo (3-6 meses)',
+                        'long': 'Largo Plazo (6-12 meses)',
+                        'season': 'Temporada Completa'
+                    }
+                    
                     if 'general_objectives' in items:
-                        elements.append(Paragraph("Objetivos Generales", styles['SubSection']))
-                        general = [o for o in objs if o.get('type') == 'general' or o.get('category') == 'general']
-                        if general:
-                            for obj in general[:5]:
-                                elements.append(Paragraph(f"• {obj.get('title', obj.get('name', 'N/A'))}", styles['CustomBody']))
-                        else:
-                            elements.append(Paragraph("Sin objetivos generales definidos", styles['CustomBody']))
+                        elements.append(Paragraph("Objetivos por Categoría", styles['SubSectionTitle']))
+                        
+                        # Group objectives by category
+                        by_category = {}
+                        for obj in objs:
+                            cat = obj.get('category', 'general')
+                            if cat not in by_category:
+                                by_category[cat] = []
+                            by_category[cat].append(obj)
+                        
+                        for cat, cat_objs in by_category.items():
+                            cat_label = category_labels.get(cat, cat.capitalize())
+                            elements.append(Paragraph(f"● {cat_label}", styles['QuestionText']))
+                            for obj in cat_objs[:5]:
+                                title = obj.get('title', obj.get('name', 'Sin título'))
+                                timeframe = timeframe_labels.get(obj.get('timeframe', ''), obj.get('timeframe', ''))
+                                progress = obj.get('progress', 0)
+                                description = obj.get('description', '')
+                                
+                                obj_text = f"<b>{title}</b><br/>"
+                                if timeframe:
+                                    obj_text += f"Plazo: {timeframe}<br/>"
+                                obj_text += f"Progreso: {progress}%<br/>"
+                                if description:
+                                    obj_text += f"Descripción: {description}"
+                                
+                                elements.append(Paragraph(obj_text, styles['AnswerText']))
                         elements.append(Spacer(1, 0.15*inch))
                     
-                    if 'specific_objectives' in items:
-                        elements.append(Paragraph("Objetivos Específicos", styles['SubSection']))
-                        specific = [o for o in objs if o.get('type') != 'general' and o.get('category') != 'general']
-                        if specific:
-                            # Group by category
-                            categories = {}
-                            for obj in specific:
+                    if 'kpis' in items:
+                        elements.append(Paragraph("Indicadores de Rendimiento (KPIs)", styles['SubSectionTitle']))
+                        # Collect all indicators from objectives
+                        kpis = []
+                        for obj in objs:
+                            for ind in obj.get('indicators', []):
+                                if ind.get('name'):
+                                    kpis.append(ind)
+                        
+                        if kpis:
+                            table = create_data_table(
+                                ['Indicador', 'Línea Base', 'Meta', 'Actual', 'Unidad'],
+                                [[
+                                    kpi.get('name', 'N/A'),
+                                    str(kpi.get('baseline', '-')),
+                                    str(kpi.get('target', '-')),
+                                    str(kpi.get('current', '-')),
+                                    kpi.get('unit', '-')
+                                ] for kpi in kpis[:10]],
+                                section_id
+                            )
+                            elements.append(table)
+                        else:
+                            elements.append(Paragraph("Sin indicadores definidos", styles['NoDataText']))
+                else:
+                    elements.append(Paragraph("Sin objetivos registrados", styles['NoDataText']))
                                 cat = obj.get('category', 'Otros')
                                 if cat not in categories:
                                     categories[cat] = []
