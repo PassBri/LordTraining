@@ -2153,16 +2153,16 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                     alerts = await db.alerts.find(
                         {"athlete_id": request.athlete_id, "active": True}, {"_id": 0}
                     ).to_list(5)
-                if alerts:
-                    for alert in alerts:
-                        severity = alert.get('severity', 'info')
-                        icon = "⚠️" if severity == 'warning' else "ℹ️" if severity == 'info' else "🔴"
-                        elements.append(Paragraph(
-                            f"{icon} {alert.get('message', 'N/A')}",
-                            styles['CustomBody']
-                        ))
-                else:
-                    elements.append(Paragraph("Sin alertas activas", styles['CustomBody']))
+                    if alerts:
+                        for alert in alerts:
+                            severity = alert.get('severity', 'info')
+                            icon = "⚠️" if severity == 'warning' else "ℹ️" if severity == 'info' else "🔴"
+                            elements.append(Paragraph(
+                                f"{icon} {alert.get('message', 'N/A')}",
+                                styles['CustomBody']
+                            ))
+                    else:
+                        elements.append(Paragraph("Sin alertas activas", styles['CustomBody']))
             elements.append(Spacer(1, 0.2*inch))
         
         # ===== PERIODIZATION =====
