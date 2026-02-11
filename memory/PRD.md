@@ -694,3 +694,37 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 
 ### Test Report
 - `/app/test_reports/iteration_15.json` - 100% tests pasados (Backend: 15/15, Frontend: 100%)
+
+
+### Feb 11, 2026 - Mejoras PDF y Exportación de Imagen del Plan Gráfico
+- ✅ **AMPLIADO a 12 secciones** en exportación PDF:
+  1. Información del Atleta (datos básicos, afiliaciones, contacto)
+  2. **Caracterización** (deporte, deportista, modelo de rendimiento) - NUEVA
+  3. Datos Antropométricos (mediciones, composición corporal, historial)
+  4. Evaluaciones y Tests (tests físicos, técnicos, historial de rendimiento)
+  5. **Historial Médico** (diagnóstico, lesiones, enfermedades) - NUEVA
+  6. **Análisis Previo** (plan anterior, competencias, fortalezas/debilidades) - NUEVA
+  7. **Objetivos e Indicadores** (generales, específicos, KPIs) - NUEVA
+  8. Plan de Periodización (modelo, etapas, macro/meso/microciclos, sesiones)
+  9. **Medios de Entrenamiento** (ejercicios, métodos, progresiones) - NUEVA
+  10. Plan Gráfico (tabla, carga/recuperación, volumen/intensidad, fases)
+  11. **Control y Seguimiento** (monitoreo de carga, control, alertas) - NUEVA
+  12. Calendario de Eventos (competencias, concentraciones, evaluaciones)
+
+- ✅ **Exportar Plan Gráfico como Imagen (PNG)**:
+  - Nuevo botón "Imagen" en GraphicPlan.js (junto a "Guardar")
+  - Usa html2canvas para capturar el plan gráfico completo
+  - Genera archivo PNG con fondo blanco sólido
+  - Nombre de archivo: `plan_grafico_{atleta}_{fecha}.png`
+  - Toast de confirmación: "Imagen exportada exitosamente"
+
+### Archivos Modificados
+- `/app/frontend/src/components/PDFExportModal.js` - 12 secciones en EXPORT_SECTIONS
+- `/app/frontend/src/components/GraphicPlan.js` - Botón "Imagen" y handleExportAsImage()
+- `/app/backend/server.py` - 6 nuevas secciones en endpoint export_comprehensive_pdf
+
+### Dependencias Añadidas
+- `html2canvas@1.4.1` - Para exportar el plan gráfico como imagen
+
+### Test Report
+- `/app/test_reports/iteration_16.json` - 100% tests pasados (Backend: 11/11, Frontend: 100%)
