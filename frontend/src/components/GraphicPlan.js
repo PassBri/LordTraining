@@ -28,10 +28,12 @@ import {
   FileInput,
   RefreshCw,
   BarChart3,
-  TrendingUp
+  TrendingUp,
+  Image
 } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
+import html2canvas from 'html2canvas';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
