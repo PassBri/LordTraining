@@ -506,6 +506,43 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName }) => {
     }
   };
 
+  // Export plan as image
+  const [exportingImage, setExportingImage] = useState(false);
+  
+  const handleExportAsImage = async () => {
+    setExportingImage(true);
+    try {
+      // Find the plan content element
+      const planElement = document.querySelector('[data-testid="graphic-plan-content"]');
+      if (!planElement) {
+        toast.error('No se encontró el plan gráfico');
+        return;
+      }
+      
+      const canvas = await html2canvas(planElement, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true,
+        logging: false
+      });
+      
+      // Create download link
+      const link = document.createElement('a');
+      link.download = `plan_grafico_${generalInfo.athlete?.replace(/\s+/g, '_') || 'atleta'}_${new Date().toISOString().split('T')[0]}.png`;
+      link.href = canvas.toDataURL('image/png');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('Imagen exportada exitosamente');
+    } catch (error) {
+      console.error('Error exporting image:', error);
+      toast.error('Error al exportar imagen');
+    } finally {
+      setExportingImage(false);
+    }
+  };
+
   // Cell click handler
   const handleCellClick = (section, rowId, weekIndex) => {
     setPlanData(prev => {
