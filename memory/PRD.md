@@ -565,3 +565,37 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 
 ### Test Report
 - `/app/test_reports/iteration_11.json` - 100% tests pasados (Backend: 10/10, Frontend: 100%)
+
+### Feb 11, 2026 - Mejoras al Plan Gráfico y Conexión de Datos
+
+#### Gráficas Nuevas en Plan Gráfico
+- ✅ **Gráfica de Magnitud de Carga y Recuperación**:
+  - Selector de tipo: Barras (Matveyev), Líneas superpuestas, Áreas apiladas
+  - Muestra Carga (rojo) y Recuperación (azul) por semana
+  - Usa datos de la tabla de intensidad
+
+- ✅ **Gráfica de Volumen e Intensidad por Semanas**:
+  - Selector de tipo: Líneas, Barras agrupadas, Combinación (Barras + Línea)
+  - Muestra Volumen (verde) e Intensidad (púrpura) por semana
+  - Incluye información de mesociclo en tooltip
+
+- ✅ **Fila de Eventos/Competencias**:
+  - Nueva fila "Calendario" en la tabla del plan
+  - Muestra 🏆 para competencias principales
+  - Muestra 📅 para otros eventos del calendario
+  - Se conecta con el calendario de eventos del atleta
+
+#### Conexión de Datos entre Secciones
+- ✅ **AthleteSummary Component** (`AthleteSummary.js`):
+  - Resumen compacto del atleta seleccionado
+  - Muestra datos antropométricos del atleta
+  - Muestra conteo de evaluaciones/tests
+  - Calcula carga recomendada basada en resultados de tests
+  - Botones de navegación rápida a Plan de Entrenamiento y Plan Gráfico
+
+- ✅ **Layout 2 Columnas en Atletas**:
+  - Columna izquierda (2/3): Lista y formulario de atletas
+  - Columna derecha (1/3): AthleteSummary con datos del atleta seleccionado
+
+### Test Report
+- `/app/test_reports/iteration_12.json` - 100% tests pasados (Frontend: 14/14)
