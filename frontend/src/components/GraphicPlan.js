@@ -724,7 +724,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName }) => {
           </div>
         </CardHeader>
         
-        <CardContent className="p-4">
+        <CardContent className="p-4" data-testid="graphic-plan-content">
           {/* General Information */}
           <div className="mb-4 p-3 bg-gray-50 rounded-lg border">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
