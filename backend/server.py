@@ -2376,7 +2376,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                             elements.append(Paragraph(macro_info, styles['AnswerText']))
                     
                     if 'mesocycles' in items:
-                        elements.append(Paragraph("Mesociclos:", styles['CustomBody']))
+                        elements.append(Paragraph("Mesociclos:", styles['QuestionText']))
                         mesos = plan.get('mesocycles', [])
                         if mesos:
                             table = create_data_table(
