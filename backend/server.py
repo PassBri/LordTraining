@@ -2049,45 +2049,49 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         elif section_id == 'training_methods' :
             elements.append(Paragraph("MEDIOS DE ENTRENAMIENTO", styles['SectionTitle']))
             
-            if 'exercises' in items:
-                elements.append(Paragraph("Ejercicios Seleccionados", styles['SubSection']))
-                # Get exercises assigned to athlete
-                athlete_exercises = await db.athlete_exercises.find(
-                    {"athlete_id": request.athlete_id}, {"_id": 0}
-                ).to_list(20)
-                if athlete_exercises:
-                    ex_data = [['Ejercicio', 'Categoría', 'Músculo Principal']]
-                    for ex in athlete_exercises[:10]:
-                        ex_data.append([
-                            ex.get('name', 'N/A'),
-                            ex.get('category', 'N/A'),
-                            ex.get('primary_muscle', 'N/A')
-                        ])
-                    table = Table(ex_data, colWidths=[2.5*inch, 1.5*inch, 1.5*inch])
-                    table.setStyle(TableStyle([
-                        ('BACKGROUND', (0, 0), (-1, 0), accent_color),
-                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-                        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                        ('FONTSIZE', (0, 0), (-1, -1), 9),
-                        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
-                        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-                        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
-                    ]))
-                    elements.append(table)
-                else:
-                    elements.append(Paragraph("Sin ejercicios asignados", styles['CustomBody']))
-                elements.append(Spacer(1, 0.15*inch))
-            
-            if 'methods' in items:
-                elements.append(Paragraph("Métodos de Entrenamiento", styles['SubSection']))
-                methods = await db.training_methods.find(
-                    {"athlete_id": request.athlete_id}, {"_id": 0}
-                ).to_list(10)
-                if methods:
-                    for method in methods[:5]:
-                        elements.append(Paragraph(
-                            f"• {method.get('name', 'N/A')} - {method.get('description', 'N/A')[:50]}",
-                            styles['CustomBody']
+            if not request.athlete_id:
+                elements.append(Paragraph("Seleccione un atleta para ver medios de entrenamiento", styles['CustomBody']))
+            else:
+                if 'exercises' in items:
+                    elements.append(Paragraph("Ejercicios Seleccionados", styles['SubSection']))
+                    # Get exercises assigned to athlete
+                    athlete_exercises = await db.athlete_exercises.find(
+                        {"athlete_id": request.athlete_id}, {"_id": 0}
+                    ).to_list(20)
+                    if athlete_exercises:
+                        ex_data = [['Ejercicio', 'Categoría', 'Músculo Principal']]
+                        for ex in athlete_exercises[:10]:
+                            ex_data.append([
+                                ex.get('name', 'N/A'),
+                                ex.get('category', 'N/A'),
+                                ex.get('primary_muscle', 'N/A')
+                            ])
+                        table = Table(ex_data, colWidths=[2.5*inch, 1.5*inch, 1.5*inch])
+                        table.setStyle(TableStyle([
+                            ('BACKGROUND', (0, 0), (-1, 0), accent_color),
+                            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                            ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                            ('FONTSIZE', (0, 0), (-1, -1), 9),
+                            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E5E7EB')),
+                            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_color]),
+                        ]))
+                        elements.append(table)
+                    else:
+                        elements.append(Paragraph("Sin ejercicios asignados", styles['CustomBody']))
+                    elements.append(Spacer(1, 0.15*inch))
+                
+                if 'methods' in items:
+                    elements.append(Paragraph("Métodos de Entrenamiento", styles['SubSection']))
+                    methods = await db.training_methods.find(
+                        {"athlete_id": request.athlete_id}, {"_id": 0}
+                    ).to_list(10)
+                    if methods:
+                        for method in methods[:5]:
+                            elements.append(Paragraph(
+                                f"• {method.get('name', 'N/A')} - {method.get('description', 'N/A')[:50]}",
+                                styles['CustomBody']
                         ))
                 else:
                     elements.append(Paragraph("Sin métodos definidos", styles['CustomBody']))
