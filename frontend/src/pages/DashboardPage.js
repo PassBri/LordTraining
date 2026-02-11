@@ -1153,6 +1153,15 @@ const DashboardPage = () => {
       );
     }
 
+    // Render Entity Manager
+    if (activeDataSection === 'entities') {
+      return (
+        <div className="p-4">
+          <EntityManager />
+        </div>
+      );
+    }
+
     // For sections without specific components, show placeholder
     const sectionLabel = navItems.find(item => item.id === activeDataSection)?.label;
     
