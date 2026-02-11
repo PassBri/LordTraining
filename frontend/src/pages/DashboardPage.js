@@ -163,6 +163,12 @@ const DashboardPage = () => {
     setSavingAthlete(true);
     try {
       const token = localStorage.getItem('train_token');
+      // Build affiliations array from selected entities
+      const affiliations = [];
+      if (newAthlete.federation) affiliations.push(newAthlete.federation);
+      if (newAthlete.club) affiliations.push(newAthlete.club);
+      if (newAthlete.school) affiliations.push(newAthlete.school);
+      
       const response = await fetch(`${API_URL}/api/athletes`, {
         method: 'POST',
         headers: {
@@ -175,19 +181,21 @@ const DashboardPage = () => {
           sport: newAthlete.sport.toLowerCase() || 'other',
           age: newAthlete.birthDate ? new Date().getFullYear() - new Date(newAthlete.birthDate).getFullYear() : 20,
           level: newAthlete.level || 'intermedio',
-          notes: `Categoría: ${newAthlete.category || 'N/A'}, Género: ${newAthlete.gender || 'N/A'}`
+          notes: `Categoría: ${newAthlete.category || 'N/A'}, Género: ${newAthlete.gender || 'N/A'}`,
+          affiliations: affiliations
         })
       });
       if (response.ok) {
         await fetchAthletes();
-        setNewAthlete({ name: '', email: '', birthDate: '', gender: '', sport: '', category: '', level: '' });
+        setNewAthlete({ name: '', email: '', birthDate: '', gender: '', sport: '', category: '', level: '', federation: '', club: '', school: '' });
+        toast.success('Atleta creado exitosamente');
       } else {
         const error = await response.json();
-        alert(error.detail || 'Error al crear atleta');
+        toast.error(error.detail || 'Error al crear atleta');
       }
     } catch (error) {
       console.error('Error creating athlete:', error);
-      alert('Error al crear atleta');
+      toast.error('Error al crear atleta');
     }
     setSavingAthlete(false);
   };
