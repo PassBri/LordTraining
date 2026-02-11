@@ -1563,6 +1563,15 @@ const DashboardPage = () => {
       <div className="flex-grow overflow-hidden">
         {renderMainContent()}
       </div>
+
+      {/* PDF Export Modal */}
+      <PDFExportModal
+        isOpen={isPdfModalOpen}
+        onClose={() => setIsPdfModalOpen(false)}
+        athleteId={selectedAthleteId}
+        athleteName={athletes.find(a => a.id === selectedAthleteId)?.name}
+        periodizationData={periodizationData}
+      />
     </div>
   );
 };
