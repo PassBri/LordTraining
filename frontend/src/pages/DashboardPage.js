@@ -480,6 +480,26 @@ const DashboardPage = () => {
 
     // Render Atletas section inline - COMPLETE
     if (activeDataSection === 'athletes') {
+      // Helper functions for entity display
+      const getEntityById = (id) => entities.find(e => e.id === id);
+      const getEntitiesByType = (type) => entities.filter(e => e.entity_type === type);
+      const federations = getEntitiesByType('federation');
+      const clubs = getEntitiesByType('club');
+      const schools = getEntitiesByType('school');
+      
+      // Filter athletes by entity
+      const filteredAthletes = athleteFilterEntity === 'all' 
+        ? athletes 
+        : athletes.filter(a => a.affiliations?.includes(athleteFilterEntity));
+      
+      // Get affiliation names for display
+      const getAffiliationNames = (affiliationIds = []) => {
+        return affiliationIds.map(id => {
+          const entity = getEntityById(id);
+          return entity ? { name: entity.name, type: entity.entity_type } : null;
+        }).filter(Boolean);
+      };
+      
       return (
         <div className="p-4 space-y-4">
           <Card className="border-0 shadow-md overflow-hidden">
@@ -489,7 +509,7 @@ const DashboardPage = () => {
                   <Users className="w-5 h-5" />
                   Gestión de Atletas
                 </div>
-                <span className="text-sm bg-white/20 px-3 py-1 rounded-full">{athletes.length} registrados</span>
+                <span className="text-sm bg-white/20 px-3 py-1 rounded-full">{filteredAthletes.length} de {athletes.length}</span>
               </div>
             </div>
             <CardContent className="p-5">
@@ -556,13 +576,173 @@ const DashboardPage = () => {
                       <SelectItem value="elite">Elite</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                
+                {/* Afiliaciones a entidades */}
+                <div className="mt-4 pt-4 border-t border-indigo-200">
+                  <h5 className="text-sm font-semibold text-indigo-800 mb-3 flex items-center gap-2">
+                    <Landmark className="w-4 h-4" />
+                    Afiliación a Entidades (opcional)
+                  </h5>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <Select value={newAthlete.federation} onValueChange={(v) => setNewAthlete({...newAthlete, federation: v})}>
+                      <SelectTrigger className="h-10 border-amber-200 bg-amber-50/50">
+                        <SelectValue placeholder="🏛️ Federación" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Sin federación</SelectItem>
+                        {federations.map(f => (
+                          <SelectItem key={f.id} value={f.id}>🏛️ {f.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Select value={newAthlete.club} onValueChange={(v) => setNewAthlete({...newAthlete, club: v})}>
+                      <SelectTrigger className="h-10 border-blue-200 bg-blue-50/50">
+                        <SelectValue placeholder="🏢 Club" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Sin club</SelectItem>
+                        {clubs.map(c => (
+                          <SelectItem key={c.id} value={c.id}>🏢 {c.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Select value={newAthlete.school} onValueChange={(v) => setNewAthlete({...newAthlete, school: v})}>
+                      <SelectTrigger className="h-10 border-emerald-200 bg-emerald-50/50">
+                        <SelectValue placeholder="🏫 Escuela" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Sin escuela</SelectItem>
+                        {schools.map(s => (
+                          <SelectItem key={s.id} value={s.id}>🏫 {s.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {entities.length === 0 && (
+                    <p className="text-xs text-indigo-600 mt-2">
+                      💡 Tip: Crea entidades en la sección <strong>Organización → Entidades</strong> para afiliar atletas
+                    </p>
+                  )}
+                </div>
+                
+                <div className="mt-4 flex justify-end">
                   <Button 
-                    className="bg-indigo-500 hover:bg-indigo-600 h-10 font-medium"
+                    className="bg-indigo-500 hover:bg-indigo-600 h-10 font-medium px-6"
                     onClick={handleCreateAthlete}
                     disabled={savingAthlete}
                   >
                     {savingAthlete ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Plus className="w-4 h-4 mr-1" />}
-                    Agregar
+                    Agregar Atleta
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Filtro por entidad */}
+              {entities.length > 0 && (
+                <div className="mb-4 flex items-center gap-3 flex-wrap">
+                  <span className="text-sm font-medium text-slate-600">Filtrar por:</span>
+                  <Button 
+                    variant={athleteFilterEntity === 'all' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setAthleteFilterEntity('all')}
+                    className={athleteFilterEntity === 'all' ? 'bg-indigo-500' : ''}
+                  >
+                    Todos
+                  </Button>
+                  {entities.map(entity => {
+                    const emoji = entity.entity_type === 'federation' ? '🏛️' : 
+                                  entity.entity_type === 'club' ? '🏢' : 
+                                  entity.entity_type === 'school' ? '🏫' : '🏆';
+                    const isActive = athleteFilterEntity === entity.id;
+                    return (
+                      <Button 
+                        key={entity.id}
+                        variant={isActive ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setAthleteFilterEntity(isActive ? 'all' : entity.id)}
+                        className={isActive ? 'bg-indigo-500' : ''}
+                      >
+                        {emoji} {entity.name}
+                      </Button>
+                    );
+                  })}
+                </div>
+              )}
+              
+              {/* Lista de atletas */}
+              <div className="space-y-3">
+                {filteredAthletes.length === 0 ? (
+                  <div className="text-center py-12 text-slate-400">
+                    <Users className="w-16 h-16 mx-auto mb-3 opacity-30" />
+                    <p className="font-medium">
+                      {athleteFilterEntity !== 'all' ? 'No hay atletas en esta entidad' : 'No hay atletas registrados'}
+                    </p>
+                    <p className="text-sm mt-1">
+                      {athleteFilterEntity !== 'all' 
+                        ? 'Afilia atletas a esta entidad o cambia el filtro' 
+                        : 'Agrega tu primer atleta usando el formulario arriba'}
+                    </p>
+                  </div>
+                ) : (
+                  filteredAthletes.map(athlete => {
+                    const affiliationNames = getAffiliationNames(athlete.affiliations);
+                    return (
+                      <div key={athlete.id} className={`flex items-center justify-between p-4 bg-white border rounded-xl hover:shadow-md transition-all duration-200 ${selectedAthleteId === athlete.id ? 'border-indigo-400 ring-2 ring-indigo-200' : 'border-slate-200 hover:border-indigo-200'}`}>
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-full flex items-center justify-center shadow-sm">
+                            <span className="text-white font-bold text-lg">{athlete.name?.charAt(0)}</span>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-slate-800">{athlete.name}</p>
+                            <p className="text-sm text-slate-500">{athlete.sport} • {athlete.level || 'Sin nivel'} • {athlete.age} años</p>
+                            {affiliationNames.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {affiliationNames.map((aff, idx) => (
+                                  <span 
+                                    key={idx} 
+                                    className={`text-xs px-2 py-0.5 rounded-full ${
+                                      aff.type === 'federation' ? 'bg-amber-100 text-amber-700' :
+                                      aff.type === 'club' ? 'bg-blue-100 text-blue-700' :
+                                      aff.type === 'school' ? 'bg-emerald-100 text-emerald-700' :
+                                      'bg-slate-100 text-slate-700'
+                                    }`}
+                                  >
+                                    {aff.type === 'federation' ? '🏛️' : aff.type === 'club' ? '🏢' : '🏫'} {aff.name}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant={selectedAthleteId === athlete.id ? "default" : "outline"} 
+                            size="sm" 
+                            onClick={() => setSelectedAthleteId(selectedAthleteId === athlete.id ? null : athlete.id)} 
+                            className={selectedAthleteId === athlete.id ? "bg-indigo-500" : "border-indigo-200 text-indigo-600 hover:bg-indigo-50"}
+                          >
+                            {selectedAthleteId === athlete.id ? '✓ Seleccionado' : 'Seleccionar'}
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-rose-500 hover:text-rose-600 hover:bg-rose-50"
+                            onClick={() => handleDeleteAthlete(athlete.id)}
+                          >
+                            Eliminar
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
                   </Button>
                 </div>
               </div>
