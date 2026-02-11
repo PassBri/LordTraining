@@ -1958,23 +1958,76 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
         elif section_id == 'graphic_plan':
             elements.append(Paragraph("PLAN GRÁFICO DE ENTRENAMIENTO", styles['SectionTitle']))
             
+            # Load graphic plan data from database
+            graphic_plan_data = None
+            if request.athlete_id:
+                graphic_plan_data = await db.graphic_plans.find_one(
+                    {"athlete_id": request.athlete_id},
+                    {"_id": 0}
+                )
+            
+            # Use periodization_data if provided, otherwise use default
+            plan_data = request.periodization_data or graphic_plan_data or {}
+            
             if 'training_table' in items:
                 elements.append(Paragraph("Tabla de Planificación Semanal", styles['SubSection']))
                 
-                # Create a sample table showing weeks 1-12
-                header = ['Semana'] + [f'S{i}' for i in range(1, 13)]
-                rows = [
-                    ['Fase'] + ['Prep. General'] * 4 + ['Prep. Específica'] * 4 + ['Competitiva'] * 4,
-                    ['Intensidad'] + ['60%', '65%', '70%', '75%', '80%', '82%', '85%', '87%', '90%', '85%', '95%', '90%'],
-                    ['Volumen'] + ['Alto'] * 4 + ['Medio'] * 4 + ['Bajo'] * 4,
-                ]
+                # Get data from graphic plan if available
+                intensity_data = plan_data.get('intensity', {})
+                weeks_count = min(12, len(intensity_data) if intensity_data else 12)
+                
+                # Create headers
+                header = ['Parámetro'] + [f'S{i}' for i in range(1, weeks_count + 1)]
+                
+                # Create rows with data from plan or defaults
+                rows = []
+                
+                # Phases row
+                phases_row = ['Fase']
+                for i in range(1, weeks_count + 1):
+                    week_key = f'S{i}'
+                    if plan_data.get('periods', {}).get(week_key):
+                        phases_row.append(plan_data['periods'][week_key][:8])  # Truncate long names
+                    else:
+                        if i <= weeks_count // 3:
+                            phases_row.append('Prep.Gen')
+                        elif i <= 2 * weeks_count // 3:
+                            phases_row.append('Prep.Esp')
+                        else:
+                            phases_row.append('Compet.')
+                rows.append(phases_row)
+                
+                # Intensity row
+                intensity_row = ['Intensidad']
+                for i in range(1, weeks_count + 1):
+                    week_key = f'S{i}'
+                    if intensity_data.get(week_key):
+                        val = intensity_data[week_key]
+                        intensity_row.append(f'{int(val * 20)}%' if isinstance(val, (int, float)) else str(val))
+                    else:
+                        # Default progression
+                        base = 60 + (i * 3)
+                        intensity_row.append(f'{min(base, 95)}%')
+                rows.append(intensity_row)
+                
+                # Mesocycle row
+                meso_row = ['Mesociclo']
+                for i in range(1, weeks_count + 1):
+                    week_key = f'S{i}'
+                    if plan_data.get('mesocycles', {}).get(week_key):
+                        meso_row.append(plan_data['mesocycles'][week_key][:6])
+                    else:
+                        meso_num = (i - 1) // 4 + 1
+                        meso_row.append(f'M{meso_num}')
+                rows.append(meso_row)
                 
                 data = [header] + rows
-                table = Table(data, colWidths=[1*inch] + [0.45*inch]*12)
+                table = Table(data, colWidths=[1.1*inch] + [0.42*inch]*weeks_count)
                 table.setStyle(TableStyle([
                     ('BACKGROUND', (0, 0), (-1, 0), primary_color),
                     ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
                     ('BACKGROUND', (0, 1), (0, -1), bg_color),
+                    ('BACKGROUND', (1, 1), (-1, -1), colors.white),  # Solid white background
                     ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
                     ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
                     ('FONTSIZE', (0, 0), (-1, -1), 7),
@@ -1995,17 +2048,44 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                 ))
                 elements.append(Spacer(1, 0.15*inch))
                 
-                # Simple bar representation using table
-                weeks_data = [['Semana', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8']]
-                weeks_data.append(['Carga %', '60', '65', '70', '75', '80', '85', '75', '90'])
-                weeks_data.append(['Recup. %', '40', '35', '30', '25', '20', '15', '25', '10'])
+                # Get intensity data for load chart
+                intensity_data = plan_data.get('intensity', {})
+                weeks_count = min(12, len(intensity_data) if intensity_data else 8)
                 
-                table = Table(weeks_data, colWidths=[1*inch] + [0.6*inch]*8)
+                weeks_header = ['Semana'] + [f'S{i}' for i in range(1, weeks_count + 1)]
+                
+                # Load row
+                load_row = ['Carga %']
+                for i in range(1, weeks_count + 1):
+                    week_key = f'S{i}'
+                    if intensity_data.get(week_key):
+                        val = intensity_data[week_key]
+                        load_row.append(str(int(val * 20)) if isinstance(val, (int, float)) else str(val))
+                    else:
+                        base = 60 + (i * 4)
+                        load_row.append(str(min(base, 95)))
+                
+                # Recovery row (inverse of load)
+                recovery_row = ['Recup. %']
+                for i in range(1, weeks_count + 1):
+                    week_key = f'S{i}'
+                    if intensity_data.get(week_key):
+                        val = intensity_data[week_key]
+                        load_val = int(val * 20) if isinstance(val, (int, float)) else 50
+                        recovery_row.append(str(100 - load_val))
+                    else:
+                        base = 60 + (i * 4)
+                        recovery_row.append(str(100 - min(base, 95)))
+                
+                weeks_data = [weeks_header, load_row, recovery_row]
+                
+                table = Table(weeks_data, colWidths=[1*inch] + [0.6*inch]*weeks_count)
                 table.setStyle(TableStyle([
                     ('BACKGROUND', (0, 0), (-1, 0), primary_color),
                     ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-                    ('BACKGROUND', (1, 1), (-1, 1), colors.HexColor('#EF4444')),
-                    ('BACKGROUND', (1, 2), (-1, 2), colors.HexColor('#3B82F6')),
+                    ('BACKGROUND', (0, 1), (0, -1), bg_color),
+                    ('BACKGROUND', (1, 1), (-1, 1), colors.HexColor('#EF4444')),  # Red for load
+                    ('BACKGROUND', (1, 2), (-1, 2), colors.HexColor('#3B82F6')),  # Blue for recovery
                     ('TEXTCOLOR', (1, 1), (-1, 2), colors.white),
                     ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
                     ('FONTSIZE', (0, 0), (-1, -1), 8),
@@ -2014,6 +2094,13 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                     ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
                 ]))
                 elements.append(table)
+                
+                # Add legend
+                elements.append(Spacer(1, 0.1*inch))
+                elements.append(Paragraph(
+                    "<font color='#EF4444'>■</font> Carga (%) &nbsp;&nbsp;&nbsp; <font color='#3B82F6'>■</font> Recuperación (%)",
+                    styles['BodyText']
+                ))
                 elements.append(Spacer(1, 0.2*inch))
             
             if 'volume_intensity_chart' in items:
