@@ -2093,9 +2093,9 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                             elements.append(Paragraph(
                                 f"• {method.get('name', 'N/A')} - {method.get('description', 'N/A')[:50]}",
                                 styles['CustomBody']
-                        ))
-                else:
-                    elements.append(Paragraph("Sin métodos definidos", styles['CustomBody']))
+                            ))
+                    else:
+                        elements.append(Paragraph("Sin métodos definidos", styles['CustomBody']))
             elements.append(Spacer(1, 0.2*inch))
         
         # ===== CONTROL =====
