@@ -541,3 +541,27 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 
 ### Test Report
 - `/app/test_reports/iteration_10.json` - 100% tests pasados (Backend: 16/16, Frontend: 100%)
+
+### Feb 11, 2026 - Afiliación de Atletas a Entidades
+- ✅ **Formulario de Atletas Actualizado** (`DashboardPage.js`):
+  - Nueva sección "AFILIACIÓN A ENTIDADES (OPCIONAL)"
+  - 3 selectores de entidades:
+    - 🏛️ Federación (borde y fondo amber)
+    - 🏢 Club (borde y fondo blue)
+    - 🏫 Escuela (borde y fondo emerald)
+  - Tip de ayuda cuando no hay entidades creadas
+
+- ✅ **Filtrado de Atletas por Entidad**:
+  - Botones de filtro encima de la lista de atletas
+  - Botón "Todos" para mostrar todos los atletas
+  - Botones para cada entidad creada con emoji y nombre
+  - Filtrado instantáneo sin recarga de página
+
+- ✅ **Badges de Afiliación en Tarjetas de Atletas**:
+  - Badges de color según tipo de entidad
+  - Federación: bg-amber-100 text-amber-700 con 🏛️
+  - Club: bg-blue-100 text-blue-700 con 🏢
+  - Escuela: bg-emerald-100 text-emerald-700 con 🏫
+
+### Test Report
+- `/app/test_reports/iteration_11.json` - 100% tests pasados (Backend: 10/10, Frontend: 100%)
