@@ -1960,11 +1960,12 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                 elements.append(Spacer(1, 0.2*inch))
         
         # ===== ANTHROPOMETRIC DATA =====
-        elif section_id == 'anthropometric' :
-            elements.append(Paragraph("DATOS ANTROPOMÉTRICOS", styles['SectionTitle']))
+        elif section_id == 'anthropometric':
+            elements.append(create_section_header("📐 DATOS ANTROPOMÉTRICOS", section_id))
+            elements.append(Spacer(1, 0.15*inch))
             
             if not request.athlete_id:
-                elements.append(Paragraph("Seleccione un atleta para ver datos antropométricos", styles['CustomBody']))
+                elements.append(Paragraph("Seleccione un atleta para ver datos antropométricos", styles['NoDataText']))
             else:
                 anthro_data = await db.anthropometric_data.find_one(
                     {"athlete_id": request.athlete_id},
