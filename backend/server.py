@@ -1737,7 +1737,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                 elements.append(Spacer(1, 0.2*inch))
         
         # ===== CHARACTERIZATION =====
-        elif section_id == 'characterization' and request.athlete_id:
+        elif section_id == 'characterization' :
             elements.append(Paragraph("CARACTERIZACIÓN", styles['SectionTitle']))
             
             if 'sport_char' in items:
@@ -1791,7 +1791,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
             elements.append(Spacer(1, 0.2*inch))
         
         # ===== ANTHROPOMETRIC DATA =====
-        elif section_id == 'anthropometric' and request.athlete_id:
+        elif section_id == 'anthropometric' :
             elements.append(Paragraph("DATOS ANTROPOMÉTRICOS", styles['SectionTitle']))
             
             anthro_data = await db.anthropometric_data.find_one(
@@ -1826,7 +1826,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
             elements.append(Spacer(1, 0.2*inch))
         
         # ===== EVALUATIONS =====
-        elif section_id == 'evaluations' and request.athlete_id:
+        elif section_id == 'evaluations' :
             elements.append(Paragraph("EVALUACIONES Y TESTS", styles['SectionTitle']))
             
             test_data = await db.tests.find_one(
@@ -1864,7 +1864,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                 elements.append(Paragraph("Sin evaluaciones registradas", styles['CustomBody']))
         
         # ===== MEDICAL HISTORY =====
-        elif section_id == 'medical' and request.athlete_id:
+        elif section_id == 'medical' :
             elements.append(Paragraph("HISTORIAL MÉDICO", styles['SectionTitle']))
             
             if 'diagnostic' in items:
@@ -1910,7 +1910,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
             elements.append(Spacer(1, 0.2*inch))
         
         # ===== ANALYSIS =====
-        elif section_id == 'analysis' and request.athlete_id:
+        elif section_id == 'analysis' :
             elements.append(Paragraph("ANÁLISIS PREVIO", styles['SectionTitle']))
             
             if 'previous_plan' in items:
@@ -1941,7 +1941,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
             elements.append(Spacer(1, 0.2*inch))
         
         # ===== OBJECTIVES =====
-        elif section_id == 'objectives' and request.athlete_id:
+        elif section_id == 'objectives' :
             elements.append(Paragraph("OBJETIVOS E INDICADORES", styles['SectionTitle']))
             
             objectives_data = await db.objectives.find_one(
@@ -2020,7 +2020,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
             elements.append(Spacer(1, 0.2*inch))
         
         # ===== TRAINING METHODS =====
-        elif section_id == 'training_methods' and request.athlete_id:
+        elif section_id == 'training_methods' :
             elements.append(Paragraph("MEDIOS DE ENTRENAMIENTO", styles['SectionTitle']))
             
             if 'exercises' in items:
@@ -2068,7 +2068,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
             elements.append(Spacer(1, 0.2*inch))
         
         # ===== CONTROL =====
-        elif section_id == 'control' and request.athlete_id:
+        elif section_id == 'control' :
             elements.append(Paragraph("CONTROL Y SEGUIMIENTO", styles['SectionTitle']))
             
             if 'load_monitoring' in items:
