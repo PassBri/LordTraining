@@ -2545,11 +2545,11 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
                 elements.append(Spacer(1, 0.3*inch))
             
             if 'load_chart' in items:
-                elements.append(Paragraph("Magnitud de Carga y Recuperación", styles['SubSection']))
+                elements.append(Paragraph("Magnitud de Carga y Recuperación", styles['SubSectionTitle']))
                 elements.append(Paragraph(
                     "La gráfica de carga muestra la progresión de la intensidad del entrenamiento a lo largo del macrociclo. "
                     "Los valores de recuperación son inversamente proporcionales a la carga aplicada.",
-                    styles['CustomBody']
+                    styles['AnswerText']
                 ))
                 elements.append(Spacer(1, 0.15*inch))
                 
