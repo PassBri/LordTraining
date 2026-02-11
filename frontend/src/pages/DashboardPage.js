@@ -33,6 +33,7 @@ import AnthropometricData from '../components/AnthropometricData';
 import TestEvaluations from '../components/TestEvaluations';
 import TrainingLoad from '../components/TrainingLoad';
 import GraphicPlan from '../components/GraphicPlan';
+import AthleteSummary from '../components/AthleteSummary';
 import PeriodizationPlanner from '../components/PeriodizationPlanner';
 import ExerciseLibrary from '../components/ExerciseLibrary';
 import PeriodizationSystem from '../components/PeriodizationSystem';
