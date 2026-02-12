@@ -72,7 +72,7 @@ const InteractiveChart = ({
 }) => {
   const [chartType, setChartType] = useState(defaultChartType);
   const [timeRange, setTimeRange] = useState(defaultTimeRange);
-  const [brushRange, setBrushRange] = useState({ startIndex: 0, endIndex: Math.min(data.length - 1, 11) });
+  const [brushRange, setBrushRange] = useState({ startIndex: 0, endIndex: 11 });
   const [showSettings, setShowSettings] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -85,6 +85,16 @@ const InteractiveChart = ({
     const maxWeeks = Math.min(range.weeks, data.length);
     return data.slice(0, maxWeeks);
   }, [data, timeRange]);
+
+  // Resetear brush range cuando cambian los datos
+  React.useEffect(() => {
+    if (filteredData.length > 0) {
+      setBrushRange({ 
+        startIndex: 0, 
+        endIndex: Math.min(filteredData.length - 1, 11) 
+      });
+    }
+  }, [filteredData.length]);
 
   // Manejar cambio de brush
   const handleBrushChange = (newRange) => {
