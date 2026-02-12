@@ -14,6 +14,8 @@ import ExercisesPage from './pages/ExercisesPage';
 import AIGeneratorPage from './pages/AIGeneratorPage';
 import SubscriptionPage from './pages/SubscriptionPage';
 import SessionViewPage from './pages/SessionViewPage';
+import TournamentsPage from './pages/TournamentsPage';
+import TournamentPublicPage from './pages/TournamentPublicPage';
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
