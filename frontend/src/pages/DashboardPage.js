@@ -2638,22 +2638,136 @@ const DashboardPage = () => {
           ))}
         </div>
 
+        {/* Plans History Button */}
+        <Button
+          variant={sidebarView === 'history' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setSidebarView(sidebarView === 'history' ? 'assistant' : 'history')}
+          className={`mb-2 w-full flex items-center justify-center gap-2 ${
+            sidebarView === 'history'
+              ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
+              : 'border-indigo-300 text-indigo-600 hover:bg-indigo-50'
+          }`}
+          data-testid="sidebar-history-btn"
+        >
+          <History className="h-4 w-4" />
+          Historial de Planes
+          {generatedPlans.length > 0 && (
+            <span className={`ml-1 px-1.5 py-0.5 rounded-full text-xs ${
+              sidebarView === 'history' ? 'bg-white/20' : 'bg-indigo-100'
+            }`}>
+              {generatedPlans.length}
+            </span>
+          )}
+        </Button>
+
         {/* Export PDF Button */}
         <Button
           variant="outline"
           size="sm"
           onClick={() => setIsPdfModalOpen(true)}
-          className="mb-4 w-full flex items-center justify-center gap-2 border-indigo-300 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-400"
+          className="mb-4 w-full flex items-center justify-center gap-2 border-slate-300 text-slate-600 hover:bg-slate-50"
           data-testid="export-pdf-btn"
         >
           <Download className="h-4 w-4" />
           Exportar Reporte PDF
         </Button>
 
-        {/* AI Chat Card */}
-        <Card className="flex-grow flex flex-col shadow-lg overflow-hidden">
-          <CardHeader className="bg-blue-600 py-3 px-4">
-            <CardTitle className="text-base text-white">Asistente IA de Entrenamiento</CardTitle>
+        {/* Conditional View: History or Assistant */}
+        {sidebarView === 'history' ? (
+          /* Plans History View */
+          <Card className="flex-grow flex flex-col shadow-lg overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 py-3 px-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base text-white flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Mis Planes
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSidebarView('assistant')}
+                  className="text-white/80 hover:text-white hover:bg-white/10 h-7 w-7 p-0"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="flex-grow flex flex-col p-0 overflow-hidden">
+              {/* New Plan Button */}
+              <div className="p-3 border-b">
+                <Button
+                  onClick={handleNewPlan}
+                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+                  data-testid="new-plan-btn"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Crear Nuevo Plan
+                </Button>
+              </div>
+              
+              {/* Plans List */}
+              <div className="flex-grow overflow-y-auto">
+                {generatedPlans.length > 0 ? (
+                  <div className="divide-y">
+                    {generatedPlans.map((plan) => (
+                      <div
+                        key={plan.id}
+                        className="p-3 hover:bg-slate-50 cursor-pointer transition-colors group"
+                        onClick={() => {
+                          // Could load plan details here
+                          toast.info(`Plan: ${plan.title || plan.athleteName}`);
+                        }}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-medium text-slate-900 truncate">
+                              {plan.title || `Plan para ${plan.athleteName}`}
+                            </h4>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                              {plan.sport} • {plan.duration || 'Sin duración'}
+                            </p>
+                            <p className="text-xs text-slate-400 mt-1">
+                              {new Date(plan.createdAt).toLocaleDateString('es-ES', { 
+                                day: 'numeric', 
+                                month: 'short',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (window.confirm('¿Eliminar este plan?')) {
+                                deletePlan(plan.id);
+                              }
+                            }}
+                            className="opacity-0 group-hover:opacity-100 h-7 w-7 p-0 text-slate-400 hover:text-red-500"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full p-6 text-center">
+                    <FileText className="w-12 h-12 text-slate-200 mb-3" />
+                    <p className="text-sm text-slate-500 mb-1">Sin planes generados</p>
+                    <p className="text-xs text-slate-400">Crea tu primer plan con el asistente IA</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          /* AI Assistant View */
+          <Card className="flex-grow flex flex-col shadow-lg overflow-hidden">
+            <CardHeader className="bg-blue-600 py-3 px-4">
+              <CardTitle className="text-base text-white">Asistente IA de Entrenamiento</CardTitle>
           </CardHeader>
           <CardContent className="flex-grow flex flex-col p-0">
             <div className="flex-grow overflow-y-auto p-4 space-y-3">
