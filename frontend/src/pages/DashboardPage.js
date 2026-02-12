@@ -2740,6 +2740,7 @@ const DashboardPage = () => {
         athleteName={athletes.find(a => a.id === selectedAthleteId)?.name}
         periodizationData={periodizationData}
       />
+      </div>
     </div>
   );
 };
