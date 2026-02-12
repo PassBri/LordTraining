@@ -4059,9 +4059,14 @@ async def get_shared_session(share_id: str):
         if not shared:
             raise HTTPException(status_code=404, detail="Sesión no encontrada o enlace expirado")
         
-        # Verificar si no ha expirado
-        if shared.get("expires_at") and shared["expires_at"] < datetime.now(timezone.utc):
-            raise HTTPException(status_code=410, detail="El enlace ha expirado")
+        # Verificar si no ha expirado (manejar datetime naive y aware)
+        expires_at = shared.get("expires_at")
+        if expires_at:
+            # Si la fecha es naive, hacerla aware
+            if expires_at.tzinfo is None:
+                expires_at = expires_at.replace(tzinfo=timezone.utc)
+            if expires_at < datetime.now(timezone.utc):
+                raise HTTPException(status_code=410, detail="El enlace ha expirado")
         
         # Incrementar contador de vistas
         await db.shared_sessions.update_one(
@@ -4069,11 +4074,16 @@ async def get_shared_session(share_id: str):
             {"$inc": {"views": 1}}
         )
         
+        # Serializar created_at para la respuesta
+        created_at = shared.get("created_at")
+        if created_at and hasattr(created_at, 'isoformat'):
+            created_at = created_at.isoformat()
+        
         return {
             "athlete_name": shared.get("athlete_name", "Atleta"),
             "session_data": shared.get("session_data", {}),
             "session_image": shared.get("session_image"),  # Imagen en base64
-            "created_at": shared.get("created_at"),
+            "created_at": created_at,
             "views": shared.get("views", 0) + 1
         }
         
