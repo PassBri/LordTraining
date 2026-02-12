@@ -4028,12 +4028,13 @@ async def create_session_share(request: SessionShareRequest, authorization: str 
         # Generar ID único para el enlace
         share_id = str(uuid.uuid4())[:12]
         
-        # Guardar sesión compartida en DB
+        # Guardar sesión compartida en DB (con imagen si existe)
         shared_session = {
             "share_id": share_id,
             "athlete_id": request.athlete_id,
             "athlete_name": request.athlete_name,
             "session_data": request.session_data,
+            "session_image": request.session_image,  # Imagen en base64
             "created_at": datetime.now(timezone.utc),
             "expires_at": datetime.now(timezone.utc) + timedelta(days=30),  # Expira en 30 días
             "views": 0
