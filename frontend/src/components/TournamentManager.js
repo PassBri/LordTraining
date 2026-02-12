@@ -972,6 +972,17 @@ const TournamentManager = ({
     if (window.confirm('¿Estás seguro? Se perderán todos los resultados.')) {
       setMatches([]);
       setFixtureGenerated(false);
+      
+      // Auto-save after reset
+      if (selectedTournament && onUpdateTournament) {
+        onUpdateTournament(selectedTournament.id, {
+          ...selectedTournament,
+          participants,
+          matches: [],
+          participants_count: participants.length
+        });
+      }
+      
       toast.success('Fixture reiniciado');
     }
   };
