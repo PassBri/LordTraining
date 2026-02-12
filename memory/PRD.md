@@ -120,9 +120,13 @@ Colecciones principales:
 - `/app/frontend/src/context/GlobalContext.js` - Contexto global
 - `/app/frontend/src/components/TopContextBar.js` - Barra de contexto (fija arriba de todo)
 - `/app/frontend/src/components/DashboardLayout.js` - Layout principal con sidebar
-- `/app/frontend/src/pages/AthletesPage.js` - Gestión Deportiva (Atletas, Equipos, Deportes y Torneos en pestañas)
+- `/app/frontend/src/pages/DashboardPage.js` - Dashboard principal con Panel de Control + Datos (Atletas, Equipos, Deportes, **Torneos**)
 - `/app/frontend/src/pages/PlansHistoryPage.js` - Historial de planes
 - `/app/frontend/src/services/api.js` - Funciones de API
+
+### Actualización 12 Feb 2026
+- **Torneos integrados en Dashboard**: La pestaña de Torneos ahora está en "Datos > Atletas y Equipos" (junto a Atletas, Equipos, Deportes)
+- **Se eliminó TournamentsPage.js**: La funcionalidad está ahora en DashboardPage.js
 
 ### Backend
 - `/app/backend/server.py` - API principal con todos los endpoints
