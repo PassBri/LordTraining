@@ -377,57 +377,57 @@ const SessionEditor = ({
         pdf.setTextColor(...colors.dark);
         pdf.setFontSize(9);
         pdf.setFont('helvetica', 'normal');
-      
-      const objetivos = sessionData.objetivos || {};
-      const objetivosList = [
-        { label: 'General', value: objetivos.general },
-        { label: 'Fisico', value: objetivos.fisico },
-        { label: 'Tecnico', value: objetivos.tecnico },
-        { label: 'Tactico', value: objetivos.tactico },
-        { label: 'Psicologico', value: objetivos.psicologico },
-        { label: 'Teorico', value: objetivos.teorico }
-      ];
-      
-      objetivosList.forEach(obj => {
-        if (obj.value) {
-          checkNewPage(8);
+        
+        const objetivos = sessionData.objetivos || {};
+        const objetivosList = [
+          { label: 'General', value: objetivos.general },
+          { label: 'Fisico', value: objetivos.fisico },
+          { label: 'Tecnico', value: objetivos.tecnico },
+          { label: 'Tactico', value: objetivos.tactico },
+          { label: 'Psicologico', value: objetivos.psicologico },
+          { label: 'Teorico', value: objetivos.teorico }
+        ];
+        
+        objetivosList.forEach(obj => {
+          if (obj.value) {
+            checkNewPage(8);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text(`${obj.label}:`, margin + 2, y);
+            pdf.setFont('helvetica', 'normal');
+            const text = pdf.splitTextToSize(obj.value, contentWidth - 30);
+            pdf.text(text, margin + 25, y);
+            y += Math.max(6, text.length * 4);
+          }
+        });
+        
+        y += 5;
+        
+        // ========== ESTRUCTURA DE LA SESIÓN ==========
+        const fases = [
+          { key: 'inicial', name: 'FASE INICIAL', color: colors.success, bgColor: [220, 252, 231] },
+          { key: 'principal', name: 'FASE PRINCIPAL', color: colors.warning, bgColor: [255, 237, 213] },
+          { key: 'final', name: 'FASE FINAL', color: colors.info, bgColor: [219, 234, 254] }
+        ];
+        
+        for (const fase of fases) {
+          const faseData = sessionData.fases?.[fase.key];
+          const actividades = faseData?.actividades || [];
+          
+          checkNewPage(25);
+          
+          // Header de fase
+          pdf.setFillColor(...fase.bgColor);
+          pdf.rect(margin, y, contentWidth, 8, 'F');
+          pdf.setDrawColor(...fase.color);
+          pdf.setLineWidth(0.5);
+          pdf.line(margin, y, margin, y + 8);
+          
+          pdf.setTextColor(...fase.color);
+          pdf.setFontSize(11);
           pdf.setFont('helvetica', 'bold');
-          pdf.text(`${obj.label}:`, margin + 2, y);
-          pdf.setFont('helvetica', 'normal');
-          const text = pdf.splitTextToSize(obj.value, contentWidth - 30);
-          pdf.text(text, margin + 25, y);
-          y += Math.max(6, text.length * 4);
-        }
-      });
-      
-      y += 5;
-      
-      // ========== ESTRUCTURA DE LA SESIÓN ==========
-      const fases = [
-        { key: 'inicial', name: 'FASE INICIAL', color: colors.success, bgColor: [220, 252, 231] },
-        { key: 'principal', name: 'FASE PRINCIPAL', color: colors.warning, bgColor: [255, 237, 213] },
-        { key: 'final', name: 'FASE FINAL', color: colors.info, bgColor: [219, 234, 254] }
-      ];
-      
-      for (const fase of fases) {
-        const faseData = sessionData.fases?.[fase.key];
-        const actividades = faseData?.actividades || [];
-        
-        checkNewPage(25);
-        
-        // Header de fase
-        pdf.setFillColor(...fase.bgColor);
-        pdf.rect(margin, y, contentWidth, 8, 'F');
-        pdf.setDrawColor(...fase.color);
-        pdf.setLineWidth(0.5);
-        pdf.line(margin, y, margin, y + 8);
-        
-        pdf.setTextColor(...fase.color);
-        pdf.setFontSize(11);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text(fase.name, margin + 4, y + 6);
-        pdf.setTextColor(...colors.secondary);
-        pdf.setFontSize(9);
+          pdf.text(fase.name, margin + 4, y + 6);
+          pdf.setTextColor(...colors.secondary);
+          pdf.setFontSize(9);
         pdf.text(`${actividades.length} actividades`, margin + contentWidth - 25, y + 6);
         y += 12;
         
