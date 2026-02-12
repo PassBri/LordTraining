@@ -886,6 +886,17 @@ const TournamentManager = ({
     setMatches(generatedMatches);
     setFixtureGenerated(true);
     setActiveTab('bracket');
+    
+    // Auto-save after generating fixture
+    if (selectedTournament && onUpdateTournament) {
+      onUpdateTournament(selectedTournament.id, {
+        ...selectedTournament,
+        participants,
+        matches: generatedMatches,
+        participants_count: participants.length
+      });
+    }
+    
     toast.success(`¡Fixture generado con ${generatedMatches.length} partidos!`);
   };
 
