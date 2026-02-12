@@ -138,20 +138,25 @@ Colecciones principales:
 ## Próximas Tareas (Backlog)
 
 ### P0 - Alta Prioridad
+- [x] ~~Reubicar enlace "Suscripción" encima de "Cerrar Sesión"~~ (COMPLETADO 12 Feb 2026)
 - [ ] Conectar dashboard a datos reales (actualmente mockeado)
 - [ ] Implementar tooltips interactivos en gráficos
 - [ ] Zoom/brush en gráficos temporales
 
 ### P1 - Media Prioridad
+- [ ] Integrar IA para generación de planes (conectar Asistente IA con LLM real)
+- [ ] Guardar planes generados automáticamente en base de datos
 - [ ] Planes de entrenamiento por equipo (no solo individual)
 - [ ] Drill-down en gráficos (click para ver detalles)
 - [ ] Notificaciones y alertas inteligentes
 
 ### P2 - Baja Prioridad
+- [ ] Mostrar detalles de planes al hacer click en el historial
 - [ ] Gráficos avanzados: Marcadores de rendimiento, comparación multi-atleta
 - [ ] Calendario de competencias integrado
 - [ ] Distribución de capacidades físicas
 - [ ] Predicciones y forecasting
+- [ ] Refactorización de DashboardPage.js (actualmente >2800 líneas)
 
 ---
 
