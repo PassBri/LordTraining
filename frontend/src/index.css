@@ -244,23 +244,47 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: 0 0 24px rgba(25, 118, 210, 0.25);
 }
 
-/* Scrollbar with Material colors */
+/* Scrollbar with Material Design - Elegant thin style */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--md-surface-variant);
+    background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--md-outline);
-    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--md-on-surface-variant);
+    background: rgba(0, 0, 0, 0.25);
+}
+
+/* Firefox scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+
+/* Remove ugly black borders and lines */
+*, *::before, *::after {
+    outline: none;
+}
+
+.border-black {
+    border-color: var(--md-outline-variant) !important;
+}
+
+/* Material Design dividers - subtle */
+.divide-y > * + * {
+    border-top-color: rgba(0, 0, 0, 0.06);
+}
+
+hr, .border-b, .border-t {
+    border-color: rgba(0, 0, 0, 0.06);
 }
 
 /* Animations */
