@@ -294,7 +294,9 @@ const SessionEditor = ({
     setExporting(true);
     
     try {
-      // Importar html2canvas dinámicamente
+      toast.info('Generando imagen...');
+      
+      // Importar html2canvas
       const html2canvas = (await import('html2canvas')).default;
       
       // Buscar el elemento con data-testid
@@ -305,18 +307,31 @@ const SessionEditor = ({
         return;
       }
       
-      toast.info('Generando imagen...');
+      // Guardar estilos originales del contenedor
+      const originalOverflow = contentElement.style.overflow;
+      const originalMaxHeight = contentElement.style.maxHeight;
+      const originalHeight = contentElement.style.height;
       
-      // Capturar usando el mismo método que GraphicPlan
+      // Expandir el contenedor para capturar todo
+      contentElement.style.overflow = 'visible';
+      contentElement.style.maxHeight = 'none';
+      contentElement.style.height = 'auto';
+      
+      // Esperar que el DOM se actualice
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Capturar
       const canvas = await html2canvas(contentElement, {
         backgroundColor: '#ffffff',
         scale: 2,
         useCORS: true,
-        logging: false,
-        scrollY: -window.scrollY,
-        windowWidth: contentElement.scrollWidth,
-        windowHeight: contentElement.scrollHeight
+        logging: false
       });
+      
+      // Restaurar estilos originales
+      contentElement.style.overflow = originalOverflow;
+      contentElement.style.maxHeight = originalMaxHeight;
+      contentElement.style.height = originalHeight;
       
       // Crear enlace de descarga
       const link = document.createElement('a');
@@ -329,7 +344,7 @@ const SessionEditor = ({
       toast.success('Imagen exportada exitosamente');
     } catch (error) {
       console.error('Error exporting image:', error);
-      toast.error('Error al exportar imagen');
+      toast.error('Error al exportar imagen: ' + error.message);
     } finally {
       setExporting(false);
     }
