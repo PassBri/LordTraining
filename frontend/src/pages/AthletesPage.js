@@ -13,11 +13,14 @@ import {
   getAthletes, createAthlete, deleteAthlete, updateAthlete,
   getSportsCatalog, createSportCategory, deleteSportCategory, createSport, deleteSport,
   getTeams, createTeam, deleteTeam, addAthleteToTeam, removeAthleteFromTeam,
-  getEntities
+  getEntities, getTournaments, createTournament, deleteTournament, getTournament,
+  addTournamentCategory, registerParticipant, generateBracket, getTournamentMatches,
+  updateMatchScore, exportTournamentPDF
 } from '../services/api';
 import { 
   Plus, Search, Trash2, User, Loader2, Users, Trophy, 
-  Edit2, ChevronDown, ChevronRight, X, Check, Building2
+  Edit2, ChevronDown, ChevronRight, X, Check, Building2,
+  Calendar, MapPin, LayoutGrid, Medal, GitBranch, Share2, Download
 } from 'lucide-react';
 import { toast } from 'sonner';
 
