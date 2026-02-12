@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -9,9 +9,12 @@ import { Slider } from './ui/slider';
 import { 
   Target, Zap, Brain, Dumbbell, Heart, Calendar, Plus, Trash2, 
   Save, Download, Activity, Clock, ChevronDown, ChevronRight,
-  GripVertical, AlertCircle
+  GripVertical, AlertCircle, Share2, Copy, Check, FileText, Link2, Eye
 } from 'lucide-react';
 import { toast } from 'sonner';
+import html2canvas from 'html2canvas';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 // Capacidades físicas
 const CAPACIDADES_FISICAS = [
