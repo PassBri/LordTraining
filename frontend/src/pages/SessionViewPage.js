@@ -336,54 +336,135 @@ const SessionViewPage = () => {
               </CardContent>
             </Card>
 
-            {/* Monitoreo */}
-            {(monitoring.fcReposo || monitoring.fcMaxima || feedback) && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {(monitoring.fcReposo || monitoring.fcMaxima) && (
-                  <Card className="border-0 shadow-lg overflow-hidden">
-                    <CardHeader className="bg-gradient-to-r from-red-50 to-pink-50 border-b">
-                      <CardTitle className="flex items-center gap-3 text-slate-800 text-base">
-                        <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
-                          <Heart className="w-4 h-4 text-white" />
-                        </div>
-                        Frecuencia Cardíaca
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-5">
-                      <div className="grid grid-cols-2 gap-4">
-                        {monitoring.fcReposo && (
-                          <div className="text-center p-4 bg-slate-50 rounded-xl">
-                            <p className="text-3xl font-bold text-slate-800">{monitoring.fcReposo}</p>
-                            <p className="text-xs text-slate-500 mt-1">FC Reposo (bpm)</p>
+            {/* Monitoreo de Rendimiento */}
+            {(monitoring.fcReposo || monitoring.fcMaxima || monitoring.fcAntesEntrenamiento || monitoring.fatiga) && (
+              <Card className="border-0 shadow-lg overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 text-white">
+                  <CardTitle className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                      <Activity className="w-5 h-5" />
+                    </div>
+                    Monitoreo de Rendimiento
+                    <span className="text-sm font-normal opacity-80 ml-auto">Datos de frecuencia cardíaca y biométricos</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-6">
+                  
+                  {/* FC por Fases */}
+                  {(monitoring.fcAntesEntrenamiento || monitoring.fcDuranteEntrenamiento || monitoring.fcDespuesEntrenamiento) && (
+                    <div>
+                      <h3 className="flex items-center gap-2 font-semibold text-slate-700 mb-4">
+                        <Heart className="w-5 h-5 text-red-500" />
+                        FRECUENCIA CARDÍACA POR FASES
+                      </h3>
+                      <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+                        {[
+                          { label: 'ANTES', value: monitoring.fcAntesEntrenamiento, color: 'border-blue-400 bg-blue-50' },
+                          { label: 'DURANTE', value: monitoring.fcDuranteEntrenamiento, color: 'border-green-400 bg-green-50' },
+                          { label: 'DESPUÉS', value: monitoring.fcDespuesEntrenamiento, color: 'border-lime-400 bg-lime-50' },
+                          { label: "RECUP 1'", value: monitoring.fcRecuperacion1min, color: 'border-slate-400 bg-slate-50' },
+                          { label: "RECUP 3'", value: monitoring.fcRecuperacion3min, color: 'border-slate-400 bg-slate-50' },
+                          { label: "RECUP 5'", value: monitoring.fcRecuperacion5min, color: 'border-slate-400 bg-slate-50' }
+                        ].filter(item => item.value).map((item, idx) => (
+                          <div key={idx} className={`text-center p-3 rounded-xl border-2 ${item.color}`}>
+                            <p className="text-xs font-semibold text-slate-500 mb-1">{item.label}</p>
+                            <p className="text-2xl font-bold text-slate-800">{item.value}</p>
+                            <p className="text-xs text-slate-400">bpm</p>
                           </div>
-                        )}
-                        {monitoring.fcMaxima && (
-                          <div className="text-center p-4 bg-red-50 rounded-xl">
-                            <p className="text-3xl font-bold text-red-600">{monitoring.fcMaxima}</p>
-                            <p className="text-xs text-slate-500 mt-1">FC Máxima (bpm)</p>
-                          </div>
-                        )}
+                        ))}
                       </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {feedback && (
-                  <Card className="border-0 shadow-lg overflow-hidden">
-                    <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
-                      <CardTitle className="flex items-center gap-3 text-slate-800 text-base">
-                        <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
-                          <AlertCircle className="w-4 h-4 text-white" />
+                    </div>
+                  )}
+                  
+                  {/* FC Reposo, Media, Máxima */}
+                  {(monitoring.fcReposo || monitoring.fcMedia || monitoring.fcMaxima) && (
+                    <div className="grid grid-cols-3 gap-4">
+                      {monitoring.fcReposo && (
+                        <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6 text-center">
+                          <div className="w-14 h-14 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                            <Heart className="w-7 h-7 text-white" />
+                          </div>
+                          <p className="text-sm font-bold text-blue-600 mb-2">FC REPOSO</p>
+                          <p className="text-4xl font-bold text-slate-800">{monitoring.fcReposo}</p>
+                          <p className="text-sm text-blue-500 mt-1">bpm</p>
                         </div>
-                        Observaciones
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-5">
-                      <p className="text-slate-700">{feedback}</p>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
+                      )}
+                      {monitoring.fcMedia && (
+                        <div className="bg-amber-50 border border-amber-100 rounded-2xl p-6 text-center">
+                          <div className="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                            <Activity className="w-7 h-7 text-white" />
+                          </div>
+                          <p className="text-sm font-bold text-amber-600 mb-2">FC MEDIA</p>
+                          <p className="text-4xl font-bold text-slate-800">{monitoring.fcMedia}</p>
+                          <p className="text-sm text-amber-500 mt-1">bpm</p>
+                        </div>
+                      )}
+                      {monitoring.fcMaxima && (
+                        <div className="bg-red-50 border border-red-100 rounded-2xl p-6 text-center">
+                          <div className="w-14 h-14 bg-red-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                            <Activity className="w-7 h-7 text-white" />
+                          </div>
+                          <p className="text-sm font-bold text-red-600 mb-2">FC MÁXIMA</p>
+                          <p className="text-4xl font-bold text-slate-800">{monitoring.fcMaxima}</p>
+                          <p className="text-sm text-red-500 mt-1">bpm</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Estado del Deportista */}
+                  {(monitoring.fatiga || monitoring.hidratacion || monitoring.calidadSueno || monitoring.nivelEnergia) && (
+                    <div>
+                      <h3 className="flex items-center gap-2 font-semibold text-slate-700 mb-4">
+                        <User className="w-5 h-5 text-indigo-500" />
+                        ESTADO DEL DEPORTISTA
+                      </h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        {[
+                          { label: 'Nivel de Fatiga', value: monitoring.fatiga, color: 'from-green-500 via-yellow-500 to-red-500', low: 'Bajo', high: 'Alto' },
+                          { label: 'Hidratación', value: monitoring.hidratacion, color: 'from-red-500 via-gray-400 to-blue-500', low: 'Deshidratado', high: 'Óptimo' },
+                          { label: 'Calidad de Sueño', value: monitoring.calidadSueno, color: 'from-indigo-600 to-indigo-400', low: 'Malo', high: 'Excelente' },
+                          { label: 'Nivel de Energía', value: monitoring.nivelEnergia, color: 'from-red-500 via-yellow-500 to-green-500', low: 'Bajo', high: 'Alto' }
+                        ].filter(item => item.value).map((item, idx) => (
+                          <div key={idx} className="bg-white border border-slate-200 rounded-xl p-4">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-sm text-slate-600">{item.label}</span>
+                              <span className="text-sm font-bold text-slate-800">{item.value}%</span>
+                            </div>
+                            <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                              <div 
+                                className={`h-full bg-gradient-to-r ${item.color} rounded-full transition-all`}
+                                style={{ width: `${item.value}%` }}
+                              />
+                            </div>
+                            <div className="flex justify-between mt-1">
+                              <span className="text-xs text-slate-400">{item.low}</span>
+                              <span className="text-xs text-slate-400">{item.high}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Observaciones */}
+            {feedback && (
+              <Card className="border-0 shadow-lg overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
+                  <CardTitle className="flex items-center gap-3 text-slate-800 text-base">
+                    <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
+                      <AlertCircle className="w-4 h-4 text-white" />
+                    </div>
+                    Observaciones
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-5">
+                  <p className="text-slate-700">{feedback}</p>
+                </CardContent>
+              </Card>
             )}
 
             {/* Footer */}
