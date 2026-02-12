@@ -45,6 +45,7 @@ import EntityDashboard from '../components/EntityDashboard';
 import SmartAlerts from '../components/SmartAlerts';
 import PDFExportModal from '../components/PDFExportModal';
 import ObjectivesIndicators from '../components/ObjectivesIndicators';
+import TrainingSystemHub from '../components/TrainingSystemHub';
 
 // Definición de roles disponibles
 const USER_ROLES = [
