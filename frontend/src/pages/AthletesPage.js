@@ -26,6 +26,36 @@ import { toast } from 'sonner';
 
 const LEVELS = ['Principiante', 'Intermedio', 'Avanzado', 'Élite', 'Profesional'];
 
+const TOURNAMENT_FORMATS = [
+  { value: 'single_elimination', label: 'Eliminación Directa', icon: '🏆' },
+  { value: 'double_elimination', label: 'Doble Eliminación', icon: '🔄' },
+  { value: 'round_robin', label: 'Todos contra Todos', icon: '🔁' },
+  { value: 'group_stage_knockout', label: 'Grupos + Eliminación', icon: '📊' },
+  { value: 'league', label: 'Liga', icon: '📈' },
+  { value: 'swiss_system', label: 'Sistema Suizo', icon: '🇨🇭' },
+];
+
+const SCORING_SYSTEMS = [
+  { value: 'standard', label: 'Estándar (3-1-0)' },
+  { value: 'olympic', label: 'Olímpico' },
+  { value: 'fifa', label: 'FIFA' },
+  { value: 'custom', label: 'Personalizado' },
+];
+
+const STATUS_COLORS = {
+  draft: 'bg-slate-100 text-slate-700',
+  registration: 'bg-blue-100 text-blue-700',
+  in_progress: 'bg-green-100 text-green-700',
+  completed: 'bg-purple-100 text-purple-700',
+};
+
+const STATUS_LABELS = {
+  draft: 'Borrador',
+  registration: 'Inscripciones',
+  in_progress: 'En Curso',
+  completed: 'Finalizado',
+};
+
 const AthletesPage = () => {
   const [activeTab, setActiveTab] = useState('athletes');
   const [loading, setLoading] = useState(true);
