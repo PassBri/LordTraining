@@ -467,87 +467,150 @@ const ControlPanel = ({
   };
 
   return (
-    <div className="overflow-y-auto h-full bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Header Bar con inputs y botones */}
-      <div className="rounded-xl overflow-hidden border border-gray-200 shadow-lg mx-6 mt-6 mb-4">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
-            <h2 className="text-xl font-bold text-white">Panel de Control</h2>
-            <div className="flex items-center gap-3 flex-wrap">
-              <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg text-sm text-white">
-                <Heart className="h-4 w-4" />
-                <span>75 bpm</span>
+    <div className="overflow-y-auto h-full bg-slate-50/50">
+      {/* Compact Header - Material Design */}
+      <div className="bg-white border-b border-slate-100 sticky top-0 z-10">
+        <div className="px-6 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <h2 className="text-lg font-semibold text-slate-800">Panel de Control</h2>
+              <span className="text-xs text-slate-400">
+                {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              {/* Quick Stats Pills */}
+              <div className="hidden md:flex items-center gap-2 mr-2">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 rounded-full text-xs font-medium text-blue-700">
+                  <Users className="h-3 w-3" />
+                  <span>{totalAthletes} atletas</span>
+                </div>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 rounded-full text-xs font-medium text-emerald-700">
+                  <Activity className="h-3 w-3" />
+                  <span>{activeMacrocycles} activos</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg text-sm text-white">
-                <Zap className="h-4 w-4" />
-                <span>85%</span>
-              </div>
-              <Button size="sm" className="bg-green-500 hover:bg-green-600 text-white" onClick={handleSave}>
-                <Save className="w-4 h-4 mr-1" />
-                Guardar
+              <Button size="sm" variant="ghost" className="h-8 text-slate-600 hover:text-slate-800" onClick={handleSave}>
+                <Save className="w-4 h-4" />
               </Button>
-              <Button size="sm" className="bg-red-500 hover:bg-red-600 text-white" onClick={handleViewReports}>
-                <Download className="w-4 h-4 mr-1" />
-                PDF
+              <Button size="sm" variant="ghost" className="h-8 text-slate-600 hover:text-slate-800" onClick={handleViewReports}>
+                <Download className="w-4 h-4" />
               </Button>
             </div>
           </div>
-        </div>
-        
-        {/* Form inputs row */}
-        <div className="bg-white p-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          <Input placeholder="Competencia" className="h-9" />
-          <Input placeholder="Tipo de Competencia" className="h-9" />
-          <Input placeholder="Deporte" className="h-9" />
-          <Input placeholder="Modalidad" className="h-9" />
-          <Input placeholder="Categoría" className="h-9" />
-          <Input placeholder="Entrenador" className="h-9" />
+          
+          {/* Compact Filter Row */}
+          <div className="flex items-center gap-2 mt-2 overflow-x-auto pb-1">
+            <Input placeholder="Competencia" className="h-7 text-xs min-w-[120px] max-w-[140px] bg-slate-50 border-slate-200" />
+            <Input placeholder="Deporte" className="h-7 text-xs min-w-[100px] max-w-[120px] bg-slate-50 border-slate-200" />
+            <Input placeholder="Modalidad" className="h-7 text-xs min-w-[100px] max-w-[120px] bg-slate-50 border-slate-200" />
+            <Input placeholder="Categoría" className="h-7 text-xs min-w-[100px] max-w-[120px] bg-slate-50 border-slate-200" />
+          </div>
         </div>
       </div>
 
-      <div className="p-6 pt-0 space-y-6">
-        {/* Mensaje Motivacional */}
-        {motivationalMessage && (
-          <Card className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white border-0 shadow-lg">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-lg font-medium italic">"{motivationalMessage.text}"</p>
-                  <p className="text-white/80 text-sm mt-1">— {motivationalMessage.author}</p>
-                </div>
+      <div className="p-4 space-y-4">
+        {/* Quick Stats Row - Compact Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          <div 
+            className="bg-white rounded-xl p-3 border border-slate-100 hover:border-blue-200 hover:shadow-md transition-all cursor-pointer group"
+            onClick={() => onNavigate && onNavigate('datos', 'athletes')}
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors">
+                <Users className="w-4 h-4 text-blue-600 group-hover:text-white" />
               </div>
-            </CardContent>
-          </Card>
+              <ArrowUpRight className="w-3 h-3 text-slate-300 group-hover:text-blue-500" />
+            </div>
+            <p className="text-2xl font-bold text-slate-800 mt-2">{totalAthletes}</p>
+            <p className="text-xs text-slate-500">Total Atletas</p>
+          </div>
+          
+          <div className="bg-white rounded-xl p-3 border border-slate-100 hover:border-emerald-200 hover:shadow-md transition-all cursor-pointer group">
+            <div className="flex items-center justify-between">
+              <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center group-hover:bg-emerald-500 transition-colors">
+                <Calendar className="w-4 h-4 text-emerald-600 group-hover:text-white" />
+              </div>
+              <span className="text-[10px] px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded">Este mes</span>
+            </div>
+            <p className="text-2xl font-bold text-slate-800 mt-2">{upcomingEventsCount}</p>
+            <p className="text-xs text-slate-500">Eventos Próximos</p>
+          </div>
+          
+          <div className="bg-white rounded-xl p-3 border border-slate-100 hover:border-amber-200 hover:shadow-md transition-all cursor-pointer group">
+            <div className="flex items-center justify-between">
+              <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center group-hover:bg-amber-500 transition-colors">
+                <Target className="w-4 h-4 text-amber-600 group-hover:text-white" />
+              </div>
+              <span className="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded">{Math.round((completedSessions/totalSessions)*100)}%</span>
+            </div>
+            <p className="text-2xl font-bold text-slate-800 mt-2">{completedSessions}</p>
+            <p className="text-xs text-slate-500">Sesiones</p>
+          </div>
+          
+          <div className="bg-white rounded-xl p-3 border border-slate-100 hover:border-violet-200 hover:shadow-md transition-all cursor-pointer group">
+            <div className="flex items-center justify-between">
+              <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center group-hover:bg-violet-500 transition-colors">
+                <Activity className="w-4 h-4 text-violet-600 group-hover:text-white" />
+              </div>
+              <span className="text-[10px] px-1.5 py-0.5 bg-violet-100 text-violet-700 rounded">Activos</span>
+            </div>
+            <p className="text-2xl font-bold text-slate-800 mt-2">{activeMacrocycles}</p>
+            <p className="text-xs text-slate-500">Macrociclos</p>
+          </div>
+          
+          <div className="bg-white rounded-xl p-3 border border-slate-100 hover:border-pink-200 hover:shadow-md transition-all cursor-pointer group">
+            <div className="flex items-center justify-between">
+              <div className="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center group-hover:bg-pink-500 transition-colors">
+                <Dumbbell className="w-4 h-4 text-pink-600 group-hover:text-white" />
+              </div>
+              <span className="text-[10px] px-1.5 py-0.5 bg-pink-100 text-pink-700 rounded">Biblioteca</span>
+            </div>
+            <p className="text-2xl font-bold text-slate-800 mt-2">150+</p>
+            <p className="text-xs text-slate-500">Ejercicios</p>
+          </div>
+        </div>
+
+        {/* Alert Banner - Compact */}
+        {alerts.length > 0 && alerts[0] && (
+          <div className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border ${
+            alerts[0].color === 'green' ? 'bg-emerald-50 border-emerald-200' :
+            alerts[0].color === 'amber' ? 'bg-amber-50 border-amber-200' :
+            alerts[0].color === 'red' ? 'bg-red-50 border-red-200' :
+            'bg-blue-50 border-blue-200'
+          }`}>
+            {React.createElement(alerts[0].icon, { 
+              className: `w-4 h-4 flex-shrink-0 ${
+                alerts[0].color === 'green' ? 'text-emerald-600' :
+                alerts[0].color === 'amber' ? 'text-amber-600' :
+                alerts[0].color === 'red' ? 'text-red-600' :
+                'text-blue-600'
+              }` 
+            })}
+            <div className="flex-1 min-w-0">
+              <p className={`text-sm font-medium ${
+                alerts[0].color === 'green' ? 'text-emerald-800' :
+                alerts[0].color === 'amber' ? 'text-amber-800' :
+                alerts[0].color === 'red' ? 'text-red-800' :
+                'text-blue-800'
+              }`}>
+                {alerts[0].title}
+                <span className="font-normal opacity-75 ml-2">{alerts[0].message}</span>
+              </p>
+            </div>
+          </div>
         )}
 
-        {/* Alertas Inteligentes */}
-        {alerts.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {alerts.map((alert, idx) => {
-              const IconComponent = alert.icon;
-              const colorClasses = {
-                amber: 'bg-amber-50 border-amber-200 text-amber-800',
-                blue: 'bg-blue-50 border-blue-200 text-blue-800',
-                green: 'bg-green-50 border-green-200 text-green-800',
-                red: 'bg-red-50 border-red-200 text-red-800'
-              };
-              const iconColors = {
-                amber: 'text-amber-500',
-                blue: 'text-blue-500',
-                green: 'text-green-500',
-                red: 'text-red-500'
-              };
-              return (
-                <Card key={idx} className={`border ${colorClasses[alert.color]} shadow-sm`}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      <IconComponent className={`w-5 h-5 flex-shrink-0 ${iconColors[alert.color]}`} />
-                      <div>
-                        <p className="font-semibold text-sm">{alert.title}</p>
-                        <p className="text-xs mt-1 opacity-80">{alert.message}</p>
+        {/* Motivational Quote - Minimal */}
+        {motivationalMessage && (
+          <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-slate-800 to-slate-900 rounded-lg text-white">
+            <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0" />
+            <p className="text-sm">
+              <span className="italic">"{motivationalMessage.text}"</span>
+              <span className="text-slate-400 ml-2">— {motivationalMessage.author}</span>
+            </p>
+          </div>
+        )}
                       </div>
                     </div>
                   </CardContent>
