@@ -10,7 +10,6 @@ import {
 
 const NAV_ITEMS = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/athletes', label: 'Atletas y Datos', icon: Users },
   { path: '/plans', label: 'Planes', icon: FileText },
   { path: '/plans-history', label: 'Historial', icon: History },
   { path: '/calendar', label: 'Calendario', icon: Calendar },
