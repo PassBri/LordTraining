@@ -1055,7 +1055,7 @@ const ControlPanel = ({
             </CardContent>
           </Card>
 
-          {/* Carga Acumulada - Interactive Area Chart */}
+          {/* Carga Acumulada - Interactive Area Chart con Zonas de Referencia */}
           <div className="lg:col-span-2">
             <InteractiveChart
               title="Carga de Entrenamiento Acumulada"
@@ -1071,7 +1071,17 @@ const ControlPanel = ({
               showControls={true}
               defaultChartType="area"
               defaultTimeRange="sessions"
-              yAxisDomain={[0, 'auto']}
+              yAxisDomain={[0, 700]}
+              referenceAreas={[
+                { y1: 550, y2: 700, color: '#EF4444', fillOpacity: 0.15, label: '⚠️ Sobrentrenamiento' },
+                { y1: 350, y2: 550, color: '#10B981', fillOpacity: 0.12, label: '✓ Zona Óptima' },
+                { y1: 150, y2: 350, color: '#F59E0B', fillOpacity: 0.12, label: '⚡ Carga Moderada' },
+                { y1: 0, y2: 150, color: '#6B7280', fillOpacity: 0.1, label: '↓ Carga Baja' }
+              ]}
+              referenceLines={[
+                { y: 550, color: '#EF4444', label: 'Límite Alto' },
+                { y: 150, color: '#6B7280', label: 'Límite Bajo' }
+              ]}
             />
           </div>
         </div>
