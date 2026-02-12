@@ -423,7 +423,7 @@ const AthletesPage = () => {
                             <SelectValue placeholder="Sin equipo" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">Sin equipo</SelectItem>
+                            <SelectItem value="none">Sin equipo</SelectItem>
                             {teams.map(t => (
                               <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
                             ))}
@@ -634,7 +634,7 @@ const AthletesPage = () => {
                               <SelectValue placeholder="Seleccionar federación" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="">Ninguna</SelectItem>
+                              <SelectItem value="none">Ninguna</SelectItem>
                               {entities.federations.map(e => (
                                 <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
                               ))}
@@ -651,7 +651,7 @@ const AthletesPage = () => {
                               <SelectValue placeholder="Seleccionar club" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="">Ninguno</SelectItem>
+                              <SelectItem value="none">Ninguno</SelectItem>
                               {entities.clubs.map(e => (
                                 <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
                               ))}
