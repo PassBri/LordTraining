@@ -110,9 +110,8 @@ const DashboardLayout = ({ children }) => {
         </div>
       </aside>
 
-      {/* Main content */}
-      <main className="main-content">
-        <TopContextBar />
+      {/* Main content - offset by context bar height */}
+      <main className="main-content main-with-context">
         <div className="p-4 md:p-8 lg:p-12">
           {children}
         </div>
