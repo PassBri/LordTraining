@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import DashboardLayout from '../components/DashboardLayout';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Progress } from '../components/ui/progress';
 import { createCheckout, getPaymentStatus } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { Check, CreditCard, Loader2, Sparkles, Users, Zap, Crown } from 'lucide-react';
+import { Check, CreditCard, Loader2, Sparkles, Users, Zap, Crown, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
 const PLANS = [
