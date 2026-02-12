@@ -114,6 +114,37 @@ const DashboardPage = () => {
   // PDF Export Modal State
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
+  // Tournaments State
+  const [tournaments, setTournaments] = useState([]);
+  const [tournamentDialogOpen, setTournamentDialogOpen] = useState(false);
+  const [selectedTournament, setSelectedTournament] = useState(null);
+  const [tournamentDetailView, setTournamentDetailView] = useState(false);
+  const [tournamentMatches, setTournamentMatches] = useState([]);
+  const [tournamentForm, setTournamentForm] = useState({
+    name: '', description: '', sport: '', format: 'single_elimination',
+    start_date: '', end_date: '', venue: '', city: '', scoring_system: 'standard',
+    points_win: 3, points_draw: 1, points_loss: 0, primary_color: '#3B82F6', secondary_color: '#10B981'
+  });
+  const [categoryDialogOpenTournament, setCategoryDialogOpenTournament] = useState(false);
+  const [tournamentCategoryForm, setTournamentCategoryForm] = useState({ name: '', gender: '', max_participants: '' });
+  const [registerDialogOpen, setRegisterDialogOpen] = useState(false);
+  const [selectedTournamentCategory, setSelectedTournamentCategory] = useState(null);
+  const [registrationForm, setRegistrationForm] = useState({ participant_type: 'team', participant_id: '', participant_name: '', seed: '' });
+  const [scoreDialogOpen, setScoreDialogOpen] = useState(false);
+  const [selectedMatch, setSelectedMatch] = useState(null);
+  const [scoreForm, setScoreForm] = useState({ participant1_score: '', participant2_score: '' });
+
+  // Tournament constants
+  const TOURNAMENT_FORMATS = [
+    { value: 'single_elimination', label: 'Eliminación Directa', icon: '🏆' },
+    { value: 'double_elimination', label: 'Doble Eliminación', icon: '🔄' },
+    { value: 'round_robin', label: 'Todos contra Todos', icon: '🔁' },
+    { value: 'group_stage_knockout', label: 'Grupos + Eliminación', icon: '📊' },
+    { value: 'league', label: 'Liga', icon: '📈' },
+  ];
+  const STATUS_COLORS = { draft: 'bg-slate-100 text-slate-700', registration: 'bg-blue-100 text-blue-700', in_progress: 'bg-green-100 text-green-700', completed: 'bg-purple-100 text-purple-700' };
+  const STATUS_LABELS = { draft: 'Borrador', registration: 'Inscripciones', in_progress: 'En Curso', completed: 'Finalizado' };
+
   // API Base URL
   const API_URL = process.env.REACT_APP_BACKEND_URL;
 
