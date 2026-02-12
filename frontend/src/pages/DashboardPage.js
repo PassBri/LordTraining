@@ -505,6 +505,231 @@ const DashboardPage = () => {
       
       return (
         <div className="p-4">
+          {/* Tabs para Atletas y Equipos */}
+          <div className="flex items-center gap-2 mb-4 border-b border-slate-200">
+            <button
+              onClick={() => setActiveAthleteTab('athletes')}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                activeAthleteTab === 'athletes' 
+                  ? 'border-indigo-500 text-indigo-600' 
+                  : 'border-transparent text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              <Users className="w-4 h-4 inline mr-2" />
+              Atletas
+            </button>
+            <button
+              onClick={() => setActiveAthleteTab('teams')}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                activeAthleteTab === 'teams' 
+                  ? 'border-emerald-500 text-emerald-600' 
+                  : 'border-transparent text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              <Shield className="w-4 h-4 inline mr-2" />
+              Equipos
+            </button>
+          </div>
+
+          {/* Vista de Equipos */}
+          {activeAthleteTab === 'teams' && (
+            <div className="space-y-4">
+              {/* Header Equipos */}
+              <Card className="border-0 shadow-md overflow-hidden">
+                <div className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-4 px-5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-lg font-semibold">
+                      <Shield className="w-5 h-5" />
+                      Gestión de Equipos
+                    </div>
+                    <span className="text-sm bg-white/20 px-3 py-1 rounded-full">{teams.length} equipos</span>
+                  </div>
+                </div>
+                <CardContent className="p-5">
+                  {/* Formulario nuevo equipo */}
+                  <div className="bg-emerald-50/50 p-4 rounded-xl mb-5 border border-emerald-100">
+                    <h4 className="font-semibold mb-3 text-emerald-900 flex items-center gap-2">
+                      <Plus className="w-4 h-4" />
+                      Crear Nuevo Equipo
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <Input 
+                        placeholder="Nombre del equipo" 
+                        className="h-10 border-emerald-200 focus:border-emerald-400" 
+                        value={newTeam.name}
+                        onChange={(e) => setNewTeam({...newTeam, name: e.target.value})}
+                      />
+                      <Select value={newTeam.sport} onValueChange={(v) => setNewTeam({...newTeam, sport: v})}>
+                        <SelectTrigger className="h-10 border-emerald-200"><SelectValue placeholder="Deporte" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="football">Fútbol</SelectItem>
+                          <SelectItem value="basketball">Baloncesto</SelectItem>
+                          <SelectItem value="volleyball">Voleibol</SelectItem>
+                          <SelectItem value="handball">Balonmano</SelectItem>
+                          <SelectItem value="athletics">Atletismo</SelectItem>
+                          <SelectItem value="swimming">Natación</SelectItem>
+                          <SelectItem value="other">Otro</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Input 
+                        placeholder="Categoría (ej: Sub-17, Senior)" 
+                        className="h-10 border-emerald-200 focus:border-emerald-400" 
+                        value={newTeam.category}
+                        onChange={(e) => setNewTeam({...newTeam, category: e.target.value})}
+                      />
+                    </div>
+                    
+                    {/* Afiliación jerárquica de entidades */}
+                    <div className="mt-4 pt-4 border-t border-emerald-200">
+                      <h5 className="text-sm font-semibold text-emerald-800 mb-3 flex items-center gap-2">
+                        <Landmark className="w-4 h-4" />
+                        Afiliación a Entidades (Jerarquía)
+                      </h5>
+                      <div className="bg-white p-3 rounded-lg border border-emerald-100">
+                        <div className="flex flex-wrap items-center gap-2 text-sm">
+                          <div className="flex items-center gap-1 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-lg">
+                            <Building2 className="w-4 h-4 text-amber-600" />
+                            <Select 
+                              value={newTeam.federation || 'none'} 
+                              onValueChange={(v) => setNewTeam({...newTeam, federation: v === 'none' ? '' : v})}
+                            >
+                              <SelectTrigger className="h-7 w-[140px] border-0 bg-transparent p-0 text-sm">
+                                <SelectValue placeholder="Federación" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">Sin federación</SelectItem>
+                                {federations.map(f => (
+                                  <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-slate-400" />
+                          <div className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
+                            <Building className="w-4 h-4 text-blue-600" />
+                            <Select 
+                              value={newTeam.club || 'none'} 
+                              onValueChange={(v) => setNewTeam({...newTeam, club: v === 'none' ? '' : v})}
+                            >
+                              <SelectTrigger className="h-7 w-[140px] border-0 bg-transparent p-0 text-sm">
+                                <SelectValue placeholder="Club" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">Sin club</SelectItem>
+                                {clubs.map(c => (
+                                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-slate-400" />
+                          <div className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg">
+                            <GraduationCap className="w-4 h-4 text-emerald-600" />
+                            <Select 
+                              value={newTeam.school || 'none'} 
+                              onValueChange={(v) => setNewTeam({...newTeam, school: v === 'none' ? '' : v})}
+                            >
+                              <SelectTrigger className="h-7 w-[140px] border-0 bg-transparent p-0 text-sm">
+                                <SelectValue placeholder="Escuela" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">Sin escuela</SelectItem>
+                                {schools.map(s => (
+                                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        {entities.length === 0 && (
+                          <p className="text-xs text-slate-500 mt-2">
+                            💡 Crea entidades en la sección <strong>Entidades</strong> para afiliar equipos
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4 flex justify-end">
+                      <Button 
+                        className="bg-emerald-500 hover:bg-emerald-600 h-10 font-medium px-6"
+                        onClick={handleCreateTeam}
+                        disabled={!newTeam.name}
+                      >
+                        <Plus className="w-4 h-4 mr-1" />
+                        Crear Equipo
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Lista de equipos */}
+                  <div className="space-y-3">
+                    {teams.length === 0 ? (
+                      <div className="text-center py-12 text-slate-400 border-2 border-dashed border-slate-200 rounded-xl">
+                        <Shield className="w-16 h-16 mx-auto mb-3 opacity-30" />
+                        <p className="font-medium">No hay equipos registrados</p>
+                        <p className="text-sm mt-1">Crea tu primer equipo usando el formulario arriba</p>
+                      </div>
+                    ) : (
+                      teams.map(team => (
+                        <div key={team.id} className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl hover:shadow-md hover:border-emerald-200 transition-all">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-xl flex items-center justify-center shadow-sm">
+                              <Shield className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                              <p className="font-semibold text-slate-800">{team.name}</p>
+                              <p className="text-sm text-slate-500">{team.sport} • {team.category || 'Sin categoría'} • {team.athletes?.length || 0} atletas</p>
+                              {team.affiliations && (
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {team.affiliations.federation && (
+                                    <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full">
+                                      🏛️ {federations.find(f => f.id === team.affiliations.federation)?.name || 'Federación'}
+                                    </span>
+                                  )}
+                                  {team.affiliations.club && (
+                                    <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">
+                                      🏢 {clubs.find(c => c.id === team.affiliations.club)?.name || 'Club'}
+                                    </span>
+                                  )}
+                                  {team.affiliations.school && (
+                                    <span className="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full">
+                                      🏫 {schools.find(s => s.id === team.affiliations.school)?.name || 'Escuela'}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="border-emerald-200 text-emerald-600 hover:bg-emerald-50"
+                              onClick={() => {/* Manage team athletes */}}
+                            >
+                              <Users className="w-4 h-4 mr-1" />
+                              Gestionar
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="text-rose-500 hover:text-rose-600 hover:bg-rose-50"
+                              onClick={() => handleDeleteTeam(team.id)}
+                            >
+                              Eliminar
+                            </Button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Vista de Atletas */}
+          {activeAthleteTab === 'athletes' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Main Athletes List - 2 columns */}
             <div className="lg:col-span-2 space-y-4">
