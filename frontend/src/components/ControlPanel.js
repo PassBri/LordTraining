@@ -474,12 +474,12 @@ const ControlPanel = ({
       }));
       setIntensityData(intensity);
 
-      // Distribución de fases basada en el modelo
+      // Distribución de fases basada en el modelo - con colores únicos
       const totalSemanas = Object.values(phaseData).reduce((a, b) => a + b, 0);
-      const distribution = Object.entries(phaseData).map(([name, count]) => ({
+      const distribution = Object.entries(phaseData).map(([name, count], index) => ({
         name: name,
         value: Math.round((count / totalSemanas) * 100),
-        color: COLORS.phases[name] || '#3B82F6'
+        color: COLORS.phases[name] || PHASE_COLORS[index % PHASE_COLORS.length]
       }));
       setPhaseDistribution(distribution);
 
