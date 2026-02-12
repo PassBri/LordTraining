@@ -114,6 +114,54 @@ const DashboardPage = () => {
   // PDF Export Modal State
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
+  // ====== GLOBAL CONTEXT STATE (Barra Superior) ======
+  // Initialize from localStorage for persistence
+  const [globalContext, setGlobalContext] = useState(() => {
+    const saved = localStorage.getItem('train_global_context');
+    return saved ? JSON.parse(saved) : {
+      entityId: 'all',
+      teamId: 'all',
+      athleteId: 'all',
+      sportId: 'all'
+    };
+  });
+
+  // Save context to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('train_global_context', JSON.stringify(globalContext));
+  }, [globalContext]);
+
+  // Cascading filter handlers
+  const handleEntityChange = (value) => {
+    setGlobalContext({ entityId: value, teamId: 'all', athleteId: 'all', sportId: 'all' });
+  };
+
+  const handleTeamChange = (value) => {
+    setGlobalContext(prev => ({ ...prev, teamId: value, athleteId: 'all' }));
+  };
+
+  const handleAthleteChange = (value) => {
+    setGlobalContext(prev => ({ ...prev, athleteId: value }));
+  };
+
+  const handleSportChange = (value) => {
+    setGlobalContext(prev => ({ ...prev, sportId: value }));
+  };
+
+  // Filtered data based on context
+  const filteredTeams = globalContext.entityId === 'all' 
+    ? teams 
+    : teams.filter(t => t.federation === globalContext.entityId || t.club === globalContext.entityId);
+  
+  const filteredAthletes = athletes.filter(a => {
+    if (globalContext.entityId !== 'all' && a.federation !== globalContext.entityId && a.club !== globalContext.entityId) return false;
+    if (globalContext.teamId !== 'all' && a.team_id !== globalContext.teamId) return false;
+    return true;
+  });
+
+  // Get unique sports from catalog
+  const allSports = sportsCatalog.flatMap(cat => cat.sports || []);
+
   // Tournaments State
   const [tournaments, setTournaments] = useState([]);
   const [tournamentDialogOpen, setTournamentDialogOpen] = useState(false);
