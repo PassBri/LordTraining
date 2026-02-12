@@ -103,11 +103,6 @@ function AppRoutes() {
           <SubscriptionPage />
         </ProtectedRoute>
       } />
-      <Route path="/tournaments" element={
-        <ProtectedRoute>
-          <TournamentsPage />
-        </ProtectedRoute>
-      } />
       <Route path="/plans-history" element={
         <ProtectedRoute>
           <PlansHistoryPage />
