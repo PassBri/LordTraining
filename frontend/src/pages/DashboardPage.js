@@ -11,7 +11,8 @@ import {
   Target, Send, Heart, Zap, Brain, ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
   FileText, Users, Clipboard, Calendar, Award, BookOpen, 
   Activity, BarChart, LineChart, Loader2, LogOut, Save, Download, Layers, Plus, Dumbbell,
-  Shield, UserCheck, User, UserCircle, Settings, LayoutDashboard, Landmark
+  Shield, UserCheck, User, UserCircle, Settings, LayoutDashboard, Landmark,
+  Building2, Building, GraduationCap
 } from 'lucide-react';
 import { 
   LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, 
