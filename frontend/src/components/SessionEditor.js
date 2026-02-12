@@ -769,7 +769,11 @@ const SessionEditor = ({
           </div>
 
           {/* Contenido Principal - Fondo blanco */}
-          <div ref={sessionContentRef} className="overflow-y-auto max-h-[calc(90vh-180px)] bg-white">
+          <div 
+            ref={sessionContentRef} 
+            data-testid="session-editor-content"
+            className="overflow-y-auto max-h-[calc(90vh-180px)] bg-white"
+          >
             <div className="p-6 space-y-6">
               {/* Objetivos de la Sesión */}
               <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden">
