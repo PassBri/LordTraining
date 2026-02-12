@@ -332,6 +332,17 @@ const InteractiveChart = ({
       case 'scatter':
         return (
           <ComposedChart {...commonProps}>
+            {/* Reference Areas (zonas de fondo) */}
+            {referenceAreas.map((area, idx) => (
+              <ReferenceArea
+                key={`area-${idx}`}
+                y1={area.y1}
+                y2={area.y2}
+                fill={area.color}
+                fillOpacity={area.fillOpacity || 0.15}
+                label={{ value: area.label, fill: area.color, fontSize: 10, position: 'insideTopRight' }}
+              />
+            ))}
             {axisProps.grid}
             {axisProps.xAxis}
             {axisProps.yAxis}
@@ -345,6 +356,15 @@ const InteractiveChart = ({
                 fill={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6'}
               />
             ))}
+            {referenceLines.map((ref, idx) => (
+              <ReferenceLine 
+                key={idx} 
+                y={ref.y} 
+                stroke={ref.color} 
+                strokeDasharray="5 5" 
+                label={{ value: ref.label, fill: ref.color, fontSize: 10 }} 
+              />
+            ))}
             {axisProps.brush}
           </ComposedChart>
         );
@@ -355,6 +375,17 @@ const InteractiveChart = ({
         return (
           <ComposedChart {...commonProps}>
             {gradientDefs}
+            {/* Reference Areas (zonas de fondo) */}
+            {referenceAreas.map((area, idx) => (
+              <ReferenceArea
+                key={`area-${idx}`}
+                y1={area.y1}
+                y2={area.y2}
+                fill={area.color}
+                fillOpacity={area.fillOpacity || 0.15}
+                label={{ value: area.label, fill: area.color, fontSize: 10, position: 'insideTopRight' }}
+              />
+            ))}
             {axisProps.grid}
             {axisProps.xAxis}
             {axisProps.yAxis}
