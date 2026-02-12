@@ -95,6 +95,13 @@ const DashboardPage = () => {
   const [entities, setEntities] = useState([]);
   const [athleteFilterEntity, setAthleteFilterEntity] = useState('all');
   
+  // Team States
+  const [teams, setTeams] = useState([]);
+  const [newTeam, setNewTeam] = useState({
+    name: '', sport: '', category: '', federation: '', club: '', school: ''
+  });
+  const [activeAthleteTab, setActiveAthleteTab] = useState('athletes');
+  
   // PDF Export Modal State
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
