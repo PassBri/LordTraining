@@ -197,7 +197,7 @@ const DashboardPage = () => {
   // Start new plan creation
   const handleNewPlan = () => {
     setSidebarView('assistant');
-    setMessages([{ role: 'assistant', content: '¡Hola! Vamos a crear un nuevo plan de entrenamiento. ¿Para qué atleta o equipo deseas generar el plan?' }]);
+    setChatMessages([{ type: 'assistant', text: '¡Hola! Vamos a crear un nuevo plan de entrenamiento. ¿Para qué atleta o equipo deseas generar el plan?' }]);
   };
 
   // Tournaments State
