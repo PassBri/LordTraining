@@ -88,6 +88,32 @@ const AthletesPage = () => {
   // Entities for team affiliation
   const [entities, setEntities] = useState({ federations: [], clubs: [], schools: [] });
 
+  // Tournaments State
+  const [tournaments, setTournaments] = useState([]);
+  const [tournamentDialogOpen, setTournamentDialogOpen] = useState(false);
+  const [selectedTournament, setSelectedTournament] = useState(null);
+  const [tournamentDetailView, setTournamentDetailView] = useState(false);
+  const [tournamentMatches, setTournamentMatches] = useState([]);
+  const [tournamentForm, setTournamentForm] = useState({
+    name: '', description: '', sport: '', format: 'single_elimination',
+    start_date: '', end_date: '', registration_deadline: '',
+    venue: '', city: '', country: '', scoring_system: 'standard',
+    points_win: 3, points_draw: 1, points_loss: 0,
+    federation_id: '', club_id: '', primary_color: '#3B82F6', secondary_color: '#10B981'
+  });
+  const [categoryDialogOpenTournament, setCategoryDialogOpenTournament] = useState(false);
+  const [tournamentCategoryForm, setTournamentCategoryForm] = useState({
+    name: '', gender: '', age_min: '', age_max: '', max_participants: ''
+  });
+  const [registerDialogOpen, setRegisterDialogOpen] = useState(false);
+  const [selectedTournamentCategory, setSelectedTournamentCategory] = useState(null);
+  const [registrationForm, setRegistrationForm] = useState({
+    participant_type: 'team', participant_id: '', participant_name: '', seed: ''
+  });
+  const [scoreDialogOpen, setScoreDialogOpen] = useState(false);
+  const [selectedMatch, setSelectedMatch] = useState(null);
+  const [scoreForm, setScoreForm] = useState({ participant1_score: '', participant2_score: '' });
+
   // Fetch all data
   const fetchData = useCallback(async () => {
     setLoading(true);
