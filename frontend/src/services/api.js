@@ -82,4 +82,33 @@ export const deleteEntity = (id) => axios.delete(`${API}/entities/${id}`, getAut
 export const getEntitiesHierarchy = () => axios.get(`${API}/entities-hierarchy`, getAuthHeader());
 export const getEntityTypes = () => axios.get(`${API}/entity-types`, getAuthHeader());
 
+// Tournaments
+export const getTournaments = (status) => axios.get(`${API}/tournaments`, { ...getAuthHeader(), params: status ? { status } : {} });
+export const getTournament = (id) => axios.get(`${API}/tournaments/${id}`, getAuthHeader());
+export const createTournament = (data) => axios.post(`${API}/tournaments`, data, getAuthHeader());
+export const updateTournament = (id, data) => axios.put(`${API}/tournaments/${id}`, data, getAuthHeader());
+export const deleteTournament = (id) => axios.delete(`${API}/tournaments/${id}`, getAuthHeader());
+
+// Tournament Categories
+export const addTournamentCategory = (tournamentId, data) => axios.post(`${API}/tournaments/${tournamentId}/categories`, data, getAuthHeader());
+export const deleteTournamentCategory = (tournamentId, categoryId) => axios.delete(`${API}/tournaments/${tournamentId}/categories/${categoryId}`, getAuthHeader());
+
+// Tournament Participants
+export const registerParticipant = (tournamentId, categoryId, data) => axios.post(`${API}/tournaments/${tournamentId}/categories/${categoryId}/register`, data, getAuthHeader());
+export const removeParticipant = (tournamentId, categoryId, participantId) => axios.delete(`${API}/tournaments/${tournamentId}/categories/${categoryId}/participants/${participantId}`, getAuthHeader());
+
+// Tournament Bracket & Matches
+export const generateBracket = (tournamentId, categoryId) => axios.post(`${API}/tournaments/${tournamentId}/categories/${categoryId}/generate-bracket`, {}, getAuthHeader());
+export const getTournamentMatches = (tournamentId, categoryId, roundNumber, status) => 
+  axios.get(`${API}/tournaments/${tournamentId}/matches`, { 
+    ...getAuthHeader(), 
+    params: { category_id: categoryId, round_number: roundNumber, status } 
+  });
+export const updateMatchScore = (tournamentId, matchId, data) => axios.put(`${API}/tournaments/${tournamentId}/matches/${matchId}/score`, data, getAuthHeader());
+export const getCategoryStandings = (tournamentId, categoryId) => axios.get(`${API}/tournaments/${tournamentId}/standings/${categoryId}`, getAuthHeader());
+
+// Tournament Public & Export
+export const getPublicTournament = (shareId) => axios.get(`${API}/tournaments/public/${shareId}`);
+export const exportTournamentPDF = (tournamentId) => `${API}/tournaments/${tournamentId}/export-pdf?token=${localStorage.getItem('train_token')}`;
+
 export default API;
