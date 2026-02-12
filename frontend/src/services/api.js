@@ -56,4 +56,30 @@ export const exportPlanPDF = (macrocycleId) => `${API}/export/plan/${macrocycleI
 // Seed
 export const seedExercises = () => axios.post(`${API}/seed/exercises`, {}, getAuthHeader());
 
+// Sports Catalog
+export const getSportsCatalog = () => axios.get(`${API}/sports/catalog`, getAuthHeader());
+export const createSportCategory = (data) => axios.post(`${API}/sports/categories`, data, getAuthHeader());
+export const updateSportCategory = (id, data) => axios.put(`${API}/sports/categories/${id}`, data, getAuthHeader());
+export const deleteSportCategory = (id) => axios.delete(`${API}/sports/categories/${id}`, getAuthHeader());
+export const createSport = (data) => axios.post(`${API}/sports`, data, getAuthHeader());
+export const deleteSport = (id) => axios.delete(`${API}/sports/${id}`, getAuthHeader());
+
+// Teams
+export const getTeams = () => axios.get(`${API}/teams`, getAuthHeader());
+export const getTeam = (id) => axios.get(`${API}/teams/${id}`, getAuthHeader());
+export const createTeam = (data) => axios.post(`${API}/teams`, data, getAuthHeader());
+export const updateTeam = (id, data) => axios.put(`${API}/teams/${id}`, data, getAuthHeader());
+export const deleteTeam = (id) => axios.delete(`${API}/teams/${id}`, getAuthHeader());
+export const addAthleteToTeam = (teamId, athleteId) => axios.post(`${API}/teams/${teamId}/athletes/${athleteId}`, {}, getAuthHeader());
+export const removeAthleteFromTeam = (teamId, athleteId) => axios.delete(`${API}/teams/${teamId}/athletes/${athleteId}`, getAuthHeader());
+
+// Entities
+export const getEntities = (entityType) => axios.get(`${API}/entities`, { ...getAuthHeader(), params: entityType ? { entity_type: entityType } : {} });
+export const getEntity = (id) => axios.get(`${API}/entities/${id}`, getAuthHeader());
+export const createEntity = (data) => axios.post(`${API}/entities`, data, getAuthHeader());
+export const updateEntity = (id, data) => axios.put(`${API}/entities/${id}`, data, getAuthHeader());
+export const deleteEntity = (id) => axios.delete(`${API}/entities/${id}`, getAuthHeader());
+export const getEntitiesHierarchy = () => axios.get(`${API}/entities-hierarchy`, getAuthHeader());
+export const getEntityTypes = () => axios.get(`${API}/entity-types`, getAuthHeader());
+
 export default API;
