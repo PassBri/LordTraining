@@ -125,15 +125,16 @@ Colecciones principales:
 - `/app/frontend/src/pages/TournamentPublicPage.js` - Vista pública de torneos
 - `/app/frontend/src/services/api.js` - Funciones de API
 
-### Actualización 12 Feb 2026 - Material Design
-- **Barra de Contexto Global Mejorada**: Estilo Material Design con gradiente azul-indigo-púrpura, selectores con efecto glass, botones con transiciones
-- **Página de Suscripción Rediseñada**: Header con gradiente, cards con sombras y hover effects, botones con gradientes
+### Actualización 12 Feb 2026 - Material Design Unificado
+- **Material Design aplicado a toda la app**:
+  - Landing Page: Nav con gradiente, hero con badge IA, features con iconos en gradiente, pricing con cards hover
+  - Auth Page: Logo mejorado, tabs con sombras, inputs con bordes redondeados, panel derecho con gradiente y decoraciones
+  - Dashboard: Barra de contexto global con gradiente, Panel de Control simplificado
+  - Suscripción: Header con gradiente, cards mejoradas
+- **Panel de Control Simplificado**: Quitados los filtros redundantes (Competencia, Deporte, etc.) ya que están en la barra global. Solo queda: icono, título, fecha, botones guardar/descargar
 - **Persistencia con localStorage**: El contexto seleccionado se mantiene en toda la sesión
 - **Torneos integrados en Dashboard**: La pestaña de Torneos ahora está en "Datos > Atletas y Equipos"
-- **Página /athletes eliminada**: Todo está centralizado en el Dashboard
-- **Historial de Planes en Sidebar**: El historial ahora se muestra como vista alternativa al Asistente IA en el sidebar, toggled por botón
-- **Enlace Suscripción en menú usuario**: Agregado enlace "Suscripción" encima de "Cerrar Sesión" en el sidebar del Dashboard
-- **Limpieza de código**: Eliminadas páginas secundarias no utilizadas (PlansPage, CalendarPage, ExercisesPage, AIGeneratorPage, PlansHistoryPage) y DashboardLayout.js. SubscriptionPage actualizada con navegación propia.
+- **Limpieza de código**: Eliminadas páginas secundarias no utilizadas y DashboardLayout.js
 
 ### Backend
 - `/app/backend/server.py` - API principal con todos los endpoints
