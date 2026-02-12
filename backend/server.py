@@ -5417,8 +5417,12 @@ async def root():
 async def health():
     return {"status": "healthy"}
 
-# Include router
+# Include routers
 app.include_router(api_router)
+
+# AI Coach router
+from routes.ai_coach import router as ai_coach_router
+app.include_router(ai_coach_router)
 
 app.add_middleware(
     CORSMiddleware,
