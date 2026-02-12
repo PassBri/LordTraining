@@ -110,6 +110,7 @@ const DashboardLayout = ({ children }) => {
 
       {/* Main content */}
       <main className="main-content">
+        <TopContextBar />
         <div className="p-4 md:p-8 lg:p-12">
           {children}
         </div>
