@@ -9,10 +9,10 @@ import { Slider } from './ui/slider';
 import { 
   Target, Zap, Brain, Dumbbell, Heart, Calendar, Plus, Trash2, 
   Save, Download, Activity, Clock, ChevronDown, ChevronRight,
-  GripVertical, AlertCircle, Share2, Copy, Check, FileText, Link2, Eye
+  GripVertical, AlertCircle, Share2, Copy, Check, FileText, Link2, Eye,
+  Watch, Droplets, Battery, Moon, TrendingUp, TrendingDown, Bluetooth
 } from 'lucide-react';
 import { toast } from 'sonner';
-import html2canvas from 'html2canvas';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
