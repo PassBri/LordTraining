@@ -6,7 +6,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
-import { getDashboardStats, getAthletes, seedExercises } from '../services/api';
+import { getDashboardStats, getAthletes, seedExercises, getTournaments, createTournament, deleteTournament, getTournament, addTournamentCategory, registerParticipant, generateBracket, getTournamentMatches, updateMatchScore, exportTournamentPDF, getTeams as fetchTeamsApi } from '../services/api';
 import { 
   Target, Send, Heart, Zap, Brain, ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
   FileText, Users, Clipboard, Calendar, Award, BookOpen, 
