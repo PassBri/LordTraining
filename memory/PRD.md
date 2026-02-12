@@ -118,11 +118,10 @@ Colecciones principales:
 ### Frontend
 - `/app/frontend/src/App.js` - Rutas principales
 - `/app/frontend/src/context/GlobalContext.js` - Contexto global
-- `/app/frontend/src/components/TopContextBar.js` - Barra de contexto
-- `/app/frontend/src/components/DashboardLayout.js` - Layout principal
-- `/app/frontend/src/pages/TournamentsPage.js` - Sistema de torneos
+- `/app/frontend/src/components/TopContextBar.js` - Barra de contexto (fija arriba de todo)
+- `/app/frontend/src/components/DashboardLayout.js` - Layout principal con sidebar
+- `/app/frontend/src/pages/AthletesPage.js` - Gestión Deportiva (Atletas, Equipos, Deportes y Torneos en pestañas)
 - `/app/frontend/src/pages/PlansHistoryPage.js` - Historial de planes
-- `/app/frontend/src/pages/AthletesPage.js` - Atletas, equipos y deportes
 - `/app/frontend/src/services/api.js` - Funciones de API
 
 ### Backend
