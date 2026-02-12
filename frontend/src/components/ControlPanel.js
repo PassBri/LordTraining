@@ -38,9 +38,21 @@ const COLORS = {
     'preparatory_specific': '#10B981',
     'precompetitive': '#F59E0B',
     'competitive': '#EF4444',
-    'transition': '#8B5CF6'
+    'transition': '#8B5CF6',
+    // Nombres adicionales para bloques
+    'Bloque Competitivo': '#EF4444',
+    'Bloque de Fuerza': '#3B82F6',
+    'Bloque de Potencia': '#F59E0B',
+    'Bloque de Velocidad': '#10B981',
+    'Preparatorio General': '#6366F1',
+    'Preparatorio Específico': '#14B8A6',
+    'General': '#3B82F6',
+    'Específico': '#10B981'
   }
 };
+
+// Array de colores para distribución cuando no hay coincidencia
+const PHASE_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#6366F1'];
 
 // Mensajes motivacionales
 const MOTIVATIONAL_MESSAGES = [
