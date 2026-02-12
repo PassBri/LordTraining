@@ -428,24 +428,43 @@ const SessionEditor = ({
       if (sessionContentRef.current) {
         try {
           const { default: html2canvas } = await import('html2canvas');
-          const canvas = await html2canvas(sessionContentRef.current, {
+          
+          // Guardar estilos originales
+          const element = sessionContentRef.current;
+          const originalStyles = {
+            overflow: element.style.overflow,
+            maxHeight: element.style.maxHeight,
+            height: element.style.height
+          };
+          
+          // Expandir el elemento temporalmente para capturar todo el contenido
+          element.style.overflow = 'visible';
+          element.style.maxHeight = 'none';
+          element.style.height = 'auto';
+          
+          // Esperar un frame para que el DOM se actualice
+          await new Promise(resolve => requestAnimationFrame(resolve));
+          
+          const canvas = await html2canvas(element, {
             scale: 2,
             useCORS: true,
             backgroundColor: '#ffffff',
-            logging: true,
+            logging: false,
             allowTaint: true,
             foreignObjectRendering: false,
-            removeContainer: true,
-            imageTimeout: 15000,
-            onclone: (clonedDoc) => {
-              const svgs = clonedDoc.querySelectorAll('svg');
-              svgs.forEach(svg => {
-                svg.style.display = 'inline-block';
-              });
-            }
+            width: element.scrollWidth,
+            height: element.scrollHeight,
+            windowWidth: element.scrollWidth,
+            windowHeight: element.scrollHeight
           });
+          
+          // Restaurar estilos originales
+          element.style.overflow = originalStyles.overflow || '';
+          element.style.maxHeight = originalStyles.maxHeight || '';
+          element.style.height = originalStyles.height || '';
+          
           imageBase64 = canvas.toDataURL('image/png', 0.8);
-          console.log('Image captured successfully, length:', imageBase64?.length);
+          console.log('Image captured successfully, size:', canvas.width, 'x', canvas.height);
         } catch (imgError) {
           console.error('Error capturing image:', imgError);
           toast.warning('No se pudo capturar la imagen, se compartirá solo los datos');
