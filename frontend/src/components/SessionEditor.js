@@ -722,7 +722,7 @@ const SessionEditor = ({
               </Card>
 
               {/* Estructura de la Sesión */}
-              <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden">
+              <Card className="border border-slate-200 shadow-sm bg-white overflow-visible">
                 <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 border-b border-slate-100 pb-4">
                   <CardTitle className="flex items-center gap-2 text-base text-slate-800">
                     <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
@@ -731,7 +731,7 @@ const SessionEditor = ({
                     Estructura de la Sesión
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-5 space-y-4 bg-white">
+                <CardContent className="p-5 space-y-4 bg-white overflow-visible">
                   {/* Fases */}
                   {Object.entries(sessionData.fases).map(([faseKey, fase]) => {
                     const faseColors = {
@@ -742,7 +742,7 @@ const SessionEditor = ({
                     const colors = faseColors[faseKey];
                     
                     return (
-                      <div key={faseKey} className={`border-l-4 ${colors.border} rounded-xl overflow-hidden shadow-sm bg-white`}>
+                      <div key={faseKey} className={`border-l-4 ${colors.border} rounded-xl overflow-visible shadow-sm bg-white`} style={{ position: 'relative', zIndex: showExercisePicker?.startsWith(faseKey) ? 100 : 1 }}>
                         <button
                           onClick={() => setExpandedPhases(prev => ({ ...prev, [faseKey]: !prev[faseKey] }))}
                           className={`w-full flex items-center justify-between p-4 ${colors.header} hover:opacity-90 transition-all`}
@@ -771,7 +771,7 @@ const SessionEditor = ({
                         </button>
                         
                         {expandedPhases[faseKey] && (
-                          <div className="bg-white p-4 border-t border-slate-100">
+                          <div className="bg-white p-4 border-t border-slate-100 overflow-visible">
                             {renderActividadesTable(faseKey, fase)}
                           </div>
                         )}
