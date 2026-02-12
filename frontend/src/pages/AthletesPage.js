@@ -111,10 +111,12 @@ const AthletesPage = () => {
     e.preventDefault();
     setFormLoading(true);
     try {
+      const teamId = athleteForm.team_id === 'none' ? null : athleteForm.team_id;
       const payload = {
         ...athleteForm,
         age: parseInt(athleteForm.age),
-        sport: athleteForm.sport || 'other'
+        sport: athleteForm.sport || 'other',
+        team_id: teamId || null
       };
       
       if (editingAthlete) {
@@ -123,8 +125,8 @@ const AthletesPage = () => {
       } else {
         const response = await createAthlete(payload);
         // If team selected, add to team
-        if (athleteForm.team_id) {
-          await addAthleteToTeam(athleteForm.team_id, response.data.id);
+        if (teamId) {
+          await addAthleteToTeam(teamId, response.data.id);
         }
         toast.success('Atleta creado correctamente');
       }
