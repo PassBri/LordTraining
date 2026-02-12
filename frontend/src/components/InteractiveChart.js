@@ -66,6 +66,7 @@ const InteractiveChart = ({
   defaultTimeRange = 'sessions',
   yAxisDomain = [0, 100],
   referenceLines = [], // Array de { y: number, label: string, color: string }
+  referenceAreas = [], // Array de { y1: number, y2: number, label: string, color: string, fillOpacity?: number }
   className = ''
 }) => {
   const [chartType, setChartType] = useState(defaultChartType);
