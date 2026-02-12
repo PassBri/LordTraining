@@ -1439,6 +1439,7 @@ const TournamentManager = ({
       <TournamentWizard
         isOpen={wizardOpen}
         onClose={() => setWizardOpen(false)}
+        sportsCatalog={sportsCatalog}
         onSave={(data) => {
           const newTournament = {
             ...data,
