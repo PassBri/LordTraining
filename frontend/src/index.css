@@ -522,10 +522,25 @@ hr, .border-b, .border-t {
     cursor: pointer;
 }
 
+.menu-toggle.top-context-offset {
+    top: calc(52px + 1rem);
+}
+
 @media (max-width: 1024px) {
     .menu-toggle {
         display: flex;
     }
+}
+
+/* Sidebar with context bar offset */
+.sidebar-with-context {
+    top: 52px;
+    height: calc(100vh - 52px);
+}
+
+/* Main content with context bar offset */
+.main-with-context {
+    padding-top: 52px;
 }
 
 /* Overlay */
