@@ -613,69 +613,67 @@ const ControlPanel = ({
         )}
 
         {/* Charts Row 1 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Volumen por Semana - Bar Chart */}
-          <Card className="shadow-lg border-0">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <BarChart3 className="w-5 h-5 text-blue-500" />
-                Volumen de Entrenamiento por Semana
-                {dataSource === 'api' && <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full ml-2">Datos reales</span>}
+          <Card className="border border-slate-100 shadow-sm">
+            <CardHeader className="pb-1 pt-3 px-4">
+              <CardTitle className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <BarChart3 className="w-4 h-4 text-blue-500" />
+                Volumen de Entrenamiento
+                {dataSource === 'api' && <span className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded ml-auto">En vivo</span>}
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={280}>
+            <CardContent className="px-3 pb-3">
+              <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={volumeData} barGap={2}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                  <XAxis dataKey="semana" tick={{ fontSize: 12 }} stroke="#9CA3AF" />
-                  <YAxis tick={{ fontSize: 12 }} stroke="#9CA3AF" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                  <XAxis dataKey="semana" tick={{ fontSize: 10 }} stroke="#94a3b8" axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 10 }} stroke="#94a3b8" axisLine={false} tickLine={false} />
                   <Tooltip 
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '12px' }}
                   />
-                  <Legend />
-                  <Bar dataKey="volumen" name="Volumen Real" fill={COLORS.primary} radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="objetivo" name="Objetivo" fill={COLORS.secondary} radius={[4, 4, 0, 0]} opacity={0.6} />
+                  <Bar dataKey="volumen" name="Volumen" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="objetivo" name="Objetivo" fill="#10b981" radius={[4, 4, 0, 0]} opacity={0.5} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
 
           {/* Progreso de Intensidad - Line Chart */}
-          <Card className="shadow-lg border-0">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <TrendingUp className="w-5 h-5 text-emerald-500" />
+          <Card className="border border-slate-100 shadow-sm">
+            <CardHeader className="pb-1 pt-3 px-4">
+              <CardTitle className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <TrendingUp className="w-4 h-4 text-rose-500" />
                 Progreso de Intensidad
-                {dataSource === 'api' && <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full ml-2">Datos reales</span>}
+                {dataSource === 'api' && <span className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded ml-auto">En vivo</span>}
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={280}>
+            <CardContent className="px-3 pb-3">
+              <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={intensityData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                  <XAxis dataKey="semana" tick={{ fontSize: 12 }} stroke="#9CA3AF" />
-                  <YAxis tick={{ fontSize: 12 }} stroke="#9CA3AF" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                  <XAxis dataKey="semana" tick={{ fontSize: 10 }} stroke="#94a3b8" axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 10 }} stroke="#94a3b8" axisLine={false} tickLine={false} />
                   <Tooltip 
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '12px' }}
                   />
-                  <Legend />
                   <Line 
                     type="monotone" 
                     dataKey="intensidad" 
-                    name="Intensidad (%)"
-                    stroke={COLORS.danger} 
-                    strokeWidth={3}
-                    dot={{ fill: COLORS.danger, strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6 }}
+                    name="Intensidad"
+                    stroke="#ef4444" 
+                    strokeWidth={2}
+                    dot={{ fill: '#ef4444', strokeWidth: 0, r: 3 }}
+                    activeDot={{ r: 5 }}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="recuperacion" 
-                    name="Recuperación (%)"
-                    stroke={COLORS.secondary} 
+                    name="Recuperación"
+                    stroke="#10b981" 
                     strokeWidth={2}
-                    strokeDasharray="5 5"
-                    dot={{ fill: COLORS.secondary, strokeWidth: 2, r: 3 }}
+                    strokeDasharray="4 4"
+                    dot={false}
                   />
                 </LineChart>
               </ResponsiveContainer>
