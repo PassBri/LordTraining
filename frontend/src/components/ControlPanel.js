@@ -10,7 +10,8 @@ import {
   BarChart3, Heart, Zap, ArrowUpRight, ArrowDownRight,
   Flag, Timer, Flame, Save, Download, AlertTriangle, 
   CheckCircle, Info, Sparkles, Trophy, Star, MessageCircle,
-  FileText, Loader2, X, LayoutDashboard
+  FileText, Loader2, X, LayoutDashboard, Medal, MapPin,
+  Clock, TrendingDown, Minus, CalendarDays
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend,
