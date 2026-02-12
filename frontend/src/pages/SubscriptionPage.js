@@ -105,69 +105,75 @@ const SubscriptionPage = () => {
   const currentPlan = PLANS.find(p => p.id === user?.subscription) || PLANS[0];
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header with back button */}
-      <div className="bg-white border-b shadow-sm sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-4">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => navigate('/dashboard')}
-            className="text-slate-600 hover:text-slate-900"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver al Dashboard
-          </Button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-blue-50">
+      {/* Header Material Design con Gradiente */}
+      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white sticky top-0 z-10 shadow-lg">
+        <div className="max-w-6xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => navigate('/dashboard')}
+                className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center hover:bg-white/30 transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight">Suscripción</h1>
+                <p className="text-sm text-white/70">Gestiona tu plan y facturación</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-xl">
+                <Crown className="w-5 h-5 text-amber-300" />
+                <span className="font-medium">{currentPlan.name}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       
       <div className="p-4 md:p-8 lg:p-12">
         <div className="space-y-8 max-w-6xl mx-auto">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight" style={{ fontFamily: 'Barlow Condensed' }}>
-            SUSCRIPCIÓN
-          </h1>
-          <p className="text-slate-500 mt-1">Gestiona tu plan y facturación</p>
-        </div>
 
         {checkingPayment && (
-          <Card className="border-[#007AFF] bg-blue-50">
+          <Card className="border-0 shadow-lg bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
             <CardContent className="p-6 flex items-center gap-4">
-              <Loader2 className="w-6 h-6 animate-spin text-[#007AFF]" />
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                <Loader2 className="w-6 h-6 animate-spin" />
+              </div>
               <div>
-                <h3 className="font-bold text-slate-900">Verificando pago...</h3>
-                <p className="text-sm text-slate-600">Por favor espera mientras confirmamos tu transacción</p>
+                <h3 className="font-bold text-lg">Verificando pago...</h3>
+                <p className="text-sm text-white/80">Por favor espera mientras confirmamos tu transacción</p>
               </div>
             </CardContent>
           </Card>
         )}
 
         {/* Current Plan */}
-        <Card className="border-slate-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl font-bold flex items-center gap-2" style={{ fontFamily: 'Barlow Condensed' }}>
-              <Crown className="w-5 h-5 text-amber-500" />
-              TU PLAN ACTUAL
+        <Card className="border-0 shadow-lg overflow-hidden">
+          <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4">
+            <CardTitle className="text-xl font-bold flex items-center gap-2 text-white">
+              <Crown className="w-6 h-6" />
+              Tu Plan Actual
             </CardTitle>
-          </CardHeader>
-          <CardContent>
+          </div>
+          <CardContent className="p-6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <h3 className="text-2xl font-black text-slate-900" style={{ fontFamily: 'Barlow Condensed' }}>
-                    {currentPlan.name.toUpperCase()}
+                  <h3 className="text-3xl font-bold text-slate-900">
+                    {currentPlan.name}
                   </h3>
                   {currentPlan.id !== 'free' && (
-                    <span className="badge badge-success">Activo</span>
+                    <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-sm font-medium rounded-full">Activo</span>
                   )}
                 </div>
                 <p className="text-slate-500">{currentPlan.description}</p>
               </div>
               <div className="text-right">
-                <div className="text-3xl font-black text-slate-900" style={{ fontFamily: 'Barlow Condensed' }}>
+                <div className="text-4xl font-bold text-slate-900">
                   ${currentPlan.price}
-                  <span className="text-base font-normal text-slate-500">/mes</span>
+                  <span className="text-lg font-normal text-slate-500">/mes</span>
                 </div>
               </div>
             </div>
