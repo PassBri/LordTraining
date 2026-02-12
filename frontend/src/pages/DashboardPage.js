@@ -201,8 +201,11 @@ const DashboardPage = () => {
     setChatMessages([{ type: 'assistant', text: '¡Hola! Vamos a crear un nuevo plan de entrenamiento. ¿Para qué atleta o equipo deseas generar el plan?' }]);
   };
 
-  // Tournaments State
-  const [tournaments, setTournaments] = useState([]);
+  // Tournaments State - Load from localStorage
+  const [tournaments, setTournaments] = useState(() => {
+    const saved = localStorage.getItem('train_tournaments');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [tournamentDialogOpen, setTournamentDialogOpen] = useState(false);
   const [selectedTournament, setSelectedTournament] = useState(null);
   const [tournamentDetailView, setTournamentDetailView] = useState(false);
@@ -212,6 +215,12 @@ const DashboardPage = () => {
     start_date: '', end_date: '', venue: '', city: '', scoring_system: 'standard',
     points_win: 3, points_draw: 1, points_loss: 0, primary_color: '#3B82F6', secondary_color: '#10B981'
   });
+  
+  // Save tournaments to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('train_tournaments', JSON.stringify(tournaments));
+  }, [tournaments]);
+  
   const [categoryDialogOpenTournament, setCategoryDialogOpenTournament] = useState(false);
   const [tournamentCategoryForm, setTournamentCategoryForm] = useState({ name: '', gender: '', max_participants: '' });
   const [registerDialogOpen, setRegisterDialogOpen] = useState(false);
