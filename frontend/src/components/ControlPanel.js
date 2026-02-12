@@ -96,8 +96,6 @@ const ControlPanel = ({
   });
   const [exporting, setExporting] = useState(false);
   const [dataSource, setDataSource] = useState('local'); // 'local' or 'api'
-  const [chartType, setChartType] = useState('bar'); // 'bar', 'line', 'area', 'mixed'
-  const [showChartOptions, setShowChartOptions] = useState(false);
   const [selectedDashboardAthlete, setSelectedDashboardAthlete] = useState(selectedAthleteId || 'all');
   
   // Readiness Score Data (simulado - en producción vendría del atleta)
