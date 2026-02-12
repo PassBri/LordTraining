@@ -1,147 +1,160 @@
 # Sistema TRAIN - PRD (Product Requirements Document)
 
-## Original Problem Statement
-Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con suscripcion. Debe ser:
-- Multi-deporte con planes personalizados
-- Modelo de suscripcion (Free/Basic/Pro/Enterprise)
-- Integracion con Stripe y PayPal para pagos
-- IA con OpenAI GPT-5.2 para generar planes
-- Descargable en PDF
-- Responsive web y movil
+## Descripción General
+Sistema completo de gestión de entrenamiento deportivo para entrenadores, federaciones, clubes y escuelas. Incluye planificación de entrenamientos con IA, gestión de atletas y equipos, torneos/competencias, y análisis de rendimiento.
 
-## User Personas
-1. **Entrenador Profesional**: Gestiona multiples atletas, necesita generar planes complejos con periodizacion cientifica
-2. **Preparador Fisico**: Trabaja en clubes, necesita biblioteca de ejercicios y seguimiento de cargas
-3. **Atleta Amateur**: Usa la app para auto-gestionar su entrenamiento con guia de IA
-4. **Club Deportivo**: Necesita gestion centralizada de multiples entrenadores y atletas
+## Fecha de Última Actualización
+12 de Febrero, 2026
 
-## Core Requirements (Static)
-- Autenticacion JWT con roles (coach/athlete)
-- Sistema de suscripcion con 4 niveles
-- Generacion de planes con IA (GPT-5.2)
-- Estructura de planificacion: Macrociclos -> Mesociclos -> Microciclos -> Sesiones
-- Modelos de planificacion: Tradicional, ATR, Bloques, Ondulatorio, Concurrente
-- Calendario interactivo de sesiones
-- Biblioteca de ejercicios por deporte
-- Exportacion PDF de planes
-- Dashboard con estadisticas y graficos de carga
+---
 
-## What's Been Implemented
+## Funcionalidades Implementadas
 
-### Session Editor Export Feature (Feb 12, 2026)
-- Boton "Descargar PDF" en el editor de sesiones
-- Generacion programatica de PDF con jsPDF (sin html2canvas para evitar congelamiento)
-- PDF incluye: Header, Objetivos, Fases con actividades, Monitoreo, Footer
-- Funcionalidad "Compartir Enlace" funcionando correctamente
+### 1. Autenticación y Usuarios
+- ✅ Registro e inicio de sesión
+- ✅ Roles: Entrenador, Admin, Atleta
+- ✅ Planes de suscripción (Free, Premium, Team, Federation)
+- ✅ JWT para autenticación
 
-### UI Redesign
-- Auth page: Split-screen design (form izquierda, gradiente azul derecha)
-- Dashboard: Nuevo layout con sidebar de chat IA
-- Tabs: Datos, Periodizar, Plan-grafico
-- Graficos: Lineas (Planificacion Anual) + Radar (Perfil de Rendimiento)
-- Panel Datos: Navegacion expandible con 16 secciones
-- Landing page: Diseno minimalista centrado
+### 2. Gestión de Atletas y Equipos
+- ✅ CRUD completo de atletas
+- ✅ CRUD completo de equipos
+- ✅ Afiliación de equipos a entidades (Federación, Club, Escuela)
+- ✅ Afiliación de atletas a equipos
+- ✅ Catálogo de deportes dinámico y editable
+- ✅ Categorías de deportes con iconos y colores
 
-### Backend (FastAPI + MongoDB)
-- Autenticacion completa (registro, login, JWT)
-- CRUD de atletas con limites por suscripcion
-- CRUD de ejercicios con biblioteca predefinida
-- Estructura completa de ciclos (macro/meso/micro/sesiones)
-- Competiciones por atleta
-- Integracion OpenAI GPT-5.2 para generacion de planes
-- Integracion Stripe para pagos (test key)
-- Dashboard con estadisticas
-- Exportacion PDF de planes
-- Calculo automatico de carga (volumen x intensidad)
+### 3. Sistema de Torneos y Competencias
+- ✅ Creación de torneos con múltiples formatos:
+  - Eliminación directa (Single Elimination)
+  - Doble eliminación (Double Elimination)
+  - Todos contra todos (Round Robin)
+  - Grupos + Eliminación (Group Stage + Knockout)
+  - Liga (puntos)
+  - Sistema Suizo
+  - Con Repechaje (Consolation)
+- ✅ Múltiples categorías por torneo (Sub-15, Sub-17, Senior, etc.)
+- ✅ Inscripción de participantes (equipos o atletas)
+- ✅ Generación automática de brackets
+- ✅ Actualización de resultados en tiempo real
+- ✅ Tabla de posiciones automática
+- ✅ Exportación a PDF
+- ✅ Enlaces compartibles públicos
+- ✅ Sistemas de puntuación configurables (FIFA, FIBA, ITF, etc.)
 
-### Frontend (React + Tailwind + Shadcn UI)
-- Landing page con pricing
-- Sistema de autenticacion (login/registro)
-- Dashboard con graficos de carga (Recharts)
-- Gestion de atletas (crear, listar, eliminar)
-- Generador de planes con IA
-- Calendario interactivo (date-fns + Shadcn Calendar)
-- Biblioteca de ejercicios filtrable
-- Pagina de suscripcion con checkout Stripe
-- Diseno responsive (web + movil)
-- Estilo Swiss Sport con Barlow Condensed + Inter
+### 4. Barra de Contexto Global
+- ✅ Barra superior fija en todas las páginas
+- ✅ Selector de Entidad (Federación/Club/Escuela)
+- ✅ Selector de Equipo (filtrado por entidad)
+- ✅ Selector de Atleta (filtrado por equipo)
+- ✅ Selector de Deporte (del catálogo dinámico)
+- ✅ Persistencia del contexto (localStorage)
+- ✅ Botón de acceso rápido a "Historial de Planes"
 
-## Prioritized Backlog
+### 5. Historial de Planes
+- ✅ Nueva página dedicada (/plans-history)
+- ✅ Lista de todos los planes generados
+- ✅ Filtros por búsqueda, estado y fecha
+- ✅ Filtrado automático por contexto global
+- ✅ Vista de jerarquía (Entidad → Equipo → Atleta → Deporte)
+- ✅ Acceso desde barra superior y menú lateral
 
-### P0 - Critical (Next Sprint)
-- [ ] Calendario de eventos / Analisis de competencias (merged)
-- [ ] Objetivos e indicadores - KPIs deportivos
-- [ ] Control de entrenamiento - Seguimiento
-- [ ] Integracion PayPal como metodo de pago alternativo
+### 6. Planificación de Entrenamientos
+- ✅ Generación de planes con IA (GPT)
+- ✅ Macrociclos, mesociclos y sesiones
+- ✅ Calendario visual
+- ✅ Exportación de sesiones a PDF
+- ✅ Enlaces compartibles para sesiones
 
-### P1 - High Priority
-- [ ] Plantillas de planes predefinidas por deporte
-- [ ] Exportacion a Excel ademas de PDF
-- [ ] Grafico ACWR (Acute:Chronic Workload Ratio) mejorado
+### 7. Dashboard/Panel de Control
+- ✅ Readiness Score (índice de preparación)
+- ✅ Ratio de carga aguda/crónica (ACWR)
+- ✅ Gráficos de volumen, intensidad y densidad
+- ✅ Gráficos de intensidad y recuperación
+- ✅ Asistente de IA integrado
 
-### P2 - Medium Priority
-- [ ] App movil nativa (React Native)
-- [ ] Integracion con dispositivos wearables (Garmin, Polar)
-- [ ] Modulo multimedia (videos de ejercicios)
-- [ ] Chat entre entrenador y atleta
+### 8. Biblioteca de Ejercicios
+- ✅ CRUD de ejercicios
+- ✅ Categorización por grupo muscular
+- ✅ Búsqueda y filtrado
 
-### P3 - Future Enhancements
-- [ ] IA mas avanzada con historial de rendimiento
-- [ ] Analisis predictivo de lesiones
-- [ ] Marketplace de planes entre entrenadores
-- [ ] White-label para clubes
+---
 
-## Tech Stack
-- **Frontend**: React 19, Tailwind CSS, Shadcn UI, Recharts, date-fns, jsPDF
-- **Backend**: FastAPI, Motor (async MongoDB), PyJWT, bcrypt
-- **Database**: MongoDB
-- **AI**: OpenAI GPT-5.2 via Emergent LLM Key
-- **Payments**: Stripe (test key configurado)
-- **Fonts**: Barlow Condensed (headings), Inter (body)
+## Arquitectura Técnica
 
-## Code Architecture
-```
-/app
-├── backend
-│   ├── server.py          # Main FastAPI server with all routes
-│   ├── tests/             # Pytest test files
-│   ├── .env               # Environment variables
-│   └── requirements.txt
-├── frontend
-│   ├── src
-│   │   ├── components
-│   │   │   ├── ui/               # Shadcn components
-│   │   │   ├── SessionEditor.js  # Editor de sesiones con PDF export
-│   │   │   ├── GraphicPlan.js    # Plan Grafico de Periodizacion
-│   │   │   └── ...
-│   │   ├── pages
-│   │   │   ├── AuthPage.js
-│   │   │   ├── DashboardPage.js
-│   │   │   ├── SessionViewPage.js  # Vista publica de sesiones compartidas
-│   │   │   └── ...
-│   │   ├── services/api.js
-│   │   └── context/AuthContext.js
-│   └── package.json
-├── test_reports/          # Testing agent reports
-└── memory
-    └── PRD.md
-```
+### Frontend
+- React 18
+- TailwindCSS
+- Shadcn/UI components
+- Recharts para gráficos
+- jsPDF para exportación
+- React Router v6
 
-## Key API Endpoints
-- `/api/auth/register`, `/api/auth/login` - Authentication
-- `/api/athletes` - CRUD athletes
-- `/api/exercises` - Exercise library
-- `/api/macrocycles`, `/api/mesocycles`, `/api/microcycles`, `/api/sessions` - Training cycles
-- `/api/sessions/share` - Create shareable session link
-- `/api/sessions/view/{share_id}` - Public session view
-- `/api/export/session-pdf` - Export session as PDF (backend)
-- `/api/graphic-plan` - Graphic periodization plan
+### Backend
+- FastAPI (Python)
+- MongoDB (Motor async driver)
+- JWT para autenticación
+- ReportLab para PDFs
+- Emergent Integrations (LLM, Stripe)
 
-## Test Credentials
-- **Email**: test@train.com
-- **Password**: test123456
+### Base de Datos (MongoDB)
+Colecciones principales:
+- `users` - Usuarios y autenticación
+- `athletes` - Atletas
+- `teams` - Equipos
+- `entities` - Federaciones, Clubes, Escuelas
+- `sports_categories` - Categorías de deportes
+- `sports` - Deportes
+- `tournaments` - Torneos y competencias
+- `matches` - Partidos de torneos
+- `macrocycles` - Planes de entrenamiento
+- `sessions` - Sesiones de entrenamiento
+- `exercises` - Biblioteca de ejercicios
 
-## Notes
-- User's preferred language: Spanish
-- Test reports at /app/test_reports/
-- PDF generation now uses programmatic jsPDF (no html2canvas) to avoid UI freezing
+---
+
+## Archivos Clave
+
+### Frontend
+- `/app/frontend/src/App.js` - Rutas principales
+- `/app/frontend/src/context/GlobalContext.js` - Contexto global
+- `/app/frontend/src/components/TopContextBar.js` - Barra de contexto
+- `/app/frontend/src/components/DashboardLayout.js` - Layout principal
+- `/app/frontend/src/pages/TournamentsPage.js` - Sistema de torneos
+- `/app/frontend/src/pages/PlansHistoryPage.js` - Historial de planes
+- `/app/frontend/src/pages/AthletesPage.js` - Atletas, equipos y deportes
+- `/app/frontend/src/services/api.js` - Funciones de API
+
+### Backend
+- `/app/backend/server.py` - API principal con todos los endpoints
+
+---
+
+## Próximas Tareas (Backlog)
+
+### P0 - Alta Prioridad
+- [ ] Conectar dashboard a datos reales (actualmente mockeado)
+- [ ] Implementar tooltips interactivos en gráficos
+- [ ] Zoom/brush en gráficos temporales
+
+### P1 - Media Prioridad
+- [ ] Planes de entrenamiento por equipo (no solo individual)
+- [ ] Drill-down en gráficos (click para ver detalles)
+- [ ] Notificaciones y alertas inteligentes
+
+### P2 - Baja Prioridad
+- [ ] Gráficos avanzados: Marcadores de rendimiento, comparación multi-atleta
+- [ ] Calendario de competencias integrado
+- [ ] Distribución de capacidades físicas
+- [ ] Predicciones y forecasting
+
+---
+
+## Credenciales de Prueba
+- Email: test@train.com
+- Password: test123456
+
+## URLs
+- Aplicación: https://sports-catalog-demo.preview.emergentagent.com
+- Vista pública de torneo: /tournament/{share_id}
+- Vista pública de sesión: /session/view/{share_id}
