@@ -9,7 +9,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://training-viz-share.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://session-capture-pdf.preview.emergentagent.com')
 
 class TestSessionSharing:
     """Session sharing endpoint tests"""
