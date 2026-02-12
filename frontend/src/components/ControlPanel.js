@@ -309,7 +309,8 @@ const ControlPanel = ({
           realIntensityData.push({
             semana: `S${weekCounter}`,
             intensidad: intensity,
-            recuperacion: 100 - intensity + (micro.isDeload ? 20 : 0)
+            recuperacion: 100 - intensity + (micro.isDeload ? 20 : 0),
+            densidad: Math.round(volume * intensity / 100) || 35
           });
 
           accumulatedLoad += volume * (intensity / 100);
