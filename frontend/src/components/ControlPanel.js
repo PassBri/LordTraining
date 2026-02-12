@@ -13,10 +13,10 @@ import {
   FileText, Loader2, X, LayoutDashboard
 } from 'lucide-react';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  LineChart, Line, PieChart, Pie, Cell, AreaChart, Area, ComposedChart
+  PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend
 } from 'recharts';
 import { toast } from 'sonner';
+import InteractiveChart from './InteractiveChart';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
