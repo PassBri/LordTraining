@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import {
   Bot, Play, Zap, FileText, Download, CheckCircle, XCircle, 
   AlertTriangle, Clock, ChevronDown, Loader2, Trophy, Target,
-  Calendar, Dumbbell, Activity, Brain, BarChart, Trash2, Eye
+  Calendar, Dumbbell, Activity, Brain, BarChart, Trash2, Eye, Flame
 } from 'lucide-react';
 
 // ==================== TEMPLATES DE PLANES ====================
