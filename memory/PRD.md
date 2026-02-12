@@ -127,6 +127,8 @@ Colecciones principales:
 - **Persistencia con localStorage**: El contexto seleccionado se mantiene en toda la sesión
 - **Torneos integrados en Dashboard**: La pestaña de Torneos ahora está en "Datos > Atletas y Equipos"
 - **Página /athletes eliminada**: Todo está centralizado en el Dashboard
+- **Historial de Planes en Sidebar**: El historial ahora se muestra como vista alternativa al Asistente IA en el sidebar, toggled por botón
+- **Enlace Suscripción en menú usuario**: Agregado enlace "Suscripción" encima de "Cerrar Sesión" en el sidebar del Dashboard
 
 ### Backend
 - `/app/backend/server.py` - API principal con todos los endpoints
