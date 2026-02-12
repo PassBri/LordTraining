@@ -2072,11 +2072,6 @@ async def get_public_tournament(share_id: str):
 @api_router.get("/tournaments/{tournament_id}/export-pdf")
 async def export_tournament_pdf(tournament_id: str, user: dict = Depends(get_current_user)):
     """Exportar torneo a PDF"""
-    from reportlab.lib.units import inch
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-    from reportlab.lib import colors
-    
     tournament = await db.tournaments.find_one({"id": tournament_id, "coach_id": user["id"]})
     if not tournament:
         raise HTTPException(status_code=404, detail="Tournament not found")
