@@ -417,11 +417,23 @@ const SessionEditor = ({
             scale: 2,
             useCORS: true,
             backgroundColor: '#ffffff',
-            logging: false
+            logging: true,
+            allowTaint: true,
+            foreignObjectRendering: false,
+            removeContainer: true,
+            imageTimeout: 15000,
+            onclone: (clonedDoc) => {
+              const svgs = clonedDoc.querySelectorAll('svg');
+              svgs.forEach(svg => {
+                svg.style.display = 'inline-block';
+              });
+            }
           });
           imageBase64 = canvas.toDataURL('image/png', 0.8);
+          console.log('Image captured successfully, length:', imageBase64?.length);
         } catch (imgError) {
           console.error('Error capturing image:', imgError);
+          toast.warning('No se pudo capturar la imagen, se compartirá solo los datos');
         }
       }
       
@@ -450,7 +462,7 @@ const SessionEditor = ({
         const fullLink = `${window.location.origin}/session/view/${data.share_id}`;
         setShareLink(fullLink);
         setShowShareDialog(true);
-        toast.success('Enlace generado exitosamente');
+        toast.success(imageBase64 ? 'Enlace con imagen generado exitosamente' : 'Enlace generado (sin imagen)');
       } else {
         const errorData = await response.json();
         throw new Error(errorData.detail || 'Error al generar enlace');
