@@ -607,6 +607,131 @@ const InteractiveChart = ({
           {renderChart()}
         </ResponsiveContainer>
       </CardContent>
+
+      {/* Modal de Pantalla Completa - Estilo Trading */}
+      <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
+        <DialogContent className="max-w-[98vw] w-[98vw] h-[95vh] p-0 bg-slate-900 border-slate-700 overflow-hidden">
+          {/* Header del modal fullscreen */}
+          <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-slate-800 to-slate-900 border-b border-slate-700">
+            <div className="flex items-center gap-4">
+              {IconComponent && <IconComponent className="w-6 h-6 text-blue-400" />}
+              <h2 className="text-xl font-bold text-white">{title}</h2>
+              {showLiveIndicator && (
+                <span className="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full border border-green-500/30">
+                  ● En vivo
+                </span>
+              )}
+            </div>
+            
+            {/* Controles en fullscreen */}
+            <div className="flex items-center gap-2">
+              {/* Selector de tipo de gráfico */}
+              <div className="flex bg-slate-700/50 rounded-lg p-1 mr-2">
+                {CHART_TYPES.map(type => {
+                  const TypeIcon = type.icon;
+                  return (
+                    <button
+                      key={type.id}
+                      onClick={() => setChartType(type.id)}
+                      className={`p-2 rounded-md transition-all ${
+                        chartType === type.id
+                          ? 'bg-blue-500 text-white'
+                          : 'text-slate-400 hover:text-white hover:bg-slate-600'
+                      }`}
+                      title={type.label}
+                    >
+                      <TypeIcon className="w-4 h-4" />
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Selector de período */}
+              <div className="flex bg-slate-700/50 rounded-lg p-1 mr-4">
+                {TIME_RANGES.map(range => (
+                  <button
+                    key={range.id}
+                    onClick={() => setTimeRange(range.id)}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                      timeRange === range.id
+                        ? 'bg-blue-500 text-white'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-600'
+                    }`}
+                    title={range.label}
+                  >
+                    {range.shortLabel}
+                  </button>
+                ))}
+              </div>
+
+              {/* Controles de zoom */}
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-9 w-9 p-0 text-slate-400 hover:text-white hover:bg-slate-700"
+                onClick={handleZoomIn}
+                title="Acercar"
+              >
+                <ZoomIn className="w-5 h-5" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-9 w-9 p-0 text-slate-400 hover:text-white hover:bg-slate-700"
+                onClick={handleZoomOut}
+                title="Alejar"
+              >
+                <ZoomOut className="w-5 h-5" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-9 w-9 p-0 text-slate-400 hover:text-white hover:bg-slate-700"
+                onClick={handleResetZoom}
+                title="Restablecer"
+              >
+                <RotateCcw className="w-5 h-5" />
+              </Button>
+
+              <div className="w-px h-8 bg-slate-600 mx-2" />
+
+              {/* Botón cerrar */}
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-9 w-9 p-0 text-slate-400 hover:text-red-400 hover:bg-red-500/10"
+                onClick={() => setIsFullscreen(false)}
+                title="Cerrar"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Área del gráfico fullscreen */}
+          <div className="flex-1 p-6 bg-slate-900" style={{ height: 'calc(95vh - 80px)' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              {renderChart()}
+            </ResponsiveContainer>
+          </div>
+
+          {/* Footer con info */}
+          <div className="absolute bottom-0 left-0 right-0 px-6 py-3 bg-slate-800/80 backdrop-blur border-t border-slate-700">
+            <div className="flex items-center justify-between text-xs text-slate-400">
+              <div className="flex items-center gap-4">
+                <span>Mostrando {brushRange.endIndex - brushRange.startIndex + 1} de {filteredData.length} períodos</span>
+                <span className="text-slate-600">|</span>
+                <span>Período: {TIME_RANGES.find(r => r.id === timeRange)?.label}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-slate-500">Usa el brush inferior para navegar</span>
+                <span className="text-slate-600">•</span>
+                <span className="text-slate-500">ESC para cerrar</span>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
