@@ -105,8 +105,24 @@ const SubscriptionPage = () => {
   const currentPlan = PLANS.find(p => p.id === user?.subscription) || PLANS[0];
 
   return (
-    <DashboardLayout>
-      <div className="space-y-8 max-w-6xl mx-auto">
+    <div className="min-h-screen bg-slate-50">
+      {/* Header with back button */}
+      <div className="bg-white border-b shadow-sm sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-4">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => navigate('/dashboard')}
+            className="text-slate-600 hover:text-slate-900"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Volver al Dashboard
+          </Button>
+        </div>
+      </div>
+      
+      <div className="p-4 md:p-8 lg:p-12">
+        <div className="space-y-8 max-w-6xl mx-auto">
         {/* Header */}
         <div>
           <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight" style={{ fontFamily: 'Barlow Condensed' }}>
