@@ -362,21 +362,21 @@ const SessionEditor = ({
         pdf.setFontSize(10);
         pdf.text(`Atleta: ${athleteName || 'Sin nombre'}`, pageWidth - margin - 60, 14);
         pdf.text(`Fecha: ${session?.date || new Date().toISOString().split('T')[0]}`, pageWidth - margin - 60, 22);
-      
-      y = 45;
-      
-      // ========== OBJETIVOS DE LA SESIÓN ==========
-      pdf.setFillColor(236, 253, 245); // green-50
-      pdf.rect(margin, y, contentWidth, 8, 'F');
-      pdf.setTextColor(...colors.success);
-      pdf.setFontSize(12);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('OBJETIVOS DE LA SESION', margin + 3, y + 6);
-      y += 12;
-      
-      pdf.setTextColor(...colors.dark);
-      pdf.setFontSize(9);
-      pdf.setFont('helvetica', 'normal');
+        
+        y = 50; // Ajustado para el header más grande
+        
+        // ========== OBJETIVOS DE LA SESIÓN ==========
+        pdf.setFillColor(236, 253, 245); // green-50
+        pdf.rect(margin, y, contentWidth, 8, 'F');
+        pdf.setTextColor(...colors.success);
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('OBJETIVOS DE LA SESION', margin + 3, y + 6);
+        y += 12;
+        
+        pdf.setTextColor(...colors.dark);
+        pdf.setFontSize(9);
+        pdf.setFont('helvetica', 'normal');
       
       const objetivos = sessionData.objetivos || {};
       const objetivosList = [
