@@ -1324,6 +1324,8 @@ const PeriodizationSystem = ({ athleteId, athleteName }) => {
           session={fullEditorSession}
           onSave={saveFullEditorSession}
           exercises={EJERCICIOS_INICIALES}
+          athleteId={athleteId}
+          athleteName={athleteName}
         />
       </div>
     );
