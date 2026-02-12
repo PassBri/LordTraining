@@ -3687,7 +3687,7 @@ class SessionPDFRequest(BaseModel):
 
 @api_router.post("/export/session-pdf")
 async def export_session_pdf(request: SessionPDFRequest, authorization: str = Header(None)):
-    """Exportar una sesión de entrenamiento como PDF"""
+    """Exportar una sesión de entrenamiento como PDF con diseño profesional"""
     try:
         # Verificar autenticación
         if not authorization or not authorization.startswith("Bearer "):
@@ -3696,148 +3696,304 @@ async def export_session_pdf(request: SessionPDFRequest, authorization: str = He
         session_data = request.session
         athlete_name = request.athlete_name
         
+        # Extraer datos detallados de la sesión
+        detailed_data = session_data.get('detailedData', {})
+        objectives = detailed_data.get('objetivos', {})
+        phases = detailed_data.get('fases', {})
+        monitoreo = detailed_data.get('monitoreo', {})
+        retroalimentacion = detailed_data.get('retroalimentacion', '')
+        
         # Crear PDF
         buffer = BytesIO()
         c = canvas.Canvas(buffer, pagesize=letter)
         width, height = letter
         
-        # Colores
-        primary_blue = HexColor('#2563eb')
+        # Colores Material Design
+        primary_gradient_start = HexColor('#2563eb')
+        primary_gradient_end = HexColor('#7c3aed')
         secondary_gray = HexColor('#64748b')
-        light_gray = HexColor('#f1f5f9')
+        light_gray = HexColor('#f8fafc')
         white = HexColor('#ffffff')
+        green_500 = HexColor('#22c55e')
+        orange_500 = HexColor('#f97316')
+        blue_500 = HexColor('#3b82f6')
+        red_500 = HexColor('#ef4444')
+        cyan_500 = HexColor('#06b6d4')
         
-        # Header
-        c.setFillColor(primary_blue)
-        c.roundRect(40, height - 100, width - 80, 60, 10, fill=1, stroke=0)
+        # ============ HEADER ============
+        # Gradiente simulado con rectángulos
+        c.setFillColor(primary_gradient_start)
+        c.roundRect(30, height - 110, width - 60, 80, 15, fill=1, stroke=0)
+        
+        # Título
         c.setFillColor(white)
-        c.setFont("Helvetica-Bold", 18)
-        c.drawString(60, height - 60, "SESIÓN DE ENTRENAMIENTO")
-        c.setFont("Helvetica", 12)
-        c.drawString(60, height - 80, f"Atleta: {athlete_name}")
+        c.setFont("Helvetica-Bold", 22)
+        c.drawString(50, height - 55, "SESIÓN DE ENTRENAMIENTO")
         
-        # Fecha
+        # Subtítulo con atleta
+        c.setFont("Helvetica", 13)
+        c.drawString(50, height - 78, f"Atleta: {athlete_name}")
+        
+        # Fecha en el lado derecho
         session_date = session_data.get('date', datetime.now().strftime('%Y-%m-%d'))
+        day_name = session_data.get('dayName', '')
+        c.setFont("Helvetica-Bold", 12)
+        c.drawRightString(width - 50, height - 55, f"Fecha: {session_date}")
+        if day_name:
+            c.setFont("Helvetica", 11)
+            c.drawRightString(width - 50, height - 72, f"Día: {day_name}")
+        
+        y_position = height - 140
+        
+        # ============ OBJETIVOS DE LA SESIÓN ============
+        # Card header
+        c.setFillColor(cyan_500)
+        c.roundRect(30, y_position - 15, width - 60, 25, 5, fill=1, stroke=0)
         c.setFillColor(white)
-        c.drawRightString(width - 60, height - 60, f"Fecha: {session_date}")
+        c.setFont("Helvetica-Bold", 12)
+        c.drawString(45, y_position - 7, "OBJETIVOS DE LA SESIÓN")
+        y_position -= 35
         
-        y_position = height - 130
-        
-        # Objetivos
-        c.setFillColor(HexColor('#0891b2'))  # Cyan
-        c.setFont("Helvetica-Bold", 14)
-        c.drawString(40, y_position, "OBJETIVOS DE LA SESIÓN")
-        y_position -= 20
-        
-        objectives = session_data.get('objectives', {})
-        c.setFillColor(secondary_gray)
-        c.setFont("Helvetica", 10)
+        # Card content
+        c.setFillColor(light_gray)
+        c.roundRect(30, y_position - 100, width - 60, 100, 8, fill=1, stroke=0)
         
         obj_items = [
-            ('General', objectives.get('general', '-')),
-            ('Físico', objectives.get('fisico', '-')),
-            ('Técnico', objectives.get('tecnico', '-')),
-            ('Táctico', objectives.get('tactico', '-')),
-            ('Psicológico', objectives.get('psicologico', '-')),
-            ('Teórico', objectives.get('teorico', '-'))
+            ('General', objectives.get('general', '')),
+            ('Físico', objectives.get('fisico', '')),
+            ('Técnico', objectives.get('tecnico', '')),
+            ('Táctico', objectives.get('tactico', '')),
+            ('Psicológico', objectives.get('psicologico', '')),
+            ('Teórico', objectives.get('teorico', ''))
         ]
         
-        for label, value in obj_items:
-            if value and value != '-':
-                c.setFont("Helvetica-Bold", 10)
-                c.drawString(50, y_position, f"{label}:")
-                c.setFont("Helvetica", 10)
-                c.drawString(120, y_position, str(value)[:70])
-                y_position -= 15
+        obj_y = y_position - 15
+        col1_x = 45
+        col2_x = width / 2 + 10
         
-        y_position -= 15
+        for i, (label, value) in enumerate(obj_items):
+            x_pos = col1_x if i % 2 == 0 else col2_x
+            if i % 2 == 0 and i > 0:
+                obj_y -= 28
+            
+            c.setFillColor(HexColor('#1e293b'))
+            c.setFont("Helvetica-Bold", 9)
+            c.drawString(x_pos, obj_y, f"{label}:")
+            c.setFillColor(secondary_gray)
+            c.setFont("Helvetica", 9)
+            display_value = str(value)[:40] if value else "Sin definir"
+            c.drawString(x_pos + 65, obj_y, display_value)
         
-        # Estructura de la sesión (Fases)
-        phases = session_data.get('phases', {})
-        phase_colors = {
-            'inicial': {'name': 'FASE INICIAL', 'color': HexColor('#22c55e')},
-            'principal': {'name': 'FASE PRINCIPAL', 'color': HexColor('#f97316')},
-            'final': {'name': 'FASE FINAL', 'color': HexColor('#3b82f6')}
-        }
+        y_position -= 115
         
-        for phase_key, phase_config in phase_colors.items():
+        # ============ ESTRUCTURA DE LA SESIÓN (FASES) ============
+        phase_configs = [
+            ('inicial', 'FASE INICIAL (Calentamiento)', green_500, HexColor('#dcfce7')),
+            ('principal', 'FASE PRINCIPAL', orange_500, HexColor('#ffedd5')),
+            ('final', 'FASE FINAL (Vuelta a la calma)', blue_500, HexColor('#dbeafe'))
+        ]
+        
+        for phase_key, phase_name, header_color, bg_color in phase_configs:
             phase_data = phases.get(phase_key, {})
             activities = phase_data.get('actividades', [])
             
-            if not activities:
-                continue
-            
-            # Header de fase
-            c.setFillColor(phase_config['color'])
-            c.setFont("Helvetica-Bold", 12)
-            c.drawString(40, y_position, phase_config['name'])
-            y_position -= 20
-            
-            # Tabla de actividades
-            c.setFillColor(light_gray)
-            c.rect(40, y_position - (len(activities) * 18) - 5, width - 80, len(activities) * 18 + 25, fill=1, stroke=0)
-            
-            # Headers de tabla
-            c.setFillColor(secondary_gray)
-            c.setFont("Helvetica-Bold", 8)
-            headers = ['Ejercicio', 'Cap.Física', 'Método', 'Series', 'Reps', 'Int.', 'Vol.', 'Recup.']
-            x_positions = [50, 160, 230, 300, 340, 390, 430, 490]
-            
-            for i, header in enumerate(headers):
-                c.drawString(x_positions[i], y_position, header)
-            y_position -= 18
-            
-            # Filas de actividades
-            c.setFont("Helvetica", 8)
-            c.setFillColor(HexColor('#334155'))
-            
-            for act in activities:
-                c.drawString(50, y_position, str(act.get('ejercicio', '-'))[:20])
-                c.drawString(160, y_position, str(act.get('capacidadFisica', '-'))[:12])
-                c.drawString(230, y_position, str(act.get('metodo', '-'))[:12])
-                c.drawString(300, y_position, str(act.get('series', '-')))
-                c.drawString(340, y_position, str(act.get('repeticiones', '-')))
-                c.drawString(390, y_position, f"{act.get('intensidad', 0)}%")
-                c.drawString(430, y_position, str(act.get('volumen', '-')))
-                c.drawString(490, y_position, str(act.get('recuperacion', '-')))
-                y_position -= 18
-            
-            y_position -= 20
-            
-            # Nueva página si es necesario
-            if y_position < 150:
+            # Verificar espacio para nueva página
+            needed_height = 80 + (len(activities) * 20)
+            if y_position < needed_height + 100:
                 c.showPage()
-                y_position = height - 60
-        
-        # Monitoreo y Retroalimentación
-        monitoring = session_data.get('monitoring', {})
-        feedback = session_data.get('feedback', '')
-        
-        if monitoring or feedback:
-            c.setFillColor(HexColor('#ef4444'))  # Rojo
-            c.setFont("Helvetica-Bold", 12)
-            c.drawString(40, y_position, "MONITOREO Y OBSERVACIONES")
-            y_position -= 20
+                y_position = height - 50
             
-            c.setFillColor(secondary_gray)
+            # Phase header
+            c.setFillColor(header_color)
+            c.roundRect(30, y_position - 15, width - 60, 25, 5, fill=1, stroke=0)
+            c.setFillColor(white)
+            c.setFont("Helvetica-Bold", 11)
+            c.drawString(45, y_position - 7, phase_name)
             c.setFont("Helvetica", 10)
+            c.drawRightString(width - 50, y_position - 7, f"{len(activities)} ejercicios")
+            y_position -= 30
             
-            if monitoring.get('fcReposo'):
-                c.drawString(50, y_position, f"FC Reposo: {monitoring.get('fcReposo')} bpm")
-                y_position -= 15
-            if monitoring.get('fcMaxima'):
-                c.drawString(50, y_position, f"FC Máxima: {monitoring.get('fcMaxima')} bpm")
-                y_position -= 15
-            if feedback:
-                c.drawString(50, y_position, f"Observaciones: {feedback[:80]}")
-                y_position -= 15
+            if activities:
+                # Tabla de actividades
+                table_height = 25 + (len(activities) * 20)
+                c.setFillColor(bg_color)
+                c.roundRect(30, y_position - table_height + 10, width - 60, table_height, 5, fill=1, stroke=0)
+                
+                # Headers de tabla
+                c.setFillColor(HexColor('#475569'))
+                c.setFont("Helvetica-Bold", 8)
+                headers = ['Ejercicio', 'Cap.Física', 'Método', 'Series', 'Reps', 'Int.', 'Vol.', 'Recup.']
+                x_positions = [40, 140, 215, 285, 325, 365, 410, 460]
+                
+                for i, header in enumerate(headers):
+                    c.drawString(x_positions[i], y_position - 5, header)
+                y_position -= 20
+                
+                # Línea separadora
+                c.setStrokeColor(HexColor('#cbd5e1'))
+                c.setLineWidth(0.5)
+                c.line(35, y_position + 2, width - 35, y_position + 2)
+                
+                # Filas de actividades
+                c.setFont("Helvetica", 8)
+                for act in activities:
+                    c.setFillColor(HexColor('#1e293b'))
+                    ejercicio = str(act.get('ejercicio', '-'))[:18]
+                    c.drawString(40, y_position - 5, ejercicio)
+                    
+                    c.setFillColor(secondary_gray)
+                    c.drawString(140, y_position - 5, str(act.get('capacidadFisica', '-'))[:12])
+                    c.drawString(215, y_position - 5, str(act.get('metodo', '-'))[:10])
+                    c.drawString(285, y_position - 5, str(act.get('series', '-')))
+                    c.drawString(325, y_position - 5, str(act.get('repeticiones', '-')))
+                    
+                    # Intensidad con indicador visual
+                    intensidad = act.get('intensidad', 0)
+                    c.drawString(365, y_position - 5, f"{intensidad}%")
+                    
+                    c.drawString(410, y_position - 5, str(act.get('volumen', '-'))[:8])
+                    c.drawString(460, y_position - 5, str(act.get('recuperacion', '-'))[:8])
+                    y_position -= 20
+            else:
+                # Sin actividades
+                c.setFillColor(secondary_gray)
+                c.setFont("Helvetica-Oblique", 9)
+                c.drawString(45, y_position - 10, "No hay actividades en esta fase")
+                y_position -= 25
+            
+            y_position -= 15
         
-        # Footer
-        c.setFillColor(light_gray)
-        c.rect(0, 0, width, 40, fill=1, stroke=0)
-        c.setFillColor(secondary_gray)
+        # ============ MONITOREO DE RENDIMIENTO ============
+        if y_position < 250:
+            c.showPage()
+            y_position = height - 50
+        
+        # Header de monitoreo
+        c.setFillColor(red_500)
+        c.roundRect(30, y_position - 15, width - 60, 25, 5, fill=1, stroke=0)
+        c.setFillColor(white)
+        c.setFont("Helvetica-Bold", 12)
+        c.drawString(45, y_position - 7, "MONITOREO DE RENDIMIENTO")
+        y_position -= 35
+        
+        # Card de monitoreo
+        c.setFillColor(HexColor('#fef2f2'))
+        c.roundRect(30, y_position - 170, width - 60, 170, 8, fill=1, stroke=0)
+        
+        # Frecuencia Cardíaca - Título
+        c.setFillColor(HexColor('#991b1b'))
+        c.setFont("Helvetica-Bold", 10)
+        c.drawString(45, y_position - 15, "Frecuencia Cardíaca por Fases")
+        y_position -= 30
+        
+        # FC datos en columnas
+        fc_data = [
+            ('FC Reposo', monitoreo.get('fcReposo', '-'), 'bpm'),
+            ('FC Media', monitoreo.get('fcMedia', '-'), 'bpm'),
+            ('FC Máxima', monitoreo.get('fcMaxima', '-'), 'bpm'),
+        ]
+        
+        fc_x = 50
+        for label, value, unit in fc_data:
+            # Mini card
+            c.setFillColor(white)
+            c.roundRect(fc_x, y_position - 45, 80, 50, 5, fill=1, stroke=0)
+            c.setFillColor(HexColor('#64748b'))
+            c.setFont("Helvetica", 8)
+            c.drawCentredString(fc_x + 40, y_position - 12, label)
+            c.setFillColor(HexColor('#1e293b'))
+            c.setFont("Helvetica-Bold", 16)
+            c.drawCentredString(fc_x + 40, y_position - 32, str(value) if value else '-')
+            c.setFillColor(HexColor('#94a3b8'))
+            c.setFont("Helvetica", 7)
+            c.drawCentredString(fc_x + 40, y_position - 43, unit)
+            fc_x += 90
+        
+        # FC por fases
+        fc_fases = [
+            ('Antes', monitoreo.get('fcAntesEntrenamiento', '-')),
+            ('Durante', monitoreo.get('fcDuranteEntrenamiento', '-')),
+            ('Después', monitoreo.get('fcDespuesEntrenamiento', '-')),
+            ('Recup 1\'', monitoreo.get('fcRecuperacion1min', '-')),
+            ('Recup 3\'', monitoreo.get('fcRecuperacion3min', '-')),
+            ('Recup 5\'', monitoreo.get('fcRecuperacion5min', '-')),
+        ]
+        
+        y_position -= 60
+        c.setFillColor(HexColor('#991b1b'))
+        c.setFont("Helvetica-Bold", 9)
+        c.drawString(45, y_position, "Fases:")
+        
+        fc_x = 90
+        for label, value in fc_fases:
+            c.setFillColor(secondary_gray)
+            c.setFont("Helvetica", 8)
+            c.drawString(fc_x, y_position, f"{label}: ")
+            c.setFont("Helvetica-Bold", 8)
+            c.drawString(fc_x + 35, y_position, str(value) if value else '-')
+            fc_x += 70
+        
+        y_position -= 25
+        
+        # Estado del deportista
+        c.setFillColor(HexColor('#991b1b'))
+        c.setFont("Helvetica-Bold", 10)
+        c.drawString(45, y_position, "Estado del Deportista")
+        y_position -= 18
+        
+        estado_data = [
+            ('Nivel de Fatiga', monitoreo.get('nivelFatiga', 50), '%'),
+            ('Hidratación', monitoreo.get('nivelHidratacion', 80), '%'),
+            ('Calidad de Sueño', monitoreo.get('calidadSueno', 75), '%'),
+            ('Nivel de Energía', monitoreo.get('nivelEnergia', 70), '%'),
+        ]
+        
+        estado_x = 50
+        for label, value, unit in estado_data:
+            c.setFillColor(secondary_gray)
+            c.setFont("Helvetica", 8)
+            c.drawString(estado_x, y_position, f"{label}: ")
+            c.setFillColor(HexColor('#1e293b'))
+            c.setFont("Helvetica-Bold", 9)
+            c.drawString(estado_x + 75, y_position, f"{value}{unit}")
+            estado_x += 130
+        
+        y_position -= 50
+        
+        # ============ OBSERVACIONES ============
+        if retroalimentacion:
+            if y_position < 100:
+                c.showPage()
+                y_position = height - 50
+            
+            c.setFillColor(HexColor('#7c3aed'))
+            c.roundRect(30, y_position - 15, width - 60, 25, 5, fill=1, stroke=0)
+            c.setFillColor(white)
+            c.setFont("Helvetica-Bold", 12)
+            c.drawString(45, y_position - 7, "OBSERVACIONES Y RETROALIMENTACIÓN")
+            y_position -= 35
+            
+            c.setFillColor(HexColor('#f5f3ff'))
+            c.roundRect(30, y_position - 50, width - 60, 50, 5, fill=1, stroke=0)
+            
+            c.setFillColor(HexColor('#4c1d95'))
+            c.setFont("Helvetica", 10)
+            # Dividir texto largo en líneas
+            text_lines = [retroalimentacion[i:i+80] for i in range(0, len(retroalimentacion), 80)]
+            text_y = y_position - 20
+            for line in text_lines[:3]:  # Máximo 3 líneas
+                c.drawString(45, text_y, line)
+                text_y -= 15
+        
+        # ============ FOOTER ============
+        c.setFillColor(HexColor('#1e293b'))
+        c.rect(0, 0, width, 35, fill=1, stroke=0)
+        c.setFillColor(white)
+        c.setFont("Helvetica-Bold", 9)
+        c.drawString(40, 15, f"Generado por Sistema TRAIN")
         c.setFont("Helvetica", 8)
-        c.drawString(40, 15, f"Generado por Sistema TRAIN - {datetime.now().strftime('%d/%m/%Y %H:%M')}")
+        c.drawString(40, 5, datetime.now().strftime('%d/%m/%Y %H:%M'))
+        c.setFont("Helvetica-Bold", 9)
         c.drawRightString(width - 40, 15, "www.train-system.com")
         
         c.save()
