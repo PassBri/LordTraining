@@ -34,9 +34,12 @@ const DashboardLayout = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      {/* TOP CONTEXT BAR - Fixed at very top, above everything */}
+      <TopContextBar />
+
       {/* Mobile menu toggle */}
       <button 
-        className="menu-toggle"
+        className="menu-toggle top-context-offset"
         onClick={() => setSidebarOpen(true)}
         data-testid="sidebar-toggle"
       >
@@ -49,8 +52,8 @@ const DashboardLayout = ({ children }) => {
         onClick={() => setSidebarOpen(false)}
       />
 
-      {/* Sidebar */}
-      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+      {/* Sidebar - offset by context bar height */}
+      <aside className={`sidebar sidebar-with-context ${sidebarOpen ? 'open' : ''}`}>
         <div className="p-6 border-b border-slate-200">
           <Link to="/dashboard" className="flex items-center gap-2" onClick={() => setSidebarOpen(false)}>
             <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
