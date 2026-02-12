@@ -107,7 +107,14 @@ const SESION_INICIAL = {
     fcAntesEntrenamiento: '',
     fcDuranteEntrenamiento: '',
     fcDespuesEntrenamiento: '',
+    // Recuperación por tiempo
+    fcRecuperacion1min: '',
+    fcRecuperacion3min: '',
     fcRecuperacion5min: '',
+    fcRecuperacion10min: '',
+    mostrarRecuperacion10min: false,
+    // Tipo de gráfica
+    tipoGrafica: 'barras', // 'barras', 'lineas', 'mixta'
     // Zonas de trabajo (%)
     zonaAerobica: '',
     zonaAnaerobica: '',
