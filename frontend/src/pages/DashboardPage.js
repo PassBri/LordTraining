@@ -1132,6 +1132,7 @@ const DashboardPage = () => {
             <Card className="border-0 shadow-lg overflow-hidden">
               <TournamentManager
                 tournaments={tournaments}
+                sportsCatalog={sportsCatalog}
                 onCreateTournament={async (data) => {
                   try {
                     await createTournament(data);
