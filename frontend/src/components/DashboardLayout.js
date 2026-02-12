@@ -4,12 +4,13 @@ import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
 import { 
   LayoutDashboard, Users, Calendar, Dumbbell, BarChart3, Settings, 
-  LogOut, Menu, X, ChevronRight, Sparkles, FileText, CreditCard
+  LogOut, Menu, X, ChevronRight, Sparkles, FileText, CreditCard, Trophy
 } from 'lucide-react';
 
 const NAV_ITEMS = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/athletes', label: 'Atletas', icon: Users },
+  { path: '/tournaments', label: 'Torneos', icon: Trophy },
   { path: '/plans', label: 'Planes', icon: FileText },
   { path: '/calendar', label: 'Calendario', icon: Calendar },
   { path: '/exercises', label: 'Ejercicios', icon: Dumbbell },
