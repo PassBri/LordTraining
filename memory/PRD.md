@@ -129,6 +129,7 @@ Colecciones principales:
 - **Página /athletes eliminada**: Todo está centralizado en el Dashboard
 - **Historial de Planes en Sidebar**: El historial ahora se muestra como vista alternativa al Asistente IA en el sidebar, toggled por botón
 - **Enlace Suscripción en menú usuario**: Agregado enlace "Suscripción" encima de "Cerrar Sesión" en el sidebar del Dashboard
+- **Limpieza de código**: Eliminadas páginas secundarias no utilizadas (PlansPage, CalendarPage, ExercisesPage, AIGeneratorPage, PlansHistoryPage) y DashboardLayout.js. SubscriptionPage actualizada con navegación propia.
 
 ### Backend
 - `/app/backend/server.py` - API principal con todos los endpoints
