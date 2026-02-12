@@ -352,47 +352,36 @@ const DashboardPage = () => {
     }
   }, [selectedAthleteId]);
 
-  // Navigation items for "Datos" panel - Ordenados por flujo de trabajo del entrenador
+  // Navigation items for "Datos" panel - NUEVO FLUJO LÓGICO DEL ENTRENADOR
   const navItems = [
-    // === 1. REGISTRO Y CARACTERIZACIÓN ===
-    { id: 'athletes', label: 'Atletas', icon: Users, section: 'registro' },
-    { id: 'sport-char', label: 'Caracterización del deporte', icon: Target, section: 'registro' },
-    { id: 'athlete-char', label: 'Caracterización del deportista', icon: Users, section: 'registro' },
+    // === 1. INFORMACIÓN (Fusión de Atletas + Organización) ===
+    { id: 'athletes', label: 'Atletas y Equipos', icon: Users, section: 'informacion' },
+    { id: 'entities', label: 'Entidades (Federación, Club, Escuela)', icon: Landmark, section: 'informacion' },
+    { id: 'sport-char', label: 'Caracterización del Deporte', icon: Target, section: 'informacion' },
+    { id: 'athlete-char', label: 'Caracterización del Deportista', icon: Users, section: 'informacion' },
     
     // === 2. EVALUACIÓN INICIAL ===
-    { id: 'anthropometric', label: 'Datos antropométricos', icon: LineChart, section: 'evaluacion' },
-    { id: 'tests', label: 'Test y evaluaciones', icon: Clipboard, section: 'evaluacion' },
-    { id: 'diagnostic', label: 'Diagnóstico', icon: Clipboard, section: 'evaluacion' },
-    { id: 'injuries', label: 'Lesiones', icon: Heart, section: 'evaluacion' },
-    { id: 'diseases', label: 'Enfermedades', icon: Activity, section: 'evaluacion' },
+    { id: 'anthropometric', label: 'Datos Antropométricos', icon: LineChart, section: 'evaluacion' },
+    { id: 'diagnostic', label: 'Historial Médico', icon: Heart, section: 'evaluacion' },
     
-    // === 3. ANÁLISIS PREVIO ===
-    { id: 'prev-plan', label: 'Análisis del plan anterior', icon: FileText, section: 'analisis' },
-    { id: 'competitions', label: 'Análisis de competencias', icon: Award, section: 'analisis' },
+    // === 3. COMPETENCIAS Y OBJETIVOS ===
+    { id: 'events', label: 'Calendario de Competencias', icon: Calendar, section: 'competencias' },
+    { id: 'objectives', label: 'Objetivos del Plan', icon: Target, section: 'competencias' },
+    { id: 'prev-plan', label: 'Análisis del Plan Anterior', icon: FileText, section: 'competencias' },
     
-    // === 4. DEFINICIÓN DE OBJETIVOS ===
-    { id: 'events', label: 'Calendario de eventos', icon: Calendar, section: 'objetivos' },
-    { id: 'objectives', label: 'Objetivos e indicadores', icon: Target, section: 'objetivos' },
+    // === 4. SISTEMA DE ENTRENAMIENTO (EJE CENTRAL) ===
+    { id: 'training-system', label: 'Sistema de Entrenamiento', icon: Activity, section: 'entrenamiento' },
+    { id: 'exercises', label: 'Métodos de Entrenamiento', icon: Dumbbell, section: 'entrenamiento' },
+    { id: 'exercises-lib', label: 'Biblioteca de Ejercicios', icon: BookOpen, section: 'entrenamiento' },
     
-    // === 5. PLANIFICACIÓN ===
-    { id: 'periodization-models', label: 'Sistema de Periodización', icon: BookOpen, section: 'planificacion' },
-    { id: 'macrocycle-stages', label: 'Etapas del macrociclo', icon: BookOpen, section: 'planificacion' },
-    { id: 'exercises', label: 'Medios de entrenamiento', icon: Activity, section: 'planificacion' },
-    { id: 'exercises-lib', label: 'Biblioteca de ejercicios', icon: Dumbbell, section: 'planificacion' },
+    // === 5. VISUALIZACIÓN ===
+    { id: 'graphic-plan', label: 'Plan Gráfico', icon: Layers, section: 'visualizacion' },
+    { id: 'calendar-view', label: 'Calendario', icon: Calendar, section: 'visualizacion' },
+    { id: 'smart-alerts', label: 'Alertas Inteligentes', icon: Zap, section: 'visualizacion' },
     
-    // === 6. CONTROL Y SEGUIMIENTO ===
-    { id: 'load', label: 'Carga de entrenamiento', icon: BarChart, section: 'control' },
-    { id: 'control', label: 'Control de entrenamiento', icon: LineChart, section: 'control' },
-    { id: 'smart-alerts', label: 'Alertas Inteligentes', icon: Zap, section: 'control' },
-    
-    // === 7. HERRAMIENTAS ===
-    { id: 'graphic-plan', label: 'Plan Gráfico', icon: Layers, section: 'herramientas' },
-    { id: 'calendar-view', label: 'Calendario', icon: Calendar, section: 'herramientas' },
+    // === 6. HERRAMIENTAS ===
     { id: 'ai-generator', label: 'Generar con IA', icon: Brain, section: 'herramientas' },
-    
-    // === 8. ORGANIZACIÓN ===
-    { id: 'entities', label: 'Entidades', icon: Landmark, section: 'organizacion' },
-    { id: 'entity-dashboard', label: 'Dashboard Entidades', icon: BarChart, section: 'organizacion' },
+    { id: 'entity-dashboard', label: 'Dashboard General', icon: BarChart, section: 'herramientas' },
   ];
 
   // Estado para secciones colapsadas
