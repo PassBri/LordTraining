@@ -116,10 +116,13 @@ Colecciones principales:
 ## Archivos Clave
 
 ### Frontend
-- `/app/frontend/src/App.js` - Rutas principales
-- `/app/frontend/src/context/GlobalContext.js` - Contexto global
-- `/app/frontend/src/pages/DashboardPage.js` - Dashboard principal con Panel de Control + Datos (Atletas, Equipos, Deportes, **Torneos**) + **Barra de Contexto Global**
-- `/app/frontend/src/pages/PlansHistoryPage.js` - Historial de planes
+- `/app/frontend/src/App.js` - Rutas principales (simplificadas)
+- `/app/frontend/src/pages/DashboardPage.js` - Dashboard principal con Panel de Control + Datos (Atletas, Equipos, Deportes, Torneos) + Barra de Contexto Global + Asistente IA
+- `/app/frontend/src/pages/SubscriptionPage.js` - Página de suscripción (standalone)
+- `/app/frontend/src/pages/AuthPage.js` - Autenticación
+- `/app/frontend/src/pages/LandingPage.js` - Página de inicio
+- `/app/frontend/src/pages/SessionViewPage.js` - Vista pública de sesiones
+- `/app/frontend/src/pages/TournamentPublicPage.js` - Vista pública de torneos
 - `/app/frontend/src/services/api.js` - Funciones de API
 
 ### Actualización 12 Feb 2026
