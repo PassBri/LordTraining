@@ -723,7 +723,7 @@ const DashboardPage = () => {
             </button>
           </div>
 
-          {/* Vista de Deportes por Categorías */}
+          {/* Vista de Deportes por Categorías - EDITABLE */}
           {activeAthleteTab === 'sports' && (
             <div className="space-y-4">
               <Card className="border-0 shadow-md overflow-hidden">
@@ -733,51 +733,155 @@ const DashboardPage = () => {
                       <Trophy className="w-5 h-5" />
                       Catálogo de Deportes
                     </div>
-                    <span className="text-sm bg-white/20 px-3 py-1 rounded-full">Por categorías</span>
+                    <Button 
+                      size="sm"
+                      className="bg-white/20 hover:bg-white/30 text-white border-0"
+                      onClick={() => setShowAddCategory(true)}
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      Nueva Categoría
+                    </Button>
                   </div>
                 </div>
                 <CardContent className="p-5">
+                  {/* Add Category Form */}
+                  {showAddCategory && (
+                    <div className="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-semibold text-amber-900">Nueva Categoría</h4>
+                        <Button variant="ghost" size="sm" onClick={() => setShowAddCategory(false)}>
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <div className="flex flex-wrap gap-3 items-end">
+                        <Input 
+                          placeholder="Nombre de categoría" 
+                          className="flex-1 min-w-[200px]"
+                          value={newCategory.name}
+                          onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
+                        />
+                        <Input 
+                          placeholder="Icono (emoji)" 
+                          className="w-20"
+                          value={newCategory.icon}
+                          onChange={(e) => setNewCategory({...newCategory, icon: e.target.value})}
+                        />
+                        <Input 
+                          type="color"
+                          className="w-16 h-10 p-1"
+                          value={newCategory.color}
+                          onChange={(e) => setNewCategory({...newCategory, color: e.target.value})}
+                        />
+                        <Button onClick={handleCreateCategory} className="bg-amber-500 hover:bg-amber-600">
+                          Crear
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Categories Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {/* Deportes de Contacto */}
-                    <div className="border border-red-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
-                      <div className="bg-gradient-to-r from-red-500 to-rose-600 text-white px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <Flame className="w-5 h-5" />
-                          <span className="font-semibold">Deportes de Contacto</span>
+                    {sportsCatalog.map(category => (
+                      <div 
+                        key={category.id} 
+                        className="border rounded-xl overflow-hidden hover:shadow-lg transition-shadow"
+                        style={{ borderColor: category.color + '40' }}
+                      >
+                        <div 
+                          className="text-white px-4 py-3 flex items-center justify-between"
+                          style={{ background: `linear-gradient(135deg, ${category.color}, ${category.color}dd)` }}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl">{category.icon}</span>
+                            <span className="font-semibold">{category.name}</span>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-white/70 hover:text-white hover:bg-white/20 h-7 w-7 p-0"
+                            onClick={() => handleDeleteCategory(category.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        <div className="p-4 space-y-1 max-h-[250px] overflow-y-auto">
+                          {category.sports?.map(sport => (
+                            <div 
+                              key={sport.id} 
+                              className="flex items-center justify-between text-sm text-slate-700 hover:bg-slate-50 px-2 py-1.5 rounded group"
+                            >
+                              <div className="flex items-center gap-2">
+                                <div 
+                                  className="w-2 h-2 rounded-full"
+                                  style={{ backgroundColor: category.color }}
+                                ></div>
+                                {sport.name}
+                              </div>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 hover:bg-red-50"
+                                onClick={() => handleDeleteSport(sport.id)}
+                              >
+                                <X className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          ))}
+                          
+                          {/* Add Sport to Category */}
+                          {showAddSport === category.id ? (
+                            <div className="flex items-center gap-2 mt-2 pt-2 border-t">
+                              <Input 
+                                placeholder="Nuevo deporte" 
+                                className="h-8 text-sm flex-1"
+                                value={newSport.name}
+                                onChange={(e) => setNewSport({...newSport, name: e.target.value})}
+                                onKeyDown={(e) => e.key === 'Enter' && handleCreateSport(category.id)}
+                              />
+                              <Button 
+                                size="sm" 
+                                className="h-8"
+                                style={{ backgroundColor: category.color }}
+                                onClick={() => handleCreateSport(category.id)}
+                              >
+                                <Plus className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-8"
+                                onClick={() => setShowAddSport(null)}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="w-full mt-2 text-slate-500 hover:text-slate-700 border border-dashed border-slate-300"
+                              onClick={() => { setShowAddSport(category.id); setNewSport({ name: '', category_id: category.id }); }}
+                            >
+                              <Plus className="w-4 h-4 mr-1" />
+                              Agregar deporte
+                            </Button>
+                          )}
                         </div>
                       </div>
-                      <div className="p-4 space-y-2">
-                        {['Boxeo', 'MMA', 'Judo', 'Taekwondo', 'Karate', 'Lucha', 'Wrestling', 'Kickboxing'].map(sport => (
-                          <div key={sport} className="flex items-center gap-2 text-sm text-slate-700 hover:bg-red-50 px-2 py-1 rounded cursor-pointer">
-                            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                            {sport}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    ))}
+                  </div>
 
-                    {/* Tiempo y Marca */}
-                    <div className="border border-blue-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
-                      <div className="bg-gradient-to-r from-blue-500 to-cyan-600 text-white px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <Timer className="w-5 h-5" />
-                          <span className="font-semibold">Tiempo y Marca</span>
-                        </div>
-                      </div>
-                      <div className="p-4 space-y-2">
-                        {['Atletismo', 'Natación', 'Ciclismo', 'Triatlón', 'Remo', 'Patinaje', 'Esquí', 'Maratón'].map(sport => (
-                          <div key={sport} className="flex items-center gap-2 text-sm text-slate-700 hover:bg-blue-50 px-2 py-1 rounded cursor-pointer">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                            {sport}
-                          </div>
-                        ))}
-                      </div>
+                  {/* Tip */}
+                  <div className="mt-5 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
+                    <Lightbulb className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm text-amber-800">
+                      <strong>Tip:</strong> Personaliza tu catálogo agregando las categorías y deportes que necesites. Los atletas y equipos podrán seleccionar de este catálogo.
                     </div>
-
-                    {/* Deportes Individuales */}
-                    <div className="border border-violet-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
-                      <div className="bg-gradient-to-r from-violet-500 to-purple-600 text-white px-4 py-3">
-                        <div className="flex items-center gap-2">
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
                           <User className="w-5 h-5" />
                           <span className="font-semibold">Individuales</span>
                         </div>
