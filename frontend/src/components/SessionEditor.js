@@ -378,24 +378,44 @@ const SessionEditor = ({
     setExporting(false);
   };
 
-  // Generar enlace para compartir
+  // Generar enlace para compartir (con imagen)
   const handleGenerateShareLink = async () => {
+    setExporting(true);
     try {
       const token = localStorage.getItem('train_token');
       
       if (!athleteId) {
         toast.error('Selecciona un atleta primero');
+        setExporting(false);
         return;
       }
       
-      // Guardar primero la sesión si tiene cambios
+      // Capturar la imagen de la sesión
+      let imageBase64 = null;
+      if (sessionContentRef.current) {
+        try {
+          const { default: html2canvas } = await import('html2canvas');
+          const canvas = await html2canvas(sessionContentRef.current, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: false
+          });
+          imageBase64 = canvas.toDataURL('image/png', 0.8);
+        } catch (imgError) {
+          console.error('Error capturing image:', imgError);
+        }
+      }
+      
+      // Guardar la sesión con la imagen
       const sessionToShare = {
         athlete_id: athleteId,
         athlete_name: athleteName || 'Atleta',
         session_data: {
           ...session,
           detailedData: sessionData
-        }
+        },
+        session_image: imageBase64
       };
       
       const response = await fetch(`${API_URL}/api/sessions/share`, {
