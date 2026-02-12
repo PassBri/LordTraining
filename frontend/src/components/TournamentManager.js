@@ -925,6 +925,18 @@ const TournamentManager = ({
             }
           }
         }
+        
+        // Auto-save after completing a match
+        if (selectedTournament && onUpdateTournament) {
+          setTimeout(() => {
+            onUpdateTournament(selectedTournament.id, {
+              ...selectedTournament,
+              participants,
+              matches: newMatches,
+              participants_count: participants.length
+            });
+          }, 100);
+        }
       }
       
       return newMatches;
