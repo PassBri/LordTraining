@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   LineChart, Line, AreaChart, Area, ComposedChart, Brush, ScatterChart, Scatter,
-  ReferenceLine
+  ReferenceLine, ReferenceArea
 } from 'recharts';
 import { 
   BarChart3, TrendingUp, Activity, Layers, Settings2, 
