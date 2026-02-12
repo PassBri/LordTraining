@@ -288,16 +288,17 @@ const SessionEditor = ({
     onClose();
   };
 
-  // Exportar sesión como imagen (mismo método que GraphicPlan)
-  const handleExportImage = async () => {
+  // Exportar sesión como PDF usando jspdf + html2canvas
+  const handleExportAsPDF = async () => {
     if (exporting) return;
     setExporting(true);
     
     try {
-      toast.info('Generando imagen...');
+      toast.info('Generando PDF...');
       
-      // Importar html2canvas
+      // Importar librerías
       const html2canvas = (await import('html2canvas')).default;
+      const { jsPDF } = await import('jspdf');
       
       // Buscar el elemento con data-testid
       const contentElement = document.querySelector('[data-testid="session-editor-content"]');
@@ -307,36 +308,90 @@ const SessionEditor = ({
         return;
       }
       
-      // Guardar className original y modificar para captura
+      // Guardar estilos originales
+      const originalStyle = contentElement.style.cssText;
       const originalClassName = contentElement.className;
-      contentElement.className = 'bg-white'; // Quitar overflow y max-height
+      
+      // Preparar elemento para captura - fondo blanco, sin límites de altura
+      contentElement.style.cssText = 'background-color: white; max-height: none; overflow: visible; padding: 20px;';
+      contentElement.className = contentElement.className.replace(/overflow-[^\s]+/g, '').replace(/max-h-[^\s]+/g, '');
       
       // Esperar que el DOM se actualice
-      await new Promise(resolve => setTimeout(resolve, 150));
+      await new Promise(resolve => setTimeout(resolve, 200));
       
-      // Capturar
+      // Capturar el contenido como canvas
       const canvas = await html2canvas(contentElement, {
         backgroundColor: '#ffffff',
         scale: 2,
         useCORS: true,
-        logging: false
+        logging: false,
+        windowWidth: contentElement.scrollWidth,
+        windowHeight: contentElement.scrollHeight
       });
       
-      // Restaurar className original
+      // Restaurar estilos originales
+      contentElement.style.cssText = originalStyle;
       contentElement.className = originalClassName;
       
-      // Crear enlace de descarga
-      const link = document.createElement('a');
-      link.download = `sesion_${athleteName?.replace(/\s+/g, '_') || 'atleta'}_${session?.date || new Date().toISOString().split('T')[0]}.png`;
-      link.href = canvas.toDataURL('image/png');
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Crear PDF
+      const imgData = canvas.toDataURL('image/png');
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
       
-      toast.success('Imagen exportada exitosamente');
+      // Calcular dimensiones del PDF (A4)
+      const pdfWidth = 210; // A4 width in mm
+      const pdfHeight = 297; // A4 height in mm
+      const margin = 10; // margen en mm
+      
+      const contentWidth = pdfWidth - (margin * 2);
+      const ratio = contentWidth / imgWidth;
+      const scaledHeight = imgHeight * ratio;
+      
+      // Crear PDF con orientación automática
+      const orientation = scaledHeight > (pdfHeight - margin * 2) ? 'p' : 'p';
+      const pdf = new jsPDF(orientation, 'mm', 'a4');
+      
+      // Si el contenido es más alto que una página, crear múltiples páginas
+      const pageContentHeight = pdfHeight - (margin * 2);
+      let yPosition = 0;
+      let pageNum = 0;
+      
+      while (yPosition < imgHeight) {
+        if (pageNum > 0) {
+          pdf.addPage();
+        }
+        
+        // Calcular qué porción del canvas mostrar
+        const sourceY = yPosition;
+        const sourceHeight = Math.min(pageContentHeight / ratio, imgHeight - yPosition);
+        
+        // Crear un canvas temporal para esta página
+        const pageCanvas = document.createElement('canvas');
+        pageCanvas.width = imgWidth;
+        pageCanvas.height = sourceHeight;
+        const ctx = pageCanvas.getContext('2d');
+        ctx.drawImage(canvas, 0, sourceY, imgWidth, sourceHeight, 0, 0, imgWidth, sourceHeight);
+        
+        const pageImgData = pageCanvas.toDataURL('image/png');
+        const pageScaledHeight = sourceHeight * ratio;
+        
+        pdf.addImage(pageImgData, 'PNG', margin, margin, contentWidth, pageScaledHeight);
+        
+        yPosition += sourceHeight;
+        pageNum++;
+        
+        // Límite de seguridad para evitar loops infinitos
+        if (pageNum > 20) break;
+      }
+      
+      // Descargar PDF
+      const fileName = `sesion_${athleteName?.replace(/\s+/g, '_') || 'atleta'}_${session?.date || new Date().toISOString().split('T')[0]}.pdf`;
+      pdf.save(fileName);
+      
+      toast.success('PDF descargado exitosamente');
     } catch (error) {
-      console.error('Error exporting image:', error);
-      toast.error('Error al exportar imagen: ' + error.message);
+      console.error('Error exporting PDF:', error);
+      toast.error('Error al exportar PDF: ' + error.message);
     } finally {
       setExporting(false);
     }
