@@ -118,15 +118,15 @@ Colecciones principales:
 ### Frontend
 - `/app/frontend/src/App.js` - Rutas principales
 - `/app/frontend/src/context/GlobalContext.js` - Contexto global
-- `/app/frontend/src/components/TopContextBar.js` - Barra de contexto (fija arriba de todo)
-- `/app/frontend/src/components/DashboardLayout.js` - Layout principal con sidebar
-- `/app/frontend/src/pages/DashboardPage.js` - Dashboard principal con Panel de Control + Datos (Atletas, Equipos, Deportes, **Torneos**)
+- `/app/frontend/src/pages/DashboardPage.js` - Dashboard principal con Panel de Control + Datos (Atletas, Equipos, Deportes, **Torneos**) + **Barra de Contexto Global**
 - `/app/frontend/src/pages/PlansHistoryPage.js` - Historial de planes
 - `/app/frontend/src/services/api.js` - Funciones de API
 
 ### Actualización 12 Feb 2026
-- **Torneos integrados en Dashboard**: La pestaña de Torneos ahora está en "Datos > Atletas y Equipos" (junto a Atletas, Equipos, Deportes)
-- **Se eliminó TournamentsPage.js**: La funcionalidad está ahora en DashboardPage.js
+- **Barra de Contexto Global**: Fija en la parte superior con selectores en cascada (Entidad → Equipo → Atleta → Deporte) + botón "Historial de Planes"
+- **Persistencia con localStorage**: El contexto seleccionado se mantiene en toda la sesión
+- **Torneos integrados en Dashboard**: La pestaña de Torneos ahora está en "Datos > Atletas y Equipos"
+- **Página /athletes eliminada**: Todo está centralizado en el Dashboard
 
 ### Backend
 - `/app/backend/server.py` - API principal con todos los endpoints
