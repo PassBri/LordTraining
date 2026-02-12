@@ -753,6 +753,7 @@ const TournamentWizard = ({ isOpen, onClose, onSave }) => {
 // Componente Principal de Gestión de Torneos
 const TournamentManager = ({ 
   tournaments = [], 
+  sportsCatalog = [],
   onCreateTournament,
   onUpdateTournament,
   onDeleteTournament,
@@ -765,6 +766,16 @@ const TournamentManager = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState(null);
+
+  // Obtener todos los deportes del catálogo
+  const allSportsFromCatalog = sportsCatalog.flatMap(cat => 
+    (cat.sports || []).map(sport => ({
+      ...sport,
+      categoryName: cat.name,
+      categoryColor: cat.color,
+      categoryIcon: cat.icon
+    }))
+  );
 
   // Generar fixtures de ejemplo
   const generateExampleMatches = useCallback((tournament) => {
