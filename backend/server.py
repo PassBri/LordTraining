@@ -3990,7 +3990,7 @@ async def export_session_pdf(request: SessionPDFRequest, authorization: str = He
         c.rect(0, 0, width, 35, fill=1, stroke=0)
         c.setFillColor(white)
         c.setFont("Helvetica-Bold", 9)
-        c.drawString(40, 15, f"Generado por Sistema TRAIN")
+        c.drawString(40, 15, "Generado por Sistema TRAIN")
         c.setFont("Helvetica", 8)
         c.drawString(40, 5, datetime.now().strftime('%d/%m/%Y %H:%M'))
         c.setFont("Helvetica-Bold", 9)
