@@ -681,42 +681,42 @@ const ControlPanel = ({
           </Card>
         </div>
 
-        {/* Charts Row 2 */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Charts Row 2 - More compact */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Distribución de Fases - Pie Chart */}
-          <Card className="shadow-lg border-0">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Target className="w-5 h-5 text-purple-500" />
+          <Card className="border border-slate-100 shadow-sm">
+            <CardHeader className="pb-1 pt-3 px-4">
+              <CardTitle className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <Target className="w-4 h-4 text-violet-500" />
                 Distribución de Fases
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={250}>
+            <CardContent className="px-3 pb-3">
+              <ResponsiveContainer width="100%" height={180}>
                 <PieChart>
                   <Pie
                     data={phaseDistribution}
                     cx="50%"
                     cy="50%"
-                    innerRadius={60}
-                    outerRadius={90}
-                    paddingAngle={3}
+                    innerRadius={45}
+                    outerRadius={70}
+                    paddingAngle={2}
                     dataKey="value"
-                    label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                    label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
                     labelLine={false}
                   >
                     {phaseDistribution.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '12px' }} />
                 </PieChart>
               </ResponsiveContainer>
-              <div className="flex flex-wrap justify-center gap-2 mt-2">
+              <div className="flex flex-wrap justify-center gap-2">
                 {phaseDistribution.map((phase, idx) => (
-                  <div key={idx} className="flex items-center gap-1 text-xs">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: phase.color }} />
-                    <span className="text-slate-600">{phase.name}</span>
+                  <div key={idx} className="flex items-center gap-1 text-[10px]">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: phase.color }} />
+                    <span className="text-slate-500">{phase.name}</span>
                   </div>
                 ))}
               </div>
@@ -724,30 +724,30 @@ const ControlPanel = ({
           </Card>
 
           {/* Carga Acumulada - Area Chart */}
-          <Card className="shadow-lg border-0 lg:col-span-2">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Flame className="w-5 h-5 text-orange-500" />
-                Carga de Entrenamiento Acumulada
+          <Card className="border border-slate-100 shadow-sm lg:col-span-2">
+            <CardHeader className="pb-1 pt-3 px-4">
+              <CardTitle className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <Flame className="w-4 h-4 text-orange-500" />
+                Carga de Entrenamiento
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={250}>
+            <CardContent className="px-3 pb-3">
+              <ResponsiveContainer width="100%" height={180}>
                 <AreaChart data={loadData}>
                   <defs>
                     <linearGradient id="colorCarga" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={COLORS.primary} stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor={COLORS.primary} stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
                     </linearGradient>
                     <linearGradient id="colorFatiga" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={COLORS.danger} stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor={COLORS.danger} stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                  <XAxis dataKey="semana" tick={{ fontSize: 12 }} stroke="#9CA3AF" />
-                  <YAxis tick={{ fontSize: 12 }} stroke="#9CA3AF" />
-                  <Tooltip 
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                  <XAxis dataKey="semana" tick={{ fontSize: 10 }} stroke="#94a3b8" axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 10 }} stroke="#94a3b8" axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '12px' }} /> 
                     contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                   />
                   <Legend />
