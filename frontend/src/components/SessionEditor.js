@@ -428,66 +428,66 @@ const SessionEditor = ({
           pdf.text(fase.name, margin + 4, y + 6);
           pdf.setTextColor(...colors.secondary);
           pdf.setFontSize(9);
-        pdf.text(`${actividades.length} actividades`, margin + contentWidth - 25, y + 6);
-        y += 12;
-        
-        if (actividades.length > 0) {
-          // Encabezados de tabla
-          const colWidths = [35, 22, 22, 12, 15, 15, 15, 18, 18];
-          const headers = ['Ejercicio', 'Cap.Fisica', 'Metodo', 'Ser', 'Reps', 'Int%', 'Vol', 'Org', 'Rec'];
+          pdf.text(`${actividades.length} actividades`, margin + contentWidth - 25, y + 6);
+          y += 12;
           
-          checkNewPage(20);
-          pdf.setFillColor(241, 245, 249); // slate-100
-          pdf.rect(margin, y, contentWidth, 6, 'F');
-          pdf.setTextColor(...colors.secondary);
-          pdf.setFontSize(7);
-          pdf.setFont('helvetica', 'bold');
-          
-          let x = margin + 1;
-          headers.forEach((header, i) => {
-            pdf.text(header, x, y + 4);
-            x += colWidths[i];
-          });
-          y += 8;
-          
-          // Filas de actividades
-          pdf.setFont('helvetica', 'normal');
-          pdf.setTextColor(...colors.dark);
-          
-          actividades.forEach((act, idx) => {
-            checkNewPage(8);
+          if (actividades.length > 0) {
+            // Encabezados de tabla
+            const colWidths = [35, 22, 22, 12, 15, 15, 15, 18, 18];
+            const headers = ['Ejercicio', 'Cap.Fisica', 'Metodo', 'Ser', 'Reps', 'Int%', 'Vol', 'Org', 'Rec'];
             
-            if (idx % 2 === 0) {
-              pdf.setFillColor(248, 250, 252); // slate-50
-              pdf.rect(margin, y - 2, contentWidth, 7, 'F');
-            }
-            
-            x = margin + 1;
-            const rowData = [
-              (act.ejercicio || '-').substring(0, 18),
-              (CAPACIDADES_FISICAS.find(c => c.id === act.capacidadFisica)?.name || '-').substring(0, 12),
-              (METODOS_ENTRENAMIENTO.find(m => m.id === act.metodo)?.name || '-').substring(0, 12),
-              String(act.series || '-'),
-              String(act.repeticiones || '-'),
-              String(act.intensidad || '-'),
-              String(act.volumen || '-'),
-              (PROC_ORGANIZATIVO.find(p => p.id === act.procOrganizativo)?.name || '-').substring(0, 10),
-              String(act.recuperacion || '-')
-            ];
-            
+            checkNewPage(20);
+            pdf.setFillColor(241, 245, 249); // slate-100
+            pdf.rect(margin, y, contentWidth, 6, 'F');
+            pdf.setTextColor(...colors.secondary);
             pdf.setFontSize(7);
-            rowData.forEach((data, i) => {
-              pdf.text(data, x, y + 3);
+            pdf.setFont('helvetica', 'bold');
+            
+            let x = margin + 1;
+            headers.forEach((header, i) => {
+              pdf.text(header, x, y + 4);
               x += colWidths[i];
             });
-            y += 7;
-          });
-        } else {
-          pdf.setTextColor(...colors.secondary);
-          pdf.setFontSize(8);
-          pdf.setFont('helvetica', 'italic');
-          pdf.text('Sin actividades registradas', margin + 4, y + 3);
-          y += 8;
+            y += 8;
+            
+            // Filas de actividades
+            pdf.setFont('helvetica', 'normal');
+            pdf.setTextColor(...colors.dark);
+            
+            actividades.forEach((act, idx) => {
+              checkNewPage(8);
+              
+              if (idx % 2 === 0) {
+                pdf.setFillColor(248, 250, 252); // slate-50
+                pdf.rect(margin, y - 2, contentWidth, 7, 'F');
+              }
+              
+              x = margin + 1;
+              const rowData = [
+                (act.ejercicio || '-').substring(0, 18),
+                (CAPACIDADES_FISICAS.find(c => c.id === act.capacidadFisica)?.name || '-').substring(0, 12),
+                (METODOS_ENTRENAMIENTO.find(m => m.id === act.metodo)?.name || '-').substring(0, 12),
+                String(act.series || '-'),
+                String(act.repeticiones || '-'),
+                String(act.intensidad || '-'),
+                String(act.volumen || '-'),
+                (PROC_ORGANIZATIVO.find(p => p.id === act.procOrganizativo)?.name || '-').substring(0, 10),
+                String(act.recuperacion || '-')
+              ];
+              
+              pdf.setFontSize(7);
+              rowData.forEach((data, i) => {
+                pdf.text(data, x, y + 3);
+                x += colWidths[i];
+              });
+              y += 7;
+            });
+          } else {
+            pdf.setTextColor(...colors.secondary);
+            pdf.setFontSize(8);
+            pdf.setFont('helvetica', 'italic');
+            pdf.text('Sin actividades registradas', margin + 4, y + 3);
+            y += 8;
         }
         
         y += 5;
