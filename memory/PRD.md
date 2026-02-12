@@ -169,6 +169,6 @@ Colecciones principales:
 - Password: test123456
 
 ## URLs
-- Aplicación: https://tournament-dash-3.preview.emergentagent.com
+- Aplicación: https://sports-dashboard-23.preview.emergentagent.com
 - Vista pública de torneo: /tournament/{share_id}
 - Vista pública de sesión: /session/view/{share_id}
