@@ -109,6 +109,11 @@ function AppRoutes() {
           <TournamentsPage />
         </ProtectedRoute>
       } />
+      <Route path="/plans-history" element={
+        <ProtectedRoute>
+          <PlansHistoryPage />
+        </ProtectedRoute>
+      } />
       
       {/* Public session view (no auth required) */}
       <Route path="/session/view/:shareId" element={<SessionViewPage />} />
