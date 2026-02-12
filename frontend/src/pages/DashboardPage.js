@@ -2517,10 +2517,10 @@ const DashboardPage = () => {
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
                             <h4 className="text-sm font-medium text-slate-900 truncate">
-                              {plan.title || `Plan para ${plan.athleteName}`}
+                              {plan.title || plan.name || `Plan para ${plan.athleteName || plan.athlete?.name || 'Atleta'}`}
                             </h4>
                             <p className="text-xs text-slate-500 mt-0.5">
-                              {plan.sport} • {plan.duration || 'Sin duración'}
+                              {plan.sport || plan.athlete?.sport || 'Deporte'} • {plan.duration || plan.macrocycle?.duration ? `${plan.macrocycle?.duration || ''} semanas` : 'Sin duración'}
                             </p>
                             <p className="text-xs text-slate-400 mt-1">
                               {new Date(plan.createdAt).toLocaleDateString('es-ES', { 
@@ -2529,6 +2529,7 @@ const DashboardPage = () => {
                                 hour: '2-digit',
                                 minute: '2-digit'
                               })}
+                              {plan.isTest && <span className="ml-2 text-violet-500 font-medium">(Test)</span>}
                             </p>
                           </div>
                           <Button
