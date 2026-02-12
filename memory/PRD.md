@@ -891,3 +891,41 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 - `/app/backend/server.py` - 3 nuevos endpoints
 
 
+### Feb 12, 2026 - Monitoreo Avanzado con Relojes Inteligentes
+
+**Solicitud del usuario:** Agregar sección de monitoreo avanzado con gráficas de pulsaciones (antes, durante, después del entrenamiento), nivel de fatiga, hidratación y conexión con dispositivos inteligentes.
+
+**Cambios implementados:**
+
+#### Nueva sección "Monitoreo de Rendimiento"
+1. **Gráfica de Frecuencia Cardíaca por Fases:**
+   - Antes del entrenamiento
+   - Durante el entrenamiento
+   - Después del entrenamiento
+   - Recuperación (5 minutos)
+   - Visualización con barras de colores (azul, rojo, verde, púrpura)
+
+2. **Métricas de FC:**
+   - FC Reposo (bpm)
+   - FC Media (bpm)
+   - FC Máxima (bpm)
+   - Tarjetas con íconos y colores distintivos
+
+3. **Estado del Deportista con sliders interactivos:**
+   - Nivel de Fatiga (0-100%) - Colores de verde a rojo
+   - Hidratación (0-100%) - Colores de rojo a azul
+   - Calidad de Sueño (0-100%) - Color indigo
+   - Nivel de Energía (0-100%) - Colores de rojo a verde
+
+4. **Conexión con Dispositivos:**
+   - Botón "Conectar Dispositivo" (simulación para Apple Watch/Garmin)
+   - Indicador de estado conectado/desconectado
+
+#### Bugs corregidos
+- **Dropdown de búsqueda de ejercicios:** Cambiado de `position: fixed` a `position: absolute` con `z-index: 9999` para corregir el posicionamiento
+- **Enlace de compartir sesión:** Removido el fallback de ID ficticio, ahora muestra error si falla la creación del enlace real
+
+**Archivos modificados:**
+- `/app/frontend/src/components/SessionEditor.js` - Nueva sección de monitoreo avanzado
+
+
