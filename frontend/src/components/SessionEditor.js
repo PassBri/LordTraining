@@ -1430,10 +1430,10 @@ const SessionEditor = ({
               <Button 
                 variant="outline"
                 size="sm"
-                onClick={handleExportImage}
+                onClick={handleExportAsPDF}
                 disabled={exporting}
                 className="border-emerald-400 text-emerald-700 hover:bg-emerald-50"
-                data-testid="export-image-btn"
+                data-testid="export-pdf-btn"
               >
                 {exporting ? (
                   <>
@@ -1442,8 +1442,8 @@ const SessionEditor = ({
                   </>
                 ) : (
                   <>
-                    <FileText className="w-4 h-4 mr-2" />
-                    Descargar Imagen
+                    <Download className="w-4 h-4 mr-2" />
+                    Descargar PDF
                   </>
                 )}
               </Button>
