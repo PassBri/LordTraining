@@ -589,6 +589,7 @@ const DashboardPage = () => {
     fetchData();
     fetchEntities();
     fetchTeams();
+    fetchSportsCatalog();
   }, []);
 
   const fetchData = async () => {
