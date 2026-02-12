@@ -1,15 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Dialog, DialogContent } from './ui/dialog';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  LineChart, Line, AreaChart, Area, ComposedChart, Brush, ScatterChart, Scatter,
+  LineChart, Line, AreaChart, Area, ComposedChart, Brush, Scatter,
   ReferenceLine, ReferenceArea
 } from 'recharts';
 import { 
   BarChart3, TrendingUp, Activity, Layers, Settings2, 
-  ZoomIn, ZoomOut, RotateCcw, Maximize2, Minimize2, X
+  ZoomIn, ZoomOut, RotateCcw, Maximize2, X, MousePointer2
 } from 'lucide-react';
 
 // Colores predefinidos para las series
@@ -53,11 +53,18 @@ const CHART_TYPES = [
   { id: 'mixed', label: 'Mixta', icon: Settings2 }
 ];
 
+// Rangos rápidos para navegación tipo trading
+const QUICK_RANGES = [
+  { id: 'last4', label: 'Últ. 4', count: 4 },
+  { id: 'last8', label: 'Últ. 8', count: 8 },
+  { id: 'all', label: 'Todo', count: -1 }
+];
+
 const InteractiveChart = ({
   title,
   icon: IconComponent,
   data = [],
-  dataKeys = [], // Array de { key: string, name: string, color?: string }
+  dataKeys = [],
   xAxisKey = 'semana',
   height = 320,
   showBrush = true,
@@ -66,8 +73,8 @@ const InteractiveChart = ({
   defaultChartType = 'bar',
   defaultTimeRange = 'sessions',
   yAxisDomain = [0, 100],
-  referenceLines = [], // Array de { y: number, label: string, color: string }
-  referenceAreas = [], // Array de { y1: number, y2: number, label: string, color: string, fillOpacity?: number }
+  referenceLines = [],
+  referenceAreas = [],
   className = ''
 }) => {
   const [chartType, setChartType] = useState(defaultChartType);
@@ -75,13 +82,16 @@ const InteractiveChart = ({
   const [brushRange, setBrushRange] = useState({ startIndex: 0, endIndex: 11 });
   const [showSettings, setShowSettings] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  
+  // Estados para funciones trading avanzadas
+  const [crosshairData, setCrosshairData] = useState(null);
+  const [showCrosshair, setShowCrosshair] = useState(true);
+  const chartContainerRef = useRef(null);
 
   // Filtrar datos según el rango de tiempo seleccionado
   const filteredData = useMemo(() => {
     const range = TIME_RANGES.find(r => r.id === timeRange);
     if (!range || !data.length) return data;
-    
-    // Limitar datos al rango seleccionado
     const maxWeeks = Math.min(range.weeks, data.length);
     return data.slice(0, maxWeeks);
   }, [data, timeRange]);
@@ -97,55 +107,93 @@ const InteractiveChart = ({
   }, [filteredData.length]);
 
   // Manejar cambio de brush
-  const handleBrushChange = (newRange) => {
+  const handleBrushChange = useCallback((newRange) => {
     if (newRange && typeof newRange.startIndex === 'number') {
       setBrushRange(newRange);
     }
-  };
+  }, []);
 
-  // Reset zoom
-  const handleResetZoom = () => {
+  // Reset zoom (doble click también activa esto)
+  const handleResetZoom = useCallback(() => {
     setBrushRange({ startIndex: 0, endIndex: filteredData.length - 1 });
-  };
+  }, [filteredData.length]);
 
-  // Zoom in/out
-  const handleZoomIn = () => {
+  // Zoom in
+  const handleZoomIn = useCallback(() => {
     const currentRange = brushRange.endIndex - brushRange.startIndex;
-    const newRange = Math.max(2, Math.floor(currentRange * 0.7));
+    const newRange = Math.max(2, Math.floor(currentRange * 0.6));
     const center = Math.floor((brushRange.startIndex + brushRange.endIndex) / 2);
     const newStart = Math.max(0, center - Math.floor(newRange / 2));
     const newEnd = Math.min(filteredData.length - 1, newStart + newRange);
     setBrushRange({ startIndex: newStart, endIndex: newEnd });
-  };
+  }, [brushRange, filteredData.length]);
 
-  const handleZoomOut = () => {
+  // Zoom out
+  const handleZoomOut = useCallback(() => {
     const currentRange = brushRange.endIndex - brushRange.startIndex;
     const newRange = Math.min(filteredData.length - 1, Math.floor(currentRange * 1.5));
     const center = Math.floor((brushRange.startIndex + brushRange.endIndex) / 2);
     const newStart = Math.max(0, center - Math.floor(newRange / 2));
     const newEnd = Math.min(filteredData.length - 1, newStart + newRange);
     setBrushRange({ startIndex: newStart, endIndex: newEnd });
-  };
+  }, [brushRange, filteredData.length]);
 
-  // Custom Tooltip
+  // Zoom con scroll del mouse
+  const handleWheel = useCallback((e) => {
+    if (!e.shiftKey) return; // Solo zoom si se presiona Shift
+    e.preventDefault();
+    if (e.deltaY < 0) {
+      handleZoomIn();
+    } else {
+      handleZoomOut();
+    }
+  }, [handleZoomIn, handleZoomOut]);
+
+  // Rango rápido
+  const handleQuickRange = useCallback((count) => {
+    if (count === -1) {
+      // Ver todo
+      setBrushRange({ startIndex: 0, endIndex: filteredData.length - 1 });
+    } else {
+      // Últimos N elementos
+      const start = Math.max(0, filteredData.length - count);
+      setBrushRange({ startIndex: start, endIndex: filteredData.length - 1 });
+    }
+  }, [filteredData.length]);
+
+  // Manejar movimiento del mouse para crosshair
+  const handleMouseMove = useCallback((state) => {
+    if (state && state.activePayload && state.activePayload.length > 0) {
+      setCrosshairData({
+        x: state.activeLabel,
+        values: state.activePayload
+      });
+    }
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setCrosshairData(null);
+  }, []);
+
+  // Custom Tooltip con estilo trading
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload || !payload.length) return null;
     
     return (
-      <div className="bg-white/95 backdrop-blur-sm border border-slate-200 rounded-xl shadow-xl p-3 min-w-[160px]">
-        <p className="text-sm font-semibold text-slate-700 mb-2 border-b pb-1">{label}</p>
-        <div className="space-y-1">
+      <div className="bg-slate-900/95 backdrop-blur-sm border border-slate-700 rounded-lg shadow-2xl p-3 min-w-[180px]">
+        <p className="text-sm font-bold text-white mb-2 pb-2 border-b border-slate-700">{label}</p>
+        <div className="space-y-1.5">
           {payload.map((entry, index) => (
             <div key={index} className="flex items-center justify-between gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <div 
-                  className="w-3 h-3 rounded-full" 
+                  className="w-2.5 h-2.5 rounded-full" 
                   style={{ backgroundColor: entry.color }}
                 />
-                <span className="text-slate-600">{entry.name}</span>
+                <span className="text-slate-300">{entry.name}</span>
               </div>
-              <span className="font-semibold" style={{ color: entry.color }}>
-                {typeof entry.value === 'number' ? entry.value.toFixed(1) : entry.value}%
+              <span className="font-mono font-bold" style={{ color: entry.color }}>
+                {typeof entry.value === 'number' ? entry.value.toFixed(1) : entry.value}
               </span>
             </div>
           ))}
@@ -155,43 +203,73 @@ const InteractiveChart = ({
   };
 
   // Renderizar el gráfico según el tipo seleccionado
-  const renderChart = () => {
+  const renderChart = (isFullscreenMode = false) => {
+    const chartHeight = isFullscreenMode ? '100%' : height;
     const commonProps = {
       data: filteredData,
-      margin: { top: 10, right: 30, left: 0, bottom: showBrush ? 5 : 20 }
+      margin: { top: 20, right: 30, left: 10, bottom: showBrush ? 5 : 20 },
+      onMouseMove: showCrosshair ? handleMouseMove : undefined,
+      onMouseLeave: showCrosshair ? handleMouseLeave : undefined
     };
 
     const axisProps = {
       xAxis: <XAxis 
         dataKey={xAxisKey} 
-        tick={{ fontSize: 11, fill: '#6B7280' }} 
-        stroke="#E5E7EB"
+        tick={{ fontSize: 11, fill: isFullscreenMode ? '#9CA3AF' : '#6B7280' }} 
+        stroke={isFullscreenMode ? '#374151' : '#E5E7EB'}
         tickLine={false}
       />,
       yAxis: <YAxis 
-        tick={{ fontSize: 11, fill: '#6B7280' }} 
-        stroke="#E5E7EB"
+        tick={{ fontSize: 11, fill: isFullscreenMode ? '#9CA3AF' : '#6B7280' }} 
+        stroke={isFullscreenMode ? '#374151' : '#E5E7EB'}
         domain={yAxisDomain}
         tickLine={false}
         axisLine={false}
       />,
-      grid: <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />,
-      tooltip: <Tooltip content={<CustomTooltip />} />,
+      grid: <CartesianGrid 
+        strokeDasharray="3 3" 
+        stroke={isFullscreenMode ? '#374151' : '#E5E7EB'} 
+        vertical={false} 
+      />,
+      tooltip: <Tooltip 
+        content={<CustomTooltip />} 
+        cursor={{ 
+          stroke: isFullscreenMode ? '#60A5FA' : '#3B82F6', 
+          strokeWidth: 1, 
+          strokeDasharray: '4 4' 
+        }}
+      />,
       legend: <Legend 
-        wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
+        wrapperStyle={{ 
+          fontSize: '12px', 
+          paddingTop: '10px',
+          color: isFullscreenMode ? '#D1D5DB' : undefined
+        }}
         iconType="circle"
       />,
-      brush: showBrush && filteredData.length > 6 ? (
+      brush: showBrush && filteredData.length > 4 ? (
         <Brush 
           dataKey={xAxisKey} 
-          height={30} 
+          height={40} 
           stroke="#3B82F6"
-          fill="#EFF6FF"
+          fill={isFullscreenMode ? '#1F2937' : '#EFF6FF'}
           startIndex={brushRange.startIndex}
           endIndex={brushRange.endIndex}
           onChange={handleBrushChange}
-          travellerWidth={8}
-        />
+          travellerWidth={10}
+          tickFormatter={(value) => value}
+        >
+          {/* Mini gráfico en el brush */}
+          <AreaChart data={filteredData}>
+            <Area 
+              type="monotone" 
+              dataKey={dataKeys[0]?.key || 'value'} 
+              stroke="#3B82F680"
+              fill="#3B82F620"
+              strokeWidth={1}
+            />
+          </AreaChart>
+        </Brush>
       ) : null
     };
 
@@ -200,7 +278,10 @@ const InteractiveChart = ({
       <defs>
         {dataKeys.map(dk => {
           const gradientKey = dk.key.toLowerCase();
-          const gradient = GRADIENTS[gradientKey] || { start: dk.color || SERIES_COLORS[gradientKey] || '#3B82F6', end: (dk.color || SERIES_COLORS[gradientKey] || '#3B82F6') + '40' };
+          const gradient = GRADIENTS[gradientKey] || { 
+            start: dk.color || SERIES_COLORS[gradientKey] || '#3B82F6', 
+            end: (dk.color || SERIES_COLORS[gradientKey] || '#3B82F6') + '40' 
+          };
           return (
             <linearGradient key={dk.key} id={`gradient-${dk.key}`} x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor={gradient.start} stopOpacity={0.4}/>
@@ -211,10 +292,52 @@ const InteractiveChart = ({
       </defs>
     );
 
+    // Renderizar áreas de referencia
+    const renderReferenceAreas = () => referenceAreas.map((area, idx) => (
+      <ReferenceArea
+        key={`area-${idx}`}
+        y1={area.y1}
+        y2={area.y2}
+        fill={area.color}
+        fillOpacity={area.fillOpacity || 0.15}
+        label={{ 
+          value: area.label, 
+          fill: area.color, 
+          fontSize: 10, 
+          position: 'insideTopRight' 
+        }}
+      />
+    ));
+
+    // Renderizar líneas de referencia
+    const renderReferenceLines = () => referenceLines.map((ref, idx) => (
+      <ReferenceLine 
+        key={`line-${idx}`} 
+        y={ref.y} 
+        stroke={ref.color} 
+        strokeDasharray="5 5" 
+        label={{ value: ref.label, fill: ref.color, fontSize: 10 }} 
+      />
+    ));
+
+    // Crosshair vertical (línea que sigue el cursor)
+    const renderCrosshair = () => {
+      if (!showCrosshair || !crosshairData) return null;
+      return (
+        <ReferenceLine
+          x={crosshairData.x}
+          stroke="#60A5FA"
+          strokeWidth={1}
+          strokeDasharray="4 4"
+        />
+      );
+    };
+
     switch (chartType) {
       case 'bar':
         return (
           <BarChart {...commonProps} barGap={2}>
+            {renderReferenceAreas()}
             {axisProps.grid}
             {axisProps.xAxis}
             {axisProps.yAxis}
@@ -229,26 +352,8 @@ const InteractiveChart = ({
                 radius={[4, 4, 0, 0]}
               />
             ))}
-            {/* Reference Areas (zonas de fondo) */}
-            {referenceAreas.map((area, idx) => (
-              <ReferenceArea
-                key={`area-${idx}`}
-                y1={area.y1}
-                y2={area.y2}
-                fill={area.color}
-                fillOpacity={area.fillOpacity || 0.15}
-                label={{ value: area.label, fill: area.color, fontSize: 10, position: 'insideTopRight' }}
-              />
-            ))}
-            {referenceLines.map((ref, idx) => (
-              <ReferenceLine 
-                key={idx} 
-                y={ref.y} 
-                stroke={ref.color} 
-                strokeDasharray="5 5" 
-                label={{ value: ref.label, fill: ref.color, fontSize: 10 }} 
-              />
-            ))}
+            {renderReferenceLines()}
+            {renderCrosshair()}
             {axisProps.brush}
           </BarChart>
         );
@@ -256,17 +361,7 @@ const InteractiveChart = ({
       case 'line':
         return (
           <LineChart {...commonProps}>
-            {/* Reference Areas (zonas de fondo) - renderizar primero */}
-            {referenceAreas.map((area, idx) => (
-              <ReferenceArea
-                key={`area-${idx}`}
-                y1={area.y1}
-                y2={area.y2}
-                fill={area.color}
-                fillOpacity={area.fillOpacity || 0.15}
-                label={{ value: area.label, fill: area.color, fontSize: 10, position: 'insideTopRight' }}
-              />
-            ))}
+            {renderReferenceAreas()}
             {axisProps.grid}
             {axisProps.xAxis}
             {axisProps.yAxis}
@@ -281,18 +376,11 @@ const InteractiveChart = ({
                 stroke={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6'}
                 strokeWidth={2}
                 dot={{ r: 4, fill: dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6' }}
-                activeDot={{ r: 6 }}
+                activeDot={{ r: 6, strokeWidth: 2, stroke: '#fff' }}
               />
             ))}
-            {referenceLines.map((ref, idx) => (
-              <ReferenceLine 
-                key={idx} 
-                y={ref.y} 
-                stroke={ref.color} 
-                strokeDasharray="5 5" 
-                label={{ value: ref.label, fill: ref.color, fontSize: 10 }} 
-              />
-            ))}
+            {renderReferenceLines()}
+            {renderCrosshair()}
             {axisProps.brush}
           </LineChart>
         );
@@ -301,17 +389,7 @@ const InteractiveChart = ({
         return (
           <AreaChart {...commonProps}>
             {gradientDefs}
-            {/* Reference Areas (zonas de fondo) */}
-            {referenceAreas.map((area, idx) => (
-              <ReferenceArea
-                key={`area-${idx}`}
-                y1={area.y1}
-                y2={area.y2}
-                fill={area.color}
-                fillOpacity={area.fillOpacity || 0.15}
-                label={{ value: area.label, fill: area.color, fontSize: 10, position: 'insideTopRight' }}
-              />
-            ))}
+            {renderReferenceAreas()}
             {axisProps.grid}
             {axisProps.xAxis}
             {axisProps.yAxis}
@@ -328,15 +406,8 @@ const InteractiveChart = ({
                 strokeWidth={2}
               />
             ))}
-            {referenceLines.map((ref, idx) => (
-              <ReferenceLine 
-                key={idx} 
-                y={ref.y} 
-                stroke={ref.color} 
-                strokeDasharray="5 5" 
-                label={{ value: ref.label, fill: ref.color, fontSize: 10 }} 
-              />
-            ))}
+            {renderReferenceLines()}
+            {renderCrosshair()}
             {axisProps.brush}
           </AreaChart>
         );
@@ -344,17 +415,7 @@ const InteractiveChart = ({
       case 'scatter':
         return (
           <ComposedChart {...commonProps}>
-            {/* Reference Areas (zonas de fondo) */}
-            {referenceAreas.map((area, idx) => (
-              <ReferenceArea
-                key={`area-${idx}`}
-                y1={area.y1}
-                y2={area.y2}
-                fill={area.color}
-                fillOpacity={area.fillOpacity || 0.15}
-                label={{ value: area.label, fill: area.color, fontSize: 10, position: 'insideTopRight' }}
-              />
-            ))}
+            {renderReferenceAreas()}
             {axisProps.grid}
             {axisProps.xAxis}
             {axisProps.yAxis}
@@ -368,36 +429,18 @@ const InteractiveChart = ({
                 fill={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6'}
               />
             ))}
-            {referenceLines.map((ref, idx) => (
-              <ReferenceLine 
-                key={idx} 
-                y={ref.y} 
-                stroke={ref.color} 
-                strokeDasharray="5 5" 
-                label={{ value: ref.label, fill: ref.color, fontSize: 10 }} 
-              />
-            ))}
+            {renderReferenceLines()}
+            {renderCrosshair()}
             {axisProps.brush}
           </ComposedChart>
         );
 
       case 'mixed':
       default:
-        // Mixto: Barras para primeros 2, línea para el resto
         return (
           <ComposedChart {...commonProps}>
             {gradientDefs}
-            {/* Reference Areas (zonas de fondo) */}
-            {referenceAreas.map((area, idx) => (
-              <ReferenceArea
-                key={`area-${idx}`}
-                y1={area.y1}
-                y2={area.y2}
-                fill={area.color}
-                fillOpacity={area.fillOpacity || 0.15}
-                label={{ value: area.label, fill: area.color, fontSize: 10, position: 'insideTopRight' }}
-              />
-            ))}
+            {renderReferenceAreas()}
             {axisProps.grid}
             {axisProps.xAxis}
             {axisProps.yAxis}
@@ -428,23 +471,62 @@ const InteractiveChart = ({
                 />
               );
             })}
-            {referenceLines.map((ref, idx) => (
-              <ReferenceLine 
-                key={idx} 
-                y={ref.y} 
-                stroke={ref.color} 
-                strokeDasharray="5 5" 
-                label={{ value: ref.label, fill: ref.color, fontSize: 10 }} 
-              />
-            ))}
+            {renderReferenceLines()}
+            {renderCrosshair()}
             {axisProps.brush}
           </ComposedChart>
         );
     }
   };
 
+  // Componente de controles de trading
+  const TradingControls = ({ isFullscreenMode = false }) => (
+    <div className={`flex items-center gap-2 ${isFullscreenMode ? 'flex-wrap' : ''}`}>
+      {/* Botones de rango rápido */}
+      <div className={`flex ${isFullscreenMode ? 'bg-slate-700/50' : 'bg-slate-100'} rounded-lg p-0.5`}>
+        {QUICK_RANGES.map(range => (
+          <button
+            key={range.id}
+            onClick={() => handleQuickRange(range.count)}
+            className={`px-2 py-1 text-xs font-medium rounded-md transition-all ${
+              isFullscreenMode
+                ? 'text-slate-400 hover:text-white hover:bg-slate-600'
+                : 'text-slate-500 hover:text-slate-700 hover:bg-white'
+            }`}
+            title={range.label}
+          >
+            {range.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Separador */}
+      <div className={`w-px h-5 ${isFullscreenMode ? 'bg-slate-600' : 'bg-slate-200'}`} />
+
+      {/* Toggle crosshair */}
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        className={`h-8 w-8 p-0 ${
+          showCrosshair 
+            ? (isFullscreenMode ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-600')
+            : (isFullscreenMode ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-700')
+        }`}
+        onClick={() => setShowCrosshair(!showCrosshair)}
+        title="Crosshair"
+      >
+        <MousePointer2 className="w-4 h-4" />
+      </Button>
+    </div>
+  );
+
   return (
-    <Card className={`shadow-lg border-0 bg-white overflow-hidden ${className}`}>
+    <Card 
+      className={`shadow-lg border-0 bg-white overflow-hidden ${className}`}
+      ref={chartContainerRef}
+      onWheel={handleWheel}
+      onDoubleClick={handleResetZoom}
+    >
       <CardHeader className="pb-2">
         <div className="flex flex-col gap-3">
           {/* Título y controles principales */}
@@ -467,7 +549,7 @@ const InteractiveChart = ({
                   size="sm" 
                   className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700"
                   onClick={handleZoomIn}
-                  title="Acercar"
+                  title="Acercar (Shift + Scroll)"
                 >
                   <ZoomIn className="w-4 h-4" />
                 </Button>
@@ -476,7 +558,7 @@ const InteractiveChart = ({
                   size="sm" 
                   className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700"
                   onClick={handleZoomOut}
-                  title="Alejar"
+                  title="Alejar (Shift + Scroll)"
                 >
                   <ZoomOut className="w-4 h-4" />
                 </Button>
@@ -485,7 +567,7 @@ const InteractiveChart = ({
                   size="sm" 
                   className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700"
                   onClick={handleResetZoom}
-                  title="Restablecer"
+                  title="Restablecer (Doble clic)"
                 >
                   <RotateCcw className="w-4 h-4" />
                 </Button>
@@ -560,9 +642,12 @@ const InteractiveChart = ({
                 </div>
               </div>
 
+              {/* Controles Trading */}
+              <TradingControls />
+
               {/* Info del rango actual */}
               <div className="ml-auto text-xs text-slate-400">
-                Mostrando {brushRange.endIndex - brushRange.startIndex + 1} de {filteredData.length} semanas
+                {brushRange.endIndex - brushRange.startIndex + 1} de {filteredData.length} • Doble clic para reset
               </div>
             </div>
           )}
@@ -608,19 +693,37 @@ const InteractiveChart = ({
                   </button>
                 ))}
               </div>
+
+              {/* Botones rápidos */}
+              <div className="flex bg-slate-100 rounded-lg p-0.5">
+                {QUICK_RANGES.map(range => (
+                  <button
+                    key={range.id}
+                    onClick={() => handleQuickRange(range.count)}
+                    className="px-1.5 py-0.5 text-[10px] font-medium rounded text-slate-400 hover:text-slate-600 hover:bg-white transition-all"
+                    title={range.label}
+                  >
+                    {range.label}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>
       </CardHeader>
       <CardContent className="pt-0">
         <ResponsiveContainer width="100%" height={height}>
-          {renderChart()}
+          {renderChart(false)}
         </ResponsiveContainer>
       </CardContent>
 
       {/* Modal de Pantalla Completa - Estilo Trading */}
       <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
-        <DialogContent className="max-w-[98vw] w-[98vw] h-[95vh] p-0 bg-slate-900 border-slate-700 overflow-hidden">
+        <DialogContent 
+          className="max-w-[98vw] w-[98vw] h-[95vh] p-0 bg-slate-900 border-slate-700 overflow-hidden"
+          onWheel={handleWheel}
+          onDoubleClick={handleResetZoom}
+        >
           {/* Header del modal fullscreen */}
           <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-slate-800 to-slate-900 border-b border-slate-700">
             <div className="flex items-center gap-4">
@@ -657,7 +760,7 @@ const InteractiveChart = ({
               </div>
 
               {/* Selector de período */}
-              <div className="flex bg-slate-700/50 rounded-lg p-1 mr-4">
+              <div className="flex bg-slate-700/50 rounded-lg p-1 mr-2">
                 {TIME_RANGES.map(range => (
                   <button
                     key={range.id}
@@ -674,13 +777,44 @@ const InteractiveChart = ({
                 ))}
               </div>
 
+              {/* Botones de rango rápido */}
+              <div className="flex bg-slate-700/50 rounded-lg p-1 mr-2">
+                {QUICK_RANGES.map(range => (
+                  <button
+                    key={range.id}
+                    onClick={() => handleQuickRange(range.count)}
+                    className="px-3 py-1.5 text-xs font-medium rounded-md text-slate-400 hover:text-white hover:bg-slate-600 transition-all"
+                    title={range.label}
+                  >
+                    {range.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Toggle Crosshair */}
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className={`h-9 w-9 p-0 ${
+                  showCrosshair 
+                    ? 'bg-blue-500/20 text-blue-400' 
+                    : 'text-slate-400 hover:text-white hover:bg-slate-700'
+                }`}
+                onClick={() => setShowCrosshair(!showCrosshair)}
+                title="Crosshair"
+              >
+                <MousePointer2 className="w-5 h-5" />
+              </Button>
+
+              <div className="w-px h-8 bg-slate-600 mx-1" />
+
               {/* Controles de zoom */}
               <Button 
                 variant="ghost" 
                 size="sm" 
                 className="h-9 w-9 p-0 text-slate-400 hover:text-white hover:bg-slate-700"
                 onClick={handleZoomIn}
-                title="Acercar"
+                title="Acercar (Shift + Scroll)"
               >
                 <ZoomIn className="w-5 h-5" />
               </Button>
@@ -689,7 +823,7 @@ const InteractiveChart = ({
                 size="sm" 
                 className="h-9 w-9 p-0 text-slate-400 hover:text-white hover:bg-slate-700"
                 onClick={handleZoomOut}
-                title="Alejar"
+                title="Alejar (Shift + Scroll)"
               >
                 <ZoomOut className="w-5 h-5" />
               </Button>
@@ -698,7 +832,7 @@ const InteractiveChart = ({
                 size="sm" 
                 className="h-9 w-9 p-0 text-slate-400 hover:text-white hover:bg-slate-700"
                 onClick={handleResetZoom}
-                title="Restablecer"
+                title="Restablecer (Doble clic)"
               >
                 <RotateCcw className="w-5 h-5" />
               </Button>
@@ -711,7 +845,7 @@ const InteractiveChart = ({
                 size="sm" 
                 className="h-9 w-9 p-0 text-slate-400 hover:text-red-400 hover:bg-red-500/10"
                 onClick={() => setIsFullscreen(false)}
-                title="Cerrar"
+                title="Cerrar (ESC)"
               >
                 <X className="w-5 h-5" />
               </Button>
@@ -719,24 +853,42 @@ const InteractiveChart = ({
           </div>
 
           {/* Área del gráfico fullscreen */}
-          <div className="flex-1 p-6 bg-slate-900" style={{ height: 'calc(95vh - 80px)' }}>
+          <div className="flex-1 p-6 bg-slate-900" style={{ height: 'calc(95vh - 140px)' }}>
             <ResponsiveContainer width="100%" height="100%">
-              {renderChart()}
+              {renderChart(true)}
             </ResponsiveContainer>
           </div>
 
           {/* Footer con info */}
-          <div className="absolute bottom-0 left-0 right-0 px-6 py-3 bg-slate-800/80 backdrop-blur border-t border-slate-700">
+          <div className="absolute bottom-0 left-0 right-0 px-6 py-3 bg-slate-800/90 backdrop-blur border-t border-slate-700">
             <div className="flex items-center justify-between text-xs text-slate-400">
               <div className="flex items-center gap-4">
-                <span>Mostrando {brushRange.endIndex - brushRange.startIndex + 1} de {filteredData.length} períodos</span>
+                <span className="font-mono">
+                  Mostrando <span className="text-blue-400 font-bold">{brushRange.endIndex - brushRange.startIndex + 1}</span> de {filteredData.length} períodos
+                </span>
                 <span className="text-slate-600">|</span>
-                <span>Período: {TIME_RANGES.find(r => r.id === timeRange)?.label}</span>
+                <span>Período: <span className="text-slate-300">{TIME_RANGES.find(r => r.id === timeRange)?.label}</span></span>
+                {crosshairData && (
+                  <>
+                    <span className="text-slate-600">|</span>
+                    <span className="text-blue-400">
+                      {crosshairData.x}: {crosshairData.values.map(v => `${v.name}: ${v.value?.toFixed(1)}`).join(' • ')}
+                    </span>
+                  </>
+                )}
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-slate-500">Usa el brush inferior para navegar</span>
+              <div className="flex items-center gap-4">
+                <span className="text-slate-500">
+                  <kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-[10px] mr-1">Shift</kbd>
+                  + Scroll = Zoom
+                </span>
                 <span className="text-slate-600">•</span>
-                <span className="text-slate-500">ESC para cerrar</span>
+                <span className="text-slate-500">Doble clic = Reset</span>
+                <span className="text-slate-600">•</span>
+                <span className="text-slate-500">
+                  <kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-[10px]">ESC</kbd>
+                  = Cerrar
+                </span>
               </div>
             </div>
           </div>
