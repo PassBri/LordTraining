@@ -488,6 +488,7 @@ const DashboardPage = () => {
   useEffect(() => {
     fetchData();
     fetchEntities();
+    fetchTeams();
   }, []);
 
   const fetchData = async () => {
