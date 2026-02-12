@@ -769,77 +769,336 @@ const SessionEditor = ({
                 </CardContent>
               </Card>
 
-              {/* Monitoreo y Retroalimentación */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Monitoreo de FC */}
-                <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden">
-                  <CardHeader className="bg-gradient-to-r from-red-50 to-pink-50 border-b border-slate-100 pb-4">
+              {/* Monitoreo Avanzado - Conexión con Relojes Inteligentes */}
+              <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-red-50 via-pink-50 to-purple-50 border-b border-slate-100 pb-4">
+                  <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2 text-base text-slate-800">
-                      <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
-                        <Heart className="w-4 h-4 text-white" />
+                      <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center">
+                        <Watch className="w-4 h-4 text-white" />
                       </div>
-                      Monitoreo de Frecuencia Cardíaca
+                      Monitoreo de Rendimiento
                     </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-5 bg-white">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">FC Reposo</label>
-                        <div className="flex items-center gap-2">
-                          <Input
-                            value={sessionData.monitoreo.fcReposo}
-                            onChange={(e) => setSessionData(prev => ({
-                              ...prev,
-                              monitoreo: { ...prev.monitoreo, fcReposo: e.target.value }
-                            }))}
-                            placeholder="60"
-                            className="text-center bg-white border-slate-200 focus:border-red-400"
-                            data-testid="fc-reposo"
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`text-xs ${sessionData.monitoreo.dispositivoConectado ? 'border-green-500 text-green-700 bg-green-50' : 'border-slate-300'}`}
+                        onClick={() => {
+                          setSessionData(prev => ({
+                            ...prev,
+                            monitoreo: { 
+                              ...prev.monitoreo, 
+                              dispositivoConectado: !prev.monitoreo.dispositivoConectado,
+                              nombreDispositivo: !prev.monitoreo.dispositivoConectado ? 'Apple Watch / Garmin' : ''
+                            }
+                          }));
+                          toast.success(sessionData.monitoreo.dispositivoConectado ? 'Dispositivo desconectado' : 'Simulando conexión con dispositivo');
+                        }}
+                      >
+                        <Bluetooth className={`w-3 h-3 mr-1 ${sessionData.monitoreo.dispositivoConectado ? 'text-green-600' : ''}`} />
+                        {sessionData.monitoreo.dispositivoConectado ? 'Conectado' : 'Conectar Dispositivo'}
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-5 bg-white space-y-6">
+                  {/* Gráfica de Frecuencia Cardíaca por Fases */}
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                      <Heart className="w-4 h-4 text-red-500" />
+                      Frecuencia Cardíaca por Fases
+                    </h4>
+                    <div className="bg-slate-50 rounded-xl p-4">
+                      {/* Gráfica visual simulada */}
+                      <div className="flex items-end justify-between h-32 gap-2 mb-3">
+                        {/* Antes */}
+                        <div className="flex flex-col items-center flex-1">
+                          <div 
+                            className="w-full bg-gradient-to-t from-blue-400 to-blue-300 rounded-t-lg transition-all duration-500"
+                            style={{ height: `${Math.min(100, (parseInt(sessionData.monitoreo.fcAntesEntrenamiento) || 70) / 2)}%` }}
                           />
-                          <span className="text-sm font-medium text-slate-500">bpm</span>
+                          <span className="text-[10px] text-slate-500 mt-1">Antes</span>
+                          <span className="text-xs font-bold text-blue-600">{sessionData.monitoreo.fcAntesEntrenamiento || '70'}</span>
+                        </div>
+                        {/* Durante */}
+                        <div className="flex flex-col items-center flex-1">
+                          <div 
+                            className="w-full bg-gradient-to-t from-red-500 to-orange-400 rounded-t-lg transition-all duration-500"
+                            style={{ height: `${Math.min(100, (parseInt(sessionData.monitoreo.fcDuranteEntrenamiento) || 150) / 2)}%` }}
+                          />
+                          <span className="text-[10px] text-slate-500 mt-1">Durante</span>
+                          <span className="text-xs font-bold text-red-600">{sessionData.monitoreo.fcDuranteEntrenamiento || '150'}</span>
+                        </div>
+                        {/* Después */}
+                        <div className="flex flex-col items-center flex-1">
+                          <div 
+                            className="w-full bg-gradient-to-t from-green-400 to-emerald-300 rounded-t-lg transition-all duration-500"
+                            style={{ height: `${Math.min(100, (parseInt(sessionData.monitoreo.fcDespuesEntrenamiento) || 90) / 2)}%` }}
+                          />
+                          <span className="text-[10px] text-slate-500 mt-1">Después</span>
+                          <span className="text-xs font-bold text-green-600">{sessionData.monitoreo.fcDespuesEntrenamiento || '90'}</span>
+                        </div>
+                        {/* Recuperación */}
+                        <div className="flex flex-col items-center flex-1">
+                          <div 
+                            className="w-full bg-gradient-to-t from-purple-400 to-indigo-300 rounded-t-lg transition-all duration-500"
+                            style={{ height: `${Math.min(100, (parseInt(sessionData.monitoreo.fcRecuperacion5min) || 75) / 2)}%` }}
+                          />
+                          <span className="text-[10px] text-slate-500 mt-1">Recup. 5min</span>
+                          <span className="text-xs font-bold text-purple-600">{sessionData.monitoreo.fcRecuperacion5min || '75'}</span>
                         </div>
                       </div>
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">FC Máxima</label>
-                        <div className="flex items-center gap-2">
-                          <Input
-                            value={sessionData.monitoreo.fcMaxima}
-                            onChange={(e) => setSessionData(prev => ({
-                              ...prev,
-                              monitoreo: { ...prev.monitoreo, fcMaxima: e.target.value }
-                            }))}
-                            placeholder="180"
-                            className="text-center bg-white border-slate-200 focus:border-red-400"
-                            data-testid="fc-maxima"
-                          />
-                          <span className="text-sm font-medium text-slate-500">bpm</span>
+                      {/* Inputs */}
+                      <div className="grid grid-cols-4 gap-2 mt-4">
+                        <Input
+                          type="number"
+                          value={sessionData.monitoreo.fcAntesEntrenamiento}
+                          onChange={(e) => setSessionData(prev => ({
+                            ...prev,
+                            monitoreo: { ...prev.monitoreo, fcAntesEntrenamiento: e.target.value }
+                          }))}
+                          placeholder="70"
+                          className="text-center h-8 text-xs"
+                        />
+                        <Input
+                          type="number"
+                          value={sessionData.monitoreo.fcDuranteEntrenamiento}
+                          onChange={(e) => setSessionData(prev => ({
+                            ...prev,
+                            monitoreo: { ...prev.monitoreo, fcDuranteEntrenamiento: e.target.value }
+                          }))}
+                          placeholder="150"
+                          className="text-center h-8 text-xs"
+                        />
+                        <Input
+                          type="number"
+                          value={sessionData.monitoreo.fcDespuesEntrenamiento}
+                          onChange={(e) => setSessionData(prev => ({
+                            ...prev,
+                            monitoreo: { ...prev.monitoreo, fcDespuesEntrenamiento: e.target.value }
+                          }))}
+                          placeholder="90"
+                          className="text-center h-8 text-xs"
+                        />
+                        <Input
+                          type="number"
+                          value={sessionData.monitoreo.fcRecuperacion5min}
+                          onChange={(e) => setSessionData(prev => ({
+                            ...prev,
+                            monitoreo: { ...prev.monitoreo, fcRecuperacion5min: e.target.value }
+                          }))}
+                          placeholder="75"
+                          className="text-center h-8 text-xs"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* FC Reposo, Media y Máxima */}
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="bg-blue-50 rounded-xl p-4 text-center">
+                      <Heart className="w-5 h-5 text-blue-500 mx-auto mb-2" />
+                      <p className="text-xs text-slate-500 mb-1">FC Reposo</p>
+                      <Input
+                        type="number"
+                        value={sessionData.monitoreo.fcReposo}
+                        onChange={(e) => setSessionData(prev => ({
+                          ...prev,
+                          monitoreo: { ...prev.monitoreo, fcReposo: e.target.value }
+                        }))}
+                        placeholder="60"
+                        className="text-center text-lg font-bold h-10 border-0 bg-transparent"
+                      />
+                      <span className="text-[10px] text-slate-400">bpm</span>
+                    </div>
+                    <div className="bg-amber-50 rounded-xl p-4 text-center">
+                      <Activity className="w-5 h-5 text-amber-500 mx-auto mb-2" />
+                      <p className="text-xs text-slate-500 mb-1">FC Media</p>
+                      <Input
+                        type="number"
+                        value={sessionData.monitoreo.fcMedia}
+                        onChange={(e) => setSessionData(prev => ({
+                          ...prev,
+                          monitoreo: { ...prev.monitoreo, fcMedia: e.target.value }
+                        }))}
+                        placeholder="135"
+                        className="text-center text-lg font-bold h-10 border-0 bg-transparent"
+                      />
+                      <span className="text-[10px] text-slate-400">bpm</span>
+                    </div>
+                    <div className="bg-red-50 rounded-xl p-4 text-center">
+                      <TrendingUp className="w-5 h-5 text-red-500 mx-auto mb-2" />
+                      <p className="text-xs text-slate-500 mb-1">FC Máxima</p>
+                      <Input
+                        type="number"
+                        value={sessionData.monitoreo.fcMaxima}
+                        onChange={(e) => setSessionData(prev => ({
+                          ...prev,
+                          monitoreo: { ...prev.monitoreo, fcMaxima: e.target.value }
+                        }))}
+                        placeholder="180"
+                        className="text-center text-lg font-bold h-10 border-0 bg-transparent"
+                      />
+                      <span className="text-[10px] text-slate-400">bpm</span>
+                    </div>
+                  </div>
+
+                  {/* Estado del Deportista */}
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                      <Battery className="w-4 h-4 text-green-500" />
+                      Estado del Deportista
+                    </h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Nivel de Fatiga */}
+                      <div className="bg-slate-50 rounded-xl p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-medium text-slate-600 flex items-center gap-1">
+                            <TrendingDown className="w-3 h-3" />
+                            Nivel de Fatiga
+                          </span>
+                          <span className={`text-xs font-bold ${
+                            sessionData.monitoreo.nivelFatiga > 70 ? 'text-red-600' :
+                            sessionData.monitoreo.nivelFatiga > 40 ? 'text-amber-600' :
+                            'text-green-600'
+                          }`}>
+                            {sessionData.monitoreo.nivelFatiga}%
+                          </span>
+                        </div>
+                        <Slider
+                          value={[sessionData.monitoreo.nivelFatiga]}
+                          onValueChange={(v) => setSessionData(prev => ({
+                            ...prev,
+                            monitoreo: { ...prev.monitoreo, nivelFatiga: v[0] }
+                          }))}
+                          max={100}
+                          step={5}
+                          className="[&>span]:bg-gradient-to-r [&>span]:from-green-500 [&>span]:via-amber-500 [&>span]:to-red-500"
+                        />
+                        <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                          <span>Bajo</span>
+                          <span>Alto</span>
+                        </div>
+                      </div>
+
+                      {/* Nivel de Hidratación */}
+                      <div className="bg-slate-50 rounded-xl p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-medium text-slate-600 flex items-center gap-1">
+                            <Droplets className="w-3 h-3 text-blue-500" />
+                            Hidratación
+                          </span>
+                          <span className={`text-xs font-bold ${
+                            sessionData.monitoreo.nivelHidratacion < 50 ? 'text-red-600' :
+                            sessionData.monitoreo.nivelHidratacion < 70 ? 'text-amber-600' :
+                            'text-blue-600'
+                          }`}>
+                            {sessionData.monitoreo.nivelHidratacion}%
+                          </span>
+                        </div>
+                        <Slider
+                          value={[sessionData.monitoreo.nivelHidratacion]}
+                          onValueChange={(v) => setSessionData(prev => ({
+                            ...prev,
+                            monitoreo: { ...prev.monitoreo, nivelHidratacion: v[0] }
+                          }))}
+                          max={100}
+                          step={5}
+                          className="[&>span]:bg-gradient-to-r [&>span]:from-red-500 [&>span]:via-amber-500 [&>span]:to-blue-500"
+                        />
+                        <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                          <span>Deshidratado</span>
+                          <span>Óptimo</span>
+                        </div>
+                      </div>
+
+                      {/* Calidad de Sueño */}
+                      <div className="bg-slate-50 rounded-xl p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-medium text-slate-600 flex items-center gap-1">
+                            <Moon className="w-3 h-3 text-indigo-500" />
+                            Calidad de Sueño
+                          </span>
+                          <span className={`text-xs font-bold ${
+                            sessionData.monitoreo.calidadSueno < 50 ? 'text-red-600' :
+                            sessionData.monitoreo.calidadSueno < 70 ? 'text-amber-600' :
+                            'text-indigo-600'
+                          }`}>
+                            {sessionData.monitoreo.calidadSueno}%
+                          </span>
+                        </div>
+                        <Slider
+                          value={[sessionData.monitoreo.calidadSueno]}
+                          onValueChange={(v) => setSessionData(prev => ({
+                            ...prev,
+                            monitoreo: { ...prev.monitoreo, calidadSueno: v[0] }
+                          }))}
+                          max={100}
+                          step={5}
+                          className="[&>span]:bg-indigo-500"
+                        />
+                        <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                          <span>Malo</span>
+                          <span>Excelente</span>
+                        </div>
+                      </div>
+
+                      {/* Nivel de Energía */}
+                      <div className="bg-slate-50 rounded-xl p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-medium text-slate-600 flex items-center gap-1">
+                            <Zap className="w-3 h-3 text-yellow-500" />
+                            Nivel de Energía
+                          </span>
+                          <span className={`text-xs font-bold ${
+                            sessionData.monitoreo.nivelEnergia < 40 ? 'text-red-600' :
+                            sessionData.monitoreo.nivelEnergia < 60 ? 'text-amber-600' :
+                            'text-green-600'
+                          }`}>
+                            {sessionData.monitoreo.nivelEnergia}%
+                          </span>
+                        </div>
+                        <Slider
+                          value={[sessionData.monitoreo.nivelEnergia]}
+                          onValueChange={(v) => setSessionData(prev => ({
+                            ...prev,
+                            monitoreo: { ...prev.monitoreo, nivelEnergia: v[0] }
+                          }))}
+                          max={100}
+                          step={5}
+                          className="[&>span]:bg-gradient-to-r [&>span]:from-red-500 [&>span]:via-yellow-500 [&>span]:to-green-500"
+                        />
+                        <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                          <span>Bajo</span>
+                          <span>Alto</span>
                         </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </CardContent>
+              </Card>
 
-                {/* Retroalimentación */}
-                <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden">
-                  <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-slate-100 pb-4">
-                    <CardTitle className="flex items-center gap-2 text-base text-slate-800">
-                      <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
-                        <AlertCircle className="w-4 h-4 text-white" />
-                      </div>
-                      Retroalimentación
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-5 bg-white">
-                    <Textarea
-                      value={sessionData.retroalimentacion}
-                      onChange={(e) => setSessionData(prev => ({ ...prev, retroalimentacion: e.target.value }))}
-                      placeholder="Observaciones y comentarios de la sesión..."
-                      className="min-h-[100px] resize-none bg-white border-slate-200 focus:border-indigo-400"
-                      data-testid="retroalimentacion"
-                    />
-                  </CardContent>
-                </Card>
-              </div>
+              {/* Retroalimentación */}
+              <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-slate-100 pb-4">
+                  <CardTitle className="flex items-center gap-2 text-base text-slate-800">
+                    <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
+                      <AlertCircle className="w-4 h-4 text-white" />
+                    </div>
+                    Observaciones y Retroalimentación
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-5 bg-white">
+                  <Textarea
+                    value={sessionData.retroalimentacion}
+                    onChange={(e) => setSessionData(prev => ({ ...prev, retroalimentacion: e.target.value }))}
+                    placeholder="Observaciones y comentarios de la sesión..."
+                    className="min-h-[100px] resize-none bg-white border-slate-200 focus:border-indigo-400"
+                    data-testid="retroalimentacion"
+                  />
+                </CardContent>
+              </Card>
             </div>
           </div>
 
