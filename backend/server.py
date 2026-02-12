@@ -671,6 +671,92 @@ async def get_entity_types():
         {"id": "league", "name": "Liga/Torneo", "icon": "🏆", "description": "Competencia organizada"}
     ]
 
+# =============== TEAMS ROUTES ===============
+class TeamCreate(BaseModel):
+    name: str
+    sport: str = "other"
+    category: Optional[str] = None
+    affiliations: Optional[dict] = None
+    athletes: Optional[List[str]] = []
+
+class TeamResponse(BaseModel):
+    id: str
+    coach_id: str
+    name: str
+    sport: str
+    category: Optional[str] = None
+    affiliations: Optional[dict] = None
+    athletes: Optional[List[str]] = []
+    created_at: str
+
+@api_router.post("/teams", response_model=TeamResponse)
+async def create_team(team: TeamCreate, user: dict = Depends(get_current_user)):
+    team_id = str(uuid.uuid4())
+    doc = {
+        "id": team_id,
+        "coach_id": user["id"],
+        "name": team.name,
+        "sport": team.sport,
+        "category": team.category,
+        "affiliations": team.affiliations or {},
+        "athletes": team.athletes or [],
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.teams.insert_one(doc)
+    doc.pop("_id", None)
+    return TeamResponse(**doc)
+
+@api_router.get("/teams", response_model=List[TeamResponse])
+async def get_teams(user: dict = Depends(get_current_user)):
+    teams = await db.teams.find({"coach_id": user["id"]}, {"_id": 0}).to_list(1000)
+    return [TeamResponse(**t) for t in teams]
+
+@api_router.get("/teams/{team_id}", response_model=TeamResponse)
+async def get_team(team_id: str, user: dict = Depends(get_current_user)):
+    team = await db.teams.find_one({"id": team_id, "coach_id": user["id"]}, {"_id": 0})
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    return TeamResponse(**team)
+
+@api_router.put("/teams/{team_id}", response_model=TeamResponse)
+async def update_team(team_id: str, team: TeamCreate, user: dict = Depends(get_current_user)):
+    update_data = team.model_dump(exclude_unset=True)
+    result = await db.teams.update_one(
+        {"id": team_id, "coach_id": user["id"]},
+        {"$set": update_data}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Team not found")
+    updated = await db.teams.find_one({"id": team_id}, {"_id": 0})
+    return TeamResponse(**updated)
+
+@api_router.delete("/teams/{team_id}")
+async def delete_team(team_id: str, user: dict = Depends(get_current_user)):
+    result = await db.teams.delete_one({"id": team_id, "coach_id": user["id"]})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Team not found")
+    return {"message": "Team deleted successfully"}
+
+@api_router.post("/teams/{team_id}/athletes/{athlete_id}")
+async def add_athlete_to_team(team_id: str, athlete_id: str, user: dict = Depends(get_current_user)):
+    result = await db.teams.update_one(
+        {"id": team_id, "coach_id": user["id"]},
+        {"$addToSet": {"athletes": athlete_id}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Team not found")
+    return {"message": "Athlete added to team"}
+
+@api_router.delete("/teams/{team_id}/athletes/{athlete_id}")
+async def remove_athlete_from_team(team_id: str, athlete_id: str, user: dict = Depends(get_current_user)):
+    result = await db.teams.update_one(
+        {"id": team_id, "coach_id": user["id"]},
+        {"$pull": {"athletes": athlete_id}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Team not found")
+    return {"message": "Athlete removed from team"}
+
 # =============== ATHLETES ROUTES ===============
 @api_router.post("/athletes", response_model=AthleteResponse)
 async def create_athlete(athlete: AthleteCreate, user: dict = Depends(get_current_user)):
