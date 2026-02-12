@@ -404,8 +404,8 @@ const SessionEditor = ({
             {fase.actividades.map((act, idx) => (
               <tr key={act.id} className="border-b hover:bg-slate-50">
                 {/* Medios (Ejercicio) */}
-                <td className="py-2 px-2 relative">
-                  <div className="relative">
+                <td className="py-2 px-2" style={{ position: 'static' }}>
+                  <div style={{ position: 'relative', zIndex: showExercisePicker === `${faseKey}-${idx}` ? 10000 : 'auto' }}>
                     <Input
                       value={act.ejercicio}
                       onChange={(e) => updateActividad(faseKey, idx, 'ejercicio', e.target.value)}
@@ -415,34 +415,40 @@ const SessionEditor = ({
                       data-testid={`exercise-input-${faseKey}-${idx}`}
                     />
                     {showExercisePicker === `${faseKey}-${idx}` && (
-                      <div className="absolute left-0 top-full mt-1 z-[9999] bg-white border rounded-lg shadow-xl w-80 max-h-72 overflow-hidden"
-                           style={{ minWidth: '320px' }}>
-                        <div className="p-2 border-b bg-white sticky top-0">
+                      <div 
+                        className="fixed bg-white border-2 border-blue-200 rounded-xl shadow-2xl overflow-hidden"
+                        style={{ 
+                          width: '340px',
+                          maxHeight: '320px',
+                          zIndex: 99999,
+                          transform: 'translateY(4px)'
+                        }}>
+                        <div className="p-3 border-b bg-gradient-to-r from-blue-50 to-indigo-50 sticky top-0">
                           <Input
                             placeholder="Buscar ejercicio..."
                             value={exerciseSearchTerm}
                             onChange={(e) => setExerciseSearchTerm(e.target.value)}
-                            className="h-8 text-xs"
+                            className="h-9 text-sm bg-white"
                             autoFocus
                           />
                         </div>
-                        <div className="p-1 max-h-48 overflow-y-auto">
+                        <div className="p-2 max-h-52 overflow-y-auto bg-white">
                           {getFilteredExercises().map((ej, ejIdx) => (
                             <button
                               key={`${ej.nombre}-${ejIdx}`}
-                              className="w-full text-left px-3 py-2 hover:bg-blue-50 rounded text-xs"
+                              className="w-full text-left px-3 py-2.5 hover:bg-blue-50 rounded-lg text-sm transition-colors"
                               onClick={() => selectExercise(faseKey, idx, ej.nombre)}
                             >
                               <p className="font-medium text-slate-800">{ej.nombre}</p>
-                              <p className="text-slate-400 text-[10px]">{ej.categoria} • {ej.musculos}</p>
+                              <p className="text-slate-400 text-xs mt-0.5">{ej.categoria} • {ej.musculos}</p>
                             </button>
                           ))}
                           {getFilteredExercises().length === 0 && (
-                            <p className="text-center text-slate-400 py-4 text-xs">No se encontraron ejercicios</p>
+                            <p className="text-center text-slate-400 py-6 text-sm">No se encontraron ejercicios</p>
                           )}
                         </div>
                         <button
-                          className="w-full text-center text-slate-500 py-2 border-t text-xs hover:bg-slate-50"
+                          className="w-full text-center text-blue-600 py-2.5 border-t bg-slate-50 text-sm font-medium hover:bg-slate-100 transition-colors"
                           onClick={() => setShowExercisePicker(null)}
                         >
                           Cerrar
