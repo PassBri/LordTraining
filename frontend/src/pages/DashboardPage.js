@@ -1294,14 +1294,12 @@ const DashboardPage = () => {
                 };
 
                 const sections = [
-                  { key: 'registro', title: 'Registro y Caracterización', color: 'indigo' },
-                  { key: 'evaluacion', title: 'Evaluación Inicial', color: 'emerald' },
-                  { key: 'analisis', title: 'Análisis Previo', color: 'amber' },
-                  { key: 'objetivos', title: 'Definición de Objetivos', color: 'violet' },
-                  { key: 'planificacion', title: 'Planificación', color: 'cyan' },
-                  { key: 'control', title: 'Control y Seguimiento', color: 'rose' },
-                  { key: 'herramientas', title: 'Herramientas', color: 'slate' },
-                  { key: 'organizacion', title: 'Organización', color: 'orange' },
+                  { key: 'informacion', title: '1. Información', color: 'indigo' },
+                  { key: 'evaluacion', title: '2. Evaluación Inicial', color: 'emerald' },
+                  { key: 'competencias', title: '3. Competencias y Objetivos', color: 'violet' },
+                  { key: 'entrenamiento', title: '4. Sistema de Entrenamiento', color: 'blue' },
+                  { key: 'visualizacion', title: '5. Visualización', color: 'amber' },
+                  { key: 'herramientas', title: '6. Herramientas', color: 'slate' },
                 ];
 
                 const colorClasses = {
