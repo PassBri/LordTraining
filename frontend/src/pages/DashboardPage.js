@@ -576,6 +576,11 @@ const DashboardPage = () => {
         }).filter(Boolean);
       };
 
+      // Filter entities by type for affiliation dropdowns
+      const federations = entities.filter(e => e.entity_type === 'federation');
+      const clubs = entities.filter(e => e.entity_type === 'club');
+      const schools = entities.filter(e => e.entity_type === 'school');
+
       // Get selected athlete for summary
       const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
       
