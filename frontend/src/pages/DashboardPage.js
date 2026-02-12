@@ -2359,6 +2359,24 @@ const DashboardPage = () => {
 
           {/* Right: Quick Actions */}
           <div className="flex items-center gap-2 shrink-0">
+            {/* Auto Testing System */}
+            <AutoTestingSystem 
+              onLoadTemplate={(plan) => {
+                // Refresh plans list
+                const savedPlans = JSON.parse(localStorage.getItem('train_generated_plans') || '[]');
+                setGeneratedPlans(savedPlans);
+                setSidebarView('history');
+                toast.success('Template cargado - Ver en Historial');
+              }}
+              onSavePlan={(plan) => {
+                const savedPlans = JSON.parse(localStorage.getItem('train_generated_plans') || '[]');
+                setGeneratedPlans(savedPlans);
+                setSidebarView('history');
+              }}
+              currentUser={user}
+              sportsCatalog={sportsCatalog}
+            />
+            
             <Button
               variant={sidebarView === 'history' ? 'default' : 'outline'}
               size="sm"
