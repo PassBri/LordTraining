@@ -668,7 +668,7 @@ const AthletesPage = () => {
                               <SelectValue placeholder="Seleccionar escuela" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="">Ninguna</SelectItem>
+                              <SelectItem value="none">Ninguna</SelectItem>
                               {entities.schools.map(e => (
                                 <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
                               ))}
