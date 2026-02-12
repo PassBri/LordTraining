@@ -111,7 +111,9 @@ const SessionEditor = ({
   session, 
   onSave,
   exercises = {},
-  trainingMethods = []
+  trainingMethods = [],
+  athleteId,
+  athleteName
 }) => {
   const [sessionData, setSessionData] = useState(SESION_INICIAL);
   const [expandedPhases, setExpandedPhases] = useState({
@@ -121,6 +123,11 @@ const SessionEditor = ({
   });
   const [exerciseSearchTerm, setExerciseSearchTerm] = useState('');
   const [showExercisePicker, setShowExercisePicker] = useState(null);
+  const [shareLink, setShareLink] = useState('');
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const sessionContentRef = useRef(null);
 
   // Cargar datos de la sesión existente
   useEffect(() => {
