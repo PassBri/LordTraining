@@ -3679,6 +3679,252 @@ async def get_exercise_library(user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="No exercise library found")
     return data
 
+# =============== SESSION PDF EXPORT ===============
+class SessionPDFRequest(BaseModel):
+    athlete_id: str
+    athlete_name: str = "Atleta"
+    session: Dict[str, Any]
+
+@api_router.post("/export/session-pdf")
+async def export_session_pdf(request: SessionPDFRequest, authorization: str = Header(None)):
+    """Exportar una sesión de entrenamiento como PDF"""
+    try:
+        # Verificar autenticación
+        if not authorization or not authorization.startswith("Bearer "):
+            raise HTTPException(status_code=401, detail="No autorizado")
+        
+        session_data = request.session
+        athlete_name = request.athlete_name
+        
+        # Crear PDF
+        buffer = BytesIO()
+        c = canvas.Canvas(buffer, pagesize=letter)
+        width, height = letter
+        
+        # Colores
+        primary_blue = HexColor('#2563eb')
+        secondary_gray = HexColor('#64748b')
+        light_gray = HexColor('#f1f5f9')
+        white = HexColor('#ffffff')
+        
+        # Header
+        c.setFillColor(primary_blue)
+        c.roundRect(40, height - 100, width - 80, 60, 10, fill=1, stroke=0)
+        c.setFillColor(white)
+        c.setFont("Helvetica-Bold", 18)
+        c.drawString(60, height - 60, "SESIÓN DE ENTRENAMIENTO")
+        c.setFont("Helvetica", 12)
+        c.drawString(60, height - 80, f"Atleta: {athlete_name}")
+        
+        # Fecha
+        session_date = session_data.get('date', datetime.now().strftime('%Y-%m-%d'))
+        c.setFillColor(white)
+        c.drawRightString(width - 60, height - 60, f"Fecha: {session_date}")
+        
+        y_position = height - 130
+        
+        # Objetivos
+        c.setFillColor(HexColor('#0891b2'))  # Cyan
+        c.setFont("Helvetica-Bold", 14)
+        c.drawString(40, y_position, "OBJETIVOS DE LA SESIÓN")
+        y_position -= 20
+        
+        objectives = session_data.get('objectives', {})
+        c.setFillColor(secondary_gray)
+        c.setFont("Helvetica", 10)
+        
+        obj_items = [
+            ('General', objectives.get('general', '-')),
+            ('Físico', objectives.get('fisico', '-')),
+            ('Técnico', objectives.get('tecnico', '-')),
+            ('Táctico', objectives.get('tactico', '-')),
+            ('Psicológico', objectives.get('psicologico', '-')),
+            ('Teórico', objectives.get('teorico', '-'))
+        ]
+        
+        for label, value in obj_items:
+            if value and value != '-':
+                c.setFont("Helvetica-Bold", 10)
+                c.drawString(50, y_position, f"{label}:")
+                c.setFont("Helvetica", 10)
+                c.drawString(120, y_position, str(value)[:70])
+                y_position -= 15
+        
+        y_position -= 15
+        
+        # Estructura de la sesión (Fases)
+        phases = session_data.get('phases', {})
+        phase_colors = {
+            'inicial': {'name': 'FASE INICIAL', 'color': HexColor('#22c55e')},
+            'principal': {'name': 'FASE PRINCIPAL', 'color': HexColor('#f97316')},
+            'final': {'name': 'FASE FINAL', 'color': HexColor('#3b82f6')}
+        }
+        
+        for phase_key, phase_config in phase_colors.items():
+            phase_data = phases.get(phase_key, {})
+            activities = phase_data.get('actividades', [])
+            
+            if not activities:
+                continue
+            
+            # Header de fase
+            c.setFillColor(phase_config['color'])
+            c.setFont("Helvetica-Bold", 12)
+            c.drawString(40, y_position, phase_config['name'])
+            y_position -= 20
+            
+            # Tabla de actividades
+            c.setFillColor(light_gray)
+            c.rect(40, y_position - (len(activities) * 18) - 5, width - 80, len(activities) * 18 + 25, fill=1, stroke=0)
+            
+            # Headers de tabla
+            c.setFillColor(secondary_gray)
+            c.setFont("Helvetica-Bold", 8)
+            headers = ['Ejercicio', 'Cap.Física', 'Método', 'Series', 'Reps', 'Int.', 'Vol.', 'Recup.']
+            x_positions = [50, 160, 230, 300, 340, 390, 430, 490]
+            
+            for i, header in enumerate(headers):
+                c.drawString(x_positions[i], y_position, header)
+            y_position -= 18
+            
+            # Filas de actividades
+            c.setFont("Helvetica", 8)
+            c.setFillColor(HexColor('#334155'))
+            
+            for act in activities:
+                c.drawString(50, y_position, str(act.get('ejercicio', '-'))[:20])
+                c.drawString(160, y_position, str(act.get('capacidadFisica', '-'))[:12])
+                c.drawString(230, y_position, str(act.get('metodo', '-'))[:12])
+                c.drawString(300, y_position, str(act.get('series', '-')))
+                c.drawString(340, y_position, str(act.get('repeticiones', '-')))
+                c.drawString(390, y_position, f"{act.get('intensidad', 0)}%")
+                c.drawString(430, y_position, str(act.get('volumen', '-')))
+                c.drawString(490, y_position, str(act.get('recuperacion', '-')))
+                y_position -= 18
+            
+            y_position -= 20
+            
+            # Nueva página si es necesario
+            if y_position < 150:
+                c.showPage()
+                y_position = height - 60
+        
+        # Monitoreo y Retroalimentación
+        monitoring = session_data.get('monitoring', {})
+        feedback = session_data.get('feedback', '')
+        
+        if monitoring or feedback:
+            c.setFillColor(HexColor('#ef4444'))  # Rojo
+            c.setFont("Helvetica-Bold", 12)
+            c.drawString(40, y_position, "MONITOREO Y OBSERVACIONES")
+            y_position -= 20
+            
+            c.setFillColor(secondary_gray)
+            c.setFont("Helvetica", 10)
+            
+            if monitoring.get('fcReposo'):
+                c.drawString(50, y_position, f"FC Reposo: {monitoring.get('fcReposo')} bpm")
+                y_position -= 15
+            if monitoring.get('fcMaxima'):
+                c.drawString(50, y_position, f"FC Máxima: {monitoring.get('fcMaxima')} bpm")
+                y_position -= 15
+            if feedback:
+                c.drawString(50, y_position, f"Observaciones: {feedback[:80]}")
+                y_position -= 15
+        
+        # Footer
+        c.setFillColor(light_gray)
+        c.rect(0, 0, width, 40, fill=1, stroke=0)
+        c.setFillColor(secondary_gray)
+        c.setFont("Helvetica", 8)
+        c.drawString(40, 15, f"Generado por Sistema TRAIN - {datetime.now().strftime('%d/%m/%Y %H:%M')}")
+        c.drawRightString(width - 40, 15, "www.train-system.com")
+        
+        c.save()
+        buffer.seek(0)
+        
+        return StreamingResponse(
+            buffer,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"attachment; filename=sesion_{session_date}.pdf"}
+        )
+        
+    except Exception as e:
+        logger.error(f"Error exporting session PDF: {e}")
+        raise HTTPException(status_code=500, detail=f"Error al generar PDF: {str(e)}")
+
+
+# =============== SESSION SHARING ===============
+class SessionShareRequest(BaseModel):
+    athlete_id: str
+    athlete_name: str = "Atleta"
+    session_data: Dict[str, Any]
+
+@api_router.post("/sessions/share")
+async def create_session_share(request: SessionShareRequest, authorization: str = Header(None)):
+    """Crear un enlace para compartir una sesión con el deportista"""
+    try:
+        # Verificar autenticación
+        if not authorization or not authorization.startswith("Bearer "):
+            raise HTTPException(status_code=401, detail="No autorizado")
+        
+        # Generar ID único para el enlace
+        share_id = str(uuid.uuid4())[:12]
+        
+        # Guardar sesión compartida en DB
+        shared_session = {
+            "share_id": share_id,
+            "athlete_id": request.athlete_id,
+            "athlete_name": request.athlete_name,
+            "session_data": request.session_data,
+            "created_at": datetime.now(timezone.utc),
+            "expires_at": datetime.now(timezone.utc) + timedelta(days=30),  # Expira en 30 días
+            "views": 0
+        }
+        
+        await db.shared_sessions.insert_one(shared_session)
+        
+        return {"share_id": share_id, "expires_in_days": 30}
+        
+    except Exception as e:
+        logger.error(f"Error creating session share: {e}")
+        raise HTTPException(status_code=500, detail=f"Error al crear enlace: {str(e)}")
+
+
+@api_router.get("/sessions/view/{share_id}")
+async def get_shared_session(share_id: str):
+    """Obtener sesión compartida para visualización pública (sin autenticación)"""
+    try:
+        # Buscar sesión compartida
+        shared = await db.shared_sessions.find_one({"share_id": share_id})
+        
+        if not shared:
+            raise HTTPException(status_code=404, detail="Sesión no encontrada o enlace expirado")
+        
+        # Verificar si no ha expirado
+        if shared.get("expires_at") and shared["expires_at"] < datetime.now(timezone.utc):
+            raise HTTPException(status_code=410, detail="El enlace ha expirado")
+        
+        # Incrementar contador de vistas
+        await db.shared_sessions.update_one(
+            {"share_id": share_id},
+            {"$inc": {"views": 1}}
+        )
+        
+        return {
+            "athlete_name": shared.get("athlete_name", "Atleta"),
+            "session_data": shared.get("session_data", {}),
+            "created_at": shared.get("created_at"),
+            "views": shared.get("views", 0) + 1
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting shared session: {e}")
+        raise HTTPException(status_code=500, detail=f"Error al obtener sesión: {str(e)}")
+
+
 # =============== ROOT & HEALTH ===============
 @api_router.get("/")
 async def root():
