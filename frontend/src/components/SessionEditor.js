@@ -586,12 +586,13 @@ const SessionEditor = ({
       pdf.save(fileName);
       
       toast.success('PDF descargado exitosamente');
-    } catch (error) {
-      console.error('Error exporting PDF:', error);
-      toast.error('Error al exportar PDF: ' + error.message);
-    } finally {
-      setExporting(false);
-    }
+      } catch (error) {
+        console.error('Error exporting PDF:', error);
+        toast.error('Error al exportar PDF: ' + error.message);
+      } finally {
+        setExporting(false);
+      }
+    }, 100); // Delay de 100ms para liberar el UI
   };
 
   // Generar enlace para compartir (con imagen)
