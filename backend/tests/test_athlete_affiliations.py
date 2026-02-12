@@ -8,7 +8,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://competition-system-1.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://tournament-dash-3.preview.emergentagent.com')
 
 class TestAthleteAffiliations:
     """Test athlete affiliations to entities (Federation, Club, School)"""
