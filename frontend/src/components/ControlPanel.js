@@ -363,17 +363,19 @@ const ControlPanel = ({
     setSmartAlerts(newAlerts); // Guardar todas las alertas para mostrar expandidas
   }, [events, athletes, periodizationData, selectedAthleteId, panelStats, trainingLoadRatio, readinessScore]);
 
-  // Procesar datos reales de periodización para gráficos (fallback si no hay datos de API)
+  // Procesar datos reales de periodización para gráficos
   useEffect(() => {
-    // Si ya tenemos datos de la API, no procesar datos locales
-    if (dataSource === 'api' && volumeData.length > 0) {
+    // Si ya tenemos datos de la API con formato completo, no procesar datos locales
+    if (dataSource === 'api' && volumeData.length > 0 && volumeData[0]?.intensidad !== undefined) {
       return;
     }
 
-    // Forzar regeneración si los datos existentes no tienen intensidad/densidad
-    const needsRegeneration = volumeData.length > 0 && !volumeData[0]?.intensidad;
+    // Verificar si los datos existentes tienen el formato correcto (con intensidad y densidad)
+    const hasCompleteData = volumeData.length > 0 && 
+                           volumeData[0]?.intensidad !== undefined && 
+                           volumeData[0]?.densidad !== undefined;
 
-    if (periodizationData?.mesocycles && !needsRegeneration) {
+    if (periodizationData?.mesocycles && !hasCompleteData) {
       const realVolumeData = [];
       const realIntensityData = [];
       const phaseCount = {};
