@@ -118,6 +118,43 @@ class Intensity(str, Enum):
     HIGH = "high"
     MAXIMUM = "maximum"
 
+# =============== TOURNAMENT ENUMS ===============
+class TournamentFormat(str, Enum):
+    SINGLE_ELIMINATION = "single_elimination"  # Eliminación directa
+    DOUBLE_ELIMINATION = "double_elimination"  # Doble eliminación
+    ROUND_ROBIN = "round_robin"  # Todos contra todos
+    SWISS_SYSTEM = "swiss_system"  # Sistema suizo
+    GROUP_STAGE_KNOCKOUT = "group_stage_knockout"  # Fase de grupos + eliminación
+    LEAGUE = "league"  # Liga con puntos
+    CONSOLATION = "consolation"  # Con repechaje
+    MCMAHON = "mcmahon"  # Sistema McMahon (Go, Chess)
+    CUSTOM = "custom"  # Personalizado
+
+class TournamentStatus(str, Enum):
+    DRAFT = "draft"  # Borrador
+    REGISTRATION = "registration"  # Inscripciones abiertas
+    SEEDING = "seeding"  # Sembrando participantes
+    IN_PROGRESS = "in_progress"  # En curso
+    COMPLETED = "completed"  # Finalizado
+    CANCELLED = "cancelled"  # Cancelado
+
+class MatchStatus(str, Enum):
+    SCHEDULED = "scheduled"  # Programado
+    IN_PROGRESS = "in_progress"  # En curso
+    COMPLETED = "completed"  # Finalizado
+    WALKOVER = "walkover"  # W.O.
+    POSTPONED = "postponed"  # Pospuesto
+    CANCELLED = "cancelled"  # Cancelado
+
+class ScoringSystem(str, Enum):
+    STANDARD = "standard"  # 3-1-0 (win-draw-loss)
+    OLYMPIC = "olympic"  # Según deporte olímpico
+    FIFA = "fifa"  # Sistema FIFA
+    FIBA = "fiba"  # Sistema FIBA
+    ITF = "itf"  # Sistema ITF (Tenis)
+    FIVB = "fivb"  # Sistema FIVB (Voleibol)
+    CUSTOM = "custom"  # Personalizado
+
 # =============== MODELS ===============
 class UserCreate(BaseModel):
     email: EmailStr
