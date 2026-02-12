@@ -782,21 +782,26 @@ const SessionEditor = ({
                 </CardContent>
               </Card>
 
-              {/* Monitoreo Avanzado - Conexión con Relojes Inteligentes */}
-              <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-red-50 via-pink-50 to-purple-50 border-b border-slate-100 pb-4">
+              {/* Monitoreo Avanzado - Material Design */}
+              <Card className="border-0 shadow-lg bg-white overflow-hidden rounded-2xl">
+                <CardHeader className="bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 text-white p-5">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2 text-base text-slate-800">
-                      <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center">
-                        <Watch className="w-4 h-4 text-white" />
+                    <CardTitle className="flex items-center gap-3 text-lg font-bold text-white">
+                      <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                        <Watch className="w-5 h-5" />
                       </div>
-                      Monitoreo de Rendimiento
+                      <div>
+                        <span>Monitoreo de Rendimiento</span>
+                        <p className="text-xs font-normal text-white/80 mt-0.5">Datos de frecuencia cardíaca y biométricos</p>
+                      </div>
                     </CardTitle>
                     <div className="flex items-center gap-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        className={`text-xs ${sessionData.monitoreo.dispositivoConectado ? 'border-green-500 text-green-700 bg-green-50' : 'border-slate-300'}`}
+                        className={`text-xs border-2 ${sessionData.monitoreo.dispositivoConectado 
+                          ? 'border-white bg-white/20 text-white hover:bg-white/30' 
+                          : 'border-white/50 bg-transparent text-white hover:bg-white/10'}`}
                         onClick={() => {
                           setSessionData(prev => ({
                             ...prev,
@@ -809,95 +814,274 @@ const SessionEditor = ({
                           toast.success(sessionData.monitoreo.dispositivoConectado ? 'Dispositivo desconectado' : 'Simulando conexión con dispositivo');
                         }}
                       >
-                        <Bluetooth className={`w-3 h-3 mr-1 ${sessionData.monitoreo.dispositivoConectado ? 'text-green-600' : ''}`} />
-                        {sessionData.monitoreo.dispositivoConectado ? 'Conectado' : 'Conectar Dispositivo'}
+                        <Bluetooth className="w-4 h-4 mr-1.5" />
+                        {sessionData.monitoreo.dispositivoConectado ? '✓ Conectado' : 'Conectar'}
                       </Button>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="p-5 bg-white space-y-6">
-                  {/* Gráfica de Frecuencia Cardíaca por Fases */}
-                  <div className="space-y-3">
-                    <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                      <Heart className="w-4 h-4 text-red-500" />
-                      Frecuencia Cardíaca por Fases
-                    </h4>
-                    <div className="bg-slate-50 rounded-xl p-4">
-                      {/* Gráfica visual simulada */}
-                      <div className="flex items-end justify-between h-32 gap-2 mb-3">
-                        {/* Antes */}
-                        <div className="flex flex-col items-center flex-1">
-                          <div 
-                            className="w-full bg-gradient-to-t from-blue-400 to-blue-300 rounded-t-lg transition-all duration-500"
-                            style={{ height: `${Math.min(100, (parseInt(sessionData.monitoreo.fcAntesEntrenamiento) || 70) / 2)}%` }}
-                          />
-                          <span className="text-[10px] text-slate-500 mt-1">Antes</span>
-                          <span className="text-xs font-bold text-blue-600">{sessionData.monitoreo.fcAntesEntrenamiento || '70'}</span>
+                <CardContent className="p-6 bg-white space-y-8">
+                  {/* Sección de Gráfica con selector de tipo */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-base font-bold text-slate-800 flex items-center gap-2">
+                        <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                          <Heart className="w-4 h-4 text-red-500" />
                         </div>
-                        {/* Durante */}
-                        <div className="flex flex-col items-center flex-1">
-                          <div 
-                            className="w-full bg-gradient-to-t from-red-500 to-orange-400 rounded-t-lg transition-all duration-500"
-                            style={{ height: `${Math.min(100, (parseInt(sessionData.monitoreo.fcDuranteEntrenamiento) || 150) / 2)}%` }}
-                          />
-                          <span className="text-[10px] text-slate-500 mt-1">Durante</span>
-                          <span className="text-xs font-bold text-red-600">{sessionData.monitoreo.fcDuranteEntrenamiento || '150'}</span>
+                        Frecuencia Cardíaca por Fases
+                      </h4>
+                      {/* Selector de tipo de gráfica */}
+                      <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
+                        <button
+                          onClick={() => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, tipoGrafica: 'barras' }}))}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                            sessionData.monitoreo.tipoGrafica === 'barras' 
+                              ? 'bg-white text-blue-600 shadow-sm' 
+                              : 'text-slate-500 hover:text-slate-700'
+                          }`}
+                        >
+                          Barras
+                        </button>
+                        <button
+                          onClick={() => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, tipoGrafica: 'lineas' }}))}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                            sessionData.monitoreo.tipoGrafica === 'lineas' 
+                              ? 'bg-white text-blue-600 shadow-sm' 
+                              : 'text-slate-500 hover:text-slate-700'
+                          }`}
+                        >
+                          Líneas
+                        </button>
+                        <button
+                          onClick={() => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, tipoGrafica: 'mixta' }}))}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                            sessionData.monitoreo.tipoGrafica === 'mixta' 
+                              ? 'bg-white text-blue-600 shadow-sm' 
+                              : 'text-slate-500 hover:text-slate-700'
+                          }`}
+                        >
+                          Mixta
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {/* Área de gráfica Material Design */}
+                    <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-6 border border-slate-200">
+                      {/* Gráfica */}
+                      <div className="relative h-48 mb-4">
+                        {/* Grid de fondo */}
+                        <div className="absolute inset-0 flex flex-col justify-between">
+                          {[200, 150, 100, 50, 0].map((val) => (
+                            <div key={val} className="flex items-center">
+                              <span className="text-[10px] text-slate-400 w-8 text-right mr-2">{val}</span>
+                              <div className="flex-1 border-t border-dashed border-slate-200" />
+                            </div>
+                          ))}
                         </div>
-                        {/* Después */}
-                        <div className="flex flex-col items-center flex-1">
-                          <div 
-                            className="w-full bg-gradient-to-t from-green-400 to-emerald-300 rounded-t-lg transition-all duration-500"
-                            style={{ height: `${Math.min(100, (parseInt(sessionData.monitoreo.fcDespuesEntrenamiento) || 90) / 2)}%` }}
-                          />
-                          <span className="text-[10px] text-slate-500 mt-1">Después</span>
-                          <span className="text-xs font-bold text-green-600">{sessionData.monitoreo.fcDespuesEntrenamiento || '90'}</span>
-                        </div>
-                        {/* Recuperación */}
-                        <div className="flex flex-col items-center flex-1">
-                          <div 
-                            className="w-full bg-gradient-to-t from-purple-400 to-indigo-300 rounded-t-lg transition-all duration-500"
-                            style={{ height: `${Math.min(100, (parseInt(sessionData.monitoreo.fcRecuperacion5min) || 75) / 2)}%` }}
-                          />
-                          <span className="text-[10px] text-slate-500 mt-1">Recup. 5min</span>
-                          <span className="text-xs font-bold text-purple-600">{sessionData.monitoreo.fcRecuperacion5min || '75'}</span>
+                        
+                        {/* Datos de la gráfica */}
+                        <div className="absolute inset-0 pl-10 pr-4 flex items-end justify-around pt-4 pb-6">
+                          {(() => {
+                            const fcData = [
+                              { label: 'Antes', value: parseInt(sessionData.monitoreo.fcAntesEntrenamiento) || 70, color: 'from-blue-500 to-blue-400', lineColor: '#3b82f6' },
+                              { label: 'Durante', value: parseInt(sessionData.monitoreo.fcDuranteEntrenamiento) || 150, color: 'from-red-500 to-orange-400', lineColor: '#ef4444' },
+                              { label: 'Después', value: parseInt(sessionData.monitoreo.fcDespuesEntrenamiento) || 90, color: 'from-green-500 to-emerald-400', lineColor: '#22c55e' },
+                              { label: 'Recup 1\'', value: parseInt(sessionData.monitoreo.fcRecuperacion1min) || 85, color: 'from-teal-500 to-cyan-400', lineColor: '#14b8a6' },
+                              { label: 'Recup 3\'', value: parseInt(sessionData.monitoreo.fcRecuperacion3min) || 78, color: 'from-purple-500 to-violet-400', lineColor: '#a855f7' },
+                              { label: 'Recup 5\'', value: parseInt(sessionData.monitoreo.fcRecuperacion5min) || 72, color: 'from-indigo-500 to-blue-400', lineColor: '#6366f1' },
+                            ];
+                            
+                            if (sessionData.monitoreo.mostrarRecuperacion10min) {
+                              fcData.push({ label: 'Recup 10\'', value: parseInt(sessionData.monitoreo.fcRecuperacion10min) || 68, color: 'from-pink-500 to-rose-400', lineColor: '#ec4899' });
+                            }
+                            
+                            const maxHeight = 160;
+                            const points = fcData.map((d, i) => ({
+                              x: (i / (fcData.length - 1)) * 100,
+                              y: maxHeight - (d.value / 200 * maxHeight)
+                            }));
+                            
+                            return (
+                              <>
+                                {/* Línea para gráfica de líneas o mixta */}
+                                {(sessionData.monitoreo.tipoGrafica === 'lineas' || sessionData.monitoreo.tipoGrafica === 'mixta') && (
+                                  <svg className="absolute inset-0 pl-10 pr-4 pt-4 pb-6 w-full h-full overflow-visible" preserveAspectRatio="none">
+                                    <defs>
+                                      <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stopColor="#3b82f6" />
+                                        <stop offset="30%" stopColor="#ef4444" />
+                                        <stop offset="50%" stopColor="#22c55e" />
+                                        <stop offset="100%" stopColor="#6366f1" />
+                                      </linearGradient>
+                                    </defs>
+                                    <polyline
+                                      fill="none"
+                                      stroke="url(#lineGradient)"
+                                      strokeWidth="3"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      points={points.map(p => `${p.x}%,${p.y}`).join(' ')}
+                                      className="drop-shadow-sm"
+                                    />
+                                    {/* Puntos */}
+                                    {points.map((p, i) => (
+                                      <circle
+                                        key={i}
+                                        cx={`${p.x}%`}
+                                        cy={p.y}
+                                        r="6"
+                                        fill="white"
+                                        stroke={fcData[i].lineColor}
+                                        strokeWidth="3"
+                                        className="drop-shadow-md"
+                                      />
+                                    ))}
+                                  </svg>
+                                )}
+                                
+                                {/* Barras */}
+                                {(sessionData.monitoreo.tipoGrafica === 'barras' || sessionData.monitoreo.tipoGrafica === 'mixta') && (
+                                  <div className="flex items-end justify-around h-full w-full gap-2">
+                                    {fcData.map((d, i) => (
+                                      <div key={i} className="flex flex-col items-center flex-1">
+                                        <div 
+                                          className={`w-full max-w-[40px] bg-gradient-to-t ${d.color} rounded-t-lg transition-all duration-500 shadow-lg ${
+                                            sessionData.monitoreo.tipoGrafica === 'mixta' ? 'opacity-40' : ''
+                                          }`}
+                                          style={{ height: `${Math.min(100, d.value / 200 * 100)}%` }}
+                                        />
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
-                      {/* Inputs */}
-                      <div className="grid grid-cols-4 gap-2 mt-4">
-                        <Input
-                          type="number"
-                          value={sessionData.monitoreo.fcAntesEntrenamiento}
-                          onChange={(e) => setSessionData(prev => ({
+                      
+                      {/* Labels y inputs */}
+                      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                        {[
+                          { key: 'fcAntesEntrenamiento', label: 'Antes', color: 'blue', placeholder: '70' },
+                          { key: 'fcDuranteEntrenamiento', label: 'Durante', color: 'red', placeholder: '150' },
+                          { key: 'fcDespuesEntrenamiento', label: 'Después', color: 'green', placeholder: '90' },
+                          { key: 'fcRecuperacion1min', label: 'Recup 1\'', color: 'teal', placeholder: '85' },
+                          { key: 'fcRecuperacion3min', label: 'Recup 3\'', color: 'purple', placeholder: '78' },
+                          { key: 'fcRecuperacion5min', label: 'Recup 5\'', color: 'indigo', placeholder: '72' },
+                        ].map((item) => (
+                          <div key={item.key} className="text-center">
+                            <div className={`text-[10px] font-semibold text-${item.color}-600 uppercase mb-1`}>{item.label}</div>
+                            <Input
+                              type="number"
+                              value={sessionData.monitoreo[item.key]}
+                              onChange={(e) => setSessionData(prev => ({
+                                ...prev,
+                                monitoreo: { ...prev.monitoreo, [item.key]: e.target.value }
+                              }))}
+                              placeholder={item.placeholder}
+                              className={`text-center h-9 text-sm font-bold border-2 border-${item.color}-200 focus:border-${item.color}-400 rounded-xl`}
+                            />
+                            <div className="text-[9px] text-slate-400 mt-0.5">bpm</div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* Opción de 10 minutos */}
+                      <div className="mt-4 pt-4 border-t border-dashed border-slate-200">
+                        <button
+                          onClick={() => setSessionData(prev => ({
                             ...prev,
-                            monitoreo: { ...prev.monitoreo, fcAntesEntrenamiento: e.target.value }
+                            monitoreo: { ...prev.monitoreo, mostrarRecuperacion10min: !prev.monitoreo.mostrarRecuperacion10min }
                           }))}
-                          placeholder="70"
-                          className="text-center h-8 text-xs"
-                        />
-                        <Input
-                          type="number"
-                          value={sessionData.monitoreo.fcDuranteEntrenamiento}
-                          onChange={(e) => setSessionData(prev => ({
-                            ...prev,
-                            monitoreo: { ...prev.monitoreo, fcDuranteEntrenamiento: e.target.value }
-                          }))}
-                          placeholder="150"
-                          className="text-center h-8 text-xs"
-                        />
-                        <Input
-                          type="number"
-                          value={sessionData.monitoreo.fcDespuesEntrenamiento}
-                          onChange={(e) => setSessionData(prev => ({
-                            ...prev,
-                            monitoreo: { ...prev.monitoreo, fcDespuesEntrenamiento: e.target.value }
-                          }))}
-                          placeholder="90"
-                          className="text-center h-8 text-xs"
-                        />
-                        <Input
-                          type="number"
-                          value={sessionData.monitoreo.fcRecuperacion5min}
-                          onChange={(e) => setSessionData(prev => ({
+                          className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                            sessionData.monitoreo.mostrarRecuperacion10min 
+                              ? 'bg-pink-100 text-pink-700 border-2 border-pink-300' 
+                              : 'bg-slate-100 text-slate-500 hover:bg-slate-200 border-2 border-transparent'
+                          }`}
+                        >
+                          <div className={`w-4 h-4 rounded flex items-center justify-center ${
+                            sessionData.monitoreo.mostrarRecuperacion10min ? 'bg-pink-500' : 'bg-slate-300'
+                          }`}>
+                            {sessionData.monitoreo.mostrarRecuperacion10min && <Check className="w-3 h-3 text-white" />}
+                          </div>
+                          Agregar Recuperación 10 min (opcional)
+                        </button>
+                        
+                        {sessionData.monitoreo.mostrarRecuperacion10min && (
+                          <div className="mt-3 flex items-center gap-3">
+                            <div className="text-[10px] font-semibold text-pink-600 uppercase">Recup 10'</div>
+                            <Input
+                              type="number"
+                              value={sessionData.monitoreo.fcRecuperacion10min}
+                              onChange={(e) => setSessionData(prev => ({
+                                ...prev,
+                                monitoreo: { ...prev.monitoreo, fcRecuperacion10min: e.target.value }
+                              }))}
+                              placeholder="68"
+                              className="text-center h-9 w-24 text-sm font-bold border-2 border-pink-200 focus:border-pink-400 rounded-xl"
+                            />
+                            <span className="text-[10px] text-slate-400">bpm</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* FC Reposo, Media y Máxima - Material Cards */}
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-5 text-center border border-blue-200 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                        <Heart className="w-6 h-6 text-white" />
+                      </div>
+                      <p className="text-xs font-bold text-blue-600 uppercase tracking-wide mb-2">FC Reposo</p>
+                      <Input
+                        type="number"
+                        value={sessionData.monitoreo.fcReposo}
+                        onChange={(e) => setSessionData(prev => ({
+                          ...prev,
+                          monitoreo: { ...prev.monitoreo, fcReposo: e.target.value }
+                        }))}
+                        placeholder="60"
+                        className="text-center text-2xl font-bold h-12 border-0 bg-white/70 rounded-xl shadow-inner"
+                      />
+                      <span className="text-xs text-blue-500 font-medium">bpm</span>
+                    </div>
+                    <div className="bg-gradient-to-br from-amber-50 to-orange-100 rounded-2xl p-5 text-center border border-amber-200 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                        <Activity className="w-6 h-6 text-white" />
+                      </div>
+                      <p className="text-xs font-bold text-amber-600 uppercase tracking-wide mb-2">FC Media</p>
+                      <Input
+                        type="number"
+                        value={sessionData.monitoreo.fcMedia}
+                        onChange={(e) => setSessionData(prev => ({
+                          ...prev,
+                          monitoreo: { ...prev.monitoreo, fcMedia: e.target.value }
+                        }))}
+                        placeholder="135"
+                        className="text-center text-2xl font-bold h-12 border-0 bg-white/70 rounded-xl shadow-inner"
+                      />
+                      <span className="text-xs text-amber-500 font-medium">bpm</span>
+                    </div>
+                    <div className="bg-gradient-to-br from-red-50 to-rose-100 rounded-2xl p-5 text-center border border-red-200 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                        <TrendingUp className="w-6 h-6 text-white" />
+                      </div>
+                      <p className="text-xs font-bold text-red-600 uppercase tracking-wide mb-2">FC Máxima</p>
+                      <Input
+                        type="number"
+                        value={sessionData.monitoreo.fcMaxima}
+                        onChange={(e) => setSessionData(prev => ({
+                          ...prev,
+                          monitoreo: { ...prev.monitoreo, fcMaxima: e.target.value }
+                        }))}
+                        placeholder="180"
+                        className="text-center text-2xl font-bold h-12 border-0 bg-white/70 rounded-xl shadow-inner"
+                      />
+                      <span className="text-xs text-red-500 font-medium">bpm</span>
+                    </div>
+                  </div>
                             ...prev,
                             monitoreo: { ...prev.monitoreo, fcRecuperacion5min: e.target.value }
                           }))}
