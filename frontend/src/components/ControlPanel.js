@@ -545,22 +545,27 @@ const ControlPanel = ({
 
   return (
     <div className="overflow-y-auto h-full bg-gradient-to-br from-slate-50 to-blue-50/30">
-      {/* Header Compacto con Selector de Atleta */}
-      <div className="bg-white/80 backdrop-blur-sm border-b border-slate-100 sticky top-0 z-10">
-        <div className="px-6 py-3">
+      {/* Header Material Design con Gradiente */}
+      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white sticky top-0 z-10 shadow-lg">
+        <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <h2 className="text-lg font-bold text-slate-800 tracking-tight">PANEL DE CONTROL</h2>
-              <span className="text-xs text-slate-400">
-                {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}
-              </span>
+              <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                <LayoutDashboard className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold tracking-tight">Panel de Control</h2>
+                <span className="text-sm text-white/70">
+                  {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}
+                </span>
+              </div>
             </div>
             <div className="flex items-center gap-3">
-              {/* Selector de Atleta */}
+              {/* Selector de Atleta con estilo Material */}
               <select 
                 value={selectedDashboardAthlete}
                 onChange={(e) => setSelectedDashboardAthlete(e.target.value)}
-                className="h-9 text-sm border border-slate-200 rounded-lg px-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[160px]"
+                className="h-10 text-sm border-0 rounded-xl px-4 bg-white/90 text-slate-700 focus:outline-none focus:ring-2 focus:ring-white/50 min-w-[180px] shadow-md"
               >
                 <option value="all">👥 Todos los atletas</option>
                 {athletes.map(athlete => (
@@ -569,32 +574,34 @@ const ControlPanel = ({
                   </option>
                 ))}
               </select>
-              {/* Quick Stats Pills */}
+              {/* Quick Stats Pills con estilo glass */}
               <div className="hidden lg:flex items-center gap-2">
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 rounded-full text-xs font-semibold text-blue-700">
-                  <Users className="h-3.5 w-3.5" />
+                <div className="flex items-center gap-1.5 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-xl text-sm font-medium text-white">
+                  <Users className="h-4 w-4" />
                   <span>{totalAthletes} atletas</span>
                 </div>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 rounded-full text-xs font-semibold text-emerald-700">
-                  <Activity className="h-3.5 w-3.5" />
+                <div className="flex items-center gap-1.5 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-xl text-sm font-medium text-white">
+                  <Activity className="h-4 w-4" />
                   <span>{activeMacrocycles} activos</span>
                 </div>
               </div>
-              <Button size="sm" variant="ghost" className="h-9 w-9 text-slate-600 hover:bg-slate-100" onClick={handleSave}>
+              <Button size="sm" className="h-10 w-10 bg-white/20 hover:bg-white/30 text-white border-0 rounded-xl" onClick={handleSave}>
                 <Save className="w-4 h-4" />
               </Button>
-              <Button size="sm" variant="ghost" className="h-9 w-9 text-slate-600 hover:bg-slate-100" onClick={handleViewReports}>
+              <Button size="sm" className="h-10 w-10 bg-white/20 hover:bg-white/30 text-white border-0 rounded-xl" onClick={handleViewReports}>
                 <Download className="w-4 h-4" />
               </Button>
             </div>
           </div>
-          
-          {/* Filter Row */}
-          <div className="flex items-center gap-2 mt-3 overflow-x-auto pb-1">
-            <Input placeholder="Competencia" className="h-8 text-xs min-w-[130px] max-w-[150px] bg-white border-slate-200" />
-            <Input placeholder="Deporte" className="h-8 text-xs min-w-[110px] max-w-[130px] bg-white border-slate-200" />
-            <Input placeholder="Modalidad" className="h-8 text-xs min-w-[110px] max-w-[130px] bg-white border-slate-200" />
-            <Input placeholder="Categoría" className="h-8 text-xs min-w-[110px] max-w-[130px] bg-white border-slate-200" />
+        </div>
+        
+        {/* Filter Row con estilo Material */}
+        <div className="px-6 pb-4">
+          <div className="flex items-center gap-2 overflow-x-auto">
+            <Input placeholder="Competencia" className="h-9 text-sm min-w-[130px] max-w-[150px] bg-white/90 border-0 rounded-lg shadow-sm placeholder:text-slate-400" />
+            <Input placeholder="Deporte" className="h-9 text-sm min-w-[110px] max-w-[130px] bg-white/90 border-0 rounded-lg shadow-sm placeholder:text-slate-400" />
+            <Input placeholder="Modalidad" className="h-9 text-sm min-w-[110px] max-w-[130px] bg-white/90 border-0 rounded-lg shadow-sm placeholder:text-slate-400" />
+            <Input placeholder="Categoría" className="h-9 text-sm min-w-[110px] max-w-[130px] bg-white/90 border-0 rounded-lg shadow-sm placeholder:text-slate-400" />
           </div>
         </div>
       </div>
