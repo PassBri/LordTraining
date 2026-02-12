@@ -74,6 +74,7 @@ const InteractiveChart = ({
   const [timeRange, setTimeRange] = useState(defaultTimeRange);
   const [brushRange, setBrushRange] = useState({ startIndex: 0, endIndex: Math.min(data.length - 1, 11) });
   const [showSettings, setShowSettings] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Filtrar datos según el rango de tiempo seleccionado
   const filteredData = useMemo(() => {
