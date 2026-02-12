@@ -1127,42 +1127,45 @@ const DashboardPage = () => {
             </div>
           )}
 
-          {/* Vista de Torneos */}
+          {/* Vista de Torneos - Nuevo componente profesional */}
           {activeAthleteTab === 'tournaments' && (
-            <div className="space-y-4">
-              {tournamentDetailView && selectedTournament ? (
-                // Tournament Detail View
-                <div className="space-y-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <Button variant="ghost" size="sm" onClick={() => { setTournamentDetailView(false); setSelectedTournament(null); }} className="mb-2 -ml-2">
-                        <ChevronLeft className="w-4 h-4 mr-1" /> Volver
-                      </Button>
-                      <div className="flex items-center gap-3">
-                        <span className="text-3xl">{getFormatIcon(selectedTournament.format)}</span>
-                        <div>
-                          <h3 className="text-xl font-bold text-slate-900">{selectedTournament.name}</h3>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[selectedTournament.status] || 'bg-slate-100'}`}>
-                              {STATUS_LABELS[selectedTournament.status] || selectedTournament.status}
-                            </span>
-                            {selectedTournament.start_date && <span className="text-sm text-slate-500">{selectedTournament.start_date}</span>}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => { if (selectedTournament?.share_id) { navigator.clipboard.writeText(`${window.location.origin}/tournament/${selectedTournament.share_id}`); toast.success('Enlace copiado'); } }}>
-                        <Share2 className="w-4 h-4 mr-1" /> Compartir
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => window.open(exportTournamentPDF(selectedTournament.id), '_blank')}>
-                        <Download className="w-4 h-4 mr-1" /> PDF
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Categories */}
-                  <Card className="border-slate-200">
+            <Card className="border-0 shadow-lg overflow-hidden">
+              <TournamentManager
+                tournaments={tournaments}
+                onCreateTournament={async (data) => {
+                  try {
+                    await createTournament(data);
+                    const response = await getTournaments();
+                    setTournaments(response.data || []);
+                    toast.success('Torneo creado exitosamente');
+                  } catch (error) {
+                    console.error('Error creating tournament:', error);
+                    toast.error('Error al crear el torneo');
+                  }
+                }}
+                onUpdateTournament={async (id, data) => {
+                  console.log('Update tournament', id, data);
+                }}
+                onDeleteTournament={async (id) => {
+                  try {
+                    await deleteTournament(id);
+                    const response = await getTournaments();
+                    setTournaments(response.data || []);
+                    toast.success('Torneo eliminado');
+                  } catch (error) {
+                    console.error('Error deleting tournament:', error);
+                    toast.error('Error al eliminar el torneo');
+                  }
+                }}
+                onGenerateFixtures={(tournamentId) => {
+                  console.log('Generate fixtures for', tournamentId);
+                }}
+                onUpdateMatch={(matchId, data) => {
+                  console.log('Update match', matchId, data);
+                }}
+              />
+            </Card>
+          )}
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between">
                         <CardTitle className="text-lg">Categorías</CardTitle>
