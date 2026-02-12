@@ -308,8 +308,9 @@ const SubscriptionPage = () => {
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 
