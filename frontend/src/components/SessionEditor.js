@@ -409,6 +409,12 @@ const SessionEditor = ({
     try {
       const token = localStorage.getItem('train_token');
       
+      if (!token) {
+        toast.error('Sesión expirada. Por favor inicia sesión nuevamente.');
+        setExporting(false);
+        return;
+      }
+      
       if (!athleteId) {
         toast.error('Selecciona un atleta primero');
         setExporting(false);
@@ -417,22 +423,38 @@ const SessionEditor = ({
       
       toast.info('Generando enlace...');
       
-      // Capturar la imagen de la sesión (mismo método que GraphicPlan)
+      // Capturar la imagen de la sesión
       let imageBase64 = null;
       try {
         const html2canvas = (await import('html2canvas')).default;
         const contentElement = document.querySelector('[data-testid="session-editor-content"]');
         
         if (contentElement) {
+          // Guardar estilos originales del contenedor
+          const originalOverflow = contentElement.style.overflow;
+          const originalMaxHeight = contentElement.style.maxHeight;
+          const originalHeight = contentElement.style.height;
+          
+          // Expandir el contenedor para capturar todo
+          contentElement.style.overflow = 'visible';
+          contentElement.style.maxHeight = 'none';
+          contentElement.style.height = 'auto';
+          
+          // Esperar que el DOM se actualice
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
           const canvas = await html2canvas(contentElement, {
             backgroundColor: '#ffffff',
             scale: 2,
             useCORS: true,
-            logging: false,
-            scrollY: -window.scrollY,
-            windowWidth: contentElement.scrollWidth,
-            windowHeight: contentElement.scrollHeight
+            logging: false
           });
+          
+          // Restaurar estilos originales
+          contentElement.style.overflow = originalOverflow;
+          contentElement.style.maxHeight = originalMaxHeight;
+          contentElement.style.height = originalHeight;
+          
           imageBase64 = canvas.toDataURL('image/png');
           console.log('Image captured successfully, size:', canvas.width, 'x', canvas.height);
         }
