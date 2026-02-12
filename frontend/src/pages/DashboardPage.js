@@ -1109,6 +1109,18 @@ const DashboardPage = () => {
       return <CompetitionAnalysis athleteId={selectedAthleteId} />;
     }
 
+    // Render Training System Hub (EJE CENTRAL - Integra Periodización, Tests, Carga y Control)
+    if (activeDataSection === 'training-system') {
+      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
+      return (
+        <TrainingSystemHub 
+          athleteId={selectedAthleteId} 
+          athleteName={selectedAthlete?.name}
+          onNavigate={(section) => setActiveDataSection(section)}
+        />
+      );
+    }
+
     // Render Periodization System (Auto-generation with charts)
     if (activeDataSection === 'periodization-models') {
       const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
