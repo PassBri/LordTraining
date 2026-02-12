@@ -901,158 +901,55 @@ const ControlPanel = ({
         {/* Charts Section Header */}
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-slate-700">Análisis de Entrenamiento</h3>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500">Tipo de gráfica:</span>
-            <select 
-              value={chartType}
-              onChange={(e) => setChartType(e.target.value)}
-              className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="bar">Barras</option>
-              <option value="line">Líneas</option>
-              <option value="area">Área</option>
-              <option value="mixed">Mixta</option>
-            </select>
-          </div>
+          <p className="text-xs text-slate-400">Gráficos interactivos - Usa los controles para explorar</p>
         </div>
 
-        {/* Charts Row 1 */}
+        {/* Charts Row 1 - Interactive */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* Volumen + Intensidad + Densidad Combined Chart */}
-          <Card className="shadow-lg border-0 bg-white">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-base">
-                  <BarChart3 className="w-5 h-5 text-blue-500" />
-                  Volumen, Intensidad y Densidad
-                </div>
-                {dataSource === 'api' && (
-                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">En vivo</span>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={280}>
-                {chartType === 'bar' ? (
-                  <BarChart data={volumeData} barGap={2}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-                    <XAxis dataKey="semana" tick={{ fontSize: 11 }} stroke="#9CA3AF" />
-                    <YAxis tick={{ fontSize: 11 }} stroke="#9CA3AF" domain={[0, 100]} />
-                    <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }} />
-                    <Legend wrapperStyle={{ fontSize: '12px' }} />
-                    <Bar dataKey="volumen" name="Volumen %" fill="#3B82F6" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="intensidad" name="Intensidad %" fill="#EF4444" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="densidad" name="Densidad %" fill="#10B981" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                ) : chartType === 'line' ? (
-                  <LineChart data={volumeData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-                    <XAxis dataKey="semana" tick={{ fontSize: 11 }} stroke="#9CA3AF" />
-                    <YAxis tick={{ fontSize: 11 }} stroke="#9CA3AF" domain={[0, 100]} />
-                    <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }} />
-                    <Legend wrapperStyle={{ fontSize: '12px' }} />
-                    <Line type="monotone" dataKey="volumen" name="Volumen %" stroke="#3B82F6" strokeWidth={2} dot={{ r: 4 }} />
-                    <Line type="monotone" dataKey="intensidad" name="Intensidad %" stroke="#EF4444" strokeWidth={2} dot={{ r: 4 }} />
-                    <Line type="monotone" dataKey="densidad" name="Densidad %" stroke="#10B981" strokeWidth={2} dot={{ r: 4 }} />
-                  </LineChart>
-                ) : chartType === 'area' ? (
-                  <AreaChart data={volumeData}>
-                    <defs>
-                      <linearGradient id="colorVol" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.4}/>
-                        <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="colorInt" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#EF4444" stopOpacity={0.4}/>
-                        <stop offset="95%" stopColor="#EF4444" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="colorDen" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.4}/>
-                        <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-                    <XAxis dataKey="semana" tick={{ fontSize: 11 }} stroke="#9CA3AF" />
-                    <YAxis tick={{ fontSize: 11 }} stroke="#9CA3AF" domain={[0, 100]} />
-                    <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }} />
-                    <Legend wrapperStyle={{ fontSize: '12px' }} />
-                    <Area type="monotone" dataKey="volumen" name="Volumen %" stroke="#3B82F6" fillOpacity={1} fill="url(#colorVol)" />
-                    <Area type="monotone" dataKey="intensidad" name="Intensidad %" stroke="#EF4444" fillOpacity={1} fill="url(#colorInt)" />
-                    <Area type="monotone" dataKey="densidad" name="Densidad %" stroke="#10B981" fillOpacity={1} fill="url(#colorDen)" />
-                  </AreaChart>
-                ) : (
-                  /* Mixed Chart - Bars con línea de densidad */
-                  <ComposedChart data={volumeData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-                    <XAxis dataKey="semana" tick={{ fontSize: 11 }} stroke="#9CA3AF" />
-                    <YAxis tick={{ fontSize: 11 }} stroke="#9CA3AF" domain={[0, 100]} />
-                    <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }} />
-                    <Legend wrapperStyle={{ fontSize: '12px' }} />
-                    <Bar dataKey="volumen" name="Volumen %" fill="#3B82F6" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="intensidad" name="Intensidad %" fill="#EF4444" radius={[4, 4, 0, 0]} opacity={0.8} />
-                    <Line type="monotone" dataKey="densidad" name="Densidad %" stroke="#10B981" strokeWidth={3} dot={{ r: 4, fill: '#10B981' }} />
-                  </ComposedChart>
-                )}
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <InteractiveChart
+            title="Volumen, Intensidad y Densidad"
+            icon={BarChart3}
+            data={volumeData}
+            dataKeys={[
+              { key: 'volumen', name: 'Volumen %' },
+              { key: 'intensidad', name: 'Intensidad %' },
+              { key: 'densidad', name: 'Densidad %' }
+            ]}
+            xAxisKey="semana"
+            height={280}
+            showBrush={true}
+            showControls={true}
+            showLiveIndicator={dataSource === 'api'}
+            defaultChartType="bar"
+            defaultTimeRange="sessions"
+            yAxisDomain={[0, 100]}
+          />
 
           {/* Intensidad + Recuperación Chart */}
-          <Card className="shadow-lg border-0 bg-white">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-base">
-                  <TrendingUp className="w-5 h-5 text-rose-500" />
-                  Intensidad y Recuperación
-                </div>
-                {dataSource === 'api' && (
-                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">En vivo</span>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={280}>
-                <LineChart data={intensityData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-                  <XAxis dataKey="semana" tick={{ fontSize: 11 }} stroke="#9CA3AF" />
-                  <YAxis tick={{ fontSize: 11 }} stroke="#9CA3AF" domain={[0, 100]} />
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }} />
-                  <Legend wrapperStyle={{ fontSize: '12px' }} />
-                  <Line 
-                    type="monotone" 
-                    dataKey="intensidad" 
-                    name="Intensidad %"
-                    stroke="#EF4444" 
-                    strokeWidth={3}
-                    dot={{ fill: '#EF4444', strokeWidth: 0, r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="recuperacion" 
-                    name="Recuperación %"
-                    stroke="#10B981" 
-                    strokeWidth={2}
-                    strokeDasharray="5 5"
-                    dot={{ fill: '#10B981', strokeWidth: 0, r: 3 }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="densidad" 
-                    name="Densidad %"
-                    stroke="#8B5CF6" 
-                    strokeWidth={2}
-                    dot={{ fill: '#8B5CF6', strokeWidth: 0, r: 3 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <InteractiveChart
+            title="Intensidad y Recuperación"
+            icon={TrendingUp}
+            data={intensityData}
+            dataKeys={[
+              { key: 'intensidad', name: 'Intensidad %' },
+              { key: 'recuperacion', name: 'Recuperación %' },
+              { key: 'densidad', name: 'Densidad %' }
+            ]}
+            xAxisKey="semana"
+            height={280}
+            showBrush={true}
+            showControls={true}
+            showLiveIndicator={dataSource === 'api'}
+            defaultChartType="line"
+            defaultTimeRange="sessions"
+            yAxisDomain={[0, 100]}
+          />
         </div>
 
         {/* Charts Row 2 */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          {/* Distribución de Fases - Pie Chart */}
+          {/* Distribución de Fases - Pie Chart (sin interactividad de scroll) */}
           <Card className="shadow-lg border-0 bg-white">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
@@ -1085,54 +982,25 @@ const ControlPanel = ({
             </CardContent>
           </Card>
 
-          {/* Carga Acumulada - Area Chart */}
-          <Card className="shadow-lg border-0 bg-white lg:col-span-2">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Flame className="w-5 h-5 text-orange-500" />
-                Carga de Entrenamiento Acumulada
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={220}>
-                <AreaChart data={loadData}>
-                  <defs>
-                    <linearGradient id="colorCarga" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={COLORS.primary} stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor={COLORS.primary} stopOpacity={0}/>
-                    </linearGradient>
-                    <linearGradient id="colorFatiga" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={COLORS.danger} stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor={COLORS.danger} stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-                  <XAxis dataKey="semana" tick={{ fontSize: 11 }} stroke="#9CA3AF" />
-                  <YAxis tick={{ fontSize: 11 }} stroke="#9CA3AF" />
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }} />
-                  <Legend wrapperStyle={{ fontSize: '11px' }} />
-                  <Area 
-                    type="monotone" 
-                    dataKey="carga" 
-                    name="Carga Acumulada"
-                    stroke={COLORS.primary} 
-                    fillOpacity={1} 
-                    fill="url(#colorCarga)" 
-                    strokeWidth={2}
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="fatiga" 
-                    name="Índice de Fatiga"
-                    stroke={COLORS.danger} 
-                    fillOpacity={1} 
-                    fill="url(#colorFatiga)" 
-                    strokeWidth={2}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          {/* Carga Acumulada - Interactive Area Chart */}
+          <div className="lg:col-span-2">
+            <InteractiveChart
+              title="Carga de Entrenamiento Acumulada"
+              icon={Flame}
+              data={loadData}
+              dataKeys={[
+                { key: 'carga', name: 'Carga Acumulada', color: COLORS.primary },
+                { key: 'fatiga', name: 'Índice de Fatiga', color: COLORS.danger }
+              ]}
+              xAxisKey="semana"
+              height={220}
+              showBrush={true}
+              showControls={true}
+              defaultChartType="area"
+              defaultTimeRange="sessions"
+              yAxisDomain={[0, 'auto']}
+            />
+          </div>
         </div>
       </div>
 
