@@ -385,6 +385,207 @@ class PaymentStatusResponse(BaseModel):
     payment_status: str
     plan: Optional[str] = None
 
+# =============== TOURNAMENT MODELS ===============
+class TournamentCategoryCreate(BaseModel):
+    """Categoría dentro de un torneo (ej: Sub-15, Sub-17, Senior)"""
+    name: str
+    age_min: Optional[int] = None
+    age_max: Optional[int] = None
+    gender: Optional[str] = None  # male, female, mixed
+    weight_class: Optional[str] = None  # Para deportes de combate
+    division: Optional[str] = None  # Primera, Segunda, etc.
+    max_participants: Optional[int] = None
+
+class TournamentCreate(BaseModel):
+    """Crear un nuevo torneo/evento"""
+    name: str
+    description: Optional[str] = None
+    sport: str
+    format: TournamentFormat
+    status: TournamentStatus = TournamentStatus.DRAFT
+    
+    # Fechas
+    start_date: str
+    end_date: str
+    registration_deadline: Optional[str] = None
+    
+    # Ubicación
+    venue: Optional[str] = None
+    city: Optional[str] = None
+    country: Optional[str] = None
+    address: Optional[str] = None
+    
+    # Afiliaciones a entidades
+    federation_id: Optional[str] = None
+    club_id: Optional[str] = None
+    school_id: Optional[str] = None
+    organizing_entity_id: Optional[str] = None
+    
+    # Configuración
+    scoring_system: ScoringSystem = ScoringSystem.STANDARD
+    points_win: int = 3
+    points_draw: int = 1
+    points_loss: int = 0
+    
+    # Fase de grupos (si aplica)
+    groups_count: Optional[int] = None
+    teams_per_group: Optional[int] = None
+    advance_per_group: Optional[int] = None
+    
+    # Reglas
+    rules: Optional[str] = None
+    regulations_url: Optional[str] = None
+    
+    # Categorías
+    categories: List[TournamentCategoryCreate] = []
+    
+    # Visual
+    logo_url: Optional[str] = None
+    banner_url: Optional[str] = None
+    primary_color: str = "#3B82F6"
+    secondary_color: str = "#10B981"
+
+class TournamentCategoryResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    tournament_id: str
+    name: str
+    age_min: Optional[int] = None
+    age_max: Optional[int] = None
+    gender: Optional[str] = None
+    weight_class: Optional[str] = None
+    division: Optional[str] = None
+    max_participants: Optional[int] = None
+    participants: List[str] = []  # IDs de equipos o atletas
+    bracket: Optional[Dict[str, Any]] = None
+    standings: Optional[List[Dict[str, Any]]] = None
+    created_at: str
+
+class TournamentResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    coach_id: str
+    name: str
+    description: Optional[str] = None
+    sport: str
+    format: TournamentFormat
+    status: TournamentStatus
+    
+    start_date: str
+    end_date: str
+    registration_deadline: Optional[str] = None
+    
+    venue: Optional[str] = None
+    city: Optional[str] = None
+    country: Optional[str] = None
+    address: Optional[str] = None
+    
+    federation_id: Optional[str] = None
+    club_id: Optional[str] = None
+    school_id: Optional[str] = None
+    organizing_entity_id: Optional[str] = None
+    
+    scoring_system: ScoringSystem = ScoringSystem.STANDARD
+    points_win: int = 3
+    points_draw: int = 1
+    points_loss: int = 0
+    
+    groups_count: Optional[int] = None
+    teams_per_group: Optional[int] = None
+    advance_per_group: Optional[int] = None
+    
+    rules: Optional[str] = None
+    regulations_url: Optional[str] = None
+    
+    categories: List[TournamentCategoryResponse] = []
+    
+    logo_url: Optional[str] = None
+    banner_url: Optional[str] = None
+    primary_color: str = "#3B82F6"
+    secondary_color: str = "#10B981"
+    
+    share_id: Optional[str] = None
+    created_at: str
+
+class MatchCreate(BaseModel):
+    """Crear un partido/encuentro"""
+    tournament_id: str
+    category_id: str
+    round_number: int  # Ronda (1, 2, 3... o cuartos, semis, final)
+    round_name: Optional[str] = None  # "Cuartos de Final", "Semifinal", etc.
+    match_number: int  # Número de partido en la ronda
+    
+    participant1_id: Optional[str] = None  # ID de equipo o atleta
+    participant1_name: Optional[str] = None
+    participant2_id: Optional[str] = None
+    participant2_name: Optional[str] = None
+    
+    scheduled_date: Optional[str] = None
+    scheduled_time: Optional[str] = None
+    venue: Optional[str] = None
+    court: Optional[str] = None  # Cancha, pista, etc.
+    
+    # Para bracket
+    bracket_position: Optional[int] = None  # Posición en el bracket
+    winner_goes_to: Optional[str] = None  # ID del siguiente partido
+    loser_goes_to: Optional[str] = None  # Para doble eliminación
+
+class MatchResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    tournament_id: str
+    category_id: str
+    round_number: int
+    round_name: Optional[str] = None
+    match_number: int
+    
+    participant1_id: Optional[str] = None
+    participant1_name: Optional[str] = None
+    participant1_score: Optional[int] = None
+    participant1_sets: Optional[List[int]] = None  # Para deportes con sets
+    
+    participant2_id: Optional[str] = None
+    participant2_name: Optional[str] = None
+    participant2_score: Optional[int] = None
+    participant2_sets: Optional[List[int]] = None
+    
+    winner_id: Optional[str] = None
+    winner_name: Optional[str] = None
+    
+    status: MatchStatus = MatchStatus.SCHEDULED
+    
+    scheduled_date: Optional[str] = None
+    scheduled_time: Optional[str] = None
+    actual_start_time: Optional[str] = None
+    actual_end_time: Optional[str] = None
+    
+    venue: Optional[str] = None
+    court: Optional[str] = None
+    
+    bracket_position: Optional[int] = None
+    winner_goes_to: Optional[str] = None
+    loser_goes_to: Optional[str] = None
+    
+    notes: Optional[str] = None
+    created_at: str
+
+class MatchScoreUpdate(BaseModel):
+    """Actualizar resultado de un partido"""
+    participant1_score: Optional[int] = None
+    participant2_score: Optional[int] = None
+    participant1_sets: Optional[List[int]] = None
+    participant2_sets: Optional[List[int]] = None
+    winner_id: Optional[str] = None
+    status: Optional[MatchStatus] = None
+    notes: Optional[str] = None
+
+class ParticipantRegistration(BaseModel):
+    """Inscribir participante en categoría"""
+    participant_type: str  # "team" or "athlete"
+    participant_id: str
+    participant_name: str
+    seed: Optional[int] = None  # Cabeza de serie
+
 # =============== HELPERS ===============
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
