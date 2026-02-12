@@ -2469,18 +2469,18 @@ const DashboardPage = () => {
     <div className="min-h-screen bg-gray-50">
       {/* ====== GLOBAL CONTEXT BAR (Fixed at top) ====== */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 shadow-md" data-testid="global-context-bar">
-        <div className="flex items-center justify-between px-4 py-2.5 gap-4">
+        <div className="flex items-center justify-between px-4 py-2 gap-2">
           {/* Left: Filters */}
-          <div className="flex items-center gap-3 flex-1">
-            <div className="flex items-center gap-1.5 text-slate-500">
+          <div className="flex items-center gap-2 flex-1 overflow-x-auto">
+            <div className="flex items-center gap-1 text-slate-500 shrink-0">
               <Filter className="w-4 h-4" />
-              <span className="text-xs font-medium hidden sm:inline">Filtros:</span>
+              <span className="text-xs font-medium hidden lg:inline">Filtros:</span>
             </div>
             
             {/* Entity Selector */}
             <Select value={globalContext.entityId} onValueChange={handleEntityChange}>
-              <SelectTrigger className="w-[160px] h-8 text-xs" data-testid="context-entity-select">
-                <Building2 className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
+              <SelectTrigger className="w-[140px] h-8 text-xs shrink-0" data-testid="context-entity-select">
+                <Building2 className="w-3.5 h-3.5 mr-1 text-slate-400 shrink-0" />
                 <SelectValue placeholder="Entidad" />
               </SelectTrigger>
               <SelectContent>
@@ -2497,48 +2497,48 @@ const DashboardPage = () => {
               </SelectContent>
             </Select>
 
-            <ChevronRight className="w-4 h-4 text-slate-300" />
+            <ChevronRight className="w-3 h-3 text-slate-300 shrink-0" />
 
             {/* Team Selector */}
             <Select value={globalContext.teamId} onValueChange={handleTeamChange}>
-              <SelectTrigger className="w-[150px] h-8 text-xs" data-testid="context-team-select">
-                <Users className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
+              <SelectTrigger className="w-[130px] h-8 text-xs shrink-0" data-testid="context-team-select">
+                <Users className="w-3.5 h-3.5 mr-1 text-slate-400 shrink-0" />
                 <SelectValue placeholder="Equipo" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos los equipos</SelectItem>
+                <SelectItem value="all">Todos</SelectItem>
                 {filteredTeams.map(t => (
                   <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            <ChevronRight className="w-4 h-4 text-slate-300" />
+            <ChevronRight className="w-3 h-3 text-slate-300 shrink-0" />
 
             {/* Athlete Selector */}
             <Select value={globalContext.athleteId} onValueChange={handleAthleteChange}>
-              <SelectTrigger className="w-[150px] h-8 text-xs" data-testid="context-athlete-select">
-                <User className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
+              <SelectTrigger className="w-[130px] h-8 text-xs shrink-0" data-testid="context-athlete-select">
+                <User className="w-3.5 h-3.5 mr-1 text-slate-400 shrink-0" />
                 <SelectValue placeholder="Atleta" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos los atletas</SelectItem>
+                <SelectItem value="all">Todos</SelectItem>
                 {filteredAthletes.map(a => (
                   <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            <ChevronRight className="w-4 h-4 text-slate-300" />
+            <ChevronRight className="w-3 h-3 text-slate-300 shrink-0" />
 
             {/* Sport Selector */}
             <Select value={globalContext.sportId} onValueChange={handleSportChange}>
-              <SelectTrigger className="w-[150px] h-8 text-xs" data-testid="context-sport-select">
-                <Trophy className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
+              <SelectTrigger className="w-[130px] h-8 text-xs shrink-0" data-testid="context-sport-select">
+                <Trophy className="w-3.5 h-3.5 mr-1 text-slate-400 shrink-0" />
                 <SelectValue placeholder="Deporte" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos los deportes</SelectItem>
+                <SelectItem value="all">Todos</SelectItem>
                 {allSports.map(s => (
                   <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                 ))}
@@ -2547,16 +2547,17 @@ const DashboardPage = () => {
           </div>
 
           {/* Right: Quick Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <Button
-              variant="outline"
+              variant="default"
               size="sm"
               onClick={() => navigate('/plans-history')}
-              className="h-8 text-xs bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-200 text-indigo-700 hover:from-indigo-100 hover:to-purple-100"
+              className="h-8 text-xs bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-sm"
               data-testid="context-history-btn"
             >
               <History className="w-3.5 h-3.5 mr-1.5" />
-              Historial de Planes
+              <span className="hidden sm:inline">Historial de Planes</span>
+              <span className="sm:hidden">Historial</span>
             </Button>
           </div>
         </div>
