@@ -48,6 +48,7 @@ import SmartAlerts from '../components/SmartAlerts';
 import PDFExportModal from '../components/PDFExportModal';
 import ObjectivesIndicators from '../components/ObjectivesIndicators';
 import TrainingSystemHub from '../components/TrainingSystemHub';
+import TournamentManager from '../components/TournamentManager';
 
 // Definición de roles disponibles
 const USER_ROLES = [
