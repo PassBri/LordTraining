@@ -4072,6 +4072,7 @@ async def get_shared_session(share_id: str):
         return {
             "athlete_name": shared.get("athlete_name", "Atleta"),
             "session_data": shared.get("session_data", {}),
+            "session_image": shared.get("session_image"),  # Imagen en base64
             "created_at": shared.get("created_at"),
             "views": shared.get("views", 0) + 1
         }
