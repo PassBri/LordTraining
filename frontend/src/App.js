@@ -67,34 +67,9 @@ function AppRoutes() {
           <DashboardPage />
         </ProtectedRoute>
       } />
-      <Route path="/plans" element={
-        <ProtectedRoute>
-          <PlansPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/calendar" element={
-        <ProtectedRoute>
-          <CalendarPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/exercises" element={
-        <ProtectedRoute>
-          <ExercisesPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/ai-generator" element={
-        <ProtectedRoute>
-          <AIGeneratorPage />
-        </ProtectedRoute>
-      } />
       <Route path="/subscription" element={
         <ProtectedRoute>
           <SubscriptionPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/plans-history" element={
-        <ProtectedRoute>
-          <PlansHistoryPage />
         </ProtectedRoute>
       } />
       
