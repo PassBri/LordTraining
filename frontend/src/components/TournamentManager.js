@@ -604,10 +604,13 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
             </div>
           )}
 
-          {/* Step 2: Formato */}
+          {/* Step 2: Formato - Material Design */}
           {step === 2 && (
-            <div className="space-y-4 animate-in fade-in">
-              <Label className="text-sm font-medium">Formato del Torneo *</Label>
+            <div className="space-y-5 animate-in fade-in">
+              <div>
+                <Label className="text-sm font-semibold text-slate-700">Formato del Torneo *</Label>
+                <p className="text-xs text-slate-500 mt-1 mb-3">Elige cómo se desarrollará la competencia</p>
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 {TOURNAMENT_FORMATS.map((format) => {
                   const FormatIcon = format.icon;
@@ -617,34 +620,40 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
                       onClick={() => setFormData({ ...formData, format: format.id })}
                       className={`p-4 rounded-xl border-2 text-left transition-all ${
                         formData.format === format.id
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-slate-200 hover:border-slate-300'
+                          ? 'border-blue-500 bg-blue-50 shadow-md'
+                          : 'border-slate-200 hover:border-blue-200 hover:shadow-sm bg-white'
                       }`}
                     >
-                      <div className="flex items-center gap-2 mb-1">
-                        <FormatIcon className={`w-5 h-5 ${formData.format === format.id ? 'text-blue-500' : 'text-slate-400'}`} />
-                        <span className="font-medium text-sm">{format.name}</span>
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                          formData.format === format.id ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-500'
+                        }`}>
+                          <FormatIcon className="w-5 h-5" />
+                        </div>
+                        <span className="font-semibold text-slate-800">{format.name}</span>
                       </div>
-                      <p className="text-xs text-slate-500">{format.description}</p>
+                      <p className="text-xs text-slate-500 leading-relaxed">{format.description}</p>
                     </button>
                   );
                 })}
               </div>
 
               {selectedFormat && (
-                <div className="p-4 bg-amber-50 rounded-xl border border-amber-200">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Zap className="w-4 h-4 text-amber-600" />
-                    <span className="font-medium text-amber-800 text-sm">Participantes recomendados</span>
+                <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center">
+                      <Zap className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="font-semibold text-amber-800">Participantes recomendados</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {selectedFormat.recommended.map((num) => (
                       <button
                         key={num}
                         onClick={() => setFormData({ ...formData, max_participants: num })}
-                        className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${
+                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                           formData.max_participants === num
-                            ? 'bg-amber-500 text-white'
+                            ? 'bg-amber-500 text-white shadow-md'
                             : 'bg-white border border-amber-300 text-amber-700 hover:bg-amber-100'
                         }`}
                       >
