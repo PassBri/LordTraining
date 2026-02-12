@@ -929,3 +929,46 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 - `/app/frontend/src/components/SessionEditor.js` - Nueva sección de monitoreo avanzado
 
 
+### Feb 12, 2026 - Diseño Material Design y Corrección de Dropdown
+
+**Solicitud del usuario:** Mejorar el diseño de la sección de pulsaciones con Material Design, agregar opciones de recuperación (1, 3, 5, 10 min), selector de tipo de gráfica (barras/líneas/mixta), y corregir el bug del dropdown de ejercicios que se escondía detrás de otras secciones.
+
+**Cambios implementados:**
+
+#### Nueva Sección de Monitoreo - Material Design
+1. **Header mejorado:**
+   - Gradiente rosa/púrpura profesional
+   - Botón "Conectar" para dispositivos
+   - Subtítulo "Datos de frecuencia cardíaca y biométricos"
+
+2. **Selector de tipo de gráfica:**
+   - Barras | Líneas | Mixta
+   - Tabs estilo Material Design con transiciones suaves
+   - Gráfica SVG para líneas con gradiente
+
+3. **Frecuencia Cardíaca por Fases:**
+   - **Antes** del entrenamiento
+   - **Durante** el entrenamiento
+   - **Después** del entrenamiento
+   - **Recuperación 1 minuto**
+   - **Recuperación 3 minutos**
+   - **Recuperación 5 minutos**
+   - **Recuperación 10 minutos** (opcional, activable con checkbox)
+
+4. **Cards Material Design:**
+   - FC Reposo (azul)
+   - FC Media (ámbar)
+   - FC Máxima (rojo)
+   - Iconos grandes, gradientes, sombras
+
+#### Bug Corregido - Dropdown de Ejercicios
+- **Problema:** El dropdown de búsqueda de ejercicios se escondía detrás de las secciones FASE PRINCIPAL y FASE FINAL
+- **Solución:** 
+  - Cambió `overflow-hidden` a `overflow-visible` en la Card de estructura
+  - Agregó z-index dinámico a las filas de la tabla
+  - El dropdown ahora aparece correctamente encima de todo el contenido
+
+**Archivos modificados:**
+- `/app/frontend/src/components/SessionEditor.js`
+
+
