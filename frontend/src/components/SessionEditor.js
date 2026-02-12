@@ -676,9 +676,19 @@ const SessionEditor = ({
 
   if (!isOpen) return null;
 
+  // Manejar cierre del dialog - solo permitir cierre explícito
+  const handleDialogOpenChange = (open) => {
+    // Solo cerramos si el usuario hace clic fuera o presiona Escape
+    // NO cerramos automáticamente al guardar
+    if (!open) {
+      // Llamamos onClose solo cuando el dialog se cierra por interacción del usuario
+      onClose();
+    }
+  };
+
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={onClose}>
+      <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden p-0 bg-white" data-testid="session-editor-dialog">
           {/* Header con gradiente */}
           <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white px-6 py-5 shadow-lg">
