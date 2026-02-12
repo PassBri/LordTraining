@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
 import { 
   Target, Zap, Heart, Calendar, Activity, Clock, 
-  User, Eye, AlertCircle, Dumbbell, Check
+  User, Eye, AlertCircle, Dumbbell, Check, Download, Image
 } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -36,6 +37,7 @@ const SessionViewPage = () => {
   const [sessionData, setSessionData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [viewMode, setViewMode] = useState('image'); // 'image' or 'details'
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -53,6 +55,10 @@ const SessionViewPage = () => {
         
         const data = await response.json();
         setSessionData(data);
+        // Si no hay imagen, mostrar detalles por defecto
+        if (!data.session_image) {
+          setViewMode('details');
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -64,6 +70,18 @@ const SessionViewPage = () => {
       fetchSession();
     }
   }, [shareId]);
+
+  // Descargar imagen
+  const handleDownloadImage = () => {
+    if (sessionData?.session_image) {
+      const link = document.createElement('a');
+      link.href = sessionData.session_image;
+      link.download = `sesion_${sessionData?.athlete_name || 'entrenamiento'}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
 
   if (loading) {
     return (
