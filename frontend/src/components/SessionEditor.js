@@ -99,8 +99,27 @@ const SESION_INICIAL = {
     }
   },
   monitoreo: {
+    // Frecuencia Cardíaca
     fcReposo: '',
-    fcMaxima: ''
+    fcMaxima: '',
+    fcMedia: '',
+    // Fases de FC
+    fcAntesEntrenamiento: '',
+    fcDuranteEntrenamiento: '',
+    fcDespuesEntrenamiento: '',
+    fcRecuperacion5min: '',
+    // Zonas de trabajo (%)
+    zonaAerobica: '',
+    zonaAnaerobica: '',
+    zonaRecuperacion: '',
+    // Estado físico
+    nivelFatiga: 50, // 0-100
+    nivelHidratacion: 80, // 0-100
+    calidadSueno: 75, // 0-100
+    nivelEnergia: 70, // 0-100
+    // Conexión dispositivo
+    dispositivoConectado: false,
+    nombreDispositivo: ''
   },
   retroalimentacion: ''
 };
