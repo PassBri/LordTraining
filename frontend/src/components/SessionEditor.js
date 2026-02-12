@@ -269,18 +269,65 @@ const SessionEditor = ({
     return results.slice(0, 15); // Limitar a 15 resultados
   };
 
-  // Guardar sesión
-  const handleSave = () => {
-    const updatedSession = {
-      ...session,
-      detailedData: sessionData
-    };
-    onSave(updatedSession);
-    toast.success('Sesión guardada correctamente');
+  // Guardar sesión (sin cerrar el modal)
+  const handleSave = async () => {
+    try {
+      const updatedSession = {
+        ...session,
+        detailedData: sessionData
+      };
+      await onSave(updatedSession);
+      toast.success('Sesión guardada correctamente');
+    } catch (error) {
+      toast.error('Error al guardar la sesión');
+    }
+  };
+
+  // Salir del editor
+  const handleExit = () => {
     onClose();
   };
 
-  // Exportar sesión como PDF
+  // Exportar sesión como imagen y generar enlace para compartir
+  const handleExportImage = async () => {
+    setExporting(true);
+    try {
+      const token = localStorage.getItem('train_token');
+      
+      // Capturar el contenido del editor como imagen usando html2canvas
+      if (sessionContentRef.current) {
+        const { default: html2canvas } = await import('html2canvas');
+        
+        const canvas = await html2canvas(sessionContentRef.current, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          logging: false
+        });
+        
+        // Convertir canvas a blob
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.9));
+        
+        // Descargar la imagen
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `sesion_${session?.date || 'entrenamiento'}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        toast.success('Imagen descargada exitosamente');
+      }
+    } catch (error) {
+      console.error('Error exporting image:', error);
+      toast.error('Error al exportar imagen');
+    }
+    setExporting(false);
+  };
+
+  // Exportar sesión como PDF (genera imagen y la pone en PDF)
   const handleExportPDF = async () => {
     setExporting(true);
     try {
