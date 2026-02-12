@@ -364,12 +364,13 @@ const MatchList = ({ matches, onUpdateMatch, groupByDate = true }) => {
   );
 };
 
-// Wizard de Creación de Torneo
-const TournamentWizard = ({ isOpen, onClose, onSave }) => {
+// Wizard de Creación de Torneo - Material Design con fondo blanco
+const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: '',
     sport: '',
+    sportName: '',
     format: '',
     description: '',
     start_date: '',
@@ -385,6 +386,7 @@ const TournamentWizard = ({ isOpen, onClose, onSave }) => {
     prizes: ''
   });
   const [newCategory, setNewCategory] = useState({ name: '', gender: 'mixed', maxParticipants: '' });
+  const [expandedCatalog, setExpandedCatalog] = useState(null);
 
   const totalSteps = 4;
 
@@ -411,84 +413,192 @@ const TournamentWizard = ({ isOpen, onClose, onSave }) => {
     }
     onSave(formData);
     onClose();
+    setStep(1);
+    setFormData({
+      name: '', sport: '', sportName: '', format: '', description: '',
+      start_date: '', end_date: '', venue: '', city: '', country: 'España',
+      is_public: true, registration_open: true, max_participants: 16,
+      categories: [], rules: '', prizes: ''
+    });
   };
 
   const selectedFormat = TOURNAMENT_FORMATS.find(f => f.id === formData.format);
 
+  // Seleccionar un deporte del catálogo
+  const handleSelectSport = (sport, category) => {
+    setFormData({ 
+      ...formData, 
+      sport: sport.id || sport.name,
+      sportName: sport.name,
+      sportCategory: category.name,
+      sportColor: category.color
+    });
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <Trophy className="w-6 h-6 text-amber-500" />
-            Crear Nuevo Torneo
-          </DialogTitle>
-          {/* Progress bar */}
-          <div className="flex items-center gap-2 pt-4">
-            {[1, 2, 3, 4].map((s) => (
-              <div key={s} className="flex items-center flex-1">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
-                  s < step ? 'bg-green-500 text-white' :
-                  s === step ? 'bg-blue-500 text-white' :
-                  'bg-slate-200 text-slate-500'
-                }`}>
-                  {s < step ? <CheckCircle className="w-5 h-5" /> : s}
-                </div>
-                {s < 4 && (
-                  <div className={`flex-1 h-1 mx-2 rounded ${s < step ? 'bg-green-500' : 'bg-slate-200'}`} />
-                )}
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden p-0 bg-white rounded-2xl shadow-2xl">
+        {/* Material Design Header */}
+        <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-6 py-5 text-white">
+          <DialogHeader className="p-0">
+            <DialogTitle className="flex items-center gap-3 text-xl font-bold text-white">
+              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                <Trophy className="w-6 h-6" />
               </div>
-            ))}
-          </div>
-          <div className="flex justify-between text-xs text-slate-500 mt-1">
-            <span>Info básica</span>
-            <span>Formato</span>
-            <span>Categorías</span>
-            <span>Detalles</span>
-          </div>
-        </DialogHeader>
+              Crear Nuevo Torneo
+            </DialogTitle>
+            <p className="text-white/80 text-sm mt-1">Configura tu campeonato paso a paso</p>
+          </DialogHeader>
+        </div>
 
-        <div className="py-6">
-          {/* Step 1: Info básica */}
+        {/* Progress Steps - Material Design */}
+        <div className="px-6 py-4 bg-slate-50 border-b">
+          <div className="flex items-center justify-between">
+            {[
+              { num: 1, label: 'Información', icon: FileText },
+              { num: 2, label: 'Formato', icon: Brackets },
+              { num: 3, label: 'Categorías', icon: Trophy },
+              { num: 4, label: 'Detalles', icon: Settings }
+            ].map((s, idx) => {
+              const StepIcon = s.icon;
+              return (
+                <div key={s.num} className="flex items-center">
+                  <div className={`flex flex-col items-center ${idx > 0 ? 'ml-4' : ''}`}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-sm ${
+                      s.num < step ? 'bg-green-500 text-white' :
+                      s.num === step ? 'bg-blue-600 text-white ring-4 ring-blue-100' :
+                      'bg-white text-slate-400 border-2 border-slate-200'
+                    }`}>
+                      {s.num < step ? <CheckCircle className="w-5 h-5" /> : <StepIcon className="w-5 h-5" />}
+                    </div>
+                    <span className={`text-xs mt-1.5 font-medium ${
+                      s.num === step ? 'text-blue-600' : 'text-slate-500'
+                    }`}>{s.label}</span>
+                  </div>
+                  {idx < 3 && (
+                    <div className={`w-16 h-1 mx-2 rounded-full mt-[-18px] ${
+                      s.num < step ? 'bg-green-500' : 'bg-slate-200'
+                    }`} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Content Area */}
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-240px)] bg-white">
+          {/* Step 1: Info básica con selector de deportes del catálogo */}
           {step === 1 && (
-            <div className="space-y-4 animate-in fade-in">
+            <div className="space-y-5 animate-in fade-in">
               <div>
-                <Label className="text-sm font-medium">Nombre del Torneo *</Label>
+                <Label className="text-sm font-semibold text-slate-700">Nombre del Torneo *</Label>
                 <Input
                   placeholder="Ej: Copa Primavera 2026"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="mt-1"
+                  className="mt-2 h-12 text-base border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
               
               <div>
-                <Label className="text-sm font-medium">Deporte *</Label>
-                <div className="grid grid-cols-4 gap-2 mt-2">
-                  {SPORTS.map((sport) => (
-                    <button
-                      key={sport.id}
-                      onClick={() => setFormData({ ...formData, sport: sport.id })}
-                      className={`p-3 rounded-xl border-2 transition-all text-center ${
-                        formData.sport === sport.id
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-slate-200 hover:border-slate-300'
-                      }`}
-                    >
-                      <span className="text-2xl">{sport.icon}</span>
-                      <p className="text-xs mt-1 font-medium">{sport.name}</p>
-                    </button>
-                  ))}
-                </div>
+                <Label className="text-sm font-semibold text-slate-700">Deporte *</Label>
+                <p className="text-xs text-slate-500 mt-1 mb-3">Selecciona del catálogo de deportes configurado</p>
+                
+                {sportsCatalog.length > 0 ? (
+                  <div className="space-y-2 max-h-[280px] overflow-y-auto border rounded-xl p-2 bg-slate-50">
+                    {sportsCatalog.map((category) => (
+                      <div key={category.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                        {/* Category header */}
+                        <button
+                          onClick={() => setExpandedCatalog(expandedCatalog === category.id ? null : category.id)}
+                          className="w-full px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div 
+                              className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-lg shadow-sm"
+                              style={{ background: `linear-gradient(135deg, ${category.color}, ${category.color}dd)` }}
+                            >
+                              {category.icon}
+                            </div>
+                            <div className="text-left">
+                              <span className="font-semibold text-slate-800">{category.name}</span>
+                              <span className="text-xs text-slate-500 ml-2">({category.sports?.length || 0} deportes)</span>
+                            </div>
+                          </div>
+                          <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${
+                            expandedCatalog === category.id ? 'rotate-180' : ''
+                          }`} />
+                        </button>
+                        
+                        {/* Sports list */}
+                        {expandedCatalog === category.id && category.sports?.length > 0 && (
+                          <div className="px-4 pb-3 pt-1 border-t bg-slate-50/50">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                              {category.sports.map((sport) => (
+                                <button
+                                  key={sport.id}
+                                  onClick={() => handleSelectSport(sport, category)}
+                                  className={`p-3 rounded-lg text-left transition-all ${
+                                    formData.sport === (sport.id || sport.name)
+                                      ? 'bg-blue-500 text-white shadow-md'
+                                      : 'bg-white border border-slate-200 hover:border-blue-300 hover:shadow-sm'
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <div 
+                                      className={`w-2.5 h-2.5 rounded-full ${
+                                        formData.sport === (sport.id || sport.name) ? 'bg-white' : ''
+                                      }`}
+                                      style={{ backgroundColor: formData.sport === (sport.id || sport.name) ? 'white' : category.color }}
+                                    />
+                                    <span className="text-sm font-medium truncate">{sport.name}</span>
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-4 gap-2">
+                    {SPORTS.map((sport) => (
+                      <button
+                        key={sport.id}
+                        onClick={() => setFormData({ ...formData, sport: sport.id, sportName: sport.name })}
+                        className={`p-3 rounded-xl border-2 transition-all text-center ${
+                          formData.sport === sport.id
+                            ? 'border-blue-500 bg-blue-50 shadow-md'
+                            : 'border-slate-200 hover:border-slate-300 bg-white'
+                        }`}
+                      >
+                        <span className="text-2xl">{sport.icon}</span>
+                        <p className="text-xs mt-1 font-medium text-slate-700">{sport.name}</p>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {formData.sport && (
+                  <div className="mt-3 p-3 bg-blue-50 rounded-xl border border-blue-100 flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm text-blue-700">
+                      Deporte seleccionado: <strong>{formData.sportName || formData.sport}</strong>
+                      {formData.sportCategory && <span className="text-blue-500"> ({formData.sportCategory})</span>}
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div>
-                <Label className="text-sm font-medium">Descripción</Label>
+                <Label className="text-sm font-semibold text-slate-700">Descripción</Label>
                 <textarea
                   placeholder="Describe tu torneo..."
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full mt-1 p-3 border rounded-lg text-sm resize-none h-20"
+                  className="w-full mt-2 p-3 border border-slate-200 rounded-xl text-sm resize-none h-20 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
             </div>
