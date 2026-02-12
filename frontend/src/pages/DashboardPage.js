@@ -356,8 +356,8 @@ const DashboardPage = () => {
   // Navigation items for "Datos" panel - NUEVO FLUJO LÓGICO DEL ENTRENADOR
   const navItems = [
     // === 1. INFORMACIÓN (Fusión de Atletas + Organización) ===
+    { id: 'entities', label: 'Entidades (Federación, Club...)', icon: Landmark, section: 'informacion' },
     { id: 'athletes', label: 'Atletas y Equipos', icon: Users, section: 'informacion' },
-    { id: 'entities', label: 'Entidades (Federación, Club, Escuela)', icon: Landmark, section: 'informacion' },
     { id: 'sport-char', label: 'Caracterización del Deporte', icon: Target, section: 'informacion' },
     { id: 'athlete-char', label: 'Caracterización del Deportista', icon: Users, section: 'informacion' },
     
