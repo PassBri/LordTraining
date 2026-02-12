@@ -807,57 +807,92 @@ const ControlPanel = ({
             </CardContent>
           </Card>
         </div>
-            <div className="flex items-center justify-between">
-              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors">
-                <Users className="w-4 h-4 text-blue-600 group-hover:text-white" />
-              </div>
-              <ArrowUpRight className="w-3 h-3 text-slate-300 group-hover:text-blue-500" />
-            </div>
-            <p className="text-2xl font-bold text-slate-800 mt-2">{totalAthletes}</p>
-            <p className="text-xs text-slate-500">Total Atletas</p>
-          </div>
-          
-          <div className="bg-white rounded-xl p-3 border border-slate-100 hover:border-emerald-200 hover:shadow-md transition-all cursor-pointer group">
-            <div className="flex items-center justify-between">
-              <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center group-hover:bg-emerald-500 transition-colors">
-                <Calendar className="w-4 h-4 text-emerald-600 group-hover:text-white" />
-              </div>
-              <span className="text-[10px] px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded">Este mes</span>
-            </div>
-            <p className="text-2xl font-bold text-slate-800 mt-2">{upcomingEventsCount}</p>
-            <p className="text-xs text-slate-500">Eventos Próximos</p>
-          </div>
-          
-          <div className="bg-white rounded-xl p-3 border border-slate-100 hover:border-amber-200 hover:shadow-md transition-all cursor-pointer group">
-            <div className="flex items-center justify-between">
-              <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center group-hover:bg-amber-500 transition-colors">
-                <Target className="w-4 h-4 text-amber-600 group-hover:text-white" />
-              </div>
-              <span className="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded">{Math.round((completedSessions/totalSessions)*100)}%</span>
-            </div>
-            <p className="text-2xl font-bold text-slate-800 mt-2">{completedSessions}</p>
-            <p className="text-xs text-slate-500">Sesiones</p>
-          </div>
-          
-          <div className="bg-white rounded-xl p-3 border border-slate-100 hover:border-violet-200 hover:shadow-md transition-all cursor-pointer group">
-            <div className="flex items-center justify-between">
-              <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center group-hover:bg-violet-500 transition-colors">
-                <Activity className="w-4 h-4 text-violet-600 group-hover:text-white" />
-              </div>
-              <span className="text-[10px] px-1.5 py-0.5 bg-violet-100 text-violet-700 rounded">Activos</span>
-            </div>
-            <p className="text-2xl font-bold text-slate-800 mt-2">{activeMacrocycles}</p>
-            <p className="text-xs text-slate-500">Macrociclos</p>
-          </div>
-          
-          <div className="bg-white rounded-xl p-3 border border-slate-100 hover:border-pink-200 hover:shadow-md transition-all cursor-pointer group">
-            <div className="flex items-center justify-between">
-              <div className="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center group-hover:bg-pink-500 transition-colors">
-                <Dumbbell className="w-4 h-4 text-pink-600 group-hover:text-white" />
-              </div>
-              <span className="text-[10px] px-1.5 py-0.5 bg-pink-100 text-pink-700 rounded">Biblioteca</span>
-            </div>
-            <p className="text-2xl font-bold text-slate-800 mt-2">150+</p>
+
+        {/* Charts Row 2 */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          {/* Distribución de Fases - Pie Chart */}
+          <Card className="shadow-lg border-0 bg-white">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Target className="w-5 h-5 text-purple-500" />
+                Distribución de Fases
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+                  <Pie
+                    data={phaseDistribution}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={55}
+                    outerRadius={85}
+                    paddingAngle={3}
+                    dataKey="value"
+                    label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                    labelLine={false}
+                  >
+                    {phaseDistribution.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend wrapperStyle={{ fontSize: '11px' }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Carga Acumulada - Area Chart */}
+          <Card className="shadow-lg border-0 bg-white lg:col-span-2">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Flame className="w-5 h-5 text-orange-500" />
+                Carga de Entrenamiento Acumulada
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={220}>
+                <AreaChart data={loadData}>
+                  <defs>
+                    <linearGradient id="colorCarga" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={COLORS.primary} stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor={COLORS.primary} stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorFatiga" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={COLORS.danger} stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor={COLORS.danger} stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+                  <XAxis dataKey="semana" tick={{ fontSize: 11 }} stroke="#9CA3AF" />
+                  <YAxis tick={{ fontSize: 11 }} stroke="#9CA3AF" />
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }} />
+                  <Legend wrapperStyle={{ fontSize: '11px' }} />
+                  <Area 
+                    type="monotone" 
+                    dataKey="carga" 
+                    name="Carga Acumulada"
+                    stroke={COLORS.primary} 
+                    fillOpacity={1} 
+                    fill="url(#colorCarga)" 
+                    strokeWidth={2}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="fatiga" 
+                    name="Índice de Fatiga"
+                    stroke={COLORS.danger} 
+                    fillOpacity={1} 
+                    fill="url(#colorFatiga)" 
+                    strokeWidth={2}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
             <p className="text-xs text-slate-500">Ejercicios</p>
           </div>
         </div>
