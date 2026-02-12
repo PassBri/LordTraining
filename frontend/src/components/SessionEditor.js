@@ -310,6 +310,11 @@ const SessionEditor = ({
     try {
       const token = localStorage.getItem('train_token');
       
+      if (!athleteId) {
+        toast.error('Selecciona un atleta primero');
+        return;
+      }
+      
       // Guardar primero la sesión si tiene cambios
       const sessionToShare = {
         athlete_id: athleteId,
@@ -334,17 +339,14 @@ const SessionEditor = ({
         const fullLink = `${window.location.origin}/session/view/${data.share_id}`;
         setShareLink(fullLink);
         setShowShareDialog(true);
+        toast.success('Enlace generado exitosamente');
       } else {
-        throw new Error('Error al generar enlace');
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Error al generar enlace');
       }
     } catch (error) {
       console.error('Error generating share link:', error);
-      // Generar enlace local como fallback
-      const shareId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      const fallbackLink = `${window.location.origin}/session/view/${shareId}`;
-      setShareLink(fallbackLink);
-      setShowShareDialog(true);
-      toast.info('Enlace generado (modo offline)');
+      toast.error(error.message || 'Error al generar enlace para compartir');
     }
   };
 
