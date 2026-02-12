@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { GlobalContextProvider } from './context/GlobalContext';
 import { Toaster } from './components/ui/sonner';
 
 // Pages
@@ -9,6 +10,7 @@ import AuthPage from './pages/AuthPage';
 import DashboardPage from './pages/DashboardPage';
 import AthletesPage from './pages/AthletesPage';
 import PlansPage from './pages/PlansPage';
+import PlansHistoryPage from './pages/PlansHistoryPage';
 import CalendarPage from './pages/CalendarPage';
 import ExercisesPage from './pages/ExercisesPage';
 import AIGeneratorPage from './pages/AIGeneratorPage';
