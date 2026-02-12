@@ -101,6 +101,9 @@ function AppRoutes() {
         </ProtectedRoute>
       } />
       
+      {/* Public session view (no auth required) */}
+      <Route path="/session/view/:shareId" element={<SessionViewPage />} />
+      
       {/* Catch all */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
