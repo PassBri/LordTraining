@@ -5,13 +5,12 @@ import { Button } from '../components/ui/button';
 import TopContextBar from './TopContextBar';
 import { 
   LayoutDashboard, Users, Calendar, Dumbbell, BarChart3, Settings, 
-  LogOut, Menu, X, ChevronRight, Sparkles, FileText, CreditCard, Trophy, History
+  LogOut, Menu, X, ChevronRight, Sparkles, FileText, CreditCard, History
 } from 'lucide-react';
 
 const NAV_ITEMS = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/athletes', label: 'Atletas', icon: Users },
-  { path: '/tournaments', label: 'Torneos', icon: Trophy },
+  { path: '/athletes', label: 'Atletas y Datos', icon: Users },
   { path: '/plans', label: 'Planes', icon: FileText },
   { path: '/plans-history', label: 'Historial', icon: History },
   { path: '/calendar', label: 'Calendario', icon: Calendar },
