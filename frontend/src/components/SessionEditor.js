@@ -402,56 +402,28 @@ const SessionEditor = ({
       
       toast.info('Generando enlace...');
       
-      // Capturar la imagen de la sesión
+      // Capturar la imagen de la sesión (mismo método que GraphicPlan)
       let imageBase64 = null;
-      if (sessionContentRef.current) {
-        try {
-          const { default: html2canvas } = await import('html2canvas');
-          const element = sessionContentRef.current;
-          
-          // Crear un contenedor temporal fuera de pantalla
-          const tempContainer = document.createElement('div');
-          tempContainer.style.cssText = `
-            position: fixed;
-            left: -9999px;
-            top: 0;
-            width: ${element.scrollWidth}px;
-            background: white;
-            z-index: -1;
-          `;
-          document.body.appendChild(tempContainer);
-          
-          // Clonar el contenido
-          const clone = element.cloneNode(true);
-          clone.style.cssText = `
-            overflow: visible !important;
-            max-height: none !important;
-            height: auto !important;
-            width: ${element.scrollWidth}px;
-          `;
-          tempContainer.appendChild(clone);
-          
-          // Pequeña espera para que el DOM se estabilice
-          await new Promise(resolve => setTimeout(resolve, 100));
-          
-          // Capturar el clon
-          const canvas = await html2canvas(clone, {
-            scale: 1.5,
-            useCORS: true,
+      try {
+        const html2canvas = (await import('html2canvas')).default;
+        const contentElement = document.querySelector('[data-testid="session-editor-content"]');
+        
+        if (contentElement) {
+          const canvas = await html2canvas(contentElement, {
             backgroundColor: '#ffffff',
+            scale: 2,
+            useCORS: true,
             logging: false,
-            allowTaint: true
+            scrollY: -window.scrollY,
+            windowWidth: contentElement.scrollWidth,
+            windowHeight: contentElement.scrollHeight
           });
-          
-          // Limpiar el contenedor temporal
-          document.body.removeChild(tempContainer);
-          
-          imageBase64 = canvas.toDataURL('image/png', 0.8);
+          imageBase64 = canvas.toDataURL('image/png');
           console.log('Image captured successfully, size:', canvas.width, 'x', canvas.height);
-        } catch (imgError) {
-          console.error('Error capturing image:', imgError);
-          toast.warning('No se pudo capturar la imagen, se compartirá solo los datos');
         }
+      } catch (imgError) {
+        console.error('Error capturing image:', imgError);
+        toast.warning('No se pudo capturar la imagen, se compartirá solo los datos');
       }
       
       // Guardar la sesión con la imagen
