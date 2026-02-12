@@ -828,42 +828,71 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
                 </div>
               </div>
 
-              {/* Preview */}
-              <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200">
-                <h4 className="font-semibold text-blue-800 mb-2">Vista previa del torneo</h4>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <p><span className="text-slate-500">Nombre:</span> {formData.name || '-'}</p>
-                  <p><span className="text-slate-500">Deporte:</span> {SPORTS.find(s => s.id === formData.sport)?.name || '-'}</p>
-                  <p><span className="text-slate-500">Formato:</span> {TOURNAMENT_FORMATS.find(f => f.id === formData.format)?.name || '-'}</p>
-                  <p><span className="text-slate-500">Participantes:</span> {formData.max_participants}</p>
-                  <p><span className="text-slate-500">Categorías:</span> {formData.categories.length}</p>
-                  <p><span className="text-slate-500">Ubicación:</span> {formData.city || '-'}</p>
+              {/* Preview - Material Design */}
+              <div className="p-5 bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl border border-slate-200 shadow-inner">
+                <h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-blue-500" />
+                  Vista previa del torneo
+                </h4>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="bg-white p-2 rounded-lg">
+                    <span className="text-slate-500 text-xs">Nombre</span>
+                    <p className="font-medium text-slate-800">{formData.name || '-'}</p>
+                  </div>
+                  <div className="bg-white p-2 rounded-lg">
+                    <span className="text-slate-500 text-xs">Deporte</span>
+                    <p className="font-medium text-slate-800">{formData.sportName || formData.sport || '-'}</p>
+                  </div>
+                  <div className="bg-white p-2 rounded-lg">
+                    <span className="text-slate-500 text-xs">Formato</span>
+                    <p className="font-medium text-slate-800">{TOURNAMENT_FORMATS.find(f => f.id === formData.format)?.name || '-'}</p>
+                  </div>
+                  <div className="bg-white p-2 rounded-lg">
+                    <span className="text-slate-500 text-xs">Participantes</span>
+                    <p className="font-medium text-slate-800">{formData.max_participants}</p>
+                  </div>
+                  <div className="bg-white p-2 rounded-lg">
+                    <span className="text-slate-500 text-xs">Categorías</span>
+                    <p className="font-medium text-slate-800">{formData.categories.length}</p>
+                  </div>
+                  <div className="bg-white p-2 rounded-lg">
+                    <span className="text-slate-500 text-xs">Ubicación</span>
+                    <p className="font-medium text-slate-800">{formData.city || '-'}</p>
+                  </div>
                 </div>
               </div>
             </div>
           )}
         </div>
 
-        <DialogFooter className="flex justify-between">
+        {/* Footer - Material Design */}
+        <div className="px-6 py-4 bg-slate-50 border-t flex justify-between items-center">
           <Button 
             variant="outline" 
             onClick={() => step > 1 ? setStep(step - 1) : onClose()}
+            className="h-11 px-5"
           >
             <ChevronLeft className="w-4 h-4 mr-1" />
             {step === 1 ? 'Cancelar' : 'Anterior'}
           </Button>
           {step < totalSteps ? (
-            <Button onClick={() => setStep(step + 1)}>
+            <Button 
+              onClick={() => setStep(step + 1)}
+              className="h-11 px-6 bg-blue-600 hover:bg-blue-700"
+            >
               Siguiente
               <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           ) : (
-            <Button className="bg-gradient-to-r from-orange-500 to-red-500" onClick={handleSave}>
-              <Trophy className="w-4 h-4 mr-1" />
+            <Button 
+              className="h-11 px-6 bg-gradient-to-r from-orange-500 to-red-500 shadow-lg hover:shadow-xl" 
+              onClick={handleSave}
+            >
+              <Trophy className="w-4 h-4 mr-2" />
               Crear Torneo
             </Button>
           )}
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
