@@ -865,8 +865,8 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
           )}
         </div>
 
-        {/* Footer - Material Design */}
-        <div className="px-6 py-4 bg-slate-50 border-t flex justify-between items-center">
+        {/* Footer - Fixed at bottom */}
+        <div className="flex-shrink-0 px-6 py-4 bg-slate-50 border-t flex justify-between items-center">
           <Button 
             variant="outline" 
             onClick={() => step > 1 ? setStep(step - 1) : onClose()}
