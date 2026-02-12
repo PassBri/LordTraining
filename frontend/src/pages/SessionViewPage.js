@@ -115,6 +115,7 @@ const SessionViewPage = () => {
   const phases = session.fases || {};
   const monitoring = session.monitoreo || {};
   const feedback = session.retroalimentacion || '';
+  const hasImage = !!sessionData?.session_image;
 
   const phaseConfig = {
     inicial: { name: 'Fase Inicial (Calentamiento)', color: 'bg-green-500', bgLight: 'bg-green-50', textColor: 'text-green-700' },
@@ -126,34 +127,89 @@ const SessionViewPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-blue-50">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white">
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center">
-              <Dumbbell className="w-7 h-7" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold">Sesión de Entrenamiento</h1>
-              <div className="flex items-center gap-4 text-blue-100 text-sm mt-1">
-                <span className="flex items-center gap-1">
-                  <User className="w-4 h-4" />
-                  {sessionData?.athlete_name || 'Atleta'}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Calendar className="w-4 h-4" />
-                  {sessionData?.session_data?.date || 'Fecha no especificada'}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Eye className="w-4 h-4" />
-                  {sessionData?.views || 1} vistas
-                </span>
+        <div className="max-w-5xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center">
+                <Dumbbell className="w-7 h-7" />
               </div>
+              <div>
+                <h1 className="text-2xl font-bold">Sesión de Entrenamiento</h1>
+                <div className="flex items-center gap-4 text-blue-100 text-sm mt-1">
+                  <span className="flex items-center gap-1">
+                    <User className="w-4 h-4" />
+                    {sessionData?.athlete_name || 'Atleta'}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-4 h-4" />
+                    {sessionData?.session_data?.date || 'Fecha no especificada'}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Eye className="w-4 h-4" />
+                    {sessionData?.views || 1} vistas
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Botones de acción */}
+            <div className="flex items-center gap-2">
+              {hasImage && (
+                <>
+                  <div className="flex bg-white/10 rounded-xl p-1">
+                    <button
+                      onClick={() => setViewMode('image')}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        viewMode === 'image' 
+                          ? 'bg-white text-indigo-600' 
+                          : 'text-white/80 hover:text-white'
+                      }`}
+                    >
+                      <Image className="w-4 h-4 inline mr-1" />
+                      Imagen
+                    </button>
+                    <button
+                      onClick={() => setViewMode('details')}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        viewMode === 'details' 
+                          ? 'bg-white text-indigo-600' 
+                          : 'text-white/80 hover:text-white'
+                      }`}
+                    >
+                      <Target className="w-4 h-4 inline mr-1" />
+                      Detalles
+                    </button>
+                  </div>
+                  <Button
+                    onClick={handleDownloadImage}
+                    className="bg-white/20 hover:bg-white/30 text-white border-0"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Descargar
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {/* Contenido */}
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        {/* Vista de Imagen */}
+        {viewMode === 'image' && hasImage && (
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <img 
+              src={sessionData.session_image} 
+              alt="Sesión de Entrenamiento"
+              className="w-full h-auto"
+            />
+          </div>
+        )}
+
+        {/* Vista de Detalles */}
+        {viewMode === 'details' && (
+          <div className="space-y-6">
         {/* Objetivos */}
         <Card className="border-0 shadow-lg overflow-hidden">
           <CardHeader className="bg-gradient-to-r from-cyan-50 to-blue-50 border-b">
