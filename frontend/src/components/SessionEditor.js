@@ -288,56 +288,80 @@ const SessionEditor = ({
     onClose();
   };
 
-  // Exportar sesión como PDF - generación programática (sin html2canvas para evitar congelamiento)
+  // Exportar sesión como PDF - generación programática con setTimeout para no bloquear UI
   const handleExportAsPDF = async () => {
     if (exporting) return;
     setExporting(true);
     
-    try {
-      toast.info('Generando PDF...');
-      
-      const { jsPDF } = await import('jspdf');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pageWidth = 210;
-      const pageHeight = 297;
-      const margin = 15;
-      const contentWidth = pageWidth - (margin * 2);
-      let y = margin;
-      
-      // Colores
-      const colors = {
-        primary: [37, 99, 235],      // blue-600
-        secondary: [100, 116, 139],  // slate-500
-        success: [34, 197, 94],      // green-500
-        warning: [249, 115, 22],     // orange-500
-        info: [59, 130, 246],        // blue-500
-        white: [255, 255, 255],
-        dark: [30, 41, 59]           // slate-800
-      };
-      
-      // Helper: agregar nueva página si es necesario
-      const checkNewPage = (neededHeight) => {
-        if (y + neededHeight > pageHeight - margin) {
-          pdf.addPage();
-          y = margin;
-          return true;
-        }
-        return false;
-      };
-      
-      // ========== HEADER ==========
-      pdf.setFillColor(...colors.primary);
-      pdf.rect(0, 0, pageWidth, 35, 'F');
-      
-      pdf.setTextColor(...colors.white);
-      pdf.setFontSize(20);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('SESION DE ENTRENAMIENTO', margin, 18);
-      
-      pdf.setFontSize(12);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text(`Atleta: ${athleteName || 'Sin nombre'}`, margin, 28);
-      pdf.text(`Fecha: ${session?.date || new Date().toISOString().split('T')[0]}`, pageWidth - margin - 50, 28);
+    toast.info('Generando PDF...');
+    
+    // Usar setTimeout para liberar el hilo principal y evitar congelamiento
+    setTimeout(async () => {
+      try {
+        const { jsPDF } = await import('jspdf');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pageWidth = 210;
+        const pageHeight = 297;
+        const margin = 15;
+        const contentWidth = pageWidth - (margin * 2);
+        let y = margin;
+        
+        // Colores personalizados TRAIN
+        const colors = {
+          primary: [79, 70, 229],       // indigo-600 (violeta del header)
+          primaryDark: [67, 56, 202],   // indigo-700
+          secondary: [100, 116, 139],   // slate-500
+          success: [16, 185, 129],      // emerald-500
+          warning: [245, 158, 11],      // amber-500
+          info: [59, 130, 246],         // blue-500
+          white: [255, 255, 255],
+          dark: [30, 41, 59],           // slate-800
+          accent: [139, 92, 246]        // violet-500
+        };
+        
+        // Helper: agregar nueva página si es necesario
+        const checkNewPage = (neededHeight) => {
+          if (y + neededHeight > pageHeight - margin) {
+            pdf.addPage();
+            y = margin;
+            return true;
+          }
+          return false;
+        };
+        
+        // ========== HEADER CON LOGO TRAIN ==========
+        // Gradiente simulado (de violeta a indigo)
+        pdf.setFillColor(139, 92, 246); // violet-500
+        pdf.rect(0, 0, pageWidth, 40, 'F');
+        pdf.setFillColor(79, 70, 229); // indigo-600
+        pdf.rect(0, 20, pageWidth, 20, 'F');
+        
+        // Logo TRAIN
+        pdf.setTextColor(...colors.white);
+        pdf.setFontSize(24);
+        pdf.setFont('helvetica', 'bold');
+        // T con cuadrado
+        pdf.setFillColor(...colors.white);
+        pdf.roundedRect(margin, 8, 12, 12, 2, 2, 'F');
+        pdf.setTextColor(...colors.primary);
+        pdf.setFontSize(14);
+        pdf.text('T', margin + 3.5, 17);
+        
+        // TRAIN text
+        pdf.setTextColor(...colors.white);
+        pdf.setFontSize(18);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('TrAIn', margin + 16, 17);
+        
+        // Título
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text('SESION DE ENTRENAMIENTO', margin, 32);
+        
+        // Info del atleta y fecha
+        pdf.setFontSize(10);
+        pdf.text(`Atleta: ${athleteName || 'Sin nombre'}`, pageWidth - margin - 60, 14);
+        pdf.text(`Fecha: ${session?.date || new Date().toISOString().split('T')[0]}`, pageWidth - margin - 60, 22);
       
       y = 45;
       
