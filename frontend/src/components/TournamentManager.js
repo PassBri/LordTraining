@@ -486,8 +486,8 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
           </div>
         </div>
 
-        {/* Content Area */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-240px)] bg-white">
+        {/* Content Area - Scrollable */}
+        <div className="flex-1 overflow-y-auto p-6 bg-white">
           {/* Step 1: Info básica con selector de deportes del catálogo */}
           {step === 1 && (
             <div className="space-y-5 animate-in fade-in">
@@ -497,16 +497,16 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
                   placeholder="Ej: Copa Primavera 2026"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="mt-2 h-12 text-base border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                  className="mt-2 h-11 text-base border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
               
               <div>
                 <Label className="text-sm font-semibold text-slate-700">Deporte *</Label>
-                <p className="text-xs text-slate-500 mt-1 mb-3">Selecciona del catálogo de deportes configurado</p>
+                <p className="text-xs text-slate-500 mt-1 mb-2">Selecciona del catálogo de deportes configurado</p>
                 
                 {sportsCatalog.length > 0 ? (
-                  <div className="space-y-2 max-h-[280px] overflow-y-auto border rounded-xl p-2 bg-slate-50">
+                  <div className="space-y-2 max-h-[200px] overflow-y-auto border rounded-xl p-2 bg-slate-50">
                     {sportsCatalog.map((category) => (
                       <div key={category.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
                         {/* Category header */}
