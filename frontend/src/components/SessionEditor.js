@@ -288,76 +288,74 @@ const SessionEditor = ({
     onClose();
   };
 
-  // Exportar sesión como imagen y generar enlace para compartir
+  // Exportar sesión como imagen
   const handleExportImage = async () => {
+    if (exporting) return; // Prevenir múltiples clicks
     setExporting(true);
+    
     try {
-      // Capturar el contenido del editor como imagen usando html2canvas
-      if (sessionContentRef.current) {
-        const { default: html2canvas } = await import('html2canvas');
-        
-        // Guardar estilos originales
-        const element = sessionContentRef.current;
-        const originalStyles = {
-          overflow: element.style.overflow,
-          maxHeight: element.style.maxHeight,
-          height: element.style.height
-        };
-        
-        // Expandir el elemento temporalmente para capturar todo el contenido
-        element.style.overflow = 'visible';
-        element.style.maxHeight = 'none';
-        element.style.height = 'auto';
-        
-        // Esperar un frame para que el DOM se actualice
-        await new Promise(resolve => requestAnimationFrame(resolve));
-        
-        const canvas = await html2canvas(element, {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: '#ffffff',
-          logging: false,
-          allowTaint: true,
-          foreignObjectRendering: false,
-          width: element.scrollWidth,
-          height: element.scrollHeight,
-          windowWidth: element.scrollWidth,
-          windowHeight: element.scrollHeight
-        });
-        
-        // Restaurar estilos originales
-        element.style.overflow = originalStyles.overflow || '';
-        element.style.maxHeight = originalStyles.maxHeight || '';
-        element.style.height = originalStyles.height || '';
-        
-        // Convertir canvas a blob
-        const blob = await new Promise((resolve, reject) => {
-          canvas.toBlob(
-            (b) => b ? resolve(b) : reject(new Error('Failed to create blob')),
-            'image/png',
-            0.9
-          );
-        });
-        
-        // Descargar la imagen
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `sesion_${session?.date || 'entrenamiento'}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        
-        toast.success('Imagen descargada exitosamente');
-      } else {
+      if (!sessionContentRef.current) {
         toast.error('No se encontró el contenido para exportar');
+        setExporting(false);
+        return;
       }
+
+      toast.info('Generando imagen...');
+      
+      const { default: html2canvas } = await import('html2canvas');
+      const element = sessionContentRef.current;
+      
+      // Crear un contenedor temporal fuera de pantalla
+      const tempContainer = document.createElement('div');
+      tempContainer.style.cssText = `
+        position: fixed;
+        left: -9999px;
+        top: 0;
+        width: ${element.scrollWidth}px;
+        background: white;
+        z-index: -1;
+      `;
+      document.body.appendChild(tempContainer);
+      
+      // Clonar el contenido
+      const clone = element.cloneNode(true);
+      clone.style.cssText = `
+        overflow: visible !important;
+        max-height: none !important;
+        height: auto !important;
+        width: ${element.scrollWidth}px;
+      `;
+      tempContainer.appendChild(clone);
+      
+      // Pequeña espera para que el DOM se estabilice
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Capturar el clon
+      const canvas = await html2canvas(clone, {
+        scale: 1.5,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        allowTaint: true
+      });
+      
+      // Limpiar el contenedor temporal
+      document.body.removeChild(tempContainer);
+      
+      // Descargar la imagen
+      const dataUrl = canvas.toDataURL('image/png', 0.9);
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `sesion_${session?.date || 'entrenamiento'}.png`;
+      link.click();
+      
+      toast.success('Imagen descargada exitosamente');
     } catch (error) {
       console.error('Error exporting image:', error);
-      toast.error(`Error al exportar imagen: ${error.message}`);
+      toast.error('Error al exportar imagen. Intenta de nuevo.');
+    } finally {
+      setExporting(false);
     }
-    setExporting(false);
   };
 
   // Exportar sesión como PDF (genera imagen y la pone en PDF)
