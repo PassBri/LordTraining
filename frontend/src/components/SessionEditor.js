@@ -394,9 +394,9 @@ const SessionEditor = ({
                       data-testid={`exercise-input-${faseKey}-${idx}`}
                     />
                     {showExercisePicker === `${faseKey}-${idx}` && (
-                      <div className="fixed z-[100] bg-white border rounded-lg shadow-xl max-h-60 overflow-y-auto"
-                           style={{ width: '320px', transform: 'translateY(8px)' }}>
-                        <div className="p-2 border-b sticky top-0 bg-white">
+                      <div className="absolute left-0 top-full mt-1 z-[9999] bg-white border rounded-lg shadow-xl w-80 max-h-72 overflow-hidden"
+                           style={{ minWidth: '320px' }}>
+                        <div className="p-2 border-b bg-white sticky top-0">
                           <Input
                             placeholder="Buscar ejercicio..."
                             value={exerciseSearchTerm}
