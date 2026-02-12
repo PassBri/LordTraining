@@ -265,19 +265,21 @@ const SubscriptionPage = () => {
                     <ul className="space-y-3 mb-6">
                       {plan.features.map((feature, idx) => (
                         <li key={idx} className="flex items-center gap-2 text-sm text-slate-600">
-                          <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                          <div className="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <Check className="w-3 h-3 text-emerald-600" />
+                          </div>
                           {feature}
                         </li>
                       ))}
                     </ul>
 
                     <Button
-                      className={`w-full font-bold uppercase tracking-wide ${
+                      className={`w-full font-medium rounded-xl h-11 transition-all ${
                         isCurrent 
                           ? 'bg-slate-100 text-slate-400 cursor-not-allowed' 
                           : plan.popular 
-                            ? 'bg-[#007AFF] hover:bg-blue-600' 
-                            : 'bg-slate-900 hover:bg-slate-800'
+                            ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md' 
+                            : 'bg-slate-900 hover:bg-slate-800 text-white'
                       }`}
                       disabled={isCurrent || loading || plan.id === 'free'}
                       onClick={() => handleSubscribe(plan.id)}
@@ -306,13 +308,15 @@ const SubscriptionPage = () => {
         </div>
 
         {/* Payment info */}
-        <Card className="border-slate-200 bg-slate-50">
+        <Card className="border-0 shadow-lg bg-gradient-to-r from-slate-800 to-slate-900 text-white">
           <CardContent className="p-6">
             <div className="flex items-start gap-4">
-              <CreditCard className="w-6 h-6 text-slate-400 flex-shrink-0 mt-1" />
+              <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                <CreditCard className="w-6 h-6" />
+              </div>
               <div>
-                <h3 className="font-bold text-slate-900 mb-1">Pagos seguros con Stripe</h3>
-                <p className="text-sm text-slate-600">
+                <h3 className="font-bold text-lg mb-1">Pagos seguros con Stripe</h3>
+                <p className="text-sm text-white/70">
                   Todos los pagos se procesan de forma segura a través de Stripe. 
                   No almacenamos información de tarjetas de crédito. 
                   Puedes cancelar tu suscripción en cualquier momento.
