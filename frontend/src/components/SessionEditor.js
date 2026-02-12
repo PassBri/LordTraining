@@ -288,7 +288,7 @@ const SessionEditor = ({
     onClose();
   };
 
-  // Exportar sesión como PDF usando jspdf + html2canvas
+  // Exportar sesión como PDF - generación programática (sin html2canvas para evitar congelamiento)
   const handleExportAsPDF = async () => {
     if (exporting) return;
     setExporting(true);
@@ -296,92 +296,265 @@ const SessionEditor = ({
     try {
       toast.info('Generando PDF...');
       
-      // Importar librerías
-      const html2canvas = (await import('html2canvas')).default;
       const { jsPDF } = await import('jspdf');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const margin = 15;
+      const contentWidth = pageWidth - (margin * 2);
+      let y = margin;
       
-      // Buscar el elemento con data-testid
-      const contentElement = document.querySelector('[data-testid="session-editor-content"]');
-      if (!contentElement) {
-        toast.error('No se encontró el contenido para exportar');
-        setExporting(false);
-        return;
-      }
+      // Colores
+      const colors = {
+        primary: [37, 99, 235],      // blue-600
+        secondary: [100, 116, 139],  // slate-500
+        success: [34, 197, 94],      // green-500
+        warning: [249, 115, 22],     // orange-500
+        info: [59, 130, 246],        // blue-500
+        white: [255, 255, 255],
+        dark: [30, 41, 59]           // slate-800
+      };
       
-      // Guardar estilos originales
-      const originalStyle = contentElement.style.cssText;
-      const originalClassName = contentElement.className;
+      // Helper: agregar nueva página si es necesario
+      const checkNewPage = (neededHeight) => {
+        if (y + neededHeight > pageHeight - margin) {
+          pdf.addPage();
+          y = margin;
+          return true;
+        }
+        return false;
+      };
       
-      // Preparar elemento para captura - fondo blanco, sin límites de altura
-      contentElement.style.cssText = 'background-color: white; max-height: none; overflow: visible; padding: 20px;';
-      contentElement.className = contentElement.className.replace(/overflow-[^\s]+/g, '').replace(/max-h-[^\s]+/g, '');
+      // ========== HEADER ==========
+      pdf.setFillColor(...colors.primary);
+      pdf.rect(0, 0, pageWidth, 35, 'F');
       
-      // Esperar que el DOM se actualice
-      await new Promise(resolve => setTimeout(resolve, 200));
+      pdf.setTextColor(...colors.white);
+      pdf.setFontSize(20);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('SESION DE ENTRENAMIENTO', margin, 18);
       
-      // Capturar el contenido como canvas
-      const canvas = await html2canvas(contentElement, {
-        backgroundColor: '#ffffff',
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        windowWidth: contentElement.scrollWidth,
-        windowHeight: contentElement.scrollHeight
+      pdf.setFontSize(12);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`Atleta: ${athleteName || 'Sin nombre'}`, margin, 28);
+      pdf.text(`Fecha: ${session?.date || new Date().toISOString().split('T')[0]}`, pageWidth - margin - 50, 28);
+      
+      y = 45;
+      
+      // ========== OBJETIVOS DE LA SESIÓN ==========
+      pdf.setFillColor(236, 253, 245); // green-50
+      pdf.rect(margin, y, contentWidth, 8, 'F');
+      pdf.setTextColor(...colors.success);
+      pdf.setFontSize(12);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('OBJETIVOS DE LA SESION', margin + 3, y + 6);
+      y += 12;
+      
+      pdf.setTextColor(...colors.dark);
+      pdf.setFontSize(9);
+      pdf.setFont('helvetica', 'normal');
+      
+      const objetivos = sessionData.objetivos || {};
+      const objetivosList = [
+        { label: 'General', value: objetivos.general },
+        { label: 'Fisico', value: objetivos.fisico },
+        { label: 'Tecnico', value: objetivos.tecnico },
+        { label: 'Tactico', value: objetivos.tactico },
+        { label: 'Psicologico', value: objetivos.psicologico },
+        { label: 'Teorico', value: objetivos.teorico }
+      ];
+      
+      objetivosList.forEach(obj => {
+        if (obj.value) {
+          checkNewPage(8);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(`${obj.label}:`, margin + 2, y);
+          pdf.setFont('helvetica', 'normal');
+          const text = pdf.splitTextToSize(obj.value, contentWidth - 30);
+          pdf.text(text, margin + 25, y);
+          y += Math.max(6, text.length * 4);
+        }
       });
       
-      // Restaurar estilos originales
-      contentElement.style.cssText = originalStyle;
-      contentElement.className = originalClassName;
+      y += 5;
       
-      // Crear PDF
-      const imgData = canvas.toDataURL('image/png');
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
+      // ========== ESTRUCTURA DE LA SESIÓN ==========
+      const fases = [
+        { key: 'inicial', name: 'FASE INICIAL', color: colors.success, bgColor: [220, 252, 231] },
+        { key: 'principal', name: 'FASE PRINCIPAL', color: colors.warning, bgColor: [255, 237, 213] },
+        { key: 'final', name: 'FASE FINAL', color: colors.info, bgColor: [219, 234, 254] }
+      ];
       
-      // Calcular dimensiones del PDF (A4)
-      const pdfWidth = 210; // A4 width in mm
-      const pdfHeight = 297; // A4 height in mm
-      const margin = 10; // margen en mm
-      
-      const contentWidth = pdfWidth - (margin * 2);
-      const ratio = contentWidth / imgWidth;
-      const scaledHeight = imgHeight * ratio;
-      
-      // Crear PDF con orientación automática
-      const orientation = scaledHeight > (pdfHeight - margin * 2) ? 'p' : 'p';
-      const pdf = new jsPDF(orientation, 'mm', 'a4');
-      
-      // Si el contenido es más alto que una página, crear múltiples páginas
-      const pageContentHeight = pdfHeight - (margin * 2);
-      let yPosition = 0;
-      let pageNum = 0;
-      
-      while (yPosition < imgHeight) {
-        if (pageNum > 0) {
-          pdf.addPage();
+      for (const fase of fases) {
+        const faseData = sessionData.fases?.[fase.key];
+        const actividades = faseData?.actividades || [];
+        
+        checkNewPage(25);
+        
+        // Header de fase
+        pdf.setFillColor(...fase.bgColor);
+        pdf.rect(margin, y, contentWidth, 8, 'F');
+        pdf.setDrawColor(...fase.color);
+        pdf.setLineWidth(0.5);
+        pdf.line(margin, y, margin, y + 8);
+        
+        pdf.setTextColor(...fase.color);
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(fase.name, margin + 4, y + 6);
+        pdf.setTextColor(...colors.secondary);
+        pdf.setFontSize(9);
+        pdf.text(`${actividades.length} actividades`, margin + contentWidth - 25, y + 6);
+        y += 12;
+        
+        if (actividades.length > 0) {
+          // Encabezados de tabla
+          const colWidths = [35, 22, 22, 12, 15, 15, 15, 18, 18];
+          const headers = ['Ejercicio', 'Cap.Fisica', 'Metodo', 'Ser', 'Reps', 'Int%', 'Vol', 'Org', 'Rec'];
+          
+          checkNewPage(20);
+          pdf.setFillColor(241, 245, 249); // slate-100
+          pdf.rect(margin, y, contentWidth, 6, 'F');
+          pdf.setTextColor(...colors.secondary);
+          pdf.setFontSize(7);
+          pdf.setFont('helvetica', 'bold');
+          
+          let x = margin + 1;
+          headers.forEach((header, i) => {
+            pdf.text(header, x, y + 4);
+            x += colWidths[i];
+          });
+          y += 8;
+          
+          // Filas de actividades
+          pdf.setFont('helvetica', 'normal');
+          pdf.setTextColor(...colors.dark);
+          
+          actividades.forEach((act, idx) => {
+            checkNewPage(8);
+            
+            if (idx % 2 === 0) {
+              pdf.setFillColor(248, 250, 252); // slate-50
+              pdf.rect(margin, y - 2, contentWidth, 7, 'F');
+            }
+            
+            x = margin + 1;
+            const rowData = [
+              (act.ejercicio || '-').substring(0, 18),
+              (CAPACIDADES_FISICAS.find(c => c.id === act.capacidadFisica)?.name || '-').substring(0, 12),
+              (METODOS_ENTRENAMIENTO.find(m => m.id === act.metodo)?.name || '-').substring(0, 12),
+              String(act.series || '-'),
+              String(act.repeticiones || '-'),
+              String(act.intensidad || '-'),
+              String(act.volumen || '-'),
+              (PROC_ORGANIZATIVO.find(p => p.id === act.procOrganizativo)?.name || '-').substring(0, 10),
+              String(act.recuperacion || '-')
+            ];
+            
+            pdf.setFontSize(7);
+            rowData.forEach((data, i) => {
+              pdf.text(data, x, y + 3);
+              x += colWidths[i];
+            });
+            y += 7;
+          });
+        } else {
+          pdf.setTextColor(...colors.secondary);
+          pdf.setFontSize(8);
+          pdf.setFont('helvetica', 'italic');
+          pdf.text('Sin actividades registradas', margin + 4, y + 3);
+          y += 8;
         }
         
-        // Calcular qué porción del canvas mostrar
-        const sourceY = yPosition;
-        const sourceHeight = Math.min(pageContentHeight / ratio, imgHeight - yPosition);
+        y += 5;
+      }
+      
+      // ========== MONITOREO ==========
+      checkNewPage(40);
+      
+      pdf.setFillColor(253, 242, 248); // pink-50
+      pdf.rect(margin, y, contentWidth, 8, 'F');
+      pdf.setTextColor(219, 39, 119); // pink-600
+      pdf.setFontSize(11);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('MONITOREO DE RENDIMIENTO', margin + 3, y + 6);
+      y += 12;
+      
+      const monitoreo = sessionData.monitoreo || {};
+      
+      // FC Cards
+      pdf.setTextColor(...colors.dark);
+      pdf.setFontSize(9);
+      
+      const fcData = [
+        { label: 'FC Reposo', value: monitoreo.fcReposo, unit: 'bpm' },
+        { label: 'FC Media', value: monitoreo.fcMedia, unit: 'bpm' },
+        { label: 'FC Maxima', value: monitoreo.fcMaxima, unit: 'bpm' }
+      ];
+      
+      let fcX = margin;
+      fcData.forEach(fc => {
+        pdf.setFillColor(241, 245, 249);
+        pdf.roundedRect(fcX, y, 55, 15, 2, 2, 'F');
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(fc.label, fcX + 3, y + 6);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(`${fc.value || '-'} ${fc.unit}`, fcX + 3, y + 12);
+        fcX += 60;
+      });
+      y += 20;
+      
+      // Estado del deportista
+      checkNewPage(25);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Estado del Deportista:', margin, y);
+      y += 6;
+      
+      pdf.setFont('helvetica', 'normal');
+      const estadoItems = [
+        { label: 'Fatiga', value: monitoreo.nivelFatiga },
+        { label: 'Hidratacion', value: monitoreo.nivelHidratacion },
+        { label: 'Sueno', value: monitoreo.calidadSueno },
+        { label: 'Energia', value: monitoreo.nivelEnergia }
+      ];
+      
+      estadoItems.forEach(item => {
+        pdf.text(`${item.label}: ${item.value || 0}%`, margin + 5, y);
+        y += 5;
+      });
+      
+      y += 5;
+      
+      // ========== RETROALIMENTACIÓN ==========
+      if (sessionData.retroalimentacion) {
+        checkNewPage(20);
         
-        // Crear un canvas temporal para esta página
-        const pageCanvas = document.createElement('canvas');
-        pageCanvas.width = imgWidth;
-        pageCanvas.height = sourceHeight;
-        const ctx = pageCanvas.getContext('2d');
-        ctx.drawImage(canvas, 0, sourceY, imgWidth, sourceHeight, 0, 0, imgWidth, sourceHeight);
+        pdf.setFillColor(254, 249, 195); // yellow-100
+        pdf.rect(margin, y, contentWidth, 8, 'F');
+        pdf.setTextColor(161, 98, 7); // yellow-700
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('OBSERVACIONES', margin + 3, y + 6);
+        y += 12;
         
-        const pageImgData = pageCanvas.toDataURL('image/png');
-        const pageScaledHeight = sourceHeight * ratio;
-        
-        pdf.addImage(pageImgData, 'PNG', margin, margin, contentWidth, pageScaledHeight);
-        
-        yPosition += sourceHeight;
-        pageNum++;
-        
-        // Límite de seguridad para evitar loops infinitos
-        if (pageNum > 20) break;
+        pdf.setTextColor(...colors.dark);
+        pdf.setFontSize(9);
+        pdf.setFont('helvetica', 'normal');
+        const retroText = pdf.splitTextToSize(sessionData.retroalimentacion, contentWidth - 10);
+        pdf.text(retroText, margin + 2, y);
+        y += retroText.length * 4 + 5;
+      }
+      
+      // ========== FOOTER ==========
+      const totalPages = pdf.internal.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        pdf.setPage(i);
+        pdf.setFillColor(...colors.dark);
+        pdf.rect(0, pageHeight - 12, pageWidth, 12, 'F');
+        pdf.setTextColor(...colors.white);
+        pdf.setFontSize(8);
+        pdf.text('Generado por Sistema TRAIN', margin, pageHeight - 5);
+        pdf.text(`Pagina ${i} de ${totalPages}`, pageWidth - margin - 20, pageHeight - 5);
       }
       
       // Descargar PDF
