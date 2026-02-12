@@ -292,21 +292,37 @@ const SessionEditor = ({
   const handleExportImage = async () => {
     setExporting(true);
     try {
-      const token = localStorage.getItem('train_token');
-      
       // Capturar el contenido del editor como imagen usando html2canvas
       if (sessionContentRef.current) {
         const { default: html2canvas } = await import('html2canvas');
         
+        // Clonar el elemento para modificar estilos sin afectar el original
         const canvas = await html2canvas(sessionContentRef.current, {
           scale: 2,
           useCORS: true,
           backgroundColor: '#ffffff',
-          logging: false
+          logging: true, // Habilitar logging para debug
+          allowTaint: true,
+          foreignObjectRendering: false, // Desactivar para evitar problemas con SVG
+          removeContainer: true,
+          imageTimeout: 15000,
+          onclone: (clonedDoc) => {
+            // Convertir iconos SVG a texto alternativo si hay problemas
+            const svgs = clonedDoc.querySelectorAll('svg');
+            svgs.forEach(svg => {
+              svg.style.display = 'inline-block';
+            });
+          }
         });
         
         // Convertir canvas a blob
-        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.9));
+        const blob = await new Promise((resolve, reject) => {
+          canvas.toBlob(
+            (b) => b ? resolve(b) : reject(new Error('Failed to create blob')),
+            'image/png',
+            0.9
+          );
+        });
         
         // Descargar la imagen
         const url = window.URL.createObjectURL(blob);
@@ -319,10 +335,12 @@ const SessionEditor = ({
         window.URL.revokeObjectURL(url);
         
         toast.success('Imagen descargada exitosamente');
+      } else {
+        toast.error('No se encontró el contenido para exportar');
       }
     } catch (error) {
       console.error('Error exporting image:', error);
-      toast.error('Error al exportar imagen');
+      toast.error(`Error al exportar imagen: ${error.message}`);
     }
     setExporting(false);
   };
