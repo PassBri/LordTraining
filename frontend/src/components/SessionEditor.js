@@ -548,44 +548,44 @@ const SessionEditor = ({
         });
         
         y += 5;
-      
-      // ========== RETROALIMENTACIÓN ==========
-      if (sessionData.retroalimentacion) {
-        checkNewPage(20);
         
-        pdf.setFillColor(254, 249, 195); // yellow-100
-        pdf.rect(margin, y, contentWidth, 8, 'F');
-        pdf.setTextColor(161, 98, 7); // yellow-700
-        pdf.setFontSize(11);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text('OBSERVACIONES', margin + 3, y + 6);
-        y += 12;
+        // ========== RETROALIMENTACIÓN ==========
+        if (sessionData.retroalimentacion) {
+          checkNewPage(20);
+          
+          pdf.setFillColor(254, 249, 195); // yellow-100
+          pdf.rect(margin, y, contentWidth, 8, 'F');
+          pdf.setTextColor(161, 98, 7); // yellow-700
+          pdf.setFontSize(11);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text('OBSERVACIONES', margin + 3, y + 6);
+          y += 12;
+          
+          pdf.setTextColor(...colors.dark);
+          pdf.setFontSize(9);
+          pdf.setFont('helvetica', 'normal');
+          const retroText = pdf.splitTextToSize(sessionData.retroalimentacion, contentWidth - 10);
+          pdf.text(retroText, margin + 2, y);
+          y += retroText.length * 4 + 5;
+        }
         
-        pdf.setTextColor(...colors.dark);
-        pdf.setFontSize(9);
-        pdf.setFont('helvetica', 'normal');
-        const retroText = pdf.splitTextToSize(sessionData.retroalimentacion, contentWidth - 10);
-        pdf.text(retroText, margin + 2, y);
-        y += retroText.length * 4 + 5;
-      }
-      
-      // ========== FOOTER ==========
-      const totalPages = pdf.internal.getNumberOfPages();
-      for (let i = 1; i <= totalPages; i++) {
-        pdf.setPage(i);
-        pdf.setFillColor(...colors.dark);
-        pdf.rect(0, pageHeight - 12, pageWidth, 12, 'F');
-        pdf.setTextColor(...colors.white);
-        pdf.setFontSize(8);
-        pdf.text('Generado por Sistema TRAIN', margin, pageHeight - 5);
-        pdf.text(`Pagina ${i} de ${totalPages}`, pageWidth - margin - 20, pageHeight - 5);
-      }
-      
-      // Descargar PDF
-      const fileName = `sesion_${athleteName?.replace(/\s+/g, '_') || 'atleta'}_${session?.date || new Date().toISOString().split('T')[0]}.pdf`;
-      pdf.save(fileName);
-      
-      toast.success('PDF descargado exitosamente');
+        // ========== FOOTER ==========
+        const totalPages = pdf.internal.getNumberOfPages();
+        for (let i = 1; i <= totalPages; i++) {
+          pdf.setPage(i);
+          pdf.setFillColor(...colors.dark);
+          pdf.rect(0, pageHeight - 12, pageWidth, 12, 'F');
+          pdf.setTextColor(...colors.white);
+          pdf.setFontSize(8);
+          pdf.text('Generado por Sistema TRAIN', margin, pageHeight - 5);
+          pdf.text(`Pagina ${i} de ${totalPages}`, pageWidth - margin - 20, pageHeight - 5);
+        }
+        
+        // Descargar PDF
+        const fileName = `sesion_${athleteName?.replace(/\s+/g, '_') || 'atleta'}_${session?.date || new Date().toISOString().split('T')[0]}.pdf`;
+        pdf.save(fileName);
+        
+        toast.success('PDF descargado exitosamente');
       } catch (error) {
         console.error('Error exporting PDF:', error);
         toast.error('Error al exportar PDF: ' + error.message);
