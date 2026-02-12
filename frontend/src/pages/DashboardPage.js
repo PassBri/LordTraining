@@ -2873,6 +2873,16 @@ const DashboardPage = () => {
               </DialogContent>
             </Dialog>
           </div>
+          <Link to="/subscription" className="w-full">
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start text-gray-500 hover:text-gray-700 text-sm mb-1"
+              data-testid="subscription-btn"
+            >
+              <CreditCard className="w-4 h-4 mr-2" />
+              Suscripción
+            </Button>
+          </Link>
           <Button 
             variant="ghost" 
             className="w-full justify-start text-gray-500 hover:text-gray-700 text-sm"
