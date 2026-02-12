@@ -545,7 +545,7 @@ const ControlPanel = ({
 
   return (
     <div className="overflow-y-auto h-full bg-gradient-to-br from-slate-50 to-blue-50/30">
-      {/* Header Compacto */}
+      {/* Header Compacto con Selector de Atleta */}
       <div className="bg-white/80 backdrop-blur-sm border-b border-slate-100 sticky top-0 z-10">
         <div className="px-6 py-3">
           <div className="flex items-center justify-between">
@@ -556,8 +556,21 @@ const ControlPanel = ({
               </span>
             </div>
             <div className="flex items-center gap-3">
+              {/* Selector de Atleta */}
+              <select 
+                value={selectedDashboardAthlete}
+                onChange={(e) => setSelectedDashboardAthlete(e.target.value)}
+                className="h-9 text-sm border border-slate-200 rounded-lg px-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[160px]"
+              >
+                <option value="all">👥 Todos los atletas</option>
+                {athletes.map(athlete => (
+                  <option key={athlete.id} value={athlete.id}>
+                    {athlete.name}
+                  </option>
+                ))}
+              </select>
               {/* Quick Stats Pills */}
-              <div className="hidden md:flex items-center gap-2">
+              <div className="hidden lg:flex items-center gap-2">
                 <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 rounded-full text-xs font-semibold text-blue-700">
                   <Users className="h-3.5 w-3.5" />
                   <span>{totalAthletes} atletas</span>
@@ -587,17 +600,306 @@ const ControlPanel = ({
       </div>
 
       <div className="p-5 space-y-5">
-        {/* Stats Cards Row - ELEGANT GRADIENT CARDS */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {/* Total Atletas */}
-          <Card 
-            className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg shadow-blue-200/50 cursor-pointer hover:scale-[1.02] transition-all duration-200"
-            onClick={() => onNavigate && onNavigate('datos', 'athletes')}
-          >
+        {/* ROW 1: Readiness Score + Training Load Ratio + Stats Cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* Readiness Score Card */}
+          <Card className="lg:col-span-3 border-0 shadow-lg bg-gradient-to-br from-slate-800 to-slate-900 text-white">
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-blue-100 text-sm font-medium">Total Atletas</p>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-slate-200">Readiness Score</h3>
+                <span className={`text-2xl font-bold ${
+                  readinessScore.overall >= 80 ? 'text-emerald-400' :
+                  readinessScore.overall >= 60 ? 'text-amber-400' : 'text-red-400'
+                }`}>
+                  {readinessScore.overall}%
+                </span>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-400">Calidad sueño</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                      <div className="h-full bg-blue-400 rounded-full" style={{width: `${readinessScore.sleep}%`}}></div>
+                    </div>
+                    <span className="text-slate-300 w-8">{readinessScore.sleep}%</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-400">Dolor muscular</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                      <div className="h-full bg-red-400 rounded-full" style={{width: `${readinessScore.muscle_soreness}%`}}></div>
+                    </div>
+                    <span className="text-slate-300 w-8">{readinessScore.muscle_soreness}%</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-400">Estrés</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                      <div className="h-full bg-amber-400 rounded-full" style={{width: `${readinessScore.stress}%`}}></div>
+                    </div>
+                    <span className="text-slate-300 w-8">{readinessScore.stress}%</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-400">Motivación</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                      <div className="h-full bg-emerald-400 rounded-full" style={{width: `${readinessScore.motivation}%`}}></div>
+                    </div>
+                    <span className="text-slate-300 w-8">{readinessScore.motivation}%</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-3 pt-3 border-t border-slate-700">
+                <p className={`text-xs font-medium ${
+                  readinessScore.overall >= 80 ? 'text-emerald-400' :
+                  readinessScore.overall >= 60 ? 'text-amber-400' : 'text-red-400'
+                }`}>
+                  {readinessScore.overall >= 80 ? '✓ Listo para entrenar' :
+                   readinessScore.overall >= 60 ? '⚠ Entrenamiento moderado' : '✗ Requiere descanso'}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Training Load Ratio Card */}
+          <Card className="lg:col-span-3 border-0 shadow-lg bg-white">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-semibold text-slate-700">Ratio Carga Aguda:Crónica</h3>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  trainingLoadRatio.status === 'optimal' ? 'bg-emerald-100 text-emerald-700' :
+                  trainingLoadRatio.status === 'warning' ? 'bg-amber-100 text-amber-700' :
+                  trainingLoadRatio.status === 'danger' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
+                }`}>
+                  {trainingLoadRatio.status === 'optimal' ? 'Óptimo' :
+                   trainingLoadRatio.status === 'warning' ? 'Precaución' :
+                   trainingLoadRatio.status === 'danger' ? 'Riesgo' : 'Bajo'}
+                </span>
+              </div>
+              <div className="flex items-end gap-4 mb-3">
+                <span className={`text-4xl font-bold ${
+                  trainingLoadRatio.status === 'optimal' ? 'text-emerald-600' :
+                  trainingLoadRatio.status === 'warning' ? 'text-amber-600' :
+                  trainingLoadRatio.status === 'danger' ? 'text-red-600' : 'text-blue-600'
+                }`}>
+                  {trainingLoadRatio.ratio.toFixed(2)}
+                </span>
+                <div className="flex items-center gap-1 text-xs text-slate-500 mb-1">
+                  {trainingLoadRatio.trend === 'increasing' && <TrendingUp className="w-3 h-3 text-red-500" />}
+                  {trainingLoadRatio.trend === 'decreasing' && <ArrowDownRight className="w-3 h-3 text-emerald-500" />}
+                  {trainingLoadRatio.trend === 'stable' && <span className="text-slate-400">→</span>}
+                  <span>{trainingLoadRatio.trend === 'increasing' ? 'Subiendo' : 
+                         trainingLoadRatio.trend === 'decreasing' ? 'Bajando' : 'Estable'}</span>
+                </div>
+              </div>
+              <div className="space-y-1.5 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Carga Aguda (7d)</span>
+                  <span className="font-semibold text-slate-700">{trainingLoadRatio.acute} UA</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Carga Crónica (28d)</span>
+                  <span className="font-semibold text-slate-700">{trainingLoadRatio.chronic} UA</span>
+                </div>
+              </div>
+              <div className="mt-3 pt-2 border-t border-slate-100">
+                <div className="flex items-center gap-2 text-[10px]">
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded bg-emerald-500"></div>
+                    <span className="text-slate-500">0.8-1.3</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded bg-amber-500"></div>
+                    <span className="text-slate-500">1.3-1.5</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded bg-red-500"></div>
+                    <span className="text-slate-500">&gt;1.5</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Stats Cards - Now 6 columns */}
+          <div className="lg:col-span-6 grid grid-cols-2 md:grid-cols-3 gap-3">
+            {/* Total Atletas */}
+            <Card 
+              className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg shadow-blue-200/50 cursor-pointer hover:scale-[1.02] transition-all duration-200"
+              onClick={() => onNavigate && onNavigate('datos', 'athletes')}
+            >
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-blue-100 text-xs font-medium">Atletas</p>
+                    <p className="text-2xl font-bold mt-0.5">{totalAthletes}</p>
+                  </div>
+                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Users className="w-5 h-5" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Eventos Próximos */}
+            <Card 
+              className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-0 shadow-lg shadow-emerald-200/50 cursor-pointer hover:scale-[1.02] transition-all duration-200"
+              onClick={() => onNavigate && onNavigate('datos', 'competitions')}
+            >
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-emerald-100 text-xs font-medium">Eventos</p>
+                    <p className="text-2xl font-bold mt-0.5">{upcomingEventsCount}</p>
+                  </div>
+                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Flag className="w-5 h-5" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Sesiones */}
+            <Card className="bg-gradient-to-br from-amber-500 to-orange-500 text-white border-0 shadow-lg shadow-amber-200/50">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-amber-100 text-xs font-medium">Sesiones</p>
+                    <p className="text-2xl font-bold mt-0.5">{completedSessions}</p>
+                  </div>
+                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Target className="w-5 h-5" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Macrociclos */}
+            <Card 
+              className="bg-gradient-to-br from-violet-500 to-purple-600 text-white border-0 shadow-lg shadow-violet-200/50 cursor-pointer hover:scale-[1.02] transition-all duration-200"
+              onClick={() => onNavigate && onNavigate('datos', 'training-system')}
+            >
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-violet-100 text-xs font-medium">Macrociclos</p>
+                    <p className="text-2xl font-bold mt-0.5">{activeMacrocycles}</p>
+                  </div>
+                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Activity className="w-5 h-5" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Ejercicios */}
+            <Card className="bg-gradient-to-br from-pink-500 to-rose-500 text-white border-0 shadow-lg shadow-pink-200/50">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-pink-100 text-xs font-medium">Ejercicios</p>
+                    <p className="text-2xl font-bold mt-0.5">150+</p>
+                  </div>
+                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Dumbbell className="w-5 h-5" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Adherencia */}
+            <Card className="bg-gradient-to-br from-cyan-500 to-blue-600 text-white border-0 shadow-lg shadow-cyan-200/50">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-cyan-100 text-xs font-medium">Adherencia</p>
+                    <p className="text-2xl font-bold mt-0.5">{panelStats?.completion_rate || 92}%</p>
+                  </div>
+                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* ROW 2: Smart Alerts */}
+        {alerts.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            {alerts.map((alert, idx) => (
+              <div key={idx} className={`flex items-start gap-3 px-4 py-3 rounded-xl shadow-sm border ${
+                alert.color === 'green' ? 'bg-emerald-50 border-emerald-200' :
+                alert.color === 'amber' ? 'bg-amber-50 border-amber-200' :
+                alert.color === 'red' ? 'bg-red-50 border-red-200' :
+                'bg-blue-50 border-blue-200'
+              }`}>
+                {React.createElement(alert.icon, { 
+                  className: `w-5 h-5 flex-shrink-0 mt-0.5 ${
+                    alert.color === 'green' ? 'text-emerald-600' :
+                    alert.color === 'amber' ? 'text-amber-600' :
+                    alert.color === 'red' ? 'text-red-600' :
+                    'text-blue-600'
+                  }` 
+                })}
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm font-semibold ${
+                    alert.color === 'green' ? 'text-emerald-800' :
+                    alert.color === 'amber' ? 'text-amber-800' :
+                    alert.color === 'red' ? 'text-red-800' :
+                    'text-blue-800'
+                  }`}>
+                    {alert.title}
+                  </p>
+                  <p className={`text-xs mt-0.5 ${
+                    alert.color === 'green' ? 'text-emerald-600' :
+                    alert.color === 'amber' ? 'text-amber-600' :
+                    alert.color === 'red' ? 'text-red-600' :
+                    'text-blue-600'
+                  }`}>
+                    {alert.message}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Motivational Quote */}
+        {motivationalMessage && (
+          <div className="bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 rounded-xl p-4 text-white shadow-lg">
+            <div className="flex items-center gap-3">
+              <Sparkles className="w-5 h-5 text-amber-400 flex-shrink-0" />
+              <div>
+                <p className="text-sm md:text-base italic">"{motivationalMessage.text}"</p>
+                <p className="text-slate-400 text-xs mt-1">— {motivationalMessage.author}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Charts Section Header */}
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-slate-700">Análisis de Entrenamiento</h3>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-500">Tipo de gráfica:</span>
+            <select 
+              value={chartType}
+              onChange={(e) => setChartType(e.target.value)}
+              className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="bar">Barras</option>
+              <option value="line">Líneas</option>
+              <option value="area">Área</option>
+              <option value="mixed">Mixta</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Charts Row 1 */}
                   <p className="text-3xl font-bold mt-1">{totalAthletes}</p>
                   <p className="text-blue-200 text-xs mt-1 flex items-center gap-1">
                     <ArrowUpRight className="w-3 h-3" /> Click para ver
