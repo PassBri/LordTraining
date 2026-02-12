@@ -1075,6 +1075,306 @@ const ControlPanel = ({
             />
           </div>
         </div>
+
+        {/* ===== SECCIÓN DE VISUALIZACIONES ADICIONALES ===== */}
+        <div className="border-t border-slate-200 pt-5 mt-2">
+          <h3 className="text-sm font-semibold text-slate-700 mb-4">Métricas Detalladas</h3>
+        </div>
+
+        {/* Row 3: Progreso de Objetivos + Comparativa Semanal + Radar */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          
+          {/* 1. Progreso de Objetivos */}
+          <Card className="shadow-lg border-0 bg-white">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Target className="w-5 h-5 text-blue-500" />
+                Progreso de Objetivos
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {objectivesProgress.map((obj) => (
+                <div key={obj.id} className="space-y-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-600 truncate pr-2">{obj.name}</span>
+                    <span className="font-semibold" style={{ color: obj.color }}>{obj.progress}%</span>
+                  </div>
+                  <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${obj.progress}%`, backgroundColor: obj.color }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* 2. Comparativa Semanal */}
+          <Card className="shadow-lg border-0 bg-white">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <TrendingUp className="w-5 h-5 text-emerald-500" />
+                Comparativa Semanal
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {weeklyComparison.map((item, idx) => {
+                  const diff = item.actual - item.anterior;
+                  const isPositive = diff > 0;
+                  const isNeutral = diff === 0;
+                  return (
+                    <div key={idx} className="flex items-center justify-between py-1 border-b border-slate-50 last:border-0">
+                      <span className="text-sm text-slate-600">{item.metric}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-slate-400">
+                          ant: {item.anterior}{item.unidad}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <span className="font-semibold text-slate-800">
+                            {item.actual}{item.unidad}
+                          </span>
+                          {!isNeutral && (
+                            <span className={`flex items-center text-xs ${isPositive ? 'text-emerald-500' : 'text-red-500'}`}>
+                              {isPositive ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                              {Math.abs(diff).toFixed(1)}
+                            </span>
+                          )}
+                          {isNeutral && <Minus className="w-3 h-3 text-slate-400" />}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 3. Radar de Capacidades Físicas */}
+          <Card className="shadow-lg border-0 bg-white">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Activity className="w-5 h-5 text-purple-500" />
+                Capacidades Físicas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={200}>
+                <RadarChart data={physicalCapabilities}>
+                  <PolarGrid stroke="#E5E7EB" />
+                  <PolarAngleAxis dataKey="ability" tick={{ fontSize: 10, fill: '#6B7280' }} />
+                  <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 9 }} />
+                  <Radar
+                    name="Capacidades"
+                    dataKey="value"
+                    stroke="#8B5CF6"
+                    fill="#8B5CF6"
+                    fillOpacity={0.4}
+                    strokeWidth={2}
+                  />
+                  <Tooltip />
+                </RadarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Row 4: Zonas de Entrenamiento + Mini Calendario */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          
+          {/* 4. Zonas de Entrenamiento */}
+          <Card className="shadow-lg border-0 bg-white">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Zap className="w-5 h-5 text-amber-500" />
+                Zonas de Entrenamiento
+                <span className="text-xs text-slate-400 font-normal ml-auto">Esta semana</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {/* Barra apilada horizontal */}
+              <div className="mb-4">
+                <div className="h-8 rounded-lg overflow-hidden flex">
+                  {trainingZones.map((zone, idx) => (
+                    <div
+                      key={idx}
+                      className="h-full flex items-center justify-center text-xs font-medium text-white transition-all hover:opacity-80"
+                      style={{ width: `${zone.percent}%`, backgroundColor: zone.color }}
+                      title={`${zone.zone}: ${zone.minutes} min`}
+                    >
+                      {zone.percent >= 15 && `${zone.percent}%`}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Leyenda detallada */}
+              <div className="grid grid-cols-2 gap-2">
+                {trainingZones.map((zone, idx) => (
+                  <div key={idx} className="flex items-center gap-2 text-xs">
+                    <div className="w-3 h-3 rounded" style={{ backgroundColor: zone.color }} />
+                    <span className="text-slate-600 truncate">{zone.zone}</span>
+                    <span className="text-slate-400 ml-auto">{zone.minutes}min</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 5. Mini Calendario de Sesiones */}
+          <Card className="shadow-lg border-0 bg-white">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <CalendarDays className="w-5 h-5 text-indigo-500" />
+                Calendario de Sesiones
+                <span className="text-xs text-slate-400 font-normal ml-auto">
+                  {new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
+                </span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {/* Días de la semana */}
+              <div className="grid grid-cols-7 gap-1 mb-2">
+                {['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((day) => (
+                  <div key={day} className="text-center text-xs font-medium text-slate-400">
+                    {day}
+                  </div>
+                ))}
+              </div>
+              {/* Días del mes */}
+              <div className="grid grid-cols-7 gap-1">
+                {/* Espacios vacíos para alinear el primer día */}
+                {Array.from({ length: new Date(new Date().getFullYear(), new Date().getMonth(), 1).getDay() || 7 }).slice(1).map((_, idx) => (
+                  <div key={`empty-${idx}`} className="w-8 h-8" />
+                ))}
+                {sessionCalendar.map((session) => (
+                  <div
+                    key={session.day}
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-medium transition-all cursor-pointer hover:scale-110 ${
+                      session.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
+                      session.status === 'missed' ? 'bg-red-100 text-red-700' :
+                      session.status === 'today' ? 'bg-blue-500 text-white ring-2 ring-blue-300' :
+                      session.status === 'scheduled' ? 'bg-amber-100 text-amber-700' :
+                      'bg-slate-50 text-slate-400'
+                    }`}
+                    title={
+                      session.status === 'completed' ? 'Completada' :
+                      session.status === 'missed' ? 'No realizada' :
+                      session.status === 'today' ? 'Hoy' :
+                      session.status === 'scheduled' ? 'Programada' : 'Descanso'
+                    }
+                  >
+                    {session.day}
+                  </div>
+                ))}
+              </div>
+              {/* Leyenda */}
+              <div className="flex items-center justify-center gap-4 mt-3 pt-3 border-t border-slate-100">
+                <div className="flex items-center gap-1 text-xs">
+                  <div className="w-3 h-3 rounded bg-emerald-100" />
+                  <span className="text-slate-500">Completada</span>
+                </div>
+                <div className="flex items-center gap-1 text-xs">
+                  <div className="w-3 h-3 rounded bg-amber-100" />
+                  <span className="text-slate-500">Programada</span>
+                </div>
+                <div className="flex items-center gap-1 text-xs">
+                  <div className="w-3 h-3 rounded bg-red-100" />
+                  <span className="text-slate-500">Perdida</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Row 5: Próximas Competencias + Récords Personales */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          
+          {/* 6. Próximas Competencias */}
+          <Card className="shadow-lg border-0 bg-white">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Trophy className="w-5 h-5 text-amber-500" />
+                Próximas Competencias
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {upcomingCompetitions.sort((a, b) => a.daysLeft - b.daysLeft).map((comp) => (
+                <div 
+                  key={comp.id} 
+                  className={`p-3 rounded-xl border transition-all hover:shadow-md ${
+                    comp.priority === 'high' ? 'border-red-200 bg-red-50/50' :
+                    comp.priority === 'medium' ? 'border-amber-200 bg-amber-50/50' :
+                    'border-slate-200 bg-slate-50/50'
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="font-semibold text-slate-800 text-sm">{comp.name}</h4>
+                      <div className="flex items-center gap-2 mt-1 text-xs text-slate-500">
+                        <MapPin className="w-3 h-3" />
+                        {comp.location}
+                        <span className="text-slate-300">•</span>
+                        <Calendar className="w-3 h-3" />
+                        {new Date(comp.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                      </div>
+                    </div>
+                    <div className={`px-3 py-1 rounded-full text-xs font-bold ${
+                      comp.daysLeft <= 7 ? 'bg-red-500 text-white' :
+                      comp.daysLeft <= 30 ? 'bg-amber-500 text-white' :
+                      'bg-slate-200 text-slate-600'
+                    }`}>
+                      {comp.daysLeft}d
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* 7. Récords Personales */}
+          <Card className="shadow-lg border-0 bg-white">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Medal className="w-5 h-5 text-yellow-500" />
+                Récords Personales
+                <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full ml-auto">PRs</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {personalRecords.map((pr) => (
+                  <div 
+                    key={pr.id}
+                    className="flex items-center justify-between p-2 rounded-lg bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-100 hover:shadow-sm transition-all"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center">
+                        <Trophy className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-800 text-sm">{pr.exercise}</p>
+                        <p className="text-xs text-slate-500">
+                          {new Date(pr.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-lg text-slate-800">
+                        {pr.value}<span className="text-sm text-slate-500 ml-1">{pr.unit}</span>
+                      </p>
+                      <p className="text-xs font-medium text-emerald-600 flex items-center justify-end gap-1">
+                        <ArrowUpRight className="w-3 h-3" />
+                        {pr.improvement}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
       </div>
 
       {/* Modal de Exportación PDF */}
