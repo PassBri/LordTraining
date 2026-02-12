@@ -286,6 +286,56 @@ const ControlPanel = ({
       }
     }
 
+    // ===== ALERTAS INTELIGENTES ADICIONALES =====
+    
+    // Alerta de Training Load Ratio
+    if (trainingLoadRatio.ratio > 1.5) {
+      newAlerts.push({
+        type: 'danger',
+        icon: AlertTriangle,
+        title: '⚠️ ALERTA: Riesgo de Lesión Alto',
+        message: `Ratio Agudo:Crónico = ${trainingLoadRatio.ratio.toFixed(2)}. Reducir carga inmediatamente.`,
+        color: 'red',
+        priority: 1
+      });
+    } else if (trainingLoadRatio.ratio > 1.3) {
+      newAlerts.push({
+        type: 'warning',
+        icon: TrendingUp,
+        title: 'Carga en Zona de Precaución',
+        message: `Ratio ${trainingLoadRatio.ratio.toFixed(2)} - Monitorear fatiga y recuperación.`,
+        color: 'amber',
+        priority: 2
+      });
+    }
+    
+    // Alerta de Readiness Score bajo
+    if (readinessScore.overall < 70) {
+      newAlerts.push({
+        type: 'warning',
+        icon: Activity,
+        title: 'Disponibilidad del Atleta Reducida',
+        message: `Readiness Score: ${readinessScore.overall}%. Considerar sesión de menor intensidad.`,
+        color: 'amber',
+        priority: 2
+      });
+    }
+    
+    // Alerta de fatiga muscular alta
+    if (readinessScore.muscle_soreness > 70) {
+      newAlerts.push({
+        type: 'info',
+        icon: Activity,
+        title: 'Fatiga Muscular Elevada',
+        message: `Nivel de dolor muscular: ${readinessScore.muscle_soreness}%. Incluir más recuperación.`,
+        color: 'blue',
+        priority: 3
+      });
+    }
+
+    // Ordenar alertas por prioridad
+    newAlerts.sort((a, b) => (a.priority || 99) - (b.priority || 99));
+
     // Alerta motivacional si todo está bien
     if (newAlerts.length === 0 && (athletes.length > 0 || (panelStats && panelStats.athletes_count > 0))) {
       newAlerts.push({
@@ -297,8 +347,9 @@ const ControlPanel = ({
       });
     }
 
-    setAlerts(newAlerts.slice(0, 3)); // Máximo 3 alertas
-  }, [events, athletes, periodizationData, selectedAthleteId, panelStats]);
+    setAlerts(newAlerts.slice(0, 4)); // Máximo 4 alertas
+    setSmartAlerts(newAlerts); // Guardar todas las alertas para mostrar expandidas
+  }, [events, athletes, periodizationData, selectedAthleteId, panelStats, trainingLoadRatio, readinessScore]);
 
   // Procesar datos reales de periodización para gráficos (fallback si no hay datos de API)
   useEffect(() => {
