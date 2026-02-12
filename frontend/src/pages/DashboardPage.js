@@ -735,6 +735,7 @@ const DashboardPage = () => {
     fetchEntities();
     fetchTeams();
     fetchSportsCatalog();
+    fetchTournamentsData();
   }, []);
 
   const fetchData = async () => {
