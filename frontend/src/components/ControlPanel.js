@@ -920,21 +920,23 @@ const ControlPanel = ({
                   <BarChart data={volumeData} barGap={2}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
                     <XAxis dataKey="semana" tick={{ fontSize: 11 }} stroke="#9CA3AF" />
-                    <YAxis tick={{ fontSize: 11 }} stroke="#9CA3AF" />
+                    <YAxis tick={{ fontSize: 11 }} stroke="#9CA3AF" domain={[0, 100]} />
                     <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }} />
                     <Legend wrapperStyle={{ fontSize: '12px' }} />
                     <Bar dataKey="volumen" name="Volumen %" fill="#3B82F6" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="objetivo" name="Objetivo %" fill="#10B981" radius={[4, 4, 0, 0]} opacity={0.7} />
+                    <Bar dataKey="intensidad" name="Intensidad %" fill="#EF4444" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="densidad" name="Densidad %" fill="#10B981" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 ) : chartType === 'line' ? (
                   <LineChart data={volumeData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
                     <XAxis dataKey="semana" tick={{ fontSize: 11 }} stroke="#9CA3AF" />
-                    <YAxis tick={{ fontSize: 11 }} stroke="#9CA3AF" />
+                    <YAxis tick={{ fontSize: 11 }} stroke="#9CA3AF" domain={[0, 100]} />
                     <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }} />
                     <Legend wrapperStyle={{ fontSize: '12px' }} />
                     <Line type="monotone" dataKey="volumen" name="Volumen %" stroke="#3B82F6" strokeWidth={2} dot={{ r: 4 }} />
-                    <Line type="monotone" dataKey="objetivo" name="Objetivo %" stroke="#10B981" strokeWidth={2} dot={{ r: 4 }} />
+                    <Line type="monotone" dataKey="intensidad" name="Intensidad %" stroke="#EF4444" strokeWidth={2} dot={{ r: 4 }} />
+                    <Line type="monotone" dataKey="densidad" name="Densidad %" stroke="#10B981" strokeWidth={2} dot={{ r: 4 }} />
                   </LineChart>
                 ) : chartType === 'area' ? (
                   <AreaChart data={volumeData}>
@@ -943,30 +945,36 @@ const ControlPanel = ({
                         <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.4}/>
                         <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
                       </linearGradient>
-                      <linearGradient id="colorObj" x1="0" y1="0" x2="0" y2="1">
+                      <linearGradient id="colorInt" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#EF4444" stopOpacity={0.4}/>
+                        <stop offset="95%" stopColor="#EF4444" stopOpacity={0}/>
+                      </linearGradient>
+                      <linearGradient id="colorDen" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#10B981" stopOpacity={0.4}/>
                         <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
                     <XAxis dataKey="semana" tick={{ fontSize: 11 }} stroke="#9CA3AF" />
-                    <YAxis tick={{ fontSize: 11 }} stroke="#9CA3AF" />
+                    <YAxis tick={{ fontSize: 11 }} stroke="#9CA3AF" domain={[0, 100]} />
                     <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }} />
                     <Legend wrapperStyle={{ fontSize: '12px' }} />
                     <Area type="monotone" dataKey="volumen" name="Volumen %" stroke="#3B82F6" fillOpacity={1} fill="url(#colorVol)" />
-                    <Area type="monotone" dataKey="objetivo" name="Objetivo %" stroke="#10B981" fillOpacity={1} fill="url(#colorObj)" />
+                    <Area type="monotone" dataKey="intensidad" name="Intensidad %" stroke="#EF4444" fillOpacity={1} fill="url(#colorInt)" />
+                    <Area type="monotone" dataKey="densidad" name="Densidad %" stroke="#10B981" fillOpacity={1} fill="url(#colorDen)" />
                   </AreaChart>
                 ) : (
-                  /* Mixed Chart */
-                  <BarChart data={volumeData}>
+                  /* Mixed Chart - Bars con línea de densidad */
+                  <ComposedChart data={volumeData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
                     <XAxis dataKey="semana" tick={{ fontSize: 11 }} stroke="#9CA3AF" />
-                    <YAxis tick={{ fontSize: 11 }} stroke="#9CA3AF" />
+                    <YAxis tick={{ fontSize: 11 }} stroke="#9CA3AF" domain={[0, 100]} />
                     <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }} />
                     <Legend wrapperStyle={{ fontSize: '12px' }} />
                     <Bar dataKey="volumen" name="Volumen %" fill="#3B82F6" radius={[4, 4, 0, 0]} />
-                    <Line type="monotone" dataKey="objetivo" name="Objetivo %" stroke="#10B981" strokeWidth={2} dot={{ r: 3 }} />
-                  </BarChart>
+                    <Bar dataKey="intensidad" name="Intensidad %" fill="#EF4444" radius={[4, 4, 0, 0]} opacity={0.8} />
+                    <Line type="monotone" dataKey="densidad" name="Densidad %" stroke="#10B981" strokeWidth={3} dot={{ r: 4, fill: '#10B981' }} />
+                  </ComposedChart>
                 )}
               </ResponsiveContainer>
             </CardContent>
