@@ -488,66 +488,66 @@ const SessionEditor = ({
             pdf.setFont('helvetica', 'italic');
             pdf.text('Sin actividades registradas', margin + 4, y + 3);
             y += 8;
+          }
+          
+          y += 5;
         }
         
-        y += 5;
-      }
-      
-      // ========== MONITOREO ==========
-      checkNewPage(40);
-      
-      pdf.setFillColor(253, 242, 248); // pink-50
-      pdf.rect(margin, y, contentWidth, 8, 'F');
-      pdf.setTextColor(219, 39, 119); // pink-600
-      pdf.setFontSize(11);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('MONITOREO DE RENDIMIENTO', margin + 3, y + 6);
-      y += 12;
-      
-      const monitoreo = sessionData.monitoreo || {};
-      
-      // FC Cards
-      pdf.setTextColor(...colors.dark);
-      pdf.setFontSize(9);
-      
-      const fcData = [
-        { label: 'FC Reposo', value: monitoreo.fcReposo, unit: 'bpm' },
-        { label: 'FC Media', value: monitoreo.fcMedia, unit: 'bpm' },
-        { label: 'FC Maxima', value: monitoreo.fcMaxima, unit: 'bpm' }
-      ];
-      
-      let fcX = margin;
-      fcData.forEach(fc => {
-        pdf.setFillColor(241, 245, 249);
-        pdf.roundedRect(fcX, y, 55, 15, 2, 2, 'F');
+        // ========== MONITOREO ==========
+        checkNewPage(40);
+        
+        pdf.setFillColor(253, 242, 248); // pink-50
+        pdf.rect(margin, y, contentWidth, 8, 'F');
+        pdf.setTextColor(219, 39, 119); // pink-600
+        pdf.setFontSize(11);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(fc.label, fcX + 3, y + 6);
+        pdf.text('MONITOREO DE RENDIMIENTO', margin + 3, y + 6);
+        y += 12;
+        
+        const monitoreo = sessionData.monitoreo || {};
+        
+        // FC Cards
+        pdf.setTextColor(...colors.dark);
+        pdf.setFontSize(9);
+        
+        const fcData = [
+          { label: 'FC Reposo', value: monitoreo.fcReposo, unit: 'bpm' },
+          { label: 'FC Media', value: monitoreo.fcMedia, unit: 'bpm' },
+          { label: 'FC Maxima', value: monitoreo.fcMaxima, unit: 'bpm' }
+        ];
+        
+        let fcX = margin;
+        fcData.forEach(fc => {
+          pdf.setFillColor(241, 245, 249);
+          pdf.roundedRect(fcX, y, 55, 15, 2, 2, 'F');
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(fc.label, fcX + 3, y + 6);
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(`${fc.value || '-'} ${fc.unit}`, fcX + 3, y + 12);
+          fcX += 60;
+        });
+        y += 20;
+        
+        // Estado del deportista
+        checkNewPage(25);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Estado del Deportista:', margin, y);
+        y += 6;
+        
         pdf.setFont('helvetica', 'normal');
-        pdf.text(`${fc.value || '-'} ${fc.unit}`, fcX + 3, y + 12);
-        fcX += 60;
-      });
-      y += 20;
-      
-      // Estado del deportista
-      checkNewPage(25);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('Estado del Deportista:', margin, y);
-      y += 6;
-      
-      pdf.setFont('helvetica', 'normal');
-      const estadoItems = [
-        { label: 'Fatiga', value: monitoreo.nivelFatiga },
-        { label: 'Hidratacion', value: monitoreo.nivelHidratacion },
-        { label: 'Sueno', value: monitoreo.calidadSueno },
-        { label: 'Energia', value: monitoreo.nivelEnergia }
-      ];
-      
-      estadoItems.forEach(item => {
-        pdf.text(`${item.label}: ${item.value || 0}%`, margin + 5, y);
+        const estadoItems = [
+          { label: 'Fatiga', value: monitoreo.nivelFatiga },
+          { label: 'Hidratacion', value: monitoreo.nivelHidratacion },
+          { label: 'Sueno', value: monitoreo.calidadSueno },
+          { label: 'Energia', value: monitoreo.nivelEnergia }
+        ];
+        
+        estadoItems.forEach(item => {
+          pdf.text(`${item.label}: ${item.value || 0}%`, margin + 5, y);
+          y += 5;
+        });
+        
         y += 5;
-      });
-      
-      y += 5;
       
       // ========== RETROALIMENTACIÓN ==========
       if (sessionData.retroalimentacion) {
