@@ -120,6 +120,78 @@ const ControlPanel = ({
   // Smart Alerts Data
   const [smartAlerts, setSmartAlerts] = useState([]);
 
+  // ===== NUEVOS DATOS PARA VISUALIZACIONES ADICIONALES =====
+  
+  // Progreso de Objetivos
+  const [objectivesProgress] = useState([
+    { id: 1, name: 'Aumentar fuerza máxima', progress: 78, target: 100, color: '#3B82F6' },
+    { id: 2, name: 'Mejorar resistencia aeróbica', progress: 65, target: 100, color: '#10B981' },
+    { id: 3, name: 'Reducir tiempo en 100m', progress: 45, target: 100, color: '#F59E0B' },
+    { id: 4, name: 'Aumentar flexibilidad', progress: 90, target: 100, color: '#8B5CF6' },
+    { id: 5, name: 'Mejorar técnica de salto', progress: 55, target: 100, color: '#EC4899' }
+  ]);
+
+  // Comparativa Semanal
+  const [weeklyComparison] = useState([
+    { metric: 'Volumen', actual: 85, anterior: 78, unidad: '%' },
+    { metric: 'Intensidad', actual: 72, anterior: 80, unidad: '%' },
+    { metric: 'Sesiones', actual: 5, anterior: 4, unidad: '' },
+    { metric: 'Tiempo Total', actual: 8.5, anterior: 7, unidad: 'h' },
+    { metric: 'RPE Promedio', actual: 7.2, anterior: 7.8, unidad: '' }
+  ]);
+
+  // Capacidades Físicas (Radar)
+  const [physicalCapabilities] = useState([
+    { ability: 'Fuerza', value: 82, fullMark: 100 },
+    { ability: 'Resistencia', value: 75, fullMark: 100 },
+    { ability: 'Velocidad', value: 68, fullMark: 100 },
+    { ability: 'Flexibilidad', value: 60, fullMark: 100 },
+    { ability: 'Potencia', value: 78, fullMark: 100 },
+    { ability: 'Coordinación', value: 85, fullMark: 100 }
+  ]);
+
+  // Zonas de Entrenamiento
+  const [trainingZones] = useState([
+    { zone: 'Z1 - Recuperación', minutes: 45, percent: 15, color: '#94A3B8' },
+    { zone: 'Z2 - Aeróbico Base', minutes: 90, percent: 30, color: '#3B82F6' },
+    { zone: 'Z3 - Tempo', minutes: 75, percent: 25, color: '#10B981' },
+    { zone: 'Z4 - Umbral', minutes: 60, percent: 20, color: '#F59E0B' },
+    { zone: 'Z5 - VO2 Max', minutes: 30, percent: 10, color: '#EF4444' }
+  ]);
+
+  // Mini Calendario de Sesiones (mes actual)
+  const [sessionCalendar] = useState(() => {
+    const today = new Date();
+    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    const sessions = [];
+    for (let i = 1; i <= daysInMonth; i++) {
+      const status = i < today.getDate() 
+        ? (Math.random() > 0.3 ? 'completed' : 'missed')
+        : i === today.getDate() 
+          ? 'today'
+          : (Math.random() > 0.5 ? 'scheduled' : 'rest');
+      sessions.push({ day: i, status });
+    }
+    return sessions;
+  });
+
+  // Próximas Competencias
+  const [upcomingCompetitions] = useState([
+    { id: 1, name: 'Campeonato Regional', date: '2026-02-28', daysLeft: 16, priority: 'high', location: 'Madrid' },
+    { id: 2, name: 'Copa Nacional', date: '2026-03-15', daysLeft: 31, priority: 'high', location: 'Barcelona' },
+    { id: 3, name: 'Torneo Preparatorio', date: '2026-02-20', daysLeft: 8, priority: 'medium', location: 'Valencia' },
+    { id: 4, name: 'Meeting Internacional', date: '2026-04-10', daysLeft: 57, priority: 'low', location: 'París' }
+  ]);
+
+  // Récords Personales
+  const [personalRecords] = useState([
+    { id: 1, exercise: 'Sentadilla', value: 140, unit: 'kg', date: '2026-02-10', improvement: '+5kg' },
+    { id: 2, exercise: 'Press Banca', value: 95, unit: 'kg', date: '2026-02-08', improvement: '+2.5kg' },
+    { id: 3, exercise: '100m Sprint', value: 11.2, unit: 's', date: '2026-02-05', improvement: '-0.3s' },
+    { id: 4, exercise: 'Salto Vertical', value: 62, unit: 'cm', date: '2026-02-12', improvement: '+3cm' },
+    { id: 5, exercise: 'Cooper Test', value: 3200, unit: 'm', date: '2026-01-28', improvement: '+150m' }
+  ]);
+
   // Seleccionar mensaje motivacional aleatorio
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * MOTIVATIONAL_MESSAGES.length);
