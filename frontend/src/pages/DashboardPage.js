@@ -103,11 +103,110 @@ const DashboardPage = () => {
   });
   const [activeAthleteTab, setActiveAthleteTab] = useState('athletes');
   
+  // Sports Catalog State
+  const [sportsCatalog, setSportsCatalog] = useState([]);
+  const [newCategory, setNewCategory] = useState({ name: '', icon: '🏆', color: '#3B82F6' });
+  const [newSport, setNewSport] = useState({ name: '', category_id: '' });
+  const [showAddCategory, setShowAddCategory] = useState(false);
+  const [showAddSport, setShowAddSport] = useState(null); // category_id or null
+  
   // PDF Export Modal State
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
   // API Base URL
   const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+  // Fetch Sports Catalog
+  const fetchSportsCatalog = async () => {
+    try {
+      const token = localStorage.getItem('train_token');
+      const response = await fetch(`${API_URL}/api/sports/catalog`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setSportsCatalog(data);
+      }
+    } catch (error) {
+      console.error('Error fetching sports catalog:', error);
+    }
+  };
+
+  // Create Sport Category
+  const handleCreateCategory = async () => {
+    if (!newCategory.name) return;
+    try {
+      const token = localStorage.getItem('train_token');
+      const response = await fetch(`${API_URL}/api/sports/categories`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(newCategory)
+      });
+      if (response.ok) {
+        await fetchSportsCatalog();
+        setNewCategory({ name: '', icon: '🏆', color: '#3B82F6' });
+        setShowAddCategory(false);
+      }
+    } catch (error) {
+      console.error('Error creating category:', error);
+    }
+  };
+
+  // Create Sport
+  const handleCreateSport = async (categoryId) => {
+    if (!newSport.name) return;
+    try {
+      const token = localStorage.getItem('train_token');
+      const response = await fetch(`${API_URL}/api/sports`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ name: newSport.name, category_id: categoryId })
+      });
+      if (response.ok) {
+        await fetchSportsCatalog();
+        setNewSport({ name: '', category_id: '' });
+        setShowAddSport(null);
+      }
+    } catch (error) {
+      console.error('Error creating sport:', error);
+    }
+  };
+
+  // Delete Sport
+  const handleDeleteSport = async (sportId) => {
+    if (!window.confirm('¿Eliminar este deporte?')) return;
+    try {
+      const token = localStorage.getItem('train_token');
+      await fetch(`${API_URL}/api/sports/${sportId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      await fetchSportsCatalog();
+    } catch (error) {
+      console.error('Error deleting sport:', error);
+    }
+  };
+
+  // Delete Category
+  const handleDeleteCategory = async (categoryId) => {
+    if (!window.confirm('¿Eliminar esta categoría y todos sus deportes?')) return;
+    try {
+      const token = localStorage.getItem('train_token');
+      await fetch(`${API_URL}/api/sports/categories/${categoryId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      await fetchSportsCatalog();
+    } catch (error) {
+      console.error('Error deleting category:', error);
+    }
+  };
 
   // Fetch athletes from backend
   const fetchAthletes = async () => {
