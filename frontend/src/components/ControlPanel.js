@@ -10,7 +10,7 @@ import {
   BarChart3, Heart, Zap, ArrowUpRight, ArrowDownRight,
   Flag, Timer, Flame, Save, Download, AlertTriangle, 
   CheckCircle, Info, Sparkles, Trophy, Star, MessageCircle,
-  FileText, Loader2, X
+  FileText, Loader2, X, LayoutDashboard
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
