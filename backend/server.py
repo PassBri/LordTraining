@@ -191,12 +191,13 @@ class EntityResponse(BaseModel):
 class AthleteCreate(BaseModel):
     name: str
     email: Optional[str] = None
-    sport: Sport
+    sport: str = "other"  # Dynamic sport from catalog
     age: int
     level: str
     notes: Optional[str] = None
     # Afiliaciones a entidades
     affiliations: Optional[List[str]] = []  # Lista de IDs de entidades
+    team_id: Optional[str] = None  # Team affiliation
 
 class AthleteResponse(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -204,11 +205,12 @@ class AthleteResponse(BaseModel):
     coach_id: str
     name: str
     email: Optional[str] = None
-    sport: Sport
+    sport: str = "other"
     age: int
     level: str
     notes: Optional[str] = None
     affiliations: Optional[List[str]] = []
+    team_id: Optional[str] = None
     created_at: str
 
 class ExerciseCreate(BaseModel):
