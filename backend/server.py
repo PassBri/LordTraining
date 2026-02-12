@@ -3710,7 +3710,7 @@ async def export_session_pdf(request: SessionPDFRequest, authorization: str = He
         
         # Colores Material Design
         primary_gradient_start = HexColor('#2563eb')
-        primary_gradient_end = HexColor('#7c3aed')
+        # Colores adicionales para el diseño
         secondary_gray = HexColor('#64748b')
         light_gray = HexColor('#f8fafc')
         white = HexColor('#ffffff')
