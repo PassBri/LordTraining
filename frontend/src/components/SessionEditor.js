@@ -1298,24 +1298,15 @@ const SessionEditor = ({
                 data-testid="share-session-btn"
               >
                 <Share2 className="w-4 h-4 mr-2" />
-                Compartir
-              </Button>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button 
-                variant="outline" 
-                onClick={onClose}
-                className="border-slate-300"
-                data-testid="cancel-session-btn"
-              >
-                Cancelar
+                Compartir Enlace
               </Button>
               <Button 
                 variant="outline"
-                onClick={handleExportPDF}
+                size="sm"
+                onClick={handleExportImage}
                 disabled={exporting}
-                className="border-amber-400 text-amber-700 hover:bg-amber-50"
-                data-testid="export-session-btn"
+                className="border-emerald-400 text-emerald-700 hover:bg-emerald-50"
+                data-testid="export-image-btn"
               >
                 {exporting ? (
                   <>
@@ -1324,10 +1315,21 @@ const SessionEditor = ({
                   </>
                 ) : (
                   <>
-                    <Download className="w-4 h-4 mr-2" />
-                    Descargar PDF
+                    <FileText className="w-4 h-4 mr-2" />
+                    Descargar Imagen
                   </>
                 )}
+              </Button>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="outline" 
+                onClick={handleExit}
+                className="border-slate-300 text-slate-600 hover:bg-slate-50"
+                data-testid="exit-session-btn"
+              >
+                <ChevronRight className="w-4 h-4 mr-1" />
+                Salir
               </Button>
               <Button 
                 className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md"
@@ -1335,7 +1337,7 @@ const SessionEditor = ({
                 data-testid="save-session-btn"
               >
                 <Save className="w-4 h-4 mr-2" />
-                Guardar Sesión
+                Guardar
               </Button>
             </div>
           </div>
