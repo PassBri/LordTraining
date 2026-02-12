@@ -74,35 +74,33 @@ const FEATURES = [
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-blue-50">
+      {/* Navigation - Material Design */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shadow-lg">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">T</span>
+            <Link to="/" className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                <span className="text-white font-bold text-xl">T</span>
               </div>
-              <span className="text-xl font-bold tracking-tight">
-                <span className="text-gray-800">Tr</span>
-                <span className="text-blue-600">AI</span>
-                <span className="text-gray-800">n</span>
+              <span className="text-xl font-bold tracking-tight text-white">
+                Tr<span className="text-white/80">AI</span>n
               </span>
             </Link>
 
-            <div className="hidden md:flex items-center gap-8">
-              <a href="#features" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">Funciones</a>
-              <a href="#pricing" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">Precios</a>
+            <div className="hidden md:flex items-center gap-6">
+              <a href="#features" className="text-sm text-white/80 hover:text-white transition-colors">Funciones</a>
+              <a href="#pricing" className="text-sm text-white/80 hover:text-white transition-colors">Precios</a>
             </div>
 
             <div className="flex items-center gap-3">
               <Link to="/auth">
-                <Button variant="ghost" className="text-gray-600 hover:text-gray-900" data-testid="login-nav-btn">
+                <Button variant="ghost" className="text-white/90 hover:text-white hover:bg-white/10" data-testid="login-nav-btn">
                   Iniciar Sesión
                 </Button>
               </Link>
               <Link to="/auth">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white" data-testid="signup-nav-btn">
+                <Button className="bg-white text-indigo-600 hover:bg-white/90 rounded-xl shadow-md" data-testid="signup-nav-btn">
                   Comenzar
                 </Button>
               </Link>
@@ -111,82 +109,82 @@ const LandingPage = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
+      {/* Hero Section - Material Design */}
       <section className="pt-32 pb-20 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-full mb-6">
-              <Brain className="w-4 h-4" />
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-5 py-2.5 rounded-full mb-6 shadow-lg">
+              <Brain className="w-5 h-5" />
               <span className="text-sm font-medium">Potenciado por IA</span>
             </div>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight">
               Planifica, optimiza y alcanza el{' '}
-              <span className="text-blue-600">máximo rendimiento</span>
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">máximo rendimiento</span>
             </h1>
             
-            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+            <p className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
               Sistema inteligente de planificación deportiva. Genera planes personalizados con IA, 
               gestiona atletas y visualiza el progreso en tiempo real.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/auth">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white h-12 px-8 text-base" data-testid="hero-cta-btn">
+                <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white h-12 px-8 text-base rounded-xl shadow-lg" data-testid="hero-cta-btn">
                   Comenzar Gratis
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </Link>
               <a href="#features">
-                <Button variant="outline" className="h-12 px-8 text-base border-gray-300">
+                <Button variant="outline" className="h-12 px-8 text-base border-slate-300 rounded-xl hover:bg-slate-50">
                   Ver Funciones
                 </Button>
               </a>
             </div>
 
-            <p className="text-sm text-gray-500 mt-6">
+            <p className="text-sm text-slate-500 mt-6">
               14 días gratis • Sin tarjeta de crédito • Cancela cuando quieras
             </p>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-20 px-6 bg-gray-50">
+      {/* Features Section - Material Design */}
+      <section id="features" className="py-20 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
               Todo lo que necesitas
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
               Herramientas potentes para llevar tu planificación deportiva al siguiente nivel
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {FEATURES.map((feature, index) => (
-              <Card key={index} className="p-6 bg-white border-gray-200 hover:border-blue-200 hover:shadow-md transition-all">
-                <div className="w-12 h-12 bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl mb-4">
+              <Card key={index} className="p-6 border-0 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-white">
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-500 text-white flex items-center justify-center rounded-2xl mb-4 shadow-md">
                   {feature.icon}
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-bold text-slate-900 mb-2">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600">{feature.description}</p>
+                <p className="text-slate-600">{feature.description}</p>
               </Card>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20 px-6">
+      {/* Pricing Section - Material Design */}
+      <section id="pricing" className="py-20 px-6 bg-gradient-to-br from-slate-50 to-blue-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
               Planes y Precios
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-slate-600">
               Elige el plan que mejor se adapte a tus necesidades
             </p>
           </div>
@@ -195,30 +193,32 @@ const LandingPage = () => {
             {PRICING.map((plan, index) => (
               <Card 
                 key={index} 
-                className={`p-6 relative ${plan.popular ? 'border-blue-600 border-2 shadow-lg' : 'border-gray-200'}`}
+                className={`p-6 relative border-0 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 ${plan.popular ? 'ring-2 ring-indigo-500' : ''}`}
                 data-testid={`pricing-card-${plan.name.toLowerCase()}`}
               >
                 {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-medium px-3 py-1 rounded-full">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-medium px-4 py-1.5 rounded-full shadow-md">
                     Popular
                   </div>
                 )}
                 
                 <div className="text-center mb-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">
+                  <h3 className="text-xl font-bold text-slate-900 mb-1">
                     {plan.name}
                   </h3>
-                  <p className="text-sm text-gray-500 mb-4">{plan.description}</p>
+                  <p className="text-sm text-slate-500 mb-4">{plan.description}</p>
                   <div className="flex items-baseline justify-center">
-                    <span className="text-4xl font-bold text-gray-900">${plan.price}</span>
-                    <span className="text-gray-500 ml-1">/mes</span>
+                    <span className="text-4xl font-bold text-slate-900">${plan.price}</span>
+                    <span className="text-slate-500 ml-1">/mes</span>
                   </div>
                 </div>
 
                 <ul className="space-y-3 mb-6">
                   {plan.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    <li key={idx} className="flex items-center gap-2 text-sm text-slate-600">
+                      <div className="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Check className="w-3 h-3 text-emerald-600" />
+                      </div>
                       {feature}
                     </li>
                   ))}
@@ -226,7 +226,7 @@ const LandingPage = () => {
 
                 <Link to="/auth">
                   <Button 
-                    className={`w-full ${plan.popular ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-900'}`}
+                    className={`w-full rounded-xl h-11 font-medium ${plan.popular ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-900'}`}
                     data-testid={`pricing-cta-${plan.name.toLowerCase()}`}
                   >
                     {plan.cta}
@@ -238,17 +238,17 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-6 bg-blue-600">
+      {/* CTA Section - Material Design */}
+      <section className="py-20 px-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             ¿Listo para empezar?
           </h2>
-          <p className="text-lg text-blue-100 mb-8">
+          <p className="text-lg text-white/80 mb-8">
             Únete a miles de entrenadores que ya optimizan sus planes con IA
           </p>
           <Link to="/auth">
-            <Button className="bg-white text-blue-600 hover:bg-blue-50 h-12 px-8 text-base font-medium" data-testid="cta-final-btn">
+            <Button className="bg-white text-indigo-600 hover:bg-white/90 h-12 px-8 text-base font-medium rounded-xl shadow-lg" data-testid="cta-final-btn">
               Crear Cuenta Gratis
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
@@ -256,20 +256,18 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-8 px-6 border-t border-gray-200">
+      {/* Footer - Material Design */}
+      <footer className="py-8 px-6 bg-slate-900">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center">
-              <span className="text-white font-bold text-sm">T</span>
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold">T</span>
             </div>
-            <span className="font-bold tracking-tight">
-              <span className="text-gray-800">Tr</span>
-              <span className="text-blue-600">AI</span>
-              <span className="text-gray-800">n</span>
+            <span className="font-bold tracking-tight text-white">
+              Tr<span className="text-blue-400">AI</span>n
             </span>
           </div>
-          <p className="text-sm text-gray-500">© 2025 TrAIn. Todos los derechos reservados.</p>
+          <p className="text-sm text-slate-400">© 2025 TrAIn. Todos los derechos reservados.</p>
         </div>
       </footer>
     </div>
