@@ -586,7 +586,7 @@ const DashboardPage = () => {
       
       return (
         <div className="p-4">
-          {/* Tabs para Atletas y Equipos */}
+          {/* Tabs para Atletas, Equipos y Deportes */}
           <div className="flex items-center gap-2 mb-4 border-b border-slate-200">
             <button
               onClick={() => setActiveAthleteTab('athletes')}
@@ -610,7 +610,154 @@ const DashboardPage = () => {
               <Shield className="w-4 h-4 inline mr-2" />
               Equipos
             </button>
+            <button
+              onClick={() => setActiveAthleteTab('sports')}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                activeAthleteTab === 'sports' 
+                  ? 'border-amber-500 text-amber-600' 
+                  : 'border-transparent text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              <Trophy className="w-4 h-4 inline mr-2" />
+              Deportes
+            </button>
           </div>
+
+          {/* Vista de Deportes por Categorías */}
+          {activeAthleteTab === 'sports' && (
+            <div className="space-y-4">
+              <Card className="border-0 shadow-md overflow-hidden">
+                <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-4 px-5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-lg font-semibold">
+                      <Trophy className="w-5 h-5" />
+                      Catálogo de Deportes
+                    </div>
+                    <span className="text-sm bg-white/20 px-3 py-1 rounded-full">Por categorías</span>
+                  </div>
+                </div>
+                <CardContent className="p-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {/* Deportes de Contacto */}
+                    <div className="border border-red-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                      <div className="bg-gradient-to-r from-red-500 to-rose-600 text-white px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <Flame className="w-5 h-5" />
+                          <span className="font-semibold">Deportes de Contacto</span>
+                        </div>
+                      </div>
+                      <div className="p-4 space-y-2">
+                        {['Boxeo', 'MMA', 'Judo', 'Taekwondo', 'Karate', 'Lucha', 'Wrestling', 'Kickboxing'].map(sport => (
+                          <div key={sport} className="flex items-center gap-2 text-sm text-slate-700 hover:bg-red-50 px-2 py-1 rounded cursor-pointer">
+                            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                            {sport}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Tiempo y Marca */}
+                    <div className="border border-blue-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                      <div className="bg-gradient-to-r from-blue-500 to-cyan-600 text-white px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <Timer className="w-5 h-5" />
+                          <span className="font-semibold">Tiempo y Marca</span>
+                        </div>
+                      </div>
+                      <div className="p-4 space-y-2">
+                        {['Atletismo', 'Natación', 'Ciclismo', 'Triatlón', 'Remo', 'Patinaje', 'Esquí', 'Maratón'].map(sport => (
+                          <div key={sport} className="flex items-center gap-2 text-sm text-slate-700 hover:bg-blue-50 px-2 py-1 rounded cursor-pointer">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            {sport}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Deportes Individuales */}
+                    <div className="border border-violet-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                      <div className="bg-gradient-to-r from-violet-500 to-purple-600 text-white px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <User className="w-5 h-5" />
+                          <span className="font-semibold">Individuales</span>
+                        </div>
+                      </div>
+                      <div className="p-4 space-y-2">
+                        {['Tenis', 'Golf', 'Gimnasia', 'Badminton', 'Squash', 'Escalada', 'Surf', 'Skateboarding'].map(sport => (
+                          <div key={sport} className="flex items-center gap-2 text-sm text-slate-700 hover:bg-violet-50 px-2 py-1 rounded cursor-pointer">
+                            <div className="w-2 h-2 bg-violet-500 rounded-full"></div>
+                            {sport}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Deportes de Conjunto */}
+                    <div className="border border-emerald-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                      <div className="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <Users className="w-5 h-5" />
+                          <span className="font-semibold">Deportes de Conjunto</span>
+                        </div>
+                      </div>
+                      <div className="p-4 space-y-2">
+                        {['Fútbol', 'Baloncesto', 'Voleibol', 'Balonmano', 'Rugby', 'Hockey', 'Béisbol', 'Fútbol Americano'].map(sport => (
+                          <div key={sport} className="flex items-center gap-2 text-sm text-slate-700 hover:bg-emerald-50 px-2 py-1 rounded cursor-pointer">
+                            <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                            {sport}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Deportes de Raqueta */}
+                    <div className="border border-orange-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                      <div className="bg-gradient-to-r from-orange-500 to-amber-600 text-white px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <Target className="w-5 h-5" />
+                          <span className="font-semibold">Raqueta y Precisión</span>
+                        </div>
+                      </div>
+                      <div className="p-4 space-y-2">
+                        {['Tenis de Mesa', 'Pádel', 'Frontón', 'Pelota Vasca', 'Tiro con Arco', 'Tiro Olímpico', 'Billar', 'Dardos'].map(sport => (
+                          <div key={sport} className="flex items-center gap-2 text-sm text-slate-700 hover:bg-orange-50 px-2 py-1 rounded cursor-pointer">
+                            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                            {sport}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Esports */}
+                    <div className="border border-pink-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                      <div className="bg-gradient-to-r from-pink-500 to-fuchsia-600 text-white px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <Gamepad2 className="w-5 h-5" />
+                          <span className="font-semibold">Esports</span>
+                        </div>
+                      </div>
+                      <div className="p-4 space-y-2">
+                        {['League of Legends', 'FIFA', 'Valorant', 'CS:GO', 'Fortnite', 'Call of Duty', 'Rocket League', 'Overwatch'].map(sport => (
+                          <div key={sport} className="flex items-center gap-2 text-sm text-slate-700 hover:bg-pink-50 px-2 py-1 rounded cursor-pointer">
+                            <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
+                            {sport}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tip */}
+                  <div className="mt-5 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
+                    <Lightbulb className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm text-amber-800">
+                      <strong>Tip:</strong> Selecciona un deporte al crear un atleta o equipo. Esto personalizará los ejercicios, métodos de entrenamiento y métricas específicas para ese deporte.
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {/* Vista de Equipos */}
           {activeAthleteTab === 'teams' && (
