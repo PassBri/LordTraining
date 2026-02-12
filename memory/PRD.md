@@ -155,6 +155,6 @@ Colecciones principales:
 - Password: test123456
 
 ## URLs
-- Aplicación: https://sports-catalog-demo.preview.emergentagent.com
+- Aplicación: https://competition-system-1.preview.emergentagent.com
 - Vista pública de torneo: /tournament/{share_id}
 - Vista pública de sesión: /session/view/{share_id}
