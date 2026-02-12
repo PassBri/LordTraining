@@ -1082,48 +1082,6 @@ const SessionEditor = ({
                       <span className="text-xs text-red-500 font-medium">bpm</span>
                     </div>
                   </div>
-                        type="number"
-                        value={sessionData.monitoreo.fcReposo}
-                        onChange={(e) => setSessionData(prev => ({
-                          ...prev,
-                          monitoreo: { ...prev.monitoreo, fcReposo: e.target.value }
-                        }))}
-                        placeholder="60"
-                        className="text-center text-lg font-bold h-10 border-0 bg-transparent"
-                      />
-                      <span className="text-[10px] text-slate-400">bpm</span>
-                    </div>
-                    <div className="bg-amber-50 rounded-xl p-4 text-center">
-                      <Activity className="w-5 h-5 text-amber-500 mx-auto mb-2" />
-                      <p className="text-xs text-slate-500 mb-1">FC Media</p>
-                      <Input
-                        type="number"
-                        value={sessionData.monitoreo.fcMedia}
-                        onChange={(e) => setSessionData(prev => ({
-                          ...prev,
-                          monitoreo: { ...prev.monitoreo, fcMedia: e.target.value }
-                        }))}
-                        placeholder="135"
-                        className="text-center text-lg font-bold h-10 border-0 bg-transparent"
-                      />
-                      <span className="text-[10px] text-slate-400">bpm</span>
-                    </div>
-                    <div className="bg-red-50 rounded-xl p-4 text-center">
-                      <TrendingUp className="w-5 h-5 text-red-500 mx-auto mb-2" />
-                      <p className="text-xs text-slate-500 mb-1">FC Máxima</p>
-                      <Input
-                        type="number"
-                        value={sessionData.monitoreo.fcMaxima}
-                        onChange={(e) => setSessionData(prev => ({
-                          ...prev,
-                          monitoreo: { ...prev.monitoreo, fcMaxima: e.target.value }
-                        }))}
-                        placeholder="180"
-                        className="text-center text-lg font-bold h-10 border-0 bg-transparent"
-                      />
-                      <span className="text-[10px] text-slate-400">bpm</span>
-                    </div>
-                  </div>
 
                   {/* Estado del Deportista */}
                   <div className="space-y-4">
