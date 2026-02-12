@@ -331,6 +331,153 @@ const AthletesPage = () => {
     }
   };
 
+  // Tournament handlers
+  const fetchTournamentDetails = async (tournamentId) => {
+    try {
+      const [tournamentRes, matchesRes] = await Promise.all([
+        getTournament(tournamentId),
+        getTournamentMatches(tournamentId)
+      ]);
+      setSelectedTournament(tournamentRes.data);
+      setTournamentMatches(matchesRes.data);
+      setTournamentDetailView(true);
+    } catch (error) {
+      toast.error('Error al cargar torneo');
+    }
+  };
+
+  const handleCreateTournament = async (e) => {
+    e.preventDefault();
+    setFormLoading(true);
+    try {
+      await createTournament({
+        ...tournamentForm,
+        federation_id: tournamentForm.federation_id === 'none' ? null : tournamentForm.federation_id || null,
+        club_id: tournamentForm.club_id === 'none' ? null : tournamentForm.club_id || null,
+        categories: []
+      });
+      toast.success('Torneo creado correctamente');
+      setTournamentDialogOpen(false);
+      setTournamentForm({
+        name: '', description: '', sport: '', format: 'single_elimination',
+        start_date: '', end_date: '', registration_deadline: '',
+        venue: '', city: '', country: '', scoring_system: 'standard',
+        points_win: 3, points_draw: 1, points_loss: 0,
+        federation_id: '', club_id: '', primary_color: '#3B82F6', secondary_color: '#10B981'
+      });
+      fetchData();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Error al crear torneo');
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleDeleteTournament = async (id, name) => {
+    if (!window.confirm(`¿Eliminar el torneo "${name}"?`)) return;
+    try {
+      await deleteTournament(id);
+      toast.success('Torneo eliminado');
+      fetchData();
+    } catch (error) {
+      toast.error('Error al eliminar torneo');
+    }
+  };
+
+  const handleAddTournamentCategory = async (e) => {
+    e.preventDefault();
+    if (!selectedTournament) return;
+    setFormLoading(true);
+    try {
+      await addTournamentCategory(selectedTournament.id, {
+        name: tournamentCategoryForm.name,
+        gender: tournamentCategoryForm.gender || null,
+        age_min: tournamentCategoryForm.age_min ? parseInt(tournamentCategoryForm.age_min) : null,
+        age_max: tournamentCategoryForm.age_max ? parseInt(tournamentCategoryForm.age_max) : null,
+        max_participants: tournamentCategoryForm.max_participants ? parseInt(tournamentCategoryForm.max_participants) : null
+      });
+      toast.success('Categoría añadida');
+      setCategoryDialogOpenTournament(false);
+      setTournamentCategoryForm({ name: '', gender: '', age_min: '', age_max: '', max_participants: '' });
+      fetchTournamentDetails(selectedTournament.id);
+    } catch (error) {
+      toast.error('Error al añadir categoría');
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleRegisterParticipant = async (e) => {
+    e.preventDefault();
+    if (!selectedTournament || !selectedTournamentCategory) return;
+    setFormLoading(true);
+    try {
+      await registerParticipant(selectedTournament.id, selectedTournamentCategory.id, {
+        participant_type: registrationForm.participant_type,
+        participant_id: registrationForm.participant_id,
+        participant_name: registrationForm.participant_name,
+        seed: registrationForm.seed ? parseInt(registrationForm.seed) : null
+      });
+      toast.success('Participante inscrito');
+      setRegisterDialogOpen(false);
+      setRegistrationForm({ participant_type: 'team', participant_id: '', participant_name: '', seed: '' });
+      fetchTournamentDetails(selectedTournament.id);
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Error al inscribir');
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleGenerateBracket = async (categoryId) => {
+    if (!selectedTournament) return;
+    try {
+      await generateBracket(selectedTournament.id, categoryId);
+      toast.success('Bracket generado');
+      fetchTournamentDetails(selectedTournament.id);
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Error al generar bracket');
+    }
+  };
+
+  const handleUpdateScore = async (e) => {
+    e.preventDefault();
+    if (!selectedTournament || !selectedMatch) return;
+    setFormLoading(true);
+    try {
+      await updateMatchScore(selectedTournament.id, selectedMatch.id, {
+        participant1_score: parseInt(scoreForm.participant1_score) || 0,
+        participant2_score: parseInt(scoreForm.participant2_score) || 0,
+        status: 'completed'
+      });
+      toast.success('Resultado actualizado');
+      setScoreDialogOpen(false);
+      setScoreForm({ participant1_score: '', participant2_score: '' });
+      fetchTournamentDetails(selectedTournament.id);
+    } catch (error) {
+      toast.error('Error al actualizar resultado');
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleExportTournamentPDF = () => {
+    if (!selectedTournament) return;
+    window.open(exportTournamentPDF(selectedTournament.id), '_blank');
+  };
+
+  const handleShareTournament = () => {
+    if (!selectedTournament?.share_id) return;
+    const shareUrl = `${window.location.origin}/tournament/${selectedTournament.share_id}`;
+    navigator.clipboard.writeText(shareUrl);
+    toast.success('Enlace copiado');
+  };
+
+  const getFormatIcon = (format) => {
+    const f = TOURNAMENT_FORMATS.find(fmt => fmt.value === format);
+    return f?.icon || '🏆';
+  };
+
   const filteredAthletes = athletes.filter(a => 
     a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     a.sport.toLowerCase().includes(searchQuery.toLowerCase())
