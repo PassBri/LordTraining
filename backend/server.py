@@ -4015,10 +4015,11 @@ class SessionShareRequest(BaseModel):
     athlete_id: str
     athlete_name: str = "Atleta"
     session_data: Dict[str, Any]
+    session_image: Optional[str] = None  # Base64 encoded image
 
 @api_router.post("/sessions/share")
 async def create_session_share(request: SessionShareRequest, authorization: str = Header(None)):
-    """Crear un enlace para compartir una sesión con el deportista"""
+    """Crear un enlace para compartir una sesión con el deportista (con imagen)"""
     try:
         # Verificar autenticación
         if not authorization or not authorization.startswith("Bearer "):
