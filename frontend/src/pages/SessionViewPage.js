@@ -210,188 +210,190 @@ const SessionViewPage = () => {
         {/* Vista de Detalles */}
         {viewMode === 'details' && (
           <div className="space-y-6">
-        {/* Objetivos */}
-        <Card className="border-0 shadow-lg overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-cyan-50 to-blue-50 border-b">
-            <CardTitle className="flex items-center gap-3 text-slate-800">
-              <div className="w-10 h-10 bg-cyan-500 rounded-xl flex items-center justify-center">
-                <Target className="w-5 h-5 text-white" />
-              </div>
-              Objetivos de la Sesión
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                { label: 'Objetivo General', value: objectives.general },
-                { label: 'Objetivo Físico', value: objectives.fisico },
-                { label: 'Objetivo Técnico', value: objectives.tecnico },
-                { label: 'Objetivo Táctico', value: objectives.tactico },
-                { label: 'Objetivo Psicológico', value: objectives.psicologico },
-                { label: 'Objetivo Teórico', value: objectives.teorico }
-              ].filter(obj => obj.value).map((obj, idx) => (
-                <div key={idx} className="bg-slate-50 rounded-lg p-4">
-                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">{obj.label}</p>
-                  <p className="text-slate-800">{obj.value}</p>
-                </div>
-              ))}
-            </div>
-            {!Object.values(objectives).some(v => v) && (
-              <p className="text-slate-400 text-center py-4">No se han definido objetivos para esta sesión</p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Estructura de la Sesión */}
-        <Card className="border-0 shadow-lg overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 border-b">
-            <CardTitle className="flex items-center gap-3 text-slate-800">
-              <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center">
-                <Zap className="w-5 h-5 text-white" />
-              </div>
-              Estructura de la Sesión
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6 space-y-6">
-            {Object.entries(phases).map(([phaseKey, phase]) => {
-              const config = phaseConfig[phaseKey];
-              const activities = phase.actividades || [];
-              
-              if (activities.length === 0) return null;
-              
-              return (
-                <div key={phaseKey} className={`rounded-xl overflow-hidden border-l-4 ${config.color.replace('bg-', 'border-')}`}>
-                  <div className={`${config.bgLight} px-4 py-3`}>
-                    <h3 className={`font-bold uppercase text-sm ${config.textColor}`}>
-                      {config.name}
-                    </h3>
-                    <p className="text-xs text-slate-500">{activities.length} actividades</p>
+            {/* Objetivos */}
+            <Card className="border-0 shadow-lg overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-cyan-50 to-blue-50 border-b">
+                <CardTitle className="flex items-center gap-3 text-slate-800">
+                  <div className="w-10 h-10 bg-cyan-500 rounded-xl flex items-center justify-center">
+                    <Target className="w-5 h-5 text-white" />
                   </div>
+                  Objetivos de la Sesión
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    { label: 'Objetivo General', value: objectives.general },
+                    { label: 'Objetivo Físico', value: objectives.fisico },
+                    { label: 'Objetivo Técnico', value: objectives.tecnico },
+                    { label: 'Objetivo Táctico', value: objectives.tactico },
+                    { label: 'Objetivo Psicológico', value: objectives.psicologico },
+                    { label: 'Objetivo Teórico', value: objectives.teorico }
+                  ].filter(obj => obj.value).map((obj, idx) => (
+                    <div key={idx} className="bg-slate-50 rounded-lg p-4">
+                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">{obj.label}</p>
+                      <p className="text-slate-800">{obj.value}</p>
+                    </div>
+                  ))}
+                </div>
+                {!Object.values(objectives).some(v => v) && (
+                  <p className="text-slate-400 text-center py-4">No se han definido objetivos para esta sesión</p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Estructura de la Sesión */}
+            <Card className="border-0 shadow-lg overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 border-b">
+                <CardTitle className="flex items-center gap-3 text-slate-800">
+                  <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-white" />
+                  </div>
+                  Estructura de la Sesión
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 space-y-6">
+                {Object.entries(phases).map(([phaseKey, phase]) => {
+                  const config = phaseConfig[phaseKey];
+                  const activities = phase.actividades || [];
                   
-                  <div className="bg-white overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="bg-slate-50 text-left text-xs text-slate-500 uppercase">
-                          <th className="py-3 px-4 font-semibold">Ejercicio</th>
-                          <th className="py-3 px-3 font-semibold">Cap. Física</th>
-                          <th className="py-3 px-3 font-semibold">Método</th>
-                          <th className="py-3 px-3 font-semibold text-center">Series</th>
-                          <th className="py-3 px-3 font-semibold text-center">Reps</th>
-                          <th className="py-3 px-3 font-semibold text-center">Intensidad</th>
-                          <th className="py-3 px-3 font-semibold">Volumen</th>
-                          <th className="py-3 px-3 font-semibold">Recuperación</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {activities.map((act, idx) => (
-                          <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
-                            <td className="py-3 px-4">
-                              <div className="flex items-center gap-2">
-                                <Check className={`w-4 h-4 ${config.textColor}`} />
-                                <span className="font-medium text-slate-800">{act.ejercicio || '-'}</span>
-                              </div>
-                            </td>
-                            <td className="py-3 px-3 text-slate-600">
-                              {CAPACIDADES_FISICAS[act.capacidadFisica] || act.capacidadFisica || '-'}
-                            </td>
-                            <td className="py-3 px-3 text-slate-600">
-                              {METODOS[act.metodo] || act.metodo || '-'}
-                            </td>
-                            <td className="py-3 px-3 text-center">
-                              <span className="bg-slate-100 px-2 py-1 rounded font-medium">{act.series || '-'}</span>
-                            </td>
-                            <td className="py-3 px-3 text-center">
-                              <span className="bg-slate-100 px-2 py-1 rounded font-medium">{act.repeticiones || '-'}</span>
-                            </td>
-                            <td className="py-3 px-3">
-                              <div className="flex items-center gap-2">
-                                <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden max-w-[60px]">
-                                  <div 
-                                    className={`h-full transition-all ${
-                                      act.intensidad > 80 ? 'bg-red-500' :
-                                      act.intensidad > 60 ? 'bg-orange-500' :
-                                      act.intensidad > 40 ? 'bg-yellow-500' :
-                                      'bg-green-500'
-                                    }`}
-                                    style={{ width: `${act.intensidad || 0}%` }}
-                                  />
-                                </div>
-                                <span className="text-xs font-medium w-8">{act.intensidad || 0}%</span>
-                              </div>
-                            </td>
-                            <td className="py-3 px-3 text-slate-600">{act.volumen || '-'}</td>
-                            <td className="py-3 px-3 text-slate-600">{act.recuperacion || '-'}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              );
-            })}
-            
-            {!Object.values(phases).some(p => p.actividades?.length > 0) && (
-              <p className="text-slate-400 text-center py-8">No hay actividades definidas para esta sesión</p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Monitoreo */}
-        {(monitoring.fcReposo || monitoring.fcMaxima || feedback) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {(monitoring.fcReposo || monitoring.fcMaxima) && (
-              <Card className="border-0 shadow-lg overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-red-50 to-pink-50 border-b">
-                  <CardTitle className="flex items-center gap-3 text-slate-800 text-base">
-                    <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
-                      <Heart className="w-4 h-4 text-white" />
-                    </div>
-                    Frecuencia Cardíaca
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-5">
-                  <div className="grid grid-cols-2 gap-4">
-                    {monitoring.fcReposo && (
-                      <div className="text-center p-4 bg-slate-50 rounded-xl">
-                        <p className="text-3xl font-bold text-slate-800">{monitoring.fcReposo}</p>
-                        <p className="text-xs text-slate-500 mt-1">FC Reposo (bpm)</p>
+                  if (activities.length === 0) return null;
+                  
+                  return (
+                    <div key={phaseKey} className={`rounded-xl overflow-hidden border-l-4 ${config.color.replace('bg-', 'border-')}`}>
+                      <div className={`${config.bgLight} px-4 py-3`}>
+                        <h3 className={`font-bold uppercase text-sm ${config.textColor}`}>
+                          {config.name}
+                        </h3>
+                        <p className="text-xs text-slate-500">{activities.length} actividades</p>
                       </div>
-                    )}
-                    {monitoring.fcMaxima && (
-                      <div className="text-center p-4 bg-red-50 rounded-xl">
-                        <p className="text-3xl font-bold text-red-600">{monitoring.fcMaxima}</p>
-                        <p className="text-xs text-slate-500 mt-1">FC Máxima (bpm)</p>
+                      
+                      <div className="bg-white overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-slate-50 text-left text-xs text-slate-500 uppercase">
+                              <th className="py-3 px-4 font-semibold">Ejercicio</th>
+                              <th className="py-3 px-3 font-semibold">Cap. Física</th>
+                              <th className="py-3 px-3 font-semibold">Método</th>
+                              <th className="py-3 px-3 font-semibold text-center">Series</th>
+                              <th className="py-3 px-3 font-semibold text-center">Reps</th>
+                              <th className="py-3 px-3 font-semibold text-center">Intensidad</th>
+                              <th className="py-3 px-3 font-semibold">Volumen</th>
+                              <th className="py-3 px-3 font-semibold">Recuperación</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {activities.map((act, idx) => (
+                              <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
+                                <td className="py-3 px-4">
+                                  <div className="flex items-center gap-2">
+                                    <Check className={`w-4 h-4 ${config.textColor}`} />
+                                    <span className="font-medium text-slate-800">{act.ejercicio || '-'}</span>
+                                  </div>
+                                </td>
+                                <td className="py-3 px-3 text-slate-600">
+                                  {CAPACIDADES_FISICAS[act.capacidadFisica] || act.capacidadFisica || '-'}
+                                </td>
+                                <td className="py-3 px-3 text-slate-600">
+                                  {METODOS[act.metodo] || act.metodo || '-'}
+                                </td>
+                                <td className="py-3 px-3 text-center">
+                                  <span className="bg-slate-100 px-2 py-1 rounded font-medium">{act.series || '-'}</span>
+                                </td>
+                                <td className="py-3 px-3 text-center">
+                                  <span className="bg-slate-100 px-2 py-1 rounded font-medium">{act.repeticiones || '-'}</span>
+                                </td>
+                                <td className="py-3 px-3">
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden max-w-[60px]">
+                                      <div 
+                                        className={`h-full transition-all ${
+                                          act.intensidad > 80 ? 'bg-red-500' :
+                                          act.intensidad > 60 ? 'bg-orange-500' :
+                                          act.intensidad > 40 ? 'bg-yellow-500' :
+                                          'bg-green-500'
+                                        }`}
+                                        style={{ width: `${act.intensidad || 0}%` }}
+                                      />
+                                    </div>
+                                    <span className="text-xs font-medium w-8">{act.intensidad || 0}%</span>
+                                  </div>
+                                </td>
+                                <td className="py-3 px-3 text-slate-600">{act.volumen || '-'}</td>
+                                <td className="py-3 px-3 text-slate-600">{act.recuperacion || '-'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                    </div>
+                  );
+                })}
+                
+                {!Object.values(phases).some(p => p.actividades?.length > 0) && (
+                  <p className="text-slate-400 text-center py-8">No hay actividades definidas para esta sesión</p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Monitoreo */}
+            {(monitoring.fcReposo || monitoring.fcMaxima || feedback) && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {(monitoring.fcReposo || monitoring.fcMaxima) && (
+                  <Card className="border-0 shadow-lg overflow-hidden">
+                    <CardHeader className="bg-gradient-to-r from-red-50 to-pink-50 border-b">
+                      <CardTitle className="flex items-center gap-3 text-slate-800 text-base">
+                        <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
+                          <Heart className="w-4 h-4 text-white" />
+                        </div>
+                        Frecuencia Cardíaca
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-5">
+                      <div className="grid grid-cols-2 gap-4">
+                        {monitoring.fcReposo && (
+                          <div className="text-center p-4 bg-slate-50 rounded-xl">
+                            <p className="text-3xl font-bold text-slate-800">{monitoring.fcReposo}</p>
+                            <p className="text-xs text-slate-500 mt-1">FC Reposo (bpm)</p>
+                          </div>
+                        )}
+                        {monitoring.fcMaxima && (
+                          <div className="text-center p-4 bg-red-50 rounded-xl">
+                            <p className="text-3xl font-bold text-red-600">{monitoring.fcMaxima}</p>
+                            <p className="text-xs text-slate-500 mt-1">FC Máxima (bpm)</p>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {feedback && (
+                  <Card className="border-0 shadow-lg overflow-hidden">
+                    <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
+                      <CardTitle className="flex items-center gap-3 text-slate-800 text-base">
+                        <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
+                          <AlertCircle className="w-4 h-4 text-white" />
+                        </div>
+                        Observaciones
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-5">
+                      <p className="text-slate-700">{feedback}</p>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
             )}
 
-            {feedback && (
-              <Card className="border-0 shadow-lg overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
-                  <CardTitle className="flex items-center gap-3 text-slate-800 text-base">
-                    <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
-                      <AlertCircle className="w-4 h-4 text-white" />
-                    </div>
-                    Observaciones
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-5">
-                  <p className="text-slate-700">{feedback}</p>
-                </CardContent>
-              </Card>
-            )}
+            {/* Footer */}
+            <div className="text-center py-6">
+              <p className="text-sm text-slate-400">
+                Sesión generada con <span className="font-semibold text-blue-500">Sistema TRAIN</span>
+              </p>
+            </div>
           </div>
         )}
-
-        {/* Footer */}
-        <div className="text-center py-6">
-          <p className="text-sm text-slate-400">
-            Sesión generada con <span className="font-semibold text-blue-500">Sistema TRAIN</span>
-          </p>
-        </div>
       </div>
     </div>
   );
