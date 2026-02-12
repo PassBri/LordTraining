@@ -747,15 +747,12 @@ const ControlPanel = ({
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                   <XAxis dataKey="semana" tick={{ fontSize: 10 }} stroke="#94a3b8" axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 10 }} stroke="#94a3b8" axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '12px' }} /> 
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                  />
-                  <Legend />
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '12px' }} />
                   <Area 
                     type="monotone" 
                     dataKey="carga" 
-                    name="Carga Acumulada"
-                    stroke={COLORS.primary} 
+                    name="Carga"
+                    stroke="#3b82f6" 
                     fillOpacity={1} 
                     fill="url(#colorCarga)" 
                     strokeWidth={2}
@@ -763,8 +760,8 @@ const ControlPanel = ({
                   <Area 
                     type="monotone" 
                     dataKey="fatiga" 
-                    name="Índice de Fatiga"
-                    stroke={COLORS.danger} 
+                    name="Fatiga"
+                    stroke="#ef4444" 
                     fillOpacity={1} 
                     fill="url(#colorFatiga)" 
                     strokeWidth={2}
@@ -774,30 +771,7 @@ const ControlPanel = ({
             </CardContent>
           </Card>
         </div>
-
-        {/* Resumen del Atleta Seleccionado */}
-        {selectedAthlete && (
-          <Card className="shadow-lg border-0 bg-gradient-to-r from-slate-800 to-slate-900 text-white">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Users className="w-5 h-5 text-cyan-400" />
-                Resumen del Atleta: {selectedAthlete.name}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                {/* Datos Básicos */}
-                <div className="space-y-3">
-                  <h4 className="text-cyan-400 font-semibold text-sm uppercase tracking-wider">Datos Básicos</h4>
-                  <div className="space-y-2">
-                    <p className="text-slate-300 text-sm">Deporte: <span className="text-white font-medium">{selectedAthlete.sport || 'No definido'}</span></p>
-                    <p className="text-slate-300 text-sm">Nivel: <span className="text-white font-medium">{selectedAthlete.level || 'Intermedio'}</span></p>
-                    <p className="text-slate-300 text-sm">Edad: <span className="text-white font-medium">{selectedAthlete.age || '-'} años</span></p>
-                  </div>
-                </div>
-
-                {/* Estado del Plan */}
-                <div className="space-y-3">
+      </div>
                   <h4 className="text-emerald-400 font-semibold text-sm uppercase tracking-wider">Estado del Plan</h4>
                   <div className="space-y-2">
                     <p className="text-slate-300 text-sm">Fase actual: <span className="text-emerald-400 font-medium">
