@@ -501,14 +501,14 @@ const AthletesPage = () => {
         {/* Header */}
         <div>
           <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight" style={{ fontFamily: 'Barlow Condensed' }}>
-            ATLETAS Y EQUIPOS
+            GESTIÓN DEPORTIVA
           </h1>
-          <p className="text-slate-500 mt-1">Gestiona deportistas, equipos y catálogo de deportes</p>
+          <p className="text-slate-500 mt-1">Gestiona atletas, equipos, deportes y torneos</p>
         </div>
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-3">
+          <TabsList className="grid w-full max-w-xl grid-cols-4">
             <TabsTrigger value="athletes" className="flex items-center gap-2" data-testid="tab-athletes">
               <User className="w-4 h-4" />
               Atletas
@@ -520,6 +520,10 @@ const AthletesPage = () => {
             <TabsTrigger value="sports" className="flex items-center gap-2" data-testid="tab-sports">
               <Trophy className="w-4 h-4" />
               Deportes
+            </TabsTrigger>
+            <TabsTrigger value="tournaments" className="flex items-center gap-2" data-testid="tab-tournaments">
+              <Medal className="w-4 h-4" />
+              Torneos
             </TabsTrigger>
           </TabsList>
 
