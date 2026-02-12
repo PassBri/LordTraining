@@ -930,10 +930,17 @@ async def create_athlete(athlete: AthleteCreate, user: dict = Depends(get_curren
         "id": athlete_id,
         "coach_id": user["id"],
         **athlete.model_dump(),
-        "sport": athlete.sport.value,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.athletes.insert_one(doc)
+    
+    # Add athlete to team if team_id provided
+    if athlete.team_id:
+        await db.teams.update_one(
+            {"id": athlete.team_id, "coach_id": user["id"]},
+            {"$addToSet": {"athletes": athlete_id}}
+        )
+    
     doc.pop("_id", None)
     return AthleteResponse(**doc)
 
@@ -951,17 +958,37 @@ async def get_athlete(athlete_id: str, user: dict = Depends(get_current_user)):
 
 @api_router.put("/athletes/{athlete_id}", response_model=AthleteResponse)
 async def update_athlete(athlete_id: str, athlete: AthleteCreate, user: dict = Depends(get_current_user)):
+    update_data = athlete.model_dump()
     result = await db.athletes.update_one(
         {"id": athlete_id, "coach_id": user["id"]},
-        {"$set": {**athlete.model_dump(), "sport": athlete.sport.value}}
+        {"$set": update_data}
     )
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Athlete not found")
+    
+    # Handle team change
+    if athlete.team_id:
+        # Remove from old teams first
+        await db.teams.update_many(
+            {"coach_id": user["id"], "athletes": athlete_id},
+            {"$pull": {"athletes": athlete_id}}
+        )
+        # Add to new team
+        await db.teams.update_one(
+            {"id": athlete.team_id, "coach_id": user["id"]},
+            {"$addToSet": {"athletes": athlete_id}}
+        )
+    
     updated = await db.athletes.find_one({"id": athlete_id}, {"_id": 0})
     return AthleteResponse(**updated)
 
 @api_router.delete("/athletes/{athlete_id}")
 async def delete_athlete(athlete_id: str, user: dict = Depends(get_current_user)):
+    # Remove from any teams first
+    await db.teams.update_many(
+        {"coach_id": user["id"], "athletes": athlete_id},
+        {"$pull": {"athletes": athlete_id}}
+    )
     result = await db.athletes.delete_one({"id": athlete_id, "coach_id": user["id"]})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Athlete not found")
