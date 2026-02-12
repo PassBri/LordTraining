@@ -288,71 +288,48 @@ const SessionEditor = ({
     onClose();
   };
 
-  // Exportar sesión como imagen
+  // Exportar sesión como imagen (mismo método que GraphicPlan)
   const handleExportImage = async () => {
-    if (exporting) return; // Prevenir múltiples clicks
+    if (exporting) return;
     setExporting(true);
     
     try {
-      if (!sessionContentRef.current) {
+      // Importar html2canvas dinámicamente
+      const html2canvas = (await import('html2canvas')).default;
+      
+      // Buscar el elemento con data-testid
+      const contentElement = document.querySelector('[data-testid="session-editor-content"]');
+      if (!contentElement) {
         toast.error('No se encontró el contenido para exportar');
         setExporting(false);
         return;
       }
-
+      
       toast.info('Generando imagen...');
       
-      const { default: html2canvas } = await import('html2canvas');
-      const element = sessionContentRef.current;
-      
-      // Crear un contenedor temporal fuera de pantalla
-      const tempContainer = document.createElement('div');
-      tempContainer.style.cssText = `
-        position: fixed;
-        left: -9999px;
-        top: 0;
-        width: ${element.scrollWidth}px;
-        background: white;
-        z-index: -1;
-      `;
-      document.body.appendChild(tempContainer);
-      
-      // Clonar el contenido
-      const clone = element.cloneNode(true);
-      clone.style.cssText = `
-        overflow: visible !important;
-        max-height: none !important;
-        height: auto !important;
-        width: ${element.scrollWidth}px;
-      `;
-      tempContainer.appendChild(clone);
-      
-      // Pequeña espera para que el DOM se estabilice
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Capturar el clon
-      const canvas = await html2canvas(clone, {
-        scale: 1.5,
-        useCORS: true,
+      // Capturar usando el mismo método que GraphicPlan
+      const canvas = await html2canvas(contentElement, {
         backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true,
         logging: false,
-        allowTaint: true
+        scrollY: -window.scrollY,
+        windowWidth: contentElement.scrollWidth,
+        windowHeight: contentElement.scrollHeight
       });
       
-      // Limpiar el contenedor temporal
-      document.body.removeChild(tempContainer);
-      
-      // Descargar la imagen
-      const dataUrl = canvas.toDataURL('image/png', 0.9);
+      // Crear enlace de descarga
       const link = document.createElement('a');
-      link.href = dataUrl;
-      link.download = `sesion_${session?.date || 'entrenamiento'}.png`;
+      link.download = `sesion_${athleteName?.replace(/\s+/g, '_') || 'atleta'}_${session?.date || new Date().toISOString().split('T')[0]}.png`;
+      link.href = canvas.toDataURL('image/png');
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
       
-      toast.success('Imagen descargada exitosamente');
+      toast.success('Imagen exportada exitosamente');
     } catch (error) {
       console.error('Error exporting image:', error);
-      toast.error('Error al exportar imagen. Intenta de nuevo.');
+      toast.error('Error al exportar imagen');
     } finally {
       setExporting(false);
     }
