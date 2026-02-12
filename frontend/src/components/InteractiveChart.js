@@ -488,6 +488,16 @@ const InteractiveChart = ({
                 >
                   <Settings2 className="w-4 h-4" />
                 </Button>
+                <div className="w-px h-5 bg-slate-200 mx-1" />
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 w-8 p-0 text-slate-500 hover:text-blue-600 hover:bg-blue-50"
+                  onClick={() => setIsFullscreen(true)}
+                  title="Pantalla completa"
+                >
+                  <Maximize2 className="w-4 h-4" />
+                </Button>
               </div>
             )}
           </div>
