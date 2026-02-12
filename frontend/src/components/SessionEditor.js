@@ -422,18 +422,12 @@ const SessionEditor = ({
         const contentElement = document.querySelector('[data-testid="session-editor-content"]');
         
         if (contentElement) {
-          // Guardar estilos originales del contenedor
-          const originalOverflow = contentElement.style.overflow;
-          const originalMaxHeight = contentElement.style.maxHeight;
-          const originalHeight = contentElement.style.height;
-          
-          // Expandir el contenedor para capturar todo
-          contentElement.style.overflow = 'visible';
-          contentElement.style.maxHeight = 'none';
-          contentElement.style.height = 'auto';
+          // Guardar className original y modificar para captura
+          const originalClassName = contentElement.className;
+          contentElement.className = 'bg-white'; // Quitar overflow y max-height
           
           // Esperar que el DOM se actualice
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise(resolve => setTimeout(resolve, 150));
           
           const canvas = await html2canvas(contentElement, {
             backgroundColor: '#ffffff',
@@ -442,10 +436,8 @@ const SessionEditor = ({
             logging: false
           });
           
-          // Restaurar estilos originales
-          contentElement.style.overflow = originalOverflow;
-          contentElement.style.maxHeight = originalMaxHeight;
-          contentElement.style.height = originalHeight;
+          // Restaurar className original
+          contentElement.className = originalClassName;
           
           imageBase64 = canvas.toDataURL('image/png');
           console.log('Image captured successfully, size:', canvas.width, 'x', canvas.height);
