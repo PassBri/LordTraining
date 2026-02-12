@@ -86,6 +86,29 @@ const ControlPanel = ({
   const [dataSource, setDataSource] = useState('local'); // 'local' or 'api'
   const [chartType, setChartType] = useState('bar'); // 'bar', 'line', 'area', 'mixed'
   const [showChartOptions, setShowChartOptions] = useState(false);
+  const [selectedDashboardAthlete, setSelectedDashboardAthlete] = useState(selectedAthleteId || 'all');
+  
+  // Readiness Score Data (simulado - en producción vendría del atleta)
+  const [readinessScore, setReadinessScore] = useState({
+    overall: 85,
+    sleep: 90,
+    muscle_soreness: 40,
+    stress: 35,
+    motivation: 95,
+    hydration: 80
+  });
+  
+  // Training Load Ratio (Agudo:Crónico)
+  const [trainingLoadRatio, setTrainingLoadRatio] = useState({
+    acute: 450,
+    chronic: 380,
+    ratio: 1.18,
+    status: 'optimal', // 'low', 'optimal', 'warning', 'danger'
+    trend: 'stable' // 'increasing', 'decreasing', 'stable'
+  });
+  
+  // Smart Alerts Data
+  const [smartAlerts, setSmartAlerts] = useState([]);
 
   // Seleccionar mensaje motivacional aleatorio
   useEffect(() => {
