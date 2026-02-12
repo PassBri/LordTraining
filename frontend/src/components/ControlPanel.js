@@ -772,21 +772,6 @@ const ControlPanel = ({
           </Card>
         </div>
       </div>
-            data-testid="quick-new-macrocycle"
-          >
-            <Target className="w-6 h-6" />
-            <span>Crear Macrociclo</span>
-          </Button>
-          <Button 
-            className="h-auto py-4 bg-amber-500 hover:bg-amber-600 flex flex-col items-center gap-2"
-            onClick={handleViewReports}
-            data-testid="quick-view-reports"
-          >
-            <BarChart3 className="w-6 h-6" />
-            <span>Ver Reportes</span>
-          </Button>
-        </div>
-      </div>
 
       {/* Modal de Exportación PDF */}
       <Dialog open={showExportModal} onOpenChange={setShowExportModal}>
@@ -812,7 +797,7 @@ const ControlPanel = ({
                 />
                 <Label htmlFor="summary" className="flex items-center gap-2 cursor-pointer">
                   <BarChart3 className="w-4 h-4 text-blue-500" />
-                  Resumen del Plan de Entrenamiento
+                  Resumen del Plan
                 </Label>
               </div>
               
