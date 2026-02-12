@@ -876,7 +876,19 @@ const TournamentManager = ({
       toast.error('No puedes eliminar participantes después de generar el fixture');
       return;
     }
-    setParticipants(participants.filter(p => p.id !== id));
+    const updatedParticipants = participants.filter(p => p.id !== id);
+    setParticipants(updatedParticipants);
+    
+    // Auto-save after removing participant
+    if (selectedTournament && onUpdateTournament) {
+      onUpdateTournament(selectedTournament.id, {
+        ...selectedTournament,
+        participants: updatedParticipants,
+        matches,
+        participants_count: updatedParticipants.length
+      });
+    }
+    
     toast.success('Participante eliminado');
   };
 
