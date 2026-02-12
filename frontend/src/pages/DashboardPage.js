@@ -13,7 +13,7 @@ import {
   Activity, BarChart, LineChart, Loader2, LogOut, Save, Download, Layers, Plus, Dumbbell,
   Shield, UserCheck, User, UserCircle, Settings, LayoutDashboard, Landmark,
   Building2, Building, GraduationCap, Trophy, Timer, Flame, Gamepad2, Lightbulb, X, Trash2,
-  Medal, MapPin, LayoutGrid, GitBranch, Share2, History, Filter
+  Medal, MapPin, LayoutGrid, GitBranch, Share2, History, Filter, CreditCard
 } from 'lucide-react';
 import { 
   LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, 
