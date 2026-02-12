@@ -437,7 +437,7 @@ const ControlPanel = ({
     }
 
     // Datos de ejemplo basados en modelo de periodización típico
-    if (volumeData.length === 0 || needsRegeneration) {
+    if (!hasCompleteData) {
       // Definir fases de periodización con sus características
       const periodizationModel = [
         { fase: 'Prep. General', semanas: 4, volBase: 75, intBase: 55, tendVol: 5, tendInt: 3 },
