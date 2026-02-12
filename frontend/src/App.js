@@ -131,8 +131,10 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
-        <Toaster position="top-right" richColors />
+        <GlobalContextProvider>
+          <AppRoutes />
+          <Toaster position="top-right" richColors />
+        </GlobalContextProvider>
       </AuthProvider>
     </BrowserRouter>
   );
