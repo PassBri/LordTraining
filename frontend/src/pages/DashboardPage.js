@@ -166,6 +166,40 @@ const DashboardPage = () => {
   // Get unique sports from catalog
   const allSports = sportsCatalog.flatMap(cat => cat.sports || []);
 
+  // Load generated plans from localStorage on mount
+  useEffect(() => {
+    const savedPlans = localStorage.getItem('train_generated_plans');
+    if (savedPlans) {
+      setGeneratedPlans(JSON.parse(savedPlans));
+    }
+  }, []);
+
+  // Save a new generated plan
+  const saveGeneratedPlan = (plan) => {
+    const newPlan = {
+      id: Date.now().toString(),
+      ...plan,
+      createdAt: new Date().toISOString()
+    };
+    const updatedPlans = [newPlan, ...generatedPlans];
+    setGeneratedPlans(updatedPlans);
+    localStorage.setItem('train_generated_plans', JSON.stringify(updatedPlans));
+    return newPlan;
+  };
+
+  // Delete a plan
+  const deletePlan = (planId) => {
+    const updatedPlans = generatedPlans.filter(p => p.id !== planId);
+    setGeneratedPlans(updatedPlans);
+    localStorage.setItem('train_generated_plans', JSON.stringify(updatedPlans));
+  };
+
+  // Start new plan creation
+  const handleNewPlan = () => {
+    setSidebarView('assistant');
+    setMessages([{ role: 'assistant', content: '¡Hola! Vamos a crear un nuevo plan de entrenamiento. ¿Para qué atleta o equipo deseas generar el plan?' }]);
+  };
+
   // Tournaments State
   const [tournaments, setTournaments] = useState([]);
   const [tournamentDialogOpen, setTournamentDialogOpen] = useState(false);
