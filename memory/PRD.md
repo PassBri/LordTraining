@@ -1,174 +1,101 @@
-# Sistema TRAIN - PRD (Product Requirements Document)
+# TRAIN - Sports Management Platform PRD
 
-## Descripción General
-Sistema completo de gestión de entrenamiento deportivo para entrenadores, federaciones, clubes y escuelas. Incluye planificación de entrenamientos con IA, gestión de atletas y equipos, torneos/competencias, y análisis de rendimiento.
+## Original Problem Statement
+Sistema de gestión deportiva TRAIN con las siguientes características principales:
+- Panel de Control con gráficos interactivos
+- Sistema de Torneos profesional
+- Gestión de atletas, equipos y deportes
+- Asistente IA de entrenamiento
 
-## Fecha de Última Actualización
-12 de Febrero, 2026
+## What's Been Implemented (Session: Feb 12, 2026)
 
----
+### 1. Gráficos Interactivos Tipo Trading ✅
+- **Componente InteractiveChart.js** con funciones avanzadas:
+  - Scroll horizontal con Brush (mini gráfico)
+  - Zoom con Shift + Scroll del mouse
+  - Doble clic para reset
+  - Crosshair/cursor vertical que sigue el mouse
+  - Botones de rango rápido (Últ. 4, Últ. 8, Todo)
+  - Selector de tipo de vista (barras, líneas, área, puntos, mixta)
+  - Selector de período (4A, 2A, 1A, 6M, 3M, 1M, S)
+  - Modo pantalla completa estilo trading
+  - Tooltips oscuros con valores precisos
 
-## Funcionalidades Implementadas
+### 2. Zonas de Referencia en Gráficos ✅
+- Gráfico "Carga de Entrenamiento Acumulada" con zonas:
+  - 🔴 Sobrentrenamiento (550-700)
+  - 🟢 Zona Óptima (350-550)
+  - 🟡 Carga Moderada (150-350)
+  - ⚪ Carga Baja (0-150)
 
-### 1. Autenticación y Usuarios
-- ✅ Registro e inicio de sesión
-- ✅ Roles: Entrenador, Admin, Atleta
-- ✅ Planes de suscripción (Free, Premium, Team, Federation)
-- ✅ JWT para autenticación
+### 3. Nuevas Visualizaciones en Panel de Control ✅
+- Progreso de Objetivos (barras de progreso)
+- Comparativa Semanal (métricas vs anterior)
+- Radar de Capacidades Físicas (hexagonal)
+- Zonas de Entrenamiento (barra apilada horizontal)
+- Mini Calendario de Sesiones (mes actual)
+- Próximas Competencias (lista con countdown)
+- Récords Personales (tarjetas PRs)
 
-### 2. Gestión de Atletas y Equipos
-- ✅ CRUD completo de atletas
-- ✅ CRUD completo de equipos
-- ✅ Afiliación de equipos a entidades (Federación, Club, Escuela)
-- ✅ Afiliación de atletas a equipos
-- ✅ Catálogo de deportes dinámico y editable
-- ✅ Categorías de deportes con iconos y colores
+### 4. Sistema de Torneos Profesional ✅
+- **Componente TournamentManager.js** completo:
+  - Wizard de 4 pasos con Material Design
+  - Integración con catálogo de deportes del sistema
+  - 6 formatos de torneo (Eliminación, Doble Eliminación, Round Robin, Grupos + Knockout, Liga, Sistema Suizo)
+  - Bracket visual interactivo
+  - Tabla de posiciones automática
+  - Lista de partidos agrupada por fecha
+  - Gestión de participantes
+  - Categorías personalizables (Sub-12, Sub-14, etc.)
+  - Acciones rápidas (Generar Fixture, Exportar PDF)
+  - Compartir torneo con enlace
 
-### 3. Sistema de Torneos y Competencias
-- ✅ Creación de torneos con múltiples formatos:
-  - Eliminación directa (Single Elimination)
-  - Doble eliminación (Double Elimination)
-  - Todos contra todos (Round Robin)
-  - Grupos + Eliminación (Group Stage + Knockout)
-  - Liga (puntos)
-  - Sistema Suizo
-  - Con Repechaje (Consolation)
-- ✅ Múltiples categorías por torneo (Sub-15, Sub-17, Senior, etc.)
-- ✅ Inscripción de participantes (equipos o atletas)
-- ✅ Generación automática de brackets
-- ✅ Actualización de resultados en tiempo real
-- ✅ Tabla de posiciones automática
-- ✅ Exportación a PDF
-- ✅ Enlaces compartibles públicos
-- ✅ Sistemas de puntuación configurables (FIFA, FIBA, ITF, etc.)
+## Key Files Modified
+- `/app/frontend/src/components/InteractiveChart.js` - Gráficos tipo trading
+- `/app/frontend/src/components/ControlPanel.js` - Nuevas visualizaciones
+- `/app/frontend/src/components/TournamentManager.js` - Sistema de torneos
+- `/app/frontend/src/pages/DashboardPage.js` - Integración
 
-### 4. Barra de Contexto Global
-- ✅ Barra superior fija en todas las páginas
-- ✅ Selector de Entidad (Federación/Club/Escuela)
-- ✅ Selector de Equipo (filtrado por entidad)
-- ✅ Selector de Atleta (filtrado por equipo)
-- ✅ Selector de Deporte (del catálogo dinámico)
-- ✅ Persistencia del contexto (localStorage)
-- ✅ Botón de acceso rápido a "Historial de Planes"
+## Architecture
+```
+/app/frontend/src/
+├── components/
+│   ├── InteractiveChart.js     # Gráficos interactivos
+│   ├── ControlPanel.js         # Panel con métricas
+│   ├── TournamentManager.js    # Sistema de torneos
+│   └── ui/                     # ShadCN components
+├── pages/
+│   └── DashboardPage.js        # Dashboard principal
+```
 
-### 5. Historial de Planes
-- ✅ Nueva página dedicada (/plans-history)
-- ✅ Lista de todos los planes generados
-- ✅ Filtros por búsqueda, estado y fecha
-- ✅ Filtrado automático por contexto global
-- ✅ Vista de jerarquía (Entidad → Equipo → Atleta → Deporte)
-- ✅ Acceso desde barra superior y menú lateral
+## Tech Stack
+- React.js + Tailwind CSS
+- Recharts (con Brush, ReferenceArea)
+- ShadCN/UI components
+- FastAPI backend + MongoDB
 
-### 6. Planificación de Entrenamientos
-- ✅ Generación de planes con IA (GPT)
-- ✅ Macrociclos, mesociclos y sesiones
-- ✅ Calendario visual
-- ✅ Exportación de sesiones a PDF
-- ✅ Enlaces compartibles para sesiones
+## Pending/Future Tasks
 
-### 7. Dashboard/Panel de Control
-- ✅ Readiness Score (índice de preparación)
-- ✅ Ratio de carga aguda/crónica (ACWR)
-- ✅ Gráficos de volumen, intensidad y densidad
-- ✅ Gráficos de intensidad y recuperación
-- ✅ Asistente de IA integrado
+### P1 - Alta Prioridad
+- [ ] Conectar Asistente IA con LLM real (GPT/Claude)
+- [ ] Guardar planes generados por IA
+- [ ] Conectar datos de gráficos con API real (actualmente mocked)
 
-### 8. Biblioteca de Ejercicios
-- ✅ CRUD de ejercicios
-- ✅ Categorización por grupo muscular
-- ✅ Búsqueda y filtrado
+### P2 - Media Prioridad
+- [ ] Generación automática de fixtures en backend
+- [ ] Exportar torneo a PDF funcional
+- [ ] Notificaciones de partidos próximos
 
----
+### P3 - Baja Prioridad
+- [ ] Integración con calendarios externos
+- [ ] Estadísticas avanzadas por atleta
+- [ ] Historial de torneos completados
 
-## Arquitectura Técnica
-
-### Frontend
-- React 18
-- TailwindCSS
-- Shadcn/UI components
-- Recharts para gráficos
-- jsPDF para exportación
-- React Router v6
-
-### Backend
-- FastAPI (Python)
-- MongoDB (Motor async driver)
-- JWT para autenticación
-- ReportLab para PDFs
-- Emergent Integrations (LLM, Stripe)
-
-### Base de Datos (MongoDB)
-Colecciones principales:
-- `users` - Usuarios y autenticación
-- `athletes` - Atletas
-- `teams` - Equipos
-- `entities` - Federaciones, Clubes, Escuelas
-- `sports_categories` - Categorías de deportes
-- `sports` - Deportes
-- `tournaments` - Torneos y competencias
-- `matches` - Partidos de torneos
-- `macrocycles` - Planes de entrenamiento
-- `sessions` - Sesiones de entrenamiento
-- `exercises` - Biblioteca de ejercicios
-
----
-
-## Archivos Clave
-
-### Frontend
-- `/app/frontend/src/App.js` - Rutas principales (simplificadas)
-- `/app/frontend/src/pages/DashboardPage.js` - Dashboard principal con Panel de Control + Datos (Atletas, Equipos, Deportes, Torneos) + Barra de Contexto Global + Asistente IA
-- `/app/frontend/src/pages/SubscriptionPage.js` - Página de suscripción (standalone)
-- `/app/frontend/src/pages/AuthPage.js` - Autenticación
-- `/app/frontend/src/pages/LandingPage.js` - Página de inicio
-- `/app/frontend/src/pages/SessionViewPage.js` - Vista pública de sesiones
-- `/app/frontend/src/pages/TournamentPublicPage.js` - Vista pública de torneos
-- `/app/frontend/src/services/api.js` - Funciones de API
-
-### Actualización 12 Feb 2026 - Material Design + Gráficos Mejorados
-- **Material Design aplicado a toda la app**: Landing, Auth, Dashboard, Suscripción
-- **Panel de Control Simplificado**: Solo título, icono, fecha, botones guardar/descargar
-- **Gráficos mejorados con datos reales**:
-  - "Volumen, Intensidad y Densidad" ahora muestra las 3 métricas con barras de colores distintivos (Azul=Volumen, Rojo=Intensidad, Verde=Densidad)
-  - Datos generados basados en modelo de periodización: Prep. General → Prep. Específico → Precompetitivo → Competitivo → Transición
-  - Distribución de Fases con colores únicos para cada fase
-  - Intensidad y Recuperación correlacionados con el modelo
-
-### Backend
-- `/app/backend/server.py` - API principal con todos los endpoints
-
----
-
-## Próximas Tareas (Backlog)
-
-### P0 - Alta Prioridad
-- [x] ~~Reubicar enlace "Suscripción" encima de "Cerrar Sesión"~~ (COMPLETADO 12 Feb 2026)
-- [ ] Conectar dashboard a datos reales (actualmente mockeado)
-- [ ] Implementar tooltips interactivos en gráficos
-- [ ] Zoom/brush en gráficos temporales
-
-### P1 - Media Prioridad
-- [ ] Integrar IA para generación de planes (conectar Asistente IA con LLM real)
-- [ ] Guardar planes generados automáticamente en base de datos
-- [ ] Planes de entrenamiento por equipo (no solo individual)
-- [ ] Drill-down en gráficos (click para ver detalles)
-- [ ] Notificaciones y alertas inteligentes
-
-### P2 - Baja Prioridad
-- [ ] Mostrar detalles de planes al hacer click en el historial
-- [ ] Gráficos avanzados: Marcadores de rendimiento, comparación multi-atleta
-- [ ] Calendario de competencias integrado
-- [ ] Distribución de capacidades físicas
-- [ ] Predicciones y forecasting
-- [ ] Refactorización de DashboardPage.js (actualmente >2800 líneas)
-
----
-
-## Credenciales de Prueba
+## Test Credentials
 - Email: test@train.com
 - Password: test123456
 
-## URLs
-- Aplicación: https://sports-dashboard-23.preview.emergentagent.com
-- Vista pública de torneo: /tournament/{share_id}
-- Vista pública de sesión: /session/view/{share_id}
+## Mocked Data
+- Datos de gráficos (volumeData, intensityData, loadData)
+- Nuevas visualizaciones (objectivesProgress, weeklyComparison, etc.)
+- Fixtures/partidos de torneos (generados client-side)
