@@ -1133,36 +1133,28 @@ const DashboardPage = () => {
               <TournamentManager
                 tournaments={tournaments}
                 sportsCatalog={sportsCatalog}
-                onCreateTournament={async (data) => {
-                  try {
-                    await createTournament(data);
-                    const response = await getTournaments();
-                    setTournaments(response.data || []);
-                    toast.success('Torneo creado exitosamente');
-                  } catch (error) {
-                    console.error('Error creating tournament:', error);
-                    toast.error('Error al crear el torneo');
-                  }
+                onCreateTournament={(newTournament) => {
+                  // Add tournament to local state with unique ID
+                  const tournamentWithId = {
+                    ...newTournament,
+                    id: newTournament.id || `tournament-${Date.now()}`,
+                    participants: newTournament.participants || [],
+                    matches: newTournament.matches || [],
+                    participants_count: 0,
+                    status: 'draft'
+                  };
+                  setTournaments(prev => [...prev, tournamentWithId]);
                 }}
-                onUpdateTournament={async (id, data) => {
-                  console.log('Update tournament', id, data);
+                onUpdateTournament={(id, updatedData) => {
+                  // Update tournament in local state (including participants and matches)
+                  setTournaments(prev => prev.map(t => 
+                    t.id === id ? { ...t, ...updatedData } : t
+                  ));
                 }}
-                onDeleteTournament={async (id) => {
-                  try {
-                    await deleteTournament(id);
-                    const response = await getTournaments();
-                    setTournaments(response.data || []);
-                    toast.success('Torneo eliminado');
-                  } catch (error) {
-                    console.error('Error deleting tournament:', error);
-                    toast.error('Error al eliminar el torneo');
-                  }
-                }}
-                onGenerateFixtures={(tournamentId) => {
-                  console.log('Generate fixtures for', tournamentId);
-                }}
-                onUpdateMatch={(matchId, data) => {
-                  console.log('Update match', matchId, data);
+                onDeleteTournament={(id) => {
+                  // Remove tournament from local state
+                  setTournaments(prev => prev.filter(t => t.id !== id));
+                  toast.success('Torneo eliminado');
                 }}
               />
             </Card>
