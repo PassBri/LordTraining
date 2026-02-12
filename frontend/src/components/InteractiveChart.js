@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
+import { Dialog, DialogContent } from './ui/dialog';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   LineChart, Line, AreaChart, Area, ComposedChart, Brush, ScatterChart, Scatter,
@@ -8,7 +9,7 @@ import {
 } from 'recharts';
 import { 
   BarChart3, TrendingUp, Activity, Layers, Settings2, 
-  ZoomIn, ZoomOut, RotateCcw, Maximize2, ChevronDown
+  ZoomIn, ZoomOut, RotateCcw, Maximize2, Minimize2, X
 } from 'lucide-react';
 
 // Colores predefinidos para las series
