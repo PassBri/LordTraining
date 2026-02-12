@@ -46,6 +46,7 @@ const PLANS = [
 
 const SubscriptionPage = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { user, setUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [checkingPayment, setCheckingPayment] = useState(false);
