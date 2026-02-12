@@ -296,24 +296,39 @@ const SessionEditor = ({
       if (sessionContentRef.current) {
         const { default: html2canvas } = await import('html2canvas');
         
-        // Clonar el elemento para modificar estilos sin afectar el original
-        const canvas = await html2canvas(sessionContentRef.current, {
+        // Guardar estilos originales
+        const element = sessionContentRef.current;
+        const originalStyles = {
+          overflow: element.style.overflow,
+          maxHeight: element.style.maxHeight,
+          height: element.style.height
+        };
+        
+        // Expandir el elemento temporalmente para capturar todo el contenido
+        element.style.overflow = 'visible';
+        element.style.maxHeight = 'none';
+        element.style.height = 'auto';
+        
+        // Esperar un frame para que el DOM se actualice
+        await new Promise(resolve => requestAnimationFrame(resolve));
+        
+        const canvas = await html2canvas(element, {
           scale: 2,
           useCORS: true,
           backgroundColor: '#ffffff',
-          logging: true, // Habilitar logging para debug
+          logging: false,
           allowTaint: true,
-          foreignObjectRendering: false, // Desactivar para evitar problemas con SVG
-          removeContainer: true,
-          imageTimeout: 15000,
-          onclone: (clonedDoc) => {
-            // Convertir iconos SVG a texto alternativo si hay problemas
-            const svgs = clonedDoc.querySelectorAll('svg');
-            svgs.forEach(svg => {
-              svg.style.display = 'inline-block';
-            });
-          }
+          foreignObjectRendering: false,
+          width: element.scrollWidth,
+          height: element.scrollHeight,
+          windowWidth: element.scrollWidth,
+          windowHeight: element.scrollHeight
         });
+        
+        // Restaurar estilos originales
+        element.style.overflow = originalStyles.overflow || '';
+        element.style.maxHeight = originalStyles.maxHeight || '';
+        element.style.height = originalStyles.height || '';
         
         // Convertir canvas a blob
         const blob = await new Promise((resolve, reject) => {
