@@ -846,3 +846,48 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 - `/app/frontend/src/pages/DashboardPage.js` - Actualizado con nueva estructura de navItems y secciones
 
 
+### Feb 12, 2026 - Mejora del Editor de Sesión
+
+**Solicitud del usuario:** Mejorar la estética del editor de sesión con fondo blanco, agregar descarga de PDF y opción de compartir enlace con el deportista.
+
+**Cambios implementados:**
+
+#### Frontend - SessionEditor.js
+- **Nuevo diseño visual** con fondo blanco limpio y header con gradiente azul/púrpura
+- **Cards con bordes y sombras suaves** para mejor legibilidad
+- **Secciones coloreadas** para cada fase (Inicial/Principal/Final)
+- **Nuevo botón "Compartir"** que genera un enlace público para el deportista
+- **Nuevo botón "Descargar PDF"** para exportar la sesión completa
+- **Diálogo de compartir** con enlace copiable y descripción de lo que verá el deportista
+
+#### Backend - server.py
+- **Endpoint `/api/export/session-pdf`** - Genera PDF de la sesión con:
+  - Header con nombre de atleta y fecha
+  - Sección de objetivos
+  - Tablas de actividades por fase
+  - Monitoreo de FC y observaciones
+  - Footer con marca de agua
+  
+- **Endpoint `/api/sessions/share`** - Crea enlace para compartir sesión
+  - Genera ID único de 12 caracteres
+  - Guarda sesión en colección `shared_sessions`
+  - Enlace válido por 30 días
+  
+- **Endpoint `/api/sessions/view/{share_id}`** - Vista pública de sesión
+  - No requiere autenticación
+  - Incrementa contador de vistas
+  - Verifica expiración del enlace
+
+#### Frontend - SessionViewPage.js (NUEVA)
+- **Página pública** para que el deportista vea su sesión sin login
+- **Diseño profesional** con header de información del atleta
+- **Visualización completa** de objetivos, fases, ejercicios y monitoreo
+- **Responsive** y optimizada para móvil
+
+**Archivos creados/modificados:**
+- `/app/frontend/src/components/SessionEditor.js` - Rediseño completo
+- `/app/frontend/src/pages/SessionViewPage.js` - NUEVO
+- `/app/frontend/src/App.js` - Nueva ruta para vista pública
+- `/app/backend/server.py` - 3 nuevos endpoints
+
+
