@@ -420,10 +420,10 @@ const ControlPanel = ({
         setLoadData(realLoadData.slice(0, 12));
 
         const totalWeeks = Object.values(phaseCount).reduce((a, b) => a + b, 0);
-        const distribution = Object.entries(phaseCount).map(([name, count]) => ({
+        const distribution = Object.entries(phaseCount).map(([name, count], index) => ({
           name: formatPhaseName(name),
           value: Math.round((count / totalWeeks) * 100),
-          color: COLORS.phases[name] || COLORS.primary
+          color: COLORS.phases[name] || COLORS.phases[formatPhaseName(name)] || PHASE_COLORS[index % PHASE_COLORS.length]
         }));
         setPhaseDistribution(distribution);
         setDataSource('local');
