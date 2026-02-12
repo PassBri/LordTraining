@@ -1082,22 +1082,6 @@ const SessionEditor = ({
                       <span className="text-xs text-red-500 font-medium">bpm</span>
                     </div>
                   </div>
-                            ...prev,
-                            monitoreo: { ...prev.monitoreo, fcRecuperacion5min: e.target.value }
-                          }))}
-                          placeholder="75"
-                          className="text-center h-8 text-xs"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* FC Reposo, Media y Máxima */}
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="bg-blue-50 rounded-xl p-4 text-center">
-                      <Heart className="w-5 h-5 text-blue-500 mx-auto mb-2" />
-                      <p className="text-xs text-slate-500 mb-1">FC Reposo</p>
-                      <Input
                         type="number"
                         value={sessionData.monitoreo.fcReposo}
                         onChange={(e) => setSessionData(prev => ({
