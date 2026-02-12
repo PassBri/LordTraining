@@ -72,11 +72,6 @@ function AppRoutes() {
           <DashboardPage />
         </ProtectedRoute>
       } />
-      <Route path="/athletes" element={
-        <ProtectedRoute>
-          <AthletesPage />
-        </ProtectedRoute>
-      } />
       <Route path="/plans" element={
         <ProtectedRoute>
           <PlansPage />
