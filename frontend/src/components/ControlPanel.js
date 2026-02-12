@@ -370,7 +370,10 @@ const ControlPanel = ({
       return;
     }
 
-    if (periodizationData?.mesocycles) {
+    // Forzar regeneración si los datos existentes no tienen intensidad/densidad
+    const needsRegeneration = volumeData.length > 0 && !volumeData[0]?.intensidad;
+
+    if (periodizationData?.mesocycles && !needsRegeneration) {
       const realVolumeData = [];
       const realIntensityData = [];
       const phaseCount = {};
