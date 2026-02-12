@@ -867,6 +867,17 @@ const DashboardPage = () => {
               <Trophy className="w-4 h-4 inline mr-2" />
               Deportes
             </button>
+            <button
+              onClick={() => setActiveAthleteTab('tournaments')}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                activeAthleteTab === 'tournaments' 
+                  ? 'border-orange-500 text-orange-600' 
+                  : 'border-transparent text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              <Medal className="w-4 h-4 inline mr-2" />
+              Torneos
+            </button>
           </div>
 
           {/* Vista de Deportes por Categorías - EDITABLE */}
