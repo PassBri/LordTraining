@@ -234,6 +234,73 @@ const DashboardPage = () => {
     }
   };
 
+  // Team Management Functions
+  const fetchTeams = async () => {
+    try {
+      const token = localStorage.getItem('train_token');
+      const response = await fetch(`${API_URL}/api/teams`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setTeams(data);
+      }
+    } catch (error) {
+      console.error('Error fetching teams:', error);
+    }
+  };
+
+  const handleCreateTeam = async () => {
+    if (!newTeam.name) {
+      alert('Por favor ingresa el nombre del equipo');
+      return;
+    }
+    try {
+      const token = localStorage.getItem('train_token');
+      const teamData = {
+        name: newTeam.name,
+        sport: newTeam.sport || 'other',
+        category: newTeam.category || '',
+        affiliations: {
+          federation: newTeam.federation || null,
+          club: newTeam.club || null,
+          school: newTeam.school || null
+        },
+        athletes: []
+      };
+      const response = await fetch(`${API_URL}/api/teams`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(teamData)
+      });
+      if (response.ok) {
+        await fetchTeams();
+        setNewTeam({ name: '', sport: '', category: '', federation: '', club: '', school: '' });
+      }
+    } catch (error) {
+      console.error('Error creating team:', error);
+    }
+  };
+
+  const handleDeleteTeam = async (teamId) => {
+    if (!window.confirm('¿Estás seguro de eliminar este equipo?')) return;
+    try {
+      const token = localStorage.getItem('train_token');
+      const response = await fetch(`${API_URL}/api/teams/${teamId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        await fetchTeams();
+      }
+    } catch (error) {
+      console.error('Error deleting team:', error);
+    }
+  };
+
   // Fetch events for selected athlete
   const fetchEvents = async (athleteId) => {
     try {
