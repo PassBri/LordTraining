@@ -125,16 +125,14 @@ Colecciones principales:
 - `/app/frontend/src/pages/TournamentPublicPage.js` - Vista pública de torneos
 - `/app/frontend/src/services/api.js` - Funciones de API
 
-### Actualización 12 Feb 2026 - Material Design Unificado
-- **Material Design aplicado a toda la app**:
-  - Landing Page: Nav con gradiente, hero con badge IA, features con iconos en gradiente, pricing con cards hover
-  - Auth Page: Logo mejorado, tabs con sombras, inputs con bordes redondeados, panel derecho con gradiente y decoraciones
-  - Dashboard: Barra de contexto global con gradiente, Panel de Control simplificado
-  - Suscripción: Header con gradiente, cards mejoradas
-- **Panel de Control Simplificado**: Quitados los filtros redundantes (Competencia, Deporte, etc.) ya que están en la barra global. Solo queda: icono, título, fecha, botones guardar/descargar
-- **Persistencia con localStorage**: El contexto seleccionado se mantiene en toda la sesión
-- **Torneos integrados en Dashboard**: La pestaña de Torneos ahora está en "Datos > Atletas y Equipos"
-- **Limpieza de código**: Eliminadas páginas secundarias no utilizadas y DashboardLayout.js
+### Actualización 12 Feb 2026 - Material Design + Gráficos Mejorados
+- **Material Design aplicado a toda la app**: Landing, Auth, Dashboard, Suscripción
+- **Panel de Control Simplificado**: Solo título, icono, fecha, botones guardar/descargar
+- **Gráficos mejorados con datos reales**:
+  - "Volumen, Intensidad y Densidad" ahora muestra las 3 métricas con barras de colores distintivos (Azul=Volumen, Rojo=Intensidad, Verde=Densidad)
+  - Datos generados basados en modelo de periodización: Prep. General → Prep. Específico → Precompetitivo → Competitivo → Transición
+  - Distribución de Fases con colores únicos para cada fase
+  - Intensidad y Recuperación correlacionados con el modelo
 
 ### Backend
 - `/app/backend/server.py` - API principal con todos los endpoints
