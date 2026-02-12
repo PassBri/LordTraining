@@ -1171,6 +1171,518 @@ const AthletesPage = () => {
               )}
             </div>
           </TabsContent>
+
+          {/* TOURNAMENTS TAB */}
+          <TabsContent value="tournaments" className="space-y-6 mt-6">
+            {/* Tournament Detail View */}
+            {tournamentDetailView && selectedTournament ? (
+              <div className="space-y-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <Button 
+                      variant="ghost" 
+                      onClick={() => { setTournamentDetailView(false); setSelectedTournament(null); }} 
+                      className="mb-2 -ml-2"
+                    >
+                      <ChevronRight className="w-4 h-4 mr-1 rotate-180" /> Volver
+                    </Button>
+                    <div className="flex items-center gap-3">
+                      <span className="text-4xl">{getFormatIcon(selectedTournament.format)}</span>
+                      <div>
+                        <h2 className="text-2xl font-bold text-slate-900">{selectedTournament.name}</h2>
+                        <div className="flex items-center gap-3 mt-1">
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[selectedTournament.status]}`}>
+                            {STATUS_LABELS[selectedTournament.status]}
+                          </span>
+                          {selectedTournament.start_date && (
+                            <span className="text-slate-500 text-sm flex items-center gap-1">
+                              <Calendar className="w-4 h-4" />
+                              {selectedTournament.start_date}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={handleShareTournament}>
+                      <Share2 className="w-4 h-4 mr-1" /> Compartir
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleExportTournamentPDF}>
+                      <Download className="w-4 h-4 mr-1" /> PDF
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Categories */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-bold text-slate-800">Categorías</h3>
+                    <Dialog open={categoryDialogOpenTournament} onOpenChange={setCategoryDialogOpenTournament}>
+                      <DialogTrigger asChild>
+                        <Button size="sm"><Plus className="w-4 h-4 mr-1" /> Añadir</Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Nueva Categoría</DialogTitle>
+                        </DialogHeader>
+                        <form onSubmit={handleAddTournamentCategory} className="space-y-4 mt-4">
+                          <div className="space-y-2">
+                            <Label>Nombre *</Label>
+                            <Input
+                              value={tournamentCategoryForm.name}
+                              onChange={(e) => setTournamentCategoryForm({ ...tournamentCategoryForm, name: e.target.value })}
+                              placeholder="Ej: Sub-17 Masculino"
+                              required
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label>Género</Label>
+                              <Select 
+                                value={tournamentCategoryForm.gender} 
+                                onValueChange={(v) => setTournamentCategoryForm({ ...tournamentCategoryForm, gender: v })}
+                              >
+                                <SelectTrigger><SelectValue placeholder="Todos" /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="none">Todos</SelectItem>
+                                  <SelectItem value="male">Masculino</SelectItem>
+                                  <SelectItem value="female">Femenino</SelectItem>
+                                  <SelectItem value="mixed">Mixto</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Máx. Participantes</Label>
+                              <Input
+                                type="number"
+                                min="2"
+                                value={tournamentCategoryForm.max_participants}
+                                onChange={(e) => setTournamentCategoryForm({ ...tournamentCategoryForm, max_participants: e.target.value })}
+                              />
+                            </div>
+                          </div>
+                          <Button type="submit" className="w-full" disabled={formLoading}>
+                            {formLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                            Crear Categoría
+                          </Button>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+
+                  {selectedTournament.categories?.length > 0 ? (
+                    <div className="grid gap-4">
+                      {selectedTournament.categories.map((cat) => (
+                        <Card key={cat.id} className="border-slate-200">
+                          <CardHeader className="pb-3">
+                            <div className="flex items-center justify-between">
+                              <CardTitle className="text-lg flex items-center gap-2">
+                                <Medal className="w-5 h-5 text-amber-500" />
+                                {cat.name}
+                                <span className="text-sm font-normal text-slate-500">
+                                  ({cat.participants?.length || 0} participantes)
+                                </span>
+                              </CardTitle>
+                              <div className="flex gap-2">
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => { setSelectedTournamentCategory(cat); setRegisterDialogOpen(true); }}
+                                >
+                                  <Plus className="w-4 h-4 mr-1" /> Inscribir
+                                </Button>
+                                {cat.participants?.length >= 2 && !cat.bracket && (
+                                  <Button size="sm" onClick={() => handleGenerateBracket(cat.id)}>
+                                    <GitBranch className="w-4 h-4 mr-1" /> Generar Bracket
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            {cat.participants?.length > 0 && (
+                              <div className="mb-4">
+                                <h4 className="text-sm font-medium text-slate-700 mb-2">Participantes</h4>
+                                <div className="flex flex-wrap gap-2">
+                                  {cat.participants.map((p) => (
+                                    <div key={p.id} className="px-3 py-1.5 bg-slate-100 rounded-full text-sm flex items-center gap-2">
+                                      {p.seed && <span className="text-xs text-amber-600 font-bold">#{p.seed}</span>}
+                                      {p.name}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            {tournamentMatches.filter(m => m.category_id === cat.id).length > 0 && (
+                              <div>
+                                <h4 className="text-sm font-medium text-slate-700 mb-2">Partidos</h4>
+                                <div className="space-y-2">
+                                  {tournamentMatches
+                                    .filter(m => m.category_id === cat.id)
+                                    .map((match) => (
+                                      <div 
+                                        key={match.id}
+                                        className={`flex items-center justify-between p-3 rounded-lg border ${
+                                          match.status === 'completed' ? 'bg-green-50 border-green-200' : 'bg-slate-50 border-slate-200'
+                                        }`}
+                                      >
+                                        <div className="flex items-center gap-4">
+                                          <span className="text-xs text-slate-500">{match.round_name || `R${match.round_number}`}</span>
+                                          <div className="flex items-center gap-2">
+                                            <span className={match.winner_id === match.participant1_id ? 'font-bold text-green-700' : ''}>
+                                              {match.participant1_name || 'TBD'}
+                                            </span>
+                                            <span className="px-2 py-0.5 bg-white rounded border text-sm font-bold">
+                                              {match.participant1_score ?? '-'} : {match.participant2_score ?? '-'}
+                                            </span>
+                                            <span className={match.winner_id === match.participant2_id ? 'font-bold text-green-700' : ''}>
+                                              {match.participant2_name || 'TBD'}
+                                            </span>
+                                          </div>
+                                        </div>
+                                        {match.status !== 'completed' && match.participant1_id && match.participant2_id && (
+                                          <Button 
+                                            size="sm" 
+                                            variant="outline"
+                                            onClick={() => {
+                                              setSelectedMatch(match);
+                                              setScoreForm({
+                                                participant1_score: match.participant1_score?.toString() || '',
+                                                participant2_score: match.participant2_score?.toString() || ''
+                                              });
+                                              setScoreDialogOpen(true);
+                                            }}
+                                          >
+                                            Resultado
+                                          </Button>
+                                        )}
+                                      </div>
+                                    ))}
+                                </div>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <Card className="border-slate-200">
+                      <CardContent className="py-12 text-center">
+                        <LayoutGrid className="w-12 h-12 mx-auto text-slate-300 mb-3" />
+                        <p className="text-slate-500">No hay categorías. Añade una para comenzar.</p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+
+                {/* Register Participant Dialog */}
+                <Dialog open={registerDialogOpen} onOpenChange={setRegisterDialogOpen}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Inscribir Participante - {selectedTournamentCategory?.name}</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleRegisterParticipant} className="space-y-4 mt-4">
+                      <div className="space-y-2">
+                        <Label>Tipo</Label>
+                        <Select 
+                          value={registrationForm.participant_type} 
+                          onValueChange={(v) => setRegistrationForm({ ...registrationForm, participant_type: v, participant_id: '', participant_name: '' })}
+                        >
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="team">Equipo</SelectItem>
+                            <SelectItem value="athlete">Atleta</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Participante *</Label>
+                        <Select 
+                          value={registrationForm.participant_id} 
+                          onValueChange={(v) => {
+                            const list = registrationForm.participant_type === 'team' ? teams : athletes;
+                            const selected = list.find(x => x.id === v);
+                            setRegistrationForm({ ...registrationForm, participant_id: v, participant_name: selected?.name || '' });
+                          }}
+                        >
+                          <SelectTrigger><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
+                          <SelectContent>
+                            {(registrationForm.participant_type === 'team' ? teams : athletes).map(item => (
+                              <SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Seed (Opcional)</Label>
+                        <Input
+                          type="number"
+                          min="1"
+                          value={registrationForm.seed}
+                          onChange={(e) => setRegistrationForm({ ...registrationForm, seed: e.target.value })}
+                        />
+                      </div>
+                      <Button type="submit" className="w-full" disabled={formLoading || !registrationForm.participant_id}>
+                        {formLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                        Inscribir
+                      </Button>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+
+                {/* Update Score Dialog */}
+                <Dialog open={scoreDialogOpen} onOpenChange={setScoreDialogOpen}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Actualizar Resultado</DialogTitle>
+                    </DialogHeader>
+                    {selectedMatch && (
+                      <form onSubmit={handleUpdateScore} className="space-y-4 mt-4">
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <div className="text-center">
+                            <p className="font-medium mb-2">{selectedMatch.participant1_name}</p>
+                            <Input
+                              type="number"
+                              min="0"
+                              value={scoreForm.participant1_score}
+                              onChange={(e) => setScoreForm({ ...scoreForm, participant1_score: e.target.value })}
+                              className="text-center text-2xl font-bold"
+                            />
+                          </div>
+                          <div className="text-center text-2xl text-slate-400">VS</div>
+                          <div className="text-center">
+                            <p className="font-medium mb-2">{selectedMatch.participant2_name}</p>
+                            <Input
+                              type="number"
+                              min="0"
+                              value={scoreForm.participant2_score}
+                              onChange={(e) => setScoreForm({ ...scoreForm, participant2_score: e.target.value })}
+                              className="text-center text-2xl font-bold"
+                            />
+                          </div>
+                        </div>
+                        <Button type="submit" className="w-full" disabled={formLoading}>
+                          {formLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                          Guardar Resultado
+                        </Button>
+                      </form>
+                    )}
+                  </DialogContent>
+                </Dialog>
+              </div>
+            ) : (
+              <>
+                {/* Tournament List Header */}
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <p className="text-slate-600">Crea y gestiona competencias deportivas</p>
+                  
+                  <Dialog open={tournamentDialogOpen} onOpenChange={setTournamentDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 font-bold uppercase tracking-wide" data-testid="create-tournament-btn">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Nuevo Torneo
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle className="text-xl font-bold flex items-center gap-2">
+                          <Trophy className="w-5 h-5 text-amber-500" />
+                          Crear Torneo
+                        </DialogTitle>
+                      </DialogHeader>
+                      <form onSubmit={handleCreateTournament} className="space-y-4 mt-4">
+                        <div className="space-y-2">
+                          <Label>Nombre *</Label>
+                          <Input
+                            value={tournamentForm.name}
+                            onChange={(e) => setTournamentForm({ ...tournamentForm, name: e.target.value })}
+                            placeholder="Ej: Copa Primavera 2026"
+                            required
+                            data-testid="tournament-name-input"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Deporte</Label>
+                            <Select value={tournamentForm.sport} onValueChange={(v) => setTournamentForm({ ...tournamentForm, sport: v })}>
+                              <SelectTrigger data-testid="tournament-sport-select">
+                                <SelectValue placeholder="Seleccionar" />
+                              </SelectTrigger>
+                              <SelectContent className="max-h-60">
+                                {sportsCatalog.map(cat => (
+                                  <React.Fragment key={cat.id}>
+                                    <div className="px-2 py-1.5 text-xs font-semibold text-slate-500 bg-slate-50">
+                                      {cat.icon} {cat.name}
+                                    </div>
+                                    {cat.sports?.map(sport => (
+                                      <SelectItem key={sport.id} value={sport.name}>{sport.name}</SelectItem>
+                                    ))}
+                                  </React.Fragment>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Formato *</Label>
+                            <Select value={tournamentForm.format} onValueChange={(v) => setTournamentForm({ ...tournamentForm, format: v })}>
+                              <SelectTrigger data-testid="tournament-format-select">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {TOURNAMENT_FORMATS.map(f => (
+                                  <SelectItem key={f.value} value={f.value}>
+                                    {f.icon} {f.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Fecha Inicio *</Label>
+                            <Input
+                              type="date"
+                              value={tournamentForm.start_date}
+                              onChange={(e) => setTournamentForm({ ...tournamentForm, start_date: e.target.value })}
+                              required
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Fecha Fin *</Label>
+                            <Input
+                              type="date"
+                              value={tournamentForm.end_date}
+                              onChange={(e) => setTournamentForm({ ...tournamentForm, end_date: e.target.value })}
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Sede</Label>
+                            <Input
+                              value={tournamentForm.venue}
+                              onChange={(e) => setTournamentForm({ ...tournamentForm, venue: e.target.value })}
+                              placeholder="Estadio, Complejo..."
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Ciudad</Label>
+                            <Input
+                              value={tournamentForm.city}
+                              onChange={(e) => setTournamentForm({ ...tournamentForm, city: e.target.value })}
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Descripción</Label>
+                          <Textarea
+                            value={tournamentForm.description}
+                            onChange={(e) => setTournamentForm({ ...tournamentForm, description: e.target.value })}
+                            rows={2}
+                          />
+                        </div>
+                        <Button 
+                          type="submit" 
+                          className="w-full bg-gradient-to-r from-amber-500 to-orange-500"
+                          disabled={formLoading}
+                          data-testid="submit-tournament-btn"
+                        >
+                          {formLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                          Crear Torneo
+                        </Button>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+
+                {/* Tournaments Grid */}
+                {tournaments.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {tournaments.map((tournament) => (
+                      <Card 
+                        key={tournament.id} 
+                        className="border-slate-200 hover:border-amber-300 transition-all cursor-pointer group overflow-hidden"
+                        onClick={() => fetchTournamentDetails(tournament.id)}
+                        data-testid={`tournament-card-${tournament.id}`}
+                      >
+                        <div 
+                          className="h-2" 
+                          style={{ background: `linear-gradient(to right, ${tournament.primary_color || '#3B82F6'}, ${tournament.secondary_color || '#10B981'})` }}
+                        />
+                        <CardContent className="p-5">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <span className="text-3xl">{getFormatIcon(tournament.format)}</span>
+                              <div>
+                                <h3 className="font-bold text-slate-900 group-hover:text-amber-600 transition-colors">{tournament.name}</h3>
+                                <p className="text-sm text-slate-500">{tournament.sport}</p>
+                              </div>
+                            </div>
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[tournament.status] || 'bg-slate-100 text-slate-700'}`}>
+                              {STATUS_LABELS[tournament.status] || tournament.status}
+                            </span>
+                          </div>
+                          
+                          <div className="space-y-2 text-sm text-slate-600">
+                            {tournament.start_date && (
+                              <div className="flex items-center gap-2">
+                                <Calendar className="w-4 h-4 text-slate-400" />
+                                <span>{tournament.start_date} - {tournament.end_date}</span>
+                              </div>
+                            )}
+                            {tournament.venue && (
+                              <div className="flex items-center gap-2">
+                                <MapPin className="w-4 h-4 text-slate-400" />
+                                <span>{tournament.venue}</span>
+                              </div>
+                            )}
+                            <div className="flex items-center gap-2">
+                              <LayoutGrid className="w-4 h-4 text-slate-400" />
+                              <span>{tournament.categories?.length || 0} categorías</span>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
+                            <span className="text-xs text-slate-400">
+                              {TOURNAMENT_FORMATS.find(f => f.value === tournament.format)?.label || tournament.format}
+                            </span>
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              className="text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100"
+                              onClick={(e) => { e.stopPropagation(); handleDeleteTournament(tournament.id, tournament.name); }}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <Card className="border-slate-200">
+                    <CardContent className="py-16 text-center">
+                      <Trophy className="w-16 h-16 mx-auto text-slate-300 mb-4" />
+                      <h3 className="text-xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'Barlow Condensed' }}>
+                        SIN TORNEOS
+                      </h3>
+                      <p className="text-slate-500 mb-6">Crea tu primer torneo para comenzar</p>
+                      <Button 
+                        onClick={() => setTournamentDialogOpen(true)} 
+                        className="bg-gradient-to-r from-amber-500 to-orange-500"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Crear Torneo
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
+              </>
+            )}
+          </TabsContent>
         </Tabs>
       </div>
     </DashboardLayout>
