@@ -972,3 +972,46 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 - `/app/frontend/src/components/SessionEditor.js`
 
 
+### Feb 12, 2026 - Corrección del PDF de Sesión
+
+**Problema reportado:** El PDF de la sesión se generaba prácticamente vacío, solo mostrando el footer.
+
+**Causa raíz:** El código del backend buscaba los datos de la sesión en las claves incorrectas (`objectives`, `phases`, `monitoring`) pero los datos reales estaban dentro de `detailedData` con claves en español (`objetivos`, `fases`, `monitoreo`).
+
+**Solución implementada:**
+
+#### Nuevo formato del PDF (diseño profesional):
+
+**Página 1:**
+1. **Header con gradiente azul:**
+   - Título "SESIÓN DE ENTRENAMIENTO"
+   - Nombre del atleta y fecha
+
+2. **Sección "OBJETIVOS DE LA SESIÓN":**
+   - Card cyan con todos los objetivos (General, Físico, Técnico, Táctico, Psicológico, Teórico)
+   - Layout en 2 columnas
+
+3. **Secciones de FASES (coloreadas):**
+   - **FASE INICIAL** (verde) - Tabla de ejercicios
+   - **FASE PRINCIPAL** (naranja) - Tabla de ejercicios
+   - **FASE FINAL** (azul) - Tabla de ejercicios o mensaje "No hay actividades"
+   - Cada tabla incluye: Ejercicio, Cap.Física, Método, Series, Reps, Int., Vol., Recup.
+
+4. **Sección "MONITOREO DE RENDIMIENTO":**
+   - FC Reposo, Media, Máxima (mini-cards blancas)
+   - Fases de FC: Antes, Durante, Después, Recup 1', 3', 5'
+   - Estado del Deportista: Fatiga, Hidratación, Sueño, Energía
+
+**Página 2 (si aplica):**
+5. **Sección "OBSERVACIONES Y RETROALIMENTACIÓN":**
+   - Texto de retroalimentación del entrenador
+
+6. **Footer oscuro:**
+   - "Generado por Sistema TRAIN"
+   - Fecha y hora
+   - URL del sistema
+
+**Archivos modificados:**
+- `/app/backend/server.py` - Endpoint `/api/export/session-pdf` completamente reescrito
+
+
