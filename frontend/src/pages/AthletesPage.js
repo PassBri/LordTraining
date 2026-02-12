@@ -175,14 +175,18 @@ const AthletesPage = () => {
     e.preventDefault();
     setFormLoading(true);
     try {
+      const fedId = teamForm.federation_id === 'none' ? null : teamForm.federation_id;
+      const clubId = teamForm.club_id === 'none' ? null : teamForm.club_id;
+      const schoolId = teamForm.school_id === 'none' ? null : teamForm.school_id;
+      
       await createTeam({
         name: teamForm.name,
         sport: teamForm.sport || 'other',
         category: teamForm.category,
         affiliations: {
-          federation_id: teamForm.federation_id || null,
-          club_id: teamForm.club_id || null,
-          school_id: teamForm.school_id || null
+          federation_id: fedId || null,
+          club_id: clubId || null,
+          school_id: schoolId || null
         }
       });
       toast.success('Equipo creado correctamente');
