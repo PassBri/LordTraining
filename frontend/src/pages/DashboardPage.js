@@ -114,6 +114,10 @@ const DashboardPage = () => {
   // PDF Export Modal State
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
+  // ====== SIDEBAR VIEW STATE ======
+  const [sidebarView, setSidebarView] = useState('assistant'); // 'assistant' or 'history'
+  const [generatedPlans, setGeneratedPlans] = useState([]); // List of generated plans
+
   // ====== GLOBAL CONTEXT STATE (Barra Superior) ======
   // Initialize from localStorage for persistence
   const [globalContext, setGlobalContext] = useState(() => {
