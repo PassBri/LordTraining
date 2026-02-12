@@ -2587,10 +2587,14 @@ const DashboardPage = () => {
           {/* Right: Quick Actions */}
           <div className="flex items-center gap-2 shrink-0">
             <Button
-              variant="default"
+              variant={sidebarView === 'history' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => navigate('/plans-history')}
-              className="h-8 text-xs bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-sm"
+              onClick={() => setSidebarView(sidebarView === 'history' ? 'assistant' : 'history')}
+              className={`h-8 text-xs shadow-sm ${
+                sidebarView === 'history'
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
+                  : 'bg-white border-indigo-300 text-indigo-600 hover:bg-indigo-50'
+              }`}
               data-testid="context-history-btn"
             >
               <History className="w-3.5 h-3.5 mr-1.5" />
