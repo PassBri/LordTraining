@@ -679,7 +679,7 @@ const DashboardPage = () => {
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="none">Sin federación</SelectItem>
-                                {federations.map(f => (
+                                {entityFederations.map(f => (
                                   <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
                                 ))}
                               </SelectContent>
@@ -697,7 +697,7 @@ const DashboardPage = () => {
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="none">Sin club</SelectItem>
-                                {clubs.map(c => (
+                                {entityClubs.map(c => (
                                   <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                                 ))}
                               </SelectContent>
@@ -715,7 +715,7 @@ const DashboardPage = () => {
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="none">Sin escuela</SelectItem>
-                                {schools.map(s => (
+                                {entitySchools.map(s => (
                                   <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                                 ))}
                               </SelectContent>
@@ -906,7 +906,7 @@ const DashboardPage = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="none">Sin federación</SelectItem>
-                        {federations.map(f => (
+                        {entityFederations.map(f => (
                           <SelectItem key={f.id} value={f.id}>🏛️ {f.name}</SelectItem>
                         ))}
                       </SelectContent>
@@ -920,7 +920,7 @@ const DashboardPage = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="none">Sin club</SelectItem>
-                        {clubs.map(c => (
+                        {entityClubs.map(c => (
                           <SelectItem key={c.id} value={c.id}>🏢 {c.name}</SelectItem>
                         ))}
                       </SelectContent>
@@ -934,7 +934,7 @@ const DashboardPage = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="none">Sin escuela</SelectItem>
-                        {schools.map(s => (
+                        {entitySchools.map(s => (
                           <SelectItem key={s.id} value={s.id}>🏫 {s.name}</SelectItem>
                         ))}
                       </SelectContent>
