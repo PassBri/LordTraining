@@ -13,6 +13,7 @@ import CalendarPage from './pages/CalendarPage';
 import ExercisesPage from './pages/ExercisesPage';
 import AIGeneratorPage from './pages/AIGeneratorPage';
 import SubscriptionPage from './pages/SubscriptionPage';
+import SessionViewPage from './pages/SessionViewPage';
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
