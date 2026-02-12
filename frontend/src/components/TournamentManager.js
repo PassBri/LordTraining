@@ -834,9 +834,21 @@ const TournamentManager = ({
       name: newParticipantName.trim(),
       seed: participants.length + 1
     };
-    setParticipants([...participants, newParticipant]);
+    const updatedParticipants = [...participants, newParticipant];
+    setParticipants(updatedParticipants);
     setNewParticipantName('');
     setAddParticipantOpen(false);
+    
+    // Auto-save after adding participant
+    if (selectedTournament && onUpdateTournament) {
+      onUpdateTournament(selectedTournament.id, {
+        ...selectedTournament,
+        participants: updatedParticipants,
+        matches,
+        participants_count: updatedParticipants.length
+      });
+    }
+    
     toast.success(`${newParticipant.name} agregado`);
   };
 
