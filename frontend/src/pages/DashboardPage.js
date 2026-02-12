@@ -2802,6 +2802,7 @@ const DashboardPage = () => {
             </div>
           </CardContent>
         </Card>
+        )}
 
         {/* User info and logout */}
         <div className="mt-4 pt-4 border-t">
