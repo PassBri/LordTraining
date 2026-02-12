@@ -576,258 +576,375 @@ const SessionEditor = ({
   if (!isOpen) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0" data-testid="session-editor-dialog">
-        {/* Header */}
-        <div className="sticky top-0 z-10 bg-white border-b px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <DialogTitle className="text-red-600 font-bold text-lg">
-                Sesión #{session?.dayName || ''}
-              </DialogTitle>
-              <p className="text-sm text-slate-500 mt-1">
-                {session?.date && (
-                  <span className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    {session.date}
-                  </span>
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden p-0 bg-white" data-testid="session-editor-dialog">
+          {/* Header con gradiente */}
+          <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white px-6 py-5 shadow-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle className="text-white font-bold text-xl flex items-center gap-3">
+                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Dumbbell className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span>Sesión de Entrenamiento</span>
+                    {session?.dayName && (
+                      <span className="ml-2 text-white/80 font-normal text-base">#{session.dayName}</span>
+                    )}
+                  </div>
+                </DialogTitle>
+                {athleteName && (
+                  <p className="text-blue-100 text-sm mt-2 ml-[52px]">
+                    Atleta: {athleteName}
+                  </p>
                 )}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Input
-                type="date"
-                defaultValue={session?.date}
-                className="w-40 h-9"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="p-6 space-y-6">
-          {/* Objetivos de la Sesión */}
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Target className="w-5 h-5 text-cyan-500" />
-                Objetivos de la Sesión
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-medium text-slate-500 uppercase">Objetivo General:</label>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="bg-white/10 rounded-lg px-3 py-2 flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-white/80" />
                   <Input
-                    value={sessionData.objetivos.general}
-                    onChange={(e) => updateObjetivo('general', e.target.value)}
-                    placeholder="Objetivo principal de la sesión..."
-                    className="mt-1"
-                    data-testid="objetivo-general"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-slate-500 uppercase">Objetivo Físico:</label>
-                  <Input
-                    value={sessionData.objetivos.fisico}
-                    onChange={(e) => updateObjetivo('fisico', e.target.value)}
-                    placeholder="Desarrollo de capacidades físicas..."
-                    className="mt-1"
-                    data-testid="objetivo-fisico"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-slate-500 uppercase">Objetivo Técnico:</label>
-                  <Input
-                    value={sessionData.objetivos.tecnico}
-                    onChange={(e) => updateObjetivo('tecnico', e.target.value)}
-                    placeholder="Mejora técnica específica..."
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-slate-500 uppercase">Objetivo Táctico:</label>
-                  <Input
-                    value={sessionData.objetivos.tactico}
-                    onChange={(e) => updateObjetivo('tactico', e.target.value)}
-                    placeholder="Desarrollo táctico..."
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-slate-500 uppercase">Objetivo Psicológico:</label>
-                  <Input
-                    value={sessionData.objetivos.psicologico}
-                    onChange={(e) => updateObjetivo('psicologico', e.target.value)}
-                    placeholder="Aspecto mental a trabajar..."
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-slate-500 uppercase">Objetivo Teórico:</label>
-                  <Input
-                    value={sessionData.objetivos.teorico}
-                    onChange={(e) => updateObjetivo('teorico', e.target.value)}
-                    placeholder="Conocimiento teórico..."
-                    className="mt-1"
+                    type="date"
+                    defaultValue={session?.date}
+                    className="w-36 h-8 bg-white/20 border-white/30 text-white placeholder:text-white/50 text-sm"
                   />
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Estructura de la Sesión */}
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Zap className="w-5 h-5 text-yellow-500" />
-                Estructura de la Sesión
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Fases */}
-              {Object.entries(sessionData.fases).map(([faseKey, fase]) => (
-                <div key={faseKey} className={`border-l-4 ${fase.color} rounded-lg overflow-hidden`}>
-                  <div className={`${fase.bgColor}`}>
-                    <button
-                      onClick={() => setExpandedPhases(prev => ({ ...prev, [faseKey]: !prev[faseKey] }))}
-                      className="w-full flex items-center justify-between p-3 hover:bg-black/5 transition-colors"
-                    >
-                      <div className="flex items-center gap-2">
-                        {expandedPhases[faseKey] ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                        <span className={`font-bold uppercase text-sm ${
-                          faseKey === 'inicial' ? 'text-green-700' :
-                          faseKey === 'principal' ? 'text-orange-700' :
-                          'text-blue-700'
-                        }`}>
-                          {fase.nombre}
-                        </span>
-                        <span className="text-xs text-slate-500">
-                          ({fase.actividades.length} actividades)
-                        </span>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={(e) => { e.stopPropagation(); addActividad(faseKey); }}
-                        className={`h-7 text-xs ${
-                          faseKey === 'inicial' ? 'border-green-500 text-green-700 hover:bg-green-100' :
-                          faseKey === 'principal' ? 'border-orange-500 text-orange-700 hover:bg-orange-100' :
-                          'border-blue-500 text-blue-700 hover:bg-blue-100'
-                        }`}
-                        data-testid={`add-activity-${faseKey}`}
-                      >
-                        <Plus className="w-3 h-3 mr-1" /> Agregar Actividad
-                      </Button>
-                    </button>
-                    
-                    {expandedPhases[faseKey] && (
-                      <div className="bg-white p-3 border-t">
-                        {renderActividadesTable(faseKey, fase)}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Monitoreo y Retroalimentación */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Monitoreo de FC */}
-            <Card className="border-0 shadow-sm">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Heart className="w-5 h-5 text-red-500" />
-                  Monitoreo de Frecuencia Cardíaca
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-medium text-slate-500 uppercase">FC Reposo:</label>
-                    <div className="mt-1 flex items-center gap-2">
-                      <Input
-                        value={sessionData.monitoreo.fcReposo}
-                        onChange={(e) => setSessionData(prev => ({
-                          ...prev,
-                          monitoreo: { ...prev.monitoreo, fcReposo: e.target.value }
-                        }))}
-                        placeholder="60"
-                        className="text-center"
-                        data-testid="fc-reposo"
-                      />
-                      <span className="text-sm text-slate-500">bpm</span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-slate-500 uppercase">FC Máxima:</label>
-                    <div className="mt-1 flex items-center gap-2">
-                      <Input
-                        value={sessionData.monitoreo.fcMaxima}
-                        onChange={(e) => setSessionData(prev => ({
-                          ...prev,
-                          monitoreo: { ...prev.monitoreo, fcMaxima: e.target.value }
-                        }))}
-                        placeholder="180"
-                        className="text-center"
-                        data-testid="fc-maxima"
-                      />
-                      <span className="text-sm text-slate-500">bpm</span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Retroalimentación */}
-            <Card className="border-0 shadow-sm">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <AlertCircle className="w-5 h-5 text-blue-500" />
-                  Retroalimentación
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  value={sessionData.retroalimentacion}
-                  onChange={(e) => setSessionData(prev => ({ ...prev, retroalimentacion: e.target.value }))}
-                  placeholder="Observaciones y comentarios de la sesión..."
-                  className="min-h-[100px] resize-none"
-                  data-testid="retroalimentacion"
-                />
-              </CardContent>
-            </Card>
+            </div>
           </div>
-        </div>
 
-        {/* Footer con botones */}
-        <div className="sticky bottom-0 bg-white border-t px-6 py-4 flex justify-end gap-3">
-          <Button 
-            variant="outline" 
-            onClick={onClose}
-            data-testid="cancel-session-btn"
-          >
-            Cancelar
-          </Button>
-          <Button 
-            variant="outline"
-            className="border-yellow-500 text-yellow-700 hover:bg-yellow-50"
-            data-testid="export-session-btn"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Exportar
-          </Button>
-          <Button 
-            className="bg-cyan-600 hover:bg-cyan-700"
-            onClick={handleSave}
-            data-testid="save-session-btn"
-          >
-            <Save className="w-4 h-4 mr-2" />
-            Guardar
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+          {/* Contenido Principal - Fondo blanco */}
+          <div ref={sessionContentRef} className="overflow-y-auto max-h-[calc(90vh-180px)] bg-white">
+            <div className="p-6 space-y-6">
+              {/* Objetivos de la Sesión */}
+              <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-cyan-50 to-blue-50 border-b border-slate-100 pb-4">
+                  <CardTitle className="flex items-center gap-2 text-base text-slate-800">
+                    <div className="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center">
+                      <Target className="w-4 h-4 text-white" />
+                    </div>
+                    Objetivos de la Sesión
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-5 bg-white">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Objetivo General</label>
+                      <Input
+                        value={sessionData.objetivos.general}
+                        onChange={(e) => updateObjetivo('general', e.target.value)}
+                        placeholder="Objetivo principal de la sesión..."
+                        className="bg-white border-slate-200 focus:border-cyan-400 focus:ring-cyan-400"
+                        data-testid="objetivo-general"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Objetivo Físico</label>
+                      <Input
+                        value={sessionData.objetivos.fisico}
+                        onChange={(e) => updateObjetivo('fisico', e.target.value)}
+                        placeholder="Desarrollo de capacidades físicas..."
+                        className="bg-white border-slate-200 focus:border-cyan-400 focus:ring-cyan-400"
+                        data-testid="objetivo-fisico"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Objetivo Técnico</label>
+                      <Input
+                        value={sessionData.objetivos.tecnico}
+                        onChange={(e) => updateObjetivo('tecnico', e.target.value)}
+                        placeholder="Mejora técnica específica..."
+                        className="bg-white border-slate-200 focus:border-cyan-400 focus:ring-cyan-400"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Objetivo Táctico</label>
+                      <Input
+                        value={sessionData.objetivos.tactico}
+                        onChange={(e) => updateObjetivo('tactico', e.target.value)}
+                        placeholder="Desarrollo táctico..."
+                        className="bg-white border-slate-200 focus:border-cyan-400 focus:ring-cyan-400"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Objetivo Psicológico</label>
+                      <Input
+                        value={sessionData.objetivos.psicologico}
+                        onChange={(e) => updateObjetivo('psicologico', e.target.value)}
+                        placeholder="Aspecto mental a trabajar..."
+                        className="bg-white border-slate-200 focus:border-cyan-400 focus:ring-cyan-400"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Objetivo Teórico</label>
+                      <Input
+                        value={sessionData.objetivos.teorico}
+                        onChange={(e) => updateObjetivo('teorico', e.target.value)}
+                        placeholder="Conocimiento teórico..."
+                        className="bg-white border-slate-200 focus:border-cyan-400 focus:ring-cyan-400"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Estructura de la Sesión */}
+              <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 border-b border-slate-100 pb-4">
+                  <CardTitle className="flex items-center gap-2 text-base text-slate-800">
+                    <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
+                      <Zap className="w-4 h-4 text-white" />
+                    </div>
+                    Estructura de la Sesión
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-5 space-y-4 bg-white">
+                  {/* Fases */}
+                  {Object.entries(sessionData.fases).map(([faseKey, fase]) => {
+                    const faseColors = {
+                      inicial: { border: 'border-l-green-500', bg: 'bg-green-50', header: 'bg-green-100', text: 'text-green-700', btn: 'border-green-500 text-green-700 hover:bg-green-100' },
+                      principal: { border: 'border-l-orange-500', bg: 'bg-orange-50', header: 'bg-orange-100', text: 'text-orange-700', btn: 'border-orange-500 text-orange-700 hover:bg-orange-100' },
+                      final: { border: 'border-l-blue-500', bg: 'bg-blue-50', header: 'bg-blue-100', text: 'text-blue-700', btn: 'border-blue-500 text-blue-700 hover:bg-blue-100' }
+                    };
+                    const colors = faseColors[faseKey];
+                    
+                    return (
+                      <div key={faseKey} className={`border-l-4 ${colors.border} rounded-xl overflow-hidden shadow-sm bg-white`}>
+                        <button
+                          onClick={() => setExpandedPhases(prev => ({ ...prev, [faseKey]: !prev[faseKey] }))}
+                          className={`w-full flex items-center justify-between p-4 ${colors.header} hover:opacity-90 transition-all`}
+                        >
+                          <div className="flex items-center gap-3">
+                            {expandedPhases[faseKey] ? 
+                              <ChevronDown className={`w-5 h-5 ${colors.text}`} /> : 
+                              <ChevronRight className={`w-5 h-5 ${colors.text}`} />
+                            }
+                            <span className={`font-bold uppercase text-sm ${colors.text}`}>
+                              {fase.nombre}
+                            </span>
+                            <span className="text-xs text-slate-500 bg-white px-2 py-0.5 rounded-full">
+                              {fase.actividades.length} actividades
+                            </span>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => { e.stopPropagation(); addActividad(faseKey); }}
+                            className={`h-8 text-xs ${colors.btn} bg-white`}
+                            data-testid={`add-activity-${faseKey}`}
+                          >
+                            <Plus className="w-3 h-3 mr-1" /> Agregar Actividad
+                          </Button>
+                        </button>
+                        
+                        {expandedPhases[faseKey] && (
+                          <div className="bg-white p-4 border-t border-slate-100">
+                            {renderActividadesTable(faseKey, fase)}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </Card>
+
+              {/* Monitoreo y Retroalimentación */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Monitoreo de FC */}
+                <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden">
+                  <CardHeader className="bg-gradient-to-r from-red-50 to-pink-50 border-b border-slate-100 pb-4">
+                    <CardTitle className="flex items-center gap-2 text-base text-slate-800">
+                      <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
+                        <Heart className="w-4 h-4 text-white" />
+                      </div>
+                      Monitoreo de Frecuencia Cardíaca
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-5 bg-white">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">FC Reposo</label>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            value={sessionData.monitoreo.fcReposo}
+                            onChange={(e) => setSessionData(prev => ({
+                              ...prev,
+                              monitoreo: { ...prev.monitoreo, fcReposo: e.target.value }
+                            }))}
+                            placeholder="60"
+                            className="text-center bg-white border-slate-200 focus:border-red-400"
+                            data-testid="fc-reposo"
+                          />
+                          <span className="text-sm font-medium text-slate-500">bpm</span>
+                        </div>
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">FC Máxima</label>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            value={sessionData.monitoreo.fcMaxima}
+                            onChange={(e) => setSessionData(prev => ({
+                              ...prev,
+                              monitoreo: { ...prev.monitoreo, fcMaxima: e.target.value }
+                            }))}
+                            placeholder="180"
+                            className="text-center bg-white border-slate-200 focus:border-red-400"
+                            data-testid="fc-maxima"
+                          />
+                          <span className="text-sm font-medium text-slate-500">bpm</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Retroalimentación */}
+                <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden">
+                  <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-slate-100 pb-4">
+                    <CardTitle className="flex items-center gap-2 text-base text-slate-800">
+                      <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
+                        <AlertCircle className="w-4 h-4 text-white" />
+                      </div>
+                      Retroalimentación
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-5 bg-white">
+                    <Textarea
+                      value={sessionData.retroalimentacion}
+                      onChange={(e) => setSessionData(prev => ({ ...prev, retroalimentacion: e.target.value }))}
+                      placeholder="Observaciones y comentarios de la sesión..."
+                      className="min-h-[100px] resize-none bg-white border-slate-200 focus:border-indigo-400"
+                      data-testid="retroalimentacion"
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer con botones mejorado */}
+          <div className="sticky bottom-0 bg-white border-t border-slate-200 px-6 py-4 flex justify-between items-center shadow-lg">
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={handleGenerateShareLink}
+                className="border-purple-300 text-purple-700 hover:bg-purple-50"
+                data-testid="share-session-btn"
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Compartir
+              </Button>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="outline" 
+                onClick={onClose}
+                className="border-slate-300"
+                data-testid="cancel-session-btn"
+              >
+                Cancelar
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={handleExportPDF}
+                disabled={exporting}
+                className="border-amber-400 text-amber-700 hover:bg-amber-50"
+                data-testid="export-session-btn"
+              >
+                {exporting ? (
+                  <>
+                    <Activity className="w-4 h-4 mr-2 animate-spin" />
+                    Exportando...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 mr-2" />
+                    Descargar PDF
+                  </>
+                )}
+              </Button>
+              <Button 
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md"
+                onClick={handleSave}
+                data-testid="save-session-btn"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                Guardar Sesión
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo de compartir enlace */}
+      <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
+        <DialogContent className="max-w-md bg-white p-0 overflow-hidden">
+          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                <Link2 className="w-6 h-6" />
+              </div>
+              <div>
+                <DialogTitle className="text-white text-lg font-bold">Compartir Sesión</DialogTitle>
+                <p className="text-purple-100 text-sm mt-1">
+                  El deportista podrá ver la sesión sin necesidad de iniciar sesión
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="p-6 space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-slate-700">Enlace para compartir:</label>
+              <div className="flex gap-2">
+                <Input
+                  value={shareLink}
+                  readOnly
+                  className="bg-slate-50 text-sm"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleCopyLink}
+                  className={linkCopied ? 'border-green-500 text-green-600' : 'border-slate-300'}
+                >
+                  {linkCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                </Button>
+              </div>
+            </div>
+            
+            <div className="bg-blue-50 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <Eye className="w-5 h-5 text-blue-600 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-blue-800">Vista del deportista</p>
+                  <p className="text-xs text-blue-600 mt-1">
+                    El deportista verá la sesión completa con objetivos, ejercicios y parámetros de entrenamiento.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowShareDialog(false)}
+              >
+                Cerrar
+              </Button>
+              <Button
+                onClick={handleCopyLink}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                <Copy className="w-4 h-4 mr-2" />
+                Copiar Enlace
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
