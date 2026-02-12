@@ -411,7 +411,9 @@ const SessionEditor = ({
 
   // Generar enlace para compartir (con imagen)
   const handleGenerateShareLink = async () => {
+    if (exporting) return;
     setExporting(true);
+    
     try {
       const token = localStorage.getItem('train_token');
       
@@ -421,45 +423,51 @@ const SessionEditor = ({
         return;
       }
       
+      toast.info('Generando enlace...');
+      
       // Capturar la imagen de la sesión
       let imageBase64 = null;
       if (sessionContentRef.current) {
         try {
           const { default: html2canvas } = await import('html2canvas');
-          
-          // Guardar estilos originales
           const element = sessionContentRef.current;
-          const originalStyles = {
-            overflow: element.style.overflow,
-            maxHeight: element.style.maxHeight,
-            height: element.style.height
-          };
           
-          // Expandir el elemento temporalmente para capturar todo el contenido
-          element.style.overflow = 'visible';
-          element.style.maxHeight = 'none';
-          element.style.height = 'auto';
+          // Crear un contenedor temporal fuera de pantalla
+          const tempContainer = document.createElement('div');
+          tempContainer.style.cssText = `
+            position: fixed;
+            left: -9999px;
+            top: 0;
+            width: ${element.scrollWidth}px;
+            background: white;
+            z-index: -1;
+          `;
+          document.body.appendChild(tempContainer);
           
-          // Esperar un frame para que el DOM se actualice
-          await new Promise(resolve => requestAnimationFrame(resolve));
+          // Clonar el contenido
+          const clone = element.cloneNode(true);
+          clone.style.cssText = `
+            overflow: visible !important;
+            max-height: none !important;
+            height: auto !important;
+            width: ${element.scrollWidth}px;
+          `;
+          tempContainer.appendChild(clone);
           
-          const canvas = await html2canvas(element, {
-            scale: 2,
+          // Pequeña espera para que el DOM se estabilice
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
+          // Capturar el clon
+          const canvas = await html2canvas(clone, {
+            scale: 1.5,
             useCORS: true,
             backgroundColor: '#ffffff',
             logging: false,
-            allowTaint: true,
-            foreignObjectRendering: false,
-            width: element.scrollWidth,
-            height: element.scrollHeight,
-            windowWidth: element.scrollWidth,
-            windowHeight: element.scrollHeight
+            allowTaint: true
           });
           
-          // Restaurar estilos originales
-          element.style.overflow = originalStyles.overflow || '';
-          element.style.maxHeight = originalStyles.maxHeight || '';
-          element.style.height = originalStyles.height || '';
+          // Limpiar el contenedor temporal
+          document.body.removeChild(tempContainer);
           
           imageBase64 = canvas.toDataURL('image/png', 0.8);
           console.log('Image captured successfully, size:', canvas.width, 'x', canvas.height);
@@ -494,16 +502,17 @@ const SessionEditor = ({
         const fullLink = `${window.location.origin}/session/view/${data.share_id}`;
         setShareLink(fullLink);
         setShowShareDialog(true);
-        toast.success(imageBase64 ? 'Enlace con imagen generado exitosamente' : 'Enlace generado (sin imagen)');
+        toast.success(imageBase64 ? 'Enlace con imagen generado' : 'Enlace generado (sin imagen)');
       } else {
         const errorData = await response.json();
         throw new Error(errorData.detail || 'Error al generar enlace');
       }
     } catch (error) {
       console.error('Error generating share link:', error);
-      toast.error(error.message || 'Error al generar enlace para compartir');
+      toast.error(error.message || 'Error al generar enlace');
+    } finally {
+      setExporting(false);
     }
-    setExporting(false);
   };
 
   // Copiar enlace al portapapeles
