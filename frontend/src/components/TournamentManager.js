@@ -437,9 +437,9 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden p-0 bg-white rounded-2xl shadow-2xl">
-        {/* Material Design Header */}
-        <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-6 py-5 text-white">
+      <DialogContent className="max-w-3xl h-[85vh] flex flex-col p-0 bg-white rounded-2xl shadow-2xl">
+        {/* Material Design Header - Fixed */}
+        <div className="flex-shrink-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-6 py-4 text-white">
           <DialogHeader className="p-0">
             <DialogTitle className="flex items-center gap-3 text-xl font-bold text-white">
               <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
@@ -451,8 +451,8 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
           </DialogHeader>
         </div>
 
-        {/* Progress Steps - Material Design */}
-        <div className="px-6 py-4 bg-slate-50 border-b">
+        {/* Progress Steps - Fixed */}
+        <div className="flex-shrink-0 px-6 py-3 bg-slate-50 border-b">
           <div className="flex items-center justify-between">
             {[
               { num: 1, label: 'Información', icon: FileText },
@@ -464,7 +464,7 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
               return (
                 <div key={s.num} className="flex items-center">
                   <div className={`flex flex-col items-center ${idx > 0 ? 'ml-4' : ''}`}>
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-sm ${
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all shadow-sm ${
                       s.num < step ? 'bg-green-500 text-white' :
                       s.num === step ? 'bg-blue-600 text-white ring-4 ring-blue-100' :
                       'bg-white text-slate-400 border-2 border-slate-200'
