@@ -217,6 +217,17 @@ const InteractiveChart = ({
                 radius={[4, 4, 0, 0]}
               />
             ))}
+            {/* Reference Areas (zonas de fondo) */}
+            {referenceAreas.map((area, idx) => (
+              <ReferenceArea
+                key={`area-${idx}`}
+                y1={area.y1}
+                y2={area.y2}
+                fill={area.color}
+                fillOpacity={area.fillOpacity || 0.15}
+                label={{ value: area.label, fill: area.color, fontSize: 10, position: 'insideTopRight' }}
+              />
+            ))}
             {referenceLines.map((ref, idx) => (
               <ReferenceLine 
                 key={idx} 
@@ -233,6 +244,17 @@ const InteractiveChart = ({
       case 'line':
         return (
           <LineChart {...commonProps}>
+            {/* Reference Areas (zonas de fondo) - renderizar primero */}
+            {referenceAreas.map((area, idx) => (
+              <ReferenceArea
+                key={`area-${idx}`}
+                y1={area.y1}
+                y2={area.y2}
+                fill={area.color}
+                fillOpacity={area.fillOpacity || 0.15}
+                label={{ value: area.label, fill: area.color, fontSize: 10, position: 'insideTopRight' }}
+              />
+            ))}
             {axisProps.grid}
             {axisProps.xAxis}
             {axisProps.yAxis}
@@ -267,6 +289,17 @@ const InteractiveChart = ({
         return (
           <AreaChart {...commonProps}>
             {gradientDefs}
+            {/* Reference Areas (zonas de fondo) */}
+            {referenceAreas.map((area, idx) => (
+              <ReferenceArea
+                key={`area-${idx}`}
+                y1={area.y1}
+                y2={area.y2}
+                fill={area.color}
+                fillOpacity={area.fillOpacity || 0.15}
+                label={{ value: area.label, fill: area.color, fontSize: 10, position: 'insideTopRight' }}
+              />
+            ))}
             {axisProps.grid}
             {axisProps.xAxis}
             {axisProps.yAxis}
