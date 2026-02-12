@@ -469,55 +469,344 @@ const ControlPanel = ({
   };
 
   return (
-    <div className="overflow-y-auto h-full bg-slate-50/50">
-      {/* Compact Header - Material Design */}
-      <div className="bg-white border-b border-slate-100 sticky top-0 z-10">
+    <div className="overflow-y-auto h-full bg-gradient-to-br from-slate-50 to-blue-50/30">
+      {/* Header Compacto */}
+      <div className="bg-white/80 backdrop-blur-sm border-b border-slate-100 sticky top-0 z-10">
         <div className="px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <h2 className="text-lg font-semibold text-slate-800">Panel de Control</h2>
+              <h2 className="text-lg font-bold text-slate-800 tracking-tight">PANEL DE CONTROL</h2>
               <span className="text-xs text-slate-400">
                 {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {/* Quick Stats Pills */}
-              <div className="hidden md:flex items-center gap-2 mr-2">
-                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 rounded-full text-xs font-medium text-blue-700">
-                  <Users className="h-3 w-3" />
+              <div className="hidden md:flex items-center gap-2">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 rounded-full text-xs font-semibold text-blue-700">
+                  <Users className="h-3.5 w-3.5" />
                   <span>{totalAthletes} atletas</span>
                 </div>
-                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 rounded-full text-xs font-medium text-emerald-700">
-                  <Activity className="h-3 w-3" />
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 rounded-full text-xs font-semibold text-emerald-700">
+                  <Activity className="h-3.5 w-3.5" />
                   <span>{activeMacrocycles} activos</span>
                 </div>
               </div>
-              <Button size="sm" variant="ghost" className="h-8 text-slate-600 hover:text-slate-800" onClick={handleSave}>
+              <Button size="sm" variant="ghost" className="h-9 w-9 text-slate-600 hover:bg-slate-100" onClick={handleSave}>
                 <Save className="w-4 h-4" />
               </Button>
-              <Button size="sm" variant="ghost" className="h-8 text-slate-600 hover:text-slate-800" onClick={handleViewReports}>
+              <Button size="sm" variant="ghost" className="h-9 w-9 text-slate-600 hover:bg-slate-100" onClick={handleViewReports}>
                 <Download className="w-4 h-4" />
               </Button>
             </div>
           </div>
           
-          {/* Compact Filter Row */}
-          <div className="flex items-center gap-2 mt-2 overflow-x-auto pb-1">
-            <Input placeholder="Competencia" className="h-7 text-xs min-w-[120px] max-w-[140px] bg-slate-50 border-slate-200" />
-            <Input placeholder="Deporte" className="h-7 text-xs min-w-[100px] max-w-[120px] bg-slate-50 border-slate-200" />
-            <Input placeholder="Modalidad" className="h-7 text-xs min-w-[100px] max-w-[120px] bg-slate-50 border-slate-200" />
-            <Input placeholder="Categoría" className="h-7 text-xs min-w-[100px] max-w-[120px] bg-slate-50 border-slate-200" />
+          {/* Filter Row */}
+          <div className="flex items-center gap-2 mt-3 overflow-x-auto pb-1">
+            <Input placeholder="Competencia" className="h-8 text-xs min-w-[130px] max-w-[150px] bg-white border-slate-200" />
+            <Input placeholder="Deporte" className="h-8 text-xs min-w-[110px] max-w-[130px] bg-white border-slate-200" />
+            <Input placeholder="Modalidad" className="h-8 text-xs min-w-[110px] max-w-[130px] bg-white border-slate-200" />
+            <Input placeholder="Categoría" className="h-8 text-xs min-w-[110px] max-w-[130px] bg-white border-slate-200" />
           </div>
         </div>
       </div>
 
-      <div className="p-4 space-y-4">
-        {/* Quick Stats Row - Compact Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          <div 
-            className="bg-white rounded-xl p-3 border border-slate-100 hover:border-blue-200 hover:shadow-md transition-all cursor-pointer group"
+      <div className="p-5 space-y-5">
+        {/* Stats Cards Row - ELEGANT GRADIENT CARDS */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {/* Total Atletas */}
+          <Card 
+            className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg shadow-blue-200/50 cursor-pointer hover:scale-[1.02] transition-all duration-200"
             onClick={() => onNavigate && onNavigate('datos', 'athletes')}
           >
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-blue-100 text-sm font-medium">Total Atletas</p>
+                  <p className="text-3xl font-bold mt-1">{totalAthletes}</p>
+                  <p className="text-blue-200 text-xs mt-1 flex items-center gap-1">
+                    <ArrowUpRight className="w-3 h-3" /> Click para ver
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Users className="w-6 h-6" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Eventos Próximos */}
+          <Card 
+            className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-0 shadow-lg shadow-emerald-200/50 cursor-pointer hover:scale-[1.02] transition-all duration-200"
+            onClick={() => onNavigate && onNavigate('datos', 'competitions')}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-emerald-100 text-sm font-medium">Eventos Próximos</p>
+                  <p className="text-3xl font-bold mt-1">{upcomingEventsCount}</p>
+                  <p className="text-emerald-200 text-xs mt-1 flex items-center gap-1">
+                    <Calendar className="w-3 h-3" /> Este mes
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Flag className="w-6 h-6" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Sesiones */}
+          <Card className="bg-gradient-to-br from-amber-500 to-orange-500 text-white border-0 shadow-lg shadow-amber-200/50">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-amber-100 text-sm font-medium">Sesiones</p>
+                  <p className="text-3xl font-bold mt-1">{completedSessions}</p>
+                  <p className="text-amber-200 text-xs mt-1 flex items-center gap-1">
+                    <ArrowUpRight className="w-3 h-3" /> {totalSessions > 0 ? Math.round((completedSessions / totalSessions) * 100) : 0}% completadas
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Target className="w-6 h-6" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Macrociclos */}
+          <Card 
+            className="bg-gradient-to-br from-violet-500 to-purple-600 text-white border-0 shadow-lg shadow-violet-200/50 cursor-pointer hover:scale-[1.02] transition-all duration-200"
+            onClick={() => onNavigate && onNavigate('datos', 'training-system')}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-violet-100 text-sm font-medium">Macrociclos</p>
+                  <p className="text-3xl font-bold mt-1">{activeMacrocycles}</p>
+                  <p className="text-violet-200 text-xs mt-1 flex items-center gap-1">
+                    <Timer className="w-3 h-3" /> Activos
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Activity className="w-6 h-6" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Ejercicios */}
+          <Card className="bg-gradient-to-br from-pink-500 to-rose-500 text-white border-0 shadow-lg shadow-pink-200/50">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-pink-100 text-sm font-medium">Ejercicios</p>
+                  <p className="text-3xl font-bold mt-1">150+</p>
+                  <p className="text-pink-200 text-xs mt-1 flex items-center gap-1">
+                    <Dumbbell className="w-3 h-3" /> Biblioteca
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Dumbbell className="w-6 h-6" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Alert Banner */}
+        {alerts.length > 0 && alerts[0] && (
+          <div className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-sm border ${
+            alerts[0].color === 'green' ? 'bg-emerald-50 border-emerald-200' :
+            alerts[0].color === 'amber' ? 'bg-amber-50 border-amber-200' :
+            alerts[0].color === 'red' ? 'bg-red-50 border-red-200' :
+            'bg-blue-50 border-blue-200'
+          }`}>
+            {React.createElement(alerts[0].icon, { 
+              className: `w-5 h-5 flex-shrink-0 ${
+                alerts[0].color === 'green' ? 'text-emerald-600' :
+                alerts[0].color === 'amber' ? 'text-amber-600' :
+                alerts[0].color === 'red' ? 'text-red-600' :
+                'text-blue-600'
+              }` 
+            })}
+            <div className="flex-1">
+              <p className={`text-sm font-semibold ${
+                alerts[0].color === 'green' ? 'text-emerald-800' :
+                alerts[0].color === 'amber' ? 'text-amber-800' :
+                alerts[0].color === 'red' ? 'text-red-800' :
+                'text-blue-800'
+              }`}>
+                {alerts[0].title}
+              </p>
+              <p className={`text-xs mt-0.5 ${
+                alerts[0].color === 'green' ? 'text-emerald-600' :
+                alerts[0].color === 'amber' ? 'text-amber-600' :
+                alerts[0].color === 'red' ? 'text-red-600' :
+                'text-blue-600'
+              }`}>
+                {alerts[0].message}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Motivational Quote - Elegant Dark */}
+        {motivationalMessage && (
+          <div className="bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 rounded-xl p-4 text-white shadow-lg">
+            <div className="flex items-center gap-3">
+              <Sparkles className="w-5 h-5 text-amber-400 flex-shrink-0" />
+              <div>
+                <p className="text-sm md:text-base italic">"{motivationalMessage.text}"</p>
+                <p className="text-slate-400 text-xs mt-1">— {motivationalMessage.author}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Charts Section with Type Selector */}
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-semibold text-slate-700">Análisis de Entrenamiento</h3>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-500">Tipo de gráfica:</span>
+            <select 
+              value={chartType}
+              onChange={(e) => setChartType(e.target.value)}
+              className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="bar">Barras</option>
+              <option value="line">Líneas</option>
+              <option value="area">Área</option>
+              <option value="mixed">Mixta</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Charts Row 1 */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {/* Volumen + Intensidad + Densidad Combined Chart */}
+          <Card className="shadow-lg border-0 bg-white">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-base">
+                  <BarChart3 className="w-5 h-5 text-blue-500" />
+                  Volumen, Intensidad y Densidad
+                </div>
+                {dataSource === 'api' && (
+                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">En vivo</span>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={280}>
+                {chartType === 'bar' ? (
+                  <BarChart data={volumeData} barGap={2}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+                    <XAxis dataKey="semana" tick={{ fontSize: 11 }} stroke="#9CA3AF" />
+                    <YAxis tick={{ fontSize: 11 }} stroke="#9CA3AF" />
+                    <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }} />
+                    <Legend wrapperStyle={{ fontSize: '12px' }} />
+                    <Bar dataKey="volumen" name="Volumen %" fill="#3B82F6" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="objetivo" name="Objetivo %" fill="#10B981" radius={[4, 4, 0, 0]} opacity={0.7} />
+                  </BarChart>
+                ) : chartType === 'line' ? (
+                  <LineChart data={volumeData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+                    <XAxis dataKey="semana" tick={{ fontSize: 11 }} stroke="#9CA3AF" />
+                    <YAxis tick={{ fontSize: 11 }} stroke="#9CA3AF" />
+                    <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }} />
+                    <Legend wrapperStyle={{ fontSize: '12px' }} />
+                    <Line type="monotone" dataKey="volumen" name="Volumen %" stroke="#3B82F6" strokeWidth={2} dot={{ r: 4 }} />
+                    <Line type="monotone" dataKey="objetivo" name="Objetivo %" stroke="#10B981" strokeWidth={2} dot={{ r: 4 }} />
+                  </LineChart>
+                ) : chartType === 'area' ? (
+                  <AreaChart data={volumeData}>
+                    <defs>
+                      <linearGradient id="colorVol" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.4}/>
+                        <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                      </linearGradient>
+                      <linearGradient id="colorObj" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.4}/>
+                        <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+                    <XAxis dataKey="semana" tick={{ fontSize: 11 }} stroke="#9CA3AF" />
+                    <YAxis tick={{ fontSize: 11 }} stroke="#9CA3AF" />
+                    <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }} />
+                    <Legend wrapperStyle={{ fontSize: '12px' }} />
+                    <Area type="monotone" dataKey="volumen" name="Volumen %" stroke="#3B82F6" fillOpacity={1} fill="url(#colorVol)" />
+                    <Area type="monotone" dataKey="objetivo" name="Objetivo %" stroke="#10B981" fillOpacity={1} fill="url(#colorObj)" />
+                  </AreaChart>
+                ) : (
+                  /* Mixed Chart */
+                  <BarChart data={volumeData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+                    <XAxis dataKey="semana" tick={{ fontSize: 11 }} stroke="#9CA3AF" />
+                    <YAxis tick={{ fontSize: 11 }} stroke="#9CA3AF" />
+                    <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }} />
+                    <Legend wrapperStyle={{ fontSize: '12px' }} />
+                    <Bar dataKey="volumen" name="Volumen %" fill="#3B82F6" radius={[4, 4, 0, 0]} />
+                    <Line type="monotone" dataKey="objetivo" name="Objetivo %" stroke="#10B981" strokeWidth={2} dot={{ r: 3 }} />
+                  </BarChart>
+                )}
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Intensidad + Recuperación Chart */}
+          <Card className="shadow-lg border-0 bg-white">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-base">
+                  <TrendingUp className="w-5 h-5 text-rose-500" />
+                  Intensidad y Recuperación
+                </div>
+                {dataSource === 'api' && (
+                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">En vivo</span>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={280}>
+                <LineChart data={intensityData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+                  <XAxis dataKey="semana" tick={{ fontSize: 11 }} stroke="#9CA3AF" />
+                  <YAxis tick={{ fontSize: 11 }} stroke="#9CA3AF" domain={[0, 100]} />
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }} />
+                  <Legend wrapperStyle={{ fontSize: '12px' }} />
+                  <Line 
+                    type="monotone" 
+                    dataKey="intensidad" 
+                    name="Intensidad %"
+                    stroke="#EF4444" 
+                    strokeWidth={3}
+                    dot={{ fill: '#EF4444', strokeWidth: 0, r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="recuperacion" 
+                    name="Recuperación %"
+                    stroke="#10B981" 
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                    dot={{ fill: '#10B981', strokeWidth: 0, r: 3 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="densidad" 
+                    name="Densidad %"
+                    stroke="#8B5CF6" 
+                    strokeWidth={2}
+                    dot={{ fill: '#8B5CF6', strokeWidth: 0, r: 3 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
             <div className="flex items-center justify-between">
               <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors">
                 <Users className="w-4 h-4 text-blue-600 group-hover:text-white" />
