@@ -764,17 +764,17 @@ const DashboardPage = () => {
                                 <div className="flex flex-wrap gap-1 mt-1">
                                   {team.affiliations.federation && (
                                     <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full">
-                                      🏛️ {federations.find(f => f.id === team.affiliations.federation)?.name || 'Federación'}
+                                      🏛️ {entityFederations.find(f => f.id === team.affiliations.federation)?.name || 'Federación'}
                                     </span>
                                   )}
                                   {team.affiliations.club && (
                                     <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">
-                                      🏢 {clubs.find(c => c.id === team.affiliations.club)?.name || 'Club'}
+                                      🏢 {entityClubs.find(c => c.id === team.affiliations.club)?.name || 'Club'}
                                     </span>
                                   )}
                                   {team.affiliations.school && (
                                     <span className="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full">
-                                      🏫 {schools.find(s => s.id === team.affiliations.school)?.name || 'Escuela'}
+                                      🏫 {entitySchools.find(s => s.id === team.affiliations.school)?.name || 'Escuela'}
                                     </span>
                                   )}
                                 </div>
