@@ -792,3 +792,57 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 **Nota importante:** Para que el PDF tenga datos reales, el usuario debe primero guardar información en cada sección desde la aplicación. El PDF refleja los datos guardados en la base de datos.
 
 
+### Feb 12, 2026 - Rediseño Estratégico del Flujo de Trabajo
+
+**Solicitud del usuario:** Reorganizar completamente la plataforma para mejorar la experiencia del usuario, la veracidad de la información y seguir los principios del entrenamiento deportivo.
+
+**Cambios implementados:**
+
+#### Nueva Estructura del Sidebar (6 secciones lógicas):
+1. **1. INFORMACIÓN** (indigo) - Fusión de Atletas + Organización
+   - Atletas y Equipos
+   - Entidades (Federación, Club, Escuela)
+   - Caracterización del Deporte
+   - Caracterización del Deportista
+
+2. **2. EVALUACIÓN INICIAL** (emerald)
+   - Datos Antropométricos
+   - Historial Médico
+
+3. **3. COMPETENCIAS Y OBJETIVOS** (violet)
+   - Calendario de Competencias
+   - Objetivos del Plan
+   - Análisis del Plan Anterior
+
+4. **4. SISTEMA DE ENTRENAMIENTO** (blue) - **EJE CENTRAL**
+   - Sistema de Entrenamiento (Hub integrado)
+   - Métodos de Entrenamiento
+   - Biblioteca de Ejercicios
+
+5. **5. VISUALIZACIÓN** (amber)
+   - Plan Gráfico
+   - Calendario
+   - Alertas Inteligentes
+
+6. **6. HERRAMIENTAS** (slate)
+   - Generar con IA
+   - Dashboard General
+
+#### Nuevo Componente: TrainingSystemHub.js
+- **Hub central** que integra: Periodización, Tests/Evaluaciones, Carga y Control
+- **Barra de progreso** del 0-100% mostrando completitud del sistema
+- **Flujo visual de trabajo**: Modelo → Estructura → Evaluación → Carga → Control → Plan Gráfico
+- **5 tabs navegables**: Resumen, Periodización, Evaluaciones, Carga, Control
+- **Conexión directa** con el Plan Gráfico al final del flujo
+
+#### Principios aplicados:
+- Los datos fluyen lógicamente hacia el Plan Gráfico
+- Tests y Evaluaciones integrados en el Sistema de Entrenamiento para control de rendimiento
+- Modelos de Periodización como eje central del sistema
+- Información del atleta conectada con todas las secciones
+
+**Archivos creados/modificados:**
+- `/app/frontend/src/components/TrainingSystemHub.js` - NUEVO
+- `/app/frontend/src/pages/DashboardPage.js` - Actualizado con nueva estructura de navItems y secciones
+
+
