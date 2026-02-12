@@ -373,10 +373,14 @@ const ControlPanel = ({
         meso.microcycles?.forEach(micro => {
           const volume = micro.volume || 70;
           const intensity = micro.intensity || 50;
+          const densidad = Math.round(volume * intensity / 100) || 35;
           
+          // Incluir las 3 métricas en el mismo dataset
           realVolumeData.push({
             semana: `S${weekCounter}`,
             volumen: volume,
+            intensidad: intensity,
+            densidad: densidad,
             objetivo: micro.isDeload ? volume + 20 : volume - 5
           });
 
@@ -384,7 +388,7 @@ const ControlPanel = ({
             semana: `S${weekCounter}`,
             intensidad: intensity,
             recuperacion: 100 - intensity + (micro.isDeload ? 20 : 0),
-            densidad: Math.round(volume * intensity / 100) || 35
+            densidad: densidad
           });
 
           accumulatedLoad += volume * (intensity / 100);
@@ -415,46 +419,69 @@ const ControlPanel = ({
       }
     }
 
-    // Datos de ejemplo si no hay periodización real
+    // Datos de ejemplo basados en modelo de periodización típico
     if (volumeData.length === 0) {
+      // Definir fases de periodización con sus características
+      const periodizationModel = [
+        { fase: 'Prep. General', semanas: 4, volBase: 75, intBase: 55, tendVol: 5, tendInt: 3 },
+        { fase: 'Prep. Específico', semanas: 3, volBase: 70, intBase: 65, tendVol: -2, tendInt: 5 },
+        { fase: 'Precompetitivo', semanas: 2, volBase: 55, intBase: 80, tendVol: -5, tendInt: 5 },
+        { fase: 'Competitivo', semanas: 2, volBase: 40, intBase: 90, tendVol: -3, tendInt: 2 },
+        { fase: 'Transición', semanas: 1, volBase: 30, intBase: 50, tendVol: 0, tendInt: 0 }
+      ];
+      
       const weeks = [];
-      for (let i = 1; i <= 12; i++) {
-        weeks.push({
-          semana: `S${i}`,
-          volumen: Math.floor(50 + Math.random() * 50),
-          objetivo: 70 + (i % 4 === 0 ? -20 : (i % 3) * 5)
-        });
-      }
+      let weekNum = 1;
+      const phaseData = {};
+      
+      periodizationModel.forEach(modelo => {
+        phaseData[modelo.fase] = modelo.semanas;
+        for (let i = 0; i < modelo.semanas && weekNum <= 12; i++) {
+          const volumen = Math.round(modelo.volBase + (modelo.tendVol * i) + (Math.random() * 5 - 2.5));
+          const intensidad = Math.round(modelo.intBase + (modelo.tendInt * i) + (Math.random() * 5 - 2.5));
+          const densidad = Math.round((volumen * intensidad) / 100);
+          
+          weeks.push({
+            semana: `S${weekNum}`,
+            volumen: Math.min(100, Math.max(20, volumen)),
+            intensidad: Math.min(100, Math.max(30, intensidad)),
+            densidad: Math.min(80, Math.max(15, densidad)),
+            objetivo: volumen + 5
+          });
+          weekNum++;
+        }
+      });
       setVolumeData(weeks);
 
-      const intensity = [];
-      for (let i = 1; i <= 12; i++) {
-        intensity.push({
-          semana: `S${i}`,
-          intensidad: Math.floor(40 + (i * 3) + Math.random() * 15),
-          recuperacion: Math.floor(80 - (i * 2) + Math.random() * 10)
-        });
-      }
+      // Datos de intensidad/recuperación correlacionados
+      const intensity = weeks.map((w, i) => ({
+        semana: w.semana,
+        intensidad: w.intensidad,
+        recuperacion: Math.max(20, 100 - w.intensidad + (Math.random() * 10)),
+        densidad: w.densidad
+      }));
       setIntensityData(intensity);
 
-      setPhaseDistribution([
-        { name: 'Prep. General', value: 30, color: COLORS.phases['Prep. General'] },
-        { name: 'Prep. Específico', value: 25, color: COLORS.phases['Prep. Específico'] },
-        { name: 'Precompetitivo', value: 15, color: COLORS.phases['Precompetitivo'] },
-        { name: 'Competitivo', value: 22, color: COLORS.phases['Competitivo'] },
-        { name: 'Transición', value: 8, color: COLORS.phases['Transición'] }
-      ]);
+      // Distribución de fases basada en el modelo
+      const totalSemanas = Object.values(phaseData).reduce((a, b) => a + b, 0);
+      const distribution = Object.entries(phaseData).map(([name, count]) => ({
+        name: name,
+        value: Math.round((count / totalSemanas) * 100),
+        color: COLORS.phases[name] || '#3B82F6'
+      }));
+      setPhaseDistribution(distribution);
 
+      // Datos de carga acumulada
       const load = [];
       let accumulated = 0;
-      for (let i = 1; i <= 12; i++) {
-        accumulated += Math.floor(20 + Math.random() * 30);
+      weeks.forEach((w, i) => {
+        accumulated += Math.round((w.volumen * w.intensidad) / 100);
         load.push({
-          semana: `S${i}`,
+          semana: w.semana,
           carga: accumulated,
-          fatiga: Math.floor(30 + Math.random() * 40)
+          fatiga: Math.round(30 + (w.intensidad * 0.4))
         });
-      }
+      });
       setLoadData(load);
     }
   }, [periodizationData, dataSource, volumeData.length]);
