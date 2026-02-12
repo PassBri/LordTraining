@@ -118,15 +118,17 @@ const AthletesPage = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [athletesRes, teamsRes, catalogRes, entitiesRes] = await Promise.all([
+      const [athletesRes, teamsRes, catalogRes, entitiesRes, tournamentsRes] = await Promise.all([
         getAthletes(),
         getTeams(),
         getSportsCatalog(),
-        getEntities()
+        getEntities(),
+        getTournaments()
       ]);
       setAthletes(athletesRes.data);
       setTeams(teamsRes.data);
       setSportsCatalog(catalogRes.data);
+      setTournaments(tournamentsRes.data);
       
       // Organize entities by type
       const organized = { federations: [], clubs: [], schools: [] };
