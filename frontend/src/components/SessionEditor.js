@@ -441,6 +441,7 @@ const SessionEditor = ({
       console.error('Error generating share link:', error);
       toast.error(error.message || 'Error al generar enlace para compartir');
     }
+    setExporting(false);
   };
 
   // Copiar enlace al portapapeles
