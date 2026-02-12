@@ -397,57 +397,6 @@ const SessionEditor = ({
     }
   };
 
-  // Exportar sesión como PDF (genera imagen y la pone en PDF)
-  const handleExportPDF = async () => {
-    setExporting(true);
-    try {
-      const token = localStorage.getItem('train_token');
-      
-      // Preparar datos de la sesión para el PDF
-      const pdfData = {
-        athlete_id: athleteId,
-        athlete_name: athleteName || 'Atleta',
-        session: {
-          date: session?.date || new Date().toISOString().split('T')[0],
-          day: session?.dayName || 'Sesión',
-          type: session?.type || 'Entrenamiento',
-          objectives: sessionData.objetivos,
-          phases: sessionData.fases,
-          monitoring: sessionData.monitoreo,
-          feedback: sessionData.retroalimentacion
-        }
-      };
-      
-      const response = await fetch(`${API_URL}/api/export/session-pdf`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(pdfData)
-      });
-      
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `sesion_${session?.date || 'entrenamiento'}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        toast.success('PDF descargado exitosamente');
-      } else {
-        throw new Error('Error al generar PDF');
-      }
-    } catch (error) {
-      console.error('Error exporting PDF:', error);
-      toast.error('Error al exportar PDF');
-    }
-    setExporting(false);
-  };
-
   // Generar enlace para compartir (con imagen)
   const handleGenerateShareLink = async () => {
     if (exporting) return;
