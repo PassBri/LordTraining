@@ -13,7 +13,9 @@ import {
   FileText, Loader2, X, LayoutDashboard
 } from 'lucide-react';
 import {
-  PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend
+  PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend,
+  RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+  BarChart, Bar, XAxis, YAxis
 } from 'recharts';
 import { toast } from 'sonner';
 import InteractiveChart from './InteractiveChart';
