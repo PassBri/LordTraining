@@ -216,9 +216,14 @@ const SubscriptionPage = () => {
 
         {/* Plans */}
         <div>
-          <h2 className="text-2xl font-black text-slate-900 mb-6" style={{ fontFamily: 'Barlow Condensed' }}>
-            TODOS LOS PLANES
-          </h2>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-900">
+              Todos los Planes
+            </h2>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {PLANS.map((plan) => {
               const isCurrent = plan.id === user?.subscription;
@@ -227,28 +232,30 @@ const SubscriptionPage = () => {
               return (
                 <Card 
                   key={plan.id}
-                  className={`relative ${plan.popular ? 'border-[#007AFF] border-2 shadow-lg' : 'border-slate-200'} ${isCurrent ? 'ring-2 ring-green-500' : ''}`}
+                  className={`relative border-0 shadow-lg transition-all hover:shadow-xl hover:-translate-y-1 ${
+                    plan.popular ? 'ring-2 ring-indigo-500' : ''
+                  } ${isCurrent ? 'ring-2 ring-emerald-500' : ''}`}
                   data-testid={`plan-card-${plan.id}`}
                 >
                   {plan.popular && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#007AFF] text-white text-xs font-bold uppercase tracking-wide px-4 py-1 rounded-full">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold uppercase tracking-wide px-4 py-1.5 rounded-full shadow-md">
                       Popular
                     </div>
                   )}
                   {isCurrent && (
-                    <div className="absolute -top-3 right-4 bg-green-500 text-white text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full">
+                    <div className="absolute -top-3 right-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-bold uppercase tracking-wide px-3 py-1.5 rounded-full shadow-md">
                       Actual
                     </div>
                   )}
                   
                   <CardContent className="p-6">
                     <div className="text-center mb-6">
-                      <h3 className="text-2xl font-black text-slate-900" style={{ fontFamily: 'Barlow Condensed' }}>
-                        {plan.name.toUpperCase()}
+                      <h3 className="text-2xl font-bold text-slate-900">
+                        {plan.name}
                       </h3>
                       <p className="text-sm text-slate-500 mt-1">{plan.description}</p>
                       <div className="mt-4">
-                        <span className="text-4xl font-black text-slate-900" style={{ fontFamily: 'Barlow Condensed' }}>
+                        <span className="text-4xl font-bold text-slate-900">
                           ${plan.price}
                         </span>
                         <span className="text-slate-500">/mes</span>
