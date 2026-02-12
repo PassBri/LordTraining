@@ -1015,3 +1015,50 @@ Crear un planificador de entrenamiento deportivo y personalizado estilo SaaS con
 - `/app/backend/server.py` - Endpoint `/api/export/session-pdf` completamente reescrito
 
 
+### Feb 12, 2026 - Exportación de Imagen y Enlace de Sesión Compartida
+
+**Solicitud del usuario:** El PDF de sesión debe ser una imagen de la sesión, y el enlace de compartir debe mostrar esa imagen.
+
+**Bugs corregidos:**
+
+1. **Bug del enlace compartido:** El endpoint `/api/sessions/view/{share_id}` fallaba con error "can't compare offset-naive and offset-aware datetimes"
+   - **Causa:** La fecha `expires_at` en MongoDB se guardaba como datetime naive pero se comparaba con datetime aware
+   - **Solución:** Se agregó manejo para convertir fechas naive a aware antes de comparar
+
+2. **Bug de sintaxis en SessionViewPage.js:** Error "Adjacent JSX elements must be wrapped in an enclosing tag"
+   - **Causa:** Indentación incorrecta en el código hacía que elementos JSX parecieran estar al mismo nivel
+   - **Solución:** Se corrigió la indentación de todo el componente
+
+**Funcionalidades implementadas:**
+
+1. **Exportación como imagen (Descargar Imagen):**
+   - Usa `html2canvas` para capturar el contenido del editor de sesión
+   - Genera archivo PNG que se descarga automáticamente
+   - Botón "Descargar Imagen" con data-testid="export-image-btn"
+
+2. **Compartir enlace con imagen:**
+   - Al hacer click en "Compartir Enlace", captura la imagen de la sesión con `html2canvas`
+   - Guarda la imagen en base64 junto con los datos de la sesión en MongoDB
+   - Genera enlace público `/session/view/{shareId}`
+   - El enlace muestra la imagen de la sesión (si existe) o la vista de detalles
+
+3. **Página de sesión compartida (SessionViewPage.js):**
+   - Toggle "Imagen" / "Detalles" cuando hay imagen disponible
+   - Botón "Descargar" para descargar la imagen
+   - Vista de detalles con objetivos, estructura de sesión y monitoreo
+   - Contador de vistas incrementado cada vez que se accede
+
+4. **Comportamiento del editor mejorado:**
+   - Botón "Guardar" mantiene el editor abierto (NO cierra el modal)
+   - Nuevo botón "Salir" para cerrar el editor explícitamente
+   - data-testid="save-session-btn" y data-testid="exit-session-btn"
+
+**Archivos modificados:**
+- `/app/backend/server.py` - Corregido bug de datetime en `/api/sessions/view/{share_id}`
+- `/app/frontend/src/pages/SessionViewPage.js` - Corregida indentación y estructura JSX
+- `/app/frontend/src/components/SessionEditor.js` - Ya tenía la implementación correcta
+
+**Test Report:**
+- `/app/test_reports/iteration_19.json` - 89% backend (8/9), 100% frontend
+
+
