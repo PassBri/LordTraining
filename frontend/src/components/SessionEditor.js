@@ -680,7 +680,7 @@ const SessionEditor = ({
     <>
       <Dialog open={isOpen} onOpenChange={() => {}}>
         <DialogContent 
-          className="max-w-6xl max-h-[90vh] overflow-hidden p-0 bg-white" 
+          className="max-w-6xl max-h-[90vh] overflow-hidden p-0 bg-white [&>button]:hidden" 
           data-testid="session-editor-dialog"
           onPointerDownOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
