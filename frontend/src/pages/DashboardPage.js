@@ -2563,10 +2563,28 @@ const DashboardPage = () => {
         ) : (
           /* AI Assistant View */
           <Card className="flex-grow flex flex-col shadow-lg overflow-hidden">
-            <CardHeader className="bg-blue-600 py-3 px-4">
-              <CardTitle className="text-base text-white">Asistente IA de Entrenamiento</CardTitle>
-          </CardHeader>
+            <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 py-3 px-4">
+              <CardTitle className="text-base text-white flex items-center gap-2">
+                <Brain className="w-5 h-5" />
+                Asistente IA de Entrenamiento
+              </CardTitle>
+            </CardHeader>
           <CardContent className="flex-grow flex flex-col p-0">
+            {/* Quick access to AI Coach */}
+            <div className="p-3 border-b bg-gradient-to-r from-blue-50 to-purple-50">
+              <Button 
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                onClick={() => setShowAICoach(true)}
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Panel de Expertos IA
+              </Button>
+              <p className="text-xs text-slate-500 text-center mt-2">
+                4 modelos de IA colaborando para tu plan
+              </p>
+            </div>
+            
+            {/* Simple chat messages */}
             <div className="flex-grow overflow-y-auto p-4 space-y-3">
               {chatMessages.map((msg, index) => (
                 <div key={index} className={`p-3 rounded-lg text-sm ${
