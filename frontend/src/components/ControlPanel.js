@@ -917,59 +917,44 @@ const ControlPanel = ({
           </div>
         </div>
 
-        {/* ROW 2: Smart Alerts */}
-        {alerts.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            {alerts.map((alert, idx) => (
-              <div key={idx} className={`flex items-start gap-3 px-4 py-3 rounded-xl shadow-sm border ${
-                alert.color === 'green' ? 'bg-emerald-50 border-emerald-200' :
-                alert.color === 'amber' ? 'bg-amber-50 border-amber-200' :
-                alert.color === 'red' ? 'bg-red-50 border-red-200' :
-                'bg-blue-50 border-blue-200'
-              }`}>
-                {React.createElement(alert.icon, { 
-                  className: `w-5 h-5 flex-shrink-0 mt-0.5 ${
-                    alert.color === 'green' ? 'text-emerald-600' :
-                    alert.color === 'amber' ? 'text-amber-600' :
-                    alert.color === 'red' ? 'text-red-600' :
-                    'text-blue-600'
+        {/* ROW 2: Combined Status Bar (Alerts + Motivational Quote) */}
+        <div className="bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 rounded-xl p-3 shadow-lg">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            {/* Left: Status/Alert */}
+            {alerts.length > 0 && (
+              <div className="flex items-center gap-2">
+                {React.createElement(alerts[0].icon, { 
+                  className: `w-5 h-5 ${
+                    alerts[0].color === 'green' ? 'text-emerald-400' :
+                    alerts[0].color === 'amber' ? 'text-amber-400' :
+                    alerts[0].color === 'red' ? 'text-red-400' :
+                    'text-blue-400'
                   }` 
                 })}
-                <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-semibold ${
-                    alert.color === 'green' ? 'text-emerald-800' :
-                    alert.color === 'amber' ? 'text-amber-800' :
-                    alert.color === 'red' ? 'text-red-800' :
-                    'text-blue-800'
+                <div>
+                  <span className={`text-sm font-semibold ${
+                    alerts[0].color === 'green' ? 'text-emerald-400' :
+                    alerts[0].color === 'amber' ? 'text-amber-400' :
+                    alerts[0].color === 'red' ? 'text-red-400' :
+                    'text-blue-400'
                   }`}>
-                    {alert.title}
-                  </p>
-                  <p className={`text-xs mt-0.5 ${
-                    alert.color === 'green' ? 'text-emerald-600' :
-                    alert.color === 'amber' ? 'text-amber-600' :
-                    alert.color === 'red' ? 'text-red-600' :
-                    'text-blue-600'
-                  }`}>
-                    {alert.message}
-                  </p>
+                    {alerts[0].title}
+                  </span>
+                  <span className="text-slate-400 text-sm ml-2">{alerts[0].message}</span>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-
-        {/* Motivational Quote */}
-        {motivationalMessage && (
-          <div className="bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 rounded-xl p-4 text-white shadow-lg">
-            <div className="flex items-center gap-3">
-              <Sparkles className="w-5 h-5 text-amber-400 flex-shrink-0" />
-              <div>
-                <p className="text-sm md:text-base italic">"{motivationalMessage.text}"</p>
-                <p className="text-slate-400 text-xs mt-1">— {motivationalMessage.author}</p>
+            )}
+            
+            {/* Right: Motivational Quote */}
+            {motivationalMessage && (
+              <div className="flex items-center gap-2 ml-auto">
+                <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                <p className="text-sm text-white/90 italic">"{motivationalMessage.text}"</p>
+                <span className="text-slate-500 text-xs">— {motivationalMessage.author}</span>
               </div>
-            </div>
+            )}
           </div>
-        )}
+        </div>
 
         {/* Charts Section Header */}
         <div className="flex items-center justify-between">
