@@ -2507,6 +2507,34 @@ const DashboardPage = () => {
                 sportsCatalog={sportsCatalog}
               />
             </div>
+
+            {/* Separator */}
+            <div className="w-px h-6 bg-white/20 hidden md:block" />
+
+            {/* User Actions */}
+            <div className="flex items-center gap-1">
+              <Link to="/subscription">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 px-3 text-xs bg-white/10 hover:bg-white/20 text-white rounded-xl"
+                  data-testid="subscription-btn"
+                >
+                  <CreditCard className="w-3.5 h-3.5 mr-1" />
+                  <span className="hidden lg:inline">Suscripción</span>
+                </Button>
+              </Link>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="h-8 px-3 text-xs bg-white/10 hover:bg-red-500/80 text-white rounded-xl"
+                data-testid="logout-btn"
+              >
+                <LogOut className="w-3.5 h-3.5 mr-1" />
+                <span className="hidden lg:inline">Salir</span>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
