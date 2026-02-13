@@ -69,11 +69,108 @@ const CYCLE_DURATIONS = {
 };
 
 const PERIODIZATION_MODELS = {
-  traditional: { name: 'Tradicional (Matveiev)', category: 'classic' },
-  atr: { name: 'ATR (Issurin)', category: 'classic' },
-  blocks: { name: 'Por Bloques', category: 'classic' },
-  undulating_daily: { name: 'Ondulatorio Diario', category: 'undulating' },
-  undulating_weekly: { name: 'Ondulatorio Semanal', category: 'undulating' }
+  // Modelos Clásicos
+  traditional: { 
+    name: 'Tradicional (Matveiev)', 
+    category: 'classic',
+    description: 'Modelo soviético clásico con fases lineales de volumen a intensidad'
+  },
+  atr: { 
+    name: 'ATR (Issurin)', 
+    category: 'classic',
+    description: 'Acumulación-Transformación-Realización en bloques concentrados'
+  },
+  blocks: { 
+    name: 'Bloques Concentrados (Verkhoshansky)', 
+    category: 'classic',
+    description: 'Cargas unidireccionales concentradas en bloques específicos'
+  },
+  
+  // Modelos Ondulatorios
+  undulating_daily: { 
+    name: 'Ondulatorio Diario (DUP)', 
+    category: 'undulating',
+    description: 'Variación diaria de volumen e intensidad para máxima adaptación'
+  },
+  undulating_weekly: { 
+    name: 'Ondulatorio Semanal (WUP)', 
+    category: 'undulating',
+    description: 'Variación semanal de énfasis en cualidades físicas'
+  },
+  flexible_nonlinear: { 
+    name: 'No Lineal Flexible (Kraemer)', 
+    category: 'undulating',
+    description: 'Ajuste diario basado en estado del atleta y recuperación'
+  },
+  
+  // Modelos Contemporáneos
+  conjugate: { 
+    name: 'Conjugado (Westside/Simmons)', 
+    category: 'contemporary',
+    description: 'Desarrollo simultáneo de fuerza máxima y explosiva'
+  },
+  triphasic: { 
+    name: 'Trifásico (Dietz)', 
+    category: 'contemporary',
+    description: 'Fases excéntrica, isométrica y concéntrica secuenciales'
+  },
+  vertical_integration: { 
+    name: 'Integración Vertical (Francis)', 
+    category: 'contemporary',
+    description: 'Entrenamiento simultáneo de todas las cualidades con énfasis variable'
+  },
+  french_contrast: { 
+    name: 'Contraste Francés', 
+    category: 'contemporary',
+    description: 'Combinación de fuerza pesada, pliometría y velocidad en cada sesión'
+  },
+  
+  // Modelos por Deporte
+  tactical: { 
+    name: 'Periodización Táctica (Frade)', 
+    category: 'sport_specific',
+    description: 'Modelo para fútbol basado en el modelo de juego'
+  },
+  reverse_linear: { 
+    name: 'Lineal Inversa', 
+    category: 'sport_specific',
+    description: 'De intensidad a volumen - ideal para deportes de resistencia'
+  },
+  concurrent: { 
+    name: 'Concurrente', 
+    category: 'sport_specific',
+    description: 'Desarrollo paralelo de múltiples cualidades físicas'
+  },
+  polarized: { 
+    name: 'Polarizado (Seiler)', 
+    category: 'sport_specific',
+    description: '80% baja intensidad / 20% alta intensidad - deportes de resistencia'
+  },
+  
+  // Modelos Avanzados
+  cybernetic: { 
+    name: 'Cibernético (Bondarchuk)', 
+    category: 'advanced',
+    description: 'Auto-regulación basada en indicadores de rendimiento'
+  },
+  pendulum: { 
+    name: 'Péndulo (Arosiev/Kalinin)', 
+    category: 'advanced',
+    description: 'Oscilación entre preparación general y específica'
+  },
+  sequential: { 
+    name: 'Secuencial (Tschiene)', 
+    category: 'advanced',
+    description: 'Micro-bloques de 2-3 semanas con objetivos específicos'
+  }
+};
+
+const MODEL_CATEGORIES = {
+  classic: { name: 'Modelos Clásicos', color: 'bg-blue-100 border-blue-400', icon: '📚' },
+  undulating: { name: 'Modelos Ondulatorios', color: 'bg-green-100 border-green-400', icon: '📈' },
+  contemporary: { name: 'Modelos Contemporáneos', color: 'bg-purple-100 border-purple-400', icon: '🔬' },
+  sport_specific: { name: 'Por Tipo de Deporte', color: 'bg-orange-100 border-orange-400', icon: '🏆' },
+  advanced: { name: 'Modelos Avanzados', color: 'bg-red-100 border-red-400', icon: '🎯' }
 };
 
 // ============ COMPONENTE PRINCIPAL ============
