@@ -1949,7 +1949,357 @@ const DashboardPage = () => {
 
     // Render Objetivos e Indicadores - Using ObjectivesIndicators Component
     if (activeDataSection === 'objectives') {
-      return <ObjectivesIndicators athleteId={selectedAthleteId} />;
+      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
+      return (
+        <div className="p-6 space-y-6 overflow-y-auto h-full bg-gradient-to-br from-slate-50 to-blue-50">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-rose-500 to-pink-500 rounded-2xl shadow-lg mb-4">
+              <Target className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold text-slate-800 mb-2">Información General y Objetivos del Plan</h1>
+            <p className="text-slate-500 max-w-2xl mx-auto">
+              Esta sección sirve como la introducción al plan de entrenamiento, estableciendo las bases para la identificación de metas y la planificación efectiva.
+            </p>
+          </div>
+
+          {/* Grid Principal */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            {/* INFORMACIÓN GENERAL */}
+            <Card className="border-0 shadow-xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <FileText className="w-5 h-5" />
+                  Información General
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5 space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* 1. Deporte/Objetivo */}
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                      <span className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                      Deporte / Objetivo de Entrenamiento
+                    </label>
+                    <Input placeholder="Ej: Fútbol - Preparación pretemporada" className="border-slate-200" />
+                  </div>
+                  
+                  {/* 2. Categoría */}
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                      <span className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                      Categoría
+                    </label>
+                    <Select>
+                      <SelectTrigger><SelectValue placeholder="Seleccionar categoría" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="infantil">Infantil</SelectItem>
+                        <SelectItem value="cadete">Cadete</SelectItem>
+                        <SelectItem value="juvenil">Juvenil</SelectItem>
+                        <SelectItem value="sub23">Sub-23</SelectItem>
+                        <SelectItem value="senior">Senior</SelectItem>
+                        <SelectItem value="master">Master</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* 3. Edad */}
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                      <span className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                      Edad / Rango de Edades
+                    </label>
+                    <Input placeholder="Ej: 18-22 años" className="border-slate-200" />
+                  </div>
+                  
+                  {/* 4. Clasificación */}
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                      <span className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">4</span>
+                      Clasificación / Nivel
+                    </label>
+                    <Select>
+                      <SelectTrigger><SelectValue placeholder="Seleccionar nivel" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="iniciacion">Iniciación</SelectItem>
+                        <SelectItem value="formacion">Formación</SelectItem>
+                        <SelectItem value="perfeccionamiento">Perfeccionamiento</SelectItem>
+                        <SelectItem value="alto-rendimiento">Alto Rendimiento</SelectItem>
+                        <SelectItem value="elite">Élite</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* 5. Fechas */}
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                      <span className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">5</span>
+                      Fecha de Inicio
+                    </label>
+                    <Input type="date" className="border-slate-200" />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                      <span className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">5</span>
+                      Fecha de Finalización
+                    </label>
+                    <Input type="date" className="border-slate-200" />
+                  </div>
+                </div>
+                
+                {/* 6. Entrenador */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                    <span className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">6</span>
+                    Entrenador Responsable
+                  </label>
+                  <Input placeholder="Nombre del entrenador" defaultValue={user?.name || ''} className="border-slate-200" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* OBJETIVOS A LARGO PLAZO */}
+            <Card className="border-0 shadow-xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Target className="w-5 h-5" />
+                  Objetivos a Largo Plazo
+                  <Badge className="bg-white/20 text-white ml-2">Macrociclo</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5 space-y-4">
+                <p className="text-xs text-slate-500 mb-3">Ejemplo: Mejorar el rendimiento general, alcanzar el pico en la competencia principal del año.</p>
+                {[1, 2, 3].map((num) => (
+                  <div key={num} className="space-y-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                      <span className="w-6 h-6 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-xs font-bold">{num}</span>
+                      Objetivo {num}
+                    </label>
+                    <textarea 
+                      className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      rows={2}
+                      placeholder={`Describir objetivo a largo plazo ${num}...`}
+                    />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* OBJETIVOS A MEDIO PLAZO */}
+            <Card className="border-0 shadow-xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Target className="w-5 h-5" />
+                  Objetivos a Medio Plazo
+                  <Badge className="bg-white/20 text-white ml-2">Mesociclo</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5 space-y-4">
+                <p className="text-xs text-slate-500 mb-3">Ejemplo: Incrementar la resistencia base, mejorar la técnica específica del deporte.</p>
+                {[1, 2, 3].map((num) => (
+                  <div key={num} className="space-y-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                      <span className="w-6 h-6 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-xs font-bold">{num}</span>
+                      Objetivo {num}
+                    </label>
+                    <textarea 
+                      className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                      rows={2}
+                      placeholder={`Describir objetivo a medio plazo ${num}...`}
+                    />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* OBJETIVOS A CORTO PLAZO */}
+            <Card className="border-0 shadow-xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Target className="w-5 h-5" />
+                  Objetivos a Corto Plazo
+                  <Badge className="bg-white/20 text-white ml-2">Microciclo</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5 space-y-4">
+                <p className="text-xs text-slate-500 mb-3">Ejemplo: Mejorar el tiempo en una distancia específica, aumentar la capacidad de recuperación post-entrenamiento.</p>
+                {[1, 2, 3].map((num) => (
+                  <div key={num} className="space-y-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                      <span className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">{num}</span>
+                      Objetivo {num}
+                    </label>
+                    <textarea 
+                      className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      rows={2}
+                      placeholder={`Describir objetivo a corto plazo ${num}...`}
+                    />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* TABLA DE OBJETIVOS POR ASPECTO DE PREPARACIÓN */}
+          <Card className="border-0 shadow-xl overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-violet-600 to-purple-600 text-white py-4">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Layers className="w-5 h-5" />
+                Objetivos por Aspecto de Preparación
+              </CardTitle>
+              <p className="text-sm text-white/80 mt-1">Defina los objetivos e indicadores para cada aspecto de la preparación deportiva</p>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-slate-100">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider w-48">Tipo de Objetivo</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Objetivo</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider w-64">Indicador</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {/* General */}
+                    <tr className="hover:bg-slate-50 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <span className="w-3 h-3 bg-slate-400 rounded-sm"></span>
+                          <span className="font-medium text-slate-700">General</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-2">
+                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Objetivo general del plan..." />
+                      </td>
+                      <td className="px-4 py-2">
+                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="¿Cómo se medirá?" />
+                      </td>
+                    </tr>
+                    
+                    {/* Preparación Física General */}
+                    <tr className="hover:bg-blue-50 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <span className="w-3 h-3 bg-blue-500 rounded-sm"></span>
+                          <span className="font-medium text-slate-700">Prep. Física General</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-2">
+                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Objetivos de condición física base..." />
+                      </td>
+                      <td className="px-4 py-2">
+                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Tests, marcas, % mejora..." />
+                      </td>
+                    </tr>
+                    
+                    {/* Preparación Física Especial */}
+                    <tr className="hover:bg-indigo-50 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <span className="w-3 h-3 bg-indigo-500 rounded-sm"></span>
+                          <span className="font-medium text-slate-700">Prep. Física Especial</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-2">
+                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Objetivos de preparación específica..." />
+                      </td>
+                      <td className="px-4 py-2">
+                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Indicadores específicos..." />
+                      </td>
+                    </tr>
+                    
+                    {/* Preparación Técnica */}
+                    <tr className="hover:bg-emerald-50 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <span className="w-3 h-3 bg-emerald-500 rounded-sm"></span>
+                          <span className="font-medium text-slate-700">Prep. Técnica</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-2">
+                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Objetivos técnicos del deporte..." />
+                      </td>
+                      <td className="px-4 py-2">
+                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Evaluaciones técnicas..." />
+                      </td>
+                    </tr>
+                    
+                    {/* Preparación Táctica */}
+                    <tr className="hover:bg-amber-50 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <span className="w-3 h-3 bg-amber-500 rounded-sm"></span>
+                          <span className="font-medium text-slate-700">Prep. Táctica</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-2">
+                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Objetivos tácticos y estratégicos..." />
+                      </td>
+                      <td className="px-4 py-2">
+                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Análisis de rendimiento táctico..." />
+                      </td>
+                    </tr>
+                    
+                    {/* Preparación Teórica */}
+                    <tr className="hover:bg-cyan-50 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <span className="w-3 h-3 bg-cyan-500 rounded-sm"></span>
+                          <span className="font-medium text-slate-700">Prep. Teórica</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-2">
+                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Objetivos de conocimiento teórico..." />
+                      </td>
+                      <td className="px-4 py-2">
+                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Evaluaciones teóricas..." />
+                      </td>
+                    </tr>
+                    
+                    {/* Preparación Psicológica */}
+                    <tr className="hover:bg-pink-50 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <span className="w-3 h-3 bg-pink-500 rounded-sm"></span>
+                          <span className="font-medium text-slate-700">Prep. Psicológica</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-2">
+                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Objetivos psicológicos y mentales..." />
+                      </td>
+                      <td className="px-4 py-2">
+                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Escalas psicológicas, cuestionarios..." />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Nota Final */}
+          <div className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-xl p-4 text-center shadow-lg">
+            <p className="text-white/90 text-sm">
+              <Sparkles className="w-4 h-4 inline mr-2 text-amber-400" />
+              La claridad en esta sección es crucial para guiar el desarrollo del programa de entrenamiento y medir el progreso hacia los objetivos establecidos.
+            </p>
+          </div>
+
+          {/* Botones de Acción */}
+          <div className="flex justify-end gap-3 pt-4">
+            <Button variant="outline" className="border-slate-300">
+              <X className="w-4 h-4 mr-2" />
+              Cancelar
+            </Button>
+            <Button className="bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white shadow-lg">
+              <Save className="w-4 h-4 mr-2" />
+              Guardar Objetivos del Plan
+            </Button>
+          </div>
+        </div>
+      );
     }
 
     // Render Analysis component for prev-plan section
