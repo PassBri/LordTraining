@@ -200,8 +200,7 @@ const DashboardPage = () => {
 
   // Start new plan creation
   const handleNewPlan = () => {
-    setSidebarView('assistant');
-    setChatMessages([{ type: 'assistant', text: '¡Hola! Vamos a crear un nuevo plan de entrenamiento. ¿Para qué atleta o equipo deseas generar el plan?' }]);
+    setShowAICoach(true); // Open the AI Coach Assistant modal
   };
 
   // Tournaments State - Load from localStorage
