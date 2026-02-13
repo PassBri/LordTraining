@@ -840,6 +840,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, onNavigate }) => {
                                         );
                                       })}
                                     </div>
+                                  </div>
+                                )}
                               </div>
                             ))}
                           </div>
