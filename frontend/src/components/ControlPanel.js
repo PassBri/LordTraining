@@ -942,45 +942,6 @@ const ControlPanel = ({
           </div>
         </div>
 
-        {/* ROW 2: Combined Status Bar (Alerts + Motivational Quote) */}
-        <div className="bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 rounded-xl p-3 shadow-lg">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            {/* Left: Status/Alert */}
-            {alerts.length > 0 && (
-              <div className="flex items-center gap-2">
-                {React.createElement(alerts[0].icon, { 
-                  className: `w-5 h-5 ${
-                    alerts[0].color === 'green' ? 'text-emerald-400' :
-                    alerts[0].color === 'amber' ? 'text-amber-400' :
-                    alerts[0].color === 'red' ? 'text-red-400' :
-                    'text-blue-400'
-                  }` 
-                })}
-                <div>
-                  <span className={`text-sm font-semibold ${
-                    alerts[0].color === 'green' ? 'text-emerald-400' :
-                    alerts[0].color === 'amber' ? 'text-amber-400' :
-                    alerts[0].color === 'red' ? 'text-red-400' :
-                    'text-blue-400'
-                  }`}>
-                    {alerts[0].title}
-                  </span>
-                  <span className="text-slate-400 text-sm ml-2">{alerts[0].message}</span>
-                </div>
-              </div>
-            )}
-            
-            {/* Right: Motivational Quote */}
-            {motivationalMessage && (
-              <div className="flex items-center gap-2 ml-auto">
-                <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                <p className="text-sm text-white/90 italic">"{motivationalMessage.text}"</p>
-                <span className="text-slate-500 text-xs">— {motivationalMessage.author}</span>
-              </div>
-            )}
-          </div>
-        </div>
-
         {/* Charts Section Header */}
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-slate-700">Análisis de Entrenamiento</h3>
