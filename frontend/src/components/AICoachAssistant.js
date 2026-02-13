@@ -794,7 +794,7 @@ const AICoachAssistant = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[85vh] flex flex-col p-0 gap-0">
+      <DialogContent className="max-w-4xl h-[85vh] flex flex-col p-0 gap-0 bg-white overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 p-4 rounded-t-lg">
           <DialogTitle className="text-white flex items-center gap-3">
