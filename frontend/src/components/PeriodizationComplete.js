@@ -17,6 +17,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   LineChart, Line, AreaChart, Area, ComposedChart, Cell, ReferenceLine
 } from 'recharts';
+import SessionEditor from './SessionEditor';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
