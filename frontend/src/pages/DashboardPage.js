@@ -785,7 +785,14 @@ const DashboardPage = () => {
     
     // === 2. EVALUACIÓN INICIAL ===
     { id: 'anthropometric', label: 'Datos Antropométricos', icon: LineChart, section: 'evaluacion' },
-    { id: 'diagnostic', label: 'Historial Médico', icon: Heart, section: 'evaluacion' },
+    { id: 'biomechanical', label: 'Análisis Biomecánico', icon: Activity, section: 'evaluacion' },
+    { id: 'control-medical', label: 'Control Médico', icon: Heart, section: 'evaluacion' },
+    { id: 'control-physical', label: 'Control Físico', icon: Dumbbell, section: 'evaluacion' },
+    { id: 'control-technical', label: 'Control Técnico', icon: Target, section: 'evaluacion' },
+    { id: 'control-tactical', label: 'Control Táctico', icon: Layers, section: 'evaluacion' },
+    { id: 'control-psychological', label: 'Control Psicológico', icon: Brain, section: 'evaluacion' },
+    { id: 'control-theoretical', label: 'Control Teórico', icon: BookOpen, section: 'evaluacion' },
+    { id: 'diagnostic', label: 'Historial Médico', icon: FileText, section: 'evaluacion' },
     
     // === 3. COMPETENCIAS Y OBJETIVOS ===
     { id: 'events', label: 'Calendario de Competencias', icon: Calendar, section: 'competencias' },
