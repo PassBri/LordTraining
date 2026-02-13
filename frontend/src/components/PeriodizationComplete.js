@@ -769,15 +769,53 @@ const PeriodizationComplete = ({ athleteId, athleteName, onNavigate }) => {
                                 </div>
                                 
                                 {expandedMicro === `${mesoIdx}-${microIdx}` && (
-                                  <div className="border-t p-2 bg-slate-50">
-                                    <div className="grid grid-cols-7 gap-1">
-                                      {micro.sessions?.map(session => {
+                                  <div className="border-t p-4 bg-white">
+                                    <div className="flex items-center justify-between mb-3">
+                                      <p className="text-xs font-semibold text-slate-500 uppercase">Sesiones de la semana:</p>
+                                      <Button size="sm" variant="outline" className="h-7 text-xs">
+                                        <Plus className="w-3 h-3 mr-1" /> Agregar sesión
+                                      </Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-3">
+                                      {micro.sessions?.map((session, sIdx) => {
                                         const sessionType = SESSION_TYPES.find(t => t.id === session.type);
+                                        const colorMap = {
+                                          strength: 'bg-red-100 border-red-300',
+                                          endurance: 'bg-blue-100 border-blue-300',
+                                          speed: 'bg-yellow-100 border-yellow-300',
+                                          technical: 'bg-green-100 border-green-300',
+                                          recovery: 'bg-violet-100 border-violet-300',
+                                          tactical: 'bg-orange-100 border-orange-300',
+                                          flexibility: 'bg-pink-100 border-pink-300'
+                                        };
                                         return (
-                                          <div key={session.id} className="bg-white rounded p-2 text-center border" style={{ borderTopColor: sessionType?.color, borderTopWidth: '3px' }}>
-                                            <div className="text-xs font-medium">{session.dayName}</div>
-                                            <div className="text-xs text-slate-500">{sessionType?.name}</div>
-                                            <div className="text-xs mt-1">{session.duration}min</div>
+                                          <div 
+                                            key={session.id} 
+                                            className={`relative p-3 rounded-lg border-2 hover:shadow-md transition-all cursor-pointer ${colorMap[session.type] || 'bg-slate-100 border-slate-300'}`}
+                                          >
+                                            <div className="flex items-center justify-between mb-2">
+                                              <GripVertical className="w-4 h-4 text-slate-400" />
+                                              <div className="flex gap-1">
+                                                <button className="p-1 hover:bg-white rounded">
+                                                  <Edit2 className="w-3 h-3 text-slate-500" />
+                                                </button>
+                                                <button className="p-1 hover:bg-white rounded">
+                                                  <Trash2 className="w-3 h-3 text-red-500" />
+                                                </button>
+                                              </div>
+                                            </div>
+                                            <p className="font-bold text-sm">{session.dayName}</p>
+                                            <p className="text-xs font-medium capitalize text-slate-700">{sessionType?.name}</p>
+                                            <p className="text-xs text-slate-500 mt-1">{session.duration} min</p>
+                                            <div className="mt-2 flex gap-1">
+                                              <span className={`px-1.5 py-0.5 text-[10px] rounded ${
+                                                session.intensity === 'high' ? 'bg-red-200 text-red-800' :
+                                                session.intensity === 'medium' ? 'bg-yellow-200 text-yellow-800' :
+                                                'bg-green-200 text-green-800'
+                                              }`}>
+                                                {session.intensity === 'high' ? 'Alta' : session.intensity === 'medium' ? 'Media' : 'Baja'}
+                                              </span>
+                                            </div>
                                           </div>
                                         );
                                       })}
