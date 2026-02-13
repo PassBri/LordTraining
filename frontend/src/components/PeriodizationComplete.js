@@ -161,11 +161,89 @@ const PeriodizationComplete = ({ athleteId, athleteName, onNavigate }) => {
   // Expanded states for structure view
   const [expandedMeso, setExpandedMeso] = useState(null);
   const [expandedMicro, setExpandedMicro] = useState(null);
+  
+  // Session Editor state
+  const [sessionEditorOpen, setSessionEditorOpen] = useState(false);
+  const [editingSession, setEditingSession] = useState(null);
+  const [editingSessionLocation, setEditingSessionLocation] = useState(null); // {mesoIdx, microIdx, sessionIdx}
 
   // Save to localStorage
   useEffect(() => {
     localStorage.setItem('train_periodization_plans', JSON.stringify(plans));
   }, [plans]);
+  
+  // Open session editor
+  const handleEditSession = (session, mesoIdx, microIdx, sessionIdx) => {
+    setEditingSession(session);
+    setEditingSessionLocation({ mesoIdx, microIdx, sessionIdx });
+    setSessionEditorOpen(true);
+  };
+  
+  // Save session from editor
+  const handleSaveSession = (updatedSessionData) => {
+    if (!selectedPlan || !editingSessionLocation) return;
+    
+    const { mesoIdx, microIdx, sessionIdx } = editingSessionLocation;
+    
+    // Update the session in the plan
+    const updatedPlan = { ...selectedPlan };
+    const session = updatedPlan.mesocycles[mesoIdx].microcycles[microIdx].sessions[sessionIdx];
+    
+    // Merge the updated data
+    Object.assign(session, {
+      ...session,
+      sessionData: updatedSessionData,
+      edited: true
+    });
+    
+    // Update plans array
+    setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
+    setSelectedPlan(updatedPlan);
+    setSessionEditorOpen(false);
+    setEditingSession(null);
+    setEditingSessionLocation(null);
+    toast.success('Sesión guardada exitosamente');
+  };
+  
+  // Add new session
+  const handleAddSession = (mesoIdx, microIdx) => {
+    if (!selectedPlan) return;
+    
+    const micro = selectedPlan.mesocycles[mesoIdx].microcycles[microIdx];
+    const newSession = {
+      id: `session-new-${Date.now()}`,
+      date: micro.startDate,
+      dayName: 'Nueva',
+      type: 'strength',
+      intensity: 'medium',
+      duration: 60,
+      volume: 50,
+      completed: false
+    };
+    
+    const updatedPlan = { ...selectedPlan };
+    updatedPlan.mesocycles[mesoIdx].microcycles[microIdx].sessions.push(newSession);
+    
+    setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
+    setSelectedPlan(updatedPlan);
+    
+    // Open editor for the new session
+    const sessionIdx = updatedPlan.mesocycles[mesoIdx].microcycles[microIdx].sessions.length - 1;
+    handleEditSession(newSession, mesoIdx, microIdx, sessionIdx);
+  };
+  
+  // Delete session
+  const handleDeleteSession = (mesoIdx, microIdx, sessionIdx) => {
+    if (!selectedPlan) return;
+    if (!window.confirm('¿Eliminar esta sesión?')) return;
+    
+    const updatedPlan = { ...selectedPlan };
+    updatedPlan.mesocycles[mesoIdx].microcycles[microIdx].sessions.splice(sessionIdx, 1);
+    
+    setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
+    setSelectedPlan(updatedPlan);
+    toast.success('Sesión eliminada');
+  };
 
   // Get load magnitude from intensity
   const getLoadMagnitude = (intensity) => {
