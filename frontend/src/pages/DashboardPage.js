@@ -120,6 +120,7 @@ const DashboardPage = () => {
   // ====== SIDEBAR VIEW STATE ======
   const [sidebarView, setSidebarView] = useState('assistant'); // 'assistant' or 'history'
   const [generatedPlans, setGeneratedPlans] = useState([]); // List of generated plans
+  const [showAICoach, setShowAICoach] = useState(false); // AI Coach Assistant modal
 
   // ====== GLOBAL CONTEXT STATE (Barra Superior) ======
   // Initialize from localStorage for persistence
