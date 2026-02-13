@@ -117,6 +117,9 @@ const DashboardPage = () => {
   // PDF Export Modal State
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
+  // Filters Dropdown State
+  const [showFiltersDropdown, setShowFiltersDropdown] = useState(false);
+
   // ====== SIDEBAR VIEW STATE ======
   const [sidebarView, setSidebarView] = useState('assistant'); // 'assistant' or 'history'
   const [generatedPlans, setGeneratedPlans] = useState([]); // List of generated plans
