@@ -2276,22 +2276,35 @@ const DashboardPage = () => {
     <div className="min-h-screen bg-gray-50">
       {/* ====== GLOBAL CONTEXT BAR (Material Design - Fixed at top) ====== */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shadow-lg" data-testid="global-context-bar">
-        <div className="flex items-center justify-between px-4 py-3 gap-3">
-          {/* Left: Filters with glass effect */}
-          <div className="flex items-center gap-3 flex-1 overflow-x-auto">
-            <div className="flex items-center gap-2 text-white/90 shrink-0">
-              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                <Filter className="w-4 h-4" />
+        <div className="flex items-center justify-between px-4 py-2 gap-3">
+          {/* Left: Logo */}
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-md">
+                <span className="text-blue-600 font-bold text-lg">T</span>
               </div>
-              <span className="text-sm font-medium hidden lg:inline">Filtros</span>
+              <h1 className="text-xl font-bold tracking-tight hidden sm:block">
+                <span className="text-white">Tr</span>
+                <span className="text-blue-200">AI</span>
+                <span className="text-white">n</span>
+              </h1>
+            </div>
+          </div>
+
+          {/* Center: Filters with glass effect */}
+          <div className="flex items-center gap-2 flex-1 overflow-x-auto justify-center">
+            <div className="flex items-center gap-2 text-white/90 shrink-0">
+              <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
+                <Filter className="w-3.5 h-3.5" />
+              </div>
             </div>
             
             {/* Filters Container with glass morphism */}
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-xl px-3 py-1.5">
+            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-xl px-2 py-1">
               {/* Entity Selector */}
               <Select value={globalContext.entityId} onValueChange={handleEntityChange}>
-                <SelectTrigger className="w-[140px] h-8 text-xs bg-white/90 border-0 shadow-sm rounded-lg hover:bg-white transition-colors" data-testid="context-entity-select">
-                  <Building2 className="w-3.5 h-3.5 mr-1.5 text-indigo-500 shrink-0" />
+                <SelectTrigger className="w-[120px] h-7 text-xs bg-white/90 border-0 shadow-sm rounded-lg hover:bg-white transition-colors" data-testid="context-entity-select">
+                  <Building2 className="w-3 h-3 mr-1 text-indigo-500 shrink-0" />
                   <SelectValue placeholder="Entidad" />
                 </SelectTrigger>
                 <SelectContent>
@@ -2308,12 +2321,12 @@ const DashboardPage = () => {
                 </SelectContent>
               </Select>
 
-              <ChevronRight className="w-4 h-4 text-white/50 shrink-0" />
+              <ChevronRight className="w-3 h-3 text-white/50 shrink-0" />
 
               {/* Team Selector */}
               <Select value={globalContext.teamId} onValueChange={handleTeamChange}>
-                <SelectTrigger className="w-[130px] h-8 text-xs bg-white/90 border-0 shadow-sm rounded-lg hover:bg-white transition-colors" data-testid="context-team-select">
-                  <Users className="w-3.5 h-3.5 mr-1.5 text-indigo-500 shrink-0" />
+                <SelectTrigger className="w-[110px] h-7 text-xs bg-white/90 border-0 shadow-sm rounded-lg hover:bg-white transition-colors" data-testid="context-team-select">
+                  <Users className="w-3 h-3 mr-1 text-indigo-500 shrink-0" />
                   <SelectValue placeholder="Equipo" />
                 </SelectTrigger>
                 <SelectContent>
@@ -2324,12 +2337,12 @@ const DashboardPage = () => {
                 </SelectContent>
               </Select>
 
-              <ChevronRight className="w-4 h-4 text-white/50 shrink-0" />
+              <ChevronRight className="w-3 h-3 text-white/50 shrink-0" />
 
               {/* Athlete Selector */}
               <Select value={globalContext.athleteId} onValueChange={handleAthleteChange}>
-                <SelectTrigger className="w-[130px] h-8 text-xs bg-white/90 border-0 shadow-sm rounded-lg hover:bg-white transition-colors" data-testid="context-athlete-select">
-                  <User className="w-3.5 h-3.5 mr-1.5 text-indigo-500 shrink-0" />
+                <SelectTrigger className="w-[110px] h-7 text-xs bg-white/90 border-0 shadow-sm rounded-lg hover:bg-white transition-colors" data-testid="context-athlete-select">
+                  <User className="w-3 h-3 mr-1 text-indigo-500 shrink-0" />
                   <SelectValue placeholder="Atleta" />
                 </SelectTrigger>
                 <SelectContent>
@@ -2340,12 +2353,12 @@ const DashboardPage = () => {
                 </SelectContent>
               </Select>
 
-              <ChevronRight className="w-4 h-4 text-white/50 shrink-0" />
+              <ChevronRight className="w-3 h-3 text-white/50 shrink-0" />
 
               {/* Sport Selector */}
               <Select value={globalContext.sportId} onValueChange={handleSportChange}>
-                <SelectTrigger className="w-[130px] h-8 text-xs bg-white/90 border-0 shadow-sm rounded-lg hover:bg-white transition-colors" data-testid="context-sport-select">
-                  <Trophy className="w-3.5 h-3.5 mr-1.5 text-indigo-500 shrink-0" />
+                <SelectTrigger className="w-[110px] h-7 text-xs bg-white/90 border-0 shadow-sm rounded-lg hover:bg-white transition-colors" data-testid="context-sport-select">
+                  <Trophy className="w-3 h-3 mr-1 text-indigo-500 shrink-0" />
                   <SelectValue placeholder="Deporte" />
                 </SelectTrigger>
                 <SelectContent>
@@ -2358,63 +2371,105 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Right: Quick Actions */}
+          {/* Right: Panel Tabs + Actions */}
           <div className="flex items-center gap-2 shrink-0">
-            {/* Auto Testing System */}
-            <AutoTestingSystem 
-              onLoadTemplate={(plan) => {
-                // Refresh plans list
-                const savedPlans = JSON.parse(localStorage.getItem('train_generated_plans') || '[]');
-                setGeneratedPlans(savedPlans);
-                setSidebarView('history');
-                toast.success('Template cargado - Ver en Historial');
-              }}
-              onSavePlan={(plan) => {
-                const savedPlans = JSON.parse(localStorage.getItem('train_generated_plans') || '[]');
-                setGeneratedPlans(savedPlans);
-                setSidebarView('history');
-              }}
-              currentUser={user}
-              sportsCatalog={sportsCatalog}
-            />
-            
+            {/* Panel Tabs - Moved to top bar */}
+            <div className="hidden md:flex items-center gap-1 bg-white/10 rounded-xl p-1">
+              {['panel', 'datos'].map((panelType) => (
+                <button
+                  key={panelType}
+                  onClick={() => {
+                    setActivePanel(panelType);
+                    if (panelType === 'datos') setActiveDataSection(null);
+                  }}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5 ${
+                    activePanel === panelType 
+                      ? 'bg-white text-indigo-600 shadow-md' 
+                      : 'text-white/80 hover:bg-white/10'
+                  }`}
+                  data-testid={`tab-${panelType}`}
+                >
+                  {panelType === 'panel' ? (
+                    <>
+                      <LayoutDashboard className="w-3.5 h-3.5" />
+                      <span className="hidden lg:inline">Panel</span>
+                    </>
+                  ) : (
+                    <>
+                      <Clipboard className="w-3.5 h-3.5" />
+                      <span className="hidden lg:inline">Datos</span>
+                    </>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Separator */}
+            <div className="w-px h-6 bg-white/20 hidden md:block" />
+
+            {/* History Button */}
             <Button
               variant={sidebarView === 'history' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setSidebarView(sidebarView === 'history' ? 'assistant' : 'history')}
-              className={`h-9 text-xs font-medium rounded-xl shadow-md transition-all ${
+              className={`h-8 text-xs font-medium rounded-xl shadow-md transition-all ${
                 sidebarView === 'history'
                   ? 'bg-white text-indigo-600 hover:bg-white/90'
                   : 'bg-white/20 border-0 text-white hover:bg-white/30'
               }`}
               data-testid="context-history-btn"
             >
-              <History className="w-4 h-4 mr-1.5" />
-              <span className="hidden sm:inline">Historial de Planes</span>
-              <span className="sm:hidden">Historial</span>
+              <History className="w-3.5 h-3.5 mr-1" />
+              <span className="hidden lg:inline">Historial</span>
+              {generatedPlans.length > 0 && (
+                <span className={`ml-1 px-1.5 py-0.5 rounded-full text-xs ${
+                  sidebarView === 'history' ? 'bg-indigo-100 text-indigo-600' : 'bg-white/20'
+                }`}>
+                  {generatedPlans.length}
+                </span>
+              )}
             </Button>
+
+            {/* Export PDF Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsPdfModalOpen(true)}
+              className="h-8 text-xs bg-white/20 border-0 text-white hover:bg-white/30 rounded-xl"
+              data-testid="export-pdf-btn"
+            >
+              <Download className="w-3.5 h-3.5 mr-1" />
+              <span className="hidden lg:inline">PDF</span>
+            </Button>
+
+            {/* Auto Testing System - Hidden on mobile */}
+            <div className="hidden sm:block">
+              <AutoTestingSystem 
+                onLoadTemplate={(plan) => {
+                  const savedPlans = JSON.parse(localStorage.getItem('train_generated_plans') || '[]');
+                  setGeneratedPlans(savedPlans);
+                  setSidebarView('history');
+                  toast.success('Template cargado - Ver en Historial');
+                }}
+                onSavePlan={(plan) => {
+                  const savedPlans = JSON.parse(localStorage.getItem('train_generated_plans') || '[]');
+                  setGeneratedPlans(savedPlans);
+                  setSidebarView('history');
+                }}
+                currentUser={user}
+                sportsCatalog={sportsCatalog}
+              />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Main Content (with padding for fixed bar) */}
-      <div className="pt-[60px] flex h-screen max-h-screen overflow-hidden">
-      {/* Left Sidebar - AI Chat */}
-      <div className="w-72 p-4 border-r flex flex-col bg-white shadow-lg">
-        {/* Logo and Title */}
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">T</span>
-          </div>
-          <h1 className="text-xl font-bold tracking-tight">
-            <span className="text-gray-800">Tr</span>
-            <span className="text-blue-600">AI</span>
-            <span className="text-gray-800">n</span>
-          </h1>
-        </div>
-        
-        {/* Panel Tabs */}
-        <div className="flex gap-2 mb-4">
+      <div className="pt-[52px] flex h-screen max-h-screen overflow-hidden">
+      {/* Left Sidebar - AI Assistant (Now with more space) */}
+      <div className="w-80 p-4 border-r flex flex-col bg-white shadow-lg">
+        {/* Mobile Panel Tabs - Only visible on small screens */}
+        <div className="flex md:hidden gap-2 mb-4">
           {['panel', 'datos'].map((panelType) => (
             <button
               key={panelType}
@@ -2427,47 +2482,12 @@ const DashboardPage = () => {
                   ? 'bg-blue-600 text-white' 
                   : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
               }`}
-              data-testid={`tab-${panelType}`}
+              data-testid={`tab-mobile-${panelType}`}
             >
-              {panelType === 'panel' ? 'Panel de Control' : 'Datos'}
+              {panelType === 'panel' ? 'Panel' : 'Datos'}
             </button>
           ))}
         </div>
-
-        {/* Plans History Button */}
-        <Button
-          variant={sidebarView === 'history' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setSidebarView(sidebarView === 'history' ? 'assistant' : 'history')}
-          className={`mb-2 w-full flex items-center justify-center gap-2 ${
-            sidebarView === 'history'
-              ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
-              : 'border-indigo-300 text-indigo-600 hover:bg-indigo-50'
-          }`}
-          data-testid="sidebar-history-btn"
-        >
-          <History className="h-4 w-4" />
-          Historial de Planes
-          {generatedPlans.length > 0 && (
-            <span className={`ml-1 px-1.5 py-0.5 rounded-full text-xs ${
-              sidebarView === 'history' ? 'bg-white/20' : 'bg-indigo-100'
-            }`}>
-              {generatedPlans.length}
-            </span>
-          )}
-        </Button>
-
-        {/* Export PDF Button */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setIsPdfModalOpen(true)}
-          className="mb-4 w-full flex items-center justify-center gap-2 border-slate-300 text-slate-600 hover:bg-slate-50"
-          data-testid="export-pdf-btn"
-        >
-          <Download className="h-4 w-4" />
-          Exportar Reporte PDF
-        </Button>
 
         {/* Conditional View: History or Assistant */}
         {sidebarView === 'history' ? (
