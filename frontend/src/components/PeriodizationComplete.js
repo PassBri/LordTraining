@@ -641,15 +641,40 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
       <Card className="shadow-lg">
         <CardContent className="p-8">
           {wizardStep === 1 && (
-            <div className="space-y-6">
-              <h3 className="text-xl font-bold text-center">Modelo de Periodización</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {Object.entries(PERIODIZATION_MODELS).map(([id, model]) => (
-                  <div key={id} className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${planConfig.model === id ? 'border-blue-500 bg-blue-50 shadow-md' : 'border-slate-200 hover:border-blue-300'}`} onClick={() => setPlanConfig({ ...planConfig, model: id })}>
-                    <p className="font-semibold">{model.name}</p>
+            <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
+              <h3 className="text-xl font-bold text-center sticky top-0 bg-white py-2 z-10">Modelo de Periodización</h3>
+              {Object.entries(MODEL_CATEGORIES).map(([categoryId, category]) => {
+                const modelsInCategory = Object.entries(PERIODIZATION_MODELS).filter(([_, m]) => m.category === categoryId);
+                if (modelsInCategory.length === 0) return null;
+                return (
+                  <div key={categoryId} className="space-y-3">
+                    <div className={`px-3 py-2 rounded-lg ${category.color} border-l-4`}>
+                      <h4 className="font-bold text-slate-700 flex items-center gap-2">
+                        <span>{category.icon}</span> {category.name}
+                      </h4>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-2">
+                      {modelsInCategory.map(([id, model]) => (
+                        <div 
+                          key={id} 
+                          className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${planConfig.model === id ? 'border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-200' : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'}`} 
+                          onClick={() => setPlanConfig({ ...planConfig, model: id })}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1">
+                              <p className="font-semibold text-slate-800 text-sm">{model.name}</p>
+                              <p className="text-xs text-slate-500 mt-1 line-clamp-2">{model.description}</p>
+                            </div>
+                            {planConfig.model === id && (
+                              <CheckCircle className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
           )}
 
