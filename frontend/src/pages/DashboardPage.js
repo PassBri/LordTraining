@@ -2305,7 +2305,228 @@ const DashboardPage = () => {
 
     // Render Analysis component for prev-plan section
     if (activeDataSection === 'prev-plan') {
-      return <PreviousPlanAnalysis athleteId={selectedAthleteId} />;
+      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
+      return (
+        <div className="p-6 space-y-6 overflow-y-auto h-full bg-gradient-to-br from-slate-50 to-rose-50">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-rose-500 to-red-500 rounded-2xl shadow-lg mb-4">
+              <FileText className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold text-slate-800 mb-2">Análisis del Plan Anterior</h1>
+            <p className="text-slate-500 max-w-2xl mx-auto">
+              Evaluación retrospectiva del plan de entrenamiento previo para identificar fortalezas, debilidades y oportunidades de mejora.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Información del Plan Anterior */}
+            <Card className="border-0 shadow-xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-800 text-white py-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Calendar className="w-5 h-5" />
+                  Información del Plan Anterior
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700">Fecha de Inicio</label>
+                    <Input type="date" className="border-slate-200" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700">Fecha de Finalización</label>
+                    <Input type="date" className="border-slate-200" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Duración Total (semanas)</label>
+                  <Input type="number" placeholder="Ej: 12" className="border-slate-200" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Objetivo Principal del Plan</label>
+                  <textarea className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="¿Cuál era el objetivo principal?" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Cumplimiento de Objetivos */}
+            <Card className="border-0 shadow-xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-emerald-500 to-green-500 text-white py-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <CheckCircle className="w-5 h-5" />
+                  Cumplimiento de Objetivos
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5 space-y-4">
+                <div className="space-y-3">
+                  {['Objetivo General', 'Preparación Física', 'Preparación Técnica', 'Preparación Táctica', 'Preparación Psicológica'].map((obj, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                      <span className="text-sm font-medium text-slate-700">{obj}</span>
+                      <Select defaultValue="parcial">
+                        <SelectTrigger className="w-40 h-8 text-sm"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="total">✅ Cumplido Total</SelectItem>
+                          <SelectItem value="parcial">🟡 Cumplido Parcial</SelectItem>
+                          <SelectItem value="no">❌ No Cumplido</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ))}
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">% Global de Cumplimiento</label>
+                  <Input type="number" placeholder="75" max="100" className="border-slate-200" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Análisis de Fortalezas */}
+            <Card className="border-0 shadow-xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <TrendingUp className="w-5 h-5" />
+                  Fortalezas del Plan Anterior
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5 space-y-4">
+                <p className="text-xs text-slate-500">¿Qué funcionó bien? ¿Qué aspectos se deben mantener?</p>
+                {[1, 2, 3].map((num) => (
+                  <div key={num} className="flex items-start gap-2">
+                    <span className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-1">{num}</span>
+                    <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={`Fortaleza ${num}...`} />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Análisis de Debilidades */}
+            <Card className="border-0 shadow-xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <AlertTriangle className="w-5 h-5" />
+                  Debilidades y Áreas de Mejora
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5 space-y-4">
+                <p className="text-xs text-slate-500">¿Qué no funcionó? ¿Qué se debe cambiar o mejorar?</p>
+                {[1, 2, 3].map((num) => (
+                  <div key={num} className="flex items-start gap-2">
+                    <span className="w-6 h-6 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-1">{num}</span>
+                    <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={`Debilidad/Mejora ${num}...`} />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Indicadores de Rendimiento */}
+            <Card className="border-0 shadow-xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-violet-500 to-purple-500 text-white py-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <BarChart className="w-5 h-5" />
+                  Indicadores de Rendimiento
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-200">
+                        <th className="text-left py-2 px-2 text-slate-600">Indicador</th>
+                        <th className="text-center py-2 px-2 text-slate-600">Inicial</th>
+                        <th className="text-center py-2 px-2 text-slate-600">Final</th>
+                        <th className="text-center py-2 px-2 text-slate-600">Δ%</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {['VO2 Máx', '1RM Sentadilla', 'Sprint 30m', 'CMJ (salto)', 'Flexibilidad'].map((ind, idx) => (
+                        <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
+                          <td className="py-2 px-2 font-medium text-slate-700">{ind}</td>
+                          <td className="py-2 px-2"><Input className="h-8 w-20 text-center" placeholder="--" /></td>
+                          <td className="py-2 px-2"><Input className="h-8 w-20 text-center" placeholder="--" /></td>
+                          <td className="py-2 px-2"><Input className="h-8 w-20 text-center" placeholder="--%" /></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Lesiones y Problemas */}
+            <Card className="border-0 shadow-xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-red-500 to-rose-500 text-white py-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Heart className="w-5 h-5" />
+                  Lesiones y Problemas de Salud
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5 space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">¿Hubo lesiones durante el plan?</label>
+                  <Select defaultValue="no">
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="no">No hubo lesiones</SelectItem>
+                      <SelectItem value="leve">Lesiones leves</SelectItem>
+                      <SelectItem value="moderada">Lesiones moderadas</SelectItem>
+                      <SelectItem value="grave">Lesiones graves</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Descripción de lesiones/problemas</label>
+                  <textarea className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none" rows={3} placeholder="Describir las lesiones ocurridas, su causa probable y tiempo de recuperación..." />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Días perdidos por lesión</label>
+                  <Input type="number" placeholder="0" className="border-slate-200" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Conclusiones y Recomendaciones */}
+          <Card className="border-0 shadow-xl overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-4">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Lightbulb className="w-5 h-5" />
+                Conclusiones y Recomendaciones para el Nuevo Plan
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Conclusiones Principales</label>
+                <textarea className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none" rows={4} placeholder="Resumen de los principales aprendizajes del plan anterior..." />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Recomendaciones para el Próximo Plan</label>
+                <textarea className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none" rows={4} placeholder="Qué mantener, qué cambiar, qué nuevos enfoques aplicar..." />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Nota Final */}
+          <div className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-xl p-4 text-center shadow-lg">
+            <p className="text-white/90 text-sm">
+              <Sparkles className="w-4 h-4 inline mr-2 text-amber-400" />
+              Este análisis es fundamental para la mejora continua del proceso de entrenamiento y evitar repetir errores del pasado.
+            </p>
+          </div>
+
+          {/* Botones de Acción */}
+          <div className="flex justify-end gap-3 pt-4">
+            <Button variant="outline" className="border-slate-300">
+              <X className="w-4 h-4 mr-2" />
+              Cancelar
+            </Button>
+            <Button className="bg-gradient-to-r from-rose-500 to-red-500 hover:from-rose-600 hover:to-red-600 text-white shadow-lg">
+              <Save className="w-4 h-4 mr-2" />
+              Guardar Análisis
+            </Button>
+          </div>
+        </div>
+      );
     }
 
     // Render Sport Characterization component
