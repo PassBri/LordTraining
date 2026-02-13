@@ -2623,8 +2623,8 @@ const DashboardPage = () => {
                           variant="ghost" 
                           className="h-7 w-7 p-0 text-white/70 hover:text-white hover:bg-white/20"
                           onClick={() => {
-                            setEditingCategory(category);
-                            setNewSport({ name: '', categoryId: category.id });
+                            setShowAddSport(category.id);
+                            setNewSport({ name: '', category_id: category.id });
                           }}
                         >
                           <Plus className="w-4 h-4" />
@@ -2641,7 +2641,7 @@ const DashboardPage = () => {
                     </div>
                     <div className="p-3">
                       {/* Add sport form for this category */}
-                      {editingCategory?.id === category.id && (
+                      {showAddSport === category.id && (
                         <div className="mb-3 flex gap-2">
                           <Input 
                             placeholder="Nombre del deporte"
@@ -2661,7 +2661,7 @@ const DashboardPage = () => {
                             size="sm" 
                             variant="ghost"
                             className="h-8"
-                            onClick={() => setEditingCategory(null)}
+                            onClick={() => setShowAddSport(null)}
                           >
                             <X className="w-4 h-4" />
                           </Button>
