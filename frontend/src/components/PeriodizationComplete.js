@@ -787,8 +787,6 @@ const PeriodizationComplete = ({ athleteId, athleteName, onNavigate }) => {
                                     <span className="px-2 py-0.5 rounded text-xs text-white" style={{ backgroundColor: micro.loadMagnitude?.color }}>{micro.loadMagnitude?.name}</span>
                                   </div>
                                 </div>
-                                  </div>
-                                </div>
                                 
                                 {expandedMicro === `${mesoIdx}-${microIdx}` && (
                                   <div className="border-t p-4 bg-white">
