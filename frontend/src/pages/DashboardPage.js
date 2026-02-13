@@ -120,8 +120,9 @@ const DashboardPage = () => {
   // Filters Dropdown State
   const [showFiltersDropdown, setShowFiltersDropdown] = useState(false);
 
-  // ====== SIDEBAR VIEW STATE ======
-  const [sidebarView, setSidebarView] = useState('assistant'); // 'assistant' or 'history'
+  // ====== COACH AI DRAWER STATE ======
+  const [isCoachDrawerOpen, setIsCoachDrawerOpen] = useState(false);
+  const [coachDrawerTab, setCoachDrawerTab] = useState('coach'); // 'coach' or 'history'
   const [generatedPlans, setGeneratedPlans] = useState([]); // List of generated plans
 
   // ====== GLOBAL CONTEXT STATE (Barra Superior) ======
