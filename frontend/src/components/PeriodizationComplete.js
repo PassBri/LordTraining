@@ -737,11 +737,15 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
               <ChevronLeft className="w-4 h-4 mr-2" /> {wizardStep > 1 ? 'Anterior' : 'Cancelar'}
             </Button>
             {wizardStep < 4 ? (
-              <Button onClick={() => setWizardStep(wizardStep + 1)} disabled={wizardStep === 1 && !planConfig.model}>
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6" 
+                onClick={() => setWizardStep(wizardStep + 1)} 
+                disabled={wizardStep === 1 && !planConfig.model}
+              >
                 Siguiente <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
-              <Button className="bg-blue-600" onClick={handleCreatePlan} disabled={!planConfig.startDate}>
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6" onClick={handleCreatePlan} disabled={!planConfig.startDate}>
                 <Check className="w-4 h-4 mr-2" /> Crear Plan
               </Button>
             )}
