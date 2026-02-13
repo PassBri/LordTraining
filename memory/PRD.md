@@ -1,88 +1,108 @@
-# TrAIn - Plataforma de Gestión Deportiva con IA
+# TrAIn - Sports Planning Platform
 
-## Problema Original
-Construir una plataforma de gestión deportiva de alto nivel con:
-- Dashboard con métricas de entrenamiento
-- Sistema de periodización
-- Asistente IA para generación de planes
-- Gestión de torneos
-- Exportación de reportes PDF
+## Original Problem Statement
+Build a high-end sports management platform with AI-powered training assistance, comprehensive tournament management, and advanced data visualization dashboards.
 
-## Arquitectura
+## Current Status: Active Development
+Last Updated: February 13, 2026
 
-### Frontend (React)
+---
+
+## What's Been Implemented
+
+### Core Features ✅
+1. **Authentication System**
+   - JWT-based login/registration
+   - Role-based access control (Admin, Coach, Personal Trainer, Athlete, Team, User)
+
+2. **Dashboard & Control Panel**
+   - Material Design UI with ShadCN/UI components
+   - Interactive "trading-style" charts with Recharts
+   - Real-time data visualization widgets
+   - Readiness Score, Training Load metrics
+
+3. **AI Training Assistant** ✅ (Simplified Feb 2026)
+   - Single LLM (GPT-4o-mini) chat interface
+   - Practical suggestions for exercises, loads, recovery
+   - Backend: `/api/ai-assistant/chat` and `/api/ai-coach/ask`
+   - Uses Emergent LLM Key integration
+
+4. **Tournament Manager**
+   - Client-side tournament management in localStorage
+   - Supports: Single Elimination, Double Elimination, Round Robin, Group Stage + Knockout, League
+   - Participant management, fixture generation, score tracking
+   - PDF export functionality
+
+5. **Auto-Testing System**
+   - Template loading for quick plan creation
+   - "Virtual Coach" simulation for stress testing
+
+6. **Entity Management**
+   - Federations, Clubs, Schools hierarchy
+   - Athletes and Teams management
+   - Sports catalog with categories
+
+### UI Layout Changes (Feb 13, 2026) ✅
+- Reorganized top navigation bar:
+  - Logo on left
+  - Filters in center (Entity → Team → Athlete → Sport)
+  - Panel/Datos tabs, History, PDF export on right
+- Sidebar now dedicated to AI Assistant with more space
+- Removed redundant sidebar buttons
+
+---
+
+## Prioritized Backlog
+
+### P0 - Critical
+- [ ] User verification of new layout
+
+### P1 - High Priority
+- [ ] **Tournament Manager Regression Tests**: Full workflow validation needed
+- [ ] **Manual Plan Creation Wizard**: Step-by-step plan builder without AI
+
+### P2 - Medium Priority
+- [ ] Save AI suggestions as structured plans
+- [ ] Full plan detail view
+- [ ] Migrate localStorage data to MongoDB backend
+
+### P3 - Low Priority
+- [ ] Refactor DashboardPage.js (god component issue)
+- [ ] Delete unused AICoachAssistant.js file
+
+---
+
+## Technical Architecture
+
 ```
-/app/frontend/src
-├── components/
-│   ├── AICoachAssistant.js      # Panel de Expertos IA (4 LLMs)
-│   ├── AutoTestingSystem.js     # Sistema de auto-testing
-│   ├── ControlPanel.js          # Dashboard principal
-│   ├── InteractiveChart.js      # Gráficos interactivos
-│   ├── TournamentManager.js     # Gestión de torneos
-│   ├── PDFExportModal.js        # Exportación PDF
-│   └── ui/                      # Componentes ShadCN
-├── pages/
-│   ├── DashboardPage.js         # Página principal
-│   ├── AuthPage.js              # Login/Registro
-│   └── LandingPage.js           # Landing
+/app
+├── backend/
+│   ├── routes/
+│   │   ├── ai_coach.py         # Simplified AI coach endpoint
+│   │   ├── ai_assistant.py     # AI assistant chat endpoint
+│   │   ├── auth.py
+│   │   ├── athletes.py
+│   │   └── ...
+│   └── server.py
+├── frontend/
+│   └── src/
+│       ├── components/
+│       │   ├── AITrainingAssistant.js  # Current AI chat UI
+│       │   ├── TournamentManager.js
+│       │   ├── ControlPanel.js
+│       │   ├── AutoTestingSystem.js
+│       │   └── ...
+│       └── pages/
+│           └── DashboardPage.js        # Main hub (needs refactoring)
+└── memory/
+    └── PRD.md
 ```
 
-### Backend (FastAPI)
-```
-/app/backend
-├── server.py                    # Servidor principal
-├── routes/
-│   └── ai_coach.py              # API Multi-Agente IA
-```
+## Key Integrations
+- **OpenAI GPT-4o-mini**: Primary AI assistant
+- **Emergent LLM Key**: Universal key for LLM access
+- **Recharts**: Data visualization
 
-## Funcionalidades Implementadas
-
-### ✅ Sistema Multi-Agente IA (13 Feb 2025)
-- **4 LLMs colaborando**:
-  - GPT-5.2 (Coach Estratega) - Periodización
-  - Claude Sonnet 4.5 (Analista) - Evaluación de cargas
-  - Gemini 3 Flash (Ejercicios) - Metodología
-  - GPT-4o-mini (Asistente) - Respuestas rápidas
-- **Endpoints**:
-  - `POST /api/ai-coach/chat` - Chat individual
-  - `POST /api/ai-coach/panel-discussion` - Panel completo
-  - `POST /api/ai-coach/generate-plan` - Generar plan
-- **Wizard de 8 pasos**: Atleta → Deporte → Objetivos → Competencias → Periodización → Duración → Métodos → Generar
-
-### ✅ Sistema de Auto-Testing (12 Feb 2025)
-- Templates de carga rápida (3 modelos)
-- Virtual Coach (3 niveles)
-- Test automático (7 y 100 planes)
-- Reportes exportables
-
-### ✅ Dashboard Interactivo
-- Gráficos estilo trading con zoom/scroll
-- Readiness Score
-- Ratio de carga aguda/crónica
-- Widgets de análisis
-
-### ✅ Plan Gráfico de Periodización
-- Tabla de 52 semanas
-- Modelos: Tradicional, ATR, Ondulante
-- Exportación a imagen
-
-### ✅ Exportación PDF
-- Selección de secciones
-- Múltiples formatos
-
-### ⚠️ En Progreso
-- Tournament Manager (UI completa, lógica pendiente)
-
-## Credenciales de Test
-- Email: test@train.com
-- Password: test123456
-
-## Próximas Tareas (P1)
-1. Completar lógica de Tournament Manager
-2. Integrar planes generados con Plan Gráfico
-3. Persistir planes en MongoDB
-
-## Backlog (P2)
-- Notificaciones push
-- Modo offline
-- App móvil
+## Test Credentials
+- Email: `test@train.com`
+- Password: `test123456`
