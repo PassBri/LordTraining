@@ -660,34 +660,6 @@ const AICoachAssistant = ({
             )}
           </div>
         );
-                  <p className="font-medium text-green-700 flex items-center gap-2">
-                    <Check className="w-5 h-5" />
-                    ¡Plan generado exitosamente!
-                  </p>
-                </div>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => setActiveTab('results')}
-                >
-                  Ver Plan Completo
-                </Button>
-              </div>
-            )}
-            
-            {isGenerating && (
-              <div className="space-y-2">
-                <Progress value={generationProgress} className="h-2" />
-                <p className="text-sm text-center text-slate-500">
-                  {generationProgress < 30 ? '🎯 Estratega diseñando estructura...' :
-                   generationProgress < 60 ? '📊 Analista calculando cargas...' :
-                   generationProgress < 90 ? '💪 Especialista seleccionando ejercicios...' :
-                   '⚡ Finalizando...'}
-                </p>
-              </div>
-            )}
-          </div>
-        );
         
       default:
         return null;
