@@ -2532,11 +2532,9 @@ const DashboardPage = () => {
       </div>
 
       {/* Main Content (with padding for fixed bar) */}
-      <div className="pt-[52px] flex h-screen max-h-screen overflow-hidden">
-      {/* Left Sidebar - AI Assistant (Now with more space) */}
-      <div className="w-80 p-4 border-r flex flex-col bg-white shadow-lg">
+      <div className="pt-[52px] h-screen max-h-screen overflow-hidden">
         {/* Mobile Panel Tabs - Only visible on small screens */}
-        <div className="flex md:hidden gap-2 mb-4">
+        <div className="flex md:hidden gap-2 p-4 bg-white border-b">
           {['panel', 'datos'].map((panelType) => (
             <button
               key={panelType}
@@ -2556,196 +2554,270 @@ const DashboardPage = () => {
           ))}
         </div>
 
-        {/* Conditional View: History or Assistant */}
-        {sidebarView === 'history' ? (
-          /* Plans History View */
-          <Card className="flex-grow flex flex-col shadow-lg overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 py-3 px-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base text-white flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  Mis Planes
-                </CardTitle>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSidebarView('assistant')}
-                  className="text-white/80 hover:text-white hover:bg-white/10 h-7 w-7 p-0"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="flex-grow flex flex-col p-0 overflow-hidden">
-              {/* New Plan Button */}
-              <div className="p-3 border-b">
-                <Button
-                  onClick={handleNewPlan}
-                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
-                  data-testid="new-plan-btn"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Crear Nuevo Plan
-                </Button>
-              </div>
-              
-              {/* Plans List */}
-              <div className="flex-grow overflow-y-auto">
-                {generatedPlans.length > 0 ? (
-                  <div className="divide-y">
-                    {generatedPlans.map((plan) => (
-                      <div
-                        key={plan.id}
-                        className="p-3 hover:bg-slate-50 cursor-pointer transition-colors group"
-                        onClick={() => {
-                          // Could load plan details here
-                          toast.info(`Plan: ${plan.title || plan.athleteName}`);
-                        }}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-sm font-medium text-slate-900 truncate">
-                              {plan.title || plan.name || `Plan para ${plan.athleteName || plan.athlete?.name || 'Atleta'}`}
-                            </h4>
-                            <p className="text-xs text-slate-500 mt-0.5">
-                              {plan.sport || plan.athlete?.sport || 'Deporte'} • {plan.duration || plan.macrocycle?.duration ? `${plan.macrocycle?.duration || ''} semanas` : 'Sin duración'}
-                            </p>
-                            <p className="text-xs text-slate-400 mt-1">
-                              {new Date(plan.createdAt).toLocaleDateString('es-ES', { 
-                                day: 'numeric', 
-                                month: 'short',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                              {plan.isTest && <span className="ml-2 text-violet-500 font-medium">(Test)</span>}
-                            </p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (window.confirm('¿Eliminar este plan?')) {
-                                deletePlan(plan.id);
-                              }
-                            }}
-                            className="opacity-0 group-hover:opacity-100 h-7 w-7 p-0 text-slate-400 hover:text-red-500"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full p-6 text-center">
-                    <FileText className="w-12 h-12 text-slate-200 mb-3" />
-                    <p className="text-sm text-slate-500 mb-1">Sin planes generados</p>
-                    <p className="text-xs text-slate-400">Crea tu primer plan con el asistente IA</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          /* AI Assistant View - Using new simplified component */
-          <AITrainingAssistant 
-            selectedAthlete={athletes.find(a => a.id === selectedAthleteId)}
-            sportsCatalog={sportsCatalog}
-          />
-        )}
-
-        {/* User info and logout */}
-        <div className="mt-4 pt-4 border-t">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm">
-              {user?.name?.charAt(0).toUpperCase()}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{user?.name}</p>
-              <p className="text-xs text-gray-500">
-                {USER_ROLES.find(r => r.id === user?.role)?.name || user?.role || 'Usuario'}
-              </p>
-            </div>
-            <Dialog open={showProfileDialog} onOpenChange={setShowProfileDialog}>
-              <DialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="p-1" data-testid="profile-settings-btn">
-                  <Settings className="w-4 h-4 text-gray-400" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Configuración de Perfil</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div>
-                    <p className="text-sm text-gray-500 mb-2">Nombre</p>
-                    <p className="font-medium">{user?.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 mb-2">Email</p>
-                    <p className="font-medium">{user?.email}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 mb-3">Cambiar tipo de cuenta</p>
-                    <div className="grid gap-2">
-                      {USER_ROLES.map(role => {
-                        const IconComponent = role.icon;
-                        const isSelected = user?.role === role.id;
-                        return (
-                          <Button
-                            key={role.id}
-                            variant={isSelected ? "default" : "outline"}
-                            className={`justify-start h-auto py-3 ${isSelected ? 'bg-blue-600' : ''}`}
-                            onClick={() => handleUpdateProfile(role.id)}
-                            disabled={updatingProfile || isSelected}
-                            data-testid={`role-${role.id}-btn`}
-                          >
-                            <IconComponent className="w-4 h-4 mr-3" />
-                            <div className="text-left">
-                              <div className="font-medium">{role.name}</div>
-                              <div className={`text-xs ${isSelected ? 'text-blue-100' : 'text-gray-500'}`}>
-                                {role.description}
-                              </div>
-                            </div>
-                            {isSelected && (
-                              <span className="ml-auto text-xs bg-white/20 px-2 py-1 rounded">Actual</span>
-                            )}
-                          </Button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-          <Link to="/subscription" className="w-full">
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start text-gray-500 hover:text-gray-700 text-sm mb-1"
-              data-testid="subscription-btn"
-            >
-              <CreditCard className="w-4 h-4 mr-2" />
-              Suscripción
-            </Button>
-          </Link>
-          <Button 
-            variant="ghost" 
-            className="w-full justify-start text-gray-500 hover:text-gray-700 text-sm"
-            onClick={handleLogout}
-            data-testid="logout-btn"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Cerrar Sesión
-          </Button>
+        {/* Main Content - Full Width */}
+        <div className="h-full overflow-hidden">
+          {renderMainContent()}
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-grow overflow-hidden">
-        {renderMainContent()}
-      </div>
+      {/* ====== COACH AI FLOATING BUTTON ====== */}
+      <button
+        onClick={() => setIsCoachDrawerOpen(true)}
+        className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
+        data-testid="coach-ai-fab"
+      >
+        <Brain className="w-6 h-6 group-hover:scale-110 transition-transform" />
+        <span className="absolute -top-10 right-0 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+          Coach AI
+        </span>
+      </button>
+
+      {/* ====== COACH AI DRAWER ====== */}
+      {isCoachDrawerOpen && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/30 z-40 transition-opacity"
+            onClick={() => setIsCoachDrawerOpen(false)}
+          />
+          
+          {/* Drawer Panel */}
+          <div className="fixed right-0 top-0 h-full w-96 max-w-[90vw] bg-white shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-300">
+            {/* Drawer Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Brain className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-lg">Coach AI</h2>
+                    <p className="text-xs text-white/70">Tu asistente de entrenamiento</p>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsCoachDrawerOpen(false)}
+                  className="text-white/80 hover:text-white hover:bg-white/10 h-8 w-8 p-0"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+              
+              {/* Drawer Tabs */}
+              <div className="flex gap-1 bg-white/10 rounded-lg p-1">
+                <button
+                  onClick={() => setCoachDrawerTab('coach')}
+                  className={`flex-1 py-2 px-3 text-sm font-medium rounded-md transition-all flex items-center justify-center gap-2 ${
+                    coachDrawerTab === 'coach'
+                      ? 'bg-white text-indigo-600 shadow'
+                      : 'text-white/80 hover:bg-white/10'
+                  }`}
+                >
+                  <Brain className="w-4 h-4" />
+                  Coach AI
+                </button>
+                <button
+                  onClick={() => setCoachDrawerTab('history')}
+                  className={`flex-1 py-2 px-3 text-sm font-medium rounded-md transition-all flex items-center justify-center gap-2 ${
+                    coachDrawerTab === 'history'
+                      ? 'bg-white text-indigo-600 shadow'
+                      : 'text-white/80 hover:bg-white/10'
+                  }`}
+                >
+                  <History className="w-4 h-4" />
+                  Historial
+                  {generatedPlans.length > 0 && (
+                    <span className={`px-1.5 py-0.5 rounded-full text-xs ${
+                      coachDrawerTab === 'history' ? 'bg-indigo-100 text-indigo-600' : 'bg-white/20'
+                    }`}>
+                      {generatedPlans.length}
+                    </span>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Drawer Content */}
+            <div className="flex-grow overflow-hidden flex flex-col">
+              {coachDrawerTab === 'coach' ? (
+                /* AI Assistant View */
+                <AITrainingAssistant 
+                  selectedAthlete={athletes.find(a => a.id === selectedAthleteId)}
+                  sportsCatalog={sportsCatalog}
+                />
+              ) : (
+                /* Plans History View */
+                <div className="flex-grow flex flex-col overflow-hidden">
+                  {/* New Plan Button */}
+                  <div className="p-3 border-b bg-slate-50">
+                    <Button
+                      onClick={() => {
+                        setCoachDrawerTab('coach');
+                        toast.info('Usa el Coach AI para crear un nuevo plan');
+                      }}
+                      className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+                      data-testid="new-plan-btn"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Crear Nuevo Plan
+                    </Button>
+                  </div>
+                  
+                  {/* Plans List */}
+                  <div className="flex-grow overflow-y-auto">
+                    {generatedPlans.length > 0 ? (
+                      <div className="divide-y">
+                        {generatedPlans.map((plan) => (
+                          <div
+                            key={plan.id}
+                            className="p-4 hover:bg-slate-50 cursor-pointer transition-colors group"
+                            onClick={() => {
+                              toast.info(`Plan: ${plan.title || plan.athleteName}`);
+                            }}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-sm font-medium text-slate-900 truncate">
+                                  {plan.title || plan.name || `Plan para ${plan.athleteName || plan.athlete?.name || 'Atleta'}`}
+                                </h4>
+                                <p className="text-xs text-slate-500 mt-0.5">
+                                  {plan.sport || plan.athlete?.sport || 'Deporte'} • {plan.duration || plan.macrocycle?.duration ? `${plan.macrocycle?.duration || ''} semanas` : 'Sin duración'}
+                                </p>
+                                <p className="text-xs text-slate-400 mt-1">
+                                  {new Date(plan.createdAt).toLocaleDateString('es-ES', { 
+                                    day: 'numeric', 
+                                    month: 'short',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                  {plan.isTest && <span className="ml-2 text-violet-500 font-medium">(Test)</span>}
+                                </p>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (window.confirm('¿Eliminar este plan?')) {
+                                    deletePlan(plan.id);
+                                  }
+                                }}
+                                className="opacity-0 group-hover:opacity-100 h-7 w-7 p-0 text-slate-400 hover:text-red-500"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-full p-6 text-center">
+                        <FileText className="w-16 h-16 text-slate-200 mb-4" />
+                        <p className="text-sm font-medium text-slate-500 mb-1">Sin planes generados</p>
+                        <p className="text-xs text-slate-400 mb-4">Crea tu primer plan con el Coach AI</p>
+                        <Button
+                          onClick={() => setCoachDrawerTab('coach')}
+                          variant="outline"
+                          size="sm"
+                          className="text-indigo-600 border-indigo-200"
+                        >
+                          <Brain className="w-4 h-4 mr-2" />
+                          Ir al Coach AI
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Drawer Footer - User Info */}
+            <div className="border-t bg-slate-50 p-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm">
+                  {user?.name?.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">{user?.name}</p>
+                  <p className="text-xs text-gray-500">
+                    {USER_ROLES.find(r => r.id === user?.role)?.name || user?.role || 'Usuario'}
+                  </p>
+                </div>
+                <div className="flex gap-1">
+                  <Dialog open={showProfileDialog} onOpenChange={setShowProfileDialog}>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="sm" className="p-1.5" data-testid="profile-settings-btn">
+                        <Settings className="w-4 h-4 text-gray-400" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Configuración de Perfil</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div>
+                          <p className="text-sm text-gray-500 mb-2">Nombre</p>
+                          <p className="font-medium">{user?.name}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500 mb-2">Email</p>
+                          <p className="font-medium">{user?.email}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500 mb-3">Cambiar tipo de cuenta</p>
+                          <div className="grid gap-2">
+                            {USER_ROLES.map(role => {
+                              const IconComponent = role.icon;
+                              const isSelected = user?.role === role.id;
+                              return (
+                                <Button
+                                  key={role.id}
+                                  variant={isSelected ? "default" : "outline"}
+                                  className={`justify-start h-auto py-3 ${isSelected ? 'bg-blue-600' : ''}`}
+                                  onClick={() => handleUpdateProfile(role.id)}
+                                  disabled={updatingProfile || isSelected}
+                                  data-testid={`role-${role.id}-btn`}
+                                >
+                                  <IconComponent className="w-4 h-4 mr-3" />
+                                  <div className="text-left">
+                                    <div className="font-medium">{role.name}</div>
+                                    <div className={`text-xs ${isSelected ? 'text-blue-100' : 'text-gray-500'}`}>
+                                      {role.description}
+                                    </div>
+                                  </div>
+                                  {isSelected && (
+                                    <span className="ml-auto text-xs bg-white/20 px-2 py-1 rounded">Actual</span>
+                                  )}
+                                </Button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                  <Link to="/subscription">
+                    <Button variant="ghost" size="sm" className="p-1.5" data-testid="subscription-btn">
+                      <CreditCard className="w-4 h-4 text-gray-400" />
+                    </Button>
+                  </Link>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="p-1.5"
+                    onClick={handleLogout}
+                    data-testid="logout-btn"
+                  >
+                    <LogOut className="w-4 h-4 text-gray-400" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* PDF Export Modal */}
       <PDFExportModal
@@ -2755,7 +2827,6 @@ const DashboardPage = () => {
         athleteName={athletes.find(a => a.id === selectedAthleteId)?.name}
         periodizationData={periodizationData}
       />
-      </div>
     </div>
   );
 };
