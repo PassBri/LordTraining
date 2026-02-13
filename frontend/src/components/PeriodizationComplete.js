@@ -1197,6 +1197,27 @@ const PeriodizationComplete = ({ athleteId, athleteName, onNavigate }) => {
         {activeView === 'create' && renderCreateView()}
         {activeView === 'detail' && renderDetailView()}
       </div>
+      
+      {/* Session Editor Modal */}
+      {sessionEditorOpen && (
+        <SessionEditor
+          isOpen={sessionEditorOpen}
+          onClose={() => {
+            setSessionEditorOpen(false);
+            setEditingSession(null);
+            setEditingSessionLocation(null);
+          }}
+          sessionData={editingSession?.sessionData || null}
+          onSave={handleSaveSession}
+          sessionInfo={{
+            date: editingSession?.date,
+            dayName: editingSession?.dayName,
+            type: editingSession?.type,
+            duration: editingSession?.duration,
+            intensity: editingSession?.intensity
+          }}
+        />
+      )}
     </div>
   );
 };
