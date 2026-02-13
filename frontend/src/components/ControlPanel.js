@@ -677,6 +677,31 @@ const ControlPanel = ({
                 </span>
               </div>
             </div>
+            
+            {/* Center: Status + Quote */}
+            <div className="hidden lg:flex items-center gap-6 flex-1 justify-center px-4">
+              {alerts.length > 0 && (
+                <div className="flex items-center gap-2 bg-white/10 rounded-xl px-4 py-2">
+                  {React.createElement(alerts[0].icon, { 
+                    className: `w-4 h-4 ${
+                      alerts[0].color === 'green' ? 'text-emerald-300' :
+                      alerts[0].color === 'amber' ? 'text-amber-300' :
+                      'text-blue-300'
+                    }` 
+                  })}
+                  <span className="text-sm text-white/90 font-medium">{alerts[0].title}</span>
+                  <span className="text-xs text-white/60">{alerts[0].message}</span>
+                </div>
+              )}
+              {motivationalMessage && (
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-300" />
+                  <span className="text-sm text-white/80 italic max-w-md truncate">"{motivationalMessage.text}"</span>
+                  <span className="text-xs text-white/50">— {motivationalMessage.author}</span>
+                </div>
+              )}
+            </div>
+            
             <div className="flex items-center gap-2">
               <Button size="sm" className="h-10 w-10 bg-white/20 hover:bg-white/30 text-white border-0 rounded-xl" onClick={handleSave}>
                 <Save className="w-4 h-4" />
