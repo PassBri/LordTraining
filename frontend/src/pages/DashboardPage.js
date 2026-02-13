@@ -3396,6 +3396,7 @@ const DashboardPage = () => {
     if (activePanel === 'datos') {
       // Define sections and colors for horizontal navigation
       const sections = [
+        { key: 'punto-partida', title: 'Punto de Partida', color: 'rose', icon: FileText },
         { key: 'informacion', title: 'Información', color: 'indigo', icon: Building2 },
         { key: 'evaluacion', title: 'Evaluación', color: 'emerald', icon: LineChart },
         { key: 'competencias', title: 'Competencias', color: 'violet', icon: Trophy },
@@ -3405,6 +3406,7 @@ const DashboardPage = () => {
       ];
 
       const colorClasses = {
+        rose: { bg: 'bg-rose-500', hover: 'hover:bg-rose-600', shadow: 'shadow-rose-200', light: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-500' },
         indigo: { bg: 'bg-indigo-500', hover: 'hover:bg-indigo-600', shadow: 'shadow-indigo-200', light: 'bg-indigo-50', text: 'text-indigo-600', border: 'border-indigo-500' },
         emerald: { bg: 'bg-emerald-500', hover: 'hover:bg-emerald-600', shadow: 'shadow-emerald-200', light: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-500' },
         violet: { bg: 'bg-violet-500', hover: 'hover:bg-violet-600', shadow: 'shadow-violet-200', light: 'bg-violet-50', text: 'text-violet-600', border: 'border-violet-500' },
@@ -3414,9 +3416,9 @@ const DashboardPage = () => {
       };
 
       // Get current section based on active data section
-      const currentSection = navItems.find(n => n.id === activeDataSection)?.section || 'informacion';
+      const currentSection = navItems.find(n => n.id === activeDataSection)?.section || 'punto-partida';
       const currentSectionData = sections.find(s => s.key === currentSection);
-      const currentColors = colorClasses[currentSectionData?.color || 'indigo'];
+      const currentColors = colorClasses[currentSectionData?.color || 'rose'];
       const sectionItems = navItems.filter(i => i.section === currentSection);
 
       return (
