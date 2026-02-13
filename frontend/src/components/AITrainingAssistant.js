@@ -193,130 +193,109 @@ const AITrainingAssistant = ({
         </div>
       </div>
       
-      <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
-        {/* Quick Actions */}
-        <div className="p-2 border-b bg-slate-50 shrink-0">
-          <div className="flex gap-1.5 overflow-x-auto pb-1">
-            {QUICK_ACTIONS.map((action) => (
-              <Button
-                key={action.type}
-                variant="ghost"
-                size="sm"
-                className={`shrink-0 h-8 px-3 text-xs ${action.color} hover:opacity-80`}
-                onClick={() => handleQuickAction(action.type)}
-                disabled={isLoading}
-              >
-                <action.icon className="w-3.5 h-3.5 mr-1.5" />
-                {action.label}
-              </Button>
-            ))}
-          </div>
-        </div>
-        
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-3">
-          {messages.map((msg, index) => (
-            <div 
-              key={index} 
-              className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              {msg.type === 'user' ? (
-                <div className="max-w-[85%] bg-blue-600 text-white rounded-2xl rounded-br-sm px-4 py-2 text-sm">
-                  {msg.text}
-                </div>
-              ) : (
-                <div className="max-w-[90%] space-y-2">
-                  <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
-                    <p 
-                      className="text-sm text-slate-700 leading-relaxed"
-                      dangerouslySetInnerHTML={{ __html: formatMessage(msg.text) }}
-                    />
-                  </div>
-                  
-                  {/* Inline suggestions */}
-                  {msg.suggestions && (
-                    <div className="flex gap-1 flex-wrap">
-                      {msg.suggestions.map((suggestion, i) => (
-                        <Button
-                          key={i}
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 px-2 text-xs text-blue-600 bg-blue-50 hover:bg-blue-100"
-                          onClick={() => handleSendMessage(suggestion)}
-                        >
-                          {suggestion}
-                          <ChevronRight className="w-3 h-3 ml-1" />
-                        </Button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
-          
-          {/* Loading indicator */}
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-slate-100 rounded-2xl px-4 py-3 flex items-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                <span className="text-sm text-slate-500">Pensando...</span>
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+        {messages.map((msg, index) => (
+          <div 
+            key={index} 
+            className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            {msg.type === 'user' ? (
+              <div className="max-w-[85%] bg-blue-600 text-white rounded-2xl rounded-br-sm px-4 py-2 text-sm">
+                {msg.text}
               </div>
-            </div>
-          )}
-          
-          <div ref={chatEndRef} />
-        </div>
+            ) : (
+              <div className="max-w-[90%] space-y-2">
+                <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
+                  <p 
+                    className="text-sm text-slate-700 leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: formatMessage(msg.text) }}
+                  />
+                </div>
+                
+                {/* Inline suggestions */}
+                {msg.suggestions && (
+                  <div className="flex gap-1 flex-wrap">
+                    {msg.suggestions.map((suggestion, i) => (
+                      <Button
+                        key={i}
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 px-2 text-xs text-blue-600 bg-blue-50 hover:bg-blue-100"
+                        onClick={() => handleSendMessage(suggestion)}
+                      >
+                        {suggestion}
+                        <ChevronRight className="w-3 h-3 ml-1" />
+                      </Button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
         
-        {/* Suggested prompts */}
-        {messages.length <= 1 && suggestedPrompts.length > 0 && (
-          <div className="p-3 border-t bg-slate-50 shrink-0">
-            <p className="text-xs text-slate-500 mb-2 flex items-center gap-1">
-              <Lightbulb className="w-3.5 h-3.5" />
-              Prueba preguntar:
-            </p>
-            <div className="flex gap-1.5 flex-wrap">
-              {suggestedPrompts[0]?.prompts?.slice(0, 3).map((prompt, i) => (
-                <Button
-                  key={i}
-                  variant="outline"
-                  size="sm"
-                  className="h-7 px-2.5 text-xs"
-                  onClick={() => handleSendMessage(prompt)}
-                >
-                  {prompt.length > 40 ? prompt.substring(0, 40) + '...' : prompt}
-                </Button>
-              ))}
+        {/* Loading indicator */}
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="bg-slate-100 rounded-2xl px-4 py-3 flex items-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+              <span className="text-sm text-slate-500">Pensando...</span>
             </div>
           </div>
         )}
         
-        {/* Input */}
-        <div className="p-3 border-t bg-white shrink-0">
-          <div className="flex gap-2">
-            <Input
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-              placeholder="Pregunta sobre ejercicios, cargas, progresión..."
-              disabled={isLoading}
-              className="flex-1 h-10 text-sm"
-            />
-            <Button 
-              onClick={() => handleSendMessage()}
-              disabled={isLoading || !inputMessage.trim()}
-              className="h-10 w-10 p-0 bg-blue-600 hover:bg-blue-700"
-            >
-              {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Send className="w-4 h-4" />
-              )}
-            </Button>
+        <div ref={chatEndRef} />
+      </div>
+      
+      {/* Suggested prompts */}
+      {messages.length <= 1 && suggestedPrompts.length > 0 && (
+        <div className="p-3 border-t bg-slate-50 shrink-0">
+          <p className="text-xs text-slate-500 mb-2 flex items-center gap-1">
+            <Lightbulb className="w-3.5 h-3.5" />
+            Prueba preguntar:
+          </p>
+          <div className="flex gap-1.5 flex-wrap">
+            {suggestedPrompts[0]?.prompts?.slice(0, 3).map((prompt, i) => (
+              <Button
+                key={i}
+                variant="outline"
+                size="sm"
+                className="h-7 px-2.5 text-xs"
+                onClick={() => handleSendMessage(prompt)}
+              >
+                {prompt.length > 40 ? prompt.substring(0, 40) + '...' : prompt}
+              </Button>
+            ))}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      )}
+      
+      {/* Input */}
+      <div className="p-3 border-t bg-white shrink-0">
+        <div className="flex gap-2">
+          <Input
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+            placeholder="Pregunta sobre ejercicios, cargas, progresión..."
+            disabled={isLoading}
+            className="flex-1 h-10 text-sm"
+          />
+          <Button 
+            onClick={() => handleSendMessage()}
+            disabled={isLoading || !inputMessage.trim()}
+            className="h-10 w-10 p-0 bg-blue-600 hover:bg-blue-700"
+          >
+            {isLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 };
 
