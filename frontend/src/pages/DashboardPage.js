@@ -2050,6 +2050,1236 @@ const DashboardPage = () => {
       return <AnthropometricData athleteId={selectedAthleteId} />;
     }
 
+    // ====== NUEVAS SECCIONES DE EVALUACIÓN ======
+
+    // Análisis Biomecánico
+    if (activeDataSection === 'biomechanical') {
+      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
+      return (
+        <div className="p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                <Activity className="w-7 h-7 text-emerald-500" />
+                Análisis Biomecánico
+              </h2>
+              <p className="text-slate-500 mt-1">Evaluación del movimiento y técnica deportiva</p>
+            </div>
+            {selectedAthlete && (
+              <Badge className="bg-emerald-100 text-emerald-700">{selectedAthlete.name}</Badge>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Análisis de Marcha/Carrera */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Activity className="w-4 h-4" />
+                  Análisis de Marcha/Carrera
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Tipo de Pisada</label>
+                  <Select defaultValue="neutral">
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pronador">Pronador</SelectItem>
+                      <SelectItem value="supinador">Supinador</SelectItem>
+                      <SelectItem value="neutral">Neutral</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Longitud de Zancada (cm)</label>
+                  <Input type="number" placeholder="120" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Frecuencia de Paso (pasos/min)</label>
+                  <Input type="number" placeholder="180" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Tiempo de Contacto (ms)</label>
+                  <Input type="number" placeholder="200" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Análisis Postural */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  Análisis Postural
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Alineación Columna</label>
+                  <Select defaultValue="normal">
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="normal">Normal</SelectItem>
+                      <SelectItem value="cifosis">Cifosis</SelectItem>
+                      <SelectItem value="lordosis">Lordosis</SelectItem>
+                      <SelectItem value="escoliosis">Escoliosis</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Inclinación Pélvica</label>
+                  <Select defaultValue="neutral">
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="anterior">Anterior</SelectItem>
+                      <SelectItem value="posterior">Posterior</SelectItem>
+                      <SelectItem value="neutral">Neutral</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Alineación Rodillas</label>
+                  <Select defaultValue="normal">
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="normal">Normal</SelectItem>
+                      <SelectItem value="valgo">Valgo (X)</SelectItem>
+                      <SelectItem value="varo">Varo (O)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Rangos de Movimiento */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Target className="w-4 h-4" />
+                  Rangos de Movimiento (ROM)
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <label className="text-xs text-slate-500">Hombro Flex.</label>
+                    <Input type="number" placeholder="180°" className="h-8" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs text-slate-500">Hombro Ext.</label>
+                    <Input type="number" placeholder="60°" className="h-8" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs text-slate-500">Cadera Flex.</label>
+                    <Input type="number" placeholder="120°" className="h-8" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs text-slate-500">Cadera Ext.</label>
+                    <Input type="number" placeholder="30°" className="h-8" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs text-slate-500">Rodilla Flex.</label>
+                    <Input type="number" placeholder="135°" className="h-8" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs text-slate-500">Tobillo Dorsi.</label>
+                    <Input type="number" placeholder="20°" className="h-8" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Análisis de Fuerza */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Dumbbell className="w-4 h-4" />
+                  Asimetrías de Fuerza
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Fuerza Pierna Izq (kg)</label>
+                  <Input type="number" placeholder="85" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Fuerza Pierna Der (kg)</label>
+                  <Input type="number" placeholder="90" />
+                </div>
+                <div className="p-2 bg-slate-50 rounded-lg">
+                  <p className="text-xs text-slate-500">Índice de Asimetría</p>
+                  <p className="text-lg font-bold text-orange-600">5.7%</p>
+                  <p className="text-xs text-slate-400">Normal: &lt;10%</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Eficiencia del Movimiento */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Zap className="w-4 h-4" />
+                  Eficiencia del Movimiento
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">FMS Score Total (0-21)</label>
+                  <Input type="number" placeholder="17" max="21" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Sentadilla Profunda (0-3)</label>
+                  <Select defaultValue="2">
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">0 - Dolor</SelectItem>
+                      <SelectItem value="1">1 - Incapaz</SelectItem>
+                      <SelectItem value="2">2 - Compensación</SelectItem>
+                      <SelectItem value="3">3 - Óptimo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Observaciones */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Observaciones y Recomendaciones
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <textarea 
+                  className="w-full h-32 p-2 text-sm border rounded-lg resize-none"
+                  placeholder="Notas sobre patrones de movimiento, limitaciones observadas, recomendaciones de trabajo correctivo..."
+                />
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline">Cancelar</Button>
+            <Button className="bg-emerald-600 hover:bg-emerald-700">
+              <Save className="w-4 h-4 mr-2" />
+              Guardar Evaluación
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    // Control Médico
+    if (activeDataSection === 'control-medical') {
+      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
+      return (
+        <div className="p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                <Heart className="w-7 h-7 text-red-500" />
+                Control Médico
+              </h2>
+              <p className="text-slate-500 mt-1">Estado de salud y aptitud para el entrenamiento</p>
+            </div>
+            {selectedAthlete && (
+              <Badge className="bg-red-100 text-red-700">{selectedAthlete.name}</Badge>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Signos Vitales */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-red-500 to-pink-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Heart className="w-4 h-4" />
+                  Signos Vitales
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs text-slate-500">FC Reposo (lpm)</label>
+                    <Input type="number" placeholder="60" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs text-slate-500">FC Máxima (lpm)</label>
+                    <Input type="number" placeholder="185" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs text-slate-500">PA Sistólica (mmHg)</label>
+                    <Input type="number" placeholder="120" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs text-slate-500">PA Diastólica (mmHg)</label>
+                    <Input type="number" placeholder="80" />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs text-slate-500">Saturación O2 (%)</label>
+                  <Input type="number" placeholder="98" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Antecedentes */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Antecedentes Médicos
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Enfermedades Crónicas</label>
+                  <textarea className="w-full h-16 p-2 text-sm border rounded-lg resize-none" placeholder="Asma, diabetes, hipertensión..." />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Alergias</label>
+                  <Input placeholder="Medicamentos, alimentos..." />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Cirugías Previas</label>
+                  <Input placeholder="Tipo y fecha" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Lesiones Actuales */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-purple-500 to-violet-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4" />
+                  Lesiones Actuales
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Lesión Activa</label>
+                  <Select defaultValue="none">
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Sin lesiones</SelectItem>
+                      <SelectItem value="muscular">Muscular</SelectItem>
+                      <SelectItem value="articular">Articular</SelectItem>
+                      <SelectItem value="osea">Ósea</SelectItem>
+                      <SelectItem value="ligamentosa">Ligamentosa</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Zona Afectada</label>
+                  <Input placeholder="Ej: Rodilla derecha" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Estado de Recuperación</label>
+                  <Select defaultValue="na">
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="na">N/A</SelectItem>
+                      <SelectItem value="aguda">Fase Aguda</SelectItem>
+                      <SelectItem value="subaguda">Fase Subaguda</SelectItem>
+                      <SelectItem value="rehabilitacion">En Rehabilitación</SelectItem>
+                      <SelectItem value="reintegro">Reintegro Deportivo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Aptitud Médica */}
+            <Card className="border-0 shadow-md col-span-full lg:col-span-1">
+              <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  Aptitud Médica
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Estado de Aptitud</label>
+                  <Select defaultValue="apto">
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="apto">Apto sin restricciones</SelectItem>
+                      <SelectItem value="apto-restriccion">Apto con restricciones</SelectItem>
+                      <SelectItem value="no-apto-temporal">No apto temporalmente</SelectItem>
+                      <SelectItem value="no-apto">No apto</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Fecha Último Chequeo</label>
+                  <Input type="date" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Próximo Chequeo</label>
+                  <Input type="date" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline">Cancelar</Button>
+            <Button className="bg-red-600 hover:bg-red-700">
+              <Save className="w-4 h-4 mr-2" />
+              Guardar Control Médico
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    // Control Físico
+    if (activeDataSection === 'control-physical') {
+      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
+      return (
+        <div className="p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                <Dumbbell className="w-7 h-7 text-blue-500" />
+                Control Físico
+              </h2>
+              <p className="text-slate-500 mt-1">Evaluación de capacidades físicas y condición</p>
+            </div>
+            {selectedAthlete && (
+              <Badge className="bg-blue-100 text-blue-700">{selectedAthlete.name}</Badge>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Fuerza */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Dumbbell className="w-4 h-4" />
+                  Fuerza
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">1RM Sentadilla (kg)</label>
+                  <Input type="number" placeholder="120" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">1RM Press Banca (kg)</label>
+                  <Input type="number" placeholder="80" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">1RM Peso Muerto (kg)</label>
+                  <Input type="number" placeholder="140" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Fuerza Prensil (kg)</label>
+                  <Input type="number" placeholder="45" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Resistencia */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-green-500 to-teal-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Activity className="w-4 h-4" />
+                  Resistencia
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">VO2 Máx (ml/kg/min)</label>
+                  <Input type="number" placeholder="55" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Test Cooper (m)</label>
+                  <Input type="number" placeholder="3000" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Umbral Anaeróbico (lpm)</label>
+                  <Input type="number" placeholder="165" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Test Yo-Yo (nivel)</label>
+                  <Input type="number" placeholder="18.5" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Velocidad */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Zap className="w-4 h-4" />
+                  Velocidad
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Sprint 10m (seg)</label>
+                  <Input type="number" step="0.01" placeholder="1.80" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Sprint 30m (seg)</label>
+                  <Input type="number" step="0.01" placeholder="4.20" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Sprint 60m (seg)</label>
+                  <Input type="number" step="0.01" placeholder="7.50" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Velocidad Máx (km/h)</label>
+                  <Input type="number" step="0.1" placeholder="32.5" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Potencia y Salto */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  Potencia / Salto
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">CMJ - Salto Vertical (cm)</label>
+                  <Input type="number" placeholder="45" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">SJ - Squat Jump (cm)</label>
+                  <Input type="number" placeholder="40" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Salto Horizontal (cm)</label>
+                  <Input type="number" placeholder="250" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">RSI (índice)</label>
+                  <Input type="number" step="0.01" placeholder="2.50" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Flexibilidad */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Target className="w-4 h-4" />
+                  Flexibilidad
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Sit and Reach (cm)</label>
+                  <Input type="number" placeholder="10" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Test Thomas (grados)</label>
+                  <Input type="number" placeholder="15" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Elevación Pierna Recta (°)</label>
+                  <Input type="number" placeholder="80" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Agilidad */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-rose-500 to-red-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <RefreshCw className="w-4 h-4" />
+                  Agilidad / Coordinación
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Test Illinois (seg)</label>
+                  <Input type="number" step="0.01" placeholder="15.50" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Test T (seg)</label>
+                  <Input type="number" step="0.01" placeholder="9.80" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">505 Agility (seg)</label>
+                  <Input type="number" step="0.01" placeholder="2.40" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline">Cancelar</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700">
+              <Save className="w-4 h-4 mr-2" />
+              Guardar Control Físico
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    // Control Técnico
+    if (activeDataSection === 'control-technical') {
+      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
+      return (
+        <div className="p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                <Target className="w-7 h-7 text-violet-500" />
+                Control Técnico
+              </h2>
+              <p className="text-slate-500 mt-1">Evaluación de habilidades técnicas específicas del deporte</p>
+            </div>
+            {selectedAthlete && (
+              <Badge className="bg-violet-100 text-violet-700">{selectedAthlete.name}</Badge>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Técnica General */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-violet-500 to-purple-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Target className="w-4 h-4" />
+                  Evaluación Técnica General
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-4">
+                {['Técnica básica', 'Técnica específica', 'Ejecución bajo presión', 'Consistencia técnica', 'Eficiencia del gesto'].map((item, idx) => (
+                  <div key={idx} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-medium text-slate-600">{item}</label>
+                      <span className="text-xs text-slate-400">1-10</span>
+                    </div>
+                    <div className="flex gap-1">
+                      {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                        <button key={n} className="w-8 h-8 rounded-lg border border-slate-200 text-xs hover:bg-violet-100 hover:border-violet-300 transition-colors">
+                          {n}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Habilidades Específicas */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-indigo-500 to-blue-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Layers className="w-4 h-4" />
+                  Habilidades Específicas del Deporte
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Habilidad 1</label>
+                  <div className="flex gap-2">
+                    <Input placeholder="Nombre de la habilidad" className="flex-1" />
+                    <Select defaultValue="7">
+                      <SelectTrigger className="w-20"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                          <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Habilidad 2</label>
+                  <div className="flex gap-2">
+                    <Input placeholder="Nombre de la habilidad" className="flex-1" />
+                    <Select defaultValue="6">
+                      <SelectTrigger className="w-20"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                          <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Habilidad 3</label>
+                  <div className="flex gap-2">
+                    <Input placeholder="Nombre de la habilidad" className="flex-1" />
+                    <Select defaultValue="8">
+                      <SelectTrigger className="w-20"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                          <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" className="w-full mt-2">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Agregar Habilidad
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Observaciones Técnicas */}
+            <Card className="border-0 shadow-md col-span-full">
+              <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Observaciones y Áreas de Mejora
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Fortalezas Técnicas</label>
+                  <textarea className="w-full h-24 p-2 text-sm border rounded-lg resize-none" placeholder="Describir puntos fuertes técnicos..." />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Áreas de Mejora</label>
+                  <textarea className="w-full h-24 p-2 text-sm border rounded-lg resize-none" placeholder="Aspectos a trabajar y mejorar..." />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline">Cancelar</Button>
+            <Button className="bg-violet-600 hover:bg-violet-700">
+              <Save className="w-4 h-4 mr-2" />
+              Guardar Control Técnico
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    // Control Táctico
+    if (activeDataSection === 'control-tactical') {
+      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
+      return (
+        <div className="p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                <Layers className="w-7 h-7 text-amber-500" />
+                Control Táctico
+              </h2>
+              <p className="text-slate-500 mt-1">Evaluación de inteligencia táctica y toma de decisiones</p>
+            </div>
+            {selectedAthlete && (
+              <Badge className="bg-amber-100 text-amber-700">{selectedAthlete.name}</Badge>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Capacidades Tácticas */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Brain className="w-4 h-4" />
+                  Capacidades Tácticas
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-4">
+                {[
+                  'Lectura del juego',
+                  'Toma de decisiones',
+                  'Anticipación',
+                  'Posicionamiento',
+                  'Comunicación táctica',
+                  'Adaptabilidad'
+                ].map((item, idx) => (
+                  <div key={idx} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-medium text-slate-600">{item}</label>
+                      <span className="text-xs text-slate-400">1-10</span>
+                    </div>
+                    <div className="flex gap-1">
+                      {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                        <button key={n} className="w-8 h-8 rounded-lg border border-slate-200 text-xs hover:bg-amber-100 hover:border-amber-300 transition-colors">
+                          {n}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Comprensión del Sistema */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-teal-500 to-cyan-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Target className="w-4 h-4" />
+                  Comprensión del Sistema de Juego
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Conocimiento del sistema</label>
+                  <Select defaultValue="bueno">
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="excelente">Excelente</SelectItem>
+                      <SelectItem value="bueno">Bueno</SelectItem>
+                      <SelectItem value="regular">Regular</SelectItem>
+                      <SelectItem value="deficiente">Deficiente</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Ejecución de roles</label>
+                  <Select defaultValue="bueno">
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="excelente">Excelente</SelectItem>
+                      <SelectItem value="bueno">Bueno</SelectItem>
+                      <SelectItem value="regular">Regular</SelectItem>
+                      <SelectItem value="deficiente">Deficiente</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Transiciones ofensivas</label>
+                  <Select defaultValue="bueno">
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="excelente">Excelente</SelectItem>
+                      <SelectItem value="bueno">Bueno</SelectItem>
+                      <SelectItem value="regular">Regular</SelectItem>
+                      <SelectItem value="deficiente">Deficiente</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Transiciones defensivas</label>
+                  <Select defaultValue="bueno">
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="excelente">Excelente</SelectItem>
+                      <SelectItem value="bueno">Bueno</SelectItem>
+                      <SelectItem value="regular">Regular</SelectItem>
+                      <SelectItem value="deficiente">Deficiente</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Análisis de Situaciones */}
+            <Card className="border-0 shadow-md col-span-full">
+              <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Análisis y Observaciones Tácticas
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Fortalezas Tácticas</label>
+                  <textarea className="w-full h-24 p-2 text-sm border rounded-lg resize-none" placeholder="Puntos fuertes en lo táctico..." />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Aspectos a Mejorar</label>
+                  <textarea className="w-full h-24 p-2 text-sm border rounded-lg resize-none" placeholder="Áreas de mejora táctica..." />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline">Cancelar</Button>
+            <Button className="bg-amber-600 hover:bg-amber-700">
+              <Save className="w-4 h-4 mr-2" />
+              Guardar Control Táctico
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    // Control Psicológico
+    if (activeDataSection === 'control-psychological') {
+      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
+      return (
+        <div className="p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                <Brain className="w-7 h-7 text-pink-500" />
+                Control Psicológico
+              </h2>
+              <p className="text-slate-500 mt-1">Evaluación del estado mental y habilidades psicológicas</p>
+            </div>
+            {selectedAthlete && (
+              <Badge className="bg-pink-100 text-pink-700">{selectedAthlete.name}</Badge>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Estado Emocional */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Heart className="w-4 h-4" />
+                  Estado Emocional Actual
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Nivel de Estrés (1-10)</label>
+                  <Input type="number" min="1" max="10" placeholder="5" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Nivel de Ansiedad (1-10)</label>
+                  <Input type="number" min="1" max="10" placeholder="4" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Estado de Ánimo</label>
+                  <Select defaultValue="positivo">
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="muy-positivo">Muy Positivo</SelectItem>
+                      <SelectItem value="positivo">Positivo</SelectItem>
+                      <SelectItem value="neutral">Neutral</SelectItem>
+                      <SelectItem value="bajo">Bajo</SelectItem>
+                      <SelectItem value="muy-bajo">Muy Bajo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Motivación */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Zap className="w-4 h-4" />
+                  Motivación y Compromiso
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Motivación Intrínseca (1-10)</label>
+                  <Input type="number" min="1" max="10" placeholder="8" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Motivación Extrínseca (1-10)</label>
+                  <Input type="number" min="1" max="10" placeholder="7" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Compromiso con el Equipo (1-10)</label>
+                  <Input type="number" min="1" max="10" placeholder="9" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Habilidades Mentales */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Brain className="w-4 h-4" />
+                  Habilidades Mentales
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Concentración (1-10)</label>
+                  <Input type="number" min="1" max="10" placeholder="7" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Autoconfianza (1-10)</label>
+                  <Input type="number" min="1" max="10" placeholder="8" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Control de Emociones (1-10)</label>
+                  <Input type="number" min="1" max="10" placeholder="6" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Rendimiento bajo Presión */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-red-500 to-rose-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4" />
+                  Rendimiento bajo Presión
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Manejo de Presión</label>
+                  <Select defaultValue="bueno">
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="excelente">Excelente</SelectItem>
+                      <SelectItem value="bueno">Bueno</SelectItem>
+                      <SelectItem value="regular">Regular</SelectItem>
+                      <SelectItem value="deficiente">Deficiente</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Recuperación de Errores</label>
+                  <Select defaultValue="bueno">
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="excelente">Excelente</SelectItem>
+                      <SelectItem value="bueno">Bueno</SelectItem>
+                      <SelectItem value="regular">Regular</SelectItem>
+                      <SelectItem value="deficiente">Deficiente</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Calidad de Sueño y Descanso */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-indigo-500 to-blue-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  Sueño y Descanso
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Horas de Sueño/Noche</label>
+                  <Input type="number" step="0.5" placeholder="7.5" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Calidad del Sueño (1-10)</label>
+                  <Input type="number" min="1" max="10" placeholder="7" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Nivel de Fatiga Mental (1-10)</label>
+                  <Input type="number" min="1" max="10" placeholder="4" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Observaciones */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Observaciones
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <textarea 
+                  className="w-full h-32 p-2 text-sm border rounded-lg resize-none"
+                  placeholder="Notas sobre estado psicológico, situaciones personales relevantes, recomendaciones..."
+                />
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline">Cancelar</Button>
+            <Button className="bg-pink-600 hover:bg-pink-700">
+              <Save className="w-4 h-4 mr-2" />
+              Guardar Control Psicológico
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    // Control Teórico
+    if (activeDataSection === 'control-theoretical') {
+      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
+      return (
+        <div className="p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                <BookOpen className="w-7 h-7 text-cyan-500" />
+                Control Teórico
+              </h2>
+              <p className="text-slate-500 mt-1">Evaluación de conocimientos teóricos del deporte</p>
+            </div>
+            {selectedAthlete && (
+              <Badge className="bg-cyan-100 text-cyan-700">{selectedAthlete.name}</Badge>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Conocimiento del Reglamento */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <BookOpen className="w-4 h-4" />
+                  Conocimiento del Reglamento
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-4">
+                {[
+                  'Reglas básicas del deporte',
+                  'Reglas de competencia',
+                  'Sistema de puntuación',
+                  'Infracciones y penalizaciones',
+                  'Actualizaciones reglamentarias'
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between">
+                    <span className="text-sm text-slate-600">{item}</span>
+                    <Select defaultValue="bueno">
+                      <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="excelente">Excelente</SelectItem>
+                        <SelectItem value="bueno">Bueno</SelectItem>
+                        <SelectItem value="regular">Regular</SelectItem>
+                        <SelectItem value="deficiente">Deficiente</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Conocimiento Táctico-Estratégico */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Layers className="w-4 h-4" />
+                  Conocimiento Táctico-Estratégico
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-4">
+                {[
+                  'Sistemas de juego propios',
+                  'Análisis de rivales',
+                  'Estrategias de competencia',
+                  'Roles y funciones',
+                  'Principios tácticos'
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between">
+                    <span className="text-sm text-slate-600">{item}</span>
+                    <Select defaultValue="bueno">
+                      <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="excelente">Excelente</SelectItem>
+                        <SelectItem value="bueno">Bueno</SelectItem>
+                        <SelectItem value="regular">Regular</SelectItem>
+                        <SelectItem value="deficiente">Deficiente</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Conocimiento Técnico */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-emerald-500 to-green-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Target className="w-4 h-4" />
+                  Conocimiento Técnico
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-4">
+                {[
+                  'Fundamentos técnicos',
+                  'Progresiones de aprendizaje',
+                  'Errores comunes y correcciones',
+                  'Biomecánica del gesto',
+                  'Tendencias técnicas actuales'
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between">
+                    <span className="text-sm text-slate-600">{item}</span>
+                    <Select defaultValue="bueno">
+                      <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="excelente">Excelente</SelectItem>
+                        <SelectItem value="bueno">Bueno</SelectItem>
+                        <SelectItem value="regular">Regular</SelectItem>
+                        <SelectItem value="deficiente">Deficiente</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Conocimiento de Preparación Física */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Dumbbell className="w-4 h-4" />
+                  Conocimiento de Preparación Física
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-4">
+                {[
+                  'Principios del entrenamiento',
+                  'Nutrición deportiva básica',
+                  'Prevención de lesiones',
+                  'Métodos de recuperación',
+                  'Periodización'
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between">
+                    <span className="text-sm text-slate-600">{item}</span>
+                    <Select defaultValue="regular">
+                      <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="excelente">Excelente</SelectItem>
+                        <SelectItem value="bueno">Bueno</SelectItem>
+                        <SelectItem value="regular">Regular</SelectItem>
+                        <SelectItem value="deficiente">Deficiente</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Evaluación y Observaciones */}
+            <Card className="border-0 shadow-md col-span-full">
+              <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Evaluación General y Recomendaciones
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500">Nota Global Teórica</label>
+                  <Select defaultValue="7">
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                        <SelectItem key={n} value={String(n)}>{n} - {n <= 3 ? 'Deficiente' : n <= 5 ? 'Regular' : n <= 7 ? 'Bueno' : 'Excelente'}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-xs font-medium text-slate-500">Temas a Reforzar</label>
+                  <textarea className="w-full h-20 p-2 text-sm border rounded-lg resize-none" placeholder="Lista de temas que el atleta debe estudiar o reforzar..." />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline">Cancelar</Button>
+            <Button className="bg-cyan-600 hover:bg-cyan-700">
+              <Save className="w-4 h-4 mr-2" />
+              Guardar Control Teórico
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
     // Render Test Evaluations
     if (activeDataSection === 'tests') {
       return <TestEvaluations athleteId={selectedAthleteId} />;
