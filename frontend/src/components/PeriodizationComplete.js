@@ -357,22 +357,28 @@ const PeriodizationComplete = ({ athleteId, athleteName, onNavigate }) => {
       const plan = generatePlanStructure();
       setGeneratedPlan(plan);
       
-      // Save to backend
-      const token = getToken();
-      await fetch(`${API_URL}/api/periodization`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          athlete_id: athleteId,
-          ...plan
-        })
-      });
+      // Save to localStorage via state update
+      setPlans(prev => [plan, ...prev]);
+      
+      // Try to save to backend (non-blocking)
+      try {
+        const token = getToken();
+        await fetch(`${API_URL}/api/periodization`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            athlete_id: athleteId,
+            ...plan
+          })
+        });
+      } catch (backendError) {
+        console.log('Backend save optional, plan saved locally');
+      }
       
       toast.success('Plan de periodización creado exitosamente');
-      setPlans(prev => [plan, ...prev]);
       setActiveView('detail');
       setSelectedPlan(plan);
     } catch (error) {
