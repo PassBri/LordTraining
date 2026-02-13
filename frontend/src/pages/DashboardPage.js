@@ -2275,9 +2275,6 @@ const DashboardPage = () => {
     );
   }
 
-  // State for filters dropdown
-  const [showFiltersDropdown, setShowFiltersDropdown] = useState(false);
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* ====== GLOBAL CONTEXT BAR (Material Design - Fixed at top) ====== */}
