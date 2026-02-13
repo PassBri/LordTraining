@@ -2156,91 +2156,98 @@ const DashboardPage = () => {
 
   const renderMainContent = () => {
     if (activePanel === 'datos') {
+      // Define sections and colors for horizontal navigation
+      const sections = [
+        { key: 'informacion', title: 'Información', color: 'indigo', icon: Building2 },
+        { key: 'evaluacion', title: 'Evaluación', color: 'emerald', icon: LineChart },
+        { key: 'competencias', title: 'Competencias', color: 'violet', icon: Trophy },
+        { key: 'entrenamiento', title: 'Entrenamiento', color: 'blue', icon: Activity },
+        { key: 'visualizacion', title: 'Visualización', color: 'amber', icon: Layers },
+        { key: 'herramientas', title: 'Herramientas', color: 'slate', icon: Settings },
+      ];
+
+      const colorClasses = {
+        indigo: { bg: 'bg-indigo-500', hover: 'hover:bg-indigo-600', shadow: 'shadow-indigo-200', light: 'bg-indigo-50', text: 'text-indigo-600', border: 'border-indigo-500' },
+        emerald: { bg: 'bg-emerald-500', hover: 'hover:bg-emerald-600', shadow: 'shadow-emerald-200', light: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-500' },
+        violet: { bg: 'bg-violet-500', hover: 'hover:bg-violet-600', shadow: 'shadow-violet-200', light: 'bg-violet-50', text: 'text-violet-600', border: 'border-violet-500' },
+        blue: { bg: 'bg-blue-600', hover: 'hover:bg-blue-700', shadow: 'shadow-blue-200', light: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-600' },
+        amber: { bg: 'bg-amber-500', hover: 'hover:bg-amber-600', shadow: 'shadow-amber-200', light: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-500' },
+        slate: { bg: 'bg-slate-600', hover: 'hover:bg-slate-700', shadow: 'shadow-slate-200', light: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-600' },
+      };
+
+      // Get current section based on active data section
+      const currentSection = navItems.find(n => n.id === activeDataSection)?.section || 'informacion';
+      const currentSectionData = sections.find(s => s.key === currentSection);
+      const currentColors = colorClasses[currentSectionData?.color || 'indigo'];
+      const sectionItems = navItems.filter(i => i.section === currentSection);
+
       return (
-        <div className="flex h-full">
-          {/* Data Navigation */}
-          <div className={`${isNavExpanded ? 'w-64' : 'w-16'} bg-white border-r shadow-sm transition-all duration-300 flex flex-col`}>
-            <button
-              onClick={() => setIsNavExpanded(!isNavExpanded)}
-              className="p-4 flex justify-end hover:bg-gray-50 border-b"
-            >
-              {isNavExpanded ? <ChevronLeft className="w-5 h-5 text-gray-400" /> : <ChevronRight className="w-5 h-5 text-gray-400" />}
-            </button>
-            <div className="flex-1 overflow-y-auto">
-              {/* Función para toggle de secciones */}
-              {(() => {
-                const toggleSection = (section) => {
-                  setCollapsedSections(prev => ({
-                    ...prev,
-                    [section]: !prev[section]
-                  }));
-                };
-
-                const sections = [
-                  { key: 'informacion', title: '1. Información', color: 'indigo' },
-                  { key: 'evaluacion', title: '2. Evaluación Inicial', color: 'emerald' },
-                  { key: 'competencias', title: '3. Competencias y Objetivos', color: 'violet' },
-                  { key: 'entrenamiento', title: '4. Sistema de Entrenamiento', color: 'blue' },
-                  { key: 'visualizacion', title: '5. Visualización', color: 'amber' },
-                  { key: 'herramientas', title: '6. Herramientas', color: 'slate' },
-                ];
-
-                const colorClasses = {
-                  indigo: { header: 'bg-indigo-500', item: 'indigo', active: 'bg-indigo-50 border-indigo-500 text-indigo-700', hover: 'hover:bg-indigo-50/50' },
-                  emerald: { header: 'bg-emerald-500', item: 'emerald', active: 'bg-emerald-50 border-emerald-500 text-emerald-700', hover: 'hover:bg-emerald-50/50' },
-                  amber: { header: 'bg-amber-500', item: 'amber', active: 'bg-amber-50 border-amber-500 text-amber-700', hover: 'hover:bg-amber-50/50' },
-                  violet: { header: 'bg-violet-500', item: 'violet', active: 'bg-violet-50 border-violet-500 text-violet-700', hover: 'hover:bg-violet-50/50' },
-                  blue: { header: 'bg-blue-600', item: 'blue', active: 'bg-blue-50 border-blue-600 text-blue-700', hover: 'hover:bg-blue-50/50' },
-                  cyan: { header: 'bg-cyan-500', item: 'cyan', active: 'bg-cyan-50 border-cyan-500 text-cyan-700', hover: 'hover:bg-cyan-50/50' },
-                  rose: { header: 'bg-rose-500', item: 'rose', active: 'bg-rose-50 border-rose-500 text-rose-700', hover: 'hover:bg-rose-50/50' },
-                  slate: { header: 'bg-slate-600', item: 'slate', active: 'bg-slate-100 border-slate-600 text-slate-800', hover: 'hover:bg-slate-50' },
-                  orange: { header: 'bg-orange-500', item: 'orange', active: 'bg-orange-50 border-orange-500 text-orange-700', hover: 'hover:bg-orange-50/50' },
-                };
-
-                return sections.map((section, idx) => {
-                  const colors = colorClasses[section.color];
-                  const isCollapsed = collapsedSections[section.key];
-                  const sectionItems = navItems.filter(i => i.section === section.key);
-
-                  return (
-                    <div key={section.key}>
-                      {/* Section Header - Clickeable para colapsar */}
-                      {isNavExpanded && (
-                        <button
-                          onClick={() => toggleSection(section.key)}
-                          className={`w-full px-3 py-2.5 ${colors.header} text-white text-xs font-semibold uppercase tracking-wider flex items-center justify-between gap-2 ${idx > 0 ? 'mt-1' : ''} hover:opacity-90 transition-opacity`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                            {section.title}
-                          </div>
-                          {isCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-                        </button>
-                      )}
-                      {/* Section Items */}
-                      {!isCollapsed && sectionItems.map((item) => {
-                        const Icon = item.icon;
-                        return (
-                          <button
-                            key={item.id}
-                            onClick={() => setActiveDataSection(item.id)}
-                            className={`w-full p-3 flex items-center gap-3 transition-all duration-200 text-left ${
-                              activeDataSection === item.id 
-                                ? `${colors.active} border-l-4 font-medium` 
-                                : `text-slate-600 ${colors.hover} border-l-4 border-transparent`
-                            }`}
-                          >
-                            <Icon className={`h-4 w-4 flex-shrink-0 ${activeDataSection === item.id ? `text-${section.color}-500` : 'text-slate-400'}`} />
-                            {isNavExpanded && <span className="truncate text-sm">{item.label}</span>}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  );
-                });
-              })()}
+        <div className="flex flex-col h-full">
+          {/* Header Bar - Section Categories */}
+          <div className="bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 px-4 py-3 shadow-xl">
+            <div className="flex items-center justify-center gap-2 flex-wrap">
+              {sections.map((section) => {
+                const SectionIcon = section.icon;
+                const colors = colorClasses[section.color];
+                const isActive = currentSection === section.key;
+                
+                return (
+                  <button
+                    key={section.key}
+                    onClick={() => {
+                      const firstItem = navItems.find(n => n.section === section.key);
+                      if (firstItem) setActiveDataSection(firstItem.id);
+                    }}
+                    className={`group relative px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 flex items-center gap-2 ${
+                      isActive
+                        ? `${colors.bg} text-white shadow-lg ${colors.shadow} scale-105`
+                        : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
+                    }`}
+                  >
+                    <SectionIcon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-white/60 group-hover:text-white'}`} />
+                    <span className="hidden sm:inline">{section.title}</span>
+                    {isActive && (
+                      <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rounded-full shadow-lg" />
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
+
+          {/* Sub-navigation - Floating Pills */}
+          <div className="bg-white border-b shadow-sm px-4 py-3">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              {sectionItems.map((item) => {
+                const ItemIcon = item.icon;
+                const isActive = activeDataSection === item.id;
+                
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveDataSection(item.id)}
+                    className={`group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+                      isActive
+                        ? `${currentColors.bg} text-white shadow-lg ${currentColors.shadow} transform scale-105`
+                        : `${currentColors.light} ${currentColors.text} hover:shadow-md hover:scale-102 border ${currentColors.border} border-opacity-30`
+                    }`}
+                    style={{
+                      boxShadow: isActive ? `0 4px 14px 0 ${currentSectionData?.color === 'indigo' ? 'rgba(99, 102, 241, 0.4)' : 
+                        currentSectionData?.color === 'emerald' ? 'rgba(16, 185, 129, 0.4)' :
+                        currentSectionData?.color === 'violet' ? 'rgba(139, 92, 246, 0.4)' :
+                        currentSectionData?.color === 'blue' ? 'rgba(37, 99, 235, 0.4)' :
+                        currentSectionData?.color === 'amber' ? 'rgba(245, 158, 11, 0.4)' :
+                        'rgba(100, 116, 139, 0.4)'}` : undefined
+                    }}
+                  >
+                    <ItemIcon className={`w-4 h-4 ${isActive ? 'text-white' : ''}`} />
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Data Content */}
           <div className="flex-1 overflow-y-auto bg-gray-50">
             {renderDataContent()}
