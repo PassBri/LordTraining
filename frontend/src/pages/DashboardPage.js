@@ -2493,13 +2493,15 @@ const DashboardPage = () => {
                 onLoadTemplate={(plan) => {
                   const savedPlans = JSON.parse(localStorage.getItem('train_generated_plans') || '[]');
                   setGeneratedPlans(savedPlans);
-                  setSidebarView('history');
+                  setIsCoachDrawerOpen(true);
+                  setCoachDrawerTab('history');
                   toast.success('Template cargado - Ver en Historial');
                 }}
                 onSavePlan={(plan) => {
                   const savedPlans = JSON.parse(localStorage.getItem('train_generated_plans') || '[]');
                   setGeneratedPlans(savedPlans);
-                  setSidebarView('history');
+                  setIsCoachDrawerOpen(true);
+                  setCoachDrawerTab('history');
                 }}
                 currentUser={user}
                 sportsCatalog={sportsCatalog}
