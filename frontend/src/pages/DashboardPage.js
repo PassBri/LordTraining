@@ -52,6 +52,7 @@ import TrainingSystemHub from '../components/TrainingSystemHub';
 import TournamentManager from '../components/TournamentManager';
 import AutoTestingSystem from '../components/AutoTestingSystem';
 import AITrainingAssistant from '../components/AITrainingAssistant';
+import { Badge } from '../components/ui/badge';
 
 // Definición de roles disponibles
 const USER_ROLES = [
