@@ -778,11 +778,14 @@ const DashboardPage = () => {
 
   // Navigation items for "Datos" panel - NUEVO FLUJO LÓGICO DEL ENTRENADOR
   const navItems = [
-    // === 1. INFORMACIÓN (Fusión de Atletas + Organización) ===
+    // === 0. PUNTO DE PARTIDA (Lo primero que necesita el entrenador) ===
+    { id: 'prev-plan', label: 'Análisis del Plan Anterior', icon: FileText, section: 'punto-partida' },
+    { id: 'objectives', label: 'Objetivos del Plan', icon: Target, section: 'punto-partida' },
+    
+    // === 1. INFORMACIÓN ===
     { id: 'entities', label: 'Entidades (Federación, Club...)', icon: Landmark, section: 'informacion' },
     { id: 'athletes', label: 'Atletas y Equipos', icon: Users, section: 'informacion' },
     { id: 'sport-char', label: 'Caracterización del Deporte', icon: Target, section: 'informacion' },
-    { id: 'athlete-char', label: 'Caracterización del Deportista', icon: Users, section: 'informacion' },
     
     // === 2. EVALUACIÓN INICIAL ===
     { id: 'anthropometric', label: 'Datos Antropométricos', icon: LineChart, section: 'evaluacion' },
@@ -793,12 +796,9 @@ const DashboardPage = () => {
     { id: 'control-tactical', label: 'Control Táctico', icon: Layers, section: 'evaluacion' },
     { id: 'control-psychological', label: 'Control Psicológico', icon: Brain, section: 'evaluacion' },
     { id: 'control-theoretical', label: 'Control Teórico', icon: BookOpen, section: 'evaluacion' },
-    { id: 'diagnostic', label: 'Historial Médico', icon: FileText, section: 'evaluacion' },
     
-    // === 3. COMPETENCIAS Y OBJETIVOS ===
+    // === 3. COMPETENCIAS ===
     { id: 'events', label: 'Calendario de Competencias', icon: Calendar, section: 'competencias' },
-    { id: 'objectives', label: 'Objetivos del Plan', icon: Target, section: 'competencias' },
-    { id: 'prev-plan', label: 'Análisis del Plan Anterior', icon: FileText, section: 'competencias' },
     
     // === 4. SISTEMA DE ENTRENAMIENTO (EJE CENTRAL) ===
     { id: 'training-system', label: 'Sistema de Entrenamiento', icon: Activity, section: 'entrenamiento' },
