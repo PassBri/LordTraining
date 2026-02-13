@@ -601,43 +601,65 @@ const AICoachAssistant = ({
       case 'generate':
         return (
           <div className="space-y-4">
-            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6">
+            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-100">
               <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-purple-500" />
                 Resumen del Plan
               </h3>
               <div className="space-y-2 text-sm">
-                <p><strong>Atleta:</strong> {wizardData.athleteName || wizardData.athlete?.name}</p>
-                <p><strong>Deporte:</strong> {wizardData.sport}</p>
+                <p><strong>Atleta:</strong> {wizardData.athleteName || wizardData.athlete?.name || 'No especificado'}</p>
+                <p><strong>Deporte:</strong> {wizardData.sport || 'No especificado'}</p>
                 <p><strong>Nivel:</strong> {wizardData.level}</p>
-                <p><strong>Objetivo:</strong> {wizardData.mainObjective}</p>
+                <p><strong>Objetivo:</strong> {wizardData.mainObjective || 'No especificado'}</p>
                 <p><strong>Modelo:</strong> {wizardData.periodizationModel}</p>
                 <p><strong>Duración:</strong> {wizardData.durationWeeks} semanas</p>
                 <p><strong>Competencias:</strong> {wizardData.competitions.length}</p>
+                <p><strong>Métodos:</strong> {wizardData.methods.length > 0 ? wizardData.methods.join(', ') : 'No especificados'}</p>
               </div>
             </div>
             
-            {!generatedPlan ? (
-              <Button 
-                onClick={handleGeneratePlan}
-                disabled={isGenerating}
-                className="w-full h-14 text-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Generando con 4 Expertos IA...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    Generar Plan con IA
-                  </>
-                )}
-              </Button>
-            ) : (
-              <div className="space-y-4">
-                <div className="p-4 bg-green-50 rounded-xl border border-green-200">
+            {(!wizardData.athleteName && !wizardData.athlete?.name) || !wizardData.sport || !wizardData.mainObjective ? (
+              <div className="p-4 bg-amber-50 rounded-xl border border-amber-200 flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-500" />
+                <p className="text-sm text-amber-700">
+                  Completa los campos obligatorios: Atleta, Deporte y Objetivo para generar el plan.
+                </p>
+              </div>
+            ) : null}
+            
+            {isGenerating && (
+              <div className="space-y-3 p-4 bg-white rounded-xl border">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-slate-600">Generando plan con 4 Expertos IA...</span>
+                  <span className="font-medium text-blue-600">{generationProgress}%</span>
+                </div>
+                <Progress value={generationProgress} className="h-2" />
+                <p className="text-xs text-center text-slate-500">
+                  {generationProgress < 30 ? '🎯 Estratega diseñando estructura...' :
+                   generationProgress < 60 ? '📊 Analista calculando cargas...' :
+                   generationProgress < 90 ? '💪 Especialista seleccionando ejercicios...' :
+                   '⚡ Finalizando...'}
+                </p>
+              </div>
+            )}
+            
+            {generatedPlan && (
+              <div className="space-y-3">
+                <div className="p-4 bg-green-50 rounded-xl border border-green-200 flex items-center gap-3">
+                  <Check className="w-5 h-5 text-green-500" />
+                  <p className="font-medium text-green-700">¡Plan generado exitosamente!</p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => setActiveTab('results')}
+                >
+                  Ver Plan Completo
+                </Button>
+              </div>
+            )}
+          </div>
+        );
                   <p className="font-medium text-green-700 flex items-center gap-2">
                     <Check className="w-5 h-5" />
                     ¡Plan generado exitosamente!
