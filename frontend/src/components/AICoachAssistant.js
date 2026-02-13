@@ -851,11 +851,11 @@ const AICoachAssistant = ({
         </div>
         
         {/* Content */}
-        <div className="flex-1 overflow-hidden flex flex-col">
+        <div className="flex-1 overflow-hidden flex flex-col bg-white">
           {activeTab === 'wizard' ? (
-            <>
+            <div className="flex flex-col h-full">
               {/* Wizard Progress */}
-              <div className="p-4 border-b bg-white">
+              <div className="p-4 border-b bg-white shrink-0">
                 <div className="flex items-center justify-between mb-2">
                   {WIZARD_STEPS.map((step, i) => (
                     <React.Fragment key={step.id}>
@@ -882,9 +882,9 @@ const AICoachAssistant = ({
                 </div>
               </div>
               
-              {/* Wizard Step Content */}
-              <div className="flex-1 overflow-y-auto p-6">
-                <div className="max-w-lg mx-auto">
+              {/* Wizard Step Content - Scrollable */}
+              <div className="flex-1 overflow-y-auto p-6 bg-slate-50">
+                <div className="max-w-lg mx-auto bg-white rounded-xl p-6 shadow-sm">
                   <div className="mb-6">
                     <h3 className="text-xl font-bold flex items-center gap-2">
                       {React.createElement(WIZARD_STEPS[currentStep].icon, { className: "w-6 h-6 text-blue-600" })}
@@ -896,8 +896,8 @@ const AICoachAssistant = ({
                 </div>
               </div>
               
-              {/* Wizard Navigation */}
-              <div className="p-4 border-t bg-slate-50 flex justify-between">
+              {/* Wizard Navigation - Fixed at bottom */}
+              <div className="p-4 border-t bg-white flex justify-between shrink-0">
                 <Button 
                   variant="outline" 
                   onClick={prevStep}
@@ -906,15 +906,32 @@ const AICoachAssistant = ({
                   <ChevronLeft className="w-4 h-4 mr-1" />
                   Anterior
                 </Button>
-                <Button 
-                  onClick={nextStep}
-                  disabled={currentStep === WIZARD_STEPS.length - 1}
-                >
-                  Siguiente
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
+                {currentStep === WIZARD_STEPS.length - 1 ? (
+                  <Button 
+                    onClick={handleGeneratePlan}
+                    disabled={isGenerating || !wizardData.athleteName || !wizardData.sport || !wizardData.mainObjective}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Generando...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Generar Plan con IA
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <Button onClick={nextStep}>
+                    Siguiente
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
+                )}
               </div>
-            </>
+            </div>
           ) : activeTab === 'results' ? (
             renderPlanResults()
           ) : (
