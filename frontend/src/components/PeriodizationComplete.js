@@ -871,7 +871,15 @@ const PeriodizationComplete = ({ athleteId, athleteName, onNavigate }) => {
                                   <div className="border-t p-4 bg-white">
                                     <div className="flex items-center justify-between mb-3">
                                       <p className="text-xs font-semibold text-slate-500 uppercase">Sesiones de la semana:</p>
-                                      <Button size="sm" variant="outline" className="h-7 text-xs">
+                                      <Button 
+                                        size="sm" 
+                                        variant="outline" 
+                                        className="h-7 text-xs"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleAddSession(mesoIdx, microIdx);
+                                        }}
+                                      >
                                         <Plus className="w-3 h-3 mr-1" /> Agregar sesión
                                       </Button>
                                     </div>
@@ -879,26 +887,39 @@ const PeriodizationComplete = ({ athleteId, athleteName, onNavigate }) => {
                                       {micro.sessions?.map((session, sIdx) => {
                                         const sessionType = SESSION_TYPES.find(t => t.id === session.type);
                                         const colorMap = {
-                                          strength: 'bg-red-100 border-red-300',
-                                          endurance: 'bg-blue-100 border-blue-300',
-                                          speed: 'bg-yellow-100 border-yellow-300',
-                                          technical: 'bg-green-100 border-green-300',
-                                          recovery: 'bg-violet-100 border-violet-300',
-                                          tactical: 'bg-orange-100 border-orange-300',
-                                          flexibility: 'bg-pink-100 border-pink-300'
+                                          strength: 'bg-red-100 border-red-300 hover:bg-red-200',
+                                          endurance: 'bg-blue-100 border-blue-300 hover:bg-blue-200',
+                                          speed: 'bg-yellow-100 border-yellow-300 hover:bg-yellow-200',
+                                          technical: 'bg-green-100 border-green-300 hover:bg-green-200',
+                                          recovery: 'bg-violet-100 border-violet-300 hover:bg-violet-200',
+                                          tactical: 'bg-orange-100 border-orange-300 hover:bg-orange-200',
+                                          flexibility: 'bg-pink-100 border-pink-300 hover:bg-pink-200'
                                         };
                                         return (
                                           <div 
                                             key={session.id} 
-                                            className={`relative p-3 rounded-lg border-2 hover:shadow-md transition-all cursor-pointer ${colorMap[session.type] || 'bg-slate-100 border-slate-300'}`}
+                                            className={`relative p-3 rounded-lg border-2 hover:shadow-lg transition-all cursor-pointer ${colorMap[session.type] || 'bg-slate-100 border-slate-300 hover:bg-slate-200'}`}
+                                            onClick={() => handleEditSession(session, mesoIdx, microIdx, sIdx)}
                                           >
                                             <div className="flex items-center justify-between mb-2">
-                                              <GripVertical className="w-4 h-4 text-slate-400" />
+                                              <GripVertical className="w-4 h-4 text-slate-400 cursor-grab" />
                                               <div className="flex gap-1">
-                                                <button className="p-1 hover:bg-white rounded">
-                                                  <Edit2 className="w-3 h-3 text-slate-500" />
+                                                <button 
+                                                  className="p-1 hover:bg-white rounded"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleEditSession(session, mesoIdx, microIdx, sIdx);
+                                                  }}
+                                                >
+                                                  <Edit2 className="w-3 h-3 text-blue-600" />
                                                 </button>
-                                                <button className="p-1 hover:bg-white rounded">
+                                                <button 
+                                                  className="p-1 hover:bg-white rounded"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDeleteSession(mesoIdx, microIdx, sIdx);
+                                                  }}
+                                                >
                                                   <Trash2 className="w-3 h-3 text-red-500" />
                                                 </button>
                                               </div>
@@ -914,6 +935,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, onNavigate }) => {
                                               }`}>
                                                 {session.intensity === 'high' ? 'Alta' : session.intensity === 'medium' ? 'Media' : 'Baja'}
                                               </span>
+                                              {session.edited && <span className="px-1.5 py-0.5 text-[10px] rounded bg-blue-200 text-blue-800">Editada</span>}
                                             </div>
                                           </div>
                                         );
