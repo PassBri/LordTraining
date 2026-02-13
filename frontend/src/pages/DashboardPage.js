@@ -2531,7 +2531,290 @@ const DashboardPage = () => {
 
     // Render Sport Characterization component
     if (activeDataSection === 'sport-char') {
-      return <SportCharacterization athleteId={selectedAthleteId} />;
+      return (
+        <div className="p-6 space-y-6 overflow-y-auto h-full bg-gradient-to-br from-slate-50 to-amber-50">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl shadow-lg mb-4">
+              <Trophy className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold text-slate-800 mb-2">Catálogo de Deportes</h1>
+            <p className="text-slate-500 max-w-2xl mx-auto">
+              Organiza los deportes por categorías. Este catálogo se utilizará para asignar deportes a atletas y equipos.
+            </p>
+          </div>
+
+          {/* Main Card */}
+          <Card className="border-0 shadow-xl overflow-hidden">
+            <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-4 px-5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-lg font-semibold">
+                  <Trophy className="w-5 h-5" />
+                  Categorías y Deportes
+                </div>
+                <Button 
+                  size="sm"
+                  className="bg-white/20 hover:bg-white/30 text-white border-0"
+                  onClick={() => setShowAddCategory(true)}
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Nueva Categoría
+                </Button>
+              </div>
+            </div>
+            <CardContent className="p-5">
+              {/* Add Category Form */}
+              {showAddCategory && (
+                <div className="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-semibold text-amber-900">Nueva Categoría</h4>
+                    <Button variant="ghost" size="sm" onClick={() => setShowAddCategory(false)}>
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-3 items-end">
+                    <Input 
+                      placeholder="Nombre de categoría" 
+                      className="flex-1 min-w-[200px]"
+                      value={newCategory.name}
+                      onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
+                    />
+                    <Input 
+                      placeholder="Icono (emoji)" 
+                      className="w-20"
+                      value={newCategory.icon}
+                      onChange={(e) => setNewCategory({...newCategory, icon: e.target.value})}
+                    />
+                    <Input 
+                      type="color"
+                      className="w-16 h-10 p-1"
+                      value={newCategory.color}
+                      onChange={(e) => setNewCategory({...newCategory, color: e.target.value})}
+                    />
+                    <Button onClick={handleCreateCategory} className="bg-amber-500 hover:bg-amber-600">
+                      Crear
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Categories Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {sportsCatalog.map(category => (
+                  <div 
+                    key={category.id} 
+                    className="border rounded-xl overflow-hidden hover:shadow-lg transition-shadow"
+                    style={{ borderColor: category.color + '40' }}
+                  >
+                    <div 
+                      className="text-white px-4 py-3 flex items-center justify-between"
+                      style={{ backgroundColor: category.color }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">{category.icon}</span>
+                        <span className="font-semibold">{category.name}</span>
+                        <Badge className="bg-white/20 text-white border-0 ml-1">
+                          {category.sports?.length || 0}
+                        </Badge>
+                      </div>
+                      <div className="flex gap-1">
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="h-7 w-7 p-0 text-white/70 hover:text-white hover:bg-white/20"
+                          onClick={() => {
+                            setEditingCategory(category);
+                            setNewSport({ name: '', categoryId: category.id });
+                          }}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="h-7 w-7 p-0 text-white/70 hover:text-red-200 hover:bg-white/20"
+                          onClick={() => handleDeleteCategory(category.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="p-3">
+                      {/* Add sport form for this category */}
+                      {editingCategory?.id === category.id && (
+                        <div className="mb-3 flex gap-2">
+                          <Input 
+                            placeholder="Nombre del deporte"
+                            value={newSport.name}
+                            onChange={(e) => setNewSport({...newSport, name: e.target.value})}
+                            className="flex-1 h-8 text-sm"
+                          />
+                          <Button 
+                            size="sm" 
+                            className="h-8"
+                            style={{ backgroundColor: category.color }}
+                            onClick={() => handleAddSport(category.id)}
+                          >
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            className="h-8"
+                            onClick={() => setEditingCategory(null)}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      )}
+                      {/* Sports List */}
+                      <div className="flex flex-wrap gap-2">
+                        {category.sports && category.sports.length > 0 ? (
+                          category.sports.map(sport => (
+                            <div 
+                              key={sport.id}
+                              className="group flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-colors"
+                              style={{ 
+                                backgroundColor: category.color + '15',
+                                color: category.color
+                              }}
+                            >
+                              {sport.name}
+                              <button 
+                                className="opacity-0 group-hover:opacity-100 transition-opacity ml-1 text-red-500 hover:text-red-700"
+                                onClick={() => handleDeleteSport(category.id, sport.id)}
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))
+                        ) : (
+                          <span className="text-xs text-slate-400 italic">Sin deportes agregados</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Tip */}
+              <div className="mt-5 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
+                <Lightbulb className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-amber-800">
+                  <strong>Tip:</strong> Personaliza tu catálogo agregando las categorías y deportes que necesites. Los atletas y equipos podrán seleccionar de este catálogo.
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Caracterización Técnica del Deporte */}
+          <Card className="border-0 shadow-xl overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-4">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Activity className="w-5 h-5" />
+                Caracterización Técnica del Deporte
+              </CardTitle>
+              <p className="text-sm text-white/80 mt-1">Selecciona un deporte para definir sus características específicas</p>
+            </CardHeader>
+            <CardContent className="p-5 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Seleccionar Deporte</label>
+                  <Select>
+                    <SelectTrigger><SelectValue placeholder="Seleccionar deporte del catálogo" /></SelectTrigger>
+                    <SelectContent>
+                      {sportsCatalog.map(cat => (
+                        <React.Fragment key={cat.id}>
+                          <div className="px-2 py-1 text-xs font-semibold text-slate-500 bg-slate-50">{cat.icon} {cat.name}</div>
+                          {cat.sports?.map(sport => (
+                            <SelectItem key={sport.id} value={sport.id}>{sport.name}</SelectItem>
+                          ))}
+                        </React.Fragment>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Organización del Movimiento</label>
+                  <Select>
+                    <SelectTrigger><SelectValue placeholder="Seleccionar tipo" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ciclico">Cíclico</SelectItem>
+                      <SelectItem value="aciclico">Acíclico</SelectItem>
+                      <SelectItem value="mixto">Mixto</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Vía Energética Predominante</label>
+                  <Select>
+                    <SelectTrigger><SelectValue placeholder="Seleccionar vía" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="aerobica">Aeróbica</SelectItem>
+                      <SelectItem value="anaerobica-lactica">Anaeróbica Láctica</SelectItem>
+                      <SelectItem value="anaerobica-alactica">Anaeróbica Aláctica</SelectItem>
+                      <SelectItem value="mixta">Mixta</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Sustrato Energético Principal</label>
+                  <Select>
+                    <SelectTrigger><SelectValue placeholder="Seleccionar sustrato" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="atp-pc">ATP-PC (Fosfágenos)</SelectItem>
+                      <SelectItem value="glucogeno">Glucógeno</SelectItem>
+                      <SelectItem value="lipidos">Lípidos</SelectItem>
+                      <SelectItem value="mixto">Mixto</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Tipo de Fibra Predominante</label>
+                  <Select>
+                    <SelectTrigger><SelectValue placeholder="Seleccionar tipo" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="tipo-i">Tipo I (Lentas/Oxidativas)</SelectItem>
+                      <SelectItem value="tipo-iia">Tipo IIA (Rápidas Oxidativas)</SelectItem>
+                      <SelectItem value="tipo-iib">Tipo IIB (Rápidas Glucolíticas)</SelectItem>
+                      <SelectItem value="mixto">Mixto</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Tipo de Esfuerzo</label>
+                  <Select>
+                    <SelectTrigger><SelectValue placeholder="Seleccionar esfuerzo" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="continuo">Continuo</SelectItem>
+                      <SelectItem value="intermitente">Intermitente</SelectItem>
+                      <SelectItem value="intervalo">Por Intervalos</SelectItem>
+                      <SelectItem value="repeticion">Por Repeticiones</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Capacidades Motrices Generales</label>
+                  <textarea className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none" rows={3} placeholder="Fuerza, resistencia, velocidad, flexibilidad, coordinación..." />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Capacidades Motrices Especiales</label>
+                  <textarea className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none" rows={3} placeholder="Capacidades específicas del deporte..." />
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 pt-4">
+                <Button variant="outline">Cancelar</Button>
+                <Button className="bg-indigo-600 hover:bg-indigo-700">
+                  <Save className="w-4 h-4 mr-2" />
+                  Guardar Caracterización
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
     }
 
     // Render Athlete Characterization component
