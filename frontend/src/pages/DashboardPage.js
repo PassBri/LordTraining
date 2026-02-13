@@ -2329,29 +2329,6 @@ const DashboardPage = () => {
               ))}
             </div>
 
-            {/* History Button */}
-            <Button
-              variant={sidebarView === 'history' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setSidebarView(sidebarView === 'history' ? 'assistant' : 'history')}
-              className={`h-8 text-xs font-medium rounded-xl shadow-md transition-all ${
-                sidebarView === 'history'
-                  ? 'bg-white text-indigo-600 hover:bg-white/90'
-                  : 'bg-white/20 border-0 text-white hover:bg-white/30'
-              }`}
-              data-testid="context-history-btn"
-            >
-              <History className="w-3.5 h-3.5 mr-1" />
-              <span className="hidden sm:inline">Historial</span>
-              {generatedPlans.length > 0 && (
-                <span className={`ml-1 px-1.5 py-0.5 rounded-full text-xs ${
-                  sidebarView === 'history' ? 'bg-indigo-100 text-indigo-600' : 'bg-white/20'
-                }`}>
-                  {generatedPlans.length}
-                </span>
-              )}
-            </Button>
-
             {/* Export PDF Button */}
             <Button
               variant="outline"
