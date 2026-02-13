@@ -392,22 +392,24 @@ const PeriodizationComplete = ({ athleteId, athleteName, onNavigate }) => {
   const handleDeletePlan = async (planId) => {
     if (!window.confirm('¿Eliminar este plan de periodización?')) return;
     
+    // Delete from localStorage via state
+    setPlans(prev => prev.filter(p => p.id !== planId));
+    toast.success('Plan eliminado');
+    
+    if (selectedPlan?.id === planId) {
+      setSelectedPlan(null);
+      setActiveView('history');
+    }
+    
+    // Try backend delete (non-blocking)
     try {
       const token = getToken();
       await fetch(`${API_URL}/api/periodization/${planId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      
-      setPlans(prev => prev.filter(p => p.id !== planId));
-      toast.success('Plan eliminado');
-      
-      if (selectedPlan?.id === planId) {
-        setSelectedPlan(null);
-        setActiveView('history');
-      }
     } catch (error) {
-      console.error('Error deleting plan:', error);
+      console.log('Backend delete optional');
     }
   };
 
