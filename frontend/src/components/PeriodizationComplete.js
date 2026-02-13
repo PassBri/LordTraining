@@ -732,39 +732,61 @@ const PeriodizationComplete = ({ athleteId, athleteName, onNavigate }) => {
                 <CardTitle className="text-base flex items-center gap-2"><BookOpen className="w-5 h-5" />Mesociclos ({plan.mesocycles?.length})</CardTitle>
               </CardHeader>
               <CardContent className="p-4">
+                {/* Instrucciones */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center gap-3 mb-4">
+                  <GripVertical className="w-5 h-5 text-blue-500" />
+                  <p className="text-sm text-blue-700">
+                    <strong>Tip:</strong> Expande cada mesociclo para ver y editar los microciclos y sesiones de entrenamiento.
+                  </p>
+                </div>
+                
                 <div className="space-y-3">
                   {plan.mesocycles?.map((meso, mesoIdx) => (
-                    <div key={meso.id} className="border rounded-lg overflow-hidden">
-                      <div className="flex items-center justify-between p-3 cursor-pointer hover:bg-slate-50" style={{ borderLeft: `4px solid ${meso.phaseColor}` }} onClick={() => setExpandedMeso(expandedMeso === mesoIdx ? null : mesoIdx)}>
+                    <div key={meso.id} className="border rounded-lg overflow-hidden shadow-sm">
+                      <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 transition-colors" style={{ borderLeft: `4px solid ${meso.phaseColor}` }} onClick={() => setExpandedMeso(expandedMeso === mesoIdx ? null : mesoIdx)}>
                         <div className="flex items-center gap-3">
-                          <Badge style={{ backgroundColor: meso.type.color }}>{meso.type.name}</Badge>
-                          <span className="font-semibold">{meso.name}</span>
-                          <span className="text-sm text-slate-500">{meso.microcycles?.length} semanas</span>
+                          {expandedMeso === mesoIdx ? <ChevronDown className="w-5 h-5 text-slate-500" /> : <ChevronRight className="w-5 h-5 text-slate-500" />}
+                          <Badge className="text-white" style={{ backgroundColor: meso.type.color }}>{meso.type.name}</Badge>
+                          <div>
+                            <span className="font-semibold text-slate-800">{meso.name}</span>
+                            <span className="text-sm text-slate-500 ml-2">• {meso.microcycles?.length} semanas</span>
+                          </div>
                         </div>
                         <div className="flex items-center gap-4">
-                          <span className="text-sm"><span className="text-blue-600 font-medium">{meso.avgVolume}%</span> Vol</span>
-                          <span className="text-sm"><span className="text-red-600 font-medium">{meso.avgIntensity}%</span> Int</span>
-                          {expandedMeso === mesoIdx ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+                          <div className="flex items-center gap-2">
+                            <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-sm font-medium">{meso.avgVolume}% Vol</span>
+                            <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-sm font-medium">{meso.avgIntensity}% Int</span>
+                          </div>
+                          <span className="px-3 py-1 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: meso.phaseColor }}>
+                            {meso.phaseName}
+                          </span>
                         </div>
                       </div>
                       
                       {expandedMeso === mesoIdx && (
-                        <div className="bg-slate-50 p-3 border-t">
+                        <div className="bg-slate-50 p-4 border-t">
+                          <p className="text-xs font-semibold text-slate-500 uppercase mb-3">Microciclos (Semanas):</p>
                           <div className="space-y-2">
                             {meso.microcycles?.map((micro, microIdx) => (
-                              <div key={micro.id} className="bg-white rounded border">
-                                <div className="flex items-center justify-between p-2 cursor-pointer hover:bg-slate-50" onClick={() => setExpandedMicro(expandedMicro === `${mesoIdx}-${microIdx}` ? null : `${mesoIdx}-${microIdx}`)}>
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: micro.type.color }} />
-                                    <span className="font-medium text-sm">{micro.name}</span>
-                                    <Badge variant="outline" className="text-xs">{micro.type.name}</Badge>
-                                    {micro.isDeload && <Badge className="bg-purple-100 text-purple-700 text-xs">Descarga</Badge>}
-                                  </div>
-                                  <div className="flex items-center gap-3 text-xs">
-                                    <span className="text-blue-600">{micro.volume}%V</span>
-                                    <span className="text-red-600">{micro.intensity}%I</span>
-                                    <span style={{ color: micro.loadMagnitude?.color }}>{micro.loadMagnitude?.name}</span>
+                              <div key={micro.id} className="bg-white rounded-lg border shadow-sm overflow-hidden">
+                                <div 
+                                  className={`flex items-center justify-between p-3 cursor-pointer transition-colors ${micro.isDeload ? 'bg-violet-50 hover:bg-violet-100' : 'hover:bg-slate-50'}`}
+                                  onClick={() => setExpandedMicro(expandedMicro === `${mesoIdx}-${microIdx}` ? null : `${mesoIdx}-${microIdx}`)}
+                                >
+                                  <div className="flex items-center gap-3">
                                     {expandedMicro === `${mesoIdx}-${microIdx}` ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: micro.type.color }} />
+                                    <span className="font-semibold">{micro.name}</span>
+                                    <Badge variant="outline" className="text-xs" style={{ borderColor: micro.type.color, color: micro.type.color }}>{micro.type.name}</Badge>
+                                    {micro.isDeload && <Badge className="bg-violet-500 text-white text-xs">Descarga</Badge>}
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                    <span className="text-xs text-slate-500">{micro.startDate}</span>
+                                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">{micro.volume}% Vol</span>
+                                    <span className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded text-xs">{micro.intensity}% Int</span>
+                                    <span className="px-2 py-0.5 rounded text-xs text-white" style={{ backgroundColor: micro.loadMagnitude?.color }}>{micro.loadMagnitude?.name}</span>
+                                  </div>
+                                </div>
                                   </div>
                                 </div>
                                 
