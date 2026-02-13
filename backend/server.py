@@ -5420,9 +5420,9 @@ async def health():
 # Include routers
 app.include_router(api_router)
 
-# AI Coach router
-from routes.ai_coach import router as ai_coach_router
-app.include_router(ai_coach_router)
+# AI Assistant router (simplified)
+from routes.ai_assistant import router as ai_assistant_router
+app.include_router(ai_assistant_router)
 
 app.add_middleware(
     CORSMiddleware,
