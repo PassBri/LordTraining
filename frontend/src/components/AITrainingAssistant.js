@@ -172,31 +172,26 @@ const AITrainingAssistant = ({
   };
 
   return (
-    <Card className="flex flex-col h-full shadow-lg overflow-hidden border-0">
-      {/* Header */}
-      <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 py-3 px-4 shrink-0">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-base text-white flex items-center gap-2">
-            <Bot className="w-5 h-5" />
-            Asistente de Entrenamiento
-          </CardTitle>
-          <Button 
-            variant="ghost" 
-            size="sm"
-            className="text-white/70 hover:text-white hover:bg-white/10 h-8 px-2"
-            onClick={clearChat}
-          >
-            <RefreshCw className="w-4 h-4" />
-          </Button>
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* Quick Actions - Now at top without card header */}
+      <div className="px-4 pt-3 pb-2 bg-slate-50 border-b shrink-0">
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {QUICK_ACTIONS.map(action => {
+            const Icon = action.icon;
+            return (
+              <button
+                key={action.type}
+                onClick={() => handleQuickAction(action.type)}
+                disabled={isLoading}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 ${action.color} hover:opacity-80 disabled:opacity-50`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {action.label}
+              </button>
+            );
+          })}
         </div>
-        
-        {/* Athlete context badge */}
-        {selectedAthlete && (
-          <Badge variant="secondary" className="mt-2 bg-white/20 text-white border-0 text-xs">
-            {selectedAthlete.name} • {selectedAthlete.sport} • {selectedAthlete.level}
-          </Badge>
-        )}
-      </CardHeader>
+      </div>
       
       <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
         {/* Quick Actions */}
