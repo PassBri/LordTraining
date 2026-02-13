@@ -42,6 +42,18 @@ Last Updated: February 13, 2026
    - Athletes and Teams management
    - Sports catalog with categories
 
+7. **Periodización Completa** ✅ (Feb 13, 2026 - NEW)
+   - Historial de planes con persistencia en localStorage
+   - Wizard de creación de 4 pasos: Modelo → Duración → Objetivos → Configuración
+   - **Modelos de Periodización**: Clásicos (Tradicional, ATR, Bloques), Ondulatorios (Diario, Semanal), Avanzados (Péndulo, Campanas, Contemporáneo, Inversa, Táctico)
+   - **Duraciones**: Ciclo Olímpico (4 años), Bianual, Anual, Semestral, Trimestral, Mensual
+   - **Tipos de Macrociclo**: Preparatorio General, Preparatorio Específico, Precompetitivo, Competitivo, Transición
+   - **Tipos de Mesociclo**: Entrante, Básico Desarrollador, Básico Estabilizador, Precompetitivo, Competitivo, Recuperación
+   - **Tipos de Microciclo**: Corriente (70%), De Carga (85%), De Choque (100%), Competitivo (60%), De Aproximación (75%), De Restablecimiento (45%)
+   - **Magnitud de la Carga**: Muy Alta (98-100%), Alta (85-95%), Media (70-80%), Baja (55-65%), Recuperación (≤50%)
+   - **Gráficos**: Volumen e Intensidad por Semana, Frecuencia de Entrenamiento
+   - **Tablas**: Preparación (Física, Técnica, Táctica, Psicológica, Teórica), Actividades, Monitoreo
+
 ### UI Layout Changes (Feb 13, 2026) ✅
 - **Full-width dashboard** - Removed sidebar, content uses 100% width
 - **Top navigation bar (left → right)**:
