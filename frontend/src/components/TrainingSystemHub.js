@@ -380,9 +380,10 @@ const TrainingSystemHub = ({ athleteId, athleteName, onNavigate }) => {
           </TabsContent>
 
           <TabsContent value="periodization" className="mt-0">
-            <PeriodizationSystem 
+            <PeriodizationComplete 
               athleteId={athleteId} 
               athleteName={athleteName}
+              onNavigate={onNavigate}
             />
           </TabsContent>
 
