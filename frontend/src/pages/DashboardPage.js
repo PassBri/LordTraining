@@ -2719,22 +2719,6 @@ const DashboardPage = () => {
         athleteName={athletes.find(a => a.id === selectedAthleteId)?.name}
         periodizationData={periodizationData}
       />
-
-      {/* AI Coach Assistant Modal */}
-      <AICoachAssistant
-        isOpen={showAICoach}
-        onClose={() => setShowAICoach(false)}
-        athletes={athletes}
-        sportsCatalog={sportsCatalog}
-        selectedAthlete={athletes.find(a => a.id === selectedAthleteId)}
-        onPlanGenerated={(plan) => {
-          // Refresh plans list from localStorage
-          const savedPlans = JSON.parse(localStorage.getItem('train_generated_plans') || '[]');
-          setGeneratedPlans(savedPlans);
-          setSidebarView('history');
-          toast.success('Plan generado y guardado en historial');
-        }}
-      />
       </div>
     </div>
   );
