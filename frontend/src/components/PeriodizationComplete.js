@@ -130,8 +130,11 @@ const PeriodizationComplete = ({ athleteId, athleteName, onNavigate }) => {
   const [activeView, setActiveView] = useState('history'); // history, create, detail
   const [selectedPlan, setSelectedPlan] = useState(null);
   
-  // Plans History State
-  const [plans, setPlans] = useState([]);
+  // Plans History State - Load from localStorage
+  const [plans, setPlans] = useState(() => {
+    const saved = localStorage.getItem('train_periodization_plans');
+    return saved ? JSON.parse(saved) : [];
+  });
   
   // Plan Creation State
   const [wizardStep, setWizardStep] = useState(1);
