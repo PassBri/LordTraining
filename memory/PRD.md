@@ -43,12 +43,17 @@ Last Updated: February 13, 2026
    - Sports catalog with categories
 
 ### UI Layout Changes (Feb 13, 2026) ✅
-- Reorganized top navigation bar:
-  - Logo on left
-  - Filters in center (Entity → Team → Athlete → Sport)
-  - Panel/Datos tabs, History, PDF export on right
-- Sidebar now dedicated to AI Assistant with more space
-- Removed redundant sidebar buttons
+- **Full-width dashboard** - Removed sidebar, content uses 100% width
+- **Top navigation bar (left → right)**:
+  - Logo TRAIN
+  - Panel/Datos tabs
+  - PDF export
+  - Filters dropdown (collapsible)
+- **Coach AI Floating Button** - Bottom-right corner
+- **Coach AI Drawer** - Slides from right with:
+  - Two tabs: "Coach AI" (chat) and "Historial" (plans history)
+  - User profile info in footer
+  - Quick action buttons (Ejercicios, Cargas, Progresión, Recuperación)
 
 ---
 
