@@ -12,7 +12,7 @@ import {
 import { toast } from 'sonner';
 
 // Import sub-components
-import PeriodizationSystem from './PeriodizationSystem';
+import PeriodizationComplete from './PeriodizationComplete';
 import TestEvaluations from './TestEvaluations';
 import TrainingLoad from './TrainingLoad';
 import TrainingControl from './TrainingControl';
