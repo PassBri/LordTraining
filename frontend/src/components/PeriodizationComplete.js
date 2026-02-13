@@ -166,37 +166,37 @@ const PeriodizationComplete = ({ athleteId, athleteName, onNavigate }) => {
 
   const getToken = () => localStorage.getItem('train_token');
 
-  // Load existing plans
+  // Save plans to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('train_periodization_plans', JSON.stringify(plans));
+  }, [plans]);
+
+  // Load existing plans - now just uses localStorage
   const loadPlans = useCallback(async () => {
+    // Plans are already loaded from localStorage in useState initializer
+    // But we can try to sync with backend if needed
     if (!athleteId) return;
     
     setLoading(true);
     try {
       const token = getToken();
-      const response = await fetch(`${API_URL}/api/periodization/plans/${athleteId}`, {
+      // Try to fetch from backend as additional source
+      const response = await fetch(`${API_URL}/api/periodization/${athleteId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
       if (response.ok) {
         const data = await response.json();
-        setPlans(data.plans || []);
-      } else {
-        // If no plans endpoint, try the old one
-        const fallbackResponse = await fetch(`${API_URL}/api/periodization/${athleteId}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (fallbackResponse.ok) {
-          const data = await fallbackResponse.json();
-          if (data && data.id) {
-            setPlans([data]);
-          }
+        if (data && data.id && !plans.find(p => p.id === data.id)) {
+          // Add backend plan if not already in localStorage
+          setPlans(prev => [...prev, data]);
         }
       }
     } catch (error) {
-      console.error('Error loading plans:', error);
+      console.error('Error syncing with backend:', error);
     }
     setLoading(false);
-  }, [athleteId]);
+  }, [athleteId, plans]);
 
   useEffect(() => {
     loadPlans();
