@@ -203,8 +203,9 @@ const DashboardPage = () => {
 
   // Start new plan creation
   const handleNewPlan = () => {
-    setSidebarView('assistant');
-    toast.info('Usa el asistente IA para ayudarte a planificar');
+    setIsCoachDrawerOpen(true);
+    setCoachDrawerTab('coach');
+    toast.info('Usa el Coach AI para ayudarte a planificar');
   };
 
   // Tournaments State - Load from localStorage
