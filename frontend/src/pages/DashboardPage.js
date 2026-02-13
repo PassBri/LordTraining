@@ -50,7 +50,7 @@ import ObjectivesIndicators from '../components/ObjectivesIndicators';
 import TrainingSystemHub from '../components/TrainingSystemHub';
 import TournamentManager from '../components/TournamentManager';
 import AutoTestingSystem from '../components/AutoTestingSystem';
-import AICoachAssistant from '../components/AICoachAssistant';
+import AITrainingAssistant from '../components/AITrainingAssistant';
 
 // Definición de roles disponibles
 const USER_ROLES = [
