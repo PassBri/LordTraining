@@ -1078,24 +1078,74 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
   const renderCreate = () => (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-slate-800">Crear Plan</h2>
-        <Button variant="outline" onClick={() => setActiveView('history')}><ChevronLeft className="w-4 h-4 mr-2" /> Volver</Button>
+        <h2 className="text-2xl font-bold text-slate-800">Crear Plan de Entrenamiento</h2>
+        <Button variant="outline" onClick={() => { setActiveView('history'); setGeneratedStructure(null); }}><ChevronLeft className="w-4 h-4 mr-2" /> Volver</Button>
       </div>
 
       {/* Steps */}
-      <div className="flex justify-center gap-2 bg-slate-100 p-3 rounded-xl">
-        {[1, 2, 3, 4].map(step => (
-          <div key={step} className={`flex items-center gap-2 px-4 py-2 rounded-lg ${wizardStep === step ? 'bg-blue-500 text-white' : wizardStep > step ? 'bg-green-100 text-green-700' : 'bg-white text-slate-500'}`}>
+      <div className="flex justify-center gap-1 bg-slate-100 p-3 rounded-xl overflow-x-auto">
+        {[1, 2, 3, 4, 5].map(step => (
+          <div key={step} className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${wizardStep === step ? 'bg-blue-500 text-white' : wizardStep > step ? 'bg-green-100 text-green-700' : 'bg-white text-slate-500'}`}>
             <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold bg-white/20">{wizardStep > step ? <Check className="w-4 h-4" /> : step}</span>
-            <span className="text-sm font-medium hidden md:inline">{['Modelo', 'Duración', 'Objetivos', 'Resumen'][step - 1]}</span>
+            <span className="text-xs font-medium hidden md:inline">{['Deporte', 'Modelo', 'Duración', 'Estructura', 'Resumen'][step - 1]}</span>
           </div>
         ))}
       </div>
 
       <Card className="shadow-lg">
         <CardContent className="p-8">
+          {/* STEP 1: SPORT SELECTION */}
           {wizardStep === 1 && (
-            <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
+            <div className="space-y-6 max-h-[55vh] overflow-y-auto pr-2">
+              <h3 className="text-xl font-bold text-center sticky top-0 bg-white py-2 z-10">Selecciona el Deporte</h3>
+              {Object.entries(sportsCatalog).map(([category, sports]) => (
+                <div key={category} className="space-y-3">
+                  <div className="px-3 py-2 rounded-lg bg-slate-100 border-l-4 border-slate-400">
+                    <h4 className="font-bold text-slate-700 capitalize">{category === 'strength' ? '💪 Fuerza' : category === 'endurance' ? '🏃 Resistencia' : category === 'speed' ? '⚡ Velocidad' : category === 'team' ? '⚽ Equipos' : category === 'combat' ? '🥊 Combate' : category === 'racquet' ? '🎾 Raqueta' : category === 'fitness' ? '🏋️ Fitness' : '🏅 General'}</h4>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 pl-2">
+                    {sports.map(sport => (
+                      <div 
+                        key={sport.id} 
+                        className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${planConfig.sport === sport.id ? 'border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-200' : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'}`} 
+                        onClick={() => setPlanConfig({ ...planConfig, sport: sport.id, sessionsPerWeek: sport.sessions_per_week })}
+                      >
+                        <p className="font-semibold text-slate-800 text-sm">{sport.name}</p>
+                        <p className="text-xs text-slate-500">{sport.sessions_per_week} ses/sem</p>
+                        {planConfig.sport === sport.id && <CheckCircle className="w-4 h-4 text-blue-500 mt-1" />}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              
+              {/* Athlete Level */}
+              <div className="mt-6 pt-4 border-t">
+                <h4 className="font-bold text-slate-700 mb-3">Nivel del Atleta</h4>
+                <div className="flex gap-2 flex-wrap">
+                  {[
+                    { id: 'beginner', name: 'Principiante', desc: '< 1 año' },
+                    { id: 'intermediate', name: 'Intermedio', desc: '1-3 años' },
+                    { id: 'advanced', name: 'Avanzado', desc: '3-6 años' },
+                    { id: 'elite', name: 'Élite', desc: '6+ años' }
+                  ].map(level => (
+                    <button 
+                      key={level.id}
+                      className={`px-4 py-2 rounded-lg border-2 transition-all ${planConfig.athleteLevel === level.id ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-blue-300'}`}
+                      onClick={() => setPlanConfig({ ...planConfig, athleteLevel: level.id })}
+                    >
+                      <p className="font-semibold text-sm">{level.name}</p>
+                      <p className="text-xs text-slate-500">{level.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 2: MODEL SELECTION */}
+          {wizardStep === 2 && (
+            <div className="space-y-6 max-h-[55vh] overflow-y-auto pr-2">
               <h3 className="text-xl font-bold text-center sticky top-0 bg-white py-2 z-10">Modelo de Periodización</h3>
               {Object.entries(MODEL_CATEGORIES).map(([categoryId, category]) => {
                 const modelsInCategory = Object.entries(PERIODIZATION_MODELS).filter(([_, m]) => m.category === categoryId);
