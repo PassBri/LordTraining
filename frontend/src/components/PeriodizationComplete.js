@@ -1073,7 +1073,16 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
             <Button variant="outline" onClick={() => { setActiveView('history'); setSelectedPlan(null); }}>
               <ChevronLeft className="w-4 h-4 mr-2" /> Volver
             </Button>
-            <Button className="bg-blue-600"><FileText className="w-4 h-4 mr-2" /> Exportar</Button>
+            <Button variant="outline" onClick={handleSavePlan} disabled={saving}>
+              {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />} 
+              Guardar
+            </Button>
+            <Button variant="outline" onClick={handleSharePlan}>
+              <Copy className="w-4 h-4 mr-2" /> Compartir
+            </Button>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleExportPDF}>
+              <FileText className="w-4 h-4 mr-2" /> Exportar PDF
+            </Button>
           </div>
         </div>
 
