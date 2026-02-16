@@ -259,6 +259,68 @@ const DashboardPage = () => {
   // API Base URL
   const API_URL = process.env.REACT_APP_BACKEND_URL;
 
+  // ====== TRAINING PLANS FUNCTIONS ======
+  // Fetch training plans from API
+  const fetchTrainingPlans = async () => {
+    setLoadingPlans(true);
+    try {
+      const token = localStorage.getItem('train_token');
+      const response = await fetch(`${API_URL}/api/training-plans`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setTrainingPlans(data);
+        
+        // Si hay un plan activo guardado, restaurarlo
+        const savedActivePlanId = localStorage.getItem('train_active_plan_id');
+        if (savedActivePlanId) {
+          const savedPlan = data.find(p => p.id === savedActivePlanId);
+          if (savedPlan) {
+            setActivePlan(savedPlan);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching training plans:', error);
+    } finally {
+      setLoadingPlans(false);
+    }
+  };
+
+  // Set active plan and persist
+  const handleSetActivePlan = (plan) => {
+    setActivePlan(plan);
+    if (plan) {
+      localStorage.setItem('train_active_plan_id', plan.id);
+    } else {
+      localStorage.removeItem('train_active_plan_id');
+    }
+    setShowPlanSelector(false);
+  };
+
+  // Delete a training plan
+  const handleDeleteTrainingPlan = async (planId) => {
+    if (!window.confirm('¿Eliminar este plan de entrenamiento?')) return;
+    try {
+      const token = localStorage.getItem('train_token');
+      await fetch(`${API_URL}/api/training-plans/${planId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      toast.success('Plan eliminado');
+      
+      // Si era el plan activo, limpiarlo
+      if (activePlan?.id === planId) {
+        handleSetActivePlan(null);
+      }
+      
+      fetchTrainingPlans();
+    } catch (error) {
+      toast.error('Error al eliminar plan');
+    }
+  };
+
   // Fetch Sports Catalog
   const fetchSportsCatalog = async () => {
     try {
