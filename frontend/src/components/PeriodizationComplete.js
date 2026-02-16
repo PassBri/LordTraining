@@ -1495,7 +1495,7 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
               </div>
               <div>
                 <h3 className="font-bold text-lg text-slate-800">{macro.name}</h3>
-                <p className="text-sm text-slate-500">{macro.weeks} semanas • {macro.mesocycles?.length || 0} mesociclos • Vol: {macro.phase?.volumePercent}% • Int: {macro.phase?.intensityPercent}%</p>
+                <p className="text-sm text-slate-500">{macro.weeks} semanas • {macro.mesocycles?.length || 0} mesociclos • Vol: {macro.volume_percent || macro.phase?.volumePercent || '-'}% • Int: {macro.intensity_percent || macro.phase?.intensityPercent || '-'}%</p>
               </div>
             </div>
             <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
