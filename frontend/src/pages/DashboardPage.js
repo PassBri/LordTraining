@@ -916,6 +916,7 @@ const DashboardPage = () => {
     fetchTeams();
     fetchSportsCatalog();
     fetchTournamentsData();
+    fetchTrainingPlans(); // Cargar planes de entrenamiento
   }, []);
 
   const fetchData = async () => {
