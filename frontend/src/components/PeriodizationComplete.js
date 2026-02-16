@@ -880,12 +880,22 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
           </h2>
           <p className="text-slate-500 mt-1">Gestiona tus planes de periodización</p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg" onClick={() => { setWizardStep(1); setPlanConfig({ name: '', model: '', duration: 'annual', startDate: '', sessionsPerWeek: 5, mainObjective: '', mainCompetition: '', mainCompetitionDate: '' }); setActiveView('create'); }}>
-          <Plus className="w-4 h-4 mr-2" /> Nuevo Plan
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => openCalculator('1rm')}>
+            <Activity className="w-4 h-4 mr-2" /> Calculadoras
+          </Button>
+          <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg text-white" onClick={() => { setWizardStep(1); setPlanConfig({ name: '', model: '', duration: 'annual', startDate: '', sessionsPerWeek: 5, mainObjective: '', mainCompetition: '', mainCompetitionDate: '' }); setActiveView('create'); }}>
+            <Plus className="w-4 h-4 mr-2" /> Nuevo Plan
+          </Button>
+        </div>
       </div>
 
-      {plans.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-16">
+          <Loader2 className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
+          <p className="text-slate-500">Cargando planes...</p>
+        </div>
+      ) : plans.length === 0 ? (
         <Card className="border-2 border-dashed">
           <CardContent className="py-16 text-center">
             <Calendar className="w-16 h-16 text-slate-300 mx-auto mb-4" />
@@ -906,11 +916,15 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
                   <div>
                     <h3 className="font-bold text-slate-800">{plan.name}</h3>
                     <p className="text-sm text-slate-500">{plan.totalWeeks} semanas • {plan.macrocycles?.length || 0} macrociclos • {plan.modelName}</p>
+                    {plan.apiId && <Badge className="bg-green-100 text-green-700 text-xs mt-1">Guardado en BD</Badge>}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge className="bg-green-100 text-green-700">Activo</Badge>
-                  <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleDeletePlan(plan.id); }}>
+                  <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleDuplicatePlan(plan.id); }} title="Duplicar">
+                    <Copy className="w-4 h-4 text-blue-500" />
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleDeletePlan(plan.id); }} title="Eliminar">
                     <Trash2 className="w-4 h-4 text-red-500" />
                   </Button>
                 </div>
