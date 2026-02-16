@@ -187,7 +187,8 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
   // Wizard
   const [wizardStep, setWizardStep] = useState(1);
   const [planConfig, setPlanConfig] = useState({
-    name: '', model: '', duration: 'annual', startDate: '', sessionsPerWeek: 5,
+    name: '', model: '', sport: 'general', duration: 'annual', startDate: '', 
+    sessionsPerWeek: 5, athleteLevel: 'intermediate',
     mainObjective: '', mainCompetition: '', mainCompetitionDate: ''
   });
   
