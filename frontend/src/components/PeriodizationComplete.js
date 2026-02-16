@@ -591,26 +591,282 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
     return plan;
   };
 
-  const handleCreatePlan = () => {
+  // Save plan to API
+  const savePlanToAPI = async (plan) => {
+    const token = getToken();
+    if (!token) return plan;
+    
+    setSaving(true);
+    try {
+      // Transform to API format
+      const apiPlan = {
+        name: plan.name,
+        athlete_id: plan.athleteId || athleteId || null,
+        sport: plan.sport || 'General',
+        model: plan.model,
+        duration_type: plan.duration,
+        total_weeks: plan.totalWeeks || CYCLE_DURATIONS[plan.duration]?.weeks || 52,
+        start_date: plan.startDate,
+        sessions_per_week: plan.sessionsPerWeek || 5,
+        main_objective: plan.mainObjective || '',
+        main_competition: plan.mainCompetition || null,
+        main_competition_date: plan.mainCompetitionDate || null,
+        macrocycles: plan.macrocycles.map(macro => ({
+          id: macro.id,
+          name: macro.name,
+          phase: macro.phase?.id || macro.phase?.name || 'prep_general',
+          start_date: macro.startDate || plan.startDate,
+          end_date: macro.endDate || plan.startDate,
+          weeks: macro.weeks || 4,
+          volume_percent: macro.phase?.volumePercent || 80,
+          intensity_percent: macro.phase?.intensityPercent || 60,
+          objectives: macro.objectives || [],
+          mesocycles: (macro.mesocycles || []).map(meso => ({
+            id: meso.id,
+            name: meso.name,
+            type: meso.type?.id || 'basico_desarrollador',
+            phase: meso.phase?.id || 'development',
+            weeks: meso.microcycles?.length || 4,
+            load_factor: meso.type?.loadFactor || 1.0,
+            volume_percent: meso.volume || 80,
+            intensity_percent: meso.intensity || 70,
+            objectives: meso.objectives || [],
+            microcycles: (meso.microcycles || []).map(micro => ({
+              id: micro.id,
+              name: micro.name,
+              week_number: micro.weekNumber || 1,
+              type: micro.type?.id || 'corriente',
+              load_percent: micro.type?.load || 70,
+              volume: micro.volume || 100,
+              intensity: micro.intensity || 70,
+              objectives: micro.objectives || [],
+              sessions: (micro.sessions || []).map(session => ({
+                id: session.id,
+                day: session.day,
+                name: session.name || 'Sesión',
+                session_type: session.type || 'general',
+                duration_minutes: session.duration || 60,
+                intensity: session.intensity || 70,
+                volume: session.volume || 100,
+                objectives: session.objectives || [],
+                exercises: session.exercises || [],
+                notes: session.notes || null
+              }))
+            }))
+          }))
+        }))
+      };
+      
+      let response;
+      if (plan.apiId) {
+        // Update existing
+        response = await fetch(`${API_URL}/api/training-plans/${plan.apiId}`, {
+          method: 'PUT',
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(apiPlan)
+        });
+      } else {
+        // Create new
+        response = await fetch(`${API_URL}/api/training-plans`, {
+          method: 'POST',
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(apiPlan)
+        });
+      }
+      
+      if (response.ok) {
+        const savedPlan = await response.json();
+        plan.apiId = savedPlan.id;
+        plan.shareToken = savedPlan.share_token;
+        return plan;
+      } else {
+        const error = await response.json();
+        console.error('API save error:', error);
+      }
+    } catch (error) {
+      console.error('Error saving plan:', error);
+    } finally {
+      setSaving(false);
+    }
+    return plan;
+  };
+
+  const handleCreatePlan = async () => {
     if (!planConfig.startDate || !planConfig.model) {
       toast.error('Completa los campos requeridos');
       return;
     }
     const plan = generatePlanStructure();
-    setPlans(prev => [plan, ...prev]);
-    setSelectedPlan(plan);
+    
+    // Save to API
+    const savedPlan = await savePlanToAPI(plan);
+    
+    setPlans(prev => [savedPlan, ...prev]);
+    setSelectedPlan(savedPlan);
     setActiveView('detail');
-    toast.success('Plan creado exitosamente');
+    toast.success('Plan creado y guardado exitosamente');
   };
 
-  const handleDeletePlan = (planId) => {
+  const handleSavePlan = async () => {
+    if (!selectedPlan) return;
+    
+    const savedPlan = await savePlanToAPI(selectedPlan);
+    setPlans(prev => prev.map(p => p.id === savedPlan.id ? savedPlan : p));
+    setSelectedPlan(savedPlan);
+    toast.success('Plan guardado exitosamente');
+  };
+
+  const handleDeletePlan = async (planId) => {
     if (!window.confirm('¿Eliminar este plan?')) return;
+    
+    const plan = plans.find(p => p.id === planId);
+    
+    // Delete from API if it has apiId
+    if (plan?.apiId) {
+      try {
+        const token = getToken();
+        await fetch(`${API_URL}/api/training-plans/${plan.apiId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      } catch (error) {
+        console.error('Error deleting from API:', error);
+      }
+    }
+    
     setPlans(prev => prev.filter(p => p.id !== planId));
     if (selectedPlan?.id === planId) {
       setSelectedPlan(null);
       setActiveView('history');
     }
     toast.success('Plan eliminado');
+  };
+
+  const handleDuplicatePlan = async (planId) => {
+    const original = plans.find(p => p.id === planId);
+    if (!original) return;
+    
+    // Deep copy
+    const duplicated = JSON.parse(JSON.stringify(original));
+    duplicated.id = `plan-${Date.now()}`;
+    duplicated.name = `${original.name} (Copia)`;
+    duplicated.apiId = null; // Will create new on save
+    duplicated.shareToken = null;
+    duplicated.createdAt = new Date().toISOString();
+    
+    // Regenerate all IDs
+    duplicated.macrocycles.forEach((macro, mi) => {
+      macro.id = `macro-${Date.now()}-${mi}`;
+      macro.mesocycles?.forEach((meso, msi) => {
+        meso.id = `meso-${Date.now()}-${mi}-${msi}`;
+        meso.microcycles?.forEach((micro, mici) => {
+          micro.id = `micro-${Date.now()}-${mi}-${msi}-${mici}`;
+          micro.sessions?.forEach((s, si) => {
+            s.id = `session-${Date.now()}-${mi}-${msi}-${mici}-${si}`;
+          });
+        });
+      });
+    });
+    
+    rebuildPlanData(duplicated);
+    const savedPlan = await savePlanToAPI(duplicated);
+    
+    setPlans(prev => [savedPlan, ...prev]);
+    toast.success('Plan duplicado exitosamente');
+  };
+
+  const handleSharePlan = async () => {
+    if (!selectedPlan?.apiId) {
+      toast.error('Guarda el plan primero');
+      return;
+    }
+    
+    try {
+      const token = getToken();
+      const response = await fetch(`${API_URL}/api/training-plans/${selectedPlan.apiId}/share`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const shareUrl = `${window.location.origin}${data.share_url}`;
+        
+        // Copy to clipboard
+        navigator.clipboard.writeText(shareUrl);
+        
+        setSelectedPlan(prev => ({ ...prev, shareToken: data.share_token }));
+        toast.success('Link copiado al portapapeles');
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+      toast.error('Error al compartir');
+    }
+  };
+
+  const handleExportPDF = async () => {
+    if (!selectedPlan?.apiId) {
+      toast.error('Guarda el plan primero para exportar');
+      return;
+    }
+    
+    try {
+      const token = getToken();
+      const response = await fetch(`${API_URL}/api/training-plans/${selectedPlan.apiId}/export/pdf`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `plan_${selectedPlan.name.replace(/\s+/g, '_')}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        toast.success('PDF descargado');
+      }
+    } catch (error) {
+      console.error('Error exporting:', error);
+      toast.error('Error al exportar');
+    }
+  };
+
+  // ============ SCIENTIFIC CALCULATORS ============
+  const openCalculator = (type) => {
+    setCalculatorType(type);
+    setCalculatorResult(null);
+    setCalculatorOpen(true);
+  };
+
+  const runCalculation = async (type, params) => {
+    try {
+      const token = getToken();
+      const response = await fetch(`${API_URL}/api/calculators/load`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ calculation_type: type, params })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setCalculatorResult(data);
+        return data;
+      }
+    } catch (error) {
+      console.error('Calculation error:', error);
+      toast.error('Error en el cálculo');
+    }
+    return null;
   };
 
   // ============ RENDER: HISTORY ============
