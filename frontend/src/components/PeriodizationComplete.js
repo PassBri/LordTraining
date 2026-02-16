@@ -1124,6 +1124,45 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
           {wizardStep === 1 && (
             <div className="space-y-6 max-h-[55vh] overflow-y-auto pr-2">
               <h3 className="text-xl font-bold text-center sticky top-0 bg-white py-2 z-10">Selecciona el Deporte</h3>
+              
+              {/* User's Custom Sports from Información -> Deportes */}
+              {userSports.length > 0 && userSports.some(cat => cat.sports?.length > 0) && (
+                <div className="space-y-3">
+                  <div className="px-3 py-2 rounded-lg bg-gradient-to-r from-blue-100 to-indigo-100 border-l-4 border-blue-500">
+                    <h4 className="font-bold text-blue-700">⭐ Mis Deportes (Personalizados)</h4>
+                    <p className="text-xs text-blue-600">Deportes creados en Información → Deportes</p>
+                  </div>
+                  {userSports.filter(cat => cat.sports?.length > 0).map(category => (
+                    <div key={category.id} className="pl-2">
+                      <p className="text-sm font-medium text-slate-600 mb-2">{category.icon || '🏅'} {category.name}</p>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                        {category.sports.map(sport => (
+                          <div 
+                            key={sport.id} 
+                            className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${planConfig.sport === sport.id ? 'border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-200' : 'border-blue-200 hover:border-blue-300 hover:bg-blue-50/50'}`} 
+                            onClick={() => setPlanConfig({ ...planConfig, sport: sport.id, sportName: sport.name, sessionsPerWeek: sport.sessions_per_week || 4 })}
+                          >
+                            <p className="font-semibold text-slate-800 text-sm">{sport.name}</p>
+                            <p className="text-xs text-slate-500">{sport.sessions_per_week || 4} ses/sem</p>
+                            {planConfig.sport === sport.id && <CheckCircle className="w-4 h-4 text-blue-500 mt-1" />}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {/* Divider if both catalogs have content */}
+              {userSports.length > 0 && userSports.some(cat => cat.sports?.length > 0) && Object.keys(sportsCatalog).length > 0 && (
+                <div className="flex items-center gap-4 py-2">
+                  <div className="flex-1 h-px bg-slate-200"></div>
+                  <span className="text-xs text-slate-400 font-medium">Deportes Predefinidos</span>
+                  <div className="flex-1 h-px bg-slate-200"></div>
+                </div>
+              )}
+              
+              {/* Static Sports Catalog */}
               {Object.entries(sportsCatalog).map(([category, sports]) => (
                 <div key={category} className="space-y-3">
                   <div className="px-3 py-2 rounded-lg bg-slate-100 border-l-4 border-slate-400">
@@ -1134,7 +1173,7 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
                       <div 
                         key={sport.id} 
                         className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${planConfig.sport === sport.id ? 'border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-200' : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'}`} 
-                        onClick={() => setPlanConfig({ ...planConfig, sport: sport.id, sessionsPerWeek: sport.sessions_per_week })}
+                        onClick={() => setPlanConfig({ ...planConfig, sport: sport.id, sportName: sport.name, sessionsPerWeek: sport.sessions_per_week })}
                       >
                         <p className="font-semibold text-slate-800 text-sm">{sport.name}</p>
                         <p className="text-xs text-slate-500">{sport.sessions_per_week} ses/sem</p>
