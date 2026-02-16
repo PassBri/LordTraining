@@ -127,6 +127,12 @@ const DashboardPage = () => {
   const [coachDrawerTab, setCoachDrawerTab] = useState('coach'); // 'coach' or 'history'
   const [generatedPlans, setGeneratedPlans] = useState([]); // List of generated plans
 
+  // ====== PLAN ACTIVO STATE ======
+  const [activePlan, setActivePlan] = useState(null); // El plan actualmente seleccionado
+  const [trainingPlans, setTrainingPlans] = useState([]); // Lista de planes de la BD
+  const [loadingPlans, setLoadingPlans] = useState(false);
+  const [showPlanSelector, setShowPlanSelector] = useState(false); // Modal para seleccionar plan
+
   // ====== GLOBAL CONTEXT STATE (Barra Superior) ======
   // Initialize from localStorage for persistence
   const [globalContext, setGlobalContext] = useState(() => {
