@@ -894,6 +894,114 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
     return null;
   };
 
+  // ============ AUTO GENERATE STRUCTURE ============
+  const generateAutoStructure = async () => {
+    if (!planConfig.model || !planConfig.sport || !planConfig.startDate) {
+      toast.error('Selecciona modelo, deporte y fecha de inicio');
+      return;
+    }
+    
+    setGenerating(true);
+    try {
+      const token = getToken();
+      const totalWeeks = CYCLE_DURATIONS[planConfig.duration]?.weeks || 52;
+      
+      const response = await fetch(`${API_URL}/api/generate-structure`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: planConfig.model,
+          sport: planConfig.sport,
+          total_weeks: totalWeeks,
+          start_date: planConfig.startDate,
+          sessions_per_week: planConfig.sessionsPerWeek,
+          athlete_level: planConfig.athleteLevel,
+          main_competition_date: planConfig.mainCompetitionDate || null
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setGeneratedStructure(data);
+        toast.success('Estructura generada exitosamente');
+      } else {
+        const error = await response.json();
+        toast.error(error.detail || 'Error al generar estructura');
+      }
+    } catch (error) {
+      console.error('Generation error:', error);
+      toast.error('Error al generar estructura');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  // Create plan from generated structure
+  const handleCreateFromGenerated = async () => {
+    if (!generatedStructure) {
+      toast.error('Primero genera la estructura');
+      return;
+    }
+    
+    const plan = {
+      id: `plan-${Date.now()}`,
+      name: planConfig.name || `Plan ${generatedStructure.sport_name} - ${generatedStructure.model_name}`,
+      model: generatedStructure.model,
+      modelName: generatedStructure.model_name,
+      sport: generatedStructure.sport,
+      sportName: generatedStructure.sport_name,
+      duration: planConfig.duration,
+      totalWeeks: generatedStructure.total_weeks,
+      startDate: planConfig.startDate,
+      sessionsPerWeek: generatedStructure.sessions_per_week,
+      athleteLevel: planConfig.athleteLevel,
+      mainObjective: planConfig.mainObjective || generatedStructure.primary_qualities.join(', '),
+      mainCompetition: planConfig.mainCompetition,
+      mainCompetitionDate: planConfig.mainCompetitionDate,
+      macrocycles: generatedStructure.macrocycles.map(macro => ({
+        ...macro,
+        phase: {
+          id: macro.phase,
+          name: macro.name,
+          volumePercent: macro.volume_percent,
+          intensityPercent: macro.intensity_percent,
+          color: ['#3B82F6', '#8B5CF6', '#F59E0B', '#10B981', '#6B7280'][Math.floor(Math.random() * 5)]
+        },
+        mesocycles: (macro.mesocycles || []).map(meso => ({
+          ...meso,
+          type: {
+            id: meso.type,
+            name: meso.name.split(' - ')[1] || meso.name,
+            loadFactor: meso.load_factor || 1.0
+          },
+          microcycles: (meso.microcycles || []).map(micro => ({
+            ...micro,
+            type: MICROCYCLE_TYPES[micro.type] || { id: micro.type, name: micro.type, load: micro.load_percent }
+          }))
+        }))
+      })),
+      chartData: generatedStructure.volume_chart.map((v, i) => ({
+        ...v,
+        intensity: generatedStructure.intensity_chart[i]?.intensity || 0
+      })),
+      createdAt: new Date().toISOString()
+    };
+    
+    rebuildPlanData(plan);
+    
+    // Save to API
+    const savedPlan = await savePlanToAPI(plan);
+    
+    setPlans(prev => [savedPlan, ...prev]);
+    setSelectedPlan(savedPlan);
+    setActiveView('detail');
+    setGeneratedStructure(null);
+    toast.success('Plan creado exitosamente con estructura generada');
+  };
+
   // ============ RENDER: HISTORY ============
   const renderHistory = () => (
     <div className="space-y-6">
