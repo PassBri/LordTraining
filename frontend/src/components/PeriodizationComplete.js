@@ -40,7 +40,8 @@ const MESOCYCLE_TYPES = [
   { id: 'recuperacion', name: 'Recuperación', color: '#A78BFA', loadFactor: 0.5 }
 ];
 
-const MICROCYCLE_TYPES = [
+// Microcycle types array (legacy) - keeping for compatibility
+const MICROCYCLE_TYPES_ARRAY = [
   { id: 'corriente', name: 'Corriente', color: '#64748B', loadPercent: 70 },
   { id: 'carga', name: 'De Carga', color: '#3B82F6', loadPercent: 85 },
   { id: 'choque', name: 'De Choque', color: '#EF4444', loadPercent: 100 },
