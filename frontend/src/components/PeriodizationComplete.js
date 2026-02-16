@@ -1384,29 +1384,27 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
               </div>
             </div>
           )}
-                <div><p className="text-2xl font-bold text-blue-600">{CYCLE_DURATIONS[planConfig.duration]?.weeks}</p><p className="text-sm text-slate-500">Semanas</p></div>
-                <div><p className="text-2xl font-bold text-indigo-600">{planConfig.sessionsPerWeek}</p><p className="text-sm text-slate-500">Sesiones/Sem</p></div>
-                <div><p className="text-2xl font-bold text-purple-600">{Math.ceil((CYCLE_DURATIONS[planConfig.duration]?.weeks || 0) / 4)}</p><p className="text-sm text-slate-500">Mesociclos</p></div>
-                <div><p className="text-2xl font-bold text-emerald-600">{(CYCLE_DURATIONS[planConfig.duration]?.weeks || 0) * planConfig.sessionsPerWeek}</p><p className="text-sm text-slate-500">Total Sesiones</p></div>
-              </div>
-            </div>
-          )}
 
+          {/* Navigation Buttons */}
           <div className="flex justify-between mt-8 pt-6 border-t">
             <Button variant="outline" onClick={() => wizardStep > 1 ? setWizardStep(wizardStep - 1) : setActiveView('history')}>
               <ChevronLeft className="w-4 h-4 mr-2" /> {wizardStep > 1 ? 'Anterior' : 'Cancelar'}
             </Button>
-            {wizardStep < 4 ? (
+            {wizardStep < 5 ? (
               <Button 
                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6" 
                 onClick={() => setWizardStep(wizardStep + 1)} 
-                disabled={wizardStep === 1 && !planConfig.model}
+                disabled={(wizardStep === 1 && !planConfig.sport) || (wizardStep === 2 && !planConfig.model) || (wizardStep === 3 && !planConfig.startDate)}
               >
                 Siguiente <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6" onClick={handleCreatePlan} disabled={!planConfig.startDate}>
-                <Check className="w-4 h-4 mr-2" /> Crear Plan
+              <Button 
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold px-6" 
+                onClick={generatedStructure ? handleCreateFromGenerated : handleCreatePlan} 
+                disabled={!planConfig.startDate}
+              >
+                <Check className="w-4 h-4 mr-2" /> {generatedStructure ? 'Crear con Estructura' : 'Crear Plan'}
               </Button>
             )}
           </div>
