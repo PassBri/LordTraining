@@ -173,6 +173,15 @@ const MODEL_CATEGORIES = {
   advanced: { name: 'Modelos Avanzados', color: 'bg-red-100 border-red-400', icon: '🎯' }
 };
 
+const MICROCYCLE_TYPES = {
+  restablecimiento: { id: 'restablecimiento', name: 'Restablecimiento', load: 45, description: 'Recuperación activa' },
+  corriente: { id: 'corriente', name: 'Corriente', load: 70, description: 'Carga normal' },
+  aproximacion: { id: 'aproximacion', name: 'Aproximación', load: 75, description: 'Pre-competencia' },
+  carga: { id: 'carga', name: 'Carga', load: 85, description: 'Aumento de carga' },
+  choque: { id: 'choque', name: 'Choque', load: 100, description: 'Carga máxima' },
+  competitivo: { id: 'competitivo', name: 'Competitivo', load: 60, description: 'Semana de competencia' }
+};
+
 // ============ COMPONENTE PRINCIPAL ============
 const PeriodizationComplete = ({ athleteId, athleteName }) => {
   const [loading, setLoading] = useState(false);
