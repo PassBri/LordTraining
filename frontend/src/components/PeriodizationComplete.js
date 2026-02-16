@@ -909,7 +909,12 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
           <Button variant="outline" onClick={() => openCalculator('1rm')}>
             <Activity className="w-4 h-4 mr-2" /> Calculadoras
           </Button>
-          <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg text-white" onClick={() => { setWizardStep(1); setPlanConfig({ name: '', model: '', duration: 'annual', startDate: '', sessionsPerWeek: 5, mainObjective: '', mainCompetition: '', mainCompetitionDate: '' }); setActiveView('create'); }}>
+          <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg text-white" onClick={() => { 
+            setWizardStep(1); 
+            setPlanConfig({ name: '', model: '', sport: 'general', duration: 'annual', startDate: '', sessionsPerWeek: 5, athleteLevel: 'intermediate', mainObjective: '', mainCompetition: '', mainCompetitionDate: '' }); 
+            setGeneratedStructure(null);
+            setActiveView('create'); 
+          }}>
             <Plus className="w-4 h-4 mr-2" /> Nuevo Plan
           </Button>
         </div>
