@@ -7,7 +7,7 @@ import requests
 import os
 import time
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://plan-structure-view.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://coach-plan-builder.preview.emergentagent.com').rstrip('/')
 
 class TestTournamentFlow:
     """Full tournament workflow tests"""
