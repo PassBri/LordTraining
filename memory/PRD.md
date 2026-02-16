@@ -100,15 +100,30 @@ Sistema inteligente de planificación deportiva con IA que permite gestionar atl
 5. ✅ Compartir planes con link público
 6. ✅ Duplicar planes
 7. ✅ Frontend integrado con API
+8. ✅ **Generador Automático de Estructura Científica** (NUEVO - 16-Feb-2025)
+   - Endpoint: `POST /api/generate-structure`
+   - Genera estructura óptima basada en: modelo de periodización, deporte, duración y nivel del atleta
+   - Aplica principios científicos de los documentos de referencia
+   - Calcula distribución de volumen e intensidad por fase
+   - Genera macrociclos, mesociclos y microciclos automáticamente
+9. ✅ **Wizard de 5 Pasos para Crear Plan**:
+   - Paso 1: Selección de Deporte (Fuerza, Resistencia, Velocidad, Equipos, etc.)
+   - Paso 2: Selección de Modelo de Periodización (17 modelos disponibles)
+   - Paso 3: Configuración de Duración (Olímpico, Bianual, Anual, Semestral, Trimestral, Mensual)
+   - Paso 4: Generación de Estructura Científica Automática
+   - Paso 5: Resumen y Creación del Plan
 
 ## Issues Conocidos
-- **P1**: Sección "Caracterización del Deporte" crashea la app (en DashboardPage.js)
+- **P2**: Sección "Caracterización del Deporte" crashea la app (en DashboardPage.js)
+- **LOW**: Función Compartir requiere permisos de Clipboard API en navegador
 
 ## Próximas Tareas
-1. **P2**: Tests físicos integrados en el wizard de creación
-2. **P2**: Regression test del Tournament Manager
-3. **P2**: Mejorar generación automática de estructura basada en modelo seleccionado
-4. **P3**: Integrar sugerencias del AI Coach con el sistema de planes
+1. **P1**: Implementar funciones avanzadas: Imprimir, Compartir mejorado, Duplicar desde historial
+2. **P1**: Refactorizar PeriodizationComplete.js (900+ líneas - dividir en componentes)
+3. **P2**: Tests físicos integrados en el wizard de creación
+4. **P2**: Regression test del Tournament Manager
+5. **P3**: Integrar sugerencias del AI Coach con el sistema de planes
+6. **P3**: Migrar datos de torneos a MongoDB
 
 ## Credenciales de Prueba
 - Email: test@train.com
