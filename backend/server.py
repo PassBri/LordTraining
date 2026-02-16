@@ -873,6 +873,594 @@ async def get_cycle_durations():
     ]
     return durations
 
+# =============== TRAINING PLANS CRUD ===============
+PERIODIZATION_MODELS_INFO = {
+    "traditional": {"name": "Tradicional (Matveiev)", "category": "classic"},
+    "atr": {"name": "ATR (Issurin)", "category": "classic"},
+    "blocks": {"name": "Bloques Concentrados (Verkhoshansky)", "category": "classic"},
+    "undulating_daily": {"name": "Ondulatorio Diario (DUP)", "category": "undulating"},
+    "undulating_weekly": {"name": "Ondulatorio Semanal (WUP)", "category": "undulating"},
+    "flexible_nonlinear": {"name": "No Lineal Flexible (Kraemer)", "category": "undulating"},
+    "conjugate": {"name": "Conjugado (Westside/Simmons)", "category": "contemporary"},
+    "triphasic": {"name": "Trifásico (Dietz)", "category": "contemporary"},
+    "vertical_integration": {"name": "Integración Vertical (Francis)", "category": "contemporary"},
+    "french_contrast": {"name": "Contraste Francés", "category": "contemporary"},
+    "tactical": {"name": "Periodización Táctica (Frade)", "category": "sport_specific"},
+    "reverse_linear": {"name": "Lineal Inversa", "category": "sport_specific"},
+    "concurrent": {"name": "Concurrente", "category": "sport_specific"},
+    "polarized": {"name": "Polarizado (Seiler)", "category": "sport_specific"},
+    "cybernetic": {"name": "Cibernético (Bondarchuk)", "category": "advanced"},
+    "pendulum": {"name": "Péndulo (Arosiev/Kalinin)", "category": "advanced"},
+    "sequential": {"name": "Secuencial (Tschiene)", "category": "advanced"}
+}
+
+@api_router.post("/training-plans", response_model=TrainingPlanResponse)
+async def create_training_plan(plan: TrainingPlanCreate, user: dict = Depends(get_current_user)):
+    """Create a complete training plan with all structures"""
+    plan_id = str(uuid.uuid4())
+    now = datetime.now(timezone.utc).isoformat()
+    
+    # Calculate end date
+    from datetime import datetime as dt
+    start = dt.fromisoformat(plan.start_date.replace('Z', '+00:00') if 'Z' in plan.start_date else plan.start_date)
+    end = start + timedelta(weeks=plan.total_weeks)
+    
+    # Generate IDs for nested structures
+    macrocycles_with_ids = []
+    for macro in plan.macrocycles:
+        macro_dict = macro.model_dump()
+        macro_dict["id"] = macro_dict.get("id") or str(uuid.uuid4())
+        
+        mesos_with_ids = []
+        for meso in macro_dict.get("mesocycles", []):
+            meso["id"] = meso.get("id") or str(uuid.uuid4())
+            
+            micros_with_ids = []
+            for micro in meso.get("microcycles", []):
+                micro["id"] = micro.get("id") or str(uuid.uuid4())
+                
+                sessions_with_ids = []
+                for session in micro.get("sessions", []):
+                    session["id"] = session.get("id") or str(uuid.uuid4())
+                    sessions_with_ids.append(session)
+                micro["sessions"] = sessions_with_ids
+                micros_with_ids.append(micro)
+            meso["microcycles"] = micros_with_ids
+            mesos_with_ids.append(meso)
+        macro_dict["mesocycles"] = mesos_with_ids
+        macrocycles_with_ids.append(macro_dict)
+    
+    model_info = PERIODIZATION_MODELS_INFO.get(plan.model, {"name": plan.model})
+    
+    doc = {
+        "id": plan_id,
+        "coach_id": user["id"],
+        "name": plan.name,
+        "athlete_id": plan.athlete_id,
+        "sport": plan.sport,
+        "model": plan.model,
+        "model_name": model_info.get("name", plan.model),
+        "duration_type": plan.duration_type,
+        "total_weeks": plan.total_weeks,
+        "start_date": plan.start_date,
+        "end_date": end.isoformat(),
+        "sessions_per_week": plan.sessions_per_week,
+        "main_objective": plan.main_objective,
+        "main_competition": plan.main_competition,
+        "main_competition_date": plan.main_competition_date,
+        "macrocycles": macrocycles_with_ids,
+        "status": "active",
+        "share_token": None,
+        "created_at": now,
+        "updated_at": now
+    }
+    
+    await db.training_plans.insert_one(doc)
+    doc.pop("_id", None)
+    return TrainingPlanResponse(**doc)
+
+@api_router.get("/training-plans", response_model=List[TrainingPlanResponse])
+async def get_training_plans(user: dict = Depends(get_current_user)):
+    """Get all training plans for the current user"""
+    plans = await db.training_plans.find({"coach_id": user["id"]}, {"_id": 0}).to_list(1000)
+    return [TrainingPlanResponse(**p) for p in plans]
+
+@api_router.get("/training-plans/{plan_id}", response_model=TrainingPlanResponse)
+async def get_training_plan(plan_id: str, user: dict = Depends(get_current_user)):
+    """Get a specific training plan"""
+    plan = await db.training_plans.find_one({"id": plan_id, "coach_id": user["id"]}, {"_id": 0})
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    return TrainingPlanResponse(**plan)
+
+@api_router.put("/training-plans/{plan_id}", response_model=TrainingPlanResponse)
+async def update_training_plan(plan_id: str, plan: TrainingPlanCreate, user: dict = Depends(get_current_user)):
+    """Update an existing training plan"""
+    existing = await db.training_plans.find_one({"id": plan_id, "coach_id": user["id"]})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    
+    now = datetime.now(timezone.utc).isoformat()
+    
+    # Calculate end date
+    from datetime import datetime as dt
+    start = dt.fromisoformat(plan.start_date.replace('Z', '+00:00') if 'Z' in plan.start_date else plan.start_date)
+    end = start + timedelta(weeks=plan.total_weeks)
+    
+    # Generate IDs for nested structures
+    macrocycles_with_ids = []
+    for macro in plan.macrocycles:
+        macro_dict = macro.model_dump()
+        macro_dict["id"] = macro_dict.get("id") or str(uuid.uuid4())
+        
+        mesos_with_ids = []
+        for meso in macro_dict.get("mesocycles", []):
+            meso["id"] = meso.get("id") or str(uuid.uuid4())
+            
+            micros_with_ids = []
+            for micro in meso.get("microcycles", []):
+                micro["id"] = micro.get("id") or str(uuid.uuid4())
+                
+                sessions_with_ids = []
+                for session in micro.get("sessions", []):
+                    session["id"] = session.get("id") or str(uuid.uuid4())
+                    sessions_with_ids.append(session)
+                micro["sessions"] = sessions_with_ids
+                micros_with_ids.append(micro)
+            meso["microcycles"] = micros_with_ids
+            mesos_with_ids.append(meso)
+        macro_dict["mesocycles"] = mesos_with_ids
+        macrocycles_with_ids.append(macro_dict)
+    
+    model_info = PERIODIZATION_MODELS_INFO.get(plan.model, {"name": plan.model})
+    
+    update_data = {
+        "name": plan.name,
+        "athlete_id": plan.athlete_id,
+        "sport": plan.sport,
+        "model": plan.model,
+        "model_name": model_info.get("name", plan.model),
+        "duration_type": plan.duration_type,
+        "total_weeks": plan.total_weeks,
+        "start_date": plan.start_date,
+        "end_date": end.isoformat(),
+        "sessions_per_week": plan.sessions_per_week,
+        "main_objective": plan.main_objective,
+        "main_competition": plan.main_competition,
+        "main_competition_date": plan.main_competition_date,
+        "macrocycles": macrocycles_with_ids,
+        "updated_at": now
+    }
+    
+    await db.training_plans.update_one(
+        {"id": plan_id, "coach_id": user["id"]},
+        {"$set": update_data}
+    )
+    
+    updated = await db.training_plans.find_one({"id": plan_id}, {"_id": 0})
+    return TrainingPlanResponse(**updated)
+
+@api_router.delete("/training-plans/{plan_id}")
+async def delete_training_plan(plan_id: str, user: dict = Depends(get_current_user)):
+    """Delete a training plan"""
+    result = await db.training_plans.delete_one({"id": plan_id, "coach_id": user["id"]})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    return {"message": "Plan deleted successfully"}
+
+@api_router.post("/training-plans/{plan_id}/duplicate", response_model=TrainingPlanResponse)
+async def duplicate_training_plan(plan_id: str, user: dict = Depends(get_current_user)):
+    """Duplicate an existing training plan"""
+    original = await db.training_plans.find_one({"id": plan_id, "coach_id": user["id"]}, {"_id": 0})
+    if not original:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    
+    new_id = str(uuid.uuid4())
+    now = datetime.now(timezone.utc).isoformat()
+    
+    # Deep copy with new IDs
+    def regenerate_ids(obj):
+        if isinstance(obj, dict):
+            if "id" in obj:
+                obj["id"] = str(uuid.uuid4())
+            for key, value in obj.items():
+                regenerate_ids(value)
+        elif isinstance(obj, list):
+            for item in obj:
+                regenerate_ids(item)
+    
+    import copy
+    new_plan = copy.deepcopy(original)
+    new_plan["id"] = new_id
+    new_plan["name"] = f"{original['name']} (Copia)"
+    new_plan["share_token"] = None
+    new_plan["created_at"] = now
+    new_plan["updated_at"] = now
+    regenerate_ids(new_plan.get("macrocycles", []))
+    
+    await db.training_plans.insert_one(new_plan)
+    new_plan.pop("_id", None)
+    return TrainingPlanResponse(**new_plan)
+
+@api_router.post("/training-plans/{plan_id}/share")
+async def share_training_plan(plan_id: str, user: dict = Depends(get_current_user)):
+    """Generate a share token for a training plan"""
+    plan = await db.training_plans.find_one({"id": plan_id, "coach_id": user["id"]})
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    
+    share_token = str(uuid.uuid4())[:12]
+    
+    await db.training_plans.update_one(
+        {"id": plan_id},
+        {"$set": {"share_token": share_token}}
+    )
+    
+    return {"share_token": share_token, "share_url": f"/plan/shared/{share_token}"}
+
+@api_router.get("/training-plans/shared/{share_token}")
+async def get_shared_training_plan(share_token: str):
+    """Get a shared training plan (public access)"""
+    plan = await db.training_plans.find_one({"share_token": share_token}, {"_id": 0})
+    if not plan:
+        raise HTTPException(status_code=404, detail="Shared plan not found")
+    
+    # Remove sensitive info
+    plan.pop("coach_id", None)
+    return plan
+
+# =============== SCIENTIFIC CALCULATORS ===============
+@api_router.post("/calculators/load", response_model=LoadCalculationResponse)
+async def calculate_load_scientific(request: LoadCalculationRequest, user: dict = Depends(get_current_user)):
+    """Scientific calculations for training loads, 1RM, zones, etc."""
+    
+    calc_type = request.calculation_type
+    params = request.params
+    
+    if calc_type == "1rm":
+        # Calculate 1RM using multiple formulas
+        weight = params.get("weight", 0)
+        reps = params.get("reps", 1)
+        
+        # Brzycki Formula: 1RM = weight × (36 / (37 - reps))
+        brzycki = weight * (36 / (37 - reps)) if reps < 37 else weight
+        # Epley Formula: 1RM = weight × (1 + 0.0333 × reps)
+        epley = weight * (1 + 0.0333 * reps)
+        # Lander Formula: 1RM = (100 × weight) / (101.3 - 2.67123 × reps)
+        lander = (100 * weight) / (101.3 - 2.67123 * reps) if reps < 38 else weight
+        # Average
+        avg_1rm = round((brzycki + epley + lander) / 3, 1)
+        
+        # Calculate percentages
+        percentages = {}
+        for pct in [100, 95, 90, 85, 80, 75, 70, 65, 60, 55, 50]:
+            percentages[f"{pct}%"] = round(avg_1rm * (pct / 100), 1)
+        
+        return LoadCalculationResponse(
+            result={
+                "1rm_brzycki": round(brzycki, 1),
+                "1rm_epley": round(epley, 1),
+                "1rm_lander": round(lander, 1),
+                "1rm_average": avg_1rm,
+                "percentages": percentages,
+                "recommended_zones": {
+                    "fuerza_maxima": f"{percentages['85%']} - {percentages['100%']} kg (85-100%)",
+                    "hipertrofia": f"{percentages['65%']} - {percentages['80%']} kg (65-80%)",
+                    "resistencia_fuerza": f"{percentages['50%']} - {percentages['65%']} kg (50-65%)",
+                    "potencia": f"{percentages['70%']} - {percentages['85%']} kg (70-85%)"
+                }
+            },
+            formula_used="Promedio de Brzycki, Epley y Lander",
+            explanation=f"1RM estimado: {avg_1rm}kg basado en {weight}kg x {reps} repeticiones"
+        )
+    
+    elif calc_type == "heart_rate_zones":
+        # Calculate HR zones using Karvonen formula
+        age = params.get("age", 30)
+        resting_hr = params.get("resting_hr", 60)
+        
+        # Max HR = 220 - age (or use provided max_hr)
+        max_hr = params.get("max_hr") or (220 - age)
+        hr_reserve = max_hr - resting_hr
+        
+        zones = {}
+        zone_definitions = [
+            ("Z1 - Recuperación", 50, 60, "Recuperación activa, calentamiento"),
+            ("Z2 - Aeróbico Base", 60, 70, "Base aeróbica, quema de grasas"),
+            ("Z3 - Aeróbico", 70, 80, "Umbral aeróbico, resistencia"),
+            ("Z4 - Umbral Anaeróbico", 80, 90, "Umbral láctico, tempo"),
+            ("Z5 - VO2 Máx", 90, 100, "Capacidad máxima, intervalos")
+        ]
+        
+        for name, low_pct, high_pct, desc in zone_definitions:
+            low_hr = round(resting_hr + (hr_reserve * low_pct / 100))
+            high_hr = round(resting_hr + (hr_reserve * high_pct / 100))
+            zones[name] = {
+                "range": f"{low_hr} - {high_hr} bpm",
+                "low": low_hr,
+                "high": high_hr,
+                "percentage": f"{low_pct}-{high_pct}%",
+                "description": desc
+            }
+        
+        return LoadCalculationResponse(
+            result={
+                "max_hr": max_hr,
+                "resting_hr": resting_hr,
+                "hr_reserve": hr_reserve,
+                "zones": zones
+            },
+            formula_used="Fórmula de Karvonen: FC = FC_reposo + (FC_reserva × %intensidad)",
+            explanation=f"Zonas calculadas para FC máx {max_hr}bpm, FC reposo {resting_hr}bpm"
+        )
+    
+    elif calc_type == "volume_distribution":
+        # Distribute volume across weeks using periodization principles
+        total_volume = params.get("total_volume", 1000)  # e.g., km, tons, hours
+        weeks = params.get("weeks", 12)
+        progression_type = params.get("progression", "linear")  # linear, undulating, step
+        
+        weekly_volumes = []
+        
+        if progression_type == "linear":
+            # Linear progression: start at 70%, end at 100%
+            start_pct = 0.7
+            end_pct = 1.0
+            avg_weekly = total_volume / weeks
+            for i in range(weeks):
+                pct = start_pct + (end_pct - start_pct) * (i / (weeks - 1)) if weeks > 1 else 1
+                weekly_volumes.append(round(avg_weekly * pct, 1))
+        
+        elif progression_type == "undulating":
+            # Undulating: high-low-medium pattern
+            patterns = [1.0, 0.7, 0.85, 1.0, 0.75, 0.9]
+            avg_weekly = total_volume / weeks
+            for i in range(weeks):
+                pct = patterns[i % len(patterns)]
+                weekly_volumes.append(round(avg_weekly * pct, 1))
+        
+        elif progression_type == "step":
+            # Step loading: 3 weeks up, 1 week down
+            avg_weekly = total_volume / weeks
+            for i in range(weeks):
+                week_in_block = i % 4
+                if week_in_block == 3:
+                    pct = 0.6  # Descarga
+                else:
+                    pct = 0.8 + (week_in_block * 0.1)
+                weekly_volumes.append(round(avg_weekly * pct, 1))
+        
+        return LoadCalculationResponse(
+            result={
+                "total_volume": total_volume,
+                "weeks": weeks,
+                "progression_type": progression_type,
+                "weekly_volumes": weekly_volumes,
+                "weekly_breakdown": [
+                    {"week": i+1, "volume": v, "percentage": round(v / (total_volume/weeks) * 100)}
+                    for i, v in enumerate(weekly_volumes)
+                ]
+            },
+            formula_used=f"Progresión {progression_type}",
+            explanation=f"Distribución de {total_volume} unidades en {weeks} semanas"
+        )
+    
+    elif calc_type == "intensity_scale":
+        # Return standard intensity scales
+        return LoadCalculationResponse(
+            result={
+                "vasconcelos_raposo": {
+                    "recuperacion": {"range": "0-50%", "description": "Recuperación activa"},
+                    "floja": {"range": "55-65%", "description": "Carga ligera"},
+                    "media": {"range": "70-80%", "description": "Carga media"},
+                    "fuerte": {"range": "85-95%", "description": "Carga alta"},
+                    "muy_fuerte": {"range": "98-100%", "description": "Carga máxima"}
+                },
+                "microcycle_types": {
+                    "restablecimiento": {"load": 45, "description": "Recuperación post-competencia"},
+                    "corriente": {"load": 70, "description": "Carga normal de trabajo"},
+                    "aproximacion": {"load": 75, "description": "Preparación pre-competencia"},
+                    "carga": {"load": 85, "description": "Aumento de carga"},
+                    "choque": {"load": 100, "description": "Carga máxima de impacto"},
+                    "competitivo": {"load": 60, "description": "Semana de competencia"}
+                },
+                "mesocycle_types": {
+                    "entrante": {"load_factor": 0.7, "description": "Adaptación inicial"},
+                    "basico_desarrollador": {"load_factor": 1.0, "description": "Desarrollo máximo"},
+                    "basico_estabilizador": {"load_factor": 0.9, "description": "Consolidación"},
+                    "precompetitivo": {"load_factor": 0.85, "description": "Ajuste pre-competencia"},
+                    "competitivo": {"load_factor": 0.75, "description": "Fase de competición"},
+                    "recuperacion": {"load_factor": 0.5, "description": "Transición y descanso"}
+                }
+            },
+            formula_used="Escalas de Vasconcelos Raposo y clasificación estándar",
+            explanation="Escalas de intensidad para planificación deportiva"
+        )
+    
+    elif calc_type == "vo2max":
+        # Calculate VO2 max from different tests
+        test_type = params.get("test_type", "cooper")
+        
+        if test_type == "cooper":
+            # Cooper Test: VO2max = (distance_m - 504.9) / 44.73
+            distance_m = params.get("distance_m", 2400)
+            vo2max = round((distance_m - 504.9) / 44.73, 1)
+        
+        elif test_type == "rockport":
+            # Rockport Walk Test
+            weight_kg = params.get("weight_kg", 70)
+            age = params.get("age", 30)
+            time_minutes = params.get("time_minutes", 15)
+            hr_end = params.get("hr_end", 140)
+            gender = params.get("gender", "male")
+            gender_factor = 0 if gender == "female" else 1
+            
+            vo2max = round(132.853 - (0.0769 * weight_kg * 2.205) - (0.3877 * age) + (6.315 * gender_factor) - (3.2649 * time_minutes) - (0.1565 * hr_end), 1)
+        
+        elif test_type == "1mile":
+            # 1.5 Mile Run: VO2max = 483 / time_minutes + 3.5
+            time_minutes = params.get("time_minutes", 12)
+            vo2max = round(483 / time_minutes + 3.5, 1)
+        
+        else:
+            vo2max = 0
+        
+        # Fitness classification
+        classifications = {
+            "excelente": 55,
+            "bueno": 45,
+            "promedio": 35,
+            "bajo_promedio": 30,
+            "pobre": 0
+        }
+        
+        fitness_level = "pobre"
+        for level, threshold in classifications.items():
+            if vo2max >= threshold:
+                fitness_level = level
+                break
+        
+        return LoadCalculationResponse(
+            result={
+                "vo2max": vo2max,
+                "fitness_level": fitness_level,
+                "unit": "ml/kg/min",
+                "training_zones": {
+                    "z1_recovery": f"{round(vo2max * 0.5, 1)} - {round(vo2max * 0.6, 1)}",
+                    "z2_aerobic": f"{round(vo2max * 0.6, 1)} - {round(vo2max * 0.7, 1)}",
+                    "z3_tempo": f"{round(vo2max * 0.7, 1)} - {round(vo2max * 0.8, 1)}",
+                    "z4_threshold": f"{round(vo2max * 0.8, 1)} - {round(vo2max * 0.9, 1)}",
+                    "z5_vo2max": f"{round(vo2max * 0.9, 1)} - {round(vo2max, 1)}"
+                }
+            },
+            formula_used=f"Test de {test_type.title()}",
+            explanation=f"VO2máx estimado: {vo2max} ml/kg/min - Nivel: {fitness_level}"
+        )
+    
+    else:
+        raise HTTPException(status_code=400, detail=f"Unknown calculation type: {calc_type}")
+
+# =============== EXPORT TRAINING PLAN PDF ===============
+@api_router.get("/training-plans/{plan_id}/export/pdf")
+async def export_training_plan_pdf(plan_id: str, user: dict = Depends(get_current_user)):
+    """Export training plan as PDF"""
+    plan = await db.training_plans.find_one({"id": plan_id, "coach_id": user["id"]}, {"_id": 0})
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    
+    athlete = None
+    if plan.get("athlete_id"):
+        athlete = await db.athletes.find_one({"id": plan["athlete_id"]}, {"_id": 0})
+    
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+    
+    # Header
+    c.setFillColor(HexColor("#1e3a5f"))
+    c.rect(0, height - 80, width, 80, fill=True)
+    c.setFillColor(HexColor("#ffffff"))
+    c.setFont("Helvetica-Bold", 24)
+    c.drawString(50, height - 50, "SISTEMA TRAIN")
+    c.setFont("Helvetica", 12)
+    c.drawString(50, height - 70, f"Plan de Entrenamiento: {plan['name']}")
+    
+    y = height - 120
+    
+    # Plan Info
+    c.setFillColor(HexColor("#0f172a"))
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(50, y, "Información General")
+    y -= 25
+    
+    c.setFont("Helvetica", 11)
+    c.setFillColor(HexColor("#475569"))
+    info_lines = [
+        f"Atleta: {athlete['name'] if athlete else 'No asignado'}",
+        f"Deporte: {plan.get('sport', 'N/A')}",
+        f"Modelo: {plan.get('model_name', plan.get('model', 'N/A'))}",
+        f"Duración: {plan.get('total_weeks', 0)} semanas",
+        f"Período: {plan.get('start_date', '')} - {plan.get('end_date', '')}",
+        f"Sesiones/Semana: {plan.get('sessions_per_week', 5)}",
+        f"Objetivo: {plan.get('main_objective', 'N/A')}"
+    ]
+    
+    for line in info_lines:
+        c.drawString(60, y, line)
+        y -= 16
+    
+    y -= 20
+    
+    # Macrocycles
+    for macro in plan.get("macrocycles", []):
+        if y < 150:
+            c.showPage()
+            y = height - 50
+        
+        c.setFillColor(HexColor("#3B82F6"))
+        c.setFont("Helvetica-Bold", 12)
+        c.drawString(50, y, f"MACROCICLO: {macro.get('name', 'Sin nombre')}")
+        y -= 18
+        
+        c.setFont("Helvetica", 10)
+        c.setFillColor(HexColor("#64748b"))
+        c.drawString(60, y, f"Fase: {macro.get('phase', '')} | Semanas: {macro.get('weeks', 0)} | Vol: {macro.get('volume_percent', 0)}% | Int: {macro.get('intensity_percent', 0)}%")
+        y -= 20
+        
+        # Mesocycles
+        for meso in macro.get("mesocycles", []):
+            if y < 120:
+                c.showPage()
+                y = height - 50
+            
+            c.setFillColor(HexColor("#8B5CF6"))
+            c.setFont("Helvetica-Bold", 11)
+            c.drawString(70, y, f"Mesociclo: {meso.get('name', '')}")
+            y -= 15
+            
+            c.setFont("Helvetica", 9)
+            c.setFillColor(HexColor("#64748b"))
+            c.drawString(80, y, f"Tipo: {meso.get('type', '')} | Semanas: {meso.get('weeks', 0)}")
+            y -= 15
+            
+            # Microcycles
+            for micro in meso.get("microcycles", []):
+                if y < 100:
+                    c.showPage()
+                    y = height - 50
+                
+                c.setFillColor(HexColor("#10B981"))
+                c.setFont("Helvetica-Bold", 10)
+                c.drawString(90, y, f"Sem {micro.get('week_number', '')}: {micro.get('name', '')} ({micro.get('type', '')})")
+                y -= 12
+                
+                # Sessions summary
+                sessions = micro.get("sessions", [])
+                if sessions:
+                    session_summary = ", ".join([f"D{s.get('day', '')}: {s.get('session_type', '')}" for s in sessions[:5]])
+                    c.setFont("Helvetica", 8)
+                    c.setFillColor(HexColor("#94a3b8"))
+                    c.drawString(100, y, session_summary)
+                    y -= 10
+            
+            y -= 5
+        y -= 10
+    
+    # Footer
+    c.setFont("Helvetica", 8)
+    c.setFillColor(HexColor("#94a3b8"))
+    c.drawString(50, 30, f"Generado por Sistema TRAIN - {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    
+    c.save()
+    buffer.seek(0)
+    
+    filename = f"plan_{plan['name'].replace(' ', '_')}.pdf"
+    return StreamingResponse(
+        buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
 # =============== ENTITIES ROUTES (Federaciones, Clubes, Escuelas, etc.) ===============
 @api_router.post("/entities", response_model=EntityResponse)
 async def create_entity(entity: EntityCreate, user: dict = Depends(get_current_user)):
