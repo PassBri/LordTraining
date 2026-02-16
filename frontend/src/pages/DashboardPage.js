@@ -4931,12 +4931,12 @@ const DashboardPage = () => {
                   }`}
                 >
                   <History className="w-4 h-4" />
-                  Historial
-                  {generatedPlans.length > 0 && (
+                  Planes
+                  {trainingPlans.length > 0 && (
                     <span className={`px-1.5 py-0.5 rounded-full text-xs ${
                       coachDrawerTab === 'history' ? 'bg-indigo-100 text-indigo-600' : 'bg-white/20'
                     }`}>
-                      {generatedPlans.length}
+                      {trainingPlans.length}
                     </span>
                   )}
                 </button>
