@@ -512,6 +512,23 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
   };
 
   // ============ HELPERS ============
+  
+  // Helper to find sport name from both catalogs
+  const getSportName = (sportId) => {
+    // First check user's custom sports
+    for (const category of userSports) {
+      const sport = category.sports?.find(s => s.id === sportId);
+      if (sport) return sport.name;
+    }
+    // Then check static catalog
+    for (const category of Object.keys(sportsCatalog)) {
+      const sport = sportsCatalog[category]?.find(s => s.id === sportId);
+      if (sport) return sport.name;
+    }
+    // Fallback to planConfig.sportName or the id itself
+    return planConfig.sportName || sportId;
+  };
+  
   const generateDefaultSessions = (count) => {
     const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
     const types = ['strength', 'endurance', 'speed', 'technical', 'recovery'];
