@@ -894,6 +894,558 @@ PERIODIZATION_MODELS_INFO = {
     "sequential": {"name": "Secuencial (Tschiene)", "category": "advanced"}
 }
 
+# =============== SPORT CONFIGURATIONS ===============
+SPORT_CONFIGS = {
+    # Deportes de Fuerza/Potencia
+    "powerlifting": {
+        "name": "Powerlifting", "category": "strength",
+        "prep_ratio": 0.60, "comp_ratio": 0.30, "trans_ratio": 0.10,
+        "sessions_per_week": 4, "intensity_focus": True,
+        "primary_qualities": ["fuerza_maxima", "potencia"],
+        "recommended_models": ["traditional", "blocks", "conjugate"]
+    },
+    "weightlifting": {
+        "name": "Halterofilia", "category": "strength",
+        "prep_ratio": 0.55, "comp_ratio": 0.35, "trans_ratio": 0.10,
+        "sessions_per_week": 5, "intensity_focus": True,
+        "primary_qualities": ["potencia", "tecnica", "fuerza_maxima"],
+        "recommended_models": ["traditional", "blocks", "atr"]
+    },
+    "bodybuilding": {
+        "name": "Culturismo", "category": "strength",
+        "prep_ratio": 0.70, "comp_ratio": 0.20, "trans_ratio": 0.10,
+        "sessions_per_week": 5, "intensity_focus": False,
+        "primary_qualities": ["hipertrofia", "definicion"],
+        "recommended_models": ["undulating_daily", "concurrent"]
+    },
+    # Deportes de Resistencia
+    "marathon": {
+        "name": "Maratón", "category": "endurance",
+        "prep_ratio": 0.65, "comp_ratio": 0.25, "trans_ratio": 0.10,
+        "sessions_per_week": 6, "intensity_focus": False,
+        "primary_qualities": ["resistencia_aerobica", "umbral_anaerobico"],
+        "recommended_models": ["traditional", "polarized", "reverse_linear"]
+    },
+    "triathlon": {
+        "name": "Triatlón", "category": "endurance",
+        "prep_ratio": 0.60, "comp_ratio": 0.30, "trans_ratio": 0.10,
+        "sessions_per_week": 6, "intensity_focus": False,
+        "primary_qualities": ["resistencia_aerobica", "transiciones", "fuerza_resistencia"],
+        "recommended_models": ["polarized", "concurrent", "atr"]
+    },
+    "cycling": {
+        "name": "Ciclismo", "category": "endurance",
+        "prep_ratio": 0.60, "comp_ratio": 0.30, "trans_ratio": 0.10,
+        "sessions_per_week": 5, "intensity_focus": False,
+        "primary_qualities": ["resistencia_aerobica", "potencia", "umbral"],
+        "recommended_models": ["polarized", "traditional", "atr"]
+    },
+    "swimming": {
+        "name": "Natación", "category": "endurance",
+        "prep_ratio": 0.55, "comp_ratio": 0.35, "trans_ratio": 0.10,
+        "sessions_per_week": 6, "intensity_focus": True,
+        "primary_qualities": ["tecnica", "resistencia", "velocidad"],
+        "recommended_models": ["traditional", "atr", "blocks"]
+    },
+    # Deportes de Velocidad/Sprint
+    "sprints": {
+        "name": "Velocidad (100m-400m)", "category": "speed",
+        "prep_ratio": 0.50, "comp_ratio": 0.40, "trans_ratio": 0.10,
+        "sessions_per_week": 5, "intensity_focus": True,
+        "primary_qualities": ["velocidad", "potencia", "tecnica"],
+        "recommended_models": ["vertical_integration", "blocks", "atr"]
+    },
+    "athletics_jumps": {
+        "name": "Saltos (Largo/Triple/Alto)", "category": "speed",
+        "prep_ratio": 0.50, "comp_ratio": 0.40, "trans_ratio": 0.10,
+        "sessions_per_week": 5, "intensity_focus": True,
+        "primary_qualities": ["potencia_explosiva", "tecnica", "velocidad"],
+        "recommended_models": ["blocks", "triphasic", "french_contrast"]
+    },
+    "athletics_throws": {
+        "name": "Lanzamientos", "category": "speed",
+        "prep_ratio": 0.55, "comp_ratio": 0.35, "trans_ratio": 0.10,
+        "sessions_per_week": 5, "intensity_focus": True,
+        "primary_qualities": ["potencia", "fuerza_maxima", "tecnica"],
+        "recommended_models": ["blocks", "conjugate", "traditional"]
+    },
+    # Deportes de Equipo
+    "football": {
+        "name": "Fútbol", "category": "team",
+        "prep_ratio": 0.25, "comp_ratio": 0.65, "trans_ratio": 0.10,
+        "sessions_per_week": 5, "intensity_focus": False,
+        "primary_qualities": ["resistencia_intermitente", "velocidad", "agilidad"],
+        "recommended_models": ["tactical", "undulating_weekly", "concurrent"]
+    },
+    "basketball": {
+        "name": "Baloncesto", "category": "team",
+        "prep_ratio": 0.30, "comp_ratio": 0.60, "trans_ratio": 0.10,
+        "sessions_per_week": 5, "intensity_focus": False,
+        "primary_qualities": ["potencia", "agilidad", "resistencia_intermitente"],
+        "recommended_models": ["undulating_weekly", "concurrent", "tactical"]
+    },
+    "volleyball": {
+        "name": "Voleibol", "category": "team",
+        "prep_ratio": 0.30, "comp_ratio": 0.60, "trans_ratio": 0.10,
+        "sessions_per_week": 5, "intensity_focus": True,
+        "primary_qualities": ["potencia_salto", "velocidad_reaccion", "tecnica"],
+        "recommended_models": ["undulating_weekly", "blocks", "concurrent"]
+    },
+    "handball": {
+        "name": "Balonmano", "category": "team",
+        "prep_ratio": 0.30, "comp_ratio": 0.60, "trans_ratio": 0.10,
+        "sessions_per_week": 5, "intensity_focus": False,
+        "primary_qualities": ["potencia", "resistencia", "agilidad"],
+        "recommended_models": ["tactical", "undulating_weekly", "concurrent"]
+    },
+    "rugby": {
+        "name": "Rugby", "category": "team",
+        "prep_ratio": 0.35, "comp_ratio": 0.55, "trans_ratio": 0.10,
+        "sessions_per_week": 5, "intensity_focus": False,
+        "primary_qualities": ["fuerza", "potencia", "resistencia"],
+        "recommended_models": ["concurrent", "undulating_weekly", "conjugate"]
+    },
+    # Deportes de Combate
+    "boxing": {
+        "name": "Boxeo", "category": "combat",
+        "prep_ratio": 0.50, "comp_ratio": 0.40, "trans_ratio": 0.10,
+        "sessions_per_week": 6, "intensity_focus": True,
+        "primary_qualities": ["potencia", "resistencia_especifica", "velocidad"],
+        "recommended_models": ["atr", "blocks", "traditional"]
+    },
+    "mma": {
+        "name": "MMA/Artes Marciales Mixtas", "category": "combat",
+        "prep_ratio": 0.50, "comp_ratio": 0.40, "trans_ratio": 0.10,
+        "sessions_per_week": 6, "intensity_focus": True,
+        "primary_qualities": ["resistencia_mixta", "potencia", "tecnica"],
+        "recommended_models": ["concurrent", "atr", "blocks"]
+    },
+    "judo": {
+        "name": "Judo", "category": "combat",
+        "prep_ratio": 0.50, "comp_ratio": 0.40, "trans_ratio": 0.10,
+        "sessions_per_week": 5, "intensity_focus": True,
+        "primary_qualities": ["potencia", "fuerza_agarre", "tecnica"],
+        "recommended_models": ["atr", "blocks", "traditional"]
+    },
+    "wrestling": {
+        "name": "Lucha", "category": "combat",
+        "prep_ratio": 0.50, "comp_ratio": 0.40, "trans_ratio": 0.10,
+        "sessions_per_week": 6, "intensity_focus": True,
+        "primary_qualities": ["fuerza_resistencia", "potencia", "tecnica"],
+        "recommended_models": ["atr", "traditional", "blocks"]
+    },
+    # Deportes de Raqueta
+    "tennis": {
+        "name": "Tenis", "category": "racquet",
+        "prep_ratio": 0.35, "comp_ratio": 0.55, "trans_ratio": 0.10,
+        "sessions_per_week": 5, "intensity_focus": True,
+        "primary_qualities": ["potencia", "agilidad", "resistencia_intermitente"],
+        "recommended_models": ["undulating_weekly", "concurrent", "atr"]
+    },
+    "badminton": {
+        "name": "Bádminton", "category": "racquet",
+        "prep_ratio": 0.35, "comp_ratio": 0.55, "trans_ratio": 0.10,
+        "sessions_per_week": 5, "intensity_focus": True,
+        "primary_qualities": ["velocidad", "agilidad", "resistencia"],
+        "recommended_models": ["undulating_weekly", "concurrent"]
+    },
+    # Fitness General
+    "fitness": {
+        "name": "Fitness General", "category": "fitness",
+        "prep_ratio": 0.80, "comp_ratio": 0.10, "trans_ratio": 0.10,
+        "sessions_per_week": 4, "intensity_focus": False,
+        "primary_qualities": ["fuerza_general", "resistencia", "composicion_corporal"],
+        "recommended_models": ["undulating_daily", "concurrent", "flexible_nonlinear"]
+    },
+    "crossfit": {
+        "name": "CrossFit", "category": "fitness",
+        "prep_ratio": 0.40, "comp_ratio": 0.50, "trans_ratio": 0.10,
+        "sessions_per_week": 5, "intensity_focus": True,
+        "primary_qualities": ["capacidad_trabajo", "potencia", "resistencia"],
+        "recommended_models": ["concurrent", "undulating_daily", "conjugate"]
+    },
+    # General
+    "general": {
+        "name": "Deporte General", "category": "general",
+        "prep_ratio": 0.50, "comp_ratio": 0.40, "trans_ratio": 0.10,
+        "sessions_per_week": 4, "intensity_focus": False,
+        "primary_qualities": ["fuerza", "resistencia", "velocidad"],
+        "recommended_models": ["traditional", "concurrent", "atr"]
+    }
+}
+
+# =============== MODEL-SPECIFIC PHASE DISTRIBUTIONS ===============
+MODEL_PHASE_DISTRIBUTIONS = {
+    "traditional": {
+        "name": "Tradicional (Matveiev)",
+        "description": "Progresión lineal de volumen a intensidad",
+        "phases": [
+            {"id": "prep_general", "name": "Preparatorio General", "abbr": "PG", "ratio": 0.25, "volume": 90, "intensity": 50, "meso_type": "basico_desarrollador"},
+            {"id": "prep_specific", "name": "Preparatorio Específico", "abbr": "PE", "ratio": 0.25, "volume": 70, "intensity": 75, "meso_type": "basico_estabilizador"},
+            {"id": "precompetitive", "name": "Precompetitivo", "abbr": "PC", "ratio": 0.15, "volume": 50, "intensity": 90, "meso_type": "precompetitivo"},
+            {"id": "competitive", "name": "Competitivo", "abbr": "CO", "ratio": 0.30, "volume": 35, "intensity": 95, "meso_type": "competitivo"},
+            {"id": "transition", "name": "Transición", "abbr": "TR", "ratio": 0.05, "volume": 40, "intensity": 40, "meso_type": "recuperacion"}
+        ]
+    },
+    "atr": {
+        "name": "ATR (Issurin)",
+        "description": "Bloques de Acumulación-Transformación-Realización",
+        "phases": [
+            {"id": "accumulation", "name": "Acumulación", "abbr": "AC", "ratio": 0.40, "volume": 85, "intensity": 60, "meso_type": "basico_desarrollador"},
+            {"id": "transformation", "name": "Transformación", "abbr": "TR", "ratio": 0.35, "volume": 60, "intensity": 85, "meso_type": "basico_estabilizador"},
+            {"id": "realization", "name": "Realización", "abbr": "RE", "ratio": 0.20, "volume": 40, "intensity": 95, "meso_type": "competitivo"},
+            {"id": "recovery", "name": "Recuperación", "abbr": "RC", "ratio": 0.05, "volume": 35, "intensity": 40, "meso_type": "recuperacion"}
+        ]
+    },
+    "blocks": {
+        "name": "Bloques Concentrados (Verkhoshansky)",
+        "description": "Cargas unidireccionales concentradas",
+        "phases": [
+            {"id": "block_a", "name": "Bloque A - Fuerza", "abbr": "BA", "ratio": 0.30, "volume": 95, "intensity": 70, "meso_type": "basico_desarrollador"},
+            {"id": "block_b", "name": "Bloque B - Potencia", "abbr": "BB", "ratio": 0.30, "volume": 60, "intensity": 90, "meso_type": "basico_estabilizador"},
+            {"id": "block_c", "name": "Bloque C - Velocidad", "abbr": "BC", "ratio": 0.25, "volume": 40, "intensity": 95, "meso_type": "precompetitivo"},
+            {"id": "competition", "name": "Competición", "abbr": "CO", "ratio": 0.15, "volume": 30, "intensity": 100, "meso_type": "competitivo"}
+        ]
+    },
+    "undulating_daily": {
+        "name": "Ondulatorio Diario (DUP)",
+        "description": "Variación diaria de estímulos",
+        "phases": [
+            {"id": "hypertrophy", "name": "Hipertrofia", "abbr": "HI", "ratio": 0.35, "volume": 80, "intensity": 65, "meso_type": "basico_desarrollador"},
+            {"id": "strength", "name": "Fuerza", "abbr": "FU", "ratio": 0.35, "volume": 60, "intensity": 85, "meso_type": "basico_estabilizador"},
+            {"id": "power", "name": "Potencia", "abbr": "PO", "ratio": 0.25, "volume": 45, "intensity": 90, "meso_type": "precompetitivo"},
+            {"id": "deload", "name": "Descarga", "abbr": "DE", "ratio": 0.05, "volume": 40, "intensity": 50, "meso_type": "recuperacion"}
+        ]
+    },
+    "undulating_weekly": {
+        "name": "Ondulatorio Semanal (WUP)",
+        "description": "Variación semanal de énfasis",
+        "phases": [
+            {"id": "accumulation", "name": "Acumulación", "abbr": "AC", "ratio": 0.40, "volume": 85, "intensity": 65, "meso_type": "basico_desarrollador"},
+            {"id": "intensification", "name": "Intensificación", "abbr": "IN", "ratio": 0.40, "volume": 55, "intensity": 88, "meso_type": "basico_estabilizador"},
+            {"id": "realization", "name": "Realización", "abbr": "RE", "ratio": 0.15, "volume": 40, "intensity": 95, "meso_type": "competitivo"},
+            {"id": "deload", "name": "Descarga", "abbr": "DE", "ratio": 0.05, "volume": 35, "intensity": 45, "meso_type": "recuperacion"}
+        ]
+    },
+    "conjugate": {
+        "name": "Conjugado (Westside)",
+        "description": "Desarrollo simultáneo de cualidades",
+        "phases": [
+            {"id": "max_effort", "name": "Esfuerzo Máximo", "abbr": "ME", "ratio": 0.35, "volume": 50, "intensity": 95, "meso_type": "basico_desarrollador"},
+            {"id": "dynamic_effort", "name": "Esfuerzo Dinámico", "abbr": "DE", "ratio": 0.35, "volume": 70, "intensity": 60, "meso_type": "basico_estabilizador"},
+            {"id": "repetition", "name": "Repetición", "abbr": "RE", "ratio": 0.25, "volume": 80, "intensity": 70, "meso_type": "precompetitivo"},
+            {"id": "deload", "name": "Descarga", "abbr": "DL", "ratio": 0.05, "volume": 40, "intensity": 50, "meso_type": "recuperacion"}
+        ]
+    },
+    "triphasic": {
+        "name": "Trifásico (Dietz)",
+        "description": "Fases excéntrica-isométrica-concéntrica",
+        "phases": [
+            {"id": "eccentric", "name": "Excéntrico", "abbr": "EX", "ratio": 0.30, "volume": 75, "intensity": 75, "meso_type": "basico_desarrollador"},
+            {"id": "isometric", "name": "Isométrico", "abbr": "IS", "ratio": 0.30, "volume": 65, "intensity": 85, "meso_type": "basico_estabilizador"},
+            {"id": "concentric", "name": "Concéntrico", "abbr": "CO", "ratio": 0.30, "volume": 55, "intensity": 90, "meso_type": "precompetitivo"},
+            {"id": "reactive", "name": "Reactivo", "abbr": "RE", "ratio": 0.10, "volume": 40, "intensity": 95, "meso_type": "competitivo"}
+        ]
+    },
+    "polarized": {
+        "name": "Polarizado (Seiler)",
+        "description": "80% baja / 20% alta intensidad",
+        "phases": [
+            {"id": "base", "name": "Base Aeróbica", "abbr": "BA", "ratio": 0.50, "volume": 95, "intensity": 55, "meso_type": "basico_desarrollador"},
+            {"id": "build", "name": "Construcción", "abbr": "BU", "ratio": 0.30, "volume": 75, "intensity": 75, "meso_type": "basico_estabilizador"},
+            {"id": "peak", "name": "Pico", "abbr": "PK", "ratio": 0.15, "volume": 50, "intensity": 92, "meso_type": "competitivo"},
+            {"id": "taper", "name": "Tapering", "abbr": "TP", "ratio": 0.05, "volume": 35, "intensity": 80, "meso_type": "recuperacion"}
+        ]
+    },
+    "tactical": {
+        "name": "Periodización Táctica (Frade)",
+        "description": "Basada en el modelo de juego",
+        "phases": [
+            {"id": "acquisition", "name": "Adquisición", "abbr": "AD", "ratio": 0.20, "volume": 80, "intensity": 70, "meso_type": "entrante"},
+            {"id": "maintenance", "name": "Mantenimiento", "abbr": "MA", "ratio": 0.70, "volume": 65, "intensity": 80, "meso_type": "basico_estabilizador"},
+            {"id": "recovery", "name": "Recuperación", "abbr": "RE", "ratio": 0.10, "volume": 40, "intensity": 50, "meso_type": "recuperacion"}
+        ]
+    },
+    "reverse_linear": {
+        "name": "Lineal Inversa",
+        "description": "De intensidad a volumen",
+        "phases": [
+            {"id": "intensity", "name": "Intensidad Alta", "abbr": "IA", "ratio": 0.35, "volume": 50, "intensity": 92, "meso_type": "basico_desarrollador"},
+            {"id": "moderate", "name": "Moderado", "abbr": "MO", "ratio": 0.35, "volume": 70, "intensity": 75, "meso_type": "basico_estabilizador"},
+            {"id": "volume", "name": "Volumen Alto", "abbr": "VA", "ratio": 0.25, "volume": 90, "intensity": 60, "meso_type": "precompetitivo"},
+            {"id": "taper", "name": "Tapering", "abbr": "TP", "ratio": 0.05, "volume": 40, "intensity": 70, "meso_type": "recuperacion"}
+        ]
+    },
+    "concurrent": {
+        "name": "Concurrente",
+        "description": "Desarrollo paralelo de cualidades",
+        "phases": [
+            {"id": "general", "name": "General", "abbr": "GE", "ratio": 0.40, "volume": 80, "intensity": 65, "meso_type": "basico_desarrollador"},
+            {"id": "specific", "name": "Específico", "abbr": "ES", "ratio": 0.40, "volume": 65, "intensity": 80, "meso_type": "basico_estabilizador"},
+            {"id": "competition", "name": "Competición", "abbr": "CO", "ratio": 0.15, "volume": 45, "intensity": 90, "meso_type": "competitivo"},
+            {"id": "transition", "name": "Transición", "abbr": "TR", "ratio": 0.05, "volume": 40, "intensity": 50, "meso_type": "recuperacion"}
+        ]
+    }
+}
+
+# Microcycle types with load patterns
+MICROCYCLE_TYPES = {
+    "restablecimiento": {"load": 45, "name": "Restablecimiento", "description": "Recuperación activa"},
+    "corriente": {"load": 70, "name": "Corriente", "description": "Carga normal de trabajo"},
+    "aproximacion": {"load": 75, "name": "Aproximación", "description": "Preparación pre-competencia"},
+    "carga": {"load": 85, "name": "Carga", "description": "Aumento progresivo de carga"},
+    "choque": {"load": 100, "name": "Choque", "description": "Carga máxima de impacto"},
+    "competitivo": {"load": 60, "name": "Competitivo", "description": "Semana de competencia"}
+}
+
+# Mesocycle load patterns (for step loading 3:1 and 2:1)
+MESOCYCLE_PATTERNS = {
+    "3_1": [0.85, 0.92, 1.0, 0.60],  # 3 semanas carga + 1 descarga
+    "2_1": [0.90, 1.0, 0.60],  # 2 semanas carga + 1 descarga
+    "4_1": [0.80, 0.87, 0.94, 1.0, 0.55],  # 4 semanas carga + 1 descarga
+    "linear": [0.75, 0.83, 0.91, 1.0],  # Progresión lineal
+    "undulating": [1.0, 0.70, 0.85, 0.75]  # Ondulante
+}
+
+class StructureGenerationRequest(BaseModel):
+    """Request to generate training plan structure automatically"""
+    model: str
+    sport: str
+    total_weeks: int
+    start_date: str
+    sessions_per_week: Optional[int] = None
+    main_competition_date: Optional[str] = None
+    athlete_level: str = "intermediate"  # beginner, intermediate, advanced, elite
+
+class GeneratedStructure(BaseModel):
+    """Generated structure response"""
+    model: str
+    model_name: str
+    sport: str
+    sport_name: str
+    total_weeks: int
+    sessions_per_week: int
+    primary_qualities: List[str]
+    macrocycles: List[Dict[str, Any]]
+    volume_chart: List[Dict[str, Any]]
+    intensity_chart: List[Dict[str, Any]]
+    summary: Dict[str, Any]
+
+@api_router.post("/generate-structure", response_model=GeneratedStructure)
+async def generate_training_structure(request: StructureGenerationRequest, user: dict = Depends(get_current_user)):
+    """Generate optimal training plan structure based on model, sport, and duration"""
+    
+    model = request.model
+    sport = request.sport
+    total_weeks = request.total_weeks
+    start_date = request.start_date
+    athlete_level = request.athlete_level
+    
+    # Get sport config (default to general if not found)
+    sport_config = SPORT_CONFIGS.get(sport, SPORT_CONFIGS["general"])
+    
+    # Get model distribution (default to traditional if not found)
+    model_dist = MODEL_PHASE_DISTRIBUTIONS.get(model, MODEL_PHASE_DISTRIBUTIONS["traditional"])
+    
+    # Determine sessions per week
+    sessions_per_week = request.sessions_per_week or sport_config["sessions_per_week"]
+    
+    # Adjust ratios based on sport category if team sport with long season
+    prep_ratio = sport_config["prep_ratio"]
+    comp_ratio = sport_config["comp_ratio"]
+    trans_ratio = sport_config["trans_ratio"]
+    
+    # Level adjustments
+    level_multipliers = {
+        "beginner": {"volume": 0.75, "intensity": 0.80, "sessions": 0.80},
+        "intermediate": {"volume": 1.0, "intensity": 1.0, "sessions": 1.0},
+        "advanced": {"volume": 1.10, "intensity": 1.05, "sessions": 1.0},
+        "elite": {"volume": 1.15, "intensity": 1.10, "sessions": 1.0}
+    }
+    level_mult = level_multipliers.get(athlete_level, level_multipliers["intermediate"])
+    
+    # Parse start date
+    from datetime import datetime as dt
+    start = dt.fromisoformat(start_date.replace('Z', '+00:00') if 'Z' in start_date else start_date)
+    
+    # Generate macrocycles based on model phases
+    macrocycles = []
+    volume_chart = []
+    intensity_chart = []
+    current_week = 0
+    
+    for phase in model_dist["phases"]:
+        phase_weeks = max(1, round(total_weeks * phase["ratio"]))
+        if current_week + phase_weeks > total_weeks:
+            phase_weeks = total_weeks - current_week
+        if phase_weeks <= 0:
+            continue
+        
+        phase_start = start + timedelta(weeks=current_week)
+        phase_end = start + timedelta(weeks=current_week + phase_weeks)
+        
+        # Calculate adjusted volume and intensity
+        base_volume = phase["volume"]
+        base_intensity = phase["intensity"]
+        
+        # Generate mesocycles within this phase
+        mesocycles = []
+        meso_weeks = 4 if phase_weeks >= 4 else phase_weeks  # Standard 4-week mesocycle
+        num_mesos = max(1, phase_weeks // meso_weeks)
+        remaining_weeks = phase_weeks
+        
+        for meso_idx in range(num_mesos):
+            meso_week_count = min(meso_weeks, remaining_weeks)
+            if meso_week_count <= 0:
+                break
+            
+            # Determine mesocycle pattern
+            pattern_key = "3_1" if meso_week_count >= 4 else "2_1" if meso_week_count >= 3 else "linear"
+            pattern = MESOCYCLE_PATTERNS.get(pattern_key, MESOCYCLE_PATTERNS["linear"])[:meso_week_count]
+            
+            # Generate microcycles
+            microcycles = []
+            for micro_idx, load_factor in enumerate(pattern):
+                week_num = current_week + sum(m.get("weeks", 0) for m in mesocycles) + micro_idx + 1
+                
+                # Determine microcycle type based on load
+                if load_factor <= 0.60:
+                    micro_type = "restablecimiento"
+                elif load_factor <= 0.75:
+                    micro_type = "corriente"
+                elif load_factor <= 0.85:
+                    micro_type = "carga"
+                else:
+                    micro_type = "choque"
+                
+                micro_volume = round(base_volume * load_factor * level_mult["volume"])
+                micro_intensity = round(base_intensity * (0.9 + load_factor * 0.1) * level_mult["intensity"])
+                
+                # Generate sessions
+                sessions = []
+                session_types = ["tecnica", "fuerza", "resistencia", "velocidad", "recuperacion"]
+                for day in range(1, min(sessions_per_week + 1, 8)):
+                    session_type = session_types[day % len(session_types)]
+                    sessions.append({
+                        "id": str(uuid.uuid4()),
+                        "day": day,
+                        "name": f"Sesión {day}",
+                        "session_type": session_type,
+                        "duration_minutes": 60 + (10 if sport_config["intensity_focus"] else 20),
+                        "intensity": micro_intensity,
+                        "volume": micro_volume,
+                        "objectives": sport_config["primary_qualities"][:2]
+                    })
+                
+                microcycles.append({
+                    "id": str(uuid.uuid4()),
+                    "name": f"Semana {week_num}",
+                    "week_number": week_num,
+                    "type": micro_type,
+                    "load_percent": round(load_factor * 100),
+                    "volume": micro_volume,
+                    "intensity": micro_intensity,
+                    "sessions": sessions
+                })
+                
+                # Add to charts
+                volume_chart.append({
+                    "week": week_num,
+                    "semana": f"S{week_num}",
+                    "volume": micro_volume,
+                    "phase": phase["name"],
+                    "phase_abbr": phase["abbr"]
+                })
+                intensity_chart.append({
+                    "week": week_num,
+                    "semana": f"S{week_num}",
+                    "intensity": micro_intensity,
+                    "phase": phase["name"],
+                    "phase_abbr": phase["abbr"]
+                })
+            
+            mesocycles.append({
+                "id": str(uuid.uuid4()),
+                "name": f"{phase['abbr']} - Meso {meso_idx + 1}",
+                "type": phase.get("meso_type", "basico_desarrollador"),
+                "phase": phase["id"],
+                "weeks": meso_week_count,
+                "volume_percent": base_volume,
+                "intensity_percent": base_intensity,
+                "load_factor": sum(pattern) / len(pattern),
+                "microcycles": microcycles
+            })
+            
+            remaining_weeks -= meso_week_count
+        
+        macrocycles.append({
+            "id": str(uuid.uuid4()),
+            "name": phase["name"],
+            "phase": phase["id"],
+            "start_date": phase_start.isoformat(),
+            "end_date": phase_end.isoformat(),
+            "weeks": phase_weeks,
+            "volume_percent": base_volume,
+            "intensity_percent": base_intensity,
+            "objectives": sport_config["primary_qualities"],
+            "mesocycles": mesocycles
+        })
+        
+        current_week += phase_weeks
+    
+    # Generate summary
+    total_sessions = sum(
+        len(micro.get("sessions", []))
+        for macro in macrocycles
+        for meso in macro.get("mesocycles", [])
+        for micro in meso.get("microcycles", [])
+    )
+    
+    summary = {
+        "total_macrocycles": len(macrocycles),
+        "total_mesocycles": sum(len(m.get("mesocycles", [])) for m in macrocycles),
+        "total_microcycles": sum(
+            len(meso.get("microcycles", []))
+            for macro in macrocycles
+            for meso in macro.get("mesocycles", [])
+        ),
+        "total_sessions": total_sessions,
+        "avg_volume": round(sum(v["volume"] for v in volume_chart) / len(volume_chart)) if volume_chart else 0,
+        "avg_intensity": round(sum(i["intensity"] for i in intensity_chart) / len(intensity_chart)) if intensity_chart else 0,
+        "phases": [{"name": p["name"], "weeks": round(total_weeks * p["ratio"])} for p in model_dist["phases"]]
+    }
+    
+    return GeneratedStructure(
+        model=model,
+        model_name=model_dist["name"],
+        sport=sport,
+        sport_name=sport_config["name"],
+        total_weeks=total_weeks,
+        sessions_per_week=sessions_per_week,
+        primary_qualities=sport_config["primary_qualities"],
+        macrocycles=macrocycles,
+        volume_chart=volume_chart,
+        intensity_chart=intensity_chart,
+        summary=summary
+    )
+
+@api_router.get("/sports-catalog")
+async def get_sports_catalog():
+    """Get catalog of available sports with their configurations"""
+    catalog = {}
+    for sport_id, config in SPORT_CONFIGS.items():
+        category = config["category"]
+        if category not in catalog:
+            catalog[category] = []
+        catalog[category].append({
+            "id": sport_id,
+            "name": config["name"],
+            "sessions_per_week": config["sessions_per_week"],
+            "recommended_models": config["recommended_models"],
+            "primary_qualities": config["primary_qualities"]
+        })
+    return catalog
+
 @api_router.post("/training-plans", response_model=TrainingPlanResponse)
 async def create_training_plan(plan: TrainingPlanCreate, user: dict = Depends(get_current_user)):
     """Create a complete training plan with all structures"""
