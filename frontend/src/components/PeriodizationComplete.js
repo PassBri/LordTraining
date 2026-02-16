@@ -176,15 +176,13 @@ const MODEL_CATEGORIES = {
 // ============ COMPONENTE PRINCIPAL ============
 const PeriodizationComplete = ({ athleteId, athleteName }) => {
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [activeView, setActiveView] = useState('history');
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [viewMode, setViewMode] = useState('structure'); // structure, calendar, chart
   
-  // Plans
-  const [plans, setPlans] = useState(() => {
-    const saved = localStorage.getItem('train_periodization_plans');
-    return saved ? JSON.parse(saved) : [];
-  });
+  // Plans - Now loaded from API
+  const [plans, setPlans] = useState([]);
   
   // Wizard
   const [wizardStep, setWizardStep] = useState(1);
@@ -203,10 +201,58 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
   const [sessionEditorOpen, setSessionEditorOpen] = useState(false);
   const [editingSession, setEditingSession] = useState(null);
   const [editingSessionLocation, setEditingSessionLocation] = useState(null);
+  
+  // Calculator modal
+  const [calculatorOpen, setCalculatorOpen] = useState(false);
+  const [calculatorType, setCalculatorType] = useState('1rm');
+  const [calculatorResult, setCalculatorResult] = useState(null);
 
-  // Persist plans
+  // Get token helper
+  const getToken = () => localStorage.getItem('train_token');
+
+  // Load plans from API
   useEffect(() => {
-    localStorage.setItem('train_periodization_plans', JSON.stringify(plans));
+    const loadPlans = async () => {
+      const token = getToken();
+      if (!token) return;
+      
+      setLoading(true);
+      try {
+        const response = await fetch(`${API_URL}/api/training-plans`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          // Transform API data to match local structure and rebuild chart data
+          const transformedPlans = data.map(plan => {
+            const transformed = {
+              ...plan,
+              modelName: plan.model_name || PERIODIZATION_MODELS[plan.model]?.name || plan.model,
+              duration: plan.duration_type,
+              totalWeeks: plan.total_weeks
+            };
+            rebuildPlanData(transformed);
+            return transformed;
+          });
+          setPlans(transformedPlans);
+        }
+      } catch (error) {
+        console.error('Error loading plans:', error);
+        // Fallback to localStorage
+        const saved = localStorage.getItem('train_periodization_plans');
+        if (saved) setPlans(JSON.parse(saved));
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadPlans();
+  }, []);
+
+  // Also keep localStorage as backup
+  useEffect(() => {
+    if (plans.length > 0) {
+      localStorage.setItem('train_periodization_plans', JSON.stringify(plans));
+    }
   }, [plans]);
 
   // ============ CRUD HANDLERS ============
