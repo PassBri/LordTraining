@@ -590,6 +590,104 @@ class ParticipantRegistration(BaseModel):
     participant_name: str
     seed: Optional[int] = None  # Cabeza de serie
 
+# =============== TRAINING PLAN MODELS ===============
+class TrainingPlanSession(BaseModel):
+    id: str = ""
+    day: int  # 1-7
+    name: str
+    session_type: str
+    duration_minutes: int = 60
+    intensity: int = 70  # 0-100
+    volume: int = 100
+    objectives: List[str] = []
+    exercises: List[Dict[str, Any]] = []
+    notes: Optional[str] = None
+
+class TrainingPlanMicrocycle(BaseModel):
+    id: str = ""
+    name: str
+    week_number: int
+    type: str  # corriente, carga, choque, competitivo, aproximacion, restablecimiento
+    load_percent: int = 70
+    volume: int = 100
+    intensity: int = 70
+    sessions: List[TrainingPlanSession] = []
+    objectives: List[str] = []
+    notes: Optional[str] = None
+
+class TrainingPlanMesocycle(BaseModel):
+    id: str = ""
+    name: str
+    type: str  # entrante, basico_desarrollador, basico_estabilizador, precompetitivo, competitivo, recuperacion
+    phase: str
+    weeks: int = 4
+    load_factor: float = 1.0
+    volume_percent: int = 100
+    intensity_percent: int = 70
+    microcycles: List[TrainingPlanMicrocycle] = []
+    objectives: List[str] = []
+    notes: Optional[str] = None
+
+class TrainingPlanMacrocycle(BaseModel):
+    id: str = ""
+    name: str
+    phase: str  # prep_general, prep_specific, precompetitive, competitive, transition
+    start_date: str
+    end_date: str
+    weeks: int = 4
+    volume_percent: int = 85
+    intensity_percent: int = 55
+    mesocycles: List[TrainingPlanMesocycle] = []
+    objectives: List[str] = []
+    notes: Optional[str] = None
+
+class TrainingPlanCreate(BaseModel):
+    """Complete Training Plan with all structure"""
+    name: str
+    athlete_id: Optional[str] = None
+    sport: str
+    model: str  # periodization model
+    duration_type: str  # annual, semester, etc
+    total_weeks: int
+    start_date: str
+    sessions_per_week: int = 5
+    main_objective: str = ""
+    main_competition: Optional[str] = None
+    main_competition_date: Optional[str] = None
+    macrocycles: List[TrainingPlanMacrocycle] = []
+
+class TrainingPlanResponse(BaseModel):
+    id: str
+    coach_id: str
+    name: str
+    athlete_id: Optional[str] = None
+    sport: str
+    model: str
+    model_name: str
+    duration_type: str
+    total_weeks: int
+    start_date: str
+    end_date: str
+    sessions_per_week: int
+    main_objective: str
+    main_competition: Optional[str] = None
+    main_competition_date: Optional[str] = None
+    macrocycles: List[Dict[str, Any]] = []
+    status: str = "active"
+    share_token: Optional[str] = None
+    created_at: str
+    updated_at: str
+
+class LoadCalculationRequest(BaseModel):
+    """Request for scientific load calculations"""
+    calculation_type: str  # "1rm", "zones", "volume_distribution", "intensity_zones"
+    params: Dict[str, Any]
+
+class LoadCalculationResponse(BaseModel):
+    result: Dict[str, Any]
+    formula_used: str
+    explanation: str
+
 # =============== HELPERS ===============
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
