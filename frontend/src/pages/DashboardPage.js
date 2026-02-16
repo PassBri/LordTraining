@@ -4952,14 +4952,38 @@ const DashboardPage = () => {
                   sportsCatalog={sportsCatalog}
                 />
               ) : (
-                /* Plans History View */
+                /* Plans History View - Shows real training plans from DB */
                 <div className="flex-grow flex flex-col overflow-hidden">
+                  {/* Plan Activo Indicator */}
+                  {activePlan && (
+                    <div className="p-3 bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-200">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
+                          <CheckCircle className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-emerald-600 font-medium">Plan Activo</p>
+                          <p className="text-sm font-bold text-emerald-800 truncate">{activePlan.name}</p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSetActivePlan(null)}
+                          className="text-xs text-emerald-600 border-emerald-300 hover:bg-emerald-100"
+                        >
+                          Cambiar
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
                   {/* New Plan Button */}
                   <div className="p-3 border-b bg-slate-50">
                     <Button
                       onClick={() => {
-                        setCoachDrawerTab('coach');
-                        toast.info('Usa el Coach AI para crear un nuevo plan');
+                        setIsCoachDrawerOpen(false);
+                        setActivePanel('datos');
+                        setActiveDataSection('training-system');
                       }}
                       className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
                       data-testid="new-plan-btn"
@@ -4969,49 +4993,69 @@ const DashboardPage = () => {
                     </Button>
                   </div>
                   
-                  {/* Plans List */}
+                  {/* Plans List from Database */}
                   <div className="flex-grow overflow-y-auto">
-                    {generatedPlans.length > 0 ? (
+                    {loadingPlans ? (
+                      <div className="flex flex-col items-center justify-center h-full p-6">
+                        <Loader2 className="w-8 h-8 animate-spin text-blue-500 mb-2" />
+                        <p className="text-sm text-slate-500">Cargando planes...</p>
+                      </div>
+                    ) : trainingPlans.length > 0 ? (
                       <div className="divide-y">
-                        {generatedPlans.map((plan) => (
+                        {trainingPlans.map((plan) => (
                           <div
                             key={plan.id}
-                            className="p-4 hover:bg-slate-50 cursor-pointer transition-colors group"
-                            onClick={() => {
-                              toast.info(`Plan: ${plan.title || plan.athleteName}`);
-                            }}
+                            className={`p-4 hover:bg-slate-50 cursor-pointer transition-colors group ${
+                              activePlan?.id === plan.id ? 'bg-emerald-50 border-l-4 border-emerald-500' : ''
+                            }`}
+                            onClick={() => handleSetActivePlan(plan)}
                           >
                             <div className="flex items-start justify-between">
                               <div className="flex-1 min-w-0">
-                                <h4 className="text-sm font-medium text-slate-900 truncate">
-                                  {plan.title || plan.name || `Plan para ${plan.athleteName || plan.athlete?.name || 'Atleta'}`}
-                                </h4>
+                                <div className="flex items-center gap-2">
+                                  <h4 className="text-sm font-medium text-slate-900 truncate">
+                                    {plan.name}
+                                  </h4>
+                                  {activePlan?.id === plan.id && (
+                                    <Badge className="bg-emerald-100 text-emerald-700 text-xs">Activo</Badge>
+                                  )}
+                                </div>
                                 <p className="text-xs text-slate-500 mt-0.5">
-                                  {plan.sport || plan.athlete?.sport || 'Deporte'} • {plan.duration || plan.macrocycle?.duration ? `${plan.macrocycle?.duration || ''} semanas` : 'Sin duración'}
+                                  {plan.sport || 'General'} • {plan.model_name || plan.model} • {plan.total_weeks} sem
                                 </p>
                                 <p className="text-xs text-slate-400 mt-1">
-                                  {new Date(plan.createdAt).toLocaleDateString('es-ES', { 
-                                    day: 'numeric', 
-                                    month: 'short',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                  })}
-                                  {plan.isTest && <span className="ml-2 text-violet-500 font-medium">(Test)</span>}
+                                  Inicio: {plan.start_date ? new Date(plan.start_date).toLocaleDateString('es-ES') : 'No definido'}
                                 </p>
                               </div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (window.confirm('¿Eliminar este plan?')) {
-                                    deletePlan(plan.id);
-                                  }
-                                }}
-                                className="opacity-0 group-hover:opacity-100 h-7 w-7 p-0 text-slate-400 hover:text-red-500"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </Button>
+                              <div className="flex items-center gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsCoachDrawerOpen(false);
+                                    setActivePanel('datos');
+                                    setActiveDataSection('training-system');
+                                    // El componente PeriodizationComplete cargará el plan
+                                  }}
+                                  className="opacity-0 group-hover:opacity-100 h-7 w-7 p-0 text-slate-400 hover:text-blue-500"
+                                  title="Ver/Editar"
+                                >
+                                  <Edit className="w-3.5 h-3.5" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteTrainingPlan(plan.id);
+                                  }}
+                                  className="opacity-0 group-hover:opacity-100 h-7 w-7 p-0 text-slate-400 hover:text-red-500"
+                                  title="Eliminar"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -5019,16 +5063,20 @@ const DashboardPage = () => {
                     ) : (
                       <div className="flex flex-col items-center justify-center h-full p-6 text-center">
                         <FileText className="w-16 h-16 text-slate-200 mb-4" />
-                        <p className="text-sm font-medium text-slate-500 mb-1">Sin planes generados</p>
-                        <p className="text-xs text-slate-400 mb-4">Crea tu primer plan con el Coach AI</p>
+                        <p className="text-sm font-medium text-slate-500 mb-1">Sin planes de entrenamiento</p>
+                        <p className="text-xs text-slate-400 mb-4">Crea tu primer plan para comenzar</p>
                         <Button
-                          onClick={() => setCoachDrawerTab('coach')}
+                          onClick={() => {
+                            setIsCoachDrawerOpen(false);
+                            setActivePanel('datos');
+                            setActiveDataSection('training-system');
+                          }}
                           variant="outline"
                           size="sm"
                           className="text-indigo-600 border-indigo-200"
                         >
-                          <Brain className="w-4 h-4 mr-2" />
-                          Ir al Coach AI
+                          <Plus className="w-4 h-4 mr-2" />
+                          Crear Plan
                         </Button>
                       </div>
                     )}
