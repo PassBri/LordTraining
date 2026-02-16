@@ -1313,7 +1313,7 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                   <div>
                     <p className="text-sm text-slate-500">Deporte</p>
-                    <p className="font-bold text-slate-700">{sportsCatalog[Object.keys(sportsCatalog).find(cat => sportsCatalog[cat].some(s => s.id === planConfig.sport))]?.find(s => s.id === planConfig.sport)?.name || planConfig.sport}</p>
+                    <p className="font-bold text-slate-700">{getSportName(planConfig.sport)}</p>
                   </div>
                   <div>
                     <p className="text-sm text-slate-500">Modelo</p>
