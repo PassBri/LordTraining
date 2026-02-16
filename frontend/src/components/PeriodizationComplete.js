@@ -262,9 +262,12 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
           const transformedPlans = data.map(plan => {
             const transformed = {
               ...plan,
+              apiId: plan.id, // Set apiId from backend id for save/update detection
               modelName: plan.model_name || PERIODIZATION_MODELS[plan.model]?.name || plan.model,
               duration: plan.duration_type,
-              totalWeeks: plan.total_weeks
+              totalWeeks: plan.total_weeks,
+              startDate: plan.start_date,
+              sessionsPerWeek: plan.sessions_per_week
             };
             rebuildPlanData(transformed);
             return transformed;
