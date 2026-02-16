@@ -220,29 +220,42 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
   
   // Sports catalog
   const [sportsCatalog, setSportsCatalog] = useState({});
+  const [userSports, setUserSports] = useState([]);
   const [generatedStructure, setGeneratedStructure] = useState(null);
   const [generating, setGenerating] = useState(false);
 
   // Get token helper
   const getToken = () => localStorage.getItem('train_token');
 
-  // Load sports catalog
+  // Load sports catalog (static + user's custom sports)
   useEffect(() => {
-    const loadSportsCatalog = async () => {
+    const loadAllSports = async () => {
+      const token = getToken();
+      if (!token) return;
+      
       try {
-        const token = getToken();
-        const response = await fetch(`${API_URL}/api/sports-catalog`, {
+        // Load static sports catalog
+        const staticResponse = await fetch(`${API_URL}/api/sports-catalog`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (response.ok) {
-          const data = await response.json();
-          setSportsCatalog(data);
+        if (staticResponse.ok) {
+          const staticData = await staticResponse.json();
+          setSportsCatalog(staticData);
+        }
+        
+        // Load user's custom sports from /api/sports/catalog
+        const userResponse = await fetch(`${API_URL}/api/sports/catalog`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          setUserSports(userData);
         }
       } catch (error) {
-        console.error('Error loading sports catalog:', error);
+        console.error('Error loading sports catalogs:', error);
       }
     };
-    loadSportsCatalog();
+    loadAllSports();
   }, []);
 
   // Load plans from API
