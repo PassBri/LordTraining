@@ -206,9 +206,33 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
   const [calculatorOpen, setCalculatorOpen] = useState(false);
   const [calculatorType, setCalculatorType] = useState('1rm');
   const [calculatorResult, setCalculatorResult] = useState(null);
+  
+  // Sports catalog
+  const [sportsCatalog, setSportsCatalog] = useState({});
+  const [generatedStructure, setGeneratedStructure] = useState(null);
+  const [generating, setGenerating] = useState(false);
 
   // Get token helper
   const getToken = () => localStorage.getItem('train_token');
+
+  // Load sports catalog
+  useEffect(() => {
+    const loadSportsCatalog = async () => {
+      try {
+        const token = getToken();
+        const response = await fetch(`${API_URL}/api/sports-catalog`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setSportsCatalog(data);
+        }
+      } catch (error) {
+        console.error('Error loading sports catalog:', error);
+      }
+    };
+    loadSportsCatalog();
+  }, []);
 
   // Load plans from API
   useEffect(() => {
