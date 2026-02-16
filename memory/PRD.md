@@ -100,7 +100,7 @@ Sistema inteligente de planificación deportiva con IA que permite gestionar atl
 5. ✅ Compartir planes con link público
 6. ✅ Duplicar planes
 7. ✅ Frontend integrado con API
-8. ✅ **Generador Automático de Estructura Científica** (NUEVO - 16-Feb-2025)
+8. ✅ **Generador Automático de Estructura Científica**
    - Endpoint: `POST /api/generate-structure`
    - Genera estructura óptima basada en: modelo de periodización, deporte, duración y nivel del atleta
    - Aplica principios científicos de los documentos de referencia
@@ -112,14 +112,26 @@ Sistema inteligente de planificación deportiva con IA que permite gestionar atl
    - Paso 3: Configuración de Duración (Olímpico, Bianual, Anual, Semestral, Trimestral, Mensual)
    - Paso 4: Generación de Estructura Científica Automática
    - Paso 5: Resumen y Creación del Plan
+10. ✅ **Deportes Personalizados en Wizard** - Los deportes creados en Información → Deportes aparecen en el wizard de periodización
+11. ✅ **Sistema de Plan Activo** (NUEVO)
+    - Al entrar a "Datos" se muestra selector de plan si no hay plan activo
+    - Lista de planes existentes de la BD
+    - Opción de crear nuevo plan o seleccionar existente
+    - Plan activo se persiste en localStorage
+    - Botón "Cambiar Plan" para cambiar de plan activo
+12. ✅ **Historial de Planes en Coach AI Drawer**
+    - Tab "Planes" muestra todos los planes de la BD
+    - Indicador del plan activo con badge verde
+    - Botones para editar/eliminar planes
+    - Botón "Crear Nuevo Plan" que lleva al wizard
 
 ## Issues Conocidos
 - **P2**: Sección "Caracterización del Deporte" crashea la app (en DashboardPage.js)
 - **LOW**: Función Compartir requiere permisos de Clipboard API en navegador
 
 ## Próximas Tareas
-1. **P1**: Implementar funciones avanzadas: Imprimir, Compartir mejorado, Duplicar desde historial
-2. **P1**: Refactorizar PeriodizationComplete.js (900+ líneas - dividir en componentes)
+1. **P1**: Refactorizar PeriodizationComplete.js (900+ líneas - dividir en componentes)
+2. **P1**: Vincular datos de secciones (Evaluación, Competencias, etc.) al plan activo
 3. **P2**: Tests físicos integrados en el wizard de creación
 4. **P2**: Regression test del Tournament Manager
 5. **P3**: Integrar sugerencias del AI Coach con el sistema de planes
