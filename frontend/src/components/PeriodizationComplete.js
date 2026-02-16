@@ -1458,6 +1458,279 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
   );
 
   // ============ MAIN RENDER ============
+  // ============ RENDER: CALCULATOR MODAL ============
+  const renderCalculatorModal = () => (
+    <Dialog open={calculatorOpen} onOpenChange={setCalculatorOpen}>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Activity className="w-5 h-5 text-blue-500" />
+            Calculadoras Científicas
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-6">
+          {/* Calculator Type Selector */}
+          <div className="flex gap-2 flex-wrap">
+            {[
+              { id: '1rm', label: '1RM', icon: '💪' },
+              { id: 'heart_rate_zones', label: 'Zonas FC', icon: '❤️' },
+              { id: 'vo2max', label: 'VO2máx', icon: '🫁' },
+              { id: 'volume_distribution', label: 'Distribución Volumen', icon: '📊' },
+              { id: 'intensity_scale', label: 'Escalas Intensidad', icon: '📈' }
+            ].map(calc => (
+              <button
+                key={calc.id}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${calculatorType === calc.id ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                onClick={() => { setCalculatorType(calc.id); setCalculatorResult(null); }}
+              >
+                {calc.icon} {calc.label}
+              </button>
+            ))}
+          </div>
+          
+          {/* Calculator Forms */}
+          {calculatorType === '1rm' && (
+            <div className="space-y-4">
+              <h4 className="font-bold text-slate-700">Calcular 1RM (Repetición Máxima)</h4>
+              <p className="text-sm text-slate-500">Fórmulas: Brzycki, Epley, Lander</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-slate-600">Peso levantado (kg)</label>
+                  <Input type="number" id="calc-weight" placeholder="80" className="mt-1" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-600">Repeticiones</label>
+                  <Input type="number" id="calc-reps" placeholder="8" className="mt-1" />
+                </div>
+              </div>
+              <Button onClick={() => {
+                const weight = parseFloat(document.getElementById('calc-weight').value);
+                const reps = parseInt(document.getElementById('calc-reps').value);
+                if (weight && reps) runCalculation('1rm', { weight, reps });
+              }} className="bg-blue-600 hover:bg-blue-700 text-white">
+                Calcular 1RM
+              </Button>
+            </div>
+          )}
+          
+          {calculatorType === 'heart_rate_zones' && (
+            <div className="space-y-4">
+              <h4 className="font-bold text-slate-700">Zonas de Frecuencia Cardíaca</h4>
+              <p className="text-sm text-slate-500">Fórmula de Karvonen</p>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-slate-600">Edad</label>
+                  <Input type="number" id="calc-age" placeholder="30" className="mt-1" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-600">FC Reposo</label>
+                  <Input type="number" id="calc-resting" placeholder="60" className="mt-1" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-600">FC Máx (opcional)</label>
+                  <Input type="number" id="calc-maxhr" placeholder="190" className="mt-1" />
+                </div>
+              </div>
+              <Button onClick={() => {
+                const age = parseInt(document.getElementById('calc-age').value);
+                const resting_hr = parseInt(document.getElementById('calc-resting').value);
+                const max_hr = document.getElementById('calc-maxhr').value ? parseInt(document.getElementById('calc-maxhr').value) : null;
+                if (age && resting_hr) runCalculation('heart_rate_zones', { age, resting_hr, max_hr });
+              }} className="bg-blue-600 hover:bg-blue-700 text-white">
+                Calcular Zonas
+              </Button>
+            </div>
+          )}
+          
+          {calculatorType === 'vo2max' && (
+            <div className="space-y-4">
+              <h4 className="font-bold text-slate-700">Cálculo de VO2máx</h4>
+              <div>
+                <label className="text-sm font-medium text-slate-600">Tipo de Test</label>
+                <Select onValueChange={(v) => document.getElementById('calc-test-type').value = v}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Seleccionar test" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="cooper">Test de Cooper (12 min)</SelectItem>
+                    <SelectItem value="rockport">Rockport Walk Test</SelectItem>
+                    <SelectItem value="1mile">Test 1.5 Millas</SelectItem>
+                  </SelectContent>
+                </Select>
+                <input type="hidden" id="calc-test-type" defaultValue="cooper" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-slate-600">Distancia (metros) / Tiempo (minutos)</label>
+                <Input type="number" id="calc-distance" placeholder="2400" className="mt-1" />
+              </div>
+              <Button onClick={() => {
+                const test_type = document.getElementById('calc-test-type').value || 'cooper';
+                const distance_m = parseInt(document.getElementById('calc-distance').value);
+                if (distance_m) runCalculation('vo2max', { test_type, distance_m });
+              }} className="bg-blue-600 hover:bg-blue-700 text-white">
+                Calcular VO2máx
+              </Button>
+            </div>
+          )}
+          
+          {calculatorType === 'volume_distribution' && (
+            <div className="space-y-4">
+              <h4 className="font-bold text-slate-700">Distribución de Volumen</h4>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-slate-600">Volumen Total</label>
+                  <Input type="number" id="calc-volume" placeholder="1000" className="mt-1" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-600">Semanas</label>
+                  <Input type="number" id="calc-weeks" placeholder="12" className="mt-1" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-600">Progresión</label>
+                  <Select onValueChange={(v) => document.getElementById('calc-progression').value = v}>
+                    <SelectTrigger className="mt-1"><SelectValue placeholder="Tipo" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="linear">Lineal</SelectItem>
+                      <SelectItem value="undulating">Ondulatorio</SelectItem>
+                      <SelectItem value="step">Escalón (3:1)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <input type="hidden" id="calc-progression" defaultValue="linear" />
+                </div>
+              </div>
+              <Button onClick={() => {
+                const total_volume = parseInt(document.getElementById('calc-volume').value);
+                const weeks = parseInt(document.getElementById('calc-weeks').value);
+                const progression = document.getElementById('calc-progression').value || 'linear';
+                if (total_volume && weeks) runCalculation('volume_distribution', { total_volume, weeks, progression });
+              }} className="bg-blue-600 hover:bg-blue-700 text-white">
+                Calcular Distribución
+              </Button>
+            </div>
+          )}
+          
+          {calculatorType === 'intensity_scale' && (
+            <div className="space-y-4">
+              <h4 className="font-bold text-slate-700">Escalas de Intensidad</h4>
+              <p className="text-sm text-slate-500">Visualiza las escalas estándar de intensidad</p>
+              <Button onClick={() => runCalculation('intensity_scale', {})} className="bg-blue-600 hover:bg-blue-700 text-white">
+                Ver Escalas
+              </Button>
+            </div>
+          )}
+          
+          {/* Results */}
+          {calculatorResult && (
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+              <h4 className="font-bold text-blue-800 mb-2">Resultados</h4>
+              <p className="text-sm text-blue-600 mb-4">{calculatorResult.explanation}</p>
+              
+              {calculatorType === '1rm' && calculatorResult.result && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-4 gap-2 text-center">
+                    <div className="bg-white rounded-lg p-3 shadow-sm">
+                      <p className="text-2xl font-bold text-blue-600">{calculatorResult.result['1rm_average']}</p>
+                      <p className="text-xs text-slate-500">1RM Promedio</p>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 shadow-sm">
+                      <p className="text-lg font-bold text-slate-700">{calculatorResult.result['1rm_brzycki']}</p>
+                      <p className="text-xs text-slate-500">Brzycki</p>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 shadow-sm">
+                      <p className="text-lg font-bold text-slate-700">{calculatorResult.result['1rm_epley']}</p>
+                      <p className="text-xs text-slate-500">Epley</p>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 shadow-sm">
+                      <p className="text-lg font-bold text-slate-700">{calculatorResult.result['1rm_lander']}</p>
+                      <p className="text-xs text-slate-500">Lander</p>
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-lg p-4">
+                    <h5 className="font-semibold text-slate-700 mb-2">Zonas de Entrenamiento</h5>
+                    {Object.entries(calculatorResult.result.recommended_zones || {}).map(([zone, value]) => (
+                      <p key={zone} className="text-sm text-slate-600"><strong>{zone.replace('_', ' ')}:</strong> {value}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {calculatorType === 'heart_rate_zones' && calculatorResult.result?.zones && (
+                <div className="space-y-2">
+                  {Object.entries(calculatorResult.result.zones).map(([zone, data]) => (
+                    <div key={zone} className="flex items-center justify-between bg-white rounded-lg p-3">
+                      <div>
+                        <p className="font-semibold text-slate-700">{zone}</p>
+                        <p className="text-xs text-slate-500">{data.description}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-blue-600">{data.range}</p>
+                        <p className="text-xs text-slate-400">{data.percentage}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {calculatorType === 'vo2max' && (
+                <div className="text-center">
+                  <p className="text-4xl font-bold text-blue-600">{calculatorResult.result.vo2max}</p>
+                  <p className="text-slate-500">ml/kg/min</p>
+                  <Badge className={`mt-2 ${calculatorResult.result.fitness_level === 'excelente' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                    Nivel: {calculatorResult.result.fitness_level}
+                  </Badge>
+                </div>
+              )}
+              
+              {calculatorType === 'volume_distribution' && calculatorResult.result?.weekly_breakdown && (
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {calculatorResult.result.weekly_breakdown.map(week => (
+                    <div key={week.week} className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-slate-600 w-16">Sem {week.week}</span>
+                      <div className="flex-1 bg-slate-200 rounded-full h-4 overflow-hidden">
+                        <div className="h-full bg-blue-500 rounded-full" style={{ width: `${week.percentage}%` }}></div>
+                      </div>
+                      <span className="text-sm font-bold text-slate-700 w-16 text-right">{week.volume}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {calculatorType === 'intensity_scale' && calculatorResult.result && (
+                <div className="space-y-4">
+                  <div>
+                    <h5 className="font-semibold text-slate-700 mb-2">Escala Vasconcelos Raposo</h5>
+                    <div className="grid grid-cols-5 gap-1">
+                      {Object.entries(calculatorResult.result.vasconcelos_raposo || {}).map(([level, data]) => (
+                        <div key={level} className="bg-white rounded p-2 text-center">
+                          <p className="text-xs font-medium text-slate-600 capitalize">{level}</p>
+                          <p className="text-sm font-bold text-blue-600">{data.range}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <h5 className="font-semibold text-slate-700 mb-2">Tipos de Microciclo</h5>
+                    <div className="grid grid-cols-3 gap-2">
+                      {Object.entries(calculatorResult.result.microcycle_types || {}).map(([type, data]) => (
+                        <div key={type} className="bg-white rounded p-2">
+                          <p className="text-sm font-medium text-slate-700 capitalize">{type}</p>
+                          <p className="text-lg font-bold text-blue-600">{data.load}%</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setCalculatorOpen(false)}>Cerrar</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+
   return (
     <div className="h-full overflow-auto">
       <div className="p-6">
@@ -1466,6 +1739,7 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
         {activeView === 'detail' && renderDetail()}
       </div>
       {renderEditModals()}
+      {renderCalculatorModal()}
     </div>
   );
 };
