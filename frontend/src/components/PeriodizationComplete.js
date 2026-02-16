@@ -1182,7 +1182,8 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
             </div>
           )}
 
-          {wizardStep === 2 && (
+          {/* STEP 3: DURATION */}
+          {wizardStep === 3 && (
             <div className="space-y-6">
               <h3 className="text-xl font-bold text-center">Duración del Ciclo</h3>
               <div className="grid grid-cols-3 gap-4">
@@ -1207,27 +1208,182 @@ const PeriodizationComplete = ({ athleteId, athleteName }) => {
                   </Select>
                 </div>
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-slate-700">Competencia Principal (opcional)</label>
+                  <Input placeholder="Ej: Campeonato Nacional" value={planConfig.mainCompetition} onChange={(e) => setPlanConfig({ ...planConfig, mainCompetition: e.target.value })} className="mt-1" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-700">Fecha Competencia</label>
+                  <Input type="date" value={planConfig.mainCompetitionDate} onChange={(e) => setPlanConfig({ ...planConfig, mainCompetitionDate: e.target.value })} className="mt-1" />
+                </div>
+              </div>
             </div>
           )}
 
-          {wizardStep === 3 && (
+          {/* STEP 4: STRUCTURE GENERATION */}
+          {wizardStep === 4 && (
             <div className="space-y-6">
-              <h3 className="text-xl font-bold text-center">Objetivos</h3>
+              <h3 className="text-xl font-bold text-center">Generar Estructura Automática</h3>
+              <p className="text-center text-slate-500">El sistema generará la estructura óptima basada en el modelo, deporte y duración seleccionados</p>
+              
+              <div className="bg-slate-50 p-4 rounded-xl">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                  <div>
+                    <p className="text-sm text-slate-500">Deporte</p>
+                    <p className="font-bold text-slate-700">{sportsCatalog[Object.keys(sportsCatalog).find(cat => sportsCatalog[cat].some(s => s.id === planConfig.sport))]?.find(s => s.id === planConfig.sport)?.name || planConfig.sport}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Modelo</p>
+                    <p className="font-bold text-slate-700">{PERIODIZATION_MODELS[planConfig.model]?.name || planConfig.model}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Duración</p>
+                    <p className="font-bold text-slate-700">{CYCLE_DURATIONS[planConfig.duration]?.weeks || 52} semanas</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Nivel</p>
+                    <p className="font-bold text-slate-700 capitalize">{planConfig.athleteLevel}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-center">
+                <Button 
+                  onClick={generateAutoStructure} 
+                  disabled={generating || !planConfig.startDate}
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3 text-lg"
+                >
+                  {generating ? (
+                    <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Generando...</>
+                  ) : (
+                    <><Activity className="w-5 h-5 mr-2" /> Generar Estructura Científica</>
+                  )}
+                </Button>
+                {!planConfig.startDate && <p className="text-sm text-red-500 mt-2">Selecciona fecha de inicio en el paso anterior</p>}
+              </div>
+              
+              {/* Generated Structure Preview */}
+              {generatedStructure && (
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200 space-y-4">
+                  <div className="flex items-center gap-2 text-green-700">
+                    <CheckCircle className="w-6 h-6" />
+                    <h4 className="font-bold text-lg">Estructura Generada Exitosamente</h4>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-center">
+                    <div className="bg-white p-3 rounded-lg shadow-sm">
+                      <p className="text-2xl font-bold text-blue-600">{generatedStructure.summary.total_macrocycles}</p>
+                      <p className="text-xs text-slate-500">Macrociclos</p>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg shadow-sm">
+                      <p className="text-2xl font-bold text-purple-600">{generatedStructure.summary.total_mesocycles}</p>
+                      <p className="text-xs text-slate-500">Mesociclos</p>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg shadow-sm">
+                      <p className="text-2xl font-bold text-green-600">{generatedStructure.summary.total_microcycles}</p>
+                      <p className="text-xs text-slate-500">Microciclos</p>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg shadow-sm">
+                      <p className="text-2xl font-bold text-orange-600">{generatedStructure.summary.total_sessions}</p>
+                      <p className="text-xs text-slate-500">Sesiones</p>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg shadow-sm">
+                      <p className="text-2xl font-bold text-slate-700">{generatedStructure.summary.avg_volume}%</p>
+                      <p className="text-xs text-slate-500">Vol. Promedio</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white p-4 rounded-lg">
+                    <h5 className="font-semibold text-slate-700 mb-2">Fases del Plan:</h5>
+                    <div className="flex flex-wrap gap-2">
+                      {generatedStructure.summary.phases.map((phase, i) => (
+                        <Badge key={i} className="bg-blue-100 text-blue-700">
+                          {phase.name}: {phase.weeks} sem
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white p-4 rounded-lg">
+                    <h5 className="font-semibold text-slate-700 mb-2">Cualidades Principales:</h5>
+                    <div className="flex flex-wrap gap-2">
+                      {generatedStructure.primary_qualities.map((q, i) => (
+                        <Badge key={i} className="bg-green-100 text-green-700 capitalize">
+                          {q.replace(/_/g, ' ')}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* STEP 5: SUMMARY */}
+          {wizardStep === 5 && (
+            <div className="space-y-6">
+              <h3 className="text-xl font-bold text-center">Resumen Final</h3>
               <div>
                 <label className="text-sm font-medium">Nombre del Plan</label>
-                <Input placeholder="Ej: Preparación 2025" value={planConfig.name} onChange={(e) => setPlanConfig({ ...planConfig, name: e.target.value })} className="mt-1" />
+                <Input 
+                  placeholder={`Plan ${sportsCatalog[Object.keys(sportsCatalog).find(cat => sportsCatalog[cat].some(s => s.id === planConfig.sport))]?.find(s => s.id === planConfig.sport)?.name || ''} - ${PERIODIZATION_MODELS[planConfig.model]?.name || ''}`} 
+                  value={planConfig.name} 
+                  onChange={(e) => setPlanConfig({ ...planConfig, name: e.target.value })} 
+                  className="mt-1" 
+                />
               </div>
               <div>
                 <label className="text-sm font-medium">Objetivo Principal</label>
                 <textarea className="w-full mt-1 p-3 border rounded-lg" rows={3} placeholder="Descripción del objetivo..." value={planConfig.mainObjective} onChange={(e) => setPlanConfig({ ...planConfig, mainObjective: e.target.value })} />
               </div>
+              
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl">
+                <h4 className="font-bold text-slate-700 mb-4 text-center">Configuración del Plan</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                  <div>
+                    <p className="text-sm text-slate-500">Deporte</p>
+                    <p className="font-bold text-slate-700">{sportsCatalog[Object.keys(sportsCatalog).find(cat => sportsCatalog[cat].some(s => s.id === planConfig.sport))]?.find(s => s.id === planConfig.sport)?.name || planConfig.sport}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Modelo</p>
+                    <p className="font-bold text-blue-600">{PERIODIZATION_MODELS[planConfig.model]?.name || planConfig.model}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Duración</p>
+                    <p className="font-bold text-slate-700">{CYCLE_DURATIONS[planConfig.duration]?.weeks || 52} semanas</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Sesiones/Sem</p>
+                    <p className="font-bold text-slate-700">{planConfig.sessionsPerWeek}</p>
+                  </div>
+                </div>
+                
+                {generatedStructure && (
+                  <div className="mt-4 pt-4 border-t border-blue-200">
+                    <div className="grid grid-cols-4 gap-4 text-center">
+                      <div>
+                        <p className="text-2xl font-bold text-blue-600">{generatedStructure.summary.total_macrocycles}</p>
+                        <p className="text-xs text-slate-500">Macrociclos</p>
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-purple-600">{generatedStructure.summary.total_mesocycles}</p>
+                        <p className="text-xs text-slate-500">Mesociclos</p>
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-green-600">{generatedStructure.summary.total_microcycles}</p>
+                        <p className="text-xs text-slate-500">Microciclos</p>
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-orange-600">{generatedStructure.summary.total_sessions}</p>
+                        <p className="text-xs text-slate-500">Sesiones</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
-
-          {wizardStep === 4 && (
-            <div className="space-y-6">
-              <h3 className="text-xl font-bold text-center">Resumen</h3>
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl grid grid-cols-4 gap-4 text-center">
                 <div><p className="text-2xl font-bold text-blue-600">{CYCLE_DURATIONS[planConfig.duration]?.weeks}</p><p className="text-sm text-slate-500">Semanas</p></div>
                 <div><p className="text-2xl font-bold text-indigo-600">{planConfig.sessionsPerWeek}</p><p className="text-sm text-slate-500">Sesiones/Sem</p></div>
                 <div><p className="text-2xl font-bold text-purple-600">{Math.ceil((CYCLE_DURATIONS[planConfig.duration]?.weeks || 0) / 4)}</p><p className="text-sm text-slate-500">Mesociclos</p></div>
