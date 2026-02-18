@@ -6900,15 +6900,26 @@ async def get_plan_previous_analysis(plan_id: str, user: dict = Depends(get_curr
 async def get_all_plan_data(plan_id: str, user: dict = Depends(get_current_user)):
     """Obtener todos los datos vinculados a un plan"""
     objectives = await db.plan_objectives.find_one({"plan_id": plan_id, "user_id": user["id"]}, {"_id": 0})
-    evaluations = await db.plan_evaluations.find({"plan_id": plan_id, "user_id": user["id"]}).to_list(100)
-    competitions = await db.plan_competitions.find({"plan_id": plan_id, "user_id": user["id"]}).to_list(100)
+    
+    evaluations_cursor = db.plan_evaluations.find({"plan_id": plan_id, "user_id": user["id"]})
+    evaluations = []
+    async for e in evaluations_cursor:
+        e["id"] = str(e.pop("_id"))
+        evaluations.append(e)
+    
+    competitions_cursor = db.plan_competitions.find({"plan_id": plan_id, "user_id": user["id"]})
+    competitions = []
+    async for c in competitions_cursor:
+        c["id"] = str(c.pop("_id"))
+        competitions.append(c)
+    
     previous_analysis = await db.plan_previous_analysis.find_one({"plan_id": plan_id, "user_id": user["id"]}, {"_id": 0})
     
     return {
         "plan_id": plan_id,
         "objectives": objectives,
-        "evaluations": [{**e, "id": str(e["_id"])} for e in evaluations],
-        "competitions": [{**c, "id": str(c["_id"])} for c in competitions],
+        "evaluations": evaluations,
+        "competitions": competitions,
         "previous_analysis": previous_analysis
     }
 
