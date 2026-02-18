@@ -41,6 +41,7 @@ import PeriodizationPlanner from '../components/PeriodizationPlanner';
 import ExerciseLibrary from '../components/ExerciseLibrary';
 import PeriodizationSystem from '../components/PeriodizationSystem';
 import PeriodizationWizard from '../components/PeriodizationWizard';
+import PeriodizationComplete from '../components/PeriodizationComplete';
 import PlansList from '../components/PlansList';
 import EntityManager from '../components/EntityManager';
 import ControlPanel from '../components/ControlPanel';
