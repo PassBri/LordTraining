@@ -4550,9 +4550,31 @@ const DashboardPage = () => {
 
   const renderMainContent = () => {
     if (activePanel === 'datos') {
-      // Define sections and colors for horizontal navigation - ESTRUCTURA JERÁRQUICA MATERIAL DESIGN
-      const sections = [
-        { key: 'planes', title: 'Planes', color: 'blue', icon: Clipboard },
+      // ====== SI NO HAY PLAN ACTIVO: MOSTRAR SOLO SELECTOR DE PLANES ======
+      if (!activePlan) {
+        return (
+          <div className="flex flex-col h-full">
+            {/* Header - Solo Planes */}
+            <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 px-4 py-4 shadow-xl">
+              <div className="flex items-center justify-center">
+                <div className="flex items-center gap-3 bg-white/20 px-6 py-2.5 rounded-xl">
+                  <Clipboard className="w-5 h-5 text-white" />
+                  <span className="text-white font-semibold">Planes de Entrenamiento</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Contenido - Lista de Planes */}
+            <div className="flex-1 overflow-y-auto bg-gray-50">
+              {renderDataContent()}
+            </div>
+          </div>
+        );
+      }
+
+      // ====== HAY PLAN ACTIVO: MOSTRAR ESTRUCTURA DEL PLAN ======
+      // Secciones internas del plan (sin "Planes" porque ya estamos dentro de uno)
+      const planSections = [
         { key: 'punto-partida', title: 'Diagnóstico', color: 'rose', icon: FileText },
         { key: 'informacion', title: 'Información', color: 'indigo', icon: Building2 },
         { key: 'evaluacion', title: 'Evaluación', color: 'emerald', icon: LineChart },
@@ -4574,65 +4596,81 @@ const DashboardPage = () => {
       };
 
       // Get current section based on active data section
-      const currentSection = navItems.find(n => n.id === activeDataSection)?.section || 'planes';
-      const currentSectionData = sections.find(s => s.key === currentSection);
-      const currentColors = colorClasses[currentSectionData?.color || 'blue'];
+      const currentSection = navItems.find(n => n.id === activeDataSection)?.section || 'punto-partida';
+      const currentSectionData = planSections.find(s => s.key === currentSection);
+      const currentColors = colorClasses[currentSectionData?.color || 'rose'];
       const sectionItems = navItems.filter(i => i.section === currentSection);
 
       return (
         <div className="flex flex-col h-full">
-          {/* Header Bar - Section Categories */}
-          <div className="bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 px-4 py-3 shadow-xl">
-            <div className="flex items-center justify-center gap-2 flex-wrap">
-              {sections.map((section) => {
-                const SectionIcon = section.icon;
-                const colors = colorClasses[section.color];
-                const isActive = currentSection === section.key;
-                
-                return (
-                  <button
-                    key={section.key}
-                    onClick={() => {
-                      const firstItem = navItems.find(n => n.section === section.key);
-                      if (firstItem) setActiveDataSection(firstItem.id);
-                    }}
-                    className={`group relative px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 flex items-center gap-2 ${
-                      isActive
-                        ? `${colors.bg} text-white shadow-lg ${colors.shadow} scale-105`
-                        : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
-                    }`}
-                  >
-                    <SectionIcon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-white/60 group-hover:text-white'}`} />
-                    <span className="hidden sm:inline">{section.title}</span>
-                    {isActive && (
-                      <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rounded-full shadow-lg" />
-                    )}
-                  </button>
-                );
-              })}
+          {/* Header Bar - Nombre del Plan + Secciones */}
+          <div className="bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 shadow-xl">
+            {/* Barra del Plan Activo */}
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                  <Clipboard className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-blue-200 uppercase tracking-wider font-medium">Plan Activo</p>
+                  <h2 className="text-white font-bold text-sm">{activePlan.name}</h2>
+                </div>
+                <div className="flex items-center gap-2 ml-2">
+                  <span className="px-2 py-0.5 bg-white/20 text-white text-xs rounded-full">
+                    {activePlan.total_weeks} sem
+                  </span>
+                  <span className="px-2 py-0.5 bg-white/20 text-white text-xs rounded-full hidden sm:inline">
+                    {activePlan.model_name || activePlan.model}
+                  </span>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleSetActivePlan(null)}
+                className="text-white/80 hover:text-white hover:bg-white/20 rounded-lg text-xs"
+              >
+                <ChevronLeft className="w-4 h-4 mr-1" />
+                Cambiar Plan
+              </Button>
+            </div>
+
+            {/* Navegación de Secciones del Plan */}
+            <div className="px-4 py-3">
+              <div className="flex items-center justify-center gap-2 flex-wrap">
+                {planSections.map((section) => {
+                  const SectionIcon = section.icon;
+                  const colors = colorClasses[section.color];
+                  const isActive = currentSection === section.key;
+                  
+                  return (
+                    <button
+                      key={section.key}
+                      onClick={() => {
+                        const firstItem = navItems.find(n => n.section === section.key);
+                        if (firstItem) setActiveDataSection(firstItem.id);
+                      }}
+                      className={`group relative px-4 py-2 rounded-xl font-medium text-sm transition-all duration-300 flex items-center gap-2 ${
+                        isActive
+                          ? `${colors.bg} text-white shadow-lg ${colors.shadow} scale-105`
+                          : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
+                      }`}
+                    >
+                      <SectionIcon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-white/60 group-hover:text-white'}`} />
+                      <span className="hidden sm:inline">{section.title}</span>
+                      {isActive && (
+                        <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rounded-full shadow-lg" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
-          {/* Sub-navigation - Floating Pills */}
+          {/* Sub-navigation - Items de la sección actual */}
           <div className="bg-white border-b shadow-sm px-4 py-3">
             <div className="flex items-center gap-2 overflow-x-auto pb-1">
-              {/* Plan Activo Badge - Siempre visible cuando hay plan */}
-              {activePlan && currentSection !== 'planes' && (
-                <div className="flex items-center gap-2 mr-2 pr-3 border-r border-slate-200">
-                  <div className="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-3 py-1.5 rounded-full border border-blue-200">
-                    <Clipboard className="w-3.5 h-3.5 text-blue-600" />
-                    <span className="text-xs font-medium text-blue-700 truncate max-w-[120px]">{activePlan.name}</span>
-                    <button
-                      onClick={() => setActiveDataSection('plan-manager')}
-                      className="text-blue-500 hover:text-blue-700 ml-1"
-                      title="Cambiar plan"
-                    >
-                      <Edit className="w-3 h-3" />
-                    </button>
-                  </div>
-                </div>
-              )}
-              
               {sectionItems.map((item) => {
                 const ItemIcon = item.icon;
                 const isActive = activeDataSection === item.id;
@@ -4644,17 +4682,8 @@ const DashboardPage = () => {
                     className={`group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap ${
                       isActive
                         ? `${currentColors.bg} text-white shadow-lg ${currentColors.shadow} transform scale-105`
-                        : `${currentColors.light} ${currentColors.text} hover:shadow-md hover:scale-102 border ${currentColors.border} border-opacity-30`
+                        : `${currentColors.light} ${currentColors.text} hover:shadow-md border ${currentColors.border} border-opacity-30`
                     }`}
-                    style={{
-                      boxShadow: isActive ? `0 4px 14px 0 ${currentSectionData?.color === 'indigo' ? 'rgba(99, 102, 241, 0.4)' : 
-                        currentSectionData?.color === 'emerald' ? 'rgba(16, 185, 129, 0.4)' :
-                        currentSectionData?.color === 'violet' ? 'rgba(139, 92, 246, 0.4)' :
-                        currentSectionData?.color === 'blue' ? 'rgba(37, 99, 235, 0.4)' :
-                        currentSectionData?.color === 'cyan' ? 'rgba(8, 145, 178, 0.4)' :
-                        currentSectionData?.color === 'amber' ? 'rgba(245, 158, 11, 0.4)' :
-                        'rgba(100, 116, 139, 0.4)'}` : undefined
-                    }}
                   >
                     <ItemIcon className={`w-4 h-4 ${isActive ? 'text-white' : ''}`} />
                     {item.label}
