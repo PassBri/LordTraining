@@ -4711,7 +4711,7 @@ const DashboardPage = () => {
                   key={panelType}
                   onClick={() => {
                     setActivePanel(panelType);
-                    if (panelType === 'datos') setActiveDataSection(null);
+                    if (panelType === 'datos') setActiveDataSection('plan-manager');
                   }}
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5 ${
                     activePanel === panelType 
