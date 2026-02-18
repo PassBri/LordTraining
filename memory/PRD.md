@@ -129,12 +129,26 @@ Sistema inteligente de planificación deportiva con IA que permite gestionar atl
 - **LOW**: Función Compartir requiere permisos de Clipboard API en navegador
 
 ## Próximas Tareas
-1. **P1**: Vincular datos de Evaluación, Competencias, etc. al `plan_id` activo
-2. **P1**: Refactorizar PeriodizationComplete.js (900+ líneas - dividir en componentes)
+1. **P1**: Refactorizar PeriodizationComplete.js (900+ líneas - dividir en componentes)
+2. **P1**: Conectar frontend de secciones (Evaluación, Competencias, etc.) con nuevos endpoints `/api/plan-data/*`
 3. **P2**: Arreglar bug "Caracterización del Deporte"
 4. **P2**: Tests físicos integrados en el wizard de creación
 5. **P3**: Integrar sugerencias del AI Coach con el sistema de planes
 6. **P3**: Migrar datos de torneos a MongoDB
+
+## API Endpoints para Datos del Plan (NUEVO)
+- `POST /api/plan-data/objectives` - Crear/actualizar objetivos del plan
+- `GET /api/plan-data/objectives/{plan_id}` - Obtener objetivos
+- `POST /api/plan-data/evaluations` - Crear evaluación
+- `GET /api/plan-data/evaluations/{plan_id}` - Obtener evaluaciones
+- `DELETE /api/plan-data/evaluations/{id}` - Eliminar evaluación
+- `POST /api/plan-data/competitions` - Crear competencia
+- `GET /api/plan-data/competitions/{plan_id}` - Obtener competencias
+- `PUT /api/plan-data/competitions/{id}` - Actualizar competencia
+- `DELETE /api/plan-data/competitions/{id}` - Eliminar competencia
+- `POST /api/plan-data/previous-analysis` - Crear análisis del plan anterior
+- `GET /api/plan-data/previous-analysis/{plan_id}` - Obtener análisis
+- `GET /api/plan-data/{plan_id}` - Obtener TODOS los datos del plan
 
 ## Credenciales de Prueba
 - Email: test@train.com
