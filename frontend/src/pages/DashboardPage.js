@@ -964,7 +964,7 @@ const DashboardPage = () => {
 
   const renderDataContent = () => {
     // ====== SECCIÓN: GESTIÓN DE PLANES (plan-manager) ======
-    if (activeDataSection === 'plan-manager' || (!activePlan && activeDataSection !== 'training-system')) {
+    if (activeDataSection === 'plan-manager') {
       return (
         <div className="h-full bg-gradient-to-br from-slate-50 via-white to-blue-50/30 p-6 md:p-8">
           <div className="max-w-5xl mx-auto">
