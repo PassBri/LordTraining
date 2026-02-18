@@ -4550,31 +4550,33 @@ const DashboardPage = () => {
 
   const renderMainContent = () => {
     if (activePanel === 'datos') {
-      // Define sections and colors for horizontal navigation - ESTRUCTURA JERÁRQUICA
+      // Define sections and colors for horizontal navigation - ESTRUCTURA JERÁRQUICA MATERIAL DESIGN
       const sections = [
-        { key: 'punto-partida', title: 'Punto de Partida', color: 'rose', icon: FileText },
+        { key: 'planes', title: 'Planes', color: 'blue', icon: Clipboard },
+        { key: 'punto-partida', title: 'Diagnóstico', color: 'rose', icon: FileText },
         { key: 'informacion', title: 'Información', color: 'indigo', icon: Building2 },
         { key: 'evaluacion', title: 'Evaluación', color: 'emerald', icon: LineChart },
         { key: 'competencias', title: 'Competencias', color: 'violet', icon: Trophy },
-        { key: 'periodizacion', title: 'Periodización', color: 'blue', icon: Activity },
-        { key: 'visualizacion', title: 'Visualización', color: 'amber', icon: Layers },
+        { key: 'periodizacion', title: 'Periodización', color: 'cyan', icon: Activity },
+        { key: 'visualizacion', title: 'Visualización', color: 'amber', icon: BarChart },
         { key: 'herramientas', title: 'Herramientas', color: 'slate', icon: Settings },
       ];
 
       const colorClasses = {
+        blue: { bg: 'bg-blue-600', hover: 'hover:bg-blue-700', shadow: 'shadow-blue-200', light: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-500' },
         rose: { bg: 'bg-rose-500', hover: 'hover:bg-rose-600', shadow: 'shadow-rose-200', light: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-500' },
         indigo: { bg: 'bg-indigo-500', hover: 'hover:bg-indigo-600', shadow: 'shadow-indigo-200', light: 'bg-indigo-50', text: 'text-indigo-600', border: 'border-indigo-500' },
         emerald: { bg: 'bg-emerald-500', hover: 'hover:bg-emerald-600', shadow: 'shadow-emerald-200', light: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-500' },
         violet: { bg: 'bg-violet-500', hover: 'hover:bg-violet-600', shadow: 'shadow-violet-200', light: 'bg-violet-50', text: 'text-violet-600', border: 'border-violet-500' },
-        blue: { bg: 'bg-blue-600', hover: 'hover:bg-blue-700', shadow: 'shadow-blue-200', light: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-600' },
+        cyan: { bg: 'bg-cyan-600', hover: 'hover:bg-cyan-700', shadow: 'shadow-cyan-200', light: 'bg-cyan-50', text: 'text-cyan-600', border: 'border-cyan-600' },
         amber: { bg: 'bg-amber-500', hover: 'hover:bg-amber-600', shadow: 'shadow-amber-200', light: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-500' },
         slate: { bg: 'bg-slate-600', hover: 'hover:bg-slate-700', shadow: 'shadow-slate-200', light: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-600' },
       };
 
       // Get current section based on active data section
-      const currentSection = navItems.find(n => n.id === activeDataSection)?.section || 'punto-partida';
+      const currentSection = navItems.find(n => n.id === activeDataSection)?.section || 'planes';
       const currentSectionData = sections.find(s => s.key === currentSection);
-      const currentColors = colorClasses[currentSectionData?.color || 'rose'];
+      const currentColors = colorClasses[currentSectionData?.color || 'blue'];
       const sectionItems = navItems.filter(i => i.section === currentSection);
 
       return (
