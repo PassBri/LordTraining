@@ -184,10 +184,10 @@ const MICROCYCLE_TYPES = {
 };
 
 // ============ COMPONENTE PRINCIPAL ============
-const PeriodizationComplete = ({ athleteId, athleteName }) => {
+const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreated, showWizardOnly = false }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [activeView, setActiveView] = useState('history');
+  const [activeView, setActiveView] = useState(showWizardOnly ? 'wizard' : 'history');
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [viewMode, setViewMode] = useState('structure'); // structure, calendar, chart
   
