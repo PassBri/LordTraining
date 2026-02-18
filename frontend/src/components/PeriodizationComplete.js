@@ -1048,6 +1048,11 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     setActiveView('detail');
     setGeneratedStructure(null);
     toast.success('Plan creado exitosamente con estructura generada');
+    
+    // Callback to parent component
+    if (onPlanCreated) {
+      onPlanCreated(savedPlan);
+    }
   };
 
   // ============ RENDER: HISTORY ============
