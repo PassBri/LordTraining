@@ -92,7 +92,7 @@ Sistema inteligente de planificación deportiva con IA que permite gestionar atl
 - `training_plans`: Planes de periodización completos (NUEVO)
 - `tournaments`: Torneos
 
-### Cambios Recientes (16-Feb-2025)
+### Cambios Recientes (18-Feb-2025)
 1. ✅ Backend API CRUD completo para planes de periodización
 2. ✅ Persistencia en MongoDB (antes solo localStorage)
 3. ✅ Calculadoras científicas (1RM, Zonas FC, VO2máx, Distribución Volumen, Escalas Intensidad)
@@ -101,39 +101,38 @@ Sistema inteligente de planificación deportiva con IA que permite gestionar atl
 6. ✅ Duplicar planes
 7. ✅ Frontend integrado con API
 8. ✅ **Generador Automático de Estructura Científica**
-   - Endpoint: `POST /api/generate-structure`
-   - Genera estructura óptima basada en: modelo de periodización, deporte, duración y nivel del atleta
-   - Aplica principios científicos de los documentos de referencia
-   - Calcula distribución de volumen e intensidad por fase
-   - Genera macrociclos, mesociclos y microciclos automáticamente
-9. ✅ **Wizard de 5 Pasos para Crear Plan**:
-   - Paso 1: Selección de Deporte (Fuerza, Resistencia, Velocidad, Equipos, etc.)
-   - Paso 2: Selección de Modelo de Periodización (17 modelos disponibles)
-   - Paso 3: Configuración de Duración (Olímpico, Bianual, Anual, Semestral, Trimestral, Mensual)
-   - Paso 4: Generación de Estructura Científica Automática
-   - Paso 5: Resumen y Creación del Plan
-10. ✅ **Deportes Personalizados en Wizard** - Los deportes creados en Información → Deportes aparecen en el wizard de periodización
-11. ✅ **Sistema de Plan Activo** (NUEVO)
-    - Al entrar a "Datos" se muestra selector de plan si no hay plan activo
-    - Lista de planes existentes de la BD
-    - Opción de crear nuevo plan o seleccionar existente
-    - Plan activo se persiste en localStorage
-    - Botón "Cambiar Plan" para cambiar de plan activo
+9. ✅ **Wizard de 5 Pasos para Crear Plan**
+10. ✅ **Deportes Personalizados en Wizard**
+11. ✅ **Sistema de Plan Activo**
 12. ✅ **Historial de Planes en Coach AI Drawer**
-    - Tab "Planes" muestra todos los planes de la BD
-    - Indicador del plan activo con badge verde
-    - Botones para editar/eliminar planes
-    - Botón "Crear Nuevo Plan" que lleva al wizard
+13. ✅ **NUEVA SECCIÓN "PLANES DE ENTRENAMIENTO"** (18-Feb-2025)
+    - Primera sección en la navegación de "Datos"
+    - Sub-secciones:
+      - "Seleccionar Plan" - Vista para elegir plan activo
+      - "Crear Nuevo Plan" - Abre el wizard de 5 pasos
+      - "Historial de Planes" - Lista todos los planes con opciones de activar/editar/eliminar
+    - El plan activo se indica visualmente y se persiste entre sesiones
+    - Las demás secciones (Punto de Partida, Evaluación, etc.) requieren un plan activo
+
+## Estructura de Navegación de Datos
+1. **Planes de Entrenamiento** (NUEVO - Primera sección)
+2. Punto de Partida
+3. Información
+4. Evaluación
+5. Competencias
+6. Entrenamiento
+7. Visualización
+8. Herramientas
 
 ## Issues Conocidos
 - **P2**: Sección "Caracterización del Deporte" crashea la app (en DashboardPage.js)
 - **LOW**: Función Compartir requiere permisos de Clipboard API en navegador
 
 ## Próximas Tareas
-1. **P1**: Refactorizar PeriodizationComplete.js (900+ líneas - dividir en componentes)
-2. **P1**: Vincular datos de secciones (Evaluación, Competencias, etc.) al plan activo
-3. **P2**: Tests físicos integrados en el wizard de creación
-4. **P2**: Regression test del Tournament Manager
+1. **P1**: Vincular datos de Evaluación, Competencias, etc. al `plan_id` activo
+2. **P1**: Refactorizar PeriodizationComplete.js (900+ líneas - dividir en componentes)
+3. **P2**: Arreglar bug "Caracterización del Deporte"
+4. **P2**: Tests físicos integrados en el wizard de creación
 5. **P3**: Integrar sugerencias del AI Coach con el sistema de planes
 6. **P3**: Migrar datos de torneos a MongoDB
 
