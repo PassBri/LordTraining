@@ -4445,6 +4445,7 @@ const DashboardPage = () => {
     if (activePanel === 'datos') {
       // Define sections and colors for horizontal navigation
       const sections = [
+        { key: 'planes', title: 'Planes de Entrenamiento', color: 'teal', icon: Clipboard },
         { key: 'punto-partida', title: 'Punto de Partida', color: 'rose', icon: FileText },
         { key: 'informacion', title: 'Información', color: 'indigo', icon: Building2 },
         { key: 'evaluacion', title: 'Evaluación', color: 'emerald', icon: LineChart },
@@ -4455,6 +4456,7 @@ const DashboardPage = () => {
       ];
 
       const colorClasses = {
+        teal: { bg: 'bg-teal-500', hover: 'hover:bg-teal-600', shadow: 'shadow-teal-200', light: 'bg-teal-50', text: 'text-teal-600', border: 'border-teal-500' },
         rose: { bg: 'bg-rose-500', hover: 'hover:bg-rose-600', shadow: 'shadow-rose-200', light: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-500' },
         indigo: { bg: 'bg-indigo-500', hover: 'hover:bg-indigo-600', shadow: 'shadow-indigo-200', light: 'bg-indigo-50', text: 'text-indigo-600', border: 'border-indigo-500' },
         emerald: { bg: 'bg-emerald-500', hover: 'hover:bg-emerald-600', shadow: 'shadow-emerald-200', light: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-500' },
