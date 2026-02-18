@@ -294,8 +294,12 @@ const DashboardPage = () => {
     setActivePlan(plan);
     if (plan) {
       localStorage.setItem('train_active_plan_id', plan.id);
+      // Navegar automáticamente a la primera sección del plan (Diagnóstico)
+      setActiveDataSection('prev-plan');
     } else {
       localStorage.removeItem('train_active_plan_id');
+      // Volver al gestor de planes
+      setActiveDataSection('plan-manager');
     }
     setShowPlanSelector(false);
   };
