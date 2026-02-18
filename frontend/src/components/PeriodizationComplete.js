@@ -779,6 +779,11 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     setSelectedPlan(savedPlan);
     setActiveView('detail');
     toast.success('Plan creado y guardado exitosamente');
+    
+    // Callback to parent component
+    if (onPlanCreated) {
+      onPlanCreated(savedPlan);
+    }
   };
 
   const handleSavePlan = async () => {
