@@ -1,158 +1,149 @@
 <analysis>**original_problem_statement**:
-The user's initial goal was to build a high-end sports management platform. The scope has evolved to focus heavily on UI/UX refinement and content organization.
-
-Recent requests during this session involved a series of significant UI reorganizations:
-1.  Move all sidebar functionality into the top navigation bar to maximize space for the AI assistant.
-2.  Further reorganize the top bar to place navigation links on the left and a new filter dropdown on the right.
-3.  Remove the sidebar entirely, making the main dashboard content full-width.
-4.  Implement a floating action button (FAB) that opens a side drawer (panel) containing the Coach AI and Plan History.
-5.  Consolidate multiple status/alert bars into a single, compact bar.
-6.  Move the consolidated status bar inside the Panel de Control header.
-7.  Redesign the navigation within the Datos section from a vertical sidebar to a horizontal, Material Design style navigation with floating buttons.
-8.  Add Subscription and Logout buttons to the main top navigation bar.
-9.  Add multiple new subsections under Datos - de Partida category.
-11. Redesign the Objetivos del Plan and Análisis del Plan Anterior sections to match user-provided images with a Material Design aesthetic.
-12. Fix the Caracterización del Deporte section to show the previously designed sports catalog instead of a generic component.
+The user's initial goal was to build a high-end sports management platform. This quickly evolved into a request to create a comprehensive tool for coaches. The core requirements include:
+1.  **Plan Management**: Full CRUD operations (design, save, edit, delete), plus advanced features like sharing, printing, and duplicating training plans.
+2.  **Scientific Engine**: An automatic structure generator that creates optimal training plan layouts (mesocycles, microcycles, loads) based on scientific principles derived from user-provided sports science documents.
+3.  **Data Persistence**: All application data, especially training plans, must be stored in a persistent backend database (MongoDB), moving away from .
+4.  **Integrated Tools**: Scientific calculators for metrics like 1RM, HR Zones, and VO2max.
+5.  **Plan-Centric Architecture**: A major architectural pivot was requested by the user. The Plan must be the central object of the application. The user must first create or select a plan, and only then can they input related data (e.g., evaluations, competitions, athlete info), with all data being explicitly linked to that active plan.
+6.  **UI/UX Cohesion**: The UI must be logical and hierarchical, following a Material Design aesthetic. Redundant navigation should be eliminated, and custom data (like user-created sports) should be available across all relevant features.
 
 **User's preferred language**: Spanish. The next agent MUST respond in Spanish.
 
 **what currently exists?**
-The application is a full-stack React/FastAPI platform. The UI has undergone a major transformation. The main dashboard now occupies the full width of the screen, with the previous sidebar completely removed. A floating action button (FAB) in the bottom-right corner opens a side drawer containing two tabs: Coach AI and Historial de Planes.
+The application is a full-stack platform using React (frontend), FastAPI (backend), and MongoDB (database).
 
-The top navigation bar has been reorganized several times and now contains the logo, main navigation buttons (Panel, Datos, PDF), a dropdown for filters, and buttons for Suscripción and Salir.
+The core architecture has been refactored to be plan-centric as per the user's request. The main user flow within the Datos (Data) section is now:
+1.  If no plan is active, the user is presented with a Plan Selector screen to either create a new plan or select an existing one from the database.
+2.  Once a plan is active, its name is displayed in a persistent header, and the user can navigate through various data subsections (, , , , , etc.).
 
-The Datos section features a completely redesigned horizontal navigation system with Material Design styled buttons, replacing the old vertical menu. Many new subsections have been added and designed within Datos, including a new top-level category Punto de Partida.
+**Key Implemented Features**:
+*   **Backend**: Robust FastAPI backend with endpoints for plan CRUD, the scientific structure generator, and new endpoints to link specific data (competitions, evaluations, objectives) to a .
+*   **Frontend**:  has been heavily modified to manage the active plan state and the new UI flow.  contains the multi-step wizard for plan creation.
+*   **Data Integration**: Custom sports created by the user are now correctly fetched and displayed in the periodization wizard, unifying the data source.
+*   **Automatic Structure Generator**: A fully functional end-to-end feature that allows users to generate a scientifically-backed training plan structure through a 5-step wizard.
 
 **Last working item**:
--   **Last item agent was working**: The agent was attempting to fix the Caracterización del Deporte section. The user reported that it was not showing the expected catalog of sports organized by category. The agent identified that the correct code for the catalog existed elsewhere in  and tried to copy it into the  for Caracterización del Deporte. This failed because the state variables and handler functions (, , etc.) required by the component were not available in the new scope, causing the application to crash.
--   **Status**: IN PROGRESS
--   **Agent Testing Done**: N
--   **Which testing method agent to use?**: Frontend testing agent. First, the bug must be fixed by correctly scoping the state and handlers. Then, use the screenshot tool to verify that the sports catalog renders correctly within the Datos - - del Deporte section.
--   **User Testing Done**: N
+*   **Last item agent was working**: The agent just completed a significant UI/UX and architectural refactor of the Datos section, based on user feedback (messages #288, #245). This involved rewriting the rendering logic in  to create a more streamlined, Material Design-inspired workflow that enforces the plan-centric model. The agent has written the code for this new UI but has not yet tested it.
+*   **Status**: IN PROGRESS
+*   **Agent Testing Done**: N
+*   **Which testing method agent to use?**: Frontend testing agent. This is a critical change to the core user workflow. The test should validate the entire plan management cycle: seeing the selector, creating a new plan, setting it as active, changing to another existing plan, and ensuring data sections are only accessible when a plan is active.
+*   **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
--   **Issue 1: Caracterización del Deporte section is broken (P0)**
-    -   **Description**: This section renders the wrong component. The attempt to fix it by copying JSX code resulted in a crash due to missing state variables (, , etc.).
-    -   **Attempted fixes**: The agent copied the JSX for the sports catalog into the  function, which failed.
-    -   **Next debug checklist**:
-        1.  Locate the state declarations () and handler functions associated with the sports catalog logic (they are likely elsewhere in ).
-        2.  Consolidate these state variables and handlers so they are declared at the top level of the  component, making them accessible to the JSX being rendered for the  case.
-        3.  Ensure the JSX correctly references these now-available props and handlers.
-        4.  Test by navigating to the Datos -> Información -> Caracterización del Deporte section.
-    -   **Why fix this issue and what will be achieved with the fix?**: This is the user's current active request and is blocking further progress on UI finalization.
-    -   **Status**: IN PROGRESS
-    -   **Is recurring issue?**: N
-    -   **Should Test frontend/backend/both after fix?**: frontend
-    -   **Blocked on other issue**: None.
+*   **Issue 1: Finalize and Test the Plan-centric UI/UX Refactor (P0)**
+    *   **Description**: The new UI flow in  has been coded but is untested. The entire workflow—from selecting/creating a plan to accessing its related data sections—needs to be validated to ensure it is seamless and bug-free.
+    *   **Status**: IN PROGRESS
 
--   **Issue 2: Tournament Manager logic has not been fully regression tested (P1)**
-    -   **Description**: This is a carry-over issue from the previous session. The Tournament Manager's persistence logic was implemented but never thoroughly tested. Given the number of subsequent UI changes, its stability is unknown.
-    -   **Attempted fixes**:  persistence was added in the previous session.
-    -   **Next debug checklist**:
-        1.  Engage the frontend testing agent to perform a full regression test of the tournament workflow as outlined in the initial handoff summary.
-    -   **Why fix this issue and what will be achieved with the fix?**: It's a core feature of the application that remains unverified.
-    -   **Status**: NOT STARTED
-    -   **Is recurring issue?**: Y
-    -   **Should Test frontend/backend/both after fix?**: frontend
-    -   **Blocked on other issue**: None.
+*   **Issue 2: Link Frontend Data Components to Backend  (P1)**
+    *   **Description**: The backend is ready to store data (evaluations, competitions, etc.) linked to a . The frontend components for these sections must now be updated to use these new endpoints, sending the  with every request.
+    *   **Status**: NOT STARTED
+
+*   **Issue 3: Caracterización del Deporte section is broken (P2)**
+    *   **Description**: A long-standing, low-priority bug that causes a crash when accessing the Datos - - del Deporte section.
+    *   **Status**: NOT STARTED
+    *   **Is recurring issue?**: Y
 
 **In progress Task List**:
--   **Task 1: Complete UI/UX Overhaul (P0)**
-    -   **Description**: The agent is in the final stages of a massive UI overhaul requested by the user. The last remaining piece is fixing the Caracterización del Deporte section.
-    -   **Where to resume**: Resume debugging the missing state variables for the sports catalog in .
-    -   **What will be achieved with this?**: Finalizes the user's extensive list of UI reorganization requests.
-    -   **Status**: IN PROGRESS
-    -   **Should Test frontend/backend/both after fix?**: frontend
-    -   **Blocked on something**: Issue 1.
+*   **Task 1: Complete and Test the Plan-centric UI Refactor (P0)**
+    *   **Where to resume**: . The  function has just been rewritten. The next step is to perform comprehensive end-to-end testing of the new user flow.
+    *   **What will be achieved with this?**: This will validate that the application's core architecture now matches the user's required workflow, providing a solid foundation for subsequent features.
+    *   **Status**: IN PROGRESS
+    *   **Should Test frontend/backend/both after fix?**: Frontend.
 
 **Upcoming and Future Tasks**
 **Upcoming Tasks:**
--   **P1: Implement Manual Plan Creation Wizard**: The user previously noted there is no clear, non-AI flow for manually creating a training plan. This remains a high-priority unaddressed feature.
--   **P2: Save AI Suggestions into a Plan**: The AI assistant provides text suggestions, but there's no way to convert them into a structured, saved plan.
+*   **P1: Implement Data Persistence for Plan Sections**: Modify frontend components for , , ,  to fetch and save their data against the  using the new backend endpoints.
+*   **P1: Refactor **: Break down this massive component (>900 lines) into smaller, specialized components (e.g., , , ) to improve maintainability.
+*   **P1: Implement Advanced Plan Management**: Add the Print, Share, and Duplicate functionalities for training plans.
 
 **Future Tasks:**
--   **P2: Full Plan Detail View**: A dedicated view to see a complete breakdown of a saved training plan.
--   **P2: Backend Persistence**: Migrate data currently stored in  (tournaments, plans) to the MongoDB database.
+*   **P2: Backend Persistence for Tournament Manager**: Migrate the separate tournament manager data from  to the database, linking it to plans where applicable.
+*   **P2: Integrate AI Coach Suggestions**: Allow AI-generated suggestions to be saved directly into the active training plan.
+*   **P2: Cleanup Obsolete Components**: Delete the old  and  files.
 
 **Completed work in this session**
--   **Full-Width Dashboard UI**: Successfully removed the main sidebar and reconfigured the layout to allow the main content area (Control Panel, Datos) to use 100% of the screen width.
--   **FAB and Drawer Implementation**: Implemented a floating action button that opens a side drawer containing tabs for Coach AI and Historial de Planes.
--   **Top Navigation Bar Overhaul**: Reorganized the top bar multiple times, adding/moving navigation links, implementing a filter dropdown, and adding Subscription/Logout buttons.
--   **Datos Section Redesign**: Transformed the navigation within the Datos section from a vertical list to a dynamic, horizontal navigation system with Material Design styled buttons.
--   **UI Content and Design Implementation**:
-    -   Added and designed several new subsections under Datos - del Plan and Análisis del Plan Anterior sections with a rich, form-like Material Design layout based on user images.
-    -   Consolidated and redesigned status/alert bars for a more compact UI.
+*   **Finished Automatic Structure Generator**: Successfully implemented and tested the full end-to-end flow of the scientific plan generator.
+*   **Fixed Critical Bugs**: Used the testing agent to identify and fix three critical bugs related to data serialization (snake_case vs. camelCase), UI display, and plan ID handling.
+*   **Unified Sports Data Source**: Refactored the plan creation wizard to load custom sports created by the user, providing a unified experience.
+*   **Architectural Redesign to Plan-Centric Model**: Implemented the core logic for an Active Plan state, fundamentally changing the user workflow to revolve around a selected plan.
+*   **UI/UX Refactor of Datos Section**: Reorganized the main data section UI to be more logical, hierarchical, and aligned with Material Design principles, eliminating redundant navigation.
+*   **Backend for Plan-Linked Data**: Created and tested new backend models and endpoints to store various data types (competitions, evaluations, objectives) linked to a specific .
 
 **Earlier issues found/mentioned but not fixed**
--   **Tournament Manager Regression Test**: This P1 issue from the initial handoff summary was not addressed in this session as the user prioritized extensive UI changes.
+*   **Caracterización del Deporte crash**: This bug in  remains unresolved as per user's shifting priorities. It is tracked as a P2 issue.
 
 **Known issue recurrence from previous fork**
--   N/A
+*   N/A
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Frontend**: React.js
--   **Backend**: FastAPI
--   **UI/Styling**: ShadCN/UI, Tailwind CSS, Lucide React
--   **State Management**: Extensive use of React Hooks (, ) within a single, massive component (). State is becoming difficult to manage.
--   **LLM Integration**: Backend uses  for the AI Coach ().
+*   **Centralized State Management**:  now serves as the central hub for managing the application's most critical state, including the .
+*   **Conditional Rendering**: The UI heavily relies on conditional rendering to show either the Plan Selector or the main data sections based on whether an  is set.
+*   **API Design**: The backend now follows a clear pattern for linking subordinate data to a primary record via a foreign key ().
 
 **key DB schema**
--   No database changes were made.
+*   ****: Stores the main training plan documents.
+*   ****: 
+*   ****: 
+*   ****: 
 
 **All files of reference**
--   : The central file for almost all work done in this session. It has grown extremely large and complex.
--   : Minor modifications were made to this component.
+*   : The most important file. It contains the new architecture and UI logic for the plan-centric workflow.
+*   : Contains the plan creation wizard and is a primary candidate for refactoring.
+*   : The single source for all backend logic, models, and API endpoints.
 
 **Areas that need refactoring**:
--   ****: **CRITICAL**. This file has become a god component, managing state and rendering logic for dozens of unrelated features. It is now extremely difficult to maintain and is the direct cause of the current bug (state scoping issues). It desperately needs to be broken down into smaller, self-contained components with their own state management.
--   **Delete Unused Component**: The file  from the previous session is still in the codebase and should be deleted.
+*   ****: **CRITICAL**. This component is over 900 lines and must be broken down into smaller, maintainable sub-components.
+*   ****: This file is now approaching 1000 lines. The logic for , the plan selector UI, and the active plan header should be extracted into their own dedicated components to simplify .
 
 **key api endpoints**
--   ****: Unchanged, used by the AI Coach in the drawer.
+*   : Manage training plans.
+*   : Generate a scientific plan structure.
+*   : Get or create a data container for a plan.
+*   : Add a competition to a plan.
+*   : Add an evaluation to a plan.
+*   : Add an objective to a plan.
 
 **Critical Info for New Agent**
--   **Respond in Spanish.**
--   The user is very hands-on with UI/UX and will provide frequent, iterative feedback. Be prepared for this rapid cycle of change-and-review.
--   Your immediate priority (P0) is to fix the crash in the Caracterización del Deporte section by properly scoping the state and handlers for the sports catalog within .
--   The  file is dangerously large. Be extremely careful when making changes. The best long-term solution is to start breaking it down into smaller components, but the immediate priority is fixing the user's requested bug.
--   Do not forget the pending P1 task of regression testing the Tournament Manager once the current UI work is stable.
+*   **Responde en español.**
+*   Tu tarea inmediata es **probar y validar la nueva arquitectura centrada en el plan** en . El flujo de usuario ha cambiado significativamente, y debes asegurarte de que funcione sin problemas de principio a fin antes de continuar.
+*   Después de la validación, la siguiente tarea crítica es **conectar las secciones de datos del frontend** (, , etc.) a los nuevos endpoints del backend que guardan los datos contra el .
+*   El usuario valora mucho una experiencia de usuario lógica y jerárquica. El Plan es ahora el contenedor central para todos los datos.
+*   La refactorización de  es una deuda técnica de alta prioridad que debe abordarse una vez que las características actuales sean estables.
 
 **documents and test reports created in this job**
--   None.
+*   
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User (msg 322):** Reported that the Caracterización del Deporte section is still not showing the sports catalog. (IN PROGRESS)
-2.  **User (msg 303):** Requested to improve Análisis del Plan Anterior with Material Design and fix the missing sports catalog in Información. (PARTIALLY COMPLETED)
-3.  **User (msg 278):** Provided images to design the Objetivos del Plan section as a Material Design form. (COMPLETED)
-4.  **User (msg 253):** Requested a major reorganization of the Datos section, creating Punto de Partida and moving several subsections. (COMPLETED)
-5.  **User (msg 230):** Requested to add several new Evaluación subsections (Análisis Biomecánico, Controles) and populate them with content. (COMPLETED)
-6.  **User (msg 185):** Requested another major UI redesign: move status bar into header, change Datos nav to horizontal, and add subscription/logout buttons to top bar. (COMPLETED)
-7.  **User (msg 158):** Requested to remove buttons from the drawer footer and combine the status bars into one. (COMPLETED)
-8.  **User (msg 99):** Proposed removing the sidebar entirely and using a button to open the AI assistant on demand. (COMPLETED)
-9.  **User (msg 58):** Requested to reorganize the top bar, moving filters to a dropdown on the right and links to the left. (COMPLETED)
-10. **User (msg 5):** The first request of the session, to move items from the sidebar to the top bar to create more space. (COMPLETED)
+*   **msg 288**: User gave final confirmation on the desired UI/UX refactor: analyze the structure.. you click on data, then on training plans... there you create, select, edit or delete plans... when creating or editing the plan you can enter the sections... organize and improve the data sequence with the hierarchical structure that a training plan should have.
+*   **msg 246**: User requested changing the Entrenamiento tab title to Periodización. (Completed)
+*   **msg 180, 181**: User requested adding a Planes de Entrenamiento button as the first option in the Datos navigation. (This was an intermediate step before the final refactor in msg 288).
+*   **msg 108, 99**: User approved the architectural change to a plan-centric model but insisted that no existing components be deleted, only reorganized.
+*   **msg 97**: The key user request that initiated the major architectural shift: outlining the logical flow of creating/selecting a plan *before* entering any associated data.
+*   **msg 60**: User requested that custom sports created in the Información section should also appear as options in the Periodización wizard. (Completed)
 
 **Project Health Check:**
--   **Broken**: The Caracterización del Deporte subsection is currently crashing the app due to a state management bug.
--   **Mocked**: No mocked parts.
+*   **Broken**: The Caracterización del Deporte subsection still crashes the app.
+*   **Mocked**: None.
 
 **3rd Party Integrations**
--   **OpenAI GPT-4o-mini**: Used by the Coach AI. Utilizes the Emergent LLM Key.
--   **Recharts**: Charting library.
+*   OpenAI GPT-4o-mini (via Emergent LLM Key)
+*   Recharts
 
 **Testing status**
--   **Testing agent used after significant changes**: NO
--   **Troubleshoot agent used after agent stuck in loop**: NO
--   **Test files created**: None
--   **Known regressions**: None, but the Tournament Manager is untested.
+*   **Testing agent used after significant changes**: YES (used to fix bugs in the periodization creation flow).
+*   **Troubleshoot agent used after agent stuck in loop**: NO
+*   **Test files created**: None.
+*   **Known regressions**: The untested state of the Tournament Manager persists from a previous session. The latest major UI refactor has not been tested.
 
 **Credentials to test flow:**
--   **email**: 
--   **password**: 
+*   **email**: 
+*   **password**: 
 
 **What agent forgot to execute**
--   The agent did not perform the P1 regression testing on the Tournament Manager.
--   The agent did not delete the old, unused  component file.</analysis>
+*   The agent has not implemented the Print, Share, and Duplicate plan features.
+*   The agent has not deleted the obsolete components (, ).
+*   The agent has not fixed the long-standing bug in .
+(These are all captured in the upcoming/future task lists).</analysis>
