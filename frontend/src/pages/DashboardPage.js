@@ -963,102 +963,170 @@ const DashboardPage = () => {
   };
 
   const renderDataContent = () => {
-    // ====== SI NO HAY PLAN ACTIVO - MOSTRAR SELECTOR DE PLANES ======
-    if (!activePlan) {
+    // ====== SECCIÓN: GESTIÓN DE PLANES (plan-manager) ======
+    if (activeDataSection === 'plan-manager' || (!activePlan && activeDataSection !== 'training-system')) {
       return (
-        <div className="h-full bg-gradient-to-b from-slate-50 to-white p-8">
-          <div className="max-w-4xl mx-auto">
-            {/* Header Material Design */}
-            <div className="text-center mb-10">
-              <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-blue-200">
-                <Clipboard className="w-12 h-12 text-white" />
+        <div className="h-full bg-gradient-to-br from-slate-50 via-white to-blue-50/30 p-6 md:p-8">
+          <div className="max-w-5xl mx-auto">
+            {/* Header Material Design 3 */}
+            <div className="mb-8">
+              <div className="flex items-center gap-4 mb-2">
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200/50">
+                  <Clipboard className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-bold text-slate-800">Planes de Entrenamiento</h1>
+                  <p className="text-slate-500 text-sm md:text-base">Gestiona tus planes de periodización</p>
+                </div>
               </div>
-              <h1 className="text-3xl font-bold text-slate-800 mb-3">Planes de Entrenamiento</h1>
-              <p className="text-slate-500 text-lg max-w-xl mx-auto">
-                Selecciona un plan existente o crea uno nuevo para comenzar a diseñar tu periodización
-              </p>
             </div>
 
-            {/* Botón Crear Nuevo Plan - Material Design Elevated */}
-            <div className="mb-8">
+            {/* Acciones Rápidas - Material Design Chips */}
+            <div className="flex flex-wrap gap-3 mb-8">
               <Button
                 onClick={() => setActiveDataSection('training-system')}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-8 text-xl shadow-xl shadow-blue-200 rounded-2xl transition-all hover:shadow-2xl hover:scale-[1.01]"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl shadow-lg shadow-blue-200/50 transition-all hover:shadow-xl hover:scale-[1.02]"
                 data-testid="create-plan-btn"
               >
-                <Plus className="w-8 h-8 mr-4" />
-                Crear Nuevo Plan de Entrenamiento
+                <Plus className="w-5 h-5 mr-2" />
+                Nuevo Plan
+              </Button>
+              <Button
+                variant="outline"
+                onClick={fetchTrainingPlans}
+                className="border-slate-300 text-slate-600 hover:bg-slate-100 rounded-xl px-4"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Actualizar
               </Button>
             </div>
 
-            {/* Divider */}
-            {trainingPlans.length > 0 && (
-              <div className="flex items-center gap-4 mb-8">
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
-                <span className="text-sm text-slate-400 font-medium px-4">o selecciona un plan existente</span>
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
+            {/* Plan Activo Destacado */}
+            {activePlan && (
+              <div className="mb-6 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center">
+                      <CheckCircle className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-emerald-600 font-semibold uppercase tracking-wide">Plan Activo</p>
+                      <h3 className="font-bold text-slate-800">{activePlan.name}</h3>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSetActivePlan(null)}
+                    className="border-emerald-300 text-emerald-700 hover:bg-emerald-100 rounded-lg"
+                  >
+                    Cambiar
+                  </Button>
+                </div>
               </div>
             )}
 
             {/* Lista de Planes - Material Design Cards */}
+            <div className="space-y-1 mb-4">
+              <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
+                {trainingPlans.length > 0 ? `${trainingPlans.length} planes guardados` : 'Mis Planes'}
+              </h2>
+            </div>
+
             {loadingPlans ? (
               <div className="text-center py-16">
-                <Loader2 className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
-                <p className="text-slate-500 text-lg">Cargando planes...</p>
+                <Loader2 className="w-10 h-10 animate-spin text-blue-500 mx-auto mb-4" />
+                <p className="text-slate-500">Cargando planes...</p>
               </div>
             ) : trainingPlans.length > 0 ? (
-              <div className="grid gap-4">
-                {trainingPlans.map(plan => (
-                  <div 
-                    key={plan.id}
-                    className="group bg-white border border-slate-200 rounded-2xl p-5 hover:shadow-xl hover:border-blue-300 cursor-pointer transition-all duration-300 hover:scale-[1.01]"
-                    data-testid={`plan-card-${plan.id}`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4" onClick={() => handleSetActivePlan(plan)}>
-                        <div className="w-14 h-14 bg-gradient-to-br from-slate-100 to-slate-200 group-hover:from-blue-100 group-hover:to-indigo-100 rounded-xl flex items-center justify-center transition-colors">
-                          <Calendar className="w-7 h-7 text-slate-500 group-hover:text-blue-600 transition-colors" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-bold text-lg text-slate-800 group-hover:text-blue-700 transition-colors">{plan.name}</h3>
-                          <div className="flex items-center gap-3 mt-1">
-                            <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">{plan.total_weeks} semanas</span>
-                            <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs font-medium rounded-full">{plan.model_name || plan.model}</span>
-                            <span className="text-sm text-slate-500">{plan.sport || 'General'}</span>
+              <div className="grid gap-3">
+                {trainingPlans.map(plan => {
+                  const isActive = activePlan?.id === plan.id;
+                  return (
+                    <div 
+                      key={plan.id}
+                      className={`group bg-white border rounded-xl p-4 cursor-pointer transition-all duration-200 hover:shadow-lg ${
+                        isActive 
+                          ? 'border-blue-400 ring-2 ring-blue-100 shadow-md' 
+                          : 'border-slate-200 hover:border-blue-300'
+                      }`}
+                      onClick={() => handleSetActivePlan(plan)}
+                      data-testid={`plan-card-${plan.id}`}
+                    >
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                            isActive 
+                              ? 'bg-blue-600' 
+                              : 'bg-slate-100 group-hover:bg-blue-100'
+                          }`}>
+                            <Clipboard className={`w-6 h-6 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-blue-600'}`} />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h3 className={`font-semibold truncate ${isActive ? 'text-blue-700' : 'text-slate-800'}`}>
+                              {plan.name}
+                            </h3>
+                            <div className="flex items-center gap-2 mt-1 flex-wrap">
+                              <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                                {plan.total_weeks} sem
+                              </span>
+                              <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs font-medium rounded-full truncate max-w-[100px]">
+                                {plan.model_name || plan.model}
+                              </span>
+                              {plan.sport && (
+                                <span className="text-xs text-slate-500 truncate">{plan.sport}</span>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          onClick={() => handleSetActivePlan(plan)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md"
-                        >
-                          Abrir
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteTrainingPlan(plan.id);
-                          }}
-                          className="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        <div className="flex items-center gap-1 shrink-0">
+                          {isActive && (
+                            <Badge className="bg-blue-600 text-white text-xs mr-2">Activo</Badge>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // TODO: Editar plan
+                            }}
+                            className="text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg h-8 w-8 p-0"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteTrainingPlan(plan.id);
+                            }}
+                            className="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg h-8 w-8 p-0"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
-              <div className="text-center py-16 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
-                <Calendar className="w-20 h-20 text-slate-200 mx-auto mb-6" />
-                <h3 className="text-xl font-bold text-slate-500 mb-2">Sin planes de entrenamiento</h3>
-                <p className="text-slate-400 mb-6 max-w-sm mx-auto">
-                  Crea tu primer plan para comenzar a diseñar la periodización de tus atletas
+              <div className="text-center py-16 bg-slate-50/50 rounded-2xl border-2 border-dashed border-slate-200">
+                <div className="w-20 h-20 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Clipboard className="w-10 h-10 text-slate-300" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-500 mb-2">Sin planes de entrenamiento</h3>
+                <p className="text-slate-400 mb-6 max-w-sm mx-auto text-sm">
+                  Crea tu primer plan para comenzar a diseñar la periodización
                 </p>
+                <Button
+                  onClick={() => setActiveDataSection('training-system')}
+                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Crear Primer Plan
+                </Button>
               </div>
             )}
           </div>
@@ -1066,7 +1134,36 @@ const DashboardPage = () => {
       );
     }
 
-    // ====== HAY PLAN ACTIVO - MOSTRAR CONTENIDO DE LAS SECCIONES ======
+    // ====== VERIFICAR SI SE NECESITA UN PLAN ACTIVO ======
+    // Secciones que NO requieren plan activo (se pueden ver sin tener un plan seleccionado)
+    const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators'];
+    
+    if (!activePlan && !sectionsWithoutPlan.includes(activeDataSection)) {
+      // Mostrar mensaje de que se necesita seleccionar un plan
+      return (
+        <div className="h-full flex items-center justify-center bg-gradient-to-br from-slate-50 to-white p-8">
+          <div className="text-center max-w-md">
+            <div className="w-20 h-20 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <AlertTriangle className="w-10 h-10 text-amber-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-800 mb-3">Selecciona un Plan</h2>
+            <p className="text-slate-500 mb-6">
+              Para acceder a esta sección necesitas tener un plan de entrenamiento activo. 
+              Los datos se guardarán asociados al plan seleccionado.
+            </p>
+            <Button
+              onClick={() => setActiveDataSection('plan-manager')}
+              className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6"
+            >
+              <Clipboard className="w-4 h-4 mr-2" />
+              Ir a Mis Planes
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    // ====== HAY PLAN ACTIVO O SECCIÓN SIN PLAN - MOSTRAR CONTENIDO ======
     if (!activeDataSection) {
       return (
         <div className="flex flex-col items-center justify-center h-full gap-6 p-8">
