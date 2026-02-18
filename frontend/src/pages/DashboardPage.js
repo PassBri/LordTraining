@@ -847,6 +847,11 @@ const DashboardPage = () => {
 
   // Navigation items for "Datos" panel - NUEVO FLUJO LÓGICO DEL ENTRENADOR
   const navItems = [
+    // === PLANES DE ENTRENAMIENTO (PRIMERO - Selección del plan activo) ===
+    { id: 'plan-selector', label: 'Seleccionar Plan', icon: Clipboard, section: 'planes' },
+    { id: 'plan-create', label: 'Crear Nuevo Plan', icon: Plus, section: 'planes' },
+    { id: 'plan-history', label: 'Historial de Planes', icon: History, section: 'planes' },
+    
     // === 0. PUNTO DE PARTIDA (Lo primero que necesita el entrenador) ===
     { id: 'prev-plan', label: 'Análisis del Plan Anterior', icon: FileText, section: 'punto-partida' },
     { id: 'objectives', label: 'Objetivos del Plan', icon: Target, section: 'punto-partida' },
