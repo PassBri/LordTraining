@@ -3,22 +3,75 @@
 ## Descripción General
 Sistema inteligente de planificación deportiva con IA que permite gestionar atletas, crear planes de periodización científicos y optimizar el rendimiento deportivo.
 
-## Estado Actual: Sistema de Periodización Científico Completo
+## Arquitectura Plan-Céntrica (Actualizado 18-Feb-2025)
 
-### Funcionalidades Implementadas
+### Flujo Principal de Usuario
+1. **Datos → Planes de Entrenamiento**: Primera vista al entrar
+2. **Seleccionar Plan**: Click en un plan para "entrar" a su estructura
+3. **Navegar Secciones**: Diagnóstico, Información, Evaluación, Competencias, Periodización, Visualización, Herramientas
+4. **Cambiar Plan**: Botón para volver a la lista y seleccionar otro plan
 
-#### 1. Sistema de Autenticación
+### Estructura Jerárquica del Plan (Metodología Científica)
+Basado en los libros de planificación deportiva (Padilla, Matveiev, Issurin):
+
+```
+📋 PLAN DE ENTRENAMIENTO [Nombre del Plan]
+│
+├── 1️⃣ DIAGNÓSTICO (Punto de Partida)
+│   ├── Análisis Plan Anterior
+│   ├── Objetivos del Plan
+│   └── Caracterización Atleta
+│
+├── 2️⃣ INFORMACIÓN BASE
+│   ├── Atletas y Equipos
+│   ├── Caracterización Deporte
+│   └── Entidades
+│
+├── 3️⃣ EVALUACIÓN / CONTROLES
+│   ├── Control Médico
+│   ├── Antropometría
+│   ├── Control Físico
+│   ├── Control Técnico
+│   ├── Control Táctico
+│   └── Control Psicológico
+│
+├── 4️⃣ COMPETENCIAS
+│   ├── Calendario Competitivo
+│   └── Competencias
+│
+├── 5️⃣ PERIODIZACIÓN (Núcleo)
+│   ├── Estructura del Plan
+│   ├── Métodos de Entrenamiento
+│   └── Biblioteca Ejercicios
+│
+├── 6️⃣ VISUALIZACIÓN
+│   ├── Plan Gráfico
+│   ├── Calendario
+│   └── Alertas
+│
+└── 7️⃣ HERRAMIENTAS
+    ├── Calculadoras
+    └── Asistente IA
+```
+
+### Lógica de Navegación UI
+- **Sin plan activo**: Solo muestra lista de planes
+- **Con plan activo**: Muestra barra del plan + secciones internas
+- **Cambiar Plan**: Deselecciona plan y vuelve a lista
+
+## Funcionalidades Implementadas
+
+### Sistema de Autenticación
 - Login/Registro de usuarios
 - Gestión de sesiones JWT
 
-#### 2. Panel de Control (Dashboard)
+### Panel de Control (Dashboard)
 - Readiness Score con métricas de bienestar
 - Ratio Carga Aguda:Crónica
 - Estadísticas de atletas, eventos, macrociclos
 - Gráficos de volumen, intensidad y densidad
 
-#### 3. Sistema de Periodización Científico (ACTUALIZADO 16-Feb-2025)
-
+### Sistema de Periodización Científico
 **Backend API CRUD Completo:**
 - `POST /api/training-plans` - Crear plan
 - `GET /api/training-plans` - Listar planes
@@ -26,136 +79,70 @@ Sistema inteligente de planificación deportiva con IA que permite gestionar atl
 - `PUT /api/training-plans/{id}` - Actualizar plan
 - `DELETE /api/training-plans/{id}` - Eliminar plan
 - `POST /api/training-plans/{id}/duplicate` - Duplicar plan
-- `POST /api/training-plans/{id}/share` - Compartir plan (genera link público)
-- `GET /api/training-plans/shared/{token}` - Ver plan compartido
-- `GET /api/training-plans/{id}/export/pdf` - Exportar a PDF
+- `POST /api/training-plans/{id}/share` - Compartir plan
+- `GET /api/training-plans/{id}/export/pdf` - Exportar PDF
 
 **Calculadoras Científicas:**
-- `POST /api/calculators/load` - Calculadora con tipos:
-  - `1rm`: Cálculo 1RM (Brzycki, Epley, Lander)
-  - `heart_rate_zones`: Zonas FC (Fórmula Karvonen)
-  - `vo2max`: VO2máx (Cooper, Rockport, 1.5 Mile)
-  - `volume_distribution`: Distribución de volumen (lineal, ondulatorio, escalón)
-  - `intensity_scale`: Escalas de intensidad (Vasconcelos Raposo)
+- 1RM (Brzycki, Epley, Lander)
+- Zonas FC (Fórmula Karvonen)
+- VO2máx (Cooper, Rockport)
+- Distribución de volumen
+- Escalas de intensidad
 
 **17 Modelos de Periodización:**
-- 📚 Clásicos: Tradicional (Matveiev), ATR (Issurin), Bloques (Verkhoshansky)
-- 📈 Ondulatorios: DUP, WUP, No Lineal Flexible (Kraemer)
-- 🔬 Contemporáneos: Conjugado (Westside), Trifásico (Dietz), Integración Vertical, Contraste Francés
-- 🏆 Por Deporte: Táctica (Frade), Lineal Inversa, Concurrente, Polarizado (Seiler)
-- 🎯 Avanzados: Cibernético (Bondarchuk), Péndulo, Secuencial (Tschiene)
+- Clásicos: Tradicional (Matveiev), ATR (Issurin), Bloques
+- Ondulatorios: DUP, WUP, No Lineal
+- Contemporáneos: Conjugado, Trifásico, Integración Vertical
+- Por Deporte: Táctica, Lineal Inversa, Concurrente, Polarizado
+- Avanzados: Cibernético, Péndulo, Secuencial
 
-**Tipos de Estructuras:**
-- Mesociclos: Entrante, Básico Desarrollador, Básico Estabilizador, Precompetitivo, Competitivo, Recuperación
-- Microciclos: Ajuste, Carga, Choque, Aproximación, Competición, Recuperación
+### API Endpoints para Datos del Plan
+- `POST /api/plan-data/objectives` - Objetivos del plan
+- `POST /api/plan-data/evaluations` - Evaluaciones
+- `POST /api/plan-data/competitions` - Competencias
+- `POST /api/plan-data/previous-analysis` - Análisis plan anterior
+- `GET /api/plan-data/{plan_id}` - Todos los datos del plan
 
-**Vista de Plan:**
-- Estructura: CRUD jerárquico (Macrociclo > Mesociclo > Microciclo > Sesión)
-- Calendario: Vista semanal de sesiones
-- Gráfico: Curvas de volumen e intensidad (Recharts)
-
-**Funciones de Plan:**
-- ✅ Guardar en MongoDB
-- ✅ Editar planes existentes
-- ✅ Eliminar planes
-- ✅ Duplicar planes
-- ✅ Compartir (link público)
-- ✅ Exportar PDF
-
-#### 4. Coach AI
-- Asistente de entrenamiento con GPT-4o-mini
-- Sugerencias personalizadas
-
-#### 5. Gestor de Torneos
-- Creación y gestión de competencias
-- Brackets de eliminación
-
-### Documentos de Referencia Analizados
-1. Conceptos y Métodos para el Entrenamiento Físico (Min. Defensa España)
-2. Modelos de Planificación según el Deportista y el Deporte (Dr. Fernando Navarro)
-3. Guía de Entrenamiento Avanzado
-4. Libro Planificación del Entrenamiento (José Rafael Padilla)
-5. Manual del Entrenador Personal - Fitness al Wellness (Felipe Isidro)
-6. Planificación del Entrenamiento (Manso)
-7. Planificación del Entrenamiento (Coldeportes)
-
-### Tecnologías
+## Tecnologías
 - **Frontend**: React.js, Tailwind CSS, ShadCN/UI, Recharts
 - **Backend**: FastAPI, Python
 - **Base de Datos**: MongoDB
 - **IA**: OpenAI GPT-4o-mini (Emergent LLM Key)
 
-### Base de Datos MongoDB
+## Base de Datos MongoDB
 **Colecciones:**
 - `users`: Usuarios y coaches
 - `athletes`: Atletas
-- `training_plans`: Planes de periodización completos (NUEVO)
+- `training_plans`: Planes de periodización
+- `plan_objectives`: Objetivos por plan
+- `plan_evaluations`: Evaluaciones por plan
+- `plan_competitions`: Competencias por plan
 - `tournaments`: Torneos
 
-### Cambios Recientes (18-Feb-2025)
-1. ✅ Backend API CRUD completo para planes de periodización
-2. ✅ Persistencia en MongoDB (antes solo localStorage)
-3. ✅ Calculadoras científicas (1RM, Zonas FC, VO2máx, Distribución Volumen, Escalas Intensidad)
-4. ✅ Exportar PDF de planes
-5. ✅ Compartir planes con link público
-6. ✅ Duplicar planes
-7. ✅ Frontend integrado con API
-8. ✅ **Generador Automático de Estructura Científica**
-9. ✅ **Wizard de 5 Pasos para Crear Plan**
-10. ✅ **Deportes Personalizados en Wizard**
-11. ✅ **Sistema de Plan Activo**
-12. ✅ **Historial de Planes en Coach AI Drawer**
-13. ✅ **NUEVA SECCIÓN "PLANES DE ENTRENAMIENTO"** (18-Feb-2025)
-    - Primera sección en la navegación de "Datos"
-    - Sub-secciones:
-      - "Seleccionar Plan" - Vista para elegir plan activo
-      - "Crear Nuevo Plan" - Abre el wizard de 5 pasos
-      - "Historial de Planes" - Lista todos los planes con opciones de activar/editar/eliminar
-    - El plan activo se indica visualmente y se persiste entre sesiones
-    - Las demás secciones (Punto de Partida, Evaluación, etc.) requieren un plan activo
-
-## Estructura de Navegación de Datos
-1. **Planes de Entrenamiento** (NUEVO - Primera sección)
-2. Punto de Partida
-3. Información
-4. Evaluación
-5. Competencias
-6. Entrenamiento
-7. Visualización
-8. Herramientas
-
 ## Issues Conocidos
-- **P2**: Sección "Caracterización del Deporte" crashea la app (en DashboardPage.js)
-- **LOW**: Función Compartir requiere permisos de Clipboard API en navegador
+- **P2**: Sección "Caracterización del Deporte" crashea la app
 
 ## Próximas Tareas
-1. **P1**: Refactorizar PeriodizationComplete.js (900+ líneas - dividir en componentes)
-2. **P1**: Conectar frontend de secciones (Evaluación, Competencias, etc.) con nuevos endpoints `/api/plan-data/*`
-3. **P2**: Arreglar bug "Caracterización del Deporte"
-4. **P2**: Tests físicos integrados en el wizard de creación
-5. **P3**: Integrar sugerencias del AI Coach con el sistema de planes
-6. **P3**: Migrar datos de torneos a MongoDB
-
-## API Endpoints para Datos del Plan (NUEVO)
-- `POST /api/plan-data/objectives` - Crear/actualizar objetivos del plan
-- `GET /api/plan-data/objectives/{plan_id}` - Obtener objetivos
-- `POST /api/plan-data/evaluations` - Crear evaluación
-- `GET /api/plan-data/evaluations/{plan_id}` - Obtener evaluaciones
-- `DELETE /api/plan-data/evaluations/{id}` - Eliminar evaluación
-- `POST /api/plan-data/competitions` - Crear competencia
-- `GET /api/plan-data/competitions/{plan_id}` - Obtener competencias
-- `PUT /api/plan-data/competitions/{id}` - Actualizar competencia
-- `DELETE /api/plan-data/competitions/{id}` - Eliminar competencia
-- `POST /api/plan-data/previous-analysis` - Crear análisis del plan anterior
-- `GET /api/plan-data/previous-analysis/{plan_id}` - Obtener análisis
-- `GET /api/plan-data/{plan_id}` - Obtener TODOS los datos del plan
+1. **P1**: Conectar secciones de datos frontend a endpoints con plan_id
+2. **P1**: Refactorizar PeriodizationComplete.js (900+ líneas)
+3. **P2**: Corregir bug "Caracterización del Deporte"
+4. **P2**: Tests físicos integrados en wizard
+5. **P3**: Migrar datos de torneos a MongoDB
 
 ## Credenciales de Prueba
 - Email: test@train.com
 - Password: test123456
 
 ## Archivos Principales
-- `/app/frontend/src/components/PeriodizationComplete.js` - Sistema de periodización frontend
-- `/app/backend/server.py` - API Backend con endpoints de planes y calculadoras
-- `/app/frontend/src/pages/DashboardPage.js` - Panel principal
-- `/app/frontend/src/components/SessionEditor.js` - Editor de sesiones
+- `/app/frontend/src/pages/DashboardPage.js` - Panel principal con arquitectura plan-céntrica
+- `/app/frontend/src/components/PeriodizationComplete.js` - Sistema de periodización
+- `/app/backend/server.py` - API Backend
+
+## Documentos de Referencia
+1. PLANIFICACIÓN DEL ENTRENAMIENTO_COLDEPORTES.pdf
+2. PLANIFICACIÓN DEL ENTRENAMIENTO MANSO.pdf
+3. LIBRO_PLANIF_ENTREN_PADILLA_.pdf
+4. Manual del Entrenador Personal (Felipe Isidro)
+5. Guía de Entrenamiento Avanzado
+6. Modelos de Planificación (Dr. Fernando Navarro)
+7. Conceptos y Métodos para el Entrenamiento Físico
