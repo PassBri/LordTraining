@@ -4646,7 +4646,7 @@ const DashboardPage = () => {
         { key: 'informacion', title: 'Información', color: 'indigo', icon: Building2 },
         { key: 'evaluacion', title: 'Evaluación', color: 'emerald', icon: LineChart },
         { key: 'competencias', title: 'Competencias', color: 'violet', icon: Trophy },
-        { key: 'entrenamiento', title: 'Entrenamiento', color: 'blue', icon: Activity },
+        { key: 'entrenamiento', title: 'Periodización', color: 'blue', icon: Activity },
         { key: 'visualizacion', title: 'Visualización', color: 'amber', icon: Layers },
         { key: 'herramientas', title: 'Herramientas', color: 'slate', icon: Settings },
       ];
