@@ -961,330 +961,145 @@ const DashboardPage = () => {
   };
 
   const renderDataContent = () => {
-    // ====== SECCIÓN: PLANES DE ENTRENAMIENTO ======
-    if (activeDataSection === 'plan-selector' || activeDataSection === 'plan-create' || activeDataSection === 'plan-history') {
-      
-      // Plan Selector View
-      if (activeDataSection === 'plan-selector') {
-        return (
-          <div className="flex flex-col items-center justify-center h-full p-8">
-            <div className="max-w-3xl w-full">
-              {/* Header */}
-              <div className="text-center mb-8">
-                <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <Clipboard className="w-10 h-10 text-white" />
-                </div>
-                <h2 className="text-2xl font-bold text-slate-800 mb-2">
-                  {activePlan ? 'Plan de Entrenamiento Activo' : 'Selecciona un Plan'}
-                </h2>
-                <p className="text-slate-500">
-                  {activePlan 
-                    ? 'Este es el plan sobre el cual estás trabajando. Todos los datos se guardarán asociados a este plan.'
-                    : 'Selecciona un plan existente o crea uno nuevo para comenzar a trabajar'}
+    // ====== SI NO HAY PLAN ACTIVO - MOSTRAR SELECTOR DE PLANES ======
+    if (!activePlan) {
+      return (
+        <div className="h-full bg-gradient-to-b from-slate-50 to-white p-8">
+          <div className="max-w-4xl mx-auto">
+            {/* Header Material Design */}
+            <div className="text-center mb-10">
+              <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-blue-200">
+                <Clipboard className="w-12 h-12 text-white" />
+              </div>
+              <h1 className="text-3xl font-bold text-slate-800 mb-3">Planes de Entrenamiento</h1>
+              <p className="text-slate-500 text-lg max-w-xl mx-auto">
+                Selecciona un plan existente o crea uno nuevo para comenzar a diseñar tu periodización
+              </p>
+            </div>
+
+            {/* Botón Crear Nuevo Plan - Material Design Elevated */}
+            <div className="mb-8">
+              <Button
+                onClick={() => setActiveDataSection('training-system')}
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-8 text-xl shadow-xl shadow-blue-200 rounded-2xl transition-all hover:shadow-2xl hover:scale-[1.01]"
+                data-testid="create-plan-btn"
+              >
+                <Plus className="w-8 h-8 mr-4" />
+                Crear Nuevo Plan de Entrenamiento
+              </Button>
+            </div>
+
+            {/* Divider */}
+            {trainingPlans.length > 0 && (
+              <div className="flex items-center gap-4 mb-8">
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
+                <span className="text-sm text-slate-400 font-medium px-4">o selecciona un plan existente</span>
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
+              </div>
+            )}
+
+            {/* Lista de Planes - Material Design Cards */}
+            {loadingPlans ? (
+              <div className="text-center py-16">
+                <Loader2 className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
+                <p className="text-slate-500 text-lg">Cargando planes...</p>
+              </div>
+            ) : trainingPlans.length > 0 ? (
+              <div className="grid gap-4">
+                {trainingPlans.map(plan => (
+                  <div 
+                    key={plan.id}
+                    className="group bg-white border border-slate-200 rounded-2xl p-5 hover:shadow-xl hover:border-blue-300 cursor-pointer transition-all duration-300 hover:scale-[1.01]"
+                    data-testid={`plan-card-${plan.id}`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4" onClick={() => handleSetActivePlan(plan)}>
+                        <div className="w-14 h-14 bg-gradient-to-br from-slate-100 to-slate-200 group-hover:from-blue-100 group-hover:to-indigo-100 rounded-xl flex items-center justify-center transition-colors">
+                          <Calendar className="w-7 h-7 text-slate-500 group-hover:text-blue-600 transition-colors" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-bold text-lg text-slate-800 group-hover:text-blue-700 transition-colors">{plan.name}</h3>
+                          <div className="flex items-center gap-3 mt-1">
+                            <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">{plan.total_weeks} semanas</span>
+                            <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs font-medium rounded-full">{plan.model_name || plan.model}</span>
+                            <span className="text-sm text-slate-500">{plan.sport || 'General'}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleSetActivePlan(plan)}
+                          className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md"
+                        >
+                          Abrir
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteTrainingPlan(plan.id);
+                          }}
+                          className="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
+                <Calendar className="w-20 h-20 text-slate-200 mx-auto mb-6" />
+                <h3 className="text-xl font-bold text-slate-500 mb-2">Sin planes de entrenamiento</h3>
+                <p className="text-slate-400 mb-6 max-w-sm mx-auto">
+                  Crea tu primer plan para comenzar a diseñar la periodización de tus atletas
                 </p>
               </div>
-
-              {/* Plan Activo Destacado */}
-              {activePlan && (
-                <div className="mb-6 p-6 bg-gradient-to-r from-teal-50 to-emerald-50 rounded-2xl border-2 border-teal-200 shadow-lg">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-xl flex items-center justify-center shadow">
-                        <CheckCircle className="w-8 h-8 text-white" />
-                      </div>
-                      <div>
-                        <Badge className="bg-teal-100 text-teal-700 mb-1">Plan Activo</Badge>
-                        <h3 className="text-xl font-bold text-slate-800">{activePlan.name}</h3>
-                        <p className="text-sm text-slate-600">
-                          {activePlan.total_weeks} semanas • {activePlan.model_name || activePlan.model} • {activePlan.sport || 'General'}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => handleSetActivePlan(null)}
-                      className="border-teal-300 text-teal-700 hover:bg-teal-100"
-                    >
-                      Cambiar Plan
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {/* Crear Nuevo Plan */}
-              {!activePlan && (
-                <div className="mb-6">
-                  <Button
-                    onClick={() => setActiveDataSection('plan-create')}
-                    className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-6 text-lg shadow-lg"
-                  >
-                    <Plus className="w-6 h-6 mr-3" />
-                    Crear Nuevo Plan de Entrenamiento
-                  </Button>
-                </div>
-              )}
-
-              {/* Divider */}
-              {!activePlan && trainingPlans.length > 0 && (
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="flex-1 h-px bg-slate-200"></div>
-                  <span className="text-sm text-slate-400">o selecciona un plan existente</span>
-                  <div className="flex-1 h-px bg-slate-200"></div>
-                </div>
-              )}
-
-              {/* Lista de Planes */}
-              {!activePlan && (
-                loadingPlans ? (
-                  <div className="text-center py-8">
-                    <Loader2 className="w-8 h-8 animate-spin text-teal-500 mx-auto mb-2" />
-                    <p className="text-slate-500">Cargando planes...</p>
-                  </div>
-                ) : trainingPlans.length > 0 ? (
-                  <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-2">
-                    {trainingPlans.map(plan => (
-                      <div 
-                        key={plan.id}
-                        onClick={() => handleSetActivePlan(plan)}
-                        className="p-4 bg-white border-2 border-slate-200 rounded-xl hover:border-teal-400 hover:shadow-md cursor-pointer transition-all group"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-xl flex items-center justify-center shadow">
-                              <Calendar className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                              <h3 className="font-bold text-slate-800 group-hover:text-teal-600 transition-colors">{plan.name}</h3>
-                              <p className="text-sm text-slate-500">
-                                {plan.total_weeks} semanas • {plan.model_name || plan.model} • {plan.sport || 'General'}
-                              </p>
-                              <p className="text-xs text-slate-400">
-                                Inicio: {plan.start_date ? new Date(plan.start_date).toLocaleDateString('es') : 'No definido'}
-                              </p>
-                            </div>
-                          </div>
-                          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-teal-500 transition-colors" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
-                    <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                    <p className="text-slate-500 mb-1">No tienes planes creados</p>
-                    <p className="text-sm text-slate-400">Crea tu primer plan para comenzar a trabajar</p>
-                  </div>
-                )
-              )}
-
-              {/* Info adicional */}
-              <div className="mt-6 p-4 bg-teal-50 rounded-xl border border-teal-100">
-                <div className="flex items-start gap-3">
-                  <Lightbulb className="w-5 h-5 text-teal-500 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-teal-800">¿Por qué necesito un plan?</p>
-                    <p className="text-xs text-teal-600 mt-1">
-                      El plan es el contenedor que agrupa toda la información: datos del atleta, evaluaciones, 
-                      competencias, periodización y más. Cada sección que llenes se guardará asociada al plan activo.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      }
-
-      // Plan Create View - Redirige a training-system (wizard)
-      if (activeDataSection === 'plan-create') {
-        // Redirigir a la sección de entrenamiento con el wizard
-        return (
-          <div className="h-full">
-            <PeriodizationComplete 
-              activePlan={activePlan}
-              onPlanCreated={(newPlan) => {
-                handleSetActivePlan(newPlan);
-                fetchTrainingPlans();
-                setActiveDataSection('plan-selector');
-              }}
-              showWizardOnly={true}
-            />
-          </div>
-        );
-      }
-
-      // Plan History View
-      if (activeDataSection === 'plan-history') {
-        return (
-          <div className="p-6">
-            <div className="max-w-4xl mx-auto">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-slate-800">Historial de Planes</h2>
-                  <p className="text-slate-500">Todos tus planes de entrenamiento</p>
-                </div>
-                <Button
-                  onClick={() => setActiveDataSection('plan-create')}
-                  className="bg-gradient-to-r from-emerald-500 to-teal-500"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Nuevo Plan
-                </Button>
-              </div>
-
-              {loadingPlans ? (
-                <div className="text-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin text-teal-500 mx-auto mb-2" />
-                  <p className="text-slate-500">Cargando planes...</p>
-                </div>
-              ) : trainingPlans.length > 0 ? (
-                <div className="grid gap-4">
-                  {trainingPlans.map(plan => (
-                    <div 
-                      key={plan.id}
-                      className={`p-5 bg-white border-2 rounded-xl transition-all ${
-                        activePlan?.id === plan.id 
-                          ? 'border-teal-400 shadow-lg ring-2 ring-teal-200' 
-                          : 'border-slate-200 hover:border-slate-300 hover:shadow-md'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className={`w-14 h-14 rounded-xl flex items-center justify-center shadow ${
-                            activePlan?.id === plan.id 
-                              ? 'bg-gradient-to-br from-teal-500 to-emerald-600' 
-                              : 'bg-gradient-to-br from-slate-400 to-slate-500'
-                          }`}>
-                            <Calendar className="w-7 h-7 text-white" />
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-bold text-slate-800">{plan.name}</h3>
-                              {activePlan?.id === plan.id && (
-                                <Badge className="bg-teal-100 text-teal-700">Activo</Badge>
-                              )}
-                            </div>
-                            <p className="text-sm text-slate-500">
-                              {plan.total_weeks} semanas • {plan.model_name || plan.model} • {plan.sport || 'General'}
-                            </p>
-                            <p className="text-xs text-slate-400">
-                              Inicio: {plan.start_date ? new Date(plan.start_date).toLocaleDateString('es') : 'No definido'}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {activePlan?.id !== plan.id && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleSetActivePlan(plan)}
-                              className="text-teal-600 border-teal-300 hover:bg-teal-50"
-                            >
-                              Activar
-                            </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              handleSetActivePlan(plan);
-                              setActiveDataSection('training-system');
-                            }}
-                            className="text-slate-600 hover:text-blue-600"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteTrainingPlan(plan.id)}
-                            className="text-slate-600 hover:text-red-600"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
-                  <Calendar className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                  <p className="text-lg font-medium text-slate-500 mb-2">No tienes planes creados</p>
-                  <p className="text-sm text-slate-400 mb-4">Crea tu primer plan para comenzar a trabajar</p>
-                  <Button
-                    onClick={() => setActiveDataSection('plan-create')}
-                    className="bg-gradient-to-r from-emerald-500 to-teal-500"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Crear Primer Plan
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      }
-    }
-
-    // ====== VERIFICAR PLAN ACTIVO PARA OTRAS SECCIONES ======
-    // Si el usuario está en otra sección y no hay plan activo, mostrar aviso
-    if (!activePlan && activeDataSection && !['plan-selector', 'plan-create', 'plan-history', 'athletes', 'entities'].includes(activeDataSection)) {
-      return (
-        <div className="flex flex-col items-center justify-center h-full p-8">
-          <div className="max-w-md text-center">
-            <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <AlertTriangle className="w-8 h-8 text-amber-500" />
-            </div>
-            <h3 className="text-xl font-bold text-slate-800 mb-2">Selecciona un Plan Primero</h3>
-            <p className="text-slate-500 mb-6">
-              Para trabajar en esta sección, primero debes seleccionar un plan de entrenamiento activo.
-            </p>
-            <Button
-              onClick={() => setActiveDataSection('plan-selector')}
-              className="bg-gradient-to-r from-teal-500 to-emerald-500"
-            >
-              <Clipboard className="w-4 h-4 mr-2" />
-              Ir a Planes de Entrenamiento
-            </Button>
+            )}
           </div>
         </div>
       );
     }
 
+    // ====== HAY PLAN ACTIVO - MOSTRAR CONTENIDO DE LAS SECCIONES ======
     if (!activeDataSection) {
       return (
-        <div className="flex flex-col items-center justify-center h-full gap-4">
-          <p className="text-gray-400">Seleccione una sección para ver los detalles</p>
-          {/* Mostrar plan activo */}
-          {activePlan && (
-            <div className="bg-gradient-to-r from-teal-50 to-emerald-50 p-4 rounded-xl border border-teal-200 max-w-md w-full">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-lg flex items-center justify-center">
-                    <Clipboard className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-teal-600 font-medium">Plan Activo</p>
-                    <p className="font-bold text-slate-800">{activePlan.name}</p>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setActiveDataSection('plan-selector')}
-                  className="text-xs"
-                >
-                  Cambiar Plan
-                </Button>
+        <div className="flex flex-col items-center justify-center h-full gap-6 p-8">
+          <p className="text-slate-400 text-lg">Selecciona una sección del menú para ver los detalles</p>
+          
+          {/* Card del Plan Activo */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-200 max-w-lg w-full shadow-lg">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Clipboard className="w-7 h-7 text-white" />
               </div>
+              <div className="flex-1">
+                <p className="text-xs text-blue-600 font-semibold uppercase tracking-wide">Plan Activo</p>
+                <h3 className="font-bold text-xl text-slate-800">{activePlan.name}</h3>
+                <p className="text-sm text-slate-500">
+                  {activePlan.total_weeks} semanas • {activePlan.model_name || activePlan.model}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleSetActivePlan(null)}
+                className="border-blue-300 text-blue-600 hover:bg-blue-100"
+              >
+                Cambiar
+              </Button>
             </div>
-          )}
+          </div>
+          
+          {/* Selector de Atleta */}
           {athletes.length > 0 && (
             <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-500">Atleta:</span>
+              <span className="text-sm text-slate-500">Atleta:</span>
               <Select value={selectedAthleteId || ''} onValueChange={setSelectedAthleteId}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-56">
                   <SelectValue placeholder="Seleccionar atleta" />
                 </SelectTrigger>
                 <SelectContent>
