@@ -4616,6 +4616,23 @@ const DashboardPage = () => {
           {/* Sub-navigation - Floating Pills */}
           <div className="bg-white border-b shadow-sm px-4 py-3">
             <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              {/* Plan Activo Badge - Siempre visible cuando hay plan */}
+              {activePlan && currentSection !== 'planes' && (
+                <div className="flex items-center gap-2 mr-2 pr-3 border-r border-slate-200">
+                  <div className="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-3 py-1.5 rounded-full border border-blue-200">
+                    <Clipboard className="w-3.5 h-3.5 text-blue-600" />
+                    <span className="text-xs font-medium text-blue-700 truncate max-w-[120px]">{activePlan.name}</span>
+                    <button
+                      onClick={() => setActiveDataSection('plan-manager')}
+                      className="text-blue-500 hover:text-blue-700 ml-1"
+                      title="Cambiar plan"
+                    >
+                      <Edit className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              )}
+              
               {sectionItems.map((item) => {
                 const ItemIcon = item.icon;
                 const isActive = activeDataSection === item.id;
@@ -4634,6 +4651,7 @@ const DashboardPage = () => {
                         currentSectionData?.color === 'emerald' ? 'rgba(16, 185, 129, 0.4)' :
                         currentSectionData?.color === 'violet' ? 'rgba(139, 92, 246, 0.4)' :
                         currentSectionData?.color === 'blue' ? 'rgba(37, 99, 235, 0.4)' :
+                        currentSectionData?.color === 'cyan' ? 'rgba(8, 145, 178, 0.4)' :
                         currentSectionData?.color === 'amber' ? 'rgba(245, 158, 11, 0.4)' :
                         'rgba(100, 116, 139, 0.4)'}` : undefined
                     }}
