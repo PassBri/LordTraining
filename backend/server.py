@@ -370,6 +370,93 @@ class CompetitionResponse(BaseModel):
     location: Optional[str] = None
     notes: Optional[str] = None
 
+# =============== PLAN DATA MODELS (Datos vinculados al plan) ===============
+
+class PlanObjectiveCreate(BaseModel):
+    """Objetivos del plan de entrenamiento"""
+    plan_id: str
+    main_objective: str
+    secondary_objectives: List[str] = []
+    performance_indicators: List[dict] = []
+    timeline: Optional[str] = None
+
+class PlanObjectiveResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    plan_id: str
+    user_id: str
+    main_objective: str
+    secondary_objectives: List[str] = []
+    performance_indicators: List[dict] = []
+    timeline: Optional[str] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
+class PlanEvaluationCreate(BaseModel):
+    """Evaluaciones vinculadas a un plan"""
+    plan_id: str
+    athlete_id: Optional[str] = None
+    evaluation_type: str  # anthropometric, biomechanical, medical, physical, technical, tactical, psychological, theoretical
+    date: str
+    results: dict = {}  # Resultados flexibles según tipo
+    notes: Optional[str] = None
+
+class PlanEvaluationResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    plan_id: str
+    user_id: str
+    athlete_id: Optional[str] = None
+    evaluation_type: str
+    date: str
+    results: dict = {}
+    notes: Optional[str] = None
+    created_at: Optional[str] = None
+
+class PlanCompetitionCreate(BaseModel):
+    """Competencias vinculadas a un plan"""
+    plan_id: str
+    name: str
+    date: str
+    importance: str = "secondary"  # main, secondary, preparatory
+    location: Optional[str] = None
+    expected_result: Optional[str] = None
+    notes: Optional[str] = None
+
+class PlanCompetitionResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    plan_id: str
+    user_id: str
+    name: str
+    date: str
+    importance: str = "secondary"
+    location: Optional[str] = None
+    expected_result: Optional[str] = None
+    notes: Optional[str] = None
+    created_at: Optional[str] = None
+
+class PlanPreviousAnalysisCreate(BaseModel):
+    """Análisis del plan anterior"""
+    plan_id: str
+    previous_plan_summary: Optional[str] = None
+    achievements: List[str] = []
+    areas_to_improve: List[str] = []
+    lessons_learned: List[str] = []
+    athlete_feedback: Optional[str] = None
+
+class PlanPreviousAnalysisResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    plan_id: str
+    user_id: str
+    previous_plan_summary: Optional[str] = None
+    achievements: List[str] = []
+    areas_to_improve: List[str] = []
+    lessons_learned: List[str] = []
+    athlete_feedback: Optional[str] = None
+    created_at: Optional[str] = None
+
 class TrainingPlanGenerateRequest(BaseModel):
     athlete_id: str
     sport: Sport
