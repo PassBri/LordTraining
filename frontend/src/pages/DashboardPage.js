@@ -846,48 +846,45 @@ const DashboardPage = () => {
     }
   }, [selectedAthleteId]);
 
-  // Navigation items for "Datos" panel - NUEVO FLUJO LÓGICO DEL ENTRENADOR
+  // Navigation items for "Datos" panel - ESTRUCTURA JERÁRQUICA DEL PLAN DE ENTRENAMIENTO
+  // Basado en la metodología científica de planificación deportiva
   const navItems = [
-    // === PLANES DE ENTRENAMIENTO (PRIMERO - Selección del plan activo) ===
-    { id: 'plan-selector', label: 'Seleccionar Plan', icon: Clipboard, section: 'planes' },
-    { id: 'plan-create', label: 'Crear Nuevo Plan', icon: Plus, section: 'planes' },
-    { id: 'plan-history', label: 'Historial de Planes', icon: History, section: 'planes' },
-    
-    // === 0. PUNTO DE PARTIDA (Lo primero que necesita el entrenador) ===
+    // === 1. DIAGNÓSTICO / PUNTO DE PARTIDA ===
     { id: 'prev-plan', label: 'Análisis del Plan Anterior', icon: FileText, section: 'punto-partida' },
     { id: 'objectives', label: 'Objetivos del Plan', icon: Target, section: 'punto-partida' },
     
-    // === 1. INFORMACIÓN ===
-    { id: 'entities', label: 'Entidades (Federación, Club...)', icon: Landmark, section: 'informacion' },
+    // === 2. INFORMACIÓN BASE ===
     { id: 'athletes', label: 'Atletas y Equipos', icon: Users, section: 'informacion' },
+    { id: 'entities', label: 'Entidades', icon: Landmark, section: 'informacion' },
     { id: 'sport-char', label: 'Caracterización del Deporte', icon: Target, section: 'informacion' },
     
-    // === 2. EVALUACIÓN INICIAL ===
-    { id: 'anthropometric', label: 'Datos Antropométricos', icon: LineChart, section: 'evaluacion' },
-    { id: 'biomechanical', label: 'Análisis Biomecánico', icon: Activity, section: 'evaluacion' },
+    // === 3. EVALUACIÓN / CONTROLES ===
     { id: 'control-medical', label: 'Control Médico', icon: Heart, section: 'evaluacion' },
+    { id: 'anthropometric', label: 'Datos Antropométricos', icon: LineChart, section: 'evaluacion' },
     { id: 'control-physical', label: 'Control Físico', icon: Dumbbell, section: 'evaluacion' },
     { id: 'control-technical', label: 'Control Técnico', icon: Target, section: 'evaluacion' },
     { id: 'control-tactical', label: 'Control Táctico', icon: Layers, section: 'evaluacion' },
     { id: 'control-psychological', label: 'Control Psicológico', icon: Brain, section: 'evaluacion' },
-    { id: 'control-theoretical', label: 'Control Teórico', icon: BookOpen, section: 'evaluacion' },
+    { id: 'biomechanical', label: 'Análisis Biomecánico', icon: Activity, section: 'evaluacion' },
     
-    // === 3. COMPETENCIAS ===
-    { id: 'events', label: 'Calendario de Competencias', icon: Calendar, section: 'competencias' },
+    // === 4. COMPETENCIAS ===
+    { id: 'events', label: 'Calendario Competitivo', icon: Calendar, section: 'competencias' },
+    { id: 'main-competition', label: 'Competencia Principal', icon: Trophy, section: 'competencias' },
     
-    // === 4. SISTEMA DE ENTRENAMIENTO (EJE CENTRAL) ===
-    { id: 'training-system', label: 'Sistema de Entrenamiento', icon: Activity, section: 'entrenamiento' },
-    { id: 'exercises', label: 'Métodos de Entrenamiento', icon: Dumbbell, section: 'entrenamiento' },
-    { id: 'exercises-lib', label: 'Biblioteca de Ejercicios', icon: BookOpen, section: 'entrenamiento' },
+    // === 5. PERIODIZACIÓN (NÚCLEO DEL PLAN) ===
+    { id: 'training-system', label: 'Estructura del Plan', icon: Activity, section: 'periodizacion' },
+    { id: 'exercises', label: 'Métodos de Entrenamiento', icon: Dumbbell, section: 'periodizacion' },
+    { id: 'exercises-lib', label: 'Biblioteca de Ejercicios', icon: BookOpen, section: 'periodizacion' },
     
-    // === 5. VISUALIZACIÓN ===
+    // === 6. VISUALIZACIÓN ===
     { id: 'graphic-plan', label: 'Plan Gráfico', icon: Layers, section: 'visualizacion' },
     { id: 'calendar-view', label: 'Calendario', icon: Calendar, section: 'visualizacion' },
     { id: 'smart-alerts', label: 'Alertas Inteligentes', icon: Zap, section: 'visualizacion' },
     
-    // === 6. HERRAMIENTAS ===
-    { id: 'ai-generator', label: 'Generar con IA', icon: Brain, section: 'herramientas' },
-    { id: 'entity-dashboard', label: 'Dashboard General', icon: BarChart, section: 'herramientas' },
+    // === 7. HERRAMIENTAS ===
+    { id: 'calculators', label: 'Calculadoras Científicas', icon: Activity, section: 'herramientas' },
+    { id: 'ai-generator', label: 'Asistente IA', icon: Brain, section: 'herramientas' },
+    { id: 'reports', label: 'Reportes y Exportar', icon: FileText, section: 'herramientas' },
   ];
 
   // Estado para secciones colapsadas
