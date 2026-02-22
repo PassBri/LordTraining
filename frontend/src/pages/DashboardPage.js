@@ -405,6 +405,28 @@ const DashboardPage = () => {
     }
   };
 
+  // Save Sport Characterization (technical characterization)
+  const handleSaveSportCharacterization = async (sportId, characterization) => {
+    try {
+      const token = localStorage.getItem('train_token');
+      const response = await fetch(`${API_URL}/api/sports/${sportId}/characterization`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({ characterization })
+      });
+      if (response.ok) {
+        await fetchSportsCatalog();
+        toast.success('Caracterización técnica guardada');
+      }
+    } catch (error) {
+      console.error('Error saving sport characterization:', error);
+      toast.error('Error al guardar la caracterización');
+    }
+  };
+
   // Delete Category
   const handleDeleteCategory = async (categoryId) => {
     if (!window.confirm('¿Eliminar esta categoría y todos sus deportes?')) return;
