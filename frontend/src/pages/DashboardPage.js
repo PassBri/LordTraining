@@ -1219,7 +1219,7 @@ const DashboardPage = () => {
       );
     }
 
-    // Render Atletas section inline - COMPLETE
+    // Render Atletas section inline - SOLO ATLETAS
     if (activeDataSection === 'athletes') {
       // Helper functions for entity display
       const getEntityById = (id) => entities.find(e => e.id === id);
@@ -1251,53 +1251,6 @@ const DashboardPage = () => {
       
       return (
         <div className="p-4">
-          {/* Tabs para Atletas, Equipos y Deportes */}
-          <div className="flex items-center gap-2 mb-4 border-b border-slate-200">
-            <button
-              onClick={() => setActiveAthleteTab('athletes')}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                activeAthleteTab === 'athletes' 
-                  ? 'border-indigo-500 text-indigo-600' 
-                  : 'border-transparent text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              <Users className="w-4 h-4 inline mr-2" />
-              Atletas
-            </button>
-            <button
-              onClick={() => setActiveAthleteTab('teams')}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                activeAthleteTab === 'teams' 
-                  ? 'border-emerald-500 text-emerald-600' 
-                  : 'border-transparent text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              <Shield className="w-4 h-4 inline mr-2" />
-              Equipos
-            </button>
-            <button
-              onClick={() => setActiveAthleteTab('sports')}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                activeAthleteTab === 'sports' 
-                  ? 'border-amber-500 text-amber-600' 
-                  : 'border-transparent text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              <Trophy className="w-4 h-4 inline mr-2" />
-              Deportes
-            </button>
-            <button
-              onClick={() => setActiveAthleteTab('tournaments')}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                activeAthleteTab === 'tournaments' 
-                  ? 'border-orange-500 text-orange-600' 
-                  : 'border-transparent text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              <Medal className="w-4 h-4 inline mr-2" />
-              Torneos
-            </button>
-          </div>
 
           {/* Vista de Deportes por Categorías - EDITABLE */}
           {activeAthleteTab === 'sports' && (
