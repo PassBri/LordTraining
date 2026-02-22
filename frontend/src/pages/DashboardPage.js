@@ -2085,26 +2085,43 @@ const DashboardPage = () => {
 
                 {/* Deportes por categoría */}
                 <div className="space-y-6">
-                  {Object.entries(sportsCatalog).map(([categoryKey, sports]) => (
-                    <div key={categoryKey} className="border border-slate-200 rounded-xl overflow-hidden">
-                      <div className="bg-slate-100 px-4 py-3 flex items-center justify-between">
-                        <h4 className="font-semibold text-slate-700 capitalize">{categoryKey}</h4>
-                        <Button 
-                          size="sm" 
-                          variant="ghost"
-                          className="text-amber-600 hover:bg-amber-50"
-                          onClick={() => {
-                            setNewSport({...newSport, category: categoryKey});
-                            setShowAddSport(categoryKey);
-                          }}
-                        >
-                          <Plus className="w-4 h-4 mr-1" />
-                          Agregar Deporte
-                        </Button>
+                  {sportsCatalog.map(category => (
+                    <div key={category.id} className="border border-slate-200 rounded-xl overflow-hidden">
+                      <div 
+                        className="px-4 py-3 flex items-center justify-between"
+                        style={{ background: `linear-gradient(135deg, ${category.color || '#3B82F6'}, ${category.color || '#3B82F6'}dd)` }}
+                      >
+                        <div className="flex items-center gap-2 text-white">
+                          <span className="text-xl">{category.icon || '🏆'}</span>
+                          <h4 className="font-semibold">{category.name}</h4>
+                          <span className="text-sm bg-white/20 px-2 py-0.5 rounded-full ml-2">{category.sports?.length || 0} deportes</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            className="text-white hover:bg-white/20"
+                            onClick={() => {
+                              setNewSport({...newSport, category: category.id});
+                              setShowAddSport(category.id);
+                            }}
+                          >
+                            <Plus className="w-4 h-4 mr-1" />
+                            Agregar Deporte
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-white/70 hover:text-white hover:bg-white/20 h-7 w-7 p-0"
+                            onClick={() => handleDeleteCategory(category.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
 
                       {/* Add Sport Form */}
-                      {showAddSport === categoryKey && (
+                      {showAddSport === category.id && (
                         <div className="p-4 bg-amber-50/50 border-b">
                           <div className="flex flex-wrap gap-3 items-end">
                             <Input 
@@ -2120,7 +2137,7 @@ const DashboardPage = () => {
                               onChange={(e) => setNewSport({...newSport, icon: e.target.value})}
                             />
                             <Button 
-                              onClick={() => handleCreateSport(categoryKey)} 
+                              onClick={() => handleCreateSport(category.id)} 
                               className="bg-amber-500 hover:bg-amber-600"
                             >
                               Crear
@@ -2133,9 +2150,9 @@ const DashboardPage = () => {
                       )}
 
                       <div className="p-4">
-                        {sports.length > 0 ? (
+                        {category.sports?.length > 0 ? (
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {sports.map(sport => (
+                            {category.sports.map(sport => (
                               <div 
                                 key={sport.id} 
                                 className="p-3 border border-slate-200 rounded-lg hover:shadow-md transition-all group"
@@ -2162,7 +2179,7 @@ const DashboardPage = () => {
                                       variant="ghost" 
                                       size="sm"
                                       className="h-7 w-7 p-0 text-slate-400 hover:text-red-500"
-                                      onClick={() => handleDeleteSport(categoryKey, sport.id)}
+                                      onClick={() => handleDeleteSport(sport.id)}
                                     >
                                       <Trash2 className="w-3.5 h-3.5" />
                                     </Button>
