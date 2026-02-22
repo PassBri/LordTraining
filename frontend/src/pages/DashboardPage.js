@@ -113,9 +113,11 @@ const DashboardPage = () => {
   // Sports Catalog State
   const [sportsCatalog, setSportsCatalog] = useState([]);
   const [newCategory, setNewCategory] = useState({ name: '', icon: '🏆', color: '#3B82F6' });
-  const [newSport, setNewSport] = useState({ name: '', category_id: '' });
+  const [newSport, setNewSport] = useState({ name: '', category_id: '', icon: '🏃' });
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [showAddSport, setShowAddSport] = useState(null); // category_id or null
+  const [editingSportId, setEditingSportId] = useState(null);
+  const [editingSportCharacterization, setEditingSportCharacterization] = useState({});
   
   // PDF Export Modal State
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
