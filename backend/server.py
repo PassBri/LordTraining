@@ -2485,6 +2485,18 @@ async def delete_sport(sport_id: str, user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="Sport not found")
     return {"message": "Sport deleted"}
 
+@api_router.put("/sports/{sport_id}/characterization")
+async def update_sport_characterization(sport_id: str, data: dict, user: dict = Depends(get_current_user)):
+    """Update sport technical characterization"""
+    characterization = data.get("characterization", {})
+    result = await db.sports.update_one(
+        {"id": sport_id, "coach_id": user["id"]},
+        {"$set": {"characterization": characterization}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Sport not found")
+    return {"message": "Characterization updated", "characterization": characterization}
+
 # =============== ATHLETES ROUTES ===============
 @api_router.post("/athletes", response_model=AthleteResponse)
 async def create_athlete(athlete: AthleteCreate, user: dict = Depends(get_current_user)):
