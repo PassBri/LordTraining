@@ -861,9 +861,11 @@ const DashboardPage = () => {
     { id: 'objectives', label: 'Objetivos del Plan', icon: Target, section: 'punto-partida' },
     { id: 'athlete-char', label: 'Caracterización Atleta', icon: UserCheck, section: 'punto-partida' },
     
-    // === 2. INFORMACIÓN BASE ===
-    { id: 'athletes', label: 'Atletas y Equipos', icon: Users, section: 'informacion' },
-    { id: 'sport-char', label: 'Caracterización Deporte', icon: Trophy, section: 'informacion' },
+    // === 2. INFORMACIÓN BASE (Atletas, Equipos, Deportes, Torneos, Entidades) ===
+    { id: 'athletes', label: 'Atletas', icon: User, section: 'informacion' },
+    { id: 'teams', label: 'Equipos', icon: Users, section: 'informacion' },
+    { id: 'sports', label: 'Deportes', icon: Trophy, section: 'informacion' },
+    { id: 'tournaments', label: 'Torneos', icon: Medal, section: 'informacion' },
     { id: 'entities', label: 'Entidades', icon: Building2, section: 'informacion' },
     
     // === 3. EVALUACIÓN / CONTROLES ===
@@ -876,20 +878,20 @@ const DashboardPage = () => {
     
     // === 4. COMPETENCIAS ===
     { id: 'events', label: 'Calendario Competitivo', icon: Calendar, section: 'competencias' },
-    { id: 'competitions', label: 'Competencias', icon: Trophy, section: 'competencias' },
+    { id: 'competitions', label: 'Competencias', icon: Award, section: 'competencias' },
     
-    // === 5. PERIODIZACIÓN (NÚCLEO DEL PLAN) ===
+    // === 5. PERIODIZACIÓN (SOLO ESTRUCTURA DEL PLAN) ===
     { id: 'training-system', label: 'Estructura del Plan', icon: Activity, section: 'periodizacion' },
-    { id: 'exercises', label: 'Métodos de Entrenamiento', icon: Dumbbell, section: 'periodizacion' },
-    { id: 'exercises-lib', label: 'Biblioteca Ejercicios', icon: BookOpen, section: 'periodizacion' },
     
     // === 6. VISUALIZACIÓN ===
     { id: 'graphic-plan', label: 'Plan Gráfico', icon: BarChart, section: 'visualizacion' },
     { id: 'calendar-view', label: 'Calendario', icon: Calendar, section: 'visualizacion' },
     { id: 'smart-alerts', label: 'Alertas', icon: Zap, section: 'visualizacion' },
     
-    // === 7. HERRAMIENTAS ===
+    // === 7. HERRAMIENTAS (Calculadoras, Métodos, Biblioteca, IA) ===
     { id: 'calculators', label: 'Calculadoras', icon: Activity, section: 'herramientas' },
+    { id: 'exercises', label: 'Métodos de Entrenamiento', icon: Dumbbell, section: 'herramientas' },
+    { id: 'exercises-lib', label: 'Biblioteca Ejercicios', icon: BookOpen, section: 'herramientas' },
     { id: 'ai-generator', label: 'Asistente IA', icon: Sparkles, section: 'herramientas' },
   ];
 
