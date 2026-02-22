@@ -1965,9 +1965,9 @@ const DashboardPage = () => {
                     <Select value={newTeam.sport} onValueChange={(v) => setNewTeam({...newTeam, sport: v})}>
                       <SelectTrigger className="h-10 border-emerald-200"><SelectValue placeholder="Deporte" /></SelectTrigger>
                       <SelectContent>
-                        {Object.entries(sportsCatalog).flatMap(([cat, sports]) => 
-                          sports.map(s => (
-                            <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                        {sportsCatalog.flatMap(category => 
+                          (category.sports || []).map(sport => (
+                            <SelectItem key={sport.id} value={sport.id}>{sport.name}</SelectItem>
                           ))
                         )}
                       </SelectContent>
