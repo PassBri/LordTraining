@@ -138,21 +138,36 @@ const DashboardPage = () => {
 
   // ====== EVALUACIONES STATE (Control Médico, Físico, etc.) ======
   const [medicalData, setMedicalData] = useState({
-    fcReposo: '',
-    fcMaxima: '',
-    paSistolica: '',
-    paDiastolica: '',
-    saturacionO2: '',
-    enfermedadesCronicas: '',
-    alergias: '',
-    cirugiasPrevias: '',
-    lesionesActuales: '',
-    medicamentos: '',
-    aptitudMedica: 'apto',
-    proximaRevision: '',
-    observaciones: ''
+    fcReposo: '', fcMaxima: '', paSistolica: '', paDiastolica: '', saturacionO2: '',
+    enfermedadesCronicas: '', alergias: '', cirugiasPrevias: '', lesionesActuales: '',
+    medicamentos: '', aptitudMedica: 'apto', proximaRevision: '', observaciones: ''
   });
-  const [savingMedical, setSavingMedical] = useState(false);
+  const [anthropometricData, setAnthropometricData] = useState({
+    peso: '', talla: '', imc: '', porcentajeGrasa: '', masaMuscular: '',
+    envergadura: '', circunferenciaCintura: '', circunferenciaCadera: '',
+    plieguesTriceps: '', plieguesSubescapular: '', plieguesSuprailiaco: '',
+    perimetroBrazo: '', perimetroMuslo: '', perimetroPierna: '', observaciones: ''
+  });
+  const [physicalData, setPhysicalData] = useState({
+    fuerzaMaxima: '', fuerzaExplosiva: '', resistenciaAerobica: '', resistenciaAnaerobica: '',
+    velocidadMaxima: '', agilidad: '', flexibilidad: '', coordinacion: '',
+    equilibrio: '', potencia: '', vo2max: '', fcMaxTest: '', observaciones: ''
+  });
+  const [technicalData, setTechnicalData] = useState({
+    nivelTecnico: '', habilidadesBasicas: '', habilidadesAvanzadas: '',
+    eficienciaTecnica: '', consistencia: '', adaptabilidad: '', observaciones: ''
+  });
+  const [tacticalData, setTacticalData] = useState({
+    comprensionTactica: '', tomadecisiones: '', lecturadeJuego: '',
+    posicionamiento: '', comunicacion: '', liderazgo: '', observaciones: ''
+  });
+  const [psychologicalData, setPsychologicalData] = useState({
+    motivacion: '', concentracion: '', manejoEstres: '', autoconfianza: '',
+    controlEmocional: '', resilencia: '', cohesionGrupal: '', observaciones: ''
+  });
+  const [savingEvaluation, setSavingEvaluation] = useState(false);
+  const [loadingPlanData, setLoadingPlanData] = useState(false);
+  const [planData, setPlanData] = useState(null); // Datos completos del plan
 
   // ====== GLOBAL CONTEXT STATE (Barra Superior) ======
   // Initialize from localStorage for persistence
@@ -310,18 +325,121 @@ const DashboardPage = () => {
   };
 
   // Set active plan and persist
-  const handleSetActivePlan = (plan) => {
+  const handleSetActivePlan = async (plan) => {
     setActivePlan(plan);
     if (plan) {
       localStorage.setItem('train_active_plan_id', plan.id);
+      // Cargar datos del plan
+      await loadPlanData(plan.id);
       // Navegar automáticamente a la primera sección del plan (Diagnóstico)
       setActiveDataSection('prev-plan');
     } else {
       localStorage.removeItem('train_active_plan_id');
+      setPlanData(null);
+      // Resetear evaluaciones
+      resetEvaluationData();
       // Volver al gestor de planes
       setActiveDataSection('plan-manager');
     }
     setShowPlanSelector(false);
+  };
+
+  // Cargar todos los datos de un plan
+  const loadPlanData = async (planId) => {
+    setLoadingPlanData(true);
+    try {
+      const token = localStorage.getItem('train_token');
+      const response = await fetch(`${API_URL}/api/plan-data/all/${planId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setPlanData(data);
+        // Cargar datos en los estados de evaluación
+        if (data.evaluations) {
+          if (data.evaluations.medical?.length > 0) {
+            const lastMedical = data.evaluations.medical[data.evaluations.medical.length - 1];
+            setMedicalData(lastMedical.results || {});
+          }
+          if (data.evaluations.anthropometric?.length > 0) {
+            const lastAnthro = data.evaluations.anthropometric[data.evaluations.anthropometric.length - 1];
+            setAnthropometricData(lastAnthro.results || {});
+          }
+          if (data.evaluations.physical?.length > 0) {
+            const lastPhysical = data.evaluations.physical[data.evaluations.physical.length - 1];
+            setPhysicalData(lastPhysical.results || {});
+          }
+          if (data.evaluations.technical?.length > 0) {
+            const lastTechnical = data.evaluations.technical[data.evaluations.technical.length - 1];
+            setTechnicalData(lastTechnical.results || {});
+          }
+          if (data.evaluations.tactical?.length > 0) {
+            const lastTactical = data.evaluations.tactical[data.evaluations.tactical.length - 1];
+            setTacticalData(lastTactical.results || {});
+          }
+          if (data.evaluations.psychological?.length > 0) {
+            const lastPsych = data.evaluations.psychological[data.evaluations.psychological.length - 1];
+            setPsychologicalData(lastPsych.results || {});
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error loading plan data:', error);
+    } finally {
+      setLoadingPlanData(false);
+    }
+  };
+
+  // Resetear datos de evaluación
+  const resetEvaluationData = () => {
+    setMedicalData({ fcReposo: '', fcMaxima: '', paSistolica: '', paDiastolica: '', saturacionO2: '',
+      enfermedadesCronicas: '', alergias: '', cirugiasPrevias: '', lesionesActuales: '',
+      medicamentos: '', aptitudMedica: 'apto', proximaRevision: '', observaciones: '' });
+    setAnthropometricData({ peso: '', talla: '', imc: '', porcentajeGrasa: '', masaMuscular: '',
+      envergadura: '', circunferenciaCintura: '', circunferenciaCadera: '', plieguesTriceps: '',
+      plieguesSubescapular: '', plieguesSuprailiaco: '', perimetroBrazo: '', perimetroMuslo: '',
+      perimetroPierna: '', observaciones: '' });
+    setPhysicalData({ fuerzaMaxima: '', fuerzaExplosiva: '', resistenciaAerobica: '', resistenciaAnaerobica: '',
+      velocidadMaxima: '', agilidad: '', flexibilidad: '', coordinacion: '', equilibrio: '',
+      potencia: '', vo2max: '', fcMaxTest: '', observaciones: '' });
+    setTechnicalData({ nivelTecnico: '', habilidadesBasicas: '', habilidadesAvanzadas: '',
+      eficienciaTecnica: '', consistencia: '', adaptabilidad: '', observaciones: '' });
+    setTacticalData({ comprensionTactica: '', tomadecisiones: '', lecturadeJuego: '',
+      posicionamiento: '', comunicacion: '', liderazgo: '', observaciones: '' });
+    setPsychologicalData({ motivacion: '', concentracion: '', manejoEstres: '', autoconfianza: '',
+      controlEmocional: '', resilencia: '', cohesionGrupal: '', observaciones: '' });
+    setPlanData(null);
+  };
+
+  // Función genérica para guardar evaluaciones
+  const handleSaveEvaluation = async (evaluationType, data) => {
+    if (!activePlan) {
+      toast.error('Selecciona un plan primero');
+      return;
+    }
+    setSavingEvaluation(true);
+    try {
+      const token = localStorage.getItem('train_token');
+      await fetch(`${API_URL}/api/plan-data/evaluations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          plan_id: activePlan.id,
+          athlete_id: selectedAthleteId,
+          evaluation_type: evaluationType,
+          date: new Date().toISOString().split('T')[0],
+          results: data,
+          notes: data.observaciones || ''
+        })
+      });
+      toast.success(`${evaluationType.charAt(0).toUpperCase() + evaluationType.slice(1)} guardado`);
+    } catch (error) {
+      toast.error('Error al guardar');
+    }
+    setSavingEvaluation(false);
   };
 
   // Delete a training plan
@@ -3629,7 +3747,7 @@ const DashboardPage = () => {
 
     // Render Anthropometric Data
     if (activeDataSection === 'anthropometric') {
-      return <AnthropometricData athleteId={selectedAthleteId} />;
+      return <AnthropometricData athleteId={selectedAthleteId} activePlan={activePlan} />;
     }
 
     // ====== NUEVAS SECCIONES DE EVALUACIÓN ======
@@ -3857,36 +3975,6 @@ const DashboardPage = () => {
     if (activeDataSection === 'control-medical') {
       const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
 
-      const handleSaveMedicalData = async () => {
-        if (!activePlan) {
-          toast.error('Selecciona un plan primero');
-          return;
-        }
-        setSavingMedical(true);
-        try {
-          const token = localStorage.getItem('train_token');
-          await fetch(`${API_URL}/api/plan-data/evaluations`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-              plan_id: activePlan.id,
-              athlete_id: selectedAthleteId,
-              evaluation_type: 'medical',
-              date: new Date().toISOString().split('T')[0],
-              results: medicalData,
-              notes: medicalData.observaciones
-            })
-          });
-          toast.success('Control médico guardado');
-        } catch (error) {
-          toast.error('Error al guardar');
-        }
-        setSavingMedical(false);
-      };
-
       return (
         <div className="p-6 space-y-6">
           <div className="flex items-center justify-between">
@@ -4083,10 +4171,10 @@ const DashboardPage = () => {
             <Button variant="outline">Cancelar</Button>
             <Button 
               className="bg-red-600 hover:bg-red-700"
-              onClick={handleSaveMedicalData}
-              disabled={savingMedical || !activePlan}
+              onClick={() => handleSaveEvaluation('medical', medicalData)}
+              disabled={savingEvaluation || !activePlan}
             >
-              {savingMedical ? (
+              {savingEvaluation ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               ) : (
                 <Save className="w-4 h-4 mr-2" />
@@ -4111,9 +4199,14 @@ const DashboardPage = () => {
               </h2>
               <p className="text-slate-500 mt-1">Evaluación de capacidades físicas y condición</p>
             </div>
-            {selectedAthlete && (
-              <Badge className="bg-blue-100 text-blue-700">{selectedAthlete.name}</Badge>
-            )}
+            <div className="flex items-center gap-2">
+              {activePlan && (
+                <Badge className="bg-blue-100 text-blue-700">{activePlan.name}</Badge>
+              )}
+              {selectedAthlete && (
+                <Badge className="bg-slate-100 text-slate-700">{selectedAthlete.name}</Badge>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -4302,9 +4395,14 @@ const DashboardPage = () => {
               </h2>
               <p className="text-slate-500 mt-1">Evaluación de habilidades técnicas específicas del deporte</p>
             </div>
-            {selectedAthlete && (
-              <Badge className="bg-violet-100 text-violet-700">{selectedAthlete.name}</Badge>
-            )}
+            <div className="flex items-center gap-2">
+              {activePlan && (
+                <Badge className="bg-violet-100 text-violet-700">{activePlan.name}</Badge>
+              )}
+              {selectedAthlete && (
+                <Badge className="bg-slate-100 text-slate-700">{selectedAthlete.name}</Badge>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -4416,8 +4514,12 @@ const DashboardPage = () => {
 
           <div className="flex justify-end gap-2">
             <Button variant="outline">Cancelar</Button>
-            <Button className="bg-violet-600 hover:bg-violet-700">
-              <Save className="w-4 h-4 mr-2" />
+            <Button 
+              className="bg-violet-600 hover:bg-violet-700"
+              onClick={() => handleSaveEvaluation('technical', technicalData)}
+              disabled={savingEvaluation || !activePlan}
+            >
+              {savingEvaluation ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
               Guardar Control Técnico
             </Button>
           </div>
@@ -4438,9 +4540,14 @@ const DashboardPage = () => {
               </h2>
               <p className="text-slate-500 mt-1">Evaluación de inteligencia táctica y toma de decisiones</p>
             </div>
-            {selectedAthlete && (
-              <Badge className="bg-amber-100 text-amber-700">{selectedAthlete.name}</Badge>
-            )}
+            <div className="flex items-center gap-2">
+              {activePlan && (
+                <Badge className="bg-amber-100 text-amber-700">{activePlan.name}</Badge>
+              )}
+              {selectedAthlete && (
+                <Badge className="bg-slate-100 text-slate-700">{selectedAthlete.name}</Badge>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -4561,8 +4668,12 @@ const DashboardPage = () => {
 
           <div className="flex justify-end gap-2">
             <Button variant="outline">Cancelar</Button>
-            <Button className="bg-amber-600 hover:bg-amber-700">
-              <Save className="w-4 h-4 mr-2" />
+            <Button 
+              className="bg-amber-600 hover:bg-amber-700"
+              onClick={() => handleSaveEvaluation('tactical', tacticalData)}
+              disabled={savingEvaluation || !activePlan}
+            >
+              {savingEvaluation ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
               Guardar Control Táctico
             </Button>
           </div>
@@ -4583,9 +4694,14 @@ const DashboardPage = () => {
               </h2>
               <p className="text-slate-500 mt-1">Evaluación del estado mental y habilidades psicológicas</p>
             </div>
-            {selectedAthlete && (
-              <Badge className="bg-pink-100 text-pink-700">{selectedAthlete.name}</Badge>
-            )}
+            <div className="flex items-center gap-2">
+              {activePlan && (
+                <Badge className="bg-pink-100 text-pink-700">{activePlan.name}</Badge>
+              )}
+              {selectedAthlete && (
+                <Badge className="bg-slate-100 text-slate-700">{selectedAthlete.name}</Badge>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -4749,8 +4865,12 @@ const DashboardPage = () => {
 
           <div className="flex justify-end gap-2">
             <Button variant="outline">Cancelar</Button>
-            <Button className="bg-pink-600 hover:bg-pink-700">
-              <Save className="w-4 h-4 mr-2" />
+            <Button 
+              className="bg-pink-600 hover:bg-pink-700"
+              onClick={() => handleSaveEvaluation('psychological', psychologicalData)}
+              disabled={savingEvaluation || !activePlan}
+            >
+              {savingEvaluation ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
               Guardar Control Psicológico
             </Button>
           </div>

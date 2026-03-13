@@ -75,10 +75,25 @@ Basado en los libros de planificación deportiva (Padilla, Matveiev, Issurin):
 - Gestión de sesiones JWT
 
 ### Panel de Control (Dashboard)
+- **Card de Plan Activo** con nombre, semanas y modelo (conectado)
+- **Card de Mis Planes** con contador de planes
 - Readiness Score con métricas de bienestar
 - Ratio Carga Aguda:Crónica
 - Estadísticas de atletas, eventos, macrociclos
 - Gráficos de volumen, intensidad y densidad
+
+### Sistema de Evaluaciones (Conectado al Plan)
+- **Control Médico**: Signos vitales, antecedentes, lesiones, aptitud médica
+- **Antropometría**: Medidas corporales, pliegues cutáneos, composición corporal
+- **Control Físico**: Fuerza, resistencia, velocidad, potencia, flexibilidad
+- **Control Técnico**: Habilidades técnicas específicas del deporte
+- **Control Táctico**: Inteligencia táctica, toma de decisiones
+- **Control Psicológico**: Estado emocional, motivación, concentración
+
+Todas las evaluaciones:
+- Muestran badge del plan activo
+- Guardan datos con `plan_id` en el backend
+- Cargan datos existentes al seleccionar un plan
 
 ### Sistema de Periodización Científico
 **Backend API CRUD Completo:**

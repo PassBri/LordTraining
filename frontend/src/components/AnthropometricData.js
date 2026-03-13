@@ -44,7 +44,7 @@ const skinfoldFields = [
   { id: 'calf', label: 'Pantorrilla (mm)' },
 ];
 
-const AnthropometricData = ({ athleteId }) => {
+const AnthropometricData = ({ athleteId, activePlan }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [records, setRecords] = useState([]);
@@ -56,10 +56,30 @@ const AnthropometricData = ({ athleteId }) => {
   });
 
   useEffect(() => {
-    if (athleteId) {
+    if (activePlan) {
+      loadPlanRecords();
+    } else if (athleteId) {
       loadRecords();
     }
-  }, [athleteId]);
+  }, [athleteId, activePlan]);
+
+  const loadPlanRecords = async () => {
+    if (!activePlan) return;
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('train_token');
+      const response = await axios.get(
+        `${BACKEND_URL}/api/plan-data/evaluations/${activePlan.id}/anthropometric`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setRecords(response.data || []);
+    } catch (error) {
+      console.log('No plan anthropometric data found');
+      setRecords([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadRecords = async () => {
     setLoading(true);
@@ -109,13 +129,30 @@ const AnthropometricData = ({ athleteId }) => {
       const newRecord = { ...currentRecord, id: Date.now().toString() };
       const updatedRecords = [...records, newRecord];
       
-      await axios.post(
-        `${BACKEND_URL}/api/anthropometric`,
-        { athlete_id: athleteId, records: updatedRecords },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      // Si hay plan activo, guardar vinculado al plan
+      if (activePlan) {
+        await axios.post(
+          `${BACKEND_URL}/api/plan-data/evaluations`,
+          { 
+            plan_id: activePlan.id,
+            athlete_id: athleteId,
+            evaluation_type: 'anthropometric',
+            date: currentRecord.date,
+            results: { measurements: currentRecord.measurements, skinfolds: currentRecord.skinfolds },
+            notes: currentRecord.notes
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        loadPlanRecords();
+      } else {
+        await axios.post(
+          `${BACKEND_URL}/api/anthropometric`,
+          { athlete_id: athleteId, records: updatedRecords },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setRecords(updatedRecords);
+      }
       
-      setRecords(updatedRecords);
       setCurrentRecord({
         date: new Date().toISOString().split('T')[0],
         measurements: {},

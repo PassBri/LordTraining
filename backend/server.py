@@ -6854,6 +6854,13 @@ async def get_plan_evaluations(plan_id: str, evaluation_type: Optional[str] = No
     evaluations = await db.plan_evaluations.find(query).to_list(100)
     return [PlanEvaluationResponse(**{**e, "id": str(e["_id"])}) for e in evaluations]
 
+@api_router.get("/plan-data/evaluations/{plan_id}/{evaluation_type}")
+async def get_plan_evaluations_by_type(plan_id: str, evaluation_type: str, user: dict = Depends(get_current_user)):
+    """Obtener evaluaciones de un plan por tipo específico"""
+    query = {"plan_id": plan_id, "user_id": user["id"], "evaluation_type": evaluation_type}
+    evaluations = await db.plan_evaluations.find(query).to_list(100)
+    return [{**e, "id": str(e["_id"]), "_id": None} for e in evaluations]
+
 @api_router.delete("/plan-data/evaluations/{evaluation_id}")
 async def delete_plan_evaluation(evaluation_id: str, user: dict = Depends(get_current_user)):
     """Eliminar una evaluación"""
