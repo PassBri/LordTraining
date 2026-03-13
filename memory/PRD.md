@@ -3,7 +3,7 @@
 ## Descripción General
 Sistema inteligente de planificación deportiva con IA que permite gestionar atletas, crear planes de periodización científicos y optimizar el rendimiento deportivo.
 
-## Arquitectura Plan-Céntrica (Actualizado 18-Feb-2025)
+## Arquitectura Plan-Céntrica (Actualizado 13-Mar-2025)
 
 ### Flujo Principal de Usuario
 1. **Datos → Planes de Entrenamiento**: Primera vista al entrar
@@ -23,8 +23,10 @@ Basado en los libros de planificación deportiva (Padilla, Matveiev, Issurin):
 │   └── Caracterización Atleta
 │
 ├── 2️⃣ INFORMACIÓN BASE
-│   ├── Atletas y Equipos
-│   ├── Caracterización Deporte
+│   ├── Atletas
+│   ├── Equipos
+│   ├── Deportes (con caracterización técnica editable)
+│   ├── Torneos
 │   └── Entidades
 │
 ├── 3️⃣ EVALUACIÓN / CONTROLES
@@ -39,10 +41,8 @@ Basado en los libros de planificación deportiva (Padilla, Matveiev, Issurin):
 │   ├── Calendario Competitivo
 │   └── Competencias
 │
-├── 5️⃣ PERIODIZACIÓN (Núcleo)
-│   ├── Estructura del Plan
-│   ├── Métodos de Entrenamiento
-│   └── Biblioteca Ejercicios
+├── 5️⃣ PERIODIZACIÓN (Solo Estructura)
+│   └── Estructura del Plan (Macrociclo > Mesociclo > Microciclo)
 │
 ├── 6️⃣ VISUALIZACIÓN
 │   ├── Plan Gráfico
@@ -51,6 +51,8 @@ Basado en los libros de planificación deportiva (Padilla, Matveiev, Issurin):
 │
 └── 7️⃣ HERRAMIENTAS
     ├── Calculadoras
+    ├── Métodos de Entrenamiento
+    ├── Biblioteca Ejercicios
     └── Asistente IA
 ```
 
