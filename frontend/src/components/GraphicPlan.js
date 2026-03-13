@@ -121,7 +121,7 @@ const MICROCYCLE_TYPES = [
   { id: 'restablecimiento', label: 'Restablecimiento', color: 'bg-purple-200' }
 ];
 
-const GraphicPlan = ({ athleteId, periodizationData, athleteName }) => {
+const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [cycleDuration, setCycleDuration] = useState('annual');
@@ -313,6 +313,24 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName }) => {
       importPeriodizationData(periodizationData);
     }
   }, [periodizationData, hasImportedData, importPeriodizationData]);
+
+  // Load data from active plan
+  useEffect(() => {
+    if (activePlan && !hasImportedData) {
+      // Set general info from active plan
+      setGeneralInfo(prev => ({
+        ...prev,
+        sport: activePlan.sport || prev.sport,
+        periodizationType: activePlan.model || activePlan.model_name || 'tradicional',
+        athlete: athleteName || prev.athlete
+      }));
+      
+      // If active plan has macrocycle data, import it
+      if (activePlan.macrocycles && activePlan.macrocycles.length > 0) {
+        importPeriodizationData(activePlan.macrocycles[0]);
+      }
+    }
+  }, [activePlan, hasImportedData, athleteName, importPeriodizationData]);
 
   // Load calendar events
   useEffect(() => {

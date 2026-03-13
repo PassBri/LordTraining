@@ -4861,6 +4861,7 @@ const DashboardPage = () => {
           athleteId={selectedAthleteId} 
           periodizationData={periodizationData}
           athleteName={selectedAthlete?.name}
+          activePlan={activePlan}
         />
       );
     }
@@ -5123,6 +5124,8 @@ const DashboardPage = () => {
         periodizationData={periodizationData}
         stats={stats}
         onNavigate={handleNavigateFromPanel}
+        activePlan={activePlan}
+        trainingPlans={trainingPlans}
       />
     );
   };

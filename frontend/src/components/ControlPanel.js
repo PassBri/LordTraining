@@ -80,7 +80,9 @@ const ControlPanel = ({
   onNavigate,
   onCreateAthlete,
   onCreateEvent,
-  onCreateMacrocycle
+  onCreateMacrocycle,
+  activePlan = null,
+  trainingPlans = []
 }) => {
   const [volumeData, setVolumeData] = useState([]);
   const [intensityData, setIntensityData] = useState([]);
@@ -839,8 +841,68 @@ const ControlPanel = ({
             </CardContent>
           </Card>
 
-          {/* Stats Cards - Now 6 columns */}
+          {/* Stats Cards - Now with Plan Activo */}
           <div className="lg:col-span-6 grid grid-cols-2 md:grid-cols-3 gap-3">
+            {/* Plan Activo Destacado */}
+            {activePlan ? (
+              <Card 
+                className="bg-gradient-to-br from-indigo-600 to-blue-700 text-white border-0 shadow-lg shadow-indigo-200/50 cursor-pointer hover:scale-[1.02] transition-all duration-200 col-span-2 md:col-span-1"
+                onClick={() => onNavigate && onNavigate('datos', 'training-system')}
+              >
+                <CardContent className="p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-indigo-200 text-xs font-medium">Plan Activo</p>
+                      <p className="text-lg font-bold mt-0.5 truncate">{activePlan.name}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">{activePlan.total_weeks} sem</span>
+                        <span className="text-xs text-indigo-200">{activePlan.model_name || activePlan.model}</span>
+                      </div>
+                    </div>
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0 ml-2">
+                      <FileText className="w-5 h-5" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card 
+                className="bg-gradient-to-br from-slate-500 to-slate-600 text-white border-0 shadow-lg shadow-slate-200/50 cursor-pointer hover:scale-[1.02] transition-all duration-200 col-span-2 md:col-span-1"
+                onClick={() => onNavigate && onNavigate('datos', 'plan-manager')}
+              >
+                <CardContent className="p-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-slate-300 text-xs font-medium">Plan Activo</p>
+                      <p className="text-sm font-medium mt-0.5">Sin plan seleccionado</p>
+                      <p className="text-xs text-slate-300 mt-1">Click para seleccionar</p>
+                    </div>
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                      <FileText className="w-5 h-5" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Total Planes */}
+            <Card 
+              className="bg-gradient-to-br from-violet-500 to-purple-600 text-white border-0 shadow-lg shadow-violet-200/50 cursor-pointer hover:scale-[1.02] transition-all duration-200"
+              onClick={() => onNavigate && onNavigate('datos', 'plan-manager')}
+            >
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-violet-100 text-xs font-medium">Mis Planes</p>
+                    <p className="text-2xl font-bold mt-0.5">{trainingPlans.length}</p>
+                  </div>
+                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Activity className="w-5 h-5" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Total Atletas */}
             <Card 
               className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg shadow-blue-200/50 cursor-pointer hover:scale-[1.02] transition-all duration-200"
@@ -887,24 +949,6 @@ const ControlPanel = ({
                   </div>
                   <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
                     <Target className="w-5 h-5" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Macrociclos */}
-            <Card 
-              className="bg-gradient-to-br from-violet-500 to-purple-600 text-white border-0 shadow-lg shadow-violet-200/50 cursor-pointer hover:scale-[1.02] transition-all duration-200"
-              onClick={() => onNavigate && onNavigate('datos', 'training-system')}
-            >
-              <CardContent className="p-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-violet-100 text-xs font-medium">Macrociclos</p>
-                    <p className="text-2xl font-bold mt-0.5">{activeMacrocycles}</p>
-                  </div>
-                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                    <Activity className="w-5 h-5" />
                   </div>
                 </div>
               </CardContent>

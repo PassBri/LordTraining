@@ -6,10 +6,17 @@ Sistema inteligente de planificación deportiva con IA que permite gestionar atl
 ## Arquitectura Plan-Céntrica (Actualizado 13-Mar-2025)
 
 ### Flujo Principal de Usuario
-1. **Datos → Planes de Entrenamiento**: Primera vista al entrar
-2. **Seleccionar Plan**: Click en un plan para "entrar" a su estructura
+1. **Datos → "Mis Planes"**: Primera vista al entrar - lista de planes con opción de crear nuevo
+2. **Seleccionar Plan**: Click en un plan para "entrar" a su estructura interna
 3. **Navegar Secciones**: Diagnóstico, Información, Evaluación, Competencias, Periodización, Visualización, Herramientas
 4. **Cambiar Plan**: Botón para volver a la lista y seleccionar otro plan
+5. **Panel de Control**: Muestra estadísticas del plan activo y gráficos conectados
+6. **Plan Gráfico**: Visualiza la estructura del plan activo
+
+### Conexión de Datos
+- **Panel de Control** → Muestra card de "Plan Activo" con nombre, semanas y modelo
+- **Plan Gráfico** → Importa automáticamente los datos del plan activo
+- **Todas las secciones** → Datos asociados al plan_id seleccionado
 
 ### Estructura Jerárquica del Plan (Metodología Científica)
 Basado en los libros de planificación deportiva (Padilla, Matveiev, Issurin):
