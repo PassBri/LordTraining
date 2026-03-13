@@ -439,6 +439,7 @@ const ControlPanel = ({
   }, [events, athletes, periodizationData, selectedAthleteId, panelStats, trainingLoadRatio, readinessScore]);
 
   // Procesar datos reales de periodización para gráficos
+  // PRIORIDAD: activePlan > periodizationData > datos de ejemplo
   useEffect(() => {
     // Si ya tenemos datos de la API con formato completo, no procesar datos locales
     if (dataSource === 'api' && volumeData.length > 0 && volumeData[0]?.intensidad !== undefined) {
@@ -450,6 +451,109 @@ const ControlPanel = ({
                            volumeData[0]?.intensidad !== undefined && 
                            volumeData[0]?.densidad !== undefined;
 
+    // ===== PRIORIDAD 1: Usar datos del Plan Activo =====
+    if (activePlan?.macrocycles && activePlan.macrocycles.length > 0) {
+      const realVolumeData = [];
+      const realIntensityData = [];
+      const phaseCount = {};
+      let weekCounter = 1;
+      let accumulatedLoad = 0;
+      const realLoadData = [];
+
+      // Iterar sobre macrociclos del plan activo
+      activePlan.macrocycles.forEach(macro => {
+        macro.mesocycles?.forEach(meso => {
+          const phaseName = meso.phase_name || meso.phaseName || meso.phase || meso.name || 'Fase';
+          phaseCount[phaseName] = (phaseCount[phaseName] || 0) + (meso.microcycles?.length || meso.weeks || 4);
+
+          // Si tiene microciclos detallados
+          if (meso.microcycles && meso.microcycles.length > 0) {
+            meso.microcycles.forEach(micro => {
+              const volume = micro.volume || micro.expected_load || 70;
+              const intensity = micro.intensity || 60;
+              const densidad = Math.round(volume * intensity / 100) || 35;
+              
+              realVolumeData.push({
+                semana: `S${weekCounter}`,
+                volumen: volume,
+                intensidad: intensity,
+                densidad: densidad,
+                objetivo: micro.is_deload ? volume + 20 : volume - 5
+              });
+
+              realIntensityData.push({
+                semana: `S${weekCounter}`,
+                intensidad: intensity,
+                recuperacion: 100 - intensity + (micro.is_deload ? 20 : 0),
+                densidad: densidad
+              });
+
+              accumulatedLoad += volume * (intensity / 100);
+              realLoadData.push({
+                semana: `S${weekCounter}`,
+                carga: Math.round(accumulatedLoad),
+                fatiga: Math.round(30 + (intensity * 0.5))
+              });
+
+              weekCounter++;
+            });
+          } else {
+            // Si solo tiene el número de semanas, generar datos estimados
+            const weeks = meso.weeks || meso.duration_weeks || 4;
+            const baseVolume = meso.volume || 70;
+            const baseIntensity = meso.intensity || 60;
+            
+            for (let w = 0; w < weeks; w++) {
+              const volume = baseVolume + (w * 2) - (w === weeks - 1 ? 15 : 0); // Descarga última semana
+              const intensity = baseIntensity + (w * 3);
+              const densidad = Math.round(volume * intensity / 100);
+              
+              realVolumeData.push({
+                semana: `S${weekCounter}`,
+                volumen: Math.min(100, Math.max(20, volume)),
+                intensidad: Math.min(100, Math.max(30, intensity)),
+                densidad: densidad,
+                objetivo: volume - 5
+              });
+
+              realIntensityData.push({
+                semana: `S${weekCounter}`,
+                intensidad: Math.min(100, intensity),
+                recuperacion: 100 - intensity,
+                densidad: densidad
+              });
+
+              accumulatedLoad += volume * (intensity / 100);
+              realLoadData.push({
+                semana: `S${weekCounter}`,
+                carga: Math.round(accumulatedLoad),
+                fatiga: Math.round(30 + (intensity * 0.5))
+              });
+
+              weekCounter++;
+            }
+          }
+        });
+      });
+
+      if (realVolumeData.length > 0) {
+        setVolumeData(realVolumeData.slice(0, 16)); // Hasta 16 semanas
+        setIntensityData(realIntensityData.slice(0, 16));
+        setLoadData(realLoadData.slice(0, 16));
+
+        const totalWeeks = Object.values(phaseCount).reduce((a, b) => a + b, 0);
+        const distribution = Object.entries(phaseCount).map(([name, count], index) => ({
+          name: formatPhaseName(name),
+          value: Math.round((count / totalWeeks) * 100),
+          color: COLORS.phases[name] || COLORS.phases[formatPhaseName(name)] || PHASE_COLORS[index % PHASE_COLORS.length]
+        }));
+        setPhaseDistribution(distribution);
+        setDataSource('plan');
+        return;
+      }
+    }
+
+    // ===== PRIORIDAD 2: Usar periodizationData existente =====
     if (periodizationData?.mesocycles && !hasCompleteData) {
       const realVolumeData = [];
       const realIntensityData = [];
@@ -576,14 +680,14 @@ const ControlPanel = ({
       });
       setLoadData(load);
     }
-  }, [periodizationData, dataSource, volumeData.length]);
+  }, [periodizationData, activePlan, dataSource, volumeData.length]);
 
   // Calcular estadísticas
   const totalAthletes = panelStats?.athletes_count ?? athletes.length;
   const upcomingEventsCount = panelStats?.upcoming_events_count ?? events.filter(e => new Date(e.date) > new Date()).length;
   const completedSessions = panelStats?.completed_sessions ?? stats.completed_sessions ?? Math.floor(Math.random() * 50) + 20;
   const totalSessions = panelStats?.total_sessions ?? stats.total_sessions ?? completedSessions + 10;
-  const activeMacrocycles = panelStats?.active_macrocycles ?? (periodizationData ? 1 : 0);
+  const activeMacrocycles = panelStats?.active_macrocycles ?? (activePlan?.macrocycles?.length || (periodizationData ? 1 : 0));
 
   // Atleta seleccionado
   const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
