@@ -13,7 +13,7 @@ import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
-const CompetitionAnalysis = ({ athleteId, onSave }) => {
+const CompetitionAnalysis = ({ athleteId, onSave, activePlan }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [competitions, setCompetitions] = useState([]);
@@ -39,10 +39,31 @@ const CompetitionAnalysis = ({ athleteId, onSave }) => {
   });
 
   useEffect(() => {
-    if (athleteId) {
+    // Cargar competencias del plan activo si existe, si no del atleta
+    if (activePlan) {
+      loadPlanCompetitions();
+    } else if (athleteId) {
       loadCompetitions();
     }
-  }, [athleteId]);
+  }, [athleteId, activePlan]);
+
+  const loadPlanCompetitions = async () => {
+    if (!activePlan) return;
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('train_token');
+      const response = await axios.get(
+        `${BACKEND_URL}/api/plan-data/competitions/${activePlan.id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setCompetitions(response.data || []);
+    } catch (error) {
+      console.log('No plan competitions found');
+      setCompetitions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadCompetitions = async () => {
     setLoading(true);
@@ -90,13 +111,29 @@ const CompetitionAnalysis = ({ athleteId, onSave }) => {
     setSaving(true);
     try {
       const token = localStorage.getItem('train_token');
-      await axios.post(
-        `${BACKEND_URL}/api/competitions/analysis`,
-        { ...currentCompetition, athlete_id: athleteId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success('Competencia agregada correctamente');
-      loadCompetitions();
+      
+      // Si hay plan activo, guardar vinculado al plan
+      if (activePlan) {
+        await axios.post(
+          `${BACKEND_URL}/api/plan-data/competitions`,
+          { 
+            ...currentCompetition, 
+            plan_id: activePlan.id,
+            athlete_id: athleteId 
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        toast.success('Competencia agregada al plan');
+        loadPlanCompetitions();
+      } else {
+        await axios.post(
+          `${BACKEND_URL}/api/competitions/analysis`,
+          { ...currentCompetition, athlete_id: athleteId },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        toast.success('Competencia agregada correctamente');
+        loadCompetitions();
+      }
       resetForm();
       setShowForm(false);
     } catch (error) {

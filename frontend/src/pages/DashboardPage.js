@@ -136,6 +136,24 @@ const DashboardPage = () => {
   const [loadingPlans, setLoadingPlans] = useState(false);
   const [showPlanSelector, setShowPlanSelector] = useState(false); // Modal para seleccionar plan
 
+  // ====== EVALUACIONES STATE (Control Médico, Físico, etc.) ======
+  const [medicalData, setMedicalData] = useState({
+    fcReposo: '',
+    fcMaxima: '',
+    paSistolica: '',
+    paDiastolica: '',
+    saturacionO2: '',
+    enfermedadesCronicas: '',
+    alergias: '',
+    cirugiasPrevias: '',
+    lesionesActuales: '',
+    medicamentos: '',
+    aptitudMedica: 'apto',
+    proximaRevision: '',
+    observaciones: ''
+  });
+  const [savingMedical, setSavingMedical] = useState(false);
+
   // ====== GLOBAL CONTEXT STATE (Barra Superior) ======
   // Initialize from localStorage for persistence
   const [globalContext, setGlobalContext] = useState(() => {
@@ -3546,7 +3564,7 @@ const DashboardPage = () => {
 
     // Render Competition Analysis
     if (activeDataSection === 'competitions') {
-      return <CompetitionAnalysis athleteId={selectedAthleteId} />;
+      return <CompetitionAnalysis athleteId={selectedAthleteId} activePlan={activePlan} />;
     }
 
     // Render Training System Hub (EJE CENTRAL - Integra Periodización, Tests, Carga y Control)
@@ -3838,6 +3856,37 @@ const DashboardPage = () => {
     // Control Médico
     if (activeDataSection === 'control-medical') {
       const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
+
+      const handleSaveMedicalData = async () => {
+        if (!activePlan) {
+          toast.error('Selecciona un plan primero');
+          return;
+        }
+        setSavingMedical(true);
+        try {
+          const token = localStorage.getItem('train_token');
+          await fetch(`${API_URL}/api/plan-data/evaluations`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              plan_id: activePlan.id,
+              athlete_id: selectedAthleteId,
+              evaluation_type: 'medical',
+              date: new Date().toISOString().split('T')[0],
+              results: medicalData,
+              notes: medicalData.observaciones
+            })
+          });
+          toast.success('Control médico guardado');
+        } catch (error) {
+          toast.error('Error al guardar');
+        }
+        setSavingMedical(false);
+      };
+
       return (
         <div className="p-6 space-y-6">
           <div className="flex items-center justify-between">
@@ -3848,9 +3897,14 @@ const DashboardPage = () => {
               </h2>
               <p className="text-slate-500 mt-1">Estado de salud y aptitud para el entrenamiento</p>
             </div>
-            {selectedAthlete && (
-              <Badge className="bg-red-100 text-red-700">{selectedAthlete.name}</Badge>
-            )}
+            <div className="flex items-center gap-3">
+              {activePlan && (
+                <Badge className="bg-blue-100 text-blue-700">{activePlan.name}</Badge>
+              )}
+              {selectedAthlete && (
+                <Badge className="bg-red-100 text-red-700">{selectedAthlete.name}</Badge>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -3866,24 +3920,49 @@ const DashboardPage = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label className="text-xs text-slate-500">FC Reposo (lpm)</label>
-                    <Input type="number" placeholder="60" />
+                    <Input 
+                      type="number" 
+                      placeholder="60" 
+                      value={medicalData.fcReposo}
+                      onChange={(e) => setMedicalData({...medicalData, fcReposo: e.target.value})}
+                    />
                   </div>
                   <div className="space-y-1">
                     <label className="text-xs text-slate-500">FC Máxima (lpm)</label>
-                    <Input type="number" placeholder="185" />
+                    <Input 
+                      type="number" 
+                      placeholder="185"
+                      value={medicalData.fcMaxima}
+                      onChange={(e) => setMedicalData({...medicalData, fcMaxima: e.target.value})}
+                    />
                   </div>
                   <div className="space-y-1">
                     <label className="text-xs text-slate-500">PA Sistólica (mmHg)</label>
-                    <Input type="number" placeholder="120" />
+                    <Input 
+                      type="number" 
+                      placeholder="120"
+                      value={medicalData.paSistolica}
+                      onChange={(e) => setMedicalData({...medicalData, paSistolica: e.target.value})}
+                    />
                   </div>
                   <div className="space-y-1">
                     <label className="text-xs text-slate-500">PA Diastólica (mmHg)</label>
-                    <Input type="number" placeholder="80" />
+                    <Input 
+                      type="number" 
+                      placeholder="80"
+                      value={medicalData.paDiastolica}
+                      onChange={(e) => setMedicalData({...medicalData, paDiastolica: e.target.value})}
+                    />
                   </div>
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs text-slate-500">Saturación O2 (%)</label>
-                  <Input type="number" placeholder="98" />
+                  <Input 
+                    type="number" 
+                    placeholder="98"
+                    value={medicalData.saturacionO2}
+                    onChange={(e) => setMedicalData({...medicalData, saturacionO2: e.target.value})}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -3899,15 +3978,28 @@ const DashboardPage = () => {
               <CardContent className="p-4 space-y-3">
                 <div className="space-y-2">
                   <label className="text-xs font-medium text-slate-500">Enfermedades Crónicas</label>
-                  <textarea className="w-full h-16 p-2 text-sm border rounded-lg resize-none" placeholder="Asma, diabetes, hipertensión..." />
+                  <textarea 
+                    className="w-full h-16 p-2 text-sm border rounded-lg resize-none" 
+                    placeholder="Asma, diabetes, hipertensión..."
+                    value={medicalData.enfermedadesCronicas}
+                    onChange={(e) => setMedicalData({...medicalData, enfermedadesCronicas: e.target.value})}
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-medium text-slate-500">Alergias</label>
-                  <Input placeholder="Medicamentos, alimentos..." />
+                  <Input 
+                    placeholder="Medicamentos, alimentos..."
+                    value={medicalData.alergias}
+                    onChange={(e) => setMedicalData({...medicalData, alergias: e.target.value})}
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-medium text-slate-500">Cirugías Previas</label>
-                  <Input placeholder="Tipo y fecha" />
+                  <Input 
+                    placeholder="Tipo y fecha"
+                    value={medicalData.cirugiasPrevias}
+                    onChange={(e) => setMedicalData({...medicalData, cirugiasPrevias: e.target.value})}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -3989,8 +4081,16 @@ const DashboardPage = () => {
 
           <div className="flex justify-end gap-2">
             <Button variant="outline">Cancelar</Button>
-            <Button className="bg-red-600 hover:bg-red-700">
-              <Save className="w-4 h-4 mr-2" />
+            <Button 
+              className="bg-red-600 hover:bg-red-700"
+              onClick={handleSaveMedicalData}
+              disabled={savingMedical || !activePlan}
+            >
+              {savingMedical ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4 mr-2" />
+              )}
               Guardar Control Médico
             </Button>
           </div>

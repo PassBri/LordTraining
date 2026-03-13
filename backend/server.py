@@ -1597,6 +1597,48 @@ async def create_training_plan(plan: TrainingPlanCreate, user: dict = Depends(ge
     
     await db.training_plans.insert_one(doc)
     doc.pop("_id", None)
+    
+    # ====== CREAR ESTRUCTURA COMPLETA DE DATOS DEL PLAN ======
+    # Crear documento de datos del plan con todas las secciones vacías
+    plan_data_doc = {
+        "id": str(uuid.uuid4()),
+        "plan_id": plan_id,
+        "coach_id": user["id"],
+        # Diagnóstico / Punto de Partida
+        "previous_analysis": {
+            "previous_plan_name": "",
+            "achievements": "",
+            "areas_to_improve": "",
+            "lessons_learned": "",
+            "recommendations": ""
+        },
+        "objectives": [],
+        "athlete_characterization": {
+            "training_age": 0,
+            "sport_age": 0,
+            "strengths": "",
+            "weaknesses": "",
+            "injury_history": "",
+            "availability": ""
+        },
+        # Evaluaciones / Controles
+        "evaluations": {
+            "medical": [],
+            "anthropometric": [],
+            "physical": [],
+            "technical": [],
+            "tactical": [],
+            "psychological": []
+        },
+        # Competencias
+        "competitions": [],
+        "competition_calendar": [],
+        # Metadatos
+        "created_at": now,
+        "updated_at": now
+    }
+    await db.plan_data.insert_one(plan_data_doc)
+    
     return TrainingPlanResponse(**doc)
 
 @api_router.get("/training-plans", response_model=List[TrainingPlanResponse])
