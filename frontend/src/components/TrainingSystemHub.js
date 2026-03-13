@@ -44,7 +44,7 @@ const PERIODIZATION_MODELS = {
   ]
 };
 
-const TrainingSystemHub = ({ athleteId, athleteName, onNavigate }) => {
+const TrainingSystemHub = ({ athleteId, athleteName, onNavigate, activePlan }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(false);
   const [systemData, setSystemData] = useState({
@@ -55,8 +55,20 @@ const TrainingSystemHub = ({ athleteId, athleteName, onNavigate }) => {
   });
   const [selectedModel, setSelectedModel] = useState(null);
 
-  // Fetch all training system data
+  // Fetch all training system data - Ahora basado en el plan activo
   const fetchSystemData = async () => {
+    // Si hay plan activo, usar sus datos
+    if (activePlan) {
+      setSystemData({
+        periodization: activePlan.macrocycles?.[0] || null,
+        tests: [],
+        load: null,
+        control: null
+      });
+      return;
+    }
+    
+    // Fallback a athleteId si no hay plan activo
     if (!athleteId) return;
     
     setLoading(true);
@@ -109,13 +121,18 @@ const TrainingSystemHub = ({ athleteId, athleteName, onNavigate }) => {
   // Vista general del sistema
   const renderOverview = () => (
     <div className="space-y-6">
-      {/* Banner de estado */}
+      {/* Banner de estado - Ahora centrado en el Plan */}
       <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold mb-2">Sistema de Entrenamiento</h2>
             <p className="text-blue-100">
-              {athleteName ? `Configuración para ${athleteName}` : 'Selecciona un atleta para comenzar'}
+              {activePlan ? (
+                <span className="flex items-center gap-2">
+                  <span className="bg-white/20 px-2 py-0.5 rounded-full text-sm">{activePlan.name}</span>
+                  <span className="text-sm">{activePlan.total_weeks} semanas • {activePlan.model_name || activePlan.model}</span>
+                </span>
+              ) : athleteName ? `Configuración para ${athleteName}` : 'Selecciona un plan para comenzar'}
             </p>
           </div>
           <div className="text-right">
@@ -313,16 +330,16 @@ const TrainingSystemHub = ({ athleteId, athleteName, onNavigate }) => {
         </Card>
       )}
 
-      {/* Alerta si no hay atleta seleccionado */}
-      {!athleteId && (
+      {/* Alerta si no hay plan activo */}
+      {!activePlan && !athleteId && (
         <Card className="border-0 shadow-lg border-l-4 border-l-amber-500">
           <CardContent className="p-5">
             <div className="flex items-center gap-3">
               <AlertTriangle className="w-6 h-6 text-amber-500" />
               <div>
-                <h3 className="font-bold text-slate-800">Selecciona un Atleta</h3>
+                <h3 className="font-bold text-slate-800">Selecciona un Plan</h3>
                 <p className="text-sm text-slate-500">
-                  Para configurar el sistema de entrenamiento, primero selecciona un atleta en la sección de Información.
+                  Para configurar el sistema de entrenamiento, primero selecciona un plan en la sección de Datos → Mis Planes.
                 </p>
               </div>
             </div>

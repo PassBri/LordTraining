@@ -3557,6 +3557,7 @@ const DashboardPage = () => {
           athleteId={selectedAthleteId} 
           athleteName={selectedAthlete?.name}
           onNavigate={(section) => setActiveDataSection(section)}
+          activePlan={activePlan}
         />
       );
     }
