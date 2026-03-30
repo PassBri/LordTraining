@@ -3802,10 +3802,10 @@ const DashboardPage = () => {
         <PeriodizationComplete
           showWizardOnly={true}
           onBack={() => setActiveDataSection(null)}
-          onPlanCreated={(newPlan) => {
-            // Refrescar lista de planes en sidebar
-            fetchTrainingPlans();
-            // Activar el plan recién creado
+          onPlanCreated={async (newPlan) => {
+            // Primero refrescar sidebar para que el nuevo plan aparezca
+            await fetchTrainingPlans();
+            // Luego activar el plan recién creado
             if (newPlan?.apiId) {
               handleSetActivePlan({
                 id: newPlan.apiId,

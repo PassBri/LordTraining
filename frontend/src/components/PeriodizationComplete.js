@@ -1523,7 +1523,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
           {/* Navigation Buttons */}
           <div className="flex justify-between mt-8 pt-6 border-t">
-            <Button variant="outline" onClick={() => wizardStep > 1 ? setWizardStep(wizardStep - 1) : setActiveView('history')}>
+            <Button variant="outline" onClick={() => wizardStep > 1 ? setWizardStep(wizardStep - 1) : (showWizardOnly && onBack ? onBack() : setActiveView('history'))}>
               <ChevronLeft className="w-4 h-4 mr-2" /> {wizardStep > 1 ? 'Anterior' : 'Cancelar'}
             </Button>
             {wizardStep < 5 ? (
