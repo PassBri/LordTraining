@@ -1413,7 +1413,7 @@ const DashboardPage = () => {
 
     // ====== VERIFICAR SI SE NECESITA UN PLAN ACTIVO ======
     // Secciones que NO requieren plan activo (se pueden ver sin tener un plan seleccionado)
-    const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators'];
+    const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators', 'create-plan'];
     
     if (!activePlan && !sectionsWithoutPlan.includes(activeDataSection)) {
       // Mostrar mensaje de que se necesita seleccionar un plan
@@ -3796,6 +3796,32 @@ const DashboardPage = () => {
       return <CompetitionAnalysis athleteId={selectedAthleteId} activePlan={activePlan} />;
     }
 
+    // ====== CREAR NUEVO PLAN (Wizard directo) ======
+    if (activeDataSection === 'create-plan') {
+      return (
+        <PeriodizationComplete
+          showWizardOnly={true}
+          onBack={() => setActiveDataSection(null)}
+          onPlanCreated={(newPlan) => {
+            // Refrescar lista de planes en sidebar
+            fetchTrainingPlans();
+            // Activar el plan recién creado
+            if (newPlan?.apiId) {
+              handleSetActivePlan({
+                id: newPlan.apiId,
+                name: newPlan.name,
+                sport: newPlan.sport || 'General',
+                model: newPlan.model,
+                model_name: newPlan.model,
+                total_weeks: newPlan.totalWeeks,
+                start_date: newPlan.startDate,
+              });
+            }
+          }}
+        />
+      );
+    }
+
     // Render Training System Hub (EJE CENTRAL - Integra Periodización, Tests, Carga y Control)
     if (activeDataSection === 'training-system') {
       const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
@@ -5290,7 +5316,7 @@ const DashboardPage = () => {
   const renderMainContent = () => {
     if (activePanel === 'datos') {
       // ====== LAYOUT: SIDEBAR DE PLANES + CONTENIDO ======
-      const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators', 'sports', 'tournaments'];
+      const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators', 'sports', 'tournaments', 'create-plan'];
 
       const planSections = [
         { key: 'punto-partida', title: t('dashboard.sections.diagnosis'), color: 'rose', icon: FileText },
@@ -5332,7 +5358,7 @@ const DashboardPage = () => {
             onDeletePlan={handleDeleteTrainingPlan}
             onExportPDF={handleExportPDF}
             onRefresh={fetchTrainingPlans}
-            onCreatePlan={() => setActiveDataSection('training-system')}
+            onCreatePlan={() => setActiveDataSection('create-plan')}
             t={t}
           />
 
@@ -5448,7 +5474,7 @@ const DashboardPage = () => {
                   Elige un plan de entrenamiento del panel izquierdo para acceder a sus secciones y datos.
                 </p>
                 <Button
-                  onClick={() => setActiveDataSection('training-system')}
+                  onClick={() => setActiveDataSection('create-plan')}
                   className="bg-slate-900 hover:bg-slate-800 text-white rounded-lg"
                   data-testid="welcome-create-plan-btn"
                 >

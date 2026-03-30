@@ -184,7 +184,7 @@ const MICROCYCLE_TYPES = {
 };
 
 // ============ COMPONENTE PRINCIPAL ============
-const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreated, showWizardOnly = false }) => {
+const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreated, showWizardOnly = false, onBack }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [activeView, setActiveView] = useState(showWizardOnly ? 'create' : 'history');
@@ -1176,7 +1176,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-slate-800">Crear Plan de Entrenamiento</h2>
-        <Button variant="outline" onClick={() => { setActiveView('history'); setGeneratedStructure(null); }}><ChevronLeft className="w-4 h-4 mr-2" /> Volver</Button>
+        <Button variant="outline" onClick={() => { if (showWizardOnly && onBack) { onBack(); } else { setActiveView('history'); } setGeneratedStructure(null); }}><ChevronLeft className="w-4 h-4 mr-2" /> Volver</Button>
       </div>
 
       {/* Steps */}
