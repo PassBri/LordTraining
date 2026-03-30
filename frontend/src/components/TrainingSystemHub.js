@@ -155,33 +155,32 @@ const TrainingSystemHub = ({ athleteId, athleteName, onNavigate, activePlan, hid
         </div>
       </div>
 
-      {/* Module Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Module Cards - Floating Round Style */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {[
-          { key: 'periodization', icon: BookOpen, label: 'Modelos de Periodizacion', sub: 'Estructura del plan', pct: health.periodization, color: '#007AFF', accentBg: 'bg-blue-50', accentText: 'text-blue-600' },
-          { key: 'tests', icon: Clipboard, label: 'Tests y Evaluaciones', sub: `${systemData.tests.length} tests`, pct: health.tests, color: '#10B981', accentBg: 'bg-emerald-50', accentText: 'text-emerald-600' },
-          { key: 'load', icon: BarChart3, label: 'Carga de Entrenamiento', sub: 'Volumen, intensidad', pct: health.load, color: '#F59E0B', accentBg: 'bg-amber-50', accentText: 'text-amber-600' },
-          { key: 'control', icon: TrendingUp, label: 'Control de Rendimiento', sub: 'Seguimiento y ajustes', pct: Math.round((health.tests + health.load) / 2), color: '#EF4444', accentBg: 'bg-rose-50', accentText: 'text-rose-600' },
+          { key: 'periodization', icon: BookOpen, label: 'Periodización', sub: 'Estructura del plan', pct: health.periodization, color: '#007AFF', shadowColor: 'shadow-blue-200/60' },
+          { key: 'tests', icon: Clipboard, label: 'Evaluaciones', sub: `${systemData.tests.length} tests`, pct: health.tests, color: '#10B981', shadowColor: 'shadow-emerald-200/60' },
+          { key: 'load', icon: BarChart3, label: 'Carga', sub: 'Volumen e intensidad', pct: health.load, color: '#F59E0B', shadowColor: 'shadow-amber-200/60' },
+          { key: 'control', icon: TrendingUp, label: 'Control', sub: 'Seguimiento y ajustes', pct: Math.round((health.tests + health.load) / 2), color: '#EF4444', shadowColor: 'shadow-rose-200/60' },
         ].map((mod) => (
           <button
             key={mod.key}
             onClick={() => setActiveTab(mod.key)}
-            className="group bg-white rounded-xl border border-slate-200 p-5 text-left transition-all duration-200 hover:shadow-lg hover:border-slate-300 hover:-translate-y-0.5"
+            className="group bg-white rounded-2xl border border-slate-200/60 p-5 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
             data-testid={`module-card-${mod.key}`}
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className={`w-10 h-10 ${mod.accentBg} rounded-xl flex items-center justify-center`}>
-                <mod.icon className={`w-5 h-5 ${mod.accentText}`} />
+            <div className="flex flex-col items-center">
+              <div className="w-14 h-14 rounded-full flex items-center justify-center mb-3 shadow-lg transition-all duration-300 group-hover:scale-110" style={{ backgroundColor: mod.color }}>
+                <mod.icon className="w-6 h-6 text-white" strokeWidth={2} />
               </div>
-              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 transition-colors" />
-            </div>
-            <h3 className="font-semibold text-slate-800 text-sm mb-0.5">{mod.label}</h3>
-            <p className="text-[12px] text-slate-400 mb-3">{mod.sub}</p>
-            <div className="flex items-center gap-2">
-              <div className="flex-1 bg-slate-100 rounded-full h-1.5">
-                <div className="h-full rounded-full transition-all duration-700" style={{ width: `${mod.pct}%`, backgroundColor: mod.color }} />
+              <h3 className="font-bold text-slate-800 text-[13px] mb-0.5">{mod.label}</h3>
+              <p className="text-[11px] text-slate-400 mb-3">{mod.sub}</p>
+              <div className="flex items-center gap-2 w-full">
+                <div className="flex-1 bg-slate-100 rounded-full h-1.5">
+                  <div className="h-full rounded-full transition-all duration-700" style={{ width: `${mod.pct}%`, backgroundColor: mod.color }} />
+                </div>
+                <span className="text-[11px] font-bold" style={{ color: mod.color }}>{mod.pct}%</span>
               </div>
-              <span className="text-[11px] font-bold text-slate-500">{mod.pct}%</span>
             </div>
           </button>
         ))}
@@ -204,8 +203,8 @@ const TrainingSystemHub = ({ athleteId, athleteName, onNavigate, activePlan, hid
           ].map((step, idx) => (
             <React.Fragment key={idx}>
               <div className="flex flex-col items-center text-center w-[110px]">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-2" style={{ background: `${step.color}12` }}>
-                  <step.icon className="w-5 h-5" style={{ color: step.color }} />
+                <div className="w-12 h-12 rounded-full flex items-center justify-center mb-2 shadow-md transition-all duration-300 hover:scale-110 hover:shadow-lg" style={{ background: step.color }}>
+                  <step.icon className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-[13px] font-semibold text-slate-800">{step.label}</span>
                 <span className="text-[10px] text-slate-400 mt-0.5">{step.desc}</span>

@@ -1085,7 +1085,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center">
+          <div className="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center shadow-lg">
             <Activity className="w-5 h-5 text-[#CCFF00]" />
           </div>
           <div>
@@ -1115,7 +1115,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         </div>
       ) : plans.length === 0 ? (
         <div className="text-center py-16 bg-slate-50/50 rounded-2xl border-2 border-dashed border-slate-200">
-          <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Calendar className="w-8 h-8 text-slate-300" />
           </div>
           <h3 className="text-base font-semibold text-slate-500 mb-2">Sin planes de periodizacion</h3>
@@ -1129,7 +1129,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
             return (
             <div
               key={plan.id}
-              className="group bg-white rounded-xl border border-slate-200 overflow-hidden cursor-pointer transition-all hover:shadow-md hover:border-slate-300"
+              className="group bg-white rounded-2xl border border-slate-200 overflow-hidden cursor-pointer transition-all hover:shadow-lg hover:border-slate-300 hover:-translate-y-0.5"
               onClick={() => { setSelectedPlan(plan); setActiveView('detail'); }}
               data-testid={`plan-card-${plan.id}`}
             >
@@ -1138,7 +1138,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                 <div className="w-1.5 self-stretch" style={{ backgroundColor: phaseColor }} />
                 <div className="flex-1 flex items-center justify-between p-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-black text-[11px]" style={{ backgroundColor: phaseColor, fontFamily: "'Barlow Condensed', sans-serif" }}>
+                    <div className="w-11 h-11 rounded-full flex items-center justify-center text-white font-black text-[11px]" style={{ backgroundColor: phaseColor, fontFamily: "'Barlow Condensed', sans-serif" }}>
                       {plan.macrocycles?.[0]?.phase?.abbr || 'PL'}
                     </div>
                     <div>
@@ -1221,7 +1221,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                         {category.sports.map(sport => (
                           <div 
                             key={sport.id} 
-                            className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${planConfig.sport === sport.id ? 'border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-200' : 'border-blue-200 hover:border-blue-300 hover:bg-blue-50/50'}`} 
+                            className={`p-3 rounded-2xl border-2 cursor-pointer transition-all ${planConfig.sport === sport.id ? 'border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-200' : 'border-blue-200 hover:border-blue-300 hover:bg-blue-50/50'}`} 
                             onClick={() => setPlanConfig({ ...planConfig, sport: sport.id, sportName: sport.name, sessionsPerWeek: sport.sessions_per_week || 4 })}
                           >
                             <p className="font-semibold text-slate-800 text-sm">{sport.name}</p>
@@ -1308,7 +1308,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                       {modelsInCategory.map(([id, model]) => (
                         <div 
                           key={id} 
-                          className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${planConfig.model === id ? 'border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-200' : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'}`} 
+                          className={`p-3 rounded-2xl border-2 cursor-pointer transition-all ${planConfig.model === id ? 'border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-200' : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'}`} 
                           onClick={() => setPlanConfig({ ...planConfig, model: id })}
                         >
                           <div className="flex items-start justify-between gap-2">
@@ -1335,7 +1335,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
               <h3 className="text-xl font-bold text-center">Duración del Ciclo</h3>
               <div className="grid grid-cols-3 gap-4">
                 {Object.entries(CYCLE_DURATIONS).map(([id, dur]) => (
-                  <div key={id} className={`p-4 rounded-xl border-2 cursor-pointer text-center ${planConfig.duration === id ? 'border-blue-500 bg-blue-50' : 'border-slate-200'}`} onClick={() => setPlanConfig({ ...planConfig, duration: id })}>
+                  <div key={id} className={`p-4 rounded-2xl border-2 cursor-pointer text-center ${planConfig.duration === id ? 'border-blue-500 bg-blue-50' : 'border-slate-200'}`} onClick={() => setPlanConfig({ ...planConfig, duration: id })}>
                     <p className="text-2xl font-bold text-blue-600">{dur.weeks}</p>
                     <p className="text-sm text-slate-500">semanas</p>
                     <p className="font-semibold mt-1">{dur.label}</p>
@@ -1620,15 +1620,20 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           </div>
         </div>
 
-        {/* View Mode Tabs */}
-        <div className="flex gap-1 bg-slate-100 p-1 rounded-xl w-fit" data-testid="view-mode-tabs">
+        {/* View Mode Tabs - Floating Round Style */}
+        <div className="flex items-start gap-4 pt-2" data-testid="view-mode-tabs">
           {[
-            { id: 'structure', icon: Layers, label: 'Estructura' },
-            { id: 'calendar', icon: CalendarDays, label: 'Calendario' },
-            { id: 'chart', icon: BarChart3, label: 'Grafico' }
-          ].map(({ id, icon: Icon, label }) => (
-            <button key={id} className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${viewMode === id ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:bg-white/50'}`} onClick={() => setViewMode(id)} data-testid={`view-${id}`}>
-              <Icon className="w-3.5 h-3.5" />{label}
+            { id: 'structure', icon: Layers, label: 'Estructura', color: '#007AFF' },
+            { id: 'calendar', icon: CalendarDays, label: 'Calendario', color: '#8B5CF6' },
+            { id: 'chart', icon: BarChart3, label: 'Gráfico', color: '#10B981' }
+          ].map(({ id, icon: Icon, label, color }) => (
+            <button key={id} className="group flex flex-col items-center gap-1.5 outline-none" onClick={() => setViewMode(id)} data-testid={`view-${id}`}>
+              <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ${viewMode === id ? 'text-white shadow-lg' : 'bg-white text-slate-400 shadow-sm border border-slate-200 hover:shadow-md'}`} style={viewMode === id ? { backgroundColor: color } : {}}>
+                <Icon className={`w-5 h-5 ${viewMode === id ? 'text-white' : 'group-hover:text-slate-600'}`} strokeWidth={viewMode === id ? 2.5 : 1.8} />
+              </div>
+              <span className={`text-[10px] font-semibold transition-colors ${viewMode === id ? 'font-bold' : 'text-slate-400 group-hover:text-slate-500'}`} style={viewMode === id ? { color } : {}}>
+                {label}
+              </span>
             </button>
           ))}
         </div>
@@ -1709,7 +1714,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                   <div className={`transition-transform duration-200 mt-1 ${isExpanded ? 'rotate-90' : ''}`}>
                     <ChevronRight className="w-4 h-4 text-slate-400" />
                   </div>
-                  <div className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-black text-[12px] shadow-sm" style={{ backgroundColor: phaseColor, fontFamily: BC }}>
+                  <div className="w-11 h-11 rounded-full flex items-center justify-center text-white font-black text-[12px] shadow-lg" style={{ backgroundColor: phaseColor, fontFamily: BC }}>
                     {macro.phase?.abbr || 'MC'}
                   </div>
                   <div className="flex-1">
