@@ -5415,11 +5415,11 @@ const DashboardPage = () => {
           />
 
           {/* ====== CONTENIDO PRINCIPAL ====== */}
-          <div className="flex-1 flex flex-col overflow-hidden" data-testid="plan-content-area">
+          <div className="flex-1 flex flex-col min-h-0" data-testid="plan-content-area">
           {activePlan ? (
             <>
-          {/* Header Bar - Clean light design */}
-          <div className="bg-white border-b border-slate-200">
+          {/* Header Bar */}
+          <div className="bg-white" style={{ overflow: 'visible' }}>
             {/* Barra del Plan Activo */}
             <div className="bg-slate-900 px-4 py-2.5 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -5451,8 +5451,8 @@ const DashboardPage = () => {
             </div>
 
             {/* Navegación de Secciones - Material Floating FABs */}
-            <div className="px-5 pt-5 pb-2 overflow-visible">
-              <div className="flex items-start gap-5 overflow-x-auto overflow-y-visible pb-2 scrollbar-hide justify-center sm:justify-start">
+            <div className="px-5 pt-4 pb-3" style={{ overflow: 'visible' }}>
+              <div className="flex items-start gap-5 justify-center sm:justify-start" style={{ overflow: 'visible' }}>
                 {planSections.map((section) => {
                   const SectionIcon = section.icon;
                   const isActive = currentSection === section.key;
@@ -5469,20 +5469,16 @@ const DashboardPage = () => {
                       data-testid={`section-tab-${section.key}`}
                     >
                       <div
-                        className={`relative w-[52px] h-[52px] rounded-2xl flex items-center justify-center transition-all duration-300 ease-out ${
+                        className={`w-[50px] h-[50px] rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
                           isActive
-                            ? `${colors.bg} text-white shadow-xl ${colors.shadow} -translate-y-1`
-                            : 'bg-white text-slate-400 shadow-md hover:shadow-lg hover:-translate-y-0.5'
+                            ? `${colors.bg} text-white shadow-xl ${colors.shadow}`
+                            : 'bg-white text-slate-400 shadow-md hover:shadow-lg'
                         }`}
-                        style={isActive ? { boxShadow: `0 8px 24px -4px var(--tw-shadow-color, rgba(0,0,0,0.15))` } : {}}
                       >
-                        <SectionIcon className={`w-[22px] h-[22px] transition-transform duration-300 ${isActive ? 'text-white scale-110' : 'group-hover:scale-110'}`} strokeWidth={isActive ? 2.5 : 2} />
-                        {isActive && (
-                          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-white shadow-sm" />
-                        )}
+                        <SectionIcon className={`w-[22px] h-[22px] transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:text-slate-600'}`} strokeWidth={isActive ? 2.5 : 1.8} />
                       </div>
-                      <span className={`text-[10px] font-bold tracking-wide leading-tight text-center max-w-[72px] transition-all duration-300 ${
-                        isActive ? `${colors.text} translate-y-0` : 'text-slate-400 group-hover:text-slate-600'
+                      <span className={`text-[10px] font-bold tracking-wide leading-tight text-center max-w-[72px] transition-colors duration-300 ${
+                        isActive ? colors.text : 'text-slate-400 group-hover:text-slate-600'
                       }`}>
                         {section.title}
                       </span>
@@ -5495,8 +5491,8 @@ const DashboardPage = () => {
 
           {/* Sub-navigation - Mini Floating FABs */}
           {sectionItems.length > 1 && (
-          <div className="bg-gradient-to-b from-white to-slate-50/50 border-b border-slate-200/60 px-5 pt-3 pb-2 overflow-visible">
-            <div className="flex items-start gap-4 overflow-x-auto overflow-y-visible pb-1 scrollbar-hide">
+          <div className="bg-gradient-to-b from-white to-slate-50/50 border-b border-slate-200/60 px-5 pt-3 pb-2" style={{ overflow: 'visible' }}>
+            <div className="flex items-start gap-4" style={{ overflow: 'visible' }}>
               {sectionItems.map((item) => {
                 const ItemIcon = item.icon;
                 const isActive = activeDataSection === item.id;
@@ -5508,14 +5504,14 @@ const DashboardPage = () => {
                     className="group flex flex-col items-center gap-1 shrink-0 outline-none"
                     data-testid={`subnav-${item.id}`}
                   >
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ease-out ${
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
                       isActive
-                        ? `${currentColors.bg} text-white shadow-lg ${currentColors.shadow} -translate-y-0.5`
-                        : 'bg-white text-slate-400 shadow-sm border border-slate-200/80 hover:shadow-md hover:-translate-y-0.5'
+                        ? `${currentColors.bg} text-white shadow-lg ${currentColors.shadow}`
+                        : 'bg-white text-slate-400 shadow-sm border border-slate-200/80 hover:shadow-md'
                     }`}>
-                      <ItemIcon className={`w-[18px] h-[18px] transition-transform duration-300 ${isActive ? 'text-white scale-105' : 'group-hover:scale-105'}`} strokeWidth={isActive ? 2.5 : 2} />
+                      <ItemIcon className={`w-[18px] h-[18px] transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:text-slate-600'}`} strokeWidth={isActive ? 2.5 : 1.8} />
                     </div>
-                    <span className={`text-[9px] font-semibold tracking-wide text-center max-w-[64px] leading-tight transition-all duration-300 ${
+                    <span className={`text-[9px] font-semibold tracking-wide text-center max-w-[64px] leading-tight transition-colors duration-300 ${
                       isActive ? currentColors.text : 'text-slate-400 group-hover:text-slate-500'
                     }`}>
                       {item.label}
