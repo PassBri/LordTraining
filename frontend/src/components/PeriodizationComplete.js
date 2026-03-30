@@ -1057,71 +1057,101 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
   // ============ RENDER: HISTORY ============
   const renderHistory = () => (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-            <History className="w-7 h-7 text-blue-500" />
-            Historial de Planes
-          </h2>
-          <p className="text-slate-500 mt-1">Gestiona tus planes de periodización</p>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center">
+            <Activity className="w-5 h-5 text-[#CCFF00]" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-slate-800">Planes de Periodizacion</h2>
+            <p className="text-slate-400 text-[13px]">{plans.length} planes creados</p>
+          </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => openCalculator('1rm')}>
-            <Activity className="w-4 h-4 mr-2" /> Calculadoras
+          <Button variant="outline" className="rounded-lg h-9 text-[12px] border-slate-300" onClick={() => openCalculator('1rm')}>
+            <Activity className="w-3.5 h-3.5 mr-1.5" /> Calculadoras
           </Button>
-          <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg text-white" onClick={() => { 
+          <Button className="bg-slate-900 hover:bg-slate-800 text-white rounded-lg h-9 text-[12px] font-semibold" onClick={() => { 
             setWizardStep(1); 
             setPlanConfig({ name: '', model: '', sport: 'general', duration: 'annual', startDate: '', sessionsPerWeek: 5, athleteLevel: 'intermediate', mainObjective: '', mainCompetition: '', mainCompetitionDate: '' }); 
             setGeneratedStructure(null);
             setActiveView('create'); 
-          }}>
-            <Plus className="w-4 h-4 mr-2" /> Nuevo Plan
+          }} data-testid="new-plan-btn">
+            <Plus className="w-3.5 h-3.5 mr-1.5" /> Nuevo Plan
           </Button>
         </div>
       </div>
 
       {loading ? (
         <div className="text-center py-16">
-          <Loader2 className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
-          <p className="text-slate-500">Cargando planes...</p>
+          <Loader2 className="w-10 h-10 animate-spin text-blue-500 mx-auto mb-4" />
+          <p className="text-slate-400 text-sm">Cargando planes...</p>
         </div>
       ) : plans.length === 0 ? (
-        <Card className="border-2 border-dashed">
-          <CardContent className="py-16 text-center">
-            <Calendar className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-slate-600">Sin planes</h3>
-            <p className="text-slate-400 mb-4">Crea tu primer plan de periodización</p>
-            <Button onClick={() => setActiveView('create')}><Plus className="w-4 h-4 mr-2" /> Crear Plan</Button>
-          </CardContent>
-        </Card>
+        <div className="text-center py-16 bg-slate-50/50 rounded-2xl border-2 border-dashed border-slate-200">
+          <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Calendar className="w-8 h-8 text-slate-300" />
+          </div>
+          <h3 className="text-base font-semibold text-slate-500 mb-2">Sin planes de periodizacion</h3>
+          <p className="text-slate-400 mb-5 text-sm">Crea tu primer plan con el wizard inteligente</p>
+          <Button onClick={() => setActiveView('create')} className="bg-slate-900 text-white rounded-lg"><Plus className="w-4 h-4 mr-2" /> Crear Plan</Button>
+        </div>
       ) : (
-        <div className="grid gap-4">
-          {plans.map(plan => (
-            <Card key={plan.id} className="hover:shadow-lg transition-shadow cursor-pointer border-l-4" style={{ borderLeftColor: plan.macrocycles?.[0]?.phase?.color || '#3B82F6' }} onClick={() => { setSelectedPlan(plan); setActiveView('detail'); }}>
-              <CardContent className="p-4 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                    <Calendar className="w-6 h-6 text-white" />
+        <div className="space-y-3">
+          {plans.map(plan => {
+            const phaseColor = plan.macrocycles?.[0]?.phase?.color || '#3B82F6';
+            return (
+            <div
+              key={plan.id}
+              className="group bg-white rounded-xl border border-slate-200 overflow-hidden cursor-pointer transition-all hover:shadow-md hover:border-slate-300"
+              onClick={() => { setSelectedPlan(plan); setActiveView('detail'); }}
+              data-testid={`plan-card-${plan.id}`}
+            >
+              <div className="flex items-center">
+                {/* Color strip */}
+                <div className="w-1.5 self-stretch" style={{ backgroundColor: phaseColor }} />
+                <div className="flex-1 flex items-center justify-between p-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-black text-[11px]" style={{ backgroundColor: phaseColor, fontFamily: "'Barlow Condensed', sans-serif" }}>
+                      {plan.macrocycles?.[0]?.phase?.abbr || 'PL'}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-800 text-[14px]">{plan.name}</h3>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[11px] text-slate-400">{plan.totalWeeks} sem</span>
+                        <span className="w-1 h-1 rounded-full bg-slate-300" />
+                        <span className="text-[11px] text-slate-400">{plan.macrocycles?.length || 0} macro</span>
+                        <span className="w-1 h-1 rounded-full bg-slate-300" />
+                        <span className="text-[11px] text-slate-500 font-medium">{plan.modelName}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-slate-800">{plan.name}</h3>
-                    <p className="text-sm text-slate-500">{plan.totalWeeks} semanas • {plan.macrocycles?.length || 0} macrociclos • {plan.modelName}</p>
-                    {plan.apiId && <Badge className="bg-green-100 text-green-700 text-xs mt-1">Guardado en BD</Badge>}
+                  <div className="flex items-center gap-2">
+                    {plan.apiId && (
+                      <span className="text-[10px] px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-full font-medium border border-emerald-200">Guardado</span>
+                    )}
+                    {/* Phase mini bar */}
+                    {plan.macrocycles?.length > 0 && (
+                      <div className="hidden md:flex h-6 w-20 gap-[1px] items-end rounded overflow-hidden">
+                        {plan.macrocycles.map((m, i) => (
+                          <div key={i} className="flex-1 rounded-t-sm" style={{ height: `${Math.max(30, (m.phase?.volumePercent || 50))}%`, backgroundColor: m.phase?.color || '#94a3b8', opacity: 0.7 }} />
+                        ))}
+                      </div>
+                    )}
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => { e.stopPropagation(); handleDuplicatePlan(plan.id); }}>
+                      <Copy className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => { e.stopPropagation(); handleDeletePlan(plan.id); }}>
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 transition-colors" />
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-green-100 text-green-700">Activo</Badge>
-                  <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleDuplicatePlan(plan.id); }} title="Duplicar">
-                    <Copy className="w-4 h-4 text-blue-500" />
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleDeletePlan(plan.id); }} title="Eliminar">
-                    <Trash2 className="w-4 h-4 text-red-500" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+              </div>
+            </div>
+            );
+          })}
         </div>
       )}
     </div>
@@ -1508,46 +1538,74 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
   // ============ RENDER: DETAIL VIEW ============
   const renderDetail = () => {
     if (!selectedPlan) return null;
+    const BC = "'Barlow Condensed', sans-serif";
+    const totalMesos = selectedPlan.macrocycles?.reduce((s, m) => s + (m.mesocycles?.length || 0), 0) || 0;
+    const totalMicros = selectedPlan.macrocycles?.reduce((s, m) => s + m.mesocycles?.reduce((s2, me) => s2 + (me.microcycles?.length || 0), 0), 0) || 0;
 
     return (
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-slate-800">{selectedPlan.name}</h2>
-            <p className="text-slate-500">{selectedPlan.totalWeeks} semanas • {selectedPlan.modelName}</p>
+      <div className="space-y-5">
+        {/* Hero header */}
+        <div className="relative bg-slate-900 rounded-2xl overflow-hidden" data-testid="plan-detail-header">
+          <div className="absolute inset-0 opacity-[0.06]">
+            <div className="absolute inset-0 bg-[radial-gradient(#475569_1px,transparent_1px)] [background-size:16px_16px]" />
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => { setActiveView('history'); setSelectedPlan(null); }}>
-              <ChevronLeft className="w-4 h-4 mr-2" /> Volver
-            </Button>
-            <Button variant="outline" onClick={handleSavePlan} disabled={saving}>
-              {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />} 
-              Guardar
-            </Button>
-            <Button variant="outline" onClick={handleSharePlan}>
-              <Copy className="w-4 h-4 mr-2" /> Compartir
-            </Button>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleExportPDF}>
-              <FileText className="w-4 h-4 mr-2" /> Exportar PDF
-            </Button>
+          <div className="relative z-10 p-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <button onClick={() => { setActiveView('history'); setSelectedPlan(null); }} className="text-[11px] text-slate-400 hover:text-white transition-colors mb-3 flex items-center gap-1">
+                  <ChevronLeft className="w-3 h-3" /> Volver a planes
+                </button>
+                <h2 className="text-2xl font-black text-white tracking-tight" style={{ fontFamily: BC }}>{selectedPlan.name}</h2>
+                <p className="text-slate-400 text-sm mt-1">{selectedPlan.totalWeeks} sem &middot; {selectedPlan.modelName}</p>
+                <div className="flex gap-5 mt-4">
+                  {[
+                    { v: selectedPlan.macrocycles?.length || 0, l: 'Macrociclos', c: '#007AFF' },
+                    { v: totalMesos, l: 'Mesociclos', c: '#8B5CF6' },
+                    { v: totalMicros, l: 'Semanas', c: '#10B981' },
+                  ].map((s, i) => (
+                    <div key={i}>
+                      <div className="text-xl font-black text-white leading-none" style={{ fontFamily: BC }}>{s.v}</div>
+                      <div className="text-[10px] mt-0.5" style={{ color: s.c }}>{s.l}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={handleSavePlan} disabled={saving} className="border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg h-9 text-[12px]" data-testid="save-plan-btn">
+                  {saving ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Save className="w-3.5 h-3.5 mr-1.5" />} Guardar
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleSharePlan} className="border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg h-9 text-[12px]">
+                  <Copy className="w-3.5 h-3.5 mr-1.5" /> Compartir
+                </Button>
+                <Button size="sm" onClick={handleExportPDF} className="bg-[#007AFF] hover:bg-[#0066dd] text-white rounded-lg h-9 text-[12px]" data-testid="export-pdf-btn">
+                  <FileText className="w-3.5 h-3.5 mr-1.5" /> PDF
+                </Button>
+              </div>
+            </div>
+            {/* Phase strip */}
+            {selectedPlan.macrocycles?.length > 0 && (
+              <div className="flex h-2 rounded-full overflow-hidden mt-5 gap-[2px]">
+                {selectedPlan.macrocycles.map((macro, idx) => (
+                  <div key={idx} className="rounded-full transition-all" style={{ backgroundColor: macro.phase?.color || '#475569', flex: macro.weeks || 1 }} title={`${macro.phase?.name || macro.name}: ${macro.weeks}s`} />
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
         {/* View Mode Tabs */}
-        <div className="flex gap-2 bg-slate-100 p-1 rounded-xl w-fit">
+        <div className="flex gap-1 bg-slate-100 p-1 rounded-xl w-fit" data-testid="view-mode-tabs">
           {[
             { id: 'structure', icon: Layers, label: 'Estructura' },
             { id: 'calendar', icon: CalendarDays, label: 'Calendario' },
-            { id: 'chart', icon: BarChart3, label: 'Gráfico' }
+            { id: 'chart', icon: BarChart3, label: 'Grafico' }
           ].map(({ id, icon: Icon, label }) => (
-            <button key={id} className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${viewMode === id ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:bg-white/50'}`} onClick={() => setViewMode(id)}>
-              <Icon className="w-4 h-4" /><span className="font-medium">{label}</span>
+            <button key={id} className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${viewMode === id ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:bg-white/50'}`} onClick={() => setViewMode(id)} data-testid={`view-${id}`}>
+              <Icon className="w-3.5 h-3.5" />{label}
             </button>
           ))}
         </div>
 
-        {/* Content */}
         {viewMode === 'structure' && renderStructureView()}
         {viewMode === 'calendar' && renderCalendarView()}
         {viewMode === 'chart' && renderChartView()}
@@ -1555,110 +1613,177 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     );
   };
 
-  // ============ RENDER: STRUCTURE (Material Design) ============
+  // ============ RENDER: STRUCTURE (Premium Design) ============
   const renderStructureView = () => (
     <div className="space-y-4">
-      {/* Add Macrocycle Button */}
+      {/* Add Macrocycle */}
       <div className="flex justify-end">
-        <Button onClick={handleAddMacrocycle} className="bg-blue-600 shadow-lg">
-          <Plus className="w-4 h-4 mr-2" /> Agregar Macrociclo
+        <Button onClick={handleAddMacrocycle} className="bg-slate-900 hover:bg-slate-800 text-white rounded-lg h-9 text-[12px] font-semibold shadow-sm" data-testid="add-macrocycle-btn">
+          <Plus className="w-3.5 h-3.5 mr-1.5" /> Macrociclo
         </Button>
       </div>
 
       {/* Macrocycles */}
-      {selectedPlan.macrocycles?.map((macro, macroIdx) => (
-        <Card key={macro.id} className="overflow-hidden shadow-lg border-0">
+      {selectedPlan.macrocycles?.map((macro, macroIdx) => {
+        const phaseColor = macro.phase?.color || '#3B82F6';
+        const isExpanded = expandedMacro === macroIdx;
+
+        return (
+        <div key={macro.id} className="rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md" data-testid={`macrocycle-${macroIdx}`}>
           {/* Macrocycle Header */}
-          <div className="flex items-center justify-between p-4 cursor-pointer" style={{ background: `linear-gradient(135deg, ${macro.phase?.color}20 0%, ${macro.phase?.color}10 100%)`, borderLeft: `4px solid ${macro.phase?.color}` }} onClick={() => setExpandedMacro(expandedMacro === macroIdx ? null : macroIdx)}>
-            <div className="flex items-center gap-4">
-              {expandedMacro === macroIdx ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold" style={{ backgroundColor: macro.phase?.color }}>
-                {macro.phase?.abbr}
+          <div
+            className="flex items-center justify-between p-4 cursor-pointer transition-colors"
+            style={{ borderLeft: `4px solid ${phaseColor}`, background: `linear-gradient(90deg, ${phaseColor}08 0%, transparent 60%)` }}
+            onClick={() => setExpandedMacro(isExpanded ? null : macroIdx)}
+          >
+            <div className="flex items-center gap-3">
+              <div className={`transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>
+                <ChevronRight className="w-4 h-4 text-slate-400" />
+              </div>
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-black text-[11px] shadow-sm" style={{ backgroundColor: phaseColor, fontFamily: "'Barlow Condensed', sans-serif" }}>
+                {macro.phase?.abbr || 'MC'}
               </div>
               <div>
-                <h3 className="font-bold text-lg text-slate-800">{macro.name}</h3>
-                <p className="text-sm text-slate-500">{macro.weeks} semanas • {macro.mesocycles?.length || 0} mesociclos • Vol: {macro.volume_percent || macro.phase?.volumePercent || '-'}% • Int: {macro.intensity_percent || macro.phase?.intensityPercent || '-'}%</p>
+                <h3 className="font-bold text-slate-800 text-[15px] leading-tight">{macro.name}</h3>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="text-[11px] text-slate-500">{macro.weeks} sem</span>
+                  <span className="w-1 h-1 rounded-full bg-slate-300" />
+                  <span className="text-[11px] text-slate-500">{macro.mesocycles?.length || 0} meso</span>
+                  {(macro.volume_percent || macro.phase?.volumePercent) && (
+                    <>
+                      <span className="w-1 h-1 rounded-full bg-slate-300" />
+                      <span className="text-[11px] font-medium" style={{ color: phaseColor }}>Vol {macro.volume_percent || macro.phase?.volumePercent}%</span>
+                      <span className="text-[11px] font-medium text-rose-500">Int {macro.intensity_percent || macro.phase?.intensityPercent}%</span>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
-            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-              <Button size="sm" variant="ghost" onClick={() => handleEditMacrocycle(macro, macroIdx)}><Edit2 className="w-4 h-4" /></Button>
-              <Button size="sm" variant="ghost" className="text-red-500" onClick={() => handleDeleteMacrocycle(macroIdx)}><Trash2 className="w-4 h-4" /></Button>
+            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+              <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-blue-600" onClick={() => handleEditMacrocycle(macro, macroIdx)}><Edit2 className="w-3.5 h-3.5" /></Button>
+              <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-red-500" onClick={() => handleDeleteMacrocycle(macroIdx)}><Trash2 className="w-3.5 h-3.5" /></Button>
             </div>
           </div>
 
-          {/* Expanded Content */}
-          {expandedMacro === macroIdx && (
-            <CardContent className="p-4 bg-slate-50/50">
-              <div className="flex justify-between items-center mb-4">
-                <p className="text-sm font-semibold text-slate-500 uppercase">Mesociclos</p>
-                <Button size="sm" variant="outline" onClick={() => handleAddMesocycle(macroIdx)}><Plus className="w-3 h-3 mr-1" /> Mesociclo</Button>
+          {/* Expanded: Mesocycles */}
+          {isExpanded && (
+            <div className="px-4 pb-4 pt-2 bg-slate-50/60 border-t border-slate-100">
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Mesociclos</span>
+                <Button size="sm" variant="outline" className="h-7 text-[11px] rounded-md border-slate-300" onClick={() => handleAddMesocycle(macroIdx)}>
+                  <Plus className="w-3 h-3 mr-1" /> Mesociclo
+                </Button>
               </div>
 
               <div className="space-y-3">
-                {macro.mesocycles?.map((meso, mesoIdx) => (
-                  <Card key={meso.id} className="border shadow-sm overflow-hidden">
-                    {/* Mesocycle Header */}
-                    <div className="flex items-center justify-between p-3 cursor-pointer hover:bg-slate-50" style={{ borderLeft: `3px solid ${meso.type?.color}` }} onClick={() => setExpandedMeso(expandedMeso === `${macroIdx}-${mesoIdx}` ? null : `${macroIdx}-${mesoIdx}`)}>
-                      <div className="flex items-center gap-3">
-                        {expandedMeso === `${macroIdx}-${mesoIdx}` ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                        <Badge style={{ backgroundColor: meso.type?.color }} className="text-white">{meso.type?.name}</Badge>
-                        <span className="font-semibold">{meso.name}</span>
-                        <span className="text-sm text-slate-500">{meso.microcycles?.length || 0} semanas</span>
+                {macro.mesocycles?.map((meso, mesoIdx) => {
+                  const mesoColor = meso.type?.color || '#64748B';
+                  const mesoKey = `${macroIdx}-${mesoIdx}`;
+                  const mesoExpanded = expandedMeso === mesoKey;
+
+                  return (
+                  <div key={meso.id} className="rounded-xl overflow-hidden border border-slate-200 bg-white" data-testid={`mesocycle-${mesoKey}`}>
+                    {/* Meso Header */}
+                    <div
+                      className="flex items-center justify-between px-3.5 py-3 cursor-pointer hover:bg-slate-50/80 transition-colors"
+                      style={{ borderLeft: `3px solid ${mesoColor}` }}
+                      onClick={() => setExpandedMeso(mesoExpanded ? null : mesoKey)}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className={`transition-transform duration-200 ${mesoExpanded ? 'rotate-90' : ''}`}>
+                          <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+                        </div>
+                        <div className="px-2 py-0.5 rounded-md text-[10px] font-bold text-white" style={{ backgroundColor: mesoColor }}>{meso.type?.name || 'Meso'}</div>
+                        <span className="font-semibold text-[13px] text-slate-700">{meso.name}</span>
+                        <span className="text-[11px] text-slate-400">{meso.microcycles?.length || 0} sem</span>
                       </div>
-                      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                        <Button size="sm" variant="ghost" onClick={() => handleEditMesocycle(meso, macroIdx, mesoIdx)}><Edit2 className="w-3 h-3" /></Button>
-                        <Button size="sm" variant="ghost" className="text-red-500" onClick={() => handleDeleteMesocycle(macroIdx, mesoIdx)}><Trash2 className="w-3 h-3" /></Button>
+                      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-blue-600" onClick={() => handleEditMesocycle(meso, macroIdx, mesoIdx)}><Edit2 className="w-3 h-3" /></Button>
+                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-red-500" onClick={() => handleDeleteMesocycle(macroIdx, mesoIdx)}><Trash2 className="w-3 h-3" /></Button>
                       </div>
                     </div>
 
                     {/* Microcycles */}
-                    {expandedMeso === `${macroIdx}-${mesoIdx}` && (
-                      <div className="p-3 bg-white border-t">
-                        <div className="flex justify-between items-center mb-3">
-                          <p className="text-xs font-semibold text-slate-500 uppercase">Microciclos (Semanas)</p>
-                          <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleAddMicrocycle(macroIdx, mesoIdx)}><Plus className="w-3 h-3 mr-1" /> Semana</Button>
+                    {mesoExpanded && (
+                      <div className="px-3.5 pb-3.5 pt-2 border-t border-slate-100 bg-white">
+                        <div className="flex justify-between items-center mb-2.5">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Microciclos</span>
+                          <Button size="sm" variant="outline" className="h-6 text-[10px] rounded-md border-slate-200 px-2" onClick={() => handleAddMicrocycle(macroIdx, mesoIdx)}>
+                            <Plus className="w-2.5 h-2.5 mr-1" /> Semana
+                          </Button>
                         </div>
 
                         <div className="space-y-2">
-                          {meso.microcycles?.map((micro, microIdx) => (
-                            <div key={micro.id} className="border rounded-lg overflow-hidden">
-                              {/* Microcycle Header */}
-                              <div className="flex items-center justify-between p-2 bg-slate-50 cursor-pointer" onClick={() => setExpandedMicro(expandedMicro === `${macroIdx}-${mesoIdx}-${microIdx}` ? null : `${macroIdx}-${mesoIdx}-${microIdx}`)}>
+                          {meso.microcycles?.map((micro, microIdx) => {
+                            const microColor = micro.type?.color || '#94a3b8';
+                            const microKey = `${macroIdx}-${mesoIdx}-${microIdx}`;
+                            const microExpanded = expandedMicro === microKey;
+
+                            return (
+                            <div key={micro.id} className="rounded-lg border border-slate-150 overflow-hidden bg-white" data-testid={`microcycle-${microKey}`}>
+                              {/* Micro Header */}
+                              <div
+                                className="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors"
+                                onClick={() => setExpandedMicro(microExpanded ? null : microKey)}
+                              >
                                 <div className="flex items-center gap-2">
-                                  {expandedMicro === `${macroIdx}-${mesoIdx}-${microIdx}` ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: micro.type?.color }} />
-                                  <span className="font-medium text-sm">{micro.name}</span>
-                                  <Badge variant="outline" className="text-xs">{micro.type?.name}</Badge>
+                                  <div className={`transition-transform duration-200 ${microExpanded ? 'rotate-90' : ''}`}>
+                                    <ChevronRight className="w-3 h-3 text-slate-300" />
+                                  </div>
+                                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: microColor }} />
+                                  <span className="font-medium text-[13px] text-slate-700">{micro.name}</span>
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium">{micro.type?.name || '-'}</span>
+                                  {micro.type?.load && (
+                                    <div className="hidden sm:flex items-center gap-1 ml-1">
+                                      <div className="w-14 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                                        <div className="h-full rounded-full" style={{ width: `${micro.type.load}%`, backgroundColor: microColor }} />
+                                      </div>
+                                      <span className="text-[9px] text-slate-400">{micro.type.load}%</span>
+                                    </div>
+                                  )}
                                 </div>
-                                <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                                  <span className="text-xs text-slate-500">{micro.sessions?.length || 0} sesiones</span>
-                                  <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => handleEditMicrocycle(micro, macroIdx, mesoIdx, microIdx)}><Edit2 className="w-3 h-3" /></Button>
-                                  <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-red-500" onClick={() => handleDeleteMicrocycle(macroIdx, mesoIdx, microIdx)}><Trash2 className="w-3 h-3" /></Button>
+                                <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                  <span className="text-[10px] text-slate-400 mr-1">{micro.sessions?.length || 0} ses</span>
+                                  <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-slate-400 hover:text-blue-600" onClick={() => handleEditMicrocycle(micro, macroIdx, mesoIdx, microIdx)}><Edit2 className="w-2.5 h-2.5" /></Button>
+                                  <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-slate-400 hover:text-red-500" onClick={() => handleDeleteMicrocycle(macroIdx, mesoIdx, microIdx)}><Trash2 className="w-2.5 h-2.5" /></Button>
                                 </div>
                               </div>
 
                               {/* Sessions */}
-                              {expandedMicro === `${macroIdx}-${mesoIdx}-${microIdx}` && (
-                                <div className="p-3 bg-white">
+                              {microExpanded && (
+                                <div className="px-3 pb-3 pt-1 border-t border-slate-100">
                                   <div className="flex justify-between items-center mb-2">
-                                    <p className="text-xs font-semibold text-slate-400">SESIONES</p>
-                                    <Button size="sm" variant="outline" className="h-6 text-xs" onClick={() => handleAddSession(macroIdx, mesoIdx, microIdx)}><Plus className="w-3 h-3 mr-1" /> Sesión</Button>
+                                    <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Sesiones</span>
+                                    <Button size="sm" variant="outline" className="h-5 text-[9px] rounded px-1.5 border-slate-200" onClick={() => handleAddSession(macroIdx, mesoIdx, microIdx)}>
+                                      <Plus className="w-2.5 h-2.5 mr-0.5" /> Sesion
+                                    </Button>
                                   </div>
-                                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
+                                  <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-7 gap-2">
                                     {micro.sessions?.map((session, sIdx) => {
                                       const sType = SESSION_TYPES.find(t => t.id === session.type);
+                                      const intensityColor = session.intensity === 'high' ? 'text-red-500' : session.intensity === 'medium' ? 'text-amber-500' : 'text-emerald-500';
                                       return (
-                                        <div key={session.id} className={`p-2 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md ${sType?.bgColor || 'bg-slate-100'}`} onClick={() => handleEditSession(session, macroIdx, mesoIdx, microIdx, sIdx)}>
-                                          <div className="flex justify-between items-start mb-1">
-                                            <GripVertical className="w-3 h-3 text-slate-400" />
-                                            <div className="flex gap-0.5" onClick={(e) => e.stopPropagation()}>
-                                              <button className="p-0.5 hover:bg-white rounded" onClick={() => handleEditSession(session, macroIdx, mesoIdx, microIdx, sIdx)}><Edit2 className="w-2.5 h-2.5 text-blue-600" /></button>
-                                              <button className="p-0.5 hover:bg-white rounded" onClick={() => handleDeleteSession(macroIdx, mesoIdx, microIdx, sIdx)}><Trash2 className="w-2.5 h-2.5 text-red-500" /></button>
-                                            </div>
+                                        <div
+                                          key={session.id}
+                                          className="group relative rounded-lg border-2 p-2.5 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5"
+                                          style={{ borderColor: sType?.color + '40', background: sType?.color + '08' }}
+                                          onClick={() => handleEditSession(session, macroIdx, mesoIdx, microIdx, sIdx)}
+                                          data-testid={`session-${sIdx}`}
+                                        >
+                                          <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity flex gap-0.5" onClick={(e) => e.stopPropagation()}>
+                                            <button className="p-0.5 rounded bg-white/80 hover:bg-white shadow-sm" onClick={() => handleDeleteSession(macroIdx, mesoIdx, microIdx, sIdx)}>
+                                              <Trash2 className="w-2.5 h-2.5 text-red-400" />
+                                            </button>
                                           </div>
-                                          <p className="font-bold text-xs">{session.dayName}</p>
-                                          <p className="text-[10px] text-slate-600">{sType?.name}</p>
-                                          <p className="text-[10px] text-slate-500">{session.duration}min</p>
+                                          <div className="w-full h-1 rounded-full mb-2" style={{ backgroundColor: sType?.color || '#94a3b8' }} />
+                                          <p className="font-bold text-[12px] text-slate-700">{session.dayName}</p>
+                                          <p className="text-[10px] font-medium" style={{ color: sType?.color }}>{sType?.name || '-'}</p>
+                                          <div className="flex items-center justify-between mt-1.5">
+                                            <span className="text-[10px] text-slate-400">{session.duration}min</span>
+                                            <span className={`text-[9px] font-bold ${intensityColor}`}>
+                                              {session.intensity === 'high' ? 'ALTA' : session.intensity === 'medium' ? 'MED' : 'BAJA'}
+                                            </span>
+                                          </div>
                                         </div>
                                       );
                                     })}
@@ -1666,130 +1791,141 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                 </div>
                               )}
                             </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                     )}
-                  </Card>
-                ))}
+                  </div>
+                  );
+                })}
               </div>
-            </CardContent>
+            </div>
           )}
-        </Card>
-      ))}
+        </div>
+        );
+      })}
     </div>
   );
 
   // ============ RENDER: CALENDAR VIEW ============
   const renderCalendarView = () => {
-    // Get all sessions organized by week
     const weeklyData = [];
     selectedPlan.macrocycles?.forEach(macro => {
       macro.mesocycles?.forEach(meso => {
         meso.microcycles?.forEach(micro => {
-          weeklyData.push({
-            name: micro.name,
-            type: micro.type,
-            phase: macro.phase,
-            sessions: micro.sessions || []
-          });
+          weeklyData.push({ name: micro.name, type: micro.type, phase: macro.phase, sessions: micro.sessions || [] });
         });
       });
     });
 
     return (
-      <div className="space-y-4">
-        <Card className="shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
-            <CardTitle className="flex items-center gap-2"><CalendarDays className="w-5 h-5" /> Vista de Calendario</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-slate-100">
-                    <th className="p-3 text-left font-semibold text-slate-700 sticky left-0 bg-slate-100">Semana</th>
-                    {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map(day => (
-                      <th key={day} className="p-3 text-center font-semibold text-slate-700 min-w-[120px]">{day}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {weeklyData.slice(0, 12).map((week, weekIdx) => (
-                    <tr key={weekIdx} className="border-t hover:bg-slate-50">
-                      <td className="p-3 sticky left-0 bg-white border-r">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-8 rounded" style={{ backgroundColor: week.phase?.color }} />
-                          <div>
-                            <p className="font-semibold text-sm">{week.name}</p>
-                            <p className="text-xs text-slate-500">{week.type?.name}</p>
-                          </div>
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden" data-testid="calendar-view">
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
+          <CalendarDays className="w-4 h-4 text-slate-400" />
+          <h3 className="text-sm font-semibold text-slate-800">Vista Calendario</h3>
+          <span className="text-[11px] text-slate-400 ml-2">{weeklyData.length} semanas</span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-slate-50">
+                <th className="px-4 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400 sticky left-0 bg-slate-50 z-10 min-w-[140px]">Semana</th>
+                {['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'].map(day => (
+                  <th key={day} className="px-2 py-2.5 text-center text-[11px] font-bold uppercase tracking-wider text-slate-400 min-w-[100px]">{day}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {weeklyData.slice(0, 16).map((week, weekIdx) => (
+                <tr key={weekIdx} className="border-t border-slate-100 hover:bg-slate-50/40 transition-colors">
+                  <td className="px-4 py-2 sticky left-0 bg-white z-10 border-r border-slate-100">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-7 rounded-full" style={{ backgroundColor: week.phase?.color || '#94a3b8' }} />
+                      <div>
+                        <p className="font-semibold text-[12px] text-slate-700">{week.name}</p>
+                        <p className="text-[10px] text-slate-400">{week.type?.name || '-'}</p>
+                      </div>
+                    </div>
+                  </td>
+                  {['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'].map((day, dayIdx) => {
+                    const session = week.sessions.find(s => s.dayName === day) || week.sessions[dayIdx];
+                    if (!session) return <td key={day} className="px-2 py-1.5 border-l border-slate-50"><div className="h-12 rounded-md bg-slate-50/50" /></td>;
+                    const sType = SESSION_TYPES.find(t => t.id === session.type);
+                    return (
+                      <td key={day} className="px-1.5 py-1.5 border-l border-slate-50">
+                        <div className="rounded-lg p-2 transition-all hover:shadow-sm cursor-pointer" style={{ background: sType?.color + '10', borderLeft: `2px solid ${sType?.color || '#94a3b8'}` }}>
+                          <p className="font-semibold text-[11px]" style={{ color: sType?.color }}>{sType?.name || '-'}</p>
+                          <p className="text-[10px] text-slate-400">{session.duration}min</p>
                         </div>
                       </td>
-                      {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, dayIdx) => {
-                        const session = week.sessions.find(s => s.dayName === day) || week.sessions[dayIdx];
-                        if (!session) return <td key={day} className="p-2 text-center border-l"><div className="h-16" /></td>;
-                        const sType = SESSION_TYPES.find(t => t.id === session.type);
-                        return (
-                          <td key={day} className="p-2 border-l">
-                            <div className={`p-2 rounded-lg border ${sType?.bgColor || 'bg-slate-100'} cursor-pointer hover:shadow-md transition-shadow`}>
-                              <p className="font-semibold text-xs">{sType?.name}</p>
-                              <p className="text-[10px] text-slate-500">{session.duration}min</p>
-                              <Badge variant="outline" className="text-[10px] mt-1">{session.intensity === 'high' ? 'Alta' : session.intensity === 'medium' ? 'Media' : 'Baja'}</Badge>
-                            </div>
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   };
 
   // ============ RENDER: CHART VIEW ============
   const renderChartView = () => (
-    <div className="space-y-6">
-      <Card className="shadow-lg">
-        <CardHeader className="border-b">
-          <CardTitle className="flex items-center gap-2"><TrendingUp className="w-5 h-5 text-blue-500" /> Volumen e Intensidad</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4">
-          <div className="h-80">
+    <div className="space-y-5">
+      {/* Volume & Intensity Chart */}
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden" data-testid="chart-view">
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-slate-400" />
+            <h3 className="text-sm font-semibold text-slate-800">Volumen e Intensidad</h3>
+          </div>
+          <div className="flex items-center gap-3 text-[11px]">
+            <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full bg-[#3B82F6]" /> Volumen</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full bg-[#EF4444]" /> Intensidad</span>
+          </div>
+        </div>
+        <div className="p-5">
+          <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={selectedPlan.chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="semana" tick={{ fontSize: 10 }} />
-                <YAxis domain={[0, 100]} />
-                <Tooltip />
-                <Legend />
-                <Area type="monotone" dataKey="volumen" fill="#3B82F6" stroke="#3B82F6" fillOpacity={0.3} name="Volumen" />
-                <Line type="monotone" dataKey="intensidad" stroke="#EF4444" strokeWidth={3} name="Intensidad" />
+                <defs>
+                  <linearGradient id="volGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                <XAxis dataKey="semana" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={{ stroke: '#e2e8f0' }} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={{ stroke: '#e2e8f0' }} />
+                <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12, boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }} />
+                <Area type="monotone" dataKey="volumen" fill="url(#volGrad)" stroke="#3B82F6" strokeWidth={2} name="Volumen" />
+                <Line type="monotone" dataKey="intensidad" stroke="#EF4444" strokeWidth={2.5} dot={false} name="Intensidad" />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Phase distribution */}
-      <Card className="shadow-lg">
-        <CardHeader className="border-b">
-          <CardTitle>Distribución de Fases</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4">
-          <div className="flex h-12 rounded-lg overflow-hidden">
-            {selectedPlan.macrocycles?.map((macro, idx) => (
-              <div key={idx} className="flex items-center justify-center text-white text-xs font-medium" style={{ backgroundColor: macro.phase?.color, flex: macro.weeks }}>
-                {macro.weeks > 3 && `${macro.phase?.abbr} (${macro.weeks}s)`}
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Phase Distribution */}
+      <div className="bg-white rounded-xl border border-slate-200 p-5" data-testid="phase-distribution">
+        <h3 className="text-sm font-semibold text-slate-800 mb-3">Distribucion de Fases</h3>
+        <div className="flex h-10 rounded-xl overflow-hidden gap-[2px]">
+          {selectedPlan.macrocycles?.map((macro, idx) => (
+            <div key={idx} className="flex items-center justify-center text-white text-[10px] font-bold rounded-md transition-all hover:opacity-90" style={{ backgroundColor: macro.phase?.color, flex: macro.weeks, fontFamily: "'Barlow Condensed', sans-serif" }}>
+              {macro.weeks > 3 && `${macro.phase?.abbr || ''} ${macro.weeks}s`}
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-3 mt-3">
+          {selectedPlan.macrocycles?.map((macro, idx) => (
+            <div key={idx} className="flex items-center gap-1.5 text-[11px] text-slate-500">
+              <div className="w-2.5 h-2.5 rounded" style={{ backgroundColor: macro.phase?.color }} />
+              {macro.phase?.name || macro.name}: {macro.weeks}s
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 

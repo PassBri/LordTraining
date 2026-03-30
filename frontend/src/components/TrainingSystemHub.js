@@ -1,420 +1,285 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './ui/select';
 import {
   Activity, BarChart3, Target, Clipboard, TrendingUp, 
-  ChevronRight, Users, Zap, BookOpen, Layers, Settings,
-  Calendar, Clock, AlertTriangle, CheckCircle, ArrowRight,
-  Brain, Heart, Dumbbell
+  ChevronRight, Zap, BookOpen, Layers,
+  Calendar, AlertTriangle, CheckCircle, ArrowRight,
+  Brain, Dumbbell, Gauge
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
-// Import sub-components
 import PeriodizationComplete from './PeriodizationComplete';
 import TestEvaluations from './TestEvaluations';
 import TrainingLoad from './TrainingLoad';
 import TrainingControl from './TrainingControl';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
-
-// Modelos de Periodización disponibles
-const PERIODIZATION_MODELS = {
-  classic: [
-    { id: 'traditional', name: 'Tradicional (Matveiev)', description: 'Ondulación gradual del volumen e intensidad', color: '#3B82F6' },
-    { id: 'atr', name: 'ATR (Issurin)', description: 'Acumulación-Transformación-Realización', color: '#8B5CF6' },
-    { id: 'blocks', name: 'Por Bloques (Verkhoshansky)', description: 'Concentración de cargas en bloques', color: '#10B981' }
-  ],
-  undulating: [
-    { id: 'daily_undulating', name: 'Ondulatorio Diario', description: 'Variación diaria de estímulos', color: '#F59E0B' },
-    { id: 'weekly_undulating', name: 'Ondulatorio Semanal', description: 'Variación semanal de cargas', color: '#EF4444' }
-  ],
-  advanced: [
-    { id: 'pendulum', name: 'Péndulo (Arosiev)', description: 'Alternancia de énfasis preparación-competición', color: '#EC4899' },
-    { id: 'structural_bells', name: 'Campanas Estructurales (Forteza)', description: 'Modelo de campanas para periodización', color: '#06B6D4' },
-    { id: 'contemporary', name: 'Contemporáneo (Bondarchuk)', description: 'Individualización máxima', color: '#84CC16' },
-    { id: 'inverse', name: 'Periodización Inversa', description: 'Intensidad primero, volumen después', color: '#A855F7' },
-    { id: 'tactical', name: 'Táctico', description: 'Para deportes de equipo', color: '#F97316' }
-  ],
-  specific: [
-    { id: 'concurrent', name: 'Concurrente', description: 'Desarrollo simultáneo de capacidades', color: '#14B8A6' },
-    { id: 'conjugate', name: 'Conjugado (Westside)', description: 'Rotación de ejercicios principales', color: '#E11D48' },
-    { id: 'polarized', name: 'Polarizado', description: '80% baja intensidad, 20% alta intensidad', color: '#7C3AED' }
-  ]
-};
+const BC = "'Barlow Condensed', sans-serif";
 
 const TrainingSystemHub = ({ athleteId, athleteName, onNavigate, activePlan }) => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(false);
   const [systemData, setSystemData] = useState({
-    periodization: null,
-    tests: [],
-    load: null,
-    control: null
+    periodization: null, tests: [], load: null, control: null
   });
-  const [selectedModel, setSelectedModel] = useState(null);
 
-  // Fetch all training system data - Ahora basado en el plan activo
   const fetchSystemData = async () => {
-    // Si hay plan activo, usar sus datos
     if (activePlan) {
       setSystemData({
         periodization: activePlan.macrocycles?.[0] || null,
-        tests: [],
-        load: null,
-        control: null
+        tests: [], load: null, control: null
       });
       return;
     }
-    
-    // Fallback a athleteId si no hay plan activo
     if (!athleteId) return;
-    
     setLoading(true);
     try {
       const token = localStorage.getItem('train_token');
       const headers = { 'Authorization': `Bearer ${token}` };
-
-      // Fetch periodization data
       const periodRes = await fetch(`${API_URL}/api/periodization/${athleteId}`, { headers });
       const periodData = periodRes.ok ? await periodRes.json() : null;
-
-      // Fetch test evaluations
       const testsRes = await fetch(`${API_URL}/api/test-evaluations/${athleteId}`, { headers });
       const testsData = testsRes.ok ? await testsRes.json() : { evaluations: [] };
-
-      // Fetch training load
       const loadRes = await fetch(`${API_URL}/api/training-load/${athleteId}`, { headers });
       const loadData = loadRes.ok ? await loadRes.json() : null;
-
-      setSystemData({
-        periodization: periodData,
-        tests: testsData.evaluations || [],
-        load: loadData,
-        control: null // Se calculará basado en tests y load
-      });
+      setSystemData({ periodization: periodData, tests: testsData.evaluations || [], load: loadData, control: null });
     } catch (error) {
       console.error('Error fetching system data:', error);
     }
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchSystemData();
-  }, [athleteId]);
+  useEffect(() => { fetchSystemData(); }, [athleteId]);
 
-  // Calcular estado general del sistema
-  const calculateSystemHealth = () => {
-    const health = {
-      periodization: systemData.periodization ? 100 : 0,
-      tests: systemData.tests.length > 0 ? Math.min(systemData.tests.length * 20, 100) : 0,
-      load: systemData.load ? 80 : 0,
-      overall: 0
-    };
-    health.overall = Math.round((health.periodization + health.tests + health.load) / 3);
-    return health;
+  const health = {
+    periodization: systemData.periodization ? 100 : 0,
+    tests: systemData.tests.length > 0 ? Math.min(systemData.tests.length * 20, 100) : 0,
+    load: systemData.load ? 80 : 0,
+    get overall() { return Math.round((this.periodization + this.tests + this.load) / 3); }
   };
 
-  const health = calculateSystemHealth();
+  /* ── Mini periodization bar visual ── */
+  const WaveBar = ({ count = 20, h = 'h-12' }) => {
+    const bars = Array.from({ length: count }, (_, i) => {
+      const p = (i / count) * Math.PI * 2;
+      return Math.max(15, Math.min(95, 30 + Math.sin(p) * 25 + Math.cos(p * 1.5) * 20));
+    });
+    return (
+      <div className={`flex items-end gap-[2px] ${h} w-full`}>
+        {bars.map((v, i) => (
+          <div key={i} className="flex-1 rounded-t-sm transition-all" style={{
+            height: `${v}%`,
+            background: i % 4 === 0 ? '#007AFF' : i % 4 === 1 ? '#CCFF00' : i % 4 === 2 ? '#1e293b' : '#475569',
+            opacity: 0.6 + (v / 200),
+          }} />
+        ))}
+      </div>
+    );
+  };
 
-  // Vista general del sistema
+  /* ── Circular gauge ── */
+  const CircleGauge = ({ value, size = 72, color = '#007AFF', label }) => {
+    const r = (size - 8) / 2, c = Math.PI * 2 * r, off = c - (c * value) / 100;
+    return (
+      <div className="relative flex flex-col items-center">
+        <svg width={size} height={size} className="-rotate-90">
+          <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#1e293b" strokeWidth="4" />
+          <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={off} className="transition-all duration-700" />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-lg font-black text-white leading-none" style={{ fontFamily: BC }}>{value}%</span>
+        </div>
+        {label && <span className="text-[10px] text-slate-400 mt-1 font-medium">{label}</span>}
+      </div>
+    );
+  };
+
+  /* ══════ OVERVIEW ══════ */
   const renderOverview = () => (
     <div className="space-y-6">
-      {/* Banner de estado - Ahora centrado en el Plan */}
-      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl p-6 text-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold mb-2">Sistema de Entrenamiento</h2>
-            <p className="text-blue-100">
-              {activePlan ? (
-                <span className="flex items-center gap-2">
-                  <span className="bg-white/20 px-2 py-0.5 rounded-full text-sm">{activePlan.name}</span>
-                  <span className="text-sm">{activePlan.total_weeks} semanas • {activePlan.model_name || activePlan.model}</span>
+      {/* Hero Banner */}
+      <div className="relative bg-slate-900 rounded-2xl overflow-hidden" data-testid="system-overview-banner">
+        <div className="absolute inset-0 opacity-[0.08]">
+          <div className="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:16px_16px]" />
+        </div>
+        <div className="relative z-10 p-7">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 bg-[#CCFF00] rounded-lg flex items-center justify-center">
+                  <Activity className="w-4 h-4 text-slate-900" />
+                </div>
+                <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#CCFF00]" style={{ fontFamily: BC }}>
+                  {t('dashboard.sections.periodization')}
                 </span>
-              ) : athleteName ? `Configuración para ${athleteName}` : 'Selecciona un plan para comenzar'}
-            </p>
-          </div>
-          <div className="text-right">
-            <div className="text-4xl font-bold">{health.overall}%</div>
-            <div className="text-sm text-blue-100">Completitud del Sistema</div>
+              </div>
+              {activePlan ? (
+                <>
+                  <h2 className="text-2xl font-bold text-white mb-1" style={{ fontFamily: BC }}>{activePlan.name}</h2>
+                  <p className="text-slate-400 text-sm">
+                    {activePlan.total_weeks || activePlan.totalWeeks} sem &middot; {activePlan.model_name || activePlan.model}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-2xl font-bold text-white mb-1" style={{ fontFamily: BC }}>Sistema de Entrenamiento</h2>
+                  <p className="text-slate-400 text-sm">Selecciona un plan para comenzar</p>
+                </>
+              )}
+
+              <div className="flex gap-5 mt-5">
+                {[
+                  { v: systemData.periodization?.mesocycles?.length || activePlan?.macrocycles?.reduce((s, m) => s + (m.mesocycles?.length || 0), 0) || 0, l: 'Mesociclos', c: '#007AFF' },
+                  { v: systemData.tests.length, l: 'Evaluaciones', c: '#10B981' },
+                  { v: systemData.periodization?.config?.sessionsPerWeek || activePlan?.sessions_per_week || 0, l: 'Ses/Sem', c: '#F59E0B' },
+                ].map((s, i) => (
+                  <div key={i}>
+                    <div className="text-2xl font-black text-white leading-none" style={{ fontFamily: BC }}>{s.v}</div>
+                    <div className="text-[10px] font-medium mt-1" style={{ color: s.c }}>{s.l}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-5">
+              <CircleGauge value={health.overall} label="Completitud" />
+              <div className="hidden lg:block w-48 opacity-60">
+                <WaveBar count={24} h="h-14" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Cards de componentes del sistema */}
+      {/* Module Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Modelos de Periodización */}
-        <Card 
-          className="border-0 shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-          onClick={() => setActiveTab('periodization')}
-        >
-          <CardContent className="p-5">
+        {[
+          { key: 'periodization', icon: BookOpen, label: 'Modelos de Periodizacion', sub: 'Estructura del plan', pct: health.periodization, color: '#007AFF', accentBg: 'bg-blue-50', accentText: 'text-blue-600' },
+          { key: 'tests', icon: Clipboard, label: 'Tests y Evaluaciones', sub: `${systemData.tests.length} tests`, pct: health.tests, color: '#10B981', accentBg: 'bg-emerald-50', accentText: 'text-emerald-600' },
+          { key: 'load', icon: BarChart3, label: 'Carga de Entrenamiento', sub: 'Volumen, intensidad', pct: health.load, color: '#F59E0B', accentBg: 'bg-amber-50', accentText: 'text-amber-600' },
+          { key: 'control', icon: TrendingUp, label: 'Control de Rendimiento', sub: 'Seguimiento y ajustes', pct: Math.round((health.tests + health.load) / 2), color: '#EF4444', accentBg: 'bg-rose-50', accentText: 'text-rose-600' },
+        ].map((mod) => (
+          <button
+            key={mod.key}
+            onClick={() => setActiveTab(mod.key)}
+            className="group bg-white rounded-xl border border-slate-200 p-5 text-left transition-all duration-200 hover:shadow-lg hover:border-slate-300 hover:-translate-y-0.5"
+            data-testid={`module-card-${mod.key}`}
+          >
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-blue-600" />
+              <div className={`w-10 h-10 ${mod.accentBg} rounded-xl flex items-center justify-center`}>
+                <mod.icon className={`w-5 h-5 ${mod.accentText}`} />
               </div>
-              <ChevronRight className="w-5 h-5 text-slate-400" />
+              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 transition-colors" />
             </div>
-            <h3 className="font-bold text-slate-800 mb-1">Modelos de Periodización</h3>
-            <p className="text-sm text-slate-500 mb-3">Estructura del entrenamiento</p>
+            <h3 className="font-semibold text-slate-800 text-sm mb-0.5">{mod.label}</h3>
+            <p className="text-[12px] text-slate-400 mb-3">{mod.sub}</p>
             <div className="flex items-center gap-2">
-              <div className="flex-1 bg-slate-100 rounded-full h-2">
-                <div 
-                  className="bg-blue-500 h-2 rounded-full transition-all" 
-                  style={{ width: `${health.periodization}%` }}
-                />
+              <div className="flex-1 bg-slate-100 rounded-full h-1.5">
+                <div className="h-full rounded-full transition-all duration-700" style={{ width: `${mod.pct}%`, backgroundColor: mod.color }} />
               </div>
-              <span className="text-xs font-semibold text-slate-600">{health.periodization}%</span>
+              <span className="text-[11px] font-bold text-slate-500">{mod.pct}%</span>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Tests y Evaluaciones */}
-        <Card 
-          className="border-0 shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-          onClick={() => setActiveTab('tests')}
-        >
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-                <Clipboard className="w-6 h-6 text-emerald-600" />
-              </div>
-              <ChevronRight className="w-5 h-5 text-slate-400" />
-            </div>
-            <h3 className="font-bold text-slate-800 mb-1">Tests y Evaluaciones</h3>
-            <p className="text-sm text-slate-500 mb-3">Control de marcas y tiempos</p>
-            <div className="flex items-center gap-2">
-              <div className="flex-1 bg-slate-100 rounded-full h-2">
-                <div 
-                  className="bg-emerald-500 h-2 rounded-full transition-all" 
-                  style={{ width: `${health.tests}%` }}
-                />
-              </div>
-              <span className="text-xs font-semibold text-slate-600">{systemData.tests.length} tests</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Carga de Entrenamiento */}
-        <Card 
-          className="border-0 shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-          onClick={() => setActiveTab('load')}
-        >
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                <BarChart3 className="w-6 h-6 text-amber-600" />
-              </div>
-              <ChevronRight className="w-5 h-5 text-slate-400" />
-            </div>
-            <h3 className="font-bold text-slate-800 mb-1">Carga de Entrenamiento</h3>
-            <p className="text-sm text-slate-500 mb-3">Volumen, intensidad, densidad</p>
-            <div className="flex items-center gap-2">
-              <div className="flex-1 bg-slate-100 rounded-full h-2">
-                <div 
-                  className="bg-amber-500 h-2 rounded-full transition-all" 
-                  style={{ width: `${health.load}%` }}
-                />
-              </div>
-              <span className="text-xs font-semibold text-slate-600">{health.load}%</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Control de Rendimiento */}
-        <Card 
-          className="border-0 shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-          onClick={() => setActiveTab('control')}
-        >
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-rose-600" />
-              </div>
-              <ChevronRight className="w-5 h-5 text-slate-400" />
-            </div>
-            <h3 className="font-bold text-slate-800 mb-1">Control de Rendimiento</h3>
-            <p className="text-sm text-slate-500 mb-3">Seguimiento y ajustes</p>
-            <div className="flex items-center gap-2">
-              <div className="flex-1 bg-slate-100 rounded-full h-2">
-                <div 
-                  className="bg-rose-500 h-2 rounded-full transition-all" 
-                  style={{ width: `${Math.round((health.tests + health.load) / 2)}%` }}
-                />
-              </div>
-              <span className="text-xs font-semibold text-slate-600">Activo</span>
-            </div>
-          </CardContent>
-        </Card>
+          </button>
+        ))}
       </div>
 
-      {/* Flujo de trabajo del sistema */}
-      <Card className="border-0 shadow-lg">
-        <CardHeader className="border-b bg-slate-50">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Layers className="w-5 h-5 text-indigo-500" />
-            Flujo de Trabajo del Sistema de Entrenamiento
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-6">
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            {[
-              { icon: BookOpen, label: '1. Modelo', sublabel: 'Seleccionar modelo de periodización', color: 'blue' },
-              { icon: Layers, label: '2. Estructura', sublabel: 'Macro → Meso → Micro → Sesiones', color: 'indigo' },
-              { icon: Clipboard, label: '3. Evaluación', sublabel: 'Tests iniciales y de control', color: 'emerald' },
-              { icon: BarChart3, label: '4. Carga', sublabel: 'Definir volumen e intensidad', color: 'amber' },
-              { icon: TrendingUp, label: '5. Control', sublabel: 'Monitorear y ajustar', color: 'rose' },
-              { icon: Target, label: '6. Plan Gráfico', sublabel: 'Visualización final', color: 'purple' },
-            ].map((step, idx) => (
-              <React.Fragment key={idx}>
-                <div className={`flex flex-col items-center p-4 rounded-xl bg-${step.color}-50 border border-${step.color}-100 min-w-[140px]`}>
-                  <div className={`w-10 h-10 rounded-full bg-${step.color}-100 flex items-center justify-center mb-2`}>
-                    <step.icon className={`w-5 h-5 text-${step.color}-600`} />
-                  </div>
-                  <span className="font-semibold text-sm text-slate-800">{step.label}</span>
-                  <span className="text-xs text-slate-500 text-center mt-1">{step.sublabel}</span>
+      {/* Workflow Pipeline */}
+      <div className="bg-white rounded-xl border border-slate-200 p-6" data-testid="workflow-pipeline">
+        <h3 className="text-sm font-semibold text-slate-800 mb-5 flex items-center gap-2">
+          <Layers className="w-4 h-4 text-slate-400" />
+          Flujo del Sistema
+        </h3>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          {[
+            { icon: BookOpen, n: '01', label: 'Modelo', desc: 'Seleccionar periodizacion', color: '#007AFF' },
+            { icon: Layers, n: '02', label: 'Estructura', desc: 'Macro > Meso > Micro', color: '#8B5CF6' },
+            { icon: Clipboard, n: '03', label: 'Evaluacion', desc: 'Tests de control', color: '#10B981' },
+            { icon: BarChart3, n: '04', label: 'Carga', desc: 'Volumen e intensidad', color: '#F59E0B' },
+            { icon: TrendingUp, n: '05', label: 'Control', desc: 'Monitorear y ajustar', color: '#EF4444' },
+            { icon: Target, n: '06', label: 'Plan Grafico', desc: 'Visualizacion final', color: '#007AFF' },
+          ].map((step, idx) => (
+            <React.Fragment key={idx}>
+              <div className="flex flex-col items-center text-center w-[110px]">
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-2" style={{ background: `${step.color}12` }}>
+                  <step.icon className="w-5 h-5" style={{ color: step.color }} />
                 </div>
-                {idx < 5 && <ArrowRight className="w-5 h-5 text-slate-300 hidden md:block" />}
-              </React.Fragment>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+                <span className="text-[13px] font-semibold text-slate-800">{step.label}</span>
+                <span className="text-[10px] text-slate-400 mt-0.5">{step.desc}</span>
+              </div>
+              {idx < 5 && <ArrowRight className="w-4 h-4 text-slate-200 mt-5 hidden md:block flex-shrink-0" />}
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
 
-      {/* Resumen de datos conectados */}
+      {/* System Status / CTA */}
       {systemData.periodization && (
-        <Card className="border-0 shadow-lg border-l-4 border-l-green-500">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3 mb-4">
-              <CheckCircle className="w-6 h-6 text-green-500" />
-              <div>
-                <h3 className="font-bold text-slate-800">Sistema Configurado</h3>
-                <p className="text-sm text-slate-500">Los datos están conectados y listos para visualizar</p>
-              </div>
+        <div className="bg-white rounded-xl border border-emerald-200 p-5" data-testid="system-status">
+          <div className="flex items-center gap-3 mb-4">
+            <CheckCircle className="w-5 h-5 text-emerald-500" />
+            <div>
+              <h3 className="font-semibold text-slate-800 text-sm">Sistema Configurado</h3>
+              <p className="text-[12px] text-slate-500">Datos conectados — listo para visualizar</p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-              <div className="p-3 bg-slate-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">
-                  {systemData.periodization?.macrocycle?.mesocycles?.length || 0}
-                </div>
-                <div className="text-xs text-slate-500">Mesociclos</div>
-              </div>
-              <div className="p-3 bg-slate-50 rounded-lg">
-                <div className="text-2xl font-bold text-emerald-600">
-                  {systemData.tests.length}
-                </div>
-                <div className="text-xs text-slate-500">Evaluaciones</div>
-              </div>
-              <div className="p-3 bg-slate-50 rounded-lg">
-                <div className="text-2xl font-bold text-amber-600">
-                  {systemData.periodization?.macrocycle?.config?.sessionsPerWeek || 0}
-                </div>
-                <div className="text-xs text-slate-500">Sesiones/Semana</div>
-              </div>
-              <div className="p-3 bg-slate-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">
-                  {systemData.periodization?.macrocycle?.config?.model ? 'Activo' : '-'}
-                </div>
-                <div className="text-xs text-slate-500">Modelo</div>
-              </div>
-            </div>
-            <Button 
-              className="w-full mt-4 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
-              onClick={() => onNavigate && onNavigate('graphic-plan')}
-            >
-              <Target className="w-4 h-4 mr-2" />
-              Ver Plan Gráfico Completo
-            </Button>
-          </CardContent>
-        </Card>
+          </div>
+          <Button
+            className="bg-slate-900 hover:bg-slate-800 text-white rounded-lg h-10 text-[13px] font-semibold w-full"
+            onClick={() => onNavigate && onNavigate('graphic-plan')}
+          >
+            <Target className="w-4 h-4 mr-2" /> Ver Plan Grafico Completo
+          </Button>
+        </div>
       )}
 
-      {/* Alerta si no hay plan activo */}
       {!activePlan && !athleteId && (
-        <Card className="border-0 shadow-lg border-l-4 border-l-amber-500">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="w-6 h-6 text-amber-500" />
-              <div>
-                <h3 className="font-bold text-slate-800">Selecciona un Plan</h3>
-                <p className="text-sm text-slate-500">
-                  Para configurar el sistema de entrenamiento, primero selecciona un plan en la sección de Datos → Mis Planes.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 flex items-center gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0" />
+          <div>
+            <h3 className="font-semibold text-slate-800 text-sm">Selecciona un Plan</h3>
+            <p className="text-[12px] text-slate-500">Ve a Datos → Mis Planes para configurar el sistema.</p>
+          </div>
+        </div>
       )}
     </div>
   );
 
+  /* ══════ TABS ══════ */
+  const tabItems = [
+    { value: 'overview', icon: Gauge, label: 'Resumen' },
+    { value: 'periodization', icon: BookOpen, label: 'Periodizacion' },
+    { value: 'tests', icon: Clipboard, label: 'Evaluaciones' },
+    { value: 'load', icon: BarChart3, label: 'Carga' },
+    { value: 'control', icon: TrendingUp, label: 'Control' },
+  ];
+
   return (
-    <div className="h-full overflow-auto">
+    <div className="h-full overflow-auto" data-testid="training-system-hub">
       <div className="p-6">
-        {/* Tabs de navegación */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-5 mb-6 h-auto p-1 bg-slate-100">
-            <TabsTrigger 
-              value="overview" 
-              className="data-[state=active]:bg-white data-[state=active]:shadow py-3"
-            >
-              <Activity className="w-4 h-4 mr-2" />
-              Resumen
-            </TabsTrigger>
-            <TabsTrigger 
-              value="periodization"
-              className="data-[state=active]:bg-white data-[state=active]:shadow py-3"
-            >
-              <BookOpen className="w-4 h-4 mr-2" />
-              Periodización
-            </TabsTrigger>
-            <TabsTrigger 
-              value="tests"
-              className="data-[state=active]:bg-white data-[state=active]:shadow py-3"
-            >
-              <Clipboard className="w-4 h-4 mr-2" />
-              Evaluaciones
-            </TabsTrigger>
-            <TabsTrigger 
-              value="load"
-              className="data-[state=active]:bg-white data-[state=active]:shadow py-3"
-            >
-              <BarChart3 className="w-4 h-4 mr-2" />
-              Carga
-            </TabsTrigger>
-            <TabsTrigger 
-              value="control"
-              className="data-[state=active]:bg-white data-[state=active]:shadow py-3"
-            >
-              <TrendingUp className="w-4 h-4 mr-2" />
-              Control
-            </TabsTrigger>
+          <TabsList className="flex gap-1 mb-6 p-1 bg-slate-100 rounded-xl h-auto w-fit" data-testid="system-tabs">
+            {tabItems.map(tab => (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[13px] font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-slate-900 text-slate-500 transition-all"
+                data-testid={`tab-${tab.value}`}
+              >
+                <tab.icon className="w-3.5 h-3.5" />
+                {tab.label}
+              </TabsTrigger>
+            ))}
           </TabsList>
 
-          <TabsContent value="overview" className="mt-0">
-            {renderOverview()}
-          </TabsContent>
-
+          <TabsContent value="overview" className="mt-0">{renderOverview()}</TabsContent>
           <TabsContent value="periodization" className="mt-0">
-            <PeriodizationComplete 
-              athleteId={athleteId} 
-              athleteName={athleteName}
-              onNavigate={onNavigate}
-            />
+            <PeriodizationComplete athleteId={athleteId} athleteName={athleteName} onNavigate={onNavigate} />
           </TabsContent>
-
-          <TabsContent value="tests" className="mt-0">
-            <TestEvaluations athleteId={athleteId} />
-          </TabsContent>
-
-          <TabsContent value="load" className="mt-0">
-            <TrainingLoad athleteId={athleteId} />
-          </TabsContent>
-
-          <TabsContent value="control" className="mt-0">
-            <TrainingControl athleteId={athleteId} athleteName={athleteName} />
-          </TabsContent>
+          <TabsContent value="tests" className="mt-0"><TestEvaluations athleteId={athleteId} /></TabsContent>
+          <TabsContent value="load" className="mt-0"><TrainingLoad athleteId={athleteId} /></TabsContent>
+          <TabsContent value="control" className="mt-0"><TrainingControl athleteId={athleteId} athleteName={athleteName} /></TabsContent>
         </Tabs>
       </div>
     </div>
