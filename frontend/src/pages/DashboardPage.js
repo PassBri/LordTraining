@@ -5517,10 +5517,10 @@ const DashboardPage = () => {
   return (
     <div className="min-h-screen bg-[#fafaf8]">
       {/* ====== GLOBAL CONTEXT BAR - Material Floating FABs ====== */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl shadow-sm" style={{ overflow: 'visible' }} data-testid="global-context-bar">
-        <div className="flex items-start justify-between px-4 pt-3 pb-2 gap-2" style={{ overflow: 'visible' }}>
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl shadow-sm" data-testid="global-context-bar">
+        <div className="flex items-start px-3 pt-2.5 pb-1.5 gap-0 overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
           {/* Left: Logo + Main Nav FABs */}
-          <div className="flex items-start gap-4 shrink-0" style={{ overflow: 'visible' }}>
+          <div className="flex items-start gap-3 shrink-0 pr-2" style={{ overflow: 'visible' }}>
             {/* Logo */}
             <div className="flex items-center gap-2 pt-1">
               <div className="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center shadow-md">
@@ -5534,7 +5534,7 @@ const DashboardPage = () => {
             </div>
 
             {/* Main Nav FABs */}
-            <div className="hidden md:flex items-start gap-3" style={{ overflow: 'visible' }}>
+            <div className="flex items-start gap-2">
               {[
                 { key: 'panel', icon: LayoutDashboard, label: t('dashboard.nav.panel'), color: 'bg-slate-900', shadow: 'shadow-slate-900/30' },
                 { key: 'datos', icon: Clipboard, label: t('dashboard.nav.data'), color: 'bg-[#007AFF]', shadow: 'shadow-blue-500/30' },
@@ -5724,9 +5724,11 @@ const DashboardPage = () => {
 
           {/* ====== CENTER: Section + Sub-section FABs (only when Datos + activePlan) ====== */}
           {activePanel === 'datos' && activePlan && (
-            <div className="hidden md:flex flex-1 items-start justify-center gap-1 min-w-0 px-2" style={{ overflow: 'visible' }}>
-              {/* Section FABs - separated by a subtle divider from sub-nav */}
-              <div className="flex items-start gap-2" style={{ overflow: 'visible' }}>
+            <div className="flex items-start gap-1 shrink-0 px-1">
+              {/* Thin separator */}
+              <div className="w-px h-9 bg-slate-200/80 self-center mx-1 shrink-0" />
+              {/* Section FABs */}
+              <div className="flex items-start gap-1.5">
                 {planSections.map((section) => {
                   const SectionIcon = section.icon;
                   const isActive = currentSection === section.key;
@@ -5741,14 +5743,14 @@ const DashboardPage = () => {
                       className="group flex flex-col items-center gap-0.5 shrink-0 outline-none"
                       data-testid={`section-tab-${section.key}`}
                     >
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
                         isActive
-                          ? `${colors.bg} text-white shadow-lg ${colors.shadow} scale-110`
+                          ? `${colors.bg} text-white shadow-lg ${colors.shadow}`
                           : 'bg-white text-slate-400 shadow-sm border border-slate-100 hover:shadow-md'
                       }`}>
-                        <SectionIcon className={`w-[18px] h-[18px] transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:text-slate-600'}`} strokeWidth={isActive ? 2.5 : 1.8} />
+                        <SectionIcon className={`w-4 h-4 transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:text-slate-600'}`} strokeWidth={isActive ? 2.5 : 1.8} />
                       </div>
-                      <span className={`text-[8px] font-bold tracking-wide leading-tight text-center max-w-[56px] transition-colors duration-300 ${
+                      <span className={`text-[7px] font-bold tracking-wide leading-tight text-center max-w-[52px] transition-colors duration-300 ${
                         isActive ? colors.text : 'text-slate-400 group-hover:text-slate-600'
                       }`}>
                         {section.title}
@@ -5758,12 +5760,11 @@ const DashboardPage = () => {
                 })}
               </div>
 
-              {/* Vertical divider */}
+              {/* Vertical divider + Sub-section mini FABs */}
               {sectionItems.length > 1 && (
                 <>
-                  <div className="w-px h-10 bg-slate-200/80 self-center mx-1 shrink-0" />
-                  {/* Sub-section mini FABs */}
-                  <div className="flex items-start gap-1.5" style={{ overflow: 'visible' }}>
+                  <div className="w-px h-9 bg-slate-200/80 self-center mx-1 shrink-0" />
+                  <div className="flex items-start gap-1">
                     {sectionItems.map((item) => {
                       const ItemIcon = item.icon;
                       const isActive = activeDataSection === item.id;
@@ -5774,14 +5775,14 @@ const DashboardPage = () => {
                           className="group flex flex-col items-center gap-0.5 shrink-0 outline-none"
                           data-testid={`subnav-${item.id}`}
                         >
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
+                          <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
                             isActive
                               ? `${currentColors.bg} text-white shadow-md ${currentColors.shadow}`
                               : 'bg-slate-50 text-slate-400 border border-slate-200/80 hover:shadow-sm hover:bg-white'
                           }`}>
-                            <ItemIcon className={`w-[14px] h-[14px] transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:text-slate-600'}`} strokeWidth={isActive ? 2.5 : 1.8} />
+                            <ItemIcon className={`w-3.5 h-3.5 transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:text-slate-600'}`} strokeWidth={isActive ? 2.5 : 1.8} />
                           </div>
-                          <span className={`text-[7px] font-semibold tracking-wide text-center max-w-[52px] leading-tight transition-colors duration-300 ${
+                          <span className={`text-[7px] font-semibold tracking-wide text-center max-w-[48px] leading-tight transition-colors duration-300 ${
                             isActive ? currentColors.text : 'text-slate-400 group-hover:text-slate-500'
                           }`}>
                             {item.label}
@@ -5792,13 +5793,17 @@ const DashboardPage = () => {
                   </div>
                 </>
               )}
+              <div className="w-px h-9 bg-slate-200/80 self-center mx-1 shrink-0" />
             </div>
           )}
 
+          {/* Spacer to push right actions to the end */}
+          <div className="flex-1 min-w-[8px]" />
+
           {/* Right: Testing + User Action FABs */}
-          <div className="flex items-start gap-3 shrink-0" style={{ overflow: 'visible' }}>
+          <div className="flex items-start gap-2 shrink-0 pl-2">
             {/* Auto Testing System FAB */}
-            <div className="hidden sm:block" style={{ overflow: 'visible' }}>
+            <div className="hidden sm:block">
               <AutoTestingSystem 
                 fabStyle
                 onLoadTemplate={(plan) => {
@@ -5820,7 +5825,7 @@ const DashboardPage = () => {
             </div>
 
             {/* Suscripción FAB */}
-            <Link to="/subscription" className="hidden md:block">
+            <Link to="/subscription">
               <button
                 className="group flex flex-col items-center gap-1 shrink-0 outline-none"
                 data-testid="subscription-btn"
@@ -5837,7 +5842,7 @@ const DashboardPage = () => {
             {/* Cerrar sesión FAB */}
             <button
               onClick={handleLogout}
-              className="hidden md:flex group flex-col items-center gap-1 shrink-0 outline-none"
+              className="group flex flex-col items-center gap-1 shrink-0 outline-none"
               data-testid="logout-btn"
             >
               <div className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-400 shadow-md border border-slate-100 hover:shadow-lg hover:text-red-500 hover:border-red-100">
@@ -5855,46 +5860,7 @@ const DashboardPage = () => {
       </div>
 
       {/* Main Content (with padding for fixed bar) */}
-      <div className="pt-[76px] h-screen max-h-screen overflow-hidden">
-        {/* Mobile Panel Tabs - FAB style on small screens */}
-        <div className="flex md:hidden gap-3 px-4 py-3 bg-white border-b justify-center" style={{ overflow: 'visible' }}>
-          {[
-            { key: 'panel', icon: LayoutDashboard, label: t('dashboard.nav.panel') },
-            { key: 'datos', icon: Clipboard, label: t('dashboard.nav.data') },
-            { key: 'pdf', icon: Download, label: 'PDF' },
-            { key: 'logout', icon: LogOut, label: 'Salir' },
-          ].map((nav) => {
-            const NavIcon = nav.icon;
-            const isActive = activePanel === nav.key;
-            return (
-              <button
-                key={nav.key}
-                onClick={() => {
-                  if (nav.key === 'pdf') { setIsPdfModalOpen(true); return; }
-                  if (nav.key === 'logout') { handleLogout(); return; }
-                  setActivePanel(nav.key);
-                  if (nav.key === 'datos') setActiveDataSection(null);
-                }}
-                className="group flex flex-col items-center gap-1 shrink-0 outline-none"
-                data-testid={`tab-mobile-${nav.key}`}
-              >
-                <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
-                  isActive
-                    ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/30'
-                    : 'bg-white text-slate-400 shadow-md border border-slate-100'
-                }`}>
-                  <NavIcon className={`w-5 h-5 ${isActive ? 'text-white' : ''}`} strokeWidth={isActive ? 2.5 : 1.8} />
-                </div>
-                <span className={`text-[9px] font-bold tracking-wide leading-tight text-center ${
-                  isActive ? 'text-slate-900' : 'text-slate-400'
-                }`}>
-                  {nav.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
+      <div className="pt-[64px] h-screen max-h-screen overflow-hidden">
         {/* Main Content - Full Width */}
         <div className="h-full overflow-hidden">
           {renderMainContent()}
