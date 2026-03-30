@@ -5450,12 +5450,13 @@ const DashboardPage = () => {
               </Button>
             </div>
 
-            {/* Navegación de Secciones del Plan - Clean tabs */}
-            <div className="px-4 py-2 border-b border-slate-100">
-              <div className="flex items-center gap-1 overflow-x-auto">
+            {/* Navegación de Secciones del Plan - Floating Cards Style */}
+            <div className="px-4 py-3">
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
                 {planSections.map((section) => {
                   const SectionIcon = section.icon;
                   const isActive = currentSection === section.key;
+                  const colors = colorClasses[section.color];
                   
                   return (
                     <button
@@ -5464,15 +5465,22 @@ const DashboardPage = () => {
                         const firstItem = navItems.find(n => n.section === section.key);
                         if (firstItem) setActiveDataSection(firstItem.id);
                       }}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                      className={`group relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-200 whitespace-nowrap shrink-0 ${
                         isActive
-                          ? 'bg-slate-900 text-white shadow-sm'
-                          : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+                          ? `${colors.bg} text-white shadow-lg ${colors.shadow} scale-[1.02]`
+                          : `bg-white text-slate-600 shadow-sm border border-slate-200/60 hover:shadow-md hover:scale-[1.01] hover:border-slate-300`
                       }`}
                       data-testid={`section-tab-${section.key}`}
                     >
-                      <SectionIcon className="w-3.5 h-3.5" />
+                      <div className={`flex items-center justify-center w-7 h-7 rounded-lg ${
+                        isActive ? 'bg-white/20' : `${colors.light}`
+                      }`}>
+                        <SectionIcon className={`w-4 h-4 ${isActive ? 'text-white' : colors.text}`} />
+                      </div>
                       <span className="hidden sm:inline">{section.title}</span>
+                      {isActive && (
+                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-white/40" />
+                      )}
                     </button>
                   );
                 })}
@@ -5481,8 +5489,9 @@ const DashboardPage = () => {
           </div>
 
           {/* Sub-navigation - Items de la sección actual */}
-          <div className="bg-white border-b border-slate-200 px-4 py-2">
-            <div className="flex items-center gap-1.5 overflow-x-auto">
+          {sectionItems.length > 1 && (
+          <div className="bg-slate-50/80 backdrop-blur-sm border-b border-slate-200 px-4 py-2">
+            <div className="flex items-center gap-2 overflow-x-auto">
               {sectionItems.map((item) => {
                 const ItemIcon = item.icon;
                 const isActive = activeDataSection === item.id;
@@ -5491,20 +5500,21 @@ const DashboardPage = () => {
                   <button
                     key={item.id}
                     onClick={() => setActiveDataSection(item.id)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[12px] font-medium transition-all duration-200 whitespace-nowrap ${
                       isActive
-                        ? 'bg-[#007AFF] text-white shadow-sm'
-                        : 'text-slate-500 bg-slate-50 hover:bg-slate-100 hover:text-slate-700 border border-slate-200'
+                        ? `${currentColors.bg} text-white shadow-md ${currentColors.shadow}`
+                        : 'text-slate-500 bg-white/80 hover:bg-white hover:shadow-sm border border-slate-200/60 hover:border-slate-300'
                     }`}
                     data-testid={`subnav-${item.id}`}
                   >
-                    <ItemIcon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : ''}`} />
+                    <ItemIcon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : currentColors.text}`} />
                     {item.label}
                   </button>
                 );
               })}
             </div>
           </div>
+          )}
 
           {/* Data Content */}
           <div className="flex-1 overflow-y-auto bg-[#fafaf8]">
