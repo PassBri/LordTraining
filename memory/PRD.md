@@ -21,6 +21,8 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
 - ✅ Eliminada redundancia: sub-tabs directas (Resumen, Estructura, Evaluaciones, Carga, Control)
 - ✅ TrainingSystemHub con `hideTabBar` prop para overview sin tabs duplicados
 - ✅ "Volver a planes" oculto cuando hay plan activo
+- ✅ **Top Nav Bar rediseñada con FABs redondos flotantes** (Panel, Datos, PDF, Filtros, Plan, Salir) - consistente con secciones y sub-secciones
+- ✅ Mobile tabs también actualizados con estilo FAB circular
 
 ### Sesiones Anteriores
 - ✅ Sistema i18n completo (12 idiomas, RTL árabe)

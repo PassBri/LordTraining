@@ -5590,14 +5590,14 @@ const DashboardPage = () => {
 
   return (
     <div className="min-h-screen bg-[#fafaf8]">
-      {/* ====== GLOBAL CONTEXT BAR ====== */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-slate-200/60" data-testid="global-context-bar">
-        <div className="flex items-center justify-between px-4 py-2 gap-3">
-          {/* Left: Logo + Navigation */}
-          <div className="flex items-center gap-3 shrink-0">
+      {/* ====== GLOBAL CONTEXT BAR - Material Floating FABs ====== */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl shadow-sm" style={{ overflow: 'visible' }} data-testid="global-context-bar">
+        <div className="flex items-start justify-between px-4 pt-3 pb-2 gap-2" style={{ overflow: 'visible' }}>
+          {/* Left: Logo + Main Nav FABs */}
+          <div className="flex items-start gap-4 shrink-0" style={{ overflow: 'visible' }}>
             {/* Logo */}
-            <div className="flex items-center gap-2">
-              <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center shadow-sm">
+            <div className="flex items-center gap-2 pt-1">
+              <div className="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center shadow-md">
                 <span className="text-[#CCFF00] font-black text-sm">T</span>
               </div>
               <h1 className="text-xl font-bold tracking-tight hidden sm:block" style={{textTransform:'none',fontFamily:"'Barlow Condensed',sans-serif"}}>
@@ -5607,199 +5607,199 @@ const DashboardPage = () => {
               </h1>
             </div>
 
-            {/* Separator */}
-            <div className="w-px h-6 bg-slate-200 hidden md:block" />
+            {/* Main Nav FABs */}
+            <div className="hidden md:flex items-start gap-3" style={{ overflow: 'visible' }}>
+              {[
+                { key: 'panel', icon: LayoutDashboard, label: t('dashboard.nav.panel'), color: 'bg-slate-900', shadow: 'shadow-slate-900/30' },
+                { key: 'datos', icon: Clipboard, label: t('dashboard.nav.data'), color: 'bg-[#007AFF]', shadow: 'shadow-blue-500/30' },
+              ].map((nav) => {
+                const NavIcon = nav.icon;
+                const isActive = activePanel === nav.key;
+                return (
+                  <button
+                    key={nav.key}
+                    onClick={() => {
+                      setActivePanel(nav.key);
+                      if (nav.key === 'datos' && !activePlan) setActiveDataSection(null);
+                    }}
+                    className="group flex flex-col items-center gap-1 shrink-0 outline-none"
+                    data-testid={`tab-${nav.key}`}
+                  >
+                    <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
+                      isActive
+                        ? `${nav.color} text-white shadow-lg ${nav.shadow}`
+                        : 'bg-white text-slate-400 shadow-md border border-slate-100 hover:shadow-lg'
+                    }`}>
+                      <NavIcon className={`w-5 h-5 transition-transform duration-300 ${isActive ? 'text-white scale-105' : 'group-hover:text-slate-600'}`} strokeWidth={isActive ? 2.5 : 1.8} />
+                    </div>
+                    <span className={`text-[9px] font-bold tracking-wide leading-tight text-center max-w-[60px] transition-colors duration-300 ${
+                      isActive ? 'text-slate-900' : 'text-slate-400 group-hover:text-slate-600'
+                    }`}>
+                      {nav.label}
+                    </span>
+                  </button>
+                );
+              })}
 
-            {/* Panel Tabs */}
-            <div className="hidden md:flex items-center gap-1 bg-slate-100 rounded-xl p-1">
-              {['panel', 'datos'].map((panelType) => (
+              {/* PDF FAB */}
+              <button
+                onClick={() => setIsPdfModalOpen(true)}
+                className="group flex flex-col items-center gap-1 shrink-0 outline-none"
+                data-testid="export-pdf-btn"
+              >
+                <div className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-400 shadow-md border border-slate-100 hover:shadow-lg hover:text-emerald-600">
+                  <Download className="w-5 h-5 transition-transform duration-300 group-hover:text-emerald-600" strokeWidth={1.8} />
+                </div>
+                <span className="text-[9px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-emerald-600 transition-colors duration-300">
+                  PDF
+                </span>
+              </button>
+
+              {/* Filtros FAB */}
+              <div className="relative" style={{ overflow: 'visible' }}>
                 <button
-                  key={panelType}
-                  onClick={() => {
-                    setActivePanel(panelType);
-                    if (panelType === 'datos' && !activePlan) setActiveDataSection(null);
-                  }}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5 ${
-                    activePanel === panelType 
-                      ? 'bg-white text-slate-900 shadow-sm' 
-                      : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
-                  }`}
-                  data-testid={`tab-${panelType}`}
+                  onClick={() => setShowFiltersDropdown(!showFiltersDropdown)}
+                  className="group flex flex-col items-center gap-1 shrink-0 outline-none"
+                  data-testid="filters-dropdown-btn"
                 >
-                  {panelType === 'panel' ? (
-                    <>
-                      <LayoutDashboard className="w-3.5 h-3.5" />
-                      <span>{t('dashboard.nav.panel')}</span>
-                    </>
-                  ) : (
-                    <>
-                      <Clipboard className="w-3.5 h-3.5" />
-                      <span>{t('dashboard.nav.data')}</span>
-                    </>
-                  )}
+                  <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
+                    showFiltersDropdown
+                      ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
+                      : 'bg-white text-slate-400 shadow-md border border-slate-100 hover:shadow-lg'
+                  }`}>
+                    <Filter className={`w-5 h-5 transition-transform duration-300 ${showFiltersDropdown ? 'text-white' : 'group-hover:text-amber-500'}`} strokeWidth={showFiltersDropdown ? 2.5 : 1.8} />
+                  </div>
+                  <span className={`text-[9px] font-bold tracking-wide leading-tight text-center transition-colors duration-300 ${
+                    showFiltersDropdown ? 'text-amber-600' : 'text-slate-400 group-hover:text-amber-500'
+                  }`}>
+                    Filtros
+                  </span>
                 </button>
-              ))}
-            </div>
 
-            {/* Export PDF Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsPdfModalOpen(true)}
-              className="h-8 text-xs bg-slate-100 border-0 text-slate-600 hover:bg-slate-200 rounded-xl"
-              data-testid="export-pdf-btn"
-            >
-              <Download className="w-3.5 h-3.5 mr-1" />
-              <span className="hidden sm:inline">PDF</span>
-            </Button>
+                {/* Filters Dropdown Panel */}
+                {showFiltersDropdown && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setShowFiltersDropdown(false)}
+                    />
+                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 bg-white rounded-xl shadow-2xl border border-slate-200 p-4 min-w-[320px]">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
+                          <Filter className="w-4 h-4 text-amber-500" />
+                          Filtros de Contexto
+                        </h3>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowFiltersDropdown(false)}
+                          className="h-6 w-6 p-0 text-slate-400 hover:text-slate-600"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-xs font-medium text-slate-500 mb-1 block">Entidad</label>
+                          <Select value={globalContext.entityId} onValueChange={handleEntityChange}>
+                            <SelectTrigger className="w-full h-9 text-sm" data-testid="context-entity-select">
+                              <Building2 className="w-4 h-4 mr-2 text-amber-500" />
+                              <SelectValue placeholder="Seleccionar entidad" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">Todas las entidades</SelectItem>
+                              {entities.filter(e => e.entity_type === 'federation').map(e => (
+                                <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
+                              ))}
+                              {entities.filter(e => e.entity_type === 'club').map(e => (
+                                <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
+                              ))}
+                              {entities.filter(e => e.entity_type === 'school').map(e => (
+                                <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-medium text-slate-500 mb-1 block">Equipo</label>
+                          <Select value={globalContext.teamId} onValueChange={handleTeamChange}>
+                            <SelectTrigger className="w-full h-9 text-sm" data-testid="context-team-select">
+                              <Users className="w-4 h-4 mr-2 text-amber-500" />
+                              <SelectValue placeholder="Seleccionar equipo" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">Todos los equipos</SelectItem>
+                              {filteredTeams.map(t => (
+                                <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-medium text-slate-500 mb-1 block">Atleta</label>
+                          <Select value={globalContext.athleteId} onValueChange={handleAthleteChange}>
+                            <SelectTrigger className="w-full h-9 text-sm" data-testid="context-athlete-select">
+                              <User className="w-4 h-4 mr-2 text-amber-500" />
+                              <SelectValue placeholder="Seleccionar atleta" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">Todos los atletas</SelectItem>
+                              {filteredAthletes.map(a => (
+                                <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-medium text-slate-500 mb-1 block">Deporte</label>
+                          <Select value={globalContext.sportId} onValueChange={handleSportChange}>
+                            <SelectTrigger className="w-full h-9 text-sm" data-testid="context-sport-select">
+                              <Trophy className="w-4 h-4 mr-2 text-amber-500" />
+                              <SelectValue placeholder="Seleccionar deporte" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">Todos los deportes</SelectItem>
+                              {allSports.map(s => (
+                                <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {(globalContext.entityId !== 'all' || globalContext.teamId !== 'all' || 
+                          globalContext.athleteId !== 'all' || globalContext.sportId !== 'all') && (
+                          <div className="pt-2 border-t border-slate-100">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-slate-500">Filtros activos</span>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setGlobalContext({ entityId: 'all', teamId: 'all', athleteId: 'all', sportId: 'all' });
+                                }}
+                                className="h-6 text-xs text-amber-600 hover:text-amber-700"
+                              >
+                                Limpiar todo
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* Right: Filters Dropdown + Auto Testing */}
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Filters Dropdown Button */}
-            <div className="relative">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowFiltersDropdown(!showFiltersDropdown)}
-                className={`h-8 text-xs rounded-xl transition-all ${
-                  showFiltersDropdown
-                    ? 'bg-[#007AFF] text-white hover:bg-[#0066dd]'
-                    : 'bg-slate-100 border-0 text-slate-600 hover:bg-slate-200'
-                }`}
-                data-testid="filters-dropdown-btn"
-              >
-                <Filter className="w-3.5 h-3.5 mr-1" />
-                <span className="hidden sm:inline">Filtros</span>
-                <ChevronDown className={`w-3.5 h-3.5 ml-1 transition-transform ${showFiltersDropdown ? 'rotate-180' : ''}`} />
-              </Button>
-
-              {/* Filters Dropdown Panel */}
-              {showFiltersDropdown && (
-                <>
-                  {/* Backdrop to close on click outside */}
-                  <div 
-                    className="fixed inset-0 z-40" 
-                    onClick={() => setShowFiltersDropdown(false)}
-                  />
-                  <div className="absolute right-0 top-full mt-2 z-50 bg-white rounded-xl shadow-2xl border border-slate-200 p-4 min-w-[320px]">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
-                        <Filter className="w-4 h-4 text-[#007AFF]" />
-                        Filtros de Contexto
-                      </h3>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowFiltersDropdown(false)}
-                        className="h-6 w-6 p-0 text-slate-400 hover:text-slate-600"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      {/* Entity Selector */}
-                      <div>
-                        <label className="text-xs font-medium text-slate-500 mb-1 block">Entidad</label>
-                        <Select value={globalContext.entityId} onValueChange={handleEntityChange}>
-                          <SelectTrigger className="w-full h-9 text-sm" data-testid="context-entity-select">
-                            <Building2 className="w-4 h-4 mr-2 text-[#007AFF]" />
-                            <SelectValue placeholder="Seleccionar entidad" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">Todas las entidades</SelectItem>
-                            {entities.filter(e => e.entity_type === 'federation').map(e => (
-                              <SelectItem key={e.id} value={e.id}>🏛️ {e.name}</SelectItem>
-                            ))}
-                            {entities.filter(e => e.entity_type === 'club').map(e => (
-                              <SelectItem key={e.id} value={e.id}>🏢 {e.name}</SelectItem>
-                            ))}
-                            {entities.filter(e => e.entity_type === 'school').map(e => (
-                              <SelectItem key={e.id} value={e.id}>🎓 {e.name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Team Selector */}
-                      <div>
-                        <label className="text-xs font-medium text-slate-500 mb-1 block">Equipo</label>
-                        <Select value={globalContext.teamId} onValueChange={handleTeamChange}>
-                          <SelectTrigger className="w-full h-9 text-sm" data-testid="context-team-select">
-                            <Users className="w-4 h-4 mr-2 text-[#007AFF]" />
-                            <SelectValue placeholder="Seleccionar equipo" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">Todos los equipos</SelectItem>
-                            {filteredTeams.map(t => (
-                              <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Athlete Selector */}
-                      <div>
-                        <label className="text-xs font-medium text-slate-500 mb-1 block">Atleta</label>
-                        <Select value={globalContext.athleteId} onValueChange={handleAthleteChange}>
-                          <SelectTrigger className="w-full h-9 text-sm" data-testid="context-athlete-select">
-                            <User className="w-4 h-4 mr-2 text-[#007AFF]" />
-                            <SelectValue placeholder="Seleccionar atleta" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">Todos los atletas</SelectItem>
-                            {filteredAthletes.map(a => (
-                              <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Sport Selector */}
-                      <div>
-                        <label className="text-xs font-medium text-slate-500 mb-1 block">Deporte</label>
-                        <Select value={globalContext.sportId} onValueChange={handleSportChange}>
-                          <SelectTrigger className="w-full h-9 text-sm" data-testid="context-sport-select">
-                            <Trophy className="w-4 h-4 mr-2 text-[#007AFF]" />
-                            <SelectValue placeholder="Seleccionar deporte" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">Todos los deportes</SelectItem>
-                            {allSports.map(s => (
-                              <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Active Filters Summary */}
-                      {(globalContext.entityId !== 'all' || globalContext.teamId !== 'all' || 
-                        globalContext.athleteId !== 'all' || globalContext.sportId !== 'all') && (
-                        <div className="pt-2 border-t border-slate-100">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-slate-500">Filtros activos</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setGlobalContext({ entityId: 'all', teamId: 'all', athleteId: 'all', sportId: 'all' });
-                              }}
-                              className="h-6 text-xs text-[#007AFF] hover:text-blue-700"
-                            >
-                              Limpiar todo
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-
+          {/* Right: Testing + User Action FABs */}
+          <div className="flex items-start gap-3 shrink-0" style={{ overflow: 'visible' }}>
             {/* Auto Testing System */}
-            <div className="hidden sm:block">
+            <div className="hidden sm:block pt-1">
               <AutoTestingSystem 
                 onLoadTemplate={(plan) => {
                   const savedPlans = JSON.parse(localStorage.getItem('train_generated_plans') || '[]');
@@ -5819,59 +5819,81 @@ const DashboardPage = () => {
               />
             </div>
 
-            {/* Separator */}
-            <div className="w-px h-6 bg-slate-200 hidden md:block" />
-
-            {/* User Actions */}
-            <div className="flex items-center gap-1">
-              <Link to="/subscription">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 px-3 text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl"
-                  data-testid="subscription-btn"
-                >
-                  <CreditCard className="w-3.5 h-3.5 mr-1" />
-                  <span className="hidden lg:inline">Suscripción</span>
-                </Button>
-              </Link>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLogout}
-                className="h-8 px-3 text-xs text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-xl"
-                data-testid="logout-btn"
+            {/* Suscripción FAB */}
+            <Link to="/subscription" className="hidden md:block">
+              <button
+                className="group flex flex-col items-center gap-1 shrink-0 outline-none"
+                data-testid="subscription-btn"
               >
-                <LogOut className="w-3.5 h-3.5 mr-1" />
-                <span className="hidden lg:inline">{t('common.logout')}</span>
-              </Button>
+                <div className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-400 shadow-md border border-slate-100 hover:shadow-lg hover:text-violet-600">
+                  <CreditCard className="w-5 h-5 transition-transform duration-300 group-hover:text-violet-600" strokeWidth={1.8} />
+                </div>
+                <span className="text-[9px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-violet-600 transition-colors duration-300">
+                  Plan
+                </span>
+              </button>
+            </Link>
+
+            {/* Cerrar sesión FAB */}
+            <button
+              onClick={handleLogout}
+              className="hidden md:flex group flex-col items-center gap-1 shrink-0 outline-none"
+              data-testid="logout-btn"
+            >
+              <div className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-400 shadow-md border border-slate-100 hover:shadow-lg hover:text-red-500 hover:border-red-100">
+                <LogOut className="w-5 h-5 transition-transform duration-300 group-hover:text-red-500" strokeWidth={1.8} />
+              </div>
+              <span className="text-[9px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-red-500 transition-colors duration-300">
+                Salir
+              </span>
+            </button>
+
+            <div className="pt-2">
+              <LanguageSelector variant="light" compact />
             </div>
-            <LanguageSelector variant="light" compact />
           </div>
         </div>
       </div>
 
       {/* Main Content (with padding for fixed bar) */}
-      <div className="pt-[52px] h-screen max-h-screen overflow-hidden">
-        {/* Mobile Panel Tabs - Only visible on small screens */}
-        <div className="flex md:hidden gap-2 p-4 bg-white border-b">
-          {['panel', 'datos'].map((panelType) => (
-            <button
-              key={panelType}
-              onClick={() => {
-                setActivePanel(panelType);
-                if (panelType === 'datos') setActiveDataSection(null);
-              }}
-              className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-1 ${
-                activePanel === panelType 
-                  ? 'bg-slate-900 text-white' 
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-              data-testid={`tab-mobile-${panelType}`}
-            >
-              {panelType === 'panel' ? t('dashboard.nav.panel') : t('dashboard.nav.data')}
-            </button>
-          ))}
+      <div className="pt-[76px] h-screen max-h-screen overflow-hidden">
+        {/* Mobile Panel Tabs - FAB style on small screens */}
+        <div className="flex md:hidden gap-3 px-4 py-3 bg-white border-b justify-center" style={{ overflow: 'visible' }}>
+          {[
+            { key: 'panel', icon: LayoutDashboard, label: t('dashboard.nav.panel') },
+            { key: 'datos', icon: Clipboard, label: t('dashboard.nav.data') },
+            { key: 'pdf', icon: Download, label: 'PDF' },
+            { key: 'logout', icon: LogOut, label: 'Salir' },
+          ].map((nav) => {
+            const NavIcon = nav.icon;
+            const isActive = activePanel === nav.key;
+            return (
+              <button
+                key={nav.key}
+                onClick={() => {
+                  if (nav.key === 'pdf') { setIsPdfModalOpen(true); return; }
+                  if (nav.key === 'logout') { handleLogout(); return; }
+                  setActivePanel(nav.key);
+                  if (nav.key === 'datos') setActiveDataSection(null);
+                }}
+                className="group flex flex-col items-center gap-1 shrink-0 outline-none"
+                data-testid={`tab-mobile-${nav.key}`}
+              >
+                <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
+                  isActive
+                    ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/30'
+                    : 'bg-white text-slate-400 shadow-md border border-slate-100'
+                }`}>
+                  <NavIcon className={`w-5 h-5 ${isActive ? 'text-white' : ''}`} strokeWidth={isActive ? 2.5 : 1.8} />
+                </div>
+                <span className={`text-[9px] font-bold tracking-wide leading-tight text-center ${
+                  isActive ? 'text-slate-900' : 'text-slate-400'
+                }`}>
+                  {nav.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Main Content - Full Width */}
