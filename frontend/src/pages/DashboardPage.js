@@ -5798,9 +5798,10 @@ const DashboardPage = () => {
 
           {/* Right: Testing + User Action FABs */}
           <div className="flex items-start gap-3 shrink-0" style={{ overflow: 'visible' }}>
-            {/* Auto Testing System */}
-            <div className="hidden sm:block pt-1">
+            {/* Auto Testing System FAB */}
+            <div className="hidden sm:block" style={{ overflow: 'visible' }}>
               <AutoTestingSystem 
+                fabStyle
                 onLoadTemplate={(plan) => {
                   const savedPlans = JSON.parse(localStorage.getItem('train_generated_plans') || '[]');
                   setGeneratedPlans(savedPlans);
@@ -5848,9 +5849,8 @@ const DashboardPage = () => {
               </span>
             </button>
 
-            <div className="pt-2">
-              <LanguageSelector variant="light" compact />
-            </div>
+            {/* Language Selector FAB */}
+            <LanguageSelector variant="light" compact fabStyle />
           </div>
         </div>
       </div>

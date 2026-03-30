@@ -17,7 +17,7 @@ const LANGUAGES = [
   { code: 'zh', label: '中文', flag: 'ZH' },
 ];
 
-export const LanguageSelector = ({ variant = 'light', compact = false }) => {
+export const LanguageSelector = ({ variant = 'light', compact = false, fabStyle = false }) => {
   const { i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -40,18 +40,39 @@ export const LanguageSelector = ({ variant = 'light', compact = false }) => {
 
   return (
     <div className="relative" ref={ref} data-testid="language-selector">
-      <button
-        onClick={() => setOpen(!open)}
-        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[12px] font-medium transition-colors ${
-          isDark
-            ? 'text-slate-300 hover:text-white hover:bg-white/10'
-            : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
-        }`}
-        data-testid="language-selector-trigger"
-      >
-        <Globe className="w-3.5 h-3.5" />
-        {!compact && <span>{currentLang.flag}</span>}
-      </button>
+      {fabStyle ? (
+        <button
+          onClick={() => setOpen(!open)}
+          className="group flex flex-col items-center gap-1 shrink-0 outline-none"
+          data-testid="language-selector-trigger"
+        >
+          <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
+            open
+              ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/30'
+              : 'bg-white text-slate-400 shadow-md border border-slate-100 hover:shadow-lg'
+          }`}>
+            <Globe className={`w-5 h-5 transition-transform duration-300 ${open ? 'text-white' : 'group-hover:text-teal-500'}`} strokeWidth={open ? 2.5 : 1.8} />
+          </div>
+          <span className={`text-[9px] font-bold tracking-wide leading-tight text-center transition-colors duration-300 ${
+            open ? 'text-teal-600' : 'text-slate-400 group-hover:text-teal-500'
+          }`}>
+            {currentLang.code.toUpperCase()}
+          </span>
+        </button>
+      ) : (
+        <button
+          onClick={() => setOpen(!open)}
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[12px] font-medium transition-colors ${
+            isDark
+              ? 'text-slate-300 hover:text-white hover:bg-white/10'
+              : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
+          }`}
+          data-testid="language-selector-trigger"
+        >
+          <Globe className="w-3.5 h-3.5" />
+          {!compact && <span>{currentLang.flag}</span>}
+        </button>
+      )}
 
       {open && (
         <div

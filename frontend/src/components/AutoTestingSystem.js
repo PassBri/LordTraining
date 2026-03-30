@@ -245,7 +245,8 @@ const AutoTestingSystem = ({
   onLoadTemplate, 
   onSavePlan,
   currentUser,
-  sportsCatalog = []
+  sportsCatalog = [],
+  fabStyle = false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -692,17 +693,38 @@ const AutoTestingSystem = ({
     <>
       {/* Main Button */}
       <div className="relative">
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2 bg-gradient-to-r from-violet-500/10 to-purple-500/10 border-violet-300 hover:border-violet-400 hover:bg-violet-50"
-          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          data-testid="auto-testing-btn"
-        >
-          <Bot className="w-4 h-4 text-violet-600" />
-          <span className="hidden sm:inline text-violet-700">Sistema de Pruebas</span>
-          <ChevronDown className={`w-4 h-4 text-violet-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-        </Button>
+        {fabStyle ? (
+          <button
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="group flex flex-col items-center gap-1 shrink-0 outline-none"
+            data-testid="auto-testing-btn"
+          >
+            <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
+              isDropdownOpen
+                ? 'bg-violet-500 text-white shadow-lg shadow-violet-500/30'
+                : 'bg-white text-slate-400 shadow-md border border-slate-100 hover:shadow-lg'
+            }`}>
+              <Bot className={`w-5 h-5 transition-transform duration-300 ${isDropdownOpen ? 'text-white' : 'group-hover:text-violet-500'}`} strokeWidth={isDropdownOpen ? 2.5 : 1.8} />
+            </div>
+            <span className={`text-[9px] font-bold tracking-wide leading-tight text-center max-w-[60px] transition-colors duration-300 ${
+              isDropdownOpen ? 'text-violet-600' : 'text-slate-400 group-hover:text-violet-500'
+            }`}>
+              Pruebas
+            </span>
+          </button>
+        ) : (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 bg-gradient-to-r from-violet-500/10 to-purple-500/10 border-violet-300 hover:border-violet-400 hover:bg-violet-50"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            data-testid="auto-testing-btn"
+          >
+            <Bot className="w-4 h-4 text-violet-600" />
+            <span className="hidden sm:inline text-violet-700">Sistema de Pruebas</span>
+            <ChevronDown className={`w-4 h-4 text-violet-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+          </Button>
+        )}
 
         {/* Dropdown Menu */}
         {isDropdownOpen && (
