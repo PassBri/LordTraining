@@ -1142,6 +1142,34 @@ const DashboardPage = () => {
     { id: 'ai-generator', label: 'AI', icon: Sparkles, section: 'herramientas' },
   ];
 
+  // ====== PLAN SECTIONS & COLORS (top-level for top bar integration) ======
+  const planSections = [
+    { key: 'punto-partida', title: t('dashboard.sections.diagnosis'), color: 'rose', icon: Clipboard },
+    { key: 'informacion', title: t('dashboard.sections.information'), color: 'indigo', icon: Users },
+    { key: 'evaluacion', title: t('dashboard.sections.evaluation'), color: 'emerald', icon: Heart },
+    { key: 'competencias', title: t('dashboard.sections.competitions'), color: 'violet', icon: Trophy },
+    { key: 'periodizacion', title: t('dashboard.sections.periodization'), color: 'cyan', icon: Calendar },
+    { key: 'visualizacion', title: t('dashboard.sections.visualization'), color: 'amber', icon: BarChart },
+    { key: 'herramientas', title: t('dashboard.sections.tools'), color: 'slate', icon: Wrench },
+  ];
+
+  const colorClasses = {
+    blue: { bg: 'bg-blue-600', hover: 'hover:bg-blue-700', shadow: 'shadow-blue-200', light: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-500' },
+    rose: { bg: 'bg-rose-500', hover: 'hover:bg-rose-600', shadow: 'shadow-rose-200', light: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-500' },
+    indigo: { bg: 'bg-[#007AFF]', hover: 'hover:bg-indigo-600', shadow: 'shadow-indigo-200', light: 'bg-indigo-50', text: 'text-[#007AFF]', border: 'border-indigo-500' },
+    emerald: { bg: 'bg-emerald-500', hover: 'hover:bg-emerald-600', shadow: 'shadow-emerald-200', light: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-500' },
+    violet: { bg: 'bg-violet-500', hover: 'hover:bg-violet-600', shadow: 'shadow-violet-200', light: 'bg-violet-50', text: 'text-violet-600', border: 'border-violet-500' },
+    cyan: { bg: 'bg-cyan-600', hover: 'hover:bg-cyan-700', shadow: 'shadow-cyan-200', light: 'bg-cyan-50', text: 'text-cyan-600', border: 'border-cyan-600' },
+    amber: { bg: 'bg-amber-500', hover: 'hover:bg-amber-600', shadow: 'shadow-amber-200', light: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-500' },
+    slate: { bg: 'bg-slate-600', hover: 'hover:bg-slate-700', shadow: 'shadow-slate-200', light: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-600' },
+  };
+
+  const currentSection = navItems.find(n => n.id === activeDataSection)?.section || 'punto-partida';
+  const currentSectionData = planSections.find(s => s.key === currentSection);
+  const currentColors = colorClasses[currentSectionData?.color || 'rose'];
+  const sectionItems = navItems.filter(i => i.section === currentSection);
+
+
   // Estado para secciones colapsadas
   const [collapsedSections, setCollapsedSections] = useState({});
 
@@ -5370,33 +5398,6 @@ const DashboardPage = () => {
       // ====== LAYOUT: SIDEBAR DE PLANES + CONTENIDO ======
       const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators', 'sports', 'tournaments', 'create-plan', 'period-overview', 'period-structure', 'period-tests', 'period-load', 'period-control'];
 
-      const planSections = [
-        { key: 'punto-partida', title: t('dashboard.sections.diagnosis'), color: 'rose', icon: Clipboard },
-        { key: 'informacion', title: t('dashboard.sections.information'), color: 'indigo', icon: Users },
-        { key: 'evaluacion', title: t('dashboard.sections.evaluation'), color: 'emerald', icon: Heart },
-        { key: 'competencias', title: t('dashboard.sections.competitions'), color: 'violet', icon: Trophy },
-        { key: 'periodizacion', title: t('dashboard.sections.periodization'), color: 'cyan', icon: Calendar },
-        { key: 'visualizacion', title: t('dashboard.sections.visualization'), color: 'amber', icon: BarChart },
-        { key: 'herramientas', title: t('dashboard.sections.tools'), color: 'slate', icon: Wrench },
-      ];
-
-      const colorClasses = {
-        blue: { bg: 'bg-blue-600', hover: 'hover:bg-blue-700', shadow: 'shadow-blue-200', light: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-500' },
-        rose: { bg: 'bg-rose-500', hover: 'hover:bg-rose-600', shadow: 'shadow-rose-200', light: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-500' },
-        indigo: { bg: 'bg-[#007AFF]', hover: 'hover:bg-indigo-600', shadow: 'shadow-indigo-200', light: 'bg-indigo-50', text: 'text-[#007AFF]', border: 'border-indigo-500' },
-        emerald: { bg: 'bg-emerald-500', hover: 'hover:bg-emerald-600', shadow: 'shadow-emerald-200', light: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-500' },
-        violet: { bg: 'bg-violet-500', hover: 'hover:bg-violet-600', shadow: 'shadow-violet-200', light: 'bg-violet-50', text: 'text-violet-600', border: 'border-violet-500' },
-        cyan: { bg: 'bg-cyan-600', hover: 'hover:bg-cyan-700', shadow: 'shadow-cyan-200', light: 'bg-cyan-50', text: 'text-cyan-600', border: 'border-cyan-600' },
-        amber: { bg: 'bg-amber-500', hover: 'hover:bg-amber-600', shadow: 'shadow-amber-200', light: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-500' },
-        slate: { bg: 'bg-slate-600', hover: 'hover:bg-slate-700', shadow: 'shadow-slate-200', light: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-600' },
-      };
-
-      // Get current section based on active data section
-      const currentSection = navItems.find(n => n.id === activeDataSection)?.section || 'punto-partida';
-      const currentSectionData = planSections.find(s => s.key === currentSection);
-      const currentColors = colorClasses[currentSectionData?.color || 'rose'];
-      const sectionItems = navItems.filter(i => i.section === currentSection);
-
       return (
         <div className="flex h-full" data-testid="datos-layout">
           {/* ====== SIDEBAR DE PLANES ====== */}
@@ -5418,10 +5419,8 @@ const DashboardPage = () => {
           <div className="flex-1 flex flex-col min-h-0" data-testid="plan-content-area">
           {activePlan ? (
             <>
-          {/* Header Bar */}
-          <div className="bg-white" style={{ overflow: 'visible' }}>
-            {/* Barra del Plan Activo */}
-            <div className="bg-slate-900 px-4 py-2.5 flex items-center justify-between">
+          {/* Plan Active Header Bar */}
+          <div className="bg-slate-900 px-4 py-2.5 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
                   <Clipboard className="w-4 h-4 text-[#CCFF00]" />
@@ -5448,80 +5447,7 @@ const DashboardPage = () => {
                 <ChevronLeft className="w-4 h-4 mr-1" />
                 Cambiar Plan
               </Button>
-            </div>
-
-            {/* Navegación de Secciones - Material Floating FABs */}
-            <div className="px-5 pt-4 pb-3" style={{ overflow: 'visible' }}>
-              <div className="flex items-start gap-5 justify-center sm:justify-start" style={{ overflow: 'visible' }}>
-                {planSections.map((section) => {
-                  const SectionIcon = section.icon;
-                  const isActive = currentSection === section.key;
-                  const colors = colorClasses[section.color];
-                  
-                  return (
-                    <button
-                      key={section.key}
-                      onClick={() => {
-                        const firstItem = navItems.find(n => n.section === section.key);
-                        if (firstItem) setActiveDataSection(firstItem.id);
-                      }}
-                      className="group flex flex-col items-center gap-1.5 shrink-0 outline-none"
-                      data-testid={`section-tab-${section.key}`}
-                    >
-                      <div
-                        className={`w-[50px] h-[50px] rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
-                          isActive
-                            ? `${colors.bg} text-white shadow-xl ${colors.shadow}`
-                            : 'bg-white text-slate-400 shadow-md hover:shadow-lg'
-                        }`}
-                      >
-                        <SectionIcon className={`w-[22px] h-[22px] transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:text-slate-600'}`} strokeWidth={isActive ? 2.5 : 1.8} />
-                      </div>
-                      <span className={`text-[10px] font-bold tracking-wide leading-tight text-center max-w-[72px] transition-colors duration-300 ${
-                        isActive ? colors.text : 'text-slate-400 group-hover:text-slate-600'
-                      }`}>
-                        {section.title}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
           </div>
-
-          {/* Sub-navigation - Mini Floating FABs */}
-          {sectionItems.length > 1 && (
-          <div className="bg-gradient-to-b from-white to-slate-50/50 border-b border-slate-200/60 px-5 pt-3 pb-2" style={{ overflow: 'visible' }}>
-            <div className="flex items-start gap-4" style={{ overflow: 'visible' }}>
-              {sectionItems.map((item) => {
-                const ItemIcon = item.icon;
-                const isActive = activeDataSection === item.id;
-                
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveDataSection(item.id)}
-                    className="group flex flex-col items-center gap-1 shrink-0 outline-none"
-                    data-testid={`subnav-${item.id}`}
-                  >
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
-                      isActive
-                        ? `${currentColors.bg} text-white shadow-lg ${currentColors.shadow}`
-                        : 'bg-white text-slate-400 shadow-sm border border-slate-200/80 hover:shadow-md'
-                    }`}>
-                      <ItemIcon className={`w-[18px] h-[18px] transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:text-slate-600'}`} strokeWidth={isActive ? 2.5 : 1.8} />
-                    </div>
-                    <span className={`text-[9px] font-semibold tracking-wide text-center max-w-[64px] leading-tight transition-colors duration-300 ${
-                      isActive ? currentColors.text : 'text-slate-400 group-hover:text-slate-500'
-                    }`}>
-                      {item.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          )}
 
           {/* Data Content */}
           <div className="flex-1 overflow-y-auto bg-[#fafaf8]">
@@ -5795,6 +5721,79 @@ const DashboardPage = () => {
               </div>
             </div>
           </div>
+
+          {/* ====== CENTER: Section + Sub-section FABs (only when Datos + activePlan) ====== */}
+          {activePanel === 'datos' && activePlan && (
+            <div className="hidden md:flex flex-1 items-start justify-center gap-1 min-w-0 px-2" style={{ overflow: 'visible' }}>
+              {/* Section FABs - separated by a subtle divider from sub-nav */}
+              <div className="flex items-start gap-2" style={{ overflow: 'visible' }}>
+                {planSections.map((section) => {
+                  const SectionIcon = section.icon;
+                  const isActive = currentSection === section.key;
+                  const colors = colorClasses[section.color];
+                  return (
+                    <button
+                      key={section.key}
+                      onClick={() => {
+                        const firstItem = navItems.find(n => n.section === section.key);
+                        if (firstItem) setActiveDataSection(firstItem.id);
+                      }}
+                      className="group flex flex-col items-center gap-0.5 shrink-0 outline-none"
+                      data-testid={`section-tab-${section.key}`}
+                    >
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
+                        isActive
+                          ? `${colors.bg} text-white shadow-lg ${colors.shadow} scale-110`
+                          : 'bg-white text-slate-400 shadow-sm border border-slate-100 hover:shadow-md'
+                      }`}>
+                        <SectionIcon className={`w-[18px] h-[18px] transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:text-slate-600'}`} strokeWidth={isActive ? 2.5 : 1.8} />
+                      </div>
+                      <span className={`text-[8px] font-bold tracking-wide leading-tight text-center max-w-[56px] transition-colors duration-300 ${
+                        isActive ? colors.text : 'text-slate-400 group-hover:text-slate-600'
+                      }`}>
+                        {section.title}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Vertical divider */}
+              {sectionItems.length > 1 && (
+                <>
+                  <div className="w-px h-10 bg-slate-200/80 self-center mx-1 shrink-0" />
+                  {/* Sub-section mini FABs */}
+                  <div className="flex items-start gap-1.5" style={{ overflow: 'visible' }}>
+                    {sectionItems.map((item) => {
+                      const ItemIcon = item.icon;
+                      const isActive = activeDataSection === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => setActiveDataSection(item.id)}
+                          className="group flex flex-col items-center gap-0.5 shrink-0 outline-none"
+                          data-testid={`subnav-${item.id}`}
+                        >
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
+                            isActive
+                              ? `${currentColors.bg} text-white shadow-md ${currentColors.shadow}`
+                              : 'bg-slate-50 text-slate-400 border border-slate-200/80 hover:shadow-sm hover:bg-white'
+                          }`}>
+                            <ItemIcon className={`w-[14px] h-[14px] transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:text-slate-600'}`} strokeWidth={isActive ? 2.5 : 1.8} />
+                          </div>
+                          <span className={`text-[7px] font-semibold tracking-wide text-center max-w-[52px] leading-tight transition-colors duration-300 ${
+                            isActive ? currentColors.text : 'text-slate-400 group-hover:text-slate-500'
+                          }`}>
+                            {item.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Right: Testing + User Action FABs */}
           <div className="flex items-start gap-3 shrink-0" style={{ overflow: 'visible' }}>
