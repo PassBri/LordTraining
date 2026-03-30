@@ -128,7 +128,7 @@ Todas las evaluaciones:
 - `GET /api/plan-data/{plan_id}` - Todos los datos del plan
 
 ## Tecnologías
-- **Frontend**: React.js, Tailwind CSS, ShadCN/UI, Recharts
+- **Frontend**: React.js, Tailwind CSS, ShadCN/UI, Recharts, i18next, react-i18next
 - **Backend**: FastAPI, Python
 - **Base de Datos**: MongoDB
 - **IA**: OpenAI GPT-4o-mini (Emergent LLM Key)
@@ -158,6 +158,19 @@ Todas las evaluaciones:
 9. **P3**: Limpiar componentes obsoletos (PeriodizationSystem.js, AICoachAssistant.js)
 
 ## Completado
+### 30-Mar-2025 - Sistema i18n Completo
+- Sistema de internacionalización (i18n) implementado con i18next + react-i18next
+- 12 idiomas soportados: es, en, pt, ar, hi, id, fr, de, ja, ko, ru, zh
+- Selector de idioma (LanguageSelector) integrado en Landing Page, Auth Page y Dashboard
+- Soporte RTL (Right-to-Left) completo para Árabe: dir="rtl" + CSS mirror rules
+- Persistencia de preferencia de idioma en localStorage (key: 'train_language')
+- Etiquetas hreflang SEO en index.html para los 12 idiomas
+- Landing Page: todos los textos traducidos con t() hooks
+- Auth Page: formularios, tabs y labels traducidos con t() hooks
+- Dashboard: navegación principal (Panel/Datos), secciones del plan y logout traducidos
+- Detección automática de idioma del navegador con fallback a 'es'
+- Testing: 100% (12/12 tests pasados por testing agent)
+
 ### 30-Mar-2025 - Rediseño Landing Page + Auth Page
 - Landing page rediseñada con fondo claro elegante (#fafaf8), sin imágenes stock
 - Escala tipográfica profesional con CSS reset scoped:
