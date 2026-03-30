@@ -777,7 +777,7 @@ const ControlPanel = ({
                 <LayoutDashboard className="w-5 h-5 text-[#CCFF00]" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-900" style={{textTransform:'none',fontFamily:"'Inter',sans-serif"}}>Panel de Control</h2>
+                <h2 className="text-lg font-bold text-slate-900">Panel de Control</h2>
                 <span className="text-[13px] text-slate-400">
                   {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}
                 </span>
@@ -824,76 +824,59 @@ const ControlPanel = ({
         {/* ROW 1: Readiness Score + Training Load Ratio + Stats Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Readiness Score Card */}
-          <Card className="lg:col-span-3 border-0 shadow-lg bg-gradient-to-br from-slate-800 to-slate-900 text-white">
+          <Card className="lg:col-span-3 border border-slate-200 shadow-sm bg-white" data-testid="readiness-card">
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-slate-200">Readiness Score</h3>
-                <span className={`text-2xl font-bold ${
-                  readinessScore.overall >= 80 ? 'text-emerald-400' :
-                  readinessScore.overall >= 60 ? 'text-amber-400' : 'text-red-400'
-                }`}>
+                <div className="flex items-center gap-2">
+                  <Heart className="w-4 h-4 text-slate-400" />
+                  <h3 className="text-sm font-semibold text-slate-700">Readiness Score</h3>
+                </div>
+                <span className="text-3xl font-bold text-slate-900" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>
                   {readinessScore.overall}%
                 </span>
               </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Calidad sueño</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-20 h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                      <div className="h-full bg-blue-400 rounded-full" style={{width: `${readinessScore.sleep}%`}}></div>
+              <div className="space-y-2.5">
+                {[
+                  { label: 'Calidad sueño', value: readinessScore.sleep, color: '#007AFF' },
+                  { label: 'Dolor muscular', value: readinessScore.muscle_soreness, color: '#EF4444' },
+                  { label: 'Estrés', value: readinessScore.stress, color: '#F59E0B' },
+                  { label: 'Motivación', value: readinessScore.motivation, color: '#10B981' },
+                ].map((item) => (
+                  <div key={item.label} className="flex items-center justify-between text-xs">
+                    <span className="text-slate-500">{item.label}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-full rounded-full transition-all" style={{width: `${item.value}%`, backgroundColor: item.color}}></div>
+                      </div>
+                      <span className="text-slate-600 font-medium w-8 text-right">{item.value}%</span>
                     </div>
-                    <span className="text-slate-300 w-8">{readinessScore.sleep}%</span>
                   </div>
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Dolor muscular</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-20 h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                      <div className="h-full bg-red-400 rounded-full" style={{width: `${readinessScore.muscle_soreness}%`}}></div>
-                    </div>
-                    <span className="text-slate-300 w-8">{readinessScore.muscle_soreness}%</span>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Estrés</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-20 h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                      <div className="h-full bg-amber-400 rounded-full" style={{width: `${readinessScore.stress}%`}}></div>
-                    </div>
-                    <span className="text-slate-300 w-8">{readinessScore.stress}%</span>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Motivación</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-20 h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                      <div className="h-full bg-emerald-400 rounded-full" style={{width: `${readinessScore.motivation}%`}}></div>
-                    </div>
-                    <span className="text-slate-300 w-8">{readinessScore.motivation}%</span>
-                  </div>
-                </div>
+                ))}
               </div>
-              <div className="mt-3 pt-3 border-t border-slate-700">
+              <div className="mt-3 pt-3 border-t border-slate-100">
                 <p className={`text-xs font-medium ${
-                  readinessScore.overall >= 80 ? 'text-emerald-400' :
-                  readinessScore.overall >= 60 ? 'text-amber-400' : 'text-red-400'
+                  readinessScore.overall >= 80 ? 'text-emerald-600' :
+                  readinessScore.overall >= 60 ? 'text-amber-600' : 'text-red-600'
                 }`}>
-                  {readinessScore.overall >= 80 ? '✓ Listo para entrenar' :
-                   readinessScore.overall >= 60 ? '⚠ Entrenamiento moderado' : '✗ Requiere descanso'}
+                  {readinessScore.overall >= 80 ? 'Listo para entrenar' :
+                   readinessScore.overall >= 60 ? 'Entrenamiento moderado' : 'Requiere descanso'}
                 </p>
               </div>
             </CardContent>
           </Card>
 
           {/* Training Load Ratio Card */}
-          <Card className="lg:col-span-3 border-0 shadow-lg bg-white">
+          <Card className="lg:col-span-3 border border-slate-200 shadow-sm bg-white" data-testid="load-ratio-card">
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-semibold text-slate-700">Ratio Carga Aguda:Crónica</h3>
+                <div className="flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-slate-400" />
+                  <h3 className="text-sm font-semibold text-slate-700">Ratio Carga Aguda:Crónica</h3>
+                </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                  trainingLoadRatio.status === 'optimal' ? 'bg-emerald-100 text-emerald-700' :
-                  trainingLoadRatio.status === 'warning' ? 'bg-amber-100 text-amber-700' :
-                  trainingLoadRatio.status === 'danger' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
+                  trainingLoadRatio.status === 'optimal' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                  trainingLoadRatio.status === 'warning' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                  trainingLoadRatio.status === 'danger' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-blue-50 text-blue-700 border border-blue-200'
                 }`}>
                   {trainingLoadRatio.status === 'optimal' ? 'Óptimo' :
                    trainingLoadRatio.status === 'warning' ? 'Precaución' :
@@ -901,11 +884,7 @@ const ControlPanel = ({
                 </span>
               </div>
               <div className="flex items-end gap-4 mb-3">
-                <span className={`text-4xl font-bold ${
-                  trainingLoadRatio.status === 'optimal' ? 'text-emerald-600' :
-                  trainingLoadRatio.status === 'warning' ? 'text-amber-600' :
-                  trainingLoadRatio.status === 'danger' ? 'text-red-600' : 'text-blue-600'
-                }`}>
+                <span className="text-4xl font-bold text-slate-900" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>
                   {trainingLoadRatio.ratio.toFixed(2)}
                 </span>
                 <div className="flex items-center gap-1 text-xs text-slate-500 mb-1">
@@ -927,17 +906,17 @@ const ControlPanel = ({
                 </div>
               </div>
               <div className="mt-3 pt-2 border-t border-slate-100">
-                <div className="flex items-center gap-2 text-[10px]">
+                <div className="flex items-center gap-3 text-[10px]">
                   <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded bg-emerald-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
                     <span className="text-slate-500">0.8-1.3</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded bg-amber-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-amber-500"></div>
                     <span className="text-slate-500">1.3-1.5</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded bg-red-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-red-500"></div>
                     <span className="text-slate-500">&gt;1.5</span>
                   </div>
                 </div>
@@ -945,44 +924,46 @@ const ControlPanel = ({
             </CardContent>
           </Card>
 
-          {/* Stats Cards - Now with Plan Activo */}
+          {/* Stats Cards - Clean unified design */}
           <div className="lg:col-span-6 grid grid-cols-2 md:grid-cols-3 gap-3">
             {/* Plan Activo Destacado */}
             {activePlan ? (
               <Card 
-                className="bg-gradient-to-br from-slate-800 to-slate-900 text-white border-0 shadow-lg shadow-slate-200/30 cursor-pointer hover:scale-[1.02] transition-all duration-200 col-span-2 md:col-span-1"
+                className="bg-slate-900 text-white border-0 shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 col-span-2 md:col-span-1"
                 onClick={() => onNavigate && onNavigate('datos', 'training-system')}
+                data-testid="active-plan-card"
               >
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div className="min-w-0 flex-1">
-                      <p className="text-slate-300 text-xs font-medium">Plan Activo</p>
-                      <p className="text-lg font-bold mt-0.5 truncate">{activePlan.name}</p>
+                      <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">Plan Activo</p>
+                      <p className="text-base font-bold mt-0.5 truncate">{activePlan.name}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">{activePlan.total_weeks} sem</span>
-                        <span className="text-xs text-slate-300">{activePlan.model_name || activePlan.model}</span>
+                        <span className="text-[11px] bg-white/15 px-2 py-0.5 rounded">{activePlan.total_weeks} sem</span>
+                        <span className="text-[11px] text-slate-400">{activePlan.model_name || activePlan.model}</span>
                       </div>
                     </div>
-                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0 ml-2">
-                      <FileText className="w-5 h-5" />
+                    <div className="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center shrink-0 ml-2">
+                      <FileText className="w-4 h-4" />
                     </div>
                   </div>
                 </CardContent>
               </Card>
             ) : (
               <Card 
-                className="bg-gradient-to-br from-slate-500 to-slate-600 text-white border-0 shadow-lg shadow-slate-200/50 cursor-pointer hover:scale-[1.02] transition-all duration-200 col-span-2 md:col-span-1"
+                className="bg-slate-100 border border-slate-200 cursor-pointer hover:shadow-md transition-all duration-200 col-span-2 md:col-span-1"
                 onClick={() => onNavigate && onNavigate('datos', 'plan-manager')}
+                data-testid="no-plan-card"
               >
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-slate-300 text-xs font-medium">Plan Activo</p>
-                      <p className="text-sm font-medium mt-0.5">Sin plan seleccionado</p>
-                      <p className="text-xs text-slate-300 mt-1">Click para seleccionar</p>
+                      <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">Plan Activo</p>
+                      <p className="text-sm font-medium mt-0.5 text-slate-600">Sin plan seleccionado</p>
+                      <p className="text-[11px] text-slate-400 mt-1">Click para seleccionar</p>
                     </div>
-                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                      <FileText className="w-5 h-5" />
+                    <div className="w-9 h-9 bg-slate-200 rounded-lg flex items-center justify-center">
+                      <FileText className="w-4 h-4 text-slate-500" />
                     </div>
                   </div>
                 </CardContent>
@@ -991,17 +972,18 @@ const ControlPanel = ({
 
             {/* Total Planes */}
             <Card 
-              className="bg-[#007AFF] text-white border-0 shadow-lg shadow-blue-200/30 cursor-pointer hover:scale-[1.02] transition-all duration-200"
+              className="bg-white border border-slate-200 shadow-sm cursor-pointer hover:shadow-md hover:border-blue-200 transition-all duration-200"
               onClick={() => onNavigate && onNavigate('datos', 'plan-manager')}
+              data-testid="plans-stat-card"
             >
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-violet-100 text-xs font-medium">Mis Planes</p>
-                    <p className="text-2xl font-bold mt-0.5">{trainingPlans.length}</p>
+                    <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">Mis Planes</p>
+                    <p className="text-2xl font-bold mt-0.5 text-slate-900" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>{trainingPlans.length}</p>
                   </div>
-                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                    <Activity className="w-5 h-5" />
+                  <div className="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
+                    <Activity className="w-4 h-4 text-[#007AFF]" />
                   </div>
                 </div>
               </CardContent>
@@ -1009,80 +991,82 @@ const ControlPanel = ({
 
             {/* Total Atletas */}
             <Card 
-              className="bg-slate-700 text-white border-0 shadow-lg shadow-slate-200/30 cursor-pointer hover:scale-[1.02] transition-all duration-200"
+              className="bg-white border border-slate-200 shadow-sm cursor-pointer hover:shadow-md hover:border-blue-200 transition-all duration-200"
               onClick={() => onNavigate && onNavigate('datos', 'athletes')}
+              data-testid="athletes-stat-card"
             >
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-blue-100 text-xs font-medium">Atletas</p>
-                    <p className="text-2xl font-bold mt-0.5">{totalAthletes}</p>
+                    <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">Atletas</p>
+                    <p className="text-2xl font-bold mt-0.5 text-slate-900" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>{totalAthletes}</p>
                   </div>
-                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                    <Users className="w-5 h-5" />
+                  <div className="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center">
+                    <Users className="w-4 h-4 text-slate-500" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Eventos Próximos */}
+            {/* Eventos */}
             <Card 
-              className="bg-emerald-600 text-white border-0 shadow-lg shadow-emerald-200/30 cursor-pointer hover:scale-[1.02] transition-all duration-200"
+              className="bg-white border border-slate-200 shadow-sm cursor-pointer hover:shadow-md hover:border-blue-200 transition-all duration-200"
               onClick={() => onNavigate && onNavigate('datos', 'competitions')}
+              data-testid="events-stat-card"
             >
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-emerald-100 text-xs font-medium">Eventos</p>
-                    <p className="text-2xl font-bold mt-0.5">{upcomingEventsCount}</p>
+                    <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">Eventos</p>
+                    <p className="text-2xl font-bold mt-0.5 text-slate-900" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>{upcomingEventsCount}</p>
                   </div>
-                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                    <Flag className="w-5 h-5" />
+                  <div className="w-9 h-9 bg-emerald-50 rounded-lg flex items-center justify-center">
+                    <Flag className="w-4 h-4 text-emerald-600" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Sesiones */}
-            <Card className="bg-amber-500 text-white border-0 shadow-lg shadow-amber-200/30">
+            <Card className="bg-white border border-slate-200 shadow-sm" data-testid="sessions-stat-card">
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-amber-100 text-xs font-medium">Sesiones</p>
-                    <p className="text-2xl font-bold mt-0.5">{completedSessions}</p>
+                    <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">Sesiones</p>
+                    <p className="text-2xl font-bold mt-0.5 text-slate-900" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>{completedSessions}</p>
                   </div>
-                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                    <Target className="w-5 h-5" />
+                  <div className="w-9 h-9 bg-amber-50 rounded-lg flex items-center justify-center">
+                    <Target className="w-4 h-4 text-amber-600" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Ejercicios */}
-            <Card className="bg-rose-500 text-white border-0 shadow-lg shadow-rose-200/30">
+            <Card className="bg-white border border-slate-200 shadow-sm" data-testid="exercises-stat-card">
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-pink-100 text-xs font-medium">Ejercicios</p>
-                    <p className="text-2xl font-bold mt-0.5">150+</p>
+                    <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">Ejercicios</p>
+                    <p className="text-2xl font-bold mt-0.5 text-slate-900" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>150+</p>
                   </div>
-                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                    <Dumbbell className="w-5 h-5" />
+                  <div className="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center">
+                    <Dumbbell className="w-4 h-4 text-slate-500" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Adherencia */}
-            <Card className="bg-[#007AFF] text-white border-0 shadow-lg shadow-blue-200/30">
+            <Card className="bg-white border border-slate-200 shadow-sm" data-testid="adherence-stat-card">
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-blue-100 text-xs font-medium">Adherencia</p>
-                    <p className="text-2xl font-bold mt-0.5">{panelStats?.completion_rate || 92}%</p>
+                    <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">Adherencia</p>
+                    <p className="text-2xl font-bold mt-0.5 text-slate-900" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>{panelStats?.completion_rate || 92}%</p>
                   </div>
-                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5" />
+                  <div className="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-[#007AFF]" />
                   </div>
                 </div>
               </CardContent>
@@ -1145,7 +1129,7 @@ const ControlPanel = ({
           <Card className="shadow-lg border-0 bg-white">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
-                <Target className="w-5 h-5 text-purple-500" />
+                <Target className="w-5 h-5 text-slate-400" />
                 Distribución de Fases
               </CardTitle>
             </CardHeader>
@@ -1284,7 +1268,7 @@ const ControlPanel = ({
           <Card className="shadow-lg border-0 bg-white">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
-                <Activity className="w-5 h-5 text-purple-500" />
+                <Activity className="w-5 h-5 text-slate-400" />
                 Capacidades Físicas
               </CardTitle>
             </CardHeader>
@@ -1297,8 +1281,8 @@ const ControlPanel = ({
                   <Radar
                     name="Capacidades"
                     dataKey="value"
-                    stroke="#8B5CF6"
-                    fill="#8B5CF6"
+                    stroke="#007AFF"
+                    fill="#007AFF"
                     fillOpacity={0.4}
                     strokeWidth={2}
                   />
@@ -1354,7 +1338,7 @@ const ControlPanel = ({
           <Card className="shadow-lg border-0 bg-white">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
-                <CalendarDays className="w-5 h-5 text-indigo-500" />
+                <CalendarDays className="w-5 h-5 text-slate-400" />
                 Calendario de Sesiones
                 <span className="text-xs text-slate-400 font-normal ml-auto">
                   {new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
@@ -1423,7 +1407,7 @@ const ControlPanel = ({
           <Card className="shadow-lg border-0 bg-white">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
-                <Trophy className="w-5 h-5 text-amber-500" />
+                <Trophy className="w-5 h-5 text-slate-400" />
                 Próximas Competencias
               </CardTitle>
             </CardHeader>
@@ -1465,9 +1449,9 @@ const ControlPanel = ({
           <Card className="shadow-lg border-0 bg-white">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
-                <Medal className="w-5 h-5 text-yellow-500" />
+                <Medal className="w-5 h-5 text-slate-400" />
                 Récords Personales
-                <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full ml-auto">PRs</span>
+                <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full ml-auto">PRs</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -1475,11 +1459,11 @@ const ControlPanel = ({
                 {personalRecords.map((pr) => (
                   <div 
                     key={pr.id}
-                    className="flex items-center justify-between p-2 rounded-lg bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-100 hover:shadow-sm transition-all"
+                    className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-100 hover:shadow-sm transition-all"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center">
-                        <Trophy className="w-5 h-5 text-white" />
+                      <div className="w-9 h-9 rounded-lg bg-white border border-slate-200 flex items-center justify-center">
+                        <Trophy className="w-4 h-4 text-amber-500" />
                       </div>
                       <div>
                         <p className="font-semibold text-slate-800 text-sm">{pr.exercise}</p>
@@ -1565,7 +1549,7 @@ const ControlPanel = ({
                   onCheckedChange={(checked) => setExportOptions({...exportOptions, include_calendar: checked})}
                 />
                 <Label htmlFor="calendar" className="flex items-center gap-2 cursor-pointer">
-                  <Calendar className="w-4 h-4 text-purple-500" />
+                  <Calendar className="w-4 h-4 text-slate-400" />
                   Calendario de Sesiones y Eventos
                 </Label>
               </div>

@@ -1132,35 +1132,35 @@ const DashboardPage = () => {
     // ====== SECCIÓN: GESTIÓN DE PLANES (plan-manager) ======
     if (activeDataSection === 'plan-manager') {
       return (
-        <div className="h-full bg-gradient-to-br from-slate-50 via-white to-blue-50/30 p-6 md:p-8">
+        <div className="h-full bg-[#fafaf8] p-6 md:p-8">
           <div className="max-w-5xl mx-auto">
-            {/* Header Material Design 3 */}
-            <div className="mb-8">
-              <div className="flex items-center gap-4 mb-2">
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200/50">
-                  <Clipboard className="w-7 h-7 text-white" />
+            {/* Header */}
+            <div className="mb-6">
+              <div className="flex items-center gap-3 mb-1">
+                <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center">
+                  <Clipboard className="w-5 h-5 text-[#CCFF00]" />
                 </div>
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-slate-800">Planes de Entrenamiento</h1>
-                  <p className="text-slate-500 text-sm md:text-base">Gestiona tus planes de periodización</p>
+                  <h1 className="text-xl font-bold text-slate-900">Planes de Entrenamiento</h1>
+                  <p className="text-slate-500 text-sm">Gestiona tus planes de periodización</p>
                 </div>
               </div>
             </div>
 
-            {/* Acciones Rápidas - Material Design Chips */}
-            <div className="flex flex-wrap gap-3 mb-8">
+            {/* Acciones Rápidas */}
+            <div className="flex flex-wrap gap-3 mb-6">
               <Button
                 onClick={() => setActiveDataSection('training-system')}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl shadow-lg shadow-blue-200/50 transition-all hover:shadow-xl hover:scale-[1.02]"
+                className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg shadow-sm transition-all"
                 data-testid="create-plan-btn"
               >
-                <Plus className="w-5 h-5 mr-2" />
+                <Plus className="w-4 h-4 mr-2" />
                 Nuevo Plan
               </Button>
               <Button
                 variant="outline"
                 onClick={fetchTrainingPlans}
-                className="border-slate-300 text-slate-600 hover:bg-slate-100 rounded-xl px-4"
+                className="border-slate-300 text-slate-600 hover:bg-slate-100 rounded-lg px-4"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Actualizar
@@ -1169,22 +1169,22 @@ const DashboardPage = () => {
 
             {/* Plan Activo Destacado */}
             {activePlan && (
-              <div className="mb-6 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl">
+              <div className="mb-6 p-4 bg-white border border-slate-200 rounded-xl shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center">
-                      <CheckCircle className="w-5 h-5 text-white" />
+                    <div className="w-9 h-9 bg-emerald-50 rounded-lg flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-emerald-600" />
                     </div>
                     <div>
-                      <p className="text-xs text-emerald-600 font-semibold uppercase tracking-wide">Plan Activo</p>
-                      <h3 className="font-bold text-slate-800">{activePlan.name}</h3>
+                      <p className="text-[11px] text-emerald-600 font-semibold uppercase tracking-wider">Plan Activo</p>
+                      <h3 className="font-semibold text-slate-800">{activePlan.name}</h3>
                     </div>
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => handleSetActivePlan(null)}
-                    className="border-emerald-300 text-emerald-700 hover:bg-emerald-100 rounded-lg"
+                    className="border-slate-300 text-slate-600 hover:bg-slate-100 rounded-lg"
                   >
                     Cambiar
                   </Button>
@@ -1307,19 +1307,19 @@ const DashboardPage = () => {
     if (!activePlan && !sectionsWithoutPlan.includes(activeDataSection)) {
       // Mostrar mensaje de que se necesita seleccionar un plan
       return (
-        <div className="h-full flex items-center justify-center bg-gradient-to-br from-slate-50 to-white p-8">
+        <div className="h-full flex items-center justify-center bg-[#fafaf8] p-8">
           <div className="text-center max-w-md">
-            <div className="w-20 h-20 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <AlertTriangle className="w-10 h-10 text-amber-600" />
+            <div className="w-16 h-16 bg-amber-50 rounded-xl flex items-center justify-center mx-auto mb-5">
+              <AlertTriangle className="w-8 h-8 text-amber-600" />
             </div>
-            <h2 className="text-2xl font-bold text-slate-800 mb-3">Selecciona un Plan</h2>
-            <p className="text-slate-500 mb-6">
+            <h2 className="text-xl font-bold text-slate-800 mb-2">Selecciona un Plan</h2>
+            <p className="text-slate-500 text-sm mb-6">
               Para acceder a esta sección necesitas tener un plan de entrenamiento activo. 
               Los datos se guardarán asociados al plan seleccionado.
             </p>
             <Button
               onClick={() => setActiveDataSection('plan-manager')}
-              className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6"
+              className="bg-slate-900 hover:bg-slate-800 text-white rounded-lg px-6"
             >
               <Clipboard className="w-4 h-4 mr-2" />
               Ir a Mis Planes
@@ -1336,14 +1336,14 @@ const DashboardPage = () => {
           <p className="text-slate-400 text-lg">Selecciona una sección del menú para ver los detalles</p>
           
           {/* Card del Plan Activo */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-200 max-w-lg w-full shadow-lg">
+          <div className="bg-white p-6 rounded-xl border border-slate-200 max-w-lg w-full shadow-sm">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Clipboard className="w-7 h-7 text-white" />
+              <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center">
+                <Clipboard className="w-6 h-6 text-[#CCFF00]" />
               </div>
               <div className="flex-1">
-                <p className="text-xs text-blue-600 font-semibold uppercase tracking-wide">Plan Activo</p>
-                <h3 className="font-bold text-xl text-slate-800">{activePlan.name}</h3>
+                <p className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">Plan Activo</p>
+                <h3 className="font-bold text-lg text-slate-800">{activePlan.name}</h3>
                 <p className="text-sm text-slate-500">
                   {activePlan.total_weeks} semanas • {activePlan.model_name || activePlan.model}
                 </p>
@@ -1352,7 +1352,7 @@ const DashboardPage = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => handleSetActivePlan(null)}
-                className="border-blue-300 text-blue-600 hover:bg-blue-100"
+                className="border-slate-300 text-slate-600 hover:bg-slate-100"
               >
                 Cambiar
               </Button>
@@ -1416,7 +1416,7 @@ const DashboardPage = () => {
           {activeAthleteTab === 'sports' && (
             <div className="space-y-4">
               <Card className="border-0 shadow-md overflow-hidden">
-                <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-4 px-5">
+                <div className="bg-white border-b border-slate-200 text-slate-900 py-4 px-5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-lg font-semibold">
                       <Trophy className="w-5 h-5" />
@@ -1424,7 +1424,7 @@ const DashboardPage = () => {
                     </div>
                     <Button 
                       size="sm"
-                      className="bg-white/20 hover:bg-white/30 text-white border-0"
+                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
                       onClick={() => setShowAddCategory(true)}
                     >
                       <Plus className="w-4 h-4 mr-1" />
@@ -1435,7 +1435,7 @@ const DashboardPage = () => {
                 <CardContent className="p-5">
                   {/* Add Category Form */}
                   {showAddCategory && (
-                    <div className="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                    <div className="mb-5 p-4 bg-amber-50 border border-slate-200 rounded-xl">
                       <div className="flex items-center justify-between mb-3">
                         <h4 className="font-semibold text-amber-900">Nueva Categoría</h4>
                         <Button variant="ghost" size="sm" onClick={() => setShowAddCategory(false)}>
@@ -1461,7 +1461,7 @@ const DashboardPage = () => {
                           value={newCategory.color}
                           onChange={(e) => setNewCategory({...newCategory, color: e.target.value})}
                         />
-                        <Button onClick={handleCreateCategory} className="bg-amber-500 hover:bg-amber-600">
+                        <Button onClick={handleCreateCategory} className="bg-slate-900 hover:bg-slate-800">
                           Crear
                         </Button>
                       </div>
@@ -1487,7 +1487,7 @@ const DashboardPage = () => {
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="text-white/70 hover:text-white hover:bg-white/20 h-7 w-7 p-0"
+                            className="text-white/70 hover:text-slate-600 hover:bg-slate-100 h-7 w-7 p-0"
                             onClick={() => handleDeleteCategory(category.id)}
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1561,7 +1561,7 @@ const DashboardPage = () => {
                   </div>
 
                   {/* Tip */}
-                  <div className="mt-5 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
+                  <div className="mt-5 bg-amber-50 border border-slate-200 rounded-lg p-3 flex items-start gap-2">
                     <Lightbulb className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                     <div className="text-sm text-amber-800">
                       <strong>Tip:</strong> Personaliza tu catálogo agregando las categorías y deportes que necesites. Los atletas y equipos podrán seleccionar de este catálogo.
@@ -1609,31 +1609,31 @@ const DashboardPage = () => {
             <div className="space-y-4">
               {/* Header Equipos */}
               <Card className="border-0 shadow-md overflow-hidden">
-                <div className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-4 px-5">
+                <div className="bg-white border-b border-slate-200 text-slate-900 py-4 px-5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-lg font-semibold">
                       <Shield className="w-5 h-5" />
                       Gestión de Equipos
                     </div>
-                    <span className="text-sm bg-white/20 px-3 py-1 rounded-full">{teams.length} equipos</span>
+                    <span className="text-sm bg-slate-100 text-slate-600 px-3 py-1 rounded-full">{teams.length} equipos</span>
                   </div>
                 </div>
                 <CardContent className="p-5">
                   {/* Formulario nuevo equipo */}
-                  <div className="bg-emerald-50/50 p-4 rounded-xl mb-5 border border-emerald-100">
-                    <h4 className="font-semibold mb-3 text-emerald-900 flex items-center gap-2">
+                  <div className="bg-slate-50 p-4 rounded-xl mb-5 border border-slate-200">
+                    <h4 className="font-semibold mb-3 text-slate-800 flex items-center gap-2">
                       <Plus className="w-4 h-4" />
                       Crear Nuevo Equipo
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <Input 
                         placeholder="Nombre del equipo" 
-                        className="h-10 border-emerald-200 focus:border-emerald-400" 
+                        className="h-10 border-slate-200 focus:border-blue-400" 
                         value={newTeam.name}
                         onChange={(e) => setNewTeam({...newTeam, name: e.target.value})}
                       />
                       <Select value={newTeam.sport} onValueChange={(v) => setNewTeam({...newTeam, sport: v})}>
-                        <SelectTrigger className="h-10 border-emerald-200"><SelectValue placeholder="Deporte" /></SelectTrigger>
+                        <SelectTrigger className="h-10 border-slate-200"><SelectValue placeholder="Deporte" /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="football">Fútbol</SelectItem>
                           <SelectItem value="basketball">Baloncesto</SelectItem>
@@ -1646,21 +1646,21 @@ const DashboardPage = () => {
                       </Select>
                       <Input 
                         placeholder="Categoría (ej: Sub-17, Senior)" 
-                        className="h-10 border-emerald-200 focus:border-emerald-400" 
+                        className="h-10 border-slate-200 focus:border-blue-400" 
                         value={newTeam.category}
                         onChange={(e) => setNewTeam({...newTeam, category: e.target.value})}
                       />
                     </div>
                     
                     {/* Afiliación jerárquica de entidades */}
-                    <div className="mt-4 pt-4 border-t border-emerald-200">
-                      <h5 className="text-sm font-semibold text-emerald-800 mb-3 flex items-center gap-2">
+                    <div className="mt-4 pt-4 border-t border-slate-200">
+                      <h5 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
                         <Landmark className="w-4 h-4" />
                         Afiliación a Entidades (Jerarquía)
                       </h5>
-                      <div className="bg-white p-3 rounded-lg border border-emerald-100">
+                      <div className="bg-white p-3 rounded-lg border border-slate-200">
                         <div className="flex flex-wrap items-center gap-2 text-sm">
-                          <div className="flex items-center gap-1 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-lg">
+                          <div className="flex items-center gap-1 px-3 py-1.5 bg-amber-50 border border-slate-200 rounded-lg">
                             <Building2 className="w-4 h-4 text-amber-600" />
                             <Select 
                               value={newTeam.federation || 'none'} 
@@ -1696,7 +1696,7 @@ const DashboardPage = () => {
                             </Select>
                           </div>
                           <ChevronRight className="w-4 h-4 text-slate-400" />
-                          <div className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg">
+                          <div className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 border border-slate-200 rounded-lg">
                             <GraduationCap className="w-4 h-4 text-emerald-600" />
                             <Select 
                               value={newTeam.school || 'none'} 
@@ -1724,7 +1724,7 @@ const DashboardPage = () => {
                     
                     <div className="mt-4 flex justify-end">
                       <Button 
-                        className="bg-emerald-500 hover:bg-emerald-600 h-10 font-medium px-6"
+                        className="bg-slate-900 hover:bg-slate-800 h-10 font-medium px-6"
                         onClick={handleCreateTeam}
                         disabled={!newTeam.name}
                       >
@@ -1744,10 +1744,10 @@ const DashboardPage = () => {
                       </div>
                     ) : (
                       teams.map(team => (
-                        <div key={team.id} className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl hover:shadow-md hover:border-emerald-200 transition-all">
+                        <div key={team.id} className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl hover:shadow-md hover:border-slate-200 transition-all">
                           <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-xl flex items-center justify-center shadow-sm">
-                              <Shield className="w-6 h-6 text-white" />
+                            <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center">
+                              <Shield className="w-6 h-6 text-slate-500" />
                             </div>
                             <div>
                               <p className="font-semibold text-slate-800">{team.name}</p>
@@ -1765,7 +1765,7 @@ const DashboardPage = () => {
                                     </span>
                                   )}
                                   {team.affiliations.school && (
-                                    <span className="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full">
+                                    <span className="text-xs px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-full">
                                       🏫 {entitySchools.find(s => s.id === team.affiliations.school)?.name || 'Escuela'}
                                     </span>
                                   )}
@@ -1777,7 +1777,7 @@ const DashboardPage = () => {
                             <Button 
                               variant="outline" 
                               size="sm"
-                              className="border-emerald-200 text-emerald-600 hover:bg-emerald-50"
+                              className="border-slate-200 text-emerald-600 hover:bg-emerald-50"
                               onClick={() => {/* Manage team athletes */}}
                             >
                               <Users className="w-4 h-4 mr-1" />
@@ -1807,52 +1807,52 @@ const DashboardPage = () => {
             {/* Main Athletes List - 2 columns */}
             <div className="lg:col-span-2 space-y-4">
               <Card className="border-0 shadow-md overflow-hidden">
-                <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white py-4 px-5">
+                <div className="bg-white border-b border-slate-200 text-slate-900 py-4 px-5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-lg font-semibold">
                       <Users className="w-5 h-5" />
                       Gestión de Atletas
                     </div>
-                    <span className="text-sm bg-white/20 px-3 py-1 rounded-full">{filteredAthletes.length} de {athletes.length}</span>
+                    <span className="text-sm bg-slate-100 text-slate-600 px-3 py-1 rounded-full">{filteredAthletes.length} de {athletes.length}</span>
                   </div>
                 </div>
                 <CardContent className="p-5">
                   {/* Formulario nuevo atleta */}
-                  <div className="bg-indigo-50/50 p-4 rounded-xl mb-5 border border-indigo-100">
-                    <h4 className="font-semibold mb-3 text-indigo-900 flex items-center gap-2">
+                  <div className="bg-slate-50 p-4 rounded-xl mb-5 border border-slate-200">
+                    <h4 className="font-semibold mb-3 text-slate-800 flex items-center gap-2">
                       <Plus className="w-4 h-4" />
                   Registrar Nuevo Atleta
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <Input 
                     placeholder="Nombre completo" 
-                    className="h-10 border-indigo-200 focus:border-indigo-400" 
+                    className="h-10 border-slate-200 focus:border-blue-400" 
                     value={newAthlete.name}
                     onChange={(e) => setNewAthlete({...newAthlete, name: e.target.value})}
                   />
                   <Input 
                     placeholder="Email" 
                     type="email" 
-                    className="h-10 border-indigo-200 focus:border-indigo-400" 
+                    className="h-10 border-slate-200 focus:border-blue-400" 
                     value={newAthlete.email}
                     onChange={(e) => setNewAthlete({...newAthlete, email: e.target.value})}
                   />
                   <Input 
                     placeholder="Fecha nacimiento" 
                     type="date" 
-                    className="h-10 border-indigo-200 focus:border-indigo-400" 
+                    className="h-10 border-slate-200 focus:border-blue-400" 
                     value={newAthlete.birthDate}
                     onChange={(e) => setNewAthlete({...newAthlete, birthDate: e.target.value})}
                   />
                   <Select value={newAthlete.gender} onValueChange={(v) => setNewAthlete({...newAthlete, gender: v})}>
-                    <SelectTrigger className="h-10 border-indigo-200"><SelectValue placeholder="Género" /></SelectTrigger>
+                    <SelectTrigger className="h-10 border-slate-200"><SelectValue placeholder="Género" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="masculino">Masculino</SelectItem>
                       <SelectItem value="femenino">Femenino</SelectItem>
                     </SelectContent>
                   </Select>
                   <Select value={newAthlete.sport} onValueChange={(v) => setNewAthlete({...newAthlete, sport: v})}>
-                    <SelectTrigger className="h-10 border-indigo-200"><SelectValue placeholder="Deporte" /></SelectTrigger>
+                    <SelectTrigger className="h-10 border-slate-200"><SelectValue placeholder="Deporte" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="football">Fútbol</SelectItem>
                       <SelectItem value="athletics">Atletismo</SelectItem>
@@ -1867,12 +1867,12 @@ const DashboardPage = () => {
                   </Select>
                   <Input 
                     placeholder="Categoría" 
-                    className="h-10 border-indigo-200 focus:border-indigo-400" 
+                    className="h-10 border-slate-200 focus:border-blue-400" 
                     value={newAthlete.category}
                     onChange={(e) => setNewAthlete({...newAthlete, category: e.target.value})}
                   />
                   <Select value={newAthlete.level} onValueChange={(v) => setNewAthlete({...newAthlete, level: v})}>
-                    <SelectTrigger className="h-10 border-indigo-200"><SelectValue placeholder="Nivel" /></SelectTrigger>
+                    <SelectTrigger className="h-10 border-slate-200"><SelectValue placeholder="Nivel" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="principiante">Principiante</SelectItem>
                       <SelectItem value="intermedio">Intermedio</SelectItem>
@@ -1883,8 +1883,8 @@ const DashboardPage = () => {
                 </div>
                 
                 {/* Afiliaciones a entidades */}
-                <div className="mt-4 pt-4 border-t border-indigo-200">
-                  <h5 className="text-sm font-semibold text-indigo-800 mb-3 flex items-center gap-2">
+                <div className="mt-4 pt-4 border-t border-slate-200">
+                  <h5 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
                     <Landmark className="w-4 h-4" />
                     Afiliación a Entidades (opcional)
                   </h5>
@@ -1893,7 +1893,7 @@ const DashboardPage = () => {
                       value={newAthlete.federation || 'none'} 
                       onValueChange={(v) => setNewAthlete({...newAthlete, federation: v === 'none' ? '' : v})}
                     >
-                      <SelectTrigger className="h-10 border-amber-200 bg-amber-50/50">
+                      <SelectTrigger className="h-10 border-slate-200 bg-slate-50">
                         <SelectValue placeholder="🏛️ Federación" />
                       </SelectTrigger>
                       <SelectContent>
@@ -1921,7 +1921,7 @@ const DashboardPage = () => {
                       value={newAthlete.school || 'none'} 
                       onValueChange={(v) => setNewAthlete({...newAthlete, school: v === 'none' ? '' : v})}
                     >
-                      <SelectTrigger className="h-10 border-emerald-200 bg-emerald-50/50">
+                      <SelectTrigger className="h-10 border-slate-200 bg-slate-50">
                         <SelectValue placeholder="🏫 Escuela" />
                       </SelectTrigger>
                       <SelectContent>
@@ -1933,7 +1933,7 @@ const DashboardPage = () => {
                     </Select>
                   </div>
                   {entities.length === 0 && (
-                    <p className="text-xs text-indigo-600 mt-2">
+                    <p className="text-xs text-[#007AFF] mt-2">
                       💡 Tip: Crea entidades en la sección <strong>Organización → Entidades</strong> para afiliar atletas
                     </p>
                   )}
@@ -1941,7 +1941,7 @@ const DashboardPage = () => {
                 
                 <div className="mt-4 flex justify-end">
                   <Button 
-                    className="bg-indigo-500 hover:bg-indigo-600 h-10 font-medium px-6"
+                    className="bg-slate-900 hover:bg-slate-800 h-10 font-medium px-6"
                     onClick={handleCreateAthlete}
                     disabled={savingAthlete}
                   >
@@ -1959,7 +1959,7 @@ const DashboardPage = () => {
                     variant={athleteFilterEntity === 'all' ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setAthleteFilterEntity('all')}
-                    className={athleteFilterEntity === 'all' ? 'bg-indigo-500' : ''}
+                    className={athleteFilterEntity === 'all' ? 'bg-[#007AFF]' : ''}
                   >
                     Todos
                   </Button>
@@ -1974,7 +1974,7 @@ const DashboardPage = () => {
                         variant={isActive ? 'default' : 'outline'}
                         size="sm"
                         onClick={() => setAthleteFilterEntity(isActive ? 'all' : entity.id)}
-                        className={isActive ? 'bg-indigo-500' : ''}
+                        className={isActive ? 'bg-[#007AFF]' : ''}
                       >
                         {emoji} {entity.name}
                       </Button>
@@ -2001,10 +2001,10 @@ const DashboardPage = () => {
                   filteredAthletes.map(athlete => {
                     const affiliationNames = getAffiliationNames(athlete.affiliations);
                     return (
-                      <div key={athlete.id} className={`flex items-center justify-between p-4 bg-white border rounded-xl hover:shadow-md transition-all duration-200 ${selectedAthleteId === athlete.id ? 'border-indigo-400 ring-2 ring-indigo-200' : 'border-slate-200 hover:border-indigo-200'}`}>
+                      <div key={athlete.id} className={`flex items-center justify-between p-4 bg-white border rounded-xl hover:shadow-md transition-all duration-200 ${selectedAthleteId === athlete.id ? 'border-blue-400 ring-2 ring-blue-100' : 'border-slate-200 hover:border-slate-200'}`}>
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-full flex items-center justify-center shadow-sm">
-                            <span className="text-white font-bold text-lg">{athlete.name?.charAt(0)}</span>
+                          <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center">
+                            <span className="text-slate-600 font-bold text-lg">{athlete.name?.charAt(0)}</span>
                           </div>
                           <div>
                             <p className="font-semibold text-slate-800">{athlete.name}</p>
@@ -2017,7 +2017,7 @@ const DashboardPage = () => {
                                     className={`text-xs px-2 py-0.5 rounded-full ${
                                       aff.type === 'federation' ? 'bg-amber-100 text-amber-700' :
                                       aff.type === 'club' ? 'bg-blue-100 text-blue-700' :
-                                      aff.type === 'school' ? 'bg-emerald-100 text-emerald-700' :
+                                      aff.type === 'school' ? 'bg-emerald-50 text-emerald-700' :
                                       'bg-slate-100 text-slate-700'
                                     }`}
                                   >
@@ -2033,7 +2033,7 @@ const DashboardPage = () => {
                             variant={selectedAthleteId === athlete.id ? "default" : "outline"} 
                             size="sm" 
                             onClick={() => setSelectedAthleteId(selectedAthleteId === athlete.id ? null : athlete.id)} 
-                            className={selectedAthleteId === athlete.id ? "bg-indigo-500" : "border-indigo-200 text-indigo-600 hover:bg-indigo-50"}
+                            className={selectedAthleteId === athlete.id ? "bg-[#007AFF]" : "border-slate-200 text-[#007AFF] hover:bg-blue-50"}
                           >
                             {selectedAthleteId === athlete.id ? '✓ Seleccionado' : 'Seleccionar'}
                           </Button>
@@ -2075,31 +2075,31 @@ const DashboardPage = () => {
           <div className="space-y-4">
             {/* Header Equipos */}
             <Card className="border-0 shadow-md overflow-hidden">
-              <div className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-4 px-5">
+              <div className="bg-white border-b border-slate-200 text-slate-900 py-4 px-5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-lg font-semibold">
                     <Shield className="w-5 h-5" />
                     Gestión de Equipos
                   </div>
-                  <span className="text-sm bg-white/20 px-3 py-1 rounded-full">{teams.length} equipos</span>
+                  <span className="text-sm bg-slate-100 text-slate-600 px-3 py-1 rounded-full">{teams.length} equipos</span>
                 </div>
               </div>
               <CardContent className="p-5">
                 {/* Formulario nuevo equipo */}
-                <div className="bg-emerald-50/50 p-4 rounded-xl mb-5 border border-emerald-100">
-                  <h4 className="font-semibold mb-3 text-emerald-900 flex items-center gap-2">
+                <div className="bg-slate-50 p-4 rounded-xl mb-5 border border-slate-200">
+                  <h4 className="font-semibold mb-3 text-slate-800 flex items-center gap-2">
                     <Plus className="w-4 h-4" />
                     Crear Nuevo Equipo
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <Input 
                       placeholder="Nombre del equipo" 
-                      className="h-10 border-emerald-200 focus:border-emerald-400" 
+                      className="h-10 border-slate-200 focus:border-blue-400" 
                       value={newTeam.name}
                       onChange={(e) => setNewTeam({...newTeam, name: e.target.value})}
                     />
                     <Select value={newTeam.sport} onValueChange={(v) => setNewTeam({...newTeam, sport: v})}>
-                      <SelectTrigger className="h-10 border-emerald-200"><SelectValue placeholder="Deporte" /></SelectTrigger>
+                      <SelectTrigger className="h-10 border-slate-200"><SelectValue placeholder="Deporte" /></SelectTrigger>
                       <SelectContent>
                         {sportsCatalog.flatMap(category => 
                           (category.sports || []).map(sport => (
@@ -2108,7 +2108,7 @@ const DashboardPage = () => {
                         )}
                       </SelectContent>
                     </Select>
-                    <Button onClick={handleCreateTeam} className="bg-emerald-500 hover:bg-emerald-600">
+                    <Button onClick={handleCreateTeam} className="bg-slate-900 hover:bg-slate-800">
                       <Plus className="w-4 h-4 mr-2" />
                       Crear Equipo
                     </Button>
@@ -2122,7 +2122,7 @@ const DashboardPage = () => {
                       <div key={team.id} className="p-4 border border-slate-200 rounded-xl hover:shadow-md transition-all">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                            <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center">
                               <Shield className="w-6 h-6 text-emerald-600" />
                             </div>
                             <div>
@@ -2167,7 +2167,7 @@ const DashboardPage = () => {
         <div className="p-4">
           <div className="space-y-4">
             <Card className="border-0 shadow-md overflow-hidden">
-              <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-4 px-5">
+              <div className="bg-white border-b border-slate-200 text-slate-900 py-4 px-5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-lg font-semibold">
                     <Trophy className="w-5 h-5" />
@@ -2175,7 +2175,7 @@ const DashboardPage = () => {
                   </div>
                   <Button 
                     size="sm"
-                    className="bg-white/20 hover:bg-white/30 text-white border-0"
+                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
                     onClick={() => setShowAddCategory(true)}
                   >
                     <Plus className="w-4 h-4 mr-1" />
@@ -2186,7 +2186,7 @@ const DashboardPage = () => {
               <CardContent className="p-5">
                 {/* Add Category Form */}
                 {showAddCategory && (
-                  <div className="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                  <div className="mb-5 p-4 bg-amber-50 border border-slate-200 rounded-xl">
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="font-semibold text-amber-900">Nueva Categoría</h4>
                       <Button variant="ghost" size="sm" onClick={() => setShowAddCategory(false)}>
@@ -2212,7 +2212,7 @@ const DashboardPage = () => {
                         value={newCategory.color}
                         onChange={(e) => setNewCategory({...newCategory, color: e.target.value})}
                       />
-                      <Button onClick={handleCreateCategory} className="bg-amber-500 hover:bg-amber-600">
+                      <Button onClick={handleCreateCategory} className="bg-slate-900 hover:bg-slate-800">
                         Crear
                       </Button>
                     </div>
@@ -2230,13 +2230,13 @@ const DashboardPage = () => {
                         <div className="flex items-center gap-2 text-white">
                           <span className="text-xl">{category.icon || '🏆'}</span>
                           <h4 className="font-semibold">{category.name}</h4>
-                          <span className="text-sm bg-white/20 px-2 py-0.5 rounded-full ml-2">{category.sports?.length || 0} deportes</span>
+                          <span className="text-sm bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full ml-2">{category.sports?.length || 0} deportes</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Button 
                             size="sm" 
                             variant="ghost"
-                            className="text-white hover:bg-white/20"
+                            className="text-slate-600 hover:bg-slate-100"
                             onClick={() => {
                               setNewSport({...newSport, category: category.id});
                               setShowAddSport(category.id);
@@ -2248,7 +2248,7 @@ const DashboardPage = () => {
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="text-white/70 hover:text-white hover:bg-white/20 h-7 w-7 p-0"
+                            className="text-white/70 hover:text-slate-600 hover:bg-slate-100 h-7 w-7 p-0"
                             onClick={() => handleDeleteCategory(category.id)}
                           >
                             <Trash2 className="w-4 h-4" />
@@ -2258,7 +2258,7 @@ const DashboardPage = () => {
 
                       {/* Add Sport Form */}
                       {showAddSport === category.id && (
-                        <div className="p-4 bg-amber-50/50 border-b">
+                        <div className="p-4 bg-slate-50 border-b">
                           <div className="flex flex-wrap gap-3 items-end">
                             <Input 
                               placeholder="Nombre del deporte" 
@@ -2274,7 +2274,7 @@ const DashboardPage = () => {
                             />
                             <Button 
                               onClick={() => handleCreateSport(category.id)} 
-                              className="bg-amber-500 hover:bg-amber-600"
+                              className="bg-slate-900 hover:bg-slate-800"
                             >
                               Crear
                             </Button>
@@ -2342,7 +2342,7 @@ const DashboardPage = () => {
                 {editingSportId && (
                   <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-                      <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-5 rounded-t-2xl">
+                      <div className="bg-white border-b border-slate-200 text-slate-900 p-5 rounded-t-2xl">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <FileText className="w-6 h-6" />
@@ -2354,7 +2354,7 @@ const DashboardPage = () => {
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="text-white hover:bg-white/20"
+                            className="text-slate-600 hover:bg-slate-100"
                             onClick={() => {
                               setEditingSportId(null);
                               setEditingSportCharacterization({});
@@ -2509,23 +2509,23 @@ const DashboardPage = () => {
       return (
         <div className="p-4 space-y-4">
           <Card className="border-0 shadow-md overflow-hidden">
-            <div className="bg-gradient-to-r from-slate-600 to-slate-700 text-white py-4 px-5">
+            <div className="bg-white border-b border-slate-200 text-slate-900 py-4 px-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-lg font-semibold">
                   <Calendar className="w-5 h-5" />
                   Calendario de Entrenamiento
                 </div>
                 <div className="flex gap-2 items-center">
-                  <Button size="sm" variant="ghost" className="text-white hover:bg-white/20 rounded-full w-8 h-8 p-0">◀</Button>
+                  <Button size="sm" variant="ghost" className="text-slate-600 hover:bg-slate-100 rounded-full w-8 h-8 p-0">◀</Button>
                   <span className="px-4 py-1.5 bg-white/20 rounded-full text-sm font-medium">{hoy.toLocaleDateString('es', { month: 'long', year: 'numeric' })}</span>
-                  <Button size="sm" variant="ghost" className="text-white hover:bg-white/20 rounded-full w-8 h-8 p-0">▶</Button>
+                  <Button size="sm" variant="ghost" className="text-slate-600 hover:bg-slate-100 rounded-full w-8 h-8 p-0">▶</Button>
                 </div>
               </div>
             </div>
             <CardContent className="p-5">
               {/* Leyenda */}
               <div className="flex flex-wrap gap-4 mb-5 text-sm">
-                <span className="flex items-center gap-2"><div className="w-3 h-3 bg-indigo-500 rounded-full"></div> Entrenamiento</span>
+                <span className="flex items-center gap-2"><div className="w-3 h-3 bg-[#007AFF] rounded-full"></div> Entrenamiento</span>
                 <span className="flex items-center gap-2"><div className="w-3 h-3 bg-emerald-500 rounded-full"></div> Competencia</span>
                 <span className="flex items-center gap-2"><div className="w-3 h-3 bg-amber-500 rounded-full"></div> Test</span>
                 <span className="flex items-center gap-2"><div className="w-3 h-3 bg-slate-300 rounded-full"></div> Descanso</span>
@@ -2547,11 +2547,11 @@ const DashboardPage = () => {
                         key={i} 
                         className={`min-h-[85px] p-2 border-t border-l border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors ${!esMesActual ? 'bg-slate-50/50 text-slate-400' : ''} ${esHoy ? 'bg-indigo-50' : ''}`}
                       >
-                        <div className={`text-sm font-medium mb-1 ${esHoy ? 'bg-indigo-500 text-white w-7 h-7 rounded-full flex items-center justify-center' : ''}`}>
+                        <div className={`text-sm font-medium mb-1 ${esHoy ? 'bg-[#007AFF] text-white w-7 h-7 rounded-full flex items-center justify-center' : ''}`}>
                           {fecha.getDate()}
                         </div>
                         {esMesActual && i % 3 === 0 && (
-                          <div className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full truncate font-medium">Sesión</div>
+                          <div className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full truncate font-medium">Sesión</div>
                         )}
                       </div>
                     );
@@ -2569,7 +2569,7 @@ const DashboardPage = () => {
       return (
         <div className="p-4 space-y-4">
           <Card className="border-0 shadow-md overflow-hidden">
-            <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white py-4 px-5">
+            <div className="bg-white border-b border-slate-200 text-slate-900 py-4 px-5">
               <div className="flex items-center gap-2 text-lg font-semibold">
                 <Brain className="w-5 h-5" />
                 Generar Plan con Inteligencia Artificial
@@ -2586,26 +2586,26 @@ const DashboardPage = () => {
                   <div className="space-y-4">
                     <div>
                       <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Objetivo Principal</label>
-                      <Input placeholder="Ej: Mejorar resistencia aeróbica" className="mt-1 border-amber-200 focus:border-amber-400" />
+                      <Input placeholder="Ej: Mejorar resistencia aeróbica" className="mt-1 border-slate-200 focus:border-amber-400" />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Duración (semanas)</label>
-                        <Input type="number" placeholder="12" className="mt-1 border-amber-200 focus:border-amber-400" />
+                        <Input type="number" placeholder="12" className="mt-1 border-slate-200 focus:border-amber-400" />
                       </div>
                       <div>
                         <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Sesiones/semana</label>
-                        <Input type="number" placeholder="5" className="mt-1 border-amber-200 focus:border-amber-400" />
+                        <Input type="number" placeholder="5" className="mt-1 border-slate-200 focus:border-amber-400" />
                       </div>
                     </div>
                     <div>
                       <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Deporte</label>
-                      <Input placeholder="Ej: Atletismo - Fondo" className="mt-1 border-amber-200 focus:border-amber-400" />
+                      <Input placeholder="Ej: Atletismo - Fondo" className="mt-1 border-slate-200 focus:border-amber-400" />
                     </div>
                     <div>
                       <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Nivel del Atleta</label>
                       <Select>
-                        <SelectTrigger className="border-amber-200"><SelectValue placeholder="Seleccionar nivel" /></SelectTrigger>
+                        <SelectTrigger className="border-slate-200"><SelectValue placeholder="Seleccionar nivel" /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="principiante">Principiante (0-1 año)</SelectItem>
                           <SelectItem value="intermedio">Intermedio (1-3 años)</SelectItem>
@@ -2616,13 +2616,13 @@ const DashboardPage = () => {
                     </div>
                     <div>
                       <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Competencia Objetivo</label>
-                      <Input type="date" className="mt-1 border-amber-200 focus:border-amber-400" />
+                      <Input type="date" className="mt-1 border-slate-200 focus:border-amber-400" />
                     </div>
                     <div>
                       <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Observaciones adicionales</label>
-                      <textarea className="w-full border border-amber-200 rounded-lg p-3 text-sm h-24 mt-1 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400" placeholder="Lesiones previas, limitaciones, preferencias..." />
+                      <textarea className="w-full border border-slate-200 rounded-lg p-3 text-sm h-24 mt-1 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400" placeholder="Lesiones previas, limitaciones, preferencias..." />
                     </div>
-                    <Button className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 font-semibold h-11">
+                    <Button className="w-full bg-slate-900 hover:bg-slate-800 font-semibold h-11">
                       <Brain className="w-4 h-4 mr-2" />
                       Generar Plan con IA
                     </Button>
@@ -2630,7 +2630,7 @@ const DashboardPage = () => {
                 </div>
                 
                 {/* Preview */}
-                <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-100">
+                <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
                   <h4 className="font-semibold text-amber-900 mb-4">Vista Previa del Plan</h4>
                   <div className="text-center py-12 text-amber-700/60">
                     <Brain className="w-20 h-20 mx-auto mb-4 opacity-30" />
@@ -2650,14 +2650,14 @@ const DashboardPage = () => {
       return (
         <div className="p-4 space-y-4">
           <Card className="border-0 shadow-md overflow-hidden">
-            <div style={{ background: 'linear-gradient(to right, #8b5cf6, #7c3aed)' }} className="text-white py-4 px-5 rounded-t-xl">
+            <div className="bg-white border-b border-slate-200 text-slate-900 py-4 px-5 rounded-t-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-lg font-semibold">
                   <Calendar className="w-5 h-5" />
                   Calendario de Eventos y Competencias
                 </div>
                 {selectedAthleteId && (
-                  <span className="text-sm bg-white/20 px-3 py-1 rounded-full">{events.length} eventos</span>
+                  <span className="text-sm bg-slate-100 text-slate-600 px-3 py-1 rounded-full">{events.length} eventos</span>
                 )}
               </div>
             </div>
@@ -2742,9 +2742,9 @@ const DashboardPage = () => {
                     ) : (
                       events.map(event => {
                         const priorityColors = {
-                          alta: { bg: 'bg-emerald-50', border: 'border-emerald-200', bar: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-700' },
-                          media: { bg: 'bg-amber-50', border: 'border-amber-200', bar: 'bg-amber-500', badge: 'bg-amber-100 text-amber-700' },
-                          baja: { bg: 'bg-indigo-50', border: 'border-indigo-200', bar: 'bg-indigo-500', badge: 'bg-indigo-100 text-indigo-700' }
+                          alta: { bg: 'bg-emerald-50', border: 'border-slate-200', bar: 'bg-emerald-500', badge: 'bg-emerald-50 text-emerald-700' },
+                          media: { bg: 'bg-amber-50', border: 'border-slate-200', bar: 'bg-amber-500', badge: 'bg-amber-100 text-amber-700' },
+                          baja: { bg: 'bg-indigo-50', border: 'border-slate-200', bar: 'bg-[#007AFF]', badge: 'bg-blue-50 text-blue-700' }
                         };
                         const colors = priorityColors[event.priority] || priorityColors.media;
                         const typeLabels = {
@@ -2795,11 +2795,11 @@ const DashboardPage = () => {
     if (activeDataSection === 'objectives') {
       const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
       return (
-        <div className="p-6 space-y-6 overflow-y-auto h-full bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="p-6 space-y-6 overflow-y-auto h-full bg-[#fafaf8]">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-rose-500 to-pink-500 rounded-2xl shadow-lg mb-4">
-              <Target className="w-8 h-8 text-white" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-2xl mb-4">
+              <Target className="w-8 h-8 text-slate-500" />
             </div>
             <h1 className="text-3xl font-bold text-slate-800 mb-2">Información General y Objetivos del Plan</h1>
             <p className="text-slate-500 max-w-2xl mx-auto">
@@ -2812,7 +2812,7 @@ const DashboardPage = () => {
             
             {/* INFORMACIÓN GENERAL */}
             <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-4">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <FileText className="w-5 h-5" />
                   Información General
@@ -2823,7 +2823,7 @@ const DashboardPage = () => {
                   {/* 1. Deporte/Objetivo */}
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <span className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                      <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">1</span>
                       Deporte / Objetivo de Entrenamiento
                     </label>
                     <Input placeholder="Ej: Fútbol - Preparación pretemporada" className="border-slate-200" />
@@ -2832,7 +2832,7 @@ const DashboardPage = () => {
                   {/* 2. Categoría */}
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <span className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                      <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">2</span>
                       Categoría
                     </label>
                     <Select>
@@ -2851,7 +2851,7 @@ const DashboardPage = () => {
                   {/* 3. Edad */}
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <span className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                      <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">3</span>
                       Edad / Rango de Edades
                     </label>
                     <Input placeholder="Ej: 18-22 años" className="border-slate-200" />
@@ -2860,7 +2860,7 @@ const DashboardPage = () => {
                   {/* 4. Clasificación */}
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <span className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">4</span>
+                      <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">4</span>
                       Clasificación / Nivel
                     </label>
                     <Select>
@@ -2878,7 +2878,7 @@ const DashboardPage = () => {
                   {/* 5. Fechas */}
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <span className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">5</span>
+                      <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">5</span>
                       Fecha de Inicio
                     </label>
                     <Input type="date" className="border-slate-200" />
@@ -2886,7 +2886,7 @@ const DashboardPage = () => {
                   
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <span className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">5</span>
+                      <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">5</span>
                       Fecha de Finalización
                     </label>
                     <Input type="date" className="border-slate-200" />
@@ -2896,7 +2896,7 @@ const DashboardPage = () => {
                 {/* 6. Entrenador */}
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                    <span className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">6</span>
+                    <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">6</span>
                     Entrenador Responsable
                   </label>
                   <Input placeholder="Nombre del entrenador" defaultValue={user?.name || ''} className="border-slate-200" />
@@ -2906,11 +2906,11 @@ const DashboardPage = () => {
 
             {/* OBJETIVOS A LARGO PLAZO */}
             <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-4">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Target className="w-5 h-5" />
                   Objetivos a Largo Plazo
-                  <Badge className="bg-white/20 text-white ml-2">Macrociclo</Badge>
+                  <Badge className="bg-slate-100 text-slate-700 ml-2">Macrociclo</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-5 space-y-4">
@@ -2918,7 +2918,7 @@ const DashboardPage = () => {
                 {[1, 2, 3].map((num) => (
                   <div key={num} className="space-y-2">
                     <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <span className="w-6 h-6 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-xs font-bold">{num}</span>
+                      <span className="w-6 h-6 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-xs font-bold">{num}</span>
                       Objetivo {num}
                     </label>
                     <textarea 
@@ -2933,11 +2933,11 @@ const DashboardPage = () => {
 
             {/* OBJETIVOS A MEDIO PLAZO */}
             <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-4">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Target className="w-5 h-5" />
                   Objetivos a Medio Plazo
-                  <Badge className="bg-white/20 text-white ml-2">Mesociclo</Badge>
+                  <Badge className="bg-slate-100 text-slate-700 ml-2">Mesociclo</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-5 space-y-4">
@@ -2960,11 +2960,11 @@ const DashboardPage = () => {
 
             {/* OBJETIVOS A CORTO PLAZO */}
             <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-4">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Target className="w-5 h-5" />
                   Objetivos a Corto Plazo
-                  <Badge className="bg-white/20 text-white ml-2">Microciclo</Badge>
+                  <Badge className="bg-slate-100 text-slate-700 ml-2">Microciclo</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-5 space-y-4">
@@ -2988,12 +2988,12 @@ const DashboardPage = () => {
 
           {/* TABLA DE OBJETIVOS POR ASPECTO DE PREPARACIÓN */}
           <Card className="border-0 shadow-xl overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-violet-600 to-purple-600 text-white py-4">
+            <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Layers className="w-5 h-5" />
                 Objetivos por Aspecto de Preparación
               </CardTitle>
-              <p className="text-sm text-white/80 mt-1">Defina los objetivos e indicadores para cada aspecto de la preparación deportiva</p>
+              <p className="text-sm text-slate-500 mt-1">Defina los objetivos e indicadores para cada aspecto de la preparación deportiva</p>
             </CardHeader>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
@@ -3039,10 +3039,10 @@ const DashboardPage = () => {
                     </tr>
                     
                     {/* Preparación Física Especial */}
-                    <tr className="hover:bg-indigo-50 transition-colors">
+                    <tr className="hover:bg-blue-50 transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 bg-indigo-500 rounded-sm"></span>
+                          <span className="w-3 h-3 bg-[#007AFF] rounded-sm"></span>
                           <span className="font-medium text-slate-700">Prep. Física Especial</span>
                         </div>
                       </td>
@@ -3124,8 +3124,8 @@ const DashboardPage = () => {
           </Card>
 
           {/* Nota Final */}
-          <div className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-xl p-4 text-center shadow-lg">
-            <p className="text-white/90 text-sm">
+          <div className="bg-slate-100 rounded-xl p-4 text-center">
+            <p className="text-slate-600 text-sm">
               <Sparkles className="w-4 h-4 inline mr-2 text-amber-400" />
               La claridad en esta sección es crucial para guiar el desarrollo del programa de entrenamiento y medir el progreso hacia los objetivos establecidos.
             </p>
@@ -3137,7 +3137,7 @@ const DashboardPage = () => {
               <X className="w-4 h-4 mr-2" />
               Cancelar
             </Button>
-            <Button className="bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white shadow-lg">
+            <Button className="bg-slate-900 hover:bg-slate-800 text-white">
               <Save className="w-4 h-4 mr-2" />
               Guardar Objetivos del Plan
             </Button>
@@ -3150,11 +3150,11 @@ const DashboardPage = () => {
     if (activeDataSection === 'prev-plan') {
       const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
       return (
-        <div className="p-6 space-y-6 overflow-y-auto h-full bg-gradient-to-br from-slate-50 to-rose-50">
+        <div className="p-6 space-y-6 overflow-y-auto h-full bg-[#fafaf8]">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-rose-500 to-red-500 rounded-2xl shadow-lg mb-4">
-              <FileText className="w-8 h-8 text-white" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-2xl mb-4">
+              <FileText className="w-8 h-8 text-slate-500" />
             </div>
             <h1 className="text-3xl font-bold text-slate-800 mb-2">Análisis del Plan Anterior</h1>
             <p className="text-slate-500 max-w-2xl mx-auto">
@@ -3165,7 +3165,7 @@ const DashboardPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Información del Plan Anterior */}
             <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-800 text-white py-4">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Calendar className="w-5 h-5" />
                   Información del Plan Anterior
@@ -3195,7 +3195,7 @@ const DashboardPage = () => {
 
             {/* Cumplimiento de Objetivos */}
             <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-emerald-500 to-green-500 text-white py-4">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <CheckCircle className="w-5 h-5" />
                   Cumplimiento de Objetivos
@@ -3226,7 +3226,7 @@ const DashboardPage = () => {
 
             {/* Análisis de Fortalezas */}
             <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-4">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <TrendingUp className="w-5 h-5" />
                   Fortalezas del Plan Anterior
@@ -3245,7 +3245,7 @@ const DashboardPage = () => {
 
             {/* Análisis de Debilidades */}
             <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-4">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <AlertTriangle className="w-5 h-5" />
                   Debilidades y Áreas de Mejora
@@ -3264,7 +3264,7 @@ const DashboardPage = () => {
 
             {/* Indicadores de Rendimiento */}
             <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-violet-500 to-purple-500 text-white py-4">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <BarChart className="w-5 h-5" />
                   Indicadores de Rendimiento
@@ -3298,7 +3298,7 @@ const DashboardPage = () => {
 
             {/* Lesiones y Problemas */}
             <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-red-500 to-rose-500 text-white py-4">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Heart className="w-5 h-5" />
                   Lesiones y Problemas de Salud
@@ -3331,7 +3331,7 @@ const DashboardPage = () => {
 
           {/* Conclusiones y Recomendaciones */}
           <Card className="border-0 shadow-xl overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-4">
+            <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Lightbulb className="w-5 h-5" />
                 Conclusiones y Recomendaciones para el Nuevo Plan
@@ -3350,8 +3350,8 @@ const DashboardPage = () => {
           </Card>
 
           {/* Nota Final */}
-          <div className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-xl p-4 text-center shadow-lg">
-            <p className="text-white/90 text-sm">
+          <div className="bg-slate-100 rounded-xl p-4 text-center">
+            <p className="text-slate-600 text-sm">
               <Sparkles className="w-4 h-4 inline mr-2 text-amber-400" />
               Este análisis es fundamental para la mejora continua del proceso de entrenamiento y evitar repetir errores del pasado.
             </p>
@@ -3363,7 +3363,7 @@ const DashboardPage = () => {
               <X className="w-4 h-4 mr-2" />
               Cancelar
             </Button>
-            <Button className="bg-gradient-to-r from-rose-500 to-red-500 hover:from-rose-600 hover:to-red-600 text-white shadow-lg">
+            <Button className="bg-slate-900 hover:bg-slate-800 text-white">
               <Save className="w-4 h-4 mr-2" />
               Guardar Análisis
             </Button>
@@ -3375,11 +3375,11 @@ const DashboardPage = () => {
     // Render Sport Characterization component
     if (activeDataSection === 'sport-char') {
       return (
-        <div className="p-6 space-y-6 overflow-y-auto h-full bg-gradient-to-br from-slate-50 to-amber-50">
+        <div className="p-6 space-y-6 overflow-y-auto h-full bg-[#fafaf8]">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl shadow-lg mb-4">
-              <Trophy className="w-8 h-8 text-white" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-2xl mb-4">
+              <Trophy className="w-8 h-8 text-slate-500" />
             </div>
             <h1 className="text-3xl font-bold text-slate-800 mb-2">Catálogo de Deportes</h1>
             <p className="text-slate-500 max-w-2xl mx-auto">
@@ -3389,7 +3389,7 @@ const DashboardPage = () => {
 
           {/* Main Card */}
           <Card className="border-0 shadow-xl overflow-hidden">
-            <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-4 px-5">
+            <div className="bg-white border-b border-slate-200 text-slate-900 py-4 px-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-lg font-semibold">
                   <Trophy className="w-5 h-5" />
@@ -3397,7 +3397,7 @@ const DashboardPage = () => {
                 </div>
                 <Button 
                   size="sm"
-                  className="bg-white/20 hover:bg-white/30 text-white border-0"
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
                   onClick={() => setShowAddCategory(true)}
                 >
                   <Plus className="w-4 h-4 mr-1" />
@@ -3408,7 +3408,7 @@ const DashboardPage = () => {
             <CardContent className="p-5">
               {/* Add Category Form */}
               {showAddCategory && (
-                <div className="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                <div className="mb-5 p-4 bg-amber-50 border border-slate-200 rounded-xl">
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="font-semibold text-amber-900">Nueva Categoría</h4>
                     <Button variant="ghost" size="sm" onClick={() => setShowAddCategory(false)}>
@@ -3434,7 +3434,7 @@ const DashboardPage = () => {
                       value={newCategory.color}
                       onChange={(e) => setNewCategory({...newCategory, color: e.target.value})}
                     />
-                    <Button onClick={handleCreateCategory} className="bg-amber-500 hover:bg-amber-600">
+                    <Button onClick={handleCreateCategory} className="bg-slate-900 hover:bg-slate-800">
                       Crear
                     </Button>
                   </div>
@@ -3456,7 +3456,7 @@ const DashboardPage = () => {
                       <div className="flex items-center gap-2">
                         <span className="text-xl">{category.icon}</span>
                         <span className="font-semibold">{category.name}</span>
-                        <Badge className="bg-white/20 text-white border-0 ml-1">
+                        <Badge className="bg-slate-100 text-slate-700 border-0 ml-1">
                           {category.sports?.length || 0}
                         </Badge>
                       </div>
@@ -3464,7 +3464,7 @@ const DashboardPage = () => {
                         <Button 
                           size="sm" 
                           variant="ghost" 
-                          className="h-7 w-7 p-0 text-white/70 hover:text-white hover:bg-white/20"
+                          className="h-7 w-7 p-0 text-white/70 hover:text-slate-600 hover:bg-slate-100"
                           onClick={() => {
                             setShowAddSport(category.id);
                             setNewSport({ name: '', category_id: category.id });
@@ -3541,7 +3541,7 @@ const DashboardPage = () => {
               </div>
 
               {/* Tip */}
-              <div className="mt-5 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
+              <div className="mt-5 bg-amber-50 border border-slate-200 rounded-lg p-3 flex items-start gap-2">
                 <Lightbulb className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                 <div className="text-sm text-amber-800">
                   <strong>Tip:</strong> Personaliza tu catálogo agregando las categorías y deportes que necesites. Los atletas y equipos podrán seleccionar de este catálogo.
@@ -3552,12 +3552,12 @@ const DashboardPage = () => {
 
           {/* Caracterización Técnica del Deporte */}
           <Card className="border-0 shadow-xl overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-4">
+            <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Activity className="w-5 h-5" />
                 Caracterización Técnica del Deporte
               </CardTitle>
-              <p className="text-sm text-white/80 mt-1">Selecciona un deporte para definir sus características específicas</p>
+              <p className="text-sm text-slate-500 mt-1">Selecciona un deporte para definir sus características específicas</p>
             </CardHeader>
             <CardContent className="p-5 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -3766,14 +3766,14 @@ const DashboardPage = () => {
               <p className="text-slate-500 mt-1">Evaluación del movimiento y técnica deportiva</p>
             </div>
             {selectedAthlete && (
-              <Badge className="bg-emerald-100 text-emerald-700">{selectedAthlete.name}</Badge>
+              <Badge className="bg-emerald-50 text-emerald-700">{selectedAthlete.name}</Badge>
             )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Análisis de Marcha/Carrera */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Activity className="w-4 h-4" />
                   Análisis de Marcha/Carrera
@@ -3808,7 +3808,7 @@ const DashboardPage = () => {
 
             {/* Análisis Postural */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <User className="w-4 h-4" />
                   Análisis Postural
@@ -3854,7 +3854,7 @@ const DashboardPage = () => {
 
             {/* Rangos de Movimiento */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Target className="w-4 h-4" />
                   Rangos de Movimiento (ROM)
@@ -3892,7 +3892,7 @@ const DashboardPage = () => {
 
             {/* Análisis de Fuerza */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Dumbbell className="w-4 h-4" />
                   Asimetrías de Fuerza
@@ -3917,7 +3917,7 @@ const DashboardPage = () => {
 
             {/* Eficiencia del Movimiento */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Zap className="w-4 h-4" />
                   Eficiencia del Movimiento
@@ -3945,7 +3945,7 @@ const DashboardPage = () => {
 
             {/* Observaciones */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <FileText className="w-4 h-4" />
                   Observaciones y Recomendaciones
@@ -3998,7 +3998,7 @@ const DashboardPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Signos Vitales */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-red-500 to-pink-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Heart className="w-4 h-4" />
                   Signos Vitales
@@ -4057,7 +4057,7 @@ const DashboardPage = () => {
 
             {/* Antecedentes */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <FileText className="w-4 h-4" />
                   Antecedentes Médicos
@@ -4094,7 +4094,7 @@ const DashboardPage = () => {
 
             {/* Lesiones Actuales */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-purple-500 to-violet-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4" />
                   Lesiones Actuales
@@ -4136,7 +4136,7 @@ const DashboardPage = () => {
 
             {/* Aptitud Médica */}
             <Card className="border-0 shadow-md col-span-full lg:col-span-1">
-              <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <CheckCircle className="w-4 h-4" />
                   Aptitud Médica
@@ -4212,7 +4212,7 @@ const DashboardPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Fuerza */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Dumbbell className="w-4 h-4" />
                   Fuerza
@@ -4240,7 +4240,7 @@ const DashboardPage = () => {
 
             {/* Resistencia */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-green-500 to-teal-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Activity className="w-4 h-4" />
                   Resistencia
@@ -4268,7 +4268,7 @@ const DashboardPage = () => {
 
             {/* Velocidad */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Zap className="w-4 h-4" />
                   Velocidad
@@ -4296,7 +4296,7 @@ const DashboardPage = () => {
 
             {/* Potencia y Salto */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <TrendingUp className="w-4 h-4" />
                   Potencia / Salto
@@ -4324,7 +4324,7 @@ const DashboardPage = () => {
 
             {/* Flexibilidad */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Target className="w-4 h-4" />
                   Flexibilidad
@@ -4348,7 +4348,7 @@ const DashboardPage = () => {
 
             {/* Agilidad */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-rose-500 to-red-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <RefreshCw className="w-4 h-4" />
                   Agilidad / Coordinación
@@ -4408,7 +4408,7 @@ const DashboardPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Técnica General */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-violet-500 to-purple-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Target className="w-4 h-4" />
                   Evaluación Técnica General
@@ -4435,7 +4435,7 @@ const DashboardPage = () => {
 
             {/* Habilidades Específicas */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-indigo-500 to-blue-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Layers className="w-4 h-4" />
                   Habilidades Específicas del Deporte
@@ -4493,7 +4493,7 @@ const DashboardPage = () => {
 
             {/* Observaciones Técnicas */}
             <Card className="border-0 shadow-md col-span-full">
-              <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <FileText className="w-4 h-4" />
                   Observaciones y Áreas de Mejora
@@ -4553,7 +4553,7 @@ const DashboardPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Capacidades Tácticas */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Brain className="w-4 h-4" />
                   Capacidades Tácticas
@@ -4587,7 +4587,7 @@ const DashboardPage = () => {
 
             {/* Comprensión del Sistema */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-teal-500 to-cyan-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Target className="w-4 h-4" />
                   Comprensión del Sistema de Juego
@@ -4647,7 +4647,7 @@ const DashboardPage = () => {
 
             {/* Análisis de Situaciones */}
             <Card className="border-0 shadow-md col-span-full">
-              <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <FileText className="w-4 h-4" />
                   Análisis y Observaciones Tácticas
@@ -4707,7 +4707,7 @@ const DashboardPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Estado Emocional */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Heart className="w-4 h-4" />
                   Estado Emocional Actual
@@ -4740,7 +4740,7 @@ const DashboardPage = () => {
 
             {/* Motivación */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Zap className="w-4 h-4" />
                   Motivación y Compromiso
@@ -4764,7 +4764,7 @@ const DashboardPage = () => {
 
             {/* Habilidades Mentales */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Brain className="w-4 h-4" />
                   Habilidades Mentales
@@ -4788,7 +4788,7 @@ const DashboardPage = () => {
 
             {/* Rendimiento bajo Presión */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-red-500 to-rose-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4" />
                   Rendimiento bajo Presión
@@ -4824,7 +4824,7 @@ const DashboardPage = () => {
 
             {/* Calidad de Sueño y Descanso */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-indigo-500 to-blue-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Clock className="w-4 h-4" />
                   Sueño y Descanso
@@ -4848,7 +4848,7 @@ const DashboardPage = () => {
 
             {/* Observaciones */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <FileText className="w-4 h-4" />
                   Observaciones
@@ -4899,7 +4899,7 @@ const DashboardPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Conocimiento del Reglamento */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <BookOpen className="w-4 h-4" />
                   Conocimiento del Reglamento
@@ -4931,7 +4931,7 @@ const DashboardPage = () => {
 
             {/* Conocimiento Táctico-Estratégico */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Layers className="w-4 h-4" />
                   Conocimiento Táctico-Estratégico
@@ -4963,7 +4963,7 @@ const DashboardPage = () => {
 
             {/* Conocimiento Técnico */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-emerald-500 to-green-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Target className="w-4 h-4" />
                   Conocimiento Técnico
@@ -4995,7 +4995,7 @@ const DashboardPage = () => {
 
             {/* Conocimiento de Preparación Física */}
             <Card className="border-0 shadow-md">
-              <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Dumbbell className="w-4 h-4" />
                   Conocimiento de Preparación Física
@@ -5027,7 +5027,7 @@ const DashboardPage = () => {
 
             {/* Evaluación y Observaciones */}
             <Card className="border-0 shadow-md col-span-full">
-              <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white py-3">
+              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <FileText className="w-4 h-4" />
                   Evaluación General y Recomendaciones
@@ -5183,9 +5183,9 @@ const DashboardPage = () => {
         return (
           <div className="flex flex-col h-full">
             {/* Header - Solo Planes */}
-            <div className="bg-slate-900 px-4 py-3.5">
+            <div className="bg-slate-900 px-4 py-3">
               <div className="flex items-center justify-center">
-                <div className="flex items-center gap-3 bg-white/10 px-6 py-2 rounded-xl">
+                <div className="flex items-center gap-3">
                   <Clipboard className="w-5 h-5 text-[#CCFF00]" />
                   <span className="text-white font-semibold text-sm">Planes de Entrenamiento</span>
                 </div>
@@ -5215,7 +5215,7 @@ const DashboardPage = () => {
       const colorClasses = {
         blue: { bg: 'bg-blue-600', hover: 'hover:bg-blue-700', shadow: 'shadow-blue-200', light: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-500' },
         rose: { bg: 'bg-rose-500', hover: 'hover:bg-rose-600', shadow: 'shadow-rose-200', light: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-500' },
-        indigo: { bg: 'bg-indigo-500', hover: 'hover:bg-indigo-600', shadow: 'shadow-indigo-200', light: 'bg-indigo-50', text: 'text-indigo-600', border: 'border-indigo-500' },
+        indigo: { bg: 'bg-[#007AFF]', hover: 'hover:bg-indigo-600', shadow: 'shadow-indigo-200', light: 'bg-indigo-50', text: 'text-[#007AFF]', border: 'border-indigo-500' },
         emerald: { bg: 'bg-emerald-500', hover: 'hover:bg-emerald-600', shadow: 'shadow-emerald-200', light: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-500' },
         violet: { bg: 'bg-violet-500', hover: 'hover:bg-violet-600', shadow: 'shadow-violet-200', light: 'bg-violet-50', text: 'text-violet-600', border: 'border-violet-500' },
         cyan: { bg: 'bg-cyan-600', hover: 'hover:bg-cyan-700', shadow: 'shadow-cyan-200', light: 'bg-cyan-50', text: 'text-cyan-600', border: 'border-cyan-600' },
@@ -5231,23 +5231,23 @@ const DashboardPage = () => {
 
       return (
         <div className="flex flex-col h-full">
-          {/* Header Bar - Nombre del Plan + Secciones */}
-          <div className="bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 shadow-xl">
+          {/* Header Bar - Clean light design */}
+          <div className="bg-white border-b border-slate-200">
             {/* Barra del Plan Activo */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2 flex items-center justify-between">
+            <div className="bg-slate-900 px-4 py-2.5 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                  <Clipboard className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
+                  <Clipboard className="w-4 h-4 text-[#CCFF00]" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-blue-200 uppercase tracking-wider font-medium">Plan Activo</p>
-                  <h2 className="text-white font-bold text-sm">{activePlan.name}</h2>
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wider font-medium">Plan Activo</p>
+                  <h2 className="text-white font-semibold text-sm">{activePlan.name}</h2>
                 </div>
                 <div className="flex items-center gap-2 ml-2">
-                  <span className="px-2 py-0.5 bg-white/20 text-white text-xs rounded-full">
+                  <span className="px-2 py-0.5 bg-white/10 text-slate-300 text-[11px] rounded">
                     {activePlan.total_weeks} sem
                   </span>
-                  <span className="px-2 py-0.5 bg-white/20 text-white text-xs rounded-full hidden sm:inline">
+                  <span className="px-2 py-0.5 bg-white/10 text-slate-300 text-[11px] rounded hidden sm:inline">
                     {activePlan.model_name || activePlan.model}
                   </span>
                 </div>
@@ -5256,19 +5256,18 @@ const DashboardPage = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => handleSetActivePlan(null)}
-                className="text-white/80 hover:text-white hover:bg-white/20 rounded-lg text-xs"
+                className="text-slate-400 hover:text-white hover:bg-white/10 rounded-lg text-xs"
               >
                 <ChevronLeft className="w-4 h-4 mr-1" />
                 Cambiar Plan
               </Button>
             </div>
 
-            {/* Navegación de Secciones del Plan */}
-            <div className="px-4 py-3">
-              <div className="flex items-center justify-center gap-2 flex-wrap">
+            {/* Navegación de Secciones del Plan - Clean tabs */}
+            <div className="px-4 py-2 border-b border-slate-100">
+              <div className="flex items-center gap-1 overflow-x-auto">
                 {planSections.map((section) => {
                   const SectionIcon = section.icon;
-                  const colors = colorClasses[section.color];
                   const isActive = currentSection === section.key;
                   
                   return (
@@ -5278,17 +5277,15 @@ const DashboardPage = () => {
                         const firstItem = navItems.find(n => n.section === section.key);
                         if (firstItem) setActiveDataSection(firstItem.id);
                       }}
-                      className={`group relative px-4 py-2 rounded-xl font-medium text-sm transition-all duration-300 flex items-center gap-2 ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
                         isActive
-                          ? `${colors.bg} text-white shadow-lg ${colors.shadow} scale-105`
-                          : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
+                          ? 'bg-slate-900 text-white shadow-sm'
+                          : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
                       }`}
+                      data-testid={`section-tab-${section.key}`}
                     >
-                      <SectionIcon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-white/60 group-hover:text-white'}`} />
+                      <SectionIcon className="w-3.5 h-3.5" />
                       <span className="hidden sm:inline">{section.title}</span>
-                      {isActive && (
-                        <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rounded-full shadow-lg" />
-                      )}
                     </button>
                   );
                 })}
@@ -5297,8 +5294,8 @@ const DashboardPage = () => {
           </div>
 
           {/* Sub-navigation - Items de la sección actual */}
-          <div className="bg-white border-b shadow-sm px-4 py-3">
-            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          <div className="bg-white border-b border-slate-200 px-4 py-2">
+            <div className="flex items-center gap-1.5 overflow-x-auto">
               {sectionItems.map((item) => {
                 const ItemIcon = item.icon;
                 const isActive = activeDataSection === item.id;
@@ -5307,13 +5304,14 @@ const DashboardPage = () => {
                   <button
                     key={item.id}
                     onClick={() => setActiveDataSection(item.id)}
-                    className={`group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
                       isActive
-                        ? `${currentColors.bg} text-white shadow-lg ${currentColors.shadow} transform scale-105`
-                        : `${currentColors.light} ${currentColors.text} hover:shadow-md border ${currentColors.border} border-opacity-30`
+                        ? 'bg-[#007AFF] text-white shadow-sm'
+                        : 'text-slate-500 bg-slate-50 hover:bg-slate-100 hover:text-slate-700 border border-slate-200'
                     }`}
+                    data-testid={`subnav-${item.id}`}
                   >
-                    <ItemIcon className={`w-4 h-4 ${isActive ? 'text-white' : ''}`} />
+                    <ItemIcon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : ''}`} />
                     {item.label}
                   </button>
                 );
@@ -5322,7 +5320,7 @@ const DashboardPage = () => {
           </div>
 
           {/* Data Content */}
-          <div className="flex-1 overflow-y-auto bg-gray-50">
+          <div className="flex-1 overflow-y-auto bg-[#fafaf8]">
             {renderDataContent()}
           </div>
         </div>
@@ -5360,9 +5358,7 @@ const DashboardPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafaf8] app-reset">
-      {/* Global style reset for unified design */}
-      <style>{`.app-reset h1,.app-reset h2,.app-reset h3,.app-reset h4,.app-reset h5,.app-reset h6{font-family:'Inter',sans-serif;font-weight:inherit;text-transform:none;letter-spacing:normal;}`}</style>
+    <div className="min-h-screen bg-[#fafaf8]">
       {/* ====== GLOBAL CONTEXT BAR ====== */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-slate-200/60" data-testid="global-context-bar">
         <div className="flex items-center justify-between px-4 py-2 gap-3">
@@ -5655,7 +5651,7 @@ const DashboardPage = () => {
       {/* ====== COACH AI FLOATING BUTTON ====== */}
       <button
         onClick={() => setIsCoachDrawerOpen(true)}
-        className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
+        className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-slate-900 hover:bg-slate-800 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
         data-testid="coach-ai-fab"
       >
         <Brain className="w-6 h-6 group-hover:scale-110 transition-transform" />
@@ -5676,7 +5672,7 @@ const DashboardPage = () => {
           {/* Drawer Panel */}
           <div className="fixed right-0 top-0 h-full w-96 max-w-[90vw] bg-white shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-300">
             {/* Drawer Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4">
+            <div className="bg-slate-900 text-white p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
@@ -5703,7 +5699,7 @@ const DashboardPage = () => {
                   onClick={() => setCoachDrawerTab('coach')}
                   className={`flex-1 py-2 px-3 text-sm font-medium rounded-md transition-all flex items-center justify-center gap-2 ${
                     coachDrawerTab === 'coach'
-                      ? 'bg-white text-indigo-600 shadow'
+                      ? 'bg-white text-[#007AFF] shadow'
                       : 'text-white/80 hover:bg-white/10'
                   }`}
                 >
@@ -5714,7 +5710,7 @@ const DashboardPage = () => {
                   onClick={() => setCoachDrawerTab('history')}
                   className={`flex-1 py-2 px-3 text-sm font-medium rounded-md transition-all flex items-center justify-center gap-2 ${
                     coachDrawerTab === 'history'
-                      ? 'bg-white text-indigo-600 shadow'
+                      ? 'bg-white text-[#007AFF] shadow'
                       : 'text-white/80 hover:bg-white/10'
                   }`}
                 >
@@ -5722,7 +5718,7 @@ const DashboardPage = () => {
                   Planes
                   {trainingPlans.length > 0 && (
                     <span className={`px-1.5 py-0.5 rounded-full text-xs ${
-                      coachDrawerTab === 'history' ? 'bg-indigo-100 text-indigo-600' : 'bg-white/20'
+                      coachDrawerTab === 'history' ? 'bg-blue-50 text-[#007AFF]' : 'bg-white/20'
                     }`}>
                       {trainingPlans.length}
                     </span>
@@ -5744,20 +5740,20 @@ const DashboardPage = () => {
                 <div className="flex-grow flex flex-col overflow-hidden">
                   {/* Plan Activo Indicator */}
                   {activePlan && (
-                    <div className="p-3 bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-200">
+                    <div className="p-3 bg-slate-50 border-b border-slate-200">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
                           <CheckCircle className="w-4 h-4 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs text-emerald-600 font-medium">Plan Activo</p>
-                          <p className="text-sm font-bold text-emerald-800 truncate">{activePlan.name}</p>
+                          <p className="text-sm font-bold text-slate-700 truncate">{activePlan.name}</p>
                         </div>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleSetActivePlan(null)}
-                          className="text-xs text-emerald-600 border-emerald-300 hover:bg-emerald-100"
+                          className="text-xs text-emerald-600 border-slate-300 hover:bg-emerald-50"
                         >
                           Cambiar
                         </Button>
@@ -5773,7 +5769,7 @@ const DashboardPage = () => {
                         setActivePanel('datos');
                         setActiveDataSection('training-system');
                       }}
-                      className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+                      className="w-full bg-slate-900 hover:bg-slate-800 text-white"
                       data-testid="new-plan-btn"
                     >
                       <Plus className="w-4 h-4 mr-2" />
@@ -5805,7 +5801,7 @@ const DashboardPage = () => {
                                     {plan.name}
                                   </h4>
                                   {activePlan?.id === plan.id && (
-                                    <Badge className="bg-emerald-100 text-emerald-700 text-xs">Activo</Badge>
+                                    <Badge className="bg-emerald-50 text-emerald-700 text-xs">Activo</Badge>
                                   )}
                                 </div>
                                 <p className="text-xs text-slate-500 mt-0.5">
@@ -5861,7 +5857,7 @@ const DashboardPage = () => {
                           }}
                           variant="outline"
                           size="sm"
-                          className="text-indigo-600 border-indigo-200"
+                          className="text-[#007AFF] border-slate-200"
                         >
                           <Plus className="w-4 h-4 mr-2" />
                           Crear Plan
