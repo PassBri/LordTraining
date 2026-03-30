@@ -808,303 +808,306 @@ const ExerciseLibrary = ({ athleteId }) => {
   const filteredCategories = filterExercises();
 
   return (
-    <div className="p-4 space-y-4">
-      <Card>
-        <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white py-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Dumbbell className="w-5 h-5" />
-              Biblioteca de Ejercicios
-            </CardTitle>
-            <div className="flex gap-2">
-              <Button 
-                size="sm" 
-                onClick={() => setShowAddCategory(true)}
-                className="bg-white/20 hover:bg-white/30"
-              >
-                <Plus className="w-4 h-4 mr-1" /> Nueva Categoría
-              </Button>
-              <Button 
-                size="sm" 
-                onClick={saveExercises}
-                disabled={saving}
-                className="bg-white text-green-700 hover:bg-green-50"
-              >
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 mr-1" />}
-                Guardar Todo
-              </Button>
+    <div className="p-5 space-y-5">
+      {/* Header */}
+      <div className="bg-slate-900 rounded-2xl p-5 shadow-lg">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-emerald-500/20 rounded-full flex items-center justify-center">
+              <Dumbbell className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-white tracking-tight">Biblioteca de Ejercicios</h2>
+              <p className="text-xs text-slate-400 mt-0.5">Organiza y gestiona tu catálogo de ejercicios</p>
             </div>
           </div>
-        </CardHeader>
-        <CardContent className="p-4">
-          {/* Buscador y filtros */}
-          <div className="flex gap-3 mb-4">
-            <div className="flex-1 relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <Input 
-                placeholder="Buscar ejercicio o músculo..." 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Todas las categorías" />
-              </SelectTrigger>
+          <div className="flex gap-2">
+            <Button 
+              size="sm" 
+              onClick={() => setShowAddCategory(true)}
+              className="bg-white/10 hover:bg-white/20 text-white border-0 rounded-xl text-xs"
+            >
+              <Plus className="w-3.5 h-3.5 mr-1" /> Categoría
+            </Button>
+            <Button 
+              size="sm" 
+              onClick={saveExercises}
+              disabled={saving}
+              className="bg-emerald-500 hover:bg-emerald-600 text-white border-0 rounded-xl text-xs"
+            >
+              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5 mr-1" />}
+              Guardar
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Search & Filter Bar */}
+      <div className="flex gap-3">
+        <div className="flex-1 relative">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Input 
+            placeholder="Buscar ejercicio o músculo..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9 h-10 rounded-xl border-slate-200 bg-white shadow-sm"
+          />
+        </div>
+        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+          <SelectTrigger className="w-52 h-10 rounded-xl border-slate-200 bg-white shadow-sm">
+            <SelectValue placeholder="Todas las categorías" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas las categorías</SelectItem>
+            {Object.entries(categories).map(([id, cat]) => (
+              <SelectItem key={id} value={id}>{cat.nombre}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* New Category Form */}
+      {showAddCategory && (
+        <div className="p-4 bg-white rounded-xl border border-dashed border-emerald-300 shadow-sm">
+          <h4 className="font-semibold mb-3 text-slate-700 text-sm">Nueva Categoría</h4>
+          <div className="grid grid-cols-3 gap-3">
+            <Input 
+              placeholder="Nombre de la categoría"
+              value={newCategory.nombre}
+              onChange={(e) => setNewCategory({ ...newCategory, nombre: e.target.value })}
+              className="rounded-xl"
+            />
+            <Select value={newCategory.color} onValueChange={(v) => setNewCategory({ ...newCategory, color: v })}>
+              <SelectTrigger className="rounded-xl"><SelectValue placeholder="Color" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todas las categorías</SelectItem>
-                {Object.entries(categories).map(([id, cat]) => (
-                  <SelectItem key={id} value={id}>{cat.nombre}</SelectItem>
+                {colores.map(c => (
+                  <SelectItem key={c.value} value={c.value}>
+                    <span className={`px-2 py-1 rounded ${c.value}`}>{c.label}</span>
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            <div className="flex gap-2">
+              <Button onClick={addCategory} className="bg-emerald-600 hover:bg-emerald-700 rounded-xl">
+                <Plus className="w-4 h-4 mr-1" /> Agregar
+              </Button>
+              <Button variant="ghost" onClick={() => setShowAddCategory(false)} className="rounded-xl">
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
+        </div>
+      )}
 
-          {/* Formulario nueva categoría */}
-          {showAddCategory && (
-            <div className="mb-4 p-4 bg-gray-50 rounded-lg border-2 border-dashed border-green-300">
-              <h4 className="font-medium mb-3 text-gray-700">Nueva Categoría</h4>
-              <div className="grid grid-cols-3 gap-3">
-                <Input 
-                  placeholder="Nombre de la categoría"
-                  value={newCategory.nombre}
-                  onChange={(e) => setNewCategory({ ...newCategory, nombre: e.target.value })}
-                />
-                <Select value={newCategory.color} onValueChange={(v) => setNewCategory({ ...newCategory, color: v })}>
-                  <SelectTrigger><SelectValue placeholder="Color" /></SelectTrigger>
-                  <SelectContent>
-                    {colores.map(c => (
-                      <SelectItem key={c.value} value={c.value}>
-                        <span className={`px-2 py-1 rounded ${c.value}`}>{c.label}</span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <div className="flex gap-2">
-                  <Button onClick={addCategory} className="bg-green-600 hover:bg-green-700">
-                    <Plus className="w-4 h-4 mr-1" /> Agregar
-                  </Button>
-                  <Button variant="ghost" onClick={() => setShowAddCategory(false)}>
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
+      {/* Categories */}
+      <div className="space-y-3">
+        {Object.entries(filteredCategories).map(([catId, cat]) => (
+          <div key={catId} className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+            {/* Category Header */}
+            <div 
+              className={`px-4 py-3 flex items-center justify-between cursor-pointer transition-colors ${cat.color}`}
+              onClick={() => toggleCategory(catId)}
+            >
+              <div className="flex items-center gap-2.5">
+                {expandedCategories[catId] ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                <span className="font-semibold text-sm">{cat.nombre}</span>
+                <span className="text-xs opacity-60 font-medium">
+                  {Object.values(cat.subcategorias).reduce((acc, sub) => acc + sub.ejercicios.length, 0)} ejercicios
+                </span>
+              </div>
+              <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                <Button size="sm" variant="ghost" onClick={() => setShowAddSubcategory(catId)} className="h-7 text-xs rounded-lg">
+                  <Plus className="w-3 h-3 mr-1" /> Sub
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => deleteCategory(catId)} className="h-7 text-xs text-red-600 hover:text-red-700 rounded-lg">
+                  <Trash2 className="w-3 h-3" />
+                </Button>
               </div>
             </div>
-          )}
 
-          {/* Lista de categorías */}
-          <div className="space-y-3">
-            {Object.entries(filteredCategories).map(([catId, cat]) => (
-              <div key={catId} className={`border rounded-lg overflow-hidden ${cat.color.split(' ')[2]}`}>
-                {/* Header categoría */}
-                <div 
-                  className={`px-4 py-3 flex items-center justify-between cursor-pointer ${cat.color}`}
-                  onClick={() => toggleCategory(catId)}
-                >
-                  <div className="flex items-center gap-2">
-                    {expandedCategories[catId] ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                    <span className="font-medium">{cat.nombre}</span>
-                    <span className="text-xs opacity-70">
-                      ({Object.values(cat.subcategorias).reduce((acc, sub) => acc + sub.ejercicios.length, 0)} ejercicios)
-                    </span>
+            {/* Category Content */}
+            {expandedCategories[catId] && (
+              <div className="p-3 space-y-2 bg-slate-50/50">
+                {/* New Subcategory Form */}
+                {showAddSubcategory === catId && (
+                  <div className="p-3 bg-white rounded-lg border border-dashed border-slate-300 mb-2">
+                    <div className="flex gap-2">
+                      <Input 
+                        placeholder="Nombre de subcategoría"
+                        value={newSubcategory.nombre}
+                        onChange={(e) => setNewSubcategory({ ...newSubcategory, nombre: e.target.value })}
+                        className="flex-1 h-8 rounded-lg text-sm"
+                      />
+                      <Button size="sm" onClick={() => addSubcategory(catId)} className="h-8 bg-emerald-600 rounded-lg">
+                        <Plus className="w-3 h-3 mr-1" /> Agregar
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => setShowAddSubcategory(null)} className="h-8 rounded-lg">
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                    <Button size="sm" variant="ghost" onClick={() => setShowAddSubcategory(catId)} className="h-7 text-xs">
-                      <Plus className="w-3 h-3 mr-1" /> Subcategoría
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => deleteCategory(catId)} className="h-7 text-xs text-red-600 hover:text-red-700">
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
+                )}
 
-                {/* Contenido categoría */}
-                {expandedCategories[catId] && (
-                  <div className="bg-white p-3 space-y-2">
-                    {/* Formulario nueva subcategoría */}
-                    {showAddSubcategory === catId && (
-                      <div className="p-3 bg-gray-50 rounded border-dashed border-2 border-gray-300 mb-2">
-                        <div className="flex gap-2">
-                          <Input 
-                            placeholder="Nombre de subcategoría"
-                            value={newSubcategory.nombre}
-                            onChange={(e) => setNewSubcategory({ ...newSubcategory, nombre: e.target.value })}
-                            className="flex-1 h-8"
-                          />
-                          <Button size="sm" onClick={() => addSubcategory(catId)} className="h-8 bg-green-600">
-                            <Plus className="w-3 h-3 mr-1" /> Agregar
-                          </Button>
-                          <Button size="sm" variant="ghost" onClick={() => setShowAddSubcategory(null)} className="h-8">
-                            <X className="w-3 h-3" />
-                          </Button>
-                        </div>
+                {/* Subcategories */}
+                {Object.entries(cat.subcategorias).map(([subId, sub]) => (
+                  <div key={subId} className="bg-white rounded-lg border border-slate-100 shadow-sm overflow-hidden">
+                    {/* Subcategory Header */}
+                    <div 
+                      className="px-3 py-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors"
+                      onClick={() => toggleSubcategory(`${catId}_${subId}`)}
+                    >
+                      <div className="flex items-center gap-2">
+                        {expandedSubcategories[`${catId}_${subId}`] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-400" />}
+                        <span className="text-sm font-medium text-slate-700">{sub.nombre}</span>
+                        <span className="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-full">{sub.ejercicios.length}</span>
                       </div>
-                    )}
+                      <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                        <Button size="sm" variant="ghost" onClick={() => setShowAddExercise(`${catId}_${subId}`)} className="h-6 w-6 p-0 rounded-full hover:bg-emerald-50">
+                          <Plus className="w-3 h-3 text-emerald-600" />
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => deleteSubcategory(catId, subId)} className="h-6 w-6 p-0 rounded-full hover:bg-red-50">
+                          <Trash2 className="w-3 h-3 text-red-400" />
+                        </Button>
+                      </div>
+                    </div>
 
-                    {/* Subcategorías */}
-                    {Object.entries(cat.subcategorias).map(([subId, sub]) => (
-                      <div key={subId} className="border rounded">
-                        {/* Header subcategoría */}
-                        <div 
-                          className="px-3 py-2 bg-gray-50 flex items-center justify-between cursor-pointer hover:bg-gray-100"
-                          onClick={() => toggleSubcategory(`${catId}_${subId}`)}
-                        >
-                          <div className="flex items-center gap-2">
-                            {expandedSubcategories[`${catId}_${subId}`] ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                            <span className="text-sm font-medium">{sub.nombre}</span>
-                            <span className="text-xs text-gray-500">({sub.ejercicios.length})</span>
-                          </div>
-                          <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                            <Button size="sm" variant="ghost" onClick={() => setShowAddExercise(`${catId}_${subId}`)} className="h-6 text-xs">
-                              <Plus className="w-3 h-3" />
-                            </Button>
-                            <Button size="sm" variant="ghost" onClick={() => deleteSubcategory(catId, subId)} className="h-6 text-xs text-red-500">
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        </div>
-
-                        {/* Ejercicios */}
-                        {expandedSubcategories[`${catId}_${subId}`] && (
-                          <div className="p-2 space-y-1">
-                            {/* Formulario nuevo ejercicio */}
-                            {showAddExercise === `${catId}_${subId}` && (
-                              <div className="p-2 bg-green-50 rounded border border-green-200 mb-2">
-                                <div className="grid grid-cols-4 gap-2 mb-2">
-                                  <Input 
-                                    placeholder="Nombre del ejercicio"
-                                    value={newExercise.nombre}
-                                    onChange={(e) => setNewExercise({ ...newExercise, nombre: e.target.value })}
-                                    className="h-8 text-sm"
-                                  />
-                                  <Input 
-                                    placeholder="Músculos"
-                                    value={newExercise.musculos}
-                                    onChange={(e) => setNewExercise({ ...newExercise, musculos: e.target.value })}
-                                    className="h-8 text-sm"
-                                  />
-                                  <Input 
-                                    placeholder="Equipo"
-                                    value={newExercise.equipo}
-                                    onChange={(e) => setNewExercise({ ...newExercise, equipo: e.target.value })}
-                                    className="h-8 text-sm"
-                                  />
-                                  <div className="flex gap-1">
-                                    <Button size="sm" onClick={() => addExercise(catId, subId)} className="h-8 bg-green-600 text-xs">
-                                      <Plus className="w-3 h-3" />
-                                    </Button>
-                                    <Button size="sm" variant="ghost" onClick={() => setShowAddExercise(null)} className="h-8">
-                                      <X className="w-3 h-3" />
-                                    </Button>
-                                  </div>
-                                </div>
+                    {/* Exercises */}
+                    {expandedSubcategories[`${catId}_${subId}`] && (
+                      <div className="px-3 pb-3 space-y-1">
+                        {/* New Exercise Form */}
+                        {showAddExercise === `${catId}_${subId}` && (
+                          <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200 mb-2">
+                            <div className="grid grid-cols-4 gap-2 mb-2">
+                              <Input 
+                                placeholder="Nombre del ejercicio"
+                                value={newExercise.nombre}
+                                onChange={(e) => setNewExercise({ ...newExercise, nombre: e.target.value })}
+                                className="h-8 text-sm rounded-lg"
+                              />
+                              <Input 
+                                placeholder="Músculos"
+                                value={newExercise.musculos}
+                                onChange={(e) => setNewExercise({ ...newExercise, musculos: e.target.value })}
+                                className="h-8 text-sm rounded-lg"
+                              />
+                              <Input 
+                                placeholder="Equipo"
+                                value={newExercise.equipo}
+                                onChange={(e) => setNewExercise({ ...newExercise, equipo: e.target.value })}
+                                className="h-8 text-sm rounded-lg"
+                              />
+                              <div className="flex gap-1">
+                                <Button size="sm" onClick={() => addExercise(catId, subId)} className="h-8 bg-emerald-600 text-xs rounded-lg">
+                                  <Plus className="w-3 h-3" />
+                                </Button>
+                                <Button size="sm" variant="ghost" onClick={() => setShowAddExercise(null)} className="h-8 rounded-lg">
+                                  <X className="w-3 h-3" />
+                                </Button>
                               </div>
-                            )}
+                            </div>
+                          </div>
+                        )}
 
-                            {/* Lista de ejercicios */}
-                            {sub.ejercicios.length === 0 ? (
-                              <p className="text-xs text-gray-400 italic py-2 text-center">Sin ejercicios</p>
-                            ) : (
-                              <table className="w-full text-xs">
-                                <thead>
-                                  <tr className="text-left text-gray-500 border-b">
-                                    <th className="py-1 px-2">Ejercicio</th>
-                                    <th className="py-1 px-2">Músculos</th>
-                                    <th className="py-1 px-2">Equipo</th>
-                                    <th className="py-1 px-2 w-16">Acciones</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {sub.ejercicios.map((ex, exIdx) => (
-                                    <tr key={exIdx} className="border-b hover:bg-gray-50">
-                                      <td className="py-1.5 px-2">
+                        {/* Exercise List */}
+                        {sub.ejercicios.length === 0 ? (
+                          <p className="text-xs text-slate-400 py-3 text-center">Sin ejercicios en esta subcategoría</p>
+                        ) : (
+                          <div className="rounded-lg border border-slate-100 overflow-hidden">
+                            <table className="w-full text-xs">
+                              <thead>
+                                <tr className="bg-slate-50 text-left text-slate-500">
+                                  <th className="py-2 px-3 font-medium">Ejercicio</th>
+                                  <th className="py-2 px-3 font-medium">Músculos</th>
+                                  <th className="py-2 px-3 font-medium">Equipo</th>
+                                  <th className="py-2 px-3 w-16 font-medium"></th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {sub.ejercicios.map((ex, exIdx) => (
+                                  <tr key={exIdx} className="border-t border-slate-50 hover:bg-slate-50/50 transition-colors">
+                                    <td className="py-2 px-3">
+                                      {editingExercise === `${catId}_${subId}_${exIdx}` ? (
+                                        <Input 
+                                          value={ex.nombre}
+                                          onChange={(e) => updateExercise(catId, subId, exIdx, 'nombre', e.target.value)}
+                                          className="h-6 text-xs rounded-lg"
+                                        />
+                                      ) : (
+                                        <span className="font-medium text-slate-800">{ex.nombre}</span>
+                                      )}
+                                    </td>
+                                    <td className="py-2 px-3">
+                                      {editingExercise === `${catId}_${subId}_${exIdx}` ? (
+                                        <Input 
+                                          value={ex.musculos}
+                                          onChange={(e) => updateExercise(catId, subId, exIdx, 'musculos', e.target.value)}
+                                          className="h-6 text-xs rounded-lg"
+                                        />
+                                      ) : (
+                                        <span className="text-slate-500">{ex.musculos}</span>
+                                      )}
+                                    </td>
+                                    <td className="py-2 px-3">
+                                      {editingExercise === `${catId}_${subId}_${exIdx}` ? (
+                                        <Input 
+                                          value={ex.equipo}
+                                          onChange={(e) => updateExercise(catId, subId, exIdx, 'equipo', e.target.value)}
+                                          className="h-6 text-xs rounded-lg"
+                                        />
+                                      ) : (
+                                        <span className="text-slate-400">{ex.equipo || 'Ninguno'}</span>
+                                      )}
+                                    </td>
+                                    <td className="py-2 px-3">
+                                      <div className="flex gap-0.5">
                                         {editingExercise === `${catId}_${subId}_${exIdx}` ? (
-                                          <Input 
-                                            value={ex.nombre}
-                                            onChange={(e) => updateExercise(catId, subId, exIdx, 'nombre', e.target.value)}
-                                            className="h-6 text-xs"
-                                          />
-                                        ) : (
-                                          <span className="font-medium">{ex.nombre}</span>
-                                        )}
-                                      </td>
-                                      <td className="py-1.5 px-2">
-                                        {editingExercise === `${catId}_${subId}_${exIdx}` ? (
-                                          <Input 
-                                            value={ex.musculos}
-                                            onChange={(e) => updateExercise(catId, subId, exIdx, 'musculos', e.target.value)}
-                                            className="h-6 text-xs"
-                                          />
-                                        ) : (
-                                          <span className="text-gray-600">{ex.musculos}</span>
-                                        )}
-                                      </td>
-                                      <td className="py-1.5 px-2">
-                                        {editingExercise === `${catId}_${subId}_${exIdx}` ? (
-                                          <Input 
-                                            value={ex.equipo}
-                                            onChange={(e) => updateExercise(catId, subId, exIdx, 'equipo', e.target.value)}
-                                            className="h-6 text-xs"
-                                          />
-                                        ) : (
-                                          <span className="text-gray-500">{ex.equipo || 'Ninguno'}</span>
-                                        )}
-                                      </td>
-                                      <td className="py-1.5 px-2">
-                                        <div className="flex gap-1">
-                                          {editingExercise === `${catId}_${subId}_${exIdx}` ? (
-                                            <Button 
-                                              size="sm" 
-                                              variant="ghost" 
-                                              onClick={() => setEditingExercise(null)}
-                                              className="h-6 w-6 p-0 text-green-600"
-                                            >
-                                              <Save className="w-3 h-3" />
-                                            </Button>
-                                          ) : (
-                                            <Button 
-                                              size="sm" 
-                                              variant="ghost" 
-                                              onClick={() => setEditingExercise(`${catId}_${subId}_${exIdx}`)}
-                                              className="h-6 w-6 p-0"
-                                            >
-                                              <Edit className="w-3 h-3" />
-                                            </Button>
-                                          )}
                                           <Button 
-                                            size="sm" 
-                                            variant="ghost" 
-                                            onClick={() => deleteExercise(catId, subId, exIdx)}
-                                            className="h-6 w-6 p-0 text-red-500"
+                                            size="sm" variant="ghost" 
+                                            onClick={() => setEditingExercise(null)}
+                                            className="h-6 w-6 p-0 text-emerald-600 hover:bg-emerald-50 rounded-full"
                                           >
-                                            <Trash2 className="w-3 h-3" />
+                                            <Save className="w-3 h-3" />
                                           </Button>
-                                        </div>
-                                      </td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            )}
+                                        ) : (
+                                          <Button 
+                                            size="sm" variant="ghost" 
+                                            onClick={() => setEditingExercise(`${catId}_${subId}_${exIdx}`)}
+                                            className="h-6 w-6 p-0 hover:bg-slate-100 rounded-full"
+                                          >
+                                            <Edit className="w-3 h-3 text-slate-400" />
+                                          </Button>
+                                        )}
+                                        <Button 
+                                          size="sm" variant="ghost" 
+                                          onClick={() => deleteExercise(catId, subId, exIdx)}
+                                          className="h-6 w-6 p-0 text-red-400 hover:bg-red-50 rounded-full"
+                                        >
+                                          <Trash2 className="w-3 h-3" />
+                                        </Button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
                           </div>
                         )}
                       </div>
-                    ))}
+                    )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
+            )}
           </div>
+        ))}
+      </div>
 
-          {Object.keys(filteredCategories).length === 0 && (
-            <div className="text-center py-8 text-gray-400">
-              <Dumbbell className="w-12 h-12 mx-auto mb-2 opacity-30" />
-              <p>No se encontraron ejercicios</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {Object.keys(filteredCategories).length === 0 && (
+        <div className="text-center py-12 text-slate-400">
+          <Dumbbell className="w-12 h-12 mx-auto mb-3 opacity-20" />
+          <p className="text-sm">No se encontraron ejercicios</p>
+        </div>
+      )}
     </div>
   );
 };
