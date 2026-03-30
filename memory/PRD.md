@@ -40,7 +40,7 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
 ## Backlog Priorizado
 
 ### P1
-- 🔴 Arreglar "Caracterización del Deporte" (crash recurrente)
+- ✅ ~~Arreglar "Caracterización del Deporte"~~ — RESUELTO (imports faltantes de Label y Textarea)
 - 🟡 Inicialización completa al crear Plan nuevo
 - 🟡 Verificar loadPlanData en todos los formularios
 - 🟡 Refactorizar DashboardPage.js (6000+ líneas)
@@ -52,7 +52,7 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
 - Eliminar componentes obsoletos
 
 ## Bugs Conocidos
-- ❌ "Caracterización del Deporte" crash al acceder
+- Sin bugs conocidos activos
 
 ## Archivos Clave
 - `DashboardPage.js` (~6080 líneas) - navItems con period-overview/structure/tests/load/control
