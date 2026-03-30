@@ -26,6 +26,7 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
 - ✅ AutoTestingSystem y LanguageSelector actualizados con prop `fabStyle` para renderizar como FABs
 - ✅ **Secciones y sub-secciones integradas en el top bar** - aparecen en el centro cuando hay plan activo, con divisor vertical entre secciones y sub-secciones. Maximiza el espacio vertical de contenido
 - ✅ **Top bar horizontal scroll** - toda la barra es deslizable en pantallas pequeñas, sin superposición de botones. Scrollbar oculto para diseño limpio
+- ✅ **Botones uniformes w-10 h-10** - todos del mismo tamaño, diferenciados: nav=blanco+sombra, secciones=fondo tintado color, sub-secciones=borde anillo color, acciones=blanco
 
 ### Sesiones Anteriores
 - ✅ Sistema i18n completo (12 idiomas, RTL árabe)

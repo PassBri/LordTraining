@@ -699,14 +699,14 @@ const AutoTestingSystem = ({
             className="group flex flex-col items-center gap-1 shrink-0 outline-none"
             data-testid="auto-testing-btn"
           >
-            <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
               isDropdownOpen
                 ? 'bg-violet-500 text-white shadow-lg shadow-violet-500/30'
-                : 'bg-white text-slate-400 shadow-md border border-slate-100 hover:shadow-lg'
+                : 'bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg'
             }`}>
-              <Bot className={`w-5 h-5 transition-transform duration-300 ${isDropdownOpen ? 'text-white' : 'group-hover:text-violet-500'}`} strokeWidth={isDropdownOpen ? 2.5 : 1.8} />
+              <Bot className={`w-[18px] h-[18px] transition-transform duration-300 ${isDropdownOpen ? 'text-white' : 'group-hover:text-violet-500'}`} strokeWidth={isDropdownOpen ? 2.5 : 1.8} />
             </div>
-            <span className={`text-[9px] font-bold tracking-wide leading-tight text-center max-w-[60px] transition-colors duration-300 ${
+            <span className={`text-[8px] font-bold tracking-wide leading-tight text-center max-w-[56px] transition-colors duration-300 ${
               isDropdownOpen ? 'text-violet-600' : 'text-slate-400 group-hover:text-violet-500'
             }`}>
               Pruebas

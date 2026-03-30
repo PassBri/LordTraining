@@ -5520,7 +5520,7 @@ const DashboardPage = () => {
       <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl shadow-sm" data-testid="global-context-bar">
         <div className="flex items-start px-3 pt-2.5 pb-1.5 gap-0 overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
           {/* Left: Logo + Main Nav FABs */}
-          <div className="flex items-start gap-3 shrink-0 pr-2" style={{ overflow: 'visible' }}>
+          <div className="flex items-start gap-3 shrink-0 pr-2">
             {/* Logo */}
             <div className="flex items-center gap-2 pt-1">
               <div className="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center shadow-md">
@@ -5551,14 +5551,14 @@ const DashboardPage = () => {
                     className="group flex flex-col items-center gap-1 shrink-0 outline-none"
                     data-testid={`tab-${nav.key}`}
                   >
-                    <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
                       isActive
                         ? `${nav.color} text-white shadow-lg ${nav.shadow}`
-                        : 'bg-white text-slate-400 shadow-md border border-slate-100 hover:shadow-lg'
+                        : 'bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg'
                     }`}>
-                      <NavIcon className={`w-5 h-5 transition-transform duration-300 ${isActive ? 'text-white scale-105' : 'group-hover:text-slate-600'}`} strokeWidth={isActive ? 2.5 : 1.8} />
+                      <NavIcon className={`w-[18px] h-[18px] transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:text-slate-700'}`} strokeWidth={isActive ? 2.5 : 1.8} />
                     </div>
-                    <span className={`text-[9px] font-bold tracking-wide leading-tight text-center max-w-[60px] transition-colors duration-300 ${
+                    <span className={`text-[8px] font-bold tracking-wide leading-tight text-center max-w-[56px] transition-colors duration-300 ${
                       isActive ? 'text-slate-900' : 'text-slate-400 group-hover:text-slate-600'
                     }`}>
                       {nav.label}
@@ -5573,29 +5573,29 @@ const DashboardPage = () => {
                 className="group flex flex-col items-center gap-1 shrink-0 outline-none"
                 data-testid="export-pdf-btn"
               >
-                <div className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-400 shadow-md border border-slate-100 hover:shadow-lg hover:text-emerald-600">
-                  <Download className="w-5 h-5 transition-transform duration-300 group-hover:text-emerald-600" strokeWidth={1.8} />
+                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg hover:text-emerald-600">
+                  <Download className="w-[18px] h-[18px] transition-transform duration-300 group-hover:text-emerald-600" strokeWidth={1.8} />
                 </div>
-                <span className="text-[9px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-emerald-600 transition-colors duration-300">
+                <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-emerald-600 transition-colors duration-300">
                   PDF
                 </span>
               </button>
 
               {/* Filtros FAB */}
-              <div className="relative" style={{ overflow: 'visible' }}>
+              <div className="relative">
                 <button
                   onClick={() => setShowFiltersDropdown(!showFiltersDropdown)}
                   className="group flex flex-col items-center gap-1 shrink-0 outline-none"
                   data-testid="filters-dropdown-btn"
                 >
-                  <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
                     showFiltersDropdown
                       ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
-                      : 'bg-white text-slate-400 shadow-md border border-slate-100 hover:shadow-lg'
+                      : 'bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg'
                   }`}>
-                    <Filter className={`w-5 h-5 transition-transform duration-300 ${showFiltersDropdown ? 'text-white' : 'group-hover:text-amber-500'}`} strokeWidth={showFiltersDropdown ? 2.5 : 1.8} />
+                    <Filter className={`w-[18px] h-[18px] transition-transform duration-300 ${showFiltersDropdown ? 'text-white' : 'group-hover:text-amber-500'}`} strokeWidth={showFiltersDropdown ? 2.5 : 1.8} />
                   </div>
-                  <span className={`text-[9px] font-bold tracking-wide leading-tight text-center transition-colors duration-300 ${
+                  <span className={`text-[8px] font-bold tracking-wide leading-tight text-center transition-colors duration-300 ${
                     showFiltersDropdown ? 'text-amber-600' : 'text-slate-400 group-hover:text-amber-500'
                   }`}>
                     Filtros
@@ -5726,8 +5726,8 @@ const DashboardPage = () => {
           {activePanel === 'datos' && activePlan && (
             <div className="flex items-start gap-1 shrink-0 px-1">
               {/* Thin separator */}
-              <div className="w-px h-9 bg-slate-200/80 self-center mx-1 shrink-0" />
-              {/* Section FABs */}
+              <div className="w-px h-10 bg-slate-200/80 self-center mx-1 shrink-0" />
+              {/* Section FABs — differentiated with tinted bg */}
               <div className="flex items-start gap-1.5">
                 {planSections.map((section) => {
                   const SectionIcon = section.icon;
@@ -5740,17 +5740,17 @@ const DashboardPage = () => {
                         const firstItem = navItems.find(n => n.section === section.key);
                         if (firstItem) setActiveDataSection(firstItem.id);
                       }}
-                      className="group flex flex-col items-center gap-0.5 shrink-0 outline-none"
+                      className="group flex flex-col items-center gap-1 shrink-0 outline-none"
                       data-testid={`section-tab-${section.key}`}
                     >
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
                         isActive
                           ? `${colors.bg} text-white shadow-lg ${colors.shadow}`
-                          : 'bg-white text-slate-400 shadow-sm border border-slate-100 hover:shadow-md'
+                          : `${colors.light} ${colors.text} shadow-sm hover:shadow-md`
                       }`}>
-                        <SectionIcon className={`w-4 h-4 transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:text-slate-600'}`} strokeWidth={isActive ? 2.5 : 1.8} />
+                        <SectionIcon className={`w-[18px] h-[18px] transition-transform duration-300 ${isActive ? 'text-white' : ''}`} strokeWidth={isActive ? 2.5 : 1.8} />
                       </div>
-                      <span className={`text-[7px] font-bold tracking-wide leading-tight text-center max-w-[52px] transition-colors duration-300 ${
+                      <span className={`text-[8px] font-bold tracking-wide leading-tight text-center max-w-[56px] transition-colors duration-300 ${
                         isActive ? colors.text : 'text-slate-400 group-hover:text-slate-600'
                       }`}>
                         {section.title}
@@ -5760,11 +5760,11 @@ const DashboardPage = () => {
                 })}
               </div>
 
-              {/* Vertical divider + Sub-section mini FABs */}
+              {/* Vertical divider + Sub-section FABs — differentiated with ring border */}
               {sectionItems.length > 1 && (
                 <>
-                  <div className="w-px h-9 bg-slate-200/80 self-center mx-1 shrink-0" />
-                  <div className="flex items-start gap-1">
+                  <div className="w-px h-10 bg-slate-200/80 self-center mx-1 shrink-0" />
+                  <div className="flex items-start gap-1.5">
                     {sectionItems.map((item) => {
                       const ItemIcon = item.icon;
                       const isActive = activeDataSection === item.id;
@@ -5772,18 +5772,18 @@ const DashboardPage = () => {
                         <button
                           key={item.id}
                           onClick={() => setActiveDataSection(item.id)}
-                          className="group flex flex-col items-center gap-0.5 shrink-0 outline-none"
+                          className="group flex flex-col items-center gap-1 shrink-0 outline-none"
                           data-testid={`subnav-${item.id}`}
                         >
-                          <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
                             isActive
-                              ? `${currentColors.bg} text-white shadow-md ${currentColors.shadow}`
-                              : 'bg-slate-50 text-slate-400 border border-slate-200/80 hover:shadow-sm hover:bg-white'
+                              ? `${currentColors.bg} text-white shadow-lg ${currentColors.shadow}`
+                              : `bg-white ${currentColors.text} border-2 ${currentColors.border} shadow-sm hover:shadow-md`
                           }`}>
-                            <ItemIcon className={`w-3.5 h-3.5 transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:text-slate-600'}`} strokeWidth={isActive ? 2.5 : 1.8} />
+                            <ItemIcon className={`w-[18px] h-[18px] transition-transform duration-300 ${isActive ? 'text-white' : ''}`} strokeWidth={isActive ? 2.5 : 1.8} />
                           </div>
-                          <span className={`text-[7px] font-semibold tracking-wide text-center max-w-[48px] leading-tight transition-colors duration-300 ${
-                            isActive ? currentColors.text : 'text-slate-400 group-hover:text-slate-500'
+                          <span className={`text-[8px] font-bold tracking-wide text-center max-w-[56px] leading-tight transition-colors duration-300 ${
+                            isActive ? currentColors.text : 'text-slate-400 group-hover:text-slate-600'
                           }`}>
                             {item.label}
                           </span>
@@ -5793,7 +5793,7 @@ const DashboardPage = () => {
                   </div>
                 </>
               )}
-              <div className="w-px h-9 bg-slate-200/80 self-center mx-1 shrink-0" />
+              <div className="w-px h-10 bg-slate-200/80 self-center mx-1 shrink-0" />
             </div>
           )}
 
@@ -5830,10 +5830,10 @@ const DashboardPage = () => {
                 className="group flex flex-col items-center gap-1 shrink-0 outline-none"
                 data-testid="subscription-btn"
               >
-                <div className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-400 shadow-md border border-slate-100 hover:shadow-lg hover:text-violet-600">
-                  <CreditCard className="w-5 h-5 transition-transform duration-300 group-hover:text-violet-600" strokeWidth={1.8} />
+                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg hover:text-violet-600">
+                  <CreditCard className="w-[18px] h-[18px] transition-transform duration-300 group-hover:text-violet-600" strokeWidth={1.8} />
                 </div>
-                <span className="text-[9px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-violet-600 transition-colors duration-300">
+                <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-violet-600 transition-colors duration-300">
                   Plan
                 </span>
               </button>
@@ -5845,10 +5845,10 @@ const DashboardPage = () => {
               className="group flex flex-col items-center gap-1 shrink-0 outline-none"
               data-testid="logout-btn"
             >
-              <div className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-400 shadow-md border border-slate-100 hover:shadow-lg hover:text-red-500 hover:border-red-100">
-                <LogOut className="w-5 h-5 transition-transform duration-300 group-hover:text-red-500" strokeWidth={1.8} />
+              <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg hover:text-red-500">
+                <LogOut className="w-[18px] h-[18px] transition-transform duration-300 group-hover:text-red-500" strokeWidth={1.8} />
               </div>
-              <span className="text-[9px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-red-500 transition-colors duration-300">
+              <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-red-500 transition-colors duration-300">
                 Salir
               </span>
             </button>
