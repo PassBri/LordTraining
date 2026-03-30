@@ -155,6 +155,20 @@ Todas las evaluaciones:
 6. **P3**: Limpiar componentes obsoletos (PeriodizationSystem.js, AICoachAssistant.js)
 
 ## Completado
+### 30-Mar-2025 - Rediseño Premium Completo del Sistema de Periodización
+- **TrainingSystemHub**: Reescrito con banner dark premium, gauges de completitud, 4 cards de módulo con barras de progreso, pipeline de flujo del sistema
+- **Plan List**: Cards de planes con color strips por fase, mini-bars de volumen, badges "Guardado", metadata enriquecida
+- **Plan Detail Header**: Banner dark con stats (Macrociclos/Mesociclos/Semanas), phase strip bar, botones Guardar/Compartir/PDF
+- **Estructura**: Jerarquía visual completa con:
+  - Macrociclo: Vol/Int mini-bars, progreso, alerta de desbalance, total sesiones
+  - Mesociclo: Factor de carga con mini-bar, conteo sesiones, badges de tipo
+  - Microciclo: Stats strip con sesiones, duración, carga, RPE, completadas/total
+  - Sesiones: Cards premium con color header, status badge, grid de métricas (Dur/Vol/RPE), intensidad, grupo muscular, fatiga, contenidos
+- **Modelo de datos de sesión enriquecido**: Ahora incluye RPE, volume, internalLoad, externalLoad, status, objective, contents, muscleGroup, fatigue, recovery
+- **Calendario**: Tabla semanal rediseñada con color strips por fase
+- **Gráfico**: Volumen/Intensidad con gradientes y distribución de fases
+- Testing: 100% (13/13 tests pasados)
+
 ### 30-Mar-2025 - P1/P2: Estructura de datos de planes + Gestión avanzada
 - **P1 Crear estructura completa al crear Plan**: Backend ya genera documento plan_data con secciones vacías (diagnosis, evaluations, competitions) al crear un plan
 - **P1 Carga de datos al seleccionar Plan**: Endpoint GET /api/plan-data/{plan_id} ahora retorna evaluaciones organizadas por tipo (medical, anthropometric, physical, technical, tactical, psychological). Frontend loadPlanData() consume correctamente la estructura tipada

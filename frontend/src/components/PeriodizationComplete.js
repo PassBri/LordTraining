@@ -530,14 +530,28 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
   };
   
   const generateDefaultSessions = (count) => {
-    const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+    const days = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
     const types = ['strength', 'endurance', 'speed', 'technical', 'recovery'];
+    const objectives = ['Hipertrofia', 'Potencia', 'VO2max', 'Agilidad', 'Recuperacion activa'];
+    const contents = ['Sentadillas, Press, Remo', 'Carrera continua', 'Sprints 30m', 'Tecnica especifica', 'Movilidad, Foam roller'];
+    const muscles = ['Tren inferior', 'Cardiovascular', 'Tren superior', 'Core + Cadena posterior', 'General'];
     return Array.from({ length: count }, (_, i) => ({
       id: `session-${Date.now()}-${i}`,
       dayName: days[i % 7],
       type: types[i % types.length],
-      duration: 60,
-      intensity: 'medium'
+      duration: [90, 60, 45, 75, 40][i % 5],
+      intensity: ['high', 'medium', 'high', 'medium', 'low'][i % 5],
+      rpe: [8, 6, 9, 7, 4][i % 5],
+      volume: [85, 70, 60, 75, 30][i % 5],
+      internalLoad: [320, 220, 280, 250, 80][i % 5],
+      externalLoad: [4500, 0, 0, 2000, 0][i % 5],
+      status: 'planned',
+      objective: objectives[i % 5],
+      contents: contents[i % 5],
+      muscleGroup: muscles[i % 5],
+      fatigue: [7, 5, 8, 6, 2][i % 5],
+      recovery: [48, 24, 72, 36, 12][i % 5],
+      notes: ''
     }));
   };
 
@@ -1613,8 +1627,43 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     );
   };
 
-  // ============ RENDER: STRUCTURE (Premium Design) ============
-  const renderStructureView = () => (
+  // ============ RENDER: STRUCTURE (Premium Sports SaaS Design) ============
+  const renderStructureView = () => {
+    const BC = "'Barlow Condensed', sans-serif";
+    const totalWeeks = selectedPlan.totalWeeks || 0;
+    const completedWeeks = 0; // TODO: track from actual data
+    const progressPct = totalWeeks > 0 ? Math.round((completedWeeks / totalWeeks) * 100) : 0;
+
+    // Helpers
+    const IntensityBadge = ({ level, size = 'sm' }) => {
+      const cfg = { high: { label: 'ALTA', color: '#EF4444', bg: '#FEE2E2' }, medium: { label: 'MED', color: '#F59E0B', bg: '#FEF3C7' }, low: { label: 'BAJA', color: '#10B981', bg: '#D1FAE5' } };
+      const c = cfg[level] || cfg.medium;
+      return <span className={`inline-flex items-center font-bold rounded ${size === 'xs' ? 'text-[8px] px-1 py-[1px]' : 'text-[10px] px-1.5 py-0.5'}`} style={{ color: c.color, backgroundColor: c.bg }}>{c.label}</span>;
+    };
+
+    const StatusBadge = ({ status }) => {
+      const cfg = { planned: { label: 'Planificada', color: '#3B82F6', bg: '#EFF6FF' }, completed: { label: 'Completada', color: '#10B981', bg: '#D1FAE5' }, adjusted: { label: 'Ajustada', color: '#F59E0B', bg: '#FEF3C7' }, cancelled: { label: 'Cancelada', color: '#6B7280', bg: '#F3F4F6' } };
+      const c = cfg[status] || cfg.planned;
+      return <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full" style={{ color: c.color, backgroundColor: c.bg }}>{c.label}</span>;
+    };
+
+    const MiniBar = ({ value, max = 100, color = '#3B82F6', h = 'h-1.5' }) => (
+      <div className={`w-full bg-slate-100 rounded-full ${h} overflow-hidden`}>
+        <div className={`${h} rounded-full transition-all`} style={{ width: `${Math.min((value / max) * 100, 100)}%`, backgroundColor: color }} />
+      </div>
+    );
+
+    const RPEDot = ({ value }) => {
+      const color = value >= 8 ? '#EF4444' : value >= 6 ? '#F59E0B' : '#10B981';
+      return (
+        <div className="flex items-center gap-1">
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
+          <span className="text-[10px] font-bold" style={{ color }}>{value}</span>
+        </div>
+      );
+    };
+
+    return (
     <div className="space-y-4">
       {/* Add Macrocycle */}
       <div className="flex justify-end">
@@ -1623,91 +1672,134 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         </Button>
       </div>
 
-      {/* Macrocycles */}
+      {/* ═══ MACROCYCLES ═══ */}
       {selectedPlan.macrocycles?.map((macro, macroIdx) => {
         const phaseColor = macro.phase?.color || '#3B82F6';
         const isExpanded = expandedMacro === macroIdx;
+        const vol = macro.volume_percent || macro.phase?.volumePercent || 0;
+        const inten = macro.intensity_percent || macro.phase?.intensityPercent || 0;
+        const totalMesoWeeks = macro.mesocycles?.reduce((s, m) => s + (m.microcycles?.length || 0), 0) || 0;
+        const totalSessions = macro.mesocycles?.reduce((s, m) => s + m.microcycles?.reduce((s2, mi) => s2 + (mi.sessions?.length || 0), 0), 0) || 0;
+        const loadBalance = vol > 0 && inten > 0 ? Math.abs(vol - inten) : 0;
 
         return (
-        <div key={macro.id} className="rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md" data-testid={`macrocycle-${macroIdx}`}>
-          {/* Macrocycle Header */}
+        <div key={macro.id} className="rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm" data-testid={`macrocycle-${macroIdx}`}>
+          {/* ── Macrocycle Header ── */}
           <div
-            className="flex items-center justify-between p-4 cursor-pointer transition-colors"
-            style={{ borderLeft: `4px solid ${phaseColor}`, background: `linear-gradient(90deg, ${phaseColor}08 0%, transparent 60%)` }}
+            className="cursor-pointer transition-colors"
+            style={{ borderLeft: `5px solid ${phaseColor}` }}
             onClick={() => setExpandedMacro(isExpanded ? null : macroIdx)}
           >
-            <div className="flex items-center gap-3">
-              <div className={`transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>
-                <ChevronRight className="w-4 h-4 text-slate-400" />
-              </div>
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-black text-[11px] shadow-sm" style={{ backgroundColor: phaseColor, fontFamily: "'Barlow Condensed', sans-serif" }}>
-                {macro.phase?.abbr || 'MC'}
-              </div>
-              <div>
-                <h3 className="font-bold text-slate-800 text-[15px] leading-tight">{macro.name}</h3>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-[11px] text-slate-500">{macro.weeks} sem</span>
-                  <span className="w-1 h-1 rounded-full bg-slate-300" />
-                  <span className="text-[11px] text-slate-500">{macro.mesocycles?.length || 0} meso</span>
-                  {(macro.volume_percent || macro.phase?.volumePercent) && (
-                    <>
-                      <span className="w-1 h-1 rounded-full bg-slate-300" />
-                      <span className="text-[11px] font-medium" style={{ color: phaseColor }}>Vol {macro.volume_percent || macro.phase?.volumePercent}%</span>
-                      <span className="text-[11px] font-medium text-rose-500">Int {macro.intensity_percent || macro.phase?.intensityPercent}%</span>
-                    </>
+            <div className="p-4 pb-3">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`transition-transform duration-200 mt-1 ${isExpanded ? 'rotate-90' : ''}`}>
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                  </div>
+                  <div className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-black text-[12px] shadow-sm" style={{ backgroundColor: phaseColor, fontFamily: BC }}>
+                    {macro.phase?.abbr || 'MC'}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-slate-800 text-[15px]">{macro.name}</h3>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ color: phaseColor, backgroundColor: phaseColor + '15' }}>{macro.phase?.name}</span>
+                    </div>
+                    <div className="flex items-center gap-3 mt-1 text-[11px] text-slate-400">
+                      <span className="font-medium">{macro.weeks} sem</span>
+                      <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                      <span>{macro.mesocycles?.length || 0} meso</span>
+                      <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                      <span>{totalSessions} sesiones</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                  {loadBalance > 30 && (
+                    <span className="text-[10px] px-2 py-1 bg-amber-50 text-amber-600 rounded-lg font-semibold flex items-center gap-1">
+                      <Zap className="w-3 h-3" /> Desbalance
+                    </span>
                   )}
+                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-blue-600" onClick={() => handleEditMacrocycle(macro, macroIdx)}><Edit2 className="w-3.5 h-3.5" /></Button>
+                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-red-500" onClick={() => handleDeleteMacrocycle(macroIdx)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                </div>
+              </div>
+
+              {/* Metric pills */}
+              <div className="flex items-center gap-3 mt-3 ml-[60px]">
+                <div className="flex items-center gap-1.5 bg-blue-50 px-2.5 py-1 rounded-lg">
+                  <span className="text-[10px] text-blue-400">Vol</span>
+                  <div className="w-12"><MiniBar value={vol} color="#3B82F6" /></div>
+                  <span className="text-[11px] font-bold text-blue-600">{vol}%</span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-red-50 px-2.5 py-1 rounded-lg">
+                  <span className="text-[10px] text-red-400">Int</span>
+                  <div className="w-12"><MiniBar value={inten} color="#EF4444" /></div>
+                  <span className="text-[11px] font-bold text-red-600">{inten}%</span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg">
+                  <span className="text-[10px] text-slate-400">Progreso</span>
+                  <div className="w-10"><MiniBar value={progressPct} color="#10B981" /></div>
+                  <span className="text-[11px] font-bold text-slate-600">{progressPct}%</span>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-              <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-blue-600" onClick={() => handleEditMacrocycle(macro, macroIdx)}><Edit2 className="w-3.5 h-3.5" /></Button>
-              <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-red-500" onClick={() => handleDeleteMacrocycle(macroIdx)}><Trash2 className="w-3.5 h-3.5" /></Button>
-            </div>
           </div>
 
-          {/* Expanded: Mesocycles */}
+          {/* ── Expanded: Mesocycles ── */}
           {isExpanded && (
-            <div className="px-4 pb-4 pt-2 bg-slate-50/60 border-t border-slate-100">
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Mesociclos</span>
+            <div className="border-t border-slate-100 bg-slate-50/60">
+              <div className="flex justify-between items-center px-5 pt-3 pb-2">
+                <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Mesociclos</span>
                 <Button size="sm" variant="outline" className="h-7 text-[11px] rounded-md border-slate-300" onClick={() => handleAddMesocycle(macroIdx)}>
                   <Plus className="w-3 h-3 mr-1" /> Mesociclo
                 </Button>
               </div>
 
-              <div className="space-y-3">
+              <div className="px-4 pb-4 space-y-3">
                 {macro.mesocycles?.map((meso, mesoIdx) => {
                   const mesoColor = meso.type?.color || '#64748B';
                   const mesoKey = `${macroIdx}-${mesoIdx}`;
                   const mesoExpanded = expandedMeso === mesoKey;
+                  const mesoLoad = meso.type?.loadFactor || 0.7;
+                  const mesoSessions = meso.microcycles?.reduce((s, mi) => s + (mi.sessions?.length || 0), 0) || 0;
 
                   return (
                   <div key={meso.id} className="rounded-xl overflow-hidden border border-slate-200 bg-white" data-testid={`mesocycle-${mesoKey}`}>
-                    {/* Meso Header */}
+                    {/* ── Meso Header ── */}
                     <div
-                      className="flex items-center justify-between px-3.5 py-3 cursor-pointer hover:bg-slate-50/80 transition-colors"
+                      className="px-4 py-3 cursor-pointer hover:bg-slate-50/60 transition-colors"
                       style={{ borderLeft: `3px solid ${mesoColor}` }}
                       onClick={() => setExpandedMeso(mesoExpanded ? null : mesoKey)}
                     >
-                      <div className="flex items-center gap-2.5">
-                        <div className={`transition-transform duration-200 ${mesoExpanded ? 'rotate-90' : ''}`}>
-                          <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <div className={`transition-transform duration-200 ${mesoExpanded ? 'rotate-90' : ''}`}>
+                            <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+                          </div>
+                          <div className="px-2 py-0.5 rounded-md text-[10px] font-bold text-white" style={{ backgroundColor: mesoColor }}>{meso.type?.name || 'Meso'}</div>
+                          <span className="font-semibold text-[13px] text-slate-700">{meso.name}</span>
                         </div>
-                        <div className="px-2 py-0.5 rounded-md text-[10px] font-bold text-white" style={{ backgroundColor: mesoColor }}>{meso.type?.name || 'Meso'}</div>
-                        <span className="font-semibold text-[13px] text-slate-700">{meso.name}</span>
-                        <span className="text-[11px] text-slate-400">{meso.microcycles?.length || 0} sem</span>
-                      </div>
-                      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-blue-600" onClick={() => handleEditMesocycle(meso, macroIdx, mesoIdx)}><Edit2 className="w-3 h-3" /></Button>
-                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-red-500" onClick={() => handleDeleteMesocycle(macroIdx, mesoIdx)}><Trash2 className="w-3 h-3" /></Button>
+                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                          <div className="hidden sm:flex items-center gap-3 mr-2">
+                            <span className="text-[10px] text-slate-400">{meso.microcycles?.length || 0} sem</span>
+                            <span className="text-[10px] text-slate-400">{mesoSessions} ses</span>
+                            <div className="flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded">
+                              <span className="text-[9px] text-slate-400">Carga</span>
+                              <div className="w-8"><MiniBar value={mesoLoad * 100} color={mesoColor} h="h-1" /></div>
+                              <span className="text-[10px] font-semibold" style={{ color: mesoColor }}>{Math.round(mesoLoad * 100)}%</span>
+                            </div>
+                          </div>
+                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-blue-600" onClick={() => handleEditMesocycle(meso, macroIdx, mesoIdx)}><Edit2 className="w-3 h-3" /></Button>
+                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-red-500" onClick={() => handleDeleteMesocycle(macroIdx, mesoIdx)}><Trash2 className="w-3 h-3" /></Button>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Microcycles */}
+                    {/* ── Microcycles ── */}
                     {mesoExpanded && (
-                      <div className="px-3.5 pb-3.5 pt-2 border-t border-slate-100 bg-white">
-                        <div className="flex justify-between items-center mb-2.5">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Microciclos</span>
+                      <div className="border-t border-slate-100 bg-white px-4 pb-4 pt-2">
+                        <div className="flex justify-between items-center mb-3">
+                          <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Microciclos</span>
                           <Button size="sm" variant="outline" className="h-6 text-[10px] rounded-md border-slate-200 px-2" onClick={() => handleAddMicrocycle(macroIdx, mesoIdx)}>
                             <Plus className="w-2.5 h-2.5 mr-1" /> Semana
                           </Button>
@@ -1715,74 +1807,144 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
                         <div className="space-y-2">
                           {meso.microcycles?.map((micro, microIdx) => {
-                            const microColor = micro.type?.color || '#94a3b8';
+                            const microColor = micro.type?.color || MICROCYCLE_TYPES_ARRAY.find(t => t.id === micro.type?.id)?.color || '#94a3b8';
+                            const microLoad = micro.type?.load || micro.type?.loadPercent || 70;
                             const microKey = `${macroIdx}-${mesoIdx}-${microIdx}`;
                             const microExpanded = expandedMicro === microKey;
+                            const sessions = micro.sessions || [];
+                            const totalDuration = sessions.reduce((s, se) => s + (se.duration || 0), 0);
+                            const totalLoad = sessions.reduce((s, se) => s + (se.internalLoad || 0), 0);
+                            const completedSessions = sessions.filter(se => se.status === 'completed').length;
+                            const avgRPE = sessions.length > 0 ? (sessions.reduce((s, se) => s + (se.rpe || 6), 0) / sessions.length).toFixed(1) : '-';
 
                             return (
                             <div key={micro.id} className="rounded-lg border border-slate-150 overflow-hidden bg-white" data-testid={`microcycle-${microKey}`}>
-                              {/* Micro Header */}
+                              {/* ── Micro Header ── */}
                               <div
-                                className="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors"
+                                className="flex items-center justify-between px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors"
                                 onClick={() => setExpandedMicro(microExpanded ? null : microKey)}
                               >
                                 <div className="flex items-center gap-2">
                                   <div className={`transition-transform duration-200 ${microExpanded ? 'rotate-90' : ''}`}>
                                     <ChevronRight className="w-3 h-3 text-slate-300" />
                                   </div>
-                                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: microColor }} />
-                                  <span className="font-medium text-[13px] text-slate-700">{micro.name}</span>
-                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium">{micro.type?.name || '-'}</span>
-                                  {micro.type?.load && (
-                                    <div className="hidden sm:flex items-center gap-1 ml-1">
-                                      <div className="w-14 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                                        <div className="h-full rounded-full" style={{ width: `${micro.type.load}%`, backgroundColor: microColor }} />
-                                      </div>
-                                      <span className="text-[9px] text-slate-400">{micro.type.load}%</span>
+                                  <div className="w-2.5 h-6 rounded-sm" style={{ backgroundColor: microColor }} />
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-semibold text-[13px] text-slate-700">{micro.name}</span>
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ color: microColor, backgroundColor: microColor + '18' }}>{micro.type?.name || '-'}</span>
                                     </div>
-                                  )}
+                                  </div>
                                 </div>
-                                <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                                  <span className="text-[10px] text-slate-400 mr-1">{micro.sessions?.length || 0} ses</span>
+                                <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                                  {/* Micro stats strip */}
+                                  <div className="hidden md:flex items-center gap-2.5 text-[10px]">
+                                    <span className="text-slate-400">{sessions.length} ses</span>
+                                    <span className="text-slate-400">{totalDuration}min</span>
+                                    <div className="flex items-center gap-1">
+                                      <span className="text-slate-400">Carga</span>
+                                      <div className="w-10"><MiniBar value={microLoad} color={microColor} h="h-1" /></div>
+                                      <span className="font-semibold" style={{ color: microColor }}>{microLoad}%</span>
+                                    </div>
+                                    {totalLoad > 0 && <span className="text-slate-500 font-medium">UA:{totalLoad}</span>}
+                                    <span className="text-slate-400">RPE:{avgRPE}</span>
+                                    <span className="text-emerald-500 font-medium">{completedSessions}/{sessions.length}</span>
+                                  </div>
                                   <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-slate-400 hover:text-blue-600" onClick={() => handleEditMicrocycle(micro, macroIdx, mesoIdx, microIdx)}><Edit2 className="w-2.5 h-2.5" /></Button>
                                   <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-slate-400 hover:text-red-500" onClick={() => handleDeleteMicrocycle(macroIdx, mesoIdx, microIdx)}><Trash2 className="w-2.5 h-2.5" /></Button>
                                 </div>
                               </div>
 
-                              {/* Sessions */}
+                              {/* ── Sessions Grid ── */}
                               {microExpanded && (
-                                <div className="px-3 pb-3 pt-1 border-t border-slate-100">
-                                  <div className="flex justify-between items-center mb-2">
-                                    <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Sesiones</span>
+                                <div className="border-t border-slate-100 px-3 pb-3 pt-2">
+                                  <div className="flex justify-between items-center mb-2.5">
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">Sesiones</span>
+                                      <div className="flex items-center gap-1 text-[9px] text-slate-300">
+                                        {SESSION_TYPES.slice(0, 5).map(st => (
+                                          <span key={st.id} className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: st.color }} />{st.name}</span>
+                                        ))}
+                                      </div>
+                                    </div>
                                     <Button size="sm" variant="outline" className="h-5 text-[9px] rounded px-1.5 border-slate-200" onClick={() => handleAddSession(macroIdx, mesoIdx, microIdx)}>
                                       <Plus className="w-2.5 h-2.5 mr-0.5" /> Sesion
                                     </Button>
                                   </div>
-                                  <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-7 gap-2">
-                                    {micro.sessions?.map((session, sIdx) => {
+
+                                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-2">
+                                    {sessions.map((session, sIdx) => {
                                       const sType = SESSION_TYPES.find(t => t.id === session.type);
-                                      const intensityColor = session.intensity === 'high' ? 'text-red-500' : session.intensity === 'medium' ? 'text-amber-500' : 'text-emerald-500';
+                                      const sColor = sType?.color || '#94a3b8';
+                                      const rpe = session.rpe || 6;
+                                      const rpeColor = rpe >= 8 ? '#EF4444' : rpe >= 6 ? '#F59E0B' : '#10B981';
+
                                       return (
                                         <div
                                           key={session.id}
-                                          className="group relative rounded-lg border-2 p-2.5 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5"
-                                          style={{ borderColor: sType?.color + '40', background: sType?.color + '08' }}
+                                          className="group relative rounded-xl border overflow-hidden cursor-pointer transition-all hover:shadow-lg hover:-translate-y-0.5"
+                                          style={{ borderColor: sColor + '30' }}
                                           onClick={() => handleEditSession(session, macroIdx, mesoIdx, microIdx, sIdx)}
                                           data-testid={`session-${sIdx}`}
                                         >
-                                          <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity flex gap-0.5" onClick={(e) => e.stopPropagation()}>
-                                            <button className="p-0.5 rounded bg-white/80 hover:bg-white shadow-sm" onClick={() => handleDeleteSession(macroIdx, mesoIdx, microIdx, sIdx)}>
+                                          {/* Color header bar */}
+                                          <div className="h-1.5 w-full" style={{ backgroundColor: sColor }} />
+
+                                          {/* Delete overlay on hover */}
+                                          <div className="absolute top-2 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-10" onClick={(e) => e.stopPropagation()}>
+                                            <button className="p-0.5 rounded bg-white shadow-sm hover:bg-red-50" onClick={() => handleDeleteSession(macroIdx, mesoIdx, microIdx, sIdx)}>
                                               <Trash2 className="w-2.5 h-2.5 text-red-400" />
                                             </button>
                                           </div>
-                                          <div className="w-full h-1 rounded-full mb-2" style={{ backgroundColor: sType?.color || '#94a3b8' }} />
-                                          <p className="font-bold text-[12px] text-slate-700">{session.dayName}</p>
-                                          <p className="text-[10px] font-medium" style={{ color: sType?.color }}>{sType?.name || '-'}</p>
-                                          <div className="flex items-center justify-between mt-1.5">
-                                            <span className="text-[10px] text-slate-400">{session.duration}min</span>
-                                            <span className={`text-[9px] font-bold ${intensityColor}`}>
-                                              {session.intensity === 'high' ? 'ALTA' : session.intensity === 'medium' ? 'MED' : 'BAJA'}
-                                            </span>
+
+                                          <div className="p-2.5">
+                                            {/* Day + Status */}
+                                            <div className="flex items-center justify-between mb-1.5">
+                                              <span className="font-bold text-[13px] text-slate-800">{session.dayName}</span>
+                                              <StatusBadge status={session.status || 'planned'} />
+                                            </div>
+
+                                            {/* Type */}
+                                            <p className="text-[11px] font-semibold mb-1.5" style={{ color: sColor }}>{sType?.name || '-'}</p>
+
+                                            {/* Objective */}
+                                            {session.objective && <p className="text-[10px] text-slate-500 mb-1.5 truncate">{session.objective}</p>}
+
+                                            {/* Metrics row */}
+                                            <div className="grid grid-cols-3 gap-1 mb-1.5">
+                                              <div className="text-center bg-slate-50 rounded px-1 py-0.5">
+                                                <div className="text-[9px] text-slate-400">Dur</div>
+                                                <div className="text-[11px] font-bold text-slate-700">{session.duration}m</div>
+                                              </div>
+                                              <div className="text-center bg-slate-50 rounded px-1 py-0.5">
+                                                <div className="text-[9px] text-slate-400">Vol</div>
+                                                <div className="text-[11px] font-bold text-slate-700">{session.volume || '-'}%</div>
+                                              </div>
+                                              <div className="text-center rounded px-1 py-0.5" style={{ backgroundColor: rpeColor + '10' }}>
+                                                <div className="text-[9px] text-slate-400">RPE</div>
+                                                <div className="text-[11px] font-bold" style={{ color: rpeColor }}>{rpe}</div>
+                                              </div>
+                                            </div>
+
+                                            {/* Intensity + Load */}
+                                            <div className="flex items-center justify-between mb-1">
+                                              <IntensityBadge level={session.intensity} size="xs" />
+                                              {session.internalLoad > 0 && <span className="text-[9px] text-slate-400 font-medium">UA:{session.internalLoad}</span>}
+                                            </div>
+
+                                            {/* Muscle + Fatigue */}
+                                            <div className="flex items-center justify-between">
+                                              {session.muscleGroup && <span className="text-[9px] text-slate-400 truncate max-w-[70%]">{session.muscleGroup}</span>}
+                                              {session.fatigue && (
+                                                <div className="flex items-center gap-0.5" title={`Fatiga: ${session.fatigue}/10 · Rec: ${session.recovery}h`}>
+                                                  <Activity className="w-2.5 h-2.5 text-slate-300" />
+                                                  <span className="text-[9px] font-medium" style={{ color: session.fatigue >= 7 ? '#EF4444' : session.fatigue >= 5 ? '#F59E0B' : '#10B981' }}>{session.fatigue}</span>
+                                                </div>
+                                              )}
+                                            </div>
+
+                                            {/* Contents preview */}
+                                            {session.contents && <p className="text-[9px] text-slate-300 mt-1 truncate border-t border-slate-100 pt-1">{session.contents}</p>}
                                           </div>
                                         </div>
                                       );
@@ -1806,7 +1968,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         );
       })}
     </div>
-  );
+    );
+  };
 
   // ============ RENDER: CALENDAR VIEW ============
   const renderCalendarView = () => {
