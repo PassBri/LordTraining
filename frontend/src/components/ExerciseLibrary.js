@@ -901,18 +901,25 @@ const ExerciseLibrary = ({ athleteId }) => {
 
       {/* Categories */}
       <div className="space-y-3">
-        {Object.entries(filteredCategories).map(([catId, cat]) => (
-          <div key={catId} className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+        {Object.entries(filteredCategories).map(([catId, cat], catIndex) => {
+          const accentColors = ['border-l-rose-400', 'border-l-blue-400', 'border-l-emerald-400', 'border-l-amber-400', 'border-l-violet-400', 'border-l-cyan-400', 'border-l-slate-400', 'border-l-orange-400'];
+          const dotColors = ['bg-rose-400', 'bg-blue-400', 'bg-emerald-400', 'bg-amber-400', 'bg-violet-400', 'bg-cyan-400', 'bg-slate-400', 'bg-orange-400'];
+          const accent = accentColors[catIndex % accentColors.length];
+          const dot = dotColors[catIndex % dotColors.length];
+          
+          return (
+          <div key={catId} className={`bg-white rounded-xl shadow-sm border border-slate-100 border-l-4 ${accent} overflow-hidden`}>
             {/* Category Header */}
             <div 
-              className="px-4 py-3 flex items-center justify-between cursor-pointer transition-colors bg-slate-50 hover:bg-slate-100 text-slate-700 border-b border-slate-100"
+              className="px-4 py-3 flex items-center justify-between cursor-pointer transition-colors hover:bg-slate-50/80"
               onClick={() => toggleCategory(catId)}
             >
               <div className="flex items-center gap-2.5">
-                {expandedCategories[catId] ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                <span className="font-semibold text-sm">{cat.nombre}</span>
-                <span className="text-xs opacity-60 font-medium">
-                  {Object.values(cat.subcategorias).reduce((acc, sub) => acc + sub.ejercicios.length, 0)} ejercicios
+                <div className={`w-2 h-2 rounded-full ${dot} shrink-0`} />
+                {expandedCategories[catId] ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400" />}
+                <span className="font-semibold text-sm text-slate-800">{cat.nombre}</span>
+                <span className="text-[10px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full font-medium">
+                  {Object.values(cat.subcategorias).reduce((acc, sub) => acc + sub.ejercicios.length, 0)}
                 </span>
               </div>
               <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
@@ -1099,7 +1106,8 @@ const ExerciseLibrary = ({ athleteId }) => {
               </div>
             )}
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {Object.keys(filteredCategories).length === 0 && (

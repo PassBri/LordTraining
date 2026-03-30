@@ -16,7 +16,8 @@ import {
   Shield, UserCheck, User, UserCircle, Settings, LayoutDashboard, Landmark,
   Building2, Building, GraduationCap, Trophy, Timer, Flame, Gamepad2, Lightbulb, X, Trash2,
   Medal, MapPin, LayoutGrid, GitBranch, Share2, History, Filter, CreditCard, Sparkles,
-  AlertTriangle, CheckCircle, TrendingUp, RefreshCw, Clock, Edit, Copy, Printer, Gauge, Wrench
+  AlertTriangle, CheckCircle, TrendingUp, RefreshCw, Clock, Edit, Copy, Printer, Gauge, Wrench,
+  Stethoscope, CalendarDays, ClipboardList, Calculator, UsersRound, ListChecks, PieChart
 } from 'lucide-react';
 import { 
   LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, 
@@ -1154,13 +1155,13 @@ const DashboardPage = () => {
     
     // === 2. INFORMACIÓN BASE ===
     { id: 'athletes', label: t('dashboard.controlPanel.athletes'), icon: User, section: 'informacion' },
-    { id: 'teams', label: 'Equipos', icon: Users, section: 'informacion' },
-    { id: 'sports', label: 'Deportes', icon: Trophy, section: 'informacion' },
-    { id: 'tournaments', label: 'Torneos', icon: Medal, section: 'informacion' },
+    { id: 'teams', label: 'Equipos', icon: UsersRound, section: 'informacion' },
+    { id: 'sports', label: 'Deportes', icon: Medal, section: 'informacion' },
+    { id: 'tournaments', label: 'Torneos', icon: Shield, section: 'informacion' },
     { id: 'entities', label: 'Entidades', icon: Building2, section: 'informacion' },
     
     // === 3. EVALUACIÓN / CONTROLES ===
-    { id: 'control-medical', label: 'Control Médico', icon: Heart, section: 'evaluacion' },
+    { id: 'control-medical', label: 'Control Médico', icon: Stethoscope, section: 'evaluacion' },
     { id: 'anthropometric', label: 'Antropometría', icon: LineChart, section: 'evaluacion' },
     { id: 'control-physical', label: 'Control Físico', icon: Dumbbell, section: 'evaluacion' },
     { id: 'control-technical', label: 'Control Técnico', icon: Target, section: 'evaluacion' },
@@ -1168,23 +1169,23 @@ const DashboardPage = () => {
     { id: 'control-psychological', label: 'Control Psicológico', icon: Brain, section: 'evaluacion' },
     
     // === 4. COMPETENCIAS ===
-    { id: 'events', label: t('dashboard.sections.competitions'), icon: Calendar, section: 'competencias' },
-    { id: 'competitions', label: t('dashboard.sections.competitions'), icon: Award, section: 'competencias' },
+    { id: 'events', label: t('dashboard.sections.competitions'), icon: Award, section: 'competencias' },
+    { id: 'competitions', label: t('dashboard.sections.competitions'), icon: ListChecks, section: 'competencias' },
     
     // === 5. PERIODIZACIÓN (sub-secciones directas sin tab intermedio) ===
     { id: 'period-overview', label: 'Resumen', icon: Gauge, section: 'periodizacion' },
-    { id: 'period-structure', label: 'Estructura', icon: BookOpen, section: 'periodizacion' },
-    { id: 'period-tests', label: 'Evaluaciones', icon: Clipboard, section: 'periodizacion' },
-    { id: 'period-load', label: 'Carga', icon: BarChart, section: 'periodizacion' },
+    { id: 'period-structure', label: 'Estructura', icon: LayoutGrid, section: 'periodizacion' },
+    { id: 'period-tests', label: 'Evaluaciones', icon: ClipboardList, section: 'periodizacion' },
+    { id: 'period-load', label: 'Carga', icon: Flame, section: 'periodizacion' },
     { id: 'period-control', label: 'Control', icon: TrendingUp, section: 'periodizacion' },
     
     // === 6. VISUALIZACIÓN ===
-    { id: 'graphic-plan', label: t('dashboard.sections.visualization'), icon: BarChart, section: 'visualizacion' },
-    { id: 'calendar-view', label: 'Calendario', icon: Calendar, section: 'visualizacion' },
+    { id: 'graphic-plan', label: t('dashboard.sections.visualization'), icon: PieChart, section: 'visualizacion' },
+    { id: 'calendar-view', label: 'Calendario', icon: CalendarDays, section: 'visualizacion' },
     { id: 'smart-alerts', label: 'Alertas', icon: Zap, section: 'visualizacion' },
     
     // === 7. HERRAMIENTAS ===
-    { id: 'calculators', label: t('dashboard.nav.calculators'), icon: Activity, section: 'herramientas' },
+    { id: 'calculators', label: t('dashboard.nav.calculators'), icon: Calculator, section: 'herramientas' },
     { id: 'exercises', label: 'Métodos', icon: Timer, section: 'herramientas' },
     { id: 'exercises-lib', label: t('dashboard.controlPanel.exercises'), icon: Dumbbell, section: 'herramientas' },
     { id: 'ai-generator', label: 'AI', icon: Sparkles, section: 'herramientas' },
