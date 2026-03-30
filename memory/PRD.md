@@ -147,11 +147,30 @@ Todas las evaluaciones:
 - **P2**: Sección "Caracterización del Deporte" crashea la app
 
 ## Próximas Tareas
-1. **P1**: Conectar secciones de datos frontend a endpoints con plan_id
-2. **P1**: Refactorizar PeriodizationComplete.js (900+ líneas)
-3. **P2**: Corregir bug "Caracterización del Deporte"
-4. **P2**: Tests físicos integrados en wizard
-5. **P3**: Migrar datos de torneos a MongoDB
+1. **P1**: Corregir bug "Caracterización del Deporte" (crash)
+2. **P1**: Crear estructura completa de datos al crear un Plan nuevo
+3. **P1**: Completar carga de datos al seleccionar un Plan
+4. **P1**: Refactorizar DashboardPage.js (5600+ líneas)
+5. **P2**: Imprimir, Compartir y Duplicar planes
+6. **P2**: Tests físicos integrados en wizard
+7. **P2**: Refactorizar PeriodizationComplete.js (900+ líneas)
+8. **P3**: Migrar datos de torneos a MongoDB
+9. **P3**: Limpiar componentes obsoletos (PeriodizationSystem.js, AICoachAssistant.js)
+
+## Completado
+### 30-Mar-2025 - Rediseño Landing Page
+- Landing page completamente rediseñada con estética dark premium (#0a0f1a)
+- Sin imágenes stock — todos los visuales creados con CSS/SVG:
+  - PeriodizationWave (barras de periodización animadas)
+  - TeamFormation (dots de formación de equipo con líneas conectoras)
+  - DataRings (anillos de datos animados con CSS)
+  - ReadinessGauge (gauge circular SVG con stroke de #CCFF00)
+  - SpeedLines (líneas de velocidad abstractas)
+  - DashboardMockup (mockup completo del panel de control en CSS)
+- Identidad de color: lima (#CCFF00), azul (#007AFF), dark slate
+- Tipografía: Barlow Condensed para headings
+- Secciones: Hero, Stats, Features Bento Grid, Product Showcase, How it Works, Trust Bar, Pricing, CTA Final, Footer
+- Testing: 100% pasado (iteration_22.json)
 
 ## Credenciales de Prueba
 - Email: test@train.com
