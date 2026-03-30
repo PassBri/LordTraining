@@ -1,30 +1,26 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { Mail, Lock, User, Loader2, Eye, EyeOff, Shield, Users, Dumbbell, UserCheck, UserCircle, BarChart3, Calendar, ArrowLeft } from 'lucide-react';
+import { LanguageSelector } from '../components/LanguageSelector';
+import { Mail, Lock, User, Loader2, Eye, EyeOff, Shield, Users, Dumbbell, UserCheck, UserCircle, BarChart3, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
 const BC = "'Barlow Condensed', sans-serif";
 const INT = "'Inter', sans-serif";
 
-const USER_ROLES = [
-  { id: 'admin', name: 'Administrador', description: 'Acceso total al sistema', icon: Shield },
-  { id: 'coach', name: 'Entrenador', description: 'Puede crear planes para múltiples atletas', icon: UserCheck },
-  { id: 'personal_trainer', name: 'Entrenador Personal', description: 'Enfocado en clientes individuales', icon: Dumbbell },
-  { id: 'athlete', name: 'Atleta', description: 'Solo puede ver su propio plan', icon: User },
-  { id: 'team', name: 'Equipo', description: 'Grupo de atletas con plan compartido', icon: Users },
-  { id: 'user', name: 'Usuario', description: 'Rol básico sin atletas asignados', icon: UserCircle }
-];
+const ROLE_ICONS = { admin: Shield, coach: UserCheck, personal_trainer: Dumbbell, athlete: User, team: Users, user: UserCircle };
 
 /* Right panel visual — mini dashboard preview + periodization bars */
-const AuthVisual = () => (
+const AuthVisual = () => {
+  const { t } = useTranslation();
+  return (
   <div className="relative h-full flex flex-col justify-center items-center px-12">
-    {/* Background track lanes */}
     <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.04]">
       <svg viewBox="0 0 400 800" className="w-full h-full" preserveAspectRatio="none">
         {[0,1,2,3,4,5,6].map(i => (
@@ -33,9 +29,7 @@ const AuthVisual = () => (
       </svg>
     </div>
 
-    {/* Content */}
     <div className="relative z-10 w-full max-w-sm">
-      {/* Mini dashboard mockup */}
       <div className="bg-[#151d2e] rounded-xl border border-slate-700/20 overflow-hidden shadow-2xl shadow-black/40 mb-8">
         <div className="flex items-center gap-2 px-3 py-2 bg-[#1a2436] border-b border-slate-700/20">
           <div className="flex gap-1">
@@ -61,14 +55,14 @@ const AuthVisual = () => (
               <div className="text-sm font-black text-white leading-none" style={{ fontFamily: BC }}>1.18</div>
             </div>
             <div className="bg-[#1a2436] rounded-lg p-2 border border-slate-700/10">
-              <div className="text-[6px] text-slate-500">Adherencia</div>
+              <div className="text-[6px] text-slate-500">{t('dashboard.controlPanel.adherence')}</div>
               <div className="text-sm font-black text-[#CCFF00] leading-none" style={{ fontFamily: BC }}>92%</div>
             </div>
           </div>
           <div className="bg-[#1a2436] rounded-lg p-2 border border-slate-700/10">
             <div className="flex items-center gap-1 mb-1">
               <BarChart3 className="w-2 h-2 text-blue-400" />
-              <span className="text-[6px] font-semibold text-white/70">Volumen e Intensidad</span>
+              <span className="text-[6px] font-semibold text-white/70">Volume & Intensity</span>
             </div>
             <div className="flex items-end gap-[2px] h-8">
               {[[45,35],[50,40],[55,45],[48,52],[60,50],[70,55],[65,68],[72,60],[55,48],[50,45],[62,55],[68,58]].map((b,i) => (
@@ -82,27 +76,24 @@ const AuthVisual = () => (
         </div>
       </div>
 
-      {/* Text */}
       <div className="text-center">
         <h2 className="text-[22px] font-bold text-white mb-2" style={{ fontFamily: INT, textTransform: 'none' }}>
-          Entrena con ciencia
+          {t('common.tagline')}
         </h2>
         <p className="text-[13px] text-slate-400 leading-relaxed mb-6">
-          17 modelos de periodización, 6 controles científicos y asistente de IA. Todo en un solo sistema.
+          {t('landing.hero.subtitle')}
         </p>
       </div>
 
-      {/* Stats */}
       <div className="flex justify-center gap-6">
-        {[{ v: '17', l: 'Modelos' }, { v: '6', l: 'Controles' }, { v: '150+', l: 'Ejercicios' }].map((s, i) => (
+        {[{ v: '17', k: 'models' }, { v: '6', k: 'controls' }, { v: '150+', k: 'exercises' }].map((s, i) => (
           <div key={i} className="text-center">
             <div className="text-[20px] font-black text-[#CCFF00] leading-none" style={{ fontFamily: BC }}>{s.v}</div>
-            <div className="text-[10px] text-slate-500 mt-1">{s.l}</div>
+            <div className="text-[10px] text-slate-500 mt-1">{t(`landing.hero.stats.${s.k}`)}</div>
           </div>
         ))}
       </div>
 
-      {/* Periodization bars decoration */}
       <div className="mt-8 flex items-end gap-[2px] h-10 opacity-30">
         {Array.from({ length: 30 }, (_, i) => {
           const p = (i / 30) * Math.PI * 2;
@@ -117,9 +108,11 @@ const AuthVisual = () => (
       </div>
     </div>
   </div>
-);
+  );
+};
 
 const AuthPage = () => {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { login, register } = useAuth();
@@ -132,15 +125,24 @@ const AuthPage = () => {
   const [registerPassword, setRegisterPassword] = useState('');
   const [registerRole, setRegisterRole] = useState('coach');
 
+  const USER_ROLES = [
+    { id: 'admin', name: t('auth.register.roles.admin') },
+    { id: 'coach', name: t('auth.register.roles.coach') },
+    { id: 'personal_trainer', name: t('auth.register.roles.coach') },
+    { id: 'athlete', name: t('auth.register.roles.athlete') },
+    { id: 'team', name: t('auth.register.roles.coordinator') },
+    { id: 'user', name: t('common.settings') },
+  ];
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     try {
       await login(loginEmail, loginPassword);
-      toast.success('¡Bienvenido de nuevo!');
+      toast.success(t('common.welcome') + '!');
       navigate('/dashboard');
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Error al iniciar sesión');
+      toast.error(error.response?.data?.detail || t('auth.login.error'));
     } finally {
       setIsLoading(false);
     }
@@ -151,9 +153,9 @@ const AuthPage = () => {
     setIsLoading(true);
     try {
       await register(registerEmail, registerPassword, registerName, registerRole);
-      toast.success('Cuenta creada. Ahora inicia sesión.');
+      toast.success(t('common.success'));
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Error al registrarse');
+      toast.error(error.response?.data?.detail || t('common.error'));
     } finally {
       setIsLoading(false);
     }
@@ -169,7 +171,7 @@ const AuthPage = () => {
       <div className="w-full lg:w-[45%] flex flex-col justify-center px-8 md:px-14 lg:px-16 bg-[#fafaf8]">
         <div className="max-w-[380px] w-full mx-auto">
 
-          {/* Back + Logo */}
+          {/* Back + Logo + Language */}
           <div className="flex items-center justify-between mb-10">
             <Link to="/" className="flex items-center gap-2.5">
               <div className="w-9 h-9 bg-slate-900 rounded-lg flex items-center justify-center">
@@ -179,21 +181,24 @@ const AuthPage = () => {
                 TR<span className="text-[#007AFF]">AI</span>N
               </span>
             </Link>
-            <Link to="/" className="flex items-center gap-1 text-[12px] text-slate-400 hover:text-slate-600 transition-colors">
-              <ArrowLeft className="w-3.5 h-3.5" />
-              Volver
-            </Link>
+            <div className="flex items-center gap-2">
+              <LanguageSelector variant="light" compact />
+              <Link to="/" className="flex items-center gap-1 text-[12px] text-slate-400 hover:text-slate-600 transition-colors">
+                <ArrowLeft className="w-3.5 h-3.5" />
+                {t('common.back')}
+              </Link>
+            </div>
           </div>
 
           {/* Title */}
-          <h1 className="text-[24px] font-bold text-slate-900 mb-1" style={{ fontFamily: INT }}>
-            Bienvenido a TrAIn
+          <h1 className="text-[24px] font-bold text-slate-900 mb-1" style={{ fontFamily: INT }} data-testid="auth-title">
+            {t('common.welcome')} {t('common.appName')}
           </h1>
-          <p className="text-[14px] text-slate-500 mb-1">
-            Planifica, controla y alcanza el máximo rendimiento
+          <p className="text-[14px] text-slate-500 mb-1" data-testid="auth-subtitle">
+            {t('common.tagline')}
           </p>
           <p className="text-[12px] text-slate-400 mb-7">
-            14 días gratis · <span className="text-[#007AFF]">Ver planes desde $9/mes</span>
+            14 days free · <span className="text-[#007AFF]">{t('landing.nav.pricing')}</span>
           </p>
 
           {/* Tabs */}
@@ -204,14 +209,14 @@ const AuthPage = () => {
                 className="rounded-md text-[13px] font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-slate-900"
                 data-testid="login-tab"
               >
-                Iniciar Sesión
+                {t('auth.login.submit')}
               </TabsTrigger>
               <TabsTrigger
                 value="register"
                 className="rounded-md text-[13px] font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-slate-900"
                 data-testid="register-tab"
               >
-                Registrarse
+                {t('auth.register.submit')}
               </TabsTrigger>
             </TabsList>
 
@@ -219,7 +224,7 @@ const AuthPage = () => {
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="login-email" className="text-[13px] text-slate-600 font-medium">Email</Label>
+                  <Label htmlFor="login-email" className="text-[13px] text-slate-600 font-medium">{t('auth.login.email')}</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <Input
@@ -235,7 +240,7 @@ const AuthPage = () => {
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="login-password" className="text-[13px] text-slate-600 font-medium">Contraseña</Label>
+                  <Label htmlFor="login-password" className="text-[13px] text-slate-600 font-medium">{t('auth.login.password')}</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <Input
@@ -255,7 +260,7 @@ const AuthPage = () => {
                 </div>
                 <div className="text-right">
                   <button type="button" className="text-[12px] text-slate-400 hover:text-[#007AFF] transition-colors">
-                    ¿Olvidaste tu contraseña?
+                    {t('auth.login.forgotPassword')}
                   </button>
                 </div>
                 <Button
@@ -265,13 +270,13 @@ const AuthPage = () => {
                   data-testid="login-submit-btn"
                 >
                   {isLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                  Iniciar sesión
+                  {t('auth.login.submit')}
                 </Button>
               </form>
               <p className="text-center text-[12px] text-slate-400 mt-6">
-                ¿No tienes cuenta?{' '}
+                {t('auth.login.noAccount')}{' '}
                 <button onClick={() => document.querySelector('[data-testid="register-tab"]').click()} className="text-[#007AFF] hover:underline font-medium">
-                  Empieza tu prueba gratuita
+                  {t('auth.login.createAccount')}
                 </button>
               </p>
             </TabsContent>
@@ -280,13 +285,13 @@ const AuthPage = () => {
             <TabsContent value="register">
               <form onSubmit={handleRegister} className="space-y-3.5">
                 <div className="space-y-1.5">
-                  <Label htmlFor="register-name" className="text-[13px] text-slate-600 font-medium">Nombre completo</Label>
+                  <Label htmlFor="register-name" className="text-[13px] text-slate-600 font-medium">{t('auth.register.name')}</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <Input
                       id="register-name"
                       type="text"
-                      placeholder="Juan Pérez"
+                      placeholder="Juan Perez"
                       value={registerName}
                       onChange={(e) => setRegisterName(e.target.value)}
                       required
@@ -296,7 +301,7 @@ const AuthPage = () => {
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="register-email" className="text-[13px] text-slate-600 font-medium">Email</Label>
+                  <Label htmlFor="register-email" className="text-[13px] text-slate-600 font-medium">{t('auth.register.email')}</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <Input
@@ -312,13 +317,13 @@ const AuthPage = () => {
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="register-password" className="text-[13px] text-slate-600 font-medium">Contraseña</Label>
+                  <Label htmlFor="register-password" className="text-[13px] text-slate-600 font-medium">{t('auth.register.password')}</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <Input
                       id="register-password"
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Mínimo 6 caracteres"
+                      placeholder={t('auth.register.passwordRequirements')}
                       value={registerPassword}
                       onChange={(e) => setRegisterPassword(e.target.value)}
                       required
@@ -332,22 +337,19 @@ const AuthPage = () => {
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-[13px] text-slate-600 font-medium">Tipo de cuenta</Label>
+                  <Label className="text-[13px] text-slate-600 font-medium">{t('auth.register.role')}</Label>
                   <Select value={registerRole} onValueChange={setRegisterRole}>
                     <SelectTrigger className="h-11 border-slate-200 focus:border-[#007AFF] rounded-lg bg-white text-[14px]" data-testid="register-role-select">
-                      <SelectValue placeholder="Selecciona tu rol" />
+                      <SelectValue placeholder={t('auth.register.role')} />
                     </SelectTrigger>
                     <SelectContent>
                       {USER_ROLES.map(role => {
-                        const IconComponent = role.icon;
+                        const IconComponent = ROLE_ICONS[role.id] || UserCircle;
                         return (
                           <SelectItem key={role.id} value={role.id} className="py-2.5">
                             <div className="flex items-center gap-2.5">
                               <IconComponent className="w-4 h-4 text-[#007AFF]" />
-                              <div>
-                                <div className="text-[13px] font-medium">{role.name}</div>
-                                <div className="text-[11px] text-slate-400">{role.description}</div>
-                              </div>
+                              <span className="text-[13px] font-medium">{role.name}</span>
                             </div>
                           </SelectItem>
                         );
@@ -362,11 +364,11 @@ const AuthPage = () => {
                   data-testid="register-submit-btn"
                 >
                   {isLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                  Crear cuenta
+                  {t('auth.register.submit')}
                 </Button>
               </form>
               <p className="text-center text-[11px] text-slate-400 mt-5">
-                Al continuar, aceptas nuestros <span className="text-[#007AFF]">Términos</span> y <span className="text-[#007AFF]">Privacidad</span>
+                {t('landing.footer.terms')} & {t('landing.footer.privacy')}
               </p>
             </TabsContent>
           </Tabs>

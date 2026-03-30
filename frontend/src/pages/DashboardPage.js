@@ -22,6 +22,8 @@ import {
   PolarAngleAxis, PolarRadiusAxis 
 } from 'recharts';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
+import { LanguageSelector } from '../components/LanguageSelector';
 import PreviousPlanAnalysis from '../components/PreviousPlanAnalysis';
 import SessionPlanning from '../components/SessionPlanning';
 import SportCharacterization from '../components/SportCharacterization';
@@ -66,6 +68,7 @@ const USER_ROLES = [
 ];
 
 const DashboardPage = () => {
+  const { t } = useTranslation();
   const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
@@ -1014,15 +1017,15 @@ const DashboardPage = () => {
   // Basado en la metodología científica de planificación deportiva (Padilla, Matveiev, etc.)
   const navItems = [
     // === 0. GESTIÓN DE PLANES (PRIMERA OPCIÓN) ===
-    { id: 'plan-manager', label: 'Mis Planes', icon: Clipboard, section: 'planes' },
+    { id: 'plan-manager', label: t('dashboard.plans.title'), icon: Clipboard, section: 'planes' },
     
     // === 1. DIAGNÓSTICO / PUNTO DE PARTIDA ===
-    { id: 'prev-plan', label: 'Análisis Plan Anterior', icon: History, section: 'punto-partida' },
-    { id: 'objectives', label: 'Objetivos del Plan', icon: Target, section: 'punto-partida' },
-    { id: 'athlete-char', label: 'Caracterización Atleta', icon: UserCheck, section: 'punto-partida' },
+    { id: 'prev-plan', label: t('dashboard.sections.diagnosis'), icon: History, section: 'punto-partida' },
+    { id: 'objectives', label: t('dashboard.controlPanel.activePlan'), icon: Target, section: 'punto-partida' },
+    { id: 'athlete-char', label: t('dashboard.controlPanel.athletes'), icon: UserCheck, section: 'punto-partida' },
     
-    // === 2. INFORMACIÓN BASE (Atletas, Equipos, Deportes, Torneos, Entidades) ===
-    { id: 'athletes', label: 'Atletas', icon: User, section: 'informacion' },
+    // === 2. INFORMACIÓN BASE ===
+    { id: 'athletes', label: t('dashboard.controlPanel.athletes'), icon: User, section: 'informacion' },
     { id: 'teams', label: 'Equipos', icon: Users, section: 'informacion' },
     { id: 'sports', label: 'Deportes', icon: Trophy, section: 'informacion' },
     { id: 'tournaments', label: 'Torneos', icon: Medal, section: 'informacion' },
@@ -1037,22 +1040,22 @@ const DashboardPage = () => {
     { id: 'control-psychological', label: 'Control Psicológico', icon: Brain, section: 'evaluacion' },
     
     // === 4. COMPETENCIAS ===
-    { id: 'events', label: 'Calendario Competitivo', icon: Calendar, section: 'competencias' },
-    { id: 'competitions', label: 'Competencias', icon: Award, section: 'competencias' },
+    { id: 'events', label: t('dashboard.sections.competitions'), icon: Calendar, section: 'competencias' },
+    { id: 'competitions', label: t('dashboard.sections.competitions'), icon: Award, section: 'competencias' },
     
-    // === 5. PERIODIZACIÓN (SOLO ESTRUCTURA DEL PLAN) ===
-    { id: 'training-system', label: 'Estructura del Plan', icon: Activity, section: 'periodizacion' },
+    // === 5. PERIODIZACIÓN ===
+    { id: 'training-system', label: t('dashboard.sections.periodization'), icon: Activity, section: 'periodizacion' },
     
     // === 6. VISUALIZACIÓN ===
-    { id: 'graphic-plan', label: 'Plan Gráfico', icon: BarChart, section: 'visualizacion' },
+    { id: 'graphic-plan', label: t('dashboard.sections.visualization'), icon: BarChart, section: 'visualizacion' },
     { id: 'calendar-view', label: 'Calendario', icon: Calendar, section: 'visualizacion' },
     { id: 'smart-alerts', label: 'Alertas', icon: Zap, section: 'visualizacion' },
     
-    // === 7. HERRAMIENTAS (Calculadoras, Métodos, Biblioteca, IA) ===
-    { id: 'calculators', label: 'Calculadoras', icon: Activity, section: 'herramientas' },
-    { id: 'exercises', label: 'Métodos de Entrenamiento', icon: Dumbbell, section: 'herramientas' },
-    { id: 'exercises-lib', label: 'Biblioteca Ejercicios', icon: BookOpen, section: 'herramientas' },
-    { id: 'ai-generator', label: 'Asistente IA', icon: Sparkles, section: 'herramientas' },
+    // === 7. HERRAMIENTAS ===
+    { id: 'calculators', label: t('dashboard.nav.calculators'), icon: Activity, section: 'herramientas' },
+    { id: 'exercises', label: 'Métodos', icon: Dumbbell, section: 'herramientas' },
+    { id: 'exercises-lib', label: t('dashboard.controlPanel.exercises'), icon: BookOpen, section: 'herramientas' },
+    { id: 'ai-generator', label: 'AI', icon: Sparkles, section: 'herramientas' },
   ];
 
   // Estado para secciones colapsadas
@@ -5187,7 +5190,7 @@ const DashboardPage = () => {
               <div className="flex items-center justify-center">
                 <div className="flex items-center gap-3">
                   <Clipboard className="w-5 h-5 text-[#CCFF00]" />
-                  <span className="text-white font-semibold text-sm">Planes de Entrenamiento</span>
+                  <span className="text-white font-semibold text-sm">{t('dashboard.plans.title')}</span>
                 </div>
               </div>
             </div>
@@ -5203,13 +5206,13 @@ const DashboardPage = () => {
       // ====== HAY PLAN ACTIVO: MOSTRAR ESTRUCTURA DEL PLAN ======
       // Secciones internas del plan (sin "Planes" porque ya estamos dentro de uno)
       const planSections = [
-        { key: 'punto-partida', title: 'Diagnóstico', color: 'rose', icon: FileText },
-        { key: 'informacion', title: 'Información', color: 'indigo', icon: Building2 },
-        { key: 'evaluacion', title: 'Evaluación', color: 'emerald', icon: LineChart },
-        { key: 'competencias', title: 'Competencias', color: 'violet', icon: Trophy },
-        { key: 'periodizacion', title: 'Periodización', color: 'cyan', icon: Activity },
-        { key: 'visualizacion', title: 'Visualización', color: 'amber', icon: BarChart },
-        { key: 'herramientas', title: 'Herramientas', color: 'slate', icon: Settings },
+        { key: 'punto-partida', title: t('dashboard.sections.diagnosis'), color: 'rose', icon: FileText },
+        { key: 'informacion', title: t('dashboard.sections.information'), color: 'indigo', icon: Building2 },
+        { key: 'evaluacion', title: t('dashboard.sections.evaluation'), color: 'emerald', icon: LineChart },
+        { key: 'competencias', title: t('dashboard.sections.competitions'), color: 'violet', icon: Trophy },
+        { key: 'periodizacion', title: t('dashboard.sections.periodization'), color: 'cyan', icon: Activity },
+        { key: 'visualizacion', title: t('dashboard.sections.visualization'), color: 'amber', icon: BarChart },
+        { key: 'herramientas', title: t('dashboard.sections.tools'), color: 'slate', icon: Settings },
       ];
 
       const colorClasses = {
@@ -5398,12 +5401,12 @@ const DashboardPage = () => {
                   {panelType === 'panel' ? (
                     <>
                       <LayoutDashboard className="w-3.5 h-3.5" />
-                      <span>Panel</span>
+                      <span>{t('dashboard.nav.panel')}</span>
                     </>
                   ) : (
                     <>
                       <Clipboard className="w-3.5 h-3.5" />
-                      <span>Datos</span>
+                      <span>{t('dashboard.nav.data')}</span>
                     </>
                   )}
                 </button>
@@ -5612,9 +5615,10 @@ const DashboardPage = () => {
                 data-testid="logout-btn"
               >
                 <LogOut className="w-3.5 h-3.5 mr-1" />
-                <span className="hidden lg:inline">Salir</span>
+                <span className="hidden lg:inline">{t('common.logout')}</span>
               </Button>
             </div>
+            <LanguageSelector variant="light" compact />
           </div>
         </div>
       </div>
@@ -5637,7 +5641,7 @@ const DashboardPage = () => {
               }`}
               data-testid={`tab-mobile-${panelType}`}
             >
-              {panelType === 'panel' ? 'Panel' : 'Datos'}
+              {panelType === 'panel' ? t('dashboard.nav.panel') : t('dashboard.nav.data')}
             </button>
           ))}
         </div>

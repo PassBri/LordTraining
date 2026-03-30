@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../components/ui/button';
+import { LanguageSelector } from '../components/LanguageSelector';
 import {
   Check, Target, Brain, Calendar, BarChart3, Users,
   ArrowRight, Activity, FileText, Dumbbell,
@@ -10,13 +12,6 @@ import {
 
 const BC = "'Barlow Condensed', sans-serif";
 const INT = "'Inter', sans-serif";
-
-const PRICING = [
-  { name: 'Free', price: '0', desc: 'Para explorar', features: ['2 atletas', '1 plan', '3 generaciones IA', 'Exportación básica'], cta: 'Comenzar Gratis', pop: false },
-  { name: 'Basic', price: '9.99', desc: 'Entrenadores individuales', features: ['10 atletas', '5 planes', '20 generaciones IA', 'Exportación PDF', 'Soporte por email'], cta: 'Elegir Basic', pop: false },
-  { name: 'Pro', price: '29.99', desc: 'Entrenadores profesionales', features: ['50 atletas', 'Planes ilimitados', '100 generaciones IA', 'PDF y Excel', 'Soporte prioritario'], cta: 'Elegir Pro', pop: true },
-  { name: 'Enterprise', price: '99.99', desc: 'Clubes y federaciones', features: ['Atletas ilimitados', 'Todo ilimitado', 'API personalizada', 'Soporte 24/7', 'Personalización total'], cta: 'Contactar', pop: false },
-];
 
 /* ═══ VISUAL COMPONENTS ═══ */
 
@@ -130,7 +125,7 @@ const DashboardMockup = () => (
           </div>
         </div>
         <div className="col-span-2 bg-[#151d2e] rounded-lg p-2.5 border border-slate-700/15">
-          <div className="text-[7px] text-slate-500 mb-0.5">Ratio Aguda:Crónica</div>
+          <div className="text-[7px] text-slate-500 mb-0.5">Ratio Aguda:Cronica</div>
           <div className="text-2xl font-black text-white leading-none" style={{fontFamily:BC}}>1.18</div>
           <div className="text-[7px] text-emerald-400 mt-1">Zona estable</div>
         </div>
@@ -163,9 +158,18 @@ const DashboardMockup = () => (
 );
 
 /* ═══════════════════════════════ PAGE ═══════════════════════════════ */
-const LandingPage = () => (
+const LandingPage = () => {
+  const { t } = useTranslation();
+
+  const PRICING = [
+    { key: 'free', name: t('landing.pricing.free_name'), price: '0', desc: t('landing.pricing.free_desc'), features: [t('landing.pricing.free_f1'), t('landing.pricing.free_f2'), t('landing.pricing.free_f3'), t('landing.pricing.free_f4')], cta: t('landing.pricing.cta'), pop: false },
+    { key: 'pro', name: t('landing.pricing.pro_name'), price: '12-20', desc: t('landing.pricing.pro_desc'), features: [t('landing.pricing.pro_f1'), t('landing.pricing.pro_f2'), t('landing.pricing.pro_f3'), t('landing.pricing.pro_f4'), t('landing.pricing.pro_f5')], cta: t('landing.pricing.cta'), pop: true },
+    { key: 'club', name: t('landing.pricing.club_name'), price: '8-15', desc: t('landing.pricing.club_desc'), features: [t('landing.pricing.club_f1'), t('landing.pricing.club_f2'), t('landing.pricing.club_f3'), t('landing.pricing.club_f4'), t('landing.pricing.club_f5')], cta: t('landing.pricing.cta'), pop: false },
+    { key: 'inst', name: t('landing.pricing.inst_name'), price: t('landing.pricing.inst_price'), desc: t('landing.pricing.inst_desc'), features: [t('landing.pricing.inst_f1'), t('landing.pricing.inst_f2'), t('landing.pricing.inst_f3'), t('landing.pricing.inst_f4'), t('landing.pricing.inst_f5')], cta: t('landing.pricing.contact'), pop: false },
+  ];
+
+  return (
   <div className="min-h-screen bg-[#fafaf8] landing-reset" style={{fontFamily:INT}}>
-    {/* Reset global heading styles for landing page */}
     <style>{`.landing-reset h1,.landing-reset h2,.landing-reset h3,.landing-reset h4{font-family:inherit;font-weight:inherit;text-transform:none;letter-spacing:normal;}`}</style>
 
     {/* NAV */}
@@ -181,13 +185,14 @@ const LandingPage = () => (
             </span>
           </Link>
           <div className="hidden md:flex items-center gap-8">
-            {[['#features','Funciones'],['#how-it-works','Cómo funciona'],['#pricing','Precios']].map(([h,l]) => (
+            {[['#features', t('landing.nav.features')],['#how-it-works', t('landing.nav.howItWorks')],['#pricing', t('landing.nav.pricing')]].map(([h,l]) => (
               <a key={h} href={h} className="text-[13px] text-slate-500 hover:text-slate-800 transition-colors">{l}</a>
             ))}
           </div>
-          <div className="flex items-center gap-3">
-            <Link to="/auth"><Button variant="ghost" className="text-[13px] text-slate-600 h-9" data-testid="login-nav-btn">Iniciar Sesión</Button></Link>
-            <Link to="/auth"><Button className="bg-slate-900 text-white hover:bg-slate-800 text-[12px] font-semibold px-5 h-9 rounded-lg" data-testid="signup-nav-btn">Comenzar</Button></Link>
+          <div className="flex items-center gap-2">
+            <LanguageSelector variant="light" />
+            <Link to="/auth"><Button variant="ghost" className="text-[13px] text-slate-600 h-9" data-testid="login-nav-btn">{t('landing.nav.login')}</Button></Link>
+            <Link to="/auth"><Button className="bg-slate-900 text-white hover:bg-slate-800 text-[12px] font-semibold px-5 h-9 rounded-lg" data-testid="signup-nav-btn">{t('landing.nav.signup')}</Button></Link>
           </div>
         </div>
       </div>
@@ -203,34 +208,33 @@ const LandingPage = () => (
           <div className="lg:col-span-5">
             <div className="inline-flex items-center gap-1.5 bg-slate-900 px-3 py-1.5 rounded-full mb-6">
               <Sparkles className="w-3 h-3 text-[#CCFF00]" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-white" style={{fontFamily:BC}}>Potenciado por IA</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-white" style={{fontFamily:BC}}>AI Powered</span>
             </div>
 
-            <h1 className="text-[3rem] lg:text-[3.5rem] font-black tracking-[-0.02em] text-slate-900 mb-5 leading-[1.05]" style={{fontFamily:INT}}>
-              Planifica, controla y domina tu{' '}
-              <span className="text-[#007AFF]">entrenamiento</span>
+            <h1 className="text-[3rem] lg:text-[3.5rem] font-black tracking-[-0.02em] text-slate-900 mb-5 leading-[1.05]" style={{fontFamily:INT}} data-testid="hero-title">
+              {t('landing.hero.title')}
             </h1>
 
-            <p className="text-[15px] text-slate-500 mb-8 leading-[1.7] max-w-[380px]">
-              El sistema de periodización científica que usan los entrenadores de alto rendimiento. 17 modelos, 6 controles, IA integrada.
+            <p className="text-[15px] text-slate-500 mb-8 leading-[1.7] max-w-[380px]" data-testid="hero-subtitle">
+              {t('landing.hero.subtitle')}
             </p>
 
             <div className="flex gap-3 mb-6">
               <Link to="/auth">
                 <Button className="bg-slate-900 text-white hover:bg-slate-800 h-11 px-7 text-[13px] font-semibold rounded-lg shadow-md shadow-slate-900/10" data-testid="hero-cta-btn">
-                  Empezar gratis <ArrowRight className="w-4 h-4 ml-2" />
+                  {t('landing.hero.cta_primary')} <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
               <a href="#features">
                 <Button variant="outline" className="h-11 px-6 text-[13px] font-medium border-slate-300 text-slate-600 hover:bg-slate-50 rounded-lg">
-                  Ver funciones
+                  {t('landing.hero.cta_secondary')}
                 </Button>
               </a>
             </div>
 
             <div className="flex gap-5 text-[12px] text-slate-400">
-              {['14 días gratis','Sin tarjeta','Cancela cuando quieras'].map(t => (
-                <span key={t} className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-500" />{t}</span>
+              {['14 days free','No credit card','Cancel anytime'].map(txt => (
+                <span key={txt} className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-500" />{txt}</span>
               ))}
             </div>
           </div>
@@ -248,10 +252,10 @@ const LandingPage = () => (
       <div className="border-t border-slate-200/50 bg-white/50 backdrop-blur-sm">
         <div className="max-w-[1120px] mx-auto px-6 py-5">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[{v:'17',l:'Modelos de periodización'},{v:'6',l:'Controles científicos'},{v:'150+',l:'Ejercicios en biblioteca'},{v:'5',l:'Calculadoras avanzadas'}].map((s,i) => (
+            {[{v:'17',k:'models'},{v:'6',k:'controls'},{v:'150+',k:'exercises'},{v:'5',k:'calculators'}].map((s,i) => (
               <div key={i} className="flex items-center gap-3">
                 <span className="text-[24px] font-black text-slate-900 leading-none" style={{fontFamily:BC}}>{s.v}</span>
-                <span className="text-[13px] text-slate-400 leading-snug">{s.l}</span>
+                <span className="text-[13px] text-slate-400 leading-snug">{t(`landing.hero.stats.${s.k}`)}</span>
               </div>
             ))}
           </div>
@@ -266,27 +270,25 @@ const LandingPage = () => (
 
       <div className="max-w-[1120px] mx-auto relative z-10">
         <div className="max-w-lg mb-12">
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#007AFF] mb-3" style={{fontFamily:BC}}>Funcionalidades</p>
-          <h2 className="text-[28px] md:text-[32px] font-bold text-slate-900 leading-[1.15] mb-3" style={{fontFamily:INT}}>
-            Todo lo que necesitas para entrenar con ciencia
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#007AFF] mb-3" style={{fontFamily:BC}}>{t('landing.nav.features')}</p>
+          <h2 className="text-[28px] md:text-[32px] font-bold text-slate-900 leading-[1.15] mb-3" style={{fontFamily:INT}} data-testid="features-title">
+            {t('landing.features.title')}
           </h2>
           <p className="text-[15px] text-slate-400 leading-[1.6]">
-            Herramientas diseñadas con precisión para entrenadores de alto rendimiento.
+            {t('landing.features.subtitle')}
           </p>
         </div>
 
         <div className="grid grid-cols-12 gap-4">
-          {/* Periodización — dark */}
+          {/* Periodizacion — dark */}
           <div className="col-span-12 md:col-span-7 bg-slate-900 rounded-2xl p-7 flex flex-col justify-between min-h-[260px]" data-testid="feature-periodization">
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 bg-[#CCFF00] rounded-lg flex items-center justify-center"><Calendar className="w-4 h-4 text-slate-900" /></div>
-                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#CCFF00]" style={{fontFamily:BC}}>17 modelos</span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#CCFF00]" style={{fontFamily:BC}}>17 {t('landing.hero.stats.models')}</span>
               </div>
-              <h3 className="text-[20px] font-semibold text-white mb-2">Periodización científica</h3>
-              <p className="text-[14px] text-slate-400 leading-[1.6] max-w-sm">
-                Matveiev, ATR, Bloques, DUP, Conjugado y más. Macrociclos, mesociclos y microciclos generados automáticamente.
-              </p>
+              <h3 className="text-[20px] font-semibold text-white mb-2">{t('landing.features.m3_title')}</h3>
+              <p className="text-[14px] text-slate-400 leading-[1.6] max-w-sm">{t('landing.features.m3_desc')}</p>
             </div>
             <div className="mt-5"><PeriodizationWave height="h-16" count={24} dark /></div>
           </div>
@@ -298,8 +300,8 @@ const LandingPage = () => (
                 <div className="w-8 h-8 bg-[#007AFF] rounded-lg flex items-center justify-center"><Users className="w-4 h-4 text-white" /></div>
                 <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#007AFF]" style={{fontFamily:BC}}>Central</span>
               </div>
-              <h3 className="text-[20px] font-semibold text-slate-900 mb-2">Gestión de atletas</h3>
-              <p className="text-[14px] text-slate-500 leading-[1.6]">Perfiles completos, historial médico y seguimiento individualizado de cada deportista.</p>
+              <h3 className="text-[20px] font-semibold text-slate-900 mb-2">{t('landing.features.m2_title')}</h3>
+              <p className="text-[14px] text-slate-500 leading-[1.6]">{t('landing.features.m2_desc')}</p>
             </div>
             <div className="mt-3"><TeamFormation /></div>
           </div>
@@ -307,13 +309,13 @@ const LandingPage = () => (
           {/* IA */}
           <div className="col-span-12 md:col-span-6 bg-white border border-slate-200/80 rounded-2xl p-7 flex flex-col justify-between min-h-[220px] hover:border-[#007AFF]/25 transition-colors" data-testid="feature-ai">
             <div>
-              <h3 className="text-[20px] font-semibold text-slate-900 mb-2">IA Generativa</h3>
-              <p className="text-[14px] text-slate-500 leading-[1.6] max-w-sm">Genera y adapta planes de entrenamiento automáticamente con inteligencia artificial avanzada.</p>
+              <h3 className="text-[20px] font-semibold text-slate-900 mb-2">{t('landing.features.m8_title')}</h3>
+              <p className="text-[14px] text-slate-500 leading-[1.6] max-w-sm">{t('landing.features.m8_desc')}</p>
             </div>
             <div className="flex items-end justify-between mt-4">
               <div className="flex items-center gap-2">
-                {['GPT','AUTO','SMART'].map((t,i) => (
-                  <span key={t} className={`px-2.5 py-1 rounded-md text-[10px] font-bold ${i===0?'bg-[#007AFF]/10 text-[#007AFF]':i===1?'bg-slate-100 text-slate-500':'bg-emerald-50 text-emerald-600'}`} style={{fontFamily:BC}}>{t}</span>
+                {['GPT','AUTO','SMART'].map((txt,i) => (
+                  <span key={txt} className={`px-2.5 py-1 rounded-md text-[10px] font-bold ${i===0?'bg-[#007AFF]/10 text-[#007AFF]':i===1?'bg-slate-100 text-slate-500':'bg-emerald-50 text-emerald-600'}`} style={{fontFamily:BC}}>{txt}</span>
                 ))}
               </div>
               <div className="relative w-12 h-12">
@@ -323,18 +325,18 @@ const LandingPage = () => (
             </div>
           </div>
 
-          {/* Análisis */}
+          {/* Analisis */}
           <div className="col-span-12 md:col-span-6 bg-white border border-slate-200/80 rounded-2xl p-7 flex flex-col justify-between min-h-[220px]" data-testid="feature-analysis">
             <div>
-              <h3 className="text-[20px] font-semibold text-slate-900 mb-2">Análisis en tiempo real</h3>
-              <p className="text-[14px] text-slate-500 leading-[1.6]">Controles médicos, antropométricos, físicos, técnicos, tácticos y psicológicos en un panel.</p>
+              <h3 className="text-[20px] font-semibold text-slate-900 mb-2">{t('landing.features.m7_title')}</h3>
+              <p className="text-[14px] text-slate-500 leading-[1.6]">{t('landing.features.m7_desc')}</p>
             </div>
             <div className="flex items-end justify-between mt-4">
               <div className="flex gap-6">
-                {[{v:'6',l:'Controles'},{v:'24/7',l:'Monitoreo'},{v:'PDF',l:'Reportes'}].map((m,i) => (
+                {[{v:'6',k:'controls'},{v:'24/7',l:'Monitor'},{v:'PDF',l:'Reports'}].map((m,i) => (
                   <div key={i}>
                     <div className="text-[22px] font-black text-slate-900 leading-none" style={{fontFamily:BC}}>{m.v}</div>
-                    <div className="text-[10px] text-slate-400 mt-1">{m.l}</div>
+                    <div className="text-[10px] text-slate-400 mt-1">{m.k ? t(`landing.hero.stats.${m.k}`) : m.l}</div>
                   </div>
                 ))}
               </div>
@@ -346,16 +348,16 @@ const LandingPage = () => (
           <div className="col-span-6 md:col-span-3 bg-[#007AFF]/[0.05] border border-[#007AFF]/10 rounded-2xl p-6 flex flex-col justify-between min-h-[120px]" data-testid="feature-multisport">
             <Target className="w-5 h-5 text-[#007AFF]" />
             <div>
-              <h3 className="text-[16px] font-semibold text-slate-900">Multi-deporte</h3>
-              <p className="text-[12px] text-slate-400 mt-0.5">+20 disciplinas</p>
+              <h3 className="text-[16px] font-semibold text-slate-900">Multi-sport</h3>
+              <p className="text-[12px] text-slate-400 mt-0.5">+20</p>
             </div>
           </div>
 
           {/* Calculadoras */}
           <div className="col-span-6 md:col-span-5 bg-[#007AFF] rounded-2xl p-6 flex items-center justify-between" data-testid="feature-calculators">
             <div>
-              <h3 className="text-[16px] font-semibold text-white">Calculadoras científicas</h3>
-              <p className="text-white/60 text-[13px] mt-0.5">1RM · VO2máx · Zonas FC · Karvonen</p>
+              <h3 className="text-[16px] font-semibold text-white">{t('landing.hero.stats.calculators')}</h3>
+              <p className="text-white/60 text-[13px] mt-0.5">1RM · VO2max · HR Zones · Karvonen</p>
             </div>
             <Activity className="w-6 h-6 text-white/20" />
           </div>
@@ -363,8 +365,8 @@ const LandingPage = () => (
           {/* Export */}
           <div className="col-span-12 md:col-span-4 bg-slate-900 rounded-2xl p-6 flex items-center justify-between" data-testid="feature-export">
             <div>
-              <h3 className="text-[16px] font-semibold text-white">Exportación PDF</h3>
-              <p className="text-slate-400 text-[13px] mt-0.5">Planes listos para imprimir y compartir</p>
+              <h3 className="text-[16px] font-semibold text-white">PDF Export</h3>
+              <p className="text-slate-400 text-[13px] mt-0.5">{t('landing.features.m7_desc').split('.')[0]}</p>
             </div>
             <FileText className="w-6 h-6 text-[#CCFF00]/30" />
           </div>
@@ -378,21 +380,21 @@ const LandingPage = () => (
       <div className="max-w-[1120px] mx-auto relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-3" style={{fontFamily:BC}}>Panel de control</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-3" style={{fontFamily:BC}}>{t('dashboard.controlPanel.title')}</p>
             <h2 className="text-[28px] md:text-[32px] font-bold text-white leading-[1.15] mb-4" style={{fontFamily:INT}}>
-              Cada variable que importa, en una vista
+              {t('landing.features.m7_title')}
             </h2>
             <p className="text-[15px] text-slate-400 leading-[1.7] mb-8">
-              Readiness Score, ratio de carga aguda/crónica, adherencia y gráficos de rendimiento. Toma decisiones basadas en datos reales.
+              {t('landing.features.m7_desc')}
             </p>
             <div className="grid grid-cols-2 gap-2.5">
               {[
-                {icon:Heart,label:'Control médico',color:'bg-red-500'},
-                {icon:Ruler,label:'Antropometría',color:'bg-blue-500'},
-                {icon:Dumbbell,label:'Control físico',color:'bg-emerald-500'},
-                {icon:Eye,label:'Control técnico',color:'bg-purple-500'},
-                {icon:Target,label:'Control táctico',color:'bg-amber-500'},
-                {icon:Brain,label:'Control psicológico',color:'bg-pink-500'},
+                {icon:Heart,label: t('landing.features.m1_title'),color:'bg-red-500'},
+                {icon:Ruler,label: t('landing.features.m2_title'),color:'bg-blue-500'},
+                {icon:Dumbbell,label: t('landing.features.m4_title'),color:'bg-emerald-500'},
+                {icon:Eye,label: t('landing.features.m5_title'),color:'bg-purple-500'},
+                {icon:Target,label: t('landing.features.m6_title'),color:'bg-amber-500'},
+                {icon:Brain,label: t('landing.features.m8_title'),color:'bg-pink-500'},
               ].map(({icon:I,label,color}) => (
                 <div key={label} className="flex items-center gap-2.5 bg-white/[0.04] border border-white/[0.05] rounded-xl px-3.5 py-2.5">
                   <div className={`w-7 h-7 ${color} rounded-lg flex items-center justify-center`}><I className="w-3.5 h-3.5 text-white" /></div>
@@ -416,16 +418,16 @@ const LandingPage = () => (
       <TrackLanes side="right" opacity={0.025} />
       <div className="max-w-[1120px] mx-auto relative z-10">
         <div className="text-center mb-14">
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#007AFF] mb-3" style={{fontFamily:BC}}>Cómo funciona</p>
-          <h2 className="text-[28px] md:text-[32px] font-bold text-slate-900 leading-[1.15]" style={{fontFamily:INT}}>
-            De la idea al plan perfecto en 3 pasos
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#007AFF] mb-3" style={{fontFamily:BC}}>{t('landing.howItWorks.title')}</p>
+          <h2 className="text-[28px] md:text-[32px] font-bold text-slate-900 leading-[1.15]" style={{fontFamily:INT}} data-testid="how-it-works-title">
+            {t('landing.howItWorks.subtitle')}
           </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3">
           {[
-            {n:'01',icon:Layers,title:'Crea tu plan',desc:'Selecciona el modelo de periodización. La IA genera macrociclos, mesociclos y microciclos automáticamente.',accent:'#007AFF'},
-            {n:'02',icon:Activity,title:'Carga los datos',desc:'Agrega atletas, evaluaciones, competencias y objetivos. Todo queda vinculado al plan activo.',accent:'#0f172a'},
-            {n:'03',icon:LineChart,title:'Analiza y decide',desc:'Visualiza readiness score, ratio de carga y gráficos. Decide basándote en datos reales.',accent:'#007AFF'},
+            {n:'01',icon:Layers,titleKey:'step1_title',descKey:'step1_desc',accent:'#007AFF'},
+            {n:'02',icon:Activity,titleKey:'step2_title',descKey:'step2_desc',accent:'#0f172a'},
+            {n:'03',icon:LineChart,titleKey:'step3_title',descKey:'step3_desc',accent:'#007AFF'},
           ].map((step,i) => (
             <div key={i} className={`relative px-8 py-6 ${i<2?'md:border-r border-slate-200':''}`}>
               {i<2 && <div className="hidden md:block absolute top-6 -right-3 z-10"><ChevronRight className="w-5 h-5 text-slate-300" /></div>}
@@ -435,8 +437,8 @@ const LandingPage = () => (
                 </div>
                 <span className="text-[40px] font-black text-slate-100 leading-none" style={{fontFamily:BC}}>{step.n}</span>
               </div>
-              <h3 className="text-[17px] font-semibold text-slate-900 mb-2">{step.title}</h3>
-              <p className="text-[14px] text-slate-500 leading-[1.65]">{step.desc}</p>
+              <h3 className="text-[17px] font-semibold text-slate-900 mb-2">{t(`landing.howItWorks.${step.titleKey}`)}</h3>
+              <p className="text-[14px] text-slate-500 leading-[1.65]">{t(`landing.howItWorks.${step.descKey}`)}</p>
             </div>
           ))}
         </div>
@@ -446,8 +448,8 @@ const LandingPage = () => (
     {/* TRUST */}
     <section className="py-5 px-6 bg-white border-y border-slate-100">
       <div className="max-w-[1120px] mx-auto flex flex-wrap items-center justify-center gap-x-12 gap-y-3">
-        {[{icon:Shield,t:'Basado en ciencia deportiva'},{icon:Zap,t:'17 modelos de periodización'},{icon:Users,t:'Para entrenadores y atletas'},{icon:Brain,t:'Asistente con IA integrado'}].map(({icon:I,t}) => (
-          <div key={t} className="flex items-center gap-2"><I className="w-4 h-4 text-slate-300" /><span className="text-[12px] text-slate-400">{t}</span></div>
+        {[{icon:Shield,k:'m1_title'},{icon:Zap,k:'m3_title'},{icon:Users,k:'m2_title'},{icon:Brain,k:'m8_title'}].map(({icon:I,k}) => (
+          <div key={k} className="flex items-center gap-2"><I className="w-4 h-4 text-slate-300" /><span className="text-[12px] text-slate-400">{t(`landing.features.${k}`)}</span></div>
         ))}
       </div>
     </section>
@@ -456,20 +458,20 @@ const LandingPage = () => (
     <section id="pricing" className="py-20 px-6 bg-[#fafaf8]">
       <div className="max-w-[960px] mx-auto">
         <div className="text-center mb-12">
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#007AFF] mb-3" style={{fontFamily:BC}}>Precios</p>
-          <h2 className="text-[28px] md:text-[32px] font-bold text-slate-900 leading-[1.15]" style={{fontFamily:INT}}>
-            Un plan para cada nivel
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#007AFF] mb-3" style={{fontFamily:BC}}>{t('landing.nav.pricing')}</p>
+          <h2 className="text-[28px] md:text-[32px] font-bold text-slate-900 leading-[1.15]" style={{fontFamily:INT}} data-testid="pricing-title">
+            {t('landing.pricing.title')}
           </h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {PRICING.map((plan,i) => (
-            <div key={i} className={`relative rounded-2xl p-6 transition-shadow duration-200 ${plan.pop?'bg-slate-900 ring-1 ring-slate-700 shadow-xl':'bg-white border border-slate-200 hover:shadow-md'}`} data-testid={`pricing-card-${plan.name.toLowerCase()}`}>
-              {plan.pop && <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-[#007AFF] text-white text-[9px] font-bold uppercase tracking-wider px-3 py-0.5 rounded-full" style={{fontFamily:BC}}>Popular</div>}
+            <div key={i} className={`relative rounded-2xl p-6 transition-shadow duration-200 ${plan.pop?'bg-slate-900 ring-1 ring-slate-700 shadow-xl':'bg-white border border-slate-200 hover:shadow-md'}`} data-testid={`pricing-card-${plan.key}`}>
+              {plan.pop && <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-[#007AFF] text-white text-[9px] font-bold uppercase tracking-wider px-3 py-0.5 rounded-full" style={{fontFamily:BC}}>{t('landing.pricing.popular')}</div>}
               <h3 className={`text-[15px] font-semibold ${plan.pop?'text-white':'text-slate-900'}`}>{plan.name}</h3>
               <p className={`text-[12px] mt-0.5 ${plan.pop?'text-slate-400':'text-slate-500'}`}>{plan.desc}</p>
               <div className="flex items-baseline mt-4 mb-5">
                 <span className={`text-[32px] font-black leading-none ${plan.pop?'text-[#CCFF00]':'text-slate-900'}`} style={{fontFamily:BC}}>${plan.price}</span>
-                <span className={`text-[13px] ml-1 ${plan.pop?'text-slate-500':'text-slate-400'}`}>/mes</span>
+                <span className={`text-[13px] ml-1 ${plan.pop?'text-slate-500':'text-slate-400'}`}>{t('landing.pricing.pro_period')}</span>
               </div>
               <ul className="space-y-2.5 mb-6">
                 {plan.features.map((f,j) => (
@@ -480,7 +482,7 @@ const LandingPage = () => (
                 ))}
               </ul>
               <Link to="/auth">
-                <Button className={`w-full rounded-xl h-10 text-[12px] font-semibold ${plan.pop?'bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600]':'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'}`} data-testid={`pricing-cta-${plan.name.toLowerCase()}`}>
+                <Button className={`w-full rounded-xl h-10 text-[12px] font-semibold ${plan.pop?'bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600]':'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'}`} data-testid={`pricing-cta-${plan.key}`}>
                   {plan.cta}
                 </Button>
               </Link>
@@ -496,15 +498,14 @@ const LandingPage = () => (
       <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/95 to-slate-900/85" />
       <div className="max-w-lg mx-auto text-center relative z-10">
         <h2 className="text-[28px] md:text-[32px] font-bold text-white leading-[1.15] mb-4" style={{fontFamily:INT}}>
-          ¿Listo para entrenar con{' '}
-          <span className="text-[#CCFF00]">ciencia</span>?
+          {t('landing.hero.cta_primary')}?
         </h2>
         <p className="text-[15px] text-slate-400 mb-8 leading-[1.6]">
-          Únete a entrenadores que ya planifican con datos e inteligencia artificial.
+          {t('landing.hero.subtitle')}
         </p>
         <Link to="/auth">
           <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] h-11 px-8 text-[13px] font-semibold rounded-lg" data-testid="cta-final-btn">
-            Crear cuenta gratis <ArrowRight className="w-4 h-4 ml-2" />
+            {t('landing.hero.cta_primary')} <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </Link>
       </div>
@@ -517,10 +518,11 @@ const LandingPage = () => (
           <div className="w-6 h-6 bg-slate-800 rounded flex items-center justify-center"><span className="text-[#CCFF00] font-black text-[7px]">T</span></div>
           <span className="text-[12px] font-bold text-white/40" style={{fontFamily:BC}}>TR<span className="text-[#007AFF]">AI</span>N</span>
         </div>
-        <p className="text-[11px] text-slate-600">© 2025 TrAIn. Todos los derechos reservados.</p>
+        <p className="text-[11px] text-slate-600">© 2025 TrAIn. {t('landing.footer.copyright')}</p>
       </div>
     </footer>
   </div>
-);
+  );
+};
 
 export default LandingPage;
