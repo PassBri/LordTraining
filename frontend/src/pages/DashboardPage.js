@@ -14,7 +14,7 @@ import {
   Shield, UserCheck, User, UserCircle, Settings, LayoutDashboard, Landmark,
   Building2, Building, GraduationCap, Trophy, Timer, Flame, Gamepad2, Lightbulb, X, Trash2,
   Medal, MapPin, LayoutGrid, GitBranch, Share2, History, Filter, CreditCard, Sparkles,
-  AlertTriangle, CheckCircle, TrendingUp, RefreshCw, Clock, Edit, Copy, Printer
+  AlertTriangle, CheckCircle, TrendingUp, RefreshCw, Clock, Edit, Copy, Printer, Gauge
 } from 'lucide-react';
 import { 
   LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, 
@@ -56,6 +56,8 @@ import TournamentManager from '../components/TournamentManager';
 import AutoTestingSystem from '../components/AutoTestingSystem';
 import AITrainingAssistant from '../components/AITrainingAssistant';
 import PlanSidebar from '../components/PlanSidebar';
+import TrainingControl from '../components/TrainingControl';
+import LoadMetricsDashboard from '../components/LoadMetricsDashboard';
 import { Badge } from '../components/ui/badge';
 
 // Definición de roles disponibles
@@ -1121,8 +1123,12 @@ const DashboardPage = () => {
     { id: 'events', label: t('dashboard.sections.competitions'), icon: Calendar, section: 'competencias' },
     { id: 'competitions', label: t('dashboard.sections.competitions'), icon: Award, section: 'competencias' },
     
-    // === 5. PERIODIZACIÓN ===
-    { id: 'training-system', label: t('dashboard.sections.periodization'), icon: Activity, section: 'periodizacion' },
+    // === 5. PERIODIZACIÓN (sub-secciones directas sin tab intermedio) ===
+    { id: 'period-overview', label: 'Resumen', icon: Gauge, section: 'periodizacion' },
+    { id: 'period-structure', label: 'Estructura', icon: BookOpen, section: 'periodizacion' },
+    { id: 'period-tests', label: 'Evaluaciones', icon: Clipboard, section: 'periodizacion' },
+    { id: 'period-load', label: 'Carga', icon: BarChart, section: 'periodizacion' },
+    { id: 'period-control', label: 'Control', icon: TrendingUp, section: 'periodizacion' },
     
     // === 6. VISUALIZACIÓN ===
     { id: 'graphic-plan', label: t('dashboard.sections.visualization'), icon: BarChart, section: 'visualizacion' },
@@ -1413,7 +1419,7 @@ const DashboardPage = () => {
 
     // ====== VERIFICAR SI SE NECESITA UN PLAN ACTIVO ======
     // Secciones que NO requieren plan activo (se pueden ver sin tener un plan seleccionado)
-    const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators', 'create-plan'];
+    const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators', 'create-plan', 'period-overview', 'period-structure', 'period-tests', 'period-load', 'period-control'];
     
     if (!activePlan && !sectionsWithoutPlan.includes(activeDataSection)) {
       // Mostrar mensaje de que se necesita seleccionar un plan
@@ -3822,13 +3828,59 @@ const DashboardPage = () => {
       );
     }
 
-    // Render Training System Hub (EJE CENTRAL - Integra Periodización, Tests, Carga y Control)
-    if (activeDataSection === 'training-system') {
-      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
+    // ====== PERIODIZACIÓN - Sub-secciones directas ======
+    if (activeDataSection === 'period-overview') {
       return (
         <TrainingSystemHub 
           athleteId={selectedAthleteId} 
-          athleteName={selectedAthlete?.name}
+          athleteName={athletes.find(a => a.id === selectedAthleteId)?.name}
+          onNavigate={(section) => setActiveDataSection(section)}
+          activePlan={activePlan}
+          hideTabBar={true}
+        />
+      );
+    }
+
+    if (activeDataSection === 'period-structure') {
+      return (
+        <PeriodizationComplete
+          activePlan={activePlan}
+          onPlanCreated={async (newPlan) => {
+            await fetchTrainingPlans();
+            if (newPlan?.apiId) {
+              handleSetActivePlan({
+                id: newPlan.apiId,
+                name: newPlan.name,
+                sport: newPlan.sport || 'General',
+                model: newPlan.model,
+                model_name: newPlan.model,
+                total_weeks: newPlan.totalWeeks,
+                start_date: newPlan.startDate,
+              });
+            }
+          }}
+        />
+      );
+    }
+
+    if (activeDataSection === 'period-tests') {
+      return <TestEvaluations athleteId={selectedAthleteId} />;
+    }
+
+    if (activeDataSection === 'period-load') {
+      return <LoadMetricsDashboard activePlan={activePlan} />;
+    }
+
+    if (activeDataSection === 'period-control') {
+      return <TrainingControl athleteId={selectedAthleteId} athleteName={athletes.find(a => a.id === selectedAthleteId)?.name} />;
+    }
+
+    // Fallback: training-system (mantener para compatibilidad)
+    if (activeDataSection === 'training-system') {
+      return (
+        <TrainingSystemHub 
+          athleteId={selectedAthleteId} 
+          athleteName={athletes.find(a => a.id === selectedAthleteId)?.name}
           onNavigate={(section) => setActiveDataSection(section)}
           activePlan={activePlan}
         />
@@ -5316,7 +5368,7 @@ const DashboardPage = () => {
   const renderMainContent = () => {
     if (activePanel === 'datos') {
       // ====== LAYOUT: SIDEBAR DE PLANES + CONTENIDO ======
-      const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators', 'sports', 'tournaments', 'create-plan'];
+      const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators', 'sports', 'tournaments', 'create-plan', 'period-overview', 'period-structure', 'period-tests', 'period-load', 'period-control'];
 
       const planSections = [
         { key: 'punto-partida', title: t('dashboard.sections.diagnosis'), color: 'rose', icon: FileText },

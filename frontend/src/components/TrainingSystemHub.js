@@ -19,7 +19,7 @@ import LoadMetricsDashboard from './LoadMetricsDashboard';
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 const BC = "'Barlow Condensed', sans-serif";
 
-const TrainingSystemHub = ({ athleteId, athleteName, onNavigate, activePlan }) => {
+const TrainingSystemHub = ({ athleteId, athleteName, onNavigate, activePlan, hideTabBar = false }) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(false);
@@ -246,6 +246,15 @@ const TrainingSystemHub = ({ athleteId, athleteName, onNavigate, activePlan }) =
       )}
     </div>
   );
+
+  /* ══════ RENDER ══════ */
+  if (hideTabBar) {
+    return (
+      <div className="h-full overflow-auto" data-testid="training-system-hub">
+        <div className="p-6">{renderOverview()}</div>
+      </div>
+    );
+  }
 
   /* ══════ TABS ══════ */
   const tabItems = [
