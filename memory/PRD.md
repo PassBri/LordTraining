@@ -159,18 +159,19 @@ Todas las evaluaciones:
 
 ## Completado
 ### 30-Mar-2025 - Rediseño Landing Page
-- Landing page completamente rediseñada con estética dark premium (#0a0f1a)
+- Landing page completamente rediseñada con estética light premium (#fafaf8)
 - Sin imágenes stock — todos los visuales creados con CSS/SVG:
-  - PeriodizationWave (barras de periodización animadas)
+  - TrackLanes (pistas de atletismo SVG decorativas)
+  - PeriodizationWave (barras de periodización con patrón ondulante)
   - TeamFormation (dots de formación de equipo con líneas conectoras)
   - DataRings (anillos de datos animados con CSS)
-  - ReadinessGauge (gauge circular SVG con stroke de #CCFF00)
-  - SpeedLines (líneas de velocidad abstractas)
-  - DashboardMockup (mockup completo del panel de control en CSS)
-- Identidad de color: lima (#CCFF00), azul (#007AFF), dark slate
-- Tipografía: Barlow Condensed para headings
-- Secciones: Hero, Stats, Features Bento Grid, Product Showcase, How it Works, Trust Bar, Pricing, CTA Final, Footer
-- Testing: 100% pasado (iteration_22.json)
+  - ReadinessGauge (gauge circular SVG con stroke azul)
+  - DashboardMockup (mockup completo del panel de control en CSS, tema oscuro para contraste)
+- Identidad de color: azul (#007AFF) primario, lima (#CCFF00) acento, slate-900 para texto/cards oscuras
+- Tipografía: Barlow Condensed para headings, Inter para body
+- Flujo de secciones: Hero claro → Stats → Features blanco → Showcase oscuro → How it Works claro → Trust → Pricing claro → CTA oscuro → Footer oscuro
+- Responsive mobile verificado
+- Testing: 100% pasado (iteration_22.json + verificación manual)
 
 ## Credenciales de Prueba
 - Email: test@train.com
