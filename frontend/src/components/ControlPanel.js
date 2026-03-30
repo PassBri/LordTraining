@@ -952,7 +952,7 @@ const ControlPanel = ({
             ) : (
               <Card 
                 className="bg-slate-100 border border-slate-200 cursor-pointer hover:shadow-md transition-all duration-200 col-span-2 md:col-span-1"
-                onClick={() => onNavigate && onNavigate('datos', 'plan-manager')}
+                onClick={() => onNavigate && onNavigate('datos', null)}
                 data-testid="no-plan-card"
               >
                 <CardContent className="p-3">
@@ -973,7 +973,7 @@ const ControlPanel = ({
             {/* Total Planes */}
             <Card 
               className="bg-white border border-slate-200 shadow-sm cursor-pointer hover:shadow-md hover:border-blue-200 transition-all duration-200"
-              onClick={() => onNavigate && onNavigate('datos', 'plan-manager')}
+              onClick={() => onNavigate && onNavigate('datos', null)}
               data-testid="plans-stat-card"
             >
               <CardContent className="p-3">

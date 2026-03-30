@@ -55,6 +55,7 @@ import TrainingSystemHub from '../components/TrainingSystemHub';
 import TournamentManager from '../components/TournamentManager';
 import AutoTestingSystem from '../components/AutoTestingSystem';
 import AITrainingAssistant from '../components/AITrainingAssistant';
+import PlanSidebar from '../components/PlanSidebar';
 import { Badge } from '../components/ui/badge';
 
 // Definición de roles disponibles
@@ -80,7 +81,7 @@ const DashboardPage = () => {
   // UI State
   const [isNavExpanded, setIsNavExpanded] = useState(true);
   const [activePanel, setActivePanel] = useState('panel');
-  const [activeDataSection, setActiveDataSection] = useState('plan-manager'); // Default to plan manager
+  const [activeDataSection, setActiveDataSection] = useState(null); // null = welcome state in datos
   const [selectedAthleteId, setSelectedAthleteId] = useState(null);
   const [activeSubTab, setActiveSubTab] = useState('macrociclo');
   const [chatMessages, setChatMessages] = useState([
@@ -341,8 +342,8 @@ const DashboardPage = () => {
       setPlanData(null);
       // Resetear evaluaciones
       resetEvaluationData();
-      // Volver al gestor de planes
-      setActiveDataSection('plan-manager');
+      // Volver al estado inicial (sidebar visible, sin sección seleccionada)
+      setActiveDataSection(null);
     }
     setShowPlanSelector(false);
   };
@@ -1428,11 +1429,11 @@ const DashboardPage = () => {
               Los datos se guardarán asociados al plan seleccionado.
             </p>
             <Button
-              onClick={() => setActiveDataSection('plan-manager')}
+              onClick={() => setActiveDataSection(null)}
               className="bg-slate-900 hover:bg-slate-800 text-white rounded-lg px-6"
             >
               <Clipboard className="w-4 h-4 mr-2" />
-              Ir a Mis Planes
+              Seleccionar Plan
             </Button>
           </div>
         </div>
@@ -5288,30 +5289,9 @@ const DashboardPage = () => {
 
   const renderMainContent = () => {
     if (activePanel === 'datos') {
-      // ====== SI NO HAY PLAN ACTIVO: MOSTRAR SOLO SELECTOR DE PLANES ======
-      if (!activePlan) {
-        return (
-          <div className="flex flex-col h-full">
-            {/* Header - Solo Planes */}
-            <div className="bg-slate-900 px-4 py-3">
-              <div className="flex items-center justify-center">
-                <div className="flex items-center gap-3">
-                  <Clipboard className="w-5 h-5 text-[#CCFF00]" />
-                  <span className="text-white font-semibold text-sm">{t('dashboard.plans.title')}</span>
-                </div>
-              </div>
-            </div>
+      // ====== LAYOUT: SIDEBAR DE PLANES + CONTENIDO ======
+      const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators', 'sports', 'tournaments'];
 
-            {/* Contenido - Lista de Planes */}
-            <div className="flex-1 overflow-y-auto bg-[#fafaf8]">
-              {renderDataContent()}
-            </div>
-          </div>
-        );
-      }
-
-      // ====== HAY PLAN ACTIVO: MOSTRAR ESTRUCTURA DEL PLAN ======
-      // Secciones internas del plan (sin "Planes" porque ya estamos dentro de uno)
       const planSections = [
         { key: 'punto-partida', title: t('dashboard.sections.diagnosis'), color: 'rose', icon: FileText },
         { key: 'informacion', title: t('dashboard.sections.information'), color: 'indigo', icon: Building2 },
@@ -5340,7 +5320,26 @@ const DashboardPage = () => {
       const sectionItems = navItems.filter(i => i.section === currentSection);
 
       return (
-        <div className="flex flex-col h-full">
+        <div className="flex h-full" data-testid="datos-layout">
+          {/* ====== SIDEBAR DE PLANES ====== */}
+          <PlanSidebar
+            trainingPlans={trainingPlans}
+            loadingPlans={loadingPlans}
+            activePlan={activePlan}
+            onSelectPlan={handleSetActivePlan}
+            onDuplicatePlan={handleDuplicatePlan}
+            onSharePlan={handleSharePlan}
+            onDeletePlan={handleDeleteTrainingPlan}
+            onExportPDF={handleExportPDF}
+            onRefresh={fetchTrainingPlans}
+            onCreatePlan={() => setActiveDataSection('training-system')}
+            t={t}
+          />
+
+          {/* ====== CONTENIDO PRINCIPAL ====== */}
+          <div className="flex-1 flex flex-col overflow-hidden" data-testid="plan-content-area">
+          {activePlan ? (
+            <>
           {/* Header Bar - Clean light design */}
           <div className="bg-white border-b border-slate-200">
             {/* Barra del Plan Activo */}
@@ -5433,6 +5432,33 @@ const DashboardPage = () => {
           <div className="flex-1 overflow-y-auto bg-[#fafaf8]">
             {renderDataContent()}
           </div>
+            </>
+          ) : activeDataSection && sectionsWithoutPlan.includes(activeDataSection) ? (
+            <div className="flex-1 overflow-y-auto bg-[#fafaf8]">
+              {renderDataContent()}
+            </div>
+          ) : (
+            <div className="flex-1 flex items-center justify-center bg-[#fafaf8] p-8" data-testid="plan-welcome-state">
+              <div className="text-center max-w-md">
+                <div className="w-20 h-20 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
+                  <Clipboard className="w-10 h-10 text-slate-300" />
+                </div>
+                <h2 className="text-xl font-bold text-slate-800 mb-2">Selecciona un Plan</h2>
+                <p className="text-slate-500 text-sm mb-6">
+                  Elige un plan de entrenamiento del panel izquierdo para acceder a sus secciones y datos.
+                </p>
+                <Button
+                  onClick={() => setActiveDataSection('training-system')}
+                  className="bg-slate-900 hover:bg-slate-800 text-white rounded-lg"
+                  data-testid="welcome-create-plan-btn"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Crear Nuevo Plan
+                </Button>
+              </div>
+            </div>
+          )}
+          </div>
         </div>
       );
     }
@@ -5496,7 +5522,7 @@ const DashboardPage = () => {
                   key={panelType}
                   onClick={() => {
                     setActivePanel(panelType);
-                    if (panelType === 'datos') setActiveDataSection('plan-manager');
+                    if (panelType === 'datos' && !activePlan) setActiveDataSection(null);
                   }}
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5 ${
                     activePanel === panelType 
