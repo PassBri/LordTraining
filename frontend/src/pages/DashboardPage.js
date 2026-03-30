@@ -126,6 +126,52 @@ const DashboardPage = () => {
   const [showAddSport, setShowAddSport] = useState(null); // category_id or null
   const [editingSportId, setEditingSportId] = useState(null);
   const [editingSportCharacterization, setEditingSportCharacterization] = useState({});
+
+  // Sport-specific emoji mapping
+  const sportIcons = {
+    'boxeo': '🥊', 'boxing': '🥊',
+    'taekwondo': '🥋', 'karate': '🥋', 'judo': '🥋', 'artes marciales': '🥋',
+    'wrestling': '🤼', 'lucha': '🤼', 'lucha libre': '🤼',
+    'atletismo': '🏃‍♂️', 'track': '🏃‍♂️',
+    'natación': '🏊', 'swimming': '🏊', 'natacion': '🏊',
+    'fútbol': '⚽', 'futbol': '⚽', 'soccer': '⚽', 'football': '⚽',
+    'básquetbol': '🏀', 'baloncesto': '🏀', 'basketball': '🏀', 'basquetbol': '🏀',
+    'tenis': '🎾', 'tennis': '🎾', 'tenis de mesa': '🏓', 'ping pong': '🏓',
+    'ciclismo': '🚴', 'cycling': '🚴',
+    'voleibol': '🏐', 'volleyball': '🏐', 'voley': '🏐',
+    'béisbol': '⚾', 'baseball': '⚾', 'beisbol': '⚾', 'softball': '🥎',
+    'golf': '⛳',
+    'rugby': '🏉',
+    'hockey': '🏒', 'hockey sobre hielo': '🏒', 'hockey hierba': '🏑',
+    'gimnasia': '🤸', 'gymnastics': '🤸', 'gimnasia artística': '🤸', 'gimnasia rítmica': '🤸',
+    'esgrima': '🤺', 'fencing': '🤺',
+    'halterofilia': '🏋️', 'weightlifting': '🏋️', 'powerlifting': '🏋️', 'levantamiento de pesas': '🏋️',
+    'balonmano': '🤾', 'handball': '🤾',
+    'waterpolo': '🤽', 'polo acuático': '🤽',
+    'remo': '🚣', 'rowing': '🚣', 'canotaje': '🛶', 'kayak': '🛶',
+    'esquí': '⛷️', 'ski': '⛷️', 'esqui': '⛷️',
+    'patinaje': '⛸️', 'skating': '⛸️', 'patinaje artístico': '⛸️',
+    'triatlón': '🏊‍♂️', 'triatlon': '🏊‍♂️', 'triathlon': '🏊‍♂️',
+    'maratón': '🏅', 'maraton': '🏅', 'marathon': '🏅',
+    'surf': '🏄', 'surfing': '🏄',
+    'escalada': '🧗', 'climbing': '🧗',
+    'tiro con arco': '🏹', 'archery': '🏹',
+    'equitación': '🏇', 'horse riding': '🏇', 'equitacion': '🏇',
+    'badminton': '🏸', 'bádminton': '🏸',
+    'snowboard': '🏂',
+    'cricket': '🏏',
+    'polo': '🏇',
+    'vela': '⛵', 'sailing': '⛵',
+    'buceo': '🤿', 'diving': '🤿',
+    'crossfit': '💪', 'fitness': '💪',
+    'mma': '🥊', 'artes marciales mixtas': '🥊',
+  };
+  const getSportIcon = (sport) => {
+    if (sport.icon && sport.icon !== '🏃') return sport.icon;
+    const key = sport.name?.toLowerCase().trim();
+    return sportIcons[key] || '🏃‍♂️';
+  };
+
   
   // PDF Export Modal State
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
@@ -2442,7 +2488,7 @@ const DashboardPage = () => {
                               >
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-2">
-                                    <span className="text-2xl">{sport.icon || '🏃'}</span>
+                                    <span className="text-2xl">{getSportIcon(sport)}</span>
                                     <span className="font-medium text-slate-700">{sport.name}</span>
                                   </div>
                                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
