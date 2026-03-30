@@ -5526,7 +5526,7 @@ const DashboardPage = () => {
               <div className="w-10 h-10 aspect-square shrink-0 bg-slate-900 rounded-full flex items-center justify-center shadow-md">
                 <Activity className="w-5 h-5 text-[#CCFF00]" strokeWidth={2.5} />
               </div>
-              <h1 className="text-[20px] font-black tracking-tight hidden sm:block" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>
+              <h1 className="text-[20px] font-black tracking-tight hidden sm:block text-slate-900" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>
                 iTRAIN
               </h1>
             </div>
