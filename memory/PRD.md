@@ -158,20 +158,19 @@ Todas las evaluaciones:
 9. **P3**: Limpiar componentes obsoletos (PeriodizationSystem.js, AICoachAssistant.js)
 
 ## Completado
-### 30-Mar-2025 - Rediseño Landing Page (v3 - Tipografía profesional)
+### 30-Mar-2025 - Rediseño Landing Page + Auth Page
 - Landing page rediseñada con fondo claro elegante (#fafaf8), sin imágenes stock
-- Escala tipográfica profesional con CSS reset scoped para anular el global uppercase:
+- Escala tipográfica profesional con CSS reset scoped:
   - Display (hero): Inter black, 3.5rem, sentence case  
   - Section H2: Inter bold, 32px, sentence case
   - Card H3: Inter semibold, 20px, sentence case  
   - Body: Inter regular, 14-15px
-  - Labels: Barlow Condensed bold, 10-11px, uppercase (solo para etiquetas/tags)
+  - Labels: Barlow Condensed bold, 10-11px, uppercase (solo etiquetas)
   - Métricas: Barlow Condensed black, para datos numéricos
 - CSS-only visuals: TrackLanes SVG, PeriodizationWave, TeamFormation, DataRings, ReadinessGauge, DashboardMockup
-- Color: azul (#007AFF) primario, lima (#CCFF00) acento, slate-900 texto/cards oscuras
-- Flujo: Hero claro → Stats → Features → Showcase oscuro → How it Works → Trust → Pricing → CTA oscuro
-- Responsive mobile verificado, 0 console errors
-- Testing: 6/6 elementos verificados + mobile check
+- Color: azul (#007AFF), lima (#CCFF00), slate-900 texto/dark, #fafaf8 fondo
+- AuthPage rediseñada para coherencia: mismo mockup dashboard, mismos colores, misma tipografía
+- Login: botón slate-900, Register: botón #007AFF, visual panel derecho con dashboard mockup + stats + barras
 
 ## Credenciales de Prueba
 - Email: test@train.com
