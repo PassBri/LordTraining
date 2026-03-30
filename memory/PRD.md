@@ -158,20 +158,20 @@ Todas las evaluaciones:
 9. **P3**: Limpiar componentes obsoletos (PeriodizationSystem.js, AICoachAssistant.js)
 
 ## Completado
-### 30-Mar-2025 - Rediseño Landing Page
-- Landing page completamente rediseñada con estética light premium (#fafaf8)
-- Sin imágenes stock — todos los visuales creados con CSS/SVG:
-  - TrackLanes (pistas de atletismo SVG decorativas)
-  - PeriodizationWave (barras de periodización con patrón ondulante)
-  - TeamFormation (dots de formación de equipo con líneas conectoras)
-  - DataRings (anillos de datos animados con CSS)
-  - ReadinessGauge (gauge circular SVG con stroke azul)
-  - DashboardMockup (mockup completo del panel de control en CSS, tema oscuro para contraste)
-- Identidad de color: azul (#007AFF) primario, lima (#CCFF00) acento, slate-900 para texto/cards oscuras
-- Tipografía: Barlow Condensed para headings, Inter para body
-- Flujo de secciones: Hero claro → Stats → Features blanco → Showcase oscuro → How it Works claro → Trust → Pricing claro → CTA oscuro → Footer oscuro
-- Responsive mobile verificado
-- Testing: 100% pasado (iteration_22.json + verificación manual)
+### 30-Mar-2025 - Rediseño Landing Page (v3 - Tipografía profesional)
+- Landing page rediseñada con fondo claro elegante (#fafaf8), sin imágenes stock
+- Escala tipográfica profesional con CSS reset scoped para anular el global uppercase:
+  - Display (hero): Inter black, 3.5rem, sentence case  
+  - Section H2: Inter bold, 32px, sentence case
+  - Card H3: Inter semibold, 20px, sentence case  
+  - Body: Inter regular, 14-15px
+  - Labels: Barlow Condensed bold, 10-11px, uppercase (solo para etiquetas/tags)
+  - Métricas: Barlow Condensed black, para datos numéricos
+- CSS-only visuals: TrackLanes SVG, PeriodizationWave, TeamFormation, DataRings, ReadinessGauge, DashboardMockup
+- Color: azul (#007AFF) primario, lima (#CCFF00) acento, slate-900 texto/cards oscuras
+- Flujo: Hero claro → Stats → Features → Showcase oscuro → How it Works → Trust → Pricing → CTA oscuro
+- Responsive mobile verificado, 0 console errors
+- Testing: 6/6 elementos verificados + mobile check
 
 ## Credenciales de Prueba
 - Email: test@train.com
