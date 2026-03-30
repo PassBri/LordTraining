@@ -767,18 +767,18 @@ const ControlPanel = ({
   };
 
   return (
-    <div className="overflow-y-auto h-full bg-gradient-to-br from-slate-50 to-blue-50/30">
-      {/* Header Material Design Simplificado */}
-      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white sticky top-0 z-10 shadow-lg">
+    <div className="overflow-y-auto h-full bg-[#fafaf8]">
+      {/* Header */}
+      <div className="bg-white border-b border-slate-200/60 sticky top-0 z-10">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                <LayoutDashboard className="w-6 h-6" />
+              <div className="w-11 h-11 bg-slate-900 rounded-xl flex items-center justify-center">
+                <LayoutDashboard className="w-5 h-5 text-[#CCFF00]" />
               </div>
               <div>
-                <h2 className="text-xl font-bold tracking-tight">Panel de Control</h2>
-                <span className="text-sm text-white/70">
+                <h2 className="text-lg font-bold text-slate-900" style={{textTransform:'none',fontFamily:"'Inter',sans-serif"}}>Panel de Control</h2>
+                <span className="text-[13px] text-slate-400">
                   {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}
                 </span>
               </div>
@@ -787,32 +787,32 @@ const ControlPanel = ({
             {/* Center: Status + Quote */}
             <div className="hidden lg:flex items-center gap-6 flex-1 justify-center px-4">
               {alerts.length > 0 && (
-                <div className="flex items-center gap-2 bg-white/10 rounded-xl px-4 py-2">
+                <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2">
                   {React.createElement(alerts[0].icon, { 
                     className: `w-4 h-4 ${
-                      alerts[0].color === 'green' ? 'text-emerald-300' :
-                      alerts[0].color === 'amber' ? 'text-amber-300' :
-                      'text-blue-300'
+                      alerts[0].color === 'green' ? 'text-emerald-500' :
+                      alerts[0].color === 'amber' ? 'text-amber-500' :
+                      'text-[#007AFF]'
                     }` 
                   })}
-                  <span className="text-sm text-white/90 font-medium">{alerts[0].title}</span>
-                  <span className="text-xs text-white/60">{alerts[0].message}</span>
+                  <span className="text-[13px] text-slate-700 font-medium">{alerts[0].title}</span>
+                  <span className="text-xs text-slate-400">{alerts[0].message}</span>
                 </div>
               )}
               {motivationalMessage && (
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-amber-300" />
-                  <span className="text-sm text-white/80 italic max-w-md truncate">"{motivationalMessage.text}"</span>
-                  <span className="text-xs text-white/50">— {motivationalMessage.author}</span>
+                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  <span className="text-[13px] text-slate-500 italic max-w-md truncate">"{motivationalMessage.text}"</span>
+                  <span className="text-xs text-slate-400">— {motivationalMessage.author}</span>
                 </div>
               )}
             </div>
             
             <div className="flex items-center gap-2">
-              <Button size="sm" className="h-10 w-10 bg-white/20 hover:bg-white/30 text-white border-0 rounded-xl" onClick={handleSave}>
+              <Button size="sm" className="h-9 w-9 bg-slate-100 hover:bg-slate-200 text-slate-600 border-0 rounded-xl" onClick={handleSave}>
                 <Save className="w-4 h-4" />
               </Button>
-              <Button size="sm" className="h-10 w-10 bg-white/20 hover:bg-white/30 text-white border-0 rounded-xl" onClick={handleViewReports}>
+              <Button size="sm" className="h-9 w-9 bg-slate-100 hover:bg-slate-200 text-slate-600 border-0 rounded-xl" onClick={handleViewReports}>
                 <Download className="w-4 h-4" />
               </Button>
             </div>
@@ -950,17 +950,17 @@ const ControlPanel = ({
             {/* Plan Activo Destacado */}
             {activePlan ? (
               <Card 
-                className="bg-gradient-to-br from-indigo-600 to-blue-700 text-white border-0 shadow-lg shadow-indigo-200/50 cursor-pointer hover:scale-[1.02] transition-all duration-200 col-span-2 md:col-span-1"
+                className="bg-gradient-to-br from-slate-800 to-slate-900 text-white border-0 shadow-lg shadow-slate-200/30 cursor-pointer hover:scale-[1.02] transition-all duration-200 col-span-2 md:col-span-1"
                 onClick={() => onNavigate && onNavigate('datos', 'training-system')}
               >
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div className="min-w-0 flex-1">
-                      <p className="text-indigo-200 text-xs font-medium">Plan Activo</p>
+                      <p className="text-slate-300 text-xs font-medium">Plan Activo</p>
                       <p className="text-lg font-bold mt-0.5 truncate">{activePlan.name}</p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">{activePlan.total_weeks} sem</span>
-                        <span className="text-xs text-indigo-200">{activePlan.model_name || activePlan.model}</span>
+                        <span className="text-xs text-slate-300">{activePlan.model_name || activePlan.model}</span>
                       </div>
                     </div>
                     <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0 ml-2">
@@ -991,7 +991,7 @@ const ControlPanel = ({
 
             {/* Total Planes */}
             <Card 
-              className="bg-gradient-to-br from-violet-500 to-purple-600 text-white border-0 shadow-lg shadow-violet-200/50 cursor-pointer hover:scale-[1.02] transition-all duration-200"
+              className="bg-[#007AFF] text-white border-0 shadow-lg shadow-blue-200/30 cursor-pointer hover:scale-[1.02] transition-all duration-200"
               onClick={() => onNavigate && onNavigate('datos', 'plan-manager')}
             >
               <CardContent className="p-3">
@@ -1009,7 +1009,7 @@ const ControlPanel = ({
 
             {/* Total Atletas */}
             <Card 
-              className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg shadow-blue-200/50 cursor-pointer hover:scale-[1.02] transition-all duration-200"
+              className="bg-slate-700 text-white border-0 shadow-lg shadow-slate-200/30 cursor-pointer hover:scale-[1.02] transition-all duration-200"
               onClick={() => onNavigate && onNavigate('datos', 'athletes')}
             >
               <CardContent className="p-3">
@@ -1027,7 +1027,7 @@ const ControlPanel = ({
 
             {/* Eventos Próximos */}
             <Card 
-              className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-0 shadow-lg shadow-emerald-200/50 cursor-pointer hover:scale-[1.02] transition-all duration-200"
+              className="bg-emerald-600 text-white border-0 shadow-lg shadow-emerald-200/30 cursor-pointer hover:scale-[1.02] transition-all duration-200"
               onClick={() => onNavigate && onNavigate('datos', 'competitions')}
             >
               <CardContent className="p-3">
@@ -1044,7 +1044,7 @@ const ControlPanel = ({
             </Card>
 
             {/* Sesiones */}
-            <Card className="bg-gradient-to-br from-amber-500 to-orange-500 text-white border-0 shadow-lg shadow-amber-200/50">
+            <Card className="bg-amber-500 text-white border-0 shadow-lg shadow-amber-200/30">
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div>
@@ -1059,7 +1059,7 @@ const ControlPanel = ({
             </Card>
 
             {/* Ejercicios */}
-            <Card className="bg-gradient-to-br from-pink-500 to-rose-500 text-white border-0 shadow-lg shadow-pink-200/50">
+            <Card className="bg-rose-500 text-white border-0 shadow-lg shadow-rose-200/30">
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div>
@@ -1074,11 +1074,11 @@ const ControlPanel = ({
             </Card>
 
             {/* Adherencia */}
-            <Card className="bg-gradient-to-br from-cyan-500 to-blue-600 text-white border-0 shadow-lg shadow-cyan-200/50">
+            <Card className="bg-[#007AFF] text-white border-0 shadow-lg shadow-blue-200/30">
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-cyan-100 text-xs font-medium">Adherencia</p>
+                    <p className="text-blue-100 text-xs font-medium">Adherencia</p>
                     <p className="text-2xl font-bold mt-0.5">{panelStats?.completion_rate || 92}%</p>
                   </div>
                   <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">

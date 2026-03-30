@@ -5183,17 +5183,17 @@ const DashboardPage = () => {
         return (
           <div className="flex flex-col h-full">
             {/* Header - Solo Planes */}
-            <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 px-4 py-4 shadow-xl">
+            <div className="bg-slate-900 px-4 py-3.5">
               <div className="flex items-center justify-center">
-                <div className="flex items-center gap-3 bg-white/20 px-6 py-2.5 rounded-xl">
-                  <Clipboard className="w-5 h-5 text-white" />
-                  <span className="text-white font-semibold">Planes de Entrenamiento</span>
+                <div className="flex items-center gap-3 bg-white/10 px-6 py-2 rounded-xl">
+                  <Clipboard className="w-5 h-5 text-[#CCFF00]" />
+                  <span className="text-white font-semibold text-sm">Planes de Entrenamiento</span>
                 </div>
               </div>
             </div>
 
             {/* Contenido - Lista de Planes */}
-            <div className="flex-1 overflow-y-auto bg-gray-50">
+            <div className="flex-1 overflow-y-auto bg-[#fafaf8]">
               {renderDataContent()}
             </div>
           </div>
@@ -5360,29 +5360,31 @@ const DashboardPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* ====== GLOBAL CONTEXT BAR (Material Design - Fixed at top) ====== */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shadow-lg" data-testid="global-context-bar">
+    <div className="min-h-screen bg-[#fafaf8] app-reset">
+      {/* Global style reset for unified design */}
+      <style>{`.app-reset h1,.app-reset h2,.app-reset h3,.app-reset h4,.app-reset h5,.app-reset h6{font-family:'Inter',sans-serif;font-weight:inherit;text-transform:none;letter-spacing:normal;}`}</style>
+      {/* ====== GLOBAL CONTEXT BAR ====== */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-slate-200/60" data-testid="global-context-bar">
         <div className="flex items-center justify-between px-4 py-2 gap-3">
           {/* Left: Logo + Navigation */}
           <div className="flex items-center gap-3 shrink-0">
             {/* Logo */}
             <div className="flex items-center gap-2">
-              <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-md">
-                <span className="text-blue-600 font-bold text-lg">T</span>
+              <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center shadow-sm">
+                <span className="text-[#CCFF00] font-black text-sm">T</span>
               </div>
-              <h1 className="text-xl font-bold tracking-tight hidden sm:block">
-                <span className="text-white">Tr</span>
-                <span className="text-blue-200">AI</span>
-                <span className="text-white">n</span>
+              <h1 className="text-xl font-bold tracking-tight hidden sm:block" style={{textTransform:'none',fontFamily:"'Barlow Condensed',sans-serif"}}>
+                <span className="text-slate-900">Tr</span>
+                <span className="text-[#007AFF]">AI</span>
+                <span className="text-slate-900">n</span>
               </h1>
             </div>
 
             {/* Separator */}
-            <div className="w-px h-6 bg-white/20 hidden md:block" />
+            <div className="w-px h-6 bg-slate-200 hidden md:block" />
 
             {/* Panel Tabs */}
-            <div className="hidden md:flex items-center gap-1 bg-white/10 rounded-xl p-1">
+            <div className="hidden md:flex items-center gap-1 bg-slate-100 rounded-xl p-1">
               {['panel', 'datos'].map((panelType) => (
                 <button
                   key={panelType}
@@ -5392,8 +5394,8 @@ const DashboardPage = () => {
                   }}
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5 ${
                     activePanel === panelType 
-                      ? 'bg-white text-indigo-600 shadow-md' 
-                      : 'text-white/80 hover:bg-white/10'
+                      ? 'bg-white text-slate-900 shadow-sm' 
+                      : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
                   }`}
                   data-testid={`tab-${panelType}`}
                 >
@@ -5417,7 +5419,7 @@ const DashboardPage = () => {
               variant="outline"
               size="sm"
               onClick={() => setIsPdfModalOpen(true)}
-              className="h-8 text-xs bg-white/20 border-0 text-white hover:bg-white/30 rounded-xl"
+              className="h-8 text-xs bg-slate-100 border-0 text-slate-600 hover:bg-slate-200 rounded-xl"
               data-testid="export-pdf-btn"
             >
               <Download className="w-3.5 h-3.5 mr-1" />
@@ -5435,8 +5437,8 @@ const DashboardPage = () => {
                 onClick={() => setShowFiltersDropdown(!showFiltersDropdown)}
                 className={`h-8 text-xs rounded-xl transition-all ${
                   showFiltersDropdown
-                    ? 'bg-white text-indigo-600 hover:bg-white/90'
-                    : 'bg-white/20 border-0 text-white hover:bg-white/30'
+                    ? 'bg-[#007AFF] text-white hover:bg-[#0066dd]'
+                    : 'bg-slate-100 border-0 text-slate-600 hover:bg-slate-200'
                 }`}
                 data-testid="filters-dropdown-btn"
               >
@@ -5456,7 +5458,7 @@ const DashboardPage = () => {
                   <div className="absolute right-0 top-full mt-2 z-50 bg-white rounded-xl shadow-2xl border border-slate-200 p-4 min-w-[320px]">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
-                        <Filter className="w-4 h-4 text-indigo-500" />
+                        <Filter className="w-4 h-4 text-[#007AFF]" />
                         Filtros de Contexto
                       </h3>
                       <Button
@@ -5475,7 +5477,7 @@ const DashboardPage = () => {
                         <label className="text-xs font-medium text-slate-500 mb-1 block">Entidad</label>
                         <Select value={globalContext.entityId} onValueChange={handleEntityChange}>
                           <SelectTrigger className="w-full h-9 text-sm" data-testid="context-entity-select">
-                            <Building2 className="w-4 h-4 mr-2 text-indigo-500" />
+                            <Building2 className="w-4 h-4 mr-2 text-[#007AFF]" />
                             <SelectValue placeholder="Seleccionar entidad" />
                           </SelectTrigger>
                           <SelectContent>
@@ -5498,7 +5500,7 @@ const DashboardPage = () => {
                         <label className="text-xs font-medium text-slate-500 mb-1 block">Equipo</label>
                         <Select value={globalContext.teamId} onValueChange={handleTeamChange}>
                           <SelectTrigger className="w-full h-9 text-sm" data-testid="context-team-select">
-                            <Users className="w-4 h-4 mr-2 text-indigo-500" />
+                            <Users className="w-4 h-4 mr-2 text-[#007AFF]" />
                             <SelectValue placeholder="Seleccionar equipo" />
                           </SelectTrigger>
                           <SelectContent>
@@ -5515,7 +5517,7 @@ const DashboardPage = () => {
                         <label className="text-xs font-medium text-slate-500 mb-1 block">Atleta</label>
                         <Select value={globalContext.athleteId} onValueChange={handleAthleteChange}>
                           <SelectTrigger className="w-full h-9 text-sm" data-testid="context-athlete-select">
-                            <User className="w-4 h-4 mr-2 text-indigo-500" />
+                            <User className="w-4 h-4 mr-2 text-[#007AFF]" />
                             <SelectValue placeholder="Seleccionar atleta" />
                           </SelectTrigger>
                           <SelectContent>
@@ -5532,7 +5534,7 @@ const DashboardPage = () => {
                         <label className="text-xs font-medium text-slate-500 mb-1 block">Deporte</label>
                         <Select value={globalContext.sportId} onValueChange={handleSportChange}>
                           <SelectTrigger className="w-full h-9 text-sm" data-testid="context-sport-select">
-                            <Trophy className="w-4 h-4 mr-2 text-indigo-500" />
+                            <Trophy className="w-4 h-4 mr-2 text-[#007AFF]" />
                             <SelectValue placeholder="Seleccionar deporte" />
                           </SelectTrigger>
                           <SelectContent>
@@ -5556,7 +5558,7 @@ const DashboardPage = () => {
                               onClick={() => {
                                 setGlobalContext({ entityId: 'all', teamId: 'all', athleteId: 'all', sportId: 'all' });
                               }}
-                              className="h-6 text-xs text-indigo-600 hover:text-indigo-700"
+                              className="h-6 text-xs text-[#007AFF] hover:text-blue-700"
                             >
                               Limpiar todo
                             </Button>
@@ -5591,7 +5593,7 @@ const DashboardPage = () => {
             </div>
 
             {/* Separator */}
-            <div className="w-px h-6 bg-white/20 hidden md:block" />
+            <div className="w-px h-6 bg-slate-200 hidden md:block" />
 
             {/* User Actions */}
             <div className="flex items-center gap-1">
@@ -5599,7 +5601,7 @@ const DashboardPage = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-8 px-3 text-xs bg-white/10 hover:bg-white/20 text-white rounded-xl"
+                  className="h-8 px-3 text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl"
                   data-testid="subscription-btn"
                 >
                   <CreditCard className="w-3.5 h-3.5 mr-1" />
@@ -5610,7 +5612,7 @@ const DashboardPage = () => {
                 variant="ghost"
                 size="sm"
                 onClick={handleLogout}
-                className="h-8 px-3 text-xs bg-white/10 hover:bg-red-500/80 text-white rounded-xl"
+                className="h-8 px-3 text-xs text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-xl"
                 data-testid="logout-btn"
               >
                 <LogOut className="w-3.5 h-3.5 mr-1" />
@@ -5634,8 +5636,8 @@ const DashboardPage = () => {
               }}
               className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-1 ${
                 activePanel === panelType 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                  ? 'bg-slate-900 text-white' 
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
               data-testid={`tab-mobile-${panelType}`}
             >
