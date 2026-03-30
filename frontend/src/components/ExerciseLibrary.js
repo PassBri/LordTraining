@@ -787,14 +787,14 @@ const ExerciseLibrary = ({ athleteId }) => {
   };
 
   const colores = [
-    { value: 'bg-blue-100 text-blue-700 border-blue-300', label: 'Azul' },
-    { value: 'bg-green-100 text-green-700 border-green-300', label: 'Verde' },
-    { value: 'bg-yellow-100 text-yellow-700 border-yellow-300', label: 'Amarillo' },
-    { value: 'bg-red-100 text-red-700 border-red-300', label: 'Rojo' },
-    { value: 'bg-purple-100 text-purple-700 border-purple-300', label: 'Púrpura' },
-    { value: 'bg-orange-100 text-orange-700 border-orange-300', label: 'Naranja' },
-    { value: 'bg-teal-100 text-teal-700 border-teal-300', label: 'Teal' },
-    { value: 'bg-pink-100 text-pink-700 border-pink-300', label: 'Rosa' },
+    { value: 'bg-slate-50 text-slate-700 border-slate-200', label: 'Gris' },
+    { value: 'bg-slate-100 text-slate-700 border-slate-200', label: 'Gris Oscuro' },
+    { value: 'bg-zinc-50 text-zinc-700 border-zinc-200', label: 'Zinc' },
+    { value: 'bg-stone-50 text-stone-700 border-stone-200', label: 'Piedra' },
+    { value: 'bg-neutral-50 text-neutral-700 border-neutral-200', label: 'Neutro' },
+    { value: 'bg-gray-50 text-gray-700 border-gray-200', label: 'Ceniza' },
+    { value: 'bg-slate-50/80 text-slate-600 border-slate-200', label: 'Suave' },
+    { value: 'bg-white text-slate-700 border-slate-200', label: 'Blanco' },
   ];
 
   if (loading) {
@@ -905,7 +905,7 @@ const ExerciseLibrary = ({ athleteId }) => {
           <div key={catId} className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
             {/* Category Header */}
             <div 
-              className={`px-4 py-3 flex items-center justify-between cursor-pointer transition-colors ${cat.color}`}
+              className="px-4 py-3 flex items-center justify-between cursor-pointer transition-colors bg-slate-50 hover:bg-slate-100 text-slate-700 border-b border-slate-100"
               onClick={() => toggleCategory(catId)}
             >
               <div className="flex items-center gap-2.5">

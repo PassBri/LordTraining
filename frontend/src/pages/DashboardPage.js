@@ -1185,8 +1185,8 @@ const DashboardPage = () => {
     
     // === 7. HERRAMIENTAS ===
     { id: 'calculators', label: t('dashboard.nav.calculators'), icon: Activity, section: 'herramientas' },
-    { id: 'exercises', label: 'Métodos', icon: Dumbbell, section: 'herramientas' },
-    { id: 'exercises-lib', label: t('dashboard.controlPanel.exercises'), icon: BookOpen, section: 'herramientas' },
+    { id: 'exercises', label: 'Métodos', icon: Timer, section: 'herramientas' },
+    { id: 'exercises-lib', label: t('dashboard.controlPanel.exercises'), icon: Dumbbell, section: 'herramientas' },
     { id: 'ai-generator', label: 'AI', icon: Sparkles, section: 'herramientas' },
   ];
 
