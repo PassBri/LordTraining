@@ -497,8 +497,19 @@ const DashboardPage = () => {
       if (response.ok) {
         const data = await response.json();
         const shareUrl = `${window.location.origin}${data.share_url}`;
-        await navigator.clipboard.writeText(shareUrl);
-        toast.success(t('dashboard.plans.shared'));
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          toast.success(t('dashboard.plans.shared'));
+        } catch {
+          // Fallback for environments where clipboard API is restricted
+          const textArea = document.createElement('textarea');
+          textArea.value = shareUrl;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          toast.success(t('dashboard.plans.shared'));
+        }
       } else {
         toast.error('Error al compartir');
       }

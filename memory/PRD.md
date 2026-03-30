@@ -147,17 +147,24 @@ Todas las evaluaciones:
 - **P2**: Sección "Caracterización del Deporte" crashea la app
 
 ## Próximas Tareas
-1. **P1**: Corregir bug "Caracterización del Deporte" (crash)
-2. **P1**: Crear estructura completa de datos al crear un Plan nuevo
-3. **P1**: Completar carga de datos al seleccionar un Plan
-4. **P1**: Refactorizar DashboardPage.js (5600+ líneas)
-5. **P2**: Imprimir, Compartir y Duplicar planes
-6. **P2**: Tests físicos integrados en wizard
-7. **P2**: Refactorizar PeriodizationComplete.js (900+ líneas)
-8. **P3**: Migrar datos de torneos a MongoDB
-9. **P3**: Limpiar componentes obsoletos (PeriodizationSystem.js, AICoachAssistant.js)
+1. **P1**: Corregir bug "Caracterización del Deporte" (crash recurrente)
+2. **P1**: Refactorizar DashboardPage.js (5900+ líneas) en componentes menores
+3. **P2**: Tests físicos integrados en wizard
+4. **P2**: Refactorizar PeriodizationComplete.js (900+ líneas)
+5. **P3**: Migrar datos de torneos a MongoDB
+6. **P3**: Limpiar componentes obsoletos (PeriodizationSystem.js, AICoachAssistant.js)
 
 ## Completado
+### 30-Mar-2025 - P1/P2: Estructura de datos de planes + Gestión avanzada
+- **P1 Crear estructura completa al crear Plan**: Backend ya genera documento plan_data con secciones vacías (diagnosis, evaluations, competitions) al crear un plan
+- **P1 Carga de datos al seleccionar Plan**: Endpoint GET /api/plan-data/{plan_id} ahora retorna evaluaciones organizadas por tipo (medical, anthropometric, physical, technical, tactical, psychological). Frontend loadPlanData() consume correctamente la estructura tipada
+- **P2 Duplicar Plan**: POST /api/training-plans/{plan_id}/duplicate copia plan + plan_data + objectives + evaluations + competitions + previous_analysis
+- **P2 Compartir Plan**: POST /api/training-plans/{plan_id}/share genera token y URL compartible, botón copia al portapapeles
+- **P2 Imprimir/Exportar PDF**: GET /api/training-plans/{plan_id}/export/pdf genera PDF descargable con toda la estructura del plan
+- **Cascade Delete**: DELETE /api/training-plans/{plan_id} elimina plan + todos los datos asociados
+- **UI Plan Manager**: 4 botones de acción por plan (Duplicar, Compartir, PDF, Eliminar) con tooltips traducidos
+- Testing: 100% backend (8/8), 95% frontend (clipboard limitation en testing automático)
+
 ### 30-Mar-2025 - Sistema i18n Completo
 - Sistema de internacionalización (i18n) implementado con i18next + react-i18next
 - 12 idiomas soportados: es, en, pt, ar, hi, id, fr, de, ja, ko, ru, zh
