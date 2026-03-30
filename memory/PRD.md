@@ -1,7 +1,7 @@
 # TrAIn - Plataforma de Gestión Deportiva para Entrenadores
 
 ## Problema Original
-Construir una plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura centrada en "Plan de Entrenamiento" como objeto central. Incluye motor científico, persistencia MongoDB, UI premium estilo Nike/Whoop, sistema i18n (12 idiomas + RTL), y visualización avanzada de periodización.
+Construir una plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura centrada en "Plan de Entrenamiento" como objeto central. Incluye motor científico, persistencia MongoDB, UI premium, sistema i18n (12 idiomas + RTL), y visualización avanzada de periodización.
 
 ## Arquitectura
 - **Frontend**: React + Tailwind CSS + Shadcn UI + Recharts
@@ -11,18 +11,18 @@ Construir una plataforma de gestión deportiva de alto nivel para entrenadores. 
 ## Estructura de Archivos Clave
 ```
 /app
-├── backend/server.py                          # API endpoints FastAPI
+├── backend/server.py
 ├── frontend/src/
-│   ├── pages/DashboardPage.js                 # MEGA-COMPONENTE (~6050 líneas) - Lógica principal
-│   ├── pages/LandingPage.js                   # Landing page pública
-│   ├── components/PlanSidebar.js              # NEW: Sidebar de planes
-│   ├── components/PeriodizationComplete.js    # Wizard creación + vista detalle de planes
-│   ├── components/TrainingSystemHub.js        # Hub de periodización
-│   ├── components/ControlPanel.js             # Dashboard/Panel de control
+│   ├── pages/DashboardPage.js                 # MEGA-COMPONENTE (~6060 líneas)
+│   ├── pages/LandingPage.js
+│   ├── components/PlanSidebar.js              # Sidebar de planes
+│   ├── components/PeriodizationComplete.js    # Wizard + detalle de periodización
+│   ├── components/TrainingSystemHub.js        # Hub (Resumen, Periodización, Carga, etc.)
+│   ├── components/ControlPanel.js
 │   ├── components/LoadMetricsDashboard.js     # Dashboard ACWR/Carga
-│   ├── components/LanguageSelector.js         # Selector i18n
-│   ├── i18n.js                                # Configuración i18next
-│   └── locales/*.json                         # 12 archivos de traducción
+│   ├── components/LanguageSelector.js
+│   ├── i18n.js
+│   └── locales/*.json
 ```
 
 ## Credenciales de Prueba
@@ -32,54 +32,44 @@ Construir una plataforma de gestión deportiva de alto nivel para entrenadores. 
 ## Lo Implementado
 
 ### Sesión Actual (30 Mar 2026)
-- ✅ **Sidebar de planes**: Barra lateral izquierda en sección Datos con lista de planes, búsqueda, acciones (duplicar/compartir/PDF/eliminar), colapsar/expandir
-- ✅ **Flujo "Nuevo Plan" directo**: Botón navega al wizard de creación sin pantallas intermedias
-- ✅ **Auto-activación de plan creado**: Al crear plan, se actualiza sidebar y se selecciona automáticamente
+- ✅ **Sidebar de planes**: Barra lateral izquierda en sección Datos con lista, búsqueda, acciones, colapsar/expandir
+- ✅ **Flujo "Nuevo Plan" directo**: Botón navega al wizard sin pantallas intermedias
+- ✅ **Auto-activación de plan creado**: `await fetchTrainingPlans()` + `handleSetActivePlan` en callback
 - ✅ **Estado vacío intuitivo**: Welcome state cuando no hay plan seleccionado
+- ✅ **Periodización conectada al plan activo**: Al clic en "Periodización" muestra el detalle del plan seleccionado, no la lista de todos
+- ✅ **Auto-selección en PeriodizationComplete**: useEffect que detecta `activePlan` y carga su detalle
+- ✅ **"Volver a planes" oculto**: Cuando hay plan activo, no se muestra (sidebar maneja navegación)
 
 ### Sesiones Anteriores
 - ✅ Sistema i18n completo (12 idiomas, RTL árabe)
 - ✅ Gestión avanzada de planes: Duplicar, Compartir, Imprimir PDF
-- ✅ Cascade delete y deep duplication de datos
+- ✅ Cascade delete y deep duplication
 - ✅ Rediseño premium de Periodización (Macro/Meso/Micro)
 - ✅ Dashboard ACWR de métricas de carga
 - ✅ Arquitectura plan-céntrica completa
 - ✅ Secciones de Evaluación conectadas a backend
 - ✅ Dashboard integrado con plan activo
-- ✅ Caracterización del Deporte (UI + backend)
-- ✅ Reorganización de navegación UI
 
 ## Backlog Priorizado
 
-### P0 (Crítico)
-- Nada pendiente
-
 ### P1 (Alta prioridad)
 - 🔴 Arreglar "Caracterización del Deporte" (crash recurrente 4+ forks)
-- 🟡 Inicialización completa al crear Plan nuevo (documentos vacíos automáticos)
+- 🟡 Inicialización completa al crear Plan nuevo
 - 🟡 Verificar loadPlanData en todos los formularios
-- 🟡 Refactorizar DashboardPage.js (6000+ líneas → componentes modulares)
+- 🟡 Refactorizar DashboardPage.js (6000+ líneas)
 
 ### P2 (Media prioridad)
-- Persistencia Torneos en MongoDB (actualmente localStorage)
+- Persistencia Torneos en MongoDB
 - Sincronizar competencias con Plan Gráfico
 - Refactorizar PeriodizationComplete.js (2400+ líneas)
-- Eliminar componentes obsoletos (PeriodizationSystem.js, AICoachAssistant.js)
-- Imprimir/Compartir/Duplicar funcionalidades avanzadas
+- Eliminar componentes obsoletos
 
 ### P3 (Mejoras futuras)
 - Mini-preview al hover en sidebar de planes
-- Persistencia de sesiones de entrenamiento
 - Exportación de datos en múltiples formatos
 
 ## Bugs Conocidos
 - ❌ "Caracterización del Deporte" crash al acceder (recurrente)
-
-## Esquema DB
-- `plans`: {name, sport, objectives, macrocycles...}
-- `sports`: {name, characterization}
-- `plan_evaluations`: {plan_id, type, data}
-- `plan_competitions`: {plan_id, name, date}
 
 ## API Endpoints Clave
 - POST/GET /api/training-plans/

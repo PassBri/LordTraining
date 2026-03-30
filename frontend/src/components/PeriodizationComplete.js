@@ -306,6 +306,17 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     }
   }, [plans]);
 
+  // Auto-seleccionar plan activo cuando se proporicona desde la sidebar
+  useEffect(() => {
+    if (activePlan && plans.length > 0 && !showWizardOnly) {
+      const matchingPlan = plans.find(p => p.apiId === activePlan.id || p.id === activePlan.id);
+      if (matchingPlan && (!selectedPlan || selectedPlan.apiId !== activePlan.id)) {
+        setSelectedPlan(matchingPlan);
+        setActiveView('detail');
+      }
+    }
+  }, [activePlan, plans, showWizardOnly]);
+
   // ============ CRUD HANDLERS ============
   
   // MACROCICLO CRUD
@@ -1566,9 +1577,11 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           <div className="relative z-10 p-6">
             <div className="flex items-start justify-between">
               <div>
+                {!activePlan && (
                 <button onClick={() => { setActiveView('history'); setSelectedPlan(null); }} className="text-[11px] text-slate-400 hover:text-white transition-colors mb-3 flex items-center gap-1">
                   <ChevronLeft className="w-3 h-3" /> Volver a planes
                 </button>
+                )}
                 <h2 className="text-2xl font-black text-white tracking-tight" style={{ fontFamily: BC }}>{selectedPlan.name}</h2>
                 <p className="text-slate-400 text-sm mt-1">{selectedPlan.totalWeeks} sem &middot; {selectedPlan.modelName}</p>
                 <div className="flex gap-5 mt-4">

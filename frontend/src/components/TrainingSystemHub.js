@@ -276,7 +276,7 @@ const TrainingSystemHub = ({ athleteId, athleteName, onNavigate, activePlan }) =
 
           <TabsContent value="overview" className="mt-0">{renderOverview()}</TabsContent>
           <TabsContent value="periodization" className="mt-0">
-            <PeriodizationComplete athleteId={athleteId} athleteName={athleteName} onNavigate={onNavigate} />
+            <PeriodizationComplete athleteId={athleteId} athleteName={athleteName} onNavigate={onNavigate} activePlan={activePlan} />
           </TabsContent>
           <TabsContent value="tests" className="mt-0"><TestEvaluations athleteId={athleteId} /></TabsContent>
           <TabsContent value="load" className="mt-0"><LoadMetricsDashboard activePlan={activePlan} /></TabsContent>
