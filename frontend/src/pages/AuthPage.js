@@ -39,9 +39,9 @@ const AuthVisual = () => {
           </div>
           <div className="flex items-center gap-1 ml-2">
             <div className="w-3 h-3 bg-[#CCFF00] rounded flex items-center justify-center">
-              <span className="text-[4px] font-black text-slate-900">T</span>
+              <span className="text-[4px] font-black text-slate-900 tracking-tighter">iT</span>
             </div>
-            <span className="text-[7px] font-bold text-white/70" style={{ fontFamily: BC }}>TRAIN</span>
+            <span className="text-[7px] font-black text-white/70" style={{ fontFamily: BC }}>iTRAIN</span>
           </div>
         </div>
         <div className="p-3 space-y-2">
@@ -175,10 +175,10 @@ const AuthPage = () => {
           <div className="flex items-center justify-between mb-10">
             <Link to="/" className="flex items-center gap-2.5">
               <div className="w-9 h-9 bg-slate-900 rounded-lg flex items-center justify-center">
-                <span className="text-[#CCFF00] font-black text-[12px]">T</span>
+                <span className="text-[#CCFF00] font-black text-[13px] tracking-tighter" style={{ fontFamily: BC }}>iT</span>
               </div>
-              <span className="text-[16px] font-bold tracking-tight text-slate-900" style={{ fontFamily: BC }}>
-                TR<span className="text-[#007AFF]">AI</span>N
+              <span className="text-[16px] font-black tracking-tight text-slate-900" style={{ fontFamily: BC }}>
+                iTRAIN
               </span>
             </Link>
             <div className="flex items-center gap-2">

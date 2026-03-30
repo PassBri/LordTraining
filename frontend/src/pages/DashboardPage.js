@@ -5524,12 +5524,10 @@ const DashboardPage = () => {
             {/* Logo */}
             <div className="flex items-center gap-2 pt-1">
               <div className="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center shadow-md">
-                <span className="text-[#CCFF00] font-black text-sm">T</span>
+                <span className="text-[#CCFF00] font-black text-[15px] tracking-tighter" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>iT</span>
               </div>
-              <h1 className="text-xl font-bold tracking-tight hidden sm:block" style={{textTransform:'none',fontFamily:"'Barlow Condensed',sans-serif"}}>
-                <span className="text-slate-900">Tr</span>
-                <span className="text-[#007AFF]">AI</span>
-                <span className="text-slate-900">n</span>
+              <h1 className="text-[20px] font-black tracking-tight hidden sm:block" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>
+                iTRAIN
               </h1>
             </div>
 

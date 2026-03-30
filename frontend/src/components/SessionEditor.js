@@ -351,7 +351,7 @@ const SessionEditor = ({
         pdf.setTextColor(...colors.white);
         pdf.setFontSize(18);
         pdf.setFont('helvetica', 'bold');
-        pdf.text('TrAIn', margin + 16, 17);
+        pdf.text('iTRAIN', margin + 16, 17);
         
         // Título
         pdf.setFontSize(14);
