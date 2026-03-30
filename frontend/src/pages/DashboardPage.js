@@ -14,7 +14,7 @@ import {
   Shield, UserCheck, User, UserCircle, Settings, LayoutDashboard, Landmark,
   Building2, Building, GraduationCap, Trophy, Timer, Flame, Gamepad2, Lightbulb, X, Trash2,
   Medal, MapPin, LayoutGrid, GitBranch, Share2, History, Filter, CreditCard, Sparkles,
-  AlertTriangle, CheckCircle, TrendingUp, RefreshCw, Clock, Edit, Copy, Printer, Gauge
+  AlertTriangle, CheckCircle, TrendingUp, RefreshCw, Clock, Edit, Copy, Printer, Gauge, Wrench
 } from 'lucide-react';
 import { 
   LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, 
@@ -5371,13 +5371,13 @@ const DashboardPage = () => {
       const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators', 'sports', 'tournaments', 'create-plan', 'period-overview', 'period-structure', 'period-tests', 'period-load', 'period-control'];
 
       const planSections = [
-        { key: 'punto-partida', title: t('dashboard.sections.diagnosis'), color: 'rose', icon: FileText },
-        { key: 'informacion', title: t('dashboard.sections.information'), color: 'indigo', icon: Building2 },
-        { key: 'evaluacion', title: t('dashboard.sections.evaluation'), color: 'emerald', icon: LineChart },
+        { key: 'punto-partida', title: t('dashboard.sections.diagnosis'), color: 'rose', icon: Clipboard },
+        { key: 'informacion', title: t('dashboard.sections.information'), color: 'indigo', icon: Users },
+        { key: 'evaluacion', title: t('dashboard.sections.evaluation'), color: 'emerald', icon: Heart },
         { key: 'competencias', title: t('dashboard.sections.competitions'), color: 'violet', icon: Trophy },
-        { key: 'periodizacion', title: t('dashboard.sections.periodization'), color: 'cyan', icon: Activity },
+        { key: 'periodizacion', title: t('dashboard.sections.periodization'), color: 'cyan', icon: Calendar },
         { key: 'visualizacion', title: t('dashboard.sections.visualization'), color: 'amber', icon: BarChart },
-        { key: 'herramientas', title: t('dashboard.sections.tools'), color: 'slate', icon: Settings },
+        { key: 'herramientas', title: t('dashboard.sections.tools'), color: 'slate', icon: Wrench },
       ];
 
       const colorClasses = {
@@ -5450,9 +5450,9 @@ const DashboardPage = () => {
               </Button>
             </div>
 
-            {/* Navegación de Secciones del Plan - Floating Round Buttons */}
-            <div className="px-4 py-3">
-              <div className="flex items-start gap-4 overflow-x-auto pb-1 scrollbar-hide justify-center sm:justify-start">
+            {/* Navegación de Secciones - Material Floating FABs */}
+            <div className="px-5 pt-5 pb-2 overflow-visible">
+              <div className="flex items-start gap-5 overflow-x-auto overflow-y-visible pb-2 scrollbar-hide justify-center sm:justify-start">
                 {planSections.map((section) => {
                   const SectionIcon = section.icon;
                   const isActive = currentSection === section.key;
@@ -5468,15 +5468,21 @@ const DashboardPage = () => {
                       className="group flex flex-col items-center gap-1.5 shrink-0 outline-none"
                       data-testid={`section-tab-${section.key}`}
                     >
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 ${
-                        isActive
-                          ? `${colors.bg} text-white shadow-lg ${colors.shadow} scale-110 ring-4 ring-white`
-                          : `bg-white text-slate-400 shadow-md border border-slate-100 group-hover:shadow-lg group-hover:scale-105 group-hover:${colors.text}`
-                      }`}>
-                        <SectionIcon className={`w-5 h-5 ${isActive ? 'text-white' : ''}`} />
+                      <div
+                        className={`relative w-[52px] h-[52px] rounded-2xl flex items-center justify-center transition-all duration-300 ease-out ${
+                          isActive
+                            ? `${colors.bg} text-white shadow-xl ${colors.shadow} -translate-y-1`
+                            : 'bg-white text-slate-400 shadow-md hover:shadow-lg hover:-translate-y-0.5'
+                        }`}
+                        style={isActive ? { boxShadow: `0 8px 24px -4px var(--tw-shadow-color, rgba(0,0,0,0.15))` } : {}}
+                      >
+                        <SectionIcon className={`w-[22px] h-[22px] transition-transform duration-300 ${isActive ? 'text-white scale-110' : 'group-hover:scale-110'}`} strokeWidth={isActive ? 2.5 : 2} />
+                        {isActive && (
+                          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-white shadow-sm" />
+                        )}
                       </div>
-                      <span className={`text-[10px] font-semibold leading-tight text-center max-w-[72px] transition-colors ${
-                        isActive ? colors.text : 'text-slate-400 group-hover:text-slate-600'
+                      <span className={`text-[10px] font-bold tracking-wide leading-tight text-center max-w-[72px] transition-all duration-300 ${
+                        isActive ? `${colors.text} translate-y-0` : 'text-slate-400 group-hover:text-slate-600'
                       }`}>
                         {section.title}
                       </span>
@@ -5487,10 +5493,10 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Sub-navigation - Items de la sección actual */}
+          {/* Sub-navigation - Mini Floating FABs */}
           {sectionItems.length > 1 && (
-          <div className="bg-slate-50/80 backdrop-blur-sm border-b border-slate-200 px-4 py-2">
-            <div className="flex items-center gap-2 overflow-x-auto">
+          <div className="bg-gradient-to-b from-white to-slate-50/50 border-b border-slate-200/60 px-5 pt-3 pb-2 overflow-visible">
+            <div className="flex items-start gap-4 overflow-x-auto overflow-y-visible pb-1 scrollbar-hide">
               {sectionItems.map((item) => {
                 const ItemIcon = item.icon;
                 const isActive = activeDataSection === item.id;
@@ -5499,15 +5505,21 @@ const DashboardPage = () => {
                   <button
                     key={item.id}
                     onClick={() => setActiveDataSection(item.id)}
-                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[12px] font-medium transition-all duration-200 whitespace-nowrap ${
-                      isActive
-                        ? `${currentColors.bg} text-white shadow-md ${currentColors.shadow}`
-                        : 'text-slate-500 bg-white/80 hover:bg-white hover:shadow-sm border border-slate-200/60 hover:border-slate-300'
-                    }`}
+                    className="group flex flex-col items-center gap-1 shrink-0 outline-none"
                     data-testid={`subnav-${item.id}`}
                   >
-                    <ItemIcon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : currentColors.text}`} />
-                    {item.label}
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ease-out ${
+                      isActive
+                        ? `${currentColors.bg} text-white shadow-lg ${currentColors.shadow} -translate-y-0.5`
+                        : 'bg-white text-slate-400 shadow-sm border border-slate-200/80 hover:shadow-md hover:-translate-y-0.5'
+                    }`}>
+                      <ItemIcon className={`w-[18px] h-[18px] transition-transform duration-300 ${isActive ? 'text-white scale-105' : 'group-hover:scale-105'}`} strokeWidth={isActive ? 2.5 : 2} />
+                    </div>
+                    <span className={`text-[9px] font-semibold tracking-wide text-center max-w-[64px] leading-tight transition-all duration-300 ${
+                      isActive ? currentColors.text : 'text-slate-400 group-hover:text-slate-500'
+                    }`}>
+                      {item.label}
+                    </span>
                   </button>
                 );
               })}
