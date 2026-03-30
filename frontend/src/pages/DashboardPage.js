@@ -5523,8 +5523,8 @@ const DashboardPage = () => {
           <div className="flex items-start gap-3 shrink-0 pr-2">
             {/* Logo */}
             <div className="flex items-center gap-2 pt-1">
-              <div className="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center shadow-md">
-                <span className="text-[#CCFF00] font-black text-[15px] tracking-tighter" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>iT</span>
+              <div className="w-10 h-10 aspect-square shrink-0 bg-slate-900 rounded-full flex items-center justify-center shadow-md">
+                <Activity className="w-5 h-5 text-[#CCFF00]" strokeWidth={2.5} />
               </div>
               <h1 className="text-[20px] font-black tracking-tight hidden sm:block" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>
                 iTRAIN

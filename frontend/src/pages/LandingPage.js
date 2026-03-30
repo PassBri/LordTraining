@@ -99,7 +99,7 @@ const DashboardMockup = () => (
         <div className="w-2 h-2 rounded-full bg-[#28c840]" />
       </div>
       <div className="flex items-center gap-1.5 ml-3">
-        <div className="w-4 h-4 bg-[#CCFF00] rounded flex items-center justify-center"><span className="text-[5px] font-black text-slate-900 tracking-tighter">iT</span></div>
+        <div className="w-4 h-4 aspect-square shrink-0 bg-[#CCFF00] rounded-full flex items-center justify-center"><Activity className="w-2.5 h-2.5 text-slate-900" strokeWidth={3} /></div>
         <span className="text-[9px] font-black text-white/80" style={{fontFamily:BC}}>iTRAIN</span>
         {['Panel','Datos','PDF'].map((t,i) => (
           <div key={t} className={`px-1.5 py-0.5 rounded text-[7px] font-medium ${i===0?'bg-blue-500/20 text-blue-300':'text-slate-500'}`}>{t}</div>
@@ -177,8 +177,8 @@ const LandingPage = () => {
       <div className="max-w-[1120px] mx-auto px-6">
         <div className="flex items-center justify-between h-[56px]">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
-              <span className="text-[#CCFF00] font-black text-[12px] tracking-tighter" style={{fontFamily:BC}}>iT</span>
+            <div className="w-8 h-8 aspect-square shrink-0 bg-slate-900 rounded-full flex items-center justify-center">
+              <Activity className="w-4 h-4 text-[#CCFF00]" strokeWidth={2.5} />
             </div>
             <span className="text-[15px] font-black tracking-tight text-slate-900" style={{fontFamily:BC}}>
               iTRAIN
@@ -515,7 +515,7 @@ const LandingPage = () => {
     <footer className="py-6 px-6 bg-slate-950 border-t border-slate-800/40">
       <div className="max-w-[1120px] mx-auto flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 bg-slate-800 rounded flex items-center justify-center"><span className="text-[#CCFF00] font-black text-[7px] tracking-tighter">iT</span></div>
+          <div className="w-6 h-6 aspect-square shrink-0 bg-slate-800 rounded-full flex items-center justify-center"><Activity className="w-3 h-3 text-[#CCFF00]" strokeWidth={2.5} /></div>
           <span className="text-[12px] font-black text-white/40" style={{fontFamily:BC}}>iTRAIN</span>
         </div>
         <p className="text-[11px] text-slate-600">© 2025 iTRAIN. {t('landing.footer.copyright')}</p>

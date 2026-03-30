@@ -8,7 +8,7 @@ import { Label } from '../components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { LanguageSelector } from '../components/LanguageSelector';
-import { Mail, Lock, User, Loader2, Eye, EyeOff, Shield, Users, Dumbbell, UserCheck, UserCircle, BarChart3, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, User, Loader2, Eye, EyeOff, Shield, Users, Dumbbell, UserCheck, UserCircle, BarChart3, ArrowLeft, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 
 const BC = "'Barlow Condensed', sans-serif";
@@ -38,8 +38,8 @@ const AuthVisual = () => {
             <div className="w-1.5 h-1.5 rounded-full bg-[#28c840]" />
           </div>
           <div className="flex items-center gap-1 ml-2">
-            <div className="w-3 h-3 bg-[#CCFF00] rounded flex items-center justify-center">
-              <span className="text-[4px] font-black text-slate-900 tracking-tighter">iT</span>
+            <div className="w-3 h-3 aspect-square shrink-0 bg-[#CCFF00] rounded-full flex items-center justify-center">
+              <Activity className="w-1.5 h-1.5 text-slate-900" strokeWidth={3} />
             </div>
             <span className="text-[7px] font-black text-white/70" style={{ fontFamily: BC }}>iTRAIN</span>
           </div>
@@ -174,8 +174,8 @@ const AuthPage = () => {
           {/* Back + Logo + Language */}
           <div className="flex items-center justify-between mb-10">
             <Link to="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 bg-slate-900 rounded-lg flex items-center justify-center">
-                <span className="text-[#CCFF00] font-black text-[13px] tracking-tighter" style={{ fontFamily: BC }}>iT</span>
+              <div className="w-9 h-9 aspect-square shrink-0 bg-slate-900 rounded-full flex items-center justify-center">
+                <Activity className="w-4.5 h-4.5 text-[#CCFF00]" strokeWidth={2.5} />
               </div>
               <span className="text-[16px] font-black tracking-tight text-slate-900" style={{ fontFamily: BC }}>
                 iTRAIN
