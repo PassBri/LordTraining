@@ -14,6 +14,7 @@ import PeriodizationComplete from './PeriodizationComplete';
 import TestEvaluations from './TestEvaluations';
 import TrainingLoad from './TrainingLoad';
 import TrainingControl from './TrainingControl';
+import LoadMetricsDashboard from './LoadMetricsDashboard';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 const BC = "'Barlow Condensed', sans-serif";
@@ -278,7 +279,7 @@ const TrainingSystemHub = ({ athleteId, athleteName, onNavigate, activePlan }) =
             <PeriodizationComplete athleteId={athleteId} athleteName={athleteName} onNavigate={onNavigate} />
           </TabsContent>
           <TabsContent value="tests" className="mt-0"><TestEvaluations athleteId={athleteId} /></TabsContent>
-          <TabsContent value="load" className="mt-0"><TrainingLoad athleteId={athleteId} /></TabsContent>
+          <TabsContent value="load" className="mt-0"><LoadMetricsDashboard activePlan={activePlan} /></TabsContent>
           <TabsContent value="control" className="mt-0"><TrainingControl athleteId={athleteId} athleteName={athleteName} /></TabsContent>
         </Tabs>
       </div>

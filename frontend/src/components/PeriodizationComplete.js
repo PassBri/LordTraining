@@ -1836,9 +1836,9 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                     </div>
                                   </div>
                                 </div>
-                                <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                                <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
                                   {/* Micro stats strip */}
-                                  <div className="hidden md:flex items-center gap-2.5 text-[10px]">
+                                  <div className="hidden lg:flex items-center gap-2 text-[10px] mr-1">
                                     <span className="text-slate-400">{sessions.length} ses</span>
                                     <span className="text-slate-400">{totalDuration}min</span>
                                     <div className="flex items-center gap-1">
@@ -1850,8 +1850,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                     <span className="text-slate-400">RPE:{avgRPE}</span>
                                     <span className="text-emerald-500 font-medium">{completedSessions}/{sessions.length}</span>
                                   </div>
-                                  <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-slate-400 hover:text-blue-600" onClick={() => handleEditMicrocycle(micro, macroIdx, mesoIdx, microIdx)}><Edit2 className="w-2.5 h-2.5" /></Button>
-                                  <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-slate-400 hover:text-red-500" onClick={() => handleDeleteMicrocycle(macroIdx, mesoIdx, microIdx)}><Trash2 className="w-2.5 h-2.5" /></Button>
+                                  <Button size="sm" variant="outline" className="h-7 w-7 p-0 border-slate-200 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-md" onClick={() => handleEditMicrocycle(micro, macroIdx, mesoIdx, microIdx)} title="Editar"><Edit2 className="w-3 h-3" /></Button>
+                                  <Button size="sm" variant="outline" className="h-7 w-7 p-0 border-slate-200 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-md" onClick={() => handleDeleteMicrocycle(macroIdx, mesoIdx, microIdx)} title="Eliminar"><Trash2 className="w-3 h-3" /></Button>
                                 </div>
                               </div>
 
