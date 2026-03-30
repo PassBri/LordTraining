@@ -1724,15 +1724,21 @@ async def update_training_plan(plan_id: str, plan: TrainingPlanCreate, user: dic
 
 @api_router.delete("/training-plans/{plan_id}")
 async def delete_training_plan(plan_id: str, user: dict = Depends(get_current_user)):
-    """Delete a training plan"""
+    """Delete a training plan and all associated data"""
     result = await db.training_plans.delete_one({"id": plan_id, "coach_id": user["id"]})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Plan not found")
-    return {"message": "Plan deleted successfully"}
+    # Cascade delete all associated plan data
+    await db.plan_data.delete_many({"plan_id": plan_id})
+    await db.plan_objectives.delete_many({"plan_id": plan_id, "user_id": user["id"]})
+    await db.plan_evaluations.delete_many({"plan_id": plan_id, "user_id": user["id"]})
+    await db.plan_competitions.delete_many({"plan_id": plan_id, "user_id": user["id"]})
+    await db.plan_previous_analysis.delete_many({"plan_id": plan_id, "user_id": user["id"]})
+    return {"message": "Plan and all associated data deleted successfully"}
 
 @api_router.post("/training-plans/{plan_id}/duplicate", response_model=TrainingPlanResponse)
 async def duplicate_training_plan(plan_id: str, user: dict = Depends(get_current_user)):
-    """Duplicate an existing training plan"""
+    """Duplicate an existing training plan with all associated data"""
     original = await db.training_plans.find_one({"id": plan_id, "coach_id": user["id"]}, {"_id": 0})
     if not original:
         raise HTTPException(status_code=404, detail="Plan not found")
@@ -1762,6 +1768,49 @@ async def duplicate_training_plan(plan_id: str, user: dict = Depends(get_current
     
     await db.training_plans.insert_one(new_plan)
     new_plan.pop("_id", None)
+    
+    # Duplicate plan_data initialization document
+    plan_data_orig = await db.plan_data.find_one({"plan_id": plan_id}, {"_id": 0})
+    if plan_data_orig:
+        plan_data_copy = copy.deepcopy(plan_data_orig)
+        plan_data_copy["id"] = str(uuid.uuid4())
+        plan_data_copy["plan_id"] = new_id
+        plan_data_copy["created_at"] = now
+        plan_data_copy["updated_at"] = now
+        await db.plan_data.insert_one(plan_data_copy)
+    
+    # Duplicate objectives
+    objectives = await db.plan_objectives.find_one({"plan_id": plan_id, "user_id": user["id"]}, {"_id": 0})
+    if objectives:
+        obj_copy = copy.deepcopy(objectives)
+        obj_copy["plan_id"] = new_id
+        obj_copy["created_at"] = now
+        await db.plan_objectives.insert_one(obj_copy)
+    
+    # Duplicate evaluations
+    evals_cursor = db.plan_evaluations.find({"plan_id": plan_id, "user_id": user["id"]})
+    async for e in evals_cursor:
+        e.pop("_id", None)
+        e["plan_id"] = new_id
+        e["created_at"] = now
+        await db.plan_evaluations.insert_one(e)
+    
+    # Duplicate competitions
+    comps_cursor = db.plan_competitions.find({"plan_id": plan_id, "user_id": user["id"]})
+    async for c in comps_cursor:
+        c.pop("_id", None)
+        c["plan_id"] = new_id
+        c["created_at"] = now
+        await db.plan_competitions.insert_one(c)
+    
+    # Duplicate previous analysis
+    prev_analysis = await db.plan_previous_analysis.find_one({"plan_id": plan_id, "user_id": user["id"]}, {"_id": 0})
+    if prev_analysis:
+        pa_copy = copy.deepcopy(prev_analysis)
+        pa_copy["plan_id"] = new_id
+        pa_copy["created_at"] = now
+        await db.plan_previous_analysis.insert_one(pa_copy)
+    
     return TrainingPlanResponse(**new_plan)
 
 @api_router.post("/training-plans/{plan_id}/share")
@@ -6959,14 +7008,26 @@ async def get_plan_previous_analysis(plan_id: str, user: dict = Depends(get_curr
 # --- GET ALL PLAN DATA ---
 @api_router.get("/plan-data/{plan_id}")
 async def get_all_plan_data(plan_id: str, user: dict = Depends(get_current_user)):
-    """Obtener todos los datos vinculados a un plan"""
+    """Obtener todos los datos vinculados a un plan, evaluaciones organizadas por tipo"""
     objectives = await db.plan_objectives.find_one({"plan_id": plan_id, "user_id": user["id"]}, {"_id": 0})
     
+    # Fetch evaluations and organize by type
     evaluations_cursor = db.plan_evaluations.find({"plan_id": plan_id, "user_id": user["id"]})
-    evaluations = []
+    evaluations_by_type = {
+        "medical": [],
+        "anthropometric": [],
+        "physical": [],
+        "technical": [],
+        "tactical": [],
+        "psychological": []
+    }
+    evaluations_flat = []
     async for e in evaluations_cursor:
         e["id"] = str(e.pop("_id"))
-        evaluations.append(e)
+        eval_type = e.get("evaluation_type", "")
+        if eval_type in evaluations_by_type:
+            evaluations_by_type[eval_type].append(e)
+        evaluations_flat.append(e)
     
     competitions_cursor = db.plan_competitions.find({"plan_id": plan_id, "user_id": user["id"]})
     competitions = []
@@ -6976,12 +7037,17 @@ async def get_all_plan_data(plan_id: str, user: dict = Depends(get_current_user)
     
     previous_analysis = await db.plan_previous_analysis.find_one({"plan_id": plan_id, "user_id": user["id"]}, {"_id": 0})
     
+    # Also fetch the plan_data init document if it exists
+    plan_data_init = await db.plan_data.find_one({"plan_id": plan_id}, {"_id": 0})
+    
     return {
         "plan_id": plan_id,
         "objectives": objectives,
-        "evaluations": evaluations,
+        "evaluations": evaluations_by_type,
+        "evaluations_flat": evaluations_flat,
         "competitions": competitions,
-        "previous_analysis": previous_analysis
+        "previous_analysis": previous_analysis,
+        "athlete_characterization": plan_data_init.get("athlete_characterization") if plan_data_init else None
     }
 
 

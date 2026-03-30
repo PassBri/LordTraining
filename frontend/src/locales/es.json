@@ -226,7 +226,20 @@
       "noPlanSelected": "Selecciona un Plan",
       "noPlanMessage": "Para acceder a esta sección necesitas tener un plan de entrenamiento activo.",
       "goToPlans": "Ir a Mis Planes",
-      "changePlan": "Cambiar Plan"
+      "changePlan": "Cambiar Plan",
+      "duplicated": "Plan duplicado correctamente",
+      "shared": "Enlace de compartir copiado al portapapeles",
+      "exported": "PDF exportado correctamente",
+      "duplicate": "Duplicar",
+      "share": "Compartir",
+      "print": "Imprimir PDF",
+      "delete": "Eliminar",
+      "active": "Activo",
+      "savedPlans": "planes guardados",
+      "noPlans": "Sin planes de entrenamiento",
+      "noPlansDesc": "Crea tu primer plan para comenzar a diseñar la periodización",
+      "createFirst": "Crear Primer Plan",
+      "loading": "Cargando planes..."
     },
     "sections": {
       "diagnosis": "Diagnóstico",

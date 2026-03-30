@@ -14,7 +14,7 @@ import {
   Shield, UserCheck, User, UserCircle, Settings, LayoutDashboard, Landmark,
   Building2, Building, GraduationCap, Trophy, Timer, Flame, Gamepad2, Lightbulb, X, Trash2,
   Medal, MapPin, LayoutGrid, GitBranch, Share2, History, Filter, CreditCard, Sparkles,
-  AlertTriangle, CheckCircle, TrendingUp, RefreshCw, Clock, Edit
+  AlertTriangle, CheckCircle, TrendingUp, RefreshCw, Clock, Edit, Copy, Printer
 } from 'lucide-react';
 import { 
   LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, 
@@ -352,7 +352,7 @@ const DashboardPage = () => {
     setLoadingPlanData(true);
     try {
       const token = localStorage.getItem('train_token');
-      const response = await fetch(`${API_URL}/api/plan-data/all/${planId}`, {
+      const response = await fetch(`${API_URL}/api/plan-data/${planId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -447,7 +447,7 @@ const DashboardPage = () => {
 
   // Delete a training plan
   const handleDeleteTrainingPlan = async (planId) => {
-    if (!window.confirm('¿Eliminar este plan de entrenamiento?')) return;
+    if (!window.confirm('¿Eliminar este plan de entrenamiento y todos sus datos asociados?')) return;
     try {
       const token = localStorage.getItem('train_token');
       await fetch(`${API_URL}/api/training-plans/${planId}`, {
@@ -464,6 +464,72 @@ const DashboardPage = () => {
       fetchTrainingPlans();
     } catch (error) {
       toast.error('Error al eliminar plan');
+    }
+  };
+
+  // Duplicate a training plan
+  const handleDuplicatePlan = async (planId) => {
+    try {
+      const token = localStorage.getItem('train_token');
+      const response = await fetch(`${API_URL}/api/training-plans/${planId}/duplicate`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        toast.success(t('dashboard.plans.duplicated'));
+        fetchTrainingPlans();
+      } else {
+        toast.error('Error al duplicar');
+      }
+    } catch (error) {
+      toast.error('Error al duplicar plan');
+    }
+  };
+
+  // Share a training plan
+  const handleSharePlan = async (planId) => {
+    try {
+      const token = localStorage.getItem('train_token');
+      const response = await fetch(`${API_URL}/api/training-plans/${planId}/share`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const shareUrl = `${window.location.origin}${data.share_url}`;
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success(t('dashboard.plans.shared'));
+      } else {
+        toast.error('Error al compartir');
+      }
+    } catch (error) {
+      toast.error('Error al compartir plan');
+    }
+  };
+
+  // Export plan as PDF
+  const handleExportPDF = async (planId) => {
+    try {
+      const token = localStorage.getItem('train_token');
+      const response = await fetch(`${API_URL}/api/training-plans/${planId}/export/pdf`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `plan_${planId}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast.success(t('dashboard.plans.exported'));
+      } else {
+        toast.error('Error al exportar PDF');
+      }
+    } catch (error) {
+      toast.error('Error al exportar PDF');
     }
   };
 
@@ -1144,8 +1210,8 @@ const DashboardPage = () => {
                   <Clipboard className="w-5 h-5 text-[#CCFF00]" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-slate-900">Planes de Entrenamiento</h1>
-                  <p className="text-slate-500 text-sm">Gestiona tus planes de periodización</p>
+                  <h1 className="text-xl font-bold text-slate-900">{t('dashboard.plans.title')}</h1>
+                  <p className="text-slate-500 text-sm">{t('dashboard.plans.subtitle')}</p>
                 </div>
               </div>
             </div>
@@ -1158,7 +1224,7 @@ const DashboardPage = () => {
                 data-testid="create-plan-btn"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Nuevo Plan
+                {t('dashboard.plans.newPlan')}
               </Button>
               <Button
                 variant="outline"
@@ -1166,7 +1232,7 @@ const DashboardPage = () => {
                 className="border-slate-300 text-slate-600 hover:bg-slate-100 rounded-lg px-4"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
-                Actualizar
+                {t('dashboard.plans.refresh')}
               </Button>
             </div>
 
@@ -1179,7 +1245,7 @@ const DashboardPage = () => {
                       <CheckCircle className="w-4 h-4 text-emerald-600" />
                     </div>
                     <div>
-                      <p className="text-[11px] text-emerald-600 font-semibold uppercase tracking-wider">Plan Activo</p>
+                      <p className="text-[11px] text-emerald-600 font-semibold uppercase tracking-wider">{t('dashboard.plans.activePlan')}</p>
                       <h3 className="font-semibold text-slate-800">{activePlan.name}</h3>
                     </div>
                   </div>
@@ -1189,7 +1255,7 @@ const DashboardPage = () => {
                     onClick={() => handleSetActivePlan(null)}
                     className="border-slate-300 text-slate-600 hover:bg-slate-100 rounded-lg"
                   >
-                    Cambiar
+                    {t('dashboard.plans.change')}
                   </Button>
                 </div>
               </div>
@@ -1198,14 +1264,14 @@ const DashboardPage = () => {
             {/* Lista de Planes - Material Design Cards */}
             <div className="space-y-1 mb-4">
               <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                {trainingPlans.length > 0 ? `${trainingPlans.length} planes guardados` : 'Mis Planes'}
+                {trainingPlans.length > 0 ? `${trainingPlans.length} ${t('dashboard.plans.savedPlans')}` : t('dashboard.plans.title')}
               </h2>
             </div>
 
             {loadingPlans ? (
               <div className="text-center py-16">
                 <Loader2 className="w-10 h-10 animate-spin text-blue-500 mx-auto mb-4" />
-                <p className="text-slate-500">Cargando planes...</p>
+                <p className="text-slate-500">{t('dashboard.plans.loading')}</p>
               </div>
             ) : trainingPlans.length > 0 ? (
               <div className="grid gap-3">
@@ -1250,27 +1316,57 @@ const DashboardPage = () => {
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
                           {isActive && (
-                            <Badge className="bg-blue-600 text-white text-xs mr-2">Activo</Badge>
+                            <Badge className="bg-blue-600 text-white text-xs mr-2">{t('dashboard.plans.active')}</Badge>
                           )}
                           <Button
                             variant="ghost"
                             size="sm"
+                            title={t('dashboard.plans.duplicate')}
                             onClick={(e) => {
                               e.stopPropagation();
-                              // TODO: Editar plan
+                              handleDuplicatePlan(plan.id);
                             }}
                             className="text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg h-8 w-8 p-0"
+                            data-testid={`plan-duplicate-${plan.id}`}
                           >
-                            <Edit className="w-4 h-4" />
+                            <Copy className="w-4 h-4" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
+                            title={t('dashboard.plans.share')}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSharePlan(plan.id);
+                            }}
+                            className="text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-lg h-8 w-8 p-0"
+                            data-testid={`plan-share-${plan.id}`}
+                          >
+                            <Share2 className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            title={t('dashboard.plans.print')}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleExportPDF(plan.id);
+                            }}
+                            className="text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg h-8 w-8 p-0"
+                            data-testid={`plan-pdf-${plan.id}`}
+                          >
+                            <Printer className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            title={t('dashboard.plans.delete')}
                             onClick={(e) => {
                               e.stopPropagation();
                               handleDeleteTrainingPlan(plan.id);
                             }}
                             className="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg h-8 w-8 p-0"
+                            data-testid={`plan-delete-${plan.id}`}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -1285,16 +1381,16 @@ const DashboardPage = () => {
                 <div className="w-20 h-20 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Clipboard className="w-10 h-10 text-slate-300" />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-500 mb-2">Sin planes de entrenamiento</h3>
+                <h3 className="text-lg font-semibold text-slate-500 mb-2">{t('dashboard.plans.noPlans')}</h3>
                 <p className="text-slate-400 mb-6 max-w-sm mx-auto text-sm">
-                  Crea tu primer plan para comenzar a diseñar la periodización
+                  {t('dashboard.plans.noPlansDesc')}
                 </p>
                 <Button
                   onClick={() => setActiveDataSection('training-system')}
                   className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Crear Primer Plan
+                  {t('dashboard.plans.createFirst')}
                 </Button>
               </div>
             )}

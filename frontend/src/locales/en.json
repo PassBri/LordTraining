@@ -226,7 +226,20 @@
       "noPlanSelected": "Select a Plan",
       "noPlanMessage": "To access this section you need an active training plan.",
       "goToPlans": "Go to My Plans",
-      "changePlan": "Change Plan"
+      "changePlan": "Change Plan",
+      "duplicated": "Plan duplicated successfully",
+      "shared": "Share link copied to clipboard",
+      "exported": "PDF exported successfully",
+      "duplicate": "Duplicate",
+      "share": "Share",
+      "print": "Print PDF",
+      "delete": "Delete",
+      "active": "Active",
+      "savedPlans": "saved plans",
+      "noPlans": "No training plans",
+      "noPlansDesc": "Create your first plan to start designing the periodization",
+      "createFirst": "Create First Plan",
+      "loading": "Loading plans..."
     },
     "sections": {
       "diagnosis": "Diagnosis",
