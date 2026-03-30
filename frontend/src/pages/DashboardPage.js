@@ -5450,9 +5450,9 @@ const DashboardPage = () => {
               </Button>
             </div>
 
-            {/* Navegación de Secciones del Plan - Floating Cards Style */}
+            {/* Navegación de Secciones del Plan - Floating Round Buttons */}
             <div className="px-4 py-3">
-              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+              <div className="flex items-start gap-4 overflow-x-auto pb-1 scrollbar-hide justify-center sm:justify-start">
                 {planSections.map((section) => {
                   const SectionIcon = section.icon;
                   const isActive = currentSection === section.key;
@@ -5465,22 +5465,21 @@ const DashboardPage = () => {
                         const firstItem = navItems.find(n => n.section === section.key);
                         if (firstItem) setActiveDataSection(firstItem.id);
                       }}
-                      className={`group relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-200 whitespace-nowrap shrink-0 ${
-                        isActive
-                          ? `${colors.bg} text-white shadow-lg ${colors.shadow} scale-[1.02]`
-                          : `bg-white text-slate-600 shadow-sm border border-slate-200/60 hover:shadow-md hover:scale-[1.01] hover:border-slate-300`
-                      }`}
+                      className="group flex flex-col items-center gap-1.5 shrink-0 outline-none"
                       data-testid={`section-tab-${section.key}`}
                     >
-                      <div className={`flex items-center justify-center w-7 h-7 rounded-lg ${
-                        isActive ? 'bg-white/20' : `${colors.light}`
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 ${
+                        isActive
+                          ? `${colors.bg} text-white shadow-lg ${colors.shadow} scale-110 ring-4 ring-white`
+                          : `bg-white text-slate-400 shadow-md border border-slate-100 group-hover:shadow-lg group-hover:scale-105 group-hover:${colors.text}`
                       }`}>
-                        <SectionIcon className={`w-4 h-4 ${isActive ? 'text-white' : colors.text}`} />
+                        <SectionIcon className={`w-5 h-5 ${isActive ? 'text-white' : ''}`} />
                       </div>
-                      <span className="hidden sm:inline">{section.title}</span>
-                      {isActive && (
-                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-white/40" />
-                      )}
+                      <span className={`text-[10px] font-semibold leading-tight text-center max-w-[72px] transition-colors ${
+                        isActive ? colors.text : 'text-slate-400 group-hover:text-slate-600'
+                      }`}>
+                        {section.title}
+                      </span>
                     </button>
                   );
                 })}
