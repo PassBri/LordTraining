@@ -2107,75 +2107,82 @@ const DashboardPage = () => {
           {activeAthleteTab === 'athletes' && (
           <div className="space-y-0">
             {/* Athletes FAB Bar + Add Button */}
-            <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-slate-100">
+            <div className="flex items-start gap-4 px-4 py-3 bg-white border-b border-slate-100">
               {/* Athlete round FABs */}
-              <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide flex-1 py-1">
+              <div className="flex items-start gap-4 overflow-x-auto scrollbar-hide flex-1 py-1 min-w-0">
                 {filteredAthletes.map(athlete => (
                   <button
                     key={athlete.id}
                     onClick={() => setSelectedAthleteId(selectedAthleteId === athlete.id ? null : athlete.id)}
-                    className={`flex-shrink-0 flex flex-col items-center gap-1 transition-all duration-200 group`}
+                    className="flex-shrink-0 flex flex-col items-center gap-1 transition-all duration-200 group"
                     data-testid={`athlete-fab-${athlete.id}`}
                     title={`${athlete.name} · ${athlete.sport}`}
                   >
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-base font-bold transition-all duration-200 shadow-sm ${
+                    <div className={`w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-200 shadow-sm ${
                       selectedAthleteId === athlete.id
                         ? 'bg-[#1565C0] text-white ring-2 ring-[#1565C0] ring-offset-2 scale-110'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:scale-105'
                     }`}>
                       {athlete.name?.charAt(0)?.toUpperCase()}
                     </div>
-                    <span className={`text-[10px] max-w-[56px] truncate font-medium transition-colors ${
-                      selectedAthleteId === athlete.id ? 'text-[#1565C0]' : 'text-slate-500 group-hover:text-slate-700'
+                    <span className={`text-[10px] max-w-[52px] truncate font-medium transition-colors ${
+                      selectedAthleteId === athlete.id ? 'text-[#1565C0]' : 'text-slate-400 group-hover:text-slate-600'
                     }`}>
                       {athlete.name?.split(' ')[0]}
                     </span>
                   </button>
                 ))}
                 {filteredAthletes.length === 0 && (
-                  <span className="text-sm text-slate-400 italic">Sin atletas registrados</span>
+                  <span className="text-sm text-slate-400 italic py-2">Sin atletas</span>
                 )}
               </div>
 
-              {/* Entity filter chips */}
-              {entities.length > 0 && (
-                <div className="flex items-center gap-1 border-l border-slate-200 pl-3 flex-shrink-0">
-                  <Button
-                    variant={athleteFilterEntity === 'all' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setAthleteFilterEntity('all')}
-                    className={`h-7 text-xs px-2 ${athleteFilterEntity === 'all' ? 'bg-[#1565C0]' : ''}`}
-                  >
-                    Todos
-                  </Button>
-                  {entities.slice(0, 3).map(entity => (
+              {/* Right side: filters + add */}
+              <div className="flex items-center gap-2 flex-shrink-0 pt-1">
+                {/* Entity filter chips */}
+                {entities.length > 0 && (
+                  <div className="flex items-center gap-1 border-r border-slate-200 pr-2">
+                    <span className="text-[10px] text-slate-400 mr-0.5">Filtro:</span>
                     <Button
-                      key={entity.id}
-                      variant={athleteFilterEntity === entity.id ? 'default' : 'outline'}
+                      variant={athleteFilterEntity === 'all' ? 'default' : 'outline'}
                       size="sm"
-                      onClick={() => setAthleteFilterEntity(athleteFilterEntity === entity.id ? 'all' : entity.id)}
-                      className={`h-7 text-xs px-2 ${athleteFilterEntity === entity.id ? 'bg-[#1565C0]' : ''}`}
+                      onClick={() => setAthleteFilterEntity('all')}
+                      className={`h-6 text-[10px] px-2 ${athleteFilterEntity === 'all' ? 'bg-[#1565C0]' : ''}`}
                     >
-                      {entity.name}
+                      Todos
                     </Button>
-                  ))}
-                </div>
-              )}
-
-              {/* Add athlete button */}
-              <button
-                onClick={() => setShowAddAthleteForm(prev => !prev)}
-                className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 shadow-sm ${
-                  showAddAthleteForm
-                    ? 'bg-slate-800 text-white rotate-45'
-                    : 'bg-emerald-500 text-white hover:bg-emerald-600 hover:scale-105'
-                }`}
-                data-testid="add-athlete-fab"
-                title="Agregar nuevo atleta"
-              >
-                <Plus className="w-5 h-5" />
-              </button>
-              <span className="text-xs text-slate-400 flex-shrink-0">{athletes.length} atletas</span>
+                    {entities.slice(0, 3).map(entity => {
+                      const typeIcon = entity.entity_type === 'federation' ? 'Fed' : entity.entity_type === 'club' ? 'Club' : 'Esc';
+                      return (
+                        <Button
+                          key={entity.id}
+                          variant={athleteFilterEntity === entity.id ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setAthleteFilterEntity(athleteFilterEntity === entity.id ? 'all' : entity.id)}
+                          className={`h-6 text-[10px] px-2 ${athleteFilterEntity === entity.id ? 'bg-[#1565C0]' : ''}`}
+                          title={`${typeIcon}: ${entity.name}`}
+                        >
+                          {entity.name}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                )}
+                {/* Add athlete button */}
+                <button
+                  onClick={() => setShowAddAthleteForm(prev => !prev)}
+                  className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 shadow-sm ${
+                    showAddAthleteForm
+                      ? 'bg-slate-700 text-white rotate-45'
+                      : 'bg-emerald-500 text-white hover:bg-emerald-600 hover:scale-105'
+                  }`}
+                  data-testid="add-athlete-fab"
+                  title="Agregar nuevo atleta"
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
+                <span className="text-[10px] text-slate-400">{athletes.length}</span>
+              </div>
             </div>
 
             {/* Collapsible New Athlete Form */}
@@ -2267,11 +2274,10 @@ const DashboardPage = () => {
             {/* Main Content: Athlete Detail (full width) */}
             <div className="p-4">
               {selectedAthlete ? (
-                <div className="max-w-2xl mx-auto">
-                  {/* Delete action */}
-                  <div className="flex justify-end mb-2">
-                    <Button variant="ghost" size="sm" className="text-xs text-rose-500 hover:text-rose-600 hover:bg-rose-50 h-7" onClick={() => handleDeleteAthlete(selectedAthlete.id)} data-testid="delete-athlete-btn">
-                      <Trash2 className="w-3 h-3 mr-1" /> Eliminar atleta
+                <div>
+                  <div className="flex justify-end mb-1">
+                    <Button variant="ghost" size="sm" className="text-xs text-rose-400 hover:text-rose-600 hover:bg-rose-50 h-6" onClick={() => handleDeleteAthlete(selectedAthlete.id)} data-testid="delete-athlete-btn">
+                      <Trash2 className="w-3 h-3 mr-1" /> Eliminar
                     </Button>
                   </div>
                   <AthleteSummary 
