@@ -30,7 +30,6 @@ import { LanguageSelector } from '../components/LanguageSelector';
 import PreviousPlanAnalysis from '../components/PreviousPlanAnalysis';
 import SessionPlanning from '../components/SessionPlanning';
 import SportCharacterization from '../components/SportCharacterization';
-import AthleteCharacterization from '../components/AthleteCharacterization';
 import HealthRecords from '../components/HealthRecords';
 import CompetitionAnalysis from '../components/CompetitionAnalysis';
 import TrainingStages from '../components/TrainingStages';
@@ -1260,7 +1259,6 @@ const DashboardPage = () => {
     // === 1. DIAGNÓSTICO / PUNTO DE PARTIDA ===
     { id: 'prev-plan', label: t('dashboard.sections.diagnosis'), icon: History, section: 'punto-partida' },
     { id: 'objectives', label: t('dashboard.controlPanel.activePlan'), icon: Target, section: 'punto-partida' },
-    { id: 'athlete-char', label: t('dashboard.controlPanel.athletes'), icon: UserCheck, section: 'punto-partida' },
     
     // === 2. INFORMACIÓN BASE ===
     { id: 'athletes', label: t('dashboard.controlPanel.athletes'), icon: User, section: 'informacion' },
@@ -3845,11 +3843,6 @@ const DashboardPage = () => {
           </Card>
         </div>
       );
-    }
-
-    // Render Athlete Characterization component
-    if (activeDataSection === 'athlete-char') {
-      return <AthleteCharacterization athleteId={selectedAthleteId} />;
     }
 
     // Render Health Records for injuries
