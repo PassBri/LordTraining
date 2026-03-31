@@ -1,0 +1,86 @@
+{
+  "summary": "Complete testing of Teams CRUD feature. Backend: 12/12 tests passed. Frontend: All Teams management features working correctly including Create, Edit, Delete teams, Manage team members (add/remove athletes), and Equipo dropdown in athlete registration form.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_teams_crud.py",
+    "/app/test_reports/pytest/teams_crud_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/backend/tests/test_teams_crud.py"
+  ],
+  "success_rate": {
+    "backend": "100% (12/12 tests passed)",
+    "frontend": "100% (all Teams CRUD features working)"
+  },
+  "test_credentials": "email: test@train.com, password: test123456",
+  "seed_data_creation": "Created and deleted TEST_Equipo_Playwright team during testing",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Teams CRUD feature fully tested. Navigation: Login → Datos → Select Plan → Información → Equipos. Backend APIs: POST/GET/PUT/DELETE /api/teams, POST/DELETE /api/teams/{team_id}/athletes/{athlete_id}. Frontend: TeamManager component renders correctly with create/edit/delete modals, manage members modal, and team card expansion. Athlete registration form has 'Equipo' dropdown (data-testid='athlete-team-select') that shows available teams.",
+  "test_results": {
+    "backend_api_tests": {
+      "login_success": "PASS - Login with test@train.com works",
+      "get_teams_list": "PASS - GET /api/teams returns list",
+      "create_team": "PASS - POST /api/teams creates team with name, sport, category",
+      "create_team_with_entity": "PASS - POST /api/teams with entity_id works",
+      "get_team_by_id": "PASS - GET /api/teams/{id} returns specific team",
+      "update_team": "PASS - PUT /api/teams/{id} updates team and persists changes",
+      "delete_team": "PASS - DELETE /api/teams/{id} removes team",
+      "get_nonexistent_team": "PASS - GET /api/teams/{fake_id} returns 404",
+      "add_athlete_to_team": "PASS - POST /api/teams/{team_id}/athletes/{athlete_id} adds athlete",
+      "remove_athlete_from_team": "PASS - DELETE /api/teams/{team_id}/athletes/{athlete_id} removes athlete",
+      "get_sports_catalog": "PASS - GET /api/sports/catalog returns categories with sports",
+      "get_entities": "PASS - GET /api/entities returns list"
+    },
+    "frontend_ui_tests": {
+      "login": "PASS - Login with test@train.com works",
+      "navigate_to_datos": "PASS - Datos button navigates to plan selector",
+      "select_plan": "PASS - Clicking 'Plan Test API' activates the plan",
+      "navigate_to_informacion": "PASS - Información section accessible",
+      "equipos_tab_active": "PASS - Equipos tab shows TeamManager component",
+      "team_manager_renders": "PASS - data-testid='team-manager' found",
+      "existing_team_displayed": "PASS - 'Selección Sub-17' team card visible",
+      "new_team_button": "PASS - 'Nuevo Equipo' button visible and clickable",
+      "create_team_modal": "PASS - Modal opens with name, sport, category, entity_id fields",
+      "create_team_success": "PASS - Team created, 'Equipo creado' toast shown",
+      "team_card_expansion": "PASS - Clicking team card expands to show members section",
+      "manage_members_modal": "PASS - Modal shows current members and available athletes",
+      "add_athlete_to_team": "PASS - Clicking checkmark adds athlete, 'Atleta agregado' toast shown",
+      "edit_team_modal": "PASS - Edit modal opens with current values, 'Actualizar' button available",
+      "delete_confirmation_modal": "PASS - Delete modal shows team name and confirmation message",
+      "athlete_form_equipo_dropdown": "PASS - Athlete registration form has 'Equipo' dropdown with teams list"
+    }
+  },
+  "features_verified": {
+    "teams_crud": {
+      "create_team": true,
+      "read_teams_list": true,
+      "update_team": true,
+      "delete_team": true,
+      "team_entity_relationship": true
+    },
+    "team_athlete_relationship": {
+      "add_athlete_to_team": true,
+      "remove_athlete_from_team": true,
+      "team_members_display": true
+    },
+    "frontend_components": {
+      "team_manager_component": true,
+      "create_edit_modal": true,
+      "delete_confirmation_modal": true,
+      "manage_members_modal": true,
+      "team_card_expansion": true,
+      "athlete_form_team_dropdown": true
+    }
+  }
+}

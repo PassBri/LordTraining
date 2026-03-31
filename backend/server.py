@@ -2341,6 +2341,7 @@ class TeamCreate(BaseModel):
     name: str
     sport: str = "other"
     category: Optional[str] = None
+    entity_id: Optional[str] = None
     affiliations: Optional[dict] = None
     athletes: Optional[List[str]] = []
 
@@ -2350,6 +2351,7 @@ class TeamResponse(BaseModel):
     name: str
     sport: str
     category: Optional[str] = None
+    entity_id: Optional[str] = None
     affiliations: Optional[dict] = None
     athletes: Optional[List[str]] = []
     created_at: str
@@ -2363,6 +2365,7 @@ async def create_team(team: TeamCreate, user: dict = Depends(get_current_user)):
         "name": team.name,
         "sport": team.sport,
         "category": team.category,
+        "entity_id": team.entity_id,
         "affiliations": team.affiliations or {},
         "athletes": team.athletes or [],
         "created_at": datetime.now(timezone.utc).isoformat()
