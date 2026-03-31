@@ -1632,7 +1632,8 @@ async def create_training_plan(plan: TrainingPlanCreate, user: dict = Depends(ge
             "physical": [],
             "technical": [],
             "tactical": [],
-            "psychological": []
+            "psychological": [],
+            "theoretical": []
         },
         # Competencias
         "competitions": [],

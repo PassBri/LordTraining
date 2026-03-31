@@ -121,7 +121,7 @@ const MICROCYCLE_TYPES = [
   { id: 'restablecimiento', label: 'Restablecimiento', color: 'bg-purple-200' }
 ];
 
-const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan }) => {
+const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, competitions = [] }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [cycleDuration, setCycleDuration] = useState('annual');
@@ -356,11 +356,10 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan }) 
   // Total weeks based on cycle duration - MUST be defined before useMemo that uses it
   const totalWeeks = CYCLE_DURATIONS[cycleDuration].weeks;
 
-  // Calculate which weeks have events
+  // Calculate which weeks have events (including competitions from plan)
   const eventsByWeek = useMemo(() => {
     const result = {};
-    const startDate = new Date();
-    startDate.setMonth(0, 1); // Start of current year
+    const startDate = activePlan?.start_date ? new Date(activePlan.start_date) : new Date(new Date().getFullYear(), 0, 1);
     
     events.forEach(event => {
       if (event.date) {
@@ -375,9 +374,28 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan }) 
         result[weekNum].push(event);
       }
     });
+
+    // Add competitions from plan data
+    competitions.forEach(comp => {
+      if (comp.date) {
+        const compDate = new Date(comp.date);
+        const diffTime = compDate - startDate;
+        const diffWeeks = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 7)));
+        const weekNum = Math.min(diffWeeks, totalWeeks);
+        if (weekNum > 0) {
+          if (!result[weekNum]) result[weekNum] = [];
+          result[weekNum].push({
+            name: comp.name || comp.competition_name || 'Competencia',
+            date: comp.date,
+            type: 'competition',
+            priority: comp.importance === 'alta' || comp.importance === 'principal' ? 'high' : 'normal'
+          });
+        }
+      }
+    });
     
     return result;
-  }, [events, totalWeeks]);
+  }, [events, competitions, totalWeeks, activePlan]);
   
   // Generate week numbers for display
   const weeks = useMemo(() => {

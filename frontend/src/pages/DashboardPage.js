@@ -49,6 +49,7 @@ import PeriodizationComplete from '../components/PeriodizationComplete';
 import PlansList from '../components/PlansList';
 import EntityManager from '../components/EntityManager';
 import TeamManager from '../components/TeamManager';
+import EvaluationSection from '../components/EvaluationSection';
 import ControlPanel from '../components/ControlPanel';
 import EntityDashboard from '../components/EntityDashboard';
 import SmartAlerts from '../components/SmartAlerts';
@@ -335,11 +336,8 @@ const DashboardPage = () => {
     toast.info('Usa el Coach AI para ayudarte a planificar');
   };
 
-  // Tournaments State - Load from localStorage
-  const [tournaments, setTournaments] = useState(() => {
-    const saved = localStorage.getItem('train_tournaments');
-    return saved ? JSON.parse(saved) : [];
-  });
+  // Tournaments State - Load from API
+  const [tournaments, setTournaments] = useState([]);
   const [tournamentDialogOpen, setTournamentDialogOpen] = useState(false);
   const [selectedTournament, setSelectedTournament] = useState(null);
   const [tournamentDetailView, setTournamentDetailView] = useState(false);
@@ -350,10 +348,18 @@ const DashboardPage = () => {
     points_win: 3, points_draw: 1, points_loss: 0, primary_color: '#3B82F6', secondary_color: '#10B981'
   });
   
-  // Save tournaments to localStorage when they change
-  useEffect(() => {
-    localStorage.setItem('train_tournaments', JSON.stringify(tournaments));
-  }, [tournaments]);
+  // Fetch tournaments from API
+  const fetchTournaments = async () => {
+    try {
+      const token = localStorage.getItem('train_token');
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/tournaments`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) { setTournaments(await response.json()); }
+    } catch (error) { console.error('Error fetching tournaments:', error); }
+  };
+
+  useEffect(() => { fetchTournaments(); }, []);
   
   const [categoryDialogOpenTournament, setCategoryDialogOpenTournament] = useState(false);
   const [tournamentCategoryForm, setTournamentCategoryForm] = useState({ name: '', gender: '', max_participants: '' });
@@ -1882,28 +1888,55 @@ const DashboardPage = () => {
               <TournamentManager
                 tournaments={tournaments}
                 sportsCatalog={sportsCatalog}
-                onCreateTournament={(newTournament) => {
-                  // Add tournament to local state with unique ID
-                  const tournamentWithId = {
-                    ...newTournament,
-                    id: newTournament.id || `tournament-${Date.now()}`,
-                    participants: newTournament.participants || [],
-                    matches: newTournament.matches || [],
-                    participants_count: 0,
-                    status: 'draft'
-                  };
-                  setTournaments(prev => [...prev, tournamentWithId]);
+                onCreateTournament={async (newTournament) => {
+                  try {
+                    const token = localStorage.getItem('train_token');
+                    const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/tournaments`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                      body: JSON.stringify({
+                        name: newTournament.name,
+                        description: newTournament.description || '',
+                        sport: newTournament.sport || 'other',
+                        format: newTournament.format || 'single_elimination',
+                        start_date: newTournament.start_date || new Date().toISOString().split('T')[0],
+                        end_date: newTournament.end_date || '',
+                        venue: newTournament.venue || '',
+                        city: newTournament.city || '',
+                        scoring_system: newTournament.scoring_system || 'standard',
+                        points_win: newTournament.points_win || 3,
+                        points_draw: newTournament.points_draw || 1,
+                        points_loss: newTournament.points_loss || 0,
+                        primary_color: newTournament.primary_color || '#3B82F6',
+                        secondary_color: newTournament.secondary_color || '#10B981'
+                      })
+                    });
+                    if (res.ok) { fetchTournaments(); toast.success('Torneo creado'); }
+                    else { const err = await res.json(); toast.error(err.detail || 'Error al crear torneo'); }
+                  } catch (e) { toast.error('Error al crear torneo'); }
                 }}
-                onUpdateTournament={(id, updatedData) => {
-                  // Update tournament in local state (including participants and matches)
-                  setTournaments(prev => prev.map(t => 
-                    t.id === id ? { ...t, ...updatedData } : t
-                  ));
+                onUpdateTournament={async (id, updatedData) => {
+                  try {
+                    const token = localStorage.getItem('train_token');
+                    const existing = tournaments.find(t => t.id === id);
+                    const merged = { ...existing, ...updatedData };
+                    await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/tournaments/${id}`, {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                      body: JSON.stringify(merged)
+                    });
+                    fetchTournaments();
+                  } catch (e) { console.error('Error updating tournament:', e); }
                 }}
-                onDeleteTournament={(id) => {
-                  // Remove tournament from local state
-                  setTournaments(prev => prev.filter(t => t.id !== id));
-                  toast.success('Torneo eliminado');
+                onDeleteTournament={async (id) => {
+                  try {
+                    const token = localStorage.getItem('train_token');
+                    const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/tournaments/${id}`, {
+                      method: 'DELETE',
+                      headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) { fetchTournaments(); toast.success('Torneo eliminado'); }
+                  } catch (e) { toast.error('Error al eliminar torneo'); }
                 }}
               />
             </Card>
@@ -3863,1095 +3896,32 @@ const DashboardPage = () => {
 
     // Control Médico
     if (activeDataSection === 'control-medical') {
-      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
-
-      return (
-        <div className="p-6 space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-                <Heart className="w-7 h-7 text-red-500" />
-                Control Médico
-              </h2>
-              <p className="text-slate-500 mt-1">Estado de salud y aptitud para el entrenamiento</p>
-            </div>
-            <div className="flex items-center gap-3">
-              {activePlan && (
-                <Badge className="bg-blue-100 text-blue-700">{activePlan.name}</Badge>
-              )}
-              {selectedAthlete && (
-                <Badge className="bg-red-100 text-red-700">{selectedAthlete.name}</Badge>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Signos Vitales */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Heart className="w-4 h-4" />
-                  Signos Vitales
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs text-slate-500">FC Reposo (lpm)</label>
-                    <Input 
-                      type="number" 
-                      placeholder="60" 
-                      value={medicalData.fcReposo}
-                      onChange={(e) => setMedicalData({...medicalData, fcReposo: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs text-slate-500">FC Máxima (lpm)</label>
-                    <Input 
-                      type="number" 
-                      placeholder="185"
-                      value={medicalData.fcMaxima}
-                      onChange={(e) => setMedicalData({...medicalData, fcMaxima: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs text-slate-500">PA Sistólica (mmHg)</label>
-                    <Input 
-                      type="number" 
-                      placeholder="120"
-                      value={medicalData.paSistolica}
-                      onChange={(e) => setMedicalData({...medicalData, paSistolica: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs text-slate-500">PA Diastólica (mmHg)</label>
-                    <Input 
-                      type="number" 
-                      placeholder="80"
-                      value={medicalData.paDiastolica}
-                      onChange={(e) => setMedicalData({...medicalData, paDiastolica: e.target.value})}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs text-slate-500">Saturación O2 (%)</label>
-                  <Input 
-                    type="number" 
-                    placeholder="98"
-                    value={medicalData.saturacionO2}
-                    onChange={(e) => setMedicalData({...medicalData, saturacionO2: e.target.value})}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Antecedentes */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  Antecedentes Médicos
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Enfermedades Crónicas</label>
-                  <textarea 
-                    className="w-full h-16 p-2 text-sm border rounded-lg resize-none" 
-                    placeholder="Asma, diabetes, hipertensión..."
-                    value={medicalData.enfermedadesCronicas}
-                    onChange={(e) => setMedicalData({...medicalData, enfermedadesCronicas: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Alergias</label>
-                  <Input 
-                    placeholder="Medicamentos, alimentos..."
-                    value={medicalData.alergias}
-                    onChange={(e) => setMedicalData({...medicalData, alergias: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Cirugías Previas</label>
-                  <Input 
-                    placeholder="Tipo y fecha"
-                    value={medicalData.cirugiasPrevias}
-                    onChange={(e) => setMedicalData({...medicalData, cirugiasPrevias: e.target.value})}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Lesiones Actuales */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4" />
-                  Lesiones Actuales
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Lesión Activa</label>
-                  <Select defaultValue="none">
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">Sin lesiones</SelectItem>
-                      <SelectItem value="muscular">Muscular</SelectItem>
-                      <SelectItem value="articular">Articular</SelectItem>
-                      <SelectItem value="osea">Ósea</SelectItem>
-                      <SelectItem value="ligamentosa">Ligamentosa</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Zona Afectada</label>
-                  <Input placeholder="Ej: Rodilla derecha" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Estado de Recuperación</label>
-                  <Select defaultValue="na">
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="na">N/A</SelectItem>
-                      <SelectItem value="aguda">Fase Aguda</SelectItem>
-                      <SelectItem value="subaguda">Fase Subaguda</SelectItem>
-                      <SelectItem value="rehabilitacion">En Rehabilitación</SelectItem>
-                      <SelectItem value="reintegro">Reintegro Deportivo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Aptitud Médica */}
-            <Card className="border-0 shadow-md col-span-full lg:col-span-1">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4" />
-                  Aptitud Médica
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Estado de Aptitud</label>
-                  <Select defaultValue="apto">
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="apto">Apto sin restricciones</SelectItem>
-                      <SelectItem value="apto-restriccion">Apto con restricciones</SelectItem>
-                      <SelectItem value="no-apto-temporal">No apto temporalmente</SelectItem>
-                      <SelectItem value="no-apto">No apto</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Fecha Último Chequeo</label>
-                  <Input type="date" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Próximo Chequeo</label>
-                  <Input type="date" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <Button variant="outline">Cancelar</Button>
-            <Button 
-              className="bg-red-600 hover:bg-red-700"
-              onClick={() => handleSaveEvaluation('medical', medicalData)}
-              disabled={savingEvaluation || !activePlan}
-            >
-              {savingEvaluation ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <Save className="w-4 h-4 mr-2" />
-              )}
-              Guardar Control Médico
-            </Button>
-          </div>
-        </div>
-      );
+      return <EvaluationSection sectionId="control-medical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} evalData={medicalData} setEvalData={setMedicalData} />;
     }
 
     // Control Físico
     if (activeDataSection === 'control-physical') {
-      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
-      return (
-        <div className="p-6 space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-                <Dumbbell className="w-7 h-7 text-blue-500" />
-                Control Físico
-              </h2>
-              <p className="text-slate-500 mt-1">Evaluación de capacidades físicas y condición</p>
-            </div>
-            <div className="flex items-center gap-2">
-              {activePlan && (
-                <Badge className="bg-blue-100 text-blue-700">{activePlan.name}</Badge>
-              )}
-              {selectedAthlete && (
-                <Badge className="bg-slate-100 text-slate-700">{selectedAthlete.name}</Badge>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Fuerza */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Dumbbell className="w-4 h-4" />
-                  Fuerza
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">1RM Sentadilla (kg)</label>
-                  <Input type="number" placeholder="120" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">1RM Press Banca (kg)</label>
-                  <Input type="number" placeholder="80" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">1RM Peso Muerto (kg)</label>
-                  <Input type="number" placeholder="140" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Fuerza Prensil (kg)</label>
-                  <Input type="number" placeholder="45" />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Resistencia */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Activity className="w-4 h-4" />
-                  Resistencia
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">VO2 Máx (ml/kg/min)</label>
-                  <Input type="number" placeholder="55" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Test Cooper (m)</label>
-                  <Input type="number" placeholder="3000" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Umbral Anaeróbico (lpm)</label>
-                  <Input type="number" placeholder="165" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Test Yo-Yo (nivel)</label>
-                  <Input type="number" placeholder="18.5" />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Velocidad */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Zap className="w-4 h-4" />
-                  Velocidad
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Sprint 10m (seg)</label>
-                  <Input type="number" step="0.01" placeholder="1.80" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Sprint 30m (seg)</label>
-                  <Input type="number" step="0.01" placeholder="4.20" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Sprint 60m (seg)</label>
-                  <Input type="number" step="0.01" placeholder="7.50" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Velocidad Máx (km/h)</label>
-                  <Input type="number" step="0.1" placeholder="32.5" />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Potencia y Salto */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4" />
-                  Potencia / Salto
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">CMJ - Salto Vertical (cm)</label>
-                  <Input type="number" placeholder="45" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">SJ - Squat Jump (cm)</label>
-                  <Input type="number" placeholder="40" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Salto Horizontal (cm)</label>
-                  <Input type="number" placeholder="250" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">RSI (índice)</label>
-                  <Input type="number" step="0.01" placeholder="2.50" />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Flexibilidad */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Target className="w-4 h-4" />
-                  Flexibilidad
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Sit and Reach (cm)</label>
-                  <Input type="number" placeholder="10" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Test Thomas (grados)</label>
-                  <Input type="number" placeholder="15" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Elevación Pierna Recta (°)</label>
-                  <Input type="number" placeholder="80" />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Agilidad */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <RefreshCw className="w-4 h-4" />
-                  Agilidad / Coordinación
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Test Illinois (seg)</label>
-                  <Input type="number" step="0.01" placeholder="15.50" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Test T (seg)</label>
-                  <Input type="number" step="0.01" placeholder="9.80" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">505 Agility (seg)</label>
-                  <Input type="number" step="0.01" placeholder="2.40" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <Button variant="outline">Cancelar</Button>
-            <Button className="bg-blue-600 hover:bg-blue-700">
-              <Save className="w-4 h-4 mr-2" />
-              Guardar Control Físico
-            </Button>
-          </div>
-        </div>
-      );
+      return <EvaluationSection sectionId="control-physical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} evalData={physicalData} setEvalData={setPhysicalData} />;
     }
 
     // Control Técnico
     if (activeDataSection === 'control-technical') {
-      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
-      return (
-        <div className="p-6 space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-                <Target className="w-7 h-7 text-violet-500" />
-                Control Técnico
-              </h2>
-              <p className="text-slate-500 mt-1">Evaluación de habilidades técnicas específicas del deporte</p>
-            </div>
-            <div className="flex items-center gap-2">
-              {activePlan && (
-                <Badge className="bg-violet-100 text-violet-700">{activePlan.name}</Badge>
-              )}
-              {selectedAthlete && (
-                <Badge className="bg-slate-100 text-slate-700">{selectedAthlete.name}</Badge>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Técnica General */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Target className="w-4 h-4" />
-                  Evaluación Técnica General
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-4">
-                {['Técnica básica', 'Técnica específica', 'Ejecución bajo presión', 'Consistencia técnica', 'Eficiencia del gesto'].map((item, idx) => (
-                  <div key={idx} className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <label className="text-sm font-medium text-slate-600">{item}</label>
-                      <span className="text-xs text-slate-400">1-10</span>
-                    </div>
-                    <div className="flex gap-1">
-                      {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                        <button key={n} className="w-8 h-8 rounded-lg border border-slate-200 text-xs hover:bg-violet-100 hover:border-violet-300 transition-colors">
-                          {n}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Habilidades Específicas */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Layers className="w-4 h-4" />
-                  Habilidades Específicas del Deporte
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Habilidad 1</label>
-                  <div className="flex gap-2">
-                    <Input placeholder="Nombre de la habilidad" className="flex-1" />
-                    <Select defaultValue="7">
-                      <SelectTrigger className="w-20"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                          <SelectItem key={n} value={String(n)}>{n}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Habilidad 2</label>
-                  <div className="flex gap-2">
-                    <Input placeholder="Nombre de la habilidad" className="flex-1" />
-                    <Select defaultValue="6">
-                      <SelectTrigger className="w-20"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                          <SelectItem key={n} value={String(n)}>{n}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Habilidad 3</label>
-                  <div className="flex gap-2">
-                    <Input placeholder="Nombre de la habilidad" className="flex-1" />
-                    <Select defaultValue="8">
-                      <SelectTrigger className="w-20"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                          <SelectItem key={n} value={String(n)}>{n}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <Button variant="outline" size="sm" className="w-full mt-2">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Agregar Habilidad
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Observaciones Técnicas */}
-            <Card className="border-0 shadow-md col-span-full">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  Observaciones y Áreas de Mejora
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Fortalezas Técnicas</label>
-                  <textarea className="w-full h-24 p-2 text-sm border rounded-lg resize-none" placeholder="Describir puntos fuertes técnicos..." />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Áreas de Mejora</label>
-                  <textarea className="w-full h-24 p-2 text-sm border rounded-lg resize-none" placeholder="Aspectos a trabajar y mejorar..." />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <Button variant="outline">Cancelar</Button>
-            <Button 
-              className="bg-violet-600 hover:bg-violet-700"
-              onClick={() => handleSaveEvaluation('technical', technicalData)}
-              disabled={savingEvaluation || !activePlan}
-            >
-              {savingEvaluation ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-              Guardar Control Técnico
-            </Button>
-          </div>
-        </div>
-      );
+      return <EvaluationSection sectionId="control-technical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} evalData={technicalData} setEvalData={setTechnicalData} />;
     }
 
     // Control Táctico
     if (activeDataSection === 'control-tactical') {
-      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
-      return (
-        <div className="p-6 space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-                <Layers className="w-7 h-7 text-amber-500" />
-                Control Táctico
-              </h2>
-              <p className="text-slate-500 mt-1">Evaluación de inteligencia táctica y toma de decisiones</p>
-            </div>
-            <div className="flex items-center gap-2">
-              {activePlan && (
-                <Badge className="bg-amber-100 text-amber-700">{activePlan.name}</Badge>
-              )}
-              {selectedAthlete && (
-                <Badge className="bg-slate-100 text-slate-700">{selectedAthlete.name}</Badge>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Capacidades Tácticas */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Brain className="w-4 h-4" />
-                  Capacidades Tácticas
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-4">
-                {[
-                  'Lectura del juego',
-                  'Toma de decisiones',
-                  'Anticipación',
-                  'Posicionamiento',
-                  'Comunicación táctica',
-                  'Adaptabilidad'
-                ].map((item, idx) => (
-                  <div key={idx} className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <label className="text-sm font-medium text-slate-600">{item}</label>
-                      <span className="text-xs text-slate-400">1-10</span>
-                    </div>
-                    <div className="flex gap-1">
-                      {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                        <button key={n} className="w-8 h-8 rounded-lg border border-slate-200 text-xs hover:bg-amber-100 hover:border-amber-300 transition-colors">
-                          {n}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Comprensión del Sistema */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Target className="w-4 h-4" />
-                  Comprensión del Sistema de Juego
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Conocimiento del sistema</label>
-                  <Select defaultValue="bueno">
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="excelente">Excelente</SelectItem>
-                      <SelectItem value="bueno">Bueno</SelectItem>
-                      <SelectItem value="regular">Regular</SelectItem>
-                      <SelectItem value="deficiente">Deficiente</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Ejecución de roles</label>
-                  <Select defaultValue="bueno">
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="excelente">Excelente</SelectItem>
-                      <SelectItem value="bueno">Bueno</SelectItem>
-                      <SelectItem value="regular">Regular</SelectItem>
-                      <SelectItem value="deficiente">Deficiente</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Transiciones ofensivas</label>
-                  <Select defaultValue="bueno">
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="excelente">Excelente</SelectItem>
-                      <SelectItem value="bueno">Bueno</SelectItem>
-                      <SelectItem value="regular">Regular</SelectItem>
-                      <SelectItem value="deficiente">Deficiente</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Transiciones defensivas</label>
-                  <Select defaultValue="bueno">
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="excelente">Excelente</SelectItem>
-                      <SelectItem value="bueno">Bueno</SelectItem>
-                      <SelectItem value="regular">Regular</SelectItem>
-                      <SelectItem value="deficiente">Deficiente</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Análisis de Situaciones */}
-            <Card className="border-0 shadow-md col-span-full">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  Análisis y Observaciones Tácticas
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Fortalezas Tácticas</label>
-                  <textarea className="w-full h-24 p-2 text-sm border rounded-lg resize-none" placeholder="Puntos fuertes en lo táctico..." />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Aspectos a Mejorar</label>
-                  <textarea className="w-full h-24 p-2 text-sm border rounded-lg resize-none" placeholder="Áreas de mejora táctica..." />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <Button variant="outline">Cancelar</Button>
-            <Button 
-              className="bg-amber-600 hover:bg-amber-700"
-              onClick={() => handleSaveEvaluation('tactical', tacticalData)}
-              disabled={savingEvaluation || !activePlan}
-            >
-              {savingEvaluation ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-              Guardar Control Táctico
-            </Button>
-          </div>
-        </div>
-      );
+      return <EvaluationSection sectionId="control-tactical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} evalData={tacticalData} setEvalData={setTacticalData} />;
     }
 
     // Control Psicológico
     if (activeDataSection === 'control-psychological') {
-      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
-      return (
-        <div className="p-6 space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-                <Brain className="w-7 h-7 text-pink-500" />
-                Control Psicológico
-              </h2>
-              <p className="text-slate-500 mt-1">Evaluación del estado mental y habilidades psicológicas</p>
-            </div>
-            <div className="flex items-center gap-2">
-              {activePlan && (
-                <Badge className="bg-pink-100 text-pink-700">{activePlan.name}</Badge>
-              )}
-              {selectedAthlete && (
-                <Badge className="bg-slate-100 text-slate-700">{selectedAthlete.name}</Badge>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Estado Emocional */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Heart className="w-4 h-4" />
-                  Estado Emocional Actual
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Nivel de Estrés (1-10)</label>
-                  <Input type="number" min="1" max="10" placeholder="5" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Nivel de Ansiedad (1-10)</label>
-                  <Input type="number" min="1" max="10" placeholder="4" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Estado de Ánimo</label>
-                  <Select defaultValue="positivo">
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="muy-positivo">Muy Positivo</SelectItem>
-                      <SelectItem value="positivo">Positivo</SelectItem>
-                      <SelectItem value="neutral">Neutral</SelectItem>
-                      <SelectItem value="bajo">Bajo</SelectItem>
-                      <SelectItem value="muy-bajo">Muy Bajo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Motivación */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Zap className="w-4 h-4" />
-                  Motivación y Compromiso
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Motivación Intrínseca (1-10)</label>
-                  <Input type="number" min="1" max="10" placeholder="8" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Motivación Extrínseca (1-10)</label>
-                  <Input type="number" min="1" max="10" placeholder="7" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Compromiso con el Equipo (1-10)</label>
-                  <Input type="number" min="1" max="10" placeholder="9" />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Habilidades Mentales */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Brain className="w-4 h-4" />
-                  Habilidades Mentales
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Concentración (1-10)</label>
-                  <Input type="number" min="1" max="10" placeholder="7" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Autoconfianza (1-10)</label>
-                  <Input type="number" min="1" max="10" placeholder="8" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Control de Emociones (1-10)</label>
-                  <Input type="number" min="1" max="10" placeholder="6" />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Rendimiento bajo Presión */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4" />
-                  Rendimiento bajo Presión
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Manejo de Presión</label>
-                  <Select defaultValue="bueno">
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="excelente">Excelente</SelectItem>
-                      <SelectItem value="bueno">Bueno</SelectItem>
-                      <SelectItem value="regular">Regular</SelectItem>
-                      <SelectItem value="deficiente">Deficiente</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Recuperación de Errores</label>
-                  <Select defaultValue="bueno">
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="excelente">Excelente</SelectItem>
-                      <SelectItem value="bueno">Bueno</SelectItem>
-                      <SelectItem value="regular">Regular</SelectItem>
-                      <SelectItem value="deficiente">Deficiente</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Calidad de Sueño y Descanso */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  Sueño y Descanso
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Horas de Sueño/Noche</label>
-                  <Input type="number" step="0.5" placeholder="7.5" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Calidad del Sueño (1-10)</label>
-                  <Input type="number" min="1" max="10" placeholder="7" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Nivel de Fatiga Mental (1-10)</label>
-                  <Input type="number" min="1" max="10" placeholder="4" />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Observaciones */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  Observaciones
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <textarea 
-                  className="w-full h-32 p-2 text-sm border rounded-lg resize-none"
-                  placeholder="Notas sobre estado psicológico, situaciones personales relevantes, recomendaciones..."
-                />
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <Button variant="outline">Cancelar</Button>
-            <Button 
-              className="bg-pink-600 hover:bg-pink-700"
-              onClick={() => handleSaveEvaluation('psychological', psychologicalData)}
-              disabled={savingEvaluation || !activePlan}
-            >
-              {savingEvaluation ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-              Guardar Control Psicológico
-            </Button>
-          </div>
-        </div>
-      );
+      return <EvaluationSection sectionId="control-psychological" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} evalData={psychologicalData} setEvalData={setPsychologicalData} />;
     }
 
     // Control Teórico
     if (activeDataSection === 'control-theoretical') {
-      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
-      return (
-        <div className="p-6 space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-                <BookOpen className="w-7 h-7 text-cyan-500" />
-                Control Teórico
-              </h2>
-              <p className="text-slate-500 mt-1">Evaluación de conocimientos teóricos del deporte</p>
-            </div>
-            {selectedAthlete && (
-              <Badge className="bg-cyan-100 text-cyan-700">{selectedAthlete.name}</Badge>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Conocimiento del Reglamento */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <BookOpen className="w-4 h-4" />
-                  Conocimiento del Reglamento
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-4">
-                {[
-                  'Reglas básicas del deporte',
-                  'Reglas de competencia',
-                  'Sistema de puntuación',
-                  'Infracciones y penalizaciones',
-                  'Actualizaciones reglamentarias'
-                ].map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between">
-                    <span className="text-sm text-slate-600">{item}</span>
-                    <Select defaultValue="bueno">
-                      <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="excelente">Excelente</SelectItem>
-                        <SelectItem value="bueno">Bueno</SelectItem>
-                        <SelectItem value="regular">Regular</SelectItem>
-                        <SelectItem value="deficiente">Deficiente</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Conocimiento Táctico-Estratégico */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Layers className="w-4 h-4" />
-                  Conocimiento Táctico-Estratégico
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-4">
-                {[
-                  'Sistemas de juego propios',
-                  'Análisis de rivales',
-                  'Estrategias de competencia',
-                  'Roles y funciones',
-                  'Principios tácticos'
-                ].map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between">
-                    <span className="text-sm text-slate-600">{item}</span>
-                    <Select defaultValue="bueno">
-                      <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="excelente">Excelente</SelectItem>
-                        <SelectItem value="bueno">Bueno</SelectItem>
-                        <SelectItem value="regular">Regular</SelectItem>
-                        <SelectItem value="deficiente">Deficiente</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Conocimiento Técnico */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Target className="w-4 h-4" />
-                  Conocimiento Técnico
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-4">
-                {[
-                  'Fundamentos técnicos',
-                  'Progresiones de aprendizaje',
-                  'Errores comunes y correcciones',
-                  'Biomecánica del gesto',
-                  'Tendencias técnicas actuales'
-                ].map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between">
-                    <span className="text-sm text-slate-600">{item}</span>
-                    <Select defaultValue="bueno">
-                      <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="excelente">Excelente</SelectItem>
-                        <SelectItem value="bueno">Bueno</SelectItem>
-                        <SelectItem value="regular">Regular</SelectItem>
-                        <SelectItem value="deficiente">Deficiente</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Conocimiento de Preparación Física */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Dumbbell className="w-4 h-4" />
-                  Conocimiento de Preparación Física
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-4">
-                {[
-                  'Principios del entrenamiento',
-                  'Nutrición deportiva básica',
-                  'Prevención de lesiones',
-                  'Métodos de recuperación',
-                  'Periodización'
-                ].map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between">
-                    <span className="text-sm text-slate-600">{item}</span>
-                    <Select defaultValue="regular">
-                      <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="excelente">Excelente</SelectItem>
-                        <SelectItem value="bueno">Bueno</SelectItem>
-                        <SelectItem value="regular">Regular</SelectItem>
-                        <SelectItem value="deficiente">Deficiente</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Evaluación y Observaciones */}
-            <Card className="border-0 shadow-md col-span-full">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  Evaluación General y Recomendaciones
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Nota Global Teórica</label>
-                  <Select defaultValue="7">
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                        <SelectItem key={n} value={String(n)}>{n} - {n <= 3 ? 'Deficiente' : n <= 5 ? 'Regular' : n <= 7 ? 'Bueno' : 'Excelente'}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-xs font-medium text-slate-500">Temas a Reforzar</label>
-                  <textarea className="w-full h-20 p-2 text-sm border rounded-lg resize-none" placeholder="Lista de temas que el atleta debe estudiar o reforzar..." />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <Button variant="outline">Cancelar</Button>
-            <Button className="bg-cyan-600 hover:bg-cyan-700">
-              <Save className="w-4 h-4 mr-2" />
-              Guardar Control Teórico
-            </Button>
-          </div>
-        </div>
-      );
+      return <EvaluationSection sectionId="control-theoretical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} evalData={theoreticalData} setEvalData={setTheoreticalData} />;
     }
 
     // Render Test Evaluations
@@ -4973,6 +3943,7 @@ const DashboardPage = () => {
           periodizationData={periodizationData}
           athleteName={selectedAthlete?.name}
           activePlan={activePlan}
+          competitions={planData?.competitions || []}
         />
       );
     }
