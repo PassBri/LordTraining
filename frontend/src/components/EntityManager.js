@@ -231,126 +231,135 @@ const EntityManager = () => {
       {renderGroup('Entidades Públicas', 'Federaciones, Selecciones Nacionales, Ligas y Torneos', publicEntities, 'publica', ['federation', 'national_team', 'league'])}
       {renderGroup('Entidades Privadas', 'Clubes Deportivos, Escuelas, Equipos y Grupos', privateEntities, 'privada', ['club', 'school', 'team'])}
 
-      {/* Create/Edit Modal */}
+      {/* Create/Edit Modal - Compact */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: cfg.bg }}>
-                <cfg.icon className="w-5 h-5" style={{ color: cfg.color }} />
+            <DialogTitle className="flex items-center gap-2 text-base text-slate-800">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: cfg.bg }}>
+                <cfg.icon className="w-4 h-4" style={{ color: cfg.color }} />
               </div>
-              <div>
-                <span className="text-slate-800">{editingEntity ? 'Editar' : 'Nueva'} {cfg.label}</span>
-                <p className="text-xs text-slate-500 font-normal mt-0.5">{cfg.group === 'publica' ? 'Entidad Pública' : 'Entidad Privada'}</p>
-              </div>
+              {editingEntity ? 'Editar Entidad' : 'Nueva Entidad'}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-5 py-3">
-            {/* Type selector */}
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-1.5">
-              {Object.entries(ENTITY_TYPES).map(([type, c]) => {
-                const TIcon = c.icon;
-                const isActive = formData.entity_type === type;
-                return (
-                  <button key={type} onClick={() => setFormData({ ...formData, entity_type: type })} className={`rounded-lg p-2 text-center transition-all border-2 ${isActive ? 'shadow-md' : 'border-transparent hover:border-slate-200'}`} style={isActive ? { borderColor: c.color, backgroundColor: c.bg } : {}} data-testid={`type-btn-${type}`}>
-                    <TIcon className="w-4 h-4 mx-auto mb-0.5" style={{ color: isActive ? c.color : '#94a3b8' }} />
-                    <p className="text-[10px] font-medium" style={{ color: isActive ? c.color : '#64748b' }}>{c.label}</p>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Basic info */}
-            <div className="rounded-xl border border-slate-200 overflow-hidden">
-              <div className="px-4 py-2 bg-slate-50 border-b border-slate-100">
-                <span className="text-xs font-bold text-slate-600 uppercase tracking-wide">Información Básica</span>
+          <div className="space-y-3 py-2">
+            {/* Row 1: Classification + Type */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs text-slate-500 mb-1 block">Clasificación</Label>
+                <Select value={cfg.group} onValueChange={(v) => {
+                  const firstOfGroup = Object.entries(ENTITY_TYPES).find(([, c]) => c.group === v);
+                  if (firstOfGroup) setFormData({ ...formData, entity_type: firstOfGroup[0] });
+                }}>
+                  <SelectTrigger className="h-9 text-sm border-slate-200" data-testid="form-classification"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="publica">Pública</SelectItem>
+                    <SelectItem value="privada">Privada</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="p-4 grid grid-cols-2 gap-3">
-                <div className="col-span-2 md:col-span-1">
-                  <Label className="text-xs text-slate-600">Nombre *</Label>
-                  <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="Nombre de la entidad" className="mt-1 h-9 text-sm" data-testid="form-name" />
-                </div>
-                <div>
-                  <Label className="text-xs text-slate-600">Deporte Principal</Label>
-                  <Input value={formData.sport} onChange={(e) => setFormData({ ...formData, sport: e.target.value })} placeholder="Ej: Atletismo" className="mt-1 h-9 text-sm" />
-                </div>
-                <div className="col-span-2">
-                  <Label className="text-xs text-slate-600">Descripción</Label>
-                  <Input value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Breve descripción de la entidad" className="mt-1 h-9 text-sm" />
-                </div>
+              <div>
+                <Label className="text-xs text-slate-500 mb-1 block">Tipo de Entidad</Label>
+                <Select value={formData.entity_type} onValueChange={(v) => setFormData({ ...formData, entity_type: v })}>
+                  <SelectTrigger className="h-9 text-sm border-slate-200" data-testid="form-type"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(ENTITY_TYPES).filter(([, c]) => c.group === cfg.group).map(([type, c]) => (
+                      <SelectItem key={type} value={type}>{c.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
-            {/* Location */}
-            <div className="rounded-xl border border-slate-200 overflow-hidden">
-              <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-slate-500" />
-                <span className="text-xs font-bold text-slate-600 uppercase tracking-wide">Ubicación</span>
+            {/* Row 2: Name + Sport */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs text-slate-500 mb-1 block">Nombre *</Label>
+                <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="Nombre de la entidad" className="h-9 text-sm border-slate-200" data-testid="form-name" />
               </div>
-              <div className="p-4 grid grid-cols-3 gap-3">
-                <div><Label className="text-xs text-slate-600">País</Label><Input value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} placeholder="País" className="mt-1 h-9 text-sm" data-testid="form-country" /></div>
-                <div><Label className="text-xs text-slate-600">Ciudad</Label><Input value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} placeholder="Ciudad" className="mt-1 h-9 text-sm" /></div>
-                <div><Label className="text-xs text-slate-600">Dirección</Label><Input value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} placeholder="Dirección" className="mt-1 h-9 text-sm" /></div>
-              </div>
-            </div>
-
-            {/* Contact */}
-            <div className="rounded-xl border border-slate-200 overflow-hidden">
-              <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex items-center gap-1.5">
-                <Phone className="w-3.5 h-3.5 text-slate-500" />
-                <span className="text-xs font-bold text-slate-600 uppercase tracking-wide">Contacto</span>
-              </div>
-              <div className="p-4 grid grid-cols-3 gap-3">
-                <div><Label className="text-xs text-slate-600">Teléfono</Label><Input value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="+57 300 123 4567" className="mt-1 h-9 text-sm" /></div>
-                <div><Label className="text-xs text-slate-600">Email</Label><Input value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="email@entidad.com" className="mt-1 h-9 text-sm" /></div>
-                <div><Label className="text-xs text-slate-600">Sitio Web</Label><Input value={formData.website} onChange={(e) => setFormData({ ...formData, website: e.target.value })} placeholder="https://..." className="mt-1 h-9 text-sm" /></div>
+              <div>
+                <Label className="text-xs text-slate-500 mb-1 block">Deporte</Label>
+                <Input value={formData.sport} onChange={(e) => setFormData({ ...formData, sport: e.target.value })} placeholder="Ej: Atletismo" className="h-9 text-sm border-slate-200" />
               </div>
             </div>
 
-            {/* Legal */}
-            <div className="rounded-xl border border-slate-200 overflow-hidden">
-              <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex items-center gap-1.5">
-                <Globe className="w-3.5 h-3.5 text-slate-500" />
-                <span className="text-xs font-bold text-slate-600 uppercase tracking-wide">Legal y Redes</span>
+            {/* Row 3: Country + City + Address */}
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <Label className="text-xs text-slate-500 mb-1 block">País</Label>
+                <Input value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} placeholder="País" className="h-9 text-sm border-slate-200" data-testid="form-country" />
               </div>
-              <div className="p-4 grid grid-cols-3 gap-3">
-                <div><Label className="text-xs text-slate-600">Representante Legal</Label><Input value={formData.legal_representative} onChange={(e) => setFormData({ ...formData, legal_representative: e.target.value })} placeholder="Nombre" className="mt-1 h-9 text-sm" /></div>
-                <div><Label className="text-xs text-slate-600">RUC/NIT</Label><Input value={formData.tax_id} onChange={(e) => setFormData({ ...formData, tax_id: e.target.value })} placeholder="ID fiscal" className="mt-1 h-9 text-sm" /></div>
-                <div><Label className="text-xs text-slate-600">Fundación</Label><Input type="date" value={formData.foundation_date} onChange={(e) => setFormData({ ...formData, foundation_date: e.target.value })} className="mt-1 h-9 text-sm" /></div>
-                <div><Label className="text-xs text-slate-600 flex items-center gap-1"><Facebook className="w-3 h-3" /> Facebook</Label><Input value={formData.facebook} onChange={(e) => setFormData({ ...formData, facebook: e.target.value })} placeholder="URL" className="mt-1 h-9 text-sm" /></div>
-                <div><Label className="text-xs text-slate-600 flex items-center gap-1"><Instagram className="w-3 h-3" /> Instagram</Label><Input value={formData.instagram} onChange={(e) => setFormData({ ...formData, instagram: e.target.value })} placeholder="@usuario" className="mt-1 h-9 text-sm" /></div>
-                <div><Label className="text-xs text-slate-600 flex items-center gap-1"><Twitter className="w-3 h-3" /> Twitter/X</Label><Input value={formData.twitter} onChange={(e) => setFormData({ ...formData, twitter: e.target.value })} placeholder="@usuario" className="mt-1 h-9 text-sm" /></div>
+              <div>
+                <Label className="text-xs text-slate-500 mb-1 block">Ciudad</Label>
+                <Input value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} placeholder="Ciudad" className="h-9 text-sm border-slate-200" />
               </div>
+              <div>
+                <Label className="text-xs text-slate-500 mb-1 block">Dirección</Label>
+                <Input value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} placeholder="Dirección" className="h-9 text-sm border-slate-200" />
+              </div>
+            </div>
+
+            {/* Row 4: Contact */}
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <Label className="text-xs text-slate-500 mb-1 block">Teléfono</Label>
+                <Input value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="+57 300 123 4567" className="h-9 text-sm border-slate-200" />
+              </div>
+              <div>
+                <Label className="text-xs text-slate-500 mb-1 block">Email</Label>
+                <Input value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="email@entidad.com" className="h-9 text-sm border-slate-200" />
+              </div>
+              <div>
+                <Label className="text-xs text-slate-500 mb-1 block">Sitio Web</Label>
+                <Input value={formData.website} onChange={(e) => setFormData({ ...formData, website: e.target.value })} placeholder="https://..." className="h-9 text-sm border-slate-200" />
+              </div>
+            </div>
+
+            {/* Row 5: Legal */}
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <Label className="text-xs text-slate-500 mb-1 block">Representante</Label>
+                <Input value={formData.legal_representative} onChange={(e) => setFormData({ ...formData, legal_representative: e.target.value })} placeholder="Nombre" className="h-9 text-sm border-slate-200" />
+              </div>
+              <div>
+                <Label className="text-xs text-slate-500 mb-1 block">RUC/NIT</Label>
+                <Input value={formData.tax_id} onChange={(e) => setFormData({ ...formData, tax_id: e.target.value })} placeholder="ID fiscal" className="h-9 text-sm border-slate-200" />
+              </div>
+              <div>
+                <Label className="text-xs text-slate-500 mb-1 block">Fundación</Label>
+                <Input type="date" value={formData.foundation_date} onChange={(e) => setFormData({ ...formData, foundation_date: e.target.value })} className="h-9 text-sm border-slate-200" />
+              </div>
+            </div>
+
+            {/* Row 6: Description */}
+            <div>
+              <Label className="text-xs text-slate-500 mb-1 block">Descripción</Label>
+              <Input value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Breve descripción (opcional)" className="h-9 text-sm border-slate-200" />
             </div>
 
             {/* Parent Entity */}
             {entities.length > 0 && (
-              <div className="rounded-xl border border-slate-200 overflow-hidden">
-                <div className="px-4 py-2 bg-slate-50 border-b border-slate-100">
-                  <span className="text-xs font-bold text-slate-600 uppercase tracking-wide">Jerarquía</span>
-                </div>
-                <div className="p-4">
-                  <Label className="text-xs text-slate-600">Entidad Padre (opcional)</Label>
-                  <Select value={formData.parent_entity_id || 'none'} onValueChange={(v) => setFormData({ ...formData, parent_entity_id: v === 'none' ? '' : v })}>
-                    <SelectTrigger className="mt-1 h-9 text-sm"><SelectValue placeholder="Sin entidad padre" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">Sin entidad padre</SelectItem>
-                      {entities.filter(e => e.id !== editingEntity?.id).map(e => {
-                        const ec = ENTITY_TYPES[e.entity_type] || ENTITY_TYPES.club;
-                        return <SelectItem key={e.id} value={e.id}>{ec.label}: {e.name}</SelectItem>;
-                      })}
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div>
+                <Label className="text-xs text-slate-500 mb-1 block">Entidad Padre (opcional)</Label>
+                <Select value={formData.parent_entity_id || 'none'} onValueChange={(v) => setFormData({ ...formData, parent_entity_id: v === 'none' ? '' : v })}>
+                  <SelectTrigger className="h-9 text-sm border-slate-200"><SelectValue placeholder="Sin entidad padre" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Sin entidad padre</SelectItem>
+                    {entities.filter(e => e.id !== editingEntity?.id).map(e => {
+                      const ec = ENTITY_TYPES[e.entity_type] || ENTITY_TYPES.club;
+                      return <SelectItem key={e.id} value={e.id}>{ec.label}: {e.name}</SelectItem>;
+                    })}
+                  </SelectContent>
+                </Select>
               </div>
             )}
           </div>
 
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setShowModal(false)} className="h-9 text-sm">Cancelar</Button>
-            <Button onClick={handleSave} disabled={saving} className="h-9 text-sm text-white" style={{ backgroundColor: cfg.color }} data-testid="save-entity-btn">
-              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
+          <DialogFooter className="gap-2 pt-2">
+            <Button variant="outline" onClick={() => setShowModal(false)} className="h-8 text-xs">Cancelar</Button>
+            <Button onClick={handleSave} disabled={saving} className="h-8 text-xs text-white" style={{ backgroundColor: cfg.color }} data-testid="save-entity-btn">
+              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : null}
               {saving ? 'Guardando...' : editingEntity ? 'Actualizar' : 'Crear Entidad'}
             </Button>
           </DialogFooter>
