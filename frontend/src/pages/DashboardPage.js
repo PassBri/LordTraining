@@ -224,6 +224,33 @@ const DashboardPage = () => {
   const [loadingPlanData, setLoadingPlanData] = useState(false);
   const [planData, setPlanData] = useState(null); // Datos completos del plan
 
+  // ====== PREVIOUS ANALYSIS STATE ======
+  const [previousAnalysisData, setPreviousAnalysisData] = useState({
+    fechaInicio: '', fechaFinalizacion: '', duracionSemanas: '', objetivoPrincipal: '',
+    cumplimiento: { general: 'parcial', fisica: 'parcial', tecnica: 'parcial', tactica: 'parcial', psicologica: 'parcial' },
+    porcentajeCumplimiento: '',
+    fortalezas: ['', '', ''],
+    debilidades: ['', '', ''],
+    indicadores: { vo2max: { inicial: '', final: '', delta: '' }, sentadilla: { inicial: '', final: '', delta: '' }, sprint: { inicial: '', final: '', delta: '' }, cmj: { inicial: '', final: '', delta: '' }, flexibilidad: { inicial: '', final: '', delta: '' } },
+    lesiones: 'no', descripcionLesiones: '', diasPerdidos: '',
+    conclusiones: '', recomendaciones: ''
+  });
+
+  // ====== OBJECTIVES STATE ======
+  const [objectivesData, setObjectivesData] = useState({
+    deporteObjetivo: '', categoria: '', edad: '', clasificacion: '', fechaInicio: '', fechaFin: '', entrenador: '',
+    largoPlazo: ['', '', ''], medianoPlazo: ['', '', ''], cortoPlazo: ['', '', ''],
+    porAspecto: {
+      general: { objetivo: '', indicador: '' },
+      fisicaGeneral: { objetivo: '', indicador: '' },
+      fisicaEspecial: { objetivo: '', indicador: '' },
+      tecnica: { objetivo: '', indicador: '' },
+      tactica: { objetivo: '', indicador: '' },
+      teorica: { objetivo: '', indicador: '' },
+      psicologica: { objetivo: '', indicador: '' }
+    }
+  });
+
   // ====== GLOBAL CONTEXT STATE (Barra Superior) ======
   // Initialize from localStorage for persistence
   const [globalContext, setGlobalContext] = useState(() => {
@@ -437,6 +464,14 @@ const DashboardPage = () => {
             setPsychologicalData(lastPsych.results || {});
           }
         }
+        // Cargar análisis del plan anterior
+        if (data.previous_analysis?.data) {
+          setPreviousAnalysisData(prev => ({ ...prev, ...data.previous_analysis.data }));
+        }
+        // Cargar objetivos
+        if (data.objectives?.data) {
+          setObjectivesData(prev => ({ ...prev, ...data.objectives.data }));
+        }
       }
     } catch (error) {
       console.error('Error loading plan data:', error);
@@ -463,6 +498,29 @@ const DashboardPage = () => {
       posicionamiento: '', comunicacion: '', liderazgo: '', observaciones: '' });
     setPsychologicalData({ motivacion: '', concentracion: '', manejoEstres: '', autoconfianza: '',
       controlEmocional: '', resilencia: '', cohesionGrupal: '', observaciones: '' });
+    setPreviousAnalysisData({
+      fechaInicio: '', fechaFinalizacion: '', duracionSemanas: '', objetivoPrincipal: '',
+      cumplimiento: { general: 'parcial', fisica: 'parcial', tecnica: 'parcial', tactica: 'parcial', psicologica: 'parcial' },
+      porcentajeCumplimiento: '',
+      fortalezas: ['', '', ''],
+      debilidades: ['', '', ''],
+      indicadores: { vo2max: { inicial: '', final: '', delta: '' }, sentadilla: { inicial: '', final: '', delta: '' }, sprint: { inicial: '', final: '', delta: '' }, cmj: { inicial: '', final: '', delta: '' }, flexibilidad: { inicial: '', final: '', delta: '' } },
+      lesiones: 'no', descripcionLesiones: '', diasPerdidos: '',
+      conclusiones: '', recomendaciones: ''
+    });
+    setObjectivesData({
+      deporteObjetivo: '', categoria: '', edad: '', clasificacion: '', fechaInicio: '', fechaFin: '', entrenador: '',
+      largoPlazo: ['', '', ''], medianoPlazo: ['', '', ''], cortoPlazo: ['', '', ''],
+      porAspecto: {
+        general: { objetivo: '', indicador: '' },
+        fisicaGeneral: { objetivo: '', indicador: '' },
+        fisicaEspecial: { objetivo: '', indicador: '' },
+        tecnica: { objetivo: '', indicador: '' },
+        tactica: { objetivo: '', indicador: '' },
+        teorica: { objetivo: '', indicador: '' },
+        psicologica: { objetivo: '', indicador: '' }
+      }
+    });
     setPlanData(null);
   };
 
@@ -493,6 +551,57 @@ const DashboardPage = () => {
       toast.success(`${evaluationType.charAt(0).toUpperCase() + evaluationType.slice(1)} guardado`);
     } catch (error) {
       toast.error('Error al guardar');
+    }
+    setSavingEvaluation(false);
+  };
+
+  // Guardar análisis del plan anterior
+  const handleSavePreviousAnalysis = async () => {
+    if (!activePlan) { toast.error('Selecciona un plan primero'); return; }
+    setSavingEvaluation(true);
+    try {
+      const token = localStorage.getItem('train_token');
+      const res = await fetch(`${API_URL}/api/plan-data/previous-analysis`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({
+          plan_id: activePlan.id,
+          previous_plan_summary: previousAnalysisData.objetivoPrincipal,
+          achievements: previousAnalysisData.fortalezas.filter(f => f),
+          areas_to_improve: previousAnalysisData.debilidades.filter(d => d),
+          lessons_learned: [previousAnalysisData.conclusiones].filter(c => c),
+          athlete_feedback: previousAnalysisData.recomendaciones,
+          data: previousAnalysisData
+        })
+      });
+      if (res.ok) toast.success('Análisis del plan anterior guardado');
+      else toast.error('Error al guardar análisis');
+    } catch (error) {
+      toast.error('Error al guardar análisis');
+    }
+    setSavingEvaluation(false);
+  };
+
+  // Guardar objetivos del plan
+  const handleSaveObjectives = async () => {
+    if (!activePlan) { toast.error('Selecciona un plan primero'); return; }
+    setSavingEvaluation(true);
+    try {
+      const token = localStorage.getItem('train_token');
+      const res = await fetch(`${API_URL}/api/plan-data/objectives`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({
+          plan_id: activePlan.id,
+          main_objective: objectivesData.deporteObjetivo,
+          secondary_objectives: [...objectivesData.largoPlazo, ...objectivesData.medianoPlazo, ...objectivesData.cortoPlazo].filter(o => o),
+          data: objectivesData
+        })
+      });
+      if (res.ok) toast.success('Objetivos del plan guardados');
+      else toast.error('Error al guardar objetivos');
+    } catch (error) {
+      toast.error('Error al guardar objetivos');
     }
     setSavingEvaluation(false);
   };
@@ -2987,10 +3096,12 @@ const DashboardPage = () => {
 
     // Render Objetivos e Indicadores - Using ObjectivesIndicators Component
     if (activeDataSection === 'objectives') {
-      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
+      const aspectKeys = ['general', 'fisicaGeneral', 'fisicaEspecial', 'tecnica', 'tactica', 'teorica', 'psicologica'];
+      const aspectLabels = ['General', 'Prep. Física General', 'Prep. Física Especial', 'Prep. Técnica', 'Prep. Táctica', 'Prep. Teórica', 'Prep. Psicológica'];
+      const aspectColors = ['slate-400', 'blue-500', '[#007AFF]', 'emerald-500', 'amber-500', 'cyan-500', 'pink-500'];
+      const aspectHovers = ['slate-50', 'blue-50', 'blue-50', 'emerald-50', 'amber-50', 'cyan-50', 'pink-50'];
       return (
         <div className="p-6 space-y-6 overflow-y-auto h-full bg-[#fafaf8]">
-          {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-2xl mb-4">
               <Target className="w-8 h-8 text-slate-500" />
@@ -3001,9 +3112,7 @@ const DashboardPage = () => {
             </p>
           </div>
 
-          {/* Grid Principal */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
             {/* INFORMACIÓN GENERAL */}
             <Card className="border-0 shadow-xl overflow-hidden">
               <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
@@ -3014,23 +3123,20 @@ const DashboardPage = () => {
               </CardHeader>
               <CardContent className="p-5 space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* 1. Deporte/Objetivo */}
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                       <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">1</span>
                       Deporte / Objetivo de Entrenamiento
                     </label>
-                    <Input placeholder="Ej: Fútbol - Preparación pretemporada" className="border-slate-200" />
+                    <Input data-testid="obj-deporte" placeholder="Ej: Fútbol - Preparación pretemporada" className="border-slate-200" value={objectivesData.deporteObjetivo} onChange={(e) => setObjectivesData({...objectivesData, deporteObjetivo: e.target.value})} />
                   </div>
-                  
-                  {/* 2. Categoría */}
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                       <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">2</span>
                       Categoría
                     </label>
-                    <Select>
-                      <SelectTrigger><SelectValue placeholder="Seleccionar categoría" /></SelectTrigger>
+                    <Select value={objectivesData.categoria} onValueChange={(val) => setObjectivesData({...objectivesData, categoria: val})}>
+                      <SelectTrigger data-testid="obj-categoria"><SelectValue placeholder="Seleccionar categoría" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="infantil">Infantil</SelectItem>
                         <SelectItem value="cadete">Cadete</SelectItem>
@@ -3041,24 +3147,20 @@ const DashboardPage = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
-                  {/* 3. Edad */}
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                       <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">3</span>
                       Edad / Rango de Edades
                     </label>
-                    <Input placeholder="Ej: 18-22 años" className="border-slate-200" />
+                    <Input data-testid="obj-edad" placeholder="Ej: 18-22 años" className="border-slate-200" value={objectivesData.edad} onChange={(e) => setObjectivesData({...objectivesData, edad: e.target.value})} />
                   </div>
-                  
-                  {/* 4. Clasificación */}
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                       <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">4</span>
                       Clasificación / Nivel
                     </label>
-                    <Select>
-                      <SelectTrigger><SelectValue placeholder="Seleccionar nivel" /></SelectTrigger>
+                    <Select value={objectivesData.clasificacion} onValueChange={(val) => setObjectivesData({...objectivesData, clasificacion: val})}>
+                      <SelectTrigger data-testid="obj-clasificacion"><SelectValue placeholder="Seleccionar nivel" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="iniciacion">Iniciación</SelectItem>
                         <SelectItem value="formacion">Formación</SelectItem>
@@ -3068,32 +3170,27 @@ const DashboardPage = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
-                  {/* 5. Fechas */}
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                       <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">5</span>
                       Fecha de Inicio
                     </label>
-                    <Input type="date" className="border-slate-200" />
+                    <Input data-testid="obj-fecha-inicio" type="date" className="border-slate-200" value={objectivesData.fechaInicio} onChange={(e) => setObjectivesData({...objectivesData, fechaInicio: e.target.value})} />
                   </div>
-                  
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                       <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">5</span>
                       Fecha de Finalización
                     </label>
-                    <Input type="date" className="border-slate-200" />
+                    <Input data-testid="obj-fecha-fin" type="date" className="border-slate-200" value={objectivesData.fechaFin} onChange={(e) => setObjectivesData({...objectivesData, fechaFin: e.target.value})} />
                   </div>
                 </div>
-                
-                {/* 6. Entrenador */}
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                     <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">6</span>
                     Entrenador Responsable
                   </label>
-                  <Input placeholder="Nombre del entrenador" defaultValue={user?.name || ''} className="border-slate-200" />
+                  <Input data-testid="obj-entrenador" placeholder="Nombre del entrenador" className="border-slate-200" value={objectivesData.entrenador || user?.name || ''} onChange={(e) => setObjectivesData({...objectivesData, entrenador: e.target.value})} />
                 </div>
               </CardContent>
             </Card>
@@ -3109,17 +3206,13 @@ const DashboardPage = () => {
               </CardHeader>
               <CardContent className="p-5 space-y-4">
                 <p className="text-xs text-slate-500 mb-3">Ejemplo: Mejorar el rendimiento general, alcanzar el pico en la competencia principal del año.</p>
-                {[1, 2, 3].map((num) => (
-                  <div key={num} className="space-y-2">
+                {[0, 1, 2].map((idx) => (
+                  <div key={idx} className="space-y-2">
                     <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <span className="w-6 h-6 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-xs font-bold">{num}</span>
-                      Objetivo {num}
+                      <span className="w-6 h-6 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-xs font-bold">{idx + 1}</span>
+                      Objetivo {idx + 1}
                     </label>
-                    <textarea 
-                      className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      rows={2}
-                      placeholder={`Describir objetivo a largo plazo ${num}...`}
-                    />
+                    <textarea data-testid={`obj-largo-${idx}`} className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" rows={2} placeholder={`Describir objetivo a largo plazo ${idx + 1}...`} value={objectivesData.largoPlazo[idx]} onChange={(e) => { const arr = [...objectivesData.largoPlazo]; arr[idx] = e.target.value; setObjectivesData({...objectivesData, largoPlazo: arr}); }} />
                   </div>
                 ))}
               </CardContent>
@@ -3136,17 +3229,13 @@ const DashboardPage = () => {
               </CardHeader>
               <CardContent className="p-5 space-y-4">
                 <p className="text-xs text-slate-500 mb-3">Ejemplo: Incrementar la resistencia base, mejorar la técnica específica del deporte.</p>
-                {[1, 2, 3].map((num) => (
-                  <div key={num} className="space-y-2">
+                {[0, 1, 2].map((idx) => (
+                  <div key={idx} className="space-y-2">
                     <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <span className="w-6 h-6 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-xs font-bold">{num}</span>
-                      Objetivo {num}
+                      <span className="w-6 h-6 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-xs font-bold">{idx + 1}</span>
+                      Objetivo {idx + 1}
                     </label>
-                    <textarea 
-                      className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                      rows={2}
-                      placeholder={`Describir objetivo a medio plazo ${num}...`}
-                    />
+                    <textarea data-testid={`obj-medio-${idx}`} className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-amber-500 focus:border-transparent" rows={2} placeholder={`Describir objetivo a medio plazo ${idx + 1}...`} value={objectivesData.medianoPlazo[idx]} onChange={(e) => { const arr = [...objectivesData.medianoPlazo]; arr[idx] = e.target.value; setObjectivesData({...objectivesData, medianoPlazo: arr}); }} />
                   </div>
                 ))}
               </CardContent>
@@ -3163,17 +3252,13 @@ const DashboardPage = () => {
               </CardHeader>
               <CardContent className="p-5 space-y-4">
                 <p className="text-xs text-slate-500 mb-3">Ejemplo: Mejorar el tiempo en una distancia específica, aumentar la capacidad de recuperación post-entrenamiento.</p>
-                {[1, 2, 3].map((num) => (
-                  <div key={num} className="space-y-2">
+                {[0, 1, 2].map((idx) => (
+                  <div key={idx} className="space-y-2">
                     <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <span className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">{num}</span>
-                      Objetivo {num}
+                      <span className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">{idx + 1}</span>
+                      Objetivo {idx + 1}
                     </label>
-                    <textarea 
-                      className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      rows={2}
-                      placeholder={`Describir objetivo a corto plazo ${num}...`}
-                    />
+                    <textarea data-testid={`obj-corto-${idx}`} className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" rows={2} placeholder={`Describir objetivo a corto plazo ${idx + 1}...`} value={objectivesData.cortoPlazo[idx]} onChange={(e) => { const arr = [...objectivesData.cortoPlazo]; arr[idx] = e.target.value; setObjectivesData({...objectivesData, cortoPlazo: arr}); }} />
                   </div>
                 ))}
               </CardContent>
@@ -3200,124 +3285,28 @@ const DashboardPage = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {/* General */}
-                    <tr className="hover:bg-slate-50 transition-colors">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 bg-slate-400 rounded-sm"></span>
-                          <span className="font-medium text-slate-700">General</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2">
-                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Objetivo general del plan..." />
-                      </td>
-                      <td className="px-4 py-2">
-                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="¿Cómo se medirá?" />
-                      </td>
-                    </tr>
-                    
-                    {/* Preparación Física General */}
-                    <tr className="hover:bg-blue-50 transition-colors">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 bg-blue-500 rounded-sm"></span>
-                          <span className="font-medium text-slate-700">Prep. Física General</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2">
-                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Objetivos de condición física base..." />
-                      </td>
-                      <td className="px-4 py-2">
-                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Tests, marcas, % mejora..." />
-                      </td>
-                    </tr>
-                    
-                    {/* Preparación Física Especial */}
-                    <tr className="hover:bg-blue-50 transition-colors">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 bg-[#007AFF] rounded-sm"></span>
-                          <span className="font-medium text-slate-700">Prep. Física Especial</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2">
-                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Objetivos de preparación específica..." />
-                      </td>
-                      <td className="px-4 py-2">
-                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Indicadores específicos..." />
-                      </td>
-                    </tr>
-                    
-                    {/* Preparación Técnica */}
-                    <tr className="hover:bg-emerald-50 transition-colors">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 bg-emerald-500 rounded-sm"></span>
-                          <span className="font-medium text-slate-700">Prep. Técnica</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2">
-                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Objetivos técnicos del deporte..." />
-                      </td>
-                      <td className="px-4 py-2">
-                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Evaluaciones técnicas..." />
-                      </td>
-                    </tr>
-                    
-                    {/* Preparación Táctica */}
-                    <tr className="hover:bg-amber-50 transition-colors">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 bg-amber-500 rounded-sm"></span>
-                          <span className="font-medium text-slate-700">Prep. Táctica</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2">
-                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Objetivos tácticos y estratégicos..." />
-                      </td>
-                      <td className="px-4 py-2">
-                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Análisis de rendimiento táctico..." />
-                      </td>
-                    </tr>
-                    
-                    {/* Preparación Teórica */}
-                    <tr className="hover:bg-cyan-50 transition-colors">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 bg-cyan-500 rounded-sm"></span>
-                          <span className="font-medium text-slate-700">Prep. Teórica</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2">
-                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Objetivos de conocimiento teórico..." />
-                      </td>
-                      <td className="px-4 py-2">
-                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Evaluaciones teóricas..." />
-                      </td>
-                    </tr>
-                    
-                    {/* Preparación Psicológica */}
-                    <tr className="hover:bg-pink-50 transition-colors">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 bg-pink-500 rounded-sm"></span>
-                          <span className="font-medium text-slate-700">Prep. Psicológica</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2">
-                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Objetivos psicológicos y mentales..." />
-                      </td>
-                      <td className="px-4 py-2">
-                        <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Escalas psicológicas, cuestionarios..." />
-                      </td>
-                    </tr>
+                    {aspectKeys.map((key, idx) => (
+                      <tr key={key} className={`hover:bg-${aspectHovers[idx]} transition-colors`}>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <span className={`w-3 h-3 bg-${aspectColors[idx]} rounded-sm`}></span>
+                            <span className="font-medium text-slate-700">{aspectLabels[idx]}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-2">
+                          <textarea data-testid={`obj-aspecto-${key}-obj`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={`Objetivo de ${aspectLabels[idx].toLowerCase()}...`} value={objectivesData.porAspecto[key]?.objetivo || ''} onChange={(e) => setObjectivesData({...objectivesData, porAspecto: {...objectivesData.porAspecto, [key]: {...objectivesData.porAspecto[key], objetivo: e.target.value}}})} />
+                        </td>
+                        <td className="px-4 py-2">
+                          <textarea data-testid={`obj-aspecto-${key}-ind`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="¿Cómo se medirá?" value={objectivesData.porAspecto[key]?.indicador || ''} onChange={(e) => setObjectivesData({...objectivesData, porAspecto: {...objectivesData.porAspecto, [key]: {...objectivesData.porAspecto[key], indicador: e.target.value}}})} />
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
             </CardContent>
           </Card>
 
-          {/* Nota Final */}
           <div className="bg-slate-100 rounded-xl p-4 text-center">
             <p className="text-slate-600 text-sm">
               <Sparkles className="w-4 h-4 inline mr-2 text-amber-400" />
@@ -3325,15 +3314,14 @@ const DashboardPage = () => {
             </p>
           </div>
 
-          {/* Botones de Acción */}
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="outline" className="border-slate-300">
+            <Button variant="outline" className="border-slate-300" data-testid="obj-cancel-btn">
               <X className="w-4 h-4 mr-2" />
               Cancelar
             </Button>
-            <Button className="bg-slate-900 hover:bg-slate-800 text-white">
+            <Button className="bg-slate-900 hover:bg-slate-800 text-white" onClick={handleSaveObjectives} disabled={savingEvaluation} data-testid="obj-save-btn">
               <Save className="w-4 h-4 mr-2" />
-              Guardar Objetivos del Plan
+              {savingEvaluation ? 'Guardando...' : 'Guardar Objetivos del Plan'}
             </Button>
           </div>
         </div>
@@ -3342,10 +3330,12 @@ const DashboardPage = () => {
 
     // Render Analysis component for prev-plan section
     if (activeDataSection === 'prev-plan') {
-      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
+      const indicadorKeys = ['vo2max', 'sentadilla', 'sprint', 'cmj', 'flexibilidad'];
+      const indicadorLabels = ['VO2 Máx', '1RM Sentadilla', 'Sprint 30m', 'CMJ (salto)', 'Flexibilidad'];
+      const cumplKeys = ['general', 'fisica', 'tecnica', 'tactica', 'psicologica'];
+      const cumplLabels = ['Objetivo General', 'Preparación Física', 'Preparación Técnica', 'Preparación Táctica', 'Preparación Psicológica'];
       return (
         <div className="p-6 space-y-6 overflow-y-auto h-full bg-[#fafaf8]">
-          {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-2xl mb-4">
               <FileText className="w-8 h-8 text-slate-500" />
@@ -3369,20 +3359,20 @@ const DashboardPage = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700">Fecha de Inicio</label>
-                    <Input type="date" className="border-slate-200" />
+                    <Input data-testid="prev-fecha-inicio" type="date" className="border-slate-200" value={previousAnalysisData.fechaInicio} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, fechaInicio: e.target.value})} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700">Fecha de Finalización</label>
-                    <Input type="date" className="border-slate-200" />
+                    <Input data-testid="prev-fecha-fin" type="date" className="border-slate-200" value={previousAnalysisData.fechaFinalizacion} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, fechaFinalizacion: e.target.value})} />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">Duración Total (semanas)</label>
-                  <Input type="number" placeholder="Ej: 12" className="border-slate-200" />
+                  <Input data-testid="prev-duracion" type="number" placeholder="Ej: 12" className="border-slate-200" value={previousAnalysisData.duracionSemanas} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, duracionSemanas: e.target.value})} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">Objetivo Principal del Plan</label>
-                  <textarea className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="¿Cuál era el objetivo principal?" />
+                  <textarea data-testid="prev-objetivo" className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="¿Cuál era el objetivo principal?" value={previousAnalysisData.objetivoPrincipal} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, objetivoPrincipal: e.target.value})} />
                 </div>
               </CardContent>
             </Card>
@@ -3397,15 +3387,15 @@ const DashboardPage = () => {
               </CardHeader>
               <CardContent className="p-5 space-y-4">
                 <div className="space-y-3">
-                  {['Objetivo General', 'Preparación Física', 'Preparación Técnica', 'Preparación Táctica', 'Preparación Psicológica'].map((obj, idx) => (
+                  {cumplLabels.map((obj, idx) => (
                     <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                       <span className="text-sm font-medium text-slate-700">{obj}</span>
-                      <Select defaultValue="parcial">
-                        <SelectTrigger className="w-40 h-8 text-sm"><SelectValue /></SelectTrigger>
+                      <Select value={previousAnalysisData.cumplimiento[cumplKeys[idx]]} onValueChange={(val) => setPreviousAnalysisData({...previousAnalysisData, cumplimiento: {...previousAnalysisData.cumplimiento, [cumplKeys[idx]]: val}})}>
+                        <SelectTrigger className="w-40 h-8 text-sm" data-testid={`prev-cumpl-${cumplKeys[idx]}`}><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="total">✅ Cumplido Total</SelectItem>
-                          <SelectItem value="parcial">🟡 Cumplido Parcial</SelectItem>
-                          <SelectItem value="no">❌ No Cumplido</SelectItem>
+                          <SelectItem value="total">Cumplido Total</SelectItem>
+                          <SelectItem value="parcial">Cumplido Parcial</SelectItem>
+                          <SelectItem value="no">No Cumplido</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -3413,7 +3403,7 @@ const DashboardPage = () => {
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">% Global de Cumplimiento</label>
-                  <Input type="number" placeholder="75" max="100" className="border-slate-200" />
+                  <Input data-testid="prev-porcentaje" type="number" placeholder="75" max="100" className="border-slate-200" value={previousAnalysisData.porcentajeCumplimiento} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, porcentajeCumplimiento: e.target.value})} />
                 </div>
               </CardContent>
             </Card>
@@ -3428,10 +3418,10 @@ const DashboardPage = () => {
               </CardHeader>
               <CardContent className="p-5 space-y-4">
                 <p className="text-xs text-slate-500">¿Qué funcionó bien? ¿Qué aspectos se deben mantener?</p>
-                {[1, 2, 3].map((num) => (
-                  <div key={num} className="flex items-start gap-2">
-                    <span className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-1">{num}</span>
-                    <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={`Fortaleza ${num}...`} />
+                {[0, 1, 2].map((idx) => (
+                  <div key={idx} className="flex items-start gap-2">
+                    <span className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-1">{idx + 1}</span>
+                    <textarea data-testid={`prev-fortaleza-${idx}`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={`Fortaleza ${idx + 1}...`} value={previousAnalysisData.fortalezas[idx]} onChange={(e) => { const arr = [...previousAnalysisData.fortalezas]; arr[idx] = e.target.value; setPreviousAnalysisData({...previousAnalysisData, fortalezas: arr}); }} />
                   </div>
                 ))}
               </CardContent>
@@ -3447,10 +3437,10 @@ const DashboardPage = () => {
               </CardHeader>
               <CardContent className="p-5 space-y-4">
                 <p className="text-xs text-slate-500">¿Qué no funcionó? ¿Qué se debe cambiar o mejorar?</p>
-                {[1, 2, 3].map((num) => (
-                  <div key={num} className="flex items-start gap-2">
-                    <span className="w-6 h-6 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-1">{num}</span>
-                    <textarea className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={`Debilidad/Mejora ${num}...`} />
+                {[0, 1, 2].map((idx) => (
+                  <div key={idx} className="flex items-start gap-2">
+                    <span className="w-6 h-6 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-1">{idx + 1}</span>
+                    <textarea data-testid={`prev-debilidad-${idx}`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={`Debilidad/Mejora ${idx + 1}...`} value={previousAnalysisData.debilidades[idx]} onChange={(e) => { const arr = [...previousAnalysisData.debilidades]; arr[idx] = e.target.value; setPreviousAnalysisData({...previousAnalysisData, debilidades: arr}); }} />
                   </div>
                 ))}
               </CardContent>
@@ -3472,16 +3462,16 @@ const DashboardPage = () => {
                         <th className="text-left py-2 px-2 text-slate-600">Indicador</th>
                         <th className="text-center py-2 px-2 text-slate-600">Inicial</th>
                         <th className="text-center py-2 px-2 text-slate-600">Final</th>
-                        <th className="text-center py-2 px-2 text-slate-600">Δ%</th>
+                        <th className="text-center py-2 px-2 text-slate-600">Delta%</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {['VO2 Máx', '1RM Sentadilla', 'Sprint 30m', 'CMJ (salto)', 'Flexibilidad'].map((ind, idx) => (
-                        <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
-                          <td className="py-2 px-2 font-medium text-slate-700">{ind}</td>
-                          <td className="py-2 px-2"><Input className="h-8 w-20 text-center" placeholder="--" /></td>
-                          <td className="py-2 px-2"><Input className="h-8 w-20 text-center" placeholder="--" /></td>
-                          <td className="py-2 px-2"><Input className="h-8 w-20 text-center" placeholder="--%" /></td>
+                      {indicadorKeys.map((key, idx) => (
+                        <tr key={key} className="border-b border-slate-100 hover:bg-slate-50">
+                          <td className="py-2 px-2 font-medium text-slate-700">{indicadorLabels[idx]}</td>
+                          <td className="py-2 px-2"><Input data-testid={`prev-ind-${key}-ini`} className="h-8 w-20 text-center" placeholder="--" value={previousAnalysisData.indicadores[key]?.inicial || ''} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, indicadores: {...previousAnalysisData.indicadores, [key]: {...previousAnalysisData.indicadores[key], inicial: e.target.value}}})} /></td>
+                          <td className="py-2 px-2"><Input data-testid={`prev-ind-${key}-fin`} className="h-8 w-20 text-center" placeholder="--" value={previousAnalysisData.indicadores[key]?.final || ''} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, indicadores: {...previousAnalysisData.indicadores, [key]: {...previousAnalysisData.indicadores[key], final: e.target.value}}})} /></td>
+                          <td className="py-2 px-2"><Input data-testid={`prev-ind-${key}-delta`} className="h-8 w-20 text-center" placeholder="--%" value={previousAnalysisData.indicadores[key]?.delta || ''} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, indicadores: {...previousAnalysisData.indicadores, [key]: {...previousAnalysisData.indicadores[key], delta: e.target.value}}})} /></td>
                         </tr>
                       ))}
                     </tbody>
@@ -3501,8 +3491,8 @@ const DashboardPage = () => {
               <CardContent className="p-5 space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">¿Hubo lesiones durante el plan?</label>
-                  <Select defaultValue="no">
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                  <Select value={previousAnalysisData.lesiones} onValueChange={(val) => setPreviousAnalysisData({...previousAnalysisData, lesiones: val})}>
+                    <SelectTrigger data-testid="prev-lesiones-select"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="no">No hubo lesiones</SelectItem>
                       <SelectItem value="leve">Lesiones leves</SelectItem>
@@ -3513,11 +3503,11 @@ const DashboardPage = () => {
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">Descripción de lesiones/problemas</label>
-                  <textarea className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none" rows={3} placeholder="Describir las lesiones ocurridas, su causa probable y tiempo de recuperación..." />
+                  <textarea data-testid="prev-desc-lesiones" className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none" rows={3} placeholder="Describir las lesiones ocurridas, su causa probable y tiempo de recuperación..." value={previousAnalysisData.descripcionLesiones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, descripcionLesiones: e.target.value})} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">Días perdidos por lesión</label>
-                  <Input type="number" placeholder="0" className="border-slate-200" />
+                  <Input data-testid="prev-dias-perdidos" type="number" placeholder="0" className="border-slate-200" value={previousAnalysisData.diasPerdidos} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, diasPerdidos: e.target.value})} />
                 </div>
               </CardContent>
             </Card>
@@ -3534,16 +3524,15 @@ const DashboardPage = () => {
             <CardContent className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700">Conclusiones Principales</label>
-                <textarea className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none" rows={4} placeholder="Resumen de los principales aprendizajes del plan anterior..." />
+                <textarea data-testid="prev-conclusiones" className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none" rows={4} placeholder="Resumen de los principales aprendizajes del plan anterior..." value={previousAnalysisData.conclusiones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, conclusiones: e.target.value})} />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700">Recomendaciones para el Próximo Plan</label>
-                <textarea className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none" rows={4} placeholder="Qué mantener, qué cambiar, qué nuevos enfoques aplicar..." />
+                <textarea data-testid="prev-recomendaciones" className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none" rows={4} placeholder="Qué mantener, qué cambiar, qué nuevos enfoques aplicar..." value={previousAnalysisData.recomendaciones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, recomendaciones: e.target.value})} />
               </div>
             </CardContent>
           </Card>
 
-          {/* Nota Final */}
           <div className="bg-slate-100 rounded-xl p-4 text-center">
             <p className="text-slate-600 text-sm">
               <Sparkles className="w-4 h-4 inline mr-2 text-amber-400" />
@@ -3551,15 +3540,14 @@ const DashboardPage = () => {
             </p>
           </div>
 
-          {/* Botones de Acción */}
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="outline" className="border-slate-300">
+            <Button variant="outline" className="border-slate-300" data-testid="prev-cancel-btn">
               <X className="w-4 h-4 mr-2" />
               Cancelar
             </Button>
-            <Button className="bg-slate-900 hover:bg-slate-800 text-white">
+            <Button className="bg-slate-900 hover:bg-slate-800 text-white" onClick={handleSavePreviousAnalysis} disabled={savingEvaluation} data-testid="prev-save-btn">
               <Save className="w-4 h-4 mr-2" />
-              Guardar Análisis
+              {savingEvaluation ? 'Guardando...' : 'Guardar Análisis'}
             </Button>
           </div>
         </div>

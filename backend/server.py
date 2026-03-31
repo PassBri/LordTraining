@@ -376,20 +376,22 @@ class CompetitionResponse(BaseModel):
 class PlanObjectiveCreate(BaseModel):
     """Objetivos del plan de entrenamiento"""
     plan_id: str
-    main_objective: str
+    main_objective: str = ""
     secondary_objectives: List[str] = []
     performance_indicators: List[dict] = []
     timeline: Optional[str] = None
+    data: dict = {}
 
 class PlanObjectiveResponse(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str
     plan_id: str
     user_id: str
-    main_objective: str
+    main_objective: str = ""
     secondary_objectives: List[str] = []
     performance_indicators: List[dict] = []
     timeline: Optional[str] = None
+    data: dict = {}
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 
@@ -445,6 +447,7 @@ class PlanPreviousAnalysisCreate(BaseModel):
     areas_to_improve: List[str] = []
     lessons_learned: List[str] = []
     athlete_feedback: Optional[str] = None
+    data: dict = {}
 
 class PlanPreviousAnalysisResponse(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -456,6 +459,7 @@ class PlanPreviousAnalysisResponse(BaseModel):
     areas_to_improve: List[str] = []
     lessons_learned: List[str] = []
     athlete_feedback: Optional[str] = None
+    data: dict = {}
     created_at: Optional[str] = None
 
 class TrainingPlanGenerateRequest(BaseModel):
@@ -6853,6 +6857,7 @@ async def create_plan_objective(data: PlanObjectiveCreate, user: dict = Depends(
         "secondary_objectives": data.secondary_objectives,
         "performance_indicators": data.performance_indicators,
         "timeline": data.timeline,
+        "data": data.data,
         "updated_at": datetime.now(timezone.utc).isoformat()
     }
     
@@ -6984,7 +6989,8 @@ async def create_plan_previous_analysis(data: PlanPreviousAnalysisCreate, user: 
         "achievements": data.achievements,
         "areas_to_improve": data.areas_to_improve,
         "lessons_learned": data.lessons_learned,
-        "athlete_feedback": data.athlete_feedback
+        "athlete_feedback": data.athlete_feedback,
+        "data": data.data
     }
     
     if existing:
