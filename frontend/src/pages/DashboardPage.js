@@ -3096,10 +3096,15 @@ const DashboardPage = () => {
 
     // Render Objetivos e Indicadores - Using ObjectivesIndicators Component
     if (activeDataSection === 'objectives') {
-      const aspectKeys = ['general', 'fisicaGeneral', 'fisicaEspecial', 'tecnica', 'tactica', 'teorica', 'psicologica'];
-      const aspectLabels = ['General', 'Prep. Física General', 'Prep. Física Especial', 'Prep. Técnica', 'Prep. Táctica', 'Prep. Teórica', 'Prep. Psicológica'];
-      const aspectColors = ['slate-400', 'blue-500', '[#007AFF]', 'emerald-500', 'amber-500', 'cyan-500', 'pink-500'];
-      const aspectHovers = ['slate-50', 'blue-50', 'blue-50', 'emerald-50', 'amber-50', 'cyan-50', 'pink-50'];
+      const aspectRows = [
+        { key: 'general', label: 'General', color: '#94a3b8', hover: '#f8fafc' },
+        { key: 'fisicaGeneral', label: 'Prep. Física General', color: '#3b82f6', hover: '#eff6ff' },
+        { key: 'fisicaEspecial', label: 'Prep. Física Especial', color: '#007AFF', hover: '#eff6ff' },
+        { key: 'tecnica', label: 'Prep. Técnica', color: '#10b981', hover: '#ecfdf5' },
+        { key: 'tactica', label: 'Prep. Táctica', color: '#f59e0b', hover: '#fffbeb' },
+        { key: 'teorica', label: 'Prep. Teórica', color: '#06b6d4', hover: '#ecfeff' },
+        { key: 'psicologica', label: 'Prep. Psicológica', color: '#ec4899', hover: '#fdf2f8' }
+      ];
       return (
         <div className="p-6 space-y-6 overflow-y-auto h-full bg-[#fafaf8]">
           <div className="text-center mb-8">
@@ -3190,7 +3195,7 @@ const DashboardPage = () => {
                     <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">6</span>
                     Entrenador Responsable
                   </label>
-                  <Input data-testid="obj-entrenador" placeholder="Nombre del entrenador" className="border-slate-200" value={objectivesData.entrenador || user?.name || ''} onChange={(e) => setObjectivesData({...objectivesData, entrenador: e.target.value})} />
+                  <Input data-testid="obj-entrenador" placeholder="Nombre del entrenador" className="border-slate-200" value={objectivesData.entrenador} onChange={(e) => setObjectivesData({...objectivesData, entrenador: e.target.value})} />
                 </div>
               </CardContent>
             </Card>
@@ -3285,19 +3290,19 @@ const DashboardPage = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {aspectKeys.map((key, idx) => (
-                      <tr key={key} className={`hover:bg-${aspectHovers[idx]} transition-colors`}>
+                    {aspectRows.map((row) => (
+                      <tr key={row.key} className="transition-colors" style={{ '--hover-bg': row.hover }}>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <span className={`w-3 h-3 bg-${aspectColors[idx]} rounded-sm`}></span>
-                            <span className="font-medium text-slate-700">{aspectLabels[idx]}</span>
+                            <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: row.color }}></span>
+                            <span className="font-medium text-slate-700">{row.label}</span>
                           </div>
                         </td>
                         <td className="px-4 py-2">
-                          <textarea data-testid={`obj-aspecto-${key}-obj`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={`Objetivo de ${aspectLabels[idx].toLowerCase()}...`} value={objectivesData.porAspecto[key]?.objetivo || ''} onChange={(e) => setObjectivesData({...objectivesData, porAspecto: {...objectivesData.porAspecto, [key]: {...objectivesData.porAspecto[key], objetivo: e.target.value}}})} />
+                          <textarea data-testid={`obj-aspecto-${row.key}-obj`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={`Objetivo de ${row.label.toLowerCase()}...`} value={objectivesData.porAspecto[row.key]?.objetivo || ''} onChange={(e) => setObjectivesData({...objectivesData, porAspecto: {...objectivesData.porAspecto, [row.key]: {...objectivesData.porAspecto[row.key], objetivo: e.target.value}}})} />
                         </td>
                         <td className="px-4 py-2">
-                          <textarea data-testid={`obj-aspecto-${key}-ind`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="¿Cómo se medirá?" value={objectivesData.porAspecto[key]?.indicador || ''} onChange={(e) => setObjectivesData({...objectivesData, porAspecto: {...objectivesData.porAspecto, [key]: {...objectivesData.porAspecto[key], indicador: e.target.value}}})} />
+                          <textarea data-testid={`obj-aspecto-${row.key}-ind`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="¿Cómo se medirá?" value={objectivesData.porAspecto[row.key]?.indicador || ''} onChange={(e) => setObjectivesData({...objectivesData, porAspecto: {...objectivesData.porAspecto, [row.key]: {...objectivesData.porAspecto[row.key], indicador: e.target.value}}})} />
                         </td>
                       </tr>
                     ))}

@@ -1,4 +1,4 @@
-# TrAIn - Plataforma de Gestión Deportiva para Entrenadores
+# iTRAIN - Plataforma de Gestión Deportiva para Entrenadores
 
 ## Problema Original
 Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura centrada en "Plan de Entrenamiento". Motor científico, persistencia MongoDB, UI premium, i18n (12 idiomas + RTL), visualización avanzada de periodización.
@@ -13,60 +13,53 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
 
 ## Lo Implementado
 
-### Sesión Actual (30 Mar 2026)
-- ✅ Sidebar de planes (barra lateral izquierda con lista, búsqueda, acciones, colapsar)
-- ✅ Flujo "Nuevo Plan" directo al wizard (Deporte→Modelo→Duración→Estructura→Resumen)
-- ✅ Auto-activación de plan creado (`await fetchTrainingPlans()` + `handleSetActivePlan`)
-- ✅ Periodización conectada al plan activo (auto-selección con useEffect)
-- ✅ Eliminada redundancia: sub-tabs directas (Resumen, Estructura, Evaluaciones, Carga, Control)
-- ✅ TrainingSystemHub con `hideTabBar` prop para overview sin tabs duplicados
-- ✅ "Volver a planes" oculto cuando hay plan activo
-- ✅ **Top Nav Bar rediseñada con FABs redondos flotantes** (Panel, Datos, PDF, Filtros, Pruebas, Plan, Salir, Idioma) - consistente con secciones y sub-secciones
-- ✅ Mobile tabs también actualizados con estilo FAB circular
-- ✅ AutoTestingSystem y LanguageSelector actualizados con prop `fabStyle` para renderizar como FABs
-- ✅ **Secciones y sub-secciones integradas en el top bar** - aparecen en el centro cuando hay plan activo, con divisor vertical entre secciones y sub-secciones. Maximiza el espacio vertical de contenido
-- ✅ **Top bar horizontal scroll** - toda la barra es deslizable en pantallas pequeñas, sin superposición de botones. Scrollbar oculto para diseño limpio
-- ✅ **Botones uniformes w-10 h-10** - todos del mismo tamaño, diferenciados: nav=blanco+sombra, secciones=fondo tintado color, sub-secciones=borde anillo color, acciones=blanco
+### Sesión Actual (31 Mar 2026)
+- **P0 COMPLETADO: Carga de Datos en Formularios**
+  - Análisis del Plan Anterior: todos los inputs vinculados a estado `previousAnalysisData`, con save/load
+  - Objetivos del Plan: todos los inputs vinculados a estado `objectivesData`, con save/load
+  - Evaluaciones (médica, física, técnica, táctica, psicológica): ya poblaban desde `loadPlanData`
+  - Backend actualizado: modelos `PlanPreviousAnalysisCreate` y `PlanObjectiveCreate` con campo `data: dict`
+  - Endpoint `GET /api/plan-data/{plan_id}` retorna datos completos
+  - Testing: Backend 100% (10/10), Frontend 100% - verificado con testing agent
 
 ### Sesiones Anteriores
-- ✅ Sistema i18n completo (12 idiomas, RTL árabe)
-- ✅ Gestión avanzada de planes: Duplicar, Compartir, Imprimir PDF
-- ✅ Cascade delete y deep duplication
-- ✅ Rediseño premium de Periodización
-- ✅ Dashboard ACWR de métricas de carga
-- ✅ Arquitectura plan-céntrica completa
-- ✅ Secciones de Evaluación conectadas a backend
+- Rebranding a iTRAIN con logo profesional
+- Top Nav Bar con FABs horizontales scrollables
+- Fix crash "Caracterización del Deporte"
+- Iconos específicos por deporte
+- Rediseño ExerciseLibrary y TrainingMethods (Material Design)
+- Sistema i18n completo (12 idiomas, RTL árabe)
+- Gestión avanzada de planes: Duplicar, Compartir, Imprimir PDF
+- Dashboard ACWR de métricas de carga
+- Arquitectura plan-céntrica completa
+- Secciones de Evaluación conectadas a backend
 
 ## Backlog Priorizado
 
 ### P1
-- ✅ ~~Arreglar "Caracterización del Deporte"~~ — RESUELTO (imports faltantes de Label y Textarea)
-- 🟡 Inicialización completa al crear Plan nuevo
-- 🟡 Verificar loadPlanData en todos los formularios
-- 🟡 Refactorizar DashboardPage.js (6000+ líneas)
+- Refactorizar `DashboardPage.js` (6100+ líneas) — extraer componentes
+- Inicialización completa al crear Plan nuevo (generar documentos vacíos)
+- Verificar loadPlanData en secciones restantes (Competencias ya tiene UI propia)
 
 ### P2
 - Persistencia Torneos en MongoDB
 - Sincronizar competencias con Plan Gráfico
-- Refactorizar PeriodizationComplete.js (2400+ líneas)
-- Eliminar componentes obsoletos
+- Eliminar componentes obsoletos (PeriodizationSystem.js, AICoachAssistant.js)
+- Refactorizar PeriodizationComplete.js (~2500 líneas)
 
-## Bugs Conocidos
-- Sin bugs conocidos activos
+### P3
+- Imprimir/Compartir/Duplicar planes (parcialmente implementado)
 
-## Archivos Clave
-- `DashboardPage.js` (~6080 líneas) - navItems con period-overview/structure/tests/load/control
-- `PlanSidebar.js` - sidebar de planes
-- `PeriodizationComplete.js` - wizard + detalle (auto-select activePlan)
-- `TrainingSystemHub.js` - overview con hideTabBar prop
-- `LoadMetricsDashboard.js` - ACWR dashboard
-- `TrainingControl.js` - control de rendimiento
-- `TestEvaluations.js` - evaluaciones
+## Endpoints Clave
+- `GET /api/plan-data/{plan_id}` — datos completos del plan
+- `POST /api/plan-data/previous-analysis` — guardar análisis previo (con data dict)
+- `POST /api/plan-data/objectives` — guardar objetivos (con data dict)
+- `POST /api/plan-data/evaluations` — guardar evaluaciones por tipo
+- `GET/POST /api/training-plans/` — CRUD de planes
 
-## API Endpoints
-- POST/GET /api/training-plans/
-- POST /api/training-plans/{plan_id}/duplicate
-- GET /api/training-plans/{plan_id}/share | /pdf
-- GET /api/plan-data/{plan_id}
-- POST /api/plans/{plan_id}/evaluations
-- POST /api/sports/{sport_id}/characterization
+## Esquema DB
+- `plans`: {name, sport, objectives, ...}
+- `plan_objectives`: {plan_id, user_id, main_objective, data: dict}
+- `plan_previous_analysis`: {plan_id, user_id, data: dict, achievements, ...}
+- `plan_evaluations`: {plan_id, user_id, evaluation_type, results: dict}
+- `plan_competitions`: {plan_id, user_id, name, date, importance}
