@@ -233,7 +233,7 @@ const EntityManager = () => {
 
       {/* Create/Edit Modal - Compact */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg bg-white" style={{ backgroundColor: '#ffffff' }}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-base text-slate-800">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: cfg.bg }}>
@@ -252,8 +252,8 @@ const EntityManager = () => {
                   const firstOfGroup = Object.entries(ENTITY_TYPES).find(([, c]) => c.group === v);
                   if (firstOfGroup) setFormData({ ...formData, entity_type: firstOfGroup[0] });
                 }}>
-                  <SelectTrigger className="h-9 text-sm border-slate-200" data-testid="form-classification"><SelectValue /></SelectTrigger>
-                  <SelectContent>
+                  <SelectTrigger className="h-9 text-sm border-slate-200 bg-white text-slate-800" data-testid="form-classification"><SelectValue /></SelectTrigger>
+                  <SelectContent className="bg-white">
                     <SelectItem value="publica">Pública</SelectItem>
                     <SelectItem value="privada">Privada</SelectItem>
                   </SelectContent>
@@ -262,8 +262,8 @@ const EntityManager = () => {
               <div>
                 <Label className="text-xs text-slate-500 mb-1 block">Tipo de Entidad</Label>
                 <Select value={formData.entity_type} onValueChange={(v) => setFormData({ ...formData, entity_type: v })}>
-                  <SelectTrigger className="h-9 text-sm border-slate-200" data-testid="form-type"><SelectValue /></SelectTrigger>
-                  <SelectContent>
+                  <SelectTrigger className="h-9 text-sm border-slate-200 bg-white text-slate-800" data-testid="form-type"><SelectValue /></SelectTrigger>
+                  <SelectContent className="bg-white">
                     {Object.entries(ENTITY_TYPES).filter(([, c]) => c.group === cfg.group).map(([type, c]) => (
                       <SelectItem key={type} value={type}>{c.label}</SelectItem>
                     ))}
@@ -276,11 +276,11 @@ const EntityManager = () => {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-xs text-slate-500 mb-1 block">Nombre *</Label>
-                <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="Nombre de la entidad" className="h-9 text-sm border-slate-200" data-testid="form-name" />
+                <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="Nombre de la entidad" className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" data-testid="form-name" />
               </div>
               <div>
                 <Label className="text-xs text-slate-500 mb-1 block">Deporte</Label>
-                <Input value={formData.sport} onChange={(e) => setFormData({ ...formData, sport: e.target.value })} placeholder="Ej: Atletismo" className="h-9 text-sm border-slate-200" />
+                <Input value={formData.sport} onChange={(e) => setFormData({ ...formData, sport: e.target.value })} placeholder="Ej: Atletismo" className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
               </div>
             </div>
 
@@ -288,15 +288,15 @@ const EntityManager = () => {
             <div className="grid grid-cols-3 gap-3">
               <div>
                 <Label className="text-xs text-slate-500 mb-1 block">País</Label>
-                <Input value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} placeholder="País" className="h-9 text-sm border-slate-200" data-testid="form-country" />
+                <Input value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} placeholder="País" className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" data-testid="form-country" />
               </div>
               <div>
                 <Label className="text-xs text-slate-500 mb-1 block">Ciudad</Label>
-                <Input value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} placeholder="Ciudad" className="h-9 text-sm border-slate-200" />
+                <Input value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} placeholder="Ciudad" className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
               </div>
               <div>
                 <Label className="text-xs text-slate-500 mb-1 block">Dirección</Label>
-                <Input value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} placeholder="Dirección" className="h-9 text-sm border-slate-200" />
+                <Input value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} placeholder="Dirección" className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
               </div>
             </div>
 
@@ -304,15 +304,15 @@ const EntityManager = () => {
             <div className="grid grid-cols-3 gap-3">
               <div>
                 <Label className="text-xs text-slate-500 mb-1 block">Teléfono</Label>
-                <Input value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="+57 300 123 4567" className="h-9 text-sm border-slate-200" />
+                <Input value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="+57 300 123 4567" className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
               </div>
               <div>
                 <Label className="text-xs text-slate-500 mb-1 block">Email</Label>
-                <Input value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="email@entidad.com" className="h-9 text-sm border-slate-200" />
+                <Input value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="email@entidad.com" className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
               </div>
               <div>
                 <Label className="text-xs text-slate-500 mb-1 block">Sitio Web</Label>
-                <Input value={formData.website} onChange={(e) => setFormData({ ...formData, website: e.target.value })} placeholder="https://..." className="h-9 text-sm border-slate-200" />
+                <Input value={formData.website} onChange={(e) => setFormData({ ...formData, website: e.target.value })} placeholder="https://..." className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
               </div>
             </div>
 
@@ -320,22 +320,22 @@ const EntityManager = () => {
             <div className="grid grid-cols-3 gap-3">
               <div>
                 <Label className="text-xs text-slate-500 mb-1 block">Representante</Label>
-                <Input value={formData.legal_representative} onChange={(e) => setFormData({ ...formData, legal_representative: e.target.value })} placeholder="Nombre" className="h-9 text-sm border-slate-200" />
+                <Input value={formData.legal_representative} onChange={(e) => setFormData({ ...formData, legal_representative: e.target.value })} placeholder="Nombre" className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
               </div>
               <div>
                 <Label className="text-xs text-slate-500 mb-1 block">RUC/NIT</Label>
-                <Input value={formData.tax_id} onChange={(e) => setFormData({ ...formData, tax_id: e.target.value })} placeholder="ID fiscal" className="h-9 text-sm border-slate-200" />
+                <Input value={formData.tax_id} onChange={(e) => setFormData({ ...formData, tax_id: e.target.value })} placeholder="ID fiscal" className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
               </div>
               <div>
                 <Label className="text-xs text-slate-500 mb-1 block">Fundación</Label>
-                <Input type="date" value={formData.foundation_date} onChange={(e) => setFormData({ ...formData, foundation_date: e.target.value })} className="h-9 text-sm border-slate-200" />
+                <Input type="date" value={formData.foundation_date} onChange={(e) => setFormData({ ...formData, foundation_date: e.target.value })} className="h-9 text-sm border-slate-200 bg-white text-slate-800" />
               </div>
             </div>
 
             {/* Row 6: Description */}
             <div>
               <Label className="text-xs text-slate-500 mb-1 block">Descripción</Label>
-              <Input value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Breve descripción (opcional)" className="h-9 text-sm border-slate-200" />
+              <Input value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Breve descripción (opcional)" className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
             </div>
 
             {/* Parent Entity */}
@@ -343,8 +343,8 @@ const EntityManager = () => {
               <div>
                 <Label className="text-xs text-slate-500 mb-1 block">Entidad Padre (opcional)</Label>
                 <Select value={formData.parent_entity_id || 'none'} onValueChange={(v) => setFormData({ ...formData, parent_entity_id: v === 'none' ? '' : v })}>
-                  <SelectTrigger className="h-9 text-sm border-slate-200"><SelectValue placeholder="Sin entidad padre" /></SelectTrigger>
-                  <SelectContent>
+                  <SelectTrigger className="h-9 text-sm border-slate-200 bg-white text-slate-800"><SelectValue placeholder="Sin entidad padre" /></SelectTrigger>
+                  <SelectContent className="bg-white">
                     <SelectItem value="none">Sin entidad padre</SelectItem>
                     {entities.filter(e => e.id !== editingEntity?.id).map(e => {
                       const ec = ENTITY_TYPES[e.entity_type] || ENTITY_TYPES.club;
@@ -357,7 +357,7 @@ const EntityManager = () => {
           </div>
 
           <DialogFooter className="gap-2 pt-2">
-            <Button variant="outline" onClick={() => setShowModal(false)} className="h-8 text-xs">Cancelar</Button>
+            <Button variant="outline" onClick={() => setShowModal(false)} className="h-8 text-xs border-slate-300 text-slate-700 bg-white hover:bg-slate-50">Cancelar</Button>
             <Button onClick={handleSave} disabled={saving} className="h-8 text-xs text-white" style={{ backgroundColor: cfg.color }} data-testid="save-entity-btn">
               {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : null}
               {saving ? 'Guardando...' : editingEntity ? 'Actualizar' : 'Crear Entidad'}
@@ -368,9 +368,9 @@ const EntityManager = () => {
 
       {/* Delete Modal */}
       <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
-        <DialogContent>
+        <DialogContent className="bg-white" style={{ backgroundColor: '#ffffff' }}>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2" style={{ color: '#C62828' }}>
+            <DialogTitle className="flex items-center gap-2 text-rose-600">
               <Trash2 className="w-5 h-5" /> Eliminar Entidad
             </DialogTitle>
           </DialogHeader>
@@ -379,8 +379,8 @@ const EntityManager = () => {
             <p className="text-xs text-slate-500 mt-2">Los atletas afiliados perderán esta afiliación pero no serán eliminados.</p>
           </div>
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setShowDeleteModal(false)} className="h-9 text-sm">Cancelar</Button>
-            <Button onClick={handleDelete} disabled={saving} className="h-9 text-sm text-white" style={{ backgroundColor: '#C62828' }}>
+            <Button variant="outline" onClick={() => setShowDeleteModal(false)} className="h-9 text-sm border-slate-300 text-slate-700 bg-white">Cancelar</Button>
+            <Button onClick={handleDelete} disabled={saving} className="h-9 text-sm text-white bg-rose-600 hover:bg-rose-700">
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
               {saving ? 'Eliminando...' : 'Eliminar'}
             </Button>
