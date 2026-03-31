@@ -1262,11 +1262,11 @@ const DashboardPage = () => {
     { id: 'objectives', label: t('dashboard.controlPanel.activePlan'), icon: Target, section: 'punto-partida' },
     
     // === 2. INFORMACIÓN BASE ===
-    { id: 'athletes', label: t('dashboard.controlPanel.athletes'), icon: User, section: 'informacion' },
+    { id: 'entities', label: 'Entidades', icon: Building2, section: 'informacion' },
     { id: 'teams', label: 'Equipos', icon: UsersRound, section: 'informacion' },
+    { id: 'athletes', label: t('dashboard.controlPanel.athletes'), icon: User, section: 'informacion' },
     { id: 'sports', label: 'Deportes', icon: Medal, section: 'informacion' },
     { id: 'tournaments', label: 'Torneos', icon: Shield, section: 'informacion' },
-    { id: 'entities', label: 'Entidades', icon: Building2, section: 'informacion' },
     
     // === 3. EVALUACIÓN / CONTROLES ===
     { id: 'control-medical', label: 'Control Médico', icon: Stethoscope, section: 'evaluacion' },
@@ -2107,9 +2107,9 @@ const DashboardPage = () => {
           {activeAthleteTab === 'athletes' && (
           <div className="space-y-0">
             {/* Athletes FAB Bar + Add Button */}
-            <div className="flex items-start gap-4 px-4 py-3 bg-white border-b border-slate-100">
+            <div className="flex items-start gap-4 px-5 py-3 bg-white border-b border-slate-100">
               {/* Athlete round FABs */}
-              <div className="flex items-start gap-4 overflow-x-auto scrollbar-hide flex-1 py-1 min-w-0">
+              <div className="flex items-start gap-4 overflow-x-auto scrollbar-hide flex-1 py-2 px-1 min-w-0">
                 {filteredAthletes.map(athlete => (
                   <button
                     key={athlete.id}
@@ -2118,14 +2118,14 @@ const DashboardPage = () => {
                     data-testid={`athlete-fab-${athlete.id}`}
                     title={`${athlete.name} · ${athlete.sport}`}
                   >
-                    <div className={`w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-200 shadow-sm ${
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-200 ${
                       selectedAthleteId === athlete.id
-                        ? 'bg-[#1565C0] text-white ring-2 ring-[#1565C0] ring-offset-2 scale-110'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:scale-105'
+                        ? 'bg-[#1565C0] text-white shadow-lg shadow-blue-200'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}>
                       {athlete.name?.charAt(0)?.toUpperCase()}
                     </div>
-                    <span className={`text-[10px] max-w-[52px] truncate font-medium transition-colors ${
+                    <span className={`text-[10px] max-w-[48px] truncate font-medium transition-colors ${
                       selectedAthleteId === athlete.id ? 'text-[#1565C0]' : 'text-slate-400 group-hover:text-slate-600'
                     }`}>
                       {athlete.name?.split(' ')[0]}
@@ -2137,49 +2137,20 @@ const DashboardPage = () => {
                 )}
               </div>
 
-              {/* Right side: filters + add */}
+              {/* Right side: add */}
               <div className="flex items-center gap-2 flex-shrink-0 pt-1">
-                {/* Entity filter chips */}
-                {entities.length > 0 && (
-                  <div className="flex items-center gap-1 border-r border-slate-200 pr-2">
-                    <span className="text-[10px] text-slate-400 mr-0.5">Filtro:</span>
-                    <Button
-                      variant={athleteFilterEntity === 'all' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setAthleteFilterEntity('all')}
-                      className={`h-6 text-[10px] px-2 ${athleteFilterEntity === 'all' ? 'bg-[#1565C0]' : ''}`}
-                    >
-                      Todos
-                    </Button>
-                    {entities.slice(0, 3).map(entity => {
-                      const typeIcon = entity.entity_type === 'federation' ? 'Fed' : entity.entity_type === 'club' ? 'Club' : 'Esc';
-                      return (
-                        <Button
-                          key={entity.id}
-                          variant={athleteFilterEntity === entity.id ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => setAthleteFilterEntity(athleteFilterEntity === entity.id ? 'all' : entity.id)}
-                          className={`h-6 text-[10px] px-2 ${athleteFilterEntity === entity.id ? 'bg-[#1565C0]' : ''}`}
-                          title={`${typeIcon}: ${entity.name}`}
-                        >
-                          {entity.name}
-                        </Button>
-                      );
-                    })}
-                  </div>
-                )}
                 {/* Add athlete button */}
                 <button
                   onClick={() => setShowAddAthleteForm(prev => !prev)}
-                  className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 shadow-sm ${
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0 ${
                     showAddAthleteForm
                       ? 'bg-slate-700 text-white rotate-45'
-                      : 'bg-emerald-500 text-white hover:bg-emerald-600 hover:scale-105'
+                      : 'bg-emerald-500 text-white hover:bg-emerald-600'
                   }`}
                   data-testid="add-athlete-fab"
                   title="Agregar nuevo atleta"
                 >
-                  <Plus className="w-5 h-5" />
+                  <Plus className="w-4 h-4" />
                 </button>
                 <span className="text-[10px] text-slate-400">{athletes.length}</span>
               </div>
