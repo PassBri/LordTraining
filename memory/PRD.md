@@ -13,52 +13,45 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
 
 ## Lo Implementado
 
-### Sesión Actual (31 Mar 2026 - Fork 2)
-- **P0 COMPLETADO: Limpieza EntityManager.js**
-  - Eliminada barra de búsqueda redundante
-  - Eliminados grupos desplegables (Públicas/Privadas) que duplicaban info de tarjetas
-  - Tarjetas de estadísticas ahora funcionan como toggle: al hacer clic se despliega lista filtrada por tipo
-  - Panel filtrado muestra entidades del tipo seleccionado + botón Crear
-  - Estado vacío limpio con opción "Crear primera"
-  - Diseño sobrio y profesional (Material Design)
+### Sesión Actual (31 Mar 2026 - Fork 3)
+- **P0 COMPLETADO: TeamManager.js** — Nuevo componente profesional para gestión de equipos
+  - CRUD completo: crear, editar, eliminar equipos con modal Material Design
+  - Relaciones: Equipo → Entidad + Deporte + Atletas
+  - Modal de gestión de miembros (agregar/quitar atletas del equipo)
+  - Expansión de tarjeta para ver miembros asignados
+  - Deporte del catálogo + entidad asociada
+  - Testing: Backend 100% (12/12), Frontend 100%
 
-### Sesión Anterior (31 Mar 2026)
-- **P0 COMPLETADO: Carga de Datos en Formularios**
-  - Análisis del Plan Anterior: todos los inputs vinculados a estado `previousAnalysisData`, con save/load
-  - Objetivos del Plan: todos los inputs vinculados a estado `objectivesData`, con save/load
-  - Evaluaciones (médica, física, técnica, táctica, psicológica): ya poblaban desde `loadPlanData`
-  - Backend actualizado: modelos con campo `data: dict` flexible
-  - Testing: Backend 100% (10/10), Frontend 100%
+- **COMPLETADO: Relación Atleta ↔ Equipo**
+  - Nuevo dropdown "Equipo" en el formulario de registro de atletas
+  - `team_id` enviado al backend al crear atleta
+  - Atleta auto-agregado al equipo seleccionado
 
-- **COMPLETADO: Rediseño sección Atletas con FABs redondos**
-  - Atletas como botones redondos flotantes (FABs) en barra horizontal scrollable
-  - Formulario de registro colapsable (se abre/cierra con botón "+")
-  - Perfil del atleta centrado a ancho completo con Material Design
+- **COMPLETADO: Limpieza EntityManager.js**
+  - Eliminada búsqueda y grupos desplegables redundantes
+  - Tarjetas como toggle con lista filtrada
 
-- **COMPLETADO: Entity Manager Redesign (Fases 1, 2 y 3)**
-  - Public/Private dropdown categories
-  - Compact creation modal con bg-white forzado
-  - Eliminación de redundancia (búsqueda + grupos desplegables)
-  - Tarjetas toggle con panel filtrado
+- **FIX: Límite de atletas**
+  - Plan FREE ampliado de 2 a 25 atletas
+  - Plan BASIC de 10 a 50, PRO de 50 a 200
 
 ### Sesiones Anteriores
+- Carga de datos en formularios (Análisis Plan Anterior + Objetivos)
+- Rediseño sección Atletas con FABs redondos
+- Entity Manager redesign (fases 1-3)
 - Rebranding a iTRAIN con logo profesional
 - Top Nav Bar con FABs horizontales scrollables
 - Fix crash "Caracterización del Deporte"
-- Iconos específicos por deporte
-- Rediseño ExerciseLibrary y TrainingMethods (Material Design)
 - Sistema i18n completo (12 idiomas, RTL árabe)
 - Gestión avanzada de planes: Duplicar, Compartir, Imprimir PDF
 - Dashboard ACWR de métricas de carga
 - Arquitectura plan-céntrica completa
-- Secciones de Evaluación conectadas a backend
 
 ## Backlog Priorizado
 
 ### P1
-- Refactorizar `DashboardPage.js` (6100+ líneas) - extraer componentes
+- Refactorizar `DashboardPage.js` (5800+ líneas) — extraer componentes
 - Inicialización completa al crear Plan nuevo (generar documentos vacíos)
-- Verificar loadPlanData en secciones restantes
 
 ### P2
 - Persistencia Torneos en MongoDB
@@ -66,21 +59,17 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
 - Eliminar componentes obsoletos (PeriodizationSystem.js, AICoachAssistant.js)
 - Refactorizar PeriodizationComplete.js (~2500 líneas)
 
-### P3
-- Imprimir/Compartir/Duplicar planes (parcialmente implementado)
-
 ## Endpoints Clave
-- `GET /api/plan-data/{plan_id}` - datos completos del plan
-- `POST /api/plan-data/previous-analysis` - guardar análisis previo
-- `POST /api/plan-data/objectives` - guardar objetivos
-- `POST /api/plan-data/evaluations` - guardar evaluaciones por tipo
-- `GET/POST /api/training-plans/` - CRUD de planes
-- `GET/POST/PUT/DELETE /api/entities` - CRUD de entidades
+- `GET/POST/PUT/DELETE /api/teams` — CRUD equipos
+- `POST/DELETE /api/teams/{team_id}/athletes/{athlete_id}` — gestionar miembros
+- `GET/POST/PUT/DELETE /api/entities` — CRUD entidades
+- `GET /api/plan-data/{plan_id}` — datos completos del plan
+- `GET /api/sports/catalog` — catálogo de deportes
+- `POST /api/athletes` — crear atleta (ahora con team_id)
 
 ## Esquema DB
-- `plans`: {name, sport, objectives, ...}
-- `plan_objectives`: {plan_id, user_id, main_objective, data: dict}
-- `plan_previous_analysis`: {plan_id, user_id, data: dict, achievements, ...}
-- `plan_evaluations`: {plan_id, user_id, evaluation_type, results: dict}
-- `plan_competitions`: {plan_id, user_id, name, date, importance}
-- `entities`: {name, entity_type, group, sport, city, country, ...}
+- `teams`: {id, coach_id, name, sport, category, entity_id, athletes:[], affiliations:{}}
+- `entities`: {id, name, entity_type, group, sport, city, country}
+- `athletes`: {id, coach_id, name, sport, age, level, affiliations:[], team_id}
+- `plans`: {name, sport, objectives}
+- `plan_evaluations`: {plan_id, user_id, evaluation_type, results}

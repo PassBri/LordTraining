@@ -820,9 +820,9 @@ SUBSCRIPTION_PRICES = {
 }
 
 SUBSCRIPTION_LIMITS = {
-    SubscriptionPlan.FREE: {"athletes": 2, "plans": 1, "ai_generations": 3},
-    SubscriptionPlan.BASIC: {"athletes": 10, "plans": 5, "ai_generations": 20},
-    SubscriptionPlan.PRO: {"athletes": 50, "plans": 999, "ai_generations": 100},
+    SubscriptionPlan.FREE: {"athletes": 25, "plans": 5, "ai_generations": 3},
+    SubscriptionPlan.BASIC: {"athletes": 50, "plans": 10, "ai_generations": 20},
+    SubscriptionPlan.PRO: {"athletes": 200, "plans": 999, "ai_generations": 100},
     SubscriptionPlan.ENTERPRISE: {"athletes": 999, "plans": 999, "ai_generations": 999}
 }
 
