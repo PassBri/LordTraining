@@ -1093,7 +1093,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                   </tr>
                 ))}
 
-                {/* EVENTS ROW - Calendar Events */}
+                {/* EVENTS ROW - Calendar Events with Interactive Tooltips */}
                 <tr className="bg-purple-100">
                   <td colSpan={displayedWeeks.length + 1} className="px-2 py-1 font-bold text-purple-800 border border-gray-300">
                     <div className="flex items-center gap-1">
@@ -1110,21 +1110,46 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                     const weekEvents = eventsByWeek[week] || [];
                     const hasEvent = weekEvents.length > 0;
                     const isCompetition = weekEvents.some(e => e.type === 'competition' || e.priority === 'high');
+                    const isMainComp = weekEvents.some(e => e.priority === 'high');
                     
                     return (
                       <td 
                         key={week} 
-                        className={`border border-gray-300 text-center text-[10px] cursor-pointer ${
+                        className={`border border-gray-300 text-center cursor-pointer relative group ${
                           hasEvent 
-                            ? isCompetition 
-                              ? 'bg-red-400 text-white font-bold' 
-                              : 'bg-purple-200 text-purple-800'
+                            ? isMainComp
+                              ? 'bg-red-500 text-white font-bold'
+                              : isCompetition 
+                                ? 'bg-amber-400 text-amber-900 font-bold' 
+                                : 'bg-purple-200 text-purple-800'
                             : 'bg-white hover:bg-gray-100'
                         }`}
-                        title={weekEvents.length > 0 ? weekEvents.map(e => e.name).join(', ') : 'Sin eventos'}
+                        style={{ padding: hasEvent ? '2px' : '4px' }}
                       >
                         {hasEvent && (
-                          <span>{isCompetition ? '🏆' : '📅'}</span>
+                          <>
+                            <span className="text-sm leading-none">{isMainComp ? '🏆' : isCompetition ? '🥇' : '📅'}</span>
+                            {/* Tooltip popup */}
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50 pointer-events-none" style={{minWidth: '180px'}}>
+                              <div className="bg-slate-900 text-white rounded-lg shadow-xl p-2.5 text-left" style={{fontSize: '11px'}}>
+                                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-slate-900" />
+                                {weekEvents.map((ev, i) => (
+                                  <div key={i} className={i > 0 ? 'mt-2 pt-2 border-t border-slate-700' : ''}>
+                                    <div className="flex items-center gap-1.5 mb-1">
+                                      <span className="text-xs">{ev.priority === 'high' ? '🏆' : ev.type === 'competition' ? '🥇' : '📅'}</span>
+                                      <span className="font-bold text-white leading-tight">{ev.name}</span>
+                                    </div>
+                                    {ev.date && (
+                                      <div className="text-slate-400 text-[10px]">{new Date(ev.date).toLocaleDateString('es-ES', {day: 'numeric', month: 'short', year: 'numeric'})}</div>
+                                    )}
+                                    {ev.priority === 'high' && <span className="inline-block mt-1 px-1.5 py-0.5 bg-red-500/20 text-red-300 rounded text-[9px] font-bold uppercase">Principal</span>}
+                                    {ev.priority === 'normal' && ev.type === 'competition' && <span className="inline-block mt-1 px-1.5 py-0.5 bg-amber-500/20 text-amber-300 rounded text-[9px] font-bold uppercase">Secundaria</span>}
+                                  </div>
+                                ))}
+                                <div className="text-slate-500 mt-1.5 text-[9px]">Semana {week}</div>
+                              </div>
+                            </div>
+                          </>
                         )}
                       </td>
                     );
