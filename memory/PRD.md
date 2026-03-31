@@ -11,57 +11,78 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
 ## Credenciales de Prueba
 - email: test@train.com | password: test123456
 
-## Planes de Suscripción (Actualizado 31 Mar 2026)
-| Plan | Precio | Atletas | Planes | IA | Extras |
-|------|--------|---------|--------|-----|--------|
-| Free / Académico | $0/mes | 3 | 1 | 3 | 10 PDFs, export básica |
-| Pro — Entrenador | $9.99/mes | 20 | 5 | 20 | PDF, soporte email |
-| Club / Academia (Popular) | $29.99/mes | Ilimitados | Ilimitados | 100 | PDF/Excel, soporte prioritario, biblioteca, plantillas |
-| Institucional | $99.99/mes | Ilimitados | Ilimitados | Ilimitados | Multi-coach, panel coordinador, API, 24/7, formación |
+## Planes de Suscripción
+| Plan | Precio | Atletas | Planes | IA |
+|------|--------|---------|--------|-----|
+| Free / Académico | $0/mes | 3 | 1 | 3 |
+| Pro — Entrenador | $9.99/mes | 20 | 5 | 20 |
+| Club / Academia (Popular) | $29.99/mes | Ilimitados | Ilimitados | 100 |
+| Institucional | $99.99/mes | Ilimitados | Ilimitados | Ilimitados |
 
-## Lo Implementado
+## Lo Implementado (Sesión 31 Mar 2026 - Fork 3)
 
-### Sesión Actual (31 Mar 2026 - Fork 3)
-- **COMPLETADO: TeamManager.js** — CRUD equipos con relaciones a entidades/atletas/deportes
-- **COMPLETADO: Relación Atleta ↔ Equipo** — Dropdown equipo en formulario atletas
-- **COMPLETADO: Limpieza EntityManager.js** — Tarjetas toggle sin redundancia
-- **COMPLETADO: Actualización Planes y Precios** — Landing + Dashboard + Backend sincronizados
-  - Nuevos nombres: Free/Académico, Pro-Entrenador, Club/Academia, Institucional
-  - Nuevos precios y límites consistentes en los 3 archivos
+### P1 COMPLETADO: Refactorizar DashboardPage.js
+- Extraído `EvaluationSection.js` — componente que maneja los 6 tipos de evaluación (médico, físico, técnico, táctico, psicológico, teórico) con formularios y guardado
+- **5793 → 4763 líneas (1030 líneas eliminadas, 18% reducción)**
+- Testing: Backend 18/18 (100%), Frontend 100%
 
-### Sesiones Anteriores
-- Carga de datos en formularios (Análisis Plan Anterior + Objetivos)
-- Rediseño sección Atletas con FABs redondos
-- Entity Manager redesign (fases 1-3)
-- Rebranding a iTRAIN con logo profesional
-- Top Nav Bar con FABs horizontales scrollables
-- Sistema i18n completo (12 idiomas, RTL árabe)
-- Gestión avanzada de planes: Duplicar, Compartir, Imprimir PDF
-- Dashboard ACWR de métricas de carga
-- Arquitectura plan-céntrica completa
+### P1 COMPLETADO: Auto-init al crear Plan
+- Ya existía desde sesiones anteriores, mejorado con tipo `theoretical` en evaluaciones
+- POST /api/training-plans crea automáticamente plan_data con secciones vacías
+
+### P2 COMPLETADO: Persistencia Torneos en MongoDB  
+- Migrado de localStorage a API endpoints (GET/POST/PUT/DELETE /api/tournaments)
+- Callbacks de TournamentManager ahora hacen fetch al backend
+- fetchTournaments() carga datos al iniciar la app
+
+### P2 COMPLETADO: Sincronizar Competencias con Plan Gráfico
+- GraphicPlan ahora acepta prop `competitions`
+- Competencias del plan se mapean a semanas y aparecen en fila Eventos/Competencias
+- Competencias de alta importancia se muestran con prioridad visual
+
+### Otros completados en esta sesión
+- TeamManager.js — CRUD equipos con relaciones a entidades/atletas/deportes
+- Relación Atleta ↔ Equipo (dropdown en formulario)
+- Limpieza EntityManager.js (tarjetas toggle sin redundancia)
+- Rediseño SubscriptionPage (estilo idéntico al landing)
+- Actualización planes y precios en toda la app
 
 ## Backlog Priorizado
 
 ### P1
-- Refactorizar `DashboardPage.js` (5800+ líneas) — extraer componentes
-- Inicialización completa al crear Plan nuevo
+- Continuar reduciendo DashboardPage.js (extraer secciones de Atletas, Deportes, Objetivos, Prev-Plan)
 
 ### P2
-- Persistencia Torneos en MongoDB
-- Sincronizar competencias con Plan Gráfico
-- Eliminar componentes obsoletos
-- Refactorizar PeriodizationComplete.js
+- Eliminar componentes obsoletos (PeriodizationSystem.js, AICoachAssistant.js)
+- Refactorizar PeriodizationComplete.js (~2500 líneas)
+- Fix: React hydration warning (<tr> inside <span>)
+
+### P3
+- Mejorar experiencia de auto-herencia (atleta hereda deporte/entidad del equipo)
+
+## Componentes Clave
+```
+/app/frontend/src/components/
+  ├── EvaluationSection.js    (NUEVO: maneja 6 tipos de evaluación)
+  ├── TeamManager.js          (NUEVO: gestión de equipos)
+  ├── EntityManager.js        (MODIFICADO: tarjetas toggle)
+  ├── GraphicPlan.js          (MODIFICADO: recibe competitions prop)
+  ├── AthleteSummary.js       (caracterización del deportista)
+  ├── ControlPanel.js         (dashboard stats)
+  └── TournamentManager.js    (torneos)
+/app/frontend/src/pages/
+  ├── DashboardPage.js        (4763 líneas, reducido de 5793)
+  ├── LandingPage.js          (precios actualizados)
+  └── SubscriptionPage.js     (rediseñado estilo landing)
+```
 
 ## Endpoints Clave
-- `GET/POST/PUT/DELETE /api/teams` — CRUD equipos
+- `GET/POST /api/training-plans/` — CRUD planes
+- `GET /api/plan-data/{plan_id}` — datos completos del plan
+- `POST /api/plan-data/evaluations` — guardar evaluación
+- `GET/POST/PUT/DELETE /api/teams` — CRUD equipos  
 - `POST/DELETE /api/teams/{team_id}/athletes/{athlete_id}` — miembros
 - `GET/POST/PUT/DELETE /api/entities` — CRUD entidades
-- `GET /api/plan-data/{plan_id}` — datos completos del plan
+- `GET/POST/PUT/DELETE /api/tournaments` — CRUD torneos (MongoDB)
 - `POST /api/athletes` — crear atleta (con team_id)
 - `GET /api/sports/catalog` — catálogo deportes
-
-## Esquema DB
-- `teams`: {id, coach_id, name, sport, category, entity_id, athletes:[], affiliations:{}}
-- `entities`: {id, name, entity_type, group, sport, city, country}
-- `athletes`: {id, coach_id, name, sport, age, level, affiliations:[], team_id}
-- `plans`: {name, sport, objectives}
