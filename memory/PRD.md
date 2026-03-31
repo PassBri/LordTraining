@@ -13,7 +13,16 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
 
 ## Lo Implementado
 
-### Sesión Actual (31 Mar 2026)
+### Sesión Actual (31 Mar 2026 - Fork 2)
+- **P0 COMPLETADO: Limpieza EntityManager.js**
+  - Eliminada barra de búsqueda redundante
+  - Eliminados grupos desplegables (Públicas/Privadas) que duplicaban info de tarjetas
+  - Tarjetas de estadísticas ahora funcionan como toggle: al hacer clic se despliega lista filtrada por tipo
+  - Panel filtrado muestra entidades del tipo seleccionado + botón Crear
+  - Estado vacío limpio con opción "Crear primera"
+  - Diseño sobrio y profesional (Material Design)
+
+### Sesión Anterior (31 Mar 2026)
 - **P0 COMPLETADO: Carga de Datos en Formularios**
   - Análisis del Plan Anterior: todos los inputs vinculados a estado `previousAnalysisData`, con save/load
   - Objetivos del Plan: todos los inputs vinculados a estado `objectivesData`, con save/load
@@ -25,8 +34,12 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
   - Atletas como botones redondos flotantes (FABs) en barra horizontal scrollable
   - Formulario de registro colapsable (se abre/cierra con botón "+")
   - Perfil del atleta centrado a ancho completo con Material Design
-  - Eliminada información repetida, maximizado espacio vertical
-  - Testing: Screenshots verificados OK
+
+- **COMPLETADO: Entity Manager Redesign (Fases 1, 2 y 3)**
+  - Public/Private dropdown categories
+  - Compact creation modal con bg-white forzado
+  - Eliminación de redundancia (búsqueda + grupos desplegables)
+  - Tarjetas toggle con panel filtrado
 
 ### Sesiones Anteriores
 - Rebranding a iTRAIN con logo profesional
@@ -43,9 +56,9 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
 ## Backlog Priorizado
 
 ### P1
-- Refactorizar `DashboardPage.js` (6100+ líneas) — extraer componentes
+- Refactorizar `DashboardPage.js` (6100+ líneas) - extraer componentes
 - Inicialización completa al crear Plan nuevo (generar documentos vacíos)
-- Verificar loadPlanData en secciones restantes (Competencias ya tiene UI propia)
+- Verificar loadPlanData en secciones restantes
 
 ### P2
 - Persistencia Torneos en MongoDB
@@ -57,11 +70,12 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
 - Imprimir/Compartir/Duplicar planes (parcialmente implementado)
 
 ## Endpoints Clave
-- `GET /api/plan-data/{plan_id}` — datos completos del plan
-- `POST /api/plan-data/previous-analysis` — guardar análisis previo (con data dict)
-- `POST /api/plan-data/objectives` — guardar objetivos (con data dict)
-- `POST /api/plan-data/evaluations` — guardar evaluaciones por tipo
-- `GET/POST /api/training-plans/` — CRUD de planes
+- `GET /api/plan-data/{plan_id}` - datos completos del plan
+- `POST /api/plan-data/previous-analysis` - guardar análisis previo
+- `POST /api/plan-data/objectives` - guardar objetivos
+- `POST /api/plan-data/evaluations` - guardar evaluaciones por tipo
+- `GET/POST /api/training-plans/` - CRUD de planes
+- `GET/POST/PUT/DELETE /api/entities` - CRUD de entidades
 
 ## Esquema DB
 - `plans`: {name, sport, objectives, ...}
@@ -69,3 +83,4 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
 - `plan_previous_analysis`: {plan_id, user_id, data: dict, achievements, ...}
 - `plan_evaluations`: {plan_id, user_id, evaluation_type, results: dict}
 - `plan_competitions`: {plan_id, user_id, name, date, importance}
+- `entities`: {name, entity_type, group, sport, city, country, ...}

@@ -7,8 +7,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '.
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
 import {
   Building2, School, Users, Trophy, Flag, Landmark, Plus, Edit2, Trash2,
-  MapPin, Phone, Mail, Globe, Facebook, Instagram, Twitter,
-  Loader2, Search, ChevronDown, ChevronUp, Shield
+  MapPin, Loader2, Shield
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -33,8 +32,7 @@ const EntityManager = () => {
   const [editingEntity, setEditingEntity] = useState(null);
   const [entityToDelete, setEntityToDelete] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [expandedGroup, setExpandedGroup] = useState('publica');
+  const [selectedType, setSelectedType] = useState(null);
   const [formData, setFormData] = useState({
     name: '', entity_type: 'club', description: '', address: '', city: '', country: '',
     phone: '', email: '', website: '', legal_representative: '', tax_id: '',
@@ -104,10 +102,8 @@ const EntityManager = () => {
     setSaving(false);
   };
 
-  const filtered = entities.filter(e => e.name.toLowerCase().includes(searchTerm.toLowerCase()));
-  const publicEntities = filtered.filter(e => ['federation', 'national_team', 'league'].includes(e.entity_type));
-  const privateEntities = filtered.filter(e => ['club', 'school', 'team'].includes(e.entity_type));
   const countByType = (type) => entities.filter(e => e.entity_type === type).length;
+  const filteredByType = selectedType ? entities.filter(e => e.entity_type === selectedType) : [];
 
   const cfg = ENTITY_TYPES[formData.entity_type] || ENTITY_TYPES.club;
 
@@ -145,52 +141,9 @@ const EntityManager = () => {
     );
   };
 
-  const renderGroup = (title, subtitle, groupEntities, groupKey, types) => {
-    const isExpanded = expandedGroup === groupKey;
-    return (
-      <Card className="border-0 shadow-lg overflow-hidden" data-testid={`group-${groupKey}`}>
-        <button className="w-full flex items-center justify-between px-5 py-4 bg-white hover:bg-slate-50 transition-colors" onClick={() => setExpandedGroup(isExpanded ? null : groupKey)}>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: groupKey === 'publica' ? '#E3F2FD' : '#E8F5E9' }}>
-              {groupKey === 'publica' ? <Landmark className="w-5 h-5" style={{ color: '#1565C0' }} /> : <Building2 className="w-5 h-5" style={{ color: '#2E7D32' }} />}
-            </div>
-            <div className="text-left">
-              <h3 className="font-bold text-slate-800 text-sm">{title}</h3>
-              <p className="text-xs text-slate-500">{subtitle}</p>
-            </div>
-            <span className="ml-2 px-2 py-0.5 rounded-full text-xs font-bold" style={{ backgroundColor: groupKey === 'publica' ? '#E3F2FD' : '#E8F5E9', color: groupKey === 'publica' ? '#1565C0' : '#2E7D32' }}>
-              {groupEntities.length}
-            </span>
-          </div>
-          {isExpanded ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
-        </button>
-        {isExpanded && (
-          <div className="border-t border-slate-100">
-            {/* Quick-add buttons */}
-            <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 border-b border-slate-100 overflow-x-auto">
-              {types.map(type => {
-                const tc = ENTITY_TYPES[type];
-                const TIcon = tc.icon;
-                return (
-                  <button key={type} onClick={() => openCreate(type)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-dashed transition-all hover:shadow-sm text-xs font-medium flex-shrink-0" style={{ borderColor: tc.border, color: tc.color, backgroundColor: 'white' }} data-testid={`quick-add-${type}`}>
-                    <Plus className="w-3 h-3" /> {tc.label}
-                  </button>
-                );
-              })}
-            </div>
-            {/* Entity list */}
-            {groupEntities.length > 0 ? (
-              <div>{groupEntities.map(renderEntityRow)}</div>
-            ) : (
-              <div className="text-center py-8 text-slate-400">
-                <Building2 className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                <p className="text-sm">Sin entidades en esta categoría</p>
-              </div>
-            )}
-          </div>
-        )}
-      </Card>
-    );
+  const handleCardClick = (type) => {
+    if (selectedType === type) { setSelectedType(null); }
+    else { setSelectedType(type); }
   };
 
   return (
@@ -206,13 +159,14 @@ const EntityManager = () => {
         </Button>
       </div>
 
-      {/* Stats Row */}
+      {/* Stats Cards */}
       <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
         {Object.entries(ENTITY_TYPES).map(([type, c]) => {
           const Icon = c.icon;
           const count = countByType(type);
+          const isActive = selectedType === type;
           return (
-            <button key={type} onClick={() => openCreate(type)} className="rounded-xl p-2 text-center transition-all hover:shadow-md border" style={{ backgroundColor: c.bg, borderColor: c.border }} data-testid={`stat-${type}`}>
+            <button key={type} onClick={() => handleCardClick(type)} className={`rounded-xl p-2 text-center transition-all hover:shadow-md border ${isActive ? 'ring-2 shadow-lg scale-105' : ''}`} style={{ backgroundColor: c.bg, borderColor: c.border, ringColor: c.color }} data-testid={`stat-${type}`}>
               <Icon className="w-4 h-4 mx-auto mb-1" style={{ color: c.color }} />
               <p className="text-lg font-bold" style={{ color: c.color }}>{count}</p>
               <p className="text-[10px] font-medium text-slate-600 leading-tight">{c.label}</p>
@@ -221,15 +175,32 @@ const EntityManager = () => {
         })}
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-        <Input placeholder="Buscar entidades..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-9 h-9 text-sm border-slate-200" data-testid="entity-search" />
-      </div>
-
-      {/* Groups */}
-      {renderGroup('Entidades Públicas', 'Federaciones, Selecciones Nacionales, Ligas y Torneos', publicEntities, 'publica', ['federation', 'national_team', 'league'])}
-      {renderGroup('Entidades Privadas', 'Clubes Deportivos, Escuelas, Equipos y Grupos', privateEntities, 'privada', ['club', 'school', 'team'])}
+      {/* Filtered Entity List (appears when a card is selected) */}
+      {selectedType && (
+        <Card className="border-0 shadow-lg overflow-hidden" data-testid="entity-list-panel">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100" style={{ backgroundColor: ENTITY_TYPES[selectedType].bg }}>
+            <div className="flex items-center gap-2">
+              {React.createElement(ENTITY_TYPES[selectedType].icon, { className: 'w-4 h-4', style: { color: ENTITY_TYPES[selectedType].color } })}
+              <span className="font-semibold text-sm" style={{ color: ENTITY_TYPES[selectedType].color }}>{ENTITY_TYPES[selectedType].label}</span>
+              <span className="text-xs text-slate-500">({filteredByType.length})</span>
+            </div>
+            <button onClick={() => openCreate(selectedType)} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-white transition-colors hover:opacity-90" style={{ backgroundColor: ENTITY_TYPES[selectedType].color }} data-testid="add-entity-type-btn">
+              <Plus className="w-3 h-3" /> Crear
+            </button>
+          </div>
+          {filteredByType.length > 0 ? (
+            <div>{filteredByType.map(renderEntityRow)}</div>
+          ) : (
+            <div className="text-center py-6 text-slate-400">
+              <Building2 className="w-7 h-7 mx-auto mb-1.5 opacity-30" />
+              <p className="text-xs">Sin entidades de este tipo</p>
+              <button onClick={() => openCreate(selectedType)} className="mt-2 text-xs font-medium px-3 py-1 rounded-full" style={{ color: ENTITY_TYPES[selectedType].color, backgroundColor: ENTITY_TYPES[selectedType].bg }}>
+                <Plus className="w-3 h-3 inline mr-1" />Crear primera
+              </button>
+            </div>
+          )}
+        </Card>
+      )}
 
       {/* Create/Edit Modal - Compact */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
