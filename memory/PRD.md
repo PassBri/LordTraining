@@ -21,12 +21,12 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
   - Backend actualizado: modelos con campo `data: dict` flexible
   - Testing: Backend 100% (10/10), Frontend 100%
 
-- **COMPLETADO: Integración Caracterización del Deportista en panel de Atletas**
-  - Movida la "Caracterización del Deportista" de sección separada del nav a componente integrado dentro del detalle de cada atleta
-  - Nuevo `AthleteSummary.js` con: header premium, tarjetas de métricas (Material Design), y formulario de caracterización colapsable
-  - 10 secciones de caracterización con colores Material Design: Info General, Biológicos, Salud, Psicología, Entorno, Nutrición, Trayectoria, Rendimiento, Entrenamiento, Lesiones
-  - Eliminado botón 'athlete-char' del nav de Diagnóstico
-  - Testing: Backend 100% (10/10), Frontend 100%
+- **COMPLETADO: Rediseño sección Atletas con FABs redondos**
+  - Atletas como botones redondos flotantes (FABs) en barra horizontal scrollable
+  - Formulario de registro colapsable (se abre/cierra con botón "+")
+  - Perfil del atleta centrado a ancho completo con Material Design
+  - Eliminada información repetida, maximizado espacio vertical
+  - Testing: Screenshots verificados OK
 
 ### Sesiones Anteriores
 - Rebranding a iTRAIN con logo profesional
