@@ -18,9 +18,15 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
   - Análisis del Plan Anterior: todos los inputs vinculados a estado `previousAnalysisData`, con save/load
   - Objetivos del Plan: todos los inputs vinculados a estado `objectivesData`, con save/load
   - Evaluaciones (médica, física, técnica, táctica, psicológica): ya poblaban desde `loadPlanData`
-  - Backend actualizado: modelos `PlanPreviousAnalysisCreate` y `PlanObjectiveCreate` con campo `data: dict`
-  - Endpoint `GET /api/plan-data/{plan_id}` retorna datos completos
-  - Testing: Backend 100% (10/10), Frontend 100% - verificado con testing agent
+  - Backend actualizado: modelos con campo `data: dict` flexible
+  - Testing: Backend 100% (10/10), Frontend 100%
+
+- **COMPLETADO: Integración Caracterización del Deportista en panel de Atletas**
+  - Movida la "Caracterización del Deportista" de sección separada del nav a componente integrado dentro del detalle de cada atleta
+  - Nuevo `AthleteSummary.js` con: header premium, tarjetas de métricas (Material Design), y formulario de caracterización colapsable
+  - 10 secciones de caracterización con colores Material Design: Info General, Biológicos, Salud, Psicología, Entorno, Nutrición, Trayectoria, Rendimiento, Entrenamiento, Lesiones
+  - Eliminado botón 'athlete-char' del nav de Diagnóstico
+  - Testing: Backend 100% (10/10), Frontend 100%
 
 ### Sesiones Anteriores
 - Rebranding a iTRAIN con logo profesional
