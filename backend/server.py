@@ -820,10 +820,10 @@ SUBSCRIPTION_PRICES = {
 }
 
 SUBSCRIPTION_LIMITS = {
-    SubscriptionPlan.FREE: {"athletes": 25, "plans": 5, "ai_generations": 3},
-    SubscriptionPlan.BASIC: {"athletes": 50, "plans": 10, "ai_generations": 20},
-    SubscriptionPlan.PRO: {"athletes": 200, "plans": 999, "ai_generations": 100},
-    SubscriptionPlan.ENTERPRISE: {"athletes": 999, "plans": 999, "ai_generations": 999}
+    SubscriptionPlan.FREE: {"athletes": 3, "plans": 1, "ai_generations": 3, "pdf_exports": 10},
+    SubscriptionPlan.BASIC: {"athletes": 20, "plans": 5, "ai_generations": 20, "pdf_exports": 999},
+    SubscriptionPlan.PRO: {"athletes": 999, "plans": 999, "ai_generations": 100, "pdf_exports": 999},
+    SubscriptionPlan.ENTERPRISE: {"athletes": 999, "plans": 999, "ai_generations": 999, "pdf_exports": 999}
 }
 
 # =============== AUTH ROUTES ===============

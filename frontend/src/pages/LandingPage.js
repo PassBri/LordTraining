@@ -162,10 +162,10 @@ const LandingPage = () => {
   const { t } = useTranslation();
 
   const PRICING = [
-    { key: 'free', name: t('landing.pricing.free_name'), price: '0', desc: t('landing.pricing.free_desc'), features: [t('landing.pricing.free_f1'), t('landing.pricing.free_f2'), t('landing.pricing.free_f3'), t('landing.pricing.free_f4')], cta: t('landing.pricing.cta'), pop: false },
-    { key: 'pro', name: t('landing.pricing.pro_name'), price: '12-20', desc: t('landing.pricing.pro_desc'), features: [t('landing.pricing.pro_f1'), t('landing.pricing.pro_f2'), t('landing.pricing.pro_f3'), t('landing.pricing.pro_f4'), t('landing.pricing.pro_f5')], cta: t('landing.pricing.cta'), pop: true },
-    { key: 'club', name: t('landing.pricing.club_name'), price: '8-15', desc: t('landing.pricing.club_desc'), features: [t('landing.pricing.club_f1'), t('landing.pricing.club_f2'), t('landing.pricing.club_f3'), t('landing.pricing.club_f4'), t('landing.pricing.club_f5')], cta: t('landing.pricing.cta'), pop: false },
-    { key: 'inst', name: t('landing.pricing.inst_name'), price: t('landing.pricing.inst_price'), desc: t('landing.pricing.inst_desc'), features: [t('landing.pricing.inst_f1'), t('landing.pricing.inst_f2'), t('landing.pricing.inst_f3'), t('landing.pricing.inst_f4'), t('landing.pricing.inst_f5')], cta: t('landing.pricing.contact'), pop: false },
+    { key: 'free', name: 'Free / Académico', price: '0', desc: 'Para estudiantes y entrenadores explorando', features: ['3 atletas', '1 plan de entrenamiento', '10 exportaciones PDF', '3 generaciones con IA', 'Exportación básica'], cta: 'Empezar gratis', pop: false },
+    { key: 'pro', name: 'Pro — Entrenador', price: '9.99', desc: 'Para entrenadores independientes y preparadores', features: ['20 atletas', '5 planes de entrenamiento', '20 generaciones con IA', 'Exportación PDF', 'Soporte email'], cta: 'Empezar ahora', pop: false },
+    { key: 'club', name: 'Club / Academia', price: '29.99', desc: 'Para clubes y academias de formación', features: ['Atletas ilimitados', 'Planes ilimitados', '100 generaciones con IA', 'Exportación PDF/Excel', 'Soporte prioritario', 'Biblioteca completa', 'Personalización de plantillas'], cta: 'Empezar ahora', pop: true },
+    { key: 'inst', name: 'Institucional', price: '99.99', desc: 'Ligas, federaciones y universidades', features: ['Múltiples entrenadores', 'Panel de coordinador', 'Analítica por grupo', 'Atletas ilimitados', 'Todo ilimitado', 'API personalizada', 'Soporte 24/7', 'Formación incluida', 'Personalización de plantillas'], cta: 'Contactar ventas', pop: false },
   ];
 
   return (

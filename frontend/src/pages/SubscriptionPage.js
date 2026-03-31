@@ -11,35 +11,35 @@ import { toast } from 'sonner';
 const PLANS = [
   {
     id: 'free',
-    name: 'Free',
+    name: 'Free / Académico',
     price: 0,
-    description: 'Para empezar a explorar',
-    features: ['2 atletas', '1 plan de entrenamiento', '3 generaciones con IA', 'Exportación básica'],
-    limits: { athletes: 2, plans: 1, ai: 3 }
+    description: 'Para estudiantes y entrenadores explorando',
+    features: ['3 atletas', '1 plan de entrenamiento', '10 exportaciones PDF', '3 generaciones con IA', 'Exportación básica'],
+    limits: { athletes: 3, plans: 1, ai: 3 }
   },
   {
     id: 'basic',
-    name: 'Basic',
+    name: 'Pro — Entrenador',
     price: 9.99,
-    description: 'Para entrenadores individuales',
-    features: ['10 atletas', '5 planes de entrenamiento', '20 generaciones con IA', 'Exportación PDF', 'Soporte email'],
-    limits: { athletes: 10, plans: 5, ai: 20 }
+    description: 'Para entrenadores independientes y preparadores',
+    features: ['20 atletas', '5 planes de entrenamiento', '20 generaciones con IA', 'Exportación PDF', 'Soporte email'],
+    limits: { athletes: 20, plans: 5, ai: 20 }
   },
   {
     id: 'pro',
-    name: 'Pro',
+    name: 'Club / Academia',
     price: 29.99,
-    description: 'Para profesionales',
-    features: ['50 atletas', 'Planes ilimitados', '100 generaciones con IA', 'Exportación PDF/Excel', 'Soporte prioritario', 'Biblioteca completa'],
-    limits: { athletes: 50, plans: 999, ai: 100 },
+    description: 'Para clubes y academias de formación',
+    features: ['Atletas ilimitados', 'Planes ilimitados', '100 generaciones con IA', 'Exportación PDF/Excel', 'Soporte prioritario', 'Biblioteca completa', 'Personalización de plantillas'],
+    limits: { athletes: 999, plans: 999, ai: 100 },
     popular: true
   },
   {
     id: 'enterprise',
-    name: 'Enterprise',
+    name: 'Institucional',
     price: 99.99,
-    description: 'Para clubes y federaciones',
-    features: ['Atletas ilimitados', 'Todo ilimitado', 'API personalizada', 'Soporte 24/7', 'Formación incluida', 'Personalización'],
+    description: 'Ligas, federaciones y universidades',
+    features: ['Múltiples entrenadores', 'Panel de coordinador', 'Analítica por grupo', 'Atletas ilimitados', 'Todo ilimitado', 'API personalizada', 'Soporte 24/7', 'Formación incluida', 'Personalización de plantillas'],
     limits: { athletes: 999, plans: 999, ai: 999 }
   }
 ];
