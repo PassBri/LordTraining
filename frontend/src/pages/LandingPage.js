@@ -15,24 +15,36 @@ const INT = "'Inter', sans-serif";
 
 /* ═══ ANIMATED CHART COMPONENTS ═══ */
 
-const AnimatedBarChart = ({ label, color1, color2, delay = 0 }) => (
-  <div className="flex flex-col items-center gap-1">
-    <span className="text-[8px] uppercase tracking-wider text-slate-500 font-bold" style={{fontFamily:BC}}>{label}</span>
-    <div className="flex items-end gap-[2px] h-24 w-full">
-      {Array.from({length:16}, (_,i) => {
-        const p = (i/16)*Math.PI*2;
-        const h1 = 20 + Math.sin(p+delay)*30 + Math.cos(p*1.7)*15;
-        const h2 = 15 + Math.cos(p+delay+1)*25 + Math.sin(p*1.3)*20;
-        return (
+const AnimatedBarChart = ({ label, color1, color2, delay = 0, values }) => {
+  const data = values || Array.from({length:12}, (_,i) => {
+    const p = (i/12)*Math.PI*2;
+    return {
+      h1: 25 + Math.sin(p+delay)*35 + Math.cos(p*1.7)*15,
+      h2: 20 + Math.cos(p+delay+1)*30 + Math.sin(p*1.3)*18
+    };
+  });
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="flex items-center gap-2 mb-1">
+        <div className="w-2 h-2 rounded-full" style={{background:color1}} />
+        <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold" style={{fontFamily:BC}}>{label}</span>
+      </div>
+      <div className="flex items-end gap-[3px] h-36 w-full px-1">
+        {data.map((d, i) => (
           <div key={i} className="flex-1 flex items-end gap-[1px]">
-            <div className="flex-1 rounded-t-sm animate-pulse" style={{height:`${Math.max(8,h1)}%`, background:color1, animationDelay:`${i*150+delay*1000}ms`, animationDuration:'3s'}} />
-            <div className="flex-1 rounded-t-sm animate-pulse" style={{height:`${Math.max(8,h2)}%`, background:color2, animationDelay:`${i*100+delay*500}ms`, animationDuration:'4s'}} />
+            <div className="flex-1 rounded-t-sm transition-all duration-1000" style={{height:`${Math.max(12,d.h1)}%`, background:color1, opacity:0.9}} />
+            <div className="flex-1 rounded-t-sm transition-all duration-1000" style={{height:`${Math.max(12,d.h2)}%`, background:color2, opacity:0.7}} />
           </div>
-        );
-      })}
+        ))}
+      </div>
+      <div className="flex justify-between w-full px-1">
+        {['S1','S4','S8','S12'].map(s => (
+          <span key={s} className="text-[7px] text-slate-600" style={{fontFamily:BC}}>{s}</span>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const AnimatedLineWave = ({ color, amplitude = 30, speed = '6s', points = 200 }) => {
   const d = `M 0 50 ${Array.from({length:points}, (_,i) => {
@@ -58,35 +70,76 @@ const AnimatedLineWave = ({ color, amplitude = 30, speed = '6s', points = 200 })
   );
 };
 
-const PeriodizationMiniChart = () => (
-  <div className="relative w-full max-w-md mx-auto">
-    <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700/30 p-4 shadow-2xl">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 bg-[#CCFF00] rounded-md flex items-center justify-center">
-            <Activity className="w-3.5 h-3.5 text-slate-900" />
+const PeriodizationMiniChart = () => {
+  const weeks = ['S1','S2','S3','S4','S5','S6','S7','S8','S9','S10','S11','S12','S13','S14','S15','S16','S17','S18','S19','S20','S21','S22','S23','S24'];
+  const volData = [75,82,88,65,78,85,92,70,80,88,95,68,72,85,90,62,70,82,88,55,65,78,85,50];
+  const intData = [40,45,50,55,52,58,65,70,62,68,75,78,72,78,82,85,80,85,88,90,85,90,92,95];
+  const denData = [60,55,52,48,58,55,50,65,60,55,48,70,65,60,52,72,68,60,55,75,70,65,58,80];
+  const phases = [{n:'ACUMULACIÓN',w:8,c:'#3B82F6'},{n:'TRANSFORMACIÓN',w:8,c:'#CCFF00'},{n:'REALIZACIÓN',w:8,c:'#F43F5E'}];
+  return (
+    <div className="relative w-full">
+      <div className="bg-slate-800/60 backdrop-blur-md rounded-2xl border border-slate-700/40 p-5 shadow-2xl">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-[#CCFF00] rounded-lg flex items-center justify-center">
+              <Activity className="w-4 h-4 text-slate-900" />
+            </div>
+            <div>
+              <span className="text-[13px] font-bold text-white block leading-none" style={{fontFamily:BC}}>PERIODIZACIÓN ATR</span>
+              <span className="text-[9px] text-slate-500">Macrociclo — 24 semanas</span>
+            </div>
           </div>
-          <span className="text-[11px] font-bold text-white" style={{fontFamily:BC}}>PERIODIZACIÓN ATR</span>
+          <div className="flex gap-2">
+            <span className="px-2.5 py-1 bg-blue-500/20 text-blue-400 rounded-md text-[9px] font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-400"/>VOL</span>
+            <span className="px-2.5 py-1 bg-[#CCFF00]/20 text-[#CCFF00] rounded-md text-[9px] font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#CCFF00]"/>INT</span>
+            <span className="px-2.5 py-1 bg-rose-500/20 text-rose-400 rounded-md text-[9px] font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-rose-400"/>DEN</span>
+          </div>
         </div>
-        <div className="flex gap-1.5">
-          <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded text-[8px] font-bold">VOL</span>
-          <span className="px-2 py-0.5 bg-[#CCFF00]/20 text-[#CCFF00] rounded text-[8px] font-bold">INT</span>
-          <span className="px-2 py-0.5 bg-rose-500/20 text-rose-400 rounded text-[8px] font-bold">DEN</span>
+        {/* Phase labels */}
+        <div className="flex gap-[2px] mb-2">
+          {phases.map(p => (
+            <div key={p.n} className="flex-1 text-center py-1 rounded-md" style={{background:p.c+'15'}}>
+              <span className="text-[8px] font-bold tracking-wider" style={{color:p.c, fontFamily:BC}}>{p.n}</span>
+            </div>
+          ))}
         </div>
-      </div>
-      <div className="h-28 relative mb-2">
-        <div className="absolute inset-0"><AnimatedLineWave color="#3B82F6" amplitude={28} speed="5s" /></div>
-        <div className="absolute inset-0"><AnimatedLineWave color="#CCFF00" amplitude={22} speed="7s" /></div>
-        <div className="absolute inset-0"><AnimatedLineWave color="#F43F5E" amplitude={18} speed="9s" /></div>
-      </div>
-      <div className="flex justify-between text-[7px] text-slate-500 font-bold px-1" style={{fontFamily:BC}}>
-        {['SEM 1','SEM 4','SEM 8','SEM 12','SEM 16','SEM 20','SEM 24'].map(s => (
-          <span key={s}>{s}</span>
-        ))}
+        {/* Bar chart */}
+        <div className="flex items-end gap-[2px] h-40 mb-2 px-0.5">
+          {weeks.map((w, i) => (
+            <div key={w} className="flex-1 flex flex-col items-center gap-[1px] h-full justify-end">
+              <div className="w-full flex items-end gap-[1px] h-full">
+                <div className="flex-1 rounded-t-sm transition-all" style={{height:`${volData[i]}%`, background:'#3B82F6', opacity:0.85}} />
+                <div className="flex-1 rounded-t-sm transition-all" style={{height:`${intData[i]}%`, background:'#CCFF00', opacity:0.8}} />
+                <div className="flex-1 rounded-t-sm transition-all" style={{height:`${denData[i]}%`, background:'#F43F5E', opacity:0.75}} />
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Week labels */}
+        <div className="flex justify-between px-0.5">
+          {['S1','','','S4','','','','S8','','','','S12','','','','S16','','','','S20','','','','S24'].map((s,i) => (
+            <span key={i} className="flex-1 text-center text-[6px] text-slate-600 font-bold" style={{fontFamily:BC}}>{s}</span>
+          ))}
+        </div>
+        {/* Bottom stats row */}
+        <div className="flex items-center gap-3 mt-4 pt-3 border-t border-slate-700/40">
+          {[
+            {l:'Carga Total',v:'2,847 UA',c:'text-blue-400'},
+            {l:'ACWR',v:'0.87',c:'text-[#CCFF00]'},
+            {l:'Monotonía',v:'1.24',c:'text-rose-400'},
+            {l:'Adherencia',v:'94%',c:'text-emerald-400'},
+          ].map(s => (
+            <div key={s.l} className="flex-1 text-center">
+              <div className={`text-[14px] font-black leading-none ${s.c}`} style={{fontFamily:BC}}>{s.v}</div>
+              <div className="text-[7px] text-slate-500 mt-1">{s.l}</div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const MarqueeStrip = () => (
   <div className="overflow-hidden py-3 bg-slate-900 border-t border-b border-slate-800">
@@ -122,15 +175,18 @@ const DataRings = () => (
 const ReadinessGauge = ({ size = 96 }) => {
   const r = (size - 10) / 2, c = Math.PI * 2 * r, off = c - (c * 85) / 100;
   return (
-    <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#1e293b" strokeWidth="4" />
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#CCFF00" strokeWidth="4" strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round" />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-xl font-black text-white leading-none" style={{fontFamily:BC}}>85</span>
-        <span className="text-[7px] text-slate-400 mt-0.5">READINESS</span>
+    <div className="flex flex-col items-center gap-1">
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg width={size} height={size} className="-rotate-90">
+          <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#1e293b" strokeWidth="4" />
+          <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#CCFF00" strokeWidth="4" strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round" />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-2xl font-black text-white leading-none" style={{fontFamily:BC}}>85</span>
+          <span className="text-[8px] text-[#CCFF00] mt-0.5 font-bold">ÓPTIMO</span>
+        </div>
       </div>
+      <span className="text-[8px] text-slate-400 font-bold" style={{fontFamily:BC}}>READINESS</span>
     </div>
   );
 };
@@ -239,16 +295,33 @@ const LandingPage = () => {
           {/* Animated chart panel */}
           <div className="lg:col-span-7 relative" style={{animation:'float 6s ease-in-out infinite'}}>
             <PeriodizationMiniChart />
-            {/* Mini stat cards floating around */}
-            <div className="absolute -top-4 -left-2 bg-slate-800/80 backdrop-blur rounded-xl p-3 border border-slate-700/30 shadow-xl" style={{animation:'float 4s ease-in-out infinite 0.5s'}}>
-              <ReadinessGauge size={72} />
+            {/* Readiness card - top left */}
+            <div className="absolute -top-6 -left-4 bg-slate-800/90 backdrop-blur-lg rounded-xl p-3.5 border border-slate-700/40 shadow-2xl" style={{animation:'float 4s ease-in-out infinite 0.5s'}}>
+              <ReadinessGauge size={88} />
             </div>
-            <div className="absolute -bottom-2 -right-2 bg-slate-800/80 backdrop-blur rounded-xl p-2.5 border border-slate-700/30 shadow-xl" style={{animation:'float 5s ease-in-out infinite 1s'}}>
+            {/* ACWR + athlete card - bottom right */}
+            <div className="absolute -bottom-4 -right-4 bg-slate-800/90 backdrop-blur-lg rounded-xl p-3.5 border border-slate-700/40 shadow-2xl" style={{animation:'float 5s ease-in-out infinite 1s'}}>
+              <div className="flex items-center gap-3">
+                <div className="flex flex-col items-center">
+                  <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center mb-1"><Zap className="w-5 h-5 text-blue-400" /></div>
+                  <div className="text-[15px] font-black text-white leading-none" style={{fontFamily:BC}}>0.87</div>
+                  <div className="text-[8px] text-slate-400 font-bold">ACWR</div>
+                </div>
+                <div className="w-px h-10 bg-slate-700" />
+                <div className="flex flex-col items-center">
+                  <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center mb-1"><Heart className="w-5 h-5 text-emerald-400" /></div>
+                  <div className="text-[15px] font-black text-white leading-none" style={{fontFamily:BC}}>156</div>
+                  <div className="text-[8px] text-slate-400 font-bold">FC MAX</div>
+                </div>
+              </div>
+            </div>
+            {/* Athlete count - top right */}
+            <div className="absolute -top-3 right-8 bg-slate-800/90 backdrop-blur-lg rounded-xl px-4 py-2.5 border border-slate-700/40 shadow-2xl" style={{animation:'float 5.5s ease-in-out infinite 2s'}}>
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center"><Zap className="w-4 h-4 text-blue-400" /></div>
+                <Users className="w-4 h-4 text-[#CCFF00]" />
                 <div>
-                  <div className="text-sm font-black text-white leading-none" style={{fontFamily:BC}}>0.87</div>
-                  <div className="text-[7px] text-slate-400">ACWR</div>
+                  <div className="text-[13px] font-black text-white leading-none" style={{fontFamily:BC}}>24</div>
+                  <div className="text-[7px] text-slate-400">ATLETAS</div>
                 </div>
               </div>
             </div>
@@ -286,33 +359,87 @@ const LandingPage = () => {
 
         <div className="grid grid-cols-12 gap-3">
           {/* Main — Plan Gráfico */}
-          <div className="col-span-12 md:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl p-7 relative overflow-hidden min-h-[280px]" data-testid="feature-periodization">
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 bg-[#CCFF00] rounded-lg flex items-center justify-center"><BarChart3 className="w-4 h-4 text-slate-900" /></div>
-                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#CCFF00]" style={{fontFamily:BC}}>{t('landing.features.tag')}</span>
+          <div className="col-span-12 md:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl p-7 relative overflow-hidden" data-testid="feature-periodization">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-[#CCFF00] rounded-lg flex items-center justify-center"><BarChart3 className="w-4 h-4 text-slate-900" /></div>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#CCFF00]" style={{fontFamily:BC}}>{t('landing.features.tag')}</span>
+                </div>
+                <h3 className="text-[20px] font-semibold text-white mb-2">{t('landing.features.m1_title')}</h3>
+                <p className="text-[13px] text-slate-400 leading-[1.6] max-w-xs">{t('landing.features.m1_desc')}</p>
               </div>
-              <h3 className="text-[20px] font-semibold text-white mb-2">{t('landing.features.m1_title')}</h3>
-              <p className="text-[14px] text-slate-400 leading-[1.6] max-w-sm">{t('landing.features.m1_desc')}</p>
+              {/* Mini phase labels */}
+              <div className="hidden md:flex gap-1.5 mt-1">
+                {[{n:'ACU',c:'#3B82F6'},{n:'TRA',c:'#CCFF00'},{n:'REA',c:'#F43F5E'}].map(p => (
+                  <span key={p.n} className="px-2 py-0.5 rounded text-[8px] font-bold" style={{background:p.c+'20', color:p.c, fontFamily:BC}}>{p.n}</span>
+                ))}
+              </div>
             </div>
-            <div className="mt-4 grid grid-cols-3 gap-2">
-              <AnimatedBarChart label="Volumen" color1="#3B82F6" color2="#1e40af" delay={0} />
-              <AnimatedBarChart label="Intensidad" color1="#CCFF00" color2="#84cc16" delay={0.5} />
-              <AnimatedBarChart label="Densidad" color1="#F43F5E" color2="#be123c" delay={1} />
+            {/* Realistic bar chart with data */}
+            <div className="bg-slate-800/40 rounded-xl p-4 border border-slate-700/20">
+              <div className="flex items-end gap-[3px] h-44">
+                {[
+                  [78,35,55],[85,40,50],[90,45,48],[62,50,58],[75,48,52],[82,55,50],[88,60,45],[68,65,62],
+                  [76,58,55],[84,68,48],[92,72,42],[65,75,65],[70,70,58],[82,78,52],[88,82,48],[60,85,70],
+                  [68,78,62],[80,85,56],[86,88,50],[52,90,72],[62,85,65],[75,90,58],[82,92,52],[48,95,78]
+                ].map((d,i) => (
+                  <div key={i} className="flex-1 flex items-end gap-[1px] h-full">
+                    <div className="flex-1 rounded-t-sm" style={{height:`${d[0]}%`, background:'#3B82F6', opacity:0.85}} />
+                    <div className="flex-1 rounded-t-sm" style={{height:`${d[1]}%`, background:'#CCFF00', opacity:0.8}} />
+                    <div className="flex-1 rounded-t-sm" style={{height:`${d[2]}%`, background:'#F43F5E', opacity:0.7}} />
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-between mt-2 px-0.5">
+                {['S1','','','','S5','','','','S9','','','','S13','','','','S17','','','','S21','','','S24'].map((s,i) => (
+                  <span key={i} className="flex-1 text-center text-[7px] text-slate-600 font-bold" style={{fontFamily:BC}}>{s}</span>
+                ))}
+              </div>
+              {/* Bottom stat row */}
+              <div className="flex items-center gap-4 mt-3 pt-2 border-t border-slate-700/30">
+                {[{l:'Volumen',v:'2,847 UA',c:'#3B82F6'},{l:'Intensidad',v:'78%',c:'#CCFF00'},{l:'Densidad',v:'1.24',c:'#F43F5E'},{l:'Semanas',v:'24',c:'#64748b'}].map(s => (
+                  <div key={s.l} className="flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full" style={{background:s.c}} />
+                    <span className="text-[10px] font-bold" style={{color:s.c, fontFamily:BC}}>{s.v}</span>
+                    <span className="text-[9px] text-slate-500">{s.l}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
           {/* Atletas */}
-          <div className="col-span-12 md:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-7 flex flex-col justify-between min-h-[280px]" data-testid="feature-team">
+          <div className="col-span-12 md:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-7 flex flex-col justify-between" data-testid="feature-team">
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center"><Users className="w-4 h-4 text-white" /></div>
                 <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-blue-400" style={{fontFamily:BC}}>Central</span>
               </div>
               <h3 className="text-[20px] font-semibold text-white mb-2">{t('landing.features.m2_title')}</h3>
-              <p className="text-[14px] text-slate-400 leading-[1.6]">{t('landing.features.m2_desc')}</p>
+              <p className="text-[13px] text-slate-400 leading-[1.6]">{t('landing.features.m2_desc')}</p>
             </div>
-            <div className="mt-3"><TeamFormation /></div>
+            {/* Realistic athlete list */}
+            <div className="mt-4 space-y-2">
+              {[
+                {n:'Juan Pérez',s:'Atletismo',v:'VO2: 52.3',c:'bg-blue-500'},
+                {n:'María López',s:'Natación',v:'1RM: 95kg',c:'bg-emerald-500'},
+                {n:'Carlos Díaz',s:'Fútbol',v:'ACWR: 0.91',c:'bg-purple-500'},
+              ].map((a,i) => (
+                <div key={i} className="flex items-center gap-2.5 bg-slate-800/60 rounded-lg px-3 py-2 border border-slate-700/30">
+                  <div className={`w-7 h-7 ${a.c} rounded-full flex items-center justify-center text-[9px] font-bold text-white`}>{a.n.split(' ').map(w=>w[0]).join('')}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[11px] font-semibold text-white truncate">{a.n}</div>
+                    <div className="text-[9px] text-slate-500">{a.s}</div>
+                  </div>
+                  <span className="text-[9px] text-[#CCFF00] font-bold" style={{fontFamily:BC}}>{a.v}</span>
+                </div>
+              ))}
+              <div className="flex items-center justify-center gap-1 pt-1">
+                <TeamFormation />
+                <span className="text-[9px] text-slate-500 ml-2">+21 más</span>
+              </div>
+            </div>
           </div>
 
           {/* IA */}
