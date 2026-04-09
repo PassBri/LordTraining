@@ -50,12 +50,13 @@
       "signup": "Crear Cuenta"
     },
     "features": {
+      "tag": "FUNCIONALIDADES",
       "title": "Todo lo que necesitas para planificar con criterio",
       "subtitle": "9 módulos integrados que cubren el ciclo completo del entrenamiento deportivo",
-      "m1_title": "Autenticación y Cuenta",
-      "m1_desc": "Registro por rol con permisos granulares. Entrenador, atleta, coordinador y administrador.",
-      "m2_title": "Perfiles Deportivos",
-      "m2_desc": "Gestión de atletas con historial, disciplina, nivel, objetivos y observaciones detalladas.",
+      "m1_title": "Plan Gráfico de Periodización",
+      "m1_desc": "Visualiza macrociclos, mesociclos y microciclos con 5 modelos científicos. Controla volumen, intensidad y densidad en tiempo real.",
+      "m2_title": "Gestión de Equipos y Atletas",
+      "m2_desc": "Administra atletas, equipos y entidades desde un panel centralizado. Asigna planes individuales o colectivos.",
       "m3_title": "Planificación por Ciclos",
       "m3_desc": "Macrociclos, mesociclos y microciclos con 5 modelos: Tradicional, ATR, Bloques, Ondulatorio y Concurrente.",
       "m4_title": "Sesiones y Cargas",
@@ -66,12 +67,13 @@
       "m6_desc": "Registro de competencias por nivel y prioridad A/B/C. Exportación compatible con iCal.",
       "m7_title": "Visualización y Reportes",
       "m7_desc": "Gráficas de ACWR, carga acumulada, adherencia y exportación PDF/Excel profesional.",
-      "m8_title": "Analítica Evolutiva",
-      "m8_desc": "Recomendador inteligente para ajustes de carga y alertas de sobrecarga. Apoyo a la decisión.",
+      "m8_title": "Motor de IA Integrado",
+      "m8_desc": "Generación automática de estructuras de entrenamiento y recomendaciones inteligentes de carga.",
       "m9_title": "Administración",
       "m9_desc": "Panel de control, gestión de usuarios, auditoría de eventos y métricas de uso del sistema."
     },
     "howItWorks": {
+      "tag": "PROCESO",
       "title": "Cómo funciona",
       "subtitle": "De la planificación anual a la sesión diaria en 4 pasos",
       "step1_title": "Crea tu plan",
@@ -84,6 +86,7 @@
       "step4_desc": "Visualiza ACWR, carga acumulada y adherencia. Exporta reportes profesionales."
     },
     "pricing": {
+      "tag": "PRECIOS",
       "title": "Planes y Precios",
       "subtitle": "Desde entrenadores independientes hasta organizaciones deportivas",
       "free_name": "Free / Académico",
@@ -122,6 +125,11 @@
       "cta": "Empezar ahora",
       "contact": "Contactar ventas",
       "popular": "Más popular"
+    },
+    "cta": {
+      "title": "Empieza a planificar con criterio científico",
+      "desc": "Únete a los entrenadores que confían en iTRAIN para llevar su planificación deportiva al siguiente nivel.",
+      "button": "Comenzar ahora"
     },
     "models": {
       "title": "5 Modelos Metodológicos",

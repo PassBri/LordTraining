@@ -50,12 +50,13 @@
       "signup": "Sign Up"
     },
     "features": {
+      "tag": "FEATURES",
       "title": "Everything you need to plan with criteria",
       "subtitle": "9 integrated modules covering the complete sports training cycle",
-      "m1_title": "Authentication & Accounts",
-      "m1_desc": "Role-based registration with granular permissions. Coach, athlete, coordinator and admin.",
-      "m2_title": "Sports Profiles",
-      "m2_desc": "Athlete management with history, discipline, level, goals and detailed observations.",
+      "m1_title": "Graphic Periodization Plan",
+      "m1_desc": "Visualize macrocycles, mesocycles and microcycles with 5 scientific models. Track volume, intensity and density in real time.",
+      "m2_title": "Team & Athlete Management",
+      "m2_desc": "Manage athletes, teams and entities from a centralized panel. Assign individual or collective plans.",
       "m3_title": "Cycle Planning",
       "m3_desc": "Macrocycles, mesocycles and microcycles with 5 models: Traditional, ATR, Block, Undulating and Concurrent.",
       "m4_title": "Sessions & Loads",
@@ -66,12 +67,13 @@
       "m6_desc": "Competition tracking by level and A/B/C priority. iCal compatible export.",
       "m7_title": "Visualization & Reports",
       "m7_desc": "ACWR charts, accumulated load, adherence and professional PDF/Excel export.",
-      "m8_title": "Evolutionary Analytics",
-      "m8_desc": "Intelligent recommender for load adjustments and overload alerts. Decision support.",
+      "m8_title": "Integrated AI Engine",
+      "m8_desc": "Automatic training structure generation and intelligent load recommendations.",
       "m9_title": "Administration",
       "m9_desc": "Control panel, user management, event auditing and system usage metrics."
     },
     "howItWorks": {
+      "tag": "PROCESS",
       "title": "How it works",
       "subtitle": "From annual planning to daily sessions in 4 steps",
       "step1_title": "Create your plan",
@@ -84,6 +86,7 @@
       "step4_desc": "Visualize ACWR, accumulated load and adherence. Export professional reports."
     },
     "pricing": {
+      "tag": "PRICING",
       "title": "Plans & Pricing",
       "subtitle": "From independent coaches to sports organizations",
       "free_name": "Free / Academic",
@@ -122,6 +125,11 @@
       "cta": "Get started",
       "contact": "Contact sales",
       "popular": "Most popular"
+    },
+    "cta": {
+      "title": "Start planning with scientific criteria",
+      "desc": "Join coaches who trust iTRAIN to take their sports planning to the next level.",
+      "button": "Get started now"
     },
     "models": {
       "title": "5 Methodological Models",

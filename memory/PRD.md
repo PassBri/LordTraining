@@ -19,6 +19,20 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
 | Club / Academia (Popular) | $29.99/mes | Ilimitados | Ilimitados | 100 |
 | Institucional | $99.99/mes | Ilimitados | Ilimitados | Ilimitados |
 
+## Lo Implementado (Sesión 9 Abr 2026 - Fork 4)
+
+### P0 COMPLETADO: Corregir Landing Page i18n
+- Todas las claves de traducción faltantes añadidas: `landing.features.tag`, `landing.howItWorks.tag`, `landing.pricing.tag`, `landing.cta.title`, `landing.cta.desc`, `landing.cta.button`
+- Textos de features actualizados para coincidir con el nuevo diseño (m1→Periodización, m2→Equipos, m8→IA)
+- Traducciones añadidas a los 12 idiomas soportados
+- Landing Page cinématico ahora muestra todo el texto correctamente
+
+### COMPLETADO: Limpieza código muerto Caracterización Deporte  
+- Eliminado bloque `sport-char` (~285 líneas) de DashboardPage.js — nunca era accesible via nav
+- Eliminado import no usado de `SportCharacterization`
+- La caracterización funciona correctamente como modal dentro de la sección "Deportes"
+- **DashboardPage.js reducido: 4759 → 4470 líneas**
+
 ## Lo Implementado (Sesión 31 Mar 2026 - Fork 3)
 
 ### P1 COMPLETADO: Refactorizar DashboardPage.js
@@ -71,8 +85,8 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
   ├── ControlPanel.js         (dashboard stats)
   └── TournamentManager.js    (torneos)
 /app/frontend/src/pages/
-  ├── DashboardPage.js        (4763 líneas, reducido de 5793)
-  ├── LandingPage.js          (precios actualizados)
+  ├── DashboardPage.js        (4470 líneas, reducido de 4759)
+  ├── LandingPage.js          (rediseño cinematográfico dark + i18n completo)
   └── SubscriptionPage.js     (rediseñado estilo landing)
 ```
 

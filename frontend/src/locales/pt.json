@@ -52,10 +52,10 @@
     "features": {
       "title": "Tudo que você precisa para planejar com critério",
       "subtitle": "9 módulos integrados que cobrem o ciclo completo do treinamento esportivo",
-      "m1_title": "Autenticação e Conta",
-      "m1_desc": "Registro por função com permissões granulares. Treinador, atleta, coordenador e administrador.",
-      "m2_title": "Perfis Esportivos",
-      "m2_desc": "Gestão de atletas com histórico, disciplina, nível, objetivos e observações detalhadas.",
+      "m1_title": "Plano Gráfico de Periodização",
+      "m1_desc": "Visualize macrociclos, mesociclos e microciclos com 5 modelos científicos. Controle volume, intensidade e densidade em tempo real.",
+      "m2_title": "Gestão de Equipas e Atletas",
+      "m2_desc": "Gerencie atletas, equipes e entidades de um painel centralizado.",
       "m3_title": "Planejamento por Ciclos",
       "m3_desc": "Macrociclos, mesociclos e microciclos com 5 modelos: Tradicional, ATR, Blocos, Ondulatório e Concorrente.",
       "m4_title": "Sessões e Cargas",
@@ -66,10 +66,11 @@
       "m6_desc": "Registro de competições por nível e prioridade A/B/C. Exportação compatível com iCal.",
       "m7_title": "Visualização e Relatórios",
       "m7_desc": "Gráficos ACWR, carga acumulada, aderência e exportação profissional PDF/Excel.",
-      "m8_title": "Analítica Evolutiva",
-      "m8_desc": "Recomendador inteligente para ajustes de carga e alertas de sobrecarga. Apoio à decisão.",
+      "m8_title": "Motor de IA Integrado",
+      "m8_desc": "Geração automática de estruturas de treino e recomendações inteligentes de carga.",
       "m9_title": "Administração",
-      "m9_desc": "Painel de controle, gestão de usuários, auditoria de eventos e métricas de uso do sistema."
+      "m9_desc": "Painel de controle, gestão de usuários, auditoria de eventos e métricas de uso do sistema.",
+      "tag": "FUNCIONALIDADES"
     },
     "howItWorks": {
       "title": "Como funciona",
@@ -81,7 +82,8 @@
       "step3_title": "Registre as sessões",
       "step3_desc": "Capture volume, intensidade, carga RPE e exercícios. Compare planejado vs. executado.",
       "step4_title": "Analise e ajuste",
-      "step4_desc": "Visualize ACWR, carga acumulada e aderência. Exporte relatórios profissionais."
+      "step4_desc": "Visualize ACWR, carga acumulada e aderência. Exporte relatórios profissionais.",
+      "tag": "PROCESSO"
     },
     "pricing": {
       "title": "Planos e Preços",
@@ -121,7 +123,8 @@
       "inst_f5": "Personalização de modelos",
       "cta": "Comece agora",
       "contact": "Falar com vendas",
-      "popular": "Mais popular"
+      "popular": "Mais popular",
+      "tag": "PREÇOS"
     },
     "models": {
       "title": "5 Modelos Metodológicos",
@@ -150,6 +153,11 @@
       "terms": "Termos",
       "copyright": "Todos os direitos reservados.",
       "slogan": "Planeje melhor. Treine com critério. Compita com vantagem."
+    },
+    "cta": {
+      "title": "Comece a planificar com critério científico",
+      "desc": "Junte-se aos treinadores que confiam no iTRAIN para levar seu planejamento esportivo ao próximo nível.",
+      "button": "Começar agora"
     }
   },
   "auth": {
