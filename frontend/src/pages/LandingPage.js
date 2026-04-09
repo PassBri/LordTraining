@@ -124,6 +124,9 @@ const PeriodizationMiniChart = () => {
         </div>
         {/* Bottom stats row */}
         <div className="flex items-center gap-3 mt-4 pt-3 border-t border-slate-700/40">
+          <div className="flex-shrink-0 mr-1">
+            <ReadinessGauge size={52} />
+          </div>
           {[
             {l:'Carga Total',v:'2,847 UA',c:'text-blue-400'},
             {l:'ACWR',v:'0.87',c:'text-[#CCFF00]'},
@@ -244,104 +247,89 @@ const LandingPage = () => {
       </div>
     </nav>
 
-    {/* HERO — Dark cinematic with giant text + animated chart */}
-    <section className="relative pt-[56px] overflow-hidden bg-slate-950 min-h-[100vh] flex flex-col justify-center">
+    {/* HERO — Compact Material Design layout */}
+    <section className="relative pt-[56px] overflow-hidden bg-slate-950" style={{minHeight:'calc(100vh - 0px)'}}>
       {/* Background elements */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(204,255,0,0.03)_0%,transparent_70%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_50%,rgba(204,255,0,0.04)_0%,transparent_60%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:32px_32px] opacity-10" />
 
-      <div className="max-w-[1120px] mx-auto px-6 relative z-10 w-full">
-        {/* Pill buttons */}
-        <div className="flex gap-2 mb-8">
+      <div className="max-w-[1120px] mx-auto px-6 relative z-10 w-full pt-10 pb-6">
+        {/* Pill badges */}
+        <div className="flex gap-2 mb-6">
           {['PERIODIZACIÓN','PLANIFICACIÓN','CIENCIA'].map(txt => (
-            <span key={txt} className="px-3.5 py-1.5 border border-slate-700 rounded-full text-[10px] font-bold tracking-[0.15em] text-slate-400 hover:border-[#CCFF00] hover:text-[#CCFF00] transition-colors cursor-pointer" style={{fontFamily:BC}}>{txt}</span>
+            <span key={txt} className="px-3 py-1 border border-slate-700 rounded-full text-[9px] font-bold tracking-[0.15em] text-slate-400 hover:border-[#CCFF00] hover:text-[#CCFF00] transition-colors cursor-pointer" style={{fontFamily:BC}}>{txt}</span>
           ))}
         </div>
 
-        {/* Giant hero text + chart */}
-        <div className="relative mb-6">
-          <h1 className="text-[5rem] sm:text-[7rem] lg:text-[9rem] font-black text-white leading-[0.85] tracking-[-0.04em] relative z-10" style={{fontFamily:BC}} data-testid="hero-title">
-            iTRAIN
-          </h1>
-          {/* Green glow circle behind the chart */}
-          <div className="absolute top-1/2 right-[15%] -translate-y-1/2 w-[350px] h-[350px] rounded-full bg-[#CCFF00]/[0.06] blur-[80px] -z-0" style={{animation:'glow 5s ease-in-out infinite'}} />
-        </div>
-
-        {/* Subtitle + CTA row */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
-          <div className="lg:col-span-5">
-            <p className="text-[15px] text-slate-400 leading-[1.7] mb-6 max-w-[380px]" data-testid="hero-subtitle">
-              {t('landing.hero.subtitle')}
-            </p>
-            <div className="flex gap-3 mb-5">
-              <Link to="/auth">
-                <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] h-12 px-8 text-[13px] font-bold rounded-xl shadow-lg shadow-[#CCFF00]/10" style={{fontFamily:BC}} data-testid="hero-cta-btn">
-                  {t('landing.hero.cta_primary')} <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
-              <a href="#features">
-                <Button variant="outline" className="h-12 px-6 text-[13px] font-medium border-slate-700 text-slate-300 hover:bg-slate-800 rounded-xl">
-                  {t('landing.hero.cta_secondary')}
-                </Button>
-              </a>
+        {/* Main grid: text left + chart right */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Left column — branding + CTA */}
+          <div className="lg:col-span-5 flex flex-col justify-between">
+            <div>
+              <h1 className="text-[3.5rem] sm:text-[4.5rem] lg:text-[5.5rem] font-black text-white leading-[0.9] tracking-[-0.03em] mb-5" style={{fontFamily:BC}} data-testid="hero-title">
+                iTRAIN
+              </h1>
+              <p className="text-[15px] text-slate-400 leading-[1.7] mb-6 max-w-[380px]" data-testid="hero-subtitle">
+                {t('landing.hero.subtitle')}
+              </p>
+              <div className="flex gap-3 mb-5">
+                <Link to="/auth">
+                  <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] h-11 px-7 text-[13px] font-bold rounded-xl shadow-lg shadow-[#CCFF00]/10" style={{fontFamily:BC}} data-testid="hero-cta-btn">
+                    {t('landing.hero.cta_primary')} <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+                <a href="#features">
+                  <Button variant="outline" className="h-11 px-5 text-[13px] font-medium border-slate-700 text-slate-300 hover:bg-slate-800 rounded-xl">
+                    {t('landing.hero.cta_secondary')}
+                  </Button>
+                </a>
+              </div>
+              <div className="flex gap-4 text-[11px] text-slate-500 mb-6">
+                {['14 días gratis','Sin tarjeta','Cancela cuando quieras'].map(txt => (
+                  <span key={txt} className="flex items-center gap-1.5"><Check className="w-3 h-3 text-[#CCFF00]" />{txt}</span>
+                ))}
+              </div>
             </div>
-            <div className="flex gap-5 text-[11px] text-slate-500">
-              {['14 días gratis','Sin tarjeta','Cancela cuando quieras'].map(txt => (
-                <span key={txt} className="flex items-center gap-1.5"><Check className="w-3 h-3 text-[#CCFF00]" />{txt}</span>
+
+            {/* Inline stat cards */}
+            <div className="grid grid-cols-2 gap-3 mt-2">
+              {[
+                {icon: <Zap className="w-4 h-4 text-blue-400" />, v:'0.87', l:'ACWR', bg:'bg-blue-500/10', border:'border-blue-500/20'},
+                {icon: <Heart className="w-4 h-4 text-emerald-400" />, v:'156', l:'FC MAX', bg:'bg-emerald-500/10', border:'border-emerald-500/20'},
+                {icon: <Users className="w-4 h-4 text-[#CCFF00]" />, v:'24', l:'ATLETAS', bg:'bg-[#CCFF00]/10', border:'border-[#CCFF00]/20'},
+                {icon: <Target className="w-4 h-4 text-purple-400" />, v:'94%', l:'ADHERENCIA', bg:'bg-purple-500/10', border:'border-purple-500/20'},
+              ].map((s,i) => (
+                <div key={i} className={`${s.bg} ${s.border} border rounded-xl px-3.5 py-2.5 flex items-center gap-2.5`}>
+                  <div className="w-8 h-8 rounded-lg bg-slate-800/80 flex items-center justify-center">{s.icon}</div>
+                  <div>
+                    <div className="text-[16px] font-black text-white leading-none" style={{fontFamily:BC}}>{s.v}</div>
+                    <div className="text-[8px] text-slate-500 font-bold mt-0.5">{s.l}</div>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
 
-          {/* Animated chart panel */}
+          {/* Right column — Chart */}
           <div className="lg:col-span-7 relative" style={{animation:'float 6s ease-in-out infinite'}}>
             <PeriodizationMiniChart />
-            {/* Readiness card - top left */}
-            <div className="absolute -top-6 -left-4 bg-slate-800/90 backdrop-blur-lg rounded-xl p-3.5 border border-slate-700/40 shadow-2xl" style={{animation:'float 4s ease-in-out infinite 0.5s'}}>
-              <ReadinessGauge size={88} />
-            </div>
-            {/* ACWR + athlete card - bottom right */}
-            <div className="absolute -bottom-4 -right-4 bg-slate-800/90 backdrop-blur-lg rounded-xl p-3.5 border border-slate-700/40 shadow-2xl" style={{animation:'float 5s ease-in-out infinite 1s'}}>
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col items-center">
-                  <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center mb-1"><Zap className="w-5 h-5 text-blue-400" /></div>
-                  <div className="text-[15px] font-black text-white leading-none" style={{fontFamily:BC}}>0.87</div>
-                  <div className="text-[8px] text-slate-400 font-bold">ACWR</div>
-                </div>
-                <div className="w-px h-10 bg-slate-700" />
-                <div className="flex flex-col items-center">
-                  <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center mb-1"><Heart className="w-5 h-5 text-emerald-400" /></div>
-                  <div className="text-[15px] font-black text-white leading-none" style={{fontFamily:BC}}>156</div>
-                  <div className="text-[8px] text-slate-400 font-bold">FC MAX</div>
-                </div>
-              </div>
-            </div>
-            {/* Athlete count - top right */}
-            <div className="absolute -top-3 right-8 bg-slate-800/90 backdrop-blur-lg rounded-xl px-4 py-2.5 border border-slate-700/40 shadow-2xl" style={{animation:'float 5.5s ease-in-out infinite 2s'}}>
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-[#CCFF00]" />
-                <div>
-                  <div className="text-[13px] font-black text-white leading-none" style={{fontFamily:BC}}>24</div>
-                  <div className="text-[7px] text-slate-400">ATLETAS</div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
 
       {/* Animated Marquee */}
-      <div className="mt-auto">
+      <div className="mt-4">
         <MarqueeStrip />
       </div>
 
       {/* Stats strip */}
       <div className="border-t border-slate-800/40 bg-slate-900/50 backdrop-blur-sm">
-        <div className="max-w-[1120px] mx-auto px-6 py-5">
+        <div className="max-w-[1120px] mx-auto px-6 py-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[{v:'17',k:'models'},{v:'6',k:'controls'},{v:'150+',k:'exercises'},{v:'5',k:'calculators'}].map((s,i) => (
               <div key={i} className="flex items-center gap-3">
-                <span className="text-[24px] font-black text-white leading-none" style={{fontFamily:BC}}>{s.v}</span>
-                <span className="text-[13px] text-slate-500 leading-snug">{t(`landing.hero.stats.${s.k}`)}</span>
+                <span className="text-[22px] font-black text-white leading-none" style={{fontFamily:BC}}>{s.v}</span>
+                <span className="text-[12px] text-slate-500 leading-snug">{t(`landing.hero.stats.${s.k}`)}</span>
               </div>
             ))}
           </div>
