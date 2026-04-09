@@ -3009,23 +3009,30 @@ const DashboardPage = () => {
       const cumplKeys = ['general', 'fisica', 'tecnica', 'tactica', 'psicologica'];
       const cumplLabels = ['Objetivo General', 'Preparación Física', 'Preparación Técnica', 'Preparación Táctica', 'Preparación Psicológica'];
       return (
-        <div className="p-6 space-y-6 overflow-y-auto h-full bg-[#fafaf8]">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-2xl mb-4">
-              <FileText className="w-8 h-8 text-slate-500" />
+        <div className="p-5 space-y-5 overflow-y-auto h-full bg-[#fafaf8]">
+          {/* Compact Material Design header */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center shadow-md">
+                <FileText className="w-5 h-5 text-[#CCFF00]" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-slate-900">Análisis del Plan Anterior</h1>
+                <p className="text-xs text-slate-500">Evaluación retrospectiva para identificar fortalezas y oportunidades de mejora</p>
+              </div>
             </div>
-            <h1 className="text-3xl font-bold text-slate-800 mb-2">Análisis del Plan Anterior</h1>
-            <p className="text-slate-500 max-w-2xl mx-auto">
-              Evaluación retrospectiva del plan de entrenamiento previo para identificar fortalezas, debilidades y oportunidades de mejora.
-            </p>
+            <Button className="bg-slate-900 hover:bg-slate-800 text-white h-9 text-xs px-4" onClick={handleSavePreviousAnalysis} disabled={savingEvaluation} data-testid="prev-save-btn">
+              <Save className="w-3.5 h-3.5 mr-1.5" />
+              {savingEvaluation ? 'Guardando...' : 'Guardar'}
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Información del Plan Anterior */}
-            <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Calendar className="w-5 h-5" />
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-[#007AFF]">
+              <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
+                <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
+                  <Calendar className="w-4 h-4 text-[#007AFF]" />
                   Información del Plan Anterior
                 </CardTitle>
               </CardHeader>
@@ -3052,10 +3059,10 @@ const DashboardPage = () => {
             </Card>
 
             {/* Cumplimiento de Objetivos */}
-            <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <CheckCircle className="w-5 h-5" />
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-emerald-500">
+              <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
+                <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
+                  <CheckCircle className="w-4 h-4 text-emerald-500" />
                   Cumplimiento de Objetivos
                 </CardTitle>
               </CardHeader>
@@ -3083,10 +3090,10 @@ const DashboardPage = () => {
             </Card>
 
             {/* Análisis de Fortalezas */}
-            <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <TrendingUp className="w-5 h-5" />
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-[#007AFF]">
+              <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
+                <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
+                  <TrendingUp className="w-4 h-4 text-[#007AFF]" />
                   Fortalezas del Plan Anterior
                 </CardTitle>
               </CardHeader>
@@ -3102,10 +3109,10 @@ const DashboardPage = () => {
             </Card>
 
             {/* Análisis de Debilidades */}
-            <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <AlertTriangle className="w-5 h-5" />
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-amber-500">
+              <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
+                <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
+                  <AlertTriangle className="w-4 h-4 text-amber-500" />
                   Debilidades y Áreas de Mejora
                 </CardTitle>
               </CardHeader>
@@ -3121,10 +3128,10 @@ const DashboardPage = () => {
             </Card>
 
             {/* Indicadores de Rendimiento */}
-            <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <BarChart className="w-5 h-5" />
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-emerald-500">
+              <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
+                <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
+                  <BarChart className="w-4 h-4 text-emerald-500" />
                   Indicadores de Rendimiento
                 </CardTitle>
               </CardHeader>
@@ -3188,11 +3195,11 @@ const DashboardPage = () => {
           </div>
 
           {/* Conclusiones y Recomendaciones */}
-          <Card className="border-0 shadow-xl overflow-hidden">
-            <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Lightbulb className="w-5 h-5" />
-                Conclusiones y Recomendaciones para el Nuevo Plan
+          <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-slate-900">
+            <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
+              <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
+                <Lightbulb className="w-4 h-4 text-amber-500" />
+                Conclusiones y Recomendaciones
               </CardTitle>
             </CardHeader>
             <CardContent className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -3207,23 +3214,6 @@ const DashboardPage = () => {
             </CardContent>
           </Card>
 
-          <div className="bg-slate-100 rounded-xl p-4 text-center">
-            <p className="text-slate-600 text-sm">
-              <Sparkles className="w-4 h-4 inline mr-2 text-amber-400" />
-              Este análisis es fundamental para la mejora continua del proceso de entrenamiento y evitar repetir errores del pasado.
-            </p>
-          </div>
-
-          <div className="flex justify-end gap-3 pt-4">
-            <Button variant="outline" className="border-slate-300" data-testid="prev-cancel-btn">
-              <X className="w-4 h-4 mr-2" />
-              Cancelar
-            </Button>
-            <Button className="bg-slate-900 hover:bg-slate-800 text-white" onClick={handleSavePreviousAnalysis} disabled={savingEvaluation} data-testid="prev-save-btn">
-              <Save className="w-4 h-4 mr-2" />
-              {savingEvaluation ? 'Guardando...' : 'Guardar Análisis'}
-            </Button>
-          </div>
         </div>
       );
     }
@@ -3231,16 +3221,16 @@ const DashboardPage = () => {
     // Render Sport Characterization component
     if (activeDataSection === 'sport-char') {
       return (
-        <div className="p-6 space-y-6 overflow-y-auto h-full bg-[#fafaf8]">
+        <div className="p-5 space-y-5 overflow-y-auto h-full bg-[#fafaf8]">
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-2xl mb-4">
-              <Trophy className="w-8 h-8 text-slate-500" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center shadow-md">
+              <Trophy className="w-5 h-5 text-[#CCFF00]" />
             </div>
-            <h1 className="text-3xl font-bold text-slate-800 mb-2">Catálogo de Deportes</h1>
-            <p className="text-slate-500 max-w-2xl mx-auto">
-              Organiza los deportes por categorías. Este catálogo se utilizará para asignar deportes a atletas y equipos.
-            </p>
+            <div>
+              <h1 className="text-lg font-bold text-slate-900">Catálogo de Deportes</h1>
+              <p className="text-xs text-slate-500">Organiza deportes por categorías para asignar a atletas y equipos</p>
+            </div>
           </div>
 
           {/* Main Card */}
@@ -4064,31 +4054,36 @@ const DashboardPage = () => {
           {activePlan ? (
             <>
           {/* Plan Active Header Bar */}
-          <div className="bg-slate-900 px-4 py-2.5 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
-                  <Clipboard className="w-4 h-4 text-[#CCFF00]" />
+          <div className="bg-white border-b border-slate-200 px-5 py-3 flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center shadow-md">
+                  <Clipboard className="w-5 h-5 text-[#CCFF00]" />
                 </div>
-                <div>
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wider font-medium">Plan Activo</p>
-                  <h2 className="text-white font-semibold text-sm">{activePlan.name}</h2>
+                <div className="flex flex-col">
+                  <p className="text-[10px] text-slate-400 uppercase tracking-[0.15em] font-bold leading-none mb-0.5">Plan Activo</p>
+                  <h2 className="text-slate-900 font-bold text-base leading-tight">{activePlan.name}</h2>
                 </div>
-                <div className="flex items-center gap-2 ml-2">
-                  <span className="px-2 py-0.5 bg-white/10 text-slate-300 text-[11px] rounded">
-                    {activePlan.total_weeks} sem
+                <div className="hidden sm:flex items-center gap-1.5 ml-1">
+                  <span className="px-2.5 py-1 bg-slate-100 text-slate-600 text-[11px] font-semibold rounded-full">
+                    {activePlan.total_weeks} semanas
                   </span>
-                  <span className="px-2 py-0.5 bg-white/10 text-slate-300 text-[11px] rounded hidden sm:inline">
+                  <span className="px-2.5 py-1 bg-[#E0F7FA] text-[#00838F] text-[11px] font-semibold rounded-full">
                     {activePlan.model_name || activePlan.model}
                   </span>
+                  {activePlan.sport && (
+                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-[11px] font-semibold rounded-full">
+                      {activePlan.sport}
+                    </span>
+                  )}
                 </div>
               </div>
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 onClick={() => handleSetActivePlan(null)}
-                className="text-slate-400 hover:text-white hover:bg-white/10 rounded-lg text-xs"
+                className="border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg text-xs h-8"
               >
-                <ChevronLeft className="w-4 h-4 mr-1" />
+                <ChevronLeft className="w-3.5 h-3.5 mr-1" />
                 Cambiar Plan
               </Button>
           </div>
