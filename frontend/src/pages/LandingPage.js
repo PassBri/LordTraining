@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../components/ui/button';
@@ -12,6 +12,39 @@ import {
 
 const BC = "'Barlow Condensed', sans-serif";
 const INT = "'Inter', sans-serif";
+
+/* ═══ SCROLL REVEAL HOOK ═══ */
+const useInView = (opts = {}) => {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setVisible(true); obs.unobserve(el); }
+    }, { threshold: opts.threshold || 0.15, rootMargin: opts.rootMargin || '0px' });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return [ref, visible];
+};
+
+/* Wrapper component for staggered children */
+const Reveal = ({ children, delay = 0, direction = 'up', className = '', ...props }) => {
+  const [ref, visible] = useInView();
+  const transforms = { up: 'translateY(40px)', down: 'translateY(-40px)', left: 'translateX(-40px)', right: 'translateX(40px)', scale: 'scale(0.92)' };
+  return (
+    <div ref={ref} className={className} style={{
+      opacity: visible ? 1 : 0,
+      transform: visible ? 'translate(0) scale(1)' : transforms[direction],
+      transition: `opacity 0.7s cubic-bezier(0.16,1,0.3,1) ${delay}s, transform 0.7s cubic-bezier(0.16,1,0.3,1) ${delay}s`,
+      willChange: 'opacity, transform',
+      ...props.style
+    }} {...props}>
+      {children}
+    </div>
+  );
+};
 
 /* ═══ ANIMATED CHART COMPONENTS ═══ */
 
@@ -219,6 +252,10 @@ const LandingPage = () => {
       .landing-reset h1,.landing-reset h2,.landing-reset h3,.landing-reset h4{font-family:inherit;font-weight:inherit;text-transform:none;letter-spacing:normal;}
       @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
       @keyframes glow { 0%,100% { opacity: 0.4; } 50% { opacity: 0.8; } }
+      @keyframes barGrow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+      .bar-animate { animation: barGrow 0.8s cubic-bezier(0.16,1,0.3,1) both; transform-origin: bottom; }
+      @keyframes countUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+      .count-animate { animation: countUp 0.5s cubic-bezier(0.16,1,0.3,1) both; }
     `}</style>
 
     {/* NAV — Dark, cinematic */}
@@ -255,40 +292,50 @@ const LandingPage = () => {
 
       <div className="max-w-[1120px] mx-auto px-6 relative z-10 w-full pt-10 pb-6">
         {/* Pill badges */}
-        <div className="flex gap-2 mb-6">
-          {['PERIODIZACIÓN','PLANIFICACIÓN','CIENCIA'].map(txt => (
-            <span key={txt} className="px-3 py-1 border border-slate-700 rounded-full text-[9px] font-bold tracking-[0.15em] text-slate-400 hover:border-[#CCFF00] hover:text-[#CCFF00] transition-colors cursor-pointer" style={{fontFamily:BC}}>{txt}</span>
-          ))}
-        </div>
+        <Reveal delay={0.1} direction="up">
+          <div className="flex gap-2 mb-6">
+            {['PERIODIZACIÓN','PLANIFICACIÓN','CIENCIA'].map(txt => (
+              <span key={txt} className="px-3 py-1 border border-slate-700 rounded-full text-[9px] font-bold tracking-[0.15em] text-slate-400 hover:border-[#CCFF00] hover:text-[#CCFF00] transition-colors cursor-pointer" style={{fontFamily:BC}}>{txt}</span>
+            ))}
+          </div>
+        </Reveal>
 
         {/* Main grid: text left + chart right */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left column — branding + CTA */}
           <div className="lg:col-span-5 flex flex-col justify-between">
             <div>
-              <h1 className="text-[3.5rem] sm:text-[4.5rem] lg:text-[5.5rem] font-black text-white leading-[0.9] tracking-[-0.03em] mb-5" style={{fontFamily:BC}} data-testid="hero-title">
-                iTRAIN
-              </h1>
-              <p className="text-[15px] text-slate-400 leading-[1.7] mb-6 max-w-[380px]" data-testid="hero-subtitle">
-                {t('landing.hero.subtitle')}
-              </p>
-              <div className="flex gap-3 mb-5">
-                <Link to="/auth">
-                  <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] h-11 px-7 text-[13px] font-bold rounded-xl shadow-lg shadow-[#CCFF00]/10" style={{fontFamily:BC}} data-testid="hero-cta-btn">
-                    {t('landing.hero.cta_primary')} <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </Link>
-                <a href="#features">
-                  <Button variant="outline" className="h-11 px-5 text-[13px] font-medium border-slate-700 text-slate-300 hover:bg-slate-800 rounded-xl">
-                    {t('landing.hero.cta_secondary')}
-                  </Button>
-                </a>
-              </div>
-              <div className="flex gap-4 text-[11px] text-slate-500 mb-6">
-                {['14 días gratis','Sin tarjeta','Cancela cuando quieras'].map(txt => (
-                  <span key={txt} className="flex items-center gap-1.5"><Check className="w-3 h-3 text-[#CCFF00]" />{txt}</span>
-                ))}
-              </div>
+              <Reveal delay={0.2} direction="left">
+                <h1 className="text-[3.5rem] sm:text-[4.5rem] lg:text-[5.5rem] font-black text-white leading-[0.9] tracking-[-0.03em] mb-5" style={{fontFamily:BC}} data-testid="hero-title">
+                  iTRAIN
+                </h1>
+              </Reveal>
+              <Reveal delay={0.35} direction="up">
+                <p className="text-[15px] text-slate-400 leading-[1.7] mb-6 max-w-[380px]" data-testid="hero-subtitle">
+                  {t('landing.hero.subtitle')}
+                </p>
+              </Reveal>
+              <Reveal delay={0.5} direction="up">
+                <div className="flex gap-3 mb-5">
+                  <Link to="/auth">
+                    <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] h-11 px-7 text-[13px] font-bold rounded-xl shadow-lg shadow-[#CCFF00]/10" style={{fontFamily:BC}} data-testid="hero-cta-btn">
+                      {t('landing.hero.cta_primary')} <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                  <a href="#features">
+                    <Button variant="outline" className="h-11 px-5 text-[13px] font-medium border-slate-700 text-slate-300 hover:bg-slate-800 rounded-xl">
+                      {t('landing.hero.cta_secondary')}
+                    </Button>
+                  </a>
+                </div>
+              </Reveal>
+              <Reveal delay={0.6} direction="up">
+                <div className="flex gap-4 text-[11px] text-slate-500 mb-6">
+                  {['14 días gratis','Sin tarjeta','Cancela cuando quieras'].map(txt => (
+                    <span key={txt} className="flex items-center gap-1.5"><Check className="w-3 h-3 text-[#CCFF00]" />{txt}</span>
+                  ))}
+                </div>
+              </Reveal>
             </div>
 
             {/* Inline stat cards */}
@@ -299,21 +346,23 @@ const LandingPage = () => {
                 {icon: <Users className="w-4 h-4 text-[#CCFF00]" />, v:'24', l:'ATLETAS', bg:'bg-[#CCFF00]/10', border:'border-[#CCFF00]/20'},
                 {icon: <Target className="w-4 h-4 text-purple-400" />, v:'94%', l:'ADHERENCIA', bg:'bg-purple-500/10', border:'border-purple-500/20'},
               ].map((s,i) => (
-                <div key={i} className={`${s.bg} ${s.border} border rounded-xl px-3.5 py-2.5 flex items-center gap-2.5`}>
-                  <div className="w-8 h-8 rounded-lg bg-slate-800/80 flex items-center justify-center">{s.icon}</div>
-                  <div>
-                    <div className="text-[16px] font-black text-white leading-none" style={{fontFamily:BC}}>{s.v}</div>
-                    <div className="text-[8px] text-slate-500 font-bold mt-0.5">{s.l}</div>
+                <Reveal key={i} delay={0.7 + i * 0.1} direction="up">
+                  <div className={`${s.bg} ${s.border} border rounded-xl px-3.5 py-2.5 flex items-center gap-2.5`}>
+                    <div className="w-8 h-8 rounded-lg bg-slate-800/80 flex items-center justify-center">{s.icon}</div>
+                    <div>
+                      <div className="text-[16px] font-black text-white leading-none" style={{fontFamily:BC}}>{s.v}</div>
+                      <div className="text-[8px] text-slate-500 font-bold mt-0.5">{s.l}</div>
+                    </div>
                   </div>
-                </div>
+                </Reveal>
               ))}
             </div>
           </div>
 
           {/* Right column — Chart */}
-          <div className="lg:col-span-7 relative" style={{animation:'float 6s ease-in-out infinite'}}>
+          <Reveal delay={0.4} direction="right" className="lg:col-span-7 relative" style={{animation:'float 6s ease-in-out infinite'}}>
             <PeriodizationMiniChart />
-          </div>
+          </Reveal>
         </div>
       </div>
 
@@ -340,14 +389,15 @@ const LandingPage = () => {
     {/* FEATURES — Dark cards */}
     <section id="features" className="py-20 px-6 bg-slate-950 relative overflow-hidden">
       <div className="max-w-[1120px] mx-auto relative z-10">
-        <div className="text-center mb-14">
+        <Reveal direction="up" className="text-center mb-14">
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-2" style={{fontFamily:BC}}>{t('landing.features.tag')}</p>
           <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15]" style={{fontFamily:INT}}>{t('landing.features.title')}</h2>
-        </div>
+        </Reveal>
 
         <div className="grid grid-cols-12 gap-3">
           {/* Main — Plan Gráfico */}
-          <div className="col-span-12 md:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl p-7 relative overflow-hidden" data-testid="feature-periodization">
+          <Reveal delay={0.1} direction="up" className="col-span-12 md:col-span-8">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-7 relative overflow-hidden h-full" data-testid="feature-periodization">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <div className="flex items-center gap-2 mb-3">
@@ -396,9 +446,11 @@ const LandingPage = () => {
               </div>
             </div>
           </div>
+          </Reveal>
 
           {/* Atletas */}
-          <div className="col-span-12 md:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-7 flex flex-col justify-between" data-testid="feature-team">
+          <Reveal delay={0.25} direction="up" className="col-span-12 md:col-span-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-7 flex flex-col justify-between h-full" data-testid="feature-team">
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center"><Users className="w-4 h-4 text-white" /></div>
@@ -429,9 +481,11 @@ const LandingPage = () => {
               </div>
             </div>
           </div>
+          </Reveal>
 
           {/* IA */}
-          <div className="col-span-12 md:col-span-6 bg-slate-900 border border-slate-800 rounded-2xl p-7 flex flex-col justify-between min-h-[220px]" data-testid="feature-ai">
+          <Reveal delay={0.15} direction="up" className="col-span-12 md:col-span-6">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-7 flex flex-col justify-between min-h-[220px] h-full" data-testid="feature-ai">
             <div>
               <h3 className="text-[20px] font-semibold text-white mb-2">{t('landing.features.m8_title')}</h3>
               <p className="text-[14px] text-slate-400 leading-[1.6] max-w-sm">{t('landing.features.m8_desc')}</p>
@@ -448,9 +502,11 @@ const LandingPage = () => {
               </div>
             </div>
           </div>
+          </Reveal>
 
           {/* Analysis */}
-          <div className="col-span-12 md:col-span-6 bg-slate-900 border border-slate-800 rounded-2xl p-7 flex flex-col justify-between min-h-[220px]" data-testid="feature-analysis">
+          <Reveal delay={0.3} direction="up" className="col-span-12 md:col-span-6">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-7 flex flex-col justify-between min-h-[220px] h-full" data-testid="feature-analysis">
             <div>
               <h3 className="text-[20px] font-semibold text-white mb-2">{t('landing.features.m7_title')}</h3>
               <p className="text-[14px] text-slate-400 leading-[1.6]">{t('landing.features.m7_desc')}</p>
@@ -467,33 +523,40 @@ const LandingPage = () => {
               <DataRings />
             </div>
           </div>
+          </Reveal>
 
           {/* Multi-sport */}
-          <div className="col-span-6 md:col-span-3 bg-slate-800 border border-slate-700 rounded-2xl p-6 flex flex-col justify-between min-h-[120px]" data-testid="feature-multisport">
+          <Reveal delay={0.1} direction="up" className="col-span-6 md:col-span-3">
+          <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 flex flex-col justify-between min-h-[120px] h-full" data-testid="feature-multisport">
             <Target className="w-5 h-5 text-[#CCFF00]" />
             <div>
               <h3 className="text-[16px] font-semibold text-white">Multi-sport</h3>
               <p className="text-[12px] text-slate-500 mt-0.5">+20</p>
             </div>
           </div>
+          </Reveal>
 
           {/* Calculators */}
-          <div className="col-span-6 md:col-span-5 bg-[#CCFF00] rounded-2xl p-6 flex items-center justify-between" data-testid="feature-calculators">
+          <Reveal delay={0.2} direction="up" className="col-span-6 md:col-span-5">
+          <div className="bg-[#CCFF00] rounded-2xl p-6 flex items-center justify-between h-full" data-testid="feature-calculators">
             <div>
               <h3 className="text-[16px] font-semibold text-slate-900">{t('landing.hero.stats.calculators')}</h3>
               <p className="text-slate-900/50 text-[13px] mt-0.5">1RM · VO2max · HR Zones · Karvonen</p>
             </div>
             <Activity className="w-6 h-6 text-slate-900/20" />
           </div>
+          </Reveal>
 
           {/* Export */}
-          <div className="col-span-12 md:col-span-4 bg-white rounded-2xl p-6 flex items-center justify-between" data-testid="feature-export">
+          <Reveal delay={0.3} direction="up" className="col-span-12 md:col-span-4">
+          <div className="bg-white rounded-2xl p-6 flex items-center justify-between h-full" data-testid="feature-export">
             <div>
               <h3 className="text-[16px] font-semibold text-slate-900">PDF Export</h3>
               <p className="text-slate-500 text-[13px] mt-0.5">{t('landing.features.m7_desc').split('.')[0]}</p>
             </div>
             <FileText className="w-6 h-6 text-slate-300" />
           </div>
+          </Reveal>
         </div>
       </div>
     </section>
@@ -503,7 +566,7 @@ const LandingPage = () => {
       <div className="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px] opacity-10" />
       <div className="max-w-[1120px] mx-auto relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          <div className="lg:col-span-5">
+          <Reveal direction="left" className="lg:col-span-5">
             <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-3" style={{fontFamily:BC}}>{t('dashboard.controlPanel.title')}</p>
             <h2 className="text-[28px] md:text-[32px] font-bold text-white leading-[1.15] mb-4" style={{fontFamily:INT}}>
               {t('landing.features.m7_title')}
@@ -526,8 +589,8 @@ const LandingPage = () => {
                 </div>
               ))}
             </div>
-          </div>
-          <div className="lg:col-span-7 relative" style={{animation:'float 6s ease-in-out infinite'}}>
+          </Reveal>
+          <Reveal delay={0.3} direction="right" className="lg:col-span-7 relative" style={{animation:'float 6s ease-in-out infinite'}}>
             <div className="bg-slate-800/50 backdrop-blur rounded-2xl border border-slate-700/30 p-5 shadow-2xl">
               <div className="flex items-center gap-2 mb-3">
                 <div className="flex gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-red-500" /><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /><div className="w-2.5 h-2.5 rounded-full bg-emerald-500" /></div>
@@ -548,7 +611,7 @@ const LandingPage = () => {
                 <ReadinessGauge size={72} />
               </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </div>
     </section>
@@ -556,24 +619,26 @@ const LandingPage = () => {
     {/* HOW IT WORKS */}
     <section id="how-it-works" className="py-20 px-6 bg-slate-950 relative overflow-hidden">
       <div className="max-w-[1120px] mx-auto relative z-10">
-        <div className="text-center mb-14">
+        <Reveal direction="up" className="text-center mb-14">
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-2" style={{fontFamily:BC}}>{t('landing.howItWorks.tag')}</p>
           <h2 className="text-[28px] font-bold text-white leading-tight" style={{fontFamily:INT}}>{t('landing.howItWorks.title')}</h2>
-        </div>
+        </Reveal>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             {n:'01',icon:Calendar,title:t('landing.howItWorks.step1_title'),desc:t('landing.howItWorks.step1_desc')},
             {n:'02',icon:Layers,title:t('landing.howItWorks.step2_title'),desc:t('landing.howItWorks.step2_desc')},
             {n:'03',icon:LineChart,title:t('landing.howItWorks.step3_title'),desc:t('landing.howItWorks.step3_desc')},
-          ].map(s => (
-            <div key={s.n} className="bg-slate-900 border border-slate-800 rounded-2xl p-7 relative group hover:border-[#CCFF00]/20 transition-colors" data-testid={`step-${s.n}`}>
-              <span className="text-[48px] font-black text-slate-800 leading-none absolute top-4 right-5" style={{fontFamily:BC}}>{s.n}</span>
-              <div className="w-11 h-11 bg-[#CCFF00]/10 rounded-xl flex items-center justify-center mb-5">
-                <s.icon className="w-5 h-5 text-[#CCFF00]" />
+          ].map((s,i) => (
+            <Reveal key={s.n} delay={i * 0.15} direction="up">
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-7 relative group hover:border-[#CCFF00]/20 transition-colors h-full" data-testid={`step-${s.n}`}>
+                <span className="text-[48px] font-black text-slate-800 leading-none absolute top-4 right-5" style={{fontFamily:BC}}>{s.n}</span>
+                <div className="w-11 h-11 bg-[#CCFF00]/10 rounded-xl flex items-center justify-center mb-5">
+                  <s.icon className="w-5 h-5 text-[#CCFF00]" />
+                </div>
+                <h3 className="text-[17px] font-semibold text-white mb-2">{s.title}</h3>
+                <p className="text-[13px] text-slate-400 leading-[1.6]">{s.desc}</p>
               </div>
-              <h3 className="text-[17px] font-semibold text-white mb-2">{s.title}</h3>
-              <p className="text-[13px] text-slate-400 leading-[1.6]">{s.desc}</p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -582,12 +647,13 @@ const LandingPage = () => {
     {/* PRICING */}
     <section id="pricing" className="py-20 px-6 bg-slate-950 relative overflow-hidden">
       <div className="max-w-[1120px] mx-auto relative z-10">
-        <div className="text-center mb-14">
+        <Reveal direction="up" className="text-center mb-14">
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-2" style={{fontFamily:BC}}>{t('landing.pricing.tag')}</p>
           <h2 className="text-[28px] font-bold text-white leading-tight" style={{fontFamily:INT}}>{t('landing.pricing.title')}</h2>
-        </div>
+        </Reveal>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {PRICING.map(plan => (
+          {PRICING.map((plan,idx) => (
+            <Reveal key={plan.key} delay={idx * 0.1} direction="up">
             <div key={plan.key} className={`relative rounded-2xl p-6 transition-all duration-200 ${plan.pop ? 'bg-[#CCFF00] ring-1 ring-[#CCFF00] shadow-xl shadow-[#CCFF00]/10' : 'bg-slate-900 border border-slate-800 hover:border-slate-700'}`} data-testid={`pricing-card-${plan.key}`}>
               {plan.pop && <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-slate-900 text-[#CCFF00] text-[9px] font-bold uppercase tracking-wider px-3 py-0.5 rounded-full" style={{fontFamily:BC}}>Más Popular</div>}
               <h3 className={`text-[15px] font-semibold ${plan.pop ? 'text-slate-900' : 'text-white'}`}>{plan.name}</h3>
@@ -610,6 +676,7 @@ const LandingPage = () => {
                 </Button>
               </Link>
             </div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -618,7 +685,7 @@ const LandingPage = () => {
     {/* FINAL CTA */}
     <section className="py-20 px-6 bg-slate-900 relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(204,255,0,0.04)_0%,transparent_60%)]" />
-      <div className="max-w-[700px] mx-auto text-center relative z-10">
+      <Reveal direction="scale" className="max-w-[700px] mx-auto text-center relative z-10">
         <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-4" style={{fontFamily:INT}}>
           {t('landing.cta.title')}
         </h2>
@@ -628,7 +695,7 @@ const LandingPage = () => {
             {t('landing.cta.button')} <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </Link>
-      </div>
+      </Reveal>
     </section>
 
     {/* FOOTER */}

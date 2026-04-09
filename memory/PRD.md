@@ -27,12 +27,12 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
 - Traducciones añadidas a los 12 idiomas soportados
 - Landing Page cinématico ahora muestra todo el texto correctamente
 
-### P0 COMPLETADO: Rediseño visual del Hero y Features
-- Gráfico de periodización ATR del hero ahora muestra 24 semanas con datos realistas (volumen, intensidad, densidad)
-- Fases visibles: ACUMULACIÓN, TRANSFORMACIÓN, REALIZACIÓN con etiquetas de color
-- Métricas flotantes: Readiness 85, ACWR 0.87, FC MAX 156, 24 Atletas
-- Feature card "Plan Gráfico" rediseñado con gráfico de barras completo de 24 semanas, stats bottom row
-- Feature card "Equipos" mejorado con lista de atletas con métricas reales (VO2, 1RM, ACWR)
+### P0 COMPLETADO: Animaciones scroll-triggered en Landing Page
+- Hook custom `useInView` con IntersectionObserver para detectar entrada al viewport
+- Componente `Reveal` wrapper con animaciones direccionales (up, down, left, right, scale)
+- Stagger progresivo en: hero (pills→titulo→CTA→stats→gráfico), features (6 tarjetas), how it works (3 pasos), pricing (4 planes), CTA final (scale)
+- CSS keyframes: `barGrow`, `countUp` para barras y números
+- Transiciones suaves con `cubic-bezier(0.16,1,0.3,1)`, disparo único por sección
 
 ### COMPLETADO: Limpieza código muerto Caracterización Deporte  
 - Eliminado bloque `sport-char` (~285 líneas) de DashboardPage.js — nunca era accesible via nav
