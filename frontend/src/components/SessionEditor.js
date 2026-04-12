@@ -191,15 +191,15 @@ const SESION_INICIAL = {
     fcReposo: '',
     fcMaxima: '',
     fcMedia: '',
-    // Fases de FC
-    fcAntesEntrenamiento: '',
-    fcDuranteEntrenamiento: '',
-    fcDespuesEntrenamiento: '',
+    // Fases de FC — valores preestablecidos para que la gráfica sea visible desde el inicio
+    fcAntesEntrenamiento: '70',
+    fcDuranteEntrenamiento: '150',
+    fcDespuesEntrenamiento: '90',
     // Recuperación por tiempo
-    fcRecuperacion1min: '',
-    fcRecuperacion3min: '',
-    fcRecuperacion5min: '',
-    fcRecuperacion10min: '',
+    fcRecuperacion1min: '85',
+    fcRecuperacion3min: '78',
+    fcRecuperacion5min: '72',
+    fcRecuperacion10min: '68',
     mostrarRecuperacion10min: false,
     // Tipo de gráfica
     tipoGrafica: 'barras', // 'barras', 'lineas', 'mixta'
@@ -1372,91 +1372,98 @@ const SessionEditor = ({
                       </div>
                     </div>
                     
-                    {/* Área de gráfica Material Design */}
+                    {/* Área de gráfica */}
                     <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-6 border border-slate-200">
                       {/* Gráfica */}
-                      <div className="relative h-48 mb-4">
+                      <div className="relative h-52 mb-4">
                         {/* Grid de fondo */}
-                        <div className="absolute inset-0 flex flex-col justify-between">
+                        <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
                           {[200, 150, 100, 50, 0].map((val) => (
                             <div key={val} className="flex items-center">
-                              <span className="text-[10px] text-slate-400 w-8 text-right mr-2">{val}</span>
+                              <span className="text-[10px] text-slate-400 w-8 text-right mr-2" style={{fontFamily:DM}}>{val}</span>
                               <div className="flex-1 border-t border-dashed border-slate-200" />
                             </div>
                           ))}
                         </div>
                         
                         {/* Datos de la gráfica */}
-                        <div className="absolute inset-0 pl-10 pr-4 flex items-end justify-around pt-4 pb-6">
+                        <div className="absolute inset-0 pl-10 pr-4 pt-2 pb-6">
                           {(() => {
                             const fcData = [
-                              { label: 'Antes', value: parseInt(sessionData.monitoreo.fcAntesEntrenamiento) || 70, color: 'from-blue-500 to-blue-400', lineColor: '#3b82f6' },
-                              { label: 'Durante', value: parseInt(sessionData.monitoreo.fcDuranteEntrenamiento) || 150, color: 'from-red-500 to-orange-400', lineColor: '#ef4444' },
-                              { label: 'Después', value: parseInt(sessionData.monitoreo.fcDespuesEntrenamiento) || 90, color: 'from-green-500 to-emerald-400', lineColor: '#22c55e' },
-                              { label: 'Recup 1\'', value: parseInt(sessionData.monitoreo.fcRecuperacion1min) || 85, color: 'from-teal-500 to-cyan-400', lineColor: '#14b8a6' },
-                              { label: 'Recup 3\'', value: parseInt(sessionData.monitoreo.fcRecuperacion3min) || 78, color: 'from-purple-500 to-violet-400', lineColor: '#a855f7' },
-                              { label: 'Recup 5\'', value: parseInt(sessionData.monitoreo.fcRecuperacion5min) || 72, color: 'from-indigo-500 to-blue-400', lineColor: '#6366f1' },
+                              { label: 'Antes', value: parseInt(sessionData.monitoreo.fcAntesEntrenamiento) || 70, color: '#3b82f6', gradFrom: '#3b82f6', gradTo: '#60a5fa' },
+                              { label: 'Durante', value: parseInt(sessionData.monitoreo.fcDuranteEntrenamiento) || 150, color: '#ef4444', gradFrom: '#ef4444', gradTo: '#f97316' },
+                              { label: 'Después', value: parseInt(sessionData.monitoreo.fcDespuesEntrenamiento) || 90, color: '#22c55e', gradFrom: '#22c55e', gradTo: '#34d399' },
+                              { label: 'Recup 1\'', value: parseInt(sessionData.monitoreo.fcRecuperacion1min) || 85, color: '#14b8a6', gradFrom: '#14b8a6', gradTo: '#06b6d4' },
+                              { label: 'Recup 3\'', value: parseInt(sessionData.monitoreo.fcRecuperacion3min) || 78, color: '#a855f7', gradFrom: '#a855f7', gradTo: '#8b5cf6' },
+                              { label: 'Recup 5\'', value: parseInt(sessionData.monitoreo.fcRecuperacion5min) || 72, color: '#6366f1', gradFrom: '#6366f1', gradTo: '#818cf8' },
                             ];
                             
                             if (sessionData.monitoreo.mostrarRecuperacion10min) {
-                              fcData.push({ label: 'Recup 10\'', value: parseInt(sessionData.monitoreo.fcRecuperacion10min) || 68, color: 'from-pink-500 to-rose-400', lineColor: '#ec4899' });
+                              fcData.push({ label: 'Recup 10\'', value: parseInt(sessionData.monitoreo.fcRecuperacion10min) || 68, color: '#ec4899', gradFrom: '#ec4899', gradTo: '#f472b6' });
                             }
                             
-                            const maxHeight = 160;
-                            const points = fcData.map((d, i) => ({
-                              x: (i / (fcData.length - 1)) * 100,
-                              y: maxHeight - (d.value / 200 * maxHeight)
-                            }));
+                            const chartH = 180;
+                            const maxBpm = 200;
+                            const barPct = (v) => Math.min(100, (v / maxBpm) * 100);
                             
                             return (
                               <>
-                                {/* Línea para gráfica de líneas o mixta */}
+                                {/* SVG línea + puntos — usa viewBox nativo para renderizado limpio */}
                                 {(sessionData.monitoreo.tipoGrafica === 'lineas' || sessionData.monitoreo.tipoGrafica === 'mixta') && (
-                                  <svg className="absolute inset-0 pl-10 pr-4 pt-4 pb-6 w-full h-full overflow-visible" preserveAspectRatio="none">
+                                  <svg className="absolute inset-0 w-full h-full" viewBox={`0 0 ${fcData.length * 100} ${chartH}`} preserveAspectRatio="none" style={{padding:'8px 0 24px 0'}}>
+                                    {/* Área bajo la curva */}
                                     <defs>
-                                      <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                        <stop offset="0%" stopColor="#3b82f6" />
-                                        <stop offset="30%" stopColor="#ef4444" />
-                                        <stop offset="50%" stopColor="#22c55e" />
-                                        <stop offset="100%" stopColor="#6366f1" />
+                                      <linearGradient id="fcAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stopColor="#CCFF00" stopOpacity="0.15"/>
+                                        <stop offset="100%" stopColor="#CCFF00" stopOpacity="0"/>
                                       </linearGradient>
                                     </defs>
+                                    <polygon
+                                      fill="url(#fcAreaGrad)"
+                                      points={fcData.map((d, i) => `${i * 100 + 50},${chartH - (d.value / maxBpm * chartH)}`).join(' ') + ` ${(fcData.length - 1) * 100 + 50},${chartH} 50,${chartH}`}
+                                    />
+                                    {/* Línea principal */}
                                     <polyline
                                       fill="none"
-                                      stroke="url(#lineGradient)"
-                                      strokeWidth="3"
+                                      stroke="#CCFF00"
+                                      strokeWidth="4"
                                       strokeLinecap="round"
                                       strokeLinejoin="round"
-                                      points={points.map(p => `${p.x}%,${p.y}`).join(' ')}
-                                      className="drop-shadow-sm"
+                                      points={fcData.map((d, i) => `${i * 100 + 50},${chartH - (d.value / maxBpm * chartH)}`).join(' ')}
+                                      style={{filter:'drop-shadow(0 2px 4px rgba(204,255,0,0.3))'}}
                                     />
-                                    {/* Puntos */}
-                                    {points.map((p, i) => (
-                                      <circle
-                                        key={i}
-                                        cx={`${p.x}%`}
-                                        cy={p.y}
-                                        r="6"
-                                        fill="white"
-                                        stroke={fcData[i].lineColor}
-                                        strokeWidth="3"
-                                        className="drop-shadow-md"
-                                      />
-                                    ))}
+                                    {/* Puntos con valor */}
+                                    {fcData.map((d, i) => {
+                                      const cx = i * 100 + 50;
+                                      const cy = chartH - (d.value / maxBpm * chartH);
+                                      return (
+                                        <g key={i}>
+                                          <circle cx={cx} cy={cy} r="8" fill="white" stroke={d.color} strokeWidth="3" style={{filter:'drop-shadow(0 1px 3px rgba(0,0,0,0.15))'}} />
+                                          <text x={cx} y={cy - 14} textAnchor="middle" fontSize="16" fontWeight="700" fill="#1e293b" style={{fontFamily:'DM Sans'}}>{d.value}</text>
+                                        </g>
+                                      );
+                                    })}
                                   </svg>
                                 )}
                                 
                                 {/* Barras */}
                                 {(sessionData.monitoreo.tipoGrafica === 'barras' || sessionData.monitoreo.tipoGrafica === 'mixta') && (
-                                  <div className="flex items-end justify-around h-full w-full gap-2">
+                                  <div className="flex items-end justify-around h-full w-full gap-3" style={{paddingBottom:'24px',paddingTop:'8px'}}>
                                     {fcData.map((d, i) => (
-                                      <div key={i} className="flex flex-col items-center flex-1">
+                                      <div key={i} className="flex flex-col items-center flex-1 h-full justify-end">
+                                        {/* Valor encima de la barra */}
+                                        <span className="text-[11px] font-bold text-slate-700 mb-1" style={{fontFamily:DM}}>{d.value}</span>
                                         <div 
-                                          className={`w-full max-w-[40px] bg-gradient-to-t ${d.color} rounded-t-lg transition-all duration-500 shadow-lg ${
-                                            sessionData.monitoreo.tipoGrafica === 'mixta' ? 'opacity-40' : ''
+                                          className={`w-full max-w-[36px] rounded-t-lg transition-all duration-500 ${
+                                            sessionData.monitoreo.tipoGrafica === 'mixta' ? 'opacity-30' : ''
                                           }`}
-                                          style={{ height: `${Math.min(100, d.value / 200 * 100)}%` }}
+                                          style={{ 
+                                            height: `${barPct(d.value)}%`,
+                                            background: `linear-gradient(to top, ${d.gradFrom}, ${d.gradTo})`,
+                                            boxShadow: `0 -2px 8px ${d.color}33`
+                                          }}
                                         />
+                                        <span className="text-[9px] text-slate-400 mt-1 uppercase font-medium" style={{fontFamily:DM}}>{d.label}</span>
                                       </div>
                                     ))}
                                   </div>
