@@ -785,10 +785,11 @@ const SessionEditor = ({
               <th className="py-2 px-2 w-32">Métodos</th>
               <th className="py-2 px-2 w-16">Series</th>
               <th className="py-2 px-2 w-20">Reps</th>
+              <th className="py-2 px-2 w-20">Recup.</th>
               <th className="py-2 px-2 w-28">Intensidad</th>
               <th className="py-2 px-2 w-20">Volumen</th>
               <th className="py-2 px-2 w-28">Proc. Org.</th>
-              <th className="py-2 px-2 w-20">Recup.</th>
+              <th className="py-2 px-2 w-16">Pizarra</th>
               <th className="py-2 px-1 w-10"></th>
             </tr>
           </thead>
@@ -905,6 +906,16 @@ const SessionEditor = ({
                   />
                 </td>
                 
+                {/* Recuperación (moved after Reps) */}
+                <td className="py-2 px-2">
+                  <Input
+                    value={act.recuperacion}
+                    onChange={(e) => updateActividad(faseKey, idx, 'recuperacion', e.target.value)}
+                    className="h-8 text-xs"
+                    placeholder="2 min"
+                  />
+                </td>
+                
                 {/* Intensidad */}
                 <td className="py-2 px-2">
                   <div className="flex items-center gap-2">
@@ -958,14 +969,16 @@ const SessionEditor = ({
                   </Select>
                 </td>
                 
-                {/* Recuperación */}
-                <td className="py-2 px-2">
-                  <Input
-                    value={act.recuperacion}
-                    onChange={(e) => updateActividad(faseKey, idx, 'recuperacion', e.target.value)}
-                    className="h-8 text-xs"
-                    placeholder="2 min"
-                  />
+                {/* Pizarra Táctica */}
+                <td className="py-2 px-1 text-center">
+                  <button
+                    onClick={() => window.open('/tactical-board.html', '_blank')}
+                    className="p-1.5 rounded-lg hover:bg-[#f0ffd0] text-[#3a5a00] transition-colors"
+                    title="Abrir Pizarra Tactica"
+                    data-testid={`open-board-${faseKey}-${idx}`}
+                  >
+                    <LayoutGrid className="w-4 h-4" />
+                  </button>
                 </td>
                 
                 {/* Acciones */}
