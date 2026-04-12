@@ -14,57 +14,41 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
 
 ## Lo Implementado
 
-### Fork 6 (12 Abr 2026) — Pizarra Táctica Interactiva
+### Fork 6 (12 Abr 2026) — Pizarra Táctica Interactiva + Export PNG
 
 #### Backend
-- **Endpoint**: `POST /api/tactical-board/generate` — Genera posiciones tácticas usando GPT-4o-mini
-  - Acepta: sport, description, formation, num_team_a, num_team_b
-  - Retorna: JSON con array de elements (playerX, playerO, arrow, cone, ball, text)
+- `POST /api/tactical-board/generate` — GPT-4o-mini genera posiciones tácticas (players, arrows, cones, balls)
 
-#### Frontend — TacticalBoardEditor.js (nuevo componente)
-- Editor interactivo SVG completo con:
-  - **6 deportes**: Fútbol, Básquet, Vóley, Handball, Futsal, Tenis
-  - **8 herramientas**: Mover, Equipo A (X), Equipo B (O), Flecha, Cono, Balón, Texto, Borrar
-  - **Drag & Drop**: Elementos arrastrables con selección visual
-  - **Flechas**: Clic para inicio, clic para fin con preview en tiempo real
-  - **IA Generativa**: Panel que envía descripción + conteo de jugadores al backend
-  - **Historial**: Deshacer (Ctrl+Z) con stack de 20 niveles
-  - **Atajos**: Delete/Backspace para borrar seleccionado, Escape para cancelar
-  - **Panel lateral**: Lista de elementos con delete individual
+#### Frontend — TacticalBoardEditor.js
+- Editor SVG interactivo con 6 deportes (Fútbol, Basket, Vóley, Handball, Futsal, Tenis)
+- 8 herramientas: Mover, Equipo A (X), Equipo B (O), Flecha, Cono, Balón, Texto, Borrar
+- Drag & Drop con event delegation (data-elid)
+- Generación IA con descripción, formación y conteo de jugadores
+- **Exportar PNG** para compartir por WhatsApp
+- Historial undo (Ctrl+Z, 20 niveles)
+- Renderizado via dangerouslySetInnerHTML para bypass de babel-metadata-plugin (SVG + span incompatibles)
 
-#### Frontend — Integración en SessionEditor.js
-- Sección "Pizarra Táctica" entre Estructura y Monitoreo
-- Tarjeta CTA con icono + botón "Crear Pizarra" cuando no hay pizarra guardada
-- Preview SVG read-only con conteo de elementos cuando hay pizarra guardada
-- Botones "Editar" y "Eliminar" en la pizarra guardada
-- Datos persistidos en `sessionData.tacticalBoard`
+#### Fix crítico
+- Causa raíz: babel-metadata-plugin envolvía componentes SVG en `<span>` HTML (inválido dentro de SVG)
+- Solución: Renderizar elementos como raw SVG string via dangerouslySetInnerHTML + event delegation con data-elid
 
-#### Archivos nuevos
-- `/app/frontend/src/components/TacticalBoardEditor.js` — Editor completo
-- `/app/frontend/src/components/tacticalSportsData.js` — Datos SVG compartidos
-
-#### Fix técnico
-- Parcheado `babel-metadata-plugin.js` línea 936 con null-check para evitar crash de compilación
-
-### Sesiones Anteriores Completadas (Forks 1-5)
-- Fork 5: Landing page completa (audiencias, timeline, carrusel), AuthPage con pizarra táctica rotativa, branding verde lima
-- Fork 4: i18n fixes, crash Caracterización del Deporte, charts interactivos
-- Fork 3: Refactorización DashboardPage (5793→4763 líneas), EvaluationSection extraído
-- Fork 2: Periodización completa, motor IA, calculadoras
-- Fork 1: MVP base, auth, CRUD planes/equipos/atletas
+### Sesiones Anteriores (Forks 1-5)
+- Fork 5: Landing, AuthPage táctica rotativa, branding verde lima, SessionEditor colores
+- Fork 4: i18n, charts, crash fixes
+- Fork 3: Refactorización DashboardPage
+- Fork 2: Periodización, motor IA
+- Fork 1: MVP base
 
 ## Pendiente
-- P2: Warning hidratación HTML en DashboardPage.js (pre-existente)
-- P2: Nested button warning en SessionEditor.js phase headers (pre-existente)
 - P1: Refactorizar DashboardPage.js (~4,433 líneas)
 - P2: Refactorizar PeriodizationComplete.js (~2,500 líneas)
-- P2: Implementar "Imprimir", "Compartir" y "Duplicar" para planes
+- P2: Implementar "Imprimir", "Compartir", "Duplicar" para planes
+- P2: Fix HTML hydration warning en DashboardPage.js
 
 ## Archivos Clave
-- `/app/frontend/src/components/TacticalBoardEditor.js` — Editor de pizarra táctica
-- `/app/frontend/src/components/SessionEditor.js` — Editor de sesión
-- `/app/frontend/src/components/tacticalSportsData.js` — Datos SVG campos deportivos
-- `/app/frontend/src/pages/LandingPage.js` — Landing page principal
-- `/app/frontend/src/pages/AuthPage.js` — Login/registro
-- `/app/frontend/src/pages/DashboardPage.js` — Panel principal
-- `/app/frontend/src/locales/*.json` — 12 archivos de traducción
+- `/app/frontend/src/components/TacticalBoardEditor.js`
+- `/app/frontend/src/components/SessionEditor.js`
+- `/app/frontend/src/components/tacticalSportsData.js`
+- `/app/frontend/src/pages/LandingPage.js`
+- `/app/frontend/src/pages/AuthPage.js`
+- `/app/frontend/src/pages/DashboardPage.js`
