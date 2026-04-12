@@ -379,29 +379,29 @@ const AuthPage = () => {
   };
 
   const [activeTab, setActiveTab] = useState('login');
-  const inputClass = "pl-10 h-11 border-slate-200 focus:border-[#c8f700] focus:ring-[#c8f700]/10 rounded-lg bg-white text-[14px]";
+  const inputClass = "pl-10 h-11 border-slate-700/50 focus:border-[#c8f700] focus:ring-[#c8f700]/10 rounded-lg bg-slate-800/50 text-[14px] text-white placeholder:text-slate-500";
 
   return (
     <div className="min-h-screen flex auth-reset" style={{ fontFamily: INT }}>
       <style>{`.auth-reset h1,.auth-reset h2,.auth-reset h3,.auth-reset h4{font-family:inherit;font-weight:inherit;text-transform:none;letter-spacing:normal;}`}</style>
 
-      {/* Left — Form */}
-      <div className="w-full lg:w-[45%] flex flex-col justify-center px-8 md:px-14 lg:px-16 bg-[#fafaf8]">
+      {/* Left — Form (dark theme matching landing) */}
+      <div className="w-full lg:w-[45%] flex flex-col justify-center px-8 md:px-14 lg:px-16" style={{background:'#0b0e14'}}>
         <div className="max-w-[380px] w-full mx-auto">
 
           {/* Back + Logo + Language */}
           <div className="flex items-center justify-between mb-10">
             <Link to="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 aspect-square shrink-0 bg-[#CCFF00] rounded-full flex items-center justify-center">
-                <span className="text-[18px] font-black text-slate-900 leading-none" style={{ fontFamily: BC }}>i</span>
+              <div className="w-9 h-9 aspect-square shrink-0 bg-[#c8f700] rounded-full flex items-center justify-center">
+                <span className="text-[18px] font-black text-[#0b0e14] leading-none" style={{ fontFamily: BC }}>i</span>
               </div>
-              <span className="text-[16px] font-black tracking-tight text-slate-900" style={{ fontFamily: BC }}>
-                iTRAIN
+              <span className="text-[16px] font-black tracking-tight" style={{ fontFamily: BC }}>
+                <span className="text-[#c8f700]">i</span><span className="text-white">TRAIN</span>
               </span>
             </Link>
             <div className="flex items-center gap-2">
-              <LanguageSelector variant="light" compact />
-              <Link to="/" className="flex items-center gap-1 text-[12px] text-slate-400 hover:text-slate-600 transition-colors">
+              <LanguageSelector variant="dark" compact />
+              <Link to="/" className="flex items-center gap-1 text-[12px] text-slate-500 hover:text-white transition-colors">
                 <ArrowLeft className="w-3.5 h-3.5" />
                 {t('common.back')}
               </Link>
@@ -409,29 +409,29 @@ const AuthPage = () => {
           </div>
 
           {/* Title */}
-          <h1 className="text-[24px] font-bold text-slate-900 mb-1" style={{ fontFamily: INT }} data-testid="auth-title">
+          <h1 className="text-[24px] font-bold text-white mb-1" style={{ fontFamily: INT }} data-testid="auth-title">
             {t('common.welcome')} {t('common.appName')}
           </h1>
-          <p className="text-[14px] text-slate-500 mb-1" data-testid="auth-subtitle">
+          <p className="text-[14px] text-slate-400 mb-1" data-testid="auth-subtitle">
             {t('common.tagline')}
           </p>
-          <p className="text-[12px] text-slate-400 mb-7">
-            {t('auth.login.freeTrial')} · <a href="#pricing" className="text-[#3a5a00] hover:underline">{t('landing.nav.pricing')}</a>
+          <p className="text-[12px] text-slate-500 mb-7">
+            {t('auth.login.freeTrial')} · <a href="/#pricing" className="text-[#c8f700] hover:underline">{t('landing.nav.pricing')}</a>
           </p>
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6 bg-slate-100 p-1 rounded-lg h-10">
+            <TabsList className="grid w-full grid-cols-2 mb-6 bg-slate-800/50 p-1 rounded-lg h-10 border border-slate-700/30">
               <TabsTrigger
                 value="login"
-                className="rounded-md text-[13px] font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-slate-900"
+                className="rounded-md text-[13px] font-medium text-slate-400 data-[state=active]:bg-[#c8f700] data-[state=active]:text-[#0b0e14] data-[state=active]:shadow-sm data-[state=active]:font-bold"
                 data-testid="login-tab"
               >
                 {t('auth.login.submit')}
               </TabsTrigger>
               <TabsTrigger
                 value="register"
-                className="rounded-md text-[13px] font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-slate-900"
+                className="rounded-md text-[13px] font-medium text-slate-400 data-[state=active]:bg-[#c8f700] data-[state=active]:text-[#0b0e14] data-[state=active]:shadow-sm data-[state=active]:font-bold"
                 data-testid="register-tab"
               >
                 {t('auth.register.submit')}
@@ -442,9 +442,9 @@ const AuthPage = () => {
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="login-email" className="text-[13px] text-slate-600 font-medium">{t('auth.login.email')}</Label>
+                  <Label htmlFor="login-email" className="text-[13px] text-slate-400 font-medium">{t('auth.login.email')}</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                     <Input
                       id="login-email"
                       type="email"
@@ -458,9 +458,9 @@ const AuthPage = () => {
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="login-password" className="text-[13px] text-slate-600 font-medium">{t('auth.login.password')}</Label>
+                  <Label htmlFor="login-password" className="text-[13px] text-slate-400 font-medium">{t('auth.login.password')}</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                     <Input
                       id="login-password"
                       type={showPassword ? 'text' : 'password'}
@@ -471,13 +471,13 @@ const AuthPage = () => {
                       className={`${inputClass} pr-10`}
                       data-testid="login-password-input"
                     />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white">
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
                 <div className="text-right">
-                  <button type="button" onClick={() => toast.info(t('auth.login.resetSent'))} className="text-[12px] text-slate-400 hover:text-[#3a5a00] transition-colors">
+                  <button type="button" onClick={() => toast.info(t('auth.login.resetSent'))} className="text-[12px] text-slate-500 hover:text-[#c8f700] transition-colors">
                     {t('auth.login.forgotPassword')}
                   </button>
                 </div>
@@ -491,9 +491,9 @@ const AuthPage = () => {
                   {t('auth.login.submit')}
                 </Button>
               </form>
-              <p className="text-center text-[12px] text-slate-400 mt-6">
+              <p className="text-center text-[12px] text-slate-500 mt-6">
                 {t('auth.login.noAccount')}{' '}
-                <button onClick={() => setActiveTab('register')} className="text-[#3a5a00] hover:underline font-medium">
+                <button onClick={() => setActiveTab('register')} className="text-[#c8f700] hover:underline font-medium">
                   {t('auth.login.createAccount')}
                 </button>
               </p>
@@ -503,70 +503,42 @@ const AuthPage = () => {
             <TabsContent value="register">
               <form onSubmit={handleRegister} className="space-y-3.5">
                 <div className="space-y-1.5">
-                  <Label htmlFor="register-name" className="text-[13px] text-slate-600 font-medium">{t('auth.register.name')}</Label>
+                  <Label htmlFor="register-name" className="text-[13px] text-slate-400 font-medium">{t('auth.register.name')}</Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <Input
-                      id="register-name"
-                      type="text"
-                      placeholder="Juan Perez"
-                      value={registerName}
-                      onChange={(e) => setRegisterName(e.target.value)}
-                      required
-                      className={inputClass}
-                      data-testid="register-name-input"
-                    />
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <Input id="register-name" type="text" placeholder="Juan Perez" value={registerName} onChange={(e) => setRegisterName(e.target.value)} required className={inputClass} data-testid="register-name-input" />
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="register-email" className="text-[13px] text-slate-600 font-medium">{t('auth.register.email')}</Label>
+                  <Label htmlFor="register-email" className="text-[13px] text-slate-400 font-medium">{t('auth.register.email')}</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <Input
-                      id="register-email"
-                      type="email"
-                      placeholder="correo@ejemplo.com"
-                      value={registerEmail}
-                      onChange={(e) => setRegisterEmail(e.target.value)}
-                      required
-                      className={inputClass}
-                      data-testid="register-email-input"
-                    />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <Input id="register-email" type="email" placeholder="correo@ejemplo.com" value={registerEmail} onChange={(e) => setRegisterEmail(e.target.value)} required className={inputClass} data-testid="register-email-input" />
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="register-password" className="text-[13px] text-slate-600 font-medium">{t('auth.register.password')}</Label>
+                  <Label htmlFor="register-password" className="text-[13px] text-slate-400 font-medium">{t('auth.register.password')}</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <Input
-                      id="register-password"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder={t('auth.register.passwordRequirements')}
-                      value={registerPassword}
-                      onChange={(e) => setRegisterPassword(e.target.value)}
-                      required
-                      minLength={6}
-                      className={`${inputClass} pr-10`}
-                      data-testid="register-password-input"
-                    />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <Input id="register-password" type={showPassword ? 'text' : 'password'} placeholder={t('auth.register.passwordRequirements')} value={registerPassword} onChange={(e) => setRegisterPassword(e.target.value)} required minLength={6} className={`${inputClass} pr-10`} data-testid="register-password-input" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white">
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-[13px] text-slate-600 font-medium">{t('auth.register.role')}</Label>
+                  <Label className="text-[13px] text-slate-400 font-medium">{t('auth.register.role')}</Label>
                   <Select value={registerRole} onValueChange={setRegisterRole}>
-                    <SelectTrigger className="h-11 border-slate-200 focus:border-[#007AFF] rounded-lg bg-white text-[14px]" data-testid="register-role-select">
+                    <SelectTrigger className="h-11 border-slate-700/50 focus:border-[#c8f700] rounded-lg bg-slate-800/50 text-[14px] text-white" data-testid="register-role-select">
                       <SelectValue placeholder={t('auth.register.role')} />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-slate-800 border-slate-700">
                       {USER_ROLES.map(role => {
                         const IconComponent = ROLE_ICONS[role.id] || UserCircle;
                         return (
-                          <SelectItem key={role.id} value={role.id} className="py-2.5">
+                          <SelectItem key={role.id} value={role.id} className="py-2.5 text-white focus:bg-slate-700 focus:text-white">
                             <div className="flex items-center gap-2.5">
-                              <IconComponent className="w-4 h-4 text-[#3a5a00]" />
+                              <IconComponent className="w-4 h-4 text-[#c8f700]" />
                               <span className="text-[13px] font-medium">{role.name}</span>
                             </div>
                           </SelectItem>
@@ -585,13 +557,13 @@ const AuthPage = () => {
                   {t('auth.register.submit')}
                 </Button>
               </form>
-              <p className="text-center text-[12px] text-slate-400 mt-4">
+              <p className="text-center text-[12px] text-slate-500 mt-4">
                 {t('auth.login.haveAccount')}{' '}
-                <button onClick={() => document.querySelector('[data-testid="login-tab"]').click()} className="text-[#3a5a00] hover:underline font-medium">
+                <button onClick={() => setActiveTab('login')} className="text-[#c8f700] hover:underline font-medium">
                   {t('auth.login.submit')}
                 </button>
               </p>
-              <p className="text-center text-[11px] text-slate-300 mt-3">
+              <p className="text-center text-[11px] text-slate-600 mt-3">
                 {t('auth.register.termsText')}
               </p>
             </TabsContent>
