@@ -19,6 +19,16 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
 | Club / Academia (Popular) | $29.99/mes | Ilimitados | Ilimitados | 100 |
 | Institucional | $99.99/mes | Ilimitados | Ilimitados | Ilimitados |
 
+## Lo Implementado (Sesión 10 Abr 2026 - Fork 5)
+
+### P0 COMPLETADO: Sección Audiencias + Trust Badge en Landing Page
+- Texto de impacto: "El 80% de los entrenadores planifica sin datos reales..." centrado y traducible
+- 4 tarjetas de audiencia: Entrenadores (lime), Clubes (azul), Escuelas Deportivas (púrpura), Federaciones (rosa) — cada una con icono, título, subtítulo, 3 features y CTA personalizado
+- Trust Badge: "+1.200 entrenadores · 340 clubes · 18 federaciones confían en iTRAIN"
+- Totalmente internacionalizado: 12 idiomas bajo `landing.audiences.*`
+- Animaciones Reveal con stagger, hover en iconos, botones con colores por segmento
+- Ubicado entre Product Showcase y How It Works
+
 ## Lo Implementado (Sesión 9 Abr 2026 - Fork 4)
 
 ### P0 COMPLETADO: Corregir Landing Page i18n

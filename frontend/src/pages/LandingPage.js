@@ -7,7 +7,7 @@ import {
   Check, Target, Brain, Calendar, BarChart3, Users,
   ArrowRight, Activity, FileText, Dumbbell,
   Heart, Ruler, Eye, Sparkles, Layers, LineChart,
-  ChevronRight, Zap, Shield
+  ChevronRight, Zap, Shield, GraduationCap, Globe, UserCheck, Building2
 } from 'lucide-react';
 
 const BC = "'Barlow Condensed', sans-serif";
@@ -705,6 +705,83 @@ const LandingPage = () => {
             </div>
           </Reveal>
         </div>
+      </div>
+    </section>
+
+    {/* AUDIENCES — Impact + Segments + Trust */}
+    <section id="audiences" className="py-20 px-6 bg-slate-950 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(204,255,0,0.03)_0%,transparent_60%)]" />
+      <div className="max-w-[1120px] mx-auto relative z-10">
+        {/* Impact intro */}
+        <Reveal direction="up" className="mb-16">
+          <div className="max-w-[720px] mx-auto text-center">
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-3" style={{fontFamily:BC}}>{t('landing.audiences.tag')}</p>
+            <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-5" style={{fontFamily:INT}} data-testid="audiences-title">{t('landing.audiences.title')}</h2>
+            <p className="text-[15px] text-slate-400 leading-[1.8]" data-testid="audiences-impact">{t('landing.audiences.impact')}</p>
+          </div>
+        </Reveal>
+
+        {/* 4 Segment cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12" data-testid="audiences-grid">
+          {[
+            { key:'coaches', icon: UserCheck, color:'#CCFF00', bg:'bg-[#CCFF00]/10', border:'border-[#CCFF00]/20', iconBg:'bg-[#CCFF00]', iconText:'text-slate-900' },
+            { key:'clubs', icon: Building2, color:'#3B82F6', bg:'bg-blue-500/10', border:'border-blue-500/20', iconBg:'bg-blue-500', iconText:'text-white' },
+            { key:'schools', icon: GraduationCap, color:'#8B5CF6', bg:'bg-purple-500/10', border:'border-purple-500/20', iconBg:'bg-purple-500', iconText:'text-white' },
+            { key:'federations', icon: Globe, color:'#F43F5E', bg:'bg-rose-500/10', border:'border-rose-500/20', iconBg:'bg-rose-500', iconText:'text-white' },
+          ].map((seg, idx) => {
+            const Icon = seg.icon;
+            return (
+              <Reveal key={seg.key} delay={idx * 0.12} direction="up">
+                <div className={`bg-slate-900 border border-slate-800 rounded-2xl p-7 h-full group hover:border-opacity-60 transition-all duration-300`} style={{'--seg-color': seg.color}} data-testid={`audience-${seg.key}`}>
+                  {/* Header */}
+                  <div className="flex items-start gap-4 mb-5">
+                    <div className={`w-11 h-11 ${seg.iconBg} rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
+                      <Icon className={`w-5 h-5 ${seg.iconText}`} />
+                    </div>
+                    <div>
+                      <h3 className="text-[18px] font-bold text-white leading-tight" style={{fontFamily:INT}}>{t(`landing.audiences.${seg.key}_title`)}</h3>
+                      <p className="text-[13px] mt-0.5" style={{color: seg.color}}>{t(`landing.audiences.${seg.key}_sub`)}</p>
+                    </div>
+                  </div>
+                  {/* Features */}
+                  <ul className="space-y-3 mb-6">
+                    {[1,2,3].map(n => (
+                      <li key={n} className="flex items-start gap-2.5 text-[13px] text-slate-400 leading-snug">
+                        <Check className="w-4 h-4 flex-shrink-0 mt-[1px]" style={{color: seg.color}} />
+                        {t(`landing.audiences.${seg.key}_f${n}`)}
+                      </li>
+                    ))}
+                  </ul>
+                  {/* CTA */}
+                  <Link to="/auth">
+                    <Button
+                      className="w-full rounded-xl h-10 text-[12px] font-bold transition-all duration-200 border"
+                      style={{
+                        background: `${seg.color}10`,
+                        borderColor: `${seg.color}30`,
+                        color: seg.color,
+                        fontFamily: BC
+                      }}
+                      data-testid={`audience-cta-${seg.key}`}
+                    >
+                      {t(`landing.audiences.${seg.key}_cta`)} <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                    </Button>
+                  </Link>
+                </div>
+              </Reveal>
+            );
+          })}
+        </div>
+
+        {/* Trust badge */}
+        <Reveal delay={0.5} direction="up">
+          <div className="flex items-center justify-center gap-3 py-5 px-6 bg-slate-900/60 backdrop-blur-sm border border-slate-800/60 rounded-2xl max-w-[640px] mx-auto" data-testid="trust-badge">
+            <Shield className="w-5 h-5 text-[#CCFF00] flex-shrink-0" />
+            <p className="text-[14px] font-bold text-slate-300 text-center" style={{fontFamily:BC}}>
+              {t('landing.audiences.trustLine')}
+            </p>
+          </div>
+        </Reveal>
       </div>
     </section>
 
