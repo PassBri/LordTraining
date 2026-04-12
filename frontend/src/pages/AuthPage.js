@@ -67,6 +67,112 @@ const useCountUp = (target, duration = 1200) => {
   return isFloat ? val.toFixed(2) : val;
 };
 
+/* ═══ SPORT FIELD DATA ═══ */
+const SPORTS = [
+  { name:'FÚTBOL', field:(
+    <>
+      <rect x="15" y="15" width="270" height="390" rx="2"/>
+      <line x1="15" y1="210" x2="285" y2="210"/>
+      <circle cx="150" cy="210" r="42"/>
+      <circle cx="150" cy="210" r="2" fill="rgba(255,255,255,0.09)"/>
+      <rect x="70" y="15" width="160" height="70"/>
+      <rect x="105" y="15" width="90" height="30"/>
+      <path d="M100 85 A32 32 0 0 0 200 85"/>
+      <rect x="115" y="5" width="70" height="12" rx="1"/>
+      <rect x="70" y="335" width="160" height="70"/>
+      <rect x="105" y="375" width="90" height="30"/>
+      <path d="M100 335 A32 32 0 0 1 200 335"/>
+      <rect x="115" y="403" width="70" height="12" rx="1"/>
+      <path d="M15 27 A12 12 0 0 0 27 15"/>
+      <path d="M273 15 A12 12 0 0 0 285 27"/>
+      <path d="M15 393 A12 12 0 0 1 27 405"/>
+      <path d="M273 405 A12 12 0 0 1 285 393"/>
+    </>),
+    xs:[[30,15],[50,10],[70,15],[30,32],[70,32],[50,65],[30,76],[70,76],[50,90]],
+    os:[[50,20],[35,42],[65,42],[40,58],[60,58]],
+    arrows:['M90,340 C70,280 60,220 75,140','M210,340 C240,280 240,220 225,140','M200,185 C170,155 155,125 150,100'],
+  },
+  { name:'BALONCESTO', field:(
+    <>
+      <rect x="15" y="15" width="270" height="390" rx="2"/>
+      <line x1="15" y1="210" x2="285" y2="210"/>
+      <circle cx="150" cy="210" r="28"/>
+      {/* Top hoop area */}
+      <rect x="95" y="15" width="110" height="55"/>
+      <circle cx="150" cy="70" r="8"/>
+      <rect x="140" y="15" width="20" height="3"/>
+      <path d="M70 15 A95 95 0 0 0 230 15"/>
+      <path d="M95 70 A55 55 0 0 0 205 70"/>
+      {/* Bottom hoop area */}
+      <rect x="95" y="350" width="110" height="55"/>
+      <circle cx="150" cy="350" r="8"/>
+      <rect x="140" y="402" width="20" height="3"/>
+      <path d="M70 405 A95 95 0 0 1 230 405"/>
+      <path d="M95 350 A55 55 0 0 1 205 350"/>
+    </>),
+    xs:[[50,25],[30,38],[70,38],[25,55],[75,55]],
+    os:[[50,75],[35,62],[65,62],[30,82],[70,82]],
+    arrows:['M70,230 C100,200 130,180 150,140','M230,230 C200,200 170,180 150,140','M150,230 C150,200 150,170 150,140'],
+  },
+  { name:'VOLEIBOL', field:(
+    <>
+      <rect x="15" y="15" width="270" height="390" rx="2"/>
+      <line x1="15" y1="210" x2="285" y2="210" strokeWidth="2.5"/>
+      <line x1="12" y1="205" x2="12" y2="215"/>
+      <line x1="288" y1="205" x2="288" y2="215"/>
+      <line x1="15" y1="140" x2="285" y2="140" strokeDasharray="6 4"/>
+      <line x1="15" y1="280" x2="285" y2="280" strokeDasharray="6 4"/>
+    </>),
+    xs:[[30,25],[50,25],[70,25],[30,38],[50,38],[70,38]],
+    os:[[30,62],[50,62],[70,62],[30,75],[50,75],[70,75]],
+    arrows:['M150,280 C150,250 170,230 150,145','M70,280 C80,250 100,230 120,145','M230,280 C220,250 200,230 180,145'],
+  },
+  { name:'BÉISBOL', field:(
+    <>
+      <line x1="150" y1="350" x2="30" y2="60"/>
+      <line x1="150" y1="350" x2="270" y2="60"/>
+      <path d="M30 60 A180 180 0 0 1 270 60"/>
+      <rect x="145" y="345" width="10" height="10" rx="1"/>
+      <rect x="230" y="205" width="8" height="8" rx="1" transform="rotate(45 234 209)"/>
+      <rect x="145" y="65" width="8" height="8" rx="1" transform="rotate(45 149 69)"/>
+      <rect x="60" y="205" width="8" height="8" rx="1" transform="rotate(45 64 209)"/>
+      <circle cx="150" cy="250" r="6"/>
+      <circle cx="150" cy="250" r="1.5" fill="rgba(255,255,255,0.09)"/>
+      <path d="M80 350 A80 80 0 0 1 220 350"/>
+    </>),
+    xs:[[50,82],[78,50],[50,16],[22,50],[50,58],[22,25],[50,12],[78,25],[50,40]],
+    os:[[50,72]],
+    arrows:['M150,250 C170,200 180,150 150,75','M150,350 C200,300 240,250 235,210'],
+  },
+  { name:'ATLETISMO', field:(
+    <>
+      <ellipse cx="150" cy="210" rx="125" ry="180"/>
+      <ellipse cx="150" cy="210" rx="108" ry="163"/>
+      <ellipse cx="150" cy="210" rx="91" ry="146"/>
+      <ellipse cx="150" cy="210" rx="74" ry="129"/>
+      <ellipse cx="150" cy="210" rx="57" ry="112"/>
+      <line x1="150" y1="28" x2="150" y2="392"/>
+      {[0,1,2,3,4].map(i => <line key={i} x1={25+i*17} y1="30" x2={25+i*17} y2="45"/>)}
+    </>),
+    xs:[[25,50],[50,50],[75,50],[30,38],[70,38]],
+    os:[],
+    arrows:['M40,210 C50,180 60,150 75,120'],
+  },
+  { name:'TENIS', field:(
+    <>
+      <rect x="30" y="15" width="240" height="390" rx="2"/>
+      <line x1="30" y1="210" x2="270" y2="210"/>
+      <line x1="150" y1="80" x2="150" y2="340"/>
+      <rect x="30" y="80" width="240" height="260"/>
+      <line x1="30" y1="145" x2="270" y2="145"/>
+      <line x1="30" y1="275" x2="270" y2="275"/>
+    </>),
+    xs:[[40,30],[60,30]],
+    os:[[40,70],[60,70]],
+    arrows:['M100,275 C120,250 140,230 160,145','M200,275 C180,250 160,230 140,145'],
+  },
+];
+
 /* ═══ RIGHT PANEL — TACTICAL BOARD ═══ */
 const AuthVisual = () => {
   const { t } = useTranslation();
@@ -77,88 +183,70 @@ const AuthVisual = () => {
   ], 55, 25, 2800);
   const readiness = useCountUp(85, 1200);
   const acwr = useCountUp(0.87, 1000);
-  const [show, setShow] = useState(false);
-  useEffect(() => { const t = setTimeout(() => setShow(true), 200); return () => clearTimeout(t); }, []);
+  const [sportIdx, setSportIdx] = useState(0);
+  const [visible, setVisible] = useState(true);
 
-  const r = 24, circ = 2 * Math.PI * r, rOff = circ * (1 - 0.85);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setVisible(false);
+      setTimeout(() => {
+        setSportIdx(prev => (prev + 1) % SPORTS.length);
+        setVisible(true);
+      }, 700);
+    }, 8000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const sport = SPORTS[sportIdx];
 
   return (
   <div className="relative h-full overflow-hidden" style={{background:'#08090e'}}>
 
-    {/* LAYER 1 — Chalkboard field (vertical, like real tactical board) */}
-    <div className="absolute overflow-hidden" style={{top:'12%',left:'8%',right:'8%',bottom:'14%',background:'#1e3a1e',borderRadius:'4px'}}>
-      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 300 420" preserveAspectRatio="xMidYMid meet">
-        <style>{`
-          .ck{stroke:rgba(255,255,255,0.75);fill:none;stroke-linecap:round;stroke-linejoin:round;}
-          .ck2{stroke-width:2.5}
-          .ck3{stroke-width:3}
-          .xm{stroke:rgba(255,255,255,0.85);stroke-width:3.5;stroke-linecap:round}
-          .om{stroke:rgba(255,255,255,0.75);stroke-width:3;fill:none}
-          .ar{stroke:rgba(255,255,255,0.6);stroke-width:2;fill:none;stroke-linecap:round}
-        `}</style>
-        {/* Outer field border */}
-        <rect x="15" y="15" width="270" height="390" rx="2" className="ck ck3"/>
-        {/* Center line */}
-        <line x1="15" y1="210" x2="285" y2="210" className="ck ck2"/>
-        {/* Center circle */}
-        <circle cx="150" cy="210" r="42" className="ck ck2"/>
-        <circle cx="150" cy="210" r="2.5" fill="rgba(255,255,255,0.6)"/>
-        {/* Top penalty area (large) */}
-        <rect x="70" y="15" width="160" height="70" className="ck ck2"/>
-        {/* Top penalty area (small/goal area) */}
-        <rect x="105" y="15" width="90" height="30" className="ck ck2"/>
-        {/* Top penalty arc */}
-        <path d="M100 85 A32 32 0 0 0 200 85" className="ck ck2"/>
-        {/* Top goal */}
-        <rect x="115" y="5" width="70" height="12" rx="1" className="ck ck2" style={{stroke:'rgba(255,255,255,0.5)'}}/>
-        {/* Bottom penalty area (large) */}
-        <rect x="70" y="335" width="160" height="70" className="ck ck2"/>
-        {/* Bottom penalty area (small) */}
-        <rect x="105" y="375" width="90" height="30" className="ck ck2"/>
-        {/* Bottom penalty arc */}
-        <path d="M100 335 A32 32 0 0 1 200 335" className="ck ck2"/>
-        {/* Bottom goal */}
-        <rect x="115" y="403" width="70" height="12" rx="1" className="ck ck2" style={{stroke:'rgba(255,255,255,0.5)'}}/>
-        {/* Corner arcs */}
-        <path d="M15 27 A12 12 0 0 0 27 15" className="ck ck2"/>
-        <path d="M273 15 A12 12 0 0 0 285 27" className="ck ck2"/>
-        <path d="M15 393 A12 12 0 0 1 27 405" className="ck ck2"/>
-        <path d="M273 405 A12 12 0 0 1 285 393" className="ck ck2"/>
-
-        {/* ═══ TACTICAL ARROWS ═══ */}
-        <defs><marker id="chkA" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
-          <path d="M0,0 L10,4 L0,8" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round"/>
-        </marker></defs>
-        {/* Arrow 1: from left CB up and curving to left wing */}
-        <path d="M70,340 C50,280 40,220 55,130" className="ar" markerEnd="url(#chkA)"
-          style={{opacity:show?1:0,transition:'opacity 0.5s ease 2.2s'}}/>
-        {/* Arrow 2: from right CB curving to right forward */}
-        <path d="M230,340 C260,280 260,220 245,130" className="ar" markerEnd="url(#chkA)"
-          style={{opacity:show?1:0,transition:'opacity 0.5s ease 2.5s'}}/>
-        {/* Arrow 3: midfield pass to striker */}
-        <path d="M220,185 C190,160 170,130 150,105" className="ar" markerEnd="url(#chkA)"
-          style={{opacity:show?1:0,transition:'opacity 0.5s ease 2.8s'}}/>
-        {/* Arrow 4: left mid to center */}
-        <path d="M80,185 C100,170 120,155 150,155" className="ar" markerEnd="url(#chkA)"
-          style={{opacity:show?1:0,transition:'opacity 0.5s ease 3s'}}/>
+    {/* Field container */}
+    <div className="absolute overflow-hidden" style={{top:'12%',left:'8%',right:'8%',bottom:'14%',borderRadius:'4px'}}>
+      {/* SVG field lines */}
+      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 300 420" preserveAspectRatio="xMidYMid meet"
+        style={{opacity:visible?1:0,transition:'opacity 0.6s ease',stroke:'rgba(255,255,255,0.09)',fill:'none',strokeWidth:1.5,strokeLinecap:'round',strokeLinejoin:'round'}}>
+        {sport.field}
       </svg>
 
-      {/* Players as HTML divs — positioned INSIDE the field */}
-      {/* X marks — all inside field lines */}
-      {[[30,15],[50,10],[70,15],[30,32],[70,32],[50,65],[30,76],[70,76],[50,90]].map(([x,y],i) => (
-        <div key={`hx${i}`} className="absolute pointer-events-none select-none" style={{left:`${x}%`,top:`${y}%`,transform:'translate(-50%,-50%)',color:'rgba(255,255,255,0.85)',fontSize:'22px',fontWeight:900,fontFamily:'Arial,sans-serif',lineHeight:1}}>
+      {/* Sport name flash */}
+      <div className="absolute top-3 left-4 pointer-events-none" style={{opacity:visible?0.2:0,transition:'opacity 0.3s ease'}}>
+        <span className="text-[11px] font-bold tracking-[0.2em] text-white" style={{fontFamily:BC}}>{sport.name}</span>
+      </div>
+
+      {/* X markers */}
+      {sport.xs.map(([x,y],i) => (
+        <div key={`x${sportIdx}-${i}`} className="absolute pointer-events-none select-none" style={{left:`${x}%`,top:`${y}%`,transform:'translate(-50%,-50%)',color:'rgba(255,255,255,0.35)',fontSize:'14px',fontWeight:700,fontFamily:'Arial,sans-serif',lineHeight:1,opacity:visible?1:0,transition:'opacity 0.5s ease'}}>
           ✕
         </div>
       ))}
-      {/* O marks */}
-      {[[50,20],[35,42],[65,42],[40,58],[60,58]].map(([x,y],i) => (
-        <div key={`ho${i}`} className="absolute pointer-events-none" style={{left:`${x}%`,top:`${y}%`,transform:'translate(-50%,-50%)',width:20,height:20,borderRadius:'50%',border:'2.5px solid rgba(255,255,255,0.75)'}}/>
+      {/* O markers */}
+      {sport.os.map(([x,y],i) => (
+        <div key={`o${sportIdx}-${i}`} className="absolute pointer-events-none" style={{left:`${x}%`,top:`${y}%`,transform:'translate(-50%,-50%)',width:14,height:14,borderRadius:'50%',border:'1px solid rgba(255,255,255,0.35)',opacity:visible?1:0,transition:'opacity 0.5s ease'}}/>
       ))}
+
+      {/* Tactical arrows */}
+      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 300 420" preserveAspectRatio="xMidYMid meet"
+        style={{opacity:visible?1:0,transition:'opacity 0.6s ease'}}>
+        <defs><marker id="tA" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1" strokeLinecap="round"/>
+        </marker></defs>
+        {sport.arrows.map((d,i) => (
+          <path key={i} d={d} fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1" strokeLinecap="round" markerEnd="url(#tA)"/>
+        ))}
+      </svg>
+
+      {/* Sport dots indicator */}
+      <div className="absolute bottom-3 left-4 flex gap-1.5 z-10">
+        {SPORTS.map((_,i) => (
+          <div key={i} className="w-[4px] h-[4px] rounded-full transition-colors duration-400" style={{background:i===sportIdx?'#c8f700':'rgba(255,255,255,0.15)'}}/>
+        ))}
+      </div>
     </div>
 
-    {/* LAYER 4 — HUD Cards floating over field */}
-    {/* Session header */}
-    <div className="absolute left-1/2 -translate-x-1/2" style={{top:'5%',opacity:show?1:0,transform:`translateX(-50%) translateY(${show?'0':'8px'})`,transition:'all 0.4s ease 2s'}}>
+    {/* HUD — Session header */}
+    <div className="absolute left-1/2 -translate-x-1/2" style={{top:'5%'}}>
       <div className="flex items-center gap-2.5 px-4 py-2 rounded-lg whitespace-nowrap" style={{background:'rgba(8,9,14,0.85)',border:'0.5px solid rgba(255,255,255,0.1)',backdropFilter:'blur(12px)'}}>
         <div className="w-5 h-5 rounded-md bg-[#c8f700] flex items-center justify-center">
           <span className="text-[10px] font-black text-[#08090e]" style={{fontFamily:BC}}>i</span>
@@ -169,16 +257,16 @@ const AuthVisual = () => {
       </div>
     </div>
 
-    {/* Readiness — top left, outside field */}
-    <div className="absolute" style={{top:'14%',left:'3%',opacity:show?1:0,transform:`translateY(${show?'0':'8px'})`,transition:'all 0.4s ease 2.2s'}}>
+    {/* HUD — Readiness */}
+    <div className="absolute" style={{top:'14%',left:'16px'}}>
       <div className="px-3 py-3 rounded-lg" style={{background:'rgba(8,9,14,0.85)',border:'0.5px solid rgba(255,255,255,0.1)',backdropFilter:'blur(12px)'}}>
         <span className="text-[8px] text-white/30 uppercase tracking-[0.12em] font-bold block mb-1.5">{t('auth.visual.readiness')}</span>
         <div className="flex items-center gap-2">
           <svg width="40" height="40" className="-rotate-90">
-            <circle cx="20" cy="20" r={r-6} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="2.5"/>
-            <circle cx="20" cy="20" r={r-6} fill="none" stroke="#c8f700" strokeWidth="2.5"
-              strokeDasharray={2*Math.PI*(r-6)} strokeDashoffset={show ? 2*Math.PI*(r-6)*(1-0.85) : 2*Math.PI*(r-6)}
-              strokeLinecap="round" style={{transition:'stroke-dashoffset 1.2s ease-out 0.3s'}}/>
+            <circle cx="20" cy="20" r="18" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="2.5"/>
+            <circle cx="20" cy="20" r="18" fill="none" stroke="#c8f700" strokeWidth="2.5"
+              strokeDasharray={2*Math.PI*18} strokeDashoffset={2*Math.PI*18*0.15}
+              strokeLinecap="round"/>
           </svg>
           <div>
             <span className="text-[28px] font-black text-[#c8f700] leading-none block" style={{fontFamily:BC}}>{readiness}</span>
@@ -188,38 +276,37 @@ const AuthVisual = () => {
       </div>
     </div>
 
-    {/* ACWR — top right */}
-    <div className="absolute" style={{top:'14%',right:'3%',opacity:show?1:0,transform:`translateY(${show?'0':'8px'})`,transition:'all 0.4s ease 2.4s'}}>
+    {/* HUD — ACWR */}
+    <div className="absolute" style={{top:'14%',right:'16px'}}>
       <div className="px-3 py-3 rounded-lg" style={{background:'rgba(8,9,14,0.85)',border:'0.5px solid rgba(255,255,255,0.1)',backdropFilter:'blur(12px)'}}>
         <span className="text-[8px] text-white/30 uppercase tracking-[0.12em] font-bold block mb-1">{t('auth.visual.acwr')}</span>
         <span className="text-[26px] font-black text-[#378ADD] leading-none block" style={{fontFamily:BC}}>{acwr}</span>
         <svg viewBox="0 0 80 20" className="w-16 h-4 mt-1.5">
-          <path d="M0,16 L11,13 L22,14 L33,10 L44,11 L55,7 L66,8 L80,4" fill="none" stroke="#378ADD" strokeWidth="1.5" strokeLinecap="round"
-            style={{strokeDasharray:show?'0':'150',strokeDashoffset:show?'0':'150',transition:'all 0.8s ease 2.6s'}}/>
+          <path d="M0,16 L11,13 L22,14 L33,10 L44,11 L55,7 L66,8 L80,4" fill="none" stroke="#378ADD" strokeWidth="1.5" strokeLinecap="round"/>
         </svg>
         <span className="text-[8px] text-[#378ADD]/40 mt-1 block">{t('auth.visual.optimal_zone')}</span>
       </div>
     </div>
 
-    {/* Adherence — bottom right */}
-    <div className="absolute" style={{bottom:'22%',right:'3%',opacity:show?1:0,transform:`translateY(${show?'0':'8px'})`,transition:'all 0.4s ease 2.6s'}}>
+    {/* HUD — Adherence */}
+    <div className="absolute" style={{bottom:'22%',right:'16px'}}>
       <div className="px-3 py-2.5 rounded-lg" style={{background:'rgba(8,9,14,0.85)',border:'0.5px solid rgba(255,255,255,0.08)',backdropFilter:'blur(12px)'}}>
         <span className="text-[20px] font-black text-[#c8f700] leading-none block" style={{fontFamily:BC}}>94%</span>
         <span className="text-[8px] text-white/25 uppercase tracking-[0.1em] mt-0.5 block">{t('auth.visual.adherence')}</span>
       </div>
     </div>
 
-    {/* LAYER 5 — Typewriter top */}
-    <div className="absolute top-0 left-0 right-0 z-20 px-7 pt-6 pb-14" style={{background:'linear-gradient(to bottom, rgba(8,9,14,0.95) 0%, rgba(8,9,14,0.6) 60%, transparent 100%)'}}>
-      <div className="h-[26px] mb-1.5">
-        <h2 className="text-[19px] font-semibold text-white/85" style={{fontFamily:INT}}>
+    {/* Typewriter top */}
+    <div className="absolute top-0 left-0 right-0 z-20 px-7 pt-6 pb-14 overflow-visible" style={{background:'linear-gradient(to bottom, rgba(8,9,14,0.95) 0%, rgba(8,9,14,0.6) 60%, transparent 100%)'}}>
+      <div className="mb-1.5 overflow-visible">
+        <h2 className="text-[19px] font-semibold text-white/85 whitespace-nowrap" style={{fontFamily:INT}}>
           {typedText}<span className="inline-block w-[1.5px] h-[17px] bg-[#c8f700] ml-0.5" style={{animation:'blink 0.53s step-end infinite'}}/>
         </h2>
       </div>
       <p className="text-[11px] text-white/25">{t('auth.visual.system_line')}</p>
     </div>
 
-    {/* LAYER 6 — Bench bar */}
+    {/* Bench bar */}
     <div className="absolute bottom-0 left-0 right-0 z-20 px-5 py-3 flex items-center justify-between" style={{background:'rgba(8,9,14,0.92)',borderTop:'0.5px solid rgba(255,255,255,0.06)'}}>
       <div className="flex items-center gap-2">
         <div className="flex">
@@ -240,14 +327,13 @@ const AuthVisual = () => {
     </div>
 
     {/* Chalk signature */}
-    <div className="absolute z-10 pointer-events-none" style={{bottom:'52px',right:'20px',opacity:show?0.3:0,transition:'opacity 1s ease 2.5s',transform:'rotate(-2deg)'}}>
+    <div className="absolute z-10 pointer-events-none" style={{bottom:'52px',right:'20px',opacity:0.15,transform:'rotate(-2deg)'}}>
       <span className="text-[18px] text-white italic font-light">Los mejores no improvisan.</span>
     </div>
 
     <style>{`
       @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
       @keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.8)}}
-      @keyframes heatPulse{0%,100%{opacity:0.6;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}}
     `}</style>
   </div>
   );
@@ -407,7 +493,7 @@ const AuthPage = () => {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full h-11 bg-slate-900 hover:bg-slate-800 text-white text-[13px] font-semibold rounded-lg"
+                  className="w-full h-11 bg-[#c8f700] hover:bg-[#d9ff20] text-[#0b0e14] text-[13px] font-bold rounded-lg hover:-translate-y-[1px] transition-all"
                   disabled={isLoading}
                   data-testid="login-submit-btn"
                 >

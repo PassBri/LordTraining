@@ -315,9 +315,9 @@
       "passwordRequirements": "Mínimo 6 caracteres"
     },
     "visual": {
-      "phrase1": "Planeje melhor.",
-      "phrase2": "Treine com critério.",
-      "phrase3": "Compita sem limites.",
+      "phrase1": "Sua próxima sessão está esperando.",
+      "phrase2": "Os melhores não improvisam. Planejam.",
+      "phrase3": "Cada dado conta. Cada sessão importa.",
       "system_line": "O sistema usado pelos treinadores que vencem.",
       "week": "Semana 18",
       "phase": "Fase Transformação",

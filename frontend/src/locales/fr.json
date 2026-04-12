@@ -315,9 +315,9 @@
       "passwordRequirements": "6 caractères minimum"
     },
     "visual": {
-      "phrase1": "Planifiez mieux.",
-      "phrase2": "Entraînez avec méthode.",
-      "phrase3": "Compétitionnez sans limites.",
+      "phrase1": "Votre prochaine séance vous attend.",
+      "phrase2": "Les meilleurs n'improvisent pas. Ils planifient.",
+      "phrase3": "Chaque donnée compte. Chaque séance compte.",
       "system_line": "Le système utilisé par les entraîneurs qui gagnent.",
       "week": "Semaine 18",
       "phase": "Phase Transformation",
