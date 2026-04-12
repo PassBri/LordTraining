@@ -240,26 +240,26 @@ const AuthVisual = () => {
         <div className="w-5 h-5 rounded-md bg-[#c8f700] flex items-center justify-center">
           <span className="text-[10px] font-black text-[#08090e]" style={{fontFamily:BC}}>i</span>
         </div>
-        <span className="text-[12px] font-semibold text-white/80">{t('auth.visual.week')} · {t('auth.visual.phase')}</span>
+        <span className="text-[13px] font-semibold text-white/80">{t('auth.visual.week')} · {t('auth.visual.phase')}</span>
         <span className="w-[5px] h-[5px] rounded-full bg-[#c8f700] ml-1" style={{animation:'livePulse 1.5s infinite'}}/>
-        <span className="text-[10px] text-[#c8f700]/60">Live</span>
+        <span className="text-[11px] text-[#c8f700]/70">Live</span>
       </div>
     </div>
 
     {/* HUD — Readiness */}
     <div className="absolute" style={{top:'14%',left:'16px'}}>
       <div className="px-3 py-3 rounded-lg" style={{background:'rgba(8,9,14,0.85)',border:'0.5px solid rgba(255,255,255,0.1)',backdropFilter:'blur(12px)'}}>
-        <span className="text-[8px] text-white/30 uppercase tracking-[0.12em] font-bold block mb-1.5">{t('auth.visual.readiness')}</span>
+        <span className="text-[10px] text-white/35 uppercase tracking-[0.12em] font-bold block mb-1.5">{t('auth.visual.readiness')}</span>
         <div className="flex items-center gap-2">
-          <svg width="40" height="40" className="-rotate-90">
-            <circle cx="20" cy="20" r="18" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="2.5"/>
-            <circle cx="20" cy="20" r="18" fill="none" stroke="#c8f700" strokeWidth="2.5"
+          <svg width="44" height="44" className="-rotate-90">
+            <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="2.5"/>
+            <circle cx="22" cy="22" r="18" fill="none" stroke="#c8f700" strokeWidth="2.5"
               strokeDasharray={2*Math.PI*18} strokeDashoffset={2*Math.PI*18*0.15}
               strokeLinecap="round"/>
           </svg>
           <div>
-            <span className="text-[28px] font-black text-[#c8f700] leading-none block" style={{fontFamily:BC}}>{readiness}</span>
-            <span className="text-[9px] text-[#c8f700]/40 block">Optimal</span>
+            <span className="text-[32px] font-black text-[#c8f700] leading-none block" style={{fontFamily:BC}}>{readiness}</span>
+            <span className="text-[10px] text-[#c8f700]/50 block">Optimal</span>
           </div>
         </div>
       </div>
@@ -270,29 +270,29 @@ const AuthVisual = () => {
       <div className="px-3 py-3 rounded-lg" style={{background:'rgba(8,9,14,0.85)',border:'0.5px solid rgba(255,255,255,0.1)',backdropFilter:'blur(12px)'}}>
         <span className="text-[8px] text-white/30 uppercase tracking-[0.12em] font-bold block mb-1">{t('auth.visual.acwr')}</span>
         <span className="text-[26px] font-black text-[#378ADD] leading-none block" style={{fontFamily:BC}}>{acwr}</span>
-        <svg viewBox="0 0 80 20" className="w-16 h-4 mt-1.5">
+        <svg viewBox="0 0 80 20" className="w-20 h-5 mt-1.5">
           <path d="M0,16 L11,13 L22,14 L33,10 L44,11 L55,7 L66,8 L80,4" fill="none" stroke="#378ADD" strokeWidth="1.5" strokeLinecap="round"/>
         </svg>
-        <span className="text-[8px] text-[#378ADD]/40 mt-1 block">{t('auth.visual.optimal_zone')}</span>
+        <span className="text-[10px] text-[#378ADD]/50 mt-1 block">{t('auth.visual.optimal_zone')}</span>
       </div>
     </div>
 
     {/* HUD — Adherence */}
     <div className="absolute" style={{bottom:'22%',right:'16px'}}>
       <div className="px-3 py-2.5 rounded-lg" style={{background:'rgba(8,9,14,0.85)',border:'0.5px solid rgba(255,255,255,0.08)',backdropFilter:'blur(12px)'}}>
-        <span className="text-[20px] font-black text-[#c8f700] leading-none block" style={{fontFamily:BC}}>94%</span>
-        <span className="text-[8px] text-white/25 uppercase tracking-[0.1em] mt-0.5 block">{t('auth.visual.adherence')}</span>
+        <span className="text-[24px] font-black text-[#c8f700] leading-none block" style={{fontFamily:BC}}>94%</span>
+        <span className="text-[10px] text-white/30 uppercase tracking-[0.1em] mt-0.5 block">{t('auth.visual.adherence')}</span>
       </div>
     </div>
 
     {/* Typewriter top */}
     <div className="absolute top-0 left-0 right-0 z-20 px-7 pt-6 pb-14 overflow-visible" style={{background:'linear-gradient(to bottom, rgba(8,9,14,0.95) 0%, rgba(8,9,14,0.6) 60%, transparent 100%)'}}>
       <div className="mb-1.5 overflow-visible">
-        <h2 className="text-[19px] font-semibold text-white/85 whitespace-nowrap" style={{fontFamily:INT}}>
+        <h2 className="text-[22px] font-semibold text-white/90 whitespace-nowrap" style={{fontFamily:INT}}>
           {typedText}<span className="inline-block w-[1.5px] h-[17px] bg-[#c8f700] ml-0.5" style={{animation:'blink 0.53s step-end infinite'}}/>
         </h2>
       </div>
-      <p className="text-[11px] text-white/25">{t('auth.visual.system_line')}</p>
+      <p className="text-[12px] text-white/30">{t('auth.visual.system_line')}</p>
     </div>
 
     {/* Bench bar */}
@@ -303,7 +303,7 @@ const AuthVisual = () => {
             <div key={i} className="w-6 h-6 rounded-full flex items-center justify-center text-[8px] font-bold" style={{background:a.bg,color:a.c,border:`1.5px solid ${a.b}`,marginLeft:i>0?'-6px':'0',zIndex:4-i,position:'relative'}}>{a.t}</div>
           ))}
         </div>
-        <span className="text-[10px] text-white/25">{t('auth.visual.optimal_zone')}</span>
+        <span className="text-[11px] text-white/30">{t('auth.visual.optimal_zone')}</span>
       </div>
       <div className="flex items-center gap-4">
         {[{v:'17',l:t('landing.hero.stats.models')},{v:'6',l:t('landing.hero.stats.controls')},{v:'150+',l:t('landing.hero.stats.exercises')}].map((s,i) => (
@@ -315,9 +315,10 @@ const AuthVisual = () => {
       </div>
     </div>
 
-    {/* Chalk signature */}
-    <div className="absolute z-10 pointer-events-none" style={{bottom:'52px',right:'20px',opacity:0.15,transform:'rotate(-2deg)'}}>
-      <span className="text-[18px] text-white italic font-light">Los mejores no improvisan.</span>
+    {/* Chalk signature — Caveat font */}
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet"/>
+    <div className="absolute z-10 pointer-events-none" style={{bottom:'52px',right:'20px',opacity:0.25,transform:'rotate(-2deg)'}}>
+      <span className="text-[26px] text-white" style={{fontFamily:'Caveat, cursive'}}>Los mejores no improvisan.</span>
     </div>
 
     <style>{`
