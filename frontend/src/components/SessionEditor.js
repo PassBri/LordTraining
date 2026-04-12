@@ -486,11 +486,12 @@ const SessionEditor = ({
       const footerEl = target.querySelector('.sticky.bottom-0');
       
       // Guardar estilos originales
-      const origTarget = { w: target.style.width, mw: target.style.maxWidth, mh: target.style.maxHeight, h: target.style.height, o: target.style.overflow };
       const origContent = contentEl ? { mh: contentEl.style.maxHeight, o: contentEl.style.overflow } : {};
       const origFooter = footerEl ? footerEl.style.display : '';
+      const origTargetMH = target.style.maxHeight;
+      const origTargetO = target.style.overflow;
       
-      // 1) Reemplazar inputs/selects/textareas con spans de texto plano
+      // Reemplazar inputs/selects/textareas con spans legibles
       const replacements = [];
       target.querySelectorAll('input, select, textarea').forEach(el => {
         const val = el.tagName === 'SELECT' 
@@ -501,14 +502,14 @@ const SessionEditor = ({
         const span = document.createElement('span');
         span.textContent = val;
         const cs = window.getComputedStyle(el);
-        const isHeaderInput = el.closest('.sticky') !== null;
+        const isHeader = el.closest('.sticky') !== null;
         span.style.cssText = `
           font-family: ${cs.fontFamily};
-          font-size: ${Math.min(parseFloat(cs.fontSize), 13)}px;
+          font-size: ${cs.fontSize};
           font-weight: ${el.value ? cs.fontWeight : '400'};
-          color: ${el.value ? (isHeaderInput ? cs.color : '#1a1a1a') : '#999'};
+          color: ${el.value ? (isHeader ? cs.color : '#1a1a1a') : '#999'};
           display: inline-block;
-          padding: 2px 4px;
+          padding: ${cs.paddingTop} ${cs.paddingRight} ${cs.paddingBottom} ${cs.paddingLeft};
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -523,54 +524,51 @@ const SessionEditor = ({
         replacements.push({ el, span });
       });
       
-      // 2) Ajustar layout — ancho fijo con overflow hidden
-      target.style.width = '780px';
-      target.style.maxWidth = '780px';
+      // Solo expandir scroll y ocultar footer, NO cambiar el ancho
       target.style.maxHeight = 'none';
-      target.style.height = 'auto';
-      target.style.overflow = 'hidden';
-      if (contentEl) { contentEl.style.maxHeight = 'none'; contentEl.style.overflow = 'hidden'; }
+      target.style.overflow = 'visible';
+      if (contentEl) { contentEl.style.maxHeight = 'none'; contentEl.style.overflow = 'visible'; }
       if (footerEl) footerEl.style.display = 'none';
       
       await new Promise(r => setTimeout(r, 400));
+      
+      // Capturar al ancho REAL del modal
+      const realWidth = target.scrollWidth || target.offsetWidth;
       
       const canvas = await html2canvas(target, {
         scale: 2,
         useCORS: true,
         backgroundColor: '#ffffff',
         logging: false,
-        width: 780,
-        windowWidth: 780,
+        width: realWidth,
+        windowWidth: realWidth,
         scrollX: 0,
         scrollY: -window.scrollY
       });
       
-      // 3) Restaurar todo
+      // Restaurar todo
       replacements.forEach(({ el, span }) => {
         el.style.display = '';
         span.remove();
       });
-      target.style.width = origTarget.w;
-      target.style.maxWidth = origTarget.mw;
-      target.style.maxHeight = origTarget.mh;
-      target.style.height = origTarget.h;
-      target.style.overflow = origTarget.o;
+      target.style.maxHeight = origTargetMH;
+      target.style.overflow = origTargetO;
       if (contentEl) { contentEl.style.maxHeight = origContent.mh; contentEl.style.overflow = origContent.o; }
       if (footerEl) footerEl.style.display = origFooter;
       
       if (!canvas.width || !canvas.height) throw new Error('Canvas vacío');
       
-      // PDF A4
+      // PDF A4 — la imagen se escala para caber en el ancho
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const pageW = 210, pageH = 297, margin = 5;
-      const usableW = pageW - margin * 2;
-      const usableH = pageH - margin * 2;
+      const margin = 4;
+      const usableW = 210 - margin * 2;
+      const usableH = 297 - margin * 2;
       const pdfImgH = usableW * (canvas.height / canvas.width);
-      const imgData = canvas.toDataURL('image/jpeg', 0.92);
       
       if (pdfImgH <= usableH) {
-        pdf.addImage(imgData, 'JPEG', margin, margin, usableW, pdfImgH);
+        pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, usableW, pdfImgH);
       } else {
+        // Paginar
         const pxPerMm = canvas.width / usableW;
         const slicePx = Math.floor(usableH * pxPerMm);
         let srcY = 0, pg = 0;
