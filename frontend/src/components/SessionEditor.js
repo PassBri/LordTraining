@@ -479,7 +479,6 @@ const SessionEditor = ({
       const html2canvas = (await import('html2canvas')).default;
       const { jsPDF } = await import('jspdf');
       
-      // El DialogContent ES el contenedor principal
       const target = document.querySelector('[data-testid="session-editor-dialog"]');
       if (!target) throw new Error('No se encontró el modal');
       
@@ -491,7 +490,43 @@ const SessionEditor = ({
       const origContent = contentEl ? { mh: contentEl.style.maxHeight, o: contentEl.style.overflow } : {};
       const origFooter = footerEl ? footerEl.style.display : '';
       
-      // Ajustar para captura
+      // Inyectar estilos de alto contraste para PDF
+      const pdfStyle = document.createElement('style');
+      pdfStyle.id = 'pdf-export-styles';
+      pdfStyle.textContent = `
+        [data-testid="session-editor-dialog"] input,
+        [data-testid="session-editor-dialog"] select,
+        [data-testid="session-editor-dialog"] textarea {
+          color: #1a1a1a !important;
+          opacity: 1 !important;
+          text-overflow: clip !important;
+          overflow: visible !important;
+          font-size: 13px !important;
+        }
+        [data-testid="session-editor-dialog"] input::placeholder,
+        [data-testid="session-editor-dialog"] textarea::placeholder {
+          color: #888 !important;
+          opacity: 1 !important;
+        }
+        [data-testid="session-editor-dialog"] label,
+        [data-testid="session-editor-dialog"] .se-field-label {
+          color: #555 !important;
+          opacity: 1 !important;
+        }
+        [data-testid="session-editor-dialog"] .text-slate-400,
+        [data-testid="session-editor-dialog"] .text-slate-500 {
+          color: #666 !important;
+        }
+        [data-testid="session-editor-dialog"] .se-input {
+          color: rgba(255,255,255,0.95) !important;
+        }
+        [data-testid="session-editor-dialog"] .se-input::placeholder {
+          color: rgba(255,255,255,0.5) !important;
+        }
+      `;
+      document.head.appendChild(pdfStyle);
+      
+      // Ajustar layout para captura
       target.style.width = '800px';
       target.style.maxWidth = '800px';
       target.style.maxHeight = 'none';
@@ -500,7 +535,7 @@ const SessionEditor = ({
       if (contentEl) { contentEl.style.maxHeight = 'none'; contentEl.style.overflow = 'visible'; }
       if (footerEl) footerEl.style.display = 'none';
       
-      await new Promise(r => setTimeout(r, 300));
+      await new Promise(r => setTimeout(r, 400));
       
       const canvas = await html2canvas(target, {
         scale: 2,
@@ -511,7 +546,8 @@ const SessionEditor = ({
         windowWidth: 800
       });
       
-      // Restaurar estilos
+      // Restaurar todo
+      document.head.removeChild(pdfStyle);
       target.style.width = origTarget.w;
       target.style.maxWidth = origTarget.mw;
       target.style.maxHeight = origTarget.mh;
@@ -520,7 +556,6 @@ const SessionEditor = ({
       if (contentEl) { contentEl.style.maxHeight = origContent.mh; contentEl.style.overflow = origContent.o; }
       if (footerEl) footerEl.style.display = origFooter;
       
-      // Verificar canvas válido
       if (!canvas.width || !canvas.height) throw new Error('Canvas vacío');
       
       // PDF A4
@@ -529,18 +564,14 @@ const SessionEditor = ({
       const usableW = pageW - margin * 2;
       const usableH = pageH - margin * 2;
       const pdfImgH = usableW * (canvas.height / canvas.width);
-      
-      // Imagen como JPEG
       const imgData = canvas.toDataURL('image/jpeg', 0.92);
       
       if (pdfImgH <= usableH) {
         pdf.addImage(imgData, 'JPEG', margin, margin, usableW, pdfImgH);
       } else {
-        // Paginar
         const pxPerMm = canvas.width / usableW;
         const slicePx = Math.floor(usableH * pxPerMm);
         let srcY = 0, pg = 0;
-        
         while (srcY < canvas.height) {
           if (pg > 0) pdf.addPage();
           const h = Math.min(slicePx, canvas.height - srcY);
@@ -552,7 +583,6 @@ const SessionEditor = ({
         }
       }
       
-      // Nombre
       const code = `SES-${String(session?.sessionIndex || session?.dayName || '001').padStart(3, '0')}`;
       const nm = (sessionData.sessionName || 'Sesion').replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s-]/g, '').replace(/\s+/g, '-');
       const dt = sessionDate ? sessionDate.toLocaleDateString('es-ES', {day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\//g, '-') : new Date().toISOString().split('T')[0];
