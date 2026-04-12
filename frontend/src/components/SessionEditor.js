@@ -14,6 +14,7 @@ import {
   Sparkles, LayoutGrid, Pencil
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { EJERCICIOS_INICIALES } from './ExerciseLibrary';
 
 const TacticalBoardEditor = React.lazy(() => import('./TacticalBoardEditor'));
 
@@ -272,50 +273,25 @@ const SessionEditor = ({
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
-  // Fetch exercises and group by category
-  const [exercisesCat, setExercisesCat] = useState({});
+  // Load exercises: use EJERCICIOS_INICIALES as base, override with user's library if saved
+  const [exercisesCat, setExercisesCat] = useState(EJERCICIOS_INICIALES);
   useEffect(() => {
-    const fetchExercises = async () => {
+    const fetchUserLib = async () => {
       try {
         const token = localStorage.getItem('train_token');
-        const headers = { 'Authorization': `Bearer ${token}` };
-        // Try exercise-library first (categorized)
-        let res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/exercise-library`, { headers });
-        if (res.ok) {
-          const data = await res.json();
-          const cats = data.categories || [];
-          if (cats.length > 0) {
-            const grouped = {};
-            cats.forEach(cat => {
-              const subs = {};
-              (cat.subcategories || []).forEach(sub => {
-                subs[sub.id || sub.name] = {
-                  nombre: sub.name,
-                  ejercicios: (sub.exercises || []).map(e => ({
-                    nombre: e.name, descripcion: e.description || '', musculos: (e.muscles || []).join(', ')
-                  }))
-                };
-              });
-              grouped[cat.id || cat.name] = { nombre: cat.name, color: cat.color, subcategorias: subs };
-            });
-            setExercisesCat(grouped);
-            return;
-          }
-        }
-        // Fallback: flat exercises list
-        res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/exercises`, { headers });
+        if (!token) return;
+        const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/exercise-library`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
         if (!res.ok) return;
         const data = await res.json();
-        const grouped = {};
-        data.forEach(ex => {
-          const cat = ex.category || 'general';
-          if (!grouped[cat]) grouped[cat] = { nombre: cat.charAt(0).toUpperCase() + cat.slice(1), subcategorias: { all: { nombre: 'Ejercicios', ejercicios: [] } } };
-          grouped[cat].subcategorias.all.ejercicios.push({ nombre: ex.name, descripcion: ex.description || '', musculos: (ex.muscles || []).join(', ') });
-        });
-        setExercisesCat(grouped);
-      } catch (e) { /* ignore */ }
+        const cats = data.categories;
+        if (cats && typeof cats === 'object' && Object.keys(cats).length > 0) {
+          setExercisesCat(cats);
+        }
+      } catch (e) { /* keep EJERCICIOS_INICIALES */ }
     };
-    fetchExercises();
+    fetchUserLib();
   }, []);
 
   // Cargar datos de la sesión existente
