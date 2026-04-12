@@ -92,8 +92,8 @@ const AuthVisual = () => {
           .ck{stroke:rgba(255,255,255,0.75);fill:none;stroke-linecap:round;stroke-linejoin:round;}
           .ck2{stroke-width:2.5}
           .ck3{stroke-width:3}
-          .xm{stroke:rgba(255,255,255,0.8);stroke-width:2.5;stroke-linecap:round}
-          .om{stroke:rgba(255,255,255,0.7);stroke-width:2.5;fill:none}
+          .xm{stroke:rgba(255,255,255,0.85);stroke-width:3.5;stroke-linecap:round}
+          .om{stroke:rgba(255,255,255,0.75);stroke-width:3;fill:none}
           .ar{stroke:rgba(255,255,255,0.6);stroke-width:2;fill:none;stroke-linecap:round}
         `}</style>
         {/* Outer field border */}
@@ -125,32 +125,7 @@ const AuthVisual = () => {
         <path d="M15 393 A12 12 0 0 1 27 405" className="ck ck2"/>
         <path d="M273 405 A12 12 0 0 1 285 393" className="ck ck2"/>
 
-        {/* ═══ PLAYERS X (attacking team, top half) ═══ */}
-        {/* Like reference: X marks spread across the field */}
-        {[
-          [55,120],[150,60],[245,120],     /* front 3 */
-          [80,185],[220,185],              /* midfield wings */
-          [150,310],                       /* defensive mid */
-          [70,350],[230,350],              /* center backs */
-          [150,385],                       /* goalkeeper */
-        ].map(([cx,cy],i) => (
-          <g key={`x${i}`} style={{opacity:show?0.85:0,transition:`opacity 0.4s ease ${1.6+i*0.08}s`}}>
-            <line x1={cx-8} y1={cy-8} x2={cx+8} y2={cy+8} className="xm"/>
-            <line x1={cx+8} y1={cy-8} x2={cx-8} y2={cy+8} className="xm"/>
-          </g>
-        ))}
-
-        {/* ═══ PLAYERS O (defending team) ═══ */}
-        {[
-          [150,100],                       /* striker */
-          [75,200],[225,200],              /* midfield */
-          [110,275],[190,275],             /* center backs */
-        ].map(([cx,cy],i) => (
-          <circle key={`o${i}`} cx={cx} cy={cy} r="10" className="om"
-            style={{opacity:show?0.75:0,transition:`opacity 0.4s ease ${1.9+i*0.08}s`}}/>
-        ))}
-
-        {/* ═══ TACTICAL ARROWS (curved, like chalk on board) ═══ */}
+        {/* ═══ TACTICAL ARROWS ═══ */}
         <defs><marker id="chkA" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
           <path d="M0,0 L10,4 L0,8" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round"/>
         </marker></defs>
@@ -167,6 +142,18 @@ const AuthVisual = () => {
         <path d="M80,185 C100,170 120,155 150,155" className="ar" markerEnd="url(#chkA)"
           style={{opacity:show?1:0,transition:'opacity 0.5s ease 3s'}}/>
       </svg>
+
+      {/* Players as HTML divs — guaranteed visible */}
+      {/* X marks */}
+      {[[18,26],[50,11],[82,26],[27,42],[73,42],[50,72],[23,82],[77,82],[50,90]].map(([x,y],i) => (
+        <div key={`hx${i}`} className="absolute pointer-events-none select-none" style={{left:`${x}%`,top:`${y}%`,transform:'translate(-50%,-50%)',color:'rgba(255,255,255,0.85)',fontSize:'24px',fontWeight:900,fontFamily:'Arial,sans-serif',lineHeight:1}}>
+          ✕
+        </div>
+      ))}
+      {/* O marks */}
+      {[[50,21],[25,45],[75,45],[37,63],[63,63]].map(([x,y],i) => (
+        <div key={`ho${i}`} className="absolute pointer-events-none" style={{left:`${x}%`,top:`${y}%`,transform:'translate(-50%,-50%)',width:22,height:22,borderRadius:'50%',border:'3px solid rgba(255,255,255,0.75)'}}/>
+      ))}
     </div>
 
     {/* LAYER 4 — HUD Cards floating over field */}
@@ -253,8 +240,8 @@ const AuthVisual = () => {
     </div>
 
     {/* Chalk signature */}
-    <div className="absolute z-10 pointer-events-none" style={{bottom:'55px',right:'16px',opacity:show?0.15:0,transition:'opacity 1s ease 2.5s',transform:'rotate(-2deg)'}}>
-      <span className="text-[13px] text-white italic">Los mejores no improvisan.</span>
+    <div className="absolute z-10 pointer-events-none" style={{bottom:'52px',right:'20px',opacity:show?0.3:0,transition:'opacity 1s ease 2.5s',transform:'rotate(-2deg)'}}>
+      <span className="text-[18px] text-white italic font-light">Los mejores no improvisan.</span>
     </div>
 
     <style>{`
