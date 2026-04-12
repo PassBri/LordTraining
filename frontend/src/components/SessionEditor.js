@@ -130,6 +130,7 @@ const ACTIVIDAD_INICIAL = {
   id: '',
   ejercicio: '',
   ejercicioId: null,
+  descripcion: '',
   capacidadFisica: 'fuerza',
   metodo: 'series',
   series: 3,
@@ -844,7 +845,7 @@ const SessionEditor = ({
               {/* ── CONTENIDO PRINCIPAL (izquierda) ── */}
               <div className="flex-1 min-w-0 p-3 pb-2">
                 {/* Bloque 1: Medios + Cap. Física + Método */}
-                <div className="flex gap-2 items-start mb-3">
+                <div className="flex gap-2 items-start">
                   <div className="flex-1 min-w-0 relative">
                     <label className="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-1 block">Medios</label>
                     <Input
@@ -872,6 +873,16 @@ const SessionEditor = ({
                         <button className="w-full text-center text-[#3a5a00] py-2.5 border-t bg-slate-50 text-sm font-medium hover:bg-[#f8ffe0] transition-colors" onClick={() => setShowExercisePicker(null)}>Cerrar</button>
                       </div>
                     )}
+                    {/* Descripción del ejercicio */}
+                    <Textarea
+                      value={act.descripcion || ''}
+                      onChange={(e) => updateActividad(faseKey, idx, 'descripcion', e.target.value)}
+                      placeholder="Descripcion del ejercicio..."
+                      className="mt-1.5 text-xs min-h-[28px] h-7 resize-none py-1.5 text-slate-500 focus:text-slate-700 leading-tight"
+                      rows={1}
+                      data-testid={`exercise-desc-${faseKey}-${idx}`}
+                      onInput={(e) => { e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 80) + 'px'; }}
+                    />
                   </div>
                   <div className="w-[100px] flex-shrink-0">
                     <label className="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-1 block">Cap. Fisica</label>
@@ -889,8 +900,8 @@ const SessionEditor = ({
                   </div>
                 </div>
 
-                {/* Bloque 2: Carga | Intensidad + Volumen | Organización */}
-                <div className="flex items-end gap-0 bg-slate-50/60 rounded-lg px-2.5 py-2">
+                {/* Bloque 2: Carga | Intensidad + Volumen | Organización — desplazado derecha */}
+                <div className="flex items-end gap-0 bg-slate-50/60 rounded-lg px-2.5 py-2 mt-2 ml-4">
                   {/* Carga */}
                   <div className="flex gap-1.5 items-end">
                     <div className="w-[52px]">
