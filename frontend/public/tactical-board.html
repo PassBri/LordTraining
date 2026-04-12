@@ -2225,15 +2225,35 @@ const S = {
  exportPNG() {
   const svg = document.getElementById('svg-canvas');
   const clone = svg.cloneNode(true);
-  // Reset zoom for export
   const zg = clone.getElementById('zoom-group');
   if(zg) zg.setAttribute('transform','translate(0,0) scale(1)');
-  // Remove non-field layers that shouldn't be in export (handles, selection)
   const hl = clone.getElementById('handles-layer'); if(hl) hl.innerHTML='';
   const sl = clone.getElementById('sel-rect-layer'); if(sl) sl.innerHTML='';
   const gl = clone.getElementById('guides-layer'); if(gl) gl.innerHTML='';
-  // Clean spans from babel plugin
   clone.querySelectorAll('span').forEach(s=>{while(s.firstChild)s.parentNode.insertBefore(s.firstChild,s);s.remove()});
+
+  // Adjust viewBox based on view mode
+  let vbX=0, vbY=0, vbW=600, vbH=800;
+  if(ST.viewMode==='3d') {
+   // Calculate isometric bounds from field corners + margin
+   const corners = [[0,0],[600,0],[0,800],[600,800]];
+   let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
+   corners.forEach(([x,y])=>{
+    const p=this.toIso(x,y,0);
+    minX=Math.min(minX,p.x); minY=Math.min(minY,p.y);
+    maxX=Math.max(maxX,p.x); maxY=Math.max(maxY,p.y);
+   });
+   // Add margin for elements and 3D objects (goals, nets extend beyond field)
+   const margin = 60;
+   vbX = minX - margin; vbY = minY - margin;
+   vbW = maxX - minX + margin*2; vbH = maxY - minY + margin*2;
+  }
+  clone.setAttribute('viewBox', `${vbX} ${vbY} ${vbW} ${vbH}`);
+
+  // Canvas size matches viewBox aspect ratio at 2x resolution
+  const scale = 2;
+  const cw = Math.round(vbW * scale);
+  const ch = Math.round(vbH * scale);
 
   const data = new XMLSerializer().serializeToString(clone);
   const blob = new Blob([data],{type:'image/svg+xml;charset=utf-8'});
@@ -2241,11 +2261,11 @@ const S = {
   const img = new Image();
   img.onload = ()=>{
    const c = document.createElement('canvas');
-   c.width=1600; c.height=1200;
+   c.width = cw; c.height = ch;
    const ctx = c.getContext('2d');
    ctx.fillStyle='#ffffff';
-   ctx.fillRect(0,0,1600,1200);
-   ctx.drawImage(img,0,0,1600,1200);
+   ctx.fillRect(0,0,cw,ch);
+   ctx.drawImage(img,0,0,cw,ch);
    URL.revokeObjectURL(url);
    const a = document.createElement('a');
    a.download=`pizarra_${ST.sport.replace(/\s+/g,'_')}_${new Date().toISOString().split('T')[0]}.png`;
