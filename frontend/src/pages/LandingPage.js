@@ -7,7 +7,7 @@ import {
   Check, Target, Brain, Calendar, BarChart3, Users,
   ArrowRight, Activity, FileText, Dumbbell,
   Heart, Ruler, Eye, Sparkles, Layers, LineChart,
-  ChevronRight, Zap, Shield, GraduationCap, Globe, UserCheck, Building2
+  ChevronRight, ChevronLeft, Zap, Shield, GraduationCap, Globe, UserCheck, Building2
 } from 'lucide-react';
 
 const BC = "'Barlow Condensed', sans-serif";
@@ -315,6 +315,114 @@ const ShowcaseChart = ({ t }) => {
         </div>
       )}
     </div>
+  );
+};
+
+/* ═══ TESTIMONIALS CAROUSEL ═══ */
+const TESTIMONIALS = [
+  { id:1, text:'Pasé de planificar en Excel a tener todo integrado en un solo lugar. Cargas, atletas, reportes. Ahora dedico ese tiempo a entrenar mejor, no a administrar.', initials:'CM', name:'C.M.', role:'Preparador Físico Independiente', segment:'coach', color:'#c8f700' },
+  { id:2, text:'La periodización visual le cambió la vida a mi cuerpo técnico. Todos ven el mismo plan, en tiempo real. Se acabaron los malentendidos entre sesiones.', initials:'AR', name:'A.R.', role:'Directora Deportiva - Club de Alto Rendimiento', segment:'club', color:'#378ADD' },
+  { id:3, text:'Con el ACWR y los indicadores de monotonía redujimos las lesiones notablemente en la primera temporada. Ahora tomamos decisiones con datos, no con intuición.', initials:'DT', name:'D.T.', role:'Entrenador de Fuerza - Federación Regional de Atletismo', segment:'federation', color:'#E24B4A' },
+  { id:4, text:'Gestiono 4 equipos desde un solo panel. Antes necesitaba tres herramientas distintas y aún así perdía información. Ahora todo está en iTRAIN.', initials:'MV', name:'M.V.', role:'Director Deportivo - Club Polideportivo Municipal', segment:'club', color:'#378ADD' },
+  { id:5, text:'Mis atletas juveniles ahora tienen un seguimiento real de su desarrollo. Los padres ven el progreso, yo controlo la carga. Profesionalicé mi escuela sin contratar más staff.', initials:'LP', name:'L.P.', role:'Directora - Escuela de Natación Formativa', segment:'school', color:'#7F77DD' },
+  { id:6, text:'Estandarizamos la metodología de planificación para los 18 clubes afiliados. Por primera vez tenemos datos comparables entre regiones y podemos tomar decisiones reales.', initials:'RG', name:'R.G.', role:'Coordinador Técnico Nacional - Federación de Ciclismo', segment:'federation', color:'#E24B4A' },
+  { id:7, text:'No soy experto en tecnología pero iTRAIN lo entendí solo en una tarde. Ahora genero los planes de mis atletas en minutos y tengo todo el historial accesible desde el móvil.', initials:'JF', name:'J.F.', role:'Entrenador Personal - Especialista en Fuerza', segment:'coach', color:'#c8f700' },
+  { id:8, text:'El seguimiento del desarrollo a largo plazo nos ayudó a identificar talentos que antes pasaban desapercibidos. Ahora formamos mejor porque medimos mejor.', initials:'SC', name:'S.C.', role:'Coordinadora Pedagógica - Academia de Fútbol Base', segment:'school', color:'#7F77DD' },
+  { id:9, text:'Los reportes automáticos me ahorran horas cada semana. Antes preparar el informe mensual para la directiva me llevaba un día entero. Ahora lo exporto en dos clics.', initials:'BM', name:'B.M.', role:'Preparadora Física - Club de Voleibol Femenino', segment:'coach', color:'#c8f700' },
+  { id:10, text:'Implementamos iTRAIN como protocolo oficial para las convocatorias nacionales. La selección ahora llega con datos reales de carga de cada atleta. Es un antes y un después.', initials:'HQ', name:'H.Q.', role:'Jefe de Alto Rendimiento - Federación Nacional de Triatlón', segment:'federation', color:'#E24B4A' },
+];
+
+const TestimonialsCarousel = ({ t }) => {
+  const scrollRef = useRef(null);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const totalPages = Math.ceil(TESTIMONIALS.length / 3);
+
+  const scroll = useCallback((dir) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const cardW = el.querySelector('[data-card]')?.offsetWidth || 370;
+    const gap = 16;
+    const scrollAmount = (cardW + gap) * 3;
+    el.scrollBy({ left: dir === 'next' ? scrollAmount : -scrollAmount, behavior: 'smooth' });
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const handler = () => {
+      const cardW = el.querySelector('[data-card]')?.offsetWidth || 370;
+      const gap = 16;
+      const page = Math.round(el.scrollLeft / ((cardW + gap) * 3));
+      setActiveIdx(Math.min(page, totalPages - 1));
+    };
+    el.addEventListener('scroll', handler, { passive: true });
+    return () => el.removeEventListener('scroll', handler);
+  }, [totalPages]);
+
+  return (
+    <section className="py-24 px-6 bg-slate-950 relative overflow-hidden" data-testid="testimonials-section">
+      <div className="max-w-[1120px] mx-auto relative z-10">
+        {/* Header with nav arrows */}
+        <Reveal direction="up">
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-3" style={{fontFamily:BC}}>{t('landing.social.tag')}</p>
+              <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-2" style={{fontFamily:INT}}>{t('landing.social.title')}</h2>
+              <p className="text-[14px] text-slate-400">{t('landing.social.subtitle')}</p>
+            </div>
+            <div className="hidden md:flex gap-2">
+              <button onClick={() => scroll('prev')} className="w-10 h-10 rounded-full border border-slate-700 flex items-center justify-center text-slate-400 hover:border-[#CCFF00] hover:text-[#CCFF00] transition-colors" data-testid="testimonial-prev" aria-label="Previous">
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button onClick={() => scroll('next')} className="w-10 h-10 rounded-full border border-slate-700 flex items-center justify-center text-slate-400 hover:border-[#CCFF00] hover:text-[#CCFF00] transition-colors" data-testid="testimonial-next" aria-label="Next">
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </Reveal>
+
+        {/* Scrollable cards */}
+        <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth" style={{scrollbarWidth:'none', msOverflowStyle:'none', WebkitOverflowScrolling:'touch'}} data-testid="testimonials-grid">
+          <style>{`.testimonials-scroll::-webkit-scrollbar{display:none;}`}</style>
+          {TESTIMONIALS.map((tm) => (
+            <div key={tm.id} data-card className="flex-shrink-0 w-[calc(100%-16px)] sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-11px)] snap-start" data-testid={`testimonial-${tm.id}`}>
+              <div className="h-full rounded-xl p-6 flex flex-col justify-between" style={{background:'#161b24', border:'0.5px solid rgba(255,255,255,0.08)'}}>
+                {/* Quote mark */}
+                <div>
+                  <div className="text-[32px] font-black leading-none mb-3 select-none" style={{color: tm.color, fontFamily:BC}}>"</div>
+                  <p className="text-[14px] text-white leading-[1.7] mb-6">{tm.text}</p>
+                </div>
+                {/* Author */}
+                <div className="flex items-center gap-3 pt-4 border-t" style={{borderColor:'rgba(255,255,255,0.06)'}}>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-[12px] font-bold flex-shrink-0" style={{background: tm.color, color: tm.color === '#c8f700' ? '#0f172a' : '#fff'}}>
+                    {tm.initials}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[13px] font-semibold text-white">{tm.name}</p>
+                    <p className="text-[12px] text-slate-400 leading-snug">{tm.role}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Dot indicators */}
+        <div className="flex items-center justify-center gap-2 mt-6">
+          {Array.from({length: totalPages}).map((_, i) => (
+            <button key={i} onClick={() => {
+              const el = scrollRef.current;
+              if (!el) return;
+              const cardW = el.querySelector('[data-card]')?.offsetWidth || 370;
+              el.scrollTo({ left: i * (cardW + 16) * 3, behavior: 'smooth' });
+            }} className={`h-1.5 rounded-full transition-all duration-300 ${i === activeIdx ? 'w-6 bg-[#CCFF00]' : 'w-1.5 bg-slate-700 hover:bg-slate-600'}`} aria-label={`Page ${i + 1}`} data-testid={`testimonial-dot-${i}`} />
+          ))}
+        </div>
+
+        {/* Disclaimer */}
+        <p className="text-[11px] text-slate-600 text-center mt-6">{t('landing.social.disclaimer')}</p>
+      </div>
+    </section>
   );
 };
 
@@ -850,42 +958,8 @@ const LandingPage = () => {
       </div>
     </section>
 
-    {/* SOCIAL PROOF — Testimonials */}
-    <section className="py-20 px-6 bg-slate-950 relative overflow-hidden">
-      <div className="max-w-[1120px] mx-auto relative z-10">
-        <Reveal direction="up" className="text-center mb-14">
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-3" style={{fontFamily:BC}}>{t('landing.social.tag')}</p>
-          <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15]" style={{fontFamily:INT}}>{t('landing.social.title')}</h2>
-        </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5" data-testid="testimonials-grid">
-          {[
-            { key:'t1', color:'#CCFF00' },
-            { key:'t2', color:'#3B82F6' },
-            { key:'t3', color:'#F43F5E' },
-          ].map((tm, idx) => (
-            <Reveal key={tm.key} delay={idx * 0.15} direction="up">
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-7 h-full flex flex-col justify-between group hover:border-slate-700 transition-colors" data-testid={`testimonial-${tm.key}`}>
-                {/* Quote */}
-                <div>
-                  <div className="text-[28px] font-black leading-none mb-4" style={{color: tm.color, fontFamily:BC}}>"</div>
-                  <p className="text-[14px] text-slate-300 leading-[1.7] mb-6">{t(`landing.social.${tm.key}_quote`)}</p>
-                </div>
-                {/* Author */}
-                <div className="flex items-center gap-3 pt-4 border-t border-slate-800/60">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-[12px] font-bold text-white" style={{background: tm.color}}>
-                    {t(`landing.social.${tm.key}_name`).split(' ').map(w => w[0]).join('')}
-                  </div>
-                  <div>
-                    <p className="text-[13px] font-bold text-white">{t(`landing.social.${tm.key}_name`)}</p>
-                    <p className="text-[11px] text-slate-500">{t(`landing.social.${tm.key}_role`)}</p>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
+    {/* SOCIAL PROOF — Testimonials Carousel */}
+    <TestimonialsCarousel t={t} />
 
     {/* PRICING */}
     <section id="pricing" className="py-20 px-6 bg-slate-950 relative overflow-hidden">

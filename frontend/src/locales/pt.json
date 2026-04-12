@@ -258,16 +258,9 @@
     },
     "social": {
       "tag": "CONFIANÇA",
-      "title": "Plataformas e organizações que confiam no iTRAIN",
-      "t1_quote": "Passei de planejar no Excel para ter tudo integrado: cargas, atletas, relatórios. Não tem volta.",
-      "t1_name": "Carlos Mendoza",
-      "t1_role": "Preparador Físico · Club Atlético Nacional",
-      "t2_quote": "A periodização visual mudou a forma como comunicamos os planos à equipe técnica.",
-      "t2_name": "Ana Rodríguez",
-      "t2_role": "Diretora Esportiva · Academia Alto Rendimento",
-      "t3_quote": "Com o ACWR e indicadores de monotonia, reduzimos lesões em 30% na primeira temporada.",
-      "t3_name": "Diego Torres",
-      "t3_role": "Treinador de Força · Federação de Atletismo"
+      "title": "Resultados que você pode esperar",
+      "subtitle": "Experiências ilustrativas de quem já treina com método",
+      "disclaimer": "* Os depoimentos apresentados são ilustrativos e representam casos de uso típicos da plataforma. Os resultados individuais podem variar."
     }
   },
   "auth": {

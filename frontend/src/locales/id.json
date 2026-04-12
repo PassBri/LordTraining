@@ -258,16 +258,9 @@
     },
     "social": {
       "tag": "KEPERCAYAAN",
-      "title": "Platform dan organisasi yang mempercayai iTRAIN",
-      "t1_quote": "Dari perencanaan di Excel ke sistem terintegrasi: beban, atlet, laporan.",
-      "t1_name": "Carlos Mendoza",
-      "t1_role": "Pelatih Fisik · Club Atlético Nacional",
-      "t2_quote": "Periodisasi visual mengubah cara kami berkomunikasi dengan staf pelatih.",
-      "t2_name": "Ana Rodríguez",
-      "t2_role": "Direktur Olahraga · Akademi Performa Tinggi",
-      "t3_quote": "Dengan ACWR dan indikator monotoni, kami mengurangi cedera 30%.",
-      "t3_name": "Diego Torres",
-      "t3_role": "Pelatih Kekuatan · Federasi Atletik"
+      "title": "Hasil yang bisa Anda harapkan",
+      "subtitle": "Pengalaman ilustratif dari mereka yang sudah berlatih dengan metode",
+      "disclaimer": "* Testimoni yang disajikan bersifat ilustratif dan mewakili kasus penggunaan tipikal. Hasil individu dapat bervariasi."
     }
   },
   "auth": {

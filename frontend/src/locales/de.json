@@ -258,16 +258,9 @@
     },
     "social": {
       "tag": "VERTRAUEN",
-      "title": "Plattformen und Organisationen, die iTRAIN vertrauen",
-      "t1_quote": "Von Excel-Planung zu allem integriert: Belastungen, Athleten, Berichte. Kein Zurück mehr.",
-      "t1_name": "Carlos Mendoza",
-      "t1_role": "Athletiktrainer · Club Atlético Nacional",
-      "t2_quote": "Visuelle Periodisierung hat verändert, wie wir Pläne ans Trainerteam kommunizieren.",
-      "t2_name": "Ana Rodríguez",
-      "t2_role": "Sportdirektorin · Hochleistungsakademie",
-      "t3_quote": "Mit ACWR und Monotonie-Indikatoren haben wir Verletzungen in der ersten Saison um 30% reduziert.",
-      "t3_name": "Diego Torres",
-      "t3_role": "Krafttrainer · Leichtathletikverband"
+      "title": "Ergebnisse, die Sie erwarten können",
+      "subtitle": "Illustrative Erfahrungen von denen, die bereits mit Methode trainieren",
+      "disclaimer": "* Die vorgestellten Erfahrungsberichte sind illustrativ und stellen typische Anwendungsfälle dar. Individuelle Ergebnisse können variieren."
     }
   },
   "auth": {

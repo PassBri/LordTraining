@@ -258,16 +258,9 @@
     },
     "social": {
       "tag": "TRUST",
-      "title": "Platforms and organizations that trust iTRAIN",
-      "t1_quote": "I went from planning in Excel to having everything integrated: loads, athletes, reports. There's no going back.",
-      "t1_name": "Carlos Mendoza",
-      "t1_role": "Strength Coach · Club Atlético Nacional",
-      "t2_quote": "Visual periodization changed how we communicate plans to the coaching staff. Now everyone sees the same thing.",
-      "t2_name": "Ana Rodríguez",
-      "t2_role": "Sports Director · High Performance Academy",
-      "t3_quote": "With ACWR and monotony indicators, we reduced injuries by 30% in the first season.",
-      "t3_name": "Diego Torres",
-      "t3_role": "Strength Coach · Athletics Federation"
+      "title": "Results you can expect",
+      "subtitle": "Illustrative experiences from those who already train with method",
+      "disclaimer": "* The testimonials presented are illustrative and represent typical use cases of the platform. Individual results may vary."
     }
   },
   "auth": {
