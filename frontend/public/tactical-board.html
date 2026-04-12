@@ -6,160 +6,144 @@
 <title>iTRAIN — Pizarra Tactica Digital</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#ffffff;--panel:#ffffff;--header:#ffffff;--primary:#2563eb;--accent:#10b981;--text:#1e293b;--text-sec:#64748b;--text-muted:#94a3b8;--border:#e2e8f0;--hover:#f1f5f9;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+:root{--bg:#ffffff;--panel:#ffffff;--primary:#2563eb;--accent:#10b981;--text:#1e293b;--text-sec:#64748b;--text-muted:#94a3b8;--border:#e2e8f0;--hover:#f1f5f9;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;-webkit-font-smoothing:antialiased}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;font-size:inherit}
 input,textarea,select{font-family:inherit;font-size:12px;background:#fff;border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 8px;outline:none}
 input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(37,99,235,0.1)}
 /* Layout */
-#app{display:flex;flex-direction:column;height:100vh;width:100vw}
-#header{height:60px;background:var(--header);display:flex;align-items:center;padding:0 16px;gap:12px;border-bottom:1px solid var(--border);flex-shrink:0;z-index:100}
+#app{display:flex;height:100vh;width:100vw}
 #main{display:flex;flex:1;overflow:hidden}
-#toolbar{width:82px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:6px 0;gap:1px;overflow-y:auto;flex-shrink:0;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
-#toolbar::-webkit-scrollbar{width:3px}
-#toolbar::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-#canvas-wrap{flex:1;position:relative;overflow:hidden;background:#fafaf8}
-#panel{width:260px;background:var(--bg);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
-#footer{height:48px;background:var(--header);display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-top:1px solid var(--border);flex-shrink:0;gap:8px}
-/* Header - FAB style like dashboard */
-.logo{width:36px;height:36px;background:#CCFF00;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
-.logo span{font-size:18px;font-weight:900;color:#1e293b}
-.hdr-title{font-size:15px;font-weight:800;line-height:1.2;color:var(--text)}
-.hdr-sub{font-size:10px;color:var(--text-muted)}
-.hdr-left{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.tabs-wrap{flex:1;display:flex;align-items:center;gap:6px;overflow-x:auto;padding:0 8px;scrollbar-width:none}
-.tabs-wrap::-webkit-scrollbar{display:none}
-/* FAB buttons - same as dashboard nav */
-.fab{display:flex;flex-direction:column;align-items:center;gap:3px;outline:none;flex-shrink:0}
-.fab-circle{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .2s ease;box-shadow:0 2px 6px rgba(0,0,0,0.06);border:1px solid var(--border);background:#fff;color:var(--text-muted)}
-.fab-circle:hover{box-shadow:0 4px 12px rgba(0,0,0,0.1);color:var(--text-sec)}
-.fab-circle.active{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 4px 12px rgba(37,99,235,0.3)}
-.fab-circle.active-green{background:#10b981;color:#fff;border-color:#10b981;box-shadow:0 4px 12px rgba(16,185,129,0.3)}
-.fab-circle.active-slate{background:#1e293b;color:#fff;border-color:#1e293b;box-shadow:0 4px 12px rgba(30,41,59,0.3)}
-.fab-circle svg{width:18px;height:18px}
-.fab-label{font-size:7px;font-weight:700;letter-spacing:0.04em;color:var(--text-muted);text-transform:uppercase;text-align:center;max-width:56px;line-height:1}
-.fab-label.active{color:var(--text)}
-.close-btn{width:36px;height:36px;border-radius:50%;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-sec);box-shadow:0 2px 6px rgba(0,0,0,0.06)}
-.close-btn:hover{background:var(--hover);color:var(--text)}
-/* Sport dropdown */
-#sport-dropdown{position:absolute;top:60px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;display:none;z-index:200;max-width:500px;flex-wrap:wrap;gap:6px;box-shadow:0 12px 40px rgba(0,0,0,0.12)}
-#sport-dropdown.show{display:flex}
-.sport-pill{padding:5px 12px;border-radius:20px;font-size:11px;background:var(--hover);color:var(--text-sec);transition:all .15s;border:1px solid transparent}
-.sport-pill:hover{background:#e2e8f0;color:var(--text)}
-.sport-pill.active{background:var(--primary);color:#fff;font-weight:600;border-color:var(--primary)}
-/* Toolbar - FAB style */
-.tool-sep{width:56px;height:1px;background:var(--border);margin:4px 0}
-.tool-header{width:100%;padding:5px 8px 2px;font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);text-align:center;flex-shrink:0}
-.tool{display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;padding:3px 0;outline:none}
-.tool-circle{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .2s ease;box-shadow:0 1px 4px rgba(0,0,0,0.06);border:1px solid var(--border);background:#fff;color:var(--text-muted)}
-.tool-circle:hover{box-shadow:0 3px 10px rgba(0,0,0,0.1);color:var(--text-sec);border-color:#cbd5e1}
-.tool-circle.active{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 3px 10px rgba(37,99,235,0.25)}
-.tool-circle svg{width:18px;height:18px}
-.tool-label{font-size:7px;font-weight:600;letter-spacing:0.03em;color:var(--text-muted);text-align:center;max-width:54px;line-height:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ── LEFT SIDEBAR ── */
+#sidebar{width:220px;background:var(--bg);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.sb-header{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border)}
+.logo{width:28px;height:28px;background:#CCFF00;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo span{font-size:14px;font-weight:900;color:#1e293b}
+.sb-title{font-size:14px;font-weight:800;color:var(--text);flex:1}
+.sb-close{width:24px;height:24px;border-radius:50%;background:var(--hover);display:flex;align-items:center;justify-content:center;color:var(--text-muted)}
+.sb-close:hover{background:#e2e8f0;color:var(--text)}
+/* Sport selector */
+.sb-section{padding:8px 10px;border-bottom:1px solid var(--border)}
+.sb-section-label{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:6px}
+.sb-sport-tabs{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px}
+.sb-cat{padding:3px 8px;border-radius:10px;font-size:9px;font-weight:600;background:var(--hover);color:var(--text-sec);transition:all .15s;border:1px solid transparent}
+.sb-cat:hover{background:#e2e8f0;color:var(--text)}
+.sb-cat.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.sb-sport-list{display:flex;flex-wrap:wrap;gap:3px}
+.sb-sport{padding:2px 7px;border-radius:8px;font-size:9px;background:var(--hover);color:var(--text-sec);transition:all .12s}
+.sb-sport:hover{background:#e2e8f0}
+.sb-sport.active{background:var(--text);color:#fff;font-weight:600}
+/* Scrollable tools area */
+.sb-scrollable{flex:1;overflow-y:auto;padding:4px 6px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;display:flex;flex-wrap:wrap;align-content:flex-start;gap:1px}
+.sb-scrollable::-webkit-scrollbar{width:3px}
+.sb-scrollable::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+/* Tool groups */
+.tool-sep{width:100%;height:1px;background:var(--border);margin:3px 0}
+.tool-header{width:100%;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);padding:5px 2px 2px}
+.tool{width:48px;display:flex;flex-direction:column;align-items:center;gap:1px;padding:2px 0;outline:none;border-radius:6px;transition:background .12s}
+.tool:hover{background:var(--hover)}
+.tool-circle{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,0.05);border:1px solid var(--border);background:#fff;color:var(--text-muted)}
+.tool-circle:hover{box-shadow:0 2px 6px rgba(0,0,0,0.08);color:var(--text-sec)}
+.tool-circle.active{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 2px 8px rgba(37,99,235,0.25)}
+.tool-circle svg{width:15px;height:15px}
+.tool-label{font-size:7px;font-weight:600;color:var(--text-muted);text-align:center;max-width:46px;line-height:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tool-label.active{color:var(--primary);font-weight:700}
-/* Canvas */
+/* Bottom actions & save */
+.sb-actions{display:flex;justify-content:center;gap:4px;padding:6px 8px;border-top:1px solid var(--border)}
+.sb-act{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text-muted);background:#fff;border:1px solid var(--border);transition:all .12s;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.sb-act:hover{background:var(--hover);color:var(--text-sec);box-shadow:0 2px 6px rgba(0,0,0,0.08)}
+.sb-save-row{display:flex;gap:4px;padding:6px 8px;border-top:1px solid var(--border)}
+.sb-save-btn{flex:1;padding:6px 0;border-radius:8px;font-size:10px;font-weight:700;color:#fff;text-align:center}
+.sb-save-btn.green{background:#10b981}
+.sb-save-btn.blue{background:var(--primary)}
+.sb-save-btn.purple{background:#7c3aed}
+.sb-save-btn:hover{filter:brightness(1.1)}
+/* ── CANVAS ── */
+#canvas-wrap{flex:1;position:relative;overflow:hidden;background:#fafaf8}
 #svg-canvas{width:100%;height:100%;display:block}
-.zoom-controls{position:absolute;bottom:12px;right:12px;display:flex;gap:4px;z-index:10}
-.zoom-btn{width:36px;height:36px;border-radius:50%;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-sec);font-size:16px;box-shadow:0 2px 6px rgba(0,0,0,0.08)}
-.zoom-btn:hover{color:var(--text);box-shadow:0 4px 12px rgba(0,0,0,0.12)}
-/* Panel */
-.panel-content{flex:1;overflow-y:auto;padding:8px}
-.el-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;transition:background .1s}
+.zoom-controls{position:absolute;bottom:10px;right:10px;display:flex;gap:3px;z-index:10}
+.zoom-btn{width:30px;height:30px;border-radius:50%;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-sec);font-size:15px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.zoom-btn:hover{color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.canvas-stats{position:absolute;bottom:10px;left:10px;font-size:10px;color:var(--text-muted);background:rgba(255,255,255,0.8);padding:2px 8px;border-radius:8px}
+/* ── RIGHT PANEL ── */
+#panel{width:220px;background:var(--bg);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.panel-tabs{display:flex;border-bottom:1px solid var(--border)}
+.panel-tab{flex:1;padding:8px 0;text-align:center;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600;border-bottom:2px solid transparent;cursor:pointer;transition:all .12s}
+.panel-tab:hover{color:var(--text-sec)}
+.panel-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+.panel-content{flex:1;overflow-y:auto;padding:6px}
+.el-item{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:6px;cursor:pointer;transition:background .1s}
 .el-item:hover{background:var(--hover)}
 .el-item.selected{background:rgba(37,99,235,0.06);border:1px solid rgba(37,99,235,0.2)}
-.el-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.el-name{flex:1;font-size:11px;color:var(--text-sec);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.el-del{opacity:0;color:var(--text-muted);transition:opacity .1s}
+.el-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.el-name{flex:1;font-size:10px;color:var(--text-sec);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.el-del{opacity:0;color:var(--text-muted);transition:opacity .1s;font-size:10px}
 .el-item:hover .el-del{opacity:1}
 .el-del:hover{color:#ef4444}
-/* Props panel */
-.prop-group{padding:8px 12px}
-.prop-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;font-weight:600}
-.prop-row{display:flex;gap:6px;margin-bottom:6px;align-items:center}
-.prop-row input{flex:1;height:28px}
-.prop-row label{font-size:11px;color:var(--text-sec);min-width:28px}
-.color-swatch{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);cursor:pointer;flex-shrink:0}
-/* Footer - FAB buttons */
-.footer-left{font-size:11px;color:var(--text-muted);white-space:nowrap}
-.footer-center{display:flex;gap:6px;align-items:center}
-.footer-fab{display:flex;flex-direction:column;align-items:center;gap:2px;outline:none}
-.footer-fab-circle{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .2s;box-shadow:0 1px 4px rgba(0,0,0,0.06);border:1px solid var(--border);background:#fff;color:var(--text-muted);font-size:14px}
-.footer-fab-circle:hover{box-shadow:0 3px 10px rgba(0,0,0,0.1);color:var(--text-sec)}
-.footer-fab-circle.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-.footer-fab-label{font-size:7px;font-weight:600;color:var(--text-muted)}
-.footer-right{display:flex;gap:8px;align-items:center}
-.btn-cancel{padding:7px 18px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--text-sec);background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
-.btn-cancel:hover{background:var(--hover);color:var(--text)}
-.btn-save{padding:7px 18px;border-radius:20px;font-size:12px;font-weight:700;background:var(--primary);color:#fff;border:1px solid var(--primary);box-shadow:0 2px 8px rgba(37,99,235,0.25)}
-.btn-save:hover{filter:brightness(1.1)}
-.btn-ai{padding:7px 18px;border-radius:20px;font-size:12px;font-weight:600;background:#7c3aed;color:#fff;box-shadow:0 2px 8px rgba(124,58,237,0.25)}
-.btn-ai:hover{filter:brightness(1.1)}
-.btn-guardar{padding:7px 18px;border-radius:20px;font-size:12px;font-weight:700;background:#10b981;color:#fff;box-shadow:0 2px 8px rgba(16,185,129,0.25)}
-.btn-guardar:hover{filter:brightness(1.1)}
+/* Props */
+.prop-group{padding:6px 8px}
+.prop-label{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;font-weight:600}
+.prop-row{display:flex;gap:4px;margin-bottom:4px;align-items:center}
+.prop-row input{flex:1;height:26px;font-size:11px}
+.prop-row label{font-size:10px;color:var(--text-sec);min-width:24px}
+.color-swatch{width:24px;height:24px;border-radius:6px;border:1px solid var(--border);cursor:pointer;flex-shrink:0}
+/* Gallery */
+.gallery-item{padding:6px;border-radius:6px;border:1px solid var(--border);margin-bottom:4px;cursor:pointer;transition:all .12s}
+.gallery-item:hover{background:var(--hover);border-color:rgba(37,99,235,0.2)}
+.gallery-item.selected{border-color:var(--primary)}
+.gallery-thumb{width:100%;aspect-ratio:3/4;background:#f8fafc;border-radius:4px;overflow:hidden;margin-bottom:4px;border:1px solid var(--border)}
+.gallery-thumb svg{width:100%;height:100%}
+.gallery-name{font-size:10px;color:var(--text);font-weight:600}
+.gallery-meta{font-size:8px;color:var(--text-muted);display:flex;justify-content:space-between}
+.gallery-actions{display:flex;gap:3px;margin-top:3px}
+.gallery-btn{padding:2px 6px;border-radius:6px;font-size:8px;background:#fff;color:var(--text-sec);border:1px solid var(--border)}
+.gallery-btn:hover{background:var(--hover)}
+.gallery-btn.del:hover{background:rgba(239,68,68,0.06);color:#ef4444}
+.gallery-empty{text-align:center;padding:20px 8px;color:var(--text-muted);font-size:10px}
 /* Modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
 .modal-overlay.show{display:flex}
-.modal-card{background:#fff;border-radius:16px;padding:28px;width:400px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.15);border:1px solid var(--border)}
-.modal-card h2{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;color:var(--text)}
+.modal-card{background:#fff;border-radius:14px;padding:24px;width:380px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,0.15);border:1px solid var(--border)}
+.modal-card h2{font-size:15px;font-weight:700;margin-bottom:14px;color:var(--text)}
 /* Context menu */
-#ctx-menu{position:fixed;background:#fff;border:1px solid var(--border);border-radius:8px;padding:4px;z-index:300;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:160px}
+#ctx-menu{position:fixed;background:#fff;border:1px solid var(--border);border-radius:8px;padding:4px;z-index:300;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:150px}
 #ctx-menu.show{display:block}
-.ctx-item{padding:6px 12px;border-radius:4px;font-size:12px;color:var(--text-sec);display:flex;align-items:center;gap:8px}
+.ctx-item{padding:5px 10px;border-radius:4px;font-size:11px;color:var(--text-sec);display:flex;align-items:center;gap:6px}
 .ctx-item:hover{background:var(--hover);color:var(--text)}
 .ctx-sep{height:1px;background:var(--border);margin:2px 0}
-/* Selection box */
+/* Selection, grid, handles */
 .sel-box{fill:rgba(37,99,235,0.06);stroke:var(--primary);stroke-width:1;stroke-dasharray:4 2;pointer-events:none}
-/* Grid */
 .grid-line{stroke:rgba(0,0,0,0.1);stroke-width:0.5}
-/* Handles */
 .handle{fill:var(--primary);stroke:#fff;stroke-width:2;cursor:pointer;r:5}
 .handle-rotate{fill:var(--primary);stroke:#fff;stroke-width:2;cursor:grab;r:5}
-/* Snap guides */
 .snap-guide{stroke:rgba(255,80,80,0.5);stroke-width:0.5;stroke-dasharray:3 3;pointer-events:none}
-/* Tooltip */
-.tt{position:fixed;background:var(--text);color:#fff;font-size:11px;padding:4px 8px;border-radius:4px;pointer-events:none;z-index:400;display:none;white-space:nowrap}
-/* Playback controls */
-#playback-bar{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:6px;background:rgba(255,255,255,0.95);border:1px solid var(--border);border-radius:24px;padding:6px 14px;z-index:50;backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,0.1)}
+.tt{position:fixed;background:var(--text);color:#fff;font-size:10px;padding:3px 7px;border-radius:4px;pointer-events:none;z-index:400;display:none;white-space:nowrap}
+/* Playback */
+#playback-bar{position:absolute;top:10px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:5px;background:rgba(255,255,255,0.95);border:1px solid var(--border);border-radius:20px;padding:5px 12px;z-index:50;backdrop-filter:blur(6px);box-shadow:0 3px 12px rgba(0,0,0,0.08)}
 #playback-bar.show{display:flex}
-.pb-btn{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text-sec);transition:all .12s;border:1px solid var(--border);background:#fff}
+.pb-btn{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text-sec);border:1px solid var(--border);background:#fff}
 .pb-btn:hover{background:var(--hover);color:var(--text)}
 .pb-btn.playing{color:var(--primary);background:rgba(37,99,235,0.08);border-color:var(--primary)}
-.pb-speed{padding:4px 8px;border-radius:12px;font-size:11px;font-weight:600;color:var(--text-muted);background:#fff;border:1px solid var(--border);min-width:36px;text-align:center}
+.pb-speed{padding:3px 7px;border-radius:10px;font-size:10px;font-weight:600;color:var(--text-muted);background:#fff;border:1px solid var(--border);min-width:32px;text-align:center}
 .pb-speed.active{color:var(--primary);background:rgba(37,99,235,0.08);border-color:var(--primary)}
-.pb-progress{height:3px;background:var(--border);border-radius:2px;flex:1;min-width:120px;position:relative;overflow:hidden}
+.pb-progress{height:3px;background:var(--border);border-radius:2px;flex:1;min-width:80px;position:relative;overflow:hidden}
 .pb-progress-fill{position:absolute;left:0;top:0;height:100%;background:var(--primary);border-radius:2px;transition:width .15s linear}
-.pb-step{font-size:11px;color:var(--text-muted);min-width:60px;text-align:center}
+.pb-step{font-size:10px;color:var(--text-muted);min-width:40px;text-align:center}
 .arrow-order-badge{pointer-events:none}
-/* Gallery & Save */
-.panel-tabs{display:flex;gap:0;border-bottom:1px solid var(--border)}
-.panel-tab{flex:1;padding:8px 0;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600;transition:all .12s;border-bottom:2px solid transparent;cursor:pointer}
-.panel-tab:hover{color:var(--text-sec)}
-.panel-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
-.gallery-item{padding:8px;border-radius:8px;border:1px solid var(--border);margin-bottom:6px;cursor:pointer;transition:all .12s}
-.gallery-item:hover{background:var(--hover);border-color:rgba(37,99,235,0.25)}
-.gallery-item.selected{border-color:var(--primary);background:rgba(37,99,235,0.04)}
-.gallery-thumb{width:100%;aspect-ratio:3/4;background:#f8fafc;border-radius:4px;overflow:hidden;margin-bottom:6px;border:1px solid var(--border)}
-.gallery-thumb svg{width:100%;height:100%}
-.gallery-name{font-size:11px;color:var(--text);font-weight:600;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.gallery-meta{font-size:9px;color:var(--text-muted);display:flex;justify-content:space-between;align-items:center}
-.gallery-actions{display:flex;gap:4px;margin-top:4px}
-.gallery-btn{padding:3px 8px;border-radius:12px;font-size:9px;background:#fff;color:var(--text-sec);transition:all .1s;border:1px solid var(--border)}
-.gallery-btn:hover{background:var(--hover);color:var(--text)}
-.gallery-btn.del:hover{background:rgba(239,68,68,0.08);color:#ef4444;border-color:rgba(239,68,68,0.2)}
-.toast-container{position:fixed;top:68px;right:16px;z-index:600;display:flex;flex-direction:column;gap:6px}
-.toast-msg{padding:10px 16px;border-radius:12px;font-size:12px;animation:toastIn .3s ease;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+/* Toast */
+.toast-container{position:fixed;top:12px;right:230px;z-index:600;display:flex;flex-direction:column;gap:4px}
+.toast-msg{padding:8px 14px;border-radius:10px;font-size:11px;animation:toastIn .3s ease;box-shadow:0 3px 10px rgba(0,0,0,0.12)}
 .toast-msg.success{background:#10b981;color:white}
 .toast-msg.error{background:#ef4444;color:white}
 .toast-msg.info{background:var(--primary);color:white}
-@keyframes toastIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
-.gallery-empty{text-align:center;padding:24px 12px;color:var(--text-muted);font-size:11px}
+@keyframes toastIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 /* Color picker */
-#color-picker{position:fixed;z-index:250;background:#fff;border:1px solid var(--border);border-radius:12px;padding:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);display:none;width:190px}
+#color-picker{position:fixed;z-index:250;background:#fff;border:1px solid var(--border);border-radius:10px;padding:8px;box-shadow:0 6px 20px rgba(0,0,0,0.1);display:none;width:180px}
 #color-picker.show{display:block}
-#color-picker h4{font-size:9px;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px;padding:0 2px}
-.cp-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:6px}
-.cp-swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .1s;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
-.cp-swatch:hover{transform:scale(1.15);border-color:var(--text-muted)}
+#color-picker h4{font-size:8px;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px}
+.cp-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-bottom:4px}
+.cp-swatch{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .1s;box-shadow:0 1px 2px rgba(0,0,0,0.06)}
+.cp-swatch:hover{transform:scale(1.12);border-color:var(--text-muted)}
 .cp-swatch.active{border-color:var(--primary);box-shadow:0 0 0 2px rgba(37,99,235,0.2)}
 .cp-swatch.light{border:2px solid var(--border)}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -167,40 +151,49 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
 </head>
 <body>
 <div id="app">
-<!-- HEADER -->
-<div id="header">
- <div class="hdr-left">
-  <div class="logo"><span>i</span></div>
-  <div><div class="hdr-title">Pizarra Tactica</div><div class="hdr-sub">Editor interactivo</div></div>
- </div>
- <div class="tabs-wrap" id="cat-tabs"></div>
- <button class="close-btn" onclick="window.history.back()" aria-label="Cerrar">
-  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg>
- </button>
-</div>
-<div id="sport-dropdown"></div>
-
-<!-- MAIN -->
+<!-- MAIN - No header, no footer, everything in sidebar -->
 <div id="main">
- <!-- TOOLBAR -->
- <div id="toolbar"></div>
- <!-- COLOR PICKER -->
+ <!-- LEFT SIDEBAR: Sports + Tools + Actions -->
+ <div id="sidebar">
+  <!-- Logo + Close -->
+  <div class="sb-header">
+   <div class="logo"><span>i</span></div>
+   <span class="sb-title">Pizarra</span>
+   <button class="sb-close" onclick="window.history.back()"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></button>
+  </div>
+  <!-- Sport selector -->
+  <div class="sb-section">
+   <div class="sb-section-label">DEPORTE</div>
+   <div class="sb-sport-tabs" id="cat-tabs"></div>
+   <div class="sb-sport-list" id="sport-list"></div>
+  </div>
+  <!-- Tools -->
+  <div class="sb-scrollable" id="toolbar"></div>
+  <!-- Bottom actions -->
+  <div class="sb-actions">
+   <button class="sb-act" onclick="S.undo()" title="Deshacer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 10h10a5 5 0 015 5v0a5 5 0 01-5 5H10"/><polyline points="7 14 3 10 7 6"/></svg></button>
+   <button class="sb-act" onclick="S.redo()" title="Rehacer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 10H11a5 5 0 00-5 5v0a5 5 0 005 5h3"/><polyline points="17 14 21 10 17 6"/></svg></button>
+   <button class="sb-act" onclick="S.clearAll()" title="Limpiar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>
+   <button class="sb-act" onclick="S.toggleGrid()" id="btn-grid" title="Grid"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg></button>
+   <button class="sb-act" onclick="S.startPlayback()" id="btn-play" title="Reproducir"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg></button>
+  </div>
+  <div class="sb-save-row">
+   <button class="sb-save-btn green" onclick="S.showSaveModal()" data-testid="save-board-btn">Guardar</button>
+   <button class="sb-save-btn blue" onclick="S.exportPNG()">PNG</button>
+   <button class="sb-save-btn purple" onclick="S.showAiModal()">IA</button>
+  </div>
+ </div>
+ <!-- COLOR PICKER (floating) -->
  <div id="color-picker"></div>
 
- <!-- CANVAS -->
+ <!-- CANVAS (maximized) -->
  <div id="canvas-wrap">
   <div id="playback-bar">
-   <button class="pb-btn" onclick="S.playback('play')" id="pb-play" aria-label="Reproducir">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,1 14,8 3,15"/></svg>
-   </button>
-   <button class="pb-btn" onclick="S.playback('pause')" id="pb-pause" aria-label="Pausar">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="2" width="3.5" height="12" rx="1"/><rect x="9.5" y="2" width="3.5" height="12" rx="1"/></svg>
-   </button>
-   <button class="pb-btn" onclick="S.playback('stop')" id="pb-stop" aria-label="Detener">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="3" width="10" height="10" rx="1.5"/></svg>
-   </button>
+   <button class="pb-btn" onclick="S.playback('play')" id="pb-play"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,1 14,8 3,15"/></svg></button>
+   <button class="pb-btn" onclick="S.playback('pause')" id="pb-pause"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="2" width="3.5" height="12" rx="1"/><rect x="9.5" y="2" width="3.5" height="12" rx="1"/></svg></button>
+   <button class="pb-btn" onclick="S.playback('stop')" id="pb-stop"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="3" width="10" height="10" rx="1.5"/></svg></button>
    <div class="pb-progress"><div class="pb-progress-fill" id="pb-fill" style="width:0%"></div></div>
-   <div class="pb-step" id="pb-step">— / —</div>
+   <div class="pb-step" id="pb-step">--</div>
    <button class="pb-speed" onclick="S.setPlaySpeed(0.5)" id="pb-s05">0.5x</button>
    <button class="pb-speed active" onclick="S.setPlaySpeed(1)" id="pb-s1">1x</button>
    <button class="pb-speed" onclick="S.setPlaySpeed(2)" id="pb-s2">2x</button>
@@ -216,38 +209,20 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
    </g>
   </svg>
   <div class="zoom-controls">
-   <button class="zoom-btn" onclick="S.zoomIn()" aria-label="Zoom in">+</button>
-   <button class="zoom-btn" onclick="S.zoomOut()" aria-label="Zoom out">−</button>
-   <button class="zoom-btn" onclick="S.zoomReset()" aria-label="Reset zoom" style="font-size:13px">⟲</button>
+   <button class="zoom-btn" onclick="S.zoomIn()">+</button>
+   <button class="zoom-btn" onclick="S.zoomOut()">−</button>
+   <button class="zoom-btn" onclick="S.zoomReset()" style="font-size:13px">⟲</button>
   </div>
+  <div class="canvas-stats" id="footer-stats">0</div>
  </div>
 
- <!-- PANEL -->
+ <!-- RIGHT PANEL: Elements + Gallery -->
  <div id="panel">
   <div class="panel-tabs">
    <button class="panel-tab active" id="tab-elements" onclick="S.switchTab('elements')">Elementos <span id="el-count">0</span></button>
-   <button class="panel-tab" id="tab-gallery" onclick="S.switchTab('gallery')">Galería</button>
+   <button class="panel-tab" id="tab-gallery" onclick="S.switchTab('gallery')">Galeria</button>
   </div>
   <div class="panel-content" id="panel-content"></div>
- </div>
-</div>
-
-<!-- FOOTER -->
-<div id="footer">
- <div class="footer-left" id="footer-stats">0 elementos</div>
- <div class="footer-center">
-  <div class="footer-fab" onclick="S.undo()"><div class="footer-fab-circle" title="Deshacer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 10h10a5 5 0 015 5v0a5 5 0 01-5 5H10"/><polyline points="7 14 3 10 7 6"/></svg></div><span class="footer-fab-label">Deshacer</span></div>
-  <div class="footer-fab" onclick="S.redo()"><div class="footer-fab-circle" title="Rehacer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 10H11a5 5 0 00-5 5v0a5 5 0 005 5h3"/><polyline points="17 14 21 10 17 6"/></svg></div><span class="footer-fab-label">Rehacer</span></div>
-  <div class="footer-fab" onclick="S.clearAll()"><div class="footer-fab-circle" title="Limpiar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></div><span class="footer-fab-label">Limpiar</span></div>
-  <div class="footer-fab" onclick="S.toggleGrid()" id="btn-grid-fab"><div class="footer-fab-circle" id="btn-grid" title="Cuadrícula"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg></div><span class="footer-fab-label">Grid</span></div>
-  <div class="footer-fab" onclick="S.showFormations()"><div class="footer-fab-circle" title="Formaciones"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="8" cy="19" r="2"/><circle cx="16" cy="19" r="2"/></svg></div><span class="footer-fab-label">Formac.</span></div>
-  <div class="footer-fab" onclick="S.startPlayback()"><div class="footer-fab-circle" id="btn-play" title="Reproducir"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg></div><span class="footer-fab-label">Reprod.</span></div>
- </div>
- <div class="footer-right">
-  <button class="btn-cancel" onclick="window.history.back()">Cancelar</button>
-  <button class="btn-guardar" onclick="S.showSaveModal()" data-testid="save-board-btn">Guardar</button>
-  <button class="btn-save" onclick="S.exportPNG()">PNG</button>
-  <button class="btn-ai" onclick="S.showAiModal()">IA</button>
  </div>
 </div>
 </div>
@@ -432,25 +407,28 @@ const S = {
  // ── TABS ──
  renderTabs() {
   const wrap = document.getElementById('cat-tabs');
-  const ICONS = {
-   conjunto:'<circle cx="8" cy="5" r="2.5"/><circle cx="16" cy="5" r="2.5"/><circle cx="5" cy="13" r="2.5"/><circle cx="12" cy="15" r="2.5"/><circle cx="19" cy="13" r="2.5"/>',
-   raqueta:'<ellipse cx="11" cy="10" rx="7" ry="9" fill="none" stroke-width="2"/><line x1="11" y1="19" x2="11" y2="23" stroke-width="2"/>',
-   contacto:'<circle cx="12" cy="7" r="4" fill="none" stroke-width="2"/><path d="M5 22c0-4 3-7 7-7s7 3 7 7" fill="none" stroke-width="2"/>',
-   'tiempo-marca':'<circle cx="12" cy="12" r="9" fill="none" stroke-width="2"/><line x1="12" y1="7" x2="12" y2="12" stroke-width="2"/><line x1="12" y1="12" x2="16" y2="14" stroke-width="2"/>',
-   precision:'<circle cx="12" cy="12" r="9" fill="none" stroke-width="2"/><circle cx="12" cy="12" r="5" fill="none" stroke-width="1.5"/><circle cx="12" cy="12" r="1.5"/>',
-   acuatico:'<path d="M3 12Q6 8 9 12Q12 16 15 12Q18 8 21 12" fill="none" stroke-width="2"/>',
-   motor:'<circle cx="12" cy="14" r="6" fill="none" stroke-width="2"/><circle cx="12" cy="14" r="2" fill="none"/><path d="M9 8l3-4 3 4" fill="none" stroke-width="2"/>',
-   fitness:'<path d="M4 12h3v-4h2v8h2v-8h2v4h3" fill="none" stroke-width="2.5" stroke-linecap="round"/>'
-  };
   wrap.innerHTML = Object.entries(CATS).map(([k,v]) =>
-   `<button class="fab" data-cat="${k}"><div class="fab-circle${ST.cat===k?' active':''}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${ICONS[k]||ICONS.conjunto}</svg></div><span class="fab-label${ST.cat===k?' active':''}">${v.name}</span></button>`
+   `<button class="sb-cat${ST.cat===k?' active':''}" data-cat="${k}">${v.name}</button>`
   ).join('');
   wrap.onclick = e => {
    const btn = e.target.closest('[data-cat]');
    if(!btn) return;
    ST.cat = btn.dataset.cat;
    this.renderTabs();
-   this.showSportDropdown(btn.dataset.cat);
+   this.renderSportList();
+  };
+  this.renderSportList();
+ },
+
+ renderSportList() {
+  const list = document.getElementById('sport-list');
+  list.innerHTML = CATS[ST.cat].sports.map(s =>
+   `<button class="sb-sport${ST.sport===s?' active':''}" data-sport="${s}">${s}</button>`
+  ).join('');
+  list.onclick = e => {
+   const btn = e.target.closest('[data-sport]');
+   if(!btn) return;
+   this.setSport(btn.dataset.sport);
   };
  },
 
@@ -478,7 +456,7 @@ const S = {
   const fl = document.getElementById('field-layer');
   fl.innerHTML = `<rect x="0" y="0" width="600" height="800" fill="${f.bg}" rx="0"/>` +
    `<g stroke="rgba(0,0,0,0.65)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">${f.svg}</g>`;
-  document.querySelectorAll('.sport-pill').forEach(p=>p.classList.toggle('active',p.dataset.sport===name));
+  document.querySelectorAll('.sb-sport').forEach(p=>p.classList.toggle('active',p.dataset.sport===name));
   this.renderElements(); this.updatePanel(); this.updateStats();
  },
 
