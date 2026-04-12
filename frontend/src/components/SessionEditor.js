@@ -834,15 +834,15 @@ const SessionEditor = ({
               </div>
 
               {/* PIZARRA */}
-              <div className="w-[110px] flex-shrink-0 rounded-xl border border-slate-100 p-2 flex flex-col">
+              <div className="flex-shrink-0 rounded-xl border border-slate-100 p-2 flex flex-col" style={{minWidth:'140px'}}>
                 <div className="flex items-center gap-1 mb-1">
                   <div className="w-4 h-4 rounded bg-[#f0ffd0] flex items-center justify-center"><LayoutGrid className="w-2.5 h-2.5 text-[#3a5a00]" /></div>
                   <span className="text-[8px] font-bold uppercase tracking-widest text-slate-500">Pizarra</span>
                 </div>
                 {act.boardThumbnail ? (
-                  <div className="w-full flex-1 min-h-[90px] rounded-lg border border-slate-200 bg-white cursor-pointer hover:border-[#c8f700] overflow-hidden" onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open(act.boardId?`/tactical-board.html?boardId=${act.boardId}`:'/tactical-board.html','_blank');}} data-testid={`board-thumb-${faseKey}-${idx}`} dangerouslySetInnerHTML={{__html:act.boardThumbnail}} />
+                  <div className="w-full flex-1 rounded-lg border border-slate-200 bg-white cursor-pointer hover:border-[#c8f700] overflow-hidden" style={{minHeight:'100px'}} onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open(act.boardId?`/tactical-board.html?boardId=${act.boardId}`:'/tactical-board.html','_blank');}} data-testid={`board-thumb-${faseKey}-${idx}`} dangerouslySetInnerHTML={{__html:act.boardThumbnail}} />
                 ) : (
-                  <button onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open('/tactical-board.html','_blank');}} className="w-full flex-1 min-h-[90px] rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-300 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all" data-testid={`open-board-${faseKey}-${idx}`}>
+                  <button onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open('/tactical-board.html','_blank');}} className="w-full flex-1 rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-300 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all" style={{minHeight:'100px'}} data-testid={`open-board-${faseKey}-${idx}`}>
                     <LayoutGrid className="w-4 h-4" /><span className="text-[6px] font-semibold uppercase mt-0.5">Abrir</span>
                   </button>
                 )}
