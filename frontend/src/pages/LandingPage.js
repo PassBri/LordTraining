@@ -46,6 +46,17 @@ const Reveal = ({ children, delay = 0, direction = 'up', className = '', ...prop
   );
 };
 
+/* ═══ SECTION TAG — Material Design ═══ */
+const SectionTag = ({ children, center = true }) => (
+  <div className={`flex items-center gap-3 mb-4 ${center ? 'justify-center' : ''}`}>
+    <div className="h-px w-8 bg-gradient-to-r from-transparent to-[#CCFF00]/60" />
+    <span className="text-[13px] font-black uppercase tracking-[0.18em] text-[#CCFF00] relative" style={{fontFamily:BC, textShadow:'0 0 20px rgba(204,255,0,0.3)'}}>
+      {children}
+    </span>
+    <div className="h-px w-8 bg-gradient-to-l from-transparent to-[#CCFF00]/60" />
+  </div>
+);
+
 /* ═══ ANIMATED CHART COMPONENTS ═══ */
 
 const AnimatedBarChart = ({ label, color1, color2, delay = 0, values }) => {
@@ -364,9 +375,9 @@ const TestimonialsCarousel = ({ t }) => {
       <div className="max-w-[1120px] mx-auto relative z-10">
         {/* Header with nav arrows */}
         <Reveal direction="up">
+          <SectionTag>{t('landing.social.tag')}</SectionTag>
           <div className="flex items-end justify-between mb-10">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-3" style={{fontFamily:BC}}>{t('landing.social.tag')}</p>
               <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-2" style={{fontFamily:INT}}>{t('landing.social.title')}</h2>
               <p className="text-[14px] text-slate-400">{t('landing.social.subtitle')}</p>
             </div>
@@ -584,7 +595,7 @@ const LandingPage = () => {
     <section id="features" className="py-20 px-6 bg-slate-950 relative overflow-hidden">
       <div className="max-w-[1120px] mx-auto relative z-10">
         <Reveal direction="up" className="text-center mb-14">
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-2" style={{fontFamily:BC}}>{t('landing.features.tag')}</p>
+          <SectionTag>{t('landing.features.tag')}</SectionTag>
           <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15]" style={{fontFamily:INT}}>{t('landing.features.title')}</h2>
         </Reveal>
 
@@ -761,7 +772,7 @@ const LandingPage = () => {
       <div className="max-w-[1120px] mx-auto relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <Reveal direction="left" className="lg:col-span-5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-3" style={{fontFamily:BC}}>{t('dashboard.controlPanel.title')}</p>
+            <SectionTag center={false}>{t('dashboard.controlPanel.title')}</SectionTag>
             <h2 className="text-[28px] md:text-[32px] font-bold text-white leading-[1.15] mb-4" style={{fontFamily:INT}}>
               {t('landing.features.m7_title')}
             </h2>
@@ -822,7 +833,7 @@ const LandingPage = () => {
         {/* Impact intro */}
         <Reveal direction="up" className="mb-16">
           <div className="max-w-[720px] mx-auto text-center">
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-3" style={{fontFamily:BC}}>{t('landing.audiences.tag')}</p>
+            <SectionTag>{t('landing.audiences.tag')}</SectionTag>
             <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-5" style={{fontFamily:INT}} data-testid="audiences-title">{t('landing.audiences.title')}</h2>
             <p className="text-[15px] text-slate-400 leading-[1.8]" data-testid="audiences-impact">{t('landing.audiences.impact')}</p>
           </div>
@@ -897,7 +908,7 @@ const LandingPage = () => {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(204,255,0,0.03)_0%,transparent_50%)]" />
       <div className="max-w-[1120px] mx-auto relative z-10">
         <Reveal direction="up" className="text-center mb-6">
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-3" style={{fontFamily:BC}}>{t('landing.howItWorks.tag')}</p>
+          <SectionTag>{t('landing.howItWorks.tag')}</SectionTag>
           <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-3" style={{fontFamily:INT}}>{t('landing.howItWorks.title')}</h2>
           <p className="text-[15px] text-slate-400 max-w-[600px] mx-auto leading-[1.7]">{t('landing.howItWorks.subtitle')}</p>
         </Reveal>
@@ -965,7 +976,7 @@ const LandingPage = () => {
     <section id="pricing" className="py-20 px-6 bg-slate-950 relative overflow-hidden">
       <div className="max-w-[1120px] mx-auto relative z-10">
         <Reveal direction="up" className="text-center mb-14">
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-2" style={{fontFamily:BC}}>{t('landing.pricing.tag')}</p>
+          <SectionTag>{t('landing.pricing.tag')}</SectionTag>
           <h2 className="text-[28px] font-bold text-white leading-tight" style={{fontFamily:INT}}>{t('landing.pricing.title')}</h2>
         </Reveal>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
