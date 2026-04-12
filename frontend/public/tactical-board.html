@@ -16,31 +16,29 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
 #main{display:flex;flex:1;overflow:hidden}
 /* ── LEFT SIDEBAR ── */
 #sidebar{width:220px;background:var(--bg);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
-.sb-header{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border)}
+.sb-header{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-bottom:1px solid var(--border)}
 .logo{width:28px;height:28px;background:#CCFF00;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .logo span{font-size:14px;font-weight:900;color:#1e293b}
-.sb-title{font-size:14px;font-weight:800;color:var(--text);flex:1}
 .sb-close{width:24px;height:24px;border-radius:50%;background:var(--hover);display:flex;align-items:center;justify-content:center;color:var(--text-muted)}
 .sb-close:hover{background:#e2e8f0;color:var(--text)}
 /* Sport selector */
-.sb-section{padding:8px 10px;border-bottom:1px solid var(--border)}
-.sb-section-label{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:6px}
-.sb-sport-tabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
-.sb-cat{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;font-size:10px;font-weight:600;background:#fff;color:var(--text-sec);transition:all .2s;border:1.5px solid var(--border);box-shadow:0 1px 2px rgba(0,0,0,0.04)}
-.sb-cat svg{flex-shrink:0;opacity:0.6;transition:opacity .2s}
-.sb-cat:hover{background:var(--hover);border-color:#cbd5e1;color:var(--text);box-shadow:0 2px 6px rgba(0,0,0,0.06)}
-.sb-cat:hover svg{opacity:1}
-.sb-cat.active{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 3px 10px rgba(37,99,235,0.3);font-weight:700}
+.sb-section{padding:6px 8px;border-bottom:1px solid var(--border)}
+.sb-section-label{font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:4px}
+.sb-sport-tabs{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px}
+.sb-cat{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:6px;font-size:9px;font-weight:600;background:#fff;color:var(--text-sec);transition:all .15s;border:1px solid var(--border)}
+.sb-cat svg{flex-shrink:0;width:12px;height:12px;opacity:0.5}
+.sb-cat:hover{background:var(--hover);color:var(--text)}
+.sb-cat.active{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 2px 6px rgba(37,99,235,0.25)}
 .sb-cat.active svg{opacity:1}
-.sb-sport-list{display:flex;flex-wrap:wrap;gap:3px;padding:6px 0 2px;border-top:1px dashed var(--border)}
-.sb-sport{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:8px;font-size:10px;font-weight:500;background:transparent;color:var(--text-muted);transition:all .15s;border:none;position:relative}
-.sb-sport svg{flex-shrink:0;opacity:0.45;transition:opacity .15s}
-.sb-sport span{white-space:nowrap;transition:color .15s}
+.sb-sport-list{display:flex;flex-wrap:wrap;gap:2px;padding-top:4px;border-top:1px dashed var(--border)}
+.sb-sport{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:500;background:transparent;color:var(--text-muted);transition:all .12s;border:none;position:relative}
+.sb-sport svg{flex-shrink:0;width:12px;height:12px;opacity:0.35}
+.sb-sport span{white-space:nowrap}
 .sb-sport:hover{color:var(--text);background:var(--hover)}
-.sb-sport:hover svg{opacity:0.8}
+.sb-sport:hover svg{opacity:0.7}
 .sb-sport.active{color:var(--primary);font-weight:700;background:rgba(37,99,235,0.06)}
 .sb-sport.active svg{opacity:1;stroke:var(--primary)}
-.sb-sport.active::after{content:'';position:absolute;bottom:1px;left:10px;right:10px;height:2px;background:var(--primary);border-radius:2px}
+.sb-sport.active::after{content:'';position:absolute;bottom:0;left:6px;right:6px;height:1.5px;background:var(--primary);border-radius:1px}
 /* Scrollable tools area */
 .sb-scrollable{flex:1;overflow-y:auto;padding:4px 6px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;display:flex;flex-wrap:wrap;align-content:flex-start;gap:1px}
 .sb-scrollable::-webkit-scrollbar{width:3px}
@@ -166,7 +164,6 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
   <!-- Logo + Close -->
   <div class="sb-header">
    <div class="logo"><span>i</span></div>
-   <span class="sb-title">Pizarra</span>
    <button class="sb-close" onclick="window.history.back()"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></button>
   </div>
   <!-- Sport selector -->
