@@ -7061,6 +7061,89 @@ async def get_all_plan_data(plan_id: str, user: dict = Depends(get_current_user)
     }
 
 
+# =============== TACTICAL BOARD GENERATION ===============
+class TacticalBoardGenerateRequest(BaseModel):
+    sport: str
+    description: str = ""
+    formation: str = ""
+    num_team_a: int = 5
+    num_team_b: int = 0
+
+@api_router.post("/tactical-board/generate")
+async def generate_tactical_board(request: TacticalBoardGenerateRequest, user: dict = Depends(get_current_user)):
+    import json as json_mod
+    import re as re_mod
+    try:
+        api_key = os.environ.get('EMERGENT_LLM_KEY')
+        if not api_key:
+            raise HTTPException(status_code=500, detail="LLM API key not configured")
+
+        chat = LlmChat(
+            api_key=api_key,
+            session_id=f"tactical-{user['id']}-{str(uuid.uuid4())[:8]}",
+            system_message="You are an expert sports tactician and coach. Generate tactical board positions as structured JSON. Always respond with valid JSON only, no markdown."
+        ).with_model("openai", "gpt-4o-mini")
+
+        sport_names = {
+            "football": "Football/Soccer", "basketball": "Basketball",
+            "volleyball": "Volleyball", "handball": "Handball",
+            "futsal": "Futsal", "tennis": "Tennis",
+            "baseball": "Baseball", "athletics": "Athletics",
+            "rugby": "Rugby", "hockey": "Field Hockey"
+        }
+        sport_label = sport_names.get(request.sport, request.sport.capitalize())
+
+        prompt = f"""Generate a tactical board for {sport_label}.
+Session description: {request.description or 'Standard training session'}
+Formation/Setup: {request.formation or 'Default formation'}
+Number of team A players (marked as X): {request.num_team_a}
+Number of team B players (marked as O): {request.num_team_b}
+
+The field coordinate system is 300x420 pixels (portrait orientation).
+Valid placement area: x: 20-280, y: 20-400.
+Center of field: x=150, y=210.
+
+Return ONLY a valid JSON object with this structure:
+{{"elements":[
+  {{"id":"p1","type":"playerX","x":150,"y":350,"label":"1"}},
+  {{"id":"o1","type":"playerO","x":150,"y":80,"label":"1"}},
+  {{"id":"a1","type":"arrow","x":150,"y":350,"x2":150,"y2":200,"label":""}},
+  {{"id":"c1","type":"cone","x":100,"y":250,"label":""}},
+  {{"id":"b1","type":"ball","x":150,"y":210,"label":""}}
+],"description":"Brief tactical description in Spanish"}}
+
+Rules:
+- Generate exactly {request.num_team_a} playerX elements (team A) with labels 1 to {request.num_team_a}
+- Generate exactly {request.num_team_b} playerO elements (team B) with labels 1 to {request.num_team_b}
+- Add 3-5 arrows showing key movements or passing lanes
+- Optionally add 1-3 cones or balls for training setups
+- Position players in realistic tactical formations for {sport_label}
+- Each element needs a unique id (p1, p2, o1, o2, a1, a2, c1, b1, etc.)
+- Spread players across the field realistically
+- Return ONLY the JSON, no explanations"""
+
+        response = await chat.send_message(UserMessage(text=prompt))
+
+        response_text = response.strip()
+        if response_text.startswith('```'):
+            response_text = re_mod.sub(r'^```\w*\n?', '', response_text)
+            response_text = re_mod.sub(r'\n?```$', '', response_text)
+
+        result = json_mod.loads(response_text)
+
+        if "elements" not in result:
+            result = {"elements": [], "description": "Error: formato inválido"}
+
+        return result
+
+    except json_mod.JSONDecodeError as e:
+        logger.error(f"Failed to parse AI tactical board response: {e}")
+        raise HTTPException(status_code=500, detail="Error al interpretar la respuesta de IA")
+    except Exception as e:
+        logger.error(f"Error generating tactical board: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # =============== ROOT & HEALTH ===============
 @api_router.get("/")
 async def root():

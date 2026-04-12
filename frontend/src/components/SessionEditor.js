@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -10,11 +10,83 @@ import {
   Target, Zap, Brain, Dumbbell, Heart, Calendar, Plus, Trash2, 
   Save, Download, Activity, Clock, ChevronDown, ChevronRight,
   GripVertical, AlertCircle, Share2, Copy, Check, FileText, Link2, Eye,
-  Watch, Droplets, Battery, Moon, TrendingUp, TrendingDown, Bluetooth
+  Watch, Droplets, Battery, Moon, TrendingUp, TrendingDown, Bluetooth,
+  Sparkles, LayoutGrid, Pencil
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+const TacticalBoardEditor = React.lazy(() => import('./TacticalBoardEditor'));
+
 const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+// Inline sport field data for preview (avoids babel plugin issues with imports)
+const BOARD_SPORTS = {
+  football: { color: '#1e3a1e', viewBox: '0 0 300 420', svg: '<rect x="15" y="15" width="270" height="390" rx="2"/><line x1="15" y1="210" x2="285" y2="210"/><circle cx="150" cy="210" r="42"/><circle cx="150" cy="210" r="2.5" fill="rgba(255,255,255,0.6)"/><rect x="70" y="15" width="160" height="70"/><rect x="105" y="15" width="90" height="30"/><path d="M100 85 A32 32 0 0 0 200 85"/><rect x="115" y="5" width="70" height="12" rx="1"/><rect x="70" y="335" width="160" height="70"/><rect x="105" y="375" width="90" height="30"/><path d="M100 335 A32 32 0 0 1 200 335"/><rect x="115" y="403" width="70" height="12" rx="1"/>' },
+  basketball: { color: '#4a3728', viewBox: '0 0 300 420', svg: '<rect x="15" y="15" width="270" height="390" rx="2"/><line x1="15" y1="210" x2="285" y2="210"/><circle cx="150" cy="210" r="28"/><rect x="95" y="15" width="110" height="55"/><circle cx="150" cy="70" r="8"/><rect x="140" y="15" width="20" height="3"/><path d="M70 15 A95 95 0 0 0 230 15"/><path d="M95 70 A55 55 0 0 0 205 70"/><rect x="95" y="350" width="110" height="55"/><circle cx="150" cy="350" r="8"/><rect x="140" y="402" width="20" height="3"/><path d="M70 405 A95 95 0 0 1 230 405"/><path d="M95 350 A55 55 0 0 1 205 350"/>' },
+  volleyball: { color: '#1a3a5a', viewBox: '0 0 300 420', svg: '<rect x="15" y="15" width="270" height="390" rx="2"/><line x1="15" y1="210" x2="285" y2="210" stroke-width="3"/><line x1="15" y1="140" x2="285" y2="140" stroke-dasharray="6 4"/><line x1="15" y1="280" x2="285" y2="280" stroke-dasharray="6 4"/>' },
+  handball: { color: '#2a3a1e', viewBox: '0 0 300 420', svg: '<rect x="15" y="15" width="270" height="390" rx="2"/><line x1="15" y1="210" x2="285" y2="210"/><path d="M90 15 A70 70 0 0 0 210 15"/><path d="M90 405 A70 70 0 0 1 210 405"/>' },
+  futsal: { color: '#3a2e1e', viewBox: '0 0 300 420', svg: '<rect x="15" y="15" width="270" height="390" rx="2"/><line x1="15" y1="210" x2="285" y2="210"/><circle cx="150" cy="210" r="30"/><rect x="80" y="15" width="140" height="55"/><rect x="80" y="350" width="140" height="55"/>' },
+  tennis: { color: '#1a4a2e', viewBox: '0 0 300 420', svg: '<rect x="30" y="15" width="240" height="390" rx="2"/><line x1="30" y1="210" x2="270" y2="210" stroke-width="3"/><line x1="150" y1="80" x2="150" y2="340"/><rect x="30" y="80" width="240" height="260"/>' },
+};
+
+// ─── Preview component for saved tactical board ───
+const TacticalBoardPreview = ({ board }) => {
+  const boardSport = BOARD_SPORTS[board.sport] || BOARD_SPORTS.football;
+  const els = board.elements || [];
+
+  const renderPreviewElement = (el) => {
+    switch (el.type) {
+      case 'playerX':
+        return (
+          <g key={el.id} transform={`translate(${el.x},${el.y})`}>
+            <circle r="11" fill="rgba(200,247,0,0.15)" stroke="#c8f700" strokeWidth="2"/>
+            <text textAnchor="middle" dy="0.35em" fontSize="12" fill="#c8f700" fontWeight="900" fontFamily="Arial,sans-serif" style={{userSelect:'none'}}>X</text>
+            {el.label && <text y="-15" textAnchor="middle" fontSize="8" fill="rgba(200,247,0,0.8)" fontWeight="bold" style={{userSelect:'none'}}>{el.label}</text>}
+          </g>
+        );
+      case 'playerO':
+        return (
+          <g key={el.id} transform={`translate(${el.x},${el.y})`}>
+            <circle r="10" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.7)" strokeWidth="2"/>
+            {el.label && <text y="-14" textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.7)" fontWeight="bold" style={{userSelect:'none'}}>{el.label}</text>}
+          </g>
+        );
+      case 'arrow':
+        return (
+          <line key={el.id} x1={el.x} y1={el.y} x2={el.x2} y2={el.y2}
+            stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" strokeLinecap="round" markerEnd="url(#prevArrowM)"/>
+        );
+      case 'cone':
+        return <polygon key={el.id} points={`${el.x},${el.y-8} ${el.x-6},${el.y+5} ${el.x+6},${el.y+5}`} fill="#ff9800" opacity="0.8"/>;
+      case 'ball':
+        return <circle key={el.id} cx={el.x} cy={el.y} r="6" fill="white" stroke="#333" strokeWidth="1"/>;
+      case 'text':
+        return <text key={el.id} x={el.x} y={el.y} fontSize="10" fill="white" fontWeight="bold" style={{userSelect:'none'}}>{el.label}</text>;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div style={{ maxWidth: '280px', width: '100%' }}>
+      <svg viewBox={boardSport.viewBox} className="w-full rounded-lg shadow-md" style={{ background: boardSport.color }}>
+        <defs>
+          <marker id="prevArrowM" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <path d="M0,0 L8,3 L0,6" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1.5" strokeLinecap="round"/>
+          </marker>
+        </defs>
+        <g stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"
+          dangerouslySetInnerHTML={{ __html: boardSport.svg }} />
+        {els.map(renderPreviewElement)}
+      </svg>
+      <div className="flex items-center justify-center gap-3 mt-2 text-[10px] text-slate-400">
+        <span>{els.filter(e => e.type === 'playerX').length} Eq.A</span>
+        <span>{els.filter(e => e.type === 'playerO').length} Eq.B</span>
+        <span>{els.filter(e => e.type === 'arrow').length} Flechas</span>
+      </div>
+    </div>
+  );
+};
 
 // Capacidades físicas
 const CAPACIDADES_FISICAS = [
@@ -128,7 +200,8 @@ const SESION_INICIAL = {
     dispositivoConectado: false,
     nombreDispositivo: ''
   },
-  retroalimentacion: ''
+  retroalimentacion: '',
+  tacticalBoard: null
 };
 
 const SessionEditor = ({ 
@@ -153,6 +226,7 @@ const SessionEditor = ({
   const [linkCopied, setLinkCopied] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [showBoardEditor, setShowBoardEditor] = useState(false);
   const sessionContentRef = useRef(null);
 
   // Cargar datos de la sesión existente
@@ -1102,6 +1176,58 @@ const SessionEditor = ({
                 </CardContent>
               </Card>
 
+              {/* ═══ PIZARRA TACTICA ═══ */}
+              {sessionData.tacticalBoard ? (
+                <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden rounded-2xl" data-testid="tactical-board-preview">
+                  <CardHeader className="bg-[#0b0e14] text-white p-4">
+                    <CardTitle className="flex items-center justify-between text-base">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-[#c8f700]/20 rounded-lg flex items-center justify-center">
+                          <LayoutGrid className="w-4 h-4 text-[#c8f700]" />
+                        </div>
+                        <div>
+                          <span className="text-white font-bold">Pizarra Tactica</span>
+                          <span className="text-slate-400 text-xs ml-2">{sessionData.tacticalBoard.sportName}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant="outline" onClick={() => setShowBoardEditor(true)}
+                          className="border-[#c8f700]/40 text-[#c8f700] hover:bg-[#c8f700]/10 text-xs h-8"
+                          data-testid="edit-board-btn">
+                          <Pencil className="w-3 h-3 mr-1" /> Editar
+                        </Button>
+                        <Button size="sm" variant="outline"
+                          onClick={() => { setSessionData(prev => ({ ...prev, tacticalBoard: null })); toast.info('Pizarra eliminada'); }}
+                          className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs h-8"
+                          data-testid="delete-board-btn">
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 bg-white flex justify-center">
+                    <TacticalBoardPreview board={sessionData.tacticalBoard} />
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card
+                  className="border-2 border-dashed border-slate-200 shadow-sm bg-white overflow-hidden cursor-pointer hover:border-[#c8f700]/50 transition-colors rounded-2xl group"
+                  onClick={() => setShowBoardEditor(true)}
+                  data-testid="create-board-card"
+                >
+                  <CardContent className="py-8 flex flex-col items-center justify-center text-center">
+                    <div className="w-14 h-14 bg-[#f0ffd0] rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                      <LayoutGrid className="w-7 h-7 text-[#3a5a00]" />
+                    </div>
+                    <h4 className="font-bold text-slate-800 mb-1">Pizarra Tactica</h4>
+                    <p className="text-sm text-slate-500 mb-3">Crea formaciones, jugadas y movimientos interactivos</p>
+                    <Button className="bg-[#c8f700] hover:bg-[#d9ff20] text-[#0b0e14] font-bold" data-testid="open-board-editor-btn">
+                      <Plus className="w-4 h-4 mr-1.5" /> Crear Pizarra
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* Monitoreo Avanzado - Material Design */}
               <Card className="border-0 shadow-lg bg-white overflow-hidden rounded-2xl">
                 <CardHeader className="bg-[#0b0e14] text-white p-5">
@@ -1685,6 +1811,22 @@ const SessionEditor = ({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Tactical Board Editor */}
+      {showBoardEditor && (
+        <Suspense fallback={null}>
+          <TacticalBoardEditor
+            isOpen={showBoardEditor}
+            onClose={() => setShowBoardEditor(false)}
+            onSave={(boardData) => {
+              setSessionData(prev => ({ ...prev, tacticalBoard: boardData }));
+            }}
+            initialData={sessionData.tacticalBoard}
+            sessionDescription={sessionData.objetivos?.tactico || sessionData.objetivos?.general || ''}
+            planSport={session?.sport || 'football'}
+          />
+        </Suspense>
+      )}
     </>
   );
 };
