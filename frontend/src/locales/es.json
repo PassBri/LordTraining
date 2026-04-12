@@ -40,7 +40,10 @@
         "controls": "Controles",
         "exercises": "Ejercicios",
         "calculators": "Calculadoras"
-      }
+      },
+      "free_trial": "14 días gratis",
+      "no_card": "Sin tarjeta",
+      "cancel_anytime": "Cancela cuando quieras"
     },
     "nav": {
       "features": "Funciones",
@@ -158,6 +161,36 @@
       "terms": "Términos",
       "copyright": "Todos los derechos reservados.",
       "slogan": "Planifica mejor. Entrena con criterio. Compite con ventaja."
+    },
+    "chart": {
+      "title": "PERIODIZACIÓN ATR",
+      "subtitle": "Macrociclo",
+      "weeks": "semanas",
+      "accumulation": "ACUMULACIÓN",
+      "transformation": "TRANSFORMACIÓN",
+      "realization": "REALIZACIÓN",
+      "vol": "VOL",
+      "int": "INT",
+      "den": "DEN",
+      "totalLoad": "Carga Total",
+      "monotony": "Monotonía",
+      "adherence": "Adherencia",
+      "readiness": "READINESS",
+      "optimal": "ÓPTIMO",
+      "volume": "Volumen",
+      "intensity": "Intensidad",
+      "density": "Densidad",
+      "weeksLabel": "Semanas",
+      "week": "Semana",
+      "dashboard": "Panel de Entrenamiento",
+      "athletes": "ATLETAS",
+      "fcMax": "FC MAX",
+      "planned": "Planificado",
+      "executed": "Ejecutado",
+      "moreAthletes": "+21 más",
+      "athletics": "Atletismo",
+      "swimming": "Natación",
+      "football": "Fútbol"
     }
   },
   "auth": {

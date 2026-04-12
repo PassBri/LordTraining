@@ -40,7 +40,10 @@
         "controls": "Kontrol",
         "exercises": "Latihan",
         "calculators": "Kalkulator"
-      }
+      },
+      "free_trial": "14 hari gratis",
+      "no_card": "Tanpa kartu",
+      "cancel_anytime": "Batalkan kapan saja"
     },
     "nav": {
       "features": "Fitur",
@@ -158,6 +161,36 @@
       "title": "Mulai merencanakan dengan kriteria ilmiah",
       "desc": "Bergabunglah dengan pelatih yang mempercayai iTRAIN untuk membawa perencanaan olahraga mereka ke tingkat berikutnya.",
       "button": "Mulai sekarang"
+    },
+    "chart": {
+      "title": "PERIODISASI ATR",
+      "subtitle": "Makrosiklus",
+      "weeks": "minggu",
+      "accumulation": "AKUMULASI",
+      "transformation": "TRANSFORMASI",
+      "realization": "REALISASI",
+      "vol": "VOL",
+      "int": "INT",
+      "den": "DEN",
+      "totalLoad": "Beban Total",
+      "monotony": "Monotoni",
+      "adherence": "Kepatuhan",
+      "readiness": "KESIAPAN",
+      "optimal": "OPTIMAL",
+      "volume": "Volume",
+      "intensity": "Intensitas",
+      "density": "Densitas",
+      "weeksLabel": "Minggu",
+      "week": "Minggu",
+      "dashboard": "Dashboard Latihan",
+      "athletes": "ATLET",
+      "fcMax": "DJ MAKS",
+      "planned": "Direncanakan",
+      "executed": "Dijalankan",
+      "moreAthletes": "+21 lagi",
+      "athletics": "Atletik",
+      "swimming": "Renang",
+      "football": "Sepak Bola"
     }
   },
   "auth": {

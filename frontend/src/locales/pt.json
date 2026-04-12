@@ -40,7 +40,10 @@
         "controls": "Controles",
         "exercises": "Exercícios",
         "calculators": "Calculadoras"
-      }
+      },
+      "free_trial": "14 dias grátis",
+      "no_card": "Sem cartão",
+      "cancel_anytime": "Cancele quando quiser"
     },
     "nav": {
       "features": "Funcionalidades",
@@ -158,6 +161,36 @@
       "title": "Comece a planificar com critério científico",
       "desc": "Junte-se aos treinadores que confiam no iTRAIN para levar seu planejamento esportivo ao próximo nível.",
       "button": "Começar agora"
+    },
+    "chart": {
+      "title": "PERIODIZAÇÃO ATR",
+      "subtitle": "Macrociclo",
+      "weeks": "semanas",
+      "accumulation": "ACUMULAÇÃO",
+      "transformation": "TRANSFORMAÇÃO",
+      "realization": "REALIZAÇÃO",
+      "vol": "VOL",
+      "int": "INT",
+      "den": "DEN",
+      "totalLoad": "Carga Total",
+      "monotony": "Monotonia",
+      "adherence": "Aderência",
+      "readiness": "READINESS",
+      "optimal": "ÓTIMO",
+      "volume": "Volume",
+      "intensity": "Intensidade",
+      "density": "Densidade",
+      "weeksLabel": "Semanas",
+      "week": "Semana",
+      "dashboard": "Painel de Treinamento",
+      "athletes": "ATLETAS",
+      "fcMax": "FC MÁX",
+      "planned": "Planejado",
+      "executed": "Executado",
+      "moreAthletes": "+21 mais",
+      "athletics": "Atletismo",
+      "swimming": "Natação",
+      "football": "Futebol"
     }
   },
   "auth": {

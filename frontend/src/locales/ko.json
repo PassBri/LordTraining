@@ -40,7 +40,10 @@
         "controls": "컨트롤",
         "exercises": "운동",
         "calculators": "계산기"
-      }
+      },
+      "free_trial": "14일 무료",
+      "no_card": "카드 불필요",
+      "cancel_anytime": "언제든 취소"
     },
     "nav": {
       "features": "기능",
@@ -158,6 +161,36 @@
       "title": "과학적 기준으로 계획을 시작하세요",
       "desc": "스포츠 계획을 다음 단계로 끌어올리기 위해 iTRAIN을 신뢰하는 코치들과 함께하세요.",
       "button": "지금 시작하기"
+    },
+    "chart": {
+      "title": "ATR 주기화",
+      "subtitle": "거시주기",
+      "weeks": "주",
+      "accumulation": "축적기",
+      "transformation": "전환기",
+      "realization": "실현기",
+      "vol": "VOL",
+      "int": "INT",
+      "den": "DEN",
+      "totalLoad": "총 부하",
+      "monotony": "단조성",
+      "adherence": "준수율",
+      "readiness": "준비도",
+      "optimal": "최적",
+      "volume": "볼륨",
+      "intensity": "강도",
+      "density": "밀도",
+      "weeksLabel": "주",
+      "week": "주차",
+      "dashboard": "훈련 대시보드",
+      "athletes": "선수",
+      "fcMax": "최대HR",
+      "planned": "계획",
+      "executed": "실행",
+      "moreAthletes": "+21 명",
+      "athletics": "육상",
+      "swimming": "수영",
+      "football": "축구"
     }
   },
   "auth": {

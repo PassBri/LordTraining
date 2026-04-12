@@ -40,7 +40,10 @@
         "controls": "控制",
         "exercises": "练习",
         "calculators": "计算器"
-      }
+      },
+      "free_trial": "14天免费",
+      "no_card": "无需信用卡",
+      "cancel_anytime": "随时取消"
     },
     "nav": {
       "features": "功能",
@@ -158,6 +161,36 @@
       "title": "用科学标准开始规划",
       "desc": "加入信任iTRAIN的教练，将您的运动规划提升到新水平。",
       "button": "立即开始"
+    },
+    "chart": {
+      "title": "ATR 周期化",
+      "subtitle": "大周期",
+      "weeks": "周",
+      "accumulation": "积累期",
+      "transformation": "转化期",
+      "realization": "实现期",
+      "vol": "量",
+      "int": "强",
+      "den": "密",
+      "totalLoad": "总负荷",
+      "monotony": "单调性",
+      "adherence": "依从性",
+      "readiness": "准备度",
+      "optimal": "最佳",
+      "volume": "训练量",
+      "intensity": "强度",
+      "density": "密度",
+      "weeksLabel": "周",
+      "week": "第",
+      "dashboard": "训练仪表盘",
+      "athletes": "运动员",
+      "fcMax": "最大心率",
+      "planned": "计划",
+      "executed": "执行",
+      "moreAthletes": "+21 更多",
+      "athletics": "田径",
+      "swimming": "游泳",
+      "football": "足球"
     }
   },
   "auth": {

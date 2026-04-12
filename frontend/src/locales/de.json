@@ -40,7 +40,10 @@
         "controls": "Kontrollen",
         "exercises": "Übungen",
         "calculators": "Rechner"
-      }
+      },
+      "free_trial": "14 Tage kostenlos",
+      "no_card": "Keine Karte",
+      "cancel_anytime": "Jederzeit kündbar"
     },
     "nav": {
       "features": "Funktionen",
@@ -158,6 +161,36 @@
       "title": "Beginnen Sie mit wissenschaftlichen Kriterien zu planen",
       "desc": "Schließen Sie sich den Trainern an, die iTRAIN vertrauen, um ihre Sportplanung auf das nächste Level zu bringen.",
       "button": "Jetzt starten"
+    },
+    "chart": {
+      "title": "ATR PERIODISIERUNG",
+      "subtitle": "Makrozyklus",
+      "weeks": "Wochen",
+      "accumulation": "AKKUMULATION",
+      "transformation": "TRANSFORMATION",
+      "realization": "REALISATION",
+      "vol": "VOL",
+      "int": "INT",
+      "den": "DEN",
+      "totalLoad": "Gesamtlast",
+      "monotony": "Monotonie",
+      "adherence": "Adhärenz",
+      "readiness": "READINESS",
+      "optimal": "OPTIMAL",
+      "volume": "Volumen",
+      "intensity": "Intensität",
+      "density": "Dichte",
+      "weeksLabel": "Wochen",
+      "week": "Woche",
+      "dashboard": "Training Dashboard",
+      "athletes": "ATHLETEN",
+      "fcMax": "HF MAX",
+      "planned": "Geplant",
+      "executed": "Ausgeführt",
+      "moreAthletes": "+21 mehr",
+      "athletics": "Leichtathletik",
+      "swimming": "Schwimmen",
+      "football": "Fußball"
     }
   },
   "auth": {

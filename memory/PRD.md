@@ -27,12 +27,15 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
 - Traducciones añadidas a los 12 idiomas soportados
 - Landing Page cinématico ahora muestra todo el texto correctamente
 
-### P0 COMPLETADO: Animaciones scroll-triggered en Landing Page
-- Hook custom `useInView` con IntersectionObserver para detectar entrada al viewport
-- Componente `Reveal` wrapper con animaciones direccionales (up, down, left, right, scale)
-- Stagger progresivo en: hero (pills→titulo→CTA→stats→gráfico), features (6 tarjetas), how it works (3 pasos), pricing (4 planes), CTA final (scale)
-- CSS keyframes: `barGrow`, `countUp` para barras y números
-- Transiciones suaves con `cubic-bezier(0.16,1,0.3,1)`, disparo único por sección
+### P0 COMPLETADO: Interactividad y traducción completa del Landing Page
+- Gráficos interactivos estilo trading: tooltip hover con crosshair mostrando datos por semana (Volumen, Intensidad, Densidad)
+- Barras se iluminan al pasar mouse, labels de semana se resaltan
+- TODOS los textos del landing traducidos: gráficos, fases, stats, labels, atletas, deportes
+- Claves `landing.chart.*` añadidas a los 12 idiomas (24 claves por idioma)
+- Textos hardcodeados ("14 días gratis", "Sin tarjeta", "Atletismo", etc.) migrados a i18n
+- Product Showcase reconstruido con gráfico interactivo (Planificado vs Ejecutado)
+- ReadinessGauge con textos traducidos (ÓPTIMO/OPTIMAL, READINESS)
+- Verificado en español e inglés con screenshots de todas las secciones
 
 ### P2 COMPLETADO: Eliminar componentes obsoletos
 - `AICoachAssistant.js` (39KB) eliminado — no se importaba en ningún sitio

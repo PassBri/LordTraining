@@ -40,7 +40,10 @@
         "controls": "नियंत्रण",
         "exercises": "व्यायाम",
         "calculators": "कैलकुलेटर"
-      }
+      },
+      "free_trial": "14 दिन मुफ़्त",
+      "no_card": "बिना कार्ड",
+      "cancel_anytime": "कभी भी रद्द करें"
     },
     "nav": {
       "features": "सुविधाएं",
@@ -158,6 +161,36 @@
       "title": "वैज्ञानिक मानदंडों के साथ योजना बनाना शुरू करें",
       "desc": "उन कोचों से जुड़ें जो अपनी खेल योजना को अगले स्तर पर ले जाने के लिए iTRAIN पर भरोसा करते हैं।",
       "button": "अभी शुरू करें"
+    },
+    "chart": {
+      "title": "ATR पीरियडाइजेशन",
+      "subtitle": "मैक्रोसाइकल",
+      "weeks": "सप्ताह",
+      "accumulation": "संचय",
+      "transformation": "रूपांतरण",
+      "realization": "साकारीकरण",
+      "vol": "VOL",
+      "int": "INT",
+      "den": "DEN",
+      "totalLoad": "कुल भार",
+      "monotony": "एकरसता",
+      "adherence": "पालन",
+      "readiness": "तैयारी",
+      "optimal": "इष्टतम",
+      "volume": "आयतन",
+      "intensity": "तीव्रता",
+      "density": "घनत्व",
+      "weeksLabel": "सप्ताह",
+      "week": "सप्ताह",
+      "dashboard": "प्रशिक्षण डैशबोर्ड",
+      "athletes": "एथलीट",
+      "fcMax": "अधिकतम HR",
+      "planned": "नियोजित",
+      "executed": "निष्पादित",
+      "moreAthletes": "+21 और",
+      "athletics": "एथलेटिक्स",
+      "swimming": "तैराकी",
+      "football": "फ़ुटबॉल"
     }
   },
   "auth": {

@@ -40,7 +40,10 @@
         "controls": "ضوابط",
         "exercises": "تمارين",
         "calculators": "آلات حاسبة"
-      }
+      },
+      "free_trial": "14 يوم مجاناً",
+      "no_card": "بدون بطاقة",
+      "cancel_anytime": "إلغاء في أي وقت"
     },
     "nav": {
       "features": "الميزات",
@@ -158,6 +161,36 @@
       "title": "ابدأ التخطيط بمعايير علمية",
       "desc": "انضم إلى المدربين الذين يثقون في iTRAIN لرفع مستوى تخطيطهم الرياضي.",
       "button": "ابدأ الآن"
+    },
+    "chart": {
+      "title": "دورية ATR",
+      "subtitle": "دورة كبرى",
+      "weeks": "أسابيع",
+      "accumulation": "تراكم",
+      "transformation": "تحويل",
+      "realization": "تحقيق",
+      "vol": "حجم",
+      "int": "شدة",
+      "den": "كثافة",
+      "totalLoad": "الحمل الكلي",
+      "monotony": "رتابة",
+      "adherence": "التزام",
+      "readiness": "الجاهزية",
+      "optimal": "مثالي",
+      "volume": "الحجم",
+      "intensity": "الشدة",
+      "density": "الكثافة",
+      "weeksLabel": "أسابيع",
+      "week": "أسبوع",
+      "dashboard": "لوحة التدريب",
+      "athletes": "رياضيون",
+      "fcMax": "معدل ضربات القلب",
+      "planned": "مخطط",
+      "executed": "منفذ",
+      "moreAthletes": "+21 المزيد",
+      "athletics": "ألعاب قوى",
+      "swimming": "سباحة",
+      "football": "كرة قدم"
     }
   },
   "auth": {

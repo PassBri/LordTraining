@@ -103,12 +103,18 @@ const AnimatedLineWave = ({ color, amplitude = 30, speed = '6s', points = 200 })
   );
 };
 
-const PeriodizationMiniChart = () => {
-  const weeks = ['S1','S2','S3','S4','S5','S6','S7','S8','S9','S10','S11','S12','S13','S14','S15','S16','S17','S18','S19','S20','S21','S22','S23','S24'];
+const PeriodizationMiniChart = ({ t }) => {
+  const [hoverIdx, setHoverIdx] = useState(null);
   const volData = [75,82,88,65,78,85,92,70,80,88,95,68,72,85,90,62,70,82,88,55,65,78,85,50];
   const intData = [40,45,50,55,52,58,65,70,62,68,75,78,72,78,82,85,80,85,88,90,85,90,92,95];
   const denData = [60,55,52,48,58,55,50,65,60,55,48,70,65,60,52,72,68,60,55,75,70,65,58,80];
-  const phases = [{n:'ACUMULACIÓN',w:8,c:'#3B82F6'},{n:'TRANSFORMACIÓN',w:8,c:'#CCFF00'},{n:'REALIZACIÓN',w:8,c:'#F43F5E'}];
+  const phases = [
+    {n:t('landing.chart.accumulation'),c:'#3B82F6'},
+    {n:t('landing.chart.transformation'),c:'#CCFF00'},
+    {n:t('landing.chart.realization'),c:'#F43F5E'}
+  ];
+  const wkLabels = Array.from({length:24},(_,i) => i%4===0 ? `S${i+1}` : '');
+
   return (
     <div className="relative w-full">
       <div className="bg-slate-800/60 backdrop-blur-md rounded-2xl border border-slate-700/40 p-5 shadow-2xl">
@@ -119,14 +125,14 @@ const PeriodizationMiniChart = () => {
               <Activity className="w-4 h-4 text-slate-900" />
             </div>
             <div>
-              <span className="text-[13px] font-bold text-white block leading-none" style={{fontFamily:BC}}>PERIODIZACIÓN ATR</span>
-              <span className="text-[9px] text-slate-500">Macrociclo — 24 semanas</span>
+              <span className="text-[13px] font-bold text-white block leading-none" style={{fontFamily:BC}}>{t('landing.chart.title')}</span>
+              <span className="text-[9px] text-slate-500">{t('landing.chart.subtitle')} — 24 {t('landing.chart.weeks')}</span>
             </div>
           </div>
           <div className="flex gap-2">
-            <span className="px-2.5 py-1 bg-blue-500/20 text-blue-400 rounded-md text-[9px] font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-400"/>VOL</span>
-            <span className="px-2.5 py-1 bg-[#CCFF00]/20 text-[#CCFF00] rounded-md text-[9px] font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#CCFF00]"/>INT</span>
-            <span className="px-2.5 py-1 bg-rose-500/20 text-rose-400 rounded-md text-[9px] font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-rose-400"/>DEN</span>
+            <span className="px-2.5 py-1 bg-blue-500/20 text-blue-400 rounded-md text-[9px] font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-400"/>{t('landing.chart.vol')}</span>
+            <span className="px-2.5 py-1 bg-[#CCFF00]/20 text-[#CCFF00] rounded-md text-[9px] font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#CCFF00]"/>{t('landing.chart.int')}</span>
+            <span className="px-2.5 py-1 bg-rose-500/20 text-rose-400 rounded-md text-[9px] font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-rose-400"/>{t('landing.chart.den')}</span>
           </div>
         </div>
         {/* Phase labels */}
@@ -137,37 +143,71 @@ const PeriodizationMiniChart = () => {
             </div>
           ))}
         </div>
-        {/* Bar chart */}
-        <div className="flex items-end gap-[2px] h-40 mb-2 px-0.5">
-          {weeks.map((w, i) => (
-            <div key={w} className="flex-1 flex flex-col items-center gap-[1px] h-full justify-end">
-              <div className="w-full flex items-end gap-[1px] h-full">
-                <div className="flex-1 rounded-t-sm transition-all" style={{height:`${volData[i]}%`, background:'#3B82F6', opacity:0.85}} />
-                <div className="flex-1 rounded-t-sm transition-all" style={{height:`${intData[i]}%`, background:'#CCFF00', opacity:0.8}} />
-                <div className="flex-1 rounded-t-sm transition-all" style={{height:`${denData[i]}%`, background:'#F43F5E', opacity:0.75}} />
+        {/* Interactive bar chart */}
+        <div className="relative">
+          <div className="flex items-end gap-[2px] h-40 mb-2 px-0.5" onMouseLeave={() => setHoverIdx(null)}>
+            {volData.map((_, i) => {
+              const isHover = hoverIdx === i;
+              return (
+                <div key={i} className="flex-1 flex flex-col items-center gap-[1px] h-full justify-end relative cursor-crosshair"
+                  onMouseEnter={() => setHoverIdx(i)}>
+                  <div className="w-full flex items-end gap-[1px] h-full">
+                    <div className="flex-1 rounded-t-sm transition-all duration-150" style={{height:`${volData[i]}%`, background:'#3B82F6', opacity: isHover ? 1 : 0.7, transform: isHover ? 'scaleX(1.3)' : 'scaleX(1)'}} />
+                    <div className="flex-1 rounded-t-sm transition-all duration-150" style={{height:`${intData[i]}%`, background:'#CCFF00', opacity: isHover ? 1 : 0.65, transform: isHover ? 'scaleX(1.3)' : 'scaleX(1)'}} />
+                    <div className="flex-1 rounded-t-sm transition-all duration-150" style={{height:`${denData[i]}%`, background:'#F43F5E', opacity: isHover ? 1 : 0.6, transform: isHover ? 'scaleX(1.3)' : 'scaleX(1)'}} />
+                  </div>
+                  {/* Crosshair line */}
+                  {isHover && <div className="absolute top-0 left-1/2 w-px h-full bg-white/30 -translate-x-1/2 pointer-events-none" />}
+                </div>
+              );
+            })}
+          </div>
+          {/* Floating tooltip */}
+          {hoverIdx !== null && (
+            <div className="absolute z-20 pointer-events-none" style={{
+              top: '-8px',
+              left: `${(hoverIdx / 24) * 100}%`,
+              transform: hoverIdx > 16 ? 'translateX(-100%)' : hoverIdx > 8 ? 'translateX(-50%)' : 'translateX(0)'
+            }}>
+              <div className="bg-slate-900/95 backdrop-blur-lg border border-slate-600/60 rounded-lg px-3 py-2 shadow-xl min-w-[120px]">
+                <div className="text-[9px] text-slate-400 font-bold mb-1.5" style={{fontFamily:BC}}>{t('landing.chart.week')} {hoverIdx+1}</div>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="flex items-center gap-1 text-[9px] text-blue-400"><span className="w-1.5 h-1.5 rounded-full bg-blue-400"/>{t('landing.chart.volume')}</span>
+                    <span className="text-[10px] font-black text-white" style={{fontFamily:BC}}>{volData[hoverIdx]}%</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="flex items-center gap-1 text-[9px] text-[#CCFF00]"><span className="w-1.5 h-1.5 rounded-full bg-[#CCFF00]"/>{t('landing.chart.intensity')}</span>
+                    <span className="text-[10px] font-black text-white" style={{fontFamily:BC}}>{intData[hoverIdx]}%</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="flex items-center gap-1 text-[9px] text-rose-400"><span className="w-1.5 h-1.5 rounded-full bg-rose-400"/>{t('landing.chart.density')}</span>
+                    <span className="text-[10px] font-black text-white" style={{fontFamily:BC}}>{denData[hoverIdx]}%</span>
+                  </div>
+                </div>
               </div>
             </div>
-          ))}
+          )}
         </div>
         {/* Week labels */}
         <div className="flex justify-between px-0.5">
-          {['S1','','','S4','','','','S8','','','','S12','','','','S16','','','','S20','','','','S24'].map((s,i) => (
-            <span key={i} className="flex-1 text-center text-[6px] text-slate-600 font-bold" style={{fontFamily:BC}}>{s}</span>
+          {wkLabels.map((s,i) => (
+            <span key={i} className={`flex-1 text-center text-[6px] font-bold ${hoverIdx === i ? 'text-[#CCFF00]' : 'text-slate-600'}`} style={{fontFamily:BC}}>{s}</span>
           ))}
         </div>
         {/* Bottom stats row */}
         <div className="flex items-center gap-3 mt-4 pt-3 border-t border-slate-700/40">
           <div className="flex-shrink-0 mr-1">
-            <ReadinessGauge size={52} />
+            <ReadinessGauge size={52} t={t} />
           </div>
           {[
-            {l:'Carga Total',v:'2,847 UA',c:'text-blue-400'},
+            {l:t('landing.chart.totalLoad'),v:'2,847 UA',c:'text-blue-400'},
             {l:'ACWR',v:'0.87',c:'text-[#CCFF00]'},
-            {l:'Monotonía',v:'1.24',c:'text-rose-400'},
-            {l:'Adherencia',v:'94%',c:'text-emerald-400'},
+            {l:t('landing.chart.monotony'),v:'1.24',c:'text-rose-400'},
+            {l:t('landing.chart.adherence'),v:'94%',c:'text-emerald-400'},
           ].map(s => (
-            <div key={s.l} className="flex-1 text-center">
-              <div className={`text-[14px] font-black leading-none ${s.c}`} style={{fontFamily:BC}}>{s.v}</div>
+            <div key={s.l} className="flex-1 text-center group cursor-default">
+              <div className={`text-[14px] font-black leading-none ${s.c} group-hover:scale-110 transition-transform`} style={{fontFamily:BC}}>{s.v}</div>
               <div className="text-[7px] text-slate-500 mt-1">{s.l}</div>
             </div>
           ))}
@@ -208,21 +248,21 @@ const DataRings = () => (
   </div>
 );
 
-const ReadinessGauge = ({ size = 96 }) => {
+const ReadinessGauge = ({ size = 96, t }) => {
   const r = (size - 10) / 2, c = Math.PI * 2 * r, off = c - (c * 85) / 100;
   return (
-    <div className="flex flex-col items-center gap-1">
-      <div className="relative" style={{ width: size, height: size }}>
+    <div className="flex flex-col items-center gap-1 group cursor-default">
+      <div className="relative group-hover:scale-105 transition-transform" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="-rotate-90">
           <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#1e293b" strokeWidth="4" />
           <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#CCFF00" strokeWidth="4" strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round" />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-2xl font-black text-white leading-none" style={{fontFamily:BC}}>85</span>
-          <span className="text-[8px] text-[#CCFF00] mt-0.5 font-bold">ÓPTIMO</span>
+          <span className="text-[8px] text-[#CCFF00] mt-0.5 font-bold">{t ? t('landing.chart.optimal') : 'ÓPTIMO'}</span>
         </div>
       </div>
-      <span className="text-[8px] text-slate-400 font-bold" style={{fontFamily:BC}}>READINESS</span>
+      <span className="text-[8px] text-slate-400 font-bold" style={{fontFamily:BC}}>{t ? t('landing.chart.readiness') : 'READINESS'}</span>
     </div>
   );
 };
@@ -234,6 +274,39 @@ const TeamFormation = () => (
     ))}
   </div>
 );
+
+const ShowcaseChart = ({ t }) => {
+  const [hIdx, setHIdx] = useState(null);
+  const planned = [65,72,80,60,70,78,85,55,68,75,82,50];
+  const executed = [60,68,76,58,65,74,80,52,64,72,78,48];
+  return (
+    <div className="relative">
+      <div className="flex items-end gap-[3px] h-28" onMouseLeave={() => setHIdx(null)}>
+        {planned.map((p, i) => {
+          const h = hIdx === i;
+          return (
+            <div key={i} className="flex-1 flex items-end gap-[1px] h-full cursor-crosshair relative" onMouseEnter={() => setHIdx(i)}>
+              <div className="flex-1 rounded-t-sm transition-all duration-150" style={{height:`${p}%`, background:'#3B82F6', opacity: h ? 1 : 0.6}} />
+              <div className="flex-1 rounded-t-sm transition-all duration-150" style={{height:`${executed[i]}%`, background:'#CCFF00', opacity: h ? 1 : 0.5}} />
+              {h && <div className="absolute top-0 left-1/2 w-px h-full bg-white/25 -translate-x-1/2 pointer-events-none" />}
+            </div>
+          );
+        })}
+      </div>
+      {hIdx !== null && (
+        <div className="absolute z-20 pointer-events-none" style={{top:'-4px', left:`${(hIdx/12)*100}%`, transform: hIdx > 8 ? 'translateX(-100%)' : 'translateX(0)'}}>
+          <div className="bg-slate-900/95 backdrop-blur-lg border border-slate-600/60 rounded-lg px-2.5 py-1.5 shadow-xl">
+            <div className="text-[8px] text-slate-400 mb-1" style={{fontFamily:BC}}>{t('landing.chart.week')} {hIdx+1}</div>
+            <div className="flex items-center gap-2 text-[9px]">
+              <span className="text-blue-400 font-bold">{t('landing.chart.planned')}: {planned[hIdx]}%</span>
+              <span className="text-[#CCFF00] font-bold">{t('landing.chart.executed')}: {executed[hIdx]}%</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 /* ═══════════════════════════════ PAGE ═══════════════════════════════ */
 const LandingPage = () => {
@@ -331,7 +404,7 @@ const LandingPage = () => {
               </Reveal>
               <Reveal delay={0.6} direction="up">
                 <div className="flex gap-4 text-[11px] text-slate-500 mb-6">
-                  {['14 días gratis','Sin tarjeta','Cancela cuando quieras'].map(txt => (
+                  {[t('landing.hero.free_trial'),t('landing.hero.no_card'),t('landing.hero.cancel_anytime')].map(txt => (
                     <span key={txt} className="flex items-center gap-1.5"><Check className="w-3 h-3 text-[#CCFF00]" />{txt}</span>
                   ))}
                 </div>
@@ -342,9 +415,9 @@ const LandingPage = () => {
             <div className="grid grid-cols-2 gap-3 mt-2">
               {[
                 {icon: <Zap className="w-4 h-4 text-blue-400" />, v:'0.87', l:'ACWR', bg:'bg-blue-500/10', border:'border-blue-500/20'},
-                {icon: <Heart className="w-4 h-4 text-emerald-400" />, v:'156', l:'FC MAX', bg:'bg-emerald-500/10', border:'border-emerald-500/20'},
-                {icon: <Users className="w-4 h-4 text-[#CCFF00]" />, v:'24', l:'ATLETAS', bg:'bg-[#CCFF00]/10', border:'border-[#CCFF00]/20'},
-                {icon: <Target className="w-4 h-4 text-purple-400" />, v:'94%', l:'ADHERENCIA', bg:'bg-purple-500/10', border:'border-purple-500/20'},
+                {icon: <Heart className="w-4 h-4 text-emerald-400" />, v:'156', l:t('landing.chart.fcMax'), bg:'bg-emerald-500/10', border:'border-emerald-500/20'},
+                {icon: <Users className="w-4 h-4 text-[#CCFF00]" />, v:'24', l:t('landing.chart.athletes'), bg:'bg-[#CCFF00]/10', border:'border-[#CCFF00]/20'},
+                {icon: <Target className="w-4 h-4 text-purple-400" />, v:'94%', l:t('landing.chart.adherence').toUpperCase(), bg:'bg-purple-500/10', border:'border-purple-500/20'},
               ].map((s,i) => (
                 <Reveal key={i} delay={0.7 + i * 0.1} direction="up">
                   <div className={`${s.bg} ${s.border} border rounded-xl px-3.5 py-2.5 flex items-center gap-2.5`}>
@@ -361,7 +434,7 @@ const LandingPage = () => {
 
           {/* Right column — Chart */}
           <Reveal delay={0.4} direction="right" className="lg:col-span-7 relative" style={{animation:'float 6s ease-in-out infinite'}}>
-            <PeriodizationMiniChart />
+            <PeriodizationMiniChart t={t} />
           </Reveal>
         </div>
       </div>
@@ -409,8 +482,8 @@ const LandingPage = () => {
               </div>
               {/* Mini phase labels */}
               <div className="hidden md:flex gap-1.5 mt-1">
-                {[{n:'ACU',c:'#3B82F6'},{n:'TRA',c:'#CCFF00'},{n:'REA',c:'#F43F5E'}].map(p => (
-                  <span key={p.n} className="px-2 py-0.5 rounded text-[8px] font-bold" style={{background:p.c+'20', color:p.c, fontFamily:BC}}>{p.n}</span>
+                {[{k:'accumulation',c:'#3B82F6'},{k:'transformation',c:'#CCFF00'},{k:'realization',c:'#F43F5E'}].map(p => (
+                  <span key={p.k} className="px-2 py-0.5 rounded text-[8px] font-bold" style={{background:p.c+'20', color:p.c, fontFamily:BC}}>{t(`landing.chart.${p.k}`).substring(0,3).toUpperCase()}</span>
                 ))}
               </div>
             </div>
@@ -436,7 +509,7 @@ const LandingPage = () => {
               </div>
               {/* Bottom stat row */}
               <div className="flex items-center gap-4 mt-3 pt-2 border-t border-slate-700/30">
-                {[{l:'Volumen',v:'2,847 UA',c:'#3B82F6'},{l:'Intensidad',v:'78%',c:'#CCFF00'},{l:'Densidad',v:'1.24',c:'#F43F5E'},{l:'Semanas',v:'24',c:'#64748b'}].map(s => (
+                {[{l:t('landing.chart.volume'),v:'2,847 UA',c:'#3B82F6'},{l:t('landing.chart.intensity'),v:'78%',c:'#CCFF00'},{l:t('landing.chart.density'),v:'1.24',c:'#F43F5E'},{l:t('landing.chart.weeksLabel'),v:'24',c:'#64748b'}].map(s => (
                   <div key={s.l} className="flex items-center gap-1.5">
                     <div className="w-1.5 h-1.5 rounded-full" style={{background:s.c}} />
                     <span className="text-[10px] font-bold" style={{color:s.c, fontFamily:BC}}>{s.v}</span>
@@ -462,9 +535,9 @@ const LandingPage = () => {
             {/* Realistic athlete list */}
             <div className="mt-4 space-y-2">
               {[
-                {n:'Juan Pérez',s:'Atletismo',v:'VO2: 52.3',c:'bg-blue-500'},
-                {n:'María López',s:'Natación',v:'1RM: 95kg',c:'bg-emerald-500'},
-                {n:'Carlos Díaz',s:'Fútbol',v:'ACWR: 0.91',c:'bg-purple-500'},
+                {n:'Juan Pérez',s:t('landing.chart.athletics'),v:'VO2: 52.3',c:'bg-blue-500'},
+                {n:'María López',s:t('landing.chart.swimming'),v:'1RM: 95kg',c:'bg-emerald-500'},
+                {n:'Carlos Díaz',s:t('landing.chart.football'),v:'ACWR: 0.91',c:'bg-purple-500'},
               ].map((a,i) => (
                 <div key={i} className="flex items-center gap-2.5 bg-slate-800/60 rounded-lg px-3 py-2 border border-slate-700/30">
                   <div className={`w-7 h-7 ${a.c} rounded-full flex items-center justify-center text-[9px] font-bold text-white`}>{a.n.split(' ').map(w=>w[0]).join('')}</div>
@@ -477,7 +550,7 @@ const LandingPage = () => {
               ))}
               <div className="flex items-center justify-center gap-1 pt-1">
                 <TeamFormation />
-                <span className="text-[9px] text-slate-500 ml-2">+21 más</span>
+                <span className="text-[9px] text-slate-500 ml-2">{t('landing.chart.moreAthletes')}</span>
               </div>
             </div>
           </div>
@@ -592,23 +665,28 @@ const LandingPage = () => {
           </Reveal>
           <Reveal delay={0.3} direction="right" className="lg:col-span-7 relative" style={{animation:'float 6s ease-in-out infinite'}}>
             <div className="bg-slate-800/50 backdrop-blur rounded-2xl border border-slate-700/30 p-5 shadow-2xl">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="flex gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-red-500" /><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /><div className="w-2.5 h-2.5 rounded-full bg-emerald-500" /></div>
-                <span className="text-[9px] text-slate-500 ml-2 font-mono">iTRAIN Dashboard v3.0</span>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-red-500" /><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /><div className="w-2.5 h-2.5 rounded-full bg-emerald-500" /></div>
+                  <span className="text-[9px] text-slate-500 ml-2 font-mono">iTRAIN {t('landing.chart.dashboard')} v3.0</span>
+                </div>
+                <div className="flex gap-2">
+                  <span className="flex items-center gap-1 text-[8px] font-bold text-blue-400"><span className="w-1.5 h-1.5 rounded-full bg-blue-400"/>{t('landing.chart.volume')}</span>
+                  <span className="flex items-center gap-1 text-[8px] font-bold text-[#CCFF00]"><span className="w-1.5 h-1.5 rounded-full bg-[#CCFF00]"/>{t('landing.chart.intensity')}</span>
+                  <span className="flex items-center gap-1 text-[8px] font-bold text-rose-400"><span className="w-1.5 h-1.5 rounded-full bg-rose-400"/>{t('landing.chart.density')}</span>
+                </div>
               </div>
-              <div className="grid grid-cols-3 gap-3 mb-3">
-                <AnimatedBarChart label="Volumen" color1="#3B82F6" color2="#60a5fa" delay={0} />
-                <AnimatedBarChart label="Intensidad" color1="#CCFF00" color2="#a3e635" delay={0.3} />
-                <AnimatedBarChart label="Densidad" color1="#F43F5E" color2="#fb7185" delay={0.6} />
-              </div>
-              <div className="h-16 relative">
+              {/* Interactive mini chart */}
+              <ShowcaseChart t={t} />
+              {/* Bottom area chart */}
+              <div className="h-16 relative mt-3">
                 <div className="absolute inset-0"><AnimatedLineWave color="#3B82F6" amplitude={25} speed="6s" /></div>
                 <div className="absolute inset-0"><AnimatedLineWave color="#CCFF00" amplitude={20} speed="8s" /></div>
               </div>
             </div>
             <div className="absolute -top-4 -left-4 z-20">
               <div className="bg-slate-800/80 backdrop-blur rounded-xl p-3 border border-slate-700/30 shadow-xl">
-                <ReadinessGauge size={72} />
+                <ReadinessGauge size={72} t={t} />
               </div>
             </div>
           </Reveal>

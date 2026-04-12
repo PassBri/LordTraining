@@ -40,7 +40,10 @@
         "controls": "コントロール",
         "exercises": "エクササイズ",
         "calculators": "計算機"
-      }
+      },
+      "free_trial": "14日間無料",
+      "no_card": "カード不要",
+      "cancel_anytime": "いつでもキャンセル"
     },
     "nav": {
       "features": "機能",
@@ -158,6 +161,36 @@
       "title": "科学的基準で計画を始めましょう",
       "desc": "スポーツプランニングを次のレベルに引き上げるためにiTRAINを信頼するコーチに参加しましょう。",
       "button": "今すぐ始める"
+    },
+    "chart": {
+      "title": "ATR ピリオダイゼーション",
+      "subtitle": "マクロサイクル",
+      "weeks": "週間",
+      "accumulation": "蓄積期",
+      "transformation": "変換期",
+      "realization": "実現期",
+      "vol": "VOL",
+      "int": "INT",
+      "den": "DEN",
+      "totalLoad": "総負荷",
+      "monotony": "単調性",
+      "adherence": "遵守率",
+      "readiness": "準備状態",
+      "optimal": "最適",
+      "volume": "ボリューム",
+      "intensity": "強度",
+      "density": "密度",
+      "weeksLabel": "週",
+      "week": "第",
+      "dashboard": "トレーニングダッシュボード",
+      "athletes": "アスリート",
+      "fcMax": "最大HR",
+      "planned": "計画",
+      "executed": "実行",
+      "moreAthletes": "+21 人",
+      "athletics": "陸上",
+      "swimming": "水泳",
+      "football": "サッカー"
     }
   },
   "auth": {

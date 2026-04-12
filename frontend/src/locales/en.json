@@ -40,7 +40,10 @@
         "controls": "Controls",
         "exercises": "Exercises",
         "calculators": "Calculators"
-      }
+      },
+      "free_trial": "14 days free",
+      "no_card": "No credit card",
+      "cancel_anytime": "Cancel anytime"
     },
     "nav": {
       "features": "Features",
@@ -158,6 +161,36 @@
       "terms": "Terms",
       "copyright": "All rights reserved.",
       "slogan": "Plan better. Train with criteria. Compete with an edge."
+    },
+    "chart": {
+      "title": "ATR PERIODIZATION",
+      "subtitle": "Macrocycle",
+      "weeks": "weeks",
+      "accumulation": "ACCUMULATION",
+      "transformation": "TRANSFORMATION",
+      "realization": "REALIZATION",
+      "vol": "VOL",
+      "int": "INT",
+      "den": "DEN",
+      "totalLoad": "Total Load",
+      "monotony": "Monotony",
+      "adherence": "Adherence",
+      "readiness": "READINESS",
+      "optimal": "OPTIMAL",
+      "volume": "Volume",
+      "intensity": "Intensity",
+      "density": "Density",
+      "weeksLabel": "Weeks",
+      "week": "Week",
+      "dashboard": "Training Dashboard",
+      "athletes": "ATHLETES",
+      "fcMax": "HR MAX",
+      "planned": "Planned",
+      "executed": "Executed",
+      "moreAthletes": "+21 more",
+      "athletics": "Athletics",
+      "swimming": "Swimming",
+      "football": "Football"
     }
   },
   "auth": {
