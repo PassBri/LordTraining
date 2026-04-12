@@ -501,30 +501,35 @@ const SessionEditor = ({
         const span = document.createElement('span');
         span.textContent = val;
         const cs = window.getComputedStyle(el);
+        const isHeaderInput = el.closest('.sticky') !== null;
         span.style.cssText = `
           font-family: ${cs.fontFamily};
-          font-size: ${cs.fontSize};
+          font-size: ${Math.min(parseFloat(cs.fontSize), 13)}px;
           font-weight: ${el.value ? cs.fontWeight : '400'};
-          color: ${el.value ? cs.color : '#999'};
+          color: ${el.value ? (isHeaderInput ? cs.color : '#1a1a1a') : '#999'};
           display: inline-block;
-          padding: ${cs.paddingTop} ${cs.paddingRight} ${cs.paddingBottom} ${cs.paddingLeft};
+          padding: 2px 4px;
           white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: ${cs.width};
           line-height: ${cs.lineHeight};
           height: ${cs.height};
           align-content: center;
+          box-sizing: border-box;
         `;
         el.style.display = 'none';
         el.parentNode.insertBefore(span, el.nextSibling);
         replacements.push({ el, span });
       });
       
-      // 2) Ajustar layout
-      target.style.width = '800px';
-      target.style.maxWidth = '800px';
+      // 2) Ajustar layout — ancho fijo con overflow hidden
+      target.style.width = '780px';
+      target.style.maxWidth = '780px';
       target.style.maxHeight = 'none';
       target.style.height = 'auto';
-      target.style.overflow = 'visible';
-      if (contentEl) { contentEl.style.maxHeight = 'none'; contentEl.style.overflow = 'visible'; }
+      target.style.overflow = 'hidden';
+      if (contentEl) { contentEl.style.maxHeight = 'none'; contentEl.style.overflow = 'hidden'; }
       if (footerEl) footerEl.style.display = 'none';
       
       await new Promise(r => setTimeout(r, 400));
@@ -534,8 +539,10 @@ const SessionEditor = ({
         useCORS: true,
         backgroundColor: '#ffffff',
         logging: false,
-        width: 800,
-        windowWidth: 800
+        width: 780,
+        windowWidth: 780,
+        scrollX: 0,
+        scrollY: -window.scrollY
       });
       
       // 3) Restaurar todo
