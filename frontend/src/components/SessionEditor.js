@@ -712,10 +712,6 @@ const SessionEditor = ({
             {/* Header */}
             <div className="flex items-center justify-between px-3 py-1.5 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100 rounded-t-2xl">
               <span className="text-[11px] font-bold text-slate-800">Actividad {idx + 1}</span>
-              <div className="flex items-center gap-0.5">
-                <button onClick={() => {const dup={...act,id:`act-${Date.now()}`};setSessionData(prev=>({...prev,fases:{...prev.fases,[faseKey]:{...prev.fases[faseKey],actividades:[...prev.fases[faseKey].actividades,dup]}}}));}} className="p-1.5 hover:bg-blue-50 rounded-lg text-slate-300 hover:text-blue-500 transition-colors" title="Duplicar"><Copy className="w-3.5 h-3.5" /></button>
-                <button onClick={() => deleteActividad(faseKey, idx)} className="p-1.5 hover:bg-red-50 rounded-lg text-slate-300 hover:text-red-400 transition-colors" title="Eliminar"><Trash2 className="w-3.5 h-3.5" /></button>
-              </div>
             </div>
 
             {/* Una sola fila: Medios | Carga | Intensidad | Materiales | Pizarra */}
@@ -834,16 +830,20 @@ const SessionEditor = ({
               </div>
 
               {/* PIZARRA */}
-              <div className="w-[160px] flex-shrink-0 rounded-xl border border-slate-100 p-2 flex flex-col">
+              <div className="w-[180px] flex-shrink-0 rounded-xl border border-slate-100 p-2 flex flex-col">
                 <div className="flex items-center gap-1 mb-1">
                   <div className="w-4 h-4 rounded bg-[#f0ffd0] flex items-center justify-center"><LayoutGrid className="w-2.5 h-2.5 text-[#3a5a00]" /></div>
                   <span className="text-[8px] font-bold uppercase tracking-widest text-slate-500">Pizarra</span>
+                  <div className="flex items-center gap-0 ml-auto">
+                    <button onClick={() => {const dup={...act,id:`act-${Date.now()}`};setSessionData(prev=>({...prev,fases:{...prev.fases,[faseKey]:{...prev.fases[faseKey],actividades:[...prev.fases[faseKey].actividades,dup]}}}));}} className="p-1 hover:bg-blue-50 rounded text-slate-300 hover:text-blue-500 transition-colors" title="Duplicar"><Copy className="w-3 h-3" /></button>
+                    <button onClick={() => deleteActividad(faseKey, idx)} className="p-1 hover:bg-red-50 rounded text-slate-300 hover:text-red-400 transition-colors" title="Eliminar"><Trash2 className="w-3 h-3" /></button>
+                  </div>
                 </div>
                 {act.boardThumbnail ? (
-                  <div className="w-full rounded-lg border border-slate-200 bg-white cursor-pointer hover:border-[#c8f700] overflow-hidden" style={{height:'140px'}} onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open(act.boardId?`/tactical-board.html?boardId=${act.boardId}`:'/tactical-board.html','_blank');}} data-testid={`board-thumb-${faseKey}-${idx}`} dangerouslySetInnerHTML={{__html:act.boardThumbnail}} />
+                  <div className="w-full flex-1 rounded-lg border border-slate-200 bg-white cursor-pointer hover:border-[#c8f700] overflow-hidden" style={{minHeight:'160px'}} onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open(act.boardId?`/tactical-board.html?boardId=${act.boardId}`:'/tactical-board.html','_blank');}} data-testid={`board-thumb-${faseKey}-${idx}`} dangerouslySetInnerHTML={{__html:act.boardThumbnail}} />
                 ) : (
-                  <button onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open('/tactical-board.html','_blank');}} className="w-full rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-300 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all" style={{height:'140px'}} data-testid={`open-board-${faseKey}-${idx}`}>
-                    <LayoutGrid className="w-4 h-4" /><span className="text-[6px] font-semibold uppercase mt-0.5">Abrir</span>
+                  <button onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open('/tactical-board.html','_blank');}} className="w-full flex-1 rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-300 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all" style={{minHeight:'160px'}} data-testid={`open-board-${faseKey}-${idx}`}>
+                    <LayoutGrid className="w-5 h-5" /><span className="text-[7px] font-semibold uppercase mt-1">Abrir pizarra</span>
                   </button>
                 )}
                 {act.boardThumbnail && <button onClick={() => updateActividadMulti(faseKey, idx, {boardThumbnail:null,boardId:null})} className="text-[7px] text-slate-300 hover:text-red-400 mt-0.5 block w-full text-center">quitar</button>}
