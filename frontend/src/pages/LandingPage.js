@@ -360,7 +360,7 @@ const TestimonialsCarousel = ({ t }) => {
   }, [totalPages]);
 
   return (
-    <section className="py-24 px-6 bg-slate-950 relative overflow-hidden" data-testid="testimonials-section">
+    <section className="pt-24 pb-10 px-6 bg-slate-950 relative overflow-hidden" data-testid="testimonials-section">
       <div className="max-w-[1120px] mx-auto relative z-10">
         {/* Header with nav arrows */}
         <Reveal direction="up">
