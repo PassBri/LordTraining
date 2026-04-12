@@ -392,7 +392,10 @@ const LandingPage = () => {
                 <h1 className="text-[3.5rem] sm:text-[4.5rem] lg:text-[5.5rem] font-black text-white leading-[0.9] tracking-[-0.03em] mb-2" style={{fontFamily:BC}} data-testid="hero-title">
                   iTRAIN
                 </h1>
-                <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-5" style={{fontFamily:BC}}>{t('landing.hero.tagline')}</p>
+                <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-4" style={{fontFamily:BC}}>{t('landing.hero.tagline')}</p>
+                <h2 className="text-[1.6rem] sm:text-[2rem] lg:text-[2.4rem] font-black text-white leading-[1.1] tracking-[-0.02em] mb-5 whitespace-pre-line" style={{fontFamily:BC}} data-testid="hero-headline">
+                  {t('landing.hero.headline')}
+                </h2>
               </Reveal>
               <Reveal delay={0.35} direction="up">
                 <p className="text-[15px] text-slate-400 leading-[1.7] mb-6 max-w-[380px]" data-testid="hero-subtitle">
