@@ -1380,151 +1380,143 @@ const SessionEditor = ({
                     
                     {/* Gráfica profesional */}
                     <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
-                      <div className="p-5 pb-2">
-                        {(() => {
-                          const fcItems = [
-                            { key: 'fcAntesEntrenamiento', label: 'Antes', color: '#3b82f6', ph: 70 },
-                            { key: 'fcDuranteEntrenamiento', label: 'Durante', color: '#ef4444', ph: 150 },
-                            { key: 'fcDespuesEntrenamiento', label: 'Después', color: '#22c55e', ph: 90 },
-                            { key: 'fcRecuperacion1min', label: 'Recup 1\'', color: '#14b8a6', ph: 85 },
-                            { key: 'fcRecuperacion3min', label: 'Recup 3\'', color: '#a855f7', ph: 78 },
-                            { key: 'fcRecuperacion5min', label: 'Recup 5\'', color: '#6366f1', ph: 72 },
-                          ];
-                          if (sessionData.monitoreo.mostrarRecuperacion10min) {
-                            fcItems.push({ key: 'fcRecuperacion10min', label: 'Recup 10\'', color: '#ec4899', ph: 68 });
-                          }
-                          const vals = fcItems.map(f => parseInt(sessionData.monitoreo[f.key]) || f.ph);
-                          const maxBpm = Math.max(180, ...vals) + 20;
-                          const pct = (v) => (v / maxBpm) * 100;
-                          const yTicks = [0, Math.round(maxBpm * 0.25), Math.round(maxBpm * 0.5), Math.round(maxBpm * 0.75), maxBpm];
-                          const showLines = sessionData.monitoreo.tipoGrafica === 'lineas' || sessionData.monitoreo.tipoGrafica === 'mixta';
-                          const showBars = sessionData.monitoreo.tipoGrafica === 'barras' || sessionData.monitoreo.tipoGrafica === 'mixta';
-                          const isMixta = sessionData.monitoreo.tipoGrafica === 'mixta';
+                      {(() => {
+                        const fcItems = [
+                          { key: 'fcAntesEntrenamiento', label: 'Antes', color: '#3b82f6', ph: 70 },
+                          { key: 'fcDuranteEntrenamiento', label: 'Durante', color: '#ef4444', ph: 150 },
+                          { key: 'fcDespuesEntrenamiento', label: 'Después', color: '#22c55e', ph: 90 },
+                          { key: 'fcRecuperacion1min', label: 'Recup 1\'', color: '#14b8a6', ph: 85 },
+                          { key: 'fcRecuperacion3min', label: 'Recup 3\'', color: '#a855f7', ph: 78 },
+                          { key: 'fcRecuperacion5min', label: 'Recup 5\'', color: '#6366f1', ph: 72 },
+                        ];
+                        if (sessionData.monitoreo.mostrarRecuperacion10min) {
+                          fcItems.push({ key: 'fcRecuperacion10min', label: 'Recup 10\'', color: '#ec4899', ph: 68 });
+                        }
+                        const vals = fcItems.map(f => parseInt(sessionData.monitoreo[f.key]) || f.ph);
+                        const maxBpm = Math.max(180, ...vals) + 20;
+                        const yTicks = [0, Math.round(maxBpm * 0.25), Math.round(maxBpm * 0.5), Math.round(maxBpm * 0.75), maxBpm];
+                        const showLines = sessionData.monitoreo.tipoGrafica === 'lineas' || sessionData.monitoreo.tipoGrafica === 'mixta';
+                        const showBars = sessionData.monitoreo.tipoGrafica === 'barras' || sessionData.monitoreo.tipoGrafica === 'mixta';
+                        const isMixta = sessionData.monitoreo.tipoGrafica === 'mixta';
+                        const chartH = 200;
 
-                          return (
-                            <div className="relative" style={{height:'200px'}}>
-                              {/* Y-axis ticks + grid lines */}
-                              {yTicks.map((tick, i) => (
-                                <div key={tick} className="absolute left-0 right-0 flex items-center" style={{bottom:`${pct(tick)}%`}}>
-                                  <span className="w-7 text-right pr-1.5 flex-shrink-0" style={{fontSize:'9px',color:'#94a3b8',fontFamily:DM,fontWeight:500}}>{tick}</span>
-                                  <div className="flex-1" style={{height:'0.5px',background: i === 0 ? '#cbd5e1' : '#f1f5f9'}} />
+                        return (
+                          <>
+                            {/* Chart */}
+                            <div className="px-5 pt-5 pb-0">
+                              <div className="flex" style={{height:`${chartH}px`}}>
+                                {/* Y-axis */}
+                                <div className="flex flex-col justify-between flex-shrink-0 pr-2" style={{width:'30px'}}>
+                                  {[...yTicks].reverse().map(tick => (
+                                    <span key={tick} className="text-right leading-none" style={{fontSize:'9px',color:'#94a3b8',fontFamily:DM,fontWeight:500}}>{tick}</span>
+                                  ))}
                                 </div>
-                              ))}
+                                {/* Chart body */}
+                                <div className="flex-1 relative" style={{borderLeft:'1px solid #e2e8f0',borderBottom:'1px solid #e2e8f0'}}>
+                                  {/* Grid lines */}
+                                  {yTicks.slice(1).map(tick => (
+                                    <div key={tick} className="absolute left-0 right-0" style={{bottom:`${(tick/maxBpm)*100}%`,height:'0.5px',background:'#f1f5f9'}} />
+                                  ))}
+                                  {/* Bars — aligned to columns */}
+                                  {showBars && (
+                                    <div className="absolute inset-0 flex">
+                                      {vals.map((v, i) => {
+                                        const barH = (v / maxBpm) * chartH;
+                                        return (
+                                          <div key={i} className="flex-1 flex flex-col items-center justify-end">
+                                            {!isMixta && (
+                                              <span style={{fontSize:'10px',fontWeight:700,color:fcItems[i].color,fontFamily:DM,marginBottom:'2px'}}>{v}</span>
+                                            )}
+                                            <div className="rounded-t-md transition-all duration-500" style={{
+                                              width: isMixta ? '40%' : '55%',
+                                              maxWidth:'34px',
+                                              height:`${barH}px`,
+                                              background:fcItems[i].color,
+                                              opacity: isMixta ? 0.15 : 0.8
+                                            }} />
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                  {/* Line SVG */}
+                                  {showLines && (() => {
+                                    const n = vals.length;
+                                    const svgW = 600, svgH = chartH;
+                                    const estilo = sessionData.monitoreo.estiloLinea || 'lime';
+                                    const margin = svgW / (n * 2);
+                                    const spts = vals.map((v, i) => ({
+                                      x: margin + (i / (n - 1)) * (svgW - margin * 2),
+                                      y: svgH - (v / maxBpm) * svgH
+                                    }));
+                                    let lineD = `M ${spts[0].x} ${spts[0].y}`;
+                                    for (let j = 0; j < spts.length - 1; j++) {
+                                      const cp = (spts[j].x + spts[j+1].x) / 2;
+                                      lineD += ` C ${cp} ${spts[j].y}, ${cp} ${spts[j+1].y}, ${spts[j+1].x} ${spts[j+1].y}`;
+                                    }
+                                    const areaD = lineD + ` L ${spts[n-1].x} ${svgH} L ${spts[0].x} ${svgH} Z`;
+                                    const lineColor = estilo === 'multi' ? 'url(#multiGrad)' : estilo === 'gradient' ? 'url(#blueGrad)' : '#CCFF00';
+                                    const areaColor = estilo === 'multi' ? '#a855f7' : estilo === 'gradient' ? '#3b82f6' : '#CCFF00';
+                                    const dashArray = estilo === 'punteada' ? '8 4' : 'none';
+                                    return (
+                                      <svg className="absolute inset-0 w-full h-full overflow-visible" viewBox={`0 0 ${svgW} ${svgH}`} preserveAspectRatio="none">
+                                        <defs>
+                                          <linearGradient id="aFill" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor={areaColor} stopOpacity="0.18"/>
+                                            <stop offset="100%" stopColor={areaColor} stopOpacity="0"/>
+                                          </linearGradient>
+                                          <linearGradient id="multiGrad" x1="0" y1="0" x2="1" y2="0">
+                                            <stop offset="0%" stopColor="#3b82f6"/><stop offset="25%" stopColor="#ef4444"/>
+                                            <stop offset="50%" stopColor="#22c55e"/><stop offset="75%" stopColor="#a855f7"/>
+                                            <stop offset="100%" stopColor="#6366f1"/>
+                                          </linearGradient>
+                                          <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="0">
+                                            <stop offset="0%" stopColor="#06b6d4"/><stop offset="100%" stopColor="#8b5cf6"/>
+                                          </linearGradient>
+                                        </defs>
+                                        <path d={areaD} fill="url(#aFill)" />
+                                        <path d={lineD} fill="none" stroke={lineColor} strokeWidth="3" strokeLinecap="round" strokeDasharray={dashArray} />
+                                        {spts.map((p, i) => (
+                                          <g key={i}>
+                                            <circle cx={p.x} cy={p.y} r="5" fill="white" stroke={fcItems[i].color} strokeWidth="2.5" />
+                                            <rect x={p.x - 18} y={p.y - 19} width="36" height="15" rx="4" fill={fcItems[i].color} />
+                                            <text x={p.x} y={p.y - 8.5} textAnchor="middle" fontSize="10" fontWeight="700" fill="white" fontFamily="DM Sans">{vals[i]}</text>
+                                          </g>
+                                        ))}
+                                      </svg>
+                                    );
+                                  })()}
+                                </div>
+                              </div>
+                            </div>
 
-                              {/* Chart area */}
-                              <div className="absolute" style={{left:'32px',right:'0',top:'0',bottom:'0'}}>
-                                {/* Bars */}
-                                {showBars && (
-                                  <div className="absolute inset-0 flex items-end justify-around" style={{padding:'0 8px'}}>
-                                    {vals.map((v, i) => {
-                                      const barH = (v / maxBpm) * 200;
-                                      return (
-                                        <div key={i} className="flex flex-col items-center" style={{flex:1}}>
-                                          {!isMixta && (
-                                            <span style={{fontSize:'10px',fontWeight:700,color:fcItems[i].color,fontFamily:DM,marginBottom:'2px'}}>{v}</span>
-                                          )}
-                                          <div className="rounded-t-md transition-all duration-500" style={{
-                                            width: isMixta ? '50%' : '60%',
-                                            maxWidth: '32px',
-                                            height:`${barH}px`,
-                                            background: fcItems[i].color,
-                                            opacity: isMixta ? 0.15 : 0.8
-                                          }} />
-                                        </div>
-                                      );
-                                    })}
+                            {/* Inputs — same flex layout as bars for perfect alignment */}
+                            <div className="border-t border-slate-100 px-5 py-3">
+                              <div className="flex" style={{marginLeft:'30px'}}>
+                                {fcItems.map((item, i) => (
+                                  <div key={item.key} className="flex-1 text-center px-1">
+                                    <div className="flex items-center justify-center gap-1 mb-1">
+                                      <span className="w-1.5 h-1.5 rounded-full" style={{background:item.color}} />
+                                      <span style={{fontSize:'8px',fontWeight:600,color:item.color,textTransform:'uppercase',letterSpacing:'0.05em',fontFamily:DM}}>{item.label}</span>
+                                    </div>
+                                    <Input
+                                      type="number"
+                                      value={sessionData.monitoreo[item.key]}
+                                      onChange={(e) => setSessionData(prev => ({
+                                        ...prev,
+                                        monitoreo: { ...prev.monitoreo, [item.key]: e.target.value }
+                                      }))}
+                                      placeholder={String(item.ph)}
+                                      className="se-field-input text-center h-8 font-bold rounded-lg"
+                                      style={{borderColor: item.color + '30', fontSize:'13px'}}
+                                    />
+                                    <div className="text-[7px] text-slate-400 mt-0.5" style={{fontFamily:DM}}>bpm</div>
                                   </div>
-                                )}
-
-                                {/* Line + area */}
-                                {showLines && (() => {
-                                  const n = vals.length;
-                                  const svgW = 500, svgH = 200;
-                                  const estilo = sessionData.monitoreo.estiloLinea || 'lime';
-                                  const spts = vals.map((v, i) => ({
-                                    x: 10 + (i / (n - 1)) * (svgW - 20),
-                                    y: svgH - (v / maxBpm) * svgH
-                                  }));
-                                  let lineD = `M ${spts[0].x} ${spts[0].y}`;
-                                  for (let j = 0; j < spts.length - 1; j++) {
-                                    const cp = (spts[j].x + spts[j+1].x) / 2;
-                                    lineD += ` C ${cp} ${spts[j].y}, ${cp} ${spts[j+1].y}, ${spts[j+1].x} ${spts[j+1].y}`;
-                                  }
-                                  const areaD = lineD + ` L ${spts[n-1].x} ${svgH} L ${spts[0].x} ${svgH} Z`;
-                                  const lineColor = estilo === 'multi' ? 'url(#multiGrad)' : estilo === 'gradient' ? 'url(#blueGrad)' : '#CCFF00';
-                                  const areaColor = estilo === 'multi' ? '#a855f7' : estilo === 'gradient' ? '#3b82f6' : '#CCFF00';
-                                  const dashArray = estilo === 'punteada' ? '8 4' : 'none';
-                                  return (
-                                    <svg className="absolute inset-0 w-full h-full" viewBox={`0 0 ${svgW} ${svgH}`} preserveAspectRatio="none">
-                                      <defs>
-                                        <linearGradient id="aFill" x1="0" y1="0" x2="0" y2="1">
-                                          <stop offset="0%" stopColor={areaColor} stopOpacity="0.18"/>
-                                          <stop offset="100%" stopColor={areaColor} stopOpacity="0"/>
-                                        </linearGradient>
-                                        <linearGradient id="multiGrad" x1="0" y1="0" x2="1" y2="0">
-                                          <stop offset="0%" stopColor="#3b82f6"/>
-                                          <stop offset="25%" stopColor="#ef4444"/>
-                                          <stop offset="50%" stopColor="#22c55e"/>
-                                          <stop offset="75%" stopColor="#a855f7"/>
-                                          <stop offset="100%" stopColor="#6366f1"/>
-                                        </linearGradient>
-                                        <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="0">
-                                          <stop offset="0%" stopColor="#06b6d4"/>
-                                          <stop offset="100%" stopColor="#8b5cf6"/>
-                                        </linearGradient>
-                                      </defs>
-                                      <path d={areaD} fill="url(#aFill)" />
-                                      <path d={lineD} fill="none" stroke={lineColor} strokeWidth="3" strokeLinecap="round" strokeDasharray={dashArray} />
-                                      {spts.map((p, i) => (
-                                        <g key={i}>
-                                          <circle cx={p.x} cy={p.y} r="5" fill="white" stroke={fcItems[i].color} strokeWidth="2.5" />
-                                          <rect x={p.x - 18} y={p.y - 19} width="36" height="15" rx="4" fill={fcItems[i].color} />
-                                          <text x={p.x} y={p.y - 8.5} textAnchor="middle" fontSize="10" fontWeight="700" fill="white" fontFamily="DM Sans">{vals[i]}</text>
-                                        </g>
-                                      ))}
-                                    </svg>
-                                  );
-                                })()}
+                                ))}
                               </div>
-                            </div>
-                          );
-                        })()}
-                      </div>
-
-                      {/* Leyenda + inputs compactos */}
-                      <div className="border-t border-slate-100 px-5 py-4">
-                        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-                          {[
-                            { key: 'fcAntesEntrenamiento', label: 'Antes', color: '#3b82f6', placeholder: '70' },
-                            { key: 'fcDuranteEntrenamiento', label: 'Durante', color: '#ef4444', placeholder: '150' },
-                            { key: 'fcDespuesEntrenamiento', label: 'Después', color: '#22c55e', placeholder: '90' },
-                            { key: 'fcRecuperacion1min', label: 'Recup 1\'', color: '#14b8a6', placeholder: '85' },
-                            { key: 'fcRecuperacion3min', label: 'Recup 3\'', color: '#a855f7', placeholder: '78' },
-                            { key: 'fcRecuperacion5min', label: 'Recup 5\'', color: '#6366f1', placeholder: '72' },
-                          ].map((item) => (
-                            <div key={item.key} className="text-center">
-                              <div className="flex items-center justify-center gap-1 mb-1.5">
-                                <span className="w-2 h-2 rounded-full" style={{background:item.color}} />
-                                <span style={{fontSize:'9px',fontWeight:600,color:item.color,textTransform:'uppercase',letterSpacing:'0.06em',fontFamily:DM}}>{item.label}</span>
-                              </div>
-                              <Input
-                                type="number"
-                                value={sessionData.monitoreo[item.key]}
-                                onChange={(e) => setSessionData(prev => ({
-                                  ...prev,
-                                  monitoreo: { ...prev.monitoreo, [item.key]: e.target.value }
-                                }))}
-                                placeholder={item.placeholder}
-                                className="se-field-input text-center h-8 font-bold rounded-lg"
-                                style={{borderColor: item.color + '40', fontSize:'13px'}}
-                              />
-                              <div className="text-[8px] text-slate-400 mt-0.5" style={{fontFamily:DM}}>bpm</div>
-                            </div>
-                          ))}
-                        </div>
-                        
-                        {/* Opción de 10 minutos */}
-                        <div className="mt-3 pt-3 border-t border-dashed border-slate-100 flex items-center gap-3">
+                              
+                              {/* Opción de 10 minutos */}
+                              <div className="mt-2 pt-2 border-t border-dashed border-slate-100 flex items-center gap-3">
                           <button
                             onClick={() => setSessionData(prev => ({
                               ...prev,
@@ -1563,6 +1555,9 @@ const SessionEditor = ({
                           )}
                         </div>
                       </div>
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
 
