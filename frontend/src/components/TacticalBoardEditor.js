@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Dialog, DialogContent } from './ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
@@ -332,6 +332,7 @@ const TacticalBoardEditor = ({ isOpen, onClose, onSave, initialData, sessionDesc
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
+        <DialogTitle className="sr-only">Pizarra Tactica</DialogTitle>
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-slate-800/60">
           <div className="flex items-center gap-3">
