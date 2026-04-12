@@ -7129,6 +7129,11 @@ Rules:
             response_text = re_mod.sub(r'^```\w*\n?', '', response_text)
             response_text = re_mod.sub(r'\n?```$', '', response_text)
 
+        # Try to extract JSON from response if it has extra text
+        json_match = re_mod.search(r'\{[\s\S]*\}', response_text)
+        if json_match:
+            response_text = json_match.group(0)
+
         result = json_mod.loads(response_text)
 
         if "elements" not in result:
