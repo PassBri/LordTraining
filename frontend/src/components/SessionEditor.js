@@ -237,10 +237,30 @@ const SessionEditor = ({
   useEffect(() => {
     const handleMessage = (event) => {
       if (event.data?.type === 'tactical-board-saved' && boardEditContextRef.current) {
-        const { faseKey, actIdx } = boardEditContextRef.current;
-        updateActividad(faseKey, actIdx, 'boardId', event.data.boardId);
-        updateActividad(faseKey, actIdx, 'boardThumbnail', event.data.thumbnail);
-        setExpandedBoard(`${faseKey}-${actIdx}`);
+        const { faseKey, actId } = boardEditContextRef.current;
+        // Find activity by ID (not index) to avoid stale references
+        setSessionData(prev => {
+          const actividades = prev.fases[faseKey]?.actividades || [];
+          const actIdx = actividades.findIndex(a => a.id === actId);
+          if (actIdx === -1) return prev;
+          const newActividades = [...actividades];
+          newActividades[actIdx] = {
+            ...newActividades[actIdx],
+            boardId: event.data.boardId,
+            boardThumbnail: event.data.thumbnail
+          };
+          return {
+            ...prev,
+            fases: {
+              ...prev.fases,
+              [faseKey]: {
+                ...prev.fases[faseKey],
+                actividades: newActividades
+              }
+            }
+          };
+        });
+        setExpandedBoard(boardEditContextRef.current.actId);
         boardEditContextRef.current = null;
         toast.success('Pizarra vinculada a la actividad');
       }
@@ -301,6 +321,27 @@ const SessionEditor = ({
       newActividades[actIdx] = {
         ...newActividades[actIdx],
         [field]: value
+      };
+      return {
+        ...prev,
+        fases: {
+          ...prev.fases,
+          [faseKey]: {
+            ...prev.fases[faseKey],
+            actividades: newActividades
+          }
+        }
+      };
+    });
+  };
+
+  // Update multiple fields at once (avoids state race conditions)
+  const updateActividadMulti = (faseKey, actIdx, updates) => {
+    setSessionData(prev => {
+      const newActividades = [...prev.fases[faseKey].actividades];
+      newActividades[actIdx] = {
+        ...newActividades[actIdx],
+        ...updates
       };
       return {
         ...prev,
@@ -994,8 +1035,8 @@ const SessionEditor = ({
                 <td className="py-2 px-1 text-center">
                   {act.boardThumbnail ? (
                     <button
-                      onClick={() => setExpandedBoard(expandedBoard === `${faseKey}-${idx}` ? null : `${faseKey}-${idx}`)}
-                      className={`p-1 rounded-lg transition-colors ${expandedBoard === `${faseKey}-${idx}` ? 'bg-[#f0ffd0] text-[#3a5a00]' : 'hover:bg-[#f0ffd0] text-[#3a5a00]'}`}
+                      onClick={() => setExpandedBoard(expandedBoard === act.id ? null : act.id)}
+                      className={`p-1 rounded-lg transition-colors ${expandedBoard === act.id ? 'bg-[#f0ffd0] text-[#3a5a00]' : 'hover:bg-[#f0ffd0] text-[#3a5a00]'}`}
                       title="Ver/Ocultar Pizarra"
                       data-testid={`board-thumb-${faseKey}-${idx}`}
                     >
@@ -1004,7 +1045,7 @@ const SessionEditor = ({
                   ) : (
                     <button
                       onClick={() => {
-                        boardEditContextRef.current = { faseKey, actIdx: idx };
+                        boardEditContextRef.current = { faseKey, actId: act.id };
                         window.open('/tactical-board.html', '_blank');
                       }}
                       className="p-1.5 rounded-lg hover:bg-[#f0ffd0] text-slate-400 hover:text-[#3a5a00] transition-colors"
@@ -1027,14 +1068,14 @@ const SessionEditor = ({
                 </td>
               </tr>
               {/* Fila expandible con miniatura de pizarra */}
-              {act.boardThumbnail && expandedBoard === `${faseKey}-${idx}` && (
+              {act.boardThumbnail && expandedBoard === act.id && (
                 <tr>
                   <td colSpan={11} className="py-2 px-3 bg-slate-50 border-b border-slate-100">
                     <div className="flex items-start gap-3">
                       <div
                         className="w-36 h-48 rounded-lg border border-slate-200 overflow-hidden bg-white shadow-sm flex-shrink-0 cursor-pointer hover:border-[#c8f700] transition-colors"
                         onClick={() => {
-                          boardEditContextRef.current = { faseKey, actIdx: idx };
+                          boardEditContextRef.current = { faseKey, actId: act.id };
                           window.open(act.boardId ? `/tactical-board.html?boardId=${act.boardId}` : '/tactical-board.html', '_blank');
                         }}
                         title="Clic para editar pizarra"
