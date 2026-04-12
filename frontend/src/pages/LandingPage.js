@@ -377,7 +377,7 @@ const LandingPage = () => {
           </path>
         </svg>
         <div className="relative z-10 py-2.5 px-6 text-center">
-          <p className="text-[14px] md:text-[16px] font-black uppercase tracking-[0.25em] text-[#CCFF00]" style={{fontFamily:BC}}>{t('landing.hero.tagline')}</p>
+          <p className="text-[20px] md:text-[24px] font-black uppercase tracking-[0.08em] text-[#CCFF00]" style={{fontFamily:BC}}>{t('landing.hero.tagline')}</p>
         </div>
       </div>
     </nav>
