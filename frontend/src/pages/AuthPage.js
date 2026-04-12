@@ -86,86 +86,87 @@ const AuthVisual = () => {
   <div className="relative h-full overflow-hidden" style={{background:'#08090e'}}>
 
     {/* LAYER 1 — Chalkboard field (vertical, like real tactical board) */}
-    <div className="absolute" style={{top:'12%',left:'10%',right:'10%',bottom:'16%',background:'#1a2e1a',borderRadius:'6px',border:'1px solid rgba(255,255,255,0.08)'}}>
+    <div className="absolute" style={{top:'12%',left:'8%',right:'8%',bottom:'14%',background:'#1e3a1e',borderRadius:'4px'}}>
       <svg className="absolute inset-0 w-full h-full" viewBox="0 0 300 420" preserveAspectRatio="xMidYMid meet">
         <style>{`
-          .chalk{stroke:rgba(255,255,255,0.35);fill:none;stroke-linecap:round;stroke-linejoin:round;
-            stroke-dasharray:2000;stroke-dashoffset:${show?'0':'2000'};
-            transition:stroke-dashoffset 1.8s ease-out;}
-          .chalk-thin{stroke-width:1.5}
-          .chalk-thick{stroke-width:2}
-          .ch1{transition-delay:0.2s}.ch2{transition-delay:0.3s}.ch3{transition-delay:0.4s}
-          .ch4{transition-delay:0.5s}.ch5{transition-delay:0.6s}.ch6{transition-delay:0.7s}
-          .ch7{transition-delay:0.8s}.ch8{transition-delay:0.9s}
+          .ck{stroke:rgba(255,255,255,0.75);fill:none;stroke-linecap:round;stroke-linejoin:round;}
+          .ck2{stroke-width:2.5}
+          .ck3{stroke-width:3}
+          .xm{stroke:rgba(255,255,255,0.8);stroke-width:2.5;stroke-linecap:round}
+          .om{stroke:rgba(255,255,255,0.7);stroke-width:2.5;fill:none}
+          .ar{stroke:rgba(255,255,255,0.6);stroke-width:2;fill:none;stroke-linecap:round}
         `}</style>
-        {/* Outer field */}
-        <rect x="20" y="20" width="260" height="380" rx="3" className="chalk chalk-thick ch1"/>
+        {/* Outer field border */}
+        <rect x="15" y="15" width="270" height="390" rx="2" className="ck ck3"/>
         {/* Center line */}
-        <line x1="20" y1="210" x2="280" y2="210" className="chalk chalk-thin ch2"/>
+        <line x1="15" y1="210" x2="285" y2="210" className="ck ck2"/>
         {/* Center circle */}
-        <circle cx="150" cy="210" r="40" className="chalk chalk-thin ch3"/>
-        <circle cx="150" cy="210" r="2" fill="rgba(255,255,255,0.3)"/>
-        {/* Top penalty area */}
-        <rect x="75" y="20" width="150" height="65" className="chalk chalk-thin ch4"/>
-        <rect x="105" y="20" width="90" height="28" className="chalk chalk-thin ch5"/>
+        <circle cx="150" cy="210" r="42" className="ck ck2"/>
+        <circle cx="150" cy="210" r="2.5" fill="rgba(255,255,255,0.6)"/>
+        {/* Top penalty area (large) */}
+        <rect x="70" y="15" width="160" height="70" className="ck ck2"/>
+        {/* Top penalty area (small/goal area) */}
+        <rect x="105" y="15" width="90" height="30" className="ck ck2"/>
         {/* Top penalty arc */}
-        <path d="M105 85 A30 30 0 0 0 195 85" className="chalk chalk-thin ch5"/>
+        <path d="M100 85 A32 32 0 0 0 200 85" className="ck ck2"/>
         {/* Top goal */}
-        <rect x="120" y="10" width="60" height="12" rx="2" className="chalk chalk-thin ch4" style={{stroke:'rgba(255,255,255,0.2)'}}/>
-        {/* Bottom penalty area */}
-        <rect x="75" y="335" width="150" height="65" className="chalk chalk-thin ch6"/>
-        <rect x="105" y="372" width="90" height="28" className="chalk chalk-thin ch7"/>
+        <rect x="115" y="5" width="70" height="12" rx="1" className="ck ck2" style={{stroke:'rgba(255,255,255,0.5)'}}/>
+        {/* Bottom penalty area (large) */}
+        <rect x="70" y="335" width="160" height="70" className="ck ck2"/>
+        {/* Bottom penalty area (small) */}
+        <rect x="105" y="375" width="90" height="30" className="ck ck2"/>
         {/* Bottom penalty arc */}
-        <path d="M105 335 A30 30 0 0 1 195 335" className="chalk chalk-thin ch7"/>
+        <path d="M100 335 A32 32 0 0 1 200 335" className="ck ck2"/>
         {/* Bottom goal */}
-        <rect x="120" y="398" width="60" height="12" rx="2" className="chalk chalk-thin ch6" style={{stroke:'rgba(255,255,255,0.2)'}}/>
+        <rect x="115" y="403" width="70" height="12" rx="1" className="ck ck2" style={{stroke:'rgba(255,255,255,0.5)'}}/>
         {/* Corner arcs */}
-        <path d="M20 28 A8 8 0 0 0 28 20" className="chalk chalk-thin ch8"/>
-        <path d="M272 20 A8 8 0 0 0 280 28" className="chalk chalk-thin ch8"/>
-        <path d="M20 392 A8 8 0 0 1 28 400" className="chalk chalk-thin ch8"/>
-        <path d="M272 400 A8 8 0 0 1 280 392" className="chalk chalk-thin ch8"/>
+        <path d="M15 27 A12 12 0 0 0 27 15" className="ck ck2"/>
+        <path d="M273 15 A12 12 0 0 0 285 27" className="ck ck2"/>
+        <path d="M15 393 A12 12 0 0 1 27 405" className="ck ck2"/>
+        <path d="M273 405 A12 12 0 0 1 285 393" className="ck ck2"/>
 
-        {/* Players — X marks (team A) */}
-        {[[80,130],[150,155],[220,130],[100,260],[200,260],[150,350]].map(([cx,cy],i) => (
-          <g key={`x${i}`} style={{opacity:show?0.4:0,transition:`opacity 0.5s ease ${1.5+i*0.1}s`}}>
-            <line x1={cx-7} y1={cy-7} x2={cx+7} y2={cy+7} stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round"/>
-            <line x1={cx+7} y1={cy-7} x2={cx-7} y2={cy+7} stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round"/>
+        {/* ═══ PLAYERS X (attacking team, top half) ═══ */}
+        {/* Like reference: X marks spread across the field */}
+        {[
+          [55,120],[150,60],[245,120],     /* front 3 */
+          [80,185],[220,185],              /* midfield wings */
+          [150,310],                       /* defensive mid */
+          [70,350],[230,350],              /* center backs */
+          [150,385],                       /* goalkeeper */
+        ].map(([cx,cy],i) => (
+          <g key={`x${i}`} style={{opacity:show?0.85:0,transition:`opacity 0.4s ease ${1.6+i*0.08}s`}}>
+            <line x1={cx-8} y1={cy-8} x2={cx+8} y2={cy+8} className="xm"/>
+            <line x1={cx+8} y1={cy-8} x2={cx-8} y2={cy+8} className="xm"/>
           </g>
         ))}
-        {/* Players — O marks (team B) */}
-        {[[150,90],[80,200],[220,200],[150,290]].map(([cx,cy],i) => (
-          <circle key={`o${i}`} cx={cx} cy={cy} r="8" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2"
-            style={{opacity:show?0.4:0,transition:`opacity 0.5s ease ${1.8+i*0.1}s`}}/>
+
+        {/* ═══ PLAYERS O (defending team) ═══ */}
+        {[
+          [150,100],                       /* striker */
+          [75,200],[225,200],              /* midfield */
+          [110,275],[190,275],             /* center backs */
+        ].map(([cx,cy],i) => (
+          <circle key={`o${i}`} cx={cx} cy={cy} r="10" className="om"
+            style={{opacity:show?0.75:0,transition:`opacity 0.4s ease ${1.9+i*0.08}s`}}/>
         ))}
 
-        {/* Tactical arrows */}
-        <defs><marker id="chalkArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-          <path d="M0,0 L8,3 L0,6" fill="rgba(255,255,255,0.35)"/>
+        {/* ═══ TACTICAL ARROWS (curved, like chalk on board) ═══ */}
+        <defs><marker id="chkA" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <path d="M0,0 L10,4 L0,8" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round"/>
         </marker></defs>
-        <path d="M100,260 C120,220 130,180 150,155" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeDasharray="6 4" markerEnd="url(#chalkArrow)"
-          style={{strokeDashoffset:show?'0':'300',transition:'stroke-dashoffset 1.5s ease 2s'}}/>
-        <path d="M200,260 C210,220 200,170 220,130" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeDasharray="6 4" markerEnd="url(#chalkArrow)"
-          style={{strokeDashoffset:show?'0':'300',transition:'stroke-dashoffset 1.5s ease 2.3s'}}/>
-        <path d="M150,155 C170,120 180,100 150,90" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeDasharray="6 4" markerEnd="url(#chalkArrow)"
-          style={{strokeDashoffset:show?'0':'200',transition:'stroke-dashoffset 1.2s ease 2.6s'}}/>
+        {/* Arrow 1: from left CB up and curving to left wing */}
+        <path d="M70,340 C50,280 40,220 55,130" className="ar" markerEnd="url(#chkA)"
+          style={{opacity:show?1:0,transition:'opacity 0.5s ease 2.2s'}}/>
+        {/* Arrow 2: from right CB curving to right forward */}
+        <path d="M230,340 C260,280 260,220 245,130" className="ar" markerEnd="url(#chkA)"
+          style={{opacity:show?1:0,transition:'opacity 0.5s ease 2.5s'}}/>
+        {/* Arrow 3: midfield pass to striker */}
+        <path d="M220,185 C190,160 170,130 150,105" className="ar" markerEnd="url(#chkA)"
+          style={{opacity:show?1:0,transition:'opacity 0.5s ease 2.8s'}}/>
+        {/* Arrow 4: left mid to center */}
+        <path d="M80,185 C100,170 120,155 150,155" className="ar" markerEnd="url(#chkA)"
+          style={{opacity:show?1:0,transition:'opacity 0.5s ease 3s'}}/>
       </svg>
-
-      {/* Heatmap zones over the field */}
-      {[
-        {x:'30%',y:'35%',s:70,c:'200,247,0'},
-        {x:'70%',y:'28%',s:55,c:'55,138,221'},
-        {x:'50%',y:'50%',s:80,c:'55,138,221'},
-        {x:'25%',y:'72%',s:50,c:'200,247,0'},
-        {x:'75%',y:'65%',s:60,c:'226,75,74'},
-      ].map((h,i) => (
-        <div key={i} className="absolute rounded-full" style={{
-          left:h.x,top:h.y,width:h.s,height:h.s,transform:'translate(-50%,-50%)',
-          background:`rgba(${h.c},0.1)`,
-          boxShadow:`0 0 ${h.s/2}px ${h.s/3}px rgba(${h.c},0.06)`,
-          opacity:show?1:0,transition:`opacity 0.8s ease ${1.5+i*0.15}s`,
-          animation:show?`heatPulse ${3+i*0.5}s ease ${i*0.3}s infinite`:'none',
-        }}/>
-      ))}
     </div>
 
     {/* LAYER 4 — HUD Cards floating over field */}
