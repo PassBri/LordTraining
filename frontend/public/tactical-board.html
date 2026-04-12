@@ -728,20 +728,27 @@ const S = {
  // ── VIEW MODE ──
  setView(mode) {
   const inner = document.getElementById('canvas-inner');
-  // Fade transition
   inner.style.opacity='0';
+  inner.style.transition='opacity .2s';
   setTimeout(()=>{
    ST.viewMode = mode;
    inner.className = mode==='2.5d' ? 'view-25d' : mode==='3d' ? 'view-3d' : 'view-2d';
    document.querySelectorAll('#view-mode-seg .vb-btn').forEach(b => b.classList.toggle('active', b.dataset.view===mode));
    document.getElementById('joystick').classList.toggle('show', mode==='3d');
-   // Re-render field and elements for 3D
+   // Re-render field WITHOUT clearing elements
    if(mode==='3d') this.render3DField();
-   else this.setSport(ST.sport);
+   else this.renderFieldOnly();
    this.renderElements();
    setTimeout(()=>{ inner.style.opacity='1'; },50);
   },200);
-  inner.style.transition='opacity .2s';
+ },
+
+ // Render field layer only (no element clearing)
+ renderFieldOnly() {
+  const f = FIELDS[ST.sport] || DEFAULT_FIELD;
+  const fl = document.getElementById('field-layer');
+  fl.innerHTML = `<rect x="0" y="0" width="600" height="800" fill="${f.bg}" rx="0"/>` +
+   `<g stroke="rgba(0,0,0,0.65)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">${f.svg}</g>`;
  },
 
  // ── ISOMETRIC PROJECTION ──
@@ -773,54 +780,289 @@ const S = {
  render3DField() {
   const fl = document.getElementById('field-layer');
   const fw=600, fh=800, depth=18;
-  // 4 corners of field surface
   const tl=this.toIso(0,0,0), tr=this.toIso(fw,0,0);
   const bl=this.toIso(0,fh,0), br=this.toIso(fw,fh,0);
-  // Bottom face corners (depth below)
   const blD=this.toIso(0,fh,-depth), brD=this.toIso(fw,fh,-depth);
   const trD=this.toIso(fw,0,-depth);
-  // Surface
-  const surface = `<polygon points="${tl.x},${tl.y} ${tr.x},${tr.y} ${br.x},${br.y} ${bl.x},${bl.y}" fill="#1a6b1a"/>`;
-  // Front face (bottom edge)
-  const front = `<polygon points="${bl.x},${bl.y} ${br.x},${br.y} ${brD.x},${brD.y} ${blD.x},${blD.y}" fill="#0f4a0f"/>`;
-  // Right face
-  const right = `<polygon points="${tr.x},${tr.y} ${br.x},${br.y} ${brD.x},${brD.y} ${trD.x},${trD.y}" fill="#0a3a0a"/>`;
 
-  // Field lines projected
-  const f = FIELDS[ST.sport] || DEFAULT_FIELD;
-  let lines = '';
-  // Center line, circle, etc. - we project the original field SVG onto the surface
-  // For simplicity, render the flat field lines with a skew transform matching the isometric projection
-  const cx=fw/2, cy=fh/2;
-  const c1=this.toIso(cx,cy,0);
-  // Center dot
-  lines += `<circle cx="${c1.x}" cy="${c1.y}" r="3" fill="rgba(255,255,255,0.3)"/>`;
-  // Half line
-  const hl=this.toIso(0,fh/2,0), hr=this.toIso(fw,fh/2,0);
-  lines += `<line x1="${hl.x}" y1="${hl.y}" x2="${hr.x}" y2="${hr.y}" stroke="rgba(255,255,255,0.5)" stroke-width="1.2"/>`;
-  // Center circle
-  const ccPts = [];
-  for(let a=0;a<360;a+=10){
-   const rad=a*Math.PI/180;
-   const px=cx+80*Math.cos(rad), py=cy+80*Math.sin(rad);
-   const p=this.toIso(px,py,0);
-   ccPts.push(`${p.x},${p.y}`);
+  // Sport-specific surface colors
+  const sportColors = this.get3DSportColors();
+  const surface = `<polygon points="${tl.x},${tl.y} ${tr.x},${tr.y} ${br.x},${br.y} ${bl.x},${bl.y}" fill="${sportColors.top}"/>`;
+  const front = `<polygon points="${bl.x},${bl.y} ${br.x},${br.y} ${brD.x},${brD.y} ${blD.x},${blD.y}" fill="${sportColors.front}"/>`;
+  const right = `<polygon points="${tr.x},${tr.y} ${br.x},${br.y} ${brD.x},${brD.y} ${trD.x},${trD.y}" fill="${sportColors.side}"/>`;
+
+  // Sport-specific lines
+  const lines = this.render3DFieldLines(fw, fh, tl, tr, bl, br);
+  // Sport-specific 3D objects (nets, goals, etc.)
+  const objects3D = this.render3DFieldObjects(fw, fh);
+  fl.innerHTML = right + front + surface + lines + objects3D;
+ },
+
+ get3DSportColors() {
+  const s = ST.sport;
+  // Green grass sports
+  if(['Futbol','Rugby','Hockey','Beisbol','Futbol Americano','Cricket'].includes(s))
+   return {top:'#1a6b1a',front:'#0f4a0f',side:'#0a3a0a'};
+  // Indoor wood/court sports
+  if(['Baloncesto','Voleibol','Balonmano','Badminton','Futbol de Salon','Squash','Tenis de Mesa','Fronton'].includes(s))
+   return {top:'#c4873b',front:'#8a5e28',side:'#6b4820'};
+  // Clay/hard court
+  if(['Tenis','Padel'].includes(s))
+   return {top:'#2e7d32',front:'#1b5e20',side:'#0d4a0d'};
+  // Combat mats
+  if(['Boxeo','MMA','Judo','Taekwondo','Karate','Lucha','Kickboxing'].includes(s))
+   return {top:'#455a64',front:'#2c3e50',side:'#1a252f'};
+  // Track/pool
+  if(['Atletismo','Maraton'].includes(s))
+   return {top:'#b55230',front:'#8b3a20',side:'#6b2a15'};
+  if(['Natacion','Remo'].includes(s))
+   return {top:'#1565c0',front:'#0d47a1',side:'#0a3680'};
+  // Esports/Gym
+  if(['League of Legends','Valorant','FIFA','CS GO','Fortnite','Rocket League'].includes(s))
+   return {top:'#1a1a2e',front:'#0f0f1f',side:'#0a0a15'};
+  if(['Sala de Pesas','Circuito','Gimnasia'].includes(s))
+   return {top:'#546e7a',front:'#37474f',side:'#263238'};
+  // Default
+  return {top:'#4a7c59',front:'#2d5a3a',side:'#1e4428'};
+ },
+
+ isoLine(x1,y1,x2,y2,stroke,sw,extra='') {
+  const p1=this.toIso(x1,y1,0), p2=this.toIso(x2,y2,0);
+  return `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${stroke}" stroke-width="${sw}" ${extra}/>`;
+ },
+ isoRect(x,y,w,h,stroke,sw,extra='') {
+  const p1=this.toIso(x,y,0),p2=this.toIso(x+w,y,0),p3=this.toIso(x+w,y+h,0),p4=this.toIso(x,y+h,0);
+  return `<polygon points="${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y}" fill="none" stroke="${stroke}" stroke-width="${sw}" ${extra}/>`;
+ },
+ isoCircle(cx,cy,r,stroke,sw,extra='') {
+  const pts=[];
+  for(let a=0;a<360;a+=10){const rad=a*Math.PI/180;const p=this.toIso(cx+r*Math.cos(rad),cy+r*Math.sin(rad),0);pts.push(`${p.x},${p.y}`);}
+  return `<polygon points="${pts.join(' ')}" fill="none" stroke="${stroke}" stroke-width="${sw}" ${extra}/>`;
+ },
+ isoDot(cx,cy,r,fill) {
+  const p=this.toIso(cx,cy,0);
+  return `<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${fill}"/>`;
+ },
+
+ render3DFieldLines(fw, fh, tl, tr, bl, br) {
+  const W='rgba(255,255,255,', Y='rgba(255,255,0,';
+  let L = '';
+  // Border for all sports
+  L += `<polygon points="${tl.x},${tl.y} ${tr.x},${tr.y} ${br.x},${br.y} ${bl.x},${bl.y}" fill="none" stroke="${W}0.5)" stroke-width="1.5"/>`;
+  const s = ST.sport;
+
+  if(s==='Futbol'||s==='FIFA') {
+   L += this.isoLine(0,400,600,400,W+'0.5)',1.2);
+   L += this.isoCircle(300,400,62,W+'0.4)',1);
+   L += this.isoDot(300,400,3,W+'0.3)');
+   L += this.isoRect(165,30,270,112,W+'0.4)',1);
+   L += this.isoRect(210,30,180,45,W+'0.3)',1);
+   L += this.isoRect(165,658,270,112,W+'0.4)',1);
+   L += this.isoRect(210,725,180,45,W+'0.3)',1);
+   L += this.isoRect(250,14,100,18,W+'0.3)',1.5);
+   L += this.isoRect(250,768,100,18,W+'0.3)',1.5);
+  } else if(s==='Baloncesto') {
+   L += this.isoLine(90,400,510,400,W+'0.5)',1.2);
+   L += this.isoCircle(300,400,50,W+'0.4)',1);
+   L += this.isoRect(90,30,420,740,W+'0.5)',1.5);
+   L += this.isoRect(231,30,137,153,W+'0.4)',1);
+   L += this.isoRect(231,617,137,153,W+'0.4)',1);
+   L += this.isoCircle(300,72,6,W+'0.3)',1);
+   L += this.isoCircle(300,728,6,W+'0.3)',1);
+  } else if(s==='Voleibol') {
+   L += this.isoRect(60,50,480,700,W+'0.5)',1.5);
+   L += this.isoLine(60,400,540,400,W+'0.7)',2.5);
+   L += this.isoLine(60,283,540,283,W+'0.3)',1,'stroke-dasharray="6 4"');
+   L += this.isoLine(60,517,540,517,W+'0.3)',1,'stroke-dasharray="6 4"');
+  } else if(s==='Balonmano') {
+   L += this.isoRect(60,40,480,720,W+'0.5)',1.5);
+   L += this.isoLine(60,400,540,400,W+'0.5)',1.2);
+   L += this.isoCircle(300,166,3,W+'0.4)',0);
+   L += this.isoRect(260,20,80,22,W+'0.3)',1.5);
+   L += this.isoRect(260,758,80,22,W+'0.3)',1.5);
+  } else if(s==='Rugby') {
+   L += this.isoRect(60,30,480,740,W+'0.5)',1.5);
+   L += this.isoLine(60,90,540,90,W+'0.4)',1);
+   L += this.isoLine(60,710,540,710,W+'0.4)',1);
+   L += this.isoLine(60,194,540,194,W+'0.3)',1);
+   L += this.isoLine(60,400,540,400,W+'0.5)',1.2);
+   L += this.isoLine(60,606,540,606,W+'0.3)',1);
+  } else if(s==='Hockey') {
+   L += this.isoLine(60,400,540,400,'rgba(255,80,80,0.5)',2);
+   L += this.isoLine(60,250,540,250,'rgba(80,120,255,0.4)',1);
+   L += this.isoLine(60,550,540,550,'rgba(80,120,255,0.4)',1);
+   L += this.isoCircle(300,400,28,W+'0.4)',1);
+  } else if(s==='Beisbol') {
+   L += this.isoLine(300,680,60,440,W+'0.5)',1.5);
+   L += this.isoLine(300,680,540,440,W+'0.5)',1.5);
+   const bp=[];for(let a=0;a<=180;a+=5){const rad=(a-90)*Math.PI/180;const px=300+300*Math.cos(rad),py=440-300*Math.sin(rad)*0.5;const p=this.toIso(px,py,0);bp.push(`${p.x},${p.y}`);}
+   L += `<polyline points="${bp.join(' ')}" fill="none" stroke="${W}0.4)" stroke-width="1"/>`;
+   // Diamond
+   L += this.isoLine(300,680,434,546,W+'0.6)',2);
+   L += this.isoLine(434,546,300,411,W+'0.6)',2);
+   L += this.isoLine(300,411,166,546,W+'0.6)',2);
+   L += this.isoLine(166,546,300,680,W+'0.6)',2);
+  } else if(s==='Futbol Americano') {
+   L += this.isoRect(60,30,480,740,W+'0.5)',1.5);
+   for(let i=0;i<=10;i++) L += this.isoLine(60,90+i*56,540,90+i*56,W+(i%2===0?'0.4)':'0.25)'),1,i%2!==0?'stroke-dasharray="4 3"':'');
+  } else if(s==='Futbol de Salon') {
+   L += this.isoRect(90,30,420,740,W+'0.5)',1.5);
+   L += this.isoLine(90,400,510,400,W+'0.5)',1.2);
+   L += this.isoCircle(300,400,63,W+'0.4)',1);
+   L += this.isoDot(300,400,3,W+'0.3)');
+  } else if(s==='Tenis') {
+   L += this.isoRect(90,40,420,720,W+'0.5)',1.5);
+   L += this.isoLine(90,400,510,400,W+'0.7)',2.5);
+   L += this.isoRect(130,160,340,480,W+'0.4)',1);
+   L += this.isoLine(300,160,300,640,W+'0.3)',1);
+   L += this.isoLine(130,280,470,280,W+'0.3)',1);
+   L += this.isoLine(130,520,470,520,W+'0.3)',1);
+  } else if(s==='Padel') {
+   L += this.isoRect(120,50,360,700,W+'0.5)',2);
+   L += this.isoLine(120,400,480,400,W+'0.7)',2.5);
+   L += this.isoLine(120,250,480,250,W+'0.3)',1);
+   L += this.isoLine(120,550,480,550,W+'0.3)',1);
+   L += this.isoLine(300,250,300,550,W+'0.3)',1);
+  } else if(s==='Badminton') {
+   L += this.isoRect(135,40,330,720,W+'0.5)',1.5);
+   L += this.isoLine(135,400,465,400,W+'0.7)',2.5);
+   L += this.isoRect(165,40,270,720,W+'0.3)',1);
+   L += this.isoLine(300,160,300,640,W+'0.3)',1);
+  } else if(s==='Boxeo'||s==='Kickboxing') {
+   L += this.isoRect(100,200,400,400,W+'0.5)',2);
+   L += this.isoRect(112,212,376,376,W+'0.3)',1);
+   L += this.isoRect(124,224,352,352,W+'0.25)',1);
+  } else if(s==='MMA') {
+   const pts=[];
+   const cx=300,cy=400,r=206;
+   for(let a=0;a<360;a+=360/8){const rad=(a-90)*Math.PI/180;const px=cx+r*Math.cos(rad),py=cy+r*Math.sin(rad);const p=this.toIso(px,py,0);pts.push(`${p.x},${p.y}`);}
+   L += `<polygon points="${pts.join(' ')}" fill="none" stroke="${W}0.5)" stroke-width="2"/>`;
+   L += this.isoCircle(300,400,40,W+'0.15)',1);
+  } else if(s==='Judo'||s==='Karate'||s==='Taekwondo'||s==='Lucha') {
+   L += this.isoRect(80,180,440,440,W+'0.5)',1.5);
+   L += this.isoRect(140,240,320,320,W+'0.35)',1);
+   L += this.isoLine(140,400,460,400,W+'0.2)',1,'stroke-dasharray="4 3"');
+   L += this.isoLine(300,240,300,560,W+'0.2)',1,'stroke-dasharray="4 3"');
+  } else if(s==='Atletismo'||s==='Maraton') {
+   L += this.isoCircle(300,400,150,W+'0.4)',1.5);
+   L += this.isoCircle(300,400,180,W+'0.3)',1);
+   L += this.isoCircle(300,400,210,W+'0.25)',1);
+   L += this.isoLine(300,30,300,50,W+'0.5)',2);
+  } else if(s==='Natacion') {
+   for(let i=0;i<8;i++){L += this.isoRect(85+i*55,40,45,720,W+'0.25)',1);L += this.isoLine(107+i*55,40,107+i*55,760,W+'0.15)',1,'stroke-dasharray="8 6"');}
+   L += this.isoLine(85,80,525,80,Y+'0.3)',1,'stroke-dasharray="3 3"');
+   L += this.isoLine(85,720,525,720,Y+'0.3)',1,'stroke-dasharray="3 3"');
+  } else if(s==='Squash') {
+   L += this.isoRect(120,40,360,720,W+'0.5)',1.5);
+   L += this.isoLine(120,40,480,40,W+'0.7)',2.5);
+   L += this.isoLine(120,340,480,340,W+'0.3)',1);
+  } else if(s==='Tenis de Mesa') {
+   L += this.isoRect(165,80,270,640,W+'0.5)',1.5);
+   L += this.isoLine(165,400,435,400,W+'0.7)',2.5);
+   L += this.isoLine(300,80,300,720,W+'0.25)',1,'stroke-dasharray="5 4"');
+  } else {
+   // Generic: center line + border
+   L += this.isoLine(0,400,600,400,W+'0.3)',1);
+   L += this.isoDot(300,400,3,W+'0.3)');
   }
-  lines += `<polygon points="${ccPts.join(' ')}" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>`;
-  // Border
-  lines += `<polygon points="${tl.x},${tl.y} ${tr.x},${tr.y} ${br.x},${br.y} ${bl.x},${bl.y}" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>`;
-  // Penalty areas (simplified)
-  const pa1=this.toIso(150,0,0),pa2=this.toIso(450,0,0),pa3=this.toIso(450,150,0),pa4=this.toIso(150,150,0);
-  lines += `<polygon points="${pa1.x},${pa1.y} ${pa2.x},${pa2.y} ${pa3.x},${pa3.y} ${pa4.x},${pa4.y}" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>`;
-  const pb1=this.toIso(150,650,0),pb2=this.toIso(450,650,0),pb3=this.toIso(450,800,0),pb4=this.toIso(150,800,0);
-  lines += `<polygon points="${pb1.x},${pb1.y} ${pb2.x},${pb2.y} ${pb3.x},${pb3.y} ${pb4.x},${pb4.y}" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>`;
-  // Goals
-  const g1l=this.toIso(250,0,0),g1r=this.toIso(350,0,0),g1lt=this.toIso(250,-20,0),g1rt=this.toIso(350,-20,0);
-  lines += `<polygon points="${g1l.x},${g1l.y} ${g1r.x},${g1r.y} ${g1rt.x},${g1rt.y} ${g1lt.x},${g1lt.y}" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>`;
-  const g2l=this.toIso(250,800,0),g2r=this.toIso(350,800,0),g2lt=this.toIso(250,820,0),g2rt=this.toIso(350,820,0);
-  lines += `<polygon points="${g2l.x},${g2l.y} ${g2r.x},${g2r.y} ${g2rt.x},${g2rt.y} ${g2lt.x},${g2lt.y}" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>`;
+  return L;
+ },
 
-  fl.innerHTML = right + front + surface + lines;
+ render3DFieldObjects(fw, fh) {
+  let O = '';
+  const s = ST.sport;
+  // Volleyball net (elevated 3D net across center)
+  if(s==='Voleibol') {
+   const netH = 80;
+   const nl=this.toIso(60,400,0), nr=this.toIso(540,400,0);
+   const nlt=this.toIso(60,400,netH), nrt=this.toIso(540,400,netH);
+   // Net posts
+   O += `<line x1="${nl.x}" y1="${nl.y}" x2="${nlt.x}" y2="${nlt.y}" stroke="rgba(200,200,200,0.8)" stroke-width="3"/>`;
+   O += `<line x1="${nr.x}" y1="${nr.y}" x2="${nrt.x}" y2="${nrt.y}" stroke="rgba(200,200,200,0.8)" stroke-width="3"/>`;
+   // Net top bar
+   O += `<line x1="${nlt.x}" y1="${nlt.y}" x2="${nrt.x}" y2="${nrt.y}" stroke="rgba(255,255,255,0.9)" stroke-width="2"/>`;
+   // Net mesh (horizontal lines)
+   for(let h=10;h<netH;h+=15) {
+    const lp=this.toIso(60,400,h), rp=this.toIso(540,400,h);
+    O += `<line x1="${lp.x}" y1="${lp.y}" x2="${rp.x}" y2="${rp.y}" stroke="rgba(255,255,255,0.2)" stroke-width="0.7"/>`;
+   }
+   // Vertical net lines
+   for(let x=60;x<=540;x+=40) {
+    const bp=this.toIso(x,400,0), tp=this.toIso(x,400,netH);
+    O += `<line x1="${bp.x}" y1="${bp.y}" x2="${tp.x}" y2="${tp.y}" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>`;
+   }
+   // Post caps
+   O += `<circle cx="${nlt.x}" cy="${nlt.y}" r="3" fill="rgba(200,200,200,0.8)"/>`;
+   O += `<circle cx="${nrt.x}" cy="${nrt.y}" r="3" fill="rgba(200,200,200,0.8)"/>`;
+  }
+  // Tennis/Padel/Badminton/Tenis de Mesa net
+  if(['Tenis','Padel','Badminton','Tenis de Mesa'].includes(s)) {
+   const netH = s==='Tenis de Mesa'?30:60;
+   const lx=s==='Tenis'?90:s==='Padel'?120:s==='Badminton'?135:165;
+   const rx=s==='Tenis'?510:s==='Padel'?480:s==='Badminton'?465:435;
+   const nl=this.toIso(lx,400,0), nr=this.toIso(rx,400,0);
+   const nlt=this.toIso(lx,400,netH), nrt=this.toIso(rx,400,netH);
+   O += `<line x1="${nl.x}" y1="${nl.y}" x2="${nlt.x}" y2="${nlt.y}" stroke="rgba(200,200,200,0.7)" stroke-width="2"/>`;
+   O += `<line x1="${nr.x}" y1="${nr.y}" x2="${nrt.x}" y2="${nrt.y}" stroke="rgba(200,200,200,0.7)" stroke-width="2"/>`;
+   O += `<line x1="${nlt.x}" y1="${nlt.y}" x2="${nrt.x}" y2="${nrt.y}" stroke="rgba(255,255,255,0.8)" stroke-width="1.5"/>`;
+   for(let h=10;h<netH;h+=12) {
+    const lp=this.toIso(lx,400,h), rp=this.toIso(rx,400,h);
+    O += `<line x1="${lp.x}" y1="${lp.y}" x2="${rp.x}" y2="${rp.y}" stroke="rgba(255,255,255,0.18)" stroke-width="0.5"/>`;
+   }
+  }
+  // Football/Futsal goals
+  if(['Futbol','FIFA','Futbol de Salon','Futbol Americano','Hockey','Balonmano'].includes(s)) {
+   const gw=s==='Futbol de Salon'?63:s==='Balonmano'?80:s==='Hockey'?60:100, gh=50, gd=20;
+   const gx1=300-gw/2, gx2=300+gw/2;
+   // Top goal (y=0 side)
+   const gt1=this.toIso(gx1,0,0),gt2=this.toIso(gx2,0,0),gt3=this.toIso(gx2,-gd,0),gt4=this.toIso(gx1,-gd,0);
+   const gt1t=this.toIso(gx1,0,gh),gt2t=this.toIso(gx2,0,gh),gt3t=this.toIso(gx2,-gd,gh),gt4t=this.toIso(gx1,-gd,gh);
+   // Goal frame
+   O += `<line x1="${gt1.x}" y1="${gt1.y}" x2="${gt1t.x}" y2="${gt1t.y}" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>`;
+   O += `<line x1="${gt2.x}" y1="${gt2.y}" x2="${gt2t.x}" y2="${gt2t.y}" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>`;
+   O += `<line x1="${gt1t.x}" y1="${gt1t.y}" x2="${gt2t.x}" y2="${gt2t.y}" stroke="rgba(255,255,255,0.8)" stroke-width="2"/>`;
+   // Goal back
+   O += `<polygon points="${gt3.x},${gt3.y} ${gt4.x},${gt4.y} ${gt4t.x},${gt4t.y} ${gt3t.x},${gt3t.y}" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.2)" stroke-width="0.7"/>`;
+   O += `<line x1="${gt1t.x}" y1="${gt1t.y}" x2="${gt4t.x}" y2="${gt4t.y}" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>`;
+   O += `<line x1="${gt2t.x}" y1="${gt2t.y}" x2="${gt3t.x}" y2="${gt3t.y}" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>`;
+   // Bottom goal (y=800 side)
+   const yb=s==='Futbol de Salon'?770:800;
+   const gb1=this.toIso(gx1,yb,0),gb2=this.toIso(gx2,yb,0),gb3=this.toIso(gx2,yb+gd,0),gb4=this.toIso(gx1,yb+gd,0);
+   const gb1t=this.toIso(gx1,yb,gh),gb2t=this.toIso(gx2,yb,gh),gb3t=this.toIso(gx2,yb+gd,gh),gb4t=this.toIso(gx1,yb+gd,gh);
+   O += `<line x1="${gb1.x}" y1="${gb1.y}" x2="${gb1t.x}" y2="${gb1t.y}" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>`;
+   O += `<line x1="${gb2.x}" y1="${gb2.y}" x2="${gb2t.x}" y2="${gb2t.y}" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>`;
+   O += `<line x1="${gb1t.x}" y1="${gb1t.y}" x2="${gb2t.x}" y2="${gb2t.y}" stroke="rgba(255,255,255,0.8)" stroke-width="2"/>`;
+   O += `<polygon points="${gb3.x},${gb3.y} ${gb4.x},${gb4.y} ${gb4t.x},${gb4t.y} ${gb3t.x},${gb3t.y}" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.2)" stroke-width="0.7"/>`;
+   O += `<line x1="${gb1t.x}" y1="${gb1t.y}" x2="${gb4t.x}" y2="${gb4t.y}" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>`;
+   O += `<line x1="${gb2t.x}" y1="${gb2t.y}" x2="${gb3t.x}" y2="${gb3t.y}" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>`;
+  }
+  // Basketball hoops
+  if(s==='Baloncesto') {
+   const bh=60;
+   // Top hoop
+   const bt=this.toIso(300,62,bh);
+   const bb=this.toIso(300,62,bh-10);
+   O += `<line x1="${this.toIso(300,30,0).x}" y1="${this.toIso(300,30,0).y}" x2="${bt.x}" y2="${bt.y}" stroke="rgba(200,200,200,0.6)" stroke-width="2"/>`;
+   O += `<circle cx="${bt.x}" cy="${bt.y}" r="8" fill="none" stroke="rgba(255,100,0,0.7)" stroke-width="2"/>`;
+   // Bottom hoop
+   const bt2=this.toIso(300,738,bh);
+   O += `<line x1="${this.toIso(300,770,0).x}" y1="${this.toIso(300,770,0).y}" x2="${bt2.x}" y2="${bt2.y}" stroke="rgba(200,200,200,0.6)" stroke-width="2"/>`;
+   O += `<circle cx="${bt2.x}" cy="${bt2.y}" r="8" fill="none" stroke="rgba(255,100,0,0.7)" stroke-width="2"/>`;
+  }
+  // Boxing ring ropes
+  if(s==='Boxeo'||s==='Kickboxing') {
+   const ropes=[15,35,55];
+   ropes.forEach(h=>{
+    const c1=this.toIso(100,200,h),c2=this.toIso(500,200,h),c3=this.toIso(500,600,h),c4=this.toIso(100,600,h);
+    O += `<polygon points="${c1.x},${c1.y} ${c2.x},${c2.y} ${c3.x},${c3.y} ${c4.x},${c4.y}" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>`;
+   });
+   // Corner posts
+   [[100,200],[500,200],[500,600],[100,600]].forEach(([px,py])=>{
+    const pb=this.toIso(px,py,0),pt=this.toIso(px,py,65);
+    O += `<line x1="${pb.x}" y1="${pb.y}" x2="${pt.x}" y2="${pt.y}" stroke="rgba(200,200,200,0.6)" stroke-width="3"/>`;
+   });
+  }
+  return O;
  },
 
  // ── ISO PRESETS ──
