@@ -11,7 +11,7 @@ import {
   Save, Download, Activity, Clock, ChevronDown, ChevronRight,
   GripVertical, AlertCircle, Share2, Copy, Check, FileText, Link2, Eye,
   Watch, Droplets, Battery, Moon, TrendingUp, TrendingDown, Bluetooth,
-  Sparkles, LayoutGrid, Pencil, X
+  Sparkles, LayoutGrid, Pencil, X, Users, User, MapPin
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { EJERCICIOS_INICIALES } from './ExerciseLibrary';
@@ -214,7 +214,15 @@ const SESION_INICIAL = {
     nombreDispositivo: ''
   },
   retroalimentacion: '',
-  tacticalBoard: null
+  tacticalBoard: null,
+  sessionName: '',
+  sessionStatus: 'planificada',
+  duration: '90',
+  location: '',
+  sessionType: 'tecnico-tactico',
+  team: '',
+  coach: '',
+  estimatedLoad: ''
 };
 
 const SessionEditor = ({ 
@@ -1038,36 +1046,84 @@ const SessionEditor = ({
           onEscapeKeyDown={(e) => e.preventDefault()}
           onInteractOutside={(e) => e.preventDefault()}
         >
-          {/* Header con gradiente */}
-          <div className="sticky top-0 z-10 bg-[#0b0e14] text-white px-6 py-5 shadow-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <DialogTitle className="text-white font-bold text-xl flex items-center gap-3">
-                  <div className="w-10 h-10 bg-[#c8f700] rounded-xl flex items-center justify-center">
-                    <span className="text-[20px] font-black text-[#0b0e14] leading-none" style={{fontFamily:'Barlow Condensed, sans-serif'}}>i</span>
-                  </div>
-                  <div>
-                    <span>Sesión de Entrenamiento</span>
-                    {session?.dayName && (
-                      <span className="ml-2 text-white/80 font-normal text-base">#{session.dayName}</span>
-                    )}
-                  </div>
-                </DialogTitle>
-                {athleteName && (
-                  <p className="text-slate-400 text-sm mt-2 ml-[52px]">
-                    Atleta: {athleteName}
-                  </p>
-                )}
+          {/* ══ DARK HEADER BAR ══ */}
+          <DialogTitle className="sr-only">Sesion de Entrenamiento</DialogTitle>
+          <div className="sticky top-0 z-10" style={{background:'#0f0f13'}}>
+            <div className="flex items-center gap-3 px-5 py-3">
+              {/* Logo badge */}
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{background:'#9EFF00'}}>
+                <span className="text-lg font-black leading-none" style={{color:'#0f0f13',fontFamily:'Barlow Condensed,sans-serif'}}>i</span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="bg-white/10 rounded-lg px-3 py-2 flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-white/80" />
-                  <Input
-                    type="date"
-                    defaultValue={session?.date}
-                    className="w-36 h-8 bg-white/20 border-white/30 text-white placeholder:text-white/50 text-sm"
+              {/* Session name (editable) + code + subtitle */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <input
+                    value={sessionData.sessionName || `Sesion ${session?.dayName || ''}`}
+                    onChange={(e) => setSessionData(prev => ({...prev, sessionName: e.target.value}))}
+                    className="bg-transparent text-white font-bold text-base border-0 outline-none focus:border-b focus:border-white/30 truncate w-auto max-w-[280px] placeholder:text-white/40"
+                    placeholder="Nombre de sesion..."
+                    data-testid="session-name-input"
                   />
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border border-white/20 text-white/60 flex-shrink-0" style={{background:'rgba(255,255,255,0.06)'}}>SES-{String(session?.sessionIndex || session?.dayName || '001').padStart(3,'0')}</span>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${sessionData.sessionStatus==='completada'?'bg-green-500/20 text-green-400':sessionData.sessionStatus==='en_curso'?'bg-orange-500/20 text-orange-400':'bg-white/10 text-white/60'}`}>
+                    {sessionData.sessionStatus==='completada'?'Completada':sessionData.sessionStatus==='en_curso'?'En curso':'Planificada'}
+                  </span>
                 </div>
+                <p className="text-[11px] text-white/40 mt-0.5 truncate">
+                  Sesion {session?.sessionIndex || session?.dayName || '1'} · Semana {session?.weekIndex || session?.weekName || '1'} · {session?.mesoName || session?.macroName || 'Mesociclo 1'}
+                  {athleteName && <span className="ml-2 text-white/30">· {athleteName}</span>}
+                </p>
+              </div>
+              {/* Right chips */}
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg" style={{background:'rgba(255,255,255,0.06)',border:'0.5px solid rgba(255,255,255,0.1)'}}>
+                  <Calendar className="w-3.5 h-3.5 text-white/50" />
+                  <Input type="date" defaultValue={session?.date} className="w-28 h-6 bg-transparent border-0 text-white text-[11px] p-0 focus:ring-0" />
+                </div>
+                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg" style={{background:'rgba(255,255,255,0.06)',border:'0.5px solid rgba(255,255,255,0.1)'}}>
+                  <Clock className="w-3.5 h-3.5 text-white/50" />
+                  <input value={sessionData.duration} onChange={(e) => setSessionData(prev => ({...prev, duration: e.target.value}))} className="w-10 h-6 bg-transparent border-0 text-white text-[11px] p-0 text-center outline-none" placeholder="90" />
+                  <span className="text-[10px] text-white/40">min</span>
+                </div>
+                <select value={sessionData.sessionStatus} onChange={(e) => setSessionData(prev => ({...prev, sessionStatus: e.target.value}))} className="h-7 text-[10px] rounded-lg px-2 border-0 outline-none cursor-pointer" style={{background:'rgba(255,255,255,0.06)',color:'rgba(255,255,255,0.7)',border:'0.5px solid rgba(255,255,255,0.1)'}}>
+                  <option value="planificada" style={{background:'#1a1a2e',color:'#fff'}}>Planificada</option>
+                  <option value="en_curso" style={{background:'#1a1a2e',color:'#fff'}}>En curso</option>
+                  <option value="completada" style={{background:'#1a1a2e',color:'#fff'}}>Completada</option>
+                </select>
+              </div>
+            </div>
+            {/* ══ LIGHT SUBHEADER ══ */}
+            <div className="flex items-center gap-3 px-5 py-2" style={{background:'#f8f9fb',borderTop:'0.5px solid #e2e5ea',borderBottom:'0.5px solid #e2e5ea'}}>
+              <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                <Users className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                <input value={sessionData.team} onChange={(e) => setSessionData(prev => ({...prev, team: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-slate-700 placeholder:text-slate-400 w-full min-w-[60px]" placeholder="Equipo / Atleta" />
+              </div>
+              <div className="w-px h-4 bg-slate-200" />
+              <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                <User className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                <input value={sessionData.coach} onChange={(e) => setSessionData(prev => ({...prev, coach: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-slate-700 placeholder:text-slate-400 w-full min-w-[60px]" placeholder="Entrenador" />
+              </div>
+              <div className="w-px h-4 bg-slate-200" />
+              <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                <input value={sessionData.location} onChange={(e) => setSessionData(prev => ({...prev, location: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-slate-700 placeholder:text-slate-400 w-full min-w-[60px]" placeholder="Lugar" />
+              </div>
+              <div className="w-px h-4 bg-slate-200" />
+              <div className="flex items-center gap-1.5 w-[130px] flex-shrink-0">
+                <Activity className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                <select value={sessionData.sessionType} onChange={(e) => setSessionData(prev => ({...prev, sessionType: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-slate-700 cursor-pointer w-full">
+                  <option value="tecnico-tactico">Tecnico-Tactico</option>
+                  <option value="fisico">Fisico</option>
+                  <option value="recuperacion">Recuperacion</option>
+                  <option value="evaluacion">Evaluacion</option>
+                  <option value="competicion">Competicion</option>
+                  <option value="mixto">Mixto</option>
+                </select>
+              </div>
+              <div className="w-px h-4 bg-slate-200" />
+              <div className="flex items-center gap-1.5 w-[100px] flex-shrink-0">
+                <Zap className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                <input value={sessionData.estimatedLoad} onChange={(e) => setSessionData(prev => ({...prev, estimatedLoad: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-slate-700 placeholder:text-slate-400 w-full" placeholder="Carga est." />
               </div>
             </div>
           </div>
