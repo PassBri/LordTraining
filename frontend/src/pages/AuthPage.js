@@ -177,8 +177,8 @@ const AuthPage = () => {
               <div className="w-9 h-9 aspect-square shrink-0 bg-[#CCFF00] rounded-full flex items-center justify-center">
                 <span className="text-[18px] font-black text-slate-900 leading-none" style={{ fontFamily: BC }}>i</span>
               </div>
-              <span className="text-[16px] font-black tracking-tight" style={{ fontFamily: BC }}>
-                <span className="text-[#CCFF00]">i</span><span className="text-slate-900">TRAIN</span>
+              <span className="text-[16px] font-black tracking-tight text-slate-900" style={{ fontFamily: BC }}>
+                iTRAIN
               </span>
             </Link>
             <div className="flex items-center gap-2">
