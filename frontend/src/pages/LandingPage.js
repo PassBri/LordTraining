@@ -364,15 +364,26 @@ const LandingPage = () => {
             <Link to="/auth"><Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] text-[12px] font-bold px-5 h-9 rounded-lg" style={{fontFamily:BC}} data-testid="signup-nav-btn">{t('landing.nav.signup')}</Button></Link>
           </div>
         </div>
-        {/* Tagline bar */}
-        <div className="border-t border-slate-800/30 py-2">
-          <p className="text-[13px] font-bold uppercase tracking-[0.15em] text-[#CCFF00]" style={{fontFamily:BC}}>{t('landing.hero.tagline')}</p>
+      </div>
+      {/* Tagline strip — full width with animated performance wave */}
+      <div className="relative overflow-hidden bg-slate-900/80 border-t border-slate-800/30">
+        {/* Animated wave behind text */}
+        <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 1200 40">
+          <path d="M0 20 Q50 8,100 20 T200 20 T300 20 T400 20 T500 20 T600 20 T700 20 T800 20 T900 20 T1000 20 T1100 20 T1200 20" fill="none" stroke="#CCFF00" strokeWidth="1" opacity="0.15">
+            <animate attributeName="d" dur="3s" repeatCount="indefinite" values="M0 20 Q50 8,100 20 T200 20 T300 20 T400 20 T500 20 T600 20 T700 20 T800 20 T900 20 T1000 20 T1100 20 T1200 20;M0 20 Q50 32,100 20 T200 20 T300 20 T400 20 T500 20 T600 20 T700 20 T800 20 T900 20 T1000 20 T1100 20 T1200 20;M0 20 Q50 8,100 20 T200 20 T300 20 T400 20 T500 20 T600 20 T700 20 T800 20 T900 20 T1000 20 T1100 20 T1200 20" />
+          </path>
+          <path d="M0 20 L80 20 L90 6 L100 34 L110 12 L120 28 L130 20 L1200 20" fill="none" stroke="#CCFF00" strokeWidth="1.5" opacity="0.25" strokeLinecap="round">
+            <animateTransform attributeName="transform" type="translate" values="-200,0;1200,0" dur="4s" repeatCount="indefinite" />
+          </path>
+        </svg>
+        <div className="relative z-10 py-2.5 px-6 text-center">
+          <p className="text-[14px] md:text-[16px] font-black uppercase tracking-[0.25em] text-[#CCFF00]" style={{fontFamily:BC}}>{t('landing.hero.tagline')}</p>
         </div>
       </div>
     </nav>
 
     {/* HERO — Compact Material Design layout */}
-    <section className="relative pt-[88px] overflow-hidden bg-slate-950">
+    <section className="relative pt-[100px] overflow-hidden bg-slate-950">
       {/* Background elements */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_50%,rgba(204,255,0,0.04)_0%,transparent_60%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:32px_32px] opacity-10" />
