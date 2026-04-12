@@ -78,201 +78,155 @@ const AuthVisual = () => {
   const readiness = useCountUp(85, 1200);
   const acwr = useCountUp(0.87, 1400);
   const adherence = useCountUp(94, 1000);
-  const [chartVisible, setChartVisible] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setChartVisible(true), 500);
-    return () => clearTimeout(timer);
-  }, []);
+  const [show, setShow] = useState(false);
+  useEffect(() => { setTimeout(() => setShow(true), 300); }, []);
 
   return (
-  <div className="relative h-full flex flex-col justify-between px-10 py-10" style={{ background: '#080b12' }}>
-    {/* Sports field background — athletics track + football pitch overlay */}
-    <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ opacity: 0.04 }}>
-      <svg viewBox="0 0 500 800" className="w-full h-full" preserveAspectRatio="xMidYMid slice">
-        {/* Athletics track - outer lanes */}
-        <ellipse cx="250" cy="400" rx="220" ry="340" fill="none" stroke="white" strokeWidth="0.8" />
-        <ellipse cx="250" cy="400" rx="195" ry="315" fill="none" stroke="white" strokeWidth="0.5" />
-        <ellipse cx="250" cy="400" rx="170" ry="290" fill="none" stroke="white" strokeWidth="0.5" />
-        <ellipse cx="250" cy="400" rx="145" ry="265" fill="none" stroke="white" strokeWidth="0.5" />
-        {/* Football pitch inside */}
-        <rect x="100" y="200" width="300" height="400" fill="none" stroke="white" strokeWidth="1" />
-        <line x1="100" y1="400" x2="400" y2="400" stroke="white" strokeWidth="0.8" />
-        <circle cx="250" cy="400" r="50" fill="none" stroke="white" strokeWidth="0.8" />
-        <circle cx="250" cy="400" r="2" fill="white" />
-        {/* Penalty areas */}
-        <rect x="160" y="200" width="180" height="70" fill="none" stroke="white" strokeWidth="0.6" />
-        <rect x="160" y="530" width="180" height="70" fill="none" stroke="white" strokeWidth="0.6" />
-        <rect x="195" y="200" width="110" height="30" fill="none" stroke="white" strokeWidth="0.5" />
-        <rect x="195" y="570" width="110" height="30" fill="none" stroke="white" strokeWidth="0.5" />
-        {/* Corner arcs */}
-        <path d="M100 208 Q108 200 116 200" fill="none" stroke="white" strokeWidth="0.5" />
-        <path d="M384 200 Q392 200 400 208" fill="none" stroke="white" strokeWidth="0.5" />
-        <path d="M100 592 Q108 600 116 600" fill="none" stroke="white" strokeWidth="0.5" />
-        <path d="M384 600 Q392 600 400 592" fill="none" stroke="white" strokeWidth="0.5" />
-        {/* Lane markers */}
-        {[0,1,2,3,4,5].map(i => (
-          <line key={i} x1={70 + i*12} y1="60" x2={70 + i*12} y2="80" stroke="white" strokeWidth="0.4" />
-        ))}
-        {/* Starting blocks marks */}
-        <line x1="30" y1="400" x2="70" y2="400" stroke="white" strokeWidth="0.6" strokeDasharray="4 3" />
-      </svg>
-    </div>
+  <div className="relative h-full flex flex-col justify-center items-center overflow-hidden" style={{ background: '#060910' }}>
+    {/* Ambient light orbs */}
+    <div className="absolute w-[500px] h-[500px] rounded-full" style={{ top: '-15%', right: '-10%', background: 'radial-gradient(circle, rgba(200,247,0,0.06) 0%, transparent 70%)' }} />
+    <div className="absolute w-[400px] h-[400px] rounded-full" style={{ bottom: '-10%', left: '-5%', background: 'radial-gradient(circle, rgba(55,138,221,0.04) 0%, transparent 70%)' }} />
 
-    {/* Subtle radial accent */}
-    <div className="absolute top-0 right-0 w-[300px] h-[300px] pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(200,247,0,0.03) 0%, transparent 70%)' }} />
+    {/* Content */}
+    <div className="relative z-10 w-full max-w-[400px] px-8">
 
-    <div className="relative z-10 flex flex-col h-full justify-between">
-      {/* BLOCK 1 — Typewriter headline */}
-      <div className="mb-6" style={{ animation: 'authFadeUp 0.4s cubic-bezier(0.2,0,0,1) both' }}>
-        <div className="h-[72px] flex items-end mb-3">
-          <h2 className="text-[28px] font-bold text-white leading-[1.2]" style={{ fontFamily: INT }}>
-            {typedText}<span className="inline-block w-[2px] h-[28px] bg-[#c8f700] ml-1 animate-pulse" />
+      {/* Typewriter */}
+      <div className="mb-10" style={{ opacity: show ? 1 : 0, transform: show ? 'none' : 'translateY(12px)', transition: 'all 0.5s cubic-bezier(0.2,0,0,1)' }}>
+        <div className="h-[36px] mb-2">
+          <h2 className="text-[24px] font-semibold text-white/90 leading-[1.3]" style={{ fontFamily: INT }}>
+            {typedText}<span className="inline-block w-[2px] h-[22px] bg-[#c8f700] ml-0.5" style={{ animation: 'blink 1s step-end infinite' }} />
           </h2>
         </div>
-        <div className="h-[2px] rounded-full overflow-hidden mb-3" style={{ background: 'rgba(200,247,0,0.12)' }}>
-          <div className="h-full bg-[#c8f700] rounded-full" style={{ width: `${(typedText.length / 22) * 100}%`, transition: 'width 0.1s linear' }} />
-        </div>
-        <p className="text-[13px] text-slate-500">{t('auth.visual.system_line')}</p>
+        <p className="text-[13px] text-white/30 font-light">{t('auth.visual.system_line')}</p>
       </div>
 
-      {/* BLOCK 2 — Dashboard card with periodization curve */}
-      <div className="mb-5" style={{ animation: 'authFadeUp 0.4s cubic-bezier(0.2,0,0,1) 0.1s both' }}>
-        <div className="rounded-2xl p-5" style={{ background: '#111620', border: '1px solid rgba(255,255,255,0.05)', boxShadow: '0 4px 24px rgba(0,0,0,0.3)' }}>
-          {/* Header */}
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 bg-[#c8f700] rounded-lg flex items-center justify-center">
-                <span className="text-[14px] font-black text-[#080b12] leading-none" style={{ fontFamily: BC }}>i</span>
+      {/* Main floating card */}
+      <div className="mb-8" style={{ opacity: show ? 1 : 0, transform: show ? 'none' : 'translateY(16px)', transition: 'all 0.6s cubic-bezier(0.2,0,0,1) 0.1s' }}>
+        <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.06)' }}>
+
+          {/* Header row */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: '#c8f700' }}>
+                <span className="text-[16px] font-black text-[#060910] leading-none" style={{ fontFamily: BC }}>i</span>
               </div>
               <div>
-                <span className="text-[12px] font-semibold text-white/90 block leading-none">{t('auth.visual.week')}</span>
-                <span className="text-[10px] text-slate-500">{t('auth.visual.phase')}</span>
+                <p className="text-[13px] font-medium text-white/80 leading-none">{t('auth.visual.week')}</p>
+                <p className="text-[11px] text-white/25 mt-0.5">{t('auth.visual.phase')}</p>
               </div>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c8f700] opacity-30" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#c8f700]" />
-              </span>
-              <span className="text-[10px] text-slate-500">Live</span>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ background: 'rgba(200,247,0,0.08)' }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#c8f700]" style={{ animation: 'pulse2 2s ease infinite' }} />
+              <span className="text-[10px] text-[#c8f700]/70 font-medium">Live</span>
             </div>
           </div>
 
-          {/* 3 Metrics */}
-          <div className="grid grid-cols-3 gap-2 mb-5">
+          {/* Metrics — clean, spacious */}
+          <div className="flex items-center justify-between mb-6">
             {[
               { val: readiness, label: t('auth.visual.readiness'), color: '#c8f700', suffix: '' },
               { val: acwr, label: t('auth.visual.acwr'), color: '#378ADD', suffix: '' },
               { val: adherence, label: t('auth.visual.adherence'), color: '#c8f700', suffix: '%' },
             ].map((m, i) => (
-              <div key={i} className="text-center py-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.03)' }}>
-                <div className="text-[28px] font-black leading-none" style={{ color: m.color, fontFamily: BC }}>{m.val}{m.suffix}</div>
-                <div className="text-[8px] text-slate-500 mt-2 uppercase tracking-[0.12em] font-bold">{m.label}</div>
+              <div key={i} className="text-center flex-1">
+                <div className="text-[32px] font-black leading-none tracking-tight" style={{ color: m.color, fontFamily: BC }}>{m.val}{m.suffix}</div>
+                <div className="text-[9px] text-white/20 mt-2 uppercase tracking-[0.15em] font-semibold">{m.label}</div>
+                {i < 2 && <div className="absolute" />}
               </div>
             ))}
           </div>
 
-          {/* Periodization curve — SVG smooth lines */}
-          <div className="relative h-24 mb-3">
-            <svg viewBox="0 0 300 80" className="w-full h-full" preserveAspectRatio="none">
-              {/* Grid lines */}
-              {[20,40,60].map(y => (
-                <line key={y} x1="0" y1={y} x2="300" y2={y} stroke="white" strokeWidth="0.3" opacity="0.06" />
+          {/* Separator */}
+          <div className="h-px mb-5" style={{ background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.06), transparent)' }} />
+
+          {/* Periodization curves — elegant SVG */}
+          <div className="relative h-20 mb-4">
+            <svg viewBox="0 0 360 70" className="w-full h-full" preserveAspectRatio="none">
+              {/* Horizontal guides */}
+              {[17,35,52].map(y => (
+                <line key={y} x1="0" y1={y} x2="360" y2={y} stroke="white" strokeWidth="0.5" opacity="0.03" />
               ))}
-              {/* Volume curve — blue */}
-              <path d={`M0 55 C20 50,40 42,60 38 S100 25,120 30 S160 20,180 15 S220 22,240 28 S280 18,300 12`}
-                fill="none" stroke="#378ADD" strokeWidth="2" strokeLinecap="round"
-                style={{ strokeDasharray: chartVisible ? '0' : '500', strokeDashoffset: chartVisible ? '0' : '500', transition: 'stroke-dasharray 1.5s ease, stroke-dashoffset 1.5s ease' }}
-              />
-              <path d={`M0 55 C20 50,40 42,60 38 S100 25,120 30 S160 20,180 15 S220 22,240 28 S280 18,300 12 L300 80 L0 80 Z`}
-                fill="url(#blueGrad)" opacity={chartVisible ? '0.15' : '0'} style={{ transition: 'opacity 1.5s ease' }}
-              />
-              {/* Intensity curve — green */}
-              <path d={`M0 70 C20 68,40 65,60 60 S100 55,120 48 S160 40,180 35 S220 28,240 22 S280 15,300 10`}
-                fill="none" stroke="#c8f700" strokeWidth="2" strokeLinecap="round"
-                style={{ strokeDasharray: chartVisible ? '0' : '500', strokeDashoffset: chartVisible ? '0' : '500', transition: 'stroke-dasharray 1.8s ease 0.2s, stroke-dashoffset 1.8s ease 0.2s' }}
-              />
-              <path d={`M0 70 C20 68,40 65,60 60 S100 55,120 48 S160 40,180 35 S220 28,240 22 S280 15,300 10 L300 80 L0 80 Z`}
-                fill="url(#greenGrad)" opacity={chartVisible ? '0.1' : '0'} style={{ transition: 'opacity 1.8s ease 0.2s' }}
-              />
+              {/* Volume — smooth blue area */}
+              <path d="M0,58 C30,52 60,44 90,38 S150,24 180,28 S240,18 270,14 S330,10 360,8"
+                fill="none" stroke="#378ADD" strokeWidth="1.5" opacity={show ? '0.7' : '0'}
+                style={{ transition: 'opacity 1.5s ease 0.4s' }} />
+              <path d="M0,58 C30,52 60,44 90,38 S150,24 180,28 S240,18 270,14 S330,10 360,8 L360,70 L0,70 Z"
+                fill="url(#areaBlue)" opacity={show ? '1' : '0'}
+                style={{ transition: 'opacity 1.5s ease 0.4s' }} />
+              {/* Intensity — smooth green line */}
+              <path d="M0,65 C30,62 60,56 90,50 S150,42 180,36 S240,26 270,20 S330,12 360,6"
+                fill="none" stroke="#c8f700" strokeWidth="1.5" opacity={show ? '0.8' : '0'}
+                style={{ transition: 'opacity 1.8s ease 0.6s' }} />
+              <path d="M0,65 C30,62 60,56 90,50 S150,42 180,36 S240,26 270,20 S330,12 360,6 L360,70 L0,70 Z"
+                fill="url(#areaGreen)" opacity={show ? '1' : '0'}
+                style={{ transition: 'opacity 1.8s ease 0.6s' }} />
+              {/* Dot on latest point */}
+              <circle cx="360" cy="8" r="3" fill="#378ADD" opacity={show ? '0.8' : '0'} style={{ transition: 'opacity 2s ease 0.8s' }} />
+              <circle cx="360" cy="6" r="3" fill="#c8f700" opacity={show ? '0.9' : '0'} style={{ transition: 'opacity 2s ease 1s' }} />
               <defs>
-                <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#378ADD" /><stop offset="100%" stopColor="#378ADD" stopOpacity="0" />
+                <linearGradient id="areaBlue" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#378ADD" stopOpacity="0.12" />
+                  <stop offset="100%" stopColor="#378ADD" stopOpacity="0" />
                 </linearGradient>
-                <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#c8f700" /><stop offset="100%" stopColor="#c8f700" stopOpacity="0" />
+                <linearGradient id="areaGreen" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#c8f700" stopOpacity="0.08" />
+                  <stop offset="100%" stopColor="#c8f700" stopOpacity="0" />
                 </linearGradient>
               </defs>
             </svg>
-            {/* Legend */}
-            <div className="absolute bottom-0 right-0 flex items-center gap-3">
-              <span className="flex items-center gap-1 text-[9px] text-slate-500"><span className="w-2.5 h-[2px] bg-[#378ADD] rounded-full inline-block" />VOL</span>
-              <span className="flex items-center gap-1 text-[9px] text-slate-500"><span className="w-2.5 h-[2px] bg-[#c8f700] rounded-full inline-block" />INT</span>
-            </div>
           </div>
 
-          {/* Badge */}
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c8f700] opacity-40" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#c8f700]" />
-            </span>
-            <span className="text-[11px] text-slate-400">{t('auth.visual.optimal_zone')}</span>
+          {/* Legend + status */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full" style={{ animation: 'pulse2 2s ease infinite', background: '#c8f700' }} />
+              <span className="text-[11px] text-white/30">{t('auth.visual.optimal_zone')}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1.5 text-[10px] text-white/20"><span className="w-3 h-[1.5px] rounded-full bg-[#378ADD]" />VOL</span>
+              <span className="flex items-center gap-1.5 text-[10px] text-white/20"><span className="w-3 h-[1.5px] rounded-full bg-[#c8f700]" />INT</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* BLOCK 3 — Micro cards */}
-      <div className="grid grid-cols-3 gap-3 mb-5" style={{ animation: 'authFadeUp 0.4s cubic-bezier(0.2,0,0,1) 0.2s both' }}>
+      {/* Stat pills — horizontal, minimal */}
+      <div className="flex gap-2 mb-8" style={{ opacity: show ? 1 : 0, transform: show ? 'none' : 'translateY(16px)', transition: 'all 0.6s cubic-bezier(0.2,0,0,1) 0.2s' }}>
         {[
-          { icon: Timer, val: '17', label: t('landing.hero.stats.models') },
-          { icon: TrendingUp, val: '6', label: t('landing.hero.stats.controls') },
-          { icon: Zap, val: '150+', label: t('landing.hero.stats.exercises') },
+          { val: '17', label: t('landing.hero.stats.models') },
+          { val: '6', label: t('landing.hero.stats.controls') },
+          { val: '150+', label: t('landing.hero.stats.exercises') },
         ].map((c, i) => (
-          <div key={i} className="rounded-xl p-4 text-center cursor-default transition-all duration-200 hover:-translate-y-1" style={{
-            background: '#111620',
-            border: '1px solid rgba(255,255,255,0.05)',
+          <div key={i} className="flex-1 py-3 rounded-xl text-center cursor-default transition-all duration-300 hover:-translate-y-0.5" style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.04)',
           }}
-          onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 24px rgba(200,247,0,0.12)'}
-          onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(200,247,0,0.04)'; e.currentTarget.style.borderColor = 'rgba(200,247,0,0.1)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.04)'; }}
           >
-            <c.icon className="w-4 h-4 text-slate-600 mx-auto mb-2" />
-            <div className="text-[24px] font-black text-[#c8f700] leading-none" style={{ fontFamily: BC }}>{c.val}</div>
-            <div className="text-[10px] text-slate-500 mt-1.5 leading-tight">{c.label}</div>
+            <div className="text-[20px] font-black text-[#c8f700] leading-none" style={{ fontFamily: BC }}>{c.val}</div>
+            <div className="text-[9px] text-white/20 mt-1.5 font-medium">{c.label}</div>
           </div>
         ))}
       </div>
 
-      {/* BLOCK 4 — Social proof */}
-      <div className="rounded-xl px-5 py-4" style={{ background: '#0d1119', border: '1px solid rgba(255,255,255,0.04)', animation: 'authFadeUp 0.4s cubic-bezier(0.2,0,0,1) 0.3s both' }}>
-        <div className="flex items-center gap-3">
-          <div className="flex -space-x-2 flex-shrink-0">
-            {[
-              { bg: '#c8f700', text: '#080b12', initials: 'CM' },
-              { bg: '#378ADD', text: '#fff', initials: 'AR' },
-              { bg: '#E24B4A', text: '#fff', initials: 'DT' },
-              { bg: '#7F77DD', text: '#fff', initials: 'LP' },
-              { bg: '#10B981', text: '#fff', initials: 'MV' },
-            ].map((a, i) => (
-              <div key={i} className="w-8 h-8 rounded-full flex items-center justify-center text-[9px] font-bold border-2" style={{ background: a.bg, color: a.text, borderColor: '#0d1119' }}>{a.initials}</div>
-            ))}
-          </div>
-          <div>
-            <p className="text-[12px] font-semibold text-white/90">{t('auth.visual.active_coaches')}</p>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c8f700] opacity-40" />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#c8f700]" />
-              </span>
-              <p className="text-[10px] text-slate-500">{t('auth.visual.new_coaches')}</p>
-            </div>
-          </div>
+      {/* Social proof — ultra minimal */}
+      <div className="flex items-center gap-3" style={{ opacity: show ? 1 : 0, transform: show ? 'none' : 'translateY(12px)', transition: 'all 0.6s cubic-bezier(0.2,0,0,1) 0.3s' }}>
+        <div className="flex -space-x-2.5 flex-shrink-0">
+          {['#c8f700','#378ADD','#E24B4A','#7F77DD','#10B981'].map((bg, i) => (
+            <div key={i} className="w-7 h-7 rounded-full border-2" style={{ background: bg, borderColor: '#060910', opacity: 1 - i * 0.1 }} />
+          ))}
+        </div>
+        <div>
+          <p className="text-[11px] font-medium text-white/50">{t('auth.visual.active_coaches')}</p>
+          <p className="text-[10px] text-white/20">{t('auth.visual.new_coaches')}</p>
         </div>
       </div>
     </div>
 
     <style>{`
+      @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+      @keyframes pulse2 { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
       @keyframes authFadeUp {
         from { opacity: 0; transform: translateY(16px); }
         to { opacity: 1; transform: translateY(0); }
