@@ -834,33 +834,19 @@ const SessionEditor = ({
     }
   };
 
-  // Renderizar tabla de actividades
+  // Renderizar actividades como tarjetas Material Design
   const renderActividadesTable = (faseKey, fase) => {
     return (
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b text-left text-slate-500 text-xs uppercase">
-              <th className="py-2 px-2 w-44">Medios</th>
-              <th className="py-2 px-2 w-28">Cap. Física</th>
-              <th className="py-2 px-2 w-32">Métodos</th>
-              <th className="py-2 px-2 w-16">Series</th>
-              <th className="py-2 px-2 w-20">Reps</th>
-              <th className="py-2 px-2 w-20">Recup.</th>
-              <th className="py-2 px-2 w-28">Intensidad</th>
-              <th className="py-2 px-2 w-20">Volumen</th>
-              <th className="py-2 px-2 w-28">Proc. Org.</th>
-              <th className="py-2 px-2 w-16">Pizarra</th>
-              <th className="py-2 px-1 w-10"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {fase.actividades.map((act, idx) => (
-              <React.Fragment key={act.id}>
-              <tr className="border-b hover:bg-slate-50" style={{ position: 'relative', zIndex: showExercisePicker === `${faseKey}-${idx}` ? 1000 : 1 }}>
-                {/* Medios (Ejercicio) */}
-                <td className="py-2 px-2 overflow-visible">
-                  <div className="relative">
+      <div className="space-y-3">
+        {fase.actividades.map((act, idx) => (
+          <div key={act.id} className="border border-slate-200 rounded-xl bg-white shadow-sm overflow-hidden hover:shadow-md transition-shadow" style={{ position: 'relative', zIndex: showExercisePicker === `${faseKey}-${idx}` ? 1000 : 1 }}>
+            <div className="flex">
+              {/* ── CONTENIDO PRINCIPAL ── */}
+              <div className="flex-1 p-3">
+                {/* Fila 1: Medios + Cap. Física + Métodos */}
+                <div className="flex gap-2 mb-2 items-start">
+                  <div className="flex-1 relative" style={{ minWidth: 0 }}>
+                    <label className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5 block">Medios</label>
                     <Input
                       value={act.ejercicio}
                       onChange={(e) => updateActividad(faseKey, idx, 'ejercicio', e.target.value)}
@@ -870,241 +856,139 @@ const SessionEditor = ({
                       data-testid={`exercise-input-${faseKey}-${idx}`}
                     />
                     {showExercisePicker === `${faseKey}-${idx}` && (
-                      <div 
-                        className="absolute left-0 top-full mt-1 bg-white border-2 border-blue-300 rounded-xl shadow-2xl overflow-hidden"
-                        style={{ 
-                          width: '340px',
-                          maxHeight: '280px',
-                          zIndex: 99999
-                        }}>
+                      <div className="absolute left-0 top-full mt-1 bg-white border-2 border-blue-300 rounded-xl shadow-2xl overflow-hidden" style={{ width: '340px', maxHeight: '280px', zIndex: 99999 }}>
                         <div className="p-3 border-b bg-[#f8ffe0] sticky top-0 z-10">
-                          <Input
-                            placeholder="Buscar ejercicio..."
-                            value={exerciseSearchTerm}
-                            onChange={(e) => setExerciseSearchTerm(e.target.value)}
-                            className="h-9 text-sm bg-white border-blue-200"
-                            autoFocus
-                          />
+                          <Input placeholder="Buscar ejercicio..." value={exerciseSearchTerm} onChange={(e) => setExerciseSearchTerm(e.target.value)} className="h-9 text-sm bg-white border-blue-200" autoFocus />
                         </div>
                         <div className="p-2 max-h-44 overflow-y-auto bg-white">
                           {getFilteredExercises().map((ej, ejIdx) => (
-                            <button
-                              key={`${ej.nombre}-${ejIdx}`}
-                              className="w-full text-left px-3 py-2.5 hover:bg-[#f8ffe0] rounded-lg text-sm transition-colors"
-                              onClick={() => selectExercise(faseKey, idx, ej.nombre)}
-                            >
+                            <button key={`${ej.nombre}-${ejIdx}`} className="w-full text-left px-3 py-2.5 hover:bg-[#f8ffe0] rounded-lg text-sm transition-colors" onClick={() => selectExercise(faseKey, idx, ej.nombre)}>
                               <p className="font-medium text-slate-800">{ej.nombre}</p>
                               <p className="text-slate-400 text-xs mt-0.5">{ej.categoria} • {ej.musculos}</p>
                             </button>
                           ))}
-                          {getFilteredExercises().length === 0 && (
-                            <p className="text-center text-slate-400 py-6 text-sm">No se encontraron ejercicios</p>
-                          )}
+                          {getFilteredExercises().length === 0 && <p className="text-center text-slate-400 py-6 text-sm">No se encontraron ejercicios</p>}
                         </div>
-                        <button
-                          className="w-full text-center text-[#3a5a00] py-2.5 border-t bg-slate-50 text-sm font-medium hover:bg-[#f8ffe0] transition-colors"
-                          onClick={() => setShowExercisePicker(null)}
-                        >
-                          Cerrar
-                        </button>
+                        <button className="w-full text-center text-[#3a5a00] py-2.5 border-t bg-slate-50 text-sm font-medium hover:bg-[#f8ffe0] transition-colors" onClick={() => setShowExercisePicker(null)}>Cerrar</button>
                       </div>
                     )}
                   </div>
-                </td>
-                
-                {/* Capacidad Física */}
-                <td className="py-2 px-2">
-                  <Select 
-                    value={act.capacidadFisica} 
-                    onValueChange={(v) => updateActividad(faseKey, idx, 'capacidadFisica', v)}
-                  >
-                    <SelectTrigger className="h-8 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CAPACIDADES_FISICAS.map(cap => (
-                        <SelectItem key={cap.id} value={cap.id} className="text-xs">{cap.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </td>
-                
-                {/* Métodos */}
-                <td className="py-2 px-2">
-                  <Select 
-                    value={act.metodo} 
-                    onValueChange={(v) => updateActividad(faseKey, idx, 'metodo', v)}
-                  >
-                    <SelectTrigger className="h-8 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {METODOS_ENTRENAMIENTO.map(met => (
-                        <SelectItem key={met.id} value={met.id} className="text-xs">{met.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </td>
-                
-                {/* Series */}
-                <td className="py-2 px-2">
-                  <Input
-                    type="number"
-                    value={act.series}
-                    onChange={(e) => updateActividad(faseKey, idx, 'series', parseInt(e.target.value) || 0)}
-                    className="h-8 text-xs text-center"
-                    min={1}
-                    max={20}
-                  />
-                </td>
-                
-                {/* Repeticiones */}
-                <td className="py-2 px-2">
-                  <Input
-                    value={act.repeticiones}
-                    onChange={(e) => updateActividad(faseKey, idx, 'repeticiones', e.target.value)}
-                    className="h-8 text-xs"
-                    placeholder="10-12"
-                  />
-                </td>
-                
-                {/* Recuperación (moved after Reps) */}
-                <td className="py-2 px-2">
-                  <Input
-                    value={act.recuperacion}
-                    onChange={(e) => updateActividad(faseKey, idx, 'recuperacion', e.target.value)}
-                    className="h-8 text-xs"
-                    placeholder="2 min"
-                  />
-                </td>
-                
-                {/* Intensidad */}
-                <td className="py-2 px-2">
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full transition-all ${
-                          act.intensidad > 80 ? 'bg-red-500' :
-                          act.intensidad > 60 ? 'bg-orange-500' :
-                          act.intensidad > 40 ? 'bg-yellow-500' :
-                          'bg-green-500'
-                        }`}
-                        style={{ width: `${act.intensidad}%` }}
-                      />
-                    </div>
-                    <span className="text-xs font-medium w-10 text-right">{act.intensidad}%</span>
+                  <div className="w-24">
+                    <label className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5 block">Cap. Fisica</label>
+                    <Select value={act.capacidadFisica} onValueChange={(v) => updateActividad(faseKey, idx, 'capacidadFisica', v)}>
+                      <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>{CAPACIDADES_FISICAS.map(cap => <SelectItem key={cap.id} value={cap.id} className="text-xs">{cap.name}</SelectItem>)}</SelectContent>
+                    </Select>
                   </div>
-                  <input
-                    type="range"
-                    min={0}
-                    max={100}
-                    value={act.intensidad}
-                    onChange={(e) => updateActividad(faseKey, idx, 'intensidad', parseInt(e.target.value))}
-                    className="w-full h-1 mt-1 accent-blue-500"
-                  />
-                </td>
-                
-                {/* Volumen */}
-                <td className="py-2 px-2">
-                  <Input
-                    value={act.volumen}
-                    onChange={(e) => updateActividad(faseKey, idx, 'volumen', e.target.value)}
-                    className="h-8 text-xs"
-                    placeholder="30 min"
-                  />
-                </td>
-                
-                {/* Procedimiento Organizativo */}
-                <td className="py-2 px-2">
-                  <Select 
-                    value={act.procOrganizativo} 
-                    onValueChange={(v) => updateActividad(faseKey, idx, 'procOrganizativo', v)}
-                  >
-                    <SelectTrigger className="h-8 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {PROC_ORGANIZATIVO.map(proc => (
-                        <SelectItem key={proc.id} value={proc.id} className="text-xs">{proc.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </td>
-                
-                {/* Pizarra Táctica */}
-                <td className="py-2 px-1 text-center">
-                  {act.boardThumbnail ? (
-                    <button
-                      onClick={() => setExpandedBoard(expandedBoard === act.id ? null : act.id)}
-                      className={`p-1 rounded-lg transition-colors ${expandedBoard === act.id ? 'bg-[#f0ffd0] text-[#3a5a00]' : 'hover:bg-[#f0ffd0] text-[#3a5a00]'}`}
-                      title="Ver/Ocultar Pizarra"
-                      data-testid={`board-thumb-${faseKey}-${idx}`}
-                    >
-                      <LayoutGrid className="w-4 h-4" />
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        boardEditContextRef.current = { faseKey, actId: act.id };
-                        window.open('/tactical-board.html', '_blank');
-                      }}
-                      className="p-1.5 rounded-lg hover:bg-[#f0ffd0] text-slate-400 hover:text-[#3a5a00] transition-colors"
-                      title="Abrir Pizarra Tactica"
-                      data-testid={`open-board-${faseKey}-${idx}`}
-                    >
-                      <LayoutGrid className="w-4 h-4" />
-                    </button>
-                  )}
-                </td>
-                
-                {/* Acciones */}
-                <td className="py-2 px-1">
-                  <button
-                    onClick={() => deleteActividad(faseKey, idx)}
-                    className="p-1 hover:bg-red-50 rounded text-red-500"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </td>
-              </tr>
-              {/* Fila expandible con miniatura de pizarra */}
-              {act.boardThumbnail && expandedBoard === act.id && (
-                <tr>
-                  <td colSpan={11} className="py-2 px-3 bg-slate-50 border-b border-slate-100">
-                    <div className="flex items-start gap-3">
-                      <div
-                        className="w-36 h-48 rounded-lg border border-slate-200 overflow-hidden bg-white shadow-sm flex-shrink-0 cursor-pointer hover:border-[#c8f700] transition-colors"
-                        onClick={() => {
-                          boardEditContextRef.current = { faseKey, actId: act.id };
-                          window.open(act.boardId ? `/tactical-board.html?boardId=${act.boardId}` : '/tactical-board.html', '_blank');
-                        }}
-                        title="Clic para editar pizarra"
-                        data-testid={`board-preview-${faseKey}-${idx}`}
-                        dangerouslySetInnerHTML={{ __html: act.boardThumbnail }}
-                      />
-                      <div className="flex flex-col gap-1 pt-1">
-                        <span className="text-xs font-semibold text-slate-700">Pizarra Tactica</span>
-                        <span className="text-[10px] text-slate-400">Clic en la imagen para editar</span>
-                        <button
-                          onClick={() => {
-                            updateActividad(faseKey, idx, 'boardThumbnail', null);
-                            updateActividad(faseKey, idx, 'boardId', null);
-                            setExpandedBoard(null);
-                          }}
-                          className="text-[10px] text-red-400 hover:text-red-600 mt-1 text-left"
-                        >
-                          Quitar pizarra
-                        </button>
-                      </div>
+                  <div className="w-24">
+                    <label className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5 block">Metodo</label>
+                    <Select value={act.metodo} onValueChange={(v) => updateActividad(faseKey, idx, 'metodo', v)}>
+                      <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>{METODOS_ENTRENAMIENTO.map(met => <SelectItem key={met.id} value={met.id} className="text-xs">{met.name}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Fila 2: Carga (Series/Reps/Recup) + Intensidad + Volumen + Org */}
+                <div className="flex gap-2 items-end">
+                  {/* Bloque Carga */}
+                  <div className="flex gap-1.5 items-end">
+                    <div className="w-14">
+                      <label className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5 block">Series</label>
+                      <Input type="number" value={act.series} onChange={(e) => updateActividad(faseKey, idx, 'series', parseInt(e.target.value) || 0)} className="h-8 text-xs text-center" min={1} max={20} />
                     </div>
-                  </td>
-                </tr>
-              )}
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
-        
+                    <div className="w-16">
+                      <label className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5 block">Reps</label>
+                      <Input value={act.repeticiones} onChange={(e) => updateActividad(faseKey, idx, 'repeticiones', e.target.value)} className="h-8 text-xs" placeholder="10-12" />
+                    </div>
+                    <div className="w-16">
+                      <label className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5 block">Recup.</label>
+                      <Input value={act.recuperacion} onChange={(e) => updateActividad(faseKey, idx, 'recuperacion', e.target.value)} className="h-8 text-xs" placeholder="2 min" />
+                    </div>
+                  </div>
+
+                  <div className="w-px h-7 bg-slate-200 mx-1" />
+
+                  {/* Bloque Intensidad + Volumen */}
+                  <div className="w-28">
+                    <label className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5 block">Intensidad</label>
+                    <div className="flex items-center gap-1.5">
+                      <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                        <div className={`h-full transition-all ${act.intensidad > 80 ? 'bg-red-500' : act.intensidad > 60 ? 'bg-orange-500' : act.intensidad > 40 ? 'bg-yellow-500' : 'bg-green-500'}`} style={{ width: `${act.intensidad}%` }} />
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-600 w-8 text-right">{act.intensidad}%</span>
+                    </div>
+                    <input type="range" min={0} max={100} value={act.intensidad} onChange={(e) => updateActividad(faseKey, idx, 'intensidad', parseInt(e.target.value))} className="w-full h-1 mt-0.5 accent-blue-500" />
+                  </div>
+                  <div className="w-16">
+                    <label className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5 block">Volumen</label>
+                    <Input value={act.volumen} onChange={(e) => updateActividad(faseKey, idx, 'volumen', e.target.value)} className="h-8 text-xs" placeholder="30 min" />
+                  </div>
+
+                  <div className="w-px h-7 bg-slate-200 mx-1" />
+
+                  {/* Bloque Organización */}
+                  <div className="w-24">
+                    <label className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5 block">Proc. Org.</label>
+                    <Select value={act.procOrganizativo} onValueChange={(v) => updateActividad(faseKey, idx, 'procOrganizativo', v)}>
+                      <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>{PROC_ORGANIZATIVO.map(proc => <SelectItem key={proc.id} value={proc.id} className="text-xs">{proc.name}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── PIZARRA (derecha) ── */}
+              <div className="w-24 border-l border-slate-100 flex flex-col items-center justify-center p-2 bg-slate-50/50">
+                {act.boardThumbnail ? (
+                  <div
+                    className="w-20 h-28 rounded-lg border border-slate-200 overflow-hidden bg-white cursor-pointer hover:border-[#c8f700] transition-colors shadow-sm"
+                    onClick={() => {
+                      boardEditContextRef.current = { faseKey, actId: act.id };
+                      window.open(act.boardId ? `/tactical-board.html?boardId=${act.boardId}` : '/tactical-board.html', '_blank');
+                    }}
+                    title="Clic para editar pizarra"
+                    data-testid={`board-thumb-${faseKey}-${idx}`}
+                    dangerouslySetInnerHTML={{ __html: act.boardThumbnail }}
+                  />
+                ) : (
+                  <button
+                    onClick={() => {
+                      boardEditContextRef.current = { faseKey, actId: act.id };
+                      window.open('/tactical-board.html', '_blank');
+                    }}
+                    className="w-20 h-28 rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0] transition-colors"
+                    title="Abrir Pizarra Tactica"
+                    data-testid={`open-board-${faseKey}-${idx}`}
+                  >
+                    <LayoutGrid className="w-5 h-5 mb-1" />
+                    <span className="text-[8px] font-medium">Pizarra</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* ── FOOTER: Acciones ── */}
+            <div className="flex items-center justify-between px-3 py-1.5 bg-slate-50/80 border-t border-slate-100">
+              <span className="text-[10px] text-slate-400 font-medium">#{idx + 1}</span>
+              <div className="flex items-center gap-1">
+                {act.boardThumbnail && (
+                  <button onClick={() => { updateActividadMulti(faseKey, idx, { boardThumbnail: null, boardId: null }); }} className="text-[10px] text-slate-400 hover:text-red-500 px-2 py-0.5 rounded transition-colors">Quitar pizarra</button>
+                )}
+                <button onClick={() => {
+                  const dup = { ...act, id: `act-${Date.now()}` };
+                  setSessionData(prev => ({...prev, fases: {...prev.fases, [faseKey]: {...prev.fases[faseKey], actividades: [...prev.fases[faseKey].actividades, dup]}}}));
+                }} className="p-1 hover:bg-slate-200 rounded text-slate-400 hover:text-slate-600 transition-colors" title="Duplicar">
+                  <Copy className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={() => deleteActividad(faseKey, idx)} className="p-1 hover:bg-red-50 rounded text-slate-400 hover:text-red-500 transition-colors" title="Eliminar">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+
         {fase.actividades.length === 0 && (
           <div className="text-center py-6 text-slate-400 text-sm">
             No hay actividades en esta fase
