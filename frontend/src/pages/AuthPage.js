@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
@@ -8,7 +8,7 @@ import { Label } from '../components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { LanguageSelector } from '../components/LanguageSelector';
-import { Mail, Lock, User, Loader2, Eye, EyeOff, Shield, Users, Dumbbell, UserCheck, UserCircle, BarChart3, ArrowLeft, Activity } from 'lucide-react';
+import { Mail, Lock, User, Loader2, Eye, EyeOff, Shield, Users, Dumbbell, UserCheck, UserCircle, BarChart3, ArrowLeft, Activity, Timer, TrendingUp, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 
 const BC = "'Barlow Condensed', sans-serif";
@@ -16,97 +16,230 @@ const INT = "'Inter', sans-serif";
 
 const ROLE_ICONS = { admin: Shield, coach: UserCheck, personal_trainer: Dumbbell, athlete: User, team: Users, user: UserCircle };
 
-/* Right panel visual — mini dashboard preview + periodization bars */
+/* ═══ TYPEWRITER HOOK ═══ */
+const useTypewriter = (phrases, typingSpeed = 60, deletingSpeed = 30, pauseTime = 2500) => {
+  const [text, setText] = useState('');
+  const [phraseIdx, setPhraseIdx] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const current = phrases[phraseIdx];
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        setText(current.substring(0, text.length + 1));
+        if (text.length === current.length) {
+          setTimeout(() => setIsDeleting(true), pauseTime);
+          return;
+        }
+      } else {
+        setText(current.substring(0, text.length - 1));
+        if (text.length === 0) {
+          setIsDeleting(false);
+          setPhraseIdx((phraseIdx + 1) % phrases.length);
+        }
+      }
+    }, isDeleting ? deletingSpeed : typingSpeed);
+    return () => clearTimeout(timeout);
+  }, [text, isDeleting, phraseIdx, phrases, typingSpeed, deletingSpeed, pauseTime]);
+
+  return text;
+};
+
+/* ═══ COUNT UP HOOK ═══ */
+const useCountUp = (target, duration = 1200) => {
+  const [val, setVal] = useState(0);
+  const isFloat = String(target).includes('.');
+  useEffect(() => {
+    const start = performance.now();
+    const num = parseFloat(target);
+    const step = (now) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setVal(isFloat ? parseFloat((num * eased).toFixed(2)) : Math.round(num * eased));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [target, duration, isFloat]);
+  return isFloat ? val.toFixed(2) : val;
+};
+
+/* ═══ RIGHT PANEL VISUAL ═══ */
 const AuthVisual = () => {
   const { t } = useTranslation();
+  const typedText = useTypewriter([
+    'Planifica mejor.',
+    'Entrena con criterio.',
+    'Compite sin límites.'
+  ]);
+  const readiness = useCountUp(85, 1200);
+  const acwr = useCountUp(0.87, 1400);
+  const adherence = useCountUp(94, 1000);
+  const [barsVisible, setBarsVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setBarsVisible(true), 400);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const barData = [
+    { v: 55, i: 35, d: 50 }, { v: 72, i: 42, d: 45 }, { v: 88, i: 50, d: 40 },
+    { v: 65, i: 58, d: 55 }, { v: 78, i: 65, d: 48 }, { v: 92, i: 72, d: 42 },
+    { v: 70, i: 68, d: 60 }, { v: 85, i: 78, d: 50 },
+  ];
+
   return (
-  <div className="relative h-full flex flex-col justify-center items-center px-12">
-    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.04]">
-      <svg viewBox="0 0 400 800" className="w-full h-full" preserveAspectRatio="none">
-        {[0,1,2,3,4,5,6].map(i => (
-          <path key={i} d={`M ${200+i*30} 0 Q ${440+i*30} 400 ${200+i*30} 800`} fill="none" stroke="white" strokeWidth="1" />
-        ))}
+  <div className="relative h-full flex flex-col justify-between px-10 py-10" style={{ background: '#080b12' }}>
+    {/* Field watermark */}
+    <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ opacity: 0.03 }}>
+      <svg viewBox="0 0 400 600" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+        <rect x="40" y="30" width="320" height="540" rx="8" fill="none" stroke="white" strokeWidth="1.5" />
+        <line x1="40" y1="300" x2="360" y2="300" stroke="white" strokeWidth="1" />
+        <circle cx="200" cy="300" r="60" fill="none" stroke="white" strokeWidth="1" />
+        <rect x="120" y="30" width="160" height="80" rx="0" fill="none" stroke="white" strokeWidth="1" />
+        <rect x="120" y="490" width="160" height="80" rx="0" fill="none" stroke="white" strokeWidth="1" />
+        <circle cx="200" cy="300" r="4" fill="white" />
       </svg>
     </div>
 
-    <div className="relative z-10 w-full max-w-sm">
-      <div className="bg-[#151d2e] rounded-xl border border-slate-700/20 overflow-hidden shadow-2xl shadow-black/40 mb-8">
-        <div className="flex items-center gap-2 px-3 py-2 bg-[#1a2436] border-b border-slate-700/20">
-          <div className="flex gap-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#ff5f57]" />
-            <div className="w-1.5 h-1.5 rounded-full bg-[#febc2e]" />
-            <div className="w-1.5 h-1.5 rounded-full bg-[#28c840]" />
-          </div>
-          <div className="flex items-center gap-1 ml-2">
-            <div className="w-3 h-3 aspect-square shrink-0 bg-[#CCFF00] rounded-full flex items-center justify-center">
-              <span className="text-[6px] font-black text-slate-900 leading-none" style={{ fontFamily: BC }}>i</span>
-            </div>
-            <span className="text-[7px] font-black" style={{ fontFamily: BC }}><span className="text-[#CCFF00]">i</span><span className="text-white/70">TRAIN</span></span>
-          </div>
+    <div className="relative z-10 flex flex-col h-full justify-between">
+      {/* BLOCK 1 — Typewriter headline */}
+      <div className="mb-6" style={{ animation: 'authFadeUp 0.4s cubic-bezier(0.2,0,0,1) both' }}>
+        <div className="h-[72px] flex items-end mb-3">
+          <h2 className="text-[28px] font-bold text-white leading-[1.2]" style={{ fontFamily: INT }}>
+            {typedText}<span className="inline-block w-[2px] h-[28px] bg-[#c8f700] ml-1 animate-pulse" />
+          </h2>
         </div>
-        <div className="p-3 space-y-2">
-          <div className="grid grid-cols-3 gap-1.5">
-            <div className="bg-[#1a2436] rounded-lg p-2 border border-slate-700/10">
-              <div className="text-[6px] text-slate-500">Readiness</div>
-              <div className="text-sm font-black text-emerald-400 leading-none" style={{ fontFamily: BC }}>85%</div>
+        <div className="h-[2px] bg-[#c8f700]/40 rounded-full overflow-hidden mb-3">
+          <div className="h-full bg-[#c8f700] rounded-full" style={{ width: `${(typedText.length / 22) * 100}%`, transition: 'width 0.1s linear' }} />
+        </div>
+        <p className="text-[13px] text-slate-500">El sistema que usan los entrenadores que ganan.</p>
+      </div>
+
+      {/* BLOCK 2 — Dashboard card */}
+      <div className="mb-5" style={{ animation: 'authFadeUp 0.4s cubic-bezier(0.2,0,0,1) 0.1s both' }}>
+        <div className="rounded-xl p-5" style={{ background: '#161b24', border: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
+          {/* Header */}
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-6 h-6 bg-[#c8f700] rounded-md flex items-center justify-center">
+              <Activity className="w-3.5 h-3.5 text-[#080b12]" />
             </div>
-            <div className="bg-[#1a2436] rounded-lg p-2 border border-slate-700/10">
-              <div className="text-[6px] text-slate-500">Ratio A:C</div>
-              <div className="text-sm font-black text-white leading-none" style={{ fontFamily: BC }}>1.18</div>
-            </div>
-            <div className="bg-[#1a2436] rounded-lg p-2 border border-slate-700/10">
-              <div className="text-[6px] text-slate-500">{t('dashboard.controlPanel.adherence')}</div>
-              <div className="text-sm font-black text-[#CCFF00] leading-none" style={{ fontFamily: BC }}>92%</div>
-            </div>
+            <span className="text-[12px] font-semibold text-white/80">Semana 18</span>
+            <span className="text-[10px] text-slate-500">Fase Transformación</span>
           </div>
-          <div className="bg-[#1a2436] rounded-lg p-2 border border-slate-700/10">
-            <div className="flex items-center gap-1 mb-1">
-              <BarChart3 className="w-2 h-2 text-blue-400" />
-              <span className="text-[6px] font-semibold text-white/70">Volume & Intensity</span>
-            </div>
-            <div className="flex items-end gap-[2px] h-8">
-              {[[45,35],[50,40],[55,45],[48,52],[60,50],[70,55],[65,68],[72,60],[55,48],[50,45],[62,55],[68,58]].map((b,i) => (
-                <div key={i} className="flex-1 flex items-end gap-[1px]">
-                  <div className="flex-1 bg-blue-400 rounded-t-[1px]" style={{ height: `${b[0]}%` }} />
-                  <div className="flex-1 bg-[#CCFF00] rounded-t-[1px]" style={{ height: `${b[1]}%` }} />
-                </div>
-              ))}
-            </div>
+          {/* 3 Metrics */}
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            {[
+              { val: readiness, label: 'Readiness', color: '#c8f700', suffix: '' },
+              { val: acwr, label: 'ACWR', color: '#378ADD', suffix: '' },
+              { val: adherence, label: 'Adherencia', color: '#c8f700', suffix: '%' },
+            ].map((m, i) => (
+              <div key={i} className="text-center py-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                <div className="text-[26px] font-black leading-none" style={{ color: m.color, fontFamily: BC }}>{m.val}{m.suffix}</div>
+                <div className="text-[9px] text-slate-500 mt-1.5 uppercase tracking-wider font-bold">{m.label}</div>
+              </div>
+            ))}
+          </div>
+          {/* Animated bars */}
+          <div className="flex items-end gap-[3px] h-20 mb-3">
+            {barData.map((b, i) => (
+              <div key={i} className="flex-1 flex items-end gap-[1px] h-full">
+                <div className="flex-1 rounded-t-sm transition-all" style={{
+                  height: barsVisible ? `${b.v}%` : '0%',
+                  background: '#378ADD',
+                  transitionDuration: '0.6s',
+                  transitionDelay: `${i * 80}ms`,
+                  transitionTimingFunction: 'cubic-bezier(0.2,0,0,1)'
+                }} />
+                <div className="flex-1 rounded-t-sm transition-all" style={{
+                  height: barsVisible ? `${b.i}%` : '0%',
+                  background: '#c8f700',
+                  transitionDuration: '0.6s',
+                  transitionDelay: `${i * 80 + 40}ms`,
+                  transitionTimingFunction: 'cubic-bezier(0.2,0,0,1)'
+                }} />
+                <div className="flex-1 rounded-t-sm transition-all" style={{
+                  height: barsVisible ? `${b.d}%` : '0%',
+                  background: '#E24B4A',
+                  opacity: 0.6,
+                  transitionDuration: '0.6s',
+                  transitionDelay: `${i * 80 + 80}ms`,
+                  transitionTimingFunction: 'cubic-bezier(0.2,0,0,1)'
+                }} />
+              </div>
+            ))}
+          </div>
+          {/* Badge */}
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c8f700] opacity-40" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#c8f700]" />
+            </span>
+            <span className="text-[11px] text-slate-400">3 atletas en zona óptima</span>
           </div>
         </div>
       </div>
 
-      <div className="text-center">
-        <h2 className="text-[22px] font-bold text-white mb-2" style={{ fontFamily: INT, textTransform: 'none' }}>
-          {t('common.tagline')}
-        </h2>
-        <p className="text-[13px] text-slate-400 leading-relaxed mb-6">
-          {t('landing.hero.subtitle')}
-        </p>
-      </div>
-
-      <div className="flex justify-center gap-6">
-        {[{ v: '17', k: 'models' }, { v: '6', k: 'controls' }, { v: '150+', k: 'exercises' }].map((s, i) => (
-          <div key={i} className="text-center">
-            <div className="text-[20px] font-black text-[#CCFF00] leading-none" style={{ fontFamily: BC }}>{s.v}</div>
-            <div className="text-[10px] text-slate-500 mt-1">{t(`landing.hero.stats.${s.k}`)}</div>
+      {/* BLOCK 3 — Micro cards */}
+      <div className="grid grid-cols-3 gap-3 mb-5" style={{ animation: 'authFadeUp 0.4s cubic-bezier(0.2,0,0,1) 0.2s both' }}>
+        {[
+          { icon: Timer, val: '17', label: t('landing.hero.stats.models') },
+          { icon: TrendingUp, val: '6', label: t('landing.hero.stats.controls') },
+          { icon: Zap, val: '150+', label: t('landing.hero.stats.exercises') },
+        ].map((c, i) => (
+          <div key={i} className="rounded-xl p-4 text-center cursor-default transition-all duration-200 hover:-translate-y-1" style={{
+            background: '#161b24',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}
+          onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 24px rgba(200,247,0,0.15)'}
+          onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+          >
+            <c.icon className="w-4 h-4 text-slate-600 mx-auto mb-2" />
+            <div className="text-[24px] font-black text-[#c8f700] leading-none" style={{ fontFamily: BC }}>{c.val}</div>
+            <div className="text-[10px] text-slate-500 mt-1.5 leading-tight">{c.label}</div>
           </div>
         ))}
       </div>
 
-      <div className="mt-8 flex items-end gap-[2px] h-10 opacity-30">
-        {Array.from({ length: 30 }, (_, i) => {
-          const p = (i / 30) * Math.PI * 2;
-          const h = Math.max(15, Math.min(95, 30 + Math.sin(p) * 25 + Math.cos(p * 1.5) * 20));
-          return (
-            <div key={i} className="flex-1 rounded-t-sm" style={{
-              height: `${h}%`,
-              background: i % 4 === 0 ? '#007AFF' : i % 4 === 1 ? '#CCFF00' : i % 4 === 2 ? '#1e293b' : '#475569',
-            }} />
-          );
-        })}
+      {/* BLOCK 4 — Social proof */}
+      <div className="rounded-xl px-5 py-4" style={{ background: '#0f1520', animation: 'authFadeUp 0.4s cubic-bezier(0.2,0,0,1) 0.3s both' }}>
+        <div className="flex items-center gap-3">
+          <div className="flex -space-x-2 flex-shrink-0">
+            {[
+              { bg: '#c8f700', text: '#080b12', initials: 'CM' },
+              { bg: '#378ADD', text: '#fff', initials: 'AR' },
+              { bg: '#E24B4A', text: '#fff', initials: 'DT' },
+              { bg: '#7F77DD', text: '#fff', initials: 'LP' },
+              { bg: '#10B981', text: '#fff', initials: 'MV' },
+            ].map((a, i) => (
+              <div key={i} className="w-8 h-8 rounded-full flex items-center justify-center text-[9px] font-bold border-2" style={{ background: a.bg, color: a.text, borderColor: '#0f1520' }}>{a.initials}</div>
+            ))}
+          </div>
+          <div>
+            <p className="text-[12px] font-semibold text-white/90">+1.200 entrenadores activos esta semana</p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c8f700] opacity-40" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#c8f700]" />
+              </span>
+              <p className="text-[10px] text-slate-500">Se unieron 48 nuevos entrenadores en los últimos 7 días</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+
+    {/* Disclaimer */}
+    <div className="absolute bottom-3 right-4 z-10">
+      <span className="text-[11px]" style={{ color: '#2a2f3a' }}>Datos simulados con fines ilustrativos</span>
+    </div>
+
+    <style>{`
+      @keyframes authFadeUp {
+        from { opacity: 0; transform: translateY(16px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    `}</style>
   </div>
   );
 };
@@ -376,7 +509,7 @@ const AuthPage = () => {
       </div>
 
       {/* Right — Visual panel */}
-      <div className="hidden lg:flex w-[55%] bg-slate-900 flex-col relative overflow-hidden">
+      <div className="hidden lg:flex w-[55%] flex-col relative overflow-hidden" style={{ background: '#080b12' }}>
         <AuthVisual />
       </div>
     </div>
