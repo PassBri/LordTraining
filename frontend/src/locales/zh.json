@@ -197,6 +197,19 @@
       "athletics": "田径",
       "swimming": "游泳",
       "football": "足球"
+    },
+    "marquee": {
+      "m_volume": "训练量",
+      "m_intensity": "强度",
+      "m_density": "密度",
+      "m_periodization": "周期化",
+      "m_block": "板块",
+      "m_undulating": "波浪式",
+      "m_mesocycle": "中周期",
+      "m_microcycle": "小周期",
+      "m_macrocycle": "大周期",
+      "m_competition": "比赛",
+      "m_central": "管理中心"
     }
   },
   "auth": {

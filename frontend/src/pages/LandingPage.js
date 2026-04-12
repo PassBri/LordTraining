@@ -217,26 +217,36 @@ const PeriodizationMiniChart = ({ t }) => {
   );
 };
 
-const MarqueeStrip = () => (
-  <div className="overflow-hidden py-3 bg-slate-900 border-t border-b border-slate-800">
-    <div className="flex animate-marquee whitespace-nowrap">
-      {[...Array(2)].map((_, rep) => (
-        <React.Fragment key={rep}>
-          {['VOLUMEN','INTENSIDAD','DENSIDAD','ACWR','VO2MAX','1RM','PERIODIZACIÓN','ATR','BLOQUE','ONDULADO','MESOCICLO','MICROCICLO','MACROCICLO','KARVONEN','COMPETENCIA'].map((txt, i) => (
-            <span key={`${rep}-${i}`} className="inline-flex items-center gap-3 mx-4">
-              <span className="w-2 h-2 rounded-full bg-[#CCFF00]" />
-              <span className="text-[11px] font-bold tracking-[0.15em] text-slate-500" style={{fontFamily:BC}}>{txt}</span>
-            </span>
-          ))}
-        </React.Fragment>
-      ))}
+const MarqueeStrip = ({ t }) => {
+  const items = [
+    t('landing.marquee.m_volume'), t('landing.marquee.m_intensity'), t('landing.marquee.m_density'),
+    'ACWR', 'VO2MAX', '1RM',
+    t('landing.marquee.m_periodization'), 'ATR',
+    t('landing.marquee.m_block'), t('landing.marquee.m_undulating'),
+    t('landing.marquee.m_mesocycle'), t('landing.marquee.m_microcycle'), t('landing.marquee.m_macrocycle'),
+    'KARVONEN', t('landing.marquee.m_competition')
+  ];
+  return (
+    <div className="overflow-hidden py-3 bg-slate-900 border-t border-b border-slate-800">
+      <div className="flex animate-marquee whitespace-nowrap">
+        {[...Array(2)].map((_, rep) => (
+          <React.Fragment key={rep}>
+            {items.map((txt, i) => (
+              <span key={`${rep}-${i}`} className="inline-flex items-center gap-3 mx-4">
+                <span className="w-2 h-2 rounded-full bg-[#CCFF00]" />
+                <span className="text-[11px] font-bold tracking-[0.15em] text-slate-500" style={{fontFamily:BC}}>{txt}</span>
+              </span>
+            ))}
+          </React.Fragment>
+        ))}
+      </div>
+      <style>{`
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .animate-marquee { animation: marquee 30s linear infinite; display: flex; width: max-content; }
+      `}</style>
     </div>
-    <style>{`
-      @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-      .animate-marquee { animation: marquee 30s linear infinite; display: flex; width: max-content; }
-    `}</style>
-  </div>
-);
+  );
+};
 
 const DataRings = () => (
   <div className="relative w-[52px] h-[52px]">
@@ -442,7 +452,7 @@ const LandingPage = () => {
 
       {/* Animated Marquee */}
       <div className="mt-4">
-        <MarqueeStrip />
+        <MarqueeStrip t={t} />
       </div>
 
       {/* Stats strip */}
@@ -528,7 +538,7 @@ const LandingPage = () => {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center"><Users className="w-4 h-4 text-white" /></div>
-                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-blue-400" style={{fontFamily:BC}}>Central</span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-blue-400" style={{fontFamily:BC}}>{t('landing.marquee.m_central')}</span>
               </div>
               <h3 className="text-[20px] font-semibold text-white mb-2">{t('landing.features.m2_title')}</h3>
               <p className="text-[13px] text-slate-400 leading-[1.6]">{t('landing.features.m2_desc')}</p>

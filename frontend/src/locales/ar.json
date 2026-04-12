@@ -197,6 +197,19 @@
       "athletics": "ألعاب قوى",
       "swimming": "سباحة",
       "football": "كرة قدم"
+    },
+    "marquee": {
+      "m_volume": "الحجم",
+      "m_intensity": "الشدة",
+      "m_density": "الكثافة",
+      "m_periodization": "الدورية",
+      "m_block": "كتلة",
+      "m_undulating": "متموج",
+      "m_mesocycle": "دورة متوسطة",
+      "m_microcycle": "دورة صغرى",
+      "m_macrocycle": "دورة كبرى",
+      "m_competition": "منافسة",
+      "m_central": "مركزي"
     }
   },
   "auth": {

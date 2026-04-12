@@ -197,6 +197,19 @@
       "athletics": "Лёгкая атлетика",
       "swimming": "Плавание",
       "football": "Футбол"
+    },
+    "marquee": {
+      "m_volume": "ОБЪЁМ",
+      "m_intensity": "ИНТЕНСИВНОСТЬ",
+      "m_density": "ПЛОТНОСТЬ",
+      "m_periodization": "ПЕРИОДИЗАЦИЯ",
+      "m_block": "БЛОК",
+      "m_undulating": "ВОЛНООБРАЗНЫЙ",
+      "m_mesocycle": "МЕЗОЦИКЛ",
+      "m_microcycle": "МИКРОЦИКЛ",
+      "m_macrocycle": "МАКРОЦИКЛ",
+      "m_competition": "СОРЕВНОВАНИЕ",
+      "m_central": "ЦЕНТРАЛЬНЫЙ"
     }
   },
   "auth": {

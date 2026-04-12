@@ -197,6 +197,19 @@
       "athletics": "एथलेटिक्स",
       "swimming": "तैराकी",
       "football": "फ़ुटबॉल"
+    },
+    "marquee": {
+      "m_volume": "आयतन",
+      "m_intensity": "तीव्रता",
+      "m_density": "घनत्व",
+      "m_periodization": "पीरियडाइजेशन",
+      "m_block": "ब्लॉक",
+      "m_undulating": "तरंगित",
+      "m_mesocycle": "मेसोसाइकल",
+      "m_microcycle": "माइक्रोसाइकल",
+      "m_macrocycle": "मैक्रोसाइकल",
+      "m_competition": "प्रतियोगिता",
+      "m_central": "केंद्रीय"
     }
   },
   "auth": {

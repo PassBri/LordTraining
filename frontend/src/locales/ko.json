@@ -197,6 +197,19 @@
       "athletics": "육상",
       "swimming": "수영",
       "football": "축구"
+    },
+    "marquee": {
+      "m_volume": "볼륨",
+      "m_intensity": "강도",
+      "m_density": "밀도",
+      "m_periodization": "주기화",
+      "m_block": "블록",
+      "m_undulating": "파상",
+      "m_mesocycle": "중주기",
+      "m_microcycle": "미시주기",
+      "m_macrocycle": "거시주기",
+      "m_competition": "대회",
+      "m_central": "중앙"
     }
   },
   "auth": {

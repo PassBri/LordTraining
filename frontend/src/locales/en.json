@@ -197,6 +197,19 @@
       "athletics": "Athletics",
       "swimming": "Swimming",
       "football": "Football"
+    },
+    "marquee": {
+      "m_volume": "VOLUME",
+      "m_intensity": "INTENSITY",
+      "m_density": "DENSITY",
+      "m_periodization": "PERIODIZATION",
+      "m_block": "BLOCK",
+      "m_undulating": "UNDULATING",
+      "m_mesocycle": "MESOCYCLE",
+      "m_microcycle": "MICROCYCLE",
+      "m_macrocycle": "MACROCYCLE",
+      "m_competition": "COMPETITION",
+      "m_central": "CENTRAL"
     }
   },
   "auth": {

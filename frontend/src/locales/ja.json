@@ -197,6 +197,19 @@
       "athletics": "陸上",
       "swimming": "水泳",
       "football": "サッカー"
+    },
+    "marquee": {
+      "m_volume": "ボリューム",
+      "m_intensity": "強度",
+      "m_density": "密度",
+      "m_periodization": "期分け",
+      "m_block": "ブロック",
+      "m_undulating": "波状",
+      "m_mesocycle": "メソサイクル",
+      "m_microcycle": "ミクロサイクル",
+      "m_macrocycle": "マクロサイクル",
+      "m_competition": "競技",
+      "m_central": "管理"
     }
   },
   "auth": {

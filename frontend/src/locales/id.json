@@ -197,6 +197,19 @@
       "athletics": "Atletik",
       "swimming": "Renang",
       "football": "Sepak Bola"
+    },
+    "marquee": {
+      "m_volume": "VOLUME",
+      "m_intensity": "INTENSITAS",
+      "m_density": "DENSITAS",
+      "m_periodization": "PERIODISASI",
+      "m_block": "BLOK",
+      "m_undulating": "BERGELOMBANG",
+      "m_mesocycle": "MESOSIKLUS",
+      "m_microcycle": "MIKROSIKLUS",
+      "m_macrocycle": "MAKROSIKLUS",
+      "m_competition": "KOMPETISI",
+      "m_central": "PUSAT"
     }
   },
   "auth": {
