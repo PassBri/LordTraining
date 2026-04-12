@@ -839,20 +839,20 @@ const SessionEditor = ({
     return (
       <div className="space-y-3">
         {fase.actividades.map((act, idx) => (
-          <div key={act.id} className="border border-slate-200 rounded-xl bg-white shadow-sm overflow-hidden hover:shadow-md transition-shadow" style={{ position: 'relative', zIndex: showExercisePicker === `${faseKey}-${idx}` ? 1000 : 1 }}>
-            <div className="flex">
-              {/* ── CONTENIDO PRINCIPAL ── */}
-              <div className="flex-1 p-3">
-                {/* Fila 1: Medios + Cap. Física + Métodos */}
-                <div className="flex gap-2 mb-2 items-start">
-                  <div className="flex-1 relative" style={{ minWidth: 0 }}>
-                    <label className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5 block">Medios</label>
+          <div key={act.id} className="border border-slate-200 rounded-xl bg-white shadow-sm overflow-visible hover:shadow-md transition-shadow" style={{ position: 'relative', zIndex: showExercisePicker === `${faseKey}-${idx}` ? 1000 : 1 }}>
+            <div className="flex gap-0">
+              {/* ── CONTENIDO PRINCIPAL (izquierda) ── */}
+              <div className="flex-1 min-w-0 p-3 pb-2">
+                {/* Bloque 1: Medios + Cap. Física + Método */}
+                <div className="flex gap-2 items-start mb-3">
+                  <div className="flex-1 min-w-0 relative">
+                    <label className="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-1 block">Medios</label>
                     <Input
                       value={act.ejercicio}
                       onChange={(e) => updateActividad(faseKey, idx, 'ejercicio', e.target.value)}
                       onFocus={() => setShowExercisePicker(`${faseKey}-${idx}`)}
                       placeholder="Ejercicio..."
-                      className="h-8 text-xs"
+                      className="h-9 text-sm"
                       data-testid={`exercise-input-${faseKey}-${idx}`}
                     />
                     {showExercisePicker === `${faseKey}-${idx}` && (
@@ -873,63 +873,59 @@ const SessionEditor = ({
                       </div>
                     )}
                   </div>
-                  <div className="w-24">
-                    <label className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5 block">Cap. Fisica</label>
+                  <div className="w-[100px] flex-shrink-0">
+                    <label className="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-1 block">Cap. Fisica</label>
                     <Select value={act.capacidadFisica} onValueChange={(v) => updateActividad(faseKey, idx, 'capacidadFisica', v)}>
-                      <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
                       <SelectContent>{CAPACIDADES_FISICAS.map(cap => <SelectItem key={cap.id} value={cap.id} className="text-xs">{cap.name}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
-                  <div className="w-24">
-                    <label className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5 block">Metodo</label>
+                  <div className="w-[100px] flex-shrink-0">
+                    <label className="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-1 block">Metodo</label>
                     <Select value={act.metodo} onValueChange={(v) => updateActividad(faseKey, idx, 'metodo', v)}>
-                      <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
                       <SelectContent>{METODOS_ENTRENAMIENTO.map(met => <SelectItem key={met.id} value={met.id} className="text-xs">{met.name}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
                 </div>
 
-                {/* Fila 2: Carga (Series/Reps/Recup) + Intensidad + Volumen + Org */}
-                <div className="flex gap-2 items-end">
-                  {/* Bloque Carga */}
+                {/* Bloque 2: Carga | Intensidad + Volumen | Organización */}
+                <div className="flex items-end gap-0 bg-slate-50/60 rounded-lg px-2.5 py-2">
+                  {/* Carga */}
                   <div className="flex gap-1.5 items-end">
-                    <div className="w-14">
-                      <label className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5 block">Series</label>
-                      <Input type="number" value={act.series} onChange={(e) => updateActividad(faseKey, idx, 'series', parseInt(e.target.value) || 0)} className="h-8 text-xs text-center" min={1} max={20} />
+                    <div className="w-[52px]">
+                      <label className="text-[8px] uppercase tracking-wider text-slate-400 font-bold mb-0.5 block">Series</label>
+                      <Input type="number" value={act.series} onChange={(e) => updateActividad(faseKey, idx, 'series', parseInt(e.target.value) || 0)} className="h-8 text-xs text-center px-1" min={1} max={20} />
                     </div>
-                    <div className="w-16">
-                      <label className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5 block">Reps</label>
-                      <Input value={act.repeticiones} onChange={(e) => updateActividad(faseKey, idx, 'repeticiones', e.target.value)} className="h-8 text-xs" placeholder="10-12" />
+                    <div className="w-[60px]">
+                      <label className="text-[8px] uppercase tracking-wider text-slate-400 font-bold mb-0.5 block">Reps</label>
+                      <Input value={act.repeticiones} onChange={(e) => updateActividad(faseKey, idx, 'repeticiones', e.target.value)} className="h-8 text-xs px-1.5" placeholder="10-12" />
                     </div>
-                    <div className="w-16">
-                      <label className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5 block">Recup.</label>
-                      <Input value={act.recuperacion} onChange={(e) => updateActividad(faseKey, idx, 'recuperacion', e.target.value)} className="h-8 text-xs" placeholder="2 min" />
+                    <div className="w-[60px]">
+                      <label className="text-[8px] uppercase tracking-wider text-slate-400 font-bold mb-0.5 block">Recup.</label>
+                      <Input value={act.recuperacion} onChange={(e) => updateActividad(faseKey, idx, 'recuperacion', e.target.value)} className="h-8 text-xs px-1.5" placeholder="2 min" />
                     </div>
                   </div>
-
-                  <div className="w-px h-7 bg-slate-200 mx-1" />
-
-                  {/* Bloque Intensidad + Volumen */}
-                  <div className="w-28">
-                    <label className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5 block">Intensidad</label>
+                  <div className="w-px h-8 bg-slate-200 mx-2.5 flex-shrink-0" />
+                  {/* Intensidad + Volumen */}
+                  <div className="w-[120px] flex-shrink-0">
+                    <label className="text-[8px] uppercase tracking-wider text-slate-400 font-bold mb-0.5 block">Intensidad</label>
                     <div className="flex items-center gap-1.5">
-                      <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                        <div className={`h-full transition-all ${act.intensidad > 80 ? 'bg-red-500' : act.intensidad > 60 ? 'bg-orange-500' : act.intensidad > 40 ? 'bg-yellow-500' : 'bg-green-500'}`} style={{ width: `${act.intensidad}%` }} />
+                      <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div className={`h-full rounded-full transition-all ${act.intensidad > 80 ? 'bg-red-500' : act.intensidad > 60 ? 'bg-orange-500' : act.intensidad > 40 ? 'bg-yellow-500' : 'bg-green-500'}`} style={{ width: `${act.intensidad}%` }} />
                       </div>
                       <span className="text-[10px] font-bold text-slate-600 w-8 text-right">{act.intensidad}%</span>
                     </div>
                     <input type="range" min={0} max={100} value={act.intensidad} onChange={(e) => updateActividad(faseKey, idx, 'intensidad', parseInt(e.target.value))} className="w-full h-1 mt-0.5 accent-blue-500" />
                   </div>
-                  <div className="w-16">
-                    <label className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5 block">Volumen</label>
-                    <Input value={act.volumen} onChange={(e) => updateActividad(faseKey, idx, 'volumen', e.target.value)} className="h-8 text-xs" placeholder="30 min" />
+                  <div className="w-[56px] flex-shrink-0 ml-1.5">
+                    <label className="text-[8px] uppercase tracking-wider text-slate-400 font-bold mb-0.5 block">Vol.</label>
+                    <Input value={act.volumen} onChange={(e) => updateActividad(faseKey, idx, 'volumen', e.target.value)} className="h-8 text-xs px-1.5" placeholder="30" />
                   </div>
-
-                  <div className="w-px h-7 bg-slate-200 mx-1" />
-
-                  {/* Bloque Organización */}
-                  <div className="w-24">
-                    <label className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5 block">Proc. Org.</label>
+                  <div className="w-px h-8 bg-slate-200 mx-2.5 flex-shrink-0" />
+                  {/* Organización */}
+                  <div className="w-[100px] flex-shrink-0">
+                    <label className="text-[8px] uppercase tracking-wider text-slate-400 font-bold mb-0.5 block">Proc. Org.</label>
                     <Select value={act.procOrganizativo} onValueChange={(v) => updateActividad(faseKey, idx, 'procOrganizativo', v)}>
                       <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                       <SelectContent>{PROC_ORGANIZATIVO.map(proc => <SelectItem key={proc.id} value={proc.id} className="text-xs">{proc.name}</SelectItem>)}</SelectContent>
@@ -938,51 +934,54 @@ const SessionEditor = ({
                 </div>
               </div>
 
-              {/* ── PIZARRA (derecha) ── */}
-              <div className="w-24 border-l border-slate-100 flex flex-col items-center justify-center p-2 bg-slate-50/50">
+              {/* ── PIZARRA (derecha, con SVG completo) ── */}
+              <div className="w-[88px] flex-shrink-0 border-l border-slate-100 flex flex-col items-center justify-center p-2 bg-slate-50/30">
                 {act.boardThumbnail ? (
-                  <div
-                    className="w-20 h-28 rounded-lg border border-slate-200 overflow-hidden bg-white cursor-pointer hover:border-[#c8f700] transition-colors shadow-sm"
-                    onClick={() => {
-                      boardEditContextRef.current = { faseKey, actId: act.id };
-                      window.open(act.boardId ? `/tactical-board.html?boardId=${act.boardId}` : '/tactical-board.html', '_blank');
-                    }}
-                    title="Clic para editar pizarra"
-                    data-testid={`board-thumb-${faseKey}-${idx}`}
-                    dangerouslySetInnerHTML={{ __html: act.boardThumbnail }}
-                  />
+                  <div className="flex flex-col items-center gap-1">
+                    <div
+                      className="w-[72px] h-[96px] rounded-lg border border-slate-200 bg-white cursor-pointer hover:border-[#c8f700] transition-colors shadow-sm flex items-center justify-center"
+                      onClick={() => {
+                        boardEditContextRef.current = { faseKey, actId: act.id };
+                        window.open(act.boardId ? `/tactical-board.html?boardId=${act.boardId}` : '/tactical-board.html', '_blank');
+                      }}
+                      title="Editar pizarra"
+                      data-testid={`board-thumb-${faseKey}-${idx}`}
+                    >
+                      <div className="w-full h-full overflow-hidden rounded-md" dangerouslySetInnerHTML={{ __html: act.boardThumbnail }} />
+                    </div>
+                  </div>
                 ) : (
                   <button
                     onClick={() => {
                       boardEditContextRef.current = { faseKey, actId: act.id };
                       window.open('/tactical-board.html', '_blank');
                     }}
-                    className="w-20 h-28 rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0] transition-colors"
-                    title="Abrir Pizarra Tactica"
+                    className="w-[72px] h-[96px] rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-300 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/50 transition-all"
+                    title="Abrir Pizarra"
                     data-testid={`open-board-${faseKey}-${idx}`}
                   >
                     <LayoutGrid className="w-5 h-5 mb-1" />
-                    <span className="text-[8px] font-medium">Pizarra</span>
+                    <span className="text-[7px] font-semibold uppercase tracking-wide">Pizarra</span>
                   </button>
                 )}
               </div>
             </div>
 
-            {/* ── FOOTER: Acciones ── */}
-            <div className="flex items-center justify-between px-3 py-1.5 bg-slate-50/80 border-t border-slate-100">
-              <span className="text-[10px] text-slate-400 font-medium">#{idx + 1}</span>
-              <div className="flex items-center gap-1">
+            {/* ── FOOTER: # + Acciones ── */}
+            <div className="flex items-center justify-between px-3 py-1 border-t border-slate-100">
+              <span className="text-[10px] text-slate-300 font-medium">#{idx + 1}</span>
+              <div className="flex items-center gap-0.5">
                 {act.boardThumbnail && (
-                  <button onClick={() => { updateActividadMulti(faseKey, idx, { boardThumbnail: null, boardId: null }); }} className="text-[10px] text-slate-400 hover:text-red-500 px-2 py-0.5 rounded transition-colors">Quitar pizarra</button>
+                  <button onClick={() => updateActividadMulti(faseKey, idx, { boardThumbnail: null, boardId: null })} className="text-[9px] text-slate-300 hover:text-red-400 px-1.5 py-0.5 rounded transition-colors">quitar pizarra</button>
                 )}
                 <button onClick={() => {
                   const dup = { ...act, id: `act-${Date.now()}` };
                   setSessionData(prev => ({...prev, fases: {...prev.fases, [faseKey]: {...prev.fases[faseKey], actividades: [...prev.fases[faseKey].actividades, dup]}}}));
-                }} className="p-1 hover:bg-slate-200 rounded text-slate-400 hover:text-slate-600 transition-colors" title="Duplicar">
-                  <Copy className="w-3.5 h-3.5" />
+                }} className="p-1 hover:bg-slate-100 rounded text-slate-300 hover:text-slate-500 transition-colors" title="Duplicar">
+                  <Copy className="w-3 h-3" />
                 </button>
-                <button onClick={() => deleteActividad(faseKey, idx)} className="p-1 hover:bg-red-50 rounded text-slate-400 hover:text-red-500 transition-colors" title="Eliminar">
-                  <Trash2 className="w-3.5 h-3.5" />
+                <button onClick={() => deleteActividad(faseKey, idx)} className="p-1 hover:bg-red-50 rounded text-slate-300 hover:text-red-400 transition-colors" title="Eliminar">
+                  <Trash2 className="w-3 h-3" />
                 </button>
               </div>
             </div>
