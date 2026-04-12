@@ -75,73 +75,153 @@ const AuthVisual = () => {
     t('auth.visual.phrase2'),
     t('auth.visual.phrase3')
   ]);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
+
+  const volData = [42,48,55,50,62,58,68,72,65,78,82,75,70,80,85,72,68,82,88,78,72,85,90,82];
+  const intData = [25,30,35,38,40,45,48,52,50,55,60,58,55,62,68,65,60,70,75,72,68,78,82,80];
 
   return (
-  <div className="relative h-full flex flex-col justify-center items-center" style={{ background: '#060910' }}>
-    <div className="w-full max-w-[340px] px-4">
+  <div className="relative h-full flex flex-col" style={{ background: '#070a11' }}>
 
-      {/* Typewriter */}
-      <div className="mb-12">
-        <div className="h-[30px] mb-2">
-          <h2 className="text-[21px] font-medium text-white/80" style={{ fontFamily: INT }}>
-            {typedText}<span className="inline-block w-[1.5px] h-[18px] bg-[#c8f700] ml-0.5" style={{ animation: 'blink 1s step-end infinite' }} />
-          </h2>
+    {/* Top section — typewriter + tagline */}
+    <div className="px-10 pt-10 pb-6">
+      <div className="h-[28px] mb-1">
+        <h2 className="text-[20px] font-medium text-white/70" style={{ fontFamily: INT }}>
+          {typedText}<span className="inline-block w-[1.5px] h-[17px] bg-[#c8f700] ml-0.5" style={{ animation: 'blink 1s step-end infinite' }} />
+        </h2>
+      </div>
+      <p className="text-[11px] text-white/20">{t('auth.visual.system_line')}</p>
+    </div>
+
+    {/* Main content — simulated app interface */}
+    <div className="flex-1 px-6 pb-6 flex flex-col gap-3 overflow-hidden">
+
+      {/* Row 1: Header bar — looks like real app nav */}
+      <div className="flex items-center justify-between px-4 py-2.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)' }}>
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-lg bg-[#c8f700] flex items-center justify-center">
+            <span className="text-[12px] font-black text-[#070a11]" style={{ fontFamily: BC }}>i</span>
+          </div>
+          <span className="text-[11px] font-semibold text-white/60">{t('auth.visual.week')} · {t('auth.visual.phase')}</span>
         </div>
-        <p className="text-[12px] text-white/20">{t('auth.visual.system_line')}</p>
+        <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: 'rgba(200,247,0,0.06)' }}>
+          <span className="w-1.5 h-1.5 rounded-full bg-[#c8f700]" style={{ animation: 'pulse3 2s ease infinite' }} />
+          <span className="text-[9px] text-[#c8f700]/60">Live</span>
+        </div>
       </div>
 
-      {/* 3 metric blocks — vertical stack, clean */}
-      <div className="space-y-3 mb-12">
+      {/* Row 2: Three KPI cards */}
+      <div className="grid grid-cols-3 gap-2">
         {[
-          { val: '85', label: t('auth.visual.readiness'), color: '#c8f700', w: '85%' },
-          { val: '0.87', label: t('auth.visual.acwr'), color: '#378ADD', w: '58%' },
-          { val: '94%', label: t('auth.visual.adherence'), color: '#c8f700', w: '94%' },
+          { val: '85', label: t('auth.visual.readiness'), color: '#c8f700', sub: 'optimal' },
+          { val: '0.87', label: t('auth.visual.acwr'), color: '#378ADD', sub: '0.8–1.3' },
+          { val: '94%', label: t('auth.visual.adherence'), color: '#22c55e', sub: 'high' },
         ].map((m, i) => (
-          <div key={i} className="flex items-center gap-4">
-            <div className="w-16 text-right">
-              <span className="text-[24px] font-black leading-none" style={{ color: m.color, fontFamily: BC }}>{m.val}</span>
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[10px] text-white/30 uppercase tracking-[0.12em] font-semibold">{m.label}</span>
-              </div>
-              <div className="h-[3px] rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                <div className="h-full rounded-full" style={{ width: m.w, background: m.color, opacity: 0.6, transition: 'width 1.2s cubic-bezier(0.2,0,0,1)' }} />
-              </div>
-            </div>
+          <div key={i} className="rounded-xl px-3 py-4 text-center" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.03)' }}>
+            <div className="text-[28px] font-black leading-none mb-1" style={{ color: m.color, fontFamily: BC }}>{m.val}</div>
+            <div className="text-[8px] text-white/25 uppercase tracking-[0.1em] font-bold mb-2">{m.label}</div>
+            <div className="h-[2px] rounded-full mx-auto w-8" style={{ background: m.color, opacity: 0.3 }} />
           </div>
         ))}
       </div>
 
-      {/* Divider */}
-      <div className="h-px mb-10" style={{ background: 'rgba(255,255,255,0.04)' }} />
-
-      {/* Stats */}
-      <div className="flex justify-between mb-12">
-        {[
-          { val: '17', label: t('landing.hero.stats.models') },
-          { val: '6', label: t('landing.hero.stats.controls') },
-          { val: '150+', label: t('landing.hero.stats.exercises') },
-        ].map((s, i) => (
-          <div key={i} className="text-center">
-            <div className="text-[20px] font-black text-white/50 leading-none" style={{ fontFamily: BC }}>{s.val}</div>
-            <div className="text-[9px] text-white/15 mt-2">{s.label}</div>
+      {/* Row 3: Periodization chart — the centerpiece */}
+      <div className="flex-1 rounded-xl px-4 pt-4 pb-3 flex flex-col" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.03)', minHeight: 0 }}>
+        {/* Chart header */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] text-white/40 font-semibold uppercase tracking-wider">ATR · 24 {t('landing.chart.weeks')}</span>
           </div>
-        ))}
-      </div>
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1 text-[9px] text-white/25"><span className="w-2 h-[2px] bg-[#378ADD] rounded-full" />VOL</span>
+            <span className="flex items-center gap-1 text-[9px] text-white/25"><span className="w-2 h-[2px] bg-[#c8f700] rounded-full" />INT</span>
+          </div>
+        </div>
 
-      {/* Social proof */}
-      <div className="flex items-center gap-3">
-        <div className="flex -space-x-1.5">
-          {['#c8f700','#378ADD','#E24B4A','#7F77DD','#10B981'].map((bg, i) => (
-            <div key={i} className="w-5 h-5 rounded-full border" style={{ background: bg, borderColor: '#060910', opacity: 0.6 }} />
+        {/* Phase labels */}
+        <div className="flex gap-1 mb-2">
+          {[
+            { n: t('landing.chart.accumulation'), c: '#378ADD', w: '33.33%' },
+            { n: t('landing.chart.transformation'), c: '#c8f700', w: '33.33%' },
+            { n: t('landing.chart.realization'), c: '#E24B4A', w: '33.34%' },
+          ].map((p, i) => (
+            <div key={i} className="text-center py-1 rounded-md" style={{ width: p.w, background: `${p.c}08` }}>
+              <span className="text-[7px] font-bold tracking-wider" style={{ color: `${p.c}60`, fontFamily: BC }}>{p.n}</span>
+            </div>
           ))}
         </div>
-        <p className="text-[11px] text-white/20">{t('auth.visual.active_coaches')}</p>
+
+        {/* SVG area chart */}
+        <div className="flex-1 relative" style={{ minHeight: '80px' }}>
+          <svg viewBox="0 0 240 80" className="w-full h-full" preserveAspectRatio="none">
+            {/* Horizontal grid */}
+            {[20,40,60].map(y => (
+              <line key={y} x1="0" y1={y} x2="240" y2={y} stroke="white" strokeWidth="0.3" opacity="0.03" />
+            ))}
+            {/* Volume area */}
+            <path d={`M${volData.map((v,i) => `${(i/23)*240},${80 - v*0.85}`).join(' L')} L240,80 L0,80 Z`}
+              fill="url(#vGrad)" opacity={mounted ? 0.25 : 0} style={{ transition: 'opacity 1.2s ease 0.3s' }} />
+            <path d={`M${volData.map((v,i) => `${(i/23)*240},${80 - v*0.85}`).join(' L')}`}
+              fill="none" stroke="#378ADD" strokeWidth="1.5" opacity={mounted ? 0.6 : 0} style={{ transition: 'opacity 1s ease 0.3s' }} />
+            {/* Intensity area */}
+            <path d={`M${intData.map((v,i) => `${(i/23)*240},${80 - v*0.85}`).join(' L')} L240,80 L0,80 Z`}
+              fill="url(#iGrad)" opacity={mounted ? 0.2 : 0} style={{ transition: 'opacity 1.2s ease 0.5s' }} />
+            <path d={`M${intData.map((v,i) => `${(i/23)*240},${80 - v*0.85}`).join(' L')}`}
+              fill="none" stroke="#c8f700" strokeWidth="1.5" opacity={mounted ? 0.7 : 0} style={{ transition: 'opacity 1s ease 0.5s' }} />
+            <defs>
+              <linearGradient id="vGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#378ADD" stopOpacity="0.4"/><stop offset="100%" stopColor="#378ADD" stopOpacity="0"/></linearGradient>
+              <linearGradient id="iGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#c8f700" stopOpacity="0.3"/><stop offset="100%" stopColor="#c8f700" stopOpacity="0"/></linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        {/* Week labels */}
+        <div className="flex justify-between mt-1">
+          {['S1','S6','S12','S18','S24'].map(s => (
+            <span key={s} className="text-[7px] text-white/15 font-mono">{s}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* Row 4: Athlete chips + stats */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="flex -space-x-1.5">
+            {[
+              { bg: '#378ADD', t: 'JP' }, { bg: '#22c55e', t: 'MA' }, { bg: '#c8f700', t: 'LC' },
+            ].map((a, i) => (
+              <div key={i} className="w-6 h-6 rounded-full flex items-center justify-center text-[7px] font-bold border" style={{ background: a.bg, color: a.bg === '#c8f700' ? '#070a11' : '#fff', borderColor: '#070a11' }}>{a.t}</div>
+            ))}
+            <div className="w-6 h-6 rounded-full flex items-center justify-center text-[7px] font-bold border" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.3)', borderColor: '#070a11' }}>+21</div>
+          </div>
+          <span className="text-[9px] text-white/20">{t('auth.visual.optimal_zone')}</span>
+        </div>
+        <div className="flex items-center gap-4">
+          {[
+            { v: '17', l: t('landing.hero.stats.models') },
+            { v: '6', l: t('landing.hero.stats.controls') },
+            { v: '150+', l: t('landing.hero.stats.exercises') },
+          ].map((s, i) => (
+            <div key={i} className="text-right">
+              <span className="text-[14px] font-black text-white/40 leading-none" style={{ fontFamily: BC }}>{s.v}</span>
+              <span className="text-[7px] text-white/15 block">{s.l}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Row 5: Social proof bar */}
+      <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: 'rgba(200,247,0,0.02)' }}>
+        <span className="w-1.5 h-1.5 rounded-full bg-[#c8f700]" style={{ animation: 'pulse3 2s ease infinite' }} />
+        <span className="text-[10px] text-white/25">{t('auth.visual.active_coaches')}</span>
       </div>
     </div>
 
-    <style>{`@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}`}</style>
+    <style>{`
+      @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+      @keyframes pulse3{0%,100%{opacity:1}50%{opacity:0.3}}
+    `}</style>
   </div>
   );
 };
