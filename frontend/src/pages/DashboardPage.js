@@ -1304,6 +1304,7 @@ const DashboardPage = () => {
     { id: 'calculators', label: t('dashboard.nav.calculators'), icon: Calculator, section: 'herramientas' },
     { id: 'exercises', label: 'Métodos', icon: Timer, section: 'herramientas' },
     { id: 'exercises-lib', label: t('dashboard.controlPanel.exercises'), icon: Dumbbell, section: 'herramientas' },
+    { id: 'tactical-board', label: 'Pizarra Tactica', icon: LayoutGrid, section: 'herramientas' },
     { id: 'ai-generator', label: 'AI', icon: Sparkles, section: 'herramientas' },
   ];
 
@@ -1612,7 +1613,7 @@ const DashboardPage = () => {
 
     // ====== VERIFICAR SI SE NECESITA UN PLAN ACTIVO ======
     // Secciones que NO requieren plan activo (se pueden ver sin tener un plan seleccionado)
-    const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators', 'create-plan', 'period-overview', 'period-structure', 'period-tests', 'period-load', 'period-control'];
+    const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators', 'tactical-board', 'create-plan', 'period-overview', 'period-structure', 'period-tests', 'period-load', 'period-control'];
     
     if (!activePlan && !sectionsWithoutPlan.includes(activeDataSection)) {
       // Mostrar mensaje de que se necesita seleccionar un plan
@@ -2616,6 +2617,62 @@ const DashboardPage = () => {
         </div>
       );
     }
+
+    // Render Pizarra Tactica section
+    if (activeDataSection === 'tactical-board') {
+      return (
+        <div className="p-4 space-y-4" data-testid="tactical-board-section">
+          <Card className="border-0 shadow-md overflow-hidden">
+            <div className="bg-white border-b border-slate-200 text-slate-900 py-4 px-5 rounded-t-xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-lg font-semibold">
+                  <LayoutGrid className="w-5 h-5" />
+                  Pizarra Tactica Digital
+                </div>
+                <Button onClick={() => window.open('/tactical-board.html', '_blank')} className="bg-[#c8f700] hover:bg-[#b5e000] text-[#1a2800] font-semibold" data-testid="open-tactical-board-btn">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nueva Pizarra
+                </Button>
+              </div>
+              <p className="text-sm text-slate-500 mt-1">Crea formaciones, jugadas y movimientos interactivos para cualquier deporte</p>
+            </div>
+            <CardContent className="p-5">
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="bg-[#f8ffe0] rounded-xl p-4 border border-[#e0f5a0] text-center">
+                  <LayoutGrid className="w-8 h-8 mx-auto mb-2 text-[#3a5a00]" />
+                  <h4 className="font-semibold text-sm text-[#2a4000]">Pizarra Interactiva</h4>
+                  <p className="text-xs text-[#5a7a20] mt-1">Arrastra jugadores, conos, balones y dibuja jugadas en tiempo real</p>
+                </div>
+                <div className="bg-blue-50 rounded-xl p-4 border border-blue-100 text-center">
+                  <Layers className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+                  <h4 className="font-semibold text-sm text-blue-900">Vistas 2D / 2.5D / 3D</h4>
+                  <p className="text-xs text-blue-600 mt-1">Cambia entre vista plana, perspectiva y 3D isometrica con joystick</p>
+                </div>
+                <div className="bg-purple-50 rounded-xl p-4 border border-purple-100 text-center">
+                  <Download className="w-8 h-8 mx-auto mb-2 text-purple-600" />
+                  <h4 className="font-semibold text-sm text-purple-900">Exportar PNG</h4>
+                  <p className="text-xs text-purple-600 mt-1">Descarga la pizarra como imagen para compartir o imprimir</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-4 gap-3">
+                {['Futbol', 'Baloncesto', 'Voleibol', 'Balonmano', 'Futbol de Salon', 'Rugby', 'Tenis', 'Atletismo'].map(sport => (
+                  <button key={sport} onClick={() => window.open(`/tactical-board.html?sport=${encodeURIComponent(sport)}`, '_blank')} className="flex items-center gap-2 p-3 rounded-xl border border-slate-200 hover:border-[#c8f700] hover:bg-[#f8ffe0] transition-all text-left group" data-testid={`sport-board-${sport}`}>
+                    <div className="w-8 h-8 rounded-lg bg-slate-100 group-hover:bg-[#c8f700] transition-colors flex items-center justify-center">
+                      <LayoutGrid className="w-4 h-4 text-slate-500 group-hover:text-[#1a2800]" />
+                    </div>
+                    <div>
+                      <span className="text-xs font-semibold text-slate-800 block">{sport}</span>
+                      <span className="text-[10px] text-slate-400">Abrir pizarra</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
 
     // Render Calendario de Eventos - COMPLETE
     if (activeDataSection === 'events') {
@@ -3705,7 +3762,7 @@ const DashboardPage = () => {
   const renderMainContent = () => {
     if (activePanel === 'datos') {
       // ====== LAYOUT: SIDEBAR DE PLANES + CONTENIDO ======
-      const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators', 'sports', 'tournaments', 'create-plan', 'period-overview', 'period-structure', 'period-tests', 'period-load', 'period-control'];
+      const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators', 'tactical-board', 'sports', 'tournaments', 'create-plan', 'period-overview', 'period-structure', 'period-tests', 'period-load', 'period-control'];
 
       return (
         <div className="flex h-full" data-testid="datos-layout">
