@@ -479,97 +479,107 @@ const SessionEditor = ({
       const html2canvas = (await import('html2canvas')).default;
       const { jsPDF } = await import('jspdf');
       
-      // Encontrar los elementos reales del modal
       const dialog = document.querySelector('[data-testid="session-editor-dialog"]');
-      const headerEl = dialog?.querySelector('.sticky');
+      const dialogContent = dialog?.querySelector('[role="dialog"]') || dialog?.firstElementChild;
+      if (!dialogContent) throw new Error('No se encontró el contenido');
+      
       const contentEl = dialog?.querySelector('[data-testid="session-editor-content"]');
       const footerEl = dialog?.querySelector('.sticky.bottom-0');
-      if (!contentEl || !headerEl) throw new Error('No se encontró el contenido');
       
-      // Guardar estilos originales del scroll container
-      const origMaxH = contentEl.style.maxHeight;
-      const origOverflow = contentEl.style.overflow;
+      // Guardar estilos originales
+      const origStyles = {
+        dcWidth: dialogContent.style.width,
+        dcMaxWidth: dialogContent.style.maxWidth,
+        dcMaxHeight: dialogContent.style.maxHeight,
+        dcHeight: dialogContent.style.height,
+        dcOverflow: dialogContent.style.overflow,
+        cMaxH: contentEl?.style.maxHeight,
+        cOverflow: contentEl?.style.overflow,
+        fDisplay: footerEl?.style.display
+      };
       
-      // Expandir para capturar TODO el contenido (sin scroll)
-      contentEl.style.maxHeight = 'none';
-      contentEl.style.overflow = 'visible';
-      
-      // Ocultar footer temporalmente
+      // Ajustar para captura: ancho fijo, sin scroll, sin footer
+      dialogContent.style.width = '800px';
+      dialogContent.style.maxWidth = '800px';
+      dialogContent.style.maxHeight = 'none';
+      dialogContent.style.height = 'auto';
+      dialogContent.style.overflow = 'visible';
+      if (contentEl) {
+        contentEl.style.maxHeight = 'none';
+        contentEl.style.overflow = 'visible';
+      }
       if (footerEl) footerEl.style.display = 'none';
       
-      // Esperar un frame para que el DOM se actualice
-      await new Promise(r => setTimeout(r, 200));
+      await new Promise(r => setTimeout(r, 300));
       
-      // Capturar header
-      const headerCanvas = await html2canvas(headerEl, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: null,
-        logging: false
-      });
-      
-      // Capturar contenido
-      const contentCanvas = await html2canvas(contentEl, {
+      // Capturar todo el dialog de una sola vez
+      const canvas = await html2canvas(dialogContent, {
         scale: 2,
         useCORS: true,
         backgroundColor: '#f5f5f7',
-        logging: false
+        logging: false,
+        width: 800,
+        windowWidth: 800,
+        scrollX: 0,
+        scrollY: 0
       });
       
-      // Restaurar estilos originales
-      contentEl.style.maxHeight = origMaxH;
-      contentEl.style.overflow = origOverflow;
-      if (footerEl) footerEl.style.display = '';
+      // Restaurar estilos
+      dialogContent.style.width = origStyles.dcWidth;
+      dialogContent.style.maxWidth = origStyles.dcMaxWidth;
+      dialogContent.style.maxHeight = origStyles.dcMaxHeight;
+      dialogContent.style.height = origStyles.dcHeight;
+      dialogContent.style.overflow = origStyles.dcOverflow;
+      if (contentEl) {
+        contentEl.style.maxHeight = origStyles.cMaxH;
+        contentEl.style.overflow = origStyles.cOverflow;
+      }
+      if (footerEl) footerEl.style.display = origStyles.fDisplay;
       
-      // Combinar header + content en un solo canvas
-      const combinedCanvas = document.createElement('canvas');
-      combinedCanvas.width = Math.max(headerCanvas.width, contentCanvas.width);
-      combinedCanvas.height = headerCanvas.height + contentCanvas.height;
-      const ctx = combinedCanvas.getContext('2d');
-      ctx.drawImage(headerCanvas, 0, 0);
-      ctx.drawImage(contentCanvas, 0, headerCanvas.height);
-      
-      // Generar PDF A4 con paginación
+      // PDF A4 landscape para que el contenido no se comprima
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageW = 210, pageH = 297;
-      const margin = 6;
+      const margin = 5;
       const usableW = pageW - margin * 2;
       const usableH = pageH - margin * 2;
-      const imgRatio = combinedCanvas.height / combinedCanvas.width;
-      const imgTotalHmm = usableW * imgRatio;
       
-      if (imgTotalHmm <= usableH) {
-        // Cabe en una sola página
-        const imgData = combinedCanvas.toDataURL('image/jpeg', 0.95);
-        pdf.addImage(imgData, 'JPEG', margin, margin, usableW, imgTotalHmm);
+      // Calcular dimensiones
+      const imgW = canvas.width;
+      const imgH = canvas.height;
+      const ratio = imgH / imgW;
+      const pdfImgW = usableW;
+      const pdfImgH = pdfImgW * ratio;
+      
+      if (pdfImgH <= usableH) {
+        const imgData = canvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', margin, margin, pdfImgW, pdfImgH);
       } else {
-        // Paginar recortando el canvas
-        const pxPerMm = combinedCanvas.width / usableW;
-        const sliceHPx = usableH * pxPerMm;
+        // Paginar
+        const pxPerMm = imgW / pdfImgW;
+        const sliceHPx = Math.floor(usableH * pxPerMm);
         let srcY = 0;
         let page = 0;
         
-        while (srcY < combinedCanvas.height) {
+        while (srcY < imgH) {
           if (page > 0) pdf.addPage();
-          const remaining = combinedCanvas.height - srcY;
-          const h = Math.min(sliceHPx, remaining);
+          const h = Math.min(sliceHPx, imgH - srcY);
           
           const sliceCanvas = document.createElement('canvas');
-          sliceCanvas.width = combinedCanvas.width;
+          sliceCanvas.width = imgW;
           sliceCanvas.height = h;
           const sctx = sliceCanvas.getContext('2d');
-          sctx.drawImage(combinedCanvas, 0, srcY, combinedCanvas.width, h, 0, 0, combinedCanvas.width, h);
+          sctx.drawImage(canvas, 0, srcY, imgW, h, 0, 0, imgW, h);
           
-          const sliceImg = sliceCanvas.toDataURL('image/jpeg', 0.95);
+          const sliceImg = sliceCanvas.toDataURL('image/png');
           const sliceHmm = h / pxPerMm;
-          pdf.addImage(sliceImg, 'JPEG', margin, margin, usableW, sliceHmm);
+          pdf.addImage(sliceImg, 'PNG', margin, margin, pdfImgW, sliceHmm);
           
           srcY += h;
           page++;
         }
       }
       
-      // Nombre del archivo
+      // Nombre
       const code = `SES-${String(session?.sessionIndex || session?.dayName || '001').padStart(3, '0')}`;
       const name = (sessionData.sessionName || 'Sesion').replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s-]/g, '').replace(/\s+/g, '-');
       const date = sessionDate ? sessionDate.toLocaleDateString('es-ES', {day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\//g, '-') : new Date().toISOString().split('T')[0];
