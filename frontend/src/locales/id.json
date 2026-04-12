@@ -313,6 +313,20 @@
       "hasAccount": "Sudah punya akun?",
       "login": "Masuk",
       "passwordRequirements": "Minimal 6 karakter"
+    },
+    "visual": {
+      "phrase1": "Rencanakan lebih baik.",
+      "phrase2": "Latih dengan metode.",
+      "phrase3": "Bersaing tanpa batas.",
+      "system_line": "Sistem yang digunakan pelatih pemenang.",
+      "week": "Minggu 18",
+      "phase": "Fase Transformasi",
+      "readiness": "Kesiapan",
+      "acwr": "ACWR",
+      "adherence": "Kepatuhan",
+      "optimal_zone": "3 atlet di zona optimal",
+      "active_coaches": "+1.200 pelatih aktif minggu ini",
+      "new_coaches": "48 pelatih baru dalam 7 hari terakhir"
     }
   },
   "dashboard": {

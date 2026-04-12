@@ -313,6 +313,20 @@
       "hasAccount": "Already have an account?",
       "login": "Log In",
       "passwordRequirements": "Minimum 6 characters"
+    },
+    "visual": {
+      "phrase1": "Plan better.",
+      "phrase2": "Train with criteria.",
+      "phrase3": "Compete without limits.",
+      "system_line": "The system used by coaches who win.",
+      "week": "Week 18",
+      "phase": "Transformation Phase",
+      "readiness": "Readiness",
+      "acwr": "ACWR",
+      "adherence": "Adherence",
+      "optimal_zone": "3 athletes in optimal zone",
+      "active_coaches": "+1,200 active coaches this week",
+      "new_coaches": "48 new coaches joined in the last 7 days"
     }
   },
   "dashboard": {

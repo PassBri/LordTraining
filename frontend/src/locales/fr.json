@@ -313,6 +313,20 @@
       "hasAccount": "Déjà un compte ?",
       "login": "Connexion",
       "passwordRequirements": "6 caractères minimum"
+    },
+    "visual": {
+      "phrase1": "Planifiez mieux.",
+      "phrase2": "Entraînez avec méthode.",
+      "phrase3": "Compétitionnez sans limites.",
+      "system_line": "Le système utilisé par les entraîneurs qui gagnent.",
+      "week": "Semaine 18",
+      "phase": "Phase Transformation",
+      "readiness": "Readiness",
+      "acwr": "ACWR",
+      "adherence": "Adhérence",
+      "optimal_zone": "3 athlètes en zone optimale",
+      "active_coaches": "+1 200 entraîneurs actifs cette semaine",
+      "new_coaches": "48 nouveaux entraîneurs ces 7 derniers jours"
     }
   },
   "dashboard": {

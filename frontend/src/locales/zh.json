@@ -313,6 +313,20 @@
       "hasAccount": "已有账户？",
       "login": "登录",
       "passwordRequirements": "至少6个字符"
+    },
+    "visual": {
+      "phrase1": "更好地规划。",
+      "phrase2": "科学地训练。",
+      "phrase3": "无限地竞争。",
+      "system_line": "赢家教练使用的系统。",
+      "week": "第18周",
+      "phase": "转化阶段",
+      "readiness": "准备度",
+      "acwr": "ACWR",
+      "adherence": "依从性",
+      "optimal_zone": "3名运动员处于最佳区域",
+      "active_coaches": "+1,200名活跃教练",
+      "new_coaches": "过去7天48名新教练加入"
     }
   },
   "dashboard": {

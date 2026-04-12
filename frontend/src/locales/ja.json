@@ -313,6 +313,20 @@
       "hasAccount": "アカウントをお持ち？",
       "login": "ログイン",
       "passwordRequirements": "6文字以上"
+    },
+    "visual": {
+      "phrase1": "より良く計画する。",
+      "phrase2": "メソッドでトレーニング。",
+      "phrase3": "限界なく競争する。",
+      "system_line": "勝つコーチが使うシステム。",
+      "week": "第18週",
+      "phase": "変換フェーズ",
+      "readiness": "レディネス",
+      "acwr": "ACWR",
+      "adherence": "アドヒアランス",
+      "optimal_zone": "3選手が最適ゾーン",
+      "active_coaches": "+1,200人のアクティブコーチ",
+      "new_coaches": "過去7日間に48人の新コーチ"
     }
   },
   "dashboard": {

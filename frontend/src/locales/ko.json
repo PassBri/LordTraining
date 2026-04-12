@@ -313,6 +313,20 @@
       "hasAccount": "이미 계정이 있으신가요?",
       "login": "로그인",
       "passwordRequirements": "최소 6자"
+    },
+    "visual": {
+      "phrase1": "더 나은 계획.",
+      "phrase2": "방법론으로 훈련.",
+      "phrase3": "한계 없이 경쟁.",
+      "system_line": "이기는 코치들이 사용하는 시스템.",
+      "week": "18주차",
+      "phase": "전환 단계",
+      "readiness": "준비도",
+      "acwr": "ACWR",
+      "adherence": "준수율",
+      "optimal_zone": "최적 영역의 선수 3명",
+      "active_coaches": "+1,200명 활성 코치",
+      "new_coaches": "지난 7일간 48명의 새 코치"
     }
   },
   "dashboard": {

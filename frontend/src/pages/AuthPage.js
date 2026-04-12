@@ -21,9 +21,12 @@ const useTypewriter = (phrases, typingSpeed = 60, deletingSpeed = 30, pauseTime 
   const [text, setText] = useState('');
   const [phraseIdx, setPhraseIdx] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
+  const phrasesRef = useRef(phrases);
+  phrasesRef.current = phrases;
 
   useEffect(() => {
-    const current = phrases[phraseIdx];
+    const current = phrasesRef.current[phraseIdx % phrasesRef.current.length];
+    if (!current) return;
     const timeout = setTimeout(() => {
       if (!isDeleting) {
         setText(current.substring(0, text.length + 1));
@@ -35,12 +38,12 @@ const useTypewriter = (phrases, typingSpeed = 60, deletingSpeed = 30, pauseTime 
         setText(current.substring(0, text.length - 1));
         if (text.length === 0) {
           setIsDeleting(false);
-          setPhraseIdx((phraseIdx + 1) % phrases.length);
+          setPhraseIdx((phraseIdx + 1) % phrasesRef.current.length);
         }
       }
     }, isDeleting ? deletingSpeed : typingSpeed);
     return () => clearTimeout(timeout);
-  }, [text, isDeleting, phraseIdx, phrases, typingSpeed, deletingSpeed, pauseTime]);
+  }, [text, isDeleting, phraseIdx, typingSpeed, deletingSpeed, pauseTime]);
 
   return text;
 };
@@ -68,9 +71,9 @@ const useCountUp = (target, duration = 1200) => {
 const AuthVisual = () => {
   const { t } = useTranslation();
   const typedText = useTypewriter([
-    'Planifica mejor.',
-    'Entrena con criterio.',
-    'Compite sin límites.'
+    t('auth.visual.phrase1'),
+    t('auth.visual.phrase2'),
+    t('auth.visual.phrase3')
   ]);
   const readiness = useCountUp(85, 1200);
   const acwr = useCountUp(0.87, 1400);
@@ -113,7 +116,7 @@ const AuthVisual = () => {
         <div className="h-[2px] bg-[#c8f700]/40 rounded-full overflow-hidden mb-3">
           <div className="h-full bg-[#c8f700] rounded-full" style={{ width: `${(typedText.length / 22) * 100}%`, transition: 'width 0.1s linear' }} />
         </div>
-        <p className="text-[13px] text-slate-500">El sistema que usan los entrenadores que ganan.</p>
+        <p className="text-[13px] text-slate-500">{t('auth.visual.system_line')}</p>
       </div>
 
       {/* BLOCK 2 — Dashboard card */}
@@ -124,8 +127,8 @@ const AuthVisual = () => {
             <div className="w-6 h-6 bg-[#c8f700] rounded-md flex items-center justify-center">
               <Activity className="w-3.5 h-3.5 text-[#080b12]" />
             </div>
-            <span className="text-[12px] font-semibold text-white/80">Semana 18</span>
-            <span className="text-[10px] text-slate-500">Fase Transformación</span>
+            <span className="text-[12px] font-semibold text-white/80">{t('auth.visual.week')}</span>
+            <span className="text-[10px] text-slate-500">{t('auth.visual.phase')}</span>
           </div>
           {/* 3 Metrics */}
           <div className="grid grid-cols-3 gap-3 mb-4">
@@ -175,7 +178,7 @@ const AuthVisual = () => {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c8f700] opacity-40" />
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#c8f700]" />
             </span>
-            <span className="text-[11px] text-slate-400">3 atletas en zona óptima</span>
+            <span className="text-[11px] text-slate-400">{t('auth.visual.optimal_zone')}</span>
           </div>
         </div>
       </div>
@@ -216,22 +219,17 @@ const AuthVisual = () => {
             ))}
           </div>
           <div>
-            <p className="text-[12px] font-semibold text-white/90">+1.200 entrenadores activos esta semana</p>
+            <p className="text-[12px] font-semibold text-white/90">{t('auth.visual.active_coaches')}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c8f700] opacity-40" />
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#c8f700]" />
               </span>
-              <p className="text-[10px] text-slate-500">Se unieron 48 nuevos entrenadores en los últimos 7 días</p>
+              <p className="text-[10px] text-slate-500">{t('auth.visual.new_coaches')}</p>
             </div>
           </div>
         </div>
       </div>
-    </div>
-
-    {/* Disclaimer */}
-    <div className="absolute bottom-3 right-4 z-10">
-      <span className="text-[11px]" style={{ color: '#2a2f3a' }}>Datos simulados con fines ilustrativos</span>
     </div>
 
     <style>{`
