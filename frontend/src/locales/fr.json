@@ -293,7 +293,10 @@
       "forgotPassword": "Mot de passe oublié ?",
       "noAccount": "Pas de compte ?",
       "createAccount": "Créer un compte",
-      "error": "Identifiants invalides"
+      "error": "Identifiants invalides",
+      "freeTrial": "14 jours gratuits",
+      "resetSent": "Si l'email existe, vous recevrez des instructions de réinitialisation.",
+      "haveAccount": "Vous avez déjà un compte ?"
     },
     "register": {
       "title": "Créez votre compte",
@@ -312,7 +315,8 @@
       "submit": "Créer le compte",
       "hasAccount": "Déjà un compte ?",
       "login": "Connexion",
-      "passwordRequirements": "6 caractères minimum"
+      "passwordRequirements": "6 caractères minimum",
+      "termsText": "En créant votre compte, vous acceptez les Conditions et la Politique de confidentialité."
     },
     "visual": {
       "phrase1": "Votre prochaine séance vous attend.",

@@ -293,7 +293,10 @@
       "forgotPassword": "Lupa kata sandi?",
       "noAccount": "Belum punya akun?",
       "createAccount": "Buat akun",
-      "error": "Kredensial tidak valid"
+      "error": "Kredensial tidak valid",
+      "freeTrial": "14 hari gratis",
+      "resetSent": "Jika email terdaftar, Anda akan menerima instruksi reset kata sandi.",
+      "haveAccount": "Sudah punya akun?"
     },
     "register": {
       "title": "Buat akun",
@@ -312,7 +315,8 @@
       "submit": "Buat Akun",
       "hasAccount": "Sudah punya akun?",
       "login": "Masuk",
-      "passwordRequirements": "Minimal 6 karakter"
+      "passwordRequirements": "Minimal 6 karakter",
+      "termsText": "Dengan membuat akun, Anda menyetujui Ketentuan Layanan dan Kebijakan Privasi."
     },
     "visual": {
       "phrase1": "Sesi berikutnya menunggu Anda.",

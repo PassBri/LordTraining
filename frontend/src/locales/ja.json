@@ -293,7 +293,10 @@
       "forgotPassword": "パスワードを忘れた？",
       "noAccount": "アカウントがない？",
       "createAccount": "アカウント作成",
-      "error": "無効な認証情報"
+      "error": "無効な認証情報",
+      "freeTrial": "14日間無料",
+      "resetSent": "メールが存在する場合、パスワードリセットの手順が送信されます。",
+      "haveAccount": "アカウントをお持ちですか？"
     },
     "register": {
       "title": "アカウントを作成",
@@ -312,7 +315,8 @@
       "submit": "アカウント作成",
       "hasAccount": "アカウントをお持ち？",
       "login": "ログイン",
-      "passwordRequirements": "6文字以上"
+      "passwordRequirements": "6文字以上",
+      "termsText": "アカウントを作成すると、利用規約とプライバシーポリシーに同意したことになります。"
     },
     "visual": {
       "phrase1": "次のセッションがあなたを待っています。",

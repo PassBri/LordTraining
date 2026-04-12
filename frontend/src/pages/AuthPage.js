@@ -378,7 +378,7 @@ const AuthPage = () => {
     }
   };
 
-  const inputClass = "pl-10 h-11 border-slate-200 focus:border-[#007AFF] focus:ring-[#007AFF]/10 rounded-lg bg-white text-[14px]";
+  const inputClass = "pl-10 h-11 border-slate-200 focus:border-[#c8f700] focus:ring-[#c8f700]/10 rounded-lg bg-white text-[14px]";
 
   return (
     <div className="min-h-screen flex auth-reset" style={{ fontFamily: INT }}>
@@ -415,7 +415,7 @@ const AuthPage = () => {
             {t('common.tagline')}
           </p>
           <p className="text-[12px] text-slate-400 mb-7">
-            14 days free · <span className="text-[#007AFF]">{t('landing.nav.pricing')}</span>
+            {t('auth.login.freeTrial')} · <a href="#pricing" className="text-[#3a5a00] hover:underline">{t('landing.nav.pricing')}</a>
           </p>
 
           {/* Tabs */}
@@ -476,7 +476,7 @@ const AuthPage = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <button type="button" className="text-[12px] text-slate-400 hover:text-[#007AFF] transition-colors">
+                  <button type="button" onClick={() => toast.info(t('auth.login.resetSent'))} className="text-[12px] text-slate-400 hover:text-[#3a5a00] transition-colors">
                     {t('auth.login.forgotPassword')}
                   </button>
                 </div>
@@ -492,7 +492,7 @@ const AuthPage = () => {
               </form>
               <p className="text-center text-[12px] text-slate-400 mt-6">
                 {t('auth.login.noAccount')}{' '}
-                <button onClick={() => document.querySelector('[data-testid="register-tab"]').click()} className="text-[#007AFF] hover:underline font-medium">
+                <button onClick={() => document.querySelector('[data-testid="register-tab"]').click()} className="text-[#3a5a00] hover:underline font-medium">
                   {t('auth.login.createAccount')}
                 </button>
               </p>
@@ -565,7 +565,7 @@ const AuthPage = () => {
                         return (
                           <SelectItem key={role.id} value={role.id} className="py-2.5">
                             <div className="flex items-center gap-2.5">
-                              <IconComponent className="w-4 h-4 text-[#007AFF]" />
+                              <IconComponent className="w-4 h-4 text-[#3a5a00]" />
                               <span className="text-[13px] font-medium">{role.name}</span>
                             </div>
                           </SelectItem>
@@ -576,7 +576,7 @@ const AuthPage = () => {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full h-11 bg-[#007AFF] hover:bg-[#0066dd] text-white text-[13px] font-semibold rounded-lg"
+                  className="w-full h-11 bg-[#c8f700] hover:bg-[#d9ff20] text-[#0b0e14] text-[13px] font-bold rounded-lg hover:-translate-y-[1px] transition-all"
                   disabled={isLoading}
                   data-testid="register-submit-btn"
                 >
@@ -584,8 +584,14 @@ const AuthPage = () => {
                   {t('auth.register.submit')}
                 </Button>
               </form>
-              <p className="text-center text-[11px] text-slate-400 mt-5">
-                {t('landing.footer.terms')} & {t('landing.footer.privacy')}
+              <p className="text-center text-[12px] text-slate-400 mt-4">
+                {t('auth.login.haveAccount')}{' '}
+                <button onClick={() => document.querySelector('[data-testid="login-tab"]').click()} className="text-[#3a5a00] hover:underline font-medium">
+                  {t('auth.login.submit')}
+                </button>
+              </p>
+              <p className="text-center text-[11px] text-slate-300 mt-3">
+                {t('auth.register.termsText')}
               </p>
             </TabsContent>
           </Tabs>

@@ -293,7 +293,10 @@
       "forgotPassword": "Forgot password?",
       "noAccount": "Don't have an account?",
       "createAccount": "Create account",
-      "error": "Invalid credentials"
+      "error": "Invalid credentials",
+      "freeTrial": "14 days free",
+      "resetSent": "If the email exists, you will receive password reset instructions.",
+      "haveAccount": "Already have an account?"
     },
     "register": {
       "title": "Create your account",
@@ -312,7 +315,8 @@
       "submit": "Create Account",
       "hasAccount": "Already have an account?",
       "login": "Log In",
-      "passwordRequirements": "Minimum 6 characters"
+      "passwordRequirements": "Minimum 6 characters",
+      "termsText": "By creating your account you accept the Terms of Service and Privacy Policy."
     },
     "visual": {
       "phrase1": "Your next session is waiting for you.",

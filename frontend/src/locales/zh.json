@@ -293,7 +293,10 @@
       "forgotPassword": "忘记密码？",
       "noAccount": "没有账户？",
       "createAccount": "创建账户",
-      "error": "凭证无效"
+      "error": "凭证无效",
+      "freeTrial": "14天免费",
+      "resetSent": "如果邮箱存在，您将收到密码重置说明。",
+      "haveAccount": "已有账户？"
     },
     "register": {
       "title": "创建账户",
@@ -312,7 +315,8 @@
       "submit": "创建账户",
       "hasAccount": "已有账户？",
       "login": "登录",
-      "passwordRequirements": "至少6个字符"
+      "passwordRequirements": "至少6个字符",
+      "termsText": "创建账户即表示您接受服务条款和隐私政策。"
     },
     "visual": {
       "phrase1": "你的下一次训练正在等你。",

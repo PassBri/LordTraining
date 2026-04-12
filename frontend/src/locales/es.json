@@ -293,7 +293,10 @@
       "forgotPassword": "¿Olvidaste tu contraseña?",
       "noAccount": "¿No tienes cuenta?",
       "createAccount": "Crear cuenta",
-      "error": "Credenciales inválidas"
+      "error": "Credenciales inválidas",
+      "freeTrial": "14 días gratis",
+      "resetSent": "Si el correo existe, recibirás instrucciones para restablecer tu contraseña.",
+      "haveAccount": "¿Ya tienes cuenta?"
     },
     "register": {
       "title": "Crea tu cuenta",
@@ -312,7 +315,8 @@
       "submit": "Crear Cuenta",
       "hasAccount": "¿Ya tienes cuenta?",
       "login": "Iniciar Sesión",
-      "passwordRequirements": "Mínimo 6 caracteres"
+      "passwordRequirements": "Mínimo 6 caracteres",
+      "termsText": "Al crear tu cuenta aceptas los Términos de Servicio y la Política de Privacidad."
     },
     "visual": {
       "phrase1": "Tu próxima sesión te está esperando.",

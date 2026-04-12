@@ -293,7 +293,10 @@
       "forgotPassword": "Passwort vergessen?",
       "noAccount": "Kein Konto?",
       "createAccount": "Konto erstellen",
-      "error": "Ungültige Anmeldedaten"
+      "error": "Ungültige Anmeldedaten",
+      "freeTrial": "14 Tage kostenlos",
+      "resetSent": "Falls die E-Mail existiert, erhalten Sie Anweisungen zum Zurücksetzen.",
+      "haveAccount": "Bereits ein Konto?"
     },
     "register": {
       "title": "Konto erstellen",
@@ -312,7 +315,8 @@
       "submit": "Konto erstellen",
       "hasAccount": "Bereits registriert?",
       "login": "Anmelden",
-      "passwordRequirements": "Mindestens 6 Zeichen"
+      "passwordRequirements": "Mindestens 6 Zeichen",
+      "termsText": "Mit der Erstellung akzeptieren Sie die Nutzungsbedingungen und Datenschutzrichtlinie."
     },
     "visual": {
       "phrase1": "Deine nächste Einheit wartet auf dich.",

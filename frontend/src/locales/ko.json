@@ -293,7 +293,10 @@
       "forgotPassword": "비밀번호를 잊으셨나요?",
       "noAccount": "계정이 없으신가요?",
       "createAccount": "계정 만들기",
-      "error": "잘못된 인증 정보"
+      "error": "잘못된 인증 정보",
+      "freeTrial": "14일 무료",
+      "resetSent": "이메일이 존재하면 비밀번호 재설정 안내를 받게 됩니다.",
+      "haveAccount": "이미 계정이 있으신가요?"
     },
     "register": {
       "title": "계정 만들기",
@@ -312,7 +315,8 @@
       "submit": "계정 만들기",
       "hasAccount": "이미 계정이 있으신가요?",
       "login": "로그인",
-      "passwordRequirements": "최소 6자"
+      "passwordRequirements": "최소 6자",
+      "termsText": "계정을 만들면 서비스 약관 및 개인정보 보호정책에 동의하게 됩니다."
     },
     "visual": {
       "phrase1": "다음 세션이 기다리고 있습니다.",
