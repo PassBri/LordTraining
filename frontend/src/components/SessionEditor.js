@@ -712,14 +712,14 @@ const SessionEditor = ({
             {/* Header */}
             <div className="flex items-center justify-between px-3 py-1.5 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100 rounded-t-2xl">
               <span className="text-[11px] font-bold text-slate-800">Actividad {idx + 1}</span>
-              <div className="flex items-center gap-1">
-                <button onClick={() => {const dup={...act,id:`act-${Date.now()}`};setSessionData(prev=>({...prev,fases:{...prev.fases,[faseKey]:{...prev.fases[faseKey],actividades:[...prev.fases[faseKey].actividades,dup]}}}));}} className="p-1 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600" title="Duplicar"><Copy className="w-3 h-3" /></button>
-                <button onClick={() => deleteActividad(faseKey, idx)} className="p-1 hover:bg-red-50 rounded-full text-slate-400 hover:text-red-500" title="Eliminar"><Trash2 className="w-3 h-3" /></button>
+              <div className="flex items-center gap-0.5">
+                <button onClick={() => {const dup={...act,id:`act-${Date.now()}`};setSessionData(prev=>({...prev,fases:{...prev.fases,[faseKey]:{...prev.fases[faseKey],actividades:[...prev.fases[faseKey].actividades,dup]}}}));}} className="p-1.5 hover:bg-blue-50 rounded-lg text-slate-300 hover:text-blue-500 transition-colors" title="Duplicar"><Copy className="w-3.5 h-3.5" /></button>
+                <button onClick={() => deleteActividad(faseKey, idx)} className="p-1.5 hover:bg-red-50 rounded-lg text-slate-300 hover:text-red-400 transition-colors" title="Eliminar"><Trash2 className="w-3.5 h-3.5" /></button>
               </div>
             </div>
 
             {/* Una sola fila: Medios | Carga | Intensidad | Materiales | Pizarra */}
-            <div className="flex gap-1.5 p-2">
+            <div className="flex gap-1.5 p-2.5">
               {/* MEDIOS */}
               <div className="flex-[4] min-w-0 rounded-xl border border-slate-100 p-2 relative">
                 <div className="flex items-center gap-1 mb-1">
@@ -834,15 +834,15 @@ const SessionEditor = ({
               </div>
 
               {/* PIZARRA */}
-              <div className="w-[130px] flex-shrink-0 rounded-xl border border-slate-100 p-2 flex flex-col">
+              <div className="w-[135px] flex-shrink-0 rounded-xl border border-slate-100 p-2 flex flex-col">
                 <div className="flex items-center gap-1 mb-1">
                   <div className="w-4 h-4 rounded bg-[#f0ffd0] flex items-center justify-center"><LayoutGrid className="w-2.5 h-2.5 text-[#3a5a00]" /></div>
                   <span className="text-[8px] font-bold uppercase tracking-widest text-slate-500">Pizarra</span>
                 </div>
                 {act.boardThumbnail ? (
-                  <div className="w-full rounded-lg border border-slate-200 bg-white cursor-pointer hover:border-[#c8f700] overflow-hidden" style={{height:'100px'}} onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open(act.boardId?`/tactical-board.html?boardId=${act.boardId}`:'/tactical-board.html','_blank');}} data-testid={`board-thumb-${faseKey}-${idx}`} dangerouslySetInnerHTML={{__html:act.boardThumbnail}} />
+                  <div className="w-full rounded-lg border border-slate-200 bg-white cursor-pointer hover:border-[#c8f700] overflow-hidden" style={{height:'115px'}} onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open(act.boardId?`/tactical-board.html?boardId=${act.boardId}`:'/tactical-board.html','_blank');}} data-testid={`board-thumb-${faseKey}-${idx}`} dangerouslySetInnerHTML={{__html:act.boardThumbnail}} />
                 ) : (
-                  <button onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open('/tactical-board.html','_blank');}} className="w-full rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-300 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all" style={{height:'100px'}} data-testid={`open-board-${faseKey}-${idx}`}>
+                  <button onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open('/tactical-board.html','_blank');}} className="w-full rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-300 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all" style={{height:'115px'}} data-testid={`open-board-${faseKey}-${idx}`}>
                     <LayoutGrid className="w-4 h-4" /><span className="text-[6px] font-semibold uppercase mt-0.5">Abrir</span>
                   </button>
                 )}
