@@ -523,9 +523,6 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       console.error('Error saving session to API:', e);
     }
     
-    setSessionEditorOpen(false);
-    setEditingSession(null);
-    setEditingSessionLocation(null);
     toast.success('Sesión guardada');
   };
 
