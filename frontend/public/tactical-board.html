@@ -143,6 +143,15 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
 .btn-guardar{padding:6px 16px;border-radius:6px;font-size:12px;font-weight:700;background:#10b981;color:#fff}
 .btn-guardar:hover{filter:brightness(1.1)}
 .gallery-empty{text-align:center;padding:24px 12px;color:var(--text-muted);font-size:11px}
+/* Color picker */
+#color-picker{position:absolute;z-index:250;background:#fff;border:1px solid var(--border);border-radius:10px;padding:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);display:none;width:180px}
+#color-picker.show{display:block}
+#color-picker h4{font-size:10px;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;padding:0 2px}
+.cp-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:6px}
+.cp-swatch{width:28px;height:28px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .1s}
+.cp-swatch:hover{transform:scale(1.15);border-color:var(--text-muted)}
+.cp-swatch.active{border-color:var(--primary);box-shadow:0 0 0 2px rgba(37,99,235,0.2)}
+.cp-swatch.light{border:2px solid var(--border)}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -165,6 +174,8 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
 <div id="main">
  <!-- TOOLBAR -->
  <div id="toolbar"></div>
+ <!-- COLOR PICKER -->
+ <div id="color-picker"></div>
 
  <!-- CANVAS -->
  <div id="canvas-wrap">
@@ -250,7 +261,8 @@ const ST = {
  dragging: null, dragStart: null, dragOffset: null,
  drawing: null, selRect: null, spaceDown: false, panning: false,
  playbackState: null, playbackArrows: null, playbackIdx: 0, playbackSpeed: 1, playbackRAF: null, playbackStartTime: null,
- panelTab: 'elements', gallery: [], editingBoardId: null
+ panelTab: 'elements', gallery: [], editingBoardId: null,
+ teamAColor: '#ef4444', teamBColor: '#2563eb'
 };
 
 // ═══════════ CATEGORIES & SPORTS ═══════════
@@ -270,7 +282,7 @@ const FIELDS = {
 'Futbol':{bg:'#ffffff',svg:`<rect x="82" y="30" width="436" height="740" rx="3" fill="none"/><line x1="82" y1="400" x2="518" y2="400"/><circle cx="300" cy="400" r="62" fill="none"/><circle cx="300" cy="400" r="3" fill="rgba(0,0,0,0.35)"/><rect x="165" y="30" width="270" height="112" fill="none"/><rect x="210" y="30" width="180" height="45" fill="none"/><path d="M200 142 A55 55 0 0 0 400 142" fill="none"/><rect x="250" y="14" width="100" height="18" rx="2" fill="none"/><rect x="165" y="658" width="270" height="112" fill="none"/><rect x="210" y="725" width="180" height="45" fill="none"/><path d="M200 658 A55 55 0 0 1 400 658" fill="none"/><rect x="250" y="768" width="100" height="18" rx="2" fill="none"/><path d="M82 42 A12 12 0 0 0 94 30" fill="none"/><path d="M506 30 A12 12 0 0 0 518 42" fill="none"/><path d="M82 758 A12 12 0 0 1 94 770" fill="none"/><path d="M506 770 A12 12 0 0 1 518 758" fill="none"/>`},
 'Baloncesto':{bg:'#ffffff',svg:`<rect x="130" y="60" width="340" height="680" rx="2" fill="none"/><line x1="130" y1="400" x2="470" y2="400"/><circle cx="300" cy="400" r="30" fill="none"/><circle cx="300" cy="400" r="2.5" fill="rgba(0,0,0,0.3)"/><rect x="215" y="60" width="170" height="140" fill="none"/><circle cx="300" cy="200" r="30" fill="none"/><path d="M145 60 L145 130 A160 160 0 0 0 455 130 L455 60" fill="none" stroke-dasharray="5 3"/><rect x="280" y="48" width="40" height="12" rx="1" fill="none"/><circle cx="300" cy="76" r="8" fill="none" stroke-dasharray="2 2"/><rect x="215" y="540" width="170" height="140" fill="none"/><circle cx="300" cy="540" r="30" fill="none"/><path d="M145 740 L145 610 A160 160 0 0 1 455 610 L455 740" fill="none" stroke-dasharray="5 3"/><rect x="280" y="740" width="40" height="12" rx="1" fill="none"/><circle cx="300" cy="664" r="8" fill="none" stroke-dasharray="2 2"/>`},
 'Voleibol':{bg:'#ffffff',svg:`<rect x="60" y="50" width="480" height="700" rx="3" fill="none"/><line x1="60" y1="400" x2="540" y2="400" stroke-width="3"/><line x1="60" y1="283" x2="540" y2="283" stroke-dasharray="6 4"/><line x1="60" y1="517" x2="540" y2="517" stroke-dasharray="6 4"/>`},
-'Balonmano':{bg:'#ffffff',svg:`<rect x="80" y="40" width="440" height="720" rx="3" fill="none"/><line x1="80" y1="400" x2="520" y2="400"/><circle cx="300" cy="400" r="3" fill="rgba(0,0,0,0.3)"/><path d="M195 40 A115 80 0 0 0 405 40" fill="none" stroke-width="2"/><path d="M195 760 A115 80 0 0 1 405 760" fill="none" stroke-width="2"/><path d="M175 40 A135 95 0 0 0 425 40" fill="none" stroke-dasharray="5 4"/><path d="M175 760 A135 95 0 0 1 425 760" fill="none" stroke-dasharray="5 4"/><rect x="250" y="24" width="100" height="18" rx="2" fill="none"/><rect x="250" y="758" width="100" height="18" rx="2" fill="none"/>`},
+'Balonmano':{bg:'#ffffff',svg:`<rect x="120" y="40" width="360" height="720" rx="2" fill="none"/><line x1="120" y1="400" x2="480" y2="400"/><circle cx="300" cy="400" r="3" fill="rgba(0,0,0,0.3)"/><path d="M192 40 A108 108 0 0 1 408 40" fill="none" stroke-width="2"/><path d="M138 40 A162 162 0 0 1 462 40" fill="none" stroke-dasharray="5 4"/><rect x="273" y="24" width="54" height="18" rx="2" fill="none"/><circle cx="300" cy="166" r="3" fill="rgba(0,0,0,0.3)"/><path d="M192 760 A108 108 0 0 0 408 760" fill="none" stroke-width="2"/><path d="M138 760 A162 162 0 0 0 462 760" fill="none" stroke-dasharray="5 4"/><rect x="273" y="758" width="54" height="18" rx="2" fill="none"/><circle cx="300" cy="634" r="3" fill="rgba(0,0,0,0.3)"/>`},
 'Rugby':{bg:'#ffffff',svg:`<rect x="60" y="30" width="480" height="740" rx="3" fill="none"/><rect x="60" y="30" width="480" height="60" fill="rgba(0,0,0,0.04)"/><rect x="60" y="710" width="480" height="60" fill="rgba(0,0,0,0.04)"/><line x1="60" y1="90" x2="540" y2="90"/><line x1="60" y1="710" x2="540" y2="710"/><line x1="60" y1="194" x2="540" y2="194"/><line x1="60" y1="297" x2="540" y2="297" stroke-dasharray="4 3"/><line x1="60" y1="400" x2="540" y2="400"/><line x1="60" y1="503" x2="540" y2="503" stroke-dasharray="4 3"/><line x1="60" y1="606" x2="540" y2="606"/>`},
 'Hockey':{bg:'#ffffff',svg:`<rect x="60" y="40" width="480" height="720" rx="60" fill="none"/><line x1="60" y1="400" x2="540" y2="400" stroke="rgba(255,80,80,0.6)" stroke-width="2"/><line x1="60" y1="250" x2="540" y2="250" stroke="rgba(80,120,255,0.5)"/><line x1="60" y1="550" x2="540" y2="550" stroke="rgba(80,120,255,0.5)"/><circle cx="300" cy="400" r="28" fill="none"/><circle cx="200" cy="180" r="22" fill="none"/><circle cx="400" cy="180" r="22" fill="none"/><circle cx="200" cy="620" r="22" fill="none"/><circle cx="400" cy="620" r="22" fill="none"/>`},
 'Beisbol':{bg:'#ffffff',svg:`<path d="M300 580 L130 380 L300 180 L470 380 Z" fill="none" stroke-width="2"/><circle cx="300" cy="580" r="6" fill="rgba(0,0,0,0.2)"/><circle cx="130" cy="380" r="6" fill="rgba(0,0,0,0.2)"/><circle cx="300" cy="180" r="6" fill="rgba(0,0,0,0.2)"/><circle cx="470" cy="380" r="6" fill="rgba(0,0,0,0.2)"/><circle cx="300" cy="430" r="8" fill="rgba(0,0,0,0.08)"/><line x1="80" y1="580" x2="300" y2="580" fill="none"/><line x1="300" y1="580" x2="520" y2="580" fill="none"/><path d="M90 580 A290 290 0 0 1 510 580" fill="none" stroke-dasharray="8 5"/>`},
@@ -288,11 +300,11 @@ const FIELDS = {
 'Karate':{bg:'#ffffff',svg:`<rect x="80" y="180" width="440" height="440" fill="rgba(0,0,0,0.02)" rx="3" stroke="rgba(0,0,0,0.15)"/><rect x="140" y="240" width="320" height="320" fill="rgba(0,0,0,0.03)" stroke="rgba(0,0,0,0.3)" rx="2"/><line x1="140" y1="400" x2="460" y2="400" stroke="rgba(0,0,0,0.12)" stroke-dasharray="4 3"/><circle cx="300" cy="400" r="4" fill="rgba(0,0,0,0.2)"/>`},
 'Lucha':{bg:'#ffffff',svg:`<rect x="80" y="180" width="440" height="440" fill="rgba(0,0,0,0.02)" rx="3" stroke="rgba(0,0,0,0.1)"/><circle cx="300" cy="400" r="200" fill="none" stroke-width="2"/><circle cx="300" cy="400" r="130" fill="none"/><circle cx="300" cy="400" r="40" fill="rgba(0,0,0,0.04)"/><circle cx="300" cy="400" r="4" fill="rgba(0,0,0,0.3)"/>`},
 'Kickboxing':{bg:'#ffffff',svg:`<rect x="100" y="200" width="400" height="400" rx="6" fill="none" stroke-width="2.5"/><rect x="115" y="215" width="370" height="370" rx="5" fill="none" stroke-width="1.5"/><rect x="130" y="230" width="340" height="340" rx="4" fill="none"/>`},
-'Atletismo':{bg:'#ffffff',svg:`<rect x="100" y="150" width="400" height="500" rx="120" fill="rgba(30,100,30,0.08)"/>${[0,1,2,3,4,5,6,7].map(i=>{const m=14*i;return`<rect x="${100-m}" y="${150-m}" width="${400+m*2}" height="${500+m*2}" rx="${120+m}" fill="none"/>`}).join('')}<line x1="300" y1="36" x2="300" y2="55" stroke-width="3"/><line x1="300" y1="745" x2="300" y2="764" stroke-width="3"/>`},
+'Atletismo':{bg:'#ffffff',svg:`<rect x="150" y="80" width="300" height="640" rx="150" fill="rgba(30,100,30,0.06)"/>${[0,1,2,3,4,5,6,7].map(i=>{const m=12*i;return`<rect x="${150-m}" y="${80-m}" width="${300+m*2}" height="${640+m*2}" rx="${150+m}" fill="none"/>`}).join('')}<line x1="300" y1="30" x2="300" y2="50" stroke-width="3"/><line x1="300" y1="750" x2="300" y2="770" stroke-width="3"/>`},
 'Natacion':{bg:'#ffffff',svg:`${[0,1,2,3,4,5,6,7].map(i=>`<rect x="${85+i*55}" y="40" width="45" height="720" fill="none" rx="1"/><line x1="${107+i*55}" y1="40" x2="${107+i*55}" y2="760" stroke-dasharray="8 6" opacity="0.3"/><text x="${107+i*55}" y="34" text-anchor="middle" fill="rgba(0,0,0,0.2)" font-size="10">${i+1}</text>`).join('')}<line x1="85" y1="80" x2="525" y2="80" stroke="rgba(255,200,0,0.3)" stroke-dasharray="3 3"/><line x1="85" y1="720" x2="525" y2="720" stroke="rgba(255,200,0,0.3)" stroke-dasharray="3 3"/>`},
 'Ciclismo':{bg:'#ffffff',svg:`<ellipse cx="300" cy="400" rx="250" ry="320" fill="none" stroke-width="3"/><ellipse cx="300" cy="400" rx="225" ry="295" fill="none"/><ellipse cx="300" cy="400" rx="200" ry="270" fill="none" stroke-dasharray="5 3"/><line x1="300" y1="75" x2="300" y2="95" stroke-width="3"/>`},
 'Remo':{bg:'#ffffff',svg:`${[0,1,2,3,4,5].map(i=>`<rect x="${110+i*65}" y="40" width="55" height="720" fill="none" rx="1"/>`).join('')}<line x1="100" y1="60" x2="500" y2="60" stroke-width="2"/><line x1="100" y1="740" x2="500" y2="740" stroke-width="2"/>`},
-'Patinaje Velocidad':{bg:'#ffffff',svg:`<rect x="100" y="100" width="400" height="600" rx="150" fill="none" stroke-width="2"/><rect x="120" y="120" width="360" height="560" rx="130" fill="none"/><line x1="300" y1="95" x2="300" y2="110" stroke-width="3"/>`},
+'Patinaje Velocidad':{bg:'#ffffff',svg:`<rect x="150" y="80" width="300" height="640" rx="150" fill="none" stroke-width="2.5"/><rect x="165" y="95" width="270" height="610" rx="135" fill="none"/><line x1="300" y1="72" x2="300" y2="88" stroke-width="3"/>`},
 'Patinaje Artistico':{bg:'#ffffff',svg:`<rect x="80" y="60" width="440" height="680" rx="8" fill="none" stroke-width="2"/><circle cx="300" cy="400" r="4" fill="rgba(0,0,0,0.2)"/>`},
 'Esqui':{bg:'#ffffff',svg:`<path d="M300 50 L250 180 L330 310 L260 440 L340 570 L290 700" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="35" stroke-linecap="round" stroke-linejoin="round"/>${[0,1,2,3,4,5,6,7,8,9].map((g,i)=>`<rect x="${280+((i%2)?18:-18)}" y="${70+i*65}" width="10" height="3" rx="1" fill="${i%2?'rgba(80,120,255,0.5)':'rgba(255,60,60,0.5)'}"/>`).join('')}<polygon points="300,40 293,52 307,52" fill="rgba(60,200,60,0.5)"/><rect x="275" y="710" width="50" height="4" rx="1" fill="rgba(255,60,60,0.5)"/>`},
 'Maraton':{bg:'#ffffff',svg:`<path d="M150 720 L150 560 L450 560 L450 380 L150 380 L150 200 L450 200 L450 80" fill="none" stroke-width="20" stroke="rgba(0,0,0,0.05)" stroke-linecap="round" stroke-linejoin="round"/><path d="M150 720 L150 560 L450 560 L450 380 L150 380 L150 200 L450 200 L450 80" fill="none" stroke-width="2" stroke-dasharray="6 4"/>`},
@@ -422,16 +434,58 @@ const S = {
   const tb = document.getElementById('toolbar');
   tb.innerHTML = TOOLS.map(t => {
    if(t.group===0) return '<div class="tool-sep"></div>';
+   // Dynamic colored icons for player tools
+   let icon = t.icon;
+   if(t.id==='playerA') icon = `<circle cx="9" cy="9" r="7" fill="${ST.teamAColor}22" stroke="${ST.teamAColor}" stroke-width="1.5"/><text x="9" y="12" text-anchor="middle" font-size="8" fill="${ST.teamAColor}" font-weight="700">A</text>`;
+   if(t.id==='playerB') icon = `<circle cx="9" cy="9" r="7" fill="${ST.teamBColor}22" stroke="${ST.teamBColor}" stroke-width="1.5"/><text x="9" y="12" text-anchor="middle" font-size="8" fill="${ST.teamBColor}" font-weight="700">B</text>`;
    return `<button class="tool${ST.tool===t.id?' active':''}" data-tool="${t.id}" title="${t.label}" aria-label="${t.label}">
-    <svg viewBox="0 0 18 18" fill="none">${t.icon}</svg><span>${t.label}</span></button>`;
+    <svg viewBox="0 0 18 18" fill="none">${icon}</svg><span>${t.label}</span></button>`;
   }).join('');
   tb.onclick = e => {
    const btn = e.target.closest('[data-tool]');
    if(!btn) return;
    const tid = btn.dataset.tool;
    if(tid.startsWith('d_')) { this.showDispositionModal(tid); return; }
+   if(tid==='playerA'||tid==='playerB') { this.showColorPicker(btn, tid); return; }
+   this.hideColorPicker();
    this.setTool(tid);
   };
+ },
+
+ // ── COLOR PICKER ──
+ showColorPicker(anchorBtn, toolId) {
+  const cp = document.getElementById('color-picker');
+  const isA = toolId==='playerA';
+  const currentColor = isA ? ST.teamAColor : ST.teamBColor;
+  const teamLabel = isA ? 'Equipo A' : 'Equipo B';
+  const COLORS = ['#ef4444','#2563eb','#22c55e','#eab308','#f97316','#8b5cf6','#ec4899','#06b6d4','#1e293b','#ffffff'];
+  cp.innerHTML = `<h4>${teamLabel}</h4><div class="cp-grid">${COLORS.map(c =>
+   `<div class="cp-swatch${c===currentColor?' active':''}${c==='#ffffff'?' light':''}" style="background:${c}" data-color="${c}" data-team="${toolId}"></div>`
+  ).join('')}</div>`;
+  // Position near the anchor button
+  const rect = anchorBtn.getBoundingClientRect();
+  cp.style.left = (rect.right + 6) + 'px';
+  cp.style.top = rect.top + 'px';
+  cp.classList.add('show');
+  cp.onclick = e => {
+   const swatch = e.target.closest('[data-color]');
+   if(!swatch) return;
+   const color = swatch.dataset.color;
+   if(isA) ST.teamAColor = color; else ST.teamBColor = color;
+   this.hideColorPicker();
+   this.setTool(toolId);
+   this.renderToolbar();
+  };
+  // Close on outside click
+  setTimeout(()=>document.addEventListener('click',function h(ev){
+   if(!cp.contains(ev.target)&&!ev.target.closest(`[data-tool="${toolId}"]`)){
+    cp.classList.remove('show');document.removeEventListener('click',h);
+   }
+  },true),10);
+ },
+
+ hideColorPicker() {
+  document.getElementById('color-picker').classList.remove('show');
  },
 
  setTool(id) {
@@ -616,7 +670,7 @@ const S = {
  // ── ELEMENTS ──
  addElement(type, x, y, extra={}) {
   const id = ST.nextId++;
-  const el = {id, type, x, y, color: type==='playerA'?'#c8f700':type==='playerB'?'#334155':type==='goalkeeper'?'#EF9F27':'#334155', ...extra};
+  const el = {id, type, x, y, color: type==='playerA'?ST.teamAColor:type==='playerB'?ST.teamBColor:type==='goalkeeper'?'#EF9F27':'#334155', ...extra};
   if(type==='playerA'||type==='playerB'||type==='goalkeeper') {
    el.label = String(ST.elements.filter(e=>e.type===type).length + 1);
    el.size = 15;
@@ -755,7 +809,7 @@ const S = {
    let html = '';
    ST.elements.forEach(el => {
     const isSel = ST.selected.includes(el);
-    const dot = el.type==='playerA'?'#c8f700':el.type==='playerB'?'#334155':el.type==='goalkeeper'?'#EF9F27':el.type==='cone'?'#ff9800':el.type==='arrow'?'#2563eb':el.type==='zone'?'#2563eb':'#64748b';
+    const dot = el.type==='playerA'?ST.teamAColor:el.type==='playerB'?ST.teamBColor:el.type==='goalkeeper'?'#EF9F27':el.type==='cone'?'#ff9800':el.type==='arrow'?'#2563eb':el.type==='zone'?'#2563eb':'#64748b';
     const name = el.type==='playerA'?`Jugador A #${el.label}`:el.type==='playerB'?`Jugador B #${el.label}`:el.type==='goalkeeper'?`Portero #${el.label}`:el.type==='cone'?'Cono':el.type==='ball'?'Balon':el.type==='arrow'?'Flecha':el.type==='line'?'Linea':el.type==='zone'?'Zona':el.type==='text'?el.label:el.type==='flag'?'Bandera':el.type==='hurdle'?'Valla':el.type;
     html += `<div class="el-item${isSel?' selected':''}" onclick="S.selectEl(${el.id})"><span class="el-dot" style="background:${dot}"></span><span class="el-name">${name}</span><button class="el-del" onclick="event.stopPropagation();S.deleteEl(${el.id})">✕</button></div>`;
    });
