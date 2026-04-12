@@ -21,7 +21,7 @@ import { EJERCICIOS_INICIALES } from './ExerciseLibrary';
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const BC = "'Barlow Condensed', sans-serif";
-const INT = "'Inter', sans-serif";
+const DM = "'DM Sans', sans-serif";
 
 // Inline sport field data for preview (avoids babel plugin issues with imports)
 const BOARD_SPORTS = {
@@ -973,7 +973,7 @@ const SessionEditor = ({
                 </div>
               </div>
 
-              {/* INTENSIDAD */}
+              {/* DMENSIDAD */}
               <div className="w-[110px] flex-shrink-0 rounded-xl border border-slate-100 p-2">
                 <div className="flex items-center gap-1 mb-1">
                   <div className="w-4 h-4 rounded bg-orange-50 flex items-center justify-center"><Zap className="w-2.5 h-2.5 text-orange-600" /></div>
@@ -1050,14 +1050,19 @@ const SessionEditor = ({
           onEscapeKeyDown={(e) => e.preventDefault()}
           onInteractOutside={(e) => e.preventDefault()}
         >
-          {/* ══ DARK HEADER BAR — Landing Page Branding ══ */}
+          {/* ══ DARK HEADER BAR ══ */}
           <style>{`
-            .se-input::placeholder { color: rgba(255,255,255,0.3) !important; }
+            .se-input::placeholder { color: rgba(255,255,255,0.4) !important; font-weight: 400 !important; }
+            .se-input { font-family: 'DM Sans', sans-serif !important; }
+            .se-field-label { font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(100,116,139,0.7); font-family: 'DM Sans', sans-serif; }
+            .se-field-input { font-size: 13px; font-family: 'DM Sans', sans-serif; }
+            .se-field-input::placeholder { font-weight: 400; color: rgba(0,0,0,0.35); }
+            .se-section-title { font-size: 15px; font-weight: 600; color: #fff; font-family: 'DM Sans', sans-serif; }
           `}</style>
-          <DialogTitle className="sr-only">Sesion de Entrenamiento</DialogTitle>
-          <div className="sticky top-0 z-10" style={{background:'#0a0a0f'}}>
+          <DialogTitle className="sr-only">Sesión de entrenamiento</DialogTitle>
+          <div className="sticky top-0 z-10" style={{background:'#0a0a0f',fontFamily:DM}}>
             <div className="flex items-center gap-3 px-5 py-3">
-              {/* Logo — matching Landing Page navbar exactly */}
+              {/* Logo */}
               <div className="flex items-center gap-2.5 flex-shrink-0">
                 <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{background:'#CCFF00'}}>
                   <span className="text-[18px] font-black leading-none" style={{color:'#0f172a',fontFamily:BC}}>i</span>
@@ -1069,32 +1074,30 @@ const SessionEditor = ({
               {/* Session name + code + subtitle */}
               <div className="flex-1 min-w-0 ml-1">
                 <div className="flex items-center gap-2.5">
-                  {/* 02: Name input — 17px, weight 500, proper placeholder */}
+                  {/* Nombre de sesión: 17px, weight 600, blanco puro */}
                   <input
                     value={sessionData.sessionName || ''}
                     onChange={(e) => setSessionData(prev => ({...prev, sessionName: e.target.value}))}
                     className="bg-transparent text-white border-0 outline-none truncate w-auto max-w-[280px]"
-                    style={{fontFamily:INT,fontSize:'17px',fontWeight:500}}
-                    placeholder="Nombre de la sesion..."
+                    style={{fontFamily:DM,fontSize:'17px',fontWeight:600}}
+                    placeholder="Nombre de la sesión..."
                     data-testid="session-name-input"
                   />
-                  {/* 01: SES badge — solid lime bg, black text */}
                   <span className="text-[9px] font-bold px-2.5 py-1 rounded-full flex-shrink-0" style={{background:'#9EFF00',color:'#0f0f13',fontFamily:BC,letterSpacing:'0.04em'}}>SES-{String(session?.sessionIndex || session?.dayName || '001').padStart(3,'0')}</span>
                 </div>
-                {/* 04: Subtitle — 35% white opacity */}
-                <p className="text-[10px] mt-0.5 truncate" style={{fontFamily:INT,color:'rgba(255,255,255,0.35)'}}>
-                  Sesion {session?.sessionIndex || session?.dayName || '1'} · Semana {session?.weekIndex || session?.weekName || '1'} · {session?.mesoName || session?.macroName || 'Mesociclo 1'}
+                {/* Subtítulo: 11px, weight 400, blanco 35% */}
+                <p className="mt-0.5 truncate" style={{fontFamily:DM,fontSize:'11px',fontWeight:400,color:'rgba(255,255,255,0.35)'}}>
+                  Sesión {session?.sessionIndex || session?.dayName || '1'} · Semana {session?.weekIndex || session?.weekName || '1'} · {session?.mesoName || session?.macroName || 'Mesociclo 1'}
                   {athleteName && <span style={{color:'rgba(255,255,255,0.2)'}} className="ml-2">· {athleteName}</span>}
                 </p>
               </div>
-              {/* Right chips */}
+              {/* Chips: 12px, weight 500 */}
               <div className="flex items-center gap-1.5 flex-shrink-0">
-                {/* Date picker with Popover + Calendar */}
                 <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
                   <PopoverTrigger asChild>
-                    <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg cursor-pointer hover:opacity-80 transition-opacity" style={{background:'rgba(204,255,0,0.08)',border:'0.5px solid rgba(204,255,0,0.15)'}}>
+                    <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg cursor-pointer hover:opacity-80 transition-opacity" style={{background:'rgba(204,255,0,0.08)',border:'0.5px solid rgba(204,255,0,0.15)',fontFamily:DM}}>
                       <Calendar className="w-3.5 h-3.5" style={{color:'#CCFF00',opacity:0.6}} />
-                      <span className="text-[11px] text-white/90 whitespace-nowrap">
+                      <span style={{fontSize:'12px',fontWeight:500,color:'rgba(255,255,255,0.9)'}}>
                         {sessionDate ? sessionDate.toLocaleDateString('es-ES', {day:'2-digit',month:'short',year:'numeric'}) : 'Elegir fecha'}
                       </span>
                     </button>
@@ -1118,16 +1121,16 @@ const SessionEditor = ({
                     />
                   </PopoverContent>
                 </Popover>
-                {/* Duration chip */}
+                {/* Duración: 12px, weight 500 */}
                 <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg" style={{background:'rgba(204,255,0,0.08)',border:'0.5px solid rgba(204,255,0,0.15)'}}>
                   <Clock className="w-3.5 h-3.5 flex-shrink-0" style={{color:'#CCFF00',opacity:0.6}} />
                   <div className="flex items-center">
-                    <input value={sessionData.duration} onChange={(e) => setSessionData(prev => ({...prev, duration: e.target.value}))} className="w-7 h-5 bg-transparent border-0 text-white/90 text-[11px] p-0 text-right outline-none" placeholder="90" />
-                    <span className="text-[11px] text-white/90 ml-0.5">min</span>
+                    <input value={sessionData.duration} onChange={(e) => setSessionData(prev => ({...prev, duration: e.target.value}))} className="w-7 h-5 bg-transparent border-0 p-0 text-right outline-none" style={{fontSize:'12px',fontWeight:500,color:'rgba(255,255,255,0.9)',fontFamily:DM}} placeholder="90" />
+                    <span style={{fontSize:'12px',fontWeight:500,color:'rgba(255,255,255,0.9)',marginLeft:'2px'}}>min</span>
                   </div>
                 </div>
-                {/* Status dropdown */}
-                <select value={sessionData.sessionStatus} onChange={(e) => setSessionData(prev => ({...prev, sessionStatus: e.target.value}))} className="h-7 text-[11px] rounded-lg px-2.5 border-0 outline-none cursor-pointer text-white/90" style={{background:'rgba(204,255,0,0.08)',border:'0.5px solid rgba(204,255,0,0.15)',colorScheme:'dark'}}>
+                {/* Estado: 12px, completada = 600 */}
+                <select value={sessionData.sessionStatus} onChange={(e) => setSessionData(prev => ({...prev, sessionStatus: e.target.value}))} className="h-7 rounded-lg px-2.5 border-0 outline-none cursor-pointer" style={{fontSize:'12px',fontWeight: sessionData.sessionStatus === 'completada' ? 600 : 500,background:'rgba(204,255,0,0.08)',border:'0.5px solid rgba(204,255,0,0.15)',color:'rgba(255,255,255,0.9)',colorScheme:'dark',fontFamily:DM}}>
                   <option value="planificada" style={{background:'#12131a',color:'#fff'}}>Planificada</option>
                   <option value="en_curso" style={{background:'#12131a',color:'#fff'}}>En curso</option>
                   <option value="completada" style={{background:'#12131a',color:'#fff'}}>Completada</option>
@@ -1138,37 +1141,36 @@ const SessionEditor = ({
             <div className="flex items-center gap-3 px-5 py-2" style={{background:'#12131a',borderTop:'0.5px solid rgba(255,255,255,0.06)',borderBottom:'0.5px solid rgba(255,255,255,0.06)'}}>
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
                 <Users className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.5)'}} />
-                <input value={sessionData.team} onChange={(e) => setSessionData(prev => ({...prev, team: e.target.value}))} className="se-input h-6 text-[11px] bg-transparent border-0 outline-none w-full min-w-[60px]" style={{color:'rgba(255,255,255,0.85)'}} placeholder="Equipo / Atleta" />
+                <input value={sessionData.team} onChange={(e) => setSessionData(prev => ({...prev, team: e.target.value}))} className="se-input h-6 bg-transparent border-0 outline-none w-full min-w-[60px]" style={{color:'rgba(255,255,255,0.85)',fontSize:'12px',fontWeight:500}} placeholder="Equipo / Atleta" />
               </div>
               <div style={{width:'0.5px',height:'16px',background:'rgba(255,255,255,0.12)'}} />
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
                 <User className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.5)'}} />
-                <input value={sessionData.coach} onChange={(e) => setSessionData(prev => ({...prev, coach: e.target.value}))} className="se-input h-6 text-[11px] bg-transparent border-0 outline-none w-full min-w-[60px]" style={{color:'rgba(255,255,255,0.85)'}} placeholder="Entrenador..." />
+                <input value={sessionData.coach} onChange={(e) => setSessionData(prev => ({...prev, coach: e.target.value}))} className="se-input h-6 bg-transparent border-0 outline-none w-full min-w-[60px]" style={{color:'rgba(255,255,255,0.85)',fontSize:'12px',fontWeight:500}} placeholder="Entrenador..." />
               </div>
               <div style={{width:'0.5px',height:'16px',background:'rgba(255,255,255,0.12)'}} />
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
                 <MapPin className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.5)'}} />
-                <input value={sessionData.location} onChange={(e) => setSessionData(prev => ({...prev, location: e.target.value}))} className="se-input h-6 text-[11px] bg-transparent border-0 outline-none w-full min-w-[60px]" style={{color:'rgba(255,255,255,0.85)'}} placeholder="Lugar" />
+                <input value={sessionData.location} onChange={(e) => setSessionData(prev => ({...prev, location: e.target.value}))} className="se-input h-6 bg-transparent border-0 outline-none w-full min-w-[60px]" style={{color:'rgba(255,255,255,0.85)',fontSize:'12px',fontWeight:500}} placeholder="Lugar" />
               </div>
               <div style={{width:'0.5px',height:'16px',background:'rgba(255,255,255,0.12)'}} />
               <div className="flex items-center gap-1.5 w-[140px] flex-shrink-0">
                 <Activity className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.5)'}} />
-                <select value={sessionData.sessionType} onChange={(e) => setSessionData(prev => ({...prev, sessionType: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none cursor-pointer w-full" style={{color:'rgba(255,255,255,0.85)',colorScheme:'dark'}}>
-                  <option value="tecnico-tactico" style={{background:'#12131a',color:'#fff'}}>Tecnico-Tactico</option>
-                  <option value="fisico" style={{background:'#12131a',color:'#fff'}}>Fisico</option>
-                  <option value="recuperacion" style={{background:'#12131a',color:'#fff'}}>Recuperacion</option>
-                  <option value="evaluacion" style={{background:'#12131a',color:'#fff'}}>Evaluacion</option>
-                  <option value="competicion" style={{background:'#12131a',color:'#fff'}}>Competicion</option>
+                <select value={sessionData.sessionType} onChange={(e) => setSessionData(prev => ({...prev, sessionType: e.target.value}))} className="h-6 bg-transparent border-0 outline-none cursor-pointer w-full" style={{color:'rgba(255,255,255,0.85)',fontSize:'12px',fontWeight:500,colorScheme:'dark',fontFamily:DM}}>
+                  <option value="tecnico-tactico" style={{background:'#12131a',color:'#fff'}}>Técnico-Táctico</option>
+                  <option value="fisico" style={{background:'#12131a',color:'#fff'}}>Físico</option>
+                  <option value="recuperacion" style={{background:'#12131a',color:'#fff'}}>Recuperación</option>
+                  <option value="evaluacion" style={{background:'#12131a',color:'#fff'}}>Evaluación</option>
+                  <option value="competicion" style={{background:'#12131a',color:'#fff'}}>Competición</option>
                   <option value="mixto" style={{background:'#12131a',color:'#fff'}}>Mixto</option>
                 </select>
               </div>
               <div style={{width:'0.5px',height:'16px',background:'rgba(255,255,255,0.12)'}} />
-              {/* Carga est. */}
               <div className="flex items-center gap-1.5 w-[120px] flex-shrink-0">
                 <Zap className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.5)'}} />
                 {sessionData.estimatedLoad ? (
                   <>
-                    <input value={sessionData.estimatedLoad} onChange={(e) => setSessionData(prev => ({...prev, estimatedLoad: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none w-full" style={{color:'rgba(255,255,255,0.85)'}} placeholder="Carga" />
+                    <input value={sessionData.estimatedLoad} onChange={(e) => setSessionData(prev => ({...prev, estimatedLoad: e.target.value}))} className="se-input h-6 bg-transparent border-0 outline-none w-full" style={{color:'rgba(255,255,255,0.85)',fontSize:'12px',fontWeight:500}} placeholder="Carga" />
                     <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${
                       parseFloat(sessionData.estimatedLoad) > 70 ? 'bg-red-500/25 text-red-400' :
                       parseFloat(sessionData.estimatedLoad) > 40 ? 'bg-amber-500/25 text-amber-400' :
@@ -1176,7 +1178,7 @@ const SessionEditor = ({
                     }`}>{parseFloat(sessionData.estimatedLoad) > 70 ? 'Alta' : parseFloat(sessionData.estimatedLoad) > 40 ? 'Media' : 'Baja'}</span>
                   </>
                 ) : (
-                  <span className="text-[10px] whitespace-nowrap" style={{color:'rgba(255,255,255,0.3)'}}>— Sin calcular</span>
+                  <span style={{fontSize:'11px',fontWeight:400,color:'rgba(255,255,255,0.3)',whiteSpace:'nowrap'}}>— Sin calcular</span>
                 )}
               </div>
             </div>
@@ -1190,33 +1192,33 @@ const SessionEditor = ({
             style={{background:'#f5f5f7'}}
           >
             <div className="p-6 space-y-5">
-              {/* Objetivos de la Sesión */}
-              <Card className="border-0 shadow-md bg-white overflow-hidden rounded-2xl">
+              {/* Objetivos de la sesión */}
+              <Card className="border-0 shadow-md bg-white overflow-hidden rounded-2xl" style={{fontFamily:DM}}>
                 <CardHeader className="pb-3 pt-4 px-5" style={{background:'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)'}}>
-                  <CardTitle className="flex items-center gap-2.5 text-[14px]" style={{fontFamily:INT}}>
+                  <CardTitle className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#CCFF00'}}>
                       <Target className="w-3.5 h-3.5 text-slate-900" />
                     </div>
-                    <span className="text-white font-bold">Objetivos de la Sesion</span>
+                    <span className="se-section-title">Objetivos de la sesión</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-5 bg-white">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {[
-                      { key: 'general', label: 'Objetivo General', placeholder: 'Objetivo principal de la sesion...' },
-                      { key: 'fisico', label: 'Objetivo Fisico', placeholder: 'Desarrollo de capacidades fisicas...' },
-                      { key: 'tecnico', label: 'Objetivo Tecnico', placeholder: 'Mejora tecnica especifica...' },
-                      { key: 'tactico', label: 'Objetivo Tactico', placeholder: 'Desarrollo tactico...' },
-                      { key: 'psicologico', label: 'Objetivo Psicologico', placeholder: 'Aspecto mental a trabajar...' },
-                      { key: 'teorico', label: 'Objetivo Teorico', placeholder: 'Conocimiento teorico...' },
+                      { key: 'general', label: 'OBJETIVO GENERAL', placeholder: 'Objetivo principal de la sesión...' },
+                      { key: 'fisico', label: 'OBJETIVO FÍSICO', placeholder: 'Desarrollo de capacidades físicas...' },
+                      { key: 'tecnico', label: 'OBJETIVO TÉCNICO', placeholder: 'Mejora técnica específica...' },
+                      { key: 'tactico', label: 'OBJETIVO TÁCTICO', placeholder: 'Desarrollo táctico...' },
+                      { key: 'psicologico', label: 'OBJETIVO PSICOLÓGICO', placeholder: 'Aspecto mental a trabajar...' },
+                      { key: 'teorico', label: 'OBJETIVO TEÓRICO', placeholder: 'Conocimiento teórico...' },
                     ].map(obj => (
                       <div key={obj.key} className="space-y-1">
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider" style={{fontFamily:BC}}>{obj.label}</label>
+                        <label className="se-field-label">{obj.label}</label>
                         <Input
                           value={sessionData.objetivos[obj.key]}
                           onChange={(e) => updateObjetivo(obj.key, e.target.value)}
                           placeholder={obj.placeholder}
-                          className="bg-slate-50 border-slate-200 focus:border-[#CCFF00] focus:ring-[#CCFF00]/20 text-sm h-9"
+                          className="se-field-input bg-slate-50 border-slate-200 focus:border-[#CCFF00] focus:ring-[#CCFF00]/20 h-9"
                           data-testid={`objetivo-${obj.key}`}
                         />
                       </div>
@@ -1225,14 +1227,14 @@ const SessionEditor = ({
                 </CardContent>
               </Card>
 
-              {/* Estructura de la Sesion */}
-              <Card className="border-0 shadow-md bg-white overflow-visible rounded-2xl">
+              {/* Estructura de la sesión */}
+              <Card className="border-0 shadow-md bg-white overflow-visible rounded-2xl" style={{fontFamily:DM}}>
                 <CardHeader className="pb-3 pt-4 px-5" style={{background:'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)'}}>
-                  <CardTitle className="flex items-center gap-2.5 text-[14px]" style={{fontFamily:INT}}>
+                  <CardTitle className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#CCFF00'}}>
                       <Zap className="w-3.5 h-3.5 text-slate-900" />
                     </div>
-                    <span className="text-white font-bold">Estructura de la Sesion</span>
+                    <span className="se-section-title">Estructura de la sesión</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 space-y-3 bg-white overflow-visible">
@@ -1253,13 +1255,14 @@ const SessionEditor = ({
                         >
                           <div className="flex items-center gap-3">
                             {expandedPhases[faseKey] ? 
-                              <ChevronDown className={`w-5 h-5 ${colors.text}`} /> : 
-                              <ChevronRight className={`w-5 h-5 ${colors.text}`} />
+                              <ChevronDown className={`w-4 h-4 ${colors.text}`} /> : 
+                              <ChevronRight className={`w-4 h-4 ${colors.text}`} />
                             }
-                            <span className={`font-bold uppercase text-sm ${colors.text}`}>
+                            {/* Punto 6: Fases uppercase, 11px, 600, color #9EFF00 */}
+                            <span style={{fontSize:'11px',fontWeight:600,letterSpacing:'0.06em',textTransform:'uppercase',color:'#9EFF00',fontFamily:DM}}>
                               {fase.nombre}
                             </span>
-                            <span className="text-xs text-slate-500 bg-white px-2 py-0.5 rounded-full">
+                            <span style={{fontSize:'11px',fontWeight:400,color:'rgba(100,116,139,0.7)',fontFamily:DM}}>
                               {fase.actividades.length} actividades
                             </span>
                           </div>
@@ -1268,9 +1271,10 @@ const SessionEditor = ({
                             variant="outline"
                             onClick={(e) => { e.stopPropagation(); addActividad(faseKey); }}
                             className={`h-8 text-xs ${colors.btn} bg-white`}
+                            style={{fontFamily:DM}}
                             data-testid={`add-activity-${faseKey}`}
                           >
-                            <Plus className="w-3 h-3 mr-1" /> Agregar Actividad
+                            <Plus className="w-3 h-3 mr-1" /> Agregar actividad
                           </Button>
                         </button>
                         
@@ -1285,17 +1289,17 @@ const SessionEditor = ({
                 </CardContent>
               </Card>
 
-              {/* Monitoreo Avanzado */}
-              <Card className="border-0 shadow-md bg-white overflow-hidden rounded-2xl">
+              {/* Monitoreo avanzado */}
+              <Card className="border-0 shadow-md bg-white overflow-hidden rounded-2xl" style={{fontFamily:DM}}>
                 <CardHeader className="p-4" style={{background:'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)'}}>
                   <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2.5 text-[14px] font-bold text-white" style={{fontFamily:INT}}>
+                    <CardTitle className="flex items-center gap-2.5">
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#CCFF00'}}>
                         <Watch className="w-3.5 h-3.5 text-slate-900" />
                       </div>
                       <div>
-                        <span>Monitoreo de Rendimiento</span>
-                        <p className="text-[10px] font-normal text-white/40 mt-0.5">Datos de frecuencia cardiaca y biometricos</p>
+                        <span className="se-section-title">Monitoreo de rendimiento</span>
+                        <p style={{fontSize:'10px',fontWeight:400,color:'rgba(255,255,255,0.4)',marginTop:'2px'}}>Datos de frecuencia cardíaca y biométricos</p>
                       </div>
                     </CardTitle>
                     <div className="flex items-center gap-2">
@@ -1331,7 +1335,7 @@ const SessionEditor = ({
                         <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
                           <Heart className="w-4 h-4 text-red-500" />
                         </div>
-                        Frecuencia Cardíaca por Fases
+                        Frecuencia cardíaca por fases
                       </h4>
                       {/* Selector de tipo de gráfica */}
                       <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
@@ -1508,7 +1512,7 @@ const SessionEditor = ({
                           }`}>
                             {sessionData.monitoreo.mostrarRecuperacion10min && <Check className="w-3 h-3 text-white" />}
                           </div>
-                          Agregar Recuperación 10 min (opcional)
+                          Agregar recuperación 10 min (opcional)
                         </button>
                         
                         {sessionData.monitoreo.mostrarRecuperacion10min && (
@@ -1629,8 +1633,7 @@ const SessionEditor = ({
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs font-medium text-slate-600 flex items-center gap-1">
                             <Droplets className="w-3 h-3 text-blue-500" />
-                            Hidratación
-                          </span>
+                            Hidratación                          </span>
                           <span className={`text-xs font-bold ${
                             sessionData.monitoreo.nivelHidratacion < 50 ? 'text-red-600' :
                             sessionData.monitoreo.nivelHidratacion < 70 ? 'text-amber-600' :
@@ -1721,22 +1724,22 @@ const SessionEditor = ({
                 </CardContent>
               </Card>
 
-              {/* Retroalimentacion */}
-              <Card className="border-0 shadow-md bg-white overflow-hidden rounded-2xl">
+              {/* Retroalimentación */}
+              <Card className="border-0 shadow-md bg-white overflow-hidden rounded-2xl" style={{fontFamily:DM}}>
                 <CardHeader className="pb-3 pt-4 px-5" style={{background:'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)'}}>
-                  <CardTitle className="flex items-center gap-2.5 text-[14px]" style={{fontFamily:INT}}>
+                  <CardTitle className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#CCFF00'}}>
                       <AlertCircle className="w-3.5 h-3.5 text-slate-900" />
                     </div>
-                    <span className="text-white font-bold">Observaciones y Retroalimentacion</span>
+                    <span className="se-section-title">Observaciones y retroalimentación</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-5 bg-white">
                   <Textarea
                     value={sessionData.retroalimentacion}
                     onChange={(e) => setSessionData(prev => ({ ...prev, retroalimentacion: e.target.value }))}
-                    placeholder="Observaciones y comentarios de la sesion..."
-                    className="min-h-[100px] resize-none bg-slate-50 border-slate-200 focus:border-[#CCFF00] focus:ring-[#CCFF00]/20"
+                    placeholder="Observaciones y comentarios de la sesión..."
+                    className="se-field-input min-h-[100px] resize-none bg-slate-50 border-slate-200 focus:border-[#CCFF00] focus:ring-[#CCFF00]/20"
                     data-testid="retroalimentacion"
                   />
                 </CardContent>
@@ -1745,7 +1748,7 @@ const SessionEditor = ({
           </div>
 
           {/* Footer */}
-          <div className="sticky bottom-0 border-t px-5 py-3 flex justify-between items-center" style={{background:'#0a0a0f',borderColor:'rgba(204,255,0,0.08)'}}>
+          <div className="sticky bottom-0 border-t px-5 py-3 flex justify-between items-center" style={{background:'#0a0a0f',borderColor:'rgba(204,255,0,0.08)',fontFamily:DM}}>
             <div className="flex items-center gap-2">
               <Button 
                 variant="outline"
@@ -1812,9 +1815,9 @@ const SessionEditor = ({
                 <Link2 className="w-5 h-5" style={{color:'#CCFF00'}} />
               </div>
               <div>
-                <DialogTitle className="text-white text-base font-bold" style={{fontFamily:INT}}>Compartir Sesion</DialogTitle>
+                <DialogTitle className="text-white text-base font-bold" style={{fontFamily:DM}}>Compartir sesión</DialogTitle>
                 <p className="text-white/40 text-[11px] mt-0.5">
-                  El deportista podra ver la sesion sin necesidad de iniciar sesion
+                  El deportista podrá ver la sesión sin necesidad de iniciar sesión
                 </p>
               </div>
             </div>
@@ -1822,7 +1825,7 @@ const SessionEditor = ({
           
           <div className="p-5 space-y-4">
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider" style={{fontFamily:BC}}>Enlace para compartir:</label>
+              <label className="se-field-label">ENLACE PARA COMPARTIR</label>
               <div className="flex gap-2">
                 <Input
                   value={shareLink}
@@ -1846,7 +1849,7 @@ const SessionEditor = ({
                 <div>
                   <p className="text-[12px] font-semibold text-slate-800">Vista del deportista</p>
                   <p className="text-[11px] text-slate-500 mt-0.5">
-                    El deportista vera la sesion completa con objetivos, ejercicios y parametros de entrenamiento.
+                    El deportista verá la sesión completa con objetivos, ejercicios y parámetros de entrenamiento.
                   </p>
                 </div>
               </div>
