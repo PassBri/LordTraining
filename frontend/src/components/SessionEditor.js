@@ -137,7 +137,9 @@ const ACTIVIDAD_INICIAL = {
   intensidad: 70,
   volumen: 30,
   procOrganizativo: 'individual',
-  recuperacion: '2 min'
+  recuperacion: '2 min',
+  boardId: null,
+  boardThumbnail: null
 };
 
 // Estructura inicial de sesión
@@ -228,6 +230,22 @@ const SessionEditor = ({
   const [exporting, setExporting] = useState(false);
   const [showBoardEditor, setShowBoardEditor] = useState(false);
   const sessionContentRef = useRef(null);
+  const boardEditContextRef = useRef(null);
+
+  // Listen for postMessage from tactical board (opened in new tab)
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data?.type === 'tactical-board-saved' && boardEditContextRef.current) {
+        const { faseKey, actIdx } = boardEditContextRef.current;
+        updateActividad(faseKey, actIdx, 'boardId', event.data.boardId);
+        updateActividad(faseKey, actIdx, 'boardThumbnail', event.data.thumbnail);
+        boardEditContextRef.current = null;
+        toast.success('Pizarra vinculada a la actividad');
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
 
   // Cargar datos de la sesión existente
   useEffect(() => {
@@ -971,14 +989,30 @@ const SessionEditor = ({
                 
                 {/* Pizarra Táctica */}
                 <td className="py-2 px-1 text-center">
-                  <button
-                    onClick={() => window.open('/tactical-board.html', '_blank')}
-                    className="p-1.5 rounded-lg hover:bg-[#f0ffd0] text-[#3a5a00] transition-colors"
-                    title="Abrir Pizarra Tactica"
-                    data-testid={`open-board-${faseKey}-${idx}`}
-                  >
-                    <LayoutGrid className="w-4 h-4" />
-                  </button>
+                  {act.boardThumbnail ? (
+                    <div
+                      className="w-10 h-14 rounded border border-slate-200 cursor-pointer overflow-hidden hover:border-[#c8f700] transition-colors mx-auto"
+                      onClick={() => {
+                        boardEditContextRef.current = { faseKey, actIdx: idx };
+                        window.open(act.boardId ? `/tactical-board.html?boardId=${act.boardId}` : '/tactical-board.html', '_blank');
+                      }}
+                      title="Editar Pizarra"
+                      data-testid={`board-thumb-${faseKey}-${idx}`}
+                      dangerouslySetInnerHTML={{ __html: act.boardThumbnail }}
+                    />
+                  ) : (
+                    <button
+                      onClick={() => {
+                        boardEditContextRef.current = { faseKey, actIdx: idx };
+                        window.open('/tactical-board.html', '_blank');
+                      }}
+                      className="p-1.5 rounded-lg hover:bg-[#f0ffd0] text-[#3a5a00] transition-colors"
+                      title="Abrir Pizarra Tactica"
+                      data-testid={`open-board-${faseKey}-${idx}`}
+                    >
+                      <LayoutGrid className="w-4 h-4" />
+                    </button>
+                  )}
                 </td>
                 
                 {/* Acciones */}

@@ -97,7 +97,7 @@ input:focus,textarea:focus{border-color:rgba(200,247,0,0.4)}
 /* Selection box */
 .sel-box{fill:rgba(200,247,0,0.08);stroke:var(--lime);stroke-width:1;stroke-dasharray:4 2;pointer-events:none}
 /* Grid */
-.grid-line{stroke:rgba(255,255,255,0.035);stroke-width:0.5}
+.grid-line{stroke:rgba(0,0,0,0.1);stroke-width:0.5}
 /* Handles */
 .handle{fill:var(--lime);stroke:var(--bg);stroke-width:2;cursor:pointer;r:5}
 .handle-rotate{fill:var(--lime);stroke:var(--bg);stroke-width:2;cursor:grab;r:5}
@@ -118,6 +118,30 @@ input:focus,textarea:focus{border-color:rgba(200,247,0,0.4)}
 .pb-step{font-size:11px;color:rgba(255,255,255,0.5);min-width:60px;text-align:center}
 /* Order badge on arrows */
 .arrow-order-badge{pointer-events:none}
+/* Gallery & Save */
+.panel-tabs{display:flex;gap:0;border-bottom:0.5px solid var(--border)}
+.panel-tab{flex:1;padding:8px 0;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);font-weight:600;transition:all .12s;border-bottom:2px solid transparent;cursor:pointer}
+.panel-tab:hover{color:rgba(255,255,255,0.7)}
+.panel-tab.active{color:var(--lime);border-bottom-color:var(--lime)}
+.gallery-item{padding:8px;border-radius:8px;border:0.5px solid var(--border);margin-bottom:6px;cursor:pointer;transition:all .12s}
+.gallery-item:hover{background:rgba(255,255,255,0.04);border-color:rgba(200,247,0,0.2)}
+.gallery-thumb{width:100%;aspect-ratio:3/4;background:white;border-radius:4px;overflow:hidden;margin-bottom:6px}
+.gallery-thumb svg{width:100%;height:100%}
+.gallery-name{font-size:11px;color:rgba(255,255,255,0.8);font-weight:600;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gallery-meta{font-size:9px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+.gallery-actions{display:flex;gap:4px;margin-top:4px}
+.gallery-btn{padding:3px 8px;border-radius:4px;font-size:9px;background:rgba(255,255,255,0.06);color:var(--muted);transition:all .1s}
+.gallery-btn:hover{background:rgba(255,255,255,0.12);color:#fff}
+.gallery-btn.del:hover{background:rgba(255,60,60,0.2);color:#f44}
+.toast-container{position:fixed;top:64px;right:16px;z-index:600;display:flex;flex-direction:column;gap:6px}
+.toast-msg{padding:10px 16px;border-radius:8px;font-size:12px;animation:toastIn .3s ease;box-shadow:0 4px 12px rgba(0,0,0,0.3)}
+.toast-msg.success{background:#10b981;color:white}
+.toast-msg.error{background:#ef4444;color:white}
+.toast-msg.info{background:#3b82f6;color:white}
+@keyframes toastIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.btn-guardar{padding:6px 16px;border-radius:6px;font-size:12px;font-weight:700;background:#10b981;color:#fff}
+.btn-guardar:hover{filter:brightness(1.1)}
+.gallery-empty{text-align:center;padding:24px 12px;color:var(--muted);font-size:11px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -178,7 +202,10 @@ input:focus,textarea:focus{border-color:rgba(200,247,0,0.4)}
 
  <!-- PANEL -->
  <div id="panel">
-  <div class="panel-header"><h3>ELEMENTOS <span id="el-count">0</span></h3></div>
+  <div class="panel-tabs">
+   <button class="panel-tab active" id="tab-elements" onclick="S.switchTab('elements')">Elementos <span id="el-count">0</span></button>
+   <button class="panel-tab" id="tab-gallery" onclick="S.switchTab('gallery')">Galería</button>
+  </div>
   <div class="panel-content" id="panel-content"></div>
  </div>
 </div>
@@ -196,6 +223,7 @@ input:focus,textarea:focus{border-color:rgba(200,247,0,0.4)}
  </div>
  <div class="footer-right">
   <button class="btn-cancel" onclick="window.history.back()">Cancelar</button>
+  <button class="btn-guardar" onclick="S.showSaveModal()" data-testid="save-board-btn">✓ Guardar</button>
   <button class="btn-save" onclick="S.exportPNG()">↓ Exportar PNG</button>
   <button class="btn-ai" onclick="S.showAiModal()">✦ Generar con IA</button>
  </div>
@@ -206,6 +234,8 @@ input:focus,textarea:focus{border-color:rgba(200,247,0,0.4)}
 <div id="ctx-menu"></div>
 <!-- TOOLTIP -->
 <div class="tt" id="tooltip"></div>
+<!-- TOAST -->
+<div class="toast-container" id="toast-container"></div>
 <!-- MODALS -->
 <div class="modal-overlay" id="modal-overlay"><div class="modal-card" id="modal-card"></div></div>
 
@@ -218,7 +248,8 @@ const ST = {
  history: [], historyIdx: -1, maxHistory: 50,
  dragging: null, dragStart: null, dragOffset: null,
  drawing: null, selRect: null, spaceDown: false, panning: false,
- playbackState: null, playbackArrows: null, playbackIdx: 0, playbackSpeed: 1, playbackRAF: null, playbackStartTime: null
+ playbackState: null, playbackArrows: null, playbackIdx: 0, playbackSpeed: 1, playbackRAF: null, playbackStartTime: null,
+ panelTab: 'elements', gallery: [], editingBoardId: null
 };
 
 // ═══════════ CATEGORIES & SPORTS ═══════════
@@ -235,53 +266,53 @@ const CATS = {
 
 // ═══════════ SPORT FIELDS (viewBox 600x800, portrait) ═══════════
 const FIELDS = {
-'Futbol':{bg:'#1a4a1a',svg:`<rect x="82" y="30" width="436" height="740" rx="3" fill="none"/><line x1="82" y1="400" x2="518" y2="400"/><circle cx="300" cy="400" r="62" fill="none"/><circle cx="300" cy="400" r="3" fill="rgba(255,255,255,0.5)"/><rect x="165" y="30" width="270" height="112" fill="none"/><rect x="210" y="30" width="180" height="45" fill="none"/><path d="M200 142 A55 55 0 0 0 400 142" fill="none"/><rect x="250" y="14" width="100" height="18" rx="2" fill="none"/><rect x="165" y="658" width="270" height="112" fill="none"/><rect x="210" y="725" width="180" height="45" fill="none"/><path d="M200 658 A55 55 0 0 1 400 658" fill="none"/><rect x="250" y="768" width="100" height="18" rx="2" fill="none"/><path d="M82 42 A12 12 0 0 0 94 30" fill="none"/><path d="M506 30 A12 12 0 0 0 518 42" fill="none"/><path d="M82 758 A12 12 0 0 1 94 770" fill="none"/><path d="M506 770 A12 12 0 0 1 518 758" fill="none"/>`},
-'Baloncesto':{bg:'#2a1a0a',svg:`<rect x="60" y="50" width="480" height="700" rx="3" fill="none"/><line x1="60" y1="400" x2="540" y2="400"/><circle cx="300" cy="400" r="36" fill="none"/><rect x="140" y="50" width="320" height="145" fill="none"/><circle cx="300" cy="195" r="36" fill="none"/><path d="M140 120 A200 200 0 0 0 460 120" fill="none" stroke-dasharray="5 3"/><rect x="270" y="36" width="60" height="16" rx="2" fill="none"/><rect x="140" y="605" width="320" height="145" fill="none"/><circle cx="300" cy="605" r="36" fill="none"/><path d="M140 680 A200 200 0 0 1 460 680" fill="none" stroke-dasharray="5 3"/><rect x="270" y="748" width="60" height="16" rx="2" fill="none"/>`},
-'Voleibol':{bg:'#0a1a2a',svg:`<rect x="60" y="50" width="480" height="700" rx="3" fill="none"/><line x1="60" y1="400" x2="540" y2="400" stroke-width="3"/><line x1="60" y1="283" x2="540" y2="283" stroke-dasharray="6 4"/><line x1="60" y1="517" x2="540" y2="517" stroke-dasharray="6 4"/>`},
-'Balonmano':{bg:'#0a0a2a',svg:`<rect x="60" y="40" width="480" height="720" rx="3" fill="none"/><line x1="300" y1="40" x2="300" y2="760"/><path d="M180 40 A130 80 0 0 0 420 40" fill="none" stroke-width="2"/><path d="M180 760 A130 80 0 0 1 420 760" fill="none" stroke-width="2"/><path d="M160 40 A150 95 0 0 0 440 40" fill="none" stroke-dasharray="5 4"/><path d="M160 760 A150 95 0 0 1 440 760" fill="none" stroke-dasharray="5 4"/><rect x="240" y="24" width="120" height="18" rx="2" fill="none"/><rect x="240" y="758" width="120" height="18" rx="2" fill="none"/>`},
-'Rugby':{bg:'#0a2a0a',svg:`<rect x="60" y="30" width="480" height="740" rx="3" fill="none"/><rect x="60" y="30" width="480" height="60" fill="rgba(255,255,255,0.04)"/><rect x="60" y="710" width="480" height="60" fill="rgba(255,255,255,0.04)"/><line x1="60" y1="90" x2="540" y2="90"/><line x1="60" y1="710" x2="540" y2="710"/><line x1="60" y1="194" x2="540" y2="194"/><line x1="60" y1="297" x2="540" y2="297" stroke-dasharray="4 3"/><line x1="60" y1="400" x2="540" y2="400"/><line x1="60" y1="503" x2="540" y2="503" stroke-dasharray="4 3"/><line x1="60" y1="606" x2="540" y2="606"/>`},
-'Hockey':{bg:'#0a1a2a',svg:`<rect x="60" y="40" width="480" height="720" rx="60" fill="none"/><line x1="60" y1="400" x2="540" y2="400" stroke="rgba(255,80,80,0.6)" stroke-width="2"/><line x1="60" y1="250" x2="540" y2="250" stroke="rgba(80,120,255,0.5)"/><line x1="60" y1="550" x2="540" y2="550" stroke="rgba(80,120,255,0.5)"/><circle cx="300" cy="400" r="28" fill="none"/><circle cx="200" cy="180" r="22" fill="none"/><circle cx="400" cy="180" r="22" fill="none"/><circle cx="200" cy="620" r="22" fill="none"/><circle cx="400" cy="620" r="22" fill="none"/>`},
-'Beisbol':{bg:'#1a2a0a',svg:`<path d="M300 580 L130 380 L300 180 L470 380 Z" fill="none" stroke-width="2"/><circle cx="300" cy="580" r="6" fill="rgba(255,255,255,0.3)"/><circle cx="130" cy="380" r="6" fill="rgba(255,255,255,0.3)"/><circle cx="300" cy="180" r="6" fill="rgba(255,255,255,0.3)"/><circle cx="470" cy="380" r="6" fill="rgba(255,255,255,0.3)"/><circle cx="300" cy="430" r="8" fill="rgba(255,255,255,0.12)"/><line x1="80" y1="580" x2="300" y2="580" fill="none"/><line x1="300" y1="580" x2="520" y2="580" fill="none"/><path d="M90 580 A290 290 0 0 1 510 580" fill="none" stroke-dasharray="8 5"/>`},
-'Futbol Americano':{bg:'#0a2a0a',svg:`<rect x="60" y="30" width="480" height="740" rx="3" fill="none"/><rect x="60" y="30" width="480" height="60" fill="rgba(80,120,255,0.06)"/><rect x="60" y="710" width="480" height="60" fill="rgba(255,60,60,0.06)"/>${[0,1,2,3,4,5,6,7,8,9,10].map(i=>`<line x1="60" y1="${90+i*56}" x2="540" y2="${90+i*56}" ${i%2===0?'':'stroke-dasharray="4 3"'}/>`).join('')}`},
-'Tenis':{bg:'#0a2a0a',svg:`<rect x="90" y="40" width="420" height="720" rx="2" fill="none"/><line x1="90" y1="400" x2="510" y2="400" stroke-width="3"/><rect x="130" y="160" width="340" height="480" fill="none"/><line x1="300" y1="160" x2="300" y2="640"/><line x1="130" y1="280" x2="470" y2="280"/><line x1="130" y1="520" x2="470" y2="520"/>`},
-'Padel':{bg:'#0a1a2a',svg:`<rect x="120" y="50" width="360" height="700" rx="2" fill="none" stroke-width="3"/><line x1="120" y1="400" x2="480" y2="400" stroke-width="3"/><line x1="120" y1="250" x2="480" y2="250"/><line x1="120" y1="550" x2="480" y2="550"/><line x1="300" y1="250" x2="300" y2="550"/><rect x="116" y="46" width="368" height="708" rx="4" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="4"/>`},
-'Badminton':{bg:'#0a0a2a',svg:`<rect x="135" y="40" width="330" height="720" rx="2" fill="none"/><line x1="135" y1="400" x2="465" y2="400" stroke-width="3"/><rect x="165" y="40" width="270" height="720" fill="none"/><line x1="135" y1="160" x2="465" y2="160"/><line x1="135" y1="640" x2="465" y2="640"/><line x1="300" y1="160" x2="300" y2="640"/>`},
-'Squash':{bg:'#1a1a0a',svg:`<rect x="120" y="40" width="360" height="720" rx="2" fill="none"/><line x1="120" y1="40" x2="480" y2="40" stroke-width="3"/><line x1="120" y1="340" x2="480" y2="340"/><line x1="300" y1="340" x2="300" y2="520"/>`},
-'Tenis de Mesa':{bg:'#0a1a0a',svg:`<rect x="165" y="80" width="270" height="640" rx="6" fill="none" stroke-width="2"/><line x1="165" y1="400" x2="435" y2="400" stroke-width="3"/><line x1="300" y1="80" x2="300" y2="720" stroke-dasharray="5 4"/>`},
-'Fronton':{bg:'#1a1a0a',svg:`<rect x="90" y="40" width="420" height="720" rx="2" fill="none"/><line x1="90" y1="40" x2="510" y2="40" stroke-width="4"/><line x1="90" y1="300" x2="510" y2="300" stroke-dasharray="5 4"/><line x1="90" y1="540" x2="510" y2="540"/>`},
-'Boxeo':{bg:'#1a0a0a',svg:`<rect x="100" y="120" width="400" height="560" rx="6" fill="none" stroke-width="2"/><rect x="112" y="132" width="376" height="536" rx="5" fill="none"/><rect x="124" y="144" width="352" height="512" rx="4" fill="none"/><rect x="136" y="156" width="328" height="488" rx="3" fill="none"/><rect x="97" y="117" width="18" height="18" fill="rgba(255,60,60,0.4)" rx="3"/><rect x="485" y="117" width="18" height="18" fill="rgba(80,120,255,0.4)" rx="3"/>`},
-'MMA':{bg:'#0a0a1a',svg:`<polygon points="300,60 450,150 480,340 450,530 300,620 150,530 120,340 150,150" fill="none" stroke-width="2"/><polygon points="300,100 420,175 445,340 420,505 300,580 180,505 155,340 180,175" fill="none" stroke-dasharray="4 3" opacity="0.4"/><circle cx="300" cy="340" r="4" fill="rgba(255,255,255,0.4)"/>`},
-'Judo':{bg:'#1a1a0a',svg:`<rect x="60" y="80" width="480" height="640" fill="rgba(255,255,255,0.03)" rx="3"/><rect x="120" y="180" width="360" height="440" fill="rgba(200,200,100,0.04)" stroke="rgba(255,255,255,0.4)" rx="2"/><circle cx="300" cy="400" r="4" fill="rgba(255,255,255,0.3)"/>`},
-'Taekwondo':{bg:'#0a0a1a',svg:`<rect x="80" y="100" width="440" height="600" fill="rgba(255,255,255,0.03)" rx="3"/><rect x="140" y="180" width="320" height="440" fill="rgba(80,120,255,0.04)" stroke="rgba(255,255,255,0.4)" rx="2"/><circle cx="300" cy="400" r="4" fill="rgba(255,255,255,0.3)"/>`},
-'Karate':{bg:'#1a1a0a',svg:`<rect x="80" y="100" width="440" height="600" fill="rgba(255,255,255,0.03)" rx="3"/><rect x="130" y="170" width="340" height="460" fill="rgba(255,255,255,0.04)" rx="2"/><circle cx="300" cy="400" r="4" fill="rgba(255,255,255,0.3)"/>`},
-'Lucha':{bg:'#0a0a1a',svg:`<circle cx="300" cy="400" r="240" fill="none" stroke-width="2"/><circle cx="300" cy="400" r="160" fill="none"/><circle cx="300" cy="400" r="50" fill="rgba(255,255,255,0.04)"/><circle cx="300" cy="400" r="4" fill="rgba(255,255,255,0.4)"/>`},
-'Kickboxing':{bg:'#1a0a0a',svg:`<rect x="100" y="120" width="400" height="560" rx="6" fill="none" stroke-width="2"/><rect x="115" y="135" width="370" height="530" rx="5" fill="none"/><rect x="130" y="150" width="340" height="500" rx="4" fill="none"/>`},
-'Atletismo':{bg:'#2a1008',svg:`<rect x="100" y="150" width="400" height="500" rx="120" fill="rgba(30,100,30,0.2)"/>${[0,1,2,3,4,5,6,7].map(i=>{const m=14*i;return`<rect x="${100-m}" y="${150-m}" width="${400+m*2}" height="${500+m*2}" rx="${120+m}" fill="none"/>`}).join('')}<line x1="300" y1="36" x2="300" y2="55" stroke-width="3"/><line x1="300" y1="745" x2="300" y2="764" stroke-width="3"/>`},
-'Natacion':{bg:'#0a1a2a',svg:`${[0,1,2,3,4,5,6,7].map(i=>`<rect x="${85+i*55}" y="40" width="45" height="720" fill="none" rx="1"/><line x1="${107+i*55}" y1="40" x2="${107+i*55}" y2="760" stroke-dasharray="8 6" opacity="0.3"/><text x="${107+i*55}" y="34" text-anchor="middle" fill="rgba(255,255,255,0.25)" font-size="10">${i+1}</text>`).join('')}<line x1="85" y1="80" x2="525" y2="80" stroke="rgba(255,200,0,0.3)" stroke-dasharray="3 3"/><line x1="85" y1="720" x2="525" y2="720" stroke="rgba(255,200,0,0.3)" stroke-dasharray="3 3"/>`},
-'Ciclismo':{bg:'#1a0a1a',svg:`<ellipse cx="300" cy="400" rx="250" ry="320" fill="none" stroke-width="3"/><ellipse cx="300" cy="400" rx="225" ry="295" fill="none"/><ellipse cx="300" cy="400" rx="200" ry="270" fill="none" stroke-dasharray="5 3"/><line x1="300" y1="75" x2="300" y2="95" stroke-width="3"/>`},
-'Remo':{bg:'#0a1a2a',svg:`${[0,1,2,3,4,5].map(i=>`<rect x="${110+i*65}" y="40" width="55" height="720" fill="none" rx="1"/>`).join('')}<line x1="100" y1="60" x2="500" y2="60" stroke-width="2"/><line x1="100" y1="740" x2="500" y2="740" stroke-width="2"/>`},
-'Patinaje Velocidad':{bg:'#0a1a2a',svg:`<rect x="100" y="100" width="400" height="600" rx="150" fill="none" stroke-width="2"/><rect x="120" y="120" width="360" height="560" rx="130" fill="none"/><line x1="300" y1="95" x2="300" y2="110" stroke-width="3"/>`},
-'Patinaje Artistico':{bg:'#0a1a2a',svg:`<rect x="80" y="60" width="440" height="680" rx="8" fill="none" stroke-width="2"/><circle cx="300" cy="400" r="4" fill="rgba(255,255,255,0.3)"/>`},
-'Esqui':{bg:'#1a2030',svg:`<path d="M300 50 L250 180 L330 310 L260 440 L340 570 L290 700" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="35" stroke-linecap="round" stroke-linejoin="round"/>${[0,1,2,3,4,5,6,7,8,9].map((g,i)=>`<rect x="${280+((i%2)?18:-18)}" y="${70+i*65}" width="10" height="3" rx="1" fill="${i%2?'rgba(80,120,255,0.5)':'rgba(255,60,60,0.5)'}"/>`).join('')}<polygon points="300,40 293,52 307,52" fill="rgba(60,200,60,0.5)"/><rect x="275" y="710" width="50" height="4" rx="1" fill="rgba(255,60,60,0.5)"/>`},
-'Maraton':{bg:'#0a1a0a',svg:`<path d="M150 720 L150 560 L450 560 L450 380 L150 380 L150 200 L450 200 L450 80" fill="none" stroke-width="20" stroke="rgba(255,255,255,0.05)" stroke-linecap="round" stroke-linejoin="round"/><path d="M150 720 L150 560 L450 560 L450 380 L150 380 L150 200 L450 200 L450 80" fill="none" stroke-width="2" stroke-dasharray="6 4"/>`},
-'Gimnasia':{bg:'#1a1a0a',svg:`<rect x="100" y="100" width="400" height="600" fill="rgba(255,255,255,0.03)" rx="3" stroke="rgba(255,255,255,0.3)"/>`},
-'Golf':{bg:'#0a2a0a',svg:`<path d="M250 680 Q200 520 300 400 Q400 280 350 140" fill="none" stroke-width="25" stroke="rgba(80,160,80,0.12)" stroke-linecap="round"/><path d="M250 680 Q200 520 300 400 Q400 280 350 140" fill="none" stroke-width="2"/><circle cx="250" cy="680" r="8" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.3)"/><circle cx="350" cy="140" r="4" fill="rgba(255,255,255,0.3)"/>`},
-'Escalada':{bg:'#1a1a1a',svg:`<rect x="180" y="30" width="240" height="740" rx="6" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.2)"/>${[0,1,2,3,4,5,6,7,8].map(i=>`<circle cx="${220+Math.sin(i*1.3)*50}" cy="${80+i*75}" r="6" fill="rgba(200,247,0,0.12)" stroke="rgba(200,247,0,0.35)"/>`).join('')}`},
-'Surf':{bg:'#0a1a2a',svg:`${[0,1,2,3,4,5,6,7].map(i=>`<path d="M40 ${60+i*100} Q300 ${40+i*100} 560 ${60+i*100}" fill="none" opacity="0.12"/>`).join('')}<rect x="260" y="280" width="80" height="240" rx="20" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.15)"/>`},
-'Skateboarding':{bg:'#1a1a1a',svg:`<rect x="60" y="400" width="480" height="6" rx="3" fill="rgba(255,255,255,0.12)"/><rect x="140" y="340" width="320" height="65" rx="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.15)"/>`},
-'Orientacion':{bg:'#0a1a0a',svg:`${[0,1,2,3].map(i=>`<path d="M60 ${200+i*140} Q300 ${170+i*140} 540 ${200+i*140}" fill="none" stroke="rgba(140,100,60,0.1)"/>`).join('')}<path d="M150 700 Q200 500 300 400 Q400 300 350 150 L500 80" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="6" stroke-linecap="round"/>`},
-'Trail Running':{bg:'#0a1a0a',svg:`<path d="M120 720 Q180 580 250 500 Q380 380 320 250 Q290 160 400 100 L500 60" fill="none" stroke-width="3"/><path d="M120 720 Q180 580 250 500 Q380 380 320 250 Q290 160 400 100 L500 60" fill="none" stroke-width="18" stroke="rgba(255,255,255,0.04)" stroke-linecap="round"/>`},
-'Raid Aventura':{bg:'#0a1a0a',svg:`<path d="M80 680 L200 540 L320 600 L400 400 L280 280 L400 140 L540 180" fill="none" stroke-width="2" stroke-dasharray="8 4"/>`},
-'League of Legends':{bg:'#0a1a0a',svg:`<rect x="40" y="40" width="520" height="720" fill="none" rx="4"/><line x1="40" y1="760" x2="560" y2="40" opacity="0.1" stroke-width="8"/><rect x="40" y="660" width="70" height="70" fill="rgba(80,120,255,0.08)" rx="4"/><rect x="490" y="40" width="70" height="70" fill="rgba(255,60,60,0.08)" rx="4"/>`},
-'Valorant':{bg:'#0a0a0a',svg:`<rect x="60" y="40" width="480" height="720" fill="none" rx="4"/><line x1="300" y1="40" x2="300" y2="760" stroke-dasharray="6 3"/><rect x="160" y="80" width="100" height="90" fill="rgba(255,255,255,0.04)" rx="4"/><text x="210" y="132" text-anchor="middle" fill="rgba(255,255,255,0.1)" font-size="16">A</text><rect x="340" y="80" width="100" height="90" fill="rgba(255,255,255,0.04)" rx="4"/><text x="390" y="132" text-anchor="middle" fill="rgba(255,255,255,0.1)" font-size="16">B</text>`},
-'FIFA':{bg:'#1a4a1a',svg:`<rect x="82" y="30" width="436" height="740" rx="3" fill="none"/><line x1="82" y1="400" x2="518" y2="400"/><circle cx="300" cy="400" r="62" fill="none"/><rect x="165" y="30" width="270" height="112" fill="none"/><rect x="165" y="658" width="270" height="112" fill="none"/>`},
-'CS GO':{bg:'#0a0a0a',svg:`<rect x="60" y="40" width="480" height="720" fill="none" rx="4"/><line x1="300" y1="40" x2="300" y2="760" stroke-dasharray="6 3"/>`},
-'Fortnite':{bg:'#0a1a0a',svg:`<circle cx="300" cy="400" r="300" fill="none" stroke-width="2"/><circle cx="300" cy="400" r="210" fill="none" stroke-dasharray="6 4" opacity="0.5"/><circle cx="300" cy="400" r="110" fill="none" stroke-dasharray="4 3" opacity="0.3"/>`},
-'Rocket League':{bg:'#0a0a1a',svg:`<rect x="100" y="60" width="400" height="680" rx="6" fill="none" stroke-width="2"/><line x1="100" y1="400" x2="500" y2="400"/><circle cx="300" cy="400" r="50" fill="none"/>`},
-'Sala de Pesas':{bg:'#111520',svg:`${Array.from({length:16},(_,i)=>`<line x1="${i*40}" y1="0" x2="${i*40}" y2="800" class="grid-line"/>`).join('')}${Array.from({length:21},(_,j)=>`<line x1="0" y1="${j*40}" x2="600" y2="${j*40}" class="grid-line"/>`).join('')}`},
-'Circuito':{bg:'#111520',svg:`${Array.from({length:16},(_,i)=>`<line x1="${i*40}" y1="0" x2="${i*40}" y2="800" class="grid-line"/>`).join('')}${Array.from({length:21},(_,j)=>`<line x1="0" y1="${j*40}" x2="600" y2="${j*40}" class="grid-line"/>`).join('')}`}
+'Futbol':{bg:'#ffffff',svg:`<rect x="82" y="30" width="436" height="740" rx="3" fill="none"/><line x1="82" y1="400" x2="518" y2="400"/><circle cx="300" cy="400" r="62" fill="none"/><circle cx="300" cy="400" r="3" fill="rgba(0,0,0,0.35)"/><rect x="165" y="30" width="270" height="112" fill="none"/><rect x="210" y="30" width="180" height="45" fill="none"/><path d="M200 142 A55 55 0 0 0 400 142" fill="none"/><rect x="250" y="14" width="100" height="18" rx="2" fill="none"/><rect x="165" y="658" width="270" height="112" fill="none"/><rect x="210" y="725" width="180" height="45" fill="none"/><path d="M200 658 A55 55 0 0 1 400 658" fill="none"/><rect x="250" y="768" width="100" height="18" rx="2" fill="none"/><path d="M82 42 A12 12 0 0 0 94 30" fill="none"/><path d="M506 30 A12 12 0 0 0 518 42" fill="none"/><path d="M82 758 A12 12 0 0 1 94 770" fill="none"/><path d="M506 770 A12 12 0 0 1 518 758" fill="none"/>`},
+'Baloncesto':{bg:'#ffffff',svg:`<rect x="60" y="50" width="480" height="700" rx="3" fill="none"/><line x1="60" y1="400" x2="540" y2="400"/><circle cx="300" cy="400" r="36" fill="none"/><rect x="140" y="50" width="320" height="145" fill="none"/><circle cx="300" cy="195" r="36" fill="none"/><path d="M140 120 A200 200 0 0 0 460 120" fill="none" stroke-dasharray="5 3"/><rect x="270" y="36" width="60" height="16" rx="2" fill="none"/><rect x="140" y="605" width="320" height="145" fill="none"/><circle cx="300" cy="605" r="36" fill="none"/><path d="M140 680 A200 200 0 0 1 460 680" fill="none" stroke-dasharray="5 3"/><rect x="270" y="748" width="60" height="16" rx="2" fill="none"/>`},
+'Voleibol':{bg:'#ffffff',svg:`<rect x="60" y="50" width="480" height="700" rx="3" fill="none"/><line x1="60" y1="400" x2="540" y2="400" stroke-width="3"/><line x1="60" y1="283" x2="540" y2="283" stroke-dasharray="6 4"/><line x1="60" y1="517" x2="540" y2="517" stroke-dasharray="6 4"/>`},
+'Balonmano':{bg:'#ffffff',svg:`<rect x="60" y="40" width="480" height="720" rx="3" fill="none"/><line x1="300" y1="40" x2="300" y2="760"/><path d="M180 40 A130 80 0 0 0 420 40" fill="none" stroke-width="2"/><path d="M180 760 A130 80 0 0 1 420 760" fill="none" stroke-width="2"/><path d="M160 40 A150 95 0 0 0 440 40" fill="none" stroke-dasharray="5 4"/><path d="M160 760 A150 95 0 0 1 440 760" fill="none" stroke-dasharray="5 4"/><rect x="240" y="24" width="120" height="18" rx="2" fill="none"/><rect x="240" y="758" width="120" height="18" rx="2" fill="none"/>`},
+'Rugby':{bg:'#ffffff',svg:`<rect x="60" y="30" width="480" height="740" rx="3" fill="none"/><rect x="60" y="30" width="480" height="60" fill="rgba(0,0,0,0.04)"/><rect x="60" y="710" width="480" height="60" fill="rgba(0,0,0,0.04)"/><line x1="60" y1="90" x2="540" y2="90"/><line x1="60" y1="710" x2="540" y2="710"/><line x1="60" y1="194" x2="540" y2="194"/><line x1="60" y1="297" x2="540" y2="297" stroke-dasharray="4 3"/><line x1="60" y1="400" x2="540" y2="400"/><line x1="60" y1="503" x2="540" y2="503" stroke-dasharray="4 3"/><line x1="60" y1="606" x2="540" y2="606"/>`},
+'Hockey':{bg:'#ffffff',svg:`<rect x="60" y="40" width="480" height="720" rx="60" fill="none"/><line x1="60" y1="400" x2="540" y2="400" stroke="rgba(255,80,80,0.6)" stroke-width="2"/><line x1="60" y1="250" x2="540" y2="250" stroke="rgba(80,120,255,0.5)"/><line x1="60" y1="550" x2="540" y2="550" stroke="rgba(80,120,255,0.5)"/><circle cx="300" cy="400" r="28" fill="none"/><circle cx="200" cy="180" r="22" fill="none"/><circle cx="400" cy="180" r="22" fill="none"/><circle cx="200" cy="620" r="22" fill="none"/><circle cx="400" cy="620" r="22" fill="none"/>`},
+'Beisbol':{bg:'#ffffff',svg:`<path d="M300 580 L130 380 L300 180 L470 380 Z" fill="none" stroke-width="2"/><circle cx="300" cy="580" r="6" fill="rgba(0,0,0,0.2)"/><circle cx="130" cy="380" r="6" fill="rgba(0,0,0,0.2)"/><circle cx="300" cy="180" r="6" fill="rgba(0,0,0,0.2)"/><circle cx="470" cy="380" r="6" fill="rgba(0,0,0,0.2)"/><circle cx="300" cy="430" r="8" fill="rgba(0,0,0,0.08)"/><line x1="80" y1="580" x2="300" y2="580" fill="none"/><line x1="300" y1="580" x2="520" y2="580" fill="none"/><path d="M90 580 A290 290 0 0 1 510 580" fill="none" stroke-dasharray="8 5"/>`},
+'Futbol Americano':{bg:'#ffffff',svg:`<rect x="60" y="30" width="480" height="740" rx="3" fill="none"/><rect x="60" y="30" width="480" height="60" fill="rgba(80,120,255,0.08)"/><rect x="60" y="710" width="480" height="60" fill="rgba(255,60,60,0.08)"/>${[0,1,2,3,4,5,6,7,8,9,10].map(i=>`<line x1="60" y1="${90+i*56}" x2="540" y2="${90+i*56}" ${i%2===0?'':'stroke-dasharray="4 3"'}/>`).join('')}`},
+'Tenis':{bg:'#ffffff',svg:`<rect x="90" y="40" width="420" height="720" rx="2" fill="none"/><line x1="90" y1="400" x2="510" y2="400" stroke-width="3"/><rect x="130" y="160" width="340" height="480" fill="none"/><line x1="300" y1="160" x2="300" y2="640"/><line x1="130" y1="280" x2="470" y2="280"/><line x1="130" y1="520" x2="470" y2="520"/>`},
+'Padel':{bg:'#ffffff',svg:`<rect x="120" y="50" width="360" height="700" rx="2" fill="none" stroke-width="3"/><line x1="120" y1="400" x2="480" y2="400" stroke-width="3"/><line x1="120" y1="250" x2="480" y2="250"/><line x1="120" y1="550" x2="480" y2="550"/><line x1="300" y1="250" x2="300" y2="550"/><rect x="116" y="46" width="368" height="708" rx="4" fill="none" stroke="rgba(0,0,0,0.15)" stroke-width="4"/>`},
+'Badminton':{bg:'#ffffff',svg:`<rect x="135" y="40" width="330" height="720" rx="2" fill="none"/><line x1="135" y1="400" x2="465" y2="400" stroke-width="3"/><rect x="165" y="40" width="270" height="720" fill="none"/><line x1="135" y1="160" x2="465" y2="160"/><line x1="135" y1="640" x2="465" y2="640"/><line x1="300" y1="160" x2="300" y2="640"/>`},
+'Squash':{bg:'#ffffff',svg:`<rect x="120" y="40" width="360" height="720" rx="2" fill="none"/><line x1="120" y1="40" x2="480" y2="40" stroke-width="3"/><line x1="120" y1="340" x2="480" y2="340"/><line x1="300" y1="340" x2="300" y2="520"/>`},
+'Tenis de Mesa':{bg:'#ffffff',svg:`<rect x="165" y="80" width="270" height="640" rx="6" fill="none" stroke-width="2"/><line x1="165" y1="400" x2="435" y2="400" stroke-width="3"/><line x1="300" y1="80" x2="300" y2="720" stroke-dasharray="5 4"/>`},
+'Fronton':{bg:'#ffffff',svg:`<rect x="90" y="40" width="420" height="720" rx="2" fill="none"/><line x1="90" y1="40" x2="510" y2="40" stroke-width="4"/><line x1="90" y1="300" x2="510" y2="300" stroke-dasharray="5 4"/><line x1="90" y1="540" x2="510" y2="540"/>`},
+'Boxeo':{bg:'#ffffff',svg:`<rect x="100" y="120" width="400" height="560" rx="6" fill="none" stroke-width="2"/><rect x="112" y="132" width="376" height="536" rx="5" fill="none"/><rect x="124" y="144" width="352" height="512" rx="4" fill="none"/><rect x="136" y="156" width="328" height="488" rx="3" fill="none"/><rect x="97" y="117" width="18" height="18" fill="rgba(255,60,60,0.4)" rx="3"/><rect x="485" y="117" width="18" height="18" fill="rgba(80,120,255,0.4)" rx="3"/>`},
+'MMA':{bg:'#ffffff',svg:`<polygon points="300,60 450,150 480,340 450,530 300,620 150,530 120,340 150,150" fill="none" stroke-width="2"/><polygon points="300,100 420,175 445,340 420,505 300,580 180,505 155,340 180,175" fill="none" stroke-dasharray="4 3" opacity="0.4"/><circle cx="300" cy="340" r="4" fill="rgba(0,0,0,0.3)"/>`},
+'Judo':{bg:'#ffffff',svg:`<rect x="60" y="80" width="480" height="640" fill="rgba(0,0,0,0.03)" rx="3"/><rect x="120" y="180" width="360" height="440" fill="rgba(200,200,100,0.1)" stroke="rgba(0,0,0,0.3)" rx="2"/><circle cx="300" cy="400" r="4" fill="rgba(0,0,0,0.2)"/>`},
+'Taekwondo':{bg:'#ffffff',svg:`<rect x="80" y="100" width="440" height="600" fill="rgba(0,0,0,0.03)" rx="3"/><rect x="140" y="180" width="320" height="440" fill="rgba(80,120,255,0.08)" stroke="rgba(0,0,0,0.3)" rx="2"/><circle cx="300" cy="400" r="4" fill="rgba(0,0,0,0.2)"/>`},
+'Karate':{bg:'#ffffff',svg:`<rect x="80" y="100" width="440" height="600" fill="rgba(0,0,0,0.03)" rx="3"/><rect x="130" y="170" width="340" height="460" fill="rgba(0,0,0,0.04)" rx="2"/><circle cx="300" cy="400" r="4" fill="rgba(0,0,0,0.2)"/>`},
+'Lucha':{bg:'#ffffff',svg:`<circle cx="300" cy="400" r="240" fill="none" stroke-width="2"/><circle cx="300" cy="400" r="160" fill="none"/><circle cx="300" cy="400" r="50" fill="rgba(0,0,0,0.04)"/><circle cx="300" cy="400" r="4" fill="rgba(0,0,0,0.3)"/>`},
+'Kickboxing':{bg:'#ffffff',svg:`<rect x="100" y="120" width="400" height="560" rx="6" fill="none" stroke-width="2"/><rect x="115" y="135" width="370" height="530" rx="5" fill="none"/><rect x="130" y="150" width="340" height="500" rx="4" fill="none"/>`},
+'Atletismo':{bg:'#ffffff',svg:`<rect x="100" y="150" width="400" height="500" rx="120" fill="rgba(30,100,30,0.08)"/>${[0,1,2,3,4,5,6,7].map(i=>{const m=14*i;return`<rect x="${100-m}" y="${150-m}" width="${400+m*2}" height="${500+m*2}" rx="${120+m}" fill="none"/>`}).join('')}<line x1="300" y1="36" x2="300" y2="55" stroke-width="3"/><line x1="300" y1="745" x2="300" y2="764" stroke-width="3"/>`},
+'Natacion':{bg:'#ffffff',svg:`${[0,1,2,3,4,5,6,7].map(i=>`<rect x="${85+i*55}" y="40" width="45" height="720" fill="none" rx="1"/><line x1="${107+i*55}" y1="40" x2="${107+i*55}" y2="760" stroke-dasharray="8 6" opacity="0.3"/><text x="${107+i*55}" y="34" text-anchor="middle" fill="rgba(0,0,0,0.2)" font-size="10">${i+1}</text>`).join('')}<line x1="85" y1="80" x2="525" y2="80" stroke="rgba(255,200,0,0.3)" stroke-dasharray="3 3"/><line x1="85" y1="720" x2="525" y2="720" stroke="rgba(255,200,0,0.3)" stroke-dasharray="3 3"/>`},
+'Ciclismo':{bg:'#ffffff',svg:`<ellipse cx="300" cy="400" rx="250" ry="320" fill="none" stroke-width="3"/><ellipse cx="300" cy="400" rx="225" ry="295" fill="none"/><ellipse cx="300" cy="400" rx="200" ry="270" fill="none" stroke-dasharray="5 3"/><line x1="300" y1="75" x2="300" y2="95" stroke-width="3"/>`},
+'Remo':{bg:'#ffffff',svg:`${[0,1,2,3,4,5].map(i=>`<rect x="${110+i*65}" y="40" width="55" height="720" fill="none" rx="1"/>`).join('')}<line x1="100" y1="60" x2="500" y2="60" stroke-width="2"/><line x1="100" y1="740" x2="500" y2="740" stroke-width="2"/>`},
+'Patinaje Velocidad':{bg:'#ffffff',svg:`<rect x="100" y="100" width="400" height="600" rx="150" fill="none" stroke-width="2"/><rect x="120" y="120" width="360" height="560" rx="130" fill="none"/><line x1="300" y1="95" x2="300" y2="110" stroke-width="3"/>`},
+'Patinaje Artistico':{bg:'#ffffff',svg:`<rect x="80" y="60" width="440" height="680" rx="8" fill="none" stroke-width="2"/><circle cx="300" cy="400" r="4" fill="rgba(0,0,0,0.2)"/>`},
+'Esqui':{bg:'#ffffff',svg:`<path d="M300 50 L250 180 L330 310 L260 440 L340 570 L290 700" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="35" stroke-linecap="round" stroke-linejoin="round"/>${[0,1,2,3,4,5,6,7,8,9].map((g,i)=>`<rect x="${280+((i%2)?18:-18)}" y="${70+i*65}" width="10" height="3" rx="1" fill="${i%2?'rgba(80,120,255,0.5)':'rgba(255,60,60,0.5)'}"/>`).join('')}<polygon points="300,40 293,52 307,52" fill="rgba(60,200,60,0.5)"/><rect x="275" y="710" width="50" height="4" rx="1" fill="rgba(255,60,60,0.5)"/>`},
+'Maraton':{bg:'#ffffff',svg:`<path d="M150 720 L150 560 L450 560 L450 380 L150 380 L150 200 L450 200 L450 80" fill="none" stroke-width="20" stroke="rgba(0,0,0,0.05)" stroke-linecap="round" stroke-linejoin="round"/><path d="M150 720 L150 560 L450 560 L450 380 L150 380 L150 200 L450 200 L450 80" fill="none" stroke-width="2" stroke-dasharray="6 4"/>`},
+'Gimnasia':{bg:'#ffffff',svg:`<rect x="100" y="100" width="400" height="600" fill="rgba(0,0,0,0.03)" rx="3" stroke="rgba(0,0,0,0.2)"/>`},
+'Golf':{bg:'#ffffff',svg:`<path d="M250 680 Q200 520 300 400 Q400 280 350 140" fill="none" stroke-width="25" stroke="rgba(80,160,80,0.12)" stroke-linecap="round"/><path d="M250 680 Q200 520 300 400 Q400 280 350 140" fill="none" stroke-width="2"/><circle cx="250" cy="680" r="8" fill="rgba(0,0,0,0.08)" stroke="rgba(0,0,0,0.2)"/><circle cx="350" cy="140" r="4" fill="rgba(0,0,0,0.2)"/>`},
+'Escalada':{bg:'#ffffff',svg:`<rect x="180" y="30" width="240" height="740" rx="6" fill="rgba(0,0,0,0.03)" stroke="rgba(0,0,0,0.15)"/>${[0,1,2,3,4,5,6,7,8].map(i=>`<circle cx="${220+Math.sin(i*1.3)*50}" cy="${80+i*75}" r="6" fill="rgba(200,247,0,0.12)" stroke="rgba(200,247,0,0.35)"/>`).join('')}`},
+'Surf':{bg:'#ffffff',svg:`${[0,1,2,3,4,5,6,7].map(i=>`<path d="M40 ${60+i*100} Q300 ${40+i*100} 560 ${60+i*100}" fill="none" opacity="0.12"/>`).join('')}<rect x="260" y="280" width="80" height="240" rx="20" fill="rgba(0,0,0,0.04)" stroke="rgba(0,0,0,0.12)"/>`},
+'Skateboarding':{bg:'#ffffff',svg:`<rect x="60" y="400" width="480" height="6" rx="3" fill="rgba(0,0,0,0.08)"/><rect x="140" y="340" width="320" height="65" rx="4" fill="rgba(0,0,0,0.04)" stroke="rgba(0,0,0,0.12)"/>`},
+'Orientacion':{bg:'#ffffff',svg:`${[0,1,2,3].map(i=>`<path d="M60 ${200+i*140} Q300 ${170+i*140} 540 ${200+i*140}" fill="none" stroke="rgba(140,100,60,0.1)"/>`).join('')}<path d="M150 700 Q200 500 300 400 Q400 300 350 150 L500 80" fill="none" stroke="rgba(0,0,0,0.15)" stroke-width="6" stroke-linecap="round"/>`},
+'Trail Running':{bg:'#ffffff',svg:`<path d="M120 720 Q180 580 250 500 Q380 380 320 250 Q290 160 400 100 L500 60" fill="none" stroke-width="3"/><path d="M120 720 Q180 580 250 500 Q380 380 320 250 Q290 160 400 100 L500 60" fill="none" stroke-width="18" stroke="rgba(255,255,255,0.04)" stroke-linecap="round"/>`},
+'Raid Aventura':{bg:'#ffffff',svg:`<path d="M80 680 L200 540 L320 600 L400 400 L280 280 L400 140 L540 180" fill="none" stroke-width="2" stroke-dasharray="8 4"/>`},
+'League of Legends':{bg:'#ffffff',svg:`<rect x="40" y="40" width="520" height="720" fill="none" rx="4"/><line x1="40" y1="760" x2="560" y2="40" opacity="0.1" stroke-width="8"/><rect x="40" y="660" width="70" height="70" fill="rgba(80,120,255,0.08)" rx="4"/><rect x="490" y="40" width="70" height="70" fill="rgba(255,60,60,0.08)" rx="4"/>`},
+'Valorant':{bg:'#ffffff',svg:`<rect x="60" y="40" width="480" height="720" fill="none" rx="4"/><line x1="300" y1="40" x2="300" y2="760" stroke-dasharray="6 3"/><rect x="160" y="80" width="100" height="90" fill="rgba(0,0,0,0.04)" rx="4"/><text x="210" y="132" text-anchor="middle" fill="rgba(0,0,0,0.08)" font-size="16">A</text><rect x="340" y="80" width="100" height="90" fill="rgba(0,0,0,0.04)" rx="4"/><text x="390" y="132" text-anchor="middle" fill="rgba(0,0,0,0.08)" font-size="16">B</text>`},
+'FIFA':{bg:'#ffffff',svg:`<rect x="82" y="30" width="436" height="740" rx="3" fill="none"/><line x1="82" y1="400" x2="518" y2="400"/><circle cx="300" cy="400" r="62" fill="none"/><rect x="165" y="30" width="270" height="112" fill="none"/><rect x="165" y="658" width="270" height="112" fill="none"/>`},
+'CS GO':{bg:'#ffffff',svg:`<rect x="60" y="40" width="480" height="720" fill="none" rx="4"/><line x1="300" y1="40" x2="300" y2="760" stroke-dasharray="6 3"/>`},
+'Fortnite':{bg:'#ffffff',svg:`<circle cx="300" cy="400" r="300" fill="none" stroke-width="2"/><circle cx="300" cy="400" r="210" fill="none" stroke-dasharray="6 4" opacity="0.5"/><circle cx="300" cy="400" r="110" fill="none" stroke-dasharray="4 3" opacity="0.3"/>`},
+'Rocket League':{bg:'#ffffff',svg:`<rect x="100" y="60" width="400" height="680" rx="6" fill="none" stroke-width="2"/><line x1="100" y1="400" x2="500" y2="400"/><circle cx="300" cy="400" r="50" fill="none"/>`},
+'Sala de Pesas':{bg:'#ffffff',svg:`${Array.from({length:16},(_,i)=>`<line x1="${i*40}" y1="0" x2="${i*40}" y2="800" class="grid-line"/>`).join('')}${Array.from({length:21},(_,j)=>`<line x1="0" y1="${j*40}" x2="600" y2="${j*40}" class="grid-line"/>`).join('')}`},
+'Circuito':{bg:'#ffffff',svg:`${Array.from({length:16},(_,i)=>`<line x1="${i*40}" y1="0" x2="${i*40}" y2="800" class="grid-line"/>`).join('')}${Array.from({length:21},(_,j)=>`<line x1="0" y1="${j*40}" x2="600" y2="${j*40}" class="grid-line"/>`).join('')}`}
 };
-const DEFAULT_FIELD = {bg:'#111520',svg:`<rect x="60" y="40" width="480" height="720" rx="4" fill="none"/><line x1="300" y1="40" x2="300" y2="760" stroke-dasharray="4 3"/>`};
+const DEFAULT_FIELD = {bg:'#ffffff',svg:`<rect x="60" y="40" width="480" height="720" rx="4" fill="none"/><line x1="300" y1="40" x2="300" y2="760" stroke-dasharray="4 3"/>`};
 
 // ═══════════ TOOLS ═══════════
 const TOOLS = [
@@ -374,11 +405,15 @@ const S = {
 
  setSport(name) {
   ST.sport = name;
+  // Clear elements when switching sports
+  ST.elements = []; ST.selected = []; ST.nextId = 1;
+  this.saveHistory();
   const f = FIELDS[name] || DEFAULT_FIELD;
   const fl = document.getElementById('field-layer');
-  fl.innerHTML = `<rect x="0" y="0" width="800" height="600" fill="${f.bg}" rx="0"/>` +
-   `<g stroke="rgba(255,255,255,0.65)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">${f.svg}</g>`;
+  fl.innerHTML = `<rect x="0" y="0" width="600" height="800" fill="${f.bg}" rx="0"/>` +
+   `<g stroke="rgba(0,0,0,0.65)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">${f.svg}</g>`;
   document.querySelectorAll('.sport-pill').forEach(p=>p.classList.toggle('active',p.dataset.sport===name));
+  this.renderElements(); this.updatePanel(); this.updateStats();
  },
 
  // ── TOOLBAR ──
@@ -655,8 +690,8 @@ const S = {
   const gl = document.getElementById('grid-layer');
   if(ST.grid) {
    let lines = '';
-   for(let x=0;x<=800;x+=20) lines += `<line x1="${x}" y1="0" x2="${x}" y2="600" class="grid-line"/>`;
-   for(let y=0;y<=600;y+=20) lines += `<line x1="0" y1="${y}" x2="800" y2="${y}" class="grid-line"/>`;
+   for(let x=0;x<=600;x+=20) lines += `<line x1="${x}" y1="0" x2="${x}" y2="800" class="grid-line"/>`;
+   for(let y=0;y<=800;y+=20) lines += `<line x1="0" y1="${y}" x2="600" y2="${y}" class="grid-line"/>`;
    gl.innerHTML = lines;
   } else gl.innerHTML = '';
  },
@@ -692,6 +727,7 @@ const S = {
 
  // ── PANEL ──
  updatePanel() {
+  if(ST.panelTab==='gallery') return; // Don't overwrite gallery view
   const pc = document.getElementById('panel-content');
   document.getElementById('el-count').textContent = ST.elements.length;
 
@@ -1176,6 +1212,194 @@ const S = {
    alert('Error al generar. Verifica tu sesion.');
    btn.textContent='✦ Generar'; btn.disabled=false;
   }
+ },
+
+ // ── TOAST ──
+ showToast(msg, type='info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast-msg ${type}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); },2500);
+ },
+
+ // ── PANEL TABS ──
+ switchTab(tab) {
+  ST.panelTab = tab;
+  document.getElementById('tab-elements').classList.toggle('active', tab==='elements');
+  document.getElementById('tab-gallery').classList.toggle('active', tab==='gallery');
+  if(tab==='gallery') this.loadGallery();
+  else this.updatePanel();
+ },
+
+ // ── GENERATE THUMBNAIL SVG ──
+ generateThumbnail() {
+  const f = FIELDS[ST.sport] || DEFAULT_FIELD;
+  let elsSvg = '';
+  ST.elements.forEach(el => { elsSvg += this.buildElSvg(el); });
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" width="150" height="200">` +
+   `<rect width="600" height="800" fill="${f.bg}"/>` +
+   `<defs><marker id="am" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.5"/></marker></defs>` +
+   `<g stroke="rgba(0,0,0,0.65)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">${f.svg}</g>` +
+   `<g>${elsSvg}</g></svg>`;
+  return svg;
+ },
+
+ // ── SAVE MODAL ──
+ showSaveModal() {
+  const mc = document.getElementById('modal-card');
+  const defaultName = ST.editingBoardId ? 'Actualizar Pizarra' : 'Nueva Pizarra';
+  mc.innerHTML = `
+   <h2>✓ Guardar Pizarra</h2>
+   <div class="prop-group">
+    <div class="prop-label">Nombre</div>
+    <div class="prop-row"><input type="text" id="save-name" value="${ST.sport}" style="width:100%" placeholder="Nombre de la pizarra..." data-testid="save-board-name"></div>
+   </div>
+   <div style="display:flex;gap:8px;margin-top:16px">
+    <button class="btn-cancel" style="flex:1" onclick="document.getElementById('modal-overlay').classList.remove('show')">Cancelar</button>
+    <button class="btn-guardar" style="flex:1" onclick="S.saveBoardToServer()" data-testid="confirm-save-board">✓ ${ST.editingBoardId?'Actualizar':'Guardar'}</button>
+   </div>`;
+  document.getElementById('modal-overlay').classList.add('show');
+  setTimeout(()=>document.getElementById('save-name')?.focus(),100);
+ },
+
+ // ── SAVE TO SERVER ──
+ async saveBoardToServer() {
+  const nameInput = document.getElementById('save-name');
+  const name = nameInput ? nameInput.value.trim() : ST.sport;
+  if(!name) { this.showToast('Ingresa un nombre','error'); return; }
+  const token = localStorage.getItem('train_token');
+  if(!token) { this.showToast('Inicia sesion primero','error'); return; }
+  const thumbnail = this.generateThumbnail();
+  const body = {
+   name: name,
+   sport: ST.sport,
+   sportName: ST.sport,
+   category: ST.cat,
+   elements: JSON.parse(JSON.stringify(ST.elements)),
+   thumbnail: btoa(unescape(encodeURIComponent(thumbnail)))
+  };
+  try {
+   const url = ST.editingBoardId ? `/api/tactical-boards/${ST.editingBoardId}` : '/api/tactical-boards';
+   const method = ST.editingBoardId ? 'PUT' : 'POST';
+   const res = await fetch(url, {
+    method, headers: {'Content-Type':'application/json','Authorization':`Bearer ${token}`},
+    body: JSON.stringify(body)
+   });
+   if(!res.ok) throw new Error('Error al guardar');
+   document.getElementById('modal-overlay').classList.remove('show');
+   this.showToast(ST.editingBoardId?'Pizarra actualizada':'Pizarra guardada','success');
+   if(!ST.editingBoardId) {
+    const data = await res.json();
+    ST.editingBoardId = data.id;
+   }
+   // Notify opener (SessionEditor) if opened from there
+   if(window.opener && !window.opener.closed) {
+    window.opener.postMessage({type:'tactical-board-saved', boardId:ST.editingBoardId, sport:ST.sport, name:name, thumbnail:thumbnail, elements:ST.elements},'*');
+   }
+   this.loadGallery();
+  } catch(e) {
+   this.showToast('Error al guardar: '+e.message,'error');
+  }
+ },
+
+ // ── LOAD GALLERY ──
+ async loadGallery() {
+  const pc = document.getElementById('panel-content');
+  const token = localStorage.getItem('train_token');
+  if(!token) {
+   pc.innerHTML = '<div class="gallery-empty">Inicia sesion para ver tus pizarras guardadas</div>';
+   return;
+  }
+  pc.innerHTML = '<div class="gallery-empty">Cargando...</div>';
+  try {
+   const res = await fetch('/api/tactical-boards', {
+    headers: {'Authorization':`Bearer ${token}`}
+   });
+   if(!res.ok) throw new Error('Error');
+   ST.gallery = await res.json();
+   this.renderGallery();
+  } catch(e) {
+   pc.innerHTML = '<div class="gallery-empty">Error al cargar galeria</div>';
+  }
+ },
+
+ // ── RENDER GALLERY ──
+ renderGallery() {
+  const pc = document.getElementById('panel-content');
+  if(ST.gallery.length===0) {
+   pc.innerHTML = '<div class="gallery-empty">Sin pizarras guardadas.<br>Usa el boton ✓ Guardar para crear una.</div>';
+   return;
+  }
+  let html = '';
+  ST.gallery.forEach(b => {
+   const isActive = ST.editingBoardId === b.id;
+   const thumbSvg = b.thumbnail ? decodeURIComponent(escape(atob(b.thumbnail))) : '';
+   const date = b.updated_at ? new Date(b.updated_at).toLocaleDateString('es') : '';
+   html += `<div class="gallery-item${isActive?' selected':''}" data-testid="gallery-item-${b.id}">
+    <div class="gallery-thumb">${thumbSvg}</div>
+    <div class="gallery-name">${b.name||'Sin nombre'}</div>
+    <div class="gallery-meta"><span>${b.sportName||b.sport||''}</span><span>${date}</span></div>
+    <div class="gallery-actions">
+     <button class="gallery-btn" onclick="S.loadBoard('${b.id}')">Cargar</button>
+     <button class="gallery-btn del" onclick="event.stopPropagation();S.deleteBoard('${b.id}')">Eliminar</button>
+    </div>
+   </div>`;
+  });
+  pc.innerHTML = html;
+ },
+
+ // ── LOAD BOARD ──
+ async loadBoard(id) {
+  const token = localStorage.getItem('train_token');
+  if(!token) return;
+  try {
+   const res = await fetch(`/api/tactical-boards/${id}`, {
+    headers: {'Authorization':`Bearer ${token}`}
+   });
+   if(!res.ok) throw new Error('Error');
+   const board = await res.json();
+   // Set sport without clearing (we'll replace elements)
+   ST.sport = board.sport || board.sportName || ST.sport;
+   ST.cat = board.category || ST.cat;
+   const f = FIELDS[ST.sport] || DEFAULT_FIELD;
+   const fl = document.getElementById('field-layer');
+   fl.innerHTML = `<rect x="0" y="0" width="600" height="800" fill="${f.bg}" rx="0"/>` +
+    `<g stroke="rgba(0,0,0,0.65)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">${f.svg}</g>`;
+   // Restore elements
+   ST.elements = board.elements || [];
+   ST.nextId = ST.elements.reduce((max,el)=>Math.max(max,(el.id||0)+1),1);
+   ST.selected = [];
+   ST.editingBoardId = id;
+   this.saveHistory();
+   this.renderElements();
+   this.renderTabs();
+   this.updatePanel();
+   this.updateStats();
+   this.showToast('Pizarra cargada','success');
+   this.switchTab('elements');
+  } catch(e) {
+   this.showToast('Error al cargar pizarra','error');
+  }
+ },
+
+ // ── DELETE BOARD ──
+ async deleteBoard(id) {
+  if(!confirm('¿Eliminar esta pizarra?')) return;
+  const token = localStorage.getItem('train_token');
+  if(!token) return;
+  try {
+   const res = await fetch(`/api/tactical-boards/${id}`, {
+    method:'DELETE', headers: {'Authorization':`Bearer ${token}`}
+   });
+   if(!res.ok) throw new Error('Error');
+   if(ST.editingBoardId===id) ST.editingBoardId=null;
+   this.showToast('Pizarra eliminada','success');
+   this.loadGallery();
+  } catch(e) {
+   this.showToast('Error al eliminar','error');
+  }
  }
 };
 
@@ -1187,6 +1411,32 @@ document.getElementById('modal-overlay').addEventListener('click', e => {
 
 // ── INIT ──
 S.init();
+// Auto-load board from URL params
+(async function() {
+ const params = new URLSearchParams(window.location.search);
+ const boardId = params.get('boardId');
+ if(boardId) {
+  const token = localStorage.getItem('train_token');
+  if(token) {
+   try {
+    const res = await fetch(`/api/tactical-boards/${boardId}`, {headers:{'Authorization':`Bearer ${token}`}});
+    if(res.ok) {
+     const board = await res.json();
+     ST.sport = board.sport || board.sportName || ST.sport;
+     ST.cat = board.category || ST.cat;
+     const f = FIELDS[ST.sport] || DEFAULT_FIELD;
+     document.getElementById('field-layer').innerHTML = `<rect x="0" y="0" width="600" height="800" fill="${f.bg}" rx="0"/>` +
+      `<g stroke="rgba(0,0,0,0.65)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">${f.svg}</g>`;
+     ST.elements = board.elements || [];
+     ST.nextId = ST.elements.reduce((max,el)=>Math.max(max,(el.id||0)+1),1);
+     ST.editingBoardId = boardId;
+     S.saveHistory(); S.renderElements(); S.renderTabs(); S.updatePanel(); S.updateStats();
+     S.showToast('Pizarra cargada','success');
+    }
+   } catch(e) { console.error('Auto-load failed:', e); }
+  }
+ }
+})();
 </script>
 </body>
 </html>
