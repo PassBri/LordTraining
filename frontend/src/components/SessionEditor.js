@@ -278,19 +278,39 @@ const SessionEditor = ({
     const fetchExercises = async () => {
       try {
         const token = localStorage.getItem('train_token');
-        const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/exercises`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const headers = { 'Authorization': `Bearer ${token}` };
+        // Try exercise-library first (categorized)
+        let res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/exercise-library`, { headers });
+        if (res.ok) {
+          const data = await res.json();
+          const cats = data.categories || [];
+          if (cats.length > 0) {
+            const grouped = {};
+            cats.forEach(cat => {
+              const subs = {};
+              (cat.subcategories || []).forEach(sub => {
+                subs[sub.id || sub.name] = {
+                  nombre: sub.name,
+                  ejercicios: (sub.exercises || []).map(e => ({
+                    nombre: e.name, descripcion: e.description || '', musculos: (e.muscles || []).join(', ')
+                  }))
+                };
+              });
+              grouped[cat.id || cat.name] = { nombre: cat.name, color: cat.color, subcategorias: subs };
+            });
+            setExercisesCat(grouped);
+            return;
+          }
+        }
+        // Fallback: flat exercises list
+        res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/exercises`, { headers });
         if (!res.ok) return;
         const data = await res.json();
-        // Group flat list by category
         const grouped = {};
         data.forEach(ex => {
-          const cat = ex.category || 'General';
-          if (!grouped[cat]) grouped[cat] = { nombre: cat.charAt(0).toUpperCase() + cat.slice(1), subcategorias: { general: { nombre: 'Ejercicios', ejercicios: [] } } };
-          grouped[cat].subcategorias.general.ejercicios.push({
-            nombre: ex.name, descripcion: ex.description || '', musculos: (ex.muscles || []).join(', ')
-          });
+          const cat = ex.category || 'general';
+          if (!grouped[cat]) grouped[cat] = { nombre: cat.charAt(0).toUpperCase() + cat.slice(1), subcategorias: { all: { nombre: 'Ejercicios', ejercicios: [] } } };
+          grouped[cat].subcategorias.all.ejercicios.push({ nombre: ex.name, descripcion: ex.description || '', musculos: (ex.muscles || []).join(', ') });
         });
         setExercisesCat(grouped);
       } catch (e) { /* ignore */ }
