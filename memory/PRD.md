@@ -4,32 +4,38 @@
 
 ## Implementado (Fork 9 - 14 Abr 2026)
 
-### Barra de Vista (VIEW BAR)
-- **2D / 2.5D**: Toggle entre vista plana y perspectiva (rotateX 35°, perspective 900px)
-- **Rotación campo**: ↺ -90°, ↻ +90° (acumulable), Flip H, Flip V, Reset
-- **Modo Avatar**: Táctico (círculos) / Camiseta (shirt SVG) / Avatar (figura completa)
-- Atajos: 2=2D, 3=2.5D, R=Rotar, M=Flip, Tab=Cambiar avatar, H=Toggle panel
+### Vista 3D Isométrica
+- 3 modos: 2D (plano), 2.5D (perspective 900px rotateX 35°), 3D (perspective 1000px rotateX 55° rotateZ -15°)
+- Transición animada 400ms cubic-bezier entre modos
+- Elementos 3D: sombras elípticas blur, pins, highlights, volumen en conos/balón
+- Atajos: 2=2D, 3=2.5D, 4=3D
 
-### Modos de Visualización de Jugadores
-- **Táctico**: Círculos con número, sombra sutil
-- **Camiseta**: SVG de camiseta vista desde arriba con número centrado
-- **Avatar**: Figura completa: cabeza, cuerpo (camiseta+número), brazos, piernas, shorts
-- contrastColor() auto para legibilidad del número
+### Flechas con Estela Degradada
+- LinearGradient SVG de transparente→opaco por cada flecha
+- Trail ancho (3.5x stroke) con opacity 0.2 para efecto de estela
+- Sombra 3D adicional en modos perspectiva (blur + offset)
 
-### Sistema de Capas Z-Order
-- Zonas(0) → Líneas(1) → Materiales(2) → Jugadores(3) → Textos(4)
+### Formaciones Tácticas por Deporte (12 deportes)
+- Fútbol: 4-3-3, 4-4-2, 3-5-2, 4-2-3-1
+- Fútbol de Salón: 1-2-1, 2-2, 3-1, 4-0 Power
+- Baloncesto: 2-3 Zona, 1-2-2, 3-2, 1-3-1
+- Voleibol: 5-1, 4-2, 6-2
+- Balonmano: 6-0 Def, 5-1 Def, 3-3 Ataque
+- Rugby: Scrum 3-4-1, Backs
+- Hockey: 2-1-2, 1-2-2
+- Fútbol Americano: I-Formation, Shotgun
+- Béisbol, Tenis, Boxeo, Judo
+- Modal con preview visual de cada formación
+- Aplicación escalonada 50ms por jugador
 
-### Atajos de Teclado
-- Ctrl+Z/Y: Deshacer/Rehacer
-- Ctrl+A/D/S: Seleccionar todo/Duplicar/Exportar
-- Delete: Eliminar, Escape: Deseleccionar
-- +/-/0: Zoom, F: Fit, H: Toggle panel
-- 2/3: Vista 2D/2.5D, R/M: Rotar/Flip
-- Tab: Ciclar avatar, P: Reproducir
+### Elementos 3D
+- Jugadores: sombra elíptica blur, pin vertical, highlight specular
+- Conos: sombra 3D, highlight lateral
+- Balón: sombra blur, highlight specular
+- Camisetas: sombra drop
+- Avatares: sombra completa, zapatos, brazos con rotación
 
 ## Pendiente
-- P1: Vista 3D isométrica completa
-- P1: Formaciones tácticas por deporte
 - P2: Exportar PDF/GIF
 - P2: Flecha aérea con parábola
-- P3: Joystick 3D, carga de fotos
+- P3: Joystick 3D, fotos de jugadores

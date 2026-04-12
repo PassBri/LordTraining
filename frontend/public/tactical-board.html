@@ -81,6 +81,7 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
 #canvas-inner{flex:1;position:relative;overflow:hidden;transition:transform .4s cubic-bezier(0.2,0,0,1);transform-origin:center center}
 #canvas-inner.view-2d{transform:none}
 #canvas-inner.view-25d{transform:perspective(900px) rotateX(35deg);transform-origin:center 80%}
+#canvas-inner.view-3d{transform:perspective(1000px) rotateX(55deg) rotateZ(-15deg) scale(0.85);transform-origin:center center}
 #svg-canvas{width:100%;height:100%;display:block}
 .zoom-controls{position:absolute;bottom:10px;right:10px;display:flex;gap:3px;z-index:10}
 .zoom-btn{width:30px;height:30px;border-radius:50%;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-sec);font-size:15px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
@@ -215,6 +216,7 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
     <div class="vb-seg" id="view-mode-seg">
      <button class="vb-btn active" data-view="2d" onclick="S.setView('2d')">2D</button>
      <button class="vb-btn" data-view="2.5d" onclick="S.setView('2.5d')">2.5D</button>
+     <button class="vb-btn" data-view="3d" onclick="S.setView('3d')">3D</button>
     </div>
    </div>
    <div class="vb-sep"></div>
@@ -427,19 +429,57 @@ const TOOLS = [
 // ═══════════ FORMATIONS ═══════════
 const FORMATIONS = {
 'Futbol':[
- {name:'4-3-3',pos:[[400,520],[200,420],[300,420],[500,420],[600,420],[250,300],[400,280],[550,300],[200,150],[400,100],[600,150]]},
- {name:'4-4-2',pos:[[400,520],[200,420],[300,420],[500,420],[600,420],[200,280],[330,280],[470,280],[600,280],[300,120],[500,120]]},
- {name:'3-5-2',pos:[[400,520],[250,400],[400,420],[550,400],[200,280],[320,260],[400,220],[480,260],[600,280],[300,100],[500,100]]},
- {name:'4-2-3-1',pos:[[400,520],[200,420],[300,420],[500,420],[600,420],[330,320],[470,320],[200,200],[400,180],[600,200],[400,80]]}
+ {name:'4-3-3',pos:[[300,700],[150,560],[250,560],[350,560],[450,560],[200,380],[300,340],[400,380],[150,180],[300,120],[450,180]]},
+ {name:'4-4-2',pos:[[300,700],[150,560],[250,560],[350,560],[450,560],[150,360],[250,360],[350,360],[450,360],[230,160],[370,160]]},
+ {name:'3-5-2',pos:[[300,700],[180,540],[300,560],[420,540],[150,360],[250,320],[300,280],[350,320],[450,360],[230,140],[370,140]]},
+ {name:'4-2-3-1',pos:[[300,700],[150,560],[250,560],[350,560],[450,560],[250,400],[350,400],[150,250],[300,220],[450,250],[300,100]]}
+],
+'Futbol de Salon':[
+ {name:'1-2-1',pos:[[300,720],[200,480],[400,480],[300,280],[300,120]]},
+ {name:'2-2',pos:[[300,720],[200,480],[400,480],[200,240],[400,240]]},
+ {name:'3-1',pos:[[300,720],[180,460],[300,480],[420,460],[300,200]]},
+ {name:'4-0 (Power)',pos:[[300,720],[180,400],[300,360],[420,400],[300,200]]}
 ],
 'Baloncesto':[
- {name:'2-3 Zona',pos:[[300,200],[500,200],[200,380],[400,420],[600,380]]},
- {name:'1-2-2',pos:[[400,180],[280,300],[520,300],[280,440],[520,440]]},
- {name:'3-2',pos:[[280,220],[400,180],[520,220],[300,400],[500,400]]}
+ {name:'2-3 Zona',pos:[[220,260],[380,260],[160,440],[300,480],[440,440]]},
+ {name:'1-2-2',pos:[[300,220],[220,360],[380,360],[200,520],[400,520]]},
+ {name:'3-2',pos:[[200,260],[300,220],[400,260],[220,460],[380,460]]},
+ {name:'1-3-1',pos:[[300,200],[200,360],[300,380],[400,360],[300,520]]}
 ],
 'Voleibol':[
- {name:'5-1',pos:[[250,420],[400,420],[550,420],[250,200],[400,200],[550,200]]},
- {name:'4-2',pos:[[250,420],[400,420],[550,420],[200,200],[400,200],[600,200]]}
+ {name:'5-1',pos:[[180,560],[300,560],[420,560],[180,320],[300,320],[420,320]]},
+ {name:'4-2',pos:[[180,560],[300,560],[420,560],[150,300],[300,300],[450,300]]},
+ {name:'6-2',pos:[[180,560],[300,560],[420,560],[180,320],[300,320],[420,320]]}
+],
+'Balonmano':[
+ {name:'6-0 Def.',pos:[[300,720],[180,440],[240,420],[300,400],[360,420],[420,440],[300,520]]},
+ {name:'5-1 Def.',pos:[[300,720],[180,460],[260,440],[340,440],[420,460],[300,340],[300,520]]},
+ {name:'3-3 Ataque',pos:[[300,720],[180,300],[300,240],[420,300],[180,480],[300,440],[420,480]]}
+],
+'Rugby':[
+ {name:'Scrum 3-4-1',pos:[[240,500],[300,500],[360,500],[210,560],[270,560],[330,560],[390,560],[300,440]]},
+ {name:'Backs',pos:[[300,600],[220,460],[380,460],[300,380],[180,280],[300,240],[420,280],[260,160],[340,160]]}
+],
+'Hockey':[
+ {name:'2-1-2',pos:[[200,480],[400,480],[300,360],[200,200],[400,200]]},
+ {name:'1-2-2',pos:[[300,480],[200,360],[400,360],[200,200],[400,200]]}
+],
+'Futbol Americano':[
+ {name:'I-Formation',pos:[[300,700],[180,560],[240,560],[300,560],[360,560],[420,560],[300,500],[300,440],[240,380],[360,380],[300,300]]},
+ {name:'Shotgun',pos:[[300,700],[180,520],[240,520],[300,520],[360,520],[420,520],[300,400],[220,340],[380,340],[300,260],[300,180]]}
+],
+'Beisbol':[
+ {name:'Estandar',pos:[[300,680],[166,546],[300,411],[434,546],[200,300],[300,300],[400,300],[150,200],[300,160],[450,200]]}
+],
+'Tenis':[
+ {name:'Singles',pos:[[300,600]]},
+ {name:'Dobles',pos:[[200,550],[400,550],[200,250],[400,250]]}
+],
+'Boxeo':[
+ {name:'Pelea',pos:[[300,340],[300,460]]}
+],
+'Judo':[
+ {name:'Randori',pos:[[260,360],[340,440]]}
 ]};
 
 // ═══════════ CORE SYSTEM ═══════════
@@ -668,8 +708,9 @@ const S = {
  setView(mode) {
   ST.viewMode = mode;
   const inner = document.getElementById('canvas-inner');
-  inner.className = mode==='2.5d' ? 'view-25d' : 'view-2d';
+  inner.className = mode==='2.5d' ? 'view-25d' : mode==='3d' ? 'view-3d' : 'view-2d';
   document.querySelectorAll('#view-mode-seg .vb-btn').forEach(b => b.classList.toggle('active', b.dataset.view===mode));
+  this.renderElements();
  },
 
  // ── FIELD ROTATION ──
@@ -1000,25 +1041,30 @@ const S = {
     const c = el.color;
     const lbl = el.label||'';
     const nm = el.name||'';
-    // Shadow for all modes
-    const shadow = `<ellipse cx="0" cy="${r+4}" rx="${r-2}" ry="4" fill="rgba(0,0,0,0.1)"/>`;
+    const is3D = ST.viewMode==='3d'||ST.viewMode==='2.5d';
+    const shadow = is3D ? `<ellipse cx="2" cy="${r+6}" rx="${r}" ry="${r*0.35}" fill="rgba(0,0,0,0.18)" filter="url(#blur3d)"/>` : `<ellipse cx="0" cy="${r+4}" rx="${r-2}" ry="4" fill="rgba(0,0,0,0.1)"/>`;
+    const pin = is3D ? `<line x1="0" y1="${r}" x2="1" y2="${r+4}" stroke="rgba(0,0,0,0.12)" stroke-width="1.5"/>` : '';
+
     if(ST.avatarMode==='jersey') {
-     // Jersey/Camiseta mode - shirt seen from above
-     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<path d="M-10,-14 L-6,-18 L0,-16 L6,-18 L10,-14 L12,-6 L8,-4 L8,12 L-8,12 L-8,-4 L-12,-6 Z" fill="${c}" stroke="${c}" stroke-width="0.5" opacity="0.85"/><path d="M-10,-14 L-6,-18 L0,-16 L6,-18 L10,-14 L12,-6 L8,-4 L8,12 L-8,12 L-8,-4 L-12,-6 Z" fill="none" stroke="rgba(0,0,0,0.3)" stroke-width="1"/><text x="0" y="2" text-anchor="middle" font-size="12" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text>${nm?`<text x="0" y="${-22}" text-anchor="middle" font-size="8" fill="${c}" opacity="0.8">${nm}</text>`:''}</g>`;
+     const sh = is3D ? `<path d="M-9,-13 L-5,-17 L0,-15 L5,-17 L9,-13 L11,-5 L7,-3 L7,13 L-7,13 L-7,-3 L-11,-5 Z" fill="rgba(0,0,0,0.15)" transform="translate(2,2)"/>` : '';
+     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}${pin}${sh}<path d="M-10,-14 L-6,-18 L0,-16 L6,-18 L10,-14 L12,-6 L8,-4 L8,12 L-8,12 L-8,-4 L-12,-6 Z" fill="${c}" stroke="rgba(0,0,0,0.2)" stroke-width="1"/><text x="0" y="2" text-anchor="middle" font-size="12" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text>${nm?`<text x="0" y="${-22}" text-anchor="middle" font-size="8" fill="${c}" font-weight="600">${nm}</text>`:''}</g>`;
     } else if(ST.avatarMode==='avatar') {
-     // Avatar mode - full body silhouette
-     const bodyC = c;
-     const shortsC = el.type==='goalkeeper'?'#333':c;
-     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<circle cx="0" cy="-18" r="6" fill="#dbb89c" stroke="rgba(0,0,0,0.15)" stroke-width="0.5"/><rect x="-8" y="-12" width="16" height="16" rx="3" fill="${bodyC}" stroke="rgba(0,0,0,0.15)" stroke-width="0.5"/><text x="0" y="-2" text-anchor="middle" font-size="9" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text><rect x="-7" y="4" width="6" height="10" rx="2" fill="${shortsC}" opacity="0.7"/><rect x="1" y="4" width="6" height="10" rx="2" fill="${shortsC}" opacity="0.7"/><rect x="-5" y="-12" width="4" height="10" rx="2" fill="${bodyC}" transform="rotate(-15 -3 -7)" opacity="0.7"/><rect x="1" y="-12" width="4" height="10" rx="2" fill="${bodyC}" transform="rotate(15 3 -7)" opacity="0.7"/>${nm?`<text x="0" y="-28" text-anchor="middle" font-size="8" fill="${c}" opacity="0.8">${nm}</text>`:''}</g>`;
+     const sh3d = is3D ? 'filter="url(#shadow3d)"' : '';
+     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}${pin}<g ${sh3d}><circle cx="0" cy="-20" r="7" fill="#e2c4a8" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/><circle cx="-2" cy="-22" r="1.5" fill="rgba(255,255,255,0.4)"/><rect x="-9" y="-13" width="18" height="18" rx="3" fill="${c}" stroke="rgba(0,0,0,0.15)" stroke-width="0.5"/><rect x="-13" y="-12" width="5" height="12" rx="2.5" fill="${c}" transform="rotate(-12 -10 -6)" opacity="0.8"/><rect x="8" y="-12" width="5" height="12" rx="2.5" fill="${c}" transform="rotate(12 10 -6)" opacity="0.8"/><text x="0" y="-1" text-anchor="middle" font-size="10" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text><rect x="-8" y="5" width="7" height="12" rx="2" fill="${el.type==='goalkeeper'?'#333':c}" opacity="0.6"/><rect x="1" y="5" width="7" height="12" rx="2" fill="${el.type==='goalkeeper'?'#333':c}" opacity="0.6"/><rect x="-7" y="15" width="6" height="4" rx="1.5" fill="#333"/><rect x="1" y="15" width="6" height="4" rx="1.5" fill="#333"/></g>${nm?`<text x="0" y="-32" text-anchor="middle" font-size="8" fill="${c}" font-weight="600">${nm}</text>`:''}</g>`;
     } else {
-     // Tactical mode (default) - circles with numbers
-     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<circle cx="0" cy="0" r="${r}" fill="${c}22" stroke="${c}" stroke-width="2.5"/><text x="0" y="0" dy="0.35em" text-anchor="middle" font-size="${r*0.85}" fill="${c}" font-weight="800">${lbl}</text>${nm?`<text x="0" y="${-r-6}" text-anchor="middle" font-size="9" fill="${c}" opacity="0.7">${nm}</text>`:''}</g>`;
+     const glow3d = is3D ? `<circle cx="0" cy="0" r="${r+2}" fill="none" stroke="${c}" stroke-width="0.5" opacity="0.3"/>` : '';
+     const highlight = is3D ? `<circle cx="-${r*0.3}" cy="-${r*0.3}" r="${r*0.5}" fill="rgba(255,255,255,0.15)"/>` : '';
+     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}${pin}${glow3d}<circle cx="0" cy="0" r="${r}" fill="${c}" opacity="0.85"/>${highlight}<circle cx="0" cy="0" r="${r}" fill="none" stroke="${c}" stroke-width="2"/><text x="0" y="0" dy="0.35em" text-anchor="middle" font-size="${r*0.85}" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text>${nm?`<text x="0" y="${-r-6}" text-anchor="middle" font-size="9" fill="${c}" font-weight="600">${nm}</text>`:''}</g>`;
     }
    }
-   case 'ball':
-    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${sel?'<circle cx="0" cy="0" r="14" fill="none" stroke="white" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.5"/>':''}<circle cx="0" cy="0" r="${el.size||8}" fill="white" stroke="#333" stroke-width="1.5"/><circle cx="0" cy="0" r="2.5" fill="#555"/></g>`;
-   case 'cone':
-    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${sel?'<circle cx="0" cy="0" r="16" fill="none" stroke="#ff9800" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.6"/>':''}<polygon points="0,-12 -9,7 9,7" fill="${el.color||'#ff9800'}" stroke="#e65100" stroke-width="1.5"/></g>`;
+   case 'ball': {
+    const is3D=ST.viewMode!=='2d';
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="1" cy="10" rx="8" ry="3" fill="rgba(0,0,0,0.12)" filter="url(#blur3d)"/>':''}<circle cx="0" cy="0" r="${el.size||8}" fill="#f8fafc" stroke="#333" stroke-width="1.5"/>${is3D?'<circle cx="-2" cy="-2" r="3" fill="rgba(255,255,255,0.4)"/>':''}<circle cx="0" cy="0" r="2" fill="#555"/></g>`;
+   }
+   case 'cone': {
+    const is3D=ST.viewMode!=='2d';
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="1" cy="12" rx="10" ry="3.5" fill="rgba(0,0,0,0.12)" filter="url(#blur3d)"/>':''}<polygon points="0,-12 -9,7 9,7" fill="${el.color||'#ff9800'}" stroke="rgba(0,0,0,0.15)" stroke-width="1"/>${is3D?'<polygon points="0,-12 -1,7 9,7" fill="rgba(255,255,255,0.15)"/>':''}<ellipse cx="0" cy="7" rx="9" ry="2.5" fill="none" stroke="${el.color||'#ff9800'}" stroke-width="1.2"/></g>`;
+   }
    case 'flag':
     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><line x1="0" y1="-12" x2="0" y2="12" stroke="rgba(0,0,0,0.5)" stroke-width="1.5"/><polygon points="0,-12 14,-7 0,-2" fill="${el.color||'#ef4444'}" opacity="0.7"/></g>`;
    case 'hurdle':
@@ -1063,8 +1109,14 @@ const S = {
     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><rect x="-18" y="-10" width="36" height="20" rx="3" fill="rgba(34,197,94,0.1)" stroke="#22c55e" stroke-width="1.5"/></g>`;
    case 'arrow': {
     const mx = ((el.x1||0)+(el.x2||0))/2, my = ((el.y1||0)+(el.y2||0))/2;
+    const aid = `ag${el.id}`;
+    const ac = el.color||'rgba(0,0,0,0.7)';
+    const is3D = ST.viewMode==='3d'||ST.viewMode==='2.5d';
+    const trailGrad = `<defs><linearGradient id="${aid}" x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="${ac}" stop-opacity="0.05"/><stop offset="40%" stop-color="${ac}" stop-opacity="0.25"/><stop offset="100%" stop-color="${ac}" stop-opacity="0.8"/></linearGradient></defs>`;
+    const trail = `<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="url(#${aid})" stroke-width="${(el.strokeWidth||2.5)*3.5}" stroke-linecap="round" opacity="0.2"/>`;
+    const sh3d = is3D ? `<line x1="${el.x1+2}" y1="${el.y1+5}" x2="${el.x2+2}" y2="${el.y2+5}" stroke="rgba(0,0,0,0.08)" stroke-width="${(el.strokeWidth||2.5)+1}" stroke-linecap="round" filter="url(#blur3d)"/>` : '';
     const orderBadge = el.playOrder ? `<circle cx="${mx}" cy="${my}" r="10" fill="rgba(255,255,255,0.92)" stroke="#2563eb" stroke-width="1.5" class="arrow-order-badge"/><text x="${mx}" y="${my}" dy="0.35em" text-anchor="middle" font-size="9" fill="#2563eb" font-weight="700" class="arrow-order-badge">${el.playOrder}</text>` : '';
-    return `<g data-id="${el.id}" style="cursor:pointer">${sel?`<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="#2563eb" stroke-width="7" opacity="0.2"/>`:''}<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${el.color||'rgba(0,0,0,0.7)'}" stroke-width="${el.strokeWidth||2.5}" stroke-linecap="round" marker-end="url(#arrow-marker)"/><circle cx="${el.x1}" cy="${el.y1}" r="3.5" fill="rgba(0,0,0,0.4)"/>${orderBadge}</g>`;
+    return `<g data-id="${el.id}" style="cursor:pointer">${trailGrad}${sel?`<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="#2563eb" stroke-width="8" opacity="0.15"/>`:''} ${sh3d}${trail}<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${ac}" stroke-width="${el.strokeWidth||2.5}" stroke-linecap="round" marker-end="url(#arrow-marker)" ${el.dash?`stroke-dasharray="${el.dash}"`:''}/><circle cx="${el.x1}" cy="${el.y1}" r="3" fill="${ac}" opacity="0.5"/>${orderBadge}</g>`;
    }
    case 'line':
     return `<g data-id="${el.id}" style="cursor:pointer"><line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${el.color||'rgba(0,0,0,0.6)'}" stroke-width="${el.strokeWidth||2}" stroke-linecap="round" ${el.dash?`stroke-dasharray="${el.dash}"`:''}/></g>`;
@@ -1086,8 +1138,12 @@ const S = {
 
  renderElements() {
   const layer = document.getElementById('elements-layer');
-  let defs = `<defs><marker id="arrow-marker" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8" fill="none" stroke="rgba(0,0,0,0.7)" stroke-width="1.5" stroke-linecap="round"/></marker></defs>`;
-  // Z-order: zones(0) → lines/arrows/curves/pencil(1) → materials(2) → players(3) → text(4)
+  const is3D = ST.viewMode==='3d'||ST.viewMode==='2.5d';
+  let defs = `<defs>
+   <marker id="arrow-marker" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8" fill="none" stroke="rgba(0,0,0,0.7)" stroke-width="1.5" stroke-linecap="round"/></marker>
+   <filter id="blur3d"><feGaussianBlur stdDeviation="3"/></filter>
+   <filter id="shadow3d"><feDropShadow dx="2" dy="3" stdDeviation="2" flood-opacity="0.2"/></filter>
+  </defs>`;
   const zOrder = {zone:0, line:1, arrow:1, curve:1, pencil:1, cone:2, disc:2, flag:2, hurdle:2, minigoal:2, mannequin:2, vest:2, ring:2, ladder:2, pole:2, plyobox:2, kettlebell:2, medball:2, trx:2, sled:2, parachute:2, rope:2, battlerope:2, roller:2, band:2, bosu:2, mat:2, ball:2, playerA:3, playerB:3, goalkeeper:3, text:4};
   const sorted = [...ST.elements].sort((a,b)=>(zOrder[a.type]||2)-(zOrder[b.type]||2));
   layer.innerHTML = defs + sorted.map(el => this.buildElSvg(el)).join('');
@@ -1243,6 +1299,7 @@ const S = {
    if(e.key==='0') this.zoomReset();
    if(e.key==='2') this.setView('2d');
    if(e.key==='3') this.setView('2.5d');
+   if(e.key==='4') this.setView('3d');
    if(e.key==='r'||e.key==='R') this.rotateField(90);
    if(e.key==='m'||e.key==='M') this.flipField('h');
    if(e.key==='f'||e.key==='F') this.zoomReset();
@@ -1363,15 +1420,17 @@ const S = {
  // ── FORMATIONS ──
  showFormations() {
   const forms = FORMATIONS[ST.sport];
-  if(!forms||!forms.length) { alert('No hay formaciones predefinidas para '+ST.sport); return; }
+  if(!forms||!forms.length) { this.showToast('No hay formaciones para '+ST.sport,'info'); return; }
   const mc = document.getElementById('modal-card');
   mc.innerHTML = `<h2>Formaciones — ${ST.sport}</h2>
-   <div style="display:flex;flex-wrap:wrap;gap:12px">${forms.map((f,i)=>`
-    <button onclick="S.applyFormation(${i})" style="background:rgba(255,255,255,0.04);border:0.5px solid var(--border);border-radius:10px;padding:12px;width:120px;text-align:center;cursor:pointer">
-     <svg viewBox="0 0 100 80" width="100" height="70"><rect width="100" height="80" fill="rgba(26,74,26,0.5)" rx="3"/>
-      ${f.pos.map((p,j)=>`<circle cx="${p[0]/8}" cy="${p[1]/7.5}" r="4" fill="${j===0?'#EF9F27':'#c8f700'}" opacity="0.8"/>`).join('')}
+   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px">${forms.map((f,i)=>`
+    <button onclick="S.applyFormation(${i})" style="background:var(--hover);border:1px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center;cursor:pointer;transition:all .15s" onmouseenter="this.style.borderColor='#2563eb';this.style.background='rgba(37,99,235,0.04)'" onmouseleave="this.style.borderColor='';this.style.background='var(--hover)'">
+     <svg viewBox="0 0 120 160" width="90" height="110" style="display:block;margin:0 auto"><rect width="120" height="160" fill="#f0f9f0" rx="4" stroke="#ccc" stroke-width="1"/>
+      <line x1="0" y1="80" x2="120" y2="80" stroke="#bbb" stroke-width="0.5"/>
+      <circle cx="60" cy="80" r="12" fill="none" stroke="#bbb" stroke-width="0.5"/>
+      ${f.pos.map((p,j)=>`<circle cx="${p[0]/5}" cy="${p[1]/5}" r="5" fill="${j===0?'#EF9F27':ST.teamAColor}" opacity="0.9"/><text x="${p[0]/5}" y="${p[1]/5}" dy="0.35em" text-anchor="middle" font-size="5" fill="${j===0?'#fff':this.contrastColor(ST.teamAColor)}" font-weight="700">${j===0?'GK':j}</text>`).join('')}
      </svg>
-     <div style="font-size:12px;font-weight:600;margin-top:4px;color:rgba(255,255,255,0.8)">${f.name}</div>
+     <div style="font-size:11px;font-weight:700;margin-top:4px;color:var(--text)">${f.name}</div>
     </button>`).join('')}
    </div>`;
   document.getElementById('modal-overlay').classList.add('show');
