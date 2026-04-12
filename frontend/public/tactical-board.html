@@ -25,14 +25,17 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
 /* Sport selector */
 .sb-section{padding:8px 10px;border-bottom:1px solid var(--border)}
 .sb-section-label{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:6px}
-.sb-sport-tabs{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px}
-.sb-cat{padding:3px 8px;border-radius:10px;font-size:9px;font-weight:600;background:var(--hover);color:var(--text-sec);transition:all .15s;border:1px solid transparent}
+.sb-sport-tabs{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px}
+.sb-cat{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;font-size:10px;font-weight:600;background:var(--hover);color:var(--text-sec);transition:all .15s;border:1px solid transparent}
+.sb-cat svg{flex-shrink:0;stroke-width:1.8}
 .sb-cat:hover{background:#e2e8f0;color:var(--text)}
 .sb-cat.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 .sb-sport-list{display:flex;flex-wrap:wrap;gap:3px}
-.sb-sport{padding:2px 7px;border-radius:8px;font-size:9px;background:var(--hover);color:var(--text-sec);transition:all .12s}
-.sb-sport:hover{background:#e2e8f0}
-.sb-sport.active{background:var(--text);color:#fff;font-weight:600}
+.sb-sport{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:6px;font-size:9px;font-weight:500;background:var(--hover);color:var(--text-sec);transition:all .12s;border:1px solid transparent}
+.sb-sport svg{flex-shrink:0}
+.sb-sport span{white-space:nowrap}
+.sb-sport:hover{background:#e2e8f0;color:var(--text)}
+.sb-sport.active{background:var(--text);color:#fff;font-weight:600;border-color:var(--text)}
 /* Scrollable tools area */
 .sb-scrollable{flex:1;overflow-y:auto;padding:4px 6px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;display:flex;flex-wrap:wrap;align-content:flex-start;gap:1px}
 .sb-scrollable::-webkit-scrollbar{width:3px}
@@ -407,8 +410,18 @@ const S = {
  // ── TABS ──
  renderTabs() {
   const wrap = document.getElementById('cat-tabs');
+  const CI = {
+   conjunto:'<circle cx="6" cy="4" r="2"/><circle cx="14" cy="4" r="2"/><circle cx="3" cy="11" r="2"/><circle cx="10" cy="13" r="2"/><circle cx="17" cy="11" r="2"/>',
+   raqueta:'<ellipse cx="10" cy="8" rx="5" ry="7" fill="none" stroke-width="1.8"/><line x1="10" y1="15" x2="10" y2="19" stroke-width="2"/>',
+   contacto:'<circle cx="10" cy="5" r="3" fill="none" stroke-width="1.8"/><path d="M4 18c0-3.5 2.7-6 6-6s6 2.5 6 6" fill="none" stroke-width="1.8"/>',
+   'tiempo-marca':'<circle cx="10" cy="10" r="7" fill="none" stroke-width="1.8"/><polyline points="10,6 10,10 13,12" fill="none" stroke-width="1.8"/>',
+   individuales:'<circle cx="10" cy="6" r="3" fill="none" stroke-width="1.8"/><line x1="10" y1="9" x2="10" y2="16" stroke-width="1.8"/><line x1="6" y1="12" x2="14" y2="12" stroke-width="1.8"/>',
+   orientacion:'<polygon points="10,2 13,10 10,8 7,10" fill="currentColor"/><circle cx="10" cy="10" r="7" fill="none" stroke-width="1.5"/>',
+   esports:'<rect x="3" y="5" width="14" height="10" rx="2" fill="none" stroke-width="1.8"/><line x1="7" y1="15" x2="13" y2="15" stroke-width="1.8"/>',
+   gimnasio:'<path d="M3 10h2v-3h2v6h2v-6h2v3h2" fill="none" stroke-width="2" stroke-linecap="round"/>'
+  };
   wrap.innerHTML = Object.entries(CATS).map(([k,v]) =>
-   `<button class="sb-cat${ST.cat===k?' active':''}" data-cat="${k}">${v.name}</button>`
+   `<button class="sb-cat${ST.cat===k?' active':''}" data-cat="${k}"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${CI[k]||CI.conjunto}</svg>${v.name}</button>`
   ).join('');
   wrap.onclick = e => {
    const btn = e.target.closest('[data-cat]');
@@ -422,8 +435,36 @@ const S = {
 
  renderSportList() {
   const list = document.getElementById('sport-list');
+  const SI = {
+   'Futbol':'<circle cx="10" cy="10" r="6" fill="none" stroke-width="1.5"/><path d="M10 4L8 7h4l-2-3M4.5 8l1 3 2-1M15.5 8l-1 3-2-1M6.5 14l2-1h3l2 1" fill="none" stroke-width="1"/>',
+   'Baloncesto':'<circle cx="10" cy="10" r="6" fill="none" stroke-width="1.5"/><line x1="4" y1="10" x2="16" y2="10" stroke-width="1"/><path d="M10 4c2 2 2 4 0 6s-2 4 0 6" fill="none" stroke-width="1"/>',
+   'Voleibol':'<circle cx="10" cy="10" r="6" fill="none" stroke-width="1.5"/><path d="M4 10c3-1 5 0 6 3" fill="none" stroke-width="1"/><path d="M10 4c1 3 0 5-3 6" fill="none" stroke-width="1"/>',
+   'Balonmano':'<circle cx="10" cy="10" r="6" fill="none" stroke-width="1.5"/><line x1="7" y1="4" x2="7" y2="16" stroke-width="1"/><line x1="13" y1="4" x2="13" y2="16" stroke-width="1"/>',
+   'Rugby':'<ellipse cx="10" cy="10" rx="7" ry="4.5" transform="rotate(-30 10 10)" fill="none" stroke-width="1.5"/><line x1="7" y1="7" x2="13" y2="13" stroke-width="1"/>',
+   'Hockey':'<path d="M6 4v10c0 2 2 3 4 3s4-1 4-3" fill="none" stroke-width="1.8"/>',
+   'Beisbol':'<circle cx="10" cy="10" r="6" fill="none" stroke-width="1.5"/><path d="M7 4.5c1 2 1 4 0 6M13 9.5c-1 2-1 4 0 6" fill="none" stroke-width="1" stroke-dasharray="1.5 1.5"/>',
+   'Futbol Americano':'<ellipse cx="10" cy="10" rx="4" ry="6.5" fill="none" stroke-width="1.5"/><line x1="10" y1="4" x2="10" y2="16" stroke-width="1"/><line x1="7.5" y1="8" x2="12.5" y2="8" stroke-width="0.8"/><line x1="7.5" y1="12" x2="12.5" y2="12" stroke-width="0.8"/>',
+   'Futbol de Salon':'<circle cx="10" cy="10" r="6" fill="none" stroke-width="1.5"/><circle cx="10" cy="10" r="2" fill="none" stroke-width="1"/>',
+   'Tenis':'<circle cx="10" cy="10" r="6" fill="none" stroke-width="1.5"/><path d="M4 10c3-4 9-4 12 0" fill="none" stroke-width="1"/>',
+   'Padel':'<rect x="6" y="3" width="8" height="12" rx="4" fill="none" stroke-width="1.5"/><line x1="10" y1="15" x2="10" y2="18" stroke-width="2"/>',
+   'Badminton':'<circle cx="10" cy="6" r="3" fill="none" stroke-width="1.5"/><line x1="10" y1="9" x2="10" y2="18" stroke-width="2"/>',
+   'Squash':'<rect x="5" y="4" width="10" height="12" rx="1" fill="none" stroke-width="1.5"/><circle cx="10" cy="10" r="2" fill="none" stroke-width="1"/>',
+   'Tenis de Mesa':'<circle cx="8" cy="8" r="5" fill="none" stroke-width="1.5"/><line x1="8" y1="13" x2="8" y2="18" stroke-width="2"/>',
+   'Boxeo':'<path d="M6 6c0-2 2-3 4-3s4 1 4 3v5c0 2-1 3-2 3h-1v3h-2v-3h-1c-1 0-2-1-2-3z" fill="none" stroke-width="1.5"/>',
+   'Judo':'<circle cx="10" cy="5" r="2.5" fill="none" stroke-width="1.5"/><path d="M5 18l3-6h4l3 6" fill="none" stroke-width="1.5"/><line x1="10" y1="7.5" x2="10" y2="12" stroke-width="1.5"/>',
+   'Taekwondo':'<circle cx="10" cy="5" r="2.5" fill="none" stroke-width="1.5"/><line x1="10" y1="7.5" x2="10" y2="13" stroke-width="1.5"/><line x1="10" y1="13" x2="6" y2="18" stroke-width="1.5"/><line x1="10" y1="13" x2="14" y2="18" stroke-width="1.5"/><line x1="10" y1="10" x2="15" y2="7" stroke-width="1.5"/>',
+   'Karate':'<circle cx="10" cy="5" r="2.5" fill="none" stroke-width="1.5"/><line x1="10" y1="7.5" x2="10" y2="13" stroke-width="1.5"/><line x1="10" y1="10" x2="5" y2="8" stroke-width="1.5"/><line x1="10" y1="10" x2="16" y2="12" stroke-width="1.5"/>',
+   'MMA':'<polygon points="10,3 15,5 17,10 15,15 10,17 5,15 3,10 5,5" fill="none" stroke-width="1.5"/>',
+   'Lucha':'<circle cx="7" cy="7" r="3" fill="none" stroke-width="1.5"/><circle cx="13" cy="7" r="3" fill="none" stroke-width="1.5"/>',
+   'Kickboxing':'<path d="M6 6c0-2 2-3 4-3s4 1 4 3v5c0 2-1 3-2 3h-4c-1 0-2-1-2-3z" fill="none" stroke-width="1.5"/>',
+   'Atletismo':'<circle cx="10" cy="4" r="2" fill="none" stroke-width="1.5"/><line x1="10" y1="6" x2="10" y2="12" stroke-width="1.5"/><line x1="10" y1="12" x2="7" y2="18" stroke-width="1.5"/><line x1="10" y1="12" x2="14" y2="18" stroke-width="1.5"/><line x1="10" y1="9" x2="14" y2="6" stroke-width="1.5"/>',
+   'Natacion':'<path d="M3 10c2-2 4-2 6 0s4 2 6 0" fill="none" stroke-width="1.8"/><path d="M3 14c2-2 4-2 6 0s4 2 6 0" fill="none" stroke-width="1.5"/>',
+   'Ciclismo':'<circle cx="6" cy="12" r="4" fill="none" stroke-width="1.5"/><circle cx="14" cy="12" r="4" fill="none" stroke-width="1.5"/><polyline points="6,12 9,6 14,12" fill="none" stroke-width="1.2"/>',
+   'Gimnasia':'<line x1="4" y1="16" x2="16" y2="16" stroke-width="2"/><circle cx="10" cy="8" r="3" fill="none" stroke-width="1.5"/><line x1="5" y1="8" x2="15" y2="8" stroke-width="1.5"/>'
+  };
+  const defaultIcon = '<circle cx="10" cy="10" r="6" fill="none" stroke-width="1.5"/><circle cx="10" cy="10" r="1.5" fill="currentColor"/>';
   list.innerHTML = CATS[ST.cat].sports.map(s =>
-   `<button class="sb-sport${ST.sport===s?' active':''}" data-sport="${s}">${s}</button>`
+   `<button class="sb-sport${ST.sport===s?' active':''}" data-sport="${s}"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${SI[s]||defaultIcon}</svg><span>${s}</span></button>`
   ).join('');
   list.onclick = e => {
    const btn = e.target.closest('[data-sport]');
