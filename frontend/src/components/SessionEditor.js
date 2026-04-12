@@ -651,7 +651,8 @@ const SessionEditor = ({
         toast.warning('No se pudo capturar la imagen, se compartirá solo los datos');
       }
       
-      // Guardar la sesión con la imagen
+      const sesCode = `SES-${String(session?.sessionIndex || session?.dayName || '001').padStart(3, '0')}`;
+      
       const sessionToShare = {
         athlete_id: athleteId,
         athlete_name: athleteName || 'Atleta',
@@ -659,7 +660,8 @@ const SessionEditor = ({
           ...session,
           detailedData: sessionData
         },
-        session_image: imageBase64
+        session_image: imageBase64,
+        session_code: sesCode
       };
       
       const response = await fetch(`${API_URL}/api/sessions/share`, {
@@ -673,7 +675,7 @@ const SessionEditor = ({
       
       if (response.ok) {
         const data = await response.json();
-        const fullLink = `${window.location.origin}/session/view/${data.share_id}`;
+        const fullLink = `${window.location.origin}/s/${data.share_id}`;
         setShareLink(fullLink);
         setShowShareDialog(true);
         toast.success(imageBase64 ? 'Enlace con imagen generado' : 'Enlace generado (sin imagen)');
@@ -1678,12 +1680,15 @@ const SessionEditor = ({
           
           <div className="p-5 space-y-4">
             <div className="space-y-1.5">
-              <label className="se-field-label">ENLACE PARA COMPARTIR</label>
+              <label className="se-field-label">ENLACE PÚBLICO DE SOLO LECTURA</label>
               <div className="flex gap-2">
-                <Input
+                <input
                   value={shareLink}
                   readOnly
-                  className="bg-slate-50 text-sm"
+                  disabled
+                  className="flex-1 h-9 px-3 rounded-lg text-[12px] font-mono text-slate-600 bg-slate-100 border border-slate-200 outline-none cursor-default select-all"
+                  style={{fontFamily:"'DM Sans', monospace"}}
+                  onClick={(e) => e.target.select()}
                 />
                 <Button
                   variant="outline"

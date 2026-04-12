@@ -6772,18 +6772,21 @@ class SessionShareRequest(BaseModel):
     athlete_id: str
     athlete_name: str = "Atleta"
     session_data: Dict[str, Any]
-    session_image: Optional[str] = None  # Base64 encoded image
+    session_image: Optional[str] = None
+    session_code: Optional[str] = None
 
 @api_router.post("/sessions/share")
 async def create_session_share(request: SessionShareRequest, authorization: str = Header(None)):
     """Crear un enlace para compartir una sesión con el deportista (con imagen)"""
     try:
-        # Verificar autenticación
         if not authorization or not authorization.startswith("Bearer "):
             raise HTTPException(status_code=401, detail="No autorizado")
         
-        # Generar ID único para el enlace
-        share_id = str(uuid.uuid4())[:12]
+        # Generar ID: SES-XXX-hash6
+        import secrets
+        code = request.session_code or "SES-001"
+        hash6 = secrets.token_hex(3)
+        share_id = f"{code}-{hash6}"
         
         # Guardar sesión compartida en DB (con imagen si existe)
         shared_session = {

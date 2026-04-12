@@ -75,6 +75,7 @@ function AppRoutes() {
       
       {/* Public session view (no auth required) */}
       <Route path="/session/view/:shareId" element={<SessionViewPage />} />
+      <Route path="/s/:shareId" element={<SessionViewPage />} />
       
       {/* Public tournament view (no auth required) */}
       <Route path="/tournament/:shareId" element={<TournamentPublicPage />} />
