@@ -917,7 +917,7 @@ const SessionEditor = ({
                           <div className="flex" style={{ maxHeight: '260px' }}>
                             <div className="w-[140px] border-r border-slate-100 overflow-y-auto bg-slate-50/50">
                               {Object.entries(exercisesCat).map(([catId, cat]) => (
-                                <button key={catId} onClick={() => { setPickerCat(catId); setPickerSub(null); }} className={`w-full text-left px-3 py-2 text-xs transition-colors ${pickerCat === catId ? 'bg-[#f0ffd0] text-[#3a5a00] font-bold' : 'hover:bg-slate-100 text-slate-600'}`}>{cat.nombre}</button>
+                                <button key={catId} onClick={() => { setPickerCat(catId); const subs=Object.keys(exercisesCat[catId]?.subcategorias||{}); setPickerSub(subs.length===1?subs[0]:null); }} className={`w-full text-left px-3 py-2 text-xs transition-colors ${pickerCat === catId ? 'bg-[#f0ffd0] text-[#3a5a00] font-bold' : 'hover:bg-slate-100 text-slate-600'}`}>{cat.nombre}</button>
                               ))}
                               {Object.keys(exercisesCat).length === 0 && <p className="text-center text-slate-400 py-4 text-[10px]">Cargando...</p>}
                             </div>

@@ -6425,10 +6425,15 @@ async def save_exercise_library(data: ExerciseLibraryCreate, user: dict = Depend
 
 @api_router.get("/exercise-library")
 async def get_exercise_library(user: dict = Depends(get_current_user)):
+    # First try user's own library
     data = await db.exercise_libraries.find_one({"coach_id": user["id"]}, {"_id": 0})
-    if not data:
-        raise HTTPException(status_code=404, detail="No exercise library found")
-    return data
+    if data and data.get("categories"):
+        return data
+    # Fallback: any library with categories (shared/public)
+    data = await db.exercise_libraries.find_one({"categories": {"$exists": True, "$ne": []}}, {"_id": 0})
+    if data:
+        return data
+    raise HTTPException(status_code=404, detail="No exercise library found")
 
 # =============== SESSION PDF EXPORT ===============
 class SessionPDFRequest(BaseModel):
