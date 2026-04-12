@@ -85,185 +85,175 @@ const AuthVisual = () => {
   return (
   <div className="relative h-full overflow-hidden" style={{background:'#08090e'}}>
 
-    {/* LAYER 1 — Football field SVG */}
-    <svg className="absolute" viewBox="0 0 520 340" preserveAspectRatio="xMidYMid meet"
-      style={{top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:'92%',height:'82%'}}>
-      <style>{`
-        .field-line{stroke:rgba(255,255,255,0.07);stroke-width:1;fill:none;
-          stroke-dasharray:2000;stroke-dashoffset:${show?'0':'2000'};
-          transition:stroke-dashoffset 1.5s ease-out;}
-        .field-d1{transition-delay:0s}.field-d2{transition-delay:0.05s}.field-d3{transition-delay:0.1s}
-        .field-d4{transition-delay:0.15s}.field-d5{transition-delay:0.2s}.field-d6{transition-delay:0.25s}
-        .field-d7{transition-delay:0.3s}.field-d8{transition-delay:0.35s}.field-d9{transition-delay:0.4s}
-        .field-d10{transition-delay:0.45s}
-      `}</style>
-      {/* Outer rect */}
-      <rect x="10" y="10" width="500" height="320" rx="2" className="field-line field-d1"/>
-      {/* Center line */}
-      <line x1="260" y1="10" x2="260" y2="330" className="field-line field-d2"/>
-      {/* Center circle */}
-      <circle cx="260" cy="170" r="50" className="field-line field-d3"/>
-      <circle cx="260" cy="170" r="2.5" fill="rgba(255,255,255,0.07)" className="field-d3"/>
-      {/* Left penalty area */}
-      <rect x="10" y="85" width="80" height="170" className="field-line field-d4"/>
-      <rect x="10" y="120" width="35" height="100" className="field-line field-d5"/>
-      {/* Left penalty arc */}
-      <path d="M90 135 A30 30 0 0 1 90 205" className="field-line field-d6"/>
-      {/* Right penalty area */}
-      <rect x="430" y="85" width="80" height="170" className="field-line field-d7"/>
-      <rect x="475" y="120" width="35" height="100" className="field-line field-d8"/>
-      {/* Right penalty arc */}
-      <path d="M430 135 A30 30 0 0 0 430 205" className="field-line field-d9"/>
-      {/* Corner arcs */}
-      <path d="M10 18 A8 8 0 0 0 18 10" className="field-line field-d10"/>
-      <path d="M502 10 A8 8 0 0 0 510 18" className="field-line field-d10"/>
-      <path d="M10 322 A8 8 0 0 1 18 330" className="field-line field-d10"/>
-      <path d="M502 330 A8 8 0 0 1 510 322" className="field-line field-d10"/>
-    </svg>
+    {/* LAYER 1 — Chalkboard field (vertical, like real tactical board) */}
+    <div className="absolute" style={{top:'12%',left:'10%',right:'10%',bottom:'16%',background:'#1a2e1a',borderRadius:'6px',border:'1px solid rgba(255,255,255,0.08)'}}>
+      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 300 420" preserveAspectRatio="xMidYMid meet">
+        <style>{`
+          .chalk{stroke:rgba(255,255,255,0.35);fill:none;stroke-linecap:round;stroke-linejoin:round;
+            stroke-dasharray:2000;stroke-dashoffset:${show?'0':'2000'};
+            transition:stroke-dashoffset 1.8s ease-out;}
+          .chalk-thin{stroke-width:1.5}
+          .chalk-thick{stroke-width:2}
+          .ch1{transition-delay:0.2s}.ch2{transition-delay:0.3s}.ch3{transition-delay:0.4s}
+          .ch4{transition-delay:0.5s}.ch5{transition-delay:0.6s}.ch6{transition-delay:0.7s}
+          .ch7{transition-delay:0.8s}.ch8{transition-delay:0.9s}
+        `}</style>
+        {/* Outer field */}
+        <rect x="20" y="20" width="260" height="380" rx="3" className="chalk chalk-thick ch1"/>
+        {/* Center line */}
+        <line x1="20" y1="210" x2="280" y2="210" className="chalk chalk-thin ch2"/>
+        {/* Center circle */}
+        <circle cx="150" cy="210" r="40" className="chalk chalk-thin ch3"/>
+        <circle cx="150" cy="210" r="2" fill="rgba(255,255,255,0.3)"/>
+        {/* Top penalty area */}
+        <rect x="75" y="20" width="150" height="65" className="chalk chalk-thin ch4"/>
+        <rect x="105" y="20" width="90" height="28" className="chalk chalk-thin ch5"/>
+        {/* Top penalty arc */}
+        <path d="M105 85 A30 30 0 0 0 195 85" className="chalk chalk-thin ch5"/>
+        {/* Top goal */}
+        <rect x="120" y="10" width="60" height="12" rx="2" className="chalk chalk-thin ch4" style={{stroke:'rgba(255,255,255,0.2)'}}/>
+        {/* Bottom penalty area */}
+        <rect x="75" y="335" width="150" height="65" className="chalk chalk-thin ch6"/>
+        <rect x="105" y="372" width="90" height="28" className="chalk chalk-thin ch7"/>
+        {/* Bottom penalty arc */}
+        <path d="M105 335 A30 30 0 0 1 195 335" className="chalk chalk-thin ch7"/>
+        {/* Bottom goal */}
+        <rect x="120" y="398" width="60" height="12" rx="2" className="chalk chalk-thin ch6" style={{stroke:'rgba(255,255,255,0.2)'}}/>
+        {/* Corner arcs */}
+        <path d="M20 28 A8 8 0 0 0 28 20" className="chalk chalk-thin ch8"/>
+        <path d="M272 20 A8 8 0 0 0 280 28" className="chalk chalk-thin ch8"/>
+        <path d="M20 392 A8 8 0 0 1 28 400" className="chalk chalk-thin ch8"/>
+        <path d="M272 400 A8 8 0 0 1 280 392" className="chalk chalk-thin ch8"/>
 
-    {/* LAYER 2 — Heatmap zones */}
-    <div className="absolute inset-0 pointer-events-none">
+        {/* Players — X marks (team A) */}
+        {[[80,130],[150,155],[220,130],[100,260],[200,260],[150,350]].map(([cx,cy],i) => (
+          <g key={`x${i}`} style={{opacity:show?0.4:0,transition:`opacity 0.5s ease ${1.5+i*0.1}s`}}>
+            <line x1={cx-7} y1={cy-7} x2={cx+7} y2={cy+7} stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round"/>
+            <line x1={cx+7} y1={cy-7} x2={cx-7} y2={cy+7} stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round"/>
+          </g>
+        ))}
+        {/* Players — O marks (team B) */}
+        {[[150,90],[80,200],[220,200],[150,290]].map(([cx,cy],i) => (
+          <circle key={`o${i}`} cx={cx} cy={cy} r="8" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2"
+            style={{opacity:show?0.4:0,transition:`opacity 0.5s ease ${1.8+i*0.1}s`}}/>
+        ))}
+
+        {/* Tactical arrows */}
+        <defs><marker id="chalkArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="rgba(255,255,255,0.35)"/>
+        </marker></defs>
+        <path d="M100,260 C120,220 130,180 150,155" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeDasharray="6 4" markerEnd="url(#chalkArrow)"
+          style={{strokeDashoffset:show?'0':'300',transition:'stroke-dashoffset 1.5s ease 2s'}}/>
+        <path d="M200,260 C210,220 200,170 220,130" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeDasharray="6 4" markerEnd="url(#chalkArrow)"
+          style={{strokeDashoffset:show?'0':'300',transition:'stroke-dashoffset 1.5s ease 2.3s'}}/>
+        <path d="M150,155 C170,120 180,100 150,90" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeDasharray="6 4" markerEnd="url(#chalkArrow)"
+          style={{strokeDashoffset:show?'0':'200',transition:'stroke-dashoffset 1.2s ease 2.6s'}}/>
+      </svg>
+
+      {/* Heatmap zones over the field */}
       {[
-        {x:'28%',y:'40%',s:80,c:'200,247,0',d:'3s',dl:'0s'},
-        {x:'72%',y:'30%',s:60,c:'55,138,221',d:'4s',dl:'0.8s'},
-        {x:'18%',y:'65%',s:50,c:'200,247,0',d:'3.5s',dl:'1.5s'},
-        {x:'78%',y:'60%',s:70,c:'226,75,74',d:'5s',dl:'0.3s'},
-        {x:'50%',y:'50%',s:90,c:'55,138,221',d:'4.5s',dl:'1.2s'},
-        {x:'65%',y:'25%',s:45,c:'200,247,0',d:'3.8s',dl:'2s'},
+        {x:'30%',y:'35%',s:70,c:'200,247,0'},
+        {x:'70%',y:'28%',s:55,c:'55,138,221'},
+        {x:'50%',y:'50%',s:80,c:'55,138,221'},
+        {x:'25%',y:'72%',s:50,c:'200,247,0'},
+        {x:'75%',y:'65%',s:60,c:'226,75,74'},
       ].map((h,i) => (
         <div key={i} className="absolute rounded-full" style={{
           left:h.x,top:h.y,width:h.s,height:h.s,transform:'translate(-50%,-50%)',
-          background:`rgba(${h.c},0.07)`,
-          boxShadow:`0 0 ${h.s/2}px ${h.s/4}px rgba(${h.c},0.04)`,
-          opacity: show ? 0.7 : 0,
-          transition:`opacity 0.8s ease ${1.5 + i*0.1}s`,
-          animation: show ? `heatPulse ${h.d} ease ${h.dl} infinite` : 'none',
+          background:`rgba(${h.c},0.1)`,
+          boxShadow:`0 0 ${h.s/2}px ${h.s/3}px rgba(${h.c},0.06)`,
+          opacity:show?1:0,transition:`opacity 0.8s ease ${1.5+i*0.15}s`,
+          animation:show?`heatPulse ${3+i*0.5}s ease ${i*0.3}s infinite`:'none',
         }}/>
       ))}
     </div>
 
-    {/* LAYER 3 — Tactical play line */}
-    <svg className="absolute" viewBox="0 0 520 340" preserveAspectRatio="xMidYMid meet"
-      style={{top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:'92%',height:'82%'}}>
-      <defs><marker id="arrowM" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-        <path d="M0,0 L8,3 L0,6" fill="rgba(255,255,255,0.25)"/>
-      </marker></defs>
-      <path d="M120,220 C180,200 220,140 280,130 S380,100 420,90"
-        fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5"
-        strokeDasharray="6 4" strokeLinecap="round" markerEnd="url(#arrowM)"
-        style={{
-          strokeDashoffset: show ? '0' : '400',
-          transition:'stroke-dashoffset 2s ease-in-out 1.8s',
-        }}/>
-      {/* Play points */}
-      {[[120,220],[280,130],[420,90]].map(([cx,cy],i) => (
-        <circle key={i} cx={cx} cy={cy} r="5" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5"
-          style={{opacity: show ? 1 : 0, transition:`opacity 0.4s ease ${2.2 + i*0.4}s`}}/>
-      ))}
-    </svg>
-
-    {/* LAYER 4 — HUD Cards */}
-    {/* Header session */}
-    <div className="absolute left-1/2 -translate-x-1/2" style={{top:'4%',opacity:show?1:0,transform:`translateX(-50%) translateY(${show?'0':'10px'})`,transition:'all 0.4s ease 2s'}}>
-      <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl whitespace-nowrap" style={{background:'rgba(8,9,14,0.8)',border:'0.5px solid rgba(255,255,255,0.1)',backdropFilter:'blur(8px)'}}>
+    {/* LAYER 4 — HUD Cards floating over field */}
+    {/* Session header */}
+    <div className="absolute left-1/2 -translate-x-1/2" style={{top:'5%',opacity:show?1:0,transform:`translateX(-50%) translateY(${show?'0':'8px'})`,transition:'all 0.4s ease 2s'}}>
+      <div className="flex items-center gap-2.5 px-4 py-2 rounded-lg whitespace-nowrap" style={{background:'rgba(8,9,14,0.85)',border:'0.5px solid rgba(255,255,255,0.1)',backdropFilter:'blur(12px)'}}>
         <div className="w-5 h-5 rounded-md bg-[#c8f700] flex items-center justify-center">
           <span className="text-[10px] font-black text-[#08090e]" style={{fontFamily:BC}}>i</span>
         </div>
         <span className="text-[12px] font-semibold text-white/80">{t('auth.visual.week')} · {t('auth.visual.phase')}</span>
-        <div className="flex items-center gap-1 ml-2">
-          <span className="w-[6px] h-[6px] rounded-full bg-[#c8f700]" style={{animation:'livePulse 1.5s infinite'}}/>
-          <span className="text-[10px] text-[#c8f700]/70">Live</span>
-        </div>
+        <span className="w-[5px] h-[5px] rounded-full bg-[#c8f700] ml-1" style={{animation:'livePulse 1.5s infinite'}}/>
+        <span className="text-[10px] text-[#c8f700]/60">Live</span>
       </div>
     </div>
 
-    {/* Readiness HUD */}
-    <div className="absolute" style={{top:'22%',left:'5%',opacity:show?1:0,transform:`translateY(${show?'0':'10px'})`,transition:'all 0.4s ease 2.2s'}}>
-      <div className="px-4 py-4 rounded-xl" style={{background:'rgba(8,9,14,0.75)',border:'0.5px solid rgba(255,255,255,0.1)',backdropFilter:'blur(8px)'}}>
-        <span className="text-[9px] text-white/30 uppercase tracking-[0.12em] font-semibold block mb-2">{t('auth.visual.readiness')}</span>
-        <div className="flex items-center gap-3">
-          <div className="relative" style={{width:56,height:56}}>
-            <svg width="56" height="56" className="-rotate-90">
-              <circle cx="28" cy="28" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="3"/>
-              <circle cx="28" cy="28" r={r} fill="none" stroke="#c8f700" strokeWidth="3"
-                strokeDasharray={circ} strokeDashoffset={show ? rOff : circ}
-                strokeLinecap="round" style={{transition:'stroke-dashoffset 1.2s ease-out 0.3s'}}/>
-            </svg>
-          </div>
+    {/* Readiness — top left, outside field */}
+    <div className="absolute" style={{top:'14%',left:'3%',opacity:show?1:0,transform:`translateY(${show?'0':'8px'})`,transition:'all 0.4s ease 2.2s'}}>
+      <div className="px-3 py-3 rounded-lg" style={{background:'rgba(8,9,14,0.85)',border:'0.5px solid rgba(255,255,255,0.1)',backdropFilter:'blur(12px)'}}>
+        <span className="text-[8px] text-white/30 uppercase tracking-[0.12em] font-bold block mb-1.5">{t('auth.visual.readiness')}</span>
+        <div className="flex items-center gap-2">
+          <svg width="40" height="40" className="-rotate-90">
+            <circle cx="20" cy="20" r={r-6} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="2.5"/>
+            <circle cx="20" cy="20" r={r-6} fill="none" stroke="#c8f700" strokeWidth="2.5"
+              strokeDasharray={2*Math.PI*(r-6)} strokeDashoffset={show ? 2*Math.PI*(r-6)*(1-0.85) : 2*Math.PI*(r-6)}
+              strokeLinecap="round" style={{transition:'stroke-dashoffset 1.2s ease-out 0.3s'}}/>
+          </svg>
           <div>
-            <span className="text-[36px] font-black text-[#c8f700] leading-none block" style={{fontFamily:BC}}>{readiness}</span>
-            <span className="text-[10px] text-[#c8f700]/50 mt-0.5 block">Optimal</span>
+            <span className="text-[28px] font-black text-[#c8f700] leading-none block" style={{fontFamily:BC}}>{readiness}</span>
+            <span className="text-[9px] text-[#c8f700]/40 block">Optimal</span>
           </div>
         </div>
       </div>
     </div>
 
-    {/* ACWR HUD */}
-    <div className="absolute" style={{top:'22%',right:'5%',opacity:show?1:0,transform:`translateY(${show?'0':'10px'})`,transition:'all 0.4s ease 2.4s'}}>
-      <div className="px-4 py-4 rounded-xl" style={{background:'rgba(8,9,14,0.75)',border:'0.5px solid rgba(255,255,255,0.1)',backdropFilter:'blur(8px)'}}>
-        <span className="text-[9px] text-white/30 uppercase tracking-[0.12em] font-semibold block mb-2">{t('auth.visual.acwr')}</span>
-        <span className="text-[32px] font-black text-[#378ADD] leading-none block" style={{fontFamily:BC}}>{acwr}</span>
-        <svg viewBox="0 0 100 28" className="w-24 h-7 mt-2">
-          <path d="M0,22 L14,18 L28,20 L42,14 L56,16 L70,10 L84,12 L100,6"
-            fill="none" stroke="#378ADD" strokeWidth="1.5" strokeLinecap="round"
-            style={{strokeDasharray: show ? '0' : '200', strokeDashoffset: show ? '0' : '200', transition:'all 0.8s ease 2.6s'}}/>
+    {/* ACWR — top right */}
+    <div className="absolute" style={{top:'14%',right:'3%',opacity:show?1:0,transform:`translateY(${show?'0':'8px'})`,transition:'all 0.4s ease 2.4s'}}>
+      <div className="px-3 py-3 rounded-lg" style={{background:'rgba(8,9,14,0.85)',border:'0.5px solid rgba(255,255,255,0.1)',backdropFilter:'blur(12px)'}}>
+        <span className="text-[8px] text-white/30 uppercase tracking-[0.12em] font-bold block mb-1">{t('auth.visual.acwr')}</span>
+        <span className="text-[26px] font-black text-[#378ADD] leading-none block" style={{fontFamily:BC}}>{acwr}</span>
+        <svg viewBox="0 0 80 20" className="w-16 h-4 mt-1.5">
+          <path d="M0,16 L11,13 L22,14 L33,10 L44,11 L55,7 L66,8 L80,4" fill="none" stroke="#378ADD" strokeWidth="1.5" strokeLinecap="round"
+            style={{strokeDasharray:show?'0':'150',strokeDashoffset:show?'0':'150',transition:'all 0.8s ease 2.6s'}}/>
         </svg>
-        <span className="text-[10px] text-[#378ADD]/50 mt-1 block">{t('auth.visual.optimal_zone')}</span>
+        <span className="text-[8px] text-[#378ADD]/40 mt-1 block">{t('auth.visual.optimal_zone')}</span>
       </div>
     </div>
 
-    {/* Adherence small HUD */}
-    <div className="absolute" style={{bottom:'28%',right:'8%',opacity:show?1:0,transform:`translateY(${show?'0':'10px'})`,transition:'all 0.4s ease 2.6s'}}>
-      <div className="px-3 py-3 rounded-lg" style={{background:'rgba(8,9,14,0.75)',border:'0.5px solid rgba(255,255,255,0.08)',backdropFilter:'blur(8px)'}}>
-        <span className="text-[22px] font-black text-[#c8f700] leading-none block" style={{fontFamily:BC}}>94%</span>
-        <span className="text-[9px] text-white/25 uppercase tracking-[0.1em] mt-1 block">{t('auth.visual.adherence')}</span>
+    {/* Adherence — bottom right */}
+    <div className="absolute" style={{bottom:'22%',right:'3%',opacity:show?1:0,transform:`translateY(${show?'0':'8px'})`,transition:'all 0.4s ease 2.6s'}}>
+      <div className="px-3 py-2.5 rounded-lg" style={{background:'rgba(8,9,14,0.85)',border:'0.5px solid rgba(255,255,255,0.08)',backdropFilter:'blur(12px)'}}>
+        <span className="text-[20px] font-black text-[#c8f700] leading-none block" style={{fontFamily:BC}}>94%</span>
+        <span className="text-[8px] text-white/25 uppercase tracking-[0.1em] mt-0.5 block">{t('auth.visual.adherence')}</span>
       </div>
     </div>
 
-    {/* LAYER 5 — Typewriter top gradient */}
-    <div className="absolute top-0 left-0 right-0 z-20 px-8 pt-7 pb-16" style={{background:'linear-gradient(to bottom, rgba(8,9,14,0.95), transparent)'}}>
-      <div className="h-[28px] mb-2">
-        <h2 className="text-[20px] font-bold text-white/90" style={{fontFamily:INT}}>
-          {typedText}<span className="inline-block w-[1.5px] h-[18px] bg-[#c8f700] ml-0.5" style={{animation:'blink 0.53s step-end infinite'}}/>
+    {/* LAYER 5 — Typewriter top */}
+    <div className="absolute top-0 left-0 right-0 z-20 px-7 pt-6 pb-14" style={{background:'linear-gradient(to bottom, rgba(8,9,14,0.95) 0%, rgba(8,9,14,0.6) 60%, transparent 100%)'}}>
+      <div className="h-[26px] mb-1.5">
+        <h2 className="text-[19px] font-semibold text-white/85" style={{fontFamily:INT}}>
+          {typedText}<span className="inline-block w-[1.5px] h-[17px] bg-[#c8f700] ml-0.5" style={{animation:'blink 0.53s step-end infinite'}}/>
         </h2>
       </div>
-      <p className="text-[12px] text-white/30">{t('auth.visual.system_line')}</p>
+      <p className="text-[11px] text-white/25">{t('auth.visual.system_line')}</p>
     </div>
 
     {/* LAYER 6 — Bench bar */}
-    <div className="absolute bottom-0 left-0 right-0 z-20 px-6 py-4 flex items-center justify-between" style={{background:'rgba(8,9,14,0.92)',borderTop:'0.5px solid rgba(255,255,255,0.07)'}}>
+    <div className="absolute bottom-0 left-0 right-0 z-20 px-5 py-3 flex items-center justify-between" style={{background:'rgba(8,9,14,0.92)',borderTop:'0.5px solid rgba(255,255,255,0.06)'}}>
       <div className="flex items-center gap-2">
         <div className="flex">
-          {[
-            {bg:'#1a3a1a',c:'#c8f700',b:'#c8f700',t:'JP'},
-            {bg:'#1a2a3a',c:'#378ADD',b:'#378ADD',t:'MA'},
-            {bg:'#1a1a3a',c:'#7F77DD',b:'#7F77DD',t:'LC'},
-            {bg:'rgba(255,255,255,0.06)',c:'rgba(255,255,255,0.4)',b:'rgba(255,255,255,0.1)',t:'+21'},
-          ].map((a,i) => (
-            <div key={i} className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold" style={{background:a.bg,color:a.c,border:`1.5px solid ${a.b}`,marginLeft:i>0?'-8px':'0',zIndex:4-i,position:'relative'}}>
-              {a.t}
-            </div>
+          {[{bg:'#1a3a1a',c:'#c8f700',b:'#c8f700',t:'JP'},{bg:'#1a2a3a',c:'#378ADD',b:'#378ADD',t:'MA'},{bg:'#1a1a3a',c:'#7F77DD',b:'#7F77DD',t:'LC'},{bg:'rgba(255,255,255,0.05)',c:'rgba(255,255,255,0.35)',b:'rgba(255,255,255,0.08)',t:'+21'}].map((a,i) => (
+            <div key={i} className="w-6 h-6 rounded-full flex items-center justify-center text-[8px] font-bold" style={{background:a.bg,color:a.c,border:`1.5px solid ${a.b}`,marginLeft:i>0?'-6px':'0',zIndex:4-i,position:'relative'}}>{a.t}</div>
           ))}
         </div>
-        <span className="text-[11px] text-white/30 ml-1">{t('auth.visual.optimal_zone')}</span>
+        <span className="text-[10px] text-white/25">{t('auth.visual.optimal_zone')}</span>
       </div>
-      <div className="flex items-center gap-5">
-        {[
-          {v:'17',l:t('landing.hero.stats.models')},
-          {v:'6',l:t('landing.hero.stats.controls')},
-          {v:'150+',l:t('landing.hero.stats.exercises')},
-        ].map((s,i) => (
-          <div key={i} className="text-center" style={{borderLeft:i>0?'0.5px solid rgba(255,255,255,0.06)':'none',paddingLeft:i>0?'16px':'0'}}>
-            <span className="text-[16px] font-black text-[#c8f700] leading-none block" style={{fontFamily:BC}}>{s.v}</span>
-            <span className="text-[8px] text-white/20 mt-1 block">{s.l}</span>
+      <div className="flex items-center gap-4">
+        {[{v:'17',l:t('landing.hero.stats.models')},{v:'6',l:t('landing.hero.stats.controls')},{v:'150+',l:t('landing.hero.stats.exercises')}].map((s,i) => (
+          <div key={i} className="text-center" style={{borderLeft:i>0?'0.5px solid rgba(255,255,255,0.05)':'none',paddingLeft:i>0?'12px':'0'}}>
+            <span className="text-[14px] font-black text-[#c8f700] leading-none block" style={{fontFamily:BC}}>{s.v}</span>
+            <span className="text-[7px] text-white/15 mt-0.5 block">{s.l}</span>
           </div>
         ))}
       </div>
     </div>
 
-    {/* LAYER 7 — Chalk signature */}
-    <div className="absolute z-10 pointer-events-none" style={{bottom:'70px',right:'24px',opacity:show?0.12:0,transition:'opacity 1s ease 2.5s',transform:'rotate(-2deg)'}}>
-      <span className="text-[14px] text-white italic">Los mejores no improvisan.</span>
+    {/* Chalk signature */}
+    <div className="absolute z-10 pointer-events-none" style={{bottom:'55px',right:'16px',opacity:show?0.15:0,transition:'opacity 1s ease 2.5s',transform:'rotate(-2deg)'}}>
+      <span className="text-[13px] text-white italic">Los mejores no improvisan.</span>
     </div>
 
     <style>{`
