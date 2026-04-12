@@ -86,7 +86,7 @@ const AuthVisual = () => {
   <div className="relative h-full overflow-hidden" style={{background:'#08090e'}}>
 
     {/* LAYER 1 — Chalkboard field (vertical, like real tactical board) */}
-    <div className="absolute" style={{top:'12%',left:'8%',right:'8%',bottom:'14%',background:'#1e3a1e',borderRadius:'4px'}}>
+    <div className="absolute overflow-hidden" style={{top:'12%',left:'8%',right:'8%',bottom:'14%',background:'#1e3a1e',borderRadius:'4px'}}>
       <svg className="absolute inset-0 w-full h-full" viewBox="0 0 300 420" preserveAspectRatio="xMidYMid meet">
         <style>{`
           .ck{stroke:rgba(255,255,255,0.75);fill:none;stroke-linecap:round;stroke-linejoin:round;}
@@ -143,16 +143,16 @@ const AuthVisual = () => {
           style={{opacity:show?1:0,transition:'opacity 0.5s ease 3s'}}/>
       </svg>
 
-      {/* Players as HTML divs — guaranteed visible */}
-      {/* X marks */}
-      {[[18,26],[50,11],[82,26],[27,42],[73,42],[50,72],[23,82],[77,82],[50,90]].map(([x,y],i) => (
-        <div key={`hx${i}`} className="absolute pointer-events-none select-none" style={{left:`${x}%`,top:`${y}%`,transform:'translate(-50%,-50%)',color:'rgba(255,255,255,0.85)',fontSize:'24px',fontWeight:900,fontFamily:'Arial,sans-serif',lineHeight:1}}>
+      {/* Players as HTML divs — positioned INSIDE the field */}
+      {/* X marks — coordinates relative to the green field div */}
+      {[[15,26],[50,13],[85,26],[22,42],[78,42],[50,70],[20,78],[80,78],[50,90]].map(([x,y],i) => (
+        <div key={`hx${i}`} className="absolute pointer-events-none select-none" style={{left:`${x}%`,top:`${y}%`,transform:'translate(-50%,-50%)',color:'rgba(255,255,255,0.85)',fontSize:'22px',fontWeight:900,fontFamily:'Arial,sans-serif',lineHeight:1}}>
           ✕
         </div>
       ))}
       {/* O marks */}
-      {[[50,21],[25,45],[75,45],[37,63],[63,63]].map(([x,y],i) => (
-        <div key={`ho${i}`} className="absolute pointer-events-none" style={{left:`${x}%`,top:`${y}%`,transform:'translate(-50%,-50%)',width:22,height:22,borderRadius:'50%',border:'3px solid rgba(255,255,255,0.75)'}}/>
+      {[[50,20],[28,44],[72,44],[38,60],[62,60]].map(([x,y],i) => (
+        <div key={`ho${i}`} className="absolute pointer-events-none" style={{left:`${x}%`,top:`${y}%`,transform:'translate(-50%,-50%)',width:20,height:20,borderRadius:'50%',border:'2.5px solid rgba(255,255,255,0.75)'}}/>
       ))}
     </div>
 
