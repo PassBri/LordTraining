@@ -7149,6 +7149,108 @@ Rules:
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# =============== TACTICAL BOARD CRUD ===============
+class TacticalBoardSaveRequest(BaseModel):
+    name: str = "Sin nombre"
+    sport: str
+    sportName: str = ""
+    category: str = ""
+    elements: list = []
+    thumbnail: str = ""
+
+@api_router.post("/tactical-boards")
+async def save_tactical_board(request: TacticalBoardSaveRequest, user: dict = Depends(get_current_user)):
+    doc = {
+        "user_id": user["id"],
+        "name": request.name,
+        "sport": request.sport,
+        "sportName": request.sportName,
+        "category": request.category,
+        "elements": request.elements,
+        "thumbnail": request.thumbnail,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    result = await db.tactical_boards.insert_one(doc)
+    return {"id": str(result.inserted_id), "message": "Pizarra guardada"}
+
+@api_router.get("/tactical-boards")
+async def list_tactical_boards(user: dict = Depends(get_current_user)):
+    boards = await db.tactical_boards.find(
+        {"user_id": user["id"]},
+        {"_id": 0, "elements": 0}
+    ).sort("updated_at", -1).to_list(100)
+    # Add id from _id for boards that need it
+    boards_list = []
+    cursor = db.tactical_boards.find({"user_id": user["id"]}).sort("updated_at", -1)
+    async for doc in cursor:
+        boards_list.append({
+            "id": str(doc["_id"]),
+            "name": doc.get("name", ""),
+            "sport": doc.get("sport", ""),
+            "sportName": doc.get("sportName", ""),
+            "category": doc.get("category", ""),
+            "thumbnail": doc.get("thumbnail", ""),
+            "created_at": doc.get("created_at", ""),
+            "updated_at": doc.get("updated_at", "")
+        })
+    return boards_list
+
+@api_router.get("/tactical-boards/{board_id}")
+async def get_tactical_board(board_id: str, user: dict = Depends(get_current_user)):
+    from bson import ObjectId
+    try:
+        doc = await db.tactical_boards.find_one({"_id": ObjectId(board_id), "user_id": user["id"]})
+    except Exception:
+        raise HTTPException(status_code=404, detail="Pizarra no encontrada")
+    if not doc:
+        raise HTTPException(status_code=404, detail="Pizarra no encontrada")
+    return {
+        "id": str(doc["_id"]),
+        "name": doc.get("name", ""),
+        "sport": doc.get("sport", ""),
+        "sportName": doc.get("sportName", ""),
+        "category": doc.get("category", ""),
+        "elements": doc.get("elements", []),
+        "thumbnail": doc.get("thumbnail", ""),
+        "created_at": doc.get("created_at", ""),
+        "updated_at": doc.get("updated_at", "")
+    }
+
+@api_router.put("/tactical-boards/{board_id}")
+async def update_tactical_board(board_id: str, request: TacticalBoardSaveRequest, user: dict = Depends(get_current_user)):
+    from bson import ObjectId
+    try:
+        result = await db.tactical_boards.update_one(
+            {"_id": ObjectId(board_id), "user_id": user["id"]},
+            {"$set": {
+                "name": request.name,
+                "sport": request.sport,
+                "sportName": request.sportName,
+                "category": request.category,
+                "elements": request.elements,
+                "thumbnail": request.thumbnail,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+    except Exception:
+        raise HTTPException(status_code=404, detail="Pizarra no encontrada")
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Pizarra no encontrada")
+    return {"message": "Pizarra actualizada"}
+
+@api_router.delete("/tactical-boards/{board_id}")
+async def delete_tactical_board(board_id: str, user: dict = Depends(get_current_user)):
+    from bson import ObjectId
+    try:
+        result = await db.tactical_boards.delete_one({"_id": ObjectId(board_id), "user_id": user["id"]})
+    except Exception:
+        raise HTTPException(status_code=404, detail="Pizarra no encontrada")
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Pizarra no encontrada")
+    return {"message": "Pizarra eliminada"}
+
+
 # =============== ROOT & HEALTH ===============
 @api_router.get("/")
 async def root():
