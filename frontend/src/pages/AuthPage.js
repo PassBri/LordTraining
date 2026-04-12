@@ -69,104 +69,89 @@ const useCountUp = (target, duration = 1200) => {
 
 /* ═══ SPORT FIELD DATA ═══ */
 const SPORTS = [
-  { name:'FÚTBOL', field:(
-    <>
-      <rect x="15" y="15" width="270" height="390" rx="2"/>
-      <line x1="15" y1="210" x2="285" y2="210"/>
-      <circle cx="150" cy="210" r="42"/>
-      <circle cx="150" cy="210" r="2" fill="rgba(255,255,255,0.09)"/>
-      <rect x="70" y="15" width="160" height="70"/>
-      <rect x="105" y="15" width="90" height="30"/>
-      <path d="M100 85 A32 32 0 0 0 200 85"/>
-      <rect x="115" y="5" width="70" height="12" rx="1"/>
-      <rect x="70" y="335" width="160" height="70"/>
-      <rect x="105" y="375" width="90" height="30"/>
-      <path d="M100 335 A32 32 0 0 1 200 335"/>
-      <rect x="115" y="403" width="70" height="12" rx="1"/>
-      <path d="M15 27 A12 12 0 0 0 27 15"/>
-      <path d="M273 15 A12 12 0 0 0 285 27"/>
-      <path d="M15 393 A12 12 0 0 1 27 405"/>
-      <path d="M273 405 A12 12 0 0 1 285 393"/>
-    </>),
+  { name:'FÚTBOL', vb:'0 0 300 420', svg:`
+    <rect x="15" y="15" width="270" height="390" rx="2"/>
+    <line x1="15" y1="210" x2="285" y2="210"/>
+    <circle cx="150" cy="210" r="42"/>
+    <circle cx="150" cy="210" r="2.5" fill="rgba(255,255,255,0.6)"/>
+    <rect x="70" y="15" width="160" height="70"/>
+    <rect x="105" y="15" width="90" height="30"/>
+    <path d="M100 85 A32 32 0 0 0 200 85"/>
+    <rect x="115" y="5" width="70" height="12" rx="1"/>
+    <rect x="70" y="335" width="160" height="70"/>
+    <rect x="105" y="375" width="90" height="30"/>
+    <path d="M100 335 A32 32 0 0 1 200 335"/>
+    <rect x="115" y="403" width="70" height="12" rx="1"/>
+    <path d="M15 27 A12 12 0 0 0 27 15"/>
+    <path d="M273 15 A12 12 0 0 0 285 27"/>
+    <path d="M15 393 A12 12 0 0 1 27 405"/>
+    <path d="M273 405 A12 12 0 0 1 285 393"/>`,
     xs:[[30,15],[50,10],[70,15],[30,32],[70,32],[50,65],[30,76],[70,76],[50,90]],
     os:[[50,20],[35,42],[65,42],[40,58],[60,58]],
     arrows:['M90,340 C70,280 60,220 75,140','M210,340 C240,280 240,220 225,140','M200,185 C170,155 155,125 150,100'],
   },
-  { name:'BALONCESTO', field:(
-    <>
-      <rect x="15" y="15" width="270" height="390" rx="2"/>
-      <line x1="15" y1="210" x2="285" y2="210"/>
-      <circle cx="150" cy="210" r="28"/>
-      {/* Top hoop area */}
-      <rect x="95" y="15" width="110" height="55"/>
-      <circle cx="150" cy="70" r="8"/>
-      <rect x="140" y="15" width="20" height="3"/>
-      <path d="M70 15 A95 95 0 0 0 230 15"/>
-      <path d="M95 70 A55 55 0 0 0 205 70"/>
-      {/* Bottom hoop area */}
-      <rect x="95" y="350" width="110" height="55"/>
-      <circle cx="150" cy="350" r="8"/>
-      <rect x="140" y="402" width="20" height="3"/>
-      <path d="M70 405 A95 95 0 0 1 230 405"/>
-      <path d="M95 350 A55 55 0 0 1 205 350"/>
-    </>),
+  { name:'BALONCESTO', vb:'0 0 300 420', svg:`
+    <rect x="15" y="15" width="270" height="390" rx="2"/>
+    <line x1="15" y1="210" x2="285" y2="210"/>
+    <circle cx="150" cy="210" r="28"/>
+    <rect x="95" y="15" width="110" height="55"/>
+    <circle cx="150" cy="70" r="8"/>
+    <rect x="140" y="15" width="20" height="3"/>
+    <path d="M70 15 A95 95 0 0 0 230 15"/>
+    <path d="M95 70 A55 55 0 0 0 205 70"/>
+    <rect x="95" y="350" width="110" height="55"/>
+    <circle cx="150" cy="350" r="8"/>
+    <rect x="140" y="402" width="20" height="3"/>
+    <path d="M70 405 A95 95 0 0 1 230 405"/>
+    <path d="M95 350 A55 55 0 0 1 205 350"/>`,
     xs:[[50,25],[30,38],[70,38],[25,55],[75,55]],
     os:[[50,75],[35,62],[65,62],[30,82],[70,82]],
     arrows:['M70,230 C100,200 130,180 150,140','M230,230 C200,200 170,180 150,140','M150,230 C150,200 150,170 150,140'],
   },
-  { name:'VOLEIBOL', field:(
-    <>
-      <rect x="15" y="15" width="270" height="390" rx="2"/>
-      <line x1="15" y1="210" x2="285" y2="210" strokeWidth="2.5"/>
-      <line x1="12" y1="205" x2="12" y2="215"/>
-      <line x1="288" y1="205" x2="288" y2="215"/>
-      <line x1="15" y1="140" x2="285" y2="140" strokeDasharray="6 4"/>
-      <line x1="15" y1="280" x2="285" y2="280" strokeDasharray="6 4"/>
-    </>),
+  { name:'VOLEIBOL', vb:'0 0 300 420', svg:`
+    <rect x="15" y="15" width="270" height="390" rx="2"/>
+    <line x1="15" y1="210" x2="285" y2="210" stroke-width="3"/>
+    <line x1="12" y1="205" x2="12" y2="215"/>
+    <line x1="288" y1="205" x2="288" y2="215"/>
+    <line x1="15" y1="140" x2="285" y2="140" stroke-dasharray="6 4"/>
+    <line x1="15" y1="280" x2="285" y2="280" stroke-dasharray="6 4"/>`,
     xs:[[30,25],[50,25],[70,25],[30,38],[50,38],[70,38]],
     os:[[30,62],[50,62],[70,62],[30,75],[50,75],[70,75]],
     arrows:['M150,280 C150,250 170,230 150,145','M70,280 C80,250 100,230 120,145','M230,280 C220,250 200,230 180,145'],
   },
-  { name:'BÉISBOL', field:(
-    <>
-      <line x1="150" y1="350" x2="30" y2="60"/>
-      <line x1="150" y1="350" x2="270" y2="60"/>
-      <path d="M30 60 A180 180 0 0 1 270 60"/>
-      <rect x="145" y="345" width="10" height="10" rx="1"/>
-      <rect x="230" y="205" width="8" height="8" rx="1" transform="rotate(45 234 209)"/>
-      <rect x="145" y="65" width="8" height="8" rx="1" transform="rotate(45 149 69)"/>
-      <rect x="60" y="205" width="8" height="8" rx="1" transform="rotate(45 64 209)"/>
-      <circle cx="150" cy="250" r="6"/>
-      <circle cx="150" cy="250" r="1.5" fill="rgba(255,255,255,0.09)"/>
-      <path d="M80 350 A80 80 0 0 1 220 350"/>
-    </>),
+  { name:'BÉISBOL', vb:'0 0 300 420', svg:`
+    <line x1="150" y1="350" x2="30" y2="60"/>
+    <line x1="150" y1="350" x2="270" y2="60"/>
+    <path d="M30 60 A180 180 0 0 1 270 60"/>
+    <rect x="145" y="345" width="10" height="10" rx="1" fill="rgba(255,255,255,0.4)"/>
+    <rect x="231" y="202" width="8" height="8" rx="1" fill="rgba(255,255,255,0.4)" transform="rotate(45 235 206)"/>
+    <rect x="146" y="62" width="8" height="8" rx="1" fill="rgba(255,255,255,0.4)" transform="rotate(45 150 66)"/>
+    <rect x="61" y="202" width="8" height="8" rx="1" fill="rgba(255,255,255,0.4)" transform="rotate(45 65 206)"/>
+    <circle cx="150" cy="250" r="6"/>
+    <circle cx="150" cy="250" r="1.5" fill="rgba(255,255,255,0.5)"/>
+    <path d="M80 350 A80 80 0 0 1 220 350"/>`,
     xs:[[50,82],[78,50],[50,16],[22,50],[50,58],[22,25],[50,12],[78,25],[50,40]],
     os:[[50,72]],
     arrows:['M150,250 C170,200 180,150 150,75','M150,350 C200,300 240,250 235,210'],
   },
-  { name:'ATLETISMO', field:(
-    <>
-      <ellipse cx="150" cy="210" rx="125" ry="180"/>
-      <ellipse cx="150" cy="210" rx="108" ry="163"/>
-      <ellipse cx="150" cy="210" rx="91" ry="146"/>
-      <ellipse cx="150" cy="210" rx="74" ry="129"/>
-      <ellipse cx="150" cy="210" rx="57" ry="112"/>
-      <line x1="150" y1="28" x2="150" y2="392"/>
-      {[0,1,2,3,4].map(i => <line key={i} x1={25+i*17} y1="30" x2={25+i*17} y2="45"/>)}
-    </>),
-    xs:[[25,50],[50,50],[75,50],[30,38],[70,38]],
+  { name:'ATLETISMO', vb:'0 0 300 420', svg:`
+    <ellipse cx="150" cy="210" rx="125" ry="180"/>
+    <ellipse cx="150" cy="210" rx="108" ry="163"/>
+    <ellipse cx="150" cy="210" rx="91" ry="146"/>
+    <ellipse cx="150" cy="210" rx="74" ry="129"/>
+    <ellipse cx="150" cy="210" rx="57" ry="112"/>
+    <line x1="150" y1="28" x2="150" y2="392"/>`,
+    xs:[[25,50],[38,50],[50,50],[62,50],[75,50]],
     os:[],
     arrows:['M40,210 C50,180 60,150 75,120'],
   },
-  { name:'TENIS', field:(
-    <>
-      <rect x="30" y="15" width="240" height="390" rx="2"/>
-      <line x1="30" y1="210" x2="270" y2="210"/>
-      <line x1="150" y1="80" x2="150" y2="340"/>
-      <rect x="30" y="80" width="240" height="260"/>
-      <line x1="30" y1="145" x2="270" y2="145"/>
-      <line x1="30" y1="275" x2="270" y2="275"/>
-    </>),
+  { name:'TENIS', vb:'0 0 300 420', svg:`
+    <rect x="30" y="15" width="240" height="390" rx="2"/>
+    <line x1="30" y1="210" x2="270" y2="210" stroke-width="3"/>
+    <line x1="150" y1="80" x2="150" y2="340"/>
+    <rect x="30" y="80" width="240" height="260"/>
+    <line x1="30" y1="145" x2="270" y2="145"/>
+    <line x1="30" y1="275" x2="270" y2="275"/>`,
     xs:[[40,30],[60,30]],
     os:[[40,70],[60,70]],
     arrows:['M100,275 C120,250 140,230 160,145','M200,275 C180,250 160,230 140,145'],
@@ -205,9 +190,10 @@ const AuthVisual = () => {
     {/* Field container */}
     <div className="absolute overflow-hidden" style={{top:'12%',left:'8%',right:'8%',bottom:'14%',background:'#1e3a1e',borderRadius:'4px'}}>
       {/* SVG field lines */}
-      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 300 420" preserveAspectRatio="xMidYMid meet"
-        style={{opacity:visible?1:0,transition:'opacity 0.6s ease',stroke:'rgba(255,255,255,0.7)',fill:'none',strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round'}}>
-        {sport.field}
+      <svg className="absolute inset-0 w-full h-full" viewBox={sport.vb} preserveAspectRatio="xMidYMid meet"
+        style={{opacity:visible?1:0,transition:'opacity 0.6s ease'}}>
+        <g stroke="rgba(255,255,255,0.7)" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"
+          dangerouslySetInnerHTML={{__html: sport.svg}} />
       </svg>
 
       {/* Sport name flash */}
@@ -227,14 +213,13 @@ const AuthVisual = () => {
       ))}
 
       {/* Tactical arrows */}
-      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 300 420" preserveAspectRatio="xMidYMid meet"
+      <svg className="absolute inset-0 w-full h-full" viewBox={sport.vb} preserveAspectRatio="xMidYMid meet"
         style={{opacity:visible?1:0,transition:'opacity 0.6s ease'}}>
         <defs><marker id="tA" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
           <path d="M0,0 L8,3 L0,6" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="1.5" strokeLinecap="round"/>
         </marker></defs>
-        {sport.arrows.map((d,i) => (
-          <path key={i} d={d} fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" markerEnd="url(#tA)"/>
-        ))}
+        <g stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" fill="none" strokeLinecap="round"
+          dangerouslySetInnerHTML={{__html: sport.arrows.map(d => `<path d="${d}" marker-end="url(#tA)"/>`).join('')}} />
       </svg>
 
       {/* Sport dots indicator */}
