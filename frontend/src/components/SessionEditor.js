@@ -1221,8 +1221,9 @@ const SessionEditor = ({
                     </div>
                     <h4 className="font-bold text-slate-800 mb-1">Pizarra Tactica</h4>
                     <p className="text-sm text-slate-500 mb-3">Crea formaciones, jugadas y movimientos interactivos</p>
-                    <Button className="bg-[#c8f700] hover:bg-[#d9ff20] text-[#0b0e14] font-bold" data-testid="open-board-editor-btn">
-                      <Plus className="w-4 h-4 mr-1.5" /> Crear Pizarra
+                    <Button className="bg-[#c8f700] hover:bg-[#d9ff20] text-[#0b0e14] font-bold" data-testid="open-board-editor-btn"
+                      onClick={(e) => { e.stopPropagation(); window.open('/tactical-board.html', '_blank'); }}>
+                      <Plus className="w-4 h-4 mr-1.5" /> Abrir Pizarra Completa
                     </Button>
                   </CardContent>
                 </Card>

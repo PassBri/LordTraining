@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>iTRAIN — Pizarra Tactica Digital</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0b0e14;--panel:#111520;--header:#0d1018;--lime:#c8f700;--white:#fff;--muted:rgba(255,255,255,0.4);--border:rgba(255,255,255,0.06);--font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--white);font-family:var(--font);font-size:13px;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;font-size:inherit}
+input,textarea,select{font-family:inherit;font-size:12px;background:rgba(255,255,255,0.06);border:0.5px solid var(--border);color:#fff;border-radius:6px;padding:6px 8px;outline:none}
+input:focus,textarea:focus{border-color:rgba(200,247,0,0.4)}
+/* Layout */
+#app{display:flex;flex-direction:column;height:100vh;width:100vw}
+#header{height:56px;background:var(--header);display:flex;align-items:center;padding:0 12px;gap:12px;border-bottom:0.5px solid var(--border);flex-shrink:0;z-index:100}
+#main{display:flex;flex:1;overflow:hidden}
+#toolbar{width:64px;background:var(--panel);border-right:0.5px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:2px;overflow-y:auto;flex-shrink:0}
+#canvas-wrap{flex:1;position:relative;overflow:hidden;background:var(--bg)}
+#panel{width:260px;background:var(--panel);border-left:0.5px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+#footer{height:52px;background:var(--header);display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-top:0.5px solid var(--border);flex-shrink:0;gap:8px}
+/* Header */
+.logo{width:32px;height:32px;background:var(--lime);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo span{font-size:16px;font-weight:900;color:var(--bg)}
+.hdr-title{font-size:15px;font-weight:700;line-height:1.2}
+.hdr-sub{font-size:11px;color:rgba(255,255,255,0.35)}
+.hdr-left{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.tabs-wrap{flex:1;display:flex;align-items:center;gap:4px;overflow-x:auto;padding:0 8px;scrollbar-width:none}
+.tabs-wrap::-webkit-scrollbar{display:none}
+.tab{padding:6px 12px;border-radius:6px;font-size:11px;font-weight:500;white-space:nowrap;color:rgba(255,255,255,0.45);background:rgba(255,255,255,0.06);transition:all .15s}
+.tab:hover{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7)}
+.tab.active{background:var(--lime);color:var(--bg);font-weight:700}
+.close-btn{width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.close-btn:hover{background:rgba(255,255,255,0.12)}
+/* Sport dropdown */
+#sport-dropdown{position:absolute;top:56px;left:50%;transform:translateX(-50%);background:#161b24;border:0.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px;display:none;z-index:200;max-width:500px;flex-wrap:wrap;gap:6px;box-shadow:0 12px 40px rgba(0,0,0,0.6)}
+#sport-dropdown.show{display:flex}
+.sport-pill{padding:5px 12px;border-radius:20px;font-size:11px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);transition:all .15s}
+.sport-pill:hover{background:rgba(255,255,255,0.12);color:#fff}
+.sport-pill.active{background:var(--lime);color:var(--bg);font-weight:600}
+/* Toolbar */
+.tool-sep{width:36px;height:1px;background:var(--border);margin:4px 0}
+.tool{width:44px;height:44px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--muted);transition:all .12s;flex-shrink:0}
+.tool:hover{background:rgba(255,255,255,0.06)}
+.tool.active{background:rgba(200,247,0,0.12);border:0.5px solid rgba(200,247,0,0.3);color:var(--lime)}
+.tool svg{width:18px;height:18px}
+.tool span{font-size:8px;letter-spacing:0.04em;line-height:1}
+/* Canvas */
+#svg-canvas{width:100%;height:100%;display:block}
+.zoom-controls{position:absolute;bottom:12px;right:12px;display:flex;gap:4px;z-index:10}
+.zoom-btn{width:32px;height:32px;border-radius:6px;background:rgba(17,21,32,0.9);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:16px}
+.zoom-btn:hover{color:#fff;background:rgba(30,35,50,0.95)}
+/* Panel */
+.panel-header{padding:12px;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.panel-header h3{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.4);font-weight:700}
+.panel-content{flex:1;overflow-y:auto;padding:8px}
+.el-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;transition:background .1s}
+.el-item:hover{background:rgba(255,255,255,0.04)}
+.el-item.selected{background:rgba(200,247,0,0.08);border:0.5px solid rgba(200,247,0,0.2)}
+.el-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.el-name{flex:1;font-size:11px;color:rgba(255,255,255,0.7);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.el-del{opacity:0;color:rgba(255,255,255,0.3);transition:opacity .1s}
+.el-item:hover .el-del{opacity:1}
+.el-del:hover{color:#f44}
+/* Props panel */
+.prop-group{padding:8px 12px}
+.prop-label{font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;font-weight:600}
+.prop-row{display:flex;gap:6px;margin-bottom:6px;align-items:center}
+.prop-row input{flex:1;height:28px}
+.prop-row label{font-size:11px;color:rgba(255,255,255,0.5);min-width:28px}
+.color-swatch{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);cursor:pointer;flex-shrink:0}
+/* Footer */
+.footer-left{font-size:11px;color:rgba(255,255,255,0.3);white-space:nowrap}
+.footer-center{display:flex;gap:4px;align-items:center}
+.footer-btn{padding:5px 10px;border-radius:6px;font-size:11px;display:flex;align-items:center;gap:4px;color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);transition:all .12s;white-space:nowrap}
+.footer-btn:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.8)}
+.footer-btn.active{background:rgba(200,247,0,0.1);color:var(--lime);border-color:rgba(200,247,0,0.2)}
+.footer-right{display:flex;gap:6px;align-items:center}
+.btn-cancel{padding:6px 16px;border-radius:6px;font-size:12px;border:0.5px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.5)}
+.btn-cancel:hover{background:rgba(255,255,255,0.05)}
+.btn-save{padding:6px 16px;border-radius:6px;font-size:12px;font-weight:700;background:var(--lime);color:var(--bg)}
+.btn-save:hover{filter:brightness(1.1)}
+.btn-ai{padding:6px 16px;border-radius:6px;font-size:12px;font-weight:600;background:#7F77DD;color:#fff}
+.btn-ai:hover{filter:brightness(1.1)}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.show{display:flex}
+.modal-card{background:#161b24;border-radius:16px;padding:28px;width:400px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+.modal-card h2{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.modal-close{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;color:var(--muted)}
+/* Context menu */
+#ctx-menu{position:fixed;background:#1a1f2e;border:0.5px solid rgba(255,255,255,0.1);border-radius:8px;padding:4px;z-index:300;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.5);min-width:160px}
+#ctx-menu.show{display:block}
+.ctx-item{padding:6px 12px;border-radius:4px;font-size:12px;color:rgba(255,255,255,0.7);display:flex;align-items:center;gap:8px}
+.ctx-item:hover{background:rgba(255,255,255,0.08);color:#fff}
+.ctx-sep{height:1px;background:var(--border);margin:2px 0}
+/* Selection box */
+.sel-box{fill:rgba(200,247,0,0.08);stroke:var(--lime);stroke-width:1;stroke-dasharray:4 2;pointer-events:none}
+/* Grid */
+.grid-line{stroke:rgba(255,255,255,0.035);stroke-width:0.5}
+/* Handles */
+.handle{fill:var(--lime);stroke:var(--bg);stroke-width:2;cursor:pointer;r:5}
+.handle-rotate{fill:var(--lime);stroke:var(--bg);stroke-width:2;cursor:grab;r:5}
+/* Snap guides */
+.snap-guide{stroke:rgba(255,80,80,0.5);stroke-width:0.5;stroke-dasharray:3 3;pointer-events:none}
+/* Tooltip */
+.tt{position:fixed;background:#1a1f2e;color:rgba(255,255,255,0.8);font-size:11px;padding:4px 8px;border-radius:4px;pointer-events:none;z-index:400;display:none;white-space:nowrap}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+<!-- HEADER -->
+<div id="header">
+ <div class="hdr-left">
+  <div class="logo"><span>i</span></div>
+  <div><div class="hdr-title">Pizarra Tactica</div><div class="hdr-sub">Editor interactivo de formaciones y jugadas</div></div>
+ </div>
+ <div class="tabs-wrap" id="cat-tabs"></div>
+ <button class="close-btn" onclick="window.history.back()" aria-label="Cerrar">
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg>
+ </button>
+</div>
+<div id="sport-dropdown"></div>
+
+<!-- MAIN -->
+<div id="main">
+ <!-- TOOLBAR -->
+ <div id="toolbar"></div>
+
+ <!-- CANVAS -->
+ <div id="canvas-wrap">
+  <svg id="svg-canvas" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Pizarra tactica">
+   <g id="zoom-group">
+    <g id="grid-layer"></g>
+    <g id="field-layer"></g>
+    <g id="elements-layer"></g>
+    <g id="guides-layer"></g>
+    <g id="handles-layer"></g>
+    <g id="sel-rect-layer"></g>
+   </g>
+  </svg>
+  <div class="zoom-controls">
+   <button class="zoom-btn" onclick="S.zoomIn()" aria-label="Zoom in">+</button>
+   <button class="zoom-btn" onclick="S.zoomOut()" aria-label="Zoom out">−</button>
+   <button class="zoom-btn" onclick="S.zoomReset()" aria-label="Reset zoom" style="font-size:13px">⟲</button>
+  </div>
+ </div>
+
+ <!-- PANEL -->
+ <div id="panel">
+  <div class="panel-header"><h3>ELEMENTOS <span id="el-count">0</span></h3></div>
+  <div class="panel-content" id="panel-content"></div>
+ </div>
+</div>
+
+<!-- FOOTER -->
+<div id="footer">
+ <div class="footer-left" id="footer-stats">0 elementos</div>
+ <div class="footer-center">
+  <button class="footer-btn" onclick="S.undo()" aria-label="Deshacer">↩ Deshacer</button>
+  <button class="footer-btn" onclick="S.redo()" aria-label="Rehacer">↪ Rehacer</button>
+  <button class="footer-btn" onclick="S.clearAll()" aria-label="Limpiar">🗑 Limpiar</button>
+  <button class="footer-btn" id="btn-grid" onclick="S.toggleGrid()" aria-label="Cuadricula">⊞ Cuadricula</button>
+  <button class="footer-btn" onclick="S.showFormations()" aria-label="Formaciones">⬡ Formaciones</button>
+ </div>
+ <div class="footer-right">
+  <button class="btn-cancel" onclick="window.history.back()">Cancelar</button>
+  <button class="btn-save" onclick="S.exportPNG()">↓ Exportar PNG</button>
+  <button class="btn-ai" onclick="S.showAiModal()">✦ Generar con IA</button>
+ </div>
+</div>
+</div>
+
+<!-- CONTEXT MENU -->
+<div id="ctx-menu"></div>
+<!-- TOOLTIP -->
+<div class="tt" id="tooltip"></div>
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-overlay"><div class="modal-card" id="modal-card"></div></div>
+
+<script>
+// ═══════════ STATE ═══════════
+const ST = {
+ cat: 'conjunto', sport: 'futbol', tool: 'move',
+ elements: [], selected: [], nextId: 1,
+ zoom: 1, panX: 0, panY: 0, grid: false,
+ history: [], historyIdx: -1, maxHistory: 50,
+ dragging: null, dragStart: null, dragOffset: null,
+ drawing: null, selRect: null, spaceDown: false, panning: false
+};
+
+// ═══════════ CATEGORIES & SPORTS ═══════════
+const CATS = {
+ conjunto:{name:'Conjunto',sports:['Futbol','Baloncesto','Voleibol','Balonmano','Rugby','Hockey','Beisbol','Futbol Americano']},
+ raqueta:{name:'Raqueta',sports:['Tenis','Padel','Badminton','Squash','Tenis de Mesa']},
+ contacto:{name:'Contacto',sports:['Boxeo','MMA','Judo','Taekwondo','Karate','Lucha']},
+ tiempomarca:{name:'Tiempo/Marca',sports:['Atletismo','Natacion','Ciclismo','Remo','Esqui']},
+ individuales:{name:'Individuales',sports:['Gimnasia','Golf','Escalada','Surf']},
+ orientacion:{name:'Orientacion',sports:['Orientacion','Trail Running']},
+ esports:{name:'Esports',sports:['League of Legends','Valorant','FIFA','Rocket League']},
+ gimnasio:{name:'Gimnasio',sports:['Sala de Pesas','Circuito']}
+};
+
+// ═══════════ SPORT FIELDS ═══════════
+const FIELDS = {
+'Futbol':{bg:'#1a4a1a',svg:`<rect x="50" y="20" width="700" height="560" rx="3" fill="none"/><line x1="50" y1="300" x2="750" y2="300"/><circle cx="400" cy="300" r="60" fill="none"/><circle cx="400" cy="300" r="3" fill="rgba(255,255,255,0.5)"/><rect x="200" y="20" width="200" height="100" fill="none"/><rect x="280" y="20" width="120" height="45" fill="none"/><path d="M260 120 A45 45 0 0 0 340 120" fill="none"/><rect x="200" y="480" width="200" height="100" fill="none"/><rect x="280" y="535" width="120" height="45" fill="none"/><path d="M260 480 A45 45 0 0 1 340 480" fill="none"/><path d="M50 30 A10 10 0 0 0 60 20" fill="none"/><path d="M740 20 A10 10 0 0 0 750 30" fill="none"/><path d="M50 570 A10 10 0 0 1 60 580" fill="none"/><path d="M740 580 A10 10 0 0 1 750 570" fill="none"/>`},
+'Baloncesto':{bg:'#2a1a0a',svg:`<rect x="80" y="30" width="640" height="540" rx="3" fill="none"/><line x1="400" y1="30" x2="400" y2="570"/><circle cx="400" cy="300" r="40" fill="none"/><rect x="80" y="190" width="150" height="220" fill="none"/><path d="M80 230 A100 100 0 0 1 80 370" fill="none"/><circle cx="230" cy="300" r="10" fill="none"/><rect x="570" y="190" width="150" height="220" fill="none"/><path d="M720 230 A100 100 0 0 0 720 370" fill="none"/><circle cx="570" cy="300" r="10" fill="none"/><path d="M80 190 A230 230 0 0 1 80 410" fill="none" stroke-dasharray="4 3"/><path d="M720 190 A230 230 0 0 0 720 410" fill="none" stroke-dasharray="4 3"/>`},
+'Voleibol':{bg:'#0a1a2a',svg:`<rect x="100" y="30" width="600" height="540" rx="3" fill="none"/><line x1="100" y1="300" x2="700" y2="300" stroke-width="3"/><line x1="100" y1="200" x2="700" y2="200" stroke-dasharray="6 4"/><line x1="100" y1="400" x2="700" y2="400" stroke-dasharray="6 4"/>`},
+'Balonmano':{bg:'#0a0a2a',svg:`<rect x="80" y="30" width="640" height="540" rx="3" fill="none"/><line x1="400" y1="30" x2="400" y2="570"/><path d="M80 220 A100 100 0 0 1 80 380" fill="none"/><path d="M720 220 A100 100 0 0 0 720 380" fill="none"/><path d="M80 200 A120 120 0 0 1 80 400" fill="none" stroke-dasharray="5 4"/><path d="M720 200 A120 120 0 0 0 720 400" fill="none" stroke-dasharray="5 4"/><rect x="60" y="260" width="22" height="80" fill="none"/><rect x="718" y="260" width="22" height="80" fill="none"/>`},
+'Rugby':{bg:'#0a2a0a',svg:`<rect x="50" y="30" width="700" height="540" rx="3" fill="none"/><rect x="50" y="30" width="70" height="540" fill="rgba(255,255,255,0.04)"/><rect x="680" y="30" width="70" height="540" fill="rgba(255,255,255,0.04)"/><line x1="190" y1="30" x2="190" y2="570"/><line x1="260" y1="30" x2="260" y2="570" stroke-dasharray="3 3"/><line x1="400" y1="30" x2="400" y2="570"/><line x1="540" y1="30" x2="540" y2="570" stroke-dasharray="3 3"/><line x1="610" y1="30" x2="610" y2="570"/>`},
+'Hockey':{bg:'#0a1a2a',svg:`<rect x="60" y="30" width="680" height="540" rx="80" fill="none"/><line x1="400" y1="30" x2="400" y2="570" stroke="rgba(255,80,80,0.6)" stroke-width="2"/><line x1="260" y1="30" x2="260" y2="570" stroke="rgba(80,120,255,0.5)" stroke-width="1.5"/><line x1="540" y1="30" x2="540" y2="570" stroke="rgba(80,120,255,0.5)" stroke-width="1.5"/><circle cx="400" cy="300" r="30" fill="none"/><circle cx="260" cy="180" r="25" fill="none"/><circle cx="260" cy="420" r="25" fill="none"/><circle cx="540" cy="180" r="25" fill="none"/><circle cx="540" cy="420" r="25" fill="none"/>`},
+'Tenis':{bg:'#0a2a0a',svg:`<rect x="120" y="30" width="560" height="540" rx="2" fill="none"/><line x1="120" y1="300" x2="680" y2="300" stroke-width="3"/><line x1="400" y1="130" x2="400" y2="470"/><rect x="120" y="130" width="560" height="340" fill="none"/><line x1="120" y1="210" x2="680" y2="210"/><line x1="120" y1="390" x2="680" y2="390"/>`},
+'Padel':{bg:'#0a1a2a',svg:`<rect x="150" y="40" width="500" height="520" rx="2" fill="none" stroke-width="3"/><line x1="150" y1="300" x2="650" y2="300" stroke-width="3"/><line x1="150" y1="190" x2="650" y2="190"/><line x1="150" y1="410" x2="650" y2="410"/><line x1="400" y1="190" x2="400" y2="300"/><line x1="400" y1="300" x2="400" y2="410"/>`},
+'Boxeo':{bg:'#1a0a0a',svg:`<rect x="150" y="80" width="500" height="440" rx="8" fill="none" stroke-width="2"/><rect x="165" y="95" width="470" height="410" rx="6" fill="none" stroke-width="1"/><rect x="180" y="110" width="440" height="380" rx="4" fill="none"/><rect x="195" y="125" width="410" height="350" rx="3" fill="none"/><rect x="148" y="78" width="16" height="16" fill="rgba(255,60,60,0.4)" rx="2"/><rect x="636" y="78" width="16" height="16" fill="rgba(80,120,255,0.4)" rx="2"/>`},
+'MMA':{bg:'#0a0a1a',svg:`<polygon points="400,60 560,140 620,300 560,460 400,540 240,460 180,300 240,140" fill="none" stroke-width="2"/><circle cx="400" cy="300" r="3" fill="rgba(255,255,255,0.4)"/><circle cx="320" cy="260" r="3" fill="rgba(255,60,60,0.4)"/><circle cx="480" cy="260" r="3" fill="rgba(80,120,255,0.4)"/>`},
+'Atletismo':{bg:'#1a0a0a',svg:`<ellipse cx="400" cy="300" rx="320" ry="240" fill="none" stroke-width="2"/><ellipse cx="400" cy="300" rx="290" ry="210" fill="none"/><ellipse cx="400" cy="300" rx="260" ry="180" fill="none"/><ellipse cx="400" cy="300" rx="230" ry="150" fill="none"/><ellipse cx="400" cy="300" rx="200" ry="120" fill="none"/><ellipse cx="400" cy="300" rx="170" ry="90" fill="none"/><ellipse cx="400" cy="300" rx="140" ry="60" fill="none"/><ellipse cx="400" cy="300" rx="110" ry="30" fill="none"/><line x1="400" y1="55" x2="400" y2="65" stroke-width="3"/><ellipse cx="400" cy="300" rx="110" ry="30" fill="rgba(30,120,30,0.3)"/>`},
+'Natacion':{bg:'#0a1a2a',svg:`${[0,1,2,3,4,5,6,7].map(i=>`<rect x="${100+i*80}" y="50" width="70" height="500" fill="none" rx="1"/><line x1="${135+i*80}" y1="50" x2="${135+i*80}" y2="550" stroke-dasharray="8 6" opacity="0.4"/><text x="${135+i*80}" y="44" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="11">${i+1}</text>`).join('')}<line x1="100" y1="90" x2="740" y2="90" stroke="rgba(255,200,0,0.3)" stroke-dasharray="3 3"/><line x1="100" y1="510" x2="740" y2="510" stroke="rgba(255,200,0,0.3)" stroke-dasharray="3 3"/>`},
+'Judo':{bg:'#1a1a0a',svg:`<rect x="100" y="50" width="600" height="500" fill="rgba(255,255,255,0.03)" rx="2"/><rect x="200" y="150" width="400" height="300" fill="rgba(255,255,255,0.04)" rx="2"/><circle cx="400" cy="300" r="4" fill="rgba(255,255,255,0.3)"/><rect x="350" y="280" width="10" height="3" fill="rgba(255,255,255,0.2)"/><rect x="440" y="280" width="10" height="3" fill="rgba(255,255,255,0.2)"/>`},
+'League of Legends':{bg:'#0a1a0a',svg:`<rect x="50" y="50" width="700" height="500" fill="none" rx="2"/><line x1="50" y1="550" x2="750" y2="50" opacity="0.15" stroke-width="8"/><line x1="50" y1="50" x2="750" y2="550" opacity="0.08" stroke-width="4"/><line x1="50" y1="300" x2="750" y2="300" opacity="0.08" stroke-width="4"/><path d="M350 550 Q400 300 750 250" fill="none" opacity="0.12" stroke-width="6"/><rect x="50" y="480" width="80" height="70" fill="rgba(80,120,255,0.1)" rx="4"/><rect x="670" y="50" width="80" height="70" fill="rgba(255,60,60,0.1)" rx="4"/>`},
+'Valorant':{bg:'#0a0a0a',svg:`<rect x="80" y="50" width="640" height="500" fill="none" rx="2"/><line x1="400" y1="50" x2="400" y2="550" stroke-dasharray="6 3"/><rect x="200" y="80" width="120" height="100" fill="rgba(255,255,255,0.04)" rx="4"/><text x="260" y="140" text-anchor="middle" fill="rgba(255,255,255,0.15)" font-size="20">A</text><rect x="480" y="80" width="120" height="100" fill="rgba(255,255,255,0.04)" rx="4"/><text x="540" y="140" text-anchor="middle" fill="rgba(255,255,255,0.15)" font-size="20">B</text><rect x="80" y="400" width="100" height="80" fill="rgba(80,120,255,0.06)" rx="4"/><rect x="620" y="400" width="100" height="80" fill="rgba(255,60,60,0.06)" rx="4"/>`},
+'Sala de Pesas':{bg:'#111520',svg:`${Array.from({length:20},(_,i)=>`<line x1="${i*40}" y1="0" x2="${i*40}" y2="600" class="grid-line"/>`).join('')}${Array.from({length:15},(_,j)=>`<line x1="0" y1="${j*40}" x2="800" y2="${j*40}" class="grid-line"/>`).join('')}`},
+'Circuito':{bg:'#111520',svg:`${Array.from({length:20},(_,i)=>`<line x1="${i*40}" y1="0" x2="${i*40}" y2="600" class="grid-line"/>`).join('')}${Array.from({length:15},(_,j)=>`<line x1="0" y1="${j*40}" x2="800" y2="${j*40}" class="grid-line"/>`).join('')}`}
+};
+// Default field for sports without custom
+const DEFAULT_FIELD = {bg:'#111520',svg:`<rect x="80" y="40" width="640" height="520" rx="4" fill="none"/><line x1="400" y1="40" x2="400" y2="560" stroke-dasharray="4 3"/>`};
+
+// ═══════════ TOOLS ═══════════
+const TOOLS = [
+ {id:'move',label:'Mover',icon:'<path d="M3 3l4.5 15 3-6 6-3z" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="10" x2="16" y2="16" stroke="currentColor" stroke-width="1.5"/>',group:1},
+ {id:'pencil',label:'Lapiz',icon:'<path d="M3 15L13 5l2 2L5 17H3v-2z" fill="none" stroke="currentColor" stroke-width="1.5"/>',group:1},
+ {id:'line',label:'Linea',icon:'<line x1="3" y1="15" x2="15" y2="3" stroke="currentColor" stroke-width="1.5"/>',group:1},
+ {id:'curve',label:'Curva',icon:'<path d="M3 15Q9 3 15 15" fill="none" stroke="currentColor" stroke-width="1.5"/>',group:1},
+ {id:'arrow',label:'Flecha',icon:'<line x1="3" y1="15" x2="13" y2="3" stroke="currentColor" stroke-width="1.5"/><polyline points="8,3 13,3 13,8" fill="none" stroke="currentColor" stroke-width="1.5"/>',group:1},
+ {id:'zone',label:'Zona',icon:'<rect x="3" y="5" width="12" height="8" rx="2" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1"/>',group:1},
+ {id:'text',label:'Texto',icon:'<text x="9" y="13" text-anchor="middle" font-size="13" font-weight="700" fill="currentColor">T</text>',group:1},
+ {id:'eraser',label:'Borrar',icon:'<rect x="4" y="7" width="10" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.5" transform="rotate(-20 9 10)"/>',group:1},
+ {id:'sep1',group:0},
+ {id:'playerA',label:'Jugador A',icon:'<circle cx="9" cy="9" r="7" fill="rgba(200,247,0,0.2)" stroke="#c8f700" stroke-width="1.5"/><text x="9" y="12" text-anchor="middle" font-size="8" fill="#c8f700" font-weight="700">X</text>',group:2},
+ {id:'playerB',label:'Jugador B',icon:'<circle cx="9" cy="9" r="7" fill="rgba(255,255,255,0.1)" stroke="white" stroke-width="1.5"/>',group:2},
+ {id:'goalkeeper',label:'Portero',icon:'<circle cx="9" cy="9" r="7" fill="rgba(239,159,39,0.2)" stroke="#EF9F27" stroke-width="1.5"/><text x="9" y="12" text-anchor="middle" font-size="7" fill="#EF9F27" font-weight="700">GK</text>',group:2},
+ {id:'ball',label:'Balon',icon:'<circle cx="9" cy="9" r="5" fill="white" stroke="#555" stroke-width="1"/><circle cx="9" cy="9" r="1.5" fill="#555"/>',group:2},
+ {id:'cone',label:'Cono',icon:'<polygon points="9,3 4,15 14,15" fill="#ff9800" stroke="#e65100" stroke-width="1"/>',group:2},
+ {id:'flag',label:'Bandera',icon:'<line x1="6" y1="4" x2="6" y2="16" stroke="currentColor" stroke-width="1.5"/><polygon points="6,4 15,7 6,10" fill="rgba(255,60,60,0.5)" stroke="rgba(255,60,60,0.7)" stroke-width="0.5"/>',group:2},
+ {id:'hurdle',label:'Valla',icon:'<rect x="3" y="8" width="12" height="3" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="5" y1="11" x2="5" y2="15" stroke="currentColor" stroke-width="1"/><line x1="13" y1="11" x2="13" y2="15" stroke="currentColor" stroke-width="1"/>',group:2},
+ {id:'sep2',group:0},
+ {id:'d_row',label:'Fila',icon:'<circle cx="3" cy="9" r="2" fill="currentColor"/><circle cx="7.5" cy="9" r="2" fill="currentColor"/><circle cx="12" cy="9" r="2" fill="currentColor"/><circle cx="16.5" cy="9" r="2" fill="currentColor"/>',group:3},
+ {id:'d_circle',label:'Circulo',icon:'<circle cx="9" cy="3" r="1.5" fill="currentColor"/><circle cx="14" cy="6" r="1.5" fill="currentColor"/><circle cx="15" cy="12" r="1.5" fill="currentColor"/><circle cx="9" cy="15" r="1.5" fill="currentColor"/><circle cx="3" cy="12" r="1.5" fill="currentColor"/><circle cx="3" cy="6" r="1.5" fill="currentColor"/>',group:3},
+ {id:'d_grid',label:'Grilla',icon:'<circle cx="4" cy="5" r="1.5" fill="currentColor"/><circle cx="9" cy="5" r="1.5" fill="currentColor"/><circle cx="14" cy="5" r="1.5" fill="currentColor"/><circle cx="4" cy="10" r="1.5" fill="currentColor"/><circle cx="9" cy="10" r="1.5" fill="currentColor"/><circle cx="14" cy="10" r="1.5" fill="currentColor"/><circle cx="4" cy="15" r="1.5" fill="currentColor"/><circle cx="9" cy="15" r="1.5" fill="currentColor"/><circle cx="14" cy="15" r="1.5" fill="currentColor"/>',group:3},
+ {id:'d_pairs',label:'Parejas',icon:'<circle cx="5" cy="6" r="2" fill="#c8f700"/><circle cx="13" cy="6" r="2" fill="white"/><line x1="7" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="0.8"/><circle cx="5" cy="13" r="2" fill="#c8f700"/><circle cx="13" cy="13" r="2" fill="white"/><line x1="7" y1="13" x2="11" y2="13" stroke="currentColor" stroke-width="0.8"/>',group:3},
+ {id:'d_diamond',label:'Rombo',icon:'<circle cx="9" cy="3" r="1.5" fill="currentColor"/><circle cx="15" cy="9" r="1.5" fill="currentColor"/><circle cx="9" cy="15" r="1.5" fill="currentColor"/><circle cx="3" cy="9" r="1.5" fill="currentColor"/>',group:3},
+ {id:'d_triangle',label:'Triangulo',icon:'<circle cx="9" cy="3" r="1.5" fill="currentColor"/><circle cx="3" cy="15" r="1.5" fill="currentColor"/><circle cx="15" cy="15" r="1.5" fill="currentColor"/>',group:3}
+];
+
+// ═══════════ FORMATIONS ═══════════
+const FORMATIONS = {
+'Futbol':[
+ {name:'4-3-3',pos:[[400,520],[200,420],[300,420],[500,420],[600,420],[250,300],[400,280],[550,300],[200,150],[400,100],[600,150]]},
+ {name:'4-4-2',pos:[[400,520],[200,420],[300,420],[500,420],[600,420],[200,280],[330,280],[470,280],[600,280],[300,120],[500,120]]},
+ {name:'3-5-2',pos:[[400,520],[250,400],[400,420],[550,400],[200,280],[320,260],[400,220],[480,260],[600,280],[300,100],[500,100]]},
+ {name:'4-2-3-1',pos:[[400,520],[200,420],[300,420],[500,420],[600,420],[330,320],[470,320],[200,200],[400,180],[600,200],[400,80]]}
+],
+'Baloncesto':[
+ {name:'2-3 Zona',pos:[[300,200],[500,200],[200,380],[400,420],[600,380]]},
+ {name:'1-2-2',pos:[[400,180],[280,300],[520,300],[280,440],[520,440]]},
+ {name:'3-2',pos:[[280,220],[400,180],[520,220],[300,400],[500,400]]}
+],
+'Voleibol':[
+ {name:'5-1',pos:[[250,420],[400,420],[550,420],[250,200],[400,200],[550,200]]},
+ {name:'4-2',pos:[[250,420],[400,420],[550,420],[200,200],[400,200],[600,200]]}
+]};
+
+// ═══════════ CORE SYSTEM ═══════════
+const S = {
+ init() {
+  this.renderTabs();
+  this.renderToolbar();
+  this.setSport(CATS.conjunto.sports[0]);
+  this.setTool('move');
+  this.saveHistory();
+  this.bindCanvas();
+  this.bindKeys();
+  this.updatePanel();
+  this.updateStats();
+ },
+
+ // ── TABS ──
+ renderTabs() {
+  const wrap = document.getElementById('cat-tabs');
+  wrap.innerHTML = Object.entries(CATS).map(([k,v]) =>
+   `<button class="tab${ST.cat===k?' active':''}" data-cat="${k}">${v.name}</button>`
+  ).join('');
+  wrap.onclick = e => {
+   const btn = e.target.closest('[data-cat]');
+   if(!btn) return;
+   ST.cat = btn.dataset.cat;
+   this.renderTabs();
+   this.showSportDropdown(btn.dataset.cat);
+  };
+ },
+
+ showSportDropdown(cat) {
+  const dd = document.getElementById('sport-dropdown');
+  dd.innerHTML = CATS[cat].sports.map(s =>
+   `<button class="sport-pill${ST.sport===s?' active':''}" data-sport="${s}">${s}</button>`
+  ).join('');
+  dd.classList.add('show');
+  dd.onclick = e => {
+   const btn = e.target.closest('[data-sport]');
+   if(!btn) return;
+   this.setSport(btn.dataset.sport);
+   dd.classList.remove('show');
+  };
+  setTimeout(()=>document.addEventListener('click',function h(ev){if(!dd.contains(ev.target)&&!ev.target.closest('[data-cat]')){dd.classList.remove('show');document.removeEventListener('click',h)}},true),10);
+ },
+
+ setSport(name) {
+  ST.sport = name;
+  const f = FIELDS[name] || DEFAULT_FIELD;
+  const fl = document.getElementById('field-layer');
+  fl.innerHTML = `<rect x="0" y="0" width="800" height="600" fill="${f.bg}" rx="0"/>` +
+   `<g stroke="rgba(255,255,255,0.65)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">${f.svg}</g>`;
+  document.querySelectorAll('.sport-pill').forEach(p=>p.classList.toggle('active',p.dataset.sport===name));
+ },
+
+ // ── TOOLBAR ──
+ renderToolbar() {
+  const tb = document.getElementById('toolbar');
+  tb.innerHTML = TOOLS.map(t => {
+   if(t.group===0) return '<div class="tool-sep"></div>';
+   return `<button class="tool${ST.tool===t.id?' active':''}" data-tool="${t.id}" title="${t.label}" aria-label="${t.label}">
+    <svg viewBox="0 0 18 18" fill="none">${t.icon}</svg><span>${t.label}</span></button>`;
+  }).join('');
+  tb.onclick = e => {
+   const btn = e.target.closest('[data-tool]');
+   if(!btn) return;
+   const tid = btn.dataset.tool;
+   if(tid.startsWith('d_')) { this.showDispositionModal(tid); return; }
+   this.setTool(tid);
+  };
+ },
+
+ setTool(id) {
+  ST.tool = id;
+  document.querySelectorAll('.tool').forEach(t=>t.classList.toggle('active',t.dataset.tool===id));
+  const svg = document.getElementById('svg-canvas');
+  svg.style.cursor = id==='move'?'default':id==='eraser'?'crosshair':'crosshair';
+ },
+
+ // ── CANVAS EVENTS ──
+ bindCanvas() {
+  const svg = document.getElementById('svg-canvas');
+  const getPoint = (e) => {
+   const pt = svg.createSVGPoint();
+   pt.x = e.clientX; pt.y = e.clientY;
+   const ctm = document.getElementById('zoom-group').getScreenCTM();
+   if(!ctm) return {x:400,y:300};
+   return pt.matrixTransform(ctm.inverse());
+  };
+
+  svg.addEventListener('mousedown', e => {
+   if(e.button===2) return;
+   const p = getPoint(e);
+   const target = e.target.closest('[data-id]');
+
+   if(ST.spaceDown) { ST.panning = true; ST.dragStart = {x:e.clientX,y:e.clientY}; return; }
+
+   if(ST.tool==='move') {
+    if(target) {
+     const id = target.dataset.id;
+     const el = ST.elements.find(x=>x.id==id);
+     if(!el) return;
+     if(!e.shiftKey) ST.selected = [];
+     if(!ST.selected.includes(el)) ST.selected.push(el);
+     ST.dragging = 'move';
+     ST.dragStart = p;
+     ST.dragOffset = ST.selected.map(s=>({id:s.id,ox:s.x,oy:s.y}));
+     this.updatePanel();
+     this.renderElements();
+    } else {
+     ST.selected = [];
+     ST.selRect = {x:p.x,y:p.y,w:0,h:0};
+     this.updatePanel();
+     this.renderElements();
+    }
+   } else if(ST.tool==='eraser') {
+    if(target) {
+     const id = target.dataset.id;
+     ST.elements = ST.elements.filter(x=>x.id!=id);
+     ST.selected = [];
+     this.saveHistory();
+     this.renderElements();
+     this.updatePanel();
+     this.updateStats();
+    }
+   } else if(ST.tool==='playerA'||ST.tool==='playerB'||ST.tool==='goalkeeper'||ST.tool==='ball'||ST.tool==='cone'||ST.tool==='flag'||ST.tool==='hurdle') {
+    this.addElement(ST.tool, p.x, p.y);
+   } else if(ST.tool==='arrow'||ST.tool==='line') {
+    ST.drawing = {type:ST.tool,x1:p.x,y1:p.y,x2:p.x,y2:p.y};
+   } else if(ST.tool==='zone') {
+    ST.drawing = {type:'zone',x:p.x,y:p.y,w:0,h:0};
+   } else if(ST.tool==='text') {
+    const txt = prompt('Texto:');
+    if(txt) this.addElement('text', p.x, p.y, {label:txt});
+   } else if(ST.tool==='pencil') {
+    ST.drawing = {type:'pencil',points:[{x:p.x,y:p.y}]};
+   } else if(ST.tool==='curve') {
+    ST.drawing = {type:'curve',x1:p.x,y1:p.y,cx:p.x,cy:p.y,x2:p.x,y2:p.y,phase:1};
+   }
+  });
+
+  svg.addEventListener('mousemove', e => {
+   const p = getPoint(e);
+   if(ST.panning && ST.dragStart) {
+    const dx = (e.clientX - ST.dragStart.x)/ST.zoom;
+    const dy = (e.clientY - ST.dragStart.y)/ST.zoom;
+    ST.panX += dx; ST.panY += dy;
+    ST.dragStart = {x:e.clientX,y:e.clientY};
+    this.applyZoom();
+    return;
+   }
+   if(ST.dragging==='move' && ST.dragOffset) {
+    const dx = p.x - ST.dragStart.x;
+    const dy = p.y - ST.dragStart.y;
+    ST.dragOffset.forEach(o => {
+     const el = ST.elements.find(x=>x.id===o.id);
+     if(el) { el.x = o.ox + dx; el.y = o.oy + dy; }
+    });
+    this.renderElements();
+   }
+   if(ST.selRect) {
+    ST.selRect.w = p.x - ST.selRect.x;
+    ST.selRect.h = p.y - ST.selRect.y;
+    const sl = document.getElementById('sel-rect-layer');
+    const r = ST.selRect;
+    const rx = r.w<0?r.x+r.w:r.x, ry = r.h<0?r.y+r.h:r.y;
+    sl.innerHTML = `<rect x="${rx}" y="${ry}" width="${Math.abs(r.w)}" height="${Math.abs(r.h)}" class="sel-box"/>`;
+   }
+   if(ST.drawing) {
+    if(ST.drawing.type==='arrow'||ST.drawing.type==='line') {
+     ST.drawing.x2 = p.x; ST.drawing.y2 = p.y;
+     this.renderDrawingPreview();
+    } else if(ST.drawing.type==='zone') {
+     ST.drawing.w = p.x - ST.drawing.x; ST.drawing.h = p.y - ST.drawing.y;
+     this.renderDrawingPreview();
+    } else if(ST.drawing.type==='pencil') {
+     ST.drawing.points.push({x:p.x,y:p.y});
+     this.renderDrawingPreview();
+    } else if(ST.drawing.type==='curve' && ST.drawing.phase===1) {
+     ST.drawing.cx = p.x; ST.drawing.cy = p.y;
+     ST.drawing.x2 = p.x; ST.drawing.y2 = p.y;
+     this.renderDrawingPreview();
+    }
+   }
+  });
+
+  const endDrag = () => {
+   if(ST.panning) { ST.panning = false; ST.dragStart = null; return; }
+   if(ST.dragging==='move') { ST.dragging = null; this.saveHistory(); }
+   if(ST.selRect) {
+    const r = ST.selRect;
+    const rx = r.w<0?r.x+r.w:r.x, ry = r.h<0?r.y+r.h:r.y;
+    const rw = Math.abs(r.w), rh = Math.abs(r.h);
+    ST.selected = ST.elements.filter(el=>el.x>=rx&&el.x<=rx+rw&&el.y>=ry&&el.y<=ry+rh);
+    ST.selRect = null;
+    document.getElementById('sel-rect-layer').innerHTML = '';
+    this.renderElements();
+    this.updatePanel();
+   }
+   if(ST.drawing) {
+    const d = ST.drawing;
+    if(d.type==='arrow') this.addElement('arrow',0,0,{x1:d.x1,y1:d.y1,x2:d.x2,y2:d.y2});
+    else if(d.type==='line') this.addElement('line',0,0,{x1:d.x1,y1:d.y1,x2:d.x2,y2:d.y2});
+    else if(d.type==='zone') this.addElement('zone',d.x,d.y,{w:d.w,h:d.h});
+    else if(d.type==='pencil'&&d.points.length>2) this.addElement('pencil',0,0,{points:d.points});
+    else if(d.type==='curve') this.addElement('curve',0,0,{x1:d.x1,y1:d.y1,cx:d.cx,cy:d.cy,x2:d.x2,y2:d.y2});
+    ST.drawing = null;
+    document.getElementById('handles-layer').innerHTML = '';
+   }
+  };
+  svg.addEventListener('mouseup', endDrag);
+  svg.addEventListener('mouseleave', endDrag);
+
+  // Zoom
+  svg.addEventListener('wheel', e => {
+   e.preventDefault();
+   const delta = e.deltaY > 0 ? -0.1 : 0.1;
+   ST.zoom = Math.max(0.3, Math.min(4, ST.zoom + delta));
+   this.applyZoom();
+  }, {passive:false});
+
+  // Context menu
+  svg.addEventListener('contextmenu', e => {
+   e.preventDefault();
+   const target = e.target.closest('[data-id]');
+   if(target) {
+    const id = target.dataset.id;
+    const el = ST.elements.find(x=>x.id==id);
+    if(el && !ST.selected.includes(el)) { ST.selected = [el]; this.renderElements(); }
+   }
+   this.showContextMenu(e.clientX, e.clientY);
+  });
+ },
+
+ renderDrawingPreview() {
+  const hl = document.getElementById('handles-layer');
+  if(!ST.drawing) { hl.innerHTML=''; return; }
+  const d = ST.drawing;
+  if(d.type==='arrow') {
+   hl.innerHTML = `<line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}" stroke="rgba(255,255,255,0.6)" stroke-width="2" marker-end="url(#arrow-marker)" stroke-dasharray="4 3"/>`;
+  } else if(d.type==='line') {
+   hl.innerHTML = `<line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-dasharray="4 3"/>`;
+  } else if(d.type==='zone') {
+   hl.innerHTML = `<rect x="${d.w<0?d.x+d.w:d.x}" y="${d.h<0?d.y+d.h:d.y}" width="${Math.abs(d.w)}" height="${Math.abs(d.h)}" fill="rgba(200,247,0,0.1)" stroke="var(--lime)" stroke-width="1" stroke-dasharray="4 3"/>`;
+  } else if(d.type==='pencil') {
+   hl.innerHTML = `<polyline points="${d.points.map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>`;
+  } else if(d.type==='curve') {
+   hl.innerHTML = `<path d="M${d.x1},${d.y1} Q${d.cx},${d.cy} ${d.x2},${d.y2}" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-dasharray="4 3"/>`;
+  }
+ },
+
+ // ── ELEMENTS ──
+ addElement(type, x, y, extra={}) {
+  const id = ST.nextId++;
+  const el = {id, type, x, y, color: type==='playerA'?'#c8f700':type==='playerB'?'#ffffff':type==='goalkeeper'?'#EF9F27':'#ffffff', ...extra};
+  if(type==='playerA'||type==='playerB'||type==='goalkeeper') {
+   el.label = String(ST.elements.filter(e=>e.type===type).length + 1);
+   el.size = 15;
+  }
+  if(type==='cone') { el.color = '#ff9800'; }
+  if(type==='ball') { el.size = 8; }
+  if(type==='zone') { el.zoneColor = '#c8f700'; el.opacity = 0.15; }
+  if(type==='text') { el.fontSize = 16; el.color = '#ffffff'; }
+  ST.elements.push(el);
+  this.saveHistory();
+  this.renderElements();
+  this.updatePanel();
+  this.updateStats();
+ },
+
+ buildElSvg(el) {
+  const sel = ST.selected.includes(el);
+  const selStroke = sel ? `<circle cx="0" cy="0" r="${(el.size||15)+6}" fill="none" stroke="${el.color||'#c8f700'}" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.6"/>` : '';
+  switch(el.type) {
+   case 'playerA': case 'playerB': case 'goalkeeper':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}<circle cx="0" cy="0" r="${el.size||15}" fill="${el.color}22" stroke="${el.color}" stroke-width="2.5"/>${el.type!=='playerB'?`<text x="0" y="0" dy="0.35em" text-anchor="middle" font-size="${(el.size||15)*0.85}" fill="${el.color}" font-weight="800">${el.label||''}</text>`:`<text x="0" y="0" dy="0.35em" text-anchor="middle" font-size="${(el.size||15)*0.85}" fill="${el.color}" font-weight="700">${el.label||''}</text>`}${el.label?`<text x="0" y="${-(el.size||15)-6}" text-anchor="middle" font-size="9" fill="${el.color}" opacity="0.7">${el.name||''}</text>`:''}</g>`;
+   case 'ball':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${sel?'<circle cx="0" cy="0" r="14" fill="none" stroke="white" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.5"/>':''}<circle cx="0" cy="0" r="${el.size||8}" fill="white" stroke="#333" stroke-width="1.5"/><circle cx="0" cy="0" r="2.5" fill="#555"/></g>`;
+   case 'cone':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${sel?'<circle cx="0" cy="0" r="16" fill="none" stroke="#ff9800" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.6"/>':''}<polygon points="0,-12 -9,7 9,7" fill="${el.color||'#ff9800'}" stroke="#e65100" stroke-width="1.5"/></g>`;
+   case 'flag':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><line x1="0" y1="-12" x2="0" y2="12" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><polygon points="0,-12 14,-7 0,-2" fill="rgba(255,60,60,0.6)"/></g>`;
+   case 'hurdle':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><rect x="-18" y="-4" width="36" height="8" rx="2" fill="none" stroke="#ff9800" stroke-width="2"/><line x1="-12" y1="4" x2="-12" y2="12" stroke="#ff9800" stroke-width="1.5"/><line x1="12" y1="4" x2="12" y2="12" stroke="#ff9800" stroke-width="1.5"/></g>`;
+   case 'arrow':
+    return `<g data-id="${el.id}" style="cursor:pointer">${sel?`<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="#c8f700" stroke-width="7" opacity="0.25"/>`:''}<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${el.color||'rgba(255,255,255,0.8)'}" stroke-width="${el.strokeWidth||2.5}" stroke-linecap="round" marker-end="url(#arrow-marker)"/><circle cx="${el.x1}" cy="${el.y1}" r="3.5" fill="rgba(255,255,255,0.5)"/></g>`;
+   case 'line':
+    return `<g data-id="${el.id}" style="cursor:pointer"><line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${el.color||'rgba(255,255,255,0.7)'}" stroke-width="${el.strokeWidth||2}" stroke-linecap="round" ${el.dash?'stroke-dasharray="6 4"':''}/></g>`;
+   case 'zone': {
+    const zx = el.w<0?el.x+el.w:el.x, zy = el.h<0?el.y+el.h:el.y;
+    return `<g data-id="${el.id}" style="cursor:pointer"><rect x="${zx}" y="${zy}" width="${Math.abs(el.w)}" height="${Math.abs(el.h)}" fill="${el.zoneColor||'#c8f700'}" opacity="${el.opacity||0.15}" rx="4" stroke="${el.zoneColor||'#c8f700'}" stroke-width="1" stroke-opacity="0.3"/>${el.label?`<text x="${zx+Math.abs(el.w)/2}" y="${zy+Math.abs(el.h)/2}" text-anchor="middle" dy="0.35em" font-size="12" fill="white" opacity="0.7">${el.label}</text>`:''}</g>`;
+   }
+   case 'text':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><text x="0" y="0" dy="0.35em" font-size="${el.fontSize||16}" fill="${el.color||'white'}" font-weight="${el.bold?'700':'400'}" ${el.italic?'font-style="italic"':''}>${el.label||''}</text></g>`;
+   case 'pencil':
+    return `<g data-id="${el.id}" style="cursor:pointer"><polyline points="${(el.points||[]).map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="${el.color||'rgba(255,255,255,0.7)'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+   case 'curve':
+    return `<g data-id="${el.id}" style="cursor:pointer"><path d="M${el.x1},${el.y1} Q${el.cx},${el.cy} ${el.x2},${el.y2}" fill="none" stroke="${el.color||'rgba(255,255,255,0.7)'}" stroke-width="2" stroke-linecap="round"/></g>`;
+   default: return '';
+  }
+ },
+
+ renderElements() {
+  const layer = document.getElementById('elements-layer');
+  // Arrow marker def
+  let defs = `<defs><marker id="arrow-marker" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/></marker></defs>`;
+  layer.innerHTML = defs + ST.elements.map(el => this.buildElSvg(el)).join('');
+ },
+
+ // ── ZOOM ──
+ applyZoom() {
+  const g = document.getElementById('zoom-group');
+  g.setAttribute('transform',`translate(${ST.panX},${ST.panY}) scale(${ST.zoom})`);
+ },
+ zoomIn() { ST.zoom = Math.min(4, ST.zoom + 0.2); this.applyZoom(); },
+ zoomOut() { ST.zoom = Math.max(0.3, ST.zoom - 0.2); this.applyZoom(); },
+ zoomReset() { ST.zoom = 1; ST.panX = 0; ST.panY = 0; this.applyZoom(); },
+
+ // ── GRID ──
+ toggleGrid() {
+  ST.grid = !ST.grid;
+  document.getElementById('btn-grid').classList.toggle('active', ST.grid);
+  const gl = document.getElementById('grid-layer');
+  if(ST.grid) {
+   let lines = '';
+   for(let x=0;x<=800;x+=20) lines += `<line x1="${x}" y1="0" x2="${x}" y2="600" class="grid-line"/>`;
+   for(let y=0;y<=600;y+=20) lines += `<line x1="0" y1="${y}" x2="800" y2="${y}" class="grid-line"/>`;
+   gl.innerHTML = lines;
+  } else gl.innerHTML = '';
+ },
+
+ // ── HISTORY ──
+ saveHistory() {
+  const snap = JSON.stringify(ST.elements);
+  ST.history = ST.history.slice(0, ST.historyIdx + 1);
+  ST.history.push(snap);
+  if(ST.history.length > ST.maxHistory) ST.history.shift();
+  ST.historyIdx = ST.history.length - 1;
+ },
+ undo() {
+  if(ST.historyIdx <= 0) return;
+  ST.historyIdx--;
+  ST.elements = JSON.parse(ST.history[ST.historyIdx]);
+  ST.selected = [];
+  this.renderElements(); this.updatePanel(); this.updateStats();
+ },
+ redo() {
+  if(ST.historyIdx >= ST.history.length - 1) return;
+  ST.historyIdx++;
+  ST.elements = JSON.parse(ST.history[ST.historyIdx]);
+  ST.selected = [];
+  this.renderElements(); this.updatePanel(); this.updateStats();
+ },
+
+ clearAll() {
+  if(!confirm('Limpiar todos los elementos?')) return;
+  ST.elements = []; ST.selected = [];
+  this.saveHistory(); this.renderElements(); this.updatePanel(); this.updateStats();
+ },
+
+ // ── PANEL ──
+ updatePanel() {
+  const pc = document.getElementById('panel-content');
+  document.getElementById('el-count').textContent = ST.elements.length;
+
+  if(ST.selected.length === 1) {
+   const el = ST.selected[0];
+   let html = `<div class="prop-group"><div class="prop-label">PROPIEDADES</div>`;
+   html += `<div class="prop-row"><label>Tipo</label><input value="${el.type}" disabled></div>`;
+   if(el.label !== undefined) html += `<div class="prop-row"><label>Label</label><input value="${el.label||''}" onchange="S.setProp(${el.id},'label',this.value)"></div>`;
+   if(el.name !== undefined || el.type.startsWith('player')||el.type==='goalkeeper') html += `<div class="prop-row"><label>Nombre</label><input value="${el.name||''}" onchange="S.setProp(${el.id},'name',this.value)"></div>`;
+   html += `<div class="prop-row"><label>X</label><input type="number" value="${Math.round(el.x||0)}" onchange="S.setProp(${el.id},'x',+this.value)"></div>`;
+   html += `<div class="prop-row"><label>Y</label><input type="number" value="${Math.round(el.y||0)}" onchange="S.setProp(${el.id},'y',+this.value)"></div>`;
+   if(el.color) html += `<div class="prop-row"><label>Color</label><input type="color" value="${el.color}" class="color-swatch" onchange="S.setProp(${el.id},'color',this.value)"></div>`;
+   if(el.size) html += `<div class="prop-row"><label>Size</label><input type="range" min="8" max="40" value="${el.size}" oninput="S.setProp(${el.id},'size',+this.value)"></div>`;
+   if(el.fontSize) html += `<div class="prop-row"><label>Font</label><input type="range" min="8" max="48" value="${el.fontSize}" oninput="S.setProp(${el.id},'fontSize',+this.value)"></div>`;
+   if(el.strokeWidth!==undefined) html += `<div class="prop-row"><label>Grosor</label><input type="range" min="1" max="8" value="${el.strokeWidth||2}" oninput="S.setProp(${el.id},'strokeWidth',+this.value)"></div>`;
+   if(el.opacity!==undefined) html += `<div class="prop-row"><label>Opac.</label><input type="range" min="5" max="80" value="${Math.round((el.opacity||0.15)*100)}" oninput="S.setProp(${el.id},'opacity',this.value/100)"></div>`;
+   html += `<button class="footer-btn" style="width:100%;margin-top:8px;justify-content:center;color:#f44" onclick="S.deleteSelected()">Eliminar</button>`;
+   html += `</div>`;
+   pc.innerHTML = html;
+  } else {
+   const types = {};
+   ST.elements.forEach(el => { types[el.type] = (types[el.type]||0)+1; });
+   let html = '';
+   ST.elements.forEach(el => {
+    const isSel = ST.selected.includes(el);
+    const dot = el.type==='playerA'?'#c8f700':el.type==='playerB'?'#fff':el.type==='goalkeeper'?'#EF9F27':el.type==='cone'?'#ff9800':el.type==='arrow'?'#67e8f9':el.type==='zone'?'#a78bfa':'rgba(255,255,255,0.5)';
+    const name = el.type==='playerA'?`Jugador A #${el.label}`:el.type==='playerB'?`Jugador B #${el.label}`:el.type==='goalkeeper'?`Portero #${el.label}`:el.type==='cone'?'Cono':el.type==='ball'?'Balon':el.type==='arrow'?'Flecha':el.type==='line'?'Linea':el.type==='zone'?'Zona':el.type==='text'?el.label:el.type==='flag'?'Bandera':el.type==='hurdle'?'Valla':el.type;
+    html += `<div class="el-item${isSel?' selected':''}" onclick="S.selectEl(${el.id})"><span class="el-dot" style="background:${dot}"></span><span class="el-name">${name}</span><button class="el-del" onclick="event.stopPropagation();S.deleteEl(${el.id})">✕</button></div>`;
+   });
+   pc.innerHTML = html || '<div style="text-align:center;padding:24px;color:rgba(255,255,255,0.2);font-size:11px">Sin elementos.<br>Usa las herramientas para agregar.</div>';
+  }
+ },
+
+ setProp(id, key, val) {
+  const el = ST.elements.find(x=>x.id===id);
+  if(el) { el[key] = val; this.saveHistory(); this.renderElements(); }
+ },
+
+ selectEl(id) {
+  const el = ST.elements.find(x=>x.id===id);
+  if(el) { ST.selected = [el]; this.updatePanel(); this.renderElements(); }
+ },
+
+ deleteEl(id) {
+  ST.elements = ST.elements.filter(x=>x.id!==id);
+  ST.selected = ST.selected.filter(x=>x.id!==id);
+  this.saveHistory(); this.renderElements(); this.updatePanel(); this.updateStats();
+ },
+
+ deleteSelected() {
+  const ids = new Set(ST.selected.map(s=>s.id));
+  ST.elements = ST.elements.filter(x=>!ids.has(x.id));
+  ST.selected = [];
+  this.saveHistory(); this.renderElements(); this.updatePanel(); this.updateStats();
+ },
+
+ updateStats() {
+  const a = ST.elements.filter(e=>e.type==='playerA').length;
+  const b = ST.elements.filter(e=>e.type==='playerB').length;
+  const gk = ST.elements.filter(e=>e.type==='goalkeeper').length;
+  const arr = ST.elements.filter(e=>e.type==='arrow').length;
+  const parts = [];
+  if(a) parts.push(`${a} Eq.A`);
+  if(b) parts.push(`${b} Eq.B`);
+  if(gk) parts.push(`${gk} GK`);
+  if(arr) parts.push(`${arr} Flechas`);
+  const rest = ST.elements.length - a - b - gk - arr;
+  if(rest>0) parts.push(`${rest} otros`);
+  document.getElementById('footer-stats').textContent = parts.join(' · ') || '0 elementos';
+ },
+
+ // ── KEYBOARD ──
+ bindKeys() {
+  document.addEventListener('keydown', e => {
+   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+   if(e.key===' ') { ST.spaceDown=true; e.preventDefault(); }
+   if(e.ctrlKey||e.metaKey) {
+    if(e.key==='z') { e.preventDefault(); this.undo(); }
+    if(e.key==='y') { e.preventDefault(); this.redo(); }
+    if(e.key==='a') { e.preventDefault(); ST.selected=[...ST.elements]; this.renderElements(); this.updatePanel(); }
+    if(e.key==='d') { e.preventDefault(); this.duplicateSelected(); }
+    if(e.key==='s') { e.preventDefault(); this.exportPNG(); }
+   }
+   if(e.key==='Delete'||e.key==='Backspace') { this.deleteSelected(); }
+   if(e.key==='Escape') { ST.selected=[]; ST.drawing=null; this.renderElements(); this.updatePanel(); document.getElementById('handles-layer').innerHTML=''; }
+   if(e.key==='+'||e.key==='=') this.zoomIn();
+   if(e.key==='-') this.zoomOut();
+   if(e.key==='0') this.zoomReset();
+  });
+  document.addEventListener('keyup', e => {
+   if(e.key===' ') ST.spaceDown=false;
+  });
+ },
+
+ duplicateSelected() {
+  const newEls = ST.selected.map(el => {
+   const ne = {...el, id: ST.nextId++, x: (el.x||0)+20, y: (el.y||0)+20};
+   if(ne.x1!==undefined) { ne.x1+=20; ne.y1+=20; ne.x2+=20; ne.y2+=20; }
+   if(ne.points) ne.points = ne.points.map(p=>({x:p.x+20,y:p.y+20}));
+   return ne;
+  });
+  ST.elements.push(...newEls);
+  ST.selected = newEls;
+  this.saveHistory(); this.renderElements(); this.updatePanel(); this.updateStats();
+ },
+
+ // ── CONTEXT MENU ──
+ showContextMenu(x, y) {
+  const cm = document.getElementById('ctx-menu');
+  cm.innerHTML = `
+   <button class="ctx-item" onclick="S.duplicateSelected();S.hideCtx()">Duplicar</button>
+   <button class="ctx-item" onclick="S.bringToFront();S.hideCtx()">Traer al frente</button>
+   <button class="ctx-item" onclick="S.sendToBack();S.hideCtx()">Enviar atras</button>
+   <div class="ctx-sep"></div>
+   <button class="ctx-item" style="color:#f44" onclick="S.deleteSelected();S.hideCtx()">Eliminar</button>`;
+  cm.style.left = x+'px'; cm.style.top = y+'px';
+  cm.classList.add('show');
+  setTimeout(()=>document.addEventListener('click',function h(){cm.classList.remove('show');document.removeEventListener('click',h)},true),10);
+ },
+ hideCtx() { document.getElementById('ctx-menu').classList.remove('show'); },
+
+ bringToFront() {
+  ST.selected.forEach(el => {
+   const idx = ST.elements.indexOf(el);
+   if(idx>=0) { ST.elements.splice(idx,1); ST.elements.push(el); }
+  });
+  this.saveHistory(); this.renderElements();
+ },
+ sendToBack() {
+  ST.selected.forEach(el => {
+   const idx = ST.elements.indexOf(el);
+   if(idx>=0) { ST.elements.splice(idx,1); ST.elements.unshift(el); }
+  });
+  this.saveHistory(); this.renderElements();
+ },
+
+ // ── DISPOSITIONS ──
+ showDispositionModal(type) {
+  const names = {d_row:'Fila',d_circle:'Circulo',d_grid:'Cuadricula',d_pairs:'Parejas',d_diamond:'Rombo',d_triangle:'Triangulo'};
+  const mc = document.getElementById('modal-card');
+  mc.innerHTML = `
+   <h2>${names[type]||type}</h2>
+   <div class="prop-group">
+    <div class="prop-label">Cantidad de atletas</div>
+    <div class="prop-row"><input type="number" id="disp-count" value="6" min="2" max="30" style="width:100%"></div>
+   </div>
+   <div class="prop-group">
+    <div class="prop-label">Equipo</div>
+    <div style="display:flex;gap:6px">
+     <button class="tab active" id="disp-teamA" onclick="this.classList.add('active');document.getElementById('disp-teamB').classList.remove('active')">Equipo A</button>
+     <button class="tab" id="disp-teamB" onclick="this.classList.add('active');document.getElementById('disp-teamA').classList.remove('active')">Equipo B</button>
+    </div>
+   </div>
+   <button class="btn-save" style="width:100%;margin-top:16px" onclick="S.placeDisposition('${type}')">Colocar en pizarra</button>`;
+  document.getElementById('modal-overlay').classList.add('show');
+ },
+
+ placeDisposition(type) {
+  document.getElementById('modal-overlay').classList.remove('show');
+  const count = parseInt(document.getElementById('disp-count').value)||6;
+  const isB = document.getElementById('disp-teamB').classList.contains('active');
+  const elType = isB ? 'playerB' : 'playerA';
+  const cx=400, cy=300;
+  let positions = [];
+
+  if(type==='d_row') {
+   const spacing = 600/count;
+   for(let i=0;i<count;i++) positions.push({x: 100 + spacing*i + spacing/2, y: cy});
+  } else if(type==='d_circle') {
+   const r = Math.min(180, 30*count/Math.PI);
+   for(let i=0;i<count;i++) { const a = (2*Math.PI*i/count) - Math.PI/2; positions.push({x: cx+r*Math.cos(a), y: cy+r*Math.sin(a)}); }
+  } else if(type==='d_grid') {
+   const cols = Math.ceil(Math.sqrt(count));
+   const rows = Math.ceil(count/cols);
+   let idx=0;
+   for(let r=0;r<rows&&idx<count;r++) for(let c=0;c<cols&&idx<count;c++,idx++) {
+    positions.push({x: cx - (cols-1)*35 + c*70, y: cy - (rows-1)*35 + r*70});
+   }
+  } else if(type==='d_pairs') {
+   const pairs = Math.ceil(count/2);
+   for(let i=0;i<pairs;i++) {
+    const y = 120 + i*(460/pairs);
+    positions.push({x: cx-60, y}); if(positions.length<count) positions.push({x: cx+60, y});
+   }
+  } else if(type==='d_diamond') {
+   positions = [{x:cx,y:cy-120},{x:cx+120,y:cy},{x:cx,y:cy+120},{x:cx-120,y:cy}];
+   while(positions.length<count) positions.push({x:cx+Math.random()*100-50, y:cy+Math.random()*100-50});
+  } else if(type==='d_triangle') {
+   positions = [{x:cx,y:cy-120},{x:cx-100,y:cy+80},{x:cx+100,y:cy+80}];
+   while(positions.length<count) positions.push({x:cx+Math.random()*80-40, y:cy+Math.random()*80-40});
+  }
+
+  positions.slice(0,count).forEach((pos,i) => {
+   setTimeout(()=>{
+    this.addElement(elType, pos.x, pos.y);
+   }, i*50);
+  });
+ },
+
+ // ── FORMATIONS ──
+ showFormations() {
+  const forms = FORMATIONS[ST.sport];
+  if(!forms||!forms.length) { alert('No hay formaciones predefinidas para '+ST.sport); return; }
+  const mc = document.getElementById('modal-card');
+  mc.innerHTML = `<h2>Formaciones — ${ST.sport}</h2>
+   <div style="display:flex;flex-wrap:wrap;gap:12px">${forms.map((f,i)=>`
+    <button onclick="S.applyFormation(${i})" style="background:rgba(255,255,255,0.04);border:0.5px solid var(--border);border-radius:10px;padding:12px;width:120px;text-align:center;cursor:pointer">
+     <svg viewBox="0 0 100 80" width="100" height="70"><rect width="100" height="80" fill="rgba(26,74,26,0.5)" rx="3"/>
+      ${f.pos.map((p,j)=>`<circle cx="${p[0]/8}" cy="${p[1]/7.5}" r="4" fill="${j===0?'#EF9F27':'#c8f700'}" opacity="0.8"/>`).join('')}
+     </svg>
+     <div style="font-size:12px;font-weight:600;margin-top:4px;color:rgba(255,255,255,0.8)">${f.name}</div>
+    </button>`).join('')}
+   </div>`;
+  document.getElementById('modal-overlay').classList.add('show');
+ },
+
+ applyFormation(idx) {
+  document.getElementById('modal-overlay').classList.remove('show');
+  const forms = FORMATIONS[ST.sport];
+  if(!forms||!forms[idx]) return;
+  const f = forms[idx];
+  f.pos.forEach((p,i) => {
+   setTimeout(()=>{
+    this.addElement(i===0?'goalkeeper':'playerA', p[0], p[1]);
+   }, i*50);
+  });
+ },
+
+ // ── EXPORT PNG ──
+ exportPNG() {
+  const svg = document.getElementById('svg-canvas');
+  const clone = svg.cloneNode(true);
+  // Reset zoom for export
+  const zg = clone.getElementById('zoom-group');
+  if(zg) zg.setAttribute('transform','translate(0,0) scale(1)');
+  // Remove non-field layers that shouldn't be in export (handles, selection)
+  const hl = clone.getElementById('handles-layer'); if(hl) hl.innerHTML='';
+  const sl = clone.getElementById('sel-rect-layer'); if(sl) sl.innerHTML='';
+  const gl = clone.getElementById('guides-layer'); if(gl) gl.innerHTML='';
+  // Clean spans from babel plugin
+  clone.querySelectorAll('span').forEach(s=>{while(s.firstChild)s.parentNode.insertBefore(s.firstChild,s);s.remove()});
+
+  const data = new XMLSerializer().serializeToString(clone);
+  const blob = new Blob([data],{type:'image/svg+xml;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.onload = ()=>{
+   const c = document.createElement('canvas');
+   c.width=1600; c.height=1200;
+   const ctx = c.getContext('2d');
+   ctx.fillStyle='#0b0e14';
+   ctx.fillRect(0,0,1600,1200);
+   ctx.drawImage(img,0,0,1600,1200);
+   URL.revokeObjectURL(url);
+   const a = document.createElement('a');
+   a.download=`pizarra_${ST.sport.replace(/\s+/g,'_')}_${new Date().toISOString().split('T')[0]}.png`;
+   a.href=c.toDataURL('image/png');
+   a.click();
+  };
+  img.src = url;
+ },
+
+ // ── AI MODAL ──
+ showAiModal() {
+  const mc = document.getElementById('modal-card');
+  mc.innerHTML = `
+   <h2 style="color:#7F77DD">✦ Generar con IA</h2>
+   <div class="prop-group">
+    <div class="prop-label">Tipo de jugada</div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px">
+     ${['Jugada de ataque','Defensa','Saque/Corner','Presion alta','Transicion','Calentamiento'].map(t=>`<button class="sport-pill" onclick="document.getElementById('ai-desc').value='${t} con '+document.getElementById('ai-desc').value">${t}</button>`).join('')}
+    </div>
+    <div class="prop-label">Descripcion</div>
+    <textarea id="ai-desc" rows="3" style="width:100%;resize:none" placeholder="Ej: Presion tras perdida en mediocampo con 4-3-3..."></textarea>
+   </div>
+   <div class="prop-group">
+    <div style="display:flex;gap:8px">
+     <div style="flex:1"><div class="prop-label">Equipo A</div><input id="ai-teamA" type="number" value="11" min="0" max="15" style="width:100%"></div>
+     <div style="flex:1"><div class="prop-label">Equipo B</div><input id="ai-teamB" type="number" value="0" min="0" max="15" style="width:100%"></div>
+    </div>
+   </div>
+   <button class="btn-ai" style="width:100%;margin-top:12px;padding:12px" onclick="S.generateAI()" id="ai-gen-btn">✦ Generar</button>`;
+  document.getElementById('modal-overlay').classList.add('show');
+ },
+
+ async generateAI() {
+  const btn = document.getElementById('ai-gen-btn');
+  btn.textContent = 'Generando...'; btn.disabled = true;
+  try {
+   const API = (typeof REACT_APP_BACKEND_URL !== 'undefined') ? REACT_APP_BACKEND_URL : window.location.origin;
+   const token = localStorage.getItem('train_token')||'';
+   const res = await fetch(API+'/api/tactical-board/generate', {
+    method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body:JSON.stringify({
+     sport: ST.sport.toLowerCase(),
+     description: document.getElementById('ai-desc').value,
+     num_team_a: parseInt(document.getElementById('ai-teamA').value)||0,
+     num_team_b: parseInt(document.getElementById('ai-teamB').value)||0
+    })
+   });
+   if(!res.ok) throw new Error('Error');
+   const data = await res.json();
+   document.getElementById('modal-overlay').classList.remove('show');
+   (data.elements||[]).forEach((el,i)=>{
+    setTimeout(()=>{
+     const type = el.type==='playerX'?'playerA':el.type==='playerO'?'playerB':el.type;
+     if(type==='arrow') this.addElement('arrow',0,0,{x1:el.x,y1:el.y,x2:el.x2,y2:el.y2});
+     else this.addElement(type, el.x, el.y, {label:el.label});
+    }, i*40);
+   });
+  } catch(e) {
+   alert('Error al generar. Verifica tu sesion.');
+   btn.textContent='✦ Generar'; btn.disabled=false;
+  }
+ }
+};
+
+// ── MODAL CLOSE ──
+document.getElementById('modal-overlay').addEventListener('click', e => {
+ if(e.target === document.getElementById('modal-overlay'))
+  document.getElementById('modal-overlay').classList.remove('show');
+});
+
+// ── INIT ──
+S.init();
+</script>
+</body>
+</html>
