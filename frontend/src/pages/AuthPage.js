@@ -75,162 +75,95 @@ const AuthVisual = () => {
     t('auth.visual.phrase2'),
     t('auth.visual.phrase3')
   ]);
-  const readiness = useCountUp(85, 1200);
-  const acwr = useCountUp(0.87, 1400);
-  const adherence = useCountUp(94, 1000);
-  const [show, setShow] = useState(false);
-  useEffect(() => { setTimeout(() => setShow(true), 300); }, []);
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    let frame;
+    const start = performance.now();
+    const animate = (now) => {
+      const p = Math.min((now - start) / 1800, 1);
+      setVal(Math.round(85 * (1 - Math.pow(1 - p, 4))));
+      if (p < 1) frame = requestAnimationFrame(animate);
+    };
+    frame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  const r = 120, c = 2 * Math.PI * r, offset = c - (c * val) / 100;
 
   return (
-  <div className="relative h-full flex flex-col justify-center items-center overflow-hidden" style={{ background: '#060910' }}>
-    {/* Ambient light orbs */}
-    <div className="absolute w-[500px] h-[500px] rounded-full" style={{ top: '-15%', right: '-10%', background: 'radial-gradient(circle, rgba(200,247,0,0.06) 0%, transparent 70%)' }} />
-    <div className="absolute w-[400px] h-[400px] rounded-full" style={{ bottom: '-10%', left: '-5%', background: 'radial-gradient(circle, rgba(55,138,221,0.04) 0%, transparent 70%)' }} />
+  <div className="relative h-full flex flex-col justify-center items-center" style={{ background: '#060910' }}>
 
-    {/* Content */}
-    <div className="relative z-10 w-full max-w-[400px] px-8">
+    <div className="relative z-10 w-full max-w-[380px] px-6 flex flex-col items-center">
 
-      {/* Typewriter */}
-      <div className="mb-10" style={{ opacity: show ? 1 : 0, transform: show ? 'none' : 'translateY(12px)', transition: 'all 0.5s cubic-bezier(0.2,0,0,1)' }}>
-        <div className="h-[36px] mb-2">
-          <h2 className="text-[24px] font-semibold text-white/90 leading-[1.3]" style={{ fontFamily: INT }}>
-            {typedText}<span className="inline-block w-[2px] h-[22px] bg-[#c8f700] ml-0.5" style={{ animation: 'blink 1s step-end infinite' }} />
+      {/* Typewriter — top, left-aligned */}
+      <div className="w-full mb-16">
+        <div className="h-[32px] mb-1.5">
+          <h2 className="text-[22px] font-medium text-white/80 leading-[1.3]" style={{ fontFamily: INT }}>
+            {typedText}<span className="inline-block w-[1.5px] h-[20px] bg-[#c8f700] ml-0.5" style={{ animation: 'blink 1s step-end infinite' }} />
           </h2>
         </div>
-        <p className="text-[13px] text-white/30 font-light">{t('auth.visual.system_line')}</p>
+        <p className="text-[12px] text-white/20 font-light">{t('auth.visual.system_line')}</p>
       </div>
 
-      {/* Main floating card */}
-      <div className="mb-8" style={{ opacity: show ? 1 : 0, transform: show ? 'none' : 'translateY(16px)', transition: 'all 0.6s cubic-bezier(0.2,0,0,1) 0.1s' }}>
-        <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.06)' }}>
+      {/* Central gauge — the hero element */}
+      <div className="relative mb-16">
+        <svg width="280" height="280" className="block">
+          {/* Track */}
+          <circle cx="140" cy="140" r={r} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="6" />
+          {/* Progress arc */}
+          <circle cx="140" cy="140" r={r} fill="none" stroke="#c8f700" strokeWidth="6"
+            strokeDasharray={c} strokeDashoffset={offset} strokeLinecap="round"
+            transform="rotate(-90 140 140)"
+            style={{ transition: 'stroke-dashoffset 0.05s linear', filter: 'drop-shadow(0 0 12px rgba(200,247,0,0.2))' }}
+          />
+          {/* Subtle inner ring */}
+          <circle cx="140" cy="140" r="95" fill="none" stroke="rgba(255,255,255,0.02)" strokeWidth="1" />
+        </svg>
 
-          {/* Header row */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: '#c8f700' }}>
-                <span className="text-[16px] font-black text-[#060910] leading-none" style={{ fontFamily: BC }}>i</span>
-              </div>
-              <div>
-                <p className="text-[13px] font-medium text-white/80 leading-none">{t('auth.visual.week')}</p>
-                <p className="text-[11px] text-white/25 mt-0.5">{t('auth.visual.phase')}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ background: 'rgba(200,247,0,0.08)' }}>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#c8f700]" style={{ animation: 'pulse2 2s ease infinite' }} />
-              <span className="text-[10px] text-[#c8f700]/70 font-medium">Live</span>
-            </div>
-          </div>
+        {/* Center content */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-[72px] font-black text-white leading-none tracking-tight" style={{ fontFamily: BC }}>{val}</span>
+          <span className="text-[11px] text-white/25 uppercase tracking-[0.2em] mt-2 font-semibold">{t('auth.visual.readiness')}</span>
+        </div>
 
-          {/* Metrics — clean, spacious */}
-          <div className="flex items-center justify-between mb-6">
-            {[
-              { val: readiness, label: t('auth.visual.readiness'), color: '#c8f700', suffix: '' },
-              { val: acwr, label: t('auth.visual.acwr'), color: '#378ADD', suffix: '' },
-              { val: adherence, label: t('auth.visual.adherence'), color: '#c8f700', suffix: '%' },
-            ].map((m, i) => (
-              <div key={i} className="text-center flex-1">
-                <div className="text-[32px] font-black leading-none tracking-tight" style={{ color: m.color, fontFamily: BC }}>{m.val}{m.suffix}</div>
-                <div className="text-[9px] text-white/20 mt-2 uppercase tracking-[0.15em] font-semibold">{m.label}</div>
-                {i < 2 && <div className="absolute" />}
-              </div>
-            ))}
-          </div>
-
-          {/* Separator */}
-          <div className="h-px mb-5" style={{ background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.06), transparent)' }} />
-
-          {/* Periodization curves — elegant SVG */}
-          <div className="relative h-20 mb-4">
-            <svg viewBox="0 0 360 70" className="w-full h-full" preserveAspectRatio="none">
-              {/* Horizontal guides */}
-              {[17,35,52].map(y => (
-                <line key={y} x1="0" y1={y} x2="360" y2={y} stroke="white" strokeWidth="0.5" opacity="0.03" />
-              ))}
-              {/* Volume — smooth blue area */}
-              <path d="M0,58 C30,52 60,44 90,38 S150,24 180,28 S240,18 270,14 S330,10 360,8"
-                fill="none" stroke="#378ADD" strokeWidth="1.5" opacity={show ? '0.7' : '0'}
-                style={{ transition: 'opacity 1.5s ease 0.4s' }} />
-              <path d="M0,58 C30,52 60,44 90,38 S150,24 180,28 S240,18 270,14 S330,10 360,8 L360,70 L0,70 Z"
-                fill="url(#areaBlue)" opacity={show ? '1' : '0'}
-                style={{ transition: 'opacity 1.5s ease 0.4s' }} />
-              {/* Intensity — smooth green line */}
-              <path d="M0,65 C30,62 60,56 90,50 S150,42 180,36 S240,26 270,20 S330,12 360,6"
-                fill="none" stroke="#c8f700" strokeWidth="1.5" opacity={show ? '0.8' : '0'}
-                style={{ transition: 'opacity 1.8s ease 0.6s' }} />
-              <path d="M0,65 C30,62 60,56 90,50 S150,42 180,36 S240,26 270,20 S330,12 360,6 L360,70 L0,70 Z"
-                fill="url(#areaGreen)" opacity={show ? '1' : '0'}
-                style={{ transition: 'opacity 1.8s ease 0.6s' }} />
-              {/* Dot on latest point */}
-              <circle cx="360" cy="8" r="3" fill="#378ADD" opacity={show ? '0.8' : '0'} style={{ transition: 'opacity 2s ease 0.8s' }} />
-              <circle cx="360" cy="6" r="3" fill="#c8f700" opacity={show ? '0.9' : '0'} style={{ transition: 'opacity 2s ease 1s' }} />
-              <defs>
-                <linearGradient id="areaBlue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#378ADD" stopOpacity="0.12" />
-                  <stop offset="100%" stopColor="#378ADD" stopOpacity="0" />
-                </linearGradient>
-                <linearGradient id="areaGreen" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#c8f700" stopOpacity="0.08" />
-                  <stop offset="100%" stopColor="#c8f700" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
-
-          {/* Legend + status */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full" style={{ animation: 'pulse2 2s ease infinite', background: '#c8f700' }} />
-              <span className="text-[11px] text-white/30">{t('auth.visual.optimal_zone')}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1.5 text-[10px] text-white/20"><span className="w-3 h-[1.5px] rounded-full bg-[#378ADD]" />VOL</span>
-              <span className="flex items-center gap-1.5 text-[10px] text-white/20"><span className="w-3 h-[1.5px] rounded-full bg-[#c8f700]" />INT</span>
-            </div>
-          </div>
+        {/* Floating metrics — orbiting the gauge */}
+        <div className="absolute -left-12 top-1/2 -translate-y-1/2 flex flex-col items-end gap-1">
+          <span className="text-[20px] font-black text-[#378ADD] leading-none" style={{ fontFamily: BC }}>0.87</span>
+          <span className="text-[8px] text-white/20 uppercase tracking-[0.15em]">{t('auth.visual.acwr')}</span>
+        </div>
+        <div className="absolute -right-12 top-1/2 -translate-y-1/2 flex flex-col items-start gap-1">
+          <span className="text-[20px] font-black text-[#c8f700] leading-none" style={{ fontFamily: BC }}>94%</span>
+          <span className="text-[8px] text-white/20 uppercase tracking-[0.15em]">{t('auth.visual.adherence')}</span>
         </div>
       </div>
 
-      {/* Stat pills — horizontal, minimal */}
-      <div className="flex gap-2 mb-8" style={{ opacity: show ? 1 : 0, transform: show ? 'none' : 'translateY(16px)', transition: 'all 0.6s cubic-bezier(0.2,0,0,1) 0.2s' }}>
+      {/* Stats row — minimal */}
+      <div className="flex items-center gap-8 mb-14">
         {[
           { val: '17', label: t('landing.hero.stats.models') },
           { val: '6', label: t('landing.hero.stats.controls') },
           { val: '150+', label: t('landing.hero.stats.exercises') },
-        ].map((c, i) => (
-          <div key={i} className="flex-1 py-3 rounded-xl text-center cursor-default transition-all duration-300 hover:-translate-y-0.5" style={{
-            background: 'rgba(255,255,255,0.02)',
-            border: '1px solid rgba(255,255,255,0.04)',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(200,247,0,0.04)'; e.currentTarget.style.borderColor = 'rgba(200,247,0,0.1)'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.04)'; }}
-          >
-            <div className="text-[20px] font-black text-[#c8f700] leading-none" style={{ fontFamily: BC }}>{c.val}</div>
-            <div className="text-[9px] text-white/20 mt-1.5 font-medium">{c.label}</div>
+        ].map((s, i) => (
+          <div key={i} className="text-center">
+            <div className="text-[18px] font-black text-white/60 leading-none" style={{ fontFamily: BC }}>{s.val}</div>
+            <div className="text-[9px] text-white/15 mt-1.5">{s.label}</div>
           </div>
         ))}
       </div>
 
-      {/* Social proof — ultra minimal */}
-      <div className="flex items-center gap-3" style={{ opacity: show ? 1 : 0, transform: show ? 'none' : 'translateY(12px)', transition: 'all 0.6s cubic-bezier(0.2,0,0,1) 0.3s' }}>
-        <div className="flex -space-x-2.5 flex-shrink-0">
+      {/* Social proof — bottom, whisper quiet */}
+      <div className="flex items-center gap-3">
+        <div className="flex -space-x-2">
           {['#c8f700','#378ADD','#E24B4A','#7F77DD','#10B981'].map((bg, i) => (
-            <div key={i} className="w-7 h-7 rounded-full border-2" style={{ background: bg, borderColor: '#060910', opacity: 1 - i * 0.1 }} />
+            <div key={i} className="w-6 h-6 rounded-full border-[1.5px]" style={{ background: bg, borderColor: '#060910', opacity: 0.7 }} />
           ))}
         </div>
-        <div>
-          <p className="text-[11px] font-medium text-white/50">{t('auth.visual.active_coaches')}</p>
-          <p className="text-[10px] text-white/20">{t('auth.visual.new_coaches')}</p>
-        </div>
+        <p className="text-[11px] text-white/25">{t('auth.visual.active_coaches')}</p>
       </div>
     </div>
 
     <style>{`
       @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
-      @keyframes pulse2 { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-      @keyframes authFadeUp {
-        from { opacity: 0; transform: translateY(16px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
     `}</style>
   </div>
   );
