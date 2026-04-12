@@ -4,25 +4,37 @@
 
 ## Implementado (Fork 9 - 13 Abr 2026)
 
-### Pizarra Táctica - Tema Claro + Selector Colores
-- Tema claro completo (fondo blanco, azul primario, texto oscuro)
-- Selector de 10 colores por equipo (click en Jugador A/B)
+### Pizarra Táctica - Tema Claro + Selector Colores + Biblioteca Materiales
 
-### Campos con Medidas Reglamentarias Calculadas
-- **Baloncesto FIBA**: 28×15m, key 4.9×5.8m, semicírculo TL r=1.8m, arco 3pts 6.75m, tablero+aro
-- **Balonmano**: 40×20m, arcos elípticos 6m (rx=144/ry=108) y 9m (rx=216/ry=162), portería, penalti 7m
-- **Taekwondo WT**: mat 12×12m, octágono de competición 8m (radio vértice 4/cos(π/8))
-- **MMA/UFC**: octágono 30ft entre lados paralelos (r=205px), línea padding, círculo central
-- **Fútbol de Salón** (NUEVO): 40×20m, áreas 6m semicirculares, penaltis 6m+10m, porterías 3m, círculo central 3m, esquineros, zonas sustitución
-- Fútbol, Voleibol, Rugby, Hockey, Béisbol, Fútbol Americano, Tenis, Pádel, etc.
-- Deportes combate cuadrados: Boxeo, Judo, Karate, Kickboxing, Lucha
+### Biblioteca de Materiales (20 nuevos elementos)
+**Campo y Delimitación (4):**
+- Platillo/Disco demarcador, Mini Arco portátil, Barrera/Mannequin, Peto
 
-### Sistema Guardar/Galería + Integración SessionEditor
-- CRUD completo con thumbnails SVG
-- postMessage a SessionEditor para thumbnails en tabla
+**Coordinación y Agilidad (3):**
+- Aro, Escalera de coordinación, Pica/Pole de slalom
+
+**Fuerza y Potencia (5):**
+- Cajón/Plyo box, Kettlebell, Balón medicinal, TRX, Trineo, Paracaídas
+
+**Cardio y Resistencia (2):**
+- Cuerda de saltar, Battle Rope
+
+**Recuperación y Prevención (4):**
+- Foam Roller, Banda elástica, Bosu, Colchoneta
+
+### Campos con Medidas Reglamentarias
+- Baloncesto FIBA, Balonmano, Fútbol, Fútbol de Salón (con bomba)
+- Béisbol (diamante completo, outfield arc, pitcher mound, bases, batter boxes)
+- Taekwondo WT (octágono 8m), MMA/UFC (octágono 30ft)
+- + 30 deportes más
+
+### Funcionalidades Core
+- Selector de 10 colores por equipo
+- Sistema Guardar/Galería con CRUD
+- Integración SessionEditor con thumbnails
+- Reproducir Jugada, Exportar PNG, IA
 
 ## Pendiente
 - P1: Refactorizar DashboardPage.js
-- P2: Exportar PDF/GIF
-- P2: Print/Share/Duplicate
+- P2: Exportar PDF/GIF de pizarra
 - P3: Responsive

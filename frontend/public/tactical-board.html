@@ -15,7 +15,9 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
 #app{display:flex;flex-direction:column;height:100vh;width:100vw}
 #header{height:56px;background:var(--header);display:flex;align-items:center;padding:0 12px;gap:12px;border-bottom:1px solid var(--border);flex-shrink:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
 #main{display:flex;flex:1;overflow:hidden}
-#toolbar{width:64px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:2px;overflow-y:auto;flex-shrink:0}
+#toolbar{width:64px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:2px;overflow-y:auto;flex-shrink:0;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+#toolbar::-webkit-scrollbar{width:3px}
+#toolbar::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 #canvas-wrap{flex:1;position:relative;overflow:hidden;background:#f1f5f9}
 #panel{width:260px;background:var(--bg);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
 #footer{height:52px;background:var(--header);display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-top:1px solid var(--border);flex-shrink:0;gap:8px}
@@ -352,7 +354,36 @@ const TOOLS = [
  {id:'d_grid',label:'Grilla',icon:'<circle cx="4" cy="5" r="1.5" fill="currentColor"/><circle cx="9" cy="5" r="1.5" fill="currentColor"/><circle cx="14" cy="5" r="1.5" fill="currentColor"/><circle cx="4" cy="10" r="1.5" fill="currentColor"/><circle cx="9" cy="10" r="1.5" fill="currentColor"/><circle cx="14" cy="10" r="1.5" fill="currentColor"/><circle cx="4" cy="15" r="1.5" fill="currentColor"/><circle cx="9" cy="15" r="1.5" fill="currentColor"/><circle cx="14" cy="15" r="1.5" fill="currentColor"/>',group:3},
  {id:'d_pairs',label:'Parejas',icon:'<circle cx="5" cy="6" r="2" fill="#c8f700"/><circle cx="13" cy="6" r="2" fill="white"/><line x1="7" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="0.8"/><circle cx="5" cy="13" r="2" fill="#c8f700"/><circle cx="13" cy="13" r="2" fill="white"/><line x1="7" y1="13" x2="11" y2="13" stroke="currentColor" stroke-width="0.8"/>',group:3},
  {id:'d_diamond',label:'Rombo',icon:'<circle cx="9" cy="3" r="1.5" fill="currentColor"/><circle cx="15" cy="9" r="1.5" fill="currentColor"/><circle cx="9" cy="15" r="1.5" fill="currentColor"/><circle cx="3" cy="9" r="1.5" fill="currentColor"/>',group:3},
- {id:'d_triangle',label:'Triangulo',icon:'<circle cx="9" cy="3" r="1.5" fill="currentColor"/><circle cx="3" cy="15" r="1.5" fill="currentColor"/><circle cx="15" cy="15" r="1.5" fill="currentColor"/>',group:3}
+ {id:'d_triangle',label:'Triangulo',icon:'<circle cx="9" cy="3" r="1.5" fill="currentColor"/><circle cx="3" cy="15" r="1.5" fill="currentColor"/><circle cx="15" cy="15" r="1.5" fill="currentColor"/>',group:3},
+ {id:'sep3',group:0},
+ // ── MATERIAL: Campo y Delimitación ──
+ {id:'disc',label:'Platillo',icon:'<ellipse cx="9" cy="11" rx="7" ry="3" fill="#2563eb" stroke="#1d4ed8" stroke-width="1"/>',group:4},
+ {id:'minigoal',label:'Mini Arco',icon:'<rect x="3" y="6" width="12" height="9" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="15" x2="3" y2="17" stroke="currentColor" stroke-width="1"/><line x1="15" y1="15" x2="15" y2="17" stroke="currentColor" stroke-width="1"/>',group:4},
+ {id:'mannequin',label:'Barrera',icon:'<rect x="7" y="3" width="4" height="12" rx="2" fill="currentColor" opacity="0.6"/><line x1="9" y1="15" x2="9" y2="17" stroke="currentColor" stroke-width="1.5"/>',group:4},
+ {id:'vest',label:'Peto',icon:'<path d="M5 5 L9 3 L13 5 L14 13 L4 13 Z" fill="#ef4444" opacity="0.5" stroke="#dc2626" stroke-width="1"/>',group:4},
+ {id:'sep4',group:0},
+ // ── MATERIAL: Coordinación y Agilidad ──
+ {id:'ring',label:'Aro',icon:'<circle cx="9" cy="9" r="6" fill="none" stroke="#8b5cf6" stroke-width="2"/>',group:5},
+ {id:'ladder',label:'Escalera',icon:'<line x1="4" y1="3" x2="4" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="14" y1="3" x2="14" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="4" y1="5" x2="14" y2="5" stroke="currentColor" stroke-width="1"/><line x1="4" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1"/><line x1="4" y1="11" x2="14" y2="11" stroke="currentColor" stroke-width="1"/><line x1="4" y1="14" x2="14" y2="14" stroke="currentColor" stroke-width="1"/>',group:5},
+ {id:'pole',label:'Pica',icon:'<line x1="9" y1="2" x2="9" y2="16" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>',group:5},
+ {id:'sep5',group:0},
+ // ── MATERIAL: Fuerza y Potencia ──
+ {id:'plyobox',label:'Cajon',icon:'<rect x="3" y="6" width="12" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="6" x2="6" y2="3" stroke="currentColor" stroke-width="1"/><line x1="15" y1="6" x2="18" y2="3" stroke="currentColor" stroke-width="1"/><line x1="6" y1="3" x2="18" y2="3" stroke="currentColor" stroke-width="1"/>',group:6},
+ {id:'kettlebell',label:'Kettlebell',icon:'<circle cx="9" cy="11" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M7 7 Q9 3 11 7" fill="none" stroke="currentColor" stroke-width="1.5"/>',group:6},
+ {id:'medball',label:'Balon Med.',icon:'<circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="0.8"/><line x1="9" y1="3" x2="9" y2="15" stroke="currentColor" stroke-width="0.8"/>',group:6},
+ {id:'trx',label:'TRX',icon:'<line x1="6" y1="2" x2="6" y2="10" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="2" x2="12" y2="10" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="6" y1="2" x2="12" y2="2" stroke="currentColor" stroke-width="1.5"/>',group:6},
+ {id:'sled',label:'Trineo',icon:'<rect x="3" y="7" width="12" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="15" y1="10" x2="18" y2="7" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 1"/>',group:6},
+ {id:'parachute',label:'Paracaidas',icon:'<path d="M3 7 Q9 2 15 7" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="7" x2="9" y2="15" stroke="currentColor" stroke-width="1"/><line x1="15" y1="7" x2="9" y2="15" stroke="currentColor" stroke-width="1"/><line x1="9" y1="7" x2="9" y2="15" stroke="currentColor" stroke-width="1"/>',group:6},
+ {id:'sep6',group:0},
+ // ── MATERIAL: Cardio y Resistencia ──
+ {id:'rope',label:'Cuerda',icon:'<path d="M4 14 Q6 6 9 10 Q12 14 14 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',group:7},
+ {id:'battlerope',label:'Battle Rope',icon:'<path d="M2 9 Q5 4 8 9 Q11 14 14 9 Q17 4 18 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',group:7},
+ {id:'sep7',group:0},
+ // ── MATERIAL: Recuperación y Prevención ──
+ {id:'roller',label:'Roller',icon:'<rect x="4" y="7" width="10" height="5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/>',group:8},
+ {id:'band',label:'Banda',icon:'<path d="M3 8 Q9 4 15 8 Q9 12 3 8" fill="rgba(239,68,68,0.15)" stroke="#ef4444" stroke-width="1.5"/>',group:8},
+ {id:'bosu',label:'Bosu',icon:'<path d="M3 11 Q9 4 15 11" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="11" x2="15" y2="11" stroke="currentColor" stroke-width="1.5"/>',group:8},
+ {id:'mat',label:'Colchoneta',icon:'<rect x="3" y="5" width="12" height="10" rx="2" fill="rgba(34,197,94,0.1)" stroke="#22c55e" stroke-width="1.5"/>',group:8}
 ];
 
 // ═══════════ FORMATIONS ═══════════
@@ -542,7 +573,7 @@ const S = {
      this.updatePanel();
      this.updateStats();
     }
-   } else if(ST.tool==='playerA'||ST.tool==='playerB'||ST.tool==='goalkeeper'||ST.tool==='ball'||ST.tool==='cone'||ST.tool==='flag'||ST.tool==='hurdle') {
+   } else if(ST.tool==='playerA'||ST.tool==='playerB'||ST.tool==='goalkeeper'||ST.tool==='ball'||ST.tool==='cone'||ST.tool==='flag'||ST.tool==='hurdle'||ST.tool==='disc'||ST.tool==='minigoal'||ST.tool==='mannequin'||ST.tool==='vest'||ST.tool==='ring'||ST.tool==='ladder'||ST.tool==='pole'||ST.tool==='plyobox'||ST.tool==='kettlebell'||ST.tool==='medball'||ST.tool==='trx'||ST.tool==='sled'||ST.tool==='parachute'||ST.tool==='rope'||ST.tool==='battlerope'||ST.tool==='roller'||ST.tool==='band'||ST.tool==='bosu'||ST.tool==='mat') {
     this.addElement(ST.tool, p.x, p.y);
    } else if(ST.tool==='arrow'||ST.tool==='line') {
     ST.drawing = {type:ST.tool,x1:p.x,y1:p.y,x2:p.x,y2:p.y};
@@ -677,6 +708,10 @@ const S = {
    el.size = 15;
   }
   if(type==='cone') { el.color = '#ff9800'; }
+  if(type==='disc') { el.color = '#2563eb'; }
+  if(type==='ring') { el.color = '#8b5cf6'; }
+  if(type==='pole') { el.color = '#f59e0b'; }
+  if(type==='vest') { el.color = '#ef4444'; }
   if(type==='ball') { el.size = 8; }
   if(type==='zone') { el.zoneColor = '#2563eb'; el.opacity = 0.12; }
   if(type==='text') { el.fontSize = 16; el.color = '#1e293b'; }
@@ -702,6 +737,44 @@ const S = {
     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><line x1="0" y1="-12" x2="0" y2="12" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><polygon points="0,-12 14,-7 0,-2" fill="rgba(255,60,60,0.6)"/></g>`;
    case 'hurdle':
     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><rect x="-18" y="-4" width="36" height="8" rx="2" fill="none" stroke="#ff9800" stroke-width="2"/><line x1="-12" y1="4" x2="-12" y2="12" stroke="#ff9800" stroke-width="1.5"/><line x1="12" y1="4" x2="12" y2="12" stroke="#ff9800" stroke-width="1.5"/></g>`;
+   case 'disc':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><ellipse cx="0" cy="0" rx="10" ry="4" fill="${el.color||'#2563eb'}" opacity="0.7" stroke="${el.color||'#2563eb'}" stroke-width="1.5"/></g>`;
+   case 'minigoal':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><rect x="-18" y="-12" width="36" height="24" rx="2" fill="none" stroke="rgba(0,0,0,0.7)" stroke-width="2"/><line x1="-18" y1="-12" x2="-18" y2="16" stroke="rgba(0,0,0,0.5)" stroke-width="1.5"/><line x1="18" y1="-12" x2="18" y2="16" stroke="rgba(0,0,0,0.5)" stroke-width="1.5"/><line x1="-14" y1="0" x2="14" y2="0" stroke="rgba(0,0,0,0.15)" stroke-dasharray="3 3"/></g>`;
+   case 'mannequin':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><rect x="-6" y="-16" width="12" height="28" rx="6" fill="rgba(0,0,0,0.15)" stroke="rgba(0,0,0,0.5)" stroke-width="1.5"/><line x1="0" y1="12" x2="0" y2="18" stroke="rgba(0,0,0,0.5)" stroke-width="2"/></g>`;
+   case 'vest':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><path d="M-8,-10 L0,-14 L8,-10 L10,8 L-10,8 Z" fill="${el.color||'#ef4444'}" opacity="0.5" stroke="${el.color||'#ef4444'}" stroke-width="1.5"/></g>`;
+   case 'ring':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><circle cx="0" cy="0" r="14" fill="none" stroke="${el.color||'#8b5cf6'}" stroke-width="2.5"/></g>`;
+   case 'ladder':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><rect x="-15" y="-30" width="30" height="60" fill="none" stroke="#f59e0b" stroke-width="1.5" rx="1"/>${[-24,-16,-8,0,8,16,24].map(ry=>`<line x1="-15" y1="${ry}" x2="15" y2="${ry}" stroke="#f59e0b" stroke-width="1"/>`).join('')}</g>`;
+   case 'pole':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><line x1="0" y1="-14" x2="0" y2="14" stroke="${el.color||'#f59e0b'}" stroke-width="3" stroke-linecap="round"/><circle cx="0" cy="-14" r="3" fill="${el.color||'#f59e0b'}"/></g>`;
+   case 'plyobox':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><rect x="-16" y="-8" width="32" height="20" rx="2" fill="rgba(0,0,0,0.06)" stroke="rgba(0,0,0,0.5)" stroke-width="1.5"/><line x1="-16" y1="-8" x2="-10" y2="-14" stroke="rgba(0,0,0,0.5)" stroke-width="1"/><line x1="16" y1="-8" x2="22" y2="-14" stroke="rgba(0,0,0,0.5)" stroke-width="1"/><line x1="-10" y1="-14" x2="22" y2="-14" stroke="rgba(0,0,0,0.5)" stroke-width="1"/></g>`;
+   case 'kettlebell':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><circle cx="0" cy="4" r="8" fill="rgba(0,0,0,0.1)" stroke="rgba(0,0,0,0.6)" stroke-width="1.5"/><path d="M-4,-4 Q0,-10 4,-4" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="2"/></g>`;
+   case 'medball':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><circle cx="0" cy="0" r="10" fill="rgba(239,68,68,0.1)" stroke="#ef4444" stroke-width="1.5"/><line x1="-10" y1="0" x2="10" y2="0" stroke="#ef4444" stroke-width="0.8"/></g>`;
+   case 'trx':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><line x1="-6" y1="-14" x2="-6" y2="2" stroke="rgba(0,0,0,0.6)" stroke-width="2"/><line x1="6" y1="-14" x2="6" y2="2" stroke="rgba(0,0,0,0.6)" stroke-width="2"/><circle cx="-6" cy="6" r="4" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.5"/><circle cx="6" cy="6" r="4" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.5"/><line x1="-6" y1="-14" x2="6" y2="-14" stroke="rgba(0,0,0,0.6)" stroke-width="2"/></g>`;
+   case 'sled':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><rect x="-14" y="-8" width="28" height="16" rx="2" fill="rgba(0,0,0,0.08)" stroke="rgba(0,0,0,0.5)" stroke-width="1.5"/><line x1="14" y1="0" x2="24" y2="-6" stroke="rgba(0,0,0,0.4)" stroke-width="2" stroke-dasharray="3 2"/></g>`;
+   case 'parachute':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><path d="M-14,-6 Q0,-16 14,-6" fill="rgba(37,99,235,0.1)" stroke="#2563eb" stroke-width="1.5"/><line x1="-14" y1="-6" x2="0" y2="10" stroke="#2563eb" stroke-width="1"/><line x1="14" y1="-6" x2="0" y2="10" stroke="#2563eb" stroke-width="1"/><line x1="0" y1="-8" x2="0" y2="10" stroke="#2563eb" stroke-width="1"/></g>`;
+   case 'rope':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><path d="M-8,8 Q-4,-4 0,2 Q4,8 8,-4" fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="2" stroke-linecap="round"/><circle cx="-8" cy="8" r="2" fill="rgba(0,0,0,0.3)"/><circle cx="8" cy="-4" r="2" fill="rgba(0,0,0,0.3)"/></g>`;
+   case 'battlerope':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><path d="M-20,0 Q-12,-10 -4,0 Q4,10 12,0 Q18,-8 22,0" fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="3" stroke-linecap="round"/></g>`;
+   case 'roller':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><rect x="-12" y="-5" width="24" height="10" rx="5" fill="rgba(0,0,0,0.06)" stroke="rgba(0,0,0,0.5)" stroke-width="1.5"/></g>`;
+   case 'band':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><path d="M-12,0 Q0,-10 12,0 Q0,10 -12,0" fill="rgba(239,68,68,0.12)" stroke="#ef4444" stroke-width="2"/></g>`;
+   case 'bosu':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><path d="M-14,4 Q0,-10 14,4" fill="rgba(37,99,235,0.1)" stroke="#2563eb" stroke-width="1.5"/><line x1="-14" y1="4" x2="14" y2="4" stroke="#2563eb" stroke-width="1.5"/></g>`;
+   case 'mat':
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><rect x="-18" y="-10" width="36" height="20" rx="3" fill="rgba(34,197,94,0.1)" stroke="#22c55e" stroke-width="1.5"/></g>`;
    case 'arrow': {
     const mx = ((el.x1||0)+(el.x2||0))/2, my = ((el.y1||0)+(el.y2||0))/2;
     const orderBadge = el.playOrder ? `<circle cx="${mx}" cy="${my}" r="10" fill="rgba(255,255,255,0.92)" stroke="#2563eb" stroke-width="1.5" class="arrow-order-badge"/><text x="${mx}" y="${my}" dy="0.35em" text-anchor="middle" font-size="9" fill="#2563eb" font-weight="700" class="arrow-order-badge">${el.playOrder}</text>` : '';
@@ -810,8 +883,9 @@ const S = {
    let html = '';
    ST.elements.forEach(el => {
     const isSel = ST.selected.includes(el);
-    const dot = el.type==='playerA'?ST.teamAColor:el.type==='playerB'?ST.teamBColor:el.type==='goalkeeper'?'#EF9F27':el.type==='cone'?'#ff9800':el.type==='arrow'?'#2563eb':el.type==='zone'?'#2563eb':'#64748b';
-    const name = el.type==='playerA'?`Jugador A #${el.label}`:el.type==='playerB'?`Jugador B #${el.label}`:el.type==='goalkeeper'?`Portero #${el.label}`:el.type==='cone'?'Cono':el.type==='ball'?'Balon':el.type==='arrow'?'Flecha':el.type==='line'?'Linea':el.type==='zone'?'Zona':el.type==='text'?el.label:el.type==='flag'?'Bandera':el.type==='hurdle'?'Valla':el.type;
+    const ELEMENT_NAMES = {playerA:`Jugador A #${el.label}`,playerB:`Jugador B #${el.label}`,goalkeeper:`Portero #${el.label}`,cone:'Cono',ball:'Balon',arrow:'Flecha',line:'Linea',zone:'Zona',text:el.label,flag:'Bandera',hurdle:'Valla',disc:'Platillo',minigoal:'Mini Arco',mannequin:'Barrera',vest:'Peto',ring:'Aro',ladder:'Escalera',pole:'Pica',plyobox:'Cajon',kettlebell:'Kettlebell',medball:'Balon Med.',trx:'TRX',sled:'Trineo',parachute:'Paracaidas',rope:'Cuerda',battlerope:'Battle Rope',roller:'Roller',band:'Banda',bosu:'Bosu',mat:'Colchoneta',pencil:'Trazo',curve:'Curva'};
+    const dot = el.color || (el.type==='playerA'?ST.teamAColor:el.type==='playerB'?ST.teamBColor:el.type==='goalkeeper'?'#EF9F27':'#64748b');
+    const name = ELEMENT_NAMES[el.type] || el.type;
     html += `<div class="el-item${isSel?' selected':''}" onclick="S.selectEl(${el.id})"><span class="el-dot" style="background:${dot}"></span><span class="el-name">${name}</span><button class="el-del" onclick="event.stopPropagation();S.deleteEl(${el.id})">✕</button></div>`;
    });
    pc.innerHTML = html || '<div style="text-align:center;padding:24px;color:#94a3b8;font-size:11px">Sin elementos.<br>Usa las herramientas para agregar.</div>';
