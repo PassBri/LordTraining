@@ -972,112 +972,90 @@ const LandingPage = () => {
     {/* SOCIAL PROOF — Testimonials Carousel */}
     <TestimonialsCarousel t={t} />
 
-    {/* PRICING — Locker Room */}
-    <section id="pricing" className="py-24 px-6 relative overflow-hidden" style={{background:'#07090f'}}>
-      {/* Floor tile texture */}
-      <div className="absolute inset-0 pointer-events-none" style={{backgroundImage:'repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,0.015) 39px,rgba(255,255,255,0.015) 40px)',backgroundSize:'100% 40px'}} />
-      {/* Giant locker numbers watermark */}
-      <div className="absolute top-12 left-0 right-0 flex justify-center gap-4 pointer-events-none select-none overflow-hidden" aria-hidden="true">
-        {['01','02','03','04'].map(n => (
-          <span key={n} className="text-[160px] font-black leading-none" style={{fontFamily:BC,color:'rgba(255,255,255,0.015)'}}>{n}</span>
-        ))}
-      </div>
+    {/* PRICING — Premium Cards */}
+    <section id="pricing" className="py-24 px-6 relative overflow-hidden" style={{background:'#070a10'}}>
+      {/* Subtle grid texture */}
+      <div className="absolute inset-0 pointer-events-none" style={{backgroundImage:'radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize:'24px 24px'}} />
 
       <div className="max-w-[1120px] mx-auto relative z-10">
         {/* Header */}
-        <Reveal direction="up" className="text-center mb-14">
+        <Reveal direction="up" className="text-center mb-16">
           <SectionTag>{t('landing.pricing.tag')}</SectionTag>
           <h2 className="text-[36px] md:text-[48px] font-extrabold text-white leading-[1.05] tracking-[-1px] mb-4" style={{fontFamily:INT}}>{t('landing.pricing.title')}</h2>
-          <p className="text-[15px] text-white/35 max-w-[480px] mx-auto leading-[1.7]">{t('landing.pricing.subtitle')}</p>
+          <p className="text-[15px] text-white/30 max-w-[440px] mx-auto">{t('landing.pricing.subtitle')}</p>
         </Reveal>
 
-        {/* Top bar connecting lockers */}
-        <div className="h-[3px] rounded-full mb-0 mx-4" style={{background:'rgba(255,255,255,0.04)'}} />
-
-        {/* 4 Lockers */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" data-testid="pricing-lockers">
+        {/* 4 Plans */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {[
-            { key:'free', price:'$0', num:'#01', tier:'ROOKIE', jersey:'00', barColor:'rgba(255,255,255,0.15)', jerseyBg:'#12151e', bg:'#0a0d14', border:'rgba(255,255,255,0.06)', accent:'rgba(255,255,255,0.5)', btnBg:'transparent', btnBorder:'rgba(255,255,255,0.12)', btnText:'rgba(255,255,255,0.4)', pop:false, fcount:5 },
-            { key:'pro', price:'$9.99', num:'#02', tier:'PRO', jersey:'09', barColor:'#378ADD', jerseyBg:'#0d1a2e', bg:'#080e18', border:'rgba(55,138,221,0.15)', accent:'#378ADD', btnBg:'rgba(55,138,221,0.1)', btnBorder:'#378ADD', btnText:'#378ADD', pop:false, fcount:5 },
-            { key:'club', price:'$29.99', num:'#03', tier:'ÉLITE', jersey:'10', barColor:'#c8f700', jerseyBg:'#151e06', bg:'#0c1208', border:'rgba(200,247,0,0.2)', accent:'#c8f700', btnBg:'#c8f700', btnBorder:'#c8f700', btnText:'#0b0e14', pop:true, fcount:7 },
-            { key:'inst', price:'$99.99', num:'#04', tier:'FEDERACIÓN', jersey:'1', barColor:'#EF9F27', jerseyBg:'#1a1400', bg:'#100c04', border:'rgba(239,159,39,0.15)', accent:'#EF9F27', btnBg:'rgba(239,159,39,0.08)', btnBorder:'#EF9F27', btnText:'#EF9F27', pop:false, fcount:9 },
-          ].map((locker, idx) => {
-            const features = Array.from({length: locker.fcount}, (_, j) => t(`landing.pricing.${locker.key}_f${j+1}`));
+            { key:'free', price:'0', num:'01', color:'#64748b', pop:false, fcount:5 },
+            { key:'pro', price:'9.99', num:'02', color:'#378ADD', pop:false, fcount:5 },
+            { key:'club', price:'29.99', num:'03', color:'#c8f700', pop:true, fcount:7 },
+            { key:'inst', price:'99.99', num:'04', color:'#EF9F27', pop:false, fcount:9 },
+          ].map((plan, idx) => {
+            const features = Array.from({length: plan.fcount}, (_, j) => t(`landing.pricing.${plan.key}_f${j+1}`));
             return (
-            <Reveal key={locker.key} delay={idx * 0.1} direction="up">
-            <div className="relative h-full flex flex-col" style={{background:locker.bg, borderLeft: idx > 0 ? '1px solid rgba(255,255,255,0.03)' : 'none', borderRight: idx < 3 ? '1px solid rgba(255,255,255,0.03)' : 'none', border: locker.pop ? `1.5px solid ${locker.border}` : undefined, borderRadius: locker.pop ? '16px' : '0', ...(locker.pop ? {boxShadow:'0 0 40px rgba(200,247,0,0.06)'} : {})}} data-testid={`pricing-card-${locker.key}`}>
-              {/* Top bar */}
-              <div className="h-[6px]" style={{background:locker.barColor, borderRadius: locker.pop ? '14px 14px 0 0' : '0'}} />
+            <Reveal key={plan.key} delay={idx * 0.08} direction="up">
+            <div className={`relative rounded-2xl h-full flex flex-col overflow-hidden transition-all duration-300 group ${plan.pop ? 'ring-1 scale-[1.02] z-10' : 'hover:scale-[1.01]'}`}
+              style={{
+                background: plan.pop ? 'linear-gradient(180deg, rgba(200,247,0,0.06) 0%, rgba(200,247,0,0.01) 100%)' : 'rgba(255,255,255,0.02)',
+                border: `1px solid ${plan.pop ? 'rgba(200,247,0,0.2)' : 'rgba(255,255,255,0.05)'}`,
+                ringColor: plan.pop ? 'rgba(200,247,0,0.15)' : undefined,
+                boxShadow: plan.pop ? '0 0 60px rgba(200,247,0,0.04)' : 'none'
+              }} data-testid={`pricing-card-${plan.key}`}>
+
+              {/* Color accent line */}
+              <div className="h-1" style={{background: plan.color}} />
 
               {/* Popular badge */}
-              {locker.pop && (
-                <div className="absolute -top-3.5 left-4 z-20">
-                  <span className="px-3 py-1 rounded-full text-[10px] font-extrabold" style={{background:'#c8f700', color:'#0b0e14', fontFamily:BC}}>
+              {plan.pop && (
+                <div className="absolute top-4 right-4 z-20">
+                  <span className="px-2.5 py-1 rounded-full text-[9px] font-bold" style={{background:plan.color, color:'#070a10', fontFamily:BC}}>
                     {t('landing.pricing.mostPopular')}
                   </span>
                 </div>
               )}
 
-              <div className="px-5 pt-5 pb-5 flex-1 flex flex-col">
-                {/* Locker number + tier */}
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <span className="text-[10px] font-bold tracking-[0.2em]" style={{color:locker.accent, fontFamily:BC}}>{locker.tier}</span>
-                    <h3 className="text-[14px] font-semibold text-white/80 mt-0.5">{t(`landing.pricing.${locker.key}_name`)}</h3>
+              <div className="px-6 pt-6 pb-6 flex-1 flex flex-col">
+                {/* Number + name */}
+                <div className="mb-6">
+                  <span className="text-[64px] font-black leading-none block" style={{fontFamily:BC, color:'rgba(255,255,255,0.03)'}}>{plan.num}</span>
+                  <div className="-mt-8 relative z-10">
+                    <h3 className="text-[16px] font-semibold text-white/90">{t(`landing.pricing.${plan.key}_name`)}</h3>
+                    <p className="text-[11px] text-white/25 mt-0.5">{t(`landing.pricing.${plan.key}_desc`)}</p>
                   </div>
-                  <span className="text-[36px] font-black leading-none" style={{fontFamily:BC, color:'rgba(255,255,255,0.04)'}}>{locker.num}</span>
-                </div>
-
-                {/* Jersey SVG */}
-                <div className="flex justify-center mb-4">
-                  <svg viewBox="0 0 80 72" width="70" height="63">
-                    {/* Hanger */}
-                    <line x1="40" y1="0" x2="40" y2="8" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" />
-                    <path d="M34 8 Q40 4 46 8" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" />
-                    {/* Jersey body */}
-                    <path d="M24 16 L8 24 L14 30 L22 26 L22 66 Q22 70 26 70 L54 70 Q58 70 58 66 L58 26 L66 30 L72 24 L56 16 Q52 12 40 12 Q28 12 24 16 Z" fill={locker.jerseyBg} stroke={locker.barColor} strokeWidth="0.8" strokeOpacity="0.3" />
-                    {/* Number */}
-                    <text x="40" y="50" textAnchor="middle" fill={locker.barColor} fontSize="20" fontWeight="900" fontFamily="'Barlow Condensed',sans-serif" opacity="0.6">{locker.jersey}</text>
-                    {/* Star for elite */}
-                    {locker.pop && <path d="M40 30 L41.5 34 L46 34.5 L42.5 37 L43.5 41.5 L40 39 L36.5 41.5 L37.5 37 L34 34.5 L38.5 34 Z" fill="#c8f700" opacity="0.5" />}
-                    {/* Captain band for federation */}
-                    {locker.key === 'inst' && <rect x="15" y="24" width="8" height="3" rx="1" fill="#EF9F27" opacity="0.6" />}
-                  </svg>
                 </div>
 
                 {/* Price */}
-                <div className="text-center mb-1">
-                  <span className="text-[40px] font-black leading-none" style={{fontFamily:BC, color: locker.pop ? '#c8f700' : '#fff'}}>{locker.price}</span>
-                  {locker.price !== '$0' && locker.price !== '$99.99' && <span className="text-[12px] text-white/30 ml-1">{t('landing.pricing.perMonth')}</span>}
+                <div className="mb-6">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-[42px] font-black leading-none" style={{fontFamily:BC, color: plan.pop ? plan.color : '#fff'}}>${plan.price}</span>
+                    {plan.price !== '0' && <span className="text-[12px] text-white/25">{t('landing.pricing.perMonth')}</span>}
+                  </div>
                 </div>
-                <p className="text-[11px] text-white/25 text-center mb-5">{t(`landing.pricing.${locker.key}_desc`)}</p>
 
-                {/* Hinge separator */}
-                <div className="relative mb-4">
-                  <div className="h-px" style={{background:'rgba(255,255,255,0.05)'}} />
-                  <div className="absolute top-[-1.5px] left-2 w-[3px] h-[3px] rounded-full" style={{background:'rgba(255,255,255,0.08)'}} />
-                  <div className="absolute top-[-1.5px] right-2 w-[3px] h-[3px] rounded-full" style={{background:'rgba(255,255,255,0.08)'}} />
-                </div>
+                {/* Divider */}
+                <div className="h-px mb-5" style={{background:`linear-gradient(to right, ${plan.color}20, transparent)`}} />
 
                 {/* Features */}
-                <ul className="space-y-2 mb-6 flex-1">
+                <ul className="space-y-2.5 mb-6 flex-1">
                   {features.map((f,j) => (
-                    <li key={j} className="flex items-start gap-2 text-[12px] text-white/35 leading-snug">
-                      <Check className="w-3.5 h-3.5 flex-shrink-0 mt-[1px]" style={{color:locker.accent}} />
+                    <li key={j} className="flex items-start gap-2.5 text-[12px] text-white/40 leading-snug">
+                      <Check className="w-3.5 h-3.5 flex-shrink-0 mt-[1px]" style={{color: plan.color}} />
                       {f}
                     </li>
                   ))}
                 </ul>
 
-                {/* CTA Button */}
+                {/* CTA */}
                 <Link to="/auth">
-                  <Button className="w-full rounded-lg h-10 text-[11px] font-bold transition-all duration-200" style={{
-                    background: locker.pop ? locker.btnBg : locker.btnBg,
-                    border: `1px solid ${locker.btnBorder}`,
-                    color: locker.btnText,
+                  <Button className="w-full rounded-xl h-11 text-[12px] font-bold transition-all duration-200" style={{
+                    background: plan.pop ? plan.color : 'transparent',
+                    border: `1px solid ${plan.pop ? plan.color : `${plan.color}30`}`,
+                    color: plan.pop ? '#070a10' : plan.color,
                     fontFamily: BC
-                  }} data-testid={`pricing-cta-${locker.key}`}>
-                    {t(`landing.pricing.${locker.key}_cta`)}
+                  }} data-testid={`pricing-cta-${plan.key}`}>
+                    {t(`landing.pricing.${plan.key}_cta`)}
                   </Button>
                 </Link>
               </div>
@@ -1087,20 +1065,17 @@ const LandingPage = () => {
           })}
         </div>
 
-        {/* Floor strip */}
-        <div className="h-[3px] rounded-full mt-0 mx-4" style={{background:'rgba(255,255,255,0.04)'}} />
-
         {/* Guarantee strip */}
         <Reveal direction="up" delay={0.3}>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10 mt-10 py-5 px-6 rounded-xl" style={{background:'rgba(200,247,0,0.02)', border:'0.5px solid rgba(200,247,0,0.06)'}}>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10 mt-12 py-5 px-6 rounded-xl" style={{background:'rgba(200,247,0,0.02)', border:'0.5px solid rgba(200,247,0,0.06)'}}>
             {[
               { icon: Shield, text: t('landing.hero.free_trial') },
               { icon: Check, text: t('landing.hero.no_card') },
               { icon: ArrowRight, text: t('landing.hero.cancel_anytime') },
             ].map((g, i) => (
               <div key={i} className="flex items-center gap-2">
-                <g.icon className="w-4 h-4 text-[#c8f700]/50" />
-                <span className="text-[12px] text-white/30">{g.text}</span>
+                <g.icon className="w-4 h-4 text-[#c8f700]/40" />
+                <span className="text-[12px] text-white/25">{g.text}</span>
               </div>
             ))}
           </div>
