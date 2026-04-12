@@ -479,63 +479,91 @@ const SessionEditor = ({
       const html2canvas = (await import('html2canvas')).default;
       const { jsPDF } = await import('jspdf');
       
-      // Capturar el contenedor del modal (header + subheader + contenido), excluyendo footer
-      const headerEl = document.querySelector('[data-testid="session-editor-dialog"] .sticky');
-      const contentEl = document.querySelector('[data-testid="session-editor-content"]');
-      if (!contentEl) throw new Error('No se encontró el contenido de la sesión');
+      // Encontrar los elementos reales del modal
+      const dialog = document.querySelector('[data-testid="session-editor-dialog"]');
+      const headerEl = dialog?.querySelector('.sticky');
+      const contentEl = dialog?.querySelector('[data-testid="session-editor-content"]');
+      const footerEl = dialog?.querySelector('.sticky.bottom-0');
+      if (!contentEl || !headerEl) throw new Error('No se encontró el contenido');
       
-      // Crear wrapper temporal para unir header + content
-      const wrapper = document.createElement('div');
-      wrapper.style.cssText = 'position:absolute;left:-9999px;top:0;width:900px;background:#fff;';
-      document.body.appendChild(wrapper);
+      // Guardar estilos originales del scroll container
+      const origMaxH = contentEl.style.maxHeight;
+      const origOverflow = contentEl.style.overflow;
       
-      // Clonar header y contenido
-      if (headerEl) wrapper.appendChild(headerEl.cloneNode(true));
-      const contentClone = contentEl.cloneNode(true);
-      contentClone.style.maxHeight = 'none';
-      contentClone.style.overflow = 'visible';
-      wrapper.appendChild(contentClone);
+      // Expandir para capturar TODO el contenido (sin scroll)
+      contentEl.style.maxHeight = 'none';
+      contentEl.style.overflow = 'visible';
       
-      // Capturar
-      const canvas = await html2canvas(wrapper, {
+      // Ocultar footer temporalmente
+      if (footerEl) footerEl.style.display = 'none';
+      
+      // Esperar un frame para que el DOM se actualice
+      await new Promise(r => setTimeout(r, 200));
+      
+      // Capturar header
+      const headerCanvas = await html2canvas(headerEl, {
         scale: 2,
         useCORS: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-        windowWidth: 900
+        backgroundColor: null,
+        logging: false
       });
       
-      document.body.removeChild(wrapper);
+      // Capturar contenido
+      const contentCanvas = await html2canvas(contentEl, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#f5f5f7',
+        logging: false
+      });
+      
+      // Restaurar estilos originales
+      contentEl.style.maxHeight = origMaxH;
+      contentEl.style.overflow = origOverflow;
+      if (footerEl) footerEl.style.display = '';
+      
+      // Combinar header + content en un solo canvas
+      const combinedCanvas = document.createElement('canvas');
+      combinedCanvas.width = Math.max(headerCanvas.width, contentCanvas.width);
+      combinedCanvas.height = headerCanvas.height + contentCanvas.height;
+      const ctx = combinedCanvas.getContext('2d');
+      ctx.drawImage(headerCanvas, 0, 0);
+      ctx.drawImage(contentCanvas, 0, headerCanvas.height);
       
       // Generar PDF A4 con paginación
-      const imgData = canvas.toDataURL('image/jpeg', 0.92);
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageW = 210, pageH = 297;
-      const margin = 8;
+      const margin = 6;
       const usableW = pageW - margin * 2;
-      const imgRatio = canvas.height / canvas.width;
-      const imgTotalH = usableW * imgRatio;
+      const usableH = pageH - margin * 2;
+      const imgRatio = combinedCanvas.height / combinedCanvas.width;
+      const imgTotalHmm = usableW * imgRatio;
       
-      // Si cabe en una página
-      if (imgTotalH <= pageH - margin * 2) {
-        pdf.addImage(imgData, 'JPEG', margin, margin, usableW, imgTotalH);
+      if (imgTotalHmm <= usableH) {
+        // Cabe en una sola página
+        const imgData = combinedCanvas.toDataURL('image/jpeg', 0.95);
+        pdf.addImage(imgData, 'JPEG', margin, margin, usableW, imgTotalHmm);
       } else {
-        // Paginar: recortar el canvas en segmentos
-        const sliceHPx = ((pageH - margin * 2) / imgTotalH) * canvas.height;
+        // Paginar recortando el canvas
+        const pxPerMm = combinedCanvas.width / usableW;
+        const sliceHPx = usableH * pxPerMm;
         let srcY = 0;
         let page = 0;
-        while (srcY < canvas.height) {
+        
+        while (srcY < combinedCanvas.height) {
           if (page > 0) pdf.addPage();
-          const h = Math.min(sliceHPx, canvas.height - srcY);
-          // Crear canvas de la porción
+          const remaining = combinedCanvas.height - srcY;
+          const h = Math.min(sliceHPx, remaining);
+          
           const sliceCanvas = document.createElement('canvas');
-          sliceCanvas.width = canvas.width;
+          sliceCanvas.width = combinedCanvas.width;
           sliceCanvas.height = h;
-          const ctx = sliceCanvas.getContext('2d');
-          ctx.drawImage(canvas, 0, srcY, canvas.width, h, 0, 0, canvas.width, h);
-          const sliceImg = sliceCanvas.toDataURL('image/jpeg', 0.92);
-          const sliceHmm = (h / canvas.height) * imgTotalH;
+          const sctx = sliceCanvas.getContext('2d');
+          sctx.drawImage(combinedCanvas, 0, srcY, combinedCanvas.width, h, 0, 0, combinedCanvas.width, h);
+          
+          const sliceImg = sliceCanvas.toDataURL('image/jpeg', 0.95);
+          const sliceHmm = h / pxPerMm;
           pdf.addImage(sliceImg, 'JPEG', margin, margin, usableW, sliceHmm);
+          
           srcY += h;
           page++;
         }
