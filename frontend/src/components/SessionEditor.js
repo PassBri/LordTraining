@@ -1050,71 +1050,77 @@ const SessionEditor = ({
           <DialogTitle className="sr-only">Sesion de Entrenamiento</DialogTitle>
           <div className="sticky top-0 z-10" style={{background:'#0a0a0f'}}>
             <div className="flex items-center gap-3 px-5 py-3">
-              {/* Logo badge — iTRAIN branding (white bg, matching Landing) */}
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg shadow-white/10">
-                  <span className="text-[17px] font-black leading-none" style={{color:'#CCFF00',fontFamily:BC}}>i</span>
+              {/* Logo — matching Landing Page navbar exactly */}
+              <div className="flex items-center gap-2.5 flex-shrink-0">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{background:'#CCFF00'}}>
+                  <span className="text-[18px] font-black leading-none" style={{color:'#0f172a',fontFamily:BC}}>i</span>
                 </div>
-                <span className="text-[14px] font-black tracking-tight hidden sm:inline" style={{fontFamily:BC}}>
+                <span className="text-[15px] font-black tracking-tight" style={{fontFamily:BC}}>
                   <span style={{color:'#CCFF00'}}>i</span><span className="text-white">TRAIN</span>
                 </span>
               </div>
-              {/* Session name (editable) + code + subtitle */}
+              {/* Session name + code + subtitle */}
               <div className="flex-1 min-w-0 ml-1">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
+                  {/* 02: Name input — 17px, weight 500, proper placeholder */}
                   <input
-                    value={sessionData.sessionName || `Sesion ${session?.dayName || ''}`}
+                    value={sessionData.sessionName || ''}
                     onChange={(e) => setSessionData(prev => ({...prev, sessionName: e.target.value}))}
-                    className="bg-transparent text-white font-bold text-[15px] border-0 outline-none focus:border-b focus:border-[#CCFF00]/40 truncate w-auto max-w-[260px] placeholder:text-white/30"
-                    style={{fontFamily:INT}}
-                    placeholder="Nombre de sesion..."
+                    className="bg-transparent text-white border-0 outline-none truncate w-auto max-w-[280px]"
+                    style={{fontFamily:INT,fontSize:'17px',fontWeight:500}}
+                    placeholder="Nombre de la sesion..."
                     data-testid="session-name-input"
                   />
-                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full text-[#CCFF00]/70 flex-shrink-0" style={{background:'rgba(204,255,0,0.08)',border:'0.5px solid rgba(204,255,0,0.15)'}}>SES-{String(session?.sessionIndex || session?.dayName || '001').padStart(3,'0')}</span>
-                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${sessionData.sessionStatus==='completada'?'bg-emerald-500/20 text-emerald-400':sessionData.sessionStatus==='en_curso'?'bg-amber-500/20 text-amber-400':'bg-white/8 text-white/50'}`}>
-                    {sessionData.sessionStatus==='completada'?'Completada':sessionData.sessionStatus==='en_curso'?'En curso':'Planificada'}
-                  </span>
+                  {/* 01: SES badge — solid lime bg, black text */}
+                  <span className="text-[9px] font-bold px-2.5 py-1 rounded-full flex-shrink-0" style={{background:'#9EFF00',color:'#0f0f13',fontFamily:BC,letterSpacing:'0.04em'}}>SES-{String(session?.sessionIndex || session?.dayName || '001').padStart(3,'0')}</span>
                 </div>
-                <p className="text-[10px] text-white/30 mt-0.5 truncate" style={{fontFamily:INT}}>
+                {/* 04: Subtitle — 35% white opacity */}
+                <p className="text-[10px] mt-0.5 truncate" style={{fontFamily:INT,color:'rgba(255,255,255,0.35)'}}>
                   Sesion {session?.sessionIndex || session?.dayName || '1'} · Semana {session?.weekIndex || session?.weekName || '1'} · {session?.mesoName || session?.macroName || 'Mesociclo 1'}
-                  {athleteName && <span className="ml-2 text-white/20">· {athleteName}</span>}
+                  {athleteName && <span style={{color:'rgba(255,255,255,0.2)'}} className="ml-2">· {athleteName}</span>}
                 </p>
               </div>
-              {/* Right chips */}
+              {/* Right chips — 03: only one status dropdown, 05: unified duration chip */}
               <div className="flex items-center gap-1.5 flex-shrink-0">
-                <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg" style={{background:'rgba(204,255,0,0.06)',border:'0.5px solid rgba(204,255,0,0.1)'}}>
+                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg" style={{background:'rgba(204,255,0,0.06)',border:'0.5px solid rgba(204,255,0,0.1)'}}>
                   <Calendar className="w-3 h-3" style={{color:'#CCFF00',opacity:0.5}} />
                   <Input type="date" defaultValue={session?.date} className="w-28 h-5 bg-transparent border-0 text-white text-[10px] p-0 focus:ring-0" />
                 </div>
-                <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg" style={{background:'rgba(204,255,0,0.06)',border:'0.5px solid rgba(204,255,0,0.1)'}}>
-                  <Clock className="w-3 h-3" style={{color:'#CCFF00',opacity:0.5}} />
-                  <input value={sessionData.duration} onChange={(e) => setSessionData(prev => ({...prev, duration: e.target.value}))} className="w-8 h-5 bg-transparent border-0 text-white text-[10px] p-0 text-center outline-none" placeholder="90" />
-                  <span className="text-[9px] text-white/30">min</span>
+                {/* 05: Unified duration chip — icon + editable number + "min" as continuous text */}
+                <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg" style={{background:'rgba(204,255,0,0.06)',border:'0.5px solid rgba(204,255,0,0.1)'}}>
+                  <Clock className="w-3 h-3 flex-shrink-0" style={{color:'#CCFF00',opacity:0.5}} />
+                  <div className="flex items-center">
+                    <input value={sessionData.duration} onChange={(e) => setSessionData(prev => ({...prev, duration: e.target.value}))} className="w-6 h-5 bg-transparent border-0 text-white text-[10px] p-0 text-right outline-none" placeholder="90" />
+                    <span className="text-[10px] text-white ml-0.5">min</span>
+                  </div>
                 </div>
-                <select value={sessionData.sessionStatus} onChange={(e) => setSessionData(prev => ({...prev, sessionStatus: e.target.value}))} className="h-7 text-[10px] rounded-lg px-2 border-0 outline-none cursor-pointer" style={{background:'rgba(204,255,0,0.06)',color:'rgba(255,255,255,0.6)',border:'0.5px solid rgba(204,255,0,0.1)'}}>
+                {/* 03: Single status dropdown — no duplicate text */}
+                <select value={sessionData.sessionStatus} onChange={(e) => setSessionData(prev => ({...prev, sessionStatus: e.target.value}))} className="h-7 text-[10px] rounded-lg px-2.5 border-0 outline-none cursor-pointer" style={{background:'rgba(204,255,0,0.06)',color:'rgba(255,255,255,0.6)',border:'0.5px solid rgba(204,255,0,0.1)'}}>
                   <option value="planificada" style={{background:'#0a0a0f',color:'#fff'}}>Planificada</option>
                   <option value="en_curso" style={{background:'#0a0a0f',color:'#fff'}}>En curso</option>
                   <option value="completada" style={{background:'#0a0a0f',color:'#fff'}}>Completada</option>
                 </select>
               </div>
             </div>
-            {/* ══ SUBHEADER ══ */}
-            <div className="flex items-center gap-3 px-5 py-2" style={{background:'#12131a',borderTop:'0.5px solid rgba(204,255,0,0.06)',borderBottom:'0.5px solid rgba(204,255,0,0.06)'}}>
+            {/* ══ SUBHEADER — 08: subtle dividers ══ */}
+            <div className="flex items-center gap-3 px-5 py-2" style={{background:'#12131a',borderTop:'0.5px solid rgba(255,255,255,0.04)',borderBottom:'0.5px solid rgba(255,255,255,0.04)'}}>
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
                 <Users className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.4)'}} />
-                <input value={sessionData.team} onChange={(e) => setSessionData(prev => ({...prev, team: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-white/70 placeholder:text-white/25 w-full min-w-[60px]" placeholder="Equipo / Atleta" />
+                <input value={sessionData.team} onChange={(e) => setSessionData(prev => ({...prev, team: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-white/70 placeholder:text-white/20 w-full min-w-[60px]" placeholder="Equipo / Atleta" />
               </div>
-              <div className="w-px h-4" style={{background:'rgba(204,255,0,0.1)'}} />
+              {/* 08: Dividers — 0.5px, 20% white opacity */}
+              <div style={{width:'0.5px',height:'16px',background:'rgba(255,255,255,0.12)'}} />
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
                 <User className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.4)'}} />
-                <input value={sessionData.coach} onChange={(e) => setSessionData(prev => ({...prev, coach: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-white/70 placeholder:text-white/25 w-full min-w-[60px]" placeholder="Entrenador" />
+                {/* 06: Coach placeholder — "Entrenador..." muted */}
+                <input value={sessionData.coach} onChange={(e) => setSessionData(prev => ({...prev, coach: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-white/70 placeholder:text-white/20 w-full min-w-[60px]" placeholder="Entrenador..." />
               </div>
-              <div className="w-px h-4" style={{background:'rgba(204,255,0,0.1)'}} />
+              <div style={{width:'0.5px',height:'16px',background:'rgba(255,255,255,0.12)'}} />
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
                 <MapPin className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.4)'}} />
-                <input value={sessionData.location} onChange={(e) => setSessionData(prev => ({...prev, location: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-white/70 placeholder:text-white/25 w-full min-w-[60px]" placeholder="Lugar" />
+                <input value={sessionData.location} onChange={(e) => setSessionData(prev => ({...prev, location: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-white/70 placeholder:text-white/20 w-full min-w-[60px]" placeholder="Lugar" />
               </div>
-              <div className="w-px h-4" style={{background:'rgba(204,255,0,0.1)'}} />
+              <div style={{width:'0.5px',height:'16px',background:'rgba(255,255,255,0.12)'}} />
               <div className="flex items-center gap-1.5 w-[130px] flex-shrink-0">
                 <Activity className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.4)'}} />
                 <select value={sessionData.sessionType} onChange={(e) => setSessionData(prev => ({...prev, sessionType: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-white/70 cursor-pointer w-full" style={{colorScheme:'dark'}}>
@@ -1126,10 +1132,22 @@ const SessionEditor = ({
                   <option value="mixto">Mixto</option>
                 </select>
               </div>
-              <div className="w-px h-4" style={{background:'rgba(204,255,0,0.1)'}} />
-              <div className="flex items-center gap-1.5 w-[100px] flex-shrink-0">
+              <div style={{width:'0.5px',height:'16px',background:'rgba(255,255,255,0.12)'}} />
+              {/* 07: Carga est. — badge colored by level */}
+              <div className="flex items-center gap-1.5 w-[120px] flex-shrink-0">
                 <Zap className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.4)'}} />
-                <input value={sessionData.estimatedLoad} onChange={(e) => setSessionData(prev => ({...prev, estimatedLoad: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-white/70 placeholder:text-white/25 w-full" placeholder="Carga est." />
+                {sessionData.estimatedLoad ? (
+                  <>
+                    <input value={sessionData.estimatedLoad} onChange={(e) => setSessionData(prev => ({...prev, estimatedLoad: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-white/70 placeholder:text-white/20 w-full" placeholder="Carga" />
+                    <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${
+                      parseFloat(sessionData.estimatedLoad) > 70 ? 'bg-red-500/25 text-red-400' :
+                      parseFloat(sessionData.estimatedLoad) > 40 ? 'bg-amber-500/25 text-amber-400' :
+                      'bg-emerald-500/25 text-emerald-400'
+                    }`}>{parseFloat(sessionData.estimatedLoad) > 70 ? 'Alta' : parseFloat(sessionData.estimatedLoad) > 40 ? 'Media' : 'Baja'}</span>
+                  </>
+                ) : (
+                  <span className="text-[10px] text-white/20 whitespace-nowrap">— Sin calcular</span>
+                )}
               </div>
             </div>
           </div>
