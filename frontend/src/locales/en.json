@@ -230,7 +230,7 @@
       "impact": "80% of coaches plan without real data. iTRAIN changes that: scientific periodization, real-time tracking and evidence-based decisions — for any level.",
       "trustLine": "+1,200 coaches · 340 clubs · 18 federations trust iTRAIN",
       "tag": "AUDIENCES",
-      "title": "Designed for every level of sport",
+      "title": "From the independent coach to the national federation",
       "coaches_title": "For coaches",
       "coaches_sub": "Your methodology, digitized",
       "coaches_f1": "Personal panel for athletes, load and readiness",
@@ -255,6 +255,19 @@
       "federations_f2": "Aggregated data by region or discipline",
       "federations_f3": "Reports for selections and call-ups",
       "federations_cta": "Activate federation account"
+    },
+    "social": {
+      "tag": "TRUST",
+      "title": "Platforms and organizations that trust iTRAIN",
+      "t1_quote": "I went from planning in Excel to having everything integrated: loads, athletes, reports. There's no going back.",
+      "t1_name": "Carlos Mendoza",
+      "t1_role": "Strength Coach · Club Atlético Nacional",
+      "t2_quote": "Visual periodization changed how we communicate plans to the coaching staff. Now everyone sees the same thing.",
+      "t2_name": "Ana Rodríguez",
+      "t2_role": "Sports Director · High Performance Academy",
+      "t3_quote": "With ACWR and monotony indicators, we reduced injuries by 30% in the first season.",
+      "t3_name": "Diego Torres",
+      "t3_role": "Strength Coach · Athletics Federation"
     }
   },
   "auth": {

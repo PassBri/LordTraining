@@ -230,7 +230,7 @@
       "impact": "80% der Trainer planen ohne echte Daten. iTRAIN ändert das: wissenschaftliche Periodisierung, Echtzeit-Tracking und evidenzbasierte Entscheidungen — für jedes Niveau.",
       "trustLine": "+1.200 Trainer · 340 Vereine · 18 Verbände vertrauen iTRAIN",
       "tag": "ZIELGRUPPEN",
-      "title": "Für jede Ebene des Sports entwickelt",
+      "title": "Vom unabhängigen Trainer bis zum nationalen Verband",
       "coaches_title": "Für Trainer",
       "coaches_sub": "Ihre Methodik, digitalisiert",
       "coaches_f1": "Persönliches Panel für Athleten, Belastung und Readiness",
@@ -255,6 +255,19 @@
       "federations_f2": "Aggregierte Daten nach Region oder Disziplin",
       "federations_f3": "Berichte für Auswahlen und Einberufungen",
       "federations_cta": "Verbandskonto aktivieren"
+    },
+    "social": {
+      "tag": "VERTRAUEN",
+      "title": "Plattformen und Organisationen, die iTRAIN vertrauen",
+      "t1_quote": "Von Excel-Planung zu allem integriert: Belastungen, Athleten, Berichte. Kein Zurück mehr.",
+      "t1_name": "Carlos Mendoza",
+      "t1_role": "Athletiktrainer · Club Atlético Nacional",
+      "t2_quote": "Visuelle Periodisierung hat verändert, wie wir Pläne ans Trainerteam kommunizieren.",
+      "t2_name": "Ana Rodríguez",
+      "t2_role": "Sportdirektorin · Hochleistungsakademie",
+      "t3_quote": "Mit ACWR und Monotonie-Indikatoren haben wir Verletzungen in der ersten Saison um 30% reduziert.",
+      "t3_name": "Diego Torres",
+      "t3_role": "Krafttrainer · Leichtathletikverband"
     }
   },
   "auth": {

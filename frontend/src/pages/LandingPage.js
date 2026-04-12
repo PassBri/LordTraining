@@ -816,7 +816,7 @@ const LandingPage = () => {
                   <div className={`w-full md:w-[calc(50%-40px)] ${isLeft ? 'md:pr-0' : 'md:pl-0'}`}>
                     <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 group hover:border-slate-700 transition-all duration-300 relative overflow-hidden">
                       {/* Step number watermark */}
-                      <span className="absolute -top-2 -right-1 text-[72px] font-black leading-none text-slate-800/50 select-none pointer-events-none" style={{fontFamily:BC}}>{step.n}</span>
+                      <span className="absolute -top-4 -right-2 text-[110px] font-black leading-none text-slate-800/40 select-none pointer-events-none" style={{fontFamily:BC}}>{step.n}</span>
                       {/* Tag */}
                       <span className="inline-block px-2.5 py-1 rounded-md text-[9px] font-bold tracking-[0.12em] mb-4" style={{background:`${step.color}15`, color:step.color, fontFamily:BC}}>
                         {t(`landing.howItWorks.${step.key}_tag`)}
@@ -846,6 +846,43 @@ const LandingPage = () => {
               </Reveal>
             );
           })}
+        </div>
+      </div>
+    </section>
+
+    {/* SOCIAL PROOF — Testimonials */}
+    <section className="py-20 px-6 bg-slate-950 relative overflow-hidden">
+      <div className="max-w-[1120px] mx-auto relative z-10">
+        <Reveal direction="up" className="text-center mb-14">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-3" style={{fontFamily:BC}}>{t('landing.social.tag')}</p>
+          <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15]" style={{fontFamily:INT}}>{t('landing.social.title')}</h2>
+        </Reveal>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5" data-testid="testimonials-grid">
+          {[
+            { key:'t1', color:'#CCFF00' },
+            { key:'t2', color:'#3B82F6' },
+            { key:'t3', color:'#F43F5E' },
+          ].map((tm, idx) => (
+            <Reveal key={tm.key} delay={idx * 0.15} direction="up">
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-7 h-full flex flex-col justify-between group hover:border-slate-700 transition-colors" data-testid={`testimonial-${tm.key}`}>
+                {/* Quote */}
+                <div>
+                  <div className="text-[28px] font-black leading-none mb-4" style={{color: tm.color, fontFamily:BC}}>"</div>
+                  <p className="text-[14px] text-slate-300 leading-[1.7] mb-6">{t(`landing.social.${tm.key}_quote`)}</p>
+                </div>
+                {/* Author */}
+                <div className="flex items-center gap-3 pt-4 border-t border-slate-800/60">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-[12px] font-bold text-white" style={{background: tm.color}}>
+                    {t(`landing.social.${tm.key}_name`).split(' ').map(w => w[0]).join('')}
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-bold text-white">{t(`landing.social.${tm.key}_name`)}</p>
+                    <p className="text-[11px] text-slate-500">{t(`landing.social.${tm.key}_role`)}</p>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </div>
     </section>
@@ -908,14 +945,59 @@ const LandingPage = () => {
     </section>
 
     {/* FOOTER */}
-    <footer className="bg-slate-950 border-t border-slate-800/40 py-10 px-6">
+    <footer className="bg-slate-950 border-t border-slate-800/40 py-14 px-6">
       <div className="max-w-[1120px] mx-auto">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 bg-[#CCFF00] rounded-full flex items-center justify-center"><span className="text-[14px] font-black text-slate-900 leading-none" style={{fontFamily:BC}}>i</span></div>
-            <span className="text-[14px] font-black" style={{fontFamily:BC}}><span className="text-[#CCFF00]">i</span><span className="text-white">TRAIN</span></span>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
+          {/* Brand */}
+          <div className="md:col-span-1">
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="w-8 h-8 bg-[#CCFF00] rounded-full flex items-center justify-center"><span className="text-[16px] font-black text-slate-900 leading-none" style={{fontFamily:BC}}>i</span></div>
+              <span className="text-[16px] font-black" style={{fontFamily:BC}}><span className="text-[#CCFF00]">i</span><span className="text-white">TRAIN</span></span>
+            </div>
+            <p className="text-[13px] text-slate-500 leading-[1.6]">{t('landing.hero.tagline')}</p>
           </div>
-          <p className="text-[12px] text-slate-600">2026 iTRAIN. {t('landing.footer.copyright')}</p>
+          {/* Nav links */}
+          <div>
+            <h4 className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400 mb-4" style={{fontFamily:BC}}>Producto</h4>
+            <ul className="space-y-2.5">
+              {[['#features', t('landing.nav.features')],['#how-it-works', t('landing.nav.howItWorks')],['#pricing', t('landing.nav.pricing')]].map(([h,l]) => (
+                <li key={h}><a href={h} className="text-[13px] text-slate-500 hover:text-[#CCFF00] transition-colors">{l}</a></li>
+              ))}
+            </ul>
+          </div>
+          {/* Resources */}
+          <div>
+            <h4 className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400 mb-4" style={{fontFamily:BC}}>Recursos</h4>
+            <ul className="space-y-2.5">
+              {['Blog','API Docs','Soporte'].map(l => (
+                <li key={l}><span className="text-[13px] text-slate-500 hover:text-[#CCFF00] transition-colors cursor-pointer">{l}</span></li>
+              ))}
+            </ul>
+          </div>
+          {/* Social */}
+          <div>
+            <h4 className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400 mb-4" style={{fontFamily:BC}}>Social</h4>
+            <div className="flex gap-3">
+              {[
+                {l:'X',svg:'M18.9 1.2h3.7l-8 9.2L24 22.8h-7.4l-5.8-7.6-6.6 7.6H.5l8.6-9.8L0 1.2h7.6l5.2 6.9 6.1-6.9ZM17.6 20.6h2L6.5 3.3H4.3l13.3 17.3Z'},
+                {l:'LinkedIn',svg:'M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2ZM8 19H5v-9h3v9ZM6.5 8.25A1.75 1.75 0 118.25 6.5 1.75 1.75 0 016.5 8.25ZM20 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0014 14.19V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66V19Z'},
+                {l:'Instagram',svg:'M12 2.2c2.7 0 3 0 4.1.06 1 .05 1.5.2 1.9.33a3.2 3.2 0 011.2.77c.34.34.6.72.77 1.2.14.37.29.9.33 1.88.05 1.08.06 1.4.06 4.1s0 3-.06 4.1c-.05 1-.2 1.5-.33 1.9a3.4 3.4 0 01-2 2c-.37.13-.9.28-1.88.32-1.08.05-1.4.06-4.1.06s-3 0-4.1-.06c-1-.04-1.5-.2-1.9-.33a3.4 3.4 0 01-2-2c-.13-.37-.28-.9-.32-1.88C2.22 15 2.2 14.7 2.2 12s0-3 .06-4.1c.04-1 .2-1.5.33-1.9a3.2 3.2 0 01.77-1.2 3.2 3.2 0 011.2-.76c.37-.14.9-.29 1.88-.33 1.08-.06 1.4-.06 4.1-.06ZM12 7a5 5 0 100 10 5 5 0 000-10Zm0 8.2a3.2 3.2 0 110-6.4 3.2 3.2 0 010 6.4Zm5.2-7.4a1.2 1.2 0 100-2.4 1.2 1.2 0 000 2.4Z'}
+              ].map(s => (
+                <a key={s.l} href="#" className="w-9 h-9 bg-slate-900 border border-slate-800 rounded-lg flex items-center justify-center hover:border-[#CCFF00]/40 hover:bg-slate-800 transition-all group" aria-label={s.l}>
+                  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-slate-500 group-hover:fill-[#CCFF00] transition-colors"><path d={s.svg}/></svg>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+        {/* Bottom bar */}
+        <div className="pt-6 border-t border-slate-800/40 flex items-center justify-between">
+          <p className="text-[12px] text-slate-600">© 2026 iTRAIN. {t('landing.footer.copyright')}</p>
+          <div className="flex gap-4">
+            {['Términos','Privacidad'].map(l => (
+              <span key={l} className="text-[12px] text-slate-600 hover:text-slate-400 cursor-pointer transition-colors">{l}</span>
+            ))}
+          </div>
         </div>
       </div>
     </footer>

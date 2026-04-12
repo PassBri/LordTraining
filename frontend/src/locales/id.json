@@ -230,7 +230,7 @@
       "impact": "80% pelatih merencanakan tanpa data nyata. iTRAIN mengubahnya: periodisasi ilmiah, pelacakan real-time dan keputusan berbasis bukti — untuk level apa pun.",
       "trustLine": "+1.200 pelatih · 340 klub · 18 federasi mempercayai iTRAIN",
       "tag": "AUDIENS",
-      "title": "Dirancang untuk setiap tingkat olahraga",
+      "title": "Dari pelatih independen hingga federasi nasional",
       "coaches_title": "Untuk pelatih",
       "coaches_sub": "Metodologi Anda, didigitalkan",
       "coaches_f1": "Panel pribadi atlet, beban dan kesiapan",
@@ -255,6 +255,19 @@
       "federations_f2": "Data agregat per wilayah atau disiplin",
       "federations_f3": "Laporan untuk seleksi dan pemanggilan",
       "federations_cta": "Aktifkan akun federasi"
+    },
+    "social": {
+      "tag": "KEPERCAYAAN",
+      "title": "Platform dan organisasi yang mempercayai iTRAIN",
+      "t1_quote": "Dari perencanaan di Excel ke sistem terintegrasi: beban, atlet, laporan.",
+      "t1_name": "Carlos Mendoza",
+      "t1_role": "Pelatih Fisik · Club Atlético Nacional",
+      "t2_quote": "Periodisasi visual mengubah cara kami berkomunikasi dengan staf pelatih.",
+      "t2_name": "Ana Rodríguez",
+      "t2_role": "Direktur Olahraga · Akademi Performa Tinggi",
+      "t3_quote": "Dengan ACWR dan indikator monotoni, kami mengurangi cedera 30%.",
+      "t3_name": "Diego Torres",
+      "t3_role": "Pelatih Kekuatan · Federasi Atletik"
     }
   },
   "auth": {

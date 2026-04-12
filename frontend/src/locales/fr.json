@@ -230,7 +230,7 @@
       "impact": "80% des entraîneurs planifient sans données réelles. iTRAIN change la donne : périodisation scientifique, suivi en temps réel et décisions basées sur des preuves — pour tout niveau.",
       "trustLine": "+1 200 entraîneurs · 340 clubs · 18 fédérations font confiance à iTRAIN",
       "tag": "AUDIENCES",
-      "title": "Conçu pour chaque niveau du sport",
+      "title": "De l'entraîneur indépendant à la fédération nationale",
       "coaches_title": "Pour les entraîneurs",
       "coaches_sub": "Votre méthodologie, numérisée",
       "coaches_f1": "Panneau personnel d'athlètes, charge et readiness",
@@ -255,6 +255,19 @@
       "federations_f2": "Données agrégées par région ou discipline",
       "federations_f3": "Rapports pour les sélections et convocations",
       "federations_cta": "Activer le compte fédération"
+    },
+    "social": {
+      "tag": "CONFIANCE",
+      "title": "Plateformes et organisations qui font confiance à iTRAIN",
+      "t1_quote": "Je suis passé d'Excel à tout intégré : charges, athlètes, rapports. Pas de retour en arrière.",
+      "t1_name": "Carlos Mendoza",
+      "t1_role": "Préparateur Physique · Club Atlético Nacional",
+      "t2_quote": "La périodisation visuelle a changé notre façon de communiquer les plans à l'équipe technique.",
+      "t2_name": "Ana Rodríguez",
+      "t2_role": "Directrice Sportive · Académie Haute Performance",
+      "t3_quote": "Avec l'ACWR et les indicateurs de monotonie, nous avons réduit les blessures de 30%.",
+      "t3_name": "Diego Torres",
+      "t3_role": "Coach de Force · Fédération d'Athlétisme"
     }
   },
   "auth": {
