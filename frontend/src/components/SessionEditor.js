@@ -871,64 +871,65 @@ const SessionEditor = ({
   // Renderizar actividades como tarjetas Material Design
   const renderActividadesTable = (faseKey, fase) => {
     return (
-      <div className="space-y-4">
+      <div className="space-y-3">
         {fase.actividades.map((act, idx) => {
           const actMateriales = act.materiales || [];
           return (
           <div key={act.id} className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-visible" style={{ position: 'relative', zIndex: showExercisePicker === `${faseKey}-${idx}` ? 1000 : 1 }}>
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-2 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100 rounded-t-2xl">
-              <span className="text-xs font-bold text-slate-800">Actividad {idx + 1}</span>
+            <div className="flex items-center justify-between px-3 py-1.5 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100 rounded-t-2xl">
+              <span className="text-[11px] font-bold text-slate-800">Actividad {idx + 1}</span>
               <div className="flex items-center gap-1">
-                <button onClick={() => {const dup={...act,id:`act-${Date.now()}`};setSessionData(prev=>({...prev,fases:{...prev.fases,[faseKey]:{...prev.fases[faseKey],actividades:[...prev.fases[faseKey].actividades,dup]}}}));}} className="p-1 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors" title="Duplicar"><Copy className="w-3.5 h-3.5" /></button>
-                <button onClick={() => deleteActividad(faseKey, idx)} className="p-1 hover:bg-red-50 rounded-full text-slate-400 hover:text-red-500 transition-colors" title="Eliminar"><Trash2 className="w-3.5 h-3.5" /></button>
+                <button onClick={() => {const dup={...act,id:`act-${Date.now()}`};setSessionData(prev=>({...prev,fases:{...prev.fases,[faseKey]:{...prev.fases[faseKey],actividades:[...prev.fases[faseKey].actividades,dup]}}}));}} className="p-1 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600" title="Duplicar"><Copy className="w-3 h-3" /></button>
+                <button onClick={() => deleteActividad(faseKey, idx)} className="p-1 hover:bg-red-50 rounded-full text-slate-400 hover:text-red-500" title="Eliminar"><Trash2 className="w-3 h-3" /></button>
               </div>
             </div>
 
-            <div className="p-3 space-y-2.5">
-              {/* TARJETA 1: MEDIOS */}
-              <div className="rounded-xl border border-slate-100 bg-white p-3 relative">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-6 h-6 rounded-lg bg-[#c8f700] flex items-center justify-center"><Dumbbell className="w-3.5 h-3.5 text-[#1a2800]" /></div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Medios</span>
+            {/* Fila 1: Medios | Carga | Intensidad — horizontal */}
+            <div className="flex gap-2 p-2">
+              {/* MEDIOS */}
+              <div className="flex-[2] min-w-0 rounded-xl border border-slate-100 p-2.5 relative">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <div className="w-5 h-5 rounded-md bg-[#c8f700] flex items-center justify-center"><Dumbbell className="w-3 h-3 text-[#1a2800]" /></div>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Medios</span>
                   <Select value={act.capacidadFisica} onValueChange={(v) => updateActividad(faseKey, idx, 'capacidadFisica', v)}>
-                    <SelectTrigger className="h-6 text-[10px] w-auto min-w-[80px] ml-auto border-0 bg-slate-50 rounded-full px-2.5"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-5 text-[9px] w-auto min-w-[70px] ml-auto border-0 bg-slate-50 rounded-full px-2"><SelectValue /></SelectTrigger>
                     <SelectContent>{CAPACIDADES_FISICAS.map(cap => <SelectItem key={cap.id} value={cap.id} className="text-xs">{cap.name}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
-                <Input value={act.ejercicio} onChange={(e) => updateActividad(faseKey, idx, 'ejercicio', e.target.value)} onFocus={() => { setShowExercisePicker(`${faseKey}-${idx}`); setPickerCat(null); setPickerSub(null); }} placeholder="Seleccionar ejercicio..." className="h-9 text-sm font-medium mb-1" data-testid={`exercise-input-${faseKey}-${idx}`} />
+                <Input value={act.ejercicio} onChange={(e) => updateActividad(faseKey, idx, 'ejercicio', e.target.value)} onFocus={() => { setShowExercisePicker(`${faseKey}-${idx}`); setPickerCat(null); setPickerSub(null); }} placeholder="Seleccionar ejercicio..." className="h-7 text-xs font-medium mb-1" data-testid={`exercise-input-${faseKey}-${idx}`} />
                 {showExercisePicker === `${faseKey}-${idx}` && (
-                  <div className="absolute left-3 right-3 top-[88px] bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 99999 }} onMouseDown={(e) => e.preventDefault()}>
+                  <div className="absolute left-2 right-2 top-[72px] bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 99999, minWidth: '380px' }} onMouseDown={(e) => e.preventDefault()}>
                     <div className="p-2 border-b bg-slate-50">
-                      <Input placeholder="Buscar ejercicio..." value={exerciseSearchTerm} onChange={(e) => { setExerciseSearchTerm(e.target.value); setPickerCat(null); setPickerSub(null); }} className="h-8 text-sm bg-white" autoFocus />
+                      <Input placeholder="Buscar ejercicio..." value={exerciseSearchTerm} onChange={(e) => { setExerciseSearchTerm(e.target.value); setPickerCat(null); setPickerSub(null); }} className="h-7 text-xs bg-white" autoFocus />
                     </div>
                     {exerciseSearchTerm ? (
-                      <div className="max-h-52 overflow-y-auto p-1">
+                      <div className="max-h-48 overflow-y-auto p-1">
                         {getFilteredExercises().map((ej, ejIdx) => (
-                          <button key={`${ej.nombre}-${ejIdx}`} className="w-full text-left px-3 py-2 hover:bg-[#f8ffe0] rounded-lg" onClick={() => { selectExercise(faseKey, idx, ej.nombre); if(ej.descripcion) updateActividad(faseKey, idx, 'descripcion', ej.descripcion); }}>
-                            <p className="font-medium text-slate-800 text-xs">{ej.nombre}</p>
-                            <p className="text-slate-400 text-[10px]">{ej.categoria} &middot; {ej.subcategoria}</p>
+                          <button key={`${ej.nombre}-${ejIdx}`} className="w-full text-left px-3 py-1.5 hover:bg-[#f8ffe0] rounded-lg" onClick={() => { selectExercise(faseKey, idx, ej.nombre); if(ej.descripcion) updateActividad(faseKey, idx, 'descripcion', ej.descripcion); }}>
+                            <p className="font-medium text-slate-800 text-[11px]">{ej.nombre}</p>
+                            <p className="text-slate-400 text-[9px]">{ej.categoria} &middot; {ej.subcategoria}</p>
                           </button>
                         ))}
-                        {getFilteredExercises().length === 0 && <p className="text-center text-slate-400 py-4 text-xs">Sin resultados</p>}
+                        {getFilteredExercises().length === 0 && <p className="text-center text-slate-400 py-3 text-xs">Sin resultados</p>}
                       </div>
                     ) : (
-                      <div className="flex" style={{ maxHeight: '240px' }}>
-                        <div className="w-[140px] border-r border-slate-100 overflow-y-auto bg-slate-50/50">
+                      <div className="flex" style={{ maxHeight: '220px' }}>
+                        <div className="w-[130px] border-r border-slate-100 overflow-y-auto bg-slate-50/50">
                           {Object.entries(exercisesCat).map(([catId, cat]) => (
-                            <button key={catId} onClick={() => { setPickerCat(catId); const subs=Object.keys(exercisesCat[catId]?.subcategorias||{}); setPickerSub(subs.length===1?subs[0]:null); }} className={`w-full text-left px-3 py-2 text-xs transition-colors ${pickerCat === catId ? 'bg-[#f0ffd0] text-[#3a5a00] font-bold' : 'hover:bg-slate-100 text-slate-600'}`}>{cat.nombre}</button>
+                            <button key={catId} onClick={() => { setPickerCat(catId); const subs=Object.keys(exercisesCat[catId]?.subcategorias||{}); setPickerSub(subs.length===1?subs[0]:null); }} className={`w-full text-left px-2.5 py-1.5 text-[10px] ${pickerCat===catId?'bg-[#f0ffd0] text-[#3a5a00] font-bold':'hover:bg-slate-100 text-slate-600'}`}>{cat.nombre}</button>
                           ))}
                         </div>
                         <div className="flex-1 overflow-y-auto">
-                          {!pickerCat ? <p className="text-center text-slate-300 py-8 text-xs">Selecciona categoria</p> : (
+                          {!pickerCat ? <p className="text-center text-slate-300 py-6 text-xs">Selecciona categoria</p> : (
                             <div className="p-1">
                               {exercisesCat[pickerCat]?.subcategorias && Object.entries(exercisesCat[pickerCat].subcategorias).map(([subId, sub]) => (
                                 <div key={subId} className="mb-0.5">
-                                  <button onClick={() => setPickerSub(pickerSub===subId?null:subId)} className="w-full text-left px-2 py-1.5 text-[10px] uppercase tracking-wide font-bold text-slate-500 hover:text-[#3a5a00] hover:bg-slate-50 rounded flex items-center justify-between">
+                                  <button onClick={() => setPickerSub(pickerSub===subId?null:subId)} className="w-full text-left px-2 py-1 text-[9px] uppercase tracking-wide font-bold text-slate-500 hover:text-[#3a5a00] rounded flex items-center justify-between">
                                     {sub.nombre}<ChevronDown className={`w-3 h-3 transition-transform ${pickerSub===subId?'rotate-180':''}`} />
                                   </button>
                                   {pickerSub===subId && sub.ejercicios?.map((ej, i) => (
-                                    <button key={i} onClick={() => { selectExercise(faseKey, idx, ej.nombre); if(ej.musculos) updateActividad(faseKey, idx, 'descripcion', ej.musculos); }} className="w-full text-left px-3 py-1.5 hover:bg-[#f8ffe0] rounded text-xs text-slate-700">{ej.nombre}</button>
+                                    <button key={i} onClick={() => { selectExercise(faseKey, idx, ej.nombre); if(ej.musculos) updateActividad(faseKey, idx, 'descripcion', ej.musculos); }} className="w-full text-left px-3 py-1 hover:bg-[#f8ffe0] rounded text-[11px] text-slate-700">{ej.nombre}</button>
                                   ))}
                                 </div>
                               ))}
@@ -937,85 +938,85 @@ const SessionEditor = ({
                         </div>
                       </div>
                     )}
-                    <button className="w-full text-center text-slate-400 py-1.5 border-t bg-slate-50 text-xs hover:text-slate-600" onClick={() => setShowExercisePicker(null)}>Cerrar</button>
+                    <button className="w-full text-center text-slate-400 py-1 border-t bg-slate-50 text-[10px] hover:text-slate-600" onClick={() => setShowExercisePicker(null)}>Cerrar</button>
                   </div>
                 )}
-                <Textarea value={act.descripcion || ''} onChange={(e) => updateActividad(faseKey, idx, 'descripcion', e.target.value)} placeholder="Descripcion del ejercicio..." className="text-[11px] min-h-[24px] h-6 resize-none py-1 px-2 text-slate-500 leading-tight border-slate-100" rows={1} data-testid={`exercise-desc-${faseKey}-${idx}`} onInput={(e) => { e.target.style.height='auto'; e.target.style.height=Math.min(e.target.scrollHeight,72)+'px'; }} />
+                <Textarea value={act.descripcion||''} onChange={(e) => updateActividad(faseKey, idx, 'descripcion', e.target.value)} placeholder="Descripcion..." className="text-[10px] min-h-[20px] h-5 resize-none py-0.5 px-1.5 text-slate-400 leading-tight border-slate-100" rows={1} data-testid={`exercise-desc-${faseKey}-${idx}`} onInput={(e) => { e.target.style.height='auto'; e.target.style.height=Math.min(e.target.scrollHeight,60)+'px'; }} />
               </div>
 
-              {/* TARJETA 2: CARGA */}
-              <div className="rounded-xl border border-slate-100 bg-white px-3 py-2.5">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center"><Activity className="w-3.5 h-3.5 text-blue-600" /></div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Carga</span>
+              {/* CARGA */}
+              <div className="flex-1 rounded-xl border border-slate-100 p-2.5">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <div className="w-5 h-5 rounded-md bg-blue-50 flex items-center justify-center"><Activity className="w-3 h-3 text-blue-600" /></div>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Carga</span>
                   <Select value={act.metodo} onValueChange={(v) => updateActividad(faseKey, idx, 'metodo', v)}>
-                    <SelectTrigger className="h-6 text-[10px] w-auto min-w-[70px] ml-auto border-0 bg-slate-50 rounded-full px-2.5"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-5 text-[9px] w-auto min-w-[55px] ml-auto border-0 bg-slate-50 rounded-full px-2"><SelectValue /></SelectTrigger>
                     <SelectContent>{METODOS_ENTRENAMIENTO.map(met => <SelectItem key={met.id} value={met.id} className="text-xs">{met.name}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <div><span className="text-[8px] uppercase tracking-widest text-slate-400 font-bold block mb-0.5">Series</span><Input type="number" value={act.series} onChange={(e) => updateActividad(faseKey, idx, 'series', parseInt(e.target.value)||0)} className="h-8 text-sm text-center" min={1} max={20} /></div>
-                  <div><span className="text-[8px] uppercase tracking-widest text-slate-400 font-bold block mb-0.5">Repeticiones</span><Input value={act.repeticiones} onChange={(e) => updateActividad(faseKey, idx, 'repeticiones', e.target.value)} className="h-8 text-sm" placeholder="10-12" /></div>
-                  <div><span className="text-[8px] uppercase tracking-widest text-slate-400 font-bold block mb-0.5">Recuperacion</span><Input value={act.recuperacion} onChange={(e) => updateActividad(faseKey, idx, 'recuperacion', e.target.value)} className="h-8 text-sm" placeholder="2 min" /></div>
+                <div className="space-y-1.5">
+                  <div><span className="text-[7px] uppercase tracking-widest text-slate-400 font-bold">Series</span><Input type="number" value={act.series} onChange={(e) => updateActividad(faseKey, idx, 'series', parseInt(e.target.value)||0)} className="h-7 text-xs text-center mt-0.5" min={1} max={20} /></div>
+                  <div><span className="text-[7px] uppercase tracking-widest text-slate-400 font-bold">Reps</span><Input value={act.repeticiones} onChange={(e) => updateActividad(faseKey, idx, 'repeticiones', e.target.value)} className="h-7 text-xs mt-0.5" placeholder="10-12" /></div>
+                  <div><span className="text-[7px] uppercase tracking-widest text-slate-400 font-bold">Recup.</span><Input value={act.recuperacion} onChange={(e) => updateActividad(faseKey, idx, 'recuperacion', e.target.value)} className="h-7 text-xs mt-0.5" placeholder="2 min" /></div>
                 </div>
               </div>
 
-              {/* TARJETA 3: INTENSIDAD, VOLUMEN Y ORGANIZACION */}
-              <div className="rounded-xl border border-slate-100 bg-white px-3 py-2.5">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-6 h-6 rounded-lg bg-orange-50 flex items-center justify-center"><Zap className="w-3.5 h-3.5 text-orange-600" /></div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Intensidad / Volumen</span>
+              {/* INTENSIDAD/VOLUMEN/ORG */}
+              <div className="flex-1 rounded-xl border border-slate-100 p-2.5">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <div className="w-5 h-5 rounded-md bg-orange-50 flex items-center justify-center"><Zap className="w-3 h-3 text-orange-600" /></div>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Intensidad</span>
                 </div>
-                <div className="grid grid-cols-3 gap-2 items-end">
+                <div className="space-y-1.5">
                   <div>
-                    <div className="flex items-center justify-between mb-1"><span className="text-[8px] uppercase tracking-widest text-slate-400 font-bold">Intensidad</span><span className="text-xs font-bold text-slate-700">{act.intensidad}%</span></div>
-                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden mb-1"><div className={`h-full rounded-full transition-all ${act.intensidad>80?'bg-red-500':act.intensidad>60?'bg-orange-500':act.intensidad>40?'bg-yellow-500':'bg-green-500'}`} style={{width:`${act.intensidad}%`}} /></div>
+                    <div className="flex items-center justify-between"><span className="text-[7px] uppercase tracking-widest text-slate-400 font-bold">Intensidad</span><span className="text-[10px] font-bold text-slate-700">{act.intensidad}%</span></div>
+                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden mt-0.5 mb-0.5"><div className={`h-full rounded-full ${act.intensidad>80?'bg-red-500':act.intensidad>60?'bg-orange-500':act.intensidad>40?'bg-yellow-500':'bg-green-500'}`} style={{width:`${act.intensidad}%`}} /></div>
                     <input type="range" min={0} max={100} value={act.intensidad} onChange={(e) => updateActividad(faseKey, idx, 'intensidad', parseInt(e.target.value))} className="w-full h-1 accent-orange-500" />
                   </div>
-                  <div><span className="text-[8px] uppercase tracking-widest text-slate-400 font-bold block mb-0.5">Volumen</span><Input value={act.volumen} onChange={(e) => updateActividad(faseKey, idx, 'volumen', e.target.value)} className="h-8 text-sm" placeholder="30 min" /></div>
-                  <div><span className="text-[8px] uppercase tracking-widest text-slate-400 font-bold block mb-0.5">Organizacion</span>
-                    <Select value={act.procOrganizativo} onValueChange={(v) => updateActividad(faseKey, idx, 'procOrganizativo', v)}><SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger><SelectContent>{PROC_ORGANIZATIVO.map(proc => <SelectItem key={proc.id} value={proc.id} className="text-xs">{proc.name}</SelectItem>)}</SelectContent></Select>
+                  <div><span className="text-[7px] uppercase tracking-widest text-slate-400 font-bold">Volumen</span><Input value={act.volumen} onChange={(e) => updateActividad(faseKey, idx, 'volumen', e.target.value)} className="h-7 text-xs mt-0.5" placeholder="30 min" /></div>
+                  <div><span className="text-[7px] uppercase tracking-widest text-slate-400 font-bold">Organizacion</span>
+                    <Select value={act.procOrganizativo} onValueChange={(v) => updateActividad(faseKey, idx, 'procOrganizativo', v)}><SelectTrigger className="h-7 text-[10px] mt-0.5"><SelectValue /></SelectTrigger><SelectContent>{PROC_ORGANIZATIVO.map(proc => <SelectItem key={proc.id} value={proc.id} className="text-xs">{proc.name}</SelectItem>)}</SelectContent></Select>
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* TARJETA 4: MATERIALES/RECURSOS */}
-              <div className="rounded-xl border border-slate-100 bg-white px-3 py-2.5">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-6 h-6 rounded-lg bg-purple-50 flex items-center justify-center"><Target className="w-3.5 h-3.5 text-purple-600" /></div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Materiales / Recursos</span>
+            {/* Fila 2: Materiales | Pizarra — horizontal */}
+            <div className="flex gap-2 px-2 pb-2">
+              {/* MATERIALES */}
+              <div className="flex-[3] min-w-0 rounded-xl border border-slate-100 p-2.5">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <div className="w-5 h-5 rounded-md bg-purple-50 flex items-center justify-center"><Target className="w-3 h-3 text-purple-600" /></div>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Materiales</span>
                 </div>
-                <div className="flex flex-wrap gap-1.5 mb-2">
+                <div className="flex flex-wrap gap-1 mb-1.5">
                   {actMateriales.map((mat, mi) => (
-                    <span key={mi} className="inline-flex items-center gap-1 bg-purple-50 text-purple-700 text-[10px] font-medium px-2 py-0.5 rounded-full border border-purple-200">
-                      {mat}
-                      <button onClick={() => { const nm=[...actMateriales]; nm.splice(mi,1); updateActividad(faseKey, idx, 'materiales', nm); }} className="hover:text-red-500 ml-0.5"><X className="w-2.5 h-2.5" /></button>
+                    <span key={mi} className="inline-flex items-center gap-0.5 bg-purple-50 text-purple-700 text-[9px] font-medium px-1.5 py-0.5 rounded-full border border-purple-200">
+                      {mat}<button onClick={() => { const nm=[...actMateriales]; nm.splice(mi,1); updateActividad(faseKey, idx, 'materiales', nm); }} className="hover:text-red-500"><X className="w-2.5 h-2.5" /></button>
                     </span>
                   ))}
-                  {actMateriales.length === 0 && <span className="text-[10px] text-slate-300 italic">Sin materiales</span>}
+                  {actMateriales.length === 0 && <span className="text-[9px] text-slate-300 italic">Sin materiales</span>}
                 </div>
                 <div className="flex flex-wrap gap-1">
-                  {MATERIALES_DISPONIBLES.filter(m => !actMateriales.includes(m)).slice(0, 12).map(mat => (
-                    <button key={mat} onClick={() => updateActividad(faseKey, idx, 'materiales', [...actMateriales, mat])} className="text-[9px] px-2 py-0.5 rounded-full border border-slate-200 text-slate-500 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700 transition-colors">{mat}</button>
+                  {MATERIALES_DISPONIBLES.filter(m => !actMateriales.includes(m)).slice(0,10).map(mat => (
+                    <button key={mat} onClick={() => updateActividad(faseKey, idx, 'materiales', [...actMateriales, mat])} className="text-[8px] px-1.5 py-0.5 rounded-full border border-slate-200 text-slate-400 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700 transition-colors">{mat}</button>
                   ))}
-                  {MATERIALES_DISPONIBLES.filter(m => !actMateriales.includes(m)).length > 12 && (
-                    <span className="text-[9px] text-slate-300 px-1 self-center">+{MATERIALES_DISPONIBLES.filter(m => !actMateriales.includes(m)).length - 12}</span>
-                  )}
+                  {MATERIALES_DISPONIBLES.filter(m => !actMateriales.includes(m)).length > 10 && <span className="text-[8px] text-slate-300 self-center">+{MATERIALES_DISPONIBLES.filter(m => !actMateriales.includes(m)).length-10}</span>}
                 </div>
               </div>
 
-              {/* TARJETA 5: PIZARRA */}
-              <div className="rounded-xl border border-slate-100 bg-white px-3 py-2.5">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-6 h-6 rounded-lg bg-[#f0ffd0] flex items-center justify-center"><LayoutGrid className="w-3.5 h-3.5 text-[#3a5a00]" /></div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Pizarra Tactica</span>
-                  {act.boardThumbnail && <button onClick={() => updateActividadMulti(faseKey, idx, {boardThumbnail:null,boardId:null})} className="ml-auto text-[9px] text-slate-300 hover:text-red-400 transition-colors">Quitar</button>}
+              {/* PIZARRA */}
+              <div className="w-[140px] flex-shrink-0 rounded-xl border border-slate-100 p-2.5">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <div className="w-5 h-5 rounded-md bg-[#f0ffd0] flex items-center justify-center"><LayoutGrid className="w-3 h-3 text-[#3a5a00]" /></div>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Pizarra</span>
+                  {act.boardThumbnail && <button onClick={() => updateActividadMulti(faseKey, idx, {boardThumbnail:null,boardId:null})} className="ml-auto text-[8px] text-slate-300 hover:text-red-400">x</button>}
                 </div>
                 {act.boardThumbnail ? (
-                  <div className="w-full h-24 rounded-lg border border-slate-200 bg-white cursor-pointer hover:border-[#c8f700] transition-colors overflow-hidden" onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open(act.boardId?`/tactical-board.html?boardId=${act.boardId}`:'/tactical-board.html','_blank');}} title="Editar pizarra" data-testid={`board-thumb-${faseKey}-${idx}`} dangerouslySetInnerHTML={{__html:act.boardThumbnail}} />
+                  <div className="w-full h-16 rounded-lg border border-slate-200 bg-white cursor-pointer hover:border-[#c8f700] overflow-hidden" onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open(act.boardId?`/tactical-board.html?boardId=${act.boardId}`:'/tactical-board.html','_blank');}} data-testid={`board-thumb-${faseKey}-${idx}`} dangerouslySetInnerHTML={{__html:act.boardThumbnail}} />
                 ) : (
-                  <button onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open('/tactical-board.html','_blank');}} className="w-full h-16 rounded-lg border-2 border-dashed border-slate-200 flex items-center justify-center gap-2 text-slate-300 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all" data-testid={`open-board-${faseKey}-${idx}`}>
-                    <LayoutGrid className="w-4 h-4" /><span className="text-xs font-medium">Abrir Pizarra Tactica</span>
+                  <button onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open('/tactical-board.html','_blank');}} className="w-full h-16 rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-300 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all" data-testid={`open-board-${faseKey}-${idx}`}>
+                    <LayoutGrid className="w-4 h-4" /><span className="text-[7px] font-semibold uppercase mt-0.5">Abrir</span>
                   </button>
                 )}
               </div>
