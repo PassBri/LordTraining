@@ -611,12 +611,6 @@ const SessionEditor = ({
         return;
       }
       
-      if (!athleteId) {
-        toast.error('Selecciona un atleta primero');
-        setExporting(false);
-        return;
-      }
-      
       toast.info('Generando enlace...');
       
       // Capturar la imagen de la sesión
@@ -654,8 +648,8 @@ const SessionEditor = ({
       const sesCode = `SES-${String(session?.sessionIndex || session?.dayName || '001').padStart(3, '0')}`;
       
       const sessionToShare = {
-        athlete_id: athleteId,
-        athlete_name: athleteName || 'Atleta',
+        athlete_id: athleteId || 'general',
+        athlete_name: athleteName || 'Deportista',
         session_data: {
           ...session,
           detailedData: sessionData
