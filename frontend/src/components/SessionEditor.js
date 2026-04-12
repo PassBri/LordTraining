@@ -203,6 +203,7 @@ const SESION_INICIAL = {
     mostrarRecuperacion10min: false,
     // Tipo de gráfica
     tipoGrafica: 'barras', // 'barras', 'lineas', 'mixta'
+    estiloLinea: 'lime', // 'lime', 'multi', 'punteada', 'gradient'
     // Zonas de trabajo (%)
     zonaAerobica: '',
     zonaAnaerobica: '',
@@ -1337,17 +1338,43 @@ const SessionEditor = ({
                         </div>
                         Frecuencia cardíaca por fases
                       </h4>
-                      {/* Selector de vista */}
-                      <div className="flex items-center gap-0.5 bg-slate-100 rounded-lg p-0.5">
-                        {['barras','lineas','mixta'].map(t => (
-                          <button key={t}
-                            onClick={() => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, tipoGrafica: t }}))}
-                            className={`px-3 py-1 rounded-md transition-all ${sessionData.monitoreo.tipoGrafica === t ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                            style={{fontSize:'11px',fontWeight:500,fontFamily:DM}}
-                          >
-                            {t === 'barras' ? 'Barras' : t === 'lineas' ? 'Líneas' : 'Mixta'}
-                          </button>
-                        ))}
+                      {/* Selector de vista + estilo línea */}
+                      <div className="flex items-center gap-2">
+                        {/* Estilo de línea (solo visible en Líneas/Mixta) */}
+                        {(sessionData.monitoreo.tipoGrafica === 'lineas' || sessionData.monitoreo.tipoGrafica === 'mixta') && (
+                          <div className="flex items-center gap-0.5 bg-slate-50 rounded-lg p-0.5">
+                            {[
+                              { id: 'lime', label: 'Lima', preview: '#CCFF00' },
+                              { id: 'multi', label: 'Multi', preview: 'linear-gradient(90deg,#3b82f6,#ef4444,#22c55e,#a855f7)' },
+                              { id: 'punteada', label: 'Punteada', preview: '#CCFF00' },
+                              { id: 'gradient', label: 'Degradado', preview: 'linear-gradient(90deg,#06b6d4,#8b5cf6)' },
+                            ].map(s => (
+                              <button key={s.id}
+                                onClick={() => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, estiloLinea: s.id }}))}
+                                className={`flex items-center gap-1 px-2 py-1 rounded-md transition-all ${(sessionData.monitoreo.estiloLinea || 'lime') === s.id ? 'bg-white shadow-sm' : 'hover:bg-slate-100'}`}
+                                style={{fontFamily:DM}}
+                              >
+                                <span className="w-3 h-1 rounded-full" style={{
+                                  background: s.preview,
+                                  borderTop: s.id === 'punteada' ? '2px dashed #CCFF00' : 'none',
+                                  height: s.id === 'punteada' ? '0px' : '3px',
+                                }} />
+                                <span style={{fontSize:'9px',fontWeight:500,color: (sessionData.monitoreo.estiloLinea || 'lime') === s.id ? '#1e293b' : '#94a3b8'}}>{s.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-0.5 bg-slate-100 rounded-lg p-0.5">
+                          {['barras','lineas','mixta'].map(t => (
+                            <button key={t}
+                              onClick={() => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, tipoGrafica: t }}))}
+                              className={`px-3 py-1 rounded-md transition-all ${sessionData.monitoreo.tipoGrafica === t ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                              style={{fontSize:'11px',fontWeight:500,fontFamily:DM}}
+                            >
+                              {t === 'barras' ? 'Barras' : t === 'lineas' ? 'Líneas' : 'Mixta'}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </div>
                     
@@ -1413,6 +1440,7 @@ const SessionEditor = ({
                                 {showLines && (() => {
                                   const n = vals.length;
                                   const svgW = 500, svgH = 200;
+                                  const estilo = sessionData.monitoreo.estiloLinea || 'lime';
                                   const spts = vals.map((v, i) => ({
                                     x: 10 + (i / (n - 1)) * (svgW - 20),
                                     y: svgH - (v / maxBpm) * svgH
@@ -1423,16 +1451,30 @@ const SessionEditor = ({
                                     lineD += ` C ${cp} ${spts[j].y}, ${cp} ${spts[j+1].y}, ${spts[j+1].x} ${spts[j+1].y}`;
                                   }
                                   const areaD = lineD + ` L ${spts[n-1].x} ${svgH} L ${spts[0].x} ${svgH} Z`;
+                                  const lineColor = estilo === 'multi' ? 'url(#multiGrad)' : estilo === 'gradient' ? 'url(#blueGrad)' : '#CCFF00';
+                                  const areaColor = estilo === 'multi' ? '#a855f7' : estilo === 'gradient' ? '#3b82f6' : '#CCFF00';
+                                  const dashArray = estilo === 'punteada' ? '8 4' : 'none';
                                   return (
                                     <svg className="absolute inset-0 w-full h-full" viewBox={`0 0 ${svgW} ${svgH}`} preserveAspectRatio="none">
                                       <defs>
                                         <linearGradient id="aFill" x1="0" y1="0" x2="0" y2="1">
-                                          <stop offset="0%" stopColor="#CCFF00" stopOpacity="0.2"/>
-                                          <stop offset="100%" stopColor="#CCFF00" stopOpacity="0"/>
+                                          <stop offset="0%" stopColor={areaColor} stopOpacity="0.18"/>
+                                          <stop offset="100%" stopColor={areaColor} stopOpacity="0"/>
+                                        </linearGradient>
+                                        <linearGradient id="multiGrad" x1="0" y1="0" x2="1" y2="0">
+                                          <stop offset="0%" stopColor="#3b82f6"/>
+                                          <stop offset="25%" stopColor="#ef4444"/>
+                                          <stop offset="50%" stopColor="#22c55e"/>
+                                          <stop offset="75%" stopColor="#a855f7"/>
+                                          <stop offset="100%" stopColor="#6366f1"/>
+                                        </linearGradient>
+                                        <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="0">
+                                          <stop offset="0%" stopColor="#06b6d4"/>
+                                          <stop offset="100%" stopColor="#8b5cf6"/>
                                         </linearGradient>
                                       </defs>
                                       <path d={areaD} fill="url(#aFill)" />
-                                      <path d={lineD} fill="none" stroke="#CCFF00" strokeWidth="3" strokeLinecap="round" />
+                                      <path d={lineD} fill="none" stroke={lineColor} strokeWidth="3" strokeLinecap="round" strokeDasharray={dashArray} />
                                       {spts.map((p, i) => (
                                         <g key={i}>
                                           <circle cx={p.x} cy={p.y} r="5" fill="white" stroke={fcItems[i].color} strokeWidth="2.5" />
@@ -1444,20 +1486,10 @@ const SessionEditor = ({
                                   );
                                 })()}
                               </div>
-
-                              {/* X-axis labels */}
-                              <div className="absolute flex justify-around" style={{left:'32px',right:'0',bottom:'-22px',padding:'0 8px'}}>
-                                {fcItems.map((f, i) => (
-                                  <span key={i} style={{fontSize:'8px',fontWeight:600,color:f.color,textTransform:'uppercase',letterSpacing:'0.05em',fontFamily:DM}}>{f.label}</span>
-                                ))}
-                              </div>
                             </div>
                           );
                         })()}
                       </div>
-
-                      {/* Spacer for x-labels */}
-                      <div style={{height:'24px'}} />
 
                       {/* Leyenda + inputs compactos */}
                       <div className="border-t border-slate-100 px-5 py-4">
