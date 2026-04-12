@@ -291,7 +291,7 @@ const ShowcaseChart = ({ t }) => {
   const executed = [60,68,76,58,65,74,80,52,64,72,78,48];
   return (
     <div className="relative">
-      <div className="flex items-end gap-[3px] h-28" onMouseLeave={() => setHIdx(null)}>
+      <div className="flex items-end gap-[3px] h-48" onMouseLeave={() => setHIdx(null)}>
         {planned.map((p, i) => {
           const h = hIdx === i;
           return (
@@ -306,8 +306,8 @@ const ShowcaseChart = ({ t }) => {
       {hIdx !== null && (
         <div className="absolute z-20 pointer-events-none" style={{top:'-4px', left:`${(hIdx/12)*100}%`, transform: hIdx > 8 ? 'translateX(-100%)' : 'translateX(0)'}}>
           <div className="bg-slate-900/95 backdrop-blur-lg border border-slate-600/60 rounded-lg px-2.5 py-1.5 shadow-xl">
-            <div className="text-[8px] text-slate-400 mb-1" style={{fontFamily:BC}}>{t('landing.chart.week')} {hIdx+1}</div>
-            <div className="flex items-center gap-2 text-[9px]">
+            <div className="text-[10px] text-slate-400 mb-1" style={{fontFamily:BC}}>{t('landing.chart.week')} {hIdx+1}</div>
+            <div className="flex items-center gap-3 text-[11px]">
               <span className="text-blue-400 font-bold">{t('landing.chart.planned')}: {planned[hIdx]}%</span>
               <span className="text-[#CCFF00] font-bold">{t('landing.chart.executed')}: {executed[hIdx]}%</span>
             </div>
@@ -662,27 +662,27 @@ const LandingPage = () => {
             </div>
           </Reveal>
           <Reveal delay={0.3} direction="right" className="lg:col-span-7 relative" style={{animation:'float 6s ease-in-out infinite'}}>
-            <div className="bg-slate-800/50 backdrop-blur rounded-2xl border border-slate-700/30 p-5 shadow-2xl">
-              <div className="flex items-center justify-between mb-3">
+            <div className="bg-slate-800/50 backdrop-blur rounded-2xl border border-slate-700/30 p-6 shadow-2xl">
+              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <div className="flex gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-red-500" /><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /><div className="w-2.5 h-2.5 rounded-full bg-emerald-500" /></div>
-                  <span className="text-[9px] text-slate-500 ml-2 font-mono">iTRAIN {t('landing.chart.dashboard')} v3.0</span>
+                  <span className="text-[12px] text-slate-400 ml-2 font-mono">iTRAIN {t('landing.chart.dashboard')} v3.0</span>
                 </div>
-                <div className="flex gap-2">
-                  <span className="flex items-center gap-1 text-[8px] font-bold text-blue-400"><span className="w-1.5 h-1.5 rounded-full bg-blue-400"/>{t('landing.chart.volume')}</span>
-                  <span className="flex items-center gap-1 text-[8px] font-bold text-[#CCFF00]"><span className="w-1.5 h-1.5 rounded-full bg-[#CCFF00]"/>{t('landing.chart.intensity')}</span>
-                  <span className="flex items-center gap-1 text-[8px] font-bold text-rose-400"><span className="w-1.5 h-1.5 rounded-full bg-rose-400"/>{t('landing.chart.density')}</span>
+                <div className="flex gap-3">
+                  <span className="flex items-center gap-1.5 text-[11px] font-bold text-blue-400"><span className="w-2 h-2 rounded-full bg-blue-400"/>{t('landing.chart.volume')}</span>
+                  <span className="flex items-center gap-1.5 text-[11px] font-bold text-[#CCFF00]"><span className="w-2 h-2 rounded-full bg-[#CCFF00]"/>{t('landing.chart.intensity')}</span>
+                  <span className="flex items-center gap-1.5 text-[11px] font-bold text-rose-400"><span className="w-2 h-2 rounded-full bg-rose-400"/>{t('landing.chart.density')}</span>
                 </div>
               </div>
               {/* Interactive mini chart */}
               <ShowcaseChart t={t} />
               {/* Bottom area chart */}
-              <div className="h-16 relative mt-3">
+              <div className="h-20 relative mt-4">
                 <div className="absolute inset-0"><AnimatedLineWave color="#3B82F6" amplitude={25} speed="6s" /></div>
                 <div className="absolute inset-0"><AnimatedLineWave color="#CCFF00" amplitude={20} speed="8s" /></div>
               </div>
             </div>
-            <div className="absolute -top-4 -left-4 z-20">
+            <div className="absolute -bottom-5 -left-5 z-20">
               <div className="bg-slate-800/80 backdrop-blur rounded-xl p-3 border border-slate-700/30 shadow-xl">
                 <ReadinessGauge size={72} t={t} />
               </div>
