@@ -274,7 +274,8 @@ const ST = {
  panelTab: 'elements', gallery: [], editingBoardId: null,
  teamAColor: '#ef4444', teamBColor: '#2563eb',
  elementColors: {cone:'#ff9800',disc:'#2563eb',ring:'#8b5cf6',vest:'#ef4444',pole:'#f59e0b',flag:'#ef4444',band:'#ef4444'},
- lineStyle: 'solid', lineColor: '#1e293b'
+ lineStyle: 'solid', lineColor: '#1e293b',
+ zoneColor: '#378ADD', zoneOpacity: 0.12
 };
 
 // ═══════════ CATEGORIES & SPORTS ═══════════
@@ -507,6 +508,7 @@ const S = {
    if(tid.startsWith('d_')) { this.showDispositionModal(tid); return; }
    if(tid==='playerA'||tid==='playerB') { this.showColorPicker(btn, tid, 'team'); return; }
    if(tid==='line'||tid==='curve') { this.showLineStylePicker(btn, tid); return; }
+   if(tid==='zone') { this.showZoneColorPicker(btn); return; }
    const colorable = ['cone','disc','ring','vest','pole','flag','band'];
    if(colorable.includes(tid)) { this.showColorPicker(btn, tid, 'element'); return; }
    this.hideColorPicker();
@@ -594,6 +596,69 @@ const S = {
   document.getElementById('color-picker').classList.remove('show');
  },
 
+ // ── INLINE TEXT INPUT ──
+ startInlineText(svgX, svgY, originalEvent) {
+  const svg = document.getElementById('svg-canvas');
+  const rect = svg.getBoundingClientRect();
+  // Convert SVG coords to screen coords using the SVG transform
+  const pt = svg.createSVGPoint();
+  pt.x = svgX; pt.y = svgY;
+  const ctm = svg.getScreenCTM();
+  const screenPt = pt.matrixTransform(ctm);
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = 'Texto...';
+  input.style.cssText = `position:fixed;left:${screenPt.x}px;top:${screenPt.y - 14}px;z-index:300;font-size:14px;font-family:inherit;font-weight:600;color:#1e293b;background:rgba(255,255,255,0.95);border:2px solid #2563eb;border-radius:6px;padding:4px 10px;outline:none;min-width:100px;box-shadow:0 2px 12px rgba(37,99,235,0.2)`;
+  input.setAttribute('data-testid','inline-text-input');
+  document.body.appendChild(input);
+  setTimeout(() => input.focus(), 50);
+  let confirmed = false;
+  const confirm = () => {
+   if(confirmed) return;
+   confirmed = true;
+   const txt = input.value.trim();
+   if(txt) this.addElement('text', svgX, svgY, {label:txt});
+   input.remove();
+  };
+  input.addEventListener('keydown', e => { if(e.key==='Enter') { e.preventDefault(); confirm(); } if(e.key==='Escape') { confirmed=true; input.remove(); } });
+  input.addEventListener('blur', () => setTimeout(confirm, 150));
+ },
+
+ // ── ZONE COLOR PICKER ──
+ showZoneColorPicker(anchorBtn) {
+  const cp = document.getElementById('color-picker');
+  const ZONE_COLORS = [
+   {c:'#378ADD',n:'Azul'},{c:'#1D9E75',n:'Verde'},{c:'#E24B4A',n:'Rojo'},
+   {c:'#EF9F27',n:'Naranja'},{c:'#7F77DD',n:'Morado'},{c:'#888780',n:'Gris'}
+  ];
+  cp.innerHTML = `<h4>Color de Zona</h4>` +
+   `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">${ZONE_COLORS.map(z=>
+    `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer" data-zcolor="${z.c}"><div class="cp-swatch${ST.zoneColor===z.c?' active':''}" style="background:${z.c}" data-color="${z.c}"></div><span style="font-size:7px;color:var(--text-muted)">${z.n}</span></div>`
+   ).join('')}</div>` +
+   `<h4>Vista previa</h4><svg width="170" height="50" viewBox="0 0 170 50"><rect x="5" y="5" width="160" height="40" rx="8" fill="${ST.zoneColor}" fill-opacity="${ST.zoneOpacity}" stroke="${ST.zoneColor}" stroke-width="1.5" stroke-opacity="0.45" stroke-dasharray="6 4"/><text x="85" y="25" text-anchor="middle" dy="0.35em" font-size="11" fill="${ST.zoneColor}" font-weight="700" opacity="0.8">Zona</text></svg>` +
+   `<button class="cp-use" data-testid="cp-use-btn" style="width:100%;margin-top:6px;padding:5px;border-radius:6px;font-size:10px;font-weight:600;background:var(--primary);color:#fff;cursor:pointer">Aplicar Zona</button>`;
+  const rect = anchorBtn.getBoundingClientRect();
+  cp.style.left = (rect.right + 6) + 'px';
+  cp.style.top = Math.min(rect.top, window.innerHeight - 260) + 'px';
+  cp.classList.add('show');
+  cp.onclick = e => {
+   const zc = e.target.closest('[data-zcolor]');
+   if(zc) { ST.zoneColor = zc.dataset.zcolor; this.showZoneColorPicker(anchorBtn); return; }
+   if(e.target.closest('[data-testid="cp-use-btn"]')) {
+    this.hideColorPicker();
+    this.setTool('zone');
+   }
+  };
+  setTimeout(()=>document.addEventListener('click',function h(ev){
+   if(!cp.contains(ev.target)&&!ev.target.closest('[data-tool="zone"]')){cp.classList.remove('show');document.removeEventListener('click',h);}
+  },true),10);
+ },
+
+ // ── ELEMENT COLOR PICKER (for materials) ──
+ showElementColorPicker(btn, toolId) {
+  this.showColorPicker(btn, toolId, 'element');
+ },
+
  setTool(id) {
   ST.tool = id;
   document.querySelectorAll('.tool').forEach(t=>t.classList.toggle('active',t.dataset.tool===id));
@@ -654,8 +719,8 @@ const S = {
    } else if(ST.tool==='zone') {
     ST.drawing = {type:'zone',x:p.x,y:p.y,w:0,h:0};
    } else if(ST.tool==='text') {
-    const txt = prompt('Texto:');
-    if(txt) this.addElement('text', p.x, p.y, {label:txt});
+    // Inline text input
+    this.startInlineText(p.x, p.y, e);
    } else if(ST.tool==='pencil') {
     ST.drawing = {type:'pencil',points:[{x:p.x,y:p.y}]};
    } else if(ST.tool==='curve') {
@@ -777,7 +842,8 @@ const S = {
   } else if(d.type==='line') {
    hl.innerHTML = `<line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}" stroke="rgba(0,0,0,0.5)" stroke-width="2" stroke-dasharray="4 3"/>`;
   } else if(d.type==='zone') {
-   hl.innerHTML = `<rect x="${d.w<0?d.x+d.w:d.x}" y="${d.h<0?d.y+d.h:d.y}" width="${Math.abs(d.w)}" height="${Math.abs(d.h)}" fill="rgba(37,99,235,0.08)" stroke="#2563eb" stroke-width="1" stroke-dasharray="4 3"/>`;
+   const zc = ST.zoneColor||'#378ADD';
+   hl.innerHTML = `<rect x="${d.w<0?d.x+d.w:d.x}" y="${d.h<0?d.y+d.h:d.y}" width="${Math.abs(d.w)}" height="${Math.abs(d.h)}" fill="${zc}" fill-opacity="0.1" stroke="${zc}" stroke-width="1.5" stroke-opacity="0.5" stroke-dasharray="6 4" rx="8"/>`;
   } else if(d.type==='pencil') {
    hl.innerHTML = `<polyline points="${d.points.map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="2"/>`;
   } else if(d.type==='curve') {
@@ -801,8 +867,8 @@ const S = {
   if(type==='flag') { el.color = ST.elementColors.flag||'#ef4444'; }
   if(type==='band') { el.color = ST.elementColors.band||'#ef4444'; }
   if(type==='ball') { el.size = 8; }
-  if(type==='zone') { el.zoneColor = '#2563eb'; el.opacity = 0.12; }
-  if(type==='text') { el.fontSize = 16; el.color = '#1e293b'; }
+  if(type==='zone') { el.zoneColor = ST.zoneColor||'#378ADD'; el.opacity = ST.zoneOpacity||0.12; el.borderOpacity = 0.45; el.label = ''; }
+  if(type==='text') { el.fontSize = 16; el.color = '#1e293b'; el.bold = false; el.italic = false; }
   if(type==='arrow') { el.playOrder = ST.elements.filter(e=>e.type==='arrow').length + 1; el.strokeWidth = 2.5; el.color = ST.lineColor||'#1e293b'; el.dash = ST.lineStyle==='dashed'?'6 4':ST.lineStyle==='dotted'?'2 3':''; }
   if(type==='line') { el.strokeWidth = 2; el.color = ST.lineColor||'#1e293b'; el.dash = ST.lineStyle==='dashed'?'6 4':ST.lineStyle==='dotted'?'2 3':''; }
   if(type==='curve') { el.color = ST.lineColor||'#1e293b'; el.dash = ST.lineStyle==='dashed'?'6 4':ST.lineStyle==='dotted'?'2 3':''; }
@@ -873,8 +939,10 @@ const S = {
    case 'line':
     return `<g data-id="${el.id}" style="cursor:pointer"><line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${el.color||'rgba(0,0,0,0.6)'}" stroke-width="${el.strokeWidth||2}" stroke-linecap="round" ${el.dash?`stroke-dasharray="${el.dash}"`:''}/></g>`;
    case 'zone': {
-    const zx = el.w<0?el.x+el.w:el.x, zy = el.h<0?el.y+el.h:el.y;
-    return `<g data-id="${el.id}" style="cursor:pointer"><rect x="${zx}" y="${zy}" width="${Math.abs(el.w)}" height="${Math.abs(el.h)}" fill="${el.zoneColor||'#c8f700'}" opacity="${el.opacity||0.15}" rx="4" stroke="${el.zoneColor||'#c8f700'}" stroke-width="1" stroke-opacity="0.3"/>${el.label?`<text x="${zx+Math.abs(el.w)/2}" y="${zy+Math.abs(el.h)/2}" text-anchor="middle" dy="0.35em" font-size="12" fill="white" opacity="0.7">${el.label}</text>`:''}</g>`;
+    const zx = el.w<0?el.x+el.w:el.x, zy = el.h<0?el.y+el.h:el.y, zw=Math.abs(el.w), zh=Math.abs(el.h);
+    const c = el.zoneColor||'#378ADD';
+    const selRect = sel?`<rect x="${zx-2}" y="${zy-2}" width="${zw+4}" height="${zh+4}" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4 2" rx="10"/>`:'';
+    return `<g data-id="${el.id}" style="cursor:pointer">${selRect}<rect x="${zx}" y="${zy}" width="${zw}" height="${zh}" fill="${c}" fill-opacity="${el.opacity||0.12}" rx="8" stroke="${c}" stroke-width="1.5" stroke-opacity="${el.borderOpacity||0.45}" stroke-dasharray="6 4"/>${el.label?`<text x="${zx+zw/2}" y="${zy+zh/2}" text-anchor="middle" dy="0.35em" font-size="13" fill="${c}" font-weight="700" opacity="0.8">${el.label}</text>`:''}</g>`;
    }
    case 'text':
     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><text x="0" y="0" dy="0.35em" font-size="${el.fontSize||16}" fill="${el.color||'white'}" font-weight="${el.bold?'700':'400'}" ${el.italic?'font-style="italic"':''}>${el.label||''}</text></g>`;
@@ -888,9 +956,11 @@ const S = {
 
  renderElements() {
   const layer = document.getElementById('elements-layer');
-  // Arrow marker def
   let defs = `<defs><marker id="arrow-marker" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8" fill="none" stroke="rgba(0,0,0,0.7)" stroke-width="1.5" stroke-linecap="round"/></marker></defs>`;
-  layer.innerHTML = defs + ST.elements.map(el => this.buildElSvg(el)).join('');
+  // Z-order: zones(0) → lines/arrows/curves/pencil(1) → materials(2) → players(3) → text(4)
+  const zOrder = {zone:0, line:1, arrow:1, curve:1, pencil:1, cone:2, disc:2, flag:2, hurdle:2, minigoal:2, mannequin:2, vest:2, ring:2, ladder:2, pole:2, plyobox:2, kettlebell:2, medball:2, trx:2, sled:2, parachute:2, rope:2, battlerope:2, roller:2, band:2, bosu:2, mat:2, ball:2, playerA:3, playerB:3, goalkeeper:3, text:4};
+  const sorted = [...ST.elements].sort((a,b)=>(zOrder[a.type]||2)-(zOrder[b.type]||2));
+  layer.innerHTML = defs + sorted.map(el => this.buildElSvg(el)).join('');
  },
 
  // ── ZOOM ──

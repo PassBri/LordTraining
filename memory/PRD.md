@@ -2,36 +2,32 @@
 
 ## Credenciales: test@train.com / test123456
 
-## Implementado (Fork 9 - 13 Abr 2026)
+## Implementado (Fork 9 - 14 Abr 2026)
 
-### Toolbar Material Design
-- Ancho 76px con headers de categoría (DIBUJO, PERSONAS, CAMPO, AGILIDAD, FUERZA, CARDIO, RECUPER.)
-- Scrollbar fino, iconos 20px claros, labels 7px
-- 30+ herramientas organizadas por categorías
+### Texto Inline (Bug #1 Fix)
+- Click en Texto → click en canvas → input inline con borde azul aparece en la posición exacta
+- El input usa SVG screenCTM para posición precisa con zoom/pan
+- Enter confirma, Escape cancela, blur confirma
+- Texto se congela como SVG `<text>` permanente, arrastrable y seleccionable
+- Sin prompt() del navegador
 
-### Selector de Colores Universal
-- **Jugadores A/B**: 10 colores con botón "Usar"
-- **Elementos colorables** (Cono, Platillo, Aro, Peto, Pica, Bandera, Banda): picker con 10 colores
-- Los colores se guardan en ST.elementColors y se aplican al crear nuevos elementos
+### Zonas de Color Semitransparentes (Feature)
+- 6 colores predefinidos: Azul, Verde, Rojo, Naranja, Morado, Gris
+- Picker visual con vista previa semitransparente + borde punteado
+- Relleno: fill-opacity 0.12, Borde: stroke-opacity 0.45, stroke-dasharray 6 4
+- Border-radius 8px, etiqueta opcional centrada
+- Propiedades: zoneColor, opacity, borderOpacity, label
 
-### Estilos de Línea y Curva
-- **3 estilos**: Sólida, Guiones, Puntos (con previsualización SVG)
-- **7 colores**: Negro, rojo, azul, verde, naranja, morado
-- Se aplica a: Línea, Curva, Flecha
-- **Curva 2 fases**: drag para inicio/fin, click para punto de control (funcional)
-- Cada elemento guarda su estilo individualmente
+### Sistema de Capas (Z-Order)
+- 0: Zonas semitransparentes (siempre al fondo)
+- 1: Líneas, flechas, curvas, trazos
+- 2: Materiales de campo (conos, aros, escaleras, etc.)
+- 3: Jugadores y porteros
+- 4: Textos y etiquetas (siempre encima)
 
-### Biblioteca de 20+ Materiales
-- Campo: Platillo, Mini Arco, Barrera, Peto
-- Agilidad: Aro, Escalera, Pica
-- Fuerza: Cajón, Kettlebell, Balón Med., TRX, Trineo, Paracaídas
-- Cardio: Cuerda, Battle Rope
-- Recuperación: Roller, Banda, Bosu, Colchoneta
-
-### Campos Reglamentarios (40+ deportes)
-- Baloncesto FIBA, Balonmano, Fútbol, Fútbol de Salón, Béisbol
-- Taekwondo WT, MMA/UFC, deportes combate cuadrados
-- + 30 deportes más
+### Toolbar FAB + Biblioteca Materiales (30+ herramientas)
+- Estilo FAB circular idéntico al panel de control del dashboard
+- Headers por categoría, color pickers por elemento, line style picker
 
 ## Pendiente
 - P1: Refactorizar DashboardPage.js
