@@ -4,29 +4,31 @@
 
 ## Implementado (Fork 11 - Abr 2026)
 
+### Correcciones Header SessionEditor (Abr 12, 2026)
+- Textos subheader al 85% opacidad (antes eran ilegibles)
+- Select "Tecnico-Tactico" con opciones fondo oscuro #12131a (antes blanco sin texto)
+- Calendario con Popover + Calendar shadcn (antes input date nativo)
+- Placeholders con 30% opacidad para distinguir de valores reales
+- Clase CSS se-input para placeholders del subheader
+
 ### Rediseno SessionEditor — Branding Landing Page (Abr 12, 2026)
 - Header oscuro #0a0a0f con logo lime circular (matching Landing navbar)
 - Badge SES-XXX solido lime #9EFF00 con texto negro
-- Input nombre de sesion 17px, weight 500, placeholder "Nombre de la sesion..."
-- Estado unico: dropdown a la derecha (sin texto duplicado)
-- Subtitulo Sesion/Semana/Meso al 35% opacidad
-- Chip de duracion unificado (icono + "90 min" continuo)
-- Subheader oscuro #12131a con dividers sutiles (0.5px, 12% opacity)
-- Campo Carga est. con badge dinamico (Baja/Media/Alta) y "— Sin calcular" default
-- Cards de secciones: headers con gradiente oscuro + icono lime #CCFF00
+- Input nombre 17px, weight 500, placeholder "Nombre de la sesion..."
+- Estado unico dropdown (sin duplicado)
+- Subtitulo al 35% opacidad
+- Chip duracion unificado "90 min"
+- Subheader oscuro con dividers sutiles 0.5px
+- Carga est. con badge dinamico (Baja/Media/Alta) y "— Sin calcular" default
+- Cards secciones: headers gradiente oscuro + icono lime #CCFF00
 - Footer oscuro con boton Guardar lime #CCFF00
-- Eliminada seccion standalone Pizarra Tactica (redundante con cards de actividad)
-- Fuentes: Barlow Condensed (titulos/labels) + Inter (body)
-- Paleta: #CCFF00, #9EFF00, #0a0a0f, slate-950
+- Eliminada seccion standalone Pizarra Tactica (redundante)
+- Fuentes: Barlow Condensed + Inter
 
 ### Fork 10 (Feb 2026) — Consolidado
-- Multi-sport 3D Tactical Board (white courts, 3D lines, nets/hoops)
-- PNG export con aspect ratio correcto
-- Expandable thumbnail row en Session Editor
-- 5 horizontal Material Design cards (Medios, Carga, Intensidad, Materiales, Pizarra)
-- Exercise Library picker con categorias/subcategorias
-- Dashboard Herramientas con galeria en tiempo real via BroadcastChannel
-- Fix boardId vs index para no sobreescribir pizarras
+- Multi-sport 3D Tactical Board
+- PNG export, 5-card layout, Exercise Library picker
+- Dashboard Herramientas con galeria BroadcastChannel
 
 ## Pendiente
 - P1: Fix hydration warning en DashboardPage.js (recurrente x4)
@@ -35,12 +37,3 @@
 - P2: Print, Share, Duplicate planes de entrenamiento
 - P3: Diseno responsivo tablero tactico
 - P3: Fotos avatares 3D
-
-## Arquitectura
-```
-/app/frontend/src/components/SessionEditor.js  - Editor de sesion (~1850 lineas)
-/app/frontend/src/pages/LandingPage.js         - Landing page (fuente de diseno)
-/app/frontend/src/pages/DashboardPage.js       - Dashboard (>4500 lineas, necesita refactor)
-/app/frontend/public/tactical-board.html       - Pizarra tactica standalone (~2700 lineas)
-/app/backend/server.py                         - API FastAPI
-```
