@@ -34,11 +34,11 @@ Plataforma de gestión deportiva de alto nivel para entrenadores. Arquitectura c
 - CSS keyframes: `barGrow`, `countUp` para barras y números
 - Transiciones suaves con `cubic-bezier(0.16,1,0.3,1)`, disparo único por sección
 
-### COMPLETADO: Limpieza código muerto Caracterización Deporte  
-- Eliminado bloque `sport-char` (~285 líneas) de DashboardPage.js — nunca era accesible via nav
-- Eliminado import no usado de `SportCharacterization`
-- La caracterización funciona correctamente como modal dentro de la sección "Deportes"
-- **DashboardPage.js reducido: 4759 → 4470 líneas**
+### P2 COMPLETADO: Eliminar componentes obsoletos
+- `AICoachAssistant.js` (39KB) eliminado — no se importaba en ningún sitio
+- `PeriodizationSystem.js` (70KB) eliminado — ruta `periodization-models` era inaccesible (sin nav item)
+- `DashboardPage.js` reducido: 4,471 → 4,433 líneas (import + bloque render muerto eliminados)
+- Total liberado: ~110KB de código obsoleto
 
 ## Lo Implementado (Sesión 31 Mar 2026 - Fork 3)
 
