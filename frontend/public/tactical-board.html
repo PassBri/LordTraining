@@ -808,6 +808,15 @@ const S = {
   for(let a=0;a<360;a+=10){const rad=a*Math.PI/180;const p=this.toIso(cx+r*Math.cos(rad),cy+r*Math.sin(rad),0);pts.push(`${p.x},${p.y}`);}
   return `<polygon points="${pts.join(' ')}" fill="none" stroke="${stroke}" stroke-width="${sw}" ${extra}/>`;
  },
+ isoArc(cx,cy,r,startDeg,endDeg,stroke,sw,extra='') {
+  const pts=[];
+  for(let a=startDeg;a<=endDeg;a+=5){const rad=a*Math.PI/180;const p=this.toIso(cx+r*Math.cos(rad),cy+r*Math.sin(rad),0);pts.push(`${p.x},${p.y}`);}
+  return `<polyline points="${pts.join(' ')}" fill="none" stroke="${stroke}" stroke-width="${sw}" ${extra}/>`;
+ },
+ isoFilledRect(x,y,w,h,fill,stroke,sw) {
+  const p1=this.toIso(x,y,0),p2=this.toIso(x+w,y,0),p3=this.toIso(x+w,y+h,0),p4=this.toIso(x,y+h,0);
+  return `<polygon points="${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+ },
  isoDot(cx,cy,r,fill) {
   const p=this.toIso(cx,cy,0);
   return `<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${fill}"/>`;
@@ -817,30 +826,53 @@ const S = {
   // Dark lines on white surface — same as 2D look
   const D='rgba(0,0,0,', Y='rgba(255,200,0,';
   let L = '';
-  // Border for all sports
-  L += `<polygon points="${tl.x},${tl.y} ${tr.x},${tr.y} ${br.x},${br.y} ${bl.x},${bl.y}" fill="none" stroke="${D}0.65)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`;
   const s = ST.sport;
 
   if(s==='Futbol'||s==='FIFA') {
+   L += this.isoRect(82,30,436,740,D+'0.65)',1.5);
    L += this.isoLine(82,400,518,400,D+'0.65)',1.5);
    L += this.isoCircle(300,400,62,D+'0.65)',1.5);
    L += this.isoDot(300,400,3,D+'0.35)');
+   // Penalty areas
    L += this.isoRect(165,30,270,112,D+'0.65)',1.5);
    L += this.isoRect(210,30,180,45,D+'0.65)',1.5);
    L += this.isoRect(165,658,270,112,D+'0.65)',1.5);
    L += this.isoRect(210,725,180,45,D+'0.65)',1.5);
+   // Goals
    L += this.isoRect(250,14,100,18,D+'0.65)',1.5);
    L += this.isoRect(250,768,100,18,D+'0.65)',1.5);
-   // Corner arcs (simplified)
-   L += this.isoRect(82,30,436,740,D+'0.65)',1.5);
+   // Penalty arcs
+   L += this.isoArc(300,142,55,-90,90,D+'0.65)',1.5);
+   L += this.isoArc(300,658,55,90,270,D+'0.65)',1.5);
+   // Corner arcs
+   L += this.isoArc(82,30,12,0,90,D+'0.65)',1.5);
+   L += this.isoArc(518,30,12,90,180,D+'0.65)',1.5);
+   L += this.isoArc(82,770,12,270,360,D+'0.65)',1.5);
+   L += this.isoArc(518,770,12,180,270,D+'0.65)',1.5);
   } else if(s==='Baloncesto') {
    L += this.isoRect(90,30,420,740,D+'0.65)',2);
    L += this.isoLine(90,400,510,400,D+'0.65)',1.5);
    L += this.isoCircle(300,400,50,D+'0.65)',1.5);
+   // Keys (paint areas)
    L += this.isoRect(231,30,137,153,D+'0.65)',1.5);
    L += this.isoRect(231,617,137,153,D+'0.65)',1.5);
+   // Free-throw semicircles
+   L += this.isoArc(300,183,50,-90,90,D+'0.65)',1.5);
+   L += this.isoArc(300,183,50,90,270,D+'0.35)',1,'stroke-dasharray="6 4"');
+   L += this.isoArc(300,617,50,90,270,D+'0.65)',1.5);
+   L += this.isoArc(300,617,50,-90,90,D+'0.35)',1,'stroke-dasharray="6 4"');
+   // Basket positions
+   L += this.isoRect(275,62,50,3,D+'0.65)',1.5);
    L += this.isoCircle(300,72,6,D+'0.65)',1.5);
+   L += this.isoRect(275,735,50,3,D+'0.65)',1.5);
    L += this.isoCircle(300,728,6,D+'0.65)',1.5);
+   // 3-point arcs
+   L += this.isoArc(300,109,189,-60,60,D+'0.65)',1.5);
+   L += this.isoLine(115,30,115,109,D+'0.65)',1.5);
+   L += this.isoLine(485,30,485,109,D+'0.65)',1.5);
+   L += this.isoArc(300,691,189,120,240,D+'0.65)',1.5);
+   L += this.isoLine(115,770,115,691,D+'0.65)',1.5);
+   L += this.isoLine(485,770,485,691,D+'0.65)',1.5);
   } else if(s==='Voleibol') {
    L += this.isoRect(60,50,480,700,D+'0.65)',1.5);
    L += this.isoLine(60,400,540,400,D+'0.65)',3);
@@ -849,11 +881,26 @@ const S = {
   } else if(s==='Balonmano') {
    L += this.isoRect(60,40,480,720,D+'0.65)',2);
    L += this.isoLine(60,400,540,400,D+'0.65)',1.5);
-   L += this.isoDot(300,166,3,D+'0.4)');
+   // 6m area arcs (solid)
+   L += this.isoArc(300,40,144,0,180,D+'0.65)',2);
+   L += this.isoArc(300,760,144,180,360,D+'0.65)',2);
+   // 9m area arcs (dashed)
+   L += this.isoArc(300,40,216,0,180,D+'0.35)',1.5,'stroke-dasharray="8 5"');
+   L += this.isoArc(300,760,216,180,360,D+'0.35)',1.5,'stroke-dasharray="8 5"');
+   // Goals
    L += this.isoRect(260,20,80,22,D+'0.65)',1.5);
    L += this.isoRect(260,758,80,22,D+'0.65)',1.5);
+   // Free-throw dots
+   L += this.isoDot(300,166,3,D+'0.4)');
+   L += this.isoDot(300,634,3,D+'0.4)');
+   // Substitution zone lines
+   L += this.isoLine(56,360,63,360,D+'0.65)',1.5);
+   L += this.isoLine(56,440,63,440,D+'0.65)',1.5);
   } else if(s==='Rugby') {
    L += this.isoRect(60,30,480,740,D+'0.65)',1.5);
+   // Try zones (filled)
+   L += this.isoFilledRect(60,30,480,60,'rgba(0,0,0,0.04)','none',0);
+   L += this.isoFilledRect(60,710,480,60,'rgba(0,0,0,0.04)','none',0);
    L += this.isoLine(60,90,540,90,D+'0.65)',1);
    L += this.isoLine(60,710,540,710,D+'0.65)',1);
    L += this.isoLine(60,194,540,194,D+'0.65)',1);
@@ -882,12 +929,29 @@ const S = {
    L += this.isoDot(300,552,12,D+'0.08)');
   } else if(s==='Futbol Americano') {
    L += this.isoRect(60,30,480,740,D+'0.65)',1.5);
+   // End zones (filled)
+   L += this.isoFilledRect(60,30,480,60,'rgba(80,120,255,0.06)','none',0);
+   L += this.isoFilledRect(60,710,480,60,'rgba(255,60,60,0.06)','none',0);
    for(let i=0;i<=10;i++) L += this.isoLine(60,90+i*56,540,90+i*56,D+(i%2===0?'0.65)':'0.35)'),1,i%2!==0?'stroke-dasharray="4 3"':'');
   } else if(s==='Futbol de Salon') {
    L += this.isoRect(90,30,420,740,D+'0.65)',2);
    L += this.isoLine(90,400,510,400,D+'0.65)',1.5);
    L += this.isoCircle(300,400,63,D+'0.65)',1.5);
    L += this.isoDot(300,400,3,D+'0.3)');
+   // Goal area arcs
+   L += this.isoArc(300,30,210,0,180,D+'0.65)',1.5);
+   L += this.isoArc(300,770,210,180,360,D+'0.65)',1.5);
+   // Goals
+   L += this.isoRect(268,22,63,10,D+'0.65)',1.5);
+   L += this.isoRect(268,768,63,10,D+'0.65)',1.5);
+   // Penalty dots
+   L += this.isoDot(300,141,3,D+'0.4)');
+   L += this.isoDot(300,659,3,D+'0.4)');
+   L += this.isoDot(300,215,2.5,D+'0.3)');
+   L += this.isoDot(300,585,2.5,D+'0.3)');
+   // Substitution lines
+   L += this.isoLine(86,354,90,354,D+'0.65)',1.5);
+   L += this.isoLine(86,446,90,446,D+'0.65)',1.5);
   } else if(s==='Tenis') {
    L += this.isoRect(90,40,420,720,D+'0.65)',1.5);
    L += this.isoLine(90,400,510,400,D+'0.65)',3);
@@ -1114,19 +1178,47 @@ const S = {
   const t = Math.max(0,Math.min(1,(p.y-minIsoY)/(maxIsoY-minIsoY)));
   const ds = 0.5 + t*0.6;
 
-  if(el.type==='playerA'||el.type==='playerB'||el.type==='goalkeeper') {
-   return this.buildIsoPlayer(el, p, ds);
-  }
+  if(el.type==='playerA'||el.type==='playerB'||el.type==='goalkeeper') return this.buildIsoPlayer(el, p, ds);
   if(el.type==='ball') return this.buildIsoBall(el, p, ds);
   if(el.type==='cone') return this.buildIsoCone(el, p, ds);
   if(el.type==='arrow') return this.buildIsoArrow(el);
   if(el.type==='line') return this.buildIsoLine(el);
+  if(el.type==='pencil') return this.buildIsoPencil(el);
+  if(el.type==='curve') return this.buildIsoCurve(el);
   if(el.type==='text') {
-   return `<text x="${p.x}" y="${p.y}" text-anchor="middle" font-size="${(el.fontSize||16)*ds}" fill="${el.color||'#fff'}" font-weight="${el.bold?800:600}" data-id="${el.id}" style="cursor:grab">${el.label||''}</text>`;
+   return `<text x="${p.x}" y="${p.y}" text-anchor="middle" font-size="${(el.fontSize||16)*ds}" fill="${el.color||'#1e293b'}" font-weight="${el.bold?800:600}" data-id="${el.id}" style="cursor:grab">${el.label||''}</text>`;
   }
-  // Generic material: just place at iso position with scale
+  if(el.type==='flag') return this.buildIsoFlag(el, p, ds);
+  if(el.type==='hurdle') return this.buildIsoHurdle(el, p, ds);
+  if(el.type==='disc') return this.buildIsoDisc(el, p, ds);
+  if(el.type==='minigoal') return this.buildIsoMinigoal(el, p, ds);
+  if(el.type==='mannequin') return this.buildIsoMannequin(el, p, ds);
+  if(el.type==='vest') return this.buildIsoVest(el, p, ds);
+  if(el.type==='ring') return this.buildIsoRing(el, p, ds);
+  if(el.type==='ladder') return this.buildIsoLadder(el, p, ds);
+  if(el.type==='pole') return this.buildIsoPole(el, p, ds);
+  // Generic material at iso position
   const s = ds*0.9;
-  return `<g transform="translate(${p.x},${p.y}) scale(${s})" data-id="${el.id}" style="cursor:grab"><ellipse cx="0" cy="8" rx="10" ry="3" fill="rgba(0,0,0,0.15)"/><circle cx="0" cy="0" r="8" fill="rgba(100,100,100,0.3)" stroke="rgba(0,0,0,0.4)" stroke-width="1.5"/></g>`;
+  return `<g transform="translate(${p.x},${p.y}) scale(${s})" data-id="${el.id}" style="cursor:grab"><ellipse cx="0" cy="6" rx="10" ry="3" fill="rgba(0,0,0,0.12)"/>${this.buildElSvgInner(el)}</g>`;
+ },
+
+ // Render the inner SVG of a 2D element (without translate wrapper)
+ buildElSvgInner(el) {
+  switch(el.type) {
+   case 'plyobox': return '<rect x="-16" y="-8" width="32" height="20" rx="2" fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="1.5"/><line x1="-16" y1="-8" x2="-10" y2="-14" stroke="rgba(0,0,0,0.5)" stroke-width="1"/><line x1="16" y1="-8" x2="22" y2="-14" stroke="rgba(0,0,0,0.5)" stroke-width="1"/><line x1="-10" y1="-14" x2="22" y2="-14" stroke="rgba(0,0,0,0.5)" stroke-width="1"/>';
+   case 'kettlebell': return '<circle cx="0" cy="4" r="8" fill="rgba(60,60,60,0.15)" stroke="rgba(0,0,0,0.6)" stroke-width="1.5"/><path d="M-4,-4 Q0,-10 4,-4" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="2"/>';
+   case 'medball': return `<circle cx="0" cy="0" r="10" fill="rgba(239,68,68,0.15)" stroke="#ef4444" stroke-width="1.5"/><line x1="-10" y1="0" x2="10" y2="0" stroke="#ef4444" stroke-width="0.8"/>`;
+   case 'trx': return '<line x1="-6" y1="-14" x2="-6" y2="2" stroke="rgba(0,0,0,0.6)" stroke-width="2"/><line x1="6" y1="-14" x2="6" y2="2" stroke="rgba(0,0,0,0.6)" stroke-width="2"/><circle cx="-6" cy="6" r="4" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.5"/><circle cx="6" cy="6" r="4" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.5"/><line x1="-6" y1="-14" x2="6" y2="-14" stroke="rgba(0,0,0,0.6)" stroke-width="2"/>';
+   case 'sled': return '<rect x="-14" y="-8" width="28" height="16" rx="2" fill="rgba(0,0,0,0.08)" stroke="rgba(0,0,0,0.5)" stroke-width="1.5"/><line x1="14" y1="0" x2="24" y2="-6" stroke="rgba(0,0,0,0.4)" stroke-width="2" stroke-dasharray="3 2"/>';
+   case 'parachute': return '<path d="M-14,-6 Q0,-16 14,-6" fill="rgba(37,99,235,0.1)" stroke="#2563eb" stroke-width="1.5"/><line x1="-14" y1="-6" x2="0" y2="10" stroke="#2563eb" stroke-width="1"/><line x1="14" y1="-6" x2="0" y2="10" stroke="#2563eb" stroke-width="1"/>';
+   case 'rope': return '<path d="M-8,8 Q-4,-4 0,2 Q4,8 8,-4" fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="2" stroke-linecap="round"/>';
+   case 'battlerope': return '<path d="M-20,0 Q-12,-10 -4,0 Q4,10 12,0 Q18,-8 22,0" fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="3" stroke-linecap="round"/>';
+   case 'roller': return '<rect x="-12" y="-5" width="24" height="10" rx="5" fill="rgba(0,0,0,0.06)" stroke="rgba(0,0,0,0.5)" stroke-width="1.5"/>';
+   case 'band': return `<path d="M-12,0 Q0,-10 12,0 Q0,10 -12,0" fill="rgba(239,68,68,0.12)" stroke="#ef4444" stroke-width="2"/>`;
+   case 'bosu': return '<path d="M-14,4 Q0,-10 14,4" fill="rgba(37,99,235,0.1)" stroke="#2563eb" stroke-width="1.5"/><line x1="-14" y1="4" x2="14" y2="4" stroke="#2563eb" stroke-width="1.5"/>';
+   case 'mat': return '<rect x="-18" y="-10" width="36" height="20" rx="3" fill="rgba(34,197,94,0.1)" stroke="#22c55e" stroke-width="1.5"/>';
+   default: return '<circle cx="0" cy="0" r="8" fill="rgba(100,100,100,0.15)" stroke="rgba(0,0,0,0.4)" stroke-width="1.5"/>';
+  }
  },
 
  buildIsoPlayer(el, p, ds) {
@@ -1187,14 +1279,75 @@ const S = {
   const p1 = this.toIso(el.x1||0, el.y1||0, 0);
   const p2 = this.toIso(el.x2||0, el.y2||0, 0);
   const aid = `iag${el.id}`;
-  const ac = el.color||'rgba(255,255,255,0.7)';
-  return `<g data-id="${el.id}" style="cursor:pointer"><defs><linearGradient id="${aid}" x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="${ac}" stop-opacity="0.05"/><stop offset="40%" stop-color="${ac}" stop-opacity="0.3"/><stop offset="100%" stop-color="${ac}" stop-opacity="0.9"/></linearGradient></defs><line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="url(#${aid})" stroke-width="8" stroke-linecap="round" opacity="0.2"/><line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${ac}" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow-marker)" ${el.dash?`stroke-dasharray="${el.dash}"`:''}/></g>`;
+  const ac = el.color||'#1e293b';
+  return `<g data-id="${el.id}" style="cursor:pointer"><defs><linearGradient id="${aid}" x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="${ac}" stop-opacity="0.05"/><stop offset="40%" stop-color="${ac}" stop-opacity="0.3"/><stop offset="100%" stop-color="${ac}" stop-opacity="0.9"/></linearGradient></defs><line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="url(#${aid})" stroke-width="8" stroke-linecap="round" opacity="0.15"/><line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${ac}" stroke-width="2.5" stroke-linecap="round" marker-end="url(#arrow-marker)" ${el.dash?`stroke-dasharray="${el.dash}"`:''}/><circle cx="${p1.x}" cy="${p1.y}" r="3" fill="${ac}" opacity="0.4"/></g>`;
  },
 
  buildIsoLine(el) {
   const p1 = this.toIso(el.x1||0, el.y1||0, 0);
   const p2 = this.toIso(el.x2||0, el.y2||0, 0);
-  return `<g data-id="${el.id}" style="cursor:pointer"><line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${el.color||'rgba(255,255,255,0.6)'}" stroke-width="2" stroke-linecap="round" ${el.dash?`stroke-dasharray="${el.dash}"`:''}/></g>`;
+  return `<g data-id="${el.id}" style="cursor:pointer"><line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${el.color||'#1e293b'}" stroke-width="2" stroke-linecap="round" ${el.dash?`stroke-dasharray="${el.dash}"`:''}/></g>`;
+ },
+
+ buildIsoPencil(el) {
+  if(!el.points||el.points.length<2) return '';
+  const pts = el.points.map(pt => { const p=this.toIso(pt.x,pt.y,0); return `${p.x},${p.y}`; });
+  return `<g data-id="${el.id}" style="cursor:pointer"><polyline points="${pts.join(' ')}" fill="none" stroke="${el.color||'#1e293b'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+ },
+
+ buildIsoCurve(el) {
+  const p1=this.toIso(el.x1||0,el.y1||0,0), pc=this.toIso(el.cx||0,el.cy||0,0), p2=this.toIso(el.x2||0,el.y2||0,0);
+  return `<g data-id="${el.id}" style="cursor:pointer"><path d="M${p1.x},${p1.y} Q${pc.x},${pc.y} ${p2.x},${p2.y}" fill="none" stroke="${el.color||'#1e293b'}" stroke-width="2" stroke-linecap="round" ${el.dash?`stroke-dasharray="${el.dash}"`:''}/></g>`;
+ },
+
+ buildIsoFlag(el, p, ds) {
+  const s = ds*1.1;
+  const c = el.color||'#ef4444';
+  return `<g data-id="${el.id}" style="cursor:grab"><ellipse cx="${p.x+1}" cy="${p.y+2}" rx="${6*s}" ry="${2*s}" fill="rgba(0,0,0,0.1)"/><line x1="${p.x}" y1="${p.y}" x2="${p.x}" y2="${p.y-28*s}" stroke="rgba(0,0,0,0.5)" stroke-width="${1.5*s}"/><polygon points="${p.x},${p.y-28*s} ${p.x+14*s},${p.y-22*s} ${p.x},${p.y-16*s}" fill="${c}" opacity="0.8"/></g>`;
+ },
+
+ buildIsoHurdle(el, p, ds) {
+  const s = ds*1.1;
+  return `<g data-id="${el.id}" style="cursor:grab"><ellipse cx="${p.x}" cy="${p.y+2}" rx="${16*s}" ry="${3*s}" fill="rgba(0,0,0,0.1)"/><rect x="${p.x-18*s}" y="${p.y-8*s}" width="${36*s}" height="${8*s}" rx="${2*s}" fill="none" stroke="#ff9800" stroke-width="${2*s}"/><line x1="${p.x-12*s}" y1="${p.y}" x2="${p.x-12*s}" y2="${p.y+8*s}" stroke="#ff9800" stroke-width="${1.5*s}"/><line x1="${p.x+12*s}" y1="${p.y}" x2="${p.x+12*s}" y2="${p.y+8*s}" stroke="#ff9800" stroke-width="${1.5*s}"/></g>`;
+ },
+
+ buildIsoDisc(el, p, ds) {
+  const s = ds;
+  const c = el.color||'#2563eb';
+  return `<g data-id="${el.id}" style="cursor:grab"><ellipse cx="${p.x}" cy="${p.y+2}" rx="${11*s}" ry="${3*s}" fill="rgba(0,0,0,0.08)"/><ellipse cx="${p.x}" cy="${p.y}" rx="${10*s}" ry="${4*s}" fill="${c}" opacity="0.8" stroke="${c}" stroke-width="${1.5*s}"/></g>`;
+ },
+
+ buildIsoMinigoal(el, p, ds) {
+  const s = ds;
+  return `<g data-id="${el.id}" style="cursor:grab"><ellipse cx="${p.x}" cy="${p.y+2}" rx="${18*s}" ry="${4*s}" fill="rgba(0,0,0,0.08)"/><rect x="${p.x-18*s}" y="${p.y-14*s}" width="${36*s}" height="${26*s}" rx="${2*s}" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="${2*s}"/><line x1="${p.x-18*s}" y1="${p.y-14*s}" x2="${p.x-18*s}" y2="${p.y+12*s}" stroke="rgba(0,0,0,0.5)" stroke-width="${2*s}"/><line x1="${p.x+18*s}" y1="${p.y-14*s}" x2="${p.x+18*s}" y2="${p.y+12*s}" stroke="rgba(0,0,0,0.5)" stroke-width="${2*s}"/></g>`;
+ },
+
+ buildIsoMannequin(el, p, ds) {
+  const s = ds*1.2;
+  return `<g data-id="${el.id}" style="cursor:grab"><ellipse cx="${p.x}" cy="${p.y+2}" rx="${8*s}" ry="${3*s}" fill="rgba(0,0,0,0.1)"/><rect x="${p.x-6*s}" y="${p.y-22*s}" width="${12*s}" height="${30*s}" rx="${6*s}" fill="rgba(80,80,80,0.2)" stroke="rgba(0,0,0,0.5)" stroke-width="${1.5*s}"/><line x1="${p.x}" y1="${p.y+8*s}" x2="${p.x}" y2="${p.y+14*s}" stroke="rgba(0,0,0,0.5)" stroke-width="${2*s}"/></g>`;
+ },
+
+ buildIsoVest(el, p, ds) {
+  const s = ds;
+  const c = el.color||'#ef4444';
+  return `<g data-id="${el.id}" style="cursor:grab"><path d="M${p.x-8*s},${p.y-10*s} L${p.x},${p.y-14*s} L${p.x+8*s},${p.y-10*s} L${p.x+10*s},${p.y+8*s} L${p.x-10*s},${p.y+8*s} Z" fill="${c}" opacity="0.6" stroke="${c}" stroke-width="${1.5*s}"/></g>`;
+ },
+
+ buildIsoRing(el, p, ds) {
+  const s = ds;
+  const c = el.color||'#8b5cf6';
+  return `<g data-id="${el.id}" style="cursor:grab"><ellipse cx="${p.x}" cy="${p.y+2}" rx="${14*s}" ry="${4*s}" fill="rgba(0,0,0,0.06)"/><circle cx="${p.x}" cy="${p.y}" r="${14*s}" fill="none" stroke="${c}" stroke-width="${2.5*s}"/></g>`;
+ },
+
+ buildIsoLadder(el, p, ds) {
+  const s = ds;
+  return `<g data-id="${el.id}" style="cursor:grab"><rect x="${p.x-15*s}" y="${p.y-30*s}" width="${30*s}" height="${60*s}" fill="none" stroke="#f59e0b" stroke-width="${1.5*s}" rx="1"/>${[-24,-16,-8,0,8,16,24].map(ry=>`<line x1="${p.x-15*s}" y1="${p.y+ry*s}" x2="${p.x+15*s}" y2="${p.y+ry*s}" stroke="#f59e0b" stroke-width="${1*s}"/>`).join('')}</g>`;
+ },
+
+ buildIsoPole(el, p, ds) {
+  const s = ds*1.2;
+  const c = el.color||'#f59e0b';
+  return `<g data-id="${el.id}" style="cursor:grab"><ellipse cx="${p.x}" cy="${p.y+2}" rx="${4*s}" ry="${2*s}" fill="rgba(0,0,0,0.08)"/><line x1="${p.x}" y1="${p.y-22*s}" x2="${p.x}" y2="${p.y+8*s}" stroke="${c}" stroke-width="${3*s}" stroke-linecap="round"/><circle cx="${p.x}" cy="${p.y-22*s}" r="${3.5*s}" fill="${c}"/></g>`;
  },
 
  // ── FIELD ROTATION ──
