@@ -888,7 +888,7 @@ const SessionEditor = ({
             {/* Una sola fila: Medios | Carga | Intensidad | Materiales | Pizarra */}
             <div className="flex gap-1.5 p-2">
               {/* MEDIOS */}
-              <div className="flex-[3] min-w-0 rounded-xl border border-slate-100 p-2 relative">
+              <div className="flex-[4] min-w-0 rounded-xl border border-slate-100 p-2 relative">
                 <div className="flex items-center gap-1 mb-1">
                   <div className="w-4 h-4 rounded bg-[#c8f700] flex items-center justify-center"><Dumbbell className="w-2.5 h-2.5 text-[#1a2800]" /></div>
                   <span className="text-[8px] font-bold uppercase tracking-widest text-slate-500">Medios</span>
@@ -941,7 +941,7 @@ const SessionEditor = ({
                     <button className="w-full text-center text-slate-400 py-1 border-t bg-slate-50 text-[10px] hover:text-slate-600" onClick={() => setShowExercisePicker(null)}>Cerrar</button>
                   </div>
                 )}
-                <Textarea value={act.descripcion||''} onChange={(e) => updateActividad(faseKey, idx, 'descripcion', e.target.value)} placeholder="Descripcion..." className="text-[9px] min-h-[18px] h-[18px] resize-none py-0.5 px-1.5 text-slate-400 leading-tight border-slate-100" rows={1} data-testid={`exercise-desc-${faseKey}-${idx}`} onInput={(e) => { e.target.style.height='auto'; e.target.style.height=Math.min(e.target.scrollHeight,50)+'px'; }} />
+                <Textarea value={act.descripcion||''} onChange={(e) => updateActividad(faseKey, idx, 'descripcion', e.target.value)} placeholder="Descripcion del ejercicio..." className="text-[10px] min-h-[48px] h-12 resize-none py-1 px-1.5 text-slate-400 leading-normal border-slate-100 flex-1" rows={2} data-testid={`exercise-desc-${faseKey}-${idx}`} onInput={(e) => { e.target.style.height='auto'; e.target.style.height=Math.min(e.target.scrollHeight,80)+'px'; }} />
               </div>
 
               {/* CARGA */}
@@ -979,7 +979,7 @@ const SessionEditor = ({
               </div>
 
               {/* MATERIALES */}
-              <div className="flex-[2] min-w-0 rounded-xl border border-slate-100 p-2">
+              <div className="w-[180px] flex-shrink-0 rounded-xl border border-slate-100 p-2">
                 <div className="flex items-center gap-1 mb-1">
                   <div className="w-4 h-4 rounded bg-purple-50 flex items-center justify-center"><Target className="w-2.5 h-2.5 text-purple-600" /></div>
                   <span className="text-[8px] font-bold uppercase tracking-widest text-slate-500">Materiales</span>
@@ -993,23 +993,23 @@ const SessionEditor = ({
                   {actMateriales.length === 0 && <span className="text-[8px] text-slate-300 italic">Sin materiales</span>}
                 </div>
                 <div className="flex flex-wrap gap-0.5">
-                  {MATERIALES_DISPONIBLES.filter(m => !actMateriales.includes(m)).slice(0,8).map(mat => (
+                  {MATERIALES_DISPONIBLES.filter(m => !actMateriales.includes(m)).slice(0,6).map(mat => (
                     <button key={mat} onClick={() => updateActividad(faseKey, idx, 'materiales', [...actMateriales, mat])} className="text-[7px] px-1 py-px rounded-full border border-slate-200 text-slate-400 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700 transition-colors">{mat}</button>
                   ))}
-                  {MATERIALES_DISPONIBLES.filter(m => !actMateriales.includes(m)).length > 8 && <span className="text-[7px] text-slate-300 self-center">+{MATERIALES_DISPONIBLES.filter(m => !actMateriales.includes(m)).length-8}</span>}
+                  {MATERIALES_DISPONIBLES.filter(m => !actMateriales.includes(m)).length > 6 && <span className="text-[7px] text-slate-300 self-center">+{MATERIALES_DISPONIBLES.filter(m => !actMateriales.includes(m)).length-6}</span>}
                 </div>
               </div>
 
               {/* PIZARRA */}
-              <div className="w-[90px] flex-shrink-0 rounded-xl border border-slate-100 p-2">
+              <div className="w-[110px] flex-shrink-0 rounded-xl border border-slate-100 p-2 flex flex-col">
                 <div className="flex items-center gap-1 mb-1">
                   <div className="w-4 h-4 rounded bg-[#f0ffd0] flex items-center justify-center"><LayoutGrid className="w-2.5 h-2.5 text-[#3a5a00]" /></div>
                   <span className="text-[8px] font-bold uppercase tracking-widest text-slate-500">Pizarra</span>
                 </div>
                 {act.boardThumbnail ? (
-                  <div className="w-full h-[72px] rounded-lg border border-slate-200 bg-white cursor-pointer hover:border-[#c8f700] overflow-hidden" onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open(act.boardId?`/tactical-board.html?boardId=${act.boardId}`:'/tactical-board.html','_blank');}} data-testid={`board-thumb-${faseKey}-${idx}`} dangerouslySetInnerHTML={{__html:act.boardThumbnail}} />
+                  <div className="w-full flex-1 min-h-[90px] rounded-lg border border-slate-200 bg-white cursor-pointer hover:border-[#c8f700] overflow-hidden" onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open(act.boardId?`/tactical-board.html?boardId=${act.boardId}`:'/tactical-board.html','_blank');}} data-testid={`board-thumb-${faseKey}-${idx}`} dangerouslySetInnerHTML={{__html:act.boardThumbnail}} />
                 ) : (
-                  <button onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open('/tactical-board.html','_blank');}} className="w-full h-[72px] rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-300 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all" data-testid={`open-board-${faseKey}-${idx}`}>
+                  <button onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open('/tactical-board.html','_blank');}} className="w-full flex-1 min-h-[90px] rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-300 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all" data-testid={`open-board-${faseKey}-${idx}`}>
                     <LayoutGrid className="w-4 h-4" /><span className="text-[6px] font-semibold uppercase mt-0.5">Abrir</span>
                   </button>
                 )}
