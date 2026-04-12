@@ -810,7 +810,16 @@ const S = {
  },
  isoArc(cx,cy,r,startDeg,endDeg,stroke,sw,extra='') {
   const pts=[];
-  for(let a=startDeg;a<=endDeg;a+=5){const rad=a*Math.PI/180;const p=this.toIso(cx+r*Math.cos(rad),cy+r*Math.sin(rad),0);pts.push(`${p.x},${p.y}`);}
+  const step = startDeg<=endDeg ? 5 : -5;
+  for(let a=startDeg; step>0?a<=endDeg:a>=endDeg; a+=step){const rad=a*Math.PI/180;const p=this.toIso(cx+r*Math.cos(rad),cy+r*Math.sin(rad),0);pts.push(`${p.x},${p.y}`);}
+  if(pts.length<2) return '';
+  return `<polyline points="${pts.join(' ')}" fill="none" stroke="${stroke}" stroke-width="${sw}" ${extra}/>`;
+ },
+ isoEllipseArc(cx,cy,rx,ry,startDeg,endDeg,stroke,sw,extra='') {
+  const pts=[];
+  const step = startDeg<=endDeg ? 5 : -5;
+  for(let a=startDeg; step>0?a<=endDeg:a>=endDeg; a+=step){const rad=a*Math.PI/180;const p=this.toIso(cx+rx*Math.cos(rad),cy+ry*Math.sin(rad),0);pts.push(`${p.x},${p.y}`);}
+  if(pts.length<2) return '';
   return `<polyline points="${pts.join(' ')}" fill="none" stroke="${stroke}" stroke-width="${sw}" ${extra}/>`;
  },
  isoFilledRect(x,y,w,h,fill,stroke,sw) {
@@ -850,29 +859,38 @@ const S = {
    L += this.isoArc(82,770,12,270,360,D+'0.65)',1.5);
    L += this.isoArc(518,770,12,180,270,D+'0.65)',1.5);
   } else if(s==='Baloncesto') {
+   // Court boundary
    L += this.isoRect(90,30,420,740,D+'0.65)',2);
+   // Half-court line
    L += this.isoLine(90,400,510,400,D+'0.65)',1.5);
+   // Center circle
    L += this.isoCircle(300,400,50,D+'0.65)',1.5);
-   // Keys (paint areas)
+   // Top key (paint area)
    L += this.isoRect(231,30,137,153,D+'0.65)',1.5);
+   // Bottom key (paint area)
    L += this.isoRect(231,617,137,153,D+'0.65)',1.5);
-   // Free-throw semicircles
-   L += this.isoArc(300,183,50,-90,90,D+'0.65)',1.5);
-   L += this.isoArc(300,183,50,90,270,D+'0.35)',1,'stroke-dasharray="6 4"');
-   L += this.isoArc(300,617,50,90,270,D+'0.65)',1.5);
-   L += this.isoArc(300,617,50,-90,90,D+'0.35)',1,'stroke-dasharray="6 4"');
-   // Basket positions
+   // Top free-throw semicircle (solid — curves downward away from baseline)
+   L += this.isoArc(300,183,69,0,180,D+'0.65)',1.5);
+   // Top free-throw semicircle (dashed — curves upward toward baseline)
+   L += this.isoArc(300,183,69,180,360,D+'0.35)',1,'stroke-dasharray="6 4"');
+   // Bottom free-throw semicircle (solid — curves upward toward center)
+   L += this.isoArc(300,617,69,180,360,D+'0.65)',1.5);
+   // Bottom free-throw semicircle (dashed — curves downward away from center)
+   L += this.isoArc(300,617,69,0,180,D+'0.35)',1,'stroke-dasharray="6 4"');
+   // Top backboard + hoop
    L += this.isoRect(275,62,50,3,D+'0.65)',1.5);
    L += this.isoCircle(300,72,6,D+'0.65)',1.5);
+   // Bottom backboard + hoop
    L += this.isoRect(275,735,50,3,D+'0.65)',1.5);
    L += this.isoCircle(300,728,6,D+'0.65)',1.5);
-   // 3-point arcs
-   L += this.isoArc(300,109,189,-60,60,D+'0.65)',1.5);
+   // Top 3-point line: sides + elliptical arc
    L += this.isoLine(115,30,115,109,D+'0.65)',1.5);
    L += this.isoLine(485,30,485,109,D+'0.65)',1.5);
-   L += this.isoArc(300,691,189,120,240,D+'0.65)',1.5);
+   L += this.isoEllipseArc(300,109,189,178,180,0,D+'0.65)',1.5);
+   // Bottom 3-point line: sides + elliptical arc
    L += this.isoLine(115,770,115,691,D+'0.65)',1.5);
    L += this.isoLine(485,770,485,691,D+'0.65)',1.5);
+   L += this.isoEllipseArc(300,691,189,178,180,360,D+'0.65)',1.5);
   } else if(s==='Voleibol') {
    L += this.isoRect(60,50,480,700,D+'0.65)',1.5);
    L += this.isoLine(60,400,540,400,D+'0.65)',3);
