@@ -229,6 +229,7 @@ const SessionEditor = ({
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [showBoardEditor, setShowBoardEditor] = useState(false);
+  const [expandedBoard, setExpandedBoard] = useState(null); // 'faseKey-idx' to expand thumbnail
   const sessionContentRef = useRef(null);
   const boardEditContextRef = useRef(null);
 
@@ -239,6 +240,7 @@ const SessionEditor = ({
         const { faseKey, actIdx } = boardEditContextRef.current;
         updateActividad(faseKey, actIdx, 'boardId', event.data.boardId);
         updateActividad(faseKey, actIdx, 'boardThumbnail', event.data.thumbnail);
+        setExpandedBoard(`${faseKey}-${actIdx}`);
         boardEditContextRef.current = null;
         toast.success('Pizarra vinculada a la actividad');
       }
@@ -813,7 +815,8 @@ const SessionEditor = ({
           </thead>
           <tbody>
             {fase.actividades.map((act, idx) => (
-              <tr key={act.id} className="border-b hover:bg-slate-50" style={{ position: 'relative', zIndex: showExercisePicker === `${faseKey}-${idx}` ? 1000 : 1 }}>
+              <React.Fragment key={act.id}>
+              <tr className="border-b hover:bg-slate-50" style={{ position: 'relative', zIndex: showExercisePicker === `${faseKey}-${idx}` ? 1000 : 1 }}>
                 {/* Medios (Ejercicio) */}
                 <td className="py-2 px-2 overflow-visible">
                   <div className="relative">
@@ -990,23 +993,21 @@ const SessionEditor = ({
                 {/* Pizarra Táctica */}
                 <td className="py-2 px-1 text-center">
                   {act.boardThumbnail ? (
-                    <div
-                      className="w-10 h-14 rounded border border-slate-200 cursor-pointer overflow-hidden hover:border-[#c8f700] transition-colors mx-auto"
-                      onClick={() => {
-                        boardEditContextRef.current = { faseKey, actIdx: idx };
-                        window.open(act.boardId ? `/tactical-board.html?boardId=${act.boardId}` : '/tactical-board.html', '_blank');
-                      }}
-                      title="Editar Pizarra"
+                    <button
+                      onClick={() => setExpandedBoard(expandedBoard === `${faseKey}-${idx}` ? null : `${faseKey}-${idx}`)}
+                      className={`p-1 rounded-lg transition-colors ${expandedBoard === `${faseKey}-${idx}` ? 'bg-[#f0ffd0] text-[#3a5a00]' : 'hover:bg-[#f0ffd0] text-[#3a5a00]'}`}
+                      title="Ver/Ocultar Pizarra"
                       data-testid={`board-thumb-${faseKey}-${idx}`}
-                      dangerouslySetInnerHTML={{ __html: act.boardThumbnail }}
-                    />
+                    >
+                      <LayoutGrid className="w-4 h-4" />
+                    </button>
                   ) : (
                     <button
                       onClick={() => {
                         boardEditContextRef.current = { faseKey, actIdx: idx };
                         window.open('/tactical-board.html', '_blank');
                       }}
-                      className="p-1.5 rounded-lg hover:bg-[#f0ffd0] text-[#3a5a00] transition-colors"
+                      className="p-1.5 rounded-lg hover:bg-[#f0ffd0] text-slate-400 hover:text-[#3a5a00] transition-colors"
                       title="Abrir Pizarra Tactica"
                       data-testid={`open-board-${faseKey}-${idx}`}
                     >
@@ -1025,6 +1026,40 @@ const SessionEditor = ({
                   </button>
                 </td>
               </tr>
+              {/* Fila expandible con miniatura de pizarra */}
+              {act.boardThumbnail && expandedBoard === `${faseKey}-${idx}` && (
+                <tr>
+                  <td colSpan={11} className="py-2 px-3 bg-slate-50 border-b border-slate-100">
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="w-36 h-48 rounded-lg border border-slate-200 overflow-hidden bg-white shadow-sm flex-shrink-0 cursor-pointer hover:border-[#c8f700] transition-colors"
+                        onClick={() => {
+                          boardEditContextRef.current = { faseKey, actIdx: idx };
+                          window.open(act.boardId ? `/tactical-board.html?boardId=${act.boardId}` : '/tactical-board.html', '_blank');
+                        }}
+                        title="Clic para editar pizarra"
+                        data-testid={`board-preview-${faseKey}-${idx}`}
+                        dangerouslySetInnerHTML={{ __html: act.boardThumbnail }}
+                      />
+                      <div className="flex flex-col gap-1 pt-1">
+                        <span className="text-xs font-semibold text-slate-700">Pizarra Tactica</span>
+                        <span className="text-[10px] text-slate-400">Clic en la imagen para editar</span>
+                        <button
+                          onClick={() => {
+                            updateActividad(faseKey, idx, 'boardThumbnail', null);
+                            updateActividad(faseKey, idx, 'boardId', null);
+                            setExpandedBoard(null);
+                          }}
+                          className="text-[10px] text-red-400 hover:text-red-600 mt-1 text-left"
+                        >
+                          Quitar pizarra
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              )}
+              </React.Fragment>
             ))}
           </tbody>
         </table>
