@@ -769,30 +769,68 @@ const LandingPage = () => {
       </div>
     </section>
 
-    {/* HOW IT WORKS */}
-    <section id="how-it-works" className="py-20 px-6 bg-slate-950 relative overflow-hidden">
+    {/* HOW IT WORKS — 6-phase timeline */}
+    <section id="how-it-works" className="py-24 px-6 bg-slate-900 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(204,255,0,0.03)_0%,transparent_50%)]" />
       <div className="max-w-[1120px] mx-auto relative z-10">
-        <Reveal direction="up" className="text-center mb-14">
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-2" style={{fontFamily:BC}}>{t('landing.howItWorks.tag')}</p>
-          <h2 className="text-[28px] font-bold text-white leading-tight" style={{fontFamily:INT}}>{t('landing.howItWorks.title')}</h2>
+        <Reveal direction="up" className="text-center mb-6">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-3" style={{fontFamily:BC}}>{t('landing.howItWorks.tag')}</p>
+          <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-3" style={{fontFamily:INT}}>{t('landing.howItWorks.title')}</h2>
+          <p className="text-[15px] text-slate-400 max-w-[600px] mx-auto leading-[1.7]">{t('landing.howItWorks.subtitle')}</p>
         </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        {/* Timeline */}
+        <div className="relative mt-16">
+          {/* Vertical line - desktop only */}
+          <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-[#CCFF00]/40 via-slate-700/40 to-slate-700/10 -translate-x-1/2" />
+
           {[
-            {n:'01',icon:Calendar,title:t('landing.howItWorks.step1_title'),desc:t('landing.howItWorks.step1_desc')},
-            {n:'02',icon:Layers,title:t('landing.howItWorks.step2_title'),desc:t('landing.howItWorks.step2_desc')},
-            {n:'03',icon:LineChart,title:t('landing.howItWorks.step3_title'),desc:t('landing.howItWorks.step3_desc')},
-          ].map((s,i) => (
-            <Reveal key={s.n} delay={i * 0.15} direction="up">
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-7 relative group hover:border-[#CCFF00]/20 transition-colors h-full" data-testid={`step-${s.n}`}>
-                <span className="text-[48px] font-black text-slate-800 leading-none absolute top-4 right-5" style={{fontFamily:BC}}>{s.n}</span>
-                <div className="w-11 h-11 bg-[#CCFF00]/10 rounded-xl flex items-center justify-center mb-5">
-                  <s.icon className="w-5 h-5 text-[#CCFF00]" />
+            { n:'01', icon: Target, color:'#CCFF00', key:'step1' },
+            { n:'02', icon: Calendar, color:'#3B82F6', key:'step2' },
+            { n:'03', icon: Layers, color:'#8B5CF6', key:'step3' },
+            { n:'04', icon: Users, color:'#F59E0B', key:'step4' },
+            { n:'05', icon: Activity, color:'#10B981', key:'step5' },
+            { n:'06', icon: BarChart3, color:'#F43F5E', key:'step6' },
+          ].map((step, idx) => {
+            const Icon = step.icon;
+            const isLeft = idx % 2 === 0;
+            return (
+              <Reveal key={step.n} delay={idx * 0.1} direction={isLeft ? 'left' : 'right'}>
+                <div className={`relative flex items-center mb-8 last:mb-0 ${isLeft ? 'md:flex-row' : 'md:flex-row-reverse'} flex-col md:gap-0 gap-4`} data-testid={`step-${step.n}`}>
+                  {/* Content card */}
+                  <div className={`w-full md:w-[calc(50%-40px)] ${isLeft ? 'md:pr-0' : 'md:pl-0'}`}>
+                    <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 group hover:border-slate-700 transition-all duration-300 relative overflow-hidden">
+                      {/* Step number watermark */}
+                      <span className="absolute -top-2 -right-1 text-[72px] font-black leading-none text-slate-800/50 select-none pointer-events-none" style={{fontFamily:BC}}>{step.n}</span>
+                      {/* Tag */}
+                      <span className="inline-block px-2.5 py-1 rounded-md text-[9px] font-bold tracking-[0.12em] mb-4" style={{background:`${step.color}15`, color:step.color, fontFamily:BC}}>
+                        {t(`landing.howItWorks.${step.key}_tag`)}
+                      </span>
+                      <h3 className="text-[18px] font-bold text-white mb-2 leading-tight relative z-10" style={{fontFamily:INT}}>
+                        {t(`landing.howItWorks.${step.key}_title`)}
+                      </h3>
+                      <p className="text-[14px] text-slate-400 leading-[1.7] relative z-10">
+                        {t(`landing.howItWorks.${step.key}_desc`)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Center node — desktop */}
+                  <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 w-[48px] h-[48px] rounded-full items-center justify-center z-10 border-[3px] group-hover:scale-110 transition-transform" style={{background:'#0f172a', borderColor: step.color}}>
+                    <Icon className="w-5 h-5" style={{color: step.color}} />
+                  </div>
+
+                  {/* Mobile icon — shown only on mobile */}
+                  <div className="md:hidden w-11 h-11 rounded-full flex items-center justify-center border-2 order-first" style={{background:`${step.color}15`, borderColor: step.color}}>
+                    <Icon className="w-5 h-5" style={{color: step.color}} />
+                  </div>
+
+                  {/* Empty space other side */}
+                  <div className="hidden md:block w-[calc(50%-40px)]" />
                 </div>
-                <h3 className="text-[17px] font-semibold text-white mb-2">{s.title}</h3>
-                <p className="text-[13px] text-slate-400 leading-[1.6]">{s.desc}</p>
-              </div>
-            </Reveal>
-          ))}
+              </Reveal>
+            );
+          })}
         </div>
       </div>
     </section>
