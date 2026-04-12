@@ -317,8 +317,8 @@ const AuthVisual = () => {
 
     {/* Chalk signature — Caveat font */}
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet"/>
-    <div className="absolute z-10 pointer-events-none" style={{bottom:'52px',right:'20px',opacity:0.25,transform:'rotate(-2deg)'}}>
-      <span className="text-[26px] text-white" style={{fontFamily:'Caveat, cursive'}}>Los mejores no improvisan.</span>
+    <div className="absolute z-10 pointer-events-none" style={{bottom:'100px',right:'20px',opacity:0.25,transform:'rotate(-2deg)'}}>
+      <span className="text-[34px] text-white" style={{fontFamily:'Caveat, cursive'}}>Los mejores no improvisan.</span>
     </div>
 
     <style>{`
