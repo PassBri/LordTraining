@@ -4,37 +4,36 @@
 
 ## Implementado (Fork 9 - 13 Abr 2026)
 
-### Pizarra Táctica - Tema Claro + Selector Colores + Biblioteca Materiales
+### Toolbar Material Design
+- Ancho 76px con headers de categoría (DIBUJO, PERSONAS, CAMPO, AGILIDAD, FUERZA, CARDIO, RECUPER.)
+- Scrollbar fino, iconos 20px claros, labels 7px
+- 30+ herramientas organizadas por categorías
 
-### Biblioteca de Materiales (20 nuevos elementos)
-**Campo y Delimitación (4):**
-- Platillo/Disco demarcador, Mini Arco portátil, Barrera/Mannequin, Peto
+### Selector de Colores Universal
+- **Jugadores A/B**: 10 colores con botón "Usar"
+- **Elementos colorables** (Cono, Platillo, Aro, Peto, Pica, Bandera, Banda): picker con 10 colores
+- Los colores se guardan en ST.elementColors y se aplican al crear nuevos elementos
 
-**Coordinación y Agilidad (3):**
-- Aro, Escalera de coordinación, Pica/Pole de slalom
+### Estilos de Línea y Curva
+- **3 estilos**: Sólida, Guiones, Puntos (con previsualización SVG)
+- **7 colores**: Negro, rojo, azul, verde, naranja, morado
+- Se aplica a: Línea, Curva, Flecha
+- **Curva 2 fases**: drag para inicio/fin, click para punto de control (funcional)
+- Cada elemento guarda su estilo individualmente
 
-**Fuerza y Potencia (5):**
-- Cajón/Plyo box, Kettlebell, Balón medicinal, TRX, Trineo, Paracaídas
+### Biblioteca de 20+ Materiales
+- Campo: Platillo, Mini Arco, Barrera, Peto
+- Agilidad: Aro, Escalera, Pica
+- Fuerza: Cajón, Kettlebell, Balón Med., TRX, Trineo, Paracaídas
+- Cardio: Cuerda, Battle Rope
+- Recuperación: Roller, Banda, Bosu, Colchoneta
 
-**Cardio y Resistencia (2):**
-- Cuerda de saltar, Battle Rope
-
-**Recuperación y Prevención (4):**
-- Foam Roller, Banda elástica, Bosu, Colchoneta
-
-### Campos con Medidas Reglamentarias
-- Baloncesto FIBA, Balonmano, Fútbol, Fútbol de Salón (con bomba)
-- Béisbol (diamante completo, outfield arc, pitcher mound, bases, batter boxes)
-- Taekwondo WT (octágono 8m), MMA/UFC (octágono 30ft)
+### Campos Reglamentarios (40+ deportes)
+- Baloncesto FIBA, Balonmano, Fútbol, Fútbol de Salón, Béisbol
+- Taekwondo WT, MMA/UFC, deportes combate cuadrados
 - + 30 deportes más
-
-### Funcionalidades Core
-- Selector de 10 colores por equipo
-- Sistema Guardar/Galería con CRUD
-- Integración SessionEditor con thumbnails
-- Reproducir Jugada, Exportar PNG, IA
 
 ## Pendiente
 - P1: Refactorizar DashboardPage.js
-- P2: Exportar PDF/GIF de pizarra
+- P2: Exportar PDF/GIF
 - P3: Responsive

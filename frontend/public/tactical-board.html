@@ -15,7 +15,7 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
 #app{display:flex;flex-direction:column;height:100vh;width:100vw}
 #header{height:56px;background:var(--header);display:flex;align-items:center;padding:0 12px;gap:12px;border-bottom:1px solid var(--border);flex-shrink:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
 #main{display:flex;flex:1;overflow:hidden}
-#toolbar{width:64px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:2px;overflow-y:auto;flex-shrink:0;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+#toolbar{width:76px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:4px 0;gap:1px;overflow-y:auto;flex-shrink:0;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
 #toolbar::-webkit-scrollbar{width:3px}
 #toolbar::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 #canvas-wrap{flex:1;position:relative;overflow:hidden;background:#f1f5f9}
@@ -41,12 +41,13 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
 .sport-pill:hover{background:#e2e8f0;color:var(--text)}
 .sport-pill.active{background:var(--primary);color:#fff;font-weight:600;border-color:var(--primary)}
 /* Toolbar */
-.tool-sep{width:36px;height:1px;background:var(--border);margin:4px 0}
-.tool{width:44px;height:44px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--text-muted);transition:all .12s;flex-shrink:0}
+.tool-sep{width:56px;height:1px;background:var(--border);margin:3px 0}
+.tool-header{width:100%;padding:4px 6px 2px;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);text-align:center;flex-shrink:0}
+.tool{width:52px;height:40px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:var(--text-muted);transition:all .12s;flex-shrink:0;position:relative}
 .tool:hover{background:var(--hover);color:var(--text-sec)}
 .tool.active{background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.25);color:var(--primary)}
-.tool svg{width:18px;height:18px}
-.tool span{font-size:8px;letter-spacing:0.04em;line-height:1}
+.tool svg{width:20px;height:20px}
+.tool span{font-size:7px;letter-spacing:0.03em;line-height:1;max-width:50px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* Canvas */
 #svg-canvas{width:100%;height:100%;display:block}
 .zoom-controls{position:absolute;bottom:12px;right:12px;display:flex;gap:4px;z-index:10}
@@ -146,9 +147,9 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
 .btn-guardar:hover{filter:brightness(1.1)}
 .gallery-empty{text-align:center;padding:24px 12px;color:var(--text-muted);font-size:11px}
 /* Color picker */
-#color-picker{position:absolute;z-index:250;background:#fff;border:1px solid var(--border);border-radius:10px;padding:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);display:none;width:180px}
+#color-picker{position:fixed;z-index:250;background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);display:none;width:190px}
 #color-picker.show{display:block}
-#color-picker h4{font-size:10px;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;padding:0 2px}
+#color-picker h4{font-size:9px;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px;padding:0 2px}
 .cp-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:6px}
 .cp-swatch{width:28px;height:28px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .1s}
 .cp-swatch:hover{transform:scale(1.15);border-color:var(--text-muted)}
@@ -264,7 +265,9 @@ const ST = {
  drawing: null, selRect: null, spaceDown: false, panning: false,
  playbackState: null, playbackArrows: null, playbackIdx: 0, playbackSpeed: 1, playbackRAF: null, playbackStartTime: null,
  panelTab: 'elements', gallery: [], editingBoardId: null,
- teamAColor: '#ef4444', teamBColor: '#2563eb'
+ teamAColor: '#ef4444', teamBColor: '#2563eb',
+ elementColors: {cone:'#ff9800',disc:'#2563eb',ring:'#8b5cf6',vest:'#ef4444',pole:'#f59e0b',flag:'#ef4444',band:'#ef4444'},
+ lineStyle: 'solid', lineColor: '#1e293b'
 };
 
 // ═══════════ CATEGORIES & SPORTS ═══════════
@@ -464,55 +467,109 @@ const S = {
  // ── TOOLBAR ──
  renderToolbar() {
   const tb = document.getElementById('toolbar');
-  tb.innerHTML = TOOLS.map(t => {
-   if(t.group===0) return '<div class="tool-sep"></div>';
-   // Dynamic colored icons for player tools
+  const GH = {1:'Dibujo',2:'Personas',4:'Campo',5:'Agilidad',6:'Fuerza',7:'Cardio',8:'Recuper.'};
+  let lastG = -1;
+  let html = '';
+  TOOLS.forEach(t => {
+   if(t.group===0) { html += '<div class="tool-sep"></div>'; lastG=-1; return; }
+   if(GH[t.group] && t.group!==lastG) html += `<div class="tool-header">${GH[t.group]}</div>`;
+   lastG = t.group;
    let icon = t.icon;
    if(t.id==='playerA') icon = `<circle cx="9" cy="9" r="7" fill="${ST.teamAColor}22" stroke="${ST.teamAColor}" stroke-width="1.5"/><text x="9" y="12" text-anchor="middle" font-size="8" fill="${ST.teamAColor}" font-weight="700">A</text>`;
    if(t.id==='playerB') icon = `<circle cx="9" cy="9" r="7" fill="${ST.teamBColor}22" stroke="${ST.teamBColor}" stroke-width="1.5"/><text x="9" y="12" text-anchor="middle" font-size="8" fill="${ST.teamBColor}" font-weight="700">B</text>`;
-   return `<button class="tool${ST.tool===t.id?' active':''}" data-tool="${t.id}" title="${t.label}" aria-label="${t.label}">
-    <svg viewBox="0 0 18 18" fill="none">${icon}</svg><span>${t.label}</span></button>`;
-  }).join('');
+   // Show line style indicator
+   if(t.id==='line') icon = `<line x1="3" y1="15" x2="15" y2="3" stroke="currentColor" stroke-width="1.5" ${ST.lineStyle==='dashed'?'stroke-dasharray="3 2"':ST.lineStyle==='dotted'?'stroke-dasharray="1 2"':''}/>`;
+   if(t.id==='curve') icon = `<path d="M3 15Q9 3 15 15" fill="none" stroke="currentColor" stroke-width="1.5" ${ST.lineStyle==='dashed'?'stroke-dasharray="3 2"':ST.lineStyle==='dotted'?'stroke-dasharray="1 2"':''}/>`;
+   html += `<button class="tool${ST.tool===t.id?' active':''}" data-tool="${t.id}" title="${t.label}"><svg viewBox="0 0 18 18" fill="none">${icon}</svg><span>${t.label}</span></button>`;
+  });
+  tb.innerHTML = html;
   tb.onclick = e => {
    const btn = e.target.closest('[data-tool]');
    if(!btn) return;
    const tid = btn.dataset.tool;
    if(tid.startsWith('d_')) { this.showDispositionModal(tid); return; }
-   if(tid==='playerA'||tid==='playerB') { this.showColorPicker(btn, tid); return; }
+   if(tid==='playerA'||tid==='playerB') { this.showColorPicker(btn, tid, 'team'); return; }
+   if(tid==='line'||tid==='curve') { this.showLineStylePicker(btn, tid); return; }
+   const colorable = ['cone','disc','ring','vest','pole','flag','band'];
+   if(colorable.includes(tid)) { this.showColorPicker(btn, tid, 'element'); return; }
    this.hideColorPicker();
    this.setTool(tid);
   };
  },
 
  // ── COLOR PICKER ──
- showColorPicker(anchorBtn, toolId) {
+ showColorPicker(anchorBtn, toolId, mode) {
   const cp = document.getElementById('color-picker');
-  const isA = toolId==='playerA';
-  const currentColor = isA ? ST.teamAColor : ST.teamBColor;
-  const teamLabel = isA ? 'Equipo A' : 'Equipo B';
   const COLORS = ['#ef4444','#2563eb','#22c55e','#eab308','#f97316','#8b5cf6','#ec4899','#06b6d4','#1e293b','#ffffff'];
-  cp.innerHTML = `<h4>${teamLabel}</h4><div class="cp-grid">${COLORS.map(c =>
-   `<div class="cp-swatch${c===currentColor?' active':''}${c==='#ffffff'?' light':''}" style="background:${c}" data-color="${c}" data-team="${toolId}"></div>`
-  ).join('')}</div>`;
-  // Position near the anchor button
+  const isTeamA = toolId==='playerA';
+  const currentColor = mode==='team' ? (isTeamA?ST.teamAColor:ST.teamBColor) : (ST.elementColors[toolId]||COLORS[0]);
+  const label = mode==='team' ? (isTeamA?'Equipo A':'Equipo B') : (TOOLS.find(t=>t.id===toolId)?.label||toolId);
+  cp.innerHTML = `<h4>${label}</h4><div class="cp-grid">${COLORS.map(c =>
+   `<div class="cp-swatch${c===currentColor?' active':''}${c==='#ffffff'?' light':''}" style="background:${c}" data-color="${c}"></div>`
+  ).join('')}</div><button class="cp-use" data-testid="cp-use-btn" style="width:100%;margin-top:4px;padding:5px;border-radius:6px;font-size:10px;font-weight:600;background:var(--primary);color:#fff;cursor:pointer">Usar ${label}</button>`;
   const rect = anchorBtn.getBoundingClientRect();
   cp.style.left = (rect.right + 6) + 'px';
-  cp.style.top = rect.top + 'px';
+  cp.style.top = Math.min(rect.top, window.innerHeight - 220) + 'px';
   cp.classList.add('show');
+  let selectedColor = currentColor;
   cp.onclick = e => {
    const swatch = e.target.closest('[data-color]');
-   if(!swatch) return;
-   const color = swatch.dataset.color;
-   if(isA) ST.teamAColor = color; else ST.teamBColor = color;
-   this.hideColorPicker();
-   this.setTool(toolId);
-   this.renderToolbar();
-  };
-  // Close on outside click
-  setTimeout(()=>document.addEventListener('click',function h(ev){
-   if(!cp.contains(ev.target)&&!ev.target.closest(`[data-tool="${toolId}"]`)){
-    cp.classList.remove('show');document.removeEventListener('click',h);
+   if(swatch) {
+    selectedColor = swatch.dataset.color;
+    cp.querySelectorAll('.cp-swatch').forEach(s=>s.classList.toggle('active',s.dataset.color===selectedColor));
+    return;
    }
+   if(e.target.closest('[data-testid="cp-use-btn"]')) {
+    if(mode==='team') { if(isTeamA) ST.teamAColor=selectedColor; else ST.teamBColor=selectedColor; }
+    else { ST.elementColors[toolId] = selectedColor; }
+    this.hideColorPicker();
+    this.setTool(toolId);
+    this.renderToolbar();
+   }
+  };
+  setTimeout(()=>document.addEventListener('click',function h(ev){
+   if(!cp.contains(ev.target)&&!ev.target.closest(`[data-tool="${toolId}"]`)){cp.classList.remove('show');document.removeEventListener('click',h);}
+  },true),10);
+ },
+
+ // ── LINE STYLE PICKER ──
+ showLineStylePicker(anchorBtn, toolId) {
+  const cp = document.getElementById('color-picker');
+  const styles = [
+   {id:'solid',label:'Sólida',svg:'<line x1="0" y1="8" x2="40" y2="8" stroke="#1e293b" stroke-width="2"/>'},
+   {id:'dashed',label:'Guiones',svg:'<line x1="0" y1="8" x2="40" y2="8" stroke="#1e293b" stroke-width="2" stroke-dasharray="6 3"/>'},
+   {id:'dotted',label:'Puntos',svg:'<line x1="0" y1="8" x2="40" y2="8" stroke="#1e293b" stroke-width="2" stroke-dasharray="2 3"/>'}
+  ];
+  const COLORS = ['#1e293b','#ef4444','#2563eb','#22c55e','#f97316','#8b5cf6'];
+  const curStyle = ST.lineStyle||'solid';
+  const curColor = ST.lineColor||'#1e293b';
+  cp.innerHTML = `<h4>${toolId==='curve'?'Curva':'Línea'}</h4>` +
+   `<div style="display:flex;flex-direction:column;gap:3px;margin-bottom:6px">${styles.map(s=>
+    `<button class="cp-style-btn${s.id===curStyle?' active':''}" data-style="${s.id}" style="display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:6px;font-size:10px;color:var(--text-sec);background:${s.id===curStyle?'rgba(37,99,235,0.08)':'transparent'};border:1px solid ${s.id===curStyle?'rgba(37,99,235,0.25)':'transparent'};cursor:pointer"><svg viewBox="0 0 40 16" width="40" height="16">${s.svg}</svg>${s.label}</button>`
+   ).join('')}</div>` +
+   `<h4>Color</h4><div class="cp-grid">${COLORS.map(c=>
+    `<div class="cp-swatch${c===curColor?' active':''}" style="background:${c}" data-color="${c}"></div>`
+   ).join('')}</div>` +
+   `<button class="cp-use" data-testid="cp-use-btn" style="width:100%;margin-top:4px;padding:5px;border-radius:6px;font-size:10px;font-weight:600;background:var(--primary);color:#fff;cursor:pointer">Aplicar</button>`;
+  const rect = anchorBtn.getBoundingClientRect();
+  cp.style.left = (rect.right + 6) + 'px';
+  cp.style.top = Math.min(rect.top, window.innerHeight - 280) + 'px';
+  cp.classList.add('show');
+  let selStyle = curStyle, selColor = curColor;
+  cp.onclick = e => {
+   const styleBtn = e.target.closest('[data-style]');
+   if(styleBtn) { selStyle = styleBtn.dataset.style; cp.querySelectorAll('.cp-style-btn').forEach(b=>{b.classList.toggle('active',b.dataset.style===selStyle);b.style.background=b.dataset.style===selStyle?'rgba(37,99,235,0.08)':'transparent';b.style.border=b.dataset.style===selStyle?'1px solid rgba(37,99,235,0.25)':'1px solid transparent';}); return; }
+   const swatch = e.target.closest('[data-color]');
+   if(swatch) { selColor = swatch.dataset.color; cp.querySelectorAll('.cp-swatch').forEach(s=>s.classList.toggle('active',s.dataset.color===selColor)); return; }
+   if(e.target.closest('[data-testid="cp-use-btn"]')) {
+    ST.lineStyle = selStyle; ST.lineColor = selColor;
+    this.hideColorPicker();
+    this.setTool(toolId);
+    this.renderToolbar();
+   }
+  };
+  setTimeout(()=>document.addEventListener('click',function h(ev){
+   if(!cp.contains(ev.target)&&!ev.target.closest(`[data-tool="${toolId}"]`)){cp.classList.remove('show');document.removeEventListener('click',h);}
   },true),10);
  },
 
@@ -585,7 +642,16 @@ const S = {
    } else if(ST.tool==='pencil') {
     ST.drawing = {type:'pencil',points:[{x:p.x,y:p.y}]};
    } else if(ST.tool==='curve') {
-    ST.drawing = {type:'curve',x1:p.x,y1:p.y,cx:p.x,cy:p.y,x2:p.x,y2:p.y,phase:1};
+    if(ST.drawing && ST.drawing.type==='curve' && ST.drawing.phase===2) {
+     // Phase 2: set control point and finalize
+     ST.drawing.cx = p.x; ST.drawing.cy = p.y;
+     this.addElement('curve',0,0,{x1:ST.drawing.x1,y1:ST.drawing.y1,cx:p.x,cy:p.y,x2:ST.drawing.x2,y2:ST.drawing.y2});
+     ST.drawing = null;
+     document.getElementById('handles-layer').innerHTML = '';
+    } else {
+     // Phase 1: start drawing - set start point
+     ST.drawing = {type:'curve',x1:p.x,y1:p.y,cx:p.x,cy:p.y,x2:p.x,y2:p.y,phase:1};
+    }
    }
   });
 
@@ -626,9 +692,9 @@ const S = {
     } else if(ST.drawing.type==='pencil') {
      ST.drawing.points.push({x:p.x,y:p.y});
      this.renderDrawingPreview();
-    } else if(ST.drawing.type==='curve' && ST.drawing.phase===1) {
-     ST.drawing.cx = p.x; ST.drawing.cy = p.y;
-     ST.drawing.x2 = p.x; ST.drawing.y2 = p.y;
+    } else if(ST.drawing.type==='curve') {
+     if(ST.drawing.phase===1) { ST.drawing.x2 = p.x; ST.drawing.y2 = p.y; ST.drawing.cx = (ST.drawing.x1+p.x)/2; ST.drawing.cy = Math.min(ST.drawing.y1,p.y)-40; }
+     else if(ST.drawing.phase===2) { ST.drawing.cx = p.x; ST.drawing.cy = p.y; }
      this.renderDrawingPreview();
     }
    }
@@ -653,7 +719,10 @@ const S = {
     else if(d.type==='line') this.addElement('line',0,0,{x1:d.x1,y1:d.y1,x2:d.x2,y2:d.y2});
     else if(d.type==='zone') this.addElement('zone',d.x,d.y,{w:d.w,h:d.h});
     else if(d.type==='pencil'&&d.points.length>2) this.addElement('pencil',0,0,{points:d.points});
-    else if(d.type==='curve') this.addElement('curve',0,0,{x1:d.x1,y1:d.y1,cx:d.cx,cy:d.cy,x2:d.x2,y2:d.y2});
+    else if(d.type==='curve') {
+     if(d.phase===1) { d.phase=2; return; } // Transition to phase 2 - don't end
+     this.addElement('curve',0,0,{x1:d.x1,y1:d.y1,cx:d.cx,cy:d.cy,x2:d.x2,y2:d.y2});
+    }
     ST.drawing = null;
     document.getElementById('handles-layer').innerHTML = '';
    }
@@ -707,15 +776,19 @@ const S = {
    el.label = String(ST.elements.filter(e=>e.type===type).length + 1);
    el.size = 15;
   }
-  if(type==='cone') { el.color = '#ff9800'; }
-  if(type==='disc') { el.color = '#2563eb'; }
-  if(type==='ring') { el.color = '#8b5cf6'; }
-  if(type==='pole') { el.color = '#f59e0b'; }
-  if(type==='vest') { el.color = '#ef4444'; }
+  if(type==='cone') { el.color = ST.elementColors.cone||'#ff9800'; }
+  if(type==='disc') { el.color = ST.elementColors.disc||'#2563eb'; }
+  if(type==='ring') { el.color = ST.elementColors.ring||'#8b5cf6'; }
+  if(type==='pole') { el.color = ST.elementColors.pole||'#f59e0b'; }
+  if(type==='vest') { el.color = ST.elementColors.vest||'#ef4444'; }
+  if(type==='flag') { el.color = ST.elementColors.flag||'#ef4444'; }
+  if(type==='band') { el.color = ST.elementColors.band||'#ef4444'; }
   if(type==='ball') { el.size = 8; }
   if(type==='zone') { el.zoneColor = '#2563eb'; el.opacity = 0.12; }
   if(type==='text') { el.fontSize = 16; el.color = '#1e293b'; }
-  if(type==='arrow') { el.playOrder = ST.elements.filter(e=>e.type==='arrow').length + 1; el.strokeWidth = 2.5; }
+  if(type==='arrow') { el.playOrder = ST.elements.filter(e=>e.type==='arrow').length + 1; el.strokeWidth = 2.5; el.color = ST.lineColor||'#1e293b'; el.dash = ST.lineStyle==='dashed'?'6 4':ST.lineStyle==='dotted'?'2 3':''; }
+  if(type==='line') { el.strokeWidth = 2; el.color = ST.lineColor||'#1e293b'; el.dash = ST.lineStyle==='dashed'?'6 4':ST.lineStyle==='dotted'?'2 3':''; }
+  if(type==='curve') { el.color = ST.lineColor||'#1e293b'; el.dash = ST.lineStyle==='dashed'?'6 4':ST.lineStyle==='dotted'?'2 3':''; }
   ST.elements.push(el);
   this.saveHistory();
   this.renderElements();
@@ -734,7 +807,7 @@ const S = {
    case 'cone':
     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${sel?'<circle cx="0" cy="0" r="16" fill="none" stroke="#ff9800" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.6"/>':''}<polygon points="0,-12 -9,7 9,7" fill="${el.color||'#ff9800'}" stroke="#e65100" stroke-width="1.5"/></g>`;
    case 'flag':
-    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><line x1="0" y1="-12" x2="0" y2="12" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><polygon points="0,-12 14,-7 0,-2" fill="rgba(255,60,60,0.6)"/></g>`;
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><line x1="0" y1="-12" x2="0" y2="12" stroke="rgba(0,0,0,0.5)" stroke-width="1.5"/><polygon points="0,-12 14,-7 0,-2" fill="${el.color||'#ef4444'}" opacity="0.7"/></g>`;
    case 'hurdle':
     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><rect x="-18" y="-4" width="36" height="8" rx="2" fill="none" stroke="#ff9800" stroke-width="2"/><line x1="-12" y1="4" x2="-12" y2="12" stroke="#ff9800" stroke-width="1.5"/><line x1="12" y1="4" x2="12" y2="12" stroke="#ff9800" stroke-width="1.5"/></g>`;
    case 'disc':
@@ -781,7 +854,7 @@ const S = {
     return `<g data-id="${el.id}" style="cursor:pointer">${sel?`<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="#2563eb" stroke-width="7" opacity="0.2"/>`:''}<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${el.color||'rgba(0,0,0,0.7)'}" stroke-width="${el.strokeWidth||2.5}" stroke-linecap="round" marker-end="url(#arrow-marker)"/><circle cx="${el.x1}" cy="${el.y1}" r="3.5" fill="rgba(0,0,0,0.4)"/>${orderBadge}</g>`;
    }
    case 'line':
-    return `<g data-id="${el.id}" style="cursor:pointer"><line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${el.color||'rgba(0,0,0,0.6)'}" stroke-width="${el.strokeWidth||2}" stroke-linecap="round" ${el.dash?'stroke-dasharray="6 4"':''}/></g>`;
+    return `<g data-id="${el.id}" style="cursor:pointer"><line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${el.color||'rgba(0,0,0,0.6)'}" stroke-width="${el.strokeWidth||2}" stroke-linecap="round" ${el.dash?`stroke-dasharray="${el.dash}"`:''}/></g>`;
    case 'zone': {
     const zx = el.w<0?el.x+el.w:el.x, zy = el.h<0?el.y+el.h:el.y;
     return `<g data-id="${el.id}" style="cursor:pointer"><rect x="${zx}" y="${zy}" width="${Math.abs(el.w)}" height="${Math.abs(el.h)}" fill="${el.zoneColor||'#c8f700'}" opacity="${el.opacity||0.15}" rx="4" stroke="${el.zoneColor||'#c8f700'}" stroke-width="1" stroke-opacity="0.3"/>${el.label?`<text x="${zx+Math.abs(el.w)/2}" y="${zy+Math.abs(el.h)/2}" text-anchor="middle" dy="0.35em" font-size="12" fill="white" opacity="0.7">${el.label}</text>`:''}</g>`;
@@ -791,7 +864,7 @@ const S = {
    case 'pencil':
     return `<g data-id="${el.id}" style="cursor:pointer"><polyline points="${(el.points||[]).map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="${el.color||'rgba(0,0,0,0.6)'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>`;
    case 'curve':
-    return `<g data-id="${el.id}" style="cursor:pointer"><path d="M${el.x1},${el.y1} Q${el.cx},${el.cy} ${el.x2},${el.y2}" fill="none" stroke="${el.color||'rgba(0,0,0,0.6)'}" stroke-width="2" stroke-linecap="round"/></g>`;
+    return `<g data-id="${el.id}" style="cursor:pointer"><path d="M${el.x1},${el.y1} Q${el.cx},${el.cy} ${el.x2},${el.y2}" fill="none" stroke="${el.color||'rgba(0,0,0,0.6)'}" stroke-width="2" stroke-linecap="round" ${el.dash?`stroke-dasharray="${el.dash}"`:''}/></g>`;
    default: return '';
   }
  },
