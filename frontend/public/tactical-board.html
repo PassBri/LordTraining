@@ -105,6 +105,19 @@ input:focus,textarea:focus{border-color:rgba(200,247,0,0.4)}
 .snap-guide{stroke:rgba(255,80,80,0.5);stroke-width:0.5;stroke-dasharray:3 3;pointer-events:none}
 /* Tooltip */
 .tt{position:fixed;background:#1a1f2e;color:rgba(255,255,255,0.8);font-size:11px;padding:4px 8px;border-radius:4px;pointer-events:none;z-index:400;display:none;white-space:nowrap}
+/* Playback controls */
+#playback-bar{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:6px;background:rgba(11,14,20,0.92);border:0.5px solid rgba(200,247,0,0.25);border-radius:12px;padding:6px 14px;z-index:50;backdrop-filter:blur(8px);box-shadow:0 8px 28px rgba(0,0,0,0.5)}
+#playback-bar.show{display:flex}
+.pb-btn{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .12s}
+.pb-btn:hover{background:rgba(255,255,255,0.08);color:#fff}
+.pb-btn.playing{color:var(--lime);background:rgba(200,247,0,0.12)}
+.pb-speed{padding:4px 8px;border-radius:6px;font-size:11px;font-weight:600;color:var(--muted);background:rgba(255,255,255,0.04);border:0.5px solid var(--border);min-width:36px;text-align:center}
+.pb-speed.active{color:var(--lime);background:rgba(200,247,0,0.1);border-color:rgba(200,247,0,0.3)}
+.pb-progress{height:3px;background:rgba(255,255,255,0.08);border-radius:2px;flex:1;min-width:120px;position:relative;overflow:hidden}
+.pb-progress-fill{position:absolute;left:0;top:0;height:100%;background:var(--lime);border-radius:2px;transition:width .15s linear}
+.pb-step{font-size:11px;color:rgba(255,255,255,0.5);min-width:60px;text-align:center}
+/* Order badge on arrows */
+.arrow-order-badge{pointer-events:none}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -130,6 +143,22 @@ input:focus,textarea:focus{border-color:rgba(200,247,0,0.4)}
 
  <!-- CANVAS -->
  <div id="canvas-wrap">
+  <div id="playback-bar">
+   <button class="pb-btn" onclick="S.playback('play')" id="pb-play" aria-label="Reproducir">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,1 14,8 3,15"/></svg>
+   </button>
+   <button class="pb-btn" onclick="S.playback('pause')" id="pb-pause" aria-label="Pausar">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="2" width="3.5" height="12" rx="1"/><rect x="9.5" y="2" width="3.5" height="12" rx="1"/></svg>
+   </button>
+   <button class="pb-btn" onclick="S.playback('stop')" id="pb-stop" aria-label="Detener">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="3" width="10" height="10" rx="1.5"/></svg>
+   </button>
+   <div class="pb-progress"><div class="pb-progress-fill" id="pb-fill" style="width:0%"></div></div>
+   <div class="pb-step" id="pb-step">— / —</div>
+   <button class="pb-speed" onclick="S.setPlaySpeed(0.5)" id="pb-s05">0.5x</button>
+   <button class="pb-speed active" onclick="S.setPlaySpeed(1)" id="pb-s1">1x</button>
+   <button class="pb-speed" onclick="S.setPlaySpeed(2)" id="pb-s2">2x</button>
+  </div>
   <svg id="svg-canvas" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Pizarra tactica">
    <g id="zoom-group">
     <g id="grid-layer"></g>
@@ -163,6 +192,7 @@ input:focus,textarea:focus{border-color:rgba(200,247,0,0.4)}
   <button class="footer-btn" onclick="S.clearAll()" aria-label="Limpiar">🗑 Limpiar</button>
   <button class="footer-btn" id="btn-grid" onclick="S.toggleGrid()" aria-label="Cuadricula">⊞ Cuadricula</button>
   <button class="footer-btn" onclick="S.showFormations()" aria-label="Formaciones">⬡ Formaciones</button>
+  <button class="footer-btn" id="btn-play" onclick="S.startPlayback()" aria-label="Reproducir">▶ Reproducir</button>
  </div>
  <div class="footer-right">
   <button class="btn-cancel" onclick="window.history.back()">Cancelar</button>
@@ -187,7 +217,8 @@ const ST = {
  zoom: 1, panX: 0, panY: 0, grid: false,
  history: [], historyIdx: -1, maxHistory: 50,
  dragging: null, dragStart: null, dragOffset: null,
- drawing: null, selRect: null, spaceDown: false, panning: false
+ drawing: null, selRect: null, spaceDown: false, panning: false,
+ playbackState: null, playbackArrows: null, playbackIdx: 0, playbackSpeed: 1, playbackRAF: null, playbackStartTime: null
 };
 
 // ═══════════ CATEGORIES & SPORTS ═══════════
@@ -531,6 +562,7 @@ const S = {
   if(type==='ball') { el.size = 8; }
   if(type==='zone') { el.zoneColor = '#c8f700'; el.opacity = 0.15; }
   if(type==='text') { el.fontSize = 16; el.color = '#ffffff'; }
+  if(type==='arrow') { el.playOrder = ST.elements.filter(e=>e.type==='arrow').length + 1; el.strokeWidth = 2.5; }
   ST.elements.push(el);
   this.saveHistory();
   this.renderElements();
@@ -552,8 +584,11 @@ const S = {
     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><line x1="0" y1="-12" x2="0" y2="12" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><polygon points="0,-12 14,-7 0,-2" fill="rgba(255,60,60,0.6)"/></g>`;
    case 'hurdle':
     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><rect x="-18" y="-4" width="36" height="8" rx="2" fill="none" stroke="#ff9800" stroke-width="2"/><line x1="-12" y1="4" x2="-12" y2="12" stroke="#ff9800" stroke-width="1.5"/><line x1="12" y1="4" x2="12" y2="12" stroke="#ff9800" stroke-width="1.5"/></g>`;
-   case 'arrow':
-    return `<g data-id="${el.id}" style="cursor:pointer">${sel?`<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="#c8f700" stroke-width="7" opacity="0.25"/>`:''}<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${el.color||'rgba(255,255,255,0.8)'}" stroke-width="${el.strokeWidth||2.5}" stroke-linecap="round" marker-end="url(#arrow-marker)"/><circle cx="${el.x1}" cy="${el.y1}" r="3.5" fill="rgba(255,255,255,0.5)"/></g>`;
+   case 'arrow': {
+    const mx = ((el.x1||0)+(el.x2||0))/2, my = ((el.y1||0)+(el.y2||0))/2;
+    const orderBadge = el.playOrder ? `<circle cx="${mx}" cy="${my}" r="10" fill="rgba(11,14,20,0.85)" stroke="rgba(200,247,0,0.5)" stroke-width="1" class="arrow-order-badge"/><text x="${mx}" y="${my}" dy="0.35em" text-anchor="middle" font-size="9" fill="#c8f700" font-weight="700" class="arrow-order-badge">${el.playOrder}</text>` : '';
+    return `<g data-id="${el.id}" style="cursor:pointer">${sel?`<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="#c8f700" stroke-width="7" opacity="0.25"/>`:''}<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${el.color||'rgba(255,255,255,0.8)'}" stroke-width="${el.strokeWidth||2.5}" stroke-linecap="round" marker-end="url(#arrow-marker)"/><circle cx="${el.x1}" cy="${el.y1}" r="3.5" fill="rgba(255,255,255,0.5)"/>${orderBadge}</g>`;
+   }
    case 'line':
     return `<g data-id="${el.id}" style="cursor:pointer"><line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${el.color||'rgba(255,255,255,0.7)'}" stroke-width="${el.strokeWidth||2}" stroke-linecap="round" ${el.dash?'stroke-dasharray="6 4"':''}/></g>`;
    case 'zone': {
@@ -645,6 +680,7 @@ const S = {
    if(el.size) html += `<div class="prop-row"><label>Size</label><input type="range" min="8" max="40" value="${el.size}" oninput="S.setProp(${el.id},'size',+this.value)"></div>`;
    if(el.fontSize) html += `<div class="prop-row"><label>Font</label><input type="range" min="8" max="48" value="${el.fontSize}" oninput="S.setProp(${el.id},'fontSize',+this.value)"></div>`;
    if(el.strokeWidth!==undefined) html += `<div class="prop-row"><label>Grosor</label><input type="range" min="1" max="8" value="${el.strokeWidth||2}" oninput="S.setProp(${el.id},'strokeWidth',+this.value)"></div>`;
+   if(el.playOrder!==undefined) html += `<div class="prop-row"><label>Orden</label><input type="number" min="1" max="99" value="${el.playOrder||1}" onchange="S.setProp(${el.id},'playOrder',+this.value)" title="Orden de reproduccion"></div>`;
    if(el.opacity!==undefined) html += `<div class="prop-row"><label>Opac.</label><input type="range" min="5" max="80" value="${Math.round((el.opacity||0.15)*100)}" oninput="S.setProp(${el.id},'opacity',this.value/100)"></div>`;
    html += `<button class="footer-btn" style="width:100%;margin-top:8px;justify-content:center;color:#f44" onclick="S.deleteSelected()">Eliminar</button>`;
    html += `</div>`;
@@ -890,6 +926,175 @@ const S = {
    a.click();
   };
   img.src = url;
+ },
+
+ // ── PLAYBACK ENGINE ──
+ startPlayback() {
+  const arrows = ST.elements.filter(e => e.type === 'arrow' && e.playOrder);
+  if (!arrows.length) { alert('No hay flechas con orden de jugada. Agrega flechas primero.'); return; }
+  arrows.sort((a, b) => (a.playOrder || 0) - (b.playOrder || 0));
+  ST.playbackArrows = arrows;
+  ST.playbackIdx = 0;
+  ST.playbackSpeed = ST.playbackSpeed || 1;
+  ST.playbackState = 'playing';
+  ST.playbackProgress = 0;
+  document.getElementById('playback-bar').classList.add('show');
+  document.getElementById('pb-play').classList.add('playing');
+  document.getElementById('pb-pause').classList.remove('playing');
+  this.renderPlaybackFrame();
+ },
+
+ playback(action) {
+  if (action === 'play') {
+   if (ST.playbackState === 'paused') {
+    ST.playbackState = 'playing';
+    document.getElementById('pb-play').classList.add('playing');
+    document.getElementById('pb-pause').classList.remove('playing');
+    this.renderPlaybackFrame();
+   } else if (ST.playbackState === 'stopped' || !ST.playbackState) {
+    this.startPlayback();
+   }
+  } else if (action === 'pause') {
+   ST.playbackState = 'paused';
+   document.getElementById('pb-play').classList.remove('playing');
+   document.getElementById('pb-pause').classList.add('playing');
+   if (ST.playbackRAF) cancelAnimationFrame(ST.playbackRAF);
+  } else if (action === 'stop') {
+   ST.playbackState = 'stopped';
+   if (ST.playbackRAF) cancelAnimationFrame(ST.playbackRAF);
+   document.getElementById('playback-bar').classList.remove('show');
+   document.getElementById('pb-play').classList.remove('playing');
+   document.getElementById('pb-pause').classList.remove('playing');
+   // Restore normal rendering
+   this.renderElements();
+  }
+ },
+
+ setPlaySpeed(speed) {
+  ST.playbackSpeed = speed;
+  document.querySelectorAll('.pb-speed').forEach(b => b.classList.remove('active'));
+  const btn = speed === 0.5 ? 'pb-s05' : speed === 2 ? 'pb-s2' : 'pb-s1';
+  document.getElementById(btn).classList.add('active');
+ },
+
+ renderPlaybackFrame() {
+  if (ST.playbackState !== 'playing') return;
+  const arrows = ST.playbackArrows;
+  if (!arrows || !arrows.length) return;
+
+  const STEP_DURATION = 1200 / ST.playbackSpeed; // ms per arrow step
+  const now = performance.now();
+  if (!ST.playbackStartTime) ST.playbackStartTime = now;
+
+  const elapsed = now - ST.playbackStartTime;
+  const totalDuration = arrows.length * STEP_DURATION;
+  const progress = Math.min(elapsed / totalDuration, 1);
+
+  // Which step are we on?
+  const currentStepFloat = progress * arrows.length;
+  const currentStep = Math.min(Math.floor(currentStepFloat), arrows.length - 1);
+  const stepProgress = currentStepFloat - currentStep; // 0-1 within step
+
+  // Update UI
+  document.getElementById('pb-fill').style.width = (progress * 100) + '%';
+  document.getElementById('pb-step').textContent = `Paso ${currentStep + 1} / ${arrows.length}`;
+
+  // Build the animated SVG
+  const layer = document.getElementById('elements-layer');
+  let defs = `<defs>
+   <marker id="arrow-marker" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/></marker>
+   <marker id="play-arrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto"><path d="M0,0 L12,5 L0,10" fill="none" stroke="#c8f700" stroke-width="2" stroke-linecap="round"/></marker>
+  </defs>`;
+
+  let svgParts = '';
+
+  // Draw all non-arrow elements normally
+  ST.elements.forEach(el => {
+   if (el.type === 'arrow') return;
+   svgParts += this.buildElSvg(el);
+  });
+
+  // Draw arrows with animation
+  arrows.forEach((arrow, idx) => {
+   const x1 = arrow.x1, y1 = arrow.y1, x2 = arrow.x2, y2 = arrow.y2;
+   const dx = x2 - x1, dy = y2 - y1;
+   const len = Math.sqrt(dx * dx + dy * dy);
+
+   if (idx < currentStep) {
+    // Already played — full, bright
+    svgParts += `<g>
+     <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#c8f700" stroke-width="3" stroke-linecap="round" marker-end="url(#play-arrow)" opacity="0.9"/>
+     <circle cx="${x1}" cy="${y1}" r="4" fill="rgba(200,247,0,0.6)"/>
+     <circle cx="${x2}" cy="${y2}" r="3" fill="rgba(200,247,0,0.4)"/>
+    </g>`;
+   } else if (idx === currentStep) {
+    // Currently animating
+    const drawLen = len * Math.min(stepProgress * 1.3, 1); // slight overshoot for smooth feel
+    const ratio = drawLen / len;
+    const ex = x1 + dx * ratio, ey = y1 + dy * ratio;
+
+    // Animated line (stroke-dasharray trick)
+    svgParts += `<g>
+     <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(255,255,255,0.1)" stroke-width="2" stroke-dasharray="4 3"/>
+     <line x1="${x1}" y1="${y1}" x2="${ex}" y2="${ey}" stroke="#c8f700" stroke-width="3.5" stroke-linecap="round" marker-end="url(#play-arrow)"/>
+     <circle cx="${x1}" cy="${y1}" r="5" fill="rgba(200,247,0,0.7)"/>
+     <circle cx="${ex}" cy="${ey}" r="6" fill="rgba(200,247,0,0.3)"/>
+     <circle cx="${ex}" cy="${ey}" r="3" fill="#c8f700" opacity="0.9"/>
+    </g>`;
+
+    // Move nearest player along the arrow
+    const nearestPlayer = this.findNearestPlayer(x1, y1);
+    if (nearestPlayer) {
+     const px = x1 + dx * Math.min(ratio, 1);
+     const py = y1 + dy * Math.min(ratio, 1);
+     svgParts += `<circle cx="${px}" cy="${py}" r="${nearestPlayer.size || 15}" fill="${nearestPlayer.color}33" stroke="${nearestPlayer.color}" stroke-width="2.5" opacity="0.8"/>`;
+     svgParts += `<text x="${px}" y="${py}" dy="0.35em" text-anchor="middle" font-size="${(nearestPlayer.size||15)*0.85}" fill="${nearestPlayer.color}" font-weight="800" opacity="0.8">${nearestPlayer.label||''}</text>`;
+    }
+
+    // Step number badge
+    const mx = (x1 + ex) / 2, my = (y1 + ey) / 2;
+    svgParts += `<circle cx="${mx}" cy="${my-18}" r="12" fill="rgba(200,247,0,0.9)"/><text x="${mx}" y="${my-18}" dy="0.35em" text-anchor="middle" font-size="10" fill="#0b0e14" font-weight="800">${arrow.playOrder}</text>`;
+   } else {
+    // Not yet played — dim ghost
+    svgParts += `<g opacity="0.2">
+     <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4" marker-end="url(#arrow-marker)"/>
+     <circle cx="${(x1+x2)/2}" cy="${(y1+y2)/2}" r="8" fill="rgba(17,21,32,0.8)" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+     <text x="${(x1+x2)/2}" y="${(y1+y2)/2}" dy="0.35em" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.3)">${arrow.playOrder}</text>
+    </g>`;
+   }
+  });
+
+  // Also draw non-arrow elements that weren't in the arrow list
+  const arrowIds = new Set(arrows.map(a => a.id));
+  ST.elements.filter(e => e.type === 'arrow' && !arrowIds.has(e.id)).forEach(el => {
+   svgParts += `<g opacity="0.15">${this.buildElSvg(el)}</g>`;
+  });
+
+  layer.innerHTML = defs + svgParts;
+
+  if (progress >= 1) {
+   // Playback complete — hold final frame for a moment, then auto-stop
+   ST.playbackStartTime = null;
+   setTimeout(() => {
+    if (ST.playbackState === 'playing') {
+     this.playback('stop');
+    }
+   }, 1500);
+   return;
+  }
+
+  ST.playbackRAF = requestAnimationFrame(() => this.renderPlaybackFrame());
+ },
+
+ findNearestPlayer(x, y) {
+  let nearest = null, minDist = 60; // Max 60px search radius
+  ST.elements.forEach(el => {
+   if (el.type !== 'playerA' && el.type !== 'playerB' && el.type !== 'goalkeeper') return;
+   const dx = el.x - x, dy = el.y - y;
+   const dist = Math.sqrt(dx * dx + dy * dy);
+   if (dist < minDist) { minDist = dist; nearest = el; }
+  });
+  return nearest;
  },
 
  // ── AI MODAL ──
