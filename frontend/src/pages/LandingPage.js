@@ -330,23 +330,23 @@ const ShowcaseChart = ({ t }) => {
 };
 
 /* ═══ TESTIMONIALS CAROUSEL ═══ */
-const TESTIMONIALS = [
-  { id:1, text:'Pasé de planificar en Excel a tener todo integrado en un solo lugar. Cargas, atletas, reportes. Ahora dedico ese tiempo a entrenar mejor, no a administrar.', initials:'CM', name:'C.M.', role:'Preparador Físico Independiente', segment:'coach', color:'#c8f700' },
-  { id:2, text:'La periodización visual le cambió la vida a mi cuerpo técnico. Todos ven el mismo plan, en tiempo real. Se acabaron los malentendidos entre sesiones.', initials:'AR', name:'A.R.', role:'Directora Deportiva - Club de Alto Rendimiento', segment:'club', color:'#378ADD' },
-  { id:3, text:'Con el ACWR y los indicadores de monotonía redujimos las lesiones notablemente en la primera temporada. Ahora tomamos decisiones con datos, no con intuición.', initials:'DT', name:'D.T.', role:'Entrenador de Fuerza - Federación Regional de Atletismo', segment:'federation', color:'#E24B4A' },
-  { id:4, text:'Gestiono 4 equipos desde un solo panel. Antes necesitaba tres herramientas distintas y aún así perdía información. Ahora todo está en iTRAIN.', initials:'MV', name:'M.V.', role:'Director Deportivo - Club Polideportivo Municipal', segment:'club', color:'#378ADD' },
-  { id:5, text:'Mis atletas juveniles ahora tienen un seguimiento real de su desarrollo. Los padres ven el progreso, yo controlo la carga. Profesionalicé mi escuela sin contratar más staff.', initials:'LP', name:'L.P.', role:'Directora - Escuela de Natación Formativa', segment:'school', color:'#7F77DD' },
-  { id:6, text:'Estandarizamos la metodología de planificación para los 18 clubes afiliados. Por primera vez tenemos datos comparables entre regiones y podemos tomar decisiones reales.', initials:'RG', name:'R.G.', role:'Coordinador Técnico Nacional - Federación de Ciclismo', segment:'federation', color:'#E24B4A' },
-  { id:7, text:'No soy experto en tecnología pero iTRAIN lo entendí solo en una tarde. Ahora genero los planes de mis atletas en minutos y tengo todo el historial accesible desde el móvil.', initials:'JF', name:'J.F.', role:'Entrenador Personal - Especialista en Fuerza', segment:'coach', color:'#c8f700' },
-  { id:8, text:'El seguimiento del desarrollo a largo plazo nos ayudó a identificar talentos que antes pasaban desapercibidos. Ahora formamos mejor porque medimos mejor.', initials:'SC', name:'S.C.', role:'Coordinadora Pedagógica - Academia de Fútbol Base', segment:'school', color:'#7F77DD' },
-  { id:9, text:'Los reportes automáticos me ahorran horas cada semana. Antes preparar el informe mensual para la directiva me llevaba un día entero. Ahora lo exporto en dos clics.', initials:'BM', name:'B.M.', role:'Preparadora Física - Club de Voleibol Femenino', segment:'coach', color:'#c8f700' },
-  { id:10, text:'Implementamos iTRAIN como protocolo oficial para las convocatorias nacionales. La selección ahora llega con datos reales de carga de cada atleta. Es un antes y un después.', initials:'HQ', name:'H.Q.', role:'Jefe de Alto Rendimiento - Federación Nacional de Triatlón', segment:'federation', color:'#E24B4A' },
+const TESTIMONIAL_META = [
+  { id:1, initials:'CM', name:'C.M.', segment:'coach', color:'#c8f700' },
+  { id:2, initials:'AR', name:'A.R.', segment:'club', color:'#378ADD' },
+  { id:3, initials:'DT', name:'D.T.', segment:'federation', color:'#E24B4A' },
+  { id:4, initials:'MV', name:'M.V.', segment:'club', color:'#378ADD' },
+  { id:5, initials:'LP', name:'L.P.', segment:'school', color:'#7F77DD' },
+  { id:6, initials:'RG', name:'R.G.', segment:'federation', color:'#E24B4A' },
+  { id:7, initials:'JF', name:'J.F.', segment:'coach', color:'#c8f700' },
+  { id:8, initials:'SC', name:'S.C.', segment:'school', color:'#7F77DD' },
+  { id:9, initials:'BM', name:'B.M.', segment:'coach', color:'#c8f700' },
+  { id:10, initials:'HQ', name:'H.Q.', segment:'federation', color:'#E24B4A' },
 ];
 
 const TestimonialsCarousel = ({ t }) => {
   const scrollRef = useRef(null);
   const [activeIdx, setActiveIdx] = useState(0);
-  const totalPages = Math.ceil(TESTIMONIALS.length / 3);
+  const totalPages = Math.ceil(TESTIMONIAL_META.length / 3);
 
   const scroll = useCallback((dir) => {
     const el = scrollRef.current;
@@ -395,13 +395,13 @@ const TestimonialsCarousel = ({ t }) => {
         {/* Scrollable cards */}
         <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth" style={{scrollbarWidth:'none', msOverflowStyle:'none', WebkitOverflowScrolling:'touch'}} data-testid="testimonials-grid">
           <style>{`.testimonials-scroll::-webkit-scrollbar{display:none;}`}</style>
-          {TESTIMONIALS.map((tm) => (
+          {TESTIMONIAL_META.map((tm) => (
             <div key={tm.id} data-card className="flex-shrink-0 w-[calc(100%-16px)] sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-11px)] snap-start" data-testid={`testimonial-${tm.id}`}>
               <div className="h-full rounded-xl p-6 flex flex-col justify-between" style={{background:'#161b24', border:'0.5px solid rgba(255,255,255,0.08)'}}>
                 {/* Quote mark */}
                 <div>
                   <div className="text-[32px] font-black leading-none mb-3 select-none" style={{color: tm.color, fontFamily:BC}}>"</div>
-                  <p className="text-[14px] text-white leading-[1.7] mb-6">{tm.text}</p>
+                  <p className="text-[14px] text-white leading-[1.7] mb-6">{t(`landing.social.t${tm.id}_text`)}</p>
                 </div>
                 {/* Author */}
                 <div className="flex items-center gap-3 pt-4 border-t" style={{borderColor:'rgba(255,255,255,0.06)'}}>
@@ -410,7 +410,7 @@ const TestimonialsCarousel = ({ t }) => {
                   </div>
                   <div className="min-w-0">
                     <p className="text-[13px] font-semibold text-white">{tm.name}</p>
-                    <p className="text-[12px] text-slate-400 leading-snug">{tm.role}</p>
+                    <p className="text-[12px] text-slate-400 leading-snug">{t(`landing.social.t${tm.id}_role`)}</p>
                   </div>
                 </div>
               </div>

@@ -260,7 +260,27 @@
       "tag": "VERTRAUEN",
       "title": "Ergebnisse, die Sie erwarten können",
       "subtitle": "Illustrative Erfahrungen von denen, die bereits mit Methode trainieren",
-      "disclaimer": "* Die vorgestellten Erfahrungsberichte sind illustrativ und stellen typische Anwendungsfälle dar. Individuelle Ergebnisse können variieren."
+      "disclaimer": "* Die vorgestellten Erfahrungsberichte sind illustrativ und stellen typische Anwendungsfälle dar. Individuelle Ergebnisse können variieren.",
+      "t1_text": "Von Excel-Planung zu allem integriert an einem Ort. Lasten, Athleten, Berichte. Jetzt widme ich diese Zeit dem besseren Training.",
+      "t1_role": "Unabhängiger Athletiktrainer",
+      "t2_text": "Visuelle Periodisierung hat meinem Trainerteam das Leben verändert. Alle sehen denselben Plan in Echtzeit.",
+      "t2_role": "Sportdirektorin - Hochleistungsclub",
+      "t3_text": "Mit ACWR und Monotonie-Indikatoren haben wir Verletzungen in der ersten Saison deutlich reduziert.",
+      "t3_role": "Krafttrainer - Regionaler Leichtathletikverband",
+      "t4_text": "Ich verwalte 4 Teams von einem Panel aus. Vorher brauchte ich drei verschiedene Tools. Jetzt ist alles in iTRAIN.",
+      "t4_role": "Sportdirektor - Kommunaler Sportverein",
+      "t5_text": "Meine Nachwuchsathleten haben jetzt eine echte Entwicklungsverfolgung. Eltern sehen Fortschritte, ich kontrolliere die Belastung.",
+      "t5_role": "Direktorin - Formative Schwimmschule",
+      "t6_text": "Wir haben die Planungsmethodik für 18 angeschlossene Vereine standardisiert. Erstmals vergleichbare Daten.",
+      "t6_role": "Nationaler Technischer Koordinator - Radsportverband",
+      "t7_text": "Ich bin kein Technik-Experte, aber iTRAIN habe ich an einem Nachmittag verstanden. Pläne in Minuten erstellt.",
+      "t7_role": "Personal Trainer - Kraft-Spezialist",
+      "t8_text": "Die Langzeitentwicklungsverfolgung half uns, Talente zu identifizieren, die zuvor unbemerkt blieben.",
+      "t8_role": "Pädagogische Koordinatorin - Fußball-Jugendakademie",
+      "t9_text": "Automatische Berichte sparen mir jede Woche Stunden. Jetzt exportiere ich in zwei Klicks.",
+      "t9_role": "Athletiktrainerin - Damen-Volleyballclub",
+      "t10_text": "Wir haben iTRAIN als offizielles Protokoll für nationale Einberufungen eingeführt.",
+      "t10_role": "Leiter Hochleistung - Nationaler Triathlonverband"
     }
   },
   "auth": {

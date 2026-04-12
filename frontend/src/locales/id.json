@@ -260,7 +260,27 @@
       "tag": "KEPERCAYAAN",
       "title": "Hasil yang bisa Anda harapkan",
       "subtitle": "Pengalaman ilustratif dari mereka yang sudah berlatih dengan metode",
-      "disclaimer": "* Testimoni yang disajikan bersifat ilustratif dan mewakili kasus penggunaan tipikal. Hasil individu dapat bervariasi."
+      "disclaimer": "* Testimoni yang disajikan bersifat ilustratif dan mewakili kasus penggunaan tipikal. Hasil individu dapat bervariasi.",
+      "t1_text": "Dari perencanaan di Excel ke semuanya terintegrasi di satu tempat. Beban, atlet, laporan. Sekarang saya menghabiskan waktu untuk melatih lebih baik.",
+      "t1_role": "Pelatih Fisik Independen",
+      "t2_text": "Periodisasi visual mengubah kerja staf pelatih saya. Semua melihat rencana yang sama secara real-time.",
+      "t2_role": "Direktur Olahraga - Klub Performa Tinggi",
+      "t3_text": "Dengan ACWR dan indikator monotoni, kami mengurangi cedera secara signifikan di musim pertama.",
+      "t3_role": "Pelatih Kekuatan - Federasi Atletik Regional",
+      "t4_text": "Saya mengelola 4 tim dari satu panel. Sebelumnya butuh tiga alat berbeda.",
+      "t4_role": "Direktur Olahraga - Klub Olahraga Kota",
+      "t5_text": "Atlet muda saya sekarang punya pelacakan perkembangan nyata. Orang tua melihat kemajuan, saya mengontrol beban.",
+      "t5_role": "Direktur - Sekolah Renang Formatif",
+      "t6_text": "Kami menstandardisasi metodologi perencanaan untuk 18 klub afiliasi. Pertama kalinya punya data yang bisa dibandingkan.",
+      "t6_role": "Koordinator Teknis Nasional - Federasi Bersepeda",
+      "t7_text": "Saya bukan ahli teknologi tapi memahami iTRAIN dalam satu sore. Sekarang membuat rencana dalam hitungan menit.",
+      "t7_role": "Pelatih Personal - Spesialis Kekuatan",
+      "t8_text": "Pelacakan perkembangan jangka panjang membantu kami mengidentifikasi bakat yang sebelumnya terlewatkan.",
+      "t8_role": "Koordinator Pedagogis - Akademi Sepak Bola Muda",
+      "t9_text": "Laporan otomatis menghemat waktu berjam-jam setiap minggu. Sekarang ekspor dalam dua klik.",
+      "t9_role": "Pelatih Fisik - Klub Voli Putri",
+      "t10_text": "Kami menerapkan iTRAIN sebagai protokol resmi untuk pemanggilan nasional.",
+      "t10_role": "Kepala Performa Tinggi - Federasi Triathlon Nasional"
     }
   },
   "auth": {

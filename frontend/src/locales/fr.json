@@ -260,7 +260,27 @@
       "tag": "CONFIANCE",
       "title": "Des résultats auxquels vous pouvez vous attendre",
       "subtitle": "Expériences illustratives de ceux qui s'entraînent déjà avec méthode",
-      "disclaimer": "* Les témoignages présentés sont illustratifs et représentent des cas d'utilisation typiques. Les résultats individuels peuvent varier."
+      "disclaimer": "* Les témoignages présentés sont illustratifs et représentent des cas d'utilisation typiques. Les résultats individuels peuvent varier.",
+      "t1_text": "Je suis passé d'Excel à tout intégré en un seul endroit. Charges, athlètes, rapports. Maintenant je consacre ce temps à mieux entraîner.",
+      "t1_role": "Préparateur Physique Indépendant",
+      "t2_text": "La périodisation visuelle a changé la vie de mon staff technique. Tout le monde voit le même plan, en temps réel.",
+      "t2_role": "Directrice Sportive - Club Haute Performance",
+      "t3_text": "Avec l'ACWR et les indicateurs de monotonie, nous avons réduit les blessures dès la première saison.",
+      "t3_role": "Coach de Force - Fédération Régionale d'Athlétisme",
+      "t4_text": "Je gère 4 équipes depuis un seul panneau. Avant j'avais besoin de trois outils différents. Maintenant tout est dans iTRAIN.",
+      "t4_role": "Directeur Sportif - Club Polysportif Municipal",
+      "t5_text": "Mes jeunes athlètes ont maintenant un vrai suivi de développement. Les parents voient les progrès, je contrôle la charge.",
+      "t5_role": "Directrice - École de Natation Formative",
+      "t6_text": "Nous avons standardisé la méthodologie pour les 18 clubs affiliés. Pour la première fois nous avons des données comparables.",
+      "t6_role": "Coordinateur Technique National - Fédération de Cyclisme",
+      "t7_text": "Je ne suis pas expert en technologie mais j'ai compris iTRAIN en une après-midi. Maintenant je génère les plans en minutes.",
+      "t7_role": "Coach Personnel - Spécialiste Force",
+      "t8_text": "Le suivi du développement à long terme nous a aidés à identifier des talents qui passaient inaperçus.",
+      "t8_role": "Coordinatrice Pédagogique - Académie de Football",
+      "t9_text": "Les rapports automatiques m'économisent des heures chaque semaine. Maintenant j'exporte en deux clics.",
+      "t9_role": "Préparatrice Physique - Club de Volleyball Féminin",
+      "t10_text": "Nous avons implémenté iTRAIN comme protocole officiel pour les convocations nationales.",
+      "t10_role": "Chef de Haute Performance - Fédération Nationale de Triathlon"
     }
   },
   "auth": {
