@@ -1328,216 +1328,208 @@ const SessionEditor = ({
                   </div>
                 </CardHeader>
                 <CardContent className="p-6 bg-white space-y-8">
-                  {/* Sección de Gráfica con selector de tipo */}
+                  {/* Sección de Gráfica */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-                          <Heart className="w-4 h-4 text-red-500" />
+                      <h4 className="flex items-center gap-2" style={{fontSize:'14px',fontWeight:600,color:'#1e293b',fontFamily:DM}}>
+                        <div className="w-7 h-7 bg-red-50 rounded-lg flex items-center justify-center">
+                          <Heart className="w-3.5 h-3.5 text-red-500" />
                         </div>
                         Frecuencia cardíaca por fases
                       </h4>
-                      {/* Selector de tipo de gráfica */}
-                      <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
-                        <button
-                          onClick={() => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, tipoGrafica: 'barras' }}))}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                            sessionData.monitoreo.tipoGrafica === 'barras' 
-                              ? 'bg-white text-blue-600 shadow-sm' 
-                              : 'text-slate-500 hover:text-slate-700'
-                          }`}
-                        >
-                          Barras
-                        </button>
-                        <button
-                          onClick={() => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, tipoGrafica: 'lineas' }}))}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                            sessionData.monitoreo.tipoGrafica === 'lineas' 
-                              ? 'bg-white text-blue-600 shadow-sm' 
-                              : 'text-slate-500 hover:text-slate-700'
-                          }`}
-                        >
-                          Líneas
-                        </button>
-                        <button
-                          onClick={() => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, tipoGrafica: 'mixta' }}))}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                            sessionData.monitoreo.tipoGrafica === 'mixta' 
-                              ? 'bg-white text-blue-600 shadow-sm' 
-                              : 'text-slate-500 hover:text-slate-700'
-                          }`}
-                        >
-                          Mixta
-                        </button>
+                      {/* Selector de vista */}
+                      <div className="flex items-center gap-0.5 bg-slate-100 rounded-lg p-0.5">
+                        {['barras','lineas','mixta'].map(t => (
+                          <button key={t}
+                            onClick={() => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, tipoGrafica: t }}))}
+                            className={`px-3 py-1 rounded-md transition-all ${sessionData.monitoreo.tipoGrafica === t ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                            style={{fontSize:'11px',fontWeight:500,fontFamily:DM}}
+                          >
+                            {t === 'barras' ? 'Barras' : t === 'lineas' ? 'Líneas' : 'Mixta'}
+                          </button>
+                        ))}
                       </div>
                     </div>
                     
-                    {/* Área de gráfica */}
-                    <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-6 border border-slate-200">
-                      {/* Gráfica */}
-                      <div className="relative h-52 mb-4">
-                        {/* Grid de fondo */}
-                        <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
-                          {[200, 150, 100, 50, 0].map((val) => (
-                            <div key={val} className="flex items-center">
-                              <span className="text-[10px] text-slate-400 w-8 text-right mr-2" style={{fontFamily:DM}}>{val}</span>
-                              <div className="flex-1 border-t border-dashed border-slate-200" />
+                    {/* Gráfica profesional */}
+                    <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+                      <div className="p-5 pb-2">
+                        {(() => {
+                          const fcItems = [
+                            { key: 'fcAntesEntrenamiento', label: 'Antes', color: '#3b82f6', ph: 70 },
+                            { key: 'fcDuranteEntrenamiento', label: 'Durante', color: '#ef4444', ph: 150 },
+                            { key: 'fcDespuesEntrenamiento', label: 'Después', color: '#22c55e', ph: 90 },
+                            { key: 'fcRecuperacion1min', label: 'Recup 1\'', color: '#14b8a6', ph: 85 },
+                            { key: 'fcRecuperacion3min', label: 'Recup 3\'', color: '#a855f7', ph: 78 },
+                            { key: 'fcRecuperacion5min', label: 'Recup 5\'', color: '#6366f1', ph: 72 },
+                          ];
+                          if (sessionData.monitoreo.mostrarRecuperacion10min) {
+                            fcItems.push({ key: 'fcRecuperacion10min', label: 'Recup 10\'', color: '#ec4899', ph: 68 });
+                          }
+                          const vals = fcItems.map(f => parseInt(sessionData.monitoreo[f.key]) || f.ph);
+                          const maxBpm = Math.max(180, ...vals) + 20;
+                          const pct = (v) => (v / maxBpm) * 100;
+                          const yTicks = [0, Math.round(maxBpm * 0.25), Math.round(maxBpm * 0.5), Math.round(maxBpm * 0.75), maxBpm];
+                          const showLines = sessionData.monitoreo.tipoGrafica === 'lineas' || sessionData.monitoreo.tipoGrafica === 'mixta';
+                          const showBars = sessionData.monitoreo.tipoGrafica === 'barras' || sessionData.monitoreo.tipoGrafica === 'mixta';
+                          const isMixta = sessionData.monitoreo.tipoGrafica === 'mixta';
+
+                          return (
+                            <div className="relative" style={{height:'200px'}}>
+                              {/* Y-axis ticks + grid lines */}
+                              {yTicks.map((tick, i) => (
+                                <div key={tick} className="absolute left-0 right-0 flex items-center" style={{bottom:`${pct(tick)}%`}}>
+                                  <span className="w-7 text-right pr-1.5 flex-shrink-0" style={{fontSize:'9px',color:'#94a3b8',fontFamily:DM,fontWeight:500}}>{tick}</span>
+                                  <div className="flex-1" style={{height:'0.5px',background: i === 0 ? '#cbd5e1' : '#f1f5f9'}} />
+                                </div>
+                              ))}
+
+                              {/* Chart area */}
+                              <div className="absolute" style={{left:'32px',right:'0',top:'0',bottom:'0'}}>
+                                {/* Bars */}
+                                {showBars && (
+                                  <div className="absolute inset-0 flex items-end justify-around" style={{padding:'0 8px'}}>
+                                    {vals.map((v, i) => {
+                                      const barH = (v / maxBpm) * 200;
+                                      return (
+                                        <div key={i} className="flex flex-col items-center" style={{flex:1}}>
+                                          {!isMixta && (
+                                            <span style={{fontSize:'10px',fontWeight:700,color:fcItems[i].color,fontFamily:DM,marginBottom:'2px'}}>{v}</span>
+                                          )}
+                                          <div className="rounded-t-md transition-all duration-500" style={{
+                                            width: isMixta ? '50%' : '60%',
+                                            maxWidth: '32px',
+                                            height:`${barH}px`,
+                                            background: fcItems[i].color,
+                                            opacity: isMixta ? 0.15 : 0.8
+                                          }} />
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+
+                                {/* Line + area */}
+                                {showLines && (() => {
+                                  const n = vals.length;
+                                  const svgW = 500, svgH = 200;
+                                  const spts = vals.map((v, i) => ({
+                                    x: 10 + (i / (n - 1)) * (svgW - 20),
+                                    y: svgH - (v / maxBpm) * svgH
+                                  }));
+                                  let lineD = `M ${spts[0].x} ${spts[0].y}`;
+                                  for (let j = 0; j < spts.length - 1; j++) {
+                                    const cp = (spts[j].x + spts[j+1].x) / 2;
+                                    lineD += ` C ${cp} ${spts[j].y}, ${cp} ${spts[j+1].y}, ${spts[j+1].x} ${spts[j+1].y}`;
+                                  }
+                                  const areaD = lineD + ` L ${spts[n-1].x} ${svgH} L ${spts[0].x} ${svgH} Z`;
+                                  return (
+                                    <svg className="absolute inset-0 w-full h-full" viewBox={`0 0 ${svgW} ${svgH}`} preserveAspectRatio="none">
+                                      <defs>
+                                        <linearGradient id="aFill" x1="0" y1="0" x2="0" y2="1">
+                                          <stop offset="0%" stopColor="#CCFF00" stopOpacity="0.2"/>
+                                          <stop offset="100%" stopColor="#CCFF00" stopOpacity="0"/>
+                                        </linearGradient>
+                                      </defs>
+                                      <path d={areaD} fill="url(#aFill)" />
+                                      <path d={lineD} fill="none" stroke="#CCFF00" strokeWidth="3" strokeLinecap="round" />
+                                      {spts.map((p, i) => (
+                                        <g key={i}>
+                                          <circle cx={p.x} cy={p.y} r="5" fill="white" stroke={fcItems[i].color} strokeWidth="2.5" />
+                                          <rect x={p.x - 18} y={p.y - 19} width="36" height="15" rx="4" fill={fcItems[i].color} />
+                                          <text x={p.x} y={p.y - 8.5} textAnchor="middle" fontSize="10" fontWeight="700" fill="white" fontFamily="DM Sans">{vals[i]}</text>
+                                        </g>
+                                      ))}
+                                    </svg>
+                                  );
+                                })()}
+                              </div>
+
+                              {/* X-axis labels */}
+                              <div className="absolute flex justify-around" style={{left:'32px',right:'0',bottom:'-22px',padding:'0 8px'}}>
+                                {fcItems.map((f, i) => (
+                                  <span key={i} style={{fontSize:'8px',fontWeight:600,color:f.color,textTransform:'uppercase',letterSpacing:'0.05em',fontFamily:DM}}>{f.label}</span>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })()}
+                      </div>
+
+                      {/* Spacer for x-labels */}
+                      <div style={{height:'24px'}} />
+
+                      {/* Leyenda + inputs compactos */}
+                      <div className="border-t border-slate-100 px-5 py-4">
+                        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                          {[
+                            { key: 'fcAntesEntrenamiento', label: 'Antes', color: '#3b82f6', placeholder: '70' },
+                            { key: 'fcDuranteEntrenamiento', label: 'Durante', color: '#ef4444', placeholder: '150' },
+                            { key: 'fcDespuesEntrenamiento', label: 'Después', color: '#22c55e', placeholder: '90' },
+                            { key: 'fcRecuperacion1min', label: 'Recup 1\'', color: '#14b8a6', placeholder: '85' },
+                            { key: 'fcRecuperacion3min', label: 'Recup 3\'', color: '#a855f7', placeholder: '78' },
+                            { key: 'fcRecuperacion5min', label: 'Recup 5\'', color: '#6366f1', placeholder: '72' },
+                          ].map((item) => (
+                            <div key={item.key} className="text-center">
+                              <div className="flex items-center justify-center gap-1 mb-1.5">
+                                <span className="w-2 h-2 rounded-full" style={{background:item.color}} />
+                                <span style={{fontSize:'9px',fontWeight:600,color:item.color,textTransform:'uppercase',letterSpacing:'0.06em',fontFamily:DM}}>{item.label}</span>
+                              </div>
+                              <Input
+                                type="number"
+                                value={sessionData.monitoreo[item.key]}
+                                onChange={(e) => setSessionData(prev => ({
+                                  ...prev,
+                                  monitoreo: { ...prev.monitoreo, [item.key]: e.target.value }
+                                }))}
+                                placeholder={item.placeholder}
+                                className="se-field-input text-center h-8 font-bold rounded-lg"
+                                style={{borderColor: item.color + '40', fontSize:'13px'}}
+                              />
+                              <div className="text-[8px] text-slate-400 mt-0.5" style={{fontFamily:DM}}>bpm</div>
                             </div>
                           ))}
                         </div>
                         
-                        {/* Datos de la gráfica */}
-                        <div className="absolute inset-0 pl-10 pr-4 pt-2 pb-6">
-                          {(() => {
-                            const fcData = [
-                              { label: 'Antes', value: parseInt(sessionData.monitoreo.fcAntesEntrenamiento) || 70, color: '#3b82f6', gradFrom: '#3b82f6', gradTo: '#60a5fa' },
-                              { label: 'Durante', value: parseInt(sessionData.monitoreo.fcDuranteEntrenamiento) || 150, color: '#ef4444', gradFrom: '#ef4444', gradTo: '#f97316' },
-                              { label: 'Después', value: parseInt(sessionData.monitoreo.fcDespuesEntrenamiento) || 90, color: '#22c55e', gradFrom: '#22c55e', gradTo: '#34d399' },
-                              { label: 'Recup 1\'', value: parseInt(sessionData.monitoreo.fcRecuperacion1min) || 85, color: '#14b8a6', gradFrom: '#14b8a6', gradTo: '#06b6d4' },
-                              { label: 'Recup 3\'', value: parseInt(sessionData.monitoreo.fcRecuperacion3min) || 78, color: '#a855f7', gradFrom: '#a855f7', gradTo: '#8b5cf6' },
-                              { label: 'Recup 5\'', value: parseInt(sessionData.monitoreo.fcRecuperacion5min) || 72, color: '#6366f1', gradFrom: '#6366f1', gradTo: '#818cf8' },
-                            ];
-                            
-                            if (sessionData.monitoreo.mostrarRecuperacion10min) {
-                              fcData.push({ label: 'Recup 10\'', value: parseInt(sessionData.monitoreo.fcRecuperacion10min) || 68, color: '#ec4899', gradFrom: '#ec4899', gradTo: '#f472b6' });
-                            }
-                            
-                            const chartH = 180;
-                            const maxBpm = 200;
-                            const barPct = (v) => Math.min(100, (v / maxBpm) * 100);
-                            
-                            return (
-                              <>
-                                {/* SVG línea + puntos — usa viewBox nativo para renderizado limpio */}
-                                {(sessionData.monitoreo.tipoGrafica === 'lineas' || sessionData.monitoreo.tipoGrafica === 'mixta') && (
-                                  <svg className="absolute inset-0 w-full h-full" viewBox={`0 0 ${fcData.length * 100} ${chartH}`} preserveAspectRatio="none" style={{padding:'8px 0 24px 0'}}>
-                                    {/* Área bajo la curva */}
-                                    <defs>
-                                      <linearGradient id="fcAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stopColor="#CCFF00" stopOpacity="0.15"/>
-                                        <stop offset="100%" stopColor="#CCFF00" stopOpacity="0"/>
-                                      </linearGradient>
-                                    </defs>
-                                    <polygon
-                                      fill="url(#fcAreaGrad)"
-                                      points={fcData.map((d, i) => `${i * 100 + 50},${chartH - (d.value / maxBpm * chartH)}`).join(' ') + ` ${(fcData.length - 1) * 100 + 50},${chartH} 50,${chartH}`}
-                                    />
-                                    {/* Línea principal */}
-                                    <polyline
-                                      fill="none"
-                                      stroke="#CCFF00"
-                                      strokeWidth="4"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      points={fcData.map((d, i) => `${i * 100 + 50},${chartH - (d.value / maxBpm * chartH)}`).join(' ')}
-                                      style={{filter:'drop-shadow(0 2px 4px rgba(204,255,0,0.3))'}}
-                                    />
-                                    {/* Puntos con valor */}
-                                    {fcData.map((d, i) => {
-                                      const cx = i * 100 + 50;
-                                      const cy = chartH - (d.value / maxBpm * chartH);
-                                      return (
-                                        <g key={i}>
-                                          <circle cx={cx} cy={cy} r="8" fill="white" stroke={d.color} strokeWidth="3" style={{filter:'drop-shadow(0 1px 3px rgba(0,0,0,0.15))'}} />
-                                          <text x={cx} y={cy - 14} textAnchor="middle" fontSize="16" fontWeight="700" fill="#1e293b" style={{fontFamily:'DM Sans'}}>{d.value}</text>
-                                        </g>
-                                      );
-                                    })}
-                                  </svg>
-                                )}
-                                
-                                {/* Barras */}
-                                {(sessionData.monitoreo.tipoGrafica === 'barras' || sessionData.monitoreo.tipoGrafica === 'mixta') && (
-                                  <div className="flex items-end justify-around h-full w-full gap-3" style={{paddingBottom:'24px',paddingTop:'8px'}}>
-                                    {fcData.map((d, i) => (
-                                      <div key={i} className="flex flex-col items-center flex-1 h-full justify-end">
-                                        {/* Valor encima de la barra */}
-                                        <span className="text-[11px] font-bold text-slate-700 mb-1" style={{fontFamily:DM}}>{d.value}</span>
-                                        <div 
-                                          className={`w-full max-w-[36px] rounded-t-lg transition-all duration-500 ${
-                                            sessionData.monitoreo.tipoGrafica === 'mixta' ? 'opacity-30' : ''
-                                          }`}
-                                          style={{ 
-                                            height: `${barPct(d.value)}%`,
-                                            background: `linear-gradient(to top, ${d.gradFrom}, ${d.gradTo})`,
-                                            boxShadow: `0 -2px 8px ${d.color}33`
-                                          }}
-                                        />
-                                        <span className="text-[9px] text-slate-400 mt-1 uppercase font-medium" style={{fontFamily:DM}}>{d.label}</span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </>
-                            );
-                          })()}
+                        {/* Opción de 10 minutos */}
+                        <div className="mt-3 pt-3 border-t border-dashed border-slate-100 flex items-center gap-3">
+                          <button
+                            onClick={() => setSessionData(prev => ({
+                              ...prev,
+                              monitoreo: { ...prev.monitoreo, mostrarRecuperacion10min: !prev.monitoreo.mostrarRecuperacion10min }
+                            }))}
+                            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all ${
+                              sessionData.monitoreo.mostrarRecuperacion10min 
+                                ? 'bg-pink-50 text-pink-600 border border-pink-200' 
+                                : 'bg-slate-50 text-slate-400 hover:bg-slate-100 border border-transparent'
+                            }`}
+                            style={{fontFamily:DM}}
+                          >
+                            <div className={`w-3.5 h-3.5 rounded flex items-center justify-center ${
+                              sessionData.monitoreo.mostrarRecuperacion10min ? 'bg-pink-500' : 'bg-slate-300'
+                            }`}>
+                              {sessionData.monitoreo.mostrarRecuperacion10min && <Check className="w-2.5 h-2.5 text-white" />}
+                            </div>
+                            + Recup 10 min
+                          </button>
+                          {sessionData.monitoreo.mostrarRecuperacion10min && (
+                            <div className="flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full bg-pink-500" />
+                              <Input
+                                type="number"
+                                value={sessionData.monitoreo.fcRecuperacion10min}
+                                onChange={(e) => setSessionData(prev => ({
+                                  ...prev,
+                                  monitoreo: { ...prev.monitoreo, fcRecuperacion10min: e.target.value }
+                                }))}
+                                placeholder="68"
+                                className="se-field-input text-center h-8 w-20 font-bold rounded-lg"
+                                style={{borderColor:'#ec489940',fontSize:'13px'}}
+                              />
+                              <span className="text-[8px] text-slate-400" style={{fontFamily:DM}}>bpm</span>
+                            </div>
+                          )}
                         </div>
-                      </div>
-                      
-                      {/* Labels y inputs */}
-                      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-                        {[
-                          { key: 'fcAntesEntrenamiento', label: 'Antes', color: 'blue', placeholder: '70' },
-                          { key: 'fcDuranteEntrenamiento', label: 'Durante', color: 'red', placeholder: '150' },
-                          { key: 'fcDespuesEntrenamiento', label: 'Después', color: 'green', placeholder: '90' },
-                          { key: 'fcRecuperacion1min', label: 'Recup 1\'', color: 'teal', placeholder: '85' },
-                          { key: 'fcRecuperacion3min', label: 'Recup 3\'', color: 'purple', placeholder: '78' },
-                          { key: 'fcRecuperacion5min', label: 'Recup 5\'', color: 'indigo', placeholder: '72' },
-                        ].map((item) => (
-                          <div key={item.key} className="text-center">
-                            <div className={`text-[10px] font-semibold text-${item.color}-600 uppercase mb-1`}>{item.label}</div>
-                            <Input
-                              type="number"
-                              value={sessionData.monitoreo[item.key]}
-                              onChange={(e) => setSessionData(prev => ({
-                                ...prev,
-                                monitoreo: { ...prev.monitoreo, [item.key]: e.target.value }
-                              }))}
-                              placeholder={item.placeholder}
-                              className={`text-center h-9 text-sm font-bold border-2 border-${item.color}-200 focus:border-${item.color}-400 rounded-xl`}
-                            />
-                            <div className="text-[9px] text-slate-400 mt-0.5">bpm</div>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      {/* Opción de 10 minutos */}
-                      <div className="mt-4 pt-4 border-t border-dashed border-slate-200">
-                        <button
-                          onClick={() => setSessionData(prev => ({
-                            ...prev,
-                            monitoreo: { ...prev.monitoreo, mostrarRecuperacion10min: !prev.monitoreo.mostrarRecuperacion10min }
-                          }))}
-                          className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
-                            sessionData.monitoreo.mostrarRecuperacion10min 
-                              ? 'bg-pink-100 text-pink-700 border-2 border-pink-300' 
-                              : 'bg-slate-100 text-slate-500 hover:bg-slate-200 border-2 border-transparent'
-                          }`}
-                        >
-                          <div className={`w-4 h-4 rounded flex items-center justify-center ${
-                            sessionData.monitoreo.mostrarRecuperacion10min ? 'bg-pink-500' : 'bg-slate-300'
-                          }`}>
-                            {sessionData.monitoreo.mostrarRecuperacion10min && <Check className="w-3 h-3 text-white" />}
-                          </div>
-                          Agregar recuperación 10 min (opcional)
-                        </button>
-                        
-                        {sessionData.monitoreo.mostrarRecuperacion10min && (
-                          <div className="mt-3 flex items-center gap-3">
-                            <div className="text-[10px] font-semibold text-pink-600 uppercase">Recup 10'</div>
-                            <Input
-                              type="number"
-                              value={sessionData.monitoreo.fcRecuperacion10min}
-                              onChange={(e) => setSessionData(prev => ({
-                                ...prev,
-                                monitoreo: { ...prev.monitoreo, fcRecuperacion10min: e.target.value }
-                              }))}
-                              placeholder="68"
-                              className="text-center h-9 w-24 text-sm font-bold border-2 border-pink-200 focus:border-pink-400 rounded-xl"
-                            />
-                            <span className="text-[10px] text-slate-400">bpm</span>
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>

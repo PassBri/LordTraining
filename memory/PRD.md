@@ -4,20 +4,18 @@
 
 ## Implementado (Fork 11 - Abr 2026)
 
-### Gráficas FC visibles con datos preestablecidos (Abr 12, 2026)
-- Valores iniciales reales: Antes 70, Durante 150, Después 90, Recup 1' 85, Recup 3' 78, Recup 5' 72
-- Barras: colores por fase, valores numéricos, labels, alturas proporcionales
-- Líneas: curva lime #CCFF00 con área degradada, puntos con valor, viewBox SVG nativo
-- Mixta: barras semitransparentes + línea superpuesta
-- Actualización en tiempo real al modificar inputs
+### Gráfica FC profesional rediseñada (Abr 12, 2026)
+- Curva bezier suave lime #CCFF00 con área degradada (modo Líneas)
+- Barras coloreadas con valores numéricos encima (modo Barras)  
+- Mixta: barras semitransparentes + curva superpuesta
+- Grid Y-axis con ticks dinámicos, X-axis con labels coloreados
+- SVG viewBox con preserveAspectRatio=none para renderizado limpio
+- Leyenda inferior con dots coloreados + inputs editables
+- Valores preestablecidos: Antes 70, Durante 150, Después 90, Recup 85/78/72
 
-### Persistencia de datos de sesión (Abr 12, 2026)
-- Backend: campo detailed_data en TrainingPlanSession
-- Frontend: handleSaveSession persiste via savePlanToAPI (PUT)
-- Datos se restauran al reabrir
-
-### Correcciones tipográficas + Rediseño (Abr 12, 2026)
-- DM Sans, jerarquía 3 niveles, tildes correctas, fases #9EFF00
+### Persistencia, tipografía y rediseño previos (Abr 12, 2026)
+- Datos de sesión guardados en MongoDB via detailed_data
+- Fuente DM Sans, jerarquía 3 niveles, tildes correctas
 - Header oscuro, logo lime, calendario Popover, footer lime
 
 ## Pendiente
