@@ -44,11 +44,15 @@
       "free_trial": "14 hari gratis",
       "no_card": "Tanpa kartu",
       "cancel_anytime": "Batalkan kapan saja",
-      "tagline": "Perencanaan Olahraga Ilmiah",
+      "tagline": "Perangkat lunak periodisasi olahraga",
       "pill1": "PERIODISASI",
       "pill2": "PERENCANAAN",
       "pill3": "SAINS",
-      "headline": "LATIH DENGAN SAINS.\nBERSAING DENGAN KEUNGGULAN."
+      "headline": "LATIH DENGAN SAINS.\nBERSAING DENGAN KEUNGGULAN.",
+      "headline_verb1": "LATIH",
+      "headline_rest1": " DENGAN SAINS.",
+      "headline_verb2": "BERSAING",
+      "headline_rest2": " DENGAN KEUNGGULAN."
     },
     "nav": {
       "features": "Fitur",

@@ -44,11 +44,15 @@
       "free_trial": "14天免费",
       "no_card": "无需信用卡",
       "cancel_anytime": "随时取消",
-      "tagline": "科学体育规划",
+      "tagline": "运动周期化软件",
       "pill1": "周期化",
       "pill2": "规划",
       "pill3": "科学",
-      "headline": "以科学训练。\n以优势竞争。"
+      "headline": "以科学训练。\n以优势竞争。",
+      "headline_verb1": "科学",
+      "headline_rest1": "训练。",
+      "headline_verb2": "优势",
+      "headline_rest2": "竞争。"
     },
     "nav": {
       "features": "功能",

@@ -44,11 +44,15 @@
       "free_trial": "14 jours gratuits",
       "no_card": "Sans carte",
       "cancel_anytime": "Annulez à tout moment",
-      "tagline": "Planification Sportive Scientifique",
+      "tagline": "Logiciel de périodisation sportive",
       "pill1": "PÉRIODISATION",
       "pill2": "PLANIFICATION",
       "pill3": "SCIENCE",
-      "headline": "ENTRAÎNEZ AVEC LA SCIENCE.\nDOMINEZ LA COMPÉTITION."
+      "headline": "ENTRAÎNEZ AVEC LA SCIENCE.\nDOMINEZ LA COMPÉTITION.",
+      "headline_verb1": "ENTRAÎNE",
+      "headline_rest1": "-TOI AVEC SCIENCE.",
+      "headline_verb2": "COMPÉTIS",
+      "headline_rest2": " AVEC AVANTAGE."
     },
     "nav": {
       "features": "Fonctionnalités",

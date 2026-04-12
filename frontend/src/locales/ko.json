@@ -44,11 +44,15 @@
       "free_trial": "14일 무료",
       "no_card": "카드 불필요",
       "cancel_anytime": "언제든 취소",
-      "tagline": "과학적 스포츠 계획",
+      "tagline": "스포츠 주기화 소프트웨어",
       "pill1": "주기화",
       "pill2": "계획",
       "pill3": "과학",
-      "headline": "과학으로 훈련하라.\n우위로 경쟁하라."
+      "headline": "과학으로 훈련하라.\n우위로 경쟁하라.",
+      "headline_verb1": "과학",
+      "headline_rest1": "으로 훈련.",
+      "headline_verb2": "우위",
+      "headline_rest2": "로 경쟁."
     },
     "nav": {
       "features": "기능",

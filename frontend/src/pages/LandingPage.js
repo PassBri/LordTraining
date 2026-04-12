@@ -349,8 +349,8 @@ const LandingPage = () => {
             <div className="w-8 h-8 bg-[#CCFF00] rounded-full flex items-center justify-center">
               <Activity className="w-4 h-4 text-slate-900" strokeWidth={2.5} />
             </div>
-            <span className="text-[15px] font-black tracking-tight text-white" style={{fontFamily:BC}}>
-              iTRAIN
+            <span className="text-[15px] font-black tracking-tight" style={{fontFamily:BC}}>
+              <span className="text-[#CCFF00]">i</span><span className="text-white">TRAIN</span>
             </span>
           </Link>
           <div className="hidden md:flex items-center gap-8">
@@ -380,12 +380,13 @@ const LandingPage = () => {
           <div className="lg:col-span-5 flex flex-col justify-between">
             <div>
               <Reveal delay={0.2} direction="left">
-                <h1 className="text-[3.5rem] sm:text-[4.5rem] lg:text-[5.5rem] font-black text-white leading-[0.9] tracking-[-0.03em] mb-2" style={{fontFamily:BC}} data-testid="hero-title">
-                  iTRAIN
+                <h1 className="text-[3.5rem] sm:text-[4.5rem] lg:text-[5.5rem] font-black leading-[0.9] tracking-[-0.03em] mb-2" style={{fontFamily:BC}} data-testid="hero-title">
+                  <span className="text-[#CCFF00]">i</span><span className="text-white">TRAIN</span>
                 </h1>
                 <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-4" style={{fontFamily:BC}}>{t('landing.hero.tagline')}</p>
-                <h2 className="text-[1.6rem] sm:text-[2rem] lg:text-[2.4rem] font-black text-white leading-[1.1] tracking-[-0.02em] mb-5 whitespace-pre-line" style={{fontFamily:BC}} data-testid="hero-headline">
-                  {t('landing.hero.headline')}
+                <h2 className="text-[1.6rem] sm:text-[2rem] lg:text-[2.4rem] font-black leading-[1.1] tracking-[-0.02em] mb-5" style={{fontFamily:BC}} data-testid="hero-headline">
+                  <span className="text-[#CCFF00]">{t('landing.hero.headline_verb1')}</span><span className="text-white">{t('landing.hero.headline_rest1')}</span><br/>
+                  <span className="text-[#CCFF00]">{t('landing.hero.headline_verb2')}</span><span className="text-white">{t('landing.hero.headline_rest2')}</span>
                 </h2>
               </Reveal>
               <Reveal delay={0.35} direction="up">
@@ -898,7 +899,7 @@ const LandingPage = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 bg-[#CCFF00] rounded-full flex items-center justify-center"><Activity className="w-3.5 h-3.5 text-slate-900" /></div>
-            <span className="text-[14px] font-black text-white" style={{fontFamily:BC}}>iTRAIN</span>
+            <span className="text-[14px] font-black" style={{fontFamily:BC}}><span className="text-[#CCFF00]">i</span><span className="text-white">TRAIN</span></span>
           </div>
           <p className="text-[12px] text-slate-600">2026 iTRAIN. {t('landing.footer.copyright')}</p>
         </div>

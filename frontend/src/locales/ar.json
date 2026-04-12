@@ -44,11 +44,15 @@
       "free_trial": "14 يوم مجاناً",
       "no_card": "بدون بطاقة",
       "cancel_anytime": "إلغاء في أي وقت",
-      "tagline": "التخطيط الرياضي العلمي",
+      "tagline": "برنامج التخطيط الرياضي",
       "pill1": "دورية",
       "pill2": "تخطيط",
       "pill3": "علم",
-      "headline": "تدرّب بالعلم.\nنافس بتفوّق."
+      "headline": "تدرّب بالعلم.\nنافس بتفوّق.",
+      "headline_verb1": "تدرّب",
+      "headline_rest1": " بالعلم.",
+      "headline_verb2": "نافس",
+      "headline_rest2": " بالتفوق."
     },
     "nav": {
       "features": "الميزات",

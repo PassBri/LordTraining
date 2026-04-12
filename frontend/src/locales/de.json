@@ -44,11 +44,15 @@
       "free_trial": "14 Tage kostenlos",
       "no_card": "Keine Karte",
       "cancel_anytime": "Jederzeit kündbar",
-      "tagline": "Wissenschaftliche Sportplanung",
+      "tagline": "Sportperiodisierungssoftware",
       "pill1": "PERIODISIERUNG",
       "pill2": "PLANUNG",
       "pill3": "WISSENSCHAFT",
-      "headline": "TRAINIERE MIT WISSENSCHAFT.\nKÄMPFE MIT VORSPRUNG."
+      "headline": "TRAINIERE MIT WISSENSCHAFT.\nKÄMPFE MIT VORSPRUNG.",
+      "headline_verb1": "TRAINIERE",
+      "headline_rest1": " MIT WISSENSCHAFT.",
+      "headline_verb2": "WETTKÄMPFE",
+      "headline_rest2": " MIT VORTEIL."
     },
     "nav": {
       "features": "Funktionen",

@@ -44,11 +44,15 @@
       "free_trial": "14 days free",
       "no_card": "No credit card",
       "cancel_anytime": "Cancel anytime",
-      "tagline": "Scientific Sports Planning",
+      "tagline": "Sports periodization software",
       "pill1": "PERIODIZATION",
       "pill2": "PLANNING",
       "pill3": "SCIENCE",
-      "headline": "TRAIN WITH SCIENCE.\nCOMPETE WITH AN EDGE."
+      "headline": "TRAIN WITH SCIENCE.\nCOMPETE WITH AN EDGE.",
+      "headline_verb1": "TRAIN",
+      "headline_rest1": " WITH SCIENCE.",
+      "headline_verb2": "COMPETE",
+      "headline_rest2": " WITH ADVANTAGE."
     },
     "nav": {
       "features": "Features",

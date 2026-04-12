@@ -44,11 +44,15 @@
       "free_trial": "14日間無料",
       "no_card": "カード不要",
       "cancel_anytime": "いつでもキャンセル",
-      "tagline": "科学的スポーツプランニング",
+      "tagline": "スポーツピリオダイゼーションソフトウェア",
       "pill1": "期分け",
       "pill2": "計画",
       "pill3": "科学",
-      "headline": "科学でトレーニング。\n優位に戦え。"
+      "headline": "科学でトレーニング。\n優位に戦え。",
+      "headline_verb1": "科学",
+      "headline_rest1": "でトレーニング。",
+      "headline_verb2": "優位性",
+      "headline_rest2": "で競争。"
     },
     "nav": {
       "features": "機能",
