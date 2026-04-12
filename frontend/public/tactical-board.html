@@ -81,10 +81,18 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
 #canvas-inner{flex:1;position:relative;overflow:hidden;transition:transform .4s cubic-bezier(0.2,0,0,1);transform-origin:center center;transform-style:preserve-3d}
 #canvas-inner.view-2d{transform:none}
 #canvas-inner.view-25d{transform:perspective(900px) rotateX(30deg);transform-origin:center 75%}
-#canvas-inner.view-3d{transform:perspective(800px) rotateX(50deg);transform-origin:center 70%}
-/* In 3D, the elements layer "stands up" from the field */
+#canvas-inner.view-3d{transform:none}
 .view-3d #elements-layer,.view-25d #elements-layer{transform-style:preserve-3d}
 #svg-canvas{width:100%;height:100%;display:block}
+/* Joystick */
+#joystick{position:absolute;bottom:16px;right:16px;z-index:20;display:none}
+#joystick.show{display:block}
+.joy-outer{width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.85);border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,0.1);position:relative}
+.joy-thumb{width:28px;height:28px;border-radius:50%;background:var(--primary);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);cursor:grab;box-shadow:0 2px 6px rgba(37,99,235,0.3);transition:box-shadow .1s}
+.joy-thumb:active{box-shadow:0 3px 10px rgba(37,99,235,0.5)}
+.joy-label{font-size:8px;color:var(--text-muted);text-align:center;margin-top:4px}
+.joy-preset{position:absolute;width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,0.9);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-muted);cursor:pointer}
+.joy-preset:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
 .zoom-controls{position:absolute;bottom:10px;right:10px;display:flex;gap:3px;z-index:10}
 .zoom-btn{width:30px;height:30px;border-radius:50%;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-sec);font-size:15px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
 .zoom-btn:hover{color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.1)}
@@ -268,6 +276,15 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
    <button class="zoom-btn" onclick="S.zoomReset()" style="font-size:13px">⟲</button>
   </div>
   <div class="canvas-stats" id="footer-stats">0</div>
+  <!-- JOYSTICK 3D -->
+  <div id="joystick">
+   <div class="joy-preset" style="top:-10px;left:50%;transform:translateX(-50%)" onclick="S.setIsoPreset('top')" title="Cenital">&#8593;</div>
+   <div class="joy-preset" style="bottom:-10px;left:50%;transform:translateX(-50%)" onclick="S.setIsoPreset('front')" title="Frontal">&#8595;</div>
+   <div class="joy-preset" style="left:-10px;top:50%;transform:translateY(-50%)" onclick="S.setIsoPreset('left')" title="Izquierda">&#8592;</div>
+   <div class="joy-preset" style="right:-10px;top:50%;transform:translateY(-50%)" onclick="S.setIsoPreset('right')" title="Derecha">&#8594;</div>
+   <div class="joy-outer" id="joy-pad"><div class="joy-thumb" id="joy-thumb"></div></div>
+   <div class="joy-label">Camara 3D</div>
+  </div>
  </div>
 
  <!-- RIGHT PANEL: Elements + Gallery -->
@@ -306,7 +323,8 @@ const ST = {
  lineStyle: 'solid', lineColor: '#1e293b',
  zoneColor: '#378ADD', zoneOpacity: 0.12,
  viewMode: '2d', avatarMode: 'tactical',
- fieldRotation: 0, fieldFlipH: false, fieldFlipV: false
+ fieldRotation: 0, fieldFlipH: false, fieldFlipV: false,
+ isoAz: 45, isoEl: 35
 };
 
 // ═══════════ CATEGORIES & SPORTS ═══════════
@@ -493,6 +511,7 @@ const S = {
   this.setTool('move');
   this.saveHistory();
   this.bindCanvas();
+  this.bindJoystick();
   this.bindKeys();
   this.updatePanel();
   this.updateStats();
@@ -708,11 +727,204 @@ const S = {
 
  // ── VIEW MODE ──
  setView(mode) {
-  ST.viewMode = mode;
   const inner = document.getElementById('canvas-inner');
-  inner.className = mode==='2.5d' ? 'view-25d' : mode==='3d' ? 'view-3d' : 'view-2d';
-  document.querySelectorAll('#view-mode-seg .vb-btn').forEach(b => b.classList.toggle('active', b.dataset.view===mode));
-  this.renderElements();
+  // Fade transition
+  inner.style.opacity='0';
+  setTimeout(()=>{
+   ST.viewMode = mode;
+   inner.className = mode==='2.5d' ? 'view-25d' : mode==='3d' ? 'view-3d' : 'view-2d';
+   document.querySelectorAll('#view-mode-seg .vb-btn').forEach(b => b.classList.toggle('active', b.dataset.view===mode));
+   document.getElementById('joystick').classList.toggle('show', mode==='3d');
+   // Re-render field and elements for 3D
+   if(mode==='3d') this.render3DField();
+   else this.setSport(ST.sport);
+   this.renderElements();
+   setTimeout(()=>{ inner.style.opacity='1'; },50);
+  },200);
+  inner.style.transition='opacity .2s';
+ },
+
+ // ── ISOMETRIC PROJECTION ──
+ toIso(x, y, z) {
+  const az = ST.isoAz * Math.PI / 180;
+  const el = ST.isoEl * Math.PI / 180;
+  const ix = (x * Math.cos(az) - y * Math.sin(az)) * 0.7;
+  const iy = (x * Math.sin(az) + y * Math.cos(az)) * Math.sin(el) - z * Math.cos(el);
+  return { x: ix + 300, y: iy + 260 };
+ },
+
+ darken(hex, factor) {
+  if(!hex||hex.length<7) return hex;
+  const r=Math.round(parseInt(hex.slice(1,3),16)*factor);
+  const g=Math.round(parseInt(hex.slice(3,5),16)*factor);
+  const b=Math.round(parseInt(hex.slice(5,7),16)*factor);
+  return `rgb(${Math.min(r,255)},${Math.min(g,255)},${Math.min(b,255)})`;
+ },
+
+ lighten(hex, factor) {
+  if(!hex||hex.length<7) return hex;
+  const r=Math.min(255,Math.round(parseInt(hex.slice(1,3),16)*factor));
+  const g=Math.min(255,Math.round(parseInt(hex.slice(3,5),16)*factor));
+  const b=Math.min(255,Math.round(parseInt(hex.slice(5,7),16)*factor));
+  return `rgb(${r},${g},${b})`;
+ },
+
+ // ── 3D FIELD RENDERING ──
+ render3DField() {
+  const fl = document.getElementById('field-layer');
+  const fw=600, fh=800, depth=18;
+  // 4 corners of field surface
+  const tl=this.toIso(0,0,0), tr=this.toIso(fw,0,0);
+  const bl=this.toIso(0,fh,0), br=this.toIso(fw,fh,0);
+  // Bottom face corners (depth below)
+  const blD=this.toIso(0,fh,-depth), brD=this.toIso(fw,fh,-depth);
+  const trD=this.toIso(fw,0,-depth);
+  // Surface
+  const surface = `<polygon points="${tl.x},${tl.y} ${tr.x},${tr.y} ${br.x},${br.y} ${bl.x},${bl.y}" fill="#1a6b1a"/>`;
+  // Front face (bottom edge)
+  const front = `<polygon points="${bl.x},${bl.y} ${br.x},${br.y} ${brD.x},${brD.y} ${blD.x},${blD.y}" fill="#0f4a0f"/>`;
+  // Right face
+  const right = `<polygon points="${tr.x},${tr.y} ${br.x},${br.y} ${brD.x},${brD.y} ${trD.x},${trD.y}" fill="#0a3a0a"/>`;
+
+  // Field lines projected
+  const f = FIELDS[ST.sport] || DEFAULT_FIELD;
+  let lines = '';
+  // Center line, circle, etc. - we project the original field SVG onto the surface
+  // For simplicity, render the flat field lines with a skew transform matching the isometric projection
+  const cx=fw/2, cy=fh/2;
+  const c1=this.toIso(cx,cy,0);
+  // Center dot
+  lines += `<circle cx="${c1.x}" cy="${c1.y}" r="3" fill="rgba(255,255,255,0.3)"/>`;
+  // Half line
+  const hl=this.toIso(0,fh/2,0), hr=this.toIso(fw,fh/2,0);
+  lines += `<line x1="${hl.x}" y1="${hl.y}" x2="${hr.x}" y2="${hr.y}" stroke="rgba(255,255,255,0.5)" stroke-width="1.2"/>`;
+  // Center circle
+  const ccPts = [];
+  for(let a=0;a<360;a+=10){
+   const rad=a*Math.PI/180;
+   const px=cx+80*Math.cos(rad), py=cy+80*Math.sin(rad);
+   const p=this.toIso(px,py,0);
+   ccPts.push(`${p.x},${p.y}`);
+  }
+  lines += `<polygon points="${ccPts.join(' ')}" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>`;
+  // Border
+  lines += `<polygon points="${tl.x},${tl.y} ${tr.x},${tr.y} ${br.x},${br.y} ${bl.x},${bl.y}" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>`;
+  // Penalty areas (simplified)
+  const pa1=this.toIso(150,0,0),pa2=this.toIso(450,0,0),pa3=this.toIso(450,150,0),pa4=this.toIso(150,150,0);
+  lines += `<polygon points="${pa1.x},${pa1.y} ${pa2.x},${pa2.y} ${pa3.x},${pa3.y} ${pa4.x},${pa4.y}" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>`;
+  const pb1=this.toIso(150,650,0),pb2=this.toIso(450,650,0),pb3=this.toIso(450,800,0),pb4=this.toIso(150,800,0);
+  lines += `<polygon points="${pb1.x},${pb1.y} ${pb2.x},${pb2.y} ${pb3.x},${pb3.y} ${pb4.x},${pb4.y}" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>`;
+  // Goals
+  const g1l=this.toIso(250,0,0),g1r=this.toIso(350,0,0),g1lt=this.toIso(250,-20,0),g1rt=this.toIso(350,-20,0);
+  lines += `<polygon points="${g1l.x},${g1l.y} ${g1r.x},${g1r.y} ${g1rt.x},${g1rt.y} ${g1lt.x},${g1lt.y}" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>`;
+  const g2l=this.toIso(250,800,0),g2r=this.toIso(350,800,0),g2lt=this.toIso(250,820,0),g2rt=this.toIso(350,820,0);
+  lines += `<polygon points="${g2l.x},${g2l.y} ${g2r.x},${g2r.y} ${g2rt.x},${g2rt.y} ${g2lt.x},${g2lt.y}" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>`;
+
+  fl.innerHTML = right + front + surface + lines;
+ },
+
+ // ── ISO PRESETS ──
+ setIsoPreset(preset) {
+  if(preset==='top') { ST.isoAz=45; ST.isoEl=75; }
+  else if(preset==='front') { ST.isoAz=45; ST.isoEl=20; }
+  else if(preset==='left') { ST.isoAz=10; ST.isoEl=35; }
+  else if(preset==='right') { ST.isoAz=80; ST.isoEl=35; }
+  this.render3DField(); this.renderElements();
+ },
+
+ // ── 3D ELEMENT SVG ──
+ buildIsoElement(el) {
+  if(el.type==='zone') return this.buildElSvg(el);
+  const ex = el.x||0, ey = el.y||0;
+  const p = this.toIso(ex, ey, 0);
+
+  // Depth-based scale
+  const maxIsoY = this.toIso(300,800,0).y;
+  const minIsoY = this.toIso(300,0,0).y;
+  const t = Math.max(0,Math.min(1,(p.y-minIsoY)/(maxIsoY-minIsoY)));
+  const ds = 0.5 + t*0.6;
+
+  if(el.type==='playerA'||el.type==='playerB'||el.type==='goalkeeper') {
+   return this.buildIsoPlayer(el, p, ds);
+  }
+  if(el.type==='ball') return this.buildIsoBall(el, p, ds);
+  if(el.type==='cone') return this.buildIsoCone(el, p, ds);
+  if(el.type==='arrow') return this.buildIsoArrow(el);
+  if(el.type==='line') return this.buildIsoLine(el);
+  if(el.type==='text') {
+   return `<text x="${p.x}" y="${p.y}" text-anchor="middle" font-size="${(el.fontSize||16)*ds}" fill="${el.color||'#fff'}" font-weight="${el.bold?800:600}" data-id="${el.id}" style="cursor:grab">${el.label||''}</text>`;
+  }
+  // Generic material: just place at iso position with scale
+  const s = ds*0.9;
+  return `<g transform="translate(${p.x},${p.y}) scale(${s})" data-id="${el.id}" style="cursor:grab"><ellipse cx="0" cy="8" rx="10" ry="3" fill="rgba(0,0,0,0.15)"/><circle cx="0" cy="0" r="8" fill="rgba(100,100,100,0.3)" stroke="rgba(0,0,0,0.4)" stroke-width="1.5"/></g>`;
+ },
+
+ buildIsoPlayer(el, p, ds) {
+  const c = el.color;
+  const lbl = el.label||'';
+  const s = ds*1.1;
+  const darkC = this.darken(c,0.65);
+  const lightC = this.lighten(c,1.2);
+  // Shadow on ground
+  const shw = `<ellipse cx="${p.x+3*s}" cy="${p.y+4*s}" rx="${12*s}" ry="${4*s}" fill="rgba(0,0,0,0.25)" filter="url(#blur3d)"/>`;
+
+  if(ST.avatarMode==='avatar') {
+   const h = 50*s;
+   return `<g data-id="${el.id}" style="cursor:grab">${shw}<g transform="translate(${p.x},${p.y-h})">
+    <rect x="${-5*s}" y="${34*s}" width="${4*s}" height="${7*s}" rx="${1.5*s}" fill="#2a2a2a"/>
+    <rect x="${1*s}" y="${34*s}" width="${4*s}" height="${7*s}" rx="${1.5*s}" fill="#2a2a2a"/>
+    <rect x="${-7*s}" y="${18*s}" width="${6*s}" height="${16*s}" rx="${2*s}" fill="${darkC}"/>
+    <rect x="${1*s}" y="${18*s}" width="${6*s}" height="${16*s}" rx="${2*s}" fill="${darkC}"/>
+    <polygon points="${-10*s},${2*s} ${10*s},${2*s} ${10*s},${20*s} ${-10*s},${20*s}" fill="${c}"/>
+    <polygon points="${0},${2*s} ${10*s},${2*s} ${10*s},${20*s} ${0},${20*s}" fill="${darkC}"/>
+    <polygon points="${-10*s},${-2*s} ${10*s},${-2*s} ${10*s},${2*s} ${-10*s},${2*s}" fill="${lightC}"/>
+    <rect x="${-14*s}" y="${2*s}" width="${5*s}" height="${14*s}" rx="${2.5*s}" fill="${c}" transform="rotate(-8 ${-11*s} ${9*s})"/>
+    <rect x="${9*s}" y="${2*s}" width="${5*s}" height="${14*s}" rx="${2.5*s}" fill="${darkC}" transform="rotate(8 ${11*s} ${9*s})"/>
+    <text x="0" y="${14*s}" text-anchor="middle" font-size="${10*s}" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text>
+    <circle cx="0" cy="${-8*s}" r="${8*s}" fill="#e2c4a8"/>
+    <circle cx="${-2*s}" cy="${-10*s}" r="${2.5*s}" fill="rgba(255,255,255,0.3)"/>
+    <circle cx="${-2*s}" cy="${-9*s}" r="${1*s}" fill="#555"/><circle cx="${2*s}" cy="${-9*s}" r="${1*s}" fill="#555"/>
+   </g></g>`;
+  } else if(ST.avatarMode==='jersey') {
+   const h = 35*s;
+   return `<g data-id="${el.id}" style="cursor:grab">${shw}<g transform="translate(${p.x},${p.y-h})">
+    <polygon points="${-10*s},${0} ${10*s},${0} ${10*s},${28*s} ${-10*s},${28*s}" fill="${c}"/>
+    <polygon points="${0},${0} ${10*s},${0} ${10*s},${28*s} ${0},${28*s}" fill="${darkC}"/>
+    <polygon points="${-10*s},${-4*s} ${10*s},${-4*s} ${10*s},${0} ${-10*s},${0}" fill="${lightC}"/>
+    <polygon points="${-14*s},${-2*s} ${-10*s},${-4*s} ${-10*s},${10*s} ${-14*s},${8*s}" fill="${c}" opacity="0.8"/>
+    <polygon points="${10*s},${-4*s} ${14*s},${-2*s} ${14*s},${8*s} ${10*s},${10*s}" fill="${darkC}" opacity="0.8"/>
+    <text x="0" y="${16*s}" text-anchor="middle" font-size="${12*s}" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text>
+   </g></g>`;
+  } else {
+   const r = 14*s;
+   return `<g data-id="${el.id}" style="cursor:grab">${shw}<g transform="translate(${p.x},${p.y-r})"><circle cx="0" cy="0" r="${r}" fill="${c}"/><circle cx="${-r*0.25}" cy="${-r*0.25}" r="${r*0.4}" fill="rgba(255,255,255,0.2)"/><circle cx="${r*0.15}" cy="${r*0.2}" r="${r*0.3}" fill="rgba(0,0,0,0.1)"/><text x="0" y="0" dy="0.35em" text-anchor="middle" font-size="${r*0.85}" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text></g></g>`;
+  }
+ },
+
+ buildIsoBall(el, p, ds) {
+  const s = ds;
+  const r = 8*s;
+  return `<g data-id="${el.id}" style="cursor:grab"><ellipse cx="${p.x+2}" cy="${p.y+2}" rx="${r+1}" ry="${r*0.35}" fill="rgba(0,0,0,0.2)" filter="url(#blur3d)"/><g transform="translate(${p.x},${p.y-r})"><defs><radialGradient id="bg3d${el.id}" cx="35%" cy="35%"><stop offset="0%" stop-color="#fff"/><stop offset="50%" stop-color="#eee"/><stop offset="100%" stop-color="#999"/></radialGradient></defs><circle cx="0" cy="0" r="${r}" fill="url(#bg3d${el.id})" stroke="#666" stroke-width="${0.6*s}"/></g></g>`;
+ },
+
+ buildIsoCone(el, p, ds) {
+  const s = ds*1.1;
+  const c = el.color||'#ff9800';
+  return `<g data-id="${el.id}" style="cursor:grab"><ellipse cx="${p.x}" cy="${p.y}" rx="${9*s}" ry="${3*s}" fill="rgba(0,0,0,0.18)" filter="url(#blur3d)"/><g transform="translate(${p.x},${p.y})"><polygon points="0,${-22*s} ${-8*s},0 ${8*s},0" fill="${c}"/><polygon points="0,${-22*s} 0,0 ${8*s},0" fill="${this.darken(c,0.7)}"/><ellipse cx="0" cy="0" rx="${8*s}" ry="${2.5*s}" fill="${this.darken(c,0.8)}"/></g></g>`;
+ },
+
+ buildIsoArrow(el) {
+  const p1 = this.toIso(el.x1||0, el.y1||0, 0);
+  const p2 = this.toIso(el.x2||0, el.y2||0, 0);
+  const aid = `iag${el.id}`;
+  const ac = el.color||'rgba(255,255,255,0.7)';
+  return `<g data-id="${el.id}" style="cursor:pointer"><defs><linearGradient id="${aid}" x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="${ac}" stop-opacity="0.05"/><stop offset="40%" stop-color="${ac}" stop-opacity="0.3"/><stop offset="100%" stop-color="${ac}" stop-opacity="0.9"/></linearGradient></defs><line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="url(#${aid})" stroke-width="8" stroke-linecap="round" opacity="0.2"/><line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${ac}" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow-marker)" ${el.dash?`stroke-dasharray="${el.dash}"`:''}/></g>`;
+ },
+
+ buildIsoLine(el) {
+  const p1 = this.toIso(el.x1||0, el.y1||0, 0);
+  const p2 = this.toIso(el.x2||0, el.y2||0, 0);
+  return `<g data-id="${el.id}" style="cursor:pointer"><line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${el.color||'rgba(255,255,255,0.6)'}" stroke-width="2" stroke-linecap="round" ${el.dash?`stroke-dasharray="${el.dash}"`:''}/></g>`;
  },
 
  // ── FIELD ROTATION ──
@@ -1216,15 +1428,27 @@ const S = {
 
  renderElements() {
   const layer = document.getElementById('elements-layer');
-  const is3D = ST.viewMode==='3d'||ST.viewMode==='2.5d';
   let defs = `<defs>
    <marker id="arrow-marker" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8" fill="none" stroke="rgba(0,0,0,0.7)" stroke-width="1.5" stroke-linecap="round"/></marker>
    <filter id="blur3d"><feGaussianBlur stdDeviation="3"/></filter>
    <filter id="shadow3d"><feDropShadow dx="2" dy="3" stdDeviation="2" flood-opacity="0.2"/></filter>
   </defs>`;
-  const zOrder = {zone:0, line:1, arrow:1, curve:1, pencil:1, cone:2, disc:2, flag:2, hurdle:2, minigoal:2, mannequin:2, vest:2, ring:2, ladder:2, pole:2, plyobox:2, kettlebell:2, medball:2, trx:2, sled:2, parachute:2, rope:2, battlerope:2, roller:2, band:2, bosu:2, mat:2, ball:2, playerA:3, playerB:3, goalkeeper:3, text:4};
-  const sorted = [...ST.elements].sort((a,b)=>(zOrder[a.type]||2)-(zOrder[b.type]||2));
-  layer.innerHTML = defs + sorted.map(el => this.buildElSvg(el)).join('');
+
+  if(ST.viewMode==='3d') {
+   // Isometric mode: project and sort by iso Y (painter's algorithm)
+   const projected = ST.elements.map(el => {
+    const ey = el.y||el.y1||400;
+    const ex = el.x||el.x1||300;
+    const ip = this.toIso(ex, ey, 0);
+    return {el, isoY: ip.y};
+   });
+   projected.sort((a,b) => a.isoY - b.isoY);
+   layer.innerHTML = defs + projected.map(({el}) => this.buildIsoElement(el)).join('');
+  } else {
+   const zOrder = {zone:0, line:1, arrow:1, curve:1, pencil:1, cone:2, disc:2, flag:2, hurdle:2, minigoal:2, mannequin:2, vest:2, ring:2, ladder:2, pole:2, plyobox:2, kettlebell:2, medball:2, trx:2, sled:2, parachute:2, rope:2, battlerope:2, roller:2, band:2, bosu:2, mat:2, ball:2, playerA:3, playerB:3, goalkeeper:3, text:4};
+   const sorted = [...ST.elements].sort((a,b)=>(zOrder[a.type]||2)-(zOrder[b.type]||2));
+   layer.innerHTML = defs + sorted.map(el => this.buildElSvg(el)).join('');
+  }
  },
 
  // ── ZOOM ──
@@ -1387,6 +1611,36 @@ const S = {
   });
   document.addEventListener('keyup', e => {
    if(e.key===' ') ST.spaceDown=false;
+  });
+ },
+
+
+ bindJoystick() {
+  const pad = document.getElementById('joy-pad');
+  const thumb = document.getElementById('joy-thumb');
+  if(!pad||!thumb) return;
+  let dragging = false;
+  const onMove = (e) => {
+   if(!dragging) return;
+   const r = pad.getBoundingClientRect();
+   const cx = r.left+r.width/2, cy = r.top+r.height/2;
+   let dx = (e.clientX-cx)/(r.width/2), dy = (e.clientY-cy)/(r.height/2);
+   const dist = Math.sqrt(dx*dx+dy*dy);
+   if(dist>1){dx/=dist;dy/=dist;}
+   thumb.style.left = (50+dx*35)+'%';
+   thumb.style.top = (50+dy*35)+'%';
+   ST.isoAz = 45 + dx*40;
+   ST.isoEl = 35 - dy*25;
+   ST.isoEl = Math.max(10,Math.min(80,ST.isoEl));
+   this.render3DField();
+   this.renderElements();
+  };
+  thumb.addEventListener('mousedown',()=>{dragging=true;document.addEventListener('mousemove',onMove);});
+  document.addEventListener('mouseup',()=>{
+   if(!dragging) return;
+   dragging=false;
+   document.removeEventListener('mousemove',onMove);
+   thumb.style.left='50%';thumb.style.top='50%';
   });
  },
 
