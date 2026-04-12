@@ -374,15 +374,6 @@ const LandingPage = () => {
       <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:32px_32px] opacity-10" />
 
       <div className="max-w-[1120px] mx-auto px-6 relative z-10 w-full pt-10 pb-6">
-        {/* Pill badges */}
-        <Reveal delay={0.1} direction="up">
-          <div className="flex gap-2 mb-6">
-            {[t('landing.hero.pill1'),t('landing.hero.pill2'),t('landing.hero.pill3')].map(txt => (
-              <span key={txt} className="px-3 py-1 border border-slate-700 rounded-full text-[9px] font-bold tracking-[0.15em] text-slate-400 hover:border-[#CCFF00] hover:text-[#CCFF00] transition-colors cursor-pointer" style={{fontFamily:BC}}>{txt}</span>
-            ))}
-          </div>
-        </Reveal>
-
         {/* Main grid: text left + chart right */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left column — branding + CTA */}
@@ -414,13 +405,6 @@ const LandingPage = () => {
                       {t('landing.hero.cta_secondary')}
                     </Button>
                   </a>
-                </div>
-              </Reveal>
-              <Reveal delay={0.6} direction="up">
-                <div className="flex gap-4 text-[11px] text-slate-500 mb-6">
-                  {[t('landing.hero.free_trial'),t('landing.hero.no_card'),t('landing.hero.cancel_anytime')].map(txt => (
-                    <span key={txt} className="flex items-center gap-1.5"><Check className="w-3 h-3 text-[#CCFF00]" />{txt}</span>
-                  ))}
                 </div>
               </Reveal>
             </div>
