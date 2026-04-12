@@ -65,7 +65,22 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
 .sb-save-btn.purple{background:#7c3aed}
 .sb-save-btn:hover{filter:brightness(1.1)}
 /* ── CANVAS ── */
-#canvas-wrap{flex:1;position:relative;overflow:hidden;background:#fafaf8}
+#canvas-wrap{flex:1;position:relative;overflow:hidden;background:#fafaf8;display:flex;flex-direction:column}
+/* View bar */
+#view-bar{height:34px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 10px;gap:6px;flex-shrink:0;z-index:5}
+.vb-group{display:flex;align-items:center;gap:4px}
+.vb-label{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-right:2px}
+.vb-sep{width:1px;height:18px;background:var(--border);margin:0 2px}
+.vb-seg{display:flex;background:var(--hover);border-radius:6px;padding:2px;gap:1px}
+.vb-btn{padding:3px 10px;border-radius:5px;font-size:9px;font-weight:600;color:var(--text-muted);transition:all .15s;white-space:nowrap}
+.vb-btn:hover{color:var(--text-sec)}
+.vb-btn.active{background:var(--primary);color:#fff;box-shadow:0 1px 4px rgba(37,99,235,0.2)}
+.vb-icon{width:28px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);background:var(--hover);border:1px solid transparent;font-size:11px;transition:all .12s}
+.vb-icon:hover{background:#e2e8f0;color:var(--text);border-color:var(--border)}
+/* Canvas container for perspective transforms */
+#canvas-inner{flex:1;position:relative;overflow:hidden;transition:transform .4s cubic-bezier(0.2,0,0,1);transform-origin:center center}
+#canvas-inner.view-2d{transform:none}
+#canvas-inner.view-25d{transform:perspective(900px) rotateX(35deg);transform-origin:center 80%}
 #svg-canvas{width:100%;height:100%;display:block}
 .zoom-controls{position:absolute;bottom:10px;right:10px;display:flex;gap:3px;z-index:10}
 .zoom-btn{width:30px;height:30px;border-radius:50%;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-sec);font-size:15px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
@@ -193,6 +208,34 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
 
  <!-- CANVAS (maximized) -->
  <div id="canvas-wrap">
+  <!-- VIEW BAR -->
+  <div id="view-bar">
+   <div class="vb-group">
+    <div class="vb-label">VISTA</div>
+    <div class="vb-seg" id="view-mode-seg">
+     <button class="vb-btn active" data-view="2d" onclick="S.setView('2d')">2D</button>
+     <button class="vb-btn" data-view="2.5d" onclick="S.setView('2.5d')">2.5D</button>
+    </div>
+   </div>
+   <div class="vb-sep"></div>
+   <div class="vb-group">
+    <div class="vb-label">CAMPO</div>
+    <button class="vb-icon" onclick="S.rotateField(-90)" title="Rotar -90°"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 100-6.68L1 10"/></svg></button>
+    <button class="vb-icon" onclick="S.rotateField(90)" title="Rotar +90°"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 110-6.68L23 10"/></svg></button>
+    <button class="vb-icon" onclick="S.flipField('h')" title="Flip H"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="7 3 3 7 7 11"/><polyline points="17 3 21 7 17 11"/><line x1="3" y1="7" x2="21" y2="7"/></svg></button>
+    <button class="vb-icon" onclick="S.flipField('v')" title="Flip V"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 7 7 3 11 7"/><polyline points="3 17 7 21 11 17"/><line x1="7" y1="3" x2="7" y2="21"/></svg></button>
+    <button class="vb-icon" onclick="S.resetFieldTransform()" title="Reset">⟲</button>
+   </div>
+   <div class="vb-sep"></div>
+   <div class="vb-group">
+    <div class="vb-label">JUGADORES</div>
+    <div class="vb-seg" id="avatar-mode-seg">
+     <button class="vb-btn active" data-avatar="tactical" onclick="S.setAvatarMode('tactical')">Tactico</button>
+     <button class="vb-btn" data-avatar="jersey" onclick="S.setAvatarMode('jersey')">Camiseta</button>
+     <button class="vb-btn" data-avatar="avatar" onclick="S.setAvatarMode('avatar')">Avatar</button>
+    </div>
+   </div>
+  </div>
   <div id="playback-bar">
    <button class="pb-btn" onclick="S.playback('play')" id="pb-play"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,1 14,8 3,15"/></svg></button>
    <button class="pb-btn" onclick="S.playback('pause')" id="pb-pause"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="2" width="3.5" height="12" rx="1"/><rect x="9.5" y="2" width="3.5" height="12" rx="1"/></svg></button>
@@ -203,6 +246,7 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
    <button class="pb-speed active" onclick="S.setPlaySpeed(1)" id="pb-s1">1x</button>
    <button class="pb-speed" onclick="S.setPlaySpeed(2)" id="pb-s2">2x</button>
   </div>
+  <div id="canvas-inner" class="view-2d">
   <svg id="svg-canvas" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Pizarra tactica">
    <g id="zoom-group">
     <g id="grid-layer"></g>
@@ -213,6 +257,7 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
     <g id="sel-rect-layer"></g>
    </g>
   </svg>
+  </div><!-- end canvas-inner -->
   <div class="zoom-controls">
    <button class="zoom-btn" onclick="S.zoomIn()">+</button>
    <button class="zoom-btn" onclick="S.zoomOut()">−</button>
@@ -255,7 +300,9 @@ const ST = {
  teamAColor: '#ef4444', teamBColor: '#2563eb',
  elementColors: {cone:'#ff9800',disc:'#2563eb',ring:'#8b5cf6',vest:'#ef4444',pole:'#f59e0b',flag:'#ef4444',band:'#ef4444'},
  lineStyle: 'solid', lineColor: '#1e293b',
- zoneColor: '#378ADD', zoneOpacity: 0.12
+ zoneColor: '#378ADD', zoneOpacity: 0.12,
+ viewMode: '2d', avatarMode: 'tactical',
+ fieldRotation: 0, fieldFlipH: false, fieldFlipV: false
 };
 
 // ═══════════ CATEGORIES & SPORTS ═══════════
@@ -617,6 +664,50 @@ const S = {
   document.getElementById('color-picker').classList.remove('show');
  },
 
+ // ── VIEW MODE ──
+ setView(mode) {
+  ST.viewMode = mode;
+  const inner = document.getElementById('canvas-inner');
+  inner.className = mode==='2.5d' ? 'view-25d' : 'view-2d';
+  document.querySelectorAll('#view-mode-seg .vb-btn').forEach(b => b.classList.toggle('active', b.dataset.view===mode));
+ },
+
+ // ── FIELD ROTATION ──
+ rotateField(deg) {
+  ST.fieldRotation = (ST.fieldRotation + deg + 360) % 360;
+  this.applyFieldTransform();
+ },
+ flipField(axis) {
+  if(axis==='h') ST.fieldFlipH = !ST.fieldFlipH;
+  else ST.fieldFlipV = !ST.fieldFlipV;
+  this.applyFieldTransform();
+ },
+ resetFieldTransform() {
+  ST.fieldRotation = 0; ST.fieldFlipH = false; ST.fieldFlipV = false;
+  this.applyFieldTransform();
+ },
+ applyFieldTransform() {
+  const zg = document.getElementById('zoom-group');
+  let t = `translate(${ST.panX},${ST.panY}) scale(${ST.zoom})`;
+  t += ` rotate(${ST.fieldRotation} 300 400)`;
+  if(ST.fieldFlipH) t += ' translate(600,0) scale(-1,1)';
+  if(ST.fieldFlipV) t += ' translate(0,800) scale(1,-1)';
+  zg.setAttribute('transform', t);
+ },
+
+ // ── AVATAR MODE ──
+ setAvatarMode(mode) {
+  ST.avatarMode = mode;
+  document.querySelectorAll('#avatar-mode-seg .vb-btn').forEach(b => b.classList.toggle('active', b.dataset.avatar===mode));
+  this.renderElements();
+ },
+
+ contrastColor(hex) {
+  if(!hex || hex.length<7) return '#fff';
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return (r*0.299+g*0.587+b*0.114)>160 ? '#1e293b' : '#ffffff';
+ },
+
  // ── INLINE TEXT INPUT ──
  startInlineText(svgX, svgY, originalEvent) {
   const svg = document.getElementById('svg-canvas');
@@ -904,8 +995,26 @@ const S = {
   const sel = ST.selected.includes(el);
   const selStroke = sel ? `<circle cx="0" cy="0" r="${(el.size||15)+6}" fill="none" stroke="${el.color||'#c8f700'}" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.6"/>` : '';
   switch(el.type) {
-   case 'playerA': case 'playerB': case 'goalkeeper':
-    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}<circle cx="0" cy="0" r="${el.size||15}" fill="${el.color}22" stroke="${el.color}" stroke-width="2.5"/>${el.type!=='playerB'?`<text x="0" y="0" dy="0.35em" text-anchor="middle" font-size="${(el.size||15)*0.85}" fill="${el.color}" font-weight="800">${el.label||''}</text>`:`<text x="0" y="0" dy="0.35em" text-anchor="middle" font-size="${(el.size||15)*0.85}" fill="${el.color}" font-weight="700">${el.label||''}</text>`}${el.label?`<text x="0" y="${-(el.size||15)-6}" text-anchor="middle" font-size="9" fill="${el.color}" opacity="0.7">${el.name||''}</text>`:''}</g>`;
+   case 'playerA': case 'playerB': case 'goalkeeper': {
+    const r = el.size||15;
+    const c = el.color;
+    const lbl = el.label||'';
+    const nm = el.name||'';
+    // Shadow for all modes
+    const shadow = `<ellipse cx="0" cy="${r+4}" rx="${r-2}" ry="4" fill="rgba(0,0,0,0.1)"/>`;
+    if(ST.avatarMode==='jersey') {
+     // Jersey/Camiseta mode - shirt seen from above
+     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<path d="M-10,-14 L-6,-18 L0,-16 L6,-18 L10,-14 L12,-6 L8,-4 L8,12 L-8,12 L-8,-4 L-12,-6 Z" fill="${c}" stroke="${c}" stroke-width="0.5" opacity="0.85"/><path d="M-10,-14 L-6,-18 L0,-16 L6,-18 L10,-14 L12,-6 L8,-4 L8,12 L-8,12 L-8,-4 L-12,-6 Z" fill="none" stroke="rgba(0,0,0,0.3)" stroke-width="1"/><text x="0" y="2" text-anchor="middle" font-size="12" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text>${nm?`<text x="0" y="${-22}" text-anchor="middle" font-size="8" fill="${c}" opacity="0.8">${nm}</text>`:''}</g>`;
+    } else if(ST.avatarMode==='avatar') {
+     // Avatar mode - full body silhouette
+     const bodyC = c;
+     const shortsC = el.type==='goalkeeper'?'#333':c;
+     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<circle cx="0" cy="-18" r="6" fill="#dbb89c" stroke="rgba(0,0,0,0.15)" stroke-width="0.5"/><rect x="-8" y="-12" width="16" height="16" rx="3" fill="${bodyC}" stroke="rgba(0,0,0,0.15)" stroke-width="0.5"/><text x="0" y="-2" text-anchor="middle" font-size="9" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text><rect x="-7" y="4" width="6" height="10" rx="2" fill="${shortsC}" opacity="0.7"/><rect x="1" y="4" width="6" height="10" rx="2" fill="${shortsC}" opacity="0.7"/><rect x="-5" y="-12" width="4" height="10" rx="2" fill="${bodyC}" transform="rotate(-15 -3 -7)" opacity="0.7"/><rect x="1" y="-12" width="4" height="10" rx="2" fill="${bodyC}" transform="rotate(15 3 -7)" opacity="0.7"/>${nm?`<text x="0" y="-28" text-anchor="middle" font-size="8" fill="${c}" opacity="0.8">${nm}</text>`:''}</g>`;
+    } else {
+     // Tactical mode (default) - circles with numbers
+     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<circle cx="0" cy="0" r="${r}" fill="${c}22" stroke="${c}" stroke-width="2.5"/><text x="0" y="0" dy="0.35em" text-anchor="middle" font-size="${r*0.85}" fill="${c}" font-weight="800">${lbl}</text>${nm?`<text x="0" y="${-r-6}" text-anchor="middle" font-size="9" fill="${c}" opacity="0.7">${nm}</text>`:''}</g>`;
+    }
+   }
    case 'ball':
     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${sel?'<circle cx="0" cy="0" r="14" fill="none" stroke="white" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.5"/>':''}<circle cx="0" cy="0" r="${el.size||8}" fill="white" stroke="#333" stroke-width="1.5"/><circle cx="0" cy="0" r="2.5" fill="#555"/></g>`;
    case 'cone':
@@ -987,7 +1096,11 @@ const S = {
  // ── ZOOM ──
  applyZoom() {
   const g = document.getElementById('zoom-group');
-  g.setAttribute('transform',`translate(${ST.panX},${ST.panY}) scale(${ST.zoom})`);
+  let t = `translate(${ST.panX},${ST.panY}) scale(${ST.zoom})`;
+  if(ST.fieldRotation) t += ` rotate(${ST.fieldRotation} 300 400)`;
+  if(ST.fieldFlipH) t += ' translate(600,0) scale(-1,1)';
+  if(ST.fieldFlipV) t += ' translate(0,800) scale(1,-1)';
+  g.setAttribute('transform', t);
  },
  zoomIn() { ST.zoom = Math.min(4, ST.zoom + 0.2); this.applyZoom(); },
  zoomOut() { ST.zoom = Math.max(0.3, ST.zoom - 0.2); this.applyZoom(); },
@@ -1128,6 +1241,14 @@ const S = {
    if(e.key==='+'||e.key==='=') this.zoomIn();
    if(e.key==='-') this.zoomOut();
    if(e.key==='0') this.zoomReset();
+   if(e.key==='2') this.setView('2d');
+   if(e.key==='3') this.setView('2.5d');
+   if(e.key==='r'||e.key==='R') this.rotateField(90);
+   if(e.key==='m'||e.key==='M') this.flipField('h');
+   if(e.key==='f'||e.key==='F') this.zoomReset();
+   if(e.key==='h'||e.key==='H') { document.getElementById('panel').style.display = document.getElementById('panel').style.display==='none'?'flex':'none'; }
+   if(e.key==='p'||e.key==='P') this.startPlayback();
+   if(e.key==='Tab') { e.preventDefault(); const modes=['tactical','jersey','avatar']; const i=(modes.indexOf(ST.avatarMode)+1)%3; this.setAvatarMode(modes[i]); }
   });
   document.addEventListener('keyup', e => {
    if(e.key===' ') ST.spaceDown=false;

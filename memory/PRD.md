@@ -4,32 +4,32 @@
 
 ## Implementado (Fork 9 - 14 Abr 2026)
 
-### Texto Inline (Bug #1 Fix)
-- Click en Texto → click en canvas → input inline con borde azul aparece en la posición exacta
-- El input usa SVG screenCTM para posición precisa con zoom/pan
-- Enter confirma, Escape cancela, blur confirma
-- Texto se congela como SVG `<text>` permanente, arrastrable y seleccionable
-- Sin prompt() del navegador
+### Barra de Vista (VIEW BAR)
+- **2D / 2.5D**: Toggle entre vista plana y perspectiva (rotateX 35°, perspective 900px)
+- **Rotación campo**: ↺ -90°, ↻ +90° (acumulable), Flip H, Flip V, Reset
+- **Modo Avatar**: Táctico (círculos) / Camiseta (shirt SVG) / Avatar (figura completa)
+- Atajos: 2=2D, 3=2.5D, R=Rotar, M=Flip, Tab=Cambiar avatar, H=Toggle panel
 
-### Zonas de Color Semitransparentes (Feature)
-- 6 colores predefinidos: Azul, Verde, Rojo, Naranja, Morado, Gris
-- Picker visual con vista previa semitransparente + borde punteado
-- Relleno: fill-opacity 0.12, Borde: stroke-opacity 0.45, stroke-dasharray 6 4
-- Border-radius 8px, etiqueta opcional centrada
-- Propiedades: zoneColor, opacity, borderOpacity, label
+### Modos de Visualización de Jugadores
+- **Táctico**: Círculos con número, sombra sutil
+- **Camiseta**: SVG de camiseta vista desde arriba con número centrado
+- **Avatar**: Figura completa: cabeza, cuerpo (camiseta+número), brazos, piernas, shorts
+- contrastColor() auto para legibilidad del número
 
-### Sistema de Capas (Z-Order)
-- 0: Zonas semitransparentes (siempre al fondo)
-- 1: Líneas, flechas, curvas, trazos
-- 2: Materiales de campo (conos, aros, escaleras, etc.)
-- 3: Jugadores y porteros
-- 4: Textos y etiquetas (siempre encima)
+### Sistema de Capas Z-Order
+- Zonas(0) → Líneas(1) → Materiales(2) → Jugadores(3) → Textos(4)
 
-### Toolbar FAB + Biblioteca Materiales (30+ herramientas)
-- Estilo FAB circular idéntico al panel de control del dashboard
-- Headers por categoría, color pickers por elemento, line style picker
+### Atajos de Teclado
+- Ctrl+Z/Y: Deshacer/Rehacer
+- Ctrl+A/D/S: Seleccionar todo/Duplicar/Exportar
+- Delete: Eliminar, Escape: Deseleccionar
+- +/-/0: Zoom, F: Fit, H: Toggle panel
+- 2/3: Vista 2D/2.5D, R/M: Rotar/Flip
+- Tab: Ciclar avatar, P: Reproducir
 
 ## Pendiente
-- P1: Refactorizar DashboardPage.js
+- P1: Vista 3D isométrica completa
+- P1: Formaciones tácticas por deporte
 - P2: Exportar PDF/GIF
-- P3: Responsive
+- P2: Flecha aérea con parábola
+- P3: Joystick 3D, carga de fotos
