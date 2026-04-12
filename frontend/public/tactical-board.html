@@ -6,142 +6,143 @@
 <title>iTRAIN — Pizarra Tactica Digital</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0b0e14;--panel:#111520;--header:#0d1018;--lime:#c8f700;--white:#fff;--muted:rgba(255,255,255,0.4);--border:rgba(255,255,255,0.06);--font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--white);font-family:var(--font);font-size:13px;-webkit-font-smoothing:antialiased}
+:root{--bg:#ffffff;--panel:#f8fafc;--header:#ffffff;--lime:#c8f700;--primary:#2563eb;--text:#1e293b;--text-sec:#64748b;--text-muted:#94a3b8;--border:#e2e8f0;--hover:#f1f5f9;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;-webkit-font-smoothing:antialiased}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;font-size:inherit}
-input,textarea,select{font-family:inherit;font-size:12px;background:rgba(255,255,255,0.06);border:0.5px solid var(--border);color:#fff;border-radius:6px;padding:6px 8px;outline:none}
-input:focus,textarea:focus{border-color:rgba(200,247,0,0.4)}
+input,textarea,select{font-family:inherit;font-size:12px;background:#fff;border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 8px;outline:none}
+input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(37,99,235,0.1)}
 /* Layout */
 #app{display:flex;flex-direction:column;height:100vh;width:100vw}
-#header{height:56px;background:var(--header);display:flex;align-items:center;padding:0 12px;gap:12px;border-bottom:0.5px solid var(--border);flex-shrink:0;z-index:100}
+#header{height:56px;background:var(--header);display:flex;align-items:center;padding:0 12px;gap:12px;border-bottom:1px solid var(--border);flex-shrink:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
 #main{display:flex;flex:1;overflow:hidden}
-#toolbar{width:64px;background:var(--panel);border-right:0.5px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:2px;overflow-y:auto;flex-shrink:0}
-#canvas-wrap{flex:1;position:relative;overflow:hidden;background:var(--bg)}
-#panel{width:260px;background:var(--panel);border-left:0.5px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
-#footer{height:52px;background:var(--header);display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-top:0.5px solid var(--border);flex-shrink:0;gap:8px}
+#toolbar{width:64px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:2px;overflow-y:auto;flex-shrink:0}
+#canvas-wrap{flex:1;position:relative;overflow:hidden;background:#f1f5f9}
+#panel{width:260px;background:var(--bg);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+#footer{height:52px;background:var(--header);display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-top:1px solid var(--border);flex-shrink:0;gap:8px}
 /* Header */
 .logo{width:32px;height:32px;background:var(--lime);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.logo span{font-size:16px;font-weight:900;color:var(--bg)}
-.hdr-title{font-size:15px;font-weight:700;line-height:1.2}
-.hdr-sub{font-size:11px;color:rgba(255,255,255,0.35)}
+.logo span{font-size:16px;font-weight:900;color:#1e293b}
+.hdr-title{font-size:15px;font-weight:700;line-height:1.2;color:var(--text)}
+.hdr-sub{font-size:11px;color:var(--text-muted)}
 .hdr-left{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .tabs-wrap{flex:1;display:flex;align-items:center;gap:4px;overflow-x:auto;padding:0 8px;scrollbar-width:none}
 .tabs-wrap::-webkit-scrollbar{display:none}
-.tab{padding:6px 12px;border-radius:6px;font-size:11px;font-weight:500;white-space:nowrap;color:rgba(255,255,255,0.45);background:rgba(255,255,255,0.06);transition:all .15s}
-.tab:hover{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7)}
-.tab.active{background:var(--lime);color:var(--bg);font-weight:700}
-.close-btn{width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.close-btn:hover{background:rgba(255,255,255,0.12)}
+.tab{padding:6px 12px;border-radius:6px;font-size:11px;font-weight:500;white-space:nowrap;color:var(--text-sec);background:var(--hover);transition:all .15s;border:1px solid transparent}
+.tab:hover{background:#e2e8f0;color:var(--text)}
+.tab.active{background:var(--primary);color:#fff;font-weight:700;border-color:var(--primary)}
+.close-btn{width:28px;height:28px;border-radius:6px;background:var(--hover);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-sec)}
+.close-btn:hover{background:#e2e8f0;color:var(--text)}
 /* Sport dropdown */
-#sport-dropdown{position:absolute;top:56px;left:50%;transform:translateX(-50%);background:#161b24;border:0.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px;display:none;z-index:200;max-width:500px;flex-wrap:wrap;gap:6px;box-shadow:0 12px 40px rgba(0,0,0,0.6)}
+#sport-dropdown{position:absolute;top:56px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;display:none;z-index:200;max-width:500px;flex-wrap:wrap;gap:6px;box-shadow:0 12px 40px rgba(0,0,0,0.12)}
 #sport-dropdown.show{display:flex}
-.sport-pill{padding:5px 12px;border-radius:20px;font-size:11px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);transition:all .15s}
-.sport-pill:hover{background:rgba(255,255,255,0.12);color:#fff}
-.sport-pill.active{background:var(--lime);color:var(--bg);font-weight:600}
+.sport-pill{padding:5px 12px;border-radius:20px;font-size:11px;background:var(--hover);color:var(--text-sec);transition:all .15s;border:1px solid transparent}
+.sport-pill:hover{background:#e2e8f0;color:var(--text)}
+.sport-pill.active{background:var(--primary);color:#fff;font-weight:600;border-color:var(--primary)}
 /* Toolbar */
 .tool-sep{width:36px;height:1px;background:var(--border);margin:4px 0}
-.tool{width:44px;height:44px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--muted);transition:all .12s;flex-shrink:0}
-.tool:hover{background:rgba(255,255,255,0.06)}
-.tool.active{background:rgba(200,247,0,0.12);border:0.5px solid rgba(200,247,0,0.3);color:var(--lime)}
+.tool{width:44px;height:44px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--text-muted);transition:all .12s;flex-shrink:0}
+.tool:hover{background:var(--hover);color:var(--text-sec)}
+.tool.active{background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.25);color:var(--primary)}
 .tool svg{width:18px;height:18px}
 .tool span{font-size:8px;letter-spacing:0.04em;line-height:1}
 /* Canvas */
 #svg-canvas{width:100%;height:100%;display:block}
 .zoom-controls{position:absolute;bottom:12px;right:12px;display:flex;gap:4px;z-index:10}
-.zoom-btn{width:32px;height:32px;border-radius:6px;background:rgba(17,21,32,0.9);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:16px}
-.zoom-btn:hover{color:#fff;background:rgba(30,35,50,0.95)}
+.zoom-btn{width:32px;height:32px;border-radius:6px;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-sec);font-size:16px;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+.zoom-btn:hover{color:var(--text);background:var(--hover)}
 /* Panel */
-.panel-header{padding:12px;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.panel-header h3{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.4);font-weight:700}
+.panel-header{padding:12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.panel-header h3{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:700}
 .panel-content{flex:1;overflow-y:auto;padding:8px}
 .el-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;transition:background .1s}
-.el-item:hover{background:rgba(255,255,255,0.04)}
-.el-item.selected{background:rgba(200,247,0,0.08);border:0.5px solid rgba(200,247,0,0.2)}
+.el-item:hover{background:var(--hover)}
+.el-item.selected{background:rgba(37,99,235,0.06);border:1px solid rgba(37,99,235,0.2)}
 .el-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.el-name{flex:1;font-size:11px;color:rgba(255,255,255,0.7);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.el-del{opacity:0;color:rgba(255,255,255,0.3);transition:opacity .1s}
+.el-name{flex:1;font-size:11px;color:var(--text-sec);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.el-del{opacity:0;color:var(--text-muted);transition:opacity .1s}
 .el-item:hover .el-del{opacity:1}
-.el-del:hover{color:#f44}
+.el-del:hover{color:#ef4444}
 /* Props panel */
 .prop-group{padding:8px 12px}
-.prop-label{font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;font-weight:600}
+.prop-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;font-weight:600}
 .prop-row{display:flex;gap:6px;margin-bottom:6px;align-items:center}
 .prop-row input{flex:1;height:28px}
-.prop-row label{font-size:11px;color:rgba(255,255,255,0.5);min-width:28px}
+.prop-row label{font-size:11px;color:var(--text-sec);min-width:28px}
 .color-swatch{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);cursor:pointer;flex-shrink:0}
 /* Footer */
-.footer-left{font-size:11px;color:rgba(255,255,255,0.3);white-space:nowrap}
+.footer-left{font-size:11px;color:var(--text-muted);white-space:nowrap}
 .footer-center{display:flex;gap:4px;align-items:center}
-.footer-btn{padding:5px 10px;border-radius:6px;font-size:11px;display:flex;align-items:center;gap:4px;color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);transition:all .12s;white-space:nowrap}
-.footer-btn:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.8)}
-.footer-btn.active{background:rgba(200,247,0,0.1);color:var(--lime);border-color:rgba(200,247,0,0.2)}
+.footer-btn{padding:5px 10px;border-radius:6px;font-size:11px;display:flex;align-items:center;gap:4px;color:var(--text-sec);background:var(--hover);border:1px solid var(--border);transition:all .12s;white-space:nowrap}
+.footer-btn:hover{background:#e2e8f0;color:var(--text)}
+.footer-btn.active{background:rgba(37,99,235,0.08);color:var(--primary);border-color:rgba(37,99,235,0.25)}
 .footer-right{display:flex;gap:6px;align-items:center}
-.btn-cancel{padding:6px 16px;border-radius:6px;font-size:12px;border:0.5px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.5)}
-.btn-cancel:hover{background:rgba(255,255,255,0.05)}
-.btn-save{padding:6px 16px;border-radius:6px;font-size:12px;font-weight:700;background:var(--lime);color:var(--bg)}
+.btn-cancel{padding:6px 16px;border-radius:6px;font-size:12px;border:1px solid var(--border);color:var(--text-sec)}
+.btn-cancel:hover{background:var(--hover);color:var(--text)}
+.btn-save{padding:6px 16px;border-radius:6px;font-size:12px;font-weight:700;background:var(--primary);color:#fff;border:1px solid var(--primary)}
 .btn-save:hover{filter:brightness(1.1)}
-.btn-ai{padding:6px 16px;border-radius:6px;font-size:12px;font-weight:600;background:#7F77DD;color:#fff}
+.btn-ai{padding:6px 16px;border-radius:6px;font-size:12px;font-weight:600;background:#7c3aed;color:#fff}
 .btn-ai:hover{filter:brightness(1.1)}
 /* Modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
 .modal-overlay.show{display:flex}
-.modal-card{background:#161b24;border-radius:16px;padding:28px;width:400px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
-.modal-card h2{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.modal-close{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.modal-card{background:#fff;border-radius:16px;padding:28px;width:400px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.15);border:1px solid var(--border)}
+.modal-card h2{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;color:var(--text)}
+.modal-close{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:6px;background:var(--hover);display:flex;align-items:center;justify-content:center;color:var(--text-sec)}
 /* Context menu */
-#ctx-menu{position:fixed;background:#1a1f2e;border:0.5px solid rgba(255,255,255,0.1);border-radius:8px;padding:4px;z-index:300;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.5);min-width:160px}
+#ctx-menu{position:fixed;background:#fff;border:1px solid var(--border);border-radius:8px;padding:4px;z-index:300;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:160px}
 #ctx-menu.show{display:block}
-.ctx-item{padding:6px 12px;border-radius:4px;font-size:12px;color:rgba(255,255,255,0.7);display:flex;align-items:center;gap:8px}
-.ctx-item:hover{background:rgba(255,255,255,0.08);color:#fff}
+.ctx-item{padding:6px 12px;border-radius:4px;font-size:12px;color:var(--text-sec);display:flex;align-items:center;gap:8px}
+.ctx-item:hover{background:var(--hover);color:var(--text)}
 .ctx-sep{height:1px;background:var(--border);margin:2px 0}
 /* Selection box */
-.sel-box{fill:rgba(200,247,0,0.08);stroke:var(--lime);stroke-width:1;stroke-dasharray:4 2;pointer-events:none}
+.sel-box{fill:rgba(37,99,235,0.06);stroke:var(--primary);stroke-width:1;stroke-dasharray:4 2;pointer-events:none}
 /* Grid */
 .grid-line{stroke:rgba(0,0,0,0.1);stroke-width:0.5}
 /* Handles */
-.handle{fill:var(--lime);stroke:var(--bg);stroke-width:2;cursor:pointer;r:5}
-.handle-rotate{fill:var(--lime);stroke:var(--bg);stroke-width:2;cursor:grab;r:5}
+.handle{fill:var(--primary);stroke:#fff;stroke-width:2;cursor:pointer;r:5}
+.handle-rotate{fill:var(--primary);stroke:#fff;stroke-width:2;cursor:grab;r:5}
 /* Snap guides */
 .snap-guide{stroke:rgba(255,80,80,0.5);stroke-width:0.5;stroke-dasharray:3 3;pointer-events:none}
 /* Tooltip */
-.tt{position:fixed;background:#1a1f2e;color:rgba(255,255,255,0.8);font-size:11px;padding:4px 8px;border-radius:4px;pointer-events:none;z-index:400;display:none;white-space:nowrap}
+.tt{position:fixed;background:var(--text);color:#fff;font-size:11px;padding:4px 8px;border-radius:4px;pointer-events:none;z-index:400;display:none;white-space:nowrap}
 /* Playback controls */
-#playback-bar{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:6px;background:rgba(11,14,20,0.92);border:0.5px solid rgba(200,247,0,0.25);border-radius:12px;padding:6px 14px;z-index:50;backdrop-filter:blur(8px);box-shadow:0 8px 28px rgba(0,0,0,0.5)}
+#playback-bar{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:6px;background:rgba(255,255,255,0.95);border:1px solid var(--border);border-radius:12px;padding:6px 14px;z-index:50;backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,0.1)}
 #playback-bar.show{display:flex}
-.pb-btn{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .12s}
-.pb-btn:hover{background:rgba(255,255,255,0.08);color:#fff}
-.pb-btn.playing{color:var(--lime);background:rgba(200,247,0,0.12)}
-.pb-speed{padding:4px 8px;border-radius:6px;font-size:11px;font-weight:600;color:var(--muted);background:rgba(255,255,255,0.04);border:0.5px solid var(--border);min-width:36px;text-align:center}
-.pb-speed.active{color:var(--lime);background:rgba(200,247,0,0.1);border-color:rgba(200,247,0,0.3)}
-.pb-progress{height:3px;background:rgba(255,255,255,0.08);border-radius:2px;flex:1;min-width:120px;position:relative;overflow:hidden}
-.pb-progress-fill{position:absolute;left:0;top:0;height:100%;background:var(--lime);border-radius:2px;transition:width .15s linear}
-.pb-step{font-size:11px;color:rgba(255,255,255,0.5);min-width:60px;text-align:center}
+.pb-btn{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-sec);transition:all .12s}
+.pb-btn:hover{background:var(--hover);color:var(--text)}
+.pb-btn.playing{color:var(--primary);background:rgba(37,99,235,0.08)}
+.pb-speed{padding:4px 8px;border-radius:6px;font-size:11px;font-weight:600;color:var(--text-muted);background:var(--hover);border:1px solid var(--border);min-width:36px;text-align:center}
+.pb-speed.active{color:var(--primary);background:rgba(37,99,235,0.08);border-color:rgba(37,99,235,0.25)}
+.pb-progress{height:3px;background:var(--border);border-radius:2px;flex:1;min-width:120px;position:relative;overflow:hidden}
+.pb-progress-fill{position:absolute;left:0;top:0;height:100%;background:var(--primary);border-radius:2px;transition:width .15s linear}
+.pb-step{font-size:11px;color:var(--text-muted);min-width:60px;text-align:center}
 /* Order badge on arrows */
 .arrow-order-badge{pointer-events:none}
 /* Gallery & Save */
-.panel-tabs{display:flex;gap:0;border-bottom:0.5px solid var(--border)}
-.panel-tab{flex:1;padding:8px 0;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);font-weight:600;transition:all .12s;border-bottom:2px solid transparent;cursor:pointer}
-.panel-tab:hover{color:rgba(255,255,255,0.7)}
-.panel-tab.active{color:var(--lime);border-bottom-color:var(--lime)}
-.gallery-item{padding:8px;border-radius:8px;border:0.5px solid var(--border);margin-bottom:6px;cursor:pointer;transition:all .12s}
-.gallery-item:hover{background:rgba(255,255,255,0.04);border-color:rgba(200,247,0,0.2)}
-.gallery-thumb{width:100%;aspect-ratio:3/4;background:white;border-radius:4px;overflow:hidden;margin-bottom:6px}
+.panel-tabs{display:flex;gap:0;border-bottom:1px solid var(--border)}
+.panel-tab{flex:1;padding:8px 0;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600;transition:all .12s;border-bottom:2px solid transparent;cursor:pointer}
+.panel-tab:hover{color:var(--text-sec)}
+.panel-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+.gallery-item{padding:8px;border-radius:8px;border:1px solid var(--border);margin-bottom:6px;cursor:pointer;transition:all .12s}
+.gallery-item:hover{background:var(--hover);border-color:rgba(37,99,235,0.25)}
+.gallery-item.selected{border-color:var(--primary);background:rgba(37,99,235,0.04)}
+.gallery-thumb{width:100%;aspect-ratio:3/4;background:#f8fafc;border-radius:4px;overflow:hidden;margin-bottom:6px;border:1px solid var(--border)}
 .gallery-thumb svg{width:100%;height:100%}
-.gallery-name{font-size:11px;color:rgba(255,255,255,0.8);font-weight:600;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.gallery-meta{font-size:9px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+.gallery-name{font-size:11px;color:var(--text);font-weight:600;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gallery-meta{font-size:9px;color:var(--text-muted);display:flex;justify-content:space-between;align-items:center}
 .gallery-actions{display:flex;gap:4px;margin-top:4px}
-.gallery-btn{padding:3px 8px;border-radius:4px;font-size:9px;background:rgba(255,255,255,0.06);color:var(--muted);transition:all .1s}
-.gallery-btn:hover{background:rgba(255,255,255,0.12);color:#fff}
-.gallery-btn.del:hover{background:rgba(255,60,60,0.2);color:#f44}
+.gallery-btn{padding:3px 8px;border-radius:4px;font-size:9px;background:var(--hover);color:var(--text-sec);transition:all .1s;border:1px solid var(--border)}
+.gallery-btn:hover{background:#e2e8f0;color:var(--text)}
+.gallery-btn.del:hover{background:rgba(239,68,68,0.08);color:#ef4444;border-color:rgba(239,68,68,0.2)}
 .toast-container{position:fixed;top:64px;right:16px;z-index:600;display:flex;flex-direction:column;gap:6px}
-.toast-msg{padding:10px 16px;border-radius:8px;font-size:12px;animation:toastIn .3s ease;box-shadow:0 4px 12px rgba(0,0,0,0.3)}
+.toast-msg{padding:10px 16px;border-radius:8px;font-size:12px;animation:toastIn .3s ease;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
 .toast-msg.success{background:#10b981;color:white}
 .toast-msg.error{background:#ef4444;color:white}
-.toast-msg.info{background:#3b82f6;color:white}
+.toast-msg.info{background:var(--primary);color:white}
 @keyframes toastIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 .btn-guardar{padding:6px 16px;border-radius:6px;font-size:12px;font-weight:700;background:#10b981;color:#fff}
 .btn-guardar:hover{filter:brightness(1.1)}
-.gallery-empty{text-align:center;padding:24px 12px;color:var(--muted);font-size:11px}
+.gallery-empty{text-align:center;padding:24px 12px;color:var(--text-muted);font-size:11px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -326,9 +327,9 @@ const TOOLS = [
  {id:'eraser',label:'Borrar',icon:'<rect x="4" y="7" width="10" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.5" transform="rotate(-20 9 10)"/>',group:1},
  {id:'sep1',group:0},
  {id:'playerA',label:'Jugador A',icon:'<circle cx="9" cy="9" r="7" fill="rgba(200,247,0,0.2)" stroke="#c8f700" stroke-width="1.5"/><text x="9" y="12" text-anchor="middle" font-size="8" fill="#c8f700" font-weight="700">X</text>',group:2},
- {id:'playerB',label:'Jugador B',icon:'<circle cx="9" cy="9" r="7" fill="rgba(255,255,255,0.1)" stroke="white" stroke-width="1.5"/>',group:2},
+ {id:'playerB',label:'Jugador B',icon:'<circle cx="9" cy="9" r="7" fill="rgba(51,65,85,0.1)" stroke="#334155" stroke-width="1.5"/>',group:2},
  {id:'goalkeeper',label:'Portero',icon:'<circle cx="9" cy="9" r="7" fill="rgba(239,159,39,0.2)" stroke="#EF9F27" stroke-width="1.5"/><text x="9" y="12" text-anchor="middle" font-size="7" fill="#EF9F27" font-weight="700">GK</text>',group:2},
- {id:'ball',label:'Balon',icon:'<circle cx="9" cy="9" r="5" fill="white" stroke="#555" stroke-width="1"/><circle cx="9" cy="9" r="1.5" fill="#555"/>',group:2},
+ {id:'ball',label:'Balon',icon:'<circle cx="9" cy="9" r="5" fill="#f8fafc" stroke="#334155" stroke-width="1.2"/><circle cx="9" cy="9" r="1.5" fill="#334155"/>',group:2},
  {id:'cone',label:'Cono',icon:'<polygon points="9,3 4,15 14,15" fill="#ff9800" stroke="#e65100" stroke-width="1"/>',group:2},
  {id:'flag',label:'Bandera',icon:'<line x1="6" y1="4" x2="6" y2="16" stroke="currentColor" stroke-width="1.5"/><polygon points="6,4 15,7 6,10" fill="rgba(255,60,60,0.5)" stroke="rgba(255,60,60,0.7)" stroke-width="0.5"/>',group:2},
  {id:'hurdle',label:'Valla',icon:'<rect x="3" y="8" width="12" height="3" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="5" y1="11" x2="5" y2="15" stroke="currentColor" stroke-width="1"/><line x1="13" y1="11" x2="13" y2="15" stroke="currentColor" stroke-width="1"/>',group:2},
@@ -600,30 +601,30 @@ const S = {
   if(!ST.drawing) { hl.innerHTML=''; return; }
   const d = ST.drawing;
   if(d.type==='arrow') {
-   hl.innerHTML = `<line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}" stroke="rgba(255,255,255,0.6)" stroke-width="2" marker-end="url(#arrow-marker)" stroke-dasharray="4 3"/>`;
+   hl.innerHTML = `<line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}" stroke="rgba(0,0,0,0.5)" stroke-width="2" marker-end="url(#arrow-marker)" stroke-dasharray="4 3"/>`;
   } else if(d.type==='line') {
-   hl.innerHTML = `<line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-dasharray="4 3"/>`;
+   hl.innerHTML = `<line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}" stroke="rgba(0,0,0,0.5)" stroke-width="2" stroke-dasharray="4 3"/>`;
   } else if(d.type==='zone') {
-   hl.innerHTML = `<rect x="${d.w<0?d.x+d.w:d.x}" y="${d.h<0?d.y+d.h:d.y}" width="${Math.abs(d.w)}" height="${Math.abs(d.h)}" fill="rgba(200,247,0,0.1)" stroke="var(--lime)" stroke-width="1" stroke-dasharray="4 3"/>`;
+   hl.innerHTML = `<rect x="${d.w<0?d.x+d.w:d.x}" y="${d.h<0?d.y+d.h:d.y}" width="${Math.abs(d.w)}" height="${Math.abs(d.h)}" fill="rgba(37,99,235,0.08)" stroke="#2563eb" stroke-width="1" stroke-dasharray="4 3"/>`;
   } else if(d.type==='pencil') {
-   hl.innerHTML = `<polyline points="${d.points.map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>`;
+   hl.innerHTML = `<polyline points="${d.points.map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="2"/>`;
   } else if(d.type==='curve') {
-   hl.innerHTML = `<path d="M${d.x1},${d.y1} Q${d.cx},${d.cy} ${d.x2},${d.y2}" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-dasharray="4 3"/>`;
+   hl.innerHTML = `<path d="M${d.x1},${d.y1} Q${d.cx},${d.cy} ${d.x2},${d.y2}" fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="2" stroke-dasharray="4 3"/>`;
   }
  },
 
  // ── ELEMENTS ──
  addElement(type, x, y, extra={}) {
   const id = ST.nextId++;
-  const el = {id, type, x, y, color: type==='playerA'?'#c8f700':type==='playerB'?'#ffffff':type==='goalkeeper'?'#EF9F27':'#ffffff', ...extra};
+  const el = {id, type, x, y, color: type==='playerA'?'#c8f700':type==='playerB'?'#334155':type==='goalkeeper'?'#EF9F27':'#334155', ...extra};
   if(type==='playerA'||type==='playerB'||type==='goalkeeper') {
    el.label = String(ST.elements.filter(e=>e.type===type).length + 1);
    el.size = 15;
   }
   if(type==='cone') { el.color = '#ff9800'; }
   if(type==='ball') { el.size = 8; }
-  if(type==='zone') { el.zoneColor = '#c8f700'; el.opacity = 0.15; }
-  if(type==='text') { el.fontSize = 16; el.color = '#ffffff'; }
+  if(type==='zone') { el.zoneColor = '#2563eb'; el.opacity = 0.12; }
+  if(type==='text') { el.fontSize = 16; el.color = '#1e293b'; }
   if(type==='arrow') { el.playOrder = ST.elements.filter(e=>e.type==='arrow').length + 1; el.strokeWidth = 2.5; }
   ST.elements.push(el);
   this.saveHistory();
@@ -648,11 +649,11 @@ const S = {
     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><rect x="-18" y="-4" width="36" height="8" rx="2" fill="none" stroke="#ff9800" stroke-width="2"/><line x1="-12" y1="4" x2="-12" y2="12" stroke="#ff9800" stroke-width="1.5"/><line x1="12" y1="4" x2="12" y2="12" stroke="#ff9800" stroke-width="1.5"/></g>`;
    case 'arrow': {
     const mx = ((el.x1||0)+(el.x2||0))/2, my = ((el.y1||0)+(el.y2||0))/2;
-    const orderBadge = el.playOrder ? `<circle cx="${mx}" cy="${my}" r="10" fill="rgba(11,14,20,0.85)" stroke="rgba(200,247,0,0.5)" stroke-width="1" class="arrow-order-badge"/><text x="${mx}" y="${my}" dy="0.35em" text-anchor="middle" font-size="9" fill="#c8f700" font-weight="700" class="arrow-order-badge">${el.playOrder}</text>` : '';
-    return `<g data-id="${el.id}" style="cursor:pointer">${sel?`<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="#c8f700" stroke-width="7" opacity="0.25"/>`:''}<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${el.color||'rgba(255,255,255,0.8)'}" stroke-width="${el.strokeWidth||2.5}" stroke-linecap="round" marker-end="url(#arrow-marker)"/><circle cx="${el.x1}" cy="${el.y1}" r="3.5" fill="rgba(255,255,255,0.5)"/>${orderBadge}</g>`;
+    const orderBadge = el.playOrder ? `<circle cx="${mx}" cy="${my}" r="10" fill="rgba(255,255,255,0.92)" stroke="#2563eb" stroke-width="1.5" class="arrow-order-badge"/><text x="${mx}" y="${my}" dy="0.35em" text-anchor="middle" font-size="9" fill="#2563eb" font-weight="700" class="arrow-order-badge">${el.playOrder}</text>` : '';
+    return `<g data-id="${el.id}" style="cursor:pointer">${sel?`<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="#2563eb" stroke-width="7" opacity="0.2"/>`:''}<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${el.color||'rgba(0,0,0,0.7)'}" stroke-width="${el.strokeWidth||2.5}" stroke-linecap="round" marker-end="url(#arrow-marker)"/><circle cx="${el.x1}" cy="${el.y1}" r="3.5" fill="rgba(0,0,0,0.4)"/>${orderBadge}</g>`;
    }
    case 'line':
-    return `<g data-id="${el.id}" style="cursor:pointer"><line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${el.color||'rgba(255,255,255,0.7)'}" stroke-width="${el.strokeWidth||2}" stroke-linecap="round" ${el.dash?'stroke-dasharray="6 4"':''}/></g>`;
+    return `<g data-id="${el.id}" style="cursor:pointer"><line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${el.color||'rgba(0,0,0,0.6)'}" stroke-width="${el.strokeWidth||2}" stroke-linecap="round" ${el.dash?'stroke-dasharray="6 4"':''}/></g>`;
    case 'zone': {
     const zx = el.w<0?el.x+el.w:el.x, zy = el.h<0?el.y+el.h:el.y;
     return `<g data-id="${el.id}" style="cursor:pointer"><rect x="${zx}" y="${zy}" width="${Math.abs(el.w)}" height="${Math.abs(el.h)}" fill="${el.zoneColor||'#c8f700'}" opacity="${el.opacity||0.15}" rx="4" stroke="${el.zoneColor||'#c8f700'}" stroke-width="1" stroke-opacity="0.3"/>${el.label?`<text x="${zx+Math.abs(el.w)/2}" y="${zy+Math.abs(el.h)/2}" text-anchor="middle" dy="0.35em" font-size="12" fill="white" opacity="0.7">${el.label}</text>`:''}</g>`;
@@ -660,9 +661,9 @@ const S = {
    case 'text':
     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><text x="0" y="0" dy="0.35em" font-size="${el.fontSize||16}" fill="${el.color||'white'}" font-weight="${el.bold?'700':'400'}" ${el.italic?'font-style="italic"':''}>${el.label||''}</text></g>`;
    case 'pencil':
-    return `<g data-id="${el.id}" style="cursor:pointer"><polyline points="${(el.points||[]).map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="${el.color||'rgba(255,255,255,0.7)'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+    return `<g data-id="${el.id}" style="cursor:pointer"><polyline points="${(el.points||[]).map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="${el.color||'rgba(0,0,0,0.6)'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>`;
    case 'curve':
-    return `<g data-id="${el.id}" style="cursor:pointer"><path d="M${el.x1},${el.y1} Q${el.cx},${el.cy} ${el.x2},${el.y2}" fill="none" stroke="${el.color||'rgba(255,255,255,0.7)'}" stroke-width="2" stroke-linecap="round"/></g>`;
+    return `<g data-id="${el.id}" style="cursor:pointer"><path d="M${el.x1},${el.y1} Q${el.cx},${el.cy} ${el.x2},${el.y2}" fill="none" stroke="${el.color||'rgba(0,0,0,0.6)'}" stroke-width="2" stroke-linecap="round"/></g>`;
    default: return '';
   }
  },
@@ -670,7 +671,7 @@ const S = {
  renderElements() {
   const layer = document.getElementById('elements-layer');
   // Arrow marker def
-  let defs = `<defs><marker id="arrow-marker" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/></marker></defs>`;
+  let defs = `<defs><marker id="arrow-marker" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8" fill="none" stroke="rgba(0,0,0,0.7)" stroke-width="1.5" stroke-linecap="round"/></marker></defs>`;
   layer.innerHTML = defs + ST.elements.map(el => this.buildElSvg(el)).join('');
  },
 
@@ -754,11 +755,11 @@ const S = {
    let html = '';
    ST.elements.forEach(el => {
     const isSel = ST.selected.includes(el);
-    const dot = el.type==='playerA'?'#c8f700':el.type==='playerB'?'#fff':el.type==='goalkeeper'?'#EF9F27':el.type==='cone'?'#ff9800':el.type==='arrow'?'#67e8f9':el.type==='zone'?'#a78bfa':'rgba(255,255,255,0.5)';
+    const dot = el.type==='playerA'?'#c8f700':el.type==='playerB'?'#334155':el.type==='goalkeeper'?'#EF9F27':el.type==='cone'?'#ff9800':el.type==='arrow'?'#2563eb':el.type==='zone'?'#2563eb':'#64748b';
     const name = el.type==='playerA'?`Jugador A #${el.label}`:el.type==='playerB'?`Jugador B #${el.label}`:el.type==='goalkeeper'?`Portero #${el.label}`:el.type==='cone'?'Cono':el.type==='ball'?'Balon':el.type==='arrow'?'Flecha':el.type==='line'?'Linea':el.type==='zone'?'Zona':el.type==='text'?el.label:el.type==='flag'?'Bandera':el.type==='hurdle'?'Valla':el.type;
     html += `<div class="el-item${isSel?' selected':''}" onclick="S.selectEl(${el.id})"><span class="el-dot" style="background:${dot}"></span><span class="el-name">${name}</span><button class="el-del" onclick="event.stopPropagation();S.deleteEl(${el.id})">✕</button></div>`;
    });
-   pc.innerHTML = html || '<div style="text-align:center;padding:24px;color:rgba(255,255,255,0.2);font-size:11px">Sin elementos.<br>Usa las herramientas para agregar.</div>';
+   pc.innerHTML = html || '<div style="text-align:center;padding:24px;color:#94a3b8;font-size:11px">Sin elementos.<br>Usa las herramientas para agregar.</div>';
   }
  },
 
@@ -979,7 +980,7 @@ const S = {
    const c = document.createElement('canvas');
    c.width=1600; c.height=1200;
    const ctx = c.getContext('2d');
-   ctx.fillStyle='#0b0e14';
+   ctx.fillStyle='#ffffff';
    ctx.fillRect(0,0,1600,1200);
    ctx.drawImage(img,0,0,1600,1200);
    URL.revokeObjectURL(url);
@@ -1066,7 +1067,7 @@ const S = {
   const layer = document.getElementById('elements-layer');
   let defs = `<defs>
    <marker id="arrow-marker" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/></marker>
-   <marker id="play-arrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto"><path d="M0,0 L12,5 L0,10" fill="none" stroke="#c8f700" stroke-width="2" stroke-linecap="round"/></marker>
+   <marker id="play-arrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto"><path d="M0,0 L12,5 L0,10" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/></marker>
   </defs>`;
 
   let svgParts = '';
@@ -1086,7 +1087,7 @@ const S = {
    if (idx < currentStep) {
     // Already played — full, bright
     svgParts += `<g>
-     <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#c8f700" stroke-width="3" stroke-linecap="round" marker-end="url(#play-arrow)" opacity="0.9"/>
+     <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#2563eb" stroke-width="3" stroke-linecap="round" marker-end="url(#play-arrow)" opacity="0.9"/>
      <circle cx="${x1}" cy="${y1}" r="4" fill="rgba(200,247,0,0.6)"/>
      <circle cx="${x2}" cy="${y2}" r="3" fill="rgba(200,247,0,0.4)"/>
     </g>`;
@@ -1099,10 +1100,10 @@ const S = {
     // Animated line (stroke-dasharray trick)
     svgParts += `<g>
      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(255,255,255,0.1)" stroke-width="2" stroke-dasharray="4 3"/>
-     <line x1="${x1}" y1="${y1}" x2="${ex}" y2="${ey}" stroke="#c8f700" stroke-width="3.5" stroke-linecap="round" marker-end="url(#play-arrow)"/>
+     <line x1="${x1}" y1="${y1}" x2="${ex}" y2="${ey}" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round" marker-end="url(#play-arrow)"/>
      <circle cx="${x1}" cy="${y1}" r="5" fill="rgba(200,247,0,0.7)"/>
      <circle cx="${ex}" cy="${ey}" r="6" fill="rgba(200,247,0,0.3)"/>
-     <circle cx="${ex}" cy="${ey}" r="3" fill="#c8f700" opacity="0.9"/>
+     <circle cx="${ex}" cy="${ey}" r="3" fill="#2563eb" opacity="0.9"/>
     </g>`;
 
     // Move nearest player along the arrow
@@ -1116,7 +1117,7 @@ const S = {
 
     // Step number badge
     const mx = (x1 + ex) / 2, my = (y1 + ey) / 2;
-    svgParts += `<circle cx="${mx}" cy="${my-18}" r="12" fill="rgba(200,247,0,0.9)"/><text x="${mx}" y="${my-18}" dy="0.35em" text-anchor="middle" font-size="10" fill="#0b0e14" font-weight="800">${arrow.playOrder}</text>`;
+    svgParts += `<circle cx="${mx}" cy="${my-18}" r="12" fill="rgba(37,99,235,0.9)"/><text x="${mx}" y="${my-18}" dy="0.35em" text-anchor="middle" font-size="10" fill="#ffffff" font-weight="800">${arrow.playOrder}</text>`;
    } else {
     // Not yet played — dim ghost
     svgParts += `<g opacity="0.2">
