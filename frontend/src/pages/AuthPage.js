@@ -144,14 +144,14 @@ const AuthVisual = () => {
       </svg>
 
       {/* Players as HTML divs — positioned INSIDE the field */}
-      {/* X marks — coordinates relative to the green field div */}
-      {[[15,26],[50,13],[85,26],[22,42],[78,42],[50,70],[20,78],[80,78],[50,90]].map(([x,y],i) => (
+      {/* X marks — all inside field lines */}
+      {[[30,15],[50,10],[70,15],[30,32],[70,32],[50,65],[30,76],[70,76],[50,90]].map(([x,y],i) => (
         <div key={`hx${i}`} className="absolute pointer-events-none select-none" style={{left:`${x}%`,top:`${y}%`,transform:'translate(-50%,-50%)',color:'rgba(255,255,255,0.85)',fontSize:'22px',fontWeight:900,fontFamily:'Arial,sans-serif',lineHeight:1}}>
           ✕
         </div>
       ))}
       {/* O marks */}
-      {[[50,20],[28,44],[72,44],[38,60],[62,60]].map(([x,y],i) => (
+      {[[50,20],[35,42],[65,42],[40,58],[60,58]].map(([x,y],i) => (
         <div key={`ho${i}`} className="absolute pointer-events-none" style={{left:`${x}%`,top:`${y}%`,transform:'translate(-50%,-50%)',width:20,height:20,borderRadius:'50%',border:'2.5px solid rgba(255,255,255,0.75)'}}/>
       ))}
     </div>
