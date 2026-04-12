@@ -378,6 +378,7 @@ const AuthPage = () => {
     }
   };
 
+  const [activeTab, setActiveTab] = useState('login');
   const inputClass = "pl-10 h-11 border-slate-200 focus:border-[#c8f700] focus:ring-[#c8f700]/10 rounded-lg bg-white text-[14px]";
 
   return (
@@ -419,7 +420,7 @@ const AuthPage = () => {
           </p>
 
           {/* Tabs */}
-          <Tabs defaultValue="login" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6 bg-slate-100 p-1 rounded-lg h-10">
               <TabsTrigger
                 value="login"
@@ -492,7 +493,7 @@ const AuthPage = () => {
               </form>
               <p className="text-center text-[12px] text-slate-400 mt-6">
                 {t('auth.login.noAccount')}{' '}
-                <button onClick={() => document.querySelector('[data-testid="register-tab"]').click()} className="text-[#3a5a00] hover:underline font-medium">
+                <button onClick={() => setActiveTab('register')} className="text-[#3a5a00] hover:underline font-medium">
                   {t('auth.login.createAccount')}
                 </button>
               </p>
