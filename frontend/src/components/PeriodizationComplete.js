@@ -497,16 +497,32 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     setSessionEditorOpen(true);
   };
 
-  const handleSaveSession = (sessionData) => {
+  const handleSaveSession = async (sessionData) => {
     if (!selectedPlan || !editingSessionLocation) return;
     const { macroIdx, mesoIdx, microIdx, sessionIdx } = editingSessionLocation;
     
     const updatedPlan = { ...selectedPlan };
     const session = updatedPlan.macrocycles[macroIdx].mesocycles[mesoIdx].microcycles[microIdx].sessions[sessionIdx];
-    Object.assign(session, { sessionData, edited: true });
+    
+    // Merge detailedData into the session
+    if (sessionData.detailedData) {
+      session.sessionData = sessionData.detailedData;
+      session.detailed_data = sessionData.detailedData;
+    } else {
+      Object.assign(session, { sessionData, edited: true });
+    }
+    session.edited = true;
     
     setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
     setSelectedPlan(updatedPlan);
+    
+    // Persist to backend
+    try {
+      await savePlanToAPI(updatedPlan);
+    } catch (e) {
+      console.error('Error saving session to API:', e);
+    }
+    
     setSessionEditorOpen(false);
     setEditingSession(null);
     setEditingSessionLocation(null);
@@ -743,7 +759,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                 volume: session.volume || 100,
                 objectives: session.objectives || [],
                 exercises: session.exercises || [],
-                notes: session.notes || null
+                notes: session.notes || null,
+                detailed_data: session.sessionData || session.detailed_data || null
               }))
             }))
           }))
@@ -2200,9 +2217,11 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         <SessionEditor
           isOpen={sessionEditorOpen}
           onClose={() => { setSessionEditorOpen(false); setEditingSession(null); setEditingSessionLocation(null); }}
-          sessionData={editingSession?.sessionData || null}
+          session={{
+            ...editingSession,
+            detailedData: editingSession?.sessionData || editingSession?.detailed_data || null
+          }}
           onSave={handleSaveSession}
-          sessionInfo={editingSession}
         />
       )}
     </>

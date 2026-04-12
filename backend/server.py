@@ -694,6 +694,7 @@ class TrainingPlanSession(BaseModel):
     objectives: List[str] = []
     exercises: List[Dict[str, Any]] = []
     notes: Optional[str] = None
+    detailed_data: Optional[Dict[str, Any]] = None
 
 class TrainingPlanMicrocycle(BaseModel):
     id: str = ""
