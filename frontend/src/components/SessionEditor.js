@@ -740,7 +740,7 @@ const SessionEditor = ({
                           maxHeight: '280px',
                           zIndex: 99999
                         }}>
-                        <div className="p-3 border-b bg-gradient-to-r from-blue-50 to-indigo-50 sticky top-0 z-10">
+                        <div className="p-3 border-b bg-[#f8ffe0] sticky top-0 z-10">
                           <Input
                             placeholder="Buscar ejercicio..."
                             value={exerciseSearchTerm}
@@ -753,7 +753,7 @@ const SessionEditor = ({
                           {getFilteredExercises().map((ej, ejIdx) => (
                             <button
                               key={`${ej.nombre}-${ejIdx}`}
-                              className="w-full text-left px-3 py-2.5 hover:bg-blue-50 rounded-lg text-sm transition-colors"
+                              className="w-full text-left px-3 py-2.5 hover:bg-[#f8ffe0] rounded-lg text-sm transition-colors"
                               onClick={() => selectExercise(faseKey, idx, ej.nombre)}
                             >
                               <p className="font-medium text-slate-800">{ej.nombre}</p>
@@ -765,7 +765,7 @@ const SessionEditor = ({
                           )}
                         </div>
                         <button
-                          className="w-full text-center text-blue-600 py-2.5 border-t bg-slate-50 text-sm font-medium hover:bg-slate-100 transition-colors"
+                          className="w-full text-center text-[#3a5a00] py-2.5 border-t bg-slate-50 text-sm font-medium hover:bg-[#f8ffe0] transition-colors"
                           onClick={() => setShowExercisePicker(null)}
                         >
                           Cerrar
@@ -930,12 +930,12 @@ const SessionEditor = ({
           onInteractOutside={(e) => e.preventDefault()}
         >
           {/* Header con gradiente */}
-          <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white px-6 py-5 shadow-lg">
+          <div className="sticky top-0 z-10 bg-[#0b0e14] text-white px-6 py-5 shadow-lg">
             <div className="flex items-center justify-between">
               <div>
                 <DialogTitle className="text-white font-bold text-xl flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                    <Dumbbell className="w-5 h-5" />
+                  <div className="w-10 h-10 bg-[#c8f700] rounded-xl flex items-center justify-center">
+                    <span className="text-[20px] font-black text-[#0b0e14] leading-none" style={{fontFamily:'Barlow Condensed, sans-serif'}}>i</span>
                   </div>
                   <div>
                     <span>Sesión de Entrenamiento</span>
@@ -945,7 +945,7 @@ const SessionEditor = ({
                   </div>
                 </DialogTitle>
                 {athleteName && (
-                  <p className="text-blue-100 text-sm mt-2 ml-[52px]">
+                  <p className="text-slate-400 text-sm mt-2 ml-[52px]">
                     Atleta: {athleteName}
                   </p>
                 )}
@@ -972,7 +972,7 @@ const SessionEditor = ({
             <div className="p-6 space-y-6">
               {/* Objetivos de la Sesión */}
               <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-cyan-50 to-blue-50 border-b border-slate-100 pb-4">
+                <CardHeader className="bg-[#f0ffd0] border-b border-[#c8f700]/20 pb-4">
                   <CardTitle className="flex items-center gap-2 text-base text-slate-800">
                     <div className="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center">
                       <Target className="w-4 h-4 text-white" />
@@ -1044,7 +1044,7 @@ const SessionEditor = ({
 
               {/* Estructura de la Sesión */}
               <Card className="border border-slate-200 shadow-sm bg-white overflow-visible">
-                <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 border-b border-slate-100 pb-4">
+                <CardHeader className="bg-[#fff8e0] border-b border-amber-200/40 pb-4">
                   <CardTitle className="flex items-center gap-2 text-base text-slate-800">
                     <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
                       <Zap className="w-4 h-4 text-white" />
@@ -1056,9 +1056,9 @@ const SessionEditor = ({
                   {/* Fases */}
                   {Object.entries(sessionData.fases).map(([faseKey, fase]) => {
                     const faseColors = {
-                      inicial: { border: 'border-l-green-500', bg: 'bg-green-50', header: 'bg-green-100', text: 'text-green-700', btn: 'border-green-500 text-green-700 hover:bg-green-100' },
-                      principal: { border: 'border-l-orange-500', bg: 'bg-orange-50', header: 'bg-orange-100', text: 'text-orange-700', btn: 'border-orange-500 text-orange-700 hover:bg-orange-100' },
-                      final: { border: 'border-l-blue-500', bg: 'bg-blue-50', header: 'bg-blue-100', text: 'text-blue-700', btn: 'border-blue-500 text-blue-700 hover:bg-blue-100' }
+                      inicial: { border: 'border-l-[#c8f700]', bg: 'bg-[#f8ffe0]', header: 'bg-[#f0ffd0]', text: 'text-[#3a5a00]', btn: 'border-[#c8f700] text-[#3a5a00] hover:bg-[#f0ffd0]' },
+                      principal: { border: 'border-l-[#0b0e14]', bg: 'bg-slate-50', header: 'bg-slate-100', text: 'text-slate-800', btn: 'border-slate-800 text-slate-800 hover:bg-slate-100' },
+                      final: { border: 'border-l-[#378ADD]', bg: 'bg-blue-50', header: 'bg-blue-100', text: 'text-blue-700', btn: 'border-blue-500 text-blue-700 hover:bg-blue-100' }
                     };
                     const colors = faseColors[faseKey];
                     
@@ -1104,7 +1104,7 @@ const SessionEditor = ({
 
               {/* Monitoreo Avanzado - Material Design */}
               <Card className="border-0 shadow-lg bg-white overflow-hidden rounded-2xl">
-                <CardHeader className="bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 text-white p-5">
+                <CardHeader className="bg-[#0b0e14] text-white p-5">
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-3 text-lg font-bold text-white">
                       <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
@@ -1350,11 +1350,11 @@ const SessionEditor = ({
 
                   {/* FC Reposo, Media y Máxima - Material Cards */}
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-5 text-center border border-blue-200 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                        <Heart className="w-6 h-6 text-white" />
+                    <div className="bg-gradient-to-br from-[#f8ffe0] to-[#f0ffd0] rounded-2xl p-5 text-center border border-[#c8f700]/20 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="w-12 h-12 bg-[#c8f700] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                        <Heart className="w-6 h-6 text-[#0b0e14]" />
                       </div>
-                      <p className="text-xs font-bold text-blue-600 uppercase tracking-wide mb-2">FC Reposo</p>
+                      <p className="text-xs font-bold text-[#3a5a00] uppercase tracking-wide mb-2">FC Reposo</p>
                       <Input
                         type="number"
                         value={sessionData.monitoreo.fcReposo}
@@ -1365,7 +1365,7 @@ const SessionEditor = ({
                         placeholder="60"
                         className="text-center text-2xl font-bold h-12 border-0 bg-white/70 rounded-xl shadow-inner"
                       />
-                      <span className="text-xs text-blue-500 font-medium">bpm</span>
+                      <span className="text-xs text-[#3a5a00] font-medium">bpm</span>
                     </div>
                     <div className="bg-gradient-to-br from-amber-50 to-orange-100 rounded-2xl p-5 text-center border border-amber-200 shadow-sm hover:shadow-md transition-shadow">
                       <div className="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
@@ -1621,14 +1621,14 @@ const SessionEditor = ({
       {/* Diálogo de compartir enlace */}
       <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
         <DialogContent className="max-w-md bg-white p-0 overflow-hidden">
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6">
+          <div className="bg-[#0b0e14] text-white p-6">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <Link2 className="w-6 h-6" />
+              <div className="w-12 h-12 bg-[#c8f700]/20 rounded-xl flex items-center justify-center">
+                <Link2 className="w-6 h-6 text-[#c8f700]" />
               </div>
               <div>
                 <DialogTitle className="text-white text-lg font-bold">Compartir Sesión</DialogTitle>
-                <p className="text-purple-100 text-sm mt-1">
+                <p className="text-slate-400 text-sm mt-1">
                   El deportista podrá ver la sesión sin necesidad de iniciar sesión
                 </p>
               </div>
@@ -1676,7 +1676,7 @@ const SessionEditor = ({
               </Button>
               <Button
                 onClick={handleCopyLink}
-                className="bg-purple-600 hover:bg-purple-700"
+                className="bg-[#c8f700] hover:bg-[#d9ff20] text-[#0b0e14] font-bold"
               >
                 <Copy className="w-4 h-4 mr-2" />
                 Copiar Enlace
