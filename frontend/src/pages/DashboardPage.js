@@ -79,6 +79,8 @@ const USER_ROLES = [
 const TacticalBoardSection = ({ token }) => {
   const [boards, setBoards] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
+  const [renaming, setRenaming] = React.useState(null);
+  const [renameVal, setRenameVal] = React.useState('');
 
   const fetchBoards = React.useCallback(async () => {
     try {
@@ -91,73 +93,141 @@ const TacticalBoardSection = ({ token }) => {
   }, [token]);
 
   React.useEffect(() => { fetchBoards(); }, [fetchBoards]);
-
   React.useEffect(() => {
-    const handler = (e) => {
-      if (e.data?.type === 'tactical-board-saved') fetchBoards();
-    };
-    window.addEventListener('message', handler);
-    return () => window.removeEventListener('message', handler);
+    const h = (e) => { if (e.data?.type === 'tactical-board-saved') fetchBoards(); };
+    window.addEventListener('message', h);
+    return () => window.removeEventListener('message', h);
   }, [fetchBoards]);
-
-  // Also refetch when tab regains focus (user returns from tactical-board tab)
   React.useEffect(() => {
-    const handler = () => { if (!document.hidden) fetchBoards(); };
-    document.addEventListener('visibilitychange', handler);
-    return () => document.removeEventListener('visibilitychange', handler);
+    const h = () => { if (!document.hidden) fetchBoards(); };
+    document.addEventListener('visibilitychange', h);
+    return () => document.removeEventListener('visibilitychange', h);
   }, [fetchBoards]);
 
   const deleteBoard = async (id) => {
+    if (!window.confirm('Eliminar esta pizarra?')) return;
+    try {
+      await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/tactical-boards/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+      setBoards(prev => prev.filter(b => b.id !== id));
+    } catch (e) { /* */ }
+  };
+
+  const duplicateBoard = async (board) => {
+    try {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/tactical-boards`, {
+        method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: (board.name || 'Pizarra') + ' (copia)', sport: board.sport, elements: board.elements, thumbnail: board.thumbnail })
+      });
+      if (res.ok) fetchBoards();
+    } catch (e) { /* */ }
+  };
+
+  const renameBoard = async (id) => {
     try {
       await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/tactical-boards/${id}`, {
-        method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` }
+        method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: renameVal })
       });
-      setBoards(prev => prev.filter(b => b.id !== id));
-    } catch (e) { /* ignore */ }
+      setBoards(prev => prev.map(b => b.id === id ? { ...b, name: renameVal } : b));
+      setRenaming(null);
+    } catch (e) { /* */ }
+  };
+
+  const exportPNG = (board) => {
+    if (!board.thumbnail) return;
+    const svg = atob(board.thumbnail);
+    const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      const scale = 2;
+      c.width = 600 * scale; c.height = 800 * scale;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      const a = document.createElement('a');
+      a.download = `${(board.name || 'pizarra').replace(/\s+/g, '_')}.png`;
+      a.href = c.toDataURL('image/png'); a.click();
+    };
+    img.src = url;
+  };
+
+  const exportPDF = (board) => {
+    if (!board.thumbnail) return;
+    const svg = atob(board.thumbnail);
+    const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = 1200; c.height = 1600;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      const dataUrl = c.toDataURL('image/png');
+      const w = window.open('', '_blank');
+      w.document.write(`<html><head><title>${board.name || 'Pizarra'}</title><style>@page{size:portrait;margin:10mm}body{margin:0;display:flex;justify-content:center;align-items:flex-start}img{max-width:100%;height:auto}</style></head><body><img src="${dataUrl}" onload="window.print()"/></body></html>`);
+      w.document.close();
+    };
+    img.src = url;
   };
 
   return (
     <div className="p-4 space-y-4" data-testid="tactical-board-section">
       <Card className="border-0 shadow-md overflow-hidden">
-        <div className="bg-white border-b border-slate-200 text-slate-900 py-4 px-5 rounded-t-xl">
+        <div className="bg-white border-b border-slate-200 text-slate-900 py-3 px-5 rounded-t-xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-lg font-semibold">
               <LayoutGrid className="w-5 h-5" />
               Pizarra Tactica Digital
             </div>
             <Button onClick={() => window.open('/tactical-board.html', '_blank')} className="bg-[#c8f700] hover:bg-[#b5e000] text-[#1a2800] font-semibold" data-testid="open-tactical-board-btn">
-              <Plus className="w-4 h-4 mr-2" />
-              Nueva Pizarra
+              <Plus className="w-4 h-4 mr-2" /> Nueva Pizarra
             </Button>
           </div>
-          <p className="text-sm text-slate-500 mt-1">Crea formaciones, jugadas y movimientos interactivos para cualquier deporte</p>
+          <p className="text-xs text-slate-500 mt-1">Crea, edita, duplica y exporta formaciones tacticas para cualquier deporte</p>
         </div>
-        <CardContent className="p-5">
+        <CardContent className="p-4">
           {/* Saved Boards Gallery */}
           {boards.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-sm font-bold text-slate-700 mb-3">Pizarras Guardadas ({boards.length})</h3>
-              <div className="grid grid-cols-4 gap-3">
+            <div className="mb-5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold text-slate-700">Pizarras Guardadas ({boards.length})</h3>
+              </div>
+              <div className="grid grid-cols-5 gap-3">
                 {boards.map(board => (
-                  <div key={board.id} className="group rounded-xl border border-slate-200 bg-white overflow-hidden hover:shadow-md hover:border-[#c8f700] transition-all">
-                    <div
-                      className="w-full h-28 bg-white cursor-pointer overflow-hidden border-b border-slate-100"
-                      onClick={() => window.open(`/tactical-board.html?boardId=${board.id}`, '_blank')}
-                    >
+                  <div key={board.id} className="group rounded-xl border border-slate-200 bg-white overflow-hidden hover:shadow-lg hover:border-[#c8f700] transition-all">
+                    {/* Thumbnail */}
+                    <div className="w-full h-32 bg-slate-50 cursor-pointer overflow-hidden relative" onClick={() => window.open(`/tactical-board.html?boardId=${board.id}`, '_blank')}>
                       {board.thumbnail ? (
                         <img src={`data:image/svg+xml;base64,${board.thumbnail}`} alt={board.name} className="w-full h-full object-contain" />
                       ) : (
                         <div className="flex items-center justify-center h-full text-slate-300 text-xs">Sin preview</div>
                       )}
-                    </div>
-                    <div className="px-2.5 py-2 flex items-center justify-between">
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[11px] font-semibold text-slate-800 truncate">{board.name || 'Sin nombre'}</p>
-                        <p className="text-[9px] text-slate-400">{board.sport || board.sportName || ''} &middot; {board.updated_at ? new Date(board.updated_at).toLocaleDateString() : ''}</p>
+                      {/* Hover overlay with actions */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100">
+                        <button onClick={(e) => { e.stopPropagation(); window.open(`/tactical-board.html?boardId=${board.id}`, '_blank'); }} className="p-1.5 bg-white rounded-lg shadow hover:bg-[#f8ffe0] transition-colors" title="Editar"><Edit className="w-3.5 h-3.5 text-slate-700" /></button>
+                        <button onClick={(e) => { e.stopPropagation(); duplicateBoard(board); }} className="p-1.5 bg-white rounded-lg shadow hover:bg-blue-50 transition-colors" title="Duplicar"><Copy className="w-3.5 h-3.5 text-slate-700" /></button>
+                        <button onClick={(e) => { e.stopPropagation(); exportPNG(board); }} className="p-1.5 bg-white rounded-lg shadow hover:bg-green-50 transition-colors" title="Exportar PNG"><Download className="w-3.5 h-3.5 text-slate-700" /></button>
+                        <button onClick={(e) => { e.stopPropagation(); exportPDF(board); }} className="p-1.5 bg-white rounded-lg shadow hover:bg-purple-50 transition-colors" title="Exportar PDF"><FileText className="w-3.5 h-3.5 text-slate-700" /></button>
+                        <button onClick={(e) => { e.stopPropagation(); deleteBoard(board.id); }} className="p-1.5 bg-white rounded-lg shadow hover:bg-red-50 transition-colors" title="Eliminar"><Trash2 className="w-3.5 h-3.5 text-red-500" /></button>
                       </div>
-                      <button onClick={(e) => { e.stopPropagation(); deleteBoard(board.id); }} className="p-1 opacity-0 group-hover:opacity-100 hover:bg-red-50 rounded text-slate-400 hover:text-red-500 transition-all" title="Eliminar">
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                    </div>
+                    {/* Info */}
+                    <div className="px-2.5 py-1.5 border-t border-slate-100">
+                      {renaming === board.id ? (
+                        <div className="flex gap-1">
+                          <input value={renameVal} onChange={(e) => setRenameVal(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && renameBoard(board.id)} className="flex-1 text-[10px] border rounded px-1.5 py-0.5 h-6" autoFocus />
+                          <button onClick={() => renameBoard(board.id)} className="text-[9px] text-[#3a5a00] font-bold px-1">OK</button>
+                          <button onClick={() => setRenaming(null)} className="text-[9px] text-slate-400 px-1">X</button>
+                        </div>
+                      ) : (
+                        <p className="text-[11px] font-semibold text-slate-800 truncate cursor-pointer hover:text-[#3a5a00]" onClick={() => { setRenaming(board.id); setRenameVal(board.name || ''); }} title="Clic para renombrar">{board.name || 'Sin nombre'}</p>
+                      )}
+                      <p className="text-[9px] text-slate-400">{board.sport || ''} {board.updated_at ? '· ' + new Date(board.updated_at).toLocaleDateString() : ''}</p>
                     </div>
                   </div>
                 ))}
@@ -165,36 +235,39 @@ const TacticalBoardSection = ({ token }) => {
             </div>
           )}
           {loading && boards.length === 0 && <p className="text-center text-slate-400 py-4 text-sm">Cargando pizarras...</p>}
+          {!loading && boards.length === 0 && (
+            <div className="text-center py-8 mb-5 border-2 border-dashed border-slate-200 rounded-xl">
+              <LayoutGrid className="w-10 h-10 mx-auto mb-2 text-slate-300" />
+              <p className="text-sm text-slate-500 font-medium">No tienes pizarras guardadas</p>
+              <p className="text-xs text-slate-400 mt-1">Crea tu primera pizarra tactica y se guardara aqui</p>
+            </div>
+          )}
 
-          {/* Features */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="bg-[#f8ffe0] rounded-xl p-4 border border-[#e0f5a0] text-center">
-              <LayoutGrid className="w-8 h-8 mx-auto mb-2 text-[#3a5a00]" />
-              <h4 className="font-semibold text-sm text-[#2a4000]">Pizarra Interactiva</h4>
-              <p className="text-xs text-[#5a7a20] mt-1">Arrastra jugadores, conos, balones y dibuja jugadas en tiempo real</p>
+          {/* Features + Sports */}
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="bg-[#f8ffe0] rounded-xl p-3 border border-[#e0f5a0] text-center">
+              <LayoutGrid className="w-6 h-6 mx-auto mb-1.5 text-[#3a5a00]" />
+              <h4 className="font-semibold text-xs text-[#2a4000]">Interactiva</h4>
+              <p className="text-[10px] text-[#5a7a20] mt-0.5">Jugadores, conos, balones, flechas</p>
             </div>
-            <div className="bg-blue-50 rounded-xl p-4 border border-blue-100 text-center">
-              <Layers className="w-8 h-8 mx-auto mb-2 text-blue-600" />
-              <h4 className="font-semibold text-sm text-blue-900">Vistas 2D / 2.5D / 3D</h4>
-              <p className="text-xs text-blue-600 mt-1">Cambia entre vista plana, perspectiva y 3D isometrica con joystick</p>
+            <div className="bg-blue-50 rounded-xl p-3 border border-blue-100 text-center">
+              <Layers className="w-6 h-6 mx-auto mb-1.5 text-blue-600" />
+              <h4 className="font-semibold text-xs text-blue-900">2D / 2.5D / 3D</h4>
+              <p className="text-[10px] text-blue-600 mt-0.5">Vista plana, perspectiva e isometrica</p>
             </div>
-            <div className="bg-purple-50 rounded-xl p-4 border border-purple-100 text-center">
-              <Download className="w-8 h-8 mx-auto mb-2 text-purple-600" />
-              <h4 className="font-semibold text-sm text-purple-900">Exportar PNG</h4>
-              <p className="text-xs text-purple-600 mt-1">Descarga la pizarra como imagen para compartir o imprimir</p>
+            <div className="bg-purple-50 rounded-xl p-3 border border-purple-100 text-center">
+              <Download className="w-6 h-6 mx-auto mb-1.5 text-purple-600" />
+              <h4 className="font-semibold text-xs text-purple-900">Exportar</h4>
+              <p className="text-[10px] text-purple-600 mt-0.5">PNG e impresion PDF directa</p>
             </div>
           </div>
-          {/* Sport shortcuts */}
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-4 gap-2">
             {['Futbol', 'Baloncesto', 'Voleibol', 'Balonmano', 'Futbol de Salon', 'Rugby', 'Tenis', 'Atletismo'].map(sport => (
-              <button key={sport} onClick={() => window.open(`/tactical-board.html?sport=${encodeURIComponent(sport)}`, '_blank')} className="flex items-center gap-2 p-3 rounded-xl border border-slate-200 hover:border-[#c8f700] hover:bg-[#f8ffe0] transition-all text-left group" data-testid={`sport-board-${sport}`}>
-                <div className="w-8 h-8 rounded-lg bg-slate-100 group-hover:bg-[#c8f700] transition-colors flex items-center justify-center">
-                  <LayoutGrid className="w-4 h-4 text-slate-500 group-hover:text-[#1a2800]" />
+              <button key={sport} onClick={() => window.open(`/tactical-board.html?sport=${encodeURIComponent(sport)}`, '_blank')} className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 hover:border-[#c8f700] hover:bg-[#f8ffe0] transition-all text-left group" data-testid={`sport-board-${sport}`}>
+                <div className="w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-[#c8f700] transition-colors flex items-center justify-center flex-shrink-0">
+                  <LayoutGrid className="w-3.5 h-3.5 text-slate-500 group-hover:text-[#1a2800]" />
                 </div>
-                <div>
-                  <span className="text-xs font-semibold text-slate-800 block">{sport}</span>
-                  <span className="text-[10px] text-slate-400">Abrir pizarra</span>
-                </div>
+                <span className="text-[11px] font-semibold text-slate-700">{sport}</span>
               </button>
             ))}
           </div>
