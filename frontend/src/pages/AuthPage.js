@@ -39,9 +39,9 @@ const AuthVisual = () => {
           </div>
           <div className="flex items-center gap-1 ml-2">
             <div className="w-3 h-3 aspect-square shrink-0 bg-[#CCFF00] rounded-full flex items-center justify-center">
-              <Activity className="w-1.5 h-1.5 text-slate-900" strokeWidth={3} />
+              <span className="text-[6px] font-black text-slate-900 leading-none" style={{ fontFamily: BC }}>i</span>
             </div>
-            <span className="text-[7px] font-black text-white/70" style={{ fontFamily: BC }}>iTRAIN</span>
+            <span className="text-[7px] font-black" style={{ fontFamily: BC }}><span className="text-[#CCFF00]">i</span><span className="text-white/70">TRAIN</span></span>
           </div>
         </div>
         <div className="p-3 space-y-2">
@@ -174,11 +174,11 @@ const AuthPage = () => {
           {/* Back + Logo + Language */}
           <div className="flex items-center justify-between mb-10">
             <Link to="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 aspect-square shrink-0 bg-slate-900 rounded-full flex items-center justify-center">
-                <Activity className="w-4.5 h-4.5 text-[#CCFF00]" strokeWidth={2.5} />
+              <div className="w-9 h-9 aspect-square shrink-0 bg-[#CCFF00] rounded-full flex items-center justify-center">
+                <span className="text-[18px] font-black text-slate-900 leading-none" style={{ fontFamily: BC }}>i</span>
               </div>
-              <span className="text-[16px] font-black tracking-tight text-slate-900" style={{ fontFamily: BC }}>
-                iTRAIN
+              <span className="text-[16px] font-black tracking-tight" style={{ fontFamily: BC }}>
+                <span className="text-[#CCFF00]">i</span><span className="text-slate-900">TRAIN</span>
               </span>
             </Link>
             <div className="flex items-center gap-2">
