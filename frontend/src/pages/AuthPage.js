@@ -75,96 +75,73 @@ const AuthVisual = () => {
     t('auth.visual.phrase2'),
     t('auth.visual.phrase3')
   ]);
-  const [val, setVal] = useState(0);
-  useEffect(() => {
-    let frame;
-    const start = performance.now();
-    const animate = (now) => {
-      const p = Math.min((now - start) / 1800, 1);
-      setVal(Math.round(85 * (1 - Math.pow(1 - p, 4))));
-      if (p < 1) frame = requestAnimationFrame(animate);
-    };
-    frame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(frame);
-  }, []);
-
-  const r = 120, c = 2 * Math.PI * r, offset = c - (c * val) / 100;
 
   return (
   <div className="relative h-full flex flex-col justify-center items-center" style={{ background: '#060910' }}>
+    <div className="w-full max-w-[340px] px-4">
 
-    <div className="relative z-10 w-full max-w-[380px] px-6 flex flex-col items-center">
-
-      {/* Typewriter — top, left-aligned */}
-      <div className="w-full mb-16">
-        <div className="h-[32px] mb-1.5">
-          <h2 className="text-[22px] font-medium text-white/80 leading-[1.3]" style={{ fontFamily: INT }}>
-            {typedText}<span className="inline-block w-[1.5px] h-[20px] bg-[#c8f700] ml-0.5" style={{ animation: 'blink 1s step-end infinite' }} />
+      {/* Typewriter */}
+      <div className="mb-12">
+        <div className="h-[30px] mb-2">
+          <h2 className="text-[21px] font-medium text-white/80" style={{ fontFamily: INT }}>
+            {typedText}<span className="inline-block w-[1.5px] h-[18px] bg-[#c8f700] ml-0.5" style={{ animation: 'blink 1s step-end infinite' }} />
           </h2>
         </div>
-        <p className="text-[12px] text-white/20 font-light">{t('auth.visual.system_line')}</p>
+        <p className="text-[12px] text-white/20">{t('auth.visual.system_line')}</p>
       </div>
 
-      {/* Central gauge — the hero element */}
-      <div className="relative mb-16">
-        <svg width="280" height="280" className="block">
-          {/* Track */}
-          <circle cx="140" cy="140" r={r} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="6" />
-          {/* Progress arc */}
-          <circle cx="140" cy="140" r={r} fill="none" stroke="#c8f700" strokeWidth="6"
-            strokeDasharray={c} strokeDashoffset={offset} strokeLinecap="round"
-            transform="rotate(-90 140 140)"
-            style={{ transition: 'stroke-dashoffset 0.05s linear', filter: 'drop-shadow(0 0 12px rgba(200,247,0,0.2))' }}
-          />
-          {/* Subtle inner ring */}
-          <circle cx="140" cy="140" r="95" fill="none" stroke="rgba(255,255,255,0.02)" strokeWidth="1" />
-        </svg>
-
-        {/* Center content */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-[72px] font-black text-white leading-none tracking-tight" style={{ fontFamily: BC }}>{val}</span>
-          <span className="text-[11px] text-white/25 uppercase tracking-[0.2em] mt-2 font-semibold">{t('auth.visual.readiness')}</span>
-        </div>
-
-        {/* Floating metrics — orbiting the gauge */}
-        <div className="absolute -left-12 top-1/2 -translate-y-1/2 flex flex-col items-end gap-1">
-          <span className="text-[20px] font-black text-[#378ADD] leading-none" style={{ fontFamily: BC }}>0.87</span>
-          <span className="text-[8px] text-white/20 uppercase tracking-[0.15em]">{t('auth.visual.acwr')}</span>
-        </div>
-        <div className="absolute -right-12 top-1/2 -translate-y-1/2 flex flex-col items-start gap-1">
-          <span className="text-[20px] font-black text-[#c8f700] leading-none" style={{ fontFamily: BC }}>94%</span>
-          <span className="text-[8px] text-white/20 uppercase tracking-[0.15em]">{t('auth.visual.adherence')}</span>
-        </div>
+      {/* 3 metric blocks — vertical stack, clean */}
+      <div className="space-y-3 mb-12">
+        {[
+          { val: '85', label: t('auth.visual.readiness'), color: '#c8f700', w: '85%' },
+          { val: '0.87', label: t('auth.visual.acwr'), color: '#378ADD', w: '58%' },
+          { val: '94%', label: t('auth.visual.adherence'), color: '#c8f700', w: '94%' },
+        ].map((m, i) => (
+          <div key={i} className="flex items-center gap-4">
+            <div className="w-16 text-right">
+              <span className="text-[24px] font-black leading-none" style={{ color: m.color, fontFamily: BC }}>{m.val}</span>
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[10px] text-white/30 uppercase tracking-[0.12em] font-semibold">{m.label}</span>
+              </div>
+              <div className="h-[3px] rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                <div className="h-full rounded-full" style={{ width: m.w, background: m.color, opacity: 0.6, transition: 'width 1.2s cubic-bezier(0.2,0,0,1)' }} />
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* Stats row — minimal */}
-      <div className="flex items-center gap-8 mb-14">
+      {/* Divider */}
+      <div className="h-px mb-10" style={{ background: 'rgba(255,255,255,0.04)' }} />
+
+      {/* Stats */}
+      <div className="flex justify-between mb-12">
         {[
           { val: '17', label: t('landing.hero.stats.models') },
           { val: '6', label: t('landing.hero.stats.controls') },
           { val: '150+', label: t('landing.hero.stats.exercises') },
         ].map((s, i) => (
           <div key={i} className="text-center">
-            <div className="text-[18px] font-black text-white/60 leading-none" style={{ fontFamily: BC }}>{s.val}</div>
-            <div className="text-[9px] text-white/15 mt-1.5">{s.label}</div>
+            <div className="text-[20px] font-black text-white/50 leading-none" style={{ fontFamily: BC }}>{s.val}</div>
+            <div className="text-[9px] text-white/15 mt-2">{s.label}</div>
           </div>
         ))}
       </div>
 
-      {/* Social proof — bottom, whisper quiet */}
+      {/* Social proof */}
       <div className="flex items-center gap-3">
-        <div className="flex -space-x-2">
+        <div className="flex -space-x-1.5">
           {['#c8f700','#378ADD','#E24B4A','#7F77DD','#10B981'].map((bg, i) => (
-            <div key={i} className="w-6 h-6 rounded-full border-[1.5px]" style={{ background: bg, borderColor: '#060910', opacity: 0.7 }} />
+            <div key={i} className="w-5 h-5 rounded-full border" style={{ background: bg, borderColor: '#060910', opacity: 0.6 }} />
           ))}
         </div>
-        <p className="text-[11px] text-white/25">{t('auth.visual.active_coaches')}</p>
+        <p className="text-[11px] text-white/20">{t('auth.visual.active_coaches')}</p>
       </div>
     </div>
 
-    <style>{`
-      @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
-    `}</style>
+    <style>{`@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}`}</style>
   </div>
   );
 };
