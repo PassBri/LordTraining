@@ -103,6 +103,13 @@ const TacticalBoardSection = ({ token }) => {
     document.addEventListener('visibilitychange', h);
     return () => document.removeEventListener('visibilitychange', h);
   }, [fetchBoards]);
+  React.useEffect(() => {
+    try {
+      const bc = new BroadcastChannel('tactical-board');
+      bc.onmessage = () => fetchBoards();
+      return () => bc.close();
+    } catch (e) { return () => {}; }
+  }, [fetchBoards]);
 
   const deleteBoard = async (id) => {
     if (!window.confirm('Eliminar esta pizarra?')) return;

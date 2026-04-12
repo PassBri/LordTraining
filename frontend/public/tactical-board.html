@@ -2582,6 +2582,8 @@ const S = {
    if(window.opener && !window.opener.closed) {
     window.opener.postMessage({type:'tactical-board-saved', boardId:ST.editingBoardId, sport:ST.sport, name:name, thumbnail:thumbnail, elements:ST.elements},'*');
    }
+   // Notify other tabs (Herramientas gallery) via BroadcastChannel
+   try { new BroadcastChannel('tactical-board').postMessage({type:'tactical-board-saved'}); } catch(e){}
    this.loadGallery();
   } catch(e) {
    this.showToast('Error al guardar: '+e.message,'error');
