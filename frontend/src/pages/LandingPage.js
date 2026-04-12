@@ -313,10 +313,10 @@ const LandingPage = () => {
   const { t } = useTranslation();
 
   const PRICING = [
-    { key: 'free', name: 'Free / Académico', price: '0', desc: 'Para estudiantes y entrenadores explorando', features: ['3 atletas', '1 plan de entrenamiento', '10 exportaciones PDF', '3 generaciones con IA', 'Exportación básica'], cta: 'Empezar gratis', pop: false },
-    { key: 'pro', name: 'Pro — Entrenador', price: '9.99', desc: 'Para entrenadores independientes y preparadores', features: ['20 atletas', '5 planes de entrenamiento', '20 generaciones con IA', 'Exportación PDF', 'Soporte email'], cta: 'Empezar ahora', pop: false },
-    { key: 'club', name: 'Club / Academia', price: '29.99', desc: 'Para clubes y academias de formación', features: ['Atletas ilimitados', 'Planes ilimitados', '100 generaciones con IA', 'Exportación PDF/Excel', 'Soporte prioritario', 'Biblioteca completa', 'Personalización de plantillas'], cta: 'Empezar ahora', pop: true },
-    { key: 'inst', name: 'Institucional', price: '99.99', desc: 'Ligas, federaciones y universidades', features: ['Múltiples entrenadores', 'Panel de coordinador', 'Analítica por grupo', 'Atletas ilimitados', 'Todo ilimitado', 'API personalizada', 'Soporte 24/7', 'Formación incluida', 'Personalización de plantillas'], cta: 'Contactar ventas', pop: false },
+    { key: 'free', price: '0', pop: false, fcount: 5 },
+    { key: 'pro', price: '9.99', pop: false, fcount: 5 },
+    { key: 'club', price: '29.99', pop: true, fcount: 7 },
+    { key: 'inst', price: '99.99', pop: false, fcount: 9 },
   ];
 
   return (
@@ -358,7 +358,7 @@ const LandingPage = () => {
     </nav>
 
     {/* HERO — Compact Material Design layout */}
-    <section className="relative pt-[56px] overflow-hidden bg-slate-950" style={{minHeight:'calc(100vh - 0px)'}}>
+    <section className="relative pt-[56px] overflow-hidden bg-slate-950">
       {/* Background elements */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_50%,rgba(204,255,0,0.04)_0%,transparent_60%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:32px_32px] opacity-10" />
@@ -367,7 +367,7 @@ const LandingPage = () => {
         {/* Pill badges */}
         <Reveal delay={0.1} direction="up">
           <div className="flex gap-2 mb-6">
-            {['PERIODIZACIÓN','PLANIFICACIÓN','CIENCIA'].map(txt => (
+            {[t('landing.hero.pill1'),t('landing.hero.pill2'),t('landing.hero.pill3')].map(txt => (
               <span key={txt} className="px-3 py-1 border border-slate-700 rounded-full text-[9px] font-bold tracking-[0.15em] text-slate-400 hover:border-[#CCFF00] hover:text-[#CCFF00] transition-colors cursor-pointer" style={{fontFamily:BC}}>{txt}</span>
             ))}
           </div>
@@ -379,9 +379,10 @@ const LandingPage = () => {
           <div className="lg:col-span-5 flex flex-col justify-between">
             <div>
               <Reveal delay={0.2} direction="left">
-                <h1 className="text-[3.5rem] sm:text-[4.5rem] lg:text-[5.5rem] font-black text-white leading-[0.9] tracking-[-0.03em] mb-5" style={{fontFamily:BC}} data-testid="hero-title">
+                <h1 className="text-[3.5rem] sm:text-[4.5rem] lg:text-[5.5rem] font-black text-white leading-[0.9] tracking-[-0.03em] mb-2" style={{fontFamily:BC}} data-testid="hero-title">
                   iTRAIN
                 </h1>
+                <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-[#CCFF00] mb-5" style={{fontFamily:BC}}>{t('landing.hero.tagline')}</p>
               </Reveal>
               <Reveal delay={0.35} direction="up">
                 <p className="text-[15px] text-slate-400 leading-[1.7] mb-6 max-w-[380px]" data-testid="hero-subtitle">
@@ -730,18 +731,20 @@ const LandingPage = () => {
           <h2 className="text-[28px] font-bold text-white leading-tight" style={{fontFamily:INT}}>{t('landing.pricing.title')}</h2>
         </Reveal>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {PRICING.map((plan,idx) => (
+          {PRICING.map((plan,idx) => {
+            const features = Array.from({length: plan.fcount}, (_, j) => t(`landing.pricing.${plan.key}_f${j+1}`));
+            return (
             <Reveal key={plan.key} delay={idx * 0.1} direction="up">
-            <div key={plan.key} className={`relative rounded-2xl p-6 transition-all duration-200 ${plan.pop ? 'bg-[#CCFF00] ring-1 ring-[#CCFF00] shadow-xl shadow-[#CCFF00]/10' : 'bg-slate-900 border border-slate-800 hover:border-slate-700'}`} data-testid={`pricing-card-${plan.key}`}>
-              {plan.pop && <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-slate-900 text-[#CCFF00] text-[9px] font-bold uppercase tracking-wider px-3 py-0.5 rounded-full" style={{fontFamily:BC}}>Más Popular</div>}
-              <h3 className={`text-[15px] font-semibold ${plan.pop ? 'text-slate-900' : 'text-white'}`}>{plan.name}</h3>
-              <p className={`text-[12px] mt-0.5 ${plan.pop ? 'text-slate-700' : 'text-slate-500'}`}>{plan.desc}</p>
+            <div className={`relative rounded-2xl p-6 transition-all duration-200 h-full ${plan.pop ? 'bg-[#CCFF00] ring-1 ring-[#CCFF00] shadow-xl shadow-[#CCFF00]/10' : 'bg-slate-900 border border-slate-800 hover:border-slate-700'}`} data-testid={`pricing-card-${plan.key}`}>
+              {plan.pop && <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-slate-900 text-[#CCFF00] text-[9px] font-bold uppercase tracking-wider px-3 py-0.5 rounded-full" style={{fontFamily:BC}}>{t('landing.pricing.mostPopular')}</div>}
+              <h3 className={`text-[15px] font-semibold ${plan.pop ? 'text-slate-900' : 'text-white'}`}>{t(`landing.pricing.${plan.key}_name`)}</h3>
+              <p className={`text-[12px] mt-0.5 ${plan.pop ? 'text-slate-700' : 'text-slate-500'}`}>{t(`landing.pricing.${plan.key}_desc`)}</p>
               <div className="flex items-baseline mt-4 mb-5">
                 <span className={`text-[32px] font-black leading-none ${plan.pop ? 'text-slate-900' : 'text-white'}`} style={{fontFamily:BC}}>${plan.price}</span>
-                <span className={`text-[13px] ml-1 ${plan.pop ? 'text-slate-600' : 'text-slate-500'}`}>/mes</span>
+                <span className={`text-[13px] ml-1 ${plan.pop ? 'text-slate-600' : 'text-slate-500'}`}>{t('landing.pricing.perMonth')}</span>
               </div>
               <ul className="space-y-2.5 mb-6">
-                {plan.features.map((f,j) => (
+                {features.map((f,j) => (
                   <li key={j} className={`flex items-start gap-2 text-[13px] leading-snug ${plan.pop ? 'text-slate-700' : 'text-slate-400'}`}>
                     <Check className={`w-4 h-4 flex-shrink-0 mt-[1px] ${plan.pop ? 'text-slate-900' : 'text-[#CCFF00]'}`} />
                     {f}
@@ -750,12 +753,13 @@ const LandingPage = () => {
               </ul>
               <Link to="/auth">
                 <Button className={`w-full rounded-xl h-10 text-[12px] font-semibold ${plan.pop ? 'bg-slate-900 text-[#CCFF00] hover:bg-slate-800' : 'bg-slate-800 text-white hover:bg-slate-700 border border-slate-700'}`} data-testid={`pricing-cta-${plan.key}`}>
-                  {plan.cta} <ChevronRight className="w-3.5 h-3.5 ml-1" />
+                  {t(`landing.pricing.${plan.key}_cta`)} <ChevronRight className="w-3.5 h-3.5 ml-1" />
                 </Button>
               </Link>
             </div>
             </Reveal>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
@@ -784,7 +788,7 @@ const LandingPage = () => {
             <div className="w-7 h-7 bg-[#CCFF00] rounded-full flex items-center justify-center"><Activity className="w-3.5 h-3.5 text-slate-900" /></div>
             <span className="text-[14px] font-black text-white" style={{fontFamily:BC}}>iTRAIN</span>
           </div>
-          <p className="text-[12px] text-slate-600">2026 iTRAIN. Todos los derechos reservados.</p>
+          <p className="text-[12px] text-slate-600">2026 iTRAIN. {t('landing.footer.copyright')}</p>
         </div>
       </div>
     </footer>
