@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -11,14 +11,15 @@ import {
   Save, Download, Activity, Clock, ChevronDown, ChevronRight,
   GripVertical, AlertCircle, Share2, Copy, Check, FileText, Link2, Eye,
   Watch, Droplets, Battery, Moon, TrendingUp, TrendingDown, Bluetooth,
-  Sparkles, LayoutGrid, Pencil, X, Users, User, MapPin
+  Sparkles, LayoutGrid, X, Users, User, MapPin
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { EJERCICIOS_INICIALES } from './ExerciseLibrary';
 
-const TacticalBoardEditor = React.lazy(() => import('./TacticalBoardEditor'));
-
 const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+const BC = "'Barlow Condensed', sans-serif";
+const INT = "'Inter', sans-serif";
 
 // Inline sport field data for preview (avoids babel plugin issues with imports)
 const BOARD_SPORTS = {
@@ -249,7 +250,6 @@ const SessionEditor = ({
   const [linkCopied, setLinkCopied] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const [showBoardEditor, setShowBoardEditor] = useState(false);
   const [expandedBoard, setExpandedBoard] = useState(null); // 'faseKey-idx' to expand thumbnail
   const sessionContentRef = useRef(null);
   const boardEditContextRef = useRef(null);
@@ -1046,72 +1046,78 @@ const SessionEditor = ({
           onEscapeKeyDown={(e) => e.preventDefault()}
           onInteractOutside={(e) => e.preventDefault()}
         >
-          {/* ══ DARK HEADER BAR ══ */}
+          {/* ══ DARK HEADER BAR — Landing Page Branding ══ */}
           <DialogTitle className="sr-only">Sesion de Entrenamiento</DialogTitle>
-          <div className="sticky top-0 z-10" style={{background:'#0f0f13'}}>
+          <div className="sticky top-0 z-10" style={{background:'#0a0a0f'}}>
             <div className="flex items-center gap-3 px-5 py-3">
-              {/* Logo badge */}
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{background:'#9EFF00'}}>
-                <span className="text-lg font-black leading-none" style={{color:'#0f0f13',fontFamily:'Barlow Condensed,sans-serif'}}>i</span>
+              {/* Logo badge — iTRAIN branding (white bg, matching Landing) */}
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg shadow-white/10">
+                  <span className="text-[17px] font-black leading-none" style={{color:'#CCFF00',fontFamily:BC}}>i</span>
+                </div>
+                <span className="text-[14px] font-black tracking-tight hidden sm:inline" style={{fontFamily:BC}}>
+                  <span style={{color:'#CCFF00'}}>i</span><span className="text-white">TRAIN</span>
+                </span>
               </div>
               {/* Session name (editable) + code + subtitle */}
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 ml-1">
                 <div className="flex items-center gap-2">
                   <input
                     value={sessionData.sessionName || `Sesion ${session?.dayName || ''}`}
                     onChange={(e) => setSessionData(prev => ({...prev, sessionName: e.target.value}))}
-                    className="bg-transparent text-white font-bold text-base border-0 outline-none focus:border-b focus:border-white/30 truncate w-auto max-w-[280px] placeholder:text-white/40"
+                    className="bg-transparent text-white font-bold text-[15px] border-0 outline-none focus:border-b focus:border-[#CCFF00]/40 truncate w-auto max-w-[260px] placeholder:text-white/30"
+                    style={{fontFamily:INT}}
                     placeholder="Nombre de sesion..."
                     data-testid="session-name-input"
                   />
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border border-white/20 text-white/60 flex-shrink-0" style={{background:'rgba(255,255,255,0.06)'}}>SES-{String(session?.sessionIndex || session?.dayName || '001').padStart(3,'0')}</span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${sessionData.sessionStatus==='completada'?'bg-green-500/20 text-green-400':sessionData.sessionStatus==='en_curso'?'bg-orange-500/20 text-orange-400':'bg-white/10 text-white/60'}`}>
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full text-[#CCFF00]/70 flex-shrink-0" style={{background:'rgba(204,255,0,0.08)',border:'0.5px solid rgba(204,255,0,0.15)'}}>SES-{String(session?.sessionIndex || session?.dayName || '001').padStart(3,'0')}</span>
+                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${sessionData.sessionStatus==='completada'?'bg-emerald-500/20 text-emerald-400':sessionData.sessionStatus==='en_curso'?'bg-amber-500/20 text-amber-400':'bg-white/8 text-white/50'}`}>
                     {sessionData.sessionStatus==='completada'?'Completada':sessionData.sessionStatus==='en_curso'?'En curso':'Planificada'}
                   </span>
                 </div>
-                <p className="text-[11px] text-white/40 mt-0.5 truncate">
+                <p className="text-[10px] text-white/30 mt-0.5 truncate" style={{fontFamily:INT}}>
                   Sesion {session?.sessionIndex || session?.dayName || '1'} · Semana {session?.weekIndex || session?.weekName || '1'} · {session?.mesoName || session?.macroName || 'Mesociclo 1'}
-                  {athleteName && <span className="ml-2 text-white/30">· {athleteName}</span>}
+                  {athleteName && <span className="ml-2 text-white/20">· {athleteName}</span>}
                 </p>
               </div>
               {/* Right chips */}
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg" style={{background:'rgba(255,255,255,0.06)',border:'0.5px solid rgba(255,255,255,0.1)'}}>
-                  <Calendar className="w-3.5 h-3.5 text-white/50" />
-                  <Input type="date" defaultValue={session?.date} className="w-28 h-6 bg-transparent border-0 text-white text-[11px] p-0 focus:ring-0" />
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg" style={{background:'rgba(204,255,0,0.06)',border:'0.5px solid rgba(204,255,0,0.1)'}}>
+                  <Calendar className="w-3 h-3" style={{color:'#CCFF00',opacity:0.5}} />
+                  <Input type="date" defaultValue={session?.date} className="w-28 h-5 bg-transparent border-0 text-white text-[10px] p-0 focus:ring-0" />
                 </div>
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg" style={{background:'rgba(255,255,255,0.06)',border:'0.5px solid rgba(255,255,255,0.1)'}}>
-                  <Clock className="w-3.5 h-3.5 text-white/50" />
-                  <input value={sessionData.duration} onChange={(e) => setSessionData(prev => ({...prev, duration: e.target.value}))} className="w-10 h-6 bg-transparent border-0 text-white text-[11px] p-0 text-center outline-none" placeholder="90" />
-                  <span className="text-[10px] text-white/40">min</span>
+                <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg" style={{background:'rgba(204,255,0,0.06)',border:'0.5px solid rgba(204,255,0,0.1)'}}>
+                  <Clock className="w-3 h-3" style={{color:'#CCFF00',opacity:0.5}} />
+                  <input value={sessionData.duration} onChange={(e) => setSessionData(prev => ({...prev, duration: e.target.value}))} className="w-8 h-5 bg-transparent border-0 text-white text-[10px] p-0 text-center outline-none" placeholder="90" />
+                  <span className="text-[9px] text-white/30">min</span>
                 </div>
-                <select value={sessionData.sessionStatus} onChange={(e) => setSessionData(prev => ({...prev, sessionStatus: e.target.value}))} className="h-7 text-[10px] rounded-lg px-2 border-0 outline-none cursor-pointer" style={{background:'rgba(255,255,255,0.06)',color:'rgba(255,255,255,0.7)',border:'0.5px solid rgba(255,255,255,0.1)'}}>
-                  <option value="planificada" style={{background:'#1a1a2e',color:'#fff'}}>Planificada</option>
-                  <option value="en_curso" style={{background:'#1a1a2e',color:'#fff'}}>En curso</option>
-                  <option value="completada" style={{background:'#1a1a2e',color:'#fff'}}>Completada</option>
+                <select value={sessionData.sessionStatus} onChange={(e) => setSessionData(prev => ({...prev, sessionStatus: e.target.value}))} className="h-7 text-[10px] rounded-lg px-2 border-0 outline-none cursor-pointer" style={{background:'rgba(204,255,0,0.06)',color:'rgba(255,255,255,0.6)',border:'0.5px solid rgba(204,255,0,0.1)'}}>
+                  <option value="planificada" style={{background:'#0a0a0f',color:'#fff'}}>Planificada</option>
+                  <option value="en_curso" style={{background:'#0a0a0f',color:'#fff'}}>En curso</option>
+                  <option value="completada" style={{background:'#0a0a0f',color:'#fff'}}>Completada</option>
                 </select>
               </div>
             </div>
-            {/* ══ LIGHT SUBHEADER ══ */}
-            <div className="flex items-center gap-3 px-5 py-2" style={{background:'#f8f9fb',borderTop:'0.5px solid #e2e5ea',borderBottom:'0.5px solid #e2e5ea'}}>
+            {/* ══ SUBHEADER ══ */}
+            <div className="flex items-center gap-3 px-5 py-2" style={{background:'#12131a',borderTop:'0.5px solid rgba(204,255,0,0.06)',borderBottom:'0.5px solid rgba(204,255,0,0.06)'}}>
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                <Users className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                <input value={sessionData.team} onChange={(e) => setSessionData(prev => ({...prev, team: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-slate-700 placeholder:text-slate-400 w-full min-w-[60px]" placeholder="Equipo / Atleta" />
+                <Users className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.4)'}} />
+                <input value={sessionData.team} onChange={(e) => setSessionData(prev => ({...prev, team: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-white/70 placeholder:text-white/25 w-full min-w-[60px]" placeholder="Equipo / Atleta" />
               </div>
-              <div className="w-px h-4 bg-slate-200" />
+              <div className="w-px h-4" style={{background:'rgba(204,255,0,0.1)'}} />
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                <User className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                <input value={sessionData.coach} onChange={(e) => setSessionData(prev => ({...prev, coach: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-slate-700 placeholder:text-slate-400 w-full min-w-[60px]" placeholder="Entrenador" />
+                <User className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.4)'}} />
+                <input value={sessionData.coach} onChange={(e) => setSessionData(prev => ({...prev, coach: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-white/70 placeholder:text-white/25 w-full min-w-[60px]" placeholder="Entrenador" />
               </div>
-              <div className="w-px h-4 bg-slate-200" />
+              <div className="w-px h-4" style={{background:'rgba(204,255,0,0.1)'}} />
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                <input value={sessionData.location} onChange={(e) => setSessionData(prev => ({...prev, location: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-slate-700 placeholder:text-slate-400 w-full min-w-[60px]" placeholder="Lugar" />
+                <MapPin className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.4)'}} />
+                <input value={sessionData.location} onChange={(e) => setSessionData(prev => ({...prev, location: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-white/70 placeholder:text-white/25 w-full min-w-[60px]" placeholder="Lugar" />
               </div>
-              <div className="w-px h-4 bg-slate-200" />
+              <div className="w-px h-4" style={{background:'rgba(204,255,0,0.1)'}} />
               <div className="flex items-center gap-1.5 w-[130px] flex-shrink-0">
-                <Activity className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                <select value={sessionData.sessionType} onChange={(e) => setSessionData(prev => ({...prev, sessionType: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-slate-700 cursor-pointer w-full">
+                <Activity className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.4)'}} />
+                <select value={sessionData.sessionType} onChange={(e) => setSessionData(prev => ({...prev, sessionType: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-white/70 cursor-pointer w-full" style={{colorScheme:'dark'}}>
                   <option value="tecnico-tactico">Tecnico-Tactico</option>
                   <option value="fisico">Fisico</option>
                   <option value="recuperacion">Recuperacion</option>
@@ -1120,110 +1126,74 @@ const SessionEditor = ({
                   <option value="mixto">Mixto</option>
                 </select>
               </div>
-              <div className="w-px h-4 bg-slate-200" />
+              <div className="w-px h-4" style={{background:'rgba(204,255,0,0.1)'}} />
               <div className="flex items-center gap-1.5 w-[100px] flex-shrink-0">
-                <Zap className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                <input value={sessionData.estimatedLoad} onChange={(e) => setSessionData(prev => ({...prev, estimatedLoad: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-slate-700 placeholder:text-slate-400 w-full" placeholder="Carga est." />
+                <Zap className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.4)'}} />
+                <input value={sessionData.estimatedLoad} onChange={(e) => setSessionData(prev => ({...prev, estimatedLoad: e.target.value}))} className="h-6 text-[11px] bg-transparent border-0 outline-none text-white/70 placeholder:text-white/25 w-full" placeholder="Carga est." />
               </div>
             </div>
           </div>
 
-          {/* Contenido Principal - Fondo blanco */}
+          {/* Contenido Principal */}
           <div 
             ref={sessionContentRef} 
             data-testid="session-editor-content"
-            className="overflow-y-auto max-h-[calc(90vh-180px)] bg-white"
+            className="overflow-y-auto max-h-[calc(90vh-180px)]"
+            style={{background:'#f5f5f7'}}
           >
-            <div className="p-6 space-y-6">
+            <div className="p-6 space-y-5">
               {/* Objetivos de la Sesión */}
-              <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden">
-                <CardHeader className="bg-[#f0ffd0] border-b border-[#c8f700]/20 pb-4">
-                  <CardTitle className="flex items-center gap-2 text-base text-slate-800">
-                    <div className="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center">
-                      <Target className="w-4 h-4 text-white" />
+              <Card className="border-0 shadow-md bg-white overflow-hidden rounded-2xl">
+                <CardHeader className="pb-3 pt-4 px-5" style={{background:'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)'}}>
+                  <CardTitle className="flex items-center gap-2.5 text-[14px]" style={{fontFamily:INT}}>
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#CCFF00'}}>
+                      <Target className="w-3.5 h-3.5 text-slate-900" />
                     </div>
-                    Objetivos de la Sesión
+                    <span className="text-white font-bold">Objetivos de la Sesion</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-5 bg-white">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Objetivo General</label>
-                      <Input
-                        value={sessionData.objetivos.general}
-                        onChange={(e) => updateObjetivo('general', e.target.value)}
-                        placeholder="Objetivo principal de la sesión..."
-                        className="bg-white border-slate-200 focus:border-cyan-400 focus:ring-cyan-400"
-                        data-testid="objetivo-general"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Objetivo Físico</label>
-                      <Input
-                        value={sessionData.objetivos.fisico}
-                        onChange={(e) => updateObjetivo('fisico', e.target.value)}
-                        placeholder="Desarrollo de capacidades físicas..."
-                        className="bg-white border-slate-200 focus:border-cyan-400 focus:ring-cyan-400"
-                        data-testid="objetivo-fisico"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Objetivo Técnico</label>
-                      <Input
-                        value={sessionData.objetivos.tecnico}
-                        onChange={(e) => updateObjetivo('tecnico', e.target.value)}
-                        placeholder="Mejora técnica específica..."
-                        className="bg-white border-slate-200 focus:border-cyan-400 focus:ring-cyan-400"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Objetivo Táctico</label>
-                      <Input
-                        value={sessionData.objetivos.tactico}
-                        onChange={(e) => updateObjetivo('tactico', e.target.value)}
-                        placeholder="Desarrollo táctico..."
-                        className="bg-white border-slate-200 focus:border-cyan-400 focus:ring-cyan-400"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Objetivo Psicológico</label>
-                      <Input
-                        value={sessionData.objetivos.psicologico}
-                        onChange={(e) => updateObjetivo('psicologico', e.target.value)}
-                        placeholder="Aspecto mental a trabajar..."
-                        className="bg-white border-slate-200 focus:border-cyan-400 focus:ring-cyan-400"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Objetivo Teórico</label>
-                      <Input
-                        value={sessionData.objetivos.teorico}
-                        onChange={(e) => updateObjetivo('teorico', e.target.value)}
-                        placeholder="Conocimiento teórico..."
-                        className="bg-white border-slate-200 focus:border-cyan-400 focus:ring-cyan-400"
-                      />
-                    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {[
+                      { key: 'general', label: 'Objetivo General', placeholder: 'Objetivo principal de la sesion...' },
+                      { key: 'fisico', label: 'Objetivo Fisico', placeholder: 'Desarrollo de capacidades fisicas...' },
+                      { key: 'tecnico', label: 'Objetivo Tecnico', placeholder: 'Mejora tecnica especifica...' },
+                      { key: 'tactico', label: 'Objetivo Tactico', placeholder: 'Desarrollo tactico...' },
+                      { key: 'psicologico', label: 'Objetivo Psicologico', placeholder: 'Aspecto mental a trabajar...' },
+                      { key: 'teorico', label: 'Objetivo Teorico', placeholder: 'Conocimiento teorico...' },
+                    ].map(obj => (
+                      <div key={obj.key} className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider" style={{fontFamily:BC}}>{obj.label}</label>
+                        <Input
+                          value={sessionData.objetivos[obj.key]}
+                          onChange={(e) => updateObjetivo(obj.key, e.target.value)}
+                          placeholder={obj.placeholder}
+                          className="bg-slate-50 border-slate-200 focus:border-[#CCFF00] focus:ring-[#CCFF00]/20 text-sm h-9"
+                          data-testid={`objetivo-${obj.key}`}
+                        />
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Estructura de la Sesión */}
-              <Card className="border border-slate-200 shadow-sm bg-white overflow-visible">
-                <CardHeader className="bg-[#fff8e0] border-b border-amber-200/40 pb-4">
-                  <CardTitle className="flex items-center gap-2 text-base text-slate-800">
-                    <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
-                      <Zap className="w-4 h-4 text-white" />
+              {/* Estructura de la Sesion */}
+              <Card className="border-0 shadow-md bg-white overflow-visible rounded-2xl">
+                <CardHeader className="pb-3 pt-4 px-5" style={{background:'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)'}}>
+                  <CardTitle className="flex items-center gap-2.5 text-[14px]" style={{fontFamily:INT}}>
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#CCFF00'}}>
+                      <Zap className="w-3.5 h-3.5 text-slate-900" />
                     </div>
-                    Estructura de la Sesión
+                    <span className="text-white font-bold">Estructura de la Sesion</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-5 space-y-4 bg-white overflow-visible">
+                <CardContent className="p-4 space-y-3 bg-white overflow-visible">
                   {/* Fases */}
                   {Object.entries(sessionData.fases).map(([faseKey, fase]) => {
                     const faseColors = {
-                      inicial: { border: 'border-l-[#c8f700]', bg: 'bg-[#f8ffe0]', header: 'bg-[#f0ffd0]', text: 'text-[#3a5a00]', btn: 'border-[#c8f700] text-[#3a5a00] hover:bg-[#f0ffd0]' },
-                      principal: { border: 'border-l-[#0b0e14]', bg: 'bg-slate-50', header: 'bg-slate-100', text: 'text-slate-800', btn: 'border-slate-800 text-slate-800 hover:bg-slate-100' },
-                      final: { border: 'border-l-[#378ADD]', bg: 'bg-blue-50', header: 'bg-blue-100', text: 'text-blue-700', btn: 'border-blue-500 text-blue-700 hover:bg-blue-100' }
+                      inicial: { border: 'border-l-[#CCFF00]', bg: 'bg-[#CCFF00]/5', header: 'bg-[#CCFF00]/8', text: 'text-[#3a5a00]', btn: 'border-[#CCFF00] text-[#3a5a00] hover:bg-[#CCFF00]/10' },
+                      principal: { border: 'border-l-slate-800', bg: 'bg-slate-50', header: 'bg-slate-100', text: 'text-slate-800', btn: 'border-slate-700 text-slate-800 hover:bg-slate-100' },
+                      final: { border: 'border-l-[#3B82F6]', bg: 'bg-blue-50/50', header: 'bg-blue-50', text: 'text-blue-700', btn: 'border-blue-400 text-blue-700 hover:bg-blue-50' }
                     };
                     const colors = faseColors[faseKey];
                     
@@ -1267,79 +1237,26 @@ const SessionEditor = ({
                 </CardContent>
               </Card>
 
-              {/* ═══ PIZARRA TACTICA ═══ */}
-              {sessionData.tacticalBoard ? (
-                <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden rounded-2xl" data-testid="tactical-board-preview">
-                  <CardHeader className="bg-[#0b0e14] text-white p-4">
-                    <CardTitle className="flex items-center justify-between text-base">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-[#c8f700]/20 rounded-lg flex items-center justify-center">
-                          <LayoutGrid className="w-4 h-4 text-[#c8f700]" />
-                        </div>
-                        <div>
-                          <span className="text-white font-bold">Pizarra Tactica</span>
-                          <span className="text-slate-400 text-xs ml-2">{sessionData.tacticalBoard.sportName}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button size="sm" variant="outline" onClick={() => setShowBoardEditor(true)}
-                          className="border-[#c8f700]/40 text-[#c8f700] hover:bg-[#c8f700]/10 text-xs h-8"
-                          data-testid="edit-board-btn">
-                          <Pencil className="w-3 h-3 mr-1" /> Editar
-                        </Button>
-                        <Button size="sm" variant="outline"
-                          onClick={() => { setSessionData(prev => ({ ...prev, tacticalBoard: null })); toast.info('Pizarra eliminada'); }}
-                          className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs h-8"
-                          data-testid="delete-board-btn">
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-4 bg-white flex justify-center">
-                    <TacticalBoardPreview board={sessionData.tacticalBoard} />
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card
-                  className="border-2 border-dashed border-slate-200 shadow-sm bg-white overflow-hidden cursor-pointer hover:border-[#c8f700]/50 transition-colors rounded-2xl group"
-                  onClick={() => setShowBoardEditor(true)}
-                  data-testid="create-board-card"
-                >
-                  <CardContent className="py-8 flex flex-col items-center justify-center text-center">
-                    <div className="w-14 h-14 bg-[#f0ffd0] rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                      <LayoutGrid className="w-7 h-7 text-[#3a5a00]" />
-                    </div>
-                    <h4 className="font-bold text-slate-800 mb-1">Pizarra Tactica</h4>
-                    <p className="text-sm text-slate-500 mb-3">Crea formaciones, jugadas y movimientos interactivos</p>
-                    <Button className="bg-[#c8f700] hover:bg-[#d9ff20] text-[#0b0e14] font-bold" data-testid="open-board-editor-btn"
-                      onClick={(e) => { e.stopPropagation(); window.open('/tactical-board.html', '_blank'); }}>
-                      <Plus className="w-4 h-4 mr-1.5" /> Abrir Pizarra Completa
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Monitoreo Avanzado - Material Design */}
-              <Card className="border-0 shadow-lg bg-white overflow-hidden rounded-2xl">
-                <CardHeader className="bg-[#0b0e14] text-white p-5">
+              {/* Monitoreo Avanzado */}
+              <Card className="border-0 shadow-md bg-white overflow-hidden rounded-2xl">
+                <CardHeader className="p-4" style={{background:'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)'}}>
                   <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-3 text-lg font-bold text-white">
-                      <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                        <Watch className="w-5 h-5" />
+                    <CardTitle className="flex items-center gap-2.5 text-[14px] font-bold text-white" style={{fontFamily:INT}}>
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#CCFF00'}}>
+                        <Watch className="w-3.5 h-3.5 text-slate-900" />
                       </div>
                       <div>
                         <span>Monitoreo de Rendimiento</span>
-                        <p className="text-xs font-normal text-white/80 mt-0.5">Datos de frecuencia cardíaca y biométricos</p>
+                        <p className="text-[10px] font-normal text-white/40 mt-0.5">Datos de frecuencia cardiaca y biometricos</p>
                       </div>
                     </CardTitle>
                     <div className="flex items-center gap-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        className={`text-xs border-2 ${sessionData.monitoreo.dispositivoConectado 
-                          ? 'border-white bg-white/20 text-white hover:bg-white/30' 
-                          : 'border-white/50 bg-transparent text-white hover:bg-white/10'}`}
+                        className={`text-[10px] h-7 ${sessionData.monitoreo.dispositivoConectado 
+                          ? 'border-[#CCFF00]/50 bg-[#CCFF00]/10 text-[#CCFF00] hover:bg-[#CCFF00]/20' 
+                          : 'border-white/20 bg-transparent text-white/60 hover:bg-white/5'}`}
                         onClick={() => {
                           setSessionData(prev => ({
                             ...prev,
@@ -1566,13 +1483,13 @@ const SessionEditor = ({
                     </div>
                   </div>
 
-                  {/* FC Reposo, Media y Máxima - Material Cards */}
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="bg-gradient-to-br from-[#f8ffe0] to-[#f0ffd0] rounded-2xl p-5 text-center border border-[#c8f700]/20 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="w-12 h-12 bg-[#c8f700] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                        <Heart className="w-6 h-6 text-[#0b0e14]" />
+                  {/* FC Reposo, Media y Maxima */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-slate-50 rounded-2xl p-4 text-center border border-slate-100 hover:shadow-sm transition-shadow">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2" style={{background:'#CCFF00'}}>
+                        <Heart className="w-5 h-5 text-slate-900" />
                       </div>
-                      <p className="text-xs font-bold text-[#3a5a00] uppercase tracking-wide mb-2">FC Reposo</p>
+                      <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1.5" style={{fontFamily:BC}}>FC Reposo</p>
                       <Input
                         type="number"
                         value={sessionData.monitoreo.fcReposo}
@@ -1581,15 +1498,15 @@ const SessionEditor = ({
                           monitoreo: { ...prev.monitoreo, fcReposo: e.target.value }
                         }))}
                         placeholder="60"
-                        className="text-center text-2xl font-bold h-12 border-0 bg-white/70 rounded-xl shadow-inner"
+                        className="text-center text-xl font-bold h-10 border-0 bg-white rounded-xl shadow-inner"
                       />
-                      <span className="text-xs text-[#3a5a00] font-medium">bpm</span>
+                      <span className="text-[10px] text-slate-400 font-medium">bpm</span>
                     </div>
-                    <div className="bg-gradient-to-br from-amber-50 to-orange-100 rounded-2xl p-5 text-center border border-amber-200 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                        <Activity className="w-6 h-6 text-white" />
+                    <div className="bg-slate-50 rounded-2xl p-4 text-center border border-slate-100 hover:shadow-sm transition-shadow">
+                      <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <Activity className="w-5 h-5 text-white" />
                       </div>
-                      <p className="text-xs font-bold text-amber-600 uppercase tracking-wide mb-2">FC Media</p>
+                      <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1.5" style={{fontFamily:BC}}>FC Media</p>
                       <Input
                         type="number"
                         value={sessionData.monitoreo.fcMedia}
@@ -1598,15 +1515,15 @@ const SessionEditor = ({
                           monitoreo: { ...prev.monitoreo, fcMedia: e.target.value }
                         }))}
                         placeholder="135"
-                        className="text-center text-2xl font-bold h-12 border-0 bg-white/70 rounded-xl shadow-inner"
+                        className="text-center text-xl font-bold h-10 border-0 bg-white rounded-xl shadow-inner"
                       />
-                      <span className="text-xs text-amber-500 font-medium">bpm</span>
+                      <span className="text-[10px] text-slate-400 font-medium">bpm</span>
                     </div>
-                    <div className="bg-gradient-to-br from-red-50 to-rose-100 rounded-2xl p-5 text-center border border-red-200 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                        <TrendingUp className="w-6 h-6 text-white" />
+                    <div className="bg-slate-50 rounded-2xl p-4 text-center border border-slate-100 hover:shadow-sm transition-shadow">
+                      <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <TrendingUp className="w-5 h-5 text-white" />
                       </div>
-                      <p className="text-xs font-bold text-red-600 uppercase tracking-wide mb-2">FC Máxima</p>
+                      <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1.5" style={{fontFamily:BC}}>FC Maxima</p>
                       <Input
                         type="number"
                         value={sessionData.monitoreo.fcMaxima}
@@ -1615,9 +1532,9 @@ const SessionEditor = ({
                           monitoreo: { ...prev.monitoreo, fcMaxima: e.target.value }
                         }))}
                         placeholder="180"
-                        className="text-center text-2xl font-bold h-12 border-0 bg-white/70 rounded-xl shadow-inner"
+                        className="text-center text-xl font-bold h-10 border-0 bg-white rounded-xl shadow-inner"
                       />
-                      <span className="text-xs text-red-500 font-medium">bpm</span>
+                      <span className="text-[10px] text-slate-400 font-medium">bpm</span>
                     </div>
                   </div>
 
@@ -1756,22 +1673,22 @@ const SessionEditor = ({
                 </CardContent>
               </Card>
 
-              {/* Retroalimentación */}
-              <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-slate-100 pb-4">
-                  <CardTitle className="flex items-center gap-2 text-base text-slate-800">
-                    <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
-                      <AlertCircle className="w-4 h-4 text-white" />
+              {/* Retroalimentacion */}
+              <Card className="border-0 shadow-md bg-white overflow-hidden rounded-2xl">
+                <CardHeader className="pb-3 pt-4 px-5" style={{background:'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)'}}>
+                  <CardTitle className="flex items-center gap-2.5 text-[14px]" style={{fontFamily:INT}}>
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#CCFF00'}}>
+                      <AlertCircle className="w-3.5 h-3.5 text-slate-900" />
                     </div>
-                    Observaciones y Retroalimentación
+                    <span className="text-white font-bold">Observaciones y Retroalimentacion</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-5 bg-white">
                   <Textarea
                     value={sessionData.retroalimentacion}
                     onChange={(e) => setSessionData(prev => ({ ...prev, retroalimentacion: e.target.value }))}
-                    placeholder="Observaciones y comentarios de la sesión..."
-                    className="min-h-[100px] resize-none bg-white border-slate-200 focus:border-indigo-400"
+                    placeholder="Observaciones y comentarios de la sesion..."
+                    className="min-h-[100px] resize-none bg-slate-50 border-slate-200 focus:border-[#CCFF00] focus:ring-[#CCFF00]/20"
                     data-testid="retroalimentacion"
                   />
                 </CardContent>
@@ -1779,56 +1696,58 @@ const SessionEditor = ({
             </div>
           </div>
 
-          {/* Footer con botones mejorado */}
-          <div className="sticky bottom-0 bg-white border-t border-slate-200 px-6 py-4 flex justify-between items-center shadow-lg">
+          {/* Footer */}
+          <div className="sticky bottom-0 border-t px-5 py-3 flex justify-between items-center" style={{background:'#0a0a0f',borderColor:'rgba(204,255,0,0.08)'}}>
             <div className="flex items-center gap-2">
               <Button 
                 variant="outline"
                 size="sm"
                 onClick={handleGenerateShareLink}
-                className="border-purple-300 text-purple-700 hover:bg-purple-50"
+                className="border-white/15 text-white/60 hover:bg-white/5 hover:text-white text-[11px] h-8"
                 data-testid="share-session-btn"
               >
-                <Share2 className="w-4 h-4 mr-2" />
-                Compartir Enlace
+                <Share2 className="w-3.5 h-3.5 mr-1.5" />
+                Compartir
               </Button>
               <Button 
                 variant="outline"
                 size="sm"
                 onClick={handleExportAsPDF}
                 disabled={exporting}
-                className="border-emerald-400 text-emerald-700 hover:bg-emerald-50"
+                className="border-white/15 text-white/60 hover:bg-white/5 hover:text-white text-[11px] h-8"
                 data-testid="export-pdf-btn"
               >
                 {exporting ? (
                   <>
-                    <Activity className="w-4 h-4 mr-2 animate-spin" />
+                    <Activity className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                     Exportando...
                   </>
                 ) : (
                   <>
-                    <Download className="w-4 h-4 mr-2" />
-                    Descargar PDF
+                    <Download className="w-3.5 h-3.5 mr-1.5" />
+                    PDF
                   </>
                 )}
               </Button>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <Button 
                 variant="outline" 
                 onClick={handleExit}
-                className="border-slate-300 text-slate-600 hover:bg-slate-50"
+                size="sm"
+                className="border-white/15 text-white/60 hover:bg-white/5 hover:text-white text-[11px] h-8"
                 data-testid="exit-session-btn"
               >
-                <ChevronRight className="w-4 h-4 mr-1" />
                 Salir
               </Button>
               <Button 
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md"
+                size="sm"
+                className="text-[12px] font-bold h-8 px-5 rounded-lg shadow-lg"
+                style={{background:'#CCFF00',color:'#0a0a0f',fontFamily:BC}}
                 onClick={handleSave}
                 data-testid="save-session-btn"
               >
-                <Save className="w-4 h-4 mr-2" />
+                <Save className="w-3.5 h-3.5 mr-1.5" />
                 Guardar
               </Button>
             </div>
@@ -1836,26 +1755,26 @@ const SessionEditor = ({
         </DialogContent>
       </Dialog>
 
-      {/* Diálogo de compartir enlace */}
+      {/* Dialogo de compartir enlace */}
       <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
-        <DialogContent className="max-w-md bg-white p-0 overflow-hidden">
-          <div className="bg-[#0b0e14] text-white p-6">
+        <DialogContent className="max-w-md bg-white p-0 overflow-hidden rounded-2xl">
+          <div className="p-5" style={{background:'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)'}}>
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-[#c8f700]/20 rounded-xl flex items-center justify-center">
-                <Link2 className="w-6 h-6 text-[#c8f700]" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:'rgba(204,255,0,0.15)'}}>
+                <Link2 className="w-5 h-5" style={{color:'#CCFF00'}} />
               </div>
               <div>
-                <DialogTitle className="text-white text-lg font-bold">Compartir Sesión</DialogTitle>
-                <p className="text-slate-400 text-sm mt-1">
-                  El deportista podrá ver la sesión sin necesidad de iniciar sesión
+                <DialogTitle className="text-white text-base font-bold" style={{fontFamily:INT}}>Compartir Sesion</DialogTitle>
+                <p className="text-white/40 text-[11px] mt-0.5">
+                  El deportista podra ver la sesion sin necesidad de iniciar sesion
                 </p>
               </div>
             </div>
           </div>
           
-          <div className="p-6 space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700">Enlace para compartir:</label>
+          <div className="p-5 space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider" style={{fontFamily:BC}}>Enlace para compartir:</label>
               <div className="flex gap-2">
                 <Input
                   value={shareLink}
@@ -1866,37 +1785,41 @@ const SessionEditor = ({
                   variant="outline"
                   size="icon"
                   onClick={handleCopyLink}
-                  className={linkCopied ? 'border-green-500 text-green-600' : 'border-slate-300'}
+                  className={linkCopied ? 'border-emerald-400 text-emerald-500' : 'border-slate-200'}
                 >
                   {linkCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 </Button>
               </div>
             </div>
             
-            <div className="bg-blue-50 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <Eye className="w-5 h-5 text-blue-600 mt-0.5" />
+            <div className="rounded-xl p-3" style={{background:'rgba(204,255,0,0.06)',border:'1px solid rgba(204,255,0,0.12)'}}>
+              <div className="flex items-start gap-2.5">
+                <Eye className="w-4 h-4 mt-0.5" style={{color:'#CCFF00'}} />
                 <div>
-                  <p className="text-sm font-medium text-blue-800">Vista del deportista</p>
-                  <p className="text-xs text-blue-600 mt-1">
-                    El deportista verá la sesión completa con objetivos, ejercicios y parámetros de entrenamiento.
+                  <p className="text-[12px] font-semibold text-slate-800">Vista del deportista</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    El deportista vera la sesion completa con objetivos, ejercicios y parametros de entrenamiento.
                   </p>
                 </div>
               </div>
             </div>
             
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex justify-end gap-2 pt-1">
               <Button
                 variant="outline"
+                size="sm"
                 onClick={() => setShowShareDialog(false)}
+                className="text-[11px]"
               >
                 Cerrar
               </Button>
               <Button
+                size="sm"
                 onClick={handleCopyLink}
-                className="bg-[#c8f700] hover:bg-[#d9ff20] text-[#0b0e14] font-bold"
+                className="text-[12px] font-bold"
+                style={{background:'#CCFF00',color:'#0a0a0f',fontFamily:BC}}
               >
-                <Copy className="w-4 h-4 mr-2" />
+                <Copy className="w-3.5 h-3.5 mr-1.5" />
                 Copiar Enlace
               </Button>
             </div>
@@ -1904,21 +1827,6 @@ const SessionEditor = ({
         </DialogContent>
       </Dialog>
 
-      {/* Tactical Board Editor */}
-      {showBoardEditor && (
-        <Suspense fallback={null}>
-          <TacticalBoardEditor
-            isOpen={showBoardEditor}
-            onClose={() => setShowBoardEditor(false)}
-            onSave={(boardData) => {
-              setSessionData(prev => ({ ...prev, tacticalBoard: boardData }));
-            }}
-            initialData={sessionData.tacticalBoard}
-            sessionDescription={sessionData.objetivos?.tactico || sessionData.objetivos?.general || ''}
-            planSport={session?.sport || 'football'}
-          />
-        </Suspense>
-      )}
     </>
   );
 };
