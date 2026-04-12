@@ -490,43 +490,35 @@ const SessionEditor = ({
       const origContent = contentEl ? { mh: contentEl.style.maxHeight, o: contentEl.style.overflow } : {};
       const origFooter = footerEl ? footerEl.style.display : '';
       
-      // Inyectar estilos de alto contraste para PDF
-      const pdfStyle = document.createElement('style');
-      pdfStyle.id = 'pdf-export-styles';
-      pdfStyle.textContent = `
-        [data-testid="session-editor-dialog"] input,
-        [data-testid="session-editor-dialog"] select,
-        [data-testid="session-editor-dialog"] textarea {
-          color: #1a1a1a !important;
-          opacity: 1 !important;
-          text-overflow: clip !important;
-          overflow: visible !important;
-          font-size: 13px !important;
-        }
-        [data-testid="session-editor-dialog"] input::placeholder,
-        [data-testid="session-editor-dialog"] textarea::placeholder {
-          color: #888 !important;
-          opacity: 1 !important;
-        }
-        [data-testid="session-editor-dialog"] label,
-        [data-testid="session-editor-dialog"] .se-field-label {
-          color: #555 !important;
-          opacity: 1 !important;
-        }
-        [data-testid="session-editor-dialog"] .text-slate-400,
-        [data-testid="session-editor-dialog"] .text-slate-500 {
-          color: #666 !important;
-        }
-        [data-testid="session-editor-dialog"] .se-input {
-          color: rgba(255,255,255,0.95) !important;
-        }
-        [data-testid="session-editor-dialog"] .se-input::placeholder {
-          color: rgba(255,255,255,0.5) !important;
-        }
-      `;
-      document.head.appendChild(pdfStyle);
+      // 1) Reemplazar inputs/selects/textareas con spans de texto plano
+      const replacements = [];
+      target.querySelectorAll('input, select, textarea').forEach(el => {
+        const val = el.tagName === 'SELECT' 
+          ? (el.options[el.selectedIndex]?.text || '') 
+          : (el.value || el.placeholder || '');
+        if (!val) return;
+        
+        const span = document.createElement('span');
+        span.textContent = val;
+        const cs = window.getComputedStyle(el);
+        span.style.cssText = `
+          font-family: ${cs.fontFamily};
+          font-size: ${cs.fontSize};
+          font-weight: ${el.value ? cs.fontWeight : '400'};
+          color: ${el.value ? cs.color : '#999'};
+          display: inline-block;
+          padding: ${cs.paddingTop} ${cs.paddingRight} ${cs.paddingBottom} ${cs.paddingLeft};
+          white-space: nowrap;
+          line-height: ${cs.lineHeight};
+          height: ${cs.height};
+          align-content: center;
+        `;
+        el.style.display = 'none';
+        el.parentNode.insertBefore(span, el.nextSibling);
+        replacements.push({ el, span });
+      });
       
-      // Ajustar layout para captura
+      // 2) Ajustar layout
       target.style.width = '800px';
       target.style.maxWidth = '800px';
       target.style.maxHeight = 'none';
@@ -546,8 +538,11 @@ const SessionEditor = ({
         windowWidth: 800
       });
       
-      // Restaurar todo
-      document.head.removeChild(pdfStyle);
+      // 3) Restaurar todo
+      replacements.forEach(({ el, span }) => {
+        el.style.display = '';
+        span.remove();
+      });
       target.style.width = origTarget.w;
       target.style.maxWidth = origTarget.mw;
       target.style.maxHeight = origTarget.mh;
