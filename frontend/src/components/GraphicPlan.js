@@ -515,43 +515,32 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
 
     setPlanData(newPlanData);
 
-    if (v2Micros.length > 0 && !hasImportedData) {
+    if (v2Micros.length > 0) {
       setHasImportedData(true);
     }
   }, [v2Macros, v2Mesos, v2Micros, v2Sesiones, v2Ejercicios]);
 
   // Watch for periodization data changes (only if V2 hasn't loaded)
   useEffect(() => {
-    if (periodizationData && !hasImportedData && !v2Micros.length) {
+    if (periodizationData && !v2Micros.length) {
       importPeriodizationData(periodizationData);
     }
-  }, [periodizationData, hasImportedData, importPeriodizationData, v2Micros.length]);
+  }, [periodizationData, importPeriodizationData, v2Micros.length]);
 
   // Load data from active plan
   useEffect(() => {
-    if (activePlan && !hasImportedData && !v2Micros.length) {
-      // Set general info from active plan
+    if (activePlan) {
       setGeneralInfo(prev => ({
         ...prev,
         sport: activePlan.sport || prev.sport,
         periodizationType: activePlan.model || activePlan.model_name || 'tradicional',
         athlete: athleteName || prev.athlete
       }));
-      
-      // If active plan has macrocycle data, import it (only if V2 hasn't loaded yet)
-      if (activePlan.macrocycles && activePlan.macrocycles.length > 0) {
+      if (activePlan.macrocycles?.length > 0 && !v2Micros.length) {
         importPeriodizationData(activePlan.macrocycles[0]);
       }
-    } else if (activePlan) {
-      // Still update general info
-      setGeneralInfo(prev => ({
-        ...prev,
-        sport: activePlan.sport || prev.sport,
-        periodizationType: activePlan.model || activePlan.model_name || 'tradicional',
-        athlete: athleteName || prev.athlete
-      }));
     }
-  }, [activePlan, hasImportedData, athleteName, importPeriodizationData, v2Micros.length]);
+  }, [activePlan, athleteName, importPeriodizationData, v2Micros.length]);
 
   // Load calendar events
   useEffect(() => {
@@ -1301,14 +1290,33 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 {/* Macrocycle */}
                 {renderCycleRow('macrocycles', MACROCYCLE_TYPES)}
                 
-                {/* Macrocycle Duration */}
+                {/* Macrocycle Duration - filled from V2 data */}
                 <tr>
                   <td className="sticky left-0 bg-gray-50 px-2 py-1 text-xs border border-gray-300">
-                    Duración del macrociclo
+                    Duracion del macrociclo
                   </td>
-                  {displayedWeeks.map(week => (
-                    <td key={`macro-dur-${week}`} className="w-6 h-4 border border-gray-300 bg-white" />
-                  ))}
+                  {displayedWeeks.map(week => {
+                    // Find which macro this week belongs to and show its duration
+                    let durLabel = '';
+                    let durColor = '';
+                    v2Macros.forEach(macro => {
+                      const mesos = v2Mesos.filter(m => m.macrociclo_id === macro.id);
+                      const micros = [];
+                      mesos.forEach(meso => {
+                        v2Micros.filter(m => m.mesociclo_id === meso.id).forEach(m => micros.push(m));
+                      });
+                      const weekNums = micros.map(m => m.numero_semana).filter(Boolean);
+                      if (weekNums.includes(week)) {
+                        durLabel = `${macro.duracion_semanas || weekNums.length}`;
+                        durColor = 'bg-slate-100';
+                      }
+                    });
+                    return (
+                      <td key={`macro-dur-${week}`} className={`w-6 h-4 border border-gray-300 text-center text-[9px] font-medium text-slate-500 ${durColor}`}>
+                        {durLabel}
+                      </td>
+                    );
+                  })}
                 </tr>
                 
                 {/* Period */}
