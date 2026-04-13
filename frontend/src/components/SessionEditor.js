@@ -12,7 +12,7 @@ import {
   Target, Zap, Brain, Dumbbell, Heart, Calendar, Plus, Trash2, 
   Save, Download, Activity, Clock, ChevronDown, ChevronRight,
   GripVertical, AlertCircle, Share2, Copy, Check, FileText, Link2, Eye,
-  Watch, Droplets, Battery, Moon, TrendingUp, TrendingDown, Bluetooth,
+  Watch, Droplets, Battery, Moon, Sun, TrendingUp, TrendingDown, Bluetooth,
   Sparkles, LayoutGrid, X, Users, User, MapPin
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -471,7 +471,7 @@ const SessionEditor = ({
   };
 
   // Exportar sesión como PDF — crea enlace compartido y descarga via Playwright backend
-  const handleExportAsPDF = async () => {
+  const handleExportAsPDF = async (theme = 'dark') => {
     if (exporting) return;
     setExporting(true);
     
@@ -499,7 +499,7 @@ const SessionEditor = ({
       const { share_id } = await shareRes.json();
       
       // 2) Descargar PDF generado por Playwright en el backend
-      const pdfRes = await fetch(`${API_URL}/api/sessions/download-pdf/${share_id}`);
+      const pdfRes = await fetch(`${API_URL}/api/sessions/download-pdf/${share_id}?theme=${theme}`);
       if (!pdfRes.ok) throw new Error('Error al generar PDF');
       
       const blob = await pdfRes.blob();
@@ -507,7 +507,7 @@ const SessionEditor = ({
       const a = document.createElement('a');
       a.href = url;
       const nm = (sessionData.sessionName || 'Sesion').replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s-]/g, '').replace(/\s+/g, '-');
-      a.download = `iTRAIN_${sesCode}_${nm}.pdf`;
+      a.download = `iTRAIN_${sesCode}_${nm}_${theme}.pdf`;
       a.click();
       window.URL.revokeObjectURL(url);
       
@@ -1535,21 +1535,28 @@ const SessionEditor = ({
               <Button 
                 variant="outline"
                 size="sm"
-                onClick={handleExportAsPDF}
+                onClick={() => handleExportAsPDF('dark')}
                 disabled={exporting}
                 className="border-white/15 text-white/60 hover:bg-white/5 hover:text-white text-[11px] h-8"
                 data-testid="export-pdf-btn"
               >
                 {exporting ? (
-                  <>
-                    <Activity className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                    Exportando...
-                  </>
+                  <><Activity className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generando...</>
                 ) : (
-                  <>
-                    <Download className="w-3.5 h-3.5 mr-1.5" />
-                    PDF
-                  </>
+                  <><Moon className="w-3.5 h-3.5 mr-1" />PDF oscuro</>
+                )}
+              </Button>
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={() => handleExportAsPDF('light')}
+                disabled={exporting}
+                className="border-white/15 text-white/60 hover:bg-white/5 hover:text-white text-[11px] h-8"
+              >
+                {exporting ? (
+                  <><Activity className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generando...</>
+                ) : (
+                  <><Sun className="w-3.5 h-3.5 mr-1" />PDF claro</>
                 )}
               </Button>
             </div>

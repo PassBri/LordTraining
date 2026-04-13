@@ -6855,7 +6855,7 @@ async def get_shared_session(share_id: str):
 
 
 @api_router.get("/sessions/download-pdf/{share_id}")
-async def download_session_pdf(share_id: str):
+async def download_session_pdf(share_id: str, theme: str = "dark"):
     """Genera PDF de la vista pública de sesión usando Playwright headless"""
     from fastapi.responses import Response
     try:
@@ -6868,10 +6868,9 @@ async def download_session_pdf(share_id: str):
         _os.environ['PLAYWRIGHT_BROWSERS_PATH'] = '/pw-browsers'
         from playwright.async_api import async_playwright
         
-        # URL de la vista pública
-        base_url = os.environ.get("REACT_APP_BACKEND_URL", "http://localhost:3000")
-        # Use internal URL for rendering
-        page_url = f"http://localhost:3000/s/{share_id}"
+        # URL de la vista pública con tema
+        theme_param = "?theme=light" if theme == "light" else ""
+        page_url = f"http://localhost:3000/s/{share_id}{theme_param}"
         
         async with async_playwright() as p:
             browser = await p.chromium.launch(
