@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import InteractiveChart from './InteractiveChart';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
@@ -2314,7 +2315,6 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
   // ============ RENDER: CHART VIEW ============
   const renderChartView = () => {
-    // Build chart data from real plan macrocycles
     const macros = selectedPlan?.macrocycles || [];
     const chartData = [];
     let weekNum = 1;
@@ -2326,13 +2326,11 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       const baseDen = Math.round((baseVol + baseInt) / 3);
       const weeks = macro.weeks || 4;
 
-      // If macrocycle has mesocycles with microcycles, use real data
       const hasMicros = macro.mesocycles?.some(m => m.microcycles?.length > 0);
       if (hasMicros) {
         macro.mesocycles.forEach(meso => {
           const mesoLoad = meso.type?.loadFactor || 1;
-          (meso.microcycles || []).forEach((micro, mi) => {
-            const microLoad = micro.type?.load || micro.type?.loadPercent || 70;
+          (meso.microcycles || []).forEach(micro => {
             const sessions = micro.sessions || [];
             let realVol = 0, realInt = 0, actCount = 0;
             sessions.forEach(ses => {
@@ -2351,165 +2349,78 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
             const int = actCount > 0 ? Math.min(Math.round(realInt / actCount), 100) : Math.round(baseInt * (0.9 + Math.random() * 0.15));
             const den = Math.round((vol * 0.3 + int * 0.3 + baseDen * 0.4));
             const carga = Math.round(vol * int / 100);
-            chartData.push({
-              semana: `S${weekNum}`, week: weekNum, volumen: Math.min(vol, 100), intensidad: Math.min(int, 100),
-              densidad: Math.min(den, 100), carga, fase: phase.name, color: phase.color, macroName: macro.name
-            });
+            chartData.push({ semana: `S${weekNum}`, volumen: Math.min(vol, 100), intensidad: Math.min(int, 100), densidad: Math.min(den, 100), carga, fase: phase.name, color: phase.color });
             weekNum++;
           });
         });
       } else {
-        // Generate synthetic weekly data based on phase parameters
         for (let w = 0; w < weeks; w++) {
           const progress = w / Math.max(weeks - 1, 1);
-          // Simulate wave pattern within macrocycle
           const wave = Math.sin(w * 0.8) * 8;
-          const deloadWeek = (w + 1) % 4 === 0;
-          const vol = deloadWeek ? Math.round(baseVol * 0.55) : Math.round(baseVol + wave - progress * 10);
-          const int = deloadWeek ? Math.round(baseInt * 0.6) : Math.round(baseInt + progress * 12 + wave * 0.3);
+          const deload = (w + 1) % 4 === 0;
+          const vol = deload ? Math.round(baseVol * 0.55) : Math.round(baseVol + wave - progress * 10);
+          const int = deload ? Math.round(baseInt * 0.6) : Math.round(baseInt + progress * 12 + wave * 0.3);
           const den = Math.round((vol * 0.35 + int * 0.35 + baseDen * 0.3));
           const carga = Math.round(vol * int / 100);
-          chartData.push({
-            semana: `S${weekNum}`, week: weekNum, volumen: Math.min(Math.max(vol, 15), 100), intensidad: Math.min(Math.max(int, 15), 100),
-            densidad: Math.min(Math.max(den, 10), 100), carga: Math.min(carga, 100), fase: phase.name, color: phase.color, macroName: macro.name
-          });
+          chartData.push({ semana: `S${weekNum}`, volumen: Math.min(Math.max(vol, 15), 100), intensidad: Math.min(Math.max(int, 15), 100), densidad: Math.min(Math.max(den, 10), 100), carga: Math.min(carga, 100), fase: phase.name, color: phase.color });
           weekNum++;
         }
       }
     });
 
-    // If no data at all, generate demo
     if (chartData.length === 0) {
-      for (let i = 1; i <= 20; i++) {
-        chartData.push({ semana: `S${i}`, week: i, volumen: 60 + Math.sin(i) * 15, intensidad: 50 + i * 2, densidad: 40 + Math.sin(i * 0.5) * 10, carga: 30 + i, fase: 'Demo', color: '#3B82F6', macroName: 'Demo' });
+      for (let i = 1; i <= 12; i++) {
+        chartData.push({ semana: `S${i}`, volumen: 60 + Math.sin(i) * 15, intensidad: 50 + i * 2, densidad: 40 + Math.sin(i * 0.5) * 10, carga: 30 + i, fase: 'Demo', color: '#3B82F6' });
       }
     }
 
-    const chartModeKey = 'periodization-chart-mode';
-    const chartMode = expandedPanels?.[chartModeKey] || 'vol';
-    const setChartMode = (m) => setExpandedPanels(prev => ({...prev, [chartModeKey]: m}));
-
-    const metricsConfig = [
-      { id: 'vol', label: 'Volumen', color: '#3B82F6', key: 'volumen' },
-      { id: 'int', label: 'Intensidad', color: '#EF4444', key: 'intensidad' },
-      { id: 'den', label: 'Densidad', color: '#F59E0B', key: 'densidad' },
-      { id: 'carga', label: 'Carga Total', color: '#10B981', key: 'carga' }
-    ];
-    const activeMetric = metricsConfig.find(m => m.id === chartMode) || metricsConfig[0];
-
-    // Secondary metric = inverse
-    const secondaryMap = { vol: 'int', int: 'vol', den: 'carga', carga: 'den' };
-    const secondaryMetric = metricsConfig.find(m => m.id === secondaryMap[chartMode]) || metricsConfig[1];
-
-    // Custom tooltip
-    const ChartTooltip = ({ active, payload, label }) => {
-      if (!active || !payload?.length) return null;
-      const d = payload[0]?.payload;
-      return (
-        <div className="bg-white rounded-xl shadow-xl border border-slate-200 p-3" style={{fontFamily:"'DM Sans',sans-serif", minWidth: 200}}>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[13px] font-bold text-slate-800">{label}</span>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-white" style={{background: d?.color}}>{d?.fase}</span>
-          </div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px]">
-            <div className="flex justify-between"><span className="text-slate-400">Volumen</span><span className="font-bold text-blue-600">{d?.volumen}%</span></div>
-            <div className="flex justify-between"><span className="text-slate-400">Intensidad</span><span className="font-bold text-red-500">{d?.intensidad}%</span></div>
-            <div className="flex justify-between"><span className="text-slate-400">Densidad</span><span className="font-bold text-amber-500">{d?.densidad}%</span></div>
-            <div className="flex justify-between"><span className="text-slate-400">Carga</span><span className="font-bold text-emerald-600">{d?.carga}</span></div>
-          </div>
-        </div>
-      );
-    };
-
-    // Phase boundaries for reference lines
-    const phaseBoundaries = [];
+    // Reference lines for phase boundaries
+    const refLines = [];
     let cumWeeks = 0;
     macros.forEach((macro, i) => {
-      const w = chartData.filter(d => d.macroName === macro.name).length || macro.weeks || 0;
-      if (i > 0) phaseBoundaries.push({ week: cumWeeks, name: macro.phase?.abbr || '' });
+      const w = chartData.filter(d => d.fase === (macro.phase?.name || '')).length || macro.weeks || 0;
+      if (i > 0 && cumWeeks > 0) {
+        refLines.push({ y: null, x: `S${cumWeeks}`, color: '#cbd5e1', label: macro.phase?.abbr || '', dashed: true });
+      }
       cumWeeks += w;
     });
 
+    // Stats
+    const totalWeeks = chartData.length;
+    const avgVol = totalWeeks ? Math.round(chartData.reduce((s,d) => s + d.volumen, 0) / totalWeeks) : 0;
+    const avgInt = totalWeeks ? Math.round(chartData.reduce((s,d) => s + d.intensidad, 0) / totalWeeks) : 0;
+    const avgDen = totalWeeks ? Math.round(chartData.reduce((s,d) => s + d.densidad, 0) / totalWeeks) : 0;
+    const avgCarga = totalWeeks ? Math.round(chartData.reduce((s,d) => s + d.carga, 0) / totalWeeks) : 0;
+
     return (
       <div className="space-y-4">
-        {/* Main Chart Card */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden" data-testid="chart-view">
-          {/* Header */}
-          <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-slate-400" />
-              <h3 className="text-[14px] font-bold text-slate-800" style={{fontFamily:"'DM Sans',sans-serif"}}>Periodizacion — {activeMetric.label}</h3>
-            </div>
-            {/* Metric tabs */}
-            <div className="flex items-center gap-0.5 bg-slate-100 rounded-lg p-0.5">
-              {metricsConfig.map(m => (
-                <button key={m.id} onClick={() => setChartMode(m.id)}
-                  className={`px-3 py-1 rounded-md text-[11px] font-semibold transition-all ${chartMode === m.id ? 'bg-white shadow-sm' : 'hover:bg-white/50'}`}
-                  style={{color: chartMode === m.id ? m.color : '#94a3b8', fontFamily:"'DM Sans',sans-serif"}}
-                >{m.label}</button>
-              ))}
-            </div>
-          </div>
-
-          {/* Legend */}
-          <div className="px-5 py-2 flex items-center gap-4 border-b border-slate-50">
-            <div className="flex items-center gap-1.5">
-              <div className="w-3 h-2 rounded-sm" style={{background: activeMetric.color}} />
-              <span className="text-[10px] font-semibold text-slate-500">{activeMetric.label} (barras)</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-4 border-t-2" style={{borderColor: secondaryMetric.color}} />
-              <span className="text-[10px] font-semibold text-slate-500">{secondaryMetric.label} (linea)</span>
-            </div>
-            {phaseBoundaries.length > 0 && macros.map((macro, i) => (
-              <div key={i} className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-sm" style={{background: macro.phase?.color}} />
-                <span className="text-[9px] font-medium text-slate-400">{macro.phase?.abbr || macro.name} ({chartData.filter(d => d.macroName === macro.name).length}s)</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Chart */}
-          <div className="px-3 py-3">
-            <div style={{height: chartData.length > 30 ? 320 : 280}}>
-              <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={chartData} margin={{top:10,right:15,left:0,bottom:5}}>
-                  <defs>
-                    <linearGradient id="activeGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={activeMetric.color} stopOpacity={0.3} />
-                      <stop offset="100%" stopColor={activeMetric.color} stopOpacity={0.02} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="4 4" stroke="rgba(148,163,184,0.1)" />
-                  <XAxis dataKey="semana" tick={{fontSize:9, fill:'#94a3b8'}} axisLine={{stroke:'#e2e8f0'}} tickLine={false} interval={chartData.length > 40 ? 2 : chartData.length > 20 ? 1 : 0} />
-                  <YAxis domain={[0, 100]} tick={{fontSize:10, fill:'#94a3b8'}} axisLine={false} tickLine={false} />
-                  <Tooltip content={<ChartTooltip />} />
-                  {/* Phase boundaries */}
-                  {phaseBoundaries.map((pb, i) => (
-                    <ReferenceLine key={i} x={`S${pb.week}`} stroke="#cbd5e1" strokeDasharray="4 4" strokeWidth={1} />
-                  ))}
-                  {/* Primary metric as bars with phase colors */}
-                  <Bar dataKey={activeMetric.key} radius={[3,3,0,0]} maxBarSize={chartData.length > 30 ? 10 : 20} fillOpacity={0.85}>
-                    {chartData.map((d, i) => (
-                      <rect key={i} fill={d.color || activeMetric.color} />
-                    ))}
-                  </Bar>
-                  {/* Area fill behind line */}
-                  <Area type="monotone" dataKey={activeMetric.key} fill="url(#activeGrad)" stroke="none" />
-                  {/* Secondary metric as line */}
-                  <Line type="monotone" dataKey={secondaryMetric.key} stroke={secondaryMetric.color} strokeWidth={2} dot={false} strokeDasharray="5 3" opacity={0.7} />
-                </ComposedChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
+        {/* Main Chart — using InteractiveChart component */}
+        <InteractiveChart
+          title="Periodizacion del Plan"
+          icon={TrendingUp}
+          data={chartData}
+          dataKeys={[
+            { key: 'volumen', name: 'Volumen %', color: '#3B82F6' },
+            { key: 'intensidad', name: 'Intensidad %', color: '#EF4444' },
+            { key: 'densidad', name: 'Densidad %', color: '#10B981' },
+            { key: 'carga', name: 'Carga Total', color: '#F59E0B' }
+          ]}
+          xAxisKey="semana"
+          height={340}
+          showBrush={true}
+          showControls={true}
+          defaultChartType="line"
+          defaultTimeRange="sessions"
+          yAxisDomain={[0, 100]}
+          referenceLines={refLines}
+        />
 
         {/* Phase Distribution */}
         <div className="bg-white rounded-xl border border-slate-200 p-5" data-testid="phase-distribution">
           <h3 className="text-[13px] font-bold text-slate-800 mb-3" style={{fontFamily:"'DM Sans',sans-serif"}}>Distribucion de Fases</h3>
           <div className="flex h-10 rounded-xl overflow-hidden gap-[2px]">
             {macros.map((macro, idx) => {
-              const w = chartData.filter(d => d.macroName === macro.name).length || macro.weeks;
+              const w = chartData.filter(d => d.fase === (macro.phase?.name || '')).length || macro.weeks;
               return (
                 <div key={idx} className="flex items-center justify-center text-white text-[10px] font-bold rounded-md transition-all hover:opacity-90 hover:scale-y-110 cursor-pointer"
                   style={{ backgroundColor: macro.phase?.color, flex: w, fontFamily: "'Barlow Condensed', sans-serif" }}>
@@ -2520,7 +2431,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           </div>
           <div className="flex flex-wrap gap-3 mt-3">
             {macros.map((macro, idx) => {
-              const w = chartData.filter(d => d.macroName === macro.name).length || macro.weeks;
+              const w = chartData.filter(d => d.fase === (macro.phase?.name || '')).length || macro.weeks;
               const phase = macro.phase || MACROCYCLE_PHASES[0];
               return (
                 <div key={idx} className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{background:`${phase.color}08`, border:`1px solid ${phase.color}15`}}>
@@ -2535,25 +2446,18 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
         {/* Metrics Summary Cards */}
         <div className="grid grid-cols-4 gap-3">
-          {(() => {
-            const totalWeeks = chartData.length;
-            const avgVol = totalWeeks ? Math.round(chartData.reduce((s,d) => s + d.volumen, 0) / totalWeeks) : 0;
-            const avgInt = totalWeeks ? Math.round(chartData.reduce((s,d) => s + d.intensidad, 0) / totalWeeks) : 0;
-            const avgDen = totalWeeks ? Math.round(chartData.reduce((s,d) => s + d.densidad, 0) / totalWeeks) : 0;
-            const avgCarga = totalWeeks ? Math.round(chartData.reduce((s,d) => s + d.carga, 0) / totalWeeks) : 0;
-            return [
-              { label: 'Vol. Promedio', val: `${avgVol}%`, color: '#3B82F6', sub: `${totalWeeks} semanas` },
-              { label: 'Int. Promedio', val: `${avgInt}%`, color: '#EF4444', sub: `Max: ${Math.max(...chartData.map(d=>d.intensidad))}%` },
-              { label: 'Den. Promedio', val: `${avgDen}%`, color: '#F59E0B', sub: `Min: ${Math.min(...chartData.map(d=>d.densidad))}%` },
-              { label: 'Carga Promedio', val: `${avgCarga}`, color: '#10B981', sub: `Total: ${chartData.reduce((s,d) => s + d.carga, 0)}` }
-            ].map((card, ci) => (
-              <div key={ci} className="bg-white rounded-xl border border-slate-200 p-4" style={{borderTop:`3px solid ${card.color}`}}>
-                <div className="text-[9px] font-bold uppercase tracking-wider mb-1" style={{color: card.color}}>{card.label}</div>
-                <div className="text-[22px] font-black text-slate-800" style={{fontFamily:"'DM Sans',sans-serif"}}>{card.val}</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">{card.sub}</div>
-              </div>
-            ));
-          })()}
+          {[
+            { label: 'Vol. Promedio', val: `${avgVol}%`, color: '#3B82F6', sub: `${totalWeeks} semanas` },
+            { label: 'Int. Promedio', val: `${avgInt}%`, color: '#EF4444', sub: `Max: ${Math.max(...chartData.map(d=>d.intensidad))}%` },
+            { label: 'Den. Promedio', val: `${avgDen}%`, color: '#10B981', sub: `Min: ${Math.min(...chartData.map(d=>d.densidad))}%` },
+            { label: 'Carga Promedio', val: `${avgCarga}`, color: '#F59E0B', sub: `Total: ${chartData.reduce((s,d) => s + d.carga, 0)}` }
+          ].map((card, ci) => (
+            <div key={ci} className="bg-white rounded-xl border border-slate-200 p-4" style={{borderTop:`3px solid ${card.color}`}}>
+              <div className="text-[9px] font-bold uppercase tracking-wider mb-1" style={{color: card.color}}>{card.label}</div>
+              <div className="text-[22px] font-black text-slate-800" style={{fontFamily:"'DM Sans',sans-serif"}}>{card.val}</div>
+              <div className="text-[10px] text-slate-400 mt-0.5">{card.sub}</div>
+            </div>
+          ))}
         </div>
       </div>
     );
