@@ -11,6 +11,7 @@ import DashboardPage from './pages/DashboardPage';
 import SubscriptionPage from './pages/SubscriptionPage';
 import SessionViewPage from './pages/SessionViewPage';
 import TournamentPublicPage from './pages/TournamentPublicPage';
+import SharedPlanPage from './pages/SharedPlanPage';
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -79,6 +80,9 @@ function AppRoutes() {
       
       {/* Public tournament view (no auth required) */}
       <Route path="/tournament/:shareId" element={<TournamentPublicPage />} />
+      
+      {/* Public shared plan view (no auth required) */}
+      <Route path="/plan/shared/:shareToken" element={<SharedPlanPage />} />
       
       {/* Catch all */}
       <Route path="*" element={<Navigate to="/" replace />} />

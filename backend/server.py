@@ -1744,7 +1744,7 @@ async def delete_training_plan(plan_id: str, user: dict = Depends(get_current_us
 
 @api_router.post("/training-plans/{plan_id}/duplicate", response_model=TrainingPlanResponse)
 async def duplicate_training_plan(plan_id: str, user: dict = Depends(get_current_user)):
-    """Duplicate an existing training plan with all associated data"""
+    """Duplicate an existing training plan with all associated data including V2 structure"""
     original = await db.training_plans.find_one({"id": plan_id, "coach_id": user["id"]}, {"_id": 0})
     if not original:
         raise HTTPException(status_code=404, detail="Plan not found")
@@ -1775,7 +1775,7 @@ async def duplicate_training_plan(plan_id: str, user: dict = Depends(get_current
     await db.training_plans.insert_one(new_plan)
     new_plan.pop("_id", None)
     
-    # Duplicate plan_data initialization document
+    # Duplicate plan_data (graphic plan)
     plan_data_orig = await db.plan_data.find_one({"plan_id": plan_id}, {"_id": 0})
     if plan_data_orig:
         plan_data_copy = copy.deepcopy(plan_data_orig)
@@ -1784,6 +1784,65 @@ async def duplicate_training_plan(plan_id: str, user: dict = Depends(get_current
         plan_data_copy["created_at"] = now
         plan_data_copy["updated_at"] = now
         await db.plan_data.insert_one(plan_data_copy)
+    
+    # Duplicate V2 cascade structure with ID mapping
+    id_map = {}
+    
+    # Macrociclos V2
+    v2_macros = await db.macrociclos.find({"plan_id": plan_id}).to_list(100)
+    for m in v2_macros:
+        m.pop("_id", None)
+        old_id = m["id"]
+        new_macro_id = str(uuid.uuid4())
+        id_map[old_id] = new_macro_id
+        m["id"] = new_macro_id
+        m["plan_id"] = new_id
+        await db.macrociclos.insert_one(m)
+    
+    # Mesociclos V2
+    v2_mesos = await db.mesociclos.find({"plan_id": plan_id}).to_list(500)
+    for m in v2_mesos:
+        m.pop("_id", None)
+        old_id = m["id"]
+        new_meso_id = str(uuid.uuid4())
+        id_map[old_id] = new_meso_id
+        m["id"] = new_meso_id
+        m["plan_id"] = new_id
+        m["macrociclo_id"] = id_map.get(m.get("macrociclo_id", ""), m.get("macrociclo_id", ""))
+        await db.mesociclos.insert_one(m)
+    
+    # Microciclos V2
+    v2_micros = await db.microciclos.find({"plan_id": plan_id}).to_list(1000)
+    for m in v2_micros:
+        m.pop("_id", None)
+        old_id = m["id"]
+        new_micro_id = str(uuid.uuid4())
+        id_map[old_id] = new_micro_id
+        m["id"] = new_micro_id
+        m["plan_id"] = new_id
+        m["mesociclo_id"] = id_map.get(m.get("mesociclo_id", ""), m.get("mesociclo_id", ""))
+        await db.microciclos.insert_one(m)
+    
+    # Sesiones V2
+    v2_sessions = await db.sesiones.find({"plan_id": plan_id}).to_list(5000)
+    for s in v2_sessions:
+        s.pop("_id", None)
+        old_id = s["id"]
+        new_ses_id = str(uuid.uuid4())
+        id_map[old_id] = new_ses_id
+        s["id"] = new_ses_id
+        s["plan_id"] = new_id
+        s["microciclo_id"] = id_map.get(s.get("microciclo_id", ""), s.get("microciclo_id", ""))
+        await db.sesiones.insert_one(s)
+    
+    # Ejercicios V2
+    v2_exercises = await db.ejercicios_sesion.find({"plan_id": plan_id}).to_list(10000)
+    for e in v2_exercises:
+        e.pop("_id", None)
+        e["id"] = str(uuid.uuid4())
+        e["plan_id"] = new_id
+        e["sesion_id"] = id_map.get(e.get("sesion_id", ""), e.get("sesion_id", ""))
+        await db.ejercicios_sesion.insert_one(e)
     
     # Duplicate objectives
     objectives = await db.plan_objectives.find_one({"plan_id": plan_id, "user_id": user["id"]}, {"_id": 0})
@@ -1837,14 +1896,41 @@ async def share_training_plan(plan_id: str, user: dict = Depends(get_current_use
 
 @api_router.get("/training-plans/shared/{share_token}")
 async def get_shared_training_plan(share_token: str):
-    """Get a shared training plan (public access)"""
+    """Get a shared training plan (public access) with full V2 structure"""
     plan = await db.training_plans.find_one({"share_token": share_token}, {"_id": 0})
     if not plan:
         raise HTTPException(status_code=404, detail="Shared plan not found")
     
+    plan_id = plan.get("id")
+    
+    # Include V2 data
+    v2_macros = await db.macrociclos.find({"plan_id": plan_id}, {"_id": 0}).to_list(100)
+    v2_mesos = await db.mesociclos.find({"plan_id": plan_id}, {"_id": 0}).to_list(500)
+    v2_micros = await db.microciclos.find({"plan_id": plan_id}, {"_id": 0}).to_list(1000)
+    v2_sessions = await db.sesiones.find({"plan_id": plan_id}, {"_id": 0}).to_list(5000)
+    
+    # Include graphic plan data
+    plan_data = await db.plan_data.find_one({"plan_id": plan_id}, {"_id": 0})
+    
+    # Include athlete info
+    athlete = None
+    if plan.get("athlete_id"):
+        athlete = await db.athletes.find_one({"id": plan["athlete_id"]}, {"_id": 0})
+        if athlete:
+            athlete.pop("coach_id", None)
+    
     # Remove sensitive info
     plan.pop("coach_id", None)
-    return plan
+    
+    return {
+        "plan": plan,
+        "athlete": athlete,
+        "v2_macrociclos": v2_macros,
+        "v2_mesociclos": v2_mesos,
+        "v2_microciclos": v2_micros,
+        "v2_sesiones": v2_sessions,
+        "plan_data": plan_data
+    }
 
 # =============== SCIENTIFIC CALCULATORS ===============
 @api_router.post("/calculators/load", response_model=LoadCalculationResponse)

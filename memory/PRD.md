@@ -15,11 +15,22 @@
 - Cada celda es interactiva (toggle on/off) usando renderBooleanCell
 
 ### Interactividad graficas inline (Abr 2026)
-- TODAS las filas de graficas inline son clickeables (ciclan 0-5, display 0-100%)
+- TODAS las filas de graficas inline son clickeables (ciclan 0-10, display 0-100%)
 - Carga/Recuperacion, Volumen/Intensidad, Duracion/Actividad ahora editables por click
 - Preparacion por Componentes y Capacidades Fisicas clickeables
 - Valores manuales tienen prioridad sobre datos calculados V2
 - Celdas vacias muestran "+" para indicar interactividad
+
+### P1 Refactorizacion DashboardPage (Abr 2026)
+- Hydration warning corregido (div dentro de span en calendario)
+- TacticalBoardSection extraida a /components/TacticalBoardSection.js (-209 lineas)
+- DashboardPage reducido de 4651 a 4442 lineas
+
+### P2 Print/Share/Duplicate Planes (Abr 2026)
+- Duplicate: Ahora copia estructura V2 completa (macrociclos, mesociclos, microciclos, sesiones, ejercicios) con IDs remapeados
+- Share: Genera token publico, endpoint enriquecido con datos V2 y atleta
+- SharedPlanPage: Nueva pagina publica (/plan/shared/:token) con header, stats, estructura de macrociclos y sesiones
+- Export PDF: Endpoint funcionando, genera PDF con ReportLab
 
 ### Reestructuracion tabla GraphicPlan (Abr 2026)
 - Agregadas filas "Etapa" y "Tipo de etapa" al inicio de la tabla (clickeables para editar periodo/fase)
@@ -51,6 +62,6 @@
 - Sync V1->V2 completa
 
 ## Pendiente
-### P1 - Refactorizar componentes grandes (DashboardPage, GraphicPlan, PeriodizationComplete, SessionEditor)
-### P2 - Print/Share planes, Export GIF tablero, UI catalogo ejercicios
-### P3 - Diseno responsivo tablero tactico
+### P1 - Continuar refactorizacion: extraer secciones Athletes, Sports, Events de DashboardPage
+### P2 - UI catalogo ejercicios mejorado
+### P3 - Diseno responsivo tablero tactico, fotos avatares 3D
