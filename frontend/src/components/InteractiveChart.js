@@ -678,7 +678,7 @@ const InteractiveChart = ({
 
               {/* Mini selector de tiempo */}
               <div className="flex bg-slate-100 rounded-lg p-0.5">
-                {TIME_RANGES.slice(2, 6).map(range => (
+                {TIME_RANGES.slice(0, 7).map(range => (
                   <button
                     key={range.id}
                     onClick={() => setTimeRange(range.id)}

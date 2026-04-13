@@ -2415,32 +2415,90 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           referenceLines={refLines}
         />
 
-        {/* Phase Distribution */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5" data-testid="phase-distribution">
-          <h3 className="text-[13px] font-bold text-slate-800 mb-3" style={{fontFamily:"'DM Sans',sans-serif"}}>Distribucion de Fases</h3>
-          <div className="flex h-10 rounded-xl overflow-hidden gap-[2px]">
-            {macros.map((macro, idx) => {
-              const w = chartData.filter(d => d.fase === (macro.phase?.name || '')).length || macro.weeks;
-              return (
-                <div key={idx} className="flex items-center justify-center text-white text-[10px] font-bold rounded-md transition-all hover:opacity-90 hover:scale-y-110 cursor-pointer"
-                  style={{ backgroundColor: macro.phase?.color, flex: w, fontFamily: "'Barlow Condensed', sans-serif" }}>
-                  {w > 3 && `${macro.phase?.abbr || ''} ${w}s`}
-                </div>
-              );
-            })}
+        {/* Phase Distribution — Enhanced */}
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden" data-testid="phase-distribution">
+          <div className="px-5 pt-4 pb-3 border-b border-slate-100">
+            <h3 className="text-[14px] font-bold text-slate-800" style={{fontFamily:"'DM Sans',sans-serif"}}>Distribucion de Fases del Macrociclo</h3>
+            <p className="text-[11px] text-slate-400 mt-0.5">Proporcion de semanas, volumen e intensidad por fase</p>
           </div>
-          <div className="flex flex-wrap gap-3 mt-3">
-            {macros.map((macro, idx) => {
-              const w = chartData.filter(d => d.fase === (macro.phase?.name || '')).length || macro.weeks;
-              const phase = macro.phase || MACROCYCLE_PHASES[0];
-              return (
-                <div key={idx} className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{background:`${phase.color}08`, border:`1px solid ${phase.color}15`}}>
-                  <div className="w-2.5 h-2.5 rounded" style={{ backgroundColor: phase.color }} />
-                  <span className="text-[11px] font-semibold" style={{color: phase.color}}>{phase.name}</span>
-                  <span className="text-[10px] text-slate-400">{w}s · V:{phase.volumePercent}% · I:{phase.intensityPercent}%</span>
-                </div>
-              );
-            })}
+
+          {/* Timeline bar */}
+          <div className="px-5 py-4">
+            <div className="flex h-12 rounded-xl overflow-hidden gap-[2px] mb-1">
+              {macros.map((macro, idx) => {
+                const phase = macro.phase || MACROCYCLE_PHASES[0];
+                const w = chartData.filter(d => d.fase === phase.name).length || macro.weeks || 1;
+                const pct = totalWeeks > 0 ? Math.round((w / totalWeeks) * 100) : 0;
+                return (
+                  <div key={idx} className="relative flex items-center justify-center text-white rounded-lg cursor-pointer transition-all hover:brightness-110 hover:scale-y-105 overflow-hidden"
+                    style={{ backgroundColor: phase.color, flex: w }}>
+                    <div className="absolute inset-0" style={{background:'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 50%, rgba(0,0,0,0.1) 100%)'}} />
+                    <div className="relative text-center z-10">
+                      <div className="text-[11px] font-black tracking-wide" style={{fontFamily:"'Barlow Condensed',sans-serif", textShadow:'0 1px 2px rgba(0,0,0,0.2)'}}>{phase.abbr || phase.name}</div>
+                      <div className="text-[9px] font-medium opacity-80">{w}s · {pct}%</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {/* Week markers */}
+            <div className="flex">
+              {macros.map((macro, idx) => {
+                const phase = macro.phase || MACROCYCLE_PHASES[0];
+                const w = chartData.filter(d => d.fase === phase.name).length || macro.weeks || 1;
+                return <div key={idx} className="text-center text-[8px] text-slate-400" style={{flex: w}}>{w} semanas</div>;
+              })}
+            </div>
+          </div>
+
+          {/* Phase detail cards */}
+          <div className="px-5 pb-5">
+            <div className="grid gap-3" style={{gridTemplateColumns: `repeat(${Math.min(macros.length, 4)}, 1fr)`}}>
+              {macros.map((macro, idx) => {
+                const phase = macro.phase || MACROCYCLE_PHASES[0];
+                const w = chartData.filter(d => d.fase === phase.name).length || macro.weeks || 1;
+                const phaseData = chartData.filter(d => d.fase === phase.name);
+                const phaseAvgVol = phaseData.length ? Math.round(phaseData.reduce((s,d)=>s+d.volumen,0)/phaseData.length) : (phase.volumePercent || 0);
+                const phaseAvgInt = phaseData.length ? Math.round(phaseData.reduce((s,d)=>s+d.intensidad,0)/phaseData.length) : (phase.intensityPercent || 0);
+                const phaseAvgDen = phaseData.length ? Math.round(phaseData.reduce((s,d)=>s+d.densidad,0)/phaseData.length) : 0;
+                const phaseAvgCarga = phaseData.length ? Math.round(phaseData.reduce((s,d)=>s+d.carga,0)/phaseData.length) : 0;
+
+                return (
+                  <div key={idx} className="rounded-xl overflow-hidden" style={{border:`1px solid ${phase.color}20`}}>
+                    {/* Card header */}
+                    <div className="px-3.5 py-2.5 flex items-center gap-2.5" style={{background: `linear-gradient(135deg, ${phase.color}10 0%, ${phase.color}05 100%)`}}>
+                      <div className="w-3 h-8 rounded-full" style={{background: phase.color}} />
+                      <div>
+                        <div className="text-[12px] font-bold" style={{color: phase.color, fontFamily:"'DM Sans',sans-serif"}}>{phase.name}</div>
+                        <div className="text-[10px] text-slate-400">{w} semanas · {totalWeeks > 0 ? Math.round((w/totalWeeks)*100) : 0}% del plan</div>
+                      </div>
+                    </div>
+                    {/* Metrics */}
+                    <div className="px-3.5 py-3 space-y-2">
+                      {[
+                        { label:'Volumen', val: phaseAvgVol, color:'#3B82F6' },
+                        { label:'Intensidad', val: phaseAvgInt, color:'#EF4444' },
+                        { label:'Densidad', val: phaseAvgDen, color:'#10B981' }
+                      ].map((m, mi) => (
+                        <div key={mi}>
+                          <div className="flex items-center justify-between mb-0.5">
+                            <span className="text-[9px] font-semibold text-slate-500">{m.label}</span>
+                            <span className="text-[11px] font-black" style={{color: m.color}}>{m.val}%</span>
+                          </div>
+                          <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                            <div className="h-full rounded-full transition-all" style={{width:`${m.val}%`, background: m.color}} />
+                          </div>
+                        </div>
+                      ))}
+                      <div className="flex items-center justify-between pt-2 mt-1" style={{borderTop:`1px solid ${phase.color}10`}}>
+                        <span className="text-[9px] font-semibold text-slate-400">Carga prom.</span>
+                        <span className="text-[13px] font-black" style={{color: phase.color}}>{phaseAvgCarga}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
 
