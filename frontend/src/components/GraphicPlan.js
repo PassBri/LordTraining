@@ -1471,62 +1471,49 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                   </td>
                 </tr>
                 
-                {/* Magnitud de la carga → INLINE CHART */}
-                <tr>
-                  <td className="sticky left-0 bg-gray-50 px-1 py-0 text-[10px] border border-gray-300 align-top z-10" style={{ minWidth: 180 }}>
-                    <div className="font-medium text-slate-700">Carga / Recuperacion</div>
-                    <div className="flex flex-wrap gap-1 mt-0.5">
-                      <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-sm bg-red-500 inline-block" /> Carga</span>
-                      <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-sm bg-blue-500 inline-block" /> Recup</span>
-                    </div>
-                  </td>
-                  <td colSpan={displayedWeeks.length} className="p-0 border border-gray-300">
-                    <ResponsiveContainer width="100%" height={70}>
-                      <BarChart data={loadChartData} margin={{ top: 4, right: 2, left: 0, bottom: 0 }}>
-                        <XAxis dataKey="week" hide />
-                        <YAxis hide domain={[0, 100]} />
-                        <Tooltip content={({ active, payload }) => active && payload?.length ? (
-                          <div className="bg-white border rounded shadow p-1.5 text-[10px]">
-                            <div className="font-bold">{payload[0]?.payload?.week}</div>
-                            <div style={{color:'#EF4444'}}>Carga: {payload[0]?.value}%</div>
-                            <div style={{color:'#3B82F6'}}>Recup: {payload[1]?.value}%</div>
-                          </div>
-                        ) : null} />
-                        <Bar dataKey="carga" fill="#EF4444" radius={[2,2,0,0]} maxBarSize={14} />
-                        <Bar dataKey="recuperacion" fill="#3B82F6" radius={[2,2,0,0]} maxBarSize={14} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </td>
-                </tr>
-                
-                {/* Volumen / Intensidad / Densidad → INLINE CHART */}
-                <tr>
-                  <td className="sticky left-0 bg-gray-50 px-1 py-0 text-[10px] border border-gray-300 align-top z-10" style={{ minWidth: 180 }}>
-                    <div className="font-medium text-slate-700">Vol / Int / Densidad</div>
-                    <div className="flex flex-wrap gap-1 mt-0.5">
-                      <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-sm bg-green-500 inline-block" /> Vol</span>
-                      <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-sm bg-red-500 inline-block" /> Int</span>
-                      <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-sm bg-purple-500 inline-block" /> Den</span>
-                    </div>
-                  </td>
-                  <td colSpan={displayedWeeks.length} className="p-0 border border-gray-300">
-                    <ResponsiveContainer width="100%" height={70}>
-                      <LineChart data={volumeIntensityChartData} margin={{ top: 4, right: 2, left: 0, bottom: 0 }}>
-                        <XAxis dataKey="week" hide />
-                        <YAxis hide domain={[0, 100]} />
-                        <Tooltip content={({ active, payload }) => active && payload?.length ? (
-                          <div className="bg-white border rounded shadow p-1.5 text-[10px]">
-                            <div className="font-bold">{payload[0]?.payload?.week}</div>
-                            <div style={{color:'#22C55E'}}>Vol: {payload[0]?.value}%</div>
-                            <div style={{color:'#EF4444'}}>Int: {payload[1]?.value}%</div>
-                          </div>
-                        ) : null} />
-                        <Line type="monotone" dataKey="volumen" stroke="#22C55E" strokeWidth={2} dot={false} />
-                        <Line type="monotone" dataKey="intensidad" stroke="#EF4444" strokeWidth={2} dot={false} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </td>
-                </tr>
+                {/* Magnitud de la carga → FULL InteractiveChart */}
+              </tbody>
+            </table>
+            <div className="my-2">
+              <InteractiveChart
+                title="Magnitud de Carga y Recuperacion"
+                icon={Activity}
+                data={loadChartData}
+                dataKeys={[
+                  { key: 'carga', name: 'Carga %', color: '#EF4444' },
+                  { key: 'recuperacion', name: 'Recuperacion %', color: '#3B82F6' }
+                ]}
+                xAxisKey="week"
+                height={220}
+                showBrush={true}
+                showControls={true}
+                showLiveIndicator={true}
+                defaultChartType="bar"
+                defaultTimeRange="sessions"
+                yAxisDomain={[0, 100]}
+              />
+            </div>
+            <div className="my-2">
+              <InteractiveChart
+                title="Volumen, Intensidad y Densidad"
+                icon={TrendingUp}
+                data={volumeIntensityChartData}
+                dataKeys={[
+                  { key: 'volumen', name: 'Volumen %', color: '#22C55E' },
+                  { key: 'intensidad', name: 'Intensidad %', color: '#EF4444' }
+                ]}
+                xAxisKey="week"
+                height={220}
+                showBrush={true}
+                showControls={true}
+                showLiveIndicator={true}
+                defaultChartType="line"
+                defaultTimeRange="sessions"
+                yAxisDomain={[0, 100]}
+              />
+            </div>
+            <table className="w-full border-collapse">
+              <tbody>
                 
                 {/* Training frequency */}
                 <tr>
@@ -1556,88 +1543,73 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                   <td colSpan={displayedWeeks.length + 1} className="px-2 py-1 font-bold text-green-800 border border-gray-300">
                     <div className="flex items-center gap-1">
                       <Dumbbell className="w-4 h-4" />
-                      Preparación
+                      Preparacion
                     </div>
                   </td>
                 </tr>
-                
-                {/* Preparación → INLINE CHART */}
-                <tr>
-                  <td className="sticky left-0 bg-gray-50 px-1 py-0 text-[10px] border border-gray-300 align-top z-10" style={{ minWidth: 180 }}>
-                    <div className="font-medium text-slate-700">Componentes</div>
-                    <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-0.5">
-                      <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-sm inline-block" style={{background:'#2563EB'}} /> FG</span>
-                      <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-sm inline-block" style={{background:'#4F46E5'}} /> FE</span>
-                      <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-sm inline-block" style={{background:'#16A34A'}} /> Tec</span>
-                      <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-sm inline-block" style={{background:'#CA8A04'}} /> Tac</span>
-                      <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-sm inline-block" style={{background:'#9333EA'}} /> Psi</span>
-                      <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-sm inline-block" style={{background:'#EC4899'}} /> Teo</span>
-                    </div>
-                  </td>
-                  <td colSpan={displayedWeeks.length} className="p-0 border border-gray-300">
-                    <ResponsiveContainer width="100%" height={70}>
-                      <AreaChart data={preparationChartData} margin={{ top: 4, right: 2, left: 0, bottom: 0 }}>
-                        <XAxis dataKey="week" hide />
-                        <YAxis hide domain={[0, 100]} />
-                        <Tooltip content={({ active, payload }) => active && payload?.length ? (
-                          <div className="bg-white border rounded shadow p-1.5 text-[10px]">
-                            <div className="font-bold">{payload[0]?.payload?.week}</div>
-                            {payload.map((p,i) => <div key={i} style={{color: p.color}}>{p.name}: {p.value}%</div>)}
-                          </div>
-                        ) : null} />
-                        <Area type="monotone" dataKey="general_physical" name="F.General" stroke="#2563EB" fill="#2563EB" fillOpacity={0.15} strokeWidth={1.5} dot={false} />
-                        <Area type="monotone" dataKey="specific_physical" name="F.Especifica" stroke="#4F46E5" fill="#4F46E5" fillOpacity={0.1} strokeWidth={1.5} dot={false} />
-                        <Area type="monotone" dataKey="technical" name="Tecnica" stroke="#16A34A" fill="#16A34A" fillOpacity={0.08} strokeWidth={1.5} dot={false} />
-                        <Area type="monotone" dataKey="tactical" name="Tactica" stroke="#CA8A04" fill="#CA8A04" fillOpacity={0.08} strokeWidth={1.5} dot={false} />
-                        <Area type="monotone" dataKey="psychological" name="Psicologica" stroke="#9333EA" fill="none" strokeWidth={1.5} strokeDasharray="3 2" dot={false} />
-                        <Area type="monotone" dataKey="theoretical" name="Teorica" stroke="#EC4899" fill="none" strokeWidth={1} strokeDasharray="2 2" dot={false} />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </td>
-                </tr>
+              </tbody>
+            </table>
+            <div className="my-2">
+              <InteractiveChart
+                title="Preparacion por Componentes"
+                icon={Dumbbell}
+                data={preparationChartData}
+                dataKeys={[
+                  { key: 'general_physical', name: 'Fisica General', color: '#2563EB' },
+                  { key: 'specific_physical', name: 'Fisica Especifica', color: '#6366F1' },
+                  { key: 'technical', name: 'Tecnica', color: '#16A34A' },
+                  { key: 'tactical', name: 'Tactica', color: '#F59E0B' },
+                  { key: 'psychological', name: 'Psicologica', color: '#A855F7' },
+                  { key: 'theoretical', name: 'Teorica', color: '#EC4899' }
+                ]}
+                xAxisKey="week"
+                height={220}
+                showBrush={true}
+                showControls={true}
+                showLiveIndicator={true}
+                defaultChartType="area"
+                defaultTimeRange="sessions"
+                yAxisDomain={[0, 100]}
+              />
+            </div>
+            <table className="w-full border-collapse">
+              <tbody>
 
                 {/* PHYSICAL PREPARATION SECTION */}
                 <tr className="bg-orange-100">
                   <td colSpan={displayedWeeks.length + 1} className="px-2 py-1 font-bold text-orange-800 border border-gray-300">
                     <div className="flex items-center gap-1">
                       <Heart className="w-4 h-4" />
-                      Preparación física
+                      Preparacion fisica
                     </div>
                   </td>
                 </tr>
-                
-                {/* Preparación física → INLINE CHART */}
-                <tr>
-                  <td className="sticky left-0 bg-gray-50 px-1 py-0 text-[10px] border border-gray-300 align-top z-10" style={{ minWidth: 180 }}>
-                    <div className="font-medium text-slate-700">Capacidades</div>
-                    <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-0.5">
-                      <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-sm inline-block" style={{background:'#DC2626'}} /> Res</span>
-                      <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-sm inline-block" style={{background:'#EA580C'}} /> Fue</span>
-                      <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-sm inline-block" style={{background:'#CA8A04'}} /> Vel</span>
-                      <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-sm inline-block" style={{background:'#16A34A'}} /> Coord</span>
-                      <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-sm inline-block" style={{background:'#3B82F6'}} /> Flex</span>
-                    </div>
-                  </td>
-                  <td colSpan={displayedWeeks.length} className="p-0 border border-gray-300">
-                    <ResponsiveContainer width="100%" height={70}>
-                      <LineChart data={physicalChartData} margin={{ top: 4, right: 2, left: 0, bottom: 0 }}>
-                        <XAxis dataKey="week" hide />
-                        <YAxis hide domain={[0, 100]} />
-                        <Tooltip content={({ active, payload }) => active && payload?.length ? (
-                          <div className="bg-white border rounded shadow p-1.5 text-[10px]">
-                            <div className="font-bold">{payload[0]?.payload?.week}</div>
-                            {payload.map((p,i) => <div key={i} style={{color: p.color}}>{p.name}: {p.value}%</div>)}
-                          </div>
-                        ) : null} />
-                        <Line type="monotone" dataKey="endurance" name="Resistencia" stroke="#DC2626" strokeWidth={2} dot={{ r: 2, fill: '#DC2626' }} />
-                        <Line type="monotone" dataKey="strength" name="Fuerza" stroke="#EA580C" strokeWidth={2} dot={{ r: 2, fill: '#EA580C' }} />
-                        <Line type="monotone" dataKey="speed" name="Velocidad" stroke="#CA8A04" strokeWidth={1.5} dot={false} />
-                        <Line type="monotone" dataKey="coordination" name="Coordinacion" stroke="#16A34A" strokeWidth={1.5} dot={false} />
-                        <Line type="monotone" dataKey="flexibility" name="Flexibilidad" stroke="#3B82F6" strokeWidth={1} strokeDasharray="3 2" dot={false} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </td>
-                </tr>
+              </tbody>
+            </table>
+            <div className="my-2">
+              <InteractiveChart
+                title="Preparacion Fisica por Capacidades"
+                icon={Heart}
+                data={physicalChartData}
+                dataKeys={[
+                  { key: 'endurance', name: 'Resistencia', color: '#DC2626' },
+                  { key: 'strength', name: 'Fuerza', color: '#EA580C' },
+                  { key: 'speed', name: 'Velocidad', color: '#CA8A04' },
+                  { key: 'coordination', name: 'Coordinacion', color: '#16A34A' },
+                  { key: 'flexibility', name: 'Flexibilidad', color: '#3B82F6' }
+                ]}
+                xAxisKey="week"
+                height={220}
+                showBrush={true}
+                showControls={true}
+                showLiveIndicator={true}
+                defaultChartType="line"
+                defaultTimeRange="sessions"
+                yAxisDomain={[0, 100]}
+              />
+            </div>
+            <table className="w-full border-collapse">
+              <tbody>
 
                 {/* ACTIVITY SECTION */}
                 <tr className="bg-purple-100">
@@ -1648,38 +1620,30 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                     </div>
                   </td>
                 </tr>
-                
-                {/* Actividad → INLINE CHART */}
-                <tr>
-                  <td className="sticky left-0 bg-gray-50 px-1 py-0 text-[10px] border border-gray-300 align-top z-10" style={{ minWidth: 180 }}>
-                    <div className="font-medium text-slate-700">Sesiones / Duracion</div>
-                    <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-0.5">
-                      <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-sm inline-block" style={{background:'#FBBF24'}} /> Cal</span>
-                      <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-sm inline-block" style={{background:'#3B82F6'}} /> Princ</span>
-                      <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-sm inline-block" style={{background:'#14B8A6'}} /> VC</span>
-                    </div>
-                  </td>
-                  <td colSpan={displayedWeeks.length} className="p-0 border border-gray-300">
-                    <ResponsiveContainer width="100%" height={60}>
-                      <BarChart data={durationChartData} margin={{ top: 2, right: 2, left: 0, bottom: 0 }}>
-                        <XAxis dataKey="week" hide />
-                        <YAxis hide />
-                        <Tooltip content={({ active, payload }) => active && payload?.length ? (
-                          <div className="bg-white border rounded shadow p-1.5 text-[10px]">
-                            <div className="font-bold">{payload[0]?.payload?.week} ({payload[0]?.payload?.sesiones} ses)</div>
-                            <div style={{color:'#FBBF24'}}>Calentamiento: {payload[0]?.value} min</div>
-                            <div style={{color:'#3B82F6'}}>Principal: {payload[1]?.value} min</div>
-                            <div style={{color:'#14B8A6'}}>Vuelta calma: {payload[2]?.value} min</div>
-                            <div className="font-bold mt-0.5">Total: {payload[0]?.payload?.total} min</div>
-                          </div>
-                        ) : null} />
-                        <Bar dataKey="calentamiento" stackId="dur" fill="#FBBF24" maxBarSize={12} />
-                        <Bar dataKey="principal" stackId="dur" fill="#3B82F6" maxBarSize={12} />
-                        <Bar dataKey="vueltaCalma" stackId="dur" fill="#14B8A6" radius={[2,2,0,0]} maxBarSize={12} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </td>
-                </tr>
+              </tbody>
+            </table>
+            <div className="my-2">
+              <InteractiveChart
+                title="Duracion y Actividad Semanal"
+                icon={Timer}
+                data={durationChartData}
+                dataKeys={[
+                  { key: 'calentamiento', name: 'Calentamiento', color: '#FBBF24' },
+                  { key: 'principal', name: 'Parte principal', color: '#3B82F6' },
+                  { key: 'vueltaCalma', name: 'Vuelta a la calma', color: '#14B8A6' }
+                ]}
+                xAxisKey="week"
+                height={220}
+                showBrush={true}
+                showControls={true}
+                showLiveIndicator={true}
+                defaultChartType="bar"
+                defaultTimeRange="sessions"
+                yAxisDomain={[0, 'auto']}
+              />
+            </div>
+            <table className="w-full border-collapse">
+              <tbody>
 
                 {/* EVENTS ROW - Calendar Events with Interactive Tooltips */}
                 <tr className="bg-purple-100">
