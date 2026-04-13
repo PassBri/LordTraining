@@ -2708,10 +2708,10 @@ const DashboardPage = () => {
             <CardContent className="p-5">
               {/* Leyenda */}
               <div className="flex flex-wrap gap-4 mb-5 text-sm">
-                <span className="flex items-center gap-2"><div className="w-3 h-3 bg-[#007AFF] rounded-full"></div> Entrenamiento</span>
-                <span className="flex items-center gap-2"><div className="w-3 h-3 bg-emerald-500 rounded-full"></div> Competencia</span>
-                <span className="flex items-center gap-2"><div className="w-3 h-3 bg-amber-500 rounded-full"></div> Test</span>
-                <span className="flex items-center gap-2"><div className="w-3 h-3 bg-slate-300 rounded-full"></div> Descanso</span>
+                <div className="flex items-center gap-2"><span className="w-3 h-3 bg-[#007AFF] rounded-full inline-block"></span> Entrenamiento</div>
+                <div className="flex items-center gap-2"><span className="w-3 h-3 bg-emerald-500 rounded-full inline-block"></span> Competencia</div>
+                <div className="flex items-center gap-2"><span className="w-3 h-3 bg-amber-500 rounded-full inline-block"></span> Test</div>
+                <div className="flex items-center gap-2"><span className="w-3 h-3 bg-slate-300 rounded-full inline-block"></span> Descanso</div>
               </div>
               
               {/* Calendario */}

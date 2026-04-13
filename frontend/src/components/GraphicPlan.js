@@ -1803,53 +1803,6 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
             </div>
           </div>
 
-          {/* Legend */}
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg border">
-            <h4 className="font-medium text-sm mb-2">Leyenda</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-              <div>
-                <p className="font-medium mb-1">Intensidad / Volumen:</p>
-                <div className="flex items-center gap-1">
-                  <div className="w-4 h-4 bg-blue-200 border"></div>
-                  <span>Bajo</span>
-                  <div className="w-4 h-4 bg-green-300 border"></div>
-                  <span>Medio-bajo</span>
-                </div>
-                <div className="flex items-center gap-1 mt-1">
-                  <div className="w-4 h-4 bg-yellow-400 border"></div>
-                  <span>Medio</span>
-                  <div className="w-4 h-4 bg-orange-500 border"></div>
-                  <span>Alto</span>
-                  <div className="w-4 h-4 bg-red-600 border"></div>
-                  <span>Máximo</span>
-                </div>
-              </div>
-              <div>
-                <p className="font-medium mb-1">Macrociclo:</p>
-                <div className="flex flex-wrap gap-1">
-                  {MACROCYCLE_TYPES.map(t => (
-                    <div key={t.id} className={`px-1 ${t.color} text-[10px] rounded`}>{t.label}</div>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="font-medium mb-1">Mesociclo:</p>
-                <div className="flex flex-wrap gap-1">
-                  {MESOCYCLE_TYPES.map(t => (
-                    <div key={t.id} className={`px-1 ${t.color} text-[10px] rounded`}>{t.label}</div>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="font-medium mb-1">Microciclo:</p>
-                <div className="flex flex-wrap gap-1">
-                  {MICROCYCLE_TYPES.map(t => (
-                    <div key={t.id} className={`px-1 ${t.color} text-[10px] rounded`}>{t.label}</div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
         </CardContent>
       </Card>
 

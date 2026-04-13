@@ -51,6 +51,6 @@
 - Sync V1->V2 completa
 
 ## Pendiente
-### P1 - Fix hydration warning DashboardPage.js, Refactorizar componentes
+### P1 - Refactorizar componentes grandes (DashboardPage, GraphicPlan, PeriodizationComplete, SessionEditor)
 ### P2 - Print/Share planes, Export GIF tablero, UI catalogo ejercicios
 ### P3 - Diseno responsivo tablero tactico
