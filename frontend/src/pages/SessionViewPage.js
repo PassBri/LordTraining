@@ -217,13 +217,14 @@ const SessionViewPage = () => {
                                   <span className="font-semibold" style={{color:T.text}}>{act.intensidad}%</span>
                                 </div>
                               )}
-                              {act.volumen && <div className="text-[10px]"><span style={{color:T.subtle}}>Vol: </span><span style={{color:T.text}}>{act.volumen}</span></div>}
+                              {act.volumen && <div className="text-[10px]"><span style={{color:T.subtle}}>Vol: </span><span style={{color:T.text}}>{act.volumen}{act.unidadVolumen ? ` ${act.unidadVolumen}` : ''}</span></div>}
                               {act.densidad && <div className="text-[10px]"><span style={{color:T.subtle}}>Densidad: </span><span style={{color:T.text}}>{act.densidad}</span></div>}
                               {act.recuperacion && <div className="text-[10px]"><span style={{color:T.subtle}}>Rec: </span><span style={{color:T.text}}>{act.recuperacion}</span></div>}
                               {act.procOrganizativo && <div className="text-[10px]"><span style={{color:T.subtle}}>Org: </span><span style={{color:T.text}}>{ORG[act.procOrganizativo] || act.procOrganizativo}</span></div>}
                               {act.subtipo && <div className="text-[10px]"><span style={{color:T.subtle}}>Subtipo: </span><span style={{color:T.text}}>{act.subtipo}</span></div>}
-                              {act.unidadIntensidad && act.unidadIntensidad !== '%1RM' && <div className="text-[10px]"><span style={{color:T.subtle}}>Unidad: </span><span style={{color:T.text}}>{act.unidadIntensidad}</span></div>}
+                              {act.unidadIntensidad && <div className="text-[10px]"><span style={{color:T.subtle}}>Int. en: </span><span style={{color:T.text}}>{act.unidadIntensidad}</span></div>}
                               {act.complejidad && act.complejidad !== 3 && <div className="text-[10px]"><span style={{color:T.subtle}}>Complejidad: </span><span style={{color:T.text}}>{act.complejidad}/5</span></div>}
+                              {act.frecuencia && <div className="text-[10px]"><span style={{color:T.subtle}}>Frecuencia: </span><span style={{color:T.text}}>{act.frecuencia}</span></div>}
                             </div>
                             {/* Métricas calculadas */}
                             {(() => {

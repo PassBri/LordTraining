@@ -131,14 +131,68 @@ const PROC_ORGANIZATIVO = [
 
 // ─── Configuración por capacidad física ───
 const CAPACITY_CONFIG = {
-  fuerza:       { subtipos: ['Maxima','Explosiva','Resistencia'], unidades: ['%1RM','RPE'], showDeficit: true },
-  resistencia:  { subtipos: ['Aerobica','Anaerobica','Mixta'], unidades: ['%FCmax','%FCres','RPE'], showZonas: true },
-  velocidad:    { subtipos: ['Reaccion','Desplazamiento','Gestual'], unidades: ['%Vmax','RPE'] },
-  flexibilidad: { subtipos: ['Estatica','Dinamica','FNP'], unidades: ['ROM','RPE'] },
-  coordinacion: { subtipos: ['Equilibrio','Ritmo','Orientacion','Diferenciacion','Acoplamiento','Agilidad'], unidades: ['Escala 1-5','RPE'], showComplejidad: true },
-  equilibrio:   { subtipos: ['Estatico','Dinamico'], unidades: ['Escala 1-5','RPE'], showComplejidad: true },
-  agilidad:     { subtipos: ['Cambios direccion','Reactiva','Planificada'], unidades: ['RPE','Escala 1-5'], showComplejidad: true },
-  potencia:     { subtipos: ['Tren superior','Tren inferior','Total'], unidades: ['%1RM','RPE','Watts'], showDeficit: true }
+  fuerza: {
+    subtipos: ['Maxima','Explosiva','Resistencia'],
+    unidadesInt: ['%1RM','RPE'],
+    unidadesVol: ['Reps','kg totales'],
+    volLabel: 'Reps', volPh: '10-12', serPh: '3-6',
+    intRef: '85-100%', denPh: '3-5 min', recPh: '3-5 min', freqPh: '2-4x/sem',
+    showDeficit: true
+  },
+  resistencia: {
+    subtipos: ['Aerobica','Anaerobica','Mixta'],
+    unidadesInt: ['%FCmax','%FCres','RPE'],
+    unidadesVol: ['Minutos','Metros','Km'],
+    volLabel: 'Minutos', volPh: '30-120', serPh: '1-12',
+    intRef: 'Z1-Z5', denPh: 'Continuo', recPh: '1:3', freqPh: '3-5x/sem',
+    showZonas: true
+  },
+  velocidad: {
+    subtipos: ['Reaccion','Desplazamiento','Gestual'],
+    unidadesInt: ['%Vmax','RPE'],
+    unidadesVol: ['Metros','Sprints'],
+    volLabel: 'Metros', volPh: '10-60', serPh: '6-10',
+    intRef: 'Maxima', denPh: '1:10-1:20', recPh: '3-5 min', freqPh: '2-3x/sem'
+  },
+  flexibilidad: {
+    subtipos: ['Estatica','Dinamica','FNP'],
+    unidadesInt: ['ROM','RPE'],
+    unidadesVol: ['Segundos','Series'],
+    volLabel: 'Segundos', volPh: '30-60', serPh: '2-4',
+    intRef: 'Submaxima', denPh: '20-30s', recPh: '20-30s', freqPh: '5-7x/sem'
+  },
+  coordinacion: {
+    subtipos: ['Equilibrio','Ritmo','Orientacion','Diferenciacion','Acoplamiento','Agilidad'],
+    unidadesInt: ['Escala 1-5','RPE'],
+    unidadesVol: ['Tareas','Minutos'],
+    volLabel: 'Tareas', volPh: '5-10', serPh: '3-5',
+    intRef: 'Moderada', denPh: 'Alta var.', recPh: '1-2 min', freqPh: '3-5x/sem',
+    showComplejidad: true
+  },
+  equilibrio: {
+    subtipos: ['Estatico','Dinamico'],
+    unidadesInt: ['Escala 1-5','RPE'],
+    unidadesVol: ['Segundos','Reps'],
+    volLabel: 'Segundos', volPh: '15-30', serPh: '3-5',
+    intRef: 'Moderada', denPh: '30-60s', recPh: '30-60s', freqPh: '3-5x/sem',
+    showComplejidad: true
+  },
+  agilidad: {
+    subtipos: ['Cambios direccion','Reactiva','Planificada'],
+    unidadesInt: ['RPE','Escala 1-5'],
+    unidadesVol: ['Metros','Reps'],
+    volLabel: 'Metros', volPh: '10-30', serPh: '6-10',
+    intRef: 'Maxima', denPh: '1:5-1:10', recPh: '2-3 min', freqPh: '2-3x/sem',
+    showComplejidad: true
+  },
+  potencia: {
+    subtipos: ['Tren superior','Tren inferior','Total'],
+    unidadesInt: ['%1RM','RPE','Watts'],
+    unidadesVol: ['Reps','kg totales'],
+    volLabel: 'Reps', volPh: '3-6', serPh: '3-5',
+    intRef: '30-70%', denPh: '2-4 min', recPh: '2-4 min', freqPh: '2-3x/sem',
+    showDeficit: true
+  }
 };
 
 const MODELOS_PROGRESION = [
@@ -210,6 +264,7 @@ const ACTIVIDAD_INICIAL = {
   intensidad: 70,
   unidadIntensidad: '%1RM',
   volumen: 30,
+  unidadVolumen: 'Reps',
   densidad: '',
   complejidad: 3,
   procOrganizativo: 'individual',
@@ -846,26 +901,32 @@ const SessionEditor = ({
                 </div>
               </div>
 
-              {/* COL 2: Parámetros de carga (números en cards oscuras) */}
+              {/* COL 2: Parámetros de carga (dinámicos según capacidad) */}
+              {(() => {
+                const capCfg = CAPACITY_CONFIG[act.capacidadFisica] || CAPACITY_CONFIG.fuerza;
+                const intUnit = act.unidadIntensidad || capCfg.unidadesInt[0];
+                const volUnit = act.unidadVolumen || capCfg.unidadesVol[0];
+                return (
               <div className="w-[210px] flex-shrink-0 p-4 border-r border-slate-100/80">
                 {/* Intensidad visual */}
-                <div className="mb-4">
+                <div className="mb-3">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400">Intensidad</span>
-                    <span className="text-[14px] font-black" style={{color: act.intensidad>80?'#ef4444':act.intensidad>60?'#f59e0b':act.intensidad>40?'#CCFF00':'#22c55e'}}>{act.intensidad}%</span>
+                    <span className="text-[7px] font-bold uppercase tracking-widest text-slate-400">Intensidad <span className="text-[7px] normal-case tracking-normal font-medium text-slate-300">({intUnit})</span></span>
+                    <span className="text-[14px] font-black" style={{color: act.intensidad>80?'#ef4444':act.intensidad>60?'#f59e0b':act.intensidad>40?'#CCFF00':'#22c55e'}}>{act.intensidad}<span className="text-[9px] font-semibold opacity-60">{intUnit === '%1RM' || intUnit === '%FCmax' || intUnit === '%FCres' || intUnit === '%Vmax' ? '%' : ''}</span></span>
                   </div>
                   <div className="h-2 rounded-full overflow-hidden" style={{background:'#f1f5f9'}}>
                     <div className="h-full rounded-full transition-all duration-300" style={{width:`${act.intensidad}%`,background: act.intensidad>80?'linear-gradient(90deg,#f59e0b,#ef4444)':act.intensidad>60?'linear-gradient(90deg,#CCFF00,#f59e0b)':act.intensidad>40?'linear-gradient(90deg,#22c55e,#CCFF00)':'linear-gradient(90deg,#06b6d4,#22c55e)'}} />
                   </div>
                   <input type="range" min={0} max={100} value={act.intensidad} onChange={(e) => updateActividad(faseKey, idx, 'intensidad', parseInt(e.target.value))} className="w-full h-1 mt-1 accent-[#CCFF00] cursor-pointer" />
+                  <div className="text-[7px] text-slate-300 text-right mt-0.5">Ref: {capCfg.intRef}</div>
                 </div>
-                {/* Stats grid 2x2 */}
+                {/* Stats grid 2x2 — dinámico */}
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { label:'Series', value:act.series, key:'series', type:'number', ph:'3' },
-                    { label:'Reps', value:act.repeticiones, key:'repeticiones', ph:'10-12' },
-                    { label:'Volumen', value:act.volumen, key:'volumen', ph:'30' },
-                    { label:'Recup.', value:act.recuperacion, key:'recuperacion', ph:'2 min' }
+                    { label:'Series', value:act.series, key:'series', type:'number', ph: capCfg.serPh },
+                    { label:'Reps', value:act.repeticiones, key:'repeticiones', ph: capCfg.volPh },
+                    { label: volUnit, value:act.volumen, key:'volumen', ph: capCfg.volPh },
+                    { label:'Recup.', value:act.recuperacion, key:'recuperacion', ph: capCfg.recPh }
                   ].map(s => (
                     <div key={s.key} className="rounded-xl p-2.5 text-center" style={{background:'#0a0a0f'}}>
                       <span className="text-[7px] font-bold uppercase tracking-widest block mb-1.5" style={{color:'rgba(204,255,0,0.5)'}}>{s.label}</span>
@@ -874,6 +935,8 @@ const SessionEditor = ({
                   ))}
                 </div>
               </div>
+                );
+              })()}
 
               {/* COL 3: Pizarra */}
               <div className="w-[200px] flex-shrink-0 p-3.5 flex flex-col">
@@ -920,7 +983,7 @@ const SessionEditor = ({
 
                   {isExpanded && (
                     <div className="px-4 pb-4 space-y-3">
-                      {/* Fila 1: Subtipo + Densidad + Unidad Intensidad + Complejidad */}
+                      {/* Fila 1: Subtipo + Unidad Volumen + Unidad Intensidad + Densidad */}
                       <div className="grid grid-cols-4 gap-2">
                         <div>
                           <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Subtipo</span>
@@ -930,30 +993,40 @@ const SessionEditor = ({
                           </Select>
                         </div>
                         <div>
-                          <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Densidad</span>
-                          <Input value={act.densidad || ''} onChange={(e) => updateActividad(faseKey, idx, 'densidad', e.target.value)} placeholder="1:3" className="h-7 text-[10px] border-slate-200 rounded-lg" data-testid={`densidad-${faseKey}-${idx}`} />
+                          <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Unidad Vol.</span>
+                          <Select value={act.unidadVolumen || capCfg.unidadesVol[0]} onValueChange={(v) => updateActividad(faseKey, idx, 'unidadVolumen', v)}>
+                            <SelectTrigger className="h-7 text-[10px] border-slate-200 rounded-lg"><SelectValue /></SelectTrigger>
+                            <SelectContent>{capCfg.unidadesVol.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}</SelectContent>
+                          </Select>
                         </div>
                         <div>
                           <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Unidad Int.</span>
-                          <Select value={act.unidadIntensidad || capCfg.unidades[0]} onValueChange={(v) => updateActividad(faseKey, idx, 'unidadIntensidad', v)}>
+                          <Select value={act.unidadIntensidad || capCfg.unidadesInt[0]} onValueChange={(v) => updateActividad(faseKey, idx, 'unidadIntensidad', v)}>
                             <SelectTrigger className="h-7 text-[10px] border-slate-200 rounded-lg"><SelectValue /></SelectTrigger>
-                            <SelectContent>{capCfg.unidades.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}</SelectContent>
+                            <SelectContent>{capCfg.unidadesInt.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}</SelectContent>
                           </Select>
                         </div>
-                        {capCfg.showComplejidad ? (
-                          <div>
-                            <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Complejidad</span>
-                            <div className="flex items-center gap-1.5">
-                              <input type="range" min={1} max={5} value={act.complejidad || 3} onChange={(e) => updateActividad(faseKey, idx, 'complejidad', parseInt(e.target.value))} className="flex-1 h-1 accent-violet-500 cursor-pointer" />
-                              <span className="text-[11px] font-bold text-violet-600 w-4 text-center">{act.complejidad || 3}</span>
+                        <div>
+                          <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Densidad</span>
+                          <Input value={act.densidad || ''} onChange={(e) => updateActividad(faseKey, idx, 'densidad', e.target.value)} placeholder={capCfg.denPh} className="h-7 text-[10px] border-slate-200 rounded-lg" data-testid={`densidad-${faseKey}-${idx}`} />
+                        </div>
+                      </div>
+
+                      {/* Fila 2: Complejidad (coord) O Frecuencia */}
+                      <div className="grid grid-cols-4 gap-2">
+                        {capCfg.showComplejidad && (
+                          <div className="col-span-2">
+                            <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Complejidad (1-5)</span>
+                            <div className="flex items-center gap-2 h-7">
+                              <input type="range" min={1} max={5} value={act.complejidad || 3} onChange={(e) => updateActividad(faseKey, idx, 'complejidad', parseInt(e.target.value))} className="flex-1 h-1.5 accent-violet-500 cursor-pointer" />
+                              <span className="text-[13px] font-black text-violet-600 w-6 text-center">{act.complejidad || 3}</span>
                             </div>
                           </div>
-                        ) : (
-                          <div>
-                            <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Frecuencia</span>
-                            <Input value={act.frecuencia || ''} onChange={(e) => updateActividad(faseKey, idx, 'frecuencia', e.target.value)} placeholder="3x/sem" className="h-7 text-[10px] border-slate-200 rounded-lg" />
-                          </div>
                         )}
+                        <div className={capCfg.showComplejidad ? '' : 'col-span-2'}>
+                          <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Frecuencia</span>
+                          <Input value={act.frecuencia || ''} onChange={(e) => updateActividad(faseKey, idx, 'frecuencia', e.target.value)} placeholder={capCfg.freqPh} className="h-7 text-[10px] border-slate-200 rounded-lg" />
+                        </div>
                       </div>
 
                       {/* Fila 2: Métricas calculadas */}
