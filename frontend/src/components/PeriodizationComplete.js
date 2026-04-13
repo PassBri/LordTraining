@@ -11,7 +11,7 @@ import {
   ChevronDown, ChevronRight, ChevronLeft, Trash2, Edit2, BarChart3,
   TrendingUp, Layers, Zap, GripVertical, X, Check,
   CheckCircle, Clock, BookOpen, History, Eye, FileText,
-  MoreVertical, Copy, Move, Settings, CalendarDays
+  MoreVertical, Copy, Move, Settings, CalendarDays, AlertCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -1830,6 +1830,164 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                     {/* ── Microcycles ── */}
                     {mesoExpanded && (
                       <div className="border-t border-slate-100 bg-white px-4 pb-4 pt-2">
+
+                        {/* ══ MEV → MAV → MRV Proyeccion del Mesociclo ══ */}
+                        {(() => {
+                          const micros = meso.microcycles || [];
+                          if (micros.length === 0) return null;
+
+                          // Calculate total series per microcycle from session data
+                          const microData = micros.map((micro, mi) => {
+                            const sessions = micro.sessions || [];
+                            let totalSeries = 0;
+                            sessions.forEach(ses => {
+                              const sd = ses.sessionData || ses.detailed_data;
+                              if (sd?.fases) {
+                                Object.values(sd.fases).forEach(fase => {
+                                  (fase.actividades || []).forEach(act => {
+                                    totalSeries += parseInt(act.series) || 0;
+                                  });
+                                });
+                              } else {
+                                // Estimate from session duration/load
+                                totalSeries += Math.round((ses.duration || 60) / 5);
+                              }
+                            });
+                            const microLoad = micro.type?.load || micro.type?.loadPercent || 70;
+                            const isDeload = (micro.type?.id === 'descarga' || micro.type?.id === 'recuperacion' || micro.type?.name?.toLowerCase().includes('descarga') || micro.type?.name?.toLowerCase().includes('recup'));
+                            return {
+                              name: `S${mi + 1}`,
+                              semana: mi + 1,
+                              series: totalSeries || Math.round(microLoad * 0.4),
+                              load: microLoad,
+                              isDeload,
+                              sessions: sessions.length
+                            };
+                          });
+
+                          const maxSeries = Math.max(...microData.map(d => d.series), 1);
+
+                          return (
+                            <div className="mb-4 rounded-xl border border-slate-200/80 overflow-hidden">
+                              {/* Header */}
+                              <div className="flex items-center justify-between px-4 py-2.5" style={{background:'linear-gradient(135deg, #0c0f1a 0%, #12141f 100%)'}}>
+                                <div className="flex items-center gap-2">
+                                  <BarChart3 className="w-4 h-4" style={{color:'#00e5ff'}} />
+                                  <span className="text-[11px] font-bold uppercase tracking-wider text-white" style={{fontFamily:"'DM Sans',sans-serif"}}>Proyeccion MEV → MAV → MRV</span>
+                                </div>
+                                <div className="relative group/mevinfo">
+                                  <div className="w-5 h-5 rounded-full flex items-center justify-center cursor-help" style={{background:'rgba(255,255,255,0.08)'}}>
+                                    <AlertCircle className="w-3 h-3" style={{color:'rgba(255,255,255,0.4)'}} />
+                                  </div>
+                                  <div className="absolute right-0 bottom-7 w-[300px] p-3.5 rounded-xl shadow-2xl opacity-0 invisible group-hover/mevinfo:opacity-100 group-hover/mevinfo:visible transition-all z-50 pointer-events-none" style={{background:'#0c0f1a',border:'1px solid rgba(255,255,255,0.08)',fontFamily:"'DM Sans',sans-serif"}}>
+                                    <p className="text-[12px] font-bold mb-2" style={{color:'#CCFF00'}}>MEV → MAV → MRV</p>
+                                    <div className="space-y-2 text-[10px] leading-relaxed text-white">
+                                      <p><span className="font-bold" style={{color:'#CCFF00'}}>MEV</span> <span style={{color:'rgba(255,255,255,0.5)'}}>- Minimo Volumen Efectivo:</span> La cantidad minima de series semanales para generar adaptaciones.</p>
+                                      <p><span className="font-bold" style={{color:'#00e5ff'}}>MAV</span> <span style={{color:'rgba(255,255,255,0.5)'}}>- Maximo Volumen Adaptativo:</span> El rango optimo donde se maximizan las ganancias.</p>
+                                      <p><span className="font-bold" style={{color:'#ff6b9d'}}>MRV</span> <span style={{color:'rgba(255,255,255,0.5)'}}>- Maximo Volumen Recuperable:</span> El techo de volumen asimilable sin sobreentrenamiento.</p>
+                                    </div>
+                                    <div className="mt-2.5 pt-2 space-y-1 text-[9px]" style={{borderTop:'1px solid rgba(255,255,255,0.06)',color:'rgba(255,255,255,0.35)'}}>
+                                      <p>Cada barra = 1 microciclo (semana). El volumen se mide en series totales.</p>
+                                      <p>La semana en <span className="font-bold" style={{color:'#818cf8'}}>violeta</span> es el deload programado.</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Chart */}
+                              <div className="rounded-b-xl" style={{background:'linear-gradient(180deg, #0c0f1a 0%, #08090e 100%)'}}>
+                                <div className="flex" style={{height:'160px'}}>
+                                  {/* Y-axis */}
+                                  <div className="w-10 flex-shrink-0 flex flex-col justify-between py-3 pr-1 text-right">
+                                    <span className="text-[7px] font-bold" style={{color:'#ff6b9d'}}>MRV</span>
+                                    <span className="text-[7px] font-bold" style={{color:'#00e5ff'}}>MAV</span>
+                                    <span className="text-[7px] font-bold" style={{color:'#CCFF00'}}>MEV</span>
+                                    <span className="text-[7px] font-bold" style={{color:'rgba(255,255,255,0.15)'}}>0</span>
+                                  </div>
+                                  {/* Bars */}
+                                  <div className="flex-1 relative py-3 pr-3">
+                                    {/* Zone bgs */}
+                                    <div className="absolute inset-x-0 top-3 bottom-3 flex flex-col">
+                                      <div className="flex-1" style={{background:'rgba(255,107,157,0.03)'}} />
+                                      <div className="flex-1" style={{background:'rgba(0,229,255,0.03)'}} />
+                                      <div className="flex-1" style={{background:'rgba(204,255,0,0.02)'}} />
+                                    </div>
+                                    <div className="absolute inset-x-0 top-3" style={{borderTop:'1px dashed rgba(255,107,157,0.15)'}} />
+                                    <div className="absolute inset-x-0" style={{top:'calc(3px + 33%)',borderTop:'1px dashed rgba(0,229,255,0.12)'}} />
+                                    <div className="absolute inset-x-0" style={{top:'calc(3px + 66%)',borderTop:'1px dashed rgba(204,255,0,0.1)'}} />
+
+                                    <div className="relative h-full flex items-end gap-2 px-1">
+                                      {microData.map((d, i) => {
+                                        const pct = Math.min(95, Math.max(8, (d.series / (maxSeries * 1.2)) * 95));
+                                        let zoneColor, barBg, glowColor, zone;
+                                        if (d.isDeload) {
+                                          zone = 'Descarga'; zoneColor = '#818cf8'; glowColor = 'rgba(129,140,248,0.25)';
+                                          barBg = 'linear-gradient(180deg, #a5b4fc 0%, #818cf8 30%, #6366f1 60%, #4338ca 100%)';
+                                        } else if (pct > 80) {
+                                          zone = 'MRV'; zoneColor = '#ff6b9d'; glowColor = 'rgba(255,107,157,0.25)';
+                                          barBg = 'linear-gradient(180deg, #fda4af 0%, #fb7185 30%, #e11d48 60%, #9f1239 100%)';
+                                        } else if (pct > 40) {
+                                          zone = 'MAV'; zoneColor = '#00e5ff'; glowColor = 'rgba(0,229,255,0.2)';
+                                          barBg = 'linear-gradient(180deg, #67e8f9 0%, #22d3ee 30%, #06b6d4 60%, #0891b2 100%)';
+                                        } else {
+                                          zone = 'MEV'; zoneColor = '#CCFF00'; glowColor = 'rgba(204,255,0,0.15)';
+                                          barBg = 'linear-gradient(180deg, #d9f99d 0%, #a3e635 30%, #84cc16 60%, #4d7c0f 100%)';
+                                        }
+                                        return (
+                                          <div key={i} className="flex-1 flex flex-col items-center relative group/mbar" style={{height:'100%'}}>
+                                            {/* Tooltip */}
+                                            <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 w-[200px] p-2.5 rounded-xl shadow-2xl opacity-0 invisible group-hover/mbar:opacity-100 group-hover/mbar:visible transition-all z-50 pointer-events-none" style={{background:'#0c0f1a',border:'1px solid rgba(255,255,255,0.08)',color:'white',fontFamily:"'DM Sans',sans-serif"}}>
+                                              <div className="flex items-center gap-1.5 mb-1">
+                                                <div className="w-2.5 h-2.5 rounded" style={{background: zoneColor}} />
+                                                <span className="text-[10px] font-bold">Semana {d.semana} — {zone}</span>
+                                              </div>
+                                              <p className="text-[9px] leading-relaxed" style={{color:'rgba(255,255,255,0.5)'}}>{d.isDeload ? 'Semana de descarga para recuperacion y supercompensacion.' : zone === 'MRV' ? 'Cerca del maximo volumen recuperable. Considerar descarga.' : zone === 'MAV' ? 'Zona optima: maximiza adaptaciones de fuerza/hipertrofia.' : 'Volumen minimo efectivo para mantener adaptaciones.'}</p>
+                                              <div className="flex items-center justify-between mt-1.5 pt-1.5" style={{borderTop:'1px solid rgba(255,255,255,0.06)'}}>
+                                                <span className="text-[9px]" style={{color:'rgba(255,255,255,0.35)'}}>Series totales:</span>
+                                                <span className="text-[12px] font-black" style={{color: zoneColor}}>{d.series}</span>
+                                              </div>
+                                              <div className="text-[8px] mt-1" style={{color:'rgba(255,255,255,0.25)'}}>{d.sessions} sesiones · Carga {d.load}%</div>
+                                            </div>
+                                            <div className="w-full flex flex-col items-center justify-end h-full">
+                                              <span className="text-[11px] font-black mb-1" style={{color: zoneColor, textShadow:`0 0 10px ${glowColor}`}}>{d.series}</span>
+                                              <div className="w-full rounded-t-lg cursor-pointer transition-all duration-300 hover:brightness-125 relative overflow-hidden" style={{height:`${pct}%`, background: barBg, boxShadow:`0 0 20px ${glowColor}`}}>
+                                                <div className="absolute inset-y-0 left-0 w-[35%]" style={{background:'linear-gradient(90deg, rgba(255,255,255,0.1) 0%, transparent 100%)'}} />
+                                              </div>
+                                            </div>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                </div>
+                                {/* X labels */}
+                                <div className="flex" style={{borderTop:'1px solid rgba(255,255,255,0.04)'}}>
+                                  <div className="w-10 flex-shrink-0" />
+                                  <div className="flex-1 flex gap-2 px-1 py-2">
+                                    {microData.map((d, i) => {
+                                      const pct = Math.min(95, Math.max(8, (d.series / (maxSeries * 1.2)) * 95));
+                                      let zoneColor = d.isDeload ? '#818cf8' : pct > 80 ? '#ff6b9d' : pct > 40 ? '#00e5ff' : '#CCFF00';
+                                      let zone = d.isDeload ? 'Descarga' : pct > 80 ? 'MRV' : pct > 40 ? 'MAV' : 'MEV';
+                                      return (
+                                        <div key={i} className="flex-1 text-center">
+                                          <span className="text-[10px] font-bold block" style={{color:'rgba(255,255,255,0.6)'}}>{d.name}</span>
+                                          <span className="text-[7px] font-bold" style={{color: zoneColor}}>{zone}</span>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                                {/* Legend */}
+                                <div className="flex items-center justify-center gap-4 py-2" style={{borderTop:'1px solid rgba(255,255,255,0.04)'}}>
+                                  <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-sm" style={{background:'#CCFF00'}} /><span className="text-[8px] font-semibold" style={{color:'rgba(255,255,255,0.35)'}}>MEV</span></div>
+                                  <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-sm" style={{background:'#00e5ff'}} /><span className="text-[8px] font-semibold" style={{color:'rgba(255,255,255,0.35)'}}>MAV</span></div>
+                                  <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-sm" style={{background:'#ff6b9d'}} /><span className="text-[8px] font-semibold" style={{color:'rgba(255,255,255,0.35)'}}>MRV</span></div>
+                                  <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-sm" style={{background:'#818cf8'}} /><span className="text-[8px] font-semibold" style={{color:'rgba(255,255,255,0.35)'}}>Descarga</span></div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })()}
                         <div className="flex justify-between items-center mb-3">
                           <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Microciclos</span>
                           <Button size="sm" variant="outline" className="h-6 text-[10px] rounded-md border-slate-200 px-2" onClick={() => handleAddMicrocycle(macroIdx, mesoIdx)}>
