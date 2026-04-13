@@ -218,8 +218,7 @@ const SessionViewPage = () => {
                                 </div>
                               )}
                               {act.volumen && <div className="text-[10px]"><span style={{color:T.subtle}}>Vol: </span><span style={{color:T.text}}>{act.volumen}{act.unidadVolumen ? ` ${act.unidadVolumen}` : ''}</span></div>}
-                              {act.densidad && <div className="text-[10px]"><span style={{color:T.subtle}}>Densidad: </span><span style={{color:T.text}}>{act.densidad}</span></div>}
-                              {act.recuperacion && <div className="text-[10px]"><span style={{color:T.subtle}}>Rec: </span><span style={{color:T.text}}>{act.recuperacion}</span></div>}
+                              {act.recuperacion && <div className="text-[10px]"><span style={{color:T.subtle}}>Descanso: </span><span style={{color:T.text}}>{act.recuperacion}</span></div>}
                               {act.procOrganizativo && <div className="text-[10px]"><span style={{color:T.subtle}}>Org: </span><span style={{color:T.text}}>{ORG[act.procOrganizativo] || act.procOrganizativo}</span></div>}
                               {act.subtipo && <div className="text-[10px]"><span style={{color:T.subtle}}>Subtipo: </span><span style={{color:T.text}}>{act.subtipo}</span></div>}
                               {act.unidadIntensidad && <div className="text-[10px]"><span style={{color:T.subtle}}>Int. en: </span><span style={{color:T.text}}>{act.unidadIntensidad}</span></div>}
@@ -231,14 +230,46 @@ const SessionViewPage = () => {
                               const vol = parseFloat(act.volumen) || 0;
                               const int = parseFloat(act.intensidad) || 0;
                               const ser = parseFloat(act.series) || 0;
+                              const reps = parseInt(act.repeticiones) || 0;
+                              const recMin = parseFloat(act.recuperacion) || 0;
                               const ct = Math.round(vol * int / 100);
                               const cs = Math.round(ser * vol * int / 100);
-                              if (ct <= 0) return null;
+                              if (ct <= 0 && ser <= 0) return null;
+
+                              // Density auto-calc
+                              let denSerMin = 0, tTrabajo = 0, tDescanso = 0;
+                              if (ser > 0 && recMin > 0) {
+                                const workPerSet = Math.max(reps * 3, 20);
+                                tTrabajo = Math.round(ser * workPerSet / 60);
+                                tDescanso = Math.round(ser * recMin);
+                                denSerMin = +(ser / ((ser * (workPerSet + recMin * 60)) / 60)).toFixed(2);
+                              }
+
+                              // Zone
+                              const cap = act.capacidadFisica || 'fuerza';
+                              let zoneBadge = null;
+                              if (['fuerza','potencia'].includes(cap) && int > 0) {
+                                const z = int >= 85 ? 'F. Maxima' : int >= 60 ? 'Hipertrofia' : int >= 40 ? 'F. Explosiva' : 'Resistencia F.';
+                                zoneBadge = { label: z, color: isLight ? '#d97706' : '#fbbf24' };
+                              } else if (cap === 'resistencia' && int > 0) {
+                                const z = int >= 90 ? 'Z5 (VO2max)' : int >= 80 ? 'Z4 (Umbral)' : int >= 70 ? 'Z3 (Tempo)' : int >= 60 ? 'Z2 (Aerobico)' : 'Z1 (Regen)';
+                                zoneBadge = { label: z, color: isLight ? '#dc2626' : '#f87171' };
+                              }
+
+                              // NeuroCarga
+                              const isCoord = ['coordinacion','equilibrio','agilidad'].includes(cap);
+                              const nc = isCoord ? Math.round((act.complejidad || 3) * ser * 10) : 0;
+
+                              const badgeStyle = (bg, color) => ({background: bg, color, fontSize:'9px', fontWeight:600, padding:'2px 8px', borderRadius:'6px', display:'inline-block'});
+
                               return (
-                                <div className="flex flex-wrap gap-2 mt-2 pt-2" style={{borderTop:`1px solid ${T.cellBorder}`}}>
-                                  <span className="text-[9px] font-medium px-2 py-0.5 rounded-md" style={{background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)', color: T.text}}>CT: {ct}</span>
-                                  <span className="text-[9px] font-medium px-2 py-0.5 rounded-md" style={{background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)', color: T.text}}>CS: {cs}</span>
-                                  {act.progresion?.modelo && act.progresion.modelo !== 'lineal' && <span className="text-[9px] font-medium px-2 py-0.5 rounded-md" style={{background: isLight ? 'rgba(16,185,129,0.08)' : 'rgba(16,185,129,0.1)', color: isLight ? '#059669' : '#34d399'}}>{act.progresion.modelo}</span>}
+                                <div className="flex flex-wrap gap-1.5 mt-2.5 pt-2" style={{borderTop:`1px solid ${T.cellBorder}`}}>
+                                  {ct > 0 && <span style={badgeStyle(isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)', T.text)}>CT: {ct}</span>}
+                                  {cs > 0 && <span style={badgeStyle(isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)', T.text)}>CS: {cs}</span>}
+                                  {denSerMin > 0 && <span style={badgeStyle(isLight ? 'rgba(139,92,246,0.08)' : 'rgba(139,92,246,0.12)', isLight ? '#7c3aed' : '#a5b4fc')}>D: {denSerMin} ser/min</span>}
+                                  {tTrabajo > 0 && <span style={badgeStyle(isLight ? 'rgba(139,92,246,0.06)' : 'rgba(139,92,246,0.08)', isLight ? '#6d28d9' : '#c4b5fd')}>T:D {tTrabajo}:{tDescanso}m</span>}
+                                  {zoneBadge && <span style={badgeStyle(isLight ? 'rgba(245,158,11,0.08)' : 'rgba(245,158,11,0.1)', zoneBadge.color)}>{zoneBadge.label}</span>}
+                                  {nc > 0 && <span style={badgeStyle(isLight ? 'rgba(139,92,246,0.08)' : 'rgba(139,92,246,0.1)', isLight ? '#7c3aed' : '#a5b4fc')}>NC: {nc}</span>}
                                 </div>
                               );
                             })()}
