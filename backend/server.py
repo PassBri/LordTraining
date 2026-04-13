@@ -6877,21 +6877,32 @@ async def download_session_pdf(share_id: str, theme: str = "dark"):
                 headless=True,
                 args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
             )
-            page = await browser.new_page(viewport={"width": 1200, "height": 800})
+            page = await browser.new_page(viewport={"width": 794, "height": 1123})
             
             await page.goto(page_url, wait_until="networkidle", timeout=30000)
-            # Wait for content to render
             await page.wait_for_timeout(2000)
             
-            # Hide download button
-            await page.evaluate("document.getElementById('download-btn')?.remove()")
+            bg_color = '#0a0a0f' if theme != 'light' else '#ffffff'
+            await page.evaluate(f"""
+                document.getElementById('download-btn')?.remove();
+                const s = document.createElement('style');
+                s.textContent = `
+                  html, body {{ background: {bg_color} !important; margin: 0 !important; padding: 0 !important; min-height: 100%; }}
+                  #session-view-content {{ min-height: 100vh; background: {bg_color} !important; }}
+                  .max-w-4xl {{ max-width: 100% !important; }}
+                  @media print {{ html, body {{ background: {bg_color} !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }} }}
+                  @page {{ margin: 0; size: A4; }}
+                `;
+                document.head.appendChild(s);
+            """)
             
-            # Generate PDF
             pdf_bytes = await page.pdf(
-                format="A4",
+                width="210mm",
+                height="297mm",
                 print_background=True,
-                margin={"top": "10mm", "right": "8mm", "bottom": "10mm", "left": "8mm"},
-                scale=0.75
+                margin={"top": "0mm", "right": "0mm", "bottom": "0mm", "left": "0mm"},
+                scale=1,
+                prefer_css_page_size=False
             )
             
             await browser.close()
