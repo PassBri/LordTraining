@@ -2039,7 +2039,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                           </Button>
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                           {meso.microcycles?.map((micro, microIdx) => {
                             const microColor = micro.type?.color || MICROCYCLE_TYPES_ARRAY.find(t => t.id === micro.type?.id)?.color || '#94a3b8';
                             const microLoad = micro.type?.load || micro.type?.loadPercent || 70;
@@ -2052,61 +2052,59 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                             const avgRPE = sessions.length > 0 ? (sessions.reduce((s, se) => s + (se.rpe || 6), 0) / sessions.length).toFixed(1) : '-';
 
                             return (
-                            <div key={micro.id} className="rounded-lg border border-slate-150 overflow-hidden bg-white" data-testid={`microcycle-${microKey}`}>
+                            <div key={micro.id} className="rounded-xl overflow-hidden bg-white" style={{border:'1px solid rgba(0,0,0,0.06)',boxShadow:'0 1px 3px rgba(0,0,0,0.04)'}} data-testid={`microcycle-${microKey}`}>
                               {/* ── Micro Header ── */}
                               <div
-                                className="flex items-center justify-between px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors"
+                                className="flex items-center justify-between px-4 py-3 cursor-pointer transition-all"
                                 onClick={() => setExpandedMicro(microExpanded ? null : microKey)}
+                                style={{background: microExpanded ? `linear-gradient(135deg, ${microColor}08 0%, transparent 100%)` : 'white'}}
                               >
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-3">
                                   <div className={`transition-transform duration-200 ${microExpanded ? 'rotate-90' : ''}`}>
-                                    <ChevronRight className="w-3 h-3 text-slate-300" />
+                                    <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
                                   </div>
-                                  <div className="w-2.5 h-6 rounded-sm" style={{ backgroundColor: microColor }} />
-                                  <div>
-                                    <div className="flex items-center gap-2">
-                                      <span className="font-semibold text-[13px] text-slate-700">{micro.name}</span>
-                                      <span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ color: microColor, backgroundColor: microColor + '18' }}>{micro.type?.name || '-'}</span>
-                                    </div>
+                                  <div className="w-1 h-7 rounded-full" style={{ backgroundColor: microColor }} />
+                                  <div className="flex items-center gap-2.5">
+                                    <span className="font-bold text-[13px] text-slate-800" style={{fontFamily:"'DM Sans',sans-serif"}}>{micro.name}</span>
+                                    <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ color: microColor, backgroundColor: microColor + '12', border:`1px solid ${microColor}20` }}>{micro.type?.name || '-'}</span>
                                   </div>
                                 </div>
-                                <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
-                                  {/* Micro stats strip */}
-                                  <div className="hidden lg:flex items-center gap-2 text-[10px] mr-1">
-                                    <span className="text-slate-400">{sessions.length} ses</span>
+                                <div className="flex items-center gap-2.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+                                  <div className="hidden lg:flex items-center gap-3 text-[10px] mr-1" style={{fontFamily:"'DM Sans',sans-serif"}}>
+                                    <span className="text-slate-500 font-medium">{sessions.length} ses</span>
                                     <span className="text-slate-400">{totalDuration}min</span>
-                                    <div className="flex items-center gap-1">
+                                    <div className="flex items-center gap-1.5">
                                       <span className="text-slate-400">Carga</span>
-                                      <div className="w-10"><MiniBar value={microLoad} color={microColor} h="h-1" /></div>
-                                      <span className="font-semibold" style={{ color: microColor }}>{microLoad}%</span>
+                                      <div className="w-12"><MiniBar value={microLoad} color={microColor} h="h-1.5" /></div>
+                                      <span className="font-bold" style={{ color: microColor }}>{microLoad}%</span>
                                     </div>
                                     {totalLoad > 0 && <span className="text-slate-500 font-medium">UA:{totalLoad}</span>}
-                                    <span className="text-slate-400">RPE:{avgRPE}</span>
-                                    <span className="text-emerald-500 font-medium">{completedSessions}/{sessions.length}</span>
+                                    <span className="text-slate-400">RPE:<span className="font-semibold text-slate-600">{avgRPE}</span></span>
+                                    <span className="font-semibold" style={{color: completedSessions > 0 ? '#10b981' : '#94a3b8'}}>{completedSessions}/{sessions.length}</span>
                                   </div>
-                                  <Button size="sm" variant="outline" className="h-7 w-7 p-0 border-slate-200 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-md" onClick={() => handleEditMicrocycle(micro, macroIdx, mesoIdx, microIdx)} title="Editar"><Edit2 className="w-3 h-3" /></Button>
-                                  <Button size="sm" variant="outline" className="h-7 w-7 p-0 border-slate-200 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-md" onClick={() => handleDeleteMicrocycle(macroIdx, mesoIdx, microIdx)} title="Eliminar"><Trash2 className="w-3 h-3" /></Button>
+                                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg" onClick={() => handleEditMicrocycle(micro, macroIdx, mesoIdx, microIdx)} title="Editar"><Edit2 className="w-3.5 h-3.5" /></Button>
+                                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg" onClick={() => handleDeleteMicrocycle(macroIdx, mesoIdx, microIdx)} title="Eliminar"><Trash2 className="w-3.5 h-3.5" /></Button>
                                 </div>
                               </div>
 
                               {/* ── Sessions Grid ── */}
                               {microExpanded && (
-                                <div className="border-t border-slate-100 px-3 pb-3 pt-2">
-                                  <div className="flex justify-between items-center mb-2.5">
+                                <div className="border-t px-4 pb-4 pt-3" style={{borderColor:'rgba(0,0,0,0.05)',background:'rgba(248,250,252,0.5)'}}>
+                                  <div className="flex justify-between items-center mb-3">
                                     <div className="flex items-center gap-3">
-                                      <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">Sesiones</span>
-                                      <div className="flex items-center gap-1 text-[9px] text-slate-300">
+                                      <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-500" style={{fontFamily:"'DM Sans',sans-serif"}}>Sesiones</span>
+                                      <div className="flex items-center gap-2 text-[9px]">
                                         {SESSION_TYPES.slice(0, 5).map(st => (
-                                          <span key={st.id} className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: st.color }} />{st.name}</span>
+                                          <span key={st.id} className="flex items-center gap-1 text-slate-400"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: st.color }} />{st.name}</span>
                                         ))}
                                       </div>
                                     </div>
-                                    <Button size="sm" variant="outline" className="h-5 text-[9px] rounded px-1.5 border-slate-200" onClick={() => handleAddSession(macroIdx, mesoIdx, microIdx)}>
-                                      <Plus className="w-2.5 h-2.5 mr-0.5" /> Sesion
+                                    <Button size="sm" variant="outline" className="h-6 text-[10px] rounded-lg px-2.5 border-slate-200 font-medium" style={{fontFamily:"'DM Sans',sans-serif"}} onClick={() => handleAddSession(macroIdx, mesoIdx, microIdx)}>
+                                      <Plus className="w-3 h-3 mr-1" /> Sesion
                                     </Button>
                                   </div>
 
-                                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-2">
+                                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-2.5">
                                     {sessions.map((session, sIdx) => {
                                       const sType = SESSION_TYPES.find(t => t.id === session.type);
                                       const sColor = sType?.color || '#94a3b8';
@@ -2116,69 +2114,71 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                       return (
                                         <div
                                           key={session.id}
-                                          className="group relative rounded-xl border overflow-hidden cursor-pointer transition-all hover:shadow-lg hover:-translate-y-0.5"
-                                          style={{ borderColor: sColor + '30' }}
+                                          className="group relative rounded-xl overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 bg-white"
+                                          style={{ border:`1px solid ${sColor}20`, boxShadow:'0 1px 2px rgba(0,0,0,0.04)' }}
                                           onClick={() => handleEditSession(session, macroIdx, mesoIdx, microIdx, sIdx)}
                                           data-testid={`session-${sIdx}`}
                                         >
-                                          {/* Color header bar */}
-                                          <div className="h-1.5 w-full" style={{ backgroundColor: sColor }} />
+                                          {/* Color header */}
+                                          <div className="h-1 w-full" style={{ background:`linear-gradient(90deg, ${sColor}, ${sColor}99)` }} />
 
-                                          {/* Delete overlay on hover */}
-                                          <div className="absolute top-2 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-10" onClick={(e) => e.stopPropagation()}>
-                                            <button className="p-0.5 rounded bg-white shadow-sm hover:bg-red-50" onClick={() => handleDeleteSession(macroIdx, mesoIdx, microIdx, sIdx)}>
-                                              <Trash2 className="w-2.5 h-2.5 text-red-400" />
+                                          {/* Delete btn */}
+                                          <div className="absolute top-2 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10" onClick={(e) => e.stopPropagation()}>
+                                            <button className="p-1 rounded-lg bg-white/90 shadow-sm hover:bg-red-50 backdrop-blur-sm" onClick={() => handleDeleteSession(macroIdx, mesoIdx, microIdx, sIdx)}>
+                                              <Trash2 className="w-3 h-3 text-red-400" />
                                             </button>
                                           </div>
 
-                                          <div className="p-2.5">
+                                          <div className="p-3">
                                             {/* Day + Status */}
-                                            <div className="flex items-center justify-between mb-1.5">
-                                              <span className="font-bold text-[13px] text-slate-800">{session.dayName}</span>
+                                            <div className="flex items-center justify-between mb-2">
+                                              <span className="font-bold text-[13px] text-slate-800" style={{fontFamily:"'DM Sans',sans-serif"}}>{session.dayName}</span>
                                               <StatusBadge status={session.status || 'planned'} />
                                             </div>
 
                                             {/* Type */}
-                                            <p className="text-[11px] font-semibold mb-1.5" style={{ color: sColor }}>{sType?.name || '-'}</p>
+                                            <p className="text-[11px] font-semibold mb-2" style={{ color: sColor }}>{sType?.name || '-'}</p>
 
                                             {/* Objective */}
-                                            {session.objective && <p className="text-[10px] text-slate-500 mb-1.5 truncate">{session.objective}</p>}
+                                            {session.objective && <p className="text-[10px] text-slate-500 mb-2 truncate">{session.objective}</p>}
 
-                                            {/* Metrics row */}
-                                            <div className="grid grid-cols-3 gap-1 mb-1.5">
-                                              <div className="text-center bg-slate-50 rounded px-1 py-0.5">
-                                                <div className="text-[9px] text-slate-400">Dur</div>
-                                                <div className="text-[11px] font-bold text-slate-700">{session.duration}m</div>
+                                            {/* Metrics */}
+                                            <div className="grid grid-cols-3 gap-1.5 mb-2">
+                                              <div className="text-center rounded-lg px-1 py-1" style={{background:'#0a0a0f'}}>
+                                                <div className="text-[7px] font-bold uppercase tracking-widest" style={{color:'rgba(204,255,0,0.5)'}}>Dur</div>
+                                                <div className="text-[12px] font-bold text-white">{session.duration}m</div>
                                               </div>
-                                              <div className="text-center bg-slate-50 rounded px-1 py-0.5">
-                                                <div className="text-[9px] text-slate-400">Vol</div>
-                                                <div className="text-[11px] font-bold text-slate-700">{session.volume || '-'}%</div>
+                                              <div className="text-center rounded-lg px-1 py-1" style={{background:'#0a0a0f'}}>
+                                                <div className="text-[7px] font-bold uppercase tracking-widest" style={{color:'rgba(204,255,0,0.5)'}}>Vol</div>
+                                                <div className="text-[12px] font-bold text-white">{session.volume || '-'}%</div>
                                               </div>
-                                              <div className="text-center rounded px-1 py-0.5" style={{ backgroundColor: rpeColor + '10' }}>
-                                                <div className="text-[9px] text-slate-400">RPE</div>
-                                                <div className="text-[11px] font-bold" style={{ color: rpeColor }}>{rpe}</div>
+                                              <div className="text-center rounded-lg px-1 py-1" style={{background: rpeColor + '10'}}>
+                                                <div className="text-[7px] font-bold uppercase tracking-widest" style={{color: rpeColor + '80'}}>RPE</div>
+                                                <div className="text-[12px] font-bold" style={{ color: rpeColor }}>{rpe}</div>
                                               </div>
                                             </div>
 
                                             {/* Intensity + Load */}
-                                            <div className="flex items-center justify-between mb-1">
+                                            <div className="flex items-center justify-between">
                                               <IntensityBadge level={session.intensity} size="xs" />
                                               {session.internalLoad > 0 && <span className="text-[9px] text-slate-400 font-medium">UA:{session.internalLoad}</span>}
                                             </div>
 
                                             {/* Muscle + Fatigue */}
-                                            <div className="flex items-center justify-between">
-                                              {session.muscleGroup && <span className="text-[9px] text-slate-400 truncate max-w-[70%]">{session.muscleGroup}</span>}
-                                              {session.fatigue && (
-                                                <div className="flex items-center gap-0.5" title={`Fatiga: ${session.fatigue}/10 · Rec: ${session.recovery}h`}>
-                                                  <Activity className="w-2.5 h-2.5 text-slate-300" />
-                                                  <span className="text-[9px] font-medium" style={{ color: session.fatigue >= 7 ? '#EF4444' : session.fatigue >= 5 ? '#F59E0B' : '#10B981' }}>{session.fatigue}</span>
-                                                </div>
-                                              )}
-                                            </div>
+                                            {(session.muscleGroup || session.fatigue) && (
+                                              <div className="flex items-center justify-between mt-1.5 pt-1.5" style={{borderTop:'1px solid rgba(0,0,0,0.04)'}}>
+                                                {session.muscleGroup && <span className="text-[9px] text-slate-400 truncate max-w-[70%]">{session.muscleGroup}</span>}
+                                                {session.fatigue && (
+                                                  <div className="flex items-center gap-0.5" title={`Fatiga: ${session.fatigue}/10 · Rec: ${session.recovery}h`}>
+                                                    <Activity className="w-2.5 h-2.5 text-slate-300" />
+                                                    <span className="text-[9px] font-semibold" style={{ color: session.fatigue >= 7 ? '#EF4444' : session.fatigue >= 5 ? '#F59E0B' : '#10B981' }}>{session.fatigue}</span>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            )}
 
-                                            {/* Contents preview */}
-                                            {session.contents && <p className="text-[9px] text-slate-300 mt-1 truncate border-t border-slate-100 pt-1">{session.contents}</p>}
+                                            {/* Contents */}
+                                            {session.contents && <p className="text-[9px] text-slate-400 mt-1.5 truncate pt-1.5" style={{borderTop:'1px solid rgba(0,0,0,0.04)'}}>{session.contents}</p>}
                                           </div>
                                         </div>
                                       );
