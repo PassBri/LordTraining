@@ -926,7 +926,63 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
     setViewOffset(prev => Math.min(totalWeeks - visibleWeeks, prev + 4));
   };
 
-  // Render intensity/volume cell
+  // ═══ SPARKLINE ROW: Mini inline chart replacing colored cells ═══
+  const SparklineRow = ({ label, section, rowId, color = '#3B82F6', maxVal = 5 }) => {
+    const values = displayedWeeks.map(w => planData[section]?.[`${rowId}_${w}`] || 0);
+    const hasData = values.some(v => v > 0);
+
+    return (
+      <tr>
+        <td className="sticky left-0 bg-gray-50 px-2 py-0 text-xs border border-gray-300 z-10" style={{ minWidth: 180 }}>
+          {label}
+        </td>
+        {displayedWeeks.map((week, i) => {
+          const v = values[i];
+          if (!hasData) return <td key={`${section}-${rowId}-${week}`} className="border border-gray-200 p-0" style={{ height: 34 }} />;
+          const barH = v > 0 ? Math.max(3, (v / maxVal) * 28) : 0;
+          const opacity = v > 0 ? 0.35 + (v / maxVal) * 0.65 : 0;
+          return (
+            <td key={`${section}-${rowId}-${week}`} className="border border-gray-200 p-0 relative" style={{ height: 34 }} data-testid={`cell-${section}-${rowId}-${week}`}
+              onClick={() => handleCellClick(section, rowId, week)}>
+              <div className="absolute bottom-0 left-[2px] right-[2px] rounded-t-sm cursor-pointer transition-all hover:opacity-100"
+                style={{ height: barH, backgroundColor: color, opacity }} />
+              {v >= 3 && <span className="absolute top-0 left-0 right-0 text-center text-[8px] font-bold" style={{ color }}>{v}</span>}
+            </td>
+          );
+        })}
+      </tr>
+    );
+  };
+
+  // ═══ BOOLEAN SPARKLINE ROW: Markers for events/monitoring ═══
+  const BooleanSparklineRow = ({ label, section, rowId, color = '#3B82F6', icon }) => {
+    return (
+      <tr>
+        <td className="sticky left-0 bg-gray-50 px-2 py-0 text-xs border border-gray-300 z-10" style={{ minWidth: 180 }}>
+          {label}
+        </td>
+        {displayedWeeks.map(week => {
+          const isActive = planData[section]?.[`${rowId}_${week}`];
+          return (
+            <td key={`${section}-${rowId}-${week}`} className="border border-gray-200 p-0 text-center cursor-pointer" style={{ height: 24 }}
+              onClick={() => handleCellClick(section, rowId, week)}
+              data-testid={`cell-${section}-${rowId}-${week}`}>
+              {isActive && (
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="w-4 h-4 rounded-full flex items-center justify-center text-white text-[8px] font-bold"
+                    style={{ backgroundColor: color }}>
+                    {icon || '✓'}
+                  </div>
+                </div>
+              )}
+            </td>
+          );
+        })}
+      </tr>
+    );
+  };
+
+  // Render intensity/volume cell (kept for backward compatibility)
   const renderLoadCell = (section, rowId, weekIndex) => {
     const key = `${rowId}_${weekIndex}`;
     const value = planData[section]?.[key] || 0;
@@ -1415,17 +1471,16 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                   </td>
                 </tr>
                 
-                {/* Intensity levels */}
-                {INTENSITY_LEVELS.map((level, idx) => (
-                  <tr key={level.id}>
-                    <td className="sticky left-0 bg-gray-50 px-2 py-1 text-xs border border-gray-300">
-                      <div className="flex items-center justify-between">
-                        <span>{level.label}</span>
-                        <span className="text-gray-400">{level.range}</span>
-                      </div>
-                    </td>
-                    {displayedWeeks.map(week => renderLoadCell('intensity', level.id, week))}
-                  </tr>
+                {/* Intensity levels - as sparkline bars */}
+                {INTENSITY_LEVELS.map((level) => (
+                  <SparklineRow
+                    key={level.id}
+                    label={`${level.label} (${level.range})`}
+                    section="intensity"
+                    rowId={level.id}
+                    color={level.id === 'very_high' ? '#DC2626' : level.id === 'high' ? '#EA580C' : level.id === 'medium' ? '#CA8A04' : level.id === 'low' ? '#16A34A' : '#3B82F6'}
+                    maxVal={5}
+                  />
                 ))}
                 
                 {/* Training frequency */}
@@ -1462,12 +1517,14 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 </tr>
                 
                 {PREPARATION_TYPES.map(prep => (
-                  <tr key={prep.id}>
-                    <td className="sticky left-0 bg-gray-50 px-2 py-1 text-xs border border-gray-300">
-                      {prep.label}
-                    </td>
-                    {displayedWeeks.map(week => renderLoadCell('preparation', prep.id, week))}
-                  </tr>
+                  <SparklineRow
+                    key={prep.id}
+                    label={prep.label}
+                    section="preparation"
+                    rowId={prep.id}
+                    color={prep.id === 'general_physical' ? '#2563EB' : prep.id === 'specific_physical' ? '#4F46E5' : prep.id === 'technical' ? '#16A34A' : prep.id === 'tactical' ? '#CA8A04' : prep.id === 'psychological' ? '#9333EA' : '#EC4899'}
+                    maxVal={5}
+                  />
                 ))}
 
                 {/* PHYSICAL PREPARATION SECTION */}
@@ -1481,12 +1538,14 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 </tr>
                 
                 {PHYSICAL_COMPONENTS.map(comp => (
-                  <tr key={comp.id}>
-                    <td className="sticky left-0 bg-gray-50 px-2 py-1 text-xs border border-gray-300">
-                      {comp.label}
-                    </td>
-                    {displayedWeeks.map(week => renderLoadCell('physical', comp.id, week))}
-                  </tr>
+                  <SparklineRow
+                    key={comp.id}
+                    label={comp.label}
+                    section="physical"
+                    rowId={comp.id}
+                    color={comp.id === 'endurance' ? '#DC2626' : comp.id === 'strength' ? '#EA580C' : comp.id === 'speed' ? '#CA8A04' : comp.id === 'coordination' ? '#16A34A' : '#3B82F6'}
+                    maxVal={5}
+                  />
                 ))}
 
                 {/* ACTIVITY SECTION */}
@@ -1500,12 +1559,14 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 </tr>
                 
                 {ACTIVITY_TYPES.map(activity => (
-                  <tr key={activity.id}>
-                    <td className="sticky left-0 bg-gray-50 px-2 py-1 text-xs border border-gray-300">
-                      {activity.label}
-                    </td>
-                    {displayedWeeks.map(week => renderBooleanCell('activities', activity.id, week, activity.color))}
-                  </tr>
+                  <BooleanSparklineRow
+                    key={activity.id}
+                    label={activity.label}
+                    section="activities"
+                    rowId={activity.id}
+                    color={activity.id === 'training' ? '#2563EB' : activity.id === 'main_competition' ? '#16A34A' : activity.id === 'secondary_competition' ? '#22C55E' : activity.id === 'recovery' ? '#9333EA' : '#DC2626'}
+                    icon={activity.id === 'training' ? '●' : activity.id === 'main_competition' ? '★' : activity.id === 'secondary_competition' ? '◆' : activity.id === 'recovery' ? '♥' : '◎'}
+                  />
                 ))}
 
                 {/* EVENTS ROW - Calendar Events with Interactive Tooltips */}
@@ -1582,21 +1643,22 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 </tr>
                 
                 {MONITORING_AREAS.map(area => (
-                  <tr key={area.id}>
-                    <td className="sticky left-0 bg-gray-50 px-2 py-1 text-xs border border-gray-300">
-                      {area.label}
-                    </td>
-                    {displayedWeeks.map(week => renderBooleanCell('monitoring', area.id, week, area.color))}
-                  </tr>
+                  <BooleanSparklineRow
+                    key={area.id}
+                    label={area.label}
+                    section="monitoring"
+                    rowId={area.id}
+                    color={area.id === 'medical' ? '#DC2626' : area.id === 'physical' ? '#EA580C' : area.id === 'technical' ? '#CA8A04' : area.id === 'tactical' ? '#16A34A' : area.id === 'psychological' ? '#2563EB' : '#9333EA'}
+                    icon={area.id === 'medical' ? '+' : '✓'}
+                  />
                 ))}
               </tbody>
             </table>
           </div>
 
-          {/* CHARTS SECTION - Using InteractiveChart (same as Dashboard panel) */}
-          <div className="mt-6 space-y-5">
+          {/* CHARTS SECTION - Compact grid below table */}
+          <div className="mt-3 grid grid-cols-1 lg:grid-cols-2 gap-3">
 
-            {/* 1. Magnitud de Carga y Recuperación */}
             <InteractiveChart
               title="Magnitud de Carga y Recuperacion"
               icon={Activity}
@@ -1606,17 +1668,16 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 { key: 'recuperacion', name: 'Recuperacion %', color: '#3B82F6' }
               ]}
               xAxisKey="week"
-              height={260}
-              showBrush={true}
+              height={180}
+              showBrush={false}
               showControls={true}
-              showLiveIndicator={true}
+              showLiveIndicator={false}
               defaultChartType="bar"
               defaultTimeRange="sessions"
               yAxisDomain={[0, 100]}
               className="border border-slate-200"
             />
 
-            {/* 2. Volumen, Intensidad y Densidad */}
             <InteractiveChart
               title="Volumen, Intensidad y Densidad"
               icon={TrendingUp}
@@ -1636,17 +1697,16 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 { key: 'densidad', name: 'Densidad %', color: '#8B5CF6' }
               ]}
               xAxisKey="week"
-              height={260}
-              showBrush={true}
+              height={180}
+              showBrush={false}
               showControls={true}
-              showLiveIndicator={true}
+              showLiveIndicator={false}
               defaultChartType="line"
               defaultTimeRange="sessions"
               yAxisDomain={[0, 100]}
               className="border border-slate-200"
             />
 
-            {/* 3. Preparación por Componentes */}
             <InteractiveChart
               title="Preparacion por Componentes"
               icon={Dumbbell}
@@ -1660,17 +1720,16 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 { key: 'theoretical', name: 'Teorica', color: '#EC4899' }
               ]}
               xAxisKey="week"
-              height={260}
-              showBrush={true}
+              height={180}
+              showBrush={false}
               showControls={true}
-              showLiveIndicator={true}
+              showLiveIndicator={false}
               defaultChartType="area"
               defaultTimeRange="sessions"
               yAxisDomain={[0, 100]}
               className="border border-slate-200"
             />
 
-            {/* 4. Preparación Física por Capacidades */}
             <InteractiveChart
               title="Preparacion Fisica por Capacidades"
               icon={Heart}
@@ -1683,17 +1742,16 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 { key: 'flexibility', name: 'Flexibilidad', color: '#3B82F6' }
               ]}
               xAxisKey="week"
-              height={260}
-              showBrush={true}
+              height={180}
+              showBrush={false}
               showControls={true}
-              showLiveIndicator={true}
+              showLiveIndicator={false}
               defaultChartType="line"
               defaultTimeRange="sessions"
               yAxisDomain={[0, 100]}
               className="border border-slate-200"
             />
 
-            {/* 5. Duración y Actividad Semanal */}
             <InteractiveChart
               title="Duracion y Actividad Semanal"
               icon={Timer}
@@ -1704,10 +1762,10 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 { key: 'vueltaCalma', name: 'Vuelta a la calma', color: '#14B8A6' }
               ]}
               xAxisKey="week"
-              height={260}
-              showBrush={true}
+              height={180}
+              showBrush={false}
               showControls={true}
-              showLiveIndicator={true}
+              showLiveIndicator={false}
               defaultChartType="bar"
               defaultTimeRange="sessions"
               yAxisDomain={[0, 'auto']}
