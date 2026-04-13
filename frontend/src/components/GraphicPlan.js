@@ -1039,16 +1039,6 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                   Datos importados
                 </span>
               )}
-              <Select value={cycleDuration} onValueChange={setCycleDuration}>
-                <SelectTrigger className="w-48 bg-white/10 border-white/20 text-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(CYCLE_DURATIONS).map(([key, { label }]) => (
-                    <SelectItem key={key} value={key}>{label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
               <Button
                 size="sm"
                 variant="ghost"
@@ -1144,42 +1134,139 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
             </div>
           </div>
 
-          {/* Navigation Controls */}
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={scrollLeft}
-                disabled={viewOffset === 0}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <span className="text-sm text-gray-600">
-                Semanas {viewOffset + 1} - {Math.min(viewOffset + visibleWeeks, totalWeeks)} de {totalWeeks}
-              </span>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={scrollRight}
-                disabled={viewOffset + visibleWeeks >= totalWeeks}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
+          {/* Navigation Slider Bar */}
+          <div className="mb-3" data-testid="week-slider-nav">
+            {/* Top row: Period selector + week range info */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3">
+                <Select value={cycleDuration} onValueChange={setCycleDuration}>
+                  <SelectTrigger className="w-56 h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(CYCLE_DURATIONS).map(([key, { label }]) => (
+                      <SelectItem key={key} value={key}>{label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full">
+                  S{viewOffset + 1} — S{Math.min(viewOffset + visibleWeeks, totalWeeks)} de {totalWeeks}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                {[12, 24, 36, 52].map(n => (
+                  <button
+                    key={n}
+                    onClick={() => { setVisibleWeeks(n); setViewOffset(Math.min(viewOffset, Math.max(0, totalWeeks - n))); }}
+                    className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-all ${visibleWeeks === n ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+                  >{n}s</button>
+                ))}
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Mostrar:</span>
-              <Select value={visibleWeeks.toString()} onValueChange={(v) => setVisibleWeeks(parseInt(v))}>
-                <SelectTrigger className="w-24 h-8">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="12">12 sem</SelectItem>
-                  <SelectItem value="24">24 sem</SelectItem>
-                  <SelectItem value="36">36 sem</SelectItem>
-                  <SelectItem value="52">52 sem</SelectItem>
-                </SelectContent>
-              </Select>
+            {/* Scrollbar track */}
+            <div className="relative h-8 select-none" data-testid="week-slider-track">
+              {/* Track background with week ticks */}
+              <div className="absolute inset-x-0 top-3 h-2 bg-gradient-to-r from-slate-100 to-slate-200 rounded-full overflow-hidden">
+                {/* Macro phase colors as background bands */}
+                {(() => {
+                  const bands = [];
+                  let lastPhase = null;
+                  let bandStart = 0;
+                  const phaseColors = {
+                    preparatory_general: '#3B82F6', preparatory_specific: '#8B5CF6',
+                    precompetitive: '#F59E0B', competitive: '#10B981', transition: '#94A3B8'
+                  };
+                  for (let w = 1; w <= totalWeeks; w++) {
+                    const phase = planData.phases?.[w] || null;
+                    if (phase !== lastPhase) {
+                      if (lastPhase && bandStart > 0) {
+                        bands.push({ start: bandStart, end: w - 1, color: phaseColors[lastPhase] || '#E2E8F0' });
+                      }
+                      bandStart = w;
+                      lastPhase = phase;
+                    }
+                  }
+                  if (lastPhase) bands.push({ start: bandStart, end: totalWeeks, color: phaseColors[lastPhase] || '#E2E8F0' });
+                  return bands.map((b, i) => (
+                    <div key={i} className="absolute top-0 h-full" style={{
+                      left: `${((b.start - 1) / totalWeeks) * 100}%`,
+                      width: `${((b.end - b.start + 1) / totalWeeks) * 100}%`,
+                      backgroundColor: b.color,
+                      opacity: 0.5
+                    }} />
+                  ));
+                })()}
+              </div>
+              {/* Week tick marks */}
+              {Array.from({ length: Math.min(totalWeeks, 52) }, (_, i) => {
+                const w = Math.round((i / Math.min(totalWeeks - 1, 51)) * (totalWeeks - 1)) + 1;
+                const showLabel = totalWeeks <= 52 ? (w % 4 === 0 || w === 1) : (w % 8 === 0 || w === 1);
+                return showLabel ? (
+                  <div key={w} className="absolute top-0 text-[8px] text-slate-400 font-medium" style={{ left: `${((w - 1) / totalWeeks) * 100}%`, transform: 'translateX(-50%)' }}>
+                    {w}
+                  </div>
+                ) : null;
+              })}
+              {/* Draggable thumb (visible range) */}
+              <div
+                className="absolute top-1.5 h-5 rounded-full cursor-grab active:cursor-grabbing shadow-md border-2 border-white"
+                style={{
+                  left: `${(viewOffset / totalWeeks) * 100}%`,
+                  width: `${Math.max(4, (visibleWeeks / totalWeeks) * 100)}%`,
+                  background: 'linear-gradient(135deg, #1E293B 0%, #475569 100%)',
+                  minWidth: '40px'
+                }}
+                data-testid="week-slider-thumb"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  const track = e.currentTarget.parentElement;
+                  const trackRect = track.getBoundingClientRect();
+                  const startX = e.clientX;
+                  const startOffset = viewOffset;
+                  const onMove = (ev) => {
+                    const dx = ev.clientX - startX;
+                    const dWeeks = Math.round((dx / trackRect.width) * totalWeeks);
+                    const newOffset = Math.max(0, Math.min(totalWeeks - visibleWeeks, startOffset + dWeeks));
+                    setViewOffset(newOffset);
+                  };
+                  const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+                  document.addEventListener('mousemove', onMove);
+                  document.addEventListener('mouseup', onUp);
+                }}
+                onTouchStart={(e) => {
+                  const track = e.currentTarget.parentElement;
+                  const trackRect = track.getBoundingClientRect();
+                  const startX = e.touches[0].clientX;
+                  const startOffset = viewOffset;
+                  const onMove = (ev) => {
+                    const dx = ev.touches[0].clientX - startX;
+                    const dWeeks = Math.round((dx / trackRect.width) * totalWeeks);
+                    const newOffset = Math.max(0, Math.min(totalWeeks - visibleWeeks, startOffset + dWeeks));
+                    setViewOffset(newOffset);
+                  };
+                  const onUp = () => { document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onUp); };
+                  document.addEventListener('touchmove', onMove);
+                  document.addEventListener('touchend', onUp);
+                }}
+              >
+                {/* Grip lines inside thumb */}
+                <div className="flex items-center justify-center h-full gap-[2px]">
+                  <div className="w-[2px] h-2.5 rounded-full bg-white/40" />
+                  <div className="w-[2px] h-2.5 rounded-full bg-white/40" />
+                  <div className="w-[2px] h-2.5 rounded-full bg-white/40" />
+                </div>
+              </div>
+              {/* Click on track to jump */}
+              <div
+                className="absolute inset-0 cursor-pointer z-[-1]"
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const clickPct = (e.clientX - rect.left) / rect.width;
+                  const targetWeek = Math.round(clickPct * totalWeeks);
+                  const newOffset = Math.max(0, Math.min(totalWeeks - visibleWeeks, targetWeek - Math.floor(visibleWeeks / 2)));
+                  setViewOffset(newOffset);
+                }}
+              />
             </div>
           </div>
 
