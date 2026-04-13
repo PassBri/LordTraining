@@ -14,7 +14,11 @@
 - Restaurados sub-rows con cuadros de colores clickeables para Monitoreo/Evaluaciones (6 tipos: medico, fisico, tecnico, tactico, psicologico, teorico)
 - Cada celda es interactiva (toggle on/off) usando renderBooleanCell
 
-### Graficas Inline Alineadas con Tabla de Periodizacion (Abr 2026)
+### Reestructuracion tabla GraphicPlan (Abr 2026)
+- Agregadas filas "Etapa" y "Tipo de etapa" al inicio de la tabla (clickeables para editar periodo/fase)
+- Agregada fila "Tipo de macrociclo" con etiquetas de texto del tipo
+- Barra de desplazamiento de semanas movida al fondo con sticky bottom-0 (siempre visible)
+- Eliminado espacio desperdiciado: columna etiquetas fija 160px, tabla table-layout fixed w-full
 - Reemplazados los 5 InteractiveCharts externos (desalineados) por filas inline dentro de la tabla
 - Cada metrica es una fila de tabla con barras proporcionales perfectamente alineadas con las columnas de semanas
 - 5 secciones de graficas: Carga/Recuperacion, Volumen/Intensidad, Preparacion por Componentes, Capacidades Fisicas, Duracion/Actividad

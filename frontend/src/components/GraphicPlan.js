@@ -1238,142 +1238,6 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
             </div>
           </div>
 
-          {/* Navigation Slider Bar */}
-          <div className="mb-3" data-testid="week-slider-nav">
-            {/* Top row: Period selector + week range info */}
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-3">
-                <Select value={cycleDuration} onValueChange={setCycleDuration}>
-                  <SelectTrigger className="w-56 h-8 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(CYCLE_DURATIONS).map(([key, { label }]) => (
-                      <SelectItem key={key} value={key}>{label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full">
-                  S{viewOffset + 1} — S{Math.min(viewOffset + visibleWeeks, totalWeeks)} de {totalWeeks}
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                {[12, 24, 36, 52].map(n => (
-                  <button
-                    key={n}
-                    onClick={() => { setVisibleWeeks(n); setViewOffset(Math.min(viewOffset, Math.max(0, totalWeeks - n))); }}
-                    className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-all ${visibleWeeks === n ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
-                  >{n}s</button>
-                ))}
-              </div>
-            </div>
-            {/* Scrollbar track */}
-            <div className="relative h-8 select-none" data-testid="week-slider-track">
-              {/* Track background with week ticks */}
-              <div className="absolute inset-x-0 top-3 h-2 bg-gradient-to-r from-slate-100 to-slate-200 rounded-full overflow-hidden">
-                {/* Macro phase colors as background bands */}
-                {(() => {
-                  const bands = [];
-                  let lastPhase = null;
-                  let bandStart = 0;
-                  const phaseColors = {
-                    preparatory_general: '#3B82F6', preparatory_specific: '#8B5CF6',
-                    precompetitive: '#F59E0B', competitive: '#10B981', transition: '#94A3B8'
-                  };
-                  for (let w = 1; w <= totalWeeks; w++) {
-                    const phase = planData.phases?.[w] || null;
-                    if (phase !== lastPhase) {
-                      if (lastPhase && bandStart > 0) {
-                        bands.push({ start: bandStart, end: w - 1, color: phaseColors[lastPhase] || '#E2E8F0' });
-                      }
-                      bandStart = w;
-                      lastPhase = phase;
-                    }
-                  }
-                  if (lastPhase) bands.push({ start: bandStart, end: totalWeeks, color: phaseColors[lastPhase] || '#E2E8F0' });
-                  return bands.map((b, i) => (
-                    <div key={i} className="absolute top-0 h-full" style={{
-                      left: `${((b.start - 1) / totalWeeks) * 100}%`,
-                      width: `${((b.end - b.start + 1) / totalWeeks) * 100}%`,
-                      backgroundColor: b.color,
-                      opacity: 0.5
-                    }} />
-                  ));
-                })()}
-              </div>
-              {/* Week tick marks */}
-              {Array.from({ length: Math.min(totalWeeks, 52) }, (_, i) => {
-                const w = Math.round((i / Math.min(totalWeeks - 1, 51)) * (totalWeeks - 1)) + 1;
-                const showLabel = totalWeeks <= 52 ? (w % 4 === 0 || w === 1) : (w % 8 === 0 || w === 1);
-                return showLabel ? (
-                  <div key={w} className="absolute top-0 text-[8px] text-slate-400 font-medium" style={{ left: `${((w - 1) / totalWeeks) * 100}%`, transform: 'translateX(-50%)' }}>
-                    {w}
-                  </div>
-                ) : null;
-              })}
-              {/* Draggable thumb (visible range) */}
-              <div
-                className="absolute top-1.5 h-5 rounded-full cursor-grab active:cursor-grabbing shadow-md border-2 border-white"
-                style={{
-                  left: `${(viewOffset / totalWeeks) * 100}%`,
-                  width: `${Math.max(4, (visibleWeeks / totalWeeks) * 100)}%`,
-                  background: 'linear-gradient(135deg, #1E293B 0%, #475569 100%)',
-                  minWidth: '40px'
-                }}
-                data-testid="week-slider-thumb"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  const track = e.currentTarget.parentElement;
-                  const trackRect = track.getBoundingClientRect();
-                  const startX = e.clientX;
-                  const startOffset = viewOffset;
-                  const onMove = (ev) => {
-                    const dx = ev.clientX - startX;
-                    const dWeeks = Math.round((dx / trackRect.width) * totalWeeks);
-                    const newOffset = Math.max(0, Math.min(totalWeeks - visibleWeeks, startOffset + dWeeks));
-                    setViewOffset(newOffset);
-                  };
-                  const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
-                  document.addEventListener('mousemove', onMove);
-                  document.addEventListener('mouseup', onUp);
-                }}
-                onTouchStart={(e) => {
-                  const track = e.currentTarget.parentElement;
-                  const trackRect = track.getBoundingClientRect();
-                  const startX = e.touches[0].clientX;
-                  const startOffset = viewOffset;
-                  const onMove = (ev) => {
-                    const dx = ev.touches[0].clientX - startX;
-                    const dWeeks = Math.round((dx / trackRect.width) * totalWeeks);
-                    const newOffset = Math.max(0, Math.min(totalWeeks - visibleWeeks, startOffset + dWeeks));
-                    setViewOffset(newOffset);
-                  };
-                  const onUp = () => { document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onUp); };
-                  document.addEventListener('touchmove', onMove);
-                  document.addEventListener('touchend', onUp);
-                }}
-              >
-                {/* Grip lines inside thumb */}
-                <div className="flex items-center justify-center h-full gap-[2px]">
-                  <div className="w-[2px] h-2.5 rounded-full bg-white/40" />
-                  <div className="w-[2px] h-2.5 rounded-full bg-white/40" />
-                  <div className="w-[2px] h-2.5 rounded-full bg-white/40" />
-                </div>
-              </div>
-              {/* Click on track to jump */}
-              <div
-                className="absolute inset-0 cursor-pointer z-[-1]"
-                onClick={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  const clickPct = (e.clientX - rect.left) / rect.width;
-                  const targetWeek = Math.round(clickPct * totalWeeks);
-                  const newOffset = Math.max(0, Math.min(totalWeeks - visibleWeeks, targetWeek - Math.floor(visibleWeeks / 2)));
-                  setViewOffset(newOffset);
-                }}
-              />
-            </div>
-          </div>
-
           {/* Main Grid */}
           <div className="overflow-x-auto border rounded-lg">
             <table className="w-full border-collapse text-xs" style={{ tableLayout: 'fixed' }}>
@@ -1392,6 +1256,63 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
               </thead>
               
               <tbody>
+                {/* ETAPA rows (at the top as requested) */}
+                <tr>
+                  <td className="sticky left-0 bg-amber-50 px-2 py-1 text-xs font-bold text-amber-800 border border-gray-300" style={{ width: 160 }}>
+                    Etapa
+                  </td>
+                  {displayedWeeks.map(week => {
+                    const typeId = planData.periods?.[week];
+                    const colors = { preparatorio: 'bg-blue-200', competitivo: 'bg-green-200', transicion: 'bg-orange-200' };
+                    const labels = { preparatorio: 'Prep', competitivo: 'Comp', transicion: 'Trans' };
+                    return (
+                      <td
+                        key={`etapa-${week}`}
+                        className={`border border-gray-300 cursor-pointer text-center text-[8px] font-medium ${colors[typeId] || ''}`}
+                        onClick={() => {
+                          const types = ['preparatorio', 'competitivo', 'transicion', null];
+                          const currentIndex = types.indexOf(typeId);
+                          const nextType = types[(currentIndex + 1) % types.length];
+                          setPlanData(prev => ({
+                            ...prev,
+                            periods: { ...prev.periods, [week]: nextType }
+                          }));
+                        }}
+                        data-testid={`cell-etapa-${week}`}
+                      >
+                        {labels[typeId] || ''}
+                      </td>
+                    );
+                  })}
+                </tr>
+                <tr>
+                  <td className="sticky left-0 bg-amber-50/60 px-2 py-1 text-xs border border-gray-300" style={{ width: 160 }}>
+                    Tipo de etapa
+                  </td>
+                  {displayedWeeks.map(week => {
+                    const typeId = planData.phases?.[week];
+                    const type = MACROCYCLE_TYPES.find(t => t.id === typeId);
+                    return (
+                      <td
+                        key={`tipo-etapa-${week}`}
+                        className={`border border-gray-300 cursor-pointer text-center text-[7px] ${type?.color || ''}`}
+                        onClick={() => {
+                          const currentIndex = MACROCYCLE_TYPES.findIndex(t => t.id === typeId);
+                          const nextIndex = (currentIndex + 1) % (MACROCYCLE_TYPES.length + 1);
+                          const nextType = nextIndex === MACROCYCLE_TYPES.length ? null : MACROCYCLE_TYPES[nextIndex];
+                          setPlanData(prev => ({
+                            ...prev,
+                            phases: { ...prev.phases, [week]: nextType?.id || null }
+                          }));
+                        }}
+                        data-testid={`cell-tipo-etapa-${week}`}
+                      >
+                        {type?.label?.substring(0, 6) || ''}
+                      </td>
+                    );
+                  })}
+                </tr>
+
                 {/* CYCLE SECTION */}
                 <tr className="bg-blue-50">
                   <td colSpan={displayedWeeks.length + 1} className="px-2 py-1 font-bold text-blue-800 border border-gray-300">
@@ -1405,7 +1326,23 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 {/* Macrocycle */}
                 {renderCycleRow('macrocycles', MACROCYCLE_TYPES)}
                 
-                {/* Macrocycle Duration - filled from V2 data */}
+                {/* Tipo de macrociclo (text labels) */}
+                <tr>
+                  <td className="sticky left-0 bg-gray-50 px-2 py-1 text-xs border border-gray-300">
+                    Tipo de macrociclo
+                  </td>
+                  {displayedWeeks.map(week => {
+                    const typeId = planData.macrocycles?.[week];
+                    const type = MACROCYCLE_TYPES.find(t => t.id === typeId);
+                    return (
+                      <td key={`macro-type-${week}`} className="border border-gray-300 text-center text-[7px]">
+                        {type?.label?.substring(0, 6) || ''}
+                      </td>
+                    );
+                  })}
+                </tr>
+                
+                {/* Macrocycle Duration */}
                 <tr>
                   <td className="sticky left-0 bg-gray-50 px-2 py-1 text-xs border border-gray-300">
                     Duracion del macrociclo
@@ -1430,58 +1367,6 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                       <td key={`macro-dur-${week}`} className={`w-6 h-4 border border-gray-300 text-center text-[9px] font-medium text-slate-500 ${durColor}`}>
                         {durLabel}
                       </td>
-                    );
-                  })}
-                </tr>
-                
-                {/* Period */}
-                <tr>
-                  <td className="sticky left-0 bg-gray-50 px-2 py-1 text-xs border border-gray-300">
-                    Período
-                  </td>
-                  {displayedWeeks.map(week => {
-                    const typeId = planData.periods?.[week];
-                    const colors = { preparatorio: 'bg-blue-200', competitivo: 'bg-green-200', transicion: 'bg-orange-200' };
-                    return (
-                      <td
-                        key={`period-${week}`}
-                        className={`w-6 h-6 border border-gray-300 cursor-pointer ${colors[typeId] || ''}`}
-                        onClick={() => {
-                          const types = ['preparatorio', 'competitivo', 'transicion', null];
-                          const currentIndex = types.indexOf(typeId);
-                          const nextType = types[(currentIndex + 1) % types.length];
-                          setPlanData(prev => ({
-                            ...prev,
-                            periods: { ...prev.periods, [week]: nextType }
-                          }));
-                        }}
-                      />
-                    );
-                  })}
-                </tr>
-                
-                {/* Phase/Stage */}
-                <tr>
-                  <td className="sticky left-0 bg-gray-50 px-2 py-1 text-xs border border-gray-300">
-                    Fase / Etapa
-                  </td>
-                  {displayedWeeks.map(week => {
-                    const typeId = planData.phases?.[week];
-                    const type = MACROCYCLE_TYPES.find(t => t.id === typeId);
-                    return (
-                      <td
-                        key={`phase-${week}`}
-                        className={`w-6 h-6 border border-gray-300 cursor-pointer ${type?.color || ''}`}
-                        onClick={() => {
-                          const currentIndex = MACROCYCLE_TYPES.findIndex(t => t.id === typeId);
-                          const nextIndex = (currentIndex + 1) % (MACROCYCLE_TYPES.length + 1);
-                          const nextType = nextIndex === MACROCYCLE_TYPES.length ? null : MACROCYCLE_TYPES[nextIndex];
-                          setPlanData(prev => ({
-                            ...prev,
-                            phases: { ...prev.phases, [week]: nextType?.id || null }
-                          }));
-                        }}
-                      />
                     );
                   })}
                 </tr>
@@ -1762,6 +1647,134 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
 
               </tbody>
             </table>
+          </div>
+
+          {/* Navigation Slider Bar — sticky at bottom while scrolling through table */}
+          <div className="sticky bottom-0 z-30 bg-white/95 backdrop-blur-sm border-t py-2 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]" data-testid="week-slider-nav">
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center gap-3">
+                <Select value={cycleDuration} onValueChange={setCycleDuration}>
+                  <SelectTrigger className="w-48 h-7 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(CYCLE_DURATIONS).map(([key, { label }]) => (
+                      <SelectItem key={key} value={key}>{label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">
+                  S{viewOffset + 1} — S{Math.min(viewOffset + visibleWeeks, totalWeeks)} de {totalWeeks}
+                </span>
+              </div>
+              <div className="flex items-center gap-1">
+                {[12, 24, 36, 52].map(n => (
+                  <button
+                    key={n}
+                    onClick={() => { setVisibleWeeks(n); setViewOffset(Math.min(viewOffset, Math.max(0, totalWeeks - n))); }}
+                    className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-all ${visibleWeeks === n ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+                  >{n}s</button>
+                ))}
+              </div>
+            </div>
+            <div className="relative h-7 select-none" data-testid="week-slider-track">
+              <div className="absolute inset-x-0 top-2.5 h-2 bg-gradient-to-r from-slate-100 to-slate-200 rounded-full overflow-hidden">
+                {(() => {
+                  const bands = [];
+                  let lastPhase = null;
+                  let bandStart = 0;
+                  const phaseColors = {
+                    preparatory_general: '#3B82F6', preparatory_specific: '#8B5CF6',
+                    precompetitive: '#F59E0B', competitive: '#10B981', transition: '#94A3B8'
+                  };
+                  for (let w = 1; w <= totalWeeks; w++) {
+                    const phase = planData.phases?.[w] || null;
+                    if (phase !== lastPhase) {
+                      if (lastPhase && bandStart > 0) {
+                        bands.push({ start: bandStart, end: w - 1, color: phaseColors[lastPhase] || '#E2E8F0' });
+                      }
+                      bandStart = w;
+                      lastPhase = phase;
+                    }
+                  }
+                  if (lastPhase) bands.push({ start: bandStart, end: totalWeeks, color: phaseColors[lastPhase] || '#E2E8F0' });
+                  return bands.map((b, i) => (
+                    <div key={i} className="absolute top-0 h-full" style={{
+                      left: `${((b.start - 1) / totalWeeks) * 100}%`,
+                      width: `${((b.end - b.start + 1) / totalWeeks) * 100}%`,
+                      backgroundColor: b.color,
+                      opacity: 0.5
+                    }} />
+                  ));
+                })()}
+              </div>
+              {Array.from({ length: Math.min(totalWeeks, 52) }, (_, i) => {
+                const w = Math.round((i / Math.min(totalWeeks - 1, 51)) * (totalWeeks - 1)) + 1;
+                const showLabel = totalWeeks <= 52 ? (w % 4 === 0 || w === 1) : (w % 8 === 0 || w === 1);
+                return showLabel ? (
+                  <div key={w} className="absolute top-0 text-[8px] text-slate-400 font-medium" style={{ left: `${((w - 1) / totalWeeks) * 100}%`, transform: 'translateX(-50%)' }}>
+                    {w}
+                  </div>
+                ) : null;
+              })}
+              <div
+                className="absolute top-1 h-5 rounded-full cursor-grab active:cursor-grabbing shadow-md border-2 border-white"
+                style={{
+                  left: `${(viewOffset / totalWeeks) * 100}%`,
+                  width: `${Math.max(4, (visibleWeeks / totalWeeks) * 100)}%`,
+                  background: 'linear-gradient(135deg, #1E293B 0%, #475569 100%)',
+                  minWidth: '40px'
+                }}
+                data-testid="week-slider-thumb"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  const track = e.currentTarget.parentElement;
+                  const trackRect = track.getBoundingClientRect();
+                  const startX = e.clientX;
+                  const startOffset = viewOffset;
+                  const onMove = (ev) => {
+                    const dx = ev.clientX - startX;
+                    const dWeeks = Math.round((dx / trackRect.width) * totalWeeks);
+                    const newOffset = Math.max(0, Math.min(totalWeeks - visibleWeeks, startOffset + dWeeks));
+                    setViewOffset(newOffset);
+                  };
+                  const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+                  document.addEventListener('mousemove', onMove);
+                  document.addEventListener('mouseup', onUp);
+                }}
+                onTouchStart={(e) => {
+                  const track = e.currentTarget.parentElement;
+                  const trackRect = track.getBoundingClientRect();
+                  const startX = e.touches[0].clientX;
+                  const startOffset = viewOffset;
+                  const onMove = (ev) => {
+                    const dx = ev.touches[0].clientX - startX;
+                    const dWeeks = Math.round((dx / trackRect.width) * totalWeeks);
+                    const newOffset = Math.max(0, Math.min(totalWeeks - visibleWeeks, startOffset + dWeeks));
+                    setViewOffset(newOffset);
+                  };
+                  const onUp = () => { document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onUp); };
+                  document.addEventListener('touchmove', onMove);
+                  document.addEventListener('touchend', onUp);
+                }}
+              >
+                <div className="flex items-center justify-center h-full gap-[2px]">
+                  <div className="w-[2px] h-2.5 rounded-full bg-white/40" />
+                  <div className="w-[2px] h-2.5 rounded-full bg-white/40" />
+                  <div className="w-[2px] h-2.5 rounded-full bg-white/40" />
+                </div>
+              </div>
+              <div
+                className="absolute inset-0 cursor-pointer z-[-1]"
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const clickPct = (e.clientX - rect.left) / rect.width;
+                  const targetWeek = Math.round(clickPct * totalWeeks);
+                  const newOffset = Math.max(0, Math.min(totalWeeks - visibleWeeks, targetWeek - Math.floor(visibleWeeks / 2)));
+                  setViewOffset(newOffset);
+                }}
+              />
+            </div>
           </div>
 
           {/* Legend */}
