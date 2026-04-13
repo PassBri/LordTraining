@@ -824,53 +824,55 @@ const SessionEditor = ({
             </div>
 
             {/* === BODY === 3 columnas: Descripción+Params | Stats | Pizarra */}
-            <div className="flex gap-0" style={{minHeight:'200px'}}>
+            <div className="flex gap-0" style={{minHeight:'210px'}}>
 
               {/* COL 1: Descripción + Método + Materiales */}
-              <div className="flex-1 min-w-0 p-5 border-r border-slate-100/80">
-                <Textarea value={act.descripcion||''} onChange={(e) => updateActividad(faseKey, idx, 'descripcion', e.target.value)} placeholder="Descripción del ejercicio, grupos musculares, variantes..." className="text-[12px] min-h-[70px] resize-none py-3 px-3.5 text-slate-600 leading-relaxed border-slate-100 rounded-xl bg-slate-50/50 focus:bg-white w-full mb-3" style={{fontFamily:DM}} rows={4} data-testid={`exercise-desc-${faseKey}-${idx}`} />
-                <div className="flex items-center gap-2 mb-3">
+              <div className="flex-1 min-w-0 px-5 pt-5 pb-4 border-r border-slate-100/80 flex flex-col">
+                <Textarea value={act.descripcion||''} onChange={(e) => updateActividad(faseKey, idx, 'descripcion', e.target.value)} placeholder="Descripción del ejercicio, grupos musculares, variantes..." className="text-[13px] min-h-[72px] resize-none py-3 px-4 text-slate-700 leading-relaxed border-slate-200/80 rounded-xl bg-slate-50/60 focus:bg-white focus:border-slate-300 w-full mb-4" style={{fontFamily:DM}} rows={4} data-testid={`exercise-desc-${faseKey}-${idx}`} />
+                <div className="flex items-center gap-2.5 mb-4">
                   <Select value={act.metodo} onValueChange={(v) => updateActividad(faseKey, idx, 'metodo', v)}>
-                    <SelectTrigger className="h-6 text-[9px] border-0 bg-blue-50 text-blue-700 rounded-full px-2.5 w-auto"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-7 text-[10px] font-semibold border-0 bg-blue-50 text-blue-700 rounded-full px-3 w-auto"><SelectValue /></SelectTrigger>
                     <SelectContent>{METODOS_ENTRENAMIENTO.map(met => <SelectItem key={met.id} value={met.id} className="text-xs">{met.name}</SelectItem>)}</SelectContent>
                   </Select>
                   <Select value={act.procOrganizativo} onValueChange={(v) => updateActividad(faseKey, idx, 'procOrganizativo', v)}>
-                    <SelectTrigger className="h-6 text-[9px] border-0 bg-emerald-50 text-emerald-700 rounded-full px-2.5 w-auto"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-7 text-[10px] font-semibold border-0 bg-emerald-50 text-emerald-700 rounded-full px-3 w-auto"><SelectValue /></SelectTrigger>
                     <SelectContent>{PROC_ORGANIZATIVO.map(proc => <SelectItem key={proc.id} value={proc.id} className="text-xs">{proc.name}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
                 {/* Materiales */}
-                <div>
-                  <div className="flex flex-wrap gap-1.5 mb-2">
-                    {actMateriales.map((mat, mi) => (
-                      <span key={mi} className="group inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-lg cursor-pointer" style={{background:'rgba(168,85,247,0.08)',color:'#7c3aed',border:'1px solid rgba(168,85,247,0.15)'}}
-                        onClick={() => {
-                          const nuevoNombre = prompt('Editar material:', mat);
-                          if (nuevoNombre && nuevoNombre.trim() && nuevoNombre.trim() !== mat) {
-                            const nm = [...actMateriales];
-                            nm[mi] = nuevoNombre.trim();
-                            updateActividad(faseKey, idx, 'materiales', nm);
-                          }
-                        }}
-                        title="Clic para editar"
-                        data-testid={`material-tag-${faseKey}-${idx}-${mi}`}
-                      >
-                        {mat}
-                        <button onClick={(e) => { e.stopPropagation(); const nm=[...actMateriales]; nm.splice(mi,1); updateActividad(faseKey, idx, 'materiales', nm); }} className="hover:text-red-500 ml-0.5 transition-colors" data-testid={`remove-material-${faseKey}-${idx}-${mi}`}><X className="w-3 h-3" /></button>
-                      </span>
-                    ))}
-                  </div>
+                <div className="mt-auto">
+                  {actMateriales.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {actMateriales.map((mat, mi) => (
+                        <span key={mi} className="group inline-flex items-center gap-1.5 text-[11px] font-semibold pl-3 pr-2 py-1.5 rounded-lg cursor-pointer transition-all hover:shadow-sm" style={{background:'rgba(168,85,247,0.07)',color:'#7c3aed',border:'1px solid rgba(168,85,247,0.18)'}}
+                          onClick={() => {
+                            const nuevoNombre = prompt('Editar material:', mat);
+                            if (nuevoNombre && nuevoNombre.trim() && nuevoNombre.trim() !== mat) {
+                              const nm = [...actMateriales];
+                              nm[mi] = nuevoNombre.trim();
+                              updateActividad(faseKey, idx, 'materiales', nm);
+                            }
+                          }}
+                          title="Clic para editar"
+                          data-testid={`material-tag-${faseKey}-${idx}-${mi}`}
+                        >
+                          {mat}
+                          <button onClick={(e) => { e.stopPropagation(); const nm=[...actMateriales]; nm.splice(mi,1); updateActividad(faseKey, idx, 'materiales', nm); }} className="hover:text-red-500 transition-colors opacity-50 hover:opacity-100" data-testid={`remove-material-${faseKey}-${idx}-${mi}`}><X className="w-3.5 h-3.5" /></button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   <Popover>
                     <PopoverTrigger asChild>
-                      <button className="inline-flex items-center gap-1.5 text-[10px] font-medium px-3 py-1.5 rounded-lg border border-dashed border-slate-300 text-slate-500 hover:bg-purple-50 hover:border-purple-400 hover:text-purple-700 transition-all" data-testid={`add-material-btn-${faseKey}-${idx}`}>
-                        <Plus className="w-3 h-3" /> Agregar material
+                      <button className="inline-flex items-center gap-1.5 text-[11px] font-medium px-3.5 py-2 rounded-lg border border-dashed border-slate-300 text-slate-500 hover:bg-purple-50 hover:border-purple-400 hover:text-purple-700 transition-all" data-testid={`add-material-btn-${faseKey}-${idx}`}>
+                        <Plus className="w-3.5 h-3.5" /> Agregar material
                       </button>
                     </PopoverTrigger>
                     <PopoverContent className="w-[300px] p-0" align="start" side="bottom">
                       <div className="p-2.5 border-b border-slate-100 bg-slate-50/80">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Materiales</span>
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Materiales</span>
                       </div>
-                      <form className="p-2 border-b border-slate-100" onSubmit={(e) => {
+                      <form className="p-2.5 border-b border-slate-100" onSubmit={(e) => {
                         e.preventDefault();
                         const input = e.target.elements.nuevoMaterial;
                         const val = input.value.trim();
@@ -880,15 +882,15 @@ const SessionEditor = ({
                         }
                       }}>
                         <div className="flex gap-1.5">
-                          <Input name="nuevoMaterial" placeholder="Nuevo material personalizado..." className="h-7 text-[11px] flex-1" data-testid={`custom-material-input-${faseKey}-${idx}`} />
-                          <Button type="submit" size="sm" className="h-7 px-2.5 text-[10px] bg-purple-600 hover:bg-purple-700 text-white" data-testid={`custom-material-add-${faseKey}-${idx}`}>
-                            <Plus className="w-3 h-3" />
+                          <Input name="nuevoMaterial" placeholder="Nuevo material personalizado..." className="h-8 text-[12px] flex-1" data-testid={`custom-material-input-${faseKey}-${idx}`} />
+                          <Button type="submit" size="sm" className="h-8 px-3 text-[11px] bg-purple-600 hover:bg-purple-700 text-white" data-testid={`custom-material-add-${faseKey}-${idx}`}>
+                            <Plus className="w-3.5 h-3.5" />
                           </Button>
                         </div>
                       </form>
                       <div className="max-h-[180px] overflow-y-auto p-2 grid grid-cols-2 gap-1">
                         {MATERIALES_DISPONIBLES.filter(m => !actMateriales.includes(m)).map(mat => (
-                          <button key={mat} type="button" onClick={() => updateActividad(faseKey, idx, 'materiales', [...actMateriales, mat])} className="text-left text-[11px] px-2.5 py-1.5 rounded-lg text-slate-600 hover:bg-purple-50 hover:text-purple-700 transition-all truncate" style={{fontFamily:DM}}>
+                          <button key={mat} type="button" onClick={() => updateActividad(faseKey, idx, 'materiales', [...actMateriales, mat])} className="text-left text-[12px] px-3 py-2 rounded-lg text-slate-600 hover:bg-purple-50 hover:text-purple-700 transition-all truncate" style={{fontFamily:DM}}>
                             {mat}
                           </button>
                         ))}
@@ -907,30 +909,30 @@ const SessionEditor = ({
                 const intUnit = act.unidadIntensidad || capCfg.unidadesInt[0];
                 const volUnit = act.unidadVolumen || capCfg.unidadesVol[0];
                 return (
-              <div className="w-[210px] flex-shrink-0 p-4 border-r border-slate-100/80">
+              <div className="w-[220px] flex-shrink-0 p-5 border-r border-slate-100/80">
                 {/* Intensidad visual */}
-                <div className="mb-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[7px] font-bold uppercase tracking-widest text-slate-400">Intensidad <span className="text-[7px] normal-case tracking-normal font-medium text-slate-300">({intUnit})</span></span>
-                    <span className="text-[14px] font-black" style={{color: act.intensidad>80?'#ef4444':act.intensidad>60?'#f59e0b':act.intensidad>40?'#CCFF00':'#22c55e'}}>{act.intensidad}<span className="text-[9px] font-semibold opacity-60">{intUnit === '%1RM' || intUnit === '%FCmax' || intUnit === '%FCres' || intUnit === '%Vmax' ? '%' : ''}</span></span>
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500" style={{fontFamily:DM}}>Intensidad <span className="text-[9px] normal-case tracking-normal font-medium text-slate-400">({intUnit})</span></span>
+                    <span className="text-[16px] font-black" style={{color: act.intensidad>80?'#ef4444':act.intensidad>60?'#f59e0b':act.intensidad>40?'#CCFF00':'#22c55e',fontFamily:DM}}>{act.intensidad}<span className="text-[10px] font-semibold opacity-50">{intUnit === '%1RM' || intUnit === '%FCmax' || intUnit === '%FCres' || intUnit === '%Vmax' ? '%' : ''}</span></span>
                   </div>
-                  <div className="h-2 rounded-full overflow-hidden" style={{background:'#f1f5f9'}}>
+                  <div className="h-2.5 rounded-full overflow-hidden" style={{background:'#f1f5f9'}}>
                     <div className="h-full rounded-full transition-all duration-300" style={{width:`${act.intensidad}%`,background: act.intensidad>80?'linear-gradient(90deg,#f59e0b,#ef4444)':act.intensidad>60?'linear-gradient(90deg,#CCFF00,#f59e0b)':act.intensidad>40?'linear-gradient(90deg,#22c55e,#CCFF00)':'linear-gradient(90deg,#06b6d4,#22c55e)'}} />
                   </div>
-                  <input type="range" min={0} max={100} value={act.intensidad} onChange={(e) => updateActividad(faseKey, idx, 'intensidad', parseInt(e.target.value))} className="w-full h-1 mt-1 accent-[#CCFF00] cursor-pointer" />
-                  <div className="text-[7px] text-slate-300 text-right mt-0.5">Ref: {capCfg.intRef}</div>
+                  <input type="range" min={0} max={100} value={act.intensidad} onChange={(e) => updateActividad(faseKey, idx, 'intensidad', parseInt(e.target.value))} className="w-full h-1.5 mt-1.5 accent-[#CCFF00] cursor-pointer" />
+                  <div className="text-[9px] text-slate-400 text-right mt-1" style={{fontFamily:DM}}>Ref: {capCfg.intRef}</div>
                 </div>
                 {/* Stats grid 2x2 — dinámico */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2.5">
                   {[
                     { label:'Series', value:act.series, key:'series', type:'number', ph: capCfg.serPh },
                     { label:'Reps', value:act.repeticiones, key:'repeticiones', ph: capCfg.volPh },
                     { label: volUnit, value:act.volumen, key:'volumen', ph: capCfg.volPh },
                     { label:'Recup.', value:act.recuperacion, key:'recuperacion', ph: capCfg.recPh }
                   ].map(s => (
-                    <div key={s.key} className="rounded-xl p-2.5 text-center" style={{background:'#0a0a0f'}}>
-                      <span className="text-[7px] font-bold uppercase tracking-widest block mb-1.5" style={{color:'rgba(204,255,0,0.5)'}}>{s.label}</span>
-                      <Input value={s.value} type={s.type||'text'} onChange={(e) => updateActividad(faseKey, idx, s.key, s.type==='number'?parseInt(e.target.value)||0:e.target.value)} placeholder={s.ph} className="h-7 text-center text-white text-[13px] font-bold bg-transparent border-0 focus:ring-0 px-0" style={{fontFamily:DM}} min={s.type==='number'?0:undefined} />
+                    <div key={s.key} className="rounded-xl p-3 text-center" style={{background:'#0a0a0f'}}>
+                      <span className="text-[8px] font-bold uppercase tracking-widest block mb-2" style={{color:'rgba(204,255,0,0.6)',fontFamily:DM}}>{s.label}</span>
+                      <Input value={s.value} type={s.type||'text'} onChange={(e) => updateActividad(faseKey, idx, s.key, s.type==='number'?parseInt(e.target.value)||0:e.target.value)} placeholder={s.ph} className="h-8 text-center text-white text-[14px] font-bold bg-transparent border-0 focus:ring-0 px-0" style={{fontFamily:DM}} min={s.type==='number'?0:undefined} />
                     </div>
                   ))}
                 </div>
@@ -939,19 +941,19 @@ const SessionEditor = ({
               })()}
 
               {/* COL 3: Pizarra */}
-              <div className="w-[200px] flex-shrink-0 p-3.5 flex flex-col">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <div className="w-4 h-4 rounded bg-[#f0ffd0] flex items-center justify-center"><LayoutGrid className="w-2.5 h-2.5 text-[#3a5a00]" /></div>
-                  <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400">Pizarra</span>
+              <div className="w-[200px] flex-shrink-0 p-4 flex flex-col">
+                <div className="flex items-center gap-2 mb-2.5">
+                  <div className="w-5 h-5 rounded-md bg-[#f0ffd0] flex items-center justify-center"><LayoutGrid className="w-3 h-3 text-[#3a5a00]" /></div>
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500" style={{fontFamily:DM}}>Pizarra</span>
                 </div>
                 {act.boardThumbnail ? (
                   <div className="w-full flex-1 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-[#c8f700] hover:shadow-md overflow-hidden transition-all" style={{minHeight:'140px'}} onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open(act.boardId?`/tactical-board.html?boardId=${act.boardId}`:'/tactical-board.html','_blank');}} data-testid={`board-thumb-${faseKey}-${idx}`} dangerouslySetInnerHTML={{__html:act.boardThumbnail}} />
                 ) : (
                   <button onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open('/tactical-board.html','_blank');}} className="w-full flex-1 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-300 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all group" style={{minHeight:'140px'}} data-testid={`open-board-${faseKey}-${idx}`}>
-                    <LayoutGrid className="w-6 h-6 group-hover:scale-110 transition-transform" /><span className="text-[8px] font-semibold uppercase mt-1.5 tracking-wide">Abrir pizarra</span>
+                    <LayoutGrid className="w-6 h-6 group-hover:scale-110 transition-transform" /><span className="text-[9px] font-semibold uppercase mt-2 tracking-wide">Abrir pizarra</span>
                   </button>
                 )}
-                {act.boardThumbnail && <button onClick={() => updateActividadMulti(faseKey, idx, {boardThumbnail:null,boardId:null})} className="text-[8px] text-slate-300 hover:text-red-400 mt-1 block w-full text-center transition-colors">quitar</button>}
+                {act.boardThumbnail && <button onClick={() => updateActividadMulti(faseKey, idx, {boardThumbnail:null,boardId:null})} className="text-[10px] text-slate-400 hover:text-red-400 mt-1.5 block w-full text-center transition-colors font-medium">Quitar</button>}
               </div>
             </div>
 
@@ -967,158 +969,158 @@ const SessionEditor = ({
                 <div className="border-t border-slate-100">
                   <button
                     onClick={() => setExpandedPanels(prev => ({ ...prev, [panelKey]: !prev[panelKey] }))}
-                    className="w-full flex items-center justify-between px-4 py-2 hover:bg-slate-50/50 transition-colors"
+                    className="w-full flex items-center justify-between px-5 py-2.5 hover:bg-slate-50/50 transition-colors"
                     data-testid={`toggle-advanced-${faseKey}-${idx}`}
                   >
-                    <div className="flex items-center gap-2">
-                      <Gauge className="w-3 h-3 text-slate-400" />
-                      <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Carga y Progresion</span>
-                      {met.cargaTotal > 0 && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">CT: {met.cargaTotal}</span>}
-                      {met.zonaFC && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-red-50 text-red-600">{met.zonaFC}</span>}
-                      {met.zonaFuerza && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700">{met.zonaFuerza}</span>}
-                      {met.neuroCarga > 0 && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-violet-50 text-violet-600">NC: {met.neuroCarga}</span>}
+                    <div className="flex items-center gap-2.5">
+                      <Gauge className="w-3.5 h-3.5 text-slate-400" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500" style={{fontFamily:DM}}>Carga y Progresion</span>
+                      {met.cargaTotal > 0 && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">CT: {met.cargaTotal}</span>}
+                      {met.zonaFC && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-red-50 text-red-600">{met.zonaFC}</span>}
+                      {met.zonaFuerza && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-50 text-amber-700">{met.zonaFuerza}</span>}
+                      {met.neuroCarga > 0 && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-violet-50 text-violet-600">NC: {met.neuroCarga}</span>}
                     </div>
-                    <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                   </button>
 
                   {isExpanded && (
-                    <div className="px-4 pb-4 space-y-3">
+                    <div className="px-5 pb-5 space-y-4">
                       {/* Fila 1: Subtipo + Unidad Volumen + Unidad Intensidad + Densidad */}
-                      <div className="grid grid-cols-4 gap-2">
+                      <div className="grid grid-cols-4 gap-3">
                         <div>
-                          <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Subtipo</span>
+                          <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 block mb-1.5" style={{fontFamily:DM}}>Subtipo</span>
                           <Select value={act.subtipo || ''} onValueChange={(v) => updateActividad(faseKey, idx, 'subtipo', v)}>
-                            <SelectTrigger className="h-7 text-[10px] border-slate-200 rounded-lg"><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
+                            <SelectTrigger className="h-8 text-[11px] border-slate-200 rounded-lg"><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
                             <SelectContent>{capCfg.subtipos.map(s => <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>)}</SelectContent>
                           </Select>
                         </div>
                         <div>
-                          <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Unidad Vol.</span>
+                          <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 block mb-1.5" style={{fontFamily:DM}}>Unidad Vol.</span>
                           <Select value={act.unidadVolumen || capCfg.unidadesVol[0]} onValueChange={(v) => updateActividad(faseKey, idx, 'unidadVolumen', v)}>
-                            <SelectTrigger className="h-7 text-[10px] border-slate-200 rounded-lg"><SelectValue /></SelectTrigger>
+                            <SelectTrigger className="h-8 text-[11px] border-slate-200 rounded-lg"><SelectValue /></SelectTrigger>
                             <SelectContent>{capCfg.unidadesVol.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}</SelectContent>
                           </Select>
                         </div>
                         <div>
-                          <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Unidad Int.</span>
+                          <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 block mb-1.5" style={{fontFamily:DM}}>Unidad Int.</span>
                           <Select value={act.unidadIntensidad || capCfg.unidadesInt[0]} onValueChange={(v) => updateActividad(faseKey, idx, 'unidadIntensidad', v)}>
-                            <SelectTrigger className="h-7 text-[10px] border-slate-200 rounded-lg"><SelectValue /></SelectTrigger>
+                            <SelectTrigger className="h-8 text-[11px] border-slate-200 rounded-lg"><SelectValue /></SelectTrigger>
                             <SelectContent>{capCfg.unidadesInt.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}</SelectContent>
                           </Select>
                         </div>
                         <div>
-                          <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Densidad</span>
-                          <Input value={act.densidad || ''} onChange={(e) => updateActividad(faseKey, idx, 'densidad', e.target.value)} placeholder={capCfg.denPh} className="h-7 text-[10px] border-slate-200 rounded-lg" data-testid={`densidad-${faseKey}-${idx}`} />
+                          <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 block mb-1.5" style={{fontFamily:DM}}>Densidad</span>
+                          <Input value={act.densidad || ''} onChange={(e) => updateActividad(faseKey, idx, 'densidad', e.target.value)} placeholder={capCfg.denPh} className="h-8 text-[11px] border-slate-200 rounded-lg" data-testid={`densidad-${faseKey}-${idx}`} />
                         </div>
                       </div>
 
-                      {/* Fila 2: Complejidad (coord) O Frecuencia */}
-                      <div className="grid grid-cols-4 gap-2">
+                      {/* Fila 2: Complejidad + Frecuencia */}
+                      <div className="grid grid-cols-4 gap-3">
                         {capCfg.showComplejidad && (
                           <div className="col-span-2">
-                            <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Complejidad (1-5)</span>
-                            <div className="flex items-center gap-2 h-7">
+                            <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 block mb-1.5" style={{fontFamily:DM}}>Complejidad (1-5)</span>
+                            <div className="flex items-center gap-3 h-8 px-3 rounded-lg border border-slate-200 bg-white">
                               <input type="range" min={1} max={5} value={act.complejidad || 3} onChange={(e) => updateActividad(faseKey, idx, 'complejidad', parseInt(e.target.value))} className="flex-1 h-1.5 accent-violet-500 cursor-pointer" />
-                              <span className="text-[13px] font-black text-violet-600 w-6 text-center">{act.complejidad || 3}</span>
+                              <span className="text-[14px] font-black text-violet-600 w-6 text-center" style={{fontFamily:DM}}>{act.complejidad || 3}</span>
                             </div>
                           </div>
                         )}
                         <div className={capCfg.showComplejidad ? '' : 'col-span-2'}>
-                          <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Frecuencia</span>
-                          <Input value={act.frecuencia || ''} onChange={(e) => updateActividad(faseKey, idx, 'frecuencia', e.target.value)} placeholder={capCfg.freqPh} className="h-7 text-[10px] border-slate-200 rounded-lg" />
+                          <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 block mb-1.5" style={{fontFamily:DM}}>Frecuencia</span>
+                          <Input value={act.frecuencia || ''} onChange={(e) => updateActividad(faseKey, idx, 'frecuencia', e.target.value)} placeholder={capCfg.freqPh} className="h-8 text-[11px] border-slate-200 rounded-lg" />
                         </div>
                       </div>
 
-                      {/* Fila 2: Métricas calculadas */}
-                      <div className="flex flex-wrap gap-2">
-                        <div className="flex-1 min-w-[100px] rounded-lg p-2" style={{background:'#0a0a0f'}}>
-                          <span className="text-[7px] font-bold uppercase tracking-widest block mb-0.5" style={{color:'rgba(204,255,0,0.5)'}}>Carga Total</span>
-                          <span className="text-[14px] font-black text-white">{met.cargaTotal}</span>
-                          <span className="text-[8px] text-slate-500 ml-1">vol x int</span>
+                      {/* Métricas calculadas */}
+                      <div className="flex flex-wrap gap-2.5">
+                        <div className="flex-1 min-w-[110px] rounded-xl p-3" style={{background:'#0a0a0f'}}>
+                          <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'rgba(204,255,0,0.6)',fontFamily:DM}}>Carga Total</span>
+                          <span className="text-[16px] font-black text-white" style={{fontFamily:DM}}>{met.cargaTotal}</span>
+                          <span className="text-[9px] text-slate-500 ml-1.5">vol x int</span>
                         </div>
-                        <div className="flex-1 min-w-[100px] rounded-lg p-2" style={{background:'#0a0a0f'}}>
-                          <span className="text-[7px] font-bold uppercase tracking-widest block mb-0.5" style={{color:'rgba(204,255,0,0.5)'}}>Carga Sesion</span>
-                          <span className="text-[14px] font-black text-white">{met.cargaSesion}</span>
-                          <span className="text-[8px] text-slate-500 ml-1">ser x vol x int</span>
+                        <div className="flex-1 min-w-[110px] rounded-xl p-3" style={{background:'#0a0a0f'}}>
+                          <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'rgba(204,255,0,0.6)',fontFamily:DM}}>Carga Sesion</span>
+                          <span className="text-[16px] font-black text-white" style={{fontFamily:DM}}>{met.cargaSesion}</span>
+                          <span className="text-[9px] text-slate-500 ml-1.5">ser x vol x int</span>
                         </div>
                         {met.ratioDensidad != null && (
-                          <div className="flex-1 min-w-[100px] rounded-lg p-2" style={{background:'#0a0a0f'}}>
-                            <span className="text-[7px] font-bold uppercase tracking-widest block mb-0.5" style={{color:'rgba(204,255,0,0.5)'}}>Ratio Densidad</span>
-                            <span className="text-[14px] font-black text-white">{met.ratioDensidad}</span>
+                          <div className="flex-1 min-w-[110px] rounded-xl p-3" style={{background:'#0a0a0f'}}>
+                            <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'rgba(204,255,0,0.6)',fontFamily:DM}}>Ratio Densidad</span>
+                            <span className="text-[16px] font-black text-white" style={{fontFamily:DM}}>{met.ratioDensidad}</span>
                           </div>
                         )}
                         {met.neuroCarga > 0 && (
-                          <div className="flex-1 min-w-[100px] rounded-lg p-2" style={{background:'#0a0a0f'}}>
-                            <span className="text-[7px] font-bold uppercase tracking-widest block mb-0.5" style={{color:'rgba(168,85,247,0.5)'}}>NeuroCarga</span>
-                            <span className="text-[14px] font-black text-violet-400">{met.neuroCarga}</span>
+                          <div className="flex-1 min-w-[110px] rounded-xl p-3" style={{background:'#0a0a0f'}}>
+                            <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'rgba(168,85,247,0.6)',fontFamily:DM}}>NeuroCarga</span>
+                            <span className="text-[16px] font-black text-violet-400" style={{fontFamily:DM}}>{met.neuroCarga}</span>
                           </div>
                         )}
                         {met.zonaFC && (
-                          <div className="flex-1 min-w-[100px] rounded-lg p-2" style={{background:'#0a0a0f'}}>
-                            <span className="text-[7px] font-bold uppercase tracking-widest block mb-0.5" style={{color:'rgba(239,68,68,0.5)'}}>Zona FC</span>
-                            <span className="text-[12px] font-bold text-red-400">{met.zonaFC}</span>
+                          <div className="flex-1 min-w-[110px] rounded-xl p-3" style={{background:'#0a0a0f'}}>
+                            <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'rgba(239,68,68,0.6)',fontFamily:DM}}>Zona FC</span>
+                            <span className="text-[14px] font-bold text-red-400" style={{fontFamily:DM}}>{met.zonaFC}</span>
                           </div>
                         )}
                         {met.zonaFuerza && (
-                          <div className="flex-1 min-w-[100px] rounded-lg p-2" style={{background:'#0a0a0f'}}>
-                            <span className="text-[7px] font-bold uppercase tracking-widest block mb-0.5" style={{color:'rgba(245,158,11,0.5)'}}>Zona Fuerza</span>
-                            <span className="text-[12px] font-bold text-amber-400">{met.zonaFuerza}</span>
+                          <div className="flex-1 min-w-[110px] rounded-xl p-3" style={{background:'#0a0a0f'}}>
+                            <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'rgba(245,158,11,0.6)',fontFamily:DM}}>Zona Fuerza</span>
+                            <span className="text-[14px] font-bold text-amber-400" style={{fontFamily:DM}}>{met.zonaFuerza}</span>
                           </div>
                         )}
                       </div>
 
-                      {/* Fila 3: Progresión */}
-                      <div className="rounded-xl border border-slate-100 p-3">
-                        <div className="flex items-center gap-2 mb-2.5">
-                          <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
-                          <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Progresion automatica</span>
+                      {/* Progresión */}
+                      <div className="rounded-xl border border-slate-200/80 p-4 bg-slate-50/30">
+                        <div className="flex items-center gap-2 mb-3">
+                          <TrendingUp className="w-4 h-4 text-emerald-500" />
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600" style={{fontFamily:DM}}>Progresion automatica</span>
                         </div>
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="grid grid-cols-4 gap-3">
                           <div>
-                            <span className="text-[8px] text-slate-400 block mb-1">Modelo</span>
+                            <span className="text-[9px] font-medium text-slate-500 block mb-1.5" style={{fontFamily:DM}}>Modelo</span>
                             <Select value={prog.modelo} onValueChange={(v) => updateActividad(faseKey, idx, 'progresion', { ...prog, modelo: v })}>
-                              <SelectTrigger className="h-7 text-[10px] border-slate-200 rounded-lg"><SelectValue /></SelectTrigger>
+                              <SelectTrigger className="h-8 text-[11px] border-slate-200 rounded-lg"><SelectValue /></SelectTrigger>
                               <SelectContent>{MODELOS_PROGRESION.map(m => <SelectItem key={m.id} value={m.id} className="text-xs">{m.name}</SelectItem>)}</SelectContent>
                             </Select>
                           </div>
                           <div>
-                            <span className="text-[8px] text-slate-400 block mb-1">Incremento/sem</span>
-                            <div className="flex items-center gap-1">
-                              <Input type="number" value={prog.tasaIncremento} onChange={(e) => updateActividad(faseKey, idx, 'progresion', { ...prog, tasaIncremento: parseInt(e.target.value) || 0 })} className="h-7 text-[10px] border-slate-200 rounded-lg text-center" min={0} max={30} />
-                              <span className="text-[10px] text-slate-400">%</span>
+                            <span className="text-[9px] font-medium text-slate-500 block mb-1.5" style={{fontFamily:DM}}>Incremento/sem</span>
+                            <div className="flex items-center gap-1.5">
+                              <Input type="number" value={prog.tasaIncremento} onChange={(e) => updateActividad(faseKey, idx, 'progresion', { ...prog, tasaIncremento: parseInt(e.target.value) || 0 })} className="h-8 text-[11px] border-slate-200 rounded-lg text-center" min={0} max={30} />
+                              <span className="text-[11px] text-slate-400 font-medium">%</span>
                             </div>
                           </div>
                           <div>
-                            <span className="text-[8px] text-slate-400 block mb-1">Descarga cada</span>
-                            <div className="flex items-center gap-1">
-                              <Input type="number" value={prog.semanaDescarga} onChange={(e) => updateActividad(faseKey, idx, 'progresion', { ...prog, semanaDescarga: parseInt(e.target.value) || 1 })} className="h-7 text-[10px] border-slate-200 rounded-lg text-center" min={1} max={12} />
-                              <span className="text-[10px] text-slate-400">sem</span>
+                            <span className="text-[9px] font-medium text-slate-500 block mb-1.5" style={{fontFamily:DM}}>Descarga cada</span>
+                            <div className="flex items-center gap-1.5">
+                              <Input type="number" value={prog.semanaDescarga} onChange={(e) => updateActividad(faseKey, idx, 'progresion', { ...prog, semanaDescarga: parseInt(e.target.value) || 1 })} className="h-8 text-[11px] border-slate-200 rounded-lg text-center" min={1} max={12} />
+                              <span className="text-[11px] text-slate-400 font-medium">sem</span>
                             </div>
                           </div>
                           <div>
-                            <span className="text-[8px] text-slate-400 block mb-1">Reduccion desc.</span>
-                            <div className="flex items-center gap-1">
-                              <Input type="number" value={prog.reduccionDescarga} onChange={(e) => updateActividad(faseKey, idx, 'progresion', { ...prog, reduccionDescarga: parseInt(e.target.value) || 0 })} className="h-7 text-[10px] border-slate-200 rounded-lg text-center" min={0} max={100} />
-                              <span className="text-[10px] text-slate-400">%</span>
+                            <span className="text-[9px] font-medium text-slate-500 block mb-1.5" style={{fontFamily:DM}}>Reduccion desc.</span>
+                            <div className="flex items-center gap-1.5">
+                              <Input type="number" value={prog.reduccionDescarga} onChange={(e) => updateActividad(faseKey, idx, 'progresion', { ...prog, reduccionDescarga: parseInt(e.target.value) || 0 })} className="h-8 text-[11px] border-slate-200 rounded-lg text-center" min={0} max={100} />
+                              <span className="text-[11px] text-slate-400 font-medium">%</span>
                             </div>
                           </div>
                         </div>
 
                         {/* MEV → MAV → MRV Visual */}
-                        <div className="mt-3 pt-2.5 border-t border-slate-100">
-                          <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">Proyeccion MEV → MAV → MRV</span>
-                          <div className="flex items-end gap-1" style={{height:'40px'}}>
+                        <div className="mt-4 pt-3 border-t border-slate-200/60">
+                          <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500 block mb-2" style={{fontFamily:DM}}>Proyeccion MEV → MAV → MRV</span>
+                          <div className="flex items-end gap-1.5" style={{height:'48px'}}>
                             {[1,2,3,4].map(sem => {
                               const volBase = parseFloat(act.volumen) || 30;
                               const projected = calcProgresionSemanal(volBase, sem, prog);
-                              const maxH = 36;
-                              const h = Math.max(4, (projected / (volBase * 1.5)) * maxH);
+                              const maxH = 42;
+                              const h = Math.max(6, (projected / (volBase * 1.5)) * maxH);
                               const isDesc = sem === (prog.semanaDescarga || 4);
                               return (
-                                <div key={sem} className="flex-1 flex flex-col items-center gap-0.5">
-                                  <span className="text-[8px] font-bold" style={{color: isDesc ? '#3B82F6' : '#CCFF00'}}>{projected}</span>
-                                  <div className="w-full rounded-t" style={{height:`${h}px`,background: isDesc ? 'linear-gradient(180deg,#3B82F6,#1d4ed8)' : 'linear-gradient(180deg,#CCFF00,#84cc16)',opacity: 0.8}} />
-                                  <span className="text-[7px] text-slate-400">S{sem}</span>
+                                <div key={sem} className="flex-1 flex flex-col items-center gap-1">
+                                  <span className="text-[10px] font-bold" style={{color: isDesc ? '#3B82F6' : '#CCFF00',fontFamily:DM}}>{projected}</span>
+                                  <div className="w-full rounded-md" style={{height:`${h}px`,background: isDesc ? 'linear-gradient(180deg,#3B82F6,#1d4ed8)' : 'linear-gradient(180deg,#CCFF00,#84cc16)',opacity: 0.85}} />
+                                  <span className="text-[9px] font-semibold text-slate-500" style={{fontFamily:DM}}>S{sem}</span>
                                 </div>
                               );
                             })}
