@@ -19,6 +19,38 @@ const SessionViewPage = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownloadPDF = async () => {
+    if (downloading) return;
+    setDownloading(true);
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const { jsPDF } = await import('jspdf');
+      const content = document.getElementById('session-view-content');
+      if (!content) return;
+      const canvas = await html2canvas(content, {
+        scale: 2, useCORS: true, backgroundColor: '#0a0a0f', logging: false,
+        width: content.scrollWidth, windowWidth: content.scrollWidth
+      });
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const margin = 4, usableW = 210 - margin * 2, usableH = 297 - margin * 2;
+      const pxPerMm = canvas.width / usableW;
+      const slicePx = Math.floor(usableH * pxPerMm);
+      let srcY = 0, pg = 0;
+      while (srcY < canvas.height) {
+        if (pg > 0) pdf.addPage();
+        const h = Math.min(slicePx, canvas.height - srcY);
+        const sc = document.createElement('canvas');
+        sc.width = canvas.width; sc.height = h;
+        sc.getContext('2d').drawImage(canvas, 0, srcY, canvas.width, h, 0, 0, canvas.width, h);
+        pdf.addImage(sc.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, usableW, h / pxPerMm);
+        srcY += h; pg++;
+      }
+      pdf.save(`iTRAIN_${shareId || 'sesion'}.pdf`);
+    } catch (e) { console.error('PDF error:', e); }
+    finally { setDownloading(false); }
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -67,7 +99,7 @@ const SessionViewPage = () => {
   const phaseNames = { inicial: 'Fase inicial', principal: 'Fase principal', final: 'Fase final' };
 
   return (
-    <div className="min-h-screen" style={{background:'#0a0a0f',fontFamily:DM}}>
+    <div className="min-h-screen" style={{background:'#0a0a0f',fontFamily:DM}} id="session-view-content">
       {/* Header */}
       <div style={{background:'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)',borderBottom:'1px solid rgba(204,255,0,0.08)'}}>
         <div className="max-w-4xl mx-auto px-5 py-5">
@@ -90,13 +122,11 @@ const SessionViewPage = () => {
                 </div>
               </div>
             </div>
-            {data?.session_image && (
-              <button onClick={() => { const a=document.createElement('a'); a.href=data.session_image; a.download=`iTRAIN_${shareId}.png`; a.click(); }}
+              <button onClick={handleDownloadPDF} disabled={downloading}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all" 
                 style={{background:'rgba(204,255,0,0.1)',color:'#CCFF00',border:'1px solid rgba(204,255,0,0.2)'}}>
-                <Download className="w-3.5 h-3.5" /> Descargar
+                {downloading ? <><Activity className="w-3.5 h-3.5 animate-spin" /> Generando...</> : <><Download className="w-3.5 h-3.5" /> Descargar PDF</>}
               </button>
-            )}
           </div>
         </div>
       </div>
