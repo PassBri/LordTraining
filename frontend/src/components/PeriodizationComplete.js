@@ -16,7 +16,7 @@ import {
 import { toast } from 'sonner';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  ComposedChart, Line, Area
+  ComposedChart, Line, Area, ReferenceLine
 } from 'recharts';
 import SessionEditor from './SessionEditor';
 
@@ -1836,7 +1836,6 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                           const micros = meso.microcycles || [];
                           if (micros.length === 0) return null;
 
-                          // Calculate total series per microcycle from session data
                           const microData = micros.map((micro, mi) => {
                             const sessions = micro.sessions || [];
                             let totalSeries = 0;
@@ -1844,20 +1843,14 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                               const sd = ses.sessionData || ses.detailed_data;
                               if (sd?.fases) {
                                 Object.values(sd.fases).forEach(fase => {
-                                  (fase.actividades || []).forEach(act => {
-                                    totalSeries += parseInt(act.series) || 0;
-                                  });
+                                  (fase.actividades || []).forEach(act => { totalSeries += parseInt(act.series) || 0; });
                                 });
-                              } else {
-                                // Estimate from session duration/load
-                                totalSeries += Math.round((ses.duration || 60) / 5);
-                              }
+                              } else { totalSeries += Math.round((ses.duration || 60) / 5); }
                             });
                             const microLoad = micro.type?.load || micro.type?.loadPercent || 70;
                             const isDeload = (micro.type?.id === 'descarga' || micro.type?.id === 'recuperacion' || micro.type?.name?.toLowerCase().includes('descarga') || micro.type?.name?.toLowerCase().includes('recup'));
                             return {
                               name: `S${mi + 1}`,
-                              semana: mi + 1,
                               series: totalSeries || Math.round(microLoad * 0.4),
                               load: microLoad,
                               isDeload,
@@ -1866,124 +1859,101 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                           });
 
                           const maxSeries = Math.max(...microData.map(d => d.series), 1);
+                          const mevLine = Math.round(maxSeries * 0.35);
+                          const mavLine = Math.round(maxSeries * 0.7);
+                          const mrvLine = Math.round(maxSeries * 1.05);
+
+                          const CustomTooltipMEV = ({ active, payload, label }) => {
+                            if (!active || !payload?.length) return null;
+                            const d = payload[0]?.payload;
+                            const pct = d.series / maxSeries;
+                            let zone = d.isDeload ? 'Descarga' : pct > 0.85 ? 'MRV' : pct > 0.5 ? 'MAV' : 'MEV';
+                            let zoneColor = d.isDeload ? '#818cf8' : pct > 0.85 ? '#e11d48' : pct > 0.5 ? '#0891b2' : '#16a34a';
+                            let desc = d.isDeload ? 'Semana de descarga para recuperacion y supercompensacion.' : zone === 'MRV' ? 'Cerca del maximo volumen recuperable. Riesgo de sobreentrenamiento.' : zone === 'MAV' ? 'Zona optima: maximiza adaptaciones de fuerza/hipertrofia.' : 'Volumen minimo efectivo para mantener adaptaciones.';
+                            return (
+                              <div className="bg-white rounded-xl shadow-xl border border-slate-200 p-3" style={{fontFamily:"'DM Sans',sans-serif",minWidth:180}}>
+                                <div className="flex items-center gap-2 mb-1.5">
+                                  <div className="w-3 h-3 rounded" style={{background:zoneColor}} />
+                                  <span className="text-[12px] font-bold text-slate-800">{label} — {zone}</span>
+                                </div>
+                                <p className="text-[10px] text-slate-500 leading-relaxed mb-2">{desc}</p>
+                                <div className="flex justify-between pt-1.5 border-t border-slate-100">
+                                  <span className="text-[10px] text-slate-400">Series totales</span>
+                                  <span className="text-[13px] font-black" style={{color:zoneColor}}>{d.series}</span>
+                                </div>
+                                <div className="text-[9px] text-slate-400 mt-1">{d.sessions} sesiones · Carga {d.load}%</div>
+                              </div>
+                            );
+                          };
 
                           return (
-                            <div className="mb-4 rounded-xl border border-slate-200/80 overflow-hidden">
+                            <div className="mb-4 rounded-xl border border-slate-200 bg-white overflow-hidden">
                               {/* Header */}
-                              <div className="flex items-center justify-between px-4 py-2.5" style={{background:'linear-gradient(135deg, #0c0f1a 0%, #12141f 100%)'}}>
-                                <div className="flex items-center gap-2">
-                                  <BarChart3 className="w-4 h-4" style={{color:'#00e5ff'}} />
-                                  <span className="text-[11px] font-bold uppercase tracking-wider text-white" style={{fontFamily:"'DM Sans',sans-serif"}}>Proyeccion MEV → MAV → MRV</span>
+                              <div className="px-5 pt-4 pb-2 flex items-start justify-between">
+                                <div>
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <TrendingUp className="w-4 h-4 text-cyan-600" />
+                                    <span className="text-[14px] font-bold text-slate-800" style={{fontFamily:"'DM Sans',sans-serif"}}>Proyeccion MEV → MAV → MRV</span>
+                                  </div>
+                                  <p className="text-[11px] text-slate-400" style={{fontFamily:"'DM Sans',sans-serif"}}>Volumen semanal por microciclo — Modelo Dr. Mike Israetel (Renaissance Periodization)</p>
                                 </div>
                                 <div className="relative group/mevinfo">
-                                  <div className="w-5 h-5 rounded-full flex items-center justify-center cursor-help" style={{background:'rgba(255,255,255,0.08)'}}>
-                                    <AlertCircle className="w-3 h-3" style={{color:'rgba(255,255,255,0.4)'}} />
+                                  <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center cursor-help hover:bg-slate-200 transition-colors">
+                                    <AlertCircle className="w-3.5 h-3.5 text-slate-400" />
                                   </div>
-                                  <div className="absolute right-0 bottom-7 w-[300px] p-3.5 rounded-xl shadow-2xl opacity-0 invisible group-hover/mevinfo:opacity-100 group-hover/mevinfo:visible transition-all z-50 pointer-events-none" style={{background:'#0c0f1a',border:'1px solid rgba(255,255,255,0.08)',fontFamily:"'DM Sans',sans-serif"}}>
-                                    <p className="text-[12px] font-bold mb-2" style={{color:'#CCFF00'}}>MEV → MAV → MRV</p>
-                                    <div className="space-y-2 text-[10px] leading-relaxed text-white">
-                                      <p><span className="font-bold" style={{color:'#CCFF00'}}>MEV</span> <span style={{color:'rgba(255,255,255,0.5)'}}>- Minimo Volumen Efectivo:</span> La cantidad minima de series semanales para generar adaptaciones.</p>
-                                      <p><span className="font-bold" style={{color:'#00e5ff'}}>MAV</span> <span style={{color:'rgba(255,255,255,0.5)'}}>- Maximo Volumen Adaptativo:</span> El rango optimo donde se maximizan las ganancias.</p>
-                                      <p><span className="font-bold" style={{color:'#ff6b9d'}}>MRV</span> <span style={{color:'rgba(255,255,255,0.5)'}}>- Maximo Volumen Recuperable:</span> El techo de volumen asimilable sin sobreentrenamiento.</p>
-                                    </div>
-                                    <div className="mt-2.5 pt-2 space-y-1 text-[9px]" style={{borderTop:'1px solid rgba(255,255,255,0.06)',color:'rgba(255,255,255,0.35)'}}>
-                                      <p>Cada barra = 1 microciclo (semana). El volumen se mide en series totales.</p>
-                                      <p>La semana en <span className="font-bold" style={{color:'#818cf8'}}>violeta</span> es el deload programado.</p>
+                                  <div className="absolute right-0 top-8 w-[320px] p-4 rounded-xl bg-white shadow-2xl border border-slate-200 opacity-0 invisible group-hover/mevinfo:opacity-100 group-hover/mevinfo:visible transition-all z-50" style={{fontFamily:"'DM Sans',sans-serif"}}>
+                                    <p className="text-[13px] font-bold text-slate-800 mb-3">Modelo de Volumen MEV → MAV → MRV</p>
+                                    <table className="w-full text-[10px] mb-3">
+                                      <thead><tr className="border-b border-slate-100">
+                                        <th className="text-left py-1 font-bold text-slate-500">Sigla</th>
+                                        <th className="text-left py-1 font-bold text-slate-500">Significado</th>
+                                        <th className="text-left py-1 font-bold text-slate-500">Descripcion</th>
+                                      </tr></thead>
+                                      <tbody>
+                                        <tr className="border-b border-slate-50"><td className="py-1.5 font-bold" style={{color:'#16a34a'}}>MEV</td><td className="py-1.5 text-slate-600">Min. Volumen Efectivo</td><td className="py-1.5 text-slate-400">Minimo para generar adaptaciones</td></tr>
+                                        <tr className="border-b border-slate-50"><td className="py-1.5 font-bold" style={{color:'#0891b2'}}>MAV</td><td className="py-1.5 text-slate-600">Max. Volumen Adaptativo</td><td className="py-1.5 text-slate-400">Optimo para maximizar ganancias</td></tr>
+                                        <tr><td className="py-1.5 font-bold" style={{color:'#e11d48'}}>MRV</td><td className="py-1.5 text-slate-600">Max. Volumen Recuperable</td><td className="py-1.5 text-slate-400">Techo sin sobreentrenamiento</td></tr>
+                                      </tbody>
+                                    </table>
+                                    <div className="space-y-1 text-[10px] text-slate-500">
+                                      <p>• <b>Evitar sobreentrenamiento</b> — sabiendo cuando estas cerca del MRV</p>
+                                      <p>• <b>Maximizar hipertrofia/fuerza</b> — operando en el rango MEV–MRV</p>
+                                      <p>• <b>Planificar descargas</b> — la semana en <span className="font-bold" style={{color:'#818cf8'}}>violeta</span> es el deload</p>
+                                      <p>• <b>Periodizacion en bloques</b> — acumular y recuperar estrategicamente</p>
                                     </div>
                                   </div>
                                 </div>
                               </div>
 
-                              {/* Chart */}
-                              <div className="rounded-b-xl" style={{background:'linear-gradient(180deg, #0c0f1a 0%, #08090e 100%)'}}>
-                                <div className="flex" style={{height:'160px'}}>
-                                  {/* Y-axis */}
-                                  <div className="w-10 flex-shrink-0 flex flex-col justify-between py-3 pr-1 text-right">
-                                    <span className="text-[7px] font-bold" style={{color:'#ff6b9d'}}>MRV</span>
-                                    <span className="text-[7px] font-bold" style={{color:'#00e5ff'}}>MAV</span>
-                                    <span className="text-[7px] font-bold" style={{color:'#CCFF00'}}>MEV</span>
-                                    <span className="text-[7px] font-bold" style={{color:'rgba(255,255,255,0.15)'}}>0</span>
-                                  </div>
-                                  {/* Bars */}
-                                  <div className="flex-1 relative py-3 pr-3">
-                                    {/* Zone bgs */}
-                                    <div className="absolute inset-x-0 top-3 bottom-3 flex flex-col">
-                                      <div className="flex-1" style={{background:'rgba(255,107,157,0.03)'}} />
-                                      <div className="flex-1" style={{background:'rgba(0,229,255,0.03)'}} />
-                                      <div className="flex-1" style={{background:'rgba(204,255,0,0.02)'}} />
-                                    </div>
-                                    <div className="absolute inset-x-0 top-3" style={{borderTop:'1px dashed rgba(255,107,157,0.15)'}} />
-                                    <div className="absolute inset-x-0" style={{top:'calc(3px + 33%)',borderTop:'1px dashed rgba(0,229,255,0.12)'}} />
-                                    <div className="absolute inset-x-0" style={{top:'calc(3px + 66%)',borderTop:'1px dashed rgba(204,255,0,0.1)'}} />
+                              {/* Legend inline */}
+                              <div className="px-5 pb-2 flex items-center gap-4">
+                                <div className="flex items-center gap-1.5"><div className="w-3 h-1.5 rounded-full" style={{background:'#0891b2'}} /><span className="text-[10px] font-semibold text-slate-500">Series/semana</span></div>
+                                <div className="flex items-center gap-1.5"><div className="w-5 h-[1px]" style={{background:'#16a34a',borderTop:'2px dashed #16a34a'}} /><span className="text-[10px] font-semibold text-slate-500">MEV ({mevLine})</span></div>
+                                <div className="flex items-center gap-1.5"><div className="w-5 h-[1px]" style={{background:'#0891b2',borderTop:'2px dashed #0891b2'}} /><span className="text-[10px] font-semibold text-slate-500">MAV ({mavLine})</span></div>
+                                <div className="flex items-center gap-1.5"><div className="w-5 h-[1px]" style={{background:'#e11d48',borderTop:'2px dashed #e11d48'}} /><span className="text-[10px] font-semibold text-slate-500">MRV ({mrvLine})</span></div>
+                              </div>
 
-                                    <div className="relative h-full flex items-end gap-2 px-1">
+                              {/* Chart with Recharts */}
+                              <div className="px-2 pb-3">
+                                <ResponsiveContainer width="100%" height={200}>
+                                  <ComposedChart data={microData} margin={{top:10,right:20,left:0,bottom:5}}>
+                                    <CartesianGrid strokeDasharray="4 4" stroke="rgba(148,163,184,0.15)" />
+                                    <XAxis dataKey="name" tick={{fontSize:11,fill:'#64748b',fontWeight:600}} axisLine={{stroke:'#e2e8f0'}} tickLine={false} />
+                                    <YAxis tick={{fontSize:10,fill:'#94a3b8'}} axisLine={false} tickLine={false} domain={[0, mrvLine + 10]} />
+                                    <Tooltip content={<CustomTooltipMEV />} />
+                                    <ReferenceLine y={mevLine} stroke="#16a34a" strokeDasharray="6 4" strokeWidth={1.5} label={{value:'MEV',position:'right',fontSize:9,fill:'#16a34a',fontWeight:700}} />
+                                    <ReferenceLine y={mavLine} stroke="#0891b2" strokeDasharray="6 4" strokeWidth={1.5} label={{value:'MAV',position:'right',fontSize:9,fill:'#0891b2',fontWeight:700}} />
+                                    <ReferenceLine y={mrvLine} stroke="#e11d48" strokeDasharray="6 4" strokeWidth={1.5} label={{value:'MRV',position:'right',fontSize:9,fill:'#e11d48',fontWeight:700}} />
+                                    <Bar dataKey="series" radius={[6,6,0,0]} maxBarSize={50}>
                                       {microData.map((d, i) => {
-                                        const pct = Math.min(95, Math.max(8, (d.series / (maxSeries * 1.2)) * 95));
-                                        let zoneColor, barBg, glowColor, zone;
-                                        if (d.isDeload) {
-                                          zone = 'Descarga'; zoneColor = '#818cf8'; glowColor = 'rgba(129,140,248,0.25)';
-                                          barBg = 'linear-gradient(180deg, #a5b4fc 0%, #818cf8 30%, #6366f1 60%, #4338ca 100%)';
-                                        } else if (pct > 80) {
-                                          zone = 'MRV'; zoneColor = '#ff6b9d'; glowColor = 'rgba(255,107,157,0.25)';
-                                          barBg = 'linear-gradient(180deg, #fda4af 0%, #fb7185 30%, #e11d48 60%, #9f1239 100%)';
-                                        } else if (pct > 40) {
-                                          zone = 'MAV'; zoneColor = '#00e5ff'; glowColor = 'rgba(0,229,255,0.2)';
-                                          barBg = 'linear-gradient(180deg, #67e8f9 0%, #22d3ee 30%, #06b6d4 60%, #0891b2 100%)';
-                                        } else {
-                                          zone = 'MEV'; zoneColor = '#CCFF00'; glowColor = 'rgba(204,255,0,0.15)';
-                                          barBg = 'linear-gradient(180deg, #d9f99d 0%, #a3e635 30%, #84cc16 60%, #4d7c0f 100%)';
-                                        }
-                                        return (
-                                          <div key={i} className="flex-1 flex flex-col items-center relative group/mbar" style={{height:'100%'}}>
-                                            {/* Tooltip */}
-                                            <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 w-[200px] p-2.5 rounded-xl shadow-2xl opacity-0 invisible group-hover/mbar:opacity-100 group-hover/mbar:visible transition-all z-50 pointer-events-none" style={{background:'#0c0f1a',border:'1px solid rgba(255,255,255,0.08)',color:'white',fontFamily:"'DM Sans',sans-serif"}}>
-                                              <div className="flex items-center gap-1.5 mb-1">
-                                                <div className="w-2.5 h-2.5 rounded" style={{background: zoneColor}} />
-                                                <span className="text-[10px] font-bold">Semana {d.semana} — {zone}</span>
-                                              </div>
-                                              <p className="text-[9px] leading-relaxed" style={{color:'rgba(255,255,255,0.5)'}}>{d.isDeload ? 'Semana de descarga para recuperacion y supercompensacion.' : zone === 'MRV' ? 'Cerca del maximo volumen recuperable. Considerar descarga.' : zone === 'MAV' ? 'Zona optima: maximiza adaptaciones de fuerza/hipertrofia.' : 'Volumen minimo efectivo para mantener adaptaciones.'}</p>
-                                              <div className="flex items-center justify-between mt-1.5 pt-1.5" style={{borderTop:'1px solid rgba(255,255,255,0.06)'}}>
-                                                <span className="text-[9px]" style={{color:'rgba(255,255,255,0.35)'}}>Series totales:</span>
-                                                <span className="text-[12px] font-black" style={{color: zoneColor}}>{d.series}</span>
-                                              </div>
-                                              <div className="text-[8px] mt-1" style={{color:'rgba(255,255,255,0.25)'}}>{d.sessions} sesiones · Carga {d.load}%</div>
-                                            </div>
-                                            <div className="w-full flex flex-col items-center justify-end h-full">
-                                              <span className="text-[11px] font-black mb-1" style={{color: zoneColor, textShadow:`0 0 10px ${glowColor}`}}>{d.series}</span>
-                                              <div className="w-full rounded-t-lg cursor-pointer transition-all duration-300 hover:brightness-125 relative overflow-hidden" style={{height:`${pct}%`, background: barBg, boxShadow:`0 0 20px ${glowColor}`}}>
-                                                <div className="absolute inset-y-0 left-0 w-[35%]" style={{background:'linear-gradient(90deg, rgba(255,255,255,0.1) 0%, transparent 100%)'}} />
-                                              </div>
-                                            </div>
-                                          </div>
-                                        );
+                                        const pct = d.series / maxSeries;
+                                        const fill = d.isDeload ? '#818cf8' : pct > 0.85 ? '#fb7185' : pct > 0.5 ? '#22d3ee' : '#86efac';
+                                        return <rect key={i} fill={fill} />;
                                       })}
-                                    </div>
-                                  </div>
-                                </div>
-                                {/* X labels */}
-                                <div className="flex" style={{borderTop:'1px solid rgba(255,255,255,0.04)'}}>
-                                  <div className="w-10 flex-shrink-0" />
-                                  <div className="flex-1 flex gap-2 px-1 py-2">
-                                    {microData.map((d, i) => {
-                                      const pct = Math.min(95, Math.max(8, (d.series / (maxSeries * 1.2)) * 95));
-                                      let zoneColor = d.isDeload ? '#818cf8' : pct > 80 ? '#ff6b9d' : pct > 40 ? '#00e5ff' : '#CCFF00';
-                                      let zone = d.isDeload ? 'Descarga' : pct > 80 ? 'MRV' : pct > 40 ? 'MAV' : 'MEV';
-                                      return (
-                                        <div key={i} className="flex-1 text-center">
-                                          <span className="text-[10px] font-bold block" style={{color:'rgba(255,255,255,0.6)'}}>{d.name}</span>
-                                          <span className="text-[7px] font-bold" style={{color: zoneColor}}>{zone}</span>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                </div>
-                                {/* Legend */}
-                                <div className="flex items-center justify-center gap-4 py-2" style={{borderTop:'1px solid rgba(255,255,255,0.04)'}}>
-                                  <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-sm" style={{background:'#CCFF00'}} /><span className="text-[8px] font-semibold" style={{color:'rgba(255,255,255,0.35)'}}>MEV</span></div>
-                                  <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-sm" style={{background:'#00e5ff'}} /><span className="text-[8px] font-semibold" style={{color:'rgba(255,255,255,0.35)'}}>MAV</span></div>
-                                  <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-sm" style={{background:'#ff6b9d'}} /><span className="text-[8px] font-semibold" style={{color:'rgba(255,255,255,0.35)'}}>MRV</span></div>
-                                  <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-sm" style={{background:'#818cf8'}} /><span className="text-[8px] font-semibold" style={{color:'rgba(255,255,255,0.35)'}}>Descarga</span></div>
-                                </div>
+                                    </Bar>
+                                    <Line type="monotone" dataKey="series" stroke="#0891b2" strokeWidth={2.5} dot={{fill:'#0891b2',r:5,strokeWidth:2,stroke:'white'}} activeDot={{r:7,fill:'#0891b2',stroke:'white',strokeWidth:2}} />
+                                  </ComposedChart>
+                                </ResponsiveContainer>
                               </div>
                             </div>
                           );

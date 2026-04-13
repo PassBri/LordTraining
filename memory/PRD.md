@@ -3,30 +3,30 @@
 ## Credenciales: test@train.com / test123456
 
 ## Arquitectura
-- Frontend: React + Shadcn UI + TailwindCSS
+- Frontend: React + Shadcn UI + TailwindCSS + Recharts
 - Backend: FastAPI + MongoDB
-- PDF: Playwright (Headless Chromium) en backend
+- PDF: Playwright (Headless Chromium)
 
 ## Implementado (Fork 12 - Abr 2026)
 
-### Grafico MEV-MAV-MRV movido al Mesociclo (Abr 13, 2026)
-- Removido de la Activity Card individual (SessionEditor.js)
-- Agregado en PeriodizationComplete.js dentro del mesociclo expandido
-- Calcula series totales por microciclo sumando actividades de sesiones
-- Cada barra = 1 microciclo/semana
-- Zonas coloreadas: MEV (lime), MAV (cyan), MRV (rosa), Descarga (violeta)
-- Tooltip educativo con explicacion MEV/MAV/MRV
-- Tooltip por barra con zona, series totales, sesiones y carga
-- Ubicacion correcta segun teoria de entrenamiento deportivo
+### Grafico MEV-MAV-MRV con Recharts en Mesociclo (Abr 13, 2026)
+- Recharts ComposedChart: barras + linea con dots
+- Lineas de referencia punteadas: MEV (verde), MAV (cyan), MRV (rojo)
+- Fondo blanco limpio, grid punteado sutil
+- Tooltip custom: zona, series totales, sesiones, carga, explicacion
+- Tooltip educativo: tabla siglas, explicacion Dr. Israetel
+- Leyenda inline con valores calculados
+- Calculo series totales por microciclo desde datos reales de sesiones
+- Ubicacion correcta: mesociclo (PeriodizationComplete.js)
 
-### Paleta Premium (Abr 13, 2026)
-- Barras cyan electrico, descarga violeta, fondo gradiente azulado
-- Metricas con bordes coloreados sutiles
-- Glow effects y gradientes multi-stop
+### Parametros Carga/Metricas en Activity Card (Abr 13, 2026)
+- Panel colapsable con metricas auto-calculadas
+- Volumen/Intensidad dinamicos por capacidad
+- CAPACITY_CONFIG con unidades por capacidad
 
-### Volumen/Intensidad dinamicos por capacidad (Abr 13, 2026)
-### Sistema Carga/Metricas/Progresion (Abr 13, 2026)
 ### Materiales + Titulos Fase (Abr 13, 2026)
+- Materiales custom, editar/eliminar
+- Fases prominentes con colores distintos
 
 ## Pendiente
 - P1: Fix hydration warning DashboardPage.js
