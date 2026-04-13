@@ -7342,6 +7342,13 @@ app.include_router(api_router)
 from routes.ai_assistant import router as ai_assistant_router
 app.include_router(ai_assistant_router)
 
+# Periodizacion V2 router (cascade propagation engine)
+from routes.periodization_v2 import router as periodization_v2_router, crear_indices
+app.include_router(periodization_v2_router)
+
+# Store db reference in app state for V2 routes
+app.state.db = db
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
@@ -7349,6 +7356,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+async def startup_create_indices():
+    """Create MongoDB indices for V2 collections on startup"""
+    await crear_indices(db)
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
