@@ -1076,6 +1076,7 @@ const SessionEditor = ({
         <DialogContent 
           className="max-w-6xl max-h-[90vh] overflow-hidden p-0 bg-white [&>button]:hidden" 
           data-testid="session-editor-dialog"
+          aria-describedby="session-editor-desc"
           onPointerDownOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
           onInteractOutside={(e) => e.preventDefault()}
@@ -1090,6 +1091,7 @@ const SessionEditor = ({
             .se-section-title { font-size: 15px; font-weight: 600; color: #fff; font-family: 'DM Sans', sans-serif; }
           `}</style>
           <DialogTitle className="sr-only">Sesión de entrenamiento</DialogTitle>
+          <p id="session-editor-desc" className="sr-only">Editor completo de sesión de entrenamiento con objetivos, actividades y monitoreo</p>
           <div className="sticky top-0 z-10" style={{background:'#0a0a0f',fontFamily:DM}}>
             <div className="flex items-center gap-3 px-5 py-3">
               {/* Logo */}
@@ -1279,9 +1281,9 @@ const SessionEditor = ({
                     
                     return (
                       <div key={faseKey} className={`rounded-xl overflow-visible shadow-sm bg-white`} style={{ position: 'relative', zIndex: showExercisePicker?.startsWith(faseKey) ? 100 : 1, border:'1px solid rgba(0,0,0,0.06)' }}>
-                        <button
+                        <div
                           onClick={() => setExpandedPhases(prev => ({ ...prev, [faseKey]: !prev[faseKey] }))}
-                          className="w-full flex items-center justify-between px-4 py-3 hover:opacity-90 transition-all"
+                          className="w-full flex items-center justify-between px-4 py-3 hover:opacity-90 transition-all cursor-pointer"
                           style={{background: `linear-gradient(135deg, ${colors.accent} 0%, ${colors.accent}dd 100%)`, borderRadius: expandedPhases[faseKey] ? '12px 12px 0 0' : '12px'}}
                         >
                           <div className="flex items-center gap-3">
@@ -1308,7 +1310,7 @@ const SessionEditor = ({
                           >
                             <Plus className="w-3 h-3 mr-1" /> Agregar
                           </Button>
-                        </button>
+                        </div>
                         
                         {expandedPhases[faseKey] && (
                           <div className="bg-white p-4 border-t border-slate-100 overflow-visible">
