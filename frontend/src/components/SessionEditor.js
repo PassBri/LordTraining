@@ -1034,8 +1034,8 @@ const SessionEditor = ({
                           </Select>
                         </div>
                         <div>
-                          <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 block mb-1.5" style={{fontFamily:DM}}>Densidad</span>
-                          <Input value={act.densidad || ''} onChange={(e) => updateActividad(faseKey, idx, 'densidad', e.target.value)} placeholder={capCfg.denPh} className="h-8 text-[11px] border-slate-200 rounded-lg" data-testid={`densidad-${faseKey}-${idx}`} />
+                          <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 block mb-1.5" style={{fontFamily:DM}}>Descanso</span>
+                          <Input value={act.recuperacion || ''} onChange={(e) => updateActividad(faseKey, idx, 'recuperacion', e.target.value)} placeholder={capCfg.recPh} className="h-8 text-[11px] border-slate-200 rounded-lg" data-testid={`descanso-adv-${faseKey}-${idx}`} />
                         </div>
                       </div>
 
