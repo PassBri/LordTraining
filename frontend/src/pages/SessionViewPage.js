@@ -25,34 +25,15 @@ const SessionViewPage = () => {
     if (downloading) return;
     setDownloading(true);
     try {
-      const html2canvas = (await import('html2canvas')).default;
-      const content = document.getElementById('session-view-content');
-      if (!content) return;
-      
-      // Ocultar el botón de descarga durante la captura
-      const dlBtn = document.getElementById('download-btn');
-      if (dlBtn) dlBtn.style.display = 'none';
-      
-      const canvas = await html2canvas(content, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#0a0a0f',
-        logging: false,
-        width: content.scrollWidth,
-        height: content.scrollHeight,
-        windowWidth: content.scrollWidth,
-        windowHeight: content.scrollHeight,
-        scrollX: 0,
-        scrollY: 0
-      });
-      
-      if (dlBtn) dlBtn.style.display = '';
-      
-      // Descargar como PNG
-      const link = document.createElement('a');
-      link.download = `iTRAIN_${shareId || 'sesion'}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+      const response = await fetch(`${API_URL}/api/sessions/download-pdf/${shareId}`);
+      if (!response.ok) throw new Error('Error al generar PDF');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `iTRAIN_${shareId}.pdf`;
+      a.click();
+      window.URL.revokeObjectURL(url);
     } catch (e) { console.error('Download error:', e); }
     finally { setDownloading(false); }
   };
@@ -130,7 +111,7 @@ const SessionViewPage = () => {
               <button id="download-btn" onClick={handleDownloadPDF} disabled={downloading}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all" 
                 style={{background:'rgba(204,255,0,0.1)',color:'#CCFF00',border:'1px solid rgba(204,255,0,0.2)'}}>
-                {downloading ? <><Activity className="w-3.5 h-3.5 animate-spin" /> Generando...</> : <><Download className="w-3.5 h-3.5" /> Descargar imagen</>}
+                {downloading ? <><Activity className="w-3.5 h-3.5 animate-spin" /> Generando...</> : <><Download className="w-3.5 h-3.5" /> Descargar PDF</>}
               </button>
           </div>
         </div>

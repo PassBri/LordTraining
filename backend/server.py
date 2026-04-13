@@ -6854,6 +6854,62 @@ async def get_shared_session(share_id: str):
         raise HTTPException(status_code=500, detail=f"Error al obtener sesión: {str(e)}")
 
 
+@api_router.get("/sessions/download-pdf/{share_id}")
+async def download_session_pdf(share_id: str):
+    """Genera PDF de la vista pública de sesión usando Playwright headless"""
+    from fastapi.responses import Response
+    try:
+        # Verificar que la sesión existe
+        shared = await db.shared_sessions.find_one({"share_id": share_id})
+        if not shared:
+            raise HTTPException(status_code=404, detail="Sesión no encontrada")
+        
+        import os as _os
+        _os.environ['PLAYWRIGHT_BROWSERS_PATH'] = '/pw-browsers'
+        from playwright.async_api import async_playwright
+        
+        # URL de la vista pública
+        base_url = os.environ.get("REACT_APP_BACKEND_URL", "http://localhost:3000")
+        # Use internal URL for rendering
+        page_url = f"http://localhost:3000/s/{share_id}"
+        
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(
+                headless=True,
+                args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+            )
+            page = await browser.new_page(viewport={"width": 1200, "height": 800})
+            
+            await page.goto(page_url, wait_until="networkidle", timeout=30000)
+            # Wait for content to render
+            await page.wait_for_timeout(2000)
+            
+            # Hide download button
+            await page.evaluate("document.getElementById('download-btn')?.remove()")
+            
+            # Generate PDF
+            pdf_bytes = await page.pdf(
+                format="A4",
+                print_background=True,
+                margin={"top": "10mm", "right": "8mm", "bottom": "10mm", "left": "8mm"},
+                scale=0.75
+            )
+            
+            await browser.close()
+        
+        filename = f"iTRAIN_{share_id}.pdf"
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating PDF: {e}")
+        raise HTTPException(status_code=500, detail=f"Error al generar PDF: {str(e)}")
+
+
 # =============== PLAN DATA ROUTES (Datos vinculados al plan) ===============
 
 # --- PLAN OBJECTIVES ---
