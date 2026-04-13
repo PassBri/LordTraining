@@ -185,7 +185,11 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
     // Activities
     activities: {},
     // Monitoring
-    monitoring: {}
+    monitoring: {},
+    // Manual chart overrides (0-5 scale, clickable)
+    load_chart: {},
+    volint_chart: {},
+    duration_chart: {}
   });
 
   // Import periodization data when available
@@ -204,7 +208,10 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
       preparation: {},
       physical: {},
       activities: {},
-      monitoring: {}
+      monitoring: {},
+      load_chart: {},
+      volint_chart: {},
+      duration_chart: {}
     };
 
     // Map phase IDs to our types
@@ -341,7 +348,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
     const newPlanData = {
       macrocycles: {}, periods: {}, phases: {}, mesocycles: {},
       microcycles: {}, intensity: {}, volume: {}, frequency: {},
-      preparation: {}, physical: {}, activities: {}, monitoring: {}
+      preparation: {}, physical: {}, activities: {}, monitoring: {}, load_chart: {}, volint_chart: {}, duration_chart: {}
     };
 
     // Build lookup maps
@@ -624,22 +631,29 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
   // Calculate load magnitude data for charts (Carga y Recuperación)
   const loadChartData = useMemo(() => {
     return displayedWeeks.map(week => {
-      // Try V2 micro data first
+      // Check manual override first
+      const manualCarga = planData.load_chart?.[`carga_${week}`];
+      const manualRecup = planData.load_chart?.[`recuperacion_${week}`];
+      if (manualCarga !== undefined || manualRecup !== undefined) {
+        const cargaVal = (manualCarga || 0) * 20;
+        const recupVal = (manualRecup || 0) * 20;
+        return {
+          week: `S${week}`, weekNum: week,
+          carga: cargaVal, recuperacion: recupVal,
+          fase: MACROCYCLE_TYPES.find(t => t.id === planData.phases?.[week])?.label || '',
+          cargaUA: 0, ACWR: 0, RPE: 0,
+        };
+      }
+      // Try V2 micro data
       const v2Micro = v2Micros.find(m => m.numero_semana === week);
       if (v2Micro && v2Micro.carga_total > 0) {
         const maxCarga = Math.max(...v2Micros.map(m => m.carga_total || 0), 1);
         const cargaPct = Math.round((v2Micro.carga_total / maxCarga) * 100);
-        const phaseId = planData.phases?.[week];
-        const phase = MACROCYCLE_TYPES.find(t => t.id === phaseId);
         return {
-          week: `S${week}`,
-          weekNum: week,
-          carga: cargaPct,
-          recuperacion: Math.max(0, 100 - cargaPct),
-          fase: phase?.label || '',
-          cargaUA: Math.round(v2Micro.carga_total),
-          ACWR: v2Micro.ACWR || 0,
-          RPE: v2Micro.RPE_promedio || 0,
+          week: `S${week}`, weekNum: week,
+          carga: cargaPct, recuperacion: Math.max(0, 100 - cargaPct),
+          fase: MACROCYCLE_TYPES.find(t => t.id === planData.phases?.[week])?.label || '',
+          cargaUA: Math.round(v2Micro.carga_total), ACWR: v2Micro.ACWR || 0, RPE: v2Micro.RPE_promedio || 0,
         };
       }
       // Fallback to local planData
@@ -649,37 +663,37 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
         totalLoad += value * (5 - idx);
       });
       const recovery = Math.max(0, 100 - totalLoad * 20);
-      const phaseId = planData.phases?.[week];
-      const phase = MACROCYCLE_TYPES.find(t => t.id === phaseId);
       return {
-        week: `S${week}`,
-        weekNum: week,
-        carga: Math.min(100, totalLoad * 20),
-        recuperacion: recovery,
-        fase: phase?.label || '',
-        cargaUA: 0,
-        ACWR: 0,
-        RPE: 0,
+        week: `S${week}`, weekNum: week,
+        carga: Math.min(100, totalLoad * 20), recuperacion: recovery,
+        fase: MACROCYCLE_TYPES.find(t => t.id === planData.phases?.[week])?.label || '',
+        cargaUA: 0, ACWR: 0, RPE: 0,
       };
     });
-  }, [displayedWeeks, planData.intensity, planData.phases, v2Micros]);
+  }, [displayedWeeks, planData.intensity, planData.phases, planData.load_chart, v2Micros]);
 
   // Calculate volume and intensity data for charts
   const volumeIntensityChartData = useMemo(() => {
     return displayedWeeks.map(week => {
-      // Try V2 micro data first
+      // Check manual override first
+      const manualVol = planData.volint_chart?.[`volumen_${week}`];
+      const manualInt = planData.volint_chart?.[`intensidad_${week}`];
+      if (manualVol !== undefined || manualInt !== undefined) {
+        return {
+          week: `S${week}`, weekNum: week,
+          volumen: (manualVol || 0) * 20, intensidad: (manualInt || 0) * 20,
+          mesociclo: MESOCYCLE_TYPES.find(t => t.id === planData.mesocycles?.[week])?.label || '',
+          tonelaje: 0, carga: 0,
+        };
+      }
+      // Try V2 micro data
       const v2Micro = v2Micros.find(m => m.numero_semana === week);
       if (v2Micro && (v2Micro.vol_calculado > 0 || v2Micro.int_calculado > 0)) {
-        const mesocycleId = planData.mesocycles?.[week];
-        const mesocycle = MESOCYCLE_TYPES.find(t => t.id === mesocycleId);
         return {
-          week: `S${week}`,
-          weekNum: week,
-          volumen: Math.round(v2Micro.vol_calculado),
-          intensidad: Math.round(v2Micro.int_calculado),
-          mesociclo: mesocycle?.label || '',
-          tonelaje: Math.round(v2Micro.tonelaje_kg || 0),
-          carga: Math.round(v2Micro.carga_total || 0),
+          week: `S${week}`, weekNum: week,
+          volumen: Math.round(v2Micro.vol_calculado), intensidad: Math.round(v2Micro.int_calculado),
+          mesociclo: MESOCYCLE_TYPES.find(t => t.id === planData.mesocycles?.[week])?.label || '',
+          tonelaje: Math.round(v2Micro.tonelaje_kg || 0), carga: Math.round(v2Micro.carga_total || 0),
         };
       }
       // Fallback
@@ -694,16 +708,14 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
         if (value) { intensitySum += value * (100 - idx * 15); intensityCount += value; }
       });
       return {
-        week: `S${week}`,
-        weekNum: week,
+        week: `S${week}`, weekNum: week,
         volumen: volumeCount > 0 ? Math.round(volumeSum / volumeCount * 20) : 0,
         intensidad: intensityCount > 0 ? Math.round(intensitySum / intensityCount) : 0,
         mesociclo: MESOCYCLE_TYPES.find(t => t.id === planData.mesocycles?.[week])?.label || '',
-        tonelaje: 0,
-        carga: 0,
+        tonelaje: 0, carga: 0,
       };
     });
-  }, [displayedWeeks, planData.volume, planData.intensity, planData.mesocycles, v2Micros]);
+  }, [displayedWeeks, planData.volume, planData.intensity, planData.mesocycles, planData.volint_chart, v2Micros]);
 
   // ═══ NEW: Preparation chart data (from grid cells + V2) ═══
   const preparationChartData = useMemo(() => {
@@ -776,24 +788,31 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
   // ═══ NEW: Duration chart data ═══
   const durationChartData = useMemo(() => {
     return displayedWeeks.map(week => {
+      // Check manual override first
+      const manualCal = planData.duration_chart?.[`calentamiento_${week}`];
+      const manualPri = planData.duration_chart?.[`principal_${week}`];
+      const manualVc = planData.duration_chart?.[`vueltaCalma_${week}`];
+      if (manualCal !== undefined || manualPri !== undefined || manualVc !== undefined) {
+        return {
+          week: `S${week}`, weekNum: week,
+          calentamiento: (manualCal || 0) * 20, principal: (manualPri || 0) * 20,
+          vueltaCalma: (manualVc || 0) * 20,
+          total: ((manualCal || 0) + (manualPri || 0) + (manualVc || 0)) * 20, sesiones: 0,
+        };
+      }
       const v2Micro = v2Micros.find(m => m.numero_semana === week);
       const sessions = v2Micro ? v2Sesiones.filter(s => s.microciclo_id === v2Micro.id) : [];
       const totalMin = sessions.reduce((s, se) => s + (se.duracion_minutos || 0), 0);
-      // Split into warmup (15%), main (70%), cooldown (15%)
       const warmup = Math.round(totalMin * 0.15);
       const main = Math.round(totalMin * 0.70);
       const cooldown = totalMin - warmup - main;
       return {
-        week: `S${week}`,
-        weekNum: week,
-        calentamiento: warmup,
-        principal: main,
-        vueltaCalma: cooldown,
-        total: totalMin,
-        sesiones: sessions.length,
+        week: `S${week}`, weekNum: week,
+        calentamiento: warmup, principal: main, vueltaCalma: cooldown,
+        total: totalMin, sesiones: sessions.length,
       };
     });
-  }, [displayedWeeks, v2Micros, v2Sesiones]);
+  }, [displayedWeeks, v2Micros, v2Sesiones, planData.duration_chart]);
 
   // Load existing plan
   useEffect(() => {
@@ -897,7 +916,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
       const key = `${rowId}_${weekIndex}`;
       
       // Toggle or cycle through values
-      if (section === 'intensity' || section === 'volume' || section === 'preparation' || section === 'physical') {
+      if (section === 'intensity' || section === 'volume' || section === 'preparation' || section === 'physical' || section === 'load_chart' || section === 'volint_chart' || section === 'duration_chart') {
         const currentValue = sectionData[key] || 0;
         sectionData[key] = currentValue >= 5 ? 0 : currentValue + 1;
       } else {
@@ -1549,8 +1568,8 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                     yAxisDomain: [0, 100]
                   }}
                 />
-                <InlineChartRow label="Carga %" data={loadChartData} dataKey="carga" color="#EF4444" maxVal={100} />
-                <InlineChartRow label="Recuperación %" data={loadChartData} dataKey="recuperacion" color="#3B82F6" maxVal={100} />
+                <InlineChartRow label="Carga %" data={loadChartData} dataKey="carga" color="#EF4444" maxVal={100} onCellClick={handleCellClick} section="load_chart" />
+                <InlineChartRow label="Recuperación %" data={loadChartData} dataKey="recuperacion" color="#3B82F6" maxVal={100} onCellClick={handleCellClick} section="load_chart" />
 
                 {/* CHART 2: Volumen, Intensidad y Densidad */}
                 <ChartSectionHeader
@@ -1570,8 +1589,8 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                     yAxisDomain: [0, 100]
                   }}
                 />
-                <InlineChartRow label="Volumen %" data={volumeIntensityChartData} dataKey="volumen" color="#22C55E" maxVal={100} />
-                <InlineChartRow label="Intensidad %" data={volumeIntensityChartData} dataKey="intensidad" color="#EF4444" maxVal={100} />
+                <InlineChartRow label="Volumen %" data={volumeIntensityChartData} dataKey="volumen" color="#22C55E" maxVal={100} onCellClick={handleCellClick} section="volint_chart" />
+                <InlineChartRow label="Intensidad %" data={volumeIntensityChartData} dataKey="intensidad" color="#EF4444" maxVal={100} onCellClick={handleCellClick} section="volint_chart" />
 
                 {/* CHART 3: Preparación por Componentes */}
                 <ChartSectionHeader
@@ -1648,9 +1667,9 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                     yAxisDomain: [0, 'auto']
                   }}
                 />
-                <InlineChartRow label="Calentamiento" data={durationChartData} dataKey="calentamiento" color="#FBBF24" maxVal="auto" />
-                <InlineChartRow label="Parte principal" data={durationChartData} dataKey="principal" color="#3B82F6" maxVal="auto" />
-                <InlineChartRow label="Vuelta a la calma" data={durationChartData} dataKey="vueltaCalma" color="#14B8A6" maxVal="auto" />
+                <InlineChartRow label="Calentamiento" data={durationChartData} dataKey="calentamiento" color="#FBBF24" maxVal="auto" onCellClick={handleCellClick} section="duration_chart" />
+                <InlineChartRow label="Parte principal" data={durationChartData} dataKey="principal" color="#3B82F6" maxVal="auto" onCellClick={handleCellClick} section="duration_chart" />
+                <InlineChartRow label="Vuelta a la calma" data={durationChartData} dataKey="vueltaCalma" color="#14B8A6" maxVal="auto" onCellClick={handleCellClick} section="duration_chart" />
 
               </tbody>
             </table>
