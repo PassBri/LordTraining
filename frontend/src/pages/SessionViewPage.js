@@ -211,18 +211,20 @@ const SessionViewPage = () => {
             </div>
             <CardContent className="p-5 space-y-5">
               {/* FC por fases */}
-              {(mon.fcAntesEntrenamiento || mon.fcDuranteEntrenamiento) && (
+              {(mon.fcAntesEntrenamiento || mon.fcDuranteEntrenamiento) && (() => {
+                const fcVisible = [
+                  { l:'Antes', v:mon.fcAntesEntrenamiento, c:'#3b82f6' },
+                  { l:'Durante', v:mon.fcDuranteEntrenamiento, c:'#ef4444' },
+                  { l:'Después', v:mon.fcDespuesEntrenamiento, c:'#22c55e' },
+                  { l:"Recup 1'", v:mon.fcRecuperacion1min, c:'#14b8a6' },
+                  { l:"Recup 3'", v:mon.fcRecuperacion3min, c:'#a855f7' },
+                  { l:"Recup 5'", v:mon.fcRecuperacion5min, c:'#6366f1' },
+                ].filter(x => x.v);
+                return (
                 <div>
                   <p className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{color:'rgba(204,255,0,0.5)'}}>Frecuencia cardíaca por fases</p>
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                    {[
-                      { l:'Antes', v:mon.fcAntesEntrenamiento, c:'#3b82f6' },
-                      { l:'Durante', v:mon.fcDuranteEntrenamiento, c:'#ef4444' },
-                      { l:'Después', v:mon.fcDespuesEntrenamiento, c:'#22c55e' },
-                      { l:"Recup 1'", v:mon.fcRecuperacion1min, c:'#14b8a6' },
-                      { l:"Recup 3'", v:mon.fcRecuperacion3min, c:'#a855f7' },
-                      { l:"Recup 5'", v:mon.fcRecuperacion5min, c:'#6366f1' },
-                    ].filter(x => x.v).map((x, i) => (
+                  <div className={`grid gap-2 ${fcVisible.length <= 3 ? 'grid-cols-3' : 'grid-cols-3 sm:grid-cols-6'}`}>
+                    {fcVisible.map((x, i) => (
                       <div key={i} className="text-center rounded-xl p-3" style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)'}}>
                         <div className="w-2 h-2 rounded-full mx-auto mb-1" style={{background:x.c}} />
                         <p style={{fontSize:'8px',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.06em',color:x.c}}>{x.l}</p>
@@ -232,7 +234,8 @@ const SessionViewPage = () => {
                     ))}
                   </div>
                 </div>
-              )}
+                );
+              })()}
               {/* FC Reposo/Media/Max */}
               {(mon.fcReposo || mon.fcMedia || mon.fcMaxima) && (
                 <div>
