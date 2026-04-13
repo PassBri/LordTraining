@@ -2104,81 +2104,119 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                     </Button>
                                   </div>
 
-                                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-2.5">
+                                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-3">
                                     {sessions.map((session, sIdx) => {
                                       const sType = SESSION_TYPES.find(t => t.id === session.type);
                                       const sColor = sType?.color || '#94a3b8';
                                       const rpe = session.rpe || 6;
                                       const rpeColor = rpe >= 8 ? '#EF4444' : rpe >= 6 ? '#F59E0B' : '#10B981';
+                                      const intensityVal = session.intensity === 'high' ? 85 : session.intensity === 'medium' ? 65 : session.intensity === 'low' ? 40 : 50;
+                                      const volVal = session.volume || 54;
+                                      const densVal = session.duration > 0 ? Math.round((volVal / (session.duration || 60)) * 10) / 10 : 0;
 
                                       return (
                                         <div
                                           key={session.id}
-                                          className="group relative rounded-xl overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 bg-white"
-                                          style={{ border:`1px solid ${sColor}20`, boxShadow:'0 1px 2px rgba(0,0,0,0.04)' }}
+                                          className="group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-xl hover:-translate-y-1"
+                                          style={{ background:'white', border:`1.5px solid ${sColor}18`, boxShadow:`0 2px 8px ${sColor}08` }}
                                           onClick={() => handleEditSession(session, macroIdx, mesoIdx, microIdx, sIdx)}
                                           data-testid={`session-${sIdx}`}
                                         >
-                                          {/* Color header */}
-                                          <div className="h-1 w-full" style={{ background:`linear-gradient(90deg, ${sColor}, ${sColor}99)` }} />
+                                          {/* Accent top bar */}
+                                          <div className="h-[3px]" style={{ background:`linear-gradient(90deg, ${sColor}, ${sColor}60)` }} />
 
-                                          {/* Delete btn */}
-                                          <div className="absolute top-2 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10" onClick={(e) => e.stopPropagation()}>
-                                            <button className="p-1 rounded-lg bg-white/90 shadow-sm hover:bg-red-50 backdrop-blur-sm" onClick={() => handleDeleteSession(macroIdx, mesoIdx, microIdx, sIdx)}>
+                                          {/* Delete */}
+                                          <div className="absolute top-3 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10" onClick={(e) => e.stopPropagation()}>
+                                            <button className="p-1 rounded-lg bg-white shadow-md hover:bg-red-50 border border-slate-100" onClick={() => handleDeleteSession(macroIdx, mesoIdx, microIdx, sIdx)}>
                                               <Trash2 className="w-3 h-3 text-red-400" />
                                             </button>
                                           </div>
 
-                                          <div className="p-3">
+                                          <div className="p-3.5">
                                             {/* Day + Status */}
                                             <div className="flex items-center justify-between mb-2">
-                                              <span className="font-bold text-[13px] text-slate-800" style={{fontFamily:"'DM Sans',sans-serif"}}>{session.dayName}</span>
+                                              <span className="font-bold text-[14px] text-slate-800" style={{fontFamily:"'DM Sans',sans-serif"}}>{session.dayName}</span>
                                               <StatusBadge status={session.status || 'planned'} />
                                             </div>
 
-                                            {/* Type */}
-                                            <p className="text-[11px] font-semibold mb-2" style={{ color: sColor }}>{sType?.name || '-'}</p>
+                                            {/* Type pill */}
+                                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full mb-3" style={{background:`${sColor}0a`, border:`1px solid ${sColor}18`}}>
+                                              <div className="w-2 h-2 rounded-full" style={{background: sColor}} />
+                                              <span className="text-[10px] font-semibold" style={{ color: sColor }}>{sType?.name || '-'}</span>
+                                            </div>
 
                                             {/* Objective */}
-                                            {session.objective && <p className="text-[10px] text-slate-500 mb-2 truncate">{session.objective}</p>}
+                                            {session.objective && <p className="text-[10px] text-slate-500 mb-3 truncate leading-relaxed">{session.objective}</p>}
 
-                                            {/* Metrics */}
-                                            <div className="grid grid-cols-3 gap-1.5 mb-2">
-                                              <div className="text-center rounded-lg px-1 py-1" style={{background:'#0a0a0f'}}>
-                                                <div className="text-[7px] font-bold uppercase tracking-widest" style={{color:'rgba(204,255,0,0.5)'}}>Dur</div>
-                                                <div className="text-[12px] font-bold text-white">{session.duration}m</div>
+                                            {/* Mini bar chart - visual load profile */}
+                                            <div className="flex items-end gap-[3px] h-[28px] mb-3 px-1">
+                                              {[
+                                                { val: volVal, color: sColor, label: 'V' },
+                                                { val: intensityVal, color: '#f59e0b', label: 'I' },
+                                                { val: rpe * 10, color: rpeColor, label: 'R' },
+                                                { val: Math.min(densVal * 100, 100), color: '#8b5cf6', label: 'D' }
+                                              ].map((bar, bi) => (
+                                                <div key={bi} className="flex-1 flex flex-col items-center gap-[2px]">
+                                                  <div className="w-full rounded-t-sm transition-all" style={{height:`${Math.max(bar.val * 0.26, 3)}px`, background:`linear-gradient(180deg, ${bar.color}90, ${bar.color}40)`, borderRadius:'3px 3px 1px 1px'}} />
+                                                  <span className="text-[6px] font-bold" style={{color: `${bar.color}80`}}>{bar.label}</span>
+                                                </div>
+                                              ))}
+                                            </div>
+
+                                            {/* Metrics grid - light elegant style */}
+                                            <div className="grid grid-cols-3 gap-1.5 mb-2.5">
+                                              <div className="text-center rounded-lg py-1.5 px-1" style={{background:`${sColor}06`, border:`1px solid ${sColor}10`}}>
+                                                <div className="text-[7px] font-bold uppercase tracking-wider" style={{color:`${sColor}90`}}>Dur</div>
+                                                <div className="text-[13px] font-black text-slate-700">{session.duration}<span className="text-[9px] font-normal text-slate-400">m</span></div>
                                               </div>
-                                              <div className="text-center rounded-lg px-1 py-1" style={{background:'#0a0a0f'}}>
-                                                <div className="text-[7px] font-bold uppercase tracking-widest" style={{color:'rgba(204,255,0,0.5)'}}>Vol</div>
-                                                <div className="text-[12px] font-bold text-white">{session.volume || '-'}%</div>
+                                              <div className="text-center rounded-lg py-1.5 px-1" style={{background:`${sColor}06`, border:`1px solid ${sColor}10`}}>
+                                                <div className="text-[7px] font-bold uppercase tracking-wider" style={{color:`${sColor}90`}}>Vol</div>
+                                                <div className="text-[13px] font-black text-slate-700">{volVal}<span className="text-[9px] font-normal text-slate-400">%</span></div>
                                               </div>
-                                              <div className="text-center rounded-lg px-1 py-1" style={{background: rpeColor + '10'}}>
-                                                <div className="text-[7px] font-bold uppercase tracking-widest" style={{color: rpeColor + '80'}}>RPE</div>
-                                                <div className="text-[12px] font-bold" style={{ color: rpeColor }}>{rpe}</div>
+                                              <div className="text-center rounded-lg py-1.5 px-1" style={{background:`${rpeColor}08`, border:`1px solid ${rpeColor}15`}}>
+                                                <div className="text-[7px] font-bold uppercase tracking-wider" style={{color:`${rpeColor}90`}}>RPE</div>
+                                                <div className="text-[13px] font-black" style={{ color: rpeColor }}>{rpe}</div>
                                               </div>
                                             </div>
 
-                                            {/* Intensity + Load */}
-                                            <div className="flex items-center justify-between">
+                                            {/* Intensity + Density row */}
+                                            <div className="grid grid-cols-2 gap-1.5 mb-2.5">
+                                              <div className="rounded-lg py-1.5 px-2" style={{background:'rgba(245,158,11,0.05)', border:'1px solid rgba(245,158,11,0.1)'}}>
+                                                <div className="text-[7px] font-bold uppercase tracking-wider text-amber-400 mb-0.5">Intensidad</div>
+                                                <div className="flex items-center gap-1.5">
+                                                  <div className="flex-1 h-1.5 rounded-full bg-amber-100 overflow-hidden">
+                                                    <div className="h-full rounded-full transition-all" style={{width:`${intensityVal}%`, background:'linear-gradient(90deg, #fbbf24, #f59e0b)'}} />
+                                                  </div>
+                                                  <span className="text-[11px] font-bold text-amber-600">{intensityVal}%</span>
+                                                </div>
+                                              </div>
+                                              <div className="rounded-lg py-1.5 px-2" style={{background:'rgba(139,92,246,0.04)', border:'1px solid rgba(139,92,246,0.1)'}}>
+                                                <div className="text-[7px] font-bold uppercase tracking-wider text-violet-400 mb-0.5">Densidad</div>
+                                                <div className="flex items-center gap-1.5">
+                                                  <div className="flex-1 h-1.5 rounded-full bg-violet-100 overflow-hidden">
+                                                    <div className="h-full rounded-full transition-all" style={{width:`${Math.min(densVal * 50, 100)}%`, background:'linear-gradient(90deg, #a78bfa, #8b5cf6)'}} />
+                                                  </div>
+                                                  <span className="text-[11px] font-bold text-violet-600">{densVal}</span>
+                                                </div>
+                                              </div>
+                                            </div>
+
+                                            {/* Bottom row: Intensity badge + load */}
+                                            <div className="flex items-center justify-between pt-2" style={{borderTop:`1px solid ${sColor}08`}}>
                                               <IntensityBadge level={session.intensity} size="xs" />
-                                              {session.internalLoad > 0 && <span className="text-[9px] text-slate-400 font-medium">UA:{session.internalLoad}</span>}
-                                            </div>
-
-                                            {/* Muscle + Fatigue */}
-                                            {(session.muscleGroup || session.fatigue) && (
-                                              <div className="flex items-center justify-between mt-1.5 pt-1.5" style={{borderTop:'1px solid rgba(0,0,0,0.04)'}}>
-                                                {session.muscleGroup && <span className="text-[9px] text-slate-400 truncate max-w-[70%]">{session.muscleGroup}</span>}
+                                              <div className="flex items-center gap-2">
+                                                {session.internalLoad > 0 && <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-md bg-slate-50 text-slate-500">UA:{session.internalLoad}</span>}
                                                 {session.fatigue && (
-                                                  <div className="flex items-center gap-0.5" title={`Fatiga: ${session.fatigue}/10 · Rec: ${session.recovery}h`}>
-                                                    <Activity className="w-2.5 h-2.5 text-slate-300" />
-                                                    <span className="text-[9px] font-semibold" style={{ color: session.fatigue >= 7 ? '#EF4444' : session.fatigue >= 5 ? '#F59E0B' : '#10B981' }}>{session.fatigue}</span>
+                                                  <div className="flex items-center gap-0.5" title={`Fatiga: ${session.fatigue}/10`}>
+                                                    <Activity className="w-3 h-3" style={{color: session.fatigue >= 7 ? '#EF4444' : session.fatigue >= 5 ? '#F59E0B' : '#10B981'}} />
+                                                    <span className="text-[9px] font-bold" style={{ color: session.fatigue >= 7 ? '#EF4444' : session.fatigue >= 5 ? '#F59E0B' : '#10B981' }}>{session.fatigue}</span>
                                                   </div>
                                                 )}
                                               </div>
-                                            )}
+                                            </div>
 
                                             {/* Contents */}
-                                            {session.contents && <p className="text-[9px] text-slate-400 mt-1.5 truncate pt-1.5" style={{borderTop:'1px solid rgba(0,0,0,0.04)'}}>{session.contents}</p>}
+                                            {session.contents && <p className="text-[9px] text-slate-400 mt-2 truncate pt-2" style={{borderTop:`1px solid ${sColor}08`}}>{session.contents}</p>}
                                           </div>
                                         </div>
                                       );
