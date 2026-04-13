@@ -14,6 +14,13 @@
 - Restaurados sub-rows con cuadros de colores clickeables para Monitoreo/Evaluaciones (6 tipos: medico, fisico, tecnico, tactico, psicologico, teorico)
 - Cada celda es interactiva (toggle on/off) usando renderBooleanCell
 
+### Graficas Inline Alineadas con Tabla de Periodizacion (Abr 2026)
+- Reemplazados los 5 InteractiveCharts externos (desalineados) por filas inline dentro de la tabla
+- Cada metrica es una fila de tabla con barras proporcionales perfectamente alineadas con las columnas de semanas
+- 5 secciones de graficas: Carga/Recuperacion, Volumen/Intensidad, Preparacion por Componentes, Capacidades Fisicas, Duracion/Actividad
+- Boton de expansion en cada seccion abre Dialog con InteractiveChart completo (zoom, brush, tipos de grafica)
+- Todo scrollea como una unidad cohesiva
+
 ### Plan Grafico Corregido - Grilla Completa + 5 Graficas (Feb 2026)
 - Sincronizacion V2 mejorada: llena TODAS las filas de la grilla
   - Magnitud de Carga: 5 niveles por semana basados en RPE

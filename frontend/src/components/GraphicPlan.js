@@ -4,6 +4,7 @@ import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../components/ui/select';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
+import { Dialog, DialogContent } from '../components/ui/dialog';
 import {
   BarChart, Bar, LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, 
   Tooltip, Legend, ResponsiveContainer, ComposedChart, ReferenceLine, ReferenceArea
@@ -853,6 +854,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
 
   // Export plan as image
   const [exportingImage, setExportingImage] = useState(false);
+  const [expandedChart, setExpandedChart] = useState(null);
   
   const handleExportAsImage = async () => {
     setExportingImage(true);
@@ -1010,6 +1012,63 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
         onClick={() => handleCellClick(section, rowId, weekIndex)}
         data-testid={`cell-${section}-${rowId}-${weekIndex}`}
       />
+    );
+  };
+
+  // ═══ INLINE CHART ROW: Proportional bars perfectly aligned with week columns ═══
+  const InlineChartRow = ({ label, data, dataKey, color, maxVal = 100, rowHeight = 40 }) => {
+    return (
+      <tr>
+        <td className="sticky left-0 bg-gray-50 px-2 py-0 text-[10px] border border-gray-300 z-10" style={{ minWidth: 180 }}>
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-sm flex-shrink-0" style={{ backgroundColor: color }} />
+            <span className="truncate">{label}</span>
+          </div>
+        </td>
+        {displayedWeeks.map((week, i) => {
+          const weekData = data[i];
+          const value = weekData?.[dataKey] || 0;
+          const effectiveMax = maxVal === 'auto' ? Math.max(1, ...data.map(d => d?.[dataKey] || 0)) : maxVal;
+          const barH = effectiveMax > 0 ? Math.max(0, (value / effectiveMax) * (rowHeight - 6)) : 0;
+          return (
+            <td key={`${dataKey}-${week}`} className="border border-gray-200 p-0 relative" style={{ height: rowHeight }}
+              data-testid={`chart-${dataKey}-${week}`}>
+              {value > 0 && (
+                <>
+                  <div className="absolute bottom-0 left-[1px] right-[1px] rounded-t-sm"
+                    style={{ height: barH, backgroundColor: color, opacity: 0.8 }} />
+                  <span className="absolute top-[1px] left-0 right-0 text-center text-[7px] font-bold leading-none"
+                    style={{ color }}>{Math.round(value)}</span>
+                </>
+              )}
+            </td>
+          );
+        })}
+      </tr>
+    );
+  };
+
+  // ═══ CHART SECTION HEADER: Title row with expand button ═══
+  const ChartSectionHeader = ({ title, icon: Icon, bgColor, textColor, chartConfig }) => {
+    return (
+      <tr className={bgColor}>
+        <td colSpan={displayedWeeks.length + 1} className={`px-2 py-1.5 font-bold ${textColor} border border-gray-300`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-xs">
+              {Icon && <Icon className="w-3.5 h-3.5" />}
+              {title}
+            </div>
+            <button
+              onClick={() => setExpandedChart(chartConfig)}
+              className="p-0.5 rounded hover:bg-black/10 transition-colors"
+              title="Expandir gráfico interactivo"
+              data-testid={`expand-chart-${title.replace(/\s/g, '-').toLowerCase()}`}
+            >
+              <Maximize2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </td>
+      </tr>
     );
   };
 
@@ -1578,105 +1637,131 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                   );
                 })}
 
+                {/* ══════════ INLINE CHARTS — perfectly aligned with week columns ══════════ */}
+
+                {/* CHART 1: Magnitud de Carga y Recuperación */}
+                <ChartSectionHeader
+                  title="Magnitud de Carga y Recuperación"
+                  icon={Activity}
+                  bgColor="bg-red-50"
+                  textColor="text-red-800"
+                  chartConfig={{
+                    title: 'Magnitud de Carga y Recuperacion',
+                    icon: Activity,
+                    data: loadChartData,
+                    dataKeys: [
+                      { key: 'carga', name: 'Carga %', color: '#EF4444' },
+                      { key: 'recuperacion', name: 'Recuperacion %', color: '#3B82F6' }
+                    ],
+                    chartType: 'bar',
+                    yAxisDomain: [0, 100]
+                  }}
+                />
+                <InlineChartRow label="Carga %" data={loadChartData} dataKey="carga" color="#EF4444" maxVal={100} />
+                <InlineChartRow label="Recuperación %" data={loadChartData} dataKey="recuperacion" color="#3B82F6" maxVal={100} />
+
+                {/* CHART 2: Volumen, Intensidad y Densidad */}
+                <ChartSectionHeader
+                  title="Volumen e Intensidad"
+                  icon={TrendingUp}
+                  bgColor="bg-green-50"
+                  textColor="text-green-800"
+                  chartConfig={{
+                    title: 'Volumen, Intensidad y Densidad',
+                    icon: TrendingUp,
+                    data: volumeIntensityChartData,
+                    dataKeys: [
+                      { key: 'volumen', name: 'Volumen %', color: '#22C55E' },
+                      { key: 'intensidad', name: 'Intensidad %', color: '#EF4444' }
+                    ],
+                    chartType: 'line',
+                    yAxisDomain: [0, 100]
+                  }}
+                />
+                <InlineChartRow label="Volumen %" data={volumeIntensityChartData} dataKey="volumen" color="#22C55E" maxVal={100} />
+                <InlineChartRow label="Intensidad %" data={volumeIntensityChartData} dataKey="intensidad" color="#EF4444" maxVal={100} />
+
+                {/* CHART 3: Preparación por Componentes */}
+                <ChartSectionHeader
+                  title="Preparación por Componentes"
+                  icon={Dumbbell}
+                  bgColor="bg-indigo-50"
+                  textColor="text-indigo-800"
+                  chartConfig={{
+                    title: 'Preparacion por Componentes',
+                    icon: Dumbbell,
+                    data: preparationChartData,
+                    dataKeys: [
+                      { key: 'general_physical', name: 'Física General', color: '#2563EB' },
+                      { key: 'specific_physical', name: 'Física Específica', color: '#6366F1' },
+                      { key: 'technical', name: 'Técnica', color: '#16A34A' },
+                      { key: 'tactical', name: 'Táctica', color: '#F59E0B' },
+                      { key: 'psychological', name: 'Psicológica', color: '#A855F7' },
+                      { key: 'theoretical', name: 'Teórica', color: '#EC4899' }
+                    ],
+                    chartType: 'area',
+                    yAxisDomain: [0, 100]
+                  }}
+                />
+                <InlineChartRow label="Física General" data={preparationChartData} dataKey="general_physical" color="#2563EB" maxVal={100} />
+                <InlineChartRow label="Física Específica" data={preparationChartData} dataKey="specific_physical" color="#6366F1" maxVal={100} />
+                <InlineChartRow label="Técnica" data={preparationChartData} dataKey="technical" color="#16A34A" maxVal={100} />
+                <InlineChartRow label="Táctica" data={preparationChartData} dataKey="tactical" color="#F59E0B" maxVal={100} />
+                <InlineChartRow label="Psicológica" data={preparationChartData} dataKey="psychological" color="#A855F7" maxVal={100} />
+                <InlineChartRow label="Teórica" data={preparationChartData} dataKey="theoretical" color="#EC4899" maxVal={100} />
+
+                {/* CHART 4: Preparación Física por Capacidades */}
+                <ChartSectionHeader
+                  title="Capacidades Físicas"
+                  icon={Heart}
+                  bgColor="bg-orange-50"
+                  textColor="text-orange-800"
+                  chartConfig={{
+                    title: 'Preparacion Fisica por Capacidades',
+                    icon: Heart,
+                    data: physicalChartData,
+                    dataKeys: [
+                      { key: 'endurance', name: 'Resistencia', color: '#DC2626' },
+                      { key: 'strength', name: 'Fuerza', color: '#EA580C' },
+                      { key: 'speed', name: 'Velocidad', color: '#CA8A04' },
+                      { key: 'coordination', name: 'Coordinación', color: '#16A34A' },
+                      { key: 'flexibility', name: 'Flexibilidad', color: '#3B82F6' }
+                    ],
+                    chartType: 'line',
+                    yAxisDomain: [0, 100]
+                  }}
+                />
+                <InlineChartRow label="Resistencia" data={physicalChartData} dataKey="endurance" color="#DC2626" maxVal={100} />
+                <InlineChartRow label="Fuerza" data={physicalChartData} dataKey="strength" color="#EA580C" maxVal={100} />
+                <InlineChartRow label="Velocidad" data={physicalChartData} dataKey="speed" color="#CA8A04" maxVal={100} />
+                <InlineChartRow label="Coordinación" data={physicalChartData} dataKey="coordination" color="#16A34A" maxVal={100} />
+                <InlineChartRow label="Flexibilidad" data={physicalChartData} dataKey="flexibility" color="#3B82F6" maxVal={100} />
+
+                {/* CHART 5: Duración y Actividad Semanal */}
+                <ChartSectionHeader
+                  title="Duración y Actividad"
+                  icon={Timer}
+                  bgColor="bg-teal-50"
+                  textColor="text-teal-800"
+                  chartConfig={{
+                    title: 'Duracion y Actividad Semanal',
+                    icon: Timer,
+                    data: durationChartData,
+                    dataKeys: [
+                      { key: 'calentamiento', name: 'Calentamiento', color: '#FBBF24' },
+                      { key: 'principal', name: 'Parte principal', color: '#3B82F6' },
+                      { key: 'vueltaCalma', name: 'Vuelta a la calma', color: '#14B8A6' }
+                    ],
+                    chartType: 'bar',
+                    yAxisDomain: [0, 'auto']
+                  }}
+                />
+                <InlineChartRow label="Calentamiento" data={durationChartData} dataKey="calentamiento" color="#FBBF24" maxVal="auto" />
+                <InlineChartRow label="Parte principal" data={durationChartData} dataKey="principal" color="#3B82F6" maxVal="auto" />
+                <InlineChartRow label="Vuelta a la calma" data={durationChartData} dataKey="vueltaCalma" color="#14B8A6" maxVal="auto" />
+
               </tbody>
             </table>
-          </div>
-
-          {/* CHARTS SECTION — below the compact table, aligned to week columns */}
-          <div className="mt-3 space-y-2" style={{ paddingLeft: 180 }}>
-            <InteractiveChart
-              title="Magnitud de Carga y Recuperacion"
-              icon={Activity}
-              data={loadChartData}
-              dataKeys={[
-                { key: 'carga', name: 'Carga %', color: '#EF4444' },
-                { key: 'recuperacion', name: 'Recuperacion %', color: '#3B82F6' }
-              ]}
-              xAxisKey="week"
-              height={200}
-              showBrush={true}
-              showControls={true}
-              showLiveIndicator={true}
-              defaultChartType="bar"
-              defaultTimeRange="sessions"
-              yAxisDomain={[0, 100]}
-            />
-            <InteractiveChart
-              title="Volumen, Intensidad y Densidad"
-              icon={TrendingUp}
-              data={volumeIntensityChartData}
-              dataKeys={[
-                { key: 'volumen', name: 'Volumen %', color: '#22C55E' },
-                { key: 'intensidad', name: 'Intensidad %', color: '#EF4444' }
-              ]}
-              xAxisKey="week"
-              height={200}
-              showBrush={true}
-              showControls={true}
-              showLiveIndicator={true}
-              defaultChartType="line"
-              defaultTimeRange="sessions"
-              yAxisDomain={[0, 100]}
-            />
-            <InteractiveChart
-              title="Preparacion por Componentes"
-              icon={Dumbbell}
-              data={preparationChartData}
-              dataKeys={[
-                { key: 'general_physical', name: 'Fisica General', color: '#2563EB' },
-                { key: 'specific_physical', name: 'Fisica Especifica', color: '#6366F1' },
-                { key: 'technical', name: 'Tecnica', color: '#16A34A' },
-                { key: 'tactical', name: 'Tactica', color: '#F59E0B' },
-                { key: 'psychological', name: 'Psicologica', color: '#A855F7' },
-                { key: 'theoretical', name: 'Teorica', color: '#EC4899' }
-              ]}
-              xAxisKey="week"
-              height={200}
-              showBrush={true}
-              showControls={true}
-              showLiveIndicator={true}
-              defaultChartType="area"
-              defaultTimeRange="sessions"
-              yAxisDomain={[0, 100]}
-            />
-            <InteractiveChart
-              title="Preparacion Fisica por Capacidades"
-              icon={Heart}
-              data={physicalChartData}
-              dataKeys={[
-                { key: 'endurance', name: 'Resistencia', color: '#DC2626' },
-                { key: 'strength', name: 'Fuerza', color: '#EA580C' },
-                { key: 'speed', name: 'Velocidad', color: '#CA8A04' },
-                { key: 'coordination', name: 'Coordinacion', color: '#16A34A' },
-                { key: 'flexibility', name: 'Flexibilidad', color: '#3B82F6' }
-              ]}
-              xAxisKey="week"
-              height={200}
-              showBrush={true}
-              showControls={true}
-              showLiveIndicator={true}
-              defaultChartType="line"
-              defaultTimeRange="sessions"
-              yAxisDomain={[0, 100]}
-            />
-            <InteractiveChart
-              title="Duracion y Actividad Semanal"
-              icon={Timer}
-              data={durationChartData}
-              dataKeys={[
-                { key: 'calentamiento', name: 'Calentamiento', color: '#FBBF24' },
-                { key: 'principal', name: 'Parte principal', color: '#3B82F6' },
-                { key: 'vueltaCalma', name: 'Vuelta a la calma', color: '#14B8A6' }
-              ]}
-              xAxisKey="week"
-              height={200}
-              showBrush={true}
-              showControls={true}
-              showLiveIndicator={true}
-              defaultChartType="bar"
-              defaultTimeRange="sessions"
-              yAxisDomain={[0, 'auto']}
-            />
           </div>
 
           {/* Legend */}
@@ -1728,6 +1813,30 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
           </div>
         </CardContent>
       </Card>
+
+      {/* Dialog for expanded interactive chart */}
+      <Dialog open={!!expandedChart} onOpenChange={() => setExpandedChart(null)}>
+        <DialogContent className="max-w-6xl max-h-[85vh] overflow-auto p-0">
+          {expandedChart && (
+            <div className="p-4">
+              <InteractiveChart
+                title={expandedChart.title}
+                icon={expandedChart.icon}
+                data={expandedChart.data}
+                dataKeys={expandedChart.dataKeys}
+                xAxisKey="week"
+                height={400}
+                showBrush={true}
+                showControls={true}
+                showLiveIndicator={true}
+                defaultChartType={expandedChart.chartType || 'bar'}
+                defaultTimeRange="sessions"
+                yAxisDomain={expandedChart.yAxisDomain || [0, 100]}
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
