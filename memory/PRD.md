@@ -2,31 +2,18 @@
 
 ## Credenciales: test@train.com / test123456
 
-## Arquitectura
-- Frontend: React + Shadcn UI + TailwindCSS + Recharts
-- Backend: FastAPI + MongoDB
-- PDF: Playwright (Headless Chromium)
-
 ## Implementado (Fork 12 - Abr 2026)
 
-### Grafico MEV-MAV-MRV con Recharts en Mesociclo (Abr 13, 2026)
-- Recharts ComposedChart: barras + linea con dots
-- Lineas de referencia punteadas: MEV (verde), MAV (cyan), MRV (rojo)
-- Fondo blanco limpio, grid punteado sutil
-- Tooltip custom: zona, series totales, sesiones, carga, explicacion
-- Tooltip educativo: tabla siglas, explicacion Dr. Israetel
-- Leyenda inline con valores calculados
-- Calculo series totales por microciclo desde datos reales de sesiones
-- Ubicacion correcta: mesociclo (PeriodizationComplete.js)
-
-### Parametros Carga/Metricas en Activity Card (Abr 13, 2026)
-- Panel colapsable con metricas auto-calculadas
-- Volumen/Intensidad dinamicos por capacidad
-- CAPACITY_CONFIG con unidades por capacidad
-
-### Materiales + Titulos Fase (Abr 13, 2026)
-- Materiales custom, editar/eliminar
-- Fases prominentes con colores distintos
+### Grafico MEV-MAV-MRV Dinamico en Mesociclo (Abr 13, 2026)
+- Recharts ComposedChart con multiples metricas
+- Selector tipo grafica: Barras, Lineas, Mixta, Puntos
+- Toggles metricas: VOL (verde), INT (naranja), DEN (violeta)
+- Series (cyan) + Volumen (lime) como barras/lineas
+- Intensidad como linea en eje Y derecho (0-100%)
+- Densidad como area sutil violeta
+- Tooltip con Series, Volumen, Intensidad%, Densidad
+- Lineas referencia: MEV, MAV, MRV
+- Calculo real desde datos de sesiones
 
 ## Pendiente
 - P1: Fix hydration warning DashboardPage.js

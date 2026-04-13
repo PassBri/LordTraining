@@ -223,6 +223,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
   const [userSports, setUserSports] = useState([]);
   const [generatedStructure, setGeneratedStructure] = useState(null);
   const [generating, setGenerating] = useState(false);
+  const [expandedPanels, setExpandedPanels] = useState({});
 
   // Get token helper
   const getToken = () => localStorage.getItem('train_token');
@@ -1839,19 +1840,41 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                           const microData = micros.map((micro, mi) => {
                             const sessions = micro.sessions || [];
                             let totalSeries = 0;
+                            let totalVolumen = 0;
+                            let totalIntensidad = 0;
+                            let actCount = 0;
+                            let totalDensidad = 0;
+                            let densCount = 0;
                             sessions.forEach(ses => {
                               const sd = ses.sessionData || ses.detailed_data;
                               if (sd?.fases) {
                                 Object.values(sd.fases).forEach(fase => {
-                                  (fase.actividades || []).forEach(act => { totalSeries += parseInt(act.series) || 0; });
+                                  (fase.actividades || []).forEach(act => {
+                                    totalSeries += parseInt(act.series) || 0;
+                                    totalVolumen += parseFloat(act.volumen) || 0;
+                                    totalIntensidad += parseFloat(act.intensidad) || 0;
+                                    actCount++;
+                                    if (act.densidad) {
+                                      const parts = act.densidad.split(':').map(Number);
+                                      if (parts.length === 2 && parts[1] > 0) { totalDensidad += parts[0] / parts[1]; densCount++; }
+                                    }
+                                  });
                                 });
-                              } else { totalSeries += Math.round((ses.duration || 60) / 5); }
+                              } else {
+                                totalSeries += Math.round((ses.duration || 60) / 5);
+                                totalVolumen += ses.duration || 60;
+                                totalIntensidad += 70;
+                                actCount++;
+                              }
                             });
                             const microLoad = micro.type?.load || micro.type?.loadPercent || 70;
                             const isDeload = (micro.type?.id === 'descarga' || micro.type?.id === 'recuperacion' || micro.type?.name?.toLowerCase().includes('descarga') || micro.type?.name?.toLowerCase().includes('recup'));
                             return {
                               name: `S${mi + 1}`,
                               series: totalSeries || Math.round(microLoad * 0.4),
+                              volumen: Math.round(totalVolumen) || Math.round(microLoad * 0.6),
+                              intensidad: actCount > 0 ? Math.round(totalIntensidad / actCount) : microLoad,
+                              densidad: densCount > 0 ? +(totalDensidad / densCount).toFixed(2) : +(1 / (3 + mi * 0.3)).toFixed(2),
                               load: microLoad,
                               isDeload,
                               sessions: sessions.length
@@ -1863,33 +1886,48 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                           const mavLine = Math.round(maxSeries * 0.7);
                           const mrvLine = Math.round(maxSeries * 1.05);
 
-                          const CustomTooltipMEV = ({ active, payload, label }) => {
+                          const mesoChartKey = `meso-chart-${macroIdx}-${mesoIdx}`;
+                          const chartMode = expandedPanels?.[mesoChartKey] || 'mixta';
+                          const mesoMetricKey = `meso-metric-${macroIdx}-${mesoIdx}`;
+                          const activeMetrics = expandedPanels?.[mesoMetricKey] || { vol: true, int: true, den: false };
+
+                          const setChartMode = (mode) => setExpandedPanels(prev => ({...prev, [mesoChartKey]: mode}));
+                          const toggleMetric = (m) => setExpandedPanels(prev => {
+                            const cur = prev[mesoMetricKey] || { vol: true, int: true, den: false };
+                            return {...prev, [mesoMetricKey]: {...cur, [m]: !cur[m]}};
+                          });
+
+                          const showBars = chartMode === 'barras' || chartMode === 'mixta';
+                          const showLines = chartMode === 'lineas' || chartMode === 'mixta';
+                          const showDots = chartMode === 'puntos';
+
+                          const CustomTooltipMeso = ({ active, payload, label }) => {
                             if (!active || !payload?.length) return null;
                             const d = payload[0]?.payload;
                             const pct = d.series / maxSeries;
-                            let zone = d.isDeload ? 'Descarga' : pct > 0.85 ? 'MRV' : pct > 0.5 ? 'MAV' : 'MEV';
-                            let zoneColor = d.isDeload ? '#818cf8' : pct > 0.85 ? '#e11d48' : pct > 0.5 ? '#0891b2' : '#16a34a';
-                            let desc = d.isDeload ? 'Semana de descarga para recuperacion y supercompensacion.' : zone === 'MRV' ? 'Cerca del maximo volumen recuperable. Riesgo de sobreentrenamiento.' : zone === 'MAV' ? 'Zona optima: maximiza adaptaciones de fuerza/hipertrofia.' : 'Volumen minimo efectivo para mantener adaptaciones.';
+                            const zone = d.isDeload ? 'Descarga' : pct > 0.85 ? 'MRV' : pct > 0.5 ? 'MAV' : 'MEV';
+                            const zoneColor = d.isDeload ? '#818cf8' : pct > 0.85 ? '#e11d48' : pct > 0.5 ? '#0891b2' : '#16a34a';
                             return (
-                              <div className="bg-white rounded-xl shadow-xl border border-slate-200 p-3" style={{fontFamily:"'DM Sans',sans-serif",minWidth:180}}>
-                                <div className="flex items-center gap-2 mb-1.5">
+                              <div className="bg-white rounded-xl shadow-xl border border-slate-200 p-3.5" style={{fontFamily:"'DM Sans',sans-serif",minWidth:210}}>
+                                <div className="flex items-center gap-2 mb-2">
                                   <div className="w-3 h-3 rounded" style={{background:zoneColor}} />
                                   <span className="text-[12px] font-bold text-slate-800">{label} — {zone}</span>
                                 </div>
-                                <p className="text-[10px] text-slate-500 leading-relaxed mb-2">{desc}</p>
-                                <div className="flex justify-between pt-1.5 border-t border-slate-100">
-                                  <span className="text-[10px] text-slate-400">Series totales</span>
-                                  <span className="text-[13px] font-black" style={{color:zoneColor}}>{d.series}</span>
+                                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] mb-2">
+                                  <div className="flex justify-between"><span className="text-slate-400">Series</span><span className="font-bold text-slate-700">{d.series}</span></div>
+                                  <div className="flex justify-between"><span className="text-slate-400">Volumen</span><span className="font-bold" style={{color:'#CCFF00'}}>{d.volumen}</span></div>
+                                  <div className="flex justify-between"><span className="text-slate-400">Intensidad</span><span className="font-bold" style={{color:'#f59e0b'}}>{d.intensidad}%</span></div>
+                                  <div className="flex justify-between"><span className="text-slate-400">Densidad</span><span className="font-bold" style={{color:'#8b5cf6'}}>{d.densidad}</span></div>
                                 </div>
-                                <div className="text-[9px] text-slate-400 mt-1">{d.sessions} sesiones · Carga {d.load}%</div>
+                                <div className="pt-1.5 border-t border-slate-100 text-[9px] text-slate-400">{d.sessions} sesiones · Carga {d.load}%</div>
                               </div>
                             );
                           };
 
                           return (
-                            <div className="mb-4 rounded-xl border border-slate-200 bg-white overflow-hidden">
+                            <div className="mb-4 rounded-xl border border-slate-200 bg-white overflow-hidden" data-testid={`meso-chart-${macroIdx}-${mesoIdx}`}>
                               {/* Header */}
-                              <div className="px-5 pt-4 pb-2 flex items-start justify-between">
+                              <div className="px-5 pt-4 pb-1 flex items-start justify-between">
                                 <div>
                                   <div className="flex items-center gap-2 mb-1">
                                     <TrendingUp className="w-4 h-4 text-cyan-600" />
@@ -1904,11 +1942,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                   <div className="absolute right-0 top-8 w-[320px] p-4 rounded-xl bg-white shadow-2xl border border-slate-200 opacity-0 invisible group-hover/mevinfo:opacity-100 group-hover/mevinfo:visible transition-all z-50" style={{fontFamily:"'DM Sans',sans-serif"}}>
                                     <p className="text-[13px] font-bold text-slate-800 mb-3">Modelo de Volumen MEV → MAV → MRV</p>
                                     <table className="w-full text-[10px] mb-3">
-                                      <thead><tr className="border-b border-slate-100">
-                                        <th className="text-left py-1 font-bold text-slate-500">Sigla</th>
-                                        <th className="text-left py-1 font-bold text-slate-500">Significado</th>
-                                        <th className="text-left py-1 font-bold text-slate-500">Descripcion</th>
-                                      </tr></thead>
+                                      <thead><tr className="border-b border-slate-100"><th className="text-left py-1 font-bold text-slate-500">Sigla</th><th className="text-left py-1 font-bold text-slate-500">Significado</th><th className="text-left py-1 font-bold text-slate-500">Descripcion</th></tr></thead>
                                       <tbody>
                                         <tr className="border-b border-slate-50"><td className="py-1.5 font-bold" style={{color:'#16a34a'}}>MEV</td><td className="py-1.5 text-slate-600">Min. Volumen Efectivo</td><td className="py-1.5 text-slate-400">Minimo para generar adaptaciones</td></tr>
                                         <tr className="border-b border-slate-50"><td className="py-1.5 font-bold" style={{color:'#0891b2'}}>MAV</td><td className="py-1.5 text-slate-600">Max. Volumen Adaptativo</td><td className="py-1.5 text-slate-400">Optimo para maximizar ganancias</td></tr>
@@ -1919,39 +1953,74 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                       <p>• <b>Evitar sobreentrenamiento</b> — sabiendo cuando estas cerca del MRV</p>
                                       <p>• <b>Maximizar hipertrofia/fuerza</b> — operando en el rango MEV–MRV</p>
                                       <p>• <b>Planificar descargas</b> — la semana en <span className="font-bold" style={{color:'#818cf8'}}>violeta</span> es el deload</p>
-                                      <p>• <b>Periodizacion en bloques</b> — acumular y recuperar estrategicamente</p>
                                     </div>
                                   </div>
                                 </div>
                               </div>
 
-                              {/* Legend inline */}
-                              <div className="px-5 pb-2 flex items-center gap-4">
-                                <div className="flex items-center gap-1.5"><div className="w-3 h-1.5 rounded-full" style={{background:'#0891b2'}} /><span className="text-[10px] font-semibold text-slate-500">Series/semana</span></div>
-                                <div className="flex items-center gap-1.5"><div className="w-5 h-[1px]" style={{background:'#16a34a',borderTop:'2px dashed #16a34a'}} /><span className="text-[10px] font-semibold text-slate-500">MEV ({mevLine})</span></div>
-                                <div className="flex items-center gap-1.5"><div className="w-5 h-[1px]" style={{background:'#0891b2',borderTop:'2px dashed #0891b2'}} /><span className="text-[10px] font-semibold text-slate-500">MAV ({mavLine})</span></div>
-                                <div className="flex items-center gap-1.5"><div className="w-5 h-[1px]" style={{background:'#e11d48',borderTop:'2px dashed #e11d48'}} /><span className="text-[10px] font-semibold text-slate-500">MRV ({mrvLine})</span></div>
+                              {/* Controls row: chart type + metric toggles */}
+                              <div className="px-5 py-2 flex items-center justify-between">
+                                {/* Chart type selector */}
+                                <div className="flex items-center gap-0.5 bg-slate-100 rounded-lg p-0.5">
+                                  {[{id:'barras',label:'Barras'},{id:'lineas',label:'Lineas'},{id:'mixta',label:'Mixta'},{id:'puntos',label:'Puntos'}].map(t => (
+                                    <button key={t.id} onClick={() => setChartMode(t.id)}
+                                      className={`px-3 py-1 rounded-md transition-all text-[11px] font-medium ${chartMode === t.id ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                                      style={{fontFamily:"'DM Sans',sans-serif"}}
+                                    >{t.label}</button>
+                                  ))}
+                                </div>
+                                {/* Metric toggles */}
+                                <div className="flex items-center gap-1.5">
+                                  <button onClick={() => toggleMetric('vol')} className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all ${activeMetrics.vol ? 'text-white shadow-sm' : 'bg-slate-100 text-slate-400'}`} style={activeMetrics.vol ? {background:'#84cc16'} : {}}>
+                                    <div className="w-1.5 h-1.5 rounded-full" style={{background: activeMetrics.vol ? 'white' : '#84cc16'}} /> VOL
+                                  </button>
+                                  <button onClick={() => toggleMetric('int')} className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all ${activeMetrics.int ? 'text-white shadow-sm' : 'bg-slate-100 text-slate-400'}`} style={activeMetrics.int ? {background:'#f59e0b'} : {}}>
+                                    <div className="w-1.5 h-1.5 rounded-full" style={{background: activeMetrics.int ? 'white' : '#f59e0b'}} /> INT
+                                  </button>
+                                  <button onClick={() => toggleMetric('den')} className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all ${activeMetrics.den ? 'text-white shadow-sm' : 'bg-slate-100 text-slate-400'}`} style={activeMetrics.den ? {background:'#8b5cf6'} : {}}>
+                                    <div className="w-1.5 h-1.5 rounded-full" style={{background: activeMetrics.den ? 'white' : '#8b5cf6'}} /> DEN
+                                  </button>
+                                </div>
                               </div>
 
-                              {/* Chart with Recharts */}
+                              {/* Legend */}
+                              <div className="px-5 pb-2 flex flex-wrap items-center gap-3">
+                                <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded" style={{background:'#0891b2'}} /><span className="text-[10px] font-semibold text-slate-500">Series</span></div>
+                                {activeMetrics.vol && <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded" style={{background:'#84cc16'}} /><span className="text-[10px] font-semibold text-slate-500">Volumen</span></div>}
+                                {activeMetrics.int && <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded" style={{background:'#f59e0b'}} /><span className="text-[10px] font-semibold text-slate-500">Intensidad %</span></div>}
+                                {activeMetrics.den && <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded" style={{background:'#8b5cf6'}} /><span className="text-[10px] font-semibold text-slate-500">Densidad</span></div>}
+                                <span className="text-slate-300">|</span>
+                                <div className="flex items-center gap-1.5"><div className="w-4 h-[1px]" style={{borderTop:'2px dashed #16a34a'}} /><span className="text-[10px] font-semibold text-slate-500">MEV</span></div>
+                                <div className="flex items-center gap-1.5"><div className="w-4 h-[1px]" style={{borderTop:'2px dashed #0891b2'}} /><span className="text-[10px] font-semibold text-slate-500">MAV</span></div>
+                                <div className="flex items-center gap-1.5"><div className="w-4 h-[1px]" style={{borderTop:'2px dashed #e11d48'}} /><span className="text-[10px] font-semibold text-slate-500">MRV</span></div>
+                              </div>
+
+                              {/* Chart */}
                               <div className="px-2 pb-3">
-                                <ResponsiveContainer width="100%" height={200}>
-                                  <ComposedChart data={microData} margin={{top:10,right:20,left:0,bottom:5}}>
-                                    <CartesianGrid strokeDasharray="4 4" stroke="rgba(148,163,184,0.15)" />
+                                <ResponsiveContainer width="100%" height={220}>
+                                  <ComposedChart data={microData} margin={{top:10,right:25,left:0,bottom:5}}>
+                                    <CartesianGrid strokeDasharray="4 4" stroke="rgba(148,163,184,0.12)" />
                                     <XAxis dataKey="name" tick={{fontSize:11,fill:'#64748b',fontWeight:600}} axisLine={{stroke:'#e2e8f0'}} tickLine={false} />
-                                    <YAxis tick={{fontSize:10,fill:'#94a3b8'}} axisLine={false} tickLine={false} domain={[0, mrvLine + 10]} />
-                                    <Tooltip content={<CustomTooltipMEV />} />
-                                    <ReferenceLine y={mevLine} stroke="#16a34a" strokeDasharray="6 4" strokeWidth={1.5} label={{value:'MEV',position:'right',fontSize:9,fill:'#16a34a',fontWeight:700}} />
-                                    <ReferenceLine y={mavLine} stroke="#0891b2" strokeDasharray="6 4" strokeWidth={1.5} label={{value:'MAV',position:'right',fontSize:9,fill:'#0891b2',fontWeight:700}} />
-                                    <ReferenceLine y={mrvLine} stroke="#e11d48" strokeDasharray="6 4" strokeWidth={1.5} label={{value:'MRV',position:'right',fontSize:9,fill:'#e11d48',fontWeight:700}} />
-                                    <Bar dataKey="series" radius={[6,6,0,0]} maxBarSize={50}>
-                                      {microData.map((d, i) => {
-                                        const pct = d.series / maxSeries;
-                                        const fill = d.isDeload ? '#818cf8' : pct > 0.85 ? '#fb7185' : pct > 0.5 ? '#22d3ee' : '#86efac';
-                                        return <rect key={i} fill={fill} />;
-                                      })}
-                                    </Bar>
-                                    <Line type="monotone" dataKey="series" stroke="#0891b2" strokeWidth={2.5} dot={{fill:'#0891b2',r:5,strokeWidth:2,stroke:'white'}} activeDot={{r:7,fill:'#0891b2',stroke:'white',strokeWidth:2}} />
+                                    <YAxis yAxisId="left" tick={{fontSize:10,fill:'#94a3b8'}} axisLine={false} tickLine={false} domain={[0, mrvLine + 10]} />
+                                    <YAxis yAxisId="right" orientation="right" tick={{fontSize:10,fill:'#94a3b8'}} axisLine={false} tickLine={false} domain={[0, 100]} />
+                                    <Tooltip content={<CustomTooltipMeso />} />
+                                    <ReferenceLine yAxisId="left" y={mevLine} stroke="#16a34a" strokeDasharray="6 4" strokeWidth={1.5} label={{value:`MEV ${mevLine}`,position:'insideTopRight',fontSize:8,fill:'#16a34a',fontWeight:700}} />
+                                    <ReferenceLine yAxisId="left" y={mavLine} stroke="#0891b2" strokeDasharray="6 4" strokeWidth={1.5} label={{value:`MAV ${mavLine}`,position:'insideTopRight',fontSize:8,fill:'#0891b2',fontWeight:700}} />
+                                    <ReferenceLine yAxisId="left" y={mrvLine} stroke="#e11d48" strokeDasharray="6 4" strokeWidth={1.5} label={{value:`MRV ${mrvLine}`,position:'insideTopRight',fontSize:8,fill:'#e11d48',fontWeight:700}} />
+
+                                    {/* Series bars */}
+                                    {showBars && <Bar yAxisId="left" dataKey="series" fill="#0891b2" radius={[6,6,0,0]} maxBarSize={45} fillOpacity={0.85} />}
+                                    {/* Volumen bars */}
+                                    {showBars && activeMetrics.vol && <Bar yAxisId="left" dataKey="volumen" fill="#84cc16" radius={[6,6,0,0]} maxBarSize={45} fillOpacity={0.6} />}
+
+                                    {/* Series line */}
+                                    {(showLines || showDots) && <Line yAxisId="left" type="monotone" dataKey="series" stroke="#0891b2" strokeWidth={showDots ? 0 : 2.5} dot={{fill:'#0891b2',r:showDots ? 6 : 4,strokeWidth:2,stroke:'white'}} activeDot={{r:8,fill:'#0891b2',stroke:'white',strokeWidth:2}} />}
+                                    {/* Volumen line */}
+                                    {(showLines || showDots) && activeMetrics.vol && <Line yAxisId="left" type="monotone" dataKey="volumen" stroke="#84cc16" strokeWidth={showDots ? 0 : 2} strokeDasharray={showDots ? '' : '5 3'} dot={{fill:'#84cc16',r:showDots ? 6 : 3.5,strokeWidth:2,stroke:'white'}} activeDot={{r:7,fill:'#84cc16',stroke:'white',strokeWidth:2}} />}
+                                    {/* Intensidad line */}
+                                    {activeMetrics.int && <Line yAxisId="right" type="monotone" dataKey="intensidad" stroke="#f59e0b" strokeWidth={showDots ? 0 : 2} dot={{fill:'#f59e0b',r:showDots ? 6 : 3.5,strokeWidth:2,stroke:'white'}} activeDot={{r:7,fill:'#f59e0b',stroke:'white',strokeWidth:2}} />}
+                                    {/* Densidad area */}
+                                    {activeMetrics.den && <Area yAxisId="right" type="monotone" dataKey="densidad" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.08} strokeWidth={showDots ? 0 : 1.5} dot={{fill:'#8b5cf6',r:showDots ? 6 : 3,strokeWidth:2,stroke:'white'}} />}
                                   </ComposedChart>
                                 </ResponsiveContainer>
                               </div>
