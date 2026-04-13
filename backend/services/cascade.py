@@ -77,8 +77,8 @@ async def calcular_metricas_sesion(db, sesion_id: str) -> dict:
         elif rpe_ej > 0:
             intensidades.append(rpe_ej * 10)
 
-    int_calc = (sum(intensidades) / len(intensidades)) if intensidades else 0
-    den_calc = (vol_total / duracion) if duracion > 0 else 0
+    int_calc = (sum(intensidades) / len(intensidades)) if intensidades else (rpe * 10 if rpe > 0 else 0)
+    den_calc = (vol_total / duracion) if (duracion > 0 and vol_total > 0) else (rpe / duracion if duracion > 0 and rpe > 0 else 0)
 
     trimp = _calcular_trimp(sesion, duracion)
 

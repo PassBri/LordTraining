@@ -825,7 +825,16 @@ async def sync_v1_to_v2(v1_plan_id: str, request: Request, user: dict = Depends(
                     rpe = ses_data.get("rpe") or ses_data.get("RPE_sesion") or 0
                     intensity_str = ses_data.get("intensity", "medium")
                     if isinstance(intensity_str, str):
-                        rpe = rpe or {"high": 8, "medium": 6, "low": 4}.get(intensity_str, 6)
+                        rpe = rpe or {"high": 8, "medium": 6, "low": 4, "very_high": 9}.get(intensity_str, 6)
+
+                    # If still no RPE, derive from phase + micro type
+                    if not rpe:
+                        phase_rpe = {"accumulation": 5, "prep_general": 5, "transformation": 7,
+                                     "prep_specific": 7, "realization": 8, "competitive": 8,
+                                     "transition": 4, "recovery": 3}.get(phase_id, 6)
+                        micro_adj = {"carga": 1, "choque": 1.5, "restablecimiento": -2,
+                                     "competitivo": 1, "aproximacion": 0}.get(micro_type, 0)
+                        rpe = max(2, min(10, phase_rpe + micro_adj))
 
                     sesion_doc = {
                         "id": sesion_id,

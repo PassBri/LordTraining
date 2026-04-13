@@ -9,34 +9,24 @@
 
 ## Implementado
 
-### Plan Grafico con 8 InteractiveCharts (Feb 2026)
-- Tabla de celdas clickeables arriba (Ciclo, Carga, Preparacion, Prep Fisica, Actividad, Eventos, Monitoreo)
-- 8 graficas InteractiveChart debajo con datos V2:
-  1. Magnitud de Carga y Recuperacion (barras)
-  2. Volumen e Intensidad (mixto)
-  3. Intensidad y Recuperacion (3 lineas: densidad, intensidad, recuperacion)
-  4. Preparacion por Componentes (6 lineas: fisica general/especifica, tecnica, tactica, psicologica, teorica)
-  5. Preparacion Fisica por Capacidades (5 lineas: resistencia, fuerza, velocidad, coordinacion, flexibilidad)
-  6. Densidad del Entrenamiento (area con referencia fatiga)
-  7. Duracion por Semanas (barras apiladas)
-  8. Actividad Semanal (barras sesiones + competencias)
-- Datos de celdas clickeables corresponden con graficas (planData sync V2)
-- Cada grafica: toolbar, brush, zoom, fullscreen, badge "En vivo"
+### Plan Grafico Corregido - Grilla Completa + 5 Graficas (Feb 2026)
+- Sincronizacion V2 mejorada: llena TODAS las filas de la grilla
+  - Magnitud de Carga: 5 niveles por semana basados en RPE
+  - Preparacion: 6 tipos (Fisica Gen/Esp, Tecnica, Tactica, Psicologica, Teorica)
+  - Prep Fisica: 5 capacidades (Resistencia, Fuerza, Velocidad, Coordinacion, Flexibilidad)
+  - Actividad: Entrenamiento, Competencia, Recuperacion
+  - Monitoreo: 6 tipos en fronteras de mesociclo
+- Backend: RPE derivado de fase cuando no hay datos directos
+- Backend: cascada usa RPE*10 como fallback de int_calculado
+- 5 graficas no redundantes con InteractiveChart
+- Testing: Celdas coloreadas: 170+ de intensidad/preparacion/fisica/monitoreo
 
-### Dashboard General con 6 Graficas (Feb 2026)
-- PeriodizationChart, ACWRChart, RadarChart, HeatmapChart, ProgresionChart, GanttChart
-- Testing: Backend 12/12 + Frontend 100%
-
-### Motor de Cascada V2 (Feb 2026)
+### Motor de Cascada V2 + Dashboard + Graficas
 - 11 colecciones, propagacion 6 niveles, 7 reglas integridad
-- 21+ endpoints REST, seed demo ATR 16 semanas
+- 6 graficas DashboardGeneral + 8 hooks reactivos
+- Sync V1->V2 completa
 
 ## Pendiente
-### P1
-- Fix hydration warning DashboardPage.js
-- Refactorizar componentes gigantes
-### P2
-- Print/Share/Duplicate planes periodizacion
-- UI catalogo ejercicios base
-### P3
-- Diseno responsivo tablero tactico
+### P1 - Fix hydration warning DashboardPage.js, Refactorizar componentes
+### P2 - Print/Share planes, Export GIF tablero, UI catalogo ejercicios
+### P3 - Diseno responsivo tablero tactico

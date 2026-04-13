@@ -365,11 +365,11 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
       ejerciciosBySesion[e.sesion_id].push(e);
     });
 
-    // Phase mapping from V2 macro types
     const macroPhaseMap = {
       accumulation: 'preparatory_general', prep_general: 'preparatory_general',
       transformation: 'preparatory_specific', prep_specific: 'preparatory_specific',
       realization: 'competitive', competitive: 'competitive',
+      precompetitive: 'precompetitive',
       transition: 'transition', recovery: 'transition'
     };
     const mesoTypeMap = {
@@ -382,6 +382,10 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
       competitivo: 'competitivo', aproximacion: 'aproximacion', restablecimiento: 'restablecimiento'
     };
 
+    // Compute global max for normalization
+    const allMicroCarga = v2Micros.map(m => m.carga_total || 0);
+    const maxCarga = Math.max(...allMicroCarga, 1);
+
     v2Macros.forEach(macro => {
       const mesos = (mesoByMacro[macro.id] || []).sort((a, b) => (a.orden || 0) - (b.orden || 0));
       mesos.forEach(meso => {
@@ -390,10 +394,12 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
           const w = micro.numero_semana;
           if (!w) return;
 
-          // Cycle rows
-          newPlanData.macrocycles[w] = macroPhaseMap[macro.tipo] || 'preparatory_general';
-          newPlanData.phases[w] = macroPhaseMap[macro.tipo] || 'preparatory_general';
           const phase = macro.tipo;
+          const sessions = sesionesByMicro[micro.id] || [];
+
+          // ── CICLO rows ──
+          newPlanData.macrocycles[w] = macroPhaseMap[phase] || 'preparatory_general';
+          newPlanData.phases[w] = macroPhaseMap[phase] || 'preparatory_general';
           if (['accumulation', 'prep_general', 'prep_specific', 'transformation'].includes(phase)) {
             newPlanData.periods[w] = 'preparatorio';
           } else if (['competitive', 'realization', 'precompetitive'].includes(phase)) {
@@ -404,91 +410,126 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
           newPlanData.mesocycles[w] = mesoTypeMap[meso.tipo] || 'basico_desarrollador';
           newPlanData.microcycles[w] = microTypeMap[micro.tipo] || 'corriente';
 
-          // Sessions count
-          const sessions = sesionesByMicro[micro.id] || [];
-          newPlanData.frequency[w] = String(sessions.length || 5);
+          // ── MAGNITUD DE LA CARGA rows ──
+          newPlanData.frequency[w] = String(sessions.length || 0);
 
-          // Intensity from V2 calculated or RPE
+          // Compute intensity from V2 RPE and carga
           const avgRPE = sessions.length > 0
-            ? sessions.reduce((s, se) => s + (se.RPE_sesion || 0), 0) / sessions.length
-            : 0;
-          const intensityPct = avgRPE * 10; // RPE 1-10 → 10-100%
+            ? sessions.reduce((s, se) => s + (se.RPE_sesion || 0), 0) / sessions.length : 0;
+          const cargaPct = micro.carga_total ? Math.round((micro.carga_total / maxCarga) * 100) : 0;
+          const intensityPct = Math.max(avgRPE * 10, cargaPct);
 
-          // Map intensity to level
-          const intLevel = intensityPct >= 95 ? 'very_high' :
-                           intensityPct >= 80 ? 'high' :
-                           intensityPct >= 65 ? 'medium' :
-                           intensityPct >= 45 ? 'low' : 'recovery';
-          const intVal = intensityPct >= 95 ? 5 : intensityPct >= 80 ? 4 : intensityPct >= 65 ? 3 : intensityPct >= 45 ? 2 : 1;
-          newPlanData.intensity[`${intLevel}_${w}`] = intVal;
+          // Fill ALL intensity level rows for this week (the active level + below)
+          const levels = [
+            { id: 'very_high', min: 90, val: 5 },
+            { id: 'high', min: 75, val: 4 },
+            { id: 'medium', min: 55, val: 3 },
+            { id: 'low', min: 35, val: 2 },
+            { id: 'recovery', min: 0, val: 1 }
+          ];
+          levels.forEach(lvl => {
+            if (intensityPct >= lvl.min) {
+              newPlanData.intensity[`${lvl.id}_${w}`] = lvl.val;
+            }
+          });
 
-          // Preparation emphasis from phase
-          if (['accumulation', 'prep_general'].includes(phase)) {
-            newPlanData.preparation[`general_physical_${w}`] = Math.min(5, intVal + 1);
-            newPlanData.physical[`endurance_${w}`] = Math.min(5, intVal);
-            newPlanData.physical[`strength_${w}`] = Math.max(1, intVal - 1);
-          } else if (['transformation', 'prep_specific'].includes(phase)) {
-            newPlanData.preparation[`specific_physical_${w}`] = intVal;
-            newPlanData.preparation[`technical_${w}`] = intVal;
-            newPlanData.physical[`strength_${w}`] = intVal;
-            newPlanData.physical[`speed_${w}`] = Math.max(1, intVal - 1);
-          } else if (['realization', 'competitive'].includes(phase)) {
-            newPlanData.preparation[`tactical_${w}`] = intVal;
-            newPlanData.preparation[`psychological_${w}`] = intVal;
-            newPlanData.physical[`speed_${w}`] = intVal;
-          }
+          // Volume row: fill similarly based on V2 vol_calculado
+          const volPct = micro.vol_calculado || 0;
+          levels.forEach(lvl => {
+            if (volPct >= lvl.min * 0.5) {
+              if (!newPlanData.volume[`${lvl.id}_${w}`]) {
+                newPlanData.volume[`${lvl.id}_${w}`] = Math.min(5, Math.ceil(volPct / 20));
+              }
+            }
+          });
 
-          // Capacidades from V2 exercises
+          // ── PREPARACION rows (fill ALL 6 types based on phase + proportional) ──
+          const baseLevel = Math.max(1, Math.min(5, Math.ceil(intensityPct / 20)));
+          const isPrep = ['accumulation', 'prep_general'].includes(phase);
+          const isSpecific = ['transformation', 'prep_specific'].includes(phase);
+          const isComp = ['realization', 'competitive', 'precompetitive'].includes(phase);
+          const isRecov = micro.tipo === 'restablecimiento';
+
+          // Always fill all preparation types with proportional values
+          newPlanData.preparation[`general_physical_${w}`] = isRecov ? 1 : isPrep ? Math.min(5, baseLevel + 1) : isSpecific ? baseLevel : Math.max(1, baseLevel - 1);
+          newPlanData.preparation[`specific_physical_${w}`] = isRecov ? 1 : isSpecific ? Math.min(5, baseLevel + 1) : isComp ? baseLevel : Math.max(1, baseLevel - 1);
+          newPlanData.preparation[`technical_${w}`] = isRecov ? 1 : isSpecific ? baseLevel : isComp ? Math.min(5, baseLevel + 1) : Math.max(1, baseLevel - 1);
+          newPlanData.preparation[`tactical_${w}`] = isRecov ? 1 : isComp ? Math.min(5, baseLevel + 1) : isSpecific ? baseLevel : Math.max(1, baseLevel - 1);
+          newPlanData.preparation[`psychological_${w}`] = isRecov ? 1 : isComp ? baseLevel : Math.max(1, baseLevel - 1);
+          newPlanData.preparation[`theoretical_${w}`] = isRecov ? 1 : isPrep ? baseLevel : Math.max(1, baseLevel - 1);
+
+          // ── PREPARACION FISICA rows (fill ALL 5 from exercises + phase) ──
           const capCount = {};
+          let totalSeries = 0;
           sessions.forEach(s => {
             (ejerciciosBySesion[s.id] || []).forEach(e => {
               const cap = e.capacidad_tipo || '';
-              capCount[cap] = (capCount[cap] || 0) + (e.series || 0);
+              const ser = e.series || 0;
+              capCount[cap] = (capCount[cap] || 0) + ser;
+              totalSeries += ser;
             });
           });
-          if (capCount.fuerza_maxima) newPlanData.physical[`strength_${w}`] = Math.min(5, Math.ceil(capCount.fuerza_maxima / 4));
-          if (capCount.velocidad) newPlanData.physical[`speed_${w}`] = Math.min(5, Math.ceil(capCount.velocidad / 3));
-          if (capCount.resistencia_aerobica) newPlanData.physical[`endurance_${w}`] = Math.min(5, Math.ceil(capCount.resistencia_aerobica / 3));
-          if (capCount.coordinacion) newPlanData.physical[`coordination_${w}`] = Math.min(5, Math.ceil(capCount.coordinacion / 2));
-          if (capCount.flexibilidad) newPlanData.physical[`flexibility_${w}`] = Math.min(5, Math.ceil(capCount.flexibilidad / 2));
 
-          newPlanData.activities[`training_${w}`] = true;
-          if (micro.tipo === 'restablecimiento') newPlanData.activities[`recovery_${w}`] = true;
+          // From exercises if available, otherwise distribute by phase
+          if (totalSeries > 0) {
+            const scale = (count) => Math.min(5, Math.max(1, Math.ceil(count / Math.max(totalSeries / 5, 1) * 5)));
+            newPlanData.physical[`endurance_${w}`] = scale((capCount.resistencia_aerobica || 0) + (capCount.resistencia_anaerobica || 0));
+            newPlanData.physical[`strength_${w}`] = scale((capCount.fuerza_maxima || 0) + (capCount.fuerza_explosiva || 0) + (capCount.fuerza_resistencia || 0));
+            newPlanData.physical[`speed_${w}`] = scale((capCount.velocidad || 0) + (capCount.velocidad_reaccion || 0));
+            newPlanData.physical[`coordination_${w}`] = scale((capCount.coordinacion || 0) + (capCount.agilidad || 0));
+            newPlanData.physical[`flexibility_${w}`] = scale(capCount.flexibilidad || 0);
+          } else {
+            // Distribute by phase
+            newPlanData.physical[`endurance_${w}`] = isRecov ? 1 : isPrep ? Math.min(5, baseLevel + 1) : isSpecific ? baseLevel : Math.max(1, baseLevel - 1);
+            newPlanData.physical[`strength_${w}`] = isRecov ? 1 : isPrep ? baseLevel : isSpecific ? Math.min(5, baseLevel + 1) : Math.max(1, baseLevel - 1);
+            newPlanData.physical[`speed_${w}`] = isRecov ? 1 : isComp ? baseLevel : isSpecific ? Math.max(1, baseLevel - 1) : Math.max(1, baseLevel - 2);
+            newPlanData.physical[`coordination_${w}`] = isRecov ? 1 : isComp ? baseLevel : Math.max(1, baseLevel - 1);
+            newPlanData.physical[`flexibility_${w}`] = isRecov ? 2 : Math.max(1, baseLevel - 1);
+          }
+
+          // ── ACTIVIDAD rows (fill ALL types) ──
+          newPlanData.activities[`training_${w}`] = sessions.length > 0;
+          newPlanData.activities[`recovery_${w}`] = isRecov || micro.tipo === 'restablecimiento';
+          if (isComp && micro.tipo === 'competitivo') {
+            newPlanData.activities[`main_competition_${w}`] = true;
+          }
+
+          // ── MONITOREO rows (fill based on mesocycle boundaries + phase) ──
+          const isFirstMicroOfMeso = micros[0]?.id === micro.id;
+          const isLastMicroOfMeso = micros[micros.length - 1]?.id === micro.id;
+          if (isFirstMicroOfMeso || isLastMicroOfMeso) {
+            newPlanData.monitoring[`physical_${w}`] = true;
+            newPlanData.monitoring[`medical_${w}`] = true;
+          }
+          if (isFirstMicroOfMeso) {
+            newPlanData.monitoring[`technical_${w}`] = true;
+            newPlanData.monitoring[`tactical_${w}`] = true;
+          }
+          if (isLastMicroOfMeso) {
+            newPlanData.monitoring[`psychological_${w}`] = true;
+            newPlanData.monitoring[`theoretical_${w}`] = true;
+          }
         });
       });
     });
 
-    setPlanData(prev => {
-      // Merge: V2 data fills empty cells, but preserve manual overrides
-      const merged = { ...newPlanData };
-      Object.keys(prev).forEach(section => {
-        if (typeof prev[section] === 'object' && prev[section]) {
-          Object.keys(prev[section]).forEach(key => {
-            if (prev[section][key] && !merged[section]?.[key]) {
-              if (!merged[section]) merged[section] = {};
-              merged[section][key] = prev[section][key];
-            }
-          });
-        }
-      });
-      return merged;
-    });
+    setPlanData(newPlanData);
 
     if (v2Micros.length > 0 && !hasImportedData) {
       setHasImportedData(true);
     }
   }, [v2Macros, v2Mesos, v2Micros, v2Sesiones, v2Ejercicios]);
 
-  // Watch for periodization data changes
+  // Watch for periodization data changes (only if V2 hasn't loaded)
   useEffect(() => {
-    if (periodizationData && !hasImportedData) {
+    if (periodizationData && !hasImportedData && !v2Micros.length) {
       importPeriodizationData(periodizationData);
     }
-  }, [periodizationData, hasImportedData, importPeriodizationData]);
+  }, [periodizationData, hasImportedData, importPeriodizationData, v2Micros.length]);
 
   // Load data from active plan
   useEffect(() => {
-    if (activePlan && !hasImportedData) {
+    if (activePlan && !hasImportedData && !v2Micros.length) {
       // Set general info from active plan
       setGeneralInfo(prev => ({
         ...prev,
@@ -497,12 +538,20 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
         athlete: athleteName || prev.athlete
       }));
       
-      // If active plan has macrocycle data, import it
+      // If active plan has macrocycle data, import it (only if V2 hasn't loaded yet)
       if (activePlan.macrocycles && activePlan.macrocycles.length > 0) {
         importPeriodizationData(activePlan.macrocycles[0]);
       }
+    } else if (activePlan) {
+      // Still update general info
+      setGeneralInfo(prev => ({
+        ...prev,
+        sport: activePlan.sport || prev.sport,
+        periodizationType: activePlan.model || activePlan.model_name || 'tradicional',
+        athlete: athleteName || prev.athlete
+      }));
     }
-  }, [activePlan, hasImportedData, athleteName, importPeriodizationData]);
+  }, [activePlan, hasImportedData, athleteName, importPeriodizationData, v2Micros.length]);
 
   // Load calendar events
   useEffect(() => {
@@ -1472,44 +1521,24 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
               className="border border-slate-200"
             />
 
-            {/* 2. Volumen e Intensidad */}
+            {/* 2. Volumen, Intensidad y Densidad */}
             <InteractiveChart
-              title="Volumen e Intensidad por Semanas"
-              icon={TrendingUp}
-              data={volumeIntensityChartData}
-              dataKeys={[
-                { key: 'volumen', name: 'Volumen %', color: '#22C55E' },
-                { key: 'intensidad', name: 'Intensidad %', color: '#A855F7' }
-              ]}
-              xAxisKey="week"
-              height={260}
-              showBrush={true}
-              showControls={true}
-              showLiveIndicator={true}
-              defaultChartType="mixed"
-              defaultTimeRange="sessions"
-              yAxisDomain={[0, 100]}
-              className="border border-slate-200"
-            />
-
-            {/* 3. Intensidad, Densidad y Recuperación */}
-            <InteractiveChart
-              title="Intensidad y Recuperacion"
+              title="Volumen, Intensidad y Densidad"
               icon={TrendingUp}
               data={displayedWeeks.map(week => {
                 const v2Micro = v2Micros.find(m => m.numero_semana === week);
-                const maxCarga = Math.max(...v2Micros.map(m => m.carga_total || 1), 1);
+                const vi = volumeIntensityChartData.find(d => d.week === `S${week}`);
                 return {
                   week: `S${week}`,
+                  volumen: vi?.volumen || 0,
+                  intensidad: vi?.intensidad || 0,
                   densidad: v2Micro ? Math.round((v2Micro.den_calculado || 0) * 1000) / 10 : 0,
-                  intensidad: v2Micro ? Math.round(v2Micro.int_calculado || 0) : 0,
-                  recuperacion: v2Micro ? Math.max(0, Math.round(100 - (v2Micro.carga_total || 0) / maxCarga * 100)) : 0,
                 };
               })}
               dataKeys={[
-                { key: 'densidad', name: 'Densidad %', color: '#10B981' },
+                { key: 'volumen', name: 'Volumen %', color: '#22C55E' },
                 { key: 'intensidad', name: 'Intensidad %', color: '#EF4444' },
-                { key: 'recuperacion', name: 'Recuperacion %', color: '#8B5CF6' }
+                { key: 'densidad', name: 'Densidad %', color: '#8B5CF6' }
               ]}
               xAxisKey="week"
               height={260}
@@ -1522,18 +1551,18 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
               className="border border-slate-200"
             />
 
-            {/* 4. Preparación (6 tipos) */}
+            {/* 3. Preparación por Componentes */}
             <InteractiveChart
               title="Preparacion por Componentes"
               icon={Dumbbell}
               data={preparationChartData}
               dataKeys={[
-                { key: 'general_physical', name: 'Prep. Fisica General', color: '#3B82F6' },
-                { key: 'specific_physical', name: 'Prep. Fisica Especifica', color: '#6366F1' },
-                { key: 'technical', name: 'Prep. Tecnica', color: '#22C55E' },
-                { key: 'tactical', name: 'Prep. Tactica', color: '#F59E0B' },
-                { key: 'psychological', name: 'Prep. Psicologica', color: '#A855F7' },
-                { key: 'theoretical', name: 'Prep. Teorica', color: '#EC4899' }
+                { key: 'general_physical', name: 'Fisica General', color: '#3B82F6' },
+                { key: 'specific_physical', name: 'Fisica Especifica', color: '#6366F1' },
+                { key: 'technical', name: 'Tecnica', color: '#22C55E' },
+                { key: 'tactical', name: 'Tactica', color: '#F59E0B' },
+                { key: 'psychological', name: 'Psicologica', color: '#A855F7' },
+                { key: 'theoretical', name: 'Teorica', color: '#EC4899' }
               ]}
               xAxisKey="week"
               height={260}
@@ -1546,7 +1575,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
               className="border border-slate-200"
             />
 
-            {/* 5. Preparación Física (5 capacidades) */}
+            {/* 4. Preparación Física por Capacidades */}
             <InteractiveChart
               title="Preparacion Fisica por Capacidades"
               icon={Heart}
@@ -1569,58 +1598,15 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
               className="border border-slate-200"
             />
 
-            {/* 6. Densidad */}
+            {/* 5. Duración y Actividad Semanal */}
             <InteractiveChart
-              title="Densidad del Entrenamiento"
-              icon={Gauge}
-              data={densityChartData}
-              dataKeys={[
-                { key: 'densidad', name: 'Densidad', color: '#10B981' }
-              ]}
-              xAxisKey="week"
-              height={260}
-              showBrush={true}
-              showControls={true}
-              showLiveIndicator={true}
-              defaultChartType="area"
-              defaultTimeRange="sessions"
-              yAxisDomain={[0, 'auto']}
-              referenceLines={[{ y: 8, label: 'Riesgo fatiga', color: '#EF4444' }]}
-              className="border border-slate-200"
-            />
-
-            {/* 7. Duración */}
-            <InteractiveChart
-              title="Duracion por Semanas"
+              title="Duracion y Actividad Semanal"
               icon={Timer}
               data={durationChartData}
               dataKeys={[
                 { key: 'calentamiento', name: 'Calentamiento', color: '#FBBF24' },
                 { key: 'principal', name: 'Parte principal', color: '#3B82F6' },
                 { key: 'vueltaCalma', name: 'Vuelta a la calma', color: '#14B8A6' }
-              ]}
-              xAxisKey="week"
-              height={260}
-              showBrush={true}
-              showControls={true}
-              showLiveIndicator={true}
-              defaultChartType="bar"
-              defaultTimeRange="sessions"
-              yAxisDomain={[0, 'auto']}
-              referenceLines={[{ y: 450, label: 'Max recomendado', color: '#EF4444' }]}
-              className="border border-slate-200"
-            />
-
-            {/* 8. Actividad */}
-            <InteractiveChart
-              title="Actividad Semanal"
-              icon={Trophy}
-              data={activityChartData}
-              dataKeys={[
-                { key: 'entrenamiento', name: 'Sesiones', color: '#3B82F6' },
-                { key: 'competenciaPrincipal', name: 'Comp. Principal', color: '#EF4444' },
-                { key: 'competenciaSecundaria', name: 'Comp. Secundaria', color: '#F59E0B' },
-                { key: 'recuperacion', name: 'Recuperacion', color: '#8B5CF6' }
               ]}
               xAxisKey="week"
               height={260}
