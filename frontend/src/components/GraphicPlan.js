@@ -935,7 +935,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
 
     return (
       <tr>
-        <td className="sticky left-0 bg-gray-50 px-2 py-0 text-xs border border-gray-300 z-10" style={{ minWidth: 180 }}>
+        <td className="sticky left-0 bg-gray-50 px-2 py-0 text-xs border border-gray-300 z-10" style={{ width: 160 }}>
           {label}
         </td>
         {displayedWeeks.map((week, i) => {
@@ -960,7 +960,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
   const BooleanSparklineRow = ({ label, section, rowId, color = '#3B82F6', icon }) => {
     return (
       <tr>
-        <td className="sticky left-0 bg-gray-50 px-2 py-0 text-xs border border-gray-300 z-10" style={{ minWidth: 180 }}>
+        <td className="sticky left-0 bg-gray-50 px-2 py-0 text-xs border border-gray-300 z-10" style={{ width: 160 }}>
           {label}
         </td>
         {displayedWeeks.map(week => {
@@ -1019,7 +1019,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
   const InlineChartRow = ({ label, data, dataKey, color, maxVal = 100, rowHeight = 40 }) => {
     return (
       <tr>
-        <td className="sticky left-0 bg-gray-50 px-2 py-0 text-[10px] border border-gray-300 z-10" style={{ minWidth: 180 }}>
+        <td className="sticky left-0 bg-gray-50 px-2 py-0 text-[10px] border border-gray-300 z-10" style={{ width: 160 }}>
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-sm flex-shrink-0" style={{ backgroundColor: color }} />
             <span className="truncate">{label}</span>
@@ -1076,7 +1076,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
   const renderCycleRow = (section, types) => {
     return (
       <tr>
-        <td className="sticky left-0 bg-gray-100 px-2 py-1 text-xs font-medium border border-gray-300 min-w-[180px]">
+        <td className="sticky left-0 bg-gray-100 px-2 py-1 text-xs font-medium border border-gray-300" style={{ width: 160 }}>
           {section === 'macrocycles' ? 'Macrociclo' : section === 'mesocycles' ? 'Mesociclo' : 'Microciclo'}
         </td>
         {displayedWeeks.map(week => {
@@ -1376,15 +1376,15 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
 
           {/* Main Grid */}
           <div className="overflow-x-auto border rounded-lg">
-            <table className="w-full border-collapse text-xs">
+            <table className="w-full border-collapse text-xs" style={{ tableLayout: 'fixed' }}>
               {/* Week Numbers Header */}
               <thead>
                 <tr className="bg-gray-200">
-                  <th className="sticky left-0 bg-gray-200 px-2 py-1 border border-gray-300 min-w-[180px] text-left">
+                  <th className="sticky left-0 bg-gray-200 px-2 py-1 border border-gray-300 text-left" style={{ width: 160 }}>
                     Semana
                   </th>
                   {displayedWeeks.map(week => (
-                    <th key={week} className="w-6 h-6 border border-gray-300 text-center font-medium">
+                    <th key={week} className="border border-gray-300 text-center font-medium">
                       {week}
                     </th>
                   ))}
@@ -1589,7 +1589,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 {/* ACTIVITY TYPE sub-rows with colored squares */}
                 {ACTIVITY_TYPES.map(act => (
                   <tr key={`act-${act.id}`} className="bg-purple-50/50">
-                    <td className="sticky left-0 bg-purple-50/50 px-2 py-0 text-[10px] border border-gray-300 z-10 pl-4" style={{ minWidth: 180 }}>
+                    <td className="sticky left-0 bg-purple-50/50 px-2 py-0 text-[10px] border border-gray-300 z-10 pl-4" style={{ width: 160 }}>
                       <div className="flex items-center gap-1.5">
                         <div className={`w-2.5 h-2.5 rounded-sm flex-shrink-0 ${act.color}`} />
                         {act.label}
@@ -1626,7 +1626,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                   const monColors = { medical: 'bg-red-100', physical: 'bg-orange-100', technical: 'bg-yellow-100', tactical: 'bg-green-100', psychological: 'bg-blue-100', theoretical: 'bg-purple-100' };
                   return (
                     <tr key={`mon-${area.id}`} className="bg-cyan-50/50">
-                      <td className="sticky left-0 bg-cyan-50/50 px-2 py-0 text-[10px] border border-gray-300 z-10 pl-4" style={{ minWidth: 180 }}>
+                      <td className="sticky left-0 bg-cyan-50/50 px-2 py-0 text-[10px] border border-gray-300 z-10 pl-4" style={{ width: 160 }}>
                         <div className="flex items-center gap-1.5">
                           <div className={`w-2.5 h-2.5 rounded-sm flex-shrink-0 ${monColors[area.id] || 'bg-slate-200'}`} />
                           {area.label}

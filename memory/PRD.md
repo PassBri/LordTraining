@@ -19,7 +19,8 @@
 - Cada metrica es una fila de tabla con barras proporcionales perfectamente alineadas con las columnas de semanas
 - 5 secciones de graficas: Carga/Recuperacion, Volumen/Intensidad, Preparacion por Componentes, Capacidades Fisicas, Duracion/Actividad
 - Boton de expansion en cada seccion abre Dialog con InteractiveChart completo (zoom, brush, tipos de grafica)
-- Todo scrollea como una unidad cohesiva
+- Table-layout fixed con columna etiquetas 160px, columnas de datos distribuyen espacio restante
+- Todo scrollea como una unidad cohesiva, sin espacio desperdiciado
 
 ### Plan Grafico Corregido - Grilla Completa + 5 Graficas (Feb 2026)
 - Sincronizacion V2 mejorada: llena TODAS las filas de la grilla
