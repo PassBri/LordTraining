@@ -470,123 +470,46 @@ const SessionEditor = ({
     onClose();
   };
 
-  // Exportar sesión como PDF — captura DOM real con html2canvas + jsPDF
+  // Exportar sesión como PDF — crea enlace compartido y descarga via Playwright backend
   const handleExportAsPDF = async () => {
     if (exporting) return;
     setExporting(true);
     
     try {
-      const html2canvas = (await import('html2canvas')).default;
-      const { jsPDF } = await import('jspdf');
+      const token = localStorage.getItem('train_token');
+      if (!token) { toast.error('Sesión expirada'); setExporting(false); return; }
       
-      const target = document.querySelector('[data-testid="session-editor-dialog"]');
-      if (!target) throw new Error('No se encontró el modal');
+      toast.info('Generando PDF...');
       
-      const contentEl = target.querySelector('[data-testid="session-editor-content"]');
-      const footerEl = target.querySelector('.sticky.bottom-0');
+      const sesCode = `SES-${String(session?.sessionIndex || session?.dayName || '001').padStart(3, '0')}`;
       
-      // Guardar estilos originales
-      const origContent = contentEl ? { mh: contentEl.style.maxHeight, o: contentEl.style.overflow } : {};
-      const origFooter = footerEl ? footerEl.style.display : '';
-      const origTargetMH = target.style.maxHeight;
-      const origTargetO = target.style.overflow;
-      
-      // Reemplazar inputs/selects/textareas con spans legibles
-      const replacements = [];
-      target.querySelectorAll('input, select, textarea').forEach(el => {
-        const val = el.tagName === 'SELECT' 
-          ? (el.options[el.selectedIndex]?.text || '') 
-          : (el.value || el.placeholder || '');
-        if (!val) return;
-        
-        const span = document.createElement('span');
-        span.textContent = val;
-        const cs = window.getComputedStyle(el);
-        const isHeader = el.closest('.sticky') !== null;
-        span.style.cssText = `
-          font-family: ${cs.fontFamily};
-          font-size: ${cs.fontSize};
-          font-weight: ${el.value ? cs.fontWeight : '400'};
-          color: ${el.value ? (isHeader ? cs.color : '#1a1a1a') : '#999'};
-          display: inline-block;
-          padding: ${cs.paddingTop} ${cs.paddingRight} ${cs.paddingBottom} ${cs.paddingLeft};
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          max-width: ${cs.width};
-          line-height: ${cs.lineHeight};
-          height: ${cs.height};
-          align-content: center;
-          box-sizing: border-box;
-        `;
-        el.style.display = 'none';
-        el.parentNode.insertBefore(span, el.nextSibling);
-        replacements.push({ el, span });
+      // 1) Crear enlace compartido temporal con los datos actuales
+      const shareRes = await fetch(`${API_URL}/api/sessions/share`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({
+          athlete_id: athleteId || 'general',
+          athlete_name: athleteName || 'Deportista',
+          session_data: { ...session, detailedData: sessionData },
+          session_code: sesCode
+        })
       });
       
-      // Solo expandir scroll y ocultar footer, NO cambiar el ancho
-      target.style.maxHeight = 'none';
-      target.style.overflow = 'visible';
-      if (contentEl) { contentEl.style.maxHeight = 'none'; contentEl.style.overflow = 'visible'; }
-      if (footerEl) footerEl.style.display = 'none';
+      if (!shareRes.ok) throw new Error('Error al preparar datos');
+      const { share_id } = await shareRes.json();
       
-      await new Promise(r => setTimeout(r, 400));
+      // 2) Descargar PDF generado por Playwright en el backend
+      const pdfRes = await fetch(`${API_URL}/api/sessions/download-pdf/${share_id}`);
+      if (!pdfRes.ok) throw new Error('Error al generar PDF');
       
-      // Capturar al ancho REAL del modal
-      const realWidth = target.scrollWidth || target.offsetWidth;
-      
-      const canvas = await html2canvas(target, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-        width: realWidth,
-        windowWidth: realWidth,
-        scrollX: 0,
-        scrollY: -window.scrollY
-      });
-      
-      // Restaurar todo
-      replacements.forEach(({ el, span }) => {
-        el.style.display = '';
-        span.remove();
-      });
-      target.style.maxHeight = origTargetMH;
-      target.style.overflow = origTargetO;
-      if (contentEl) { contentEl.style.maxHeight = origContent.mh; contentEl.style.overflow = origContent.o; }
-      if (footerEl) footerEl.style.display = origFooter;
-      
-      if (!canvas.width || !canvas.height) throw new Error('Canvas vacío');
-      
-      // PDF A4 — la imagen se escala para caber en el ancho
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const margin = 4;
-      const usableW = 210 - margin * 2;
-      const usableH = 297 - margin * 2;
-      const pdfImgH = usableW * (canvas.height / canvas.width);
-      
-      if (pdfImgH <= usableH) {
-        pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, usableW, pdfImgH);
-      } else {
-        // Paginar
-        const pxPerMm = canvas.width / usableW;
-        const slicePx = Math.floor(usableH * pxPerMm);
-        let srcY = 0, pg = 0;
-        while (srcY < canvas.height) {
-          if (pg > 0) pdf.addPage();
-          const h = Math.min(slicePx, canvas.height - srcY);
-          const sc = document.createElement('canvas');
-          sc.width = canvas.width; sc.height = h;
-          sc.getContext('2d').drawImage(canvas, 0, srcY, canvas.width, h, 0, 0, canvas.width, h);
-          pdf.addImage(sc.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, usableW, h / pxPerMm);
-          srcY += h; pg++;
-        }
-      }
-      
-      const code = `SES-${String(session?.sessionIndex || session?.dayName || '001').padStart(3, '0')}`;
+      const blob = await pdfRes.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
       const nm = (sessionData.sessionName || 'Sesion').replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s-]/g, '').replace(/\s+/g, '-');
-      const dt = sessionDate ? sessionDate.toLocaleDateString('es-ES', {day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\//g, '-') : new Date().toISOString().split('T')[0];
-      pdf.save(`iTRAIN_${code}_${nm}_${dt}.pdf`);
+      a.download = `iTRAIN_${sesCode}_${nm}.pdf`;
+      a.click();
+      window.URL.revokeObjectURL(url);
       
       toast.success('PDF descargado');
     } catch (error) {
