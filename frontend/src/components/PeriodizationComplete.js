@@ -21,6 +21,7 @@ import {
   ComposedChart, Line, Area, ReferenceLine
 } from 'recharts';
 import SessionEditor from './SessionEditor';
+import DashboardGeneral from './DashboardGeneral';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -1742,9 +1743,10 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         {/* View Mode Tabs - Floating Round Style */}
         <div className="flex items-start gap-4 pt-2" data-testid="view-mode-tabs">
           {[
+            { id: 'dashboard', icon: Activity, label: 'Dashboard', color: '#0891B2' },
             { id: 'structure', icon: Layers, label: 'Estructura', color: '#007AFF' },
             { id: 'calendar', icon: CalendarDays, label: 'Calendario', color: '#8B5CF6' },
-            { id: 'chart', icon: BarChart3, label: 'Gráfico', color: '#10B981' }
+            { id: 'chart', icon: BarChart3, label: 'Grafico', color: '#10B981' }
           ].map(({ id, icon: Icon, label, color }) => (
             <button key={id} className="group flex flex-col items-center gap-1.5 outline-none" onClick={() => setViewMode(id)} data-testid={`view-${id}`}>
               <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ${viewMode === id ? 'text-white shadow-lg' : 'bg-white text-slate-400 shadow-sm border border-slate-200 hover:shadow-md'}`} style={viewMode === id ? { backgroundColor: color } : {}}>
@@ -1757,6 +1759,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           ))}
         </div>
 
+        {viewMode === 'dashboard' && selectedPlan?.apiId && <DashboardGeneral planId={selectedPlan.apiId} />}
         {viewMode === 'structure' && renderStructureView()}
         {viewMode === 'calendar' && renderCalendarView()}
         {viewMode === 'chart' && renderChartView()}

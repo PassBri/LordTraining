@@ -1,0 +1,78 @@
+{
+  "summary": "Dashboard General with 6 charts integration testing complete. Backend: 12/12 tests passed (100%). Frontend: All 7 data-testid elements found, all charts rendering correctly, metric tab switching and Gantt zoom controls working.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Dashboard General", "issues": ["React hydration warnings in console (not critical, related to Vercel analytics injection)"]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_dashboard_charts_api.py",
+    "/app/test_reports/pytest/dashboard_charts_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "All 7 data-testid elements present: dashboard-general, gantt-chart, periodization-chart, acwr-chart, radar-chart, heatmap-chart, progresion-chart",
+    "PeriodizationChart correctly renders 3 macrociclos (Acumulación/Transformación/Realización) with Vol/Int/Den/Carga tab switcher",
+    "GanttPlanChart renders SVG with Plan/Macrociclos/Mesociclos/Descargas rows and zoom controls (Sem/Mes/Trim/Todo)",
+    "ACWRChart shows 'Sin datos de carga registrados' for V1 plan (expected - no historico_cargas linked)",
+    "CapacidadRadarChart shows 'Sin capacidades configuradas' for V1 plan (expected - no capacidades_plan data)",
+    "HeatmapChart renders with 88 rect elements for weekly load visualization",
+    "ProgresionCapacidadChart renders with capacity filter buttons",
+    "Dashboard header shows plan name, model, deporte, and stats (Macrociclos, Mesociclos, Semanas, Sesiones, Tonelaje, Progreso)",
+    "Zustand store (planStore.js) correctly loads historicoCarga via cargarHistorico action",
+    "useChartData hooks use useShallow for granular re-renders",
+    "chartDataAdapters.js correctly transforms V2 data for Recharts components"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_dashboard_charts_api.py"
+  ],
+  "success_rate": {
+    "backend": "100% (12/12 tests passed)",
+    "frontend": "100% (all charts rendering, all interactions working)"
+  },
+  "test_credentials": "email: test@train.com, password: test123456",
+  "seed_data_creation": "Used existing V2 seeded plan 'ATR Futbol Pre-temporada' and synced V1 plan 'TEST Plan Fútbol ATR'",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Dashboard General with 6 charts fully tested. All charts use Recharts (not Chart.js). V1 synced plans show empty states for ACWR (no historico_cargas) and Radar (no capacidades) - this is expected behavior. The seeded V2 plan 'ATR Futbol Pre-temporada' has full data including historico_cargas for ACWR chart. Test file at /app/backend/tests/test_dashboard_charts_api.py covers all V2 API endpoints needed for charts.",
+  "tests_executed": {
+    "Backend": {
+      "TestDashboardChartsAPI": {
+        "test_historico_endpoint_exists": "PASSED - GET /api/v2/planes/{id}/historico returns 200",
+        "test_historico_returns_cargas_array": "PASSED - Returns cargas array with fecha, carga_diaria, atleta_id",
+        "test_historico_for_plan_without_atleta": "PASSED - Returns sesiones-based data for V1 synced plans",
+        "test_historico_404_for_invalid_plan": "PASSED - Returns 404 for non-existent plan",
+        "test_plan_completo_has_macrociclos": "PASSED - Returns macrociclos with chart-required fields",
+        "test_plan_completo_has_mesociclos": "PASSED - Returns mesociclos for Gantt chart",
+        "test_plan_completo_has_microciclos": "PASSED - Returns microciclos for Heatmap chart",
+        "test_plan_completo_has_sesiones": "PASSED - Returns sesiones with carga_sesion, orden_dia",
+        "test_plan_completo_has_capacidades": "PASSED - Returns capacidades with MEV/MAV/MRV",
+        "test_plan_completo_has_metricas": "PASSED - Returns metricas for Dashboard header",
+        "test_plan_completo_has_ejercicios": "PASSED - Returns ejercicios with capacidad_tipo, series",
+        "test_v2_planes_list": "PASSED - GET /api/v2/planes returns list of V2 plans"
+      }
+    },
+    "Frontend": {
+      "Navigation": "PASSED - Login > MIS PLANES > TEST Plan > Periodización > Estructura > Dashboard",
+      "Dashboard_Header": "PASSED - Shows plan name, model, deporte, stats (3 Macros, 3 Mesos, 11 Semanas, 55 Sesiones, 0kg, 0%)",
+      "Gantt_Chart": "PASSED - SVG renders with 14 rects, 26 texts, zoom controls work (Sem/Mes/Trim/Todo)",
+      "Periodization_Chart": "PASSED - 3 bars for macrociclos, Vol/Int/Den/Carga tabs switch correctly",
+      "ACWR_Chart": "PASSED - Shows 'Sin datos de carga registrados' (expected for V1 plan)",
+      "Radar_Chart": "PASSED - Shows 'Sin capacidades configuradas' (expected for V1 plan)",
+      "Heatmap_Chart": "PASSED - Renders with 88 rect elements, legend visible",
+      "Progresion_Chart": "PASSED - Renders with capacity filter buttons",
+      "Data_TestIds": "PASSED - All 7 data-testid elements found"
+    }
+  },
+  "endpoints_verified": [
+    "GET /api/v2/planes/{id}/historico - ✓ Returns historico_cargas for ACWR chart",
+    "GET /api/v2/planes/{id}/completo - ✓ Returns full tree with all chart data",
+    "GET /api/v2/planes - ✓ Returns list of V2 plans"
+  ]
+}

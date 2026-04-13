@@ -650,8 +650,45 @@ async def get_historico(atleta_id: str, request: Request, dias: int = 28, user: 
     desde = (datetime.now(timezone.utc) - timedelta(days=dias)).isoformat()
     cargas = await db.historico_cargas.find(
         {"atleta_id": atleta_id, "fecha": {"$gte": desde}}, {"_id": 0}
-    ).sort("fecha", -1).to_list(dias)
+    ).sort("fecha", 1).to_list(dias * 5)
     return {"cargas": cargas, "dias": dias}
+
+
+@router.get("/planes/{plan_id}/historico")
+async def get_plan_historico(plan_id: str, request: Request, dias: int = 200, user: dict = Depends(get_current_user)):
+    """Get historico_cargas for a plan's athlete - used for ACWR chart"""
+    db = get_db(request)
+    plan = await db.planes_entrenamiento.find_one({"id": plan_id}, {"_id": 0})
+    if not plan:
+        raise HTTPException(404, "Plan no encontrado")
+
+    atleta_id = plan.get("atleta_id")
+    if not atleta_id:
+        # Build from sesiones if no atleta
+        sesiones = []
+        macros = await db.macrociclos_v2.find({"plan_id": plan_id}, {"_id": 0}).to_list(50)
+        for macro in macros:
+            mesos = await db.mesociclos_v2.find({"macrociclo_id": macro["id"]}, {"_id": 0}).to_list(50)
+            for meso in mesos:
+                micros = await db.microciclos_v2.find({"mesociclo_id": meso["id"]}, {"_id": 0}).to_list(50)
+                for micro in micros:
+                    ss = await db.sesiones_v2.find({"microciclo_id": micro["id"]}, {"_id": 0}).to_list(50)
+                    for s in ss:
+                        if s.get("carga_sesion", 0) > 0 and s.get("fecha"):
+                            sesiones.append({
+                                "id": s["id"],
+                                "atleta_id": "",
+                                "fecha": s["fecha"],
+                                "carga_diaria": s["carga_sesion"],
+                                "fuente": s["id"]
+                            })
+        sesiones.sort(key=lambda x: x.get("fecha", ""))
+        return {"cargas": sesiones, "dias": dias, "source": "sesiones"}
+
+    cargas = await db.historico_cargas.find(
+        {"atleta_id": atleta_id}, {"_id": 0}
+    ).sort("fecha", 1).to_list(dias * 5)
+    return {"cargas": cargas, "dias": dias, "source": "historico"}
 
 
 # ============ SYNC V1 → V2 ============
