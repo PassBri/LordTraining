@@ -29,8 +29,22 @@ const MACROCYCLE_PHASES = [
   { id: 'prep_specific', name: 'Preparatorio Específico', abbr: 'PE', color: '#8B5CF6', volumePercent: 70, intensityPercent: 75 },
   { id: 'precompetitive', name: 'Precompetitivo', abbr: 'PC', color: '#F59E0B', volumePercent: 55, intensityPercent: 88 },
   { id: 'competitive', name: 'Competitivo', abbr: 'CO', color: '#10B981', volumePercent: 40, intensityPercent: 95 },
-  { id: 'transition', name: 'Transición', abbr: 'TR', color: '#6B7280', volumePercent: 30, intensityPercent: 45 }
+  { id: 'transition', name: 'Transición', abbr: 'TR', color: '#6B7280', volumePercent: 30, intensityPercent: 45 },
+  { id: 'accumulation', name: 'Acumulación', abbr: 'AC', color: '#3B82F6', volumePercent: 85, intensityPercent: 60 },
+  { id: 'transformation', name: 'Transformación', abbr: 'TF', color: '#F59E0B', volumePercent: 60, intensityPercent: 85 },
+  { id: 'realization', name: 'Realización', abbr: 'RE', color: '#10B981', volumePercent: 40, intensityPercent: 95 },
+  { id: 'recovery', name: 'Recuperación', abbr: 'RC', color: '#6B7280', volumePercent: 35, intensityPercent: 40 }
 ];
+
+// Resolve phase: can be string id, object with id, or full object
+const resolvePhase = (macro) => {
+  const p = macro?.phase;
+  if (!p) return MACROCYCLE_PHASES[0];
+  if (typeof p === 'string') return MACROCYCLE_PHASES.find(ph => ph.id === p) || MACROCYCLE_PHASES.find(ph => p.toLowerCase().includes(ph.id.slice(0,4))) || { id: p, name: macro.name || p, abbr: (macro.name || p).slice(0,2).toUpperCase(), color: '#3B82F6', volumePercent: 70, intensityPercent: 60 };
+  if (p.color && p.name) return p;
+  if (p.id) return MACROCYCLE_PHASES.find(ph => ph.id === p.id) || p;
+  return MACROCYCLE_PHASES[0];
+};
 
 const MESOCYCLE_TYPES = [
   { id: 'entrante', name: 'Entrante', color: '#94A3B8', loadFactor: 0.7 },
@@ -589,7 +603,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     plan.macrocycles?.forEach(macro => {
       macro.mesocycles?.forEach(meso => {
         meso.microcycles?.forEach(micro => {
-          const phase = macro.phase || MACROCYCLE_PHASES[0];
+          const phase = resolvePhase(macro);
           chartData.push({
             semana: `S${weekNum}`,
             week: weekNum,
@@ -1629,7 +1643,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
             {selectedPlan.macrocycles?.length > 0 && (
               <div className="flex h-2 rounded-full overflow-hidden mt-5 gap-[2px]">
                 {selectedPlan.macrocycles.map((macro, idx) => (
-                  <div key={idx} className="rounded-full transition-all" style={{ backgroundColor: macro.phase?.color || '#475569', flex: macro.weeks || 1 }} title={`${macro.phase?.name || macro.name}: ${macro.weeks}s`} />
+                  <div key={idx} className="rounded-full transition-all" style={{ backgroundColor: resolvePhase(macro).color, flex: macro.weeks || 1 }} title={`${resolvePhase(macro).name}: ${macro.weeks}s`} />
                 ))}
               </div>
             )}
@@ -1708,10 +1722,11 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
       {/* ═══ MACROCYCLES ═══ */}
       {selectedPlan.macrocycles?.map((macro, macroIdx) => {
-        const phaseColor = macro.phase?.color || '#3B82F6';
+        const _phase = resolvePhase(macro);
+        const phaseColor = _phase.color;
         const isExpanded = expandedMacro === macroIdx;
-        const vol = macro.volume_percent || macro.phase?.volumePercent || 0;
-        const inten = macro.intensity_percent || macro.phase?.intensityPercent || 0;
+        const vol = macro.volume_percent || _phase.volumePercent || 0;
+        const inten = macro.intensity_percent || _phase.intensityPercent || 0;
         const totalMesoWeeks = macro.mesocycles?.reduce((s, m) => s + (m.microcycles?.length || 0), 0) || 0;
         const totalSessions = macro.mesocycles?.reduce((s, m) => s + m.microcycles?.reduce((s2, mi) => s2 + (mi.sessions?.length || 0), 0), 0) || 0;
         const loadBalance = vol > 0 && inten > 0 ? Math.abs(vol - inten) : 0;
@@ -1731,12 +1746,12 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                     <ChevronRight className="w-4 h-4 text-slate-400" />
                   </div>
                   <div className="w-11 h-11 rounded-full flex items-center justify-center text-white font-black text-[12px] shadow-lg" style={{ backgroundColor: phaseColor, fontFamily: BC }}>
-                    {macro.phase?.abbr || 'MC'}
+                    {resolvePhase(macro).abbr || 'MC'}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <h3 className="font-bold text-slate-800 text-[15px]">{macro.name}</h3>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ color: phaseColor, backgroundColor: phaseColor + '15' }}>{macro.phase?.name}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ color: phaseColor, backgroundColor: phaseColor + '15' }}>{resolvePhase(macro).name}</span>
                     </div>
                     <div className="flex items-center gap-3 mt-1 text-[11px] text-slate-400">
                       <span className="font-medium">{macro.weeks} sem</span>
@@ -2320,7 +2335,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     let weekNum = 1;
 
     macros.forEach(macro => {
-      const phase = macro.phase || MACROCYCLE_PHASES[0];
+      const phase = resolvePhase(macro);
       const baseVol = phase.volumePercent || 70;
       const baseInt = phase.intensityPercent || 60;
       const baseDen = Math.round((baseVol + baseInt) / 3);
@@ -2378,9 +2393,10 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     const refLines = [];
     let cumWeeks = 0;
     macros.forEach((macro, i) => {
-      const w = chartData.filter(d => d.fase === (macro.phase?.name || '')).length || macro.weeks || 0;
+      const rp = resolvePhase(macro);
+      const w = chartData.filter(d => d.fase === rp.name).length || macro.weeks || 0;
       if (i > 0 && cumWeeks > 0) {
-        refLines.push({ y: null, x: `S${cumWeeks}`, color: '#cbd5e1', label: macro.phase?.abbr || '', dashed: true });
+        refLines.push({ y: null, x: `S${cumWeeks}`, color: '#cbd5e1', label: rp.abbr || '', dashed: true });
       }
       cumWeeks += w;
     });
@@ -2426,7 +2442,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           <div className="px-5 py-4">
             <div className="flex h-12 rounded-xl overflow-hidden gap-[2px] mb-1">
               {macros.map((macro, idx) => {
-                const phase = macro.phase || MACROCYCLE_PHASES[0];
+                const phase = resolvePhase(macro);
                 const w = chartData.filter(d => d.fase === phase.name).length || macro.weeks || 1;
                 const pct = totalWeeks > 0 ? Math.round((w / totalWeeks) * 100) : 0;
                 return (
@@ -2444,7 +2460,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
             {/* Week markers */}
             <div className="flex">
               {macros.map((macro, idx) => {
-                const phase = macro.phase || MACROCYCLE_PHASES[0];
+                const phase = resolvePhase(macro);
                 const w = chartData.filter(d => d.fase === phase.name).length || macro.weeks || 1;
                 return <div key={idx} className="text-center text-[8px] text-slate-400" style={{flex: w}}>{w} semanas</div>;
               })}
@@ -2455,7 +2471,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           <div className="px-5 pb-5">
             <div className="grid gap-3" style={{gridTemplateColumns: `repeat(${Math.min(macros.length, 4)}, 1fr)`}}>
               {macros.map((macro, idx) => {
-                const phase = macro.phase || MACROCYCLE_PHASES[0];
+                const phase = resolvePhase(macro);
                 const w = chartData.filter(d => d.fase === phase.name).length || macro.weeks || 1;
                 const phaseData = chartData.filter(d => d.fase === phase.name);
                 const phaseAvgVol = phaseData.length ? Math.round(phaseData.reduce((s,d)=>s+d.volumen,0)/phaseData.length) : (phase.volumePercent || 0);
