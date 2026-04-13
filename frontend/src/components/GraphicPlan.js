@@ -1527,6 +1527,19 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                   })}
                 </tr>
 
+                {/* ACTIVITY TYPE sub-rows with colored squares */}
+                {ACTIVITY_TYPES.map(act => (
+                  <tr key={`act-${act.id}`} className="bg-purple-50/50">
+                    <td className="sticky left-0 bg-purple-50/50 px-2 py-0 text-[10px] border border-gray-300 z-10 pl-4" style={{ minWidth: 180 }}>
+                      <div className="flex items-center gap-1.5">
+                        <div className={`w-2.5 h-2.5 rounded-sm flex-shrink-0 ${act.color}`} />
+                        {act.label}
+                      </div>
+                    </td>
+                    {displayedWeeks.map(week => renderBooleanCell('activities', act.id, week, act.color))}
+                  </tr>
+                ))}
+
                 {/* MONITORING (moved up, compact) */}
                 <tr className="bg-cyan-50">
                   <td className="sticky left-0 bg-cyan-50 px-2 py-1 text-xs font-bold text-cyan-800 border border-gray-300">
@@ -1548,6 +1561,22 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                     );
                   })}
                 </tr>
+
+                {/* MONITORING AREA sub-rows with colored squares */}
+                {MONITORING_AREAS.map(area => {
+                  const monColors = { medical: 'bg-red-100', physical: 'bg-orange-100', technical: 'bg-yellow-100', tactical: 'bg-green-100', psychological: 'bg-blue-100', theoretical: 'bg-purple-100' };
+                  return (
+                    <tr key={`mon-${area.id}`} className="bg-cyan-50/50">
+                      <td className="sticky left-0 bg-cyan-50/50 px-2 py-0 text-[10px] border border-gray-300 z-10 pl-4" style={{ minWidth: 180 }}>
+                        <div className="flex items-center gap-1.5">
+                          <div className={`w-2.5 h-2.5 rounded-sm flex-shrink-0 ${monColors[area.id] || 'bg-slate-200'}`} />
+                          {area.label}
+                        </div>
+                      </td>
+                      {displayedWeeks.map(week => renderBooleanCell('monitoring', area.id, week, monColors[area.id] || 'bg-slate-200'))}
+                    </tr>
+                  );
+                })}
 
               </tbody>
             </table>

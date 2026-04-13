@@ -9,6 +9,11 @@
 
 ## Implementado
 
+### Restauracion cuadros Eventos/Monitoreo en GraphicPlan (Abr 2026)
+- Restaurados sub-rows con cuadros de colores clickeables para Eventos/Competencias (5 tipos: Entrenamiento, Control dopaje, Competencia principal/secundaria, Recuperacion)
+- Restaurados sub-rows con cuadros de colores clickeables para Monitoreo/Evaluaciones (6 tipos: medico, fisico, tecnico, tactico, psicologico, teorico)
+- Cada celda es interactiva (toggle on/off) usando renderBooleanCell
+
 ### Plan Grafico Corregido - Grilla Completa + 5 Graficas (Feb 2026)
 - Sincronizacion V2 mejorada: llena TODAS las filas de la grilla
   - Magnitud de Carga: 5 niveles por semana basados en RPE
