@@ -13,7 +13,7 @@ import {
   Save, Download, Activity, Clock, ChevronDown, ChevronRight,
   GripVertical, AlertCircle, Share2, Copy, Check, FileText, Link2, Eye,
   Watch, Droplets, Battery, Moon, Sun, TrendingUp, TrendingDown, Bluetooth,
-  Sparkles, LayoutGrid, X, Users, User, MapPin
+  Sparkles, LayoutGrid, X, Users, User, MapPin, Gauge, Layers, BarChart3, FlaskConical
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { EJERCICIOS_INICIALES } from './ExerciseLibrary';
@@ -129,6 +129,73 @@ const PROC_ORGANIZATIVO = [
   { id: 'circuito', name: 'Circuito' }
 ];
 
+// ─── Configuración por capacidad física ───
+const CAPACITY_CONFIG = {
+  fuerza:       { subtipos: ['Maxima','Explosiva','Resistencia'], unidades: ['%1RM','RPE'], showDeficit: true },
+  resistencia:  { subtipos: ['Aerobica','Anaerobica','Mixta'], unidades: ['%FCmax','%FCres','RPE'], showZonas: true },
+  velocidad:    { subtipos: ['Reaccion','Desplazamiento','Gestual'], unidades: ['%Vmax','RPE'] },
+  flexibilidad: { subtipos: ['Estatica','Dinamica','FNP'], unidades: ['ROM','RPE'] },
+  coordinacion: { subtipos: ['Equilibrio','Ritmo','Orientacion','Diferenciacion','Acoplamiento','Agilidad'], unidades: ['Escala 1-5','RPE'], showComplejidad: true },
+  equilibrio:   { subtipos: ['Estatico','Dinamico'], unidades: ['Escala 1-5','RPE'], showComplejidad: true },
+  agilidad:     { subtipos: ['Cambios direccion','Reactiva','Planificada'], unidades: ['RPE','Escala 1-5'], showComplejidad: true },
+  potencia:     { subtipos: ['Tren superior','Tren inferior','Total'], unidades: ['%1RM','RPE','Watts'], showDeficit: true }
+};
+
+const MODELOS_PROGRESION = [
+  { id: 'lineal', name: 'Lineal', desc: 'Incremento constante semana a semana' },
+  { id: 'ondulada', name: 'Ondulada', desc: 'Alternancia de cargas alta/baja' },
+  { id: 'bloques', name: 'Bloques', desc: 'Fases concentradas por capacidad' },
+  { id: 'conjugada', name: 'Conjugada', desc: 'Múltiples cualidades simultáneas' }
+];
+
+// Cálculo de métricas derivadas
+const calcMetricas = (act) => {
+  const vol = parseFloat(act.volumen) || 0;
+  const int = parseFloat(act.intensidad) || 0;
+  const ser = parseFloat(act.series) || 0;
+  const den = act.densidad || '';
+  const comp = parseFloat(act.complejidad) || 3;
+  const cap = act.capacidadFisica || 'fuerza';
+  const cargaTotal = Math.round(vol * int / 100);
+  const cargaSesion = Math.round(ser * vol * int / 100);
+
+  const result = { cargaTotal, cargaSesion };
+
+  // Densidad → ratio numérico
+  if (den) {
+    const parts = den.split(':').map(Number);
+    if (parts.length === 2 && parts[1] > 0) result.ratioDensidad = +(parts[0] / parts[1]).toFixed(2);
+  }
+
+  // Coordinativas / Equilibrio / Agilidad → NeuroCarga
+  const cfg = CAPACITY_CONFIG[cap];
+  if (cfg?.showComplejidad) {
+    result.neuroCarga = Math.round(comp * ser * 10);
+  }
+
+  // Fuerza / Potencia → Déficit indicator
+  if (cfg?.showDeficit && int > 0) {
+    result.zonaFuerza = int >= 85 ? 'F. Maxima' : int >= 60 ? 'Hipertrofia' : int >= 40 ? 'F. Explosiva' : 'Resistencia F.';
+  }
+
+  // Resistencia → Zona FC
+  if (cfg?.showZonas && int > 0) {
+    result.zonaFC = int >= 90 ? 'Z5 (VO2max)' : int >= 80 ? 'Z4 (Umbral)' : int >= 70 ? 'Z3 (Tempo)' : int >= 60 ? 'Z2 (Aerobico)' : 'Z1 (Regen)';
+  }
+
+  return result;
+};
+
+// Progresión MEV→MAV→MRV
+const calcProgresionSemanal = (volBase, semana, prog) => {
+  const tasa = (prog?.tasaIncremento || 5) / 100;
+  const semDesc = prog?.semanaDescarga || 4;
+  const redDesc = (prog?.reduccionDescarga || 50) / 100;
+  const semEnCiclo = ((semana - 1) % semDesc) + 1;
+  if (semEnCiclo === semDesc) return Math.round(volBase * redDesc);
+  return Math.round(volBase * (1 + tasa * (semEnCiclo - 1)));
+};
+
 // Estructura inicial de una actividad
 const ACTIVIDAD_INICIAL = {
   id: '',
@@ -136,16 +203,26 @@ const ACTIVIDAD_INICIAL = {
   ejercicioId: null,
   descripcion: '',
   capacidadFisica: 'fuerza',
+  subtipo: '',
   metodo: 'series',
   series: 3,
   repeticiones: '10-12',
   intensidad: 70,
+  unidadIntensidad: '%1RM',
   volumen: 30,
+  densidad: '',
+  complejidad: 3,
   procOrganizativo: 'individual',
   recuperacion: '2 min',
   materiales: [],
   boardId: null,
-  boardThumbnail: null
+  boardThumbnail: null,
+  progresion: {
+    modelo: 'lineal',
+    tasaIncremento: 5,
+    semanaDescarga: 4,
+    reduccionDescarga: 50
+  }
 };
 
 const MATERIALES_DISPONIBLES = [
@@ -254,6 +331,7 @@ const SessionEditor = ({
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [expandedBoard, setExpandedBoard] = useState(null);
+  const [expandedPanels, setExpandedPanels] = useState({});
   const [sessionDate, setSessionDate] = useState(session?.date ? new Date(session.date) : undefined);
   const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const sessionContentRef = useRef(null);
@@ -813,6 +891,173 @@ const SessionEditor = ({
                 {act.boardThumbnail && <button onClick={() => updateActividadMulti(faseKey, idx, {boardThumbnail:null,boardId:null})} className="text-[8px] text-slate-300 hover:text-red-400 mt-1 block w-full text-center transition-colors">quitar</button>}
               </div>
             </div>
+
+            {/* === PANEL AVANZADO: Carga, Métricas y Progresión === */}
+            {(() => {
+              const met = calcMetricas(act);
+              const capCfg = CAPACITY_CONFIG[act.capacidadFisica] || CAPACITY_CONFIG.fuerza;
+              const prog = act.progresion || { modelo: 'lineal', tasaIncremento: 5, semanaDescarga: 4, reduccionDescarga: 50 };
+              const panelKey = `panel-${faseKey}-${idx}`;
+              const isExpanded = expandedPanels?.[panelKey];
+
+              return (
+                <div className="border-t border-slate-100">
+                  <button
+                    onClick={() => setExpandedPanels(prev => ({ ...prev, [panelKey]: !prev[panelKey] }))}
+                    className="w-full flex items-center justify-between px-4 py-2 hover:bg-slate-50/50 transition-colors"
+                    data-testid={`toggle-advanced-${faseKey}-${idx}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Gauge className="w-3 h-3 text-slate-400" />
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Carga y Progresion</span>
+                      {met.cargaTotal > 0 && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">CT: {met.cargaTotal}</span>}
+                      {met.zonaFC && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-red-50 text-red-600">{met.zonaFC}</span>}
+                      {met.zonaFuerza && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700">{met.zonaFuerza}</span>}
+                      {met.neuroCarga > 0 && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-violet-50 text-violet-600">NC: {met.neuroCarga}</span>}
+                    </div>
+                    <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {isExpanded && (
+                    <div className="px-4 pb-4 space-y-3">
+                      {/* Fila 1: Subtipo + Densidad + Unidad Intensidad + Complejidad */}
+                      <div className="grid grid-cols-4 gap-2">
+                        <div>
+                          <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Subtipo</span>
+                          <Select value={act.subtipo || ''} onValueChange={(v) => updateActividad(faseKey, idx, 'subtipo', v)}>
+                            <SelectTrigger className="h-7 text-[10px] border-slate-200 rounded-lg"><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
+                            <SelectContent>{capCfg.subtipos.map(s => <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>)}</SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Densidad</span>
+                          <Input value={act.densidad || ''} onChange={(e) => updateActividad(faseKey, idx, 'densidad', e.target.value)} placeholder="1:3" className="h-7 text-[10px] border-slate-200 rounded-lg" data-testid={`densidad-${faseKey}-${idx}`} />
+                        </div>
+                        <div>
+                          <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Unidad Int.</span>
+                          <Select value={act.unidadIntensidad || capCfg.unidades[0]} onValueChange={(v) => updateActividad(faseKey, idx, 'unidadIntensidad', v)}>
+                            <SelectTrigger className="h-7 text-[10px] border-slate-200 rounded-lg"><SelectValue /></SelectTrigger>
+                            <SelectContent>{capCfg.unidades.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}</SelectContent>
+                          </Select>
+                        </div>
+                        {capCfg.showComplejidad ? (
+                          <div>
+                            <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Complejidad</span>
+                            <div className="flex items-center gap-1.5">
+                              <input type="range" min={1} max={5} value={act.complejidad || 3} onChange={(e) => updateActividad(faseKey, idx, 'complejidad', parseInt(e.target.value))} className="flex-1 h-1 accent-violet-500 cursor-pointer" />
+                              <span className="text-[11px] font-bold text-violet-600 w-4 text-center">{act.complejidad || 3}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div>
+                            <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Frecuencia</span>
+                            <Input value={act.frecuencia || ''} onChange={(e) => updateActividad(faseKey, idx, 'frecuencia', e.target.value)} placeholder="3x/sem" className="h-7 text-[10px] border-slate-200 rounded-lg" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Fila 2: Métricas calculadas */}
+                      <div className="flex flex-wrap gap-2">
+                        <div className="flex-1 min-w-[100px] rounded-lg p-2" style={{background:'#0a0a0f'}}>
+                          <span className="text-[7px] font-bold uppercase tracking-widest block mb-0.5" style={{color:'rgba(204,255,0,0.5)'}}>Carga Total</span>
+                          <span className="text-[14px] font-black text-white">{met.cargaTotal}</span>
+                          <span className="text-[8px] text-slate-500 ml-1">vol x int</span>
+                        </div>
+                        <div className="flex-1 min-w-[100px] rounded-lg p-2" style={{background:'#0a0a0f'}}>
+                          <span className="text-[7px] font-bold uppercase tracking-widest block mb-0.5" style={{color:'rgba(204,255,0,0.5)'}}>Carga Sesion</span>
+                          <span className="text-[14px] font-black text-white">{met.cargaSesion}</span>
+                          <span className="text-[8px] text-slate-500 ml-1">ser x vol x int</span>
+                        </div>
+                        {met.ratioDensidad != null && (
+                          <div className="flex-1 min-w-[100px] rounded-lg p-2" style={{background:'#0a0a0f'}}>
+                            <span className="text-[7px] font-bold uppercase tracking-widest block mb-0.5" style={{color:'rgba(204,255,0,0.5)'}}>Ratio Densidad</span>
+                            <span className="text-[14px] font-black text-white">{met.ratioDensidad}</span>
+                          </div>
+                        )}
+                        {met.neuroCarga > 0 && (
+                          <div className="flex-1 min-w-[100px] rounded-lg p-2" style={{background:'#0a0a0f'}}>
+                            <span className="text-[7px] font-bold uppercase tracking-widest block mb-0.5" style={{color:'rgba(168,85,247,0.5)'}}>NeuroCarga</span>
+                            <span className="text-[14px] font-black text-violet-400">{met.neuroCarga}</span>
+                          </div>
+                        )}
+                        {met.zonaFC && (
+                          <div className="flex-1 min-w-[100px] rounded-lg p-2" style={{background:'#0a0a0f'}}>
+                            <span className="text-[7px] font-bold uppercase tracking-widest block mb-0.5" style={{color:'rgba(239,68,68,0.5)'}}>Zona FC</span>
+                            <span className="text-[12px] font-bold text-red-400">{met.zonaFC}</span>
+                          </div>
+                        )}
+                        {met.zonaFuerza && (
+                          <div className="flex-1 min-w-[100px] rounded-lg p-2" style={{background:'#0a0a0f'}}>
+                            <span className="text-[7px] font-bold uppercase tracking-widest block mb-0.5" style={{color:'rgba(245,158,11,0.5)'}}>Zona Fuerza</span>
+                            <span className="text-[12px] font-bold text-amber-400">{met.zonaFuerza}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Fila 3: Progresión */}
+                      <div className="rounded-xl border border-slate-100 p-3">
+                        <div className="flex items-center gap-2 mb-2.5">
+                          <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+                          <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Progresion automatica</span>
+                        </div>
+                        <div className="grid grid-cols-4 gap-2">
+                          <div>
+                            <span className="text-[8px] text-slate-400 block mb-1">Modelo</span>
+                            <Select value={prog.modelo} onValueChange={(v) => updateActividad(faseKey, idx, 'progresion', { ...prog, modelo: v })}>
+                              <SelectTrigger className="h-7 text-[10px] border-slate-200 rounded-lg"><SelectValue /></SelectTrigger>
+                              <SelectContent>{MODELOS_PROGRESION.map(m => <SelectItem key={m.id} value={m.id} className="text-xs">{m.name}</SelectItem>)}</SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <span className="text-[8px] text-slate-400 block mb-1">Incremento/sem</span>
+                            <div className="flex items-center gap-1">
+                              <Input type="number" value={prog.tasaIncremento} onChange={(e) => updateActividad(faseKey, idx, 'progresion', { ...prog, tasaIncremento: parseInt(e.target.value) || 0 })} className="h-7 text-[10px] border-slate-200 rounded-lg text-center" min={0} max={30} />
+                              <span className="text-[10px] text-slate-400">%</span>
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-[8px] text-slate-400 block mb-1">Descarga cada</span>
+                            <div className="flex items-center gap-1">
+                              <Input type="number" value={prog.semanaDescarga} onChange={(e) => updateActividad(faseKey, idx, 'progresion', { ...prog, semanaDescarga: parseInt(e.target.value) || 1 })} className="h-7 text-[10px] border-slate-200 rounded-lg text-center" min={1} max={12} />
+                              <span className="text-[10px] text-slate-400">sem</span>
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-[8px] text-slate-400 block mb-1">Reduccion desc.</span>
+                            <div className="flex items-center gap-1">
+                              <Input type="number" value={prog.reduccionDescarga} onChange={(e) => updateActividad(faseKey, idx, 'progresion', { ...prog, reduccionDescarga: parseInt(e.target.value) || 0 })} className="h-7 text-[10px] border-slate-200 rounded-lg text-center" min={0} max={100} />
+                              <span className="text-[10px] text-slate-400">%</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* MEV → MAV → MRV Visual */}
+                        <div className="mt-3 pt-2.5 border-t border-slate-100">
+                          <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">Proyeccion MEV → MAV → MRV</span>
+                          <div className="flex items-end gap-1" style={{height:'40px'}}>
+                            {[1,2,3,4].map(sem => {
+                              const volBase = parseFloat(act.volumen) || 30;
+                              const projected = calcProgresionSemanal(volBase, sem, prog);
+                              const maxH = 36;
+                              const h = Math.max(4, (projected / (volBase * 1.5)) * maxH);
+                              const isDesc = sem === (prog.semanaDescarga || 4);
+                              return (
+                                <div key={sem} className="flex-1 flex flex-col items-center gap-0.5">
+                                  <span className="text-[8px] font-bold" style={{color: isDesc ? '#3B82F6' : '#CCFF00'}}>{projected}</span>
+                                  <div className="w-full rounded-t" style={{height:`${h}px`,background: isDesc ? 'linear-gradient(180deg,#3B82F6,#1d4ed8)' : 'linear-gradient(180deg,#CCFF00,#84cc16)',opacity: 0.8}} />
+                                  <span className="text-[7px] text-slate-400">S{sem}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
           </div>
           );
         })}

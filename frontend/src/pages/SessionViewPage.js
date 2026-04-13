@@ -218,9 +218,29 @@ const SessionViewPage = () => {
                                 </div>
                               )}
                               {act.volumen && <div className="text-[10px]"><span style={{color:T.subtle}}>Vol: </span><span style={{color:T.text}}>{act.volumen}</span></div>}
+                              {act.densidad && <div className="text-[10px]"><span style={{color:T.subtle}}>Densidad: </span><span style={{color:T.text}}>{act.densidad}</span></div>}
                               {act.recuperacion && <div className="text-[10px]"><span style={{color:T.subtle}}>Rec: </span><span style={{color:T.text}}>{act.recuperacion}</span></div>}
                               {act.procOrganizativo && <div className="text-[10px]"><span style={{color:T.subtle}}>Org: </span><span style={{color:T.text}}>{ORG[act.procOrganizativo] || act.procOrganizativo}</span></div>}
+                              {act.subtipo && <div className="text-[10px]"><span style={{color:T.subtle}}>Subtipo: </span><span style={{color:T.text}}>{act.subtipo}</span></div>}
+                              {act.unidadIntensidad && act.unidadIntensidad !== '%1RM' && <div className="text-[10px]"><span style={{color:T.subtle}}>Unidad: </span><span style={{color:T.text}}>{act.unidadIntensidad}</span></div>}
+                              {act.complejidad && act.complejidad !== 3 && <div className="text-[10px]"><span style={{color:T.subtle}}>Complejidad: </span><span style={{color:T.text}}>{act.complejidad}/5</span></div>}
                             </div>
+                            {/* Métricas calculadas */}
+                            {(() => {
+                              const vol = parseFloat(act.volumen) || 0;
+                              const int = parseFloat(act.intensidad) || 0;
+                              const ser = parseFloat(act.series) || 0;
+                              const ct = Math.round(vol * int / 100);
+                              const cs = Math.round(ser * vol * int / 100);
+                              if (ct <= 0) return null;
+                              return (
+                                <div className="flex flex-wrap gap-2 mt-2 pt-2" style={{borderTop:`1px solid ${T.cellBorder}`}}>
+                                  <span className="text-[9px] font-medium px-2 py-0.5 rounded-md" style={{background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)', color: T.text}}>CT: {ct}</span>
+                                  <span className="text-[9px] font-medium px-2 py-0.5 rounded-md" style={{background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)', color: T.text}}>CS: {cs}</span>
+                                  {act.progresion?.modelo && act.progresion.modelo !== 'lineal' && <span className="text-[9px] font-medium px-2 py-0.5 rounded-md" style={{background: isLight ? 'rgba(16,185,129,0.08)' : 'rgba(16,185,129,0.1)', color: isLight ? '#059669' : '#34d399'}}>{act.progresion.modelo}</span>}
+                                </div>
+                              );
+                            })()}
                             {act.materiales?.length > 0 && (
                               <div className="flex flex-wrap items-center gap-1.5 mt-2.5 pt-2" style={{borderTop:`1px solid ${T.cellBorder}`}}>
                                 <span className="text-[8px] font-bold uppercase tracking-wider mr-0.5" style={{color:T.subtle}}>Materiales:</span>

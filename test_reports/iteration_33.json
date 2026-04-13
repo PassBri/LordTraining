@@ -1,0 +1,89 @@
+{
+  "summary": "Comprehensive frontend testing of new 'Carga y Progresión' features in SessionEditor. All features verified working: collapsible panel, auto-calculated metrics (Carga Total, Carga Sesion, NeuroCarga, Zona FC, Zona Fuerza), progression models (Lineal/Ondulada/Bloques/Conjugada), MEV→MAV→MRV volume projection chart, and capacity-specific UI changes (Complejidad slider for coordinacion/equilibrio/agilidad, Zona FC for resistencia, Zona Fuerza for fuerza/potencia).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "SessionEditor",
+        "issues": [
+          "Console warning: 'button cannot be a descendant of button' - nested button elements in phase header causing hydration errors",
+          "Console warning: 'Missing Description or aria-describedby for DialogContent' - accessibility issue",
+          "Console warning: 'tr cannot be a child of span' and 'span cannot be a child of tbody' - HTML structure issues in DashboardPage table"
+        ]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_33.json"
+  ],
+  "action_items": [
+    "Fix nested button elements in SessionEditor phase headers (line ~1282-1301) to resolve hydration errors",
+    "Add aria-describedby to DialogContent components for accessibility compliance",
+    "Fix HTML structure in DashboardPage table - ensure tr elements are direct children of tbody, not wrapped in span"
+  ],
+  "critical_code_review_comments": [
+    "CAPACITY_CONFIG correctly maps each capacity to subtipos, unidades, and showComplejidad/showZonas/showDeficit flags",
+    "calcMetricas function properly calculates derived values: cargaTotal = vol * int / 100, cargaSesion = ser * vol * int / 100",
+    "calcProgresionSemanal correctly projects volume for each week with deload week support",
+    "SessionViewPage.js correctly displays new fields (densidad, subtipo, unidadIntensidad, complejidad) in shared link view",
+    "All new fields have proper defaults in ACTIVIDAD_INICIAL for backward compatibility"
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "N/A (frontend only testing)",
+    "frontend": "100% - All Carga y Progresión features verified working"
+  },
+  "test_credentials": "email: test@train.com, password: test123456",
+  "seed_data_creation": "None required - used existing TEST Plan Fútbol ATR",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All Carga y Progresión features are working correctly. Navigation path: Login > Datos > TEST Plan Fútbol ATR > Periodización > Estructura > Acumulación > AC - Meso 1 > Semana 1 > click session card > add activity via add-activity-inicial button > toggle-advanced-inicial-0 to expand panel. The panel shows: Subtipo selector, Densidad input, Unidad Intensidad selector, Frecuencia/Complejidad field (depending on capacity), auto-calculated metrics (CT, CS, NeuroCarga, Zona FC/Fuerza), progression model selector with increment/deload settings, and MEV→MAV→MRV bar chart.",
+  "features_verified": {
+    "collapsible_panel": {
+      "status": "WORKING",
+      "description": "Carga y Progresion bar at bottom of activity card expands/collapses correctly",
+      "data_testid": "toggle-advanced-inicial-0"
+    },
+    "advanced_panel_fields": {
+      "status": "WORKING",
+      "fields": ["Subtipo selector", "Densidad input", "Unidad Intensidad selector", "Frecuencia/Complejidad field"]
+    },
+    "auto_calculated_metrics": {
+      "status": "WORKING",
+      "metrics": {
+        "carga_total": "vol * int / 100 = 30 * 70 / 100 = 21",
+        "carga_sesion": "ser * vol * int / 100 = 3 * 30 * 70 / 100 = 63",
+        "neuro_carga": "complejidad * series * 10 = 3 * 3 * 10 = 90 (for coordinacion)",
+        "zona_fuerza": "Hipertrofia (for 70% intensity with fuerza capacity)",
+        "zona_fc": "Shows for resistencia capacity"
+      }
+    },
+    "capacity_specific_ui": {
+      "status": "WORKING",
+      "fuerza": "Shows Zona Fuerza (Maxima/Hipertrofia/Explosiva/Resistencia F.)",
+      "resistencia": "Shows Zona FC (Z1-Z5)",
+      "coordinacion_equilibrio_agilidad": "Shows NeuroCarga + Complejidad slider (1-5) instead of Frecuencia"
+    },
+    "progression_section": {
+      "status": "WORKING",
+      "fields": ["Modelo selector (Lineal/Ondulada/Bloques/Conjugada)", "Incremento/sem %", "Descarga cada N sem", "Reduccion desc. %"]
+    },
+    "mev_mav_mrv_chart": {
+      "status": "WORKING",
+      "description": "Shows 4 bar columns (S1-S4) representing weekly volume projection with deload week in blue"
+    },
+    "collapsed_header_badges": {
+      "status": "WORKING",
+      "badges": ["CT value", "Zona FC/Fuerza", "NeuroCarga (NC)"]
+    },
+    "session_view_page": {
+      "status": "WORKING",
+      "new_fields_displayed": ["densidad", "subtipo", "unidadIntensidad", "complejidad", "carga total (CT)", "carga sesion (CS)"]
+    }
+  }
+}
