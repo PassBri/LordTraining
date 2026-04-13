@@ -207,7 +207,9 @@ const calcMetricas = (act) => {
   const vol = parseFloat(act.volumen) || 0;
   const int = parseFloat(act.intensidad) || 0;
   const ser = parseFloat(act.series) || 0;
+  const reps = parseInt(act.repeticiones) || 0;
   const den = act.densidad || '';
+  const recup = act.recuperacion || '';
   const comp = parseFloat(act.complejidad) || 3;
   const cap = act.capacidadFisica || 'fuerza';
   const cargaTotal = Math.round(vol * int / 100);
@@ -215,10 +217,33 @@ const calcMetricas = (act) => {
 
   const result = { cargaTotal, cargaSesion };
 
-  // Densidad → ratio numérico
+  // Densidad — Ratio trabajo:descanso (input manual "1:3")
   if (den) {
     const parts = den.split(':').map(Number);
-    if (parts.length === 2 && parts[1] > 0) result.ratioDensidad = +(parts[0] / parts[1]).toFixed(2);
+    if (parts.length === 2 && parts[1] > 0) {
+      result.ratioDensidad = +(parts[0] / parts[1]).toFixed(2);
+      result.densidadTipo = 'ratio';
+    }
+  }
+
+  // Densidad — Auto-calculada: series/min
+  const recMin = parseFloat(recup) || 0;
+  if (ser > 0 && recMin > 0) {
+    // Estimate work time per set ~30-60s depending on reps
+    const workPerSet = Math.max(reps * 3, 20); // seconds per set
+    const restPerSet = recMin * 60; // convert "2 min" → 120s
+    const totalTimeSec = ser * (workPerSet + restPerSet);
+    const totalTimeMin = totalTimeSec / 60;
+    result.seriesPorMin = +(ser / totalTimeMin).toFixed(2);
+    result.tiempoTotalMin = Math.round(totalTimeMin);
+    result.tiempoTrabajo = Math.round(ser * workPerSet / 60);
+    result.tiempoDescanso = Math.round(ser * restPerSet / 60);
+    // Ratio trabajo:descanso auto
+    if (result.tiempoDescanso > 0) {
+      result.ratioDensidadAuto = +(result.tiempoTrabajo / result.tiempoDescanso).toFixed(2);
+    }
+    // Densidad como % (0-100 normalizado: 0.5 series/min = 100%)
+    result.densidadPct = Math.min(Math.round(result.seriesPorMin * 200), 100);
   }
 
   // Coordinativas / Equilibrio / Agilidad → NeuroCarga
@@ -1046,9 +1071,23 @@ const SessionEditor = ({
                           <div className="absolute top-0 right-0 w-8 h-8 rounded-bl-xl" style={{background:'rgba(0,229,255,0.05)'}} />
                         </div>
                         {met.ratioDensidad != null && (
-                          <div className="flex-1 min-w-[110px] rounded-xl p-3" style={{background:'linear-gradient(135deg, #0c0f1a 0%, #0a0a12 100%)', border:'1px solid rgba(204,255,0,0.1)'}}>
-                            <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'#CCFF00',fontFamily:DM}}>Ratio Densidad</span>
-                            <span className="text-[16px] font-black text-white" style={{fontFamily:DM}}>{met.ratioDensidad}</span>
+                          <div className="flex-1 min-w-[110px] rounded-xl p-3 relative overflow-hidden" style={{background:'linear-gradient(135deg, #0c0f1a 0%, #0a0a12 100%)', border:'1px solid rgba(139,92,246,0.15)'}}>
+                            <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'#8b5cf6',fontFamily:DM}}>Ratio T:D</span>
+                            <span className="text-[16px] font-black" style={{color:'#a5b4fc',fontFamily:DM}}>1:{Math.round(1/met.ratioDensidad) || '?'}</span>
+                            <span className="text-[9px] ml-1" style={{color:'rgba(255,255,255,0.3)'}}>({met.ratioDensidad})</span>
+                          </div>
+                        )}
+                        {met.seriesPorMin > 0 && (
+                          <div className="flex-1 min-w-[110px] rounded-xl p-3 relative overflow-hidden" style={{background:'linear-gradient(135deg, #0c0f1a 0%, #0a0a12 100%)', border:'1px solid rgba(139,92,246,0.15)'}}>
+                            <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'#8b5cf6',fontFamily:DM}}>Densidad</span>
+                            <span className="text-[16px] font-black" style={{color:'#a5b4fc',fontFamily:DM}}>{met.seriesPorMin}</span>
+                            <span className="text-[9px] ml-1" style={{color:'rgba(255,255,255,0.3)'}}>ser/min</span>
+                          </div>
+                        )}
+                        {met.tiempoTotalMin > 0 && (
+                          <div className="flex-1 min-w-[110px] rounded-xl p-3 relative overflow-hidden" style={{background:'linear-gradient(135deg, #0c0f1a 0%, #0a0a12 100%)', border:'1px solid rgba(139,92,246,0.1)'}}>
+                            <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'#8b5cf6',fontFamily:DM}}>Trabajo:Desc</span>
+                            <span className="text-[14px] font-bold" style={{color:'#a5b4fc',fontFamily:DM}}>{met.tiempoTrabajo}:{met.tiempoDescanso}m</span>
                           </div>
                         )}
                         {met.neuroCarga > 0 && (

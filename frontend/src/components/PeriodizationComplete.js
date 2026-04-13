@@ -1864,18 +1864,21 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                             sessions.forEach(ses => {
                               const sd = ses.sessionData || ses.detailed_data;
                               if (sd?.fases) {
+                                let sesSeries = 0, sesTimeSec = 0;
                                 Object.values(sd.fases).forEach(fase => {
                                   (fase.actividades || []).forEach(act => {
                                     totalSeries += parseInt(act.series) || 0;
                                     totalVolumen += parseFloat(act.volumen) || 0;
                                     totalIntensidad += parseFloat(act.intensidad) || 0;
                                     actCount++;
-                                    if (act.densidad) {
-                                      const parts = act.densidad.split(':').map(Number);
-                                      if (parts.length === 2 && parts[1] > 0) { totalDensidad += parts[0] / parts[1]; densCount++; }
-                                    }
+                                    const s = parseInt(act.series) || 0;
+                                    const r = parseInt(act.repeticiones) || 10;
+                                    const rec = parseFloat(act.recuperacion) || 2;
+                                    sesSeries += s;
+                                    sesTimeSec += s * (r * 3 + rec * 60);
                                   });
                                 });
+                                if (sesTimeSec > 0) { totalDensidad += sesSeries / (sesTimeSec / 60); densCount++; }
                               } else {
                                 totalSeries += Math.round((ses.duration || 60) / 5);
                                 totalVolumen += ses.duration || 60;
@@ -2158,7 +2161,26 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                       const dayColor = dayInfo.bg;
                                       const intensityVal = session.intensity === 'high' ? 85 : session.intensity === 'medium' ? 65 : session.intensity === 'low' ? 40 : 50;
                                       const volVal = session.volume || 54;
-                                      const densVal = session.duration > 0 ? Math.round((volVal / (session.duration || 60)) * 10) / 10 : 0;
+                                      const densVal = (() => {
+                                        // Density = series/min from real session data
+                                        const sd = session.sessionData || session.detailed_data;
+                                        if (sd?.fases) {
+                                          let totalSeries = 0, totalRecupSec = 0, actCount = 0;
+                                          Object.values(sd.fases).forEach(fase => {
+                                            (fase.actividades || []).forEach(act => {
+                                              totalSeries += parseInt(act.series) || 0;
+                                              const recMin = parseFloat(act.recuperacion) || 2;
+                                              const reps = parseInt(act.repeticiones) || 10;
+                                              totalRecupSec += (parseInt(act.series) || 0) * (reps * 3 + recMin * 60);
+                                              actCount++;
+                                            });
+                                          });
+                                          if (totalRecupSec > 0) return +(totalSeries / (totalRecupSec / 60)).toFixed(2);
+                                        }
+                                        // Fallback: series/duration
+                                        const dur = session.duration || 60;
+                                        return dur > 0 ? +(20 / dur).toFixed(2) : 0;
+                                      })();
 
                                       // Calculate actual date if micro has startDate
                                       const dayOffsets = {'Lun':0,'Mar':1,'Mie':2,'Jue':3,'Vie':4,'Sab':5,'Dom':6};
@@ -2347,7 +2369,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           const mesoLoad = meso.type?.loadFactor || 1;
           (meso.microcycles || []).forEach(micro => {
             const sessions = micro.sessions || [];
-            let realVol = 0, realInt = 0, actCount = 0;
+            let realVol = 0, realInt = 0, actCount = 0, totalSeries = 0, totalTimeSec = 0;
             sessions.forEach(ses => {
               const sd = ses.sessionData || ses.detailed_data;
               if (sd?.fases) {
@@ -2355,6 +2377,11 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                   (fase.actividades || []).forEach(act => {
                     realVol += parseFloat(act.volumen) || 0;
                     realInt += parseFloat(act.intensidad) || 0;
+                    const s = parseInt(act.series) || 0;
+                    totalSeries += s;
+                    const r = parseInt(act.repeticiones) || 10;
+                    const rec = parseFloat(act.recuperacion) || 2;
+                    totalTimeSec += s * (r * 3 + rec * 60);
                     actCount++;
                   });
                 });
@@ -2362,7 +2389,9 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
             });
             const vol = actCount > 0 ? Math.min(Math.round(realVol / actCount), 100) : Math.round(baseVol * mesoLoad * (0.9 + Math.random() * 0.2));
             const int = actCount > 0 ? Math.min(Math.round(realInt / actCount), 100) : Math.round(baseInt * (0.9 + Math.random() * 0.15));
-            const den = Math.round((vol * 0.3 + int * 0.3 + baseDen * 0.4));
+            // Density: series/min normalized to 0-100 scale (0.5 ser/min = 100)
+            const denRaw = totalTimeSec > 0 ? totalSeries / (totalTimeSec / 60) : 0;
+            const den = denRaw > 0 ? Math.min(Math.round(denRaw * 200), 100) : Math.round((vol * 0.3 + int * 0.3 + baseDen * 0.4));
             const carga = Math.round(vol * int / 100);
             chartData.push({ semana: `S${weekNum}`, volumen: Math.min(vol, 100), intensidad: Math.min(int, 100), densidad: Math.min(den, 100), carga, fase: phase.name, color: phase.color });
             weekNum++;
@@ -2375,7 +2404,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           const deload = (w + 1) % 4 === 0;
           const vol = deload ? Math.round(baseVol * 0.55) : Math.round(baseVol + wave - progress * 10);
           const int = deload ? Math.round(baseInt * 0.6) : Math.round(baseInt + progress * 12 + wave * 0.3);
-          const den = Math.round((vol * 0.35 + int * 0.35 + baseDen * 0.3));
+          // Synthetic density: higher vol & lower rest = higher density
+          const den = deload ? Math.round(baseDen * 0.5) : Math.round(baseDen + (vol - baseVol) * 0.3 + wave * 0.5);
           const carga = Math.round(vol * int / 100);
           chartData.push({ semana: `S${weekNum}`, volumen: Math.min(Math.max(vol, 15), 100), intensidad: Math.min(Math.max(int, 15), 100), densidad: Math.min(Math.max(den, 10), 100), carga: Math.min(carga, 100), fase: phase.name, color: phase.color });
           weekNum++;
