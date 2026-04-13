@@ -30,7 +30,7 @@ const usePlanStore = create((set, get) => ({
   // ============ HELPERS ============
   _getToken: () => {
     try {
-      const stored = localStorage.getItem('token');
+      const stored = localStorage.getItem('train_token') || localStorage.getItem('token');
       return stored || '';
     } catch { return ''; }
   },
@@ -39,6 +39,51 @@ const usePlanStore = create((set, get) => ({
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${get()._getToken()}`
   }),
+
+  // ============ SYNC V1 → V2 ============
+
+  syncFromV1: async (v1PlanId) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await fetch(`${API}/api/v2/sync-from-v1/${v1PlanId}`, {
+        method: 'POST',
+        headers: get()._headers()
+      });
+      if (!res.ok) {
+        set({ loading: false });
+        return null;
+      }
+      const data = await res.json();
+
+      if (data.plan_id) {
+        await get().cargarPlanCompleto(data.plan_id);
+      }
+
+      set({ loading: false });
+      return data;
+    } catch (err) {
+      set({ error: err.message, loading: false });
+      return null;
+    }
+  },
+
+  // Get V2 metrics for a specific entity
+  getV2Metrics: (nivel, id) => {
+    const state = get();
+    const collections = {
+      macro: state.macrociclos,
+      meso: state.mesociclos,
+      micro: state.microciclos,
+      sesion: state.sesiones,
+    };
+    const items = collections[nivel] || [];
+    return items.find(i => i.id === id) || null;
+  },
+
+  // Get V2 metrics keyed by V1 session id
+  getV2MicroByWeek: (weekNum) => {
+    return get().microciclos.find(m => m.numero_semana === weekNum) || null;
+  },
 
   // ============ CARGAR PLAN COMPLETO ============
   cargarPlanCompleto: async (planId) => {

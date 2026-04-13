@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import InteractiveChart from './InteractiveChart';
+import usePlanStore from '../stores/planStore';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
@@ -242,6 +243,44 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
   // Get token helper
   const getToken = () => localStorage.getItem('train_token');
+
+  // V2 Cascade Store
+  const v2Store = usePlanStore();
+  const v2Alertas = v2Store.alertas || [];
+  const v2Metricas = v2Store.metricas || {};
+  const v2Macros = v2Store.macrociclos || [];
+  const v2Mesos = v2Store.mesociclos || [];
+  const v2Micros = v2Store.microciclos || [];
+  const v2Sesiones = v2Store.sesiones || [];
+  const v2Loading = v2Store.loading;
+
+  // Sync V1 plan to V2 when a plan is selected
+  useEffect(() => {
+    if (selectedPlan?.apiId && activeView === 'detail') {
+      v2Store.syncFromV1(selectedPlan.apiId);
+    }
+  }, [selectedPlan?.apiId, activeView]);
+
+  // Helper: get V2 macro metrics by index
+  const getV2MacroMetrics = (macroIdx) => {
+    return v2Macros[macroIdx] || null;
+  };
+
+  // Helper: get V2 meso metrics
+  const getV2MesoMetrics = (macroIdx, mesoIdx) => {
+    const macro = v2Macros[macroIdx];
+    if (!macro) return null;
+    const mesos = v2Mesos.filter(m => m.macrociclo_id === macro.id);
+    return mesos[mesoIdx] || null;
+  };
+
+  // Helper: get V2 micro metrics
+  const getV2MicroMetrics = (macroIdx, mesoIdx, microIdx) => {
+    const meso = getV2MesoMetrics(macroIdx, mesoIdx);
+    if (!meso) return null;
+    const micros = v2Micros.filter(m => m.mesociclo_id === meso.id);
+    return micros[microIdx] || null;
+  };
 
   // Load sports catalog (static + user's custom sports)
   useEffect(() => {
@@ -535,6 +574,10 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     // Persist to backend
     try {
       await savePlanToAPI(updatedPlan);
+      // Trigger V2 cascade re-sync
+      if (updatedPlan.apiId) {
+        v2Store.syncFromV1(updatedPlan.apiId);
+      }
     } catch (e) {
       console.error('Error saving session to API:', e);
     }
@@ -848,6 +891,11 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     setPlans(prev => prev.map(p => p.id === savedPlan.id ? savedPlan : p));
     setSelectedPlan(savedPlan);
     toast.success('Plan guardado exitosamente');
+    
+    // Re-sync V2 cascade
+    if (savedPlan.apiId) {
+      v2Store.syncFromV1(savedPlan.apiId);
+    }
   };
 
   const handleDeletePlan = async (planId) => {
@@ -1625,6 +1673,20 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                       <div className="text-[10px] mt-0.5" style={{ color: s.c }}>{s.l}</div>
                     </div>
                   ))}
+                  {/* V2 Cascade Metrics */}
+                  {v2Metricas.total_sesiones > 0 && (
+                    <>
+                      <div className="w-px h-8 bg-slate-700 mx-1" />
+                      <div>
+                        <div className="text-xl font-black text-white leading-none" style={{ fontFamily: BC }}>{v2Metricas.tonelaje_global_kg ? `${(v2Metricas.tonelaje_global_kg / 1000).toFixed(1)}t` : '0'}</div>
+                        <div className="text-[10px] mt-0.5 text-orange-400">Tonelaje</div>
+                      </div>
+                      <div>
+                        <div className="text-xl font-black text-white leading-none" style={{ fontFamily: BC }}>{Math.round(v2Metricas.progreso_global || 0)}%</div>
+                        <div className="text-[10px] mt-0.5 text-emerald-400">Progreso</div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="flex gap-2">
@@ -1649,6 +1711,33 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
             )}
           </div>
         </div>
+
+        {/* V2 Cascade Alerts Panel */}
+        {v2Alertas.length > 0 && (
+          <div className="rounded-xl border overflow-hidden" data-testid="v2-alerts-panel" style={{ borderColor: v2Alertas.some(a => a.severidad === 'error') ? '#FCA5A5' : '#FDE68A' }}>
+            <div className="px-4 py-2.5 flex items-center justify-between" style={{ background: v2Alertas.some(a => a.severidad === 'error') ? '#FEF2F2' : '#FFFBEB' }}>
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4" style={{ color: v2Alertas.some(a => a.severidad === 'error') ? '#EF4444' : '#F59E0B' }} />
+                <span className="text-[12px] font-bold" style={{ color: v2Alertas.some(a => a.severidad === 'error') ? '#991B1B' : '#92400E' }}>
+                  {v2Alertas.length} alerta{v2Alertas.length !== 1 ? 's' : ''} del motor de cascada
+                </span>
+              </div>
+              <span className="text-[10px] font-medium text-slate-400">V2 Auto-calculado</span>
+            </div>
+            <div className="px-4 py-2 space-y-1 max-h-[120px] overflow-y-auto bg-white">
+              {v2Alertas.slice(0, 8).map((alerta, i) => (
+                <div key={i} className="flex items-center gap-2 text-[11px]">
+                  <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: alerta.severidad === 'error' ? '#EF4444' : '#F59E0B' }} />
+                  <span className="text-slate-600">{alerta.mensaje}</span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-400 flex-shrink-0">{alerta.nivel}</span>
+                </div>
+              ))}
+              {v2Alertas.length > 8 && (
+                <div className="text-[10px] text-slate-400 font-medium pl-4">+{v2Alertas.length - 8} mas...</div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* View Mode Tabs - Floating Round Style */}
         <div className="flex items-start gap-4 pt-2" data-testid="view-mode-tabs">
@@ -1679,8 +1768,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
   const renderStructureView = () => {
     const BC = "'Barlow Condensed', sans-serif";
     const totalWeeks = selectedPlan.totalWeeks || 0;
-    const completedWeeks = 0; // TODO: track from actual data
-    const progressPct = totalWeeks > 0 ? Math.round((completedWeeks / totalWeeks) * 100) : 0;
+    const v2Progress = v2Metricas.progreso_global || 0;
+    const progressPct = totalWeeks > 0 ? Math.round(v2Progress) : 0;
 
     // Helpers
     const IntensityBadge = ({ level, size = 'sm' }) => {
@@ -1774,23 +1863,43 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
               </div>
 
               {/* Metric pills */}
-              <div className="flex items-center gap-3 mt-3 ml-[60px]">
+              {(() => {
+                const v2m = getV2MacroMetrics(macroIdx);
+                const macroACWR = v2m?.ACWR || 0;
+                const macroCarga = v2m?.carga_total || 0;
+                const macroProgreso = v2m?.progreso_porcentaje || 0;
+                return (
+              <div className="flex items-center gap-2.5 mt-3 ml-[60px] flex-wrap">
                 <div className="flex items-center gap-1.5 bg-blue-50 px-2.5 py-1 rounded-lg">
                   <span className="text-[10px] text-blue-400">Vol</span>
-                  <div className="w-12"><MiniBar value={vol} color="#3B82F6" /></div>
-                  <span className="text-[11px] font-bold text-blue-600">{vol}%</span>
+                  <div className="w-12"><MiniBar value={v2m?.vol_calculado || vol} color="#3B82F6" /></div>
+                  <span className="text-[11px] font-bold text-blue-600">{v2m?.vol_calculado ? v2m.vol_calculado.toFixed(0) : vol}%</span>
                 </div>
                 <div className="flex items-center gap-1.5 bg-red-50 px-2.5 py-1 rounded-lg">
                   <span className="text-[10px] text-red-400">Int</span>
-                  <div className="w-12"><MiniBar value={inten} color="#EF4444" /></div>
-                  <span className="text-[11px] font-bold text-red-600">{inten}%</span>
+                  <div className="w-12"><MiniBar value={v2m?.int_calculado || inten} color="#EF4444" /></div>
+                  <span className="text-[11px] font-bold text-red-600">{v2m?.int_calculado ? v2m.int_calculado.toFixed(0) : inten}%</span>
                 </div>
+                {macroACWR > 0 && (
+                  <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg ${macroACWR > 1.5 ? 'bg-red-50' : macroACWR < 0.8 ? 'bg-amber-50' : 'bg-emerald-50'}`}>
+                    <span className="text-[10px]" style={{ color: macroACWR > 1.5 ? '#EF4444' : macroACWR < 0.8 ? '#F59E0B' : '#10B981' }}>ACWR</span>
+                    <span className="text-[11px] font-bold" style={{ color: macroACWR > 1.5 ? '#EF4444' : macroACWR < 0.8 ? '#F59E0B' : '#10B981' }}>{macroACWR.toFixed(2)}</span>
+                  </div>
+                )}
+                {macroCarga > 0 && (
+                  <div className="flex items-center gap-1.5 bg-violet-50 px-2.5 py-1 rounded-lg">
+                    <span className="text-[10px] text-violet-400">Carga</span>
+                    <span className="text-[11px] font-bold text-violet-600">{macroCarga.toFixed(0)} UA</span>
+                  </div>
+                )}
                 <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg">
                   <span className="text-[10px] text-slate-400">Progreso</span>
-                  <div className="w-10"><MiniBar value={progressPct} color="#10B981" /></div>
-                  <span className="text-[11px] font-bold text-slate-600">{progressPct}%</span>
+                  <div className="w-10"><MiniBar value={macroProgreso} color="#10B981" /></div>
+                  <span className="text-[11px] font-bold text-slate-600">{Math.round(macroProgreso)}%</span>
                 </div>
               </div>
+                );
+              })()}
             </div>
           </div>
 
@@ -1837,6 +1946,18 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                               <div className="w-8"><MiniBar value={mesoLoad * 100} color={mesoColor} h="h-1" /></div>
                               <span className="text-[10px] font-semibold" style={{ color: mesoColor }}>{Math.round(mesoLoad * 100)}%</span>
                             </div>
+                            {/* V2 Cascade Metrics */}
+                            {(() => {
+                              const v2m = getV2MesoMetrics(macroIdx, mesoIdx);
+                              if (!v2m || !v2m.carga_total) return null;
+                              return (
+                                <>
+                                  {v2m.tonelaje_kg > 0 && <span className="text-[10px] text-orange-500 font-semibold">{(v2m.tonelaje_kg / 1000).toFixed(1)}t</span>}
+                                  {v2m.ACWR > 0 && <span className={`text-[10px] font-bold ${v2m.ACWR > 1.5 ? 'text-red-500' : v2m.ACWR < 0.8 ? 'text-amber-500' : 'text-emerald-500'}`}>ACWR:{v2m.ACWR.toFixed(2)}</span>}
+                                  {v2m.RPE_promedio > 0 && <span className="text-[10px] text-slate-500">RPE:{v2m.RPE_promedio.toFixed(1)}</span>}
+                                </>
+                              );
+                            })()}
                           </div>
                           <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-blue-600" onClick={() => handleEditMesocycle(meso, macroIdx, mesoIdx)}><Edit2 className="w-3 h-3" /></Button>
                           <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-red-500" onClick={() => handleDeleteMesocycle(macroIdx, mesoIdx)}><Trash2 className="w-3 h-3" /></Button>
@@ -2127,6 +2248,14 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                     </div>
                                     {totalLoad > 0 && <span className="text-slate-500 font-medium">UA:{totalLoad}</span>}
                                     <span className="text-slate-400">RPE:<span className="font-semibold text-slate-600">{avgRPE}</span></span>
+                                    {/* V2 ACWR badge */}
+                                    {(() => {
+                                      const v2mic = getV2MicroMetrics(macroIdx, mesoIdx, microIdx);
+                                      if (!v2mic || !v2mic.ACWR) return null;
+                                      const acwr = v2mic.ACWR;
+                                      const acwrColor = acwr > 1.5 ? '#EF4444' : acwr < 0.8 ? '#F59E0B' : '#10B981';
+                                      return <span className="font-bold px-1.5 py-0.5 rounded" style={{ color: acwrColor, backgroundColor: acwrColor + '15' }}>ACWR:{acwr.toFixed(2)}</span>;
+                                    })()}
                                     <span className="font-semibold" style={{color: completedSessions > 0 ? '#10b981' : '#94a3b8'}}>{completedSessions}/{sessions.length}</span>
                                   </div>
                                   <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg" onClick={() => handleEditMicrocycle(micro, macroIdx, mesoIdx, microIdx)} title="Editar"><Edit2 className="w-3.5 h-3.5" /></Button>

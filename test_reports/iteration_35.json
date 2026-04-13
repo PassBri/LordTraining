@@ -1,0 +1,83 @@
+{
+  "summary": "Comprehensive testing of V2 Sync from V1 API and Frontend Integration. Backend: 10/10 tests passed (100%). Frontend: V2 cascade integration working correctly - plan header shows Tonelaje/Progreso metrics, macrocycle cards show Vol/Int metrics, mesocycle expansion works with MEV/MAV/MRV chart.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Periodización Estructura", "issues": ["Minor hydration warnings in console (React SSR related, not critical)"]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_v2_sync.py",
+    "/app/test_reports/pytest/v2_sync_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "V2 sync-from-v1 endpoint correctly converts V1 nested plans to V2 normalized collections",
+    "Sync is idempotent - calling twice returns already_existed=true with same plan_id",
+    "Frontend PeriodizationComplete.js correctly imports usePlanStore and syncs on plan load",
+    "V2 metrics (Tonelaje, Progreso) display in plan header when total_sesiones > 0",
+    "Macrocycle cards show Vol/Int metrics from V2 cascade data",
+    "Mesocycle expansion shows MEV/MAV/MRV projection chart",
+    "Tonelaje is 0 for TEST Plan Fútbol ATR because V1 plan lacks detailed exercise data (series/reps) - this is expected behavior"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_v2_sync.py"
+  ],
+  "success_rate": {
+    "backend": "100% (10/10 tests passed)",
+    "frontend": "100% (all V2 integration features working)"
+  },
+  "test_credentials": "email: test@train.com, password: test123456",
+  "seed_data_creation": "V2 seeded plan 'ATR Futbol Pre-temporada' exists with tonelaje=23610kg. TEST Plan Fútbol ATR synced to V2 with plan_id=f402f29b-99d0-4543-8da3-a8f68918330b",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "V2 sync-from-v1 endpoint tested and working. Frontend V2 integration via Zustand store (planStore.js) is functional. The TEST Plan Fútbol ATR shows 0 tonelaje because V1 plan doesn't have detailed_data.fases with exercise series/reps. The seeded V2 plan 'ATR Futbol Pre-temporada' has real data with tonelaje=23610kg. Test file at /app/backend/tests/test_v2_sync.py can be reused for regression testing.",
+  "tests_executed": {
+    "Backend": {
+      "TestV2SyncSetup": {
+        "test_health_check": "PASSED - V1 health endpoint working",
+        "test_login_success": "PASSED - Authentication working"
+      },
+      "TestV1Compatibility": {
+        "test_v1_training_plans_list": "PASSED - V1 /api/training-plans returns 6 plans"
+      },
+      "TestV2SyncFromV1": {
+        "test_sync_v1_to_v2": "PASSED - Synced TEST Plan Fútbol ATR to V2",
+        "test_sync_idempotent": "PASSED - Second sync returns already_existed=true",
+        "test_sync_invalid_plan_404": "PASSED - Non-existent plan returns 404"
+      },
+      "TestV2PlanCompleto": {
+        "test_get_plan_completo": "PASSED - Returns full tree with 3 macros, 3 mesos, 11 micros",
+        "test_macrociclo_has_v2_fields": "PASSED - Macros have vol_calculado, int_calculado, carga_total, ACWR, progreso_porcentaje"
+      },
+      "TestV2Alertas": {
+        "test_get_alertas": "PASSED - Returns alerts list (0 alerts for this plan)"
+      },
+      "TestV2Metricas": {
+        "test_get_metricas": "PASSED - Returns resumen and niveles with macro/meso metrics"
+      }
+    },
+    "Frontend": {
+      "Login": "PASSED - Login with test@train.com works",
+      "Navigation": "PASSED - Navigate to Periodización > Estructura view",
+      "V2_Metrics_Header": "PASSED - Tonelaje and Progreso visible in plan header",
+      "Macrocycle_Cards": "PASSED - 3 macrocycle cards with Vol/Int metrics",
+      "Mesocycle_Expansion": "PASSED - Mesocycle expands to show MEV/MAV/MRV chart",
+      "Console_Errors": "PASSED - Only minor hydration warnings (not critical)"
+    }
+  },
+  "endpoints_verified": [
+    "POST /api/v2/sync-from-v1/{v1_plan_id} - ✓ Sync V1 plan to V2 collections",
+    "POST /api/v2/sync-from-v1/{v1_plan_id} (repeat) - ✓ Returns already_existed=true",
+    "GET /api/v2/planes/{v2_id}/completo - ✓ Full tree with metrics",
+    "GET /api/v2/planes/{v2_id}/alertas - ✓ Alerts list",
+    "GET /api/v2/planes/{v2_id}/metricas - ✓ Aggregated metrics",
+    "GET /api/health - ✓ V1 health check",
+    "GET /api/training-plans - ✓ V1 training plans list"
+  ]
+}

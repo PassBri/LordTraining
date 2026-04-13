@@ -654,6 +654,257 @@ async def get_historico(atleta_id: str, request: Request, dias: int = 28, user: 
     return {"cargas": cargas, "dias": dias}
 
 
+# ============ SYNC V1 → V2 ============
+
+@router.post("/sync-from-v1/{v1_plan_id}")
+async def sync_v1_to_v2(v1_plan_id: str, request: Request, user: dict = Depends(get_current_user)):
+    """
+    Convierte un plan V1 (training_plans con nested macrocycles) en colecciones V2 normalizadas.
+    Si ya existe sincronizacion, retorna el plan_id V2 existente.
+    """
+    db = get_db(request)
+
+    v1_plan = await db.training_plans.find_one(
+        {"id": v1_plan_id, "coach_id": user["id"]}, {"_id": 0}
+    )
+    if not v1_plan:
+        raise HTTPException(404, "Plan V1 no encontrado")
+
+    # Check if already synced
+    existing = await db.planes_entrenamiento.find_one(
+        {"_v1_id": v1_plan_id, "coach_id": user["id"]}, {"_id": 0}
+    )
+    if existing:
+        # Re-calculate metrics and return
+        metricas = await calcular_metricas_plan(db, existing["id"])
+        alertas = await validar_cambio_completo(db, existing["id"])
+        return {
+            "synced": True,
+            "plan_id": existing["id"],
+            "v1_id": v1_plan_id,
+            "already_existed": True,
+            "metricas": metricas,
+            "alertas": alertas
+        }
+
+    # Create V2 plan
+    plan_id = _gen_id()
+    plan_doc = {
+        "id": plan_id,
+        "coach_id": user["id"],
+        "_v1_id": v1_plan_id,
+        "nombre": v1_plan.get("name", "Plan"),
+        "modelo_periodizacion": v1_plan.get("model", "atr"),
+        "deporte": v1_plan.get("sport", "other"),
+        "atleta_id": v1_plan.get("athlete_id"),
+        "duracion_semanas": v1_plan.get("total_weeks", 52),
+        "fecha_inicio": v1_plan.get("start_date", _now()),
+        "fecha_competicion": v1_plan.get("main_competition_date"),
+        "created_at": _now(),
+        "updated_at": _now()
+    }
+    await db.planes_entrenamiento.insert_one(plan_doc)
+
+    stats = {"macros": 0, "mesos": 0, "micros": 0, "sesiones": 0, "ejercicios": 0}
+    abs_week = 0
+
+    for macro_data in v1_plan.get("macrocycles", []):
+        macro_id = _gen_id()
+        macro_start = macro_data.get("start_date", v1_plan.get("start_date", ""))
+        macro_end = macro_data.get("end_date", "")
+        phase_id = macro_data.get("phase", "prep_general")
+        if isinstance(phase_id, dict):
+            phase_id = phase_id.get("id", "prep_general")
+
+        macro_doc = {
+            "id": macro_id,
+            "plan_id": plan_id,
+            "nombre": macro_data.get("name", "Macrociclo"),
+            "tipo": phase_id,
+            "color": _phase_color(phase_id),
+            "orden": stats["macros"],
+            "duracion_semanas": macro_data.get("weeks", 4),
+            "fecha_inicio": macro_start,
+            "fecha_fin": macro_end,
+            "vol_objetivo": macro_data.get("volume_percent"),
+            "int_objetivo": macro_data.get("intensity_percent"),
+            "den_objetivo": None,
+            "vol_calculado": 0, "int_calculado": 0,
+            "carga_total": 0, "ACWR": 0, "RPE_promedio": 0,
+            "alerta": None, "progreso_porcentaje": 0
+        }
+        await db.macrociclos_v2.insert_one(macro_doc)
+        stats["macros"] += 1
+
+        for meso_data in macro_data.get("mesocycles", []):
+            meso_id = _gen_id()
+            meso_type = meso_data.get("type", "basico_desarrollador")
+            if isinstance(meso_type, dict):
+                meso_type = meso_type.get("id", "basico_desarrollador")
+            n_micros = len(meso_data.get("microcycles", []))
+
+            meso_doc = {
+                "id": meso_id,
+                "macrociclo_id": macro_id,
+                "nombre": meso_data.get("name", "Mesociclo"),
+                "tipo": meso_type,
+                "orden": stats["mesos"],
+                "duracion_semanas": meso_data.get("weeks", n_micros or 4),
+                "semana_descarga": n_micros if n_micros > 0 else None,
+                "reduccion_descarga": 0.4,
+                "vol_objetivo": meso_data.get("volume_percent"),
+                "int_objetivo": meso_data.get("intensity_percent"),
+                "den_objetivo": None,
+                "vol_calculado": 0, "int_calculado": 0, "den_calculado": 0,
+                "carga_total": 0, "ACWR": 0, "tonelaje_kg": 0, "RPE_promedio": 0
+            }
+            await db.mesociclos_v2.insert_one(meso_doc)
+            stats["mesos"] += 1
+
+            for micro_data in meso_data.get("microcycles", []):
+                micro_id = _gen_id()
+                abs_week += 1
+                micro_type = micro_data.get("type", "corriente")
+                if isinstance(micro_type, dict):
+                    micro_type = micro_type.get("id", "corriente")
+
+                micro_doc = {
+                    "id": micro_id,
+                    "mesociclo_id": meso_id,
+                    "numero_semana": abs_week,
+                    "tipo": micro_type,
+                    "fecha_inicio": micro_data.get("startDate"),
+                    "fecha_fin": None,
+                    "vol_calculado": 0, "int_calculado": 0, "den_calculado": 0,
+                    "carga_total": 0, "carga_aguda": 0, "carga_cronica": 0,
+                    "ACWR": 0, "tonelaje_kg": 0, "RPE_promedio": 0
+                }
+                await db.microciclos_v2.insert_one(micro_doc)
+                stats["micros"] += 1
+
+                for ses_data in micro_data.get("sessions", []):
+                    sesion_id = _gen_id()
+                    dur = ses_data.get("duration_minutes") or ses_data.get("duration") or 60
+                    rpe = ses_data.get("rpe") or ses_data.get("RPE_sesion") or 0
+                    intensity_str = ses_data.get("intensity", "medium")
+                    if isinstance(intensity_str, str):
+                        rpe = rpe or {"high": 8, "medium": 6, "low": 4}.get(intensity_str, 6)
+
+                    sesion_doc = {
+                        "id": sesion_id,
+                        "microciclo_id": micro_id,
+                        "nombre": ses_data.get("name") or ses_data.get("dayName") or "Sesion",
+                        "fecha": ses_data.get("date"),
+                        "orden_dia": ses_data.get("day") or 1,
+                        "duracion_minutos": dur,
+                        "RPE_sesion": float(rpe),
+                        "carga_sesion": round(float(rpe) * dur, 2),
+                        "vol_calculado": 0, "int_calculado": 0, "den_calculado": 0,
+                        "fc_media": None, "fc_max_alcanzada": None,
+                        "TRIMP": 0, "tonelaje": 0,
+                        "notas": ses_data.get("notes"),
+                        "completada": ses_data.get("status") == "completed",
+                        "_v1_session_id": ses_data.get("id")
+                    }
+                    await db.sesiones_v2.insert_one(sesion_doc)
+                    stats["sesiones"] += 1
+
+                    # Extract exercises from detailed_data
+                    detailed = ses_data.get("detailed_data") or ses_data.get("sessionData") or {}
+                    fases = detailed.get("fases", {})
+                    ej_order = 0
+                    for fase_key, fase_val in fases.items():
+                        for act in fase_val.get("actividades", []):
+                            ej_id = _gen_id()
+                            series = int(act.get("series", 0) or 0)
+                            reps = int(act.get("repeticiones", 0) or 0)
+                            peso = float(act.get("peso", 0) or act.get("peso_kg", 0) or 0)
+                            p1rm = float(act.get("intensidad", 0) or 0)
+                            rpe_ej = float(act.get("rpe", 0) or act.get("RPE_ejercicio", 0) or 0)
+                            descanso = int(float(act.get("recuperacion", 2) or 2) * 60)
+
+                            cap_tipo = _detect_capacity(act)
+
+                            ej_doc = {
+                                "id": ej_id,
+                                "sesion_id": sesion_id,
+                                "ejercicio_base_id": None,
+                                "nombre": act.get("nombre") or act.get("name") or f"Ejercicio {ej_order + 1}",
+                                "orden": ej_order,
+                                "capacidad_tipo": cap_tipo,
+                                "series": series,
+                                "repeticiones": reps,
+                                "peso_kg": peso,
+                                "porcentaje_1RM": p1rm,
+                                "RPE_ejercicio": rpe_ej,
+                                "descanso_seg": descanso,
+                                "tiempo_bajo_tension": 0,
+                                "velocidad_ejecucion": None,
+                                "ROM": None,
+                                "complejidad_coord": None,
+                                "tonelaje_calculado": round(series * reps * peso, 2),
+                                "vol_relativo": round(series * reps, 2)
+                            }
+                            await db.ejercicios_sesion.insert_one(ej_doc)
+                            stats["ejercicios"] += 1
+                            ej_order += 1
+
+    # Run full cascade propagation for all macros
+    macros = await db.macrociclos_v2.find({"plan_id": plan_id}, {"_id": 0}).to_list(50)
+    for macro in macros:
+        await propagar_cambio(db, "macro", macro["id"])
+
+    metricas = await calcular_metricas_plan(db, plan_id)
+    alertas = await validar_cambio_completo(db, plan_id)
+
+    return {
+        "synced": True,
+        "plan_id": plan_id,
+        "v1_id": v1_plan_id,
+        "already_existed": False,
+        "stats": stats,
+        "metricas": metricas,
+        "alertas": alertas
+    }
+
+
+def _phase_color(phase_id: str) -> str:
+    colors = {
+        "prep_general": "#3B82F6", "prep_specific": "#8B5CF6",
+        "precompetitive": "#F59E0B", "competitive": "#10B981",
+        "transition": "#6B7280", "accumulation": "#3B82F6",
+        "transformation": "#F59E0B", "realization": "#10B981",
+        "recovery": "#6B7280"
+    }
+    return colors.get(phase_id, "#3B82F6")
+
+
+def _detect_capacity(act: dict) -> str:
+    """Detect capacity type from activity data"""
+    nombre = (act.get("nombre") or act.get("name") or "").lower()
+    tipo = (act.get("capacidad_tipo") or act.get("tipo") or "").lower()
+
+    if tipo and tipo in ["fuerza_maxima", "fuerza_explosiva", "fuerza_resistencia",
+                         "resistencia_aerobica", "resistencia_anaerobica",
+                         "velocidad", "flexibilidad", "coordinacion", "potencia"]:
+        return tipo
+
+    if any(w in nombre for w in ["sentadilla", "press", "peso muerto", "remo", "curl", "fuerza"]):
+        return "fuerza_maxima"
+    if any(w in nombre for w in ["sprint", "velocidad", "agilidad"]):
+        return "velocidad"
+    if any(w in nombre for w in ["carrera", "aerob", "continua", "trote", "cardio"]):
+        return "resistencia_aerobica"
+    if any(w in nombre for w in ["salto", "pliom", "potencia", "explosiv"]):
+        return "fuerza_explosiva"
+    if any(w in nombre for w in ["estir", "flex", "movil"]):
+        return "flexibilidad"
+    if any(w in nombre for w in ["coord", "equilib", "tecnic"]):
+        return "coordinacion"
+
+    return "fuerza_maxima"
+
+
 # ============ SEED ENDPOINT ============
 
 @router.post("/seed")
