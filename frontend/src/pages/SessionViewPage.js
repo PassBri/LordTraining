@@ -222,9 +222,10 @@ const SessionViewPage = () => {
                               {act.procOrganizativo && <div className="text-[10px]"><span style={{color:T.subtle}}>Org: </span><span style={{color:T.text}}>{ORG[act.procOrganizativo] || act.procOrganizativo}</span></div>}
                             </div>
                             {act.materiales?.length > 0 && (
-                              <div className="flex flex-wrap gap-1 mt-2">
+                              <div className="flex flex-wrap items-center gap-1.5 mt-2.5 pt-2" style={{borderTop:`1px solid ${T.cellBorder}`}}>
+                                <span className="text-[8px] font-bold uppercase tracking-wider mr-0.5" style={{color:T.subtle}}>Materiales:</span>
                                 {act.materiales.map((m, mi) => (
-                                  <span key={mi} className="text-[8px] px-1.5 py-0.5 rounded-full" style={{background: isLight ? 'rgba(168,85,247,0.08)' : 'rgba(168,85,247,0.1)',color: isLight ? '#7c3aed' : 'rgba(168,85,247,0.7)',border:`1px solid ${isLight ? 'rgba(168,85,247,0.15)' : 'rgba(168,85,247,0.15)'}`}}>{m}</span>
+                                  <span key={mi} className="text-[9px] font-medium px-2 py-0.5 rounded-md" style={{background: isLight ? 'rgba(168,85,247,0.08)' : 'rgba(168,85,247,0.12)',color: isLight ? '#7c3aed' : 'rgba(168,85,247,0.8)',border:`1px solid ${isLight ? 'rgba(168,85,247,0.15)' : 'rgba(168,85,247,0.2)'}`}}>{m}</span>
                                 ))}
                               </div>
                             )}

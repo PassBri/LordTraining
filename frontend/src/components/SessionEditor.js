@@ -710,8 +710,20 @@ const SessionEditor = ({
                 <div>
                   <div className="flex flex-wrap gap-1.5 mb-2">
                     {actMateriales.map((mat, mi) => (
-                      <span key={mi} className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-lg" style={{background:'rgba(168,85,247,0.08)',color:'#7c3aed',border:'1px solid rgba(168,85,247,0.15)'}}>
-                        {mat}<button onClick={() => { const nm=[...actMateriales]; nm.splice(mi,1); updateActividad(faseKey, idx, 'materiales', nm); }} className="hover:text-red-500 ml-0.5 transition-colors"><X className="w-3 h-3" /></button>
+                      <span key={mi} className="group inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-lg cursor-pointer" style={{background:'rgba(168,85,247,0.08)',color:'#7c3aed',border:'1px solid rgba(168,85,247,0.15)'}}
+                        onClick={() => {
+                          const nuevoNombre = prompt('Editar material:', mat);
+                          if (nuevoNombre && nuevoNombre.trim() && nuevoNombre.trim() !== mat) {
+                            const nm = [...actMateriales];
+                            nm[mi] = nuevoNombre.trim();
+                            updateActividad(faseKey, idx, 'materiales', nm);
+                          }
+                        }}
+                        title="Clic para editar"
+                        data-testid={`material-tag-${faseKey}-${idx}-${mi}`}
+                      >
+                        {mat}
+                        <button onClick={(e) => { e.stopPropagation(); const nm=[...actMateriales]; nm.splice(mi,1); updateActividad(faseKey, idx, 'materiales', nm); }} className="hover:text-red-500 ml-0.5 transition-colors" data-testid={`remove-material-${faseKey}-${idx}-${mi}`}><X className="w-3 h-3" /></button>
                       </span>
                     ))}
                   </div>
@@ -721,18 +733,34 @@ const SessionEditor = ({
                         <Plus className="w-3 h-3" /> Agregar material
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[280px] p-0" align="start" side="bottom">
+                    <PopoverContent className="w-[300px] p-0" align="start" side="bottom">
                       <div className="p-2.5 border-b border-slate-100 bg-slate-50/80">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Materiales disponibles</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Materiales</span>
                       </div>
-                      <div className="max-h-[200px] overflow-y-auto p-2 grid grid-cols-2 gap-1">
+                      <form className="p-2 border-b border-slate-100" onSubmit={(e) => {
+                        e.preventDefault();
+                        const input = e.target.elements.nuevoMaterial;
+                        const val = input.value.trim();
+                        if (val && !actMateriales.includes(val)) {
+                          updateActividad(faseKey, idx, 'materiales', [...actMateriales, val]);
+                          input.value = '';
+                        }
+                      }}>
+                        <div className="flex gap-1.5">
+                          <Input name="nuevoMaterial" placeholder="Nuevo material personalizado..." className="h-7 text-[11px] flex-1" data-testid={`custom-material-input-${faseKey}-${idx}`} />
+                          <Button type="submit" size="sm" className="h-7 px-2.5 text-[10px] bg-purple-600 hover:bg-purple-700 text-white" data-testid={`custom-material-add-${faseKey}-${idx}`}>
+                            <Plus className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </form>
+                      <div className="max-h-[180px] overflow-y-auto p-2 grid grid-cols-2 gap-1">
                         {MATERIALES_DISPONIBLES.filter(m => !actMateriales.includes(m)).map(mat => (
-                          <button key={mat} onClick={() => updateActividad(faseKey, idx, 'materiales', [...actMateriales, mat])} className="text-left text-[11px] px-2.5 py-1.5 rounded-lg text-slate-600 hover:bg-purple-50 hover:text-purple-700 transition-all truncate" style={{fontFamily:DM}}>
+                          <button key={mat} type="button" onClick={() => updateActividad(faseKey, idx, 'materiales', [...actMateriales, mat])} className="text-left text-[11px] px-2.5 py-1.5 rounded-lg text-slate-600 hover:bg-purple-50 hover:text-purple-700 transition-all truncate" style={{fontFamily:DM}}>
                             {mat}
                           </button>
                         ))}
                         {MATERIALES_DISPONIBLES.filter(m => !actMateriales.includes(m)).length === 0 && (
-                          <p className="col-span-2 text-center text-slate-400 py-3 text-xs">Todos los materiales agregados</p>
+                          <p className="col-span-2 text-center text-slate-400 py-3 text-xs">Todos los materiales predefinidos agregados</p>
                         )}
                       </div>
                     </PopoverContent>
