@@ -2050,9 +2050,11 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                             const totalLoad = sessions.reduce((s, se) => s + (se.internalLoad || 0), 0);
                             const completedSessions = sessions.filter(se => se.status === 'completed').length;
                             const avgRPE = sessions.length > 0 ? (sessions.reduce((s, se) => s + (se.rpe || 6), 0) / sessions.length).toFixed(1) : '-';
+                            const DAY_COLORS = {'Lun':'#0891b2','Mar':'#7c3aed','Mie':'#059669','Jue':'#d97706','Vie':'#e11d48','Sab':'#2563eb','Dom':'#64748b','Nueva':'#94a3b8'};
+                            const microStartDate = micro.startDate || null;
 
                             return (
-                            <div key={micro.id} className="rounded-xl overflow-hidden bg-white" style={{border:'1px solid rgba(0,0,0,0.06)',boxShadow:'0 1px 3px rgba(0,0,0,0.04)'}} data-testid={`microcycle-${microKey}`}>
+                            <div key={micro.id} className="rounded-2xl overflow-hidden bg-white" style={{border:'1px solid rgba(0,0,0,0.06)',boxShadow:'0 1px 4px rgba(0,0,0,0.03)'}} data-testid={`microcycle-${microKey}`}>
                               {/* ── Micro Header ── */}
                               <div
                                 className="flex items-center justify-between px-4 py-3 cursor-pointer transition-all"
@@ -2067,6 +2069,23 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                   <div className="flex items-center gap-2.5">
                                     <span className="font-bold text-[13px] text-slate-800" style={{fontFamily:"'DM Sans',sans-serif"}}>{micro.name}</span>
                                     <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ color: microColor, backgroundColor: microColor + '12', border:`1px solid ${microColor}20` }}>{micro.type?.name || '-'}</span>
+                                  </div>
+                                  {/* Date picker inline */}
+                                  <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                                    <input
+                                      type="date"
+                                      value={microStartDate || ''}
+                                      onChange={(e) => {
+                                        const newMacros = [...(selectedPlan?.macrocycles || [])];
+                                        if (newMacros[macroIdx]?.mesocycles?.[mesoIdx]?.microcycles?.[microIdx]) {
+                                          newMacros[macroIdx].mesocycles[mesoIdx].microcycles[microIdx].startDate = e.target.value;
+                                          setSelectedPlan(prev => ({...prev, macrocycles: newMacros}));
+                                        }
+                                      }}
+                                      className="text-[10px] font-medium text-slate-500 border-0 bg-transparent p-0 w-[100px] focus:outline-none cursor-pointer"
+                                      style={{fontFamily:"'DM Sans',sans-serif"}}
+                                    />
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-2.5 shrink-0" onClick={(e) => e.stopPropagation()}>
@@ -2110,113 +2129,114 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                       const sColor = sType?.color || '#94a3b8';
                                       const rpe = session.rpe || 6;
                                       const rpeColor = rpe >= 8 ? '#EF4444' : rpe >= 6 ? '#F59E0B' : '#10B981';
+                                      const dayColor = DAY_COLORS[session.dayName] || '#94a3b8';
                                       const intensityVal = session.intensity === 'high' ? 85 : session.intensity === 'medium' ? 65 : session.intensity === 'low' ? 40 : 50;
                                       const volVal = session.volume || 54;
                                       const densVal = session.duration > 0 ? Math.round((volVal / (session.duration || 60)) * 10) / 10 : 0;
+
+                                      // Calculate actual date if micro has startDate
+                                      const dayOffsets = {'Lun':0,'Mar':1,'Mie':2,'Jue':3,'Vie':4,'Sab':5,'Dom':6};
+                                      let sessionDateStr = '';
+                                      if (microStartDate) {
+                                        const base = new Date(microStartDate + 'T12:00:00');
+                                        const offset = dayOffsets[session.dayName] ?? sIdx;
+                                        base.setDate(base.getDate() + offset);
+                                        sessionDateStr = base.toLocaleDateString('es-ES', {day:'numeric', month:'short'});
+                                      }
 
                                       return (
                                         <div
                                           key={session.id}
                                           className="group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-xl hover:-translate-y-1"
-                                          style={{ background:'white', border:`1.5px solid ${sColor}18`, boxShadow:`0 2px 8px ${sColor}08` }}
+                                          style={{ background:'white', border:`1.5px solid ${dayColor}15`, boxShadow:`0 2px 8px ${dayColor}06` }}
                                           onClick={() => handleEditSession(session, macroIdx, mesoIdx, microIdx, sIdx)}
                                           data-testid={`session-${sIdx}`}
                                         >
-                                          {/* Accent top bar */}
-                                          <div className="h-[3px]" style={{ background:`linear-gradient(90deg, ${sColor}, ${sColor}60)` }} />
+                                          {/* Day color header */}
+                                          <div className="px-3.5 py-2 flex items-center justify-between" style={{background:`linear-gradient(135deg, ${dayColor}08 0%, ${dayColor}03 100%)`}}>
+                                            <div className="flex items-center gap-2">
+                                              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{background:`${dayColor}12`}}>
+                                                <span className="text-[11px] font-black" style={{color: dayColor}}>{session.dayName}</span>
+                                              </div>
+                                              {sessionDateStr && <span className="text-[10px] font-medium text-slate-400">{sessionDateStr}</span>}
+                                            </div>
+                                            <StatusBadge status={session.status || 'planned'} />
+                                          </div>
 
                                           {/* Delete */}
-                                          <div className="absolute top-3 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10" onClick={(e) => e.stopPropagation()}>
+                                          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10" onClick={(e) => e.stopPropagation()}>
                                             <button className="p-1 rounded-lg bg-white shadow-md hover:bg-red-50 border border-slate-100" onClick={() => handleDeleteSession(macroIdx, mesoIdx, microIdx, sIdx)}>
                                               <Trash2 className="w-3 h-3 text-red-400" />
                                             </button>
                                           </div>
 
-                                          <div className="p-3.5">
-                                            {/* Day + Status */}
-                                            <div className="flex items-center justify-between mb-2">
-                                              <span className="font-bold text-[14px] text-slate-800" style={{fontFamily:"'DM Sans',sans-serif"}}>{session.dayName}</span>
-                                              <StatusBadge status={session.status || 'planned'} />
-                                            </div>
-
+                                          <div className="px-3.5 pb-3.5 pt-2">
                                             {/* Type pill */}
-                                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full mb-3" style={{background:`${sColor}0a`, border:`1px solid ${sColor}18`}}>
-                                              <div className="w-2 h-2 rounded-full" style={{background: sColor}} />
-                                              <span className="text-[10px] font-semibold" style={{ color: sColor }}>{sType?.name || '-'}</span>
+                                            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full mb-2.5" style={{background:`${sColor}08`, border:`1px solid ${sColor}15`}}>
+                                              <div className="w-1.5 h-1.5 rounded-full" style={{background: sColor}} />
+                                              <span className="text-[9px] font-bold" style={{ color: sColor }}>{sType?.name || '-'}</span>
                                             </div>
 
                                             {/* Objective */}
-                                            {session.objective && <p className="text-[10px] text-slate-500 mb-3 truncate leading-relaxed">{session.objective}</p>}
+                                            {session.objective && <p className="text-[10px] text-slate-500 mb-2.5 truncate">{session.objective}</p>}
 
-                                            {/* Mini bar chart - visual load profile */}
-                                            <div className="flex items-end gap-[3px] h-[28px] mb-3 px-1">
+                                            {/* Mini sparkline bars */}
+                                            <div className="flex items-end gap-[3px] h-[24px] mb-2.5 px-0.5">
                                               {[
-                                                { val: volVal, color: sColor, label: 'V' },
-                                                { val: intensityVal, color: '#f59e0b', label: 'I' },
-                                                { val: rpe * 10, color: rpeColor, label: 'R' },
-                                                { val: Math.min(densVal * 100, 100), color: '#8b5cf6', label: 'D' }
+                                                { val: volVal, color: dayColor },
+                                                { val: intensityVal, color: '#f59e0b' },
+                                                { val: rpe * 10, color: rpeColor },
+                                                { val: Math.min(densVal * 80, 100), color: '#8b5cf6' }
                                               ].map((bar, bi) => (
-                                                <div key={bi} className="flex-1 flex flex-col items-center gap-[2px]">
-                                                  <div className="w-full rounded-t-sm transition-all" style={{height:`${Math.max(bar.val * 0.26, 3)}px`, background:`linear-gradient(180deg, ${bar.color}90, ${bar.color}40)`, borderRadius:'3px 3px 1px 1px'}} />
-                                                  <span className="text-[6px] font-bold" style={{color: `${bar.color}80`}}>{bar.label}</span>
+                                                <div key={bi} className="flex-1 rounded-t-sm" style={{height:`${Math.max(bar.val * 0.22, 2)}px`, background:`linear-gradient(180deg, ${bar.color}60, ${bar.color}20)`, borderRadius:'2px 2px 0 0'}} />
+                                              ))}
+                                            </div>
+
+                                            {/* Metrics - Material Design elevated cards */}
+                                            <div className="grid grid-cols-3 gap-1.5 mb-2.5">
+                                              {[
+                                                {label:'Dur', val:`${session.duration || 0}`, unit:'m', color: dayColor},
+                                                {label:'Vol', val:`${volVal}`, unit:'%', color: dayColor},
+                                                {label:'RPE', val:`${rpe}`, unit:'', color: rpeColor}
+                                              ].map((m,mi) => (
+                                                <div key={mi} className="text-center rounded-xl py-1.5" style={{background:`${m.color}06`, border:`1px solid ${m.color}10`}}>
+                                                  <div className="text-[7px] font-bold uppercase tracking-wider" style={{color:`${m.color}80`}}>{m.label}</div>
+                                                  <div className="text-[13px] font-black text-slate-700" style={{fontFamily:"'DM Sans',sans-serif"}}>{m.val}<span className="text-[9px] font-normal text-slate-400">{m.unit}</span></div>
                                                 </div>
                                               ))}
                                             </div>
 
-                                            {/* Metrics grid - light elegant style */}
-                                            <div className="grid grid-cols-3 gap-1.5 mb-2.5">
-                                              <div className="text-center rounded-lg py-1.5 px-1" style={{background:`${sColor}06`, border:`1px solid ${sColor}10`}}>
-                                                <div className="text-[7px] font-bold uppercase tracking-wider" style={{color:`${sColor}90`}}>Dur</div>
-                                                <div className="text-[13px] font-black text-slate-700">{session.duration}<span className="text-[9px] font-normal text-slate-400">m</span></div>
+                                            {/* Intensity + Density bars */}
+                                            <div className="space-y-1.5 mb-2.5">
+                                              <div className="flex items-center gap-2">
+                                                <span className="text-[8px] font-bold uppercase tracking-wider w-8 text-amber-500">Int</span>
+                                                <div className="flex-1 h-1.5 rounded-full bg-amber-50 overflow-hidden">
+                                                  <div className="h-full rounded-full" style={{width:`${intensityVal}%`, background:'linear-gradient(90deg, #fde68a, #f59e0b)'}} />
+                                                </div>
+                                                <span className="text-[10px] font-bold text-amber-600 w-8 text-right">{intensityVal}%</span>
                                               </div>
-                                              <div className="text-center rounded-lg py-1.5 px-1" style={{background:`${sColor}06`, border:`1px solid ${sColor}10`}}>
-                                                <div className="text-[7px] font-bold uppercase tracking-wider" style={{color:`${sColor}90`}}>Vol</div>
-                                                <div className="text-[13px] font-black text-slate-700">{volVal}<span className="text-[9px] font-normal text-slate-400">%</span></div>
-                                              </div>
-                                              <div className="text-center rounded-lg py-1.5 px-1" style={{background:`${rpeColor}08`, border:`1px solid ${rpeColor}15`}}>
-                                                <div className="text-[7px] font-bold uppercase tracking-wider" style={{color:`${rpeColor}90`}}>RPE</div>
-                                                <div className="text-[13px] font-black" style={{ color: rpeColor }}>{rpe}</div>
+                                              <div className="flex items-center gap-2">
+                                                <span className="text-[8px] font-bold uppercase tracking-wider w-8 text-violet-500">Den</span>
+                                                <div className="flex-1 h-1.5 rounded-full bg-violet-50 overflow-hidden">
+                                                  <div className="h-full rounded-full" style={{width:`${Math.min(densVal * 50, 100)}%`, background:'linear-gradient(90deg, #c4b5fd, #8b5cf6)'}} />
+                                                </div>
+                                                <span className="text-[10px] font-bold text-violet-600 w-8 text-right">{densVal}</span>
                                               </div>
                                             </div>
 
-                                            {/* Intensity + Density row */}
-                                            <div className="grid grid-cols-2 gap-1.5 mb-2.5">
-                                              <div className="rounded-lg py-1.5 px-2" style={{background:'rgba(245,158,11,0.05)', border:'1px solid rgba(245,158,11,0.1)'}}>
-                                                <div className="text-[7px] font-bold uppercase tracking-wider text-amber-400 mb-0.5">Intensidad</div>
-                                                <div className="flex items-center gap-1.5">
-                                                  <div className="flex-1 h-1.5 rounded-full bg-amber-100 overflow-hidden">
-                                                    <div className="h-full rounded-full transition-all" style={{width:`${intensityVal}%`, background:'linear-gradient(90deg, #fbbf24, #f59e0b)'}} />
-                                                  </div>
-                                                  <span className="text-[11px] font-bold text-amber-600">{intensityVal}%</span>
-                                                </div>
-                                              </div>
-                                              <div className="rounded-lg py-1.5 px-2" style={{background:'rgba(139,92,246,0.04)', border:'1px solid rgba(139,92,246,0.1)'}}>
-                                                <div className="text-[7px] font-bold uppercase tracking-wider text-violet-400 mb-0.5">Densidad</div>
-                                                <div className="flex items-center gap-1.5">
-                                                  <div className="flex-1 h-1.5 rounded-full bg-violet-100 overflow-hidden">
-                                                    <div className="h-full rounded-full transition-all" style={{width:`${Math.min(densVal * 50, 100)}%`, background:'linear-gradient(90deg, #a78bfa, #8b5cf6)'}} />
-                                                  </div>
-                                                  <span className="text-[11px] font-bold text-violet-600">{densVal}</span>
-                                                </div>
-                                              </div>
-                                            </div>
-
-                                            {/* Bottom row: Intensity badge + load */}
-                                            <div className="flex items-center justify-between pt-2" style={{borderTop:`1px solid ${sColor}08`}}>
+                                            {/* Bottom: Intensity badge + UA */}
+                                            <div className="flex items-center justify-between pt-2" style={{borderTop:`1px solid ${dayColor}08`}}>
                                               <IntensityBadge level={session.intensity} size="xs" />
                                               <div className="flex items-center gap-2">
                                                 {session.internalLoad > 0 && <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-md bg-slate-50 text-slate-500">UA:{session.internalLoad}</span>}
                                                 {session.fatigue && (
-                                                  <div className="flex items-center gap-0.5" title={`Fatiga: ${session.fatigue}/10`}>
+                                                  <div className="flex items-center gap-0.5">
                                                     <Activity className="w-3 h-3" style={{color: session.fatigue >= 7 ? '#EF4444' : session.fatigue >= 5 ? '#F59E0B' : '#10B981'}} />
                                                     <span className="text-[9px] font-bold" style={{ color: session.fatigue >= 7 ? '#EF4444' : session.fatigue >= 5 ? '#F59E0B' : '#10B981' }}>{session.fatigue}</span>
                                                   </div>
                                                 )}
                                               </div>
                                             </div>
-
-                                            {/* Contents */}
-                                            {session.contents && <p className="text-[9px] text-slate-400 mt-2 truncate pt-2" style={{borderTop:`1px solid ${sColor}08`}}>{session.contents}</p>}
                                           </div>
                                         </div>
                                       );
