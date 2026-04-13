@@ -26,29 +26,34 @@ const SessionViewPage = () => {
     setDownloading(true);
     try {
       const html2canvas = (await import('html2canvas')).default;
-      const { jsPDF } = await import('jspdf');
       const content = document.getElementById('session-view-content');
       if (!content) return;
+      
+      // Ocultar el botón de descarga durante la captura
+      const dlBtn = document.getElementById('download-btn');
+      if (dlBtn) dlBtn.style.display = 'none';
+      
       const canvas = await html2canvas(content, {
-        scale: 2, useCORS: true, backgroundColor: '#0a0a0f', logging: false,
-        width: content.scrollWidth, windowWidth: content.scrollWidth
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#0a0a0f',
+        logging: false,
+        width: content.scrollWidth,
+        height: content.scrollHeight,
+        windowWidth: content.scrollWidth,
+        windowHeight: content.scrollHeight,
+        scrollX: 0,
+        scrollY: 0
       });
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const margin = 4, usableW = 210 - margin * 2, usableH = 297 - margin * 2;
-      const pxPerMm = canvas.width / usableW;
-      const slicePx = Math.floor(usableH * pxPerMm);
-      let srcY = 0, pg = 0;
-      while (srcY < canvas.height) {
-        if (pg > 0) pdf.addPage();
-        const h = Math.min(slicePx, canvas.height - srcY);
-        const sc = document.createElement('canvas');
-        sc.width = canvas.width; sc.height = h;
-        sc.getContext('2d').drawImage(canvas, 0, srcY, canvas.width, h, 0, 0, canvas.width, h);
-        pdf.addImage(sc.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, usableW, h / pxPerMm);
-        srcY += h; pg++;
-      }
-      pdf.save(`iTRAIN_${shareId || 'sesion'}.pdf`);
-    } catch (e) { console.error('PDF error:', e); }
+      
+      if (dlBtn) dlBtn.style.display = '';
+      
+      // Descargar como PNG
+      const link = document.createElement('a');
+      link.download = `iTRAIN_${shareId || 'sesion'}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (e) { console.error('Download error:', e); }
     finally { setDownloading(false); }
   };
 
@@ -122,10 +127,10 @@ const SessionViewPage = () => {
                 </div>
               </div>
             </div>
-              <button onClick={handleDownloadPDF} disabled={downloading}
+              <button id="download-btn" onClick={handleDownloadPDF} disabled={downloading}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all" 
                 style={{background:'rgba(204,255,0,0.1)',color:'#CCFF00',border:'1px solid rgba(204,255,0,0.2)'}}>
-                {downloading ? <><Activity className="w-3.5 h-3.5 animate-spin" /> Generando...</> : <><Download className="w-3.5 h-3.5" /> Descargar PDF</>}
+                {downloading ? <><Activity className="w-3.5 h-3.5 animate-spin" /> Generando...</> : <><Download className="w-3.5 h-3.5" /> Descargar imagen</>}
               </button>
           </div>
         </div>
