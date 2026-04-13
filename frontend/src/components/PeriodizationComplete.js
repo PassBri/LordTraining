@@ -2050,7 +2050,16 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                             const totalLoad = sessions.reduce((s, se) => s + (se.internalLoad || 0), 0);
                             const completedSessions = sessions.filter(se => se.status === 'completed').length;
                             const avgRPE = sessions.length > 0 ? (sessions.reduce((s, se) => s + (se.rpe || 6), 0) / sessions.length).toFixed(1) : '-';
-                            const DAY_COLORS = {'Lun':'#0891b2','Mar':'#7c3aed','Mie':'#059669','Jue':'#d97706','Vie':'#e11d48','Sab':'#2563eb','Dom':'#64748b','Nueva':'#94a3b8'};
+                            const DAY_COLORS = {
+                              'Lun':{ bg:'#06b6d4', light:'#ecfeff', text:'#0e7490', name:'Lunes' },
+                              'Mar':{ bg:'#8b5cf6', light:'#f5f3ff', text:'#6d28d9', name:'Martes' },
+                              'Mie':{ bg:'#10b981', light:'#ecfdf5', text:'#047857', name:'Miercoles' },
+                              'Jue':{ bg:'#f59e0b', light:'#fffbeb', text:'#b45309', name:'Jueves' },
+                              'Vie':{ bg:'#ef4444', light:'#fef2f2', text:'#b91c1c', name:'Viernes' },
+                              'Sab':{ bg:'#3b82f6', light:'#eff6ff', text:'#1d4ed8', name:'Sabado' },
+                              'Dom':{ bg:'#6b7280', light:'#f9fafb', text:'#374151', name:'Domingo' },
+                              'Nueva':{ bg:'#94a3b8', light:'#f8fafc', text:'#475569', name:'Nueva' }
+                            };
                             const microStartDate = micro.startDate || null;
 
                             return (
@@ -2129,7 +2138,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                       const sColor = sType?.color || '#94a3b8';
                                       const rpe = session.rpe || 6;
                                       const rpeColor = rpe >= 8 ? '#EF4444' : rpe >= 6 ? '#F59E0B' : '#10B981';
-                                      const dayColor = DAY_COLORS[session.dayName] || '#94a3b8';
+                                      const dayInfo = DAY_COLORS[session.dayName] || DAY_COLORS['Nueva'];
+                                      const dayColor = dayInfo.bg;
                                       const intensityVal = session.intensity === 'high' ? 85 : session.intensity === 'medium' ? 65 : session.intensity === 'low' ? 40 : 50;
                                       const volVal = session.volume || 54;
                                       const densVal = session.duration > 0 ? Math.round((volVal / (session.duration || 60)) * 10) / 10 : 0;
@@ -2148,20 +2158,30 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                         <div
                                           key={session.id}
                                           className="group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-xl hover:-translate-y-1"
-                                          style={{ background:'white', border:`1.5px solid ${dayColor}15`, boxShadow:`0 2px 8px ${dayColor}06` }}
+                                          style={{ background:'white', border:`2px solid ${dayColor}20`, boxShadow:`0 2px 12px ${dayColor}08` }}
                                           onClick={() => handleEditSession(session, macroIdx, mesoIdx, microIdx, sIdx)}
                                           data-testid={`session-${sIdx}`}
                                         >
-                                          {/* Day color header */}
-                                          <div className="px-3.5 py-2 flex items-center justify-between" style={{background:`linear-gradient(135deg, ${dayColor}08 0%, ${dayColor}03 100%)`}}>
-                                            <div className="flex items-center gap-2">
-                                              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{background:`${dayColor}12`}}>
-                                                <span className="text-[11px] font-black" style={{color: dayColor}}>{session.dayName}</span>
+                                          {/* Day color header — prominent */}
+                                          <div className="px-3 py-2.5 flex items-center justify-between" style={{background: dayInfo.light}}>
+                                            <div className="flex items-center gap-2.5">
+                                              <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm" style={{background: dayColor}}>
+                                                <span className="text-[11px] font-black text-white tracking-wide">{session.dayName}</span>
                                               </div>
-                                              {sessionDateStr && <span className="text-[10px] font-medium text-slate-400">{sessionDateStr}</span>}
+                                              <div>
+                                                <span className="text-[12px] font-bold block" style={{color: dayInfo.text}}>{dayInfo.name}</span>
+                                                {sessionDateStr ? (
+                                                  <span className="text-[10px] font-medium" style={{color:`${dayInfo.text}90`}}>{sessionDateStr}</span>
+                                                ) : (
+                                                  <span className="text-[9px] text-slate-400">Sin fecha</span>
+                                                )}
+                                              </div>
                                             </div>
                                             <StatusBadge status={session.status || 'planned'} />
                                           </div>
+
+                                          {/* Left accent bar */}
+                                          <div className="absolute left-0 top-0 bottom-0 w-[3px]" style={{background: dayColor}} />
 
                                           {/* Delete */}
                                           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10" onClick={(e) => e.stopPropagation()}>
