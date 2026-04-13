@@ -623,7 +623,7 @@ const SessionEditor = ({
   // Renderizar actividades como tarjetas Material Design Premium
   const renderActividadesTable = (faseKey, fase) => {
     return (
-      <div className="space-y-3">
+      <div className="space-y-4">
         {fase.actividades.map((act, idx) => {
           const actMateriales = act.materiales || [];
           return (
@@ -691,12 +691,12 @@ const SessionEditor = ({
             </div>
 
             {/* === BODY === 3 columnas: Descripción+Params | Stats | Pizarra */}
-            <div className="flex gap-0" style={{minHeight:'180px'}}>
+            <div className="flex gap-0" style={{minHeight:'200px'}}>
 
               {/* COL 1: Descripción + Método + Materiales */}
-              <div className="flex-1 min-w-0 p-4 border-r border-slate-100/80">
-                <Textarea value={act.descripcion||''} onChange={(e) => updateActividad(faseKey, idx, 'descripcion', e.target.value)} placeholder="Descripción del ejercicio, grupos musculares, variantes..." className="text-[12px] min-h-[60px] resize-none py-2 px-3 text-slate-600 leading-relaxed border-slate-100 rounded-xl bg-slate-50/50 focus:bg-white w-full mb-3" style={{fontFamily:DM}} rows={3} data-testid={`exercise-desc-${faseKey}-${idx}`} />
-                <div className="flex items-center gap-1.5 mb-2.5">
+              <div className="flex-1 min-w-0 p-5 border-r border-slate-100/80">
+                <Textarea value={act.descripcion||''} onChange={(e) => updateActividad(faseKey, idx, 'descripcion', e.target.value)} placeholder="Descripción del ejercicio, grupos musculares, variantes..." className="text-[12px] min-h-[70px] resize-none py-3 px-3.5 text-slate-600 leading-relaxed border-slate-100 rounded-xl bg-slate-50/50 focus:bg-white w-full mb-3" style={{fontFamily:DM}} rows={4} data-testid={`exercise-desc-${faseKey}-${idx}`} />
+                <div className="flex items-center gap-2 mb-3">
                   <Select value={act.metodo} onValueChange={(v) => updateActividad(faseKey, idx, 'metodo', v)}>
                     <SelectTrigger className="h-6 text-[9px] border-0 bg-blue-50 text-blue-700 rounded-full px-2.5 w-auto"><SelectValue /></SelectTrigger>
                     <SelectContent>{METODOS_ENTRENAMIENTO.map(met => <SelectItem key={met.id} value={met.id} className="text-xs">{met.name}</SelectItem>)}</SelectContent>
@@ -707,22 +707,43 @@ const SessionEditor = ({
                   </Select>
                 </div>
                 {/* Materiales */}
-                <div className="flex flex-wrap gap-1">
-                  {actMateriales.map((mat, mi) => (
-                    <span key={mi} className="inline-flex items-center gap-0.5 text-[9px] font-medium px-2 py-0.5 rounded-full" style={{background:'rgba(168,85,247,0.08)',color:'#7c3aed',border:'1px solid rgba(168,85,247,0.15)'}}>
-                      {mat}<button onClick={() => { const nm=[...actMateriales]; nm.splice(mi,1); updateActividad(faseKey, idx, 'materiales', nm); }} className="hover:text-red-500 ml-0.5"><X className="w-2.5 h-2.5" /></button>
-                    </span>
-                  ))}
-                  {MATERIALES_DISPONIBLES.filter(m => !actMateriales.includes(m)).slice(0,5).map(mat => (
-                    <button key={mat} onClick={() => updateActividad(faseKey, idx, 'materiales', [...actMateriales, mat])} className="text-[8px] px-1.5 py-0.5 rounded-full border border-dashed border-slate-200 text-slate-400 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700 transition-all">{mat}</button>
-                  ))}
+                <div>
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {actMateriales.map((mat, mi) => (
+                      <span key={mi} className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-lg" style={{background:'rgba(168,85,247,0.08)',color:'#7c3aed',border:'1px solid rgba(168,85,247,0.15)'}}>
+                        {mat}<button onClick={() => { const nm=[...actMateriales]; nm.splice(mi,1); updateActividad(faseKey, idx, 'materiales', nm); }} className="hover:text-red-500 ml-0.5 transition-colors"><X className="w-3 h-3" /></button>
+                      </span>
+                    ))}
+                  </div>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="inline-flex items-center gap-1.5 text-[10px] font-medium px-3 py-1.5 rounded-lg border border-dashed border-slate-300 text-slate-500 hover:bg-purple-50 hover:border-purple-400 hover:text-purple-700 transition-all" data-testid={`add-material-btn-${faseKey}-${idx}`}>
+                        <Plus className="w-3 h-3" /> Agregar material
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[280px] p-0" align="start" side="bottom">
+                      <div className="p-2.5 border-b border-slate-100 bg-slate-50/80">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Materiales disponibles</span>
+                      </div>
+                      <div className="max-h-[200px] overflow-y-auto p-2 grid grid-cols-2 gap-1">
+                        {MATERIALES_DISPONIBLES.filter(m => !actMateriales.includes(m)).map(mat => (
+                          <button key={mat} onClick={() => updateActividad(faseKey, idx, 'materiales', [...actMateriales, mat])} className="text-left text-[11px] px-2.5 py-1.5 rounded-lg text-slate-600 hover:bg-purple-50 hover:text-purple-700 transition-all truncate" style={{fontFamily:DM}}>
+                            {mat}
+                          </button>
+                        ))}
+                        {MATERIALES_DISPONIBLES.filter(m => !actMateriales.includes(m)).length === 0 && (
+                          <p className="col-span-2 text-center text-slate-400 py-3 text-xs">Todos los materiales agregados</p>
+                        )}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
               </div>
 
               {/* COL 2: Parámetros de carga (números en cards oscuras) */}
-              <div className="w-[200px] flex-shrink-0 p-3 border-r border-slate-100/80">
+              <div className="w-[210px] flex-shrink-0 p-4 border-r border-slate-100/80">
                 {/* Intensidad visual */}
-                <div className="mb-3">
+                <div className="mb-4">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400">Intensidad</span>
                     <span className="text-[14px] font-black" style={{color: act.intensidad>80?'#ef4444':act.intensidad>60?'#f59e0b':act.intensidad>40?'#CCFF00':'#22c55e'}}>{act.intensidad}%</span>
@@ -733,15 +754,15 @@ const SessionEditor = ({
                   <input type="range" min={0} max={100} value={act.intensidad} onChange={(e) => updateActividad(faseKey, idx, 'intensidad', parseInt(e.target.value))} className="w-full h-1 mt-1 accent-[#CCFF00] cursor-pointer" />
                 </div>
                 {/* Stats grid 2x2 */}
-                <div className="grid grid-cols-2 gap-1.5">
+                <div className="grid grid-cols-2 gap-2">
                   {[
                     { label:'Series', value:act.series, key:'series', type:'number', ph:'3' },
                     { label:'Reps', value:act.repeticiones, key:'repeticiones', ph:'10-12' },
                     { label:'Volumen', value:act.volumen, key:'volumen', ph:'30' },
                     { label:'Recup.', value:act.recuperacion, key:'recuperacion', ph:'2 min' }
                   ].map(s => (
-                    <div key={s.key} className="rounded-xl p-2 text-center" style={{background:'#0a0a0f'}}>
-                      <span className="text-[7px] font-bold uppercase tracking-widest block mb-1" style={{color:'rgba(204,255,0,0.5)'}}>{s.label}</span>
+                    <div key={s.key} className="rounded-xl p-2.5 text-center" style={{background:'#0a0a0f'}}>
+                      <span className="text-[7px] font-bold uppercase tracking-widest block mb-1.5" style={{color:'rgba(204,255,0,0.5)'}}>{s.label}</span>
                       <Input value={s.value} type={s.type||'text'} onChange={(e) => updateActividad(faseKey, idx, s.key, s.type==='number'?parseInt(e.target.value)||0:e.target.value)} placeholder={s.ph} className="h-7 text-center text-white text-[13px] font-bold bg-transparent border-0 focus:ring-0 px-0" style={{fontFamily:DM}} min={s.type==='number'?0:undefined} />
                     </div>
                   ))}
@@ -749,8 +770,8 @@ const SessionEditor = ({
               </div>
 
               {/* COL 3: Pizarra */}
-              <div className="w-[190px] flex-shrink-0 p-2.5 flex flex-col">
-                <div className="flex items-center gap-1 mb-1.5">
+              <div className="w-[200px] flex-shrink-0 p-3.5 flex flex-col">
+                <div className="flex items-center gap-1.5 mb-2">
                   <div className="w-4 h-4 rounded bg-[#f0ffd0] flex items-center justify-center"><LayoutGrid className="w-2.5 h-2.5 text-[#3a5a00]" /></div>
                   <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400">Pizarra</span>
                 </div>
@@ -973,44 +994,46 @@ const SessionEditor = ({
                     <span className="se-section-title">Estructura de la sesión</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-4 space-y-3 bg-white overflow-visible">
+                <CardContent className="p-4 space-y-4 bg-white overflow-visible">
                   {/* Fases */}
                   {Object.entries(sessionData.fases).map(([faseKey, fase]) => {
                     const faseColors = {
-                      inicial: { border: 'border-l-[#CCFF00]', bg: 'bg-[#CCFF00]/5', header: 'bg-[#CCFF00]/8', text: 'text-[#3a5a00]', btn: 'border-[#CCFF00] text-[#3a5a00] hover:bg-[#CCFF00]/10' },
-                      principal: { border: 'border-l-slate-800', bg: 'bg-slate-50', header: 'bg-slate-100', text: 'text-slate-800', btn: 'border-slate-700 text-slate-800 hover:bg-slate-100' },
-                      final: { border: 'border-l-[#3B82F6]', bg: 'bg-blue-50/50', header: 'bg-blue-50', text: 'text-blue-700', btn: 'border-blue-400 text-blue-700 hover:bg-blue-50' }
+                      inicial: { border: 'border-l-[#CCFF00]', accent: '#CCFF00', accentDark: '#3a5a00', bg: 'bg-[#CCFF00]/5', header: '', text: 'text-[#3a5a00]', btn: 'border-[#CCFF00] text-[#3a5a00] hover:bg-[#CCFF00]/10', icon: <Zap className="w-4 h-4" /> },
+                      principal: { border: 'border-l-slate-800', accent: '#0a0a0f', accentDark: '#ffffff', bg: 'bg-slate-50', header: '', text: 'text-slate-800', btn: 'border-slate-700 text-slate-800 hover:bg-slate-100', icon: <Target className="w-4 h-4" /> },
+                      final: { border: 'border-l-[#3B82F6]', accent: '#3B82F6', accentDark: '#ffffff', bg: 'bg-blue-50/50', header: '', text: 'text-blue-700', btn: 'border-blue-400 text-blue-700 hover:bg-blue-50', icon: <Activity className="w-4 h-4" /> }
                     };
                     const colors = faseColors[faseKey];
                     
                     return (
-                      <div key={faseKey} className={`border-l-4 ${colors.border} rounded-xl overflow-visible shadow-sm bg-white`} style={{ position: 'relative', zIndex: showExercisePicker?.startsWith(faseKey) ? 100 : 1 }}>
+                      <div key={faseKey} className={`rounded-xl overflow-visible shadow-sm bg-white`} style={{ position: 'relative', zIndex: showExercisePicker?.startsWith(faseKey) ? 100 : 1, border:'1px solid rgba(0,0,0,0.06)' }}>
                         <button
                           onClick={() => setExpandedPhases(prev => ({ ...prev, [faseKey]: !prev[faseKey] }))}
-                          className={`w-full flex items-center justify-between p-4 ${colors.header} hover:opacity-90 transition-all`}
+                          className="w-full flex items-center justify-between px-4 py-3 hover:opacity-90 transition-all"
+                          style={{background: `linear-gradient(135deg, ${colors.accent} 0%, ${colors.accent}dd 100%)`, borderRadius: expandedPhases[faseKey] ? '12px 12px 0 0' : '12px'}}
                         >
                           <div className="flex items-center gap-3">
-                            {expandedPhases[faseKey] ? 
-                              <ChevronDown className={`w-4 h-4 ${colors.text}`} /> : 
-                              <ChevronRight className={`w-4 h-4 ${colors.text}`} />
-                            }
-                            {/* Punto 6: Fases uppercase, 11px, 600, color #9EFF00 */}
-                            <span style={{fontSize:'11px',fontWeight:600,letterSpacing:'0.06em',textTransform:'uppercase',color:'#9EFF00',fontFamily:DM}}>
+                            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'rgba(0,0,0,0.15)', color: colors.accentDark}}>
+                              {expandedPhases[faseKey] ? 
+                                <ChevronDown className="w-4 h-4" /> : 
+                                colors.icon
+                              }
+                            </div>
+                            <span style={{fontSize:'13px',fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',color: colors.accentDark,fontFamily:BC}}>
                               {fase.nombre}
                             </span>
-                            <span style={{fontSize:'11px',fontWeight:400,color:'rgba(100,116,139,0.7)',fontFamily:DM}}>
-                              {fase.actividades.length} actividades
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{background:'rgba(0,0,0,0.12)',color: colors.accentDark,fontFamily:DM}}>
+                              {fase.actividades.length} {fase.actividades.length === 1 ? 'actividad' : 'actividades'}
                             </span>
                           </div>
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={(e) => { e.stopPropagation(); addActividad(faseKey); }}
-                            className={`h-8 text-xs ${colors.btn} bg-white`}
-                            style={{fontFamily:DM}}
+                            className="h-7 text-[10px] font-semibold border-0 rounded-lg px-3"
+                            style={{fontFamily:DM, background:'rgba(0,0,0,0.15)', color: colors.accentDark, backdropFilter:'blur(8px)'}}
                             data-testid={`add-activity-${faseKey}`}
                           >
-                            <Plus className="w-3 h-3 mr-1" /> Agregar actividad
+                            <Plus className="w-3 h-3 mr-1" /> Agregar
                           </Button>
                         </button>
                         
