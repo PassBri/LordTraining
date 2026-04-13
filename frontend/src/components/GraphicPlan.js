@@ -666,7 +666,58 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
     });
   }, [displayedWeeks, planData.volume, planData.intensity, planData.mesocycles, v2Micros]);
 
-  // ═══ NEW: Density chart data ═══
+  // ═══ NEW: Preparation chart data (from grid cells + V2) ═══
+  const preparationChartData = useMemo(() => {
+    return displayedWeeks.map(week => {
+      const row = { week: `S${week}` };
+      PREPARATION_TYPES.forEach(prep => {
+        row[prep.id] = (planData.preparation?.[`${prep.id}_${week}`] || 0) * 20; // scale 1-5 → 20-100
+      });
+      return row;
+    });
+  }, [displayedWeeks, planData.preparation]);
+
+  // ═══ NEW: Physical preparation chart data (from grid + V2 exercises) ═══
+  const physicalChartData = useMemo(() => {
+    return displayedWeeks.map(week => {
+      const row = { week: `S${week}` };
+      PHYSICAL_COMPONENTS.forEach(comp => {
+        row[comp.id] = (planData.physical?.[`${comp.id}_${week}`] || 0) * 20;
+      });
+      return row;
+    });
+  }, [displayedWeeks, planData.physical]);
+
+  // ═══ NEW: Activity chart data (from grid cells) ═══
+  const activityChartData = useMemo(() => {
+    return displayedWeeks.map(week => {
+      const v2Micro = v2Micros.find(m => m.numero_semana === week);
+      const sessions = v2Micro ? v2Sesiones.filter(s => s.microciclo_id === v2Micro.id) : [];
+      const hasTraining = planData.activities?.[`training_${week}`] || sessions.length > 0;
+      const hasMainComp = planData.activities?.[`main_competition_${week}`];
+      const hasSecComp = planData.activities?.[`secondary_competition_${week}`];
+      const hasRecovery = planData.activities?.[`recovery_${week}`];
+      return {
+        week: `S${week}`,
+        entrenamiento: hasTraining ? (sessions.length || 5) : 0,
+        competenciaPrincipal: hasMainComp ? 1 : 0,
+        competenciaSecundaria: hasSecComp ? 1 : 0,
+        recuperacion: hasRecovery ? 1 : 0,
+        totalSesiones: sessions.length,
+      };
+    });
+  }, [displayedWeeks, planData.activities, v2Micros, v2Sesiones]);
+
+  // ═══ NEW: Monitoring chart data ═══
+  const monitoringChartData = useMemo(() => {
+    return displayedWeeks.map(week => {
+      const row = { week: `S${week}` };
+      MONITORING_AREAS.forEach(area => {
+        row[area.id] = planData.monitoring?.[`${area.id}_${week}`] ? 1 : 0;
+      });
+      return row;
+    });
+  }, [displayedWeeks, planData.monitoring]);
   const densityChartData = useMemo(() => {
     return displayedWeeks.map(week => {
       const v2Micro = v2Micros.find(m => m.numero_semana === week);
@@ -1399,8 +1450,9 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
           </div>
 
           {/* CHARTS SECTION - Using InteractiveChart (same as Dashboard panel) */}
-          <div className="mt-6 space-y-6">
-            {/* Chart 1: Carga y Recuperación */}
+          <div className="mt-6 space-y-5">
+
+            {/* 1. Magnitud de Carga y Recuperación */}
             <InteractiveChart
               title="Magnitud de Carga y Recuperacion"
               icon={Activity}
@@ -1410,17 +1462,17 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 { key: 'recuperacion', name: 'Recuperacion %', color: '#3B82F6' }
               ]}
               xAxisKey="week"
-              height={280}
+              height={260}
               showBrush={true}
               showControls={true}
               showLiveIndicator={true}
               defaultChartType="bar"
               defaultTimeRange="sessions"
               yAxisDomain={[0, 100]}
-              className="border-2 border-red-100"
+              className="border border-slate-200"
             />
 
-            {/* Chart 2: Volumen e Intensidad */}
+            {/* 2. Volumen e Intensidad */}
             <InteractiveChart
               title="Volumen e Intensidad por Semanas"
               icon={TrendingUp}
@@ -1430,26 +1482,103 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 { key: 'intensidad', name: 'Intensidad %', color: '#A855F7' }
               ]}
               xAxisKey="week"
-              height={280}
+              height={260}
               showBrush={true}
               showControls={true}
               showLiveIndicator={true}
               defaultChartType="mixed"
               defaultTimeRange="sessions"
               yAxisDomain={[0, 100]}
-              className="border-2 border-green-100"
+              className="border border-slate-200"
             />
 
-            {/* Chart 3: Densidad */}
+            {/* 3. Intensidad, Densidad y Recuperación */}
+            <InteractiveChart
+              title="Intensidad y Recuperacion"
+              icon={TrendingUp}
+              data={displayedWeeks.map(week => {
+                const v2Micro = v2Micros.find(m => m.numero_semana === week);
+                const maxCarga = Math.max(...v2Micros.map(m => m.carga_total || 1), 1);
+                return {
+                  week: `S${week}`,
+                  densidad: v2Micro ? Math.round((v2Micro.den_calculado || 0) * 1000) / 10 : 0,
+                  intensidad: v2Micro ? Math.round(v2Micro.int_calculado || 0) : 0,
+                  recuperacion: v2Micro ? Math.max(0, Math.round(100 - (v2Micro.carga_total || 0) / maxCarga * 100)) : 0,
+                };
+              })}
+              dataKeys={[
+                { key: 'densidad', name: 'Densidad %', color: '#10B981' },
+                { key: 'intensidad', name: 'Intensidad %', color: '#EF4444' },
+                { key: 'recuperacion', name: 'Recuperacion %', color: '#8B5CF6' }
+              ]}
+              xAxisKey="week"
+              height={260}
+              showBrush={true}
+              showControls={true}
+              showLiveIndicator={true}
+              defaultChartType="line"
+              defaultTimeRange="sessions"
+              yAxisDomain={[0, 100]}
+              className="border border-slate-200"
+            />
+
+            {/* 4. Preparación (6 tipos) */}
+            <InteractiveChart
+              title="Preparacion por Componentes"
+              icon={Dumbbell}
+              data={preparationChartData}
+              dataKeys={[
+                { key: 'general_physical', name: 'Prep. Fisica General', color: '#3B82F6' },
+                { key: 'specific_physical', name: 'Prep. Fisica Especifica', color: '#6366F1' },
+                { key: 'technical', name: 'Prep. Tecnica', color: '#22C55E' },
+                { key: 'tactical', name: 'Prep. Tactica', color: '#F59E0B' },
+                { key: 'psychological', name: 'Prep. Psicologica', color: '#A855F7' },
+                { key: 'theoretical', name: 'Prep. Teorica', color: '#EC4899' }
+              ]}
+              xAxisKey="week"
+              height={260}
+              showBrush={true}
+              showControls={true}
+              showLiveIndicator={true}
+              defaultChartType="area"
+              defaultTimeRange="sessions"
+              yAxisDomain={[0, 100]}
+              className="border border-slate-200"
+            />
+
+            {/* 5. Preparación Física (5 capacidades) */}
+            <InteractiveChart
+              title="Preparacion Fisica por Capacidades"
+              icon={Heart}
+              data={physicalChartData}
+              dataKeys={[
+                { key: 'endurance', name: 'Resistencia', color: '#EF4444' },
+                { key: 'strength', name: 'Fuerza', color: '#F97316' },
+                { key: 'speed', name: 'Velocidad', color: '#EAB308' },
+                { key: 'coordination', name: 'Coordinacion', color: '#22C55E' },
+                { key: 'flexibility', name: 'Flexibilidad', color: '#3B82F6' }
+              ]}
+              xAxisKey="week"
+              height={260}
+              showBrush={true}
+              showControls={true}
+              showLiveIndicator={true}
+              defaultChartType="line"
+              defaultTimeRange="sessions"
+              yAxisDomain={[0, 100]}
+              className="border border-slate-200"
+            />
+
+            {/* 6. Densidad */}
             <InteractiveChart
               title="Densidad del Entrenamiento"
               icon={Gauge}
               data={densityChartData}
               dataKeys={[
-                { key: 'densidad', name: 'Densidad %', color: '#10B981' }
+                { key: 'densidad', name: 'Densidad', color: '#10B981' }
               ]}
               xAxisKey="week"
-              height={280}
+              height={260}
               showBrush={true}
               showControls={true}
               showLiveIndicator={true}
@@ -1457,10 +1586,10 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
               defaultTimeRange="sessions"
               yAxisDomain={[0, 'auto']}
               referenceLines={[{ y: 8, label: 'Riesgo fatiga', color: '#EF4444' }]}
-              className="border-2 border-orange-100"
+              className="border border-slate-200"
             />
 
-            {/* Chart 4: Duracion */}
+            {/* 7. Duración */}
             <InteractiveChart
               title="Duracion por Semanas"
               icon={Timer}
@@ -1471,7 +1600,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 { key: 'vueltaCalma', name: 'Vuelta a la calma', color: '#14B8A6' }
               ]}
               xAxisKey="week"
-              height={280}
+              height={260}
               showBrush={true}
               showControls={true}
               showLiveIndicator={true}
@@ -1479,37 +1608,31 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
               defaultTimeRange="sessions"
               yAxisDomain={[0, 'auto']}
               referenceLines={[{ y: 450, label: 'Max recomendado', color: '#EF4444' }]}
-              className="border-2 border-cyan-100"
+              className="border border-slate-200"
             />
 
-            {/* Chart 5: Intensidad, Densidad y Recuperación (like Dashboard panel) */}
+            {/* 8. Actividad */}
             <InteractiveChart
-              title="Intensidad y Recuperacion"
-              icon={TrendingUp}
-              data={displayedWeeks.map(week => {
-                const v2Micro = v2Micros.find(m => m.numero_semana === week);
-                return {
-                  week: `S${week}`,
-                  densidad: v2Micro ? Math.round((v2Micro.den_calculado || 0) * 1000) / 10 : 0,
-                  intensidad: v2Micro ? Math.round(v2Micro.int_calculado || 0) : 0,
-                  recuperacion: v2Micro ? Math.max(0, Math.round(100 - (v2Micro.carga_total || 0) / Math.max(...v2Micros.map(m => m.carga_total || 1)) * 100)) : 0,
-                };
-              })}
+              title="Actividad Semanal"
+              icon={Trophy}
+              data={activityChartData}
               dataKeys={[
-                { key: 'densidad', name: 'Densidad %', color: '#10B981' },
-                { key: 'intensidad', name: 'Intensidad %', color: '#EF4444' },
-                { key: 'recuperacion', name: 'Recuperacion %', color: '#8B5CF6' }
+                { key: 'entrenamiento', name: 'Sesiones', color: '#3B82F6' },
+                { key: 'competenciaPrincipal', name: 'Comp. Principal', color: '#EF4444' },
+                { key: 'competenciaSecundaria', name: 'Comp. Secundaria', color: '#F59E0B' },
+                { key: 'recuperacion', name: 'Recuperacion', color: '#8B5CF6' }
               ]}
               xAxisKey="week"
-              height={280}
+              height={260}
               showBrush={true}
               showControls={true}
               showLiveIndicator={true}
-              defaultChartType="line"
+              defaultChartType="bar"
               defaultTimeRange="sessions"
-              yAxisDomain={[0, 100]}
-              className="border-2 border-violet-100"
+              yAxisDomain={[0, 'auto']}
+              className="border border-slate-200"
             />
+
           </div>
 
           {/* Legend */}
