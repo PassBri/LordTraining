@@ -1882,14 +1882,19 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                           });
 
                           const maxSeries = Math.max(...microData.map(d => d.series), 1);
-                          const mevLine = Math.round(maxSeries * 0.35);
-                          const mavLine = Math.round(maxSeries * 0.7);
-                          const mrvLine = Math.round(maxSeries * 1.05);
+                          const maxVolumen = Math.max(...microData.map(d => d.volumen), 1);
 
                           const mesoChartKey = `meso-chart-${macroIdx}-${mesoIdx}`;
                           const chartMode = expandedPanels?.[mesoChartKey] || 'mixta';
                           const mesoMetricKey = `meso-metric-${macroIdx}-${mesoIdx}`;
                           const activeMetrics = expandedPanels?.[mesoMetricKey] || { vol: true, int: true, den: false };
+
+                          // MEV/MAV/MRV adapt to the dominant visible left-axis metric
+                          const dominantMax = activeMetrics.vol ? Math.max(maxSeries, maxVolumen) : maxSeries;
+                          const mevLine = Math.round(dominantMax * 0.35);
+                          const mavLine = Math.round(dominantMax * 0.7);
+                          const mrvLine = Math.round(dominantMax * 1.05);
+                          const yLeftMax = Math.round(dominantMax * 1.2);
 
                           const setChartMode = (mode) => setExpandedPanels(prev => ({...prev, [mesoChartKey]: mode}));
                           const toggleMetric = (m) => setExpandedPanels(prev => {
@@ -2001,7 +2006,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                   <ComposedChart data={microData} margin={{top:10,right:25,left:0,bottom:5}}>
                                     <CartesianGrid strokeDasharray="4 4" stroke="rgba(148,163,184,0.12)" />
                                     <XAxis dataKey="name" tick={{fontSize:11,fill:'#64748b',fontWeight:600}} axisLine={{stroke:'#e2e8f0'}} tickLine={false} />
-                                    <YAxis yAxisId="left" tick={{fontSize:10,fill:'#94a3b8'}} axisLine={false} tickLine={false} domain={[0, mrvLine + 10]} />
+                                    <YAxis yAxisId="left" tick={{fontSize:10,fill:'#94a3b8'}} axisLine={false} tickLine={false} domain={[0, yLeftMax]} />
                                     <YAxis yAxisId="right" orientation="right" tick={{fontSize:10,fill:'#94a3b8'}} axisLine={false} tickLine={false} domain={[0, 100]} />
                                     <Tooltip content={<CustomTooltipMeso />} />
                                     <ReferenceLine yAxisId="left" y={mevLine} stroke="#16a34a" strokeDasharray="6 4" strokeWidth={1.5} label={{value:`MEV ${mevLine}`,position:'insideTopRight',fontSize:8,fill:'#16a34a',fontWeight:700}} />
