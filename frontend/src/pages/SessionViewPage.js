@@ -187,7 +187,7 @@ const SessionViewPage = () => {
                           </div>
                           {/* Board thumbnail */}
                           {act.boardThumbnail && (
-                            <div className="w-[100px] h-[70px] flex-shrink-0 rounded-lg border overflow-hidden" style={{borderColor:'rgba(255,255,255,0.08)',background:'#fff'}} dangerouslySetInnerHTML={{__html: act.boardThumbnail}} />
+                            <div className="w-[160px] h-[120px] flex-shrink-0 rounded-lg border overflow-hidden" style={{borderColor:'rgba(255,255,255,0.08)',background:'#fff'}} dangerouslySetInnerHTML={{__html: act.boardThumbnail}} />
                           )}
                         </div>
                       </div>
@@ -203,47 +203,84 @@ const SessionViewPage = () => {
         </Card>
 
         {/* Monitoreo */}
-        {(mon.fcReposo || mon.fcMaxima || mon.fcAntesEntrenamiento) && (
+        {(mon.fcReposo || mon.fcMaxima || mon.fcAntesEntrenamiento || mon.nivelFatiga || mon.nivelEnergia) && (
           <Card className="border-0 overflow-hidden rounded-2xl" style={{background:'#12131a',border:'1px solid rgba(255,255,255,0.06)'}}>
             <div className="flex items-center gap-2.5 px-5 py-3" style={{borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
               <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{background:'#CCFF00'}}><Heart className="w-3 h-3 text-slate-900" /></div>
               <span className="text-[14px] font-semibold text-white">Monitoreo de rendimiento</span>
             </div>
-            <CardContent className="p-5 space-y-4">
+            <CardContent className="p-5 space-y-5">
               {/* FC por fases */}
               {(mon.fcAntesEntrenamiento || mon.fcDuranteEntrenamiento) && (
-                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                  {[
-                    { l:'Antes', v:mon.fcAntesEntrenamiento, c:'#3b82f6' },
-                    { l:'Durante', v:mon.fcDuranteEntrenamiento, c:'#ef4444' },
-                    { l:'Después', v:mon.fcDespuesEntrenamiento, c:'#22c55e' },
-                    { l:"Recup 1'", v:mon.fcRecuperacion1min, c:'#14b8a6' },
-                    { l:"Recup 3'", v:mon.fcRecuperacion3min, c:'#a855f7' },
-                    { l:"Recup 5'", v:mon.fcRecuperacion5min, c:'#6366f1' },
-                  ].filter(x => x.v).map((x, i) => (
-                    <div key={i} className="text-center rounded-xl p-3" style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)'}}>
-                      <div className="w-2 h-2 rounded-full mx-auto mb-1" style={{background:x.c}} />
-                      <p style={{fontSize:'8px',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.06em',color:x.c}}>{x.l}</p>
-                      <p className="text-xl font-bold text-white mt-0.5">{x.v}</p>
-                      <p className="text-[9px] text-white/30">bpm</p>
-                    </div>
-                  ))}
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{color:'rgba(204,255,0,0.5)'}}>Frecuencia cardíaca por fases</p>
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                    {[
+                      { l:'Antes', v:mon.fcAntesEntrenamiento, c:'#3b82f6' },
+                      { l:'Durante', v:mon.fcDuranteEntrenamiento, c:'#ef4444' },
+                      { l:'Después', v:mon.fcDespuesEntrenamiento, c:'#22c55e' },
+                      { l:"Recup 1'", v:mon.fcRecuperacion1min, c:'#14b8a6' },
+                      { l:"Recup 3'", v:mon.fcRecuperacion3min, c:'#a855f7' },
+                      { l:"Recup 5'", v:mon.fcRecuperacion5min, c:'#6366f1' },
+                    ].filter(x => x.v).map((x, i) => (
+                      <div key={i} className="text-center rounded-xl p-3" style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)'}}>
+                        <div className="w-2 h-2 rounded-full mx-auto mb-1" style={{background:x.c}} />
+                        <p style={{fontSize:'8px',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.06em',color:x.c}}>{x.l}</p>
+                        <p className="text-xl font-bold text-white mt-0.5">{x.v}</p>
+                        <p className="text-[9px] text-white/30">bpm</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
               {/* FC Reposo/Media/Max */}
               {(mon.fcReposo || mon.fcMedia || mon.fcMaxima) && (
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { l:'FC Reposo', v:mon.fcReposo, c:'#CCFF00' },
-                    { l:'FC Media', v:mon.fcMedia, c:'#f59e0b' },
-                    { l:'FC Máxima', v:mon.fcMaxima, c:'#ef4444' }
-                  ].filter(x => x.v).map((x, i) => (
-                    <div key={i} className="text-center rounded-xl p-4" style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)'}}>
-                      <p style={{fontSize:'9px',fontWeight:600,textTransform:'uppercase',color:x.c}}>{x.l}</p>
-                      <p className="text-3xl font-bold text-white mt-1">{x.v}</p>
-                      <p className="text-[10px] text-white/30">bpm</p>
-                    </div>
-                  ))}
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{color:'rgba(204,255,0,0.5)'}}>Frecuencia cardíaca general</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { l:'FC Reposo', v:mon.fcReposo, c:'#CCFF00' },
+                      { l:'FC Media', v:mon.fcMedia, c:'#f59e0b' },
+                      { l:'FC Máxima', v:mon.fcMaxima, c:'#ef4444' }
+                    ].filter(x => x.v).map((x, i) => (
+                      <div key={i} className="text-center rounded-xl p-4" style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)'}}>
+                        <p style={{fontSize:'9px',fontWeight:600,textTransform:'uppercase',color:x.c}}>{x.l}</p>
+                        <p className="text-3xl font-bold text-white mt-1">{x.v}</p>
+                        <p className="text-[10px] text-white/30">bpm</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Estado del deportista */}
+              {(mon.nivelFatiga || mon.nivelHidratacion || mon.calidadSueno || mon.nivelEnergia) && (
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{color:'rgba(204,255,0,0.5)'}}>Estado del deportista</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { l:'Nivel de fatiga', v:mon.nivelFatiga, from:'#22c55e', to:'#ef4444' },
+                      { l:'Hidratación', v:mon.nivelHidratacion, from:'#ef4444', to:'#3b82f6' },
+                      { l:'Calidad de sueño', v:mon.calidadSueno, from:'#6366f1', to:'#818cf8' },
+                      { l:'Nivel de energía', v:mon.nivelEnergia, from:'#ef4444', to:'#22c55e' }
+                    ].filter(x => x.v).map((x, i) => (
+                      <div key={i} className="rounded-xl p-3" style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)'}}>
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-white/50 text-[11px]">{x.l}</span>
+                          <span className="text-white text-[12px] font-bold">{x.v}%</span>
+                        </div>
+                        <div className="h-1.5 rounded-full overflow-hidden" style={{background:'rgba(255,255,255,0.08)'}}>
+                          <div className="h-full rounded-full" style={{width:`${x.v}%`,background:`linear-gradient(90deg, ${x.from}, ${x.to})`}} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Dispositivo */}
+              {mon.dispositivoConectado && (
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{background:'rgba(204,255,0,0.06)',border:'1px solid rgba(204,255,0,0.1)'}}>
+                  <Activity className="w-3.5 h-3.5" style={{color:'#CCFF00'}} />
+                  <span className="text-[11px] text-white/60">Dispositivo conectado: <span className="text-white/80 font-medium">{mon.nombreDispositivo || 'Reloj inteligente'}</span></span>
                 </div>
               )}
             </CardContent>
