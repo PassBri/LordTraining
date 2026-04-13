@@ -1033,38 +1033,40 @@ const SessionEditor = ({
 
                       {/* Métricas calculadas */}
                       <div className="flex flex-wrap gap-2.5">
-                        <div className="flex-1 min-w-[110px] rounded-xl p-3" style={{background:'#0a0a0f'}}>
-                          <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'rgba(204,255,0,0.6)',fontFamily:DM}}>Carga Total</span>
+                        <div className="flex-1 min-w-[110px] rounded-xl p-3 relative overflow-hidden" style={{background:'linear-gradient(135deg, #0c0f1a 0%, #0a0a12 100%)', border:'1px solid rgba(0,229,255,0.1)'}}>
+                          <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'#00e5ff',fontFamily:DM}}>Carga Total</span>
                           <span className="text-[16px] font-black text-white" style={{fontFamily:DM}}>{met.cargaTotal}</span>
-                          <span className="text-[9px] text-slate-500 ml-1.5">vol x int</span>
+                          <span className="text-[9px] ml-1.5" style={{color:'rgba(255,255,255,0.3)'}}>vol x int</span>
+                          <div className="absolute top-0 right-0 w-8 h-8 rounded-bl-xl" style={{background:'rgba(0,229,255,0.05)'}} />
                         </div>
-                        <div className="flex-1 min-w-[110px] rounded-xl p-3" style={{background:'#0a0a0f'}}>
-                          <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'rgba(204,255,0,0.6)',fontFamily:DM}}>Carga Sesion</span>
+                        <div className="flex-1 min-w-[110px] rounded-xl p-3 relative overflow-hidden" style={{background:'linear-gradient(135deg, #0c0f1a 0%, #0a0a12 100%)', border:'1px solid rgba(0,229,255,0.1)'}}>
+                          <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'#00e5ff',fontFamily:DM}}>Carga Sesion</span>
                           <span className="text-[16px] font-black text-white" style={{fontFamily:DM}}>{met.cargaSesion}</span>
-                          <span className="text-[9px] text-slate-500 ml-1.5">ser x vol x int</span>
+                          <span className="text-[9px] ml-1.5" style={{color:'rgba(255,255,255,0.3)'}}>ser x vol x int</span>
+                          <div className="absolute top-0 right-0 w-8 h-8 rounded-bl-xl" style={{background:'rgba(0,229,255,0.05)'}} />
                         </div>
                         {met.ratioDensidad != null && (
-                          <div className="flex-1 min-w-[110px] rounded-xl p-3" style={{background:'#0a0a0f'}}>
-                            <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'rgba(204,255,0,0.6)',fontFamily:DM}}>Ratio Densidad</span>
+                          <div className="flex-1 min-w-[110px] rounded-xl p-3" style={{background:'linear-gradient(135deg, #0c0f1a 0%, #0a0a12 100%)', border:'1px solid rgba(204,255,0,0.1)'}}>
+                            <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'#CCFF00',fontFamily:DM}}>Ratio Densidad</span>
                             <span className="text-[16px] font-black text-white" style={{fontFamily:DM}}>{met.ratioDensidad}</span>
                           </div>
                         )}
                         {met.neuroCarga > 0 && (
-                          <div className="flex-1 min-w-[110px] rounded-xl p-3" style={{background:'#0a0a0f'}}>
-                            <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'rgba(168,85,247,0.6)',fontFamily:DM}}>NeuroCarga</span>
-                            <span className="text-[16px] font-black text-violet-400" style={{fontFamily:DM}}>{met.neuroCarga}</span>
+                          <div className="flex-1 min-w-[110px] rounded-xl p-3" style={{background:'linear-gradient(135deg, #0c0f1a 0%, #0a0a12 100%)', border:'1px solid rgba(129,140,248,0.15)'}}>
+                            <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'#818cf8',fontFamily:DM}}>NeuroCarga</span>
+                            <span className="text-[16px] font-black" style={{color:'#a5b4fc',fontFamily:DM}}>{met.neuroCarga}</span>
                           </div>
                         )}
                         {met.zonaFC && (
-                          <div className="flex-1 min-w-[110px] rounded-xl p-3" style={{background:'#0a0a0f'}}>
-                            <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'rgba(239,68,68,0.6)',fontFamily:DM}}>Zona FC</span>
-                            <span className="text-[14px] font-bold text-red-400" style={{fontFamily:DM}}>{met.zonaFC}</span>
+                          <div className="flex-1 min-w-[110px] rounded-xl p-3" style={{background:'linear-gradient(135deg, #0c0f1a 0%, #0a0a12 100%)', border:'1px solid rgba(255,107,157,0.15)'}}>
+                            <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'#ff6b9d',fontFamily:DM}}>Zona FC</span>
+                            <span className="text-[14px] font-bold" style={{color:'#fda4af',fontFamily:DM}}>{met.zonaFC}</span>
                           </div>
                         )}
                         {met.zonaFuerza && (
-                          <div className="flex-1 min-w-[110px] rounded-xl p-3" style={{background:'#0a0a0f'}}>
-                            <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'rgba(245,158,11,0.6)',fontFamily:DM}}>Zona Fuerza</span>
-                            <span className="text-[14px] font-bold text-amber-400" style={{fontFamily:DM}}>{met.zonaFuerza}</span>
+                          <div className="flex-1 min-w-[110px] rounded-xl p-3" style={{background:'linear-gradient(135deg, #0c0f1a 0%, #0a0a12 100%)', border:'1px solid rgba(0,229,255,0.15)'}}>
+                            <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'#00e5ff',fontFamily:DM}}>Zona Fuerza</span>
+                            <span className="text-[14px] font-bold" style={{color:'#67e8f9',fontFamily:DM}}>{met.zonaFuerza}</span>
                           </div>
                         )}
                       </div>
@@ -1135,29 +1137,29 @@ const SessionEditor = ({
                           </div>
 
                           {/* Chart container */}
-                          <div className="rounded-xl overflow-hidden" style={{background:'#0a0a0f'}}>
+                          <div className="rounded-xl overflow-hidden" style={{background:'linear-gradient(180deg, #0c0f1a 0%, #0a0a12 100%)'}}>
                             {/* Y-axis labels + chart area */}
                             <div className="flex" style={{height:'180px'}}>
                               {/* Y-axis zone labels */}
                               <div className="w-10 flex-shrink-0 flex flex-col justify-between py-3 pr-1 text-right">
-                                <span className="text-[7px] font-bold text-red-400/70">MRV</span>
-                                <span className="text-[7px] font-bold text-amber-400/70">MAV</span>
-                                <span className="text-[7px] font-bold text-emerald-400/70">MEV</span>
-                                <span className="text-[7px] font-bold text-slate-600">0</span>
+                                <span className="text-[7px] font-bold" style={{color:'#ff6b9d'}}>MRV</span>
+                                <span className="text-[7px] font-bold" style={{color:'#00e5ff'}}>MAV</span>
+                                <span className="text-[7px] font-bold" style={{color:'#CCFF00'}}>MEV</span>
+                                <span className="text-[7px] font-bold text-slate-700">0</span>
                               </div>
 
                               {/* Chart body */}
                               <div className="flex-1 relative py-3 pr-3">
                                 {/* Zone backgrounds */}
                                 <div className="absolute inset-x-0 top-3 bottom-3 flex flex-col">
-                                  <div className="flex-1" style={{background:'rgba(239,68,68,0.04)'}} />
-                                  <div className="flex-1" style={{background:'rgba(245,158,11,0.06)'}} />
-                                  <div className="flex-1" style={{background:'rgba(16,185,129,0.04)'}} />
+                                  <div className="flex-1" style={{background:'rgba(255,107,157,0.03)'}} />
+                                  <div className="flex-1" style={{background:'rgba(0,229,255,0.03)'}} />
+                                  <div className="flex-1" style={{background:'rgba(204,255,0,0.02)'}} />
                                 </div>
                                 {/* Grid lines */}
-                                <div className="absolute inset-x-0 top-3" style={{borderTop:'1px dashed rgba(239,68,68,0.2)'}} />
-                                <div className="absolute inset-x-0" style={{top:'calc(3px + 33%)',borderTop:'1px dashed rgba(245,158,11,0.2)'}} />
-                                <div className="absolute inset-x-0" style={{top:'calc(3px + 66%)',borderTop:'1px dashed rgba(16,185,129,0.2)'}} />
+                                <div className="absolute inset-x-0 top-3" style={{borderTop:'1px dashed rgba(255,107,157,0.2)'}} />
+                                <div className="absolute inset-x-0" style={{top:'calc(3px + 33%)',borderTop:'1px dashed rgba(0,229,255,0.15)'}} />
+                                <div className="absolute inset-x-0" style={{top:'calc(3px + 66%)',borderTop:'1px dashed rgba(204,255,0,0.12)'}} />
 
                                 {/* Bars */}
                                 <div className="relative h-full flex items-end gap-3 px-2">
@@ -1168,44 +1170,46 @@ const SessionEditor = ({
                                     const pct = Math.min(98, Math.max(10, (projected / maxVol) * 100));
                                     const isDesc = sem === (prog.semanaDescarga || 4);
 
-                                    let zone, zoneColor, barBg, tooltipText;
+                                    let zone, zoneColor, barBg, glowColor, tooltipText;
                                     if (isDesc) {
-                                      zone = 'DESCARGA'; zoneColor = '#60a5fa'; barBg = 'linear-gradient(180deg, #60a5fa 0%, #3b82f6 40%, #1e40af 100%)';
-                                      tooltipText = `Semana de descarga: volumen reducido al ${prog.reduccionDescarga || 50}% para recuperacion y supercompensacion. Permite al cuerpo asimilar la carga acumulada.`;
+                                      zone = 'DESCARGA'; zoneColor = '#818cf8'; glowColor = 'rgba(129,140,248,0.3)';
+                                      barBg = 'linear-gradient(180deg, #a5b4fc 0%, #818cf8 30%, #6366f1 60%, #4338ca 100%)';
+                                      tooltipText = `Semana de descarga: volumen reducido al ${prog.reduccionDescarga || 50}% para recuperacion y supercompensacion. Permite asimilar la carga acumulada.`;
                                     } else if (pct > 80) {
-                                      zone = 'MRV'; zoneColor = '#f87171'; barBg = 'linear-gradient(180deg, #fca5a5 0%, #ef4444 40%, #b91c1c 100%)';
-                                      tooltipText = `Cerca del MRV: volumen alto (${projected}). Riesgo de sobreentrenamiento si se mantiene. Considerar descarga pronto.`;
+                                      zone = 'MRV'; zoneColor = '#ff6b9d'; glowColor = 'rgba(255,107,157,0.3)';
+                                      barBg = 'linear-gradient(180deg, #fda4af 0%, #fb7185 30%, #e11d48 60%, #9f1239 100%)';
+                                      tooltipText = `Cerca del MRV: volumen alto (${projected}). Riesgo de sobreentrenamiento si se mantiene.`;
                                     } else if (pct > 45) {
-                                      zone = 'MAV'; zoneColor = '#fbbf24'; barBg = 'linear-gradient(180deg, #fde68a 0%, #f59e0b 40%, #d97706 100%)';
-                                      tooltipText = `Zona MAV optima: volumen ${projected} maximiza adaptaciones de ${act.capacidadFisica || 'fuerza'}. Rango ideal de entrenamiento.`;
+                                      zone = 'MAV'; zoneColor = '#00e5ff'; glowColor = 'rgba(0,229,255,0.25)';
+                                      barBg = 'linear-gradient(180deg, #67e8f9 0%, #22d3ee 30%, #06b6d4 60%, #0891b2 100%)';
+                                      tooltipText = `Zona MAV optima: volumen ${projected} maximiza adaptaciones de ${act.capacidadFisica || 'fuerza'}.`;
                                     } else {
-                                      zone = 'MEV'; zoneColor = '#34d399'; barBg = 'linear-gradient(180deg, #6ee7b7 0%, #10b981 40%, #059669 100%)';
-                                      tooltipText = `Zona MEV: volumen minimo efectivo (${projected}). Suficiente para mantener adaptaciones pero no para maximizar.`;
+                                      zone = 'MEV'; zoneColor = '#CCFF00'; glowColor = 'rgba(204,255,0,0.2)';
+                                      barBg = 'linear-gradient(180deg, #d9f99d 0%, #a3e635 30%, #84cc16 60%, #4d7c0f 100%)';
+                                      tooltipText = `Zona MEV: volumen minimo efectivo (${projected}). Suficiente para mantener adaptaciones.`;
                                     }
 
                                     return (
                                       <div key={sem} className="flex-1 flex flex-col items-center relative group/bar" style={{height:'100%'}}>
                                         {/* Tooltip */}
-                                        <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 w-[220px] p-3 rounded-xl bg-white text-slate-800 shadow-2xl border border-slate-100 opacity-0 invisible group-hover/bar:opacity-100 group-hover/bar:visible transition-all duration-200 z-50 pointer-events-none" style={{fontFamily:DM}}>
+                                        <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 w-[220px] p-3 rounded-xl shadow-2xl border opacity-0 invisible group-hover/bar:opacity-100 group-hover/bar:visible transition-all duration-200 z-50 pointer-events-none" style={{fontFamily:DM, background:'#0c0f1a', borderColor:'rgba(255,255,255,0.08)', color:'white'}}>
                                           <div className="flex items-center gap-2 mb-1.5">
                                             <div className="w-3 h-3 rounded" style={{background: zoneColor}} />
                                             <span className="text-[11px] font-bold">Semana {sem} — {zone}</span>
                                           </div>
-                                          <p className="text-[10px] text-slate-500 leading-relaxed mb-2">{tooltipText}</p>
-                                          <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                                            <span className="text-[10px] text-slate-400">Volumen proyectado:</span>
+                                          <p className="text-[10px] leading-relaxed mb-2" style={{color:'rgba(255,255,255,0.5)'}}>{tooltipText}</p>
+                                          <div className="flex items-center justify-between pt-2" style={{borderTop:'1px solid rgba(255,255,255,0.06)'}}>
+                                            <span className="text-[10px]" style={{color:'rgba(255,255,255,0.4)'}}>Volumen:</span>
                                             <span className="text-[13px] font-black" style={{color: zoneColor}}>{projected}</span>
                                           </div>
                                         </div>
 
-                                        {/* Bar wrapper - align to bottom */}
+                                        {/* Bar wrapper */}
                                         <div className="w-full flex flex-col items-center justify-end h-full">
-                                          {/* Value above bar */}
-                                          <span className="text-[12px] font-black mb-1" style={{color: zoneColor, fontFamily:DM, textShadow:`0 0 8px ${zoneColor}44`}}>{projected}</span>
-                                          {/* The bar */}
-                                          <div className="w-full rounded-t-lg cursor-pointer transition-all duration-200 hover:brightness-110 relative overflow-hidden" style={{height:`${pct}%`, background: barBg, boxShadow:`0 0 20px ${zoneColor}22, inset 0 1px 0 rgba(255,255,255,0.15)`}}>
-                                            {/* Shine effect */}
-                                            <div className="absolute inset-y-0 left-0 w-1/3" style={{background:'linear-gradient(90deg, rgba(255,255,255,0.08) 0%, transparent 100%)'}} />
+                                          <span className="text-[12px] font-black mb-1" style={{color: zoneColor, fontFamily:DM, textShadow:`0 0 12px ${glowColor}`}}>{projected}</span>
+                                          <div className="w-full rounded-t-lg cursor-pointer transition-all duration-300 hover:brightness-125 relative overflow-hidden" style={{height:`${pct}%`, background: barBg, boxShadow:`0 0 24px ${glowColor}, 0 0 4px ${glowColor}`}}>
+                                            <div className="absolute inset-y-0 left-0 w-[40%]" style={{background:'linear-gradient(90deg, rgba(255,255,255,0.12) 0%, transparent 100%)'}} />
+                                            <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{background: zoneColor, opacity:0.5}} />
                                           </div>
                                         </div>
                                       </div>
@@ -1216,7 +1220,7 @@ const SessionEditor = ({
                             </div>
 
                             {/* X-axis labels */}
-                            <div className="flex border-t border-white/5">
+                            <div className="flex" style={{borderTop:'1px solid rgba(255,255,255,0.04)'}}>
                               <div className="w-10 flex-shrink-0" />
                               <div className="flex-1 flex gap-3 px-2 py-2">
                                 {[1,2,3,4].map(sem => {
@@ -1225,24 +1229,24 @@ const SessionEditor = ({
                                   const projected = calcProgresionSemanal(volBase, sem, prog);
                                   const maxVol = volBase * 1.5;
                                   const pct = Math.min(98, Math.max(10, (projected / maxVol) * 100));
-                                  let zoneColor = isDesc ? '#60a5fa' : pct > 80 ? '#f87171' : pct > 45 ? '#fbbf24' : '#34d399';
+                                  let zoneColor = isDesc ? '#818cf8' : pct > 80 ? '#ff6b9d' : pct > 45 ? '#00e5ff' : '#CCFF00';
                                   let zone = isDesc ? 'Descarga' : pct > 80 ? 'MRV' : pct > 45 ? 'MAV' : 'MEV';
                                   return (
                                     <div key={sem} className="flex-1 text-center">
-                                      <span className="text-[11px] font-bold block" style={{color:'rgba(255,255,255,0.8)',fontFamily:DM}}>S{sem}</span>
-                                      <span className="text-[8px] font-semibold" style={{color: zoneColor}}>{zone}</span>
+                                      <span className="text-[11px] font-bold block" style={{color:'rgba(255,255,255,0.7)',fontFamily:DM}}>S{sem}</span>
+                                      <span className="text-[8px] font-bold" style={{color: zoneColor}}>{zone}</span>
                                     </div>
                                   );
                                 })}
                               </div>
                             </div>
 
-                            {/* Legend bar */}
-                            <div className="flex items-center justify-center gap-4 py-2 border-t border-white/5">
-                              <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-sm bg-emerald-500" /><span className="text-[9px] font-semibold text-slate-500">MEV</span></div>
-                              <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-sm bg-amber-500" /><span className="text-[9px] font-semibold text-slate-500">MAV</span></div>
-                              <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-sm bg-red-500" /><span className="text-[9px] font-semibold text-slate-500">MRV</span></div>
-                              <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-sm bg-blue-500" /><span className="text-[9px] font-semibold text-slate-500">Descarga</span></div>
+                            {/* Legend */}
+                            <div className="flex items-center justify-center gap-5 py-2.5" style={{borderTop:'1px solid rgba(255,255,255,0.04)'}}>
+                              <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-sm" style={{background:'#CCFF00'}} /><span className="text-[9px] font-semibold" style={{color:'rgba(255,255,255,0.4)'}}>MEV</span></div>
+                              <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-sm" style={{background:'#00e5ff'}} /><span className="text-[9px] font-semibold" style={{color:'rgba(255,255,255,0.4)'}}>MAV</span></div>
+                              <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-sm" style={{background:'#ff6b9d'}} /><span className="text-[9px] font-semibold" style={{color:'rgba(255,255,255,0.4)'}}>MRV</span></div>
+                              <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-sm" style={{background:'#818cf8'}} /><span className="text-[9px] font-semibold" style={{color:'rgba(255,255,255,0.4)'}}>Descarga</span></div>
                             </div>
                           </div>
                         </div>
