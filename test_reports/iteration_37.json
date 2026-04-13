@@ -1,0 +1,104 @@
+{
+  "summary": "GraphicPlan V2 Integration testing complete. Backend: 11/11 tests passed (100%). Frontend: All features working - grid populated from V2 data, 4 charts rendering with real V2 metrics, chart type selectors functional, 'Datos importados' badge confirms V2 sync.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "GraphicPlan", "issues": ["React hydration warnings in console (not critical, related to table structure)"]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_graphicplan_v2_api.py",
+    "/app/test_reports/pytest/graphicplan_v2_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "GraphicPlan.js correctly imports usePlanStore (line 39) and connects to V2 store",
+    "V2 sync auto-triggers when activePlan loads (useEffect at line ~328)",
+    "Grid rows (Macrociclo, Mesociclo, Microciclo) populate from v2Macros, v2Mesos, v2Micros",
+    "Microciclo types show abbreviated labels (Car/Cho/Res) from V2 tipo field",
+    "Frecuencia de entrenamiento shows session counts from V2 sesiones",
+    "loadChartData useMemo (line ~584) uses v2Micros.carga_total for Carga chart",
+    "volumeIntensityChartData useMemo (line ~627) uses v2Micros.vol_calculado and int_calculado",
+    "densityChartData useMemo (line ~668) uses v2Micros.den_calculado (series/min)",
+    "durationChartData useMemo (line ~685) calculates from v2Sesiones.duracion_minutos",
+    "All 4 charts have data-testid attributes for testing",
+    "'Datos importados' badge (line ~935) shows when hasImportedData is true",
+    "Chart type selectors work (Bars/Lines/Areas for Carga, Combined/Lines/Bars for Vol/Int)"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_graphicplan_v2_api.py"
+  ],
+  "success_rate": {
+    "backend": "100% (11/11 tests passed)",
+    "frontend": "100% (all features verified)"
+  },
+  "test_credentials": "email: test@train.com, password: test123456",
+  "seed_data_creation": "Used existing V1 plan 'TEST Plan Fútbol ATR' synced to V2",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "GraphicPlan V2 integration fully tested. Navigation: Login > Datos > Select 'TEST Plan Fútbol ATR' > Visualización. The grid auto-populates from V2 store (macrociclos, mesociclos, microciclos). Charts use V2 cascade-calculated metrics (carga_total, vol_calculado, int_calculado, den_calculado). Duration chart uses sesiones.duracion_minutos. Test file at /app/backend/tests/test_graphicplan_v2_api.py covers sync-from-v1, historico, and plan completo endpoints.",
+  "tests_executed": {
+    "Backend": {
+      "TestGraphicPlanV2API": {
+        "test_sync_from_v1_endpoint_exists": "PASSED - POST /api/v2/sync-from-v1/{plan_id} returns 200/201",
+        "test_sync_from_v1_returns_plan_id": "PASSED - Returns V2 plan_id after sync",
+        "test_sync_from_v1_invalid_plan": "PASSED - Returns 404 for invalid plan ID",
+        "test_historico_endpoint_exists": "PASSED - GET /api/v2/planes/{id}/historico returns 200",
+        "test_historico_returns_cargas_array": "PASSED - Returns cargas array",
+        "test_historico_404_for_invalid_plan": "PASSED - Returns 404 for non-existent plan",
+        "test_plan_completo_has_macrociclos": "PASSED - Returns macrociclos with tipo/nombre",
+        "test_plan_completo_has_mesociclos": "PASSED - Returns mesociclos with macrociclo_id",
+        "test_plan_completo_has_microciclos_with_metrics": "PASSED - Returns microciclos with V2 calculated fields",
+        "test_plan_completo_has_sesiones_for_duration_chart": "PASSED - Returns sesiones with duracion_minutos",
+        "test_v2_planes_list": "PASSED - GET /api/v2/planes returns list"
+      }
+    },
+    "Frontend": {
+      "Navigation": "PASSED - Login > Datos > TEST Plan Fútbol ATR > Visualización",
+      "GraphicPlan_Grid": {
+        "Macrociclo_row": "PASSED - Shows colored cells for weeks 1-11",
+        "Mesociclo_row": "PASSED - Shows colored cells with month numbers",
+        "Microciclo_row": "PASSED - Shows colored cells",
+        "Tipo_de_microciclo": "PASSED - Shows Car/Cho/Res abbreviations",
+        "Frecuencia_entrenamiento": "PASSED - Shows '5' for each week (session count)"
+      },
+      "GraphicPlan_Charts": {
+        "Carga_y_Recuperacion": "PASSED - Renders with 144 bar elements, chart type selector works",
+        "Volumen_e_Intensidad": "PASSED - Renders combined chart",
+        "Densidad": "PASSED - data-testid='density-chart-card' found, area/line elements present",
+        "Duracion": "PASSED - data-testid='duration-chart-card' found, 72 stacked bar elements"
+      },
+      "V2_Sync_Confirmation": "PASSED - 'Datos importados' badge visible, toast 'Datos de periodización importados correctamente'",
+      "General_Info": "PASSED - Deporte field shows 'football'",
+      "JS_Console_Errors": "Minor hydration warnings only (not critical)"
+    }
+  },
+  "endpoints_verified": [
+    "POST /api/v2/sync-from-v1/{plan_id} - ✓ Syncs V1 plan to V2 structure",
+    "GET /api/v2/planes/{id}/historico - ✓ Returns historico_cargas for charts",
+    "GET /api/v2/planes/{id}/completo - ✓ Returns full tree with all chart data",
+    "GET /api/v2/planes - ✓ Returns list of V2 plans"
+  ],
+  "features_verified": [
+    "✓ Backend: GET /api/v2/planes/{plan_id}/historico still works",
+    "✓ Backend: POST /api/v2/sync-from-v1/{plan_id} still works",
+    "✓ Frontend: Navigate to Dashboard > Datos > Visualización to see GraphicPlan",
+    "✓ Frontend: GraphicPlan grid shows colored cells for Macrociclo row from V2 data",
+    "✓ Frontend: GraphicPlan grid shows colored cells for Mesociclo row from V2 data",
+    "✓ Frontend: GraphicPlan grid shows Microciclo types (Car/Cho/Res) from V2 data",
+    "✓ Frontend: GraphicPlan shows Frecuencia de entrenamiento from session counts",
+    "✓ Frontend: Carga y Recuperación chart renders with bar data",
+    "✓ Frontend: Volumen e Intensidad chart renders with bar+line combined chart",
+    "✓ Frontend: Densidad chart renders (data-testid='density-chart-card')",
+    "✓ Frontend: Duración chart renders stacked bars (data-testid='duration-chart-card')",
+    "✓ Frontend: 'Datos importados' badge appears confirming V2 sync",
+    "✓ Frontend: Chart type selectors work (Bars/Lines/Areas for Carga chart)",
+    "✓ Frontend: No critical JS console errors on GraphicPlan page",
+    "✓ Frontend: General info shows Deporte=football from plan data"
+  ]
+}

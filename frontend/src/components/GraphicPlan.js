@@ -6,7 +6,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '.
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
 import {
   BarChart, Bar, LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, 
-  Tooltip, Legend, ResponsiveContainer, ComposedChart
+  Tooltip, Legend, ResponsiveContainer, ComposedChart, ReferenceLine, ReferenceArea
 } from 'recharts';
 import {
   Save,
@@ -29,11 +29,14 @@ import {
   RefreshCw,
   BarChart3,
   TrendingUp,
-  Image
+  Image,
+  Timer,
+  Gauge
 } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 import html2canvas from 'html2canvas';
+import usePlanStore from '../stores/planStore';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -122,6 +125,18 @@ const MICROCYCLE_TYPES = [
 ];
 
 const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, competitions = [] }) => {
+  // ═══ V2 STORE CONNECTION ═══
+  const v2Store = usePlanStore();
+  const v2Macros = v2Store.macrociclos;
+  const v2Mesos = v2Store.mesociclos;
+  const v2Micros = v2Store.microciclos;
+  const v2Sesiones = v2Store.sesiones;
+  const v2Ejercicios = v2Store.ejercicios;
+  const v2Capacidades = v2Store.capacidades;
+  const v2Plan = v2Store.plan;
+  const v2Alertas = v2Store.alertas;
+  const v2Historico = v2Store.historicoCarga;
+
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [cycleDuration, setCycleDuration] = useState('annual');
@@ -133,6 +148,8 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
   // Chart type selections
   const [loadChartType, setLoadChartType] = useState('bars'); // 'bars', 'lines', 'areas'
   const [volumeIntensityChartType, setVolumeIntensityChartType] = useState('combined'); // 'lines', 'bars', 'combined'
+  const [densityChartType, setDensityChartType] = useState('area'); // 'area', 'line'
+  const [durationChartType, setDurationChartType] = useState('stacked'); // 'stacked', 'bars'
   
   // Calendar events
   const [events, setEvents] = useState([]);
@@ -307,6 +324,159 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
     toast.success('Datos de periodización importados correctamente');
   }, [athleteName]);
 
+  // ═══ V2 SYNC: Auto-sync V1 plan to V2 when activePlan loads ═══
+  useEffect(() => {
+    if (activePlan?.id && !v2Plan) {
+      v2Store.syncFromV1(activePlan.id);
+    }
+  }, [activePlan?.id]);
+
+  // ═══ V2 SYNC: Populate grid from V2 data when available ═══
+  useEffect(() => {
+    if (!v2Micros.length || !v2Mesos.length || !v2Macros.length) return;
+
+    const newPlanData = {
+      macrocycles: {}, periods: {}, phases: {}, mesocycles: {},
+      microcycles: {}, intensity: {}, volume: {}, frequency: {},
+      preparation: {}, physical: {}, activities: {}, monitoring: {}
+    };
+
+    // Build lookup maps
+    const mesoByMacro = {};
+    v2Mesos.forEach(m => {
+      if (!mesoByMacro[m.macrociclo_id]) mesoByMacro[m.macrociclo_id] = [];
+      mesoByMacro[m.macrociclo_id].push(m);
+    });
+    const microByMeso = {};
+    v2Micros.forEach(m => {
+      if (!microByMeso[m.mesociclo_id]) microByMeso[m.mesociclo_id] = [];
+      microByMeso[m.mesociclo_id].push(m);
+    });
+    const sesionesByMicro = {};
+    v2Sesiones.forEach(s => {
+      if (!sesionesByMicro[s.microciclo_id]) sesionesByMicro[s.microciclo_id] = [];
+      sesionesByMicro[s.microciclo_id].push(s);
+    });
+    const ejerciciosBySesion = {};
+    v2Ejercicios.forEach(e => {
+      if (!ejerciciosBySesion[e.sesion_id]) ejerciciosBySesion[e.sesion_id] = [];
+      ejerciciosBySesion[e.sesion_id].push(e);
+    });
+
+    // Phase mapping from V2 macro types
+    const macroPhaseMap = {
+      accumulation: 'preparatory_general', prep_general: 'preparatory_general',
+      transformation: 'preparatory_specific', prep_specific: 'preparatory_specific',
+      realization: 'competitive', competitive: 'competitive',
+      transition: 'transition', recovery: 'transition'
+    };
+    const mesoTypeMap = {
+      basico_desarrollador: 'basico_desarrollador', basico_estabilizador: 'basico_estabilizador',
+      entrante: 'entrante', competitivo: 'competitivo', recuperacion: 'recuperacion',
+      precompetitivo: 'precompetitivo'
+    };
+    const microTypeMap = {
+      corriente: 'corriente', carga: 'carga', choque: 'choque',
+      competitivo: 'competitivo', aproximacion: 'aproximacion', restablecimiento: 'restablecimiento'
+    };
+
+    v2Macros.forEach(macro => {
+      const mesos = (mesoByMacro[macro.id] || []).sort((a, b) => (a.orden || 0) - (b.orden || 0));
+      mesos.forEach(meso => {
+        const micros = (microByMeso[meso.id] || []).sort((a, b) => (a.numero_semana || 0) - (b.numero_semana || 0));
+        micros.forEach(micro => {
+          const w = micro.numero_semana;
+          if (!w) return;
+
+          // Cycle rows
+          newPlanData.macrocycles[w] = macroPhaseMap[macro.tipo] || 'preparatory_general';
+          newPlanData.phases[w] = macroPhaseMap[macro.tipo] || 'preparatory_general';
+          const phase = macro.tipo;
+          if (['accumulation', 'prep_general', 'prep_specific', 'transformation'].includes(phase)) {
+            newPlanData.periods[w] = 'preparatorio';
+          } else if (['competitive', 'realization', 'precompetitive'].includes(phase)) {
+            newPlanData.periods[w] = 'competitivo';
+          } else {
+            newPlanData.periods[w] = 'transicion';
+          }
+          newPlanData.mesocycles[w] = mesoTypeMap[meso.tipo] || 'basico_desarrollador';
+          newPlanData.microcycles[w] = microTypeMap[micro.tipo] || 'corriente';
+
+          // Sessions count
+          const sessions = sesionesByMicro[micro.id] || [];
+          newPlanData.frequency[w] = String(sessions.length || 5);
+
+          // Intensity from V2 calculated or RPE
+          const avgRPE = sessions.length > 0
+            ? sessions.reduce((s, se) => s + (se.RPE_sesion || 0), 0) / sessions.length
+            : 0;
+          const intensityPct = avgRPE * 10; // RPE 1-10 → 10-100%
+
+          // Map intensity to level
+          const intLevel = intensityPct >= 95 ? 'very_high' :
+                           intensityPct >= 80 ? 'high' :
+                           intensityPct >= 65 ? 'medium' :
+                           intensityPct >= 45 ? 'low' : 'recovery';
+          const intVal = intensityPct >= 95 ? 5 : intensityPct >= 80 ? 4 : intensityPct >= 65 ? 3 : intensityPct >= 45 ? 2 : 1;
+          newPlanData.intensity[`${intLevel}_${w}`] = intVal;
+
+          // Preparation emphasis from phase
+          if (['accumulation', 'prep_general'].includes(phase)) {
+            newPlanData.preparation[`general_physical_${w}`] = Math.min(5, intVal + 1);
+            newPlanData.physical[`endurance_${w}`] = Math.min(5, intVal);
+            newPlanData.physical[`strength_${w}`] = Math.max(1, intVal - 1);
+          } else if (['transformation', 'prep_specific'].includes(phase)) {
+            newPlanData.preparation[`specific_physical_${w}`] = intVal;
+            newPlanData.preparation[`technical_${w}`] = intVal;
+            newPlanData.physical[`strength_${w}`] = intVal;
+            newPlanData.physical[`speed_${w}`] = Math.max(1, intVal - 1);
+          } else if (['realization', 'competitive'].includes(phase)) {
+            newPlanData.preparation[`tactical_${w}`] = intVal;
+            newPlanData.preparation[`psychological_${w}`] = intVal;
+            newPlanData.physical[`speed_${w}`] = intVal;
+          }
+
+          // Capacidades from V2 exercises
+          const capCount = {};
+          sessions.forEach(s => {
+            (ejerciciosBySesion[s.id] || []).forEach(e => {
+              const cap = e.capacidad_tipo || '';
+              capCount[cap] = (capCount[cap] || 0) + (e.series || 0);
+            });
+          });
+          if (capCount.fuerza_maxima) newPlanData.physical[`strength_${w}`] = Math.min(5, Math.ceil(capCount.fuerza_maxima / 4));
+          if (capCount.velocidad) newPlanData.physical[`speed_${w}`] = Math.min(5, Math.ceil(capCount.velocidad / 3));
+          if (capCount.resistencia_aerobica) newPlanData.physical[`endurance_${w}`] = Math.min(5, Math.ceil(capCount.resistencia_aerobica / 3));
+          if (capCount.coordinacion) newPlanData.physical[`coordination_${w}`] = Math.min(5, Math.ceil(capCount.coordinacion / 2));
+          if (capCount.flexibilidad) newPlanData.physical[`flexibility_${w}`] = Math.min(5, Math.ceil(capCount.flexibilidad / 2));
+
+          newPlanData.activities[`training_${w}`] = true;
+          if (micro.tipo === 'restablecimiento') newPlanData.activities[`recovery_${w}`] = true;
+        });
+      });
+    });
+
+    setPlanData(prev => {
+      // Merge: V2 data fills empty cells, but preserve manual overrides
+      const merged = { ...newPlanData };
+      Object.keys(prev).forEach(section => {
+        if (typeof prev[section] === 'object' && prev[section]) {
+          Object.keys(prev[section]).forEach(key => {
+            if (prev[section][key] && !merged[section]?.[key]) {
+              if (!merged[section]) merged[section] = {};
+              merged[section][key] = prev[section][key];
+            }
+          });
+        }
+      });
+      return merged;
+    });
+
+    if (v2Micros.length > 0 && !hasImportedData) {
+      setHasImportedData(true);
+    }
+  }, [v2Macros, v2Mesos, v2Micros, v2Sesiones, v2Ejercicios]);
+
   // Watch for periodization data changes
   useEffect(() => {
     if (periodizationData && !hasImportedData) {
@@ -409,81 +579,129 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
     return weeks.slice(start, end);
   }, [weeks, viewOffset, visibleWeeks, totalWeeks]);
 
+  // ═══ CHART DATA FROM V2 STORE (real calculated metrics) ═══
   // Calculate load magnitude data for charts (Carga y Recuperación)
   const loadChartData = useMemo(() => {
     return displayedWeeks.map(week => {
-      // Calculate total load for week (sum of all intensity levels)
+      // Try V2 micro data first
+      const v2Micro = v2Micros.find(m => m.numero_semana === week);
+      if (v2Micro && v2Micro.carga_total > 0) {
+        const maxCarga = Math.max(...v2Micros.map(m => m.carga_total || 0), 1);
+        const cargaPct = Math.round((v2Micro.carga_total / maxCarga) * 100);
+        const phaseId = planData.phases?.[week];
+        const phase = MACROCYCLE_TYPES.find(t => t.id === phaseId);
+        return {
+          week: `S${week}`,
+          weekNum: week,
+          carga: cargaPct,
+          recuperacion: Math.max(0, 100 - cargaPct),
+          fase: phase?.label || '',
+          cargaUA: Math.round(v2Micro.carga_total),
+          ACWR: v2Micro.ACWR || 0,
+          RPE: v2Micro.RPE_promedio || 0,
+        };
+      }
+      // Fallback to local planData
       let totalLoad = 0;
-      let recovery = 0;
-      
       INTENSITY_LEVELS.forEach((level, idx) => {
-        const value = planData.intensity?.[level.id]?.[week] || 0;
-        // Weight higher intensity more
+        const value = planData.intensity?.[`${level.id}_${week}`] || 0;
         totalLoad += value * (5 - idx);
       });
-      
-      // Recovery is inverse of load (simplified)
-      recovery = Math.max(0, 100 - totalLoad * 20);
-      
-      // Get phase for color coding
+      const recovery = Math.max(0, 100 - totalLoad * 20);
       const phaseId = planData.phases?.[week];
       const phase = MACROCYCLE_TYPES.find(t => t.id === phaseId);
-      
       return {
         week: `S${week}`,
         weekNum: week,
         carga: Math.min(100, totalLoad * 20),
         recuperacion: recovery,
         fase: phase?.label || '',
-        faseColor: phase?.color || ''
+        cargaUA: 0,
+        ACWR: 0,
+        RPE: 0,
       };
     });
-  }, [displayedWeeks, planData.intensity, planData.phases]);
+  }, [displayedWeeks, planData.intensity, planData.phases, v2Micros]);
 
   // Calculate volume and intensity data for charts
   const volumeIntensityChartData = useMemo(() => {
     return displayedWeeks.map(week => {
-      // Calculate average volume from volume cells
-      let volumeSum = 0;
-      let volumeCount = 0;
-      
+      // Try V2 micro data first
+      const v2Micro = v2Micros.find(m => m.numero_semana === week);
+      if (v2Micro && (v2Micro.vol_calculado > 0 || v2Micro.int_calculado > 0)) {
+        const mesocycleId = planData.mesocycles?.[week];
+        const mesocycle = MESOCYCLE_TYPES.find(t => t.id === mesocycleId);
+        return {
+          week: `S${week}`,
+          weekNum: week,
+          volumen: Math.round(v2Micro.vol_calculado),
+          intensidad: Math.round(v2Micro.int_calculado),
+          mesociclo: mesocycle?.label || '',
+          tonelaje: Math.round(v2Micro.tonelaje_kg || 0),
+          carga: Math.round(v2Micro.carga_total || 0),
+        };
+      }
+      // Fallback
+      let volumeSum = 0, volumeCount = 0;
       INTENSITY_LEVELS.forEach(level => {
-        const value = planData.volume?.[level.id]?.[week];
-        if (value) {
-          volumeSum += value;
-          volumeCount++;
-        }
+        const value = planData.volume?.[`${level.id}_${week}`];
+        if (value) { volumeSum += value; volumeCount++; }
       });
-      
-      // Calculate intensity from intensity cells
-      let intensitySum = 0;
-      let intensityCount = 0;
-      
+      let intensitySum = 0, intensityCount = 0;
       INTENSITY_LEVELS.forEach((level, idx) => {
-        const value = planData.intensity?.[level.id]?.[week];
-        if (value) {
-          intensitySum += value * (100 - idx * 15); // Higher intensity levels have higher %
-          intensityCount += value;
-        }
+        const value = planData.intensity?.[`${level.id}_${week}`];
+        if (value) { intensitySum += value * (100 - idx * 15); intensityCount += value; }
       });
-      
-      const avgVolume = volumeCount > 0 ? Math.round(volumeSum / volumeCount * 20) : 0;
-      const avgIntensity = intensityCount > 0 ? Math.round(intensitySum / intensityCount) : 0;
-      
-      // Get mesocycle for additional info
-      const mesocycleId = planData.mesocycles?.[week];
-      const mesocycle = MESOCYCLE_TYPES.find(t => t.id === mesocycleId);
-      
       return {
         week: `S${week}`,
         weekNum: week,
-        volumen: avgVolume || Math.floor(Math.random() * 40) + 30, // Sample data if empty
-        intensidad: avgIntensity || Math.floor(Math.random() * 30) + 50, // Sample data if empty
-        mesociclo: mesocycle?.label || '',
-        month: Math.ceil(week / 4)
+        volumen: volumeCount > 0 ? Math.round(volumeSum / volumeCount * 20) : 0,
+        intensidad: intensityCount > 0 ? Math.round(intensitySum / intensityCount) : 0,
+        mesociclo: MESOCYCLE_TYPES.find(t => t.id === planData.mesocycles?.[week])?.label || '',
+        tonelaje: 0,
+        carga: 0,
       };
     });
-  }, [displayedWeeks, planData.volume, planData.intensity, planData.mesocycles]);
+  }, [displayedWeeks, planData.volume, planData.intensity, planData.mesocycles, v2Micros]);
+
+  // ═══ NEW: Density chart data ═══
+  const densityChartData = useMemo(() => {
+    return displayedWeeks.map(week => {
+      const v2Micro = v2Micros.find(m => m.numero_semana === week);
+      const den = v2Micro?.den_calculado || 0;
+      const denPct = Math.round(den * 100); // series/min → display scale
+      const level = denPct > 12 ? 'alto' : denPct > 6 ? 'medio' : 'bajo';
+      return {
+        week: `S${week}`,
+        weekNum: week,
+        densidad: Math.round(den * 1000) / 10, // e.g. 0.0234 → 2.3
+        nivel: level,
+        fill: level === 'alto' ? '#EF4444' : level === 'medio' ? '#F59E0B' : '#10B981',
+      };
+    });
+  }, [displayedWeeks, v2Micros]);
+
+  // ═══ NEW: Duration chart data ═══
+  const durationChartData = useMemo(() => {
+    return displayedWeeks.map(week => {
+      const v2Micro = v2Micros.find(m => m.numero_semana === week);
+      const sessions = v2Micro ? v2Sesiones.filter(s => s.microciclo_id === v2Micro.id) : [];
+      const totalMin = sessions.reduce((s, se) => s + (se.duracion_minutos || 0), 0);
+      // Split into warmup (15%), main (70%), cooldown (15%)
+      const warmup = Math.round(totalMin * 0.15);
+      const main = Math.round(totalMin * 0.70);
+      const cooldown = totalMin - warmup - main;
+      return {
+        week: `S${week}`,
+        weekNum: week,
+        calentamiento: warmup,
+        principal: main,
+        vueltaCalma: cooldown,
+        total: totalMin,
+        sesiones: sessions.length,
+      };
+    });
+  }, [displayedWeeks, v2Micros, v2Sesiones]);
 
   // Load existing plan
   useEffect(() => {
@@ -1213,14 +1431,15 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                       <Tooltip 
                         content={({ active, payload, label }) => {
                           if (active && payload?.length) {
+                            const d = payload[0]?.payload;
                             return (
                               <div className="bg-white p-2 border rounded shadow text-xs">
                                 <p className="font-bold">{label}</p>
-                                <p className="text-red-600">Carga: {payload[0]?.value}%</p>
-                                <p className="text-blue-600">Recuperación: {payload[1]?.value}%</p>
-                                {payload[0]?.payload?.fase && (
-                                  <p className="text-gray-500">Fase: {payload[0].payload.fase}</p>
-                                )}
+                                <p className="text-red-600">Carga: {payload[0]?.value}%{d?.cargaUA ? ` (${d.cargaUA} UA)` : ''}</p>
+                                <p className="text-blue-600">Recuperacion: {payload[1]?.value}%</p>
+                                {d?.RPE > 0 && <p className="text-slate-500">RPE: {d.RPE.toFixed(1)}</p>}
+                                {d?.ACWR > 0 && <p className="text-slate-500">ACWR: {d.ACWR.toFixed(2)}</p>}
+                                {d?.fase && <p className="text-gray-500">Fase: {d.fase}</p>}
                               </div>
                             );
                           }
@@ -1293,14 +1512,15 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                       <Tooltip 
                         content={({ active, payload, label }) => {
                           if (active && payload?.length) {
+                            const d = payload[0]?.payload;
                             return (
                               <div className="bg-white p-2 border rounded shadow text-xs">
                                 <p className="font-bold">{label}</p>
                                 <p className="text-green-600">Volumen: {payload[0]?.value}%</p>
                                 <p className="text-purple-600">Intensidad: {payload[1]?.value}%</p>
-                                {payload[0]?.payload?.mesociclo && (
-                                  <p className="text-gray-500">Mesociclo: {payload[0].payload.mesociclo}</p>
-                                )}
+                                {d?.tonelaje > 0 && <p className="text-orange-600">Tonelaje: {d.tonelaje} kg</p>}
+                                {d?.carga > 0 && <p className="text-slate-500">Carga: {d.carga} UA</p>}
+                                {d?.mesociclo && <p className="text-gray-500">Mesociclo: {d.mesociclo}</p>}
                               </div>
                             );
                           }
@@ -1336,6 +1556,143 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 <div className="mt-2 flex justify-center gap-6 text-xs text-slate-500">
                   <span className="flex items-center gap-1"><div className="w-3 h-3 bg-green-500 rounded"></div> Volumen de entrenamiento</span>
                   <span className="flex items-center gap-1"><div className="w-3 h-3 bg-purple-500 rounded"></div> Intensidad del entrenamiento</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* ═══ DENSIDAD CHART (NEW) ═══ */}
+            <Card className="border-2 border-orange-200" data-testid="density-chart-card">
+              <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 py-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base flex items-center gap-2 text-orange-800">
+                    <Gauge className="w-5 h-5" />
+                    Densidad del Entrenamiento
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-600">Tipo:</span>
+                    <Select value={densityChartType} onValueChange={setDensityChartType}>
+                      <SelectTrigger className="w-36 h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="area">Area suavizada</SelectItem>
+                        <SelectItem value="line">Linea con puntos</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <ResponsiveContainer width="100%" height={220}>
+                  {densityChartType === 'area' ? (
+                    <AreaChart data={densityChartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                      <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} />
+                      <Tooltip content={({ active, payload, label }) => {
+                        if (active && payload?.length) {
+                          const d = payload[0]?.payload;
+                          return (
+                            <div className="bg-white p-2 border rounded shadow text-xs">
+                              <p className="font-bold">{label}</p>
+                              <p style={{ color: d?.fill }}>Densidad: {d?.densidad} series/min</p>
+                              <p className="text-slate-500">Nivel: {d?.nivel}</p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }} />
+                      <ReferenceLine y={8} stroke="#EF4444" strokeDasharray="5 3" label={{ value: 'Riesgo fatiga', fontSize: 9, fill: '#EF4444' }} />
+                      <ReferenceArea y1={8} y2={15} fill="#FEE2E2" fillOpacity={0.4} />
+                      <Area type="monotone" dataKey="densidad" fill="#F59E0B" fillOpacity={0.3} stroke="#F59E0B" strokeWidth={2.5} dot={{ r: 3, fill: '#F59E0B', stroke: 'white', strokeWidth: 1 }} />
+                    </AreaChart>
+                  ) : (
+                    <LineChart data={densityChartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                      <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} />
+                      <Tooltip />
+                      <ReferenceLine y={8} stroke="#EF4444" strokeDasharray="5 3" />
+                      <Line type="monotone" dataKey="densidad" name="Densidad" stroke="#F59E0B" strokeWidth={2.5} dot={{ fill: '#F59E0B', r: 4 }} />
+                    </LineChart>
+                  )}
+                </ResponsiveContainer>
+                <div className="mt-2 flex justify-center gap-6 text-xs text-slate-500">
+                  <span className="flex items-center gap-1"><div className="w-3 h-3 bg-green-400 rounded"></div> Bajo (&lt;6)</span>
+                  <span className="flex items-center gap-1"><div className="w-3 h-3 bg-amber-400 rounded"></div> Medio (6-8)</span>
+                  <span className="flex items-center gap-1"><div className="w-3 h-3 bg-red-500 rounded"></div> Alto (&gt;8 riesgo fatiga)</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* ═══ DURACION CHART (NEW) ═══ */}
+            <Card className="border-2 border-cyan-200" data-testid="duration-chart-card">
+              <CardHeader className="bg-gradient-to-r from-cyan-50 to-blue-50 py-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base flex items-center gap-2 text-cyan-800">
+                    <Timer className="w-5 h-5" />
+                    Duracion por Semanas
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-600">Tipo:</span>
+                    <Select value={durationChartType} onValueChange={setDurationChartType}>
+                      <SelectTrigger className="w-44 h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="stacked">Barras apiladas</SelectItem>
+                        <SelectItem value="bars">Barras horizontales</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <ResponsiveContainer width="100%" height={220}>
+                  {durationChartType === 'stacked' ? (
+                    <BarChart data={durationChartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                      <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} label={{ value: 'min', angle: -90, position: 'insideLeft', fontSize: 10 }} />
+                      <Tooltip content={({ active, payload, label }) => {
+                        if (active && payload?.length) {
+                          const d = payload[0]?.payload;
+                          return (
+                            <div className="bg-white p-2 border rounded shadow text-xs">
+                              <p className="font-bold">{label} ({d?.sesiones} sesiones)</p>
+                              <p className="text-amber-600">Calentamiento: {d?.calentamiento} min</p>
+                              <p className="text-blue-600">Parte principal: {d?.principal} min</p>
+                              <p className="text-teal-600">Vuelta a la calma: {d?.vueltaCalma} min</p>
+                              <p className="font-bold text-slate-700 mt-1">Total: {d?.total} min</p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }} />
+                      <Legend />
+                      <ReferenceLine y={450} stroke="#EF4444" strokeDasharray="5 3" label={{ value: 'Max 90min/sesion', fontSize: 9, fill: '#EF4444' }} />
+                      <Bar dataKey="calentamiento" name="Calentamiento" stackId="dur" fill="#fbbf24" radius={[0, 0, 0, 0]} />
+                      <Bar dataKey="principal" name="Parte principal" stackId="dur" fill="#3b82f6" />
+                      <Bar dataKey="vueltaCalma" name="Vuelta a la calma" stackId="dur" fill="#14b8a6" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  ) : (
+                    <BarChart data={durationChartData} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                      <XAxis type="number" tick={{ fontSize: 10 }} label={{ value: 'min', position: 'insideBottomRight', fontSize: 10 }} />
+                      <YAxis type="category" dataKey="week" tick={{ fontSize: 9 }} width={36} />
+                      <Tooltip />
+                      <Legend />
+                      <ReferenceLine x={450} stroke="#EF4444" strokeDasharray="5 3" />
+                      <Bar dataKey="calentamiento" name="Calentamiento" stackId="dur" fill="#fbbf24" />
+                      <Bar dataKey="principal" name="Parte principal" stackId="dur" fill="#3b82f6" />
+                      <Bar dataKey="vueltaCalma" name="Vuelta a la calma" stackId="dur" fill="#14b8a6" />
+                    </BarChart>
+                  )}
+                </ResponsiveContainer>
+                <div className="mt-2 flex justify-center gap-6 text-xs text-slate-500">
+                  <span className="flex items-center gap-1"><div className="w-3 h-3 bg-amber-400 rounded"></div> Calentamiento</span>
+                  <span className="flex items-center gap-1"><div className="w-3 h-3 bg-blue-500 rounded"></div> Parte principal</span>
+                  <span className="flex items-center gap-1"><div className="w-3 h-3 bg-teal-500 rounded"></div> Vuelta a la calma</span>
                 </div>
               </CardContent>
             </Card>
