@@ -1108,107 +1108,141 @@ const SessionEditor = ({
 
                         {/* MEV → MAV → MRV Visual */}
                         <div className="mt-4 pt-3 border-t border-slate-200/60">
-                          {/* Header con tooltip de info general */}
-                          <div className="flex items-center justify-between mb-3">
+                          {/* Header */}
+                          <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                               <BarChart3 className="w-4 h-4 text-emerald-500" />
-                              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600" style={{fontFamily:DM}}>Proyeccion Semanal</span>
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600" style={{fontFamily:DM}}>Proyeccion MEV → MAV → MRV</span>
                             </div>
-                            <div className="relative group">
+                            <div className="relative group/info">
                               <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center cursor-help hover:bg-slate-200 transition-colors">
                                 <AlertCircle className="w-3 h-3 text-slate-400" />
                               </div>
-                              <div className="absolute right-0 bottom-7 w-[280px] p-3 rounded-xl bg-[#0a0a0f] text-white shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none" style={{fontFamily:DM}}>
-                                <p className="text-[11px] font-bold mb-2" style={{color:'#CCFF00'}}>MEV → MAV → MRV</p>
-                                <div className="space-y-1.5 text-[10px] leading-relaxed">
-                                  <p><span className="font-bold text-emerald-400">MEV</span> <span className="text-slate-400">- Minimo Volumen Efectivo:</span> Punto de partida, cantidad minima para generar adaptaciones.</p>
-                                  <p><span className="font-bold text-amber-400">MAV</span> <span className="text-slate-400">- Maximo Volumen Adaptativo:</span> Rango optimo donde se maximizan las ganancias.</p>
-                                  <p><span className="font-bold text-red-400">MRV</span> <span className="text-slate-400">- Maximo Volumen Recuperable:</span> Techo de volumen asimilable sin sobreentrenamiento.</p>
+                              <div className="absolute right-0 bottom-7 w-[300px] p-3.5 rounded-xl bg-[#0a0a0f] text-white shadow-2xl opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all z-50 pointer-events-none" style={{fontFamily:DM}}>
+                                <p className="text-[12px] font-bold mb-2" style={{color:'#CCFF00'}}>MEV → MAV → MRV</p>
+                                <div className="space-y-2 text-[10px] leading-relaxed">
+                                  <p><span className="font-bold text-emerald-400">MEV</span> <span className="text-slate-400">- Minimo Volumen Efectivo:</span> La cantidad minima de trabajo para generar adaptaciones.</p>
+                                  <p><span className="font-bold text-amber-400">MAV</span> <span className="text-slate-400">- Maximo Volumen Adaptativo:</span> El volumen optimo donde se maximizan las ganancias.</p>
+                                  <p><span className="font-bold text-red-400">MRV</span> <span className="text-slate-400">- Maximo Volumen Recuperable:</span> El techo de volumen que el cuerpo puede asimilar sin sobreentrenamiento.</p>
                                 </div>
-                                <div className="mt-2 pt-2 border-t border-white/10 text-[9px] text-slate-400">Operar entre MEV y MRV maximiza hipertrofia/fuerza. La semana azul es la descarga programada.</div>
+                                <div className="mt-2.5 pt-2 border-t border-white/10 space-y-1 text-[9px] text-slate-400">
+                                  <p>• Evitar sobreentrenamiento sabiendo cuando estas cerca del MRV</p>
+                                  <p>• Maximizar hipertrofia/fuerza operando en el rango MEV–MRV</p>
+                                  <p>• La semana en <span className="text-blue-400 font-bold">azul</span> es el deload programado</p>
+                                </div>
                               </div>
                             </div>
                           </div>
 
-                          {/* Leyenda MEV-MAV-MRV */}
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-[8px] font-semibold text-slate-500">MEV</span></div>
-                            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-amber-500" /><span className="text-[8px] font-semibold text-slate-500">MAV</span></div>
-                            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-500" /><span className="text-[8px] font-semibold text-slate-500">MRV</span></div>
-                            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-blue-500" /><span className="text-[8px] font-semibold text-slate-500">Descarga</span></div>
-                          </div>
-
-                          {/* Chart */}
-                          <div className="rounded-xl p-3" style={{background:'#0a0a0f'}}>
-                            {/* Zone indicators */}
-                            <div className="relative" style={{height:'100px'}}>
-                              {/* MRV line */}
-                              <div className="absolute left-0 right-0" style={{top:'5%'}}>
-                                <div className="flex items-center gap-1"><div className="flex-1 border-t border-dashed" style={{borderColor:'rgba(239,68,68,0.3)'}} /><span className="text-[7px] font-bold text-red-500/50 flex-shrink-0">MRV</span></div>
-                              </div>
-                              {/* MAV zone */}
-                              <div className="absolute left-0 right-0" style={{top:'30%'}}>
-                                <div className="flex items-center gap-1"><div className="flex-1 border-t border-dashed" style={{borderColor:'rgba(245,158,11,0.25)'}} /><span className="text-[7px] font-bold text-amber-500/50 flex-shrink-0">MAV</span></div>
-                              </div>
-                              {/* MEV line */}
-                              <div className="absolute left-0 right-0" style={{top:'65%'}}>
-                                <div className="flex items-center gap-1"><div className="flex-1 border-t border-dashed" style={{borderColor:'rgba(16,185,129,0.25)'}} /><span className="text-[7px] font-bold text-emerald-500/50 flex-shrink-0">MEV</span></div>
+                          {/* Chart container */}
+                          <div className="rounded-xl overflow-hidden" style={{background:'#0a0a0f'}}>
+                            {/* Y-axis labels + chart area */}
+                            <div className="flex" style={{height:'180px'}}>
+                              {/* Y-axis zone labels */}
+                              <div className="w-10 flex-shrink-0 flex flex-col justify-between py-3 pr-1 text-right">
+                                <span className="text-[7px] font-bold text-red-400/70">MRV</span>
+                                <span className="text-[7px] font-bold text-amber-400/70">MAV</span>
+                                <span className="text-[7px] font-bold text-emerald-400/70">MEV</span>
+                                <span className="text-[7px] font-bold text-slate-600">0</span>
                               </div>
 
-                              {/* Bars */}
-                              <div className="absolute inset-0 flex items-end gap-2 px-6 pb-0">
+                              {/* Chart body */}
+                              <div className="flex-1 relative py-3 pr-3">
+                                {/* Zone backgrounds */}
+                                <div className="absolute inset-x-0 top-3 bottom-3 flex flex-col">
+                                  <div className="flex-1" style={{background:'rgba(239,68,68,0.04)'}} />
+                                  <div className="flex-1" style={{background:'rgba(245,158,11,0.06)'}} />
+                                  <div className="flex-1" style={{background:'rgba(16,185,129,0.04)'}} />
+                                </div>
+                                {/* Grid lines */}
+                                <div className="absolute inset-x-0 top-3" style={{borderTop:'1px dashed rgba(239,68,68,0.2)'}} />
+                                <div className="absolute inset-x-0" style={{top:'calc(3px + 33%)',borderTop:'1px dashed rgba(245,158,11,0.2)'}} />
+                                <div className="absolute inset-x-0" style={{top:'calc(3px + 66%)',borderTop:'1px dashed rgba(16,185,129,0.2)'}} />
+
+                                {/* Bars */}
+                                <div className="relative h-full flex items-end gap-3 px-2">
+                                  {[1,2,3,4].map(sem => {
+                                    const volBase = parseFloat(act.volumen) || 30;
+                                    const projected = calcProgresionSemanal(volBase, sem, prog);
+                                    const maxVol = volBase * 1.5;
+                                    const pct = Math.min(98, Math.max(10, (projected / maxVol) * 100));
+                                    const isDesc = sem === (prog.semanaDescarga || 4);
+
+                                    let zone, zoneColor, barBg, tooltipText;
+                                    if (isDesc) {
+                                      zone = 'DESCARGA'; zoneColor = '#60a5fa'; barBg = 'linear-gradient(180deg, #60a5fa 0%, #3b82f6 40%, #1e40af 100%)';
+                                      tooltipText = `Semana de descarga: volumen reducido al ${prog.reduccionDescarga || 50}% para recuperacion y supercompensacion. Permite al cuerpo asimilar la carga acumulada.`;
+                                    } else if (pct > 80) {
+                                      zone = 'MRV'; zoneColor = '#f87171'; barBg = 'linear-gradient(180deg, #fca5a5 0%, #ef4444 40%, #b91c1c 100%)';
+                                      tooltipText = `Cerca del MRV: volumen alto (${projected}). Riesgo de sobreentrenamiento si se mantiene. Considerar descarga pronto.`;
+                                    } else if (pct > 45) {
+                                      zone = 'MAV'; zoneColor = '#fbbf24'; barBg = 'linear-gradient(180deg, #fde68a 0%, #f59e0b 40%, #d97706 100%)';
+                                      tooltipText = `Zona MAV optima: volumen ${projected} maximiza adaptaciones de ${act.capacidadFisica || 'fuerza'}. Rango ideal de entrenamiento.`;
+                                    } else {
+                                      zone = 'MEV'; zoneColor = '#34d399'; barBg = 'linear-gradient(180deg, #6ee7b7 0%, #10b981 40%, #059669 100%)';
+                                      tooltipText = `Zona MEV: volumen minimo efectivo (${projected}). Suficiente para mantener adaptaciones pero no para maximizar.`;
+                                    }
+
+                                    return (
+                                      <div key={sem} className="flex-1 flex flex-col items-center relative group/bar" style={{height:'100%'}}>
+                                        {/* Tooltip */}
+                                        <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 w-[220px] p-3 rounded-xl bg-white text-slate-800 shadow-2xl border border-slate-100 opacity-0 invisible group-hover/bar:opacity-100 group-hover/bar:visible transition-all duration-200 z-50 pointer-events-none" style={{fontFamily:DM}}>
+                                          <div className="flex items-center gap-2 mb-1.5">
+                                            <div className="w-3 h-3 rounded" style={{background: zoneColor}} />
+                                            <span className="text-[11px] font-bold">Semana {sem} — {zone}</span>
+                                          </div>
+                                          <p className="text-[10px] text-slate-500 leading-relaxed mb-2">{tooltipText}</p>
+                                          <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                                            <span className="text-[10px] text-slate-400">Volumen proyectado:</span>
+                                            <span className="text-[13px] font-black" style={{color: zoneColor}}>{projected}</span>
+                                          </div>
+                                        </div>
+
+                                        {/* Bar wrapper - align to bottom */}
+                                        <div className="w-full flex flex-col items-center justify-end h-full">
+                                          {/* Value above bar */}
+                                          <span className="text-[12px] font-black mb-1" style={{color: zoneColor, fontFamily:DM, textShadow:`0 0 8px ${zoneColor}44`}}>{projected}</span>
+                                          {/* The bar */}
+                                          <div className="w-full rounded-t-lg cursor-pointer transition-all duration-200 hover:brightness-110 relative overflow-hidden" style={{height:`${pct}%`, background: barBg, boxShadow:`0 0 20px ${zoneColor}22, inset 0 1px 0 rgba(255,255,255,0.15)`}}>
+                                            {/* Shine effect */}
+                                            <div className="absolute inset-y-0 left-0 w-1/3" style={{background:'linear-gradient(90deg, rgba(255,255,255,0.08) 0%, transparent 100%)'}} />
+                                          </div>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* X-axis labels */}
+                            <div className="flex border-t border-white/5">
+                              <div className="w-10 flex-shrink-0" />
+                              <div className="flex-1 flex gap-3 px-2 py-2">
                                 {[1,2,3,4].map(sem => {
+                                  const isDesc = sem === (prog.semanaDescarga || 4);
                                   const volBase = parseFloat(act.volumen) || 30;
                                   const projected = calcProgresionSemanal(volBase, sem, prog);
-                                  const maxVol = volBase * 1.4;
-                                  const pct = Math.min(95, Math.max(8, (projected / maxVol) * 95));
-                                  const isDesc = sem === (prog.semanaDescarga || 4);
-                                  const semDescNum = prog.semanaDescarga || 4;
-
-                                  // Determine zone
-                                  let zone, zoneColor, barBg, tooltipText;
-                                  if (isDesc) {
-                                    zone = 'DESCARGA'; zoneColor = '#60a5fa'; barBg = 'linear-gradient(180deg, #3b82f6 0%, #1e40af 100%)';
-                                    tooltipText = `Semana de descarga: volumen reducido al ${prog.reduccionDescarga || 50}% para recuperacion y supercompensacion.`;
-                                  } else if (pct > 85) {
-                                    zone = 'MRV'; zoneColor = '#f87171'; barBg = 'linear-gradient(180deg, #ef4444 0%, #b91c1c 100%)';
-                                    tooltipText = `Cerca del MRV: volumen alto (${projected}). Riesgo de sobreentrenamiento si se mantiene.`;
-                                  } else if (pct > 55) {
-                                    zone = 'MAV'; zoneColor = '#fbbf24'; barBg = 'linear-gradient(180deg, #f59e0b 0%, #d97706 100%)';
-                                    tooltipText = `Zona MAV optima: volumen ${projected} maximiza adaptaciones de ${act.capacidadFisica || 'fuerza'}.`;
-                                  } else {
-                                    zone = 'MEV'; zoneColor = '#34d399'; barBg = 'linear-gradient(180deg, #10b981 0%, #059669 100%)';
-                                    tooltipText = `Zona MEV: volumen minimo efectivo (${projected}). Suficiente para mantener adaptaciones.`;
-                                  }
-
+                                  const maxVol = volBase * 1.5;
+                                  const pct = Math.min(98, Math.max(10, (projected / maxVol) * 100));
+                                  let zoneColor = isDesc ? '#60a5fa' : pct > 80 ? '#f87171' : pct > 45 ? '#fbbf24' : '#34d399';
+                                  let zone = isDesc ? 'Descarga' : pct > 80 ? 'MRV' : pct > 45 ? 'MAV' : 'MEV';
                                   return (
-                                    <div key={sem} className="flex-1 flex flex-col items-center relative group/bar">
-                                      {/* Tooltip on hover */}
-                                      <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-[200px] p-2.5 rounded-lg bg-white text-slate-800 shadow-xl border border-slate-200 opacity-0 invisible group-hover/bar:opacity-100 group-hover/bar:visible transition-all z-50 pointer-events-none" style={{fontFamily:DM}}>
-                                        <div className="flex items-center gap-1.5 mb-1">
-                                          <div className="w-2.5 h-2.5 rounded-sm" style={{background: zoneColor}} />
-                                          <span className="text-[10px] font-bold">Semana {sem} — {zone}</span>
-                                        </div>
-                                        <p className="text-[9px] text-slate-500 leading-relaxed">{tooltipText}</p>
-                                        <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-slate-100">
-                                          <span className="text-[9px] text-slate-400">Volumen:</span>
-                                          <span className="text-[11px] font-black" style={{color: zoneColor}}>{projected} {act.unidadVolumen || 'u'}</span>
-                                        </div>
-                                      </div>
-
-                                      {/* Value label */}
-                                      <span className="text-[11px] font-black mb-1" style={{color: zoneColor, fontFamily:DM}}>{projected}</span>
-                                      {/* Bar */}
-                                      <div className="w-full rounded-md cursor-pointer transition-all hover:opacity-80 hover:scale-x-105" style={{height:`${pct}%`, background: barBg, boxShadow:`0 0 12px ${zoneColor}33`}} />
-                                      {/* Week label */}
-                                      <div className="mt-1.5 flex flex-col items-center">
-                                        <span className="text-[10px] font-bold" style={{color:'rgba(255,255,255,0.7)',fontFamily:DM}}>S{sem}</span>
-                                        <span className="text-[7px] font-medium" style={{color: zoneColor}}>{zone}</span>
-                                      </div>
+                                    <div key={sem} className="flex-1 text-center">
+                                      <span className="text-[11px] font-bold block" style={{color:'rgba(255,255,255,0.8)',fontFamily:DM}}>S{sem}</span>
+                                      <span className="text-[8px] font-semibold" style={{color: zoneColor}}>{zone}</span>
                                     </div>
                                   );
                                 })}
                               </div>
+                            </div>
+
+                            {/* Legend bar */}
+                            <div className="flex items-center justify-center gap-4 py-2 border-t border-white/5">
+                              <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-sm bg-emerald-500" /><span className="text-[9px] font-semibold text-slate-500">MEV</span></div>
+                              <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-sm bg-amber-500" /><span className="text-[9px] font-semibold text-slate-500">MAV</span></div>
+                              <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-sm bg-red-500" /><span className="text-[9px] font-semibold text-slate-500">MRV</span></div>
+                              <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-sm bg-blue-500" /><span className="text-[9px] font-semibold text-slate-500">Descarga</span></div>
                             </div>
                           </div>
                         </div>
