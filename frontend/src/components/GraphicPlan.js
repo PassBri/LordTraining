@@ -635,8 +635,8 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
       const manualCarga = planData.load_chart?.[`carga_${week}`];
       const manualRecup = planData.load_chart?.[`recuperacion_${week}`];
       if (manualCarga !== undefined || manualRecup !== undefined) {
-        const cargaVal = (manualCarga || 0) * 20;
-        const recupVal = (manualRecup || 0) * 20;
+        const cargaVal = (manualCarga || 0) * 10;
+        const recupVal = (manualRecup || 0) * 10;
         return {
           week: `S${week}`, weekNum: week,
           carga: cargaVal, recuperacion: recupVal,
@@ -681,7 +681,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
       if (manualVol !== undefined || manualInt !== undefined) {
         return {
           week: `S${week}`, weekNum: week,
-          volumen: (manualVol || 0) * 20, intensidad: (manualInt || 0) * 20,
+          volumen: (manualVol || 0) * 10, intensidad: (manualInt || 0) * 10,
           mesociclo: MESOCYCLE_TYPES.find(t => t.id === planData.mesocycles?.[week])?.label || '',
           tonelaje: 0, carga: 0,
         };
@@ -722,7 +722,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
     return displayedWeeks.map(week => {
       const row = { week: `S${week}` };
       PREPARATION_TYPES.forEach(prep => {
-        row[prep.id] = (planData.preparation?.[`${prep.id}_${week}`] || 0) * 20; // scale 1-5 → 20-100
+        row[prep.id] = (planData.preparation?.[`${prep.id}_${week}`] || 0) * 10; // scale 0-10 → 0-100
       });
       return row;
     });
@@ -733,7 +733,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
     return displayedWeeks.map(week => {
       const row = { week: `S${week}` };
       PHYSICAL_COMPONENTS.forEach(comp => {
-        row[comp.id] = (planData.physical?.[`${comp.id}_${week}`] || 0) * 20;
+        row[comp.id] = (planData.physical?.[`${comp.id}_${week}`] || 0) * 10;
       });
       return row;
     });
@@ -795,9 +795,9 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
       if (manualCal !== undefined || manualPri !== undefined || manualVc !== undefined) {
         return {
           week: `S${week}`, weekNum: week,
-          calentamiento: (manualCal || 0) * 20, principal: (manualPri || 0) * 20,
-          vueltaCalma: (manualVc || 0) * 20,
-          total: ((manualCal || 0) + (manualPri || 0) + (manualVc || 0)) * 20, sesiones: 0,
+          calentamiento: (manualCal || 0) * 10, principal: (manualPri || 0) * 10,
+          vueltaCalma: (manualVc || 0) * 10,
+          total: ((manualCal || 0) + (manualPri || 0) + (manualVc || 0)) * 10, sesiones: 0,
         };
       }
       const v2Micro = v2Micros.find(m => m.numero_semana === week);
@@ -918,7 +918,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
       // Toggle or cycle through values
       if (section === 'intensity' || section === 'volume' || section === 'preparation' || section === 'physical' || section === 'load_chart' || section === 'volint_chart' || section === 'duration_chart') {
         const currentValue = sectionData[key] || 0;
-        sectionData[key] = currentValue >= 5 ? 0 : currentValue + 1;
+        sectionData[key] = currentValue >= 10 ? 0 : currentValue + 1;
       } else {
         sectionData[key] = !sectionData[key];
       }
