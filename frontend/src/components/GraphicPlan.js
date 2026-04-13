@@ -897,7 +897,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
       const key = `${rowId}_${weekIndex}`;
       
       // Toggle or cycle through values
-      if (section === 'intensity' || section === 'volume') {
+      if (section === 'intensity' || section === 'volume' || section === 'preparation' || section === 'physical') {
         const currentValue = sectionData[key] || 0;
         sectionData[key] = currentValue >= 5 ? 0 : currentValue + 1;
       } else {
@@ -1016,7 +1016,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
   };
 
   // ═══ INLINE CHART ROW: Proportional bars perfectly aligned with week columns ═══
-  const InlineChartRow = ({ label, data, dataKey, color, maxVal = 100, rowHeight = 40 }) => {
+  const InlineChartRow = ({ label, data, dataKey, color, maxVal = 100, rowHeight = 40, onCellClick, section }) => {
     return (
       <tr>
         <td className="sticky left-0 bg-gray-50 px-2 py-0 text-[10px] border border-gray-300 z-10" style={{ width: 160 }}>
@@ -1030,16 +1030,23 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
           const value = weekData?.[dataKey] || 0;
           const effectiveMax = maxVal === 'auto' ? Math.max(1, ...data.map(d => d?.[dataKey] || 0)) : maxVal;
           const barH = effectiveMax > 0 ? Math.max(0, (value / effectiveMax) * (rowHeight - 6)) : 0;
+          const isClickable = !!onCellClick;
           return (
-            <td key={`${dataKey}-${week}`} className="border border-gray-200 p-0 relative" style={{ height: rowHeight }}
+            <td key={`${dataKey}-${week}`}
+              className={`border border-gray-200 p-0 relative ${isClickable ? 'cursor-pointer hover:bg-gray-100 active:bg-gray-200' : ''}`}
+              style={{ height: rowHeight }}
+              onClick={isClickable ? () => onCellClick(section, dataKey, week) : undefined}
               data-testid={`chart-${dataKey}-${week}`}>
               {value > 0 && (
                 <>
-                  <div className="absolute bottom-0 left-[1px] right-[1px] rounded-t-sm"
+                  <div className="absolute bottom-0 left-[1px] right-[1px] rounded-t-sm transition-all"
                     style={{ height: barH, backgroundColor: color, opacity: 0.8 }} />
                   <span className="absolute top-[1px] left-0 right-0 text-center text-[7px] font-bold leading-none"
                     style={{ color }}>{Math.round(value)}</span>
                 </>
+              )}
+              {isClickable && value === 0 && (
+                <span className="absolute inset-0 flex items-center justify-center text-[8px] text-gray-300">+</span>
               )}
             </td>
           );
@@ -1588,12 +1595,12 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                     yAxisDomain: [0, 100]
                   }}
                 />
-                <InlineChartRow label="Física General" data={preparationChartData} dataKey="general_physical" color="#2563EB" maxVal={100} />
-                <InlineChartRow label="Física Específica" data={preparationChartData} dataKey="specific_physical" color="#6366F1" maxVal={100} />
-                <InlineChartRow label="Técnica" data={preparationChartData} dataKey="technical" color="#16A34A" maxVal={100} />
-                <InlineChartRow label="Táctica" data={preparationChartData} dataKey="tactical" color="#F59E0B" maxVal={100} />
-                <InlineChartRow label="Psicológica" data={preparationChartData} dataKey="psychological" color="#A855F7" maxVal={100} />
-                <InlineChartRow label="Teórica" data={preparationChartData} dataKey="theoretical" color="#EC4899" maxVal={100} />
+                <InlineChartRow label="Física General" data={preparationChartData} dataKey="general_physical" color="#2563EB" maxVal={100} onCellClick={handleCellClick} section="preparation" />
+                <InlineChartRow label="Física Específica" data={preparationChartData} dataKey="specific_physical" color="#6366F1" maxVal={100} onCellClick={handleCellClick} section="preparation" />
+                <InlineChartRow label="Técnica" data={preparationChartData} dataKey="technical" color="#16A34A" maxVal={100} onCellClick={handleCellClick} section="preparation" />
+                <InlineChartRow label="Táctica" data={preparationChartData} dataKey="tactical" color="#F59E0B" maxVal={100} onCellClick={handleCellClick} section="preparation" />
+                <InlineChartRow label="Psicológica" data={preparationChartData} dataKey="psychological" color="#A855F7" maxVal={100} onCellClick={handleCellClick} section="preparation" />
+                <InlineChartRow label="Teórica" data={preparationChartData} dataKey="theoretical" color="#EC4899" maxVal={100} onCellClick={handleCellClick} section="preparation" />
 
                 {/* CHART 4: Preparación Física por Capacidades */}
                 <ChartSectionHeader
@@ -1616,11 +1623,11 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                     yAxisDomain: [0, 100]
                   }}
                 />
-                <InlineChartRow label="Resistencia" data={physicalChartData} dataKey="endurance" color="#DC2626" maxVal={100} />
-                <InlineChartRow label="Fuerza" data={physicalChartData} dataKey="strength" color="#EA580C" maxVal={100} />
-                <InlineChartRow label="Velocidad" data={physicalChartData} dataKey="speed" color="#CA8A04" maxVal={100} />
-                <InlineChartRow label="Coordinación" data={physicalChartData} dataKey="coordination" color="#16A34A" maxVal={100} />
-                <InlineChartRow label="Flexibilidad" data={physicalChartData} dataKey="flexibility" color="#3B82F6" maxVal={100} />
+                <InlineChartRow label="Resistencia" data={physicalChartData} dataKey="endurance" color="#DC2626" maxVal={100} onCellClick={handleCellClick} section="physical" />
+                <InlineChartRow label="Fuerza" data={physicalChartData} dataKey="strength" color="#EA580C" maxVal={100} onCellClick={handleCellClick} section="physical" />
+                <InlineChartRow label="Velocidad" data={physicalChartData} dataKey="speed" color="#CA8A04" maxVal={100} onCellClick={handleCellClick} section="physical" />
+                <InlineChartRow label="Coordinación" data={physicalChartData} dataKey="coordination" color="#16A34A" maxVal={100} onCellClick={handleCellClick} section="physical" />
+                <InlineChartRow label="Flexibilidad" data={physicalChartData} dataKey="flexibility" color="#3B82F6" maxVal={100} onCellClick={handleCellClick} section="physical" />
 
                 {/* CHART 5: Duración y Actividad Semanal */}
                 <ChartSectionHeader

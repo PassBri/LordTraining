@@ -14,6 +14,11 @@
 - Restaurados sub-rows con cuadros de colores clickeables para Monitoreo/Evaluaciones (6 tipos: medico, fisico, tecnico, tactico, psicologico, teorico)
 - Cada celda es interactiva (toggle on/off) usando renderBooleanCell
 
+### Interactividad graficas inline (Abr 2026)
+- Filas de Preparacion y Capacidades Fisicas ahora son clickeables (ciclan 0-5, display 0-100%)
+- Celdas vacias muestran "+" para indicar interactividad
+- Filas de Carga/Recuperacion, Volumen/Intensidad y Duracion son read-only (datos calculados V2)
+
 ### Reestructuracion tabla GraphicPlan (Abr 2026)
 - Agregadas filas "Etapa" y "Tipo de etapa" al inicio de la tabla (clickeables para editar periodo/fase)
 - Agregada fila "Tipo de macrociclo" con etiquetas de texto del tipo
