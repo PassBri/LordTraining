@@ -8,75 +8,13 @@ import {
   Plus, Trash2, Edit, Save, X, ChevronDown, ChevronRight, Search,
   Dumbbell, Activity, Target, Loader2, LayoutGrid, List, Star, StarOff,
   Copy, Filter, Zap, Heart, Wind, Shield, Brain, Eye, Timer,
-  Footprints, ArrowUpDown, Download, Upload,
-  Bike, Mountain, Waves, Flame, Trophy, Medal, Swords, CircleDot,
-  Hand, PersonStanding, Volleyball, Gamepad2, Music, Leaf, Sun, Moon,
-  Accessibility, Anchor, Apple, Atom, Baby, Banana, Beef, Bird, Bone,
-  Box, Cog, Crown, Diamond, Drumstick, Feather, Fish, Flag,
-  Gem, Globe, Hammer, Headphones, HeartPulse, Hop, Infinity,
-  Joystick, Lamp, Magnet, Milestone, Move, Palette, Puzzle,
-  Rocket, Scale, Shirt, Snowflake, Sparkles, Sword, Tent,
-  TreePine, Umbrella, Weight, Wrench, CircleUser, Gauge, Radar
+  Footprints, Download, Palette
 } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
+import IconPicker, { getIconById, ICON_CATALOG } from './IconPicker';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-
-// ═══ ICON LIBRARY: Sports, Fitness, Recreation ═══
-const ICON_LIBRARY = [
-  { id: 'dumbbell', Icon: Dumbbell, label: 'Pesas' },
-  { id: 'activity', Icon: Activity, label: 'Actividad' },
-  { id: 'zap', Icon: Zap, label: 'Velocidad' },
-  { id: 'heart', Icon: Heart, label: 'Corazón' },
-  { id: 'heart_pulse', Icon: HeartPulse, label: 'Cardio' },
-  { id: 'wind', Icon: Wind, label: 'Viento' },
-  { id: 'shield', Icon: Shield, label: 'Escudo' },
-  { id: 'brain', Icon: Brain, label: 'Cerebro' },
-  { id: 'footprints', Icon: Footprints, label: 'Pisadas' },
-  { id: 'target', Icon: Target, label: 'Objetivo' },
-  { id: 'flame', Icon: Flame, label: 'Fuego' },
-  { id: 'trophy', Icon: Trophy, label: 'Trofeo' },
-  { id: 'medal', Icon: Medal, label: 'Medalla' },
-  { id: 'bike', Icon: Bike, label: 'Ciclismo' },
-  { id: 'mountain', Icon: Mountain, label: 'Montaña' },
-  { id: 'waves', Icon: Waves, label: 'Natación' },
-  { id: 'swords', Icon: Swords, label: 'Combate' },
-  { id: 'circle_dot', Icon: CircleDot, label: 'Precisión' },
-  { id: 'hand', Icon: Hand, label: 'Mano' },
-  { id: 'person', Icon: PersonStanding, label: 'Persona' },
-  { id: 'volleyball', Icon: Volleyball, label: 'Voleibol' },
-  { id: 'gamepad', Icon: Gamepad2, label: 'Recreación' },
-  { id: 'music', Icon: Music, label: 'Ritmo' },
-  { id: 'leaf', Icon: Leaf, label: 'Natural' },
-  { id: 'sun', Icon: Sun, label: 'Sol' },
-  { id: 'moon', Icon: Moon, label: 'Luna' },
-  { id: 'accessibility', Icon: Accessibility, label: 'Accesible' },
-  { id: 'move', Icon: Move, label: 'Movimiento' },
-  { id: 'gauge', Icon: Gauge, label: 'Rendimiento' },
-  { id: 'radar', Icon: Radar, label: 'Radar' },
-  { id: 'rocket', Icon: Rocket, label: 'Potencia' },
-  { id: 'scale', Icon: Scale, label: 'Balance' },
-  { id: 'sparkles', Icon: Sparkles, label: 'Especial' },
-  { id: 'sword', Icon: Sword, label: 'Espada' },
-  { id: 'tent', Icon: Tent, label: 'Camping' },
-  { id: 'tree', Icon: TreePine, label: 'Aire libre' },
-  { id: 'weight', Icon: Weight, label: 'Peso' },
-  { id: 'timer', Icon: Timer, label: 'Tiempo' },
-  { id: 'hop', Icon: Hop, label: 'Salto' },
-  { id: 'infinity', Icon: Infinity, label: 'Resistencia' },
-  { id: 'crown', Icon: Crown, label: 'Elite' },
-  { id: 'diamond', Icon: Diamond, label: 'Premium' },
-  { id: 'flag', Icon: Flag, label: 'Meta' },
-  { id: 'hammer', Icon: Hammer, label: 'Fuerza' },
-  { id: 'bone', Icon: Bone, label: 'Huesos' },
-  { id: 'eye', Icon: Eye, label: 'Visión' },
-  { id: 'anchor', Icon: Anchor, label: 'Ancla' },
-  { id: 'shirt', Icon: Shirt, label: 'Uniforme' },
-  { id: 'snowflake', Icon: Snowflake, label: 'Crioterapia' },
-  { id: 'feather', Icon: Feather, label: 'Ligereza' },
-  { id: 'globe', Icon: Globe, label: 'Global' },
-];
 
 // ═══ COLOR PALETTE ═══
 const COLOR_PALETTE = [
@@ -98,12 +36,12 @@ const COLOR_PALETTE = [
   { id: 'slate', border: 'border-l-slate-500', bg: 'bg-slate-50', text: 'text-slate-700', dot: 'bg-slate-500', badge: 'bg-slate-100 text-slate-700', swatch: 'bg-slate-500' },
 ];
 
-// Default icon mapping for existing categories
+// Default icon mapping for existing categories (using Material Design IDs)
 const DEFAULT_CATEGORY_ICONS = {
-  fuerza: 'dumbbell', velocidad: 'zap', resistencia: 'heart', flexibilidad: 'wind',
-  equilibrio_estabilidad: 'shield', habilidades_motrices: 'footprints',
-  capacidades_coordinativas: 'brain', desplazamientos_agilidad: 'activity',
-  movilidad_articular: 'move',
+  fuerza: 'fitness_center', velocidad: 'electric_bolt', resistencia: 'monitor_heart', flexibilidad: 'self_improvement',
+  equilibrio_estabilidad: 'balance', habilidades_motrices: 'sports_gymnastics',
+  capacidades_coordinativas: 'psychology', desplazamientos_agilidad: 'directions_run',
+  movilidad_articular: 'accessibility_new',
 };
 
 // Default color mapping for existing categories
@@ -114,11 +52,8 @@ const DEFAULT_CATEGORY_COLORS = {
   movilidad_articular: 'teal',
 };
 
-// Helper: get icon component from id
-const getIconComponent = (iconId) => {
-  const found = ICON_LIBRARY.find(i => i.id === iconId);
-  return found ? found.Icon : Target;
-};
+// Helper: get icon component from id (Material Design)
+const getIconComponent = (iconId) => getIconById(iconId);
 
 // Helper: get color accent from id
 const getColorAccent = (colorId) => {
@@ -979,21 +914,8 @@ const ExerciseLibrary = ({ athleteId }) => {
           <h4 className="font-semibold text-slate-700 text-sm">Nueva Categoría</h4>
           <Input placeholder="Nombre de la categoría" value={newCategory.nombre} onChange={(e) => setNewCategory({ ...newCategory, nombre: e.target.value })}
             className="rounded-xl" data-testid="new-category-name" />
-          {/* Icon selector */}
-          <div>
-            <p className="text-xs font-medium text-slate-500 mb-1.5">Icono</p>
-            <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-1">
-              {ICON_LIBRARY.map(item => {
-                const isSelected = newCategory.icon === item.id;
-                return (
-                  <button key={item.id} onClick={() => setNewCategory({ ...newCategory, icon: item.id })} title={item.label}
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${isSelected ? 'bg-slate-800 text-white ring-2 ring-slate-800 ring-offset-1' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
-                    <item.Icon className="w-4 h-4" />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          {/* Icon selector — Material Design */}
+          <IconPicker value={newCategory.icon || 'fitness_center'} onChange={(id) => setNewCategory({ ...newCategory, icon: id })} />
           {/* Color selector */}
           <div>
             <p className="text-xs font-medium text-slate-500 mb-1.5">Color</p>
@@ -1010,7 +932,7 @@ const ExerciseLibrary = ({ athleteId }) => {
           {/* Preview */}
           <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 border">
             <div className={`w-8 h-8 rounded-lg ${getColorAccent(newCategory.colorId).bg} flex items-center justify-center`}>
-              {React.createElement(getIconComponent(newCategory.icon), { className: `w-4 h-4 ${getColorAccent(newCategory.colorId).text}` })}
+              {React.createElement(getIconComponent(newCategory.icon || 'fitness_center'), { style: { fontSize: 18 }, className: getColorAccent(newCategory.colorId).text })}
             </div>
             <span className="text-sm font-medium text-slate-700">{newCategory.nombre || 'Vista previa...'}</span>
           </div>
@@ -1042,17 +964,7 @@ const ExerciseLibrary = ({ athleteId }) => {
                     className="rounded-lg h-8 text-sm" />
                   <div>
                     <p className="text-xs font-medium text-slate-500 mb-1.5">Icono</p>
-                    <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-1">
-                      {ICON_LIBRARY.map(item => {
-                        const isSelected = (cat.icon || DEFAULT_CATEGORY_ICONS[catId] || 'target') === item.id;
-                        return (
-                          <button key={item.id} onClick={() => setCategories(prev => ({ ...prev, [catId]: { ...prev[catId], icon: item.id } }))} title={item.label}
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${isSelected ? 'bg-slate-800 text-white ring-2 ring-slate-800 ring-offset-1' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
-                            <item.Icon className="w-4 h-4" />
-                          </button>
-                        );
-                      })}
-                    </div>
+                    <IconPicker value={cat.icon || DEFAULT_CATEGORY_ICONS[catId] || 'fitness_center'} onChange={(id) => setCategories(prev => ({ ...prev, [catId]: { ...prev[catId], icon: id } }))} />
                   </div>
                   <div>
                     <p className="text-xs font-medium text-slate-500 mb-1.5">Color</p>
@@ -1078,7 +990,7 @@ const ExerciseLibrary = ({ athleteId }) => {
                 <div className="px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-slate-50/80 transition-colors" onClick={() => toggleCategory(catId)}>
                   <div className="flex items-center gap-3">
                     <div className={`w-8 h-8 rounded-lg ${accent.bg} flex items-center justify-center`}>
-                      <IconComp className={`w-4 h-4 ${accent.text}`} />
+                      <IconComp style={{ fontSize: 18 }} className={accent.text} />
                     </div>
                     {expandedCategories[catId] ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400" />}
                     <span className="font-semibold text-sm text-slate-800">{cat.nombre}</span>
