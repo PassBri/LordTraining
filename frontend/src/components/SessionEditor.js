@@ -455,24 +455,28 @@ const SessionEditor = ({
 
   // Load exercises: use EJERCICIOS_INICIALES as base, override with user's library if saved
   const [exercisesCat, setExercisesCat] = useState(EJERCICIOS_INICIALES);
-  useEffect(() => {
-    const fetchUserLib = async () => {
-      try {
-        const token = localStorage.getItem('train_token');
-        if (!token) return;
-        const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/exercise-library`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!res.ok) return;
-        const data = await res.json();
-        const cats = data.categories;
-        if (cats && typeof cats === 'object' && Object.keys(cats).length > 0) {
-          setExercisesCat(cats);
-        }
-      } catch (e) { /* keep EJERCICIOS_INICIALES */ }
-    };
-    fetchUserLib();
+  const fetchUserLib = React.useCallback(async () => {
+    try {
+      const token = localStorage.getItem('train_token');
+      if (!token) return;
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/exercise-library`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const cats = data.categories;
+      if (cats && typeof cats === 'object' && Object.keys(cats).length > 0) {
+        setExercisesCat(cats);
+      }
+    } catch (e) { /* keep EJERCICIOS_INICIALES */ }
   }, []);
+  useEffect(() => {
+    fetchUserLib();
+    // Listen for library updates from ExerciseLibrary component
+    const handler = () => fetchUserLib();
+    window.addEventListener('exercise-library-updated', handler);
+    return () => window.removeEventListener('exercise-library-updated', handler);
+  }, [fetchUserLib]);
 
   // Cargar datos de la sesión existente
   useEffect(() => {

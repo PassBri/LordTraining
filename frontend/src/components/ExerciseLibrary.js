@@ -690,6 +690,7 @@ const ExerciseLibrary = ({ athleteId }) => {
     try {
       await axios.post(`${BACKEND_URL}/api/exercise-library`, { categories }, { headers: { Authorization: `Bearer ${token}` } });
       toast.success('Biblioteca guardada exitosamente');
+      window.dispatchEvent(new Event('exercise-library-updated'));
     } catch (err) {
       console.error('Save error:', err?.response?.data || err.message);
       toast.error('Error al guardar: ' + (err?.response?.data?.detail || err.message));
