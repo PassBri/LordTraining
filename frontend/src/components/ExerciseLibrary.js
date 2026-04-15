@@ -677,6 +677,8 @@ const ExerciseLibrary = ({ athleteId }) => {
     setCategories(prev => ({ ...prev, [id]: { nombre: newCategory.nombre, color: newCategory.color, subcategorias: {} } }));
     setNewCategory({ id: '', nombre: '', color: 'bg-gray-100 text-gray-700 border-gray-300' });
     setShowAddCategory(false);
+    setSelectedCategory('all');
+    setExpandedCategories(prev => ({ ...prev, [id]: true }));
     toast.success('Categoría agregada');
   };
 
@@ -783,7 +785,7 @@ const ExerciseLibrary = ({ athleteId }) => {
           filteredSubs[subId] = { ...sub, ejercicios: (searchTerm || showOnlyFavorites || filterEquipo !== 'all') ? filteredEx : sub.ejercicios };
         }
       });
-      if (Object.keys(filteredSubs).length > 0) result[catId] = { ...cat, subcategorias: filteredSubs };
+      if (Object.keys(filteredSubs).length > 0 || Object.keys(cat.subcategorias).length === 0) result[catId] = { ...cat, subcategorias: filteredSubs };
     });
     return result;
   }, [categories, searchTerm, selectedCategory, filterEquipo, showOnlyFavorites, favorites]);
