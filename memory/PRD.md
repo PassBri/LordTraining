@@ -21,6 +21,13 @@
 - Valores manuales tienen prioridad sobre datos calculados V2
 - Celdas vacias muestran "+" para indicar interactividad
 
+### Selector de Iconos y Colores para Categorias (Abr 2026)
+- 50+ iconos de deporte, fitness y recreacion (lucide-react): Pesas, Ciclismo, Natacion, Montaña, Trofeo, etc.
+- 16 colores seleccionables para cada categoria (rose a slate)
+- Boton "Estilo" en cada categoria para cambiar icono/color en tiempo real
+- Formulario de nueva categoria con selector visual de icono + color + vista previa
+- Iconos y colores predeterminados para categorias existentes
+
 ### UI Catalogo Ejercicios Mejorado (Abr 2026)
 - Header con stats en tiempo real (categorias, subcategorias, ejercicios, favoritos)
 - Iconos unicos por categoria (Dumbbell, Zap, Heart, Wind, Shield, Activity)

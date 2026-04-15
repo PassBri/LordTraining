@@ -8,32 +8,122 @@ import {
   Plus, Trash2, Edit, Save, X, ChevronDown, ChevronRight, Search,
   Dumbbell, Activity, Target, Loader2, LayoutGrid, List, Star, StarOff,
   Copy, Filter, Zap, Heart, Wind, Shield, Brain, Eye, Timer,
-  Footprints, ArrowUpDown, Download, Upload
+  Footprints, ArrowUpDown, Download, Upload,
+  Bike, Mountain, Waves, Flame, Trophy, Medal, Swords, CircleDot,
+  Hand, PersonStanding, Volleyball, Gamepad2, Music, Leaf, Sun, Moon,
+  Accessibility, Anchor, Apple, Atom, Baby, Banana, Beef, Bird, Bone,
+  Box, Cog, Crown, Diamond, Drumstick, Feather, Fish, Flag,
+  Gem, Globe, Hammer, Headphones, HeartPulse, Hop, Infinity,
+  Joystick, Lamp, Magnet, Milestone, Move, Palette, Puzzle,
+  Rocket, Scale, Shirt, Snowflake, Sparkles, Sword, Tent,
+  TreePine, Umbrella, Weight, Wrench, CircleUser, Gauge, Radar
 } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
-// Category icons mapping
-const CATEGORY_ICONS = {
-  fuerza: Dumbbell, velocidad: Zap, resistencia: Heart, flexibilidad: Wind,
-  equilibrio_estabilidad: Shield, habilidades_motrices: Footprints,
-  capacidades_coordinativas: Brain, desplazamientos_agilidad: Activity,
-  default: Target
+// ═══ ICON LIBRARY: Sports, Fitness, Recreation ═══
+const ICON_LIBRARY = [
+  { id: 'dumbbell', Icon: Dumbbell, label: 'Pesas' },
+  { id: 'activity', Icon: Activity, label: 'Actividad' },
+  { id: 'zap', Icon: Zap, label: 'Velocidad' },
+  { id: 'heart', Icon: Heart, label: 'Corazón' },
+  { id: 'heart_pulse', Icon: HeartPulse, label: 'Cardio' },
+  { id: 'wind', Icon: Wind, label: 'Viento' },
+  { id: 'shield', Icon: Shield, label: 'Escudo' },
+  { id: 'brain', Icon: Brain, label: 'Cerebro' },
+  { id: 'footprints', Icon: Footprints, label: 'Pisadas' },
+  { id: 'target', Icon: Target, label: 'Objetivo' },
+  { id: 'flame', Icon: Flame, label: 'Fuego' },
+  { id: 'trophy', Icon: Trophy, label: 'Trofeo' },
+  { id: 'medal', Icon: Medal, label: 'Medalla' },
+  { id: 'bike', Icon: Bike, label: 'Ciclismo' },
+  { id: 'mountain', Icon: Mountain, label: 'Montaña' },
+  { id: 'waves', Icon: Waves, label: 'Natación' },
+  { id: 'swords', Icon: Swords, label: 'Combate' },
+  { id: 'circle_dot', Icon: CircleDot, label: 'Precisión' },
+  { id: 'hand', Icon: Hand, label: 'Mano' },
+  { id: 'person', Icon: PersonStanding, label: 'Persona' },
+  { id: 'volleyball', Icon: Volleyball, label: 'Voleibol' },
+  { id: 'gamepad', Icon: Gamepad2, label: 'Recreación' },
+  { id: 'music', Icon: Music, label: 'Ritmo' },
+  { id: 'leaf', Icon: Leaf, label: 'Natural' },
+  { id: 'sun', Icon: Sun, label: 'Sol' },
+  { id: 'moon', Icon: Moon, label: 'Luna' },
+  { id: 'accessibility', Icon: Accessibility, label: 'Accesible' },
+  { id: 'move', Icon: Move, label: 'Movimiento' },
+  { id: 'gauge', Icon: Gauge, label: 'Rendimiento' },
+  { id: 'radar', Icon: Radar, label: 'Radar' },
+  { id: 'rocket', Icon: Rocket, label: 'Potencia' },
+  { id: 'scale', Icon: Scale, label: 'Balance' },
+  { id: 'sparkles', Icon: Sparkles, label: 'Especial' },
+  { id: 'sword', Icon: Sword, label: 'Espada' },
+  { id: 'tent', Icon: Tent, label: 'Camping' },
+  { id: 'tree', Icon: TreePine, label: 'Aire libre' },
+  { id: 'weight', Icon: Weight, label: 'Peso' },
+  { id: 'timer', Icon: Timer, label: 'Tiempo' },
+  { id: 'hop', Icon: Hop, label: 'Salto' },
+  { id: 'infinity', Icon: Infinity, label: 'Resistencia' },
+  { id: 'crown', Icon: Crown, label: 'Elite' },
+  { id: 'diamond', Icon: Diamond, label: 'Premium' },
+  { id: 'flag', Icon: Flag, label: 'Meta' },
+  { id: 'hammer', Icon: Hammer, label: 'Fuerza' },
+  { id: 'bone', Icon: Bone, label: 'Huesos' },
+  { id: 'eye', Icon: Eye, label: 'Visión' },
+  { id: 'anchor', Icon: Anchor, label: 'Ancla' },
+  { id: 'shirt', Icon: Shirt, label: 'Uniforme' },
+  { id: 'snowflake', Icon: Snowflake, label: 'Crioterapia' },
+  { id: 'feather', Icon: Feather, label: 'Ligereza' },
+  { id: 'globe', Icon: Globe, label: 'Global' },
+];
+
+// ═══ COLOR PALETTE ═══
+const COLOR_PALETTE = [
+  { id: 'rose', border: 'border-l-rose-500', bg: 'bg-rose-50', text: 'text-rose-700', dot: 'bg-rose-500', badge: 'bg-rose-100 text-rose-700', swatch: 'bg-rose-500' },
+  { id: 'red', border: 'border-l-red-500', bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500', badge: 'bg-red-100 text-red-700', swatch: 'bg-red-500' },
+  { id: 'orange', border: 'border-l-orange-500', bg: 'bg-orange-50', text: 'text-orange-700', dot: 'bg-orange-500', badge: 'bg-orange-100 text-orange-700', swatch: 'bg-orange-500' },
+  { id: 'amber', border: 'border-l-amber-500', bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500', badge: 'bg-amber-100 text-amber-700', swatch: 'bg-amber-500' },
+  { id: 'yellow', border: 'border-l-yellow-500', bg: 'bg-yellow-50', text: 'text-yellow-700', dot: 'bg-yellow-500', badge: 'bg-yellow-100 text-yellow-700', swatch: 'bg-yellow-500' },
+  { id: 'lime', border: 'border-l-lime-500', bg: 'bg-lime-50', text: 'text-lime-700', dot: 'bg-lime-500', badge: 'bg-lime-100 text-lime-700', swatch: 'bg-lime-500' },
+  { id: 'emerald', border: 'border-l-emerald-500', bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-700', swatch: 'bg-emerald-500' },
+  { id: 'teal', border: 'border-l-teal-500', bg: 'bg-teal-50', text: 'text-teal-700', dot: 'bg-teal-500', badge: 'bg-teal-100 text-teal-700', swatch: 'bg-teal-500' },
+  { id: 'cyan', border: 'border-l-cyan-500', bg: 'bg-cyan-50', text: 'text-cyan-700', dot: 'bg-cyan-500', badge: 'bg-cyan-100 text-cyan-700', swatch: 'bg-cyan-500' },
+  { id: 'blue', border: 'border-l-blue-500', bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500', badge: 'bg-blue-100 text-blue-700', swatch: 'bg-blue-500' },
+  { id: 'indigo', border: 'border-l-indigo-500', bg: 'bg-indigo-50', text: 'text-indigo-700', dot: 'bg-indigo-500', badge: 'bg-indigo-100 text-indigo-700', swatch: 'bg-indigo-500' },
+  { id: 'violet', border: 'border-l-violet-500', bg: 'bg-violet-50', text: 'text-violet-700', dot: 'bg-violet-500', badge: 'bg-violet-100 text-violet-700', swatch: 'bg-violet-500' },
+  { id: 'purple', border: 'border-l-purple-500', bg: 'bg-purple-50', text: 'text-purple-700', dot: 'bg-purple-500', badge: 'bg-purple-100 text-purple-700', swatch: 'bg-purple-500' },
+  { id: 'fuchsia', border: 'border-l-fuchsia-500', bg: 'bg-fuchsia-50', text: 'text-fuchsia-700', dot: 'bg-fuchsia-500', badge: 'bg-fuchsia-100 text-fuchsia-700', swatch: 'bg-fuchsia-500' },
+  { id: 'pink', border: 'border-l-pink-500', bg: 'bg-pink-50', text: 'text-pink-700', dot: 'bg-pink-500', badge: 'bg-pink-100 text-pink-700', swatch: 'bg-pink-500' },
+  { id: 'slate', border: 'border-l-slate-500', bg: 'bg-slate-50', text: 'text-slate-700', dot: 'bg-slate-500', badge: 'bg-slate-100 text-slate-700', swatch: 'bg-slate-500' },
+];
+
+// Default icon mapping for existing categories
+const DEFAULT_CATEGORY_ICONS = {
+  fuerza: 'dumbbell', velocidad: 'zap', resistencia: 'heart', flexibilidad: 'wind',
+  equilibrio_estabilidad: 'shield', habilidades_motrices: 'footprints',
+  capacidades_coordinativas: 'brain', desplazamientos_agilidad: 'activity',
+  movilidad_articular: 'move',
 };
 
-// Category accent colors
-const CATEGORY_ACCENTS = [
-  { border: 'border-l-rose-500', bg: 'bg-rose-50', text: 'text-rose-700', dot: 'bg-rose-500', badge: 'bg-rose-100 text-rose-700' },
-  { border: 'border-l-blue-500', bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500', badge: 'bg-blue-100 text-blue-700' },
-  { border: 'border-l-emerald-500', bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-700' },
-  { border: 'border-l-amber-500', bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500', badge: 'bg-amber-100 text-amber-700' },
-  { border: 'border-l-violet-500', bg: 'bg-violet-50', text: 'text-violet-700', dot: 'bg-violet-500', badge: 'bg-violet-100 text-violet-700' },
-  { border: 'border-l-cyan-500', bg: 'bg-cyan-50', text: 'text-cyan-700', dot: 'bg-cyan-500', badge: 'bg-cyan-100 text-cyan-700' },
-  { border: 'border-l-orange-500', bg: 'bg-orange-50', text: 'text-orange-700', dot: 'bg-orange-500', badge: 'bg-orange-100 text-orange-700' },
-  { border: 'border-l-pink-500', bg: 'bg-pink-50', text: 'text-pink-700', dot: 'bg-pink-500', badge: 'bg-pink-100 text-pink-700' },
-];
+// Default color mapping for existing categories
+const DEFAULT_CATEGORY_COLORS = {
+  fuerza: 'rose', velocidad: 'amber', resistencia: 'blue', flexibilidad: 'emerald',
+  equilibrio_estabilidad: 'violet', habilidades_motrices: 'orange',
+  capacidades_coordinativas: 'cyan', desplazamientos_agilidad: 'red',
+  movilidad_articular: 'teal',
+};
+
+// Helper: get icon component from id
+const getIconComponent = (iconId) => {
+  const found = ICON_LIBRARY.find(i => i.id === iconId);
+  return found ? found.Icon : Target;
+};
+
+// Helper: get color accent from id
+const getColorAccent = (colorId) => {
+  return COLOR_PALETTE.find(c => c.id === colorId) || COLOR_PALETTE[0];
+};
 
 // Difficulty levels
 const DIFFICULTY_LEVELS = [
@@ -613,6 +703,7 @@ const ExerciseLibrary = ({ athleteId }) => {
   // Estados para edición (PRESERVED)
   const [categories, setCategories] = useState(EJERCICIOS_INICIALES);
   const [editingExercise, setEditingExercise] = useState(null);
+  const [editingCategory, setEditingCategory] = useState(null);
   
   // Estados para agregar nuevos (PRESERVED)
   const [showAddCategory, setShowAddCategory] = useState(false);
@@ -620,7 +711,7 @@ const ExerciseLibrary = ({ athleteId }) => {
   const [showAddExercise, setShowAddExercise] = useState(null);
   
   // Formularios (PRESERVED)
-  const [newCategory, setNewCategory] = useState({ id: '', nombre: '', color: 'bg-gray-100 text-gray-700 border-gray-300' });
+  const [newCategory, setNewCategory] = useState({ id: '', nombre: '', icon: 'target', colorId: 'blue' });
   const [newSubcategory, setNewSubcategory] = useState({ id: '', nombre: '' });
   const [newExercise, setNewExercise] = useState({ nombre: '', musculos: '', equipo: 'Ninguno', duracion: '', dificultad: 'intermedio' });
 
@@ -673,9 +764,9 @@ const ExerciseLibrary = ({ athleteId }) => {
 
   const addCategory = () => {
     if (!newCategory.nombre) return;
-    const id = newCategory.nombre.toLowerCase().replace(/\s+/g, '_');
-    setCategories(prev => ({ ...prev, [id]: { nombre: newCategory.nombre, color: newCategory.color, subcategorias: {} } }));
-    setNewCategory({ id: '', nombre: '', color: 'bg-gray-100 text-gray-700 border-gray-300' });
+    const id = newCategory.nombre.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+    setCategories(prev => ({ ...prev, [id]: { nombre: newCategory.nombre, color: newCategory.color || '', icon: newCategory.icon || 'target', colorId: newCategory.colorId || 'blue', subcategorias: {} } }));
+    setNewCategory({ id: '', nombre: '', icon: 'target', colorId: 'blue' });
     setShowAddCategory(false);
     setSelectedCategory('all');
     setExpandedCategories(prev => ({ ...prev, [id]: true }));
@@ -884,11 +975,46 @@ const ExerciseLibrary = ({ athleteId }) => {
 
       {/* New Category Form */}
       {showAddCategory && (
-        <div className="p-4 bg-white rounded-xl border border-dashed border-emerald-300 shadow-sm">
-          <h4 className="font-semibold mb-3 text-slate-700 text-sm">Nueva Categoría</h4>
-          <div className="flex gap-3">
-            <Input placeholder="Nombre de la categoría" value={newCategory.nombre} onChange={(e) => setNewCategory({ ...newCategory, nombre: e.target.value })}
-              className="flex-1 rounded-xl" data-testid="new-category-name" />
+        <div className="p-4 bg-white rounded-xl border border-dashed border-emerald-300 shadow-sm space-y-3">
+          <h4 className="font-semibold text-slate-700 text-sm">Nueva Categoría</h4>
+          <Input placeholder="Nombre de la categoría" value={newCategory.nombre} onChange={(e) => setNewCategory({ ...newCategory, nombre: e.target.value })}
+            className="rounded-xl" data-testid="new-category-name" />
+          {/* Icon selector */}
+          <div>
+            <p className="text-xs font-medium text-slate-500 mb-1.5">Icono</p>
+            <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-1">
+              {ICON_LIBRARY.map(item => {
+                const isSelected = newCategory.icon === item.id;
+                return (
+                  <button key={item.id} onClick={() => setNewCategory({ ...newCategory, icon: item.id })} title={item.label}
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${isSelected ? 'bg-slate-800 text-white ring-2 ring-slate-800 ring-offset-1' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
+                    <item.Icon className="w-4 h-4" />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          {/* Color selector */}
+          <div>
+            <p className="text-xs font-medium text-slate-500 mb-1.5">Color</p>
+            <div className="flex flex-wrap gap-1.5">
+              {COLOR_PALETTE.map(c => {
+                const isSelected = newCategory.colorId === c.id;
+                return (
+                  <button key={c.id} onClick={() => setNewCategory({ ...newCategory, colorId: c.id })}
+                    className={`w-7 h-7 rounded-full ${c.swatch} transition-all ${isSelected ? 'ring-2 ring-offset-2 ring-slate-800 scale-110' : 'hover:scale-110 opacity-70 hover:opacity-100'}`} />
+                );
+              })}
+            </div>
+          </div>
+          {/* Preview */}
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 border">
+            <div className={`w-8 h-8 rounded-lg ${getColorAccent(newCategory.colorId).bg} flex items-center justify-center`}>
+              {React.createElement(getIconComponent(newCategory.icon), { className: `w-4 h-4 ${getColorAccent(newCategory.colorId).text}` })}
+            </div>
+            <span className="text-sm font-medium text-slate-700">{newCategory.nombre || 'Vista previa...'}</span>
+          </div>
+          <div className="flex gap-2">
             <Button onClick={addCategory} className="bg-emerald-600 hover:bg-emerald-700 rounded-xl" data-testid="add-category-btn">
               <Plus className="w-4 h-4 mr-1" /> Agregar
             </Button>
@@ -900,31 +1026,76 @@ const ExerciseLibrary = ({ athleteId }) => {
       {/* Categories */}
       <div className="space-y-3">
         {Object.entries(filteredCategories).map(([catId, cat], catIndex) => {
-          const accent = CATEGORY_ACCENTS[catIndex % CATEGORY_ACCENTS.length];
-          const IconComp = CATEGORY_ICONS[catId] || CATEGORY_ICONS.default;
+          const colorId = cat.colorId || DEFAULT_CATEGORY_COLORS[catId] || COLOR_PALETTE[catIndex % COLOR_PALETTE.length].id;
+          const accent = getColorAccent(colorId);
+          const iconId = cat.icon || DEFAULT_CATEGORY_ICONS[catId] || 'target';
+          const IconComp = getIconComponent(iconId);
           const exerciseCount = Object.values(cat.subcategorias).reduce((acc, sub) => acc + sub.ejercicios.length, 0);
 
           return (
-            <div key={catId} className={`bg-white rounded-xl shadow-sm border border-slate-100 border-l-4 ${accent.border} overflow-hidden`} data-testid={`category-${catId}`}>
-              {/* Category Header */}
-              <div className="px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-slate-50/80 transition-colors" onClick={() => toggleCategory(catId)}>
-                <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-lg ${accent.bg} flex items-center justify-center`}>
-                    <IconComp className={`w-4 h-4 ${accent.text}`} />
+            <div key={catId} data-testid={`category-${catId}`}>
+              {/* Category Edit Panel */}
+              {editingCategory === catId && (
+                <div className="p-4 bg-white rounded-xl border border-blue-300 shadow-md mb-2 space-y-3">
+                  <h4 className="font-semibold text-sm text-blue-700">Editar Categoría: {cat.nombre}</h4>
+                  <Input value={cat.nombre} onChange={(e) => setCategories(prev => ({ ...prev, [catId]: { ...prev[catId], nombre: e.target.value } }))}
+                    className="rounded-lg h-8 text-sm" />
+                  <div>
+                    <p className="text-xs font-medium text-slate-500 mb-1.5">Icono</p>
+                    <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-1">
+                      {ICON_LIBRARY.map(item => {
+                        const isSelected = (cat.icon || DEFAULT_CATEGORY_ICONS[catId] || 'target') === item.id;
+                        return (
+                          <button key={item.id} onClick={() => setCategories(prev => ({ ...prev, [catId]: { ...prev[catId], icon: item.id } }))} title={item.label}
+                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${isSelected ? 'bg-slate-800 text-white ring-2 ring-slate-800 ring-offset-1' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
+                            <item.Icon className="w-4 h-4" />
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                  {expandedCategories[catId] ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400" />}
-                  <span className="font-semibold text-sm text-slate-800">{cat.nombre}</span>
-                  <Badge variant="secondary" className={`text-[10px] ${accent.badge}`}>{exerciseCount}</Badge>
-                </div>
-                <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                  <Button size="sm" variant="ghost" onClick={() => setShowAddSubcategory(catId)} className="h-7 text-xs rounded-lg">
-                    <Plus className="w-3 h-3 mr-1" /> Sub
+                  <div>
+                    <p className="text-xs font-medium text-slate-500 mb-1.5">Color</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {COLOR_PALETTE.map(c => {
+                        const isSelected = (cat.colorId || DEFAULT_CATEGORY_COLORS[catId] || 'slate') === c.id;
+                        return (
+                          <button key={c.id} onClick={() => setCategories(prev => ({ ...prev, [catId]: { ...prev[catId], colorId: c.id } }))}
+                            className={`w-7 h-7 rounded-full ${c.swatch} transition-all ${isSelected ? 'ring-2 ring-offset-2 ring-slate-800 scale-110' : 'hover:scale-110 opacity-70 hover:opacity-100'}`} />
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <Button size="sm" onClick={() => setEditingCategory(null)} className="bg-blue-600 hover:bg-blue-700 rounded-lg text-xs">
+                    <Save className="w-3 h-3 mr-1" /> Listo
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => deleteCategory(catId)} className="h-7 text-xs text-red-500 hover:text-red-700 rounded-lg">
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
                 </div>
-              </div>
+              )}
+
+              {/* Category Row */}
+              <div className={`bg-white rounded-xl shadow-sm border border-slate-100 border-l-4 ${accent.border} overflow-hidden`}>
+                {/* Category Header */}
+                <div className="px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-slate-50/80 transition-colors" onClick={() => toggleCategory(catId)}>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-lg ${accent.bg} flex items-center justify-center`}>
+                      <IconComp className={`w-4 h-4 ${accent.text}`} />
+                    </div>
+                    {expandedCategories[catId] ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400" />}
+                    <span className="font-semibold text-sm text-slate-800">{cat.nombre}</span>
+                    <Badge variant="secondary" className={`text-[10px] ${accent.badge}`}>{exerciseCount}</Badge>
+                  </div>
+                  <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                    <Button size="sm" variant="ghost" onClick={() => setEditingCategory(editingCategory === catId ? null : catId)} className="h-7 text-xs rounded-lg" title="Cambiar icono/color">
+                      <Palette className="w-3 h-3 mr-1" /> Estilo
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => setShowAddSubcategory(catId)} className="h-7 text-xs rounded-lg">
+                      <Plus className="w-3 h-3 mr-1" /> Sub
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => deleteCategory(catId)} className="h-7 text-xs text-red-500 hover:text-red-700 rounded-lg">
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
 
               {/* Category Content */}
               {expandedCategories[catId] && (
@@ -1106,6 +1277,7 @@ const ExerciseLibrary = ({ athleteId }) => {
                   ))}
                 </div>
               )}
+            </div>
             </div>
           );
         })}
