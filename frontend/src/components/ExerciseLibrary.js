@@ -990,26 +990,45 @@ const ExerciseLibrary = ({ athleteId }) => {
                               {sub.ejercicios.map((ex, exIdx) => {
                                 const isFav = favorites.includes(ex.nombre);
                                 const diff = DIFFICULTY_LEVELS.find(d => d.id === ex.dificultad);
+                                const isEditing = editingExercise === `${catId}_${subId}_${exIdx}`;
                                 return (
-                                  <div key={exIdx} className="p-3 bg-slate-50 rounded-lg border border-slate-100 hover:border-slate-300 hover:shadow-sm transition-all group" data-testid={`exercise-card-${exIdx}`}>
+                                  <div key={exIdx} className={`p-3 rounded-lg border transition-all ${isEditing ? 'bg-blue-50 border-blue-300 shadow-md' : 'bg-slate-50 border-slate-100 hover:border-slate-300 hover:shadow-sm'}`} data-testid={`exercise-card-${exIdx}`}>
                                     <div className="flex items-start justify-between mb-1.5">
-                                      <span className="font-medium text-xs text-slate-800 leading-tight flex-1">{ex.nombre}</span>
+                                      {isEditing ? (
+                                        <Input value={ex.nombre} onChange={(e) => updateExercise(catId, subId, exIdx, 'nombre', e.target.value)} className="h-6 text-xs rounded-md flex-1 mr-1" />
+                                      ) : (
+                                        <span className="font-medium text-xs text-slate-800 leading-tight flex-1">{ex.nombre}</span>
+                                      )}
                                       <button onClick={() => toggleFavorite(ex.nombre)} className="ml-1 flex-shrink-0">
-                                        {isFav ? <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" /> : <StarOff className="w-3.5 h-3.5 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />}
+                                        {isFav ? <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" /> : <StarOff className="w-3.5 h-3.5 text-slate-300 hover:text-slate-500" />}
                                       </button>
                                     </div>
-                                    {ex.musculos && <p className="text-[10px] text-slate-500 mb-1">{ex.musculos}</p>}
-                                    <div className="flex items-center gap-1 flex-wrap">
-                                      {ex.equipo && ex.equipo !== 'Ninguno' && <Badge variant="outline" className="text-[9px] h-4 px-1.5">{ex.equipo.split(',')[0]}</Badge>}
-                                      {diff && <Badge className={`text-[9px] h-4 px-1.5 ${diff.color} border-0`}>{diff.label}</Badge>}
-                                      {ex.duracion && <Badge variant="outline" className="text-[9px] h-4 px-1.5"><Timer className="w-2.5 h-2.5 mr-0.5" />{ex.duracion}</Badge>}
-                                    </div>
-                                    <div className="flex gap-0.5 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                      <Button size="sm" variant="ghost" onClick={() => setEditingExercise(editingExercise === `${catId}_${subId}_${exIdx}` ? null : `${catId}_${subId}_${exIdx}`)} className="h-5 w-5 p-0 rounded">
-                                        <Edit className="w-2.5 h-2.5 text-slate-400" />
+                                    {isEditing ? (
+                                      <div className="space-y-1.5 mb-2">
+                                        <Input value={ex.musculos || ''} onChange={(e) => updateExercise(catId, subId, exIdx, 'musculos', e.target.value)} placeholder="Músculos" className="h-6 text-[10px] rounded-md" />
+                                        <Input value={ex.equipo || ''} onChange={(e) => updateExercise(catId, subId, exIdx, 'equipo', e.target.value)} placeholder="Equipo" className="h-6 text-[10px] rounded-md" />
+                                        <Select value={ex.dificultad || 'intermedio'} onValueChange={(v) => updateExercise(catId, subId, exIdx, 'dificultad', v)}>
+                                          <SelectTrigger className="h-6 text-[10px] rounded-md"><SelectValue placeholder="Dificultad" /></SelectTrigger>
+                                          <SelectContent>{DIFFICULTY_LEVELS.map(d => <SelectItem key={d.id} value={d.id}>{d.label}</SelectItem>)}</SelectContent>
+                                        </Select>
+                                      </div>
+                                    ) : (
+                                      <>
+                                        {ex.musculos && <p className="text-[10px] text-slate-500 mb-1.5">{ex.musculos}</p>}
+                                        <div className="flex items-center gap-1 flex-wrap mb-2">
+                                          {ex.equipo && ex.equipo !== 'Ninguno' && <Badge variant="outline" className="text-[9px] h-4 px-1.5">{ex.equipo.split(',')[0]}</Badge>}
+                                          {diff ? <Badge className={`text-[9px] h-4 px-1.5 ${diff.color} border-0`}>{diff.label}</Badge> : <Badge className="text-[9px] h-4 px-1.5 bg-slate-100 text-slate-500 border-0">Sin nivel</Badge>}
+                                          {ex.duracion && <Badge variant="outline" className="text-[9px] h-4 px-1.5"><Timer className="w-2.5 h-2.5 mr-0.5" />{ex.duracion}</Badge>}
+                                        </div>
+                                      </>
+                                    )}
+                                    <div className="flex gap-1 border-t border-slate-100 pt-1.5">
+                                      <Button size="sm" variant="ghost" onClick={() => setEditingExercise(isEditing ? null : `${catId}_${subId}_${exIdx}`)}
+                                        className={`h-6 text-[10px] px-2 rounded-md ${isEditing ? 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100' : 'text-slate-500 hover:bg-slate-100'}`}>
+                                        {isEditing ? <><Save className="w-3 h-3 mr-1" />Listo</> : <><Edit className="w-3 h-3 mr-1" />Editar</>}
                                       </Button>
-                                      <Button size="sm" variant="ghost" onClick={() => deleteExercise(catId, subId, exIdx)} className="h-5 w-5 p-0 rounded text-red-400 hover:bg-red-50">
-                                        <Trash2 className="w-2.5 h-2.5" />
+                                      <Button size="sm" variant="ghost" onClick={() => deleteExercise(catId, subId, exIdx)} className="h-6 text-[10px] px-2 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600">
+                                        <Trash2 className="w-3 h-3 mr-1" />Eliminar
                                       </Button>
                                     </div>
                                   </div>
