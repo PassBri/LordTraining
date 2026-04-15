@@ -676,7 +676,7 @@ const ExerciseLibrary = ({ athleteId }) => {
 
   const loadExercises = async () => {
     setLoading(true);
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('train_token');
     try {
       const response = await axios.get(`${BACKEND_URL}/api/exercise-library`, { headers: { Authorization: `Bearer ${token}` } });
       if (response.data?.categories) setCategories(response.data.categories);
@@ -686,11 +686,14 @@ const ExerciseLibrary = ({ athleteId }) => {
 
   const saveExercises = async () => {
     setSaving(true);
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('train_token');
     try {
       await axios.post(`${BACKEND_URL}/api/exercise-library`, { categories }, { headers: { Authorization: `Bearer ${token}` } });
       toast.success('Biblioteca guardada exitosamente');
-    } catch { toast.error('Error al guardar'); }
+    } catch (err) {
+      console.error('Save error:', err?.response?.data || err.message);
+      toast.error('Error al guardar: ' + (err?.response?.data?.detail || err.message));
+    }
     finally { setSaving(false); }
   };
 
