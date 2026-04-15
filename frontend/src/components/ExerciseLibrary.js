@@ -1,20 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Card, CardContent } from './ui/card';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './ui/select';
-import { Textarea } from './ui/textarea';
+import { Badge } from './ui/badge';
 import {
   Plus, Trash2, Edit, Save, X, ChevronDown, ChevronRight, Search,
-  Dumbbell, Activity, Target, Loader2, GripVertical
+  Dumbbell, Activity, Target, Loader2, LayoutGrid, List, Star, StarOff,
+  Copy, Filter, Zap, Heart, Wind, Shield, Brain, Eye, Timer,
+  Footprints, ArrowUpDown, Download, Upload
 } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
-// Datos iniciales de ejercicios organizados
-const EJERCICIOS_INICIALES = {
+// Category icons mapping
+const CATEGORY_ICONS = {
+  fuerza: Dumbbell, velocidad: Zap, resistencia: Heart, flexibilidad: Wind,
+  equilibrio_estabilidad: Shield, habilidades_motrices: Footprints,
+  capacidades_coordinativas: Brain, desplazamientos_agilidad: Activity,
+  default: Target
+};
+
+// Category accent colors
+const CATEGORY_ACCENTS = [
+  { border: 'border-l-rose-500', bg: 'bg-rose-50', text: 'text-rose-700', dot: 'bg-rose-500', badge: 'bg-rose-100 text-rose-700' },
+  { border: 'border-l-blue-500', bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500', badge: 'bg-blue-100 text-blue-700' },
+  { border: 'border-l-emerald-500', bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-700' },
+  { border: 'border-l-amber-500', bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500', badge: 'bg-amber-100 text-amber-700' },
+  { border: 'border-l-violet-500', bg: 'bg-violet-50', text: 'text-violet-700', dot: 'bg-violet-500', badge: 'bg-violet-100 text-violet-700' },
+  { border: 'border-l-cyan-500', bg: 'bg-cyan-50', text: 'text-cyan-700', dot: 'bg-cyan-500', badge: 'bg-cyan-100 text-cyan-700' },
+  { border: 'border-l-orange-500', bg: 'bg-orange-50', text: 'text-orange-700', dot: 'bg-orange-500', badge: 'bg-orange-100 text-orange-700' },
+  { border: 'border-l-pink-500', bg: 'bg-pink-50', text: 'text-pink-700', dot: 'bg-pink-500', badge: 'bg-pink-100 text-pink-700' },
+];
+
+// Difficulty levels
+const DIFFICULTY_LEVELS = [
+  { id: 'principiante', label: 'Principiante', color: 'bg-green-100 text-green-700', icon: '1' },
+  { id: 'intermedio', label: 'Intermedio', color: 'bg-yellow-100 text-yellow-700', icon: '2' },
+  { id: 'avanzado', label: 'Avanzado', color: 'bg-orange-100 text-orange-700', icon: '3' },
+  { id: 'elite', label: 'Elite', color: 'bg-red-100 text-red-700', icon: '4' },
+];
+
+// ========== DATOS INICIALES (PRESERVED EXACTLY) ==========
+
+// ========== DATOS INICIALES (250+ EJERCICIOS - ORIGINAL COMPLETO) ==========
+export const EJERCICIOS_INICIALES = {
   'fuerza': {
     nombre: 'Fuerza',
     color: 'bg-red-100 text-red-700 border-red-300',
@@ -562,95 +594,87 @@ const EJERCICIOS_INICIALES = {
   }
 };
 
-// Exportar para uso en otros componentes
-export { EJERCICIOS_INICIALES };
 
 const ExerciseLibrary = ({ athleteId }) => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [expandedCategories, setExpandedCategories] = useState({});
   const [expandedSubcategories, setExpandedSubcategories] = useState({});
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
+  const [filterEquipo, setFilterEquipo] = useState('all');
+  const [showFilters, setShowFilters] = useState(false);
+  const [favorites, setFavorites] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('exercise_favorites') || '[]'); } catch { return []; }
+  });
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   
-  // Estados para edición
+  // Estados para edición (PRESERVED)
   const [categories, setCategories] = useState(EJERCICIOS_INICIALES);
-  const [editingCategory, setEditingCategory] = useState(null);
-  const [editingSubcategory, setEditingSubcategory] = useState(null);
   const [editingExercise, setEditingExercise] = useState(null);
   
-  // Estados para agregar nuevos
+  // Estados para agregar nuevos (PRESERVED)
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [showAddSubcategory, setShowAddSubcategory] = useState(null);
   const [showAddExercise, setShowAddExercise] = useState(null);
   
-  // Formularios
+  // Formularios (PRESERVED)
   const [newCategory, setNewCategory] = useState({ id: '', nombre: '', color: 'bg-gray-100 text-gray-700 border-gray-300' });
   const [newSubcategory, setNewSubcategory] = useState({ id: '', nombre: '' });
-  const [newExercise, setNewExercise] = useState({ nombre: '', musculos: '', equipo: 'Ninguno', duracion: '', descripcion: '' });
+  const [newExercise, setNewExercise] = useState({ nombre: '', musculos: '', equipo: 'Ninguno', duracion: '', dificultad: 'intermedio' });
 
-  // Cargar datos guardados
+  // Stats
+  const stats = useMemo(() => {
+    let totalEx = 0, totalSub = 0, totalCat = Object.keys(categories).length;
+    const equipoSet = new Set();
+    Object.values(categories).forEach(cat => {
+      Object.values(cat.subcategorias).forEach(sub => {
+        totalSub++;
+        sub.ejercicios.forEach(ex => {
+          totalEx++;
+          if (ex.equipo && ex.equipo !== 'Ninguno') equipoSet.add(ex.equipo.split(',')[0].trim());
+        });
+      });
+    });
+    return { totalEx, totalSub, totalCat, equipos: [...equipoSet].sort() };
+  }, [categories]);
+
+  // Persist favorites
   useEffect(() => {
-    loadExercises();
-  }, []);
+    localStorage.setItem('exercise_favorites', JSON.stringify(favorites));
+  }, [favorites]);
+
+  // ====== PRESERVED CRUD LOGIC ======
+  useEffect(() => { loadExercises(); }, []);
 
   const loadExercises = async () => {
     setLoading(true);
     const token = localStorage.getItem('token');
     try {
-      const response = await axios.get(
-        `${BACKEND_URL}/api/exercise-library`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (response.data?.categories) {
-        setCategories(response.data.categories);
-      }
-    } catch (error) {
-      // Usar datos iniciales si no hay guardados
-      console.log('Using default exercises');
-    } finally {
-      setLoading(false);
-    }
+      const response = await axios.get(`${BACKEND_URL}/api/exercise-library`, { headers: { Authorization: `Bearer ${token}` } });
+      if (response.data?.categories) setCategories(response.data.categories);
+    } catch { console.log('Using default exercises'); }
+    finally { setLoading(false); }
   };
 
   const saveExercises = async () => {
     setSaving(true);
     const token = localStorage.getItem('token');
     try {
-      await axios.post(
-        `${BACKEND_URL}/api/exercise-library`,
-        { categories },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await axios.post(`${BACKEND_URL}/api/exercise-library`, { categories }, { headers: { Authorization: `Bearer ${token}` } });
       toast.success('Biblioteca guardada exitosamente');
-    } catch (error) {
-      toast.error('Error al guardar');
-    } finally {
-      setSaving(false);
-    }
+    } catch { toast.error('Error al guardar'); }
+    finally { setSaving(false); }
   };
 
-  // Toggle expansión
-  const toggleCategory = (catId) => {
-    setExpandedCategories(prev => ({ ...prev, [catId]: !prev[catId] }));
-  };
+  const toggleCategory = (catId) => setExpandedCategories(prev => ({ ...prev, [catId]: !prev[catId] }));
+  const toggleSubcategory = (subId) => setExpandedSubcategories(prev => ({ ...prev, [subId]: !prev[subId] }));
 
-  const toggleSubcategory = (subId) => {
-    setExpandedSubcategories(prev => ({ ...prev, [subId]: !prev[subId] }));
-  };
-
-  // CRUD Categorías
   const addCategory = () => {
     if (!newCategory.nombre) return;
     const id = newCategory.nombre.toLowerCase().replace(/\s+/g, '_');
-    setCategories(prev => ({
-      ...prev,
-      [id]: {
-        nombre: newCategory.nombre,
-        color: newCategory.color,
-        subcategorias: {}
-      }
-    }));
+    setCategories(prev => ({ ...prev, [id]: { nombre: newCategory.nombre, color: newCategory.color, subcategorias: {} } }));
     setNewCategory({ id: '', nombre: '', color: 'bg-gray-100 text-gray-700 border-gray-300' });
     setShowAddCategory(false);
     toast.success('Categoría agregada');
@@ -663,22 +687,11 @@ const ExerciseLibrary = ({ athleteId }) => {
     toast.success('Categoría eliminada');
   };
 
-  // CRUD Subcategorías
   const addSubcategory = (catId) => {
     if (!newSubcategory.nombre) return;
     const id = newSubcategory.nombre.toLowerCase().replace(/\s+/g, '_');
     setCategories(prev => ({
-      ...prev,
-      [catId]: {
-        ...prev[catId],
-        subcategorias: {
-          ...prev[catId].subcategorias,
-          [id]: {
-            nombre: newSubcategory.nombre,
-            ejercicios: []
-          }
-        }
-      }
+      ...prev, [catId]: { ...prev[catId], subcategorias: { ...prev[catId].subcategorias, [id]: { nombre: newSubcategory.nombre, ejercicios: [] } } }
     }));
     setNewSubcategory({ id: '', nombre: '' });
     setShowAddSubcategory(null);
@@ -686,176 +699,145 @@ const ExerciseLibrary = ({ athleteId }) => {
   };
 
   const deleteSubcategory = (catId, subId) => {
-    if (!window.confirm('¿Eliminar esta subcategoría y todos sus ejercicios?')) return;
+    if (!window.confirm('¿Eliminar esta subcategoría?')) return;
     setCategories(prev => {
       const { [subId]: removed, ...restSubs } = prev[catId].subcategorias;
-      return {
-        ...prev,
-        [catId]: {
-          ...prev[catId],
-          subcategorias: restSubs
-        }
-      };
+      return { ...prev, [catId]: { ...prev[catId], subcategorias: restSubs } };
     });
     toast.success('Subcategoría eliminada');
   };
 
-  // CRUD Ejercicios
   const addExercise = (catId, subId) => {
     if (!newExercise.nombre) return;
     setCategories(prev => ({
-      ...prev,
-      [catId]: {
-        ...prev[catId],
-        subcategorias: {
-          ...prev[catId].subcategorias,
-          [subId]: {
-            ...prev[catId].subcategorias[subId],
-            ejercicios: [
-              ...prev[catId].subcategorias[subId].ejercicios,
-              { ...newExercise }
-            ]
-          }
-        }
-      }
+      ...prev, [catId]: { ...prev[catId], subcategorias: { ...prev[catId].subcategorias, [subId]: {
+        ...prev[catId].subcategorias[subId], ejercicios: [...prev[catId].subcategorias[subId].ejercicios, { ...newExercise }]
+      }}}
     }));
-    setNewExercise({ nombre: '', musculos: '', equipo: 'Ninguno', duracion: '', descripcion: '' });
+    setNewExercise({ nombre: '', musculos: '', equipo: 'Ninguno', duracion: '', dificultad: 'intermedio' });
     setShowAddExercise(null);
     toast.success('Ejercicio agregado');
   };
 
   const deleteExercise = (catId, subId, exIndex) => {
     setCategories(prev => ({
-      ...prev,
-      [catId]: {
-        ...prev[catId],
-        subcategorias: {
-          ...prev[catId].subcategorias,
-          [subId]: {
-            ...prev[catId].subcategorias[subId],
-            ejercicios: prev[catId].subcategorias[subId].ejercicios.filter((_, i) => i !== exIndex)
-          }
-        }
-      }
+      ...prev, [catId]: { ...prev[catId], subcategorias: { ...prev[catId].subcategorias, [subId]: {
+        ...prev[catId].subcategorias[subId], ejercicios: prev[catId].subcategorias[subId].ejercicios.filter((_, i) => i !== exIndex)
+      }}}
     }));
     toast.success('Ejercicio eliminado');
   };
 
   const updateExercise = (catId, subId, exIndex, field, value) => {
     setCategories(prev => ({
-      ...prev,
-      [catId]: {
-        ...prev[catId],
-        subcategorias: {
-          ...prev[catId].subcategorias,
-          [subId]: {
-            ...prev[catId].subcategorias[subId],
-            ejercicios: prev[catId].subcategorias[subId].ejercicios.map((ex, i) => 
-              i === exIndex ? { ...ex, [field]: value } : ex
-            )
-          }
-        }
-      }
+      ...prev, [catId]: { ...prev[catId], subcategorias: { ...prev[catId].subcategorias, [subId]: {
+        ...prev[catId].subcategorias[subId], ejercicios: prev[catId].subcategorias[subId].ejercicios.map((ex, i) => i === exIndex ? { ...ex, [field]: value } : ex)
+      }}}
     }));
   };
 
-  // Filtrar ejercicios
-  const filterExercises = () => {
-    if (!searchTerm && selectedCategory === 'all') return categories;
-    
-    const filtered = {};
-    Object.entries(categories).forEach(([catId, cat]) => {
-      if (selectedCategory !== 'all' && selectedCategory !== catId) return;
-      
-      const filteredSubs = {};
-      Object.entries(cat.subcategorias).forEach(([subId, sub]) => {
-        const filteredEx = sub.ejercicios.filter(ex => 
-          ex.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          ex.musculos?.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        if (filteredEx.length > 0 || !searchTerm) {
-          filteredSubs[subId] = { ...sub, ejercicios: searchTerm ? filteredEx : sub.ejercicios };
-        }
-      });
-      
-      if (Object.keys(filteredSubs).length > 0) {
-        filtered[catId] = { ...cat, subcategorias: filteredSubs };
-      }
-    });
-    
-    return filtered;
+  const copyExercise = (exercise, targetCatId, targetSubId) => {
+    setCategories(prev => ({
+      ...prev, [targetCatId]: { ...prev[targetCatId], subcategorias: { ...prev[targetCatId].subcategorias, [targetSubId]: {
+        ...prev[targetCatId].subcategorias[targetSubId], ejercicios: [...prev[targetCatId].subcategorias[targetSubId].ejercicios, { ...exercise }]
+      }}}
+    }));
+    toast.success('Ejercicio copiado');
   };
 
-  const colores = [
-    { value: 'bg-slate-50 text-slate-700 border-slate-200', label: 'Gris' },
-    { value: 'bg-slate-100 text-slate-700 border-slate-200', label: 'Gris Oscuro' },
-    { value: 'bg-zinc-50 text-zinc-700 border-zinc-200', label: 'Zinc' },
-    { value: 'bg-stone-50 text-stone-700 border-stone-200', label: 'Piedra' },
-    { value: 'bg-neutral-50 text-neutral-700 border-neutral-200', label: 'Neutro' },
-    { value: 'bg-gray-50 text-gray-700 border-gray-200', label: 'Ceniza' },
-    { value: 'bg-slate-50/80 text-slate-600 border-slate-200', label: 'Suave' },
-    { value: 'bg-white text-slate-700 border-slate-200', label: 'Blanco' },
-  ];
+  const toggleFavorite = (name) => {
+    setFavorites(prev => prev.includes(name) ? prev.filter(f => f !== name) : [...prev, name]);
+  };
+
+  const exportCSV = () => {
+    let csv = 'Categoría,Subcategoría,Ejercicio,Músculos,Equipo,Dificultad\n';
+    Object.entries(categories).forEach(([, cat]) => {
+      Object.entries(cat.subcategorias).forEach(([, sub]) => {
+        sub.ejercicios.forEach(ex => {
+          csv += `"${cat.nombre}","${sub.nombre}","${ex.nombre}","${ex.musculos || ''}","${ex.equipo || ''}","${ex.dificultad || ''}"\n`;
+        });
+      });
+    });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'ejercicios_biblioteca.csv';
+    a.click();
+    toast.success('CSV exportado');
+  };
+
+  // ====== FILTERING ======
+  const filteredCategories = useMemo(() => {
+    const result = {};
+    Object.entries(categories).forEach(([catId, cat]) => {
+      if (selectedCategory !== 'all' && selectedCategory !== catId) return;
+      const filteredSubs = {};
+      Object.entries(cat.subcategorias).forEach(([subId, sub]) => {
+        const filteredEx = sub.ejercicios.filter(ex => {
+          const matchSearch = !searchTerm || ex.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || ex.musculos?.toLowerCase().includes(searchTerm.toLowerCase());
+          const matchEquipo = filterEquipo === 'all' || (ex.equipo || '').toLowerCase().includes(filterEquipo.toLowerCase());
+          const matchFav = !showOnlyFavorites || favorites.includes(ex.nombre);
+          return matchSearch && matchEquipo && matchFav;
+        });
+        if (filteredEx.length > 0 || (!searchTerm && !showOnlyFavorites && filterEquipo === 'all')) {
+          filteredSubs[subId] = { ...sub, ejercicios: (searchTerm || showOnlyFavorites || filterEquipo !== 'all') ? filteredEx : sub.ejercicios };
+        }
+      });
+      if (Object.keys(filteredSubs).length > 0) result[catId] = { ...cat, subcategorias: filteredSubs };
+    });
+    return result;
+  }, [categories, searchTerm, selectedCategory, filterEquipo, showOnlyFavorites, favorites]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-      </div>
-    );
+    return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>;
   }
 
-  const filteredCategories = filterExercises();
-
   return (
-    <div className="p-5 space-y-5">
+    <div className="p-5 space-y-4" data-testid="exercise-library">
       {/* Header */}
-      <div className="bg-slate-900 rounded-2xl p-5 shadow-lg">
+      <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-5 shadow-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-emerald-500/20 rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center">
               <Dumbbell className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-white tracking-tight">Biblioteca de Ejercicios</h2>
-              <p className="text-xs text-slate-400 mt-0.5">Organiza y gestiona tu catálogo de ejercicios</p>
+              <p className="text-xs text-slate-400 mt-0.5">Organiza y gestiona tu catálogo completo</p>
             </div>
           </div>
           <div className="flex gap-2">
-            <Button 
-              size="sm" 
-              onClick={() => setShowAddCategory(true)}
-              className="bg-white/10 hover:bg-white/20 text-white border-0 rounded-xl text-xs"
-            >
+            <Button size="sm" variant="ghost" onClick={exportCSV} className="text-slate-300 hover:text-white hover:bg-white/10 text-xs">
+              <Download className="w-3.5 h-3.5 mr-1" /> CSV
+            </Button>
+            <Button size="sm" onClick={() => setShowAddCategory(true)} className="bg-white/10 hover:bg-white/20 text-white border-0 text-xs">
               <Plus className="w-3.5 h-3.5 mr-1" /> Categoría
             </Button>
-            <Button 
-              size="sm" 
-              onClick={saveExercises}
-              disabled={saving}
-              className="bg-emerald-500 hover:bg-emerald-600 text-white border-0 rounded-xl text-xs"
-            >
+            <Button size="sm" onClick={saveExercises} disabled={saving} className="bg-emerald-500 hover:bg-emerald-600 text-white border-0 text-xs" data-testid="save-exercises-btn">
               {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5 mr-1" />}
               Guardar
             </Button>
           </div>
         </div>
+        {/* Stats row */}
+        <div className="flex gap-6 mt-4 text-xs">
+          <div className="text-slate-400"><span className="text-white font-bold text-base">{stats.totalCat}</span> categorías</div>
+          <div className="text-slate-400"><span className="text-white font-bold text-base">{stats.totalSub}</span> subcategorías</div>
+          <div className="text-slate-400"><span className="text-emerald-400 font-bold text-base">{stats.totalEx}</span> ejercicios</div>
+          <div className="text-slate-400"><span className="text-amber-400 font-bold text-base">{favorites.length}</span> favoritos</div>
+        </div>
       </div>
 
-      {/* Search & Filter Bar */}
-      <div className="flex gap-3">
+      {/* Search, Filters & View Toggle */}
+      <div className="flex gap-2 items-center">
         <div className="flex-1 relative">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <Input 
-            placeholder="Buscar ejercicio o músculo..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9 h-10 rounded-xl border-slate-200 bg-white shadow-sm"
-          />
+          <Input placeholder="Buscar ejercicio o músculo..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9 h-9 rounded-xl border-slate-200 bg-white shadow-sm text-sm" data-testid="exercise-search" />
         </div>
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-52 h-10 rounded-xl border-slate-200 bg-white shadow-sm">
-            <SelectValue placeholder="Todas las categorías" />
+          <SelectTrigger className="w-44 h-9 rounded-xl border-slate-200 bg-white shadow-sm text-xs">
+            <SelectValue placeholder="Todas" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas las categorías</SelectItem>
@@ -864,37 +846,51 @@ const ExerciseLibrary = ({ athleteId }) => {
             ))}
           </SelectContent>
         </Select>
+        <Button size="sm" variant={showOnlyFavorites ? 'default' : 'outline'} onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
+          className={`h-9 rounded-xl text-xs ${showOnlyFavorites ? 'bg-amber-500 hover:bg-amber-600 text-white' : ''}`} data-testid="fav-filter-btn">
+          <Star className="w-3.5 h-3.5 mr-1" /> {favorites.length}
+        </Button>
+        <Button size="sm" variant="outline" onClick={() => setShowFilters(!showFilters)} className="h-9 rounded-xl text-xs" data-testid="advanced-filter-btn">
+          <Filter className="w-3.5 h-3.5" />
+        </Button>
+        <div className="flex border rounded-xl overflow-hidden">
+          <button onClick={() => setViewMode('list')} className={`p-2 ${viewMode === 'list' ? 'bg-slate-800 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`} data-testid="view-list-btn">
+            <List className="w-3.5 h-3.5" />
+          </button>
+          <button onClick={() => setViewMode('grid')} className={`p-2 ${viewMode === 'grid' ? 'bg-slate-800 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`} data-testid="view-grid-btn">
+            <LayoutGrid className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
+
+      {/* Advanced Filters Panel */}
+      {showFilters && (
+        <div className="flex gap-3 p-3 bg-slate-50 rounded-xl border animate-in slide-in-from-top-2">
+          <Select value={filterEquipo} onValueChange={setFilterEquipo}>
+            <SelectTrigger className="w-48 h-8 text-xs rounded-lg"><SelectValue placeholder="Equipo" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todo equipo</SelectItem>
+              <SelectItem value="Ninguno">Sin equipo</SelectItem>
+              {stats.equipos.map(eq => <SelectItem key={eq} value={eq}>{eq}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Button size="sm" variant="ghost" onClick={() => { setFilterEquipo('all'); setSearchTerm(''); setSelectedCategory('all'); setShowOnlyFavorites(false); }} className="text-xs h-8">
+            Limpiar filtros
+          </Button>
+        </div>
+      )}
 
       {/* New Category Form */}
       {showAddCategory && (
         <div className="p-4 bg-white rounded-xl border border-dashed border-emerald-300 shadow-sm">
           <h4 className="font-semibold mb-3 text-slate-700 text-sm">Nueva Categoría</h4>
-          <div className="grid grid-cols-3 gap-3">
-            <Input 
-              placeholder="Nombre de la categoría"
-              value={newCategory.nombre}
-              onChange={(e) => setNewCategory({ ...newCategory, nombre: e.target.value })}
-              className="rounded-xl"
-            />
-            <Select value={newCategory.color} onValueChange={(v) => setNewCategory({ ...newCategory, color: v })}>
-              <SelectTrigger className="rounded-xl"><SelectValue placeholder="Color" /></SelectTrigger>
-              <SelectContent>
-                {colores.map(c => (
-                  <SelectItem key={c.value} value={c.value}>
-                    <span className={`px-2 py-1 rounded ${c.value}`}>{c.label}</span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="flex gap-2">
-              <Button onClick={addCategory} className="bg-emerald-600 hover:bg-emerald-700 rounded-xl">
-                <Plus className="w-4 h-4 mr-1" /> Agregar
-              </Button>
-              <Button variant="ghost" onClick={() => setShowAddCategory(false)} className="rounded-xl">
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
+          <div className="flex gap-3">
+            <Input placeholder="Nombre de la categoría" value={newCategory.nombre} onChange={(e) => setNewCategory({ ...newCategory, nombre: e.target.value })}
+              className="flex-1 rounded-xl" data-testid="new-category-name" />
+            <Button onClick={addCategory} className="bg-emerald-600 hover:bg-emerald-700 rounded-xl" data-testid="add-category-btn">
+              <Plus className="w-4 h-4 mr-1" /> Agregar
+            </Button>
+            <Button variant="ghost" onClick={() => setShowAddCategory(false)} className="rounded-xl"><X className="w-4 h-4" /></Button>
           </div>
         </div>
       )}
@@ -902,210 +898,194 @@ const ExerciseLibrary = ({ athleteId }) => {
       {/* Categories */}
       <div className="space-y-3">
         {Object.entries(filteredCategories).map(([catId, cat], catIndex) => {
-          const accentColors = ['border-l-rose-400', 'border-l-blue-400', 'border-l-emerald-400', 'border-l-amber-400', 'border-l-violet-400', 'border-l-cyan-400', 'border-l-slate-400', 'border-l-orange-400'];
-          const dotColors = ['bg-rose-400', 'bg-blue-400', 'bg-emerald-400', 'bg-amber-400', 'bg-violet-400', 'bg-cyan-400', 'bg-slate-400', 'bg-orange-400'];
-          const accent = accentColors[catIndex % accentColors.length];
-          const dot = dotColors[catIndex % dotColors.length];
-          
+          const accent = CATEGORY_ACCENTS[catIndex % CATEGORY_ACCENTS.length];
+          const IconComp = CATEGORY_ICONS[catId] || CATEGORY_ICONS.default;
+          const exerciseCount = Object.values(cat.subcategorias).reduce((acc, sub) => acc + sub.ejercicios.length, 0);
+
           return (
-          <div key={catId} className={`bg-white rounded-xl shadow-sm border border-slate-100 border-l-4 ${accent} overflow-hidden`}>
-            {/* Category Header */}
-            <div 
-              className="px-4 py-3 flex items-center justify-between cursor-pointer transition-colors hover:bg-slate-50/80"
-              onClick={() => toggleCategory(catId)}
-            >
-              <div className="flex items-center gap-2.5">
-                <div className={`w-2 h-2 rounded-full ${dot} shrink-0`} />
-                {expandedCategories[catId] ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400" />}
-                <span className="font-semibold text-sm text-slate-800">{cat.nombre}</span>
-                <span className="text-[10px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full font-medium">
-                  {Object.values(cat.subcategorias).reduce((acc, sub) => acc + sub.ejercicios.length, 0)}
-                </span>
-              </div>
-              <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                <Button size="sm" variant="ghost" onClick={() => setShowAddSubcategory(catId)} className="h-7 text-xs rounded-lg">
-                  <Plus className="w-3 h-3 mr-1" /> Sub
-                </Button>
-                <Button size="sm" variant="ghost" onClick={() => deleteCategory(catId)} className="h-7 text-xs text-red-600 hover:text-red-700 rounded-lg">
-                  <Trash2 className="w-3 h-3" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Category Content */}
-            {expandedCategories[catId] && (
-              <div className="p-3 space-y-2 bg-slate-50/50">
-                {/* New Subcategory Form */}
-                {showAddSubcategory === catId && (
-                  <div className="p-3 bg-white rounded-lg border border-dashed border-slate-300 mb-2">
-                    <div className="flex gap-2">
-                      <Input 
-                        placeholder="Nombre de subcategoría"
-                        value={newSubcategory.nombre}
-                        onChange={(e) => setNewSubcategory({ ...newSubcategory, nombre: e.target.value })}
-                        className="flex-1 h-8 rounded-lg text-sm"
-                      />
-                      <Button size="sm" onClick={() => addSubcategory(catId)} className="h-8 bg-emerald-600 rounded-lg">
-                        <Plus className="w-3 h-3 mr-1" /> Agregar
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => setShowAddSubcategory(null)} className="h-8 rounded-lg">
-                        <X className="w-3 h-3" />
-                      </Button>
-                    </div>
+            <div key={catId} className={`bg-white rounded-xl shadow-sm border border-slate-100 border-l-4 ${accent.border} overflow-hidden`} data-testid={`category-${catId}`}>
+              {/* Category Header */}
+              <div className="px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-slate-50/80 transition-colors" onClick={() => toggleCategory(catId)}>
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-lg ${accent.bg} flex items-center justify-center`}>
+                    <IconComp className={`w-4 h-4 ${accent.text}`} />
                   </div>
-                )}
+                  {expandedCategories[catId] ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400" />}
+                  <span className="font-semibold text-sm text-slate-800">{cat.nombre}</span>
+                  <Badge variant="secondary" className={`text-[10px] ${accent.badge}`}>{exerciseCount}</Badge>
+                </div>
+                <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                  <Button size="sm" variant="ghost" onClick={() => setShowAddSubcategory(catId)} className="h-7 text-xs rounded-lg">
+                    <Plus className="w-3 h-3 mr-1" /> Sub
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => deleteCategory(catId)} className="h-7 text-xs text-red-500 hover:text-red-700 rounded-lg">
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
 
-                {/* Subcategories */}
-                {Object.entries(cat.subcategorias).map(([subId, sub]) => (
-                  <div key={subId} className="bg-white rounded-lg border border-slate-100 shadow-sm overflow-hidden">
-                    {/* Subcategory Header */}
-                    <div 
-                      className="px-3 py-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors"
-                      onClick={() => toggleSubcategory(`${catId}_${subId}`)}
-                    >
-                      <div className="flex items-center gap-2">
-                        {expandedSubcategories[`${catId}_${subId}`] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-400" />}
-                        <span className="text-sm font-medium text-slate-700">{sub.nombre}</span>
-                        <span className="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-full">{sub.ejercicios.length}</span>
-                      </div>
-                      <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                        <Button size="sm" variant="ghost" onClick={() => setShowAddExercise(`${catId}_${subId}`)} className="h-6 w-6 p-0 rounded-full hover:bg-emerald-50">
-                          <Plus className="w-3 h-3 text-emerald-600" />
-                        </Button>
-                        <Button size="sm" variant="ghost" onClick={() => deleteSubcategory(catId, subId)} className="h-6 w-6 p-0 rounded-full hover:bg-red-50">
-                          <Trash2 className="w-3 h-3 text-red-400" />
-                        </Button>
+              {/* Category Content */}
+              {expandedCategories[catId] && (
+                <div className="p-3 space-y-2 bg-slate-50/50">
+                  {/* New Subcategory Form */}
+                  {showAddSubcategory === catId && (
+                    <div className="p-3 bg-white rounded-lg border border-dashed border-slate-300 mb-2">
+                      <div className="flex gap-2">
+                        <Input placeholder="Nombre de subcategoría" value={newSubcategory.nombre}
+                          onChange={(e) => setNewSubcategory({ ...newSubcategory, nombre: e.target.value })} className="flex-1 h-8 rounded-lg text-sm" />
+                        <Button size="sm" onClick={() => addSubcategory(catId)} className="h-8 bg-emerald-600 rounded-lg"><Plus className="w-3 h-3 mr-1" /> Agregar</Button>
+                        <Button size="sm" variant="ghost" onClick={() => setShowAddSubcategory(null)} className="h-8 rounded-lg"><X className="w-3 h-3" /></Button>
                       </div>
                     </div>
+                  )}
 
-                    {/* Exercises */}
-                    {expandedSubcategories[`${catId}_${subId}`] && (
-                      <div className="px-3 pb-3 space-y-1">
-                        {/* New Exercise Form */}
-                        {showAddExercise === `${catId}_${subId}` && (
-                          <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200 mb-2">
-                            <div className="grid grid-cols-4 gap-2 mb-2">
-                              <Input 
-                                placeholder="Nombre del ejercicio"
-                                value={newExercise.nombre}
-                                onChange={(e) => setNewExercise({ ...newExercise, nombre: e.target.value })}
-                                className="h-8 text-sm rounded-lg"
-                              />
-                              <Input 
-                                placeholder="Músculos"
-                                value={newExercise.musculos}
-                                onChange={(e) => setNewExercise({ ...newExercise, musculos: e.target.value })}
-                                className="h-8 text-sm rounded-lg"
-                              />
-                              <Input 
-                                placeholder="Equipo"
-                                value={newExercise.equipo}
-                                onChange={(e) => setNewExercise({ ...newExercise, equipo: e.target.value })}
-                                className="h-8 text-sm rounded-lg"
-                              />
-                              <div className="flex gap-1">
-                                <Button size="sm" onClick={() => addExercise(catId, subId)} className="h-8 bg-emerald-600 text-xs rounded-lg">
-                                  <Plus className="w-3 h-3" />
-                                </Button>
-                                <Button size="sm" variant="ghost" onClick={() => setShowAddExercise(null)} className="h-8 rounded-lg">
-                                  <X className="w-3 h-3" />
-                                </Button>
+                  {/* Subcategories */}
+                  {Object.entries(cat.subcategorias).map(([subId, sub]) => (
+                    <div key={subId} className="bg-white rounded-lg border border-slate-100 shadow-sm overflow-hidden">
+                      <div className="px-3 py-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => toggleSubcategory(`${catId}_${subId}`)}>
+                        <div className="flex items-center gap-2">
+                          {expandedSubcategories[`${catId}_${subId}`] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-400" />}
+                          <span className="text-sm font-medium text-slate-700">{sub.nombre}</span>
+                          <span className="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-full">{sub.ejercicios.length}</span>
+                        </div>
+                        <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                          <Button size="sm" variant="ghost" onClick={() => setShowAddExercise(`${catId}_${subId}`)} className="h-6 w-6 p-0 rounded-full hover:bg-emerald-50">
+                            <Plus className="w-3 h-3 text-emerald-600" />
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => deleteSubcategory(catId, subId)} className="h-6 w-6 p-0 rounded-full hover:bg-red-50">
+                            <Trash2 className="w-3 h-3 text-red-400" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Exercises */}
+                      {expandedSubcategories[`${catId}_${subId}`] && (
+                        <div className="px-3 pb-3 space-y-1">
+                          {/* New Exercise Form */}
+                          {showAddExercise === `${catId}_${subId}` && (
+                            <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200 mb-2">
+                              <div className="grid grid-cols-5 gap-2 mb-2">
+                                <Input placeholder="Nombre" value={newExercise.nombre} onChange={(e) => setNewExercise({ ...newExercise, nombre: e.target.value })} className="h-8 text-xs rounded-lg" data-testid="new-exercise-name" />
+                                <Input placeholder="Músculos" value={newExercise.musculos} onChange={(e) => setNewExercise({ ...newExercise, musculos: e.target.value })} className="h-8 text-xs rounded-lg" />
+                                <Input placeholder="Equipo" value={newExercise.equipo} onChange={(e) => setNewExercise({ ...newExercise, equipo: e.target.value })} className="h-8 text-xs rounded-lg" />
+                                <Select value={newExercise.dificultad || 'intermedio'} onValueChange={(v) => setNewExercise({ ...newExercise, dificultad: v })}>
+                                  <SelectTrigger className="h-8 text-xs rounded-lg"><SelectValue /></SelectTrigger>
+                                  <SelectContent>
+                                    {DIFFICULTY_LEVELS.map(d => <SelectItem key={d.id} value={d.id}>{d.label}</SelectItem>)}
+                                  </SelectContent>
+                                </Select>
+                                <div className="flex gap-1">
+                                  <Button size="sm" onClick={() => addExercise(catId, subId)} className="h-8 bg-emerald-600 text-xs rounded-lg" data-testid="add-exercise-btn"><Plus className="w-3 h-3" /></Button>
+                                  <Button size="sm" variant="ghost" onClick={() => setShowAddExercise(null)} className="h-8 rounded-lg"><X className="w-3 h-3" /></Button>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )}
+                          )}
 
-                        {/* Exercise List */}
-                        {sub.ejercicios.length === 0 ? (
-                          <p className="text-xs text-slate-400 py-3 text-center">Sin ejercicios en esta subcategoría</p>
-                        ) : (
-                          <div className="rounded-lg border border-slate-100 overflow-hidden">
-                            <table className="w-full text-xs">
-                              <thead>
-                                <tr className="bg-slate-50 text-left text-slate-500">
-                                  <th className="py-2 px-3 font-medium">Ejercicio</th>
-                                  <th className="py-2 px-3 font-medium">Músculos</th>
-                                  <th className="py-2 px-3 font-medium">Equipo</th>
-                                  <th className="py-2 px-3 w-16 font-medium"></th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {sub.ejercicios.map((ex, exIdx) => (
-                                  <tr key={exIdx} className="border-t border-slate-50 hover:bg-slate-50/50 transition-colors">
-                                    <td className="py-2 px-3">
-                                      {editingExercise === `${catId}_${subId}_${exIdx}` ? (
-                                        <Input 
-                                          value={ex.nombre}
-                                          onChange={(e) => updateExercise(catId, subId, exIdx, 'nombre', e.target.value)}
-                                          className="h-6 text-xs rounded-lg"
-                                        />
-                                      ) : (
-                                        <span className="font-medium text-slate-800">{ex.nombre}</span>
-                                      )}
-                                    </td>
-                                    <td className="py-2 px-3">
-                                      {editingExercise === `${catId}_${subId}_${exIdx}` ? (
-                                        <Input 
-                                          value={ex.musculos}
-                                          onChange={(e) => updateExercise(catId, subId, exIdx, 'musculos', e.target.value)}
-                                          className="h-6 text-xs rounded-lg"
-                                        />
-                                      ) : (
-                                        <span className="text-slate-500">{ex.musculos}</span>
-                                      )}
-                                    </td>
-                                    <td className="py-2 px-3">
-                                      {editingExercise === `${catId}_${subId}_${exIdx}` ? (
-                                        <Input 
-                                          value={ex.equipo}
-                                          onChange={(e) => updateExercise(catId, subId, exIdx, 'equipo', e.target.value)}
-                                          className="h-6 text-xs rounded-lg"
-                                        />
-                                      ) : (
-                                        <span className="text-slate-400">{ex.equipo || 'Ninguno'}</span>
-                                      )}
-                                    </td>
-                                    <td className="py-2 px-3">
-                                      <div className="flex gap-0.5">
-                                        {editingExercise === `${catId}_${subId}_${exIdx}` ? (
-                                          <Button 
-                                            size="sm" variant="ghost" 
-                                            onClick={() => setEditingExercise(null)}
-                                            className="h-6 w-6 p-0 text-emerald-600 hover:bg-emerald-50 rounded-full"
-                                          >
-                                            <Save className="w-3 h-3" />
-                                          </Button>
-                                        ) : (
-                                          <Button 
-                                            size="sm" variant="ghost" 
-                                            onClick={() => setEditingExercise(`${catId}_${subId}_${exIdx}`)}
-                                            className="h-6 w-6 p-0 hover:bg-slate-100 rounded-full"
-                                          >
-                                            <Edit className="w-3 h-3 text-slate-400" />
-                                          </Button>
-                                        )}
-                                        <Button 
-                                          size="sm" variant="ghost" 
-                                          onClick={() => deleteExercise(catId, subId, exIdx)}
-                                          className="h-6 w-6 p-0 text-red-400 hover:bg-red-50 rounded-full"
-                                        >
-                                          <Trash2 className="w-3 h-3" />
-                                        </Button>
-                                      </div>
-                                    </td>
+                          {/* Exercise List or Grid */}
+                          {sub.ejercicios.length === 0 ? (
+                            <p className="text-xs text-slate-400 py-3 text-center">Sin ejercicios</p>
+                          ) : viewMode === 'grid' ? (
+                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                              {sub.ejercicios.map((ex, exIdx) => {
+                                const isFav = favorites.includes(ex.nombre);
+                                const diff = DIFFICULTY_LEVELS.find(d => d.id === ex.dificultad);
+                                return (
+                                  <div key={exIdx} className="p-3 bg-slate-50 rounded-lg border border-slate-100 hover:border-slate-300 hover:shadow-sm transition-all group" data-testid={`exercise-card-${exIdx}`}>
+                                    <div className="flex items-start justify-between mb-1.5">
+                                      <span className="font-medium text-xs text-slate-800 leading-tight flex-1">{ex.nombre}</span>
+                                      <button onClick={() => toggleFavorite(ex.nombre)} className="ml-1 flex-shrink-0">
+                                        {isFav ? <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" /> : <StarOff className="w-3.5 h-3.5 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />}
+                                      </button>
+                                    </div>
+                                    {ex.musculos && <p className="text-[10px] text-slate-500 mb-1">{ex.musculos}</p>}
+                                    <div className="flex items-center gap-1 flex-wrap">
+                                      {ex.equipo && ex.equipo !== 'Ninguno' && <Badge variant="outline" className="text-[9px] h-4 px-1.5">{ex.equipo.split(',')[0]}</Badge>}
+                                      {diff && <Badge className={`text-[9px] h-4 px-1.5 ${diff.color} border-0`}>{diff.label}</Badge>}
+                                      {ex.duracion && <Badge variant="outline" className="text-[9px] h-4 px-1.5"><Timer className="w-2.5 h-2.5 mr-0.5" />{ex.duracion}</Badge>}
+                                    </div>
+                                    <div className="flex gap-0.5 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <Button size="sm" variant="ghost" onClick={() => setEditingExercise(editingExercise === `${catId}_${subId}_${exIdx}` ? null : `${catId}_${subId}_${exIdx}`)} className="h-5 w-5 p-0 rounded">
+                                        <Edit className="w-2.5 h-2.5 text-slate-400" />
+                                      </Button>
+                                      <Button size="sm" variant="ghost" onClick={() => deleteExercise(catId, subId, exIdx)} className="h-5 w-5 p-0 rounded text-red-400 hover:bg-red-50">
+                                        <Trash2 className="w-2.5 h-2.5" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <div className="rounded-lg border border-slate-100 overflow-hidden">
+                              <table className="w-full text-xs">
+                                <thead>
+                                  <tr className="bg-slate-50 text-left text-slate-500">
+                                    <th className="py-2 px-3 font-medium w-6"></th>
+                                    <th className="py-2 px-3 font-medium">Ejercicio</th>
+                                    <th className="py-2 px-3 font-medium">Músculos</th>
+                                    <th className="py-2 px-3 font-medium">Equipo</th>
+                                    <th className="py-2 px-3 font-medium w-20">Dificultad</th>
+                                    <th className="py-2 px-3 w-20"></th>
                                   </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                                </thead>
+                                <tbody>
+                                  {sub.ejercicios.map((ex, exIdx) => {
+                                    const isFav = favorites.includes(ex.nombre);
+                                    const diff = DIFFICULTY_LEVELS.find(d => d.id === ex.dificultad);
+                                    const isEditing = editingExercise === `${catId}_${subId}_${exIdx}`;
+                                    return (
+                                      <tr key={exIdx} className="border-t border-slate-50 hover:bg-slate-50/50 transition-colors group" data-testid={`exercise-row-${exIdx}`}>
+                                        <td className="py-1.5 px-3">
+                                          <button onClick={() => toggleFavorite(ex.nombre)} className="flex-shrink-0">
+                                            {isFav ? <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" /> : <StarOff className="w-3.5 h-3.5 text-slate-200 group-hover:text-slate-400 transition-colors" />}
+                                          </button>
+                                        </td>
+                                        <td className="py-1.5 px-3">
+                                          {isEditing ? <Input value={ex.nombre} onChange={(e) => updateExercise(catId, subId, exIdx, 'nombre', e.target.value)} className="h-6 text-xs rounded-lg" />
+                                            : <span className="font-medium text-slate-800">{ex.nombre}</span>}
+                                        </td>
+                                        <td className="py-1.5 px-3">
+                                          {isEditing ? <Input value={ex.musculos} onChange={(e) => updateExercise(catId, subId, exIdx, 'musculos', e.target.value)} className="h-6 text-xs rounded-lg" />
+                                            : <span className="text-slate-500">{ex.musculos}</span>}
+                                        </td>
+                                        <td className="py-1.5 px-3">
+                                          {isEditing ? <Input value={ex.equipo} onChange={(e) => updateExercise(catId, subId, exIdx, 'equipo', e.target.value)} className="h-6 text-xs rounded-lg" />
+                                            : <span className="text-slate-400">{ex.equipo || 'Ninguno'}</span>}
+                                        </td>
+                                        <td className="py-1.5 px-3">
+                                          {isEditing ? (
+                                            <Select value={ex.dificultad || 'intermedio'} onValueChange={(v) => updateExercise(catId, subId, exIdx, 'dificultad', v)}>
+                                              <SelectTrigger className="h-6 text-[10px] rounded-lg"><SelectValue /></SelectTrigger>
+                                              <SelectContent>{DIFFICULTY_LEVELS.map(d => <SelectItem key={d.id} value={d.id}>{d.label}</SelectItem>)}</SelectContent>
+                                            </Select>
+                                          ) : diff ? <Badge className={`text-[9px] ${diff.color} border-0`}>{diff.label}</Badge> : null}
+                                        </td>
+                                        <td className="py-1.5 px-3">
+                                          <div className="flex gap-0.5">
+                                            <Button size="sm" variant="ghost" onClick={() => setEditingExercise(isEditing ? null : `${catId}_${subId}_${exIdx}`)}
+                                              className={`h-6 w-6 p-0 rounded-full ${isEditing ? 'text-emerald-600 hover:bg-emerald-50' : 'hover:bg-slate-100'}`}>
+                                              {isEditing ? <Save className="w-3 h-3" /> : <Edit className="w-3 h-3 text-slate-400" />}
+                                            </Button>
+                                            <Button size="sm" variant="ghost" onClick={() => deleteExercise(catId, subId, exIdx)} className="h-6 w-6 p-0 text-red-400 hover:bg-red-50 rounded-full">
+                                              <Trash2 className="w-3 h-3" />
+                                            </Button>
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    );
+                                  })}
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           );
         })}
       </div>
@@ -1114,6 +1094,11 @@ const ExerciseLibrary = ({ athleteId }) => {
         <div className="text-center py-12 text-slate-400">
           <Dumbbell className="w-12 h-12 mx-auto mb-3 opacity-20" />
           <p className="text-sm">No se encontraron ejercicios</p>
+          {(searchTerm || showOnlyFavorites || filterEquipo !== 'all') && (
+            <Button variant="ghost" size="sm" onClick={() => { setSearchTerm(''); setShowOnlyFavorites(false); setFilterEquipo('all'); setSelectedCategory('all'); }} className="mt-2 text-xs">
+              Limpiar filtros
+            </Button>
+          )}
         </div>
       )}
     </div>

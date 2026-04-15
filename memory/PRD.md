@@ -21,6 +21,17 @@
 - Valores manuales tienen prioridad sobre datos calculados V2
 - Celdas vacias muestran "+" para indicar interactividad
 
+### UI Catalogo Ejercicios Mejorado (Abr 2026)
+- Header con stats en tiempo real (categorias, subcategorias, ejercicios, favoritos)
+- Iconos unicos por categoria (Dumbbell, Zap, Heart, Wind, Shield, Activity)
+- Colores de acento por categoria (rose, blue, emerald, amber, violet, cyan)
+- Toggle vista Lista/Grid para ejercicios
+- Sistema de favoritos con persistencia localStorage
+- Filtros avanzados: por equipo, solo favoritos, busqueda por nombre/musculo
+- Exportar CSV de toda la biblioteca
+- Badges de dificultad (Principiante/Intermedio/Avanzado/Elite)
+- CRUD completo preservado: agregar/editar/eliminar categorias, subcategorias, ejercicios
+
 ### P1 Refactorizacion DashboardPage (Abr 2026)
 - Hydration warning corregido (div dentro de span en calendario)
 - TacticalBoardSection extraida a /components/TacticalBoardSection.js (-209 lineas)
