@@ -1715,36 +1715,46 @@ const S = {
      const shadow = `<ellipse cx="0" cy="0" rx="${shadowRx}" ry="${shadowRy}" fill="rgba(0,0,0,0.25)" filter="url(#blur3d)"/>`;
 
      if(ST.avatarMode==='avatar') {
-      // Full body avatar standing upright
+      // Modern avatar with photo support
       const bh = 48*s;
+      const headR = 9*s;
+      const photoHead = el.photo ? `<defs><clipPath id="ph3d${el.id}"><circle cx="0" cy="${-14*s}" r="${headR}"/></clipPath></defs><image href="${el.photo}" x="${-headR}" y="${-14*s-headR}" width="${headR*2}" height="${headR*2}" clip-path="url(#ph3d${el.id})" preserveAspectRatio="xMidYMid slice"/><circle cx="0" cy="${-14*s}" r="${headR}" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.2"/>` :
+       `<circle cx="0" cy="${-14*s}" r="${headR}" fill="#f0d0b4" stroke="rgba(0,0,0,0.08)" stroke-width="0.8"/><ellipse cx="0" cy="${-10*s}" rx="${3*s}" ry="${1.5*s}" fill="rgba(0,0,0,0.02)"/><circle cx="${-2.5*s}" cy="${-15*s}" r="${1.2*s}" fill="#444"/><circle cx="${2.5*s}" cy="${-15*s}" r="${1.2*s}" fill="#444"/><path d="M${-2*s},${-11*s} Q0,${-9.5*s} ${2*s},${-11*s}" fill="none" stroke="#c9967a" stroke-width="${0.8*s}"/>`;
+      const skinC = el.skinTone || '#f0d0b4';
       return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${shadow}<g transform="translate(0,${-bh*0.5})">
-       <rect x="${-5*s}" y="${28*s}" width="${4*s}" height="${6*s}" rx="${1.5*s}" fill="#2a2a2a"/>
-       <rect x="${1*s}" y="${28*s}" width="${4*s}" height="${6*s}" rx="${1.5*s}" fill="#2a2a2a"/>
-       <rect x="${-7*s}" y="${14*s}" width="${6*s}" height="${14*s}" rx="${2*s}" fill="${el.type==='goalkeeper'?'#444':c}" opacity="0.65"/>
-       <rect x="${1*s}" y="${14*s}" width="${6*s}" height="${14*s}" rx="${2*s}" fill="${el.type==='goalkeeper'?'#444':c}" opacity="0.65"/>
-       <rect x="${-10*s}" y="${-4*s}" width="${20*s}" height="${22*s}" rx="${3*s}" fill="${c}" stroke="rgba(0,0,0,0.12)" stroke-width="0.7"/>
-       <rect x="${0}" y="${-4*s}" width="${10*s}" height="${22*s}" rx="0" fill="rgba(0,0,0,0.07)"/>
-       <rect x="${-14*s}" y="${-2*s}" width="${6*s}" height="${14*s}" rx="${3*s}" fill="${c}" opacity="0.8" transform="rotate(-8 ${-11*s} ${5*s})"/>
-       <rect x="${8*s}" y="${-2*s}" width="${6*s}" height="${14*s}" rx="${3*s}" fill="${c}" opacity="0.8" transform="rotate(8 ${11*s} ${5*s})"/>
-       <text x="0" y="${9*s}" text-anchor="middle" font-size="${11*s}" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text>
-       <circle cx="0" cy="${-12*s}" r="${8*s}" fill="#e2c4a8" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
-       <circle cx="${-2*s}" cy="${-14*s}" r="${2.5*s}" fill="rgba(255,255,255,0.3)"/>
-       <circle cx="${-2*s}" cy="${-13*s}" r="${1*s}" fill="#555"/>
-       <circle cx="${2*s}" cy="${-13*s}" r="${1*s}" fill="#555"/>
-      </g>${nm?`<text x="0" y="${-bh*0.5-14*s}" text-anchor="middle" font-size="${8*Math.max(s,0.7)}" fill="${c}" font-weight="600">${nm}</text>`:''} ${el.position?`<text x="0" y="${12*s}" text-anchor="middle" font-size="${7*Math.max(s,0.7)}" fill="${c}" font-weight="500">${el.position}</text>`:''}</g>`;
+       <ellipse cx="0" cy="${30*s}" rx="${4*s}" ry="${2*s}" fill="#1a1a1a" opacity="0.9"/>
+       <rect x="${-5.5*s}" y="${24*s}" width="${4.5*s}" height="${8*s}" rx="${2*s}" fill="#1a1a1a"/>
+       <rect x="${1*s}" y="${24*s}" width="${4.5*s}" height="${8*s}" rx="${2*s}" fill="#1a1a1a"/>
+       <rect x="${-4*s}" y="${30*s}" width="${3.5*s}" height="${2.5*s}" rx="${1*s}" fill="#333"/>
+       <rect x="${0.5*s}" y="${30*s}" width="${3.5*s}" height="${2.5*s}" rx="${1*s}" fill="#333"/>
+       <rect x="${-11*s}" y="${-3*s}" width="${22*s}" height="${24*s}" rx="${4*s}" fill="${c}"/>
+       <rect x="${0}" y="${-3*s}" width="${11*s}" height="${24*s}" rx="0" fill="rgba(0,0,0,0.06)"/>
+       <line x1="${-5*s}" y1="${-1*s}" x2="${-5*s}" y2="${19*s}" stroke="rgba(255,255,255,0.15)" stroke-width="${1.5*s}"/>
+       <line x1="${5*s}" y1="${-1*s}" x2="${5*s}" y2="${19*s}" stroke="rgba(255,255,255,0.15)" stroke-width="${1.5*s}"/>
+       <rect x="${-15*s}" y="${-1*s}" width="${7*s}" height="${15*s}" rx="${3.5*s}" fill="${c}" opacity="0.85" transform="rotate(-6 ${-11.5*s} ${6.5*s})"/>
+       <rect x="${8*s}" y="${-1*s}" width="${7*s}" height="${15*s}" rx="${3.5*s}" fill="${c}" opacity="0.85" transform="rotate(6 ${11.5*s} ${6.5*s})"/>
+       <circle cx="${-14*s}" cy="${15*s}" r="${2.5*s}" fill="${skinC}"/>
+       <circle cx="${14*s}" cy="${15*s}" r="${2.5*s}" fill="${skinC}"/>
+       <text x="0" y="${12*s}" text-anchor="middle" font-size="${13*s}" fill="${this.contrastColor(c)}" font-weight="900" font-family="'Arial Black',sans-serif">${lbl}</text>
+       ${photoHead}
+      </g>${nm?`<text x="0" y="${-bh*0.5-16*s}" text-anchor="middle" font-size="${9*Math.max(s,0.7)}" fill="${c}" font-weight="700" stroke="rgba(255,255,255,0.5)" stroke-width="2" paint-order="stroke">${nm}</text>`:''} ${el.position?`<text x="0" y="${14*s}" text-anchor="middle" font-size="${7*Math.max(s,0.7)}" fill="${c}" font-weight="600">${el.position}</text>`:''}</g>`;
 
      } else if(ST.avatarMode==='jersey') {
       const js = 1.3*s;
+      const photoHead3d = el.photo ? `<defs><clipPath id="jc3d${el.id}"><circle cx="0" cy="${-22*js}" r="${6*js}"/></clipPath></defs><image href="${el.photo}" x="${-6*js}" y="${-28*js}" width="${12*js}" height="${12*js}" clip-path="url(#jc3d${el.id})" preserveAspectRatio="xMidYMid slice"/><circle cx="0" cy="${-22*js}" r="${6*js}" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>` : '';
       return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${shadow}<g transform="translate(0,${-18*js})">
        <path d="M${-10*js},${-14*js} L${-6*js},${-18*js} L0,${-16*js} L${6*js},${-18*js} L${10*js},${-14*js} L${12*js},${-6*js} L${8*js},${-4*js} L${8*js},${12*js} L${-8*js},${12*js} L${-8*js},${-4*js} L${-12*js},${-6*js} Z" fill="${c}" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
        <path d="M0,${-16*js} L${6*js},${-18*js} L${10*js},${-14*js} L${12*js},${-6*js} L${8*js},${-4*js} L${8*js},${12*js} L0,${12*js} Z" fill="rgba(0,0,0,0.08)"/>
        <text x="0" y="${2*js}" text-anchor="middle" font-size="${12*js}" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text>
-      </g>${nm?`<text x="0" y="${-40*js}" text-anchor="middle" font-size="${8*Math.max(js,0.7)}" fill="${c}" font-weight="600">${nm}</text>`:''} ${el.position?`<text x="0" y="${18*js}" text-anchor="middle" font-size="${7*Math.max(js,0.7)}" fill="${c}" font-weight="500">${el.position}</text>`:''}</g>`;
+       ${photoHead3d}
+      </g>${nm?`<text x="0" y="${-40*js}" text-anchor="middle" font-size="${8*Math.max(js,0.7)}" fill="${c}" font-weight="700" stroke="rgba(255,255,255,0.5)" stroke-width="2" paint-order="stroke">${nm}</text>`:''} ${el.position?`<text x="0" y="${18*js}" text-anchor="middle" font-size="${7*Math.max(js,0.7)}" fill="${c}" font-weight="600">${el.position}</text>`:''}</g>`;
 
      } else {
-      // Tactical 3D
+      // Tactical 3D with photo support
       const rs = r*s;
-      return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${shadow}<g transform="translate(0,${-rs})"><circle cx="0" cy="0" r="${rs}" fill="${c}"/><circle cx="${-rs*0.25}" cy="${-rs*0.25}" r="${rs*0.45}" fill="rgba(255,255,255,0.2)"/><circle cx="${rs*0.15}" cy="${rs*0.2}" r="${rs*0.3}" fill="rgba(0,0,0,0.1)"/><text x="0" y="0" dy="0.35em" text-anchor="middle" font-size="${rs*0.85}" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text></g>${nm?`<text x="0" y="${-rs*2-4}" text-anchor="middle" font-size="${9*Math.max(s,0.7)}" fill="${c}" font-weight="600">${nm}</text>`:''} ${el.position?`<text x="0" y="${rs+8}" text-anchor="middle" font-size="${7*Math.max(s,0.7)}" fill="${c}" font-weight="500">${el.position}</text>`:''}</g>`;
+      const photoSphere = el.photo ? `<defs><clipPath id="tc3d${el.id}"><circle cx="0" cy="0" r="${rs}"/></clipPath></defs><image href="${el.photo}" x="${-rs}" y="${-rs}" width="${rs*2}" height="${rs*2}" clip-path="url(#tc3d${el.id})" preserveAspectRatio="xMidYMid slice"/><circle cx="0" cy="0" r="${rs}" fill="none" stroke="${c}" stroke-width="2"/>` :
+       `<circle cx="0" cy="0" r="${rs}" fill="${c}"/><circle cx="${-rs*0.25}" cy="${-rs*0.25}" r="${rs*0.45}" fill="rgba(255,255,255,0.2)"/><circle cx="${rs*0.15}" cy="${rs*0.2}" r="${rs*0.3}" fill="rgba(0,0,0,0.1)"/><text x="0" y="0" dy="0.35em" text-anchor="middle" font-size="${rs*0.85}" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text>`;
+      return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${shadow}<g transform="translate(0,${-rs})">${photoSphere}</g>${nm?`<text x="0" y="${-rs*2-4}" text-anchor="middle" font-size="${9*Math.max(s,0.7)}" fill="${c}" font-weight="700" stroke="rgba(255,255,255,0.5)" stroke-width="2" paint-order="stroke">${nm}</text>`:''} ${el.position?`<text x="0" y="${rs+8}" text-anchor="middle" font-size="${7*Math.max(s,0.7)}" fill="${c}" font-weight="600">${el.position}</text>`:''}</g>`;
      }
     } else {
      // 2D mode
@@ -1754,7 +1764,26 @@ const S = {
       const photoHead = el.photo ? `<defs><clipPath id="jclip${el.id}"><circle cx="0" cy="-22" r="7"/></clipPath></defs><image href="${el.photo}" x="-7" y="-29" width="14" height="14" clip-path="url(#jclip${el.id})" preserveAspectRatio="xMidYMid slice"/><circle cx="0" cy="-22" r="7" fill="none" stroke="${c}" stroke-width="1"/>` : '';
       return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<path d="M-10,-14 L-6,-18 L0,-16 L6,-18 L10,-14 L12,-6 L8,-4 L8,12 L-8,12 L-8,-4 L-12,-6 Z" fill="${c}" stroke="rgba(0,0,0,0.2)" stroke-width="1"/><text x="0" y="2" text-anchor="middle" font-size="11" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text>${photoHead}${nm?`<text x="0" y="${el.photo?'-32':'-22'}" text-anchor="middle" font-size="8" fill="${c}" font-weight="600">${nm}</text>`:''}${pos?`<text x="0" y="22" text-anchor="middle" font-size="7" fill="${c}" font-weight="500">${pos}</text>`:''}</g>`;
      } else if(ST.avatarMode==='avatar') {
-      return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<circle cx="0" cy="-20" r="7" fill="#e2c4a8" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/><rect x="-9" y="-13" width="18" height="18" rx="3" fill="${c}" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/><rect x="-13" y="-12" width="5" height="12" rx="2.5" fill="${c}" transform="rotate(-10 -10 -6)" opacity="0.8"/><rect x="8" y="-12" width="5" height="12" rx="2.5" fill="${c}" transform="rotate(10 10 -6)" opacity="0.8"/><text x="0" y="-1" text-anchor="middle" font-size="10" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text><rect x="-8" y="5" width="7" height="12" rx="2" fill="${el.type==='goalkeeper'?'#333':c}" opacity="0.6"/><rect x="1" y="5" width="7" height="12" rx="2" fill="${el.type==='goalkeeper'?'#333':c}" opacity="0.6"/>${nm?`<text x="0" y="-30" text-anchor="middle" font-size="8" fill="${c}" font-weight="600">${nm}</text>`:''}${el.position?`<text x="0" y="24" text-anchor="middle" font-size="7" fill="${c}" font-weight="500">${el.position}</text>`:''}</g>`;
+      const skinC = el.skinTone || '#f0d0b4';
+      const headR = 8;
+      const photoHead2d = el.photo ? `<defs><clipPath id="ph2d${el.id}"><circle cx="0" cy="-22" r="${headR}"/></clipPath></defs><image href="${el.photo}" x="${-headR}" y="${-22-headR}" width="${headR*2}" height="${headR*2}" clip-path="url(#ph2d${el.id})" preserveAspectRatio="xMidYMid slice"/><circle cx="0" cy="-22" r="${headR}" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>` :
+       `<circle cx="0" cy="-22" r="${headR}" fill="${skinC}" stroke="rgba(0,0,0,0.06)" stroke-width="0.6"/><circle cx="-2" cy="-23" r="1.2" fill="#444"/><circle cx="2" cy="-23" r="1.2" fill="#444"/><path d="M-1.5,-19 Q0,-17.5 1.5,-19" fill="none" stroke="#c9967a" stroke-width="0.8"/>`;
+      return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}
+       <rect x="-10" y="-13" width="20" height="20" rx="4" fill="${c}" stroke="rgba(0,0,0,0.1)" stroke-width="0.6"/>
+       <rect x="0" y="-13" width="10" height="20" rx="0" fill="rgba(0,0,0,0.05)"/>
+       <line x1="-5" y1="-11" x2="-5" y2="5" stroke="rgba(255,255,255,0.12)" stroke-width="1.2"/>
+       <line x1="5" y1="-11" x2="5" y2="5" stroke="rgba(255,255,255,0.12)" stroke-width="1.2"/>
+       <rect x="-14" y="-12" width="5.5" height="13" rx="2.75" fill="${c}" transform="rotate(-8 -11 -5.5)" opacity="0.85"/>
+       <rect x="8.5" y="-12" width="5.5" height="13" rx="2.75" fill="${c}" transform="rotate(8 11 -5.5)" opacity="0.85"/>
+       <circle cx="-13" cy="2" r="2.2" fill="${skinC}"/>
+       <circle cx="13" cy="2" r="2.2" fill="${skinC}"/>
+       <text x="0" y="0" text-anchor="middle" font-size="11" fill="${this.contrastColor(c)}" font-weight="900" font-family="'Arial Black',sans-serif">${lbl}</text>
+       <rect x="-6" y="7" width="5" height="12" rx="2" fill="#1a1a1a"/>
+       <rect x="1" y="7" width="5" height="12" rx="2" fill="#1a1a1a"/>
+       <rect x="-5" y="17" width="4" height="2.5" rx="1" fill="#333"/>
+       <rect x="1" y="17" width="4" height="2.5" rx="1" fill="#333"/>
+       ${photoHead2d}
+      ${nm?`<text x="0" y="-33" text-anchor="middle" font-size="8" fill="${c}" font-weight="700">${nm}</text>`:''}${el.position?`<text x="0" y="26" text-anchor="middle" font-size="7" fill="${c}" font-weight="600">${el.position}</text>`:''}</g>`;
      } else {
       // Tactical 2D: circle with optional photo
       const pos = el.position||'';
