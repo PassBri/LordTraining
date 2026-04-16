@@ -45,17 +45,42 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
 .sb-scrollable::-webkit-scrollbar{width:3px}
 .sb-scrollable::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 /* Tool groups */
-.tool-sep{width:100%;height:1px;background:var(--border);margin:4px 0}
-.tool-header{width:100%;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--primary);padding:6px 4px 3px;opacity:0.8}
-.tool{width:48px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:3px 0;outline:none;border-radius:8px;transition:background .15s,transform .1s}
-.tool:hover{background:var(--hover);transform:translateY(-1px)}
-.tool:active{transform:scale(0.95)}
-.tool-circle{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;transition:all .18s;box-shadow:0 1px 3px var(--shadow);border:1px solid var(--border);background:var(--surface);color:var(--text-muted)}
-.tool-circle:hover{box-shadow:0 3px 8px var(--shadow);color:var(--text-sec);border-color:var(--text-muted)}
-.tool-circle.active{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 2px 10px rgba(37,99,235,0.3)}
-.tool-circle svg{width:16px;height:16px}
-.tool-label{font-size:7px;font-weight:600;color:var(--text-muted);text-align:center;max-width:48px;line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tool-label.active{color:var(--primary);font-weight:700}
+.tool-sep{width:100%;height:1px;background:var(--border);margin:5px 0}
+.tool-header{width:100%;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--primary);padding:8px 4px 4px}
+.tool{width:52px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;outline:none;border-radius:10px;transition:background .15s,transform .12s}
+.tool:hover{background:var(--hover);transform:translateY(-2px)}
+.tool:active{transform:scale(0.92)}
+.tool-circle{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .2s;box-shadow:0 2px 6px var(--shadow);border:1.5px solid var(--border);background:var(--surface);color:var(--text-sec)}
+.tool-circle:hover{box-shadow:0 4px 12px var(--shadow);border-color:var(--text-muted);transform:scale(1.05)}
+.tool-circle.active{box-shadow:0 3px 14px rgba(37,99,235,0.35);transform:scale(1.08)}
+.tool-circle svg{width:18px;height:18px}
+.tool-label{font-size:7.5px;font-weight:600;color:var(--text-muted);text-align:center;max-width:52px;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tool-label.active{font-weight:700}
+/* Tool group color themes */
+.tool-circle[data-grp="1"]{background:rgba(241,245,249,0.8);color:#475569}
+.tool-circle[data-grp="1"].active{background:#475569;color:#fff;border-color:#475569}
+.tool-circle[data-grp="2"]{background:rgba(200,247,0,0.12);color:#65a30d;border-color:rgba(200,247,0,0.3)}
+.tool-circle[data-grp="2"].active{background:#65a30d;color:#fff;border-color:#65a30d}
+.tool-circle[data-grp="3"]{background:rgba(139,92,246,0.08);color:#7c3aed;border-color:rgba(139,92,246,0.2)}
+.tool-circle[data-grp="3"].active{background:#7c3aed;color:#fff;border-color:#7c3aed}
+.tool-circle[data-grp="4"]{background:rgba(37,99,235,0.08);color:#2563eb;border-color:rgba(37,99,235,0.2)}
+.tool-circle[data-grp="4"].active{background:#2563eb;color:#fff;border-color:#2563eb}
+.tool-circle[data-grp="5"]{background:rgba(234,179,8,0.1);color:#ca8a04;border-color:rgba(234,179,8,0.25)}
+.tool-circle[data-grp="5"].active{background:#ca8a04;color:#fff;border-color:#ca8a04}
+.tool-circle[data-grp="6"]{background:rgba(239,68,68,0.08);color:#dc2626;border-color:rgba(239,68,68,0.2)}
+.tool-circle[data-grp="6"].active{background:#dc2626;color:#fff;border-color:#dc2626}
+.tool-circle[data-grp="7"]{background:rgba(6,182,212,0.08);color:#0891b2;border-color:rgba(6,182,212,0.2)}
+.tool-circle[data-grp="7"].active{background:#0891b2;color:#fff;border-color:#0891b2}
+.tool-circle[data-grp="8"]{background:rgba(34,197,94,0.08);color:#16a34a;border-color:rgba(34,197,94,0.2)}
+.tool-circle[data-grp="8"].active{background:#16a34a;color:#fff;border-color:#16a34a}
+.tool-circle[data-grp="9"],.tool-circle[data-grp="10"],.tool-circle[data-grp="11"],.tool-circle[data-grp="12"],.tool-circle[data-grp="13"],.tool-circle[data-grp="14"]{background:rgba(100,116,139,0.08);color:#64748b;border-color:rgba(100,116,139,0.2)}
+.tool-circle[data-grp="9"].active,.tool-circle[data-grp="10"].active,.tool-circle[data-grp="11"].active,.tool-circle[data-grp="12"].active,.tool-circle[data-grp="13"].active,.tool-circle[data-grp="14"].active{background:#64748b;color:#fff;border-color:#64748b}
+.tool-circle[data-grp="15"]{background:rgba(249,115,22,0.08);color:#ea580c;border-color:rgba(249,115,22,0.2)}
+.tool-circle[data-grp="15"].active{background:#ea580c;color:#fff;border-color:#ea580c}
+.tool-circle[data-grp="16"]{background:rgba(168,85,247,0.08);color:#9333ea;border-color:rgba(168,85,247,0.2)}
+.tool-circle[data-grp="16"].active{background:#9333ea;color:#fff;border-color:#9333ea}
+.tool-circle[data-grp="17"]{background:rgba(120,113,108,0.08);color:#78716c;border-color:rgba(120,113,108,0.2)}
+.tool-circle[data-grp="17"].active{background:#78716c;color:#fff;border-color:#78716c}
 /* Bottom actions & save */
 .sb-actions{display:flex;justify-content:center;gap:4px;padding:6px 8px;border-top:1px solid var(--border)}
 .sb-act{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);transition:all .12s;box-shadow:0 1px 3px var(--shadow)}
@@ -725,7 +750,7 @@ const S = {
    // Show line style indicator
    if(t.id==='line') icon = `<line x1="3" y1="15" x2="15" y2="3" stroke="currentColor" stroke-width="1.5" ${ST.lineStyle==='dashed'?'stroke-dasharray="3 2"':ST.lineStyle==='dotted'?'stroke-dasharray="1 2"':''}/>`;
    if(t.id==='curve') icon = `<path d="M3 15Q9 3 15 15" fill="none" stroke="currentColor" stroke-width="1.5" ${ST.lineStyle==='dashed'?'stroke-dasharray="3 2"':ST.lineStyle==='dotted'?'stroke-dasharray="1 2"':''}/>`;
-   html += `<button class="tool" data-tool="${t.id}" title="${t.label}"><div class="tool-circle${ST.tool===t.id?' active':''}"><svg viewBox="0 0 18 18" fill="none">${icon}</svg></div><span class="tool-label${ST.tool===t.id?' active':''}">${t.label}</span></button>`;
+   html += `<button class="tool" data-tool="${t.id}" title="${t.label}"><div class="tool-circle${ST.tool===t.id?' active':''}" data-grp="${t.group}"><svg viewBox="0 0 18 18" fill="none">${icon}</svg></div><span class="tool-label${ST.tool===t.id?' active':''}">${t.label}</span></button>`;
   });
   tb.innerHTML = html;
   tb.onclick = e => {
@@ -1508,6 +1533,16 @@ const S = {
     return `${grad}#ffeb3b"/><stop offset="40%" stop-color="#fdd835"/><stop offset="100%" stop-color="#f9a825${gradEnd}<circle cx="0" cy="0" r="${r}" fill="url(#bg${type}${id})" stroke="#1565c0" stroke-width="${sw*1.5}"/><path d="M${-r*0.8},${-r*0.15}Q0,${-r*0.5} ${r*0.8},${-r*0.15}" fill="none" stroke="#1565c0" stroke-width="${r*0.12}" opacity="0.5"/><path d="M${-r*0.8},${r*0.25}Q0,${r*0.6} ${r*0.8},${r*0.25}" fill="none" stroke="#1565c0" stroke-width="${r*0.12}" opacity="0.5"/>`;
    case 'bowling': // Black heavy
     return `${grad}#333"/><stop offset="40%" stop-color="#222"/><stop offset="100%" stop-color="#111${gradEnd}<circle cx="0" cy="0" r="${r}" fill="url(#bg${type}${id})" stroke="#000" stroke-width="${sw}"/><circle cx="${-r*0.15}" cy="${-r*0.3}" r="${r*0.1}" fill="#555"/><circle cx="${r*0.1}" cy="${-r*0.35}" r="${r*0.1}" fill="#555"/><circle cx="0" cy="${-r*0.1}" r="${r*0.1}" fill="#555"/>`;
+   case 'beach_volleyball': // Bright yellow/blue panels
+    return `${grad}#fff176"/><stop offset="40%" stop-color="#ffee58"/><stop offset="100%" stop-color="#f9a825${gradEnd}<circle cx="0" cy="0" r="${r}" fill="url(#bg${type}${id})" stroke="#f57f17" stroke-width="${sw}"/><path d="M${-r*0.8},${-r*0.15}Q0,${-r*0.6} ${r*0.8},${-r*0.15}" fill="none" stroke="#e65100" stroke-width="${r*0.18}" opacity="0.5"/><path d="M${-r*0.6},${r*0.4}Q0,${r*0.2} ${r*0.6},${r*0.4}" fill="none" stroke="#0277bd" stroke-width="${r*0.18}" opacity="0.5"/><path d="M${-r*0.2},${-r*0.85}Q${-r*0.05},0 ${-r*0.2},${r*0.85}" fill="none" stroke="#e65100" stroke-width="${r*0.12}" opacity="0.4"/>`;
+   case 'futsal': // Smaller white/yellow
+    return `${grad}#fff"/><stop offset="40%" stop-color="#fffde7"/><stop offset="100%" stop-color="#e0e0e0${gradEnd}<circle cx="0" cy="0" r="${r*0.9}" fill="url(#bg${type}${id})" stroke="#333" stroke-width="${sw}"/><path d="M${-r*0.15},${-r*0.3}L${r*0.12},${-r*0.35}L${r*0.3},${-r*0.12}L${r*0.15},${r*0.12}L${-r*0.08},${r*0.15}Z" fill="#fdd835" opacity="0.8"/><path d="M${-r*0.5},${r*0.05}L${-r*0.3},${-r*0.15}L${-r*0.1},${r*0.02}L${-r*0.25},${r*0.25}Z" fill="#fdd835" opacity="0.5"/>`;
+   case 'tejo': // Heavy metal disc with gunpowder target
+    return `${grad}#8d6e63"/><stop offset="40%" stop-color="#6d4c41"/><stop offset="100%" stop-color="#3e2723${gradEnd}<circle cx="0" cy="0" r="${r}" fill="url(#bg${type}${id})" stroke="#3e2723" stroke-width="${sw*1.5}"/><circle cx="0" cy="0" r="${r*0.65}" fill="none" stroke="#ffab00" stroke-width="${sw}" opacity="0.6"/><circle cx="0" cy="0" r="${r*0.3}" fill="#ff6f00" opacity="0.5"/><circle cx="0" cy="0" r="${r*0.12}" fill="#d32f2f"/>`;
+   case 'minitejo': // Smaller version
+    return `${grad}#a1887f"/><stop offset="40%" stop-color="#8d6e63"/><stop offset="100%" stop-color="#5d4037${gradEnd}<circle cx="0" cy="0" r="${r*0.8}" fill="url(#bg${type}${id})" stroke="#4e342e" stroke-width="${sw}"/><circle cx="0" cy="0" r="${r*0.5}" fill="none" stroke="#ffab00" stroke-width="${sw*0.8}" opacity="0.6"/><circle cx="0" cy="0" r="${r*0.2}" fill="#ff6f00" opacity="0.5"/>`;
+   case 'bolo_criollo': // Dark heavy ball
+    return `${grad}#455a64"/><stop offset="40%" stop-color="#37474f"/><stop offset="100%" stop-color="#263238${gradEnd}<circle cx="0" cy="0" r="${r}" fill="url(#bg${type}${id})" stroke="#1a1a1a" stroke-width="${sw}"/><circle cx="${-r*0.2}" cy="${-r*0.15}" r="${r*0.08}" fill="#546e7a" opacity="0.6"/><path d="M${-r*0.3},${-r*0.5}Q0,${r*0.3} ${r*0.3},${-r*0.5}" fill="none" stroke="#fff" stroke-width="${sw*0.6}" opacity="0.15"/>`;
    default:
     return `<circle cx="0" cy="0" r="${r}" fill="#f8fafc" stroke="#555" stroke-width="${sw}"/>`;
   }
@@ -2455,6 +2490,8 @@ const S = {
      {id:'soccer',label:'Futbol',emoji:'⚽'},
      {id:'basketball',label:'Baloncesto',emoji:'🏀'},
      {id:'volleyball',label:'Voleibol',emoji:'🏐'},
+     {id:'beach_volleyball',label:'Volei. Playa',emoji:'🏖'},
+     {id:'futsal',label:'Futbol Salon',emoji:'⚽'},
      {id:'handball',label:'Balonmano',emoji:'🤾'},
      {id:'rugby',label:'Rugby',emoji:'🏉'},
      {id:'football_us',label:'Futbol Americano',emoji:'🏈'},
@@ -2467,6 +2504,9 @@ const S = {
      {id:'softball',label:'Softball',emoji:'🥎'},
      {id:'waterpolo',label:'Waterpolo',emoji:'🤽'},
      {id:'bowling',label:'Bowling',emoji:'🎳'},
+     {id:'tejo',label:'Tejo',emoji:'🎯'},
+     {id:'minitejo',label:'Minitejo',emoji:'🎯'},
+     {id:'bolo_criollo',label:'Bolo Criollo',emoji:'🎳'},
     ];
     html += `<div class="prop-row"><label>Balón</label><select style="flex:1;height:24px;font-size:10px;border-radius:4px;border:1px solid var(--border);padding:0 4px" onchange="S.setProp(${el.id},'ballType',this.value)">`;
     bTypes.forEach(bt => {
