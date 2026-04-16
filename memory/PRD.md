@@ -110,6 +110,19 @@
 - Stop muestra confirm para mantener (en punta) o restaurar posiciones originales
 - Radio de deteccion de jugador: 200px
 
+### Tema Claro/Oscuro en Pizarra Tactica (Feb 2026)
+- Toggle de tema en barra de vista con iconos sol/luna
+- Tema Oscuro: fondo #0d1117, paneles #161b22, campo #111827, lineas blancas rgba(255,255,255,0.45)
+- Tema Claro: fondo blanco, paneles blancos, lineas oscuras (comportamiento original)
+- Persistencia via localStorage (clave 'tb_theme')
+- 15+ variables CSS actualizadas: --bg, --panel, --surface, --border, --text, etc.
+- Campo 3D adapta superficies: surface3d, front3d, right3d
+- Lineas 3D (render3DFieldLines) adaptan colores automaticamente
+- Flechas y texto usan color por defecto segun tema (#94a3b8 oscuro, #1e293b claro)
+- Arrow markers adaptan stroke segun tema
+- Todos los componentes (sidebar, modal, color picker, playback bar, joystick) tematizados
+- Cambio de deporte mantiene el tema activo
+
 ## Pendiente
 ### P1 - Continuar refactorizacion: extraer secciones Athletes, Sports, Events de DashboardPage
 ### P3 - Diseno responsivo tablero tactico (Mobile/Tablet)
