@@ -1739,6 +1739,113 @@ const S = {
   return `<defs><clipPath id="${clipId}"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath></defs><image href="${photo}" x="${cx-r}" y="${cy-r}" width="${r*2}" height="${r*2}" clip-path="url(#${clipId})" preserveAspectRatio="xMidYMid slice"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.2"/>`;
  },
 
+ // ═══════════ SPORT UNIFORMS MAP ═══════════
+ // Returns SVG parts for body, legs, shoes, accessories based on current sport
+ _sportUniform(c, cc, lbl, F, sk) {
+  const sp = (ST.sport||'').toLowerCase();
+  const bw=F?18:20, aw=F?4:5;
+  // Default jersey + shorts + cleats
+  let body=`<rect x="${-bw/2}" y="-13" width="${bw}" height="20" rx="4" fill="${c}"/><rect x="0" y="-13" width="${bw/2}" height="20" rx="0 4 4 0" fill="rgba(0,0,0,0.06)"/>`;
+  let arms=`<rect x="${-bw/2-aw}" y="-12" width="${aw}" height="13" rx="${aw/2}" fill="${c}" opacity="0.88"/><rect x="${bw/2}" y="-12" width="${aw}" height="13" rx="${aw/2}" fill="${c}" opacity="0.88"/><circle cx="${-bw/2-aw/2}" cy="2" r="${F?1.5:1.8}" fill="${sk}"/><circle cx="${bw/2+aw/2}" cy="2" r="${F?1.5:1.8}" fill="${sk}"/>`;
+  let legs=`<rect x="${F?-4.5:-5.5}" y="7" width="${F?4:5}" height="12" rx="2" fill="#1a1a1a"/><rect x="${F?0.5:0.5}" y="7" width="${F?4:5}" height="12" rx="2" fill="#1a1a1a"/>`;
+  let shoes=`<rect x="${F?-4:-5}" y="17" width="${F?3.5:4}" height="3" rx="1" fill="#333"/><rect x="${F?0.5:1}" y="17" width="${F?3.5:4}" height="3" rx="1" fill="#333"/>`;
+  let extra='';
+  let headExtra='';
+
+  // ── FUTBOL / FUTBOL DE SALON: jersey + shorts + medias + guayos ──
+  if(sp.includes('futbol')||sp.includes('balonmano')) {
+   legs=`<rect x="${F?-4.5:-5.5}" y="7" width="${F?4:5}" height="7" rx="2" fill="${c}" opacity="0.5"/><rect x="${F?0.5:0.5}" y="7" width="${F?4:5}" height="7" rx="2" fill="${c}" opacity="0.5"/><rect x="${F?-4.5:-5.5}" y="12" width="${F?4:5}" height="7" rx="1.5" fill="#fff" opacity="0.6"/><rect x="${F?0.5:0.5}" y="12" width="${F?4:5}" height="7" rx="1.5" fill="#fff" opacity="0.6"/>`;
+   shoes=`<rect x="${F?-5:-6}" y="17" width="${F?5:6}" height="3" rx="1.5" fill="#111"/><rect x="${F?0:0}" y="17" width="${F?5:6}" height="3" rx="1.5" fill="#111"/>`;
+  }
+  // ── BALONCESTO: tank top, long shorts, high-tops ──
+  else if(sp.includes('baloncesto')) {
+   body=`<rect x="${-bw/2+1}" y="-11" width="${bw-2}" height="18" rx="3" fill="${c}"/><rect x="${-3}" y="-13" width="6" height="2" rx="1" fill="${c}"/>`;
+   arms=`<rect x="${-bw/2-aw+1}" y="-10" width="${aw-1}" height="12" rx="${aw/2}" fill="${sk}" opacity="0.8"/><rect x="${bw/2}" y="-10" width="${aw-1}" height="12" rx="${aw/2}" fill="${sk}" opacity="0.8"/>`;
+   legs=`<rect x="${F?-5:-6}" y="7" width="${F?4.5:5.5}" height="10" rx="2" fill="${c}" opacity="0.4"/><rect x="${F?0.5:0.5}" y="7" width="${F?4.5:5.5}" height="10" rx="2" fill="${c}" opacity="0.4"/>`;
+   shoes=`<rect x="${F?-5:-6}" y="15" width="${F?5:6}" height="5" rx="2" fill="#222"/><rect x="${F?0:0}" y="15" width="${F?5:6}" height="5" rx="2" fill="#222"/>`;
+   extra=`<line x1="${-bw/2+2}" y1="0" x2="${bw/2-2}" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>`;
+  }
+  // ── VOLEIBOL: tight jersey, short shorts/bikini ──
+  else if(sp.includes('voleibol')) {
+   body=`<rect x="${-bw/2}" y="-13" width="${bw}" height="18" rx="4" fill="${c}"/><path d="M${-bw/2+2},-3 Q0,-1 ${bw/2-2},-3" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>`;
+   legs=F?`<rect x="-4" y="5" width="3.5" height="6" rx="2" fill="${c}" opacity="0.5"/><rect x="0.5" y="5" width="3.5" height="6" rx="2" fill="${c}" opacity="0.5"/><rect x="-4" y="9" width="3.5" height="10" rx="1.5" fill="${sk}" opacity="0.7"/><rect x="0.5" y="9" width="3.5" height="10" rx="1.5" fill="${sk}" opacity="0.7"/>`
+   :`<rect x="-5.5" y="5" width="5" height="8" rx="2" fill="${c}" opacity="0.45"/><rect x="0.5" y="5" width="5" height="8" rx="2" fill="${c}" opacity="0.45"/><rect x="-5" y="11" width="4.5" height="8" rx="1.5" fill="${sk}" opacity="0.5"/><rect x="0.5" y="11" width="4.5" height="8" rx="1.5" fill="${sk}" opacity="0.5"/>`;
+   shoes=`<rect x="-5" y="17" width="4.5" height="3" rx="1" fill="#ddd"/><rect x="0.5" y="17" width="4.5" height="3" rx="1" fill="#ddd"/>`;
+  }
+  // ── RUGBY / FUTBOL AMERICANO: padded shoulders, helmet hint ──
+  else if(sp.includes('rugby')||sp.includes('americano')) {
+   body=`<rect x="${-bw/2-1}" y="-14" width="${bw+2}" height="21" rx="3" fill="${c}"/><rect x="${-bw/2}" y="-14" width="${bw}" height="4" rx="2" fill="rgba(255,255,255,0.1)"/>`;
+   arms=`<rect x="${-bw/2-aw-1}" y="-13" width="${aw+1}" height="14" rx="${aw/2+0.5}" fill="${c}" opacity="0.9"/><rect x="${bw/2}" y="-13" width="${aw+1}" height="14" rx="${aw/2+0.5}" fill="${c}" opacity="0.9"/>`;
+   headExtra=sp.includes('americano')?`<path d="M-8,-28 Q0,-33 8,-28 L7,-22 L-7,-22 Z" fill="#444" stroke="#333" stroke-width="0.5"/><rect x="-6" y="-25" width="12" height="2" rx="0.5" fill="#555"/>`:
+    `<rect x="-6" y="-28" width="12" height="2.5" rx="1" fill="${c}" opacity="0.4"/>`;
+  }
+  // ── TENIS / PADEL / BADMINTON / SQUASH: polo, skirt(F) or shorts(M) ──
+  else if(sp.includes('tenis')||sp.includes('padel')||sp.includes('badminton')||sp.includes('squash')||sp.includes('fronton')) {
+   body=`<rect x="${-bw/2}" y="-13" width="${bw}" height="18" rx="4" fill="#fff" opacity="0.9" stroke="${c}" stroke-width="1"/><path d="M-3,-13 L0,-10 L3,-13" fill="${c}" opacity="0.6"/>`;
+   arms=`<rect x="${-bw/2-aw}" y="-12" width="${aw}" height="12" rx="${aw/2}" fill="#fff" opacity="0.85" stroke="${c}" stroke-width="0.5"/><rect x="${bw/2}" y="-12" width="${aw}" height="12" rx="${aw/2}" fill="#fff" opacity="0.85" stroke="${c}" stroke-width="0.5"/>`;
+   legs=F?`<path d="M-6,5 L-8,14 L6,14 L8,5 Z" fill="${c}" opacity="0.3"/><rect x="-4" y="12" width="3.5" height="7" rx="1.5" fill="${sk}" opacity="0.6"/><rect x="0.5" y="12" width="3.5" height="7" rx="1.5" fill="${sk}" opacity="0.6"/>`
+   :`<rect x="-5.5" y="5" width="5" height="8" rx="2" fill="${c}" opacity="0.35"/><rect x="0.5" y="5" width="5" height="8" rx="2" fill="${c}" opacity="0.35"/><rect x="-5" y="11" width="4.5" height="8" rx="1.5" fill="#fff" opacity="0.4"/><rect x="0.5" y="11" width="4.5" height="8" rx="1.5" fill="#fff" opacity="0.4"/>`;
+   shoes=`<rect x="-5" y="17" width="4.5" height="3" rx="1" fill="#fff" stroke="#ccc" stroke-width="0.5"/><rect x="0.5" y="17" width="4.5" height="3" rx="1" fill="#fff" stroke="#ccc" stroke-width="0.5"/>`;
+   extra=`<rect x="-1.5" y="-8" width="3" height="1.5" rx="0.5" fill="${c}" opacity="0.3"/>`;
+  }
+  // ── BOXEO / MMA / KICKBOXING: shirtless, gloves ──
+  else if(sp.includes('boxeo')||sp.includes('mma')||sp.includes('kickboxing')) {
+   body=`<rect x="${-bw/2+2}" y="-12" width="${bw-4}" height="18" rx="4" fill="${sk}" opacity="0.7"/>`;
+   arms=`<rect x="${-bw/2-aw}" y="-11" width="${aw}" height="13" rx="${aw/2}" fill="${sk}" opacity="0.75"/><rect x="${bw/2}" y="-11" width="${aw}" height="13" rx="${aw/2}" fill="${sk}" opacity="0.75"/><circle cx="${-bw/2-aw/2}" cy="3" r="3" fill="${c}"/><circle cx="${bw/2+aw/2}" cy="3" r="3" fill="${c}"/>`;
+   legs=`<rect x="-5.5" y="6" width="5" height="10" rx="2" fill="${c}"/><rect x="0.5" y="6" width="5" height="10" rx="2" fill="${c}"/>`;
+   shoes=``;
+  }
+  // ── JUDO / KARATE / TAEKWONDO / LUCHA: gi/dobok ──
+  else if(sp.includes('judo')||sp.includes('karate')||sp.includes('taekwondo')||sp.includes('lucha')) {
+   const isWhite=sp.includes('judo')||sp.includes('karate');
+   const giFill=isWhite?'#f5f5f5':c;
+   const giStroke=isWhite?'#ccc':c;
+   body=`<rect x="${-bw/2}" y="-13" width="${bw}" height="20" rx="3" fill="${giFill}" stroke="${giStroke}" stroke-width="0.8"/><path d="M-3,-13 L0,-4 L3,-13" fill="none" stroke="${isWhite?'#aaa':cc}" stroke-width="0.8"/>`;
+   arms=`<rect x="${-bw/2-aw}" y="-12" width="${aw}" height="13" rx="${aw/2}" fill="${giFill}" opacity="0.9" stroke="${giStroke}" stroke-width="0.5"/><rect x="${bw/2}" y="-12" width="${aw}" height="13" rx="${aw/2}" fill="${giFill}" opacity="0.9" stroke="${giStroke}" stroke-width="0.5"/>`;
+   extra=`<rect x="-8" y="-1" width="16" height="2.5" rx="1" fill="${sp.includes('judo')?'#333':sp.includes('taekwondo')?c:'#333'}" opacity="0.7"/>`;
+   legs=`<rect x="-5.5" y="7" width="5" height="12" rx="2" fill="${giFill}" opacity="0.8"/><rect x="0.5" y="7" width="5" height="12" rx="2" fill="${giFill}" opacity="0.8"/>`;
+   shoes=``;
+  }
+  // ── ATLETISMO / MARATON: singlet, very short shorts, spikes ──
+  else if(sp.includes('atletismo')||sp.includes('maraton')||sp.includes('ciclismo')) {
+   if(sp.includes('ciclismo')) {
+    body=`<rect x="${-bw/2}" y="-13" width="${bw}" height="22" rx="4" fill="${c}"/><rect x="0" y="-13" width="${bw/2}" height="22" fill="rgba(0,0,0,0.06)"/>`;
+    arms=`<rect x="${-bw/2-aw}" y="-12" width="${aw}" height="12" rx="${aw/2}" fill="${c}" opacity="0.88"/><rect x="${bw/2}" y="-12" width="${aw}" height="12" rx="${aw/2}" fill="${c}" opacity="0.88"/>`;
+    legs=`<rect x="-5.5" y="9" width="5" height="12" rx="2" fill="#111"/><rect x="0.5" y="9" width="5" height="12" rx="2" fill="#111"/>`;
+    headExtra=`<path d="M-7,-28 Q0,-32 7,-28 L6,-26 L-6,-26 Z" fill="#333" opacity="0.7"/>`;
+   } else {
+    body=`<rect x="${-bw/2+2}" y="-12" width="${bw-4}" height="16" rx="3" fill="${c}"/>`;
+    arms=`<rect x="${-bw/2-aw+1}" y="-11" width="${aw-1}" height="11" rx="${aw/2}" fill="${sk}" opacity="0.8"/><rect x="${bw/2}" y="-11" width="${aw-1}" height="11" rx="${aw/2}" fill="${sk}" opacity="0.8"/>`;
+    legs=`<rect x="-4" y="4" width="3.5" height="4" rx="1.5" fill="${c}" opacity="0.4"/><rect x="0.5" y="4" width="3.5" height="4" rx="1.5" fill="${c}" opacity="0.4"/><rect x="-4" y="6" width="3.5" height="12" rx="1.5" fill="${sk}" opacity="0.6"/><rect x="0.5" y="6" width="3.5" height="12" rx="1.5" fill="${sk}" opacity="0.6"/>`;
+    shoes=`<rect x="-5" y="16" width="5" height="3" rx="1" fill="#ff5722" opacity="0.7"/><rect x="0" y="16" width="5" height="3" rx="1" fill="#ff5722" opacity="0.7"/>`;
+   }
+  }
+  // ── NATACION: swimsuit, cap, goggles ──
+  else if(sp.includes('natacion')) {
+   body=`<rect x="${-bw/2+3}" y="-12" width="${bw-6}" height="${F?18:20}" rx="4" fill="${c}"/>`;
+   arms=`<rect x="${-bw/2-aw+2}" y="-11" width="${aw-1}" height="12" rx="${aw/2}" fill="${sk}" opacity="0.8"/><rect x="${bw/2}" y="-11" width="${aw-1}" height="12" rx="${aw/2}" fill="${sk}" opacity="0.8"/>`;
+   legs=`<rect x="-4" y="${F?6:8}" width="3.5" height="${F?12:10}" rx="1.5" fill="${sk}" opacity="0.65"/><rect x="0.5" y="${F?6:8}" width="3.5" height="${F?12:10}" rx="1.5" fill="${sk}" opacity="0.65"/>`;
+   shoes=``;
+   headExtra=`<path d="M-7,-28 Q0,-31 7,-28 L7,-24 L-7,-24 Z" fill="${c}" opacity="0.7"/><rect x="-6" y="-26" width="12" height="2.5" rx="1" fill="rgba(255,255,255,0.4)"/>`;
+  }
+  // ── ESPORTS: hoodie/jersey gaming ──
+  else if(sp.includes('league')||sp.includes('valorant')||sp.includes('fifa')||sp.includes('cs')||sp.includes('fortnite')||sp.includes('rocket')) {
+   body=`<rect x="${-bw/2}" y="-13" width="${bw}" height="22" rx="3" fill="${c}"/><path d="M${-bw/2},-13 L${-bw/2+3},-16 L${bw/2-3},-16 L${bw/2},-13" fill="${c}" opacity="0.7"/>`;
+   extra=`<rect x="-3" y="-6" width="6" height="4" rx="1" fill="rgba(255,255,255,0.15)"/>`;
+   headExtra=`<rect x="-8" y="-28" width="16" height="3" rx="1" fill="#333" opacity="0.5"/>`;
+  }
+  // ── GIMNASIO: tank top / sports bra, joggers ──
+  else if(sp.includes('pesas')||sp.includes('circuito')) {
+   body=F?`<rect x="${-bw/2+2}" y="-11" width="${bw-4}" height="14" rx="3" fill="${c}"/><rect x="-3" y="-13" width="6" height="2" rx="1" fill="${c}"/>`
+    :`<rect x="${-bw/2+1}" y="-11" width="${bw-2}" height="18" rx="3" fill="${c}"/><rect x="-4" y="-13" width="8" height="2" rx="1" fill="${c}"/>`;
+   arms=`<rect x="${-bw/2-aw+1}" y="-10" width="${aw-1}" height="12" rx="${aw/2}" fill="${sk}" opacity="0.8"/><rect x="${bw/2}" y="-10" width="${aw-1}" height="12" rx="${aw/2}" fill="${sk}" opacity="0.8"/>`;
+   legs=`<rect x="-5.5" y="${F?3:7}" width="5" height="${F?16:12}" rx="2" fill="#333"/><rect x="0.5" y="${F?3:7}" width="5" height="${F?16:12}" rx="2" fill="#333"/>`;
+   shoes=`<rect x="-5.5" y="${F?17:17}" width="5.5" height="3" rx="1.5" fill="#fff" stroke="#ddd" stroke-width="0.5"/><rect x="0" y="${F?17:17}" width="5.5" height="3" rx="1.5" fill="#fff" stroke="#ddd" stroke-width="0.5"/>`;
+  }
+  const num=`<text x="0" y="1" text-anchor="middle" font-size="11" fill="${cc}" font-weight="900">${lbl}</text>`;
+  return {body, arms, legs, shoes, extra, headExtra, num};
+ },
+
  buildAvatar2D(el, c, lbl, nm, r, selStroke, shadow) {
   const sk = el.skinTone||'#f0d0b4';
   const cc = this.contrastColor(c);
@@ -1768,10 +1875,11 @@ const S = {
     `<path d="M${cx-R*0.13},${cy+R*0.34}Q${cx},${cy+R*0.44} ${cx+R*0.13},${cy+R*0.34}" fill="none" stroke="#c9967a" stroke-width="0.8"/>`+
     `<path d="M${cx-R*0.48},${cy+R*0.48}Q${cx},${cy+R*0.62} ${cx+R*0.48},${cy+R*0.48}" fill="none" stroke="#c9967a" stroke-width="0.5" opacity="0.3"/>`;
   };
-  // ── MODERN: jersey with collar, shadow panels ──
+  // ── MODERN: uses sport-specific uniform ──
   if(style==='modern') {
-   const hd=_h('am'+el.id,0,-22,8), bw=F?18:20, aw=F?4.5:5.5;
-   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<rect x="${-bw/2}" y="-13" width="${bw}" height="21" rx="4" fill="${c}"/><rect x="0" y="-13" width="${bw/2}" height="21" rx="0 4 4 0" fill="rgba(0,0,0,0.06)"/><rect x="${-bw/2-aw}" y="-12" width="${aw}" height="14" rx="${aw/2}" fill="${c}" opacity="0.88"/><rect x="${bw/2}" y="-12" width="${aw}" height="14" rx="${aw/2}" fill="${c}" opacity="0.88"/><circle cx="${-bw/2-aw/2}" cy="3" r="${F?1.6:2}" fill="${sk}"/><circle cx="${bw/2+aw/2}" cy="3" r="${F?1.6:2}" fill="${sk}"/><text x="0" y="1" text-anchor="middle" font-size="11" fill="${cc}" font-weight="900">${lbl}</text><rect x="${F?-4.5:-5.5}" y="8" width="${F?4:5}" height="13" rx="2" fill="#1a1a1a"/><rect x="${F?0.5:0.5}" y="8" width="${F?4:5}" height="13" rx="2" fill="#1a1a1a"/><rect x="${F?-4:-5}" y="19" width="${F?3.5:4}" height="2.5" rx="1" fill="#333"/><rect x="${F?0.5:1}" y="19" width="${F?3.5:4}" height="2.5" rx="1" fill="#333"/>${hd}${nmT}${posT}</g>`;
+   const hd=_h('am'+el.id,0,-22,8);
+   const u=this._sportUniform(c,cc,lbl,F,sk);
+   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}${u.body}${u.arms}${u.extra}${u.num}${u.legs}${u.shoes}${hd}${u.headExtra}${nmT}${posT}</g>`;
   }
   // ── CHIBI: huge head, tiny body, giant sparkly eyes ──
   if(style==='chibi') {

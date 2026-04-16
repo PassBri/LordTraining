@@ -167,6 +167,23 @@
 - 6 nuevos balones: Voleibol Playa, Futbol Salon, Tejo, Minitejo, Bolo Criollo, Badminton (volante)
 - Botones Material Design coloridos por categoria (18 grupos con colores unicos)
 
+### Uniformes por Deporte en Avatares (Feb 2026)
+- Sistema _sportUniform() lee ST.sport del catalogo de deportes y genera SVG de indumentaria
+- 12 categorias de uniforme implementadas:
+  - Futbol/Balonmano: jersey + shorts + medias blancas + guayos negros
+  - Baloncesto: tank top sin mangas + shorts largos + zapatillas altas
+  - Voleibol: jersey ajustado + shorts cortos(F:bikini) + tenis blancos
+  - Rugby/Americano: jersey reforzado hombros + casco(americano)
+  - Tenis/Padel/Badminton: polo blanco con cuello V + falda(F)/shorts(M) + tenis blancos
+  - Boxeo/MMA/Kickboxing: torso desnudo + guantes de color del equipo + shorts
+  - Judo/Karate/Taekwondo: gi/dobok blanco con cinturon + descalzos
+  - Atletismo/Maraton: singlet ligero + shorts ultra cortos + spikes naranjas
+  - Ciclismo: maillot completo + casco aerodinamico
+  - Natacion: traje de bano + gorra + gafas
+  - Esports: hoodie gaming + headset
+  - Gimnasio: tank top/sports bra + joggers + tenis blancos
+- Estilo MODERN ahora usa uniformes deportivos automaticamente
+
 ## Pendiente
 ### P1 - Continuar refactorizacion: extraer secciones Athletes, Sports, Events de DashboardPage
 ### P3 - Diseno responsivo tablero tactico (Mobile/Tablet)
