@@ -21,6 +21,15 @@
 - Valores manuales tienen prioridad sobre datos calculados V2
 - Celdas vacias muestran "+" para indicar interactividad
 
+### Plantilla y Fotos en Pizarra Tactica (Abr 2026)
+- Nueva pestaña "Plantilla" en panel derecho con lista de jugadores por equipo
+- Campos de Nombre y Posicion en propiedades del jugador
+- Upload de foto de jugador (se muestra como circulo en el campo en modo tactico 2D)
+- Fotos se redimensionan a 80x80 y se almacenan como base64
+- Seccion de Cambios/Sustituciones con jugador sale, jugador entra y minuto
+- Boton "+ Jugador" rapido desde plantilla (agrega al campo automaticamente)
+- Modo jersey 2D muestra foto como cabeza del jugador
+
 ### Selector de Iconos y Colores para Categorias (Abr 2026)
 - 50+ iconos de deporte, fitness y recreacion (lucide-react): Pesas, Ciclismo, Natacion, Montaña, Trofeo, etc.
 - 16 colores seleccionables para cada categoria (rose a slate)
