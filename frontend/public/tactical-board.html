@@ -2562,26 +2562,68 @@ const S = {
   img.src = url;
  },
 
- // ── PLAYBACK ENGINE ──
+ // ── PLAYBACK ENGINE (moves real players along arrows) ──
  startPlayback() {
   const arrows = ST.elements.filter(e => e.type === 'arrow' && e.playOrder);
-  if (!arrows.length) { alert('No hay flechas con orden de jugada. Agrega flechas primero.'); return; }
+  if (!arrows.length) { alert('No hay flechas con orden de jugada. Dibuja flechas y asigna orden primero.'); return; }
   arrows.sort((a, b) => (a.playOrder || 0) - (b.playOrder || 0));
+  
+  // Save original positions of all players
+  ST.playbackOriginalPos = {};
+  ST.elements.forEach(el => {
+   if (el.type === 'playerA' || el.type === 'playerB' || el.type === 'goalkeeper') {
+    ST.playbackOriginalPos[el.id] = { x: el.x, y: el.y };
+   }
+  });
+  
+  // Build movement assignments: which player moves along which arrow
+  ST.playbackMoves = [];
+  const usedPlayers = new Set();
+  arrows.forEach(arrow => {
+   const player = this.findNearestPlayerForPlayback(arrow.x1, arrow.y1, usedPlayers);
+   if (player) {
+    usedPlayers.add(player.id);
+    ST.playbackMoves.push({
+     arrow,
+     playerId: player.id,
+     fromX: arrow.x1, fromY: arrow.y1,
+     toX: arrow.x2, toY: arrow.y2,
+     cx: arrow.cx, cy: arrow.cy // curve control point if exists
+    });
+   } else {
+    ST.playbackMoves.push({ arrow, playerId: null, fromX: arrow.x1, fromY: arrow.y1, toX: arrow.x2, toY: arrow.y2 });
+   }
+  });
+  
   ST.playbackArrows = arrows;
   ST.playbackIdx = 0;
   ST.playbackSpeed = ST.playbackSpeed || 1;
   ST.playbackState = 'playing';
   ST.playbackProgress = 0;
+  ST.playbackStartTime = null;
   document.getElementById('playback-bar').classList.add('show');
   document.getElementById('pb-play').classList.add('playing');
   document.getElementById('pb-pause').classList.remove('playing');
   this.renderPlaybackFrame();
  },
 
+ findNearestPlayerForPlayback(x, y, excludeSet) {
+  let nearest = null, minDist = 80;
+  ST.elements.forEach(el => {
+   if (el.type !== 'playerA' && el.type !== 'playerB' && el.type !== 'goalkeeper') return;
+   if (excludeSet && excludeSet.has(el.id)) return;
+   const dx = el.x - x, dy = el.y - y;
+   const dist = Math.sqrt(dx * dx + dy * dy);
+   if (dist < minDist) { minDist = dist; nearest = el; }
+  });
+  return nearest;
+ },
+
  playback(action) {
   if (action === 'play') {
    if (ST.playbackState === 'paused') {
     ST.playbackState = 'playing';
+    ST.playbackStartTime = null; // reset timing for smooth resume
     document.getElementById('pb-play').classList.add('playing');
     document.getElementById('pb-pause').classList.remove('playing');
     this.renderPlaybackFrame();
@@ -2590,6 +2632,7 @@ const S = {
    }
   } else if (action === 'pause') {
    ST.playbackState = 'paused';
+   ST.playbackPausedProgress = ST.playbackProgress || 0;
    document.getElementById('pb-play').classList.remove('playing');
    document.getElementById('pb-pause').classList.add('playing');
    if (ST.playbackRAF) cancelAnimationFrame(ST.playbackRAF);
@@ -2599,7 +2642,26 @@ const S = {
    document.getElementById('playback-bar').classList.remove('show');
    document.getElementById('pb-play').classList.remove('playing');
    document.getElementById('pb-pause').classList.remove('playing');
-   // Restore normal rendering
+   // Ask: keep new positions or restore?
+   if (ST.playbackOriginalPos && ST.playbackMoves && ST.playbackMoves.length) {
+    const keep = confirm('¿Mantener las nuevas posiciones de los jugadores?');
+    if (!keep) {
+     // Restore original positions
+     Object.entries(ST.playbackOriginalPos).forEach(([id, pos]) => {
+      const el = ST.elements.find(e => e.id === +id);
+      if (el) { el.x = pos.x; el.y = pos.y; }
+     });
+    } else {
+     // Update positions to final arrow destinations
+     ST.playbackMoves.forEach(move => {
+      if (move.playerId) {
+       const el = ST.elements.find(e => e.id === move.playerId);
+       if (el) { el.x = move.toX; el.y = move.toY; }
+      }
+     });
+    }
+   }
+   ST.playbackOriginalPos = null;
    this.renderElements();
   }
  },
@@ -2611,29 +2673,76 @@ const S = {
   document.getElementById(btn).classList.add('active');
  },
 
+ // Interpolate along a path (line or curve)
+ interpolatePath(move, t) {
+  t = Math.max(0, Math.min(1, t));
+  // Ease in-out for smooth movement
+  const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  if (move.cx !== undefined && move.cy !== undefined) {
+   // Quadratic bezier
+   const u = 1 - ease;
+   const x = u * u * move.fromX + 2 * u * ease * move.cx + ease * ease * move.toX;
+   const y = u * u * move.fromY + 2 * u * ease * move.cy + ease * ease * move.toY;
+   return { x, y };
+  }
+  // Linear
+  return {
+   x: move.fromX + (move.toX - move.fromX) * ease,
+   y: move.fromY + (move.toY - move.fromY) * ease
+  };
+ },
+
  renderPlaybackFrame() {
   if (ST.playbackState !== 'playing') return;
-  const arrows = ST.playbackArrows;
-  if (!arrows || !arrows.length) return;
+  const moves = ST.playbackMoves;
+  if (!moves || !moves.length) return;
 
-  const STEP_DURATION = 1200 / ST.playbackSpeed; // ms per arrow step
+  const STEP_DURATION = 1500 / ST.playbackSpeed;
   const now = performance.now();
-  if (!ST.playbackStartTime) ST.playbackStartTime = now;
+  if (!ST.playbackStartTime) {
+   ST.playbackStartTime = now;
+   // If resuming from pause, offset
+   if (ST.playbackPausedProgress > 0) {
+    ST.playbackStartTime = now - ST.playbackPausedProgress * moves.length * STEP_DURATION;
+    ST.playbackPausedProgress = 0;
+   }
+  }
 
   const elapsed = now - ST.playbackStartTime;
-  const totalDuration = arrows.length * STEP_DURATION;
+  const totalDuration = moves.length * STEP_DURATION;
   const progress = Math.min(elapsed / totalDuration, 1);
+  ST.playbackProgress = progress;
 
-  // Which step are we on?
-  const currentStepFloat = progress * arrows.length;
-  const currentStep = Math.min(Math.floor(currentStepFloat), arrows.length - 1);
-  const stepProgress = currentStepFloat - currentStep; // 0-1 within step
+  const currentStepFloat = progress * moves.length;
+  const currentStep = Math.min(Math.floor(currentStepFloat), moves.length - 1);
+  const stepProgress = currentStepFloat - currentStep;
 
-  // Update UI
   document.getElementById('pb-fill').style.width = (progress * 100) + '%';
-  document.getElementById('pb-step').textContent = `Paso ${currentStep + 1} / ${arrows.length}`;
+  document.getElementById('pb-step').textContent = `Paso ${currentStep + 1} / ${moves.length}`;
 
-  // Build the animated SVG
+  // Update player positions based on current animation state
+  moves.forEach((move, idx) => {
+   if (!move.playerId) return;
+   const el = ST.elements.find(e => e.id === move.playerId);
+   if (!el) return;
+   
+   if (idx < currentStep) {
+    // Completed: at destination
+    el.x = move.toX; el.y = move.toY;
+   } else if (idx === currentStep) {
+    // Currently moving
+    const pos = this.interpolatePath(move, stepProgress);
+    el.x = pos.x; el.y = pos.y;
+   } else {
+    // Not started yet: keep at start (or previous destination)
+    if (idx === 0) {
+     const orig = ST.playbackOriginalPos[move.playerId];
+     if (orig) { el.x = orig.x; el.y = orig.y; }
+    }
+   }
+  });
+
+  // Re-render with animation overlays
   const layer = document.getElementById('elements-layer');
   let defs = `<defs>
    <marker id="arrow-marker" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/></marker>
@@ -2642,93 +2751,63 @@ const S = {
 
   let svgParts = '';
 
-  // Draw all non-arrow elements normally
+  // Draw all non-arrow elements (players will be at their animated positions)
   ST.elements.forEach(el => {
    if (el.type === 'arrow') return;
    svgParts += this.buildElSvg(el);
   });
 
-  // Draw arrows with animation
-  arrows.forEach((arrow, idx) => {
-   const x1 = arrow.x1, y1 = arrow.y1, x2 = arrow.x2, y2 = arrow.y2;
-   const dx = x2 - x1, dy = y2 - y1;
-   const len = Math.sqrt(dx * dx + dy * dy);
+  // Draw arrow trails
+  moves.forEach((move, idx) => {
+   const a = move.arrow;
+   const x1 = a.x1, y1 = a.y1, x2 = a.x2, y2 = a.y2;
+   const hasCurve = a.cx !== undefined && a.cy !== undefined;
+   const pathD = hasCurve ? `M${x1},${y1}Q${a.cx},${a.cy},${x2},${y2}` : `M${x1},${y1}L${x2},${y2}`;
 
    if (idx < currentStep) {
-    // Already played — full, bright
-    svgParts += `<g>
-     <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#2563eb" stroke-width="3" stroke-linecap="round" marker-end="url(#play-arrow)" opacity="0.9"/>
-     <circle cx="${x1}" cy="${y1}" r="4" fill="rgba(200,247,0,0.6)"/>
-     <circle cx="${x2}" cy="${y2}" r="3" fill="rgba(200,247,0,0.4)"/>
-    </g>`;
+    // Completed trail
+    svgParts += `<path d="${pathD}" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" marker-end="url(#play-arrow)" opacity="0.6"/>`;
+    svgParts += `<circle cx="${x2}" cy="${y2}" r="3" fill="#2563eb" opacity="0.4"/>`;
    } else if (idx === currentStep) {
-    // Currently animating
-    const drawLen = len * Math.min(stepProgress * 1.3, 1); // slight overshoot for smooth feel
-    const ratio = drawLen / len;
-    const ex = x1 + dx * ratio, ey = y1 + dy * ratio;
-
-    // Animated line (stroke-dasharray trick)
-    svgParts += `<g>
-     <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(255,255,255,0.1)" stroke-width="2" stroke-dasharray="4 3"/>
-     <line x1="${x1}" y1="${y1}" x2="${ex}" y2="${ey}" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round" marker-end="url(#play-arrow)"/>
-     <circle cx="${x1}" cy="${y1}" r="5" fill="rgba(200,247,0,0.7)"/>
-     <circle cx="${ex}" cy="${ey}" r="6" fill="rgba(200,247,0,0.3)"/>
-     <circle cx="${ex}" cy="${ey}" r="3" fill="#2563eb" opacity="0.9"/>
-    </g>`;
-
-    // Move nearest player along the arrow
-    const nearestPlayer = this.findNearestPlayer(x1, y1);
-    if (nearestPlayer) {
-     const px = x1 + dx * Math.min(ratio, 1);
-     const py = y1 + dy * Math.min(ratio, 1);
-     svgParts += `<circle cx="${px}" cy="${py}" r="${nearestPlayer.size || 15}" fill="${nearestPlayer.color}33" stroke="${nearestPlayer.color}" stroke-width="2.5" opacity="0.8"/>`;
-     svgParts += `<text x="${px}" y="${py}" dy="0.35em" text-anchor="middle" font-size="${(nearestPlayer.size||15)*0.85}" fill="${nearestPlayer.color}" font-weight="800" opacity="0.8">${nearestPlayer.label||''}</text>`;
-    }
-
-    // Step number badge
-    const mx = (x1 + ex) / 2, my = (y1 + ey) / 2;
-    svgParts += `<circle cx="${mx}" cy="${my-18}" r="12" fill="rgba(37,99,235,0.9)"/><text x="${mx}" y="${my-18}" dy="0.35em" text-anchor="middle" font-size="10" fill="#ffffff" font-weight="800">${arrow.playOrder}</text>`;
+    // Active trail — draw partial
+    svgParts += `<path d="${pathD}" fill="none" stroke="rgba(37,99,235,0.15)" stroke-width="1.5" stroke-dasharray="5 3"/>`;
+    
+    // Animated portion
+    const pos = this.interpolatePath(move, stepProgress);
+    const partialD = hasCurve ?
+     `M${x1},${y1}Q${x1+(a.cx-x1)*stepProgress},${y1+(a.cy-y1)*stepProgress},${pos.x},${pos.y}` :
+     `M${x1},${y1}L${pos.x},${pos.y}`;
+    svgParts += `<path d="${partialD}" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" marker-end="url(#play-arrow)"/>`;
+    
+    // Glow at current position
+    svgParts += `<circle cx="${pos.x}" cy="${pos.y}" r="8" fill="rgba(37,99,235,0.15)"/><circle cx="${pos.x}" cy="${pos.y}" r="4" fill="rgba(37,99,235,0.3)"/>`;
+    
+    // Step badge
+    svgParts += `<circle cx="${x1}" cy="${y1-20}" r="10" fill="rgba(37,99,235,0.9)"/><text x="${x1}" y="${y1-20}" dy="0.35em" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">${a.playOrder}</text>`;
    } else {
-    // Not yet played — dim ghost
-    svgParts += `<g opacity="0.2">
-     <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4" marker-end="url(#arrow-marker)"/>
-     <circle cx="${(x1+x2)/2}" cy="${(y1+y2)/2}" r="8" fill="rgba(17,21,32,0.8)" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
-     <text x="${(x1+x2)/2}" y="${(y1+y2)/2}" dy="0.35em" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.3)">${arrow.playOrder}</text>
-    </g>`;
+    // Future — ghost
+    svgParts += `<path d="${pathD}" fill="none" stroke="rgba(148,163,184,0.2)" stroke-width="1" stroke-dasharray="4 3"/>`;
    }
-  });
-
-  // Also draw non-arrow elements that weren't in the arrow list
-  const arrowIds = new Set(arrows.map(a => a.id));
-  ST.elements.filter(e => e.type === 'arrow' && !arrowIds.has(e.id)).forEach(el => {
-   svgParts += `<g opacity="0.15">${this.buildElSvg(el)}</g>`;
   });
 
   layer.innerHTML = defs + svgParts;
 
   if (progress >= 1) {
-   // Playback complete — hold final frame for a moment, then auto-stop
    ST.playbackStartTime = null;
-   setTimeout(() => {
-    if (ST.playbackState === 'playing') {
-     this.playback('stop');
+   // Final positions
+   moves.forEach(move => {
+    if (move.playerId) {
+     const el = ST.elements.find(e => e.id === move.playerId);
+     if (el) { el.x = move.toX; el.y = move.toY; }
     }
-   }, 1500);
+   });
+   setTimeout(() => {
+    if (ST.playbackState === 'playing') this.playback('stop');
+   }, 1200);
    return;
   }
 
   ST.playbackRAF = requestAnimationFrame(() => this.renderPlaybackFrame());
- },
-
- findNearestPlayer(x, y) {
-  let nearest = null, minDist = 60; // Max 60px search radius
-  ST.elements.forEach(el => {
-   if (el.type !== 'playerA' && el.type !== 'playerB' && el.type !== 'goalkeeper') return;
-   const dx = el.x - x, dy = el.y - y;
-   const dist = Math.sqrt(dx * dx + dy * dy);
-   if (dist < minDist) { minDist = dist; nearest = el; }
-  });
-  return nearest;
  },
 
  // ── AI MODAL ──
