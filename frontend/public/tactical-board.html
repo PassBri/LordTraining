@@ -1249,42 +1249,94 @@ const S = {
  buildIsoPlayer(el, p, ds) {
   const c = el.color;
   const lbl = el.label||'';
+  const nm = el.name||'';
+  const pos = el.position||'';
   const s = ds*1.1;
   const darkC = this.darken(c,0.65);
   const lightC = this.lighten(c,1.2);
-  // Shadow on ground
+  const cc = this.contrastColor(c);
+  const sk = el.skinTone||'#e2c4a8';
   const shw = `<ellipse cx="${p.x+3*s}" cy="${p.y+4*s}" rx="${12*s}" ry="${4*s}" fill="rgba(0,0,0,0.25)" filter="url(#blur3d)"/>`;
+  const nmLabel = nm ? `<text x="${p.x}" y="${p.y-60*s}" text-anchor="middle" font-size="11" fill="${c}" font-weight="800" stroke="#fff" stroke-width="3" paint-order="stroke">${nm}</text>` : '';
+  const posLabel = pos ? `<text x="${p.x}" y="${p.y+12}" text-anchor="middle" font-size="9" fill="${c}" font-weight="700" stroke="#fff" stroke-width="2" paint-order="stroke">${pos}</text>` : '';
 
   if(ST.avatarMode==='avatar') {
+   const style = ST.avatarStyle||'modern';
    const h = 50*s;
+   const headR = 8*s;
+   const photoHead = el.photo ? `<defs><clipPath id="iso3d${el.id}"><circle cx="0" cy="${-8*s}" r="${headR}"/></clipPath></defs><image href="${el.photo}" x="${-headR}" y="${-8*s-headR}" width="${headR*2}" height="${headR*2}" clip-path="url(#iso3d${el.id})" preserveAspectRatio="xMidYMid slice"/><circle cx="0" cy="${-8*s}" r="${headR}" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.2"/>` :
+    `<circle cx="0" cy="${-8*s}" r="${headR}" fill="${sk}"/><circle cx="${-2*s}" cy="${-9*s}" r="${1*s}" fill="#555"/><circle cx="${2*s}" cy="${-9*s}" r="${1*s}" fill="#555"/>`;
+
+   if(style==='chibi') {
+    const bigHead = el.photo ? `<defs><clipPath id="isoc${el.id}"><circle cx="0" cy="${-16*s}" r="${12*s}"/></clipPath></defs><image href="${el.photo}" x="${-12*s}" y="${-28*s}" width="${24*s}" height="${24*s}" clip-path="url(#isoc${el.id})" preserveAspectRatio="xMidYMid slice"/><circle cx="0" cy="${-16*s}" r="${12*s}" fill="none" stroke="${c}" stroke-width="${2*s}"/>` :
+     `<circle cx="0" cy="${-16*s}" r="${12*s}" fill="${sk}" stroke="${c}" stroke-width="${2*s}"/>
+      <circle cx="${-3*s}" cy="${-19*s}" r="${3*s}" fill="#fff"/><circle cx="${3*s}" cy="${-19*s}" r="${3*s}" fill="#fff"/>
+      <circle cx="${-3*s}" cy="${-19*s}" r="${1.8*s}" fill="#333"/><circle cx="${3*s}" cy="${-19*s}" r="${1.8*s}" fill="#333"/>
+      <path d="M${-2*s},${-11*s} Q0,${-8*s} ${2*s},${-11*s}" fill="#e8836b"/>`;
+    return `<g data-id="${el.id}" style="cursor:grab">${shw}<g transform="translate(${p.x},${p.y-35*s})">
+     <rect x="${-7*s}" y="${-2*s}" width="${14*s}" height="${12*s}" rx="${3*s}" fill="${c}"/>
+     <text x="0" y="${7*s}" text-anchor="middle" font-size="${9*s}" fill="${cc}" font-weight="800">${lbl}</text>
+     <rect x="${-4*s}" y="${10*s}" width="${3.5*s}" height="${7*s}" rx="${1.5*s}" fill="#1a1a1a"/><rect x="${0.5*s}" y="${10*s}" width="${3.5*s}" height="${7*s}" rx="${1.5*s}" fill="#1a1a1a"/>
+     ${bigHead}
+    </g>${nmLabel}${posLabel}</g>`;
+   }
+
+   if(style==='pixel') {
+    const pixHead = el.photo ? `<defs><clipPath id="isop${el.id}"><rect x="${-7*s}" y="${-24*s}" width="${14*s}" height="${14*s}"/></clipPath></defs><image href="${el.photo}" x="${-7*s}" y="${-24*s}" width="${14*s}" height="${14*s}" clip-path="url(#isop${el.id})" preserveAspectRatio="xMidYMid slice"/>` :
+     `<rect x="${-7*s}" y="${-24*s}" width="${14*s}" height="${14*s}" fill="${sk}"/>
+      <rect x="${-5*s}" y="${-22*s}" width="${3*s}" height="${3*s}" fill="#333"/><rect x="${2*s}" y="${-22*s}" width="${3*s}" height="${3*s}" fill="#333"/>`;
+    return `<g data-id="${el.id}" style="cursor:grab">${shw}<g transform="translate(${p.x},${p.y-h})">
+     <rect x="${-9*s}" y="${-8*s}" width="${18*s}" height="${16*s}" fill="${c}"/>
+     <rect x="${-1.5*s}" y="${-8*s}" width="${3*s}" height="${16*s}" fill="rgba(255,255,255,0.15)"/>
+     <text x="0" y="${2*s}" text-anchor="middle" font-size="${9*s}" fill="${cc}" font-weight="900" font-family="monospace">${lbl}</text>
+     <rect x="${-5*s}" y="${8*s}" width="${4*s}" height="${9*s}" fill="#222"/><rect x="${1*s}" y="${8*s}" width="${4*s}" height="${9*s}" fill="#222"/>
+     ${pixHead}
+    </g>${nmLabel}${posLabel}</g>`;
+   }
+
+   if(style==='minimal') {
+    const minHead = el.photo ? `<defs><clipPath id="isom${el.id}"><circle cx="0" cy="${-18*s}" r="${7*s}"/></clipPath></defs><image href="${el.photo}" x="${-7*s}" y="${-25*s}" width="${14*s}" height="${14*s}" clip-path="url(#isom${el.id})" preserveAspectRatio="xMidYMid slice"/><circle cx="0" cy="${-18*s}" r="${7*s}" fill="none" stroke="${c}" stroke-width="1"/>` :
+     `<circle cx="0" cy="${-18*s}" r="${7*s}" fill="${c}" opacity="0.15" stroke="${c}" stroke-width="1.2"/>`;
+    return `<g data-id="${el.id}" style="cursor:grab">${shw}<g transform="translate(${p.x},${p.y-h*0.7})">
+     <rect x="${-7*s}" y="${-7*s}" width="${14*s}" height="${18*s}" rx="${7*s}" fill="${c}" opacity="0.85"/>
+     <text x="0" y="${4*s}" text-anchor="middle" font-size="${10*s}" fill="${cc}" font-weight="800">${lbl}</text>
+     <rect x="${-2.5*s}" y="${11*s}" width="${2*s}" height="${7*s}" rx="${1*s}" fill="${c}" opacity="0.5"/><rect x="${0.5*s}" y="${11*s}" width="${2*s}" height="${7*s}" rx="${1*s}" fill="${c}" opacity="0.5"/>
+     ${minHead}
+    </g>${nmLabel}${posLabel}</g>`;
+   }
+
+   // MODERN (default)
    return `<g data-id="${el.id}" style="cursor:grab">${shw}<g transform="translate(${p.x},${p.y-h})">
     <rect x="${-5*s}" y="${34*s}" width="${4*s}" height="${7*s}" rx="${1.5*s}" fill="#2a2a2a"/>
     <rect x="${1*s}" y="${34*s}" width="${4*s}" height="${7*s}" rx="${1.5*s}" fill="#2a2a2a"/>
-    <rect x="${-7*s}" y="${18*s}" width="${6*s}" height="${16*s}" rx="${2*s}" fill="${darkC}"/>
-    <rect x="${1*s}" y="${18*s}" width="${6*s}" height="${16*s}" rx="${2*s}" fill="${darkC}"/>
     <polygon points="${-10*s},${2*s} ${10*s},${2*s} ${10*s},${20*s} ${-10*s},${20*s}" fill="${c}"/>
-    <polygon points="${0},${2*s} ${10*s},${2*s} ${10*s},${20*s} ${0},${20*s}" fill="${darkC}"/>
+    <polygon points="0,${2*s} ${10*s},${2*s} ${10*s},${20*s} 0,${20*s}" fill="${darkC}"/>
     <polygon points="${-10*s},${-2*s} ${10*s},${-2*s} ${10*s},${2*s} ${-10*s},${2*s}" fill="${lightC}"/>
     <rect x="${-14*s}" y="${2*s}" width="${5*s}" height="${14*s}" rx="${2.5*s}" fill="${c}" transform="rotate(-8 ${-11*s} ${9*s})"/>
     <rect x="${9*s}" y="${2*s}" width="${5*s}" height="${14*s}" rx="${2.5*s}" fill="${darkC}" transform="rotate(8 ${11*s} ${9*s})"/>
-    <text x="0" y="${14*s}" text-anchor="middle" font-size="${10*s}" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text>
-    <circle cx="0" cy="${-8*s}" r="${8*s}" fill="#e2c4a8"/>
-    <circle cx="${-2*s}" cy="${-10*s}" r="${2.5*s}" fill="rgba(255,255,255,0.3)"/>
-    <circle cx="${-2*s}" cy="${-9*s}" r="${1*s}" fill="#555"/><circle cx="${2*s}" cy="${-9*s}" r="${1*s}" fill="#555"/>
-   </g></g>`;
+    <text x="0" y="${14*s}" text-anchor="middle" font-size="${10*s}" fill="${cc}" font-weight="800">${lbl}</text>
+    ${photoHead}
+   </g>${nmLabel}${posLabel}</g>`;
+
   } else if(ST.avatarMode==='jersey') {
    const h = 35*s;
+   const jerseyPhoto = el.photo ? `<defs><clipPath id="isoj${el.id}"><circle cx="0" cy="${-8*s}" r="${6*s}"/></clipPath></defs><image href="${el.photo}" x="${-6*s}" y="${-14*s}" width="${12*s}" height="${12*s}" clip-path="url(#isoj${el.id})" preserveAspectRatio="xMidYMid slice"/><circle cx="0" cy="${-8*s}" r="${6*s}" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>` : '';
    return `<g data-id="${el.id}" style="cursor:grab">${shw}<g transform="translate(${p.x},${p.y-h})">
-    <polygon points="${-10*s},${0} ${10*s},${0} ${10*s},${28*s} ${-10*s},${28*s}" fill="${c}"/>
-    <polygon points="${0},${0} ${10*s},${0} ${10*s},${28*s} ${0},${28*s}" fill="${darkC}"/>
-    <polygon points="${-10*s},${-4*s} ${10*s},${-4*s} ${10*s},${0} ${-10*s},${0}" fill="${lightC}"/>
+    <polygon points="${-10*s},0 ${10*s},0 ${10*s},${28*s} ${-10*s},${28*s}" fill="${c}"/>
+    <polygon points="0,0 ${10*s},0 ${10*s},${28*s} 0,${28*s}" fill="${darkC}"/>
+    <polygon points="${-10*s},${-4*s} ${10*s},${-4*s} ${10*s},0 ${-10*s},0" fill="${lightC}"/>
     <polygon points="${-14*s},${-2*s} ${-10*s},${-4*s} ${-10*s},${10*s} ${-14*s},${8*s}" fill="${c}" opacity="0.8"/>
     <polygon points="${10*s},${-4*s} ${14*s},${-2*s} ${14*s},${8*s} ${10*s},${10*s}" fill="${darkC}" opacity="0.8"/>
-    <text x="0" y="${16*s}" text-anchor="middle" font-size="${12*s}" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text>
-   </g></g>`;
+    <text x="0" y="${16*s}" text-anchor="middle" font-size="${12*s}" fill="${cc}" font-weight="800">${lbl}</text>
+    ${jerseyPhoto}
+   </g>${nmLabel}${posLabel}</g>`;
+
   } else {
+   // Tactical 3D sphere
    const r = 14*s;
-   return `<g data-id="${el.id}" style="cursor:grab">${shw}<g transform="translate(${p.x},${p.y-r})"><circle cx="0" cy="0" r="${r}" fill="${c}"/><circle cx="${-r*0.25}" cy="${-r*0.25}" r="${r*0.4}" fill="rgba(255,255,255,0.2)"/><circle cx="${r*0.15}" cy="${r*0.2}" r="${r*0.3}" fill="rgba(0,0,0,0.1)"/><text x="0" y="0" dy="0.35em" text-anchor="middle" font-size="${r*0.85}" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text></g></g>`;
+   const spherePhoto = el.photo ? `<defs><clipPath id="isot${el.id}"><circle cx="0" cy="0" r="${r}"/></clipPath></defs><image href="${el.photo}" x="${-r}" y="${-r}" width="${r*2}" height="${r*2}" clip-path="url(#isot${el.id})" preserveAspectRatio="xMidYMid slice"/><circle cx="0" cy="0" r="${r}" fill="none" stroke="${c}" stroke-width="2"/>` :
+    `<circle cx="0" cy="0" r="${r}" fill="${c}"/><circle cx="${-r*0.25}" cy="${-r*0.25}" r="${r*0.4}" fill="rgba(255,255,255,0.2)"/><circle cx="${r*0.15}" cy="${r*0.2}" r="${r*0.3}" fill="rgba(0,0,0,0.1)"/><text x="0" y="0" dy="0.35em" text-anchor="middle" font-size="${r*0.85}" fill="${cc}" font-weight="800">${lbl}</text>`;
+   return `<g data-id="${el.id}" style="cursor:grab">${shw}<g transform="translate(${p.x},${p.y-r})">${spherePhoto}</g>${nmLabel}${posLabel}</g>`;
   }
  },
 
@@ -1419,8 +1471,8 @@ const S = {
  },
 
  // ═══ AVATAR BUILDERS (4 styles × 2D/3D) ═══
- _photoClip(id, cx, cy, r, prefix) {
-  return `<defs><clipPath id="${prefix}${id}"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath></defs><image href="${ST.elements.find(e=>e.id==id)?.photo}" x="${cx-r}" y="${cy-r}" width="${r*2}" height="${r*2}" clip-path="url(#${prefix}${id})" preserveAspectRatio="xMidYMid slice"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>`;
+ _photoClip(photo, clipId, cx, cy, r) {
+  return `<defs><clipPath id="${clipId}"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath></defs><image href="${photo}" x="${cx-r}" y="${cy-r}" width="${r*2}" height="${r*2}" clip-path="url(#${clipId})" preserveAspectRatio="xMidYMid slice"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.2"/>`;
  },
 
  buildAvatar2D(el, c, lbl, nm, r, selStroke, shadow) {
@@ -1432,7 +1484,7 @@ const S = {
   // ── MODERN: polished futbolista ──
   if(style==='modern') {
    const hR=8;
-   const head = el.photo ? this._photoClip(el.id, 0, -22, hR, 'am2d') :
+   const head = el.photo ? this._photoClip(el.photo, 'am2d'+el.id, 0, -22, hR) :
     `<circle cx="0" cy="-22" r="${hR}" fill="${sk}"/><circle cx="-2" cy="-23" r="1.2" fill="#444"/><circle cx="2" cy="-23" r="1.2" fill="#444"/><path d="M-1.5,-19 Q0,-17.5 1.5,-19" fill="none" stroke="#c9967a" stroke-width="0.8"/>`;
    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}
     <rect x="-10" y="-13" width="20" height="20" rx="4" fill="${c}"/><rect x="0" y="-13" width="10" height="20" fill="rgba(0,0,0,0.05)"/>
@@ -1450,7 +1502,7 @@ const S = {
   // ── CHIBI: big head, small body ──
   if(style==='chibi') {
    const hR=14;
-   const head = el.photo ? this._photoClip(el.id, 0, -16, hR, 'ac2d') :
+   const head = el.photo ? this._photoClip(el.photo, 'ac2d'+el.id, 0, -16, hR) :
     `<circle cx="0" cy="-16" r="${hR}" fill="${sk}" stroke="${c}" stroke-width="2"/>
      <circle cx="-4" cy="-19" r="3" fill="#fff"/><circle cx="4" cy="-19" r="3" fill="#fff"/>
      <circle cx="-4" cy="-19" r="1.8" fill="#333"/><circle cx="4" cy="-19" r="1.8" fill="#333"/>
@@ -1472,7 +1524,7 @@ const S = {
   // ── PIXEL: 8-bit retro style ──
   if(style==='pixel') {
    const p=2; // pixel size
-   const head = el.photo ? this._photoClip(el.id, 0, -18, 8, 'ap2d') :
+   const head = el.photo ? this._photoClip(el.photo, 'ap2d'+el.id, 0, -18, 8) :
     `<rect x="-8" y="-26" width="16" height="16" fill="${sk}"/>
      <rect x="-6" y="-24" width="4" height="4" fill="#333"/><rect x="2" y="-24" width="4" height="4" fill="#333"/>
      <rect x="-4" y="-18" width="8" height="2" fill="#c9967a"/>`;
@@ -1490,7 +1542,7 @@ const S = {
 
   // ── MINIMAL: clean geometric ──
   const hR=9;
-  const head = el.photo ? this._photoClip(el.id, 0, -18, hR, 'ai2d') :
+  const head = el.photo ? this._photoClip(el.photo, 'ai2d'+el.id, 0, -18, hR) :
    `<circle cx="0" cy="-18" r="${hR}" fill="${c}" opacity="0.15" stroke="${c}" stroke-width="1.5"/>`;
   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}
    <rect x="-8" y="-8" width="16" height="20" rx="8" fill="${c}" opacity="0.85"/>
@@ -1506,11 +1558,12 @@ const S = {
   const pos = el.position||'';
   const style = ST.avatarStyle||'modern';
   const bh = 48*s;
+  const nmText = nm ? `<text x="0" y="${-bh*0.5-18*s}" text-anchor="middle" font-size="11" fill="${c}" font-weight="800" stroke="#fff" stroke-width="3" paint-order="stroke">${nm}</text>` : '';
+  const posText = pos ? `<text x="0" y="${16*s}" text-anchor="middle" font-size="9" fill="${c}" font-weight="700" stroke="#fff" stroke-width="2" paint-order="stroke">${pos}</text>` : '';
 
-  // ── MODERN 3D ──
   if(style==='modern') {
    const headR=9*s;
-   const head = el.photo ? this._photoClip(el.id, 0, -14*s, headR, 'am3d') :
+   const head = el.photo ? this._photoClip(el.photo, 'am3d'+el.id, 0, -14*s, headR) :
     `<circle cx="0" cy="${-14*s}" r="${headR}" fill="${sk}"/><circle cx="${-2.5*s}" cy="${-15*s}" r="${1.2*s}" fill="#444"/><circle cx="${2.5*s}" cy="${-15*s}" r="${1.2*s}" fill="#444"/><path d="M${-2*s},${-11*s} Q0,${-9.5*s} ${2*s},${-11*s}" fill="none" stroke="#c9967a" stroke-width="${0.8*s}"/>`;
    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${shadow}<g transform="translate(0,${-bh*0.5})">
     <rect x="${-5.5*s}" y="${24*s}" width="${4.5*s}" height="${8*s}" rx="${2*s}" fill="#1a1a1a"/>
@@ -1521,13 +1574,12 @@ const S = {
     <rect x="${8*s}" y="${-1*s}" width="${7*s}" height="${15*s}" rx="${3.5*s}" fill="${c}" opacity="0.85" transform="rotate(6 ${11.5*s} ${6.5*s})"/>
     <text x="0" y="${12*s}" text-anchor="middle" font-size="${13*s}" fill="${cc}" font-weight="900">${lbl}</text>
     ${head}
-   </g>${nm?`<text x="0" y="${-bh*0.5-16*s}" text-anchor="middle" font-size="${9*Math.max(s,0.7)}" fill="${c}" font-weight="700" stroke="rgba(255,255,255,0.5)" stroke-width="2" paint-order="stroke">${nm}</text>`:''} ${pos?`<text x="0" y="${14*s}" text-anchor="middle" font-size="${7*Math.max(s,0.7)}" fill="${c}" font-weight="600">${pos}</text>`:''}</g>`;
+   </g>${nmText}${posText}</g>`;
   }
 
-  // ── CHIBI 3D ──
   if(style==='chibi') {
    const hR=14*s;
-   const head = el.photo ? this._photoClip(el.id, 0, -20*s, hR, 'ac3d') :
+   const head = el.photo ? this._photoClip(el.photo, 'ac3d'+el.id, 0, -20*s, hR) :
     `<circle cx="0" cy="${-20*s}" r="${hR}" fill="${sk}" stroke="${c}" stroke-width="${2*s}"/>
      <circle cx="${-4*s}" cy="${-23*s}" r="${3*s}" fill="#fff"/><circle cx="${4*s}" cy="${-23*s}" r="${3*s}" fill="#fff"/>
      <circle cx="${-4*s}" cy="${-23*s}" r="${1.8*s}" fill="#333"/><circle cx="${4*s}" cy="${-23*s}" r="${1.8*s}" fill="#333"/>
@@ -1537,13 +1589,11 @@ const S = {
     <text x="0" y="${8*s}" text-anchor="middle" font-size="${10*s}" fill="${cc}" font-weight="800">${lbl}</text>
     <rect x="${-5*s}" y="${12*s}" width="${4*s}" height="${8*s}" rx="${2*s}" fill="#1a1a1a"/><rect x="${1*s}" y="${12*s}" width="${4*s}" height="${8*s}" rx="${2*s}" fill="#1a1a1a"/>
     ${head}
-   </g>${nm?`<text x="0" y="${-bh*0.5-10*s}" text-anchor="middle" font-size="${9*Math.max(s,0.7)}" fill="${c}" font-weight="700" stroke="rgba(255,255,255,0.5)" stroke-width="2" paint-order="stroke">${nm}</text>`:''} ${pos?`<text x="0" y="${14*s}" text-anchor="middle" font-size="${7*Math.max(s,0.7)}" fill="${c}" font-weight="600">${pos}</text>`:''}</g>`;
+   </g>${nmText}${posText}</g>`;
   }
 
-  // ── PIXEL 3D ──
   if(style==='pixel') {
-   const p=2*s;
-   const head = el.photo ? this._photoClip(el.id, 0, -20*s, 8*s, 'ap3d') :
+   const head = el.photo ? this._photoClip(el.photo, 'ap3d'+el.id, 0, -20*s, 8*s) :
     `<rect x="${-8*s}" y="${-28*s}" width="${16*s}" height="${16*s}" fill="${sk}"/>
      <rect x="${-6*s}" y="${-26*s}" width="${4*s}" height="${4*s}" fill="#333"/><rect x="${2*s}" y="${-26*s}" width="${4*s}" height="${4*s}" fill="#333"/>`;
    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${shadow}<g transform="translate(0,${-bh*0.4})">
@@ -1552,19 +1602,19 @@ const S = {
     <text x="0" y="${2*s}" text-anchor="middle" font-size="${10*s}" fill="${cc}" font-weight="900" font-family="monospace">${lbl}</text>
     <rect x="${-6*s}" y="${8*s}" width="${5*s}" height="${10*s}" fill="#222"/><rect x="${1*s}" y="${8*s}" width="${5*s}" height="${10*s}" fill="#222"/>
     ${head}
-   </g>${nm?`<text x="0" y="${-bh*0.5-10*s}" text-anchor="middle" font-size="${8*Math.max(s,0.7)}" fill="${c}" font-weight="700" font-family="monospace" stroke="rgba(255,255,255,0.5)" stroke-width="2" paint-order="stroke">${nm}</text>`:''} ${pos?`<text x="0" y="${14*s}" text-anchor="middle" font-size="${6*Math.max(s,0.7)}" fill="${c}" font-weight="600" font-family="monospace">${pos}</text>`:''}</g>`;
+   </g>${nmText}${posText}</g>`;
   }
 
-  // ── MINIMAL 3D ──
+  // MINIMAL
   const hR=9*s;
-  const head = el.photo ? this._photoClip(el.id, 0, -22*s, hR, 'ai3d') :
+  const head = el.photo ? this._photoClip(el.photo, 'ai3d'+el.id, 0, -22*s, hR) :
    `<circle cx="0" cy="${-22*s}" r="${hR}" fill="${c}" opacity="0.15" stroke="${c}" stroke-width="${1.5*s}"/>`;
   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${shadow}<g transform="translate(0,${-bh*0.35})">
    <rect x="${-8*s}" y="${-8*s}" width="${16*s}" height="${20*s}" rx="${8*s}" fill="${c}" opacity="0.85"/>
    <text x="0" y="${4*s}" text-anchor="middle" font-size="${11*s}" fill="${cc}" font-weight="800">${lbl}</text>
    <rect x="${-3*s}" y="${12*s}" width="${2.5*s}" height="${8*s}" rx="${1*s}" fill="${c}" opacity="0.5"/><rect x="${0.5*s}" y="${12*s}" width="${2.5*s}" height="${8*s}" rx="${1*s}" fill="${c}" opacity="0.5"/>
    ${head}
-  </g>${nm?`<text x="0" y="${-bh*0.5-8*s}" text-anchor="middle" font-size="${8*Math.max(s,0.7)}" fill="${c}" font-weight="600">${nm}</text>`:''} ${pos?`<text x="0" y="${14*s}" text-anchor="middle" font-size="${7*Math.max(s,0.7)}" fill="${c}" font-weight="500">${pos}</text>`:''}</g>`;
+  </g>${nmText}${posText}</g>`;
  },
 
  // ── INLINE TEXT INPUT ──
@@ -1887,14 +1937,14 @@ const S = {
        <path d="M0,${-16*js} L${6*js},${-18*js} L${10*js},${-14*js} L${12*js},${-6*js} L${8*js},${-4*js} L${8*js},${12*js} L0,${12*js} Z" fill="rgba(0,0,0,0.08)"/>
        <text x="0" y="${2*js}" text-anchor="middle" font-size="${12*js}" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text>
        ${photoHead3d}
-      </g>${nm?`<text x="0" y="${-40*js}" text-anchor="middle" font-size="${8*Math.max(js,0.7)}" fill="${c}" font-weight="700" stroke="rgba(255,255,255,0.5)" stroke-width="2" paint-order="stroke">${nm}</text>`:''} ${el.position?`<text x="0" y="${18*js}" text-anchor="middle" font-size="${7*Math.max(js,0.7)}" fill="${c}" font-weight="600">${el.position}</text>`:''}</g>`;
+      </g>${nm?`<text x="0" y="${-40*js}" text-anchor="middle" font-size="11" fill="${c}" font-weight="800" stroke="#fff" stroke-width="3" paint-order="stroke">${nm}</text>`:''} ${el.position?`<text x="0" y="${18*js}" text-anchor="middle" font-size="9" fill="${c}" font-weight="700" stroke="#fff" stroke-width="2" paint-order="stroke">${el.position}</text>`:''}</g>`;
 
      } else {
       // Tactical 3D with photo support
       const rs = r*s;
       const photoSphere = el.photo ? `<defs><clipPath id="tc3d${el.id}"><circle cx="0" cy="0" r="${rs}"/></clipPath></defs><image href="${el.photo}" x="${-rs}" y="${-rs}" width="${rs*2}" height="${rs*2}" clip-path="url(#tc3d${el.id})" preserveAspectRatio="xMidYMid slice"/><circle cx="0" cy="0" r="${rs}" fill="none" stroke="${c}" stroke-width="2"/>` :
        `<circle cx="0" cy="0" r="${rs}" fill="${c}"/><circle cx="${-rs*0.25}" cy="${-rs*0.25}" r="${rs*0.45}" fill="rgba(255,255,255,0.2)"/><circle cx="${rs*0.15}" cy="${rs*0.2}" r="${rs*0.3}" fill="rgba(0,0,0,0.1)"/><text x="0" y="0" dy="0.35em" text-anchor="middle" font-size="${rs*0.85}" fill="${this.contrastColor(c)}" font-weight="800">${lbl}</text>`;
-      return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${shadow}<g transform="translate(0,${-rs})">${photoSphere}</g>${nm?`<text x="0" y="${-rs*2-4}" text-anchor="middle" font-size="${9*Math.max(s,0.7)}" fill="${c}" font-weight="700" stroke="rgba(255,255,255,0.5)" stroke-width="2" paint-order="stroke">${nm}</text>`:''} ${el.position?`<text x="0" y="${rs+8}" text-anchor="middle" font-size="${7*Math.max(s,0.7)}" fill="${c}" font-weight="600">${el.position}</text>`:''}</g>`;
+      return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${shadow}<g transform="translate(0,${-rs})">${photoSphere}</g>${nm?`<text x="0" y="${-rs*2-4}" text-anchor="middle" font-size="11" fill="${c}" font-weight="800" stroke="#fff" stroke-width="3" paint-order="stroke">${nm}</text>`:''} ${el.position?`<text x="0" y="${rs+10}" text-anchor="middle" font-size="9" fill="${c}" font-weight="700" stroke="#fff" stroke-width="2" paint-order="stroke">${el.position}</text>`:''}</g>`;
      }
     } else {
      // 2D mode
