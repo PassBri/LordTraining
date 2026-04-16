@@ -123,6 +123,18 @@
 - Todos los componentes (sidebar, modal, color picker, playback bar, joystick) tematizados
 - Cambio de deporte mantiene el tema activo
 
+### Personalizacion Equipamiento Tactico (Feb 2026)
+- Color + Tamaño (escala 50%-250%) para TODOS los elementos de equipamiento
+- Rotacion (0-360°, paso 15°) para Valla, Escalera y Mini Arco
+- 22 tipos de equipamiento actualizados con propiedades editables:
+  - Personas: Cono, Bandera, Valla (+ color + rotacion)
+  - Campo: Platillo, Mini Arco (+ color + rotacion), Barrera (+ color), Peto
+  - Agilidad: Aro, Escalera (+ color + rotacion), Pica
+  - Fuerza: Cajon, Kettlebell, Balon Med., TRX, Trineo, Paracaidas, Cuerda, Battle Rope, Roller, Banda, Bosu, Colchoneta
+- Panel de propiedades diferencia jugadores (radio 8-40) de equipamiento (escala 0.5-2.5)
+- Sliders muestran porcentaje (Tam. 100%) y grados (Rot. 45°)
+- SVG renderers usan el.color para stroke/fill y scale(el.size) para tamaño
+
 ## Pendiente
 ### P1 - Continuar refactorizacion: extraer secciones Athletes, Sports, Events de DashboardPage
 ### P3 - Diseno responsivo tablero tactico (Mobile/Tablet)
