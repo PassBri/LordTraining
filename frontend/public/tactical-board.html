@@ -2564,14 +2564,9 @@ const S = {
 
  // ── PLAYBACK ENGINE (moves real players along arrows) ──
  startPlayback() {
-  const arrows = ST.elements.filter(e => e.type === 'arrow' && e.playOrder);
+  const arrows = ST.elements.filter(e => e.type === 'arrow');
   if (!arrows.length) {
-   const allArrows = ST.elements.filter(e => e.type === 'arrow');
-   if (allArrows.length) {
-    alert('Las flechas no tienen orden de jugada. Selecciona una flecha y asigna "Orden" en sus propiedades.');
-   } else {
-    alert('No hay flechas en la pizarra. Dibuja flechas (herramienta flecha) cerca de los jugadores para crear movimientos.');
-   }
+   alert('No hay flechas en la pizarra. Dibuja flechas cerca de los jugadores para crear movimientos.');
    return;
   }
   arrows.sort((a, b) => (a.playOrder || 0) - (b.playOrder || 0));
@@ -2584,35 +2579,67 @@ const S = {
    }
   });
   
-  // Build movement assignments: which player moves along which arrow
-  ST.playbackMoves = [];
-  const usedPlayers = new Set();
-  let unmatched = 0;
+  // Build CHAINS of connected arrows
+  // If arrow B starts near where arrow A ends, they form a chain (same player follows A→B)
+  const CHAIN_DIST = 80;
+  const usedArrowIds = new Set();
+  const chains = [];
+  
   arrows.forEach(arrow => {
-   const player = this.findNearestPlayerForPlayback(arrow.x1, arrow.y1, usedPlayers);
+   if (usedArrowIds.has(arrow.id)) return;
+   const chain = [arrow];
+   usedArrowIds.add(arrow.id);
+   // Follow the chain forward: find arrows whose start is near current chain's end
+   let searching = true;
+   while (searching) {
+    searching = false;
+    const lastSeg = chain[chain.length - 1];
+    const endX = lastSeg.x2, endY = lastSeg.y2;
+    for (const next of arrows) {
+     if (usedArrowIds.has(next.id)) continue;
+     const dx = next.x1 - endX, dy = next.y1 - endY;
+     if (Math.sqrt(dx * dx + dy * dy) < CHAIN_DIST) {
+      chain.push(next);
+      usedArrowIds.add(next.id);
+      searching = true;
+      break;
+     }
+    }
+   }
+   chains.push(chain);
+  });
+  
+  // Assign one player per chain (nearest to first arrow's start)
+  ST.playbackChains = [];
+  const usedPlayers = new Set();
+  let matched = 0;
+  
+  chains.forEach(chain => {
+   const first = chain[0];
+   const player = this.findNearestPlayerForPlayback(first.x1, first.y1, usedPlayers);
+   const segments = chain.map(a => ({
+    arrow: a, fromX: a.x1, fromY: a.y1, toX: a.x2, toY: a.y2, cx: a.cx, cy: a.cy
+   }));
    if (player) {
     usedPlayers.add(player.id);
-    ST.playbackMoves.push({
-     arrow,
-     playerId: player.id,
-     fromX: arrow.x1, fromY: arrow.y1,
-     toX: arrow.x2, toY: arrow.y2,
-     cx: arrow.cx, cy: arrow.cy
-    });
+    matched++;
+    ST.playbackChains.push({ playerId: player.id, segments });
    } else {
-    unmatched++;
-    ST.playbackMoves.push({ arrow, playerId: null, fromX: arrow.x1, fromY: arrow.y1, toX: arrow.x2, toY: arrow.y2 });
+    ST.playbackChains.push({ playerId: null, segments });
    }
   });
-
-  if (unmatched === arrows.length) {
+  
+  if (!matched) {
    alert('No se encontraron jugadores cerca de las flechas. Coloca jugadores cerca del inicio de cada flecha.');
    ST.playbackOriginalPos = null;
    return;
   }
   
-  ST.playbackArrows = arrows;
-  ST.playbackIdx = 0;
+  // Max segments across all chains determines total animation steps
+  ST.playbackMaxSegs = Math.max(...ST.playbackChains.map(c => c.segments.length));
+  // Flatten all segments for trail drawing
+  ST.playbackAllSegments = ST.playbackChains.reduce((arr, c) => arr.concat(c.segments), []);
+  
   ST.playbackSpeed = ST.playbackSpeed || 1;
   ST.playbackState = 'playing';
   ST.playbackProgress = 0;
@@ -2624,7 +2651,7 @@ const S = {
  },
 
  findNearestPlayerForPlayback(x, y, excludeSet) {
-  let nearest = null, minDist = 150; // generous radius to find players near arrows
+  let nearest = null, minDist = 200;
   ST.elements.forEach(el => {
    if (el.type !== 'playerA' && el.type !== 'playerB' && el.type !== 'goalkeeper') return;
    if (excludeSet && excludeSet.has(el.id)) return;
@@ -2639,7 +2666,7 @@ const S = {
   if (action === 'play') {
    if (ST.playbackState === 'paused') {
     ST.playbackState = 'playing';
-    ST.playbackStartTime = null; // reset timing for smooth resume
+    ST.playbackStartTime = null;
     document.getElementById('pb-play').classList.add('playing');
     document.getElementById('pb-pause').classList.remove('playing');
     this.renderPlaybackFrame();
@@ -2658,22 +2685,20 @@ const S = {
    document.getElementById('playback-bar').classList.remove('show');
    document.getElementById('pb-play').classList.remove('playing');
    document.getElementById('pb-pause').classList.remove('playing');
-   // Ask: keep new positions or restore?
-   if (ST.playbackOriginalPos && ST.playbackMoves && ST.playbackMoves.length) {
+   if (ST.playbackOriginalPos && ST.playbackChains && ST.playbackChains.length) {
     const keep = confirm('¿Mantener las nuevas posiciones de los jugadores?');
     if (!keep) {
-     // Restore original positions
      Object.entries(ST.playbackOriginalPos).forEach(([id, pos]) => {
       const el = ST.elements.find(e => e.id === +id);
       if (el) { el.x = pos.x; el.y = pos.y; }
      });
     } else {
-     // Update positions to final arrow destinations
-     ST.playbackMoves.forEach(move => {
-      if (move.playerId) {
-       const el = ST.elements.find(e => e.id === move.playerId);
-       if (el) { el.x = move.toX; el.y = move.toY; }
-      }
+     // Keep at final arrow tip of each chain
+     ST.playbackChains.forEach(chain => {
+      if (!chain.playerId) return;
+      const last = chain.segments[chain.segments.length - 1];
+      const el = ST.elements.find(e => e.id === chain.playerId);
+      if (el) { el.x = last.toX; el.y = last.toY; }
      });
     }
    }
@@ -2710,51 +2735,54 @@ const S = {
 
  renderPlaybackFrame() {
   if (ST.playbackState !== 'playing') return;
-  const moves = ST.playbackMoves;
-  if (!moves || !moves.length) return;
+  const chains = ST.playbackChains;
+  if (!chains || !chains.length) return;
 
   const is3D = ST.viewMode === '3d';
+  const maxSegs = ST.playbackMaxSegs;
   const STEP_DURATION = 1500 / ST.playbackSpeed;
   const now = performance.now();
   if (!ST.playbackStartTime) {
    ST.playbackStartTime = now;
    if (ST.playbackPausedProgress > 0) {
-    ST.playbackStartTime = now - ST.playbackPausedProgress * moves.length * STEP_DURATION;
+    ST.playbackStartTime = now - ST.playbackPausedProgress * maxSegs * STEP_DURATION;
     ST.playbackPausedProgress = 0;
    }
   }
 
   const elapsed = now - ST.playbackStartTime;
-  const totalDuration = moves.length * STEP_DURATION;
+  const totalDuration = maxSegs * STEP_DURATION;
   const progress = Math.min(elapsed / totalDuration, 1);
   ST.playbackProgress = progress;
 
-  const currentStepFloat = progress * moves.length;
-  const currentStep = Math.min(Math.floor(currentStepFloat), moves.length - 1);
-  const stepProgress = currentStepFloat - currentStep;
+  // stepFloat is a continuous value from 0 to maxSegs
+  const stepFloat = progress * maxSegs;
+  const currentGlobalStep = Math.min(Math.floor(stepFloat), maxSegs - 1);
+  const stepFrac = stepFloat - currentGlobalStep;
 
   document.getElementById('pb-fill').style.width = (progress * 100) + '%';
-  document.getElementById('pb-step').textContent = `Paso ${currentStep + 1} / ${moves.length}`;
+  document.getElementById('pb-step').textContent = `Paso ${currentGlobalStep + 1} / ${maxSegs}`;
 
-  // Update player positions based on current animation state
-  moves.forEach((move, idx) => {
-   if (!move.playerId) return;
-   const el = ST.elements.find(e => e.id === move.playerId);
+  // Update player positions: each chain simultaneously
+  chains.forEach(chain => {
+   if (!chain.playerId) return;
+   const el = ST.elements.find(e => e.id === chain.playerId);
    if (!el) return;
+   const segs = chain.segments;
    
-   if (idx < currentStep) {
-    el.x = move.toX; el.y = move.toY;
-   } else if (idx === currentStep) {
-    const pos = this.interpolatePath(move, stepProgress);
-    el.x = pos.x; el.y = pos.y;
+   if (currentGlobalStep >= segs.length) {
+    // This chain is done: player at final arrow tip
+    const last = segs[segs.length - 1];
+    el.x = last.toX; el.y = last.toY;
    } else {
-    // Not started yet: restore to original position
-    const orig = ST.playbackOriginalPos[move.playerId];
-    if (orig) { el.x = orig.x; el.y = orig.y; }
+    // Active segment for this chain
+    const seg = segs[currentGlobalStep];
+    const pos = this.interpolatePath(seg, stepFrac);
+    el.x = pos.x; el.y = pos.y;
    }
   });
 
-  // Re-render with animation overlays
+  // Re-render
   const layer = document.getElementById('elements-layer');
   let defs = `<defs>
    <marker id="arrow-marker" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8" fill="none" stroke="rgba(0,0,0,0.7)" stroke-width="1.5" stroke-linecap="round"/></marker>
@@ -2765,10 +2793,9 @@ const S = {
 
   let svgParts = '';
 
-  // Build all non-arrow elements at their animated positions
+  // Render all non-arrow elements (players at animated positions)
   const nonArrows = ST.elements.filter(el => el.type !== 'arrow');
   if (is3D) {
-   // 3D: project and sort by isoY (painter's algorithm)
    const projected = nonArrows.map(el => {
     const ey = el.y || 400, ex = el.x || 300;
     const ip = this.toIso(ex, ey, 0);
@@ -2782,56 +2809,55 @@ const S = {
    sorted.forEach(el => { svgParts += this.buildElSvg(el); });
   }
 
-  // Draw arrow trails with animation
-  moves.forEach((move, idx) => {
-   const a = move.arrow;
-   let x1, y1, x2, y2;
-   if (is3D) {
-    const p1 = this.toIso(a.x1 || 0, a.y1 || 0, 0);
-    const p2 = this.toIso(a.x2 || 0, a.y2 || 0, 0);
-    x1 = p1.x; y1 = p1.y; x2 = p2.x; y2 = p2.y;
-   } else {
-    x1 = a.x1; y1 = a.y1; x2 = a.x2; y2 = a.y2;
-   }
-   const pathD = `M${x1},${y1}L${x2},${y2}`;
-
-   if (idx < currentStep) {
-    svgParts += `<path d="${pathD}" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" marker-end="url(#play-arrow)" opacity="0.6"/>`;
-    svgParts += `<circle cx="${x2}" cy="${y2}" r="3" fill="#2563eb" opacity="0.4"/>`;
-   } else if (idx === currentStep) {
-    // Ghost full path
-    svgParts += `<path d="${pathD}" fill="none" stroke="rgba(37,99,235,0.15)" stroke-width="1.5" stroke-dasharray="5 3"/>`;
-    
-    // Animated partial path
-    const rawPos = this.interpolatePath(move, stepProgress);
-    let px, py;
+  // Draw arrow trails per chain
+  chains.forEach(chain => {
+   chain.segments.forEach((seg, segIdx) => {
+    const a = seg.arrow;
+    let x1, y1, x2, y2;
     if (is3D) {
-     const pp = this.toIso(rawPos.x, rawPos.y, 0);
-     px = pp.x; py = pp.y;
+     const p1 = this.toIso(a.x1 || 0, a.y1 || 0, 0);
+     const p2 = this.toIso(a.x2 || 0, a.y2 || 0, 0);
+     x1 = p1.x; y1 = p1.y; x2 = p2.x; y2 = p2.y;
     } else {
-     px = rawPos.x; py = rawPos.y;
+     x1 = a.x1; y1 = a.y1; x2 = a.x2; y2 = a.y2;
     }
-    svgParts += `<path d="M${x1},${y1}L${px},${py}" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" marker-end="url(#play-arrow)"/>`;
-    
-    // Glow at current position
-    svgParts += `<circle cx="${px}" cy="${py}" r="8" fill="rgba(37,99,235,0.15)"/><circle cx="${px}" cy="${py}" r="4" fill="rgba(37,99,235,0.3)"/>`;
-    
-    // Step badge
-    svgParts += `<circle cx="${x1}" cy="${y1-20}" r="10" fill="rgba(37,99,235,0.9)"/><text x="${x1}" y="${y1-20}" dy="0.35em" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">${a.playOrder}</text>`;
-   } else {
-    svgParts += `<path d="${pathD}" fill="none" stroke="rgba(148,163,184,0.2)" stroke-width="1" stroke-dasharray="4 3"/>`;
-   }
+    const pathD = `M${x1},${y1}L${x2},${y2}`;
+
+    if (segIdx < currentGlobalStep) {
+     // Completed segment
+     svgParts += `<path d="${pathD}" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" marker-end="url(#play-arrow)" opacity="0.5"/>`;
+    } else if (segIdx === currentGlobalStep && segIdx < chain.segments.length) {
+     // Active segment in this chain
+     if (chain.playerId) {
+      // Ghost full path
+      svgParts += `<path d="${pathD}" fill="none" stroke="rgba(37,99,235,0.15)" stroke-width="1.5" stroke-dasharray="5 3"/>`;
+      // Animated partial
+      const rawPos = this.interpolatePath(seg, stepFrac);
+      let px, py;
+      if (is3D) { const pp = this.toIso(rawPos.x, rawPos.y, 0); px = pp.x; py = pp.y; }
+      else { px = rawPos.x; py = rawPos.y; }
+      svgParts += `<path d="M${x1},${y1}L${px},${py}" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" marker-end="url(#play-arrow)"/>`;
+      svgParts += `<circle cx="${px}" cy="${py}" r="6" fill="rgba(37,99,235,0.2)"/>`;
+     }
+     // Step badge
+     svgParts += `<circle cx="${x1}" cy="${y1-18}" r="9" fill="rgba(37,99,235,0.85)"/><text x="${x1}" y="${y1-18}" dy="0.35em" text-anchor="middle" font-size="8" fill="#fff" font-weight="700">${a.playOrder||''}</text>`;
+    } else {
+     // Future segment
+     svgParts += `<path d="${pathD}" fill="none" stroke="rgba(148,163,184,0.2)" stroke-width="1" stroke-dasharray="4 3"/>`;
+    }
+   });
   });
 
   layer.innerHTML = defs + svgParts;
 
   if (progress >= 1) {
    ST.playbackStartTime = null;
-   moves.forEach(move => {
-    if (move.playerId) {
-     const el = ST.elements.find(e => e.id === move.playerId);
-     if (el) { el.x = move.toX; el.y = move.toY; }
-    }
+   // Ensure all players at their final chain tips
+   chains.forEach(chain => {
+    if (!chain.playerId) return;
+    const last = chain.segments[chain.segments.length - 1];
+    const el = ST.elements.find(e => e.id === chain.playerId);
+    if (el) { el.x = last.toX; el.y = last.toY; }
    });
    setTimeout(() => {
     if (ST.playbackState === 'playing') this.playback('stop');
