@@ -98,18 +98,17 @@
 - 6 graficas DashboardGeneral + 8 hooks reactivos
 - Sync V1->V2 completa
 
-### Motor de Animacion de Jugadas (Feb 2026)
-- Motor de playback reescrito: jugadores SVG reales se mueven a lo largo de las flechas dibujadas
-- Soporte completo 2D y 3D isometrico: usa buildElSvg o buildIsoElement segun el modo
-- Interpolacion suave con ease-in-out (lineal y bezier cuadratico)
-- Barra de reproduccion: Play, Pausa, Stop, indicador de paso, barra de progreso
-- 3 velocidades: 0.5x, 1x, 2x (STEP_DURATION = 1500ms/velocidad por paso)
-- Deteccion de jugador cercano por radio de 150px al inicio de cada flecha
-- Trails de flechas: completado (azul solido), activo (azul animado parcial), futuro (gris punteado)
-- Stop muestra confirm para mantener o restaurar posiciones originales
-- Nombres, posiciones, fotos y avatares permanecen visibles durante la animacion
-- Manejo de errores: alerta si no hay flechas, no hay jugadores cercanos, etc.
-- Soporte multi-equipo: playerA, playerB y goalkeeper se emparejan con sus flechas
+### Motor de Animacion de Jugadas con Cadenas (Feb 2026)
+- Motor de playback reescrito con sistema de CADENAS: flechas conectadas (fin ≈ inicio, CHAIN_DIST=80px) forman una cadena
+- Un jugador por cadena: sigue TODAS las flechas encadenadas en secuencia (A→B→C→D)
+- Movimiento simultaneo: todas las cadenas se animan al mismo tiempo
+- Jugador termina en la PUNTA de la ultima flecha de su cadena
+- Cadenas cortas terminan antes: si cadena tiene 1 segmento y maxSegs=3, jugador llega en paso 1
+- Soporte completo 2D y 3D isometrico
+- Barra de reproduccion: Play, Pausa, Stop, indicador de paso (maxSegs), barra de progreso
+- 3 velocidades: 0.5x, 1x, 2x
+- Stop muestra confirm para mantener (en punta) o restaurar posiciones originales
+- Radio de deteccion de jugador: 200px
 
 ## Pendiente
 ### P1 - Continuar refactorizacion: extraer secciones Athletes, Sports, Events de DashboardPage
