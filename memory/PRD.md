@@ -145,6 +145,21 @@
 - Barra, Banco, Caminadora, Remo tienen rotacion
 - Botones rediseñados: border-radius 10px, hover con elevacion, active con scale, headers de categoria en color primario
 
+### Catalogo Completo Maquinas Gimnasio (Feb 2026)
+- 9 subcategorias de gimnasio con ~78 maquinas totales:
+  - Tren Inferior (11): Prensa, Hack Squat, Ext. Cuad., Curl Fem., Gluteo, Abductores, Aductores, Pantorrilla, Smith, Hip Thrust, Desplante
+  - Tren Superior (10): Press Pecho/Incl., Peck Deck, Jalon, Remo, Dom. Asis., Press Homb., Elev. Lat., Pullover, Fondos
+  - Espalda (5): Jalon Front., Remo Iso, Remo T, Hiperext., Lumbar
+  - Pecho/Hombro (5): Press Horiz./Decl., Contractor, Press Milit., Rev. Peck Deck
+  - Brazos (4): Curl Predic., Curl Biceps, Tri. Pushdown, Ext. Triceps
+  - Abdomen/Core (6): Crunch, Elev. Piernas, Rot. Torso, Banco Abd., Banco Rom., Oblicuos
+  - Cardio Gym (8): Caminadora, Bici Estat., Spinning, Eliptica, Escaladora, Remo Erg., Ski Erg, Air Bike
+  - Poleas/Estaciones (6): Polea Alta/Baja/Cruzada, Multifunc., Jaula Func., Cable Dual
+  - Bancos/Estructuras (8): Banco Plano/Incl./Decl./Ajust., Rack Sentad., Jaula Potencia, Sop. Barras, Sop. Mancuernas
+- Todos con color + tamano + rotacion personalizables
+- Renderer generico usa icono SVG del tool + label de texto en canvas
+- Cono, Balon, Bandera, Valla movidos a CAMPO; PERSONAS solo jugadores
+
 ## Pendiente
 ### P1 - Continuar refactorizacion: extraer secciones Athletes, Sports, Events de DashboardPage
 ### P3 - Diseno responsivo tablero tactico (Mobile/Tablet)

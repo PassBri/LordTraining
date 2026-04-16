@@ -460,17 +460,87 @@ const TOOLS = [
  {id:'bosu',label:'Bosu',icon:'<path d="M3 11 Q9 4 15 11" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="11" x2="15" y2="11" stroke="currentColor" stroke-width="1.5"/>',group:8},
  {id:'mat',label:'Colchoneta',icon:'<rect x="3" y="5" width="12" height="10" rx="2" fill="rgba(34,197,94,0.1)" stroke="#22c55e" stroke-width="1.5"/>',group:8},
  {id:'sep8',group:0},
- // ── GIMNASIO ──
- {id:'dumbbell',label:'Mancuerna',icon:'<line x1="4" y1="9" x2="14" y2="9" stroke="currentColor" stroke-width="2"/><rect x="2" y="6" width="3" height="6" rx="1" fill="currentColor" opacity="0.5" stroke="currentColor" stroke-width="0.8"/><rect x="13" y="6" width="3" height="6" rx="1" fill="currentColor" opacity="0.5" stroke="currentColor" stroke-width="0.8"/>',group:9},
- {id:'barbell',label:'Barra',icon:'<line x1="1" y1="9" x2="17" y2="9" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="6" width="3" height="6" rx="0.5" fill="currentColor" opacity="0.4"/><rect x="14" y="6" width="3" height="6" rx="0.5" fill="currentColor" opacity="0.4"/><rect x="3.5" y="7" width="2" height="4" rx="0.5" fill="currentColor" opacity="0.3"/><rect x="12.5" y="7" width="2" height="4" rx="0.5" fill="currentColor" opacity="0.3"/>',group:9},
- {id:'bench',label:'Banco',icon:'<rect x="3" y="8" width="12" height="3" rx="1" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1"/><line x1="5" y1="11" x2="5" y2="15" stroke="currentColor" stroke-width="1.5"/><line x1="13" y1="11" x2="13" y2="15" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="3" width="2" height="8" rx="0.5" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="0.8"/>',group:9},
- {id:'rack',label:'Rack',icon:'<line x1="4" y1="2" x2="4" y2="16" stroke="currentColor" stroke-width="2"/><line x1="14" y1="2" x2="14" y2="16" stroke="currentColor" stroke-width="2"/><line x1="4" y1="5" x2="14" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="4" y1="12" x2="14" y2="12" stroke="currentColor" stroke-width="1.5"/><rect x="6" y="4" width="6" height="2" rx="0.5" fill="currentColor" opacity="0.4"/>',group:9},
- {id:'treadmill',label:'Caminadora',icon:'<rect x="3" y="5" width="12" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="3" y1="13" x2="6" y2="16" stroke="currentColor" stroke-width="1.2"/><line x1="15" y1="13" x2="12" y2="16" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="9" x2="13" y2="9" stroke="currentColor" stroke-width="0.8" stroke-dasharray="2 1"/>',group:9},
- {id:'bike',label:'Bicicleta',icon:'<circle cx="5" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="13" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="12" x2="9" y2="5" stroke="currentColor" stroke-width="1.2"/><line x1="9" y1="5" x2="13" y2="12" stroke="currentColor" stroke-width="1"/><line x1="7" y1="5" x2="11" y2="5" stroke="currentColor" stroke-width="1.2"/>',group:9},
- {id:'rower',label:'Remo',icon:'<rect x="2" y="10" width="14" height="2" rx="1" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1"/><circle cx="5" cy="11" r="1.5" fill="currentColor" opacity="0.5"/><line x1="8" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="6" x2="10" y2="10" stroke="currentColor" stroke-width="1"/>',group:9},
- {id:'pullup',label:'Barra Dom.',icon:'<line x1="3" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="2"/><line x1="4" y1="4" x2="4" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="14" y1="4" x2="14" y2="16" stroke="currentColor" stroke-width="1.5"/>',group:9},
- {id:'pilatesball',label:'Fitball',icon:'<circle cx="9" cy="9" r="7" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.5"/><path d="M2 9 Q9 6 16 9" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>',group:9},
- {id:'stepper',label:'Step',icon:'<rect x="3" y="10" width="12" height="4" rx="1" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1.2"/><rect x="5" y="7" width="8" height="3" rx="0.5" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="0.8"/>',group:9}
+ // ══ GIMNASIO: Subcategorías 9-17 ══
+ // ── Tren Inferior (9) ──
+ {id:'gm_prensa',label:'Prensa',icon:'<rect x="3" y="4" width="12" height="10" rx="2" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="14" x2="5" y2="17" stroke="currentColor" stroke-width="1.2"/><line x1="13" y1="14" x2="13" y2="17" stroke="currentColor" stroke-width="1.2"/><line x1="6" y1="8" x2="12" y2="8" stroke="currentColor" stroke-width="1"/>',group:9},
+ {id:'gm_hack',label:'Hack Squat',icon:'<line x1="4" y1="3" x2="4" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="14" y1="3" x2="14" y2="16" stroke="currentColor" stroke-width="1.5"/><rect x="6" y="8" width="6" height="5" rx="1" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1"/><line x1="4" y1="3" x2="14" y2="3" stroke="currentColor" stroke-width="1.5"/>',group:9},
+ {id:'gm_ext_quad',label:'Ext. Cuad.',icon:'<rect x="4" y="5" width="10" height="8" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.2"/><line x1="9" y1="13" x2="14" y2="16" stroke="currentColor" stroke-width="1.5"/>',group:9},
+ {id:'gm_curl_fem',label:'Curl Fem.',icon:'<rect x="3" y="6" width="12" height="6" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.2"/><path d="M12 12 Q14 15 12 17" fill="none" stroke="currentColor" stroke-width="1.5"/>',group:9},
+ {id:'gm_gluteo',label:'Gluteo',icon:'<rect x="4" y="4" width="10" height="9" rx="2" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.2"/><line x1="9" y1="13" x2="9" y2="17" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="8" r="2" fill="currentColor" opacity="0.2"/>',group:9},
+ {id:'gm_abductor',label:'Abductores',icon:'<rect x="4" y="5" width="10" height="8" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.2"/><line x1="6" y1="13" x2="3" y2="16" stroke="currentColor" stroke-width="1.2"/><line x1="12" y1="13" x2="15" y2="16" stroke="currentColor" stroke-width="1.2"/>',group:9},
+ {id:'gm_aductor',label:'Aductores',icon:'<rect x="4" y="5" width="10" height="8" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.2"/><line x1="3" y1="16" x2="9" y2="13" stroke="currentColor" stroke-width="1.2"/><line x1="15" y1="16" x2="9" y2="13" stroke="currentColor" stroke-width="1.2"/>',group:9},
+ {id:'gm_pantorr',label:'Pantorrilla',icon:'<rect x="5" y="3" width="8" height="7" rx="1" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.2"/><line x1="7" y1="10" x2="7" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="11" y1="10" x2="11" y2="16" stroke="currentColor" stroke-width="1.5"/>',group:9},
+ {id:'gm_smith',label:'Smith',icon:'<line x1="3" y1="2" x2="3" y2="16" stroke="currentColor" stroke-width="2"/><line x1="15" y1="2" x2="15" y2="16" stroke="currentColor" stroke-width="2"/><line x1="3" y1="2" x2="15" y2="2" stroke="currentColor" stroke-width="1.5"/><line x1="5" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="2"/><rect x="4" y="7" width="3" height="2" rx="0.5" fill="currentColor" opacity="0.4"/><rect x="11" y="7" width="3" height="2" rx="0.5" fill="currentColor" opacity="0.4"/>',group:9},
+ {id:'gm_hip_thrust',label:'Hip Thrust',icon:'<rect x="3" y="8" width="12" height="4" rx="1.5" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="12" x2="5" y2="16" stroke="currentColor" stroke-width="1.2"/><line x1="13" y1="12" x2="13" y2="16" stroke="currentColor" stroke-width="1.2"/><rect x="6" y="5" width="6" height="3" rx="1" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="0.8"/>',group:9},
+ {id:'gm_desplante',label:'Desplante',icon:'<rect x="4" y="4" width="10" height="10" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.2"/><line x1="7" y1="14" x2="5" y2="17" stroke="currentColor" stroke-width="1.2"/><line x1="11" y1="14" x2="13" y2="17" stroke="currentColor" stroke-width="1.2"/>',group:9},
+ {id:'sep9',group:0},
+ // ── Tren Superior (10) ──
+ {id:'gm_press_pecho',label:'Press Pecho',icon:'<rect x="3" y="5" width="12" height="8" rx="2" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.2"/><line x1="6" y1="5" x2="6" y2="1" stroke="currentColor" stroke-width="1.2"/><line x1="12" y1="5" x2="12" y2="1" stroke="currentColor" stroke-width="1.2"/><line x1="4" y1="1" x2="14" y2="1" stroke="currentColor" stroke-width="1.5"/>',group:10},
+ {id:'gm_press_inc',label:'Press Incl.',icon:'<rect x="3" y="6" width="12" height="7" rx="2" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="6" x2="3" y2="2" stroke="currentColor" stroke-width="1.2"/><line x1="13" y1="6" x2="15" y2="2" stroke="currentColor" stroke-width="1.2"/>',group:10},
+ {id:'gm_peck_deck',label:'Peck Deck',icon:'<rect x="5" y="4" width="8" height="10" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.2"/><path d="M2 6 Q5 9 2 12" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M16 6 Q13 9 16 12" fill="none" stroke="currentColor" stroke-width="1.5"/>',group:10},
+ {id:'gm_jalon',label:'Jalon',icon:'<line x1="9" y1="2" x2="9" y2="10" stroke="currentColor" stroke-width="1.5"/><line x1="4" y1="2" x2="14" y2="2" stroke="currentColor" stroke-width="2"/><line x1="5" y1="10" x2="13" y2="10" stroke="currentColor" stroke-width="1.5"/><rect x="5" y="11" width="8" height="5" rx="1" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="0.8"/>',group:10},
+ {id:'gm_remo_sent',label:'Remo Sent.',icon:'<rect x="3" y="8" width="12" height="5" rx="1.5" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.2"/><line x1="15" y1="4" x2="15" y2="13" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="6" x2="15" y2="6" stroke="currentColor" stroke-width="1.2"/>',group:10},
+ {id:'gm_domin_asis',label:'Dom. Asist.',icon:'<line x1="4" y1="3" x2="14" y2="3" stroke="currentColor" stroke-width="2"/><line x1="5" y1="3" x2="5" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="13" y1="3" x2="13" y2="16" stroke="currentColor" stroke-width="1.5"/><rect x="7" y="10" width="4" height="4" rx="1" fill="currentColor" opacity="0.15"/>',group:10},
+ {id:'gm_press_homb',label:'Press Homb.',icon:'<rect x="4" y="6" width="10" height="8" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.2"/><line x1="6" y1="6" x2="6" y2="2" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="6" x2="12" y2="2" stroke="currentColor" stroke-width="1.5"/>',group:10},
+ {id:'gm_elev_lat',label:'Elev. Lat.',icon:'<rect x="5" y="5" width="8" height="9" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="9" x2="1" y2="7" stroke="currentColor" stroke-width="1.5"/><line x1="13" y1="9" x2="17" y2="7" stroke="currentColor" stroke-width="1.5"/>',group:10},
+ {id:'gm_pullover',label:'Pullover',icon:'<rect x="4" y="6" width="10" height="7" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.2"/><path d="M9 6 Q9 2 13 3" fill="none" stroke="currentColor" stroke-width="1.5"/>',group:10},
+ {id:'gm_fondos',label:'Fondos Asis.',icon:'<line x1="4" y1="5" x2="4" y2="15" stroke="currentColor" stroke-width="1.5"/><line x1="14" y1="5" x2="14" y2="15" stroke="currentColor" stroke-width="1.5"/><line x1="4" y1="7" x2="14" y2="7" stroke="currentColor" stroke-width="1.5"/><rect x="6" y="10" width="6" height="4" rx="1" fill="currentColor" opacity="0.12"/>',group:10},
+ {id:'sep10',group:0},
+ // ── Espalda (11) ──
+ {id:'gm_jalon_front',label:'Jalon Front.',icon:'<line x1="9" y1="1" x2="9" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="1" x2="15" y2="1" stroke="currentColor" stroke-width="2"/><line x1="5" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="2"/>',group:11},
+ {id:'gm_remo_iso',label:'Remo Iso',icon:'<rect x="3" y="7" width="12" height="6" rx="1.5" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.2"/><line x1="3" y1="4" x2="3" y2="13" stroke="currentColor" stroke-width="1.5"/><circle cx="3" cy="5" r="2" fill="currentColor" opacity="0.2"/>',group:11},
+ {id:'gm_remo_t',label:'Remo T',icon:'<line x1="3" y1="14" x2="15" y2="14" stroke="currentColor" stroke-width="2"/><line x1="9" y1="3" x2="9" y2="14" stroke="currentColor" stroke-width="1.5"/><rect x="6" y="3" width="6" height="3" rx="1" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="0.8"/>',group:11},
+ {id:'gm_hiper_ext',label:'Hiperext.',icon:'<rect x="3" y="7" width="12" height="5" rx="1.5" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.2"/><line x1="3" y1="12" x2="6" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="15" y1="12" x2="12" y2="16" stroke="currentColor" stroke-width="1.5"/>',group:11},
+ {id:'gm_lumbar',label:'Lumbar',icon:'<rect x="4" y="6" width="10" height="6" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.2"/><path d="M7 6 Q9 2 11 6" fill="none" stroke="currentColor" stroke-width="1.2"/>',group:11},
+ {id:'sep11',group:0},
+ // ── Pecho y Hombro (12) ──
+ {id:'gm_press_horiz',label:'Press Horiz.',icon:'<rect x="3" y="6" width="12" height="7" rx="1.5" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.2"/><line x1="6" y1="6" x2="6" y2="3" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="6" x2="12" y2="3" stroke="currentColor" stroke-width="1.5"/><line x1="4" y1="3" x2="14" y2="3" stroke="currentColor" stroke-width="1.8"/>',group:12},
+ {id:'gm_press_decl',label:'Press Decl.',icon:'<rect x="3" y="5" width="12" height="7" rx="2" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="12" x2="3" y2="16" stroke="currentColor" stroke-width="1.2"/><line x1="13" y1="12" x2="15" y2="16" stroke="currentColor" stroke-width="1.2"/>',group:12},
+ {id:'gm_contractor',label:'Contractor',icon:'<rect x="5" y="4" width="8" height="10" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.2"/><path d="M1 7 L5 9" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M17 7 L13 9" fill="none" stroke="currentColor" stroke-width="1.5"/>',group:12},
+ {id:'gm_militar',label:'Press Milit.',icon:'<rect x="4" y="7" width="10" height="7" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.2"/><line x1="7" y1="7" x2="7" y2="2" stroke="currentColor" stroke-width="1.5"/><line x1="11" y1="7" x2="11" y2="2" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="2" r="1.5" fill="currentColor" opacity="0.3"/><circle cx="11" cy="2" r="1.5" fill="currentColor" opacity="0.3"/>',group:12},
+ {id:'gm_rev_peck',label:'Rev. Peck D.',icon:'<rect x="5" y="4" width="8" height="10" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.2"/><path d="M5 7 L1 5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M13 7 L17 5" fill="none" stroke="currentColor" stroke-width="1.5"/>',group:12},
+ {id:'sep12',group:0},
+ // ── Brazos (13) ──
+ {id:'gm_curl_pred',label:'Curl Predic.',icon:'<rect x="4" y="5" width="10" height="8" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.2"/><path d="M9 5 Q6 2 9 1" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="9" y1="13" x2="9" y2="16" stroke="currentColor" stroke-width="1.2"/>',group:13},
+ {id:'gm_curl_bic',label:'Curl Biceps',icon:'<rect x="4" y="5" width="10" height="8" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.2"/><path d="M7 5 Q5 2 7 1" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M11 5 Q13 2 11 1" fill="none" stroke="currentColor" stroke-width="1.3"/>',group:13},
+ {id:'gm_tri_push',label:'Tri. Pushd.',icon:'<line x1="9" y1="2" x2="9" y2="10" stroke="currentColor" stroke-width="1.5"/><line x1="5" y1="10" x2="13" y2="10" stroke="currentColor" stroke-width="2"/><line x1="9" y1="10" x2="9" y2="16" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 1"/>',group:13},
+ {id:'gm_tri_ext',label:'Ext. Triceps',icon:'<line x1="9" y1="1" x2="9" y2="8" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="1" r="1.5" fill="currentColor" opacity="0.3"/><line x1="6" y1="8" x2="12" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="6" y1="8" x2="6" y2="15" stroke="currentColor" stroke-width="1.2"/><line x1="12" y1="8" x2="12" y2="15" stroke="currentColor" stroke-width="1.2"/>',group:13},
+ {id:'sep13',group:0},
+ // ── Abdomen y Core (14) ──
+ {id:'gm_crunch',label:'Crunch',icon:'<rect x="3" y="7" width="12" height="5" rx="2" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.2"/><path d="M6 7 Q9 3 12 7" fill="none" stroke="currentColor" stroke-width="1.2"/>',group:14},
+ {id:'gm_elev_pier',label:'Elev. Piern.',icon:'<line x1="5" y1="2" x2="5" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="13" y1="2" x2="13" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="5" y1="2" x2="13" y2="2" stroke="currentColor" stroke-width="1.5"/><line x1="5" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="1"/><line x1="7" y1="8" x2="7" y2="14" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2 1"/><line x1="11" y1="8" x2="11" y2="14" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2 1"/>',group:14},
+ {id:'gm_rot_torso',label:'Rot. Torso',icon:'<rect x="4" y="4" width="10" height="10" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.2"/><path d="M5 9 L13 9" stroke="currentColor" stroke-width="1.2"/><path d="M9 5 Q12 9 9 13" fill="none" stroke="currentColor" stroke-width="1.2"/>',group:14},
+ {id:'gm_banco_abd',label:'Banco Abd.',icon:'<line x1="3" y1="14" x2="15" y2="8" stroke="currentColor" stroke-width="2"/><line x1="3" y1="14" x2="3" y2="17" stroke="currentColor" stroke-width="1.5"/><circle cx="14" cy="7" r="2" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="0.8"/>',group:14},
+ {id:'gm_banco_rom',label:'Banco Rom.',icon:'<line x1="3" y1="10" x2="15" y2="6" stroke="currentColor" stroke-width="2"/><line x1="3" y1="10" x2="3" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="15" y1="6" x2="15" y2="12" stroke="currentColor" stroke-width="1.5"/>',group:14},
+ {id:'gm_oblicuos',label:'Oblicuos',icon:'<rect x="4" y="5" width="10" height="8" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.2"/><path d="M7 5 Q5 9 7 13" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M11 5 Q13 9 11 13" fill="none" stroke="currentColor" stroke-width="1.2"/>',group:14},
+ {id:'sep14',group:0},
+ // ── Cardio Gym (15) ──
+ {id:'gm_caminadora',label:'Caminadora',icon:'<rect x="3" y="5" width="12" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="3" y1="13" x2="6" y2="16" stroke="currentColor" stroke-width="1.2"/><line x1="15" y1="13" x2="12" y2="16" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="9" x2="13" y2="9" stroke="currentColor" stroke-width="0.8" stroke-dasharray="2 1"/>',group:15},
+ {id:'gm_bici_est',label:'Bici Estat.',icon:'<circle cx="5" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="13" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="12" x2="9" y2="5" stroke="currentColor" stroke-width="1.2"/><line x1="9" y1="5" x2="13" y2="12" stroke="currentColor" stroke-width="1"/>',group:15},
+ {id:'gm_spinning',label:'Spinning',icon:'<circle cx="5" cy="12" r="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="13" cy="12" r="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="5" y1="12" x2="9" y2="4" stroke="currentColor" stroke-width="1.2"/><line x1="9" y1="4" x2="13" y2="12" stroke="currentColor" stroke-width="1.2"/>',group:15},
+ {id:'gm_eliptica',label:'Eliptica',icon:'<ellipse cx="9" cy="10" rx="7" ry="4" fill="none" stroke="currentColor" stroke-width="1.3"/><line x1="6" y1="6" x2="6" y2="3" stroke="currentColor" stroke-width="1.2"/><line x1="12" y1="6" x2="12" y2="3" stroke="currentColor" stroke-width="1.2"/>',group:15},
+ {id:'gm_escaladora',label:'Escaladora',icon:'<line x1="4" y1="16" x2="8" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="12" x2="12" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="8" x2="14" y2="4" stroke="currentColor" stroke-width="1.5"/><line x1="4" y1="3" x2="4" y2="16" stroke="currentColor" stroke-width="1.5"/>',group:15},
+ {id:'gm_remo_erg',label:'Remo Erg.',icon:'<rect x="2" y="10" width="14" height="2" rx="1" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1"/><circle cx="5" cy="11" r="1.5" fill="currentColor" opacity="0.5"/><line x1="8" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="6" x2="10" y2="10" stroke="currentColor" stroke-width="1"/>',group:15},
+ {id:'gm_ski_erg',label:'Ski Erg',icon:'<line x1="9" y1="2" x2="9" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="5" y1="2" x2="13" y2="2" stroke="currentColor" stroke-width="2"/><line x1="6" y1="6" x2="6" y2="12" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2 1"/><line x1="12" y1="6" x2="12" y2="12" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2 1"/>',group:15},
+ {id:'gm_airbike',label:'Air Bike',icon:'<circle cx="9" cy="11" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="9" y1="6" x2="9" y2="2" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="3" x2="13" y2="3" stroke="currentColor" stroke-width="1.2"/><line x1="4" y1="11" x2="14" y2="11" stroke="currentColor" stroke-width="0.8"/>',group:15},
+ {id:'sep15',group:0},
+ // ── Poleas y Estaciones (16) ──
+ {id:'gm_polea_alta',label:'Polea Alta',icon:'<line x1="9" y1="2" x2="9" y2="16" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="2" r="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.8"/><line x1="5" y1="10" x2="13" y2="10" stroke="currentColor" stroke-width="1.2"/>',group:16},
+ {id:'gm_polea_baja',label:'Polea Baja',icon:'<line x1="9" y1="2" x2="9" y2="16" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="15" r="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.8"/><line x1="5" y1="6" x2="13" y2="6" stroke="currentColor" stroke-width="1.2"/>',group:16},
+ {id:'gm_polea_cruz',label:'Polea Cruz.',icon:'<line x1="3" y1="2" x2="3" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="15" y1="2" x2="15" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="2" x2="15" y2="2" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="9" x2="9" y2="12" stroke="currentColor" stroke-width="1" stroke-dasharray="2 1"/><line x1="15" y1="9" x2="9" y2="12" stroke="currentColor" stroke-width="1" stroke-dasharray="2 1"/>',group:16},
+ {id:'gm_multifunc',label:'Multifunc.',icon:'<rect x="2" y="2" width="14" height="14" rx="2" fill="currentColor" opacity="0.08" stroke="currentColor" stroke-width="1.5"/><line x1="9" y1="2" x2="9" y2="16" stroke="currentColor" stroke-width="0.8"/><line x1="2" y1="9" x2="16" y2="9" stroke="currentColor" stroke-width="0.8"/>',group:16},
+ {id:'gm_jaula_func',label:'Jaula Func.',icon:'<rect x="2" y="2" width="14" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><line x1="2" y1="5" x2="16" y2="5" stroke="currentColor" stroke-width="1"/><line x1="2" y1="13" x2="16" y2="13" stroke="currentColor" stroke-width="1"/>',group:16},
+ {id:'gm_cable_dual',label:'Cable Dual',icon:'<line x1="4" y1="2" x2="4" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="14" y1="2" x2="14" y2="16" stroke="currentColor" stroke-width="1.5"/><circle cx="4" cy="4" r="1.5" fill="currentColor" opacity="0.3"/><circle cx="14" cy="4" r="1.5" fill="currentColor" opacity="0.3"/><line x1="4" y1="4" x2="9" y2="10" stroke="currentColor" stroke-width="0.8" stroke-dasharray="2 1"/><line x1="14" y1="4" x2="9" y2="10" stroke="currentColor" stroke-width="0.8" stroke-dasharray="2 1"/>',group:16},
+ {id:'sep16',group:0},
+ // ── Bancos y Estructuras (17) ──
+ {id:'gm_banco_pl',label:'Banco Plano',icon:'<rect x="2" y="9" width="14" height="3" rx="1" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1.2"/><line x1="4" y1="12" x2="4" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="14" y1="12" x2="14" y2="16" stroke="currentColor" stroke-width="1.5"/>',group:17},
+ {id:'gm_banco_inc',label:'Banco Incl.',icon:'<line x1="3" y1="14" x2="10" y2="8" stroke="currentColor" stroke-width="2"/><line x1="10" y1="8" x2="15" y2="10" stroke="currentColor" stroke-width="2"/><line x1="3" y1="14" x2="3" y2="17" stroke="currentColor" stroke-width="1.5"/><line x1="15" y1="10" x2="15" y2="17" stroke="currentColor" stroke-width="1.5"/>',group:17},
+ {id:'gm_banco_dec',label:'Banco Decl.',icon:'<line x1="3" y1="8" x2="15" y2="12" stroke="currentColor" stroke-width="2"/><line x1="3" y1="8" x2="3" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="15" y1="12" x2="15" y2="16" stroke="currentColor" stroke-width="1.5"/>',group:17},
+ {id:'gm_banco_adj',label:'Banco Ajust.',icon:'<line x1="3" y1="12" x2="9" y2="7" stroke="currentColor" stroke-width="2"/><line x1="9" y1="7" x2="15" y2="10" stroke="currentColor" stroke-width="2"/><line x1="3" y1="12" x2="3" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="15" y1="10" x2="15" y2="16" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="7" r="1.5" fill="currentColor" opacity="0.3"/>',group:17},
+ {id:'gm_rack_sent',label:'Rack Sentad.',icon:'<line x1="3" y1="2" x2="3" y2="16" stroke="currentColor" stroke-width="2"/><line x1="15" y1="2" x2="15" y2="16" stroke="currentColor" stroke-width="2"/><line x1="5" y1="6" x2="13" y2="6" stroke="currentColor" stroke-width="1.5"/><rect x="5" y="5" width="3" height="2" rx="0.5" fill="currentColor" opacity="0.4"/><rect x="10" y="5" width="3" height="2" rx="0.5" fill="currentColor" opacity="0.4"/>',group:17},
+ {id:'gm_jaula_pot',label:'Jaula Potenc.',icon:'<rect x="2" y="2" width="14" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><line x1="4" y1="7" x2="14" y2="7" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="6" width="3" height="2" rx="0.5" fill="currentColor" opacity="0.35"/><rect x="12" y="6" width="3" height="2" rx="0.5" fill="currentColor" opacity="0.35"/>',group:17},
+ {id:'gm_sop_barras',label:'Sop. Barras',icon:'<line x1="5" y1="3" x2="5" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="13" y1="3" x2="13" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="5" x2="7" y2="5" stroke="currentColor" stroke-width="1.2"/><line x1="3" y1="9" x2="7" y2="9" stroke="currentColor" stroke-width="1.2"/><line x1="3" y1="13" x2="7" y2="13" stroke="currentColor" stroke-width="1.2"/><line x1="11" y1="5" x2="15" y2="5" stroke="currentColor" stroke-width="1.2"/><line x1="11" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="1.2"/><line x1="11" y1="13" x2="15" y2="13" stroke="currentColor" stroke-width="1.2"/>',group:17},
+ {id:'gm_sop_manc',label:'Sop. Manc.',icon:'<rect x="3" y="4" width="12" height="10" rx="1" fill="currentColor" opacity="0.08" stroke="currentColor" stroke-width="1.2"/><line x1="3" y1="7" x2="15" y2="7" stroke="currentColor" stroke-width="0.8"/><line x1="3" y1="10" x2="15" y2="10" stroke="currentColor" stroke-width="0.8"/><line x1="3" y1="13" x2="15" y2="13" stroke="currentColor" stroke-width="0.8"/>',group:17}
 ];
 
 // ═══════════ FORMATIONS ═══════════
@@ -642,7 +712,7 @@ const S = {
  // ── TOOLBAR ──
  renderToolbar() {
   const tb = document.getElementById('toolbar');
-  const GH = {1:'Dibujo',2:'Personas',3:'Formaciones',4:'Campo',5:'Agilidad',6:'Fuerza',7:'Cardio',8:'Recuper.',9:'Gimnasio'};
+  const GH = {1:'Dibujo',2:'Personas',3:'Formaciones',4:'Campo',5:'Agilidad',6:'Fuerza',7:'Cardio',8:'Recuper.',9:'Tren Inferior',10:'Tren Superior',11:'Espalda',12:'Pecho/Hombro',13:'Brazos',14:'Abdomen/Core',15:'Cardio Gym',16:'Poleas/Estac.',17:'Bancos/Estruct.'};
   let lastG = -1;
   let html = '';
   TOOLS.forEach(t => {
@@ -2007,17 +2077,8 @@ const S = {
   if(type==='roller') { el.color = '#64748b'; el.size = 1; }
   if(type==='bosu') { el.color = '#2563eb'; el.size = 1; }
   if(type==='mat') { el.color = '#22c55e'; el.size = 1; }
-  // Gimnasio
-  if(type==='dumbbell') { el.color = '#64748b'; el.size = 1; }
-  if(type==='barbell') { el.color = '#475569'; el.size = 1; el.rotation = 0; }
-  if(type==='bench') { el.color = '#78716c'; el.size = 1; el.rotation = 0; }
-  if(type==='rack') { el.color = '#475569'; el.size = 1; }
-  if(type==='treadmill') { el.color = '#334155'; el.size = 1; el.rotation = 0; }
-  if(type==='bike') { el.color = '#64748b'; el.size = 1; }
-  if(type==='rower') { el.color = '#78716c'; el.size = 1; el.rotation = 0; }
-  if(type==='pullup') { el.color = '#334155'; el.size = 1; }
-  if(type==='pilatesball') { el.color = '#8b5cf6'; el.size = 1; }
-  if(type==='stepper') { el.color = '#475569'; el.size = 1; }
+  // Gimnasio (all gm_ prefixed types)
+  if(type.startsWith('gm_')) { el.color = '#64748b'; el.size = 1; el.rotation = 0; }
   if(type==='ball') { el.size = 8; el.ballType = ST.currentSport?.includes('Balon') ? (ST.currentSport.includes('cesto') ? 'basketball' : 'handball') : ST.currentSport?.includes('Volei') ? 'volleyball' : ST.currentSport?.includes('Rugby') ? 'rugby' : ST.currentSport?.includes('Tenis') ? 'tennis' : ST.currentSport?.includes('Beisbol') ? 'baseball' : ST.currentSport?.includes('Americ') ? 'football_us' : 'soccer'; }
   if(type==='zone') { el.zoneColor = ST.zoneColor||'#378ADD'; el.opacity = ST.zoneOpacity||0.12; el.borderOpacity = 0.45; el.label = ''; }
   if(type==='text') { el.fontSize = 16; el.color = ST.theme==='dark'?'#e6edf3':'#1e293b'; el.bold = false; el.italic = false; }
@@ -2229,45 +2290,14 @@ const S = {
     return `<g transform="translate(${el.x},${el.y}) scale(${es})" data-id="${el.id}" style="cursor:grab"><rect x="-18" y="-10" width="36" height="20" rx="3" fill="${c}18" stroke="${c}" stroke-width="1.5"/></g>`;
    }
    // ── GIMNASIO ELEMENTS ──
-   case 'dumbbell': {
-    const es = el.size||1; const c = el.color||'#64748b';
-    return `<g transform="translate(${el.x},${el.y}) scale(${es})" data-id="${el.id}" style="cursor:grab"><line x1="-10" y1="0" x2="10" y2="0" stroke="${c}" stroke-width="2.5"/><rect x="-14" y="-5" width="5" height="10" rx="1.5" fill="${c}40" stroke="${c}" stroke-width="1.2"/><rect x="9" y="-5" width="5" height="10" rx="1.5" fill="${c}40" stroke="${c}" stroke-width="1.2"/></g>`;
-   }
-   case 'barbell': {
-    const es = el.size||1; const c = el.color||'#475569'; const rot = el.rotation||0;
-    return `<g transform="translate(${el.x},${el.y}) scale(${es})${rot?` rotate(${rot})`:''}" data-id="${el.id}" style="cursor:grab"><line x1="-22" y1="0" x2="22" y2="0" stroke="${c}" stroke-width="2"/><rect x="-22" y="-6" width="5" height="12" rx="1" fill="${c}50" stroke="${c}" stroke-width="1"/><rect x="17" y="-6" width="5" height="12" rx="1" fill="${c}50" stroke="${c}" stroke-width="1"/><rect x="-17" y="-4" width="4" height="8" rx="0.5" fill="${c}35" stroke="${c}" stroke-width="0.8"/><rect x="13" y="-4" width="4" height="8" rx="0.5" fill="${c}35" stroke="${c}" stroke-width="0.8"/></g>`;
-   }
-   case 'bench': {
-    const es = el.size||1; const c = el.color||'#78716c'; const rot = el.rotation||0;
-    return `<g transform="translate(${el.x},${el.y}) scale(${es})${rot?` rotate(${rot})`:''}" data-id="${el.id}" style="cursor:grab"><rect x="-16" y="-3" width="32" height="8" rx="2" fill="${c}30" stroke="${c}" stroke-width="1.5"/><line x1="-12" y1="5" x2="-12" y2="12" stroke="${c}" stroke-width="2"/><line x1="12" y1="5" x2="12" y2="12" stroke="${c}" stroke-width="2"/><rect x="-18" y="-14" width="4" height="14" rx="1" fill="${c}25" stroke="${c}" stroke-width="1"/></g>`;
-   }
-   case 'rack': {
-    const es = el.size||1; const c = el.color||'#475569';
-    return `<g transform="translate(${el.x},${el.y}) scale(${es})" data-id="${el.id}" style="cursor:grab"><line x1="-10" y1="-16" x2="-10" y2="16" stroke="${c}" stroke-width="2.5"/><line x1="10" y1="-16" x2="10" y2="16" stroke="${c}" stroke-width="2.5"/><line x1="-10" y1="-10" x2="10" y2="-10" stroke="${c}" stroke-width="1.5"/><line x1="-10" y1="4" x2="10" y2="4" stroke="${c}" stroke-width="1.5"/><rect x="-7" y="-12" width="14" height="3" rx="1" fill="${c}40"/></g>`;
-   }
-   case 'treadmill': {
-    const es = el.size||1; const c = el.color||'#334155'; const rot = el.rotation||0;
-    return `<g transform="translate(${el.x},${el.y}) scale(${es})${rot?` rotate(${rot})`:''}" data-id="${el.id}" style="cursor:grab"><rect x="-16" y="-8" width="32" height="18" rx="3" fill="${c}15" stroke="${c}" stroke-width="1.5"/><line x1="-16" y1="10" x2="-12" y2="16" stroke="${c}" stroke-width="1.5"/><line x1="16" y1="10" x2="12" y2="16" stroke="${c}" stroke-width="1.5"/><line x1="-10" y1="0" x2="10" y2="0" stroke="${c}" stroke-width="0.8" stroke-dasharray="3 2"/><rect x="-14" y="-14" width="4" height="8" rx="1" fill="${c}20" stroke="${c}" stroke-width="0.8"/></g>`;
-   }
-   case 'bike': {
-    const es = el.size||1; const c = el.color||'#64748b';
-    return `<g transform="translate(${el.x},${el.y}) scale(${es})" data-id="${el.id}" style="cursor:grab"><circle cx="-6" cy="6" r="6" fill="none" stroke="${c}" stroke-width="1.5"/><circle cx="8" cy="6" r="6" fill="none" stroke="${c}" stroke-width="1.5"/><line x1="-6" y1="6" x2="2" y2="-6" stroke="${c}" stroke-width="1.5"/><line x1="2" y1="-6" x2="8" y2="6" stroke="${c}" stroke-width="1.2"/><line x1="-1" y1="-6" x2="5" y2="-6" stroke="${c}" stroke-width="1.5"/></g>`;
-   }
-   case 'rower': {
-    const es = el.size||1; const c = el.color||'#78716c'; const rot = el.rotation||0;
-    return `<g transform="translate(${el.x},${el.y}) scale(${es})${rot?` rotate(${rot})`:''}" data-id="${el.id}" style="cursor:grab"><rect x="-18" y="-2" width="36" height="5" rx="2" fill="${c}20" stroke="${c}" stroke-width="1.2"/><circle cx="-12" cy="1" r="3" fill="${c}40"/><line x1="-4" y1="-8" x2="4" y2="-8" stroke="${c}" stroke-width="2"/><line x1="0" y1="-8" x2="0" y2="-2" stroke="${c}" stroke-width="1.2"/></g>`;
-   }
-   case 'pullup': {
-    const es = el.size||1; const c = el.color||'#334155';
-    return `<g transform="translate(${el.x},${el.y}) scale(${es})" data-id="${el.id}" style="cursor:grab"><line x1="-12" y1="-10" x2="12" y2="-10" stroke="${c}" stroke-width="2.5"/><line x1="-10" y1="-10" x2="-10" y2="14" stroke="${c}" stroke-width="2"/><line x1="10" y1="-10" x2="10" y2="14" stroke="${c}" stroke-width="2"/></g>`;
-   }
-   case 'pilatesball': {
-    const es = el.size||1; const c = el.color||'#8b5cf6';
-    return `<g transform="translate(${el.x},${el.y}) scale(${es})" data-id="${el.id}" style="cursor:grab"><circle cx="0" cy="0" r="12" fill="${c}18" stroke="${c}" stroke-width="1.5"/><path d="M-12 0 Q0 -4 12 0" fill="none" stroke="${c}" stroke-width="0.8" opacity="0.4"/></g>`;
-   }
-   case 'stepper': {
-    const es = el.size||1; const c = el.color||'#475569';
-    return `<g transform="translate(${el.x},${el.y}) scale(${es})" data-id="${el.id}" style="cursor:grab"><rect x="-14" y="0" width="28" height="8" rx="2" fill="${c}20" stroke="${c}" stroke-width="1.2"/><rect x="-10" y="-5" width="20" height="5" rx="1" fill="${c}15" stroke="${c}" stroke-width="0.8"/></g>`;
+   // Old gym types (backward compat) + all gm_ prefixed types
+   case 'dumbbell': case 'barbell': case 'bench': case 'rack': case 'treadmill':
+   case 'bike': case 'rower': case 'pullup': case 'pilatesball': case 'stepper': {
+    const es = el.size||1; const c = el.color||'#64748b'; const rot = el.rotation||0;
+    const tool = TOOLS.find(t => t.id === el.type);
+    const lbl = tool ? tool.label : el.type;
+    const iconSvg = tool ? tool.icon : '<rect x="3" y="3" width="12" height="12" rx="2" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1"/>';
+    return `<g transform="translate(${el.x},${el.y}) scale(${es})${rot?` rotate(${rot})`:''}" data-id="${el.id}" style="cursor:grab"><rect x="-18" y="-14" width="36" height="28" rx="4" fill="${c}10" stroke="${c}" stroke-width="0.8" stroke-dasharray="3 2"/><svg viewBox="0 0 18 18" x="-9" y="-14" width="18" height="18" fill="none" stroke="${c}" style="color:${c}">${iconSvg}</svg><text x="0" y="12" text-anchor="middle" font-size="7" fill="${c}" font-weight="600">${lbl}</text></g>`;
    }
    case 'arrow': {
     const mx = ((el.x1||0)+(el.x2||0))/2, my = ((el.y1||0)+(el.y2||0))/2;
@@ -2294,7 +2324,17 @@ const S = {
     return `<g data-id="${el.id}" style="cursor:pointer"><polyline points="${(el.points||[]).map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="${el.color||'rgba(0,0,0,0.6)'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>`;
    case 'curve':
     return `<g data-id="${el.id}" style="cursor:pointer"><path d="M${el.x1},${el.y1} Q${el.cx},${el.cy} ${el.x2},${el.y2}" fill="none" stroke="${el.color||'rgba(0,0,0,0.6)'}" stroke-width="2" stroke-linecap="round" ${el.dash?`stroke-dasharray="${el.dash}"`:''}/></g>`;
-   default: return '';
+   default: {
+    // Handle all gm_ prefixed gym machines
+    if (el.type.startsWith('gm_')) {
+     const es = el.size||1; const c = el.color||'#64748b'; const rot = el.rotation||0;
+     const tool = TOOLS.find(t => t.id === el.type);
+     const lbl = tool ? tool.label : el.type.replace('gm_','').replace(/_/g,' ');
+     const iconSvg = tool ? tool.icon : '<rect x="3" y="3" width="12" height="12" rx="2" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1"/>';
+     return `<g transform="translate(${el.x},${el.y}) scale(${es})${rot?` rotate(${rot})`:''}" data-id="${el.id}" style="cursor:grab"><rect x="-18" y="-14" width="36" height="28" rx="4" fill="${c}10" stroke="${c}" stroke-width="0.8" stroke-dasharray="3 2"/><svg viewBox="0 0 18 18" x="-9" y="-14" width="18" height="18" fill="none" stroke="${c}" style="color:${c}">${iconSvg}</svg><text x="0" y="12" text-anchor="middle" font-size="7" fill="${c}" font-weight="600">${lbl}</text></g>`;
+    }
+    return '';
+   }
   }
  },
 
@@ -2406,7 +2446,7 @@ const S = {
    const isPlayer = el.type.startsWith('player')||el.type==='goalkeeper';
    const isBall = el.type==='ball';
    const equipTypes = ['cone','disc','ring','pole','vest','flag','band','hurdle','minigoal','mannequin','ladder','plyobox','kettlebell','medball','trx','sled','parachute','rope','battlerope','roller','bosu','mat','dumbbell','barbell','bench','rack','treadmill','bike','rower','pullup','pilatesball','stepper'];
-   const isEquip = equipTypes.includes(el.type);
+   const isEquip = equipTypes.includes(el.type) || el.type.startsWith('gm_');
    if((isPlayer||isBall) && el.size) html += `<div class="prop-row"><label>Tam.</label><input type="range" min="8" max="40" value="${el.size}" oninput="S.setProp(${el.id},'size',+this.value)"><span style="font-size:9px;color:var(--text-muted);min-width:20px">${el.size}</span></div>`;
    if(isEquip && el.size !== undefined) html += `<div class="prop-row"><label>Tam.</label><input type="range" min="5" max="25" step="1" value="${Math.round((el.size||1)*10)}" oninput="S.setProp(${el.id},'size',this.value/10)"><span style="font-size:9px;color:var(--text-muted);min-width:24px">${Math.round((el.size||1)*100)}%</span></div>`;
    if(el.rotation !== undefined) html += `<div class="prop-row"><label>Rot.</label><input type="range" min="0" max="360" step="15" value="${el.rotation||0}" oninput="S.setProp(${el.id},'rotation',+this.value)"><span style="font-size:9px;color:var(--text-muted);min-width:24px">${el.rotation||0}°</span></div>`;
@@ -2449,7 +2489,7 @@ const S = {
     const isSel = ST.selected.includes(el);
     const ELEMENT_NAMES = {playerA:`Jugador A #${el.label}`,playerB:`Jugador B #${el.label}`,goalkeeper:`Portero #${el.label}`,cone:'Cono',ball:'Balon',arrow:'Flecha',line:'Linea',zone:'Zona',text:el.label,flag:'Bandera',hurdle:'Valla',disc:'Platillo',minigoal:'Mini Arco',mannequin:'Maniqui',vest:'Peto',ring:'Aro',ladder:'Escalera',pole:'Pica',plyobox:'Cajon',kettlebell:'Kettlebell',medball:'Balon Med.',trx:'TRX',sled:'Trineo',parachute:'Paracaidas',rope:'Cuerda',battlerope:'Battle Rope',roller:'Roller',band:'Banda',bosu:'Bosu',mat:'Colchoneta',pencil:'Trazo',curve:'Curva',dumbbell:'Mancuerna',barbell:'Barra',bench:'Banco',rack:'Rack',treadmill:'Caminadora',bike:'Bicicleta',rower:'Remo',pullup:'Barra Dom.',pilatesball:'Fitball',stepper:'Step'};
     const dot = el.color || (el.type==='playerA'?ST.teamAColor:el.type==='playerB'?ST.teamBColor:el.type==='goalkeeper'?'#EF9F27':'#64748b');
-    const name = ELEMENT_NAMES[el.type] || el.type;
+    const name = ELEMENT_NAMES[el.type] || (TOOLS.find(t=>t.id===el.type)||{}).label || el.type.replace('gm_','').replace(/_/g,' ');
     html += `<div class="el-item${isSel?' selected':''}" onclick="S.selectEl(${el.id})"><span class="el-dot" style="background:${dot}"></span><span class="el-name">${name}</span><button class="el-del" onclick="event.stopPropagation();S.deleteEl(${el.id})">✕</button></div>`;
    });
    pc.innerHTML = html || '<div style="text-align:center;padding:24px;color:#94a3b8;font-size:11px">Sin elementos.<br>Usa las herramientas para agregar.</div>';
