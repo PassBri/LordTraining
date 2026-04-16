@@ -455,6 +455,17 @@ const TOOLS = [
  {id:'playerA',label:'Jugador A',icon:'<circle cx="9" cy="9" r="7" fill="rgba(200,247,0,0.2)" stroke="#c8f700" stroke-width="1.5"/><text x="9" y="12" text-anchor="middle" font-size="8" fill="#c8f700" font-weight="700">X</text>',group:2},
  {id:'playerB',label:'Jugador B',icon:'<circle cx="9" cy="9" r="7" fill="rgba(51,65,85,0.1)" stroke="#334155" stroke-width="1.5"/>',group:2},
  {id:'goalkeeper',label:'Portero',icon:'<circle cx="9" cy="9" r="7" fill="rgba(239,159,39,0.2)" stroke="#EF9F27" stroke-width="1.5"/><text x="9" y="12" text-anchor="middle" font-size="7" fill="#EF9F27" font-weight="700">GK</text>',group:2},
+ {id:'p_coach',label:'Entrenador',icon:'<circle cx="9" cy="6" r="4" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1"/><rect x="5" y="10" width="8" height="6" rx="2" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="0.8"/><rect x="12" y="8" width="4" height="5" rx="1" fill="currentColor" opacity="0.3"/>',group:2},
+ {id:'p_assistant',label:'Asistente',icon:'<circle cx="9" cy="6" r="3.5" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1"/><rect x="5" y="10" width="8" height="6" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="0.8"/><text x="9" y="14" text-anchor="middle" font-size="5" fill="currentColor" font-weight="700">AT</text>',group:2},
+ {id:'p_director',label:'Directivo',icon:'<circle cx="9" cy="5" r="3.5" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1"/><path d="M4 10 L9 8 L14 10 L14 16 L4 16 Z" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="0.8"/>',group:2},
+ {id:'p_physio',label:'Masajista',icon:'<circle cx="9" cy="5" r="3.5" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1"/><rect x="5" y="9" width="8" height="6" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="0.8"/><path d="M13 11 L16 9 L17 12 L14 13" fill="none" stroke="currentColor" stroke-width="1"/>',group:2},
+ {id:'p_kinesio',label:'Kinesiologo',icon:'<circle cx="9" cy="5" r="3.5" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1"/><rect x="5" y="9" width="8" height="6" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="0.8"/><path d="M7 12 Q9 15 11 12" fill="none" stroke="currentColor" stroke-width="1.2"/>',group:2},
+ {id:'p_psycho',label:'Psicologo',icon:'<circle cx="9" cy="5" r="3.5" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1"/><rect x="5" y="9" width="8" height="6" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="0.8"/><path d="M7 3 Q9 1 11 3" fill="none" stroke="currentColor" stroke-width="1"/>',group:2},
+ {id:'p_referee',label:'Arbitro',icon:'<circle cx="9" cy="5" r="3.5" fill="#333" opacity="0.3" stroke="#333" stroke-width="1"/><rect x="5" y="9" width="8" height="7" rx="2" fill="#333" opacity="0.15" stroke="#333" stroke-width="0.8"/><line x1="7" y1="9" x2="7" y2="16" stroke="#333" stroke-width="0.6"/><line x1="11" y1="9" x2="11" y2="16" stroke="#333" stroke-width="0.6"/>',group:2},
+ {id:'p_linejudge',label:'Juez Linea',icon:'<circle cx="9" cy="5" r="3" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="0.8"/><rect x="5" y="9" width="8" height="6" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="0.8"/><line x1="14" y1="6" x2="17" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',group:2},
+ {id:'p_tablejudge',label:'Juez Mesa',icon:'<circle cx="9" cy="4" r="3" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="0.8"/><rect x="4" y="8" width="10" height="5" rx="1.5" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="0.8"/><rect x="3" y="13" width="12" height="3" rx="1" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="0.6"/>',group:2},
+ {id:'p_biomech',label:'Biomecanico',icon:'<circle cx="9" cy="5" r="3.5" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1"/><rect x="5" y="9" width="8" height="6" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="0.8"/><circle cx="13" cy="7" r="2" fill="none" stroke="currentColor" stroke-width="0.8"/>',group:2},
+ {id:'p_nutri',label:'Nutricionist',icon:'<circle cx="9" cy="5" r="3.5" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1"/><rect x="5" y="9" width="8" height="6" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="0.8"/><circle cx="14" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="0.8"/><line x1="13" y1="10" x2="15" y2="14" stroke="currentColor" stroke-width="0.5"/>',group:2},
  {id:'sep2',group:0},
  // ── FORMACIONES ──
  {id:'d_row',label:'Fila',icon:'<circle cx="3" cy="9" r="2" fill="currentColor"/><circle cx="7.5" cy="9" r="2" fill="currentColor"/><circle cx="12" cy="9" r="2" fill="currentColor"/><circle cx="16.5" cy="9" r="2" fill="currentColor"/>',group:3},
@@ -792,7 +803,7 @@ const S = {
    if(tid==='line'||tid==='curve') { this.showLineStylePicker(btn, tid); return; }
    if(tid==='zone') { this.showZoneColorPicker(btn); return; }
    const colorable = ['cone','disc','ring','vest','pole','flag','band','hurdle','minigoal','mannequin','ladder','plyobox','kettlebell','medball','trx','sled','parachute','rope','battlerope','roller','bosu','mat','dumbbell','barbell','bench','rack','treadmill','bike','rower','pullup','pilatesball','stepper'];
-   if(colorable.includes(tid) || tid.startsWith('gm_') || tid.startsWith('sp_')) { this.showColorPicker(btn, tid, 'element'); return; }
+   if(colorable.includes(tid) || tid.startsWith('gm_') || tid.startsWith('sp_') || tid.startsWith('p_')) { this.showColorPicker(btn, tid, 'element'); return; }
    this.hideColorPicker();
    this.setTool(tid);
   };
@@ -1782,158 +1793,207 @@ const S = {
    ${nm?`<text x="0" y="-30" text-anchor="middle" font-size="7" fill="${c}" font-weight="700" font-family="monospace">${nm}</text>`:''}${pos?`<text x="0" y="24" text-anchor="middle" font-size="6" fill="${c}" font-weight="600" font-family="monospace">${pos}</text>`:''}</g>`;
   }
 
-  // ── GYMRAT: muscular build, tank top, thick arms ──
+  // ── GYMRAT: literal muscular rat character ──
   if(style==='gymrat') {
-   const hR=8;
+   const hR=9;
    const head = el.photo ? this._photoClip(el.photo, 'agr2d'+el.id, 0, -24, hR) :
-    `<circle cx="0" cy="-24" r="${hR}" fill="${sk}"/><circle cx="-2.5" cy="-25" r="1.2" fill="#333"/><circle cx="2.5" cy="-25" r="1.2" fill="#333"/><path d="M-2,-21 Q0,-19.5 2,-21" fill="none" stroke="#c9967a" stroke-width="0.8"/><rect x="-5" y="-32" width="10" height="3" rx="1" fill="${sk}" opacity="0.5"/>`;
+    `<circle cx="0" cy="-24" r="${hR}" fill="#8d8d8d"/>
+     <ellipse cx="-6" cy="-32" rx="4" ry="7" fill="#a0a0a0" stroke="#777" stroke-width="0.5"/>
+     <ellipse cx="6" cy="-32" rx="4" ry="7" fill="#a0a0a0" stroke="#777" stroke-width="0.5"/>
+     <ellipse cx="-5" cy="-33" rx="2" ry="4" fill="#f0a0b0"/>
+     <ellipse cx="5" cy="-33" rx="2" ry="4" fill="#f0a0b0"/>
+     <circle cx="-3" cy="-26" r="1.5" fill="#111"/><circle cx="3" cy="-26" r="1.5" fill="#111"/>
+     <circle cx="-2.5" cy="-26.5" r="0.5" fill="#fff"/>
+     <ellipse cx="0" cy="-22" rx="2" ry="1.2" fill="#f0a0b0"/>
+     <line x1="-8" y1="-23" x2="-14" y2="-25" stroke="#999" stroke-width="0.6"/>
+     <line x1="-8" y1="-22" x2="-14" y2="-22" stroke="#999" stroke-width="0.6"/>
+     <line x1="8" y1="-23" x2="14" y2="-25" stroke="#999" stroke-width="0.6"/>
+     <line x1="8" y1="-22" x2="14" y2="-22" stroke="#999" stroke-width="0.6"/>`;
    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}
-    <rect x="-12" y="-15" width="24" height="22" rx="3" fill="${c}"/><rect x="-4" y="-17" width="8" height="2" rx="1" fill="${c}"/>
-    <rect x="-16" y="-14" width="7" height="16" rx="3.5" fill="${sk}" opacity="0.9"/>
-    <rect x="9" y="-14" width="7" height="16" rx="3.5" fill="${sk}" opacity="0.9"/>
+    <rect x="-13" y="-15" width="26" height="22" rx="3" fill="${c}"/><rect x="-5" y="-17" width="10" height="2" rx="1" fill="${c}"/>
+    <rect x="-17" y="-14" width="7" height="16" rx="3.5" fill="#8d8d8d"/>
+    <rect x="10" y="-14" width="7" height="16" rx="3.5" fill="#8d8d8d"/>
     <text x="0" y="0" text-anchor="middle" font-size="11" fill="${cc}" font-weight="900">${lbl}</text>
-    <rect x="-7" y="7" width="6" height="13" rx="2" fill="#333"/><rect x="1" y="7" width="6" height="13" rx="2" fill="#333"/>
+    <rect x="-7" y="7" width="6" height="13" rx="2" fill="#555"/><rect x="1" y="7" width="6" height="13" rx="2" fill="#555"/>
+    <path d="M4 18 Q8 24 12 20" fill="none" stroke="#8d8d8d" stroke-width="2" stroke-linecap="round"/>
     ${head}
-   ${nm?`<text x="0" y="-36" text-anchor="middle" font-size="8" fill="${c}" font-weight="700">${nm}</text>`:''}${pos?`<text x="0" y="27" text-anchor="middle" font-size="7" fill="${c}" font-weight="600">${pos}</text>`:''}</g>`;
+   ${nm?`<text x="0" y="-38" text-anchor="middle" font-size="8" fill="${c}" font-weight="700">${nm}</text>`:''}${pos?`<text x="0" y="28" text-anchor="middle" font-size="7" fill="${c}" font-weight="600">${pos}</text>`:''}</g>`;
   }
 
-  // ── ATHLETE: sleek, dynamic pose with speed lines ──
+  // ── ATHLETE: sleek silhouette with lightning bolt ──
   if(style==='athlete') {
    const hR=7;
    const head = el.photo ? this._photoClip(el.photo, 'aat2d'+el.id, 0, -22, hR) :
-    `<circle cx="0" cy="-22" r="${hR}" fill="${sk}"/><circle cx="-2" cy="-23" r="1" fill="#333"/><circle cx="2" cy="-23" r="1" fill="#333"/>`;
+    `<circle cx="0" cy="-22" r="${hR}" fill="${sk}"/><circle cx="-2" cy="-23" r="1" fill="#333"/><circle cx="2" cy="-23" r="1" fill="#333"/><path d="M-5 -28 Q0 -30 5 -28 L4 -26 L-4 -26 Z" fill="#333" opacity="0.6"/>`;
    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}
     <rect x="-9" y="-14" width="18" height="20" rx="5" fill="${c}"/>
-    <line x1="-5" y1="-12" x2="-5" y2="4" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
-    <line x1="5" y1="-12" x2="5" y2="4" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
+    <path d="M3,-13 L1,-6 L5,-7 L2,6" fill="#ffd600" opacity="0.6" stroke="#ffab00" stroke-width="0.5"/>
     <rect x="-12" y="-12" width="4.5" height="12" rx="2.2" fill="${sk}" opacity="0.85" transform="rotate(-5 -10 -6)"/>
     <rect x="7.5" y="-12" width="4.5" height="12" rx="2.2" fill="${sk}" opacity="0.85" transform="rotate(5 10 -6)"/>
     <text x="0" y="0" text-anchor="middle" font-size="10" fill="${cc}" font-weight="900">${lbl}</text>
     <rect x="-5" y="6" width="4" height="12" rx="2" fill="#222"/><rect x="1" y="6" width="4" height="12" rx="2" fill="#222"/>
-    <line x1="-18" y1="-4" x2="-13" y2="-4" stroke="${c}" stroke-width="1" opacity="0.3"/>
-    <line x1="-18" y1="0" x2="-14" y2="0" stroke="${c}" stroke-width="0.8" opacity="0.2"/>
+    <line x1="-18" y1="-4" x2="-12" y2="-4" stroke="${c}" stroke-width="1.2" opacity="0.35"/>
+    <line x1="-17" y1="0" x2="-13" y2="0" stroke="${c}" stroke-width="0.8" opacity="0.25"/>
+    <line x1="-16" y1="4" x2="-13" y2="4" stroke="${c}" stroke-width="0.5" opacity="0.15"/>
     ${head}
    ${nm?`<text x="0" y="-33" text-anchor="middle" font-size="8" fill="${c}" font-weight="700">${nm}</text>`:''}${pos?`<text x="0" y="25" text-anchor="middle" font-size="7" fill="${c}" font-weight="600">${pos}</text>`:''}</g>`;
   }
 
-  // ── PLAYMAKER: jersey with V-neck, captain armband ──
+  // ── PLAYMAKER: crown + captain armband + star ──
   if(style==='playmaker') {
    const hR=8;
    const head = el.photo ? this._photoClip(el.photo, 'apm2d'+el.id, 0, -22, hR) :
-    `<circle cx="0" cy="-22" r="${hR}" fill="${sk}"/><circle cx="-2.5" cy="-23" r="1.2" fill="#333"/><circle cx="2.5" cy="-23" r="1.2" fill="#333"/><path d="M-2,-19 Q0,-17 2,-19" fill="none" stroke="#c9967a" stroke-width="0.6"/>`;
+    `<circle cx="0" cy="-22" r="${hR}" fill="${sk}"/><circle cx="-2.5" cy="-23" r="1.2" fill="#333"/><circle cx="2.5" cy="-23" r="1.2" fill="#333"/><path d="M-2,-19 Q0,-17 2,-19" fill="none" stroke="#c9967a" stroke-width="0.6"/>
+     <path d="M-6,-30 L-4,-27 L0,-30 L4,-27 L6,-30 L5,-26 L-5,-26 Z" fill="#ffd600" stroke="#ffab00" stroke-width="0.5"/>`;
    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}
     <rect x="-10" y="-13" width="20" height="20" rx="3" fill="${c}"/>
     <path d="M-3,-13 L0,-8 L3,-13" fill="rgba(255,255,255,0.2)"/>
-    <rect x="-3" y="-13" width="6" height="2" rx="1" fill="${c}" filter="brightness(0.8)"/>
     <rect x="-13" y="-11" width="5" height="13" rx="2.5" fill="${c}" opacity="0.85"/>
     <rect x="8" y="-11" width="5" height="13" rx="2.5" fill="${c}" opacity="0.85"/>
-    <rect x="8" y="-6" width="5" height="3" rx="1" fill="#ffd700" opacity="0.7"/>
+    <rect x="8" y="-6" width="5" height="3" rx="1" fill="#ffd600" opacity="0.8"/>
     <text x="0" y="1" text-anchor="middle" font-size="11" fill="${cc}" font-weight="900">${lbl}</text>
     <rect x="-6" y="7" width="5" height="12" rx="2" fill="#1a1a1a"/><rect x="1" y="7" width="5" height="12" rx="2" fill="#1a1a1a"/>
     ${head}
-   ${nm?`<text x="0" y="-34" text-anchor="middle" font-size="8" fill="${c}" font-weight="700">${nm}</text>`:''}${pos?`<text x="0" y="26" text-anchor="middle" font-size="7" fill="${c}" font-weight="600">${pos}</text>`:''}</g>`;
+   ${nm?`<text x="0" y="-36" text-anchor="middle" font-size="8" fill="${c}" font-weight="700">${nm}</text>`:''}${pos?`<text x="0" y="26" text-anchor="middle" font-size="7" fill="${c}" font-weight="600">${pos}</text>`:''}</g>`;
   }
 
-  // ── RUNNER: slim, elongated, dynamic legs ──
+  // ── RUNNER: wind-swept, motion blur, running shoes ──
   if(style==='runner') {
    const hR=6.5;
-   const head = el.photo ? this._photoClip(el.photo, 'arn2d'+el.id, 0, -22, hR) :
-    `<circle cx="0" cy="-22" r="${hR}" fill="${sk}"/><circle cx="-1.5" cy="-23" r="1" fill="#333"/><circle cx="1.5" cy="-23" r="1" fill="#333"/>`;
+   const head = el.photo ? this._photoClip(el.photo, 'arn2d'+el.id, 2, -22, hR) :
+    `<circle cx="2" cy="-22" r="${hR}" fill="${sk}"/><circle cx="0.5" cy="-23" r="0.8" fill="#333"/><circle cx="3.5" cy="-23" r="0.8" fill="#333"/><path d="M-1,-26 Q2,-28 5,-26" fill="#333" opacity="0.5"/>`;
    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}
-    <rect x="-7" y="-14" width="14" height="18" rx="4" fill="${c}"/>
-    <text x="0" y="-1" text-anchor="middle" font-size="9" fill="${cc}" font-weight="800">${lbl}</text>
-    <rect x="-9" y="-12" width="3.5" height="10" rx="1.7" fill="${sk}" opacity="0.8"/>
-    <rect x="5.5" y="-12" width="3.5" height="10" rx="1.7" fill="${sk}" opacity="0.8"/>
-    <rect x="-4" y="4" width="3.5" height="16" rx="1.5" fill="#222"/><rect x="0.5" y="4" width="3.5" height="16" rx="1.5" fill="#222"/>
-    <rect x="-4.5" y="18" width="4" height="2" rx="1" fill="#ff5722" opacity="0.8"/><rect x="0.5" y="18" width="4" height="2" rx="1" fill="#ff5722" opacity="0.8"/>
+    <rect x="-6" y="-14" width="14" height="18" rx="4" fill="${c}" transform="rotate(-5 1 -5)"/>
+    <text x="1" y="-1" text-anchor="middle" font-size="9" fill="${cc}" font-weight="800">${lbl}</text>
+    <rect x="-8" y="-12" width="3.5" height="10" rx="1.7" fill="${sk}" opacity="0.8" transform="rotate(15 -6 -7)"/>
+    <rect x="7" y="-13" width="3.5" height="10" rx="1.7" fill="${sk}" opacity="0.8" transform="rotate(-20 8 -8)"/>
+    <rect x="-5" y="3" width="3.5" height="16" rx="1.5" fill="#222" transform="rotate(8 -3 11)"/>
+    <rect x="2" y="3" width="3.5" height="16" rx="1.5" fill="#222" transform="rotate(-12 3 11)"/>
+    <ellipse cx="-6" cy="19" rx="4" ry="2" fill="#ff5722" opacity="0.7" transform="rotate(8)"/>
+    <ellipse cx="1" cy="19" rx="4" ry="2" fill="#ff5722" opacity="0.7" transform="rotate(-12)"/>
+    <line x1="-14" y1="-6" x2="-9" y2="-4" stroke="${c}" stroke-width="1.5" opacity="0.25" stroke-linecap="round"/>
+    <line x1="-13" y1="-1" x2="-9" y2="0" stroke="${c}" stroke-width="1" opacity="0.15" stroke-linecap="round"/>
     ${head}
-   ${nm?`<text x="0" y="-32" text-anchor="middle" font-size="7" fill="${c}" font-weight="700">${nm}</text>`:''}${pos?`<text x="0" y="27" text-anchor="middle" font-size="6" fill="${c}" font-weight="600">${pos}</text>`:''}</g>`;
+   ${nm?`<text x="1" y="-32" text-anchor="middle" font-size="7" fill="${c}" font-weight="700">${nm}</text>`:''}${pos?`<text x="0" y="28" text-anchor="middle" font-size="6" fill="${c}" font-weight="600">${pos}</text>`:''}</g>`;
   }
 
-  // ── COACH: polo shirt, clipboard, whistle ──
+  // ── COACH: cap, polo, clipboard ──
   if(style==='coach') {
    const hR=8;
    const head = el.photo ? this._photoClip(el.photo, 'aco2d'+el.id, 0, -22, hR) :
-    `<circle cx="0" cy="-22" r="${hR}" fill="${sk}"/><circle cx="-2" cy="-23" r="1.2" fill="#333"/><circle cx="2" cy="-23" r="1.2" fill="#333"/><path d="M-2,-19.5 Q0,-18 2,-19.5" fill="none" stroke="#c9967a" stroke-width="0.6"/><rect x="-6" y="-30" width="12" height="3" rx="1.5" fill="${c}" opacity="0.5"/>`;
+    `<circle cx="0" cy="-22" r="${hR}" fill="${sk}"/><circle cx="-2" cy="-23" r="1.2" fill="#333"/><circle cx="2" cy="-23" r="1.2" fill="#333"/><path d="M-2,-19.5 Q0,-18 2,-19.5" fill="none" stroke="#c9967a" stroke-width="0.6"/>
+     <path d="M-7,-28 L7,-28 L8,-26 L-8,-26 Z" fill="${c}"/><rect x="-9" y="-28" width="18" height="2" rx="1" fill="${c}" opacity="0.7"/>`;
    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}
     <rect x="-10" y="-13" width="20" height="22" rx="3" fill="${c}"/>
     <path d="M-3,-13 L0,-10 L3,-13" fill="rgba(255,255,255,0.25)"/>
     <rect x="-13" y="-11" width="5" height="14" rx="2.5" fill="${c}" opacity="0.85"/>
     <rect x="8" y="-11" width="5" height="14" rx="2.5" fill="${c}" opacity="0.85"/>
-    <rect x="10" y="0" width="6" height="8" rx="1" fill="#ffd600" opacity="0.6" transform="rotate(10 13 4)"/>
-    <circle cx="-4" cy="-10" r="2" fill="#c0c0c0" opacity="0.5"/>
+    <rect x="11" y="-2" width="7" height="9" rx="1" fill="#fff" opacity="0.7" stroke="${c}" stroke-width="0.5" transform="rotate(8 14 2)"/>
+    <line x1="13" y1="0" x2="16" y2="0" stroke="${c}" stroke-width="0.4"/><line x1="13" y1="2" x2="16" y2="2" stroke="${c}" stroke-width="0.4"/><line x1="13" y1="4" x2="15" y2="4" stroke="${c}" stroke-width="0.4"/>
     <text x="0" y="2" text-anchor="middle" font-size="10" fill="${cc}" font-weight="900">${lbl}</text>
     <rect x="-6" y="9" width="5" height="12" rx="2" fill="#333"/><rect x="1" y="9" width="5" height="12" rx="2" fill="#333"/>
     ${head}
    ${nm?`<text x="0" y="-34" text-anchor="middle" font-size="8" fill="${c}" font-weight="700">${nm}</text>`:''}${pos?`<text x="0" y="28" text-anchor="middle" font-size="7" fill="${c}" font-weight="600">${pos}</text>`:''}</g>`;
   }
 
-  // ── WARRIOR: armored look, sharp edges ──
+  // ── WARRIOR: spartan helmet, shield shape body ──
   if(style==='warrior') {
    const hR=8;
    const head = el.photo ? this._photoClip(el.photo, 'awr2d'+el.id, 0, -24, hR) :
-    `<circle cx="0" cy="-24" r="${hR}" fill="${sk}"/><circle cx="-2.5" cy="-25" r="1" fill="#222"/><circle cx="2.5" cy="-25" r="1" fill="#222"/><path d="M-4,-20 L0,-18 L4,-20" fill="none" stroke="#555" stroke-width="0.8"/><path d="M-7,-28 L0,-32 L7,-28 L5,-26 L-5,-26 Z" fill="${c}" opacity="0.6"/>`;
+    `<circle cx="0" cy="-24" r="${hR}" fill="${sk}"/>
+     <path d="M-9,-32 Q0,-36 9,-32 L8,-20 Q0,-16 -8,-20 Z" fill="#555" stroke="#333" stroke-width="0.8"/>
+     <rect x="-6" y="-26" width="12" height="3" rx="0.5" fill="#333"/>
+     <line x1="-1" y1="-23" x2="-1" y2="-17" stroke="#333" stroke-width="1.5"/>
+     <line x1="1" y1="-23" x2="1" y2="-17" stroke="#333" stroke-width="1.5"/>
+     <path d="M0,-36 L0,-38 L2,-36" fill="#d32f2f"/>`;
    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}
-    <path d="M-11,-14 L-14,-4 L-11,8 L11,8 L14,-4 L11,-14 Z" fill="${c}"/>
-    <path d="M0,-14 L14,-4 L11,8 L0,8 Z" fill="rgba(0,0,0,0.08)"/>
-    <line x1="0" y1="-14" x2="0" y2="8" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+    <path d="M-12,-14 L-14,-2 L-11,8 L11,8 L14,-2 L12,-14 Z" fill="${c}"/>
+    <path d="M0,-14 L14,-2 L11,8 L0,8 Z" fill="rgba(0,0,0,0.08)"/>
     <text x="0" y="0" text-anchor="middle" font-size="10" fill="${cc}" font-weight="900">${lbl}</text>
     <rect x="-16" y="-10" width="6" height="14" rx="2" fill="${c}" opacity="0.8"/>
     <rect x="10" y="-10" width="6" height="14" rx="2" fill="${c}" opacity="0.8"/>
     <rect x="-6" y="8" width="5" height="12" rx="2" fill="#1a1a1a"/><rect x="1" y="8" width="5" height="12" rx="2" fill="#1a1a1a"/>
     ${head}
-   ${nm?`<text x="0" y="-36" text-anchor="middle" font-size="8" fill="${c}" font-weight="700">${nm}</text>`:''}${pos?`<text x="0" y="27" text-anchor="middle" font-size="7" fill="${c}" font-weight="600">${pos}</text>`:''}</g>`;
+   ${nm?`<text x="0" y="-42" text-anchor="middle" font-size="8" fill="${c}" font-weight="700">${nm}</text>`:''}${pos?`<text x="0" y="27" text-anchor="middle" font-size="7" fill="${c}" font-weight="600">${pos}</text>`:''}</g>`;
   }
 
-  // ── EXPLORER: outdoor vest, backpack hint ──
+  // ── EXPLORER: bandana, vest with pockets, hiking boots ──
   if(style==='explorer') {
    const hR=7.5;
    const head = el.photo ? this._photoClip(el.photo, 'aex2d'+el.id, 0, -22, hR) :
-    `<circle cx="0" cy="-22" r="${hR}" fill="${sk}"/><circle cx="-2" cy="-23" r="1" fill="#333"/><circle cx="2" cy="-23" r="1" fill="#333"/><path d="M-2,-19.5 Q0,-18 2,-19.5" fill="none" stroke="#c9967a" stroke-width="0.6"/><ellipse cx="0" cy="-29" rx="7" ry="2.5" fill="${c}" opacity="0.5"/>`;
+    `<circle cx="0" cy="-22" r="${hR}" fill="${sk}"/><circle cx="-2" cy="-23" r="1" fill="#333"/><circle cx="2" cy="-23" r="1" fill="#333"/><path d="M-2,-19.5 Q0,-18 2,-19.5" fill="none" stroke="#c9967a" stroke-width="0.6"/>
+     <path d="M-7,-27 Q0,-30 7,-27" fill="none" stroke="#ff7043" stroke-width="2"/>`;
    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}
     <rect x="-10" y="-13" width="20" height="20" rx="3" fill="${c}"/>
-    <rect x="-7" y="-13" width="14" height="20" rx="2" fill="rgba(0,0,0,0.06)"/>
-    <line x1="-3" y1="-13" x2="-3" y2="7" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-    <line x1="3" y1="-13" x2="3" y2="7" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-    <rect x="-4" y="-6" width="8" height="5" rx="1" fill="rgba(255,255,255,0.15)"/>
+    <rect x="-7" y="-11" width="5" height="6" rx="1" fill="rgba(255,255,255,0.2)"/>
+    <rect x="2" y="-11" width="5" height="6" rx="1" fill="rgba(255,255,255,0.2)"/>
     <rect x="-12" y="-10" width="4.5" height="12" rx="2.2" fill="${c}" opacity="0.85"/>
     <rect x="7.5" y="-10" width="4.5" height="12" rx="2.2" fill="${c}" opacity="0.85"/>
     <text x="0" y="1" text-anchor="middle" font-size="10" fill="${cc}" font-weight="800">${lbl}</text>
     <rect x="-6" y="7" width="5" height="12" rx="2" fill="#5d4037"/><rect x="1" y="7" width="5" height="12" rx="2" fill="#5d4037"/>
+    <rect x="-6.5" y="17" width="6" height="3" rx="1" fill="#795548"/><rect x="0.5" y="17" width="6" height="3" rx="1" fill="#795548"/>
+    ${head}
+   ${nm?`<text x="0" y="-33" text-anchor="middle" font-size="8" fill="${c}" font-weight="700">${nm}</text>`:''}${pos?`<text x="0" y="27" text-anchor="middle" font-size="7" fill="${c}" font-weight="600">${pos}</text>`:''}</g>`;
+  }
+
+  // ── BEASTMODE: massive beast/gorilla silhouette, glowing eyes ──
+  if(style==='beastmode') {
+   const hR=9;
+   const head = el.photo ? this._photoClip(el.photo, 'abm2d'+el.id, 0, -28, hR) :
+    `<circle cx="0" cy="-28" r="${hR}" fill="#2d2d2d"/>
+     <rect x="-8" y="-32" width="4" height="2" rx="1" fill="#2d2d2d"/>
+     <rect x="4" y="-32" width="4" height="2" rx="1" fill="#2d2d2d"/>
+     <circle cx="-3" cy="-29" r="2" fill="#ff1744" opacity="0.9"/>
+     <circle cx="3" cy="-29" r="2" fill="#ff1744" opacity="0.9"/>
+     <circle cx="-3" cy="-29" r="0.8" fill="#fff" opacity="0.4"/>
+     <circle cx="3" cy="-29" r="0.8" fill="#fff" opacity="0.4"/>
+     <path d="M-4,-24 L-2,-23 L0,-24 L2,-23 L4,-24" fill="none" stroke="#555" stroke-width="1"/>`;
+   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}
+    <rect x="-15" y="-18" width="30" height="28" rx="5" fill="${c}"/>
+    <rect x="0" y="-18" width="15" height="28" rx="0" fill="rgba(0,0,0,0.08)"/>
+    <text x="0" y="-2" text-anchor="middle" font-size="13" fill="${cc}" font-weight="900">${lbl}</text>
+    <rect x="-21" y="-16" width="9" height="20" rx="4.5" fill="${c}" opacity="0.9"/>
+    <rect x="12" y="-16" width="9" height="20" rx="4.5" fill="${c}" opacity="0.9"/>
+    <circle cx="-20" cy="6" r="3" fill="#2d2d2d" opacity="0.7"/>
+    <circle cx="20" cy="6" r="3" fill="#2d2d2d" opacity="0.7"/>
+    <rect x="-8" y="10" width="7" height="14" rx="3" fill="#1a1a1a"/><rect x="1" y="10" width="7" height="14" rx="3" fill="#1a1a1a"/>
+    <rect x="-8" y="22" width="7" height="3" rx="1.5" fill="#333"/><rect x="1" y="22" width="7" height="3" rx="1.5" fill="#333"/>
+    ${head}
+   ${nm?`<text x="0" y="-41" text-anchor="middle" font-size="8" fill="${c}" font-weight="800">${nm}</text>`:''}${pos?`<text x="0" y="32" text-anchor="middle" font-size="7" fill="${c}" font-weight="700">${pos}</text>`:''}</g>`;
+  }
+
+  // ── HYBRID: half jersey half tank, mixed style ──
+  if(style==='hybrid') {
+   const hR=7.5;
+   const head = el.photo ? this._photoClip(el.photo, 'ahy2d'+el.id, 0, -22, hR) :
+    `<circle cx="0" cy="-22" r="${hR}" fill="${sk}"/><circle cx="-2" cy="-23" r="1.1" fill="#333"/><circle cx="2" cy="-23" r="1.1" fill="#333"/>`;
+   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}
+    <rect x="-10" y="-13" width="10" height="20" rx="3 0 0 3" fill="${c}"/>
+    <rect x="0" y="-13" width="10" height="20" rx="0 3 3 0" fill="${c}" opacity="0.7"/>
+    <path d="M0,-13 L0,7" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="2 1"/>
+    <rect x="-13" y="-11" width="5" height="13" rx="2.5" fill="${c}" opacity="0.85"/>
+    <rect x="8" y="-11" width="5" height="13" rx="2.5" fill="${sk}" opacity="0.7"/>
+    <text x="0" y="0" text-anchor="middle" font-size="10" fill="${cc}" font-weight="900">${lbl}</text>
+    <rect x="-6" y="7" width="5" height="12" rx="2" fill="#222"/><rect x="1" y="7" width="5" height="12" rx="2" fill="#222"/>
     ${head}
    ${nm?`<text x="0" y="-33" text-anchor="middle" font-size="8" fill="${c}" font-weight="700">${nm}</text>`:''}${pos?`<text x="0" y="26" text-anchor="middle" font-size="7" fill="${c}" font-weight="600">${pos}</text>`:''}</g>`;
   }
 
-  // ── BEASTMODE: hulk-like, massive, aggressive ──
-  if(style==='beastmode') {
-   const hR=7;
-   const head = el.photo ? this._photoClip(el.photo, 'abm2d'+el.id, 0, -26, hR) :
-    `<circle cx="0" cy="-26" r="${hR}" fill="${sk}"/><rect x="-4" cy="-28" y="-28" width="8" height="2.5" rx="1" fill="#333" opacity="0.5"/><circle cx="-2" cy="-27" r="1.3" fill="#d32f2f"/><circle cx="2" cy="-27" r="1.3" fill="#d32f2f"/><path d="M-3,-23 L0,-21.5 L3,-23" fill="none" stroke="#555" stroke-width="1"/>`;
-   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}
-    <rect x="-14" y="-18" width="28" height="26" rx="4" fill="${c}"/>
-    <rect x="0" y="-18" width="14" height="26" fill="rgba(0,0,0,0.07)" rx="0 4 4 0"/>
-    <text x="0" y="-2" text-anchor="middle" font-size="13" fill="${cc}" font-weight="900">${lbl}</text>
-    <rect x="-19" y="-16" width="8" height="18" rx="4" fill="${sk}" opacity="0.9"/>
-    <rect x="11" y="-16" width="8" height="18" rx="4" fill="${sk}" opacity="0.9"/>
-    <rect x="-7" y="8" width="6" height="14" rx="2.5" fill="#1a1a1a"/><rect x="1" y="8" width="6" height="14" rx="2.5" fill="#1a1a1a"/>
-    <rect x="-6" y="20" width="5" height="3" rx="1.5" fill="#444"/><rect x="1" y="20" width="5" height="3" rx="1.5" fill="#444"/>
-    ${head}
-   ${nm?`<text x="0" y="-37" text-anchor="middle" font-size="8" fill="${c}" font-weight="800">${nm}</text>`:''}${pos?`<text x="0" y="30" text-anchor="middle" font-size="7" fill="${c}" font-weight="700">${pos}</text>`:''}</g>`;
-  }
-
-  // ── HYBRID & GRINDER: use modified modern style ──
-  if(style==='hybrid'||style==='grinder') {
-   const isGrinder = style==='grinder';
+  // ── GRINDER: hoodie, headband, tape on hands ──
+  if(style==='grinder') {
    const hR=7.5;
-   const head = el.photo ? this._photoClip(el.photo, 'ahg2d'+el.id, 0, -22, hR) :
-    `<circle cx="0" cy="-22" r="${hR}" fill="${sk}"/><circle cx="-2" cy="-23" r="1.1" fill="#333"/><circle cx="2" cy="-23" r="1.1" fill="#333"/>`;
-   const extra = isGrinder ? `<line x1="-8" y1="-4" x2="8" y2="-4" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>` :
-    `<path d="M-4,-13 L0,-9 L4,-13" fill="rgba(255,255,255,0.15)"/>`;
+   const head = el.photo ? this._photoClip(el.photo, 'agd2d'+el.id, 0, -22, hR) :
+    `<circle cx="0" cy="-22" r="${hR}" fill="${sk}"/><circle cx="-2" cy="-23" r="1.1" fill="#333"/><circle cx="2" cy="-23" r="1.1" fill="#333"/>
+     <path d="M-8,-26 Q0,-30 8,-26" fill="${c}" opacity="0.7"/>
+     <rect x="-8" y="-26" width="16" height="3" rx="1" fill="${c}" opacity="0.5"/>`;
    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}
-    <rect x="-10" y="-13" width="20" height="20" rx="${isGrinder?2:5}" fill="${c}"/>
-    ${extra}
+    <rect x="-10" y="-13" width="20" height="20" rx="2" fill="${c}"/>
+    <path d="M-10,-13 L-7,-16 L7,-16 L10,-13" fill="${c}" opacity="0.8"/>
+    <line x1="-8" y1="-4" x2="8" y2="-4" stroke="rgba(255,255,255,0.1)" stroke-width="0.6"/>
     <rect x="-13" y="-11" width="5" height="13" rx="2.5" fill="${c}" opacity="0.85"/>
     <rect x="8" y="-11" width="5" height="13" rx="2.5" fill="${c}" opacity="0.85"/>
+    <rect x="-14" y="0" width="3" height="3" rx="1" fill="#e0e0e0" opacity="0.5"/>
+    <rect x="11" y="0" width="3" height="3" rx="1" fill="#e0e0e0" opacity="0.5"/>
     <text x="0" y="0" text-anchor="middle" font-size="10" fill="${cc}" font-weight="900">${lbl}</text>
     <rect x="-6" y="7" width="5" height="12" rx="2" fill="#222"/><rect x="1" y="7" width="5" height="12" rx="2" fill="#222"/>
     ${head}
@@ -2133,7 +2193,7 @@ const S = {
      this.updatePanel();
      this.updateStats();
     }
-   } else if(ST.tool==='playerA'||ST.tool==='playerB'||ST.tool==='goalkeeper'||ST.tool==='ball'||ST.tool==='cone'||ST.tool==='flag'||ST.tool==='hurdle'||ST.tool==='disc'||ST.tool==='minigoal'||ST.tool==='mannequin'||ST.tool==='vest'||ST.tool==='ring'||ST.tool==='ladder'||ST.tool==='pole'||ST.tool==='plyobox'||ST.tool==='kettlebell'||ST.tool==='medball'||ST.tool==='trx'||ST.tool==='sled'||ST.tool==='parachute'||ST.tool==='rope'||ST.tool==='battlerope'||ST.tool==='roller'||ST.tool==='band'||ST.tool==='bosu'||ST.tool==='mat'||ST.tool==='dumbbell'||ST.tool==='barbell'||ST.tool==='bench'||ST.tool==='rack'||ST.tool==='treadmill'||ST.tool==='bike'||ST.tool==='rower'||ST.tool==='pullup'||ST.tool==='pilatesball'||ST.tool==='stepper'||ST.tool.startsWith('gm_')||ST.tool.startsWith('sp_')) {
+   } else if(ST.tool==='playerA'||ST.tool==='playerB'||ST.tool==='goalkeeper'||ST.tool==='ball'||ST.tool==='cone'||ST.tool==='flag'||ST.tool==='hurdle'||ST.tool==='disc'||ST.tool==='minigoal'||ST.tool==='mannequin'||ST.tool==='vest'||ST.tool==='ring'||ST.tool==='ladder'||ST.tool==='pole'||ST.tool==='plyobox'||ST.tool==='kettlebell'||ST.tool==='medball'||ST.tool==='trx'||ST.tool==='sled'||ST.tool==='parachute'||ST.tool==='rope'||ST.tool==='battlerope'||ST.tool==='roller'||ST.tool==='band'||ST.tool==='bosu'||ST.tool==='mat'||ST.tool==='dumbbell'||ST.tool==='barbell'||ST.tool==='bench'||ST.tool==='rack'||ST.tool==='treadmill'||ST.tool==='bike'||ST.tool==='rower'||ST.tool==='pullup'||ST.tool==='pilatesball'||ST.tool==='stepper'||ST.tool.startsWith('gm_')||ST.tool.startsWith('sp_')||ST.tool.startsWith('p_')) {
     this.addElement(ST.tool, p.x, p.y);
    } else if(ST.tool==='arrow'||ST.tool==='line') {
     ST.drawing = {type:ST.tool,x1:p.x,y1:p.y,x2:p.x,y2:p.y};
@@ -2306,6 +2366,12 @@ const S = {
   if(type.startsWith('gm_')) { el.color = ST.elementColors[type] || '#64748b'; el.size = 1; el.rotation = 0; }
   // Implementos deportivos (all sp_ prefixed types)
   if(type.startsWith('sp_')) { el.color = ST.elementColors[type] || '#0284c7'; el.size = 1; el.rotation = 0; }
+  // Staff roles (p_ prefix) - render like players but with role-specific colors
+  if(type.startsWith('p_')) {
+   const roleColors = {p_coach:'#1e40af',p_assistant:'#3b82f6',p_director:'#1e293b',p_physio:'#059669',p_kinesio:'#10b981',p_psycho:'#7c3aed',p_referee:'#111',p_linejudge:'#fbbf24',p_tablejudge:'#f59e0b',p_biomech:'#0891b2',p_nutri:'#16a34a'};
+   el.color = ST.elementColors[type] || roleColors[type] || '#475569';
+   el.size = 14; el.label = ST.elements.filter(e=>e.type===type).length;
+  }
   if(type==='ball') { el.size = 8; el.ballType = ST.currentSport?.includes('Balon') ? (ST.currentSport.includes('cesto') ? 'basketball' : 'handball') : ST.currentSport?.includes('Volei') ? 'volleyball' : ST.currentSport?.includes('Rugby') ? 'rugby' : ST.currentSport?.includes('Tenis') ? 'tennis' : ST.currentSport?.includes('Beisbol') ? 'baseball' : ST.currentSport?.includes('Americ') ? 'football_us' : 'soccer'; }
   if(type==='zone') { el.zoneColor = ST.zoneColor||'#378ADD'; el.opacity = ST.zoneOpacity||0.12; el.borderOpacity = 0.45; el.label = ''; }
   if(type==='text') { el.fontSize = 16; el.color = ST.theme==='dark'?'#e6edf3':'#1e293b'; el.bold = false; el.italic = false; }
@@ -2553,6 +2619,23 @@ const S = {
     return `<g data-id="${el.id}" style="cursor:pointer"><path d="M${el.x1},${el.y1} Q${el.cx},${el.cy} ${el.x2},${el.y2}" fill="none" stroke="${el.color||'rgba(0,0,0,0.6)'}" stroke-width="2" stroke-linecap="round" ${el.dash?`stroke-dasharray="${el.dash}"`:''}/></g>`;
    default: {
     // Handle all gm_ prefixed gym machines and sp_ sport implements
+    // Staff roles (p_ prefix) - render as badge with role icon
+    if (el.type.startsWith('p_')) {
+     const c = el.color||'#475569';
+     const cc = this.contrastColor(c);
+     const tool = TOOLS.find(t => t.id === el.type);
+     const lbl = tool ? tool.label : el.type.replace('p_','');
+     const abbr = {p_coach:'DT',p_assistant:'AS',p_director:'DR',p_physio:'MS',p_kinesio:'KN',p_psycho:'PS',p_referee:'AR',p_linejudge:'JL',p_tablejudge:'JM',p_biomech:'BM',p_nutri:'NU'}[el.type]||'ST';
+     const r = el.size||14;
+     const nm = el.name||'';
+     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">
+      <circle cx="0" cy="0" r="${r}" fill="${c}" opacity="0.15" stroke="${c}" stroke-width="2"/>
+      <circle cx="0" cy="0" r="${r*0.7}" fill="${c}"/>
+      <text x="0" y="0" dy="0.35em" text-anchor="middle" font-size="${r*0.7}" fill="${cc}" font-weight="800">${abbr}</text>
+      ${nm?`<text x="0" y="${-r-4}" text-anchor="middle" font-size="8" fill="${c}" font-weight="700">${nm}</text>`:''}
+      <text x="0" y="${r+8}" text-anchor="middle" font-size="6.5" fill="${c}" font-weight="600">${lbl}</text>
+     </g>`;
+    }
     if (el.type.startsWith('gm_') || el.type.startsWith('sp_')) {
      const es = el.size||1; const c = el.color||'#64748b'; const rot = el.rotation||0;
      const tool = TOOLS.find(t => t.id === el.type);
