@@ -98,7 +98,19 @@
 - 6 graficas DashboardGeneral + 8 hooks reactivos
 - Sync V1->V2 completa
 
+### Motor de Animacion de Jugadas (Feb 2026)
+- Motor de playback reescrito: jugadores SVG reales se mueven a lo largo de las flechas dibujadas
+- Soporte completo 2D y 3D isometrico: usa buildElSvg o buildIsoElement segun el modo
+- Interpolacion suave con ease-in-out (lineal y bezier cuadratico)
+- Barra de reproduccion: Play, Pausa, Stop, indicador de paso, barra de progreso
+- 3 velocidades: 0.5x, 1x, 2x (STEP_DURATION = 1500ms/velocidad por paso)
+- Deteccion de jugador cercano por radio de 150px al inicio de cada flecha
+- Trails de flechas: completado (azul solido), activo (azul animado parcial), futuro (gris punteado)
+- Stop muestra confirm para mantener o restaurar posiciones originales
+- Nombres, posiciones, fotos y avatares permanecen visibles durante la animacion
+- Manejo de errores: alerta si no hay flechas, no hay jugadores cercanos, etc.
+- Soporte multi-equipo: playerA, playerB y goalkeeper se emparejan con sus flechas
+
 ## Pendiente
 ### P1 - Continuar refactorizacion: extraer secciones Athletes, Sports, Events de DashboardPage
-### P2 - UI catalogo ejercicios mejorado
-### P3 - Diseno responsivo tablero tactico, fotos avatares 3D
+### P3 - Diseno responsivo tablero tactico (Mobile/Tablet)
