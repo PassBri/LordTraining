@@ -1881,7 +1881,7 @@ const S = {
    const u=this._sportUniform(c,cc,lbl,F,sk);
    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}${u.body}${u.arms}${u.extra}${u.num}${u.legs}${u.shoes}${hd}${u.headExtra}${nmT}${posT}</g>`;
   }
-  // ── CHIBI: huge head, tiny body, giant sparkly eyes ──
+  // ── CHIBI: huge head, tiny body uses sport uniform ──
   if(style==='chibi') {
    const hR=F?13:14;
    const hd = el.photo ? this._photoClip(el.photo,'ac'+el.id,0,-16,hR) :
@@ -1895,7 +1895,8 @@ const S = {
     (F?`<line x1="-6.5" y1="-21" x2="-4.5" y2="-22" stroke="#2d1810" stroke-width="0.7"/><line x1="4.5" y1="-22" x2="6.5" y2="-21" stroke="#2d1810" stroke-width="0.7"/>`:'')+ 
     `<path d="M-3,-11 Q0,-8 3,-11" fill="#e8836b" stroke="#c9624e" stroke-width="0.5"/>`+
     `<ellipse cx="-6" cy="-14" rx="2.5" ry="1.5" fill="#f5a0a0" opacity="0.5"/><ellipse cx="6" cy="-14" rx="2.5" ry="1.5" fill="#f5a0a0" opacity="0.5"/>`;
-   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<rect x="${F?-7:-8}" y="-2" width="${F?14:16}" height="${F?13:14}" rx="3" fill="${c}"/><text x="0" y="${F?7:8}" text-anchor="middle" font-size="9" fill="${cc}" font-weight="800">${lbl}</text><rect x="${F?-10:-12}" y="0" width="${F?4:5}" height="${F?7:8}" rx="2.5" fill="${c}" opacity="0.8"/><rect x="${F?6:7}" y="0" width="${F?4:5}" height="${F?7:8}" rx="2.5" fill="${c}" opacity="0.8"/><rect x="-5" y="${F?11:12}" width="4" height="${F?7:8}" rx="2" fill="#1a1a1a"/><rect x="1" y="${F?11:12}" width="4" height="${F?7:8}" rx="2" fill="#1a1a1a"/>${hd}${nmT}${posT}</g>`;
+   const u=this._sportUniform(c,cc,lbl,F,sk);
+   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<g transform="translate(0,4) scale(0.7)">${u.body}${u.arms}${u.extra}${u.legs}${u.shoes}</g><text x="0" y="8" text-anchor="middle" font-size="8" fill="${cc}" font-weight="800">${lbl}</text>${hd}${u.headExtra?`<g transform="translate(0,-2) scale(0.8)">${u.headExtra}</g>`:''}${nmT}${posT}</g>`;
   }
   // ── PIXEL: 8-bit retro with gender ──
   if(style==='pixel') {
@@ -1923,30 +1924,33 @@ const S = {
    const bw=F?24:26, aw=F?6:7;
    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<rect x="${-bw/2}" y="-15" width="${bw}" height="22" rx="3" fill="${c}"/><rect x="${-bw/4}" y="-17" width="${bw/2}" height="2" rx="1" fill="${c}"/><rect x="${-bw/2-aw}" y="-14" width="${aw}" height="16" rx="${aw/2}" fill="#8d8d8d"/><rect x="${bw/2}" y="-14" width="${aw}" height="16" rx="${aw/2}" fill="#8d8d8d"/><circle cx="${-bw/2-aw/2}" cy="3" r="${F?2:2.5}" fill="#777"/><circle cx="${bw/2+aw/2}" cy="3" r="${F?2:2.5}" fill="#777"/><text x="0" y="0" text-anchor="middle" font-size="11" fill="${cc}" font-weight="900">${lbl}</text><rect x="-7" y="7" width="6" height="13" rx="2" fill="#555"/><rect x="1" y="7" width="6" height="13" rx="2" fill="#555"/><path d="M5 18 Q9 26 14 22" fill="none" stroke="#8d8d8d" stroke-width="2.5" stroke-linecap="round"/>${hd}${nmT}${posT}</g>`;
   }
-  // ── ATHLETE: lightning bolt, speed lines, dynamic ──
+  // ── ATHLETE: sport uniform + lightning bolt + speed lines ──
   if(style==='athlete') {
-   const hd=_h('aat'+el.id,0,-22,7), bw=F?16:18;
-   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<rect x="${-bw/2}" y="-14" width="${bw}" height="20" rx="5" fill="${c}"/><path d="M3,-13 L1,-5 L5,-6 L2,5" fill="#ffd600" opacity="0.65" stroke="#ffab00" stroke-width="0.5"/><rect x="${-bw/2-4}" y="-12" width="4" height="12" rx="2" fill="${sk}" opacity="0.85" transform="rotate(-5 ${-bw/2-2} -6)"/><rect x="${bw/2}" y="-12" width="4" height="12" rx="2" fill="${sk}" opacity="0.85" transform="rotate(5 ${bw/2+2} -6)"/><text x="0" y="0" text-anchor="middle" font-size="10" fill="${cc}" font-weight="900">${lbl}</text><rect x="${F?-4:-5}" y="6" width="${F?3.5:4}" height="12" rx="2" fill="#222"/><rect x="${F?0.5:1}" y="6" width="${F?3.5:4}" height="12" rx="2" fill="#222"/><line x1="-20" y1="-4" x2="-13" y2="-4" stroke="${c}" stroke-width="1.5" opacity="0.3" stroke-linecap="round"/><line x1="-19" y1="0" x2="-14" y2="0" stroke="${c}" stroke-width="1" opacity="0.2" stroke-linecap="round"/><line x1="-18" y1="4" x2="-14" y2="4" stroke="${c}" stroke-width="0.6" opacity="0.12" stroke-linecap="round"/>${hd}${nmT}${posT}</g>`;
+   const hd=_h('aat'+el.id,0,-22,7);
+   const u=this._sportUniform(c,cc,lbl,F,sk);
+   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}${u.body}${u.arms}${u.extra}<path d="M3,-13 L1,-5 L5,-6 L2,5" fill="#ffd600" opacity="0.65" stroke="#ffab00" stroke-width="0.5"/>${u.num}${u.legs}${u.shoes}<line x1="-20" y1="-4" x2="-13" y2="-4" stroke="${c}" stroke-width="1.5" opacity="0.3" stroke-linecap="round"/><line x1="-19" y1="0" x2="-14" y2="0" stroke="${c}" stroke-width="1" opacity="0.2" stroke-linecap="round"/><line x1="-18" y1="4" x2="-14" y2="4" stroke="${c}" stroke-width="0.6" opacity="0.12" stroke-linecap="round"/>${hd}${u.headExtra}${nmT}${posT}</g>`;
   }
-  // ── PLAYMAKER: crown, captain armband, V-neck ──
+  // ── PLAYMAKER: sport uniform + crown + captain armband ──
   if(style==='playmaker') {
    const hd=_h('apm'+el.id,0,-22,8);
-   const crown = el.photo?'':`<path d="M-6,-30 L-4,-27 L0,-30 L4,-27 L6,-30 L5,-26 L-5,-26 Z" fill="#ffd600" stroke="#e6ac00" stroke-width="0.5"/>`;
+   const crown=el.photo?'':`<path d="M-6,-30 L-4,-27 L0,-30 L4,-27 L6,-30 L5,-26 L-5,-26 Z" fill="#ffd600" stroke="#e6ac00" stroke-width="0.5"/>`;
+   const u=this._sportUniform(c,cc,lbl,F,sk);
    const bw=F?18:20;
-   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<rect x="${-bw/2}" y="-13" width="${bw}" height="20" rx="3" fill="${c}"/><path d="M-3,-13 L0,-8 L3,-13" fill="rgba(255,255,255,0.2)"/><rect x="${-bw/2-5}" y="-11" width="5" height="13" rx="2.5" fill="${c}" opacity="0.85"/><rect x="${bw/2}" y="-11" width="5" height="13" rx="2.5" fill="${c}" opacity="0.85"/><rect x="${bw/2}" y="-6" width="5" height="3.5" rx="1" fill="#ffd600" opacity="0.8"/><text x="0" y="1" text-anchor="middle" font-size="11" fill="${cc}" font-weight="900">${lbl}</text><rect x="-6" y="7" width="5" height="12" rx="2" fill="#1a1a1a"/><rect x="1" y="7" width="5" height="12" rx="2" fill="#1a1a1a"/>${hd}${crown}${nmT}${posT}</g>`;
+   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}${u.body}${u.arms}${u.extra}<rect x="${bw/2}" y="-6" width="5" height="3.5" rx="1" fill="#ffd600" opacity="0.8"/>${u.num}${u.legs}${u.shoes}${hd}${crown}${u.headExtra}${nmT}${posT}</g>`;
   }
-  // ── RUNNER: tilted body, wind-swept, colored shoes ──
+  // ── RUNNER: sport uniform + tilted dynamic pose ──
   if(style==='runner') {
    const hd=_h('arn'+el.id,2,-22,F?6:6.5);
-   const shoeC=F?'#e91e63':'#ff5722';
-   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<rect x="${F?-5:-6}" y="-14" width="${F?12:14}" height="18" rx="4" fill="${c}" transform="rotate(-5 1 -5)"/><text x="1" y="-1" text-anchor="middle" font-size="9" fill="${cc}" font-weight="800">${lbl}</text><rect x="-8" y="-12" width="3.5" height="10" rx="1.7" fill="${sk}" opacity="0.8" transform="rotate(15 -6 -7)"/><rect x="7" y="-13" width="3.5" height="10" rx="1.7" fill="${sk}" opacity="0.8" transform="rotate(-20 8 -8)"/><rect x="-5" y="3" width="3.5" height="16" rx="1.5" fill="#222" transform="rotate(8 -3 11)"/><rect x="2" y="3" width="3.5" height="16" rx="1.5" fill="#222" transform="rotate(-12 3 11)"/><ellipse cx="-6" cy="19" rx="4" ry="2" fill="${shoeC}" opacity="0.75" transform="rotate(8)"/><ellipse cx="1" cy="19" rx="4" ry="2" fill="${shoeC}" opacity="0.75" transform="rotate(-12)"/><line x1="-15" y1="-6" x2="-9" y2="-4" stroke="${c}" stroke-width="1.5" opacity="0.25"/><line x1="-14" y1="-1" x2="-10" y2="0" stroke="${c}" stroke-width="1" opacity="0.15"/>${hd}${nmT}${posT}</g>`;
+   const u=this._sportUniform(c,cc,lbl,F,sk);
+   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<g transform="rotate(-5 1 -5)">${u.body}${u.extra}</g>${u.arms}${u.num}${u.legs}${u.shoes}<line x1="-15" y1="-6" x2="-9" y2="-4" stroke="${c}" stroke-width="1.5" opacity="0.25"/><line x1="-14" y1="-1" x2="-10" y2="0" stroke="${c}" stroke-width="1" opacity="0.15"/>${hd}${u.headExtra}${nmT}${posT}</g>`;
   }
-  // ── COACH: cap, polo collar, clipboard in hand ──
+  // ── COACH: sport uniform (polo style) + cap + clipboard ──
   if(style==='coach') {
    const hd=_h('aco'+el.id,0,-22,8);
    const cap=el.photo?'':`<path d="M-8,-28 L8,-28 L9,-26 L-9,-26 Z" fill="${c}"/><rect x="-10" y="-28" width="20" height="2.5" rx="1" fill="${c}" opacity="0.7"/>`;
+   const u=this._sportUniform(c,cc,lbl,F,sk);
    const bw=F?18:20;
-   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<rect x="${-bw/2}" y="-13" width="${bw}" height="22" rx="3" fill="${c}"/><path d="M-3,-13 L0,-10 L3,-13" fill="rgba(255,255,255,0.25)"/><rect x="${-bw/2-5}" y="-11" width="5" height="14" rx="2.5" fill="${c}" opacity="0.85"/><rect x="${bw/2}" y="-11" width="5" height="14" rx="2.5" fill="${c}" opacity="0.85"/><rect x="${bw/2+2}" y="-2" width="7" height="10" rx="1" fill="#fff" opacity="0.75" stroke="${c}" stroke-width="0.5" transform="rotate(8 ${bw/2+5} 3)"/><line x1="${bw/2+4}" y1="0" x2="${bw/2+7}" y2="0" stroke="${c}" stroke-width="0.4"/><line x1="${bw/2+4}" y1="2" x2="${bw/2+7}" y2="2" stroke="${c}" stroke-width="0.4"/><line x1="${bw/2+4}" y1="4" x2="${bw/2+6}" y2="4" stroke="${c}" stroke-width="0.4"/><text x="0" y="2" text-anchor="middle" font-size="10" fill="${cc}" font-weight="900">${lbl}</text><rect x="-6" y="9" width="5" height="12" rx="2" fill="#333"/><rect x="1" y="9" width="5" height="12" rx="2" fill="#333"/>${hd}${cap}${nmT}${posT}</g>`;
+   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}${u.body}${u.arms}${u.extra}<rect x="${bw/2+2}" y="-2" width="7" height="10" rx="1" fill="#fff" opacity="0.75" stroke="${c}" stroke-width="0.5" transform="rotate(8 ${bw/2+5} 3)"/><line x1="${bw/2+4}" y1="0" x2="${bw/2+7}" y2="0" stroke="${c}" stroke-width="0.4"/><line x1="${bw/2+4}" y1="2" x2="${bw/2+7}" y2="2" stroke="${c}" stroke-width="0.4"/>${u.num}${u.legs}${u.shoes}${hd}${cap}${u.headExtra}${nmT}${posT}</g>`;
   }
   // ── WARRIOR: spartan helmet, shield-shaped torso ──
   if(style==='warrior') {
@@ -1956,31 +1960,35 @@ const S = {
    const bw=F?22:26;
    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<path d="M${-bw/2},-14 L${-bw/2-3},-2 L${-bw/2},8 L${bw/2},8 L${bw/2+3},-2 L${bw/2},-14 Z" fill="${c}"/><path d="M0,-14 L${bw/2+3},-2 L${bw/2},8 L0,8 Z" fill="rgba(0,0,0,0.08)"/><text x="0" y="0" text-anchor="middle" font-size="10" fill="${cc}" font-weight="900">${lbl}</text><rect x="${-bw/2-6}" y="-10" width="${F?5:6}" height="14" rx="2" fill="${c}" opacity="0.8"/><rect x="${bw/2}" y="-10" width="${F?5:6}" height="14" rx="2" fill="${c}" opacity="0.8"/><rect x="-6" y="8" width="5" height="12" rx="2" fill="#1a1a1a"/><rect x="1" y="8" width="5" height="12" rx="2" fill="#1a1a1a"/>${hd}${nmT}${posT}</g>`;
   }
-  // ── EXPLORER: bandana, vest pockets, hiking boots ──
+  // ── EXPLORER: sport uniform + bandana + vest pockets + hiking boots ──
   if(style==='explorer') {
    const hd=_h('aex'+el.id,0,-22,7.5);
    const bandana=el.photo?'':`<path d="M-7,-27 Q0,-30 7,-27" fill="none" stroke="${F?'#e91e63':'#ff7043'}" stroke-width="2.2"/>`;
-   const bw=F?18:20;
-   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<rect x="${-bw/2}" y="-13" width="${bw}" height="20" rx="3" fill="${c}"/><rect x="${-bw/2+3}" y="-11" width="5" height="6" rx="1" fill="rgba(255,255,255,0.2)"/><rect x="${bw/2-8}" y="-11" width="5" height="6" rx="1" fill="rgba(255,255,255,0.2)"/><rect x="${-bw/2-4}" y="-10" width="4" height="12" rx="2" fill="${c}" opacity="0.85"/><rect x="${bw/2}" y="-10" width="4" height="12" rx="2" fill="${c}" opacity="0.85"/><text x="0" y="1" text-anchor="middle" font-size="10" fill="${cc}" font-weight="800">${lbl}</text><rect x="-6" y="7" width="5" height="12" rx="2" fill="#5d4037"/><rect x="1" y="7" width="5" height="12" rx="2" fill="#5d4037"/><rect x="-6.5" y="17" width="6" height="3" rx="1.5" fill="#795548"/><rect x="0.5" y="17" width="6" height="3" rx="1.5" fill="#795548"/>${hd}${bandana}${nmT}${posT}</g>`;
+   const u=this._sportUniform(c,cc,lbl,F,sk);
+   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}${u.body}<rect x="${F?-6:-7}" y="-11" width="5" height="6" rx="1" fill="rgba(255,255,255,0.2)"/><rect x="${F?1:2}" y="-11" width="5" height="6" rx="1" fill="rgba(255,255,255,0.2)"/>${u.arms}${u.extra}${u.num}${u.legs}<rect x="-6.5" y="17" width="6" height="3" rx="1.5" fill="#795548"/><rect x="0.5" y="17" width="6" height="3" rx="1.5" fill="#795548"/>${hd}${bandana}${u.headExtra}${nmT}${posT}</g>`;
   }
-  // ── BEASTMODE: massive beast, glowing eyes, huge fists ──
+  // ── BEASTMODE: massive beast with sport uniform ──
   if(style==='beastmode') {
    const hd = el.photo ? this._photoClip(el.photo,'abm'+el.id,0,-28,9) :
     `<circle cx="0" cy="-28" r="9" fill="#2d2d2d"/><rect x="-8" y="-33" width="4.5" height="2.5" rx="1" fill="#2d2d2d"/><rect x="3.5" y="-33" width="4.5" height="2.5" rx="1" fill="#2d2d2d"/><circle cx="-3" cy="-29" r="2.2" fill="${F?'#e91e63':'#ff1744'}" opacity="0.9"/><circle cx="3" cy="-29" r="2.2" fill="${F?'#e91e63':'#ff1744'}" opacity="0.9"/><circle cx="-3" cy="-29" r="0.9" fill="#fff" opacity="0.45"/><circle cx="3" cy="-29" r="0.9" fill="#fff" opacity="0.45"/><path d="M-4,-24 L-2,-23 L0,-24.5 L2,-23 L4,-24" fill="none" stroke="#555" stroke-width="1.2"/>`;
+   const u=this._sportUniform(c,cc,lbl,F,sk);
    const bw=F?26:30, aw=F?7:9;
-   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<rect x="${-bw/2}" y="-18" width="${bw}" height="${F?26:28}" rx="5" fill="${c}"/><rect x="0" y="-18" width="${bw/2}" height="${F?26:28}" fill="rgba(0,0,0,0.08)"/><text x="0" y="-2" text-anchor="middle" font-size="13" fill="${cc}" font-weight="900">${lbl}</text><rect x="${-bw/2-aw}" y="-16" width="${aw}" height="${F?18:20}" rx="${aw/2}" fill="${c}" opacity="0.9"/><rect x="${bw/2}" y="-16" width="${aw}" height="${F?18:20}" rx="${aw/2}" fill="${c}" opacity="0.9"/><circle cx="${-bw/2-aw/2}" cy="${F?4:6}" r="${F?2.5:3.5}" fill="#2d2d2d" opacity="0.75"/><circle cx="${bw/2+aw/2}" cy="${F?4:6}" r="${F?2.5:3.5}" fill="#2d2d2d" opacity="0.75"/><rect x="-8" y="${F?8:10}" width="7" height="14" rx="3" fill="#1a1a1a"/><rect x="1" y="${F?8:10}" width="7" height="14" rx="3" fill="#1a1a1a"/><rect x="-8" y="${F?20:22}" width="7" height="3" rx="1.5" fill="#333"/><rect x="1" y="${F?20:22}" width="7" height="3" rx="1.5" fill="#333"/>${hd}${nmT}${posT}</g>`;
+   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<g transform="scale(1.3,1.15) translate(0,-2)">${u.body}</g><rect x="${-bw/2-aw}" y="-16" width="${aw}" height="${F?18:20}" rx="${aw/2}" fill="${c}" opacity="0.9"/><rect x="${bw/2}" y="-16" width="${aw}" height="${F?18:20}" rx="${aw/2}" fill="${c}" opacity="0.9"/><circle cx="${-bw/2-aw/2}" cy="${F?4:6}" r="${F?2.5:3.5}" fill="#2d2d2d" opacity="0.75"/><circle cx="${bw/2+aw/2}" cy="${F?4:6}" r="${F?2.5:3.5}" fill="#2d2d2d" opacity="0.75"/><text x="0" y="-2" text-anchor="middle" font-size="13" fill="${cc}" font-weight="900">${lbl}</text>${u.legs}${u.shoes}${hd}${u.headExtra}${nmT}${posT}</g>`;
   }
-  // ── HYBRID: split jersey/tank ──
+  // ── HYBRID: split sport uniform + exposed arm ──
   if(style==='hybrid') {
-   const hd=_h('ahy'+el.id,0,-22,7.5), bw=F?18:20;
-   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<rect x="${-bw/2}" y="-13" width="${bw/2}" height="20" fill="${c}" rx="3 0 0 3"/><rect x="0" y="-13" width="${bw/2}" height="20" fill="${c}" opacity="0.7" rx="0 3 3 0"/><path d="M0,-13 L0,7" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="2 1"/><rect x="${-bw/2-4}" y="-11" width="4" height="13" rx="2" fill="${c}" opacity="0.85"/><rect x="${bw/2}" y="-11" width="4" height="13" rx="2" fill="${sk}" opacity="0.7"/><text x="0" y="0" text-anchor="middle" font-size="10" fill="${cc}" font-weight="900">${lbl}</text><rect x="-6" y="7" width="5" height="12" rx="2" fill="#222"/><rect x="1" y="7" width="5" height="12" rx="2" fill="#222"/>${hd}${nmT}${posT}</g>`;
+   const hd=_h('ahy'+el.id,0,-22,7.5);
+   const u=this._sportUniform(c,cc,lbl,F,sk);
+   const bw=F?18:20;
+   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}${u.body}<path d="M0,-13 L0,7" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="2 1"/><rect x="${-bw/2-4}" y="-11" width="4" height="13" rx="2" fill="${c}" opacity="0.85"/><rect x="${bw/2}" y="-11" width="4" height="13" rx="2" fill="${sk}" opacity="0.7"/>${u.extra}${u.num}${u.legs}${u.shoes}${hd}${u.headExtra}${nmT}${posT}</g>`;
   }
-  // ── GRINDER: hoodie with hood up, tape on hands ──
+  // ── GRINDER: sport uniform + hoodie + tape on hands ──
   if(style==='grinder') {
    const hd=_h('agd'+el.id,0,-22,7.5);
    const hood=el.photo?'':`<path d="M-8,-26 Q0,-31 8,-26" fill="${c}" opacity="0.7"/><rect x="-8" y="-26" width="16" height="3" rx="1" fill="${c}" opacity="0.5"/>`;
+   const u=this._sportUniform(c,cc,lbl,F,sk);
    const bw=F?18:20;
-   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}<rect x="${-bw/2}" y="-13" width="${bw}" height="20" rx="2" fill="${c}"/><path d="M${-bw/2},-13 L${-bw/2+3},-16 L${bw/2-3},-16 L${bw/2},-13" fill="${c}" opacity="0.8"/><rect x="${-bw/2-5}" y="-11" width="5" height="13" rx="2.5" fill="${c}" opacity="0.85"/><rect x="${bw/2}" y="-11" width="5" height="13" rx="2.5" fill="${c}" opacity="0.85"/><rect x="${-bw/2-6}" y="0" width="3" height="3" rx="1" fill="#e0e0e0" opacity="0.55"/><rect x="${bw/2+3}" y="0" width="3" height="3" rx="1" fill="#e0e0e0" opacity="0.55"/><text x="0" y="0" text-anchor="middle" font-size="10" fill="${cc}" font-weight="900">${lbl}</text><rect x="-6" y="7" width="5" height="12" rx="2" fill="#222"/><rect x="1" y="7" width="5" height="12" rx="2" fill="#222"/>${hd}${hood}${nmT}${posT}</g>`;
+   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${selStroke}${shadow}${u.body}<path d="M${-bw/2},-13 L${-bw/2+3},-16 L${bw/2-3},-16 L${bw/2},-13" fill="${c}" opacity="0.8"/>${u.arms}<rect x="${-bw/2-6}" y="0" width="3" height="3" rx="1" fill="#e0e0e0" opacity="0.55"/><rect x="${bw/2+3}" y="0" width="3" height="3" rx="1" fill="#e0e0e0" opacity="0.55"/>${u.extra}${u.num}${u.legs}${u.shoes}${hd}${hood}${u.headExtra}${nmT}${posT}</g>`;
   }
   // ── MINIMAL: ultra clean pill shape ──
   const hRm=9, hdm = el.photo ? this._photoClip(el.photo,'ai'+el.id,0,-18,hRm) :
