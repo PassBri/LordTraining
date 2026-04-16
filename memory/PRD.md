@@ -21,6 +21,16 @@
 - Valores manuales tienen prioridad sobre datos calculados V2
 - Celdas vacias muestran "+" para indicar interactividad
 
+### Estilos de Avatar en Pizarra Tactica (Abr 2026)
+- 4 estilos seleccionables: Moderno, Chibi, Pixel Art, Minimal
+- Selector aparece solo cuando Avatar esta activo
+- Moderno: camiseta detallada, pantalones, zapatos, cara con rasgos
+- Chibi: cabeza gigante anime, ojos grandes, mejillas rosadas
+- Pixel: 8-bit retro, formas cuadradas, fuente monospace
+- Minimal: capsula limpia con cabeza circular semi-transparente
+- Todos soportan fotos, nombres arriba, posicion abajo
+- Funciona en 2D y 3D
+
 ### Plantilla y Fotos en Pizarra Tactica (Abr 2026)
 - Nueva pestaña "Plantilla" en panel derecho con lista de jugadores por equipo
 - Campos de Nombre y Posicion en propiedades del jugador
