@@ -160,6 +160,13 @@
 - Renderer generico usa icono SVG del tool + label de texto en canvas
 - Cono, Balon, Bandera, Valla movidos a CAMPO; PERSONAS solo jugadores
 
+### Implementos Deportivos y Balones Mejorados (Feb 2026)
+- 17 implementos deportivos nuevos (grupo 18):
+  Jabalina, Martillo, Disco Atletismo, Bala, Bate Baseball, Raqueta Tenis, Raqueta Mesa, Bate Cricket, Raqueta Badminton, Arco, Flecha, Palo Hockey, Palo Golf, Arco/Porteria, Red/Malla, Silbato, Cronometro
+- 21 balones con diseños mejorados: gradientes radiales, brillos, patrones realistas
+- 6 nuevos balones: Voleibol Playa, Futbol Salon, Tejo, Minitejo, Bolo Criollo, Badminton (volante)
+- Botones Material Design coloridos por categoria (18 grupos con colores unicos)
+
 ## Pendiente
 ### P1 - Continuar refactorizacion: extraer secciones Athletes, Sports, Events de DashboardPage
 ### P3 - Diseno responsivo tablero tactico (Mobile/Tablet)
