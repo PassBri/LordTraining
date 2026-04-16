@@ -2565,7 +2565,15 @@ const S = {
  // ── PLAYBACK ENGINE (moves real players along arrows) ──
  startPlayback() {
   const arrows = ST.elements.filter(e => e.type === 'arrow' && e.playOrder);
-  if (!arrows.length) { alert('No hay flechas con orden de jugada. Dibuja flechas y asigna orden primero.'); return; }
+  if (!arrows.length) {
+   const allArrows = ST.elements.filter(e => e.type === 'arrow');
+   if (allArrows.length) {
+    alert('Las flechas no tienen orden de jugada. Selecciona una flecha y asigna "Orden" en sus propiedades.');
+   } else {
+    alert('No hay flechas en la pizarra. Dibuja flechas (herramienta flecha) cerca de los jugadores para crear movimientos.');
+   }
+   return;
+  }
   arrows.sort((a, b) => (a.playOrder || 0) - (b.playOrder || 0));
   
   // Save original positions of all players
@@ -2579,6 +2587,7 @@ const S = {
   // Build movement assignments: which player moves along which arrow
   ST.playbackMoves = [];
   const usedPlayers = new Set();
+  let unmatched = 0;
   arrows.forEach(arrow => {
    const player = this.findNearestPlayerForPlayback(arrow.x1, arrow.y1, usedPlayers);
    if (player) {
@@ -2588,12 +2597,19 @@ const S = {
      playerId: player.id,
      fromX: arrow.x1, fromY: arrow.y1,
      toX: arrow.x2, toY: arrow.y2,
-     cx: arrow.cx, cy: arrow.cy // curve control point if exists
+     cx: arrow.cx, cy: arrow.cy
     });
    } else {
+    unmatched++;
     ST.playbackMoves.push({ arrow, playerId: null, fromX: arrow.x1, fromY: arrow.y1, toX: arrow.x2, toY: arrow.y2 });
    }
   });
+
+  if (unmatched === arrows.length) {
+   alert('No se encontraron jugadores cerca de las flechas. Coloca jugadores cerca del inicio de cada flecha.');
+   ST.playbackOriginalPos = null;
+   return;
+  }
   
   ST.playbackArrows = arrows;
   ST.playbackIdx = 0;
@@ -2608,7 +2624,7 @@ const S = {
  },
 
  findNearestPlayerForPlayback(x, y, excludeSet) {
-  let nearest = null, minDist = 80;
+  let nearest = null, minDist = 150; // generous radius to find players near arrows
   ST.elements.forEach(el => {
    if (el.type !== 'playerA' && el.type !== 'playerB' && el.type !== 'goalkeeper') return;
    if (excludeSet && excludeSet.has(el.id)) return;
@@ -2697,11 +2713,11 @@ const S = {
   const moves = ST.playbackMoves;
   if (!moves || !moves.length) return;
 
+  const is3D = ST.viewMode === '3d';
   const STEP_DURATION = 1500 / ST.playbackSpeed;
   const now = performance.now();
   if (!ST.playbackStartTime) {
    ST.playbackStartTime = now;
-   // If resuming from pause, offset
    if (ST.playbackPausedProgress > 0) {
     ST.playbackStartTime = now - ST.playbackPausedProgress * moves.length * STEP_DURATION;
     ST.playbackPausedProgress = 0;
@@ -2727,65 +2743,82 @@ const S = {
    if (!el) return;
    
    if (idx < currentStep) {
-    // Completed: at destination
     el.x = move.toX; el.y = move.toY;
    } else if (idx === currentStep) {
-    // Currently moving
     const pos = this.interpolatePath(move, stepProgress);
     el.x = pos.x; el.y = pos.y;
    } else {
-    // Not started yet: keep at start (or previous destination)
-    if (idx === 0) {
-     const orig = ST.playbackOriginalPos[move.playerId];
-     if (orig) { el.x = orig.x; el.y = orig.y; }
-    }
+    // Not started yet: restore to original position
+    const orig = ST.playbackOriginalPos[move.playerId];
+    if (orig) { el.x = orig.x; el.y = orig.y; }
    }
   });
 
   // Re-render with animation overlays
   const layer = document.getElementById('elements-layer');
   let defs = `<defs>
-   <marker id="arrow-marker" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/></marker>
+   <marker id="arrow-marker" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8" fill="none" stroke="rgba(0,0,0,0.7)" stroke-width="1.5" stroke-linecap="round"/></marker>
    <marker id="play-arrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto"><path d="M0,0 L12,5 L0,10" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/></marker>
+   <filter id="blur3d"><feGaussianBlur stdDeviation="3"/></filter>
+   <filter id="shadow3d"><feDropShadow dx="2" dy="3" stdDeviation="2" flood-opacity="0.2"/></filter>
   </defs>`;
 
   let svgParts = '';
 
-  // Draw all non-arrow elements (players will be at their animated positions)
-  ST.elements.forEach(el => {
-   if (el.type === 'arrow') return;
-   svgParts += this.buildElSvg(el);
-  });
+  // Build all non-arrow elements at their animated positions
+  const nonArrows = ST.elements.filter(el => el.type !== 'arrow');
+  if (is3D) {
+   // 3D: project and sort by isoY (painter's algorithm)
+   const projected = nonArrows.map(el => {
+    const ey = el.y || 400, ex = el.x || 300;
+    const ip = this.toIso(ex, ey, 0);
+    return { el, isoY: ip.y };
+   });
+   projected.sort((a, b) => a.isoY - b.isoY);
+   projected.forEach(({ el }) => { svgParts += this.buildIsoElement(el); });
+  } else {
+   const zOrder = {zone:0, line:1, curve:1, pencil:1, cone:2, disc:2, flag:2, hurdle:2, minigoal:2, mannequin:2, vest:2, ring:2, ladder:2, pole:2, ball:2, playerA:3, playerB:3, goalkeeper:3, text:4};
+   const sorted = [...nonArrows].sort((a, b) => (zOrder[a.type] || 2) - (zOrder[b.type] || 2));
+   sorted.forEach(el => { svgParts += this.buildElSvg(el); });
+  }
 
-  // Draw arrow trails
+  // Draw arrow trails with animation
   moves.forEach((move, idx) => {
    const a = move.arrow;
-   const x1 = a.x1, y1 = a.y1, x2 = a.x2, y2 = a.y2;
-   const hasCurve = a.cx !== undefined && a.cy !== undefined;
-   const pathD = hasCurve ? `M${x1},${y1}Q${a.cx},${a.cy},${x2},${y2}` : `M${x1},${y1}L${x2},${y2}`;
+   let x1, y1, x2, y2;
+   if (is3D) {
+    const p1 = this.toIso(a.x1 || 0, a.y1 || 0, 0);
+    const p2 = this.toIso(a.x2 || 0, a.y2 || 0, 0);
+    x1 = p1.x; y1 = p1.y; x2 = p2.x; y2 = p2.y;
+   } else {
+    x1 = a.x1; y1 = a.y1; x2 = a.x2; y2 = a.y2;
+   }
+   const pathD = `M${x1},${y1}L${x2},${y2}`;
 
    if (idx < currentStep) {
-    // Completed trail
     svgParts += `<path d="${pathD}" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" marker-end="url(#play-arrow)" opacity="0.6"/>`;
     svgParts += `<circle cx="${x2}" cy="${y2}" r="3" fill="#2563eb" opacity="0.4"/>`;
    } else if (idx === currentStep) {
-    // Active trail — draw partial
+    // Ghost full path
     svgParts += `<path d="${pathD}" fill="none" stroke="rgba(37,99,235,0.15)" stroke-width="1.5" stroke-dasharray="5 3"/>`;
     
-    // Animated portion
-    const pos = this.interpolatePath(move, stepProgress);
-    const partialD = hasCurve ?
-     `M${x1},${y1}Q${x1+(a.cx-x1)*stepProgress},${y1+(a.cy-y1)*stepProgress},${pos.x},${pos.y}` :
-     `M${x1},${y1}L${pos.x},${pos.y}`;
-    svgParts += `<path d="${partialD}" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" marker-end="url(#play-arrow)"/>`;
+    // Animated partial path
+    const rawPos = this.interpolatePath(move, stepProgress);
+    let px, py;
+    if (is3D) {
+     const pp = this.toIso(rawPos.x, rawPos.y, 0);
+     px = pp.x; py = pp.y;
+    } else {
+     px = rawPos.x; py = rawPos.y;
+    }
+    svgParts += `<path d="M${x1},${y1}L${px},${py}" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" marker-end="url(#play-arrow)"/>`;
     
     // Glow at current position
-    svgParts += `<circle cx="${pos.x}" cy="${pos.y}" r="8" fill="rgba(37,99,235,0.15)"/><circle cx="${pos.x}" cy="${pos.y}" r="4" fill="rgba(37,99,235,0.3)"/>`;
+    svgParts += `<circle cx="${px}" cy="${py}" r="8" fill="rgba(37,99,235,0.15)"/><circle cx="${px}" cy="${py}" r="4" fill="rgba(37,99,235,0.3)"/>`;
     
     // Step badge
     svgParts += `<circle cx="${x1}" cy="${y1-20}" r="10" fill="rgba(37,99,235,0.9)"/><text x="${x1}" y="${y1-20}" dy="0.35em" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">${a.playOrder}</text>`;
    } else {
-    // Future — ghost
     svgParts += `<path d="${pathD}" fill="none" stroke="rgba(148,163,184,0.2)" stroke-width="1" stroke-dasharray="4 3"/>`;
    }
   });
@@ -2794,7 +2827,6 @@ const S = {
 
   if (progress >= 1) {
    ST.playbackStartTime = null;
-   // Final positions
    moves.forEach(move => {
     if (move.playerId) {
      const el = ST.elements.find(e => e.id === move.playerId);
