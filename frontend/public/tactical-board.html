@@ -291,6 +291,10 @@ input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba
      <button class="vb-btn" data-style="hybrid" onclick="S.setAvatarStyle('hybrid')">Hybrid</button>
      <button class="vb-btn" data-style="beastmode" onclick="S.setAvatarStyle('beastmode')">Beastmode</button>
     </div>
+    <div class="vb-seg" id="avatar-gender-seg" style="display:none">
+     <button class="vb-btn active" data-gender="M" onclick="S.setAvatarGender('M')">Masc</button>
+     <button class="vb-btn" data-gender="F" onclick="S.setAvatarGender('F')">Fem</button>
+    </div>
    </div>
    <div class="vb-sep"></div>
    <div class="vb-group" style="margin-left:auto">
@@ -372,7 +376,7 @@ const ST = {
  elementColors: {cone:'#ff9800',disc:'#2563eb',ring:'#8b5cf6',vest:'#ef4444',pole:'#f59e0b',flag:'#ef4444',band:'#ef4444'},
  lineStyle: 'solid', lineColor: '#1e293b',
  zoneColor: '#378ADD', zoneOpacity: 0.12,
- viewMode: '2d', avatarMode: 'tactical', avatarStyle: 'modern',
+ viewMode: '2d', avatarMode: 'tactical', avatarStyle: 'modern', avatarGender: 'M',
  fieldRotation: 0, fieldFlipH: false, fieldFlipV: false,
  isoAz: 45, isoEl: 35
 };
@@ -1708,12 +1712,19 @@ const S = {
   ST.avatarMode = mode;
   document.querySelectorAll('#avatar-mode-seg .vb-btn').forEach(b => b.classList.toggle('active', b.dataset.avatar===mode));
   document.getElementById('avatar-style-seg').style.display = mode==='avatar' ? '' : 'none';
+  document.getElementById('avatar-gender-seg').style.display = mode==='avatar' ? '' : 'none';
   this.renderElements();
  },
 
  setAvatarStyle(style) {
   ST.avatarStyle = style;
   document.querySelectorAll('#avatar-style-seg .vb-btn').forEach(b => b.classList.toggle('active', b.dataset.style===style));
+  this.renderElements();
+ },
+
+ setAvatarGender(g) {
+  ST.avatarGender = g;
+  document.querySelectorAll('#avatar-gender-seg .vb-btn').forEach(b => b.classList.toggle('active', b.dataset.gender===g));
   this.renderElements();
  },
 
