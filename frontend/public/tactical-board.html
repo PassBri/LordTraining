@@ -1340,10 +1340,55 @@ const S = {
   }
  },
 
+ // ═══ BALL SVGs BY SPORT ═══
+ getBallSvg(type, r, id, is3D) {
+  const grad = `<defs><radialGradient id="bg${type}${id}" cx="35%" cy="35%"><stop offset="0%" stop-color="`;
+  const gradEnd = `"/></radialGradient></defs>`;
+  const sw = is3D ? 0.8 : 1;
+  switch(type) {
+   case 'soccer': // White with black pentagons
+    return `${grad}#fff"/><stop offset="40%" stop-color="#f0f0f0"/><stop offset="100%" stop-color="#ccc${gradEnd}<circle cx="0" cy="0" r="${r}" fill="url(#bg${type}${id})" stroke="#333" stroke-width="${sw}"/><path d="M${-r*0.2},${-r*0.35}L${r*0.15},${-r*0.4}L${r*0.35},${-r*0.15}L${r*0.2},${r*0.15}L${-r*0.1},${r*0.2}Z" fill="#333" opacity="0.7"/><path d="M${-r*0.55},${r*0.1}L${-r*0.35},${-r*0.2}L${-r*0.15},${r*0.05}L${-r*0.3},${r*0.3}Z" fill="#333" opacity="0.4"/>`;
+   case 'basketball': // Orange with lines
+    return `${grad}#ff8c00"/><stop offset="40%" stop-color="#f57c00"/><stop offset="100%" stop-color="#bf360c${gradEnd}<circle cx="0" cy="0" r="${r}" fill="url(#bg${type}${id})" stroke="#7f2000" stroke-width="${sw}"/><line x1="${-r}" y1="0" x2="${r}" y2="0" stroke="#7f2000" stroke-width="${sw*0.8}" opacity="0.5"/><line x1="0" y1="${-r}" x2="0" y2="${r}" stroke="#7f2000" stroke-width="${sw*0.8}" opacity="0.5"/><path d="M${-r*0.7},${-r*0.7}Q${-r*0.2},0 ${-r*0.7},${r*0.7}" fill="none" stroke="#7f2000" stroke-width="${sw*0.7}" opacity="0.4"/><path d="M${r*0.7},${-r*0.7}Q${r*0.2},0 ${r*0.7},${r*0.7}" fill="none" stroke="#7f2000" stroke-width="${sw*0.7}" opacity="0.4"/>`;
+   case 'volleyball': // White with colored panels
+    return `${grad}#fffde7"/><stop offset="40%" stop-color="#fff"/><stop offset="100%" stop-color="#e0e0e0${gradEnd}<circle cx="0" cy="0" r="${r}" fill="url(#bg${type}${id})" stroke="#1565c0" stroke-width="${sw}"/><path d="M${-r*0.8},${-r*0.2}Q0,${-r*0.5} ${r*0.8},${-r*0.2}" fill="none" stroke="#fdd835" stroke-width="${r*0.25}" opacity="0.6"/><path d="M${-r*0.6},${r*0.4}Q0,${r*0.1} ${r*0.6},${r*0.4}" fill="none" stroke="#1565c0" stroke-width="${r*0.2}" opacity="0.5"/><path d="M${-r*0.3},${-r*0.8}Q${-r*0.1},0 ${-r*0.3},${r*0.8}" fill="none" stroke="#d32f2f" stroke-width="${r*0.15}" opacity="0.4"/>`;
+   case 'handball': // White/red
+    return `${grad}#fff"/><stop offset="50%" stop-color="#f5f5f5"/><stop offset="100%" stop-color="#bbb${gradEnd}<circle cx="0" cy="0" r="${r}" fill="url(#bg${type}${id})" stroke="#555" stroke-width="${sw}"/><path d="M${-r*0.6},${-r*0.5}Q0,${-r*0.9} ${r*0.6},${-r*0.5}" fill="none" stroke="#1565c0" stroke-width="${r*0.12}" opacity="0.7"/><path d="M${-r*0.5},${r*0.3}Q0,${r*0.7} ${r*0.5},${r*0.3}" fill="none" stroke="#1565c0" stroke-width="${r*0.12}" opacity="0.6"/>`;
+   case 'rugby': // Oval brown
+    return `${grad}#8d6e4c"/><stop offset="40%" stop-color="#7b5b3a"/><stop offset="100%" stop-color="#5d3e24${gradEnd}<ellipse cx="0" cy="0" rx="${r}" ry="${r*0.65}" fill="url(#bg${type}${id})" stroke="#3e2414" stroke-width="${sw}"/><line x1="0" y1="${-r*0.55}" x2="0" y2="${r*0.55}" stroke="#fff" stroke-width="${sw}" opacity="0.5"/><path d="M${-r*0.15},${-r*0.4}L${r*0.15},${-r*0.4}" stroke="#fff" stroke-width="${sw*0.6}" opacity="0.4"/><path d="M${-r*0.2},${-r*0.2}L${r*0.2},${-r*0.2}" stroke="#fff" stroke-width="${sw*0.6}" opacity="0.4"/><path d="M${-r*0.2},0L${r*0.2},0" stroke="#fff" stroke-width="${sw*0.6}" opacity="0.4"/><path d="M${-r*0.2},${r*0.2}L${r*0.2},${r*0.2}" stroke="#fff" stroke-width="${sw*0.6}" opacity="0.4"/>`;
+   case 'football_us': // Brown oval pointed
+    return `${grad}#8B4513"/><stop offset="40%" stop-color="#6B3410"/><stop offset="100%" stop-color="#4a2308${gradEnd}<ellipse cx="0" cy="0" rx="${r}" ry="${r*0.6}" fill="url(#bg${type}${id})" stroke="#2a1206" stroke-width="${sw}"/><line x1="0" y1="${-r*0.5}" x2="0" y2="${r*0.5}" stroke="#fff" stroke-width="${sw}" opacity="0.6"/><path d="M${-r*0.15},${-r*0.35}L${r*0.15},${-r*0.35}" stroke="#fff" stroke-width="${sw*0.7}" opacity="0.5"/><path d="M${-r*0.2},${-r*0.15}L${r*0.2},${-r*0.15}" stroke="#fff" stroke-width="${sw*0.7}" opacity="0.5"/><path d="M${-r*0.2},${r*0.05}L${r*0.2},${r*0.05}" stroke="#fff" stroke-width="${sw*0.7}" opacity="0.5"/><path d="M${-r*0.15},${r*0.25}L${r*0.15},${r*0.25}" stroke="#fff" stroke-width="${sw*0.7}" opacity="0.5"/>`;
+   case 'tennis': // Yellow-green fuzzy
+    return `${grad}#cddc39"/><stop offset="40%" stop-color="#c0ca33"/><stop offset="100%" stop-color="#9e9d24${gradEnd}<circle cx="0" cy="0" r="${r}" fill="url(#bg${type}${id})" stroke="#827717" stroke-width="${sw}"/><path d="M${-r*0.1},${-r}Q${r*0.6},${-r*0.3} ${r*0.1},0Q${-r*0.4},${r*0.3} ${-r*0.1},${r}" fill="none" stroke="#fff" stroke-width="${r*0.15}" opacity="0.7"/>`;
+   case 'baseball': // White with red stitches
+    return `${grad}#fff"/><stop offset="40%" stop-color="#fafafa"/><stop offset="100%" stop-color="#ddd${gradEnd}<circle cx="0" cy="0" r="${r}" fill="url(#bg${type}${id})" stroke="#888" stroke-width="${sw}"/><path d="M${-r*0.5},${-r*0.75}Q${-r*0.8},${-r*0.3} ${-r*0.8},0Q${-r*0.8},${r*0.3} ${-r*0.5},${r*0.75}" fill="none" stroke="#d32f2f" stroke-width="${sw}" stroke-dasharray="2,2"/><path d="M${r*0.5},${-r*0.75}Q${r*0.8},${-r*0.3} ${r*0.8},0Q${r*0.8},${r*0.3} ${r*0.5},${r*0.75}" fill="none" stroke="#d32f2f" stroke-width="${sw}" stroke-dasharray="2,2"/>`;
+   case 'hockey': // Black puck
+    return is3D ?
+     `<ellipse cx="0" cy="0" rx="${r}" ry="${r*0.35}" fill="#1a1a1a" stroke="#555" stroke-width="${sw}"/><ellipse cx="0" cy="${-r*0.15}" rx="${r}" ry="${r*0.35}" fill="#333" stroke="#555" stroke-width="${sw}"/>` :
+     `<circle cx="0" cy="0" r="${r*0.85}" fill="#1a1a1a" stroke="#555" stroke-width="${sw}"/><circle cx="0" cy="0" r="${r*0.55}" fill="none" stroke="#444" stroke-width="${sw*0.5}"/>`;
+   case 'golf': // Small white dimpled
+    return `${grad}#fff"/><stop offset="40%" stop-color="#f5f5f5"/><stop offset="100%" stop-color="#ddd${gradEnd}<circle cx="0" cy="0" r="${r*0.7}" fill="url(#bg${type}${id})" stroke="#aaa" stroke-width="${sw}"/><circle cx="${-r*0.15}" cy="${-r*0.1}" r="${r*0.06}" fill="none" stroke="#ccc" stroke-width="0.5"/><circle cx="${r*0.1}" cy="${-r*0.2}" r="${r*0.06}" fill="none" stroke="#ccc" stroke-width="0.5"/><circle cx="${r*0.05}" cy="${r*0.1}" r="${r*0.06}" fill="none" stroke="#ccc" stroke-width="0.5"/><circle cx="${-r*0.2}" cy="${r*0.15}" r="${r*0.06}" fill="none" stroke="#ccc" stroke-width="0.5"/>`;
+   case 'pingpong': // Small orange
+    return `${grad}#ff7043"/><stop offset="40%" stop-color="#ff5722"/><stop offset="100%" stop-color="#bf360c${gradEnd}<circle cx="0" cy="0" r="${r*0.65}" fill="url(#bg${type}${id})" stroke="#bf360c" stroke-width="${sw}"/><text x="0" y="0" dy="0.35em" text-anchor="middle" font-size="${r*0.4}" fill="#fff" font-weight="700">★</text>`;
+   case 'cricket': // Red leather
+    return `${grad}#c62828"/><stop offset="40%" stop-color="#b71c1c"/><stop offset="100%" stop-color="#7f0000${gradEnd}<circle cx="0" cy="0" r="${r*0.85}" fill="url(#bg${type}${id})" stroke="#4a0000" stroke-width="${sw}"/><line x1="${-r*0.6}" y1="0" x2="${r*0.6}" y2="0" stroke="#fff" stroke-width="${sw}" opacity="0.4"/>`;
+   case 'softball': // Yellow
+    return `${grad}#ffeb3b"/><stop offset="40%" stop-color="#fdd835"/><stop offset="100%" stop-color="#f9a825${gradEnd}<circle cx="0" cy="0" r="${r}" fill="url(#bg${type}${id})" stroke="#f57f17" stroke-width="${sw}"/><path d="M${-r*0.5},${-r*0.7}Q${-r*0.8},0 ${-r*0.5},${r*0.7}" fill="none" stroke="#d32f2f" stroke-width="${sw}" stroke-dasharray="2,2"/><path d="M${r*0.5},${-r*0.7}Q${r*0.8},0 ${r*0.5},${r*0.7}" fill="none" stroke="#d32f2f" stroke-width="${sw}" stroke-dasharray="2,2"/>`;
+   case 'waterpolo': // Yellow with stripes
+    return `${grad}#ffeb3b"/><stop offset="40%" stop-color="#fdd835"/><stop offset="100%" stop-color="#f9a825${gradEnd}<circle cx="0" cy="0" r="${r}" fill="url(#bg${type}${id})" stroke="#1565c0" stroke-width="${sw*1.5}"/><path d="M${-r*0.8},${-r*0.15}Q0,${-r*0.5} ${r*0.8},${-r*0.15}" fill="none" stroke="#1565c0" stroke-width="${r*0.12}" opacity="0.5"/><path d="M${-r*0.8},${r*0.25}Q0,${r*0.6} ${r*0.8},${r*0.25}" fill="none" stroke="#1565c0" stroke-width="${r*0.12}" opacity="0.5"/>`;
+   case 'bowling': // Black heavy
+    return `${grad}#333"/><stop offset="40%" stop-color="#222"/><stop offset="100%" stop-color="#111${gradEnd}<circle cx="0" cy="0" r="${r}" fill="url(#bg${type}${id})" stroke="#000" stroke-width="${sw}"/><circle cx="${-r*0.15}" cy="${-r*0.3}" r="${r*0.1}" fill="#555"/><circle cx="${r*0.1}" cy="${-r*0.35}" r="${r*0.1}" fill="#555"/><circle cx="0" cy="${-r*0.1}" r="${r*0.1}" fill="#555"/>`;
+   default:
+    return `<circle cx="0" cy="0" r="${r}" fill="#f8fafc" stroke="#555" stroke-width="${sw}"/>`;
+  }
+ },
+
  buildIsoBall(el, p, ds) {
   const s = ds;
-  const r = 8*s;
-  return `<g data-id="${el.id}" style="cursor:grab"><ellipse cx="${p.x+2}" cy="${p.y+2}" rx="${r+1}" ry="${r*0.35}" fill="rgba(0,0,0,0.2)" filter="url(#blur3d)"/><g transform="translate(${p.x},${p.y-r})"><defs><radialGradient id="bg3d${el.id}" cx="35%" cy="35%"><stop offset="0%" stop-color="#fff"/><stop offset="50%" stop-color="#eee"/><stop offset="100%" stop-color="#999"/></radialGradient></defs><circle cx="0" cy="0" r="${r}" fill="url(#bg3d${el.id})" stroke="#666" stroke-width="${0.6*s}"/></g></g>`;
+  const r = (el.size||8)*s;
+  const bt = el.ballType||'soccer';
+  const svg = this.getBallSvg(bt, r, el.id, true);
+  return `<g data-id="${el.id}" style="cursor:grab"><ellipse cx="${p.x+2}" cy="${p.y+2}" rx="${r+1}" ry="${r*0.35}" fill="rgba(0,0,0,0.2)" filter="url(#blur3d)"/><g transform="translate(${p.x},${p.y-r})">${svg}</g></g>`;
  },
 
  buildIsoCone(el, p, ds) {
@@ -1887,7 +1932,7 @@ const S = {
   if(type==='vest') { el.color = ST.elementColors.vest||'#ef4444'; }
   if(type==='flag') { el.color = ST.elementColors.flag||'#ef4444'; }
   if(type==='band') { el.color = ST.elementColors.band||'#ef4444'; }
-  if(type==='ball') { el.size = 8; }
+  if(type==='ball') { el.size = 8; el.ballType = ST.currentSport?.includes('Balon') ? (ST.currentSport.includes('cesto') ? 'basketball' : 'handball') : ST.currentSport?.includes('Volei') ? 'volleyball' : ST.currentSport?.includes('Rugby') ? 'rugby' : ST.currentSport?.includes('Tenis') ? 'tennis' : ST.currentSport?.includes('Beisbol') ? 'baseball' : ST.currentSport?.includes('Americ') ? 'football_us' : 'soccer'; }
   if(type==='zone') { el.zoneColor = ST.zoneColor||'#378ADD'; el.opacity = ST.zoneOpacity||0.12; el.borderOpacity = 0.45; el.label = ''; }
   if(type==='text') { el.fontSize = 16; el.color = '#1e293b'; el.bold = false; el.italic = false; }
   if(type==='arrow') { el.playOrder = ST.elements.filter(e=>e.type==='arrow').length + 1; el.strokeWidth = 2.5; el.color = ST.lineColor||'#1e293b'; el.dash = ST.lineStyle==='dashed'?'6 4':ST.lineStyle==='dotted'?'2 3':''; }
@@ -1968,10 +2013,12 @@ const S = {
    case 'ball': {
     const s = is3D ? depthScale : 1;
     const bs = (el.size||8)*s;
+    const bt = el.ballType||'soccer';
+    const ballSvg = this.getBallSvg(bt, bs, el.id, is3D);
     if(is3D) {
-     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><ellipse cx="1" cy="${bs*0.6}" rx="${bs+2}" ry="${bs*0.35}" fill="rgba(0,0,0,0.2)" filter="url(#blur3d)"/><g transform="translate(0,${-bs*0.8})"><defs><radialGradient id="ballGrad${el.id}" cx="35%" cy="35%"><stop offset="0%" stop-color="#fff"/><stop offset="40%" stop-color="#f0f0f0"/><stop offset="100%" stop-color="#b0b0b0"/></radialGradient></defs><circle cx="0" cy="0" r="${bs}" fill="url(#ballGrad${el.id})" stroke="#666" stroke-width="${0.8*s}"/><path d="M${-bs*0.5},${-bs*0.3} Q0,${-bs*0.7} ${bs*0.5},${-bs*0.3}" fill="none" stroke="rgba(0,0,0,0.12)" stroke-width="${0.7*s}"/><path d="M${-bs*0.4},${bs*0.2} Q0,${bs*0.6} ${bs*0.4},${bs*0.2}" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="${0.6*s}"/></g></g>`;
+     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><ellipse cx="1" cy="${bs*0.6}" rx="${bs+2}" ry="${bs*0.35}" fill="rgba(0,0,0,0.2)" filter="url(#blur3d)"/><g transform="translate(0,${-bs*0.8})">${ballSvg}</g></g>`;
     }
-    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><circle cx="0" cy="0" r="${bs}" fill="#f8fafc" stroke="#555" stroke-width="1.2"/><circle cx="0" cy="0" r="${bs*0.25}" fill="#888"/></g>`;
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${ballSvg}</g>`;
    }
    case 'cone': {
     const s = is3D ? depthScale*1.15 : 1;
@@ -2179,6 +2226,30 @@ const S = {
    html += `<div class="prop-row"><label>Y</label><input type="number" value="${Math.round(el.y||0)}" onchange="S.setProp(${el.id},'y',+this.value)"></div>`;
    if(el.color) html += `<div class="prop-row"><label>Color</label><input type="color" value="${el.color}" class="color-swatch" onchange="S.setProp(${el.id},'color',this.value)"></div>`;
    if(el.size) html += `<div class="prop-row"><label>Size</label><input type="range" min="8" max="40" value="${el.size}" oninput="S.setProp(${el.id},'size',+this.value)"></div>`;
+   if(el.type==='ball') {
+    const bTypes = [
+     {id:'soccer',label:'Futbol',emoji:'⚽'},
+     {id:'basketball',label:'Baloncesto',emoji:'🏀'},
+     {id:'volleyball',label:'Voleibol',emoji:'🏐'},
+     {id:'handball',label:'Balonmano',emoji:'🤾'},
+     {id:'rugby',label:'Rugby',emoji:'🏉'},
+     {id:'football_us',label:'Futbol Americano',emoji:'🏈'},
+     {id:'tennis',label:'Tenis',emoji:'🎾'},
+     {id:'baseball',label:'Beisbol',emoji:'⚾'},
+     {id:'hockey',label:'Hockey',emoji:'🏒'},
+     {id:'golf',label:'Golf',emoji:'⛳'},
+     {id:'pingpong',label:'Ping Pong',emoji:'🏓'},
+     {id:'cricket',label:'Cricket',emoji:'🏏'},
+     {id:'softball',label:'Softball',emoji:'🥎'},
+     {id:'waterpolo',label:'Waterpolo',emoji:'🤽'},
+     {id:'bowling',label:'Bowling',emoji:'🎳'},
+    ];
+    html += `<div class="prop-row"><label>Balón</label><select style="flex:1;height:24px;font-size:10px;border-radius:4px;border:1px solid var(--border);padding:0 4px" onchange="S.setProp(${el.id},'ballType',this.value)">`;
+    bTypes.forEach(bt => {
+     html += `<option value="${bt.id}" ${(el.ballType||'soccer')===bt.id?'selected':''}>${bt.emoji} ${bt.label}</option>`;
+    });
+    html += `</select></div>`;
+   }
    if(el.fontSize) html += `<div class="prop-row"><label>Font</label><input type="range" min="8" max="48" value="${el.fontSize}" oninput="S.setProp(${el.id},'fontSize',+this.value)"></div>`;
    if(el.strokeWidth!==undefined) html += `<div class="prop-row"><label>Grosor</label><input type="range" min="1" max="8" value="${el.strokeWidth||2}" oninput="S.setProp(${el.id},'strokeWidth',+this.value)"></div>`;
    if(el.playOrder!==undefined) html += `<div class="prop-row"><label>Orden</label><input type="number" min="1" max="99" value="${el.playOrder||1}" onchange="S.setProp(${el.id},'playOrder',+this.value)" title="Orden de reproduccion"></div>`;
