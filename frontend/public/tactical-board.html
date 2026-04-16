@@ -736,8 +736,8 @@ const S = {
    if(tid==='playerA'||tid==='playerB') { this.showColorPicker(btn, tid, 'team'); return; }
    if(tid==='line'||tid==='curve') { this.showLineStylePicker(btn, tid); return; }
    if(tid==='zone') { this.showZoneColorPicker(btn); return; }
-   const colorable = ['cone','disc','ring','vest','pole','flag','band'];
-   if(colorable.includes(tid)) { this.showColorPicker(btn, tid, 'element'); return; }
+   const colorable = ['cone','disc','ring','vest','pole','flag','band','hurdle','minigoal','mannequin','ladder','plyobox','kettlebell','medball','trx','sled','parachute','rope','battlerope','roller','bosu','mat','dumbbell','barbell','bench','rack','treadmill','bike','rower','pullup','pilatesball','stepper'];
+   if(colorable.includes(tid) || tid.startsWith('gm_')) { this.showColorPicker(btn, tid, 'element'); return; }
    this.hideColorPicker();
    this.setTool(tid);
   };
@@ -2062,23 +2062,23 @@ const S = {
   if(type==='vest') { el.color = ST.elementColors.vest||'#ef4444'; el.size = 1; }
   if(type==='flag') { el.color = ST.elementColors.flag||'#ef4444'; el.size = 1; }
   if(type==='band') { el.color = ST.elementColors.band||'#ef4444'; el.size = 1; }
-  if(type==='hurdle') { el.color = '#ff9800'; el.size = 1; el.rotation = 0; }
-  if(type==='minigoal') { el.color = '#64748b'; el.size = 1; el.rotation = 0; }
-  if(type==='mannequin') { el.color = '#64748b'; el.size = 1; }
-  if(type==='ladder') { el.color = '#f59e0b'; el.size = 1; el.rotation = 0; }
-  if(type==='plyobox') { el.color = '#78716c'; el.size = 1; }
-  if(type==='kettlebell') { el.color = '#57534e'; el.size = 1; }
-  if(type==='medball') { el.color = '#ef4444'; el.size = 1; }
-  if(type==='trx') { el.color = '#1e293b'; el.size = 1; }
-  if(type==='sled') { el.color = '#64748b'; el.size = 1; }
-  if(type==='parachute') { el.color = '#2563eb'; el.size = 1; }
-  if(type==='rope') { el.color = '#78716c'; el.size = 1; }
-  if(type==='battlerope') { el.color = '#1e293b'; el.size = 1; }
-  if(type==='roller') { el.color = '#64748b'; el.size = 1; }
-  if(type==='bosu') { el.color = '#2563eb'; el.size = 1; }
-  if(type==='mat') { el.color = '#22c55e'; el.size = 1; }
+  if(type==='hurdle') { el.color = ST.elementColors.hurdle || '#ff9800'; el.size = 1; el.rotation = 0; }
+  if(type==='minigoal') { el.color = ST.elementColors.minigoal || '#64748b'; el.size = 1; el.rotation = 0; }
+  if(type==='mannequin') { el.color = ST.elementColors.mannequin || '#64748b'; el.size = 1; }
+  if(type==='ladder') { el.color = ST.elementColors.ladder || '#f59e0b'; el.size = 1; el.rotation = 0; }
+  if(type==='plyobox') { el.color = ST.elementColors.plyobox || '#78716c'; el.size = 1; }
+  if(type==='kettlebell') { el.color = ST.elementColors.kettlebell || '#57534e'; el.size = 1; }
+  if(type==='medball') { el.color = ST.elementColors.medball || '#ef4444'; el.size = 1; }
+  if(type==='trx') { el.color = ST.elementColors.trx || '#1e293b'; el.size = 1; }
+  if(type==='sled') { el.color = ST.elementColors.sled || '#64748b'; el.size = 1; }
+  if(type==='parachute') { el.color = ST.elementColors.parachute || '#2563eb'; el.size = 1; }
+  if(type==='rope') { el.color = ST.elementColors.rope || '#78716c'; el.size = 1; }
+  if(type==='battlerope') { el.color = ST.elementColors.battlerope || '#1e293b'; el.size = 1; }
+  if(type==='roller') { el.color = ST.elementColors.roller || '#64748b'; el.size = 1; }
+  if(type==='bosu') { el.color = ST.elementColors.bosu || '#2563eb'; el.size = 1; }
+  if(type==='mat') { el.color = ST.elementColors.mat || '#22c55e'; el.size = 1; }
   // Gimnasio (all gm_ prefixed types)
-  if(type.startsWith('gm_')) { el.color = '#64748b'; el.size = 1; el.rotation = 0; }
+  if(type.startsWith('gm_')) { el.color = ST.elementColors[type] || '#64748b'; el.size = 1; el.rotation = 0; }
   if(type==='ball') { el.size = 8; el.ballType = ST.currentSport?.includes('Balon') ? (ST.currentSport.includes('cesto') ? 'basketball' : 'handball') : ST.currentSport?.includes('Volei') ? 'volleyball' : ST.currentSport?.includes('Rugby') ? 'rugby' : ST.currentSport?.includes('Tenis') ? 'tennis' : ST.currentSport?.includes('Beisbol') ? 'baseball' : ST.currentSport?.includes('Americ') ? 'football_us' : 'soccer'; }
   if(type==='zone') { el.zoneColor = ST.zoneColor||'#378ADD'; el.opacity = ST.zoneOpacity||0.12; el.borderOpacity = 0.45; el.label = ''; }
   if(type==='text') { el.fontSize = 16; el.color = ST.theme==='dark'?'#e6edf3':'#1e293b'; el.bold = false; el.italic = false; }
