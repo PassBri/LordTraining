@@ -135,6 +135,16 @@
 - Sliders muestran porcentaje (Tam. 100%) y grados (Rot. 45°)
 - SVG renderers usan el.color para stroke/fill y scale(el.size) para tamaño
 
+### Reorganizacion Herramientas y Gimnasio (Feb 2026)
+- Movidos Cono, Balon, Bandera, Valla de PERSONAS a CAMPO (donde corresponden)
+- PERSONAS ahora solo tiene: Jugador A, Jugador B, Portero
+- CAMPO tiene 8 elementos: Balon, Cono, Bandera, Valla, Platillo, Mini Arco, Maniqui, Peto
+- Nueva categoria GIMNASIO (grupo 9) con 10 elementos:
+  Mancuerna, Barra, Banco, Rack, Caminadora, Bicicleta, Remo, Barra Dominadas, Fitball, Step
+- Todos los elementos de gimnasio tienen color + tamaño personalizables
+- Barra, Banco, Caminadora, Remo tienen rotacion
+- Botones rediseñados: border-radius 10px, hover con elevacion, active con scale, headers de categoria en color primario
+
 ## Pendiente
 ### P1 - Continuar refactorizacion: extraer secciones Athletes, Sports, Events de DashboardPage
 ### P3 - Diseno responsivo tablero tactico (Mobile/Tablet)
