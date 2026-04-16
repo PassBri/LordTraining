@@ -1970,13 +1970,28 @@ const S = {
    el.label = String(ST.elements.filter(e=>e.type===type).length + 1);
    el.size = 15;
   }
-  if(type==='cone') { el.color = ST.elementColors.cone||'#ff9800'; }
-  if(type==='disc') { el.color = ST.elementColors.disc||'#2563eb'; }
-  if(type==='ring') { el.color = ST.elementColors.ring||'#8b5cf6'; }
-  if(type==='pole') { el.color = ST.elementColors.pole||'#f59e0b'; }
-  if(type==='vest') { el.color = ST.elementColors.vest||'#ef4444'; }
-  if(type==='flag') { el.color = ST.elementColors.flag||'#ef4444'; }
-  if(type==='band') { el.color = ST.elementColors.band||'#ef4444'; }
+  if(type==='cone') { el.color = ST.elementColors.cone||'#ff9800'; el.size = 1; }
+  if(type==='disc') { el.color = ST.elementColors.disc||'#2563eb'; el.size = 1; }
+  if(type==='ring') { el.color = ST.elementColors.ring||'#8b5cf6'; el.size = 1; }
+  if(type==='pole') { el.color = ST.elementColors.pole||'#f59e0b'; el.size = 1; }
+  if(type==='vest') { el.color = ST.elementColors.vest||'#ef4444'; el.size = 1; }
+  if(type==='flag') { el.color = ST.elementColors.flag||'#ef4444'; el.size = 1; }
+  if(type==='band') { el.color = ST.elementColors.band||'#ef4444'; el.size = 1; }
+  if(type==='hurdle') { el.color = '#ff9800'; el.size = 1; el.rotation = 0; }
+  if(type==='minigoal') { el.color = '#64748b'; el.size = 1; el.rotation = 0; }
+  if(type==='mannequin') { el.color = '#64748b'; el.size = 1; }
+  if(type==='ladder') { el.color = '#f59e0b'; el.size = 1; el.rotation = 0; }
+  if(type==='plyobox') { el.color = '#78716c'; el.size = 1; }
+  if(type==='kettlebell') { el.color = '#57534e'; el.size = 1; }
+  if(type==='medball') { el.color = '#ef4444'; el.size = 1; }
+  if(type==='trx') { el.color = '#1e293b'; el.size = 1; }
+  if(type==='sled') { el.color = '#64748b'; el.size = 1; }
+  if(type==='parachute') { el.color = '#2563eb'; el.size = 1; }
+  if(type==='rope') { el.color = '#78716c'; el.size = 1; }
+  if(type==='battlerope') { el.color = '#1e293b'; el.size = 1; }
+  if(type==='roller') { el.color = '#64748b'; el.size = 1; }
+  if(type==='bosu') { el.color = '#2563eb'; el.size = 1; }
+  if(type==='mat') { el.color = '#22c55e'; el.size = 1; }
   if(type==='ball') { el.size = 8; el.ballType = ST.currentSport?.includes('Balon') ? (ST.currentSport.includes('cesto') ? 'basketball' : 'handball') : ST.currentSport?.includes('Volei') ? 'volleyball' : ST.currentSport?.includes('Rugby') ? 'rugby' : ST.currentSport?.includes('Tenis') ? 'tennis' : ST.currentSport?.includes('Beisbol') ? 'baseball' : ST.currentSport?.includes('Americ') ? 'football_us' : 'soccer'; }
   if(type==='zone') { el.zoneColor = ST.zoneColor||'#378ADD'; el.opacity = ST.zoneOpacity||0.12; el.borderOpacity = 0.45; el.label = ''; }
   if(type==='text') { el.fontSize = 16; el.color = ST.theme==='dark'?'#e6edf3':'#1e293b'; el.bold = false; el.italic = false; }
@@ -2066,78 +2081,127 @@ const S = {
     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${ballSvg}</g>`;
    }
    case 'cone': {
-    const s = is3D ? depthScale*1.15 : 1;
+    const es = el.size||1;
+    const s = (is3D ? depthScale*1.15 : 1) * es;
     if(is3D) {
      return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><ellipse cx="0" cy="0" rx="${10*s}" ry="${3.5*s}" fill="rgba(0,0,0,0.18)" filter="url(#blur3d)"/><g transform="translate(0,${-16*s})"><polygon points="0,${-14*s} ${-10*s},${10*s} ${10*s},${10*s}" fill="${el.color||'#ff9800'}" stroke="rgba(0,0,0,0.15)" stroke-width="1"/><polygon points="0,${-14*s} 0,${10*s} ${10*s},${10*s}" fill="rgba(0,0,0,0.1)"/><ellipse cx="0" cy="${10*s}" rx="${10*s}" ry="${3*s}" fill="${el.color||'#ff9800'}" opacity="0.6"/></g></g>`;
     }
-    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><polygon points="0,-12 -9,7 9,7" fill="${el.color||'#ff9800'}" stroke="rgba(0,0,0,0.15)" stroke-width="1"/><ellipse cx="0" cy="7" rx="9" ry="2.5" fill="none" stroke="${el.color||'#ff9800'}" stroke-width="1.2"/></g>`;
+    return `<g transform="translate(${el.x},${el.y}) scale(${es})" data-id="${el.id}" style="cursor:grab"><polygon points="0,-12 -9,7 9,7" fill="${el.color||'#ff9800'}" stroke="rgba(0,0,0,0.15)" stroke-width="1"/><ellipse cx="0" cy="7" rx="9" ry="2.5" fill="none" stroke="${el.color||'#ff9800'}" stroke-width="1.2"/></g>`;
    }
    case 'flag': {
-    const s = is3D ? depthScale*1.1 : 1;
+    const es = el.size||1;
+    const s = (is3D ? depthScale*1.1 : 1) * es;
     return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${is3D?`<ellipse cx="1" cy="${14*s}" rx="${6*s}" ry="${2*s}" fill="rgba(0,0,0,0.12)" filter="url(#blur3d)"/>`:''}<g transform="scale(${s})"><line x1="0" y1="-16" x2="0" y2="12" stroke="rgba(0,0,0,0.5)" stroke-width="1.5"/><polygon points="0,-16 14,-10 0,-4" fill="${el.color||'#ef4444'}" opacity="0.8"/></g></g>`;
    }
    case 'hurdle': {
-    const s = is3D ? depthScale*1.1 : 1;
-    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${is3D?`<ellipse cx="0" cy="${10*s}" rx="${16*s}" ry="${3*s}" fill="rgba(0,0,0,0.12)" filter="url(#blur3d)"/>`:''}<g transform="scale(${s})"><rect x="-18" y="-4" width="36" height="8" rx="2" fill="none" stroke="#ff9800" stroke-width="2"/><line x1="-12" y1="4" x2="-12" y2="12" stroke="#ff9800" stroke-width="1.5"/><line x1="12" y1="4" x2="12" y2="12" stroke="#ff9800" stroke-width="1.5"/></g></g>`;
+    const es = el.size||1;
+    const s = (is3D ? depthScale*1.1 : 1) * es;
+    const rot = el.rotation||0;
+    return `<g transform="translate(${el.x},${el.y})${rot?` rotate(${rot})`:''}" data-id="${el.id}" style="cursor:grab">${is3D?`<ellipse cx="0" cy="${10*s}" rx="${16*s}" ry="${3*s}" fill="rgba(0,0,0,0.12)" filter="url(#blur3d)"/>`:''}<g transform="scale(${s})"><rect x="-18" y="-4" width="36" height="8" rx="2" fill="none" stroke="${el.color||'#ff9800'}" stroke-width="2"/><line x1="-12" y1="4" x2="-12" y2="12" stroke="${el.color||'#ff9800'}" stroke-width="1.5"/><line x1="12" y1="4" x2="12" y2="12" stroke="${el.color||'#ff9800'}" stroke-width="1.5"/></g></g>`;
    }
    case 'disc': {
-    const s=is3D?depthScale:1;
+    const es = el.size||1;
+    const s = (is3D ? depthScale : 1) * es;
     return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="1" cy="6" rx="11" ry="3" fill="rgba(0,0,0,0.12)" filter="url(#blur3d)"/>':''}<ellipse cx="0" cy="0" rx="10" ry="4" fill="${el.color||'#2563eb'}" opacity="0.8" stroke="${el.color||'#2563eb'}" stroke-width="1.5"/></g>`;
    }
    case 'minigoal': {
-    const s=is3D?depthScale:1;
-    return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="0" cy="18" rx="18" ry="4" fill="rgba(0,0,0,0.1)" filter="url(#blur3d)"/>':''}<rect x="-18" y="-14" width="36" height="26" rx="2" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="2"/>${is3D?'<line x1="-18" y1="-14" x2="-18" y2="16" stroke="rgba(0,0,0,0.5)" stroke-width="2"/><line x1="18" y1="-14" x2="18" y2="16" stroke="rgba(0,0,0,0.5)" stroke-width="2"/>':''}${is3D?'<line x1="-14" y1="-10" x2="-14" y2="8" stroke="rgba(0,0,0,0.08)" stroke-width="1"/><line x1="-6" y1="-10" x2="-6" y2="8" stroke="rgba(0,0,0,0.08)" stroke-width="1"/><line x1="2" y1="-10" x2="2" y2="8" stroke="rgba(0,0,0,0.08)" stroke-width="1"/><line x1="10" y1="-10" x2="10" y2="8" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>':''}</g>`;
+    const es = el.size||1;
+    const s = (is3D ? depthScale : 1) * es;
+    const rot = el.rotation||0;
+    const c = el.color||'#64748b';
+    return `<g transform="translate(${el.x},${el.y}) scale(${s})${rot?` rotate(${rot})`:''}" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="0" cy="18" rx="18" ry="4" fill="rgba(0,0,0,0.1)" filter="url(#blur3d)"/>':''}<rect x="-18" y="-14" width="36" height="26" rx="2" fill="none" stroke="${c}" stroke-width="2"/>${is3D?`<line x1="-18" y1="-14" x2="-18" y2="16" stroke="${c}" stroke-width="2"/><line x1="18" y1="-14" x2="18" y2="16" stroke="${c}" stroke-width="2"/><line x1="-14" y1="-10" x2="-14" y2="8" stroke="${c}" stroke-width="1" opacity="0.15"/><line x1="-6" y1="-10" x2="-6" y2="8" stroke="${c}" stroke-width="1" opacity="0.15"/><line x1="2" y1="-10" x2="2" y2="8" stroke="${c}" stroke-width="1" opacity="0.15"/><line x1="10" y1="-10" x2="10" y2="8" stroke="${c}" stroke-width="1" opacity="0.15"/>`:''}</g>`;
    }
    case 'mannequin': {
-    const s=is3D?depthScale*1.2:1;
-    return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="0" cy="20" rx="8" ry="3" fill="rgba(0,0,0,0.12)" filter="url(#blur3d)"/>':''}<rect x="-6" y="-16" width="12" height="30" rx="6" fill="rgba(80,80,80,0.2)" stroke="rgba(0,0,0,0.5)" stroke-width="1.5"/>${is3D?'<rect x="0" y="-16" width="6" height="30" rx="0" fill="rgba(0,0,0,0.06)"/>':''}<line x1="0" y1="14" x2="0" y2="20" stroke="rgba(0,0,0,0.5)" stroke-width="2"/></g>`;
+    const es = el.size||1;
+    const s = (is3D ? depthScale*1.2 : 1) * es;
+    const c = el.color||'#64748b';
+    return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="0" cy="20" rx="8" ry="3" fill="rgba(0,0,0,0.12)" filter="url(#blur3d)"/>':''}<rect x="-6" y="-16" width="12" height="30" rx="6" fill="${c}33" stroke="${c}" stroke-width="1.5"/>${is3D?`<rect x="0" y="-16" width="6" height="30" rx="0" fill="rgba(0,0,0,0.06)"/>`:''}<line x1="0" y1="14" x2="0" y2="20" stroke="${c}" stroke-width="2"/></g>`;
    }
    case 'vest': {
-    const s=is3D?depthScale:1;
+    const es = el.size||1;
+    const s = (is3D ? depthScale : 1) * es;
     return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab"><path d="M-8,-10 L0,-14 L8,-10 L10,8 L-10,8 Z" fill="${el.color||'#ef4444'}" opacity="0.6" stroke="${el.color||'#ef4444'}" stroke-width="1.5"/></g>`;
    }
    case 'ring': {
-    const s=is3D?depthScale:1;
+    const es = el.size||1;
+    const s = (is3D ? depthScale : 1) * es;
     return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="0" cy="6" rx="14" ry="4" fill="rgba(0,0,0,0.1)" filter="url(#blur3d)"/>':''}<circle cx="0" cy="0" r="14" fill="none" stroke="${el.color||'#8b5cf6'}" stroke-width="2.5"/></g>`;
    }
    case 'ladder': {
-    const s=is3D?depthScale:1;
-    return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab"><rect x="-15" y="-30" width="30" height="60" fill="none" stroke="#f59e0b" stroke-width="1.5" rx="1"/>${[-24,-16,-8,0,8,16,24].map(ry=>`<line x1="-15" y1="${ry}" x2="15" y2="${ry}" stroke="#f59e0b" stroke-width="1"/>`).join('')}</g>`;
+    const es = el.size||1;
+    const s = (is3D ? depthScale : 1) * es;
+    const rot = el.rotation||0;
+    const c = el.color||'#f59e0b';
+    return `<g transform="translate(${el.x},${el.y}) scale(${s})${rot?` rotate(${rot})`:''}" data-id="${el.id}" style="cursor:grab"><rect x="-15" y="-30" width="30" height="60" fill="none" stroke="${c}" stroke-width="1.5" rx="1"/>${[-24,-16,-8,0,8,16,24].map(ry=>`<line x1="-15" y1="${ry}" x2="15" y2="${ry}" stroke="${c}" stroke-width="1"/>`).join('')}</g>`;
    }
    case 'pole': {
-    const s=is3D?depthScale*1.2:1;
+    const es = el.size||1;
+    const s = (is3D ? depthScale*1.2 : 1) * es;
     return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="0" cy="16" rx="4" ry="2" fill="rgba(0,0,0,0.12)" filter="url(#blur3d)"/>':''}<line x1="0" y1="-18" x2="0" y2="14" stroke="${el.color||'#f59e0b'}" stroke-width="3" stroke-linecap="round"/><circle cx="0" cy="-18" r="3.5" fill="${el.color||'#f59e0b'}"/></g>`;
    }
    case 'plyobox': {
-    const s=is3D?depthScale*1.1:1;
-    return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="0" cy="14" rx="18" ry="4" fill="rgba(0,0,0,0.1)" filter="url(#blur3d)"/>':''}<rect x="-16" y="-8" width="32" height="20" rx="2" fill="rgba(0,0,0,0.06)" stroke="rgba(0,0,0,0.5)" stroke-width="1.5"/><line x1="-16" y1="-8" x2="-10" y2="-14" stroke="rgba(0,0,0,0.5)" stroke-width="1"/><line x1="16" y1="-8" x2="22" y2="-14" stroke="rgba(0,0,0,0.5)" stroke-width="1"/><line x1="-10" y1="-14" x2="22" y2="-14" stroke="rgba(0,0,0,0.5)" stroke-width="1"/>${is3D?'<rect x="-16" y="-8" width="32" height="20" rx="2" fill="rgba(255,255,255,0.06)"/>':''}</g>`;
+    const es = el.size||1;
+    const s = (is3D ? depthScale*1.1 : 1) * es;
+    const c = el.color||'#78716c';
+    return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="0" cy="14" rx="18" ry="4" fill="rgba(0,0,0,0.1)" filter="url(#blur3d)"/>':''}<rect x="-16" y="-8" width="32" height="20" rx="2" fill="${c}15" stroke="${c}" stroke-width="1.5"/><line x1="-16" y1="-8" x2="-10" y2="-14" stroke="${c}" stroke-width="1"/><line x1="16" y1="-8" x2="22" y2="-14" stroke="${c}" stroke-width="1"/><line x1="-10" y1="-14" x2="22" y2="-14" stroke="${c}" stroke-width="1"/></g>`;
    }
    case 'kettlebell': {
-    const s=is3D?depthScale*1.1:1;
-    return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="0" cy="14" rx="8" ry="3" fill="rgba(0,0,0,0.1)" filter="url(#blur3d)"/>':''}<circle cx="0" cy="4" r="8" fill="rgba(60,60,60,0.15)" stroke="rgba(0,0,0,0.6)" stroke-width="1.5"/>${is3D?'<circle cx="-2" cy="2" r="3" fill="rgba(255,255,255,0.12)"/>':''}<path d="M-4,-4 Q0,-10 4,-4" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="2"/></g>`;
+    const es = el.size||1;
+    const s = (is3D ? depthScale*1.1 : 1) * es;
+    const c = el.color||'#57534e';
+    return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="0" cy="14" rx="8" ry="3" fill="rgba(0,0,0,0.1)" filter="url(#blur3d)"/>':''}<circle cx="0" cy="4" r="8" fill="${c}25" stroke="${c}" stroke-width="1.5"/><path d="M-4,-4 Q0,-10 4,-4" fill="none" stroke="${c}" stroke-width="2"/></g>`;
    }
    case 'medball': {
-    const s=is3D?depthScale:1;
-    return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="0" cy="12" rx="10" ry="3" fill="rgba(0,0,0,0.1)" filter="url(#blur3d)"/>':''}<circle cx="0" cy="0" r="10" fill="rgba(239,68,68,0.15)" stroke="#ef4444" stroke-width="1.5"/>${is3D?'<circle cx="-3" cy="-3" r="3.5" fill="rgba(255,255,255,0.15)"/>':''}<line x1="-10" y1="0" x2="10" y2="0" stroke="#ef4444" stroke-width="0.8"/></g>`;
+    const es = el.size||1;
+    const s = (is3D ? depthScale : 1) * es;
+    const c = el.color||'#ef4444';
+    return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="0" cy="12" rx="10" ry="3" fill="rgba(0,0,0,0.1)" filter="url(#blur3d)"/>':''}<circle cx="0" cy="0" r="10" fill="${c}25" stroke="${c}" stroke-width="1.5"/><line x1="-10" y1="0" x2="10" y2="0" stroke="${c}" stroke-width="0.8"/></g>`;
    }
-   case 'trx':
-    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><line x1="-6" y1="-14" x2="-6" y2="2" stroke="rgba(0,0,0,0.6)" stroke-width="2"/><line x1="6" y1="-14" x2="6" y2="2" stroke="rgba(0,0,0,0.6)" stroke-width="2"/><circle cx="-6" cy="6" r="4" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.5"/><circle cx="6" cy="6" r="4" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.5"/><line x1="-6" y1="-14" x2="6" y2="-14" stroke="rgba(0,0,0,0.6)" stroke-width="2"/></g>`;
-   case 'sled':
-    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><rect x="-14" y="-8" width="28" height="16" rx="2" fill="rgba(0,0,0,0.08)" stroke="rgba(0,0,0,0.5)" stroke-width="1.5"/><line x1="14" y1="0" x2="24" y2="-6" stroke="rgba(0,0,0,0.4)" stroke-width="2" stroke-dasharray="3 2"/></g>`;
-   case 'parachute':
-    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><path d="M-14,-6 Q0,-16 14,-6" fill="rgba(37,99,235,0.1)" stroke="#2563eb" stroke-width="1.5"/><line x1="-14" y1="-6" x2="0" y2="10" stroke="#2563eb" stroke-width="1"/><line x1="14" y1="-6" x2="0" y2="10" stroke="#2563eb" stroke-width="1"/><line x1="0" y1="-8" x2="0" y2="10" stroke="#2563eb" stroke-width="1"/></g>`;
-   case 'rope':
-    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><path d="M-8,8 Q-4,-4 0,2 Q4,8 8,-4" fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="2" stroke-linecap="round"/><circle cx="-8" cy="8" r="2" fill="rgba(0,0,0,0.3)"/><circle cx="8" cy="-4" r="2" fill="rgba(0,0,0,0.3)"/></g>`;
-   case 'battlerope':
-    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><path d="M-20,0 Q-12,-10 -4,0 Q4,10 12,0 Q18,-8 22,0" fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="3" stroke-linecap="round"/></g>`;
-   case 'roller':
-    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><rect x="-12" y="-5" width="24" height="10" rx="5" fill="rgba(0,0,0,0.06)" stroke="rgba(0,0,0,0.5)" stroke-width="1.5"/></g>`;
-   case 'band':
-    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><path d="M-12,0 Q0,-10 12,0 Q0,10 -12,0" fill="rgba(239,68,68,0.12)" stroke="#ef4444" stroke-width="2"/></g>`;
-   case 'bosu':
-    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><path d="M-14,4 Q0,-10 14,4" fill="rgba(37,99,235,0.1)" stroke="#2563eb" stroke-width="1.5"/><line x1="-14" y1="4" x2="14" y2="4" stroke="#2563eb" stroke-width="1.5"/></g>`;
-   case 'mat':
-    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab"><rect x="-18" y="-10" width="36" height="20" rx="3" fill="rgba(34,197,94,0.1)" stroke="#22c55e" stroke-width="1.5"/></g>`;
+   case 'trx': {
+    const es = el.size||1;
+    const c = el.color||'#1e293b';
+    return `<g transform="translate(${el.x},${el.y}) scale(${es})" data-id="${el.id}" style="cursor:grab"><line x1="-6" y1="-14" x2="-6" y2="2" stroke="${c}" stroke-width="2"/><line x1="6" y1="-14" x2="6" y2="2" stroke="${c}" stroke-width="2"/><circle cx="-6" cy="6" r="4" fill="none" stroke="${c}" stroke-width="1.5"/><circle cx="6" cy="6" r="4" fill="none" stroke="${c}" stroke-width="1.5"/><line x1="-6" y1="-14" x2="6" y2="-14" stroke="${c}" stroke-width="2"/></g>`;
+   }
+   case 'sled': {
+    const es = el.size||1;
+    const c = el.color||'#64748b';
+    return `<g transform="translate(${el.x},${el.y}) scale(${es})" data-id="${el.id}" style="cursor:grab"><rect x="-14" y="-8" width="28" height="16" rx="2" fill="${c}15" stroke="${c}" stroke-width="1.5"/><line x1="14" y1="0" x2="24" y2="-6" stroke="${c}" stroke-width="2" stroke-dasharray="3 2"/></g>`;
+   }
+   case 'parachute': {
+    const es = el.size||1;
+    const c = el.color||'#2563eb';
+    return `<g transform="translate(${el.x},${el.y}) scale(${es})" data-id="${el.id}" style="cursor:grab"><path d="M-14,-6 Q0,-16 14,-6" fill="${c}18" stroke="${c}" stroke-width="1.5"/><line x1="-14" y1="-6" x2="0" y2="10" stroke="${c}" stroke-width="1"/><line x1="14" y1="-6" x2="0" y2="10" stroke="${c}" stroke-width="1"/><line x1="0" y1="-8" x2="0" y2="10" stroke="${c}" stroke-width="1"/></g>`;
+   }
+   case 'rope': {
+    const es = el.size||1;
+    const c = el.color||'#78716c';
+    return `<g transform="translate(${el.x},${el.y}) scale(${es})" data-id="${el.id}" style="cursor:grab"><path d="M-8,8 Q-4,-4 0,2 Q4,8 8,-4" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round"/><circle cx="-8" cy="8" r="2" fill="${c}50"/><circle cx="8" cy="-4" r="2" fill="${c}50"/></g>`;
+   }
+   case 'battlerope': {
+    const es = el.size||1;
+    const c = el.color||'#1e293b';
+    return `<g transform="translate(${el.x},${el.y}) scale(${es})" data-id="${el.id}" style="cursor:grab"><path d="M-20,0 Q-12,-10 -4,0 Q4,10 12,0 Q18,-8 22,0" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round"/></g>`;
+   }
+   case 'roller': {
+    const es = el.size||1;
+    const c = el.color||'#64748b';
+    return `<g transform="translate(${el.x},${el.y}) scale(${es})" data-id="${el.id}" style="cursor:grab"><rect x="-12" y="-5" width="24" height="10" rx="5" fill="${c}15" stroke="${c}" stroke-width="1.5"/></g>`;
+   }
+   case 'band': {
+    const es = el.size||1;
+    const c = el.color||'#ef4444';
+    return `<g transform="translate(${el.x},${el.y}) scale(${es})" data-id="${el.id}" style="cursor:grab"><path d="M-12,0 Q0,-10 12,0 Q0,10 -12,0" fill="${c}20" stroke="${c}" stroke-width="2"/></g>`;
+   }
+   case 'bosu': {
+    const es = el.size||1;
+    const c = el.color||'#2563eb';
+    return `<g transform="translate(${el.x},${el.y}) scale(${es})" data-id="${el.id}" style="cursor:grab"><path d="M-14,4 Q0,-10 14,4" fill="${c}18" stroke="${c}" stroke-width="1.5"/><line x1="-14" y1="4" x2="14" y2="4" stroke="${c}" stroke-width="1.5"/></g>`;
+   }
+   case 'mat': {
+    const es = el.size||1;
+    const c = el.color||'#22c55e';
+    return `<g transform="translate(${el.x},${el.y}) scale(${es})" data-id="${el.id}" style="cursor:grab"><rect x="-18" y="-10" width="36" height="20" rx="3" fill="${c}18" stroke="${c}" stroke-width="1.5"/></g>`;
+   }
    case 'arrow': {
     const mx = ((el.x1||0)+(el.x2||0))/2, my = ((el.y1||0)+(el.y2||0))/2;
     const aid = `ag${el.id}`;
@@ -2271,7 +2335,14 @@ const S = {
    html += `<div class="prop-row"><label>X</label><input type="number" value="${Math.round(el.x||0)}" onchange="S.setProp(${el.id},'x',+this.value)"></div>`;
    html += `<div class="prop-row"><label>Y</label><input type="number" value="${Math.round(el.y||0)}" onchange="S.setProp(${el.id},'y',+this.value)"></div>`;
    if(el.color) html += `<div class="prop-row"><label>Color</label><input type="color" value="${el.color}" class="color-swatch" onchange="S.setProp(${el.id},'color',this.value)"></div>`;
-   if(el.size) html += `<div class="prop-row"><label>Size</label><input type="range" min="8" max="40" value="${el.size}" oninput="S.setProp(${el.id},'size',+this.value)"></div>`;
+   // Player/ball size = radius (8-40), Equipment size = scale (0.5-2.0)
+   const isPlayer = el.type.startsWith('player')||el.type==='goalkeeper';
+   const isBall = el.type==='ball';
+   const equipTypes = ['cone','disc','ring','pole','vest','flag','band','hurdle','minigoal','mannequin','ladder','plyobox','kettlebell','medball','trx','sled','parachute','rope','battlerope','roller','bosu','mat'];
+   const isEquip = equipTypes.includes(el.type);
+   if((isPlayer||isBall) && el.size) html += `<div class="prop-row"><label>Tam.</label><input type="range" min="8" max="40" value="${el.size}" oninput="S.setProp(${el.id},'size',+this.value)"><span style="font-size:9px;color:var(--text-muted);min-width:20px">${el.size}</span></div>`;
+   if(isEquip && el.size !== undefined) html += `<div class="prop-row"><label>Tam.</label><input type="range" min="5" max="25" step="1" value="${Math.round((el.size||1)*10)}" oninput="S.setProp(${el.id},'size',this.value/10)"><span style="font-size:9px;color:var(--text-muted);min-width:24px">${Math.round((el.size||1)*100)}%</span></div>`;
+   if(el.rotation !== undefined) html += `<div class="prop-row"><label>Rot.</label><input type="range" min="0" max="360" step="15" value="${el.rotation||0}" oninput="S.setProp(${el.id},'rotation',+this.value)"><span style="font-size:9px;color:var(--text-muted);min-width:24px">${el.rotation||0}°</span></div>`;
    if(el.type==='ball') {
     const bTypes = [
      {id:'soccer',label:'Futbol',emoji:'⚽'},
