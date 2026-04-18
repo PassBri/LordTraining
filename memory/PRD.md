@@ -9,6 +9,18 @@
 
 ## Implementado
 
+### Deportes tradicionales y alternativos con medidas reglamentarias (Feb 2026)
+- **Juegos tradicionales de precision**: Minitejo (3m x 1.5m · caja 50cm · bocin 10cm · 4 mechas),
+  Rana (mesa 80x80cm · linea lanzamiento 3m), Bolo Criollo (26m x 4m · 9 bolos en rombo),
+  Tejo (19.5m x 2.5m · caja 1m · bocin 17cm · 4 mechas)
+- **Juegos tradicionales con pelota**: Quemados (12m x 6m · linea central · zonas salvacion),
+  Ponchados (diam. 14m · ponchador central), Yermis (10m x 10m · piramide de tapas)
+- **Deportes alternativos**: Ultimate Frisbee (100m x 37m · end zones 18m · WFDF),
+  Floorball (40m x 20m · porteria 160x115cm · areas defensa 4x5m y porteria 1x2.5m · IFF)
+- Labels con medidas en metros/cm usando `rgba(128,128,128,x)` para legibilidad en modo claro/oscuro
+- 9 iconos SVG distintivos anadidos al sidebar por deporte
+- Canchas con escala proporcional al viewBox 600x800 del canvas tactico
+
 ### Material Design Sidebar Completo + Persistencia localStorage (Feb 2026)
 - **Seccion DEPORTE como acordeon**: header con chevron + pill mostrando "Categoria / Deporte" actual
 - **Colapsado por defecto en primera visita**, estado persistido en localStorage (tb_deporte_collapsed)
