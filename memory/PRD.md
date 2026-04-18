@@ -9,7 +9,21 @@
 
 ## Implementado
 
-### Flecha Pase Premium + Estela Fantasma del Balón (Feb 2026)
+### Heatmap Permanente de Trayectorias + Acordeón Sidebar + Implementos Limpios (Feb 2026)
+- **Trayectorias permanentes del balon** tras cada playback:
+  * Al detener playback, se guardan los puntos del trail del balon en ST.trajectories
+  * renderElements dibuja las trayectorias en capa de fondo (3 capas de glow + scanline dashed)
+  * Puntos de origen y destino marcados con circulos cyan
+  * Boton "Borrar trayectorias" en sb-actions (icono trending-up con dashed)
+  * Metodo S.clearTrajectories() disponible
+- **Implementos gimnasio sin borde dashed**: eliminado stroke-dasharray 3 2, reemplazado con borde solido 1.4px, caja redondeada 7px, label en pill con fondo solido, icono 22x22px (mismo estilo que gm_/sp_)
+- **Sidebar acordeón**: cada grupo (Dibujo, Personas, Formaciones, Campo, Implementos, Gimnasio) es un colapsable con:
+  * Header con chevron rotacional, label uppercase, counter badge del numero de tools
+  * Animacion smooth de max-height + opacity
+  * Estado persistente en ST.collapsedGroups (Set)
+  * Click en header expande/colapsa
+
+
 - Flecha "Pase" rediseñada con gradient cyan->azul->indigo, animated stroke-dashoffset
 - Mini balón de futbol al origen (circulo blanco con detalles negros + punto central)
 - Marker "pass-tip" tipo shuriken azul con stroke blanco y glow SVG filter

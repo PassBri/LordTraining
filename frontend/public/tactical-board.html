@@ -83,12 +83,25 @@ html.dark .sb-sport.active{color:var(--brand);background:var(--brand-dim)}
 .sb-sport.active::after{content:'';position:absolute;left:6px;top:50%;transform:translateY(-50%);width:2px;height:16px;background:var(--brand);border-radius:2px;box-shadow:0 0 6px var(--brand-glow)}
 .sb-sport.active{padding-left:14px}
 /* Scrollable tools area */
-.sb-scrollable{flex:1;overflow-y:auto;padding:12px 10px 16px;scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent;display:flex;flex-wrap:wrap;align-content:flex-start;gap:6px 4px;justify-content:center}
+.sb-scrollable{flex:1;overflow-y:auto;padding:10px 10px 16px;scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent;display:block}
 .sb-scrollable::-webkit-scrollbar{width:5px}
 .sb-scrollable::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px}
 .sb-scrollable::-webkit-scrollbar-thumb:hover{background:var(--text-muted)}
-/* Tool groups */
+/* Tool groups (accordion) */
 .tool-sep{width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:10px 0 6px}
+.tool-group{width:100%;margin-bottom:8px;border-radius:12px;overflow:hidden;transition:background .2s}
+.tool-group:hover{background:rgba(148,163,184,0.03)}
+.tool-header-btn{width:100%;display:flex;align-items:center;gap:8px;padding:11px 12px;background:transparent;border:none;cursor:pointer;border-radius:10px;transition:all .18s;text-align:left;border:1px solid transparent}
+.tool-header-btn:hover{background:var(--hover);border-color:var(--border)}
+.tool-header-btn .th-label{flex:1;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--text);display:flex;align-items:center;gap:8px}
+.tool-header-btn .th-label::before{content:'';width:3px;height:14px;background:var(--brand);border-radius:2px;box-shadow:0 0 6px var(--brand-glow);flex-shrink:0}
+.tool-header-btn .th-count{font-size:10px;font-weight:700;color:var(--text-muted);background:var(--surface-2);padding:2px 7px;border-radius:999px;min-width:22px;text-align:center}
+html.dark .tool-header-btn .th-count{background:rgba(255,255,255,0.06)}
+.tool-header-btn .th-chevron{color:var(--text-muted);transition:transform .25s cubic-bezier(.2,.9,.3,1);flex-shrink:0}
+.tool-group.collapsed .th-chevron{transform:rotate(-90deg)}
+.tool-group-content{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 4px;padding:6px 4px 10px;overflow:hidden;transition:max-height .3s cubic-bezier(.2,.9,.3,1),opacity .2s,padding .25s;max-height:2000px;opacity:1}
+.tool-group.collapsed .tool-group-content{max-height:0;opacity:0;padding-top:0;padding-bottom:0;pointer-events:none}
+/* Old tool-header kept for compatibility */
 .tool-header{width:100%;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.16em;color:var(--text-muted);padding:12px 4px 6px;display:flex;align-items:center;gap:6px}
 .tool-header::before{content:'';width:3px;height:12px;background:var(--brand);border-radius:2px;box-shadow:0 0 6px var(--brand-glow)}
 .tool{width:68px;display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px 2px;outline:none;border-radius:14px;transition:background .15s,transform .12s}
@@ -341,6 +354,7 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
    <button class="sb-act" onclick="S.undo()" title="Deshacer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 10h10a5 5 0 015 5v0a5 5 0 01-5 5H10"/><polyline points="7 14 3 10 7 6"/></svg></button>
    <button class="sb-act" onclick="S.redo()" title="Rehacer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 10H11a5 5 0 00-5 5v0a5 5 0 005 5h3"/><polyline points="17 14 21 10 17 6"/></svg></button>
    <button class="sb-act" onclick="S.clearAll()" title="Limpiar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>
+   <button class="sb-act" onclick="S.clearTrajectories()" title="Borrar trayectorias" data-testid="clear-traj-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8" stroke-dasharray="3 2"/><polyline points="14 7 21 7 21 14"/></svg></button>
    <button class="sb-act" onclick="S.toggleGrid()" id="btn-grid" title="Grid"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg></button>
    <button class="sb-act" onclick="S.startPlayback()" id="btn-play" title="Reproducir"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg></button>
   </div>
@@ -911,22 +925,44 @@ const S = {
  renderToolbar() {
   const tb = document.getElementById('toolbar');
   const GH = {1:'Dibujo',2:'Personas',3:'Formaciones',4:'Campo',5:'Agilidad',6:'Fuerza',7:'Cardio',8:'Recuper.',9:'Tren Inferior',10:'Tren Superior',11:'Espalda',12:'Pecho/Hombro',13:'Brazos',14:'Abdomen/Core',15:'Cardio Gym',16:'Poleas/Estac.',17:'Bancos/Estruct.',18:'Implementos'};
-  let lastG = -1;
-  let html = '';
+  if (!ST.collapsedGroups) ST.collapsedGroups = new Set();
+  // Group tools by group number (preserving order, separators ignored for grouping)
+  const groups = [];
+  let current = null;
   TOOLS.forEach(t => {
-   if(t.group===0) { html += '<div class="tool-sep"></div>'; lastG=-1; return; }
-   if(GH[t.group] && t.group!==lastG) html += `<div class="tool-header">${GH[t.group]}</div>`;
-   lastG = t.group;
-   let icon = t.icon;
-   if(t.id==='playerA') icon = `<circle cx="9" cy="9" r="7" fill="${ST.teamAColor}22" stroke="${ST.teamAColor}" stroke-width="1.5"/><text x="9" y="12" text-anchor="middle" font-size="8" fill="${ST.teamAColor}" font-weight="700">A</text>`;
-   if(t.id==='playerB') icon = `<circle cx="9" cy="9" r="7" fill="${ST.teamBColor}22" stroke="${ST.teamBColor}" stroke-width="1.5"/><text x="9" y="12" text-anchor="middle" font-size="8" fill="${ST.teamBColor}" font-weight="700">B</text>`;
-   // Show line style indicator
-   if(t.id==='line') icon = `<line x1="3" y1="15" x2="15" y2="3" stroke="currentColor" stroke-width="1.5" ${ST.lineStyle==='dashed'?'stroke-dasharray="3 2"':ST.lineStyle==='dotted'?'stroke-dasharray="1 2"':''}/>`;
-   if(t.id==='curve') icon = `<path d="M3 15Q9 3 15 15" fill="none" stroke="currentColor" stroke-width="1.5" ${ST.lineStyle==='dashed'?'stroke-dasharray="3 2"':ST.lineStyle==='dotted'?'stroke-dasharray="1 2"':''}/>`;
-   html += `<button class="tool" data-tool="${t.id}" title="${t.label}"><div class="tool-circle${ST.tool===t.id?' active':''}" data-grp="${t.group}"><svg viewBox="0 0 18 18" fill="none">${icon}</svg></div><span class="tool-label${ST.tool===t.id?' active':''}">${t.label}</span></button>`;
+   if (t.group === 0) { current = null; return; }
+   if (!current || current.group !== t.group) {
+    current = { group: t.group, name: GH[t.group] || 'Otros', tools: [] };
+    groups.push(current);
+   }
+   current.tools.push(t);
+  });
+  let html = '';
+  groups.forEach(g => {
+   const collapsed = ST.collapsedGroups.has(g.group);
+   html += `<div class="tool-group${collapsed?' collapsed':''}" data-grp="${g.group}">`;
+   html += `<button class="tool-header-btn" data-toggle-grp="${g.group}" type="button"><span class="th-label">${g.name}</span><span class="th-count">${g.tools.length}</span><svg class="th-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>`;
+   html += `<div class="tool-group-content">`;
+   g.tools.forEach(t => {
+    let icon = t.icon;
+    if(t.id==='playerA') icon = `<circle cx="9" cy="9" r="7" fill="${ST.teamAColor}22" stroke="${ST.teamAColor}" stroke-width="1.5"/><text x="9" y="12" text-anchor="middle" font-size="8" fill="${ST.teamAColor}" font-weight="700">A</text>`;
+    if(t.id==='playerB') icon = `<circle cx="9" cy="9" r="7" fill="${ST.teamBColor}22" stroke="${ST.teamBColor}" stroke-width="1.5"/><text x="9" y="12" text-anchor="middle" font-size="8" fill="${ST.teamBColor}" font-weight="700">B</text>`;
+    if(t.id==='line') icon = `<line x1="3" y1="15" x2="15" y2="3" stroke="currentColor" stroke-width="1.5" ${ST.lineStyle==='dashed'?'stroke-dasharray="3 2"':ST.lineStyle==='dotted'?'stroke-dasharray="1 2"':''}/>`;
+    if(t.id==='curve') icon = `<path d="M3 15Q9 3 15 15" fill="none" stroke="currentColor" stroke-width="1.5" ${ST.lineStyle==='dashed'?'stroke-dasharray="3 2"':ST.lineStyle==='dotted'?'stroke-dasharray="1 2"':''}/>`;
+    html += `<button class="tool" data-tool="${t.id}" title="${t.label}"><div class="tool-circle${ST.tool===t.id?' active':''}" data-grp="${t.group}"><svg viewBox="0 0 18 18" fill="none">${icon}</svg></div><span class="tool-label${ST.tool===t.id?' active':''}">${t.label}</span></button>`;
+   });
+   html += `</div></div>`;
   });
   tb.innerHTML = html;
   tb.onclick = e => {
+   const toggleBtn = e.target.closest('[data-toggle-grp]');
+   if (toggleBtn) {
+    const grp = +toggleBtn.dataset.toggleGrp;
+    const wrapper = toggleBtn.closest('.tool-group');
+    if (ST.collapsedGroups.has(grp)) { ST.collapsedGroups.delete(grp); wrapper.classList.remove('collapsed'); }
+    else { ST.collapsedGroups.add(grp); wrapper.classList.add('collapsed'); }
+    return;
+   }
    const btn = e.target.closest('[data-tool]');
    if(!btn) return;
    const tid = btn.dataset.tool;
@@ -2783,7 +2819,10 @@ const S = {
     const tool = TOOLS.find(t => t.id === el.type);
     const lbl = tool ? tool.label : el.type;
     const iconSvg = tool ? tool.icon : '<rect x="3" y="3" width="12" height="12" rx="2" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1"/>';
-    return `<g transform="translate(${el.x},${el.y}) scale(${es})${rot?` rotate(${rot})`:''}" data-id="${el.id}" style="cursor:grab"><rect x="-18" y="-14" width="36" height="28" rx="4" fill="${c}10" stroke="${c}" stroke-width="0.8" stroke-dasharray="3 2"/><svg viewBox="0 0 18 18" x="-9" y="-14" width="18" height="18" fill="none" stroke="${c}" style="color:${c}">${iconSvg}</svg><text x="0" y="12" text-anchor="middle" font-size="7" fill="${c}" font-weight="600">${lbl}</text></g>`;
+    const isDark = ST.theme==='dark';
+    const labelBg = isDark ? 'rgba(10,15,31,0.88)' : 'rgba(255,255,255,0.95)';
+    const lblW = Math.max(28, lbl.length * 4.6);
+    return `<g transform="translate(${el.x},${el.y}) scale(${es})${rot?` rotate(${rot})`:''}" data-id="${el.id}" style="cursor:grab"><rect x="-20" y="-18" width="40" height="36" rx="7" fill="${c}" fill-opacity="0.14" stroke="${c}" stroke-width="1.4" filter="url(#shadow3d)"/><svg viewBox="0 0 18 18" x="-11" y="-14" width="22" height="22" fill="none" stroke="${c}" style="color:${c}">${iconSvg}</svg><rect x="${-lblW/2}" y="20" width="${lblW}" height="11" rx="3" fill="${labelBg}" stroke="${c}" stroke-width="0.5" opacity="0.95"/><text x="0" y="28.5" text-anchor="middle" font-size="7.5" fill="${c}" font-weight="800" letter-spacing="0.02em">${lbl}</text></g>`;
    }
    case 'arrow': {
     const mx = ((el.x1||0)+(el.x2||0))/2, my = ((el.y1||0)+(el.y2||0))/2;
@@ -2876,8 +2915,29 @@ const S = {
    <filter id="shadow3d"><feDropShadow dx="2" dy="3" stdDeviation="2" flood-opacity="0.2"/></filter>
   </defs>`;
 
+  // Render permanent trajectories (heatmap scanlines from previous playbacks)
+  let trajSvg = '';
+  if (ST.trajectories && ST.trajectories.length) {
+   ST.trajectories.forEach(traj => {
+    if (!traj.points || traj.points.length < 2) return;
+    const c = traj.color || '#06b6d4';
+    const pathD = 'M' + traj.points.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L');
+    // Heatmap-style: wide glow + solid + dashed scanline on top
+    trajSvg += `<g class="permanent-traj" data-traj-id="${traj.id}">`;
+    trajSvg += `<path d="${pathD}" fill="none" stroke="${c}" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" opacity="0.10"/>`;
+    trajSvg += `<path d="${pathD}" fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.22"/>`;
+    trajSvg += `<path d="${pathD}" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.65" stroke-dasharray="4 3"/>`;
+    // Start dot (origin)
+    const p0 = traj.points[0];
+    trajSvg += `<circle cx="${p0.x}" cy="${p0.y}" r="4" fill="${c}" opacity="0.5"/>`;
+    // End dot (target)
+    const pE = traj.points[traj.points.length - 1];
+    trajSvg += `<circle cx="${pE.x}" cy="${pE.y}" r="5" fill="${c}" opacity="0.7"/><circle cx="${pE.x}" cy="${pE.y}" r="8" fill="none" stroke="${c}" stroke-width="1.5" opacity="0.5"/>`;
+    trajSvg += `</g>`;
+   });
+  }
+
   if(ST.viewMode==='3d') {
-   // Isometric mode: project and sort by iso Y (painter's algorithm)
    const projected = ST.elements.map(el => {
     const ey = el.y||el.y1||400;
     const ex = el.x||el.x1||300;
@@ -2885,12 +2945,17 @@ const S = {
     return {el, isoY: ip.y};
    });
    projected.sort((a,b) => a.isoY - b.isoY);
-   layer.innerHTML = defs + projected.map(({el}) => this.buildIsoElement(el)).join('');
+   layer.innerHTML = defs + trajSvg + projected.map(({el}) => this.buildIsoElement(el)).join('');
   } else {
    const zOrder = {zone:0, line:1, arrow:1, curve:1, pencil:1, cone:2, disc:2, flag:2, hurdle:2, minigoal:2, mannequin:2, vest:2, ring:2, ladder:2, pole:2, plyobox:2, kettlebell:2, medball:2, trx:2, sled:2, parachute:2, rope:2, battlerope:2, roller:2, band:2, bosu:2, mat:2, ball:2, playerA:3, playerB:3, goalkeeper:3, text:4};
    const sorted = [...ST.elements].sort((a,b)=>(zOrder[a.type]||2)-(zOrder[b.type]||2));
-   layer.innerHTML = defs + sorted.map(el => this.buildElSvg(el)).join('');
+   layer.innerHTML = defs + trajSvg + sorted.map(el => this.buildElSvg(el)).join('');
   }
+ },
+
+ clearTrajectories() {
+  ST.trajectories = [];
+  this.renderElements();
  },
 
  // ── ZOOM ──
@@ -3500,6 +3565,23 @@ const S = {
       const last = chain.segments[chain.segments.length - 1];
       const el = ST.elements.find(e => e.id === chain.playerId);
       if (el) { el.x = last.toX; el.y = last.toY; }
+     });
+    }
+    // Save ball/object trails as permanent heatmap trajectories
+    if (ST.playbackTrails) {
+     Object.entries(ST.playbackTrails).forEach(([eid, pts]) => {
+      if (!pts || pts.length < 3) return;
+      const el = ST.elements.find(e => String(e.id) === String(eid));
+      if (!el) return;
+      if (el.type !== 'ball') return; // only ball gets permanent heatmap
+      ST.trajectories = ST.trajectories || [];
+      ST.trajectories.push({
+       id: ST.nextId++,
+       elementType: el.type,
+       points: pts.map(p => ({ x: p.x, y: p.y })),
+       color: '#06b6d4',
+       timestamp: Date.now()
+      });
      });
     }
    }
