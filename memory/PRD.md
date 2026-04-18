@@ -9,6 +9,16 @@
 
 ## Implementado
 
+### Doble toggle Medidas + Zonas = 3 modos de visualizacion (Feb 2026)
+- **Segundo boton toggle "Zonas"** al lado de "Medidas" en la barra CAMPO (icono de label/text)
+- **Clase CSS `.fld-zone`** aplicada a 111 textos descriptivos via deteccion automatica (regex que distingue medidas puras como "68 m", "9.14 m (30 ft)" de zonas como "AREA 6m", "LINEA CENTRAL", "PONCHADOR", etc.)
+- **67 medidas puras** permanecen independientes del toggle de zonas
+- **3 modos combinables** persistidos en `localStorage` (`tb_hide_measures`, `tb_hide_zones`):
+  - Todo visible (Medidas ON + Zonas ON): presentacion completa con contexto
+  - Solo medidas (Medidas ON + Zonas OFF): analisis formal tipo blueprint
+  - Cancha limpia (Medidas OFF): diagramas puros para presentaciones/exportacion
+- Textos coloreados especiales (EQUIPO A/B, END ZONE) clasificados como zonas
+
 ### Tipografia premium de medidas (Feb 2026)
 - **Fuente Oswald** (condensed, tecnica, ya cargada desde Google Fonts) para todos los labels `.fld-measure`
 - **Weight 600 + letter-spacing 0.07em** para legibilidad maxima
