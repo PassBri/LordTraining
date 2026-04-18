@@ -55,18 +55,20 @@ input:focus,textarea:focus,select:focus{border-color:var(--primary);box-shadow:0
 .sb-close{width:30px;height:30px;border-radius:8px;background:var(--hover);display:flex;align-items:center;justify-content:center;color:var(--text-muted);transition:all .15s}
 .sb-close:hover{background:var(--surface-2);color:var(--text);transform:rotate(90deg)}
 html.dark .sb-close:hover{background:rgba(255,255,255,0.08)}
-/* Sport selector - Material Design structured */
+/* Sport selector - Material Design with native details/summary */
 .sb-section{padding:0;border-bottom:1px solid var(--border);position:relative}
-.sb-deporte-toggle{width:100%;display:flex;align-items:center;gap:10px;padding:14px 16px;background:transparent;border:none;cursor:pointer;text-align:left;border-radius:0;transition:background .15s}
-.sb-deporte-toggle>*{pointer-events:none}
-.sb-deporte-toggle:hover{background:var(--hover)}
-.sb-deporte-toggle .sb-section-label{margin-bottom:0;flex-shrink:0}
+details.sb-deporte{list-style:none}
+details.sb-deporte > summary{list-style:none;cursor:pointer;display:block;padding:0}
+details.sb-deporte > summary::-webkit-details-marker{display:none}
+details.sb-deporte > summary::marker{content:""}
+.sb-deporte-toggle-inner{width:100%;display:flex;align-items:center;gap:10px;padding:14px 16px;background:transparent;text-align:left;transition:background .15s;pointer-events:none}
+.sb-deporte-toggle:hover .sb-deporte-toggle-inner{background:var(--hover)}
+.sb-deporte-toggle-inner .sb-section-label{margin-bottom:0;flex-shrink:0}
 .sb-deporte-current{flex:1;font-size:11px;font-weight:700;color:var(--text);background:var(--surface-2);padding:5px 10px;border-radius:999px;border:1px solid var(--border);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;letter-spacing:0.02em}
 html.dark .sb-deporte-current{background:rgba(255,255,255,0.04)}
-.sb-deporte-chevron{color:var(--text-muted);transition:transform .25s cubic-bezier(.2,.9,.3,1);flex-shrink:0}
-.sb-deporte.collapsed .sb-deporte-chevron{transform:rotate(-90deg)}
-.sb-deporte-content{padding:4px 16px 16px;overflow:hidden;transition:max-height .3s cubic-bezier(.2,.9,.3,1),opacity .2s,padding .25s;max-height:2000px;opacity:1}
-.sb-deporte.collapsed .sb-deporte-content{max-height:0;opacity:0;padding-top:0;padding-bottom:0;pointer-events:none}
+.sb-deporte-chevron{color:var(--text-muted);transition:transform .25s cubic-bezier(.2,.9,.3,1);flex-shrink:0;transform:rotate(-90deg)}
+details[open] .sb-deporte-chevron{transform:rotate(0deg)}
+.sb-deporte-content{padding:4px 16px 16px}
 .sb-section-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.16em;color:var(--text-muted);display:flex;align-items:center;gap:8px}
 .sb-section-label::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--brand);box-shadow:0 0 10px var(--brand-glow)}
 /* Category grid: 3 equal columns (wider sidebar) */
@@ -355,18 +357,20 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
    <div class="brand-text">iTRAIN</div>
    <button class="sb-close" onclick="S.closeBoard()" title="Volver" data-testid="close-board-btn"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></button>
   </div>
-  <!-- Sport selector as accordion -->
-  <div class="sb-section sb-deporte collapsed" id="sb-deporte-section">
-   <button class="sb-deporte-toggle" id="sb-deporte-toggle" type="button" data-testid="toggle-deporte-section" onclick="(function(){var s=document.getElementById('sb-deporte-section');var c=s.classList.toggle('collapsed');try{localStorage.setItem('tb_deporte_collapsed',c?'1':'0')}catch(e){}})()">
-    <span class="sb-section-label">DEPORTE</span>
-    <span class="sb-deporte-current" id="sb-deporte-current">Conjunto / Futbol</span>
-    <svg class="sb-deporte-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-   </button>
+  <!-- Sport selector as accordion (native <details>) -->
+  <details class="sb-section sb-deporte" id="sb-deporte-section" data-testid="deporte-section">
+   <summary class="sb-deporte-toggle" id="sb-deporte-toggle">
+    <div class="sb-deporte-toggle-inner">
+     <span class="sb-section-label">DEPORTE</span>
+     <span class="sb-deporte-current" id="sb-deporte-current">Conjunto / Futbol</span>
+     <svg class="sb-deporte-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+   </summary>
    <div class="sb-deporte-content">
     <div class="sb-sport-tabs" id="cat-tabs"></div>
     <div class="sb-sport-list" id="sport-list"></div>
    </div>
-  </div>
+  </details>
   <!-- Tools -->
   <div class="sb-scrollable" id="toolbar"></div>
   <!-- Bottom actions -->
@@ -551,7 +555,10 @@ const CATS = {
  individuales:{name:'Individuales',sports:['Gimnasia','Golf','Escalada','Surf','Skateboarding']},
  orientacion:{name:'Orientacion',sports:['Orientacion','Trail Running','Raid Aventura']},
  esports:{name:'Esports',sports:['League of Legends','Valorant','FIFA','CS GO','Fortnite','Rocket League']},
- gimnasio:{name:'Gimnasio',sports:['Sala de Pesas','Circuito']}
+ gimnasio:{name:'Gimnasio',sports:['Sala de Pesas','Circuito']},
+ tradprecision:{name:'Trad. Precision',sports:['Minitejo','Rana','Bolo Criollo','Tejo']},
+ tradpelota:{name:'Trad. Pelota',sports:['Quemados','Ponchados','Yermis']},
+ alternativos:{name:'Alternativos',sports:['Ultimate Frisbee','Floorball']}
 };
 
 // ═══════════ SPORT FIELDS (viewBox 600x800, portrait) ═══════════
@@ -843,9 +850,9 @@ const S = {
    if (savedCollapsedGroups) ST.collapsedGroups = new Set(JSON.parse(savedCollapsedGroups));
    else ST.collapsedGroups = new Set([2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]); // default: only DIBUJO open
    const depCollapsed = localStorage.getItem('tb_deporte_collapsed');
-   // HTML default: collapsed. Only expand if user explicitly expanded last session.
+   // Native <details>: open attribute. Collapsed by default, expand only if user had it expanded.
    if (depCollapsed === '0') {
-    setTimeout(() => { const s = document.getElementById('sb-deporte-section'); if (s) s.classList.remove('collapsed'); }, 0);
+    setTimeout(() => { const s = document.getElementById('sb-deporte-section'); if (s) s.open = true; }, 0);
    }
   } catch(e){ ST.collapsedGroups = new Set([2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]); }
   this.renderTabs();
@@ -858,11 +865,13 @@ const S = {
   this.bindKeys();
   this.updatePanel();
   this.updateStats();
-  // Global event delegation for accordion toggles (more reliable than inline onclick)
-  document.addEventListener('click', (e) => {
-   const depTg = e.target.closest('#sb-deporte-toggle');
-   if (depTg) { e.preventDefault(); this.toggleSportSection(); return; }
-  });
+  // Listen for <details> open/close to persist state
+  const depSec = document.getElementById('sb-deporte-section');
+  if (depSec) {
+   depSec.addEventListener('toggle', () => {
+    try { localStorage.setItem('tb_deporte_collapsed', depSec.open ? '0' : '1'); } catch(e){}
+   });
+  }
  },
 
  // ── TABS ──
@@ -876,7 +885,10 @@ const S = {
    individuales:'<circle cx="10" cy="6" r="3" fill="none" stroke-width="1.8"/><line x1="10" y1="9" x2="10" y2="16" stroke-width="1.8"/><line x1="6" y1="12" x2="14" y2="12" stroke-width="1.8"/>',
    orientacion:'<polygon points="10,2 13,10 10,8 7,10" fill="currentColor"/><circle cx="10" cy="10" r="7" fill="none" stroke-width="1.5"/>',
    esports:'<rect x="3" y="5" width="14" height="10" rx="2" fill="none" stroke-width="1.8"/><line x1="7" y1="15" x2="13" y2="15" stroke-width="1.8"/>',
-   gimnasio:'<path d="M3 10h2v-3h2v6h2v-6h2v3h2" fill="none" stroke-width="2" stroke-linecap="round"/>'
+   gimnasio:'<path d="M3 10h2v-3h2v6h2v-6h2v3h2" fill="none" stroke-width="2" stroke-linecap="round"/>',
+   tradprecision:'<circle cx="10" cy="10" r="6" fill="none" stroke-width="1.5"/><circle cx="10" cy="10" r="3" fill="none" stroke-width="1.2"/><circle cx="10" cy="10" r="1" fill="currentColor"/>',
+   tradpelota:'<circle cx="10" cy="10" r="5" fill="none" stroke-width="1.5"/><path d="M6 6l8 8M14 6l-8 8" stroke-width="1.2"/>',
+   alternativos:'<circle cx="10" cy="10" r="6" fill="none" stroke-width="1.5" stroke-dasharray="2 2"/><path d="M7 10l2 2 4-4" fill="none" stroke-width="1.5" stroke-linecap="round"/>'
   };
   wrap.innerHTML = Object.entries(CATS).map(([k,v]) =>
    `<button class="sb-cat${ST.cat===k?' active':''}" data-cat="${k}" title="${v.name}"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${CI[k]||CI.conjunto}</svg>${v.name.replace('/',' / ')}</button>`
@@ -967,8 +979,8 @@ const S = {
  toggleSportSection() {
   const sec = document.getElementById('sb-deporte-section');
   if (!sec) return;
-  const isCollapsed = sec.classList.toggle('collapsed');
-  try { localStorage.setItem('tb_deporte_collapsed', isCollapsed ? '1' : '0'); } catch(e){}
+  sec.open = !sec.open;
+  try { localStorage.setItem('tb_deporte_collapsed', sec.open ? '0' : '1'); } catch(e){}
  },
 
  // ── TOOLBAR ──
