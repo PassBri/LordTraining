@@ -58,6 +58,7 @@ html.dark .sb-close:hover{background:rgba(255,255,255,0.08)}
 /* Sport selector - Material Design structured */
 .sb-section{padding:0;border-bottom:1px solid var(--border);position:relative}
 .sb-deporte-toggle{width:100%;display:flex;align-items:center;gap:10px;padding:14px 16px;background:transparent;border:none;cursor:pointer;text-align:left;border-radius:0;transition:background .15s}
+.sb-deporte-toggle>*{pointer-events:none}
 .sb-deporte-toggle:hover{background:var(--hover)}
 .sb-deporte-toggle .sb-section-label{margin-bottom:0;flex-shrink:0}
 .sb-deporte-current{flex:1;font-size:11px;font-weight:700;color:var(--text);background:var(--surface-2);padding:5px 10px;border-radius:999px;border:1px solid var(--border);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;letter-spacing:0.02em}
@@ -356,7 +357,7 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
   </div>
   <!-- Sport selector as accordion -->
   <div class="sb-section sb-deporte collapsed" id="sb-deporte-section">
-   <button class="sb-deporte-toggle" onclick="S.toggleSportSection()" data-testid="toggle-deporte-section">
+   <button class="sb-deporte-toggle" id="sb-deporte-toggle" type="button" data-testid="toggle-deporte-section" onclick="(function(){var s=document.getElementById('sb-deporte-section');var c=s.classList.toggle('collapsed');try{localStorage.setItem('tb_deporte_collapsed',c?'1':'0')}catch(e){}})()">
     <span class="sb-section-label">DEPORTE</span>
     <span class="sb-deporte-current" id="sb-deporte-current">Conjunto / Futbol</span>
     <svg class="sb-deporte-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -857,6 +858,11 @@ const S = {
   this.bindKeys();
   this.updatePanel();
   this.updateStats();
+  // Global event delegation for accordion toggles (more reliable than inline onclick)
+  document.addEventListener('click', (e) => {
+   const depTg = e.target.closest('#sb-deporte-toggle');
+   if (depTg) { e.preventDefault(); this.toggleSportSection(); return; }
+  });
  },
 
  // ── TABS ──
