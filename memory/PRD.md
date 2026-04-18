@@ -9,6 +9,18 @@
 
 ## Implementado
 
+### Toggle de medidas reglamentarias + Unificacion de canchas (Feb 2026)
+- **Boton toggle "Medidas"** en la barra CAMPO (icono `#` con "m") que muestra/oculta todas las medidas y labels de las canchas. Estado persistido en `localStorage` (`tb_hide_measures`).
+- **Clase CSS `.fld-measure`** aplicada a todos los textos informativos. CSS: `#canvas-inner.hide-measures .fld-measure { display:none }`.
+- **Medidas reglamentarias oficiales** anadidas/verificadas en ~27 deportes:
+  - CONJUNTO: Futbol 105x68m FIFA · Baloncesto 28x15m FIBA · Voleibol 18x9m FIVB · Balonmano 40x20m IHF · Rugby 100x70m World Rugby · Hockey 60x30m IIHF · Beisbol bases 27.43m + monticulo 18.44m MLB · Futbol Americano 109.73x48.76m NFL · Futsal 40x20m FIFA
+  - RAQUETA: Tenis 23.77x10.97m ITF · Padel 20x10m FIP · Badminton 13.4x6.1m BWF · Squash 9.75x6.4m WSF · Tenis de Mesa 2.74x1.525m ITTF · Fronton 30x10m
+  - CONTACTO: Boxeo ring 6.1x6.1m · MMA octagono 9.14m UFC · Judo tatami 10x10m IJF · Taekwondo octogono 8m WT · Karate 10x10m WKF · Lucha diam. 9m UWW · Kickboxing 6.1x6.1m WAKO
+  - TIEMPO/MARCA: Atletismo pista 400m IAAF · Natacion 50x25m FINA (8 calles 2.5m) · Ciclismo velodromo 250m UCI · Remo 2000m 6 calles WR · Patinaje Velocidad 400m ISU · Patinaje Artistico 60x30m ISU
+  - INDIVIDUALES: Gimnasia suelo 12x12m FIG
+  - 9 deportes tradicionales y alternativos ya agregados en iteracion anterior
+- Labels en estilo limpio y lineal: fuente `system-ui`, color `rgba(128,128,128,x)` (funciona en modo claro/oscuro), medidas principales arriba y rotadas en la lateral, nombre del deporte + federacion al pie.
+
 ### Deportes tradicionales y alternativos con medidas reglamentarias (Feb 2026)
 - **Juegos tradicionales de precision**: Minitejo (3m x 1.5m · caja 50cm · bocin 10cm · 4 mechas),
   Rana (mesa 80x80cm · linea lanzamiento 3m), Bolo Criollo (26m x 4m · 9 bolos en rombo),
