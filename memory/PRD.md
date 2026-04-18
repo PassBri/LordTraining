@@ -11,24 +11,21 @@
 
 ### Rediseno UI Premium SaaS Pizarra Tactica (Feb 2026)
 - CSS completamente renovado en tactical-board.html (solo bloque <style>, sin tocar JS)
-- Sidebar ampliado (220px -> 248px) con brand iTRAIN visible (logo lime + texto)
+- Sidebar ampliado (220px -> 380px) con brand iTRAIN visible (logo lime + texto)
 - Ambient radial gradient de fondo con acentos brand y blue (premium depth)
 - Paleta cohesiva con landing page: brand #CCFF00 en dark mode, slate-950/900 backgrounds
 - Tipografia Inter (300-900) via Google Fonts, antialiasing activado
-- Tool circles rediseñados: 46x46px, border-radius 14px, sombras multicapa, gradient overlay, active ring brand
-- Mejor espaciado en tools (gap 6px vertical, 4px horizontal, padding 12px)
-- View bar 56px con pills 100% redondeados (border-radius 999px), iconos Campo circulares 38px
-- Theme toggle prominente 44px, sticky right siempre visible, hover con brand glow + rotacion
-- avatar-style-seg con max-width 380px + mask-image fade para scroll horizontal sin romper layout
+- Categorias y deportes en grid 3xN para aprovechar espacio horizontal
+- Wrap natural en 2 lineas + title tooltips para nombres largos
+- Tool circles 46x46px, border-radius 14px, sombras multicapa, gradient overlay, active ring brand
+- View bar 56px con pills redondeados 999px, iconos circulares 38px
+- Theme toggle 44px sticky right siempre visible con brand glow
+- 14 estilos de avatar convertidos a ICONOS SVG compactos (28px circulares) con tooltips
+- Genero Masculino/Femenino tambien convertidos a iconos simbolo (♂ Mars / ♀ Venus)
 - Botones Guardar/PNG/IA con gradientes verticales y shine interna
 - Modales con backdrop-blur 10px + animaciones slide-in
-- Toasts con gradientes, shadow profunda y animacion X
-- Playback bar y joystick rediseñados con brand accent y glass effect
-- Panel derecho ampliado (220px -> 248px) con tabs mejorados
-- Botón "Usar X" en color picker: contraste AAA (texto oscuro sobre lima en dark mode)
-- SVG rendering con shape-rendering:geometricPrecision para elementos nitidos en el canvas
-- Equipamiento gimnasio (gm_/sp_) rediseñado: borde solido (sin dashed), fondo 14% opacity,
-  icono 22x22, label en pill con fondo oscuro y borde del color, sombra para profundidad
+- Equipamiento gimnasio (gm_/sp_) rediseñado: borde solido, fondo 14% opacity,
+  icono 22x22, label en pill con fondo oscuro, sombra para profundidad
 - Cambios 100% CSS + render SVG: todas las clases y JS intactos
 
 ### Restauracion cuadros Eventos/Monitoreo en GraphicPlan (Abr 2026)

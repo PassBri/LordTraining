@@ -155,9 +155,13 @@ html.dark .sb-actions{background:rgba(255,255,255,0.015)}
 .vb-sep{width:1px;height:28px;background:var(--border);margin:0 4px}
 .vb-seg{display:flex;background:var(--surface-2);border-radius:999px;padding:4px;gap:2px;border:1px solid var(--border);box-shadow:inset 0 1px 2px rgba(0,0,0,0.04);max-width:100%;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
 .vb-seg::-webkit-scrollbar{display:none}
-#avatar-style-seg{max-width:380px;position:relative;mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 18px),transparent 100%);-webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 18px),transparent 100%)}
-#avatar-style-seg .vb-btn{padding:6px 11px;font-size:10.5px;min-width:auto}
+#avatar-style-seg{max-width:none}
 html.dark .vb-seg{background:rgba(255,255,255,0.04);box-shadow:inset 0 1px 2px rgba(0,0,0,0.25)}
+/* Icon-only buttons in view bar (gender, avatar styles) */
+.vb-icon-btn{padding:0!important;width:28px;height:28px;min-width:28px!important;border-radius:50%!important;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.vb-icon-btn svg{width:15px;height:15px}
+.vb-icon-btn.active{background:var(--text)!important;color:var(--panel)!important}
+html.dark .vb-icon-btn.active{background:var(--brand)!important;color:#0a0f1f!important}
 .vb-btn{padding:7px 16px;border-radius:999px;font-size:11px;font-weight:700;color:var(--text-sec);transition:all .2s cubic-bezier(.2,.8,.2,1);white-space:nowrap;letter-spacing:0.03em;min-width:44px;text-align:center}
 .vb-btn:hover{color:var(--text);background:var(--hover)}
 .vb-btn.active{background:var(--panel);color:var(--text);box-shadow:0 2px 8px -2px var(--shadow-md),0 0 0 1px var(--border);font-weight:800}
@@ -364,24 +368,24 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
      <button class="vb-btn" data-avatar="avatar" onclick="S.setAvatarMode('avatar')">Avatar</button>
     </div>
     <div class="vb-seg" id="avatar-style-seg" style="display:none">
-     <button class="vb-btn active" data-style="modern" onclick="S.setAvatarStyle('modern')">Moderno</button>
-     <button class="vb-btn" data-style="chibi" onclick="S.setAvatarStyle('chibi')">Chibi</button>
-     <button class="vb-btn" data-style="pixel" onclick="S.setAvatarStyle('pixel')">Pixel</button>
-     <button class="vb-btn" data-style="minimal" onclick="S.setAvatarStyle('minimal')">Minimal</button>
-     <button class="vb-btn" data-style="gymrat" onclick="S.setAvatarStyle('gymrat')">Gymrat</button>
-     <button class="vb-btn" data-style="athlete" onclick="S.setAvatarStyle('athlete')">Athlete</button>
-     <button class="vb-btn" data-style="playmaker" onclick="S.setAvatarStyle('playmaker')">Playmaker</button>
-     <button class="vb-btn" data-style="runner" onclick="S.setAvatarStyle('runner')">Runner</button>
-     <button class="vb-btn" data-style="coach" onclick="S.setAvatarStyle('coach')">Coach</button>
-     <button class="vb-btn" data-style="warrior" onclick="S.setAvatarStyle('warrior')">Warrior</button>
-     <button class="vb-btn" data-style="explorer" onclick="S.setAvatarStyle('explorer')">Explorer</button>
-     <button class="vb-btn" data-style="grinder" onclick="S.setAvatarStyle('grinder')">Grinder</button>
-     <button class="vb-btn" data-style="hybrid" onclick="S.setAvatarStyle('hybrid')">Hybrid</button>
-     <button class="vb-btn" data-style="beastmode" onclick="S.setAvatarStyle('beastmode')">Beastmode</button>
+     <button class="vb-btn vb-icon-btn active" data-style="modern" onclick="S.setAvatarStyle('modern')" title="Moderno"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/></svg></button>
+     <button class="vb-btn vb-icon-btn" data-style="chibi" onclick="S.setAvatarStyle('chibi')" title="Chibi"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="9" r="6"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/><path d="M8 18h8"/></svg></button>
+     <button class="vb-btn vb-icon-btn" data-style="pixel" onclick="S.setAvatarStyle('pixel')" title="Pixel"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="4" height="4"/><rect x="10" y="4" width="4" height="4"/><rect x="16" y="4" width="4" height="4"/><rect x="4" y="10" width="4" height="4"/><rect x="10" y="10" width="4" height="4"/><rect x="4" y="16" width="4" height="4"/><rect x="16" y="16" width="4" height="4"/></svg></button>
+     <button class="vb-btn vb-icon-btn" data-style="minimal" onclick="S.setAvatarStyle('minimal')" title="Minimal"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="3"/><path d="M8 21v-4a4 4 0 0 1 8 0v4"/></svg></button>
+     <button class="vb-btn vb-icon-btn" data-style="gymrat" onclick="S.setAvatarStyle('gymrat')" title="Gymrat"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h2M20 12h2M6 8v8M18 8v8M6 10h12M6 14h12"/></svg></button>
+     <button class="vb-btn vb-icon-btn" data-style="athlete" onclick="S.setAvatarStyle('athlete')" title="Athlete"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="2"/><path d="M15 22l-3-9-3 9M9 10h6l2-4"/></svg></button>
+     <button class="vb-btn vb-icon-btn" data-style="playmaker" onclick="S.setAvatarStyle('playmaker')" title="Playmaker"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20M6 6l12 12M6 18L18 6"/></svg></button>
+     <button class="vb-btn vb-icon-btn" data-style="runner" onclick="S.setAvatarStyle('runner')" title="Runner"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="M4 22l5-7 2-5 3 3 3-2 4 6"/></svg></button>
+     <button class="vb-btn vb-icon-btn" data-style="coach" onclick="S.setAvatarStyle('coach')" title="Coach"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10l1 4H6l1-4zM5 8h14v4a7 7 0 0 1-14 0V8z"/><path d="M11 22v-6"/></svg></button>
+     <button class="vb-btn vb-icon-btn" data-style="warrior" onclick="S.setAvatarStyle('warrior')" title="Warrior"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 5 4 9 8 10 4-1 8-5 8-10V6l-8-4z"/><path d="M9 11l2 2 4-4"/></svg></button>
+     <button class="vb-btn vb-icon-btn" data-style="explorer" onclick="S.setAvatarStyle('explorer')" title="Explorer"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16 8 14 14 8 16 10 10 16 8"/></svg></button>
+     <button class="vb-btn vb-icon-btn" data-style="grinder" onclick="S.setAvatarStyle('grinder')" title="Grinder"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></button>
+     <button class="vb-btn vb-icon-btn" data-style="hybrid" onclick="S.setAvatarStyle('hybrid')" title="Hybrid"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="5"/><circle cx="15" cy="15" r="5"/></svg></button>
+     <button class="vb-btn vb-icon-btn" data-style="beastmode" onclick="S.setAvatarStyle('beastmode')" title="Beastmode"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l2 4 4-2 4 2 2-4-2 6 3 3-3 3 2 6-4-2-2 4-2-4-4 2 2-6-3-3 3-3-2-6z"/></svg></button>
     </div>
     <div class="vb-seg" id="avatar-gender-seg" style="display:none">
-     <button class="vb-btn active" data-gender="M" onclick="S.setAvatarGender('M')">Masc</button>
-     <button class="vb-btn" data-gender="F" onclick="S.setAvatarGender('F')">Fem</button>
+     <button class="vb-btn vb-icon-btn active" data-gender="M" onclick="S.setAvatarGender('M')" title="Masculino"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="14" r="6"/><path d="M19 5l-5.5 5.5M19 5h-5M19 5v5"/></svg></button>
+     <button class="vb-btn vb-icon-btn" data-gender="F" onclick="S.setAvatarGender('F')" title="Femenino"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M12 15v7M9 19h6"/></svg></button>
     </div>
    </div>
    <div class="vb-sep"></div>
