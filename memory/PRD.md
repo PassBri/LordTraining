@@ -9,7 +9,18 @@
 
 ## Implementado
 
-### Text Picker Modal + Degradados LED (Feb 2026)
+### Material Design Sidebar Completo + Persistencia localStorage (Feb 2026)
+- **Seccion DEPORTE como acordeon**: header con chevron + pill mostrando "Categoria / Deporte" actual
+- **Colapsado por defecto en primera visita**, estado persistido en localStorage (tb_deporte_collapsed)
+- **Todos los grupos de tools colapsados excepto DIBUJO** al entrar por primera vez
+- **Persistencia de estado de acordeones** (ST.collapsedGroups) en localStorage (tb_collapsed_groups)
+- **Persistencia de ultimo estilo de texto** (ST.textStyle) en localStorage (tb_text_style) - se
+  aplica automaticamente la proxima vez que el usuario usa la herramienta Texto
+- **Iconos mas compactos**: tool-circle 46px -> 40px, svg 21px -> 18px, tool width 68px -> 58px
+- Labels mas pequenos y espaciado reducido
+- setSport actualiza automaticamente el label del pill con "Cat / Sport" tipo breadcrumb
+
+
 - Picker del texto convertido a modal centrado (overlay + modal-card) con scroll interno
 - Preview en vivo arriba con todos los efectos aplicados (fuente, color, gradient, sombra, stroke, italic)
 - 8 degradados LED preset: Neon LED (lima->azul), Fuego (amarillo->rojo), Oceano (cyan->purpura),

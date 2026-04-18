@@ -56,11 +56,18 @@ input:focus,textarea:focus,select:focus{border-color:var(--primary);box-shadow:0
 .sb-close:hover{background:var(--surface-2);color:var(--text);transform:rotate(90deg)}
 html.dark .sb-close:hover{background:rgba(255,255,255,0.08)}
 /* Sport selector - Material Design structured */
-.sb-section{padding:16px 16px 18px;border-bottom:1px solid var(--border);position:relative}
-.sb-section::after{content:'';position:absolute;bottom:0;left:16px;right:16px;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent)}
-.sb-section-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.16em;color:var(--text-muted);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sb-section{padding:0;border-bottom:1px solid var(--border);position:relative}
+.sb-deporte-toggle{width:100%;display:flex;align-items:center;gap:10px;padding:14px 16px;background:transparent;border:none;cursor:pointer;text-align:left;border-radius:0;transition:background .15s}
+.sb-deporte-toggle:hover{background:var(--hover)}
+.sb-deporte-toggle .sb-section-label{margin-bottom:0;flex-shrink:0}
+.sb-deporte-current{flex:1;font-size:11px;font-weight:700;color:var(--text);background:var(--surface-2);padding:5px 10px;border-radius:999px;border:1px solid var(--border);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;letter-spacing:0.02em}
+html.dark .sb-deporte-current{background:rgba(255,255,255,0.04)}
+.sb-deporte-chevron{color:var(--text-muted);transition:transform .25s cubic-bezier(.2,.9,.3,1);flex-shrink:0}
+.sb-deporte.collapsed .sb-deporte-chevron{transform:rotate(-90deg)}
+.sb-deporte-content{padding:4px 16px 16px;overflow:hidden;transition:max-height .3s cubic-bezier(.2,.9,.3,1),opacity .2s,padding .25s;max-height:2000px;opacity:1}
+.sb-deporte.collapsed .sb-deporte-content{max-height:0;opacity:0;padding-top:0;padding-bottom:0;pointer-events:none}
+.sb-section-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.16em;color:var(--text-muted);display:flex;align-items:center;gap:8px}
 .sb-section-label::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--brand);box-shadow:0 0 10px var(--brand-glow)}
-.sb-section-hint{margin-left:auto;font-size:9px;font-weight:600;color:var(--text-muted);letter-spacing:0.06em;opacity:0.7}
 /* Category grid: 3 equal columns (wider sidebar) */
 .sb-sport-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px}
 .sb-cat{display:inline-flex;align-items:center;gap:6px;padding:8px 9px;border-radius:10px;font-size:10.5px;font-weight:700;background:var(--surface);color:var(--text-sec);transition:all .2s cubic-bezier(.2,.8,.2,1);border:1px solid var(--border);letter-spacing:0.01em;box-shadow:0 1px 2px var(--shadow);justify-content:flex-start;min-height:38px;line-height:1.15;text-align:left;word-break:normal;overflow-wrap:anywhere}
@@ -105,21 +112,21 @@ html.dark .tool-header-btn .th-count{background:rgba(255,255,255,0.06)}
 /* Old tool-header kept for compatibility */
 .tool-header{width:100%;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.16em;color:var(--text-muted);padding:12px 4px 6px;display:flex;align-items:center;gap:6px}
 .tool-header::before{content:'';width:3px;height:12px;background:var(--brand);border-radius:2px;box-shadow:0 0 6px var(--brand-glow)}
-.tool{width:68px;display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px 2px;outline:none;border-radius:14px;transition:background .15s,transform .12s}
+.tool{width:58px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:3px 2px;outline:none;border-radius:12px;transition:background .15s,transform .12s}
 .tool:hover{background:var(--hover);transform:translateY(-2px)}
 .tool:active{transform:scale(0.94)}
-.tool-circle{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;transition:all .22s cubic-bezier(.2,.8,.2,1);box-shadow:0 1px 2px var(--shadow),0 3px 10px -3px var(--shadow-md);border:1px solid var(--border);background:var(--surface);color:var(--text-sec);position:relative;overflow:hidden}
+.tool-circle{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;transition:all .22s cubic-bezier(.2,.8,.2,1);box-shadow:0 1px 2px var(--shadow),0 3px 10px -3px var(--shadow-md);border:1px solid var(--border);background:var(--surface);color:var(--text-sec);position:relative;overflow:hidden}
 .tool-circle::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0.06),transparent 50%);pointer-events:none;border-radius:inherit}
 html.dark .tool-circle::after{background:linear-gradient(180deg,rgba(255,255,255,0.04),transparent 50%)}
 .tool-circle:hover{box-shadow:0 6px 18px -4px var(--shadow-md);border-color:var(--border-strong);transform:translateY(-1px) scale(1.04)}
 .tool-circle.active{box-shadow:0 8px 24px -4px var(--shadow-md),0 0 0 2px var(--brand);transform:scale(1.06)}
-.tool-circle svg{width:21px;height:21px;position:relative;z-index:1}
+.tool-circle svg{width:18px;height:18px;position:relative;z-index:1}
 /* Flat variant for implements, gym and accessories (no borders, no shadows, no gradient overlay) */
 .tool-circle.tool-flat{box-shadow:none;border:none;background:transparent}
 .tool-circle.tool-flat::after{display:none}
 .tool-circle.tool-flat:hover{box-shadow:none;transform:translateY(-1px) scale(1.06);background:var(--hover)}
 .tool-circle.tool-flat.active{box-shadow:0 0 0 2px var(--brand);background:var(--brand-dim);transform:scale(1.06)}
-.tool-label{font-size:9px;font-weight:600;color:var(--text-muted);text-align:center;max-width:68px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:0.01em;padding:0 2px}
+.tool-label{font-size:9px;font-weight:600;color:var(--text-muted);text-align:center;max-width:58px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:0.01em;padding:0 2px}
 .tool-label.active{font-weight:800;color:var(--text)}
 /* Tool group color themes */
 .tool-circle[data-grp="1"]{background:rgba(241,245,249,0.8);color:#475569}
@@ -347,11 +354,17 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
    <div class="brand-text">iTRAIN</div>
    <button class="sb-close" onclick="S.closeBoard()" title="Volver" data-testid="close-board-btn"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></button>
   </div>
-  <!-- Sport selector -->
-  <div class="sb-section">
-   <div class="sb-section-label">DEPORTE</div>
-   <div class="sb-sport-tabs" id="cat-tabs"></div>
-   <div class="sb-sport-list" id="sport-list"></div>
+  <!-- Sport selector as accordion -->
+  <div class="sb-section sb-deporte collapsed" id="sb-deporte-section">
+   <button class="sb-deporte-toggle" onclick="S.toggleSportSection()" data-testid="toggle-deporte-section">
+    <span class="sb-section-label">DEPORTE</span>
+    <span class="sb-deporte-current" id="sb-deporte-current">Conjunto / Futbol</span>
+    <svg class="sb-deporte-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+   </button>
+   <div class="sb-deporte-content">
+    <div class="sb-sport-tabs" id="cat-tabs"></div>
+    <div class="sb-sport-list" id="sport-list"></div>
+   </div>
   </div>
   <!-- Tools -->
   <div class="sb-scrollable" id="toolbar"></div>
@@ -821,6 +834,19 @@ const FORMATIONS = {
 const S = {
  init() {
   this.loadTheme();
+  // Load persisted UI state
+  try {
+   const savedTextStyle = localStorage.getItem('tb_text_style');
+   if (savedTextStyle) ST.textStyle = JSON.parse(savedTextStyle);
+   const savedCollapsedGroups = localStorage.getItem('tb_collapsed_groups');
+   if (savedCollapsedGroups) ST.collapsedGroups = new Set(JSON.parse(savedCollapsedGroups));
+   else ST.collapsedGroups = new Set([2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]); // default: only DIBUJO open
+   const depCollapsed = localStorage.getItem('tb_deporte_collapsed');
+   // HTML default: collapsed. Only expand if user explicitly expanded last session.
+   if (depCollapsed === '0') {
+    setTimeout(() => { const s = document.getElementById('sb-deporte-section'); if (s) s.classList.remove('collapsed'); }, 0);
+   }
+  } catch(e){ ST.collapsedGroups = new Set([2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]); }
   this.renderTabs();
   this.renderToolbar();
   this.setSport(CATS.conjunto.sports[0]);
@@ -924,7 +950,19 @@ const S = {
   fl.innerHTML = `<rect x="0" y="0" width="600" height="800" fill="${tc.bg}" rx="0"/>` +
    `<g stroke="${tc.stroke}" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">${f.svg}</g>`;
   document.querySelectorAll('.sb-sport').forEach(p=>p.classList.toggle('active',p.dataset.sport===name));
+  const curEl = document.getElementById('sb-deporte-current');
+  if (curEl) {
+   const catName = CATS[ST.cat] ? CATS[ST.cat].name : '';
+   curEl.textContent = catName ? `${catName} / ${name}` : name;
+  }
   this.renderElements(); this.updatePanel(); this.updateStats();
+ },
+
+ toggleSportSection() {
+  const sec = document.getElementById('sb-deporte-section');
+  if (!sec) return;
+  const isCollapsed = sec.classList.toggle('collapsed');
+  try { localStorage.setItem('tb_deporte_collapsed', isCollapsed ? '1' : '0'); } catch(e){}
  },
 
  // ── TOOLBAR ──
@@ -967,6 +1005,7 @@ const S = {
     const wrapper = toggleBtn.closest('.tool-group');
     if (ST.collapsedGroups.has(grp)) { ST.collapsedGroups.delete(grp); wrapper.classList.remove('collapsed'); }
     else { ST.collapsedGroups.add(grp); wrapper.classList.add('collapsed'); }
+    try { localStorage.setItem('tb_collapsed_groups', JSON.stringify([...ST.collapsedGroups])); } catch(e){}
     return;
    }
    const btn = e.target.closest('[data-tool]');
@@ -2467,6 +2506,7 @@ const S = {
  },
 
  _applyTextStyle() {
+  try { localStorage.setItem('tb_text_style', JSON.stringify(ST.textStyle)); } catch(e){}
   document.getElementById('modal-overlay').classList.remove('show');
   this.setTool('text');
  },
