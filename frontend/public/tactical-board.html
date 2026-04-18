@@ -62,7 +62,7 @@ html.dark .sb-close:hover{background:rgba(255,255,255,0.08)}
 .sb-section-hint{margin-left:auto;font-size:9px;font-weight:600;color:var(--text-muted);letter-spacing:0.06em;opacity:0.7}
 /* Category grid: 2 equal columns */
 .sb-sport-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
-.sb-cat{display:inline-flex;align-items:center;gap:6px;padding:9px 9px;border-radius:10px;font-size:10.5px;font-weight:700;background:var(--surface);color:var(--text-sec);transition:all .2s cubic-bezier(.2,.8,.2,1);border:1px solid var(--border);letter-spacing:0.01em;box-shadow:0 1px 2px var(--shadow);justify-content:flex-start;min-height:36px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-cat{display:inline-flex;align-items:center;gap:6px;padding:8px 9px;border-radius:10px;font-size:10.5px;font-weight:700;background:var(--surface);color:var(--text-sec);transition:all .2s cubic-bezier(.2,.8,.2,1);border:1px solid var(--border);letter-spacing:0.01em;box-shadow:0 1px 2px var(--shadow);justify-content:flex-start;min-height:38px;line-height:1.15;text-align:left;word-break:normal;overflow-wrap:anywhere}
 .sb-cat svg{flex-shrink:0;width:13px;height:13px;opacity:0.7;transition:opacity .2s}
 .sb-cat:hover{background:var(--panel);color:var(--text);border-color:var(--border-strong);transform:translateY(-1px);box-shadow:0 4px 12px -4px var(--shadow-md)}
 .sb-cat:hover svg{opacity:1}
@@ -72,9 +72,9 @@ html.dark .sb-cat.active{background:var(--brand);color:#0a0f1f;border-color:var(
 .sb-cat.active svg{opacity:1}
 /* Sport list - clean vertical list with grid 2 cols */
 .sb-sport-list{display:grid;grid-template-columns:1fr 1fr;gap:3px 6px;padding-top:12px;border-top:1px dashed var(--border);margin-top:4px}
-.sb-sport{display:inline-flex;align-items:center;gap:6px;padding:7px 8px;border-radius:8px;font-size:10.5px;font-weight:500;background:transparent;color:var(--text-sec);transition:all .15s;border:none;position:relative;justify-content:flex-start;overflow:hidden}
+.sb-sport{display:inline-flex;align-items:center;gap:6px;padding:7px 8px;border-radius:8px;font-size:10.5px;font-weight:500;background:transparent;color:var(--text-sec);transition:all .15s;border:none;position:relative;justify-content:flex-start;line-height:1.2;text-align:left;word-break:normal;overflow-wrap:anywhere;min-height:30px}
 .sb-sport svg{flex-shrink:0;width:12px;height:12px;opacity:0.55;transition:opacity .15s}
-.sb-sport span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.sb-sport span{min-width:0;flex:1}
 .sb-sport:hover{color:var(--text);background:var(--hover)}
 .sb-sport:hover svg{opacity:0.95}
 .sb-sport.active{color:var(--text);font-weight:700;background:var(--primary-dim);box-shadow:inset 0 0 0 1px var(--border)}
@@ -787,7 +787,7 @@ const S = {
    gimnasio:'<path d="M3 10h2v-3h2v6h2v-6h2v3h2" fill="none" stroke-width="2" stroke-linecap="round"/>'
   };
   wrap.innerHTML = Object.entries(CATS).map(([k,v]) =>
-   `<button class="sb-cat${ST.cat===k?' active':''}" data-cat="${k}" title="${v.name}"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${CI[k]||CI.conjunto}</svg>${v.name}</button>`
+   `<button class="sb-cat${ST.cat===k?' active':''}" data-cat="${k}" title="${v.name}"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${CI[k]||CI.conjunto}</svg>${v.name.replace('/',' / ')}</button>`
   ).join('');
   wrap.onclick = e => {
    const btn = e.target.closest('[data-cat]');
