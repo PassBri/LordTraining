@@ -9,7 +9,20 @@
 
 ## Implementado
 
-### Herramienta "Pase/Tiro" para Balón (Feb 2026)
+### Flecha Pase Premium + Estela Fantasma del Balón (Feb 2026)
+- Flecha "Pase" rediseñada con gradient cyan->azul->indigo, animated stroke-dashoffset
+- Mini balón de futbol al origen (circulo blanco con detalles negros + punto central)
+- Marker "pass-tip" tipo shuriken azul con stroke blanco y glow SVG filter
+- Trail gradient suave en la punta para efecto de trazo premium
+- Estela fantasma tipo FIFA/PES durante el playback:
+  * Acumula hasta 18 posiciones historicas del balon/objeto
+  * 3 capas de glow (14px opacity 0.14 / 7px 0.25 / 3px 0.45)
+  * Ghost spheres con fade progresivo: pequeños transparentes (viejos) a grandes opacos (recientes)
+  * Color cyan #06b6d4 para balones, color del objeto para otros implementos
+  * Solo para GHOST_TYPES: ball, cone, disc, flag, kettlebell, medball, pilatesball
+  * Trail se limpia al detener playback
+
+
 - Nueva herramienta Pase en sidebar DIBUJO: icono línea punteada con bullet
 - Al dibujar: crea flecha con isBallArrow=true, estilo visual distintivo
   (stroke-dasharray 6 4, bullet relleno 5px con stroke blanco en origen, azul por defecto)

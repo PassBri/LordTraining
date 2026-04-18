@@ -2509,7 +2509,10 @@ const S = {
   if(d.type==='arrow') {
    hl.innerHTML = `<line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}" stroke="rgba(0,0,0,0.5)" stroke-width="2" marker-end="url(#arrow-marker)" stroke-dasharray="4 3"/>`;
   } else if(d.type==='pass') {
-   hl.innerHTML = `<line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}" stroke="#2563eb" stroke-width="2.2" stroke-dasharray="3 3" stroke-opacity="0.65" marker-end="url(#arrow-marker)"/><circle cx="${d.x1}" cy="${d.y1}" r="3" fill="#2563eb" opacity="0.7"/>`;
+   const dx = d.x2 - d.x1, dy = d.y2 - d.y1, len = Math.hypot(dx, dy);
+   const ang = Math.atan2(dy, dx) * 180 / Math.PI;
+   const gid = 'passPrevGrad';
+   hl.innerHTML = `<defs><linearGradient id="${gid}" x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#06b6d4" stop-opacity="0.3"/><stop offset="50%" stop-color="#3b82f6" stop-opacity="0.85"/><stop offset="100%" stop-color="#6366f1" stop-opacity="1"/></linearGradient></defs><line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}" stroke="url(#${gid})" stroke-width="3" stroke-linecap="round" stroke-dasharray="8 5" opacity="0.9"/><circle cx="${d.x1}" cy="${d.y1}" r="7" fill="#fff" stroke="#0ea5e9" stroke-width="2"/><circle cx="${d.x1}" cy="${d.y1}" r="3" fill="#0ea5e9"/>`;
   } else if(d.type==='line') {
    hl.innerHTML = `<line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}" stroke="rgba(0,0,0,0.5)" stroke-width="2" stroke-dasharray="4 3"/>`;
   } else if(d.type==='zone') {
@@ -2786,15 +2789,26 @@ const S = {
     const mx = ((el.x1||0)+(el.x2||0))/2, my = ((el.y1||0)+(el.y2||0))/2;
     const aid = `ag${el.id}`;
     const isBall = el.isBallArrow;
-    const ac = el.color||(isBall?'#2563eb':'rgba(0,0,0,0.7)');
+    const ac = el.color||(isBall?'#3b82f6':'rgba(0,0,0,0.7)');
     const is3D = ST.viewMode==='3d'||ST.viewMode==='2.5d';
+    if (isBall) {
+     // Premium ball arrow: gradient stroke, animated dash, mini ball origin, glow punta
+     const gradId = `bg${el.id}`, glowId = `bgl${el.id}`;
+     const sel2 = sel?`<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="#06b6d4" stroke-width="10" opacity="0.18"/>`:'';
+     const defs = `<defs><linearGradient id="${gradId}" x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#06b6d4" stop-opacity="0.35"/><stop offset="45%" stop-color="#3b82f6" stop-opacity="0.95"/><stop offset="100%" stop-color="#6366f1" stop-opacity="1"/></linearGradient><filter id="${glowId}" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+     const glowLine = `<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="#3b82f6" stroke-width="6" stroke-linecap="round" opacity="0.18" filter="url(#${glowId})"/>`;
+     const mainLine = `<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="url(#${gradId})" stroke-width="${el.strokeWidth||3.2}" stroke-linecap="round" stroke-dasharray="9 5" marker-end="url(#pass-tip)"><animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.9s" repeatCount="indefinite"/></line>`;
+     // Mini ball at origin (futbol-style)
+     const ballOrigin = `<g transform="translate(${el.x1},${el.y1})" filter="url(#${glowId})"><circle r="8" fill="#fff" stroke="#0ea5e9" stroke-width="2"/><path d="M-3,-5 L0,-2 L3,-5 M-3,5 L0,2 L3,5 M-5,0 L-2,-2 M5,0 L2,-2 M-5,0 L-2,2 M5,0 L2,2" fill="none" stroke="#0f172a" stroke-width="1" stroke-linecap="round"/><circle r="1.8" fill="#0f172a"/></g>`;
+     const badge = el.playOrder ? `<g><circle cx="${mx}" cy="${my}" r="11" fill="#fff" stroke="#3b82f6" stroke-width="2"/><text x="${mx}" y="${my}" dy="0.35em" text-anchor="middle" font-size="10" fill="#3b82f6" font-weight="800">${el.playOrder}</text></g>` : '';
+     return `<g data-id="${el.id}" style="cursor:pointer">${defs}${sel2}${glowLine}${mainLine}${ballOrigin}${badge}</g>`;
+    }
+    // Normal arrow
     const trailGrad = `<defs><linearGradient id="${aid}" x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="${ac}" stop-opacity="0.05"/><stop offset="40%" stop-color="${ac}" stop-opacity="0.25"/><stop offset="100%" stop-color="${ac}" stop-opacity="0.8"/></linearGradient></defs>`;
-    const trail = isBall ? '' : `<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="url(#${aid})" stroke-width="${(el.strokeWidth||2.5)*3.5}" stroke-linecap="round" opacity="0.2"/>`;
+    const trail = `<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="url(#${aid})" stroke-width="${(el.strokeWidth||2.5)*3.5}" stroke-linecap="round" opacity="0.2"/>`;
     const sh3d = is3D ? `<line x1="${el.x1+2}" y1="${el.y1+5}" x2="${el.x2+2}" y2="${el.y2+5}" stroke="rgba(0,0,0,0.08)" stroke-width="${(el.strokeWidth||2.5)+1}" stroke-linecap="round" filter="url(#blur3d)"/>` : '';
     const orderBadge = el.playOrder ? `<circle cx="${mx}" cy="${my}" r="10" fill="rgba(255,255,255,0.92)" stroke="${ac}" stroke-width="1.5" class="arrow-order-badge"/><text x="${mx}" y="${my}" dy="0.35em" text-anchor="middle" font-size="9" fill="${ac}" font-weight="700" class="arrow-order-badge">${el.playOrder}</text>` : '';
-    const dashAttr = isBall ? 'stroke-dasharray="6 4"' : (el.dash?`stroke-dasharray="${el.dash}"`:'');
-    const bullet = isBall ? `<circle cx="${el.x1}" cy="${el.y1}" r="5" fill="${ac}" stroke="#fff" stroke-width="1.5"/>` : `<circle cx="${el.x1}" cy="${el.y1}" r="3" fill="${ac}" opacity="0.5"/>`;
-    return `<g data-id="${el.id}" style="cursor:pointer">${trailGrad}${sel?`<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="#2563eb" stroke-width="8" opacity="0.15"/>`:''} ${sh3d}${trail}<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${ac}" stroke-width="${el.strokeWidth||(isBall?2.8:2.5)}" stroke-linecap="round" marker-end="url(#arrow-marker)" ${dashAttr}/>${bullet}${orderBadge}</g>`;
+    return `<g data-id="${el.id}" style="cursor:pointer">${trailGrad}${sel?`<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="#2563eb" stroke-width="8" opacity="0.15"/>`:''} ${sh3d}${trail}<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${ac}" stroke-width="${el.strokeWidth||2.5}" stroke-linecap="round" marker-end="url(#arrow-marker)" ${el.dash?`stroke-dasharray="${el.dash}"`:''}/><circle cx="${el.x1}" cy="${el.y1}" r="3" fill="${ac}" opacity="0.5"/>${orderBadge}</g>`;
    }
    case 'line':
     return `<g data-id="${el.id}" style="cursor:pointer"><line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${el.color||'rgba(0,0,0,0.6)'}" stroke-width="${el.strokeWidth||2}" stroke-linecap="round" ${el.dash?`stroke-dasharray="${el.dash}"`:''}/></g>`;
@@ -2857,6 +2871,7 @@ const S = {
   const mStroke = ST.theme==='dark' ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)';
   let defs = `<defs>
    <marker id="arrow-marker" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8" fill="none" stroke="${mStroke}" stroke-width="1.5" stroke-linecap="round"/></marker>
+   <marker id="pass-tip" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto"><path d="M1,2 L13,7 L1,12 L4,7 Z" fill="#3b82f6" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/></marker>
    <filter id="blur3d"><feGaussianBlur stdDeviation="3"/></filter>
    <filter id="shadow3d"><feDropShadow dx="2" dy="3" stdDeviation="2" flood-opacity="0.2"/></filter>
   </defs>`;
@@ -3416,6 +3431,7 @@ const S = {
   ST.playbackState = 'playing';
   ST.playbackProgress = 0;
   ST.playbackStartTime = null;
+  ST.playbackTrails = {};
   document.getElementById('playback-bar').classList.add('show');
   document.getElementById('pb-play').classList.add('playing');
   document.getElementById('pb-pause').classList.remove('playing');
@@ -3488,6 +3504,7 @@ const S = {
     }
    }
    ST.playbackOriginalPos = null;
+   ST.playbackTrails = null;
    this.renderElements();
   }
  },
@@ -3549,6 +3566,10 @@ const S = {
   document.getElementById('pb-step').textContent = `Paso ${currentGlobalStep + 1} / ${maxSegs}`;
 
   // Update player positions: each chain simultaneously
+  // Also track ball/object trail positions for ghost effect
+  if (!ST.playbackTrails) ST.playbackTrails = {};
+  const GHOST_TYPES = new Set(['ball','cone','disc','flag','kettlebell','medball','pilatesball']);
+  
   chains.forEach(chain => {
    if (!chain.playerId) return;
    const el = ST.elements.find(e => e.id === chain.playerId);
@@ -3556,14 +3577,24 @@ const S = {
    const segs = chain.segments;
    
    if (currentGlobalStep >= segs.length) {
-    // This chain is done: player at final arrow tip
     const last = segs[segs.length - 1];
     el.x = last.toX; el.y = last.toY;
    } else {
-    // Active segment for this chain
     const seg = segs[currentGlobalStep];
     const pos = this.interpolatePath(seg, stepFrac);
     el.x = pos.x; el.y = pos.y;
+   }
+   
+   // Track trail for ghost effect (balls & objects)
+   if (GHOST_TYPES.has(el.type)) {
+    if (!ST.playbackTrails[el.id]) ST.playbackTrails[el.id] = [];
+    const trail = ST.playbackTrails[el.id];
+    const last = trail[trail.length - 1];
+    // Only push if moved > 8px (avoid dense overlap)
+    if (!last || Math.hypot(el.x - last.x, el.y - last.y) > 8) {
+     trail.push({ x: el.x, y: el.y, t: elapsed });
+     if (trail.length > 18) trail.shift(); // cap trail length
+    }
    }
   });
 
@@ -3571,12 +3602,42 @@ const S = {
   const layer = document.getElementById('elements-layer');
   let defs = `<defs>
    <marker id="arrow-marker" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8" fill="none" stroke="rgba(0,0,0,0.7)" stroke-width="1.5" stroke-linecap="round"/></marker>
+   <marker id="pass-tip" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto"><path d="M1,2 L13,7 L1,12 L4,7 Z" fill="#3b82f6" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/></marker>
    <marker id="play-arrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto"><path d="M0,0 L12,5 L0,10" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/></marker>
    <filter id="blur3d"><feGaussianBlur stdDeviation="3"/></filter>
    <filter id="shadow3d"><feDropShadow dx="2" dy="3" stdDeviation="2" flood-opacity="0.2"/></filter>
   </defs>`;
 
   let svgParts = '';
+
+  // Render ghost trails for moving balls & objects (behind the element)
+  if (ST.playbackTrails) {
+   Object.entries(ST.playbackTrails).forEach(([eid, pts]) => {
+    if (!pts || pts.length < 2) return;
+    const el = ST.elements.find(e => String(e.id) === String(eid));
+    if (!el) return;
+    // Motion glow stroke through points
+    const c = el.type === 'ball' ? '#06b6d4' : (el.color || '#3b82f6');
+    // Build smooth polyline path in current projection
+    const projPts = pts.map(p => {
+     if (is3D) { const ip = this.toIso(p.x, p.y, 0); return { x: ip.x, y: ip.y }; }
+     return { x: p.x, y: p.y };
+    });
+    const pathD = 'M' + projPts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L');
+    // Soft wide glow
+    svgParts += `<path d="${pathD}" fill="none" stroke="${c}" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" opacity="0.14"/>`;
+    svgParts += `<path d="${pathD}" fill="none" stroke="${c}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.25"/>`;
+    svgParts += `<path d="${pathD}" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>`;
+    // Ghost spheres (fading older positions)
+    const n = projPts.length;
+    projPts.forEach((p, i) => {
+     const age = i / n; // 0 = oldest, 1 = newest
+     const r = 2 + age * 3.5;
+     const op = 0.1 + age * 0.35;
+     svgParts += `<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${c}" opacity="${op.toFixed(2)}"/>`;
+    });
+   });
+  }
 
   // Render all non-arrow elements (players at animated positions)
   const nonArrows = ST.elements.filter(el => el.type !== 'arrow');
