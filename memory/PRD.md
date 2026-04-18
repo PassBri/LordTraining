@@ -9,7 +9,24 @@
 
 ## Implementado
 
-### Heatmap Permanente de Trayectorias + Acordeón Sidebar + Implementos Limpios (Feb 2026)
+### Estilos de Texto Deportivo + Implementos Flat (Feb 2026)
+- **10 fuentes deportivas premium** cargadas desde Google Fonts:
+  * Bebas Neue (ESTADIO), Oswald (Impacto), Anton (Bold), Teko (Futuro)
+  * Russo One (Cancha), Staatliches (Arena), Black Ops One (Military)
+  * Bungee (Urbano), Rubik Mono One (Block), Bowlby One (Graffiti)
+- **Text Style Picker** al seleccionar herramienta "Texto":
+  * Grid 2col de fuentes con preview en vivo
+  * Paleta de 11 colores deportivos (brand, rojo, azul, verde, amarillo, naranja, etc.)
+  * 4 tamaños (S/M/L/XL)
+  * 3 efectos: Sombra, Contorno, Italic
+  * Preview grande antes de aplicar
+- **Input inline usa estilo seleccionado** (font + color + size antes de tipear)
+- **Render de text** usa fontFamily + color + textStroke + textShadow (filter SVG)
+- **Grupos 4+ flat**: sin borde, sin gradient overlay, sin shadow — solo fondo hover sutil
+- **Implementos en canvas sin sombra**: eliminado filter:url(#shadow3d), stroke-width reducido,
+  solo fondo coloreado opacity 18% con border-radius 9px — aspecto plano moderno
+
+
 - **Trayectorias permanentes del balon** tras cada playback:
   * Al detener playback, se guardan los puntos del trail del balon en ST.trajectories
   * renderElements dibuja las trayectorias en capa de fondo (3 capas de glow + scanline dashed)
