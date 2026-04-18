@@ -163,10 +163,10 @@ html.dark .vb-seg{background:rgba(255,255,255,0.04);box-shadow:inset 0 1px 2px r
 .vb-icon-btn.active{background:var(--text)!important;color:var(--panel)!important}
 html.dark .vb-icon-btn.active{background:var(--brand)!important;color:#0a0f1f!important}
 /* Avatar style dropdown picker */
-#avatar-style-seg{position:relative}
-#avatar-style-trigger{width:auto;padding:0 10px 0 8px;gap:4px;display:inline-flex;align-items:center}
+#avatar-style-seg{position:relative;padding:0!important;background:transparent!important;border:none!important;box-shadow:none!important}
+#avatar-style-trigger{width:auto;padding:0 10px 0 8px;gap:4px;display:inline-flex;align-items:center;height:38px}
 #avatar-style-trigger svg:first-child{width:16px;height:16px}
-.avatar-style-picker{position:absolute;top:calc(100% + 8px);left:0;background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:10px;box-shadow:0 16px 40px -8px rgba(0,0,0,0.25),0 0 0 1px var(--border);z-index:100;display:none;width:320px;backdrop-filter:blur(14px)}
+.avatar-style-picker{position:fixed;background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:10px;box-shadow:0 16px 40px -8px rgba(0,0,0,0.25),0 0 0 1px var(--border);z-index:1000;display:none;width:320px;backdrop-filter:blur(14px)}
 html.dark .avatar-style-picker{background:rgba(15,23,42,0.95)}
 .avatar-style-picker.show{display:block;animation:modalFadeIn .18s ease-out}
 .asp-header{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.14em;color:var(--text-muted);margin-bottom:10px;padding:0 4px}
@@ -382,7 +382,7 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
      <button class="vb-btn" data-avatar="jersey" onclick="S.setAvatarMode('jersey')">Camiseta</button>
      <button class="vb-btn" data-avatar="avatar" onclick="S.setAvatarMode('avatar')">Avatar</button>
     </div>
-    <div class="vb-seg" id="avatar-style-seg" style="display:none;padding:0;background:transparent;border:none;box-shadow:none">
+    <div class="vb-seg" id="avatar-style-seg" style="display:none">
      <button class="vb-icon" id="avatar-style-trigger" onclick="S.toggleAvatarStylePicker(event)" title="Estilo de avatar"><svg id="avatar-style-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/></svg><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="margin-left:2px"><polyline points="6 9 12 15 18 9"/></svg></button>
      <div id="avatar-style-picker" class="avatar-style-picker">
       <div class="asp-header">Estilo de Avatar</div>
@@ -1846,17 +1846,24 @@ const S = {
  toggleAvatarStylePicker(e) {
   if(e) e.stopPropagation();
   const picker = document.getElementById('avatar-style-picker');
-  if(!picker) return;
-  picker.classList.toggle('show');
+  const trigger = document.getElementById('avatar-style-trigger');
+  if(!picker || !trigger) return;
   if(picker.classList.contains('show')) {
-   const closeHandler = (ev) => {
-    if(!picker.contains(ev.target) && !ev.target.closest('#avatar-style-trigger')) {
-     picker.classList.remove('show');
-     document.removeEventListener('click', closeHandler);
-    }
-   };
-   setTimeout(() => document.addEventListener('click', closeHandler), 50);
+   picker.classList.remove('show');
+   return;
   }
+  // Position picker below trigger
+  const rect = trigger.getBoundingClientRect();
+  picker.style.top = (rect.bottom + 8) + 'px';
+  picker.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - 328)) + 'px';
+  picker.classList.add('show');
+  const closeHandler = (ev) => {
+   if(!picker.contains(ev.target) && !ev.target.closest('#avatar-style-trigger')) {
+    picker.classList.remove('show');
+    document.removeEventListener('click', closeHandler);
+   }
+  };
+  setTimeout(() => document.addEventListener('click', closeHandler), 50);
  },
 
  setAvatarGender(g) {
