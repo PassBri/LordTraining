@@ -2338,7 +2338,8 @@ const S = {
     color: color,
     textStroke: ts.stroke || null,
     textShadow: ts.shadow || false,
-    italic: ts.italic || false
+    italic: ts.italic || false,
+    gradient: ts.gradient || null
    });
    input.remove();
   };
@@ -2348,8 +2349,10 @@ const S = {
 
  // ── TEXT STYLE PICKER (sport-themed fonts) ──
  showTextStylePicker(anchorBtn) {
-  if (!ST.textStyle) ST.textStyle = { font:'Bebas Neue', color:'#CCFF00', size:32, stroke:null, shadow:true, italic:false };
-  const cp = document.getElementById('color-picker');
+  if (!ST.textStyle) ST.textStyle = { font:'Bebas Neue', color:'#CCFF00', size:32, stroke:null, shadow:true, italic:false, gradient:null };
+  const ts = ST.textStyle;
+  const overlay = document.getElementById('modal-overlay');
+  const mc = document.getElementById('modal-card');
   const FONTS = [
    { id:'Bebas Neue', label:'ESTADIO', preview:'TEAM' },
    { id:'Oswald', label:'Impacto', preview:'GOL' },
@@ -2363,50 +2366,87 @@ const S = {
    { id:'Bowlby One', label:'Graffiti', preview:'X1' }
   ];
   const COLORS = ['#CCFF00','#ef4444','#3b82f6','#22c55e','#eab308','#f97316','#8b5cf6','#ec4899','#06b6d4','#ffffff','#0f172a'];
+  const GRADIENTS = [
+   { id:'lime-blue', name:'Neon LED', from:'#CCFF00', to:'#3b82f6' },
+   { id:'fire', name:'Fuego', from:'#fbbf24', to:'#ef4444' },
+   { id:'ocean', name:'Oceano', from:'#06b6d4', to:'#8b5cf6' },
+   { id:'sunset', name:'Atardecer', from:'#f97316', to:'#ec4899' },
+   { id:'toxic', name:'Toxico', from:'#CCFF00', to:'#22c55e' },
+   { id:'royal', name:'Real', from:'#6366f1', to:'#ec4899' },
+   { id:'ice', name:'Hielo', from:'#ffffff', to:'#06b6d4' },
+   { id:'champion', name:'Campeon', from:'#fbbf24', to:'#f97316' }
+  ];
   const SIZES = [{v:18,l:'S'},{v:26,l:'M'},{v:34,l:'L'},{v:44,l:'XL'}];
-  const ts = ST.textStyle;
-  let html = `<h4>Estilo de Texto Deportivo</h4>`;
-  html += `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:10px;max-height:240px;overflow-y:auto">`;
-  FONTS.forEach(f => {
-   const active = ts.font === f.id;
-   html += `<button data-font="${f.id}" style="display:flex;flex-direction:column;align-items:center;padding:8px 4px;border-radius:9px;background:${active?'var(--text)':'var(--surface)'};color:${active?'var(--panel)':'var(--text)'};border:1px solid ${active?'var(--text)':'var(--border)'};cursor:pointer;transition:all .15s;font-family:inherit">`;
-   html += `<span style="font-family:'${f.id}',sans-serif;font-size:18px;font-weight:700;letter-spacing:0.04em;line-height:1;margin-bottom:3px">${f.preview}</span>`;
-   html += `<span style="font-size:9px;font-weight:600;opacity:0.7">${f.label}</span>`;
-   html += `</button>`;
-  });
-  html += `</div>`;
-  html += `<h4>Color</h4>`;
-  html += `<div class="cp-grid" style="margin-bottom:10px">${COLORS.map(c =>
-   `<div class="cp-swatch${ts.color===c?' active':''}${c==='#ffffff'?' light':''}" style="background:${c}" data-tcolor="${c}"></div>`
-  ).join('')}</div>`;
-  html += `<h4>Tamano</h4>`;
-  html += `<div style="display:flex;gap:4px;margin-bottom:10px">${SIZES.map(s =>
-   `<button data-tsize="${s.v}" style="flex:1;padding:7px 0;border-radius:8px;background:${ts.size===s.v?'var(--text)':'var(--surface)'};color:${ts.size===s.v?'var(--panel)':'var(--text)'};border:1px solid ${ts.size===s.v?'var(--text)':'var(--border)'};font-weight:800;font-size:11px;cursor:pointer">${s.l}</button>`
-  ).join('')}</div>`;
-  html += `<h4>Efectos</h4>`;
-  html += `<div style="display:flex;gap:4px;margin-bottom:10px">`;
-  html += `<button data-toggle="shadow" style="flex:1;padding:7px 0;border-radius:8px;background:${ts.shadow?'var(--text)':'var(--surface)'};color:${ts.shadow?'var(--panel)':'var(--text)'};border:1px solid ${ts.shadow?'var(--text)':'var(--border)'};font-weight:700;font-size:10px;cursor:pointer">Sombra</button>`;
-  html += `<button data-toggle="stroke" style="flex:1;padding:7px 0;border-radius:8px;background:${ts.stroke?'var(--text)':'var(--surface)'};color:${ts.stroke?'var(--panel)':'var(--text)'};border:1px solid ${ts.stroke?'var(--text)':'var(--border)'};font-weight:700;font-size:10px;cursor:pointer">Contorno</button>`;
-  html += `<button data-toggle="italic" style="flex:1;padding:7px 0;border-radius:8px;background:${ts.italic?'var(--text)':'var(--surface)'};color:${ts.italic?'var(--panel)':'var(--text)'};border:1px solid ${ts.italic?'var(--text)':'var(--border)'};font-style:italic;font-weight:700;font-size:10px;cursor:pointer">I</button>`;
-  html += `</div>`;
+  let html = `
+   <h2 style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px">
+    <span style="display:flex;align-items:center;gap:10px">
+     <span style="display:inline-flex;width:30px;height:30px;border-radius:8px;background:var(--brand);color:#0a0f1f;align-items:center;justify-content:center;font-weight:900;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.1em">Aa</span>
+     Estilo de Texto Deportivo
+    </span>
+    <button onclick="document.getElementById('modal-overlay').classList.remove('show')" style="width:28px;height:28px;border-radius:8px;background:var(--surface-2);color:var(--text-muted);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></button>
+   </h2>`;
   // Preview
   const strokeStyle = ts.stroke ? `-webkit-text-stroke:1.5px ${ts.stroke};paint-order:stroke fill` : '';
   const shadowStyle = ts.shadow ? `text-shadow:2px 3px 0 rgba(0,0,0,0.25)` : '';
-  html += `<div style="padding:14px 8px;text-align:center;background:var(--surface-2);border-radius:10px;margin-bottom:8px;min-height:60px;display:flex;align-items:center;justify-content:center">`;
-  html += `<span style="font-family:'${ts.font}',sans-serif;font-size:${ts.size}px;color:${ts.color};font-weight:700;letter-spacing:0.04em;${shadowStyle};${strokeStyle};${ts.italic?'font-style:italic':''}">${ts.font.includes('Bowlby')||ts.font.includes('Rubik')?'GOAL':'iTRAIN'}</span>`;
+  const previewFill = ts.gradient
+   ? `background:linear-gradient(90deg,${ts.gradient.from},${ts.gradient.to});-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent`
+   : `color:${ts.color}`;
+  html += `<div style="padding:18px 8px;text-align:center;background:var(--surface-2);border-radius:12px;margin-bottom:14px;min-height:70px;display:flex;align-items:center;justify-content:center">`;
+  html += `<span style="font-family:'${ts.font}',sans-serif;font-size:${ts.size + 8}px;font-weight:700;letter-spacing:0.04em;${shadowStyle};${strokeStyle};${previewFill};${ts.italic?'font-style:italic':''}">iTRAIN</span>`;
   html += `</div>`;
-  html += `<button class="cp-use" data-testid="cp-use-btn">Usar este estilo</button>`;
-  cp.innerHTML = html;
-  const rect = anchorBtn.getBoundingClientRect();
-  cp.style.left = Math.min(rect.right + 8, window.innerWidth - 250) + 'px';
-  cp.style.top = Math.min(rect.top, window.innerHeight - 540) + 'px';
-  cp.style.width = '230px';
-  cp.classList.add('show');
-  cp.onclick = e => {
+  // FONTS
+  html += `<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:8px">Fuente</div>`;
+  html += `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:14px">`;
+  FONTS.forEach(f => {
+   const active = ts.font === f.id;
+   html += `<button data-font="${f.id}" style="display:flex;flex-direction:column;align-items:center;padding:10px 4px;border-radius:10px;background:${active?'var(--text)':'var(--surface)'};color:${active?'var(--panel)':'var(--text)'};border:1px solid ${active?'var(--text)':'var(--border)'};cursor:pointer;transition:all .15s;font-family:inherit">
+    <span style="font-family:'${f.id}',sans-serif;font-size:20px;font-weight:700;letter-spacing:0.04em;line-height:1;margin-bottom:4px">${f.preview}</span>
+    <span style="font-size:9px;font-weight:600;opacity:0.7">${f.label}</span>
+   </button>`;
+  });
+  html += `</div>`;
+  // COLORS
+  html += `<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:8px">Color Plano</div>`;
+  html += `<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:14px">${COLORS.map(c =>
+   `<div class="cp-swatch${ts.color===c && !ts.gradient?' active':''}${c==='#ffffff'?' light':''}" style="background:${c};border-radius:9px;aspect-ratio:1/1" data-tcolor="${c}"></div>`
+  ).join('')}</div>`;
+  // GRADIENTS (LED style)
+  html += `<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:8px">Degradados LED</div>`;
+  html += `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px">${GRADIENTS.map(g => {
+   const active = ts.gradient && ts.gradient.id === g.id;
+   return `<button data-grad="${g.id}" data-grad-from="${g.from}" data-grad-to="${g.to}" data-grad-name="${g.name}" title="${g.name}" style="display:flex;flex-direction:column;align-items:center;padding:6px 4px;border-radius:10px;background:var(--surface);border:2px solid ${active?'var(--text)':'transparent'};cursor:pointer;transition:all .15s"><span style="width:100%;height:22px;border-radius:6px;background:linear-gradient(90deg,${g.from},${g.to});margin-bottom:3px"></span><span style="font-size:8.5px;font-weight:700;color:var(--text-sec)">${g.name}</span></button>`;
+  }).join('')}</div>`;
+  // SIZE
+  html += `<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:8px">Tamano</div>`;
+  html += `<div style="display:flex;gap:6px;margin-bottom:14px">${SIZES.map(s =>
+   `<button data-tsize="${s.v}" style="flex:1;padding:9px 0;border-radius:9px;background:${ts.size===s.v?'var(--text)':'var(--surface)'};color:${ts.size===s.v?'var(--panel)':'var(--text)'};border:1px solid ${ts.size===s.v?'var(--text)':'var(--border)'};font-weight:800;font-size:12px;cursor:pointer">${s.l}</button>`
+  ).join('')}</div>`;
+  // EFFECTS
+  html += `<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:8px">Efectos</div>`;
+  html += `<div style="display:flex;gap:6px;margin-bottom:18px">`;
+  html += `<button data-toggle="shadow" style="flex:1;padding:9px 0;border-radius:9px;background:${ts.shadow?'var(--text)':'var(--surface)'};color:${ts.shadow?'var(--panel)':'var(--text)'};border:1px solid ${ts.shadow?'var(--text)':'var(--border)'};font-weight:700;font-size:11px;cursor:pointer">Sombra</button>`;
+  html += `<button data-toggle="stroke" style="flex:1;padding:9px 0;border-radius:9px;background:${ts.stroke?'var(--text)':'var(--surface)'};color:${ts.stroke?'var(--panel)':'var(--text)'};border:1px solid ${ts.stroke?'var(--text)':'var(--border)'};font-weight:700;font-size:11px;cursor:pointer">Contorno</button>`;
+  html += `<button data-toggle="italic" style="flex:1;padding:9px 0;border-radius:9px;background:${ts.italic?'var(--text)':'var(--surface)'};color:${ts.italic?'var(--panel)':'var(--text)'};border:1px solid ${ts.italic?'var(--text)':'var(--border)'};font-style:italic;font-weight:700;font-size:11px;cursor:pointer">Italic</button>`;
+  html += `</div>`;
+  // USE BUTTON
+  html += `<button class="cp-use" data-testid="cp-use-btn" onclick="S._applyTextStyle()" style="width:100%;padding:12px;border-radius:10px;font-size:12px;font-weight:800;background:var(--text);color:var(--panel);cursor:pointer;letter-spacing:0.08em;text-transform:uppercase;border:none;box-shadow:0 4px 14px -4px var(--shadow-md)">Usar este estilo</button>`;
+  // Set card size & behavior
+  mc.style.width = '440px';
+  mc.style.maxHeight = '88vh';
+  mc.style.overflowY = 'auto';
+  mc.innerHTML = html;
+  overlay.classList.add('show');
+  mc.onclick = e => {
    const fb = e.target.closest('[data-font]');
    if (fb) { ST.textStyle.font = fb.dataset.font; this.showTextStylePicker(anchorBtn); return; }
    const cb = e.target.closest('[data-tcolor]');
-   if (cb) { ST.textStyle.color = cb.dataset.tcolor; this.showTextStylePicker(anchorBtn); return; }
+   if (cb) { ST.textStyle.color = cb.dataset.tcolor; ST.textStyle.gradient = null; this.showTextStylePicker(anchorBtn); return; }
+   const gb = e.target.closest('[data-grad]');
+   if (gb) {
+    ST.textStyle.gradient = { id: gb.dataset.grad, from: gb.dataset.gradFrom, to: gb.dataset.gradTo, name: gb.dataset.gradName };
+    this.showTextStylePicker(anchorBtn);
+    return;
+   }
    const sb = e.target.closest('[data-tsize]');
    if (sb) { ST.textStyle.size = +sb.dataset.tsize; this.showTextStylePicker(anchorBtn); return; }
    const tg = e.target.closest('[data-toggle]');
@@ -2418,11 +2458,12 @@ const S = {
     this.showTextStylePicker(anchorBtn);
     return;
    }
-   if (e.target.closest('[data-testid="cp-use-btn"]')) {
-    this.hideColorPicker();
-    this.setTool('text');
-   }
   };
+ },
+
+ _applyTextStyle() {
+  document.getElementById('modal-overlay').classList.remove('show');
+  this.setTool('text');
  },
 
  // ── ZONE COLOR PICKER ──
@@ -2959,10 +3000,16 @@ const S = {
     const fs = el.fontSize || 16;
     const col = el.color || (ST.theme==='dark'?'#fff':'#1e293b');
     const stroke = el.textStroke;
+    const grad = el.gradient;
+    const gradId = grad ? `tg${el.id}` : null;
+    const fillAttr = grad ? `fill="url(#${gradId})"` : `fill="${col}"`;
     const strokeAttr = stroke ? `stroke="${stroke}" stroke-width="2" paint-order="stroke"` : '';
     const shadow = el.textShadow ? `filter="url(#text-shadow)"` : '';
-    const defs = el.textShadow ? `<defs><filter id="text-shadow" x="-10%" y="-10%" width="120%" height="130%"><feGaussianBlur in="SourceAlpha" stdDeviation="0.6"/><feOffset dx="2" dy="3" result="off"/><feComponentTransfer in="off" result="dim"><feFuncA type="linear" slope="0.35"/></feComponentTransfer><feMerge><feMergeNode in="dim"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>` : '';
-    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${defs}<text x="0" y="0" dy="0.35em" font-size="${fs}" fill="${col}" font-family="'${ff}',sans-serif" font-weight="${el.bold===false?'400':'700'}" letter-spacing="0.04em" ${el.italic?'font-style="italic"':''} ${strokeAttr} ${shadow}>${el.label||''}</text></g>`;
+    let defs = '';
+    if (el.textShadow) defs += `<filter id="text-shadow" x="-10%" y="-10%" width="120%" height="130%"><feGaussianBlur in="SourceAlpha" stdDeviation="0.6"/><feOffset dx="2" dy="3" result="off"/><feComponentTransfer in="off" result="dim"><feFuncA type="linear" slope="0.35"/></feComponentTransfer><feMerge><feMergeNode in="dim"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
+    if (grad) defs += `<linearGradient id="${gradId}" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="${grad.from}"/><stop offset="100%" stop-color="${grad.to}"/></linearGradient>`;
+    const defsWrap = defs ? `<defs>${defs}</defs>` : '';
+    return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${defsWrap}<text x="0" y="0" dy="0.35em" font-size="${fs}" ${fillAttr} font-family="'${ff}',sans-serif" font-weight="${el.bold===false?'400':'700'}" letter-spacing="0.04em" ${el.italic?'font-style="italic"':''} ${strokeAttr} ${shadow}>${el.label||''}</text></g>`;
    }
    case 'pencil':
     return `<g data-id="${el.id}" style="cursor:pointer"><polyline points="${(el.points||[]).map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="${el.color||'rgba(0,0,0,0.6)'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>`;

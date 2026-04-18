@@ -9,7 +9,17 @@
 
 ## Implementado
 
-### Estilos de Texto Deportivo + Implementos Flat (Feb 2026)
+### Text Picker Modal + Degradados LED (Feb 2026)
+- Picker del texto convertido a modal centrado (overlay + modal-card) con scroll interno
+- Preview en vivo arriba con todos los efectos aplicados (fuente, color, gradient, sombra, stroke, italic)
+- 8 degradados LED preset: Neon LED (lima->azul), Fuego (amarillo->rojo), Oceano (cyan->purpura),
+  Atardecer (naranja->rosa), Toxico (lima->verde), Real (indigo->rosa), Hielo (blanco->cyan),
+  Campeon (oro->naranja)
+- Render SVG usa linearGradient con id unico por elemento + fill="url(#grad-id)"
+- Color plano y gradient son mutuamente excluyentes (seleccionar uno deselecciona el otro)
+- Guardar hace setTool('text') para activar input inline con los estilos seleccionados
+
+
 - **10 fuentes deportivas premium** cargadas desde Google Fonts:
   * Bebas Neue (ESTADIO), Oswald (Impacto), Anton (Bold), Teko (Futuro)
   * Russo One (Cancha), Staatliches (Arena), Black Ops One (Military)
