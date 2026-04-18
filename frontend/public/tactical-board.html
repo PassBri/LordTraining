@@ -326,7 +326,7 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
   <div class="sb-header">
    <div class="logo"><span>i</span></div>
    <div class="brand-text">iTRAIN</div>
-   <button class="sb-close" onclick="window.history.back()"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></button>
+   <button class="sb-close" onclick="(function(){if(window.history.length>1 && document.referrer){window.history.back();}else{window.location.href='/';}})()" title="Volver al Dashboard" data-testid="close-board-btn"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></button>
   </div>
   <!-- Sport selector -->
   <div class="sb-section">
