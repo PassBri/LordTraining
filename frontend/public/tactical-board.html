@@ -2391,48 +2391,53 @@ const S = {
   const previewFill = ts.gradient
    ? `background:linear-gradient(90deg,${ts.gradient.from},${ts.gradient.to});-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent`
    : `color:${ts.color}`;
-  html += `<div style="padding:18px 8px;text-align:center;background:var(--surface-2);border-radius:12px;margin-bottom:14px;min-height:70px;display:flex;align-items:center;justify-content:center">`;
-  html += `<span style="font-family:'${ts.font}',sans-serif;font-size:${ts.size + 8}px;font-weight:700;letter-spacing:0.04em;${shadowStyle};${strokeStyle};${previewFill};${ts.italic?'font-style:italic':''}">iTRAIN</span>`;
+  html += `<div style="padding:12px 8px;text-align:center;background:var(--surface-2);border-radius:10px;margin-bottom:12px;min-height:50px;display:flex;align-items:center;justify-content:center">`;
+  html += `<span style="font-family:'${ts.font}',sans-serif;font-size:${Math.min(ts.size + 6, 40)}px;font-weight:700;letter-spacing:0.04em;${shadowStyle};${strokeStyle};${previewFill};${ts.italic?'font-style:italic':''}">iTRAIN</span>`;
   html += `</div>`;
-  // FONTS
-  html += `<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:8px">Fuente</div>`;
-  html += `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:14px">`;
+  // 2-column layout: fonts left, rest right
+  html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">`;
+  // LEFT: Fonts
+  html += `<div><div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:6px">Fuente</div>`;
+  html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">`;
   FONTS.forEach(f => {
    const active = ts.font === f.id;
-   html += `<button data-font="${f.id}" style="display:flex;flex-direction:column;align-items:center;padding:10px 4px;border-radius:10px;background:${active?'var(--text)':'var(--surface)'};color:${active?'var(--panel)':'var(--text)'};border:1px solid ${active?'var(--text)':'var(--border)'};cursor:pointer;transition:all .15s;font-family:inherit">
-    <span style="font-family:'${f.id}',sans-serif;font-size:20px;font-weight:700;letter-spacing:0.04em;line-height:1;margin-bottom:4px">${f.preview}</span>
-    <span style="font-size:9px;font-weight:600;opacity:0.7">${f.label}</span>
+   html += `<button data-font="${f.id}" style="display:flex;flex-direction:column;align-items:center;padding:7px 2px;border-radius:8px;background:${active?'var(--text)':'var(--surface)'};color:${active?'var(--panel)':'var(--text)'};border:1px solid ${active?'var(--text)':'var(--border)'};cursor:pointer;transition:all .15s;font-family:inherit">
+    <span style="font-family:'${f.id}',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.04em;line-height:1;margin-bottom:2px">${f.preview}</span>
+    <span style="font-size:8px;font-weight:600;opacity:0.7">${f.label}</span>
    </button>`;
   });
-  html += `</div>`;
+  html += `</div></div>`;
+  // RIGHT: Everything else
+  html += `<div style="display:flex;flex-direction:column;gap:10px">`;
   // COLORS
-  html += `<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:8px">Color Plano</div>`;
-  html += `<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:14px">${COLORS.map(c =>
-   `<div class="cp-swatch${ts.color===c && !ts.gradient?' active':''}${c==='#ffffff'?' light':''}" style="background:${c};border-radius:9px;aspect-ratio:1/1" data-tcolor="${c}"></div>`
-  ).join('')}</div>`;
+  html += `<div><div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:6px">Color Plano</div>`;
+  html += `<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px">${COLORS.map(c =>
+   `<div class="cp-swatch${ts.color===c && !ts.gradient?' active':''}${c==='#ffffff'?' light':''}" style="background:${c};border-radius:7px;aspect-ratio:1/1;cursor:pointer" data-tcolor="${c}"></div>`
+  ).join('')}</div></div>`;
   // GRADIENTS (LED style)
-  html += `<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:8px">Degradados LED</div>`;
-  html += `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px">${GRADIENTS.map(g => {
+  html += `<div><div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:6px">Degradados LED</div>`;
+  html += `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:4px">${GRADIENTS.map(g => {
    const active = ts.gradient && ts.gradient.id === g.id;
-   return `<button data-grad="${g.id}" data-grad-from="${g.from}" data-grad-to="${g.to}" data-grad-name="${g.name}" title="${g.name}" style="display:flex;flex-direction:column;align-items:center;padding:6px 4px;border-radius:10px;background:var(--surface);border:2px solid ${active?'var(--text)':'transparent'};cursor:pointer;transition:all .15s"><span style="width:100%;height:22px;border-radius:6px;background:linear-gradient(90deg,${g.from},${g.to});margin-bottom:3px"></span><span style="font-size:8.5px;font-weight:700;color:var(--text-sec)">${g.name}</span></button>`;
-  }).join('')}</div>`;
+   return `<button data-grad="${g.id}" data-grad-from="${g.from}" data-grad-to="${g.to}" data-grad-name="${g.name}" title="${g.name}" style="display:flex;align-items:center;gap:5px;padding:4px 6px;border-radius:7px;background:var(--surface);border:2px solid ${active?'var(--text)':'transparent'};cursor:pointer;transition:all .15s"><span style="width:20px;height:12px;border-radius:3px;background:linear-gradient(90deg,${g.from},${g.to});flex-shrink:0"></span><span style="font-size:9px;font-weight:700;color:var(--text-sec);white-space:nowrap">${g.name}</span></button>`;
+  }).join('')}</div></div>`;
   // SIZE
-  html += `<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:8px">Tamano</div>`;
-  html += `<div style="display:flex;gap:6px;margin-bottom:14px">${SIZES.map(s =>
-   `<button data-tsize="${s.v}" style="flex:1;padding:9px 0;border-radius:9px;background:${ts.size===s.v?'var(--text)':'var(--surface)'};color:${ts.size===s.v?'var(--panel)':'var(--text)'};border:1px solid ${ts.size===s.v?'var(--text)':'var(--border)'};font-weight:800;font-size:12px;cursor:pointer">${s.l}</button>`
-  ).join('')}</div>`;
+  html += `<div><div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:6px">Tamano</div>`;
+  html += `<div style="display:flex;gap:4px">${SIZES.map(s =>
+   `<button data-tsize="${s.v}" style="flex:1;padding:7px 0;border-radius:7px;background:${ts.size===s.v?'var(--text)':'var(--surface)'};color:${ts.size===s.v?'var(--panel)':'var(--text)'};border:1px solid ${ts.size===s.v?'var(--text)':'var(--border)'};font-weight:800;font-size:11px;cursor:pointer">${s.l}</button>`
+  ).join('')}</div></div>`;
   // EFFECTS
-  html += `<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:8px">Efectos</div>`;
-  html += `<div style="display:flex;gap:6px;margin-bottom:18px">`;
-  html += `<button data-toggle="shadow" style="flex:1;padding:9px 0;border-radius:9px;background:${ts.shadow?'var(--text)':'var(--surface)'};color:${ts.shadow?'var(--panel)':'var(--text)'};border:1px solid ${ts.shadow?'var(--text)':'var(--border)'};font-weight:700;font-size:11px;cursor:pointer">Sombra</button>`;
-  html += `<button data-toggle="stroke" style="flex:1;padding:9px 0;border-radius:9px;background:${ts.stroke?'var(--text)':'var(--surface)'};color:${ts.stroke?'var(--panel)':'var(--text)'};border:1px solid ${ts.stroke?'var(--text)':'var(--border)'};font-weight:700;font-size:11px;cursor:pointer">Contorno</button>`;
-  html += `<button data-toggle="italic" style="flex:1;padding:9px 0;border-radius:9px;background:${ts.italic?'var(--text)':'var(--surface)'};color:${ts.italic?'var(--panel)':'var(--text)'};border:1px solid ${ts.italic?'var(--text)':'var(--border)'};font-style:italic;font-weight:700;font-size:11px;cursor:pointer">Italic</button>`;
-  html += `</div>`;
+  html += `<div><div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:6px">Efectos</div>`;
+  html += `<div style="display:flex;gap:4px">`;
+  html += `<button data-toggle="shadow" style="flex:1;padding:7px 0;border-radius:7px;background:${ts.shadow?'var(--text)':'var(--surface)'};color:${ts.shadow?'var(--panel)':'var(--text)'};border:1px solid ${ts.shadow?'var(--text)':'var(--border)'};font-weight:700;font-size:10px;cursor:pointer">Sombra</button>`;
+  html += `<button data-toggle="stroke" style="flex:1;padding:7px 0;border-radius:7px;background:${ts.stroke?'var(--text)':'var(--surface)'};color:${ts.stroke?'var(--panel)':'var(--text)'};border:1px solid ${ts.stroke?'var(--text)':'var(--border)'};font-weight:700;font-size:10px;cursor:pointer">Contorno</button>`;
+  html += `<button data-toggle="italic" style="flex:1;padding:7px 0;border-radius:7px;background:${ts.italic?'var(--text)':'var(--surface)'};color:${ts.italic?'var(--panel)':'var(--text)'};border:1px solid ${ts.italic?'var(--text)':'var(--border)'};font-style:italic;font-weight:700;font-size:10px;cursor:pointer">I</button>`;
+  html += `</div></div>`;
+  html += `</div></div>`; // close right column + grid
   // USE BUTTON
-  html += `<button class="cp-use" data-testid="cp-use-btn" onclick="S._applyTextStyle()" style="width:100%;padding:12px;border-radius:10px;font-size:12px;font-weight:800;background:var(--text);color:var(--panel);cursor:pointer;letter-spacing:0.08em;text-transform:uppercase;border:none;box-shadow:0 4px 14px -4px var(--shadow-md)">Usar este estilo</button>`;
+  html += `<button class="cp-use" data-testid="cp-use-btn" onclick="S._applyTextStyle()" style="width:100%;padding:12px;margin-top:14px;border-radius:10px;font-size:12px;font-weight:800;background:var(--text);color:var(--panel);cursor:pointer;letter-spacing:0.08em;text-transform:uppercase;border:none;box-shadow:0 4px 14px -4px var(--shadow-md)">Usar este estilo</button>`;
   // Set card size & behavior
-  mc.style.width = '440px';
-  mc.style.maxHeight = '88vh';
+  mc.style.width = '720px';
+  mc.style.maxHeight = '92vh';
   mc.style.overflowY = 'auto';
   mc.innerHTML = html;
   overlay.classList.add('show');
