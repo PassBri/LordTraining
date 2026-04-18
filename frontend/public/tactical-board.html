@@ -3303,21 +3303,38 @@ const S = {
  startPlayback() {
   const arrows = ST.elements.filter(e => e.type === 'arrow');
   if (!arrows.length) {
-   alert('No hay flechas en la pizarra. Dibuja flechas cerca de los jugadores para crear movimientos.');
+   alert('No hay flechas en la pizarra. Dibuja flechas cerca de los jugadores o el balón para crear movimientos.');
    return;
   }
   arrows.sort((a, b) => (a.playOrder || 0) - (b.playOrder || 0));
   
-  // Save original positions of all players
+  const ANIMATABLE_TYPES = new Set(['playerA','playerB','goalkeeper','ball','cone','disc','flag','kettlebell','medball','pilatesball']);
+  const isAnimatable = (t) => ANIMATABLE_TYPES.has(t);
+  
   ST.playbackOriginalPos = {};
   ST.elements.forEach(el => {
-   if (el.type === 'playerA' || el.type === 'playerB' || el.type === 'goalkeeper') {
+   if (isAnimatable(el.type)) {
     ST.playbackOriginalPos[el.id] = { x: el.x, y: el.y };
    }
   });
   
-  // Build CHAINS of connected arrows
-  // If arrow B starts near where arrow A ends, they form a chain (same player follows A→B)
+  // PASE 1: Asignar cada flecha a su actor más cercano (comparar jugador vs objeto por distancia real)
+  const arrowActors = new Map();
+  arrows.forEach(ar => {
+   const player = this.findNearestPlayerForPlayback(ar.x1, ar.y1, null);
+   const obj = this.findNearestObjectForPlayback(ar.x1, ar.y1, null);
+   const pDist = player ? Math.hypot(player.x - ar.x1, player.y - ar.y1) : Infinity;
+   const oDist = obj ? Math.hypot(obj.x - ar.x1, obj.y - ar.y1) : Infinity;
+   // Si el objeto está MUY cerca (<40px) y el jugador no está aún más cerca, preferir objeto
+   // Si no, preferir jugador (prioridad táctica para movimientos)
+   let chosen = null;
+   if (obj && oDist < 40 && oDist < pDist) chosen = obj;
+   else if (player && pDist < 200) chosen = player;
+   else if (obj && oDist < 120) chosen = obj;
+   arrowActors.set(ar.id, chosen);
+  });
+  
+  // PASE 2: Construir cadenas SOLO entre flechas con el MISMO actor
   const CHAIN_DIST = 80;
   const usedArrowIds = new Set();
   const chains = [];
@@ -3326,7 +3343,7 @@ const S = {
    if (usedArrowIds.has(arrow.id)) return;
    const chain = [arrow];
    usedArrowIds.add(arrow.id);
-   // Follow the chain forward: find arrows whose start is near current chain's end
+   const chainActor = arrowActors.get(arrow.id);
    let searching = true;
    while (searching) {
     searching = false;
@@ -3334,6 +3351,8 @@ const S = {
     const endX = lastSeg.x2, endY = lastSeg.y2;
     for (const next of arrows) {
      if (usedArrowIds.has(next.id)) continue;
+     // Solo encadenar si la siguiente flecha pertenece al mismo actor
+     if (arrowActors.get(next.id) !== chainActor) continue;
      const dx = next.x1 - endX, dy = next.y1 - endY;
      if (Math.sqrt(dx * dx + dy * dy) < CHAIN_DIST) {
       chain.push(next);
@@ -3343,38 +3362,39 @@ const S = {
      }
     }
    }
-   chains.push(chain);
+   chains.push({ arrows: chain, actor: chainActor });
   });
   
-  // Assign one player per chain (nearest to first arrow's start)
+  // PASE 3: Convertir a formato playbackChains
   ST.playbackChains = [];
-  const usedPlayers = new Set();
+  const usedElems = new Set();
   let matched = 0;
   
-  chains.forEach(chain => {
-   const first = chain[0];
-   const player = this.findNearestPlayerForPlayback(first.x1, first.y1, usedPlayers);
-   const segments = chain.map(a => ({
+  chains.forEach(({arrows: chainArrows, actor}) => {
+   const segments = chainArrows.map(a => ({
     arrow: a, fromX: a.x1, fromY: a.y1, toX: a.x2, toY: a.y2, cx: a.cx, cy: a.cy
    }));
-   if (player) {
-    usedPlayers.add(player.id);
+   // Actor puede estar ya usado por otra cadena; no importa, cada cadena anima su actor asignado
+   if (actor && !usedElems.has(actor.id)) {
+    usedElems.add(actor.id);
     matched++;
-    ST.playbackChains.push({ playerId: player.id, segments });
+    ST.playbackChains.push({ playerId: actor.id, followerType: actor.type, segments });
+   } else if (actor) {
+    // Actor duplicado: reusa el mismo actor (ej: balón que hace dos pases)
+    matched++;
+    ST.playbackChains.push({ playerId: actor.id, followerType: actor.type, segments });
    } else {
     ST.playbackChains.push({ playerId: null, segments });
    }
   });
   
   if (!matched) {
-   alert('No se encontraron jugadores cerca de las flechas. Coloca jugadores cerca del inicio de cada flecha.');
+   alert('No se encontraron jugadores, balones u objetos cerca de las flechas. Coloca un elemento cerca del inicio de cada flecha.');
    ST.playbackOriginalPos = null;
    return;
   }
   
-  // Max segments across all chains determines total animation steps
   ST.playbackMaxSegs = Math.max(...ST.playbackChains.map(c => c.segments.length));
-  // Flatten all segments for trail drawing
   ST.playbackAllSegments = ST.playbackChains.reduce((arr, c) => arr.concat(c.segments), []);
   
   ST.playbackSpeed = ST.playbackSpeed || 1;
@@ -3391,6 +3411,19 @@ const S = {
   let nearest = null, minDist = 200;
   ST.elements.forEach(el => {
    if (el.type !== 'playerA' && el.type !== 'playerB' && el.type !== 'goalkeeper') return;
+   if (excludeSet && excludeSet.has(el.id)) return;
+   const dx = el.x - x, dy = el.y - y;
+   const dist = Math.sqrt(dx * dx + dy * dy);
+   if (dist < minDist) { minDist = dist; nearest = el; }
+  });
+  return nearest;
+ },
+
+ findNearestObjectForPlayback(x, y, excludeSet) {
+  const OBJECT_TYPES = new Set(['ball','cone','disc','flag','kettlebell','medball','pilatesball']);
+  let nearest = null, minDist = 120;
+  ST.elements.forEach(el => {
+   if (!OBJECT_TYPES.has(el.type)) return;
    if (excludeSet && excludeSet.has(el.id)) return;
    const dx = el.x - x, dy = el.y - y;
    const dist = Math.sqrt(dx * dx + dy * dy);

@@ -9,7 +9,18 @@
 
 ## Implementado
 
-### Rediseno UI Premium SaaS Pizarra Tactica (Feb 2026)
+### Trayectorias del Balón y Objetos Animables (Feb 2026)
+- El motor de playback ahora anima no solo jugadores, sino también balón, conos, discos, banderas,
+  kettlebells, balones medicinales y pilates
+- Asignacion inteligente de flechas a actores: compara distancia real del inicio de la flecha al
+  jugador mas cercano vs objeto mas cercano, elige el mas proximo
+- Si el balon esta <40px del inicio de una flecha y el jugador mas lejos, se anima el balon
+- Preservacion de prioridad tactica: jugador gana si esta razonablemente cerca (<200px)
+- Cadenas solo se forman entre flechas del MISMO actor (evita robos de flechas)
+- Ejemplo tactico: jugador hace dribble corto + pasa el balon al arco = 2 flechas independientes
+  animan jugador y balon simultaneamente
+
+
 - CSS completamente renovado en tactical-board.html (solo bloque <style>, sin tocar JS)
 - Sidebar ampliado (220px -> 380px) con brand iTRAIN visible (logo lime + texto)
 - Ambient radial gradient de fondo con acentos brand y blue (premium depth)
