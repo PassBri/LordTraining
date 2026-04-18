@@ -9,6 +9,14 @@
 
 ## Implementado
 
+### Tipografia premium de medidas (Feb 2026)
+- **Fuente Oswald** (condensed, tecnica, ya cargada desde Google Fonts) para todos los labels `.fld-measure`
+- **Weight 600 + letter-spacing 0.07em** para legibilidad maxima
+- **Halo automatico** (`paint-order: stroke` con `stroke: var(--panel)`) que hace que el texto destaque sobre lineas de cancha en cualquier color/fondo
+- **Numeros tabulares** (`font-feature-settings: "tnum"`) para alineacion perfecta
+- **Inversion de color automatica en modo oscuro** via atributo `data-mono="1"`: en claro = rgba(40-90,...,0.85-1), en oscuro = rgba(235,235,235,0.95)
+- Textos coloreados especiales (EQUIPO A azul, EQUIPO B rojo, END ZONE) mantienen su color ya que no tienen `data-mono`
+
 ### Toggle de medidas reglamentarias + Unificacion de canchas (Feb 2026)
 - **Boton toggle "Medidas"** en la barra CAMPO (icono `#` con "m") que muestra/oculta todas las medidas y labels de las canchas. Estado persistido en `localStorage` (`tb_hide_measures`).
 - **Clase CSS `.fld-measure`** aplicada a todos los textos informativos. CSS: `#canvas-inner.hide-measures .fld-measure { display:none }`.
