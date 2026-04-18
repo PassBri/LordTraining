@@ -17,7 +17,9 @@
 - Tipografia Inter (300-900) via Google Fonts, antialiasing activado
 - Tool circles rediseñados: 46x46px, border-radius 14px, sombras multicapa, gradient overlay, active ring brand
 - Mejor espaciado en tools (gap 6px vertical, 4px horizontal, padding 12px)
-- View bar elevada (34px -> 48px) con pill-segmented controls premium
+- View bar 56px con pills 100% redondeados (border-radius 999px), iconos Campo circulares 38px
+- Theme toggle prominente 44px, sticky right siempre visible, hover con brand glow + rotacion
+- avatar-style-seg con max-width 380px + mask-image fade para scroll horizontal sin romper layout
 - Botones Guardar/PNG/IA con gradientes verticales y shine interna
 - Modales con backdrop-blur 10px + animaciones slide-in
 - Toasts con gradientes, shadow profunda y animacion X
@@ -25,7 +27,9 @@
 - Panel derecho ampliado (220px -> 248px) con tabs mejorados
 - Botón "Usar X" en color picker: contraste AAA (texto oscuro sobre lima en dark mode)
 - SVG rendering con shape-rendering:geometricPrecision para elementos nitidos en el canvas
-- Cambios 100% CSS: todas las clases y JS intactos (animaciones, avatares, eventos)
+- Equipamiento gimnasio (gm_/sp_) rediseñado: borde solido (sin dashed), fondo 14% opacity,
+  icono 22x22, label en pill con fondo oscuro y borde del color, sombra para profundidad
+- Cambios 100% CSS + render SVG: todas las clases y JS intactos
 
 ### Restauracion cuadros Eventos/Monitoreo en GraphicPlan (Abr 2026)
 - Restaurados sub-rows con cuadros de colores clickeables para Eventos/Competencias (5 tipos: Entrenamiento, Control dopaje, Competencia principal/secundaria, Recuperacion)
