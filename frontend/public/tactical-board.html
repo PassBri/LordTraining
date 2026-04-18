@@ -326,7 +326,7 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
   <div class="sb-header">
    <div class="logo"><span>i</span></div>
    <div class="brand-text">iTRAIN</div>
-   <button class="sb-close" onclick="(function(){if(window.history.length>1 && document.referrer){window.history.back();}else{window.location.href='/';}})()" title="Volver al Dashboard" data-testid="close-board-btn"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></button>
+   <button class="sb-close" onclick="S.closeBoard()" title="Volver" data-testid="close-board-btn"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></button>
   </div>
   <!-- Sport selector -->
   <div class="sb-section">
@@ -475,6 +475,20 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
 <div class="modal-overlay" id="modal-overlay"><div class="modal-card" id="modal-card"></div></div>
 
 <script>
+// ═══════════ RETURN URL CAPTURE ═══════════
+(function captureReturnUrl(){
+ try {
+  const ref = document.referrer;
+  if(ref && ref.indexOf(window.location.origin) === 0) {
+   const refPath = ref.replace(window.location.origin, '');
+   // Only save if referrer is not the board itself, not landing, not empty
+   if(refPath && refPath !== '/' && !refPath.includes('/tactical-board.html')) {
+    sessionStorage.setItem('tacticalBoardReturnUrl', ref);
+   }
+  }
+ } catch(e){}
+})();
+
 // ═══════════ STATE ═══════════
 const ST = {
  cat: 'conjunto', sport: 'futbol', tool: 'move',
@@ -1017,6 +1031,50 @@ const S = {
   if (ST.viewMode === '3d') this.render3DField();
   else this.renderFieldOnly();
   this.renderElements();
+ },
+
+ // ═══════════ CLOSE / RETURN NAVIGATION ═══════════
+ _doReturnNavigation() {
+  const saved = sessionStorage.getItem('tacticalBoardReturnUrl');
+  if(saved) {
+   sessionStorage.removeItem('tacticalBoardReturnUrl');
+   window.location.href = saved;
+   return;
+  }
+  if(window.history.length > 1 && document.referrer && document.referrer.indexOf(window.location.origin) === 0) {
+   window.history.back();
+   return;
+  }
+  window.location.href = '/';
+ },
+
+ closeBoard() {
+  const hasContent = Array.isArray(ST.elements) && ST.elements.length > 0;
+  if(!hasContent) { this._doReturnNavigation(); return; }
+  // Show confirm modal
+  const mc = document.getElementById('modal-card');
+  if(!mc) { this._doReturnNavigation(); return; }
+  mc.innerHTML = `
+   <h2 style="display:flex;align-items:center;gap:10px"><span style="display:inline-flex;width:36px;height:36px;border-radius:50%;background:rgba(250,204,21,0.15);color:#eab308;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>Cambios sin guardar</h2>
+   <p style="color:var(--text-sec);font-size:13px;line-height:1.5;margin-bottom:20px">Tienes <strong style="color:var(--text)">${ST.elements.length}</strong> ${ST.elements.length===1?'elemento':'elementos'} en la pizarra. ¿Quieres guardar antes de salir?</p>
+   <div style="display:flex;flex-direction:column;gap:8px">
+    <button data-testid="close-save-and-exit" onclick="S._closeFlow('save')" style="padding:11px 16px;border-radius:10px;font-size:12px;font-weight:800;background:linear-gradient(180deg,#10b981,#059669);color:#fff;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 12px -4px rgba(16,185,129,0.5);transition:all .15s">Guardar y salir</button>
+    <button data-testid="close-exit-without-save" onclick="S._closeFlow('discard')" style="padding:11px 16px;border-radius:10px;font-size:12px;font-weight:700;background:var(--surface);color:var(--text);border:1px solid var(--border);letter-spacing:0.02em;cursor:pointer;transition:all .15s">Salir sin guardar</button>
+    <button data-testid="close-cancel" onclick="S._closeFlow('cancel')" style="padding:9px 16px;font-size:11px;font-weight:600;color:var(--text-muted);background:transparent;border:none;cursor:pointer;text-transform:uppercase;letter-spacing:0.08em">Cancelar</button>
+   </div>`;
+  document.getElementById('modal-overlay').classList.add('show');
+ },
+
+ _closeFlow(action) {
+  document.getElementById('modal-overlay').classList.remove('show');
+  if(action === 'cancel') return;
+  if(action === 'save') {
+   // Trigger save then navigate
+   setTimeout(() => { try { this.showSaveModal(); } catch(e){} }, 120);
+   return;
+  }
+  // discard
+  this._doReturnNavigation();
  },
 
  loadTheme() {
