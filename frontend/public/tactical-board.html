@@ -578,6 +578,7 @@ const TOOLS = [
  {id:'line',label:'Linea',icon:'<line x1="3" y1="15" x2="15" y2="3" stroke="currentColor" stroke-width="1.5"/>',group:1},
  {id:'curve',label:'Curva',icon:'<path d="M3 15Q9 3 15 15" fill="none" stroke="currentColor" stroke-width="1.5"/>',group:1},
  {id:'arrow',label:'Flecha',icon:'<line x1="3" y1="15" x2="13" y2="3" stroke="currentColor" stroke-width="1.5"/><polyline points="8,3 13,3 13,8" fill="none" stroke="currentColor" stroke-width="1.5"/>',group:1},
+ {id:'pass',label:'Pase',icon:'<line x1="3" y1="15" x2="13" y2="3" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2.5 2"/><circle cx="13" cy="3" r="2" fill="currentColor"/><circle cx="3" cy="15" r="1.4" fill="currentColor"/>',group:1},
  {id:'zone',label:'Zona',icon:'<rect x="3" y="5" width="12" height="8" rx="2" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1"/>',group:1},
  {id:'text',label:'Texto',icon:'<text x="9" y="13" text-anchor="middle" font-size="13" font-weight="700" fill="currentColor">T</text>',group:1},
  {id:'eraser',label:'Borrar',icon:'<rect x="4" y="7" width="10" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.5" transform="rotate(-20 9 10)"/>',group:1},
@@ -2381,7 +2382,7 @@ const S = {
     }
    } else if(ST.tool==='playerA'||ST.tool==='playerB'||ST.tool==='goalkeeper'||ST.tool==='ball'||ST.tool==='cone'||ST.tool==='flag'||ST.tool==='hurdle'||ST.tool==='disc'||ST.tool==='minigoal'||ST.tool==='mannequin'||ST.tool==='vest'||ST.tool==='ring'||ST.tool==='ladder'||ST.tool==='pole'||ST.tool==='plyobox'||ST.tool==='kettlebell'||ST.tool==='medball'||ST.tool==='trx'||ST.tool==='sled'||ST.tool==='parachute'||ST.tool==='rope'||ST.tool==='battlerope'||ST.tool==='roller'||ST.tool==='band'||ST.tool==='bosu'||ST.tool==='mat'||ST.tool==='dumbbell'||ST.tool==='barbell'||ST.tool==='bench'||ST.tool==='rack'||ST.tool==='treadmill'||ST.tool==='bike'||ST.tool==='rower'||ST.tool==='pullup'||ST.tool==='pilatesball'||ST.tool==='stepper'||ST.tool.startsWith('gm_')||ST.tool.startsWith('sp_')||ST.tool.startsWith('p_')) {
     this.addElement(ST.tool, p.x, p.y);
-   } else if(ST.tool==='arrow'||ST.tool==='line') {
+   } else if(ST.tool==='arrow'||ST.tool==='line'||ST.tool==='pass') {
     ST.drawing = {type:ST.tool,x1:p.x,y1:p.y,x2:p.x,y2:p.y};
    } else if(ST.tool==='zone') {
     ST.drawing = {type:'zone',x:p.x,y:p.y,w:0,h:0};
@@ -2432,7 +2433,7 @@ const S = {
     sl.innerHTML = `<rect x="${rx}" y="${ry}" width="${Math.abs(r.w)}" height="${Math.abs(r.h)}" class="sel-box"/>`;
    }
    if(ST.drawing) {
-    if(ST.drawing.type==='arrow'||ST.drawing.type==='line') {
+    if(ST.drawing.type==='arrow'||ST.drawing.type==='line'||ST.drawing.type==='pass') {
      ST.drawing.x2 = p.x; ST.drawing.y2 = p.y;
      this.renderDrawingPreview();
     } else if(ST.drawing.type==='zone') {
@@ -2465,6 +2466,7 @@ const S = {
    if(ST.drawing) {
     const d = ST.drawing;
     if(d.type==='arrow') this.addElement('arrow',0,0,{x1:d.x1,y1:d.y1,x2:d.x2,y2:d.y2});
+    else if(d.type==='pass') this.addElement('arrow',0,0,{x1:d.x1,y1:d.y1,x2:d.x2,y2:d.y2,isBallArrow:true,lineStyle:'dashed'});
     else if(d.type==='line') this.addElement('line',0,0,{x1:d.x1,y1:d.y1,x2:d.x2,y2:d.y2});
     else if(d.type==='zone') this.addElement('zone',d.x,d.y,{w:d.w,h:d.h});
     else if(d.type==='pencil'&&d.points.length>2) this.addElement('pencil',0,0,{points:d.points});
@@ -2506,6 +2508,8 @@ const S = {
   const d = ST.drawing;
   if(d.type==='arrow') {
    hl.innerHTML = `<line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}" stroke="rgba(0,0,0,0.5)" stroke-width="2" marker-end="url(#arrow-marker)" stroke-dasharray="4 3"/>`;
+  } else if(d.type==='pass') {
+   hl.innerHTML = `<line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}" stroke="#2563eb" stroke-width="2.2" stroke-dasharray="3 3" stroke-opacity="0.65" marker-end="url(#arrow-marker)"/><circle cx="${d.x1}" cy="${d.y1}" r="3" fill="#2563eb" opacity="0.7"/>`;
   } else if(d.type==='line') {
    hl.innerHTML = `<line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}" stroke="rgba(0,0,0,0.5)" stroke-width="2" stroke-dasharray="4 3"/>`;
   } else if(d.type==='zone') {
@@ -2781,13 +2785,16 @@ const S = {
    case 'arrow': {
     const mx = ((el.x1||0)+(el.x2||0))/2, my = ((el.y1||0)+(el.y2||0))/2;
     const aid = `ag${el.id}`;
-    const ac = el.color||'rgba(0,0,0,0.7)';
+    const isBall = el.isBallArrow;
+    const ac = el.color||(isBall?'#2563eb':'rgba(0,0,0,0.7)');
     const is3D = ST.viewMode==='3d'||ST.viewMode==='2.5d';
     const trailGrad = `<defs><linearGradient id="${aid}" x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="${ac}" stop-opacity="0.05"/><stop offset="40%" stop-color="${ac}" stop-opacity="0.25"/><stop offset="100%" stop-color="${ac}" stop-opacity="0.8"/></linearGradient></defs>`;
-    const trail = `<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="url(#${aid})" stroke-width="${(el.strokeWidth||2.5)*3.5}" stroke-linecap="round" opacity="0.2"/>`;
+    const trail = isBall ? '' : `<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="url(#${aid})" stroke-width="${(el.strokeWidth||2.5)*3.5}" stroke-linecap="round" opacity="0.2"/>`;
     const sh3d = is3D ? `<line x1="${el.x1+2}" y1="${el.y1+5}" x2="${el.x2+2}" y2="${el.y2+5}" stroke="rgba(0,0,0,0.08)" stroke-width="${(el.strokeWidth||2.5)+1}" stroke-linecap="round" filter="url(#blur3d)"/>` : '';
-    const orderBadge = el.playOrder ? `<circle cx="${mx}" cy="${my}" r="10" fill="rgba(255,255,255,0.92)" stroke="#2563eb" stroke-width="1.5" class="arrow-order-badge"/><text x="${mx}" y="${my}" dy="0.35em" text-anchor="middle" font-size="9" fill="#2563eb" font-weight="700" class="arrow-order-badge">${el.playOrder}</text>` : '';
-    return `<g data-id="${el.id}" style="cursor:pointer">${trailGrad}${sel?`<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="#2563eb" stroke-width="8" opacity="0.15"/>`:''} ${sh3d}${trail}<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${ac}" stroke-width="${el.strokeWidth||2.5}" stroke-linecap="round" marker-end="url(#arrow-marker)" ${el.dash?`stroke-dasharray="${el.dash}"`:''}/><circle cx="${el.x1}" cy="${el.y1}" r="3" fill="${ac}" opacity="0.5"/>${orderBadge}</g>`;
+    const orderBadge = el.playOrder ? `<circle cx="${mx}" cy="${my}" r="10" fill="rgba(255,255,255,0.92)" stroke="${ac}" stroke-width="1.5" class="arrow-order-badge"/><text x="${mx}" y="${my}" dy="0.35em" text-anchor="middle" font-size="9" fill="${ac}" font-weight="700" class="arrow-order-badge">${el.playOrder}</text>` : '';
+    const dashAttr = isBall ? 'stroke-dasharray="6 4"' : (el.dash?`stroke-dasharray="${el.dash}"`:'');
+    const bullet = isBall ? `<circle cx="${el.x1}" cy="${el.y1}" r="5" fill="${ac}" stroke="#fff" stroke-width="1.5"/>` : `<circle cx="${el.x1}" cy="${el.y1}" r="3" fill="${ac}" opacity="0.5"/>`;
+    return `<g data-id="${el.id}" style="cursor:pointer">${trailGrad}${sel?`<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="#2563eb" stroke-width="8" opacity="0.15"/>`:''} ${sh3d}${trail}<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${ac}" stroke-width="${el.strokeWidth||(isBall?2.8:2.5)}" stroke-linecap="round" marker-end="url(#arrow-marker)" ${dashAttr}/>${bullet}${orderBadge}</g>`;
    }
    case 'line':
     return `<g data-id="${el.id}" style="cursor:pointer"><line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${el.color||'rgba(0,0,0,0.6)'}" stroke-width="${el.strokeWidth||2}" stroke-linecap="round" ${el.dash?`stroke-dasharray="${el.dash}"`:''}/></g>`;
@@ -3318,15 +3325,23 @@ const S = {
    }
   });
   
-  // PASE 1: Asignar cada flecha a su actor más cercano (comparar jugador vs objeto por distancia real)
+  // PASE 1: Asignar cada flecha a su actor más cercano
   const arrowActors = new Map();
   arrows.forEach(ar => {
+   // Si es flecha "Pase/Tiro" explícita → asociar SIEMPRE al balón más cercano (sin umbral)
+   if (ar.isBallArrow) {
+    let ball = null, minD = Infinity;
+    ST.elements.forEach(el => {
+     if (el.type !== 'ball') return;
+     const d = Math.hypot(el.x - ar.x1, el.y - ar.y1);
+     if (d < minD) { minD = d; ball = el; }
+    });
+    if (ball) { arrowActors.set(ar.id, ball); return; }
+   }
    const player = this.findNearestPlayerForPlayback(ar.x1, ar.y1, null);
    const obj = this.findNearestObjectForPlayback(ar.x1, ar.y1, null);
    const pDist = player ? Math.hypot(player.x - ar.x1, player.y - ar.y1) : Infinity;
    const oDist = obj ? Math.hypot(obj.x - ar.x1, obj.y - ar.y1) : Infinity;
-   // Si el objeto está MUY cerca (<40px) y el jugador no está aún más cerca, preferir objeto
-   // Si no, preferir jugador (prioridad táctica para movimientos)
    let chosen = null;
    if (obj && oDist < 40 && oDist < pDist) chosen = obj;
    else if (player && pDist < 200) chosen = player;

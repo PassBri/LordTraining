@@ -9,7 +9,17 @@
 
 ## Implementado
 
-### Trayectorias del Balón y Objetos Animables (Feb 2026)
+### Herramienta "Pase/Tiro" para Balón (Feb 2026)
+- Nueva herramienta Pase en sidebar DIBUJO: icono línea punteada con bullet
+- Al dibujar: crea flecha con isBallArrow=true, estilo visual distintivo
+  (stroke-dasharray 6 4, bullet relleno 5px con stroke blanco en origen, azul por defecto)
+- En playback: flechas isBallArrow se asocian SIEMPRE al balón más cercano sin umbral de distancia
+  (a diferencia de flechas normales que tienen prioridad jugador)
+- Permite tácticas intencionales: pases largos, tiros al arco, lanzamientos
+  sin depender de proximidad entre balón y flecha
+- Compatible con cadenas: varios "Pase" consecutivos del mismo balón se encadenan
+
+
 - El motor de playback ahora anima no solo jugadores, sino también balón, conos, discos, banderas,
   kettlebells, balones medicinales y pilates
 - Asignacion inteligente de flechas a actores: compara distancia real del inicio de la flecha al
