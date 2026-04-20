@@ -47,6 +47,25 @@ input:focus,textarea:focus,select:focus{border-color:var(--primary);box-shadow:0
 #main{display:flex;flex:1;overflow:hidden}
 /* ── LEFT SIDEBAR ── */
 #sidebar{width:380px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;box-shadow:1px 0 0 var(--border),4px 0 24px -12px var(--shadow)}
+
+/* Viewer (shared board readonly) mode */
+body.viewer-mode #sidebar,
+body.viewer-mode #panel,
+body.viewer-mode #view-bar,
+body.viewer-mode #top-bar,
+body.viewer-mode .pb-drawer-toggle,
+body.viewer-mode #timeline-bar{display:none !important}
+body.viewer-mode #canvas-wrap{border-radius:0}
+body.viewer-mode #viewer-bar{display:flex !important}
+#viewer-bar{display:none;position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:1000;background:rgba(15,23,42,0.92);backdrop-filter:blur(14px);border:1px solid rgba(200,247,0,0.3);border-radius:14px;padding:8px 14px;gap:12px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,0.4);color:#fff;font-family:system-ui}
+#viewer-bar .vw-logo{display:flex;align-items:center;gap:6px;font-weight:900;font-size:14px;color:#c8f700;letter-spacing:0.02em}
+#viewer-bar .vw-title{font-size:13px;font-weight:600;color:rgba(255,255,255,0.92);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#viewer-bar .vw-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:#fff;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:0.04em;display:flex;align-items:center;gap:5px;transition:all .15s}
+#viewer-bar .vw-btn:hover{background:rgba(200,247,0,0.15);border-color:rgba(200,247,0,0.4);color:#c8f700}
+#viewer-bar .vw-btn.primary{background:linear-gradient(135deg,#c8f700,#a5d400);color:#0b0f19;border-color:transparent}
+#viewer-bar .vw-btn.primary:hover{filter:brightness(1.1)}
+#viewer-fab{display:none;position:fixed;bottom:24px;right:24px;z-index:1000;background:linear-gradient(135deg,#c8f700,#a5d400);color:#0b0f19;padding:14px 22px;border-radius:999px;font-size:14px;font-weight:900;letter-spacing:0.04em;cursor:pointer;border:none;box-shadow:0 10px 30px rgba(200,247,0,0.4);text-transform:uppercase;font-family:'Oswald',sans-serif}
+body.viewer-mode #viewer-fab{display:inline-flex;align-items:center;gap:8px}
 .sb-header{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border);gap:10px;position:relative}
 .sb-header .brand-text{font-size:13px;font-weight:900;letter-spacing:0.22em;color:var(--text);margin-right:auto}
 .logo{width:34px;height:34px;background:var(--brand);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 16px var(--brand-glow),inset 0 -2px 0 rgba(0,0,0,0.12);position:relative}
@@ -702,15 +721,15 @@ const FIELDS = Object.assign({}, FIELD_VARIANT_SVGS, {
 'Circuito':{bg:'#ffffff',svg:`${Array.from({length:16},(_,i)=>`<line x1="${i*40}" y1="0" x2="${i*40}" y2="800" class="grid-line"/>`).join('')}${Array.from({length:21},(_,j)=>`<line x1="0" y1="${j*40}" x2="600" y2="${j*40}" class="grid-line"/>`).join('')}`},
 // ══ TRADICIONALES DE PRECISION (medidas reglamentarias escaladas) ══
 // Minitejo: cancha 3m x 1.5m · caja 50cm · bocin 10cm · 4 mechas · linea lanzamiento a 2m
-'Minitejo':{bg:'#ffffff',svg:`<rect x="150" y="90" width="300" height="620" fill="rgba(160,115,70,0.08)" rx="4"/><rect x="150" y="90" width="300" height="620" fill="none" stroke-width="1.8"/><rect x="225" y="120" width="150" height="150" fill="rgba(180,120,60,0.18)" stroke-width="1.6"/><circle cx="240" cy="135" r="5" fill="rgba(255,60,60,0.6)"/><circle cx="360" cy="135" r="5" fill="rgba(255,60,60,0.6)"/><circle cx="240" cy="255" r="5" fill="rgba(255,60,60,0.6)"/><circle cx="360" cy="255" r="5" fill="rgba(255,60,60,0.6)"/><circle cx="300" cy="195" r="15" fill="none" stroke-width="1.5"/><circle cx="300" cy="195" r="4" fill="rgba(0,0,0,0.3)"/><line x1="150" y1="630" x2="450" y2="630" stroke-width="2" stroke-dasharray="6 4"/><text x="300" y="82" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">3 m</text><text x="142" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">1.5 m</text><text x="300" y="300" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">CAJA 50x50 · BOCIN 10 cm</text><text x="300" y="650" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE LANZAMIENTO</text><text x="300" y="730" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">MINITEJO</text>`},
+'Minitejo':{bg:'#ffffff',svg:`<rect x="150" y="90" width="300" height="620" fill="rgba(160,115,70,0.08)" rx="4"/><rect x="150" y="90" width="300" height="620" fill="none" stroke-width="1.8"/><rect x="225" y="120" width="150" height="150" fill="rgba(180,120,60,0.18)" stroke-width="1.6"/><line x1="150" y1="630" x2="450" y2="630" stroke-width="2" stroke-dasharray="6 4"/><text x="300" y="82" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">3 m</text><text x="142" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">1.5 m</text><text x="300" y="300" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">CAJA 50x50 · BOCIN 10cm (agrega desde el panel)</text><text x="300" y="650" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE LANZAMIENTO</text><text x="300" y="730" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">MINITEJO</text>`},
 // Rana: mesa 80cm x 80cm con sapo, 7 agujeros, linea lanzamiento a 3m
 'Rana':{bg:'#ffffff',svg:`<rect x="135" y="80" width="330" height="620" fill="rgba(100,140,80,0.06)" rx="4"/><rect x="135" y="80" width="330" height="620" fill="none" stroke-width="1.5"/><rect x="195" y="120" width="210" height="210" fill="rgba(120,80,40,0.18)" stroke-width="1.8" rx="4"/><circle cx="300" cy="225" r="22" fill="rgba(0,0,0,0.35)" stroke-width="0"/><circle cx="300" cy="225" r="16" fill="rgba(255,200,60,0.4)" stroke-width="0.8"/><circle cx="235" cy="160" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="365" cy="160" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="235" cy="290" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="365" cy="290" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="300" cy="150" r="8" fill="rgba(0,0,0,0.2)"/><circle cx="300" cy="300" r="8" fill="rgba(0,0,0,0.2)"/><line x1="135" y1="600" x2="465" y2="600" stroke-width="2" stroke-dasharray="6 4"/><text x="300" y="72" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">2.3 m</text><text x="127" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">1.5 m</text><text x="300" y="360" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">MESA 80x80 cm · BOCA CENTRAL (SAPO)</text><text x="300" y="622" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE LANZAMIENTO (3 m)</text><text x="300" y="720" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">RANA</text>`},
 // Bolo Criollo: cancha 26m x 4m · 9 bolos en rombo · linea de tiro
-'Bolo Criollo':{bg:'#ffffff',svg:`<rect x="225" y="30" width="150" height="740" fill="rgba(139,90,43,0.05)" rx="2"/><rect x="225" y="30" width="150" height="740" fill="none" stroke-width="1.5"/><line x1="225" y1="700" x2="375" y2="700" stroke-width="1.5" stroke-dasharray="5 3"/><line x1="225" y1="100" x2="375" y2="100" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>${[[300,140],[280,165],[320,165],[260,190],[300,190],[340,190],[280,215],[320,215],[300,240]].map(([x,y])=>`<rect x="${x-6}" y="${y-10}" width="12" height="20" rx="3" fill="rgba(240,220,180,0.7)" stroke-width="1"/>`).join('')}<circle cx="300" cy="730" r="6" fill="rgba(0,0,0,0.3)"/><text x="300" y="22" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">4 m</text><text x="218" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 218 404)">26 m</text><text x="300" y="70" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">ZONA DE BOLOS</text><text x="300" y="720" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE TIRO</text><text x="300" y="760" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">BOLO CRIOLLO · 9 BOLOS</text>`},
-// Bolo Americano (Bowling): pista 18.3m (60ft) x 1.05m (41.5") con 10 pinos en triangulo
-'Bolo Americano':{bg:'#ffffff',svg:`<rect x="240" y="30" width="120" height="660" fill="rgba(210,170,120,0.2)" stroke-width="1.8" rx="2"/><rect x="232" y="30" width="8" height="660" fill="rgba(140,100,60,0.5)"/><rect x="360" y="30" width="8" height="660" fill="rgba(140,100,60,0.5)"/>${[[0,0],[-1,1],[1,1],[-2,2],[0,2],[2,2],[-3,3],[-1,3],[1,3],[3,3]].map(([dx,dy])=>`<circle cx="${300+dx*10}" cy="${90+dy*18}" r="6" fill="rgba(252,250,245,0.95)" stroke="rgba(200,50,50,0.85)" stroke-width="1.2"/><circle cx="${300+dx*10}" cy="${86+dy*18}" r="2.5" fill="rgba(200,50,50,0.8)"/>`).join('')}<line x1="240" y1="620" x2="360" y2="620" stroke-width="1.5" stroke-dasharray="6 3"/><line x1="240" y1="660" x2="360" y2="660" stroke-width="2"/><circle cx="300" cy="700" r="11" fill="rgba(30,30,60,0.95)" stroke="rgba(0,0,0,0.8)" stroke-width="1.5"/><circle cx="297" cy="696" r="1.8" fill="rgba(60,60,90,1)"/><circle cx="302" cy="695" r="1.5" fill="rgba(60,60,90,1)"/><circle cx="296" cy="702" r="1.5" fill="rgba(60,60,90,1)"/><text x="300" y="22" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">1.05 m (41.5 in)</text><text x="234" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 234 404)">18.3 m (60 ft)</text><text x="300" y="180" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(80,80,80,0.9)" data-mono="1" font-size="9" font-family="system-ui">10 PINOS · TRIANGULO</text><text x="300" y="615" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(80,80,80,0.9)" data-mono="1" font-size="9" font-family="system-ui">LINEA DE FALTA</text><text x="300" y="740" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(80,80,80,0.9)" data-mono="1" font-size="9" font-family="system-ui">APPROACH</text><text x="300" y="785" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">BOWLING (USBC/WBT) · Pista 18.3x1.05m · 10 pinos</text>`},
+'Bolo Criollo':{bg:'#ffffff',svg:`<rect x="225" y="30" width="150" height="740" fill="rgba(139,90,43,0.05)" rx="2"/><rect x="225" y="30" width="150" height="740" fill="none" stroke-width="1.5"/><line x1="225" y1="700" x2="375" y2="700" stroke-width="1.5" stroke-dasharray="5 3"/><line x1="225" y1="100" x2="375" y2="100" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/><text x="300" y="22" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">4 m</text><text x="218" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 218 404)">26 m</text><text x="300" y="70" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">ZONA DE BOLOS</text><text x="300" y="720" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE TIRO</text><text x="300" y="760" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">BOLO CRIOLLO · 9 BOLOS (agrega desde el panel)</text>`},
+// Bolo Americano (Bowling): pista 18.3m (60ft) x 1.05m (41.5") sin pinos pre-dibujados
+'Bolo Americano':{bg:'#ffffff',svg:`<rect x="240" y="30" width="120" height="660" fill="rgba(210,170,120,0.2)" stroke-width="1.8" rx="2"/><rect x="232" y="30" width="8" height="660" fill="rgba(140,100,60,0.5)"/><rect x="360" y="30" width="8" height="660" fill="rgba(140,100,60,0.5)"/><line x1="240" y1="620" x2="360" y2="620" stroke-width="1.5" stroke-dasharray="6 3"/><line x1="240" y1="660" x2="360" y2="660" stroke-width="2"/><text x="300" y="22" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">1.05 m (41.5 in)</text><text x="234" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 234 404)">18.3 m (60 ft)</text><text x="300" y="180" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(80,80,80,0.9)" data-mono="1" font-size="9" font-family="system-ui">ZONA DE PINOS (agrega desde el panel)</text><text x="300" y="615" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(80,80,80,0.9)" data-mono="1" font-size="9" font-family="system-ui">LINEA DE FALTA</text><text x="300" y="740" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(80,80,80,0.9)" data-mono="1" font-size="9" font-family="system-ui">APPROACH</text><text x="300" y="785" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">BOWLING (USBC/WBT) · Pista 18.3x1.05m · 10 pinos</text>`},
 // Tejo: cancha 19.5m x 2.5m · caja 1m con bocin 17cm y 4 mechas · linea lanzamiento
-'Tejo':{bg:'#ffffff',svg:`<rect x="245" y="30" width="110" height="740" fill="rgba(160,115,70,0.07)" rx="2"/><rect x="245" y="30" width="110" height="740" fill="none" stroke-width="1.5"/><rect x="260" y="50" width="80" height="80" fill="rgba(180,120,60,0.22)" stroke-width="1.6"/><circle cx="273" cy="63" r="4" fill="rgba(255,60,60,0.65)"/><circle cx="327" cy="63" r="4" fill="rgba(255,60,60,0.65)"/><circle cx="273" cy="117" r="4" fill="rgba(255,60,60,0.65)"/><circle cx="327" cy="117" r="4" fill="rgba(255,60,60,0.65)"/><circle cx="300" cy="90" r="8" fill="none" stroke-width="1.5"/><circle cx="300" cy="90" r="2.5" fill="rgba(0,0,0,0.4)"/><line x1="245" y1="700" x2="355" y2="700" stroke-width="2" stroke-dasharray="6 4"/><text x="300" y="22" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">2.5 m</text><text x="238" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 238 404)">19.5 m</text><text x="300" y="155" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">CAJA 1m · BOCIN 17cm · 4 MECHAS</text><text x="300" y="720" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE LANZAMIENTO</text><text x="300" y="760" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">TEJO</text>`},
+'Tejo':{bg:'#ffffff',svg:`<rect x="245" y="30" width="110" height="740" fill="rgba(160,115,70,0.07)" rx="2"/><rect x="245" y="30" width="110" height="740" fill="none" stroke-width="1.5"/><rect x="260" y="50" width="80" height="80" fill="rgba(180,120,60,0.22)" stroke-width="1.6"/><line x1="245" y1="700" x2="355" y2="700" stroke-width="2" stroke-dasharray="6 4"/><text x="300" y="22" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">2.5 m</text><text x="238" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 238 404)">19.5 m</text><text x="300" y="155" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">CAJA 1m · BOCIN + 4 MECHAS (agrega desde el panel)</text><text x="300" y="720" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE LANZAMIENTO</text><text x="300" y="760" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">TEJO</text>`},
 // ══ TRADICIONALES CON PELOTA ══
 // Quemados: cancha 12m x 6m · linea central · 2 equipos
 'Quemados':{bg:'#ffffff',svg:`<rect x="120" y="80" width="360" height="640" fill="rgba(80,120,255,0.04)" rx="3"/><rect x="120" y="400" width="360" height="320" fill="rgba(255,60,60,0.04)"/><rect x="120" y="80" width="360" height="640" fill="none" stroke-width="2"/><line x1="120" y1="400" x2="480" y2="400" stroke-width="2.5"/><line x1="120" y1="160" x2="480" y2="160" stroke-width="1" stroke-dasharray="4 3" opacity="0.6"/><line x1="120" y1="640" x2="480" y2="640" stroke-width="1" stroke-dasharray="4 3" opacity="0.6"/><text x="300" y="72" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">6 m</text><text x="112" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 112 404)">12 m</text><text x="300" y="250" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(80,120,255,0.35)" font-size="16" font-family="system-ui" font-weight="700">EQUIPO A</text><text x="300" y="550" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(255,60,60,0.35)" font-size="16" font-family="system-ui" font-weight="700">EQUIPO B</text><text x="300" y="140" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">ZONA SALVACION</text><text x="300" y="670" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">ZONA SALVACION</text><text x="300" y="395" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA CENTRAL</text><text x="300" y="745" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">QUEMADOS</text>`},
@@ -727,7 +746,7 @@ const FIELDS = Object.assign({}, FIELD_VARIANT_SVGS, {
 // Archery: 70m range, 122cm target (FITA)
 'Tiro con Arco':{bg:'#ffffff',svg:`<rect x="50" y="40" width="500" height="720" fill="rgba(250,250,240,0.4)" stroke-width="1" stroke="rgba(120,120,120,0.35)"/><rect x="220" y="680" width="160" height="55" rx="3" fill="rgba(180,140,100,0.35)" stroke="rgba(120,80,40,0.7)" stroke-width="1.5"/><text class="fld-measure fld-zone" x="300" y="712" text-anchor="middle" fill="rgba(90,60,30,0.95)" font-size="10" font-weight="800">LINEA DE TIRO</text>${Array.from({length:10},(_,i)=>`<line x1="50" y1="${680-i*60}" x2="550" y2="${680-i*60}" stroke="rgba(120,120,120,0.15)" stroke-dasharray="4 5"/><text class="fld-measure fld-zone" x="60" y="${676-i*60}" fill="rgba(80,80,80,0.7)" font-size="8" font-weight="700">${70-i*7}m</text>`).join('')}<g transform="translate(300,105)"><circle r="60" fill="rgba(255,255,255,1)" stroke="rgba(0,0,0,0.85)" stroke-width="1.5"/><circle r="54" fill="rgba(255,255,255,1)" stroke="rgba(0,0,0,0.5)" stroke-width="0.8"/><circle r="48" fill="rgba(0,0,0,0.85)"/><circle r="42" fill="rgba(0,0,0,0.85)" stroke="rgba(255,255,255,0.7)" stroke-width="0.6"/><circle r="36" fill="rgba(60,120,220,0.95)"/><circle r="30" fill="rgba(60,120,220,0.95)" stroke="rgba(255,255,255,0.7)" stroke-width="0.6"/><circle r="24" fill="rgba(220,60,60,0.95)"/><circle r="18" fill="rgba(220,60,60,0.95)" stroke="rgba(255,255,255,0.7)" stroke-width="0.6"/><circle r="12" fill="rgba(255,220,60,0.95)"/><circle r="6" fill="rgba(255,220,60,0.95)" stroke="rgba(0,0,0,0.85)" stroke-width="0.5"/><circle r="2" fill="rgba(0,0,0,0.9)"/></g><rect x="260" y="60" width="80" height="6" fill="rgba(100,70,40,0.7)" rx="1"/><text class="fld-measure" x="300" y="30" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">DIANA 122 cm · CENTRO 12.2 cm</text><text x="300" y="755" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">TIRO CON ARCO (WA/FITA) · Distancia 70 m · 10 zonas</text>`},
 // Bochas (Lyonnaise bowls): 27.5m x 3.7m lane
-'Bochas':{bg:'#ffffff',svg:`<rect x="235" y="40" width="130" height="720" fill="rgba(210,200,170,0.3)" stroke="rgba(120,80,40,0.6)" stroke-width="1.5"/><line x1="235" y1="120" x2="365" y2="120" stroke="rgba(120,80,40,0.6)" stroke-width="1" stroke-dasharray="5 4"/><line x1="235" y1="680" x2="365" y2="680" stroke="rgba(120,80,40,0.6)" stroke-width="1" stroke-dasharray="5 4"/><circle cx="300" cy="400" r="6" fill="rgba(255,255,0,0.95)" stroke="rgba(180,120,0,0.95)" stroke-width="1.2"/><text class="fld-measure fld-zone" x="320" y="404" fill="rgba(120,80,20,0.95)" font-size="8" font-weight="700">JACK</text>${[[275,310,'rgba(220,60,60,'],[325,330,'rgba(220,60,60,'],[280,460,'rgba(60,120,220,'],[330,440,'rgba(60,120,220,']].map(([x,y,c])=>`<circle cx="${x}" cy="${y}" r="9" fill="${c}0.85)" stroke="${c}1)" stroke-width="1"/><line x1="${x-5}" y1="${y}" x2="${x+5}" y2="${y}" stroke="rgba(255,255,255,0.4)" stroke-width="0.8"/>`).join('')}<text x="300" y="30" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">3.7 m</text><text x="227" y="400" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 227 400)">27.5 m</text><text x="300" y="110" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(80,80,80,0.9)" data-mono="1" font-size="9" font-family="system-ui">LINEA DE FALTA</text><text x="300" y="700" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(80,80,80,0.9)" data-mono="1" font-size="9" font-family="system-ui">LINEA DE TIRO</text><text x="300" y="775" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">BOCHAS (CBI) · 27.5x3.7m · Jack + 4 bolas por equipo</text>`},
+'Bochas':{bg:'#ffffff',svg:`<rect x="235" y="40" width="130" height="720" fill="rgba(210,200,170,0.3)" stroke="rgba(120,80,40,0.6)" stroke-width="1.5"/><line x1="235" y1="120" x2="365" y2="120" stroke="rgba(120,80,40,0.6)" stroke-width="1" stroke-dasharray="5 4"/><line x1="235" y1="680" x2="365" y2="680" stroke="rgba(120,80,40,0.6)" stroke-width="1" stroke-dasharray="5 4"/><text x="300" y="30" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">3.7 m</text><text x="227" y="400" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 227 400)">27.5 m</text><text x="300" y="110" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(80,80,80,0.9)" data-mono="1" font-size="9" font-family="system-ui">LINEA DE FALTA</text><text x="300" y="400" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(80,80,80,0.5)" data-mono="1" font-size="8" font-family="system-ui">(Jack + bolas desde el panel)</text><text x="300" y="700" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(80,80,80,0.9)" data-mono="1" font-size="9" font-family="system-ui">LINEA DE TIRO</text><text x="300" y="775" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">BOCHAS (CBI) · 27.5x3.7m · Jack + 4 bolas por equipo</text>`},
 // Dardos: 237cm throw line + board 45.1cm diameter
 'Dardos':{bg:'#ffffff',svg:`<rect x="50" y="40" width="500" height="720" fill="rgba(220,200,170,0.18)"/><g transform="translate(300,180)">${Array.from({length:20},(_,i)=>{const a1=((i*18)-99)*Math.PI/180, a2=((i*18+18)-99)*Math.PI/180; const R=150; const cB = i%2?'rgba(30,30,30,0.95)':'rgba(240,225,180,0.95)'; const cD = i%2?'rgba(60,180,80,0.9)':'rgba(220,60,60,0.9)'; const x1=R*Math.cos(a1), y1=R*Math.sin(a1), x2=R*Math.cos(a2), y2=R*Math.sin(a2); const xi1=100*Math.cos(a1), yi1=100*Math.sin(a1), xi2=100*Math.cos(a2), yi2=100*Math.sin(a2); return `<path d="M${xi1} ${yi1} L${x1} ${y1} A${R} ${R} 0 0 1 ${x2} ${y2} L${xi2} ${yi2} A100 100 0 0 0 ${xi1} ${yi1}" fill="${cB}" stroke="rgba(0,0,0,0.4)" stroke-width="0.3"/>`;}).join('')}${Array.from({length:20},(_,i)=>{const a1=((i*18)-99)*Math.PI/180, a2=((i*18+18)-99)*Math.PI/180; const cT = i%2?'rgba(60,180,80,0.95)':'rgba(220,60,60,0.95)'; const Rt1=152, Rt2=162; const x1=Rt1*Math.cos(a1), y1=Rt1*Math.sin(a1), x2=Rt1*Math.cos(a2), y2=Rt1*Math.sin(a2); const xi1=Rt2*Math.cos(a1), yi1=Rt2*Math.sin(a1), xi2=Rt2*Math.cos(a2), yi2=Rt2*Math.sin(a2); return `<path d="M${x1} ${y1} L${xi1} ${yi1} A${Rt2} ${Rt2} 0 0 1 ${xi2} ${yi2} L${x2} ${y2} A${Rt1} ${Rt1} 0 0 0 ${x1} ${y1}" fill="${cT}"/>`;}).join('')}${Array.from({length:20},(_,i)=>{const a1=((i*18)-99)*Math.PI/180, a2=((i*18+18)-99)*Math.PI/180; const cT = i%2?'rgba(60,180,80,0.95)':'rgba(220,60,60,0.95)'; const Rt1=95, Rt2=102; const x1=Rt1*Math.cos(a1), y1=Rt1*Math.sin(a1), x2=Rt1*Math.cos(a2), y2=Rt1*Math.sin(a2); const xi1=Rt2*Math.cos(a1), yi1=Rt2*Math.sin(a1), xi2=Rt2*Math.cos(a2), yi2=Rt2*Math.sin(a2); return `<path d="M${x1} ${y1} L${xi1} ${yi1} A${Rt2} ${Rt2} 0 0 1 ${xi2} ${yi2} L${x2} ${y2} A${Rt1} ${Rt1} 0 0 0 ${x1} ${y1}" fill="${cT}"/>`;}).join('')}${Array.from({length:20},(_,i)=>{const a=(i*18-90)*Math.PI/180; const R=175; return `<text x="${R*Math.cos(a)}" y="${R*Math.sin(a)+4}" text-anchor="middle" font-size="12" font-weight="800" fill="rgba(40,40,40,0.9)">${[20,1,18,4,13,6,10,15,2,17,3,19,7,16,8,11,14,9,12,5][i]}</text>`;}).join('')}<circle r="22" fill="rgba(60,180,80,0.95)" stroke="rgba(40,40,40,0.8)" stroke-width="1"/><circle r="11" fill="rgba(220,60,60,0.95)" stroke="rgba(40,40,40,0.9)" stroke-width="1"/><circle r="165" fill="none" stroke="rgba(40,40,40,0.5)" stroke-width="1"/></g><rect x="220" y="690" width="160" height="40" rx="3" fill="rgba(150,100,50,0.3)" stroke="rgba(90,60,30,0.7)" stroke-width="1.5"/><text class="fld-measure fld-zone" x="300" y="714" text-anchor="middle" fill="rgba(90,60,30,0.95)" font-size="10" font-weight="800">LINEA DE TIRO (OCHE)</text><text x="300" y="30" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">DIANA 45.1 cm · DIANA ALTURA 1.73 m · TIRO 2.37 m</text><text x="300" y="755" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">DARDOS (WDF/PDC) · 20 sectores · Triple (1-25) · Doble (aro ext)</text>`},
 // Curling: 45.72m x 5m ice sheet + 2 houses
@@ -735,7 +754,7 @@ const FIELDS = Object.assign({}, FIELD_VARIANT_SVGS, {
 // Tiro Deportivo: 10m olympic air lane
 'Tiro Deportivo':{bg:'#ffffff',svg:`<rect x="80" y="40" width="440" height="720" fill="rgba(245,245,245,0.4)" stroke="rgba(120,120,120,0.4)" stroke-width="1.5"/>${[0,1,2,3,4].map(i=>`<rect x="${100+i*88}" y="50" width="70" height="180" rx="4" fill="rgba(255,255,255,0.95)" stroke="rgba(0,0,0,0.6)" stroke-width="1.5"/><g transform="translate(${135+i*88},120)"><circle r="38" fill="rgba(255,255,255,1)" stroke="rgba(0,0,0,0.85)" stroke-width="1.2"/><circle r="30" fill="rgba(0,0,0,0.95)"/><circle r="22" fill="rgba(255,255,255,1)" stroke="rgba(0,0,0,0.6)" stroke-width="0.8"/><circle r="14" fill="rgba(0,0,0,0.95)"/><circle r="7" fill="rgba(255,60,60,0.95)"/></g><text class="fld-measure fld-zone" x="${135+i*88}" y="253" text-anchor="middle" fill="rgba(40,40,40,0.85)" font-size="10" font-weight="800">PUESTO ${i+1}</text>`).join('')}<rect x="100" y="650" width="400" height="60" rx="3" fill="rgba(180,140,100,0.3)" stroke="rgba(120,80,40,0.7)" stroke-width="1.5"/><text class="fld-measure fld-zone" x="300" y="685" text-anchor="middle" fill="rgba(90,60,30,0.95)" font-size="11" font-weight="800">LINEA DE TIRO</text>${[0,1,2,3,4].map(i=>`<line x1="${135+i*88}" y1="230" x2="${135+i*88}" y2="650" stroke="rgba(120,120,120,0.25)" stroke-dasharray="4 5"/>`).join('')}<text x="300" y="30" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">5 puestos · separacion 1 m</text><text x="72" y="440" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 72 440)">10 m</text><text x="300" y="775" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">TIRO DEPORTIVO (ISSF) · Aire 10m · Diana 11.5 cm · 10 zonas</text>`},
 // Petanca: 15m x 4m playing area
-'Petanca':{bg:'#ffffff',svg:`<rect x="180" y="60" width="240" height="680" fill="rgba(220,200,170,0.35)" stroke="rgba(120,80,40,0.65)" stroke-width="1.5"/>${Array.from({length:24},(_,i)=>`<rect x="${180+(i%4)*60+Math.random()*8}" y="${70+Math.floor(i/4)*110+Math.random()*8}" width="2" height="2" fill="rgba(120,80,40,0.35)" rx="1"/>`).join('')}<circle cx="180" cy="140" r="40" fill="none" stroke="rgba(120,80,40,0.6)" stroke-width="1.3" stroke-dasharray="5 3"/><text class="fld-measure fld-zone" x="160" y="145" text-anchor="end" fill="rgba(90,60,30,0.9)" font-size="8" font-weight="700">CIRCULO TIRO</text><circle cx="300" cy="480" r="5" fill="rgba(255,255,60,0.95)" stroke="rgba(180,140,0,1)" stroke-width="1.2"/><text class="fld-measure fld-zone" x="320" y="483" fill="rgba(120,80,20,0.95)" font-size="9" font-weight="700">COCHONNET</text>${[[275,450,'rgba(220,60,60,'],[325,475,'rgba(220,60,60,'],[290,510,'rgba(220,60,60,'],[310,495,'rgba(60,120,220,'],[280,525,'rgba(60,120,220,'],[335,450,'rgba(60,120,220,']].map(([x,y,c])=>`<circle cx="${x}" cy="${y}" r="8" fill="${c}0.85)" stroke="${c}1)" stroke-width="1"/>`).join('')}<text x="300" y="50" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">4 m</text><text x="172" y="400" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 172 400)">15 m</text><text x="300" y="775" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">PETANCA (FIPJP) · 15x4m · Cochonnet · 6 bolas por equipo</text>`}
+'Petanca':{bg:'#ffffff',svg:`<rect x="180" y="60" width="240" height="680" fill="rgba(220,200,170,0.35)" stroke="rgba(120,80,40,0.65)" stroke-width="1.5"/>${Array.from({length:24},(_,i)=>`<rect x="${180+(i%4)*60+(i*7)%8}" y="${70+Math.floor(i/4)*110+(i*11)%8}" width="2" height="2" fill="rgba(120,80,40,0.35)" rx="1"/>`).join('')}<circle cx="180" cy="140" r="40" fill="none" stroke="rgba(120,80,40,0.6)" stroke-width="1.3" stroke-dasharray="5 3"/><text class="fld-measure fld-zone" x="160" y="145" text-anchor="end" fill="rgba(90,60,30,0.9)" font-size="8" font-weight="700">CIRCULO TIRO</text><text x="300" y="50" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">4 m</text><text x="172" y="400" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 172 400)">15 m</text><text x="300" y="400" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(80,80,80,0.5)" data-mono="1" font-size="8" font-family="system-ui">(Cochonnet + bolas desde el panel)</text><text x="300" y="775" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">PETANCA (FIPJP) · 15x4m · Cochonnet · 6 bolas por equipo</text>`}
 });
 const DEFAULT_FIELD = {bg:'#ffffff',svg:`<rect x="60" y="40" width="480" height="720" rx="4" fill="none"/><line x1="300" y1="40" x2="300" y2="760" stroke-dasharray="4 3"/>`};
 
@@ -784,6 +803,16 @@ const TOOLS = [
  {id:'minigoal',label:'Mini Arco',icon:'<rect x="3" y="6" width="12" height="9" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="15" x2="3" y2="17" stroke="currentColor" stroke-width="1"/><line x1="15" y1="15" x2="15" y2="17" stroke="currentColor" stroke-width="1"/>',group:4},
  {id:'mannequin',label:'Maniqui',icon:'<rect x="7" y="3" width="4" height="12" rx="2" fill="currentColor" opacity="0.6"/><line x1="9" y1="15" x2="9" y2="17" stroke="currentColor" stroke-width="1.5"/>',group:4},
  {id:'vest',label:'Peto',icon:'<path d="M5 5 L9 3 L13 5 L14 13 L4 13 Z" fill="#ef4444" opacity="0.5" stroke="#dc2626" stroke-width="1"/>',group:4},
+ // ── BOLOS / PRECISION (arrastrables por el entrenador) ──
+ {id:'pin_bowling',label:'Pino USA',icon:'<path d="M9 3 Q7 3 7 5 L7 7 Q7 8 8 9 L7 14 Q7 15 9 15 Q11 15 11 14 L10 9 Q11 8 11 7 L11 5 Q11 3 9 3 Z" fill="#fcfaf5" stroke="#333" stroke-width="1"/><rect x="7.5" y="6" width="3" height="1.5" fill="#dc2626"/>',group:4,sports:['Bolo Americano']},
+ {id:'pin_criollo',label:'Palo',icon:'<rect x="6.5" y="3" width="5" height="12" rx="1.5" fill="#e6d3a8" stroke="#7a4b1a" stroke-width="0.9"/><rect x="6.5" y="7" width="5" height="1.8" fill="#dc2626"/>',group:4,sports:['Bolo Criollo']},
+ {id:'mecha',label:'Mecha',icon:'<rect x="5" y="8" width="8" height="3" rx="1.5" fill="#d44" stroke="#801010" stroke-width="0.8"/><line x1="9" y1="3" x2="9" y2="8" stroke="#f90" stroke-width="1.5" stroke-linecap="round"/>',group:4,sports:['Tejo','Minitejo']},
+ {id:'bocin',label:'Bocin',icon:'<circle cx="9" cy="9" r="5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-dasharray="2 1.5"/><circle cx="9" cy="9" r="1.5" fill="#dc2626"/>',group:4,sports:['Tejo','Minitejo']},
+ {id:'tejo',label:'Tejo',icon:'<circle cx="9" cy="9" r="5.5" fill="#94a3b8" stroke="#475569" stroke-width="1"/><circle cx="9" cy="9" r="2.5" fill="#64748b"/>',group:4,sports:['Tejo','Minitejo']},
+ {id:'jack',label:'Jack/Bolin',icon:'<circle cx="9" cy="9" r="3.5" fill="#fde047" stroke="#a16207" stroke-width="1"/>',group:4,sports:['Bochas','Petanca']},
+ {id:'bocha_r',label:'Bocha Roja',icon:'<circle cx="9" cy="9" r="5.5" fill="#dc2626" stroke="#7f1d1d" stroke-width="1"/><line x1="3.5" y1="9" x2="14.5" y2="9" stroke="rgba(255,255,255,0.35)" stroke-width="0.7"/>',group:4,sports:['Bochas','Petanca']},
+ {id:'bocha_b',label:'Bocha Azul',icon:'<circle cx="9" cy="9" r="5.5" fill="#2563eb" stroke="#1e3a8a" stroke-width="1"/><line x1="3.5" y1="9" x2="14.5" y2="9" stroke="rgba(255,255,255,0.35)" stroke-width="0.7"/>',group:4,sports:['Bochas','Petanca']},
+ {id:'ball_bowling',label:'Bola Bowling',icon:'<circle cx="9" cy="9" r="6" fill="#1e293b" stroke="#000" stroke-width="1"/><circle cx="7.5" cy="7" r="1" fill="#64748b"/><circle cx="10" cy="6.8" r="0.8" fill="#64748b"/><circle cx="8" cy="9.5" r="0.8" fill="#64748b"/>',group:4,sports:['Bolo Americano','Bolo Criollo']},
  {id:'sep4',group:0},
  // ── AGILIDAD ──
  {id:'ring',label:'Aro',icon:'<circle cx="9" cy="9" r="6" fill="none" stroke="#8b5cf6" stroke-width="2"/>',group:5},
@@ -969,6 +998,28 @@ const FORMATIONS = {
 const S = {
  init() {
   this.loadTheme();
+  // Detect viewer mode (shared board preview)
+  const _params = new URLSearchParams(window.location.search);
+  if (_params.get('viewer') === '1' || _params.get('s')) {
+   ST.viewerMode = true;
+   document.body.classList.add('viewer-mode');
+  }
+  // Import from "Duplicar" button in viewer
+  try {
+   const imp = localStorage.getItem('tb_import_shared');
+   if (imp && !ST.viewerMode) {
+    const d = JSON.parse(imp);
+    localStorage.removeItem('tb_import_shared');
+    setTimeout(() => {
+     if (d.sport) ST.sport = d.sport;
+     if (Array.isArray(d.elements)) ST.elements = d.elements.map(e => ({...e, id: Math.random().toString(36).slice(2,10)}));
+     this.renderElements && this.renderElements();
+     this.renderTabs && this.renderTabs();
+     this.updatePanel && this.updatePanel();
+     this.showToast && this.showToast('Jugada importada desde un enlace compartido','success');
+    }, 300);
+   }
+  } catch(e){}
   // Load shared board from URL hash (read-only preview)
   try { this.loadSharedBoard(); } catch(e){}
   // Load persisted UI state
@@ -1389,6 +1440,47 @@ const S = {
    }
   }
  },
+
+checkKnockdowns(movingEl, prevX, prevY) {
+ // Knock over pins/mechas when a heavy moving element (ball/tejo/bocha/bola bowling) passes near them
+ if (!movingEl) return;
+ const knockers = ['ball','ball_bowling','tejo','bocha_r','bocha_b'];
+ if (!knockers.includes(movingEl.type)) return;
+ const knockables = ['pin_bowling','pin_criollo','mecha','bocin','jack'];
+ const speed = Math.hypot(movingEl.x - prevX, movingEl.y - prevY);
+ if (speed < 0.5) return; // only knock when actually moving
+ for (const el of ST.elements) {
+  if (!knockables.includes(el.type)) continue;
+  if (el.knocked || el.exploded) continue;
+  const d = Math.hypot(movingEl.x - el.x, movingEl.y - el.y);
+  const radius = el.type === 'mecha' ? 14 : el.type === 'bocin' ? 12 : 11;
+  if (d < radius) {
+   if (el.type === 'mecha') {
+    el.exploded = true;
+    el.explodedAt = performance.now();
+   } else {
+    el.knocked = true;
+    el.knockedAngle = 60 + Math.random() * 40 * (Math.random() < 0.5 ? 1 : -1);
+    // Small offset in the direction of impact
+    const dx = movingEl.x - prevX, dy = movingEl.y - prevY;
+    const mag = Math.hypot(dx, dy) || 1;
+    el.knockOffsetX = (dx / mag) * 5;
+    el.knockOffsetY = (dy / mag) * 5;
+   }
+   // Chain reaction for bowling pins: nearby pins also fall
+   if (el.type === 'pin_bowling' || el.type === 'pin_criollo') {
+    for (const n of ST.elements) {
+     if (n === el || !['pin_bowling','pin_criollo'].includes(n.type) || n.knocked) continue;
+     if (Math.hypot(n.x - el.x, n.y - el.y) < 22) {
+      n.knocked = true;
+      n.knockedAngle = 45 + Math.random() * 50 * (Math.random() < 0.5 ? 1 : -1);
+     }
+    }
+   }
+  }
+ }
+},
+
 
  flashGoal(label) {
   const el = document.getElementById('goal-flash');
@@ -2381,16 +2473,14 @@ const S = {
    L += this.isoLine(240,620,360,620,D+'0.65)',1.5,'stroke-dasharray="6 3"');
    L += this.isoLine(240,660,360,660,D+'0.85)',2);
   } else if(s==='Tejo') {
-   // 19.5m x 2.5m lane + box 1m with bocin and 4 mechas + throw line
+   // 19.5m x 2.5m lane + box 1m + throw line (sin mechas/bocin: arrastra desde el panel)
    L += this.isoRect(245,30,110,740,D+'0.65)',1.5);
    L += this.isoRect(260,50,80,80,D+'0.7)',1.6);
-   L += this.isoDot(273,63,4,'rgba(255,60,60,0.65)');
-   L += this.isoDot(327,63,4,'rgba(255,60,60,0.65)');
-   L += this.isoDot(273,117,4,'rgba(255,60,60,0.65)');
-   L += this.isoDot(327,117,4,'rgba(255,60,60,0.65)');
-   L += this.isoCircle(300,90,8,D+'0.55)',1.5);
-   L += this.isoDot(300,90,2.5,D+'0.4)');
    L += this.isoLine(245,700,355,700,D+'0.65)',2,'stroke-dasharray="6 4"');
+  } else if(s==='Minitejo') {
+   L += this.isoRect(150,90,300,620,D+'0.7)',1.8);
+   L += this.isoRect(225,120,150,150,D+'0.65)',1.6);
+   L += this.isoLine(150,630,450,630,D+'0.65)',2,'stroke-dasharray="6 4"');
   } else if(s==='Quemados') {
    // 12m x 6m court with central line and 2 teams
    L += this.isoRect(120,80,360,640,D+'0.65)',2);
@@ -2702,67 +2792,8 @@ const S = {
    const tcl=this.toIso(90,40,wh), tcr=this.toIso(510,40,wh);
    O += `<line x1="${tcl.x}" y1="${tcl.y}" x2="${tcr.x}" y2="${tcr.y}" stroke="rgba(0,0,0,0.8)" stroke-width="3"/>`;
   }
-  // Bolo Criollo: 9 palos (pins) cilíndricos 3D — altura 25u ≈ 40cm
-  if(s==='Bolo Criollo') {
-   const pins=[[300,140],[280,165],[320,165],[260,190],[300,190],[340,190],[280,215],[320,215],[300,240]];
-   const pinH = 30;
-   for(const [px,py] of pins) {
-    const base = this.toIso(px,py,0);
-    const top = this.toIso(px,py,pinH);
-    // Shadow on the ground
-    O += `<ellipse cx="${base.x+3}" cy="${base.y+2}" rx="5.5" ry="2.2" fill="rgba(0,0,0,0.22)"/>`;
-    // Pin body (cylinder approximated: ellipse bottom + rect + ellipse top) — use 2 ellipses
-    const mid = this.toIso(px,py,pinH*0.55);
-    O += `<ellipse cx="${base.x}" cy="${base.y}" rx="4.5" ry="1.6" fill="rgba(240,220,180,0.95)" stroke="rgba(80,50,20,0.75)" stroke-width="0.7"/>`;
-    // Vertical body — 2 lines to simulate cylinder
-    O += `<line x1="${base.x-4}" y1="${base.y}" x2="${top.x-3}" y2="${top.y}" stroke="rgba(80,50,20,0.7)" stroke-width="0.7"/>`;
-    O += `<line x1="${base.x+4}" y1="${base.y}" x2="${top.x+3}" y2="${top.y}" stroke="rgba(80,50,20,0.7)" stroke-width="0.7"/>`;
-    // Narrowed top (neck)
-    O += `<line x1="${mid.x-3.5}" y1="${mid.y}" x2="${top.x-2}" y2="${top.y}" stroke="rgba(80,50,20,0.55)" stroke-width="0.6"/>`;
-    O += `<line x1="${mid.x+3.5}" y1="${mid.y}" x2="${top.x+2}" y2="${top.y}" stroke="rgba(80,50,20,0.55)" stroke-width="0.6"/>`;
-    // Top cap
-    O += `<ellipse cx="${top.x}" cy="${top.y}" rx="2.5" ry="1" fill="rgba(250,235,200,0.95)" stroke="rgba(80,50,20,0.75)" stroke-width="0.6"/>`;
-    // Red stripe (typical venezuelan bolo criollo)
-    const stripe = this.toIso(px,py,pinH*0.7);
-    O += `<ellipse cx="${stripe.x}" cy="${stripe.y}" rx="3.2" ry="1.1" fill="rgba(220,60,60,0.85)"/>`;
-   }
-  }
-  // Bolo Americano (Bowling): 10 pins in triangular formation + lane
-  if(s==='Bolo Americano') {
-   // 10-pin triangle: row1=1, row2=2, row3=3, row4=4
-   const pins = [];
-   const cx = 300, pyTop = 130, rowStep = 18, pinStep = 16;
-   for (let r = 0; r < 4; r++) {
-    const n = r + 1;
-    const rowX = cx - ((n-1) * pinStep)/2;
-    for (let i = 0; i < n; i++) pins.push([rowX + i*pinStep, pyTop + r*rowStep]);
-   }
-   const pinH = 30;
-   for(const [px,py] of pins) {
-    const base = this.toIso(px,py,0);
-    const top = this.toIso(px,py,pinH);
-    const mid = this.toIso(px,py,pinH*0.55);
-    O += `<ellipse cx="${base.x+2}" cy="${base.y+2}" rx="5" ry="2" fill="rgba(0,0,0,0.22)"/>`;
-    // Pin body (white bowling pin)
-    O += `<ellipse cx="${base.x}" cy="${base.y}" rx="4.5" ry="1.7" fill="rgba(252,250,245,1)" stroke="rgba(30,30,30,0.65)" stroke-width="0.7"/>`;
-    O += `<line x1="${base.x-4.5}" y1="${base.y}" x2="${mid.x-4}" y2="${mid.y}" stroke="rgba(30,30,30,0.55)" stroke-width="0.7"/>`;
-    O += `<line x1="${base.x+4.5}" y1="${base.y}" x2="${mid.x+4}" y2="${mid.y}" stroke="rgba(30,30,30,0.55)" stroke-width="0.7"/>`;
-    O += `<line x1="${mid.x-4}" y1="${mid.y}" x2="${top.x-2}" y2="${top.y}" stroke="rgba(30,30,30,0.55)" stroke-width="0.7"/>`;
-    O += `<line x1="${mid.x+4}" y1="${mid.y}" x2="${top.x+2}" y2="${top.y}" stroke="rgba(30,30,30,0.55)" stroke-width="0.7"/>`;
-    O += `<ellipse cx="${top.x}" cy="${top.y}" rx="2.3" ry="0.9" fill="rgba(252,250,245,1)" stroke="rgba(30,30,30,0.6)" stroke-width="0.6"/>`;
-    // Red neck stripes
-    const stripeA = this.toIso(px,py,pinH*0.72);
-    const stripeB = this.toIso(px,py,pinH*0.82);
-    O += `<ellipse cx="${stripeA.x}" cy="${stripeA.y}" rx="2.8" ry="0.9" fill="rgba(220,40,40,0.9)"/>`;
-    O += `<ellipse cx="${stripeB.x}" cy="${stripeB.y}" rx="2.6" ry="0.85" fill="rgba(220,40,40,0.9)"/>`;
-   }
-   // Bowling ball at thrower's mark
-   const ballCenter = this.toIso(300,680,10);
-   O += `<circle cx="${ballCenter.x}" cy="${ballCenter.y}" r="10" fill="rgba(30,30,60,0.95)" stroke="rgba(0,0,0,0.75)" stroke-width="1"/>`;
-   O += `<circle cx="${ballCenter.x-2}" cy="${ballCenter.y-2}" r="1.5" fill="rgba(60,60,90,0.9)"/>`;
-   O += `<circle cx="${ballCenter.x+1}" cy="${ballCenter.y-3}" r="1.2" fill="rgba(60,60,90,0.9)"/>`;
-   O += `<circle cx="${ballCenter.x-3}" cy="${ballCenter.y+1}" r="1.2" fill="rgba(60,60,90,0.9)"/>`;
-  }
+  // Bolo Criollo / Bolo Americano: pinos y bolas se agregan como elementos arrastrables desde el panel
+  // (antes había pinos decorativos fijos; ahora se eliminan para que el entrenador los posicione libremente)
   // Dark theme: remap hard-coded dark greys/blacks to chalk-white so structures are visible against the green chalkboard
   if (ST.theme === 'dark') {
    O = O.replace(/rgba\(0,0,0,/g, 'rgba(240,235,220,')
@@ -3748,7 +3779,7 @@ const S = {
      this.updatePanel();
      this.updateStats();
     }
-   } else if(ST.tool==='playerA'||ST.tool==='playerB'||ST.tool==='goalkeeper'||ST.tool==='ball'||ST.tool==='cone'||ST.tool==='flag'||ST.tool==='hurdle'||ST.tool==='disc'||ST.tool==='minigoal'||ST.tool==='mannequin'||ST.tool==='vest'||ST.tool==='ring'||ST.tool==='ladder'||ST.tool==='pole'||ST.tool==='plyobox'||ST.tool==='kettlebell'||ST.tool==='medball'||ST.tool==='trx'||ST.tool==='sled'||ST.tool==='parachute'||ST.tool==='rope'||ST.tool==='battlerope'||ST.tool==='roller'||ST.tool==='band'||ST.tool==='bosu'||ST.tool==='mat'||ST.tool==='dumbbell'||ST.tool==='barbell'||ST.tool==='bench'||ST.tool==='rack'||ST.tool==='treadmill'||ST.tool==='bike'||ST.tool==='rower'||ST.tool==='pullup'||ST.tool==='pilatesball'||ST.tool==='stepper'||ST.tool.startsWith('gm_')||ST.tool.startsWith('sp_')||ST.tool.startsWith('p_')) {
+   } else if(ST.tool==='playerA'||ST.tool==='playerB'||ST.tool==='goalkeeper'||ST.tool==='ball'||ST.tool==='cone'||ST.tool==='flag'||ST.tool==='hurdle'||ST.tool==='disc'||ST.tool==='minigoal'||ST.tool==='mannequin'||ST.tool==='vest'||ST.tool==='ring'||ST.tool==='ladder'||ST.tool==='pole'||ST.tool==='plyobox'||ST.tool==='kettlebell'||ST.tool==='medball'||ST.tool==='trx'||ST.tool==='sled'||ST.tool==='parachute'||ST.tool==='rope'||ST.tool==='battlerope'||ST.tool==='roller'||ST.tool==='band'||ST.tool==='bosu'||ST.tool==='mat'||ST.tool==='dumbbell'||ST.tool==='barbell'||ST.tool==='bench'||ST.tool==='rack'||ST.tool==='treadmill'||ST.tool==='bike'||ST.tool==='rower'||ST.tool==='pullup'||ST.tool==='pilatesball'||ST.tool==='stepper'||ST.tool==='pin_bowling'||ST.tool==='pin_criollo'||ST.tool==='mecha'||ST.tool==='bocin'||ST.tool==='tejo'||ST.tool==='jack'||ST.tool==='bocha_r'||ST.tool==='bocha_b'||ST.tool==='ball_bowling'||ST.tool.startsWith('gm_')||ST.tool.startsWith('sp_')||ST.tool.startsWith('p_')) {
     this.addElement(ST.tool, p.x, p.y);
    } else if(ST.tool==='arrow'||ST.tool==='line'||ST.tool==='pass') {
     ST.drawing = {type:ST.tool,x1:p.x,y1:p.y,x2:p.x,y2:p.y};
@@ -4076,6 +4107,56 @@ const S = {
     const es = el.size||1;
     const s = (is3D ? depthScale : 1) * es;
     return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab"><path d="M-8,-10 L0,-14 L8,-10 L10,8 L-10,8 Z" fill="${el.color||'#ef4444'}" opacity="0.6" stroke="${el.color||'#ef4444'}" stroke-width="1.5"/></g>`;
+   }
+   case 'pin_bowling': {
+    const es = el.size||1;
+    const s = (is3D ? depthScale*1.1 : 1) * es;
+    const rot = el.rotation||0;
+    const knocked = el.knocked ? ` rotate(${el.knockedAngle||75})` : '';
+    return `<g transform="translate(${el.x},${el.y})${knocked}" data-id="${el.id}" style="cursor:grab">${is3D?`<ellipse cx="0" cy="${12*s}" rx="${7*s}" ry="${2.5*s}" fill="rgba(0,0,0,0.15)" filter="url(#blur3d)"/>`:''}<g transform="scale(${s})${rot?` rotate(${rot})`:''}"><path d="M0,-16 Q-5,-16 -5,-11 L-5,-6 Q-5,-3 -3,-1 L-5,12 Q-5,15 0,15 Q5,15 5,12 L3,-1 Q5,-3 5,-6 L5,-11 Q5,-16 0,-16 Z" fill="#fcfaf5" stroke="#333" stroke-width="1"/><rect x="-5" y="-5" width="10" height="2.5" fill="#dc2626"/><rect x="-5" y="-1" width="10" height="1.8" fill="#dc2626"/></g></g>`;
+   }
+   case 'pin_criollo': {
+    const es = el.size||1;
+    const s = (is3D ? depthScale*1.1 : 1) * es;
+    const knocked = el.knocked ? ` rotate(${el.knockedAngle||75})` : '';
+    return `<g transform="translate(${el.x},${el.y})${knocked}" data-id="${el.id}" style="cursor:grab">${is3D?`<ellipse cx="0" cy="${12*s}" rx="${6*s}" ry="${2.2*s}" fill="rgba(0,0,0,0.2)" filter="url(#blur3d)"/>`:''}<g transform="scale(${s})"><rect x="-4" y="-16" width="8" height="30" rx="2.2" fill="#e6d3a8" stroke="#7a4b1a" stroke-width="1"/><rect x="-4" y="-7" width="8" height="3" fill="#dc2626"/><ellipse cx="0" cy="-16" rx="4" ry="1.3" fill="#f5e6c2" stroke="#7a4b1a" stroke-width="0.8"/></g></g>`;
+   }
+   case 'mecha': {
+    const es = el.size||1;
+    const s = (is3D ? depthScale : 1) * es;
+    const expl = el.exploded;
+    if (expl) {
+     return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab"><g><circle cx="0" cy="0" r="14" fill="#ff6b00" opacity="0.35"/><circle cx="0" cy="0" r="9" fill="#ffb400" opacity="0.65"/><circle cx="0" cy="0" r="5" fill="#fff9c4"/>${[0,45,90,135,180,225,270,315].map(a=>{const rad=a*Math.PI/180;const x2=Math.cos(rad)*16;const y2=Math.sin(rad)*16;return `<line x1="0" y1="0" x2="${x2}" y2="${y2}" stroke="#ffeb3b" stroke-width="1.5"/>`}).join('')}</g></g>`;
+    }
+    return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="0" cy="5" rx="7" ry="2" fill="rgba(0,0,0,0.18)" filter="url(#blur3d)"/>':''}<rect x="-6" y="-2" width="12" height="4" rx="2" fill="#d44" stroke="#801010" stroke-width="0.9"/><line x1="0" y1="-2" x2="0" y2="-8" stroke="#f90" stroke-width="1.8" stroke-linecap="round"/><circle cx="0" cy="-9" r="1.3" fill="#ffeb3b"/></g>`;
+   }
+   case 'bocin': {
+    const es = el.size||1;
+    const s = (is3D ? depthScale : 1) * es;
+    return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab"><circle cx="0" cy="0" r="9" fill="none" stroke="${el.color||'#475569'}" stroke-width="2" stroke-dasharray="3 2"/><circle cx="0" cy="0" r="3" fill="#dc2626"/></g>`;
+   }
+   case 'tejo': {
+    const es = el.size||1;
+    const s = (is3D ? depthScale : 1) * es;
+    return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="1" cy="3" rx="7" ry="2" fill="rgba(0,0,0,0.2)" filter="url(#blur3d)"/>':''}<circle cx="0" cy="0" r="7" fill="#94a3b8" stroke="#475569" stroke-width="1.2"/><circle cx="0" cy="0" r="3.2" fill="#64748b"/><circle cx="-2" cy="-2" r="1" fill="rgba(255,255,255,0.5)"/></g>`;
+   }
+   case 'jack': {
+    const es = el.size||1;
+    const s = (is3D ? depthScale : 1) * es;
+    return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="1" cy="2" rx="5" ry="1.5" fill="rgba(0,0,0,0.15)" filter="url(#blur3d)"/>':''}<circle cx="0" cy="0" r="4.5" fill="#fde047" stroke="#a16207" stroke-width="1.2"/><circle cx="-1.5" cy="-1.5" r="1.2" fill="rgba(255,255,255,0.55)"/></g>`;
+   }
+   case 'bocha_r':
+   case 'bocha_b': {
+    const es = el.size||1;
+    const s = (is3D ? depthScale : 1) * es;
+    const fill = el.type==='bocha_r' ? '#dc2626' : '#2563eb';
+    const stroke = el.type==='bocha_r' ? '#7f1d1d' : '#1e3a8a';
+    return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="1" cy="3" rx="7" ry="2" fill="rgba(0,0,0,0.22)" filter="url(#blur3d)"/>':''}<circle cx="0" cy="0" r="7" fill="${el.color||fill}" stroke="${stroke}" stroke-width="1.2"/><path d="M-6 0 Q0 -2 6 0" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="0.8"/><circle cx="-2" cy="-2" r="1.5" fill="rgba(255,255,255,0.35)"/></g>`;
+   }
+   case 'ball_bowling': {
+    const es = el.size||1;
+    const s = (is3D ? depthScale*1.1 : 1) * es;
+    return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="2" cy="4" rx="9" ry="2.5" fill="rgba(0,0,0,0.3)" filter="url(#blur3d)"/>':''}<circle cx="0" cy="0" r="8" fill="${el.color||'#1e293b'}" stroke="#000" stroke-width="1.2"/><circle cx="-2" cy="-2" r="1.2" fill="#64748b"/><circle cx="2" cy="-2" r="1" fill="#64748b"/><circle cx="0" cy="1" r="1" fill="#64748b"/><circle cx="-3" cy="-3" r="0.9" fill="rgba(255,255,255,0.4)"/></g>`;
    }
    case 'ring': {
     const es = el.size||1;
@@ -4707,26 +4788,31 @@ const S = {
     teamB: ST.teamBColor,
     elements: ST.elements || []
    };
-   this._toast('🔗 Generando enlace...', 1200);
-   fetch(window.location.origin + '/api/boards/share', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({payload, sport: ST.sport})
+   this._toast('📸 Capturando jugada…', 1400);
+   // Capture thumbnail from canvas SVG
+   this._captureThumbnail().then(thumbnail => {
+    const body = {
+     payload,
+     sport: ST.sport,
+     thumbnail,
+     title: `Jugada táctica · ${ST.sport}`,
+     description: `Pizarra de ${ST.sport} con ${(ST.elements||[]).length} elementos — creada en iTRAIN Coach`
+    };
+    return fetch(window.location.origin + '/api/boards/share', {
+     method: 'POST',
+     headers: {'Content-Type':'application/json'},
+     body: JSON.stringify(body)
+    });
    })
    .then(r => { if(!r.ok) throw new Error('status '+r.status); return r.json(); })
    .then(data => {
-    const url = `${window.location.origin}${window.location.pathname}?s=${data.share_id}`;
+    // Share URL goes through /api/s/{id} (OpenGraph-friendly landing that redirects to viewer)
+    const url = `${window.location.origin}/api/s/${data.share_id}`;
     this._showShareModal(url, data.share_id);
    })
    .catch(err => {
     console.error('share err', err);
-    // fallback: hash url local
-    try {
-     const json = JSON.stringify(payload);
-     const b64 = btoa(unescape(encodeURIComponent(json))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-     const url = `${window.location.origin}${window.location.pathname}#b=${b64}`;
-     this._showShareModal(url, null);
-    } catch(e){ this._toast('Error al generar enlace'); }
+    this._toast('Error al generar enlace (revisa tu conexión)');
    })
    .finally(() => { ST._sharing = false; });
   } catch(e) {
@@ -4734,6 +4820,52 @@ const S = {
    this._toast('Error al generar enlace');
    ST._sharing = false;
   }
+ },
+
+ async _captureThumbnail() {
+  try {
+   const svg = document.getElementById('svg-canvas');
+   if (!svg) return null;
+   const clone = svg.cloneNode(true);
+   // Remove overlay handles/guides from the thumbnail
+   ['handles-layer','sel-rect-layer','guides-layer'].forEach(id => { const n = clone.querySelector('#'+id); if (n) n.innerHTML=''; });
+   const zg = clone.querySelector('#zoom-group'); if (zg) zg.setAttribute('transform','translate(0,0) scale(1)');
+   // Serialize and rasterize via Image
+   const xml = new XMLSerializer().serializeToString(clone);
+   const svg64 = btoa(unescape(encodeURIComponent(xml)));
+   const img64 = 'data:image/svg+xml;base64,' + svg64;
+   return await new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+     const W = 1200, H = 630;
+     const canvas = document.createElement('canvas');
+     canvas.width = W; canvas.height = H;
+     const ctx = canvas.getContext('2d');
+     // Background
+     ctx.fillStyle = ST.theme === 'dark' ? '#1f4a34' : '#f1f5f9';
+     ctx.fillRect(0, 0, W, H);
+     // Fit the SVG (600x800) into landscape 1200x630
+     const aspectSvg = 600 / 800; // w/h
+     const aspectBox = W / H;
+     let dw, dh;
+     if (aspectSvg > aspectBox) { dw = W * 0.72; dh = dw / aspectSvg; }
+     else { dh = H * 0.86; dw = dh * aspectSvg; }
+     ctx.drawImage(img, (W-dw)/2, (H-dh)/2, dw, dh);
+     // Branding
+     ctx.fillStyle = '#c8f700';
+     ctx.font = 'bold 36px system-ui, Arial';
+     ctx.fillText('iTRAIN', 40, H - 40);
+     ctx.fillStyle = 'rgba(255,255,255,0.78)';
+     ctx.font = '20px system-ui, Arial';
+     ctx.fillText((ST.sport || '').toUpperCase() + ' · Pizarra táctica', 150, H - 40);
+     resolve(canvas.toDataURL('image/png', 0.88));
+    };
+    img.onerror = () => resolve(null);
+    img.src = img64;
+    setTimeout(() => resolve(null), 3500);
+   });
+  } catch(e) { console.warn('thumb capture failed', e); return null; }
  },
 
  _showShareModal(url, shareId) {
@@ -4829,9 +4961,11 @@ const S = {
   if (payload.teamA) ST.teamAColor = payload.teamA;
   if (payload.teamB) ST.teamBColor = payload.teamB;
   if (Array.isArray(payload.elements)) ST.elements = payload.elements;
+  // Update viewer title
+  const vt = document.getElementById('viewer-title');
+  if (vt) vt.textContent = `Jugada táctica · ${ST.sport || ''}`;
   // Re-render
   try {
-   const mSel = document.getElementById('cat-tabs');
    if (ST.viewMode === '3d') this.render3DField(); else this.renderFieldOnly();
    this.renderElements();
    this.updatePanel && this.updatePanel();
@@ -5181,6 +5315,8 @@ const S = {
    if (el.type === 'ball') {
     this.checkGoalCrossing(el, prevX, prevY);
    }
+   // Check knockdowns (bowling pins, tejo mechas, bolo criollo palos)
+   this.checkKnockdowns(el, prevX, prevY);
    
    // Track trail for ghost effect (balls & objects)
    if (GHOST_TYPES.has(el.type)) {
@@ -5714,5 +5850,13 @@ S.init();
  }
 })();
 </script>
+
+<!-- Viewer mode floating bar and play FAB (shown when ?s=... is present) -->
+<div id="viewer-bar">
+ <div class="vw-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>iTRAIN</div>
+ <div class="vw-title" id="viewer-title">Jugada táctica</div>
+ <button class="vw-btn" id="vw-replay" data-testid="vw-replay" onclick="(function(){var b=document.querySelector('[onclick*=playback]'); try{S.playPlayback();}catch(e){} })()" title="Reproducir"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>Reproducir</button>
+ <button class="vw-btn primary" id="vw-duplicate" data-testid="vw-duplicate" onclick="(function(){localStorage.setItem('tb_import_shared', JSON.stringify({sport:ST.sport,elements:ST.elements||[]}));window.location.href=window.location.origin+window.location.pathname;})()" title="Duplicar en mi pizarra"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicar</button>
+</div>
 </body>
 </html>

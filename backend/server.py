@@ -6947,6 +6947,9 @@ async def get_shared_session(share_id: str):
 class BoardShareRequest(BaseModel):
     payload: dict
     sport: Optional[str] = None
+    thumbnail: Optional[str] = None  # data URL (image/png;base64,...)
+    title: Optional[str] = None
+    description: Optional[str] = None
 
 
 @api_router.post("/boards/share")
@@ -6959,6 +6962,9 @@ async def create_board_share(request: BoardShareRequest):
             "share_id": share_id,
             "sport": request.sport or (request.payload.get("sport") if isinstance(request.payload, dict) else None),
             "payload": request.payload,
+            "thumbnail": request.thumbnail,
+            "title": request.title or f"Jugada táctica · {request.sport or 'iTRAIN'}",
+            "description": request.description or "Pizarra táctica creada en iTRAIN",
             "created_at": datetime.now(timezone.utc),
             "expires_at": datetime.now(timezone.utc) + timedelta(days=90),
             "views": 0,
@@ -6974,7 +6980,7 @@ async def create_board_share(request: BoardShareRequest):
 async def get_shared_board(share_id: str):
     """Obtener tablero compartido para visualización pública."""
     try:
-        shared = await db.shared_boards.find_one({"share_id": share_id}, {"_id": 0})
+        shared = await db.shared_boards.find_one({"share_id": share_id}, {"_id": 0, "thumbnail": 0})
         if not shared:
             raise HTTPException(status_code=404, detail="Tablero no encontrado o enlace expirado")
         expires_at = shared.get("expires_at")
@@ -6987,11 +6993,17 @@ async def get_shared_board(share_id: str):
         created_at = shared.get("created_at")
         if created_at and hasattr(created_at, 'isoformat'):
             created_at = created_at.isoformat()
+        expires_iso = shared.get("expires_at")
+        if expires_iso and hasattr(expires_iso, 'isoformat'):
+            expires_iso = expires_iso.isoformat()
         return {
             "share_id": share_id,
             "sport": shared.get("sport"),
+            "title": shared.get("title"),
+            "description": shared.get("description"),
             "payload": shared.get("payload", {}),
             "created_at": created_at,
+            "expires_at": expires_iso,
             "views": shared.get("views", 0) + 1,
         }
     except HTTPException:
@@ -6999,6 +7011,80 @@ async def get_shared_board(share_id: str):
     except Exception as e:
         logger.error(f"Error getting shared board: {e}")
         raise HTTPException(status_code=500, detail=f"Error al obtener tablero: {str(e)}")
+
+
+@api_router.get("/boards/og/{share_id}.png")
+async def get_board_thumbnail(share_id: str):
+    """Devuelve la miniatura PNG de una pizarra compartida (para OpenGraph)."""
+    import base64
+    from fastapi.responses import Response
+    try:
+        shared = await db.shared_boards.find_one({"share_id": share_id}, {"thumbnail": 1, "_id": 0})
+        if not shared or not shared.get("thumbnail"):
+            raise HTTPException(status_code=404, detail="Miniatura no disponible")
+        thumb = shared["thumbnail"]
+        if thumb.startswith("data:"):
+            thumb = thumb.split(",", 1)[1]
+        data = base64.b64decode(thumb)
+        return Response(content=data, media_type="image/png", headers={"Cache-Control": "public, max-age=604800"})
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting thumbnail: {e}")
+        raise HTTPException(status_code=404, detail="Miniatura no disponible")
+
+
+@api_router.get("/s/{share_id}")
+async def board_share_landing(share_id: str, request: Request):
+    """HTML landing público con metatags OpenGraph (para previews WhatsApp/Twitter/FB)."""
+    from fastapi.responses import HTMLResponse
+    try:
+        shared = await db.shared_boards.find_one({"share_id": share_id}, {"_id": 0, "payload": 0})
+        if not shared:
+            return HTMLResponse("<h1>Pizarra no encontrada o enlace expirado</h1>", status_code=404)
+        title = shared.get("title") or f"Jugada táctica · {shared.get('sport') or 'iTRAIN'}"
+        desc = shared.get("description") or f"Pizarra táctica de {shared.get('sport') or 'iTRAIN'} creada en iTRAIN Coach"
+        # Build external base URL from forwarded headers (ingress)
+        host = request.headers.get("x-forwarded-host") or request.headers.get("host") or request.base_url.hostname
+        proto = request.headers.get("x-forwarded-proto") or ("https" if str(request.url).startswith("https") else "https")
+        base_url = f"{proto}://{host}"
+        og_image = f"{base_url}/api/boards/og/{share_id}.png"
+        # Use RELATIVE redirect so browser resolves against the host it visited
+        target_rel = f"/tactical-board.html?s={share_id}&viewer=1"
+        target_abs = f"{base_url}{target_rel}"
+        html = f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>{title} · iTRAIN</title>
+<meta name="description" content="{desc}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{title}">
+<meta property="og:description" content="{desc}">
+<meta property="og:image" content="{og_image}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="{base_url}/api/s/{share_id}">
+<meta property="og:site_name" content="iTRAIN Coach">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{title}">
+<meta name="twitter:description" content="{desc}">
+<meta name="twitter:image" content="{og_image}">
+<meta http-equiv="refresh" content="0;url={target_rel}">
+<style>body{{font-family:system-ui;background:#0b0f19;color:#e8e8e8;text-align:center;padding:80px 24px}}a{{color:#c8f700}}</style>
+<script>window.location.replace({target_rel!r});</script>
+</head>
+<body>
+<h1>{title}</h1>
+<p>{desc}</p>
+<p>Cargando pizarra… si no redirige automáticamente, <a href="{target_rel}">haz clic aquí</a>.</p>
+</body>
+</html>"""
+        return HTMLResponse(html)
+    except Exception as e:
+        logger.error(f"Error board share landing: {e}")
+        return HTMLResponse("<h1>Error cargando pizarra</h1>", status_code=500)
+
 
 
 

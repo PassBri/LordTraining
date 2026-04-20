@@ -436,7 +436,33 @@
   para no empujar los botones JUGADORES/Tactico/Camiseta/Avatar.
 - Labels mas cortos: '11 vs 11 · FIFA', '7 vs 7 · Juvenil', '5 vs 5 · Infantil'.
 
-### Pizarra 3D dark, MMA, Bowling + share backend (Feb 2026)
+### Viewer mode + OpenGraph + Bolos arrastrables + Física (Feb 2026)
+- Viewer mode para enlaces compartidos (?s=... o ?viewer=1):
+  oculta sidebar/panel/toolbar, muestra barra flotante premium con
+  logo iTRAIN, título de jugada, botón "Reproducir" y "Duplicar"
+  (importa la jugada al editor del entrenador receptor — bucle viral).
+- Miniatura OpenGraph auto-generada al compartir: captura el SVG del
+  canvas, lo rasteriza a PNG 1200x630 con fondo verde pizarrón +
+  branding iTRAIN, se guarda en backend y se sirve via
+  /api/boards/og/{id}.png con cache 7d.
+- Endpoint backend /api/s/{id} devuelve HTML con metatags OpenGraph
+  (og:title, og:description, og:image, twitter:card) para que
+  WhatsApp/Twitter/FB muestren preview atractivo. Usa
+  X-Forwarded-Host para URLs absolutas correctas + redirect relativo
+  al viewer.
+- SVGs de canchas de Precisión limpiados: Bolo Americano, Bolo
+  Criollo, Bochas, Petanca, Tejo, Minitejo ya NO traen pinos/bolas/
+  jack pre-dibujados. Solo lineas y zonas. El entrenador arrastra
+  los elementos desde el panel CAMPO.
+- Nuevos elementos arrastrables (grupo Campo): pin_bowling (pino USA
+  blanco con franja roja), pin_criollo (palo venezolano), mecha,
+  bocin, tejo, jack/bolin, bocha_r/bocha_b, ball_bowling. Cada uno
+  con render 2D + 3D (con sombra). Renderizado soporta rotación
+  "knocked" para pinos caídos y "exploded" para mechas.
+- Física básica durante playback: checkKnockdowns() detecta cuando
+  un balón/tejo/bola pasa cerca de un pin o mecha. Pinos caen con
+  rotación 60-100° (chain reaction a pinos vecinos < 22 units).
+  Mechas explotan (8 rayos + circulos amarillo/naranja).
 - Fix 3D dark: post-process en render3DFieldObjects reemplaza colores
   oscuros hardcoded (rgba(0,0,0,*), rgba(40,40,40,*), etc.) por tiza
   blanca en tema oscuro. Ahora son visibles: arcos Balonmano/Hockey/
