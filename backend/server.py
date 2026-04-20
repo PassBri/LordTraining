@@ -7078,6 +7078,186 @@ async def get_coach_profile(slug: str):
         raise HTTPException(status_code=500, detail="Error al obtener perfil")
 
 
+@api_router.get("/c/{slug}")
+async def coach_share_landing(slug: str, request: Request):
+    """HTML landing público del perfil coach con OpenGraph (preview WhatsApp/Twitter/FB)."""
+    from fastapi.responses import HTMLResponse
+    try:
+        s = slug.strip().lower()
+        # Fetch coach summary
+        cursor = db.shared_boards.find({"coach_slug": s}, {"_id": 0, "payload": 0, "thumbnail": 0}).sort([("duplicates", -1), ("views", -1)])
+        items = []
+        coach_name = None
+        async for doc in cursor:
+            if not coach_name and doc.get("coach_name"):
+                coach_name = doc.get("coach_name")
+            items.append({
+                "title": doc.get("title") or "Jugada",
+                "sport": doc.get("sport") or "",
+                "views": doc.get("views", 0),
+                "duplicates": doc.get("duplicates", 0),
+            })
+        display_name = coach_name or s.replace('-', ' ').title()
+        totals_boards = len(items)
+        totals_views = sum(i["views"] for i in items)
+        totals_dup = sum(i["duplicates"] for i in items)
+        # Build OG
+        host = request.headers.get("x-forwarded-host") or request.headers.get("host") or request.base_url.hostname
+        proto = request.headers.get("x-forwarded-proto") or "https"
+        base_url = f"{proto}://{host}"
+        og_image = f"{base_url}/api/coaches/og/{s}.png"
+        title = f"{display_name} · Coach iTRAIN"
+        top3 = ", ".join([i["title"][:40] for i in items[:3]]) if items else "Perfil de entrenador iTRAIN"
+        desc = f"{totals_boards} jugadas · {totals_views} vistas · {totals_dup} duplicadas. Top: {top3}"
+        target_rel = f"/coach.html?slug={s}"
+        html = f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>{title}</title>
+<meta name="description" content="{desc}">
+<meta property="og:type" content="profile">
+<meta property="og:title" content="{title}">
+<meta property="og:description" content="{desc}">
+<meta property="og:image" content="{og_image}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="{base_url}/api/c/{s}">
+<meta property="og:site_name" content="iTRAIN Coach">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{title}">
+<meta name="twitter:description" content="{desc}">
+<meta name="twitter:image" content="{og_image}">
+<meta http-equiv="refresh" content="0;url={target_rel}">
+<style>body{{font-family:system-ui;background:#0a0f19;color:#e8e8e8;text-align:center;padding:80px 24px}}a{{color:#c8f700}}</style>
+<script>window.location.replace({target_rel!r});</script>
+</head>
+<body>
+<h1>{title}</h1>
+<p>{desc}</p>
+<p>Cargando perfil… <a href="{target_rel}">haz clic aquí si no redirige</a>.</p>
+</body>
+</html>"""
+        return HTMLResponse(html)
+    except Exception as e:
+        logger.error(f"Error coach share landing: {e}")
+        return HTMLResponse("<h1>Error cargando perfil</h1>", status_code=500)
+
+
+@api_router.get("/coaches/og/{slug}.png")
+async def get_coach_og_image(slug: str):
+    """Genera imagen OpenGraph 1200×630 para perfil de coach (avatar + top 3 jugadas + stats)."""
+    from fastapi.responses import Response
+    from PIL import Image, ImageDraw, ImageFont
+    import io
+    try:
+        s = slug.strip().lower()
+        cursor = db.shared_boards.find({"coach_slug": s}, {"_id": 0, "payload": 0, "thumbnail": 0}).sort([("duplicates", -1), ("views", -1)])
+        items = []
+        coach_name = None
+        async for doc in cursor:
+            if not coach_name and doc.get("coach_name"):
+                coach_name = doc.get("coach_name")
+            items.append({
+                "title": doc.get("title") or "Jugada",
+                "sport": doc.get("sport") or "",
+                "views": doc.get("views", 0),
+                "duplicates": doc.get("duplicates", 0),
+            })
+        display_name = coach_name or s.replace('-', ' ').title()
+        totals_boards = len(items)
+        totals_views = sum(i["views"] for i in items)
+        totals_dup = sum(i["duplicates"] for i in items)
+        initials = "".join([w[0] for w in display_name.split()[:2]]).upper() or s[:1].upper()
+
+        # Canvas 1200×630 (OG standard)
+        W, H = 1200, 630
+        img = Image.new("RGB", (W, H), color=(10, 15, 25))
+        draw = ImageDraw.Draw(img)
+
+        # Radial gradient background approx
+        for y in range(H):
+            t = y / H
+            r = int(26 + (10 - 26) * t)
+            g = int(37 + (15 - 37) * t)
+            b = int(64 + (25 - 64) * t)
+            draw.line([(0, y), (W, y)], fill=(r, g, b))
+
+        # Font loading (fallback to default)
+        def load_font(sz, bold=False):
+            try:
+                return ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", sz)
+            except Exception:
+                return ImageFont.load_default()
+        F_H1 = load_font(64, bold=True)
+        F_H2 = load_font(28, bold=True)
+        F_BODY = load_font(22, bold=False)
+        F_SMALL = load_font(18, bold=False)
+        F_TAG = load_font(16, bold=True)
+        F_AVATAR = load_font(90, bold=True)
+        F_STAT = load_font(48, bold=True)
+
+        # Brand stripe top
+        draw.rectangle([(0, 0), (W, 8)], fill=(200, 247, 0))
+        draw.text((40, 28), "iTRAIN · COACH", font=F_TAG, fill=(200, 247, 0))
+
+        # Avatar circle (lime gradient)
+        avX, avY, avR = 150, 220, 90
+        draw.ellipse([(avX-avR-4, avY-avR-4), (avX+avR+4, avY+avR+4)], fill=(180, 220, 0))
+        draw.ellipse([(avX-avR, avY-avR), (avX+avR, avY+avR)], fill=(200, 247, 0))
+        # Initials centered
+        try:
+            bbox = draw.textbbox((0, 0), initials[:2], font=F_AVATAR)
+            tw, th = bbox[2]-bbox[0], bbox[3]-bbox[1]
+        except Exception:
+            tw, th = len(initials) * 40, 80
+        draw.text((avX - tw/2, avY - th/2 - 10), initials[:2], font=F_AVATAR, fill=(10, 15, 25))
+
+        # Name + handle
+        draw.text((270, 170), display_name[:26], font=F_H1, fill=(255, 255, 255))
+        draw.text((270, 250), f"@{s}", font=F_H2, fill=(148, 163, 184))
+
+        # Stats row
+        stats = [
+            (str(totals_boards), "Jugadas"),
+            (f"{totals_views:,}".replace(",", "."), "Vistas"),
+            (f"{totals_dup:,}".replace(",", "."), "Duplicadas"),
+        ]
+        for i, (val, lbl) in enumerate(stats):
+            x = 270 + i * 180
+            draw.text((x, 310), val, font=F_STAT, fill=(200, 247, 0) if i != 1 else (255, 122, 0))
+            draw.text((x, 370), lbl.upper(), font=F_SMALL, fill=(148, 163, 184))
+
+        # Top 3 jugadas list
+        draw.text((40, 440), "TOP JUGADAS", font=F_TAG, fill=(200, 247, 0))
+        if items:
+            for i, it in enumerate(items[:3]):
+                y = 475 + i * 42
+                medal = ["🥇", "🥈", "🥉"][i]
+                title_t = it["title"][:48]
+                sport_t = it["sport"][:16]
+                # Rank
+                draw.rectangle([(40, y), (85, y+32)], fill=(255, 122, 0) if i == 0 else (200, 247, 0) if i == 1 else (148, 163, 184))
+                draw.text((55, y+5), f"#{i+1}", font=F_TAG, fill=(10, 15, 25))
+                # Title
+                draw.text((100, y+4), title_t, font=F_BODY, fill=(255, 255, 255))
+                # Sport + duplicates
+                tag = f"{sport_t} · {it['duplicates']} dup"
+                draw.text((100, y+24), tag[:50], font=F_SMALL, fill=(148, 163, 184))
+        else:
+            draw.text((40, 475), "Aún no hay jugadas publicadas", font=F_BODY, fill=(148, 163, 184))
+
+        # Footer
+        draw.text((40, H - 40), "itrain.coach  ·  Pizarra táctica inteligente", font=F_SMALL, fill=(100, 116, 139))
+
+        buf = io.BytesIO()
+        img.save(buf, format="PNG", optimize=True)
+        return Response(content=buf.getvalue(), media_type="image/png", headers={"Cache-Control": "public, max-age=3600"})
+    except Exception as e:
+        logger.error(f"Error generating coach OG image: {e}")
+        raise HTTPException(status_code=500, detail="Error generando imagen")
+
+
 
 @api_router.get("/boards/top")
 async def get_top_shared_boards(limit: int = 5, sport: Optional[str] = None):
