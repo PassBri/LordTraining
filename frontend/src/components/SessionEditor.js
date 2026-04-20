@@ -1048,12 +1048,14 @@ const SessionEditor = ({
             </div>
 
             {/* === BODY === 3 columnas: Descripción+Params | Stats | Pizarra */}
-            <div className="flex gap-0" style={{minHeight:'180px'}}>
+            <div className="flex gap-0">
 
               {/* COL 1: Descripción + Método + Materiales */}
               <div className="flex-1 min-w-0 px-3.5 pt-3 pb-3 border-r border-slate-100/80 flex flex-col">
-                <Textarea value={act.descripcion||''} onChange={(e) => updateActividad(faseKey, idx, 'descripcion', e.target.value)} placeholder="Descripción del ejercicio, grupos musculares, variantes..." className="text-[12px] min-h-[48px] resize-none py-2 px-3 text-slate-700 leading-snug border-slate-200/80 rounded-lg bg-slate-50/60 focus:bg-white focus:border-slate-300 w-full mb-2.5" style={{fontFamily:DM}} rows={2} data-testid={`exercise-desc-${faseKey}-${idx}`} />
-                <div className="flex items-center gap-2 mb-2.5">
+                <Textarea value={act.descripcion||''} onChange={(e) => updateActividad(faseKey, idx, 'descripcion', e.target.value)} placeholder="Descripción del ejercicio, grupos musculares, variantes..." className="text-[12px] min-h-[48px] resize-none py-2 px-3 text-slate-700 leading-snug border-slate-200/80 rounded-lg bg-slate-50/60 focus:bg-white focus:border-slate-300 w-full mb-2" style={{fontFamily:DM}} rows={2} data-testid={`exercise-desc-${faseKey}-${idx}`} />
+
+                {/* Fila compacta: método + proc. organizativo + materiales (inline) */}
+                <div className="flex flex-wrap items-center gap-1.5">
                   <Select value={act.metodo} onValueChange={(v) => updateActividad(faseKey, idx, 'metodo', v)}>
                     <SelectTrigger className="h-6 text-[10px] font-semibold border-0 bg-blue-50 text-blue-700 rounded-full px-2.5 w-auto"><SelectValue /></SelectTrigger>
                     <SelectContent>{METODOS_ENTRENAMIENTO.map(met => <SelectItem key={met.id} value={met.id} className="text-xs">{met.name}</SelectItem>)}</SelectContent>
@@ -1062,34 +1064,31 @@ const SessionEditor = ({
                     <SelectTrigger className="h-6 text-[10px] font-semibold border-0 bg-emerald-50 text-emerald-700 rounded-full px-2.5 w-auto"><SelectValue /></SelectTrigger>
                     <SelectContent>{PROC_ORGANIZATIVO.map(proc => <SelectItem key={proc.id} value={proc.id} className="text-xs">{proc.name}</SelectItem>)}</SelectContent>
                   </Select>
-                </div>
-                {/* Materiales */}
-                <div className="mt-auto">
-                  {actMateriales.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {actMateriales.map((mat, mi) => (
-                        <span key={mi} className="group inline-flex items-center gap-1.5 text-[11px] font-semibold pl-3 pr-2 py-1.5 rounded-lg cursor-pointer transition-all hover:shadow-sm" style={{background:'rgba(168,85,247,0.07)',color:'#7c3aed',border:'1px solid rgba(168,85,247,0.18)'}}
-                          onClick={() => {
-                            const nuevoNombre = prompt('Editar material:', mat);
-                            if (nuevoNombre && nuevoNombre.trim() && nuevoNombre.trim() !== mat) {
-                              const nm = [...actMateriales];
-                              nm[mi] = nuevoNombre.trim();
-                              updateActividad(faseKey, idx, 'materiales', nm);
-                            }
-                          }}
-                          title="Clic para editar"
-                          data-testid={`material-tag-${faseKey}-${idx}-${mi}`}
-                        >
-                          {mat}
-                          <button onClick={(e) => { e.stopPropagation(); const nm=[...actMateriales]; nm.splice(mi,1); updateActividad(faseKey, idx, 'materiales', nm); }} className="hover:text-red-500 transition-colors opacity-50 hover:opacity-100" data-testid={`remove-material-${faseKey}-${idx}-${mi}`}><X className="w-3.5 h-3.5" /></button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
+
+                  {/* Chips de materiales: inline, más compactos */}
+                  {actMateriales.map((mat, mi) => (
+                    <span key={mi} className="group inline-flex items-center gap-1 text-[10px] font-semibold pl-2 pr-1 py-0.5 rounded-full cursor-pointer transition-all hover:shadow-sm" style={{background:'rgba(168,85,247,0.07)',color:'#7c3aed',border:'1px solid rgba(168,85,247,0.18)'}}
+                      onClick={() => {
+                        const nuevoNombre = prompt('Editar material:', mat);
+                        if (nuevoNombre && nuevoNombre.trim() && nuevoNombre.trim() !== mat) {
+                          const nm = [...actMateriales];
+                          nm[mi] = nuevoNombre.trim();
+                          updateActividad(faseKey, idx, 'materiales', nm);
+                        }
+                      }}
+                      title="Clic para editar"
+                      data-testid={`material-tag-${faseKey}-${idx}-${mi}`}
+                    >
+                      {mat}
+                      <button onClick={(e) => { e.stopPropagation(); const nm=[...actMateriales]; nm.splice(mi,1); updateActividad(faseKey, idx, 'materiales', nm); }} className="hover:text-red-500 transition-colors opacity-50 hover:opacity-100" data-testid={`remove-material-${faseKey}-${idx}-${mi}`}><X className="w-2.5 h-2.5" /></button>
+                    </span>
+                  ))}
+
+                  {/* Botón "+" compacto para añadir material */}
                   <Popover>
                     <PopoverTrigger asChild>
-                      <button className="inline-flex items-center gap-1.5 text-[11px] font-medium px-3.5 py-2 rounded-lg border border-dashed border-slate-300 text-slate-500 hover:bg-purple-50 hover:border-purple-400 hover:text-purple-700 transition-all" data-testid={`add-material-btn-${faseKey}-${idx}`}>
-                        <Plus className="w-3.5 h-3.5" /> Agregar material
+                      <button className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 h-[22px] rounded-full border border-dashed border-slate-300 text-slate-500 hover:bg-purple-50 hover:border-purple-400 hover:text-purple-700 transition-all" data-testid={`add-material-btn-${faseKey}-${idx}`}>
+                        <Plus className="w-3 h-3" /> Material
                       </button>
                     </PopoverTrigger>
                     <PopoverContent className="w-[300px] p-0" align="start" side="bottom">
