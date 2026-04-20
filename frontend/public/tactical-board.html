@@ -448,6 +448,12 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
 
  <!-- CANVAS (maximized) -->
  <div id="canvas-wrap">
+  <!-- Medir cercanía (Bochas/Petanca) -->
+  <div id="measure-panel" data-testid="measure-panel" style="display:none;position:absolute;top:72px;right:14px;z-index:31;background:linear-gradient(135deg,rgba(20,20,30,0.92),rgba(40,40,60,0.92));backdrop-filter:blur(12px);border:1px solid rgba(200,247,0,0.35);border-radius:12px;padding:10px 12px;color:#fff;font-family:'Oswald',sans-serif;letter-spacing:0.04em;min-width:180px;max-width:220px;box-shadow:0 8px 28px rgba(0,0,0,0.4)">
+   <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:0.08em;color:#c8f700;margin-bottom:8px;text-transform:uppercase"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 3 18"/><polyline points="21 6 21 18"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="6" x2="12" y2="18"/></svg>Cercanía al Jack</div>
+   <button onclick="S.toggleMeasure()" id="measure-toggle" data-testid="measure-toggle" style="width:100%;padding:7px 10px;border-radius:8px;background:#c8f700;color:#0a0f19;border:none;font-size:11px;font-weight:800;cursor:pointer;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:6px">Mostrar</button>
+   <div id="measure-list" style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.85);max-height:180px;overflow-y:auto;display:none"></div>
+  </div>
   <!-- Scoreboard overlay (auto-shown for team sports) -->
   <div id="scoreboard" data-testid="scoreboard">
    <div class="sb-team team-a"><div class="sb-team-name" id="sb-name-a">Local</div><div class="sb-team-score" id="sb-score-a" data-testid="score-home">0</div></div>
@@ -1063,6 +1069,7 @@ const S = {
    const gbtn = document.getElementById('gear-toggle');
    if (gbtn) gbtn.classList.toggle('active', ST.gearEnabled);
    this.updateScoreboard();
+   try { this.updateMeasurePanelVisibility && this.updateMeasurePanelVisibility(); } catch(e){}
    this.updateVariantSelector();
   }, 50);
   this.renderTabs();
@@ -1306,6 +1313,65 @@ const S = {
   }
  },
 
+ toggleMeasure() {
+  ST.measureEnabled = !ST.measureEnabled;
+  const btn = document.getElementById('measure-toggle');
+  const list = document.getElementById('measure-list');
+  if (btn) btn.textContent = ST.measureEnabled ? 'Ocultar' : 'Mostrar';
+  if (list) list.style.display = ST.measureEnabled ? 'block' : 'none';
+  this.renderMeasureLines();
+  this.updateMeasureList();
+ },
+
+ renderMeasureLines() {
+  const layer = document.getElementById('handles-layer');
+  if (!layer) return;
+  // Limpia líneas de medida previas
+  layer.querySelectorAll('.measure-line').forEach(n => n.remove());
+  if (!ST.measureEnabled) return;
+  const jack = (ST.elements||[]).find(e => e.type === 'jack');
+  if (!jack) return;
+  const bochas = (ST.elements||[]).filter(e => e.type === 'bocha_r' || e.type === 'bocha_b');
+  // 100 units en el canvas ≈ X metros según cancha (Bochas=27.5m/740u, Petanca=15m/680u)
+  const sport = ST.sport;
+  const metersPerUnit = sport === 'Petanca' ? (15/680) : (27.5/720);
+  for (const b of bochas) {
+   const dx = b.x - jack.x, dy = b.y - jack.y;
+   const d = Math.hypot(dx, dy);
+   const meters = (d * metersPerUnit).toFixed(2);
+   const mx = (b.x + jack.x)/2, my = (b.y + jack.y)/2;
+   const color = b.type === 'bocha_r' ? '#dc2626' : '#2563eb';
+   const line = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+   line.setAttribute('class', 'measure-line');
+   line.innerHTML = `<line x1="${jack.x}" y1="${jack.y}" x2="${b.x}" y2="${b.y}" stroke="${color}" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.85"/><rect x="${mx-18}" y="${my-8}" width="36" height="14" rx="3" fill="rgba(10,15,25,0.92)" stroke="${color}" stroke-width="0.7"/><text x="${mx}" y="${my+2}" text-anchor="middle" font-size="9" font-weight="800" fill="${color}" font-family="'Oswald',sans-serif">${meters} m</text>`;
+   layer.appendChild(line);
+  }
+ },
+
+ updateMeasureList() {
+  const list = document.getElementById('measure-list');
+  if (!list) return;
+  const jack = (ST.elements||[]).find(e => e.type === 'jack');
+  if (!jack) { list.innerHTML = '<div style="opacity:0.6;font-size:11px">Coloca un Jack/Bolín y bochas para medir.</div>'; return; }
+  const bochas = (ST.elements||[]).filter(e => e.type === 'bocha_r' || e.type === 'bocha_b');
+  if (bochas.length === 0) { list.innerHTML = '<div style="opacity:0.6;font-size:11px">Coloca bochas rojas/azules.</div>'; return; }
+  const metersPerUnit = ST.sport === 'Petanca' ? (15/680) : (27.5/720);
+  const withD = bochas.map((b, i) => ({b, i, d: Math.hypot(b.x-jack.x, b.y-jack.y) * metersPerUnit})).sort((a,z) => a.d - z.d);
+  list.innerHTML = withD.map((w, rk) => {
+   const color = w.b.type === 'bocha_r' ? '#f87171' : '#60a5fa';
+   const medal = rk===0 ? '🏆' : `#${rk+1}`;
+   const teamName = w.b.type === 'bocha_r' ? 'Roja' : 'Azul';
+   return `<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-top:${rk?'1px solid rgba(255,255,255,0.08)':'none'}"><span style="color:${color}">${medal} ${teamName}</span><span style="font-weight:800">${w.d.toFixed(2)} m</span></div>`;
+  }).join('');
+ },
+
+ updateMeasurePanelVisibility() {
+  const panel = document.getElementById('measure-panel');
+  if (!panel) return;
+  panel.style.display = (ST.sport === 'Bochas' || ST.sport === 'Petanca') ? 'block' : 'none';
+ },
+
+
  toggleScoreboardBtn() {
   ST.scoreboardEnabled = !ST.scoreboardEnabled;
   const btn = document.getElementById('score-toggle');
@@ -1452,6 +1518,7 @@ const S = {
       ballEl.scoredAt = now;
      }
      this.updateScoreboard();
+   try { this.updateMeasurePanelVisibility && this.updateMeasurePanelVisibility(); } catch(e){}
      this.flashGoal(z.label || 'GOL');
      return;
     }
@@ -2977,6 +3044,142 @@ checkKnockdowns(movingEl, prevX, prevY) {
    }
   }
 
+
+
+
+  // TIRO CON ARCO 3D: diana vertical sobre trípode + línea de tiro + flechas
+  if(s==='Tiro con Arco') {
+   // Trípode (3 patas cruzadas en perspectiva)
+   const dBase = 300, dY = 105; // centro del target en 2D
+   const pole1 = this.toIso(dBase-28, dY+60, 0);
+   const pole2 = this.toIso(dBase+28, dY+60, 0);
+   const pole3 = this.toIso(dBase, dY+75, 0);
+   const top = this.toIso(dBase, dY, 90);
+   O += `<line x1="${pole1.x}" y1="${pole1.y}" x2="${top.x}" y2="${top.y}" stroke="#5a3a1a" stroke-width="3" stroke-linecap="round"/>`;
+   O += `<line x1="${pole2.x}" y1="${pole2.y}" x2="${top.x}" y2="${top.y}" stroke="#5a3a1a" stroke-width="3" stroke-linecap="round"/>`;
+   O += `<line x1="${pole3.x}" y1="${pole3.y}" x2="${top.x}" y2="${top.y}" stroke="#5a3a1a" stroke-width="3" stroke-linecap="round"/>`;
+   // Sombra del trípode
+   O += `<ellipse cx="${pole3.x}" cy="${pole3.y+3}" rx="32" ry="8" fill="rgba(0,0,0,0.3)" filter="url(#blur3d)"/>`;
+   // DIANA circular VERTICAL (frente al espectador) — se simula con elipses en perspectiva
+   const tc = this.toIso(dBase, dY, 85);
+   // Marco paja trasero
+   O += `<ellipse cx="${tc.x}" cy="${tc.y}" rx="60" ry="58" fill="#c89358" stroke="#5a3a1a" stroke-width="2"/>`;
+   // 10 anillos oficiales WA
+   const rings = [{r:55,f:'#fff',s:'rgba(0,0,0,0.85)'},{r:49,f:'#fff',s:'rgba(0,0,0,0.5)'},{r:43,f:'#1a1a1a',s:'rgba(0,0,0,0.85)'},{r:37,f:'#1a1a1a',s:'rgba(255,255,255,0.7)'},{r:31,f:'#3b82f6',s:'rgba(0,0,0,0.85)'},{r:25,f:'#3b82f6',s:'rgba(255,255,255,0.7)'},{r:19,f:'#dc2626',s:'rgba(0,0,0,0.85)'},{r:13,f:'#dc2626',s:'rgba(255,255,255,0.7)'},{r:8,f:'#fde047',s:'rgba(0,0,0,0.6)'},{r:3.5,f:'#dc2626',s:'#fff'}];
+   for (const rg of rings) {
+    O += `<ellipse cx="${tc.x}" cy="${tc.y}" rx="${rg.r}" ry="${rg.r*0.97}" fill="${rg.f}" stroke="${rg.s}" stroke-width="0.9"/>`;
+   }
+   O += `<circle cx="${tc.x}" cy="${tc.y}" r="1.8" fill="#000"/>`;
+   // Flechas clavadas (3 flechas)
+   const arrows = [[-12,-6],[8,-15],[-3,10]];
+   for (const [ax,ay] of arrows) {
+    O += `<circle cx="${tc.x+ax}" cy="${tc.y+ay}" r="1.2" fill="#ca8a04" stroke="#000" stroke-width="0.3"/>`;
+    O += `<line x1="${tc.x+ax}" y1="${tc.y+ay}" x2="${tc.x+ax+14}" y2="${tc.y+ay-8}" stroke="#78350f" stroke-width="1.6" stroke-linecap="round"/>`;
+    O += `<path d="M${tc.x+ax+12},${tc.y+ay-6} L${tc.x+ax+17},${tc.y+ay-10} L${tc.x+ax+15},${tc.y+ay-7} L${tc.x+ax+18},${tc.y+ay-11}" fill="#fbbf24" stroke="#78350f" stroke-width="0.4"/>`;
+   }
+   // Etiqueta de distancia flotante
+   const lab = this.toIso(dBase, dY+30, 110);
+   O += `<text x="${lab.x}" y="${lab.y}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="11" font-weight="800" fill="rgba(245,230,200,0.92)" stroke="rgba(0,0,0,0.4)" stroke-width="0.3">70 m · DIANA 122 cm</text>`;
+  }
+
+  // DARDOS 3D: tablero vertical en pared + base/soporte + 3 dardos clavados
+  if(s==='Dardos') {
+   const cx = 300, cy = 180;
+   // Pared de fondo (rectángulo en perspectiva)
+   const w1 = this.toIso(cx-90, cy+90, 0), w2 = this.toIso(cx+90, cy+90, 0);
+   const w1t = this.toIso(cx-90, cy+90, 160), w2t = this.toIso(cx+90, cy+90, 160);
+   O += `<polygon points="${w1.x},${w1.y} ${w2.x},${w2.y} ${w2t.x},${w2t.y} ${w1t.x},${w1t.y}" fill="rgba(180,140,100,0.18)" stroke="rgba(120,80,40,0.55)" stroke-width="1.5"/>`;
+   // Base/pedestal corto de la diana
+   const baseB = this.toIso(cx, cy+60, 0);
+   const baseT = this.toIso(cx, cy, 80);
+   O += `<line x1="${baseB.x}" y1="${baseB.y}" x2="${baseT.x}" y2="${baseT.y}" stroke="#1e1e1e" stroke-width="3" stroke-linecap="round"/>`;
+   O += `<ellipse cx="${baseB.x}" cy="${baseB.y+2}" rx="16" ry="5" fill="rgba(0,0,0,0.3)"/>`;
+   // Tablero de dardos circular vertical — aproximado con elipse
+   const boardC = this.toIso(cx, cy, 105);
+   O += `<circle cx="${boardC.x}" cy="${boardC.y}" r="52" fill="#1a1a1a" stroke="#4a2d10" stroke-width="2.5"/>`;
+   // Sectores alternantes (20)
+   for (let i=0; i<20; i++) {
+    const a1 = ((i*18)-99) * Math.PI/180;
+    const a2 = ((i*18+18)-99) * Math.PI/180;
+    const R=48;
+    const cBg = i%2 ? '#1a1a1a' : '#e0d5ac';
+    const x1=R*Math.cos(a1), y1=R*Math.sin(a1);
+    const x2=R*Math.cos(a2), y2=R*Math.sin(a2);
+    const xi1=14*Math.cos(a1), yi1=14*Math.sin(a1);
+    const xi2=14*Math.cos(a2), yi2=14*Math.sin(a2);
+    O += `<path d="M${boardC.x+xi1},${boardC.y+yi1} L${boardC.x+x1},${boardC.y+y1} A48 48 0 0 1 ${boardC.x+x2},${boardC.y+y2} L${boardC.x+xi2},${boardC.y+yi2} A14 14 0 0 0 ${boardC.x+xi1},${boardC.y+yi1} Z" fill="${cBg}" stroke="rgba(0,0,0,0.35)" stroke-width="0.3"/>`;
+   }
+   // Anillo triple/doble
+   for (let i=0; i<20; i++) {
+    const a1 = ((i*18)-99) * Math.PI/180;
+    const a2 = ((i*18+18)-99) * Math.PI/180;
+    const cT = i%2 ? '#16a34a' : '#dc2626';
+    // Triple (inner ring)
+    const xi1=28*Math.cos(a1), yi1=28*Math.sin(a1), xi2=28*Math.cos(a2), yi2=28*Math.sin(a2);
+    const xo1=32*Math.cos(a1), yo1=32*Math.sin(a1), xo2=32*Math.cos(a2), yo2=32*Math.sin(a2);
+    O += `<path d="M${boardC.x+xi1},${boardC.y+yi1} L${boardC.x+xo1},${boardC.y+yo1} A32 32 0 0 1 ${boardC.x+xo2},${boardC.y+yo2} L${boardC.x+xi2},${boardC.y+yi2} A28 28 0 0 0 ${boardC.x+xi1},${boardC.y+yi1} Z" fill="${cT}"/>`;
+    // Doble (outer ring)
+    const xi3=44*Math.cos(a1), yi3=44*Math.sin(a1), xi4=44*Math.cos(a2), yi4=44*Math.sin(a2);
+    const xo3=48*Math.cos(a1), yo3=48*Math.sin(a1), xo4=48*Math.cos(a2), yo4=48*Math.sin(a2);
+    O += `<path d="M${boardC.x+xi3},${boardC.y+yi3} L${boardC.x+xo3},${boardC.y+yo3} A48 48 0 0 1 ${boardC.x+xo4},${boardC.y+yo4} L${boardC.x+xi4},${boardC.y+yi4} A44 44 0 0 0 ${boardC.x+xi3},${boardC.y+yi3} Z" fill="${cT}"/>`;
+   }
+   // Bull's eye
+   O += `<circle cx="${boardC.x}" cy="${boardC.y}" r="7" fill="#16a34a" stroke="#000" stroke-width="0.6"/>`;
+   O += `<circle cx="${boardC.x}" cy="${boardC.y}" r="3.5" fill="#dc2626" stroke="#000" stroke-width="0.5"/>`;
+   // 3 dardos clavados con perspectiva (cuerpo+pluma)
+   const darts = [{x:-16,y:-3,a:35},{x:4,y:-22,a:55},{x:-2,y:8,a:25}];
+   for (const d of darts) {
+    const dx = boardC.x+d.x, dy = boardC.y+d.y;
+    const px = dx + Math.cos(d.a*Math.PI/180)*22;
+    const py = dy - Math.sin(d.a*Math.PI/180)*22;
+    O += `<circle cx="${dx}" cy="${dy}" r="1" fill="#e5e7eb"/>`;
+    O += `<line x1="${dx}" y1="${dy}" x2="${px}" y2="${py}" stroke="#334155" stroke-width="1.4" stroke-linecap="round"/>`;
+    O += `<polygon points="${px-2},${py-3} ${px+3},${py} ${px},${py+3} ${px-3},${py}" fill="#fbbf24" stroke="#78350f" stroke-width="0.3"/>`;
+   }
+   // Etiqueta de altura oficial
+   const labD = this.toIso(cx, cy+110, 20);
+   O += `<text x="${labD.x}" y="${labD.y}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="10" font-weight="800" fill="rgba(245,230,200,0.92)">1.73 m · TIRO 2.37 m</text>`;
+  }
+
+  // TIRO DEPORTIVO 3D: 5 blancos elevados sobre postes + línea de tiro + siluetas tiradores
+  if(s==='Tiro Deportivo') {
+   for (let i=0; i<5; i++) {
+    const px = 135 + i*88;
+    const py = 160;
+    // Poste
+    const pb = this.toIso(px, py, 0);
+    const pt = this.toIso(px, py, 90);
+    O += `<line x1="${pb.x}" y1="${pb.y}" x2="${pt.x}" y2="${pt.y}" stroke="#374151" stroke-width="2.5" stroke-linecap="round"/>`;
+    O += `<ellipse cx="${pb.x}" cy="${pb.y+2}" rx="6" ry="2" fill="rgba(0,0,0,0.3)"/>`;
+    // Blanco circular vertical (ISSF 10m air)
+    const bc = this.toIso(px, py, 90);
+    O += `<circle cx="${bc.x}" cy="${bc.y}" r="22" fill="#fff" stroke="#1e1e1e" stroke-width="1.5"/>`;
+    O += `<circle cx="${bc.x}" cy="${bc.y}" r="17" fill="#1e1e1e"/>`;
+    O += `<circle cx="${bc.x}" cy="${bc.y}" r="13" fill="#fff" stroke="#1e1e1e" stroke-width="0.6"/>`;
+    O += `<circle cx="${bc.x}" cy="${bc.y}" r="8" fill="#1e1e1e"/>`;
+    O += `<circle cx="${bc.x}" cy="${bc.y}" r="4" fill="#dc2626"/>`;
+    // Número del puesto
+    const nLab = this.toIso(px, py, 115);
+    O += `<text x="${nLab.x}" y="${nLab.y}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="9" font-weight="800" fill="rgba(245,230,200,0.92)">P${i+1}</text>`;
+    // Silueta del tirador en la línea de tiro (10m de distancia)
+    const sp = this.toIso(px, 680, 0);
+    const sTop = this.toIso(px, 680, 38);
+    O += `<ellipse cx="${sp.x}" cy="${sp.y+2}" rx="7" ry="2.5" fill="rgba(0,0,0,0.3)"/>`;
+    // Cuerpo (cilindro) + cabeza + brazo con arma
+    O += `<rect x="${sp.x-5}" y="${sTop.y+2}" width="10" height="${sp.y - sTop.y - 4}" rx="3" fill="#1e3a8a" stroke="#0f172a" stroke-width="0.8"/>`;
+    O += `<circle cx="${sp.x}" cy="${sTop.y-4}" r="5.5" fill="#f4c098" stroke="#5a3b18" stroke-width="0.5"/>`;
+    // Brazo extendido con pistola hacia el blanco (dirección hacia arriba en la vista 2D)
+    const armEnd = this.toIso(px, 580, 28);
+    O += `<line x1="${sp.x}" y1="${sTop.y+6}" x2="${armEnd.x}" y2="${armEnd.y}" stroke="#f4c098" stroke-width="3" stroke-linecap="round"/>`;
+    O += `<rect x="${armEnd.x-3}" y="${armEnd.y-3}" width="8" height="5" fill="#1f2937" stroke="#000" stroke-width="0.4"/>`;
+   }
+   // Línea de tiro 10m
+   const lineL = this.toIso(100, 680, 0.3), lineR = this.toIso(500, 680, 0.3);
+   O += `<line x1="${lineL.x}" y1="${lineL.y}" x2="${lineR.x}" y2="${lineR.y}" stroke="rgba(245,230,200,0.9)" stroke-width="2.5" stroke-dasharray="6 4"/>`;
+   // Etiqueta 10m
+   const distL = this.toIso(80, 400, 0);
+   O += `<text x="${distL.x}" y="${distL.y}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="11" font-weight="800" fill="rgba(245,230,200,0.88)" transform="rotate(-60 ${distL.x} ${distL.y})">10 m · ISSF</text>`;
+  }
 
 
 
@@ -4685,6 +4888,8 @@ checkKnockdowns(movingEl, prevX, prevY) {
    const sorted = [...ST.elements].sort((a,b)=>(zOrder[a.type]||2)-(zOrder[b.type]||2));
    layer.innerHTML = defs + trajSvg + sorted.map(el => this.buildElSvg(el)).join('');
   }
+  // Redibuja medidas y actualiza panel para Bochas/Petanca
+  try { this.renderMeasureLines && this.renderMeasureLines(); this.updateMeasureList && this.updateMeasureList(); } catch(e){}
  },
 
  clearTrajectories() {

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Top Jugadas · iTRAIN</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700;800&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0f19;--panel:#111827;--panel2:#1f2937;--border:rgba(255,255,255,0.08);--text:#e6edf3;--muted:#94a3b8;--lime:#c8f700;--orange:#ff7a00;--red:#ef4444;--blue:#3b82f6;--purple:#8b5cf6}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui;background:radial-gradient(ellipse at top,#1a2540 0%,var(--bg) 60%);color:var(--text);min-height:100vh;padding:32px 24px;overflow-x:hidden}
+.wrap{max-width:1000px;margin:0 auto}
+.hero{text-align:center;margin-bottom:40px;position:relative}
+.hero::before{content:'';position:absolute;left:50%;top:-40px;transform:translateX(-50%);width:300px;height:300px;background:radial-gradient(circle,rgba(200,247,0,0.15),transparent 70%);filter:blur(60px);z-index:-1}
+.brand{display:inline-flex;align-items:center;gap:8px;font-family:'Oswald',sans-serif;font-weight:800;font-size:20px;letter-spacing:0.08em;color:var(--lime);margin-bottom:24px;padding:7px 14px;border:1px solid rgba(200,247,0,0.3);border-radius:999px;background:rgba(200,247,0,0.06)}
+h1{font-family:'Oswald',sans-serif;font-size:clamp(36px,6vw,64px);font-weight:800;letter-spacing:-0.02em;line-height:1;margin-bottom:10px;background:linear-gradient(135deg,#fff 0%,#94a3b8 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+h1 em{font-style:normal;background:linear-gradient(135deg,var(--lime),#65a30d);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);font-size:17px;max-width:520px;margin:0 auto;line-height:1.5}
+.totals{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:44px 0 56px;max-width:800px;margin-left:auto;margin-right:auto}
+.stat{background:linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:18px;padding:22px 18px;text-align:center;backdrop-filter:blur(10px);position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:-40px;right:-40px;width:100px;height:100px;background:radial-gradient(circle,currentColor,transparent 70%);opacity:0.15;filter:blur(20px);color:var(--lime)}
+.stat.s2::before{color:var(--orange)}
+.stat.s3::before{color:var(--purple)}
+.stat .num{font-family:'Oswald',sans-serif;font-size:44px;font-weight:800;letter-spacing:-0.02em;line-height:1;color:var(--lime);margin-bottom:4px}
+.stat.s2 .num{color:var(--orange)}
+.stat.s3 .num{color:var(--purple)}
+.stat .lbl{font-size:11.5px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-weight:700}
+.list{display:flex;flex-direction:column;gap:14px}
+.item{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:16px;padding:18px 22px;display:grid;grid-template-columns:60px 1fr auto;gap:20px;align-items:center;transition:all .25s;position:relative;overflow:hidden;cursor:pointer;text-decoration:none;color:inherit}
+.item:hover{background:rgba(255,255,255,0.055);border-color:rgba(200,247,0,0.3);transform:translateX(4px)}
+.item.top-1{background:linear-gradient(90deg,rgba(255,215,0,0.12),rgba(255,215,0,0.03) 30%,rgba(255,255,255,0.03));border-color:rgba(255,215,0,0.3)}
+.item.top-2{background:linear-gradient(90deg,rgba(192,192,192,0.1),rgba(192,192,192,0.02) 30%,rgba(255,255,255,0.03));border-color:rgba(192,192,192,0.25)}
+.item.top-3{background:linear-gradient(90deg,rgba(205,127,50,0.1),rgba(205,127,50,0.02) 30%,rgba(255,255,255,0.03));border-color:rgba(205,127,50,0.25)}
+.rank{font-family:'Oswald',sans-serif;font-size:42px;font-weight:800;color:var(--muted);line-height:1;letter-spacing:-0.04em}
+.item.top-1 .rank{color:gold}
+.item.top-2 .rank{color:#c0c0c0}
+.item.top-3 .rank{color:#cd7f32}
+.info{min-width:0}
+.title{font-size:16.5px;font-weight:800;margin-bottom:4px;letter-spacing:-0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{font-size:12px;color:var(--muted);display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.sport-chip{display:inline-flex;align-items:center;gap:4px;background:rgba(200,247,0,0.1);color:var(--lime);padding:2px 8px;border-radius:6px;font-weight:700;font-size:10.5px;letter-spacing:0.03em;text-transform:uppercase}
+.metrics{display:flex;gap:18px}
+.metric{text-align:right}
+.metric .val{font-family:'Oswald',sans-serif;font-weight:800;font-size:22px;color:var(--text);letter-spacing:-0.02em;line-height:1}
+.metric.dup .val{color:var(--orange)}
+.metric .klbl{font-size:9.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:700;margin-top:2px}
+.empty{text-align:center;padding:60px 20px;color:var(--muted);font-size:15px;background:rgba(255,255,255,0.02);border:1px dashed var(--border);border-radius:16px}
+.empty h3{color:var(--text);font-family:'Oswald',sans-serif;font-size:22px;margin-bottom:8px;font-weight:700}
+.cta{display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:12px 22px;border-radius:999px;background:linear-gradient(135deg,var(--lime),#a5d400);color:#0a0f19;font-weight:800;text-decoration:none;font-size:14px;letter-spacing:0.04em;text-transform:uppercase;box-shadow:0 10px 30px -8px rgba(200,247,0,0.4);transition:all .2s}
+.cta:hover{transform:translateY(-2px);box-shadow:0 14px 34px -8px rgba(200,247,0,0.55)}
+.footer{text-align:center;margin-top:50px;color:var(--muted);font-size:12.5px;padding-top:24px;border-top:1px solid var(--border)}
+@media(max-width:600px){.totals{grid-template-columns:1fr}.item{grid-template-columns:40px 1fr;gap:14px;padding:14px 16px}.metrics{grid-column:1/-1;justify-content:flex-start;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05)}.rank{font-size:32px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="hero">
+  <div class="brand">⚡ iTRAIN · COACH WRAPPED</div>
+  <h1>Top <em>jugadas</em> del gremio</h1>
+  <p class="sub">Las pizarras tácticas más duplicadas por entrenadores de toda la red iTRAIN. Social proof + inspiración para tu próximo entreno.</p>
+ </div>
+ <div class="totals" id="totals">
+  <div class="stat s1"><div class="num" id="t-views">—</div><div class="lbl">Vistas totales</div></div>
+  <div class="stat s2"><div class="num" id="t-dupes">—</div><div class="lbl">Duplicaciones</div></div>
+  <div class="stat s3"><div class="num" id="t-boards">—</div><div class="lbl">Pizarras creadas</div></div>
+ </div>
+ <div class="list" id="list"></div>
+ <div class="footer">
+  <a href="/tactical-board.html" class="cta">← Volver a la pizarra</a>
+  <div style="margin-top:18px">iTRAIN Coach · Top actualizado en tiempo real</div>
+ </div>
+</div>
+<script>
+(async () => {
+ try {
+  const r = await fetch(window.location.origin + '/api/boards/top?limit=10');
+  const data = await r.json();
+  document.getElementById('t-views').textContent = (data.totals?.views||0).toLocaleString('es');
+  document.getElementById('t-dupes').textContent = (data.totals?.duplicates||0).toLocaleString('es');
+  document.getElementById('t-boards').textContent = (data.totals?.boards||0).toLocaleString('es');
+  const list = document.getElementById('list');
+  if (!data.items || data.items.length === 0) {
+   list.innerHTML = `<div class="empty"><h3>Aún no hay jugadas compartidas</h3>¡Sé el primer coach en crear y compartir una jugada! Las más duplicadas aparecerán aquí.</div>`;
+   return;
+  }
+  list.innerHTML = data.items.map((it, i) => {
+   const rk = i+1;
+   const klass = rk<=3 ? `top-${rk}` : '';
+   const medal = rk===1 ? '🥇' : rk===2 ? '🥈' : rk===3 ? '🥉' : `#${rk}`;
+   const title = (it.title || `Jugada ${it.share_id}`).replace(/</g,'&lt;');
+   const sport = (it.sport || 'Deporte').replace(/</g,'&lt;');
+   const href = `/api/s/${encodeURIComponent(it.share_id)}`;
+   return `<a class="item ${klass}" href="${href}" target="_blank" rel="noopener">
+    <div class="rank">${medal}</div>
+    <div class="info">
+     <div class="title">${title}</div>
+     <div class="meta"><span class="sport-chip">⚽ ${sport}</span><span>ID: ${it.share_id}</span></div>
+    </div>
+    <div class="metrics">
+     <div class="metric dup"><div class="val">${it.duplicates||0}</div><div class="klbl">Duplicadas</div></div>
+     <div class="metric"><div class="val">${it.views||0}</div><div class="klbl">Vistas</div></div>
+    </div>
+   </a>`;
+  }).join('');
+ } catch (e) {
+  document.getElementById('list').innerHTML = '<div class="empty"><h3>No se pudo cargar</h3>Reintenta más tarde.</div>';
+  console.error(e);
+ }
+})();
+</script>
+</body>
+</html>

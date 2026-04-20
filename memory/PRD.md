@@ -436,7 +436,34 @@
   para no empujar los botones JUGADORES/Tactico/Camiseta/Avatar.
 - Labels mas cortos: '11 vs 11 · FIFA', '7 vs 7 · Juvenil', '5 vs 5 · Infantil'.
 
-### Avatares profesión + Rana/Tejo 3D oficial + Duplicate analytics (Feb 2026)
+### 3D Precisión + Medir cercanía + Coach Wrapped dashboard (Feb 2026)
+- Tiro con Arco 3D: diana vertical sobre trípode (3 patas
+  cruzadas), 10 anillos oficiales WA (blanco/negro/azul/rojo/
+  amarillo), 3 flechas clavadas con plumas doradas, sombra del
+  trípode, etiqueta "70 m · DIANA 122 cm".
+- Dardos 3D: pared marrón trasera + base negra + tablero circular
+  vertical con 20 sectores alternantes crema/negro, anillo triple
+  verde/rojo, anillo doble, bull's eye, 3 dardos clavados en
+  perspectiva, etiqueta "1.73 m · TIRO 2.37 m".
+- Tiro Deportivo 3D: 5 puestos (P1-P5) con postes + blancos ISSF
+  circulares (blanco/negro/rojo) + 5 siluetas de tiradores en la
+  línea de tiro (torso azul, cabeza, brazo extendido con pistola
+  gris). Línea de tiro dashed + etiqueta "10 m · ISSF".
+- Medir cercanía Bochas/Petanca: panel flotante lateral derecho
+  con botón "Mostrar/Ocultar", líneas dashed colored (rojo/azul)
+  conectando cada bocha al jack con etiqueta de metros. Panel
+  lista ranking ordenado (🏆 ganadora). Auto-visible al
+  seleccionar Bochas/Petanca. Escalado de unidades a metros según
+  deporte (Bochas 27.5m/720u, Petanca 15m/680u).
+- Backend: GET /api/boards/top?limit=N&sport=X devuelve ranking
+  de shares ordenado por duplicates desc + totals globales
+  (views/duplicates/boards).
+- Nueva página /top-jugadas.html: dashboard tipo "Spotify Wrapped"
+  con hero, 3 stats (vistas totales, duplicaciones, pizarras),
+  ranking Top 10 con medallas 🥇🥈🥉 + chips de deporte + métricas
+  duplicadas/vistas, CTA "Volver a la pizarra". Responsive.
+
+
 - 10 avatares profesionales (cuando avatarMode='avatar'): Entrenador
   (chaqueta azul+tableta), Asistente (azul+silbato), Director
   (chaqueta negra+corbata roja), Masajista (bata blanca+cruz roja),

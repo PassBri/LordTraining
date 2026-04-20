@@ -7033,6 +7033,40 @@ async def track_board_duplicate(share_id: str):
         raise HTTPException(status_code=500, detail="Error al registrar duplicado")
 
 
+@api_router.get("/boards/top")
+async def get_top_shared_boards(limit: int = 5, sport: Optional[str] = None):
+    """Top N jugadas más duplicadas y/o vistas (dashboard coach - Spotify Wrapped style)."""
+    try:
+        query = {}
+        if sport:
+            query["sport"] = sport
+        cursor = db.shared_boards.find(query, {"_id": 0, "payload": 0, "thumbnail": 0})
+        cursor = cursor.sort([("duplicates", -1), ("views", -1)]).limit(max(1, min(limit, 20)))
+        items = []
+        async for doc in cursor:
+            created_at = doc.get("created_at")
+            if created_at and hasattr(created_at, 'isoformat'):
+                created_at = created_at.isoformat()
+            items.append({
+                "share_id": doc.get("share_id"),
+                "title": doc.get("title"),
+                "sport": doc.get("sport"),
+                "views": doc.get("views", 0),
+                "duplicates": doc.get("duplicates", 0),
+                "created_at": created_at,
+                "has_thumbnail": True,  # siempre servimos el fallback si no existe
+            })
+        # Totals globales
+        total_doc = await db.shared_boards.aggregate([
+            {"$group": {"_id": None, "totalViews": {"$sum": "$views"}, "totalDupes": {"$sum": "$duplicates"}, "count": {"$sum": 1}}}
+        ]).to_list(1)
+        totals = total_doc[0] if total_doc else {"totalViews": 0, "totalDupes": 0, "count": 0}
+        return {"items": items, "totals": {"views": totals.get("totalViews", 0), "duplicates": totals.get("totalDupes", 0), "boards": totals.get("count", 0)}}
+    except Exception as e:
+        logger.error(f"Error getting top boards: {e}")
+        raise HTTPException(status_code=500, detail="Error al obtener top")
+
+
 
 @api_router.get("/boards/og/{share_id}.png")
 async def get_board_thumbnail(share_id: str):
