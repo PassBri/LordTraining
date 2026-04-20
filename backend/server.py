@@ -7005,12 +7005,33 @@ async def get_shared_board(share_id: str):
             "created_at": created_at,
             "expires_at": expires_iso,
             "views": shared.get("views", 0) + 1,
+            "duplicates": shared.get("duplicates", 0),
         }
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error getting shared board: {e}")
         raise HTTPException(status_code=500, detail=f"Error al obtener tablero: {str(e)}")
+
+
+@api_router.post("/boards/duplicate/{share_id}")
+async def track_board_duplicate(share_id: str):
+    """Registra que un coach duplicó una jugada compartida (analítica)."""
+    try:
+        result = await db.shared_boards.update_one(
+            {"share_id": share_id},
+            {"$inc": {"duplicates": 1}}
+        )
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Pizarra no encontrada")
+        shared = await db.shared_boards.find_one({"share_id": share_id}, {"duplicates": 1, "_id": 0})
+        return {"share_id": share_id, "duplicates": shared.get("duplicates", 0)}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error tracking duplicate: {e}")
+        raise HTTPException(status_code=500, detail="Error al registrar duplicado")
+
 
 
 @api_router.get("/boards/og/{share_id}.png")

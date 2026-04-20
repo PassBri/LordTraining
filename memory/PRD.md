@@ -436,7 +436,35 @@
   para no empujar los botones JUGADORES/Tactico/Camiseta/Avatar.
 - Labels mas cortos: '11 vs 11 · FIFA', '7 vs 7 · Juvenil', '5 vs 5 · Infantil'.
 
-### Rana 3D + Fusión Implementos + Social proof (Feb 2026)
+### Avatares profesión + Rana/Tejo 3D oficial + Duplicate analytics (Feb 2026)
+- 10 avatares profesionales (cuando avatarMode='avatar'): Entrenador
+  (chaqueta azul+tableta), Asistente (azul+silbato), Director
+  (chaqueta negra+corbata roja), Masajista (bata blanca+cruz roja),
+  Kinesiólogo (verde+arco), Psicólogo (morado+ψ), Árbitro (camisa
+  rayada b/n+silbato), Juez Línea (amarillo+banderín diagonal),
+  Juez Mesa (naranja+marcador "0-0"), Nutricionista (verde+manzana),
+  Biomecánico (cian+reloj). Cada uno con cabeza+cuerpo+accesorio
+  específico de su rol + sombra.
+- Rana 3D realista: sapo metálico dorado/bronce con ojos grandes
+  con párpados, boca abierta con lengua roja, reflejos metálicos,
+  pedestal negro, patas traseras. 4 molinos rojos+dorados en los
+  bordes. 6 agujeros laterales con aros metálicos dorados y
+  plaquitas "1000"/"500" grabadas. Placa central "5000" en dorado.
+- Tejo 3D oficial: mesa de arcilla 1m² a escala (19.5m × 2.5m
+  cancha), bocín dorado central 17cm, 4 mechas rojas con hilo de
+  pólvora amarillo en las esquinas, textura granular, cartel
+  flotante "19.5m · BOCÍN 17 cm".
+- Minitejo 3D: versión reducida con caja 50×50cm, bocín, 4 mechas.
+- Botón gear-toggle (icono sol) eliminado — era redundante con el
+  selector de estilo de avatar. Barra superior más limpia.
+- Backend: POST /api/boards/duplicate/{id} incrementa contador.
+  GET /api/boards/view/{id} ahora retorna `duplicates` además de
+  `views`. Viewer muestra badge "🔥 Jugada popular · N coaches la
+  duplicaron" cuando duplicates ≥ 3 (social proof + bucle viral).
+- Botón "Duplicar" del viewer ahora dispara el POST antes de
+  redirigir, registrando la analítica.
+
+
 - Rana 3D: mesa de madera isométrica (80x80cm, altura 48u) con 4 patas
   marrones, superficie con veteado, 7 agujeros con aros metálicos
   dorados + etiquetas de puntos (5000/1000/500). RANA verde con ojos
