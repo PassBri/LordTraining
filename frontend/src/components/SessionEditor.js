@@ -1227,29 +1227,38 @@ const SessionEditor = ({
                 const volUnit = act.unidadVolumen || capCfg.unidadesVol[0];
                 return (
               <div className="w-[200px] flex-shrink-0 p-3.5 border-r border-slate-100/80">
-                {/* Intensidad visual */}
-                <div className="mb-2.5">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500" style={{fontFamily:DM}}>Intensidad <span className="text-[9px] normal-case tracking-normal font-medium text-slate-400">({intUnit})</span></span>
-                    <span className="text-[14px] font-black" style={{color: act.intensidad>80?'#ef4444':act.intensidad>60?'#f59e0b':act.intensidad>40?'#CCFF00':'#22c55e',fontFamily:DM}}>{act.intensidad}<span className="text-[9px] font-semibold opacity-50">{intUnit === '%1RM' || intUnit === '%FCmax' || intUnit === '%FCres' || intUnit === '%Vmax' ? '%' : ''}</span></span>
+                {/* Intensidad visual — minimalista */}
+                <div className="mb-3">
+                  <div className="flex items-baseline justify-between mb-1">
+                    <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-400" style={{fontFamily:DM}}>Intensidad <span className="text-[9px] normal-case tracking-normal text-slate-300">({intUnit})</span></span>
+                    <span className="text-[16px] font-black" style={{color: act.intensidad>80?'#ef4444':act.intensidad>60?'#f59e0b':act.intensidad>40?'#84cc16':'#22c55e',fontFamily:DM}}>{act.intensidad}<span className="text-[9px] font-semibold opacity-40 ml-0.5">{intUnit === '%1RM' || intUnit === '%FCmax' || intUnit === '%FCres' || intUnit === '%Vmax' ? '%' : ''}</span></span>
                   </div>
-                  <div className="h-2 rounded-full overflow-hidden" style={{background:'#f1f5f9'}}>
-                    <div className="h-full rounded-full transition-all duration-300" style={{width:`${act.intensidad}%`,background: act.intensidad>80?'linear-gradient(90deg,#f59e0b,#ef4444)':act.intensidad>60?'linear-gradient(90deg,#CCFF00,#f59e0b)':act.intensidad>40?'linear-gradient(90deg,#22c55e,#CCFF00)':'linear-gradient(90deg,#06b6d4,#22c55e)'}} />
+                  <div className="h-1 rounded-full overflow-hidden" style={{background:'#f1f5f9'}}>
+                    <div className="h-full rounded-full transition-all duration-300" style={{width:`${act.intensidad}%`,background: act.intensidad>80?'linear-gradient(90deg,#f59e0b,#ef4444)':act.intensidad>60?'linear-gradient(90deg,#84cc16,#f59e0b)':act.intensidad>40?'linear-gradient(90deg,#22c55e,#84cc16)':'linear-gradient(90deg,#06b6d4,#22c55e)'}} />
                   </div>
-                  <input type="range" min={0} max={100} value={act.intensidad} onChange={(e) => updateActividad(faseKey, idx, 'intensidad', parseInt(e.target.value))} className="w-full h-1 mt-1 accent-[#CCFF00] cursor-pointer" />
-                  <div className="text-[9px] text-slate-400 text-right mt-0.5" style={{fontFamily:DM}}>Ref: {capCfg.intRef}</div>
+                  <input type="range" min={0} max={100} value={act.intensidad} onChange={(e) => updateActividad(faseKey, idx, 'intensidad', parseInt(e.target.value))} className="w-full h-1 mt-1 accent-[#84cc16] cursor-pointer" />
+                  <div className="text-[9px] text-slate-300 text-right mt-0.5" style={{fontFamily:DM}}>Ref: {capCfg.intRef}</div>
                 </div>
-                {/* Stats grid 2x2 — dinámico */}
-                <div className="grid grid-cols-2 gap-1.5">
+
+                {/* Stats grid 2x2 — minimalista (sin cajas negras) */}
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
                   {[
                     { label:'Series', value:act.series, key:'series', type:'number', ph: capCfg.serPh },
                     { label:'Reps', value:act.repeticiones, key:'repeticiones', ph: capCfg.volPh },
                     { label: volUnit, value:act.volumen, key:'volumen', ph: capCfg.volPh },
                     { label:'Recup.', value:act.recuperacion, key:'recuperacion', ph: capCfg.recPh }
                   ].map(s => (
-                    <div key={s.key} className="rounded-lg px-2 py-1.5 text-center" style={{background:'#0a0a0f'}}>
-                      <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'rgba(204,255,0,0.6)',fontFamily:DM}}>{s.label}</span>
-                      <Input value={s.value} type={s.type||'text'} onChange={(e) => updateActividad(faseKey, idx, s.key, s.type==='number'?parseInt(e.target.value)||0:e.target.value)} placeholder={s.ph} className="h-6 text-center text-white text-[12px] font-bold bg-transparent border-0 focus:ring-0 px-0" style={{fontFamily:DM}} min={s.type==='number'?0:undefined} />
+                    <div key={s.key} className="group">
+                      <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-400 block" style={{fontFamily:DM}}>{s.label}</span>
+                      <Input
+                        value={s.value}
+                        type={s.type||'text'}
+                        onChange={(e) => updateActividad(faseKey, idx, s.key, s.type==='number'?parseInt(e.target.value)||0:e.target.value)}
+                        placeholder={s.ph}
+                        className="h-7 text-slate-900 text-[16px] font-black bg-transparent border-0 border-b border-transparent hover:border-slate-200 focus:border-[#84cc16] focus:ring-0 rounded-none px-0 transition-colors"
+                        style={{fontFamily:DM}}
+                        min={s.type==='number'?0:undefined}
+                      />
                     </div>
                   ))}
                 </div>
