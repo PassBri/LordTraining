@@ -248,7 +248,7 @@ html.dark #field-layer text.fld-measure[data-mono="1"]{fill:rgba(235,235,235,0.9
 html.dark .joy-outer{background:rgba(15,23,42,0.7);box-shadow:0 8px 24px -8px var(--shadow-lg),0 0 0 1px var(--border-strong)}
 .joy-thumb{width:32px;height:32px;border-radius:50%;background:linear-gradient(145deg,var(--brand),#99cc00);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);cursor:grab;box-shadow:0 3px 10px var(--brand-glow),inset 0 1px 2px rgba(255,255,255,0.3);transition:box-shadow .15s}
 .joy-thumb:active{cursor:grabbing;box-shadow:0 5px 16px var(--brand-glow),inset 0 1px 2px rgba(255,255,255,0.4)}
-.joy-label{font-size:9px;color:var(--text-muted);text-align:center;margin-top:6px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase}
+.joy-label{display:none}
 .joy-preset{position:absolute;width:22px;height:22px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-sec);cursor:pointer;transition:all .15s;box-shadow:0 2px 6px -2px var(--shadow)}
 .joy-preset:hover{background:var(--brand);color:#0a0f1f;border-color:var(--brand);transform:scale(1.1);box-shadow:0 2px 10px var(--brand-glow)}
 .zoom-controls{position:absolute;bottom:14px;right:14px;display:flex;flex-direction:column;gap:4px;z-index:10}
@@ -1384,6 +1384,26 @@ const S = {
   if(pts.length<2) return '';
   return `<polyline points="${pts.join(' ')}" fill="none" stroke="${stroke}" stroke-width="${sw}" ${extra}/>`;
  },
+ isoEllipse(cx,cy,rx,ry,stroke,sw,extra='') {
+  const pts=[];
+  for(let a=0;a<360;a+=3){const rad=a*Math.PI/180;const p=this.toIso(cx+rx*Math.cos(rad),cy+ry*Math.sin(rad),0);pts.push(`${p.x},${p.y}`);}
+  return `<polygon points="${pts.join(' ')}" fill="none" stroke="${stroke}" stroke-width="${sw}" ${extra}/>`;
+ },
+ // Rounded rect / stadium: centered at (cx,cy), size w×h, corner radius r
+ isoRoundedRect(cx,cy,w,h,r,stroke,sw,extra='') {
+  const rx = Math.min(r, w/2, h/2);
+  const left = cx - w/2, right = cx + w/2, top = cy - h/2, bot = cy + h/2;
+  const pts = [];
+  const step = 6;
+  for(let a=180;a<=270;a+=step){const rad=a*Math.PI/180;const p=this.toIso(left+rx+rx*Math.cos(rad),top+rx+rx*Math.sin(rad),0);pts.push(`${p.x},${p.y}`);}
+  if(w>2*rx){const p=this.toIso(right-rx,top,0);pts.push(`${p.x},${p.y}`);}
+  for(let a=270;a<=360;a+=step){const rad=a*Math.PI/180;const p=this.toIso(right-rx+rx*Math.cos(rad),top+rx+rx*Math.sin(rad),0);pts.push(`${p.x},${p.y}`);}
+  if(h>2*rx){const p=this.toIso(right,bot-rx,0);pts.push(`${p.x},${p.y}`);}
+  for(let a=0;a<=90;a+=step){const rad=a*Math.PI/180;const p=this.toIso(right-rx+rx*Math.cos(rad),bot-rx+rx*Math.sin(rad),0);pts.push(`${p.x},${p.y}`);}
+  if(w>2*rx){const p=this.toIso(left+rx,bot,0);pts.push(`${p.x},${p.y}`);}
+  for(let a=90;a<=180;a+=step){const rad=a*Math.PI/180;const p=this.toIso(left+rx+rx*Math.cos(rad),bot-rx+rx*Math.sin(rad),0);pts.push(`${p.x},${p.y}`);}
+  return `<polygon points="${pts.join(' ')}" fill="none" stroke="${stroke}" stroke-width="${sw}" ${extra}/>`;
+ },
  isoFilledRect(x,y,w,h,fill,stroke,sw) {
   const p1=this.toIso(x,y,0),p2=this.toIso(x+w,y,0),p3=this.toIso(x+w,y+h,0),p4=this.toIso(x,y+h,0);
   return `<polygon points="${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
@@ -1499,15 +1519,26 @@ const S = {
    L += this.isoCircle(200,620,22,D+'0.5)',1);
    L += this.isoCircle(400,620,22,D+'0.5)',1);
   } else if(s==='Beisbol') {
+   // Foul lines from home plate to outfield corners
    L += this.isoLine(300,680,60,440,D+'0.65)',1.5);
    L += this.isoLine(300,680,540,440,D+'0.65)',1.5);
-   const bp=[];for(let a=0;a<=180;a+=5){const rad=(a-90)*Math.PI/180;const px=300+300*Math.cos(rad),py=440-300*Math.sin(rad)*0.5;const p=this.toIso(px,py,0);bp.push(`${p.x},${p.y}`);}
-   L += `<polyline points="${bp.join(' ')}" fill="none" stroke="${D}0.65)" stroke-width="1.5"/>`;
+   // Outfield arc from (60,440) to (540,440) passing over top — radius 300, center (300, 620), angles 143.13° → 323.13° via 270°
+   L += this.isoArc(300,620,300,143.13,323.13,D+'0.65)',1.5);
+   // Infield grass arc between 1B and 3B (radius 175, center (300,659))
+   L += this.isoArc(300,659,175,195.5,344.5,D+'0.4)',1);
+   // Infield diamond (4 sides between HP-1B-2B-3B-HP)
    L += this.isoLine(300,680,434,546,D+'0.65)',2);
    L += this.isoLine(434,546,300,411,D+'0.65)',2);
    L += this.isoLine(300,411,166,546,D+'0.65)',2);
    L += this.isoLine(166,546,300,680,D+'0.65)',2);
-   L += this.isoDot(300,552,12,D+'0.08)');
+   // Bases (small diamonds) + home plate
+   L += this.isoDot(434,546,4,D+'0.7)');
+   L += this.isoDot(300,411,4,D+'0.7)');
+   L += this.isoDot(166,546,4,D+'0.7)');
+   L += this.isoDot(300,680,4,D+'0.8)');
+   // Pitchers mound
+   L += this.isoCircle(300,552,12,D+'0.35)',1.2);
+   L += this.isoDot(300,552,2.5,D+'0.4)');
   } else if(s==='Futbol Americano') {
    L += this.isoRect(60,30,480,740,D+'0.65)',1.5);
    // End zones (filled)
@@ -1575,12 +1606,27 @@ const S = {
    L += this.isoLine(300,240,300,560,D+'0.15)',1,'stroke-dasharray="4 3"');
    L += this.isoDot(300,400,4,D+'0.2)');
   } else if(s==='Atletismo'||s==='Maraton') {
+   // Stadium-shaped track (rx=150 matches the SVG 2D stadium rect rx=150)
    for(let i=0;i<8;i++){
     const m=12*i;
-    L += this.isoCircle(300,400,150+m,D+(i===0?'0.65)':'0.5)'),i===0?1.5:1);
+    L += this.isoRoundedRect(300,400,300+m*2,640+m*2,150+m,D+(i===0?'0.65)':'0.5)'),i===0?1.5:1);
    }
    L += this.isoLine(300,30,300,50,D+'0.65)',3);
    L += this.isoLine(300,750,300,770,D+'0.65)',3);
+  } else if(s==='Patinaje Velocidad') {
+   // Oval stadium track (400m) with 2 lanes
+   L += this.isoRoundedRect(300,400,300,640,150,D+'0.65)',2.5);
+   L += this.isoRoundedRect(300,400,270,610,135,D+'0.5)',1);
+   L += this.isoLine(300,72,300,88,D+'0.65)',3);
+  } else if(s==='Patinaje Artistico') {
+   L += this.isoRoundedRect(300,400,440,680,8,D+'0.65)',2);
+   L += this.isoDot(300,400,3,D+'0.2)');
+  } else if(s==='Ciclismo') {
+   // Velodrome: elliptical (not circular)
+   L += this.isoEllipse(300,400,250,320,D+'0.65)',3);
+   L += this.isoEllipse(300,400,225,295,D+'0.5)',1);
+   L += this.isoEllipse(300,400,200,270,D+'0.35)',1,'stroke-dasharray="5 3"');
+   L += this.isoLine(300,75,300,95,D+'0.65)',3);
   } else if(s==='Natacion') {
    for(let i=0;i<8;i++){
     L += this.isoRect(85+i*55,40,45,720,D+'0.5)',1);
@@ -1611,7 +1657,7 @@ const S = {
    L += this.isoCircle(300,400,225,D+'0.5)',1);
    L += this.isoCircle(300,400,200,D+'0.35)',1,'stroke-dasharray="5 3"');
    L += this.isoLine(300,75,300,95,D+'0.65)',3);
-  } else if(s==='Remo') {
+  } else if(s==='Natacion') {
    for(let i=0;i<6;i++) L += this.isoRect(110+i*65,40,55,720,D+'0.5)',1);
    L += this.isoLine(100,60,500,60,D+'0.65)',2);
    L += this.isoLine(100,740,500,740,D+'0.65)',2);
@@ -1632,6 +1678,96 @@ const S = {
   } else if(s==='Sala de Pesas'||s==='Circuito') {
    for(let x=0;x<=600;x+=40) L += this.isoLine(x,0,x,800,D+'0.1)',0.5);
    for(let y=0;y<=800;y+=40) L += this.isoLine(0,y,600,y,D+'0.1)',0.5);
+  } else if(s==='Skateboarding') {
+   // Funbox / ledge lines
+   L += this.isoRect(60,400,480,6,D+'0.2)',1);
+   L += this.isoRect(140,340,320,65,D+'0.35)',1.5);
+  } else if(s==='Minitejo') {
+   // 3m x 1.5m court + central box 50x50 + 4 mechas + bocin + throw line
+   L += this.isoRect(150,90,300,620,D+'0.65)',1.8);
+   L += this.isoRect(225,120,150,150,D+'0.65)',1.6);
+   L += this.isoDot(240,135,5,'rgba(255,60,60,0.6)');
+   L += this.isoDot(360,135,5,'rgba(255,60,60,0.6)');
+   L += this.isoDot(240,255,5,'rgba(255,60,60,0.6)');
+   L += this.isoDot(360,255,5,'rgba(255,60,60,0.6)');
+   L += this.isoCircle(300,195,15,D+'0.6)',1.5);
+   L += this.isoDot(300,195,4,D+'0.35)');
+   L += this.isoLine(150,630,450,630,D+'0.65)',2,'stroke-dasharray="6 4"');
+  } else if(s==='Rana') {
+   L += this.isoRect(135,80,330,620,D+'0.55)',1.5);
+   L += this.isoRect(195,120,210,210,D+'0.8)',1.8);
+   L += this.isoCircle(300,225,22,D+'0.55)',1.2);
+   L += this.isoCircle(300,225,16,'rgba(255,200,60,0.45)',1);
+   L += this.isoDot(235,160,10,D+'0.3)');
+   L += this.isoDot(365,160,10,D+'0.3)');
+   L += this.isoDot(235,290,10,D+'0.3)');
+   L += this.isoDot(365,290,10,D+'0.3)');
+   L += this.isoDot(300,150,8,D+'0.25)');
+   L += this.isoDot(300,300,8,D+'0.25)');
+   L += this.isoLine(135,600,465,600,D+'0.65)',2,'stroke-dasharray="6 4"');
+  } else if(s==='Bolo Criollo') {
+   // Narrow 26m x 4m lane + 9 pins in rhombus + throw line
+   L += this.isoRect(225,30,150,740,D+'0.55)',1.5);
+   L += this.isoLine(225,700,375,700,D+'0.65)',1.5,'stroke-dasharray="5 3"');
+   const pins=[[300,140],[280,165],[320,165],[260,190],[300,190],[340,190],[280,215],[320,215],[300,240]];
+   for(const[x,y] of pins) L += this.isoFilledRect(x-6,y-10,12,20,'rgba(240,220,180,0.75)',D+'0.65)',1);
+   L += this.isoDot(300,730,6,D+'0.35)');
+  } else if(s==='Tejo') {
+   // 19.5m x 2.5m lane + box 1m with bocin and 4 mechas + throw line
+   L += this.isoRect(245,30,110,740,D+'0.65)',1.5);
+   L += this.isoRect(260,50,80,80,D+'0.7)',1.6);
+   L += this.isoDot(273,63,4,'rgba(255,60,60,0.65)');
+   L += this.isoDot(327,63,4,'rgba(255,60,60,0.65)');
+   L += this.isoDot(273,117,4,'rgba(255,60,60,0.65)');
+   L += this.isoDot(327,117,4,'rgba(255,60,60,0.65)');
+   L += this.isoCircle(300,90,8,D+'0.55)',1.5);
+   L += this.isoDot(300,90,2.5,D+'0.4)');
+   L += this.isoLine(245,700,355,700,D+'0.65)',2,'stroke-dasharray="6 4"');
+  } else if(s==='Quemados') {
+   // 12m x 6m court with central line and 2 teams
+   L += this.isoRect(120,80,360,640,D+'0.65)',2);
+   L += this.isoLine(120,400,480,400,D+'0.75)',2.5);
+   L += this.isoLine(120,160,480,160,D+'0.35)',1,'stroke-dasharray="4 3"');
+   L += this.isoLine(120,640,480,640,D+'0.35)',1,'stroke-dasharray="4 3"');
+  } else if(s==='Ponchados') {
+   // Circular 14m diameter arena with central poncher
+   L += this.isoCircle(300,400,280,D+'0.65)',2);
+   L += this.isoCircle(300,400,60,D+'0.5)',1.5,'stroke-dasharray="5 4"');
+   L += this.isoDot(300,400,6,D+'0.35)');
+  } else if(s==='Yermis') {
+   // 10m x 10m area + central tin pyramid + 2 throw lines
+   L += this.isoRect(90,150,420,500,D+'0.5)',1.5,'stroke-dasharray="6 4"');
+   const tins=[[300,395],[290,410],[310,410],[280,425],[300,425],[320,425],[290,440],[310,440],[300,455]];
+   for(const[x,y] of tins) L += this.isoFilledRect(x-5,y-4,10,8,'rgba(139,90,43,0.55)',D+'0.55)',0.6);
+   L += this.isoCircle(300,425,55,D+'0.35)',1,'stroke-dasharray="3 3"');
+   L += this.isoLine(150,600,450,600,D+'0.65)',2,'stroke-dasharray="6 4"');
+   L += this.isoLine(150,220,450,220,D+'0.65)',2,'stroke-dasharray="6 4"');
+  } else if(s==='Ultimate Frisbee') {
+   // 100m x 37m field with 2 end zones 18m + center
+   L += this.isoRect(165,40,270,720,D+'0.65)',2);
+   L += this.isoFilledRect(165,40,270,130,'rgba(255,60,60,0.08)','none',0);
+   L += this.isoFilledRect(165,630,270,130,'rgba(80,120,255,0.08)','none',0);
+   L += this.isoLine(165,170,435,170,D+'0.65)',2);
+   L += this.isoLine(165,630,435,630,D+'0.65)',2);
+   L += this.isoDot(300,400,4,D+'0.3)');
+  } else if(s==='Floorball') {
+   // 40m x 20m rink (rounded corners r=18) + central circle + goal areas
+   L += this.isoRoundedRect(300,400,360,720,18,D+'0.65)',2);
+   L += this.isoLine(120,400,480,400,D+'0.65)',2);
+   L += this.isoDot(300,400,4,D+'0.35)');
+   L += this.isoCircle(300,400,26,D+'0.45)',1,'stroke-dasharray="4 3"');
+   // Top goal area + crease + goal
+   L += this.isoRect(210,155,180,90,D+'0.65)',1.5);
+   L += this.isoRect(255,103,90,52,D+'0.65)',1.5);
+   L += this.isoFilledRect(276,85,48,18,'rgba(255,60,60,0.25)',D+'0.65)',1.5);
+   L += this.isoDot(265,180,3,D+'0.4)');
+   L += this.isoDot(335,180,3,D+'0.4)');
+   // Bottom goal area + crease + goal
+   L += this.isoRect(210,555,180,90,D+'0.65)',1.5);
+   L += this.isoRect(255,645,90,52,D+'0.65)',1.5);
+   L += this.isoFilledRect(276,697,48,18,'rgba(80,120,255,0.25)',D+'0.65)',1.5);
+   L += this.isoDot(265,620,3,D+'0.4)');
+   L += this.isoDot(335,620,3,D+'0.4)');
   } else {
    // Generic: center line + dot
    L += this.isoLine(0,400,600,400,D+'0.35)',1);

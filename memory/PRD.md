@@ -9,6 +9,25 @@
 
 ## Implementado
 
+### Renders 3D completos para 10+ deportes faltantes (Feb 2026)
+- **Helpers nuevos**: `isoEllipse(cx,cy,rx,ry)`, `isoRoundedRect(cx,cy,w,h,r)` para construir pistas stadium y ovales
+- **Atletismo/Maraton 3D**: pista estadio con 8 carriles concentricos (antes circulos pequeños)
+- **Patinaje Velocidad 3D**: pista estadio 400m con 2 carriles
+- **Patinaje Artistico 3D**: rounded rect 60x30m
+- **Ciclismo 3D**: velodromo eliptico (antes era circular incorrectamente)
+- **Beisbol 3D**: outfield arc (radio 300, centro 300,620), grass arc (175), diamante con 4 bases, home plate, monticulo
+- **Skateboarding 3D**: ledge + funbox
+- **Minitejo 3D**: cancha + caja 50x50 + bocin + 4 mechas + linea lanzamiento
+- **Rana 3D**: mesa 80x80 + sapo central + 7 agujeros + linea
+- **Bolo Criollo 3D**: cancha 26x4m + 9 bolos en rombo + linea tiro
+- **Tejo 3D**: cancha + caja 1m + bocin + 4 mechas
+- **Quemados 3D**: cancha + linea central + zonas salvacion
+- **Ponchados 3D**: arena circular + ponchador central
+- **Yermis 3D**: area + piramide de tapas + 2 lineas lanzamiento
+- **Ultimate Frisbee 3D**: cancha + 2 end zones
+- **Floorball 3D**: pista rounded corners (r=18) + circulo central + 2 areas porteria con porterias
+- **Fix joystick**: label "CAMARA 3D" ocultado (los 4 presets con tooltip son autoexplicativos), ya no se superpone con el preset "front"
+
 ### Correcciones de renderizado 3D (Feb 2026)
 - **Fix arcos penal Futbol 3D**: radio corregido de 55 a 100 (en 2D el `A55 55` se autoescala por la distancia de 200 entre puntos). Ángulos ajustados a 0-180 y 180-360 para sobresalir hacia el medio campo.
 - **Fix arcos elipticos Balonmano 3D**: 6m ahora usa `isoEllipseArc(300,40,144,108,...)` y 9m `isoEllipseArc(300,40,216,162,...)` en lugar de circulos, coincidiendo con el SVG 2D.
