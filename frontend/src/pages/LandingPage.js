@@ -238,22 +238,22 @@ const MarqueeStrip = ({ t }) => {
     'KARVONEN', t('landing.marquee.m_competition')
   ];
   return (
-    <div className="overflow-hidden py-3 bg-slate-900 border-t border-b border-slate-800">
-      <div className="flex animate-marquee whitespace-nowrap">
-        {[...Array(2)].map((_, rep) => (
+    <div className="overflow-hidden py-4 bg-gradient-to-r from-[#0a0f19] via-[#1a2033] to-[#0a0f19] border-y border-[#CCFF00]/20" style={{maskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)',WebkitMaskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)'}}>
+      <div className="flex animate-marquee-slow whitespace-nowrap">
+        {[...Array(3)].map((_, rep) => (
           <React.Fragment key={rep}>
             {items.map((txt, i) => (
-              <span key={`${rep}-${i}`} className="inline-flex items-center gap-3 mx-4">
-                <span className="w-2 h-2 rounded-full bg-[#CCFF00]" />
-                <span className="text-[11px] font-bold tracking-[0.15em] text-slate-500" style={{fontFamily:BC}}>{txt}</span>
+              <span key={`${rep}-${i}`} className="inline-flex items-center gap-4 px-5 text-[22px] md:text-[28px] font-black uppercase tracking-[0.08em]" style={{fontFamily:BC}}>
+                <span className={i % 3 === 0 ? 'text-[#CCFF00]' : 'text-white/40'}>{txt}</span>
+                <span className="text-[#CCFF00]/40 text-[14px]">●</span>
               </span>
             ))}
           </React.Fragment>
         ))}
       </div>
       <style>{`
-        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .animate-marquee { animation: marquee 30s linear infinite; display: flex; width: max-content; }
+        @keyframes marquee-slow { 0% { transform: translateX(0); } 100% { transform: translateX(-33.333%); } }
+        .animate-marquee-slow { animation: marquee-slow 90s linear infinite; display: flex; width: max-content; }
       `}</style>
     </div>
   );
@@ -576,25 +576,32 @@ const LandingPage = () => {
         <MarqueeStrip t={t} />
       </div>
 
-      {/* Stats strip */}
-      <div className="border-t border-slate-800/40 bg-slate-900/50 backdrop-blur-sm">
-        <div className="max-w-[1120px] mx-auto px-6 py-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[{v:'17',k:'models'},{v:'6',k:'controls'},{v:'150+',k:'exercises'},{v:'5',k:'calculators'}].map((s,i) => (
-              <div key={i} className="flex items-center gap-3">
-                <span className="text-[22px] font-black text-white leading-none" style={{fontFamily:BC}}>{s.v}</span>
-                <span className="text-[12px] text-slate-500 leading-snug">{t(`landing.hero.stats.${s.k}`)}</span>
-              </div>
-            ))}
-          </div>
+      {/* Stats strip — marquee animado */}
+      <div className="border-t border-slate-800/40 bg-slate-900/50 backdrop-blur-sm overflow-hidden py-4" style={{maskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)',WebkitMaskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)'}}>
+        <div className="flex animate-stats-marquee whitespace-nowrap">
+          {[...Array(4)].map((_, rep) => (
+            <React.Fragment key={rep}>
+              {[{v:'17',k:'models'},{v:'6',k:'controls'},{v:'150+',k:'exercises'},{v:'5',k:'calculators'},{v:'30+',l:'Deportes'},{v:'12',l:'Periodizaciones'}].map((s,i) => (
+                <span key={`${rep}-${i}`} className="inline-flex items-center gap-3 px-8">
+                  <span className="text-[28px] md:text-[34px] font-black text-[#CCFF00] leading-none" style={{fontFamily:BC}}>{s.v}</span>
+                  <span className="text-[22px] md:text-[28px] font-black uppercase tracking-[0.08em] text-white/55 leading-none" style={{fontFamily:BC}}>{s.k ? t(`landing.hero.stats.${s.k}`) : s.l}</span>
+                  <span className="text-[#CCFF00]/40 text-[14px] ml-3">●</span>
+                </span>
+              ))}
+            </React.Fragment>
+          ))}
         </div>
+        <style>{`
+          @keyframes stats-marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-25%); } }
+          .animate-stats-marquee { animation: stats-marquee 100s linear infinite; display: flex; width: max-content; }
+        `}</style>
       </div>
     </section>
 
     {/* MARQUEE SCROLLING — Palabras moviéndose */}
     <section className="relative bg-gradient-to-r from-[#0a0f19] via-[#1a2033] to-[#0a0f19] border-y border-[#CCFF00]/20 overflow-hidden" data-testid="marquee-section">
       <div className="relative flex overflow-hidden py-5" style={{maskImage:'linear-gradient(90deg,transparent,black 8%,black 92%,transparent)',WebkitMaskImage:'linear-gradient(90deg,transparent,black 8%,black 92%,transparent)'}}>
-        <div className="flex shrink-0 whitespace-nowrap animate-[marquee_35s_linear_infinite]">
+        <div className="flex shrink-0 whitespace-nowrap animate-[marquee_90s_linear_infinite]">
           {[
             'FUTBOL','BALONCESTO','VOLEIBOL','TENIS','TEJO','RANA','BOLIRANA','BOCHAS','PETANCA','MINITEJO','RUGBY','HOCKEY','HANDBALL','BEISBOL','FUTSAL','PADEL',
             'BADMINTON','SQUASH','GOLF','TIRO CON ARCO','DARDOS','TIRO DEPORTIVO','BOLICHE','BOLO CRIOLLO','ESCALADA','ATLETISMO','CICLISMO','NATACION','BOXEO','KARATE','MMA','JUDO','TAEKWONDO'
@@ -612,8 +619,19 @@ const LandingPage = () => {
       <style>{`@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}`}</style>
     </section>
 
-    {/* MINIATURAS CANCHAS — Jugadas de deportes soportados */}
+    {/* MINIATURAS CANCHAS — Jugadas animadas estilo pizarrón */}
     <section className="py-16 px-6 bg-slate-950 relative overflow-hidden" data-testid="sport-courts-gallery">
+      <style>{`
+        @keyframes sport-ball { 0%,15% { transform: translate(0,0); opacity:0 } 20%,80% { opacity:1 } 50% { transform: translate(var(--bx,15px), var(--by,-20px)) } 85%,100% { transform: translate(var(--bx2,30px), var(--by2,-30px)); opacity:0 } }
+        @keyframes sport-player { 0%,20% { transform: translate(0,0) } 60%,100% { transform: translate(var(--px,10px), var(--py,-12px)) } }
+        @keyframes sport-arrow { 0%,30% { stroke-dashoffset: 100 } 70%,100% { stroke-dashoffset: 0 } }
+        @keyframes sport-pulse { 0%,100% { opacity:0.6 } 50% { opacity:1 } }
+        .sport-card { will-change: transform }
+        .sport-card svg .anim-ball { animation: sport-ball 4s ease-in-out infinite }
+        .sport-card svg .anim-player { animation: sport-player 4s ease-in-out infinite }
+        .sport-card svg .anim-arrow { stroke-dasharray:100; animation: sport-arrow 4s ease-in-out infinite }
+        .sport-card svg .anim-pulse { animation: sport-pulse 1.8s ease-in-out infinite }
+      `}</style>
       <div className="max-w-[1120px] mx-auto relative z-10">
         <Reveal direction="up" className="text-center mb-10">
           <SectionTag>Pizarra Multi-Deporte</SectionTag>
@@ -621,37 +639,40 @@ const LandingPage = () => {
           <p className="text-slate-400 text-[14px] max-w-[520px] mx-auto">Canchas con medidas oficiales, renderizado 3D y físicas de precisión para cada disciplina.</p>
         </Reveal>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {[
-            {name:'Fútbol', bg:'#16a34a', svg:'<rect x="4" y="4" width="92" height="132" fill="#15803d" stroke="#fff" stroke-width="1.2"/><line x1="4" y1="70" x2="96" y2="70" stroke="#fff" stroke-width="1"/><circle cx="50" cy="70" r="11" fill="none" stroke="#fff" stroke-width="1"/><rect x="32" y="4" width="36" height="18" fill="none" stroke="#fff" stroke-width="1"/><rect x="32" y="118" width="36" height="18" fill="none" stroke="#fff" stroke-width="1"/><circle cx="35" cy="60" r="4" fill="#3b82f6"/><circle cx="65" cy="75" r="4" fill="#3b82f6"/><circle cx="50" cy="90" r="4" fill="#dc2626"/><circle cx="50" cy="70" r="2.5" fill="#fbbf24"/><path d="M 35,60 Q 50,55 65,75" stroke="#fbbf24" stroke-width="1.2" fill="none" stroke-dasharray="3 2"/>'},
-            {name:'Baloncesto', bg:'#d97706', svg:'<rect x="4" y="4" width="92" height="132" fill="#b45309" stroke="#fff" stroke-width="1.2"/><line x1="4" y1="70" x2="96" y2="70" stroke="#fff" stroke-width="1"/><circle cx="50" cy="70" r="8" fill="none" stroke="#fff" stroke-width="1"/><path d="M 30,4 Q 50,35 70,4" fill="none" stroke="#fff" stroke-width="1"/><path d="M 30,136 Q 50,105 70,136" fill="none" stroke="#fff" stroke-width="1"/><circle cx="40" cy="55" r="3.5" fill="#dc2626"/><circle cx="55" cy="65" r="3.5" fill="#dc2626"/><circle cx="50" cy="25" r="2" fill="#fb923c"/><path d="M 40,55 Q 48,40 50,25" stroke="#fbbf24" stroke-width="1.2" fill="none" stroke-dasharray="3 2"/>'},
-            {name:'Voleibol', bg:'#0284c7', svg:'<rect x="4" y="4" width="92" height="132" fill="#0369a1" stroke="#fff" stroke-width="1.2"/><line x1="4" y1="70" x2="96" y2="70" stroke="#fff" stroke-width="2"/><line x1="4" y1="40" x2="96" y2="40" stroke="#fff" stroke-width="0.8" stroke-dasharray="3 2"/><line x1="4" y1="100" x2="96" y2="100" stroke="#fff" stroke-width="0.8" stroke-dasharray="3 2"/><circle cx="32" cy="25" r="3" fill="#fbbf24"/><circle cx="50" cy="25" r="3" fill="#fbbf24"/><circle cx="68" cy="25" r="3" fill="#fbbf24"/><circle cx="50" cy="70" r="2.5" fill="#fff"/>'},
-            {name:'Tejo', bg:'#a57856', svg:'<rect x="25" y="4" width="50" height="132" fill="#8b6345" stroke="#fff" stroke-width="1"/><rect x="38" y="12" width="24" height="24" fill="#2563eb" stroke="#fff" stroke-width="1"/><circle cx="50" cy="24" r="3" fill="#b8860b" stroke="#fff" stroke-width="0.6"/><circle cx="42" cy="60" r="3.5" fill="#94a3b8"/><circle cx="58" cy="80" r="3.5" fill="#94a3b8"/><circle cx="50" cy="105" r="3.5" fill="#dc2626"/><line x1="25" y1="125" x2="75" y2="125" stroke="#fff" stroke-width="1" stroke-dasharray="3 2"/>'},
-            {name:'Bolirana', bg:'#15803d', svg:'<rect x="30" y="4" width="40" height="132" fill="#166534" stroke="#fff" stroke-width="1"/><rect x="34" y="10" width="32" height="24" fill="#0a0f19" stroke="#fbbf24" stroke-width="0.8"/><ellipse cx="50" cy="20" rx="6" ry="4" fill="#dc2626"/><circle cx="42" cy="50" r="2.5" fill="#000"/><circle cx="50" cy="50" r="2.5" fill="#000"/><circle cx="58" cy="50" r="2.5" fill="#000"/><circle cx="42" cy="65" r="2.5" fill="#000"/><circle cx="50" cy="65" r="3.5" fill="#b8860b"/><circle cx="58" cy="65" r="2.5" fill="#000"/><circle cx="42" cy="80" r="2.5" fill="#000"/><circle cx="50" cy="80" r="2.5" fill="#000"/><circle cx="58" cy="80" r="2.5" fill="#000"/>'},
-            {name:'Rana', bg:'#16a34a', svg:'<rect x="4" y="4" width="92" height="132" fill="#166534" stroke="#fff" stroke-width="1"/><rect x="30" y="40" width="40" height="50" fill="#0a0f19" stroke="#b8860b" stroke-width="1"/><ellipse cx="50" cy="62" rx="10" ry="8" fill="#dc2626" stroke="#fff" stroke-width="0.8"/><circle cx="45" cy="57" r="1.5" fill="#fff"/><circle cx="55" cy="57" r="1.5" fill="#fff"/><path d="M 45,66 Q 50,70 55,66" stroke="#000" stroke-width="0.8" fill="none"/><circle cx="38" cy="110" r="3" fill="#94a3b8"/><circle cx="55" cy="115" r="3" fill="#94a3b8"/>'},
-            {name:'Tenis', bg:'#059669', svg:'<rect x="4" y="4" width="92" height="132" fill="#047857" stroke="#fff" stroke-width="1.2"/><line x1="4" y1="70" x2="96" y2="70" stroke="#fff" stroke-width="1.5"/><line x1="18" y1="40" x2="82" y2="40" stroke="#fff" stroke-width="0.8"/><line x1="18" y1="100" x2="82" y2="100" stroke="#fff" stroke-width="0.8"/><line x1="50" y1="40" x2="50" y2="100" stroke="#fff" stroke-width="0.8"/><circle cx="35" cy="50" r="3" fill="#fbbf24"/><circle cx="65" cy="90" r="3" fill="#fbbf24"/>'},
-            {name:'Petanca', bg:'#a16207', svg:'<rect x="4" y="4" width="92" height="132" fill="#854d0e" stroke="#fff" stroke-width="1"/><circle cx="50" cy="70" r="3" fill="#fbbf24"/><circle cx="35" cy="50" r="4" fill="#b91c1c"/><circle cx="65" cy="55" r="4" fill="#b91c1c"/><circle cx="40" cy="85" r="4" fill="#1e40af"/><circle cx="62" cy="90" r="4" fill="#1e40af"/><circle cx="48" cy="105" r="4" fill="#1e40af"/>'},
-            {name:'Rugby', bg:'#166534', svg:'<rect x="4" y="4" width="92" height="132" fill="#15803d" stroke="#fff" stroke-width="1.2"/><line x1="4" y1="24" x2="96" y2="24" stroke="#fff" stroke-width="1"/><line x1="4" y1="116" x2="96" y2="116" stroke="#fff" stroke-width="1"/><line x1="4" y1="70" x2="96" y2="70" stroke="#fff" stroke-width="0.8" stroke-dasharray="4 3"/><path d="M 44,60 L 56,65 L 56,75 L 44,80 Z" fill="#78350f" stroke="#fff" stroke-width="0.6"/><circle cx="30" cy="60" r="3.5" fill="#dc2626"/><circle cx="70" cy="80" r="3.5" fill="#2563eb"/>'},
-            {name:'Hockey', bg:'#1e40af', svg:'<rect x="4" y="4" width="92" height="132" fill="#1e3a8a" stroke="#fff" stroke-width="1.2"/><line x1="4" y1="70" x2="96" y2="70" stroke="#fff" stroke-width="1"/><circle cx="50" cy="70" r="6" fill="none" stroke="#fff" stroke-width="0.8"/><rect x="35" y="4" width="30" height="10" fill="none" stroke="#fff" stroke-width="1"/><rect x="35" y="126" width="30" height="10" fill="none" stroke="#fff" stroke-width="1"/><circle cx="45" cy="50" r="2.5" fill="#dc2626"/><path d="M 43,48 L 39,42" stroke="#0f172a" stroke-width="1.8"/><circle cx="55" cy="90" r="2.5" fill="#f59e0b"/>'},
+            {name:'Fútbol', svg:`<defs><linearGradient id="gradFld" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#14a34a"/><stop offset="100%" stop-color="#0d5c2a"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradFld)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="70" x2="97" y2="70"/><circle cx="50" cy="70" r="10"/><circle cx="50" cy="70" r="0.8" fill="#fff"/><rect x="28" y="3" width="44" height="16"/><rect x="36" y="3" width="28" height="6"/><rect x="28" y="121" width="44" height="16"/><rect x="36" y="131" width="28" height="6"/><path d="M 28,19 Q 50,28 72,19"/><path d="M 28,121 Q 50,112 72,121"/></g><line class="anim-arrow" x1="35" y1="95" x2="65" y2="55" stroke="#fbbf24" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="3 2"/><circle cx="35" cy="95" r="3.2" fill="#3b82f6" stroke="#fff" stroke-width="0.8"/><circle cx="65" cy="55" r="3.2" fill="#3b82f6" stroke="#fff" stroke-width="0.8"/><circle cx="50" cy="115" r="3.2" fill="#dc2626" stroke="#fff" stroke-width="0.8"/><circle cx="35" cy="95" r="1.5" fill="#fff" stroke="#000" stroke-width="0.2" class="anim-ball" style="--bx:30px;--by:-40px;--bx2:38px;--by2:-45px"/>`},
+            {name:'Baloncesto', svg:`<defs><linearGradient id="gradBsk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e07a30"/><stop offset="100%" stop-color="#8b4414"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradBsk)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="70" x2="97" y2="70"/><circle cx="50" cy="70" r="9"/><path d="M 3,3 Q 50,24 97,3"/><path d="M 3,137 Q 50,116 97,137"/><rect x="34" y="3" width="32" height="22"/><rect x="34" y="115" width="32" height="22"/><circle cx="50" cy="25" r="5"/><circle cx="50" cy="115" r="5"/></g><circle cx="50" cy="14" r="1.5" fill="#ff6b35"/><circle cx="50" cy="126" r="1.5" fill="#ff6b35"/><line class="anim-arrow" x1="32" y1="85" x2="55" y2="55" stroke="#fbbf24" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="3 2"/><circle cx="32" cy="85" r="3.2" fill="#dc2626" stroke="#fff" stroke-width="0.8"/><circle cx="55" cy="55" r="3.2" fill="#dc2626" stroke="#fff" stroke-width="0.8"/><circle cx="45" cy="100" r="3.2" fill="#1e3a8a" stroke="#fff" stroke-width="0.8"/><circle cx="32" cy="85" r="1.8" fill="#ff6b35" stroke="#7c2d12" stroke-width="0.3" class="anim-ball" style="--bx:23px;--by:-30px;--bx2:33px;--by2:-45px"/>`},
+            {name:'Voleibol', svg:`<defs><linearGradient id="gradVly" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0891b2"/><stop offset="100%" stop-color="#0c4a6e"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradVly)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="70" x2="97" y2="70" stroke-width="1.5"/><line x1="3" y1="44" x2="97" y2="44" stroke-dasharray="3 2"/><line x1="3" y1="96" x2="97" y2="96" stroke-dasharray="3 2"/></g><rect x="3" y="68" width="94" height="4" fill="#fff" opacity="0.3"/><line x1="3" y1="68" x2="97" y2="68" stroke="#fff" stroke-width="0.3"/><line x1="3" y1="72" x2="97" y2="72" stroke="#fff" stroke-width="0.3"/><circle cx="30" cy="22" r="3" fill="#fbbf24" stroke="#000" stroke-width="0.3"/><circle cx="50" cy="22" r="3" fill="#fbbf24" stroke="#000" stroke-width="0.3"/><circle cx="70" cy="22" r="3" fill="#fbbf24" stroke="#000" stroke-width="0.3"/><circle cx="30" cy="118" r="3" fill="#dc2626" stroke="#000" stroke-width="0.3"/><circle cx="50" cy="118" r="3" fill="#dc2626" stroke="#000" stroke-width="0.3"/><circle cx="70" cy="118" r="3" fill="#dc2626" stroke="#000" stroke-width="0.3"/><circle cx="50" cy="35" r="2.5" fill="#fff" stroke="#fbbf24" stroke-width="0.5" class="anim-ball" style="--bx:0px;--by:55px;--bx2:0px;--by2:60px"/>`},
+            {name:'Tejo', svg:`<defs><linearGradient id="gradTej" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c99568"/><stop offset="100%" stop-color="#7a5635"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradTej)"/><rect x="25" y="3" width="50" height="134" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="0.8"/><rect x="37" y="10" width="26" height="26" fill="#1e3a8a" stroke="#fff" stroke-width="0.8"/><line x1="37" y1="36" x2="63" y2="10" stroke="#dc2626" stroke-width="0.8" opacity="0.75"/><line x1="37" y1="10" x2="63" y2="36" stroke="#dc2626" stroke-width="0.8" opacity="0.75"/><circle cx="50" cy="23" r="3.5" fill="#2d1508" stroke="#d4a017" stroke-width="0.8"/><line class="anim-arrow" x1="50" y1="110" x2="50" y2="30" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="2 2"/><circle cx="42" cy="70" r="3.5" fill="#94a3b8" stroke="#0f172a" stroke-width="0.6"/><circle cx="58" cy="85" r="3.5" fill="#dc2626" stroke="#0f172a" stroke-width="0.6"/><circle cx="50" cy="110" r="4" fill="#94a3b8" stroke="#0f172a" stroke-width="0.8" class="anim-ball" style="--bx:0px;--by:-80px;--bx2:0px;--by2:-87px"/><line x1="25" y1="125" x2="75" y2="125" stroke="#fff" stroke-width="0.8" stroke-dasharray="3 2"/>`},
+            {name:'Bolirana', svg:`<defs><linearGradient id="gradBol" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#064e2b"/><stop offset="100%" stop-color="#022017"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradBol)"/><rect x="28" y="8" width="44" height="124" fill="#166534" stroke="#0f4023" stroke-width="0.8" rx="2"/><rect x="32" y="14" width="36" height="26" fill="#0a0f19" stroke="#fbbf24" stroke-width="0.6"/><ellipse cx="50" cy="26" rx="8" ry="5" fill="#dc2626"/><ellipse cx="48" cy="22" rx="6" ry="3" fill="#b91c1c"/><circle cx="46" cy="20" r="0.9" fill="#fca5a5"/><circle cx="52" cy="20" r="0.9" fill="#fca5a5"/><g><circle cx="40" cy="50" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="50" cy="50" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="60" cy="50" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="40" cy="65" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="60" cy="65" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="40" cy="80" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="50" cy="80" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="60" cy="80" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/></g><circle cx="50" cy="65" r="3.2" fill="#d4a017" stroke="#78350f" stroke-width="0.5"/><text x="50" y="66.5" text-anchor="middle" font-size="2.2" fill="#0a0a0a" font-weight="900" font-family="Arial">SAPO</text><circle cx="50" cy="115" r="2.6" fill="#94a3b8" stroke="#0f172a" stroke-width="0.5" class="anim-ball" style="--bx:0px;--by:-50px;--bx2:0px;--by2:-55px"/>`},
+            {name:'Rana', svg:`<defs><linearGradient id="gradRna" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#166534"/><stop offset="100%" stop-color="#052e16"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradRna)"/><rect x="30" y="42" width="40" height="50" fill="#0a0f19" stroke="#d4a017" stroke-width="1"/><ellipse cx="50" cy="65" rx="11" ry="9" fill="#b91c1c" stroke="#fff" stroke-width="0.6"/><circle cx="45" cy="60" r="2" fill="#fff"/><circle cx="55" cy="60" r="2" fill="#fff"/><circle cx="45" cy="60.5" r="0.9" fill="#000"/><circle cx="55" cy="60.5" r="0.9" fill="#000"/><ellipse cx="50" cy="70" rx="4" ry="2.5" fill="#1a0505"/><circle cx="35" cy="105" r="3.2" fill="#94a3b8" stroke="#0f172a" stroke-width="0.5" class="anim-pulse"/><circle cx="58" cy="115" r="3.2" fill="#94a3b8" stroke="#0f172a" stroke-width="0.5" class="anim-pulse"/><line class="anim-arrow" x1="50" y1="120" x2="50" y2="75" stroke="#fbbf24" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="2 2"/><circle cx="50" cy="120" r="3.8" fill="#c0c0c0" stroke="#0f172a" stroke-width="0.6" class="anim-ball" style="--bx:0px;--by:-50px;--bx2:0px;--by2:-55px"/>`},
+            {name:'Tenis', svg:`<defs><linearGradient id="gradTns" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#059669"/><stop offset="100%" stop-color="#014230"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradTns)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="10" y="10" width="80" height="120"/><line x1="10" y1="70" x2="90" y2="70" stroke-width="1.3"/><line x1="20" y1="35" x2="80" y2="35"/><line x1="20" y1="105" x2="80" y2="105"/><line x1="50" y1="35" x2="50" y2="105" stroke-dasharray="2 2"/><line x1="20" y1="10" x2="20" y2="130"/><line x1="80" y1="10" x2="80" y2="130"/></g><line class="anim-arrow" x1="35" y1="50" x2="65" y2="90" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="2 2"/><circle cx="35" cy="50" r="3.2" fill="#fbbf24"/><circle cx="65" cy="90" r="3.2" fill="#fbbf24"/><circle cx="50" cy="20" r="2.3" fill="#e4ff66" stroke="#000" stroke-width="0.3" class="anim-ball" style="--bx:-15px;--by:30px;--bx2:0px;--by2:60px"/>`},
+            {name:'Petanca', svg:`<defs><linearGradient id="gradPet" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a16207"/><stop offset="100%" stop-color="#451a03"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradPet)"/><rect x="5" y="5" width="90" height="130" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.4"/><circle cx="50" cy="70" r="2" fill="#fbbf24" stroke="#000" stroke-width="0.4" class="anim-pulse"/><circle cx="38" cy="55" r="4" fill="#b91c1c" stroke="#000" stroke-width="0.5"/><circle cx="38" cy="54" r="1.3" fill="#ef4444" opacity="0.6"/><circle cx="62" cy="58" r="4" fill="#b91c1c" stroke="#000" stroke-width="0.5"/><circle cx="62" cy="57" r="1.3" fill="#ef4444" opacity="0.6"/><circle cx="42" cy="82" r="4" fill="#1e40af" stroke="#000" stroke-width="0.5"/><circle cx="42" cy="81" r="1.3" fill="#3b82f6" opacity="0.6"/><circle cx="58" cy="85" r="4" fill="#1e40af" stroke="#000" stroke-width="0.5"/><circle cx="58" cy="84" r="1.3" fill="#3b82f6" opacity="0.6"/><circle cx="48" cy="105" r="4" fill="#1e40af" stroke="#000" stroke-width="0.5"/><line class="anim-arrow" x1="48" y1="105" x2="50" y2="70" stroke="#fbbf24" stroke-width="1" stroke-dasharray="2 2"/>`},
+            {name:'Rugby', svg:`<defs><linearGradient id="gradRgb" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#16a34a"/><stop offset="100%" stop-color="#14532d"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradRgb)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="22" x2="97" y2="22"/><line x1="3" y1="118" x2="97" y2="118"/><line x1="3" y1="70" x2="97" y2="70" stroke-dasharray="3 2"/><line x1="3" y1="35" x2="97" y2="35" stroke-dasharray="1 2"/><line x1="3" y1="105" x2="97" y2="105" stroke-dasharray="1 2"/></g><ellipse cx="50" cy="70" rx="4.5" ry="7" fill="#78350f" stroke="#fff" stroke-width="0.6" transform="rotate(15 50 70)"/><line class="anim-arrow" x1="30" y1="55" x2="70" y2="85" stroke="#fbbf24" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="3 2"/><circle cx="30" cy="55" r="3.2" fill="#dc2626" stroke="#fff" stroke-width="0.6"/><circle cx="70" cy="85" r="3.2" fill="#2563eb" stroke="#fff" stroke-width="0.6"/>`},
           ].map((sport, i) => (
-            <a key={i} href="/tactical-board.html" className="group relative rounded-2xl overflow-hidden border border-slate-800 hover:border-[#CCFF00]/50 transition-all hover:scale-[1.03] hover:shadow-[0_10px_28px_-6px_rgba(204,255,0,0.22)]" data-testid={`sport-card-${sport.name.toLowerCase()}`}>
+            <a key={i} href="/tactical-board.html" className="sport-card group relative rounded-2xl overflow-hidden border border-slate-800 hover:border-[#CCFF00]/60 transition-all hover:scale-[1.04] hover:shadow-[0_14px_32px_-6px_rgba(204,255,0,0.28)]" data-testid={`sport-card-${sport.name.toLowerCase()}`}>
               <div className="aspect-[3/4] relative">
-                <svg viewBox="0 0 100 140" className="w-full h-full block" preserveAspectRatio="xMidYMid meet" dangerouslySetInnerHTML={{__html: sport.svg}} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"/>
+                <svg viewBox="0 0 100 140" className="w-full h-full block" preserveAspectRatio="xMidYMid slice" dangerouslySetInnerHTML={{__html: sport.svg}} />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/15 pointer-events-none"/>
+                <div className="absolute top-2 right-2 flex items-center gap-1.5 px-2 py-1 rounded-md bg-black/55 backdrop-blur-sm border border-[#CCFF00]/25">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#CCFF00] animate-pulse"/>
+                  <span className="text-[8px] font-bold uppercase tracking-[0.12em] text-[#CCFF00]" style={{fontFamily:BC}}>LIVE</span>
+                </div>
                 <div className="absolute bottom-0 left-0 right-0 p-3 flex items-center justify-between">
-                  <span className="text-[13px] font-black text-white uppercase tracking-[0.05em]" style={{fontFamily:BC}}>{sport.name}</span>
-                  <ArrowRight className="w-4 h-4 text-[#CCFF00] opacity-0 group-hover:opacity-100 transition-opacity"/>
+                  <span className="text-[13px] font-black text-white uppercase tracking-[0.06em]" style={{fontFamily:BC}}>{sport.name}</span>
+                  <ArrowRight className="w-4 h-4 text-[#CCFF00] transition-transform group-hover:translate-x-0.5"/>
                 </div>
               </div>
             </a>
           ))}
         </div>
-        <div className="text-center mt-8">
-          <Link to="/tactical-board.html">
+        <div className="text-center mt-10">
+          <a href="/tactical-board.html">
             <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] h-11 px-7 text-[13px] font-bold rounded-xl" style={{fontFamily:BC}} data-testid="explore-all-sports-btn">
               Explorar pizarra táctica <ArrowRight className="w-4 h-4 ml-2"/>
             </Button>
-          </Link>
+          </a>
         </div>
       </div>
     </section>
