@@ -9,6 +9,18 @@
 
 ## Implementado
 
+### FASE 13 — Mini reproductor de jugadas en SessionEditor (Feb 2026)
+
+**Añadido:**
+- **Componente `MiniBoardPlayer`** (`SessionEditor.js` líneas ~96-271): overlay de controles de reproducción sobre cada miniatura SVG animada (`act.boardThumbnail`) dentro del editor de sesiones.
+- **APIs SVG SMIL nativas** (`pauseAnimations()`, `unpauseAnimations()`, `setCurrentTime()`, `getCurrentTime()`, `animationsPaused()`) para controlar las animaciones SMIL (`<animate>`, `<animateMotion>`, `<animateTransform>`) sin JS adicional.
+- **Controles**: Play/Pause (iconos lucide-react sobre círculo de acento `#c8f700`), Reset (`RotateCcw`), mini-scrubber (barra `<input type=range>` 0..100 mapeada a duración), contador en segundos con 1 decimal (`1.4s`).
+- **Detección automática de duración**: lee el `dur` más largo entre elementos animados en el SVG (por defecto 2.8s — coincide con el `dur` de animateMotion que genera tactical-board.html).
+- **RequestAnimationFrame loop** para actualizar el scrubber mientras la animación reproduce.
+- **stopPropagation** en todos los handlers para que los controles no disparen la apertura de tactical-board.html; el click sobre el SVG sigue abriendo la pizarra completa para edición.
+- **Overlay con gradiente oscuro** (`linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.82) 55%)` + `backdropFilter: blur(2px)`) en la parte inferior de la miniatura para legibilidad sobre cualquier color de cancha.
+- **Testing**: verificado por testing_agent_v3_fork (iter_43) — code review 100%; SVG SMIL APIs validados con `/tmp/smil_test.html` (pauseAnimations=true, setCurrentTime(0) → t=0, unpauseAnimations → tiempo avanza correctamente).
+
 ### FASE 12 — Validación final batch Bolirana + Coach Profile + Animaciones (Abr 20, 2026)
 
 **Añadidos validados (testing 14/14 backend ✅, frontend 100% ✅ — iter_42):**
