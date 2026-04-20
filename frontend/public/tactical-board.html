@@ -3011,63 +3011,141 @@ checkKnockdowns(movingEl, prevX, prevY) {
   }
 
 
-  // TEJO: mesa de arcilla 3D (1m x 1m) elevada con bocín central y 4 mechas
+  // TEJO PROFESIONAL 3D: estructura tipo rampa inclinada azul con respaldo vertical verde
+  // Referencia oficial: caja trapezoidal, superficie inclinada (donde cae el tejo en la arcilla),
+  // panel trasero alto verde claro para detener los rebotes. Cancha 19.5m, bocín 17cm.
   if(s==='Tejo') {
-   const bx=260, by=50, bw=80, bh=80;
-   const boxH = 18; // altura reducida de la caja de arcilla
-   // Caja de arcilla: lados
-   const c1b=this.toIso(bx,by+bh,0), c2b=this.toIso(bx+bw,by+bh,0);
-   const c3b=this.toIso(bx+bw,by,0);
-   const c1t=this.toIso(bx,by+bh,boxH), c2t=this.toIso(bx+bw,by+bh,boxH), c3t=this.toIso(bx+bw,by,boxH);
-   O += `<polygon points="${c1b.x},${c1b.y} ${c2b.x},${c2b.y} ${c2t.x},${c2t.y} ${c1t.x},${c1t.y}" fill="#8b4513" stroke="#3a1a05" stroke-width="1.2"/>`;
-   O += `<polygon points="${c2b.x},${c2b.y} ${c3b.x},${c3b.y} ${c3t.x},${c3t.y} ${c2t.x},${c2t.y}" fill="#6b3410" stroke="#3a1a05" stroke-width="1.2"/>`;
-   // Superficie de arcilla marrón rojizo
-   const sp=[[bx,by],[bx+bw,by],[bx+bw,by+bh],[bx,by+bh]].map(([x,y])=>this.toIso(x,y,boxH));
-   O += `<polygon points="${sp.map(p=>`${p.x},${p.y}`).join(' ')}" fill="#a0531e" stroke="#6b3410" stroke-width="1.5"/>`;
-   // Textura granular (varios puntos)
-   for (let i=0; i<8; i++) {
-    const rx = bx + 8 + ((i*23)%(bw-16));
-    const ry = by + 8 + ((i*17)%(bh-16));
-    const pt = this.toIso(rx, ry, boxH + 0.3);
-    O += `<circle cx="${pt.x}" cy="${pt.y}" r="1.2" fill="rgba(90,40,10,0.45)"/>`;
+   // Posición del "cajón" (el blanco del tejo) centrado arriba
+   const bx = 245, by = 40, bw = 110, bh = 90;
+   const backH = 160;       // altura respaldo vertical
+   const frontH = 25;       // altura frontal (bajo)
+   // === Cuerpo trapezoidal azul (cara frontal inclinada) ===
+   // Frente vertical bajo
+   const fbl = this.toIso(bx, by+bh, 0), fbr = this.toIso(bx+bw, by+bh, 0);
+   const ftl = this.toIso(bx, by+bh, frontH), ftr = this.toIso(bx+bw, by+bh, frontH);
+   O += `<polygon points="${fbl.x},${fbl.y} ${fbr.x},${fbr.y} ${ftr.x},${ftr.y} ${ftl.x},${ftl.y}" fill="#1e3a8a" stroke="#0f1e4a" stroke-width="1.8"/>`;
+   // Lateral izquierdo (trapecio que sube desde frontH hasta backH)
+   const bbl = this.toIso(bx, by, 0), bbltop = this.toIso(bx, by, backH);
+   O += `<polygon points="${fbl.x},${fbl.y} ${bbl.x},${bbl.y} ${bbltop.x},${bbltop.y} ${ftl.x},${ftl.y}" fill="#1e40af" stroke="#0f1e4a" stroke-width="1.5"/>`;
+   // Lateral derecho
+   const bbr = this.toIso(bx+bw, by, 0), bbrtop = this.toIso(bx+bw, by, backH);
+   O += `<polygon points="${fbr.x},${fbr.y} ${bbr.x},${bbr.y} ${bbrtop.x},${bbrtop.y} ${ftr.x},${ftr.y}" fill="#172a6b" stroke="#0f1e4a" stroke-width="1.5"/>`;
+   // === Superficie inclinada turquesa (donde impacta el tejo, con textura de círculos) ===
+   const surfFL = ftl, surfFR = ftr;
+   const surfBL = bbltop, surfBR = bbrtop;
+   O += `<polygon points="${surfFL.x},${surfFL.y} ${surfFR.x},${surfFR.y} ${surfBR.x},${surfBR.y} ${surfBL.x},${surfBL.y}" fill="#22b8cc" stroke="#0f5a6b" stroke-width="1.8"/>`;
+   // Sombra interna sutil sobre la superficie para darle volumen
+   O += `<polygon points="${surfFL.x},${surfFL.y} ${surfFR.x},${surfFR.y} ${surfBR.x},${surfBR.y} ${surfBL.x},${surfBL.y}" fill="url(#tejoGrad)" opacity="0.3"/>`;
+   // Textura: círculos oscuros donde ha caído el tejo (desgaste típico del material)
+   const circleSpots = [[0.2,0.2],[0.55,0.15],[0.8,0.3],[0.3,0.45],[0.6,0.55],[0.85,0.65],[0.2,0.75],[0.5,0.8],[0.45,0.3],[0.7,0.45],[0.25,0.6],[0.65,0.85]];
+   for (const [tx,ty] of circleSpots) {
+    const sx2 = bx + tx*bw, sy2 = by + (ty*bh);
+    // Interpola altura entre frontH (en by+bh) y backH (en by)
+    const h = frontH + (1 - ty) * (backH - frontH);
+    const p = this.toIso(sx2, sy2, h);
+    O += `<ellipse cx="${p.x}" cy="${p.y}" rx="4.5" ry="3.2" fill="none" stroke="rgba(15,90,107,0.55)" stroke-width="0.7"/>`;
+    O += `<ellipse cx="${p.x}" cy="${p.y}" rx="2.5" ry="1.7" fill="none" stroke="rgba(15,90,107,0.35)" stroke-width="0.5"/>`;
    }
-   // Bocín central (círculo metálico dorado grande)
-   const bocinC = this.toIso(300, 90, boxH + 0.5);
-   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y+1}" rx="11" ry="4" fill="#3a1a05"/>`;
-   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y}" rx="10" ry="3.6" fill="#b8860b" stroke="#7a4b1a" stroke-width="1"/>`;
-   O += `<ellipse cx="${bocinC.x-1}" cy="${bocinC.y-0.6}" rx="4" ry="1.5" fill="#facc15"/>`;
-   // Las mechas se colocan con el ítem "Mecha" del panel de implementos (el jugador las pone)
-   // Línea de lanzamiento visible 3D
-   const thr1 = this.toIso(245, 700, 0), thr2 = this.toIso(355, 700, 0);
-   O += `<line x1="${thr1.x}" y1="${thr1.y}" x2="${thr2.x}" y2="${thr2.y}" stroke="rgba(245,230,200,0.95)" stroke-width="2" stroke-dasharray="5 3"/>`;
-   // Cartel "19.5 m" flotante opcional
-   const sign = this.toIso(245, 400, 40);
-   O += `<text x="${sign.x}" y="${sign.y}" text-anchor="middle" font-size="10" font-family="'Oswald',sans-serif" font-weight="800" fill="rgba(245,230,200,0.85)" transform="rotate(-60 ${sign.x} ${sign.y})">19.5 m · BOCÍN 17 cm</text>`;
+   // === Panel trasero VERTICAL (verde claro con marco azul) ===
+   const panW = bw + 2, panH_ = 95;
+   const panX = bx - 1;
+   const panBL = this.toIso(panX, by, backH);
+   const panBR = this.toIso(panX+panW, by, backH);
+   const panTL = this.toIso(panX, by, backH + panH_);
+   const panTR = this.toIso(panX+panW, by, backH + panH_);
+   // Marco azul oscuro (borde)
+   O += `<polygon points="${panBL.x},${panBL.y} ${panBR.x},${panBR.y} ${panTR.x},${panTR.y} ${panTL.x},${panTL.y}" fill="#0f1e4a" stroke="#0a1530" stroke-width="2"/>`;
+   // Panel verde claro interior
+   const padX = 4, padY = 3;
+   const pBL = this.toIso(panX+padX, by-0.5, backH + padY);
+   const pBR = this.toIso(panX+panW-padX, by-0.5, backH + padY);
+   const pTL = this.toIso(panX+padX, by-0.5, backH + panH_ - padY);
+   const pTR = this.toIso(panX+panW-padX, by-0.5, backH + panH_ - padY);
+   O += `<polygon points="${pBL.x},${pBL.y} ${pBR.x},${pBR.y} ${pTR.x},${pTR.y} ${pTL.x},${pTL.y}" fill="#84cc16" stroke="#4d7c0f" stroke-width="1.3"/>`;
+   // Tornillos del panel (6 puntos negros)
+   const screws = [[0.1,0.1],[0.5,0.1],[0.9,0.1],[0.1,0.5],[0.9,0.5],[0.1,0.9],[0.5,0.9],[0.9,0.9]];
+   for (const [tx,ty] of screws) {
+    const sp = this.toIso(panX+padX + tx*(panW-2*padX), by-0.5, backH + padY + ty*(panH_-2*padY));
+    O += `<circle cx="${sp.x}" cy="${sp.y}" r="0.8" fill="#0a1530"/>`;
+   }
+   // === Ruedas pequeñas en la base frontal ===
+   for (const wx of [bx+8, bx+bw-8]) {
+    const wb = this.toIso(wx, by+bh+4, 0);
+    O += `<circle cx="${wb.x}" cy="${wb.y+1}" r="3.5" fill="#111" stroke="#333" stroke-width="0.5"/>`;
+    O += `<circle cx="${wb.x}" cy="${wb.y+1}" r="1.5" fill="#444"/>`;
+   }
+   // === BOCÍN (aro metálico dorado al centro de la superficie inclinada, 17cm) ===
+   const bcx = bx + bw/2, bcy = by + bh*0.45;
+   const bocH = frontH + (1 - 0.45) * (backH - frontH);
+   const bocinC = this.toIso(bcx, bcy, bocH + 0.5);
+   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y+1}" rx="13" ry="5" fill="rgba(0,0,0,0.35)"/>`;
+   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y}" rx="12" ry="4.5" fill="#b8860b" stroke="#5a3a0a" stroke-width="1.1"/>`;
+   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y-0.5}" rx="9" ry="3.3" fill="none" stroke="#facc15" stroke-width="0.8"/>`;
+   O += `<ellipse cx="${bocinC.x-2}" cy="${bocinC.y-1}" rx="4" ry="1.5" fill="rgba(255,230,140,0.7)"/>`;
+   // === Sombra ===
+   const sh1 = this.toIso(bx+4, by+bh+8, 0), sh2 = this.toIso(bx+bw+4, by+bh+8, 0);
+   O += `<ellipse cx="${(sh1.x+sh2.x)/2}" cy="${(sh1.y+sh2.y)/2+4}" rx="75" ry="14" fill="rgba(0,0,0,0.3)" filter="url(#blur3d)"/>`;
+   // Cartel de cancha
+   const sign = this.toIso(245, 700, 1);
+   O += `<line x1="${this.toIso(245,700,0.3).x}" y1="${this.toIso(245,700,0.3).y}" x2="${this.toIso(355,700,0.3).x}" y2="${this.toIso(355,700,0.3).y}" stroke="rgba(245,230,200,0.9)" stroke-width="2" stroke-dasharray="6 3"/>`;
+   O += `<text x="${sign.x}" y="${sign.y}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="11" font-weight="800" fill="rgba(245,230,200,0.9)" stroke="rgba(0,0,0,0.3)" stroke-width="0.3">19.5 m · BOCÍN 17 cm</text>`;
   }
 
-  // MINITEJO: mesa de arcilla 3D (50cm x 50cm) elevada con bocín central y 4 mechas
+  // MINITEJO 3D: misma estructura pero ~65% del tamaño (recreativo, cancha 8-12m, bocín menor)
   if(s==='Minitejo') {
-   const bx=225, by=120, bw=150, bh=150;
-   const boxH = 16;
-   const c1b=this.toIso(bx,by+bh,0), c2b=this.toIso(bx+bw,by+bh,0);
-   const c3b=this.toIso(bx+bw,by,0);
-   const c1t=this.toIso(bx,by+bh,boxH), c2t=this.toIso(bx+bw,by+bh,boxH), c3t=this.toIso(bx+bw,by,boxH);
-   O += `<polygon points="${c1b.x},${c1b.y} ${c2b.x},${c2b.y} ${c2t.x},${c2t.y} ${c1t.x},${c1t.y}" fill="#8b4513" stroke="#3a1a05" stroke-width="1.2"/>`;
-   O += `<polygon points="${c2b.x},${c2b.y} ${c3b.x},${c3b.y} ${c3t.x},${c3t.y} ${c2t.x},${c2t.y}" fill="#6b3410" stroke="#3a1a05" stroke-width="1.2"/>`;
-   const sp=[[bx,by],[bx+bw,by],[bx+bw,by+bh],[bx,by+bh]].map(([x,y])=>this.toIso(x,y,boxH));
-   O += `<polygon points="${sp.map(p=>`${p.x},${p.y}`).join(' ')}" fill="#a0531e" stroke="#6b3410" stroke-width="1.5"/>`;
-   for (let i=0; i<12; i++) {
-    const rx = bx + 10 + ((i*29)%(bw-20));
-    const ry = by + 10 + ((i*19)%(bh-20));
-    const pt = this.toIso(rx, ry, boxH + 0.3);
-    O += `<circle cx="${pt.x}" cy="${pt.y}" r="1" fill="rgba(90,40,10,0.45)"/>`;
+   const bx = 255, by = 90, bw = 90, bh = 75;
+   const backH = 120;
+   const frontH = 20;
+   const fbl = this.toIso(bx, by+bh, 0), fbr = this.toIso(bx+bw, by+bh, 0);
+   const ftl = this.toIso(bx, by+bh, frontH), ftr = this.toIso(bx+bw, by+bh, frontH);
+   O += `<polygon points="${fbl.x},${fbl.y} ${fbr.x},${fbr.y} ${ftr.x},${ftr.y} ${ftl.x},${ftl.y}" fill="#1e3a8a" stroke="#0f1e4a" stroke-width="1.6"/>`;
+   const bbl = this.toIso(bx, by, 0), bbltop = this.toIso(bx, by, backH);
+   O += `<polygon points="${fbl.x},${fbl.y} ${bbl.x},${bbl.y} ${bbltop.x},${bbltop.y} ${ftl.x},${ftl.y}" fill="#1e40af" stroke="#0f1e4a" stroke-width="1.3"/>`;
+   const bbr = this.toIso(bx+bw, by, 0), bbrtop = this.toIso(bx+bw, by, backH);
+   O += `<polygon points="${fbr.x},${fbr.y} ${bbr.x},${bbr.y} ${bbrtop.x},${bbrtop.y} ${ftr.x},${ftr.y}" fill="#172a6b" stroke="#0f1e4a" stroke-width="1.3"/>`;
+   // Superficie inclinada turquesa
+   O += `<polygon points="${ftl.x},${ftl.y} ${ftr.x},${ftr.y} ${bbrtop.x},${bbrtop.y} ${bbltop.x},${bbltop.y}" fill="#22b8cc" stroke="#0f5a6b" stroke-width="1.5"/>`;
+   // Textura (menos marcas que el Tejo pro)
+   const circleSpots = [[0.3,0.3],[0.65,0.25],[0.4,0.55],[0.75,0.5],[0.25,0.75],[0.55,0.8]];
+   for (const [tx,ty] of circleSpots) {
+    const sx2 = bx + tx*bw, sy2 = by + ty*bh;
+    const h = frontH + (1 - ty) * (backH - frontH);
+    const p = this.toIso(sx2, sy2, h);
+    O += `<ellipse cx="${p.x}" cy="${p.y}" rx="4" ry="2.8" fill="none" stroke="rgba(15,90,107,0.5)" stroke-width="0.6"/>`;
    }
-   // Bocín
-   const bocinC = this.toIso(300, 195, boxH + 0.5);
-   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y+1}" rx="16" ry="6" fill="#3a1a05"/>`;
-   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y}" rx="15" ry="5.5" fill="#b8860b" stroke="#7a4b1a" stroke-width="1.1"/>`;
-   O += `<ellipse cx="${bocinC.x-2}" cy="${bocinC.y-1}" rx="6" ry="2" fill="#facc15"/>`;
-   // Las mechas las coloca el jugador desde el panel (implementos)
+   // Panel trasero verde
+   const panW = bw + 2, panH_ = 70, panX = bx - 1;
+   const panBL = this.toIso(panX, by, backH), panBR = this.toIso(panX+panW, by, backH);
+   const panTL = this.toIso(panX, by, backH + panH_), panTR = this.toIso(panX+panW, by, backH + panH_);
+   O += `<polygon points="${panBL.x},${panBL.y} ${panBR.x},${panBR.y} ${panTR.x},${panTR.y} ${panTL.x},${panTL.y}" fill="#0f1e4a" stroke="#0a1530" stroke-width="1.6"/>`;
+   const padX = 3, padY = 2;
+   const pBL = this.toIso(panX+padX, by-0.5, backH + padY), pBR = this.toIso(panX+panW-padX, by-0.5, backH + padY);
+   const pTL = this.toIso(panX+padX, by-0.5, backH + panH_ - padY), pTR = this.toIso(panX+panW-padX, by-0.5, backH + panH_ - padY);
+   O += `<polygon points="${pBL.x},${pBL.y} ${pBR.x},${pBR.y} ${pTR.x},${pTR.y} ${pTL.x},${pTL.y}" fill="#84cc16" stroke="#4d7c0f" stroke-width="1.1"/>`;
+   // Tornillos
+   for (const [tx,ty] of [[0.15,0.15],[0.85,0.15],[0.15,0.85],[0.85,0.85],[0.5,0.5]]) {
+    const sp = this.toIso(panX+padX + tx*(panW-2*padX), by-0.5, backH + padY + ty*(panH_-2*padY));
+    O += `<circle cx="${sp.x}" cy="${sp.y}" r="0.7" fill="#0a1530"/>`;
+   }
+   // Ruedas
+   for (const wx of [bx+6, bx+bw-6]) {
+    const wb = this.toIso(wx, by+bh+3, 0);
+    O += `<circle cx="${wb.x}" cy="${wb.y+1}" r="2.8" fill="#111" stroke="#333" stroke-width="0.4"/>`;
+    O += `<circle cx="${wb.x}" cy="${wb.y+1}" r="1.1" fill="#444"/>`;
+   }
+   // Bocín (más pequeño ~12cm)
+   const bcx = bx + bw/2, bcy = by + bh*0.45;
+   const bocH = frontH + (1 - 0.45) * (backH - frontH);
+   const bocinC = this.toIso(bcx, bcy, bocH + 0.5);
+   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y+0.8}" rx="9" ry="3.5" fill="rgba(0,0,0,0.3)"/>`;
+   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y}" rx="8.5" ry="3.2" fill="#b8860b" stroke="#5a3a0a" stroke-width="1"/>`;
+   O += `<ellipse cx="${bocinC.x-1}" cy="${bocinC.y-0.5}" rx="3" ry="1.2" fill="rgba(255,230,140,0.7)"/>`;
+   // Sombra
+   const sh1 = this.toIso(bx+3, by+bh+6, 0), sh2 = this.toIso(bx+bw+3, by+bh+6, 0);
+   O += `<ellipse cx="${(sh1.x+sh2.x)/2}" cy="${(sh1.y+sh2.y)/2+3}" rx="60" ry="11" fill="rgba(0,0,0,0.28)" filter="url(#blur3d)"/>`;
+   // Cartel
+   const sign = this.toIso(300, 760, 1);
+   O += `<text x="${sign.x}" y="${sign.y}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="10" font-weight="800" fill="rgba(245,230,200,0.9)">MINITEJO · 8-12 m · BOCÍN 12 cm</text>`;
   }
 
 

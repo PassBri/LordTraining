@@ -436,7 +436,25 @@
   para no empujar los botones JUGADORES/Tactico/Camiseta/Avatar.
 - Labels mas cortos: '11 vs 11 · FIFA', '7 vs 7 · Juvenil', '5 vs 5 · Infantil'.
 
-### Rana 3D real (ref imagen oficial) (Feb 2026)
+### Tejo/Minitejo 3D real (ref foto) (Feb 2026)
+- Rediseño completo según referencia fotográfica:
+  estructura tipo rampa trapezoidal con
+  - Cuerpo lateral azul marino (caras frontal+laterales)
+  - Superficie inclinada turquesa con textura de círculos
+    desgastados (marcas de impacto del tejo sobre la arcilla)
+  - Respaldo vertical alto verde claro con marco azul oscuro
+    y 8 tornillos simulando anclajes
+  - 2 ruedas pequeñas negras en la base frontal
+  - Bocín metálico dorado centrado con reflejo
+  - Sombra proyectada elíptica
+- Diferencias Tejo/Minitejo:
+  - Tejo profesional: bw=110, backH=160, bocín ø12u (17cm real),
+    cartel "19.5 m · BOCÍN 17 cm", 12 marcas en superficie
+  - Minitejo: bw=90, backH=120 (65% del tamaño), bocín ø8.5u
+    (12cm real), cartel "MINITEJO · 8-12 m · BOCÍN 12 cm",
+    6 marcas (menos desgaste, recreativo)
+
+
 - Rediseño completo basado en la Rana tradicional Colombia/Venezuela:
   caja de madera verde (80x80x60cm) con borde verde oscuro,
   respaldo curvo beige alto (cabecera), 4 patas pequeñas, superficie
