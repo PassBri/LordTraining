@@ -648,3 +648,21 @@ hr, .border-b, .border-t {
 
 [dir="rtl"] .rounded-l-lg { border-radius: 0 0.5rem 0.5rem 0; }
 [dir="rtl"] .rounded-r-lg { border-radius: 0.5rem 0 0 0.5rem; }
+
+
+/* InteractiveChart — zonas clickeables (Karvonen) */
+.recharts-reference-area.ic-zone-clickable rect,
+.ic-zone-clickable rect.recharts-reference-area-rect {
+  transition: fill-opacity 220ms ease, stroke-opacity 220ms ease;
+}
+.ic-zone-clickable:hover rect.recharts-reference-area-rect {
+  fill-opacity: 0.35 !important;
+}
+.ic-zone-clickable rect.recharts-reference-area-rect[stroke-dasharray] {
+  animation: ic-zone-pulse 1800ms ease-out 1;
+}
+@keyframes ic-zone-pulse {
+  0%   { fill-opacity: 0.55; }
+  60%  { fill-opacity: 0.32; }
+  100% { fill-opacity: 0.28; }
+}

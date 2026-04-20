@@ -7435,6 +7435,250 @@ async def download_session_pdf(share_id: str, theme: str = "dark"):
         raise HTTPException(status_code=500, detail=f"Error al generar PDF: {str(e)}")
 
 
+@api_router.get("/sessions/download-boards-pdf/{share_id}")
+async def download_session_boards_pdf(share_id: str, theme: str = "light"):
+    """Genera PDF en forma de cuadrícula con los ejercicios, sus pizarras, series,
+    repeticiones, capacidad física, intensidad, volumen y fase (Inicial/Principal/Final)."""
+    from fastapi.responses import Response
+    import html as _html
+    try:
+        shared = await db.shared_sessions.find_one({"share_id": share_id}, {"_id": 0})
+        if not shared:
+            raise HTTPException(status_code=404, detail="Sesión no encontrada")
+
+        session_data = shared.get("session_data", {}) or {}
+        detailed = session_data.get("detailedData", {}) or {}
+        session_name = (
+            detailed.get("sessionName")
+            or session_data.get("sessionName")
+            or session_data.get("dayName")
+            or "Sesión de entrenamiento"
+        )
+        athlete_name = shared.get("athlete_name", "Deportista")
+        objetivos = detailed.get("objetivos", {}) or {}
+        objetivo_general = objetivos.get("general") or objetivos.get("principal") or ""
+        objetivos_especificos = objetivos.get("especificos") or objetivos.get("secundarios") or []
+        if isinstance(objetivos_especificos, str):
+            objetivos_especificos = [objetivos_especificos]
+
+        fases_dict = detailed.get("fases", {}) or {}
+        fase_order = [
+            ("inicial",   "Fase Inicial",   "#10b981"),
+            ("principal", "Fase Principal", "#f59e0b"),
+            ("final",     "Fase Final",     "#3b82f6"),
+        ]
+
+        is_dark = theme == "dark"
+        bg = "#0a0a0f" if is_dark else "#ffffff"
+        surface = "#111118" if is_dark else "#ffffff"
+        ink = "#e5e7eb" if is_dark else "#0f172a"
+        ink_muted = "#94a3b8" if is_dark else "#64748b"
+        border = "rgba(255,255,255,0.10)" if is_dark else "#e2e8f0"
+        accent = "#c8f700"
+        board_bg = "#0f172a" if is_dark else "#f8fafc"
+
+        def _esc(v):
+            if v is None:
+                return ""
+            return _html.escape(str(v))
+
+        def _sanitize_svg(svg_str):
+            """boardThumbnail ya viene como SVG string. Insertar tal cual (confiamos
+            en el origen propio)."""
+            if not svg_str:
+                return ""
+            s = str(svg_str).strip()
+            return s
+
+        rows_html_parts = []
+        total_acts = 0
+        for fase_key, fase_label, fase_color in fase_order:
+            fase = fases_dict.get(fase_key, {}) or {}
+            acts = fase.get("actividades", []) or []
+            if not acts:
+                continue
+            rows_html_parts.append(f"""
+              <tr class="fase-row">
+                <td colspan="8" style="background:{fase_color}15;color:{fase_color};
+                  font-weight:800;letter-spacing:0.08em;text-transform:uppercase;
+                  font-size:10px;padding:8px 10px;border-top:1.5px solid {fase_color};">
+                  {fase_label} · {len(acts)} ejercicio{'s' if len(acts)!=1 else ''}
+                </td>
+              </tr>
+            """)
+            for i, act in enumerate(acts, 1):
+                total_acts += 1
+                board_svg = _sanitize_svg(act.get("boardThumbnail"))
+                board_cell = (
+                    f'<div class="board-wrap" style="background:{board_bg};">{board_svg}</div>'
+                    if board_svg
+                    else f'<div class="board-empty" style="background:{board_bg};color:{ink_muted};">sin pizarra</div>'
+                )
+                rows_html_parts.append(f"""
+                  <tr class="act-row">
+                    <td class="num-cell">{i}</td>
+                    <td class="board-cell">{board_cell}</td>
+                    <td class="name-cell">
+                      <div class="act-name">{_esc(act.get('nombre') or act.get('name') or 'Ejercicio')}</div>
+                      {f'<div class="act-desc">{_esc(act.get("descripcion") or "")}</div>' if act.get('descripcion') else ''}
+                    </td>
+                    <td class="num-val">{_esc(act.get('series', '—'))}</td>
+                    <td class="num-val">{_esc(act.get('repeticiones', '—'))}</td>
+                    <td class="cap-val">{_esc((act.get('capacidadFisica') or '—')).title()}</td>
+                    <td class="num-val">{_esc(act.get('intensidad', '—'))}{'%' if act.get('intensidad') not in (None,'','—') else ''}</td>
+                    <td class="num-val">{_esc(act.get('volumen', '—'))}</td>
+                  </tr>
+                """)
+
+        if not rows_html_parts:
+            rows_html_parts.append("""
+              <tr><td colspan="8" style="padding:40px;text-align:center;color:#94a3b8;
+                font-style:italic;">Esta sesión no tiene actividades aún.</td></tr>
+            """)
+
+        objetivos_html = ""
+        if objetivo_general or objetivos_especificos:
+            items = ""
+            if objetivo_general:
+                items += f'<li><strong>General:</strong> {_esc(objetivo_general)}</li>'
+            for o in objetivos_especificos:
+                if o:
+                    items += f"<li>{_esc(o)}</li>"
+            objetivos_html = f"""
+              <section class="objectives">
+                <h2>Objetivos</h2>
+                <ul>{items}</ul>
+              </section>
+            """
+
+        full_html = f"""<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"/>
+<title>iTRAIN · {_esc(session_name)}</title>
+<style>
+  @page {{ size: A4; margin: 10mm 9mm 10mm 9mm; }}
+  * {{ box-sizing: border-box; }}
+  html, body {{ margin:0; padding:0; background:{bg}; color:{ink};
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact; }}
+  .page {{ padding: 0; max-width: 100%; }}
+  header.hd {{ display:flex; align-items:flex-end; justify-content:space-between;
+    border-bottom: 2px solid {accent}; padding-bottom: 10px; margin-bottom: 14px; }}
+  .brand {{ font-size: 10px; letter-spacing: 0.3em; color: {accent};
+    font-weight: 900; text-transform: uppercase; }}
+  .title {{ font-size: 22px; font-weight: 900; color: {ink};
+    letter-spacing: -0.01em; margin: 2px 0 4px 0; }}
+  .meta {{ font-size: 10px; color: {ink_muted}; display:flex; gap:14px; }}
+  .meta strong {{ color: {ink}; font-weight: 700; }}
+  .tag {{ display:inline-block; padding:2px 8px; border-radius:999px;
+    background:{accent}; color:#0a0a0f; font-weight:900; font-size:9px;
+    letter-spacing:0.1em; text-transform:uppercase; }}
+  section.objectives {{ background: {surface}; border:1px solid {border};
+    border-left:3px solid {accent}; border-radius:6px; padding:10px 14px;
+    margin-bottom: 14px; }}
+  section.objectives h2 {{ font-size:10px; letter-spacing:0.2em;
+    text-transform: uppercase; color:{ink_muted}; margin:0 0 6px 0; font-weight:800; }}
+  section.objectives ul {{ margin:0; padding-left:16px; font-size:11px; line-height:1.5; }}
+  section.objectives li {{ margin-bottom:2px; }}
+  table.grid {{ width:100%; border-collapse: collapse; background:{surface};
+    border:1px solid {border}; border-radius:6px; overflow:hidden; font-size:10px; }}
+  table.grid thead th {{ background:{bg}; color:{ink_muted};
+    text-transform: uppercase; letter-spacing: 0.12em; font-size:8.5px;
+    font-weight:800; text-align:left; padding:8px 6px;
+    border-bottom:1px solid {border}; }}
+  table.grid td {{ padding:7px 6px; border-bottom:1px solid {border};
+    vertical-align: middle; color:{ink}; }}
+  table.grid tr.act-row:nth-child(odd) td {{ background: {'rgba(255,255,255,0.02)' if is_dark else '#fafafa'}; }}
+  .num-cell {{ width:22px; text-align:center; color:{ink_muted}; font-weight:800;
+    font-variant-numeric: tabular-nums; }}
+  .board-cell {{ width:78px; padding:4px !important; }}
+  .board-wrap {{ width:72px; height:52px; border-radius:4px; overflow:hidden;
+    border:1px solid {border}; display:flex; align-items:center; justify-content:center; }}
+  .board-wrap svg {{ width:100%; height:100%; }}
+  .board-empty {{ width:72px; height:52px; border-radius:4px;
+    border:1px dashed {border}; display:flex; align-items:center;
+    justify-content:center; font-size:8px; font-style:italic; }}
+  .name-cell {{ min-width: 160px; }}
+  .act-name {{ font-weight:700; color:{ink}; font-size:11px; line-height:1.25; }}
+  .act-desc {{ font-size:9px; color:{ink_muted}; margin-top:1px; line-height:1.3; }}
+  .num-val {{ width:60px; text-align:center; font-variant-numeric: tabular-nums;
+    font-weight:700; font-size:11px; }}
+  .cap-val {{ width:88px; font-weight:600; color:{ink}; font-size:10px; }}
+  footer.ft {{ margin-top:14px; font-size:8.5px; color:{ink_muted};
+    text-align:right; border-top:1px solid {border}; padding-top:6px; }}
+</style></head>
+<body>
+  <div class="page">
+    <header class="hd">
+      <div>
+        <div class="brand">iTRAIN · Plan de Sesión</div>
+        <h1 class="title">{_esc(session_name)}</h1>
+        <div class="meta">
+          <span><strong>Deportista:</strong> {_esc(athlete_name)}</span>
+          {f'<span><strong>Duración:</strong> {_esc(detailed.get("duration",""))} min</span>' if detailed.get("duration") else ''}
+          <span><strong>Ejercicios:</strong> {total_acts}</span>
+        </div>
+      </div>
+      <div class="tag">Pizarras {('Oscuras' if is_dark else 'Claras')}</div>
+    </header>
+    {objetivos_html}
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Pizarra</th>
+          <th>Ejercicio</th>
+          <th style="text-align:center;">Series</th>
+          <th style="text-align:center;">Reps.</th>
+          <th>Capacidad</th>
+          <th style="text-align:center;">Intensidad</th>
+          <th style="text-align:center;">Volumen</th>
+        </tr>
+      </thead>
+      <tbody>
+        {''.join(rows_html_parts)}
+      </tbody>
+    </table>
+    <footer class="ft">Generado con iTRAIN · {share_id}</footer>
+  </div>
+</body></html>"""
+
+        import os as _os
+        _os.environ['PLAYWRIGHT_BROWSERS_PATH'] = '/pw-browsers'
+        from playwright.async_api import async_playwright
+
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(
+                headless=True,
+                args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+            )
+            page = await browser.new_page(viewport={"width": 794, "height": 1123})
+            await page.set_content(full_html, wait_until="networkidle", timeout=30000)
+            await page.wait_for_timeout(400)
+            pdf_bytes = await page.pdf(
+                width="210mm",
+                height="297mm",
+                print_background=True,
+                margin={"top": "10mm", "right": "9mm", "bottom": "10mm", "left": "9mm"},
+                scale=1,
+                prefer_css_page_size=False
+            )
+            await browser.close()
+
+        safe_name = ''.join(c if c.isalnum() or c in ('-','_') else '-' for c in str(session_name))[:60]
+        filename = f"iTRAIN_pizarras_{safe_name}_{theme}.pdf"
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating boards PDF: {e}")
+        raise HTTPException(status_code=500, detail=f"Error al generar PDF: {str(e)}")
+
+
+
 # =============== PLAN DATA ROUTES (Datos vinculados al plan) ===============
 
 # --- PLAN OBJECTIVES ---

@@ -846,7 +846,8 @@ const SessionEditor = ({
   };
 
   // Exportar sesión como PDF — crea enlace compartido y descarga via Playwright backend
-  const handleExportAsPDF = async (theme = 'dark') => {
+  // mode: 'session' (layout público completo) | 'boards' (cuadrícula con pizarras)
+  const handleExportAsPDF = async (theme = 'dark', mode = 'session') => {
     if (exporting) return;
     setExporting(true);
     
@@ -854,7 +855,7 @@ const SessionEditor = ({
       const token = localStorage.getItem('train_token');
       if (!token) { toast.error('Sesión expirada'); setExporting(false); return; }
       
-      toast.info('Generando PDF...');
+      toast.info(mode === 'boards' ? 'Generando PDF de pizarras...' : 'Generando PDF...');
       
       const sesCode = `SES-${String(session?.sessionIndex || session?.dayName || '001').padStart(3, '0')}`;
       
@@ -873,8 +874,11 @@ const SessionEditor = ({
       if (!shareRes.ok) throw new Error('Error al preparar datos');
       const { share_id } = await shareRes.json();
       
-      // 2) Descargar PDF generado por Playwright en el backend
-      const pdfRes = await fetch(`${API_URL}/api/sessions/download-pdf/${share_id}?theme=${theme}`);
+      // 2) Descargar PDF generado por Playwright en el backend (según mode)
+      const endpoint = mode === 'boards'
+        ? `${API_URL}/api/sessions/download-boards-pdf/${share_id}?theme=${theme}`
+        : `${API_URL}/api/sessions/download-pdf/${share_id}?theme=${theme}`;
+      const pdfRes = await fetch(endpoint);
       if (!pdfRes.ok) throw new Error('Error al generar PDF');
       
       const blob = await pdfRes.blob();
@@ -882,7 +886,8 @@ const SessionEditor = ({
       const a = document.createElement('a');
       a.href = url;
       const nm = (sessionData.sessionName || 'Sesion').replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s-]/g, '').replace(/\s+/g, '-');
-      a.download = `iTRAIN_${sesCode}_${nm}_${theme}.pdf`;
+      const prefix = mode === 'boards' ? 'pizarras' : 'sesion';
+      a.download = `iTRAIN_${prefix}_${sesCode}_${nm}_${theme}.pdf`;
       a.click();
       window.URL.revokeObjectURL(url);
       
@@ -1818,12 +1823,26 @@ const SessionEditor = ({
                     ];
 
                     // Bandas horizontales en el chart para cada zona (visible sobre el gráfico)
+                    // Click en banda → auto-completa Zona Objetivo con animación sutil
+                    const handleZoneClickFromChart = (zId) => {
+                      if (!zId) return;
+                      setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, zonaObjetivo: zId } }));
+                      try {
+                        const zn = ZONE_DEFS.find(z => z.z === zId);
+                        toast.success(`Zona objetivo: ${zId} · ${zn ? zn.name : ''}`, { duration: 1800 });
+                      } catch(_) {}
+                    };
                     const refAreas = hasZones ? ZONE_DEFS.map(z => ({
+                      id: z.z,
                       y1: Math.round(fcRep + fcr * z.min),
                       y2: Math.round(fcRep + fcr * z.max),
                       color: z.color,
-                      fillOpacity: z.z === zonaObj ? 0.25 : 0.10,
-                      label: z.z === zonaObj ? `🎯 ${z.z} ${z.name} · OBJETIVO` : `${z.z} ${z.name}`
+                      fillOpacity: z.z === zonaObj ? 0.28 : 0.10,
+                      stroke: z.z === zonaObj ? z.color : 'transparent',
+                      strokeWidth: z.z === zonaObj ? 1.5 : 0,
+                      strokeDasharray: z.z === zonaObj ? '4 3' : undefined,
+                      label: z.z === zonaObj ? `🎯 ${z.z} ${z.name} · OBJETIVO` : `${z.z} ${z.name} — click para fijar`,
+                      onClick: handleZoneClickFromChart
                     })) : [];
 
                     // Y-axis dinámico: si hay zonas, ajustar al rango útil para que las bandas se vean grandes
@@ -2179,8 +2198,8 @@ const SessionEditor = ({
           </div>
 
           {/* Footer */}
-          <div className="sticky bottom-0 border-t px-5 py-3 flex justify-between items-center" style={{background:'#0a0a0f',borderColor:'rgba(204,255,0,0.08)',fontFamily:DM}}>
-            <div className="flex items-center gap-2">
+          <div className="sticky bottom-0 border-t px-5 py-3 flex justify-between items-center gap-3 flex-wrap" style={{background:'#0a0a0f',borderColor:'rgba(204,255,0,0.08)',fontFamily:DM}}>
+            <div className="flex items-center gap-2 flex-wrap">
               <Button 
                 variant="outline"
                 size="sm"
@@ -2194,7 +2213,7 @@ const SessionEditor = ({
               <Button 
                 variant="outline"
                 size="sm"
-                onClick={() => handleExportAsPDF('dark')}
+                onClick={() => handleExportAsPDF('dark', 'session')}
                 disabled={exporting}
                 className="border-white/15 text-white/60 hover:bg-white/5 hover:text-white text-[11px] h-8"
                 data-testid="export-pdf-btn"
@@ -2208,7 +2227,7 @@ const SessionEditor = ({
               <Button 
                 variant="outline"
                 size="sm"
-                onClick={() => handleExportAsPDF('light')}
+                onClick={() => handleExportAsPDF('light', 'session')}
                 disabled={exporting}
                 className="border-white/15 text-white/60 hover:bg-white/5 hover:text-white text-[11px] h-8"
               >
@@ -2216,6 +2235,41 @@ const SessionEditor = ({
                   <><Activity className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generando...</>
                 ) : (
                   <><Sun className="w-3.5 h-3.5 mr-1" />PDF claro</>
+                )}
+              </Button>
+
+              {/* Separador visual */}
+              <div className="w-px h-5 bg-white/10 mx-1" />
+
+              {/* Pizarras — cuadrícula con ejercicios, pizarra, series, reps, capacidad, intensidad, volumen y fase */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleExportAsPDF('dark', 'boards')}
+                disabled={exporting}
+                className="border-white/15 text-white/60 hover:bg-white/5 hover:text-white text-[11px] h-8"
+                data-testid="export-boards-dark-btn"
+                title="PDF con cuadrícula de ejercicios y sus pizarras (tema oscuro)"
+              >
+                {exporting ? (
+                  <><Activity className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generando...</>
+                ) : (
+                  <><LayoutGrid className="w-3.5 h-3.5 mr-1" />Pizarras oscuras</>
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleExportAsPDF('light', 'boards')}
+                disabled={exporting}
+                className="border-white/15 text-white/60 hover:bg-white/5 hover:text-white text-[11px] h-8"
+                data-testid="export-boards-light-btn"
+                title="PDF con cuadrícula de ejercicios y sus pizarras (tema claro)"
+              >
+                {exporting ? (
+                  <><Activity className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generando...</>
+                ) : (
+                  <><LayoutGrid className="w-3.5 h-3.5 mr-1" />Pizarras claras</>
                 )}
               </Button>
             </div>

@@ -9,6 +9,25 @@
 
 ## Implementado
 
+### Zonas Karvonen clickeables en chart + PDF Pizarras (Feb 2026)
+
+**Feature A — Zonas Karvonen interactivas:**
+- `InteractiveChart.js` ahora soporta `onClick`, `stroke`, `strokeWidth` y `strokeDasharray` por `ReferenceArea`.
+- En `SessionEditor.js`, cada banda Z1-Z5 del chart es clickeable → auto-completa `monitoreo.zonaObjetivo`, muestra toast con el nombre de la zona y anima con pulse CSS (`/app/frontend/src/index.css` `.ic-zone-clickable` + keyframes `ic-zone-pulse`).
+- Visual: zona objetivo con `strokeDasharray` (4 3) y mayor `fillOpacity` (0.28 vs 0.10 baseline). Hover global sube opacidad a 0.35.
+
+**Feature B — PDF Pizarras (claras / oscuras):**
+- Nuevo endpoint `/api/sessions/download-boards-pdf/{share_id}?theme=light|dark` en `server.py` (~línea 7437).
+- Genera un HTML server-side con Playwright `set_content` → PDF A4 con:
+  - Header: marca iTRAIN + nombre de sesión + deportista + duración + total ejercicios + tag de tema.
+  - Sección Objetivos (general + específicos) si existen.
+  - Tabla (cuadrícula) agrupada por Fase (Inicial → Principal → Final) con columnas: `#`, `Pizarra` (SVG del boardThumbnail embebido), `Ejercicio`, `Series`, `Reps`, `Capacidad`, `Intensidad (%)`, `Volumen`.
+  - Footer con share_id.
+- En `SessionEditor.js` se agregan 2 botones nuevos al lado de "PDF oscuro/claro": **Pizarras oscuras** y **Pizarras claras** (icono `LayoutGrid`). El handler `handleExportAsPDF(theme, mode)` se extendió para rutear al endpoint correcto.
+- Footer del editor ahora usa `flex-wrap` para acomodar los 5 botones.
+- Testing: verificado con curl e2e con sesión de prueba → HTTP 200, PDFs 49-50KB, firma `%PDF-`. Análisis visual (gemini) confirmó el layout esperado.
+
+
 ### Fix botón "Mixta" visible en InteractiveChart (Feb 2026)
 - Problema: El botón de tipo de gráfica "Mixta" usaba el mismo ícono `Settings2` que el botón real de configuración, haciéndolo indistinguible, y su contenedor no permitía wrap ante anchos reducidos.
 - Fix aplicado en `/app/frontend/src/components/InteractiveChart.js`:

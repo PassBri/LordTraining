@@ -301,22 +301,31 @@ const InteractiveChart = ({
       </defs>
     );
 
-    // Renderizar áreas de referencia
-    const renderReferenceAreas = () => referenceAreas.map((area, idx) => (
-      <ReferenceArea
-        key={`area-${idx}`}
-        y1={area.y1}
-        y2={area.y2}
-        fill={area.color}
-        fillOpacity={area.fillOpacity || 0.15}
-        label={{ 
-          value: area.label, 
-          fill: area.color, 
-          fontSize: 10, 
-          position: 'insideTopRight' 
-        }}
-      />
-    ));
+    // Renderizar áreas de referencia (soportan onClick por área para interacción)
+    const renderReferenceAreas = () => referenceAreas.map((area, idx) => {
+      const clickable = typeof area.onClick === 'function';
+      return (
+        <ReferenceArea
+          key={`area-${idx}`}
+          y1={area.y1}
+          y2={area.y2}
+          fill={area.color}
+          fillOpacity={area.fillOpacity || 0.15}
+          stroke={area.stroke || 'transparent'}
+          strokeWidth={area.strokeWidth || 0}
+          strokeDasharray={area.strokeDasharray}
+          onClick={clickable ? () => area.onClick(area.id) : undefined}
+          style={clickable ? { cursor: 'pointer' } : undefined}
+          className={clickable ? 'ic-zone-clickable' : undefined}
+          label={{
+            value: area.label,
+            fill: area.color,
+            fontSize: 10,
+            position: 'insideTopRight'
+          }}
+        />
+      );
+    });
 
     // Renderizar líneas de referencia
     const renderReferenceLines = () => referenceLines.map((ref, idx) => (
