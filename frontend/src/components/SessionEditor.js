@@ -176,7 +176,7 @@ const MiniBoardPlayer = ({ svgHtml, editHref, onEditClick, onRemove, testIdPrefi
   };
 
   return (
-    <div className="w-full flex-1 flex flex-col" style={{minHeight:'140px'}}>
+    <div className="w-full flex-1 flex flex-col" style={{minHeight:'120px'}}>
       {/* Miniatura clickeable — usa <a target="_blank"> nativo para no ser bloqueado por popup blocker */}
       {/* IMPORTANTE: rel="opener" es OBLIGATORIO. Desde Chrome 88/Firefox 79/Safari 12.1,
           target="_blank" implícitamente aplica noopener y bloquea window.opener.
@@ -187,8 +187,8 @@ const MiniBoardPlayer = ({ svgHtml, editHref, onEditClick, onRemove, testIdPrefi
         target="_blank"
         rel="opener"
         onClick={(e) => { if (onEditClick) onEditClick(e); }}
-        className="block w-full flex-1 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-[#c8f700] hover:shadow-md overflow-hidden transition-all"
-        style={{minHeight:'110px'}}
+        className="block w-full flex-1 rounded-lg border border-slate-200 bg-white cursor-pointer hover:border-[#c8f700] hover:shadow-md overflow-hidden transition-all"
+        style={{minHeight:'95px'}}
         data-testid={`${testIdPrefix}-thumb`}
         dangerouslySetInnerHTML={{ __html: svgHtml }}
       />
@@ -196,7 +196,7 @@ const MiniBoardPlayer = ({ svgHtml, editHref, onEditClick, onRemove, testIdPrefi
       {/* Barra de controles (solo si el SVG tiene animaciones SMIL) */}
       {hasAnim && (
         <div
-          className="mt-1.5 flex items-center gap-1.5 px-2 py-1.5 rounded-lg"
+          className="mt-1 flex items-center gap-1 px-1.5 py-1 rounded-md"
           style={{background:'#0a0a0f',border:'1px solid rgba(204,255,0,0.15)'}}
           onClick={stop}
           onMouseDown={stop}
@@ -254,8 +254,8 @@ const MiniBoardPlayer = ({ svgHtml, editHref, onEditClick, onRemove, testIdPrefi
 
       {/* Pista: si no hay animación, invita a re-guardar la pizarra para activarla */}
       {!hasAnim && (
-        <div className="mt-1.5 px-2 py-1 rounded-lg text-[9px] text-center text-slate-400" style={{fontFamily:DM,background:'#f8fafc',border:'1px dashed #e2e8f0'}} data-testid={`${testIdPrefix}-noanim`}>
-          Abrí la pizarra y guardá de nuevo para activar la reproducción
+        <div className="mt-1 px-1.5 py-0.5 rounded-md text-[8px] text-center text-slate-400" style={{fontFamily:DM,background:'#f8fafc',border:'1px dashed #e2e8f0'}} data-testid={`${testIdPrefix}-noanim`}>
+          Guardá de nuevo para activar reproducción
         </div>
       )}
 
@@ -266,18 +266,18 @@ const MiniBoardPlayer = ({ svgHtml, editHref, onEditClick, onRemove, testIdPrefi
         target="_blank"
         rel="opener"
         onClick={(e) => { if (onEditClick) onEditClick(e); }}
-        className="mt-1 flex items-center justify-center gap-1 h-7 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all hover:brightness-110 no-underline"
+        className="mt-1 flex items-center justify-center gap-1 h-6 rounded-md text-[9px] font-bold uppercase tracking-wider transition-all hover:brightness-110 no-underline"
         style={{background:'#0a0a0f',color:'#c8f700',fontFamily:DM,border:'1px solid rgba(204,255,0,0.3)'}}
         data-testid={`${testIdPrefix}-edit-btn`}
       >
-        <Pencil className="w-3 h-3" /> Editar pizarra
+        <Pencil className="w-2.5 h-2.5" /> Editar
       </a>
 
       {onRemove && (
         <button
           type="button"
           onClick={(e) => { stop(e); onRemove(); }}
-          className="text-[10px] text-slate-400 hover:text-red-400 mt-1 block w-full text-center transition-colors font-medium"
+          className="text-[9px] text-slate-400 hover:text-red-400 mt-0.5 block w-full text-center transition-colors font-medium"
           data-testid={`${testIdPrefix}-remove`}
         >
           Quitar
@@ -980,14 +980,14 @@ const SessionEditor = ({
   // Renderizar actividades como tarjetas Material Design Premium
   const renderActividadesTable = (faseKey, fase) => {
     return (
-      <div className="space-y-4">
+      <div className="space-y-2.5">
         {fase.actividades.map((act, idx) => {
           const actMateriales = act.materiales || [];
           return (
-          <div key={act.id} className="rounded-2xl bg-white overflow-visible transition-shadow hover:shadow-lg" style={{ position: 'relative', zIndex: showExercisePicker === `${faseKey}-${idx}` ? 1000 : 1, boxShadow:'0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.03)', border:'1px solid rgba(0,0,0,0.06)' }}>
+          <div key={act.id} className="rounded-xl bg-white overflow-visible transition-shadow hover:shadow-md" style={{ position: 'relative', zIndex: showExercisePicker === `${faseKey}-${idx}` ? 1000 : 1, boxShadow:'0 1px 2px rgba(0,0,0,0.05), 0 2px 6px rgba(0,0,0,0.03)', border:'1px solid rgba(0,0,0,0.06)' }}>
 
             {/* === HEADER === Ejercicio + acciones */}
-            <div className="flex items-center gap-3 px-4 py-2.5" style={{background:'linear-gradient(135deg, #0a0a0f 0%, #1a1b26 100%)', borderRadius:'16px 16px 0 0'}}>
+            <div className="flex items-center gap-2.5 px-3 py-2" style={{background:'linear-gradient(135deg, #0a0a0f 0%, #1a1b26 100%)', borderRadius:'12px 12px 0 0'}}>
               <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{background:'#CCFF00'}}>
                 <Dumbbell className="w-3.5 h-3.5" style={{color:'#0a0a0f'}} />
               </div>
@@ -1048,18 +1048,18 @@ const SessionEditor = ({
             </div>
 
             {/* === BODY === 3 columnas: Descripción+Params | Stats | Pizarra */}
-            <div className="flex gap-0" style={{minHeight:'210px'}}>
+            <div className="flex gap-0" style={{minHeight:'180px'}}>
 
               {/* COL 1: Descripción + Método + Materiales */}
-              <div className="flex-1 min-w-0 px-5 pt-5 pb-4 border-r border-slate-100/80 flex flex-col">
-                <Textarea value={act.descripcion||''} onChange={(e) => updateActividad(faseKey, idx, 'descripcion', e.target.value)} placeholder="Descripción del ejercicio, grupos musculares, variantes..." className="text-[13px] min-h-[72px] resize-none py-3 px-4 text-slate-700 leading-relaxed border-slate-200/80 rounded-xl bg-slate-50/60 focus:bg-white focus:border-slate-300 w-full mb-4" style={{fontFamily:DM}} rows={4} data-testid={`exercise-desc-${faseKey}-${idx}`} />
-                <div className="flex items-center gap-2.5 mb-4">
+              <div className="flex-1 min-w-0 px-3.5 pt-3 pb-3 border-r border-slate-100/80 flex flex-col">
+                <Textarea value={act.descripcion||''} onChange={(e) => updateActividad(faseKey, idx, 'descripcion', e.target.value)} placeholder="Descripción del ejercicio, grupos musculares, variantes..." className="text-[12px] min-h-[48px] resize-none py-2 px-3 text-slate-700 leading-snug border-slate-200/80 rounded-lg bg-slate-50/60 focus:bg-white focus:border-slate-300 w-full mb-2.5" style={{fontFamily:DM}} rows={2} data-testid={`exercise-desc-${faseKey}-${idx}`} />
+                <div className="flex items-center gap-2 mb-2.5">
                   <Select value={act.metodo} onValueChange={(v) => updateActividad(faseKey, idx, 'metodo', v)}>
-                    <SelectTrigger className="h-7 text-[10px] font-semibold border-0 bg-blue-50 text-blue-700 rounded-full px-3 w-auto"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-6 text-[10px] font-semibold border-0 bg-blue-50 text-blue-700 rounded-full px-2.5 w-auto"><SelectValue /></SelectTrigger>
                     <SelectContent>{METODOS_ENTRENAMIENTO.map(met => <SelectItem key={met.id} value={met.id} className="text-xs">{met.name}</SelectItem>)}</SelectContent>
                   </Select>
                   <Select value={act.procOrganizativo} onValueChange={(v) => updateActividad(faseKey, idx, 'procOrganizativo', v)}>
-                    <SelectTrigger className="h-7 text-[10px] font-semibold border-0 bg-emerald-50 text-emerald-700 rounded-full px-3 w-auto"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-6 text-[10px] font-semibold border-0 bg-emerald-50 text-emerald-700 rounded-full px-2.5 w-auto"><SelectValue /></SelectTrigger>
                     <SelectContent>{PROC_ORGANIZATIVO.map(proc => <SelectItem key={proc.id} value={proc.id} className="text-xs">{proc.name}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
@@ -1133,30 +1133,30 @@ const SessionEditor = ({
                 const intUnit = act.unidadIntensidad || capCfg.unidadesInt[0];
                 const volUnit = act.unidadVolumen || capCfg.unidadesVol[0];
                 return (
-              <div className="w-[220px] flex-shrink-0 p-5 border-r border-slate-100/80">
+              <div className="w-[200px] flex-shrink-0 p-3.5 border-r border-slate-100/80">
                 {/* Intensidad visual */}
-                <div className="mb-4">
-                  <div className="flex items-center justify-between mb-1.5">
+                <div className="mb-2.5">
+                  <div className="flex items-center justify-between mb-1">
                     <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500" style={{fontFamily:DM}}>Intensidad <span className="text-[9px] normal-case tracking-normal font-medium text-slate-400">({intUnit})</span></span>
-                    <span className="text-[16px] font-black" style={{color: act.intensidad>80?'#ef4444':act.intensidad>60?'#f59e0b':act.intensidad>40?'#CCFF00':'#22c55e',fontFamily:DM}}>{act.intensidad}<span className="text-[10px] font-semibold opacity-50">{intUnit === '%1RM' || intUnit === '%FCmax' || intUnit === '%FCres' || intUnit === '%Vmax' ? '%' : ''}</span></span>
+                    <span className="text-[14px] font-black" style={{color: act.intensidad>80?'#ef4444':act.intensidad>60?'#f59e0b':act.intensidad>40?'#CCFF00':'#22c55e',fontFamily:DM}}>{act.intensidad}<span className="text-[9px] font-semibold opacity-50">{intUnit === '%1RM' || intUnit === '%FCmax' || intUnit === '%FCres' || intUnit === '%Vmax' ? '%' : ''}</span></span>
                   </div>
-                  <div className="h-2.5 rounded-full overflow-hidden" style={{background:'#f1f5f9'}}>
+                  <div className="h-2 rounded-full overflow-hidden" style={{background:'#f1f5f9'}}>
                     <div className="h-full rounded-full transition-all duration-300" style={{width:`${act.intensidad}%`,background: act.intensidad>80?'linear-gradient(90deg,#f59e0b,#ef4444)':act.intensidad>60?'linear-gradient(90deg,#CCFF00,#f59e0b)':act.intensidad>40?'linear-gradient(90deg,#22c55e,#CCFF00)':'linear-gradient(90deg,#06b6d4,#22c55e)'}} />
                   </div>
-                  <input type="range" min={0} max={100} value={act.intensidad} onChange={(e) => updateActividad(faseKey, idx, 'intensidad', parseInt(e.target.value))} className="w-full h-1.5 mt-1.5 accent-[#CCFF00] cursor-pointer" />
-                  <div className="text-[9px] text-slate-400 text-right mt-1" style={{fontFamily:DM}}>Ref: {capCfg.intRef}</div>
+                  <input type="range" min={0} max={100} value={act.intensidad} onChange={(e) => updateActividad(faseKey, idx, 'intensidad', parseInt(e.target.value))} className="w-full h-1 mt-1 accent-[#CCFF00] cursor-pointer" />
+                  <div className="text-[9px] text-slate-400 text-right mt-0.5" style={{fontFamily:DM}}>Ref: {capCfg.intRef}</div>
                 </div>
                 {/* Stats grid 2x2 — dinámico */}
-                <div className="grid grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-2 gap-1.5">
                   {[
                     { label:'Series', value:act.series, key:'series', type:'number', ph: capCfg.serPh },
                     { label:'Reps', value:act.repeticiones, key:'repeticiones', ph: capCfg.volPh },
                     { label: volUnit, value:act.volumen, key:'volumen', ph: capCfg.volPh },
                     { label:'Recup.', value:act.recuperacion, key:'recuperacion', ph: capCfg.recPh }
                   ].map(s => (
-                    <div key={s.key} className="rounded-xl p-3 text-center" style={{background:'#0a0a0f'}}>
-                      <span className="text-[8px] font-bold uppercase tracking-widest block mb-2" style={{color:'rgba(204,255,0,0.6)',fontFamily:DM}}>{s.label}</span>
-                      <Input value={s.value} type={s.type||'text'} onChange={(e) => updateActividad(faseKey, idx, s.key, s.type==='number'?parseInt(e.target.value)||0:e.target.value)} placeholder={s.ph} className="h-8 text-center text-white text-[14px] font-bold bg-transparent border-0 focus:ring-0 px-0" style={{fontFamily:DM}} min={s.type==='number'?0:undefined} />
+                    <div key={s.key} className="rounded-lg px-2 py-1.5 text-center" style={{background:'#0a0a0f'}}>
+                      <span className="text-[8px] font-bold uppercase tracking-widest block mb-1" style={{color:'rgba(204,255,0,0.6)',fontFamily:DM}}>{s.label}</span>
+                      <Input value={s.value} type={s.type||'text'} onChange={(e) => updateActividad(faseKey, idx, s.key, s.type==='number'?parseInt(e.target.value)||0:e.target.value)} placeholder={s.ph} className="h-6 text-center text-white text-[12px] font-bold bg-transparent border-0 focus:ring-0 px-0" style={{fontFamily:DM}} min={s.type==='number'?0:undefined} />
                     </div>
                   ))}
                 </div>
@@ -1165,9 +1165,9 @@ const SessionEditor = ({
               })()}
 
               {/* COL 3: Pizarra */}
-              <div className="w-[200px] flex-shrink-0 p-4 flex flex-col">
-                <div className="flex items-center gap-2 mb-2.5">
-                  <div className="w-5 h-5 rounded-md bg-[#f0ffd0] flex items-center justify-center"><LayoutGrid className="w-3 h-3 text-[#3a5a00]" /></div>
+              <div className="w-[180px] flex-shrink-0 p-3 flex flex-col">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <div className="w-4 h-4 rounded-md bg-[#f0ffd0] flex items-center justify-center"><LayoutGrid className="w-2.5 h-2.5 text-[#3a5a00]" /></div>
                   <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500" style={{fontFamily:DM}}>Pizarra</span>
                 </div>
                 {act.boardThumbnail ? (
@@ -1179,8 +1179,8 @@ const SessionEditor = ({
                     testIdPrefix={`board-${faseKey}-${idx}`}
                   />
                 ) : (
-                  <button onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open('/tactical-board.html','_blank');}} className="w-full flex-1 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-300 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all group" style={{minHeight:'140px'}} data-testid={`open-board-${faseKey}-${idx}`}>
-                    <LayoutGrid className="w-6 h-6 group-hover:scale-110 transition-transform" /><span className="text-[9px] font-semibold uppercase mt-2 tracking-wide">Abrir pizarra</span>
+                  <button onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open('/tactical-board.html','_blank');}} className="w-full flex-1 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-300 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all group" style={{minHeight:'110px'}} data-testid={`open-board-${faseKey}-${idx}`}>
+                    <LayoutGrid className="w-5 h-5 group-hover:scale-110 transition-transform" /><span className="text-[9px] font-semibold uppercase mt-1.5 tracking-wide">Abrir pizarra</span>
                   </button>
                 )}
                 {/* Quitar-button moved into MiniBoardPlayer */}
