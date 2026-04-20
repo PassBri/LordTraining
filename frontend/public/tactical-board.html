@@ -220,11 +220,11 @@ html.dark .vb-icon.vb-icon-toggle.active{background:var(--brand);color:#0a0f1f}
 #canvas-inner.hide-measures .fld-measure{display:none}
 #canvas-inner.hide-zones .fld-zone{display:none}
 /* Scoreboard overlay */
-#scoreboard{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:30;display:none;align-items:center;gap:10px;padding:8px 14px;background:linear-gradient(135deg,rgba(20,20,30,0.92),rgba(40,40,60,0.92));backdrop-filter:blur(12px);border:1px solid rgba(200,247,0,0.35);border-radius:14px;box-shadow:0 8px 28px rgba(0,0,0,0.4);font-family:'Oswald',sans-serif;color:#fff;letter-spacing:0.08em}
+#scoreboard{position:absolute;top:14px;left:14px;z-index:30;display:none;align-items:center;gap:10px;padding:7px 12px;background:linear-gradient(135deg,rgba(20,20,30,0.92),rgba(40,40,60,0.92));backdrop-filter:blur(12px);border:1px solid rgba(200,247,0,0.35);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,0.4);font-family:'Oswald',sans-serif;color:#fff;letter-spacing:0.08em}
 #scoreboard.show{display:flex}
-.sb-team{display:flex;flex-direction:column;align-items:center;min-width:60px}
-.sb-team-name{font-size:10px;opacity:0.85;font-weight:700;letter-spacing:0.15em;text-transform:uppercase}
-.sb-team-score{font-size:32px;font-weight:800;line-height:1;color:#caf000;text-shadow:0 0 12px rgba(200,247,0,0.6)}
+.sb-team{display:flex;flex-direction:column;align-items:center;min-width:52px}
+.sb-team-name{font-size:9px;opacity:0.85;font-weight:700;letter-spacing:0.15em;text-transform:uppercase}
+.sb-team-score{font-size:26px;font-weight:800;line-height:1;color:#caf000;text-shadow:0 0 12px rgba(200,247,0,0.6)}
 .sb-team.team-a .sb-team-score{color:#ff6b6b;text-shadow:0 0 12px rgba(255,107,107,0.6)}
 .sb-team.team-b .sb-team-score{color:#6bb4ff;text-shadow:0 0 12px rgba(107,180,255,0.6)}
 .sb-divider{font-size:24px;font-weight:800;opacity:0.4}
@@ -446,6 +446,12 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
     <button class="vb-icon" onclick="S.resetFieldTransform()" title="Reset">⟲</button>
     <button class="vb-icon vb-icon-toggle active" id="measures-toggle" onclick="S.toggleMeasures()" title="Medidas reglamentarias" data-testid="measures-toggle-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h18M3 16h18M7 4v16M17 4v16"/><text x="12" y="13" text-anchor="middle" font-size="6" fill="currentColor" stroke="none" font-weight="700">m</text></svg></button>
     <button class="vb-icon vb-icon-toggle active" id="zones-toggle" onclick="S.toggleZones()" title="Nombres de zonas" data-testid="zones-toggle-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h10M7 14h6"/></svg></button>
+    <button class="vb-icon vb-icon-toggle" id="score-toggle" onclick="S.toggleScoreboardBtn()" title="Marcador" data-testid="score-toggle-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><line x1="12" y1="5" x2="12" y2="19"/><text x="7" y="15" font-size="7" fill="currentColor" stroke="none" font-weight="800">0</text><text x="17" y="15" font-size="7" fill="currentColor" stroke="none" font-weight="800" text-anchor="middle">0</text></svg></button>
+    <button class="vb-icon vb-icon-toggle" id="gear-toggle" onclick="S.toggleGear()" title="Equipamiento deportivo (casco, tabla, arco...)" data-testid="gear-toggle-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></button>
+   </div>
+   <div class="vb-seg" id="variant-seg" style="display:none" data-testid="variant-seg">
+    <div class="vb-label">VARIANTE</div>
+    <select id="variant-select" onchange="S.setVariant(this.value)" data-testid="variant-select" style="background:var(--panel-elev);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:8px;font-size:11px;font-family:'Oswald',sans-serif;letter-spacing:0.08em;font-weight:600;cursor:pointer;outline:none"></select>
    </div>
    <div class="vb-sep"></div>
    <div class="vb-group">
@@ -582,6 +588,43 @@ const ST = {
 };
 
 // ═══════════ CATEGORIES & SPORTS ═══════════
+// Field variants (sports with multiple official formats)
+const FIELD_VARIANTS = {
+ 'Futbol': [
+  {key:'11v11', label:'11 vs 11 (FIFA)', sport:'Futbol'},
+  {key:'7v7', label:'7 vs 7 (Juvenil)', sport:'Futbol 7v7'},
+  {key:'5v5', label:'5 vs 5 (Infantil)', sport:'Futbol de Salon'}
+ ],
+ 'Golf': [
+  {key:'par4', label:'Par 4 · 380 yd', sport:'Golf'},
+  {key:'par3', label:'Par 3 · 180 yd', sport:'Golf Par 3'},
+  {key:'par5', label:'Par 5 · 540 yd', sport:'Golf Par 5'}
+ ],
+ 'Escalada': [
+  {key:'lead', label:'Lead · 15 m', sport:'Escalada'},
+  {key:'boulder', label:'Boulder · 4.5 m', sport:'Escalada Boulder'},
+  {key:'speed', label:'Speed · 15 m std', sport:'Escalada Speed'}
+ ],
+ 'Skateboarding': [
+  {key:'park', label:'Park · mixto', sport:'Skateboarding'},
+  {key:'street', label:'Street · urbano', sport:'Skateboarding Street'},
+  {key:'bowl', label:'Bowl · piscina', sport:'Skateboarding Bowl'},
+  {key:'vert', label:'Vert · 4 m', sport:'Skateboarding Vert'}
+ ]
+};
+
+// Field variants SVG (new fields used by variants)
+const FIELD_VARIANT_SVGS = {
+ 'Futbol 7v7': {bg:'#ffffff',svg:`<rect x="120" y="80" width="360" height="640" rx="3" fill="none" stroke-width="2"/><line x1="120" y1="400" x2="480" y2="400" stroke-width="1.5"/><circle cx="300" cy="400" r="55" fill="none" stroke-width="1.5"/><circle cx="300" cy="400" r="3" fill="rgba(0,0,0,0.35)"/><rect x="210" y="80" width="180" height="80" fill="none" stroke-width="1.5"/><rect x="250" y="80" width="100" height="30" fill="none" stroke-width="1.5"/><rect x="210" y="640" width="180" height="80" fill="none" stroke-width="1.5"/><rect x="250" y="690" width="100" height="30" fill="none" stroke-width="1.5"/><rect x="270" y="64" width="60" height="16" rx="2" fill="none" stroke-width="1.5"/><rect x="270" y="720" width="60" height="16" rx="2" fill="none" stroke-width="1.5"/><text x="300" y="72" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">45 m</text><text x="112" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 112 404)">65 m</text><text x="300" y="785" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">FUTBOL 7v7 · 45-55x65-75m · Porteria 5x2m</text>`},
+ 'Golf Par 3': {bg:'#ffffff',svg:`<rect x="40" y="40" width="520" height="720" fill="rgba(60,140,60,0.08)" rx="4"/><path d="M60 700 Q120 620 200 560 Q300 500 440 200" fill="none" stroke="rgba(140,200,120,0.45)" stroke-width="80" stroke-linecap="round"/><rect x="35" y="680" width="60" height="35" rx="3" fill="rgba(160,120,80,0.35)" stroke="rgba(100,70,40,0.7)"/><text class="fld-measure fld-zone" x="65" y="738" text-anchor="middle" fill="rgba(90,60,30,0.9)" font-size="9" font-weight="700">TEE</text><ellipse cx="450" cy="200" rx="60" ry="45" fill="rgba(100,180,90,0.55)" stroke="rgba(40,120,40,0.95)" stroke-width="1.8"/><circle cx="450" cy="200" r="5" fill="#000"/><line x1="450" y1="200" x2="450" y2="155" stroke="rgba(40,40,40,0.9)" stroke-width="2"/><polygon points="450,155 450,145 470,152" fill="rgba(255,60,60,0.95)"/><text class="fld-measure fld-zone" x="450" y="215" text-anchor="middle" fill="rgba(20,60,20,0.95)" font-size="9" font-weight="700">GREEN · HOYO</text><text x="300" y="30" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">HOYO PAR 3 · 180 yd (165 m)</text><text x="300" y="790" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">GOLF (R&amp;A/USGA) · Par 3 · 1 golpe al green</text>`},
+ 'Golf Par 5': {bg:'#ffffff',svg:`<rect x="40" y="40" width="520" height="720" fill="rgba(60,140,60,0.08)" rx="4"/><path d="M60 720 Q140 640 210 570 Q270 480 260 370 Q250 270 330 200 Q430 130 520 80" fill="none" stroke="rgba(140,200,120,0.5)" stroke-width="85" stroke-linecap="round"/><rect x="35" y="700" width="60" height="35" rx="3" fill="rgba(160,120,80,0.35)" stroke="rgba(100,70,40,0.7)"/><text class="fld-measure fld-zone" x="65" y="755" text-anchor="middle" fill="rgba(90,60,30,0.9)" font-size="9" font-weight="700">TEE</text><ellipse cx="215" cy="550" rx="40" ry="25" fill="rgba(240,210,140,0.85)" stroke="rgba(180,140,60,0.8)" stroke-width="1.2"/><ellipse cx="280" cy="380" rx="35" ry="22" fill="rgba(240,210,140,0.85)" stroke="rgba(180,140,60,0.8)" stroke-width="1.2"/><path d="M380 200 Q340 150 300 170 Q260 190 240 220" fill="none" stroke="rgba(60,120,200,0.4)" stroke-width="20" stroke-linecap="round"/><ellipse cx="520" cy="80" rx="55" ry="42" fill="rgba(100,180,90,0.55)" stroke="rgba(40,120,40,0.95)" stroke-width="1.8"/><circle cx="520" cy="80" r="5" fill="#000"/><line x1="520" y1="80" x2="520" y2="35" stroke="rgba(40,40,40,0.9)" stroke-width="2"/><polygon points="520,35 520,25 540,32" fill="rgba(255,60,60,0.95)"/><text x="300" y="30" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">HOYO PAR 5 · 540 yd (494 m)</text><text x="300" y="790" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">GOLF (R&amp;A/USGA) · Par 5 · Dog-leg · 2 bunkers · Agua · Green</text>`},
+ 'Escalada Boulder': {bg:'#ffffff',svg:`<rect x="80" y="300" width="440" height="300" rx="6" fill="rgba(180,140,100,0.2)" stroke="rgba(120,80,40,0.8)" stroke-width="2.5"/>${Array.from({length:14},(_,i)=>`<line x1="${80+i*32}" y1="300" x2="${80+i*32}" y2="600" stroke="rgba(120,80,40,0.15)"/>`).join('')}${[[140,360,'60,200,60'],[220,340,'60,200,60'],[300,380,'255,200,60'],[380,350,'255,200,60'],[460,390,'255,140,60'],[180,460,'255,140,60'],[260,440,'255,60,60'],[340,480,'255,60,60'],[420,460,'255,60,60'],[200,550,'255,60,60'],[300,570,'255,60,60'],[400,540,'255,60,60']].map(([x,y,c])=>`<circle cx="${x}" cy="${y}" r="10" fill="rgba(${c},0.85)" stroke="rgba(${c.split(',').slice(0,3).join(',')},1)" stroke-width="1.5"/>`).join('')}<rect x="80" y="600" width="440" height="120" rx="4" fill="rgba(255,100,60,0.35)" stroke="rgba(255,100,60,0.85)" stroke-width="2"/><text class="fld-measure fld-zone" x="300" y="670" text-anchor="middle" fill="rgba(140,60,20,0.95)" font-size="14" font-weight="800">COLCHONETA 4 m</text><text x="300" y="290" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">12 m ancho · 4.5 m alto</text><text x="300" y="755" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">ESCALADA BOULDER (IFSC) · Sin cuerda · Altura max 4.5 m</text>`},
+ 'Escalada Speed': {bg:'#ffffff',svg:`<rect x="220" y="30" width="160" height="740" rx="3" fill="rgba(200,60,60,0.12)" stroke="rgba(150,40,40,0.9)" stroke-width="2.5"/>${Array.from({length:24},(_,i)=>`<line x1="220" y1="${60+i*30}" x2="380" y2="${60+i*30}" stroke="rgba(150,40,40,0.15)"/>`).join('')}${Array.from({length:20},(_,i)=>{const x=(i%2?260:340);const y=60+i*35;return`<circle cx="${x}" cy="${y}" r="8" fill="rgba(255,200,0,0.95)" stroke="rgba(200,140,0,1)" stroke-width="1.2"/>`}).join('')}<rect x="220" y="30" width="160" height="20" fill="rgba(255,60,60,0.3)" stroke="rgba(200,20,20,1)" stroke-width="1.5"/><text class="fld-measure fld-zone" x="300" y="44" text-anchor="middle" fill="#fff" font-size="10" font-weight="800">TOP · META</text><rect x="220" y="730" width="160" height="30" fill="rgba(60,200,60,0.3)" stroke="rgba(20,120,20,1)" stroke-width="1.5"/><text class="fld-measure fld-zone" x="300" y="750" text-anchor="middle" fill="rgba(20,80,20,1)" font-size="10" font-weight="800">START</text><text x="300" y="22" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">15 m alto estandar</text><text x="212" y="400" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 212 400)">3 m ancho</text><text x="300" y="785" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">ESCALADA SPEED (IFSC) · Muro 15m · 20 presas fijas · cronometrado</text>`},
+ 'Skateboarding Street': {bg:'#ffffff',svg:`<rect x="40" y="40" width="520" height="720" fill="rgba(200,200,200,0.2)" rx="4"/><rect x="80" y="100" width="440" height="20" rx="3" fill="rgba(100,120,140,0.3)" stroke="rgba(60,80,110,0.8)"/><text class="fld-measure fld-zone" x="300" y="145" text-anchor="middle" fill="rgba(40,60,80,0.9)" font-size="10" font-weight="700">LEDGE (riel largo)</text><polygon points="60,280 180,280 200,340 60,340" fill="rgba(180,140,100,0.35)" stroke="rgba(140,100,50,0.8)"/><text class="fld-measure fld-zone" x="130" y="315" text-anchor="middle" fill="rgba(100,70,20,0.9)" font-size="9" font-weight="700">MANUAL PAD</text><rect x="420" y="270" width="100" height="80" rx="3" fill="rgba(220,180,60,0.25)" stroke="rgba(160,120,40,0.85)"/>${Array.from({length:6},(_,i)=>`<line x1="420" y1="${278+i*12}" x2="520" y2="${278+i*12}" stroke="rgba(160,120,40,0.65)"/>`).join('')}<text class="fld-measure fld-zone" x="470" y="315" text-anchor="middle" fill="rgba(120,80,20,0.9)" font-size="9" font-weight="700">STAIR SET 6</text><rect x="100" y="440" width="300" height="14" rx="2" fill="rgba(180,100,40,0.9)"/><text class="fld-measure fld-zone" x="250" y="475" text-anchor="middle" fill="rgba(120,60,20,0.9)" font-size="9" font-weight="700">HANDRAIL LARGO</text><path d="M100 600 L240 600 L260 680 L100 680 Z" fill="rgba(180,140,100,0.35)" stroke="rgba(140,100,50,0.85)"/><text class="fld-measure fld-zone" x="175" y="645" text-anchor="middle" fill="rgba(100,70,20,0.9)" font-size="9" font-weight="700">BANK</text><circle cx="470" cy="580" r="60" fill="rgba(100,120,140,0.2)" stroke="rgba(80,100,130,0.7)" stroke-width="1.5"/><circle cx="470" cy="580" r="40" fill="rgba(120,140,160,0.25)" stroke="rgba(80,100,130,0.5)" stroke-dasharray="4 3"/><text class="fld-measure fld-zone" x="470" y="584" text-anchor="middle" fill="rgba(40,60,80,0.9)" font-size="9" font-weight="700">MINI BOWL</text><text x="300" y="30" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">STREET COURSE · 30 x 50 m</text><text x="300" y="775" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">STREET (WST) · Ledge · Pad · Stair · Handrail · Bank · Mini bowl</text>`},
+ 'Skateboarding Bowl': {bg:'#ffffff',svg:`<rect x="40" y="40" width="520" height="720" fill="rgba(200,200,200,0.18)" rx="4"/><circle cx="300" cy="400" r="240" fill="rgba(60,80,110,0.08)" stroke="rgba(60,80,110,0.95)" stroke-width="3"/><circle cx="300" cy="400" r="200" fill="rgba(80,100,130,0.15)" stroke="rgba(60,80,110,0.7)" stroke-width="1.5" stroke-dasharray="5 3"/><circle cx="300" cy="400" r="160" fill="rgba(100,120,150,0.2)" stroke="rgba(60,80,110,0.5)" stroke-width="1"/><circle cx="300" cy="400" r="120" fill="rgba(120,140,170,0.25)" stroke="rgba(60,80,110,0.5)" stroke-dasharray="3 3"/><circle cx="300" cy="400" r="80" fill="rgba(140,160,190,0.3)" stroke="rgba(60,80,110,0.45)"/><circle cx="300" cy="400" r="40" fill="rgba(160,180,200,0.4)" stroke="rgba(60,80,110,0.4)"/><path d="M300 160 L300 640" stroke="rgba(240,200,40,0.75)" stroke-width="1" stroke-dasharray="3 4"/><path d="M60 400 L540 400" stroke="rgba(240,200,40,0.75)" stroke-width="1" stroke-dasharray="3 4"/><text class="fld-measure fld-zone" x="300" y="404" text-anchor="middle" fill="rgba(40,60,80,0.95)" font-size="12" font-weight="800">DEEP END 3.4 m</text><text x="300" y="30" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">BOWL · 12 m diam. · Deep end 3.4 m · Shallow 1.5 m</text><text x="300" y="775" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">BOWL (WST) · Piscina transicion suave · Coping · Cloverleaf</text>`},
+ 'Skateboarding Vert': {bg:'#ffffff',svg:`<rect x="40" y="40" width="520" height="720" fill="rgba(200,200,200,0.2)" rx="4"/><path d="M80 600 Q80 200 220 200 L380 200 Q520 200 520 600 Z" fill="rgba(100,120,140,0.3)" stroke="rgba(60,80,110,0.9)" stroke-width="2.5"/><path d="M80 200 L220 200" stroke="rgba(240,200,40,0.95)" stroke-width="3"/><path d="M380 200 L520 200" stroke="rgba(240,200,40,0.95)" stroke-width="3"/><line x1="80" y1="100" x2="80" y2="200" stroke="rgba(100,100,100,0.6)" stroke-width="2" stroke-dasharray="3 3"/><line x1="520" y1="100" x2="520" y2="200" stroke="rgba(100,100,100,0.6)" stroke-width="2" stroke-dasharray="3 3"/><text class="fld-measure fld-zone" x="80" y="90" text-anchor="middle" fill="rgba(40,40,40,0.9)" font-size="9" font-weight="700">PLATAFORMA</text><text class="fld-measure fld-zone" x="520" y="90" text-anchor="middle" fill="rgba(40,40,40,0.9)" font-size="9" font-weight="700">PLATAFORMA</text><text class="fld-measure fld-zone" x="300" y="400" text-anchor="middle" fill="rgba(40,60,80,0.85)" font-size="14" font-weight="800">VERT RAMP</text><text class="fld-measure fld-zone" x="300" y="425" text-anchor="middle" fill="rgba(40,60,80,0.75)" font-size="10" font-weight="700">Transicion 4.25 m · Vert 60 cm</text><rect x="78" y="198" width="144" height="8" fill="rgba(240,200,40,0.9)" rx="1"/><rect x="378" y="198" width="144" height="8" fill="rgba(240,200,40,0.9)" rx="1"/><text x="300" y="30" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">VERT · 4 m alto · 15 m ancho</text><text x="300" y="775" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">VERT (WST) · Media tubo · Pared vertical 60 cm · Coping · Plataformas</text>`}
+};
+
 const CATS = {
  conjunto:{name:'Conjunto',sports:['Futbol','Baloncesto','Voleibol','Balonmano','Rugby','Hockey','Beisbol','Futbol Americano','Futbol de Salon']},
  raqueta:{name:'Raqueta',sports:['Tenis','Padel','Badminton','Squash','Tenis de Mesa','Fronton']},
@@ -598,7 +641,7 @@ const CATS = {
 };
 
 // ═══════════ SPORT FIELDS (viewBox 600x800, portrait) ═══════════
-const FIELDS = {
+const FIELDS = Object.assign({}, FIELD_VARIANT_SVGS, {
 'Futbol':{bg:'#ffffff',svg:`<rect x="82" y="30" width="436" height="740" rx="3" fill="none"/><line x1="82" y1="400" x2="518" y2="400"/><circle cx="300" cy="400" r="62" fill="none"/><circle cx="300" cy="400" r="3" fill="rgba(0,0,0,0.35)"/><rect x="165" y="30" width="270" height="112" fill="none"/><rect x="210" y="30" width="180" height="45" fill="none"/><path d="M200 142 A55 55 0 0 0 400 142" fill="none"/><rect x="250" y="14" width="100" height="18" rx="2" fill="none"/><rect x="165" y="658" width="270" height="112" fill="none"/><rect x="210" y="725" width="180" height="45" fill="none"/><path d="M200 658 A55 55 0 0 1 400 658" fill="none"/><rect x="250" y="768" width="100" height="18" rx="2" fill="none"/><path d="M82 42 A12 12 0 0 0 94 30" fill="none"/><path d="M506 30 A12 12 0 0 0 518 42" fill="none"/><path d="M82 758 A12 12 0 0 1 94 770" fill="none"/><path d="M506 770 A12 12 0 0 1 518 758" fill="none"/><text x="300" y="22" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">68 m</text><text x="74" y="400" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 74 400)">105 m</text><text x="300" y="790" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">FUTBOL (FIFA) · Area 40.32x16.5m</text>`},
 'Baloncesto':{bg:'#ffffff',svg:`<rect x="90" y="30" width="420" height="740" fill="none" stroke-width="2"/><line x1="90" y1="400" x2="510" y2="400" stroke-width="1.5"/><circle cx="300" cy="400" r="50" fill="none" stroke-width="1.5"/><rect x="231" y="30" width="137" height="153" fill="none" stroke-width="1.5"/><path d="M231 183 A50 50 0 0 0 369 183" fill="none" stroke-width="1.5"/><path d="M231 183 A50 50 0 0 1 369 183" fill="none" stroke-dasharray="6 4" stroke-width="1"/><rect x="275" y="62" width="50" height="3" fill="none" stroke-width="1.5"/><circle cx="300" cy="72" r="6" fill="none" stroke-width="1.5"/><path d="M115 30 L115 109 A189 178 0 0 0 485 109 L485 30" fill="none" stroke-width="1.5"/><rect x="231" y="617" width="137" height="153" fill="none" stroke-width="1.5"/><path d="M231 617 A50 50 0 0 1 369 617" fill="none" stroke-width="1.5"/><path d="M231 617 A50 50 0 0 0 369 617" fill="none" stroke-dasharray="6 4" stroke-width="1"/><rect x="275" y="735" width="50" height="3" fill="none" stroke-width="1.5"/><circle cx="300" cy="728" r="6" fill="none" stroke-width="1.5"/><path d="M115 770 L115 691 A189 178 0 0 1 485 691 L485 770" fill="none" stroke-width="1.5"/><text x="300" y="22" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">15 m</text><text x="82" y="400" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 82 400)">28 m</text><text x="300" y="790" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">BALONCESTO (FIBA) · Triple 6.75m · Zona 4.9x5.8m</text>`},
 'Voleibol':{bg:'#ffffff',svg:`<rect x="60" y="50" width="480" height="700" rx="3" fill="none"/><line x1="60" y1="400" x2="540" y2="400" stroke-width="3"/><line x1="60" y1="283" x2="540" y2="283" stroke-dasharray="6 4"/><line x1="60" y1="517" x2="540" y2="517" stroke-dasharray="6 4"/><text x="300" y="42" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">9 m</text><text x="52" y="400" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 52 400)">18 m</text><text x="300" y="273" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(80,80,80,0.9)" data-mono="1" font-size="9" font-family="system-ui">LINEA DE ATAQUE (3m)</text><text x="300" y="537" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(80,80,80,0.9)" data-mono="1" font-size="9" font-family="system-ui">LINEA DE ATAQUE (3m)</text><text x="300" y="390" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">RED (2.43m H / 2.24m M)</text><text x="300" y="775" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">VOLEIBOL (FIVB)</text>`},
@@ -679,7 +722,7 @@ const FIELDS = {
 'Tiro Deportivo':{bg:'#ffffff',svg:`<rect x="80" y="40" width="440" height="720" fill="rgba(245,245,245,0.4)" stroke="rgba(120,120,120,0.4)" stroke-width="1.5"/>${[0,1,2,3,4].map(i=>`<rect x="${100+i*88}" y="50" width="70" height="180" rx="4" fill="rgba(255,255,255,0.95)" stroke="rgba(0,0,0,0.6)" stroke-width="1.5"/><g transform="translate(${135+i*88},120)"><circle r="38" fill="rgba(255,255,255,1)" stroke="rgba(0,0,0,0.85)" stroke-width="1.2"/><circle r="30" fill="rgba(0,0,0,0.95)"/><circle r="22" fill="rgba(255,255,255,1)" stroke="rgba(0,0,0,0.6)" stroke-width="0.8"/><circle r="14" fill="rgba(0,0,0,0.95)"/><circle r="7" fill="rgba(255,60,60,0.95)"/></g><text class="fld-measure fld-zone" x="${135+i*88}" y="253" text-anchor="middle" fill="rgba(40,40,40,0.85)" font-size="10" font-weight="800">PUESTO ${i+1}</text>`).join('')}<rect x="100" y="650" width="400" height="60" rx="3" fill="rgba(180,140,100,0.3)" stroke="rgba(120,80,40,0.7)" stroke-width="1.5"/><text class="fld-measure fld-zone" x="300" y="685" text-anchor="middle" fill="rgba(90,60,30,0.95)" font-size="11" font-weight="800">LINEA DE TIRO</text>${[0,1,2,3,4].map(i=>`<line x1="${135+i*88}" y1="230" x2="${135+i*88}" y2="650" stroke="rgba(120,120,120,0.25)" stroke-dasharray="4 5"/>`).join('')}<text x="300" y="30" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">5 puestos · separacion 1 m</text><text x="72" y="440" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 72 440)">10 m</text><text x="300" y="775" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">TIRO DEPORTIVO (ISSF) · Aire 10m · Diana 11.5 cm · 10 zonas</text>`},
 // Petanca: 15m x 4m playing area
 'Petanca':{bg:'#ffffff',svg:`<rect x="180" y="60" width="240" height="680" fill="rgba(220,200,170,0.35)" stroke="rgba(120,80,40,0.65)" stroke-width="1.5"/>${Array.from({length:24},(_,i)=>`<rect x="${180+(i%4)*60+Math.random()*8}" y="${70+Math.floor(i/4)*110+Math.random()*8}" width="2" height="2" fill="rgba(120,80,40,0.35)" rx="1"/>`).join('')}<circle cx="180" cy="140" r="40" fill="none" stroke="rgba(120,80,40,0.6)" stroke-width="1.3" stroke-dasharray="5 3"/><text class="fld-measure fld-zone" x="160" y="145" text-anchor="end" fill="rgba(90,60,30,0.9)" font-size="8" font-weight="700">CIRCULO TIRO</text><circle cx="300" cy="480" r="5" fill="rgba(255,255,60,0.95)" stroke="rgba(180,140,0,1)" stroke-width="1.2"/><text class="fld-measure fld-zone" x="320" y="483" fill="rgba(120,80,20,0.95)" font-size="9" font-weight="700">COCHONNET</text>${[[275,450,'rgba(220,60,60,'],[325,475,'rgba(220,60,60,'],[290,510,'rgba(220,60,60,'],[310,495,'rgba(60,120,220,'],[280,525,'rgba(60,120,220,'],[335,450,'rgba(60,120,220,']].map(([x,y,c])=>`<circle cx="${x}" cy="${y}" r="8" fill="${c}0.85)" stroke="${c}1)" stroke-width="1"/>`).join('')}<text x="300" y="50" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">4 m</text><text x="172" y="400" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 172 400)">15 m</text><text x="300" y="775" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">PETANCA (FIPJP) · 15x4m · Cochonnet · 6 bolas por equipo</text>`}
-};
+});
 const DEFAULT_FIELD = {bg:'#ffffff',svg:`<rect x="60" y="40" width="480" height="720" rx="4" fill="none"/><line x1="300" y1="40" x2="300" y2="760" stroke-dasharray="4 3"/>`};
 
 // ═══════════ TOOLS ═══════════
@@ -944,6 +987,16 @@ const S = {
   // Initialize scoreboard state
   ST.score = {home: 0, away: 0};
   ST.goalCooldown = {};
+  try { ST.scoreboardEnabled = localStorage.getItem('tb_score_enabled') === '1'; } catch(e){ ST.scoreboardEnabled = false; }
+  try { ST.gearEnabled = localStorage.getItem('tb_gear_enabled') === '1'; } catch(e){ ST.gearEnabled = false; }
+  setTimeout(() => {
+   const btn = document.getElementById('score-toggle');
+   if (btn) btn.classList.toggle('active', ST.scoreboardEnabled);
+   const gbtn = document.getElementById('gear-toggle');
+   if (gbtn) gbtn.classList.toggle('active', ST.gearEnabled);
+   this.updateScoreboard();
+   this.updateVariantSelector();
+  }, 50);
   this.renderTabs();
   this.renderToolbar();
   this.setSport(CATS.conjunto.sports[0]);
@@ -1068,9 +1121,10 @@ const S = {
 
  setSport(name) {
   ST.sport = name;
+  ST.variant = null;
   ST.elements = []; ST.selected = []; ST.nextId = 1;
   this.saveHistory();
-  // Render field according to current view mode (preserve 3D across sport change)
+  this.updateVariantSelector();
   if (ST.viewMode === '3d') {
    this.render3DField();
   } else {
@@ -1125,13 +1179,115 @@ const S = {
   const sb = document.getElementById('scoreboard');
   if (!sb) return;
   const zones = this.getGoalZones();
-  if (zones.length === 0) {
+  const enabled = ST.scoreboardEnabled === true;
+  if (zones.length === 0 || !enabled) {
    sb.classList.remove('show');
   } else {
    sb.classList.add('show');
    document.getElementById('sb-score-a').textContent = ST.score?.home || 0;
    document.getElementById('sb-score-b').textContent = ST.score?.away || 0;
   }
+ },
+
+ toggleScoreboardBtn() {
+  ST.scoreboardEnabled = !ST.scoreboardEnabled;
+  const btn = document.getElementById('score-toggle');
+  if (btn) btn.classList.toggle('active', ST.scoreboardEnabled);
+  try { localStorage.setItem('tb_score_enabled', ST.scoreboardEnabled ? '1' : '0'); } catch(e){}
+  this.updateScoreboard();
+ },
+
+ toggleGear() {
+  ST.gearEnabled = !ST.gearEnabled;
+  const btn = document.getElementById('gear-toggle');
+  if (btn) btn.classList.toggle('active', ST.gearEnabled);
+  try { localStorage.setItem('tb_gear_enabled', ST.gearEnabled ? '1' : '0'); } catch(e){}
+  this.renderElements();
+ },
+
+ // Sport-specific gear overlay (casco, tabla, arco, etc.) — returns SVG string
+ _sportGear3D(el, s) {
+  if (!ST.gearEnabled) return '';
+  const sp = ST.sport;
+  const baseSport = sp.startsWith('Golf')?'Golf':sp.startsWith('Escalada')?'Escalada':sp.startsWith('Skateboarding')?'Skateboarding':sp;
+  if (baseSport === 'Escalada') {
+   return `<ellipse cx="0" cy="${-34*s}" rx="${10*s}" ry="${5*s}" fill="rgba(255,60,60,0.95)" stroke="rgba(120,20,20,0.9)" stroke-width="${0.8*s}"/><line x1="${-8*s}" y1="${-10*s}" x2="${-16*s}" y2="${-40*s}" stroke="rgba(200,200,50,0.85)" stroke-width="${1.5*s}"/>`;
+  }
+  if (baseSport === 'Skateboarding') {
+   return `<ellipse cx="0" cy="${20*s}" rx="${18*s}" ry="${3*s}" fill="rgba(80,40,20,0.9)" stroke="rgba(40,20,10,1)" stroke-width="${0.6*s}"/><circle cx="${-14*s}" cy="${22*s}" r="${1.8*s}" fill="rgba(0,0,0,0.85)"/><circle cx="${14*s}" cy="${22*s}" r="${1.8*s}" fill="rgba(0,0,0,0.85)"/>`;
+  }
+  if (baseSport === 'Surf') {
+   return `<ellipse cx="0" cy="${22*s}" rx="${22*s}" ry="${4*s}" fill="rgba(240,240,240,0.95)" stroke="rgba(40,100,180,0.95)" stroke-width="${0.8*s}"/>`;
+  }
+  if (baseSport === 'Tiro con Arco') {
+   return `<path d="M${12*s},${-20*s} Q${20*s},${-4*s} ${12*s},${12*s}" fill="none" stroke="rgba(100,60,20,0.95)" stroke-width="${1.5*s}"/><line x1="${12*s}" y1="${-20*s}" x2="${12*s}" y2="${12*s}" stroke="rgba(240,230,200,0.9)" stroke-width="${0.5*s}"/><line x1="${-6*s}" y1="${-4*s}" x2="${18*s}" y2="${-4*s}" stroke="rgba(180,140,80,0.95)" stroke-width="${1.2*s}"/><polygon points="${18*s},${-6*s} ${22*s},${-4*s} ${18*s},${-2*s}" fill="rgba(120,80,40,1)"/>`;
+  }
+  if (baseSport === 'Natacion') {
+   return `<ellipse cx="0" cy="${-30*s}" rx="${9*s}" ry="${8*s}" fill="rgba(60,120,220,0.95)" stroke="rgba(20,60,140,1)" stroke-width="${0.7*s}"/><ellipse cx="${-3*s}" cy="${-26*s}" rx="${2*s}" ry="${1.2*s}" fill="rgba(200,230,255,0.9)" stroke="rgba(40,40,40,0.8)" stroke-width="${0.3*s}"/><ellipse cx="${3*s}" cy="${-26*s}" rx="${2*s}" ry="${1.2*s}" fill="rgba(200,230,255,0.9)" stroke="rgba(40,40,40,0.8)" stroke-width="${0.3*s}"/>`;
+  }
+  if (baseSport === 'Golf') {
+   return `<line x1="${6*s}" y1="${-12*s}" x2="${22*s}" y2="${18*s}" stroke="rgba(100,100,100,0.95)" stroke-width="${1.4*s}"/><ellipse cx="${22*s}" cy="${18*s}" rx="${3*s}" ry="${1.8*s}" fill="rgba(220,220,220,0.95)" stroke="rgba(80,80,80,1)" stroke-width="${0.5*s}" transform="rotate(60 ${22*s} ${18*s})"/>`;
+  }
+  if (baseSport === 'Curling') {
+   return `<ellipse cx="${-8*s}" cy="${16*s}" rx="${6*s}" ry="${3*s}" fill="rgba(220,220,220,0.95)" stroke="rgba(80,80,80,1)" stroke-width="${0.7*s}"/><line x1="${8*s}" y1="${-8*s}" x2="${18*s}" y2="${14*s}" stroke="rgba(100,60,20,0.95)" stroke-width="${1.2*s}"/>`;
+  }
+  if (baseSport === 'Dardos') {
+   return `<line x1="${6*s}" y1="${-4*s}" x2="${14*s}" y2="${-8*s}" stroke="rgba(100,100,100,0.95)" stroke-width="${1.2*s}"/><polygon points="${14*s},${-8*s} ${17*s},${-9*s} ${14*s},${-7*s}" fill="rgba(220,60,60,1)"/>`;
+  }
+  if (baseSport === 'Hockey' || baseSport === 'Floorball') {
+   return `<line x1="${-8*s}" y1="${-4*s}" x2="${16*s}" y2="${20*s}" stroke="rgba(120,80,40,0.95)" stroke-width="${1.3*s}"/><rect x="${15*s}" y="${18*s}" width="${6*s}" height="${3*s}" fill="rgba(40,40,40,0.95)" transform="rotate(25 ${16*s} ${20*s})"/>`;
+  }
+  if (baseSport === 'Tenis' || baseSport === 'Padel' || baseSport === 'Badminton' || baseSport === 'Squash') {
+   return `<line x1="${6*s}" y1="${-4*s}" x2="${14*s}" y2="${-14*s}" stroke="rgba(100,60,20,0.95)" stroke-width="${1.2*s}"/><ellipse cx="${14*s}" cy="${-14*s}" rx="${5*s}" ry="${6*s}" fill="rgba(240,240,240,0.3)" stroke="rgba(40,40,40,0.95)" stroke-width="${0.8*s}"/>`;
+  }
+  return '';
+ },
+
+ // ── FIELD VARIANTS ──
+ updateVariantSelector() {
+  const seg = document.getElementById('variant-seg');
+  const select = document.getElementById('variant-select');
+  if (!seg || !select) return;
+  // Find base sport (handle variant sports by normalizing)
+  let baseSport = ST.sport;
+  for (const base in FIELD_VARIANTS) {
+   const vs = FIELD_VARIANTS[base];
+   if (vs.some(v => v.sport === ST.sport)) { baseSport = base; break; }
+  }
+  const variants = FIELD_VARIANTS[baseSport];
+  if (!variants) {
+   seg.style.display = 'none';
+   return;
+  }
+  seg.style.display = 'flex';
+  select.innerHTML = variants.map(v => `<option value="${v.key}" data-sport="${v.sport}">${v.label}</option>`).join('');
+  // Set current selection
+  const current = variants.find(v => v.sport === ST.sport) || variants[0];
+  select.value = current.key;
+  ST.variant = current.key;
+ },
+
+ setVariant(key) {
+  const select = document.getElementById('variant-select');
+  if (!select) return;
+  const opt = select.options[select.selectedIndex];
+  const newSport = opt.getAttribute('data-sport');
+  if (!newSport || newSport === ST.sport) return;
+  // Switch sport but remember we're on a variant
+  ST.sport = newSport;
+  ST.variant = key;
+  this.saveHistory();
+  if (ST.viewMode === '3d') {
+   this.render3DField();
+  } else {
+   const f = FIELDS[newSport] || DEFAULT_FIELD;
+   const tc = this.getFieldColors();
+   const fl = document.getElementById('field-layer');
+   fl.innerHTML = `<rect x="0" y="0" width="600" height="800" fill="${tc.bg}" rx="0"/>` +
+    `<g stroke="${tc.stroke}" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">${f.svg}</g>`;
+  }
+  this.renderElements();
+  this.updateScoreboard();
  },
 
  resetScore() {
@@ -1566,7 +1722,14 @@ const S = {
   const D = dark ? 'rgba(255,255,255,' : 'rgba(0,0,0,';
   const Y='rgba(255,200,0,';
   let L = '';
-  const s = ST.sport;
+  // Normalize variant sports to their base render (variants share 3D render with parent sport)
+  const VARIANT_TO_BASE = {
+   'Futbol 7v7':'Futbol',
+   'Golf Par 3':'Golf', 'Golf Par 5':'Golf',
+   'Escalada Boulder':'Escalada', 'Escalada Speed':'Escalada',
+   'Skateboarding Street':'Skateboarding', 'Skateboarding Bowl':'Skateboarding', 'Skateboarding Vert':'Skateboarding'
+  };
+  const s = VARIANT_TO_BASE[ST.sport] || ST.sport;
 
   if(s==='Futbol'||s==='FIFA') {
    L += this.isoRect(82,30,436,740,D+'0.65)',1.5);
@@ -3105,11 +3268,12 @@ const S = {
   const hR=9*s;
   const head = el.photo ? this._photoClip(el.photo, 'ai3d'+el.id, 0, -22*s, hR) :
    `<circle cx="0" cy="${-22*s}" r="${hR}" fill="${c}" opacity="0.15" stroke="${c}" stroke-width="${1.5*s}"/>`;
+  const gear3D = this._sportGear3D(el, s);
   return `<g transform="translate(${el.x},${el.y})" data-id="${el.id}" style="cursor:grab">${shadow}<g transform="translate(0,${-bh*0.35})">
    <rect x="${-8*s}" y="${-8*s}" width="${16*s}" height="${20*s}" rx="${8*s}" fill="${c}" opacity="0.85"/>
    <text x="0" y="${4*s}" text-anchor="middle" font-size="${11*s}" fill="${cc}" font-weight="800">${lbl}</text>
    <rect x="${-3*s}" y="${12*s}" width="${2.5*s}" height="${8*s}" rx="${1*s}" fill="${c}" opacity="0.5"/><rect x="${0.5*s}" y="${12*s}" width="${2.5*s}" height="${8*s}" rx="${1*s}" fill="${c}" opacity="0.5"/>
-   ${head}
+   ${head}${gear3D}
   </g>${nmText}${posText}</g>`;
  },
 

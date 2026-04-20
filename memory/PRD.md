@@ -9,6 +9,41 @@
 
 ## Implementado
 
+### FASE 1 + 2 + 3 completas (Feb 2026)
+
+**FASE 1 — Fixes + Categoria Precision + Drag/Zoom natural:**
+- **Voleibol red FIVB 3D**: malla flotando entre 1.43m y 2.43m (no toca piso), postes, antenas rojas (80cm sobre red), bandas blancas, mesh detallado
+- **Categoria Precision** nueva con 6 deportes reglamentarios: Tiro con Arco (FITA 70m diana 122cm), Bochas (27.5x3.7m CBI), Dardos (WDF/PDC 20 sectores), Curling (WCF 45.72x5m), Tiro Deportivo (ISSF 10m), Petanca (FIPJP 15x4m) — todos en 2D y 3D con iconos en sidebar
+- **Zoom con pivote en cursor**: scroll mantiene el punto del mouse fijo (sensacion natural)
+- **Drag del escenario**: middle-click o Ctrl+click + arrastrar para mover libremente
+
+**FASE 2 — Deteccion automatica de puntos:**
+- **Toggle "Marcador"** en barra CAMPO (icono scoreboard): off por defecto, persistido
+- **Zonas de gol por deporte**: `getGoalZones()` para Futbol/Futsal/Balonmano/Hockey (porteria), Baloncesto (aro circular), Voleibol (mitades de cancha), Rugby/NFL (end zones), Beisbol (home plate)
+- **Deteccion edge-crossing**: detecta cuando el balon CRUZA la linea/aro (antes estaba fuera, ahora dentro)
+- **Cooldown de 1.5s** entre goles para evitar multi-triggers
+- **Contador LOCAL/VISITANTE** con colores rojo/azul, reset button
+- **Animacion "¡GOL!" / "¡CESTA!" / "¡PUNTO!"** flash 72px amarilla con glow y scale
+- **Reposicionamiento**: scoreboard en esquina top-left (ya no flotando sobre el campo)
+
+**FASE 3 — Variantes + Jugadores 3D especializados:**
+- **Selector "VARIANTE"** dropdown en barra superior, aparece solo cuando el deporte tiene formatos
+- **Futbol**: 11vs11 (FIFA) · 7vs7 (Juvenil 45-55x65-75m · porteria 5x2m) · 5vs5 (Futsal)
+- **Golf**: Par 4 · Par 3 (180yd, 1 golpe al green) · Par 5 (540yd, dog-leg, 2 bunkers, agua)
+- **Escalada**: Lead (15m) · Boulder (4.5m sin cuerda + colchoneta 4m) · Speed (muro 15m con 20 presas amarillas fijas cronometrado)
+- **Skateboarding**: Park · Street (urbano: ledge + manual pad + stair + handrail + bank + mini bowl) · Bowl (12m diam cloverleaf) · Vert (half-pipe 4m con plataformas y coping)
+- **Toggle Gear** (icono sun): activa equipamiento 3D por deporte:
+  - Escalada: casco rojo + cuerda amarilla
+  - Skateboarding: tabla con ruedas bajo pies + casco
+  - Surf: tabla blanca azul
+  - Tiro con Arco: arco + flecha + punta
+  - Natacion: gorra azul + lentes
+  - Golf: palo en diagonal + bola blanca
+  - Curling: piedra + escoba amarilla
+  - Dardos: dardo con punta roja
+  - Hockey/Floorball: stick
+  - Tenis/Padel/Badminton/Squash: raqueta con cuerdas
+
 ### Fix porterias, escalada y skateboarding 3D (Feb 2026)
 - **Fix porterias futbol/futsal/balonmano/hockey 3D**: postes ahora en y=30/770 (futbol, futsal) o y=40/760 (balonmano, hockey) pegados a la linea de gol, red extiende hacia afuera (-gd hacia atras del top, +gd hacia adelante del bottom)
 - **Escalada 3D rediseñada**: muro grande posicionado en Y=200 con altura 280, grid texturado de paneles verticales/horizontales, 14 presas coloreadas por dificultad con coordenadas X recalibradas al ancho del muro, ruta punteada amarilla conectando presas, colchoneta naranja grande de 360×55, texto INICIO
