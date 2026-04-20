@@ -728,7 +728,7 @@ const FIELDS = Object.assign({}, FIELD_VARIANT_SVGS, {
 'Circuito':{bg:'#ffffff',svg:`${Array.from({length:16},(_,i)=>`<line x1="${i*40}" y1="0" x2="${i*40}" y2="800" class="grid-line"/>`).join('')}${Array.from({length:21},(_,j)=>`<line x1="0" y1="${j*40}" x2="600" y2="${j*40}" class="grid-line"/>`).join('')}`},
 // ══ TRADICIONALES DE PRECISION (medidas reglamentarias escaladas) ══
 // Minitejo: cancha 3m x 1.5m · caja 50cm · bocin 10cm · 4 mechas · linea lanzamiento a 2m
-'Minitejo':{bg:'#ffffff',svg:`<rect x="250" y="30" width="100" height="720" fill="rgba(160,115,70,0.08)" rx="4"/><rect x="250" y="30" width="100" height="720" fill="none" stroke-width="1.8"/><rect x="270" y="50" width="60" height="60" fill="rgba(180,120,60,0.2)" stroke-width="1.6"/><line x1="250" y1="700" x2="350" y2="700" stroke-width="2" stroke-dasharray="6 4"/><text x="300" y="22" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">2 m</text><text x="242" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 242 404)">13 m</text><text x="300" y="140" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">CAJA 50x50 · BOCÍN 12 cm</text><text x="300" y="720" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE LANZAMIENTO</text><text x="300" y="760" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">MINITEJO</text>`},
+'Minitejo':{bg:'#ffffff',svg:`<rect x="250" y="30" width="100" height="720" fill="rgba(160,115,70,0.08)" rx="4"/><rect x="250" y="30" width="100" height="720" fill="none" stroke-width="1.8"/><rect x="282" y="166" width="36" height="39" fill="rgba(160,90,40,0.25)" stroke="rgba(90,45,15,0.85)" stroke-width="1.5"/><line x1="282" y1="205" x2="318" y2="166" stroke="#dc2626" stroke-width="0.8" opacity="0.7"/><line x1="282" y1="166" x2="318" y2="205" stroke="#dc2626" stroke-width="0.8" opacity="0.7"/><circle cx="300" cy="185" r="3" fill="#2d1508" stroke="#b8860b" stroke-width="1"/><line x1="250" y1="700" x2="350" y2="700" stroke-width="2" stroke-dasharray="6 4"/><text x="300" y="22" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">Distancia de tiro</text><text x="242" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 242 404)">5-8 m</text><text x="300" y="155" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">CAJA 60×65 cm · BOCÍN 10 cm · Tablero 100 cm</text><text x="300" y="720" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE LANZAMIENTO</text><text x="300" y="760" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">MINITEJO</text>`},
 // Rana: mesa 80cm x 80cm con sapo, 7 agujeros, linea lanzamiento a 3m
 'Rana':{bg:'#ffffff',svg:`<rect x="135" y="80" width="330" height="620" fill="rgba(100,140,80,0.06)" rx="4"/><rect x="135" y="80" width="330" height="620" fill="none" stroke-width="1.5"/><rect x="195" y="120" width="210" height="210" fill="rgba(120,80,40,0.18)" stroke-width="1.8" rx="4"/><circle cx="300" cy="225" r="22" fill="rgba(0,0,0,0.35)" stroke-width="0"/><circle cx="300" cy="225" r="16" fill="rgba(255,200,60,0.4)" stroke-width="0.8"/><circle cx="235" cy="160" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="365" cy="160" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="235" cy="290" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="365" cy="290" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="300" cy="150" r="8" fill="rgba(0,0,0,0.2)"/><circle cx="300" cy="300" r="8" fill="rgba(0,0,0,0.2)"/><line x1="135" y1="600" x2="465" y2="600" stroke-width="2" stroke-dasharray="6 4"/><line x1="300" y1="330" x2="300" y2="600" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.45"/><text x="308" y="470" class="fld-measure fld-zone" fill="rgba(40,40,40,0.85)" data-mono="1" font-size="9" font-family="system-ui">3.5 m</text><text x="300" y="72" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">2.3 m</text><text x="127" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">1.5 m</text><text x="300" y="360" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">MESA 80x80 cm · BOCA CENTRAL (SAPO)</text><text x="300" y="622" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE LANZAMIENTO (3.5 m)</text><text x="300" y="720" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">RANA (Sapo) · Reglamento 3.5m</text>`},
 // BOLIRANA: variante mesa larga tipo mueble mesón con carril + rana y agujeros
@@ -3138,55 +3138,73 @@ flashGoal(label) {
    O += `<text x="${sign.x}" y="${sign.y}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="11" font-weight="800" fill="rgba(245,230,200,0.9)" stroke="rgba(0,0,0,0.3)" stroke-width="0.3">19.5 m · BOCÍN 17 cm</text>`;
   }
 
-  // MINITEJO 3D: cancha recreativa ~13m × 2m (ratio 6.5:1). Caja proporcionalmente menor.
+  // MINITEJO 3D: caja oficial 60cm×65cm. Greda inclinada (frente 5cm → atrás 35cm).
+  // Tablero vertical 65cm sobre la greda trasera (altura total 100cm).
+  // Bocín cilíndrico ~10cm centrado. Líneas rojas diagonales sobre la greda.
   if(s==='Minitejo') {
-   // Caja proporcional: ~0.7m sobre cancha ~2m → caja ocupa ~35% del ancho visual
-   const bx = 285, by = 170, bw = 30, bh = 30;
-   const backH = 35;        // tablero vertical bajo (~1.2m real)
-   const frontH = 5;        // greda casi plana al frente
+   // Escala visual: 1cm ≈ 0.6 unidades (caja 60cm → 36u ancho, 65cm → 39u profundidad)
+   const bx = 282, by = 166, bw = 36, bh = 39;
+   const frontH = 3;        // 5cm
+   const backH = 21;        // 35cm (greda inclinada hasta el fondo)
+   const panH_ = 39;        // 65cm de tablero vertical sobre el backH (total ~100cm)
+   // === Cuerpo trapezoidal azul (cara frontal muy baja) ===
    const fbl = this.toIso(bx, by+bh, 0), fbr = this.toIso(bx+bw, by+bh, 0);
    const ftl = this.toIso(bx, by+bh, frontH), ftr = this.toIso(bx+bw, by+bh, frontH);
    O += `<polygon points="${fbl.x},${fbl.y} ${fbr.x},${fbr.y} ${ftr.x},${ftr.y} ${ftl.x},${ftl.y}" fill="#1e3a8a" stroke="#0f1e4a" stroke-width="1.2"/>`;
+   // Lateral izquierdo (trapecio 5cm→35cm)
    const bbl = this.toIso(bx, by, 0), bbltop = this.toIso(bx, by, backH);
    O += `<polygon points="${fbl.x},${fbl.y} ${bbl.x},${bbl.y} ${bbltop.x},${bbltop.y} ${ftl.x},${ftl.y}" fill="#1e40af" stroke="#0f1e4a" stroke-width="1"/>`;
+   // Lateral derecho
    const bbr = this.toIso(bx+bw, by, 0), bbrtop = this.toIso(bx+bw, by, backH);
    O += `<polygon points="${fbr.x},${fbr.y} ${bbr.x},${bbr.y} ${bbrtop.x},${bbrtop.y} ${ftr.x},${ftr.y}" fill="#172a6b" stroke="#0f1e4a" stroke-width="1"/>`;
-   // Superficie inclinada turquesa
-   O += `<polygon points="${ftl.x},${ftl.y} ${ftr.x},${ftr.y} ${bbrtop.x},${bbrtop.y} ${bbltop.x},${bbltop.y}" fill="#22b8cc" stroke="#0f5a6b" stroke-width="1.2"/>`;
-   // Textura (pocas marcas)
-   for (const [tx,ty] of [[0.3,0.3],[0.6,0.5],[0.4,0.7]]) {
-    const sx2 = bx + tx*bw, sy2 = by + ty*bh;
-    const h = frontH + (1 - ty) * (backH - frontH);
-    const p = this.toIso(sx2, sy2, h);
-    O += `<ellipse cx="${p.x}" cy="${p.y}" rx="1.8" ry="1.2" fill="none" stroke="rgba(15,90,107,0.5)" stroke-width="0.5"/>`;
+   // === Superficie greda inclinada (color tierra/arcilla suave) ===
+   O += `<polygon points="${ftl.x},${ftl.y} ${ftr.x},${ftr.y} ${bbrtop.x},${bbrtop.y} ${bbltop.x},${bbltop.y}" fill="#a57856" stroke="#5a3a1f" stroke-width="1.2"/>`;
+   O += `<polygon points="${ftl.x},${ftl.y} ${ftr.x},${ftr.y} ${bbrtop.x},${bbrtop.y} ${bbltop.x},${bbltop.y}" fill="url(#tejoGrad)" opacity="0.2"/>`;
+   // === Líneas rojas diagonales (del bocín a las 4 esquinas, referencia oficial) ===
+   const ctrX = bx + bw/2, ctrY = by + bh*0.5;
+   const ctrH = frontH + 0.5 * (backH - frontH);
+   const ctr = this.toIso(ctrX, ctrY, ctrH);
+   // 4 esquinas de la greda
+   const corners2 = [
+    this.toIso(bx, by, backH),           // BL atrás
+    this.toIso(bx+bw, by, backH),        // BR atrás
+    this.toIso(bx, by+bh, frontH),       // FL adelante
+    this.toIso(bx+bw, by+bh, frontH)     // FR adelante
+   ];
+   for (const c of corners2) {
+    O += `<line x1="${ctr.x}" y1="${ctr.y}" x2="${c.x}" y2="${c.y}" stroke="#dc2626" stroke-width="0.8" opacity="0.75"/>`;
    }
-   // Panel trasero verde (más pequeño)
-   const panW = bw + 2, panH_ = 28, panX = bx - 1;
+   // === Panel trasero VERTICAL (tablero alto 65cm ≈ panH_=39u, casi igual al ancho) ===
+   const panW = bw + 2, panX = bx - 1;
    const panBL = this.toIso(panX, by, backH), panBR = this.toIso(panX+panW, by, backH);
    const panTL = this.toIso(panX, by, backH + panH_), panTR = this.toIso(panX+panW, by, backH + panH_);
-   O += `<polygon points="${panBL.x},${panBL.y} ${panBR.x},${panBR.y} ${panTR.x},${panTR.y} ${panTL.x},${panTL.y}" fill="#0f1e4a" stroke="#0a1530" stroke-width="1.2"/>`;
-   const padX = 1.5, padY = 1.5;
+   O += `<polygon points="${panBL.x},${panBL.y} ${panBR.x},${panBR.y} ${panTR.x},${panTR.y} ${panTL.x},${panTL.y}" fill="#0f1e4a" stroke="#0a1530" stroke-width="1.3"/>`;
+   const padX = 1.8, padY = 1.8;
    const pBL = this.toIso(panX+padX, by-0.3, backH + padY), pBR = this.toIso(panX+panW-padX, by-0.3, backH + padY);
    const pTL = this.toIso(panX+padX, by-0.3, backH + panH_ - padY), pTR = this.toIso(panX+panW-padX, by-0.3, backH + panH_ - padY);
-   O += `<polygon points="${pBL.x},${pBL.y} ${pBR.x},${pBR.y} ${pTR.x},${pTR.y} ${pTL.x},${pTL.y}" fill="#84cc16" stroke="#4d7c0f" stroke-width="0.8"/>`;
-   // Tornillos (4 esquinas)
-   for (const [tx,ty] of [[0.15,0.2],[0.85,0.2],[0.15,0.8],[0.85,0.8]]) {
+   O += `<polygon points="${pBL.x},${pBL.y} ${pBR.x},${pBR.y} ${pTR.x},${pTR.y} ${pTL.x},${pTL.y}" fill="#84cc16" stroke="#4d7c0f" stroke-width="0.9"/>`;
+   // Tornillos (4 esquinas + centro)
+   for (const [tx,ty] of [[0.12,0.15],[0.88,0.15],[0.12,0.85],[0.88,0.85],[0.5,0.5]]) {
     const sp = this.toIso(panX+padX + tx*(panW-2*padX), by-0.3, backH + padY + ty*(panH_-2*padY));
-    O += `<circle cx="${sp.x}" cy="${sp.y}" r="0.5" fill="#0a1530"/>`;
+    O += `<circle cx="${sp.x}" cy="${sp.y}" r="0.55" fill="#0a1530"/>`;
    }
-   // Bocín (~12cm, proporcional)
-   const bcx = bx + bw/2, bcy = by + bh*0.5;
-   const bocH = frontH + (1 - 0.5) * (backH - frontH);
-   const bocinC = this.toIso(bcx, bcy, bocH + 0.3);
-   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y+0.6}" rx="4.5" ry="1.7" fill="rgba(0,0,0,0.3)"/>`;
-   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y}" rx="4" ry="1.5" fill="#b8860b" stroke="#5a3a0a" stroke-width="0.8"/>`;
-   O += `<ellipse cx="${bocinC.x-0.6}" cy="${bocinC.y-0.3}" rx="1.3" ry="0.5" fill="rgba(255,230,140,0.7)"/>`;
-   // Sombra
+   // === BOCÍN CILÍNDRICO centrado (~10cm alto × 10cm ancho → 6u × 6u) ===
+   const bocH2 = ctrH; // altura base del bocín = superficie greda en el centro
+   const bocinBase = this.toIso(ctrX, ctrY, bocH2);
+   const bocinTop = this.toIso(ctrX, ctrY, bocH2 + 6);
+   // Sombra proyectada
+   O += `<ellipse cx="${bocinBase.x}" cy="${bocinBase.y+1}" rx="4.5" ry="1.8" fill="rgba(0,0,0,0.4)"/>`;
+   // Cuerpo cilíndrico (lateral izq)
+   O += `<path d="M ${bocinBase.x-3.5},${bocinBase.y} L ${bocinBase.x-3.5},${bocinTop.y} A 3.5 1.4 0 0 0 ${bocinBase.x+3.5},${bocinTop.y} L ${bocinBase.x+3.5},${bocinBase.y} A 3.5 1.4 0 0 1 ${bocinBase.x-3.5},${bocinBase.y} Z" fill="#2d1508" stroke="#000" stroke-width="0.8"/>`;
+   // Aro dorado en el tope
+   O += `<ellipse cx="${bocinTop.x}" cy="${bocinTop.y}" rx="3.5" ry="1.4" fill="#1a0a04" stroke="#b8860b" stroke-width="0.9"/>`;
+   O += `<ellipse cx="${bocinTop.x-0.5}" cy="${bocinTop.y-0.2}" rx="1.2" ry="0.4" fill="rgba(255,230,140,0.6)"/>`;
+   // === Sombra general ===
    const sh1 = this.toIso(bx+1, by+bh+3, 0), sh2 = this.toIso(bx+bw+1, by+bh+3, 0);
-   O += `<ellipse cx="${(sh1.x+sh2.x)/2}" cy="${(sh1.y+sh2.y)/2+2}" rx="24" ry="5" fill="rgba(0,0,0,0.28)" filter="url(#blur3d)"/>`;
+   O += `<ellipse cx="${(sh1.x+sh2.x)/2}" cy="${(sh1.y+sh2.y)/2+2}" rx="28" ry="6" fill="rgba(0,0,0,0.3)" filter="url(#blur3d)"/>`;
    // Cartel
    const sign = this.toIso(300, 690, 1);
-   O += `<text x="${sign.x}" y="${sign.y}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="10" font-weight="800" fill="rgba(245,230,200,0.9)">MINITEJO · 13 m · BOCÍN 12 cm</text>`;
+   O += `<text x="${sign.x}" y="${sign.y}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="10" font-weight="800" fill="rgba(245,230,200,0.9)">MINITEJO · Caja 60×65cm · Tablero 100cm</text>`;
   }
 
   // BOLIRANA 3D: mueble-mesón largo tipo mesa con rana dorada + 9 agujeros numerados
