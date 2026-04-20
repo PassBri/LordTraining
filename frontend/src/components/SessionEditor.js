@@ -1757,7 +1757,39 @@ const SessionEditor = ({
                     const fcDuranteAvg = duranteValues.length ? Math.round(duranteValues.reduce((a,b)=>a+b,0) / duranteValues.length) : 0;
                     const pctReserveAvg = hasZones && fcDuranteAvg ? Math.round(((fcDuranteAvg - fcRep) / fcr) * 100) : null;
 
-                    // Evaluación de cumplimiento del objetivo de la sesión
+                    // Auto-sugerencia de zona objetivo basada en las actividades de la sesión
+                    const sugerirZonaObjetivo = () => {
+                      // Recolectar actividades de todas las fases
+                      const allActs = Object.values(sessionData.fases || {}).flatMap(f => f.actividades || []);
+                      if (allActs.length === 0) return { zone: 'Z2', reason: 'Sin actividades. Default: Z2 Aeróbico base' };
+
+                      // Heurística: mapa de capacidad → zona base
+                      const capToZone = {
+                        fuerza: 'Z4',
+                        potencia: 'Z5',
+                        velocidad: 'Z5',
+                        resistencia: 'Z3',
+                        flexibilidad: 'Z1',
+                        coordinacion: 'Z2',
+                        equilibrio: 'Z2',
+                        agilidad: 'Z4'
+                      };
+                      // Encuentra la capacidad dominante (más frecuente)
+                      const countByCap = {};
+                      allActs.forEach(a => { const c = a.capacidadFisica || 'fuerza'; countByCap[c] = (countByCap[c]||0) + 1; });
+                      const dominantCap = Object.keys(countByCap).sort((a,b) => countByCap[b] - countByCap[a])[0];
+                      // Ajusta por intensidad promedio
+                      const avgInt = allActs.reduce((s,a) => s + (parseInt(a.intensidad) || 0), 0) / allActs.length;
+                      let zone = capToZone[dominantCap] || 'Z2';
+                      // Refinamiento por intensidad
+                      if (avgInt < 50) zone = 'Z1';
+                      else if (avgInt < 65 && ['Z3','Z4','Z5'].includes(zone)) zone = 'Z2';
+                      else if (avgInt > 90 && !['Z5'].includes(zone)) zone = 'Z5';
+                      const capLabel = CAPACIDADES_FISICAS.find(c => c.id === dominantCap)?.name || dominantCap;
+                      const reason = `Capacidad dominante: ${capLabel} · Intensidad prom: ${Math.round(avgInt)}%`;
+                      return { zone, reason };
+                    };
+
                     const ZONE_DEFS_MAP = { Z1:{min:50,max:60}, Z2:{min:60,max:70}, Z3:{min:70,max:80}, Z4:{min:80,max:90}, Z5:{min:90,max:100} };
                     const zonaObj = m.zonaObjetivo || 'Z2';
                     const objRange = ZONE_DEFS_MAP[zonaObj];
@@ -1885,6 +1917,22 @@ const SessionEditor = ({
                         {/* Línea 4: Zonas de Frecuencia Cardíaca + Zona Objetivo + Cumplimiento */}
                         <div className={rowStyle}>
                           {rowLabel('Zonas FC', '#be185d')}
+                          {hasZones && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const { zone, reason } = sugerirZonaObjetivo();
+                                setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, zonaObjetivo: zone } }));
+                                try { window.alert(`Zona sugerida: ${zone}\n\nBasado en: ${reason}`); } catch(_) {}
+                              }}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-100 hover:bg-amber-200 text-amber-900 text-[10px] font-bold uppercase tracking-wider border border-amber-300 transition-all"
+                              style={{fontFamily:DM}}
+                              title="Sugerir zona objetivo en base a las actividades de la sesión (capacidad física + intensidad promedio)"
+                              data-testid="suggest-zone-btn"
+                            >
+                              💡 Sugerir
+                            </button>
+                          )}
                           {hasZones ? (
                             <>
                               {ZONE_DEFS.map(z => {
