@@ -673,7 +673,7 @@ const CATS = {
  orientacion:{name:'Orientacion',sports:['Orientacion','Trail Running','Raid Aventura']},
  esports:{name:'Esports',sports:['League of Legends','Valorant','FIFA','CS GO','Fortnite','Rocket League']},
  gimnasio:{name:'Gimnasio',sports:['Sala de Pesas','Circuito']},
- tradprecision:{name:'Trad. Precision',sports:['Minitejo','Rana','Bolo Criollo','Tejo']},
+ tradprecision:{name:'Trad. Precision',sports:['Minitejo','Rana','Bolirana','Bolo Criollo','Tejo']},
  tradpelota:{name:'Trad. Pelota',sports:['Quemados','Ponchados','Yermis']},
  alternativos:{name:'Alternativos',sports:['Ultimate Frisbee','Floorball']}
 };
@@ -730,7 +730,9 @@ const FIELDS = Object.assign({}, FIELD_VARIANT_SVGS, {
 // Minitejo: cancha 3m x 1.5m · caja 50cm · bocin 10cm · 4 mechas · linea lanzamiento a 2m
 'Minitejo':{bg:'#ffffff',svg:`<rect x="150" y="90" width="300" height="620" fill="rgba(160,115,70,0.08)" rx="4"/><rect x="150" y="90" width="300" height="620" fill="none" stroke-width="1.8"/><rect x="225" y="120" width="150" height="150" fill="rgba(180,120,60,0.18)" stroke-width="1.6"/><line x1="150" y1="630" x2="450" y2="630" stroke-width="2" stroke-dasharray="6 4"/><text x="300" y="82" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">3 m</text><text x="142" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">1.5 m</text><text x="300" y="300" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">CAJA 50x50 · BOCIN 10cm (agrega desde el panel)</text><text x="300" y="650" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE LANZAMIENTO</text><text x="300" y="730" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">MINITEJO</text>`},
 // Rana: mesa 80cm x 80cm con sapo, 7 agujeros, linea lanzamiento a 3m
-'Rana':{bg:'#ffffff',svg:`<rect x="135" y="80" width="330" height="620" fill="rgba(100,140,80,0.06)" rx="4"/><rect x="135" y="80" width="330" height="620" fill="none" stroke-width="1.5"/><rect x="195" y="120" width="210" height="210" fill="rgba(120,80,40,0.18)" stroke-width="1.8" rx="4"/><circle cx="300" cy="225" r="22" fill="rgba(0,0,0,0.35)" stroke-width="0"/><circle cx="300" cy="225" r="16" fill="rgba(255,200,60,0.4)" stroke-width="0.8"/><circle cx="235" cy="160" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="365" cy="160" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="235" cy="290" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="365" cy="290" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="300" cy="150" r="8" fill="rgba(0,0,0,0.2)"/><circle cx="300" cy="300" r="8" fill="rgba(0,0,0,0.2)"/><line x1="135" y1="600" x2="465" y2="600" stroke-width="2" stroke-dasharray="6 4"/><text x="300" y="72" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">2.3 m</text><text x="127" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">1.5 m</text><text x="300" y="360" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">MESA 80x80 cm · BOCA CENTRAL (SAPO)</text><text x="300" y="622" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE LANZAMIENTO (3 m)</text><text x="300" y="720" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">RANA</text>`},
+'Rana':{bg:'#ffffff',svg:`<rect x="135" y="80" width="330" height="620" fill="rgba(100,140,80,0.06)" rx="4"/><rect x="135" y="80" width="330" height="620" fill="none" stroke-width="1.5"/><rect x="195" y="120" width="210" height="210" fill="rgba(120,80,40,0.18)" stroke-width="1.8" rx="4"/><circle cx="300" cy="225" r="22" fill="rgba(0,0,0,0.35)" stroke-width="0"/><circle cx="300" cy="225" r="16" fill="rgba(255,200,60,0.4)" stroke-width="0.8"/><circle cx="235" cy="160" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="365" cy="160" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="235" cy="290" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="365" cy="290" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="300" cy="150" r="8" fill="rgba(0,0,0,0.2)"/><circle cx="300" cy="300" r="8" fill="rgba(0,0,0,0.2)"/><line x1="135" y1="600" x2="465" y2="600" stroke-width="2" stroke-dasharray="6 4"/><line x1="300" y1="330" x2="300" y2="600" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.45"/><text x="308" y="470" class="fld-measure fld-zone" fill="rgba(40,40,40,0.85)" data-mono="1" font-size="9" font-family="system-ui">3.5 m</text><text x="300" y="72" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">2.3 m</text><text x="127" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">1.5 m</text><text x="300" y="360" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">MESA 80x80 cm · BOCA CENTRAL (SAPO)</text><text x="300" y="622" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE LANZAMIENTO (3.5 m)</text><text x="300" y="720" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">RANA (Sapo) · Reglamento 3.5m</text>`},
+// BOLIRANA: variante mesa larga tipo mueble mesón con carril + rana y agujeros
+'Bolirana':{bg:'#ffffff',svg:`<rect x="180" y="80" width="240" height="640" fill="rgba(80,140,100,0.08)" rx="4"/><rect x="180" y="80" width="240" height="640" fill="none" stroke-width="1.5"/><rect x="220" y="110" width="160" height="180" fill="rgba(30,110,58,0.2)" stroke="rgba(15,58,31,0.7)" stroke-width="1.8" rx="3"/><circle cx="300" cy="155" r="18" fill="rgba(255,200,60,0.3)" stroke="rgba(180,134,11,0.6)" stroke-width="1"/><text x="300" y="160" text-anchor="middle" font-size="10" font-weight="800" fill="rgba(120,80,20,0.75)">SAPO</text>${[[245,195,1000],[300,195,900],[355,195,1000],[245,230,400],[300,230,500],[355,230,400],[245,265,200],[300,265,300],[355,265,200]].map(([cx,cy,n])=>`<circle cx="${cx}" cy="${cy}" r="9" fill="rgba(0,0,0,0.25)"/><text x="${cx}" y="${cy+3}" text-anchor="middle" font-size="7" font-weight="800" fill="rgba(200,180,140,0.9)">${n}</text>`).join('')}<line x1="180" y1="640" x2="420" y2="640" stroke-width="2" stroke-dasharray="6 4"/><line x1="300" y1="290" x2="300" y2="640" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.45"/><text x="308" y="480" class="fld-measure fld-zone" fill="rgba(40,40,40,0.85)" data-mono="1" font-size="9" font-family="system-ui">3 m</text><text x="300" y="72" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">1.5 m</text><text x="172" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">5 m</text><text x="300" y="662" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE LANZAMIENTO (3 m)</text><text x="300" y="730" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">BOLIRANA · 9 agujeros numerados + SAPO central</text>`},
 // Bolo Criollo: cancha 26m x 4m · 9 bolos en rombo · linea de tiro
 'Bolo Criollo':{bg:'#ffffff',svg:`<rect x="225" y="30" width="150" height="740" fill="rgba(139,90,43,0.05)" rx="2"/><rect x="225" y="30" width="150" height="740" fill="none" stroke-width="1.5"/><line x1="225" y1="700" x2="375" y2="700" stroke-width="1.5" stroke-dasharray="5 3"/><line x1="225" y1="100" x2="375" y2="100" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/><text x="300" y="22" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">4 m</text><text x="218" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 218 404)">26 m</text><text x="300" y="70" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">ZONA DE BOLOS</text><text x="300" y="720" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE TIRO</text><text x="300" y="760" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">BOLO CRIOLLO · 9 BOLOS (agrega desde el panel)</text>`},
 // Bolo Americano (Bowling): pista 18.3m (60ft) x 1.05m (41.5") sin pinos pre-dibujados
@@ -1518,6 +1520,9 @@ const S = {
      if (ballEl.type === 'rana_disc') {
       ballEl.scored = true;
       ballEl.scoredAt = now;
+      ballEl.sinking = true;
+      ballEl.sinkStart = now;
+      try { this._playClinkSound && this._playClinkSound(); } catch(e){}
      }
      this.updateScoreboard();
    try { this.updateMeasurePanelVisibility && this.updateMeasurePanelVisibility(); } catch(e){}
@@ -1527,6 +1532,46 @@ const S = {
    }
   }
  },
+
+_playClinkSound() {
+ try {
+  const ctx = (window.AudioContext || window.webkitAudioContext);
+  if (!ctx) return;
+  this._audioCtx = this._audioCtx || new ctx();
+  const ac = this._audioCtx;
+  const o1 = ac.createOscillator(), g1 = ac.createGain();
+  o1.type = 'triangle'; o1.frequency.value = 1400;
+  o1.frequency.exponentialRampToValueAtTime(2800, ac.currentTime + 0.05);
+  g1.gain.setValueAtTime(0.28, ac.currentTime);
+  g1.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.35);
+  o1.connect(g1).connect(ac.destination);
+  o1.start(); o1.stop(ac.currentTime + 0.4);
+ } catch(e){}
+},
+
+_playMonazoSound() {
+ try {
+  const ctx = (window.AudioContext || window.webkitAudioContext);
+  if (!ctx) return;
+  this._audioCtx = this._audioCtx || new ctx();
+  const ac = this._audioCtx;
+  // Boom grave + sparkle agudo (explosión dorada del bocín)
+  const o1 = ac.createOscillator(), g1 = ac.createGain();
+  o1.type = 'sawtooth'; o1.frequency.value = 120;
+  o1.frequency.exponentialRampToValueAtTime(40, ac.currentTime + 0.5);
+  g1.gain.setValueAtTime(0.4, ac.currentTime);
+  g1.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.6);
+  o1.connect(g1).connect(ac.destination);
+  o1.start(); o1.stop(ac.currentTime + 0.7);
+  const o2 = ac.createOscillator(), g2 = ac.createGain();
+  o2.type = 'sine'; o2.frequency.value = 2200;
+  o2.frequency.exponentialRampToValueAtTime(4000, ac.currentTime + 0.12);
+  g2.gain.setValueAtTime(0.18, ac.currentTime);
+  g2.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.3);
+  o2.connect(g2).connect(ac.destination);
+  o2.start(); o2.stop(ac.currentTime + 0.32);
+ } catch(e){}
+},
 
 checkKnockdowns(movingEl, prevX, prevY) {
  // Knock over pins/mechas when a heavy moving element (ball/tejo/bocha/bola bowling) passes near them
@@ -1566,10 +1611,25 @@ checkKnockdowns(movingEl, prevX, prevY) {
    }
   }
  }
+ // Colisión especial MECHA → BOCÍN (Tejo/Minitejo): "¡monazo!" +10000 pts
+ if (movingEl.type === 'mecha' && (ST.sport === 'Tejo' || ST.sport === 'Minitejo') && !movingEl.exploded) {
+  // Bocín 2D en cancha Tejo (300,90) ; Minitejo (300,195) — aproximación
+  const bocin = { x: ST.sport === 'Tejo' ? 300 : 300, y: ST.sport === 'Tejo' ? 90 : 195 };
+  const d = Math.hypot(movingEl.x - bocin.x, movingEl.y - bocin.y);
+  const speed = Math.hypot(movingEl.x - prevX, movingEl.y - prevY);
+  if (d < 14 && speed > 0.4) {
+   movingEl.exploded = true;
+   movingEl.explodedAt = performance.now();
+   ST.score = ST.score || {home:0, away:0};
+   ST.score.home += 10000;
+   this.updateScoreboard && this.updateScoreboard();
+   this.flashGoal && this.flashGoal('¡MONAZO! +10000');
+   try { this._playMonazoSound && this._playMonazoSound(); } catch(e){}
+  }
+ }
 },
 
-
- flashGoal(label) {
+flashGoal(label) {
   const el = document.getElementById('goal-flash');
   if (!el) return;
   el.textContent = `¡${label}!`;
@@ -2851,10 +2911,10 @@ checkKnockdowns(movingEl, prevX, prevY) {
   // respaldo curvo beige, grilla de ~20 agujeros, sapo metálico dorado central,
   // 3 molinos/trampillas de bronce y frontal con compartimentos numerados.
   if(s==='Rana') {
-   // Dimensiones referencia (reglamentario Colombia): caja 80cm x 80cm x 60cm alto + respaldo
-   const bx = 180, by = 130, bw = 240, bh = 220;
-   const boxH = 90;           // altura caja
-   const backH = 130;         // respaldo curvo
+   // Dimensiones proporcionales ajustadas: caja 80cm (escala cancha 3.5m lanzamiento)
+   const bx = 220, by = 100, bw = 160, bh = 140;
+   const boxH = 70;           // altura caja (ligeramente reducida)
+   const backH = 90;          // respaldo curvo (reducido para proporción)
    // === SOMBRA ===
    const sh1 = this.toIso(bx+6, by+bh+10, 0);
    const sh2 = this.toIso(bx+bw+6, by+bh+10, 0);
@@ -3093,9 +3153,9 @@ checkKnockdowns(movingEl, prevX, prevY) {
 
   // MINITEJO 3D: misma estructura pero ~65% del tamaño (recreativo, cancha 8-12m, bocín menor)
   if(s==='Minitejo') {
-   const bx = 255, by = 90, bw = 90, bh = 75;
-   const backH = 120;
-   const frontH = 20;
+   const bx = 265, by = 160, bw = 70, bh = 60;
+   const backH = 85;
+   const frontH = 16;
    const fbl = this.toIso(bx, by+bh, 0), fbr = this.toIso(bx+bw, by+bh, 0);
    const ftl = this.toIso(bx, by+bh, frontH), ftr = this.toIso(bx+bw, by+bh, frontH);
    O += `<polygon points="${fbl.x},${fbl.y} ${fbr.x},${fbr.y} ${ftr.x},${ftr.y} ${ftl.x},${ftl.y}" fill="#1e3a8a" stroke="#0f1e4a" stroke-width="1.6"/>`;
@@ -3146,6 +3206,77 @@ checkKnockdowns(movingEl, prevX, prevY) {
    // Cartel
    const sign = this.toIso(300, 760, 1);
    O += `<text x="${sign.x}" y="${sign.y}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="10" font-weight="800" fill="rgba(245,230,200,0.9)">MINITEJO · 8-12 m · BOCÍN 12 cm</text>`;
+  }
+
+  // BOLIRANA 3D: mueble-mesón largo tipo mesa con rana dorada + 9 agujeros numerados
+  if(s==='Bolirana') {
+   const bx = 220, by = 110, bw = 160, bh = 180;
+   const boxH = 75;
+   // Sombra
+   const sh1 = this.toIso(bx+6, by+bh+8, 0), sh2 = this.toIso(bx+bw+6, by+bh+8, 0);
+   O += `<ellipse cx="${(sh1.x+sh2.x)/2}" cy="${(sh1.y+sh2.y)/2+3}" rx="110" ry="18" fill="rgba(0,0,0,0.32)" filter="url(#blur3d)"/>`;
+   // Patas (4 pequeñas cilíndricas)
+   for (const [px,py] of [[bx+6,by+bh-6],[bx+bw-6,by+bh-6],[bx+6,by+6],[bx+bw-6,by+6]]) {
+    const pb = this.toIso(px,py,0), pt = this.toIso(px,py,12);
+    O += `<line x1="${pb.x}" y1="${pb.y}" x2="${pt.x}" y2="${pt.y}" stroke="#2d4a1d" stroke-width="3.5" stroke-linecap="round"/>`;
+   }
+   // Caras (verde oscuro con motivos madera)
+   const c1b = this.toIso(bx, by+bh, 0), c2b = this.toIso(bx+bw, by+bh, 0), c3b = this.toIso(bx+bw, by, 0);
+   const c1t = this.toIso(bx, by+bh, boxH), c2t = this.toIso(bx+bw, by+bh, boxH), c3t = this.toIso(bx+bw, by, boxH);
+   // Cara frontal (verde profundo con panel dorado superior)
+   O += `<polygon points="${c1b.x},${c1b.y} ${c2b.x},${c2b.y} ${c2t.x},${c2t.y} ${c1t.x},${c1t.y}" fill="#1e6e3a" stroke="#0f3a1f" stroke-width="1.8"/>`;
+   // Franja dorada decorativa
+   const fb = this.toIso(bx, by+bh, boxH-14), fbr = this.toIso(bx+bw, by+bh, boxH-14);
+   const ft = this.toIso(bx, by+bh, boxH-4), ftr = this.toIso(bx+bw, by+bh, boxH-4);
+   O += `<polygon points="${fb.x},${fb.y} ${fbr.x},${fbr.y} ${ftr.x},${ftr.y} ${ft.x},${ft.y}" fill="#b8860b" stroke="#6a3e1c" stroke-width="0.8"/>`;
+   O += `<text x="${(fb.x+fbr.x)/2}" y="${(fb.y+ft.y)/2+3}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="8" font-weight="900" fill="#2a1a05" letter-spacing="0.1em">BOLIRANA</text>`;
+   // Cara lateral
+   O += `<polygon points="${c2b.x},${c2b.y} ${c3b.x},${c3b.y} ${c3t.x},${c3t.y} ${c2t.x},${c2t.y}" fill="#155028" stroke="#0f3a1f" stroke-width="1.8"/>`;
+   // Superficie superior (verde claro tapa de juego)
+   const topPts = [[bx,by],[bx+bw,by],[bx+bw,by+bh],[bx,by+bh]].map(([x,y])=>this.toIso(x,y,boxH));
+   O += `<polygon points="${topPts.map(p=>`${p.x},${p.y}`).join(' ')}" fill="#84cc16" stroke="#3f6212" stroke-width="2"/>`;
+   // Borde dorado
+   O += `<polygon points="${topPts.map(p=>`${p.x},${p.y}`).join(' ')}" fill="none" stroke="#b8860b" stroke-width="1.5"/>`;
+   // 9 agujeros numerados en grilla 3x3
+   const nums = [[1000,900,1000],[400,500,400],[200,300,200]];
+   for (let r=0; r<3; r++) {
+    for (let c=0; c<3; c++) {
+     const hx = bx + 28 + c * ((bw-56)/2);
+     const hy = by + 60 + r * ((bh-95)/2);
+     const p = this.toIso(hx, hy, boxH);
+     O += `<ellipse cx="${p.x}" cy="${p.y-0.3}" rx="9" ry="3.2" fill="none" stroke="#b8860b" stroke-width="0.9"/>`;
+     O += `<ellipse cx="${p.x}" cy="${p.y+1.5}" rx="8" ry="2.8" fill="#0a0a0a" stroke="#2d1a0a" stroke-width="0.7"/>`;
+     O += `<ellipse cx="${p.x}" cy="${p.y+1.8}" rx="6" ry="2" fill="#020202"/>`;
+     // Plaquita con número debajo
+     const pl = this.toIso(hx, hy+9, boxH+0.4);
+     O += `<rect x="${pl.x-9}" y="${pl.y-4}" width="18" height="7" rx="1" fill="#1a0f05" stroke="#b8860b" stroke-width="0.5"/>`;
+     O += `<text x="${pl.x}" y="${pl.y+1.5}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="6.5" font-weight="800" fill="#facc15">${nums[r][c]}</text>`;
+    }
+   }
+   // SAPO DORADO arriba centrado (reemplaza cualquier cosa, se eleva como la Rana)
+   const sx = bx + bw/2, sy = by + 30;
+   const sapoBase = this.toIso(sx, sy, boxH);
+   O += `<ellipse cx="${sapoBase.x}" cy="${sapoBase.y}" rx="13" ry="4.5" fill="#3a1a05" stroke="#000" stroke-width="0.6"/>`;
+   const bodyC = this.toIso(sx, sy+2, boxH + 3);
+   O += `<ellipse cx="${bodyC.x}" cy="${bodyC.y+2}" rx="11" ry="6" fill="#8b5a0b"/>`;
+   O += `<ellipse cx="${bodyC.x}" cy="${bodyC.y}" rx="10" ry="5" fill="#d4a017" stroke="#78350f" stroke-width="0.7"/>`;
+   O += `<ellipse cx="${bodyC.x-3}" cy="${bodyC.y-2}" rx="3" ry="1" fill="rgba(255,230,140,0.8)"/>`;
+   const headC = this.toIso(sx, sy-1, boxH + 9);
+   O += `<ellipse cx="${headC.x}" cy="${headC.y+1}" rx="8" ry="5" fill="#b8860b"/>`;
+   O += `<ellipse cx="${headC.x}" cy="${headC.y}" rx="7.5" ry="4.3" fill="#d4a017" stroke="#78350f" stroke-width="0.7"/>`;
+   const eyeL = this.toIso(sx-3, sy-2, boxH + 12.5);
+   const eyeR = this.toIso(sx+3, sy-2, boxH + 12.5);
+   for (const e of [eyeL, eyeR]) {
+    O += `<circle cx="${e.x}" cy="${e.y}" r="2.3" fill="#d4a017" stroke="#4a2d10" stroke-width="0.4"/>`;
+    O += `<circle cx="${e.x}" cy="${e.y+0.2}" r="1.2" fill="#111"/>`;
+   }
+   const mouth = this.toIso(sx, sy+1, boxH + 6);
+   O += `<ellipse cx="${mouth.x}" cy="${mouth.y+1}" rx="4.5" ry="2.2" fill="#2a1505" stroke="#78350f" stroke-width="0.6"/>`;
+   O += `<ellipse cx="${mouth.x}" cy="${mouth.y+1.2}" rx="3.5" ry="1.5" fill="#0a0403"/>`;
+   // Etiqueta SAPO
+   const slab = this.toIso(sx, sy+18, boxH+0.5);
+   O += `<rect x="${slab.x-12}" y="${slab.y-4}" width="24" height="8" rx="1.5" fill="#1a0f05" stroke="#facc15" stroke-width="0.7"/>`;
+   O += `<text x="${slab.x}" y="${slab.y+1.8}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="7" font-weight="900" fill="#facc15">SAPO 5000</text>`;
   }
 
 
@@ -4689,9 +4820,18 @@ checkKnockdowns(movingEl, prevX, prevY) {
    }
    case 'rana_disc': {
     const es = el.size||1;
-    const s = (is3D ? depthScale : 1) * es;
+    let s = (is3D ? depthScale : 1) * es;
     const scored = el.scored;
-    return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="1" cy="2" rx="5" ry="1.5" fill="rgba(0,0,0,0.2)" filter="url(#blur3d)"/>':''}<circle cx="0" cy="0" r="5" fill="${scored?'#facc15':'#92400e'}" stroke="${scored?'#a16207':'#4a2410'}" stroke-width="1.2"/><circle cx="0" cy="0" r="2.2" fill="${scored?'#fef3c7':'#fbbf24'}"/>${scored?'<circle cx="0" cy="0" r="7.5" fill="none" stroke="#facc15" stroke-width="1" opacity="0.55"><animate attributeName="r" values="5;11;5" dur="0.8s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.7;0;0.7" dur="0.8s" repeatCount="indefinite"/></circle>':''}</g>`;
+    let opacity = 1;
+    // Sinking animation: scale→0 + fade en 600ms
+    if (el.sinking && el.sinkStart) {
+     const t = Math.min(1, (performance.now() - el.sinkStart) / 600);
+     s = s * (1 - t);
+     opacity = 1 - t;
+     if (t >= 1) { el.gone = true; }
+    }
+    if (el.gone) return '';
+    return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab;opacity:${opacity}">${is3D?'<ellipse cx="1" cy="2" rx="5" ry="1.5" fill="rgba(0,0,0,0.2)" filter="url(#blur3d)"/>':''}<circle cx="0" cy="0" r="5" fill="${scored?'#facc15':'#92400e'}" stroke="${scored?'#a16207':'#4a2410'}" stroke-width="1.2"/><circle cx="0" cy="0" r="2.2" fill="${scored?'#fef3c7':'#fbbf24'}"/>${scored?'<circle cx="0" cy="0" r="7.5" fill="none" stroke="#facc15" stroke-width="1" opacity="0.55"><animate attributeName="r" values="5;11;5" dur="0.8s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.7;0;0.7" dur="0.8s" repeatCount="indefinite"/></circle>':''}</g>`;
    }
    case 'ring': {
     const es = el.size||1;
@@ -5401,12 +5541,17 @@ checkKnockdowns(movingEl, prevX, prevY) {
    this._toast('📸 Capturando jugada…', 1400);
    // Capture thumbnail from canvas SVG
    this._captureThumbnail().then(thumbnail => {
+    // Recupera coach slug/nombre guardados localmente
+    const coachSlug = (localStorage.getItem('tb_coach_slug')||'').trim();
+    const coachName = (localStorage.getItem('tb_coach_name')||'').trim();
     const body = {
      payload,
      sport: ST.sport,
      thumbnail,
      title: `Jugada táctica · ${ST.sport}`,
-     description: `Pizarra de ${ST.sport} con ${(ST.elements||[]).length} elementos — creada en iTRAIN Coach`
+     description: `Pizarra de ${ST.sport} con ${(ST.elements||[]).length} elementos — creada en iTRAIN Coach`,
+     coach_slug: coachSlug || null,
+     coach_name: coachName || null
     };
     return fetch(window.location.origin + '/api/boards/share', {
      method: 'POST',
@@ -5494,6 +5639,14 @@ checkKnockdowns(movingEl, prevX, prevY) {
      <div style="font-size:16px;font-weight:800;letter-spacing:-0.01em">Compartir pizarra</div>
      <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Cualquier persona con el enlace podrá verla (90 días).</div>
     </div>
+   </div>
+   <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:10px">
+    <div style="font-size:10.5px;font-weight:800;color:var(--text-muted);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px">Tu perfil público (opcional)</div>
+    <div style="display:flex;gap:6px">
+     <input id="share-coach-name" placeholder="Tu nombre (ej: Juan Pérez)" value="${(localStorage.getItem('tb_coach_name')||'').replace(/"/g,'')}" style="flex:1;padding:7px 10px;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:8px;font-size:12px;outline:none"/>
+     <input id="share-coach-slug" placeholder="tu-slug" value="${(localStorage.getItem('tb_coach_slug')||'').replace(/"/g,'')}" style="width:120px;padding:7px 10px;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:8px;font-size:12px;outline:none;font-family:'SF Mono',Consolas,monospace"/>
+    </div>
+    <div style="font-size:10.5px;color:var(--text-muted);margin-top:5px">Crea tu perfil público en <span style="color:var(--brand)">/coach/${(localStorage.getItem('tb_coach_slug')||'tu-slug')}</span></div>
    </div>
    <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;word-break:break-all;font-size:12px;font-family:'SF Mono',Consolas,monospace;color:var(--text-sec);max-height:90px;overflow-y:auto" id="share-url-box">${url}</div>
    <div style="display:flex;gap:8px">

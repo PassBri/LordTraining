@@ -6950,6 +6950,8 @@ class BoardShareRequest(BaseModel):
     thumbnail: Optional[str] = None  # data URL (image/png;base64,...)
     title: Optional[str] = None
     description: Optional[str] = None
+    coach_slug: Optional[str] = None  # slug del coach (opcional, ej "juan-perez")
+    coach_name: Optional[str] = None  # nombre visible del coach
 
 
 @api_router.post("/boards/share")
@@ -6965,9 +6967,12 @@ async def create_board_share(request: BoardShareRequest):
             "thumbnail": request.thumbnail,
             "title": request.title or f"Jugada táctica · {request.sport or 'iTRAIN'}",
             "description": request.description or "Pizarra táctica creada en iTRAIN",
+            "coach_slug": (request.coach_slug or "").strip().lower().replace(' ', '-')[:48] or None,
+            "coach_name": (request.coach_name or "").strip()[:60] or None,
             "created_at": datetime.now(timezone.utc),
             "expires_at": datetime.now(timezone.utc) + timedelta(days=90),
             "views": 0,
+            "duplicates": 0,
         }
         await db.shared_boards.insert_one(doc)
         return {"share_id": share_id, "expires_in_days": 90}
@@ -7031,6 +7036,47 @@ async def track_board_duplicate(share_id: str):
     except Exception as e:
         logger.error(f"Error tracking duplicate: {e}")
         raise HTTPException(status_code=500, detail="Error al registrar duplicado")
+
+
+@api_router.get("/coaches/{slug}")
+async def get_coach_profile(slug: str):
+    """Perfil público del coach con sus jugadas compartidas."""
+    try:
+        s = slug.strip().lower()
+        cursor = db.shared_boards.find({"coach_slug": s}, {"_id": 0, "payload": 0, "thumbnail": 0})
+        cursor = cursor.sort([("duplicates", -1), ("views", -1), ("created_at", -1)])
+        items = []
+        coach_name = None
+        async for doc in cursor:
+            if not coach_name and doc.get("coach_name"):
+                coach_name = doc.get("coach_name")
+            ca = doc.get("created_at")
+            if ca and hasattr(ca, 'isoformat'):
+                ca = ca.isoformat()
+            items.append({
+                "share_id": doc.get("share_id"),
+                "title": doc.get("title"),
+                "sport": doc.get("sport"),
+                "views": doc.get("views", 0),
+                "duplicates": doc.get("duplicates", 0),
+                "created_at": ca,
+            })
+        totals = {
+            "boards": len(items),
+            "views": sum(i["views"] for i in items),
+            "duplicates": sum(i["duplicates"] for i in items),
+        }
+        return {
+            "slug": s,
+            "coach_name": coach_name or s.replace('-', ' ').title(),
+            "items": items,
+            "totals": totals,
+            "not_found": len(items) == 0,
+        }
+    except Exception as e:
+        logger.error(f"Error getting coach profile: {e}")
+        raise HTTPException(status_code=500, detail="Error al obtener perfil")
+
 
 
 @api_router.get("/boards/top")
