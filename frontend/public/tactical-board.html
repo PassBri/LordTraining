@@ -3243,29 +3243,30 @@ flashGoal(label) {
   // BOLIRANA 3D: mueble arcade profesional según imagen real (rana roja arriba, pantalla, 2 botones,
   // montículo central con ranas verdes, silueta lateral ondulada, panel luminoso en base).
   if(s==='Bolirana') {
-   // Dimensiones escaladas (referencia: 1.30m × 0.45m × 1.5m alto)
-   const bw = 78;                      // ancho (0.45m ×173 para visibilidad)
+   // Dimensiones escaladas según medidas oficiales (1.35m largo × 0.45m ancho × 1.5m alto)
+   // Escala: 1cm ≈ 0.9u (ancho 45cm → 40u, largo 135cm → 120u, alto 150cm → 135u)
+   const bw = 40;                      // ancho (45cm)
    const bx = 300 - bw/2;              // centrado en la cancha
-   const yBack = 115;                  // z trasero (panel/head)
-   const headDepth = 20;               // profundidad del head (~0.4m)
-   const rampDepth = 42;               // largo de la pista (~0.9m)
-   const frontTrayDepth = 12;          // bandeja frontal (~0.25m)
+   const yBack = 100;                  // z trasero (donde comienza el head)
+   const headDepth = 22;               // profundidad del head (~0.25m)
+   const rampDepth = 82;               // largo de la pista (~0.95m) — principal
+   const frontTrayDepth = 18;          // bandeja frontal (~0.20m)
    const yRampStart = yBack + headDepth;
    const yTrayStart = yRampStart + rampDepth;
    const yFront = yTrayStart + frontTrayDepth;
-   // Alturas
-   const pedH = 35;                    // altura del pedestal/base donde se apoya
-   const rampBackH = pedH + 5;         // altura greda en el fondo (casi nivel, +5u)
-   const rampFrontH = pedH - 4;        // leve inclinación hacia el frente
-   const headBottomH = rampBackH;      // inicio del head en la parte trasera
-   const headTopH = headBottomH + 75;  // top del panel vertical (1.5m de altura visual)
-   const roofH = headTopH + 6;         // pequeño techo plano
+   // Alturas (escala cm → u ~0.9)
+   const pedH = 28;                    // pedestal/base (~30cm)
+   const rampBackH = pedH + 4;         // superficie al fondo
+   const rampFrontH = pedH - 2;        // leve inclinación hacia el frente
+   const headBottomH = rampBackH + 3;  // base del head arriba de la pista
+   const headTopH = headBottomH + 95;  // top del panel vertical (~1.2m sobre la pista)
+   const roofH = headTopH + 6;         // techo plano donde está la rana
    // ═══ SOMBRA PROYECTADA ═══
    const sh1 = this.toIso(bx-4, yFront+6, 0), sh2 = this.toIso(bx+bw+4, yFront+6, 0);
    O += `<ellipse cx="${(sh1.x+sh2.x)/2}" cy="${(sh1.y+sh2.y)/2+4}" rx="65" ry="13" fill="rgba(0,0,0,0.38)" filter="url(#blur3d)"/>`;
    // ═══ PEDESTAL INFERIOR (pie/columna + panel triangular luminoso) ═══
    // Columna central estrecha
-   const colInset = 18;
+   const colInset = 8;
    const colX1 = bx + colInset, colX2 = bx + bw - colInset;
    const colY1 = yRampStart + 8, colY2 = yTrayStart - 4;
    // Cara frontal de la columna (visible debajo del mueble)
@@ -3396,15 +3397,15 @@ flashGoal(label) {
    for (let r=0; r<3; r++) {
     for (let c=0; c<3; c++) {
      const hx = bx + bw*0.18 + c * (bw*0.32);
-     const ty = 0.22 + r * 0.26;
-     const hy = yRampStart + 8 + ty * (rampDepth-10);
+     const ty = 0.15 + r * 0.33;
+     const hy = yRampStart + 6 + ty * (rampDepth-12);
      const hh = rampBackH + ty * (rampFrontH - rampBackH);
      const p = this.toIso(hx, hy, hh+0.2);
      // Sombra interior profunda (agujero)
-     O += `<ellipse cx="${p.x}" cy="${p.y+0.6}" rx="6" ry="2.1" fill="#020202" stroke="#1a1a1a" stroke-width="0.4"/>`;
-     O += `<ellipse cx="${p.x}" cy="${p.y+0.2}" rx="5" ry="1.7" fill="#0a0a0a"/>`;
+     O += `<ellipse cx="${p.x}" cy="${p.y+0.6}" rx="4.5" ry="1.6" fill="#020202" stroke="#1a1a1a" stroke-width="0.4"/>`;
+     O += `<ellipse cx="${p.x}" cy="${p.y+0.2}" rx="3.8" ry="1.3" fill="#0a0a0a"/>`;
      // Borde metálico del agujero
-     O += `<ellipse cx="${p.x}" cy="${p.y-0.3}" rx="5.8" ry="1.9" fill="none" stroke="#b8860b" stroke-width="0.6"/>`;
+     O += `<ellipse cx="${p.x}" cy="${p.y-0.3}" rx="4.3" ry="1.4" fill="none" stroke="#b8860b" stroke-width="0.5"/>`;
      // Plaquita con número (pequeña, al lado)
      const pl = this.toIso(hx, hy+4, hh+0.5);
      O += `<rect x="${pl.x-7}" y="${pl.y-3}" width="14" height="5.5" rx="1" fill="#0a0a0a" stroke="#d4a017" stroke-width="0.35"/>`;
@@ -3418,10 +3419,10 @@ flashGoal(label) {
    // Base circular del montículo
    const mnt_b = this.toIso(mntX, mntY, mntBaseH);
    const mnt_t = this.toIso(mntX, mntY, mntTopH);
-   O += `<ellipse cx="${mnt_b.x}" cy="${mnt_b.y}" rx="12" ry="4.5" fill="#166534" stroke="#052e16" stroke-width="0.8"/>`;
-   O += `<ellipse cx="${mnt_t.x}" cy="${mnt_t.y}" rx="10" ry="3.8" fill="#22c55e" stroke="#052e16" stroke-width="0.7"/>`;
+   O += `<ellipse cx="${mnt_b.x}" cy="${mnt_b.y}" rx="8" ry="3" fill="#166534" stroke="#052e16" stroke-width="0.8"/>`;
+   O += `<ellipse cx="${mnt_t.x}" cy="${mnt_t.y}" rx="6.5" ry="2.5" fill="#22c55e" stroke="#052e16" stroke-width="0.7"/>`;
    // Ranitas verdes (2) sobre el montículo
-   for (const dx of [-4, 4]) {
+   for (const dx of [-2.8, 2.8]) {
     const fry_body = this.toIso(mntX+dx, mntY, mntTopH+1);
     O += `<ellipse cx="${fry_body.x}" cy="${fry_body.y+1}" rx="2.8" ry="1.5" fill="#166534"/>`;
     O += `<ellipse cx="${fry_body.x}" cy="${fry_body.y}" rx="2.5" ry="1.3" fill="#4ade80" stroke="#052e16" stroke-width="0.4"/>`;
@@ -3434,7 +3435,7 @@ flashGoal(label) {
     }
    }
    // Botellas azules (2) delante y detrás del montículo
-   for (const dy of [-7, 7]) {
+   for (const dy of [-10, 10]) {
     const btl_b = this.toIso(mntX, mntY+dy, mntBaseH);
     const btl_t = this.toIso(mntX, mntY+dy, mntBaseH+6);
     O += `<path d="M ${btl_b.x-1.6},${btl_b.y} L ${btl_b.x-1.6},${btl_t.y+1.5} Q ${btl_b.x-1.2},${btl_t.y-0.5} ${btl_b.x-0.7},${btl_t.y-1} L ${btl_b.x-0.7},${btl_t.y-2.5} L ${btl_b.x+0.7},${btl_t.y-2.5} L ${btl_b.x+0.7},${btl_t.y-1} Q ${btl_b.x+1.2},${btl_t.y-0.5} ${btl_b.x+1.6},${btl_t.y+1.5} L ${btl_b.x+1.6},${btl_b.y} Z" fill="#1e3a8a" stroke="#0a1530" stroke-width="0.5"/>`;
@@ -3451,7 +3452,7 @@ flashGoal(label) {
    O += `<polygon points="${tr_fbl.x},${tr_fbl.y} ${tr_fbr.x},${tr_fbr.y} ${tr_ftr.x},${tr_ftr.y} ${tr_ftl.x},${tr_ftl.y}" fill="none" stroke="#b8860b" stroke-width="0.8"/>`;
    // Etiqueta inferior
    const sign = this.toIso(300, 735, 1);
-   O += `<text class="fld-measure fld-zone" x="${sign.x}" y="${sign.y}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="10" font-weight="800" fill="rgba(245,230,200,0.9)">BOLIRANA · 1.30 m × 0.45 m · Alto 1.5 m</text>`;
+   O += `<text class="fld-measure fld-zone" x="${sign.x}" y="${sign.y}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="10" font-weight="800" fill="rgba(245,230,200,0.9)">BOLIRANA · 1.35 m × 0.45 m · Alto 1.5 m</text>`;
   }
 
 
