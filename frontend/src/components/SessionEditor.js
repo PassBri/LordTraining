@@ -1059,11 +1059,11 @@ const SessionEditor = ({
               <div className="flex-1 min-w-0 px-3.5 pt-3 pb-3 border-r border-slate-100/80 flex flex-col">
                 <Textarea value={act.descripcion||''} onChange={(e) => updateActividad(faseKey, idx, 'descripcion', e.target.value)} placeholder="Descripción del ejercicio, grupos musculares, variantes..." className="text-[12px] min-h-[48px] resize-none py-2 px-3 text-slate-700 leading-snug border-slate-200/80 rounded-lg bg-slate-50/60 focus:bg-white focus:border-slate-300 w-full mb-2" style={{fontFamily:DM}} rows={2} data-testid={`exercise-desc-${faseKey}-${idx}`} />
 
-                {/* ── Carga y Progresión (compact, collapsible inside COL 1) ── */}
-                <div className="mb-2 rounded-lg border border-slate-100 bg-slate-50/40 overflow-hidden">
+                {/* ── Carga y Progresión (minimalista, collapsible inside COL 1) ── */}
+                <div className="mb-2">
                   <button
                     onClick={() => setExpandedPanels(prev => ({ ...prev, [panelKey]: !prev[panelKey] }))}
-                    className="w-full flex items-center justify-between px-2.5 py-1.5 hover:bg-slate-100/60 transition-colors"
+                    className="w-full flex items-center justify-between py-1 hover:opacity-80 transition-opacity"
                     data-testid={`toggle-advanced-${faseKey}-${idx}`}
                   >
                     <div className="flex items-center gap-1.5 flex-wrap">
@@ -1078,125 +1078,71 @@ const SessionEditor = ({
                   </button>
 
                   {isExpanded && (
-                    <div className="px-2.5 pb-2.5 pt-1 space-y-2 bg-white">
-                      {/* Fila 1: Subtipo + Unidad Vol + Unidad Int + Descanso (grid 2x2) */}
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 block mb-0.5" style={{fontFamily:DM}}>Subtipo</span>
+                    <div className="pt-2 pb-1 space-y-2 border-t border-slate-100 mt-1">
+                      {/* Fila inline: label → select/input, estilo minimalista */}
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px]" style={{fontFamily:DM}}>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Subtipo</span>
                           <Select value={act.subtipo || ''} onValueChange={(v) => updateActividad(faseKey, idx, 'subtipo', v)}>
-                            <SelectTrigger className="h-7 text-[11px] border-slate-200 rounded-md"><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
+                            <SelectTrigger className="h-6 text-[11px] border-0 bg-transparent hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[90px] shadow-none focus:ring-0"><SelectValue placeholder="—" /></SelectTrigger>
                             <SelectContent>{capCfg.subtipos.map(s => <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>)}</SelectContent>
                           </Select>
                         </div>
-                        <div>
-                          <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 block mb-0.5" style={{fontFamily:DM}}>Unidad Vol.</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">U. Vol</span>
                           <Select value={act.unidadVolumen || capCfg.unidadesVol[0]} onValueChange={(v) => updateActividad(faseKey, idx, 'unidadVolumen', v)}>
-                            <SelectTrigger className="h-7 text-[11px] border-slate-200 rounded-md"><SelectValue /></SelectTrigger>
+                            <SelectTrigger className="h-6 text-[11px] border-0 bg-transparent hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[72px] shadow-none focus:ring-0"><SelectValue /></SelectTrigger>
                             <SelectContent>{capCfg.unidadesVol.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}</SelectContent>
                           </Select>
                         </div>
-                        <div>
-                          <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 block mb-0.5" style={{fontFamily:DM}}>Unidad Int.</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">U. Int</span>
                           <Select value={act.unidadIntensidad || capCfg.unidadesInt[0]} onValueChange={(v) => updateActividad(faseKey, idx, 'unidadIntensidad', v)}>
-                            <SelectTrigger className="h-7 text-[11px] border-slate-200 rounded-md"><SelectValue /></SelectTrigger>
+                            <SelectTrigger className="h-6 text-[11px] border-0 bg-transparent hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[72px] shadow-none focus:ring-0"><SelectValue /></SelectTrigger>
                             <SelectContent>{capCfg.unidadesInt.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}</SelectContent>
                           </Select>
                         </div>
-                        <div>
-                          <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 block mb-0.5" style={{fontFamily:DM}}>Descanso</span>
-                          <Input value={act.recuperacion || ''} onChange={(e) => updateActividad(faseKey, idx, 'recuperacion', e.target.value)} placeholder={capCfg.recPh} className="h-7 text-[11px] border-slate-200 rounded-md" data-testid={`descanso-adv-${faseKey}-${idx}`} />
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Descanso</span>
+                          <Input value={act.recuperacion || ''} onChange={(e) => updateActividad(faseKey, idx, 'recuperacion', e.target.value)} placeholder={capCfg.recPh} className="h-6 text-[11px] border-0 bg-transparent hover:bg-slate-50 focus:bg-slate-50 rounded-md px-1.5 w-[70px] shadow-none focus:ring-0" data-testid={`descanso-adv-${faseKey}-${idx}`} />
                         </div>
-                      </div>
-
-                      {/* Fila 2: Complejidad + Frecuencia */}
-                      <div className="grid grid-cols-2 gap-2">
-                        {capCfg.showComplejidad ? (
-                          <>
-                            <div>
-                              <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 block mb-0.5" style={{fontFamily:DM}}>Complejidad (1-5)</span>
-                              <div className="flex items-center gap-2 h-7 px-2 rounded-md border border-slate-200 bg-white">
-                                <input type="range" min={1} max={5} value={act.complejidad || 3} onChange={(e) => updateActividad(faseKey, idx, 'complejidad', parseInt(e.target.value))} className="flex-1 h-1 accent-violet-500 cursor-pointer" />
-                                <span className="text-[12px] font-black text-violet-600 w-4 text-center" style={{fontFamily:DM}}>{act.complejidad || 3}</span>
-                              </div>
-                            </div>
-                            <div>
-                              <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 block mb-0.5" style={{fontFamily:DM}}>Frecuencia</span>
-                              <Input value={act.frecuencia || ''} onChange={(e) => updateActividad(faseKey, idx, 'frecuencia', e.target.value)} placeholder={capCfg.freqPh} className="h-7 text-[11px] border-slate-200 rounded-md" />
-                            </div>
-                          </>
-                        ) : (
-                          <div className="col-span-2">
-                            <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 block mb-0.5" style={{fontFamily:DM}}>Frecuencia</span>
-                            <Input value={act.frecuencia || ''} onChange={(e) => updateActividad(faseKey, idx, 'frecuencia', e.target.value)} placeholder={capCfg.freqPh} className="h-7 text-[11px] border-slate-200 rounded-md" />
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Frecuencia</span>
+                          <Input value={act.frecuencia || ''} onChange={(e) => updateActividad(faseKey, idx, 'frecuencia', e.target.value)} placeholder={capCfg.freqPh} className="h-6 text-[11px] border-0 bg-transparent hover:bg-slate-50 focus:bg-slate-50 rounded-md px-1.5 w-[80px] shadow-none focus:ring-0" />
+                        </div>
+                        {capCfg.showComplejidad && (
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Complejidad</span>
+                            <input type="range" min={1} max={5} value={act.complejidad || 3} onChange={(e) => updateActividad(faseKey, idx, 'complejidad', parseInt(e.target.value))} className="w-20 h-1 accent-violet-500 cursor-pointer" />
+                            <span className="text-[11px] font-black text-violet-600 w-4 text-center" style={{fontFamily:DM}}>{act.complejidad || 3}</span>
                           </div>
                         )}
                       </div>
 
-                      {/* Métricas calculadas — chips compactos */}
-                      <div className="flex flex-wrap gap-1.5">
-                        <div className="rounded-md px-2 py-1" style={{background:'linear-gradient(135deg, #0c0f1a 0%, #0a0a12 100%)', border:'1px solid rgba(0,229,255,0.1)'}}>
-                          <span className="text-[8px] font-bold uppercase tracking-wider block" style={{color:'#00e5ff',fontFamily:DM}}>Carga Total</span>
-                          <span className="text-[12px] font-black text-white" style={{fontFamily:DM}}>{met.cargaTotal}</span>
-                          <span className="text-[8px] ml-1" style={{color:'rgba(255,255,255,0.3)'}}>vol×int</span>
-                        </div>
-                        <div className="rounded-md px-2 py-1" style={{background:'linear-gradient(135deg, #0c0f1a 0%, #0a0a12 100%)', border:'1px solid rgba(0,229,255,0.1)'}}>
-                          <span className="text-[8px] font-bold uppercase tracking-wider block" style={{color:'#00e5ff',fontFamily:DM}}>C. Sesion</span>
-                          <span className="text-[12px] font-black text-white" style={{fontFamily:DM}}>{met.cargaSesion}</span>
-                          <span className="text-[8px] ml-1" style={{color:'rgba(255,255,255,0.3)'}}>ser×vol×int</span>
-                        </div>
-                        {met.ratioDensidad != null && (
-                          <div className="rounded-md px-2 py-1" style={{background:'linear-gradient(135deg, #0c0f1a 0%, #0a0a12 100%)', border:'1px solid rgba(139,92,246,0.15)'}}>
-                            <span className="text-[8px] font-bold uppercase tracking-wider block" style={{color:'#8b5cf6',fontFamily:DM}}>Ratio T:D</span>
-                            <span className="text-[12px] font-black" style={{color:'#a5b4fc',fontFamily:DM}}>1:{Math.round(1/met.ratioDensidad) || '?'}</span>
-                          </div>
-                        )}
-                        {met.seriesPorMin > 0 && (
-                          <div className="rounded-md px-2 py-1" style={{background:'linear-gradient(135deg, #0c0f1a 0%, #0a0a12 100%)', border:'1px solid rgba(139,92,246,0.15)'}}>
-                            <span className="text-[8px] font-bold uppercase tracking-wider block" style={{color:'#8b5cf6',fontFamily:DM}}>Densidad</span>
-                            <span className="text-[12px] font-black" style={{color:'#a5b4fc',fontFamily:DM}}>{met.seriesPorMin}</span>
-                            <span className="text-[8px] ml-1" style={{color:'rgba(255,255,255,0.3)'}}>ser/min</span>
-                          </div>
-                        )}
-                        {met.tiempoTotalMin > 0 && (
-                          <div className="rounded-md px-2 py-1" style={{background:'linear-gradient(135deg, #0c0f1a 0%, #0a0a12 100%)', border:'1px solid rgba(139,92,246,0.1)'}}>
-                            <span className="text-[8px] font-bold uppercase tracking-wider block" style={{color:'#8b5cf6',fontFamily:DM}}>Trab:Desc</span>
-                            <span className="text-[11px] font-bold" style={{color:'#a5b4fc',fontFamily:DM}}>{met.tiempoTrabajo}:{met.tiempoDescanso}m</span>
-                          </div>
-                        )}
-                        {met.neuroCarga > 0 && (
-                          <div className="rounded-md px-2 py-1" style={{background:'linear-gradient(135deg, #0c0f1a 0%, #0a0a12 100%)', border:'1px solid rgba(129,140,248,0.15)'}}>
-                            <span className="text-[8px] font-bold uppercase tracking-wider block" style={{color:'#818cf8',fontFamily:DM}}>NeuroCarga</span>
-                            <span className="text-[12px] font-black" style={{color:'#a5b4fc',fontFamily:DM}}>{met.neuroCarga}</span>
-                          </div>
-                        )}
-                        {met.zonaFC && (
-                          <div className="rounded-md px-2 py-1" style={{background:'linear-gradient(135deg, #0c0f1a 0%, #0a0a12 100%)', border:'1px solid rgba(255,107,157,0.15)'}}>
-                            <span className="text-[8px] font-bold uppercase tracking-wider block" style={{color:'#ff6b9d',fontFamily:DM}}>Zona FC</span>
-                            <span className="text-[11px] font-bold" style={{color:'#fda4af',fontFamily:DM}}>{met.zonaFC}</span>
-                          </div>
-                        )}
-                        {met.zonaFuerza && (
-                          <div className="rounded-md px-2 py-1" style={{background:'linear-gradient(135deg, #0c0f1a 0%, #0a0a12 100%)', border:'1px solid rgba(0,229,255,0.15)'}}>
-                            <span className="text-[8px] font-bold uppercase tracking-wider block" style={{color:'#00e5ff',fontFamily:DM}}>Zona Fuerza</span>
-                            <span className="text-[11px] font-bold" style={{color:'#67e8f9',fontFamily:DM}}>{met.zonaFuerza}</span>
-                          </div>
-                        )}
+                      {/* Métricas: chips inline minimalistas label:value */}
+                      <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px]" style={{fontFamily:DM}}>
+                        <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">C. Total</span><span className="text-[12px] font-black text-slate-800">{met.cargaTotal}</span></span>
+                        <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">C. Sesion</span><span className="text-[12px] font-black text-slate-800">{met.cargaSesion}</span></span>
+                        {met.ratioDensidad != null && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">T:D</span><span className="text-[12px] font-black text-slate-800">1:{Math.round(1/met.ratioDensidad) || '?'}</span></span>}
+                        {met.seriesPorMin > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">Densidad</span><span className="text-[12px] font-black text-slate-800">{met.seriesPorMin}</span><span className="text-[9px] text-slate-400">ser/min</span></span>}
+                        {met.tiempoTotalMin > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">Trab:Desc</span><span className="text-[11px] font-bold text-slate-800">{met.tiempoTrabajo}:{met.tiempoDescanso}m</span></span>}
+                        {met.neuroCarga > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-indigo-500">NeuroCarga</span><span className="text-[12px] font-black text-slate-800">{met.neuroCarga}</span></span>}
+                        {met.zonaFC && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-rose-500">Zona FC</span><span className="text-[11px] font-bold text-slate-800">{met.zonaFC}</span></span>}
+                        {met.zonaFuerza && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">Zona</span><span className="text-[11px] font-bold text-slate-800">{met.zonaFuerza}</span></span>}
                       </div>
 
-                      {/* Modelo de progresión */}
-                      <div>
-                        <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 block mb-1" style={{fontFamily:DM}}>Modelo de progresión</span>
-                        <div className="flex flex-wrap gap-1">
-                          {MODELOS_PROGRESION.map(m => (
-                            <button key={m.id} onClick={() => updateActividad(faseKey, idx, 'progresion', { ...prog, modelo: m.id })}
-                              className={`text-[10px] font-semibold px-2 py-1 rounded-md transition-all ${prog.modelo === m.id ? 'bg-[#CCFF00] text-slate-900' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
-                              title={m.desc}
-                              data-testid={`progresion-${m.id}-${faseKey}-${idx}`}
-                            >
-                              {m.name}
-                            </button>
-                          ))}
-                        </div>
+                      {/* Modelo de progresión — pills compactas */}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400" style={{fontFamily:DM}}>Progresión</span>
+                        {MODELOS_PROGRESION.map(m => (
+                          <button key={m.id} onClick={() => updateActividad(faseKey, idx, 'progresion', { ...prog, modelo: m.id })}
+                            className={`text-[10px] font-semibold px-2 py-0.5 rounded-full transition-all ${prog.modelo === m.id ? 'bg-[#CCFF00] text-slate-900' : 'bg-transparent text-slate-400 hover:bg-slate-100 hover:text-slate-600'}`}
+                            title={m.desc}
+                            data-testid={`progresion-${m.id}-${faseKey}-${idx}`}
+                          >
+                            {m.name}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   )}
