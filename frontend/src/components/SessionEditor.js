@@ -1724,6 +1724,29 @@ const SessionEditor = ({
                     const fcDuranteNum = parseInt(m.fcDuranteEntrenamiento) || 0;
                     const pctReserve = hasZones && fcDuranteNum ? Math.round(((fcDuranteNum - fcRep) / fcr) * 100) : null;
 
+                    // Zone definitions (single source of truth)
+                    const ZONE_DEFS = [
+                      { z:'Z1', range:'50-60%', name:'Recuperación',    color:'#059669', bg:'#d1fae5', min:0.50, max:0.60 },
+                      { z:'Z2', range:'60-70%', name:'Aeróbico base',   color:'#65a30d', bg:'#ecfccb', min:0.60, max:0.70 },
+                      { z:'Z3', range:'70-80%', name:'Tempo',           color:'#ca8a04', bg:'#fef9c3', min:0.70, max:0.80 },
+                      { z:'Z4', range:'80-90%', name:'Umbral',          color:'#ea580c', bg:'#ffedd5', min:0.80, max:0.90 },
+                      { z:'Z5', range:'90-100%',name:'VO2max',          color:'#dc2626', bg:'#fee2e2', min:0.90, max:1.00 }
+                    ];
+
+                    // Bandas horizontales en el chart para cada zona (visible sobre el gráfico)
+                    const refAreas = hasZones ? ZONE_DEFS.map(z => ({
+                      y1: Math.round(fcRep + fcr * z.min),
+                      y2: Math.round(fcRep + fcr * z.max),
+                      color: z.color,
+                      fillOpacity: 0.12,
+                      label: `${z.z} ${z.name}`
+                    })) : [];
+
+                    // Y-axis dinámico: si hay zonas, ajustar al rango útil para que las bandas se vean grandes
+                    const yDomain = hasZones
+                      ? [Math.max(0, fcRep - 10), Math.min(240, fcMax + 10)]
+                      : [0, 240];
+
                     // Bloque de FC phases inputs + reposo/media/maxima + zonas (organizado en 4 líneas)
                     const rowStyle = 'flex items-center gap-1.5 flex-wrap';
                     const pill = (p) => (
@@ -1804,13 +1827,7 @@ const SessionEditor = ({
                           {rowLabel('Zonas FC', '#be185d')}
                           {hasZones ? (
                             <>
-                              {[
-                                { z:'Z1', range:'50-60%', name:'Recuperación',    color:'#059669', bg:'#d1fae5', min:0.50, max:0.60 },
-                                { z:'Z2', range:'60-70%', name:'Aeróbico base',   color:'#65a30d', bg:'#ecfccb', min:0.60, max:0.70 },
-                                { z:'Z3', range:'70-80%', name:'Tempo',           color:'#ca8a04', bg:'#fef9c3', min:0.70, max:0.80 },
-                                { z:'Z4', range:'80-90%', name:'Umbral',          color:'#ea580c', bg:'#ffedd5', min:0.80, max:0.90 },
-                                { z:'Z5', range:'90-100%',name:'VO2max',          color:'#dc2626', bg:'#fee2e2', min:0.90, max:1.00 }
-                              ].map(z => {
+                              {ZONE_DEFS.map(z => {
                                 const lo = Math.round(fcRep + fcr * z.min);
                                 const hi = Math.round(fcRep + fcr * z.max);
                                 const active = pctReserve !== null && pctReserve >= z.min*100 && pctReserve <= z.max*100;
@@ -1842,13 +1859,14 @@ const SessionEditor = ({
                         data={chartData}
                         dataKeys={[{ key: 'bpm', color: '#ef4444', name: 'FC (bpm)' }]}
                         xAxisKey="fase"
-                        height={280}
+                        height={320}
                         showBrush={false}
                         showControls={true}
                         showTimeRange={false}
-                        defaultChartType="area"
-                        yAxisDomain={[0, 240]}
+                        defaultChartType="line"
+                        yAxisDomain={yDomain}
                         referenceLines={refLines}
+                        referenceAreas={refAreas}
                         extraControls={inlineControls}
                         className="border border-slate-100 shadow-none bg-white"
                       />
