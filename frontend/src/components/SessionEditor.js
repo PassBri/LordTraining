@@ -1697,27 +1697,116 @@ const SessionEditor = ({
                 </CardHeader>
                 {sectionOpen.monitoreo && (
                 <CardContent className="p-6 bg-white space-y-8">
-                  {/* ── Gráfica Trading-style (InteractiveChart) ── */}
+                  {/* ── Gráfica Trading-style (InteractiveChart) con controles integrados ── */}
                   {(() => {
                     const m = sessionData.monitoreo;
-                    // Build dataset from monitoreo phases (reactive to edits)
                     const phases = [
-                      { id: 'antes',   label: 'Antes',    key: 'fcAntesEntrenamiento' },
-                      { id: 'durante', label: 'Durante',  key: 'fcDuranteEntrenamiento' },
-                      { id: 'despues', label: 'Después',  key: 'fcDespuesEntrenamiento' },
-                      { id: 'recup1',  label: "Recup 1'", key: 'fcRecuperacion1min' },
-                      { id: 'recup3',  label: "Recup 3'", key: 'fcRecuperacion3min' },
-                      { id: 'recup5',  label: "Recup 5'", key: 'fcRecuperacion5min' },
+                      { id: 'antes',   label: 'Antes',    key: 'fcAntesEntrenamiento',    color: '#3B82F6' },
+                      { id: 'durante', label: 'Durante',  key: 'fcDuranteEntrenamiento',  color: '#EF4444' },
+                      { id: 'despues', label: 'Después',  key: 'fcDespuesEntrenamiento',  color: '#10B981' },
+                      { id: 'recup1',  label: "Recup 1'", key: 'fcRecuperacion1min',      color: '#14B8A6' },
+                      { id: 'recup3',  label: "Recup 3'", key: 'fcRecuperacion3min',      color: '#A855F7' },
+                      { id: 'recup5',  label: "Recup 5'", key: 'fcRecuperacion5min',      color: '#6366F1' },
                     ];
-                    if (m.mostrarRecuperacion10min) {
-                      phases.push({ id: 'recup10', label: "Recup 10'", key: 'fcRecuperacion10min' });
-                    }
+                    if (m.mostrarRecuperacion10min) phases.push({ id: 'recup10', label: "Recup 10'", key: 'fcRecuperacion10min', color: '#EC4899' });
                     const chartData = phases.map(p => ({ fase: p.label, bpm: parseInt(m[p.key]) || 0 }));
-                    // Reference lines from fcReposo/Media/Maxima (only if defined)
                     const refLines = [];
-                    if (m.fcReposo)  refLines.push({ y: parseInt(m.fcReposo),  label: `Reposo (${m.fcReposo} bpm)`,  stroke: '#84cc16', strokeDasharray: '4 4' });
-                    if (m.fcMedia)   refLines.push({ y: parseInt(m.fcMedia),   label: `Media (${m.fcMedia} bpm)`,    stroke: '#f59e0b', strokeDasharray: '4 4' });
-                    if (m.fcMaxima)  refLines.push({ y: parseInt(m.fcMaxima),  label: `Máxima (${m.fcMaxima} bpm)`,  stroke: '#ef4444', strokeDasharray: '4 4' });
+                    if (m.fcReposo)  refLines.push({ y: parseInt(m.fcReposo),  label: `Reposo ${m.fcReposo}`,  stroke: '#84cc16', strokeDasharray: '4 4' });
+                    if (m.fcMedia)   refLines.push({ y: parseInt(m.fcMedia),   label: `Media ${m.fcMedia}`,    stroke: '#f59e0b', strokeDasharray: '4 4' });
+                    if (m.fcMaxima)  refLines.push({ y: parseInt(m.fcMaxima),  label: `Máx ${m.fcMaxima}`,     stroke: '#ef4444', strokeDasharray: '4 4' });
+
+                    // Cálculo de zonas FC (Karvonen) — reemplaza la info irrelevante de rangos temporales
+                    const fcMax = parseInt(m.fcMaxima) || 0;
+                    const fcRep = parseInt(m.fcReposo) || 0;
+                    const hasZones = fcMax > 0 && fcRep > 0 && fcMax > fcRep;
+                    const fcr = fcMax - fcRep;
+                    // Average workload from "Durante" phase — identifies dominant training zone
+                    const fcDuranteNum = parseInt(m.fcDuranteEntrenamiento) || 0;
+                    const pctReserve = hasZones && fcDuranteNum ? Math.round(((fcDuranteNum - fcRep) / fcr) * 100) : null;
+
+                    // Bloque de FC phases inputs + reposo/media/maxima + zonas (todo en una fila)
+                    const inlineControls = (
+                      <>
+                        {/* Phase inputs */}
+                        {phases.map(p => (
+                          <div key={p.id} className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-50 border border-slate-200" data-testid={`fc-${p.id}`}>
+                            <span className="w-1.5 h-1.5 rounded-full" style={{background:p.color}} />
+                            <span className="text-[8px] font-bold uppercase tracking-wide text-slate-500" style={{fontFamily:DM}}>{p.label}</span>
+                            <Input
+                              type="number"
+                              value={m[p.key]}
+                              onChange={(e) => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, [p.key]: e.target.value } }))}
+                              className="h-5 w-12 text-center font-black text-[11px] rounded border-0 bg-white px-1 focus:ring-1 focus:ring-[#84cc16]"
+                              style={{fontFamily:DM}}
+                              data-testid={`fc-${p.id}-input`}
+                            />
+                          </div>
+                        ))}
+
+                        {/* Referencias FC: Reposo / Media / Máxima */}
+                        {[
+                          { id: 'reposo', label: 'Reposo', key: 'fcReposo', color: '#84cc16' },
+                          { id: 'media',  label: 'Media',  key: 'fcMedia',  color: '#f59e0b' },
+                          { id: 'maxima', label: 'Máx',    key: 'fcMaxima', color: '#ef4444' }
+                        ].map(r => (
+                          <div key={r.id} className="flex items-center gap-1 px-1.5 py-0.5 rounded-md border" style={{background:r.color + '10', borderColor:r.color + '40'}} data-testid={`fc-ref-${r.id}`}>
+                            <span className="w-1.5 h-1.5 rounded-full" style={{background:r.color}} />
+                            <span className="text-[8px] font-bold uppercase tracking-wide" style={{color:r.color,fontFamily:DM}}>{r.label}</span>
+                            <Input
+                              type="number"
+                              value={m[r.key]}
+                              onChange={(e) => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, [r.key]: e.target.value } }))}
+                              className="h-5 w-12 text-center font-black text-[11px] rounded border-0 bg-white px-1 focus:ring-1"
+                              style={{fontFamily:DM}}
+                              data-testid={`fc-ref-${r.id}-input`}
+                            />
+                          </div>
+                        ))}
+
+                        {/* Toggle Recup 10 min */}
+                        <button
+                          onClick={() => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, mostrarRecuperacion10min: !prev.monitoreo.mostrarRecuperacion10min } }))}
+                          className={`inline-flex items-center gap-1 px-2 h-[22px] rounded-md text-[9px] font-bold uppercase tracking-wider transition-all ${m.mostrarRecuperacion10min ? 'bg-pink-100 text-pink-700 border border-pink-300' : 'bg-slate-50 text-slate-500 border border-slate-200 hover:bg-slate-100'}`}
+                          style={{fontFamily:DM}}
+                          data-testid="toggle-recup-10min"
+                        >
+                          {m.mostrarRecuperacion10min ? '✓' : '+'} R10
+                        </button>
+
+                        <span className="w-px h-4 bg-slate-200 mx-0.5" />
+
+                        {/* Info relevante: Zonas FC (calculadas con Karvonen) */}
+                        {hasZones ? (
+                          <>
+                            {[
+                              { z:'Z1', range:'50-60%', name:'Recup',    color:'#10b981', min:0.50, max:0.60 },
+                              { z:'Z2', range:'60-70%', name:'Aerób.',   color:'#84cc16', min:0.60, max:0.70 },
+                              { z:'Z3', range:'70-80%', name:'Tempo',    color:'#eab308', min:0.70, max:0.80 },
+                              { z:'Z4', range:'80-90%', name:'Umbral',   color:'#f97316', min:0.80, max:0.90 },
+                              { z:'Z5', range:'90-100%',name:'VO2max',   color:'#ef4444', min:0.90, max:1.00 }
+                            ].map(z => {
+                              const lo = Math.round(fcRep + fcr * z.min);
+                              const hi = Math.round(fcRep + fcr * z.max);
+                              const active = pctReserve !== null && pctReserve >= z.min*100 && pctReserve <= z.max*100;
+                              return (
+                                <div key={z.z} className={`flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-bold ${active ? 'ring-1 ring-offset-1' : ''}`} style={{background:z.color + (active?'25':'10'), color:z.color, border:`1px solid ${z.color}40`, '--tw-ring-color': z.color}} title={`${z.name} · ${z.range}`} data-testid={`fc-zone-${z.z}`}>
+                                  <span className="tabular-nums">{z.z}</span>
+                                  <span className="text-[8px] opacity-70 font-medium tabular-nums">{lo}-{hi}</span>
+                                </div>
+                              );
+                            })}
+                            {pctReserve !== null && (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-900 text-[9px] font-bold text-lime-400" style={{fontFamily:DM}} title="% Frecuencia Cardíaca de Reserva (Karvonen) durante el entrenamiento">
+                                %FCR <span className="text-white">{pctReserve}%</span>
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-[9px] text-slate-400 italic" style={{fontFamily:DM}}>Ingresa FC Reposo + Máxima para ver zonas</span>
+                        )}
+                      </>
+                    );
+
                     return (
                       <InteractiveChart
                         title="Frecuencia cardíaca por fases"
@@ -1728,84 +1817,15 @@ const SessionEditor = ({
                         height={280}
                         showBrush={false}
                         showControls={true}
+                        showTimeRange={false}
                         defaultChartType="area"
                         yAxisDomain={[0, 240]}
                         referenceLines={refLines}
+                        extraControls={inlineControls}
                         className="border border-slate-100 shadow-none bg-white"
                       />
                     );
                   })()}
-
-                  {/* Inputs compactos editables por fase */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2">
-                    {[
-                      { id: 'antes',   label: 'Antes',     key: 'fcAntesEntrenamiento',    color: '#3B82F6', ph: '70'  },
-                      { id: 'durante', label: 'Durante',   key: 'fcDuranteEntrenamiento',  color: '#EF4444', ph: '150' },
-                      { id: 'despues', label: 'Después',   key: 'fcDespuesEntrenamiento',  color: '#10B981', ph: '90'  },
-                      { id: 'recup1',  label: "Recup 1'",  key: 'fcRecuperacion1min',      color: '#14B8A6', ph: '85'  },
-                      { id: 'recup3',  label: "Recup 3'",  key: 'fcRecuperacion3min',      color: '#A855F7', ph: '78'  },
-                      { id: 'recup5',  label: "Recup 5'",  key: 'fcRecuperacion5min',      color: '#6366F1', ph: '72'  },
-                      ...(sessionData.monitoreo.mostrarRecuperacion10min ? [{ id: 'recup10', label: "Recup 10'", key: 'fcRecuperacion10min', color: '#EC4899', ph: '68' }] : [])
-                    ].map(p => (
-                      <div key={p.id} className="flex flex-col items-center gap-1" data-testid={`fc-${p.id}`}>
-                        <div className="flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full" style={{background:p.color}} />
-                          <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500" style={{fontFamily:DM}}>{p.label}</span>
-                        </div>
-                        <div className="flex items-baseline gap-1">
-                          <Input
-                            type="number"
-                            value={sessionData.monitoreo[p.key]}
-                            onChange={(e) => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, [p.key]: e.target.value } }))}
-                            placeholder={p.ph}
-                            className="h-8 w-16 text-center font-black text-[14px] rounded-lg border-slate-200 focus:ring-1 focus:ring-[#84cc16] focus:border-[#84cc16]"
-                            style={{borderColor:p.color + '40',fontFamily:DM}}
-                            data-testid={`fc-${p.id}-input`}
-                          />
-                          <span className="text-[9px] text-slate-400" style={{fontFamily:DM}}>bpm</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Toggle Recup 10 min + FC Reposo / Media / Máxima (inline, referencias del chart) */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <button
-                      onClick={() => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, mostrarRecuperacion10min: !prev.monitoreo.mostrarRecuperacion10min } }))}
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${sessionData.monitoreo.mostrarRecuperacion10min ? 'bg-pink-100 text-pink-700 border border-pink-200' : 'bg-slate-50 text-slate-500 border border-slate-200 hover:bg-slate-100'}`}
-                      style={{fontFamily:DM}}
-                      data-testid="toggle-recup-10min"
-                    >
-                      <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center transition-colors ${sessionData.monitoreo.mostrarRecuperacion10min ? 'bg-pink-500' : 'bg-slate-300'}`}>
-                        {sessionData.monitoreo.mostrarRecuperacion10min && <Check className="w-2.5 h-2.5 text-white" />}
-                      </span>
-                      + Recup 10 min
-                    </button>
-
-                    <span className="w-px h-5 bg-slate-200 mx-1" />
-
-                    {/* Referencias: FC Reposo, Media, Máxima (aparecen como líneas en el chart) */}
-                    {[
-                      { id: 'reposo',  label: 'FC Reposo',  key: 'fcReposo',  color: '#84cc16', ph: '60' },
-                      { id: 'media',   label: 'FC Media',   key: 'fcMedia',   color: '#f59e0b', ph: '138' },
-                      { id: 'maxima',  label: 'FC Máxima',  key: 'fcMaxima',  color: '#ef4444', ph: '190' }
-                    ].map(r => (
-                      <div key={r.id} className="flex items-center gap-1.5 px-2 py-1 rounded-lg border border-slate-200 bg-white" data-testid={`fc-ref-${r.id}`}>
-                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{background:r.color}} />
-                        <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500" style={{fontFamily:DM}}>{r.label}</span>
-                        <Input
-                          type="number"
-                          value={sessionData.monitoreo[r.key]}
-                          onChange={(e) => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, [r.key]: e.target.value } }))}
-                          placeholder={r.ph}
-                          className="h-6 w-14 text-center font-black text-[13px] rounded-md border-0 focus:ring-1 focus:ring-offset-0 px-1"
-                          style={{borderColor:r.color + '40', fontFamily:DM, '--tw-ring-color': r.color + '80'}}
-                          data-testid={`fc-ref-${r.id}-input`}
-                        />
-                        <span className="text-[8px] text-slate-400" style={{fontFamily:DM}}>bpm</span>
-                      </div>
-                    ))}
-                  </div>
 
                   {/* FC Reposo/Media/Máxima — editables en la sección del gráfico (arriba) como referencias */}
 

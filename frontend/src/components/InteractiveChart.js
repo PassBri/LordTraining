@@ -69,12 +69,14 @@ const InteractiveChart = ({
   height = 320,
   showBrush = true,
   showControls = true,
+  showTimeRange = true,
   showLiveIndicator = false,
   defaultChartType = 'bar',
   defaultTimeRange = 'sessions',
   yAxisDomain = [0, 100],
   referenceLines = [],
   referenceAreas = [],
+  extraControls = null,
   className = ''
 }) => {
   const [chartType, setChartType] = useState(defaultChartType);
@@ -598,6 +600,7 @@ const InteractiveChart = ({
           {showControls && showSettings && (
             <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-100 animate-in fade-in slide-in-from-top-2 duration-200">
               {/* Selector de rango de tiempo */}
+              {showTimeRange && (
               <div className="flex items-center gap-1.5">
                 <span className="text-xs text-slate-500 font-medium">Período:</span>
                 <div className="flex bg-slate-100 rounded-lg p-0.5">
@@ -617,6 +620,7 @@ const InteractiveChart = ({
                   ))}
                 </div>
               </div>
+              )}
 
               {/* Selector de tipo de gráfico */}
               <div className="flex items-center gap-1.5">
@@ -654,7 +658,7 @@ const InteractiveChart = ({
 
           {/* Controles compactos cuando el panel está cerrado */}
           {showControls && !showSettings && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               {/* Mini selector de tipo de gráfico */}
               <div className="flex bg-slate-100 rounded-lg p-0.5">
                 {CHART_TYPES.slice(0, 4).map(type => {
@@ -677,6 +681,7 @@ const InteractiveChart = ({
               </div>
 
               {/* Mini selector de tiempo */}
+              {showTimeRange && (
               <div className="flex bg-slate-100 rounded-lg p-0.5">
                 {TIME_RANGES.slice(0, 7).map(range => (
                   <button
@@ -693,8 +698,10 @@ const InteractiveChart = ({
                   </button>
                 ))}
               </div>
+              )}
 
               {/* Botones rápidos */}
+              {showTimeRange && (
               <div className="flex bg-slate-100 rounded-lg p-0.5">
                 {QUICK_RANGES.map(range => (
                   <button
@@ -707,6 +714,14 @@ const InteractiveChart = ({
                   </button>
                 ))}
               </div>
+              )}
+
+              {/* Slot de controles extra (custom inputs/info desde parent) */}
+              {extraControls && (
+                <div className="flex items-center gap-1.5 flex-wrap flex-1">
+                  {extraControls}
+                </div>
+              )}
             </div>
           )}
         </div>
