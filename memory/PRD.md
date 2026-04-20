@@ -421,6 +421,22 @@
   - Gimnasio: tank top/sports bra + joggers + tenis blancos
 - Estilo MODERN ahora usa uniformes deportivos automaticamente
 
+### Fixes Variantes de Cancha (Feb 2026)
+- Cancha Futsal: corregidos sweep flags de los arcos del area (6m) -> ahora
+  son cuartos de circulo conccavos centrados en el poste, conforme al
+  reglamento FIFA. Antes los arcos eran convexos hacia la esquina
+  (centro incorrecto en el borde).
+- Nueva cancha dedicada 'Futbol 5v5 Infantil' (30x40m, porteria 6x2m,
+  areas 13x8.25m). La variante 5v5 ya NO reutiliza Futsal.
+- VARIANT_TO_BASE actualizado: 'Futbol 5v5' normaliza a 'Futbol' para
+  render 3D isometrico.
+- Futbol de Salon accedido directamente desde sidebar ya no muestra
+  selector de variante (solo Futbol lo expone).
+- Selector de VARIANTE compactado (padding 3x6, font 10px, max-w 110px)
+  para no empujar los botones JUGADORES/Tactico/Camiseta/Avatar.
+- Labels mas cortos: '11 vs 11 · FIFA', '7 vs 7 · Juvenil', '5 vs 5 · Infantil'.
+
 ## Pendiente
+### P1 - Refactorizar tactical-board.html (+5300 lineas) -> separar CSS/JS/SVG constantes
 ### P1 - Continuar refactorizacion: extraer secciones Athletes, Sports, Events de DashboardPage
 ### P3 - Diseno responsivo tablero tactico (Mobile/Tablet)
