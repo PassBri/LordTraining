@@ -178,11 +178,14 @@ const MiniBoardPlayer = ({ svgHtml, editHref, onEditClick, onRemove, testIdPrefi
   return (
     <div className="w-full flex-1 flex flex-col" style={{minHeight:'140px'}}>
       {/* Miniatura clickeable — usa <a target="_blank"> nativo para no ser bloqueado por popup blocker */}
-      {/* NOTA: NO usar rel="noopener" porque tactical-board.html necesita window.opener para postMessage */}
+      {/* IMPORTANTE: rel="opener" es OBLIGATORIO. Desde Chrome 88/Firefox 79/Safari 12.1,
+          target="_blank" implícitamente aplica noopener y bloquea window.opener.
+          tactical-board.html necesita window.opener para enviar postMessage con el thumbnail guardado. */}
       <a
         ref={wrapperRef}
         href={editHref}
         target="_blank"
+        rel="opener"
         onClick={(e) => { if (onEditClick) onEditClick(e); }}
         className="block w-full flex-1 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-[#c8f700] hover:shadow-md overflow-hidden transition-all"
         style={{minHeight:'110px'}}
@@ -257,10 +260,11 @@ const MiniBoardPlayer = ({ svgHtml, editHref, onEditClick, onRemove, testIdPrefi
       )}
 
       {/* Botón explícito "Editar pizarra" — garantiza apertura (anchor nativo) */}
-      {/* NOTA: NO usar rel="noopener" porque tactical-board.html necesita window.opener para postMessage */}
+      {/* IMPORTANTE: rel="opener" necesario para que tactical-board.html pueda usar window.opener.postMessage */}
       <a
         href={editHref}
         target="_blank"
+        rel="opener"
         onClick={(e) => { if (onEditClick) onEditClick(e); }}
         className="mt-1 flex items-center justify-center gap-1 h-7 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all hover:brightness-110 no-underline"
         style={{background:'#0a0a0f',color:'#c8f700',fontFamily:DM,border:'1px solid rgba(204,255,0,0.3)'}}
