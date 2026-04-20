@@ -72,6 +72,7 @@ h1{font-family:'Oswald',sans-serif;font-size:clamp(28px,4vw,40px);font-weight:80
      </div>
      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
        <button onclick="(async()=>{const u=window.location.origin+'/api/c/'+encodeURIComponent('${d.slug}');if(navigator.share){try{await navigator.share({title:'Coach iTRAIN',url:u});}catch(e){}}else{try{await navigator.clipboard.writeText(u);alert('Link copiado:\\n'+u);}catch(e){prompt('Copia este link:',u);}}})()" style="padding:9px 16px;background:#c8f700;color:#0a0f1f;border:none;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer;letter-spacing:0.04em;box-shadow:0 4px 14px rgba(200,247,0,0.3);display:inline-flex;align-items:center;gap:6px" data-testid="coach-share-btn">📤 COMPARTIR PERFIL</button>
+       <button onclick="document.getElementById('qr-modal').style.display='flex'" style="padding:9px 14px;background:rgba(255,255,255,0.06);color:#c8f700;border:1px solid rgba(200,247,0,0.35);border-radius:10px;font-weight:800;font-size:11.5px;cursor:pointer;letter-spacing:0.03em;display:inline-flex;align-items:center;gap:5px" data-testid="coach-qr-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><line x1="14" y1="14" x2="14" y2="21"/><line x1="18" y1="14" x2="18" y2="17"/><line x1="21" y1="17" x2="21" y2="21"/><line x1="14" y1="21" x2="17" y2="21"/></svg>QR CODE</button>
        <a href="/api/c/${encodeURIComponent(d.slug)}" target="_blank" rel="noopener" style="padding:9px 14px;background:rgba(255,255,255,0.06);color:#94a3b8;border:1px solid rgba(255,255,255,0.15);border-radius:10px;font-weight:700;font-size:11.5px;text-decoration:none;letter-spacing:0.03em">🔗 LINK CON PREVIEW</a>
        <a href="/api/coaches/og/${encodeURIComponent(d.slug)}.png" target="_blank" rel="noopener" style="padding:9px 14px;background:rgba(255,255,255,0.06);color:#94a3b8;border:1px solid rgba(255,255,255,0.15);border-radius:10px;font-weight:700;font-size:11.5px;text-decoration:none;letter-spacing:0.03em" data-testid="coach-og-preview-link">🖼️ VER MINIATURA OG</a>
      </div>
@@ -80,6 +81,20 @@ h1{font-family:'Oswald',sans-serif;font-size:clamp(28px,4vw,40px);font-weight:80
    <div style="margin-top:18px;padding:14px;border-radius:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1)">
      <div style="font-size:10.5px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.15em;font-weight:800;margin-bottom:10px">🎨 Vista previa WhatsApp / Twitter / Facebook</div>
      <img src="/api/coaches/og/${encodeURIComponent(d.slug)}.png?v=${Date.now()}" alt="OG preview" style="width:100%;max-width:640px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);display:block" data-testid="coach-og-image"/>
+   </div>
+   <!-- QR CODE MODAL -->
+   <div id="qr-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:9999;align-items:center;justify-content:center;padding:20px" onclick="if(event.target.id==='qr-modal')this.style.display='none'">
+     <div style="background:#fff;padding:30px;border-radius:20px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5)" data-testid="coach-qr-modal">
+       <div style="font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.15em;font-weight:800;margin-bottom:4px">Escanear QR</div>
+       <div style="font-size:22px;font-weight:900;color:#0a0f1f;margin-bottom:16px">${d.coach_name || d.slug}</div>
+       <img src="https://api.qrserver.com/v1/create-qr-code/?size=320x320&ecc=M&margin=2&data=${encodeURIComponent(window.location.origin+'/api/c/'+d.slug)}" alt="QR code" style="width:280px;height:280px;border-radius:12px;margin:0 auto;display:block;border:4px solid #c8f700" data-testid="coach-qr-image"/>
+       <div style="font-size:11px;color:#6b7280;margin-top:14px;font-family:monospace;word-break:break-all">${window.location.origin}/api/c/${d.slug}</div>
+       <div style="display:flex;gap:8px;margin-top:18px;justify-content:center">
+         <a href="https://api.qrserver.com/v1/create-qr-code/?size=800x800&ecc=H&margin=4&data=${encodeURIComponent(window.location.origin+'/api/c/'+d.slug)}&download=1" download="itrain-coach-${d.slug}.png" style="padding:10px 18px;background:#c8f700;color:#0a0f1f;border-radius:10px;font-weight:800;font-size:12px;text-decoration:none;letter-spacing:0.05em" data-testid="coach-qr-download">⬇ DESCARGAR</a>
+         <button onclick="document.getElementById('qr-modal').style.display='none'" style="padding:10px 18px;background:#e5e7eb;color:#374151;border:none;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer;letter-spacing:0.05em">CERRAR</button>
+       </div>
+       <div style="font-size:10px;color:#9ca3af;margin-top:14px">Úsalo en folletos, camisetas, clínicas deportivas</div>
+     </div>
    </div>`;
   if (!d.items || d.items.length === 0) {
    html += `<div class="empty"><h2>Aún no hay jugadas publicadas</h2>Al compartir una pizarra, escribe tu slug "${d.slug}" y aparecerá aquí automáticamente.</div>`;

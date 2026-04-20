@@ -387,7 +387,7 @@ html.dark #ctx-menu{background:rgba(15,23,42,0.95)}
 .snap-guide{stroke:rgba(255,80,80,0.5);stroke-width:0.5;stroke-dasharray:3 3;pointer-events:none}
 .tt{position:fixed;background:var(--text);color:var(--panel);font-size:11px;padding:5px 10px;border-radius:6px;pointer-events:none;z-index:400;display:none;white-space:nowrap;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,0.2)}
 /* Playback */
-#playback-bar{position:absolute;top:14px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:8px;background:var(--card-bg);border:1px solid var(--border);border-radius:24px;padding:7px 14px;z-index:50;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 12px 30px -8px rgba(0,0,0,0.25),0 0 0 1px var(--border)}
+#playback-bar{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:24px;padding:6px 12px;z-index:50;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 12px 30px -8px rgba(0,0,0,0.25),0 0 0 1px var(--border)}
 html.dark #playback-bar{background:rgba(15,23,42,0.85)}
 #playback-bar.show{display:flex;animation:modalFadeIn .22s}
 .pb-btn{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text-sec);border:1px solid var(--border);background:var(--surface);transition:all .15s}
@@ -434,7 +434,8 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
   <div class="sb-header">
    <div class="logo"><span>i</span></div>
    <div class="brand-text">iTRAIN</div>
-   <a class="sb-header-action" href="/top-jugadas.html" target="_blank" rel="noopener" title="Top Jugadas (ranking viral)" data-testid="top-rank-sidebar-btn" style="margin-left:auto;margin-right:4px;text-decoration:none;display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border-radius:6px;background:rgba(200,247,0,0.08);color:var(--brand);border:1px solid rgba(200,247,0,0.35);font-size:9.5px;font-weight:800;letter-spacing:0.08em"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>TOP</a>
+   <a class="sb-header-action" href="/top-jugadas.html" target="_blank" rel="noopener" title="Top Jugadas (ranking viral)" data-testid="top-rank-sidebar-btn" style="margin-left:auto;text-decoration:none;display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border-radius:6px;background:rgba(200,247,0,0.08);color:var(--brand);border:1px solid rgba(200,247,0,0.35);font-size:9.5px;font-weight:800;letter-spacing:0.08em"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>TOP</a>
+   <button class="sb-header-action" onclick="S.togglePresentation()" title="Modo presentación pantalla completa (Shift+F)" data-testid="presentation-sidebar-btn" style="margin-left:4px;margin-right:4px;text-decoration:none;display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border-radius:6px;background:rgba(200,247,0,0.08);color:var(--brand);border:1px solid rgba(200,247,0,0.35);font-size:9.5px;font-weight:800;letter-spacing:0.08em;cursor:pointer"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>PRES</button>
    <button class="sb-close" onclick="S.closeBoard()" title="Volver" data-testid="close-board-btn"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></button>
   </div>
   <!-- Sport selector as accordion (native <details>) -->
@@ -552,14 +553,16 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
    <div class="vb-sep"></div>
    <div class="vb-group" style="margin-left:auto">
     <a class="vb-icon" id="top-rank-link" href="/top-jugadas.html" target="_blank" rel="noopener" title="Top Jugadas (ranking viral)" data-testid="top-rank-btn" style="text-decoration:none;display:none"></a>
-   <button class="vb-icon" id="presentation-btn" onclick="S.togglePresentation()" title="Modo presentación pantalla completa (P)" data-testid="presentation-btn" style="padding:0 10px;width:auto;gap:4px;font-size:11px;font-weight:800;letter-spacing:0.04em"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>PRES</button>
+   <button class="vb-icon" id="presentation-btn" onclick="S.togglePresentation()" title="Modo presentación pantalla completa (P)" data-testid="presentation-btn" style="display:none"></button>
     <button class="vb-icon" id="theme-toggle" onclick="S.toggleTheme()" title="Cambiar tema" data-testid="theme-toggle-btn"><svg id="theme-icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><svg id="theme-icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
    </div>
   </div>
   <div id="playback-bar">
-   <button class="pb-btn" onclick="S.playback('play')" id="pb-play"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,1 14,8 3,15"/></svg></button>
-   <button class="pb-btn" onclick="S.playback('pause')" id="pb-pause"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="2" width="3.5" height="12" rx="1"/><rect x="9.5" y="2" width="3.5" height="12" rx="1"/></svg></button>
-   <button class="pb-btn" onclick="S.playback('stop')" id="pb-stop"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="3" width="10" height="10" rx="1.5"/></svg></button>
+   <button class="pb-btn" onclick="S.playback('stepBack')" id="pb-step-back" title="Retroceder paso (←)" data-testid="pb-step-back"><svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><polygon points="13,1 2,8 13,15"/><rect x="0" y="1" width="2" height="14"/></svg></button>
+   <button class="pb-btn" onclick="S.playback('play')" id="pb-play" title="Reproducir"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,1 14,8 3,15"/></svg></button>
+   <button class="pb-btn" onclick="S.playback('pause')" id="pb-pause" title="Pausar"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="2" width="3.5" height="12" rx="1"/><rect x="9.5" y="2" width="3.5" height="12" rx="1"/></svg></button>
+   <button class="pb-btn" onclick="S.playback('stepForward')" id="pb-step-fwd" title="Avanzar paso (→)" data-testid="pb-step-fwd"><svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,1 14,8 3,15"/><rect x="14" y="1" width="2" height="14"/></svg></button>
+   <button class="pb-btn" onclick="S.playback('stop')" id="pb-stop" title="Detener"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="3" width="10" height="10" rx="1.5"/></svg></button>
    <div class="pb-progress"><div class="pb-progress-fill" id="pb-fill" style="width:0%"></div></div>
    <div class="pb-step" id="pb-step">--</div>
    <button class="pb-speed" onclick="S.setPlaySpeed(0.5)" id="pb-s05">0.5x</button>
@@ -5675,6 +5678,8 @@ flashGoal(label) {
    if(e.key==='f'||e.key==='F') this.zoomReset();
    if(e.key==='h'||e.key==='H') { document.getElementById('panel').style.display = document.getElementById('panel').style.display==='none'?'flex':'none'; }
    if(e.key==='p'||e.key==='P') this.startPlayback();
+   if(e.key==='ArrowRight' && ST.playbackState) { e.preventDefault(); this.playback('stepForward'); }
+   if(e.key==='ArrowLeft' && ST.playbackState) { e.preventDefault(); this.playback('stepBack'); }
    if((e.key==='F'||e.key==='f') && (e.shiftKey)) { e.preventDefault(); this.togglePresentation(); }
    if(e.key==='Escape' && document.body.classList.contains('presentation-mode')) { e.preventDefault(); this.togglePresentation(); }
    if(e.key==='Tab') { e.preventDefault(); const modes=['tactical','jersey','avatar']; const i=(modes.indexOf(ST.avatarMode)+1)%3; this.setAvatarMode(modes[i]); }
@@ -6283,6 +6288,31 @@ flashGoal(label) {
  },
 
  playback(action) {
+  if (action === 'stepForward' || action === 'stepBack') {
+   const chains = ST.playbackChains;
+   if (!chains || !chains.length) { this.startPlayback(); }
+   if (!ST.playbackChains || !ST.playbackChains.length) return;
+   // Pause
+   if (ST.playbackRAF) cancelAnimationFrame(ST.playbackRAF);
+   ST.playbackState = 'paused';
+   document.getElementById('pb-play').classList.remove('playing');
+   document.getElementById('pb-pause').classList.add('playing');
+   // Compute current progress
+   const maxSegs = ST.playbackMaxSegs || 1;
+   const stepPct = 1 / maxSegs;
+   let p = (ST.playbackProgress || 0) + (action === 'stepForward' ? stepPct : -stepPct);
+   p = Math.max(0, Math.min(1, p));
+   ST.playbackProgress = p;
+   ST.playbackPausedProgress = p;
+   // Trick: temporalmente cambiar a playing, setear startTime retroactivo, renderizar UN frame
+   const STEP_DURATION = 1500 / (ST.playbackSpeed || 1);
+   ST.playbackStartTime = performance.now() - p * maxSegs * STEP_DURATION;
+   ST.playbackState = 'playing';
+   this.renderPlaybackFrame();
+   ST.playbackState = 'paused';
+   if (ST.playbackRAF) cancelAnimationFrame(ST.playbackRAF);
+   return;
+  }
   if (action === 'play') {
    if (ST.playbackState === 'paused') {
     ST.playbackState = 'playing';
@@ -6445,9 +6475,9 @@ flashGoal(label) {
   // Re-render
   const layer = document.getElementById('elements-layer');
   let defs = `<defs>
-   <marker id="arrow-marker" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8" fill="none" stroke="rgba(0,0,0,0.7)" stroke-width="1.5" stroke-linecap="round"/></marker>
-   <marker id="pass-tip" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto"><path d="M1,2 L13,7 L1,12 L4,7 Z" fill="#3b82f6" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/></marker>
-   <marker id="play-arrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto"><path d="M0,0 L12,5 L0,10" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/></marker>
+   <marker id="arrow-marker" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto"><path d="M0,1.2 L11,5 L0,8.8 L2.6,5 Z" fill="rgba(37,99,235,0.85)"/></marker>
+   <marker id="pass-tip" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,1 L11,6 L0,11 L2.8,6 Z" fill="rgba(37,99,235,0.9)"/></marker>
+   <marker id="play-arrow" markerWidth="11" markerHeight="9" refX="9.5" refY="4.5" orient="auto"><path d="M0,0.8 L10,4.5 L0,8.2 L2.2,4.5 Z" fill="rgba(37,99,235,0.78)"/></marker>
    <filter id="blur3d"><feGaussianBlur stdDeviation="3"/></filter>
    <filter id="shadow3d"><feDropShadow dx="2" dy="3" stdDeviation="2" flood-opacity="0.2"/></filter>
   </defs>`;
@@ -6514,26 +6544,31 @@ flashGoal(label) {
     const pathD = `M${x1},${y1}L${x2},${y2}`;
 
     if (segIdx < currentGlobalStep) {
-     // Completed segment
-     svgParts += `<path d="${pathD}" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" marker-end="url(#play-arrow)" opacity="0.5"/>`;
+     // Completed segment (rastro muy sutil)
+     svgParts += `<path d="${pathD}" fill="none" stroke="rgba(37,99,235,0.32)" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="5 4" opacity="0.6"/>`;
     } else if (segIdx === currentGlobalStep && segIdx < chain.segments.length) {
      // Active segment in this chain
      if (chain.playerId) {
-      // Ghost full path
-      svgParts += `<path d="${pathD}" fill="none" stroke="rgba(37,99,235,0.15)" stroke-width="1.5" stroke-dasharray="5 3"/>`;
-      // Animated partial
+      // Ghost full path (muy sutil)
+      svgParts += `<path d="${pathD}" fill="none" stroke="rgba(37,99,235,0.1)" stroke-width="1.2" stroke-dasharray="4 4"/>`;
+      // Animated partial: línea fina con gradiente y punta elegante
       const rawPos = this.interpolatePath(seg, stepFrac);
       let px, py;
       if (is3D) { const pp = this.toIso(rawPos.x, rawPos.y, 0); px = pp.x; py = pp.y; }
       else { px = rawPos.x; py = rawPos.y; }
-      svgParts += `<path d="M${x1},${y1}L${px},${py}" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" marker-end="url(#play-arrow)"/>`;
-      svgParts += `<circle cx="${px}" cy="${py}" r="6" fill="rgba(37,99,235,0.2)"/>`;
+      // Trazo visible delgado (1.8px con gradiente fade-in desde el origen)
+      const gradId = `pb-grad-${segIdx}-${chain.playerId}`;
+      svgParts += `<defs><linearGradient id="${gradId}" x1="${x1}" y1="${y1}" x2="${px}" y2="${py}" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#2563eb" stop-opacity="0.05"/><stop offset="50%" stop-color="#2563eb" stop-opacity="0.5"/><stop offset="100%" stop-color="#2563eb" stop-opacity="0.85"/></linearGradient></defs>`;
+      // Línea principal elegante
+      svgParts += `<path d="M${x1},${y1}L${px},${py}" fill="none" stroke="url(#${gradId})" stroke-width="1.8" stroke-linecap="round" marker-end="url(#play-arrow)"/>`;
+      // Halo sutil detrás (glow)
+      svgParts += `<path d="M${x1},${y1}L${px},${py}" fill="none" stroke="#2563eb" stroke-width="5" stroke-linecap="round" opacity="0.06"/>`;
      }
      // Step badge
      svgParts += `<circle cx="${x1}" cy="${y1-18}" r="9" fill="rgba(37,99,235,0.85)"/><text x="${x1}" y="${y1-18}" dy="0.35em" text-anchor="middle" font-size="8" fill="#fff" font-weight="700">${a.playOrder||''}</text>`;
     } else {
-     // Future segment
-     svgParts += `<path d="${pathD}" fill="none" stroke="rgba(148,163,184,0.2)" stroke-width="1" stroke-dasharray="4 3"/>`;
+     // Future segment (muy sutil, solo guía)
+     svgParts += `<path d="${pathD}" fill="none" stroke="rgba(148,163,184,0.15)" stroke-width="0.9" stroke-dasharray="3 4"/>`;
     }
    });
   });
