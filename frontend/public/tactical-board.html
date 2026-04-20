@@ -241,8 +241,9 @@ html.dark #theme-toggle{color:var(--brand)}
 html.dark #field-layer text.fld-measure{stroke:var(--panel)}
 html.dark #field-layer text.fld-measure[data-mono="1"]{fill:rgba(235,235,235,0.95)!important}
 /* Joystick */
-#joystick{position:absolute;bottom:18px;right:18px;z-index:20;display:none}
-#joystick.show{display:block}
+#joystick{position:absolute;bottom:18px;right:70px;z-index:20;display:none}
+#joystick.show{display:flex;flex-direction:column;align-items:center}
+.zoom-controls{position:absolute;bottom:14px;right:14px;display:flex;flex-direction:column;gap:4px;z-index:10}
 .joy-outer{width:86px;height:86px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);box-shadow:0 8px 24px -8px var(--shadow-md),0 0 0 4px var(--surface-2);position:relative;backdrop-filter:blur(8px)}
 html.dark .joy-outer{background:rgba(15,23,42,0.7);box-shadow:0 8px 24px -8px var(--shadow-lg),0 0 0 1px var(--border-strong)}
 .joy-thumb{width:32px;height:32px;border-radius:50%;background:linear-gradient(145deg,var(--brand),#99cc00);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);cursor:grab;box-shadow:0 3px 10px var(--brand-glow),inset 0 1px 2px rgba(255,255,255,0.3);transition:box-shadow .15s}
@@ -1022,11 +1023,16 @@ const S = {
   ST.sport = name;
   ST.elements = []; ST.selected = []; ST.nextId = 1;
   this.saveHistory();
-  const f = FIELDS[name] || DEFAULT_FIELD;
-  const tc = this.getFieldColors();
-  const fl = document.getElementById('field-layer');
-  fl.innerHTML = `<rect x="0" y="0" width="600" height="800" fill="${tc.bg}" rx="0"/>` +
-   `<g stroke="${tc.stroke}" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">${f.svg}</g>`;
+  // Render field according to current view mode (preserve 3D across sport change)
+  if (ST.viewMode === '3d') {
+   this.render3DField();
+  } else {
+   const f = FIELDS[name] || DEFAULT_FIELD;
+   const tc = this.getFieldColors();
+   const fl = document.getElementById('field-layer');
+   fl.innerHTML = `<rect x="0" y="0" width="600" height="800" fill="${tc.bg}" rx="0"/>` +
+    `<g stroke="${tc.stroke}" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">${f.svg}</g>`;
+  }
   document.querySelectorAll('.sb-sport').forEach(p=>p.classList.toggle('active',p.dataset.sport===name));
   const curEl = document.getElementById('sb-deporte-current');
   if (curEl) {
@@ -1407,9 +1413,9 @@ const S = {
    // Goals
    L += this.isoRect(250,14,100,18,D+'0.65)',1.5);
    L += this.isoRect(250,768,100,18,D+'0.65)',1.5);
-   // Penalty arcs
-   L += this.isoArc(300,142,55,-90,90,D+'0.65)',1.5);
-   L += this.isoArc(300,658,55,90,270,D+'0.65)',1.5);
+   // Penalty arcs (radius 100 — auto-scaled from 2D "A55 55" between points 200 apart)
+   L += this.isoArc(300,142,100,0,180,D+'0.65)',1.5);
+   L += this.isoArc(300,658,100,180,360,D+'0.65)',1.5);
    // Corner arcs
    L += this.isoArc(82,30,12,0,90,D+'0.65)',1.5);
    L += this.isoArc(518,30,12,90,180,D+'0.65)',1.5);
@@ -1456,12 +1462,12 @@ const S = {
   } else if(s==='Balonmano') {
    L += this.isoRect(60,40,480,720,D+'0.65)',2);
    L += this.isoLine(60,400,540,400,D+'0.65)',1.5);
-   // 6m area arcs (solid)
-   L += this.isoArc(300,40,144,0,180,D+'0.65)',2);
-   L += this.isoArc(300,760,144,180,360,D+'0.65)',2);
-   // 9m area arcs (dashed)
-   L += this.isoArc(300,40,216,0,180,D+'0.35)',1.5,'stroke-dasharray="8 5"');
-   L += this.isoArc(300,760,216,180,360,D+'0.35)',1.5,'stroke-dasharray="8 5"');
+   // 6m area arcs (elliptical 144x108, matches 2D A144 108)
+   L += this.isoEllipseArc(300,40,144,108,0,180,D+'0.65)',2);
+   L += this.isoEllipseArc(300,760,144,108,180,360,D+'0.65)',2);
+   // 9m area arcs (elliptical 216x162, dashed, matches 2D A216 162)
+   L += this.isoEllipseArc(300,40,216,162,0,180,D+'0.35)',1.5,'stroke-dasharray="8 5"');
+   L += this.isoEllipseArc(300,760,216,162,180,360,D+'0.35)',1.5,'stroke-dasharray="8 5"');
    // Goals
    L += this.isoRect(260,20,80,22,D+'0.65)',1.5);
    L += this.isoRect(260,758,80,22,D+'0.65)',1.5);
@@ -1513,9 +1519,9 @@ const S = {
    L += this.isoLine(90,400,510,400,D+'0.65)',1.5);
    L += this.isoCircle(300,400,63,D+'0.65)',1.5);
    L += this.isoDot(300,400,3,D+'0.3)');
-   // Goal area arcs
-   L += this.isoArc(300,30,210,0,180,D+'0.65)',1.5);
-   L += this.isoArc(300,770,210,180,360,D+'0.65)',1.5);
+   // Goal area arcs (elliptical 210x111, matches 2D A210 111)
+   L += this.isoEllipseArc(300,30,210,111,0,180,D+'0.65)',1.5);
+   L += this.isoEllipseArc(300,770,210,111,180,360,D+'0.65)',1.5);
    // Goals
    L += this.isoRect(268,22,63,10,D+'0.65)',1.5);
    L += this.isoRect(268,768,63,10,D+'0.65)',1.5);

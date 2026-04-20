@@ -9,6 +9,13 @@
 
 ## Implementado
 
+### Correcciones de renderizado 3D (Feb 2026)
+- **Fix arcos penal Futbol 3D**: radio corregido de 55 a 100 (en 2D el `A55 55` se autoescala por la distancia de 200 entre puntos). Ángulos ajustados a 0-180 y 180-360 para sobresalir hacia el medio campo.
+- **Fix arcos elipticos Balonmano 3D**: 6m ahora usa `isoEllipseArc(300,40,144,108,...)` y 9m `isoEllipseArc(300,40,216,162,...)` en lugar de circulos, coincidiendo con el SVG 2D.
+- **Fix arcos elipticos Futsal 3D**: area de porteria ahora usa `isoEllipseArc(300,30,210,111,...)`.
+- **Fix preservacion modo 3D**: `setSport` ahora respeta `ST.viewMode === '3d'` y llama `render3DField()` en vez de re-renderizar el SVG 2D.
+- **Fix joystick tapando zoom**: `#joystick` movido de `right:18px` a `right:70px` para dejar espacio a los botones de zoom en la esquina derecha.
+
 ### Doble toggle Medidas + Zonas = 3 modos de visualizacion (Feb 2026)
 - **Segundo boton toggle "Zonas"** al lado de "Medidas" en la barra CAMPO (icono de label/text)
 - **Clase CSS `.fld-zone`** aplicada a 111 textos descriptivos via deteccion automatica (regex que distingue medidas puras como "68 m", "9.14 m (30 ft)" de zonas como "AREA 6m", "LINEA CENTRAL", "PONCHADOR", etc.)
