@@ -977,10 +977,10 @@ const SessionEditor = ({
     }
   };
 
-  // Renderizar actividades como tarjetas Material Design Premium
+  // Renderizar actividades como FILAS horizontales densas (estilo data-grid)
   const renderActividadesTable = (faseKey, fase) => {
     return (
-      <div className="space-y-2.5">
+      <div className="space-y-1.5">
         {fase.actividades.map((act, idx) => {
           const actMateriales = act.materiales || [];
           const met = calcMetricas(act);
@@ -988,18 +988,27 @@ const SessionEditor = ({
           const prog = act.progresion || { modelo: 'lineal', tasaIncremento: 5, semanaDescarga: 4, reduccionDescarga: 50 };
           const panelKey = `panel-${faseKey}-${idx}`;
           const isExpanded = expandedPanels?.[panelKey];
+          const intUnit = act.unidadIntensidad || capCfg.unidadesInt[0];
+          const volUnit = act.unidadVolumen || capCfg.unidadesVol[0];
+          const intColor = act.intensidad>80?'#ef4444':act.intensidad>60?'#f59e0b':act.intensidad>40?'#84cc16':'#22c55e';
+          const intGradient = act.intensidad>80?'linear-gradient(90deg,#f59e0b,#ef4444)':act.intensidad>60?'linear-gradient(90deg,#84cc16,#f59e0b)':act.intensidad>40?'linear-gradient(90deg,#22c55e,#84cc16)':'linear-gradient(90deg,#06b6d4,#22c55e)';
+          const intSuffix = (intUnit === '%1RM' || intUnit === '%FCmax' || intUnit === '%FCres' || intUnit === '%Vmax') ? '%' : '';
+          const isBoardOpen = expandedBoard === act.id;
           return (
-          <div key={act.id} className="rounded-xl bg-white overflow-visible transition-shadow hover:shadow-md" style={{ position: 'relative', zIndex: showExercisePicker === `${faseKey}-${idx}` ? 1000 : 1, boxShadow:'0 1px 2px rgba(0,0,0,0.05), 0 2px 6px rgba(0,0,0,0.03)', border:'1px solid rgba(0,0,0,0.06)' }}>
+          <div key={act.id} className="rounded-lg bg-white overflow-visible transition-shadow hover:shadow-md" style={{ position: 'relative', zIndex: showExercisePicker === `${faseKey}-${idx}` ? 1000 : 1, border: '1px solid rgba(0,0,0,0.06)' }}>
 
-            {/* === HEADER === Ejercicio + acciones */}
-            <div className="flex items-center gap-2.5 px-3 py-2" style={{background:'linear-gradient(135deg, #0a0a0f 0%, #1a1b26 100%)', borderRadius:'12px 12px 0 0'}}>
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{background:'#CCFF00'}}>
-                <Dumbbell className="w-3.5 h-3.5" style={{color:'#0a0a0f'}} />
+            {/* === FILA PRINCIPAL (72px) === */}
+            <div className="flex items-center gap-2.5 px-3" style={{minHeight:'72px'}}>
+              {/* Icon */}
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{background:'#CCFF00'}}>
+                <Dumbbell className="w-4 h-4" style={{color:'#0a0a0f'}} />
               </div>
-              <div className="flex-1 min-w-0 relative">
-                <Input value={act.ejercicio} onChange={(e) => updateActividad(faseKey, idx, 'ejercicio', e.target.value)} onFocus={() => { setShowExercisePicker(`${faseKey}-${idx}`); setPickerCat(null); setPickerSub(null); }} placeholder="Seleccionar ejercicio..." className="h-8 text-[13px] font-semibold bg-white/10 border-0 text-white placeholder:text-white/30 rounded-lg px-3 focus:bg-white/15 focus:ring-1 focus:ring-[#CCFF00]/30" data-testid={`exercise-input-${faseKey}-${idx}`} style={{fontFamily:DM}} />
+
+              {/* Exercise + picker */}
+              <div className="relative w-[200px] flex-shrink-0">
+                <Input value={act.ejercicio} onChange={(e) => updateActividad(faseKey, idx, 'ejercicio', e.target.value)} onFocus={() => { setShowExercisePicker(`${faseKey}-${idx}`); setPickerCat(null); setPickerSub(null); }} placeholder="Ejercicio..." className="h-9 text-[13px] font-semibold border-slate-200 text-slate-900 rounded-lg px-2.5 focus:ring-1 focus:ring-[#84cc16] focus:border-[#84cc16]" data-testid={`exercise-input-${faseKey}-${idx}`} style={{fontFamily:DM}} />
                 {showExercisePicker === `${faseKey}-${idx}` && (
-                  <div className="absolute left-0 right-0 top-[36px] bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 99999, minWidth: '380px' }} onMouseDown={(e) => e.preventDefault()}>
+                  <div className="absolute left-0 top-[40px] bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 99999, minWidth: '380px' }} onMouseDown={(e) => e.preventDefault()}>
                     <div className="p-2 border-b bg-slate-50">
                       <Input placeholder="Buscar ejercicio..." value={exerciseSearchTerm} onChange={(e) => { setExerciseSearchTerm(e.target.value); setPickerCat(null); setPickerSub(null); }} className="h-7 text-xs bg-white" autoFocus />
                     </div>
@@ -1042,124 +1051,214 @@ const SessionEditor = ({
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-1 flex-shrink-0">
-                <Select value={act.capacidadFisica} onValueChange={(v) => updateActividad(faseKey, idx, 'capacidadFisica', v)}>
-                  <SelectTrigger className="h-6 text-[9px] w-auto min-w-[70px] border-0 rounded-full px-2" style={{background:'rgba(204,255,0,0.15)',color:'#CCFF00'}}><SelectValue /></SelectTrigger>
-                  <SelectContent>{CAPACIDADES_FISICAS.map(cap => <SelectItem key={cap.id} value={cap.id} className="text-xs">{cap.name}</SelectItem>)}</SelectContent>
-                </Select>
-                <button onClick={() => {const dup={...act,id:`act-${Date.now()}`};setSessionData(prev=>({...prev,fases:{...prev.fases,[faseKey]:{...prev.fases[faseKey],actividades:[...prev.fases[faseKey].actividades,dup]}}}));}} className="p-1.5 rounded-lg text-white/30 hover:text-[#CCFF00] hover:bg-white/10 transition-colors" title="Duplicar"><Copy className="w-3 h-3" /></button>
-                <button onClick={() => deleteActividad(faseKey, idx)} className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-white/10 transition-colors" title="Eliminar"><Trash2 className="w-3 h-3" /></button>
+
+              {/* Descripción — input inline truncado */}
+              <div className="flex-1 min-w-[140px]">
+                <Input value={act.descripcion||''} onChange={(e) => updateActividad(faseKey, idx, 'descripcion', e.target.value)} placeholder="Descripción, grupos musculares, variantes..." className="h-9 text-[12px] border-slate-200 text-slate-700 rounded-lg px-2.5 focus:ring-1 focus:ring-[#84cc16] focus:border-[#84cc16] truncate" style={{fontFamily:DM}} data-testid={`exercise-desc-${faseKey}-${idx}`} />
+              </div>
+
+              {/* Capacidad pill */}
+              <Select value={act.capacidadFisica} onValueChange={(v) => updateActividad(faseKey, idx, 'capacidadFisica', v)}>
+                <SelectTrigger className="h-7 text-[10px] font-semibold w-auto min-w-[86px] border-0 rounded-full px-2.5 flex-shrink-0" style={{background:'rgba(132,204,22,0.12)',color:'#3f6212'}} data-testid={`capacity-select-${faseKey}-${idx}`}><SelectValue /></SelectTrigger>
+                <SelectContent>{CAPACIDADES_FISICAS.map(cap => <SelectItem key={cap.id} value={cap.id} className="text-xs">{cap.name}</SelectItem>)}</SelectContent>
+              </Select>
+
+              {/* Intensidad inline */}
+              <div className="flex-shrink-0 w-[130px]" title={`Intensidad (${intUnit}) · Ref: ${capCfg.intRef}`}>
+                <div className="flex items-baseline justify-between mb-0.5">
+                  <span className="text-[8px] font-semibold uppercase tracking-wider text-slate-400" style={{fontFamily:DM}}>Int ({intUnit})</span>
+                  <span className="text-[13px] font-black" style={{color:intColor,fontFamily:DM}}>{act.intensidad}<span className="text-[8px] opacity-50">{intSuffix}</span></span>
+                </div>
+                <div className="h-1 rounded-full overflow-hidden" style={{background:'#f1f5f9'}}>
+                  <div className="h-full rounded-full transition-all" style={{width:`${act.intensidad}%`,background:intGradient}} />
+                </div>
+                <input type="range" min={0} max={100} value={act.intensidad} onChange={(e) => updateActividad(faseKey, idx, 'intensidad', parseInt(e.target.value))} className="w-full h-1 mt-0.5 accent-[#84cc16] cursor-pointer" data-testid={`intensity-slider-${faseKey}-${idx}`} />
+              </div>
+
+              {/* Stats: Series / Reps / Vol / Recup — inputs inline minimalistas */}
+              <div className="flex items-start gap-1.5 flex-shrink-0">
+                {[
+                  { label:'Series', value:act.series, key:'series', type:'number', ph: capCfg.serPh, w:'w-[48px]' },
+                  { label:'Reps', value:act.repeticiones, key:'repeticiones', ph: capCfg.volPh, w:'w-[56px]' },
+                  { label: volUnit, value:act.volumen, key:'volumen', ph: capCfg.volPh, w:'w-[60px]' },
+                  { label:'Recup', value:act.recuperacion, key:'recuperacion', ph: capCfg.recPh, w:'w-[56px]' }
+                ].map(s => (
+                  <div key={s.key} className={`${s.w} text-center`}>
+                    <span className="text-[8px] font-semibold uppercase tracking-wider text-slate-400 block leading-tight" style={{fontFamily:DM}}>{s.label}</span>
+                    <Input
+                      value={s.value}
+                      type={s.type||'text'}
+                      onChange={(e) => updateActividad(faseKey, idx, s.key, s.type==='number'?parseInt(e.target.value)||0:e.target.value)}
+                      placeholder={s.ph}
+                      className="h-7 text-center text-slate-900 text-[14px] font-black bg-transparent border-0 border-b border-slate-100 hover:border-slate-300 focus:border-[#84cc16] focus:ring-0 rounded-none px-0 transition-colors"
+                      style={{fontFamily:DM}}
+                      min={s.type==='number'?0:undefined}
+                      data-testid={`stat-${s.key}-${faseKey}-${idx}`}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Progresión — pills compactas */}
+              <div className="flex items-center gap-0.5 flex-shrink-0 pl-1 border-l border-slate-100" title="Modelo de progresión">
+                {MODELOS_PROGRESION.map(m => (
+                  <button
+                    key={m.id}
+                    onClick={() => updateActividad(faseKey, idx, 'progresion', { ...prog, modelo: m.id })}
+                    className={`text-[9px] font-bold uppercase tracking-wide px-1.5 py-1 rounded transition-all ${prog.modelo === m.id ? 'bg-[#CCFF00] text-slate-900' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'}`}
+                    title={m.desc}
+                    data-testid={`progresion-${m.id}-${faseKey}-${idx}`}
+                  >
+                    {m.name.slice(0,3)}
+                  </button>
+                ))}
+              </div>
+
+              {/* Botón Pizarra — toggle inline preview */}
+              <button
+                onClick={() => setExpandedBoard(prev => prev === act.id ? null : act.id)}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex-shrink-0 ${isBoardOpen ? 'bg-[#CCFF00] text-slate-900 ring-1 ring-[#84cc16]' : act.boardThumbnail ? 'bg-[#0a0a0f] text-[#CCFF00] hover:brightness-110' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+                title={act.boardThumbnail ? 'Mostrar/ocultar pizarra' : 'Añadir pizarra'}
+                data-testid={`toggle-board-${faseKey}-${idx}`}
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                {act.boardThumbnail ? (isBoardOpen ? 'Ocultar' : 'Pizarra') : 'Añadir'}
+              </button>
+
+              {/* Acciones: avanzado / duplicar / eliminar */}
+              <div className="flex items-center gap-0.5 flex-shrink-0">
+                <button
+                  onClick={() => setExpandedPanels(prev => ({ ...prev, [panelKey]: !prev[panelKey] }))}
+                  className={`p-1.5 rounded-lg transition-colors ${isExpanded ? 'bg-slate-100 text-slate-700' : 'text-slate-300 hover:text-[#84cc16] hover:bg-slate-50'}`}
+                  title="Carga y Progresión avanzada"
+                  data-testid={`toggle-advanced-${faseKey}-${idx}`}
+                >
+                  <Gauge className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => {const dup={...act,id:`act-${Date.now()}`};setSessionData(prev=>({...prev,fases:{...prev.fases,[faseKey]:{...prev.fases[faseKey],actividades:[...prev.fases[faseKey].actividades,dup]}}}));}}
+                  className="p-1.5 rounded-lg text-slate-300 hover:text-[#84cc16] hover:bg-slate-50 transition-colors"
+                  title="Duplicar"
+                  data-testid={`duplicate-${faseKey}-${idx}`}
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => deleteActividad(faseKey, idx)}
+                  className="p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-slate-50 transition-colors"
+                  title="Eliminar"
+                  data-testid={`delete-${faseKey}-${idx}`}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
 
-            {/* === BODY === 3 columnas: Descripción+Params | Stats | Pizarra */}
-            <div className="flex gap-0">
+            {/* === INLINE BOARD PREVIEW === (expandida al hacer click en botón Pizarra) */}
+            {isBoardOpen && (
+              <div className="border-t border-slate-100 bg-slate-50/40 px-4 py-3" data-testid={`board-panel-${faseKey}-${idx}`}>
+                <div className="flex items-center gap-2 mb-2">
+                  <LayoutGrid className="w-3.5 h-3.5 text-slate-400" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500" style={{fontFamily:DM}}>Pizarra Táctica</span>
+                </div>
+                <div className="max-w-[380px]">
+                  {act.boardThumbnail ? (
+                    <MiniBoardPlayer
+                      svgHtml={act.boardThumbnail}
+                      editHref={act.boardId ? `/tactical-board.html?boardId=${act.boardId}` : '/tactical-board.html'}
+                      onEditClick={() => { boardEditContextRef.current = { faseKey, actId: act.id }; }}
+                      onRemove={() => updateActividadMulti(faseKey, idx, { boardThumbnail: null, boardId: null })}
+                      testIdPrefix={`board-${faseKey}-${idx}`}
+                    />
+                  ) : (
+                    <a
+                      href="/tactical-board.html"
+                      target="_blank"
+                      rel="opener"
+                      onClick={() => { boardEditContextRef.current = { faseKey, actId: act.id }; }}
+                      className="flex items-center justify-center gap-2 h-[140px] rounded-lg border-2 border-dashed border-slate-200 text-slate-400 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all no-underline"
+                      data-testid={`open-board-${faseKey}-${idx}`}
+                    >
+                      <LayoutGrid className="w-5 h-5" />
+                      <span className="text-[11px] font-semibold uppercase tracking-wide">Abrir pizarra</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
 
-              {/* COL 1: Descripción + Carga y Progresión + Método + Materiales */}
-              <div className="flex-1 min-w-0 px-3.5 pt-3 pb-3 border-r border-slate-100/80 flex flex-col">
-                <Textarea value={act.descripcion||''} onChange={(e) => updateActividad(faseKey, idx, 'descripcion', e.target.value)} placeholder="Descripción del ejercicio, grupos musculares, variantes..." className="text-[12px] min-h-[48px] resize-none py-2 px-3 text-slate-700 leading-snug border-slate-200/80 rounded-lg bg-slate-50/60 focus:bg-white focus:border-slate-300 w-full mb-2" style={{fontFamily:DM}} rows={2} data-testid={`exercise-desc-${faseKey}-${idx}`} />
-
-                {/* ── Carga y Progresión (minimalista, collapsible inside COL 1) ── */}
-                <div className="mb-2">
-                  <button
-                    onClick={() => setExpandedPanels(prev => ({ ...prev, [panelKey]: !prev[panelKey] }))}
-                    className="w-full flex items-center justify-between py-1 hover:opacity-80 transition-opacity"
-                    data-testid={`toggle-advanced-${faseKey}-${idx}`}
-                  >
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <Gauge className="w-3 h-3 text-slate-400" />
-                      <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500" style={{fontFamily:DM}}>Carga y Progresion</span>
-                      {met.cargaTotal > 0 && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600">CT: {met.cargaTotal}</span>}
-                      {met.zonaFC && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-md bg-red-50 text-red-600">{met.zonaFC}</span>}
-                      {met.zonaFuerza && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-700">{met.zonaFuerza}</span>}
-                      {met.neuroCarga > 0 && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-md bg-violet-50 text-violet-600">NC: {met.neuroCarga}</span>}
-                    </div>
-                    <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-                  </button>
-
-                  {isExpanded && (
-                    <div className="pt-2 pb-1 space-y-2 border-t border-slate-100 mt-1">
-                      {/* Fila inline: label → select/input, estilo minimalista */}
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px]" style={{fontFamily:DM}}>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Subtipo</span>
-                          <Select value={act.subtipo || ''} onValueChange={(v) => updateActividad(faseKey, idx, 'subtipo', v)}>
-                            <SelectTrigger className="h-6 text-[11px] border-0 bg-transparent hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[90px] shadow-none focus:ring-0"><SelectValue placeholder="—" /></SelectTrigger>
-                            <SelectContent>{capCfg.subtipos.map(s => <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>)}</SelectContent>
-                          </Select>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">U. Vol</span>
-                          <Select value={act.unidadVolumen || capCfg.unidadesVol[0]} onValueChange={(v) => updateActividad(faseKey, idx, 'unidadVolumen', v)}>
-                            <SelectTrigger className="h-6 text-[11px] border-0 bg-transparent hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[72px] shadow-none focus:ring-0"><SelectValue /></SelectTrigger>
-                            <SelectContent>{capCfg.unidadesVol.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}</SelectContent>
-                          </Select>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">U. Int</span>
-                          <Select value={act.unidadIntensidad || capCfg.unidadesInt[0]} onValueChange={(v) => updateActividad(faseKey, idx, 'unidadIntensidad', v)}>
-                            <SelectTrigger className="h-6 text-[11px] border-0 bg-transparent hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[72px] shadow-none focus:ring-0"><SelectValue /></SelectTrigger>
-                            <SelectContent>{capCfg.unidadesInt.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}</SelectContent>
-                          </Select>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Descanso</span>
-                          <Input value={act.recuperacion || ''} onChange={(e) => updateActividad(faseKey, idx, 'recuperacion', e.target.value)} placeholder={capCfg.recPh} className="h-6 text-[11px] border-0 bg-transparent hover:bg-slate-50 focus:bg-slate-50 rounded-md px-1.5 w-[70px] shadow-none focus:ring-0" data-testid={`descanso-adv-${faseKey}-${idx}`} />
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Frecuencia</span>
-                          <Input value={act.frecuencia || ''} onChange={(e) => updateActividad(faseKey, idx, 'frecuencia', e.target.value)} placeholder={capCfg.freqPh} className="h-6 text-[11px] border-0 bg-transparent hover:bg-slate-50 focus:bg-slate-50 rounded-md px-1.5 w-[80px] shadow-none focus:ring-0" />
-                        </div>
-                        {capCfg.showComplejidad && (
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Complejidad</span>
-                            <input type="range" min={1} max={5} value={act.complejidad || 3} onChange={(e) => updateActividad(faseKey, idx, 'complejidad', parseInt(e.target.value))} className="w-20 h-1 accent-violet-500 cursor-pointer" />
-                            <span className="text-[11px] font-black text-violet-600 w-4 text-center" style={{fontFamily:DM}}>{act.complejidad || 3}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Métricas: chips inline minimalistas label:value */}
-                      <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px]" style={{fontFamily:DM}}>
-                        <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">C. Total</span><span className="text-[12px] font-black text-slate-800">{met.cargaTotal}</span></span>
-                        <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">C. Sesion</span><span className="text-[12px] font-black text-slate-800">{met.cargaSesion}</span></span>
-                        {met.ratioDensidad != null && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">T:D</span><span className="text-[12px] font-black text-slate-800">1:{Math.round(1/met.ratioDensidad) || '?'}</span></span>}
-                        {met.seriesPorMin > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">Densidad</span><span className="text-[12px] font-black text-slate-800">{met.seriesPorMin}</span><span className="text-[9px] text-slate-400">ser/min</span></span>}
-                        {met.tiempoTotalMin > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">Trab:Desc</span><span className="text-[11px] font-bold text-slate-800">{met.tiempoTrabajo}:{met.tiempoDescanso}m</span></span>}
-                        {met.neuroCarga > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-indigo-500">NeuroCarga</span><span className="text-[12px] font-black text-slate-800">{met.neuroCarga}</span></span>}
-                        {met.zonaFC && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-rose-500">Zona FC</span><span className="text-[11px] font-bold text-slate-800">{met.zonaFC}</span></span>}
-                        {met.zonaFuerza && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">Zona</span><span className="text-[11px] font-bold text-slate-800">{met.zonaFuerza}</span></span>}
-                      </div>
-
-                      {/* Modelo de progresión — pills compactas */}
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400" style={{fontFamily:DM}}>Progresión</span>
-                        {MODELOS_PROGRESION.map(m => (
-                          <button key={m.id} onClick={() => updateActividad(faseKey, idx, 'progresion', { ...prog, modelo: m.id })}
-                            className={`text-[10px] font-semibold px-2 py-0.5 rounded-full transition-all ${prog.modelo === m.id ? 'bg-[#CCFF00] text-slate-900' : 'bg-transparent text-slate-400 hover:bg-slate-100 hover:text-slate-600'}`}
-                            title={m.desc}
-                            data-testid={`progresion-${m.id}-${faseKey}-${idx}`}
-                          >
-                            {m.name}
-                          </button>
-                        ))}
-                      </div>
+            {/* === PANEL AVANZADO Carga y Progresión === */}
+            {isExpanded && (
+              <div className="border-t border-slate-100 bg-slate-50/40 px-4 py-3 space-y-2.5" data-testid={`advanced-panel-${faseKey}-${idx}`}>
+                {/* Fila inline: campos avanzados */}
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px]" style={{fontFamily:DM}}>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Subtipo</span>
+                    <Select value={act.subtipo || ''} onValueChange={(v) => updateActividad(faseKey, idx, 'subtipo', v)}>
+                      <SelectTrigger className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[90px] shadow-none focus:ring-0"><SelectValue placeholder="—" /></SelectTrigger>
+                      <SelectContent>{capCfg.subtipos.map(s => <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">U. Vol</span>
+                    <Select value={act.unidadVolumen || capCfg.unidadesVol[0]} onValueChange={(v) => updateActividad(faseKey, idx, 'unidadVolumen', v)}>
+                      <SelectTrigger className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[72px] shadow-none focus:ring-0"><SelectValue /></SelectTrigger>
+                      <SelectContent>{capCfg.unidadesVol.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">U. Int</span>
+                    <Select value={act.unidadIntensidad || capCfg.unidadesInt[0]} onValueChange={(v) => updateActividad(faseKey, idx, 'unidadIntensidad', v)}>
+                      <SelectTrigger className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[72px] shadow-none focus:ring-0"><SelectValue /></SelectTrigger>
+                      <SelectContent>{capCfg.unidadesInt.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Descanso</span>
+                    <Input value={act.recuperacion || ''} onChange={(e) => updateActividad(faseKey, idx, 'recuperacion', e.target.value)} placeholder={capCfg.recPh} className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 focus:bg-white rounded-md px-1.5 w-[80px] shadow-none focus:ring-0" data-testid={`descanso-adv-${faseKey}-${idx}`} />
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Frecuencia</span>
+                    <Input value={act.frecuencia || ''} onChange={(e) => updateActividad(faseKey, idx, 'frecuencia', e.target.value)} placeholder={capCfg.freqPh} className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 focus:bg-white rounded-md px-1.5 w-[90px] shadow-none focus:ring-0" />
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Método</span>
+                    <Select value={act.metodo} onValueChange={(v) => updateActividad(faseKey, idx, 'metodo', v)}>
+                      <SelectTrigger className="h-6 text-[11px] font-semibold border-0 bg-blue-50 text-blue-700 rounded-full px-2 w-auto min-w-[90px]"><SelectValue /></SelectTrigger>
+                      <SelectContent>{METODOS_ENTRENAMIENTO.map(met => <SelectItem key={met.id} value={met.id} className="text-xs">{met.name}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Organización</span>
+                    <Select value={act.procOrganizativo} onValueChange={(v) => updateActividad(faseKey, idx, 'procOrganizativo', v)}>
+                      <SelectTrigger className="h-6 text-[11px] font-semibold border-0 bg-emerald-50 text-emerald-700 rounded-full px-2 w-auto min-w-[90px]"><SelectValue /></SelectTrigger>
+                      <SelectContent>{PROC_ORGANIZATIVO.map(proc => <SelectItem key={proc.id} value={proc.id} className="text-xs">{proc.name}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  {capCfg.showComplejidad && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Complejidad</span>
+                      <input type="range" min={1} max={5} value={act.complejidad || 3} onChange={(e) => updateActividad(faseKey, idx, 'complejidad', parseInt(e.target.value))} className="w-16 h-1 accent-violet-500 cursor-pointer" />
+                      <span className="text-[11px] font-black text-violet-600 w-4 text-center" style={{fontFamily:DM}}>{act.complejidad || 3}</span>
                     </div>
                   )}
                 </div>
 
-                {/* Fila compacta: método + proc. organizativo + materiales (inline) */}
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <Select value={act.metodo} onValueChange={(v) => updateActividad(faseKey, idx, 'metodo', v)}>
-                    <SelectTrigger className="h-6 text-[10px] font-semibold border-0 bg-blue-50 text-blue-700 rounded-full px-2.5 w-auto"><SelectValue /></SelectTrigger>
-                    <SelectContent>{METODOS_ENTRENAMIENTO.map(met => <SelectItem key={met.id} value={met.id} className="text-xs">{met.name}</SelectItem>)}</SelectContent>
-                  </Select>
-                  <Select value={act.procOrganizativo} onValueChange={(v) => updateActividad(faseKey, idx, 'procOrganizativo', v)}>
-                    <SelectTrigger className="h-6 text-[10px] font-semibold border-0 bg-emerald-50 text-emerald-700 rounded-full px-2.5 w-auto"><SelectValue /></SelectTrigger>
-                    <SelectContent>{PROC_ORGANIZATIVO.map(proc => <SelectItem key={proc.id} value={proc.id} className="text-xs">{proc.name}</SelectItem>)}</SelectContent>
-                  </Select>
+                {/* Métricas */}
+                <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] pt-2 border-t border-slate-200/60" style={{fontFamily:DM}}>
+                  <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">C. Total</span><span className="text-[12px] font-black text-slate-800">{met.cargaTotal}</span></span>
+                  <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">C. Sesión</span><span className="text-[12px] font-black text-slate-800">{met.cargaSesion}</span></span>
+                  {met.ratioDensidad != null && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">T:D</span><span className="text-[12px] font-black text-slate-800">1:{Math.round(1/met.ratioDensidad) || '?'}</span></span>}
+                  {met.seriesPorMin > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">Densidad</span><span className="text-[12px] font-black text-slate-800">{met.seriesPorMin}</span><span className="text-[9px] text-slate-400">ser/min</span></span>}
+                  {met.tiempoTotalMin > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">Trab:Desc</span><span className="text-[11px] font-bold text-slate-800">{met.tiempoTrabajo}:{met.tiempoDescanso}m</span></span>}
+                  {met.neuroCarga > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-indigo-500">NeuroCarga</span><span className="text-[12px] font-black text-slate-800">{met.neuroCarga}</span></span>}
+                  {met.zonaFC && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-rose-500">Zona FC</span><span className="text-[11px] font-bold text-slate-800">{met.zonaFC}</span></span>}
+                  {met.zonaFuerza && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">Zona</span><span className="text-[11px] font-bold text-slate-800">{met.zonaFuerza}</span></span>}
+                </div>
 
-                  {/* Chips de materiales: inline, más compactos */}
+                {/* Materiales */}
+                <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-200/60">
+                  <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400 mr-1" style={{fontFamily:DM}}>Materiales</span>
                   {actMateriales.map((mat, mi) => (
                     <span key={mi} className="group inline-flex items-center gap-1 text-[10px] font-semibold pl-2 pr-1 py-0.5 rounded-full cursor-pointer transition-all hover:shadow-sm" style={{background:'rgba(168,85,247,0.07)',color:'#7c3aed',border:'1px solid rgba(168,85,247,0.18)'}}
                       onClick={() => {
@@ -1177,8 +1276,6 @@ const SessionEditor = ({
                       <button onClick={(e) => { e.stopPropagation(); const nm=[...actMateriales]; nm.splice(mi,1); updateActividad(faseKey, idx, 'materiales', nm); }} className="hover:text-red-500 transition-colors opacity-50 hover:opacity-100" data-testid={`remove-material-${faseKey}-${idx}-${mi}`}><X className="w-2.5 h-2.5" /></button>
                     </span>
                   ))}
-
-                  {/* Botón "+" compacto para añadir material */}
                   <Popover>
                     <PopoverTrigger asChild>
                       <button className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 h-[22px] rounded-full border border-dashed border-slate-300 text-slate-500 hover:bg-purple-50 hover:border-purple-400 hover:text-purple-700 transition-all" data-testid={`add-material-btn-${faseKey}-${idx}`}>
@@ -1219,75 +1316,7 @@ const SessionEditor = ({
                   </Popover>
                 </div>
               </div>
-
-              {/* COL 2: Parámetros de carga (dinámicos según capacidad) */}
-              {(() => {
-                const capCfg = CAPACITY_CONFIG[act.capacidadFisica] || CAPACITY_CONFIG.fuerza;
-                const intUnit = act.unidadIntensidad || capCfg.unidadesInt[0];
-                const volUnit = act.unidadVolumen || capCfg.unidadesVol[0];
-                return (
-              <div className="w-[200px] flex-shrink-0 p-3.5 border-r border-slate-100/80">
-                {/* Intensidad visual — minimalista */}
-                <div className="mb-3">
-                  <div className="flex items-baseline justify-between mb-1">
-                    <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-400" style={{fontFamily:DM}}>Intensidad <span className="text-[9px] normal-case tracking-normal text-slate-300">({intUnit})</span></span>
-                    <span className="text-[16px] font-black" style={{color: act.intensidad>80?'#ef4444':act.intensidad>60?'#f59e0b':act.intensidad>40?'#84cc16':'#22c55e',fontFamily:DM}}>{act.intensidad}<span className="text-[9px] font-semibold opacity-40 ml-0.5">{intUnit === '%1RM' || intUnit === '%FCmax' || intUnit === '%FCres' || intUnit === '%Vmax' ? '%' : ''}</span></span>
-                  </div>
-                  <div className="h-1 rounded-full overflow-hidden" style={{background:'#f1f5f9'}}>
-                    <div className="h-full rounded-full transition-all duration-300" style={{width:`${act.intensidad}%`,background: act.intensidad>80?'linear-gradient(90deg,#f59e0b,#ef4444)':act.intensidad>60?'linear-gradient(90deg,#84cc16,#f59e0b)':act.intensidad>40?'linear-gradient(90deg,#22c55e,#84cc16)':'linear-gradient(90deg,#06b6d4,#22c55e)'}} />
-                  </div>
-                  <input type="range" min={0} max={100} value={act.intensidad} onChange={(e) => updateActividad(faseKey, idx, 'intensidad', parseInt(e.target.value))} className="w-full h-1 mt-1 accent-[#84cc16] cursor-pointer" />
-                  <div className="text-[9px] text-slate-300 text-right mt-0.5" style={{fontFamily:DM}}>Ref: {capCfg.intRef}</div>
-                </div>
-
-                {/* Stats grid 2x2 — minimalista (sin cajas negras) */}
-                <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
-                  {[
-                    { label:'Series', value:act.series, key:'series', type:'number', ph: capCfg.serPh },
-                    { label:'Reps', value:act.repeticiones, key:'repeticiones', ph: capCfg.volPh },
-                    { label: volUnit, value:act.volumen, key:'volumen', ph: capCfg.volPh },
-                    { label:'Recup.', value:act.recuperacion, key:'recuperacion', ph: capCfg.recPh }
-                  ].map(s => (
-                    <div key={s.key} className="group">
-                      <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-400 block" style={{fontFamily:DM}}>{s.label}</span>
-                      <Input
-                        value={s.value}
-                        type={s.type||'text'}
-                        onChange={(e) => updateActividad(faseKey, idx, s.key, s.type==='number'?parseInt(e.target.value)||0:e.target.value)}
-                        placeholder={s.ph}
-                        className="h-7 text-slate-900 text-[16px] font-black bg-transparent border-0 border-b border-transparent hover:border-slate-200 focus:border-[#84cc16] focus:ring-0 rounded-none px-0 transition-colors"
-                        style={{fontFamily:DM}}
-                        min={s.type==='number'?0:undefined}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-                );
-              })()}
-
-              {/* COL 3: Pizarra */}
-              <div className="w-[180px] flex-shrink-0 p-3 flex flex-col">
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <div className="w-4 h-4 rounded-md bg-[#f0ffd0] flex items-center justify-center"><LayoutGrid className="w-2.5 h-2.5 text-[#3a5a00]" /></div>
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500" style={{fontFamily:DM}}>Pizarra</span>
-                </div>
-                {act.boardThumbnail ? (
-                  <MiniBoardPlayer
-                    svgHtml={act.boardThumbnail}
-                    editHref={act.boardId ? `/tactical-board.html?boardId=${act.boardId}` : '/tactical-board.html'}
-                    onEditClick={() => { boardEditContextRef.current = { faseKey, actId: act.id }; }}
-                    onRemove={() => updateActividadMulti(faseKey, idx, { boardThumbnail: null, boardId: null })}
-                    testIdPrefix={`board-${faseKey}-${idx}`}
-                  />
-                ) : (
-                  <button onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open('/tactical-board.html','_blank');}} className="w-full flex-1 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-300 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all group" style={{minHeight:'110px'}} data-testid={`open-board-${faseKey}-${idx}`}>
-                    <LayoutGrid className="w-5 h-5 group-hover:scale-110 transition-transform" /><span className="text-[9px] font-semibold uppercase mt-1.5 tracking-wide">Abrir pizarra</span>
-                  </button>
-                )}
-                {/* Quitar-button moved into MiniBoardPlayer */}
-              </div>
-            </div>
+            )}
 
           </div>
           );
@@ -1298,6 +1327,7 @@ const SessionEditor = ({
       </div>
     );
   };
+
 
   if (!isOpen) return null;
 
