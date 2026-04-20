@@ -7476,10 +7476,9 @@ async def download_session_boards_pdf(share_id: str, theme: str = "light"):
         border = "rgba(255,255,255,0.10)" if is_dark else "#e2e8f0"
         accent = "#c8f700"
         # Fondo verde tipo cancha (como tactical-board) — distinto por tema
-        court_bg = ("radial-gradient(ellipse at center, #166534 0%, #14532d 55%, #0a2e16 100%)"
-                    if is_dark else
+        court_bg = ("#2d5f3e" if is_dark else
                     "radial-gradient(ellipse at center, #dcefd2 0%, #c6e5b5 60%, #b3d9a1 100%)")
-        court_border = "rgba(200,247,0,0.28)" if is_dark else "rgba(22,101,52,0.30)"
+        court_border = "rgba(255,255,255,0.25)" if is_dark else "rgba(22,101,52,0.30)"
         chip_bg = "rgba(255,255,255,0.06)" if is_dark else "rgba(15,23,42,0.05)"
         chip_border = "rgba(255,255,255,0.10)" if is_dark else "rgba(15,23,42,0.10)"
 
