@@ -9,6 +9,15 @@
 
 ## Implementado
 
+### Fix botón "Mixta" visible en InteractiveChart (Feb 2026)
+- Problema: El botón de tipo de gráfica "Mixta" usaba el mismo ícono `Settings2` que el botón real de configuración, haciéndolo indistinguible, y su contenedor no permitía wrap ante anchos reducidos.
+- Fix aplicado en `/app/frontend/src/components/InteractiveChart.js`:
+  - Etiqueta de texto "Mixta" junto al ícono (solo para ese tipo) tanto en vista expandida como compacta.
+  - `flex-wrap` en el contenedor interno del selector de tipos de gráfica.
+  - `flex-shrink-0` en el bloque "Vista:" y `flex-shrink min-w-0 truncate` en la info del rango para que los tipos nunca sean empujados fuera.
+  - `data-testid="chart-type-{id}"` y `chart-type-compact-{id}` añadidos.
+
+
 ### FASE 13 — Mini reproductor de jugadas en SessionEditor (Feb 2026)
 
 **Añadido:**

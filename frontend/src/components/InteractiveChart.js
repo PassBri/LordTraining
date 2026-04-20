@@ -630,23 +630,26 @@ const InteractiveChart = ({
               )}
 
               {/* Selector de tipo de gráfico */}
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 flex-shrink-0">
                 <span className="text-xs text-slate-500 font-medium">Vista:</span>
-                <div className="flex bg-slate-100 rounded-lg p-0.5">
+                <div className="flex flex-wrap bg-slate-100 rounded-lg p-0.5">
                   {CHART_TYPES.map(type => {
                     const TypeIcon = type.icon;
+                    const isMixed = type.id === 'mixed';
                     return (
                       <button
                         key={type.id}
                         onClick={() => setChartType(type.id)}
-                        className={`p-1.5 rounded-md transition-all ${
+                        className={`flex items-center gap-1 px-1.5 py-1 rounded-md transition-all ${
                           chartType === type.id
                             ? 'bg-white text-blue-600 shadow-sm'
                             : 'text-slate-500 hover:text-slate-700'
                         }`}
                         title={type.label}
+                        data-testid={`chart-type-${type.id}`}
                       >
                         <TypeIcon className="w-4 h-4" />
+                        {isMixed && <span className="text-[10px] font-semibold leading-none">Mixta</span>}
                       </button>
                     );
                   })}
@@ -657,7 +660,7 @@ const InteractiveChart = ({
               <TradingControls />
 
               {/* Info del rango actual */}
-              <div className="ml-auto text-xs text-slate-400">
+              <div className="ml-auto text-xs text-slate-400 flex-shrink min-w-0 truncate">
                 {brushRange.endIndex - brushRange.startIndex + 1} de {filteredData.length} • Doble clic para reset
               </div>
             </div>
@@ -667,21 +670,24 @@ const InteractiveChart = ({
           {showControls && !showSettings && (
             <div className="flex items-center gap-2 flex-wrap">
               {/* Mini selector de tipo de gráfico */}
-              <div className="flex bg-slate-100 rounded-lg p-0.5">
+              <div className="flex flex-wrap bg-slate-100 rounded-lg p-0.5">
                 {CHART_TYPES.map(type => {
                   const TypeIcon = type.icon;
+                  const isMixed = type.id === 'mixed';
                   return (
                     <button
                       key={type.id}
                       onClick={() => setChartType(type.id)}
-                      className={`p-1 rounded transition-all ${
+                      className={`flex items-center gap-1 px-1.5 py-1 rounded transition-all ${
                         chartType === type.id
                           ? 'bg-white text-blue-600 shadow-sm'
                           : 'text-slate-400 hover:text-slate-600'
                       }`}
                       title={type.label}
+                      data-testid={`chart-type-compact-${type.id}`}
                     >
                       <TypeIcon className="w-3.5 h-3.5" />
+                      {isMixed && <span className="text-[10px] font-semibold leading-none">Mixta</span>}
                     </button>
                   );
                 })}
