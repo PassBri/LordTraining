@@ -775,6 +775,7 @@ const InteractiveChart = ({
               </div>
 
               {/* Selector de período */}
+              {showTimeRange && (
               <div className="flex bg-slate-700/50 rounded-lg p-1 mr-2">
                 {TIME_RANGES.map(range => (
                   <button
@@ -791,8 +792,10 @@ const InteractiveChart = ({
                   </button>
                 ))}
               </div>
+              )}
 
               {/* Botones de rango rápido */}
+              {showTimeRange && (
               <div className="flex bg-slate-700/50 rounded-lg p-1 mr-2">
                 {QUICK_RANGES.map(range => (
                   <button
@@ -805,6 +808,7 @@ const InteractiveChart = ({
                   </button>
                 ))}
               </div>
+              )}
 
               {/* Toggle Crosshair */}
               <Button 
@@ -868,11 +872,18 @@ const InteractiveChart = ({
           </div>
 
           {/* Área del gráfico fullscreen */}
-          <div className="flex-1 p-6 bg-slate-900" style={{ height: 'calc(95vh - 140px)' }}>
+          <div className="flex-1 p-6 bg-slate-900" style={{ height: extraControls ? 'calc(95vh - 260px)' : 'calc(95vh - 140px)' }}>
             <ResponsiveContainer width="100%" height="100%">
               {renderChart(true)}
             </ResponsiveContainer>
           </div>
+
+          {/* Extra controls en fullscreen (FC inputs, zonas, etc) */}
+          {extraControls && (
+            <div className="px-6 py-3 bg-slate-800/60 border-t border-slate-700 text-slate-100 fc-dark-controls">
+              {extraControls}
+            </div>
+          )}
 
           {/* Footer con info */}
           <div className="absolute bottom-0 left-0 right-0 px-6 py-3 bg-slate-800/90 backdrop-blur border-t border-slate-700">

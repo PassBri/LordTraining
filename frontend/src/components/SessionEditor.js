@@ -1777,22 +1777,22 @@ const SessionEditor = ({
                         <div className={rowStyle}>
                           {rowLabel('Estadísticas', '#0891b2')}
                           {[
-                            { id: 'reposo', label: 'FC Reposo', key: 'fcReposo', color: '#84cc16' },
-                            { id: 'media',  label: 'FC Media',  key: 'fcMedia',  color: '#f59e0b' },
-                            { id: 'maxima', label: 'FC Máxima', key: 'fcMaxima', color: '#ef4444' }
+                            { id: 'reposo', label: 'FC Reposo', key: 'fcReposo', color: '#65a30d' },
+                            { id: 'media',  label: 'FC Media',  key: 'fcMedia',  color: '#d97706' },
+                            { id: 'maxima', label: 'FC Máxima', key: 'fcMaxima', color: '#dc2626' }
                           ].map(r => (
-                            <div key={r.id} className="flex items-center gap-1 px-1.5 py-0.5 rounded-md border" style={{background:r.color + '10', borderColor:r.color + '40'}} data-testid={`fc-ref-${r.id}`}>
-                              <span className="w-1.5 h-1.5 rounded-full" style={{background:r.color}} />
-                              <span className="text-[9px] font-bold uppercase tracking-wide" style={{color:r.color,fontFamily:DM}}>{r.label}</span>
+                            <div key={r.id} className="flex items-center gap-1 px-1.5 py-0.5 rounded-md border" style={{background:'#fff', borderColor:r.color}} data-testid={`fc-ref-${r.id}`}>
+                              <span className="w-2 h-2 rounded-full" style={{background:r.color}} />
+                              <span className="text-[9px] font-black uppercase tracking-wide text-slate-700" style={{fontFamily:DM}}>{r.label}</span>
                               <Input
                                 type="number"
                                 value={m[r.key]}
                                 onChange={(e) => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, [r.key]: e.target.value } }))}
-                                className="h-5 w-12 text-center font-black text-[11px] rounded border-0 bg-white px-1 focus:ring-1"
-                                style={{fontFamily:DM}}
+                                className="h-5 w-12 text-center font-black text-[11px] rounded border-0 px-1 focus:ring-1"
+                                style={{fontFamily:DM, background: r.color + '15', color: r.color}}
                                 data-testid={`fc-ref-${r.id}-input`}
                               />
-                              <span className="text-[8px]" style={{color:r.color + 'cc',fontFamily:DM}}>bpm</span>
+                              <span className="text-[8px] font-bold" style={{color:r.color,fontFamily:DM}}>bpm</span>
                             </div>
                           ))}
                         </div>
@@ -1805,20 +1805,20 @@ const SessionEditor = ({
                           {hasZones ? (
                             <>
                               {[
-                                { z:'Z1', range:'50-60%', name:'Recuperación',    color:'#10b981', min:0.50, max:0.60 },
-                                { z:'Z2', range:'60-70%', name:'Aeróbico base',   color:'#84cc16', min:0.60, max:0.70 },
-                                { z:'Z3', range:'70-80%', name:'Tempo',           color:'#eab308', min:0.70, max:0.80 },
-                                { z:'Z4', range:'80-90%', name:'Umbral',          color:'#f97316', min:0.80, max:0.90 },
-                                { z:'Z5', range:'90-100%',name:'VO2max',          color:'#ef4444', min:0.90, max:1.00 }
+                                { z:'Z1', range:'50-60%', name:'Recuperación',    color:'#059669', bg:'#d1fae5', min:0.50, max:0.60 },
+                                { z:'Z2', range:'60-70%', name:'Aeróbico base',   color:'#65a30d', bg:'#ecfccb', min:0.60, max:0.70 },
+                                { z:'Z3', range:'70-80%', name:'Tempo',           color:'#ca8a04', bg:'#fef9c3', min:0.70, max:0.80 },
+                                { z:'Z4', range:'80-90%', name:'Umbral',          color:'#ea580c', bg:'#ffedd5', min:0.80, max:0.90 },
+                                { z:'Z5', range:'90-100%',name:'VO2max',          color:'#dc2626', bg:'#fee2e2', min:0.90, max:1.00 }
                               ].map(z => {
                                 const lo = Math.round(fcRep + fcr * z.min);
                                 const hi = Math.round(fcRep + fcr * z.max);
                                 const active = pctReserve !== null && pctReserve >= z.min*100 && pctReserve <= z.max*100;
                                 return (
-                                  <div key={z.z} className={`flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-bold transition-all ${active ? 'ring-2 ring-offset-1 scale-105' : ''}`} style={{background:z.color + (active?'30':'10'), color:z.color, border:`1px solid ${z.color}40`, '--tw-ring-color': z.color}} title={`${z.name} · ${z.range} FCR · ${lo}-${hi} bpm`} data-testid={`fc-zone-${z.z}`}>
-                                    <span className="tabular-nums font-black">{z.z}</span>
-                                    <span className="font-semibold" style={{color:z.color}}>{z.name}</span>
-                                    <span className="text-[8px] opacity-70 font-medium tabular-nums">{lo}-{hi}</span>
+                                  <div key={z.z} className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${active ? 'ring-2 ring-offset-1 scale-105 shadow-md' : ''}`} style={{background:z.bg, color:z.color, border:`1.5px solid ${z.color}`, '--tw-ring-color': z.color}} title={`${z.name} · ${z.range} FCR · ${lo}-${hi} bpm`} data-testid={`fc-zone-${z.z}`}>
+                                    <span className="tabular-nums font-black text-[10px]">{z.z}</span>
+                                    <span className="font-bold">{z.name}</span>
+                                    <span className="text-[9px] font-semibold tabular-nums opacity-80">{lo}-{hi}</span>
                                   </div>
                                 );
                               })}
