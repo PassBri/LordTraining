@@ -238,14 +238,14 @@ const MarqueeStrip = ({ t }) => {
     'KARVONEN', t('landing.marquee.m_competition')
   ];
   return (
-    <div className="overflow-hidden py-4 bg-gradient-to-r from-[#0a0f19] via-[#1a2033] to-[#0a0f19] border-y border-[#CCFF00]/20" style={{maskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)',WebkitMaskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)'}}>
+    <div className="overflow-hidden py-3 bg-gradient-to-r from-[#0a0f19] via-[#1a2033] to-[#0a0f19] border-y border-[#CCFF00]/15" style={{maskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)',WebkitMaskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)'}}>
       <div className="flex animate-marquee-slow whitespace-nowrap">
         {[...Array(3)].map((_, rep) => (
           <React.Fragment key={rep}>
             {items.map((txt, i) => (
-              <span key={`${rep}-${i}`} className="inline-flex items-center gap-4 px-5 text-[22px] md:text-[28px] font-black uppercase tracking-[0.08em]" style={{fontFamily:BC}}>
-                <span className={i % 3 === 0 ? 'text-[#CCFF00]' : 'text-white/40'}>{txt}</span>
-                <span className="text-[#CCFF00]/40 text-[14px]">●</span>
+              <span key={`${rep}-${i}`} className="inline-flex items-center gap-3 px-4 text-[14px] md:text-[17px] font-black uppercase tracking-[0.08em]" style={{fontFamily:BC}}>
+                <span className={i % 3 === 0 ? 'text-[#CCFF00]' : 'text-white/35'}>{txt}</span>
+                <span className="text-[#CCFF00]/35 text-[10px]">●</span>
               </span>
             ))}
           </React.Fragment>
@@ -577,15 +577,15 @@ const LandingPage = () => {
       </div>
 
       {/* Stats strip — marquee animado */}
-      <div className="border-t border-slate-800/40 bg-slate-900/50 backdrop-blur-sm overflow-hidden py-4" style={{maskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)',WebkitMaskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)'}}>
+      <div className="border-t border-slate-800/40 bg-slate-900/40 backdrop-blur-sm overflow-hidden py-3" style={{maskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)',WebkitMaskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)'}}>
         <div className="flex animate-stats-marquee whitespace-nowrap">
           {[...Array(4)].map((_, rep) => (
             <React.Fragment key={rep}>
               {[{v:'17',k:'models'},{v:'6',k:'controls'},{v:'150+',k:'exercises'},{v:'5',k:'calculators'},{v:'30+',l:'Deportes'},{v:'12',l:'Periodizaciones'}].map((s,i) => (
-                <span key={`${rep}-${i}`} className="inline-flex items-center gap-3 px-8">
-                  <span className="text-[28px] md:text-[34px] font-black text-[#CCFF00] leading-none" style={{fontFamily:BC}}>{s.v}</span>
-                  <span className="text-[22px] md:text-[28px] font-black uppercase tracking-[0.08em] text-white/55 leading-none" style={{fontFamily:BC}}>{s.k ? t(`landing.hero.stats.${s.k}`) : s.l}</span>
-                  <span className="text-[#CCFF00]/40 text-[14px] ml-3">●</span>
+                <span key={`${rep}-${i}`} className="inline-flex items-center gap-2.5 px-6">
+                  <span className="text-[18px] md:text-[22px] font-black text-[#CCFF00] leading-none" style={{fontFamily:BC}}>{s.v}</span>
+                  <span className="text-[13px] md:text-[15px] font-bold uppercase tracking-[0.1em] text-white/50 leading-none" style={{fontFamily:BC}}>{s.k ? t(`landing.hero.stats.${s.k}`) : s.l}</span>
+                  <span className="text-[#CCFF00]/35 text-[10px] ml-2">●</span>
                 </span>
               ))}
             </React.Fragment>
@@ -599,8 +599,8 @@ const LandingPage = () => {
     </section>
 
     {/* MARQUEE SCROLLING — Palabras moviéndose */}
-    <section className="relative bg-gradient-to-r from-[#0a0f19] via-[#1a2033] to-[#0a0f19] border-y border-[#CCFF00]/20 overflow-hidden" data-testid="marquee-section">
-      <div className="relative flex overflow-hidden py-5" style={{maskImage:'linear-gradient(90deg,transparent,black 8%,black 92%,transparent)',WebkitMaskImage:'linear-gradient(90deg,transparent,black 8%,black 92%,transparent)'}}>
+    <section className="relative bg-gradient-to-r from-[#0a0f19] via-[#1a2033] to-[#0a0f19] border-y border-[#CCFF00]/15 overflow-hidden" data-testid="marquee-section">
+      <div className="relative flex overflow-hidden py-3" style={{maskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)',WebkitMaskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)'}}>
         <div className="flex shrink-0 whitespace-nowrap animate-[marquee_90s_linear_infinite]">
           {[
             'FUTBOL','BALONCESTO','VOLEIBOL','TENIS','TEJO','RANA','BOLIRANA','BOCHAS','PETANCA','MINITEJO','RUGBY','HOCKEY','HANDBALL','BEISBOL','FUTSAL','PADEL',
@@ -609,9 +609,9 @@ const LandingPage = () => {
             'FUTBOL','BALONCESTO','VOLEIBOL','TENIS','TEJO','RANA','BOLIRANA','BOCHAS','PETANCA','MINITEJO','RUGBY','HOCKEY','HANDBALL','BEISBOL','FUTSAL','PADEL',
             'BADMINTON','SQUASH','GOLF','TIRO CON ARCO','DARDOS','TIRO DEPORTIVO','BOLICHE','BOLO CRIOLLO','ESCALADA','ATLETISMO','CICLISMO','NATACION','BOXEO','KARATE','MMA','JUDO','TAEKWONDO'
           ]).map((w, i) => (
-            <span key={i} className="inline-flex items-center gap-4 px-5 text-[22px] md:text-[28px] font-black uppercase tracking-[0.08em]" style={{fontFamily:BC}}>
-              <span className={i % 3 === 0 ? 'text-[#CCFF00]' : 'text-white/40'}>{w}</span>
-              <span className="text-[#CCFF00]/40 text-[14px]">●</span>
+            <span key={i} className="inline-flex items-center gap-3 px-4 text-[14px] md:text-[17px] font-black uppercase tracking-[0.08em]" style={{fontFamily:BC}}>
+              <span className={i % 3 === 0 ? 'text-[#CCFF00]' : 'text-white/35'}>{w}</span>
+              <span className="text-[#CCFF00]/35 text-[10px]">●</span>
             </span>
           ))}
         </div>
@@ -650,6 +650,7 @@ const LandingPage = () => {
             {name:'Tenis', svg:`<defs><linearGradient id="gradTns" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#059669"/><stop offset="100%" stop-color="#014230"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradTns)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="10" y="10" width="80" height="120"/><line x1="10" y1="70" x2="90" y2="70" stroke-width="1.3"/><line x1="20" y1="35" x2="80" y2="35"/><line x1="20" y1="105" x2="80" y2="105"/><line x1="50" y1="35" x2="50" y2="105" stroke-dasharray="2 2"/><line x1="20" y1="10" x2="20" y2="130"/><line x1="80" y1="10" x2="80" y2="130"/></g><line class="anim-arrow" x1="35" y1="50" x2="65" y2="90" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="2 2"/><circle cx="35" cy="50" r="3.2" fill="#fbbf24"/><circle cx="65" cy="90" r="3.2" fill="#fbbf24"/><circle cx="50" cy="20" r="2.3" fill="#e4ff66" stroke="#000" stroke-width="0.3" class="anim-ball" style="--bx:-15px;--by:30px;--bx2:0px;--by2:60px"/>`},
             {name:'Petanca', svg:`<defs><linearGradient id="gradPet" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a16207"/><stop offset="100%" stop-color="#451a03"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradPet)"/><rect x="5" y="5" width="90" height="130" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.4"/><circle cx="50" cy="70" r="2" fill="#fbbf24" stroke="#000" stroke-width="0.4" class="anim-pulse"/><circle cx="38" cy="55" r="4" fill="#b91c1c" stroke="#000" stroke-width="0.5"/><circle cx="38" cy="54" r="1.3" fill="#ef4444" opacity="0.6"/><circle cx="62" cy="58" r="4" fill="#b91c1c" stroke="#000" stroke-width="0.5"/><circle cx="62" cy="57" r="1.3" fill="#ef4444" opacity="0.6"/><circle cx="42" cy="82" r="4" fill="#1e40af" stroke="#000" stroke-width="0.5"/><circle cx="42" cy="81" r="1.3" fill="#3b82f6" opacity="0.6"/><circle cx="58" cy="85" r="4" fill="#1e40af" stroke="#000" stroke-width="0.5"/><circle cx="58" cy="84" r="1.3" fill="#3b82f6" opacity="0.6"/><circle cx="48" cy="105" r="4" fill="#1e40af" stroke="#000" stroke-width="0.5"/><line class="anim-arrow" x1="48" y1="105" x2="50" y2="70" stroke="#fbbf24" stroke-width="1" stroke-dasharray="2 2"/>`},
             {name:'Rugby', svg:`<defs><linearGradient id="gradRgb" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#16a34a"/><stop offset="100%" stop-color="#14532d"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradRgb)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="22" x2="97" y2="22"/><line x1="3" y1="118" x2="97" y2="118"/><line x1="3" y1="70" x2="97" y2="70" stroke-dasharray="3 2"/><line x1="3" y1="35" x2="97" y2="35" stroke-dasharray="1 2"/><line x1="3" y1="105" x2="97" y2="105" stroke-dasharray="1 2"/></g><ellipse cx="50" cy="70" rx="4.5" ry="7" fill="#78350f" stroke="#fff" stroke-width="0.6" transform="rotate(15 50 70)"/><line class="anim-arrow" x1="30" y1="55" x2="70" y2="85" stroke="#fbbf24" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="3 2"/><circle cx="30" cy="55" r="3.2" fill="#dc2626" stroke="#fff" stroke-width="0.6"/><circle cx="70" cy="85" r="3.2" fill="#2563eb" stroke="#fff" stroke-width="0.6"/>`},
+            {name:'Hockey', svg:`<defs><linearGradient id="gradHck" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563eb"/><stop offset="100%" stop-color="#172554"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradHck)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="70" x2="97" y2="70"/><circle cx="50" cy="70" r="7"/><rect x="30" y="3" width="40" height="12"/><rect x="30" y="125" width="40" height="12"/></g><circle cx="50" cy="70" r="0.8" fill="#fff"/><circle cx="42" cy="55" r="3.2" fill="#dc2626" stroke="#fff" stroke-width="0.6"/><path d="M 40,53 L 36,45" stroke="#0f172a" stroke-width="1.4" stroke-linecap="round"/><circle cx="62" cy="90" r="3.2" fill="#f59e0b" stroke="#fff" stroke-width="0.6"/><path d="M 60,88 L 64,80" stroke="#0f172a" stroke-width="1.4" stroke-linecap="round"/><line class="anim-arrow" x1="42" y1="55" x2="62" y2="85" stroke="#fbbf24" stroke-width="1.2" stroke-dasharray="2 2"/><circle cx="42" cy="55" r="1.4" fill="#0a0a0a" class="anim-ball" style="--bx:20px;--by:30px;--bx2:20px;--by2:32px"/>`},
           ].map((sport, i) => (
             <a key={i} href="/tactical-board.html" className="sport-card group relative rounded-2xl overflow-hidden border border-slate-800 hover:border-[#CCFF00]/60 transition-all hover:scale-[1.04] hover:shadow-[0_14px_32px_-6px_rgba(204,255,0,0.28)]" data-testid={`sport-card-${sport.name.toLowerCase()}`}>
               <div className="aspect-[3/4] relative">
