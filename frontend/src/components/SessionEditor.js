@@ -97,7 +97,7 @@ const TacticalBoardPreview = ({ board }) => {
 // Mantiene la miniatura totalmente clickeable para abrir la pizarra (comportamiento original).
 // Cuando el SVG contiene animaciones SMIL (<animate>, <animateMotion>), expone una barra de
 // controles (Play/Pausa/Reset + scrubber) en una fila separada debajo del SVG.
-const MiniBoardPlayer = ({ svgHtml, onEdit, onRemove, testIdPrefix }) => {
+const MiniBoardPlayer = ({ svgHtml, editHref, onEditClick, onRemove, testIdPrefix }) => {
   const wrapperRef = useRef(null);
   const svgElRef = useRef(null);
   const rafRef = useRef(null);
@@ -177,13 +177,14 @@ const MiniBoardPlayer = ({ svgHtml, onEdit, onRemove, testIdPrefix }) => {
 
   return (
     <div className="w-full flex-1 flex flex-col" style={{minHeight:'140px'}}>
-      {/* Miniatura 100% clickeable — abre tactical-board (flujo original intacto) */}
-      <div
+      {/* Miniatura clickeable — usa <a target="_blank"> nativo para no ser bloqueado por popup blocker */}
+      <a
         ref={wrapperRef}
-        onClick={onEdit}
-        role="button"
-        tabIndex={0}
-        className="w-full flex-1 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-[#c8f700] hover:shadow-md overflow-hidden transition-all"
+        href={editHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={(e) => { if (onEditClick) onEditClick(e); }}
+        className="block w-full flex-1 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-[#c8f700] hover:shadow-md overflow-hidden transition-all"
         style={{minHeight:'110px'}}
         data-testid={`${testIdPrefix}-thumb`}
         dangerouslySetInnerHTML={{ __html: svgHtml }}
@@ -1155,7 +1156,8 @@ const SessionEditor = ({
                 {act.boardThumbnail ? (
                   <MiniBoardPlayer
                     svgHtml={act.boardThumbnail}
-                    onEdit={() => { boardEditContextRef.current = { faseKey, actId: act.id }; window.open(act.boardId ? `/tactical-board.html?boardId=${act.boardId}` : '/tactical-board.html', '_blank'); }}
+                    editHref={act.boardId ? `/tactical-board.html?boardId=${act.boardId}` : '/tactical-board.html'}
+                    onEditClick={() => { boardEditContextRef.current = { faseKey, actId: act.id }; }}
                     onRemove={() => updateActividadMulti(faseKey, idx, { boardThumbnail: null, boardId: null })}
                     testIdPrefix={`board-${faseKey}-${idx}`}
                   />
