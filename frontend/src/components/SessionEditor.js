@@ -14,7 +14,7 @@ import {
   GripVertical, AlertCircle, Share2, Copy, Check, FileText, Link2, Eye,
   Watch, Droplets, Battery, Moon, Sun, TrendingUp, TrendingDown, Bluetooth,
   Sparkles, LayoutGrid, X, Users, User, MapPin, Gauge, Layers, BarChart3, FlaskConical,
-  Play, Pause, RotateCcw
+  Play, Pause, RotateCcw, Pencil
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { EJERCICIOS_INICIALES } from './ExerciseLibrary';
@@ -255,6 +255,19 @@ const MiniBoardPlayer = ({ svgHtml, editHref, onEditClick, onRemove, testIdPrefi
           Abrí la pizarra y guardá de nuevo para activar la reproducción
         </div>
       )}
+
+      {/* Botón explícito "Editar pizarra" — garantiza apertura (anchor nativo) */}
+      <a
+        href={editHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={(e) => { if (onEditClick) onEditClick(e); }}
+        className="mt-1 flex items-center justify-center gap-1 h-7 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all hover:brightness-110 no-underline"
+        style={{background:'#0a0a0f',color:'#c8f700',fontFamily:DM,border:'1px solid rgba(204,255,0,0.3)'}}
+        data-testid={`${testIdPrefix}-edit-btn`}
+      >
+        <Pencil className="w-3 h-3" /> Editar pizarra
+      </a>
 
       {onRemove && (
         <button
