@@ -718,7 +718,7 @@ const InteractiveChart = ({
 
               {/* Slot de controles extra (custom inputs/info desde parent) */}
               {extraControls && (
-                <div className="flex items-center gap-1.5 flex-wrap flex-1">
+                <div className="w-full basis-full mt-1">
                   {extraControls}
                 </div>
               )}

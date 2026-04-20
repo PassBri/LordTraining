@@ -1724,87 +1724,115 @@ const SessionEditor = ({
                     const fcDuranteNum = parseInt(m.fcDuranteEntrenamiento) || 0;
                     const pctReserve = hasZones && fcDuranteNum ? Math.round(((fcDuranteNum - fcRep) / fcr) * 100) : null;
 
-                    // Bloque de FC phases inputs + reposo/media/maxima + zonas (todo en una fila)
-                    const inlineControls = (
-                      <>
-                        {/* Phase inputs */}
-                        {phases.map(p => (
-                          <div key={p.id} className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-50 border border-slate-200" data-testid={`fc-${p.id}`}>
-                            <span className="w-1.5 h-1.5 rounded-full" style={{background:p.color}} />
-                            <span className="text-[8px] font-bold uppercase tracking-wide text-slate-500" style={{fontFamily:DM}}>{p.label}</span>
-                            <Input
-                              type="number"
-                              value={m[p.key]}
-                              onChange={(e) => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, [p.key]: e.target.value } }))}
-                              className="h-5 w-12 text-center font-black text-[11px] rounded border-0 bg-white px-1 focus:ring-1 focus:ring-[#84cc16]"
-                              style={{fontFamily:DM}}
-                              data-testid={`fc-${p.id}-input`}
-                            />
-                          </div>
-                        ))}
-
-                        {/* Referencias FC: Reposo / Media / Máxima */}
-                        {[
-                          { id: 'reposo', label: 'Reposo', key: 'fcReposo', color: '#84cc16' },
-                          { id: 'media',  label: 'Media',  key: 'fcMedia',  color: '#f59e0b' },
-                          { id: 'maxima', label: 'Máx',    key: 'fcMaxima', color: '#ef4444' }
-                        ].map(r => (
-                          <div key={r.id} className="flex items-center gap-1 px-1.5 py-0.5 rounded-md border" style={{background:r.color + '10', borderColor:r.color + '40'}} data-testid={`fc-ref-${r.id}`}>
-                            <span className="w-1.5 h-1.5 rounded-full" style={{background:r.color}} />
-                            <span className="text-[8px] font-bold uppercase tracking-wide" style={{color:r.color,fontFamily:DM}}>{r.label}</span>
-                            <Input
-                              type="number"
-                              value={m[r.key]}
-                              onChange={(e) => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, [r.key]: e.target.value } }))}
-                              className="h-5 w-12 text-center font-black text-[11px] rounded border-0 bg-white px-1 focus:ring-1"
-                              style={{fontFamily:DM}}
-                              data-testid={`fc-ref-${r.id}-input`}
-                            />
-                          </div>
-                        ))}
-
-                        {/* Toggle Recup 10 min */}
-                        <button
-                          onClick={() => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, mostrarRecuperacion10min: !prev.monitoreo.mostrarRecuperacion10min } }))}
-                          className={`inline-flex items-center gap-1 px-2 h-[22px] rounded-md text-[9px] font-bold uppercase tracking-wider transition-all ${m.mostrarRecuperacion10min ? 'bg-pink-100 text-pink-700 border border-pink-300' : 'bg-slate-50 text-slate-500 border border-slate-200 hover:bg-slate-100'}`}
+                    // Bloque de FC phases inputs + reposo/media/maxima + zonas (organizado en 4 líneas)
+                    const rowStyle = 'flex items-center gap-1.5 flex-wrap';
+                    const pill = (p) => (
+                      <div key={p.id} className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-50 border border-slate-200" data-testid={`fc-${p.id}`}>
+                        <span className="w-1.5 h-1.5 rounded-full" style={{background:p.color}} />
+                        <span className="text-[9px] font-bold uppercase tracking-wide text-slate-500" style={{fontFamily:DM}}>{p.label}</span>
+                        <Input
+                          type="number"
+                          value={m[p.key]}
+                          onChange={(e) => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, [p.key]: e.target.value } }))}
+                          className="h-5 w-12 text-center font-black text-[11px] rounded border-0 bg-white px-1 focus:ring-1 focus:ring-[#84cc16]"
                           style={{fontFamily:DM}}
-                          data-testid="toggle-recup-10min"
-                        >
-                          {m.mostrarRecuperacion10min ? '✓' : '+'} R10
-                        </button>
+                          data-testid={`fc-${p.id}-input`}
+                        />
+                        <span className="text-[8px] text-slate-400" style={{fontFamily:DM}}>bpm</span>
+                      </div>
+                    );
+                    const rowLabel = (txt, color = '#64748b') => (
+                      <span className="text-[9px] font-black uppercase tracking-wider w-[72px] flex-shrink-0" style={{color,fontFamily:DM}}>{txt}</span>
+                    );
+                    const entrenamientoPhases = phases.filter(p => ['antes','durante','despues'].includes(p.id));
+                    const recupPhases = phases.filter(p => p.id.startsWith('recup')).concat(m.mostrarRecuperacion10min ? [] : []);
 
-                        <span className="w-px h-4 bg-slate-200 mx-0.5" />
+                    const inlineControls = (
+                      <div className="w-full flex flex-col gap-1.5 py-1">
+                        {/* Línea 1: Fases de entrenamiento */}
+                        <div className={rowStyle}>
+                          {rowLabel('Entrenamiento', '#334155')}
+                          {entrenamientoPhases.map(pill)}
+                        </div>
 
-                        {/* Info relevante: Zonas FC (calculadas con Karvonen) */}
-                        {hasZones ? (
-                          <>
-                            {[
-                              { z:'Z1', range:'50-60%', name:'Recup',    color:'#10b981', min:0.50, max:0.60 },
-                              { z:'Z2', range:'60-70%', name:'Aerób.',   color:'#84cc16', min:0.60, max:0.70 },
-                              { z:'Z3', range:'70-80%', name:'Tempo',    color:'#eab308', min:0.70, max:0.80 },
-                              { z:'Z4', range:'80-90%', name:'Umbral',   color:'#f97316', min:0.80, max:0.90 },
-                              { z:'Z5', range:'90-100%',name:'VO2max',   color:'#ef4444', min:0.90, max:1.00 }
-                            ].map(z => {
-                              const lo = Math.round(fcRep + fcr * z.min);
-                              const hi = Math.round(fcRep + fcr * z.max);
-                              const active = pctReserve !== null && pctReserve >= z.min*100 && pctReserve <= z.max*100;
-                              return (
-                                <div key={z.z} className={`flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-bold ${active ? 'ring-1 ring-offset-1' : ''}`} style={{background:z.color + (active?'25':'10'), color:z.color, border:`1px solid ${z.color}40`, '--tw-ring-color': z.color}} title={`${z.name} · ${z.range}`} data-testid={`fc-zone-${z.z}`}>
-                                  <span className="tabular-nums">{z.z}</span>
-                                  <span className="text-[8px] opacity-70 font-medium tabular-nums">{lo}-{hi}</span>
-                                </div>
-                              );
-                            })}
-                            {pctReserve !== null && (
-                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-900 text-[9px] font-bold text-lime-400" style={{fontFamily:DM}} title="% Frecuencia Cardíaca de Reserva (Karvonen) durante el entrenamiento">
-                                %FCR <span className="text-white">{pctReserve}%</span>
-                              </span>
-                            )}
-                          </>
-                        ) : (
-                          <span className="text-[9px] text-slate-400 italic" style={{fontFamily:DM}}>Ingresa FC Reposo + Máxima para ver zonas</span>
-                        )}
-                      </>
+                        <div className="h-px bg-slate-100" />
+
+                        {/* Línea 2: Recuperación */}
+                        <div className={rowStyle}>
+                          {rowLabel('Recuperación', '#7c3aed')}
+                          {recupPhases.map(pill)}
+                          <button
+                            onClick={() => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, mostrarRecuperacion10min: !prev.monitoreo.mostrarRecuperacion10min } }))}
+                            className={`inline-flex items-center gap-1 px-2 h-[22px] rounded-md text-[9px] font-bold uppercase tracking-wider transition-all ${m.mostrarRecuperacion10min ? 'bg-pink-100 text-pink-700 border border-pink-300' : 'bg-slate-50 text-slate-500 border border-slate-200 border-dashed hover:bg-slate-100'}`}
+                            style={{fontFamily:DM}}
+                            data-testid="toggle-recup-10min"
+                          >
+                            {m.mostrarRecuperacion10min ? "✓ Recup 10'" : "+ Recup 10'"}
+                          </button>
+                        </div>
+
+                        <div className="h-px bg-slate-100" />
+
+                        {/* Línea 3: Estadísticas (referencias) */}
+                        <div className={rowStyle}>
+                          {rowLabel('Estadísticas', '#0891b2')}
+                          {[
+                            { id: 'reposo', label: 'FC Reposo', key: 'fcReposo', color: '#84cc16' },
+                            { id: 'media',  label: 'FC Media',  key: 'fcMedia',  color: '#f59e0b' },
+                            { id: 'maxima', label: 'FC Máxima', key: 'fcMaxima', color: '#ef4444' }
+                          ].map(r => (
+                            <div key={r.id} className="flex items-center gap-1 px-1.5 py-0.5 rounded-md border" style={{background:r.color + '10', borderColor:r.color + '40'}} data-testid={`fc-ref-${r.id}`}>
+                              <span className="w-1.5 h-1.5 rounded-full" style={{background:r.color}} />
+                              <span className="text-[9px] font-bold uppercase tracking-wide" style={{color:r.color,fontFamily:DM}}>{r.label}</span>
+                              <Input
+                                type="number"
+                                value={m[r.key]}
+                                onChange={(e) => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, [r.key]: e.target.value } }))}
+                                className="h-5 w-12 text-center font-black text-[11px] rounded border-0 bg-white px-1 focus:ring-1"
+                                style={{fontFamily:DM}}
+                                data-testid={`fc-ref-${r.id}-input`}
+                              />
+                              <span className="text-[8px]" style={{color:r.color + 'cc',fontFamily:DM}}>bpm</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="h-px bg-slate-100" />
+
+                        {/* Línea 4: Zonas de Frecuencia Cardíaca */}
+                        <div className={rowStyle}>
+                          {rowLabel('Zonas FC', '#be185d')}
+                          {hasZones ? (
+                            <>
+                              {[
+                                { z:'Z1', range:'50-60%', name:'Recuperación',    color:'#10b981', min:0.50, max:0.60 },
+                                { z:'Z2', range:'60-70%', name:'Aeróbico base',   color:'#84cc16', min:0.60, max:0.70 },
+                                { z:'Z3', range:'70-80%', name:'Tempo',           color:'#eab308', min:0.70, max:0.80 },
+                                { z:'Z4', range:'80-90%', name:'Umbral',          color:'#f97316', min:0.80, max:0.90 },
+                                { z:'Z5', range:'90-100%',name:'VO2max',          color:'#ef4444', min:0.90, max:1.00 }
+                              ].map(z => {
+                                const lo = Math.round(fcRep + fcr * z.min);
+                                const hi = Math.round(fcRep + fcr * z.max);
+                                const active = pctReserve !== null && pctReserve >= z.min*100 && pctReserve <= z.max*100;
+                                return (
+                                  <div key={z.z} className={`flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-bold transition-all ${active ? 'ring-2 ring-offset-1 scale-105' : ''}`} style={{background:z.color + (active?'30':'10'), color:z.color, border:`1px solid ${z.color}40`, '--tw-ring-color': z.color}} title={`${z.name} · ${z.range} FCR · ${lo}-${hi} bpm`} data-testid={`fc-zone-${z.z}`}>
+                                    <span className="tabular-nums font-black">{z.z}</span>
+                                    <span className="font-semibold" style={{color:z.color}}>{z.name}</span>
+                                    <span className="text-[8px] opacity-70 font-medium tabular-nums">{lo}-{hi}</span>
+                                  </div>
+                                );
+                              })}
+                              {pctReserve !== null && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-900 text-[10px] font-bold text-lime-400 ml-1" style={{fontFamily:DM}} title="% Frecuencia Cardíaca de Reserva (Karvonen) durante el entrenamiento">
+                                  %FCR <span className="text-white font-black">{pctReserve}%</span>
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            <span className="text-[10px] text-slate-400 italic" style={{fontFamily:DM}}>Ingresa FC Reposo + FC Máxima para calcular zonas</span>
+                          )}
+                        </div>
+                      </div>
                     );
 
                     return (
