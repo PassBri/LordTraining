@@ -7555,12 +7555,13 @@ async def download_session_boards_pdf(share_id: str, theme: str = "light"):
 <html lang="es"><head><meta charset="utf-8"/>
 <title>iTRAIN · {_esc(session_name)}</title>
 <style>
-  @page {{ size: A4; margin: 10mm 9mm 10mm 9mm; }}
+  @page {{ size: A4; margin: 0; }}
   * {{ box-sizing: border-box; }}
   html, body {{ margin:0; padding:0; background:{bg}; color:{ink};
     font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     -webkit-print-color-adjust: exact; print-color-adjust: exact; }}
-  .page {{ padding: 0; max-width: 100%; }}
+  body {{ min-height: 297mm; background:{bg}; }}
+  .page {{ padding: 10mm 9mm; max-width: 100%; background:{bg}; min-height: 297mm; }}
   header.hd {{ display:flex; align-items:flex-end; justify-content:space-between;
     border-bottom: 2px solid {accent}; padding-bottom: 10px; margin-bottom: 14px; }}
   .brand {{ font-size: 10px; letter-spacing: 0.3em; color: {accent};
@@ -7658,7 +7659,7 @@ async def download_session_boards_pdf(share_id: str, theme: str = "light"):
                 width="210mm",
                 height="297mm",
                 print_background=True,
-                margin={"top": "10mm", "right": "9mm", "bottom": "10mm", "left": "9mm"},
+                margin={"top": "0mm", "right": "0mm", "bottom": "0mm", "left": "0mm"},
                 scale=1,
                 prefer_css_page_size=False
             )
