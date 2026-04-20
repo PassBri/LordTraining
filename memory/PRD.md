@@ -436,6 +436,29 @@
   para no empujar los botones JUGADORES/Tactico/Camiseta/Avatar.
 - Labels mas cortos: '11 vs 11 · FIFA', '7 vs 7 · Juvenil', '5 vs 5 · Infantil'.
 
+### Pizarra Dark Mode + UI polish (Feb 2026)
+- Dark mode ahora usa verde pizarron tradicional (#1f4a34) como fondo de
+  cancha, con lineas blanco-tiza (rgba(245,240,225,0.88)). Evoca el
+  tablero verde escolar clasico que usaban los entrenadores.
+- Barra #view-bar: overflow-x:auto con scrollbar fino, padding reducido.
+  Variante y JUGADORES ya no empujan/cortan los botones Tactico/Camiseta/
+  Avatar. Label "VARIANTE" se muestra completo.
+- Scoreboard: reubicado bajo la toolbar (top:72px). Ahora es DRAGGABLE
+  (mousedown/touchstart + move + clamp al canvas wrap). Posicion
+  persistida en localStorage 'tb_score_pos'. Handle visual "⋮⋮" a la
+  izquierda.
+- Botones Guardar/PNG/IA rediseñados: background neutro + borde/texto
+  coloreado por acción (verde/azul/morado), iconos SVG, armonizados con
+  el pizarron dark sin romper en light.
+- Nuevo boton "Enlace" (sb-save-btn.amber) -> S.shareBoard() genera URL
+  con payload base64 de {sport, variant, avatar*, viewMode, teamColors,
+  elements}. Copia al portapapeles + toast confirmacion.
+- Al cargar, S.loadSharedBoard() detecta hash #b=... y restaura estado
+  (preview readonly si query ?readonly=1).
+- Badminton 3D: red con altura correcta (netH 85 units ≈ 1.55m FIVB/BWF),
+  postes extendidos 5 units sobre la red, malla horizontal + 12 cordajes
+  verticales. Tenis/Padel 40 units, Tenis de Mesa 10 units.
+
 ## Pendiente
 ### P1 - Refactorizar tactical-board.html (+5300 lineas) -> separar CSS/JS/SVG constantes
 ### P1 - Continuar refactorizacion: extraer secciones Athletes, Sports, Events de DashboardPage

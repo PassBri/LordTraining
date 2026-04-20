@@ -165,19 +165,27 @@ html.dark .sb-actions{background:rgba(255,255,255,0.015)}
 .sb-act:hover{background:var(--panel);color:var(--text);box-shadow:0 6px 14px -4px var(--shadow-md);transform:translateY(-1px);border-color:var(--border-strong)}
 .sb-act:active{transform:translateY(0) scale(0.96)}
 .sb-save-row{display:flex;gap:6px;padding:10px 12px 14px;border-top:1px solid var(--border)}
-.sb-save-btn{flex:1;padding:9px 0;border-radius:10px;font-size:11px;font-weight:800;color:#fff;text-align:center;letter-spacing:0.04em;transition:all .18s;box-shadow:0 4px 12px -4px var(--shadow-md);position:relative;overflow:hidden}
-.sb-save-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0.18),transparent 50%);pointer-events:none}
-.sb-save-btn.green{background:linear-gradient(180deg,#10b981,#059669)}
-.sb-save-btn.blue{background:linear-gradient(180deg,#3b82f6,#2563eb)}
-.sb-save-btn.purple{background:linear-gradient(180deg,#8b5cf6,#7c3aed)}
-.sb-save-btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px -4px var(--shadow-md),0 0 0 1px rgba(255,255,255,0.1) inset;filter:brightness(1.08)}
-.sb-save-btn:active{transform:translateY(0) scale(0.98)}
+.sb-save-btn{flex:1;padding:9px 0;border-radius:10px;font-size:11px;font-weight:800;color:var(--text);text-align:center;letter-spacing:0.06em;transition:all .18s;box-shadow:0 1px 3px var(--shadow),0 2px 8px -3px var(--shadow-md);position:relative;overflow:hidden;background:var(--surface);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.sb-save-btn svg{width:13px;height:13px;flex-shrink:0}
+.sb-save-btn.green{border-color:rgba(16,185,129,0.45);color:#059669}
+.sb-save-btn.blue{border-color:rgba(59,130,246,0.45);color:#2563eb}
+.sb-save-btn.purple{border-color:rgba(139,92,246,0.45);color:#7c3aed}
+.sb-save-btn.amber{border-color:rgba(245,158,11,0.5);color:#b45309}
+html.dark .sb-save-btn{background:rgba(255,255,255,0.04);color:rgba(245,240,225,0.92)}
+html.dark .sb-save-btn.green{border-color:rgba(52,211,153,0.55);color:#6ee7b7}
+html.dark .sb-save-btn.blue{border-color:rgba(96,165,250,0.55);color:#93c5fd}
+html.dark .sb-save-btn.purple{border-color:rgba(167,139,250,0.55);color:#c4b5fd}
+html.dark .sb-save-btn.amber{border-color:rgba(251,191,36,0.6);color:#fcd34d}
+.sb-save-btn:hover{transform:translateY(-1px);box-shadow:0 6px 14px -4px var(--shadow-md),0 0 0 1px currentColor inset;filter:brightness(1.04)}
+.sb-save-btn:active{transform:translateY(0) scale(0.97)}
 /* ── CANVAS ── */
 #canvas-wrap{flex:1;position:relative;overflow:hidden;background:var(--canvas-bg);display:flex;flex-direction:column}
 /* View bar */
-#view-bar{height:56px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:14px;flex-shrink:0;z-index:5;box-shadow:0 1px 0 var(--border);min-width:0}
-#view-bar>.vb-group{flex-shrink:1;min-width:0}
-#view-bar>.vb-group:last-child{flex-shrink:0;margin-left:auto;position:sticky;right:0;background:var(--panel);padding-left:10px}
+#view-bar{height:56px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:12px;flex-shrink:0;z-index:5;box-shadow:0 1px 0 var(--border);min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;white-space:nowrap}
+#view-bar::-webkit-scrollbar{height:4px}
+#view-bar::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:2px}
+#view-bar>.vb-group{flex-shrink:0;min-width:0}
+#view-bar>.vb-group:last-child{flex-shrink:0;margin-left:auto;padding-left:10px}
 .vb-group{display:flex;align-items:center;gap:8px}
 .vb-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.14em;color:var(--text-muted);margin-right:6px;display:flex;align-items:center;gap:6px}
 .vb-label::before{content:'';width:3px;height:12px;background:var(--brand);border-radius:2px;box-shadow:0 0 6px var(--brand-glow)}
@@ -220,7 +228,9 @@ html.dark .vb-icon.vb-icon-toggle.active{background:var(--brand);color:#0a0f1f}
 #canvas-inner.hide-measures .fld-measure{display:none}
 #canvas-inner.hide-zones .fld-zone{display:none}
 /* Scoreboard overlay */
-#scoreboard{position:absolute;top:14px;left:14px;z-index:30;display:none;align-items:center;gap:10px;padding:7px 12px;background:linear-gradient(135deg,rgba(20,20,30,0.92),rgba(40,40,60,0.92));backdrop-filter:blur(12px);border:1px solid rgba(200,247,0,0.35);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,0.4);font-family:'Oswald',sans-serif;color:#fff;letter-spacing:0.08em}
+#scoreboard{position:absolute;top:72px;left:18px;z-index:30;display:none;align-items:center;gap:10px;padding:7px 12px;background:linear-gradient(135deg,rgba(20,20,30,0.92),rgba(40,40,60,0.92));backdrop-filter:blur(12px);border:1px solid rgba(200,247,0,0.35);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,0.4);font-family:'Oswald',sans-serif;color:#fff;letter-spacing:0.08em;cursor:move;user-select:none;touch-action:none}
+#scoreboard::before{content:'⋮⋮';position:absolute;left:4px;top:50%;transform:translateY(-50%);color:rgba(200,247,0,0.35);font-size:9px;letter-spacing:-1px;pointer-events:none}
+#scoreboard{padding-left:18px}
 #scoreboard.show{display:flex}
 .sb-team{display:flex;flex-direction:column;align-items:center;min-width:52px}
 .sb-team-name{font-size:9px;opacity:0.85;font-weight:700;letter-spacing:0.15em;text-transform:uppercase}
@@ -408,9 +418,10 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
    <button class="sb-act" onclick="S.startPlayback()" id="btn-play" title="Reproducir"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg></button>
   </div>
   <div class="sb-save-row">
-   <button class="sb-save-btn green" onclick="S.showSaveModal()" data-testid="save-board-btn">Guardar</button>
-   <button class="sb-save-btn blue" onclick="S.exportPNG()">PNG</button>
-   <button class="sb-save-btn purple" onclick="S.showAiModal()">IA</button>
+   <button class="sb-save-btn green" onclick="S.showSaveModal()" data-testid="save-board-btn" title="Guardar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Guardar</button>
+   <button class="sb-save-btn blue" onclick="S.exportPNG()" title="Exportar PNG"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PNG</button>
+   <button class="sb-save-btn amber" onclick="S.shareBoard()" data-testid="share-board-btn" title="Compartir tablero (link)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Enlace</button>
+   <button class="sb-save-btn purple" onclick="S.showAiModal()" title="IA"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3 3 3 0 0 0-3 3 3 3 0 0 0-1 5.83A3 3 0 0 0 9 19a3 3 0 0 0 6 0 3 3 0 0 0 4-5.17A3 3 0 0 0 18 8a3 3 0 0 0-3-3 3 3 0 0 0-3-3z"/></svg>IA</button>
   </div>
  </div>
  <!-- COLOR PICKER (floating) -->
@@ -449,9 +460,9 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
     <button class="vb-icon vb-icon-toggle" id="score-toggle" onclick="S.toggleScoreboardBtn()" title="Marcador" data-testid="score-toggle-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><line x1="12" y1="5" x2="12" y2="19"/><text x="7" y="15" font-size="7" fill="currentColor" stroke="none" font-weight="800">0</text><text x="17" y="15" font-size="7" fill="currentColor" stroke="none" font-weight="800" text-anchor="middle">0</text></svg></button>
     <button class="vb-icon vb-icon-toggle" id="gear-toggle" onclick="S.toggleGear()" title="Equipamiento deportivo (casco, tabla, arco...)" data-testid="gear-toggle-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></button>
    </div>
-   <div class="vb-seg" id="variant-seg" style="display:none" data-testid="variant-seg">
+   <div class="vb-variant" id="variant-seg" style="display:none;align-items:center;gap:6px;flex-shrink:0" data-testid="variant-seg">
     <div class="vb-label">VARIANTE</div>
-    <select id="variant-select" onchange="S.setVariant(this.value)" data-testid="variant-select" style="background:var(--panel-elev);border:1px solid var(--border);color:var(--text);padding:3px 6px;border-radius:6px;font-size:10px;font-family:'Oswald',sans-serif;letter-spacing:0.03em;font-weight:600;cursor:pointer;outline:none;max-width:110px"></select>
+    <select id="variant-select" onchange="S.setVariant(this.value)" data-testid="variant-select" style="background:var(--panel-elev);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:10px;font-family:'Oswald',sans-serif;letter-spacing:0.03em;font-weight:600;cursor:pointer;outline:none;min-width:110px"></select>
    </div>
    <div class="vb-sep"></div>
    <div class="vb-group">
@@ -956,6 +967,8 @@ const FORMATIONS = {
 const S = {
  init() {
   this.loadTheme();
+  // Load shared board from URL hash (read-only preview)
+  try { this.loadSharedBoard(); } catch(e){}
   // Load persisted UI state
   try {
    const savedTextStyle = localStorage.getItem('tb_text_style');
@@ -1179,6 +1192,44 @@ const S = {
  updateScoreboard() {
   const sb = document.getElementById('scoreboard');
   if (!sb) return;
+  // Bind drag once
+  if (!sb._dragBound) {
+   sb._dragBound = true;
+   let offX=0, offY=0, dragging=false;
+   const onDown = (e) => {
+    if (e.target.closest('.sb-reset')) return;
+    dragging = true;
+    const rect = sb.getBoundingClientRect();
+    const wrap = sb.parentElement.getBoundingClientRect();
+    offX = (e.clientX||e.touches[0].clientX) - rect.left;
+    offY = (e.clientY||e.touches[0].clientY) - rect.top;
+    sb._wrap = wrap;
+    e.preventDefault();
+   };
+   const onMove = (e) => {
+    if (!dragging) return;
+    const cx = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+    const cy = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+    const wrap = sb._wrap;
+    const nx = Math.max(4, Math.min(wrap.width - sb.offsetWidth - 4, cx - wrap.left - offX));
+    const ny = Math.max(4, Math.min(wrap.height - sb.offsetHeight - 4, cy - wrap.top - offY));
+    sb.style.left = nx + 'px';
+    sb.style.top = ny + 'px';
+    try { localStorage.setItem('tb_score_pos', JSON.stringify({x:nx,y:ny})); } catch(e){}
+   };
+   const onUp = () => { dragging = false; };
+   sb.addEventListener('mousedown', onDown);
+   sb.addEventListener('touchstart', onDown, {passive:false});
+   window.addEventListener('mousemove', onMove);
+   window.addEventListener('touchmove', onMove, {passive:false});
+   window.addEventListener('mouseup', onUp);
+   window.addEventListener('touchend', onUp);
+   // Restore saved pos
+   try {
+    const saved = JSON.parse(localStorage.getItem('tb_score_pos') || 'null');
+    if (saved && typeof saved.x === 'number') { sb.style.left = saved.x + 'px'; sb.style.top = saved.y + 'px'; }
+   } catch(e){}
+  }
   const zones = this.getGoalZones();
   const enabled = ST.scoreboardEnabled === true;
   if (zones.length === 0 || !enabled) {
@@ -1582,12 +1633,12 @@ const S = {
  getFieldColors() {
   const dark = ST.theme === 'dark';
   return {
-   bg: dark ? '#111827' : '#ffffff',
-   stroke: dark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.65)',
-   fillDim: dark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.04)',
-   surface3d: dark ? '#111827' : '#ffffff',
-   front3d: dark ? '#1e293b' : '#e2e8f0',
-   right3d: dark ? '#0f172a' : '#cbd5e1'
+   bg: dark ? '#1f4a34' : '#ffffff',
+   stroke: dark ? 'rgba(245,240,225,0.88)' : 'rgba(0,0,0,0.65)',
+   fillDim: dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+   surface3d: dark ? '#1f4a34' : '#ffffff',
+   front3d: dark ? '#2a5e43' : '#e2e8f0',
+   right3d: dark ? '#163a28' : '#cbd5e1'
   };
  },
 
@@ -2420,17 +2471,32 @@ const S = {
   }
   // Tennis/Padel/Badminton/Tenis de Mesa net
   if(['Tenis','Padel','Badminton','Tenis de Mesa'].includes(s)) {
-   const netH = s==='Tenis de Mesa'?30:60;
+   const netH = s==='Tenis de Mesa'?10 : s==='Badminton'?85 : 40;
    const lx=s==='Tenis'?90:s==='Padel'?120:s==='Badminton'?135:165;
    const rx=s==='Tenis'?510:s==='Padel'?480:s==='Badminton'?465:435;
    const nl=this.toIso(lx,400,0), nr=this.toIso(rx,400,0);
    const nlt=this.toIso(lx,400,netH), nrt=this.toIso(rx,400,netH);
-   O += `<line x1="${nl.x}" y1="${nl.y}" x2="${nlt.x}" y2="${nlt.y}" stroke="rgba(0,0,0,0.5)" stroke-width="2"/>`;
-   O += `<line x1="${nr.x}" y1="${nr.y}" x2="${nrt.x}" y2="${nrt.y}" stroke="rgba(0,0,0,0.5)" stroke-width="2"/>`;
-   O += `<line x1="${nlt.x}" y1="${nlt.y}" x2="${nrt.x}" y2="${nrt.y}" stroke="rgba(0,0,0,0.6)" stroke-width="1.5"/>`;
-   for(let h=10;h<netH;h+=12) {
+   // Posts: slightly taller than the net (Badminton especially)
+   const postExt = s==='Badminton' ? netH + 5 : netH;
+   const nlp=this.toIso(lx,400,postExt), nrp=this.toIso(rx,400,postExt);
+   O += `<line x1="${nl.x}" y1="${nl.y}" x2="${nlp.x}" y2="${nlp.y}" stroke="rgba(0,0,0,0.6)" stroke-width="2.2"/>`;
+   O += `<line x1="${nr.x}" y1="${nr.y}" x2="${nrp.x}" y2="${nrp.y}" stroke="rgba(0,0,0,0.6)" stroke-width="2.2"/>`;
+   // Top cable (white)
+   O += `<line x1="${nlt.x}" y1="${nlt.y}" x2="${nrt.x}" y2="${nrt.y}" stroke="rgba(240,240,240,0.95)" stroke-width="1.8"/>`;
+   // Net mesh
+   const meshStep = s==='Badminton' ? 8 : 12;
+   for(let h=meshStep;h<netH;h+=meshStep) {
     const lp=this.toIso(lx,400,h), rp=this.toIso(rx,400,h);
-    O += `<line x1="${lp.x}" y1="${lp.y}" x2="${rp.x}" y2="${rp.y}" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>`;
+    const alpha = s==='Badminton' ? 0.22 : 0.1;
+    O += `<line x1="${lp.x}" y1="${lp.y}" x2="${rp.x}" y2="${rp.y}" stroke="rgba(40,40,40,${alpha})" stroke-width="0.6"/>`;
+   }
+   // Vertical strings for Badminton
+   if (s==='Badminton') {
+    for(let i=1;i<=12;i++) {
+     const mx = lx + (rx-lx)*(i/13);
+     const mb=this.toIso(mx,400,0), mt=this.toIso(mx,400,netH);
+     O += `<line x1="${mb.x}" y1="${mb.y}" x2="${mt.x}" y2="${mt.y}" stroke="rgba(40,40,40,0.22)" stroke-width="0.5"/>`;
+    }
    }
   }
   // Football/Futsal/Handball/Hockey goals (rectangular with net) — attached to goal lines
@@ -4482,6 +4548,73 @@ const S = {
  },
 
  // ── EXPORT PNG ──
+ shareBoard() {
+  try {
+   const payload = {
+    v: 1,
+    sport: ST.sport,
+    variant: ST.variant || null,
+    avatarMode: ST.avatarMode,
+    avatarStyle: ST.avatarStyle,
+    avatarGender: ST.avatarGender,
+    viewMode: ST.viewMode,
+    teamA: ST.teamAColor,
+    teamB: ST.teamBColor,
+    elements: ST.elements || []
+   };
+   const json = JSON.stringify(payload);
+   // URI-safe base64
+   const b64 = btoa(unescape(encodeURIComponent(json))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+   const url = `${window.location.origin}${window.location.pathname}?readonly=1#b=${b64}`;
+   if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => this._toast('🔗 Enlace copiado al portapapeles')).catch(() => this._sharePrompt(url));
+   } else {
+    this._sharePrompt(url);
+   }
+  } catch(e) {
+   console.error('shareBoard error', e);
+   this._toast('Error al generar enlace');
+  }
+ },
+
+ _sharePrompt(url) {
+  try { window.prompt('Copia este enlace para compartir la pizarra:', url); } catch(e){}
+ },
+
+ _toast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(15,23,42,0.96);color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 10px 30px rgba(0,0,0,0.4);border:1px solid rgba(204,255,0,0.4);backdrop-filter:blur(8px);letter-spacing:0.02em';
+  document.body.appendChild(t);
+  setTimeout(() => t.style.opacity='0', 2200);
+  setTimeout(() => t.remove(), 2600);
+ },
+
+ loadSharedBoard() {
+  try {
+   const hash = window.location.hash || '';
+   const m = hash.match(/b=([A-Za-z0-9\-_]+)/);
+   if (!m) return false;
+   const b64 = m[1].replace(/-/g,'+').replace(/_/g,'/');
+   const pad = '='.repeat((4 - b64.length % 4) % 4);
+   const json = decodeURIComponent(escape(atob(b64 + pad)));
+   const payload = JSON.parse(json);
+   if (payload.sport) ST.sport = payload.sport;
+   if (payload.variant) ST.variant = payload.variant;
+   if (payload.avatarMode) ST.avatarMode = payload.avatarMode;
+   if (payload.avatarStyle) ST.avatarStyle = payload.avatarStyle;
+   if (payload.avatarGender) ST.avatarGender = payload.avatarGender;
+   if (payload.viewMode) ST.viewMode = payload.viewMode;
+   if (payload.teamA) ST.teamAColor = payload.teamA;
+   if (payload.teamB) ST.teamBColor = payload.teamB;
+   if (Array.isArray(payload.elements)) ST.elements = payload.elements;
+   const params = new URLSearchParams(window.location.search);
+   if (params.get('readonly') === '1') ST.readonly = true;
+   return true;
+  } catch(e) { console.error('loadSharedBoard error', e); return false; }
+ },
+
+
  exportPNG() {
   const svg = document.getElementById('svg-canvas');
   const clone = svg.cloneNode(true);
