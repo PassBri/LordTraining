@@ -1199,70 +1199,71 @@ const SessionEditor = ({
             {/* === PANEL AVANZADO Carga y Progresión === */}
             {isExpanded && (
               <div className="border-t border-slate-100 bg-slate-50/40 px-4 py-3 space-y-2.5" data-testid={`advanced-panel-${faseKey}-${idx}`}>
-                {/* Fila inline: campos avanzados */}
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px]" style={{fontFamily:DM}}>
-                  <div className="flex items-center gap-1.5">
+                {/* Todo en un solo flex-wrap: fields + métricas */}
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px]" style={{fontFamily:DM}}>
+                  <div className="flex items-center gap-1">
                     <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Reps</span>
-                    <Input value={act.repeticiones || ''} onChange={(e) => updateActividad(faseKey, idx, 'repeticiones', e.target.value)} placeholder={capCfg.volPh} className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 focus:bg-white rounded-md px-1.5 w-[70px] shadow-none focus:ring-0" data-testid={`reps-adv-${faseKey}-${idx}`} />
+                    <Input value={act.repeticiones || ''} onChange={(e) => updateActividad(faseKey, idx, 'repeticiones', e.target.value)} placeholder={capCfg.volPh} className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 focus:bg-white rounded-md px-1.5 w-[60px] shadow-none focus:ring-0" data-testid={`reps-adv-${faseKey}-${idx}`} />
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1">
                     <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Subtipo</span>
                     <Select value={act.subtipo || ''} onValueChange={(v) => updateActividad(faseKey, idx, 'subtipo', v)}>
-                      <SelectTrigger className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[90px] shadow-none focus:ring-0"><SelectValue placeholder="—" /></SelectTrigger>
+                      <SelectTrigger className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[80px] shadow-none focus:ring-0"><SelectValue placeholder="—" /></SelectTrigger>
                       <SelectContent>{capCfg.subtipos.map(s => <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">U. Vol</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">U.Vol</span>
                     <Select value={act.unidadVolumen || capCfg.unidadesVol[0]} onValueChange={(v) => updateActividad(faseKey, idx, 'unidadVolumen', v)}>
-                      <SelectTrigger className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[72px] shadow-none focus:ring-0"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[64px] shadow-none focus:ring-0"><SelectValue /></SelectTrigger>
                       <SelectContent>{capCfg.unidadesVol.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">U. Int</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">U.Int</span>
                     <Select value={act.unidadIntensidad || capCfg.unidadesInt[0]} onValueChange={(v) => updateActividad(faseKey, idx, 'unidadIntensidad', v)}>
-                      <SelectTrigger className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[72px] shadow-none focus:ring-0"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[64px] shadow-none focus:ring-0"><SelectValue /></SelectTrigger>
                       <SelectContent>{capCfg.unidadesInt.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1">
                     <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Descanso</span>
-                    <Input value={act.recuperacion || ''} onChange={(e) => updateActividad(faseKey, idx, 'recuperacion', e.target.value)} placeholder={capCfg.recPh} className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 focus:bg-white rounded-md px-1.5 w-[80px] shadow-none focus:ring-0" data-testid={`descanso-adv-${faseKey}-${idx}`} />
+                    <Input value={act.recuperacion || ''} onChange={(e) => updateActividad(faseKey, idx, 'recuperacion', e.target.value)} placeholder={capCfg.recPh} className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 focus:bg-white rounded-md px-1.5 w-[70px] shadow-none focus:ring-0" data-testid={`descanso-adv-${faseKey}-${idx}`} />
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1">
                     <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Frecuencia</span>
-                    <Input value={act.frecuencia || ''} onChange={(e) => updateActividad(faseKey, idx, 'frecuencia', e.target.value)} placeholder={capCfg.freqPh} className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 focus:bg-white rounded-md px-1.5 w-[90px] shadow-none focus:ring-0" />
+                    <Input value={act.frecuencia || ''} onChange={(e) => updateActividad(faseKey, idx, 'frecuencia', e.target.value)} placeholder={capCfg.freqPh} className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 focus:bg-white rounded-md px-1.5 w-[80px] shadow-none focus:ring-0" />
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1">
                     <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Método</span>
                     <Select value={act.metodo} onValueChange={(v) => updateActividad(faseKey, idx, 'metodo', v)}>
-                      <SelectTrigger className="h-6 text-[11px] font-semibold border-0 bg-blue-50 text-blue-700 rounded-full px-2 w-auto min-w-[90px]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="h-6 text-[11px] font-semibold border-0 bg-blue-50 text-blue-700 rounded-full px-2 w-auto min-w-[80px]"><SelectValue /></SelectTrigger>
                       <SelectContent>{METODOS_ENTRENAMIENTO.map(met => <SelectItem key={met.id} value={met.id} className="text-xs">{met.name}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1">
                     <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Organización</span>
                     <Select value={act.procOrganizativo} onValueChange={(v) => updateActividad(faseKey, idx, 'procOrganizativo', v)}>
-                      <SelectTrigger className="h-6 text-[11px] font-semibold border-0 bg-emerald-50 text-emerald-700 rounded-full px-2 w-auto min-w-[90px]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="h-6 text-[11px] font-semibold border-0 bg-emerald-50 text-emerald-700 rounded-full px-2 w-auto min-w-[80px]"><SelectValue /></SelectTrigger>
                       <SelectContent>{PROC_ORGANIZATIVO.map(proc => <SelectItem key={proc.id} value={proc.id} className="text-xs">{proc.name}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
                   {capCfg.showComplejidad && (
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Complejidad</span>
-                      <input type="range" min={1} max={5} value={act.complejidad || 3} onChange={(e) => updateActividad(faseKey, idx, 'complejidad', parseInt(e.target.value))} className="w-16 h-1 accent-violet-500 cursor-pointer" />
+                    <div className="flex items-center gap-1">
+                      <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Complej.</span>
+                      <input type="range" min={1} max={5} value={act.complejidad || 3} onChange={(e) => updateActividad(faseKey, idx, 'complejidad', parseInt(e.target.value))} className="w-14 h-1 accent-violet-500 cursor-pointer" />
                       <span className="text-[11px] font-black text-violet-600 w-4 text-center" style={{fontFamily:DM}}>{act.complejidad || 3}</span>
                     </div>
                   )}
-                </div>
 
-                {/* Métricas */}
-                <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] pt-2 border-t border-slate-200/60" style={{fontFamily:DM}}>
-                  <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">C. Total</span><span className="text-[12px] font-black text-slate-800">{met.cargaTotal}</span></span>
-                  <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">C. Sesión</span><span className="text-[12px] font-black text-slate-800">{met.cargaSesion}</span></span>
+                  {/* Divider visual discreto antes de las métricas */}
+                  <span className="w-px h-4 bg-slate-200 mx-1" />
+
+                  {/* Métricas inline */}
+                  <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">C.Total</span><span className="text-[12px] font-black text-slate-800">{met.cargaTotal}</span></span>
+                  <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">C.Sesión</span><span className="text-[12px] font-black text-slate-800">{met.cargaSesion}</span></span>
                   {met.ratioDensidad != null && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">T:D</span><span className="text-[12px] font-black text-slate-800">1:{Math.round(1/met.ratioDensidad) || '?'}</span></span>}
-                  {met.seriesPorMin > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">Densidad</span><span className="text-[12px] font-black text-slate-800">{met.seriesPorMin}</span><span className="text-[9px] text-slate-400">ser/min</span></span>}
+                  {met.seriesPorMin > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">Densidad</span><span className="text-[12px] font-black text-slate-800">{met.seriesPorMin}</span></span>}
                   {met.tiempoTotalMin > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">Trab:Desc</span><span className="text-[11px] font-bold text-slate-800">{met.tiempoTrabajo}:{met.tiempoDescanso}m</span></span>}
                   {met.neuroCarga > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-indigo-500">NeuroCarga</span><span className="text-[12px] font-black text-slate-800">{met.neuroCarga}</span></span>}
                   {met.zonaFC && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-rose-500">Zona FC</span><span className="text-[11px] font-bold text-slate-800">{met.zonaFC}</span></span>}
