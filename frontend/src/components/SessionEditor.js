@@ -1768,8 +1768,8 @@ const SessionEditor = ({
                     ))}
                   </div>
 
-                  {/* Toggle Recup 10 min */}
-                  <div className="flex items-center gap-2">
+                  {/* Toggle Recup 10 min + FC Reposo / Media / Máxima (inline, referencias del chart) */}
+                  <div className="flex items-center gap-2 flex-wrap">
                     <button
                       onClick={() => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, mostrarRecuperacion10min: !prev.monitoreo.mostrarRecuperacion10min } }))}
                       className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${sessionData.monitoreo.mostrarRecuperacion10min ? 'bg-pink-100 text-pink-700 border border-pink-200' : 'bg-slate-50 text-slate-500 border border-slate-200 hover:bg-slate-100'}`}
@@ -1781,62 +1781,33 @@ const SessionEditor = ({
                       </span>
                       + Recup 10 min
                     </button>
+
+                    <span className="w-px h-5 bg-slate-200 mx-1" />
+
+                    {/* Referencias: FC Reposo, Media, Máxima (aparecen como líneas en el chart) */}
+                    {[
+                      { id: 'reposo',  label: 'FC Reposo',  key: 'fcReposo',  color: '#84cc16', ph: '60' },
+                      { id: 'media',   label: 'FC Media',   key: 'fcMedia',   color: '#f59e0b', ph: '138' },
+                      { id: 'maxima',  label: 'FC Máxima',  key: 'fcMaxima',  color: '#ef4444', ph: '190' }
+                    ].map(r => (
+                      <div key={r.id} className="flex items-center gap-1.5 px-2 py-1 rounded-lg border border-slate-200 bg-white" data-testid={`fc-ref-${r.id}`}>
+                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{background:r.color}} />
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500" style={{fontFamily:DM}}>{r.label}</span>
+                        <Input
+                          type="number"
+                          value={sessionData.monitoreo[r.key]}
+                          onChange={(e) => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, [r.key]: e.target.value } }))}
+                          placeholder={r.ph}
+                          className="h-6 w-14 text-center font-black text-[13px] rounded-md border-0 focus:ring-1 focus:ring-offset-0 px-1"
+                          style={{borderColor:r.color + '40', fontFamily:DM, '--tw-ring-color': r.color + '80'}}
+                          data-testid={`fc-ref-${r.id}-input`}
+                        />
+                        <span className="text-[8px] text-slate-400" style={{fontFamily:DM}}>bpm</span>
+                      </div>
+                    ))}
                   </div>
 
-                  {/* FC Reposo, Media y Maxima */}
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-slate-50 rounded-2xl p-4 text-center border border-slate-100 hover:shadow-sm transition-shadow">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2" style={{background:'#CCFF00'}}>
-                        <Heart className="w-5 h-5 text-slate-900" />
-                      </div>
-                      <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1.5" style={{fontFamily:BC}}>FC Reposo</p>
-                      <Input
-                        type="number"
-                        value={sessionData.monitoreo.fcReposo}
-                        onChange={(e) => setSessionData(prev => ({
-                          ...prev,
-                          monitoreo: { ...prev.monitoreo, fcReposo: e.target.value }
-                        }))}
-                        placeholder="60"
-                        className="text-center text-xl font-bold h-10 border-0 bg-white rounded-xl shadow-inner"
-                      />
-                      <span className="text-[10px] text-slate-400 font-medium">bpm</span>
-                    </div>
-                    <div className="bg-slate-50 rounded-2xl p-4 text-center border border-slate-100 hover:shadow-sm transition-shadow">
-                      <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center mx-auto mb-2">
-                        <Activity className="w-5 h-5 text-white" />
-                      </div>
-                      <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1.5" style={{fontFamily:BC}}>FC Media</p>
-                      <Input
-                        type="number"
-                        value={sessionData.monitoreo.fcMedia}
-                        onChange={(e) => setSessionData(prev => ({
-                          ...prev,
-                          monitoreo: { ...prev.monitoreo, fcMedia: e.target.value }
-                        }))}
-                        placeholder="135"
-                        className="text-center text-xl font-bold h-10 border-0 bg-white rounded-xl shadow-inner"
-                      />
-                      <span className="text-[10px] text-slate-400 font-medium">bpm</span>
-                    </div>
-                    <div className="bg-slate-50 rounded-2xl p-4 text-center border border-slate-100 hover:shadow-sm transition-shadow">
-                      <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center mx-auto mb-2">
-                        <TrendingUp className="w-5 h-5 text-white" />
-                      </div>
-                      <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1.5" style={{fontFamily:BC}}>FC Maxima</p>
-                      <Input
-                        type="number"
-                        value={sessionData.monitoreo.fcMaxima}
-                        onChange={(e) => setSessionData(prev => ({
-                          ...prev,
-                          monitoreo: { ...prev.monitoreo, fcMaxima: e.target.value }
-                        }))}
-                        placeholder="180"
-                        className="text-center text-xl font-bold h-10 border-0 bg-white rounded-xl shadow-inner"
-                      />
-                      <span className="text-[10px] text-slate-400 font-medium">bpm</span>
-                    </div>
-                  </div>
+                  {/* FC Reposo/Media/Máxima — editables en la sección del gráfico (arriba) como referencias */}
 
                   {/* Estado del Deportista */}
                   <div className="space-y-4">
