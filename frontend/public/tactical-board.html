@@ -2847,127 +2847,169 @@ checkKnockdowns(movingEl, prevX, prevY) {
     O += `<line x1="${gb.x}" y1="${gb.y}" x2="${gt.x}" y2="${gt.y}" stroke="rgba(255,60,60,0.85)" stroke-width="2.2"/>`;
    }
   }
-  // RANA: mesa de madera 3D elevada con sapo metálico realista + puentes/molinos + 11 agujeros (oficial Colombia/Venezuela)
+  // RANA (Juego del Sapo oficial Colombia/Venezuela): caja de madera verde con
+  // respaldo curvo beige, grilla de ~20 agujeros, sapo metálico dorado central,
+  // 3 molinos/trampillas de bronce y frontal con compartimentos numerados.
   if(s==='Rana') {
-   const tableX=195, tableY=120, tableW=210, tableH=210;
-   const tableTop = 55;
-   // Sombra en el suelo
-   const sh1=this.toIso(tableX+6,tableY+tableH+10,0);
-   const sh2=this.toIso(tableX+tableW+6,tableY+tableH+10,0);
-   O += `<ellipse cx="${(sh1.x+sh2.x)/2}" cy="${(sh1.y+sh2.y)/2}" rx="115" ry="24" fill="rgba(0,0,0,0.32)" filter="url(#blur3d)"/>`;
-   // 4 patas torneadas
-   const legs=[[tableX+10,tableY+10],[tableX+tableW-10,tableY+10],[tableX+tableW-10,tableY+tableH-10],[tableX+10,tableY+tableH-10]];
-   for(const [lx,ly] of legs) {
-    const lb=this.toIso(lx,ly,0), lt=this.toIso(lx,ly,tableTop-6);
-    const lm=this.toIso(lx,ly,tableTop*0.5);
-    O += `<line x1="${lb.x}" y1="${lb.y}" x2="${lt.x}" y2="${lt.y}" stroke="#4a2d10" stroke-width="5.5" stroke-linecap="round"/>`;
-    O += `<circle cx="${lm.x}" cy="${lm.y}" r="2.5" fill="#6b4018"/>`;
+   // Dimensiones referencia (reglamentario Colombia): caja 80cm x 80cm x 60cm alto + respaldo
+   const bx = 180, by = 130, bw = 240, bh = 220;
+   const boxH = 90;           // altura caja
+   const backH = 130;         // respaldo curvo
+   // === SOMBRA ===
+   const sh1 = this.toIso(bx+6, by+bh+10, 0);
+   const sh2 = this.toIso(bx+bw+6, by+bh+10, 0);
+   O += `<ellipse cx="${(sh1.x+sh2.x)/2}" cy="${(sh1.y+sh2.y)/2}" rx="140" ry="26" fill="rgba(0,0,0,0.35)" filter="url(#blur3d)"/>`;
+   // === PATAS pequeñas ===
+   const feet = [[bx+6,by+bh-6],[bx+bw-6,by+bh-6],[bx+6,by+6],[bx+bw-6,by+6]];
+   for(const [fx,fy] of feet) {
+    const fb = this.toIso(fx,fy,0), ft = this.toIso(fx,fy,8);
+    O += `<line x1="${fb.x}" y1="${fb.y}" x2="${ft.x}" y2="${ft.y}" stroke="#0f3a1f" stroke-width="3" stroke-linecap="round"/>`;
    }
-   // Caras de la mesa
-   const p1b=this.toIso(tableX,tableY+tableH,0), p2b=this.toIso(tableX+tableW,tableY+tableH,0);
-   const p3b=this.toIso(tableX+tableW,tableY,0);
-   const p1t=this.toIso(tableX,tableY+tableH,tableTop), p2t=this.toIso(tableX+tableW,tableY+tableH,tableTop);
-   const p3t=this.toIso(tableX+tableW,tableY,tableTop);
-   // Cara frontal + borde oscuro inferior
-   O += `<polygon points="${p1b.x},${p1b.y} ${p2b.x},${p2b.y} ${p2t.x},${p2t.y} ${p1t.x},${p1t.y}" fill="#8a5a28" stroke="#3a1f08" stroke-width="1.8"/>`;
-   O += `<rect x="${p1b.x}" y="${p1b.y-2}" width="${p2b.x-p1b.x}" height="2" fill="#3a1f08"/>`;
-   // Cara lateral derecha
-   O += `<polygon points="${p2b.x},${p2b.y} ${p3b.x},${p3b.y} ${p3t.x},${p3t.y} ${p2t.x},${p2t.y}" fill="#6a3e1c" stroke="#3a1f08" stroke-width="1.8"/>`;
-   // Superficie superior con color madera clara
-   const surfPts=[[tableX,tableY],[tableX+tableW,tableY],[tableX+tableW,tableY+tableH],[tableX,tableY+tableH]]
-    .map(([x,y])=>this.toIso(x,y,tableTop));
-   O += `<polygon points="${surfPts.map(p=>`${p.x},${p.y}`).join(' ')}" fill="#c89358" stroke="#6a3e1c" stroke-width="2"/>`;
-   // Veteado natural (4 líneas onduladas)
-   for (let i=1; i<=4; i++) {
-    const yL = tableY + (tableH * i) / 5;
-    const la = this.toIso(tableX+8, yL, tableTop), lb = this.toIso(tableX+tableW-8, yL, tableTop);
-    O += `<path d="M${la.x},${la.y} Q${(la.x+lb.x)/2},${(la.y+lb.y)/2 - 1} ${lb.x},${lb.y}" fill="none" stroke="rgba(80,45,15,0.3)" stroke-width="0.8"/>`;
-   }
-   // PUENTES / MOLINOS (puertas de madera entre agujeros - elementos verticales tradicionales del sapo)
-   // 4 puentecitos en los bordes (simulan los molinos que hacen puntos extra)
-   const bridges = [[215,170],[385,170],[215,280],[385,280]];
-   for(const [bx,by] of bridges) {
-    const b1=this.toIso(bx-6,by,tableTop), b2=this.toIso(bx+6,by,tableTop);
-    const b1t=this.toIso(bx-6,by,tableTop+15), b2t=this.toIso(bx+6,by,tableTop+15);
-    // Paredes laterales del puente
-    O += `<line x1="${b1.x}" y1="${b1.y}" x2="${b1t.x}" y2="${b1t.y}" stroke="#5a3312" stroke-width="2.2" stroke-linecap="round"/>`;
-    O += `<line x1="${b2.x}" y1="${b2.y}" x2="${b2t.x}" y2="${b2t.y}" stroke="#5a3312" stroke-width="2.2" stroke-linecap="round"/>`;
-    // Techo del puente (rojo/dorado)
-    O += `<line x1="${b1t.x}" y1="${b1t.y}" x2="${b2t.x}" y2="${b2t.y}" stroke="#b45309" stroke-width="2.8"/>`;
+   // === CAJA VERDE (caras frontal y lateral con rejilla de compartimentos) ===
+   const c1b = this.toIso(bx, by+bh, 0), c2b = this.toIso(bx+bw, by+bh, 0);
+   const c3b = this.toIso(bx+bw, by, 0);
+   const c1t = this.toIso(bx, by+bh, boxH), c2t = this.toIso(bx+bw, by+bh, boxH);
+   const c3t = this.toIso(bx+bw, by, boxH);
+   // Cara frontal verde oscuro
+   O += `<polygon points="${c1b.x},${c1b.y} ${c2b.x},${c2b.y} ${c2t.x},${c2t.y} ${c1t.x},${c1t.y}" fill="#1e6e3a" stroke="#0f3a1f" stroke-width="2"/>`;
+   // Cara lateral más oscura
+   O += `<polygon points="${c2b.x},${c2b.y} ${c3b.x},${c3b.y} ${c3t.x},${c3t.y} ${c2t.x},${c2t.y}" fill="#155028" stroke="#0f3a1f" stroke-width="2"/>`;
+   // ── REJILLA DEL FRONTAL (5 filas x 5 tablillas beige con puntajes grabados) ──
+   const frontRowsPts = ['1000 900 2000 900 1000','800 500 400 500 800','800 500 400 500 800','500 400 300 400 500','700 600 4000 600 700'];
+   const frontRows = frontRowsPts.map(r => r.split(' '));
+   const rowsN = frontRows.length;
+   const rowH = boxH / (rowsN + 0.4);
+   for (let r = 0; r < rowsN; r++) {
+    const yTop = boxH - (r+0.8) * rowH;
+    const yBot = boxH - (r+0.1) * rowH;
+    // Tablilla beige horizontal
+    const tpl = this.toIso(bx+6, by+bh, yTop), tpr = this.toIso(bx+bw-6, by+bh, yTop);
+    const tbl = this.toIso(bx+6, by+bh, yBot), tbr = this.toIso(bx+bw-6, by+bh, yBot);
+    O += `<polygon points="${tbl.x},${tbl.y} ${tbr.x},${tbr.y} ${tpr.x},${tpr.y} ${tpl.x},${tpl.y}" fill="#e8d3a8" stroke="#6b4018" stroke-width="0.8"/>`;
+    // Número central grabado sobre la tablilla
+    const cols = frontRows[r];
+    const nCols = cols.length;
+    for (let i = 0; i < nCols; i++) {
+     const colX = bx + 6 + ((i+0.5) / nCols) * (bw - 12);
+     const nc = this.toIso(colX, by+bh, (yTop+yBot)/2);
+     // Separadores verticales (barras verdes cortas sobre la tablilla)
+     if (i < nCols - 1) {
+      const divX = bx + 6 + ((i+1) / nCols) * (bw - 12);
+      const dt = this.toIso(divX, by+bh, yTop-1.5), db = this.toIso(divX, by+bh, yBot+1.5);
+      O += `<line x1="${dt.x}" y1="${dt.y}" x2="${db.x}" y2="${db.y}" stroke="#1e6e3a" stroke-width="1.1"/>`;
+     }
+     O += `<text x="${nc.x}" y="${nc.y+3}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="8" font-weight="800" fill="#2a3a1a">${cols[i]}</text>`;
+    }
    }
 
-   // SAPO METÁLICO REALISTA (dorado/bronce) en el centro, sobre pedestal
-   const pedC = this.toIso(300, 230, tableTop);
-   const pedH = 10;
-   const pedTop = this.toIso(300, 230, tableTop + pedH);
-   // Pedestal negro
-   O += `<ellipse cx="${pedC.x}" cy="${pedC.y+2}" rx="32" ry="10" fill="#1a1a1a" stroke="#000" stroke-width="0.8"/>`;
-   O += `<ellipse cx="${pedTop.x}" cy="${pedTop.y}" rx="30" ry="9" fill="#2a2a2a" stroke="#000" stroke-width="0.8"/>`;
-   // Cuerpo del sapo (semi-esfera dorada con gradiente simulado por ellipses)
-   const bodyC = this.toIso(300, 230, tableTop + pedH + 5);
-   O += `<ellipse cx="${bodyC.x}" cy="${bodyC.y+2}" rx="26" ry="16" fill="#b8860b" stroke="#78350f" stroke-width="1.2"/>`;
-   O += `<ellipse cx="${bodyC.x}" cy="${bodyC.y-1}" rx="24" ry="14" fill="#d4a017"/>`;
-   // Reflejos metálicos
-   O += `<ellipse cx="${bodyC.x-10}" cy="${bodyC.y-6}" rx="8" ry="3" fill="rgba(255,220,120,0.7)"/>`;
-   O += `<ellipse cx="${bodyC.x+10}" cy="${bodyC.y+4}" rx="4" ry="2" fill="rgba(255,230,160,0.5)"/>`;
-   // Patas traseras (bronce oscuro) — dobladas estilo rana real
-   const pawBL = this.toIso(280, 240, tableTop + pedH + 3);
-   const pawBR = this.toIso(320, 240, tableTop + pedH + 3);
-   O += `<ellipse cx="${pawBL.x}" cy="${pawBL.y}" rx="7" ry="4" fill="#8b5a0b" stroke="#4a2d10" stroke-width="0.8"/>`;
-   O += `<ellipse cx="${pawBR.x}" cy="${pawBR.y}" rx="7" ry="4" fill="#8b5a0b" stroke="#4a2d10" stroke-width="0.8"/>`;
-   // Cabeza (esfera dorada elevada) con boca abierta hacia arriba
-   const headC = this.toIso(300, 222, tableTop + pedH + 14);
-   O += `<ellipse cx="${headC.x}" cy="${headC.y}" rx="20" ry="13" fill="#d4a017" stroke="#78350f" stroke-width="1.2"/>`;
-   O += `<ellipse cx="${headC.x-1}" cy="${headC.y-3}" rx="17" ry="9" fill="#e6b830"/>`;
-   // Ojos grandes (característicos del sapo de juguete)
-   const eyeL = this.toIso(290, 218, tableTop + pedH + 20);
-   const eyeR = this.toIso(310, 218, tableTop + pedH + 20);
-   // Párpados dorados
-   O += `<circle cx="${eyeL.x}" cy="${eyeL.y}" r="5.5" fill="#b8860b" stroke="#78350f" stroke-width="0.9"/>`;
-   O += `<circle cx="${eyeL.x}" cy="${eyeL.y+0.5}" r="4" fill="#fff"/>`;
-   O += `<circle cx="${eyeL.x}" cy="${eyeL.y+1}" r="2.2" fill="#111"/>`;
-   O += `<circle cx="${eyeL.x-0.7}" cy="${eyeL.y}" r="0.8" fill="#fff"/>`;
-   O += `<circle cx="${eyeR.x}" cy="${eyeR.y}" r="5.5" fill="#b8860b" stroke="#78350f" stroke-width="0.9"/>`;
-   O += `<circle cx="${eyeR.x}" cy="${eyeR.y+0.5}" r="4" fill="#fff"/>`;
-   O += `<circle cx="${eyeR.x}" cy="${eyeR.y+1}" r="2.2" fill="#111"/>`;
-   O += `<circle cx="${eyeR.x-0.7}" cy="${eyeR.y}" r="0.8" fill="#fff"/>`;
-   // BOCA ABIERTA del sapo (agujero principal +5000 pts) — negra hacia abajo
-   const mouth = this.toIso(300, 228, tableTop + pedH + 10);
-   O += `<ellipse cx="${mouth.x}" cy="${mouth.y}" rx="11" ry="6" fill="#78350f" stroke="#3a1a05" stroke-width="1"/>`;
-   O += `<ellipse cx="${mouth.x}" cy="${mouth.y+1}" rx="9" ry="4.5" fill="#0a0a05" stroke="#3a1a05" stroke-width="0.6"/>`;
-   // Lengua del sapo (opcional, tradicional)
-   O += `<path d="M${mouth.x-2},${mouth.y+0.5} Q${mouth.x},${mouth.y+3} ${mouth.x+2},${mouth.y+0.5}" fill="#dc2626" stroke="#7f1d1d" stroke-width="0.4"/>`;
-   // Dientes/labios superiores dorados
-   O += `<path d="M${mouth.x-11},${mouth.y-1} Q${mouth.x},${mouth.y-5} ${mouth.x+11},${mouth.y-1}" fill="none" stroke="#b8860b" stroke-width="1.8" stroke-linecap="round"/>`;
-
-   // 6 AGUJEROS LATERALES EN LA MESA (alrededor del sapo) con aros metálicos + placas de puntos
-   const holes = [
-    {cx:235, cy:160, r:10, pts:1000},
-    {cx:365, cy:160, r:10, pts:1000},
-    {cx:235, cy:290, r:10, pts:1000},
-    {cx:365, cy:290, r:10, pts:1000},
-    {cx:300, cy:150, r:8, pts:500},
-    {cx:300, cy:300, r:8, pts:500},
-   ];
-   for (const h of holes) {
-    const c = this.toIso(h.cx, h.cy, tableTop);
-    const rx = h.r * 1.05, ry = h.r * 0.45;
-    // Agujero oscuro profundo
-    O += `<ellipse cx="${c.x}" cy="${c.y+2}" rx="${rx}" ry="${ry}" fill="#0a0a0a" stroke="#2d1a0a" stroke-width="1.5"/>`;
-    O += `<ellipse cx="${c.x}" cy="${c.y+2.5}" rx="${rx*0.7}" ry="${ry*0.5}" fill="#030303"/>`;
-    // Aro metálico dorado
-    O += `<ellipse cx="${c.x}" cy="${c.y}" rx="${rx*1.15}" ry="${ry*1.08}" fill="none" stroke="#b8860b" stroke-width="1.5"/>`;
-    O += `<ellipse cx="${c.x}" cy="${c.y-0.5}" rx="${rx*1.15}" ry="${ry*1.08}" fill="none" stroke="#facc15" stroke-width="0.6" opacity="0.7"/>`;
-    // Plaquita de puntos (rectángulo metálico con número grabado)
-    const plateC = this.toIso(h.cx, h.cy + h.r + 5, tableTop + 0.5);
-    O += `<rect x="${plateC.x-8}" y="${plateC.y-4}" width="16" height="7" rx="1" fill="#4a2d10" stroke="#b8860b" stroke-width="0.5"/>`;
-    O += `<text x="${plateC.x}" y="${plateC.y+1.5}" text-anchor="middle" font-size="6" font-family="'Oswald',sans-serif" font-weight="800" fill="#facc15">${h.pts}</text>`;
+   // === RESPALDO CURVO BEIGE (pared trasera alta) ===
+   const backPts = [];
+   const bbY = by;          // línea trasera (eje "back")
+   const bbX1 = bx, bbX2 = bx + bw;
+   const segs = 14;
+   // arco superior hacia arriba (perfil curvo como hamaca invertida)
+   for (let i = 0; i <= segs; i++) {
+    const tt = i / segs;
+    const xx = bbX1 + tt * (bbX2 - bbX1);
+    // Curva: más alta al centro
+    const curveH = backH - Math.sin(tt * Math.PI) * 30; // bajada central (curva convexa)
+    // Pero referencia: más alto al centro, bajo a los lados -> invertimos
+    const actualH = boxH + (backH - 50) + Math.sin(tt * Math.PI) * 50;
+    const p = this.toIso(xx, bbY, actualH);
+    backPts.push(p);
    }
-   // Placa central "5000" grabada delante del sapo
-   const plate5k = this.toIso(300, 250, tableTop + 0.8);
-   O += `<rect x="${plate5k.x-14}" y="${plate5k.y-5}" width="28" height="10" rx="1.5" fill="#1a0f05" stroke="#facc15" stroke-width="0.8"/>`;
-   O += `<text x="${plate5k.x}" y="${plate5k.y+2.5}" text-anchor="middle" font-size="8" font-family="'Oswald',sans-serif" font-weight="900" fill="#facc15">5000</text>`;
+   // Base trasera (a nivel de superficie superior de la caja)
+   const backBL = this.toIso(bbX1, bbY, boxH);
+   const backBR = this.toIso(bbX2, bbY, boxH);
+   O += `<polygon points="${backBL.x},${backBL.y} ${backPts.map(p=>`${p.x},${p.y}`).join(' ')} ${backBR.x},${backBR.y}" fill="#e8d3a8" stroke="#6b4018" stroke-width="1.6"/>`;
+   // Borde verde frontal del respaldo (la madera pintada al borde)
+   const rim1 = this.toIso(bbX1, bbY, boxH), rim2 = this.toIso(bbX2, bbY, boxH);
+   O += `<line x1="${rim1.x}" y1="${rim1.y}" x2="${rim2.x}" y2="${rim2.y}" stroke="#0f3a1f" stroke-width="3"/>`;
+
+   // === SUPERFICIE SUPERIOR BEIGE (tapa de juego) ===
+   const topPts = [[bx,by],[bx+bw,by],[bx+bw,by+bh],[bx,by+bh]].map(([x,y]) => this.toIso(x, y, boxH));
+   O += `<polygon points="${topPts.map(p=>`${p.x},${p.y}`).join(' ')}" fill="#e8d3a8" stroke="#6b4018" stroke-width="2"/>`;
+   // Borde verde alrededor (marco)
+   O += `<polygon points="${topPts.map(p=>`${p.x},${p.y}`).join(' ')}" fill="none" stroke="#1e6e3a" stroke-width="3.5"/>`;
+
+   // === GRILLA DE AGUJEROS (5 columnas × 4 filas = 20) ===
+   const holesCols = 5, holesRows = 4;
+   for (let r = 0; r < holesRows; r++) {
+    for (let c = 0; c < holesCols; c++) {
+     // La tercera columna central a la fila 0 la reservamos para el sapo
+     if (r === 0 && c === 2) continue;
+     const hx = bx + 28 + c * ((bw - 56) / (holesCols - 1));
+     const hy = by + 34 + r * ((bh - 85) / (holesRows - 1));
+     const pc = this.toIso(hx, hy, boxH);
+     // Anillo metálico dorado alrededor
+     O += `<ellipse cx="${pc.x}" cy="${pc.y-0.5}" rx="8.2" ry="3.4" fill="none" stroke="#b8860b" stroke-width="0.8"/>`;
+     // Agujero profundo
+     O += `<ellipse cx="${pc.x}" cy="${pc.y+1.4}" rx="7.2" ry="2.8" fill="#0a0a0a" stroke="#2d1a0a" stroke-width="0.7"/>`;
+     O += `<ellipse cx="${pc.x}" cy="${pc.y+1.8}" rx="5.4" ry="1.9" fill="#020202"/>`;
+    }
+   }
+
+   // === 3 MOLINOS / CLIPS DE BRONCE (trampillas metálicas articuladas) ===
+   // Colocados cerca del frente de la superficie
+   const millPts = [[bx+30, by+bh-28], [bx+bw/2, by+bh-18], [bx+bw-30, by+bh-28]];
+   for (const [mx, my] of millPts) {
+    const mb = this.toIso(mx, my, boxH + 0.5);
+    const mtL = this.toIso(mx-6, my-4, boxH + 11);
+    const mtR = this.toIso(mx+6, my-4, boxH + 11);
+    // Base del clip (rectángulo metálico pegado a la superficie)
+    O += `<rect x="${mb.x-10}" y="${mb.y-4}" width="20" height="7" rx="1" fill="#b8860b" stroke="#5a3a0a" stroke-width="0.7"/>`;
+    // Paredes laterales del molino (triángulos dorados)
+    O += `<polygon points="${mb.x-9},${mb.y-3} ${mb.x-9},${mb.y+3} ${mtL.x},${mtL.y}" fill="#c9981a" stroke="#5a3a0a" stroke-width="0.6"/>`;
+    O += `<polygon points="${mb.x+9},${mb.y-3} ${mb.x+9},${mb.y+3} ${mtR.x},${mtR.y}" fill="#c9981a" stroke="#5a3a0a" stroke-width="0.6"/>`;
+    // Bisagra superior (placa metálica horizontal)
+    O += `<polygon points="${mtL.x},${mtL.y} ${mtR.x},${mtR.y} ${mtR.x},${mtR.y+2.5} ${mtL.x},${mtL.y+2.5}" fill="#e0b82d" stroke="#5a3a0a" stroke-width="0.5"/>`;
+    // Tornillos
+    O += `<circle cx="${mb.x-7}" cy="${mb.y}" r="0.9" fill="#4a3010"/>`;
+    O += `<circle cx="${mb.x+7}" cy="${mb.y}" r="0.9" fill="#4a3010"/>`;
+    // Sombra
+    O += `<ellipse cx="${mb.x+1}" cy="${mb.y+4}" rx="12" ry="2.2" fill="rgba(0,0,0,0.25)"/>`;
+   }
+
+   // === SAPO DORADO central-superior (fila 0 columna 2) ===
+   const sx = bx + 28 + 2 * ((bw - 56) / (holesCols - 1));
+   const sy = by + 34;
+   // Pedestal/base bajo el sapo
+   const sapoBase = this.toIso(sx, sy, boxH);
+   O += `<ellipse cx="${sapoBase.x}" cy="${sapoBase.y}" rx="12" ry="4" fill="#3a1a05" stroke="#000" stroke-width="0.5"/>`;
+   // Cuerpo del sapo (bronce brillante) - cuerpo bajito y rechoncho
+   const bodyC = this.toIso(sx, sy+2, boxH + 3);
+   O += `<ellipse cx="${bodyC.x}" cy="${bodyC.y+2}" rx="11" ry="6.5" fill="#8b5a0b"/>`;
+   O += `<ellipse cx="${bodyC.x}" cy="${bodyC.y}" rx="10" ry="5.5" fill="#d4a017" stroke="#78350f" stroke-width="0.7"/>`;
+   // Lomo con reflejo
+   O += `<ellipse cx="${bodyC.x-1}" cy="${bodyC.y-1}" rx="7" ry="3" fill="#f0c83a"/>`;
+   O += `<ellipse cx="${bodyC.x-3}" cy="${bodyC.y-2}" rx="3" ry="1.2" fill="rgba(255,230,140,0.8)"/>`;
+   // Patas delanteras (2 pequeñas al frente)
+   const pawFL = this.toIso(sx-7, sy+5, boxH + 2);
+   const pawFR = this.toIso(sx+7, sy+5, boxH + 2);
+   O += `<ellipse cx="${pawFL.x}" cy="${pawFL.y}" rx="2.5" ry="1.3" fill="#8b5a0b" stroke="#4a2d10" stroke-width="0.4"/>`;
+   O += `<ellipse cx="${pawFR.x}" cy="${pawFR.y}" rx="2.5" ry="1.3" fill="#8b5a0b" stroke="#4a2d10" stroke-width="0.4"/>`;
+   // Cabeza ligeramente elevada, inclinada hacia arriba
+   const headC = this.toIso(sx, sy-1, boxH + 9);
+   O += `<ellipse cx="${headC.x}" cy="${headC.y+1}" rx="9" ry="5.5" fill="#b8860b"/>`;
+   O += `<ellipse cx="${headC.x}" cy="${headC.y}" rx="8.5" ry="5" fill="#d4a017" stroke="#78350f" stroke-width="0.7"/>`;
+   O += `<ellipse cx="${headC.x-1}" cy="${headC.y-1}" rx="6" ry="2.8" fill="#f0c83a"/>`;
+   // Ojos prominentes (2 bultos dorados con pupila negra)
+   const eyeL = this.toIso(sx-3.5, sy-2, boxH + 13);
+   const eyeR = this.toIso(sx+3.5, sy-2, boxH + 13);
+   for (const e of [eyeL, eyeR]) {
+    O += `<circle cx="${e.x}" cy="${e.y+0.4}" r="3" fill="#8b5a0b"/>`;
+    O += `<circle cx="${e.x}" cy="${e.y}" r="2.6" fill="#d4a017" stroke="#4a2d10" stroke-width="0.5"/>`;
+    O += `<circle cx="${e.x}" cy="${e.y+0.3}" r="1.5" fill="#111"/>`;
+    O += `<circle cx="${e.x-0.5}" cy="${e.y-0.2}" r="0.5" fill="#fff"/>`;
+   }
+   // BOCA ABIERTA (agujero principal +5000 pts) — elíptica hacia adelante
+   const mouth = this.toIso(sx, sy+1, boxH + 6);
+   O += `<ellipse cx="${mouth.x}" cy="${mouth.y+1}" rx="5" ry="2.5" fill="#2a1505" stroke="#78350f" stroke-width="0.7"/>`;
+   O += `<ellipse cx="${mouth.x}" cy="${mouth.y+1.3}" rx="4" ry="1.8" fill="#0a0403"/>`;
+   // Contorno del labio superior dorado
+   O += `<path d="M${mouth.x-5},${mouth.y} Q${mouth.x},${mouth.y-2.5} ${mouth.x+5},${mouth.y}" fill="none" stroke="#b8860b" stroke-width="1.2" stroke-linecap="round"/>`;
   }
+
 
   // TEJO: mesa de arcilla 3D (1m x 1m) elevada con bocín central y 4 mechas
   if(s==='Tejo') {

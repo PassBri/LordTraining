@@ -436,7 +436,25 @@
   para no empujar los botones JUGADORES/Tactico/Camiseta/Avatar.
 - Labels mas cortos: '11 vs 11 · FIFA', '7 vs 7 · Juvenil', '5 vs 5 · Infantil'.
 
-### Botón TOP + Bocín limpio + Avatar per-persona (Feb 2026)
+### Rana 3D real (ref imagen oficial) (Feb 2026)
+- Rediseño completo basado en la Rana tradicional Colombia/Venezuela:
+  caja de madera verde (80x80x60cm) con borde verde oscuro,
+  respaldo curvo beige alto (cabecera), 4 patas pequeñas, superficie
+  beige con grilla de 19 agujeros (5 cols x 4 filas) con aros
+  metálicos dorados.
+- 3 MOLINOS/clips de bronce articulados con bisagra superior dorada
+  + tornillos + sombra proyectada. Visualmente pegados a la
+  superficie cerca del frente.
+- SAPO METÁLICO dorado céntrico superior (reemplaza 1 agujero):
+  pedestal negro, cuerpo+cabeza con reflejos bronce, patas
+  delanteras pequeñas, ojos con pupila negra, boca elíptica con
+  labio superior dorado.
+- FRENTE con 5 tablillas beige horizontales y compartimentos
+  numerados grabados: 1000/900/2000/900/1000, 800/500/400/500/800,
+  500/400/300/400/500, 700/600/4000/600/700 — con separadores
+  verdes verticales (réplica de la rana reglamentaria).
+
+
 - Botón 🏆 "TOP" agregado a #view-bar junto a la luna, abre
   /top-jugadas.html en nueva pestaña. Dorado distintivo para
   destacar el ranking viral.
