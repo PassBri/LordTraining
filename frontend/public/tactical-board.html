@@ -728,7 +728,7 @@ const FIELDS = Object.assign({}, FIELD_VARIANT_SVGS, {
 'Circuito':{bg:'#ffffff',svg:`${Array.from({length:16},(_,i)=>`<line x1="${i*40}" y1="0" x2="${i*40}" y2="800" class="grid-line"/>`).join('')}${Array.from({length:21},(_,j)=>`<line x1="0" y1="${j*40}" x2="600" y2="${j*40}" class="grid-line"/>`).join('')}`},
 // ══ TRADICIONALES DE PRECISION (medidas reglamentarias escaladas) ══
 // Minitejo: cancha 3m x 1.5m · caja 50cm · bocin 10cm · 4 mechas · linea lanzamiento a 2m
-'Minitejo':{bg:'#ffffff',svg:`<rect x="150" y="90" width="300" height="620" fill="rgba(160,115,70,0.08)" rx="4"/><rect x="150" y="90" width="300" height="620" fill="none" stroke-width="1.8"/><rect x="225" y="120" width="150" height="150" fill="rgba(180,120,60,0.18)" stroke-width="1.6"/><line x1="150" y1="630" x2="450" y2="630" stroke-width="2" stroke-dasharray="6 4"/><text x="300" y="82" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">3 m</text><text x="142" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">1.5 m</text><text x="300" y="300" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">CAJA 50x50 · BOCIN 10cm (agrega desde el panel)</text><text x="300" y="650" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE LANZAMIENTO</text><text x="300" y="730" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">MINITEJO</text>`},
+'Minitejo':{bg:'#ffffff',svg:`<rect x="250" y="30" width="100" height="720" fill="rgba(160,115,70,0.08)" rx="4"/><rect x="250" y="30" width="100" height="720" fill="none" stroke-width="1.8"/><rect x="270" y="50" width="60" height="60" fill="rgba(180,120,60,0.2)" stroke-width="1.6"/><line x1="250" y1="700" x2="350" y2="700" stroke-width="2" stroke-dasharray="6 4"/><text x="300" y="22" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">2 m</text><text x="242" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 242 404)">13 m</text><text x="300" y="140" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">CAJA 50x50 · BOCÍN 12 cm</text><text x="300" y="720" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE LANZAMIENTO</text><text x="300" y="760" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">MINITEJO</text>`},
 // Rana: mesa 80cm x 80cm con sapo, 7 agujeros, linea lanzamiento a 3m
 'Rana':{bg:'#ffffff',svg:`<rect x="135" y="80" width="330" height="620" fill="rgba(100,140,80,0.06)" rx="4"/><rect x="135" y="80" width="330" height="620" fill="none" stroke-width="1.5"/><rect x="195" y="120" width="210" height="210" fill="rgba(120,80,40,0.18)" stroke-width="1.8" rx="4"/><circle cx="300" cy="225" r="22" fill="rgba(0,0,0,0.35)" stroke-width="0"/><circle cx="300" cy="225" r="16" fill="rgba(255,200,60,0.4)" stroke-width="0.8"/><circle cx="235" cy="160" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="365" cy="160" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="235" cy="290" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="365" cy="290" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="300" cy="150" r="8" fill="rgba(0,0,0,0.2)"/><circle cx="300" cy="300" r="8" fill="rgba(0,0,0,0.2)"/><line x1="135" y1="600" x2="465" y2="600" stroke-width="2" stroke-dasharray="6 4"/><line x1="300" y1="330" x2="300" y2="600" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.45"/><text x="308" y="470" class="fld-measure fld-zone" fill="rgba(40,40,40,0.85)" data-mono="1" font-size="9" font-family="system-ui">3.5 m</text><text x="300" y="72" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">2.3 m</text><text x="127" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">1.5 m</text><text x="300" y="360" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">MESA 80x80 cm · BOCA CENTRAL (SAPO)</text><text x="300" y="622" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE LANZAMIENTO (3.5 m)</text><text x="300" y="720" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">RANA (Sapo) · Reglamento 3.5m</text>`},
 // BOLIRANA: variante mesa larga tipo mueble mesón con carril + rana y agujeros
@@ -738,7 +738,7 @@ const FIELDS = Object.assign({}, FIELD_VARIANT_SVGS, {
 // Bolo Americano (Bowling): pista 18.3m (60ft) x 1.05m (41.5") sin pinos pre-dibujados
 'Bolo Americano':{bg:'#ffffff',svg:`<rect x="240" y="30" width="120" height="660" fill="rgba(210,170,120,0.2)" stroke-width="1.8" rx="2"/><rect x="232" y="30" width="8" height="660" fill="rgba(140,100,60,0.5)"/><rect x="360" y="30" width="8" height="660" fill="rgba(140,100,60,0.5)"/><line x1="240" y1="620" x2="360" y2="620" stroke-width="1.5" stroke-dasharray="6 3"/><line x1="240" y1="660" x2="360" y2="660" stroke-width="2"/><text x="300" y="22" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">1.05 m (41.5 in)</text><text x="234" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 234 404)">18.3 m (60 ft)</text><text x="300" y="180" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(80,80,80,0.9)" data-mono="1" font-size="9" font-family="system-ui">ZONA DE PINOS (agrega desde el panel)</text><text x="300" y="615" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(80,80,80,0.9)" data-mono="1" font-size="9" font-family="system-ui">LINEA DE FALTA</text><text x="300" y="740" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(80,80,80,0.9)" data-mono="1" font-size="9" font-family="system-ui">APPROACH</text><text x="300" y="785" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">BOWLING (USBC/WBT) · Pista 18.3x1.05m · 10 pinos</text>`},
 // Tejo: cancha 19.5m x 2.5m · caja 1m con bocin 17cm y 4 mechas · linea lanzamiento
-'Tejo':{bg:'#ffffff',svg:`<rect x="245" y="30" width="110" height="740" fill="rgba(160,115,70,0.07)" rx="2"/><rect x="245" y="30" width="110" height="740" fill="none" stroke-width="1.5"/><rect x="260" y="50" width="80" height="80" fill="rgba(180,120,60,0.22)" stroke-width="1.6"/><line x1="245" y1="700" x2="355" y2="700" stroke-width="2" stroke-dasharray="6 4"/><text x="300" y="22" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">2.5 m</text><text x="238" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 238 404)">19.5 m</text><text x="300" y="155" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">CAJA 1m · BOCIN + 4 MECHAS (agrega desde el panel)</text><text x="300" y="720" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE LANZAMIENTO</text><text x="300" y="760" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">TEJO</text>`},
+'Tejo':{bg:'#ffffff',svg:`<rect x="245" y="30" width="110" height="740" fill="rgba(160,115,70,0.07)" rx="2"/><rect x="245" y="30" width="110" height="740" fill="none" stroke-width="1.5"/><rect x="280" y="50" width="40" height="40" fill="rgba(180,120,60,0.25)" stroke-width="1.5"/><circle cx="300" cy="70" r="3.5" fill="none" stroke="rgba(184,134,11,0.9)" stroke-width="1.2"/><line x1="245" y1="700" x2="355" y2="700" stroke-width="2" stroke-dasharray="6 4"/><text x="300" y="22" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">2.5 m</text><text x="238" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 238 404)">19.5 m</text><text x="300" y="120" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">CAJA 1m · BOCÍN 17 cm</text><text x="300" y="720" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE LANZAMIENTO</text><text x="300" y="760" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">TEJO</text>`},
 // ══ TRADICIONALES CON PELOTA ══
 // Quemados: cancha 12m x 6m · linea central · 2 equipos
 'Quemados':{bg:'#ffffff',svg:`<rect x="120" y="80" width="360" height="640" fill="rgba(80,120,255,0.04)" rx="3"/><rect x="120" y="400" width="360" height="320" fill="rgba(255,60,60,0.04)"/><rect x="120" y="80" width="360" height="640" fill="none" stroke-width="2"/><line x1="120" y1="400" x2="480" y2="400" stroke-width="2.5"/><line x1="120" y1="160" x2="480" y2="160" stroke-width="1" stroke-dasharray="4 3" opacity="0.6"/><line x1="120" y1="640" x2="480" y2="640" stroke-width="1" stroke-dasharray="4 3" opacity="0.6"/><text x="300" y="72" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">6 m</text><text x="112" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 112 404)">12 m</text><text x="300" y="250" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(80,120,255,0.35)" font-size="16" font-family="system-ui" font-weight="700">EQUIPO A</text><text x="300" y="550" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(255,60,60,0.35)" font-size="16" font-family="system-ui" font-weight="700">EQUIPO B</text><text x="300" y="140" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">ZONA SALVACION</text><text x="300" y="670" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">ZONA SALVACION</text><text x="300" y="395" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA CENTRAL</text><text x="300" y="745" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">QUEMADOS</text>`},
@@ -1613,8 +1613,8 @@ checkKnockdowns(movingEl, prevX, prevY) {
  }
  // Colisión especial MECHA → BOCÍN (Tejo/Minitejo): "¡monazo!" +10000 pts
  if (movingEl.type === 'mecha' && (ST.sport === 'Tejo' || ST.sport === 'Minitejo') && !movingEl.exploded) {
-  // Bocín 2D en cancha Tejo (300,90) ; Minitejo (300,195) — aproximación
-  const bocin = { x: ST.sport === 'Tejo' ? 300 : 300, y: ST.sport === 'Tejo' ? 90 : 195 };
+  // Bocín centrado en la caja: Tejo (300, 70) ; Minitejo (300, 185)
+  const bocin = { x: 300, y: ST.sport === 'Tejo' ? 70 : 185 };
   const d = Math.hypot(movingEl.x - bocin.x, movingEl.y - bocin.y);
   const speed = Math.hypot(movingEl.x - prevX, movingEl.y - prevY);
   if (d < 14 && speed > 0.4) {
@@ -3071,141 +3071,122 @@ flashGoal(label) {
   }
 
 
-  // TEJO PROFESIONAL 3D: estructura tipo rampa inclinada azul con respaldo vertical verde
-  // Referencia oficial: caja trapezoidal, superficie inclinada (donde cae el tejo en la arcilla),
-  // panel trasero alto verde claro para detener los rebotes. Cancha 19.5m, bocín 17cm.
+  // TEJO PROFESIONAL 3D: cancha 19.5m × 2.8m (ratio ~7:1). Caja en greda al fondo de 1m × 1m,
+  // tablero vertical al fondo ~1.5-1.8m alto. La caja ocupa ~1/3 del ancho de la cancha.
   if(s==='Tejo') {
-   // Posición del "cajón" (el blanco del tejo) centrado arriba
-   const bx = 245, by = 40, bw = 110, bh = 90;
-   const backH = 160;       // altura respaldo vertical
-   const frontH = 25;       // altura frontal (bajo)
+   // Caja compacta al fondo de la cancha (1m real = ~40 unidades vs 110 de ancho de cancha)
+   const bx = 280, by = 50, bw = 40, bh = 40;
+   const backH = 55;        // altura respaldo vertical (tablero de madera, reducido)
+   const frontH = 8;        // altura frontal muy baja (greda casi plana)
    // === Cuerpo trapezoidal azul (cara frontal inclinada) ===
-   // Frente vertical bajo
    const fbl = this.toIso(bx, by+bh, 0), fbr = this.toIso(bx+bw, by+bh, 0);
    const ftl = this.toIso(bx, by+bh, frontH), ftr = this.toIso(bx+bw, by+bh, frontH);
-   O += `<polygon points="${fbl.x},${fbl.y} ${fbr.x},${fbr.y} ${ftr.x},${ftr.y} ${ftl.x},${ftl.y}" fill="#1e3a8a" stroke="#0f1e4a" stroke-width="1.8"/>`;
-   // Lateral izquierdo (trapecio que sube desde frontH hasta backH)
+   O += `<polygon points="${fbl.x},${fbl.y} ${fbr.x},${fbr.y} ${ftr.x},${ftr.y} ${ftl.x},${ftl.y}" fill="#1e3a8a" stroke="#0f1e4a" stroke-width="1.4"/>`;
+   // Lateral izquierdo (trapecio)
    const bbl = this.toIso(bx, by, 0), bbltop = this.toIso(bx, by, backH);
-   O += `<polygon points="${fbl.x},${fbl.y} ${bbl.x},${bbl.y} ${bbltop.x},${bbltop.y} ${ftl.x},${ftl.y}" fill="#1e40af" stroke="#0f1e4a" stroke-width="1.5"/>`;
+   O += `<polygon points="${fbl.x},${fbl.y} ${bbl.x},${bbl.y} ${bbltop.x},${bbltop.y} ${ftl.x},${ftl.y}" fill="#1e40af" stroke="#0f1e4a" stroke-width="1.2"/>`;
    // Lateral derecho
    const bbr = this.toIso(bx+bw, by, 0), bbrtop = this.toIso(bx+bw, by, backH);
-   O += `<polygon points="${fbr.x},${fbr.y} ${bbr.x},${bbr.y} ${bbrtop.x},${bbrtop.y} ${ftr.x},${ftr.y}" fill="#172a6b" stroke="#0f1e4a" stroke-width="1.5"/>`;
-   // === Superficie inclinada turquesa (donde impacta el tejo, con textura de círculos) ===
+   O += `<polygon points="${fbr.x},${fbr.y} ${bbr.x},${bbr.y} ${bbrtop.x},${bbrtop.y} ${ftr.x},${ftr.y}" fill="#172a6b" stroke="#0f1e4a" stroke-width="1.2"/>`;
+   // === Superficie inclinada turquesa (greda donde impacta el tejo) ===
    const surfFL = ftl, surfFR = ftr;
    const surfBL = bbltop, surfBR = bbrtop;
-   O += `<polygon points="${surfFL.x},${surfFL.y} ${surfFR.x},${surfFR.y} ${surfBR.x},${surfBR.y} ${surfBL.x},${surfBL.y}" fill="#22b8cc" stroke="#0f5a6b" stroke-width="1.8"/>`;
-   // Sombra interna sutil sobre la superficie para darle volumen
+   O += `<polygon points="${surfFL.x},${surfFL.y} ${surfFR.x},${surfFR.y} ${surfBR.x},${surfBR.y} ${surfBL.x},${surfBL.y}" fill="#22b8cc" stroke="#0f5a6b" stroke-width="1.4"/>`;
    O += `<polygon points="${surfFL.x},${surfFL.y} ${surfFR.x},${surfFR.y} ${surfBR.x},${surfBR.y} ${surfBL.x},${surfBL.y}" fill="url(#tejoGrad)" opacity="0.3"/>`;
-   // Textura: círculos oscuros donde ha caído el tejo (desgaste típico del material)
-   const circleSpots = [[0.2,0.2],[0.55,0.15],[0.8,0.3],[0.3,0.45],[0.6,0.55],[0.85,0.65],[0.2,0.75],[0.5,0.8],[0.45,0.3],[0.7,0.45],[0.25,0.6],[0.65,0.85]];
+   // Textura de marcas (menos, ya que la caja es más pequeña)
+   const circleSpots = [[0.25,0.3],[0.6,0.25],[0.4,0.55],[0.7,0.6],[0.3,0.75]];
    for (const [tx,ty] of circleSpots) {
-    const sx2 = bx + tx*bw, sy2 = by + (ty*bh);
-    // Interpola altura entre frontH (en by+bh) y backH (en by)
+    const sx2 = bx + tx*bw, sy2 = by + ty*bh;
     const h = frontH + (1 - ty) * (backH - frontH);
     const p = this.toIso(sx2, sy2, h);
-    O += `<ellipse cx="${p.x}" cy="${p.y}" rx="4.5" ry="3.2" fill="none" stroke="rgba(15,90,107,0.55)" stroke-width="0.7"/>`;
-    O += `<ellipse cx="${p.x}" cy="${p.y}" rx="2.5" ry="1.7" fill="none" stroke="rgba(15,90,107,0.35)" stroke-width="0.5"/>`;
+    O += `<ellipse cx="${p.x}" cy="${p.y}" rx="2.2" ry="1.5" fill="none" stroke="rgba(15,90,107,0.55)" stroke-width="0.6"/>`;
    }
-   // === Panel trasero VERTICAL (verde claro con marco azul) ===
-   const panW = bw + 2, panH_ = 95;
+   // === Panel trasero VERTICAL (tablero de madera verde con marco azul) ===
+   const panW = bw + 2, panH_ = 45;
    const panX = bx - 1;
    const panBL = this.toIso(panX, by, backH);
    const panBR = this.toIso(panX+panW, by, backH);
    const panTL = this.toIso(panX, by, backH + panH_);
    const panTR = this.toIso(panX+panW, by, backH + panH_);
-   // Marco azul oscuro (borde)
-   O += `<polygon points="${panBL.x},${panBL.y} ${panBR.x},${panBR.y} ${panTR.x},${panTR.y} ${panTL.x},${panTL.y}" fill="#0f1e4a" stroke="#0a1530" stroke-width="2"/>`;
+   O += `<polygon points="${panBL.x},${panBL.y} ${panBR.x},${panBR.y} ${panTR.x},${panTR.y} ${panTL.x},${panTL.y}" fill="#0f1e4a" stroke="#0a1530" stroke-width="1.5"/>`;
    // Panel verde claro interior
-   const padX = 4, padY = 3;
-   const pBL = this.toIso(panX+padX, by-0.5, backH + padY);
-   const pBR = this.toIso(panX+panW-padX, by-0.5, backH + padY);
-   const pTL = this.toIso(panX+padX, by-0.5, backH + panH_ - padY);
-   const pTR = this.toIso(panX+panW-padX, by-0.5, backH + panH_ - padY);
-   O += `<polygon points="${pBL.x},${pBL.y} ${pBR.x},${pBR.y} ${pTR.x},${pTR.y} ${pTL.x},${pTL.y}" fill="#84cc16" stroke="#4d7c0f" stroke-width="1.3"/>`;
-   // Tornillos del panel (6 puntos negros)
-   const screws = [[0.1,0.1],[0.5,0.1],[0.9,0.1],[0.1,0.5],[0.9,0.5],[0.1,0.9],[0.5,0.9],[0.9,0.9]];
-   for (const [tx,ty] of screws) {
-    const sp = this.toIso(panX+padX + tx*(panW-2*padX), by-0.5, backH + padY + ty*(panH_-2*padY));
-    O += `<circle cx="${sp.x}" cy="${sp.y}" r="0.8" fill="#0a1530"/>`;
+   const padX = 2, padY = 2;
+   const pBL = this.toIso(panX+padX, by-0.3, backH + padY);
+   const pBR = this.toIso(panX+panW-padX, by-0.3, backH + padY);
+   const pTL = this.toIso(panX+padX, by-0.3, backH + panH_ - padY);
+   const pTR = this.toIso(panX+panW-padX, by-0.3, backH + panH_ - padY);
+   O += `<polygon points="${pBL.x},${pBL.y} ${pBR.x},${pBR.y} ${pTR.x},${pTR.y} ${pTL.x},${pTL.y}" fill="#84cc16" stroke="#4d7c0f" stroke-width="1"/>`;
+   // Tornillos del tablero (4 esquinas + centro)
+   for (const [tx,ty] of [[0.1,0.15],[0.9,0.15],[0.1,0.85],[0.9,0.85],[0.5,0.5]]) {
+    const sp = this.toIso(panX+padX + tx*(panW-2*padX), by-0.3, backH + padY + ty*(panH_-2*padY));
+    O += `<circle cx="${sp.x}" cy="${sp.y}" r="0.6" fill="#0a1530"/>`;
    }
-   // === Ruedas pequeñas en la base frontal ===
-   for (const wx of [bx+8, bx+bw-8]) {
-    const wb = this.toIso(wx, by+bh+4, 0);
-    O += `<circle cx="${wb.x}" cy="${wb.y+1}" r="3.5" fill="#111" stroke="#333" stroke-width="0.5"/>`;
-    O += `<circle cx="${wb.x}" cy="${wb.y+1}" r="1.5" fill="#444"/>`;
-   }
-   // === BOCÍN (aro metálico dorado al centro de la superficie inclinada, 17cm) ===
-   const bcx = bx + bw/2, bcy = by + bh*0.45;
-   const bocH = frontH + (1 - 0.45) * (backH - frontH);
-   const bocinC = this.toIso(bcx, bcy, bocH + 0.5);
-   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y+1}" rx="13" ry="5" fill="rgba(0,0,0,0.35)"/>`;
-   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y}" rx="12" ry="4.5" fill="#b8860b" stroke="#5a3a0a" stroke-width="1.1"/>`;
-   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y-0.5}" rx="9" ry="3.3" fill="none" stroke="#facc15" stroke-width="0.8"/>`;
-   O += `<ellipse cx="${bocinC.x-2}" cy="${bocinC.y-1}" rx="4" ry="1.5" fill="rgba(255,230,140,0.7)"/>`;
-   // === Sombra ===
-   const sh1 = this.toIso(bx+4, by+bh+8, 0), sh2 = this.toIso(bx+bw+4, by+bh+8, 0);
-   O += `<ellipse cx="${(sh1.x+sh2.x)/2}" cy="${(sh1.y+sh2.y)/2+4}" rx="75" ry="14" fill="rgba(0,0,0,0.3)" filter="url(#blur3d)"/>`;
+   // === BOCÍN (aro metálico dorado al centro de la greda, 17cm) ===
+   const bcx = bx + bw/2, bcy = by + bh*0.5;
+   const bocH = frontH + (1 - 0.5) * (backH - frontH);
+   const bocinC = this.toIso(bcx, bcy, bocH + 0.4);
+   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y+0.8}" rx="6" ry="2.2" fill="rgba(0,0,0,0.35)"/>`;
+   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y}" rx="5.5" ry="2" fill="#b8860b" stroke="#5a3a0a" stroke-width="0.9"/>`;
+   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y-0.2}" rx="4" ry="1.4" fill="none" stroke="#facc15" stroke-width="0.7"/>`;
+   O += `<ellipse cx="${bocinC.x-0.8}" cy="${bocinC.y-0.4}" rx="1.8" ry="0.6" fill="rgba(255,230,140,0.7)"/>`;
+   // === Sombra de la caja ===
+   const sh1 = this.toIso(bx+2, by+bh+4, 0), sh2 = this.toIso(bx+bw+2, by+bh+4, 0);
+   O += `<ellipse cx="${(sh1.x+sh2.x)/2}" cy="${(sh1.y+sh2.y)/2+2}" rx="32" ry="7" fill="rgba(0,0,0,0.3)" filter="url(#blur3d)"/>`;
    // Cartel de cancha
-   const sign = this.toIso(245, 700, 1);
+   const sign = this.toIso(300, 700, 1);
    O += `<line x1="${this.toIso(245,700,0.3).x}" y1="${this.toIso(245,700,0.3).y}" x2="${this.toIso(355,700,0.3).x}" y2="${this.toIso(355,700,0.3).y}" stroke="rgba(245,230,200,0.9)" stroke-width="2" stroke-dasharray="6 3"/>`;
    O += `<text x="${sign.x}" y="${sign.y}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="11" font-weight="800" fill="rgba(245,230,200,0.9)" stroke="rgba(0,0,0,0.3)" stroke-width="0.3">19.5 m · BOCÍN 17 cm</text>`;
   }
 
-  // MINITEJO 3D: misma estructura pero ~65% del tamaño (recreativo, cancha 8-12m, bocín menor)
+  // MINITEJO 3D: cancha recreativa ~13m × 2m (ratio 6.5:1). Caja proporcionalmente menor.
   if(s==='Minitejo') {
-   const bx = 265, by = 160, bw = 70, bh = 60;
-   const backH = 85;
-   const frontH = 16;
+   // Caja proporcional: ~0.7m sobre cancha ~2m → caja ocupa ~35% del ancho visual
+   const bx = 285, by = 170, bw = 30, bh = 30;
+   const backH = 35;        // tablero vertical bajo (~1.2m real)
+   const frontH = 5;        // greda casi plana al frente
    const fbl = this.toIso(bx, by+bh, 0), fbr = this.toIso(bx+bw, by+bh, 0);
    const ftl = this.toIso(bx, by+bh, frontH), ftr = this.toIso(bx+bw, by+bh, frontH);
-   O += `<polygon points="${fbl.x},${fbl.y} ${fbr.x},${fbr.y} ${ftr.x},${ftr.y} ${ftl.x},${ftl.y}" fill="#1e3a8a" stroke="#0f1e4a" stroke-width="1.6"/>`;
+   O += `<polygon points="${fbl.x},${fbl.y} ${fbr.x},${fbr.y} ${ftr.x},${ftr.y} ${ftl.x},${ftl.y}" fill="#1e3a8a" stroke="#0f1e4a" stroke-width="1.2"/>`;
    const bbl = this.toIso(bx, by, 0), bbltop = this.toIso(bx, by, backH);
-   O += `<polygon points="${fbl.x},${fbl.y} ${bbl.x},${bbl.y} ${bbltop.x},${bbltop.y} ${ftl.x},${ftl.y}" fill="#1e40af" stroke="#0f1e4a" stroke-width="1.3"/>`;
+   O += `<polygon points="${fbl.x},${fbl.y} ${bbl.x},${bbl.y} ${bbltop.x},${bbltop.y} ${ftl.x},${ftl.y}" fill="#1e40af" stroke="#0f1e4a" stroke-width="1"/>`;
    const bbr = this.toIso(bx+bw, by, 0), bbrtop = this.toIso(bx+bw, by, backH);
-   O += `<polygon points="${fbr.x},${fbr.y} ${bbr.x},${bbr.y} ${bbrtop.x},${bbrtop.y} ${ftr.x},${ftr.y}" fill="#172a6b" stroke="#0f1e4a" stroke-width="1.3"/>`;
+   O += `<polygon points="${fbr.x},${fbr.y} ${bbr.x},${bbr.y} ${bbrtop.x},${bbrtop.y} ${ftr.x},${ftr.y}" fill="#172a6b" stroke="#0f1e4a" stroke-width="1"/>`;
    // Superficie inclinada turquesa
-   O += `<polygon points="${ftl.x},${ftl.y} ${ftr.x},${ftr.y} ${bbrtop.x},${bbrtop.y} ${bbltop.x},${bbltop.y}" fill="#22b8cc" stroke="#0f5a6b" stroke-width="1.5"/>`;
-   // Textura (menos marcas que el Tejo pro)
-   const circleSpots = [[0.3,0.3],[0.65,0.25],[0.4,0.55],[0.75,0.5],[0.25,0.75],[0.55,0.8]];
-   for (const [tx,ty] of circleSpots) {
+   O += `<polygon points="${ftl.x},${ftl.y} ${ftr.x},${ftr.y} ${bbrtop.x},${bbrtop.y} ${bbltop.x},${bbltop.y}" fill="#22b8cc" stroke="#0f5a6b" stroke-width="1.2"/>`;
+   // Textura (pocas marcas)
+   for (const [tx,ty] of [[0.3,0.3],[0.6,0.5],[0.4,0.7]]) {
     const sx2 = bx + tx*bw, sy2 = by + ty*bh;
     const h = frontH + (1 - ty) * (backH - frontH);
     const p = this.toIso(sx2, sy2, h);
-    O += `<ellipse cx="${p.x}" cy="${p.y}" rx="4" ry="2.8" fill="none" stroke="rgba(15,90,107,0.5)" stroke-width="0.6"/>`;
+    O += `<ellipse cx="${p.x}" cy="${p.y}" rx="1.8" ry="1.2" fill="none" stroke="rgba(15,90,107,0.5)" stroke-width="0.5"/>`;
    }
-   // Panel trasero verde
-   const panW = bw + 2, panH_ = 70, panX = bx - 1;
+   // Panel trasero verde (más pequeño)
+   const panW = bw + 2, panH_ = 28, panX = bx - 1;
    const panBL = this.toIso(panX, by, backH), panBR = this.toIso(panX+panW, by, backH);
    const panTL = this.toIso(panX, by, backH + panH_), panTR = this.toIso(panX+panW, by, backH + panH_);
-   O += `<polygon points="${panBL.x},${panBL.y} ${panBR.x},${panBR.y} ${panTR.x},${panTR.y} ${panTL.x},${panTL.y}" fill="#0f1e4a" stroke="#0a1530" stroke-width="1.6"/>`;
-   const padX = 3, padY = 2;
-   const pBL = this.toIso(panX+padX, by-0.5, backH + padY), pBR = this.toIso(panX+panW-padX, by-0.5, backH + padY);
-   const pTL = this.toIso(panX+padX, by-0.5, backH + panH_ - padY), pTR = this.toIso(panX+panW-padX, by-0.5, backH + panH_ - padY);
-   O += `<polygon points="${pBL.x},${pBL.y} ${pBR.x},${pBR.y} ${pTR.x},${pTR.y} ${pTL.x},${pTL.y}" fill="#84cc16" stroke="#4d7c0f" stroke-width="1.1"/>`;
-   // Tornillos
-   for (const [tx,ty] of [[0.15,0.15],[0.85,0.15],[0.15,0.85],[0.85,0.85],[0.5,0.5]]) {
-    const sp = this.toIso(panX+padX + tx*(panW-2*padX), by-0.5, backH + padY + ty*(panH_-2*padY));
-    O += `<circle cx="${sp.x}" cy="${sp.y}" r="0.7" fill="#0a1530"/>`;
+   O += `<polygon points="${panBL.x},${panBL.y} ${panBR.x},${panBR.y} ${panTR.x},${panTR.y} ${panTL.x},${panTL.y}" fill="#0f1e4a" stroke="#0a1530" stroke-width="1.2"/>`;
+   const padX = 1.5, padY = 1.5;
+   const pBL = this.toIso(panX+padX, by-0.3, backH + padY), pBR = this.toIso(panX+panW-padX, by-0.3, backH + padY);
+   const pTL = this.toIso(panX+padX, by-0.3, backH + panH_ - padY), pTR = this.toIso(panX+panW-padX, by-0.3, backH + panH_ - padY);
+   O += `<polygon points="${pBL.x},${pBL.y} ${pBR.x},${pBR.y} ${pTR.x},${pTR.y} ${pTL.x},${pTL.y}" fill="#84cc16" stroke="#4d7c0f" stroke-width="0.8"/>`;
+   // Tornillos (4 esquinas)
+   for (const [tx,ty] of [[0.15,0.2],[0.85,0.2],[0.15,0.8],[0.85,0.8]]) {
+    const sp = this.toIso(panX+padX + tx*(panW-2*padX), by-0.3, backH + padY + ty*(panH_-2*padY));
+    O += `<circle cx="${sp.x}" cy="${sp.y}" r="0.5" fill="#0a1530"/>`;
    }
-   // Ruedas
-   for (const wx of [bx+6, bx+bw-6]) {
-    const wb = this.toIso(wx, by+bh+3, 0);
-    O += `<circle cx="${wb.x}" cy="${wb.y+1}" r="2.8" fill="#111" stroke="#333" stroke-width="0.4"/>`;
-    O += `<circle cx="${wb.x}" cy="${wb.y+1}" r="1.1" fill="#444"/>`;
-   }
-   // Bocín (más pequeño ~12cm)
-   const bcx = bx + bw/2, bcy = by + bh*0.45;
-   const bocH = frontH + (1 - 0.45) * (backH - frontH);
-   const bocinC = this.toIso(bcx, bcy, bocH + 0.5);
-   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y+0.8}" rx="9" ry="3.5" fill="rgba(0,0,0,0.3)"/>`;
-   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y}" rx="8.5" ry="3.2" fill="#b8860b" stroke="#5a3a0a" stroke-width="1"/>`;
-   O += `<ellipse cx="${bocinC.x-1}" cy="${bocinC.y-0.5}" rx="3" ry="1.2" fill="rgba(255,230,140,0.7)"/>`;
+   // Bocín (~12cm, proporcional)
+   const bcx = bx + bw/2, bcy = by + bh*0.5;
+   const bocH = frontH + (1 - 0.5) * (backH - frontH);
+   const bocinC = this.toIso(bcx, bcy, bocH + 0.3);
+   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y+0.6}" rx="4.5" ry="1.7" fill="rgba(0,0,0,0.3)"/>`;
+   O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y}" rx="4" ry="1.5" fill="#b8860b" stroke="#5a3a0a" stroke-width="0.8"/>`;
+   O += `<ellipse cx="${bocinC.x-0.6}" cy="${bocinC.y-0.3}" rx="1.3" ry="0.5" fill="rgba(255,230,140,0.7)"/>`;
    // Sombra
-   const sh1 = this.toIso(bx+3, by+bh+6, 0), sh2 = this.toIso(bx+bw+3, by+bh+6, 0);
-   O += `<ellipse cx="${(sh1.x+sh2.x)/2}" cy="${(sh1.y+sh2.y)/2+3}" rx="60" ry="11" fill="rgba(0,0,0,0.28)" filter="url(#blur3d)"/>`;
+   const sh1 = this.toIso(bx+1, by+bh+3, 0), sh2 = this.toIso(bx+bw+1, by+bh+3, 0);
+   O += `<ellipse cx="${(sh1.x+sh2.x)/2}" cy="${(sh1.y+sh2.y)/2+2}" rx="24" ry="5" fill="rgba(0,0,0,0.28)" filter="url(#blur3d)"/>`;
    // Cartel
-   const sign = this.toIso(300, 760, 1);
-   O += `<text x="${sign.x}" y="${sign.y}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="10" font-weight="800" fill="rgba(245,230,200,0.9)">MINITEJO · 8-12 m · BOCÍN 12 cm</text>`;
+   const sign = this.toIso(300, 690, 1);
+   O += `<text x="${sign.x}" y="${sign.y}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="10" font-weight="800" fill="rgba(245,230,200,0.9)">MINITEJO · 13 m · BOCÍN 12 cm</text>`;
   }
 
   // BOLIRANA 3D: mueble-mesón largo tipo mesa con rana dorada + 9 agujeros numerados
