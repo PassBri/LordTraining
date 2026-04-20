@@ -436,7 +436,15 @@
   para no empujar los botones JUGADORES/Tactico/Camiseta/Avatar.
 - Labels mas cortos: '11 vs 11 · FIFA', '7 vs 7 · Juvenil', '5 vs 5 · Infantil'.
 
-### 3D Precisión + Medir cercanía + Coach Wrapped dashboard (Feb 2026)
+### Full-width toolbar + 3D Precisión + Coach Wrapped (Feb 2026)
+- Barra superior #view-bar ahora position:fixed y ocupa desde el
+  sidebar (380px) hasta el borde derecho del viewport, cubriendo el
+  espacio muerto arriba-derecha del panel. Todos los botones caben
+  sin truncarse.
+- Panel derecho con padding-top:56px para no solaparse. Canvas-wrap
+  con margin-top:56px.
+
+
 - Tiro con Arco 3D: diana vertical sobre trípode (3 patas
   cruzadas), 10 anillos oficiales WA (blanco/negro/azul/rojo/
   amarillo), 3 flechas clavadas con plumas doradas, sombra del

@@ -198,9 +198,10 @@ html.dark .sb-save-btn.amber{border-color:rgba(251,191,36,0.6);color:#fcd34d}
 .sb-save-btn:hover{transform:translateY(-1px);box-shadow:0 6px 14px -4px var(--shadow-md),0 0 0 1px currentColor inset;filter:brightness(1.04)}
 .sb-save-btn:active{transform:translateY(0) scale(0.97)}
 /* ── CANVAS ── */
-#canvas-wrap{flex:1;position:relative;overflow:hidden;background:var(--canvas-bg);display:flex;flex-direction:column}
-/* View bar */
-#view-bar{height:56px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:12px;flex-shrink:0;z-index:5;box-shadow:0 1px 0 var(--border);min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;white-space:nowrap}
+#main{position:relative}
+#canvas-wrap{flex:1;position:relative;overflow:hidden;background:var(--canvas-bg);display:flex;flex-direction:column;margin-top:56px}
+/* View bar — ocupa full width desde sidebar hasta borde derecho (sobre panel) */
+#view-bar{position:fixed;top:0;left:380px;right:0;height:56px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:12px;z-index:25;box-shadow:0 1px 0 var(--border);min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;white-space:nowrap}
 #view-bar::-webkit-scrollbar{height:4px}
 #view-bar::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:2px}
 #view-bar>.vb-group{flex-shrink:0;min-width:0}
@@ -302,8 +303,8 @@ html.dark .zoom-btn{background:rgba(15,23,42,0.7)}
 .canvas-stats{position:absolute;bottom:14px;left:14px;font-size:10px;color:var(--text-muted);background:var(--card-bg);padding:4px 10px;border-radius:10px;border:1px solid var(--border);font-weight:700;letter-spacing:0.04em;backdrop-filter:blur(8px);box-shadow:0 2px 8px -4px var(--shadow)}
 html.dark .canvas-stats{background:rgba(15,23,42,0.7)}
 /* ── RIGHT PANEL ── */
-#panel{width:280px;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;box-shadow:-1px 0 0 var(--border),-4px 0 24px -12px var(--shadow)}
-.panel-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface-2);height:56px;flex-shrink:0;margin-top:56px}
+#panel{width:280px;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;box-shadow:-1px 0 0 var(--border),-4px 0 24px -12px var(--shadow);padding-top:56px}
+.panel-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface-2);height:56px;flex-shrink:0}
 html.dark .panel-tabs{background:rgba(255,255,255,0.02)}
 .panel-tab{flex:1;padding:0 4px;text-align:center;font-size:9.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:800;border-bottom:2px solid transparent;cursor:pointer;transition:all .15s;position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;justify-content:center;gap:4px}
 .panel-tab:hover{color:var(--text-sec);background:var(--hover)}
