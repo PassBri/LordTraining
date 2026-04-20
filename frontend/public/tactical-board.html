@@ -5646,7 +5646,7 @@ flashGoal(label) {
      <input id="share-coach-name" placeholder="Tu nombre (ej: Juan Pérez)" value="${(localStorage.getItem('tb_coach_name')||'').replace(/"/g,'')}" style="flex:1;padding:7px 10px;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:8px;font-size:12px;outline:none"/>
      <input id="share-coach-slug" placeholder="tu-slug" value="${(localStorage.getItem('tb_coach_slug')||'').replace(/"/g,'')}" style="width:120px;padding:7px 10px;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:8px;font-size:12px;outline:none;font-family:'SF Mono',Consolas,monospace"/>
     </div>
-    <div style="font-size:10.5px;color:var(--text-muted);margin-top:5px">Crea tu perfil público en <span style="color:var(--brand)">/coach/${(localStorage.getItem('tb_coach_slug')||'tu-slug')}</span></div>
+    <div style="font-size:10.5px;color:var(--text-muted);margin-top:5px">Tu perfil público: <a href="/coach.html?slug=${encodeURIComponent((localStorage.getItem('tb_coach_slug')||'tu-slug'))}" target="_blank" style="color:var(--brand);text-decoration:none;font-weight:700">/coach.html?slug=${(localStorage.getItem('tb_coach_slug')||'tu-slug')}</a></div>
    </div>
    <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;word-break:break-all;font-size:12px;font-family:'SF Mono',Consolas,monospace;color:var(--text-sec);max-height:90px;overflow-y:auto" id="share-url-box">${url}</div>
    <div style="display:flex;gap:8px">
