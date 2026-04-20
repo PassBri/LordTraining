@@ -591,6 +591,71 @@ const LandingPage = () => {
       </div>
     </section>
 
+    {/* MARQUEE SCROLLING — Palabras moviéndose */}
+    <section className="relative bg-gradient-to-r from-[#0a0f19] via-[#1a2033] to-[#0a0f19] border-y border-[#CCFF00]/20 overflow-hidden" data-testid="marquee-section">
+      <div className="relative flex overflow-hidden py-5" style={{maskImage:'linear-gradient(90deg,transparent,black 8%,black 92%,transparent)',WebkitMaskImage:'linear-gradient(90deg,transparent,black 8%,black 92%,transparent)'}}>
+        <div className="flex shrink-0 whitespace-nowrap animate-[marquee_35s_linear_infinite]">
+          {[
+            'FUTBOL','BALONCESTO','VOLEIBOL','TENIS','TEJO','RANA','BOLIRANA','BOCHAS','PETANCA','MINITEJO','RUGBY','HOCKEY','HANDBALL','BEISBOL','FUTSAL','PADEL',
+            'BADMINTON','SQUASH','GOLF','TIRO CON ARCO','DARDOS','TIRO DEPORTIVO','BOLICHE','BOLO CRIOLLO','ESCALADA','ATLETISMO','CICLISMO','NATACION','BOXEO','KARATE','MMA','JUDO','TAEKWONDO'
+          ].concat([
+            'FUTBOL','BALONCESTO','VOLEIBOL','TENIS','TEJO','RANA','BOLIRANA','BOCHAS','PETANCA','MINITEJO','RUGBY','HOCKEY','HANDBALL','BEISBOL','FUTSAL','PADEL',
+            'BADMINTON','SQUASH','GOLF','TIRO CON ARCO','DARDOS','TIRO DEPORTIVO','BOLICHE','BOLO CRIOLLO','ESCALADA','ATLETISMO','CICLISMO','NATACION','BOXEO','KARATE','MMA','JUDO','TAEKWONDO'
+          ]).map((w, i) => (
+            <span key={i} className="inline-flex items-center gap-4 px-5 text-[22px] md:text-[28px] font-black uppercase tracking-[0.08em]" style={{fontFamily:BC}}>
+              <span className={i % 3 === 0 ? 'text-[#CCFF00]' : 'text-white/40'}>{w}</span>
+              <span className="text-[#CCFF00]/40 text-[14px]">●</span>
+            </span>
+          ))}
+        </div>
+      </div>
+      <style>{`@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}`}</style>
+    </section>
+
+    {/* MINIATURAS CANCHAS — Jugadas de deportes soportados */}
+    <section className="py-16 px-6 bg-slate-950 relative overflow-hidden" data-testid="sport-courts-gallery">
+      <div className="max-w-[1120px] mx-auto relative z-10">
+        <Reveal direction="up" className="text-center mb-10">
+          <SectionTag>Pizarra Multi-Deporte</SectionTag>
+          <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-3" style={{fontFamily:INT}}>Diseña jugadas para <span className="text-[#CCFF00]">30+ deportes</span></h2>
+          <p className="text-slate-400 text-[14px] max-w-[520px] mx-auto">Canchas con medidas oficiales, renderizado 3D y físicas de precisión para cada disciplina.</p>
+        </Reveal>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          {[
+            {name:'Fútbol', bg:'#16a34a', svg:'<rect x="4" y="4" width="92" height="132" fill="#15803d" stroke="#fff" stroke-width="1.2"/><line x1="4" y1="70" x2="96" y2="70" stroke="#fff" stroke-width="1"/><circle cx="50" cy="70" r="11" fill="none" stroke="#fff" stroke-width="1"/><rect x="32" y="4" width="36" height="18" fill="none" stroke="#fff" stroke-width="1"/><rect x="32" y="118" width="36" height="18" fill="none" stroke="#fff" stroke-width="1"/><circle cx="35" cy="60" r="4" fill="#3b82f6"/><circle cx="65" cy="75" r="4" fill="#3b82f6"/><circle cx="50" cy="90" r="4" fill="#dc2626"/><circle cx="50" cy="70" r="2.5" fill="#fbbf24"/><path d="M 35,60 Q 50,55 65,75" stroke="#fbbf24" stroke-width="1.2" fill="none" stroke-dasharray="3 2"/>'},
+            {name:'Baloncesto', bg:'#d97706', svg:'<rect x="4" y="4" width="92" height="132" fill="#b45309" stroke="#fff" stroke-width="1.2"/><line x1="4" y1="70" x2="96" y2="70" stroke="#fff" stroke-width="1"/><circle cx="50" cy="70" r="8" fill="none" stroke="#fff" stroke-width="1"/><path d="M 30,4 Q 50,35 70,4" fill="none" stroke="#fff" stroke-width="1"/><path d="M 30,136 Q 50,105 70,136" fill="none" stroke="#fff" stroke-width="1"/><circle cx="40" cy="55" r="3.5" fill="#dc2626"/><circle cx="55" cy="65" r="3.5" fill="#dc2626"/><circle cx="50" cy="25" r="2" fill="#fb923c"/><path d="M 40,55 Q 48,40 50,25" stroke="#fbbf24" stroke-width="1.2" fill="none" stroke-dasharray="3 2"/>'},
+            {name:'Voleibol', bg:'#0284c7', svg:'<rect x="4" y="4" width="92" height="132" fill="#0369a1" stroke="#fff" stroke-width="1.2"/><line x1="4" y1="70" x2="96" y2="70" stroke="#fff" stroke-width="2"/><line x1="4" y1="40" x2="96" y2="40" stroke="#fff" stroke-width="0.8" stroke-dasharray="3 2"/><line x1="4" y1="100" x2="96" y2="100" stroke="#fff" stroke-width="0.8" stroke-dasharray="3 2"/><circle cx="32" cy="25" r="3" fill="#fbbf24"/><circle cx="50" cy="25" r="3" fill="#fbbf24"/><circle cx="68" cy="25" r="3" fill="#fbbf24"/><circle cx="50" cy="70" r="2.5" fill="#fff"/>'},
+            {name:'Tejo', bg:'#a57856', svg:'<rect x="25" y="4" width="50" height="132" fill="#8b6345" stroke="#fff" stroke-width="1"/><rect x="38" y="12" width="24" height="24" fill="#2563eb" stroke="#fff" stroke-width="1"/><circle cx="50" cy="24" r="3" fill="#b8860b" stroke="#fff" stroke-width="0.6"/><circle cx="42" cy="60" r="3.5" fill="#94a3b8"/><circle cx="58" cy="80" r="3.5" fill="#94a3b8"/><circle cx="50" cy="105" r="3.5" fill="#dc2626"/><line x1="25" y1="125" x2="75" y2="125" stroke="#fff" stroke-width="1" stroke-dasharray="3 2"/>'},
+            {name:'Bolirana', bg:'#15803d', svg:'<rect x="30" y="4" width="40" height="132" fill="#166534" stroke="#fff" stroke-width="1"/><rect x="34" y="10" width="32" height="24" fill="#0a0f19" stroke="#fbbf24" stroke-width="0.8"/><ellipse cx="50" cy="20" rx="6" ry="4" fill="#dc2626"/><circle cx="42" cy="50" r="2.5" fill="#000"/><circle cx="50" cy="50" r="2.5" fill="#000"/><circle cx="58" cy="50" r="2.5" fill="#000"/><circle cx="42" cy="65" r="2.5" fill="#000"/><circle cx="50" cy="65" r="3.5" fill="#b8860b"/><circle cx="58" cy="65" r="2.5" fill="#000"/><circle cx="42" cy="80" r="2.5" fill="#000"/><circle cx="50" cy="80" r="2.5" fill="#000"/><circle cx="58" cy="80" r="2.5" fill="#000"/>'},
+            {name:'Rana', bg:'#16a34a', svg:'<rect x="4" y="4" width="92" height="132" fill="#166534" stroke="#fff" stroke-width="1"/><rect x="30" y="40" width="40" height="50" fill="#0a0f19" stroke="#b8860b" stroke-width="1"/><ellipse cx="50" cy="62" rx="10" ry="8" fill="#dc2626" stroke="#fff" stroke-width="0.8"/><circle cx="45" cy="57" r="1.5" fill="#fff"/><circle cx="55" cy="57" r="1.5" fill="#fff"/><path d="M 45,66 Q 50,70 55,66" stroke="#000" stroke-width="0.8" fill="none"/><circle cx="38" cy="110" r="3" fill="#94a3b8"/><circle cx="55" cy="115" r="3" fill="#94a3b8"/>'},
+            {name:'Tenis', bg:'#059669', svg:'<rect x="4" y="4" width="92" height="132" fill="#047857" stroke="#fff" stroke-width="1.2"/><line x1="4" y1="70" x2="96" y2="70" stroke="#fff" stroke-width="1.5"/><line x1="18" y1="40" x2="82" y2="40" stroke="#fff" stroke-width="0.8"/><line x1="18" y1="100" x2="82" y2="100" stroke="#fff" stroke-width="0.8"/><line x1="50" y1="40" x2="50" y2="100" stroke="#fff" stroke-width="0.8"/><circle cx="35" cy="50" r="3" fill="#fbbf24"/><circle cx="65" cy="90" r="3" fill="#fbbf24"/>'},
+            {name:'Petanca', bg:'#a16207', svg:'<rect x="4" y="4" width="92" height="132" fill="#854d0e" stroke="#fff" stroke-width="1"/><circle cx="50" cy="70" r="3" fill="#fbbf24"/><circle cx="35" cy="50" r="4" fill="#b91c1c"/><circle cx="65" cy="55" r="4" fill="#b91c1c"/><circle cx="40" cy="85" r="4" fill="#1e40af"/><circle cx="62" cy="90" r="4" fill="#1e40af"/><circle cx="48" cy="105" r="4" fill="#1e40af"/>'},
+            {name:'Rugby', bg:'#166534', svg:'<rect x="4" y="4" width="92" height="132" fill="#15803d" stroke="#fff" stroke-width="1.2"/><line x1="4" y1="24" x2="96" y2="24" stroke="#fff" stroke-width="1"/><line x1="4" y1="116" x2="96" y2="116" stroke="#fff" stroke-width="1"/><line x1="4" y1="70" x2="96" y2="70" stroke="#fff" stroke-width="0.8" stroke-dasharray="4 3"/><path d="M 44,60 L 56,65 L 56,75 L 44,80 Z" fill="#78350f" stroke="#fff" stroke-width="0.6"/><circle cx="30" cy="60" r="3.5" fill="#dc2626"/><circle cx="70" cy="80" r="3.5" fill="#2563eb"/>'},
+            {name:'Hockey', bg:'#1e40af', svg:'<rect x="4" y="4" width="92" height="132" fill="#1e3a8a" stroke="#fff" stroke-width="1.2"/><line x1="4" y1="70" x2="96" y2="70" stroke="#fff" stroke-width="1"/><circle cx="50" cy="70" r="6" fill="none" stroke="#fff" stroke-width="0.8"/><rect x="35" y="4" width="30" height="10" fill="none" stroke="#fff" stroke-width="1"/><rect x="35" y="126" width="30" height="10" fill="none" stroke="#fff" stroke-width="1"/><circle cx="45" cy="50" r="2.5" fill="#dc2626"/><path d="M 43,48 L 39,42" stroke="#0f172a" stroke-width="1.8"/><circle cx="55" cy="90" r="2.5" fill="#f59e0b"/>'},
+          ].map((sport, i) => (
+            <a key={i} href="/tactical-board.html" className="group relative rounded-2xl overflow-hidden border border-slate-800 hover:border-[#CCFF00]/50 transition-all hover:scale-[1.03] hover:shadow-[0_10px_28px_-6px_rgba(204,255,0,0.22)]" data-testid={`sport-card-${sport.name.toLowerCase()}`}>
+              <div className="aspect-[3/4] relative">
+                <svg viewBox="0 0 100 140" className="w-full h-full block" preserveAspectRatio="xMidYMid meet" dangerouslySetInnerHTML={{__html: sport.svg}} />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"/>
+                <div className="absolute bottom-0 left-0 right-0 p-3 flex items-center justify-between">
+                  <span className="text-[13px] font-black text-white uppercase tracking-[0.05em]" style={{fontFamily:BC}}>{sport.name}</span>
+                  <ArrowRight className="w-4 h-4 text-[#CCFF00] opacity-0 group-hover:opacity-100 transition-opacity"/>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+        <div className="text-center mt-8">
+          <Link to="/tactical-board.html">
+            <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] h-11 px-7 text-[13px] font-bold rounded-xl" style={{fontFamily:BC}} data-testid="explore-all-sports-btn">
+              Explorar pizarra táctica <ArrowRight className="w-4 h-4 ml-2"/>
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+
     {/* FEATURES — Dark cards */}
     <section id="features" className="py-20 px-6 bg-slate-950 relative overflow-hidden">
       <div className="max-w-[1120px] mx-auto relative z-10">
