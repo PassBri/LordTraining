@@ -9,6 +9,19 @@
 
 ## Implementado
 
+### Bug fixes + rediseño profesional de 8 deportes individuales (Feb 2026)
+- **Fix Baloncesto 3D**: arco de 3 puntos ahora con rx=185 (conecta perfectamente con los segmentos rectos de la baseline)
+- **Fix Beisbol 3D**: ángulos de outfield arc (216.87°→323.13°) y grass arc (220.14°→319.86°) corregidos. Bases ahora son cuadrados blancos + home plate + monticulo con punto central
+- **Fix Futsal 2D+3D**: área de portería ahora con geometría correcta FIFA (2 cuartos de círculo r=6m + línea recta 3.16m)
+- **Natación 3D**: piscina con tinte de agua azul, 8 plataformas de salida 3D con bandas amarillas, marcas 15m
+- **Remo 3D**: calles con agua, 6 pontones 3D de salida, 9 boyas naranjas por calle (cada 250m), líneas salida/llegada
+- **Esquí 2D+3D**: pista de slalom con 14 puertas (alternadas rojo/azul), banderines 3D, salida verde, meta roja, relieve con 2 huellas de nieve
+- **Golf 2D+3D**: hoyo Par 4 completo con fairway curvo (347m), tee box, 2 bunkers, hazard de agua, green con hoyo + bandera 3D, escala en metros. En 3D la bandera es vertical
+- **Escalada 2D+3D**: muro 15×6m con 14 presas coloreadas por dificultad (verde→rojo), ruta marcada punteada, anclaje rojo TOP OUT, grips laterales, colchoneta. En 3D el muro aparece como plano vertical con presas
+- **Surf 2D+3D**: océano con gradiente de olas senoidales, 3 surfistas, zonas Line-up/Take-off/Inside, playa con arena
+- **Skateboarding 2D+3D**: skate park completo con Bowl circular, Half-pipe horizontal, Quarter-pipe trapezoidal, Funbox+Ledge, Kicker ramp, Stair set, Flat area
+- **Orientación 2D+3D**: mapa topográfico IOF con curvas de nivel concéntricas (11 colinas), ríos azules, senderos dashed, árboles verdes, 6 puntos de control numerados + START/FIN, brújula con N, barra de escala 250m/500m
+
 ### Aro Baloncesto FIBA + Postes Futbol Americano Y-shape (Feb 2026)
 - **Baloncesto 3D estilo coliseo FIBA**: poste vertical con base eliptica, brazo horizontal (cantilever), tablero blanco translucido con rectangulo pintado, soporte naranja entre tablero y aro, aro circular naranja como elipse isometrica, red con lineas colgantes y 2 anillos (medio + fondo). Helper `buildHoop(cx, poleY, rimY, dir)` reutilizable para ambos extremos.
 - **Futbol Americano 3D con uprights Y-shape**: ya NO usa porteria rectangular de futbol. Ahora genera la estructura correcta de NFL: poste base (gooseneck) detras de la linea de gol, brazo horizontal al frente, travesano amarillo + 2 uprights verticales con bolitas en las puntas, base eliptica en el suelo. Color amarillo oficial.
