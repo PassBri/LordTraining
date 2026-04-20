@@ -13,7 +13,8 @@ import {
   Save, Download, Activity, Clock, ChevronDown, ChevronRight,
   GripVertical, AlertCircle, Share2, Copy, Check, FileText, Link2, Eye,
   Watch, Droplets, Battery, Moon, Sun, TrendingUp, TrendingDown, Bluetooth,
-  Sparkles, LayoutGrid, X, Users, User, MapPin, Gauge, Layers, BarChart3, FlaskConical
+  Sparkles, LayoutGrid, X, Users, User, MapPin, Gauge, Layers, BarChart3, FlaskConical,
+  Play, Pause, RotateCcw, Pencil
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { EJERCICIOS_INICIALES } from './ExerciseLibrary';
@@ -88,6 +89,183 @@ const TacticalBoardPreview = ({ board }) => {
         <span>{els.filter(e => e.type === 'playerO').length} Eq.B</span>
         <span>{els.filter(e => e.type === 'arrow').length} Flechas</span>
       </div>
+    </div>
+  );
+};
+
+// ─── Mini reproductor de jugadas para miniaturas SVG con SMIL ───
+// Controla <animate>/<animateMotion> embebidos usando las APIs nativas SVG:
+// pauseAnimations(), unpauseAnimations(), setCurrentTime(t), getCurrentTime().
+const MiniBoardPlayer = ({ svgHtml, onEdit, onRemove, testIdPrefix }) => {
+  const wrapperRef = useRef(null);
+  const svgElRef = useRef(null);
+  const rafRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [progress, setProgress] = useState(0); // 0..1 within current cycle
+  const [duration, setDuration] = useState(2.8); // seconds per cycle
+  const [hasAnim, setHasAnim] = useState(false);
+
+  // Locate the actual <svg> element inside the thumbnail wrapper and read cycle duration.
+  useEffect(() => {
+    if (!wrapperRef.current) return;
+    const svg = wrapperRef.current.querySelector('svg');
+    svgElRef.current = svg;
+    if (!svg) { setHasAnim(false); return; }
+    const anims = svg.querySelectorAll('animate, animateMotion, animateTransform');
+    setHasAnim(anims.length > 0);
+    // Read longest explicit "dur" (e.g., "2.8s") to drive the scrubber
+    let maxDur = 0;
+    anims.forEach(a => {
+      const d = a.getAttribute('dur') || '';
+      const m = d.match(/([\d.]+)\s*(ms|s)?/i);
+      if (m) {
+        const v = parseFloat(m[1]);
+        const secs = (m[2] && m[2].toLowerCase() === 'ms') ? v / 1000 : v;
+        if (secs > maxDur) maxDur = secs;
+      }
+    });
+    if (maxDur > 0) setDuration(maxDur);
+    // Ensure animations start playing
+    try { svg.unpauseAnimations(); } catch (_) {}
+    setIsPlaying(true);
+  }, [svgHtml]);
+
+  // Poll current time to update the scrubber while playing
+  useEffect(() => {
+    const tick = () => {
+      const svg = svgElRef.current;
+      if (svg && isPlaying) {
+        try {
+          const t = svg.getCurrentTime() % duration;
+          setProgress(duration > 0 ? t / duration : 0);
+        } catch (_) {}
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [isPlaying, duration]);
+
+  const handlePlay = (e) => {
+    e.stopPropagation();
+    const svg = svgElRef.current;
+    if (!svg) return;
+    try { svg.unpauseAnimations(); } catch (_) {}
+    setIsPlaying(true);
+  };
+  const handlePause = (e) => {
+    e.stopPropagation();
+    const svg = svgElRef.current;
+    if (!svg) return;
+    try { svg.pauseAnimations(); } catch (_) {}
+    setIsPlaying(false);
+  };
+  const handleReset = (e) => {
+    e.stopPropagation();
+    const svg = svgElRef.current;
+    if (!svg) return;
+    try {
+      svg.setCurrentTime(0);
+      svg.unpauseAnimations();
+    } catch (_) {}
+    setProgress(0);
+    setIsPlaying(true);
+  };
+  const handleScrub = (e) => {
+    e.stopPropagation();
+    const svg = svgElRef.current;
+    if (!svg) return;
+    const v = parseFloat(e.target.value); // 0..100
+    const t = (v / 100) * duration;
+    try {
+      svg.pauseAnimations();
+      svg.setCurrentTime(t);
+    } catch (_) {}
+    setIsPlaying(false);
+    setProgress(v / 100);
+  };
+
+  return (
+    <div className="w-full flex-1 flex flex-col" style={{minHeight:'140px'}}>
+      <div className="relative w-full flex-1 rounded-xl border border-slate-200 bg-white overflow-hidden transition-all hover:border-[#c8f700] hover:shadow-md group">
+        {/* SVG thumbnail (clickable to edit) */}
+        <div
+          ref={wrapperRef}
+          onClick={onEdit}
+          className="w-full h-full cursor-pointer [&>svg]:w-full [&>svg]:h-full [&>svg]:block"
+          data-testid={`${testIdPrefix}-thumb`}
+          dangerouslySetInnerHTML={{ __html: svgHtml }}
+        />
+
+        {/* Edit hint overlay — top right */}
+        <div className="absolute top-1.5 right-1.5 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider text-white" style={{background:'rgba(0,0,0,0.55)',backdropFilter:'blur(4px)',fontFamily:DM}}>
+            <Pencil className="w-2.5 h-2.5" /> Editar
+          </div>
+        </div>
+
+        {/* Playback controls — bottom overlay */}
+        {hasAnim && (
+          <div
+            className="absolute left-0 right-0 bottom-0 flex items-center gap-1.5 px-2 py-1.5"
+            style={{background:'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.82) 55%)',backdropFilter:'blur(2px)'}}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {isPlaying ? (
+              <button
+                onClick={handlePause}
+                className="w-6 h-6 rounded-full bg-white/90 hover:bg-white text-slate-900 flex items-center justify-center shadow transition-all hover:scale-110"
+                title="Pausar"
+                data-testid={`${testIdPrefix}-pause`}
+              >
+                <Pause className="w-3 h-3" fill="currentColor" />
+              </button>
+            ) : (
+              <button
+                onClick={handlePlay}
+                className="w-6 h-6 rounded-full bg-[#c8f700] hover:bg-[#d9ff3a] text-slate-900 flex items-center justify-center shadow transition-all hover:scale-110"
+                title="Reproducir"
+                data-testid={`${testIdPrefix}-play`}
+              >
+                <Play className="w-3 h-3" fill="currentColor" />
+              </button>
+            )}
+            <button
+              onClick={handleReset}
+              className="w-6 h-6 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center transition-all hover:scale-110 border border-white/20"
+              title="Reiniciar"
+              data-testid={`${testIdPrefix}-reset`}
+            >
+              <RotateCcw className="w-3 h-3" />
+            </button>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={0.5}
+              value={Math.round(progress * 1000) / 10}
+              onChange={handleScrub}
+              onMouseDown={(e) => e.stopPropagation()}
+              className="flex-1 h-1 accent-[#c8f700] cursor-pointer"
+              style={{minWidth:'40px'}}
+              title="Línea de tiempo"
+              data-testid={`${testIdPrefix}-scrubber`}
+            />
+            <span className="text-[8px] font-bold text-white/80 tabular-nums" style={{fontFamily:DM,minWidth:'26px',textAlign:'right'}}>
+              {(progress * duration).toFixed(1)}s
+            </span>
+          </div>
+        )}
+      </div>
+      {onRemove && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onRemove(); }}
+          className="text-[10px] text-slate-400 hover:text-red-400 mt-1.5 block w-full text-center transition-colors font-medium"
+          data-testid={`${testIdPrefix}-remove`}
+        >
+          Quitar
+        </button>
+      )}
     </div>
   );
 };
@@ -976,13 +1154,18 @@ const SessionEditor = ({
                   <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500" style={{fontFamily:DM}}>Pizarra</span>
                 </div>
                 {act.boardThumbnail ? (
-                  <div className="w-full flex-1 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-[#c8f700] hover:shadow-md overflow-hidden transition-all" style={{minHeight:'140px'}} onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open(act.boardId?`/tactical-board.html?boardId=${act.boardId}`:'/tactical-board.html','_blank');}} data-testid={`board-thumb-${faseKey}-${idx}`} dangerouslySetInnerHTML={{__html:act.boardThumbnail}} />
+                  <MiniBoardPlayer
+                    svgHtml={act.boardThumbnail}
+                    onEdit={() => { boardEditContextRef.current = { faseKey, actId: act.id }; window.open(act.boardId ? `/tactical-board.html?boardId=${act.boardId}` : '/tactical-board.html', '_blank'); }}
+                    onRemove={() => updateActividadMulti(faseKey, idx, { boardThumbnail: null, boardId: null })}
+                    testIdPrefix={`board-${faseKey}-${idx}`}
+                  />
                 ) : (
                   <button onClick={() => {boardEditContextRef.current={faseKey,actId:act.id};window.open('/tactical-board.html','_blank');}} className="w-full flex-1 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-300 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all group" style={{minHeight:'140px'}} data-testid={`open-board-${faseKey}-${idx}`}>
                     <LayoutGrid className="w-6 h-6 group-hover:scale-110 transition-transform" /><span className="text-[9px] font-semibold uppercase mt-2 tracking-wide">Abrir pizarra</span>
                   </button>
                 )}
-                {act.boardThumbnail && <button onClick={() => updateActividadMulti(faseKey, idx, {boardThumbnail:null,boardId:null})} className="text-[10px] text-slate-400 hover:text-red-400 mt-1.5 block w-full text-center transition-colors font-medium">Quitar</button>}
+                {/* Quitar-button moved into MiniBoardPlayer */}
               </div>
             </div>
 
