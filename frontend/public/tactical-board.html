@@ -57,7 +57,7 @@ body.viewer-mode .pb-drawer-toggle,
 body.viewer-mode #timeline-bar{display:none !important}
 body.viewer-mode #canvas-wrap{border-radius:0}
 body.viewer-mode #viewer-bar{display:flex !important}
-#viewer-bar{display:none;position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:1000;background:rgba(15,23,42,0.92);backdrop-filter:blur(14px);border:1px solid rgba(200,247,0,0.3);border-radius:14px;padding:8px 14px;gap:12px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,0.4);color:#fff;font-family:system-ui}
+#viewer-bar{display:none;position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:1000;background:rgba(15,23,42,0.92);backdrop-filter:blur(14px);border:1px solid rgba(200,247,0,0.3);border-radius:14px;padding:8px 12px;gap:10px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,0.4);color:#fff;font-family:system-ui;flex-wrap:wrap;max-width:calc(100vw - 40px)}
 #viewer-bar .vw-logo{display:flex;align-items:center;gap:6px;font-weight:900;font-size:14px;color:#c8f700;letter-spacing:0.02em}
 #viewer-bar .vw-title{font-size:13px;font-weight:600;color:rgba(255,255,255,0.92);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #viewer-bar .vw-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:#fff;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:0.04em;display:flex;align-items:center;gap:5px;transition:all .15s}
@@ -303,7 +303,7 @@ html.dark .zoom-btn{background:rgba(15,23,42,0.7)}
 html.dark .canvas-stats{background:rgba(15,23,42,0.7)}
 /* ── RIGHT PANEL ── */
 #panel{width:280px;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;box-shadow:-1px 0 0 var(--border),-4px 0 24px -12px var(--shadow)}
-.panel-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface-2);height:56px;flex-shrink:0}
+.panel-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface-2);height:56px;flex-shrink:0;margin-top:56px}
 html.dark .panel-tabs{background:rgba(255,255,255,0.02)}
 .panel-tab{flex:1;padding:0 4px;text-align:center;font-size:9.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:800;border-bottom:2px solid transparent;cursor:pointer;transition:all .15s;position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;justify-content:center;gap:4px}
 .panel-tab:hover{color:var(--text-sec);background:var(--hover)}
@@ -814,10 +814,12 @@ const TOOLS = [
  {id:'bocha_b',label:'Bocha Azul',icon:'<circle cx="9" cy="9" r="5.5" fill="#2563eb" stroke="#1e3a8a" stroke-width="1"/><line x1="3.5" y1="9" x2="14.5" y2="9" stroke="rgba(255,255,255,0.35)" stroke-width="0.7"/>',group:4,sports:['Bochas','Petanca']},
  {id:'ball_bowling',label:'Bola Bowling',icon:'<circle cx="9" cy="9" r="6" fill="#1e293b" stroke="#000" stroke-width="1"/><circle cx="7.5" cy="7" r="1" fill="#64748b"/><circle cx="10" cy="6.8" r="0.8" fill="#64748b"/><circle cx="8" cy="9.5" r="0.8" fill="#64748b"/>',group:4,sports:['Bolo Americano','Bolo Criollo']},
  {id:'sep4',group:0},
- // ── AGILIDAD ──
- {id:'ring',label:'Aro',icon:'<circle cx="9" cy="9" r="6" fill="none" stroke="#8b5cf6" stroke-width="2"/>',group:5},
- {id:'ladder',label:'Escalera',icon:'<line x1="4" y1="3" x2="4" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="14" y1="3" x2="14" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="4" y1="5" x2="14" y2="5" stroke="currentColor" stroke-width="1"/><line x1="4" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1"/><line x1="4" y1="11" x2="14" y2="11" stroke="currentColor" stroke-width="1"/><line x1="4" y1="14" x2="14" y2="14" stroke="currentColor" stroke-width="1"/>',group:5},
- {id:'pole',label:'Pica',icon:'<line x1="9" y1="2" x2="9" y2="16" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>',group:5},
+ // ── RANA (juego tradicional) ──
+ {id:'rana_disc',label:'Arandela',icon:'<circle cx="9" cy="9" r="4" fill="#92400e" stroke="#4a2410" stroke-width="1.1"/><circle cx="9" cy="9" r="2" fill="#facc15"/>',group:4,sports:['Rana']},
+ // ── AGILIDAD (fusionado en Implementos) ──
+ {id:'ring',label:'Aro',icon:'<circle cx="9" cy="9" r="6" fill="none" stroke="#8b5cf6" stroke-width="2"/>',group:4},
+ {id:'ladder',label:'Escalera',icon:'<line x1="4" y1="3" x2="4" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="14" y1="3" x2="14" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="4" y1="5" x2="14" y2="5" stroke="currentColor" stroke-width="1"/><line x1="4" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1"/><line x1="4" y1="11" x2="14" y2="11" stroke="currentColor" stroke-width="1"/><line x1="4" y1="14" x2="14" y2="14" stroke="currentColor" stroke-width="1"/>',group:4},
+ {id:'pole',label:'Pica',icon:'<line x1="9" y1="2" x2="9" y2="16" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>',group:4},
  {id:'sep5',group:0},
  // ── FUERZA ──
  {id:'plyobox',label:'Cajon',icon:'<rect x="3" y="6" width="12" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="6" x2="6" y2="3" stroke="currentColor" stroke-width="1"/><line x1="15" y1="6" x2="18" y2="3" stroke="currentColor" stroke-width="1"/><line x1="6" y1="3" x2="18" y2="3" stroke="currentColor" stroke-width="1"/>',group:6},
@@ -1238,6 +1240,17 @@ const S = {
   } else if (s==='Beisbol') {
    // Home plate cross = run
    z.push({x:293, y:675, w:14, h:12, team:'a', label:'CARRERA'});
+  } else if (s==='Rana') {
+   // Central mouth (Sapo) = 5000, circular cushion
+   z.push({x:280, y:205, w:40, h:40, team:'a', label:'¡SAPO! +5000', circle:{cx:300, cy:225, r:16}, points:5000});
+   // 4 corner holes = 1000 pts
+   z.push({x:223, y:148, w:24, h:24, team:'a', label:'+1000', circle:{cx:235, cy:160, r:10}, points:1000});
+   z.push({x:353, y:148, w:24, h:24, team:'a', label:'+1000', circle:{cx:365, cy:160, r:10}, points:1000});
+   z.push({x:223, y:278, w:24, h:24, team:'a', label:'+1000', circle:{cx:235, cy:290, r:10}, points:1000});
+   z.push({x:353, y:278, w:24, h:24, team:'a', label:'+1000', circle:{cx:365, cy:290, r:10}, points:1000});
+   // 2 middle holes top/bottom = 500 pts
+   z.push({x:290, y:140, w:20, h:20, team:'a', label:'+500', circle:{cx:300, cy:150, r:8}, points:500});
+   z.push({x:290, y:290, w:20, h:20, team:'a', label:'+500', circle:{cx:300, cy:300, r:8}, points:500});
   }
   return z;
  },
@@ -1429,10 +1442,16 @@ const S = {
      prevInside = prevX >= z.x && prevX <= z.x + z.w && prevY >= z.y && prevY <= z.y + z.h;
     }
     if (!prevInside) {
-     // SCORE!
-     if (z.team === 'a') ST.score.home++;
-     else ST.score.away++;
+     // SCORE! (Rana: usa points, sino suma 1)
+     const pts = z.points || 1;
+     if (z.team === 'a') ST.score.home += pts;
+     else ST.score.away += pts;
      ST.goalCooldown[ballEl.id] = now;
+     // Marca disco como anotado (para el halo amarillo animado)
+     if (ballEl.type === 'rana_disc') {
+      ballEl.scored = true;
+      ballEl.scoredAt = now;
+     }
      this.updateScoreboard();
      this.flashGoal(z.label || 'GOL');
      return;
@@ -1502,19 +1521,21 @@ checkKnockdowns(movingEl, prevX, prevY) {
  // ── TOOLBAR ──
  renderToolbar() {
   const tb = document.getElementById('toolbar');
-  const GH = {1:'Dibujo',2:'Personas',3:'Formaciones',4:'Campo',5:'Agilidad',6:'Fuerza',7:'Cardio',8:'Recuper.',9:'Tren Inferior',10:'Tren Superior',11:'Espalda',12:'Pecho/Hombro',13:'Brazos',14:'Abdomen/Core',15:'Cardio Gym',16:'Poleas/Estac.',17:'Bancos/Estruct.',18:'Implementos'};
+  const GH = {1:'Dibujo',2:'Personas',3:'Formaciones',4:'Implementos',5:'Implementos',6:'Fuerza',7:'Cardio',8:'Recuper.',9:'Tren Inferior',10:'Tren Superior',11:'Espalda',12:'Pecho/Hombro',13:'Brazos',14:'Abdomen/Core',15:'Cardio Gym',16:'Poleas/Estac.',17:'Bancos/Estruct.',18:'Equipo Gym'};
   if (!ST.collapsedGroups) ST.collapsedGroups = new Set();
-  // Group tools by group number (preserving order, separators ignored for grouping)
-  const groups = [];
-  let current = null;
+  // Group tools by group number (merge all items with same group, ignoring separators)
+  const groupMap = new Map();
+  const groupOrder = [];
   TOOLS.forEach(t => {
-   if (t.group === 0) { current = null; return; }
-   if (!current || current.group !== t.group) {
-    current = { group: t.group, name: GH[t.group] || 'Otros', tools: [] };
-    groups.push(current);
+   if (t.group === 0) return;
+   if (!groupMap.has(t.group)) {
+    const gObj = { group: t.group, name: GH[t.group] || 'Otros', tools: [] };
+    groupMap.set(t.group, gObj);
+    groupOrder.push(gObj);
    }
-   current.tools.push(t);
+   groupMap.get(t.group).tools.push(t);
   });
+  const groups = groupOrder;
   let html = '';
   groups.forEach(g => {
    const collapsed = ST.collapsedGroups.has(g.group);
@@ -2758,6 +2779,99 @@ checkKnockdowns(movingEl, prevX, prevY) {
     O += `<line x1="${gb.x}" y1="${gb.y}" x2="${gt.x}" y2="${gt.y}" stroke="rgba(255,60,60,0.85)" stroke-width="2.2"/>`;
    }
   }
+  // RANA: mesa de madera 3D elevada con rana sentada + 7 agujeros (sapo central + 4 esquinas + 2 medios)
+  if(s==='Rana') {
+   const tableX=195, tableY=120, tableW=210, tableH=210;
+   const tableTop = 48; // altura de la mesa (≈80cm escalados)
+   // Sombra en el suelo
+   const sh1=this.toIso(tableX+6,tableY+tableH+8,0);
+   const sh2=this.toIso(tableX+tableW+6,tableY+tableH+8,0);
+   O += `<ellipse cx="${(sh1.x+sh2.x)/2}" cy="${(sh1.y+sh2.y)/2}" rx="110" ry="22" fill="rgba(0,0,0,0.3)" filter="url(#blur3d)"/>`;
+   // 4 patas de la mesa
+   const legs=[[tableX+8,tableY+8],[tableX+tableW-8,tableY+8],[tableX+tableW-8,tableY+tableH-8],[tableX+8,tableY+tableH-8]];
+   for(const [lx,ly] of legs) {
+    const lb=this.toIso(lx,ly,0), lt=this.toIso(lx,ly,tableTop-5);
+    O += `<line x1="${lb.x}" y1="${lb.y}" x2="${lt.x}" y2="${lt.y}" stroke="#5a3a1a" stroke-width="4.5" stroke-linecap="round"/>`;
+   }
+   // Caras laterales de la mesa (front + right) — marrón medio
+   const p1b=this.toIso(tableX,tableY+tableH,0), p2b=this.toIso(tableX+tableW,tableY+tableH,0);
+   const p3b=this.toIso(tableX+tableW,tableY,0);
+   const p1t=this.toIso(tableX,tableY+tableH,tableTop), p2t=this.toIso(tableX+tableW,tableY+tableH,tableTop);
+   const p3t=this.toIso(tableX+tableW,tableY,tableTop);
+   // Cara frontal (hacia cámara)
+   O += `<polygon points="${p1b.x},${p1b.y} ${p2b.x},${p2b.y} ${p2t.x},${p2t.y} ${p1t.x},${p1t.y}" fill="#7a4b1a" stroke="#4a2410" stroke-width="1.5"/>`;
+   // Cara lateral derecha
+   O += `<polygon points="${p2b.x},${p2b.y} ${p3b.x},${p3b.y} ${p3t.x},${p3t.y} ${p2t.x},${p2t.y}" fill="#5a3412" stroke="#4a2410" stroke-width="1.5"/>`;
+   // Superficie superior (tabla de la mesa) — madera clara, proyectada
+   const surfPts=[[tableX,tableY],[tableX+tableW,tableY],[tableX+tableW,tableY+tableH],[tableX,tableY+tableH]]
+    .map(([x,y])=>this.toIso(x,y,tableTop));
+   O += `<polygon points="${surfPts.map(p=>`${p.x},${p.y}`).join(' ')}" fill="#c89358" stroke="#7a4b1a" stroke-width="1.8"/>`;
+   // Textura veteado (3 líneas paralelas)
+   for (let i=1; i<=3; i++) {
+    const yL = tableY + (tableH * i) / 4;
+    const la = this.toIso(tableX+8, yL, tableTop), lb = this.toIso(tableX+tableW-8, yL, tableTop);
+    O += `<line x1="${la.x}" y1="${la.y}" x2="${lb.x}" y2="${lb.y}" stroke="rgba(70,40,10,0.25)" stroke-width="0.7"/>`;
+   }
+   // Aro metálico alrededor de cada agujero + agujero hundido
+   const holes = [
+    {cx:300, cy:225, r:16, type:'mouth', pts:5000},
+    {cx:235, cy:160, r:10, type:'corner', pts:1000},
+    {cx:365, cy:160, r:10, type:'corner', pts:1000},
+    {cx:235, cy:290, r:10, type:'corner', pts:1000},
+    {cx:365, cy:290, r:10, type:'corner', pts:1000},
+    {cx:300, cy:150, r:8, type:'mid', pts:500},
+    {cx:300, cy:300, r:8, type:'mid', pts:500},
+   ];
+   for (const h of holes) {
+    const c = this.toIso(h.cx, h.cy, tableTop);
+    // Agujero oscuro (abajo)
+    const rx = h.r * 1.05, ry = h.r * 0.45;
+    if (h.type === 'mouth') {
+     // BOCA DE RANA (SAPO): cabeza verde, ojos, boca abierta negra
+     // Cuerpo rana (semi-ovalo) atrás del agujero
+     const bodyC = this.toIso(h.cx, h.cy + 8, tableTop + 6);
+     O += `<ellipse cx="${bodyC.x}" cy="${bodyC.y}" rx="24" ry="14" fill="#4a7c2e" stroke="#2d4a1d" stroke-width="1.5"/>`;
+     O += `<ellipse cx="${bodyC.x}" cy="${bodyC.y-3}" rx="22" ry="8" fill="#5a8c3e"/>`;
+     // Ojos (2 bultos elevados con pupila)
+     const eyeL = this.toIso(h.cx-8, h.cy-2, tableTop + 14);
+     const eyeR = this.toIso(h.cx+8, h.cy-2, tableTop + 14);
+     O += `<circle cx="${eyeL.x}" cy="${eyeL.y}" r="5.5" fill="#6ab04c" stroke="#2d4a1d" stroke-width="1.2"/>`;
+     O += `<circle cx="${eyeL.x}" cy="${eyeL.y}" r="3" fill="#fff"/>`;
+     O += `<circle cx="${eyeL.x-0.5}" cy="${eyeL.y+0.5}" r="1.8" fill="#000"/>`;
+     O += `<circle cx="${eyeR.x}" cy="${eyeR.y}" r="5.5" fill="#6ab04c" stroke="#2d4a1d" stroke-width="1.2"/>`;
+     O += `<circle cx="${eyeR.x}" cy="${eyeR.y}" r="3" fill="#fff"/>`;
+     O += `<circle cx="${eyeR.x-0.5}" cy="${eyeR.y+0.5}" r="1.8" fill="#000"/>`;
+     // Labio superior (arco verde oscuro)
+     const lipL = this.toIso(h.cx-14, h.cy+2, tableTop + 3);
+     const lipR = this.toIso(h.cx+14, h.cy+2, tableTop + 3);
+     O += `<path d="M${lipL.x},${lipL.y} Q${c.x},${c.y-8} ${lipR.x},${lipR.y}" fill="none" stroke="#2d4a1d" stroke-width="2.5"/>`;
+     // BOCA (agujero negro profundo)
+     O += `<ellipse cx="${c.x}" cy="${c.y+2}" rx="${rx}" ry="${ry}" fill="#0a0f0a" stroke="#2d4a1d" stroke-width="2"/>`;
+     O += `<ellipse cx="${c.x}" cy="${c.y+2.5}" rx="${rx*0.78}" ry="${ry*0.65}" fill="#050805"/>`;
+     // Dientes (pequeños blancos en el borde superior)
+     for (let t=0; t<4; t++) {
+      const tx = c.x - rx*0.55 + t*(rx*0.37);
+      O += `<polygon points="${tx-1.5},${c.y-ry*0.3} ${tx+1.5},${c.y-ry*0.3} ${tx},${c.y+ry*0.1}" fill="#fff" stroke="#888" stroke-width="0.3"/>`;
+     }
+    } else {
+     // Agujero normal con aro metálico
+     O += `<ellipse cx="${c.x}" cy="${c.y+2}" rx="${rx}" ry="${ry}" fill="#0a0a0a" stroke="#2d1a0a" stroke-width="1.8"/>`;
+     O += `<ellipse cx="${c.x}" cy="${c.y+2.5}" rx="${rx*0.75}" ry="${ry*0.55}" fill="#050505"/>`;
+     // Borde metálico
+     O += `<ellipse cx="${c.x}" cy="${c.y}" rx="${rx*1.15}" ry="${ry*1.08}" fill="none" stroke="#b8860b" stroke-width="1.3"/>`;
+     // Puntuación en relieve
+     const labelC = this.toIso(h.cx, h.cy + h.r + 6, tableTop + 1);
+     O += `<text x="${labelC.x}" y="${labelC.y}" text-anchor="middle" font-size="7" font-family="'Oswald',sans-serif" font-weight="700" fill="rgba(245,230,200,0.75)" stroke="rgba(50,20,0,0.5)" stroke-width="0.3">${h.pts}</text>`;
+    }
+   }
+   // Patas traseras de la rana (dos en el suelo detrás)
+   const legRL = this.toIso(280, 255, tableTop + 2);
+   const legRR = this.toIso(320, 255, tableTop + 2);
+   O += `<ellipse cx="${legRL.x}" cy="${legRL.y}" rx="6" ry="3.5" fill="#3d6a25" stroke="#2d4a1d" stroke-width="0.8"/>`;
+   O += `<ellipse cx="${legRR.x}" cy="${legRR.y}" rx="6" ry="3.5" fill="#3d6a25" stroke="#2d4a1d" stroke-width="0.8"/>`;
+  }
+
+
   // Squash front wall (glass wall with mesh) + side walls
   if(s==='Squash') {
    const wh=120;
@@ -3779,7 +3893,7 @@ checkKnockdowns(movingEl, prevX, prevY) {
      this.updatePanel();
      this.updateStats();
     }
-   } else if(ST.tool==='playerA'||ST.tool==='playerB'||ST.tool==='goalkeeper'||ST.tool==='ball'||ST.tool==='cone'||ST.tool==='flag'||ST.tool==='hurdle'||ST.tool==='disc'||ST.tool==='minigoal'||ST.tool==='mannequin'||ST.tool==='vest'||ST.tool==='ring'||ST.tool==='ladder'||ST.tool==='pole'||ST.tool==='plyobox'||ST.tool==='kettlebell'||ST.tool==='medball'||ST.tool==='trx'||ST.tool==='sled'||ST.tool==='parachute'||ST.tool==='rope'||ST.tool==='battlerope'||ST.tool==='roller'||ST.tool==='band'||ST.tool==='bosu'||ST.tool==='mat'||ST.tool==='dumbbell'||ST.tool==='barbell'||ST.tool==='bench'||ST.tool==='rack'||ST.tool==='treadmill'||ST.tool==='bike'||ST.tool==='rower'||ST.tool==='pullup'||ST.tool==='pilatesball'||ST.tool==='stepper'||ST.tool==='pin_bowling'||ST.tool==='pin_criollo'||ST.tool==='mecha'||ST.tool==='bocin'||ST.tool==='tejo'||ST.tool==='jack'||ST.tool==='bocha_r'||ST.tool==='bocha_b'||ST.tool==='ball_bowling'||ST.tool.startsWith('gm_')||ST.tool.startsWith('sp_')||ST.tool.startsWith('p_')) {
+   } else if(ST.tool==='playerA'||ST.tool==='playerB'||ST.tool==='goalkeeper'||ST.tool==='ball'||ST.tool==='cone'||ST.tool==='flag'||ST.tool==='hurdle'||ST.tool==='disc'||ST.tool==='minigoal'||ST.tool==='mannequin'||ST.tool==='vest'||ST.tool==='ring'||ST.tool==='ladder'||ST.tool==='pole'||ST.tool==='plyobox'||ST.tool==='kettlebell'||ST.tool==='medball'||ST.tool==='trx'||ST.tool==='sled'||ST.tool==='parachute'||ST.tool==='rope'||ST.tool==='battlerope'||ST.tool==='roller'||ST.tool==='band'||ST.tool==='bosu'||ST.tool==='mat'||ST.tool==='dumbbell'||ST.tool==='barbell'||ST.tool==='bench'||ST.tool==='rack'||ST.tool==='treadmill'||ST.tool==='bike'||ST.tool==='rower'||ST.tool==='pullup'||ST.tool==='pilatesball'||ST.tool==='stepper'||ST.tool==='pin_bowling'||ST.tool==='pin_criollo'||ST.tool==='mecha'||ST.tool==='bocin'||ST.tool==='tejo'||ST.tool==='jack'||ST.tool==='bocha_r'||ST.tool==='bocha_b'||ST.tool==='ball_bowling'||ST.tool==='rana_disc'||ST.tool.startsWith('gm_')||ST.tool.startsWith('sp_')||ST.tool.startsWith('p_')) {
     this.addElement(ST.tool, p.x, p.y);
    } else if(ST.tool==='arrow'||ST.tool==='line'||ST.tool==='pass') {
     ST.drawing = {type:ST.tool,x1:p.x,y1:p.y,x2:p.x,y2:p.y};
@@ -4157,6 +4271,12 @@ checkKnockdowns(movingEl, prevX, prevY) {
     const es = el.size||1;
     const s = (is3D ? depthScale*1.1 : 1) * es;
     return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="2" cy="4" rx="9" ry="2.5" fill="rgba(0,0,0,0.3)" filter="url(#blur3d)"/>':''}<circle cx="0" cy="0" r="8" fill="${el.color||'#1e293b'}" stroke="#000" stroke-width="1.2"/><circle cx="-2" cy="-2" r="1.2" fill="#64748b"/><circle cx="2" cy="-2" r="1" fill="#64748b"/><circle cx="0" cy="1" r="1" fill="#64748b"/><circle cx="-3" cy="-3" r="0.9" fill="rgba(255,255,255,0.4)"/></g>`;
+   }
+   case 'rana_disc': {
+    const es = el.size||1;
+    const s = (is3D ? depthScale : 1) * es;
+    const scored = el.scored;
+    return `<g transform="translate(${el.x},${el.y}) scale(${s})" data-id="${el.id}" style="cursor:grab">${is3D?'<ellipse cx="1" cy="2" rx="5" ry="1.5" fill="rgba(0,0,0,0.2)" filter="url(#blur3d)"/>':''}<circle cx="0" cy="0" r="5" fill="${scored?'#facc15':'#92400e'}" stroke="${scored?'#a16207':'#4a2410'}" stroke-width="1.2"/><circle cx="0" cy="0" r="2.2" fill="${scored?'#fef3c7':'#fbbf24'}"/>${scored?'<circle cx="0" cy="0" r="7.5" fill="none" stroke="#facc15" stroke-width="1" opacity="0.55"><animate attributeName="r" values="5;11;5" dur="0.8s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.7;0;0.7" dur="0.8s" repeatCount="indefinite"/></circle>':''}</g>`;
    }
    case 'ring': {
     const es = el.size||1;
@@ -4934,6 +5054,16 @@ checkKnockdowns(movingEl, prevX, prevY) {
     fetch(apiUrl).then(r => r.json()).then(data => {
      if (!data || !data.payload) return;
      this._applySharedPayload(data.payload);
+     // Mostrar contador de vistas (social proof)
+     if (typeof data.views === 'number') {
+      const vc = document.getElementById('viewer-views');
+      const vn = document.getElementById('viewer-views-count');
+      if (vc && vn) {
+       vc.style.display = 'flex';
+       vn.textContent = data.views;
+       if (data.views < 2) vc.lastElementChild.textContent = 'entrenador';
+      }
+     }
      this._toast('📋 Pizarra compartida cargada (vista previa)');
     }).catch(err => { console.error('loadSharedBoard fetch err', err); });
     return true;
@@ -5311,8 +5441,8 @@ checkKnockdowns(movingEl, prevX, prevY) {
     el.x = pos.x; el.y = pos.y;
    }
    
-   // Check goal crossing for balls
-   if (el.type === 'ball') {
+   // Check goal crossing for balls (y para discos de Rana que también anotan)
+   if (el.type === 'ball' || (ST.sport === 'Rana' && (el.type === 'rana_disc' || el.type === 'ball_bowling'))) {
     this.checkGoalCrossing(el, prevX, prevY);
    }
    // Check knockdowns (bowling pins, tejo mechas, bolo criollo palos)
@@ -5855,7 +5985,9 @@ S.init();
 <div id="viewer-bar">
  <div class="vw-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>iTRAIN</div>
  <div class="vw-title" id="viewer-title">Jugada táctica</div>
- <button class="vw-btn" id="vw-replay" data-testid="vw-replay" onclick="(function(){var b=document.querySelector('[onclick*=playback]'); try{S.playPlayback();}catch(e){} })()" title="Reproducir"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>Reproducir</button>
+ <div class="vw-views" id="viewer-views" style="display:none;align-items:center;gap:4px;font-size:11px;font-weight:700;color:rgba(200,247,0,0.9);letter-spacing:0.04em;padding:4px 9px;background:rgba(200,247,0,0.08);border:1px solid rgba(200,247,0,0.25);border-radius:8px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span id="viewer-views-count">—</span> <span style="opacity:0.7">entrenadores</span></div>
+ <button class="vw-btn" id="vw-replay" data-testid="vw-replay" onclick="(function(){try{S.playPlayback();}catch(e){} })()" title="Reproducir"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>Reproducir</button>
+ <button class="vw-btn" id="vw-download" data-testid="vw-download" onclick="S.exportPNG && S.exportPNG()" title="Descargar imagen"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PNG</button>
  <button class="vw-btn primary" id="vw-duplicate" data-testid="vw-duplicate" onclick="(function(){localStorage.setItem('tb_import_shared', JSON.stringify({sport:ST.sport,elements:ST.elements||[]}));window.location.href=window.location.origin+window.location.pathname;})()" title="Duplicar en mi pizarra"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicar</button>
 </div>
 </body>

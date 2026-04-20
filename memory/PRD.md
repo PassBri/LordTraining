@@ -436,7 +436,29 @@
   para no empujar los botones JUGADORES/Tactico/Camiseta/Avatar.
 - Labels mas cortos: '11 vs 11 · FIFA', '7 vs 7 · Juvenil', '5 vs 5 · Infantil'.
 
-### Viewer mode + OpenGraph + Bolos arrastrables + Física (Feb 2026)
+### Rana 3D + Fusión Implementos + Social proof (Feb 2026)
+- Rana 3D: mesa de madera isométrica (80x80cm, altura 48u) con 4 patas
+  marrones, superficie con veteado, 7 agujeros con aros metálicos
+  dorados + etiquetas de puntos (5000/1000/500). RANA verde con ojos
+  esféricos (blanco/negro), boca abierta negra con dientes blancos.
+  Sombra proyectada. Patas traseras detrás.
+- Nuevo elemento arrastrable "Arandela" (rana_disc) con render animado
+  (halo amarillo pulsante) cuando anota.
+- checkGoalCrossing: Rana tiene 7 zonas de anotación circulares (sapo
+  central = +5000, 4 esquinas = +1000, 2 centros = +500). Soporta
+  campo `points` para anotaciones variables. Discos rana_disc y bolas
+  bowling pueden disparar anotación durante playback.
+- Categorías Campo y Agilidad FUSIONADAS en "Implementos" (21 ítems).
+  El otro grupo 18 renombrado a "Equipo Gym" para evitar duplicidad.
+  renderToolbar ahora usa Map para agrupar por ID (antes separator
+  rompía grupos con mismo número).
+- Panel .panel-tabs con margin-top:56px para no invadir la toolbar
+  superior.
+- Viewer mode ampliado: botón "PNG" para descargar la imagen, contador
+  "X entrenadores" (social proof) que muestra `views` del backend
+  (singular/plural dinámico).
+
+
 - Viewer mode para enlaces compartidos (?s=... o ?viewer=1):
   oculta sidebar/panel/toolbar, muestra barra flotante premium con
   logo iTRAIN, título de jugada, botón "Reproducir" y "Duplicar"
