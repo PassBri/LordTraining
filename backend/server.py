@@ -7649,7 +7649,7 @@ async def download_session_boards_pdf(share_id: str, theme: str = "light"):
     text-transform: uppercase; padding: 2px 6px; border: 1px solid;
     border-radius: 999px; white-space: nowrap; flex-shrink: 0; align-self:flex-start; }}
 
-  .board-hero {{ margin: 0 9px; height: 112px; border-radius: 6px;
+  .board-hero {{ margin: 0 9px; height: 336px; border-radius: 6px;
     background: {court_bg}; border: 1px solid {court_border};
     overflow: hidden; position: relative; }}
   .court {{ width: 100%; height: 100%; display: flex; align-items: center;
