@@ -9,6 +9,18 @@
 
 ## Implementado
 
+### FASE 12 — Validación final batch Bolirana + Coach Profile + Animaciones (Abr 20, 2026)
+
+**Añadidos validados (testing 14/14 backend ✅, frontend 100% ✅ — iter_42):**
+- **Nuevo deporte Bolirana** en categoría Trad. Precision: cancha 1.5x5m, 9 agujeros numerados (1000/900/1000/400/500/400/200/300/200) + SAPO central, línea de lanzamiento a 3m.
+- **Animación Rana "sinking" + sonido "clink"**: al anotar, el disco se marca `sinking=true` → render loop escala a 0 + fadeout en 600ms, disco desaparece (`el.gone=true`). WebAudio: triangle wave 1400→2800Hz en 50ms + fadeout 350ms.
+- **Colisión Mecha→Bocín en Tejo/Minitejo ("¡MONAZO! +10000")**: en `checkKnockdowns` detecta d<14 con speed>0.4 en bocín pos (300,90 Tejo / 300,195 Minitejo), marca mecha explotada, flash goal, suma 10000 pts, sonido sawtooth 120→40Hz + sparkle sine 2200→4000Hz.
+- **Perfil público Coach (`/coach.html?slug=xxx`)**: avatar con iniciales, stats (jugadas/vistas/duplicadas), grid de jugadas publicadas con marca HOT cuando duplicadas≥3.
+- **Endpoint `GET /api/coaches/{slug}`**: slug normalizado (lowercase+guiones), retorna `{slug, coach_name, items[], totals, not_found}` — slug inexistente devuelve 200 con `not_found:true`.
+- **Modal Compartir con inputs coach**: inputs `coach_name` + `coach_slug` persistidos en localStorage, link clickeable a `/coach.html?slug=<slug>` (FIX: antes decía `/coach/<slug>` que caía al React SPA).
+- **Test suite pytest**: `/app/backend/tests/test_tactical_board_share.py` creado por testing agent (14 casos cubriendo share+coach+duplicate+top+OG+e2e).
+
+
 ### FASE 1 + 2 + 3 completas (Feb 2026)
 
 **FASE 1 — Fixes + Categoria Precision + Drag/Zoom natural:**
