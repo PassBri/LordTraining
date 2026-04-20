@@ -557,6 +557,10 @@ const SESION_INICIAL = {
     // Fases de FC — valores preestablecidos para que la gráfica sea visible desde el inicio
     fcAntesEntrenamiento: '70',
     fcDuranteEntrenamiento: '150',
+    // Sub-fases del "Durante" para mayor granularidad
+    fcFaseInicial: '',    // Calentamiento / primer tercio (≈20% duración)
+    fcFasePrincipal: '',  // Parte central (≈50% duración)
+    fcFaseFinal: '',      // Vuelta a la calma / último tercio (≈85% duración)
     fcDespuesEntrenamiento: '90',
     // Recuperación por tiempo
     fcRecuperacion1min: '85',
@@ -1700,14 +1704,27 @@ const SessionEditor = ({
                   {/* ── Gráfica Trading-style (InteractiveChart) con controles integrados ── */}
                   {(() => {
                     const m = sessionData.monitoreo;
+                    // Sub-fases del "Durante" (Inicial 20%, Principal 50%, Final 85%)
+                    const subPhaseKeys = ['fcFaseInicial','fcFasePrincipal','fcFaseFinal'];
+                    const hasSubPhases = subPhaseKeys.some(k => m[k] && parseInt(m[k]) > 0);
                     const phases = [
                       { id: 'antes',   label: 'Antes',    key: 'fcAntesEntrenamiento',    color: '#3B82F6', tPct: 0.00 },
-                      { id: 'durante', label: 'Durante',  key: 'fcDuranteEntrenamiento',  color: '#EF4444', tPct: 0.50 },
+                    ];
+                    if (hasSubPhases) {
+                      phases.push(
+                        { id: 'inicial',   label: 'Inicial',   key: 'fcFaseInicial',   color: '#f59e0b', tPct: 0.20, subPhase: true },
+                        { id: 'principal', label: 'Principal', key: 'fcFasePrincipal', color: '#EF4444', tPct: 0.50, subPhase: true },
+                        { id: 'final',     label: 'Final',     key: 'fcFaseFinal',     color: '#ec4899', tPct: 0.85, subPhase: true },
+                      );
+                    } else {
+                      phases.push({ id: 'durante', label: 'Durante', key: 'fcDuranteEntrenamiento', color: '#EF4444', tPct: 0.50 });
+                    }
+                    phases.push(
                       { id: 'despues', label: 'Después',  key: 'fcDespuesEntrenamiento',  color: '#10B981', tPct: 1.00 },
                       { id: 'recup1',  label: "Recup 1'", key: 'fcRecuperacion1min',      color: '#14B8A6', tAfter: 1 },
                       { id: 'recup3',  label: "Recup 3'", key: 'fcRecuperacion3min',      color: '#A855F7', tAfter: 3 },
                       { id: 'recup5',  label: "Recup 5'", key: 'fcRecuperacion5min',      color: '#6366F1', tAfter: 5 },
-                    ];
+                    );
                     if (m.mostrarRecuperacion10min) phases.push({ id: 'recup10', label: "Recup 10'", key: 'fcRecuperacion10min', color: '#EC4899', tAfter: 10 });
                     // Duración de la sesión (del header superior, editable por el usuario). Cap: 3h (180min)
                     const sessDur = Math.max(1, Math.min(180, parseInt(sessionData.duration) || 90));
@@ -1728,9 +1745,15 @@ const SessionEditor = ({
                     const fcRep = parseInt(m.fcReposo) || 0;
                     const hasZones = fcMax > 0 && fcRep > 0 && fcMax > fcRep;
                     const fcr = fcMax - fcRep;
-                    // Average workload from "Durante" phase — identifies dominant training zone
-                    const fcDuranteNum = parseInt(m.fcDuranteEntrenamiento) || 0;
+                    // %FCR (Karvonen) — usa el pico máximo entre sub-fases o "Durante"
+                    const duranteValues = hasSubPhases
+                      ? subPhaseKeys.map(k => parseInt(m[k]) || 0).filter(v => v > 0)
+                      : [parseInt(m.fcDuranteEntrenamiento) || 0].filter(v => v > 0);
+                    const fcDuranteNum = duranteValues.length ? Math.max(...duranteValues) : 0;
                     const pctReserve = hasZones && fcDuranteNum ? Math.round(((fcDuranteNum - fcRep) / fcr) * 100) : null;
+                    // %FCR promedio (indicador adicional)
+                    const fcDuranteAvg = duranteValues.length ? Math.round(duranteValues.reduce((a,b)=>a+b,0) / duranteValues.length) : 0;
+                    const pctReserveAvg = hasZones && fcDuranteAvg ? Math.round(((fcDuranteAvg - fcRep) / fcr) * 100) : null;
 
                     // Zone definitions (single source of truth)
                     const ZONE_DEFS = [
@@ -1775,15 +1798,24 @@ const SessionEditor = ({
                     const rowLabel = (txt, color = '#64748b') => (
                       <span className="text-[9px] font-black uppercase tracking-wider w-[72px] flex-shrink-0" style={{color,fontFamily:DM}}>{txt}</span>
                     );
-                    const entrenamientoPhases = phases.filter(p => ['antes','durante','despues'].includes(p.id));
-                    const recupPhases = phases.filter(p => p.id.startsWith('recup')).concat(m.mostrarRecuperacion10min ? [] : []);
+                    const entrenamientoPhases = phases.filter(p => ['antes','durante','despues','inicial','principal','final'].includes(p.id));
+                    const recupPhases = phases.filter(p => p.id.startsWith('recup'));
 
                     const inlineControls = (
                       <div className="w-full flex flex-col gap-1.5 py-1">
-                        {/* Línea 1: Fases de entrenamiento */}
+                        {/* Línea 1: Fases de entrenamiento — Antes, Sub-fases del Durante (Inicial/Principal/Final), Después */}
                         <div className={rowStyle}>
                           {rowLabel('Entrenamiento', '#334155')}
-                          {entrenamientoPhases.map(pill)}
+                          {pill({ id: 'antes',   label: 'Antes',   key: 'fcAntesEntrenamiento',   color: '#3B82F6' })}
+                          {pill({ id: 'inicial',   label: 'Inicial',   key: 'fcFaseInicial',   color: '#f59e0b' })}
+                          {pill({ id: 'principal', label: 'Principal', key: 'fcFasePrincipal', color: '#EF4444' })}
+                          {pill({ id: 'final',     label: 'Final',     key: 'fcFaseFinal',     color: '#ec4899' })}
+                          {pill({ id: 'despues', label: 'Después', key: 'fcDespuesEntrenamiento', color: '#10B981' })}
+                          {!hasSubPhases && (
+                            <span className="text-[9px] text-slate-400 italic ml-1" style={{fontFamily:DM}} title="Inicial (20%), Principal (50%), Final (85%) de la duración">
+                              Llena Inicial/Principal/Final para mayor detalle
+                            </span>
+                          )}
                         </div>
 
                         <div className="h-px bg-slate-100" />
@@ -1848,9 +1880,16 @@ const SessionEditor = ({
                                 );
                               })}
                               {pctReserve !== null && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-900 text-[10px] font-bold text-lime-400 ml-1" style={{fontFamily:DM}} title="% Frecuencia Cardíaca de Reserva (Karvonen) durante el entrenamiento">
-                                  %FCR <span className="text-white font-black">{pctReserve}%</span>
-                                </span>
+                                <>
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-900 text-[10px] font-bold text-lime-400 ml-1" style={{fontFamily:DM}} title={`%FCR Pico (Karvonen): FC_pico(${fcDuranteNum}) - FC_reposo(${fcRep}) / (FC_max(${fcMax}) - FC_reposo(${fcRep})) = ${pctReserve}%`}>
+                                    %FCR Pico <span className="text-white font-black">{pctReserve}%</span>
+                                  </span>
+                                  {hasSubPhases && pctReserveAvg !== null && pctReserveAvg !== pctReserve && (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-700 text-[10px] font-bold text-cyan-300" style={{fontFamily:DM}} title={`%FCR Promedio de las 3 sub-fases (FC promedio: ${fcDuranteAvg} bpm)`}>
+                                      Promedio <span className="text-white font-black">{pctReserveAvg}%</span>
+                                    </span>
+                                  )}
+                                </>
                               )}
                             </>
                           ) : (
