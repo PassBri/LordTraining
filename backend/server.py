@@ -7469,13 +7469,19 @@ async def download_session_boards_pdf(share_id: str, theme: str = "light"):
         ]
 
         is_dark = theme == "dark"
-        bg = "#0a0a0f" if is_dark else "#ffffff"
+        bg = "#0a0a0f" if is_dark else "#f5f7f2"
         surface = "#111118" if is_dark else "#ffffff"
         ink = "#e5e7eb" if is_dark else "#0f172a"
         ink_muted = "#94a3b8" if is_dark else "#64748b"
         border = "rgba(255,255,255,0.10)" if is_dark else "#e2e8f0"
         accent = "#c8f700"
-        board_bg = "#0f172a" if is_dark else "#f8fafc"
+        # Fondo verde tipo cancha (como tactical-board) — distinto por tema
+        court_bg = ("radial-gradient(ellipse at center, #166534 0%, #14532d 55%, #0a2e16 100%)"
+                    if is_dark else
+                    "radial-gradient(ellipse at center, #dcefd2 0%, #c6e5b5 60%, #b3d9a1 100%)")
+        court_border = "rgba(200,247,0,0.28)" if is_dark else "rgba(22,101,52,0.30)"
+        chip_bg = "rgba(255,255,255,0.06)" if is_dark else "rgba(15,23,42,0.05)"
+        chip_border = "rgba(255,255,255,0.10)" if is_dark else "rgba(15,23,42,0.10)"
 
         def _esc(v):
             if v is None:
@@ -7490,51 +7496,80 @@ async def download_session_boards_pdf(share_id: str, theme: str = "light"):
             s = str(svg_str).strip()
             return s
 
-        rows_html_parts = []
+        def _cap_color(cap):
+            c = (cap or "").strip().lower()
+            mapping = {
+                "fuerza":       ("#ef4444", "Fuerza"),
+                "resistencia":  ("#3b82f6", "Resistencia"),
+                "velocidad":    ("#f59e0b", "Velocidad"),
+                "flexibilidad": ("#10b981", "Flexibilidad"),
+                "coordinacion": ("#8b5cf6", "Coordinación"),
+                "coordinación": ("#8b5cf6", "Coordinación"),
+                "potencia":     ("#ec4899", "Potencia"),
+                "tecnica":      ("#14b8a6", "Técnica"),
+                "técnica":      ("#14b8a6", "Técnica"),
+            }
+            return mapping.get(c, (accent, (cap or "—").title()))
+
+        cards_html_parts = []
         total_acts = 0
         for fase_key, fase_label, fase_color in fase_order:
             fase = fases_dict.get(fase_key, {}) or {}
             acts = fase.get("actividades", []) or []
             if not acts:
                 continue
-            rows_html_parts.append(f"""
-              <tr class="fase-row">
-                <td colspan="8" style="background:{fase_color}15;color:{fase_color};
-                  font-weight:800;letter-spacing:0.08em;text-transform:uppercase;
-                  font-size:10px;padding:8px 10px;border-top:1.5px solid {fase_color};">
-                  {fase_label} · {len(acts)} ejercicio{'s' if len(acts)!=1 else ''}
-                </td>
-              </tr>
+            cards_html_parts.append(f"""
+              <div class="fase-banner" style="--fase:{fase_color};">
+                <span class="fase-dot"></span>
+                <span class="fase-label">{fase_label}</span>
+                <span class="fase-count">{len(acts)} ejercicio{'s' if len(acts)!=1 else ''}</span>
+              </div>
             """)
+            cards_html_parts.append('<div class="cards-grid">')
             for i, act in enumerate(acts, 1):
                 total_acts += 1
                 board_svg = _sanitize_svg(act.get("boardThumbnail"))
-                board_cell = (
-                    f'<div class="board-wrap" style="background:{board_bg};">{board_svg}</div>'
+                board_inner = (
+                    f'<div class="court">{board_svg}</div>'
                     if board_svg
-                    else f'<div class="board-empty" style="background:{board_bg};color:{ink_muted};">sin pizarra</div>'
+                    else '<div class="court empty"><span>Sin pizarra asignada</span></div>'
                 )
-                rows_html_parts.append(f"""
-                  <tr class="act-row">
-                    <td class="num-cell">{i}</td>
-                    <td class="board-cell">{board_cell}</td>
-                    <td class="name-cell">
-                      <div class="act-name">{_esc(act.get('nombre') or act.get('name') or 'Ejercicio')}</div>
-                      {f'<div class="act-desc">{_esc(act.get("descripcion") or "")}</div>' if act.get('descripcion') else ''}
-                    </td>
-                    <td class="num-val">{_esc(act.get('series', '—'))}</td>
-                    <td class="num-val">{_esc(act.get('repeticiones', '—'))}</td>
-                    <td class="cap-val">{_esc((act.get('capacidadFisica') or '—')).title()}</td>
-                    <td class="num-val">{_esc(act.get('intensidad', '—'))}{'%' if act.get('intensidad') not in (None,'','—') else ''}</td>
-                    <td class="num-val">{_esc(act.get('volumen', '—'))}</td>
-                  </tr>
+                cap_color, cap_label = _cap_color(act.get("capacidadFisica"))
+                series_v = act.get('series', '—')
+                reps_v = act.get('repeticiones', '—')
+                int_v = act.get('intensidad', '—')
+                vol_v = act.get('volumen', '—')
+                desc = act.get("descripcion") or ""
+                int_display = (f"{_esc(int_v)}%" if int_v not in (None,'','—') else '—')
+                cards_html_parts.append(f"""
+                  <article class="card" style="--fase:{fase_color};">
+                    <div class="card-head">
+                      <span class="idx" style="background:{fase_color};">{i:02d}</span>
+                      <div class="card-title">
+                        <h3>{_esc(act.get('nombre') or act.get('name') or 'Ejercicio')}</h3>
+                        {f'<p class="card-desc">{_esc(desc)}</p>' if desc else ''}
+                      </div>
+                      <span class="cap-chip" style="color:{cap_color};border-color:{cap_color};">
+                        {_esc(cap_label)}
+                      </span>
+                    </div>
+                    <div class="board-hero">
+                      {board_inner}
+                    </div>
+                    <div class="stats">
+                      <div class="stat"><span class="k">Series</span><span class="v">{_esc(series_v)}</span></div>
+                      <div class="stat"><span class="k">Reps.</span><span class="v">{_esc(reps_v)}</span></div>
+                      <div class="stat"><span class="k">Intensidad</span><span class="v">{int_display}</span></div>
+                      <div class="stat"><span class="k">Volumen</span><span class="v">{_esc(vol_v)}</span></div>
+                    </div>
+                  </article>
                 """)
+            cards_html_parts.append('</div>')
 
-        if not rows_html_parts:
-            rows_html_parts.append("""
-              <tr><td colspan="8" style="padding:40px;text-align:center;color:#94a3b8;
-                font-style:italic;">Esta sesión no tiene actividades aún.</td></tr>
-            """)
+        if not cards_html_parts:
+            cards_html_parts.append(
+                '<div class="empty-note">Esta sesión no tiene actividades aún.</div>'
+            )
 
         objetivos_html = ""
         if objetivo_general or objetivos_especificos:
@@ -7562,50 +7597,86 @@ async def download_session_boards_pdf(share_id: str, theme: str = "light"):
     -webkit-print-color-adjust: exact; print-color-adjust: exact; }}
   body {{ min-height: 297mm; background:{bg}; }}
   .page {{ padding: 10mm 9mm; max-width: 100%; background:{bg}; min-height: 297mm; }}
+
   header.hd {{ display:flex; align-items:flex-end; justify-content:space-between;
-    border-bottom: 2px solid {accent}; padding-bottom: 10px; margin-bottom: 14px; }}
-  .brand {{ font-size: 10px; letter-spacing: 0.3em; color: {accent};
+    border-bottom: 2px solid {accent}; padding-bottom: 9px; margin-bottom: 10px; }}
+  .brand {{ font-size: 9px; letter-spacing: 0.32em; color: {accent};
     font-weight: 900; text-transform: uppercase; }}
-  .title {{ font-size: 22px; font-weight: 900; color: {ink};
-    letter-spacing: -0.01em; margin: 2px 0 4px 0; }}
-  .meta {{ font-size: 10px; color: {ink_muted}; display:flex; gap:14px; }}
+  .title {{ font-size: 20px; font-weight: 900; color: {ink};
+    letter-spacing: -0.015em; margin: 2px 0 4px 0; }}
+  .meta {{ font-size: 9.5px; color: {ink_muted}; display:flex; gap:12px; flex-wrap:wrap; }}
   .meta strong {{ color: {ink}; font-weight: 700; }}
-  .tag {{ display:inline-block; padding:2px 8px; border-radius:999px;
+  .tag {{ display:inline-block; padding:3px 10px; border-radius:999px;
     background:{accent}; color:#0a0a0f; font-weight:900; font-size:9px;
-    letter-spacing:0.1em; text-transform:uppercase; }}
+    letter-spacing:0.14em; text-transform:uppercase; }}
+
   section.objectives {{ background: {surface}; border:1px solid {border};
-    border-left:3px solid {accent}; border-radius:6px; padding:10px 14px;
-    margin-bottom: 14px; }}
-  section.objectives h2 {{ font-size:10px; letter-spacing:0.2em;
-    text-transform: uppercase; color:{ink_muted}; margin:0 0 6px 0; font-weight:800; }}
-  section.objectives ul {{ margin:0; padding-left:16px; font-size:11px; line-height:1.5; }}
-  section.objectives li {{ margin-bottom:2px; }}
-  table.grid {{ width:100%; border-collapse: collapse; background:{surface};
-    border:1px solid {border}; border-radius:6px; overflow:hidden; font-size:10px; }}
-  table.grid thead th {{ background:{bg}; color:{ink_muted};
-    text-transform: uppercase; letter-spacing: 0.12em; font-size:8.5px;
-    font-weight:800; text-align:left; padding:8px 6px;
-    border-bottom:1px solid {border}; }}
-  table.grid td {{ padding:7px 6px; border-bottom:1px solid {border};
-    vertical-align: middle; color:{ink}; }}
-  table.grid tr.act-row:nth-child(odd) td {{ background: {'rgba(255,255,255,0.02)' if is_dark else '#fafafa'}; }}
-  .num-cell {{ width:22px; text-align:center; color:{ink_muted}; font-weight:800;
-    font-variant-numeric: tabular-nums; }}
-  .board-cell {{ width:78px; padding:4px !important; }}
-  .board-wrap {{ width:72px; height:52px; border-radius:4px; overflow:hidden;
-    border:1px solid {border}; display:flex; align-items:center; justify-content:center; }}
-  .board-wrap svg {{ width:100%; height:100%; }}
-  .board-empty {{ width:72px; height:52px; border-radius:4px;
-    border:1px dashed {border}; display:flex; align-items:center;
-    justify-content:center; font-size:8px; font-style:italic; }}
-  .name-cell {{ min-width: 160px; }}
-  .act-name {{ font-weight:700; color:{ink}; font-size:11px; line-height:1.25; }}
-  .act-desc {{ font-size:9px; color:{ink_muted}; margin-top:1px; line-height:1.3; }}
-  .num-val {{ width:60px; text-align:center; font-variant-numeric: tabular-nums;
-    font-weight:700; font-size:11px; }}
-  .cap-val {{ width:88px; font-weight:600; color:{ink}; font-size:10px; }}
-  footer.ft {{ margin-top:14px; font-size:8.5px; color:{ink_muted};
-    text-align:right; border-top:1px solid {border}; padding-top:6px; }}
+    border-left:3px solid {accent}; border-radius:6px; padding:7px 12px;
+    margin-bottom: 10px; }}
+  section.objectives h2 {{ font-size:9px; letter-spacing:0.22em;
+    text-transform: uppercase; color:{ink_muted}; margin:0 0 3px 0; font-weight:800; }}
+  section.objectives ul {{ margin:0; padding-left:16px; font-size:10px; line-height:1.45; }}
+  section.objectives li {{ margin-bottom:1px; }}
+
+  .fase-banner {{ display:flex; align-items:center; gap:10px;
+    margin: 10px 0 7px 0; padding: 5px 10px; border-radius: 5px;
+    background: linear-gradient(90deg, var(--fase)18, transparent 70%);
+    border-left: 3px solid var(--fase); }}
+  .fase-dot {{ width:8px; height:8px; border-radius:999px; background:var(--fase);
+    box-shadow: 0 0 0 3px var(--fase)33; }}
+  .fase-label {{ color:var(--fase); font-weight:900; font-size:10px;
+    letter-spacing:0.22em; text-transform:uppercase; }}
+  .fase-count {{ color:{ink_muted}; font-size:9px; font-weight:600; margin-left:auto; }}
+
+  .cards-grid {{ display:grid; grid-template-columns: 1fr 1fr; gap:8px;
+    margin-bottom: 8px; }}
+  .card {{ background: {surface}; border: 1px solid {border};
+    border-top: 2px solid var(--fase); border-radius: 7px; overflow: hidden;
+    display:flex; flex-direction:column; page-break-inside: avoid;
+    break-inside: avoid; }}
+  .card-head {{ display:flex; align-items:flex-start; gap:7px;
+    padding: 7px 9px 5px 9px; }}
+  .idx {{ display:inline-flex; align-items:center; justify-content:center;
+    width: 22px; height: 22px; border-radius: 5px; color: #0a0a0f;
+    font-weight: 900; font-size: 10px; font-variant-numeric: tabular-nums;
+    flex-shrink:0; }}
+  .card-title {{ flex: 1; min-width: 0; }}
+  .card-title h3 {{ margin: 0; font-size: 11.5px; font-weight: 800; color: {ink};
+    line-height: 1.2; letter-spacing: -0.01em; }}
+  .card-desc {{ margin: 1px 0 0 0; font-size: 8.5px; color: {ink_muted};
+    line-height: 1.35; }}
+  .cap-chip {{ font-size: 8px; font-weight: 900; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 2px 6px; border: 1px solid;
+    border-radius: 999px; white-space: nowrap; flex-shrink: 0; align-self:flex-start; }}
+
+  .board-hero {{ margin: 0 9px; height: 112px; border-radius: 6px;
+    background: {court_bg}; border: 1px solid {court_border};
+    overflow: hidden; position: relative; }}
+  .court {{ width: 100%; height: 100%; display: flex; align-items: center;
+    justify-content: center; }}
+  .court svg {{ width: 100%; height: 100%; max-width: 100%; max-height: 100%;
+    display: block; }}
+  .court.empty {{ font-size: 9px; font-style: italic;
+    color: { '#86efac' if is_dark else '#166534' };
+    letter-spacing: 0.06em; text-transform: uppercase; }}
+
+  .stats {{ display:grid; grid-template-columns: repeat(4, 1fr); gap:4px;
+    padding: 7px 9px 9px 9px; }}
+  .stat {{ display:flex; flex-direction:column; align-items:center;
+    padding: 4px 2px; border-radius: 4px;
+    background: {chip_bg}; border: 1px solid {chip_border}; }}
+  .stat .k {{ font-size: 7.5px; color: {ink_muted};
+    text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }}
+  .stat .v {{ font-size: 12px; color: {ink}; font-weight: 900;
+    font-variant-numeric: tabular-nums; margin-top: 1px; line-height: 1; }}
+
+  .empty-note {{ text-align:center; color:{ink_muted};
+    font-style: italic; padding: 28px; border: 1px dashed {border};
+    border-radius: 8px; }}
+
+  footer.ft {{ margin-top: 10px; font-size: 8px; color: {ink_muted};
+    text-align: right; border-top: 1px solid {border}; padding-top: 5px;
+    letter-spacing: 0.08em; text-transform: uppercase; }}
 </style></head>
 <body>
   <div class="page">
@@ -7622,23 +7693,7 @@ async def download_session_boards_pdf(share_id: str, theme: str = "light"):
       <div class="tag">Pizarras {('Oscuras' if is_dark else 'Claras')}</div>
     </header>
     {objetivos_html}
-    <table class="grid">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Pizarra</th>
-          <th>Ejercicio</th>
-          <th style="text-align:center;">Series</th>
-          <th style="text-align:center;">Reps.</th>
-          <th>Capacidad</th>
-          <th style="text-align:center;">Intensidad</th>
-          <th style="text-align:center;">Volumen</th>
-        </tr>
-      </thead>
-      <tbody>
-        {''.join(rows_html_parts)}
-      </tbody>
-    </table>
+    {''.join(cards_html_parts)}
     <footer class="ft">Generado con iTRAIN · {share_id}</footer>
   </div>
 </body></html>"""
