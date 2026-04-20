@@ -526,6 +526,7 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
    </div>
    <div class="vb-sep"></div>
    <div class="vb-group" style="margin-left:auto">
+    <a class="vb-icon" id="top-rank-link" href="/top-jugadas.html" target="_blank" rel="noopener" title="Top Jugadas (ranking viral)" data-testid="top-rank-btn" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 10px;width:auto;font-size:11px;font-weight:800;letter-spacing:0.04em;color:#f59e0b;border-color:rgba(245,158,11,0.4);background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(245,158,11,0.02))"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>TOP</a>
     <button class="vb-icon" id="theme-toggle" onclick="S.toggleTheme()" title="Cambiar tema" data-testid="theme-toggle-btn"><svg id="theme-icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><svg id="theme-icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
    </div>
   </div>
@@ -2993,17 +2994,7 @@ checkKnockdowns(movingEl, prevX, prevY) {
    O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y+1}" rx="11" ry="4" fill="#3a1a05"/>`;
    O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y}" rx="10" ry="3.6" fill="#b8860b" stroke="#7a4b1a" stroke-width="1"/>`;
    O += `<ellipse cx="${bocinC.x-1}" cy="${bocinC.y-0.6}" rx="4" ry="1.5" fill="#facc15"/>`;
-   // 4 MECHAS posicionadas en las esquinas del bocín (papelitos rojos/naranjas)
-   const mechaPts = [[273,63],[327,63],[273,117],[327,117]];
-   for (const [mx, my] of mechaPts) {
-    const mb = this.toIso(mx, my, boxH);
-    const mt = this.toIso(mx, my, boxH + 4);
-    // Pliegue de papel
-    O += `<polygon points="${mb.x-4},${mb.y} ${mb.x+4},${mb.y} ${mt.x+3},${mt.y} ${mt.x-3},${mt.y}" fill="#dc2626" stroke="#7f1d1d" stroke-width="0.5"/>`;
-    O += `<ellipse cx="${mt.x}" cy="${mt.y}" rx="3" ry="1" fill="#fca5a5"/>`;
-    // Hilo de pólvora amarillo
-    O += `<line x1="${mt.x}" y1="${mt.y}" x2="${mt.x+1}" y2="${mt.y-3}" stroke="#fbbf24" stroke-width="0.9" stroke-linecap="round"/>`;
-   }
+   // Las mechas se colocan con el ítem "Mecha" del panel de implementos (el jugador las pone)
    // Línea de lanzamiento visible 3D
    const thr1 = this.toIso(245, 700, 0), thr2 = this.toIso(355, 700, 0);
    O += `<line x1="${thr1.x}" y1="${thr1.y}" x2="${thr2.x}" y2="${thr2.y}" stroke="rgba(245,230,200,0.95)" stroke-width="2" stroke-dasharray="5 3"/>`;
@@ -3034,15 +3025,7 @@ checkKnockdowns(movingEl, prevX, prevY) {
    O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y+1}" rx="16" ry="6" fill="#3a1a05"/>`;
    O += `<ellipse cx="${bocinC.x}" cy="${bocinC.y}" rx="15" ry="5.5" fill="#b8860b" stroke="#7a4b1a" stroke-width="1.1"/>`;
    O += `<ellipse cx="${bocinC.x-2}" cy="${bocinC.y-1}" rx="6" ry="2" fill="#facc15"/>`;
-   // 4 mechas en esquinas
-   const mechaPts = [[240,135],[360,135],[240,255],[360,255]];
-   for (const [mx, my] of mechaPts) {
-    const mb = this.toIso(mx, my, boxH);
-    const mt = this.toIso(mx, my, boxH + 5);
-    O += `<polygon points="${mb.x-4.5},${mb.y} ${mb.x+4.5},${mb.y} ${mt.x+3.5},${mt.y} ${mt.x-3.5},${mt.y}" fill="#dc2626" stroke="#7f1d1d" stroke-width="0.6"/>`;
-    O += `<ellipse cx="${mt.x}" cy="${mt.y}" rx="3.5" ry="1.2" fill="#fca5a5"/>`;
-    O += `<line x1="${mt.x}" y1="${mt.y}" x2="${mt.x+1}" y2="${mt.y-3.5}" stroke="#fbbf24" stroke-width="1" stroke-linecap="round"/>`;
-   }
+   // Las mechas las coloca el jugador desde el panel (implementos)
   }
 
 
@@ -4748,7 +4731,8 @@ checkKnockdowns(movingEl, prevX, prevY) {
      const r = el.size||14;
      const nm = el.name||'';
      // In "avatar" mode render a mini-avatar with profession icon (whistle, clipboard, briefcase, etc.)
-     if (ST.avatarMode === 'avatar') {
+     const showAvatar = el.avatarOverride === true || (el.avatarOverride !== false && ST.avatarMode === 'avatar');
+     if (showAvatar) {
       const R = r * 1.35;
       // Head + torso colors by role
       const skin = '#f4c098';
@@ -4976,6 +4960,11 @@ checkKnockdowns(movingEl, prevX, prevY) {
    html += `<div class="prop-row"><label>X</label><input type="number" value="${Math.round(el.x||0)}" onchange="S.setProp(${el.id},'x',+this.value)"></div>`;
    html += `<div class="prop-row"><label>Y</label><input type="number" value="${Math.round(el.y||0)}" onchange="S.setProp(${el.id},'y',+this.value)"></div>`;
    if(el.color) html += `<div class="prop-row"><label>Color</label><input type="color" value="${el.color}" class="color-swatch" onchange="S.setProp(${el.id},'color',this.value)"></div>`;
+   // Toggle Avatar por persona (entrenador, árbitro, masajista, etc.)
+   if (el.type.startsWith('p_')) {
+    const useAvatar = el.avatarOverride !== false && (el.avatarOverride === true || ST.avatarMode === 'avatar');
+    html += `<div class="prop-row" data-testid="person-avatar-toggle"><label>Avatar</label><label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;font-weight:600;color:var(--text)"><input type="checkbox" ${useAvatar?'checked':''} onchange="S.setProp(${el.id},'avatarOverride',this.checked);S.updatePanel()" style="cursor:pointer;width:14px;height:14px;accent-color:var(--brand)">${useAvatar?'Mostrar avatar':'Solo iniciales'}</label></div>`;
+   }
    // Player/ball size = radius (8-40), Equipment size = scale (0.5-2.0)
    const isPlayer = el.type.startsWith('player')||el.type==='goalkeeper';
    const isBall = el.type==='ball';

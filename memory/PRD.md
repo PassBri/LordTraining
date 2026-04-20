@@ -436,7 +436,21 @@
   para no empujar los botones JUGADORES/Tactico/Camiseta/Avatar.
 - Labels mas cortos: '11 vs 11 · FIFA', '7 vs 7 · Juvenil', '5 vs 5 · Infantil'.
 
-### Full-width toolbar + 3D Precisión + Coach Wrapped (Feb 2026)
+### Botón TOP + Bocín limpio + Avatar per-persona (Feb 2026)
+- Botón 🏆 "TOP" agregado a #view-bar junto a la luna, abre
+  /top-jugadas.html en nueva pestaña. Dorado distintivo para
+  destacar el ranking viral.
+- Tejo/Minitejo 3D ahora renderiza SOLO el bocín dorado central.
+  Las mechas se colocan como implemento arrastrable desde el
+  panel IMPLEMENTOS (deporte-gated).
+- Nueva propiedad `avatarOverride` por persona: toggle ON/OFF
+  "Mostrar avatar" en el panel PROPIEDADES para cada elemento
+  p_* sin cambiar el modo global. buildElSvg respeta el override
+  individual: true = siempre avatar con accesorio profesional,
+  false = solo iniciales coloreadas, undefined = sigue el modo
+  global (ST.avatarMode).
+
+
 - Barra superior #view-bar ahora position:fixed y ocupa desde el
   sidebar (380px) hasta el borde derecho del viewport, cubriendo el
   espacio muerto arriba-derecha del panel. Todos los botones caben
