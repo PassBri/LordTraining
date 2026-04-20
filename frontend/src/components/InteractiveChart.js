@@ -668,7 +668,7 @@ const InteractiveChart = ({
             <div className="flex items-center gap-2 flex-wrap">
               {/* Mini selector de tipo de gráfico */}
               <div className="flex bg-slate-100 rounded-lg p-0.5">
-                {CHART_TYPES.slice(0, 4).map(type => {
+                {CHART_TYPES.map(type => {
                   const TypeIcon = type.icon;
                   return (
                     <button

@@ -568,6 +568,8 @@ const SESION_INICIAL = {
     fcRecuperacion5min: '72',
     fcRecuperacion10min: '68',
     mostrarRecuperacion10min: false,
+    // Zona objetivo de la sesión (para medir cumplimiento)
+    zonaObjetivo: 'Z2',
     // Tipo de gráfica
     tipoGrafica: 'barras', // 'barras', 'lineas', 'mixta'
     estiloLinea: 'lime', // 'lime', 'multi', 'punteada', 'gradient'
@@ -1755,6 +1757,25 @@ const SessionEditor = ({
                     const fcDuranteAvg = duranteValues.length ? Math.round(duranteValues.reduce((a,b)=>a+b,0) / duranteValues.length) : 0;
                     const pctReserveAvg = hasZones && fcDuranteAvg ? Math.round(((fcDuranteAvg - fcRep) / fcr) * 100) : null;
 
+                    // Evaluación de cumplimiento del objetivo de la sesión
+                    const ZONE_DEFS_MAP = { Z1:{min:50,max:60}, Z2:{min:60,max:70}, Z3:{min:70,max:80}, Z4:{min:80,max:90}, Z5:{min:90,max:100} };
+                    const zonaObj = m.zonaObjetivo || 'Z2';
+                    const objRange = ZONE_DEFS_MAP[zonaObj];
+                    let cumplimiento = null; // 'cumple' | 'bajo' | 'alto' | null
+                    let cumplimientoLabel = '';
+                    if (hasZones && pctReserveAvg !== null && objRange) {
+                      if (pctReserveAvg >= objRange.min && pctReserveAvg <= objRange.max) {
+                        cumplimiento = 'cumple';
+                        cumplimientoLabel = '✓ En zona objetivo';
+                      } else if (pctReserveAvg < objRange.min) {
+                        cumplimiento = 'bajo';
+                        cumplimientoLabel = `↓ ${objRange.min - pctReserveAvg}% por debajo del objetivo`;
+                      } else {
+                        cumplimiento = 'alto';
+                        cumplimientoLabel = `↑ ${pctReserveAvg - objRange.max}% por encima del objetivo`;
+                      }
+                    }
+
                     // Zone definitions (single source of truth)
                     const ZONE_DEFS = [
                       { z:'Z1', range:'50-60%', name:'Recuperación',    color:'#059669', bg:'#d1fae5', min:0.50, max:0.60 },
@@ -1769,8 +1790,8 @@ const SessionEditor = ({
                       y1: Math.round(fcRep + fcr * z.min),
                       y2: Math.round(fcRep + fcr * z.max),
                       color: z.color,
-                      fillOpacity: 0.12,
-                      label: `${z.z} ${z.name}`
+                      fillOpacity: z.z === zonaObj ? 0.25 : 0.10,
+                      label: z.z === zonaObj ? `🎯 ${z.z} ${z.name} · OBJETIVO` : `${z.z} ${z.name}`
                     })) : [];
 
                     // Y-axis dinámico: si hay zonas, ajustar al rango útil para que las bandas se vean grandes
@@ -1779,20 +1800,19 @@ const SessionEditor = ({
                       : [0, 240];
 
                     // Bloque de FC phases inputs + reposo/media/maxima + zonas (organizado en 4 líneas)
-                    const rowStyle = 'flex items-center gap-1.5 flex-wrap';
+                    const rowStyle = 'flex items-center gap-2 flex-wrap';
                     const pill = (p) => (
                       <div key={p.id} className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-50 border border-slate-200" data-testid={`fc-${p.id}`}>
-                        <span className="w-1.5 h-1.5 rounded-full" style={{background:p.color}} />
-                        <span className="text-[9px] font-bold uppercase tracking-wide text-slate-500" style={{fontFamily:DM}}>{p.label}</span>
+                        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{background:p.color}} />
+                        <span className="text-[9px] font-bold uppercase tracking-wide text-slate-500 whitespace-nowrap" style={{fontFamily:DM}}>{p.label}</span>
                         <Input
                           type="number"
                           value={m[p.key]}
                           onChange={(e) => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, [p.key]: e.target.value } }))}
-                          className="h-5 w-12 text-center font-black text-[11px] rounded border-0 bg-white px-1 focus:ring-1 focus:ring-[#84cc16]"
+                          className="h-5 w-10 text-center font-black text-[11px] rounded border-0 bg-white px-0.5 focus:ring-1 focus:ring-[#84cc16]"
                           style={{fontFamily:DM}}
                           data-testid={`fc-${p.id}-input`}
                         />
-                        <span className="text-[8px] text-slate-400" style={{fontFamily:DM}}>bpm</span>
                       </div>
                     );
                     const rowLabel = (txt, color = '#64748b') => (
@@ -1862,7 +1882,7 @@ const SessionEditor = ({
 
                         <div className="h-px bg-slate-100" />
 
-                        {/* Línea 4: Zonas de Frecuencia Cardíaca */}
+                        {/* Línea 4: Zonas de Frecuencia Cardíaca + Zona Objetivo + Cumplimiento */}
                         <div className={rowStyle}>
                           {rowLabel('Zonas FC', '#be185d')}
                           {hasZones ? (
@@ -1871,12 +1891,14 @@ const SessionEditor = ({
                                 const lo = Math.round(fcRep + fcr * z.min);
                                 const hi = Math.round(fcRep + fcr * z.max);
                                 const active = pctReserve !== null && pctReserve >= z.min*100 && pctReserve <= z.max*100;
+                                const isObjetivo = zonaObj === z.z;
                                 return (
-                                  <div key={z.z} className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${active ? 'ring-2 ring-offset-1 scale-105 shadow-md' : ''}`} style={{background:z.bg, color:z.color, border:`1.5px solid ${z.color}`, '--tw-ring-color': z.color}} title={`${z.name} · ${z.range} FCR · ${lo}-${hi} bpm`} data-testid={`fc-zone-${z.z}`}>
+                                  <button key={z.z} type="button" onClick={() => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, zonaObjetivo: z.z } }))} className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold transition-all cursor-pointer hover:scale-105 ${active ? 'ring-2 ring-offset-1 shadow-md' : ''} ${isObjetivo ? 'ring-2 ring-offset-1 ring-[#0f172a]' : ''}`} style={{background:z.bg, color:z.color, border:`1.5px solid ${z.color}`, '--tw-ring-color': active ? z.color : '#0f172a'}} title={`${z.name} · ${z.range} FCR · ${lo}-${hi} bpm${isObjetivo ? ' · OBJETIVO DE LA SESIÓN' : ' · Click para marcar como objetivo'}`} data-testid={`fc-zone-${z.z}`}>
+                                    {isObjetivo && <span className="text-[8px]">🎯</span>}
                                     <span className="tabular-nums font-black text-[10px]">{z.z}</span>
                                     <span className="font-bold">{z.name}</span>
                                     <span className="text-[9px] font-semibold tabular-nums opacity-80">{lo}-{hi}</span>
-                                  </div>
+                                  </button>
                                 );
                               })}
                               {pctReserve !== null && (
@@ -1890,6 +1912,17 @@ const SessionEditor = ({
                                     </span>
                                   )}
                                 </>
+                              )}
+                              {/* Badge de cumplimiento */}
+                              {cumplimiento && (
+                                <span
+                                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ml-1 ${cumplimiento === 'cumple' ? 'bg-emerald-500 text-white' : cumplimiento === 'bajo' ? 'bg-amber-400 text-amber-900' : 'bg-red-500 text-white'}`}
+                                  style={{fontFamily:DM}}
+                                  title={`Promedio real: ${pctReserveAvg}% FCR · Objetivo: ${zonaObj} (${objRange.min}-${objRange.max}% FCR)`}
+                                  data-testid="cumplimiento-badge"
+                                >
+                                  {cumplimientoLabel}
+                                </span>
                               )}
                             </>
                           ) : (
