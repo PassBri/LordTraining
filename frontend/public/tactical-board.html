@@ -285,6 +285,24 @@ html.dark #theme-toggle{color:var(--brand)}
 #field-layer text.fld-measure{font-family:'Oswald','Inter',ui-sans-serif,system-ui,sans-serif!important;font-weight:600!important;letter-spacing:0.07em!important;paint-order:stroke;stroke:var(--panel);stroke-width:2.2px;stroke-linejoin:round;text-rendering:geometricPrecision;font-feature-settings:"tnum" 1,"lnum" 1}
 html.dark #field-layer text.fld-measure{stroke:var(--panel)}
 html.dark #field-layer text.fld-measure[data-mono="1"]{fill:rgba(235,235,235,0.95)!important}
+/* ═══ MODO PRESENTACIÓN (pantalla completa, UI minimalista) ═══ */
+body.presentation-mode #sidebar,
+body.presentation-mode #panel,
+body.presentation-mode .vb-row,
+body.presentation-mode #footer-stats,
+body.presentation-mode #joystick,
+body.presentation-mode .iso-angle-bar,
+body.presentation-mode .zoom-controls{display:none !important}
+body.presentation-mode #canvas{padding:0 !important;background:#0a0f19 !important}
+body.presentation-mode #canvas-inner{border-radius:0 !important;background:transparent !important}
+body.presentation-mode #topbar{height:36px !important;opacity:0.3;transition:opacity .3s}
+body.presentation-mode #topbar:hover{opacity:1}
+body.presentation-mode .exit-presentation{position:fixed;top:14px;right:14px;z-index:9999;padding:8px 14px;border-radius:10px;background:rgba(10,15,25,0.85);color:#c8f700;border:1px solid rgba(200,247,0,0.4);font-size:12px;font-weight:800;cursor:pointer;backdrop-filter:blur(10px);box-shadow:0 6px 20px rgba(0,0,0,0.5);display:flex;align-items:center;gap:6px;letter-spacing:0.05em;text-transform:uppercase}
+body.presentation-mode .exit-presentation:hover{background:rgba(200,247,0,0.15);transform:scale(1.05)}
+body.presentation-mode .presentation-controls{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;gap:8px;padding:8px 12px;border-radius:14px;background:rgba(10,15,25,0.85);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(12px);box-shadow:0 8px 28px rgba(0,0,0,0.5)}
+body.presentation-mode .presentation-controls button{padding:6px 12px;border-radius:8px;background:rgba(255,255,255,0.08);color:#e8e8e8;border:1px solid rgba(255,255,255,0.1);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:0.04em}
+body.presentation-mode .presentation-controls button:hover{background:rgba(200,247,0,0.2);color:#c8f700;border-color:rgba(200,247,0,0.3)}
+body.presentation-mode .presentation-controls button.active{background:#c8f700;color:#0a0f1f;border-color:#c8f700}
 /* Joystick */
 #joystick{position:absolute;bottom:18px;right:70px;z-index:20;display:none}
 #joystick.show{display:flex;flex-direction:column;align-items:center}
@@ -416,6 +434,7 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
   <div class="sb-header">
    <div class="logo"><span>i</span></div>
    <div class="brand-text">iTRAIN</div>
+   <a class="sb-header-action" href="/top-jugadas.html" target="_blank" rel="noopener" title="Top Jugadas (ranking viral)" data-testid="top-rank-sidebar-btn" style="margin-left:auto;margin-right:4px;text-decoration:none;display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border-radius:6px;background:rgba(200,247,0,0.08);color:var(--brand);border:1px solid rgba(200,247,0,0.35);font-size:9.5px;font-weight:800;letter-spacing:0.08em"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>TOP</a>
    <button class="sb-close" onclick="S.closeBoard()" title="Volver" data-testid="close-board-btn"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></button>
   </div>
   <!-- Sport selector as accordion (native <details>) -->
@@ -532,7 +551,8 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
    </div>
    <div class="vb-sep"></div>
    <div class="vb-group" style="margin-left:auto">
-    <a class="vb-icon" id="top-rank-link" href="/top-jugadas.html" target="_blank" rel="noopener" title="Top Jugadas (ranking viral)" data-testid="top-rank-btn" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 10px;width:auto;font-size:11px;font-weight:800;letter-spacing:0.04em"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>TOP</a>
+    <a class="vb-icon" id="top-rank-link" href="/top-jugadas.html" target="_blank" rel="noopener" title="Top Jugadas (ranking viral)" data-testid="top-rank-btn" style="text-decoration:none;display:none"></a>
+   <button class="vb-icon" id="presentation-btn" onclick="S.togglePresentation()" title="Modo presentación pantalla completa (P)" data-testid="presentation-btn" style="padding:0 10px;width:auto;gap:4px;font-size:11px;font-weight:800;letter-spacing:0.04em"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>PRES</button>
     <button class="vb-icon" id="theme-toggle" onclick="S.toggleTheme()" title="Cambiar tema" data-testid="theme-toggle-btn"><svg id="theme-icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><svg id="theme-icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
    </div>
   </div>
@@ -747,7 +767,7 @@ const FIELDS = Object.assign({}, FIELD_VARIANT_SVGS, {
 // Rana: mesa 80cm x 80cm con sapo, 7 agujeros, linea lanzamiento a 3m
 'Rana':{bg:'#ffffff',svg:`<rect x="135" y="80" width="330" height="620" fill="rgba(100,140,80,0.06)" rx="4"/><rect x="135" y="80" width="330" height="620" fill="none" stroke-width="1.5"/><rect x="195" y="120" width="210" height="210" fill="rgba(120,80,40,0.18)" stroke-width="1.8" rx="4"/><circle cx="300" cy="225" r="22" fill="rgba(0,0,0,0.35)" stroke-width="0"/><circle cx="300" cy="225" r="16" fill="rgba(255,200,60,0.4)" stroke-width="0.8"/><circle cx="235" cy="160" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="365" cy="160" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="235" cy="290" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="365" cy="290" r="10" fill="rgba(0,0,0,0.25)"/><circle cx="300" cy="150" r="8" fill="rgba(0,0,0,0.2)"/><circle cx="300" cy="300" r="8" fill="rgba(0,0,0,0.2)"/><line x1="135" y1="600" x2="465" y2="600" stroke-width="2" stroke-dasharray="6 4"/><line x1="300" y1="330" x2="300" y2="600" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.45"/><text x="308" y="470" class="fld-measure fld-zone" fill="rgba(40,40,40,0.85)" data-mono="1" font-size="9" font-family="system-ui">3.5 m</text><text x="300" y="72" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">2.3 m</text><text x="127" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">1.5 m</text><text x="300" y="360" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">MESA 80x80 cm · BOCA CENTRAL (SAPO)</text><text x="300" y="622" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE LANZAMIENTO (3.5 m)</text><text x="300" y="720" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">RANA (Sapo) · Reglamento 3.5m</text>`},
 // BOLIRANA: variante mesa larga tipo mueble mesón con carril + rana y agujeros
-'Bolirana':{bg:'#ffffff',svg:`<rect x="180" y="80" width="240" height="640" fill="rgba(80,140,100,0.08)" rx="4"/><rect x="180" y="80" width="240" height="640" fill="none" stroke-width="1.5"/><rect x="220" y="110" width="160" height="180" fill="rgba(30,110,58,0.2)" stroke="rgba(15,58,31,0.7)" stroke-width="1.8" rx="3"/><circle cx="300" cy="155" r="18" fill="rgba(255,200,60,0.3)" stroke="rgba(180,134,11,0.6)" stroke-width="1"/><text x="300" y="160" text-anchor="middle" font-size="10" font-weight="800" fill="rgba(120,80,20,0.75)">SAPO</text>${[[245,195,1000],[300,195,900],[355,195,1000],[245,230,400],[300,230,500],[355,230,400],[245,265,200],[300,265,300],[355,265,200]].map(([cx,cy,n])=>`<circle cx="${cx}" cy="${cy}" r="9" fill="rgba(0,0,0,0.25)"/><text x="${cx}" y="${cy+3}" text-anchor="middle" font-size="7" font-weight="800" fill="rgba(200,180,140,0.9)">${n}</text>`).join('')}<line x1="180" y1="640" x2="420" y2="640" stroke-width="2" stroke-dasharray="6 4"/><line x1="300" y1="290" x2="300" y2="640" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.45"/><text x="308" y="480" class="fld-measure fld-zone" fill="rgba(40,40,40,0.85)" data-mono="1" font-size="9" font-family="system-ui">3 m</text><text x="300" y="72" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">1.5 m</text><text x="172" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">5 m</text><text x="300" y="662" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE LANZAMIENTO (3 m)</text><text x="300" y="730" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">BOLIRANA · 9 agujeros numerados + SAPO central</text>`},
+'Bolirana':{bg:'#ffffff',svg:`<rect x="180" y="80" width="240" height="640" fill="rgba(80,140,100,0.08)" rx="4"/><rect x="180" y="80" width="240" height="640" fill="none" stroke-width="1.5"/><rect x="220" y="110" width="160" height="180" fill="rgba(30,110,58,0.2)" stroke="rgba(15,58,31,0.7)" stroke-width="1.8" rx="3"/><circle cx="300" cy="155" r="18" fill="rgba(255,200,60,0.3)" stroke="rgba(180,134,11,0.6)" stroke-width="1"/><text x="300" y="160" text-anchor="middle" font-size="10" font-weight="800" fill="rgba(120,80,20,0.75)">SAPO</text>${[[245,195,1000],[300,195,900],[355,195,1000],[245,230,400],[300,230,500],[355,230,400],[245,265,200],[300,265,300],[355,265,200]].map(([cx,cy,n])=>`<circle cx="${cx}" cy="${cy}" r="9" fill="rgba(0,0,0,0.25)"/><text x="${cx}" y="${cy+3}" text-anchor="middle" font-size="7" font-weight="800" fill="rgba(200,180,140,0.9)">${n}</text>`).join('')}<line x1="180" y1="640" x2="420" y2="640" stroke="rgba(220,60,60,0.75)" stroke-width="2" stroke-dasharray="6 4"/><line x1="300" y1="290" x2="300" y2="640" stroke="rgba(60,60,60,0.55)" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.55"/><text x="312" y="480" class="fld-measure fld-zone" fill="rgba(40,40,40,0.92)" data-mono="1" font-size="10" font-weight="700" font-family="system-ui">3.5 m</text><text x="300" y="72" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">1.80 m (ancho)</text><text x="172" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 172 404)">5 m (largo total)</text><text x="300" y="662" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(140,40,40,0.95)" data-mono="1" font-size="10" font-family="system-ui" font-weight="700">LÍNEA DE LANZAMIENTO (3.5 m)</text><text x="300" y="730" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">BOLIRANA · 1.35×0.45m mueble · 9 agujeros + SAPO</text>`},
 // Bolo Criollo: cancha 26m x 4m · 9 bolos en rombo · linea de tiro
 'Bolo Criollo':{bg:'#ffffff',svg:`<rect x="225" y="30" width="150" height="740" fill="rgba(139,90,43,0.05)" rx="2"/><rect x="225" y="30" width="150" height="740" fill="none" stroke-width="1.5"/><line x1="225" y1="700" x2="375" y2="700" stroke-width="1.5" stroke-dasharray="5 3"/><line x1="225" y1="100" x2="375" y2="100" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/><text x="300" y="22" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">4 m</text><text x="218" y="404" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 218 404)">26 m</text><text x="300" y="70" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="9" font-family="system-ui">ZONA DE BOLOS</text><text x="300" y="720" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(70,70,70,0.92)" data-mono="1" font-size="10" font-family="system-ui">LINEA DE TIRO</text><text x="300" y="760" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">BOLO CRIOLLO · 9 BOLOS (agrega desde el panel)</text>`},
 // Bolo Americano (Bowling): pista 18.3m (60ft) x 1.05m (41.5") sin pinos pre-dibujados
@@ -3119,6 +3139,20 @@ flashGoal(label) {
   // Greda inclinada (frente 30cm → atrás 90cm). Tablero vertical ~1.5m sobre la greda.
   // Bocín metálico 17cm centrado. Líneas rojas diagonales del centro a las 4 esquinas (oficial).
   if(s==='Tejo') {
+   // ═══ MEDIDAS DEL PISO en 3D (líneas laterales + distancia de tiro 19.5m) ═══
+   const tej_txB_L = this.toIso(240, 30, 0), tej_txB_R = this.toIso(360, 30, 0);
+   const tej_txB_mid = this.toIso(300, 30, 0);
+   O += `<line x1="${tej_txB_L.x}" y1="${tej_txB_L.y}" x2="${tej_txB_R.x}" y2="${tej_txB_R.y}" stroke="rgba(60,60,60,0.6)" stroke-width="1" stroke-dasharray="4 3" class="fld-measure fld-zone"/>`;
+   O += `<text class="fld-measure" x="${tej_txB_mid.x}" y="${tej_txB_mid.y - 6}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="10" font-weight="800" fill="rgba(40,40,40,0.9)" stroke="rgba(255,255,255,0.8)" stroke-width="2.5" paint-order="stroke">2.5 m (ancho)</text>`;
+   const tej_lyT = this.toIso(240, 30, 0), tej_lyB = this.toIso(240, 770, 0);
+   O += `<line x1="${tej_lyT.x}" y1="${tej_lyT.y}" x2="${tej_lyB.x}" y2="${tej_lyB.y}" stroke="rgba(60,60,60,0.6)" stroke-width="1" stroke-dasharray="4 3" class="fld-measure fld-zone"/>`;
+   const tej_lyMid = this.toIso(240, 400, 0);
+   O += `<text class="fld-measure" x="${tej_lyMid.x - 14}" y="${tej_lyMid.y + 4}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="10" font-weight="800" fill="rgba(40,40,40,0.9)" stroke="rgba(255,255,255,0.8)" stroke-width="2.5" paint-order="stroke">19.5 m (oficial)</text>`;
+   // Línea de tiro al frente de la cancha
+   const tej_ll_L = this.toIso(240, 700, 0), tej_ll_R = this.toIso(360, 700, 0);
+   O += `<line class="fld-measure fld-zone" x1="${tej_ll_L.x}" y1="${tej_ll_L.y}" x2="${tej_ll_R.x}" y2="${tej_ll_R.y}" stroke="rgba(220,60,60,0.85)" stroke-width="2.2" stroke-dasharray="8 4"/>`;
+   const tej_ll_mid = this.toIso(300, 730, 0);
+   O += `<text class="fld-measure fld-zone" x="${tej_ll_mid.x}" y="${tej_ll_mid.y}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="9.5" font-weight="800" fill="rgba(120,30,30,0.95)" stroke="rgba(255,255,255,0.85)" stroke-width="2.3" paint-order="stroke">LÍNEA DE TIRO · 19.5 m</text>`;
    // Escala visual: 1cm ≈ 0.5 unidades (caja 100cm → 50u ancho, 100cm → 50u profundidad)
    const bx = 275, by = 50, bw = 50, bh = 50;
    const frontH = 15;       // 30cm
@@ -3192,6 +3226,19 @@ flashGoal(label) {
   // Tablero vertical 65cm sobre la greda trasera (altura total 100cm).
   // Bocín cilíndrico ~10cm centrado. Líneas rojas diagonales sobre la greda.
   if(s==='Minitejo') {
+   // ═══ MEDIDAS DEL PISO en 3D (líneas laterales + distancia de tiro 5-8m) ═══
+   const mnt_txB_L = this.toIso(245, 30, 0), mnt_txB_R = this.toIso(355, 30, 0);
+   const mnt_txB_mid = this.toIso(300, 30, 0);
+   O += `<line x1="${mnt_txB_L.x}" y1="${mnt_txB_L.y}" x2="${mnt_txB_R.x}" y2="${mnt_txB_R.y}" stroke="rgba(60,60,60,0.6)" stroke-width="1" stroke-dasharray="4 3" class="fld-measure fld-zone"/>`;
+   O += `<text class="fld-measure" x="${mnt_txB_mid.x}" y="${mnt_txB_mid.y - 6}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="10" font-weight="800" fill="rgba(40,40,40,0.9)" stroke="rgba(255,255,255,0.8)" stroke-width="2.5" paint-order="stroke">2 m (ancho)</text>`;
+   const mnt_lyT = this.toIso(245, 30, 0), mnt_lyB = this.toIso(245, 750, 0);
+   O += `<line x1="${mnt_lyT.x}" y1="${mnt_lyT.y}" x2="${mnt_lyB.x}" y2="${mnt_lyB.y}" stroke="rgba(60,60,60,0.6)" stroke-width="1" stroke-dasharray="4 3" class="fld-measure fld-zone"/>`;
+   const mnt_lyMid = this.toIso(245, 400, 0);
+   O += `<text class="fld-measure" x="${mnt_lyMid.x - 12}" y="${mnt_lyMid.y + 4}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="10" font-weight="800" fill="rgba(40,40,40,0.9)" stroke="rgba(255,255,255,0.8)" stroke-width="2.5" paint-order="stroke">13 m (largo)</text>`;
+   const mnt_ll_L = this.toIso(245, 700, 0), mnt_ll_R = this.toIso(355, 700, 0);
+   O += `<line class="fld-measure fld-zone" x1="${mnt_ll_L.x}" y1="${mnt_ll_L.y}" x2="${mnt_ll_R.x}" y2="${mnt_ll_R.y}" stroke="rgba(220,60,60,0.85)" stroke-width="2.2" stroke-dasharray="8 4"/>`;
+   const mnt_ll_mid = this.toIso(300, 730, 0);
+   O += `<text class="fld-measure fld-zone" x="${mnt_ll_mid.x}" y="${mnt_ll_mid.y}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="9.5" font-weight="800" fill="rgba(120,30,30,0.95)" stroke="rgba(255,255,255,0.85)" stroke-width="2.3" paint-order="stroke">LÍNEA DE TIRO · 5-8 m</text>`;
    // Escala visual: 1cm ≈ 0.6 unidades (caja 60cm → 36u ancho, 65cm → 39u profundidad)
    const bx = 282, by = 166, bw = 36, bh = 39;
    const frontH = 3;        // 5cm
@@ -3260,6 +3307,23 @@ flashGoal(label) {
   // BOLIRANA 3D: mueble arcade profesional según imagen real (rana roja arriba, pantalla, 2 botones,
   // montículo central con ranas verdes, silueta lateral ondulada, panel luminoso en base).
   if(s==='Bolirana') {
+   // ═══ MEDIDAS DEL PISO en 3D (líneas laterales + distancia de tiro) ═══
+   // Ancho total cancha (0.45m ~ 2.5m visual con márgenes): líneas en el piso
+   // Flecha ancho arriba (a lo largo del eje X, en la parte posterior)
+   const m_txB_L = this.toIso(210, 90, 0), m_txB_R = this.toIso(390, 90, 0);
+   const m_txB_mid = this.toIso(300, 90, 0);
+   O += `<line x1="${m_txB_L.x}" y1="${m_txB_L.y}" x2="${m_txB_R.x}" y2="${m_txB_R.y}" stroke="rgba(60,60,60,0.6)" stroke-width="1" stroke-dasharray="4 3" class="fld-measure fld-zone"/>`;
+   O += `<text class="fld-measure" x="${m_txB_mid.x}" y="${m_txB_mid.y - 6}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="10" font-weight="800" fill="rgba(40,40,40,0.9)" stroke="rgba(255,255,255,0.8)" stroke-width="2.5" paint-order="stroke">1.80 m (ancho)</text>`;
+   // Flecha largo lateral (a lo largo del eje Y)
+   const m_lyT = this.toIso(210, 90, 0), m_lyB = this.toIso(210, 720, 0);
+   O += `<line x1="${m_lyT.x}" y1="${m_lyT.y}" x2="${m_lyB.x}" y2="${m_lyB.y}" stroke="rgba(60,60,60,0.6)" stroke-width="1" stroke-dasharray="4 3" class="fld-measure fld-zone"/>`;
+   const m_lyMid = this.toIso(210, 400, 0);
+   O += `<text class="fld-measure" x="${m_lyMid.x - 12}" y="${m_lyMid.y + 4}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="10" font-weight="800" fill="rgba(40,40,40,0.9)" stroke="rgba(255,255,255,0.8)" stroke-width="2.5" paint-order="stroke">5 m (largo total)</text>`;
+   // Línea de lanzamiento en el piso (a 3m del mueble frontal)
+   const ll_L = this.toIso(210, 640, 0), ll_R = this.toIso(390, 640, 0);
+   O += `<line class="fld-measure fld-zone" x1="${ll_L.x}" y1="${ll_L.y}" x2="${ll_R.x}" y2="${ll_R.y}" stroke="rgba(220,60,60,0.85)" stroke-width="2.2" stroke-dasharray="8 4"/>`;
+   const ll_mid = this.toIso(300, 670, 0);
+   O += `<text class="fld-measure fld-zone" x="${ll_mid.x}" y="${ll_mid.y}" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="9.5" font-weight="800" fill="rgba(120,30,30,0.95)" stroke="rgba(255,255,255,0.85)" stroke-width="2.3" paint-order="stroke">LÍNEA DE TIRO · 3 m</text>`;
    // Dimensiones escaladas según medidas oficiales (1.35m largo × 0.45m ancho × 1.5m alto)
    // Escala: 1cm ≈ 0.9u (ancho 45cm → 40u, largo 135cm → 120u, alto 150cm → 135u)
    const bw = 40;                      // ancho (45cm)
@@ -3680,6 +3744,43 @@ flashGoal(label) {
   else if(preset==='right') { ST.isoAz=80; ST.isoEl=35; }
   this.updateIsoAngleBtns();
   this.render3DField(); this.renderElements();
+ },
+
+ togglePresentation() {
+  const isOn = document.body.classList.toggle('presentation-mode');
+  if (isOn) {
+   // Enter fullscreen
+   try { (document.documentElement.requestFullscreen && document.documentElement.requestFullscreen()) ||
+          (document.documentElement.webkitRequestFullscreen && document.documentElement.webkitRequestFullscreen()); } catch(e){}
+   // Inject exit button + controls
+   if (!document.getElementById('exit-presentation')) {
+    const exitBtn = document.createElement('button');
+    exitBtn.id = 'exit-presentation';
+    exitBtn.className = 'exit-presentation';
+    exitBtn.setAttribute('data-testid', 'exit-presentation-btn');
+    exitBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Salir (ESC)';
+    exitBtn.onclick = () => S.togglePresentation();
+    document.body.appendChild(exitBtn);
+    const ctrls = document.createElement('div');
+    ctrls.id = 'presentation-controls';
+    ctrls.className = 'presentation-controls';
+    ctrls.innerHTML = `
+      <button onclick="S.setView('2d')" data-view="2d" data-testid="pres-2d">2D</button>
+      <button onclick="S.setView('2.5d')" data-view="2.5d" data-testid="pres-25d">2.5D</button>
+      <button onclick="S.setView('3d')" data-view="3d" data-testid="pres-3d">3D</button>
+      <span style="width:1px;background:rgba(255,255,255,0.2);margin:0 4px"></span>
+      <button onclick="S.startPlayback()" data-testid="pres-play">▶ Play</button>
+      <button onclick="S.resetIsoView && S.resetIsoView()" data-testid="pres-reset">Reset</button>
+    `;
+    document.body.appendChild(ctrls);
+    // Highlight active view
+    setTimeout(()=>{ctrls.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active', b.dataset.view===ST.viewMode));}, 100);
+   }
+  } else {
+   try { if (document.fullscreenElement) document.exitFullscreen(); } catch(e){}
+   const ex = document.getElementById('exit-presentation'); if (ex) ex.remove();
+   const cc = document.getElementById('presentation-controls'); if (cc) cc.remove();
+  }
  },
 
  setIsoAngle(el) {
@@ -4624,8 +4725,8 @@ flashGoal(label) {
 
   svg.addEventListener('mousedown', e => {
    if(e.button===2) return;
-   // Middle mouse button (button===1) or Ctrl+left = pan field
-   if(e.button===1 || (e.button===0 && (e.ctrlKey || e.metaKey))) {
+   // Middle mouse button (button===1), Ctrl+left, or Shift+left = pan field (Blender/SketchUp style)
+   if(e.button===1 || (e.button===0 && (e.ctrlKey || e.metaKey || e.shiftKey))) {
     e.preventDefault();
     ST.panning = true;
     ST.dragStart = {x:e.clientX, y:e.clientY};
@@ -5574,6 +5675,8 @@ flashGoal(label) {
    if(e.key==='f'||e.key==='F') this.zoomReset();
    if(e.key==='h'||e.key==='H') { document.getElementById('panel').style.display = document.getElementById('panel').style.display==='none'?'flex':'none'; }
    if(e.key==='p'||e.key==='P') this.startPlayback();
+   if((e.key==='F'||e.key==='f') && (e.shiftKey)) { e.preventDefault(); this.togglePresentation(); }
+   if(e.key==='Escape' && document.body.classList.contains('presentation-mode')) { e.preventDefault(); this.togglePresentation(); }
    if(e.key==='Tab') { e.preventDefault(); const modes=['tactical','jersey','avatar']; const i=(modes.indexOf(ST.avatarMode)+1)%3; this.setAvatarMode(modes[i]); }
   });
   document.addEventListener('keyup', e => {

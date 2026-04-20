@@ -70,7 +70,16 @@ h1{font-family:'Oswald',sans-serif;font-size:clamp(28px,4vw,40px);font-weight:80
       <div class="stat"><div class="n">${(stats.views||0).toLocaleString('es')}</div><div class="l">Vistas</div></div>
       <div class="stat"><div class="n">${(stats.duplicates||0).toLocaleString('es')}</div><div class="l">Duplicadas</div></div>
      </div>
+     <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+       <button onclick="(async()=>{const u=window.location.origin+'/api/c/'+encodeURIComponent('${d.slug}');if(navigator.share){try{await navigator.share({title:'Coach iTRAIN',url:u});}catch(e){}}else{try{await navigator.clipboard.writeText(u);alert('Link copiado:\\n'+u);}catch(e){prompt('Copia este link:',u);}}})()" style="padding:9px 16px;background:#c8f700;color:#0a0f1f;border:none;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer;letter-spacing:0.04em;box-shadow:0 4px 14px rgba(200,247,0,0.3);display:inline-flex;align-items:center;gap:6px" data-testid="coach-share-btn">📤 COMPARTIR PERFIL</button>
+       <a href="/api/c/${encodeURIComponent(d.slug)}" target="_blank" rel="noopener" style="padding:9px 14px;background:rgba(255,255,255,0.06);color:#94a3b8;border:1px solid rgba(255,255,255,0.15);border-radius:10px;font-weight:700;font-size:11.5px;text-decoration:none;letter-spacing:0.03em">🔗 LINK CON PREVIEW</a>
+       <a href="/api/coaches/og/${encodeURIComponent(d.slug)}.png" target="_blank" rel="noopener" style="padding:9px 14px;background:rgba(255,255,255,0.06);color:#94a3b8;border:1px solid rgba(255,255,255,0.15);border-radius:10px;font-weight:700;font-size:11.5px;text-decoration:none;letter-spacing:0.03em" data-testid="coach-og-preview-link">🖼️ VER MINIATURA OG</a>
+     </div>
     </div>
+   </div>
+   <div style="margin-top:18px;padding:14px;border-radius:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1)">
+     <div style="font-size:10.5px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.15em;font-weight:800;margin-bottom:10px">🎨 Vista previa WhatsApp / Twitter / Facebook</div>
+     <img src="/api/coaches/og/${encodeURIComponent(d.slug)}.png?v=${Date.now()}" alt="OG preview" style="width:100%;max-width:640px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);display:block" data-testid="coach-og-image"/>
    </div>`;
   if (!d.items || d.items.length === 0) {
    html += `<div class="empty"><h2>Aún no hay jugadas publicadas</h2>Al compartir una pizarra, escribe tu slug "${d.slug}" y aparecerá aquí automáticamente.</div>`;
