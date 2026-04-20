@@ -617,6 +617,7 @@ const SessionEditor = ({
   const [exporting, setExporting] = useState(false);
   const [expandedBoard, setExpandedBoard] = useState(null);
   const [expandedPanels, setExpandedPanels] = useState({});
+  const [sectionOpen, setSectionOpen] = useState({ objetivos: true, estructura: true, monitoreo: false, retro: false });
   const [sessionDate, setSessionDate] = useState(session?.date ? new Date(session.date) : undefined);
   const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const sessionContentRef = useRef(null);
@@ -1532,14 +1533,21 @@ const SessionEditor = ({
             <div className="p-6 space-y-5">
               {/* Objetivos de la sesión */}
               <Card className="border-0 shadow-md bg-white overflow-hidden rounded-2xl" style={{fontFamily:DM}}>
-                <CardHeader className="pb-3 pt-4 px-5" style={{background:'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)'}}>
+                <CardHeader
+                  className="pb-3 pt-4 px-5 cursor-pointer select-none"
+                  style={{background:'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)'}}
+                  onClick={() => setSectionOpen(s => ({ ...s, objetivos: !s.objetivos }))}
+                  data-testid="toggle-section-objetivos"
+                >
                   <CardTitle className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#CCFF00'}}>
                       <Target className="w-3.5 h-3.5 text-slate-900" />
                     </div>
-                    <span className="se-section-title">Objetivos de la sesión</span>
+                    <span className="se-section-title flex-1">Objetivos de la sesión</span>
+                    <ChevronDown className={`w-4 h-4 text-white/60 transition-transform ${sectionOpen.objetivos ? 'rotate-180' : ''}`} />
                   </CardTitle>
                 </CardHeader>
+                {sectionOpen.objetivos && (
                 <CardContent className="p-5 bg-white">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {[
@@ -1563,18 +1571,26 @@ const SessionEditor = ({
                     ))}
                   </div>
                 </CardContent>
+                )}
               </Card>
 
               {/* Estructura de la sesión */}
               <Card className="border-0 shadow-md bg-white overflow-visible rounded-2xl" style={{fontFamily:DM}}>
-                <CardHeader className="pb-3 pt-4 px-5" style={{background:'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)'}}>
+                <CardHeader
+                  className="pb-3 pt-4 px-5 cursor-pointer select-none"
+                  style={{background:'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)'}}
+                  onClick={() => setSectionOpen(s => ({ ...s, estructura: !s.estructura }))}
+                  data-testid="toggle-section-estructura"
+                >
                   <CardTitle className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#CCFF00'}}>
                       <Zap className="w-3.5 h-3.5 text-slate-900" />
                     </div>
-                    <span className="se-section-title">Estructura de la sesión</span>
+                    <span className="se-section-title flex-1">Estructura de la sesión</span>
+                    <ChevronDown className={`w-4 h-4 text-white/60 transition-transform ${sectionOpen.estructura ? 'rotate-180' : ''}`} />
                   </CardTitle>
                 </CardHeader>
+                {sectionOpen.estructura && (
                 <CardContent className="p-4 space-y-4 bg-white overflow-visible">
                   {/* Fases */}
                   {Object.entries(sessionData.fases).map(([faseKey, fase]) => {
@@ -1627,11 +1643,21 @@ const SessionEditor = ({
                     );
                   })}
                 </CardContent>
+                )}
               </Card>
 
               {/* Monitoreo avanzado */}
               <Card className="border-0 shadow-md bg-white overflow-hidden rounded-2xl" style={{fontFamily:DM}}>
-                <CardHeader className="p-4" style={{background:'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)'}}>
+                <CardHeader
+                  className="p-4 cursor-pointer select-none"
+                  style={{background:'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)'}}
+                  onClick={(e) => {
+                    // Evitar colapso al clickear el botón Conectar
+                    if (e.target.closest('button')) return;
+                    setSectionOpen(s => ({ ...s, monitoreo: !s.monitoreo }));
+                  }}
+                  data-testid="toggle-section-monitoreo"
+                >
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2.5">
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#CCFF00'}}>
@@ -1664,9 +1690,11 @@ const SessionEditor = ({
                         <Bluetooth className="w-4 h-4 mr-1.5" />
                         {sessionData.monitoreo.dispositivoConectado ? '✓ Conectado' : 'Conectar'}
                       </Button>
+                      <ChevronDown className={`w-4 h-4 text-white/60 transition-transform ml-1 ${sectionOpen.monitoreo ? 'rotate-180' : ''}`} />
                     </div>
                   </div>
                 </CardHeader>
+                {sectionOpen.monitoreo && (
                 <CardContent className="p-6 bg-white space-y-8">
                   {/* Sección de Gráfica */}
                   <div className="space-y-4">
@@ -2087,18 +2115,26 @@ const SessionEditor = ({
                     </div>
                   </div>
                 </CardContent>
+                )}
               </Card>
 
               {/* Retroalimentación */}
               <Card className="border-0 shadow-md bg-white overflow-hidden rounded-2xl" style={{fontFamily:DM}}>
-                <CardHeader className="pb-3 pt-4 px-5" style={{background:'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)'}}>
+                <CardHeader
+                  className="pb-3 pt-4 px-5 cursor-pointer select-none"
+                  style={{background:'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)'}}
+                  onClick={() => setSectionOpen(s => ({ ...s, retro: !s.retro }))}
+                  data-testid="toggle-section-retro"
+                >
                   <CardTitle className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#CCFF00'}}>
                       <AlertCircle className="w-3.5 h-3.5 text-slate-900" />
                     </div>
-                    <span className="se-section-title">Observaciones y retroalimentación</span>
+                    <span className="se-section-title flex-1">Observaciones y retroalimentación</span>
+                    <ChevronDown className={`w-4 h-4 text-white/60 transition-transform ${sectionOpen.retro ? 'rotate-180' : ''}`} />
                   </CardTitle>
                 </CardHeader>
+                {sectionOpen.retro && (
                 <CardContent className="p-5 bg-white">
                   <Textarea
                     value={sessionData.retroalimentacion}
@@ -2108,6 +2144,7 @@ const SessionEditor = ({
                     data-testid="retroalimentacion"
                   />
                 </CardContent>
+                )}
               </Card>
             </div>
           </div>
