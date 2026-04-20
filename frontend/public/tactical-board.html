@@ -1813,8 +1813,8 @@ const S = {
     O += `<line x1="${lp.x}" y1="${lp.y}" x2="${rp.x}" y2="${rp.y}" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>`;
    }
   }
-  // Football/Futsal goals
-  if(['Futbol','FIFA','Futbol de Salon','Futbol Americano','Hockey','Balonmano'].includes(s)) {
+  // Football/Futsal/Handball/Hockey goals (rectangular with net)
+  if(['Futbol','FIFA','Futbol de Salon','Hockey','Balonmano'].includes(s)) {
    const gw=s==='Futbol de Salon'?63:s==='Balonmano'?80:s==='Hockey'?60:100, gh=50, gd=20;
    const gx1=300-gw/2, gx2=300+gw/2;
    const gt1=this.toIso(gx1,0,0),gt2=this.toIso(gx2,0,0),gt3=this.toIso(gx2,-gd,0),gt4=this.toIso(gx1,-gd,0);
@@ -1835,15 +1835,85 @@ const S = {
    O += `<line x1="${gb1t.x}" y1="${gb1t.y}" x2="${gb4t.x}" y2="${gb4t.y}" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>`;
    O += `<line x1="${gb2t.x}" y1="${gb2t.y}" x2="${gb3t.x}" y2="${gb3t.y}" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>`;
   }
-  // Basketball hoops
+  // American Football Y-shape goal posts (uprights)
+  if(s==='Futbol Americano') {
+   const YEL='rgba(240,200,0,0.95)', YEL2='rgba(240,200,0,0.6)';
+   const GW=55, CH=34, UH=85, BASE_D=16;
+   const ends=[{y0:10, sign:-1},{y0:790, sign:+1}];
+   for(const e of ends){
+    const baseY = e.y0 + e.sign*BASE_D;
+    const p_base = this.toIso(300, baseY, 0);
+    const p_top  = this.toIso(300, baseY, CH);
+    O += `<line x1="${p_base.x}" y1="${p_base.y}" x2="${p_top.x}" y2="${p_top.y}" stroke="${YEL}" stroke-width="4"/>`;
+    const arm_front = this.toIso(300, e.y0, CH);
+    O += `<line x1="${p_top.x}" y1="${p_top.y}" x2="${arm_front.x}" y2="${arm_front.y}" stroke="${YEL}" stroke-width="3.5"/>`;
+    const c_l = this.toIso(300-GW/2, e.y0, CH);
+    const c_r = this.toIso(300+GW/2, e.y0, CH);
+    O += `<line x1="${c_l.x}" y1="${c_l.y}" x2="${c_r.x}" y2="${c_r.y}" stroke="${YEL}" stroke-width="3.5"/>`;
+    const u_l = this.toIso(300-GW/2, e.y0, UH);
+    const u_r = this.toIso(300+GW/2, e.y0, UH);
+    O += `<line x1="${c_l.x}" y1="${c_l.y}" x2="${u_l.x}" y2="${u_l.y}" stroke="${YEL}" stroke-width="3.5"/>`;
+    O += `<line x1="${c_r.x}" y1="${c_r.y}" x2="${u_r.x}" y2="${u_r.y}" stroke="${YEL}" stroke-width="3.5"/>`;
+    O += `<circle cx="${u_l.x}" cy="${u_l.y}" r="2.5" fill="${YEL}"/>`;
+    O += `<circle cx="${u_r.x}" cy="${u_r.y}" r="2.5" fill="${YEL}"/>`;
+    O += `<ellipse cx="${p_base.x}" cy="${p_base.y}" rx="8" ry="3" fill="${YEL2}"/>`;
+   }
+  }
+  // Basketball hoops (FIBA-style: pole + backboard + orange rim + hanging net)
   if(s==='Baloncesto') {
-   const bh=60;
-   const bt=this.toIso(300,62,bh);
-   O += `<line x1="${this.toIso(300,30,0).x}" y1="${this.toIso(300,30,0).y}" x2="${bt.x}" y2="${bt.y}" stroke="rgba(0,0,0,0.4)" stroke-width="2"/>`;
-   O += `<circle cx="${bt.x}" cy="${bt.y}" r="8" fill="none" stroke="rgba(220,80,0,0.7)" stroke-width="2"/>`;
-   const bt2=this.toIso(300,738,bh);
-   O += `<line x1="${this.toIso(300,770,0).x}" y1="${this.toIso(300,770,0).y}" x2="${bt2.x}" y2="${bt2.y}" stroke="rgba(0,0,0,0.4)" stroke-width="2"/>`;
-   O += `<circle cx="${bt2.x}" cy="${bt2.y}" r="8" fill="none" stroke="rgba(220,80,0,0.7)" stroke-width="2"/>`;
+   const buildHoop = (cx, poleY, rimY, dir) => {
+    const RIM_H=80, BB_W=50, BB_H=28, RIM_R=7, SQ_W=18, SQ_H=13, NET_H=14;
+    const rimFrontY = rimY + dir*10;
+    let r = '';
+    // Pole (vertical, behind baseline)
+    const p_base = this.toIso(cx, poleY, 0);
+    const p_top  = this.toIso(cx, poleY, RIM_H + BB_H/2);
+    r += `<ellipse cx="${p_base.x}" cy="${p_base.y}" rx="7" ry="2.5" fill="rgba(30,30,30,0.35)"/>`;
+    r += `<line x1="${p_base.x}" y1="${p_base.y}" x2="${p_top.x}" y2="${p_top.y}" stroke="rgba(50,50,50,0.85)" stroke-width="4.5"/>`;
+    // Arm (horizontal from pole to backboard mount)
+    const arm_end = this.toIso(cx, rimY, RIM_H + BB_H/2);
+    r += `<line x1="${p_top.x}" y1="${p_top.y}" x2="${arm_end.x}" y2="${arm_end.y}" stroke="rgba(50,50,50,0.85)" stroke-width="3.5"/>`;
+    // Backboard (tilted vertical rectangle, translucent white)
+    const bb_bl = this.toIso(cx-BB_W/2, rimY, RIM_H);
+    const bb_br = this.toIso(cx+BB_W/2, rimY, RIM_H);
+    const bb_tr = this.toIso(cx+BB_W/2, rimY, RIM_H+BB_H);
+    const bb_tl = this.toIso(cx-BB_W/2, rimY, RIM_H+BB_H);
+    r += `<polygon points="${bb_bl.x},${bb_bl.y} ${bb_br.x},${bb_br.y} ${bb_tr.x},${bb_tr.y} ${bb_tl.x},${bb_tl.y}" fill="rgba(255,255,255,0.75)" stroke="rgba(30,30,30,0.7)" stroke-width="1.8"/>`;
+    // Painted square on backboard (centered above rim)
+    const sq_bl = this.toIso(cx-SQ_W/2, rimY, RIM_H+3);
+    const sq_br = this.toIso(cx+SQ_W/2, rimY, RIM_H+3);
+    const sq_tr = this.toIso(cx+SQ_W/2, rimY, RIM_H+3+SQ_H);
+    const sq_tl = this.toIso(cx-SQ_W/2, rimY, RIM_H+3+SQ_H);
+    r += `<polygon points="${sq_bl.x},${sq_bl.y} ${sq_br.x},${sq_br.y} ${sq_tr.x},${sq_tr.y} ${sq_tl.x},${sq_tl.y}" fill="none" stroke="rgba(30,30,30,0.9)" stroke-width="1.3"/>`;
+    // Rim support bracket (small line from backboard to rim front)
+    const brk_a = this.toIso(cx, rimY, RIM_H);
+    const brk_b = this.toIso(cx, rimFrontY, RIM_H);
+    r += `<line x1="${brk_a.x}" y1="${brk_a.y}" x2="${brk_b.x}" y2="${brk_b.y}" stroke="rgba(200,70,10,0.9)" stroke-width="2.5"/>`;
+    // Orange rim (horizontal ellipse at height RIM_H)
+    const rimPts = [];
+    for(let a=0;a<360;a+=10){const rad=a*Math.PI/180;const p=this.toIso(cx+RIM_R*Math.cos(rad), rimFrontY+RIM_R*Math.sin(rad), RIM_H);rimPts.push(`${p.x},${p.y}`);}
+    r += `<polygon points="${rimPts.join(' ')}" fill="rgba(255,140,30,0.15)" stroke="rgba(220,80,20,0.98)" stroke-width="2.8"/>`;
+    // Net: 10 hanging strings from rim to smaller bottom ring
+    for(let a=0;a<360;a+=36){
+     const rad=a*Math.PI/180;
+     const top=this.toIso(cx+RIM_R*Math.cos(rad), rimFrontY+RIM_R*Math.sin(rad), RIM_H);
+     const bot=this.toIso(cx+(RIM_R*0.55)*Math.cos(rad), rimFrontY+(RIM_R*0.55)*Math.sin(rad), RIM_H-NET_H);
+     r += `<line x1="${top.x}" y1="${top.y}" x2="${bot.x}" y2="${bot.y}" stroke="rgba(40,40,40,0.45)" stroke-width="0.9"/>`;
+    }
+    // Net middle ring (horizontal)
+    const midRing = [];
+    for(let a=0;a<360;a+=20){const rad=a*Math.PI/180;const p=this.toIso(cx+(RIM_R*0.75)*Math.cos(rad), rimFrontY+(RIM_R*0.75)*Math.sin(rad), RIM_H-NET_H*0.5);midRing.push(`${p.x},${p.y}`);}
+    r += `<polygon points="${midRing.join(' ')}" fill="none" stroke="rgba(40,40,40,0.28)" stroke-width="0.7"/>`;
+    // Net bottom ring
+    const botRing = [];
+    for(let a=0;a<360;a+=20){const rad=a*Math.PI/180;const p=this.toIso(cx+(RIM_R*0.55)*Math.cos(rad), rimFrontY+(RIM_R*0.55)*Math.sin(rad), RIM_H-NET_H);botRing.push(`${p.x},${p.y}`);}
+    r += `<polygon points="${botRing.join(' ')}" fill="none" stroke="rgba(40,40,40,0.35)" stroke-width="0.8"/>`;
+    return r;
+   };
+   // Top hoop: pole at y=10 (behind end line), rim extends forward (dir=+1) toward center
+   O += buildHoop(300, 10, 42, +1);
+   // Bottom hoop: pole at y=790, rim extends backward (dir=-1) toward center
+   O += buildHoop(300, 790, 758, -1);
   }
   // Boxing ring ropes
   if(s==='Boxeo'||s==='Kickboxing') {

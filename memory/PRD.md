@@ -9,6 +9,10 @@
 
 ## Implementado
 
+### Aro Baloncesto FIBA + Postes Futbol Americano Y-shape (Feb 2026)
+- **Baloncesto 3D estilo coliseo FIBA**: poste vertical con base eliptica, brazo horizontal (cantilever), tablero blanco translucido con rectangulo pintado, soporte naranja entre tablero y aro, aro circular naranja como elipse isometrica, red con lineas colgantes y 2 anillos (medio + fondo). Helper `buildHoop(cx, poleY, rimY, dir)` reutilizable para ambos extremos.
+- **Futbol Americano 3D con uprights Y-shape**: ya NO usa porteria rectangular de futbol. Ahora genera la estructura correcta de NFL: poste base (gooseneck) detras de la linea de gol, brazo horizontal al frente, travesano amarillo + 2 uprights verticales con bolitas en las puntas, base eliptica en el suelo. Color amarillo oficial.
+
 ### Renders 3D completos para 10+ deportes faltantes (Feb 2026)
 - **Helpers nuevos**: `isoEllipse(cx,cy,rx,ry)`, `isoRoundedRect(cx,cy,w,h,r)` para construir pistas stadium y ovales
 - **Atletismo/Maraton 3D**: pista estadio con 8 carriles concentricos (antes circulos pequeños)
