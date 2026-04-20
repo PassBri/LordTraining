@@ -669,11 +669,58 @@ const LandingPage = () => {
           ))}
         </div>
         <div className="text-center mt-10">
-          <a href="/tactical-board.html">
-            <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] h-11 px-7 text-[13px] font-bold rounded-xl" style={{fontFamily:BC}} data-testid="explore-all-sports-btn">
-              Explorar pizarra táctica <ArrowRight className="w-4 h-4 ml-2"/>
-            </Button>
-          </a>
+          <button onClick={() => {const el = document.getElementById('more-sports-carousel'); el.style.display = el.style.display === 'block' ? 'none' : 'block'; if (el.style.display === 'block') el.scrollIntoView({behavior:'smooth', block:'center'});}} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 hover:border-[#CCFF00]/60 transition-all font-bold text-[13px]" style={{fontFamily:BC}} data-testid="more-sports-btn">
+            <span className="w-6 h-6 rounded-full bg-[#CCFF00] text-slate-900 flex items-center justify-center text-[14px] font-black">+</span>
+            Ver 20 deportes más
+          </button>
+          <div id="more-sports-carousel" style={{display:'none'}} className="mt-6">
+            <div className="relative overflow-x-auto pb-4 snap-x snap-mandatory" style={{scrollbarWidth:'thin'}} data-testid="more-sports-scroll">
+              <div className="flex gap-3 px-4" style={{width:'max-content'}}>
+                {[
+                  {name:'Futsal', c:'#9333ea'},{name:'Minitejo', c:'#a57856'},{name:'Padel', c:'#059669'},
+                  {name:'Bochas', c:'#16a34a'},{name:'Badminton', c:'#f59e0b'},{name:'Squash', c:'#0ea5e9'},
+                  {name:'Golf', c:'#65a30d'},{name:'Tiro con Arco', c:'#dc2626'},{name:'Dardos', c:'#7c3aed'},
+                  {name:'Boliche', c:'#ea580c'},{name:'Bolo Criollo', c:'#78350f'},{name:'Handball', c:'#2563eb'},
+                  {name:'Beisbol', c:'#991b1b'},{name:'Escalada', c:'#0891b2'},{name:'Atletismo', c:'#e11d48'},
+                  {name:'Ciclismo', c:'#fbbf24'},{name:'Natacion', c:'#06b6d4'},{name:'Boxeo', c:'#be185d'},
+                  {name:'Karate', c:'#78716c'},{name:'Taekwondo', c:'#b91c1c'},{name:'MMA', c:'#1f2937'},{name:'Judo', c:'#450a0a'}
+                ].map((sp, i) => (
+                  <a key={i} href="/tactical-board.html" className="group relative flex-shrink-0 w-[150px] snap-start rounded-xl overflow-hidden border border-slate-800 hover:border-[#CCFF00]/60 hover:scale-[1.05] transition-all" data-testid={`extra-sport-${sp.name.toLowerCase().replace(/\s+/g,'-')}`}>
+                    <div className="aspect-[3/4] relative flex flex-col items-center justify-center p-3" style={{background:`linear-gradient(135deg, ${sp.c} 0%, ${sp.c}88 50%, #0a0f19 100%)`}}>
+                      <div className="absolute inset-0" style={{backgroundImage:'radial-gradient(circle at 50% 30%, rgba(255,255,255,0.12) 0%, transparent 55%)'}}/>
+                      <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/40 backdrop-blur border border-[#CCFF00]/25">
+                        <span className="text-[7.5px] font-black tracking-[0.1em] text-[#CCFF00]" style={{fontFamily:BC}}>3D</span>
+                      </div>
+                      <div className="relative z-10 text-center">
+                        <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-white/15 border-2 border-white/30 flex items-center justify-center backdrop-blur-sm">
+                          <span className="text-[18px] font-black text-white" style={{fontFamily:BC}}>{sp.name[0]}</span>
+                        </div>
+                        <div className="text-[11px] font-black uppercase tracking-[0.05em] text-white leading-tight" style={{fontFamily:BC}}>{sp.name}</div>
+                      </div>
+                      <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center gap-1">
+                        <span className="w-1 h-1 rounded-full bg-[#CCFF00]/80"/>
+                        <span className="w-1 h-1 rounded-full bg-[#CCFF00]/60"/>
+                        <span className="w-1 h-1 rounded-full bg-[#CCFF00]/40"/>
+                      </div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+            <div className="text-center mt-5 text-[12px] text-slate-500">
+              <span className="inline-flex items-center gap-2">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                Desliza para explorar · 22 deportes adicionales
+              </span>
+            </div>
+          </div>
+          <div className="mt-6">
+            <a href="/tactical-board.html">
+              <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] h-11 px-7 text-[13px] font-bold rounded-xl" style={{fontFamily:BC}} data-testid="explore-all-sports-btn">
+                Explorar pizarra táctica <ArrowRight className="w-4 h-4 ml-2"/>
+              </Button>
+            </a>
+          </div>
         </div>
       </div>
     </section>

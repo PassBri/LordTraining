@@ -6923,11 +6923,24 @@ flashGoal(label) {
   const tc = this.getFieldColors();
   let elsSvg = '';
   ST.elements.forEach(el => { elsSvg += this.buildElSvg(el); });
+  // Animación de playback dentro del thumbnail: bolas móviles siguiendo cada arrow (SMIL animateMotion)
+  const arrows = (ST.elements || []).filter(el => el.type === 'arrow');
+  let animSvg = '';
+  if (arrows.length) {
+   arrows.forEach((a, i) => {
+    const d = `M${a.x1||0},${a.y1||0} L${a.x2||0},${a.y2||0}`;
+    const delay = (i * 0.45) % 2.8;
+    const col = a.isBallArrow ? '#3b82f6' : (a.color || '#2563eb');
+    animSvg += `<g><circle r="7" fill="#fff" stroke="${col}" stroke-width="2.2" opacity="0"><animateMotion dur="2.8s" begin="${delay}s" repeatCount="indefinite" path="${d}"/><animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.15;0.85;1" dur="2.8s" begin="${delay}s" repeatCount="indefinite"/></circle><circle r="3" fill="${col}" opacity="0"><animateMotion dur="2.8s" begin="${delay}s" repeatCount="indefinite" path="${d}"/><animate attributeName="opacity" values="0;0.8;0.8;0" keyTimes="0;0.15;0.85;1" dur="2.8s" begin="${delay}s" repeatCount="indefinite"/></circle></g>`;
+   });
+  }
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" style="width:100%;height:100%;display:block">` +
    `<rect width="600" height="800" fill="${tc.bg}"/>` +
    `<defs><marker id="am" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8" fill="none" stroke="${tc.stroke}" stroke-width="1.5"/></marker></defs>` +
    `<g stroke="${tc.stroke}" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">${f.svg}</g>` +
-   `<g>${elsSvg}</g></svg>`;
+   `<g>${elsSvg}</g>` +
+   `<g>${animSvg}</g>` +
+   `</svg>`;
   return svg;
  },
 
