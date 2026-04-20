@@ -1701,15 +1701,23 @@ const SessionEditor = ({
                   {(() => {
                     const m = sessionData.monitoreo;
                     const phases = [
-                      { id: 'antes',   label: 'Antes',    key: 'fcAntesEntrenamiento',    color: '#3B82F6' },
-                      { id: 'durante', label: 'Durante',  key: 'fcDuranteEntrenamiento',  color: '#EF4444' },
-                      { id: 'despues', label: 'Después',  key: 'fcDespuesEntrenamiento',  color: '#10B981' },
-                      { id: 'recup1',  label: "Recup 1'", key: 'fcRecuperacion1min',      color: '#14B8A6' },
-                      { id: 'recup3',  label: "Recup 3'", key: 'fcRecuperacion3min',      color: '#A855F7' },
-                      { id: 'recup5',  label: "Recup 5'", key: 'fcRecuperacion5min',      color: '#6366F1' },
+                      { id: 'antes',   label: 'Antes',    key: 'fcAntesEntrenamiento',    color: '#3B82F6', tPct: 0.00 },
+                      { id: 'durante', label: 'Durante',  key: 'fcDuranteEntrenamiento',  color: '#EF4444', tPct: 0.50 },
+                      { id: 'despues', label: 'Después',  key: 'fcDespuesEntrenamiento',  color: '#10B981', tPct: 1.00 },
+                      { id: 'recup1',  label: "Recup 1'", key: 'fcRecuperacion1min',      color: '#14B8A6', tAfter: 1 },
+                      { id: 'recup3',  label: "Recup 3'", key: 'fcRecuperacion3min',      color: '#A855F7', tAfter: 3 },
+                      { id: 'recup5',  label: "Recup 5'", key: 'fcRecuperacion5min',      color: '#6366F1', tAfter: 5 },
                     ];
-                    if (m.mostrarRecuperacion10min) phases.push({ id: 'recup10', label: "Recup 10'", key: 'fcRecuperacion10min', color: '#EC4899' });
-                    const chartData = phases.map(p => ({ fase: p.label, bpm: parseInt(m[p.key]) || 0 }));
+                    if (m.mostrarRecuperacion10min) phases.push({ id: 'recup10', label: "Recup 10'", key: 'fcRecuperacion10min', color: '#EC4899', tAfter: 10 });
+                    // Duración de la sesión (del header superior, editable por el usuario). Cap: 3h (180min)
+                    const sessDur = Math.max(1, Math.min(180, parseInt(sessionData.duration) || 90));
+                    // Construir dataset con eje X temporal (minutos)
+                    const chartData = phases.map(p => {
+                      const tiempoMin = p.tPct != null
+                        ? Math.round(sessDur * p.tPct)
+                        : sessDur + (p.tAfter || 0);
+                      return { tiempoMin, fase: p.label, bpm: parseInt(m[p.key]) || 0 };
+                    });
                     const refLines = [];
                     if (m.fcReposo)  refLines.push({ y: parseInt(m.fcReposo),  label: `Reposo ${m.fcReposo}`,  stroke: '#84cc16', strokeDasharray: '4 4' });
                     if (m.fcMedia)   refLines.push({ y: parseInt(m.fcMedia),   label: `Media ${m.fcMedia}`,    stroke: '#f59e0b', strokeDasharray: '4 4' });
@@ -1858,8 +1866,17 @@ const SessionEditor = ({
                         icon={Heart}
                         data={chartData}
                         dataKeys={[{ key: 'bpm', color: '#ef4444', name: 'FC (bpm)' }]}
-                        xAxisKey="fase"
-                        height={320}
+                        xAxisKey="tiempoMin"
+                        xAxisType="number"
+                        xAxisFormatter={(v) => {
+                          const mins = Math.round(v);
+                          if (mins < 60) return `${mins}m`;
+                          const h = Math.floor(mins/60);
+                          const rem = mins % 60;
+                          return rem ? `${h}h ${rem}m` : `${h}h`;
+                        }}
+                        xAxisLabel={`Tiempo · sesión ${sessDur} min${sessDur >= 60 ? ` (${Math.floor(sessDur/60)}h${sessDur%60?' '+(sessDur%60)+'m':''})` : ''}`}
+                        height={340}
                         showBrush={false}
                         showControls={true}
                         showTimeRange={false}

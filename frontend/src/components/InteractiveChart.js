@@ -77,6 +77,9 @@ const InteractiveChart = ({
   referenceLines = [],
   referenceAreas = [],
   extraControls = null,
+  xAxisFormatter = null,
+  xAxisLabel = null,
+  xAxisType = 'category',
   className = ''
 }) => {
   const [chartType, setChartType] = useState(defaultChartType);
@@ -217,9 +220,13 @@ const InteractiveChart = ({
     const axisProps = {
       xAxis: <XAxis 
         dataKey={xAxisKey} 
+        type={xAxisType}
+        domain={xAxisType === 'number' ? ['dataMin', 'dataMax'] : undefined}
         tick={{ fontSize: 11, fill: isFullscreenMode ? '#9CA3AF' : '#6B7280' }} 
         stroke={isFullscreenMode ? '#374151' : '#E5E7EB'}
         tickLine={false}
+        tickFormatter={xAxisFormatter || undefined}
+        label={xAxisLabel ? { value: xAxisLabel, position: 'insideBottom', offset: -5, fill: isFullscreenMode ? '#9CA3AF' : '#6B7280', fontSize: 11 } : undefined}
       />,
       yAxis: <YAxis 
         tick={{ fontSize: 11, fill: isFullscreenMode ? '#9CA3AF' : '#6B7280' }} 
