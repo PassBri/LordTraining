@@ -332,6 +332,7 @@ const CAPACITY_CONFIG = {
     unidadesVol: ['Reps','kg totales'],
     volLabel: 'Reps', volPh: '10-12', serPh: '3-6',
     intRef: '85-100%', denPh: '3-5 min', recPh: '3-5 min', freqPh: '2-4x/sem',
+    medidaLabel: 'Kg', medidaPh: '80',
     showDeficit: true
   },
   resistencia: {
@@ -340,6 +341,7 @@ const CAPACITY_CONFIG = {
     unidadesVol: ['Minutos','Metros','Km'],
     volLabel: 'Minutos', volPh: '30-120', serPh: '1-12',
     intRef: 'Z1-Z5', denPh: 'Continuo', recPh: '1:3', freqPh: '3-5x/sem',
+    medidaLabel: 'Km', medidaPh: '5',
     showZonas: true
   },
   velocidad: {
@@ -347,14 +349,16 @@ const CAPACITY_CONFIG = {
     unidadesInt: ['%Vmax','RPE'],
     unidadesVol: ['Metros','Sprints'],
     volLabel: 'Metros', volPh: '10-60', serPh: '6-10',
-    intRef: 'Maxima', denPh: '1:10-1:20', recPh: '3-5 min', freqPh: '2-3x/sem'
+    intRef: 'Maxima', denPh: '1:10-1:20', recPh: '3-5 min', freqPh: '2-3x/sem',
+    medidaLabel: 'Metros', medidaPh: '400'
   },
   flexibilidad: {
     subtipos: ['Estatica','Dinamica','FNP'],
     unidadesInt: ['ROM','RPE'],
     unidadesVol: ['Segundos','Series'],
     volLabel: 'Segundos', volPh: '30-60', serPh: '2-4',
-    intRef: 'Submaxima', denPh: '20-30s', recPh: '20-30s', freqPh: '5-7x/sem'
+    intRef: 'Submaxima', denPh: '20-30s', recPh: '20-30s', freqPh: '5-7x/sem',
+    medidaLabel: 'ROM (°)', medidaPh: '45'
   },
   coordinacion: {
     subtipos: ['Equilibrio','Ritmo','Orientacion','Diferenciacion','Acoplamiento','Agilidad'],
@@ -362,6 +366,7 @@ const CAPACITY_CONFIG = {
     unidadesVol: ['Tareas','Minutos'],
     volLabel: 'Tareas', volPh: '5-10', serPh: '3-5',
     intRef: 'Moderada', denPh: 'Alta var.', recPh: '1-2 min', freqPh: '3-5x/sem',
+    medidaLabel: 'Tareas', medidaPh: '5',
     showComplejidad: true
   },
   equilibrio: {
@@ -370,6 +375,7 @@ const CAPACITY_CONFIG = {
     unidadesVol: ['Segundos','Reps'],
     volLabel: 'Segundos', volPh: '15-30', serPh: '3-5',
     intRef: 'Moderada', denPh: '30-60s', recPh: '30-60s', freqPh: '3-5x/sem',
+    medidaLabel: 'Segundos', medidaPh: '20',
     showComplejidad: true
   },
   agilidad: {
@@ -378,6 +384,7 @@ const CAPACITY_CONFIG = {
     unidadesVol: ['Metros','Reps'],
     volLabel: 'Metros', volPh: '10-30', serPh: '6-10',
     intRef: 'Maxima', denPh: '1:5-1:10', recPh: '2-3 min', freqPh: '2-3x/sem',
+    medidaLabel: 'Metros', medidaPh: '20',
     showComplejidad: true
   },
   potencia: {
@@ -386,6 +393,7 @@ const CAPACITY_CONFIG = {
     unidadesVol: ['Reps','kg totales'],
     volLabel: 'Reps', volPh: '3-6', serPh: '3-5',
     intRef: '30-70%', denPh: '2-4 min', recPh: '2-4 min', freqPh: '2-3x/sem',
+    medidaLabel: 'Kg', medidaPh: '60',
     showDeficit: true
   }
 };
@@ -485,6 +493,7 @@ const ACTIVIDAD_INICIAL = {
   unidadIntensidad: '%1RM',
   volumen: 30,
   unidadVolumen: 'Reps',
+  medida: '',
   densidad: '',
   complejidad: 3,
   procOrganizativo: 'individual',
@@ -1075,11 +1084,12 @@ const SessionEditor = ({
                 <input type="range" min={0} max={100} value={act.intensidad} onChange={(e) => updateActividad(faseKey, idx, 'intensidad', parseInt(e.target.value))} className="w-full h-1 mt-0.5 accent-[#84cc16] cursor-pointer" data-testid={`intensity-slider-${faseKey}-${idx}`} />
               </div>
 
-              {/* Stats: Series / Vol (label dinámico) / Recup — inputs inline minimalistas */}
+              {/* Stats: Series / Vol (label dinámico) / Medida (kg/m/km/ROM) / Recup — inputs inline minimalistas */}
               <div className="flex items-start gap-1.5 flex-shrink-0">
                 {[
                   { label:'Series', value:act.series, key:'series', type:'number', ph: capCfg.serPh, w:'w-[48px]' },
-                  { label: volUnit, value:act.volumen, key:'volumen', ph: capCfg.volPh, w:'w-[64px]' },
+                  { label: volUnit, value:act.volumen, key:'volumen', ph: capCfg.volPh, w:'w-[60px]' },
+                  { label: capCfg.medidaLabel || 'Medida', value:act.medida, key:'medida', ph: capCfg.medidaPh || '', w:'w-[56px]' },
                   { label:'Recup', value:act.recuperacion, key:'recuperacion', ph: capCfg.recPh, w:'w-[56px]' }
                 ].map(s => (
                   <div key={s.key} className={`${s.w} text-center`}>
