@@ -6940,6 +6940,68 @@ async def get_shared_session(share_id: str):
         raise HTTPException(status_code=500, detail=f"Error al obtener sesión: {str(e)}")
 
 
+# ═══════════════════════════════════════════════════════════
+# TACTICAL BOARD SHARE (sin auth, público)
+# ═══════════════════════════════════════════════════════════
+
+class BoardShareRequest(BaseModel):
+    payload: dict
+    sport: Optional[str] = None
+
+
+@api_router.post("/boards/share")
+async def create_board_share(request: BoardShareRequest):
+    """Crear enlace público para compartir tablero táctico (sin autenticación)."""
+    try:
+        import secrets
+        share_id = f"TB-{secrets.token_urlsafe(6)}"
+        doc = {
+            "share_id": share_id,
+            "sport": request.sport or (request.payload.get("sport") if isinstance(request.payload, dict) else None),
+            "payload": request.payload,
+            "created_at": datetime.now(timezone.utc),
+            "expires_at": datetime.now(timezone.utc) + timedelta(days=90),
+            "views": 0,
+        }
+        await db.shared_boards.insert_one(doc)
+        return {"share_id": share_id, "expires_in_days": 90}
+    except Exception as e:
+        logger.error(f"Error creating board share: {e}")
+        raise HTTPException(status_code=500, detail=f"Error al crear enlace: {str(e)}")
+
+
+@api_router.get("/boards/view/{share_id}")
+async def get_shared_board(share_id: str):
+    """Obtener tablero compartido para visualización pública."""
+    try:
+        shared = await db.shared_boards.find_one({"share_id": share_id}, {"_id": 0})
+        if not shared:
+            raise HTTPException(status_code=404, detail="Tablero no encontrado o enlace expirado")
+        expires_at = shared.get("expires_at")
+        if expires_at:
+            if hasattr(expires_at, 'tzinfo') and expires_at.tzinfo is None:
+                expires_at = expires_at.replace(tzinfo=timezone.utc)
+            if expires_at < datetime.now(timezone.utc):
+                raise HTTPException(status_code=410, detail="El enlace ha expirado")
+        await db.shared_boards.update_one({"share_id": share_id}, {"$inc": {"views": 1}})
+        created_at = shared.get("created_at")
+        if created_at and hasattr(created_at, 'isoformat'):
+            created_at = created_at.isoformat()
+        return {
+            "share_id": share_id,
+            "sport": shared.get("sport"),
+            "payload": shared.get("payload", {}),
+            "created_at": created_at,
+            "views": shared.get("views", 0) + 1,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting shared board: {e}")
+        raise HTTPException(status_code=500, detail=f"Error al obtener tablero: {str(e)}")
+
+
+
 @api_router.get("/sessions/download-pdf/{share_id}")
 async def download_session_pdf(share_id: str, theme: str = "dark"):
     """Genera PDF de la vista pública de sesión usando Playwright headless"""

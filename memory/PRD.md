@@ -436,7 +436,30 @@
   para no empujar los botones JUGADORES/Tactico/Camiseta/Avatar.
 - Labels mas cortos: '11 vs 11 · FIFA', '7 vs 7 · Juvenil', '5 vs 5 · Infantil'.
 
-### Pizarra Dark Mode + UI polish (Feb 2026)
+### Pizarra 3D dark, MMA, Bowling + share backend (Feb 2026)
+- Fix 3D dark: post-process en render3DFieldObjects reemplaza colores
+  oscuros hardcoded (rgba(0,0,0,*), rgba(40,40,40,*), etc.) por tiza
+  blanca en tema oscuro. Ahora son visibles: arcos Balonmano/Hockey/
+  Futsal/Futbol FIFA, redes Tenis/Padel/Badminton, paredes Squash/
+  Fronton, ropes Boxeo, rim de Baloncesto.
+- MMA 3D: octágono completo con malla tipo chain-link (8 uprights,
+  8 paneles con alambres verticales+horizontales, piso octagonal,
+  puerta roja marcada).
+- Squash/Fronton 3D: paredes más gruesas, con línea de saque, tin rojo
+  (squash) y zonas horizontales (fronton), más visibles contra verde.
+- Bolo Criollo 3D: 9 palos cilíndricos 3D (base elipse + cuerpo + cap +
+  franja roja).
+- NUEVO deporte: **Bolo Americano** en categoría Precisión. Pista 18.3m
+  x 1.05m con canales, 10 pinos triangulares formato regulamentario
+  USBC/WBT, bola de bowling 3D con 3 agujeros.
+- Backend: endpoints `/api/boards/share` (POST anónimo) y
+  `/api/boards/view/{share_id}` (GET público). TTL 90 días.
+- Frontend share rehecho: modal completo con URL + botones "Copiar
+  enlace" / WhatsApp / Cerrar, usando el mismo patrón que
+  SessionEditor. Fallback a hash base64 si la API falla. Loader
+  detecta ?s=XXX al cargar.
+- Panel lateral (#panel-tabs) con height:56px fijo, alineado verticalmente
+  con #view-bar (antes bajaba un renglón).
 - Dark mode ahora usa verde pizarron tradicional (#1f4a34) como fondo de
   cancha, con lineas blanco-tiza (rgba(245,240,225,0.88)). Evoca el
   tablero verde escolar clasico que usaban los entrenadores.
