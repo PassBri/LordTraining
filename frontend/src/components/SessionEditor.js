@@ -1305,12 +1305,13 @@ const SessionEditor = ({
     <>
       <Dialog open={isOpen} onOpenChange={() => {}}>
         <DialogContent 
-          className="max-w-6xl max-h-[90vh] overflow-hidden p-0 bg-white [&>button]:hidden" 
+          className="w-screen h-screen max-w-none max-h-none sm:max-w-none rounded-none p-0 bg-white [&>button]:hidden translate-x-0 translate-y-0 top-0 left-0" 
           data-testid="session-editor-dialog"
           aria-describedby="session-editor-desc"
           onPointerDownOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
           onInteractOutside={(e) => e.preventDefault()}
+          style={{ width: '100vw', height: '100vh', maxWidth: '100vw', maxHeight: '100vh', top: 0, left: 0, transform: 'none', borderRadius: 0 }}
         >
           {/* ══ DARK HEADER BAR ══ */}
           <style>{`
@@ -1451,8 +1452,8 @@ const SessionEditor = ({
           <div 
             ref={sessionContentRef} 
             data-testid="session-editor-content"
-            className="overflow-y-auto max-h-[calc(90vh-180px)]"
-            style={{background:'#f5f5f7'}}
+            className="overflow-y-auto"
+            style={{background:'#f5f5f7', maxHeight:'calc(100vh - 120px)'}}
           >
             <div className="p-6 space-y-5">
               {/* Objetivos de la sesión */}
