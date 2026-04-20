@@ -9,6 +9,18 @@
 
 ## Implementado
 
+### Fix porterias, escalada y skateboarding 3D (Feb 2026)
+- **Fix porterias futbol/futsal/balonmano/hockey 3D**: postes ahora en y=30/770 (futbol, futsal) o y=40/760 (balonmano, hockey) pegados a la linea de gol, red extiende hacia afuera (-gd hacia atras del top, +gd hacia adelante del bottom)
+- **Escalada 3D rediseñada**: muro grande posicionado en Y=200 con altura 280, grid texturado de paneles verticales/horizontales, 14 presas coloreadas por dificultad con coordenadas X recalibradas al ancho del muro, ruta punteada amarilla conectando presas, colchoneta naranja grande de 360×55, texto INICIO
+- **Skateboarding 3D con profundidad real**:
+  - Helper `drawBox(x,y,w,h,z,topColor,sideColor,strokeColor)` que genera 3 caras (frontal, lateral, superior) para cajas solidas
+  - Bowl: circulos concentricos con gradiente oscuro simulando profundidad
+  - Funbox: caja 3D solida 220x140x28 + ledge naranja en top
+  - Half-pipe: piso + 2 paredes verticales visibles + copings amarillas
+  - Quarter-pipe: pared trasera vertical + rampa inclinada visible + coping
+  - Kicker: cuna con frontal, top inclinado y cara lateral visibles
+  - Stair: 3 escalones apilados usando `drawBox`, cada uno con volumen
+
 ### Bug fixes + rediseño profesional de 8 deportes individuales (Feb 2026)
 - **Fix Baloncesto 3D**: arco de 3 puntos ahora con rx=185 (conecta perfectamente con los segmentos rectos de la baseline)
 - **Fix Beisbol 3D**: ángulos de outfield arc (216.87°→323.13°) y grass arc (220.14°→319.86°) corregidos. Bases ahora son cuadrados blancos + home plate + monticulo con punto central
