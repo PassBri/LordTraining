@@ -396,8 +396,14 @@ html.dark #playback-bar{background:rgba(15,23,42,0.85)}
 .pb-speed{padding:4px 10px;border-radius:12px;font-size:10px;font-weight:800;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);min-width:38px;text-align:center;transition:all .15s}
 .pb-speed:hover{color:var(--text-sec);background:var(--hover)}
 .pb-speed.active{color:#0a0f1f;background:var(--brand);border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-dim)}
-.pb-progress{height:4px;background:var(--border);border-radius:3px;flex:1;min-width:100px;position:relative;overflow:hidden}
-.pb-progress-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--brand),#99cc00);border-radius:3px;transition:width .15s linear;box-shadow:0 0 8px var(--brand-glow)}
+.pb-progress{height:10px;background:var(--border);border-radius:5px;flex:1;min-width:160px;position:relative;cursor:pointer;transition:height .12s}
+.pb-progress:hover{height:12px}
+.pb-progress-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--brand),#99cc00);border-radius:5px;transition:width .12s linear;box-shadow:0 0 10px var(--brand-glow);pointer-events:none}
+.pb-progress-handle{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:var(--brand);border:2px solid #0a0f1f;transform:translate(-50%,-50%);box-shadow:0 2px 8px rgba(0,0,0,0.45),0 0 14px var(--brand-glow);opacity:0;transition:opacity .12s,transform .12s;pointer-events:none;z-index:3}
+.pb-progress:hover .pb-progress-handle,.pb-progress.dragging .pb-progress-handle{opacity:1}
+.pb-progress.dragging .pb-progress-handle{transform:translate(-50%,-50%) scale(1.18)}
+.pb-progress-hover{position:absolute;bottom:calc(100% + 6px);left:0;transform:translateX(-50%);background:rgba(10,15,25,0.95);color:#e8e8e8;padding:3px 7px;border-radius:4px;font-size:10px;font-weight:700;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .1s;letter-spacing:0.03em}
+.pb-progress:hover .pb-progress-hover{opacity:1}
 .pb-step{font-size:11px;color:var(--text-sec);min-width:44px;text-align:center;font-weight:700;letter-spacing:0.04em}
 .arrow-order-badge{pointer-events:none}
 /* Toast */
@@ -434,8 +440,8 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
   <div class="sb-header">
    <div class="logo"><span>i</span></div>
    <div class="brand-text">iTRAIN</div>
-   <a class="sb-header-action" href="/top-jugadas.html" target="_blank" rel="noopener" title="Top Jugadas (ranking viral)" data-testid="top-rank-sidebar-btn" style="margin-left:auto;text-decoration:none;display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border-radius:6px;background:rgba(200,247,0,0.08);color:var(--brand);border:1px solid rgba(200,247,0,0.35);font-size:9.5px;font-weight:800;letter-spacing:0.08em"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>TOP</a>
-   <button class="sb-header-action" onclick="S.togglePresentation()" title="Modo presentación pantalla completa (Shift+F)" data-testid="presentation-sidebar-btn" style="margin-left:4px;margin-right:4px;text-decoration:none;display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border-radius:6px;background:rgba(200,247,0,0.08);color:var(--brand);border:1px solid rgba(200,247,0,0.35);font-size:9.5px;font-weight:800;letter-spacing:0.08em;cursor:pointer"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>PRES</button>
+   <a class="sb-header-action" href="/top-jugadas.html" target="_blank" rel="noopener" title="Top Jugadas (ranking viral)" data-testid="top-rank-sidebar-btn" style="margin-left:auto;text-decoration:none;display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:7px;background:#0f172a;color:#c8f700;border:1px solid #c8f700;font-size:10px;font-weight:900;letter-spacing:0.1em;box-shadow:0 2px 8px rgba(200,247,0,0.25)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>TOP</a>
+   <button class="sb-header-action" onclick="S.togglePresentation()" title="Modo presentación pantalla completa (Shift+F)" data-testid="presentation-sidebar-btn" style="margin-left:5px;margin-right:5px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:7px;background:#0f172a;color:#c8f700;border:1px solid #c8f700;font-size:10px;font-weight:900;letter-spacing:0.1em;cursor:pointer;box-shadow:0 2px 8px rgba(200,247,0,0.25)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>PRES</button>
    <button class="sb-close" onclick="S.closeBoard()" title="Volver" data-testid="close-board-btn"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></button>
   </div>
   <!-- Sport selector as accordion (native <details>) -->
@@ -563,7 +569,7 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
    <button class="pb-btn" onclick="S.playback('pause')" id="pb-pause" title="Pausar"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="2" width="3.5" height="12" rx="1"/><rect x="9.5" y="2" width="3.5" height="12" rx="1"/></svg></button>
    <button class="pb-btn" onclick="S.playback('stepForward')" id="pb-step-fwd" title="Avanzar paso (→)" data-testid="pb-step-fwd"><svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,1 14,8 3,15"/><rect x="14" y="1" width="2" height="14"/></svg></button>
    <button class="pb-btn" onclick="S.playback('stop')" id="pb-stop" title="Detener"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="3" width="10" height="10" rx="1.5"/></svg></button>
-   <div class="pb-progress"><div class="pb-progress-fill" id="pb-fill" style="width:0%"></div></div>
+   <div class="pb-progress" id="pb-progress" data-testid="pb-progress"><div class="pb-progress-fill" id="pb-fill" style="width:0%"></div><div class="pb-progress-handle" id="pb-handle" style="left:0%"></div><div class="pb-progress-hover" id="pb-hover">0%</div></div>
    <div class="pb-step" id="pb-step">--</div>
    <button class="pb-speed" onclick="S.setPlaySpeed(0.5)" id="pb-s05">0.5x</button>
    <button class="pb-speed active" onclick="S.setPlaySpeed(1)" id="pb-s1">1x</button>
@@ -6258,6 +6264,7 @@ flashGoal(label) {
   ST.playbackTrails = {};
   document.getElementById('playback-bar').classList.add('show');
   document.getElementById('pb-play').classList.add('playing');
+  this.bindScrubber();
   document.getElementById('pb-pause').classList.remove('playing');
   this.renderPlaybackFrame();
  },
@@ -6285,6 +6292,72 @@ flashGoal(label) {
    if (dist < minDist) { minDist = dist; nearest = el; }
   });
   return nearest;
+ },
+
+ seekTo(p) {
+  const chains = ST.playbackChains;
+  if (!chains || !chains.length) return;
+  p = Math.max(0, Math.min(1, p));
+  if (ST.playbackRAF) cancelAnimationFrame(ST.playbackRAF);
+  const wasPlaying = ST.playbackState === 'playing';
+  const maxSegs = ST.playbackMaxSegs || 1;
+  const STEP_DURATION = 1500 / (ST.playbackSpeed || 1);
+  ST.playbackProgress = p;
+  ST.playbackPausedProgress = p;
+  ST.playbackStartTime = performance.now() - p * maxSegs * STEP_DURATION;
+  ST.playbackState = 'playing';
+  this.renderPlaybackFrame();
+  if (!wasPlaying) {
+   ST.playbackState = 'paused';
+   if (ST.playbackRAF) cancelAnimationFrame(ST.playbackRAF);
+   document.getElementById('pb-play').classList.remove('playing');
+   document.getElementById('pb-pause').classList.add('playing');
+  }
+ },
+
+ bindScrubber() {
+  const bar = document.getElementById('pb-progress');
+  if (!bar || bar._bound) return;
+  bar._bound = true;
+  const hover = document.getElementById('pb-hover');
+  const getP = (e) => {
+   const r = bar.getBoundingClientRect();
+   const x = (e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0)) - r.left;
+   return Math.max(0, Math.min(1, x / r.width));
+  };
+  const fmt = (p) => {
+   const maxSegs = ST.playbackMaxSegs || 1;
+   const currentStep = Math.min(Math.floor(p * maxSegs) + 1, maxSegs);
+   return `Paso ${currentStep} / ${maxSegs} · ${Math.round(p*100)}%`;
+  };
+  bar.addEventListener('mousemove', e => {
+   const p = getP(e);
+   if (hover) {
+    hover.textContent = fmt(p);
+    hover.style.left = (p * 100) + '%';
+   }
+  });
+  bar.addEventListener('mousedown', e => {
+   e.preventDefault();
+   bar.classList.add('dragging');
+   const p = getP(e);
+   this.seekTo(p);
+   const onMove = ev => { ev.preventDefault(); this.seekTo(getP(ev)); };
+   const onUp = () => {
+    bar.classList.remove('dragging');
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+   };
+   document.addEventListener('mousemove', onMove);
+   document.addEventListener('mouseup', onUp);
+  });
+  // Touch
+  bar.addEventListener('touchstart', e => {
+   bar.classList.add('dragging');
+   this.seekTo(getP(e));
+  }, {passive: true});
+  bar.addEventListener('touchmove', e => { this.seekTo(getP(e)); }, {passive: true});
+  bar.addEventListener('touchend', () => bar.classList.remove('dragging'));
  },
 
  playback(action) {
@@ -6429,6 +6502,7 @@ flashGoal(label) {
   const stepFrac = stepFloat - currentGlobalStep;
 
   document.getElementById('pb-fill').style.width = (progress * 100) + '%';
+  const hdl = document.getElementById('pb-handle'); if (hdl) hdl.style.left = (progress * 100) + '%';
   document.getElementById('pb-step').textContent = `Paso ${currentGlobalStep + 1} / ${maxSegs}`;
 
   // Update player positions: each chain simultaneously
