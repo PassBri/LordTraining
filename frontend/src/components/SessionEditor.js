@@ -1075,12 +1075,11 @@ const SessionEditor = ({
                 <input type="range" min={0} max={100} value={act.intensidad} onChange={(e) => updateActividad(faseKey, idx, 'intensidad', parseInt(e.target.value))} className="w-full h-1 mt-0.5 accent-[#84cc16] cursor-pointer" data-testid={`intensity-slider-${faseKey}-${idx}`} />
               </div>
 
-              {/* Stats: Series / Reps / Vol / Recup — inputs inline minimalistas */}
+              {/* Stats: Series / Vol (label dinámico) / Recup — inputs inline minimalistas */}
               <div className="flex items-start gap-1.5 flex-shrink-0">
                 {[
                   { label:'Series', value:act.series, key:'series', type:'number', ph: capCfg.serPh, w:'w-[48px]' },
-                  { label:'Reps', value:act.repeticiones, key:'repeticiones', ph: capCfg.volPh, w:'w-[56px]' },
-                  { label: volUnit, value:act.volumen, key:'volumen', ph: capCfg.volPh, w:'w-[60px]' },
+                  { label: volUnit, value:act.volumen, key:'volumen', ph: capCfg.volPh, w:'w-[64px]' },
                   { label:'Recup', value:act.recuperacion, key:'recuperacion', ph: capCfg.recPh, w:'w-[56px]' }
                 ].map(s => (
                   <div key={s.key} className={`${s.w} text-center`}>
@@ -1192,6 +1191,10 @@ const SessionEditor = ({
               <div className="border-t border-slate-100 bg-slate-50/40 px-4 py-3 space-y-2.5" data-testid={`advanced-panel-${faseKey}-${idx}`}>
                 {/* Fila inline: campos avanzados */}
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px]" style={{fontFamily:DM}}>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Reps</span>
+                    <Input value={act.repeticiones || ''} onChange={(e) => updateActividad(faseKey, idx, 'repeticiones', e.target.value)} placeholder={capCfg.volPh} className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 focus:bg-white rounded-md px-1.5 w-[70px] shadow-none focus:ring-0" data-testid={`reps-adv-${faseKey}-${idx}`} />
+                  </div>
                   <div className="flex items-center gap-1.5">
                     <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Subtipo</span>
                     <Select value={act.subtipo || ''} onValueChange={(v) => updateActividad(faseKey, idx, 'subtipo', v)}>
