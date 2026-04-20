@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar as CalendarWidget } from './ui/calendar';
 import { Button } from './ui/button';
@@ -1123,16 +1124,26 @@ const SessionEditor = ({
                 ))}
               </div>
 
-              {/* Botón Pizarra — toggle inline preview */}
-              <button
-                onClick={() => setExpandedBoard(prev => prev === act.id ? null : act.id)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex-shrink-0 ${isBoardOpen ? 'bg-[#CCFF00] text-slate-900 ring-1 ring-[#84cc16]' : act.boardThumbnail ? 'bg-[#0a0a0f] text-[#CCFF00] hover:brightness-110' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
-                title={act.boardThumbnail ? 'Mostrar/ocultar pizarra' : 'Añadir pizarra'}
-                data-testid={`toggle-board-${faseKey}-${idx}`}
-              >
-                <LayoutGrid className="w-3.5 h-3.5" />
-                {act.boardThumbnail ? (isBoardOpen ? 'Ocultar' : 'Pizarra') : 'Añadir'}
-              </button>
+              {/* Miniatura Pizarra — clickeable, abre drawer lateral */}
+              {act.boardThumbnail ? (
+                <button
+                  onClick={() => setExpandedBoard(act.id)}
+                  className={`w-[56px] h-[48px] rounded-md overflow-hidden border transition-all flex-shrink-0 ${isBoardOpen ? 'border-[#84cc16] ring-2 ring-[#c8f700]/40' : 'border-slate-200 hover:border-[#c8f700] hover:shadow-md'}`}
+                  title="Ver mini-pizarra"
+                  data-testid={`toggle-board-${faseKey}-${idx}`}
+                  dangerouslySetInnerHTML={{ __html: act.boardThumbnail }}
+                  style={{ padding: 0 }}
+                />
+              ) : (
+                <button
+                  onClick={() => setExpandedBoard(act.id)}
+                  className="w-[56px] h-[48px] rounded-md border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all flex-shrink-0"
+                  title="Añadir pizarra"
+                  data-testid={`toggle-board-${faseKey}-${idx}`}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </button>
+              )}
 
               {/* Acciones: avanzado / duplicar / eliminar */}
               <div className="flex items-center gap-0.5 flex-shrink-0">
@@ -1163,38 +1174,57 @@ const SessionEditor = ({
               </div>
             </div>
 
-            {/* === INLINE BOARD PREVIEW === (expandida al hacer click en botón Pizarra) */}
-            {isBoardOpen && (
-              <div className="border-t border-slate-100 bg-slate-50/40 px-4 py-3" data-testid={`board-panel-${faseKey}-${idx}`}>
-                <div className="flex items-center gap-2 mb-2">
-                  <LayoutGrid className="w-3.5 h-3.5 text-slate-400" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500" style={{fontFamily:DM}}>Pizarra Táctica</span>
-                </div>
-                <div className="max-w-[380px]">
+            {/* === DRAWER LATERAL DERECHO: Mini-pizarra + controles === */}
+            <Sheet open={isBoardOpen} onOpenChange={(open) => !open && setExpandedBoard(null)}>
+              <SheetContent side="right" className="w-[460px] sm:max-w-[460px] p-0 bg-white border-l border-slate-200" data-testid={`board-drawer-${faseKey}-${idx}`}>
+                <SheetHeader className="px-5 py-4 border-b border-slate-100" style={{background:'linear-gradient(135deg, #0a0a0f 0%, #1a1b26 100%)'}}>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{background:'#CCFF00'}}>
+                      <LayoutGrid className="w-3.5 h-3.5" style={{color:'#0a0a0f'}} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <SheetTitle className="text-[13px] font-bold text-white tracking-tight truncate" style={{fontFamily:DM}}>Pizarra Táctica</SheetTitle>
+                      <p className="text-[10px] text-white/50 truncate" style={{fontFamily:DM}}>{act.ejercicio || 'Sin ejercicio'}</p>
+                    </div>
+                  </div>
+                </SheetHeader>
+                <div className="p-4 overflow-y-auto" style={{maxHeight:'calc(100vh - 80px)'}}>
                   {act.boardThumbnail ? (
-                    <MiniBoardPlayer
-                      svgHtml={act.boardThumbnail}
-                      editHref={act.boardId ? `/tactical-board.html?boardId=${act.boardId}` : '/tactical-board.html'}
-                      onEditClick={() => { boardEditContextRef.current = { faseKey, actId: act.id }; }}
-                      onRemove={() => updateActividadMulti(faseKey, idx, { boardThumbnail: null, boardId: null })}
-                      testIdPrefix={`board-${faseKey}-${idx}`}
-                    />
+                    <>
+                      <MiniBoardPlayer
+                        svgHtml={act.boardThumbnail}
+                        editHref={act.boardId ? `/tactical-board.html?boardId=${act.boardId}` : '/tactical-board.html'}
+                        onEditClick={() => { boardEditContextRef.current = { faseKey, actId: act.id }; }}
+                        onRemove={null}
+                        testIdPrefix={`board-${faseKey}-${idx}`}
+                      />
+                      {/* Botón Quitar pizarra explícito */}
+                      <button
+                        onClick={() => { updateActividadMulti(faseKey, idx, { boardThumbnail: null, boardId: null }); setExpandedBoard(null); }}
+                        className="mt-3 w-full flex items-center justify-center gap-1.5 h-9 rounded-lg text-[11px] font-bold uppercase tracking-wider text-red-500 hover:bg-red-50 hover:text-red-600 transition-all border border-red-200/50"
+                        style={{fontFamily:DM}}
+                        data-testid={`remove-board-drawer-${faseKey}-${idx}`}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" /> Quitar pizarra
+                      </button>
+                    </>
                   ) : (
                     <a
                       href="/tactical-board.html"
                       target="_blank"
                       rel="opener"
-                      onClick={() => { boardEditContextRef.current = { faseKey, actId: act.id }; }}
-                      className="flex items-center justify-center gap-2 h-[140px] rounded-lg border-2 border-dashed border-slate-200 text-slate-400 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all no-underline"
+                      onClick={() => { boardEditContextRef.current = { faseKey, actId: act.id }; setExpandedBoard(null); }}
+                      className="flex flex-col items-center justify-center gap-2 h-[240px] rounded-xl border-2 border-dashed border-slate-200 text-slate-400 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all no-underline"
                       data-testid={`open-board-${faseKey}-${idx}`}
                     >
-                      <LayoutGrid className="w-5 h-5" />
-                      <span className="text-[11px] font-semibold uppercase tracking-wide">Abrir pizarra</span>
+                      <LayoutGrid className="w-8 h-8" />
+                      <span className="text-[12px] font-bold uppercase tracking-wide">Crear pizarra</span>
+                      <span className="text-[10px] text-slate-400">Abre el tactical-board en nueva pestaña</span>
                     </a>
                   )}
                 </div>
-              </div>
-            )}
+              </SheetContent>
+            </Sheet>
 
             {/* === PANEL AVANZADO Carga y Progresión === */}
             {isExpanded && (
