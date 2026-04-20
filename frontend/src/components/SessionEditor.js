@@ -8,6 +8,7 @@ import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import InteractiveChart from './InteractiveChart';
 import { Slider } from './ui/slider';
 import { 
   Target, Zap, Brain, Dumbbell, Heart, Calendar, Plus, Trash2, 
@@ -1696,236 +1697,90 @@ const SessionEditor = ({
                 </CardHeader>
                 {sectionOpen.monitoreo && (
                 <CardContent className="p-6 bg-white space-y-8">
-                  {/* Sección de Gráfica */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h4 className="flex items-center gap-2" style={{fontSize:'14px',fontWeight:600,color:'#1e293b',fontFamily:DM}}>
-                        <div className="w-7 h-7 bg-red-50 rounded-lg flex items-center justify-center">
-                          <Heart className="w-3.5 h-3.5 text-red-500" />
+                  {/* ── Gráfica Trading-style (InteractiveChart) ── */}
+                  {(() => {
+                    const m = sessionData.monitoreo;
+                    // Build dataset from monitoreo phases (reactive to edits)
+                    const phases = [
+                      { id: 'antes',   label: 'Antes',    key: 'fcAntesEntrenamiento' },
+                      { id: 'durante', label: 'Durante',  key: 'fcDuranteEntrenamiento' },
+                      { id: 'despues', label: 'Después',  key: 'fcDespuesEntrenamiento' },
+                      { id: 'recup1',  label: "Recup 1'", key: 'fcRecuperacion1min' },
+                      { id: 'recup3',  label: "Recup 3'", key: 'fcRecuperacion3min' },
+                      { id: 'recup5',  label: "Recup 5'", key: 'fcRecuperacion5min' },
+                    ];
+                    if (m.mostrarRecuperacion10min) {
+                      phases.push({ id: 'recup10', label: "Recup 10'", key: 'fcRecuperacion10min' });
+                    }
+                    const chartData = phases.map(p => ({ fase: p.label, bpm: parseInt(m[p.key]) || 0 }));
+                    // Reference lines from fcReposo/Media/Maxima (only if defined)
+                    const refLines = [];
+                    if (m.fcReposo)  refLines.push({ y: parseInt(m.fcReposo),  label: `Reposo (${m.fcReposo} bpm)`,  stroke: '#84cc16', strokeDasharray: '4 4' });
+                    if (m.fcMedia)   refLines.push({ y: parseInt(m.fcMedia),   label: `Media (${m.fcMedia} bpm)`,    stroke: '#f59e0b', strokeDasharray: '4 4' });
+                    if (m.fcMaxima)  refLines.push({ y: parseInt(m.fcMaxima),  label: `Máxima (${m.fcMaxima} bpm)`,  stroke: '#ef4444', strokeDasharray: '4 4' });
+                    return (
+                      <InteractiveChart
+                        title="Frecuencia cardíaca por fases"
+                        icon={Heart}
+                        data={chartData}
+                        dataKeys={[{ key: 'bpm', color: '#ef4444', name: 'FC (bpm)' }]}
+                        xAxisKey="fase"
+                        height={280}
+                        showBrush={false}
+                        showControls={true}
+                        defaultChartType="area"
+                        yAxisDomain={[0, 240]}
+                        referenceLines={refLines}
+                        className="border border-slate-100 shadow-none bg-white"
+                      />
+                    );
+                  })()}
+
+                  {/* Inputs compactos editables por fase */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2">
+                    {[
+                      { id: 'antes',   label: 'Antes',     key: 'fcAntesEntrenamiento',    color: '#3B82F6', ph: '70'  },
+                      { id: 'durante', label: 'Durante',   key: 'fcDuranteEntrenamiento',  color: '#EF4444', ph: '150' },
+                      { id: 'despues', label: 'Después',   key: 'fcDespuesEntrenamiento',  color: '#10B981', ph: '90'  },
+                      { id: 'recup1',  label: "Recup 1'",  key: 'fcRecuperacion1min',      color: '#14B8A6', ph: '85'  },
+                      { id: 'recup3',  label: "Recup 3'",  key: 'fcRecuperacion3min',      color: '#A855F7', ph: '78'  },
+                      { id: 'recup5',  label: "Recup 5'",  key: 'fcRecuperacion5min',      color: '#6366F1', ph: '72'  },
+                      ...(sessionData.monitoreo.mostrarRecuperacion10min ? [{ id: 'recup10', label: "Recup 10'", key: 'fcRecuperacion10min', color: '#EC4899', ph: '68' }] : [])
+                    ].map(p => (
+                      <div key={p.id} className="flex flex-col items-center gap-1" data-testid={`fc-${p.id}`}>
+                        <div className="flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full" style={{background:p.color}} />
+                          <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500" style={{fontFamily:DM}}>{p.label}</span>
                         </div>
-                        Frecuencia cardíaca por fases
-                      </h4>
-                      {/* Selector de vista + estilo línea */}
-                      <div className="flex items-center gap-2">
-                        {/* Estilo de línea (solo visible en Líneas/Mixta) */}
-                        {(sessionData.monitoreo.tipoGrafica === 'lineas' || sessionData.monitoreo.tipoGrafica === 'mixta') && (
-                          <div className="flex items-center gap-0.5 bg-slate-50 rounded-lg p-0.5">
-                            {[
-                              { id: 'lime', label: 'Lima', preview: '#CCFF00' },
-                              { id: 'multi', label: 'Multi', preview: 'linear-gradient(90deg,#3b82f6,#ef4444,#22c55e,#a855f7)' },
-                              { id: 'punteada', label: 'Punteada', preview: '#CCFF00' },
-                              { id: 'gradient', label: 'Degradado', preview: 'linear-gradient(90deg,#06b6d4,#8b5cf6)' },
-                            ].map(s => (
-                              <button key={s.id}
-                                onClick={() => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, estiloLinea: s.id }}))}
-                                className={`flex items-center gap-1 px-2 py-1 rounded-md transition-all ${(sessionData.monitoreo.estiloLinea || 'lime') === s.id ? 'bg-white shadow-sm' : 'hover:bg-slate-100'}`}
-                                style={{fontFamily:DM}}
-                              >
-                                <span className="w-3 h-1 rounded-full" style={{
-                                  background: s.preview,
-                                  borderTop: s.id === 'punteada' ? '2px dashed #CCFF00' : 'none',
-                                  height: s.id === 'punteada' ? '0px' : '3px',
-                                }} />
-                                <span style={{fontSize:'9px',fontWeight:500,color: (sessionData.monitoreo.estiloLinea || 'lime') === s.id ? '#1e293b' : '#94a3b8'}}>{s.label}</span>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                        <div className="flex items-center gap-0.5 bg-slate-100 rounded-lg p-0.5">
-                          {['barras','lineas','mixta'].map(t => (
-                            <button key={t}
-                              onClick={() => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, tipoGrafica: t }}))}
-                              className={`px-3 py-1 rounded-md transition-all ${sessionData.monitoreo.tipoGrafica === t ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                              style={{fontSize:'11px',fontWeight:500,fontFamily:DM}}
-                            >
-                              {t === 'barras' ? 'Barras' : t === 'lineas' ? 'Líneas' : 'Mixta'}
-                            </button>
-                          ))}
+                        <div className="flex items-baseline gap-1">
+                          <Input
+                            type="number"
+                            value={sessionData.monitoreo[p.key]}
+                            onChange={(e) => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, [p.key]: e.target.value } }))}
+                            placeholder={p.ph}
+                            className="h-8 w-16 text-center font-black text-[14px] rounded-lg border-slate-200 focus:ring-1 focus:ring-[#84cc16] focus:border-[#84cc16]"
+                            style={{borderColor:p.color + '40',fontFamily:DM}}
+                            data-testid={`fc-${p.id}-input`}
+                          />
+                          <span className="text-[9px] text-slate-400" style={{fontFamily:DM}}>bpm</span>
                         </div>
                       </div>
-                    </div>
-                    
-                    {/* Gráfica profesional */}
-                    <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
-                      {(() => {
-                        const fcItems = [
-                          { key: 'fcAntesEntrenamiento', label: 'Antes', color: '#3b82f6', ph: 70 },
-                          { key: 'fcDuranteEntrenamiento', label: 'Durante', color: '#ef4444', ph: 150 },
-                          { key: 'fcDespuesEntrenamiento', label: 'Después', color: '#22c55e', ph: 90 },
-                          { key: 'fcRecuperacion1min', label: 'Recup 1\'', color: '#14b8a6', ph: 85 },
-                          { key: 'fcRecuperacion3min', label: 'Recup 3\'', color: '#a855f7', ph: 78 },
-                          { key: 'fcRecuperacion5min', label: 'Recup 5\'', color: '#6366f1', ph: 72 },
-                        ];
-                        if (sessionData.monitoreo.mostrarRecuperacion10min) {
-                          fcItems.push({ key: 'fcRecuperacion10min', label: 'Recup 10\'', color: '#ec4899', ph: 68 });
-                        }
-                        const vals = fcItems.map(f => parseInt(sessionData.monitoreo[f.key]) || f.ph);
-                        const maxBpm = Math.max(180, ...vals) + 20;
-                        const yTicks = [0, Math.round(maxBpm * 0.25), Math.round(maxBpm * 0.5), Math.round(maxBpm * 0.75), maxBpm];
-                        const showLines = sessionData.monitoreo.tipoGrafica === 'lineas' || sessionData.monitoreo.tipoGrafica === 'mixta';
-                        const showBars = sessionData.monitoreo.tipoGrafica === 'barras' || sessionData.monitoreo.tipoGrafica === 'mixta';
-                        const isMixta = sessionData.monitoreo.tipoGrafica === 'mixta';
-                        const chartH = 200;
+                    ))}
+                  </div>
 
-                        return (
-                          <>
-                            {/* Chart */}
-                            <div className="px-5 pt-5 pb-0">
-                              <div className="flex" style={{height:`${chartH}px`}}>
-                                {/* Y-axis */}
-                                <div className="flex flex-col justify-between flex-shrink-0 pr-2" style={{width:'30px'}}>
-                                  {[...yTicks].reverse().map(tick => (
-                                    <span key={tick} className="text-right leading-none" style={{fontSize:'9px',color:'#94a3b8',fontFamily:DM,fontWeight:500}}>{tick}</span>
-                                  ))}
-                                </div>
-                                {/* Chart body */}
-                                <div className="flex-1 relative" style={{borderLeft:'1px solid #e2e8f0',borderBottom:'1px solid #e2e8f0'}}>
-                                  {/* Grid lines */}
-                                  {yTicks.slice(1).map(tick => (
-                                    <div key={tick} className="absolute left-0 right-0" style={{bottom:`${(tick/maxBpm)*100}%`,height:'0.5px',background:'#f1f5f9'}} />
-                                  ))}
-                                  {/* Bars — aligned to columns */}
-                                  {showBars && (
-                                    <div className="absolute inset-0 flex">
-                                      {vals.map((v, i) => {
-                                        const barH = (v / maxBpm) * chartH;
-                                        return (
-                                          <div key={i} className="flex-1 flex flex-col items-center justify-end">
-                                            {!isMixta && (
-                                              <span style={{fontSize:'10px',fontWeight:700,color:fcItems[i].color,fontFamily:DM,marginBottom:'2px'}}>{v}</span>
-                                            )}
-                                            <div className="rounded-t-md transition-all duration-500" style={{
-                                              width: isMixta ? '40%' : '55%',
-                                              maxWidth:'34px',
-                                              height:`${barH}px`,
-                                              background:fcItems[i].color,
-                                              opacity: isMixta ? 0.15 : 0.8
-                                            }} />
-                                          </div>
-                                        );
-                                      })}
-                                    </div>
-                                  )}
-                                  {/* Line SVG */}
-                                  {showLines && (() => {
-                                    const n = vals.length;
-                                    const svgW = 600, svgH = chartH;
-                                    const estilo = sessionData.monitoreo.estiloLinea || 'lime';
-                                    const margin = svgW / (n * 2);
-                                    const spts = vals.map((v, i) => ({
-                                      x: margin + (i / (n - 1)) * (svgW - margin * 2),
-                                      y: svgH - (v / maxBpm) * svgH
-                                    }));
-                                    let lineD = `M ${spts[0].x} ${spts[0].y}`;
-                                    for (let j = 0; j < spts.length - 1; j++) {
-                                      const cp = (spts[j].x + spts[j+1].x) / 2;
-                                      lineD += ` C ${cp} ${spts[j].y}, ${cp} ${spts[j+1].y}, ${spts[j+1].x} ${spts[j+1].y}`;
-                                    }
-                                    const areaD = lineD + ` L ${spts[n-1].x} ${svgH} L ${spts[0].x} ${svgH} Z`;
-                                    const lineColor = estilo === 'multi' ? 'url(#multiGrad)' : estilo === 'gradient' ? 'url(#blueGrad)' : '#CCFF00';
-                                    const areaColor = estilo === 'multi' ? '#a855f7' : estilo === 'gradient' ? '#3b82f6' : '#CCFF00';
-                                    const dashArray = estilo === 'punteada' ? '8 4' : 'none';
-                                    return (
-                                      <svg className="absolute inset-0 w-full h-full overflow-visible" viewBox={`0 0 ${svgW} ${svgH}`} preserveAspectRatio="none">
-                                        <defs>
-                                          <linearGradient id="aFill" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor={areaColor} stopOpacity="0.18"/>
-                                            <stop offset="100%" stopColor={areaColor} stopOpacity="0"/>
-                                          </linearGradient>
-                                          <linearGradient id="multiGrad" x1="0" y1="0" x2="1" y2="0">
-                                            <stop offset="0%" stopColor="#3b82f6"/><stop offset="25%" stopColor="#ef4444"/>
-                                            <stop offset="50%" stopColor="#22c55e"/><stop offset="75%" stopColor="#a855f7"/>
-                                            <stop offset="100%" stopColor="#6366f1"/>
-                                          </linearGradient>
-                                          <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="0">
-                                            <stop offset="0%" stopColor="#06b6d4"/><stop offset="100%" stopColor="#8b5cf6"/>
-                                          </linearGradient>
-                                        </defs>
-                                        <path d={areaD} fill="url(#aFill)" />
-                                        <path d={lineD} fill="none" stroke={lineColor} strokeWidth="3" strokeLinecap="round" strokeDasharray={dashArray} />
-                                        {spts.map((p, i) => (
-                                          <g key={i}>
-                                            <circle cx={p.x} cy={p.y} r="5" fill="white" stroke={fcItems[i].color} strokeWidth="2.5" />
-                                            <rect x={p.x - 18} y={p.y - 19} width="36" height="15" rx="4" fill={fcItems[i].color} />
-                                            <text x={p.x} y={p.y - 8.5} textAnchor="middle" fontSize="10" fontWeight="700" fill="white" fontFamily="DM Sans">{vals[i]}</text>
-                                          </g>
-                                        ))}
-                                      </svg>
-                                    );
-                                  })()}
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Inputs — same flex layout as bars for perfect alignment */}
-                            <div className="border-t border-slate-100 px-5 py-3">
-                              <div className="flex" style={{marginLeft:'30px'}}>
-                                {fcItems.map((item, i) => (
-                                  <div key={item.key} className="flex-1 text-center px-1">
-                                    <div className="flex items-center justify-center gap-1 mb-1">
-                                      <span className="w-1.5 h-1.5 rounded-full" style={{background:item.color}} />
-                                      <span style={{fontSize:'8px',fontWeight:600,color:item.color,textTransform:'uppercase',letterSpacing:'0.05em',fontFamily:DM}}>{item.label}</span>
-                                    </div>
-                                    <Input
-                                      type="number"
-                                      value={sessionData.monitoreo[item.key]}
-                                      onChange={(e) => setSessionData(prev => ({
-                                        ...prev,
-                                        monitoreo: { ...prev.monitoreo, [item.key]: e.target.value }
-                                      }))}
-                                      placeholder={String(item.ph)}
-                                      className="se-field-input text-center h-8 font-bold rounded-lg"
-                                      style={{borderColor: item.color + '30', fontSize:'13px'}}
-                                    />
-                                    <div className="text-[7px] text-slate-400 mt-0.5" style={{fontFamily:DM}}>bpm</div>
-                                  </div>
-                                ))}
-                              </div>
-                              
-                              {/* Opción de 10 minutos */}
-                              <div className="mt-2 pt-2 border-t border-dashed border-slate-100 flex items-center gap-3">
-                          <button
-                            onClick={() => setSessionData(prev => ({
-                              ...prev,
-                              monitoreo: { ...prev.monitoreo, mostrarRecuperacion10min: !prev.monitoreo.mostrarRecuperacion10min }
-                            }))}
-                            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all ${
-                              sessionData.monitoreo.mostrarRecuperacion10min 
-                                ? 'bg-pink-50 text-pink-600 border border-pink-200' 
-                                : 'bg-slate-50 text-slate-400 hover:bg-slate-100 border border-transparent'
-                            }`}
-                            style={{fontFamily:DM}}
-                          >
-                            <div className={`w-3.5 h-3.5 rounded flex items-center justify-center ${
-                              sessionData.monitoreo.mostrarRecuperacion10min ? 'bg-pink-500' : 'bg-slate-300'
-                            }`}>
-                              {sessionData.monitoreo.mostrarRecuperacion10min && <Check className="w-2.5 h-2.5 text-white" />}
-                            </div>
-                            + Recup 10 min
-                          </button>
-                          {sessionData.monitoreo.mostrarRecuperacion10min && (
-                            <div className="flex items-center gap-2">
-                              <span className="w-2 h-2 rounded-full bg-pink-500" />
-                              <Input
-                                type="number"
-                                value={sessionData.monitoreo.fcRecuperacion10min}
-                                onChange={(e) => setSessionData(prev => ({
-                                  ...prev,
-                                  monitoreo: { ...prev.monitoreo, fcRecuperacion10min: e.target.value }
-                                }))}
-                                placeholder="68"
-                                className="se-field-input text-center h-8 w-20 font-bold rounded-lg"
-                                style={{borderColor:'#ec489940',fontSize:'13px'}}
-                              />
-                              <span className="text-[8px] text-slate-400" style={{fontFamily:DM}}>bpm</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                          </>
-                        );
-                      })()}
-                    </div>
+                  {/* Toggle Recup 10 min */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, mostrarRecuperacion10min: !prev.monitoreo.mostrarRecuperacion10min } }))}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${sessionData.monitoreo.mostrarRecuperacion10min ? 'bg-pink-100 text-pink-700 border border-pink-200' : 'bg-slate-50 text-slate-500 border border-slate-200 hover:bg-slate-100'}`}
+                      style={{fontFamily:DM}}
+                      data-testid="toggle-recup-10min"
+                    >
+                      <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center transition-colors ${sessionData.monitoreo.mostrarRecuperacion10min ? 'bg-pink-500' : 'bg-slate-300'}`}>
+                        {sessionData.monitoreo.mostrarRecuperacion10min && <Check className="w-2.5 h-2.5 text-white" />}
+                      </span>
+                      + Recup 10 min
+                    </button>
                   </div>
 
                   {/* FC Reposo, Media y Maxima */}
