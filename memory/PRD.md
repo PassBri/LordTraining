@@ -699,3 +699,16 @@
 ### P1 - Refactorizar tactical-board.html (+5300 lineas) -> separar CSS/JS/SVG constantes
 ### P1 - Continuar refactorizacion: extraer secciones Athletes, Sports, Events de DashboardPage
 ### P3 - Diseno responsivo tablero tactico (Mobile/Tablet)
+
+## 2026-02-22: Logo iTRAIN actualizado
+- Nuevo logo oficial: óvalo lima vertical con "i" chunky inclinada + wordmark "iTRAIN"
+- Assets PNG transparentes guardados en /app/frontend/public/brand/:
+  - itrain-full-light.png (524x135) - para fondos oscuros
+  - itrain-full-dark.png (541x140) - para fondos claros
+  - itrain-icon-light.png, itrain-icon-dark-v2.png - variantes solo óvalo
+- Componente reutilizable /app/frontend/src/components/BrandLogo.js con
+  props variant='icon'|'full' y theme='light'|'dark', usa <img>
+- Aplicado en LandingPage (nav + footer), AuthPage (header + HUD), 
+  DashboardPage (top bar), SessionViewPage (header + footer)
+- Favicon actualizado (favicon.ico, favicon-16/32/64.png)
+- theme-color meta actualizado a #CCFF00

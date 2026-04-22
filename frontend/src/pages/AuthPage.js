@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { LanguageSelector } from '../components/LanguageSelector';
 import { Mail, Lock, User, Loader2, Eye, EyeOff, Shield, Users, Dumbbell, UserCheck, UserCircle, BarChart3, ArrowLeft, Activity, Timer, TrendingUp, Zap } from 'lucide-react';
 import { toast } from 'sonner';
+import BrandLogo from '../components/BrandLogo';
 
 const BC = "'Barlow Condensed', sans-serif";
 const INT = "'Inter', sans-serif";
@@ -237,9 +238,7 @@ const AuthVisual = () => {
     {/* HUD — Session header */}
     <div className="absolute left-1/2 -translate-x-1/2" style={{top:'5%'}}>
       <div className="flex items-center gap-2.5 px-4 py-2 rounded-lg whitespace-nowrap" style={{background:'rgba(8,9,14,0.85)',border:'0.5px solid rgba(255,255,255,0.1)',backdropFilter:'blur(12px)'}}>
-        <div className="w-5 h-5 rounded-md bg-[#c8f700] flex items-center justify-center">
-          <span className="text-[10px] font-black text-[#08090e]" style={{fontFamily:BC}}>i</span>
-        </div>
+        <BrandLogo variant="icon" theme="light" size={18} />
         <span className="text-[13px] font-semibold text-white/80">{t('auth.visual.week')} · {t('auth.visual.phase')}</span>
         <span className="w-[5px] h-[5px] rounded-full bg-[#c8f700] ml-1" style={{animation:'livePulse 1.5s infinite'}}/>
         <span className="text-[11px] text-[#c8f700]/70">Live</span>
@@ -392,13 +391,8 @@ const AuthPage = () => {
 
           {/* Back + Logo + Language */}
           <div className="flex items-center justify-between mb-10">
-            <Link to="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 aspect-square shrink-0 bg-[#c8f700] rounded-full flex items-center justify-center">
-                <span className="text-[18px] font-black text-[#0b0e14] leading-none" style={{ fontFamily: BC }}>i</span>
-              </div>
-              <span className="text-[16px] font-black tracking-tight" style={{ fontFamily: BC }}>
-                <span className="text-[#c8f700]">i</span><span className="text-white">TRAIN</span>
-              </span>
+            <Link to="/" className="flex items-center gap-2.5" data-testid="auth-brand-logo">
+              <BrandLogo variant="full" theme="light" size={36} />
             </Link>
             <div className="flex items-center gap-2">
               <LanguageSelector variant="dark" compact />

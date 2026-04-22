@@ -28,6 +28,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { LanguageSelector } from '../components/LanguageSelector';
 import PreviousPlanAnalysis from '../components/PreviousPlanAnalysis';
+import BrandLogo from '../components/BrandLogo';
 import SessionPlanning from '../components/SessionPlanning';
 
 import HealthRecords from '../components/HealthRecords';
@@ -3845,13 +3846,9 @@ const DashboardPage = () => {
           {/* Left: Logo + Main Nav FABs */}
           <div className="flex items-start gap-3 shrink-0 pr-2">
             {/* Logo */}
-            <div className="flex items-center gap-2 pt-1">
-              <div className="w-10 h-10 aspect-square shrink-0 bg-[#CCFF00] rounded-full flex items-center justify-center shadow-md">
-                <span className="text-[20px] font-black text-slate-900 leading-none" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>i</span>
-              </div>
-              <h1 className="text-[20px] font-black tracking-tight hidden sm:block text-slate-900" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>
-                iTRAIN
-              </h1>
+            <div className="flex items-center pt-1" data-testid="dashboard-brand-logo">
+              <BrandLogo variant="full" theme="dark" size={38} className="hidden sm:inline-block" />
+              <BrandLogo variant="icon" theme="dark" size={40} className="sm:hidden" />
             </div>
 
             {/* Main Nav FABs */}

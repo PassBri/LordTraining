@@ -5,6 +5,7 @@ import {
   Target, Zap, Heart, Calendar, Activity, Clock, 
   User, Eye, AlertCircle, Dumbbell, Download, ChevronDown, MapPin, LayoutGrid, Sun, Moon
 } from 'lucide-react';
+import BrandLogo from '../components/BrandLogo';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 const DM = "'DM Sans', sans-serif";
@@ -109,9 +110,7 @@ const SessionViewPage = () => {
         <div className="max-w-4xl mx-auto px-5 py-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{background:T.logoCircle}}>
-                <span className="text-[20px] font-black" style={{color:T.logoText,fontFamily:BC}}>i</span>
-              </div>
+              <BrandLogo variant="icon" theme={isLight ? 'dark' : 'light'} size={40} />
               <div>
                 <div className="flex items-center gap-2">
                   <h1 className="text-lg font-bold" style={{color:T.title}}>{session.sessionName || 'Sesión de entrenamiento'}</h1>
@@ -398,9 +397,7 @@ const SessionViewPage = () => {
         {/* Footer */}
         <div className="text-center py-6">
           <div className="flex items-center justify-center gap-2">
-            <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{background:T.logoCircle}}>
-              <span className="text-[10px] font-black" style={{color:T.logoText,fontFamily:BC}}>i</span>
-            </div>
+            <BrandLogo variant="icon" theme={isLight ? 'dark' : 'light'} size={18} />
             <span className="text-xs" style={{color:T.subtle}}>Generado con <span style={{color:T.accent,fontWeight:600}}>iTRAIN</span></span>
           </div>
         </div>

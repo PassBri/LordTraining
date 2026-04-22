@@ -33,7 +33,7 @@
     "frontend": "100% (all V2 integration features working)"
   },
   "test_credentials": "email: test@train.com, password: test123456",
-  "seed_data_creation": "V2 seeded plan 'ATR Futbol Pre-temporada' exists with tonelaje=23610kg. TEST Plan Fútbol ATR synced to V2 with plan_id=f402f29b-99d0-4543-8da3-a8f68918330b",
+  "seed_data_creation": "V2 seeded plan 'ATR Futbol Pre-temporada' exists with tonelaje=23610kg. TEST Plan Fútbol ATR synced to V2 with plan_id=periodization-hub-1",
   "retest_needed": false,
   "main_agent_can_self_test": true,
   "context_for_next_testing_agent": "V2 sync-from-v1 endpoint tested and working. Frontend V2 integration via Zustand store (planStore.js) is functional. The TEST Plan Fútbol ATR shows 0 tonelaje because V1 plan doesn't have detailed_data.fases with exercise series/reps. The seeded V2 plan 'ATR Futbol Pre-temporada' has real data with tonelaje=23610kg. Test file at /app/backend/tests/test_v2_sync.py can be reused for regression testing.",

@@ -9,6 +9,7 @@ import {
   Heart, Ruler, Eye, Sparkles, Layers, LineChart,
   ChevronRight, ChevronLeft, Zap, Shield, GraduationCap, Globe, UserCheck, Building2
 } from 'lucide-react';
+import BrandLogo from '../components/BrandLogo';
 
 const BC = "'Barlow Condensed', sans-serif";
 const INT = "'Inter', sans-serif";
@@ -464,13 +465,8 @@ const LandingPage = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/40" data-testid="main-nav">
       <div className="max-w-[1120px] mx-auto px-6">
         <div className="flex items-center justify-between h-[56px]">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-[#CCFF00] rounded-full flex items-center justify-center">
-              <span className="text-[18px] font-black text-slate-900 leading-none" style={{fontFamily:BC}}>i</span>
-            </div>
-            <span className="text-[15px] font-black tracking-tight" style={{fontFamily:BC}}>
-              <span className="text-[#CCFF00]">i</span><span className="text-white">TRAIN</span>
-            </span>
+          <Link to="/" className="flex items-center gap-2.5" data-testid="nav-brand-logo">
+            <BrandLogo variant="full" theme="light" size={32} />
           </Link>
           <div className="hidden md:flex items-center gap-8">
             {[['#features', t('landing.nav.features')],['#how-it-works', t('landing.nav.howItWorks')],['#pricing', t('landing.nav.pricing')]].map(([h,l]) => (
@@ -1239,9 +1235,8 @@ const LandingPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
           {/* Brand */}
           <div className="md:col-span-1">
-            <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-8 h-8 bg-[#CCFF00] rounded-full flex items-center justify-center"><span className="text-[16px] font-black text-slate-900 leading-none" style={{fontFamily:BC}}>i</span></div>
-              <span className="text-[16px] font-black" style={{fontFamily:BC}}><span className="text-[#CCFF00]">i</span><span className="text-white">TRAIN</span></span>
+            <div className="flex items-center gap-2.5 mb-4" data-testid="footer-brand-logo">
+              <BrandLogo variant="full" theme="light" size={32} />
             </div>
             <p className="text-[13px] text-slate-500 leading-[1.6]">{t('landing.hero.tagline')}</p>
           </div>

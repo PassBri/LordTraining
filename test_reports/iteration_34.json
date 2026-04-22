@@ -40,7 +40,7 @@
       "test_login_success": "PASSED - Authentication working"
     },
     "TestV2Seed": {
-      "test_seed_demo_data": "PASSED - Seed exists with plan_id=bcdd34df-1037-4bfc-89f7-c195cf881e04"
+      "test_seed_demo_data": "PASSED - Seed exists with plan_id=periodization-hub-1"
     },
     "TestV2Planes": {
       "test_list_planes": "PASSED - Found 2 plans",
