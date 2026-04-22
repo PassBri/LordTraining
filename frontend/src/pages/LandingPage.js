@@ -510,13 +510,10 @@ const LandingPage = () => {
           <div className="lg:col-span-5 flex flex-col justify-between">
             <div>
               <Reveal delay={0.2} direction="left">
-                <h1 className="text-[3.5rem] sm:text-[4.5rem] lg:text-[5.5rem] font-black leading-[0.9] tracking-[-0.03em] mb-4" style={{fontFamily:BC}} data-testid="hero-title">
-                  <span className="text-[#CCFF00]">i</span><span className="text-white">TRAIN</span>
-                </h1>
-                <h2 className="text-[1.6rem] sm:text-[2rem] lg:text-[2.4rem] font-black leading-[1.1] tracking-[-0.02em] mb-5" style={{fontFamily:BC}} data-testid="hero-headline">
+                <h1 className="text-[2.25rem] sm:text-[2.75rem] lg:text-[3.25rem] font-black leading-[1.05] tracking-[-0.02em] mb-6 whitespace-nowrap" style={{fontFamily:BC}} data-testid="hero-headline">
                   <span className="text-[#CCFF00]">{t('landing.hero.headline_verb1')}</span><span className="text-white">{t('landing.hero.headline_rest1')}</span><br/>
                   <span className="text-[#CCFF00]">{t('landing.hero.headline_verb2')}</span><span className="text-white">{t('landing.hero.headline_rest2')}</span>
-                </h2>
+                </h1>
               </Reveal>
               <Reveal delay={0.35} direction="up">
                 <p className="text-[15px] text-slate-400 leading-[1.7] mb-6 max-w-[380px]" data-testid="hero-subtitle">
