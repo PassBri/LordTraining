@@ -3176,8 +3176,8 @@ const DashboardPage = () => {
               </CardContent>
             </Card>
 
-            {/* Cumplimiento de Objetivos — col 2, row-span 3 (la más alta) */}
-            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-emerald-500 lg:col-start-2 lg:row-span-3">
+            {/* Cumplimiento de Objetivos — col 2, ocupa toda la altura de col 1 */}
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-emerald-500 lg:col-start-2 lg:row-start-1 lg:row-end-[99]">
               <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
                   <CheckCircle className="w-4 h-4 text-emerald-500" />
@@ -3273,27 +3273,31 @@ const DashboardPage = () => {
                     );
                   })}
                 </div>
-                {/* % Global de Cumplimiento — hero card con slider grande */}
+                {/* % Global de Cumplimiento — AUTO-CALCULADO (promedio de las 7 áreas) */}
                 {(() => {
-                  const pctG = Number(previousAnalysisData.porcentajeCumplimiento ?? 0) || 0;
-                  const estadoG = pctG >= 85 ? '#10B981' : pctG >= 40 ? '#F59E0B' : '#EF4444';
+                  const values = cumplKeys.map(k => {
+                    const raw = previousAnalysisData.cumplimiento?.[k];
+                    const item = (typeof raw === 'object' && raw !== null) ? raw : {};
+                    return Number(item.porcentaje ?? 0);
+                  });
+                  const pctG = values.length ? Math.round(values.reduce((a, b) => a + b, 0) / values.length) : 0;
+                  // Sincroniza el valor calculado al state (sin loop: sólo si es distinto)
+                  if (Number(previousAnalysisData.porcentajeCumplimiento) !== pctG) {
+                    setTimeout(() => setPreviousAnalysisData(prev => ({ ...prev, porcentajeCumplimiento: pctG })), 0);
+                  }
                   return (
                     <div className="mt-3 p-3 rounded-xl text-slate-900" style={{ background: 'linear-gradient(135deg, #CCFF00 0%, #a3e635 100%)' }}>
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[10px] font-black uppercase tracking-widest">% Global de Cumplimiento</span>
-                        <span className="text-2xl font-black tabular-nums" style={{ color: '#0f172a' }}>{pctG}<span className="text-sm font-bold ml-0.5">%</span></span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-black uppercase tracking-widest">% Global de Cumplimiento</span>
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-900/85 text-[#CCFF00] uppercase tracking-wider">Auto</span>
+                        </div>
+                        <span className="text-2xl font-black tabular-nums" data-testid="prev-porcentaje-global" style={{ color: '#0f172a' }}>{pctG}<span className="text-sm font-bold ml-0.5">%</span></span>
                       </div>
-                      <input
-                        type="range" min="0" max="100" step="1"
-                        data-testid="prev-porcentaje-slider"
-                        className="w-full h-2 cursor-pointer"
-                        value={pctG}
-                        onChange={(e) => setPreviousAnalysisData({ ...previousAnalysisData, porcentajeCumplimiento: Number(e.target.value) })}
-                        style={{ accentColor: '#0f172a' }}
-                      />
                       <div className="h-2.5 bg-black/15 rounded-full overflow-hidden mt-1">
                         <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pctG}%`, background: '#0f172a' }} />
                       </div>
+                      <p className="text-[9px] text-slate-800/70 font-medium mt-1.5 italic">Promedio automático de las 7 áreas de cumplimiento</p>
                     </div>
                   );
                 })()}

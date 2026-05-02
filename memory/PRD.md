@@ -8,6 +8,22 @@
 - DB: MongoDB (11 colecciones V2)
 
 
+### Plan Anterior — Layout definitivo sin huecos + % Global auto-calculado (Feb 2026)
+
+**Problema**: `row-span-3` con `auto-rows-min` aún generaba espacios grandes entre cards en la columna izquierda, porque CSS Grid distribuye la altura de Cumplimiento en las 3 rows spanneadas.
+
+**Solución definitiva:**
+- Cambiado `lg:row-span-3` → `lg:row-end-[99]` en la card Cumplimiento. Al no tener límite de rows, CSS Grid deja que Cumplimiento ocupe **todas las rows necesarias** sin forzar que las rows de col 1 se estiren. Las cards de col 1 (Información, Fortalezas, Debilidades, Indicadores, Lesiones) ahora se apilan con gap real de 16px (el gap-4 de Tailwind), sin huecos.
+- Quitado `auto-rows-min` (el default `auto` funciona mejor con `row-end-[99]`).
+- **Métricas verificadas**: Info (316px) → Fort (288px) → Debi (288px) → Indi (282px) → Lesi (244px), cada una con gap=16px. Cumplimiento abarca altura completa (1267px).
+
+**% Global auto-calculado:**
+- Eliminado el slider manual del `porcentajeCumplimiento`.
+- Ahora se calcula automáticamente como `round(average(values of 7 áreas))` y se sincroniza al state en el render.
+- Badge "AUTO" añadido al card lima para indicar que es computado.
+- Subtítulo: "Promedio automático de las 7 áreas de cumplimiento".
+
+
 ### Plan Anterior — Layout Grid row-span + 7 áreas + radar interactivo (Feb 2026)
 
 **Problema**: Con CSS `columns-1 lg:columns-2` el espacio en la columna izquierda quedaba vacío después de "Información del Plan Anterior" mientras la derecha (Cumplimiento) era muy alta. El balance automático de multi-column layout no llenaba el hueco.
