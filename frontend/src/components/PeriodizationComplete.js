@@ -1322,31 +1322,31 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     const stepLabels = ['Deporte', 'Modelo', 'Duración', 'Estructura', 'Resumen'];
     const canAdvance = !((wizardStep === 1 && !planConfig.sport) || (wizardStep === 2 && !planConfig.model) || (wizardStep === 3 && !planConfig.startDate));
     return (
-    <div className="max-w-5xl mx-auto" data-testid="create-plan-wizard">
+    <div className="w-full" data-testid="create-plan-wizard">
       {/* Compact Header + Stepper in a single iTRAIN-branded bar */}
       <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-xl">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-[#CCFF00] flex items-center justify-center shadow-lg shadow-[#CCFF00]/30">
-              <Target className="w-5 h-5 text-slate-900" />
+            <div className="w-7 h-7 rounded-md bg-[#CCFF00] flex items-center justify-center shadow-md shadow-[#CCFF00]/30">
+              <Target className="w-4 h-4 text-slate-900" />
             </div>
             <div className="leading-tight">
-              <h2 className="text-base md:text-lg font-black text-white tracking-tight">Crear Plan de Entrenamiento</h2>
-              <p className="text-[11px] text-white/50">Paso {wizardStep} de 5 · {stepLabels[wizardStep - 1]}</p>
+              <h2 className="text-sm font-black text-white tracking-tight">Crear Plan de Entrenamiento</h2>
+              <p className="text-[10px] text-white/50">Paso {wizardStep} de 5 · {stepLabels[wizardStep - 1]}</p>
             </div>
           </div>
           <Button
             variant="ghost"
             size="sm"
-            className="text-white/70 hover:text-white hover:bg-white/10"
+            className="h-7 w-7 p-0 text-white/70 hover:text-white hover:bg-white/10"
             onClick={() => { if (showWizardOnly && onBack) { onBack(); } else { setActiveView('history'); } setGeneratedStructure(null); }}
           >
             <X className="w-4 h-4" />
           </Button>
         </div>
 
-        {/* Material stepper */}
-        <div className="px-5 py-4 bg-slate-900/60">
+        {/* Material stepper - compact */}
+        <div className="px-4 py-2.5 bg-slate-900/60">
           <div className="flex items-center justify-between relative">
             {[1, 2, 3, 4, 5].map((step, i) => {
               const isActive = wizardStep === step;
@@ -1356,28 +1356,28 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                   <button
                     type="button"
                     onClick={() => (isDone || isActive) && setWizardStep(step)}
-                    className="flex flex-col items-center gap-1.5 flex-shrink-0 group z-10"
+                    className="flex flex-col items-center gap-0.5 flex-shrink-0 group z-10"
                     data-testid={`wizard-step-${step}`}
                   >
                     <div
-                      className={`w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 border-2 ${
+                      className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold transition-all duration-300 border-2 ${
                         isActive
-                          ? 'bg-[#CCFF00] text-slate-900 border-[#CCFF00] shadow-lg shadow-[#CCFF00]/40 scale-110'
+                          ? 'bg-[#CCFF00] text-slate-900 border-[#CCFF00] shadow-md shadow-[#CCFF00]/40 scale-110'
                           : isDone
                             ? 'bg-[#CCFF00]/20 text-[#CCFF00] border-[#CCFF00]/60'
                             : 'bg-slate-800 text-slate-500 border-slate-700'
                       }`}
                     >
-                      {isDone ? <Check className="w-4 h-4" /> : step}
+                      {isDone ? <Check className="w-3.5 h-3.5" /> : step}
                     </div>
-                    <span className={`text-[10px] md:text-[11px] font-semibold tracking-wide hidden sm:block transition-colors ${
+                    <span className={`text-[9px] font-semibold tracking-wide hidden sm:block transition-colors ${
                       isActive ? 'text-[#CCFF00]' : isDone ? 'text-white/70' : 'text-white/30'
                     }`}>
                       {stepLabels[i]}
                     </span>
                   </button>
                   {i < 4 && (
-                    <div className="flex-1 h-0.5 mx-1 md:mx-2 -mt-3 md:-mt-5 relative overflow-hidden rounded-full bg-slate-700">
+                    <div className="flex-1 h-0.5 mx-1 md:mx-2 -mt-3 relative overflow-hidden rounded-full bg-slate-700">
                       <div
                         className="absolute inset-y-0 left-0 bg-[#CCFF00] transition-all duration-500"
                         style={{ width: wizardStep > step ? '100%' : '0%' }}
@@ -1391,33 +1391,33 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         </div>
 
         {/* Step content area */}
-        <div className="bg-white min-h-[420px]">
-          <div className="px-5 md:px-6 py-5">
+        <div className="bg-white">
+          <div className="px-4 py-3">
             {/* STEP 1: SPORT SELECTION */}
             {wizardStep === 1 && (
-              <div className="space-y-5 max-h-[56vh] overflow-y-auto pr-1" data-testid="wizard-step-1-content">
+              <div className="space-y-3" data-testid="wizard-step-1-content">
               
               {/* User's Custom Sports from Información -> Deportes */}
               {userSports.length > 0 && userSports.some(cat => cat.sports?.length > 0) && (
-                <div className="space-y-3">
-                  <div className="px-3 py-2 rounded-lg bg-gradient-to-r from-blue-100 to-indigo-100 border-l-4 border-blue-500">
-                    <h4 className="font-bold text-blue-700">⭐ Mis Deportes (Personalizados)</h4>
-                    <p className="text-xs text-blue-600">Deportes creados en Información → Deportes</p>
+                <div className="space-y-2">
+                  <div className="px-2 py-1 rounded-md bg-gradient-to-r from-blue-100 to-indigo-100 border-l-2 border-blue-500 flex items-center gap-1.5">
+                    <span className="text-xs">⭐</span>
+                    <h4 className="font-bold text-blue-700 text-[11px] uppercase tracking-wider">Mis Deportes</h4>
                   </div>
                   {userSports.filter(cat => cat.sports?.length > 0).map(category => (
-                    <div key={category.id} className="pl-2">
-                      <p className="text-sm font-medium text-slate-600 mb-2">{category.icon || '🏅'} {category.name}</p>
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                    <div key={category.id}>
+                      <p className="text-[10px] font-medium text-slate-500 mb-1">{category.icon || '🏅'} {category.name}</p>
+                      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-1.5">
                         {category.sports.map(sport => (
-                          <div 
-                            key={sport.id} 
-                            className={`p-3 rounded-2xl border-2 cursor-pointer transition-all ${planConfig.sport === sport.id ? 'border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-200' : 'border-blue-200 hover:border-blue-300 hover:bg-blue-50/50'}`} 
+                          <button
+                            key={sport.id}
+                            type="button"
+                            className={`p-2 rounded-md border text-left cursor-pointer transition-all ${planConfig.sport === sport.id ? 'border-[#CCFF00] bg-[#CCFF00]/10 ring-1 ring-[#CCFF00]' : 'border-blue-200 hover:border-slate-900 hover:bg-blue-50/50'}`}
                             onClick={() => setPlanConfig({ ...planConfig, sport: sport.id, sportName: sport.name, sessionsPerWeek: sport.sessions_per_week || 4 })}
                           >
-                            <p className="font-semibold text-slate-800 text-sm">{sport.name}</p>
-                            <p className="text-xs text-slate-500">{sport.sessions_per_week || 4} ses/sem</p>
-                            {planConfig.sport === sport.id && <CheckCircle className="w-4 h-4 text-blue-500 mt-1" />}
-                          </div>
+                            <p className="font-bold text-slate-800 text-[11px] truncate leading-tight">{sport.name}</p>
+                            <p className="text-[9px] text-slate-400">{sport.sessions_per_week || 4}/sem</p>
+                          </button>
                         ))}
                       </div>
                     </div>
@@ -1425,41 +1425,33 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                 </div>
               )}
               
-              {/* Divider if both catalogs have content */}
-              {userSports.length > 0 && userSports.some(cat => cat.sports?.length > 0) && Object.keys(sportsCatalog).length > 0 && (
-                <div className="flex items-center gap-4 py-2">
-                  <div className="flex-1 h-px bg-slate-200"></div>
-                  <span className="text-xs text-slate-400 font-medium">Deportes Predefinidos</span>
-                  <div className="flex-1 h-px bg-slate-200"></div>
-                </div>
-              )}
-              
               {/* Static Sports Catalog */}
               {Object.entries(sportsCatalog).map(([category, sports]) => (
-                <div key={category} className="space-y-3">
-                  <div className="px-3 py-2 rounded-lg bg-slate-100 border-l-4 border-slate-400">
-                    <h4 className="font-bold text-slate-700 capitalize">{category === 'strength' ? '💪 Fuerza' : category === 'endurance' ? '🏃 Resistencia' : category === 'speed' ? '⚡ Velocidad' : category === 'team' ? '⚽ Equipos' : category === 'combat' ? '🥊 Combate' : category === 'racquet' ? '🎾 Raqueta' : category === 'fitness' ? '🏋️ Fitness' : '🏅 General'}</h4>
+                <div key={category} className="space-y-1.5">
+                  <div className="px-2 py-1 rounded-md bg-slate-100 border-l-2 border-slate-400 flex items-center gap-1.5">
+                    <h4 className="font-bold text-slate-700 text-[11px] uppercase tracking-wider">{category === 'strength' ? '💪 Fuerza' : category === 'endurance' ? '🏃 Resistencia' : category === 'speed' ? '⚡ Velocidad' : category === 'team' ? '⚽ Equipos' : category === 'combat' ? '🥊 Combate' : category === 'racquet' ? '🎾 Raqueta' : category === 'fitness' ? '🏋️ Fitness' : '🏅 General'}</h4>
+                    <span className="text-[9px] text-slate-400 ml-auto">{sports.length}</span>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 pl-2">
+                  <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-1.5">
                     {sports.map(sport => (
-                      <div 
-                        key={sport.id} 
-                        className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${planConfig.sport === sport.id ? 'border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-200' : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'}`} 
+                      <button
+                        key={sport.id}
+                        type="button"
+                        className={`p-2 rounded-md border text-left cursor-pointer transition-all ${planConfig.sport === sport.id ? 'border-[#CCFF00] bg-[#CCFF00]/10 ring-1 ring-[#CCFF00]' : 'border-slate-200 hover:border-slate-900 hover:bg-slate-50'}`}
                         onClick={() => setPlanConfig({ ...planConfig, sport: sport.id, sportName: sport.name, sessionsPerWeek: sport.sessions_per_week })}
                       >
-                        <p className="font-semibold text-slate-800 text-sm">{sport.name}</p>
-                        <p className="text-xs text-slate-500">{sport.sessions_per_week} ses/sem</p>
-                        {planConfig.sport === sport.id && <CheckCircle className="w-4 h-4 text-blue-500 mt-1" />}
-                      </div>
+                        <p className="font-bold text-slate-800 text-[11px] truncate leading-tight">{sport.name}</p>
+                        <p className="text-[9px] text-slate-400">{sport.sessions_per_week}/sem</p>
+                      </button>
                     ))}
                   </div>
                 </div>
               ))}
               
               {/* Athlete Level */}
-              <div className="mt-6 pt-4 border-t">
-                <h4 className="font-bold text-slate-700 mb-3">Nivel del Atleta</h4>
-                <div className="flex gap-2 flex-wrap">
+              <div className="pt-2 border-t flex items-center gap-3 flex-wrap">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Nivel atleta:</span>
+                <div className="flex gap-1.5 flex-wrap">
                   {[
                     { id: 'beginner', name: 'Principiante', desc: '< 1 año' },
                     { id: 'intermediate', name: 'Intermedio', desc: '1-3 años' },
@@ -1468,11 +1460,11 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                   ].map(level => (
                     <button 
                       key={level.id}
-                      className={`px-4 py-2 rounded-lg border-2 transition-all ${planConfig.athleteLevel === level.id ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-blue-300'}`}
+                      className={`px-3 py-1 rounded-md border text-left transition-all ${planConfig.athleteLevel === level.id ? 'border-[#CCFF00] bg-[#CCFF00]/10 ring-1 ring-[#CCFF00]' : 'border-slate-200 hover:border-slate-900'}`}
                       onClick={() => setPlanConfig({ ...planConfig, athleteLevel: level.id })}
                     >
-                      <p className="font-semibold text-sm">{level.name}</p>
-                      <p className="text-xs text-slate-500">{level.desc}</p>
+                      <span className="font-bold text-[11px]">{level.name}</span>
+                      <span className="text-[9px] text-slate-400 ml-1.5">{level.desc}</span>
                     </button>
                   ))}
                 </div>
@@ -1482,40 +1474,40 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
           {/* STEP 2: MODEL SELECTION */}
           {wizardStep === 2 && (
-            <div className="space-y-6 max-h-[55vh] overflow-y-auto pr-2">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 pb-3 border-b border-slate-100">Modelo de Periodización</h3>
+            <div className="space-y-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 pb-2 border-b border-slate-100">Modelo de Periodización · {Object.keys(effectiveModels).length} disponibles</h3>
               {Object.entries(effectiveCategories).map(([categoryId, category]) => {
                 const modelsInCategory = Object.entries(effectiveModels).filter(([_, m]) => m.category === categoryId);
                 if (modelsInCategory.length === 0) return null;
                 return (
-                  <div key={categoryId} className="space-y-3">
-                    <div className={`px-3 py-2 rounded-lg ${category.color} border-l-4`}>
-                      <h4 className="font-bold text-slate-700 flex items-center gap-2">
-                        <span>{category.icon}</span> {category.name}
-                      </h4>
+                  <div key={categoryId} className="space-y-1.5">
+                    <div className={`px-2 py-1 rounded-md ${category.color} border-l-2 flex items-center gap-1.5`}>
+                      <span className="text-xs">{category.icon}</span>
+                      <h4 className="font-bold text-slate-700 text-[11px] uppercase tracking-wider">{category.name}</h4>
+                      <span className="text-[9px] text-slate-400 ml-auto">{modelsInCategory.length}</span>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-2">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                       {modelsInCategory.map(([id, model]) => (
                         <div 
                           key={id} 
-                          className={`p-3 rounded-2xl border-2 cursor-pointer transition-all ${planConfig.model === id ? 'border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-200' : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'}`} 
+                          className={`p-2.5 rounded-lg border cursor-pointer transition-all ${planConfig.model === id ? 'border-[#CCFF00] bg-[#CCFF00]/10 shadow-md ring-1 ring-[#CCFF00]' : 'border-slate-200 hover:border-slate-900 hover:bg-slate-50'}`} 
                           onClick={() => setPlanConfig({ ...planConfig, model: id })}
                           data-testid={`model-option-${id}`}
+                          title={model.description}
                         >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                {model.icon && <span className="text-base">{model.icon}</span>}
-                                <p className="font-semibold text-slate-800 text-sm">{model.name}</p>
+                          <div className="flex items-start gap-1.5">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1 mb-0.5">
+                                {model.icon && <span className="text-xs">{model.icon}</span>}
+                                <p className="font-bold text-slate-800 text-[11px] leading-tight truncate">{model.name}</p>
                                 {model.isCustom && (
-                                  <span className="text-[9px] font-bold text-slate-900 bg-[#CCFF00] px-1.5 py-0.5 rounded">MIO</span>
+                                  <span className="text-[8px] font-bold text-slate-900 bg-[#CCFF00] px-1 py-px rounded flex-shrink-0">MIO</span>
                                 )}
                               </div>
-                              {model.author && <p className="text-[10px] text-slate-400 mt-0.5">{model.author}</p>}
-                              <p className="text-xs text-slate-500 mt-1 line-clamp-2">{model.description}</p>
+                              <p className="text-[10px] text-slate-500 leading-snug line-clamp-2">{model.description}</p>
                             </div>
                             {planConfig.model === id && (
-                              <CheckCircle className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                              <CheckCircle className="w-4 h-4 text-[#CCFF00] fill-slate-900 flex-shrink-0" />
                             )}
                           </div>
                         </div>
@@ -1529,38 +1521,41 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
           {/* STEP 3: DURATION */}
           {wizardStep === 3 && (
-            <div className="space-y-6">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 pb-3 border-b border-slate-100">Duración del Ciclo</h3>
-              <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 pb-2 border-b border-slate-100">Duración del Ciclo</h3>
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-1.5">
                 {Object.entries(CYCLE_DURATIONS).map(([id, dur]) => (
-                  <div key={id} className={`p-4 rounded-2xl border-2 cursor-pointer text-center ${planConfig.duration === id ? 'border-blue-500 bg-blue-50' : 'border-slate-200'}`} onClick={() => setPlanConfig({ ...planConfig, duration: id })}>
-                    <p className="text-2xl font-bold text-blue-600">{dur.weeks}</p>
-                    <p className="text-sm text-slate-500">semanas</p>
-                    <p className="font-semibold mt-1">{dur.label}</p>
-                  </div>
+                  <button
+                    type="button"
+                    key={id}
+                    className={`p-2 rounded-md border text-center cursor-pointer transition-all ${planConfig.duration === id ? 'border-[#CCFF00] bg-[#CCFF00]/10 ring-1 ring-[#CCFF00]' : 'border-slate-200 hover:border-slate-900'}`}
+                    onClick={() => setPlanConfig({ ...planConfig, duration: id })}
+                  >
+                    <p className="text-lg font-black text-slate-900 leading-none">{dur.weeks}</p>
+                    <p className="text-[9px] text-slate-400 uppercase">semanas</p>
+                    <p className="text-[10px] font-bold text-slate-700 truncate">{dur.label}</p>
+                  </button>
                 ))}
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
                 <div>
-                  <label className="text-sm font-medium text-slate-700">Fecha de Inicio</label>
-                  <Input type="date" value={planConfig.startDate} onChange={(e) => setPlanConfig({ ...planConfig, startDate: e.target.value })} className="mt-1" />
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Fecha de Inicio</label>
+                  <Input type="date" value={planConfig.startDate} onChange={(e) => setPlanConfig({ ...planConfig, startDate: e.target.value })} className="mt-0.5 h-8 text-xs" />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-700">Sesiones/Semana</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Sesiones/Semana</label>
                   <Select value={planConfig.sessionsPerWeek.toString()} onValueChange={(v) => setPlanConfig({ ...planConfig, sessionsPerWeek: parseInt(v) })}>
-                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="mt-0.5 h-8 text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent>{[3, 4, 5, 6, 7].map(n => <SelectItem key={n} value={n.toString()}>{n}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-slate-700">Competencia Principal (opcional)</label>
-                  <Input placeholder="Ej: Campeonato Nacional" value={planConfig.mainCompetition} onChange={(e) => setPlanConfig({ ...planConfig, mainCompetition: e.target.value })} className="mt-1" />
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Competencia Principal</label>
+                  <Input placeholder="Opcional" value={planConfig.mainCompetition} onChange={(e) => setPlanConfig({ ...planConfig, mainCompetition: e.target.value })} className="mt-0.5 h-8 text-xs" />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-700">Fecha Competencia</label>
-                  <Input type="date" value={planConfig.mainCompetitionDate} onChange={(e) => setPlanConfig({ ...planConfig, mainCompetitionDate: e.target.value })} className="mt-1" />
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Fecha Competencia</label>
+                  <Input type="date" value={planConfig.mainCompetitionDate} onChange={(e) => setPlanConfig({ ...planConfig, mainCompetitionDate: e.target.value })} className="mt-0.5 h-8 text-xs" />
                 </div>
               </div>
             </div>
