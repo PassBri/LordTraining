@@ -53,7 +53,7 @@ const PeriodizationComparator = ({ open, onOpenChange, models = [], onRemoveMode
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[92vh] overflow-y-auto" data-testid="comparator-dialog">
+      <DialogContent className="max-w-6xl max-h-[92vh] overflow-y-auto bg-white text-slate-900" data-testid="comparator-dialog">
         <DialogHeader>
           <DialogTitle>Comparador de Modelos de Periodización</DialogTitle>
         </DialogHeader>

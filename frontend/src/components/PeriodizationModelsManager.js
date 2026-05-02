@@ -420,7 +420,7 @@ const PeriodizationModelsManager = () => {
 
       {/* Editor Dialog */}
       <Dialog open={editorOpen} onOpenChange={setEditorOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" data-testid="model-editor-dialog">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white text-slate-900" data-testid="model-editor-dialog">
           <DialogHeader>
             <DialogTitle>{editing?._isNew ? 'Nuevo Modelo de Periodización' : 'Editar Modelo'}</DialogTitle>
           </DialogHeader>
@@ -571,7 +571,7 @@ const PeriodizationModelsManager = () => {
 
       {/* Delete confirmation */}
       <Dialog open={!!confirmDelete} onOpenChange={() => setConfirmDelete(null)}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md bg-white text-slate-900">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2"><AlertCircle className="w-5 h-5 text-rose-500" /> ¿Eliminar modelo?</DialogTitle>
           </DialogHeader>
