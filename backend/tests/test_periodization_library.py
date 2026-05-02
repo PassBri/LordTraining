@@ -43,19 +43,50 @@ class TestAuth:
 
 # ============== Seed + List ==============
 class TestSeedAndList:
-    def test_list_seeds_29_defaults(self, auth_headers):
+    def test_list_seeds_30_defaults(self, auth_headers):
         r = requests.get(f"{BASE_URL}/api/periodization-library",
                          headers=auth_headers, timeout=30)
         assert r.status_code == 200, r.text
         items = r.json()
         assert isinstance(items, list)
         defaults = [m for m in items if m.get("is_default")]
-        assert len(defaults) >= 29, f"Expected >=29 defaults, got {len(defaults)}"
+        assert len(defaults) >= 30, f"Expected >=30 defaults, got {len(defaults)}"
+        # Should NOT duplicate (no double-seed): each default_key unique
+        keys = [m.get("default_key") for m in defaults if m.get("default_key")]
+        assert len(keys) == len(set(keys)), "Duplicate default_key in defaults"
+
+    def test_itrain_pdi_present(self, auth_headers):
+        r = requests.get(f"{BASE_URL}/api/periodization-library",
+                         headers=auth_headers, timeout=30)
+        items = r.json()
+        pdi = next((m for m in items if m.get("default_key") == "itrain_pdi"), None)
+        assert pdi is not None, "iTrain PDI default model not seeded"
+        assert pdi["name"] == "iTrain PDI · Periodización Dual Integrada"
+        assert pdi["author"] == "Brian (Route to Top) · iTrain.app"
+        assert pdi["color"] == "#CCFF00"
+        assert pdi["icon"] == "🧠"
+        assert pdi["category"] == "Avanzado"
+        assert len(pdi["phases"]) == 5, f"PDI must have 5 phases, got {len(pdi['phases'])}"
+        assert len(pdi["characteristics"]) == 9, f"PDI must have 9 characteristics, got {len(pdi['characteristics'])}"
+        assert pdi["is_default"] is True
+
+    def test_no_duplicate_after_re_list(self, auth_headers):
+        """List twice -> should NOT duplicate the 30 defaults (idempotent seed)."""
+        r1 = requests.get(f"{BASE_URL}/api/periodization-library",
+                          headers=auth_headers, timeout=30)
+        n1 = len([m for m in r1.json() if m.get("is_default")])
+        r2 = requests.get(f"{BASE_URL}/api/periodization-library",
+                          headers=auth_headers, timeout=30)
+        n2 = len([m for m in r2.json() if m.get("is_default")])
+        assert n1 == n2, f"Defaults duplicated after re-list: {n1} -> {n2}"
+        assert n2 == 30, f"Expected exactly 30 defaults, got {n2}"
+        items = r2.json()
         # No Mongo _id leak
         for m in items[:3]:
             assert "_id" not in m
             assert "user_id" not in m
         # Has expected fields
+        defaults = [m for m in items if m.get("is_default")]
         sample = defaults[0]
         for field in ("id", "name", "category", "phases", "characteristics",
                       "applicable_sports", "is_default"):
@@ -188,7 +219,10 @@ class TestReset:
         items = r2.json()
         assert isinstance(items, list)
         defaults = [m for m in items if m.get("is_default")]
-        assert len(defaults) >= 29
+        assert len(defaults) >= 30
+        # PDI must still exist after reset
+        pdi = next((m for m in defaults if m.get("default_key") == "itrain_pdi"), None)
+        assert pdi is not None, "iTrain PDI missing after reset-defaults"
         # Custom survives
         ids = [m["id"] for m in items]
         assert custom_id in ids, "Custom model was deleted by reset-defaults"

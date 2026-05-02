@@ -8,9 +8,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import {
   Plus, Edit2, Trash2, Search, Filter, Copy, Layers, RotateCcw,
-  Loader2, Save, X, ChevronDown, ChevronUp, AlertCircle, CheckCircle2, Info
+  Loader2, Save, X, ChevronDown, ChevronUp, AlertCircle, CheckCircle2, Info,
+  GitCompare
 } from 'lucide-react';
 import { toast } from 'sonner';
+import PeriodizationComparator from './PeriodizationComparator';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -52,6 +54,23 @@ const PeriodizationModelsManager = () => {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [saving, setSaving] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
+  const [compareIds, setCompareIds] = useState([]);
+  const [comparatorOpen, setComparatorOpen] = useState(false);
+
+  const MAX_COMPARE = 3;
+  const toggleCompare = (id) => {
+    setCompareIds(prev => {
+      if (prev.includes(id)) return prev.filter(x => x !== id);
+      if (prev.length >= MAX_COMPARE) {
+        toast.error(`Máximo ${MAX_COMPARE} modelos en el comparador`);
+        return prev;
+      }
+      return [...prev, id];
+    });
+  };
+  const clearCompare = () => setCompareIds([]);
+  const removeFromCompare = (id) => setCompareIds(prev => prev.filter(x => x !== id));
+  const selectedForCompare = useMemo(() => compareIds.map(id => models.find(m => m.id === id)).filter(Boolean), [compareIds, models]);
 
   const getHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('train_token')}` });
 
@@ -216,7 +235,18 @@ const PeriodizationModelsManager = () => {
             {models.length} modelos disponibles · Se usan al crear planes de entrenamiento
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          {compareIds.length > 0 && (
+            <Button
+              onClick={() => setComparatorOpen(true)}
+              className="gap-2 bg-slate-900 text-[#CCFF00] hover:bg-slate-800 font-bold"
+              data-testid="open-comparator-btn"
+            >
+              <GitCompare className="w-4 h-4" />
+              Comparar {compareIds.length} modelo{compareIds.length > 1 ? 's' : ''}
+              {compareIds.length >= 2 && <span className="text-[10px] ml-1">✓</span>}
+            </Button>
+          )}
           <Button variant="outline" onClick={resetDefaults} data-testid="reset-defaults-btn" className="gap-2">
             <RotateCcw className="w-4 h-4" /> Restaurar defaults
           </Button>
@@ -225,6 +255,20 @@ const PeriodizationModelsManager = () => {
           </Button>
         </div>
       </div>
+
+      {/* Compare info bar */}
+      {compareIds.length > 0 && (
+        <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white px-4 py-2.5 rounded-lg flex items-center gap-3" data-testid="compare-info-bar">
+          <GitCompare className="w-4 h-4 text-[#CCFF00]" />
+          <span className="text-sm">
+            <strong className="text-[#CCFF00]">{compareIds.length}</strong> modelo{compareIds.length > 1 ? 's seleccionados' : ' seleccionado'} para comparar
+            {compareIds.length < 2 && <span className="text-slate-400 ml-2">(selecciona al menos 2)</span>}
+          </span>
+          <button onClick={clearCompare} className="ml-auto text-xs text-slate-300 hover:text-white underline">
+            Limpiar selección
+          </button>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex gap-3 flex-wrap">
@@ -270,10 +314,19 @@ const PeriodizationModelsManager = () => {
               {grouped[cat].map(m => (
                 <div
                   key={m.id}
-                  className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-lg transition-shadow relative group"
+                  className={`bg-white border rounded-xl p-4 hover:shadow-lg transition-shadow relative group ${compareIds.includes(m.id) ? 'border-[#CCFF00] ring-2 ring-[#CCFF00]/30' : 'border-slate-200'}`}
                   data-testid={`model-card-${m.id}`}
                 >
-                  <div className="flex items-start gap-3 mb-2">
+                  {/* Compare toggle */}
+                  <button
+                    onClick={() => toggleCompare(m.id)}
+                    className={`absolute top-2 right-2 w-6 h-6 rounded-md flex items-center justify-center border-2 transition-all ${compareIds.includes(m.id) ? 'bg-[#CCFF00] border-[#CCFF00] text-slate-900' : 'bg-white border-slate-300 text-slate-300 hover:border-slate-900'}`}
+                    title={compareIds.includes(m.id) ? 'Quitar del comparador' : 'Añadir al comparador'}
+                    data-testid={`toggle-compare-${m.id}`}
+                  >
+                    {compareIds.includes(m.id) ? <CheckCircle2 className="w-3.5 h-3.5" /> : <GitCompare className="w-3 h-3" />}
+                  </button>
+                  <div className="flex items-start gap-3 mb-2 pr-7">
                     <div
                       className="w-11 h-11 rounded-lg flex items-center justify-center text-xl flex-shrink-0"
                       style={{ background: `${m.color}20`, border: `1px solid ${m.color}40` }}
@@ -533,6 +586,13 @@ const PeriodizationModelsManager = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Comparator Dialog */}
+      <PeriodizationComparator
+        open={comparatorOpen}
+        onOpenChange={setComparatorOpen}
+        models={selectedForCompare}
+        onRemoveModel={removeFromCompare}
+      />
     </div>
   );
 };

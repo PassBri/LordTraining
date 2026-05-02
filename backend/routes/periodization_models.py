@@ -60,13 +60,26 @@ class PeriodizationModelUpdate(BaseModel):
 
 
 async def _seed_user_library_if_empty(user_id: str) -> None:
-    """Siembra la biblioteca por defecto para este usuario si no tiene modelos aún."""
-    count = await models_collection.count_documents({"user_id": user_id})
-    if count > 0:
-        return
+    """Siembra la biblioteca por defecto. Si el usuario ya tiene modelos, sólo añade los nuevos (por default_key)
+    sin tocar los existentes. Esto permite introducir nuevos modelos default sin dañar las personalizaciones."""
     now = datetime.now(timezone.utc).isoformat()
+    existing_keys = set()
+    async for m in models_collection.find(
+        {"user_id": user_id, "is_default": True},
+        {"_id": 0, "default_key": 1, "name": 1}
+    ):
+        existing_keys.add(m.get("default_key") or m.get("name"))
+    # También incluye nombres que existen ya (incluye custom duplicados) para no duplicar si el usuario los editó
+    async for m in models_collection.find(
+        {"user_id": user_id},
+        {"_id": 0, "name": 1}
+    ):
+        existing_keys.add(m.get("name"))
+
     docs = []
     for m in DEFAULT_PERIODIZATION_LIBRARY:
+        if m["id"] in existing_keys or m["name"] in existing_keys:
+            continue
         docs.append({
             "id": str(uuid.uuid4()),
             "user_id": user_id,
