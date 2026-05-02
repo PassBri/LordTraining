@@ -1,0 +1,65 @@
+{
+  "summary": "Tested Periodization Library feature (backend + frontend). Backend CRUD is solid (11/12 tests pass). Found 1 backend bug in reset-defaults (does not re-seed when user has custom models). Found 1 CRITICAL frontend bug where PeriodizationModelsManager.js and PeriodizationComplete.js used localStorage key 'token' instead of 'train_token', causing 401s on every call and empty UI ('No se pudieron cargar los modelos'). Fixed both frontend token-key bugs. Backend reset-defaults bug requires main-agent fix (business logic).",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "POST /api/periodization-library/reset-defaults",
+        "issue": "Does NOT re-seed 29 defaults when the user already has any custom models. Root cause: after delete_many({is_default:True}), it calls _seed_user_library_if_empty() which checks count_documents({user_id}) > 0 and returns early because custom models still satisfy that count. Test verified: after reset, 0 defaults present. Fix: change guard to check only is_default=True count, or inline the seed loop unconditionally in reset_defaults.",
+        "priority": "HIGH",
+        "file": "/app/backend/routes/periodization_models.py lines 62-66 and 176-184"
+      }
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "PeriodizationModelsManager.js + PeriodizationComplete.js",
+        "issue": "Used localStorage.getItem('token') instead of 'train_token'. Every call returned 401. List/create/update/delete/reset all broken in UI. Error toast 'No se pudieron cargar los modelos' shown. FIXED by testing agent.",
+        "selector": "[data-testid=periodization-models-manager]",
+        "priority": "CRITICAL (FIXED)"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Dashboard (Panel section)",
+        "issues": ["Persistent hydration warnings: '<tr> cannot be child of <span>' and '<span> cannot be child of <tbody>' around DashboardPage.js line 3170 indicadorKeys rendering wrapper. Pre-existing, not related to Modelos feature."]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_periodization_library.py",
+    "/app/test_reports/pytest/periodization_library.xml"
+  ],
+  "action_items": [
+    "Fix reset-defaults to always re-seed 29 defaults (guard in _seed_user_library_if_empty counts ALL models, blocks reseeding when custom exist). Suggested fix: in reset_defaults(), after delete_many(defaults), inline the insert_many of DEFAULT_PERIODIZATION_LIBRARY instead of relying on the 'if empty' helper.",
+    "Verify the two token-key fixes in PeriodizationModelsManager.js and PeriodizationComplete.js work in the running preview (hot reload should pick them up).",
+    "(Optional) Fix recurring hydration warning around DashboardPage.js indicadorKeys <tr> inside <span>."
+  ],
+  "critical_code_review_comments": [
+    "Token-key mismatch: rest of app uses 'train_token' localStorage key, but the new Periodization Library components used 'token'. Add a shared axios/fetch auth helper to prevent this class of bug.",
+    "reset_defaults relies on _seed_user_library_if_empty whose guard is incompatible with the reset semantics (user WILL have custom models). The helper should take a flag or reset_defaults should seed inline.",
+    "router in /app/backend/routes/periodization_models.py creates its own AsyncIOMotorClient instead of reusing the main db client from server.py; works but duplicates connections.",
+    "lazy import get_current_user via get_current_user_dep() -> nested Depends(Depends(...)) pattern is unusual; works but fragile. Prefer importing get_current_user at module top with a delayed resolution.",
+    "Endpoint returns 200 for POST create (should be 201). Not critical but inconsistent with REST norms."
+  ],
+  "updated_files": [
+    "/app/frontend/src/components/PeriodizationModelsManager.js (line 56: 'token' -> 'train_token')",
+    "/app/frontend/src/components/PeriodizationComplete.js (line 248: 'token' -> 'train_token')",
+    "/app/backend/tests/test_periodization_library.py (new)"
+  ],
+  "success_rate": {
+    "backend": "91.6% (11/12) - auth, seed (29 defaults), list, get, create, update, update-404, delete, delete-404 PASS; reset-defaults FAILS",
+    "frontend": "Partial - core Modelos page loaded, data-testids verified present (periodization-models-manager, create-model-btn, search-models-input, filter-category-select, reset-defaults-btn, model-editor-dialog, model-name-input, add-phase-btn, save-model-btn), but actual data render + CRUD flow not end-to-end re-validated after the token-key fix due to session/cache state in test browser. Fix is straightforward string replacement matching the pattern used across the app."
+  },
+  "test_credentials": "email: test@train.com / password: test123456 (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "Backend tests create/delete TEST_Custom_Model and TEST_KeepMe models with cleanup. No permanent test data retained.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Route is registered at /api/periodization-library via server.py line 8165. Collection is 'periodization_library'. Navigation: login -> 'Datos' tab -> select a plan from sidebar -> then click 'Modelos' in the Herramientas top nav (icon: Layers). Note sidebar does NOT show Modelos until a plan is selected. Key bug to re-test after main agent fixes reset-defaults: POST /api/periodization-library/reset-defaults should return 29 defaults even when user already has custom models (custom must be preserved). Token-key typo in frontend already fixed by testing agent.",
+  "rca_of_the_issue": {
+    "frontend_401": "PeriodizationModelsManager.js and PeriodizationComplete.js called localStorage.getItem('token'), but the authentication flow persists the JWT under 'train_token'. Bearer header was 'Bearer null' -> API returned 401 on every request -> UI showed 0 models and error toast. Repro: login, go to Datos > Modelos, observe 401 in DevTools network. Mitigation applied: changed key to 'train_token' in both files.",
+    "backend_reset_defaults": "reset_defaults() does delete_many({user_id, is_default:True}) then calls _seed_user_library_if_empty(uid). That helper checks count_documents({user_id}) > 0 and early-returns. When user has custom models (is_default=False), the count is still > 0, so no defaults are re-seeded. Repro: login, create a custom model, call POST /api/periodization-library/reset-defaults -> response contains only the custom, 0 defaults. Suggested fix: in reset_defaults(), replace the helper call with an inline insert_many of the default library (same loop as in _seed_user_library_if_empty lines 67-89) OR change the helper to count only is_default=True documents."
+  }
+}

@@ -238,6 +238,62 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
   // Sports catalog
   const [sportsCatalog, setSportsCatalog] = useState({});
   const [userSports, setUserSports] = useState([]);
+
+  // Modelos de periodización dinámicos (incluyendo custom del usuario)
+  const [apiModels, setApiModels] = useState([]);
+  useEffect(() => {
+    const loadModels = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/periodization-library`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('train_token')}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setApiModels(Array.isArray(data) ? data : []);
+        }
+      } catch (_) { /* silent */ }
+    };
+    loadModels();
+  }, []);
+
+  // Mapear categorías de la API a las categorías UI legacy
+  const mapCategory = (apiCat) => {
+    const map = {
+      'Clásico': 'classic',
+      'Ondulatorio': 'undulating',
+      'Avanzado': 'advanced',
+      'Específico': 'sport_specific',
+      'Fuerza': 'contemporary',
+      'Equipo': 'sport_specific',
+      'Custom': 'custom',
+    };
+    return map[apiCat] || 'custom';
+  };
+
+  // Construir modelos efectivos: combina los de API (con defaults + custom del usuario)
+  // Si la API responde, usa esos. Caso contrario fallback a PERIODIZATION_MODELS hardcoded.
+  const effectiveModels = React.useMemo(() => {
+    if (apiModels.length === 0) return PERIODIZATION_MODELS;
+    const dict = {};
+    apiModels.forEach(m => {
+      dict[m.id] = {
+        name: m.name,
+        category: mapCategory(m.category),
+        description: m.description || '',
+        author: m.author || '',
+        icon: m.icon || '📊',
+        color: m.color || '#3B82F6',
+        phases: m.phases || [],
+        isCustom: !m.is_default,
+      };
+    });
+    return dict;
+  }, [apiModels]);
+
+  const effectiveCategories = React.useMemo(() => ({
+    ...MODEL_CATEGORIES,
+    custom: { name: 'Mis Modelos Personalizados', color: 'bg-[#CCFF00]/20 border-[#CCFF00]', icon: '✨' },
+  }), []);
   const [generatedStructure, setGeneratedStructure] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [expandedPanels, setExpandedPanels] = useState({});
@@ -332,7 +388,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
             const transformed = {
               ...plan,
               apiId: plan.id, // Set apiId from backend id for save/update detection
-              modelName: plan.model_name || PERIODIZATION_MODELS[plan.model]?.name || plan.model,
+              modelName: plan.model_name || effectiveModels[plan.model]?.name || plan.model,
               duration: plan.duration_type,
               totalWeeks: plan.total_weeks,
               startDate: plan.start_date,
@@ -742,7 +798,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       name: name || `Plan ${new Date().getFullYear()}`,
       athleteId,
       model,
-      modelName: PERIODIZATION_MODELS[model]?.name || model,
+      modelName: effectiveModels[model]?.name || model,
       duration,
       startDate,
       sessionsPerWeek,
@@ -1373,8 +1429,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           {wizardStep === 2 && (
             <div className="space-y-6 max-h-[55vh] overflow-y-auto pr-2">
               <h3 className="text-xl font-bold text-center sticky top-0 bg-white py-2 z-10">Modelo de Periodización</h3>
-              {Object.entries(MODEL_CATEGORIES).map(([categoryId, category]) => {
-                const modelsInCategory = Object.entries(PERIODIZATION_MODELS).filter(([_, m]) => m.category === categoryId);
+              {Object.entries(effectiveCategories).map(([categoryId, category]) => {
+                const modelsInCategory = Object.entries(effectiveModels).filter(([_, m]) => m.category === categoryId);
                 if (modelsInCategory.length === 0) return null;
                 return (
                   <div key={categoryId} className="space-y-3">
@@ -1389,10 +1445,18 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                           key={id} 
                           className={`p-3 rounded-2xl border-2 cursor-pointer transition-all ${planConfig.model === id ? 'border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-200' : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'}`} 
                           onClick={() => setPlanConfig({ ...planConfig, model: id })}
+                          data-testid={`model-option-${id}`}
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex-1">
-                              <p className="font-semibold text-slate-800 text-sm">{model.name}</p>
+                              <div className="flex items-center gap-2">
+                                {model.icon && <span className="text-base">{model.icon}</span>}
+                                <p className="font-semibold text-slate-800 text-sm">{model.name}</p>
+                                {model.isCustom && (
+                                  <span className="text-[9px] font-bold text-slate-900 bg-[#CCFF00] px-1.5 py-0.5 rounded">MIO</span>
+                                )}
+                              </div>
+                              {model.author && <p className="text-[10px] text-slate-400 mt-0.5">{model.author}</p>}
                               <p className="text-xs text-slate-500 mt-1 line-clamp-2">{model.description}</p>
                             </div>
                             {planConfig.model === id && (
@@ -1461,7 +1525,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                   </div>
                   <div>
                     <p className="text-sm text-slate-500">Modelo</p>
-                    <p className="font-bold text-slate-700">{PERIODIZATION_MODELS[planConfig.model]?.name || planConfig.model}</p>
+                    <p className="font-bold text-slate-700">{effectiveModels[planConfig.model]?.name || planConfig.model}</p>
                   </div>
                   <div>
                     <p className="text-sm text-slate-500">Duración</p>
@@ -1553,7 +1617,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
               <div>
                 <label className="text-sm font-medium">Nombre del Plan</label>
                 <Input 
-                  placeholder={`Plan ${getSportName(planConfig.sport)} - ${PERIODIZATION_MODELS[planConfig.model]?.name || ''}`} 
+                  placeholder={`Plan ${getSportName(planConfig.sport)} - ${effectiveModels[planConfig.model]?.name || ''}`} 
                   value={planConfig.name} 
                   onChange={(e) => setPlanConfig({ ...planConfig, name: e.target.value })} 
                   className="mt-1" 
@@ -1573,7 +1637,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                   </div>
                   <div>
                     <p className="text-sm text-slate-500">Modelo</p>
-                    <p className="font-bold text-blue-600">{PERIODIZATION_MODELS[planConfig.model]?.name || planConfig.model}</p>
+                    <p className="font-bold text-blue-600">{effectiveModels[planConfig.model]?.name || planConfig.model}</p>
                   </div>
                   <div>
                     <p className="text-sm text-slate-500">Duración</p>

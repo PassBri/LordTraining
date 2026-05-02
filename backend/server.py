@@ -8160,6 +8160,10 @@ app.include_router(ai_assistant_router)
 from routes.periodization_v2 import router as periodization_v2_router, crear_indices
 app.include_router(periodization_v2_router)
 
+# Periodization Models CRUD (user-owned library + defaults)
+from routes.periodization_models import router as periodization_models_router
+app.include_router(periodization_models_router, prefix="/api")
+
 # Store db reference in app state for V2 routes
 app.state.db = db
 
