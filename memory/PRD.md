@@ -7,6 +7,21 @@
 - Backend: FastAPI + Motor (MongoDB async)
 - DB: MongoDB (11 colecciones V2)
 
+
+### Fix definitivo logo recortado en PDF Whitepaper PDI (Feb 2026)
+
+**Problema raíz encontrado:**
+Las imágenes fuente `/app/frontend/public/brand/itrain-full-pdf.png` (623x240) e `itrain-icon-pdf.png` (113x240) tenían el contenido tocando literalmente el borde derecho del lienzo PNG: la última columna (x=622) tenía 46-61 píxeles no transparentes. Cualquier mínimo subpíxel de rendering cortaba la letra "N" final de "iTRAIN". Ningún ajuste de CSS podía salvarlo porque la imagen fuente ya venía mal recortada.
+
+**Fix aplicado:**
+- Regenerados ambos PNG desde las fuentes limpias (`itrain-full-dark.png`, `itrain-icon-dark-v2.png`) añadiendo padding transparente del 10% (mín 14px) en los 4 lados. Resultado: `itrain-full-pdf.png` 649x168 (aspect 3.86), `itrain-icon-pdf.png` 169x168 (aspect 1.0). Verificado: 0 píxeles no transparentes en la última columna.
+- Actualizados los estilos CSS en `/app/backend/routes/periodization_models.py` (`PDI_WHITEPAPER_HTML`):
+  - `.brand-mark img`: `height: 34pt; width: 132pt` (respeta nuevo aspect 3.86)
+  - `.footer-brand img`: `height: 20pt; width: 20pt` (nuevo icon es cuadrado 1:1)
+  - Inline en `<img>` del hero: `width:176px; height:46px` (aspect correcto)
+- **Validación visual con `analyze_file_tool`**: confirmado 100% que el logo del hero y del footer se ven completos, todas las letras (i, T, R, A, I, N) visibles, proporciones correctas, padding adecuado, sin recortes.
+
+
 ## Implementado
 
 ### Zonas Karvonen clickeables en chart + PDF Pizarras (Feb 2026)

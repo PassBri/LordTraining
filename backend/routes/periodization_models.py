@@ -235,7 +235,7 @@ PDI_WHITEPAPER_HTML = """<!DOCTYPE html>
   .hero h1 { color: #fff; }
   .hero .subtitle { color: rgba(255,255,255,0.7); font-size: 14pt; margin-top: 6pt; }
   .brand-mark { display: flex; align-items: center; gap: 10pt; margin-bottom: 18pt; }
-  .brand-mark img { height: 38pt; width: 99pt; max-width: none; display: block; object-fit: contain; }
+  .brand-mark img { height: 34pt; width: 132pt; max-width: none; display: block; object-fit: contain; }
   .badge { display: inline-block; background: #CCFF00; color: #0f172a; padding: 4pt 10pt; border-radius: 20pt; font-size: 9pt; font-weight: 800; letter-spacing: 1px; margin-bottom: 10pt; }
   .author { font-size: 10pt; color: rgba(255,255,255,0.5); margin-top: 16pt; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8pt; }
   .pillar { background: #f8fafc; border-left: 4pt solid #CCFF00; padding: 10pt 14pt; margin: 8pt 0; border-radius: 4pt; }
@@ -254,13 +254,13 @@ PDI_WHITEPAPER_HTML = """<!DOCTYPE html>
   .glossary-grid .g-item { display: flex; gap: 6pt; border-bottom: 1px solid #f1f5f9; padding: 3pt 0; font-size: 9pt; }
   .glossary-grid .g-k { font-weight: 800; min-width: 60pt; color: #0f172a; }
   .footer-brand { display: flex; align-items: center; justify-content: center; gap: 8pt; color: #94a3b8; font-size: 9pt; margin-top: 30pt; padding-top: 12pt; border-top: 1px solid #e2e8f0; }
-  .footer-brand img { height: 20pt; width: 9.4pt; max-width: none; display: block; object-fit: contain; }
+  .footer-brand img { height: 20pt; width: 20pt; max-width: none; display: block; object-fit: contain; }
   .footer-brand strong { color: #CCFF00; background: #0f172a; padding: 2pt 6pt; border-radius: 3pt; }
 </style></head><body>
 
 <div class="hero">
   <div class="brand-mark">
-    <img src="__ITRAIN_FULL_LOGO__" alt="iTRAIN" width="160" height="62" style="width:160px;height:62px;object-fit:contain;display:block;"/>
+    <img src="__ITRAIN_FULL_LOGO__" alt="iTRAIN" width="176" height="46" style="width:176px;height:46px;object-fit:contain;display:block;"/>
   </div>
   <span class="badge">MODELO EXCLUSIVO iTRAIN</span>
   <h1>iTrain PDI</h1>
