@@ -260,7 +260,7 @@ PDI_WHITEPAPER_HTML = """<!DOCTYPE html>
 
 <div class="hero">
   <div class="brand-mark">
-    <img src="__ITRAIN_FULL_LOGO__" alt="iTRAIN"/>
+    <img src="__ITRAIN_FULL_LOGO__" alt="iTRAIN" width="160" height="62" style="width:160px;height:62px;object-fit:contain;display:block;"/>
   </div>
   <span class="badge">MODELO EXCLUSIVO iTRAIN</span>
   <h1>iTrain PDI</h1>
