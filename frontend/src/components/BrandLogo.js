@@ -51,7 +51,6 @@ const BrandLogo = ({
       style={{
         height: `${height}px`,
         width: `${width}px`,
-        display: 'inline-block',
         objectFit: 'contain',
         flexShrink: 0,
       }}

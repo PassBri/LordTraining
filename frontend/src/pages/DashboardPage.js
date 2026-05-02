@@ -3847,8 +3847,7 @@ const DashboardPage = () => {
           <div className="flex items-start gap-3 shrink-0 pr-2">
             {/* Logo */}
             <div className="flex items-center pt-1" data-testid="dashboard-brand-logo">
-              <BrandLogo variant="full" theme="dark" size={38} className="hidden sm:inline-block" />
-              <BrandLogo variant="icon" theme="dark" size={40} className="sm:hidden" />
+              <BrandLogo variant="full" theme="dark" size={36} />
             </div>
 
             {/* Main Nav FABs */}
