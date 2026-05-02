@@ -136,7 +136,7 @@ const OverviewTab = () => {
         </p>
         <div className="flex items-center gap-3 text-xs text-slate-500 pt-3 border-t">
           <span className="font-semibold">Autor conceptual:</span>
-          <span>Brian · Route to Top</span>
+          <span>Dr. Brian Gonzalo Suárez Acevedo</span>
           <span className="text-slate-300">|</span>
           <span>iTrain.app</span>
         </div>

@@ -10,7 +10,7 @@ DEFAULT_PERIODIZATION_LIBRARY = [
     {
         "id": "itrain_pdi",
         "name": "iTrain PDI · Periodización Dual Integrada",
-        "author": "Brian (Route to Top) · iTrain.app",
+        "author": "Dr. Brian Gonzalo Suárez Acevedo · iTrain.app",
         "category": "Avanzado",
         "icon": "🧠",
         "color": "#CCFF00",

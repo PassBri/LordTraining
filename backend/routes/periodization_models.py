@@ -231,9 +231,14 @@ PDI_WHITEPAPER_HTML = """<!DOCTYPE html>
   h2 { font-size: 16pt; font-weight: 800; margin-top: 20pt; margin-bottom: 8pt; color: #0f172a; border-bottom: 2px solid #CCFF00; padding-bottom: 4pt; }
   h3 { font-size: 12pt; font-weight: 700; margin-top: 12pt; margin-bottom: 4pt; color: #334155; }
   p  { margin: 6pt 0; }
-  .hero { background: linear-gradient(135deg, #0b1020 0%, #1e293b 100%); color: #fff; padding: 40pt 30pt; border-radius: 10pt; margin-bottom: 20pt; }
+  .hero { background: linear-gradient(135deg, #0b1020 0%, #1e293b 100%); color: #fff; padding: 40pt 30pt; border-radius: 10pt; margin-bottom: 20pt; position: relative; }
   .hero h1 { color: #fff; }
   .hero .subtitle { color: rgba(255,255,255,0.7); font-size: 14pt; margin-top: 6pt; }
+  .brand-mark { display: flex; align-items: center; gap: 8pt; margin-bottom: 18pt; }
+  .brand-mark svg { height: 28pt; width: auto; }
+  .brand-mark .brand-text { font-size: 18pt; font-weight: 900; letter-spacing: -0.02em; font-style: italic; }
+  .brand-mark .brand-text .i-lime { color: #CCFF00; }
+  .brand-mark .brand-text .brand-white { color: #fff; }
   .badge { display: inline-block; background: #CCFF00; color: #0f172a; padding: 4pt 10pt; border-radius: 20pt; font-size: 9pt; font-weight: 800; letter-spacing: 1px; margin-bottom: 10pt; }
   .author { font-size: 10pt; color: rgba(255,255,255,0.5); margin-top: 16pt; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8pt; }
   .pillar { background: #f8fafc; border-left: 4pt solid #CCFF00; padding: 10pt 14pt; margin: 8pt 0; border-radius: 4pt; }
@@ -251,11 +256,20 @@ PDI_WHITEPAPER_HTML = """<!DOCTYPE html>
   .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3pt 16pt; margin-top: 6pt; }
   .glossary-grid .g-item { display: flex; gap: 6pt; border-bottom: 1px solid #f1f5f9; padding: 3pt 0; font-size: 9pt; }
   .glossary-grid .g-k { font-weight: 800; min-width: 60pt; color: #0f172a; }
-  .footer-brand { text-align: center; color: #94a3b8; font-size: 9pt; margin-top: 30pt; padding-top: 12pt; border-top: 1px solid #e2e8f0; }
+  .footer-brand { display: flex; align-items: center; justify-content: center; gap: 8pt; color: #94a3b8; font-size: 9pt; margin-top: 30pt; padding-top: 12pt; border-top: 1px solid #e2e8f0; }
+  .footer-brand svg { height: 18pt; }
   .footer-brand strong { color: #CCFF00; background: #0f172a; padding: 2pt 6pt; border-radius: 3pt; }
 </style></head><body>
 
 <div class="hero">
+  <div class="brand-mark">
+    <svg viewBox="0 0 100 210" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="50" cy="105" rx="50" ry="100" fill="#CCFF00"/>
+      <path d="M 58 35 L 71 35 L 68 66 L 55 66 Z" fill="#0b1020"/>
+      <path d="M 55 80 L 71 80 L 61 178 L 45 178 Z" fill="#0b1020"/>
+    </svg>
+    <span class="brand-text"><span class="i-lime">i</span><span class="brand-white">TRAIN</span></span>
+  </div>
   <span class="badge">MODELO EXCLUSIVO iTRAIN</span>
   <h1>iTrain PDI</h1>
   <div class="subtitle">Periodización Dual Integrada · Whitepaper técnico</div>
@@ -264,7 +278,7 @@ PDI_WHITEPAPER_HTML = """<!DOCTYPE html>
     y coherencia de equipo (CSE) mediante una arquitectura de 3 capas y un Motor de Convergencia en tiempo real.
   </p>
   <div class="author">
-    <strong style="color: #CCFF00;">Autor conceptual:</strong> Brian — Route to Top (Filósofo de la educación, investigador en epistemología y desarrollo humano)<br>
+    <strong style="color: #CCFF00;">Autor conceptual:</strong> Dr. Brian Gonzalo Suárez Acevedo<br>
     <strong style="color: #CCFF00;">Plataforma:</strong> iTrain.app &nbsp;·&nbsp; <strong style="color: #CCFF00;">Documento técnico:</strong> v1.0
   </div>
 </div>
@@ -374,7 +388,8 @@ sino de la <strong>gestión inteligente de la tensión</strong> entre ambos. El 
 El modelo escala desde equipos amateur hasta profesionales de élite con calendarios de 70-80 partidos anuales.</p>
 
 <div class="footer-brand">
-  Modelo registrado · <strong>iTRAIN</strong> · iTrain.app · Generado automáticamente desde la Ficha Técnica
+  <svg viewBox="0 0 100 210" xmlns="http://www.w3.org/2000/svg"><ellipse cx="50" cy="105" rx="50" ry="100" fill="#CCFF00"/><path d="M 58 35 L 71 35 L 68 66 L 55 66 Z" fill="#0b1020"/><path d="M 55 80 L 71 80 L 61 178 L 45 178 Z" fill="#0b1020"/></svg>
+  <span>Modelo registrado · <strong>iTRAIN</strong> · iTrain.app · Generado automáticamente desde la Ficha Técnica</span>
 </div>
 
 </body></html>"""
