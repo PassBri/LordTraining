@@ -284,9 +284,13 @@ const PeriodizationModelsManager = () => {
                       <h3 className="font-bold text-slate-900 text-[15px] leading-tight truncate" title={m.name}>{m.name}</h3>
                       {m.author && <p className="text-[11px] text-slate-500 mt-0.5">{m.author}</p>}
                     </div>
-                    {m.is_default && (
+                    {m.is_default ? (
                       <span className="text-[9px] font-bold text-[#007AFF] bg-blue-50 px-1.5 py-0.5 rounded-full border border-blue-100">
                         DEFAULT
+                      </span>
+                    ) : (
+                      <span className="text-[9px] font-bold text-slate-900 bg-[#CCFF00] px-1.5 py-0.5 rounded-full">
+                        MIO
                       </span>
                     )}
                   </div>
