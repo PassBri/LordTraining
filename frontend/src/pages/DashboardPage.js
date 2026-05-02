@@ -3145,9 +3145,9 @@ const DashboardPage = () => {
             </div>
           )}
 
-          <div className="columns-1 lg:columns-2 gap-4 [&>*]:break-inside-avoid [&>*]:mb-4">
-            {/* Información del Plan Anterior */}
-            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-[#007AFF]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start grid-flow-row-dense">
+            {/* Información del Plan Anterior — col 1 */}
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-[#007AFF] lg:col-start-1">
               <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
                   <Calendar className="w-4 h-4 text-[#007AFF]" />
@@ -3176,8 +3176,8 @@ const DashboardPage = () => {
               </CardContent>
             </Card>
 
-            {/* Cumplimiento de Objetivos */}
-            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-emerald-500">
+            {/* Cumplimiento de Objetivos — col 2, row-span 3 (la más alta) */}
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-emerald-500 lg:col-start-2 lg:row-span-3">
               <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
                   <CheckCircle className="w-4 h-4 text-emerald-500" />
@@ -3300,8 +3300,8 @@ const DashboardPage = () => {
               </CardContent>
             </Card>
 
-            {/* Análisis de Fortalezas */}
-            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-[#007AFF]">
+            {/* Análisis de Fortalezas — col 1 */}
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-[#007AFF] lg:col-start-1">
               <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
                   <TrendingUp className="w-4 h-4 text-[#007AFF]" />
@@ -3319,8 +3319,8 @@ const DashboardPage = () => {
               </CardContent>
             </Card>
 
-            {/* Análisis de Debilidades */}
-            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-amber-500">
+            {/* Análisis de Debilidades — col 1 */}
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-amber-500 lg:col-start-1">
               <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
                   <AlertTriangle className="w-4 h-4 text-amber-500" />
@@ -3338,8 +3338,8 @@ const DashboardPage = () => {
               </CardContent>
             </Card>
 
-            {/* Indicadores de Rendimiento */}
-            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-emerald-500">
+            {/* Indicadores de Rendimiento — col 1 */}
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-emerald-500 lg:col-start-1">
               <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
                   <BarChart className="w-4 h-4 text-emerald-500" />
@@ -3372,8 +3372,8 @@ const DashboardPage = () => {
               </CardContent>
             </Card>
 
-            {/* Lesiones y Problemas */}
-            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-rose-500">
+            {/* Lesiones y Problemas — col 1 */}
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-rose-500 lg:col-start-1">
               <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
                   <Heart className="w-4 h-4 text-rose-500" />

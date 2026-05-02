@@ -8,6 +8,19 @@
 - DB: MongoDB (11 colecciones V2)
 
 
+### Plan Anterior — Layout Grid row-span + 7 áreas + radar interactivo (Feb 2026)
+
+**Problema**: Con CSS `columns-1 lg:columns-2` el espacio en la columna izquierda quedaba vacío después de "Información del Plan Anterior" mientras la derecha (Cumplimiento) era muy alta. El balance automático de multi-column layout no llenaba el hueco.
+
+**Solución definitiva:**
+- Cambiado a CSS Grid `grid-cols-2 grid-flow-row-dense items-start`.
+- Cumplimiento de Objetivos (la card más alta, con radar + 7 áreas + global) forzada a `lg:col-start-2 lg:row-span-3` — ocupa las 3 primeras filas de la columna 2.
+- Las 4 cards restantes (Información, Fortalezas, Debilidades, Indicadores, Lesiones) forzadas a `lg:col-start-1` — se apilan densamente en la columna 1, llenando el espacio debajo de Información.
+- Como resultado: el espacio vacío de la izquierda desaparece; la columna 1 fluye verticalmente con 5 cards pequeñas-medianas, mientras la columna 2 tiene la Cumplimiento gigante con radar en vivo.
+
+**Validado**: lint JS limpio, elementos del DOM confirmados (info, radar Recharts, sliders teorica/reglamento). data-testid: `prev-cumpl-slider-teorica`, `prev-cumpl-slider-reglamento`.
+
+
 ### Plan Anterior — Heptágono (7 áreas) + Radar interactivo en UI + fix recorte PDF (Feb 2026)
 
 **Cambios sobre iteración previa:**
