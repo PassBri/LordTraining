@@ -736,3 +736,12 @@
   - Matriz de características con check/cross
   - Badges de deportes aplicables con ratio de coincidencia
 - Testing: backend 14/14 pytest PASS, PDI verificado en DB.
+
+## 2026-02-22: Ficha Técnica iTrain PDI (sección especial)
+- **Nueva sección "iTrain PDI"** en Datos > Herramientas del Dashboard (ícono 🧠 Brain)
+- **Componente `/app/frontend/src/components/PDITechnicalSheet.js`** con 3 tabs:
+  - **Resumen**: 3 pilares (PAI · CSE · Motor de Convergencia), 5 fases timeline, glosario
+  - **Arquitectura 3D**: diagrama interactivo CSS-3D con perspective, capas apilables, hover reveal
+  - **Simulador**: sliders de RPE/HRV/minutos/DFI + selección de tipo adaptativo + sesión (MD±X), calcula CIA en tiempo real con reglas del Motor y muestra zona VERDE/AMARILLO/NARANJA/ROJO + razones aplicadas + comparación MC vs CIA
+- **Whitepaper PDF descargable** desde endpoint `/api/periodization-library/pdi/whitepaper` (Playwright, 70KB, A4, con portada hero + 7 secciones + glosario + tabla de fases con barras visuales)
+- PDF verificado: portada profesional dark + título, 3 capas estructuradas, tabla con barras vol/int por fase, glosario completo, branding iTRAIN lima.

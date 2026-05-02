@@ -30,6 +30,7 @@ import { LanguageSelector } from '../components/LanguageSelector';
 import PreviousPlanAnalysis from '../components/PreviousPlanAnalysis';
 import BrandLogo from '../components/BrandLogo';
 import PeriodizationModelsManager from '../components/PeriodizationModelsManager';
+import PDITechnicalSheet from '../components/PDITechnicalSheet';
 import SessionPlanning from '../components/SessionPlanning';
 
 import HealthRecords from '../components/HealthRecords';
@@ -1306,6 +1307,7 @@ const DashboardPage = () => {
     
     // === 7. HERRAMIENTAS ===
     { id: 'calculators', label: t('dashboard.nav.calculators'), icon: Calculator, section: 'herramientas' },
+    { id: 'pdi-sheet', label: 'iTrain PDI', icon: Brain, section: 'herramientas' },
     { id: 'periodization-models', label: 'Modelos', icon: Layers, section: 'herramientas' },
     { id: 'exercises', label: 'Métodos', icon: Timer, section: 'herramientas' },
     { id: 'exercises-lib', label: t('dashboard.controlPanel.exercises'), icon: Dumbbell, section: 'herramientas' },
@@ -1618,7 +1620,7 @@ const DashboardPage = () => {
 
     // ====== VERIFICAR SI SE NECESITA UN PLAN ACTIVO ======
     // Secciones que NO requieren plan activo (se pueden ver sin tener un plan seleccionado)
-    const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators', 'periodization-models', 'tactical-board', 'create-plan', 'period-overview', 'period-structure', 'period-tests', 'period-load', 'period-control'];
+    const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators', 'periodization-models', 'pdi-sheet', 'tactical-board', 'create-plan', 'period-overview', 'period-structure', 'period-tests', 'period-load', 'period-control'];
     
     if (!activePlan && !sectionsWithoutPlan.includes(activeDataSection)) {
       // Mostrar mensaje de que se necesita seleccionar un plan
@@ -2481,6 +2483,11 @@ const DashboardPage = () => {
           <PeriodizationModelsManager />
         </div>
       );
+    }
+
+    // Render iTrain PDI Technical Sheet
+    if (activeDataSection === 'pdi-sheet') {
+      return <PDITechnicalSheet />;
     }
 
     // Render Calendario section inline - COMPLETE
@@ -3726,7 +3733,7 @@ const DashboardPage = () => {
   const renderMainContent = () => {
     if (activePanel === 'datos') {
       // ====== LAYOUT: SIDEBAR DE PLANES + CONTENIDO ======
-      const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators', 'periodization-models', 'tactical-board', 'sports', 'tournaments', 'create-plan', 'period-overview', 'period-structure', 'period-tests', 'period-load', 'period-control'];
+      const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators', 'periodization-models', 'pdi-sheet', 'tactical-board', 'sports', 'tournaments', 'create-plan', 'period-overview', 'period-structure', 'period-tests', 'period-load', 'period-control'];
 
       return (
         <div className="flex h-full" data-testid="datos-layout">
