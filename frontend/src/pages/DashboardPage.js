@@ -17,7 +17,7 @@ import {
   Building2, Building, GraduationCap, Trophy, Timer, Flame, Gamepad2, Lightbulb, X, Trash2,
   Medal, MapPin, LayoutGrid, GitBranch, Share2, History, Filter, CreditCard, Sparkles,
   AlertTriangle, CheckCircle, TrendingUp, RefreshCw, Clock, Edit, Copy, Printer, Gauge, Wrench,
-  Stethoscope, CalendarDays, ClipboardList, Calculator, UsersRound, ListChecks, PieChart
+  Stethoscope, CalendarDays, ClipboardList, Calculator, UsersRound, ListChecks, PieChart, MessageCircle, Link as LinkIcon
 } from 'lucide-react';
 import { 
   LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, 
@@ -592,6 +592,73 @@ const DashboardPage = () => {
       toast.error('Error al guardar análisis');
     }
     setSavingEvaluation(false);
+  };
+
+  // Descargar PDF del plan anterior (estilo whitepaper)
+  const handleDownloadPreviousAnalysisPDF = async () => {
+    if (!activePlan) { toast.error('Selecciona un plan primero'); return; }
+    try {
+      // Guardar primero para asegurar que los datos están al día
+      await handleSavePreviousAnalysis();
+      const token = localStorage.getItem('train_token');
+      const res = await fetch(`${API_URL}/api/plan-data/previous-analysis/${activePlan.id}/pdf`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: 'Error descargando PDF' }));
+        toast.error(err.detail || 'Error descargando PDF');
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Analisis_Plan_Anterior_${activePlan.name || activePlan.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success('PDF descargado');
+    } catch (error) {
+      toast.error('Error al descargar PDF');
+    }
+  };
+
+  // Crear link de compartición y copiar al portapapeles
+  const handleSharePreviousAnalysisLink = async () => {
+    if (!activePlan) { toast.error('Selecciona un plan primero'); return; }
+    try {
+      await handleSavePreviousAnalysis();
+      const token = localStorage.getItem('train_token');
+      const res = await fetch(`${API_URL}/api/plan-data/previous-analysis/${activePlan.id}/share`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) { toast.error('Error creando enlace'); return null; }
+      const data = await res.json();
+      const publicUrl = `${window.location.origin}/api/plan-data/previous-analysis/shared/${data.share_id}`;
+      try {
+        await navigator.clipboard.writeText(publicUrl);
+        toast.success('Enlace copiado al portapapeles', { description: publicUrl });
+      } catch {
+        toast.info('Enlace listo', { description: publicUrl });
+      }
+      return publicUrl;
+    } catch (error) {
+      toast.error('Error al crear enlace');
+      return null;
+    }
+  };
+
+  // Compartir por WhatsApp
+  const handleShareWhatsApp = async () => {
+    const url = await handleSharePreviousAnalysisLink();
+    if (!url) return;
+    const planName = activePlan?.name || 'el plan';
+    const msg = encodeURIComponent(
+      `📊 Análisis del Plan Anterior — ${planName}\n\nTe comparto el análisis retrospectivo del plan de entrenamiento generado con iTrain:\n\n${url}`
+    );
+    window.open(`https://wa.me/?text=${msg}`, '_blank', 'noopener,noreferrer');
   };
 
   // Guardar objetivos del plan
@@ -1271,7 +1338,7 @@ const DashboardPage = () => {
     { id: 'plan-manager', label: t('dashboard.plans.title'), icon: Clipboard, section: 'planes' },
     
     // === 1. DIAGNÓSTICO / PUNTO DE PARTIDA ===
-    { id: 'prev-plan', label: t('dashboard.sections.diagnosis'), icon: History, section: 'punto-partida' },
+    { id: 'prev-plan', label: 'Plan Anterior', icon: History, section: 'punto-partida' },
     { id: 'objectives', label: t('dashboard.controlPanel.activePlan'), icon: Target, section: 'punto-partida' },
     
     // === 2. INFORMACIÓN BASE ===
@@ -3037,25 +3104,43 @@ const DashboardPage = () => {
       const cumplKeys = ['general', 'fisica', 'tecnica', 'tactica', 'psicologica'];
       const cumplLabels = ['Objetivo General', 'Preparación Física', 'Preparación Técnica', 'Preparación Táctica', 'Preparación Psicológica'];
       return (
-        <div className="p-5 space-y-5 overflow-y-auto h-full bg-[#fafaf8]">
-          {/* Compact Material Design header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center shadow-md">
-                <FileText className="w-5 h-5 text-[#CCFF00]" />
+        <div className="p-4 space-y-4 overflow-y-auto h-full bg-[#fafaf8]">
+          {/* Compact Material Design header — ultra compact with action toolbar */}
+          <div className="flex items-center justify-between flex-wrap gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3 shadow-sm">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 bg-gradient-to-br from-slate-900 to-slate-700 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
+                <History className="w-5 h-5 text-[#CCFF00]" />
               </div>
-              <div>
-                <h1 className="text-lg font-bold text-slate-900">Análisis del Plan Anterior</h1>
-                <p className="text-xs text-slate-500">Evaluación retrospectiva para identificar fortalezas y oportunidades de mejora</p>
+              <div className="min-w-0">
+                <h1 className="text-base font-bold text-slate-900 truncate">Análisis del Plan Anterior</h1>
+                <p className="text-[11px] text-slate-500 truncate">Evaluación retrospectiva · Identifica fortalezas y oportunidades para el próximo ciclo</p>
               </div>
             </div>
-            <Button className="bg-slate-900 hover:bg-slate-800 text-white h-9 text-xs px-4" onClick={handleSavePreviousAnalysis} disabled={savingEvaluation} data-testid="prev-save-btn">
-              <Save className="w-3.5 h-3.5 mr-1.5" />
-              {savingEvaluation ? 'Guardando...' : 'Guardar'}
-            </Button>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-slate-300 hover:bg-slate-50" onClick={handleDownloadPreviousAnalysisPDF} disabled={savingEvaluation || !activePlan} data-testid="prev-download-pdf-btn" title="Descargar PDF estilo Whitepaper">
+                <Download className="w-3.5 h-3.5 mr-1.5" />PDF
+              </Button>
+              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-slate-300 hover:bg-slate-50" onClick={handleSharePreviousAnalysisLink} disabled={savingEvaluation || !activePlan} data-testid="prev-share-link-btn" title="Copiar enlace público al portapapeles">
+                <LinkIcon className="w-3.5 h-3.5 mr-1.5" />Enlace
+              </Button>
+              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-emerald-300 text-emerald-700 hover:bg-emerald-50 bg-emerald-50/40" onClick={handleShareWhatsApp} disabled={savingEvaluation || !activePlan} data-testid="prev-share-whatsapp-btn" title="Compartir por WhatsApp">
+                <MessageCircle className="w-3.5 h-3.5 mr-1.5" />WhatsApp
+              </Button>
+              <Button className="bg-slate-900 hover:bg-slate-800 text-white h-9 text-xs px-4" onClick={handleSavePreviousAnalysis} disabled={savingEvaluation || !activePlan} data-testid="prev-save-btn">
+                <Save className="w-3.5 h-3.5 mr-1.5" />
+                {savingEvaluation ? 'Guardando...' : 'Guardar'}
+              </Button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {!activePlan && (
+            <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-2.5 text-xs flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+              Selecciona un plan activo en el panel izquierdo para guardar y compartir el análisis.
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Información del Plan Anterior */}
             <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-[#007AFF]">
               <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
@@ -3064,24 +3149,24 @@ const DashboardPage = () => {
                   Información del Plan Anterior
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-5 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">Fecha de Inicio</label>
-                    <Input data-testid="prev-fecha-inicio" type="date" className="border-slate-200" value={previousAnalysisData.fechaInicio} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, fechaInicio: e.target.value})} />
+              <CardContent className="p-3.5 space-y-2.5">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Fecha de Inicio</label>
+                    <Input data-testid="prev-fecha-inicio" type="date" className="border-slate-200 h-9 text-sm" value={previousAnalysisData.fechaInicio} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, fechaInicio: e.target.value})} />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">Fecha de Finalización</label>
-                    <Input data-testid="prev-fecha-fin" type="date" className="border-slate-200" value={previousAnalysisData.fechaFinalizacion} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, fechaFinalizacion: e.target.value})} />
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Fecha de Finalización</label>
+                    <Input data-testid="prev-fecha-fin" type="date" className="border-slate-200 h-9 text-sm" value={previousAnalysisData.fechaFinalizacion} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, fechaFinalizacion: e.target.value})} />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Duración Total (semanas)</label>
-                  <Input data-testid="prev-duracion" type="number" placeholder="Ej: 12" className="border-slate-200" value={previousAnalysisData.duracionSemanas} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, duracionSemanas: e.target.value})} />
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Duración Total (semanas)</label>
+                  <Input data-testid="prev-duracion" type="number" placeholder="Ej: 12" className="border-slate-200 h-9 text-sm" value={previousAnalysisData.duracionSemanas} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, duracionSemanas: e.target.value})} />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Objetivo Principal del Plan</label>
-                  <textarea data-testid="prev-objetivo" className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="¿Cuál era el objetivo principal?" value={previousAnalysisData.objetivoPrincipal} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, objetivoPrincipal: e.target.value})} />
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Objetivo Principal del Plan</label>
+                  <textarea data-testid="prev-objetivo" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="¿Cuál era el objetivo principal?" value={previousAnalysisData.objetivoPrincipal} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, objetivoPrincipal: e.target.value})} />
                 </div>
               </CardContent>
             </Card>
@@ -3094,13 +3179,13 @@ const DashboardPage = () => {
                   Cumplimiento de Objetivos
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-5 space-y-4">
-                <div className="space-y-3">
+              <CardContent className="p-3.5 space-y-2.5">
+                <div className="space-y-1.5">
                   {cumplLabels.map((obj, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                      <span className="text-sm font-medium text-slate-700">{obj}</span>
+                    <div key={idx} className="flex items-center justify-between gap-2 px-2.5 py-1.5 bg-slate-50 rounded-lg border border-slate-100">
+                      <span className="text-xs font-medium text-slate-700 min-w-0 truncate">{obj}</span>
                       <Select value={previousAnalysisData.cumplimiento[cumplKeys[idx]]} onValueChange={(val) => setPreviousAnalysisData({...previousAnalysisData, cumplimiento: {...previousAnalysisData.cumplimiento, [cumplKeys[idx]]: val}})}>
-                        <SelectTrigger className="w-40 h-8 text-sm" data-testid={`prev-cumpl-${cumplKeys[idx]}`}><SelectValue /></SelectTrigger>
+                        <SelectTrigger className="w-36 h-8 text-xs flex-shrink-0" data-testid={`prev-cumpl-${cumplKeys[idx]}`}><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="total">Cumplido Total</SelectItem>
                           <SelectItem value="parcial">Cumplido Parcial</SelectItem>
@@ -3110,9 +3195,9 @@ const DashboardPage = () => {
                     </div>
                   ))}
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">% Global de Cumplimiento</label>
-                  <Input data-testid="prev-porcentaje" type="number" placeholder="75" max="100" className="border-slate-200" value={previousAnalysisData.porcentajeCumplimiento} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, porcentajeCumplimiento: e.target.value})} />
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">% Global de Cumplimiento</label>
+                  <Input data-testid="prev-porcentaje" type="number" placeholder="75" max="100" className="border-slate-200 h-9 text-sm" value={previousAnalysisData.porcentajeCumplimiento} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, porcentajeCumplimiento: e.target.value})} />
                 </div>
               </CardContent>
             </Card>
@@ -3125,11 +3210,11 @@ const DashboardPage = () => {
                   Fortalezas del Plan Anterior
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-5 space-y-4">
-                <p className="text-xs text-slate-500">¿Qué funcionó bien? ¿Qué aspectos se deben mantener?</p>
+              <CardContent className="p-3.5 space-y-2">
+                <p className="text-[11px] text-slate-500">¿Qué funcionó bien? ¿Qué aspectos se deben mantener?</p>
                 {[0, 1, 2].map((idx) => (
                   <div key={idx} className="flex items-start gap-2">
-                    <span className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-1">{idx + 1}</span>
+                    <span className="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
                     <textarea data-testid={`prev-fortaleza-${idx}`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={`Fortaleza ${idx + 1}...`} value={previousAnalysisData.fortalezas[idx]} onChange={(e) => { const arr = [...previousAnalysisData.fortalezas]; arr[idx] = e.target.value; setPreviousAnalysisData({...previousAnalysisData, fortalezas: arr}); }} />
                   </div>
                 ))}
@@ -3144,11 +3229,11 @@ const DashboardPage = () => {
                   Debilidades y Áreas de Mejora
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-5 space-y-4">
-                <p className="text-xs text-slate-500">¿Qué no funcionó? ¿Qué se debe cambiar o mejorar?</p>
+              <CardContent className="p-3.5 space-y-2">
+                <p className="text-[11px] text-slate-500">¿Qué no funcionó? ¿Qué se debe cambiar o mejorar?</p>
                 {[0, 1, 2].map((idx) => (
                   <div key={idx} className="flex items-start gap-2">
-                    <span className="w-6 h-6 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-1">{idx + 1}</span>
+                    <span className="w-5 h-5 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
                     <textarea data-testid={`prev-debilidad-${idx}`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={`Debilidad/Mejora ${idx + 1}...`} value={previousAnalysisData.debilidades[idx]} onChange={(e) => { const arr = [...previousAnalysisData.debilidades]; arr[idx] = e.target.value; setPreviousAnalysisData({...previousAnalysisData, debilidades: arr}); }} />
                   </div>
                 ))}
@@ -3163,24 +3248,24 @@ const DashboardPage = () => {
                   Indicadores de Rendimiento
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-5">
+              <CardContent className="p-3">
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-xs">
                     <thead>
                       <tr className="border-b border-slate-200">
-                        <th className="text-left py-2 px-2 text-slate-600">Indicador</th>
-                        <th className="text-center py-2 px-2 text-slate-600">Inicial</th>
-                        <th className="text-center py-2 px-2 text-slate-600">Final</th>
-                        <th className="text-center py-2 px-2 text-slate-600">Delta%</th>
+                        <th className="text-left py-1.5 px-2 text-slate-600 font-semibold uppercase tracking-wide text-[10px]">Indicador</th>
+                        <th className="text-center py-1.5 px-2 text-slate-600 font-semibold uppercase tracking-wide text-[10px]">Inicial</th>
+                        <th className="text-center py-1.5 px-2 text-slate-600 font-semibold uppercase tracking-wide text-[10px]">Final</th>
+                        <th className="text-center py-1.5 px-2 text-slate-600 font-semibold uppercase tracking-wide text-[10px]">Delta%</th>
                       </tr>
                     </thead>
                     <tbody>
                       {indicadorKeys.map((key, idx) => (
                         <tr key={key} className="border-b border-slate-100 hover:bg-slate-50">
-                          <td className="py-2 px-2 font-medium text-slate-700">{indicadorLabels[idx]}</td>
-                          <td className="py-2 px-2"><Input data-testid={`prev-ind-${key}-ini`} className="h-8 w-20 text-center" placeholder="--" value={previousAnalysisData.indicadores[key]?.inicial || ''} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, indicadores: {...previousAnalysisData.indicadores, [key]: {...previousAnalysisData.indicadores[key], inicial: e.target.value}}})} /></td>
-                          <td className="py-2 px-2"><Input data-testid={`prev-ind-${key}-fin`} className="h-8 w-20 text-center" placeholder="--" value={previousAnalysisData.indicadores[key]?.final || ''} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, indicadores: {...previousAnalysisData.indicadores, [key]: {...previousAnalysisData.indicadores[key], final: e.target.value}}})} /></td>
-                          <td className="py-2 px-2"><Input data-testid={`prev-ind-${key}-delta`} className="h-8 w-20 text-center" placeholder="--%" value={previousAnalysisData.indicadores[key]?.delta || ''} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, indicadores: {...previousAnalysisData.indicadores, [key]: {...previousAnalysisData.indicadores[key], delta: e.target.value}}})} /></td>
+                          <td className="py-1.5 px-2 font-medium text-slate-700 text-xs">{indicadorLabels[idx]}</td>
+                          <td className="py-1 px-1"><Input data-testid={`prev-ind-${key}-ini`} className="h-7 w-20 text-center text-xs" placeholder="--" value={previousAnalysisData.indicadores[key]?.inicial || ''} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, indicadores: {...previousAnalysisData.indicadores, [key]: {...previousAnalysisData.indicadores[key], inicial: e.target.value}}})} /></td>
+                          <td className="py-1 px-1"><Input data-testid={`prev-ind-${key}-fin`} className="h-7 w-20 text-center text-xs" placeholder="--" value={previousAnalysisData.indicadores[key]?.final || ''} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, indicadores: {...previousAnalysisData.indicadores, [key]: {...previousAnalysisData.indicadores[key], final: e.target.value}}})} /></td>
+                          <td className="py-1 px-1"><Input data-testid={`prev-ind-${key}-delta`} className="h-7 w-20 text-center text-xs" placeholder="--%" value={previousAnalysisData.indicadores[key]?.delta || ''} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, indicadores: {...previousAnalysisData.indicadores, [key]: {...previousAnalysisData.indicadores[key], delta: e.target.value}}})} /></td>
                         </tr>
                       ))}
                     </tbody>
@@ -3190,33 +3275,35 @@ const DashboardPage = () => {
             </Card>
 
             {/* Lesiones y Problemas */}
-            <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Heart className="w-5 h-5" />
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-rose-500">
+              <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
+                <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
+                  <Heart className="w-4 h-4 text-rose-500" />
                   Lesiones y Problemas de Salud
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-5 space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">¿Hubo lesiones durante el plan?</label>
-                  <Select value={previousAnalysisData.lesiones} onValueChange={(val) => setPreviousAnalysisData({...previousAnalysisData, lesiones: val})}>
-                    <SelectTrigger data-testid="prev-lesiones-select"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="no">No hubo lesiones</SelectItem>
-                      <SelectItem value="leve">Lesiones leves</SelectItem>
-                      <SelectItem value="moderada">Lesiones moderadas</SelectItem>
-                      <SelectItem value="grave">Lesiones graves</SelectItem>
-                    </SelectContent>
-                  </Select>
+              <CardContent className="p-3.5 space-y-2.5">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">¿Hubo lesiones?</label>
+                    <Select value={previousAnalysisData.lesiones} onValueChange={(val) => setPreviousAnalysisData({...previousAnalysisData, lesiones: val})}>
+                      <SelectTrigger className="h-9 text-sm" data-testid="prev-lesiones-select"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="no">No hubo lesiones</SelectItem>
+                        <SelectItem value="leve">Lesiones leves</SelectItem>
+                        <SelectItem value="moderada">Lesiones moderadas</SelectItem>
+                        <SelectItem value="grave">Lesiones graves</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Días perdidos</label>
+                    <Input data-testid="prev-dias-perdidos" type="number" placeholder="0" className="border-slate-200 h-9 text-sm" value={previousAnalysisData.diasPerdidos} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, diasPerdidos: e.target.value})} />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Descripción de lesiones/problemas</label>
-                  <textarea data-testid="prev-desc-lesiones" className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none" rows={3} placeholder="Describir las lesiones ocurridas, su causa probable y tiempo de recuperación..." value={previousAnalysisData.descripcionLesiones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, descripcionLesiones: e.target.value})} />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Días perdidos por lesión</label>
-                  <Input data-testid="prev-dias-perdidos" type="number" placeholder="0" className="border-slate-200" value={previousAnalysisData.diasPerdidos} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, diasPerdidos: e.target.value})} />
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Descripción (causa, recuperación)</label>
+                  <textarea data-testid="prev-desc-lesiones" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Describir las lesiones ocurridas, su causa probable y tiempo de recuperación..." value={previousAnalysisData.descripcionLesiones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, descripcionLesiones: e.target.value})} />
                 </div>
               </CardContent>
             </Card>
@@ -3230,14 +3317,14 @@ const DashboardPage = () => {
                 Conclusiones y Recomendaciones
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Conclusiones Principales</label>
-                <textarea data-testid="prev-conclusiones" className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none" rows={4} placeholder="Resumen de los principales aprendizajes del plan anterior..." value={previousAnalysisData.conclusiones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, conclusiones: e.target.value})} />
+            <CardContent className="p-3.5 grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Conclusiones Principales</label>
+                <textarea data-testid="prev-conclusiones" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm resize-none" rows={3} placeholder="Resumen de los principales aprendizajes del plan anterior..." value={previousAnalysisData.conclusiones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, conclusiones: e.target.value})} />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Recomendaciones para el Próximo Plan</label>
-                <textarea data-testid="prev-recomendaciones" className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none" rows={4} placeholder="Qué mantener, qué cambiar, qué nuevos enfoques aplicar..." value={previousAnalysisData.recomendaciones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, recomendaciones: e.target.value})} />
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Recomendaciones para el Próximo Plan</label>
+                <textarea data-testid="prev-recomendaciones" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm resize-none" rows={3} placeholder="Qué mantener, qué cambiar, qué nuevos enfoques aplicar..." value={previousAnalysisData.recomendaciones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, recomendaciones: e.target.value})} />
               </div>
             </CardContent>
           </Card>

@@ -8243,6 +8243,10 @@ app.include_router(periodization_v2_router)
 from routes.periodization_models import router as periodization_models_router
 app.include_router(periodization_models_router, prefix="/api")
 
+# Previous Plan Analysis: PDF export + share link
+from routes.previous_analysis_export import router as previous_analysis_export_router
+app.include_router(previous_analysis_export_router, prefix="/api")
+
 # Store db reference in app state for V2 routes
 app.state.db = db
 
