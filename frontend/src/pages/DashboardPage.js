@@ -237,7 +237,8 @@ const DashboardPage = () => {
     fechaInicio: '', fechaFinalizacion: '', duracionSemanas: '', objetivoPrincipal: '',
     cumplimiento: {
       general: _emptyObj(), fisica: _emptyObj(), tecnica: _emptyObj(),
-      tactica: _emptyObj(), psicologica: _emptyObj()
+      tactica: _emptyObj(), psicologica: _emptyObj(),
+      teorica: _emptyObj(), reglamento: _emptyObj()
     },
     porcentajeCumplimiento: 60,
     fortalezas: ['', '', ''],
@@ -3105,8 +3106,8 @@ const DashboardPage = () => {
     if (activeDataSection === 'prev-plan') {
       const indicadorKeys = ['vo2max', 'sentadilla', 'sprint', 'cmj', 'flexibilidad'];
       const indicadorLabels = ['VO2 Máx', '1RM Sentadilla', 'Sprint 30m', 'CMJ (salto)', 'Flexibilidad'];
-      const cumplKeys = ['general', 'fisica', 'tecnica', 'tactica', 'psicologica'];
-      const cumplLabels = ['Objetivo General', 'Preparación Física', 'Preparación Técnica', 'Preparación Táctica', 'Preparación Psicológica'];
+      const cumplKeys = ['general', 'fisica', 'tecnica', 'tactica', 'psicologica', 'teorica', 'reglamento'];
+      const cumplLabels = ['Objetivo General', 'Preparación Física', 'Preparación Técnica', 'Preparación Táctica', 'Preparación Psicológica', 'Preparación Teórica', 'Reglamento del Deporte'];
       return (
         <div className="p-4 space-y-4 overflow-y-auto h-full bg-[#fafaf8]">
           {/* Compact Material Design header — ultra compact with action toolbar */}
@@ -3184,6 +3185,35 @@ const DashboardPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3.5 space-y-2.5">
+                {/* Radar interactivo — feedback visual en tiempo real */}
+                <div className="rounded-xl p-2.5" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}>
+                  <div className="text-center mb-1">
+                    <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase" style={{ background: '#CCFF00', color: '#0f172a' }}>Perfil de Cumplimiento</span>
+                  </div>
+                  <ResponsiveContainer width="100%" height={230}>
+                    <RadarChart data={cumplKeys.map((k, i) => {
+                      const raw = previousAnalysisData.cumplimiento?.[k];
+                      const item = (typeof raw === 'object' && raw !== null) ? raw : { porcentaje: 50 };
+                      const shortMap = {
+                        'Objetivo General': 'Obj. General',
+                        'Preparación Física': 'Prep. Física',
+                        'Preparación Técnica': 'Prep. Técnica',
+                        'Preparación Táctica': 'Prep. Táctica',
+                        'Preparación Psicológica': 'Prep. Psicol.',
+                        'Preparación Teórica': 'Prep. Teórica',
+                        'Reglamento del Deporte': 'Reglamento',
+                      };
+                      return { area: shortMap[cumplLabels[i]] || cumplLabels[i], pct: Number(item.porcentaje ?? 0) };
+                    })}>
+                      <PolarGrid stroke="rgba(255,255,255,0.15)" />
+                      <PolarAngleAxis dataKey="area" tick={{ fill: '#fff', fontSize: 10, fontWeight: 700 }} />
+                      <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 9 }} axisLine={false} />
+                      <Radar dataKey="pct" stroke="#CCFF00" fill="#CCFF00" fillOpacity={0.35} strokeWidth={2} dot={{ fill: '#CCFF00', r: 3, strokeWidth: 1, stroke: '#fff' }} />
+                      <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #CCFF00', borderRadius: 8, fontSize: 12 }} labelStyle={{ color: '#CCFF00', fontWeight: 700 }} formatter={(v) => [`${v}%`, 'Cumplimiento']} />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </div>
+
                 <div className="space-y-2">
                   {cumplLabels.map((obj, idx) => {
                     const k = cumplKeys[idx];

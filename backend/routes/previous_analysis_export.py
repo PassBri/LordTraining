@@ -57,6 +57,8 @@ OBJ_LABELS = [
     ("tecnica", "Preparación Técnica"),
     ("tactica", "Preparación Táctica"),
     ("psicologica", "Preparación Psicológica"),
+    ("teorica", "Preparación Teórica"),
+    ("reglamento", "Reglamento del Deporte"),
 ]
 
 IND_LABELS = [
@@ -82,13 +84,18 @@ def _esc(s) -> str:
             .replace(">", "&gt;").replace('"', "&quot;"))
 
 
-def _radar_svg(values, labels, size: int = 320, dark: bool = True) -> str:
-    """Genera un gráfico radar (pentágono) SVG con los 5 ejes de cumplimiento.
+def _radar_svg(values, labels, size: int = 340, dark: bool = True) -> str:
+    """Genera un gráfico radar SVG con N ejes (n-ágono) de cumplimiento.
     values: lista de ints 0-100. labels: lista de nombres de eje. dark=True para fondos oscuros."""
     import math
     n = len(values)
-    cx = cy = size / 2
-    R = size * 0.34
+    # ViewBox extendido para evitar recorte de labels (en rect. 1.18:1)
+    vb_w = int(size * 1.15)
+    vb_h = size
+    cx = vb_w / 2
+    cy = vb_h / 2
+    # Radio más conservador: 0.32 para dejar margen a etiquetas multi-línea
+    R = min(vb_w, vb_h) * 0.32
     grid_stroke = "rgba(255,255,255,0.15)" if dark else "#e2e8f0"
     axis_stroke = "rgba(255,255,255,0.22)" if dark else "#cbd5e1"
     label_fill = "#FFFFFF" if dark else "#0f172a"
@@ -120,22 +127,22 @@ def _radar_svg(values, labels, size: int = 320, dark: bool = True) -> str:
         )
     label_els = []
     for i, label in enumerate(labels):
-        lx, ly = _pt(R * 1.28, i)
+        lx, ly = _pt(R * 1.32, i)
         anchor = "middle"
-        if lx < cx - 10:
+        if lx < cx - 12:
             anchor = "end"
-        elif lx > cx + 10:
+        elif lx > cx + 12:
             anchor = "start"
         pct = values[i]
         _, color = _cumpl_status(pct)
         label_els.append(
             f'<text x="{lx:.1f}" y="{ly - 3:.1f}" text-anchor="{anchor}" '
-            f'font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="700" fill="{label_fill}">{_esc(label)}</text>'
-            f'<text x="{lx:.1f}" y="{ly + 10:.1f}" text-anchor="{anchor}" '
-            f'font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="900" fill="{color}">{pct}%</text>'
+            f'font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="700" fill="{label_fill}">{_esc(label)}</text>'
+            f'<text x="{lx:.1f}" y="{ly + 9:.1f}" text-anchor="{anchor}" '
+            f'font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="900" fill="{color}">{pct}%</text>'
         )
     return (
-        f'<svg viewBox="0 0 {size} {size}" width="{size}" height="{size}" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">'
+        f'<svg viewBox="0 0 {vb_w} {vb_h}" width="100%" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">'
         f'<defs><linearGradient id="radarFill" x1="0" x2="1" y1="0" y2="1">'
         f'<stop offset="0%" stop-color="#CCFF00" stop-opacity="0.55"/>'
         f'<stop offset="100%" stop-color="#a3e635" stop-opacity="0.20"/>'
@@ -198,7 +205,16 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
         lbl, color = _cumpl_status(pct)
         desc_html = f'<div class="cumpl-desc">{_esc(desc)}</div>' if desc else ""
         # Para el radar: acortar etiquetas largas
-        short = label.replace("Preparación ", "Prep. ").replace("Objetivo ", "Obj. ")
+        short_map = {
+            "Objetivo General": "Obj. General",
+            "Preparación Física": "Prep. Física",
+            "Preparación Técnica": "Prep. Técnica",
+            "Preparación Táctica": "Prep. Táctica",
+            "Preparación Psicológica": "Prep. Psicológica",
+            "Preparación Teórica": "Prep. Teórica",
+            "Reglamento del Deporte": "Reglamento",
+        }
+        short = short_map.get(label, label)
         radar_values.append(pct)
         radar_labels.append(short)
         cumpl_rows.append(
@@ -286,8 +302,8 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
   .cumpl-row td {{ vertical-align: middle; padding: 8pt 6pt; }}
   .cumpl-desc {{ font-size: 8.5pt; color: #64748b; margin-top: 2pt; font-style: italic; line-height: 1.35; }}
   .pct-big {{ font-size: 14pt; font-weight: 900; letter-spacing: -0.02em; }}
-  .radar-row {{ display: grid; grid-template-columns: 240pt 1fr; gap: 14pt; align-items: center; margin-top: 8pt; }}
-  .radar-wrap {{ background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 10pt; padding: 10pt; color: #fff; }}
+  .radar-row {{ display: grid; grid-template-columns: 270pt 1fr; gap: 12pt; align-items: start; margin-top: 8pt; }}
+  .radar-wrap {{ background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 10pt; padding: 10pt 8pt; color: #fff; }}
   .radar-title {{ color: #CCFF00; font-size: 9pt; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; text-align: center; margin-bottom: 4pt; }}
   .radar-table {{ min-width: 0; }}
   .radar-table table {{ margin: 0; }}

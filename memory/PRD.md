@@ -8,6 +8,15 @@
 - DB: MongoDB (11 colecciones V2)
 
 
+### Plan Anterior — Heptágono (7 áreas) + Radar interactivo en UI + fix recorte PDF (Feb 2026)
+
+**Cambios sobre iteración previa:**
+- **+2 áreas nuevas**: "Preparación Teórica" (`teorica`) y "Reglamento del Deporte" (`reglamento`) añadidas a `OBJ_LABELS` (backend) y a `cumplKeys`/`cumplLabels` (frontend). El radar pasa de pentágono (5) a **heptágono (7 ejes)**.
+- **Fix recorte del radar en PDF**: viewBox ampliado a ratio 1.15:1 (antes cuadrado), radio reducido a 0.32 para dejar margen a las etiquetas, font-size del label a 8pt. Map de `short_map` para acortar nombres largos ("Reglamento del Deporte" → "Reglamento"). Resultado validado: todas las 7 etiquetas completas, sin recortes.
+- **Radar interactivo en UI (feedback en tiempo real)**: integrado `<RadarChart>` de Recharts (ya instalado) dentro de la card Cumplimiento, en la parte superior. Se actualiza en vivo al mover los sliders. Estilo: fondo oscuro (`linear-gradient #0f172a→#1e293b`), relleno lima con opacidad 0.35, stroke `#CCFF00`, tooltip con borde lima. Badge "PERFIL DE CUMPLIMIENTO" en la parte superior. Height 230px, responsivo.
+- **Tests**: 10/10 backend tests siguen pasando. Lint JS/Python limpio.
+
+
 ### Plan Anterior — Radar chart en PDF + layout masonry en UI (Feb 2026)
 
 **Cambios:**
