@@ -43,6 +43,19 @@ CUMPLIMIENTO_LABELS = {
 }
 
 
+MODEL_PROFILES = {
+    "atr": {"general": 85, "fisica": 92, "tecnica": 78, "tactica": 75, "psicologica": 65, "teorica": 55, "reglamento": 60},
+    "issurin": {"general": 85, "fisica": 92, "tecnica": 80, "tactica": 82, "psicologica": 68, "teorica": 60, "reglamento": 65},
+    "pdi": {"general": 88, "fisica": 82, "tecnica": 85, "tactica": 85, "psicologica": 88, "teorica": 85, "reglamento": 80},
+    "itrain_pdi": {"general": 88, "fisica": 82, "tecnica": 85, "tactica": 85, "psicologica": 88, "teorica": 85, "reglamento": 80},
+    "lineal": {"general": 80, "fisica": 88, "tecnica": 72, "tactica": 65, "psicologica": 55, "teorica": 50, "reglamento": 55},
+    "tradicional": {"general": 80, "fisica": 88, "tecnica": 72, "tactica": 65, "psicologica": 55, "teorica": 50, "reglamento": 55},
+    "ondulante": {"general": 82, "fisica": 85, "tecnica": 78, "tactica": 72, "psicologica": 65, "teorica": 58, "reglamento": 60},
+    "bloques": {"general": 85, "fisica": 88, "tecnica": 80, "tactica": 75, "psicologica": 65, "teorica": 60, "reglamento": 60},
+    "polarizado": {"general": 82, "fisica": 90, "tecnica": 72, "tactica": 70, "psicologica": 65, "teorica": 55, "reglamento": 60},
+}
+
+
 def _cumpl_status(pct: int):
     """Deriva estado (label, color) a partir del porcentaje individual."""
     if pct >= 85:
@@ -84,17 +97,15 @@ def _esc(s) -> str:
             .replace(">", "&gt;").replace('"', "&quot;"))
 
 
-def _radar_svg(values, labels, size: int = 340, dark: bool = True) -> str:
-    """Genera un gráfico radar SVG con N ejes (n-ágono) de cumplimiento.
-    values: lista de ints 0-100. labels: lista de nombres de eje. dark=True para fondos oscuros."""
+def _radar_svg(values, labels, size: int = 340, dark: bool = True, benchmark=None, benchmark_label: str = "") -> str:
+    """Genera un gráfico radar SVG con N ejes de cumplimiento + benchmark opcional.
+    values: lista de ints 0-100. labels: lista de nombres de eje. benchmark: lista opcional de ideales 0-100."""
     import math
     n = len(values)
-    # ViewBox extendido para evitar recorte de labels (en rect. 1.18:1)
     vb_w = int(size * 1.15)
     vb_h = size
     cx = vb_w / 2
     cy = vb_h / 2
-    # Radio más conservador: 0.32 para dejar margen a etiquetas multi-línea
     R = min(vb_w, vb_h) * 0.32
     grid_stroke = "rgba(255,255,255,0.15)" if dark else "#e2e8f0"
     axis_stroke = "rgba(255,255,255,0.22)" if dark else "#cbd5e1"
@@ -116,6 +127,15 @@ def _radar_svg(values, labels, size: int = 340, dark: bool = True) -> str:
         x, y = _pt(R, i)
         axes.append(
             f'<line x1="{cx:.1f}" y1="{cy:.1f}" x2="{x:.1f}" y2="{y:.1f}" stroke="{axis_stroke}" stroke-width="1" />'
+        )
+    # Benchmark (ideal) polygon — drawn BEFORE values so it sits behind
+    bench_poly = ""
+    if benchmark:
+        bpts = [_pt(R * (max(0, min(100, v)) / 100.0), i) for i, v in enumerate(benchmark)]
+        bd = " ".join(f"{x:.1f},{y:.1f}" for x, y in bpts)
+        bench_poly = (
+            f'<polygon points="{bd}" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.65)" '
+            f'stroke-width="1.5" stroke-dasharray="4 4" stroke-linejoin="round" />'
         )
     val_pts = [_pt(R * (max(0, min(100, v)) / 100.0), i) for i, v in enumerate(values)]
     val_d = " ".join(f"{x:.1f},{y:.1f}" for x, y in val_pts)
@@ -149,6 +169,7 @@ def _radar_svg(values, labels, size: int = 340, dark: bool = True) -> str:
         f'</linearGradient></defs>'
         + "".join(grid_polys)
         + "".join(axes)
+        + bench_poly
         + f'<polygon points="{val_d}" fill="url(#radarFill)" stroke="#CCFF00" stroke-width="2" stroke-linejoin="round" />'
         + "".join(dots)
         + "".join(label_els)
@@ -156,7 +177,7 @@ def _radar_svg(values, labels, size: int = 340, dark: bool = True) -> str:
     )
 
 
-def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = None) -> str:
+def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = None, model_key: str = "", model_name: str = "") -> str:
     """Construye el HTML del análisis. Si share_id se provee, se marca como vista pública."""
     data = analysis_doc.get("data") or {}
 
@@ -229,7 +250,12 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
             </tr>'''
         )
     cumpl_html = "".join(cumpl_rows)
-    radar_svg_html = _radar_svg(radar_values, radar_labels, size=320)
+    # Benchmark del modelo de periodización
+    mk = (model_key or "").lower().replace(" ", "_").replace("-", "_")
+    bench = MODEL_PROFILES.get(mk) or MODEL_PROFILES.get("atr")
+    bench_values = [bench.get(key, 0) for key, _ in OBJ_LABELS] if bench else None
+    bench_label = model_name or model_key or "ATR"
+    radar_svg_html = _radar_svg(radar_values, radar_labels, size=340, benchmark=bench_values, benchmark_label=bench_label)
 
     # --- Indicadores rows ---
     ind_rows = []
@@ -305,6 +331,11 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
   .radar-row {{ display: grid; grid-template-columns: 270pt 1fr; gap: 12pt; align-items: start; margin-top: 8pt; }}
   .radar-wrap {{ background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 10pt; padding: 10pt 8pt; color: #fff; }}
   .radar-title {{ color: #CCFF00; font-size: 9pt; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; text-align: center; margin-bottom: 4pt; }}
+  .radar-legend {{ display: flex; justify-content: center; gap: 10pt; margin-bottom: 4pt; font-size: 7.5pt; color: rgba(255,255,255,0.85); }}
+  .leg-item {{ display: inline-flex; align-items: center; gap: 4pt; font-weight: 700; letter-spacing: 0.5px; }}
+  .leg-swatch {{ display: inline-block; width: 10pt; height: 10pt; border-radius: 2pt; }}
+  .leg-real {{ background: #CCFF00; }}
+  .leg-ideal {{ background: rgba(255,255,255,0.12); border: 1px dashed rgba(255,255,255,0.6); }}
   .radar-table {{ min-width: 0; }}
   .radar-table table {{ margin: 0; }}
   .pill {{ display:inline-block; padding:2pt 8pt; border-radius: 20pt; font-size:9pt; font-weight:700; }}
@@ -360,6 +391,10 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
 <div class="radar-row">
   <div class="radar-wrap">
     <div class="radar-title">Perfil de cumplimiento</div>
+    <div class="radar-legend">
+      <span class="leg-item"><span class="leg-swatch leg-real"></span>Real</span>
+      <span class="leg-item"><span class="leg-swatch leg-ideal"></span>Ideal · {_esc(bench_label)}</span>
+    </div>
     {radar_svg_html}
   </div>
   <div class="radar-table">
@@ -445,6 +480,21 @@ async def _get_plan_name(plan_id: str) -> str:
     return plan.get("name") or "Plan sin nombre"
 
 
+async def _get_plan_info(plan_id: str) -> dict:
+    """Devuelve {name, model_key, model_name} del plan (fallbacks vacíos)."""
+    plan = await _plans.find_one(
+        {"id": plan_id},
+        {"_id": 0, "name": 1, "model": 1, "model_name": 1, "periodization_model": 1}
+    )
+    if not plan:
+        return {"name": "Plan sin nombre", "model_key": "", "model_name": ""}
+    return {
+        "name": plan.get("name") or "Plan sin nombre",
+        "model_key": plan.get("model") or plan.get("periodization_model") or "",
+        "model_name": plan.get("model_name") or plan.get("model") or "",
+    }
+
+
 # ========================= PDF (autenticado) =========================
 @router.get("/{plan_id}/pdf")
 async def download_previous_analysis_pdf(plan_id: str, user=Depends(get_current_user_dep())):
@@ -452,8 +502,8 @@ async def download_previous_analysis_pdf(plan_id: str, user=Depends(get_current_
     doc = await _analysis.find_one({"plan_id": plan_id, "user_id": uid}, {"_id": 0})
     if not doc:
         raise HTTPException(404, "Aún no hay análisis guardado. Haz clic en 'Guardar' primero.")
-    plan_name = await _get_plan_name(plan_id)
-    html = _build_html(doc, plan_name)
+    info = await _get_plan_info(plan_id)
+    html = _build_html(doc, info["name"], model_key=info["model_key"], model_name=info["model_name"])
     try:
         pdf = await _render_pdf(html)
     except Exception as e:
@@ -480,24 +530,26 @@ async def create_share_link(plan_id: str, user=Depends(get_current_user_dep())):
         raise HTTPException(404, "Debes guardar el análisis antes de compartirlo.")
 
     existing = await _shares.find_one({"plan_id": plan_id, "user_id": uid}, {"_id": 0})
+    info = await _get_plan_info(plan_id)
     if existing and existing.get("share_id"):
         share_id = existing["share_id"]
         # Actualiza snapshot por si el análisis cambió
-        plan_name = await _get_plan_name(plan_id)
         await _shares.update_one(
             {"share_id": share_id},
-            {"$set": {"snapshot": doc, "plan_name": plan_name,
+            {"$set": {"snapshot": doc, "plan_name": info["name"],
+                      "model_key": info["model_key"], "model_name": info["model_name"],
                       "updated_at": datetime.now(timezone.utc).isoformat()}}
         )
     else:
         share_id = uuid.uuid4().hex[:14]
-        plan_name = await _get_plan_name(plan_id)
         now = datetime.now(timezone.utc).isoformat()
         await _shares.insert_one({
             "share_id": share_id,
             "plan_id": plan_id,
             "user_id": uid,
-            "plan_name": plan_name,
+            "plan_name": info["name"],
+            "model_key": info["model_key"],
+            "model_name": info["model_name"],
             "snapshot": doc,
             "created_at": now,
             "updated_at": now,
@@ -515,7 +567,12 @@ async def view_shared_previous_analysis(share_id: str):
     share = await _shares.find_one({"share_id": share_id}, {"_id": 0})
     if not share:
         raise HTTPException(404, "Enlace no válido o expirado")
-    html = _build_html(share["snapshot"], share.get("plan_name") or "Plan de entrenamiento", share_id=share_id)
+    html = _build_html(
+        share["snapshot"], share.get("plan_name") or "Plan de entrenamiento",
+        share_id=share_id,
+        model_key=share.get("model_key") or "",
+        model_name=share.get("model_name") or "",
+    )
     return HTMLResponse(content=html)
 
 
@@ -525,7 +582,12 @@ async def download_shared_previous_analysis_pdf(share_id: str):
     share = await _shares.find_one({"share_id": share_id}, {"_id": 0})
     if not share:
         raise HTTPException(404, "Enlace no válido o expirado")
-    html = _build_html(share["snapshot"], share.get("plan_name") or "Plan de entrenamiento", share_id=share_id)
+    html = _build_html(
+        share["snapshot"], share.get("plan_name") or "Plan de entrenamiento",
+        share_id=share_id,
+        model_key=share.get("model_key") or "",
+        model_name=share.get("model_name") or "",
+    )
     try:
         pdf = await _render_pdf(html)
     except Exception as e:

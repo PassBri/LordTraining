@@ -8,6 +8,24 @@
 - DB: MongoDB (11 colecciones V2)
 
 
+### Plan Anterior — Benchmark vs Modelo en radar + fix layout definitivo (Feb 2026)
+
+**Fix del espacio vacío (definitivo):**
+- El problema real: en CSS Grid con `items-start`, Cumplimiento (row-span-5) NO se estiraba dentro de su celda, dejando ~215px vacíos debajo.
+- Fix: agregado `lg:self-stretch` a Cumplimiento. Ahora se estira para ocupar toda la altura de su celda = altura de col 1 (1482px). Columnas IZQ y DER terminan exactamente en el mismo punto (bottom=1710).
+- Revertido el fallido intento de `row-end-[99]` + `h-full` que causaba que Cumpl creciera a 2970px por rows virtuales implícitas.
+
+**Benchmark vs Modelo (nuevo feature):**
+- Definidos perfiles ideales heurísticos para 9 modelos de periodización (ATR, Issurin, PDI, iTrain PDI, Lineal/Tradicional, Ondulante, Bloques, Polarizado) en las 7 áreas.
+- **Frontend (`DashboardPage.js`)**: Radar interactivo ahora muestra DOS polígonos — el real (lima `#CCFF00` relleno) encima del ideal (blanco punteado). Leyenda en el tope con cuadritos indicadores. Detecta automáticamente el modelo del `activePlan.model`. Altura del ResponsiveContainer aumentada a 250px para dar más espacio.
+- **Backend (`previous_analysis_export.py`)**: Nuevo parámetro `benchmark` en `_radar_svg()` que dibuja el polígono ideal con dash-array 4-4, stroke `rgba(255,255,255,0.65)`, fill `rgba(255,255,255,0.08)` detrás del polígono real. Leyenda en el PDF junto al título "PERFIL DE CUMPLIMIENTO".
+- `_build_html` ahora acepta `model_key` y `model_name` y los pasa a `_radar_svg`.
+- Nuevo `_get_plan_info()` que devuelve `{name, model_key, model_name}` del plan para pasarlos al template.
+- Share endpoint también persiste `model_key` y `model_name` en `plan_previous_analysis_shares` para que el PDF/HTML compartido sin auth siga mostrando el benchmark.
+
+**Validado con `analyze_file_tool`**: PDF 180KB, doble polígono correctamente renderizado, leyenda "Ideal · ATR (Issurin)", las 7 etiquetas completas. 10/10 backend tests pasan.
+
+
 ### Plan Anterior — Layout definitivo sin huecos + % Global auto-calculado (Feb 2026)
 
 **Problema**: `row-span-3` con `auto-rows-min` aún generaba espacios grandes entre cards en la columna izquierda, porque CSS Grid distribuye la altura de Cumplimiento en las 3 rows spanneadas.

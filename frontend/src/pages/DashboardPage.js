@@ -3108,6 +3108,22 @@ const DashboardPage = () => {
       const indicadorLabels = ['VO2 Máx', '1RM Sentadilla', 'Sprint 30m', 'CMJ (salto)', 'Flexibilidad'];
       const cumplKeys = ['general', 'fisica', 'tecnica', 'tactica', 'psicologica', 'teorica', 'reglamento'];
       const cumplLabels = ['Objetivo General', 'Preparación Física', 'Preparación Técnica', 'Preparación Táctica', 'Preparación Psicológica', 'Preparación Teórica', 'Reglamento del Deporte'];
+
+      // Perfiles ideales esperados por modelo de periodización (benchmark) — 7 áreas
+      const MODEL_PROFILES = {
+        atr: { general: 85, fisica: 92, tecnica: 78, tactica: 75, psicologica: 65, teorica: 55, reglamento: 60 },
+        issurin: { general: 85, fisica: 92, tecnica: 80, tactica: 82, psicologica: 68, teorica: 60, reglamento: 65 },
+        pdi: { general: 88, fisica: 82, tecnica: 85, tactica: 85, psicologica: 88, teorica: 85, reglamento: 80 },
+        itrain_pdi: { general: 88, fisica: 82, tecnica: 85, tactica: 85, psicologica: 88, teorica: 85, reglamento: 80 },
+        lineal: { general: 80, fisica: 88, tecnica: 72, tactica: 65, psicologica: 55, teorica: 50, reglamento: 55 },
+        tradicional: { general: 80, fisica: 88, tecnica: 72, tactica: 65, psicologica: 55, teorica: 50, reglamento: 55 },
+        ondulante: { general: 82, fisica: 85, tecnica: 78, tactica: 72, psicologica: 65, teorica: 58, reglamento: 60 },
+        bloques: { general: 85, fisica: 88, tecnica: 80, tactica: 75, psicologica: 65, teorica: 60, reglamento: 60 },
+        polarizado: { general: 82, fisica: 90, tecnica: 72, tactica: 70, psicologica: 65, teorica: 55, reglamento: 60 },
+      };
+      const modelKey = (activePlan?.model || 'default').toLowerCase().replace(/[^a-z_]/g, '_');
+      const benchmarkProfile = MODEL_PROFILES[modelKey] || MODEL_PROFILES.atr;
+      const modelNameLabel = activePlan?.model_name || activePlan?.model || 'Modelo';
       return (
         <div className="p-4 space-y-4 overflow-y-auto h-full bg-[#fafaf8]">
           {/* Compact Material Design header — ultra compact with action toolbar */}
@@ -3176,8 +3192,8 @@ const DashboardPage = () => {
               </CardContent>
             </Card>
 
-            {/* Cumplimiento de Objetivos — col 2, ocupa toda la altura de col 1 */}
-            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-emerald-500 lg:col-start-2 lg:row-start-1 lg:row-end-[99]">
+            {/* Cumplimiento de Objetivos — col 2, row-span 5, se estira a toda la altura */}
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-emerald-500 lg:col-start-2 lg:row-start-1 lg:row-span-5 lg:self-stretch">
               <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
                   <CheckCircle className="w-4 h-4 text-emerald-500" />
@@ -3187,10 +3203,14 @@ const DashboardPage = () => {
               <CardContent className="p-3.5 space-y-2.5">
                 {/* Radar interactivo — feedback visual en tiempo real */}
                 <div className="rounded-xl p-2.5" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}>
-                  <div className="text-center mb-1">
+                  <div className="flex items-center justify-center gap-3 mb-1 flex-wrap">
                     <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase" style={{ background: '#CCFF00', color: '#0f172a' }}>Perfil de Cumplimiento</span>
+                    <div className="flex items-center gap-3 text-[9px]">
+                      <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: '#CCFF00' }}></span><span className="text-white/90 font-semibold uppercase tracking-wider">Real</span></div>
+                      <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm border border-dashed" style={{ background: 'rgba(255,255,255,0.15)', borderColor: 'rgba(255,255,255,0.6)' }}></span><span className="text-white/80 font-semibold uppercase tracking-wider">Ideal · {modelNameLabel}</span></div>
+                    </div>
                   </div>
-                  <ResponsiveContainer width="100%" height={230}>
+                  <ResponsiveContainer width="100%" height={250}>
                     <RadarChart data={cumplKeys.map((k, i) => {
                       const raw = previousAnalysisData.cumplimiento?.[k];
                       const item = (typeof raw === 'object' && raw !== null) ? raw : { porcentaje: 50 };
@@ -3203,13 +3223,20 @@ const DashboardPage = () => {
                         'Preparación Teórica': 'Prep. Teórica',
                         'Reglamento del Deporte': 'Reglamento',
                       };
-                      return { area: shortMap[cumplLabels[i]] || cumplLabels[i], pct: Number(item.porcentaje ?? 0) };
+                      return {
+                        area: shortMap[cumplLabels[i]] || cumplLabels[i],
+                        pct: Number(item.porcentaje ?? 0),
+                        ideal: Number(benchmarkProfile[k] ?? 0),
+                      };
                     })}>
                       <PolarGrid stroke="rgba(255,255,255,0.15)" />
                       <PolarAngleAxis dataKey="area" tick={{ fill: '#fff', fontSize: 10, fontWeight: 700 }} />
                       <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 9 }} axisLine={false} />
-                      <Radar dataKey="pct" stroke="#CCFF00" fill="#CCFF00" fillOpacity={0.35} strokeWidth={2} dot={{ fill: '#CCFF00', r: 3, strokeWidth: 1, stroke: '#fff' }} />
-                      <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #CCFF00', borderRadius: 8, fontSize: 12 }} labelStyle={{ color: '#CCFF00', fontWeight: 700 }} formatter={(v) => [`${v}%`, 'Cumplimiento']} />
+                      {/* Ideal/benchmark del modelo (detrás) */}
+                      <Radar name="Ideal" dataKey="ideal" stroke="rgba(255,255,255,0.65)" strokeDasharray="4 4" fill="rgba(255,255,255,0.08)" fillOpacity={1} strokeWidth={1.5} dot={false} />
+                      {/* Real (encima) */}
+                      <Radar name="Real" dataKey="pct" stroke="#CCFF00" fill="#CCFF00" fillOpacity={0.4} strokeWidth={2} dot={{ fill: '#CCFF00', r: 3, strokeWidth: 1, stroke: '#fff' }} />
+                      <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #CCFF00', borderRadius: 8, fontSize: 12 }} labelStyle={{ color: '#CCFF00', fontWeight: 700 }} formatter={(v, n) => [`${v}%`, n === 'Real' ? 'Tu cumplimiento' : `Ideal (${modelNameLabel})`]} />
                     </RadarChart>
                   </ResponsiveContainer>
                 </div>
