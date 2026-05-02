@@ -1318,29 +1318,84 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
   );
 
   // ============ RENDER: CREATE WIZARD ============
-  const renderCreate = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-slate-800">Crear Plan de Entrenamiento</h2>
-        <Button variant="outline" onClick={() => { if (showWizardOnly && onBack) { onBack(); } else { setActiveView('history'); } setGeneratedStructure(null); }}><ChevronLeft className="w-4 h-4 mr-2" /> Volver</Button>
-      </div>
-
-      {/* Steps */}
-      <div className="flex justify-center gap-1 bg-slate-100 p-3 rounded-xl overflow-x-auto">
-        {[1, 2, 3, 4, 5].map(step => (
-          <div key={step} className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${wizardStep === step ? 'bg-blue-500 text-white' : wizardStep > step ? 'bg-green-100 text-green-700' : 'bg-white text-slate-500'}`}>
-            <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold bg-white/20">{wizardStep > step ? <Check className="w-4 h-4" /> : step}</span>
-            <span className="text-xs font-medium hidden md:inline">{['Deporte', 'Modelo', 'Duración', 'Estructura', 'Resumen'][step - 1]}</span>
+  const renderCreate = () => {
+    const stepLabels = ['Deporte', 'Modelo', 'Duración', 'Estructura', 'Resumen'];
+    const canAdvance = !((wizardStep === 1 && !planConfig.sport) || (wizardStep === 2 && !planConfig.model) || (wizardStep === 3 && !planConfig.startDate));
+    return (
+    <div className="max-w-5xl mx-auto" data-testid="create-plan-wizard">
+      {/* Compact Header + Stepper in a single iTRAIN-branded bar */}
+      <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-xl">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-[#CCFF00] flex items-center justify-center shadow-lg shadow-[#CCFF00]/30">
+              <Target className="w-5 h-5 text-slate-900" />
+            </div>
+            <div className="leading-tight">
+              <h2 className="text-base md:text-lg font-black text-white tracking-tight">Crear Plan de Entrenamiento</h2>
+              <p className="text-[11px] text-white/50">Paso {wizardStep} de 5 · {stepLabels[wizardStep - 1]}</p>
+            </div>
           </div>
-        ))}
-      </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-white/70 hover:text-white hover:bg-white/10"
+            onClick={() => { if (showWizardOnly && onBack) { onBack(); } else { setActiveView('history'); } setGeneratedStructure(null); }}
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
 
-      <Card className="shadow-lg">
-        <CardContent className="p-8">
-          {/* STEP 1: SPORT SELECTION */}
-          {wizardStep === 1 && (
-            <div className="space-y-6 max-h-[55vh] overflow-y-auto pr-2">
-              <h3 className="text-xl font-bold text-center sticky top-0 bg-white py-2 z-10">Selecciona el Deporte</h3>
+        {/* Material stepper */}
+        <div className="px-5 py-4 bg-slate-900/60">
+          <div className="flex items-center justify-between relative">
+            {[1, 2, 3, 4, 5].map((step, i) => {
+              const isActive = wizardStep === step;
+              const isDone = wizardStep > step;
+              return (
+                <React.Fragment key={step}>
+                  <button
+                    type="button"
+                    onClick={() => (isDone || isActive) && setWizardStep(step)}
+                    className="flex flex-col items-center gap-1.5 flex-shrink-0 group z-10"
+                    data-testid={`wizard-step-${step}`}
+                  >
+                    <div
+                      className={`w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 border-2 ${
+                        isActive
+                          ? 'bg-[#CCFF00] text-slate-900 border-[#CCFF00] shadow-lg shadow-[#CCFF00]/40 scale-110'
+                          : isDone
+                            ? 'bg-[#CCFF00]/20 text-[#CCFF00] border-[#CCFF00]/60'
+                            : 'bg-slate-800 text-slate-500 border-slate-700'
+                      }`}
+                    >
+                      {isDone ? <Check className="w-4 h-4" /> : step}
+                    </div>
+                    <span className={`text-[10px] md:text-[11px] font-semibold tracking-wide hidden sm:block transition-colors ${
+                      isActive ? 'text-[#CCFF00]' : isDone ? 'text-white/70' : 'text-white/30'
+                    }`}>
+                      {stepLabels[i]}
+                    </span>
+                  </button>
+                  {i < 4 && (
+                    <div className="flex-1 h-0.5 mx-1 md:mx-2 -mt-3 md:-mt-5 relative overflow-hidden rounded-full bg-slate-700">
+                      <div
+                        className="absolute inset-y-0 left-0 bg-[#CCFF00] transition-all duration-500"
+                        style={{ width: wizardStep > step ? '100%' : '0%' }}
+                      />
+                    </div>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Step content area */}
+        <div className="bg-white min-h-[420px]">
+          <div className="px-5 md:px-6 py-5">
+            {/* STEP 1: SPORT SELECTION */}
+            {wizardStep === 1 && (
+              <div className="space-y-5 max-h-[56vh] overflow-y-auto pr-1" data-testid="wizard-step-1-content">
               
               {/* User's Custom Sports from Información -> Deportes */}
               {userSports.length > 0 && userSports.some(cat => cat.sports?.length > 0) && (
@@ -1428,7 +1483,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           {/* STEP 2: MODEL SELECTION */}
           {wizardStep === 2 && (
             <div className="space-y-6 max-h-[55vh] overflow-y-auto pr-2">
-              <h3 className="text-xl font-bold text-center sticky top-0 bg-white py-2 z-10">Modelo de Periodización</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 pb-3 border-b border-slate-100">Modelo de Periodización</h3>
               {Object.entries(effectiveCategories).map(([categoryId, category]) => {
                 const modelsInCategory = Object.entries(effectiveModels).filter(([_, m]) => m.category === categoryId);
                 if (modelsInCategory.length === 0) return null;
@@ -1475,7 +1530,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           {/* STEP 3: DURATION */}
           {wizardStep === 3 && (
             <div className="space-y-6">
-              <h3 className="text-xl font-bold text-center">Duración del Ciclo</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 pb-3 border-b border-slate-100">Duración del Ciclo</h3>
               <div className="grid grid-cols-3 gap-4">
                 {Object.entries(CYCLE_DURATIONS).map(([id, dur]) => (
                   <div key={id} className={`p-4 rounded-2xl border-2 cursor-pointer text-center ${planConfig.duration === id ? 'border-blue-500 bg-blue-50' : 'border-slate-200'}`} onClick={() => setPlanConfig({ ...planConfig, duration: id })}>
@@ -1514,7 +1569,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           {/* STEP 4: STRUCTURE GENERATION */}
           {wizardStep === 4 && (
             <div className="space-y-6">
-              <h3 className="text-xl font-bold text-center">Generar Estructura Automática</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 pb-3 border-b border-slate-100">Generar Estructura Automática</h3>
               <p className="text-center text-slate-500">El sistema generará la estructura óptima basada en el modelo, deporte y duración seleccionados</p>
               
               <div className="bg-slate-50 p-4 rounded-xl">
@@ -1613,7 +1668,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           {/* STEP 5: SUMMARY */}
           {wizardStep === 5 && (
             <div className="space-y-6">
-              <h3 className="text-xl font-bold text-center">Resumen Final</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 pb-3 border-b border-slate-100">Resumen Final</h3>
               <div>
                 <label className="text-sm font-medium">Nombre del Plan</label>
                 <Input 
@@ -1675,33 +1730,51 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
             </div>
           )}
 
-          {/* Navigation Buttons */}
-          <div className="flex justify-between mt-8 pt-6 border-t">
-            <Button variant="outline" onClick={() => wizardStep > 1 ? setWizardStep(wizardStep - 1) : (showWizardOnly && onBack ? onBack() : setActiveView('history'))}>
-              <ChevronLeft className="w-4 h-4 mr-2" /> {wizardStep > 1 ? 'Anterior' : 'Cancelar'}
+          </div>
+
+          {/* Navigation Buttons - iTRAIN sticky footer */}
+          <div className="px-5 md:px-6 py-3.5 border-t border-slate-200 bg-gradient-to-b from-slate-50 to-white flex items-center justify-between rounded-b-2xl">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1.5 text-slate-600 hover:text-slate-900"
+              onClick={() => wizardStep > 1 ? setWizardStep(wizardStep - 1) : (showWizardOnly && onBack ? onBack() : setActiveView('history'))}
+              data-testid="wizard-prev-btn"
+            >
+              <ChevronLeft className="w-4 h-4" /> {wizardStep > 1 ? 'Anterior' : 'Cancelar'}
             </Button>
+            <div className="text-[11px] text-slate-400 hidden md:block">
+              {wizardStep === 1 && !planConfig.sport && 'Selecciona un deporte para continuar'}
+              {wizardStep === 2 && !planConfig.model && 'Selecciona un modelo de periodización'}
+              {wizardStep === 3 && !planConfig.startDate && 'Define la fecha de inicio'}
+              {canAdvance && wizardStep < 5 && 'Todo listo · puedes avanzar'}
+              {wizardStep === 5 && 'Paso final · crea tu plan'}
+            </div>
             {wizardStep < 5 ? (
-              <Button 
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6" 
-                onClick={() => setWizardStep(wizardStep + 1)} 
-                disabled={(wizardStep === 1 && !planConfig.sport) || (wizardStep === 2 && !planConfig.model) || (wizardStep === 3 && !planConfig.startDate)}
+              <Button
+                className="bg-[#CCFF00] hover:bg-[#b8e600] text-slate-900 font-bold px-5 gap-1.5 shadow-md shadow-[#CCFF00]/20 disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none"
+                onClick={() => setWizardStep(wizardStep + 1)}
+                disabled={!canAdvance}
+                data-testid="wizard-next-btn"
               >
-                Siguiente <ChevronRight className="w-4 h-4 ml-2" />
+                Siguiente <ChevronRight className="w-4 h-4" />
               </Button>
             ) : (
-              <Button 
-                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold px-6" 
-                onClick={generatedStructure ? handleCreateFromGenerated : handleCreatePlan} 
+              <Button
+                className="bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-[#CCFF00] font-bold px-5 gap-1.5 shadow-lg disabled:opacity-50"
+                onClick={generatedStructure ? handleCreateFromGenerated : handleCreatePlan}
                 disabled={!planConfig.startDate}
+                data-testid="wizard-create-btn"
               >
-                <Check className="w-4 h-4 mr-2" /> {generatedStructure ? 'Crear con Estructura' : 'Crear Plan'}
+                <Check className="w-4 h-4" /> {generatedStructure ? 'Crear con Estructura' : 'Crear Plan'}
               </Button>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
+  };
 
   // ============ RENDER: DETAIL VIEW ============
   const renderDetail = () => {
