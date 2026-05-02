@@ -42,6 +42,15 @@ CUMPLIMIENTO_LABELS = {
     "no": ("No Cumplido", "#EF4444", 20),
 }
 
+
+def _cumpl_status(pct: int):
+    """Deriva estado (label, color) a partir del porcentaje individual."""
+    if pct >= 85:
+        return ("Cumplido Total", "#10B981")
+    if pct >= 40:
+        return ("Cumplido Parcial", "#F59E0B")
+    return ("No Cumplido", "#EF4444")
+
 OBJ_LABELS = [
     ("general", "Objetivo General"),
     ("fisica", "Preparación Física"),
@@ -102,15 +111,33 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
     except FileNotFoundError:
         full_b64 = icon_b64 = ""
 
-    # --- Cumplimiento rows ---
+    # --- Cumplimiento rows (nuevo formato: {descripcion, porcentaje}; compat con formato antiguo: string) ---
     cumpl_rows = []
     for key, label in OBJ_LABELS:
-        k = cumpl.get(key, "parcial")
-        lbl, color, pct = CUMPLIMIENTO_LABELS.get(k, CUMPLIMIENTO_LABELS["parcial"])
+        val = cumpl.get(key)
+        if isinstance(val, dict):
+            try:
+                pct = max(0, min(100, int(val.get("porcentaje") or 0)))
+            except Exception:
+                pct = 0
+            desc = val.get("descripcion") or ""
+        else:
+            # Compat: viejo formato string "total"/"parcial"/"no"
+            legacy = CUMPLIMIENTO_LABELS.get(val or "parcial", CUMPLIMIENTO_LABELS["parcial"])
+            pct = legacy[2]
+            desc = ""
+        lbl, color = _cumpl_status(pct)
+        desc_html = f'<div class="cumpl-desc">{_esc(desc)}</div>' if desc else ""
         cumpl_rows.append(
-            f'<tr><td>{_esc(label)}</td>'
-            f'<td><span class="pill" style="background:{color}20;color:{color};border:1px solid {color}60;">{_esc(lbl)}</span></td>'
-            f'<td><span class="stat-bar"><div style="width:{pct}%;background:{color}"></div></span></td></tr>'
+            f'''<tr class="cumpl-row">
+              <td style="width:28%"><strong>{_esc(label)}</strong>{desc_html}</td>
+              <td style="width:56%">
+                <div class="bar-wrap">
+                  <div class="bar-bg"><div class="bar-fg" style="width:{pct}%;background:linear-gradient(90deg, {color}aa, {color})"></div></div>
+                </div>
+              </td>
+              <td style="width:16%;text-align:right"><span class="pct-big" style="color:{color}">{pct}%</span><br/><span class="pill" style="background:{color}20;color:{color};border:1px solid {color}60;">{_esc(lbl)}</span></td>
+            </tr>'''
         )
     cumpl_html = "".join(cumpl_rows)
 
@@ -179,6 +206,12 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
   th {{ background: #f1f5f9; font-weight: 700; color: #475569; font-size: 9pt; text-transform: uppercase; letter-spacing: 0.5px; }}
   .stat-bar {{ background: #e2e8f0; height: 8pt; border-radius: 4pt; overflow: hidden; display: inline-block; width: 120pt; vertical-align: middle; }}
   .stat-bar > div {{ height: 100%; border-radius: 4pt; }}
+  .bar-wrap {{ padding: 2pt 0; }}
+  .bar-bg {{ background: #e2e8f0; height: 10pt; border-radius: 5pt; overflow: hidden; }}
+  .bar-fg {{ height: 100%; border-radius: 5pt; }}
+  .cumpl-row td {{ vertical-align: middle; padding: 8pt 6pt; }}
+  .cumpl-desc {{ font-size: 8.5pt; color: #64748b; margin-top: 2pt; font-style: italic; line-height: 1.35; }}
+  .pct-big {{ font-size: 14pt; font-weight: 900; letter-spacing: -0.02em; }}
   .pill {{ display:inline-block; padding:2pt 8pt; border-radius: 20pt; font-size:9pt; font-weight:700; }}
   ul {{ margin: 4pt 0 4pt 16pt; padding: 0; }}
   li {{ margin: 3pt 0; }}
@@ -230,7 +263,7 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
 <h2>2. Cumplimiento de Objetivos</h2>
 {pct_bar}
 <table>
-  <thead><tr><th>Área</th><th>Estado</th><th>Progreso</th></tr></thead>
+  <thead><tr><th>Área · Logros</th><th>Progreso</th><th style="text-align:right">Estado</th></tr></thead>
   <tbody>{cumpl_html}</tbody>
 </table>
 

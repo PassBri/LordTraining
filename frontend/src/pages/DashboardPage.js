@@ -232,10 +232,14 @@ const DashboardPage = () => {
   const [planData, setPlanData] = useState(null); // Datos completos del plan
 
   // ====== PREVIOUS ANALYSIS STATE ======
+  const _emptyObj = () => ({ descripcion: '', porcentaje: 50 });
   const [previousAnalysisData, setPreviousAnalysisData] = useState({
     fechaInicio: '', fechaFinalizacion: '', duracionSemanas: '', objetivoPrincipal: '',
-    cumplimiento: { general: 'parcial', fisica: 'parcial', tecnica: 'parcial', tactica: 'parcial', psicologica: 'parcial' },
-    porcentajeCumplimiento: '',
+    cumplimiento: {
+      general: _emptyObj(), fisica: _emptyObj(), tecnica: _emptyObj(),
+      tactica: _emptyObj(), psicologica: _emptyObj()
+    },
+    porcentajeCumplimiento: 60,
     fortalezas: ['', '', ''],
     debilidades: ['', '', ''],
     indicadores: { vo2max: { inicial: '', final: '', delta: '' }, sentadilla: { inicial: '', final: '', delta: '' }, sprint: { inicial: '', final: '', delta: '' }, cmj: { inicial: '', final: '', delta: '' }, flexibilidad: { inicial: '', final: '', delta: '' } },
@@ -3180,25 +3184,89 @@ const DashboardPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3.5 space-y-2.5">
-                <div className="space-y-1.5">
-                  {cumplLabels.map((obj, idx) => (
-                    <div key={idx} className="flex items-center justify-between gap-2 px-2.5 py-1.5 bg-slate-50 rounded-lg border border-slate-100">
-                      <span className="text-xs font-medium text-slate-700 min-w-0 truncate">{obj}</span>
-                      <Select value={previousAnalysisData.cumplimiento[cumplKeys[idx]]} onValueChange={(val) => setPreviousAnalysisData({...previousAnalysisData, cumplimiento: {...previousAnalysisData.cumplimiento, [cumplKeys[idx]]: val}})}>
-                        <SelectTrigger className="w-36 h-8 text-xs flex-shrink-0" data-testid={`prev-cumpl-${cumplKeys[idx]}`}><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="total">Cumplido Total</SelectItem>
-                          <SelectItem value="parcial">Cumplido Parcial</SelectItem>
-                          <SelectItem value="no">No Cumplido</SelectItem>
-                        </SelectContent>
-                      </Select>
+                <div className="space-y-2">
+                  {cumplLabels.map((obj, idx) => {
+                    const k = cumplKeys[idx];
+                    const raw = previousAnalysisData.cumplimiento?.[k];
+                    const item = (typeof raw === 'object' && raw !== null) ? raw : { descripcion: '', porcentaje: 50 };
+                    const pct = Number(item.porcentaje ?? 50);
+                    const estado = pct >= 85 ? { lbl: 'Cumplido Total', color: '#10B981', bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700' }
+                                 : pct >= 40 ? { lbl: 'Cumplido Parcial', color: '#F59E0B', bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700' }
+                                              : { lbl: 'No Cumplido', color: '#EF4444', bg: 'bg-rose-50', border: 'border-rose-200', text: 'text-rose-700' };
+                    const updateItem = (field, value) => {
+                      setPreviousAnalysisData({
+                        ...previousAnalysisData,
+                        cumplimiento: {
+                          ...previousAnalysisData.cumplimiento,
+                          [k]: { ...item, [field]: value }
+                        }
+                      });
+                    };
+                    return (
+                      <div key={k} className={`p-2.5 rounded-lg border ${estado.bg} ${estado.border} space-y-1.5`}>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-bold text-slate-800 truncate">{obj}</span>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${estado.text}`} style={{ background: estado.color + '22', border: `1px solid ${estado.color}50` }}>
+                              {estado.lbl}
+                            </span>
+                            <span className="text-sm font-black tabular-nums" style={{ color: estado.color, minWidth: '42px', textAlign: 'right' }}>{pct}%</span>
+                          </div>
+                        </div>
+                        {/* Slider + progress bar */}
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="range" min="0" max="100" step="1"
+                            data-testid={`prev-cumpl-slider-${k}`}
+                            className="flex-1 h-1.5 accent-emerald-600 cursor-pointer"
+                            value={pct}
+                            onChange={(e) => updateItem('porcentaje', Number(e.target.value))}
+                            style={{ accentColor: estado.color }}
+                          />
+                        </div>
+                        <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all duration-300"
+                            style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${estado.color}aa, ${estado.color})` }}
+                          />
+                        </div>
+                        {/* Descripción / logros del objetivo */}
+                        <textarea
+                          data-testid={`prev-cumpl-desc-${k}`}
+                          className="w-full p-2 border border-slate-200 rounded-md text-xs resize-none bg-white/60 focus:bg-white"
+                          rows={1}
+                          placeholder={`¿Qué se logró en ${obj.toLowerCase()}?`}
+                          value={item.descripcion || ''}
+                          onChange={(e) => updateItem('descripcion', e.target.value)}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* % Global de Cumplimiento — hero card con slider grande */}
+                {(() => {
+                  const pctG = Number(previousAnalysisData.porcentajeCumplimiento ?? 0) || 0;
+                  const estadoG = pctG >= 85 ? '#10B981' : pctG >= 40 ? '#F59E0B' : '#EF4444';
+                  return (
+                    <div className="mt-3 p-3 rounded-xl text-slate-900" style={{ background: 'linear-gradient(135deg, #CCFF00 0%, #a3e635 100%)' }}>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[10px] font-black uppercase tracking-widest">% Global de Cumplimiento</span>
+                        <span className="text-2xl font-black tabular-nums" style={{ color: '#0f172a' }}>{pctG}<span className="text-sm font-bold ml-0.5">%</span></span>
+                      </div>
+                      <input
+                        type="range" min="0" max="100" step="1"
+                        data-testid="prev-porcentaje-slider"
+                        className="w-full h-2 cursor-pointer"
+                        value={pctG}
+                        onChange={(e) => setPreviousAnalysisData({ ...previousAnalysisData, porcentajeCumplimiento: Number(e.target.value) })}
+                        style={{ accentColor: '#0f172a' }}
+                      />
+                      <div className="h-2.5 bg-black/15 rounded-full overflow-hidden mt-1">
+                        <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pctG}%`, background: '#0f172a' }} />
+                      </div>
                     </div>
-                  ))}
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">% Global de Cumplimiento</label>
-                  <Input data-testid="prev-porcentaje" type="number" placeholder="75" max="100" className="border-slate-200 h-9 text-sm" value={previousAnalysisData.porcentajeCumplimiento} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, porcentajeCumplimiento: e.target.value})} />
-                </div>
+                  );
+                })()}
               </CardContent>
             </Card>
 

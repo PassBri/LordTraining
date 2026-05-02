@@ -8,6 +8,30 @@
 - DB: MongoDB (11 colecciones V2)
 
 
+### Plan Anterior — Cumplimiento con slider y descripción por objetivo (Feb 2026)
+
+**Problema del usuario**: Antes cada objetivo (Objetivo General, Preparación Física/Técnica/Táctica/Psicológica) era sólo un dropdown con 3 estados fijos. El usuario pidió: poder escribir logros/texto por objetivo + una barra para el nivel de cumplimiento + todo visible en el PDF.
+
+**Implementación:**
+- Migrada la estructura de `previousAnalysisData.cumplimiento` de strings (`"total"/"parcial"/"no"`) a objetos `{ descripcion: string, porcentaje: number }` por cada área. El estado (Total/Parcial/No) se auto-deriva del porcentaje: ≥85% Total, 40-84% Parcial, <40% No Cumplido.
+- **Frontend** (`DashboardPage.js` sección prev-plan): cada área ahora se renderiza como una card inline con fondo tintado por estado, conteniendo: nombre del área, pill de estado auto-generado, % grande en tabular-nums, slider (0-100) con accent-color según estado, barra de progreso visual con gradient, y un textarea para describir los logros. El % Global usa un "hero card" lima con slider grande. Backward compat: si el backend devuelve el formato viejo, se inicializa como objeto vacío sin crasheo.
+- **Backend** (`routes/previous_analysis_export.py`): el template PDF ahora renderiza una tabla de 3 columnas (Área·Logros / Progreso / Estado) con barras de progreso, % grande y pill colorido. Mantiene compatibilidad con el formato antiguo string.
+- **Validado con `analyze_file_tool`**: PDF 174KB; todas las áreas muestran correctamente nombre, descripción, barra colorida según % y pill de estado. Colores verificados: 88/92% verde, 55/70% ámbar, 30% rojo.
+
+### Plan Anterior — PDF + Share + WhatsApp (Feb 2026)
+
+- Renombrado el tab "Diagnóstico" → **"Plan Anterior"** en el sidenav (`DashboardPage.js` navItems).
+- Nuevo router `/app/backend/routes/previous_analysis_export.py` (registrado en `server.py`) con 4 endpoints:
+  - `GET /api/plan-data/previous-analysis/{plan_id}/pdf` — PDF autenticado estilo whitepaper PDI.
+  - `POST /api/plan-data/previous-analysis/{plan_id}/share` — crea/retorna share_id público (idempotente).
+  - `GET /api/plan-data/previous-analysis/shared/{share_id}` — HTML público sin auth (incluye ribbon "DOCUMENTO COMPARTIDO").
+  - `GET /api/plan-data/previous-analysis/shared/{share_id}/pdf` — PDF público sin auth.
+- Template HTML (Playwright) con hero oscuro (logo iTRAIN blanco), badge "ANÁLISIS RETROSPECTIVO", metadatos (fechas/duración/lesiones), tabla de cumplimiento con barras, tabla de indicadores con deltas, grid Fortalezas/Áreas de mejora, box de lesiones y callout de conclusiones.
+- **Frontend** (`DashboardPage.js`): 3 nuevos handlers (`handleDownloadPreviousAnalysisPDF`, `handleSharePreviousAnalysisLink`, `handleShareWhatsApp`) y 4 botones compactos en el header: PDF (download), Enlace (copia al clipboard), WhatsApp (abre `wa.me`), Guardar.
+- Diseño ultra-compactado del formulario: cards con `p-3.5`, labels `text-[11px]` uppercase, inputs `h-9`, fila de cumplimiento como cards individuales en lugar de rows horizontales.
+- **Backend testing**: 10/10 pytest pasaron en `tests/test_previous_analysis_export.py` (PDF, share idempotente, shared view sin auth, shared PDF sin auth, 404 en plan sin análisis, ruta existente no rota).
+
+
 ### Fix definitivo logo recortado en PDF Whitepaper PDI (Feb 2026)
 
 **Problema raíz encontrado:**
