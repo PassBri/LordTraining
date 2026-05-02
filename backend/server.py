@@ -1337,8 +1337,87 @@ async def generate_training_structure(request: StructureGenerationRequest, user:
     # Get sport config (default to general if not found)
     sport_config = SPORT_CONFIGS.get(sport, SPORT_CONFIGS["general"])
     
-    # Get model distribution (default to traditional if not found)
-    model_dist = MODEL_PHASE_DISTRIBUTIONS.get(model, MODEL_PHASE_DISTRIBUTIONS["traditional"])
+    # === COHERENT MODEL LOOKUP ===
+    # 1) Try fetching the model from the user's periodization_library (covers all 30 defaults + customs)
+    # 2) Fallback to legacy MODEL_PHASE_DISTRIBUTIONS
+    # 3) Last resort: traditional
+    model_dist = None
+    user_id = user.get("id") or user.get("user_id")
+    if user_id:
+        lib_model = await db["periodization_library"].find_one(
+            {"user_id": user_id, "$or": [{"id": model}, {"default_key": model}]},
+            {"_id": 0, "phases": 1, "name": 1, "applicable_sports": 1}
+        )
+        if lib_model and lib_model.get("phases"):
+            # Convert library phases → MODEL_PHASE_DISTRIBUTIONS format
+            phases_raw = lib_model["phases"]
+            # Parse duration_weeks per phase to estimate ratios
+            def _parse_weeks(dw):
+                if isinstance(dw, (int, float)): return max(1, int(dw))
+                s = str(dw or "4").lower().replace("sem", "").replace("semana", "").strip()
+                # Match "3-5" or "3 a 5" or "4" or single number
+                import re as _re
+                nums = _re.findall(r"\d+", s)
+                if not nums: return 4
+                if len(nums) >= 2: return (int(nums[0]) + int(nums[1])) / 2
+                return int(nums[0])
+            estimated_weeks = [_parse_weeks(p.get("duration_weeks")) for p in phases_raw]
+            total_est = sum(estimated_weeks) or 1
+            converted_phases = []
+            # Map internal type → {abbr, meso_type}
+            _type_meta = {
+                "preparation_general": {"abbr": "PG", "meso_type": "basico_desarrollador"},
+                "preparation_specific": {"abbr": "PE", "meso_type": "basico_estabilizador"},
+                "pre_competitive": {"abbr": "PC", "meso_type": "precompetitivo"},
+                "competitive": {"abbr": "CO", "meso_type": "competitivo"},
+                "transition": {"abbr": "TR", "meso_type": "recuperacion"},
+                "maintenance": {"abbr": "MT", "meso_type": "competitivo"},
+                "custom": {"abbr": "FA", "meso_type": "basico_desarrollador"},
+            }
+            for i, p in enumerate(phases_raw):
+                ratio = estimated_weeks[i] / total_est
+                vol = int(p.get("volume", 70))
+                inten = int(p.get("intensity", 70))
+                name_lower = (p.get("name") or "").lower()
+                if any(k in name_lower for k in ["acumul", "prep. general", "preparación general", "base"]):
+                    ptype = "preparation_general"
+                elif any(k in name_lower for k in ["transform", "prep. específ", "específic", "desarrollo"]):
+                    ptype = "preparation_specific"
+                elif any(k in name_lower for k in ["pre-comp", "pre comp", "choque", "intens"]):
+                    ptype = "pre_competitive"
+                elif any(k in name_lower for k in ["realiza", "competit", "pico", "peak", "realización"]):
+                    ptype = "competitive"
+                elif any(k in name_lower for k in ["transit", "recuper", "deload", "descarga", "regenera"]):
+                    ptype = "transition"
+                elif "manten" in name_lower:
+                    ptype = "maintenance"
+                else:
+                    ptype = "custom"
+                meta = _type_meta[ptype]
+                phase_name = p.get("name") or f"Fase {i+1}"
+                converted_phases.append({
+                    "id": ptype + f"_{i}",
+                    "name": phase_name,
+                    "abbr": meta["abbr"],
+                    "type": ptype,
+                    "ratio": max(0.05, min(0.6, ratio)),
+                    "volume": vol,
+                    "intensity": inten,
+                    "meso_type": meta["meso_type"],
+                    "qualities": sport_config.get("primary_qualities", [])[:3],
+                    "objectives": [phase_name],
+                    "phase_color": p.get("color", "#3B82F6"),
+                    "phase_description": p.get("description", ""),
+                })
+            # Re-normalize ratios to sum 1.0
+            total_ratio = sum(ph["ratio"] for ph in converted_phases) or 1.0
+            for ph in converted_phases:
+                ph["ratio"] = ph["ratio"] / total_ratio
+            model_dist = {"name": lib_model["name"], "phases": converted_phases, "from_library": True, "description": f"Modelo de biblioteca: {lib_model['name']}"}
+    
+    if model_dist is None:
+        # Legacy fallback
+        model_dist = MODEL_PHASE_DISTRIBUTIONS.get(model, MODEL_PHASE_DISTRIBUTIONS["traditional"])
     
     # Determine sessions per week
     sessions_per_week = request.sessions_per_week or sport_config["sessions_per_week"]

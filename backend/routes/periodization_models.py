@@ -392,11 +392,11 @@ async def download_pdi_whitepaper(user=Depends(get_current_user_dep())):
     """Genera y devuelve el whitepaper del modelo iTrain PDI en PDF usando Playwright."""
     try:
         import base64
-        # Load the official iTRAIN brand images (same as Dashboard)
+        # Load the official iTRAIN brand images (clean versions, solid navy bg matching hero)
         brand_dir = "/app/frontend/public/brand"
-        with open(f"{brand_dir}/itrain-full-light.png", "rb") as f:
+        with open(f"{brand_dir}/itrain-full-clean.png", "rb") as f:
             full_b64 = base64.b64encode(f.read()).decode()
-        with open(f"{brand_dir}/itrain-icon-light.png", "rb") as f:
+        with open(f"{brand_dir}/itrain-icon-clean.png", "rb") as f:
             icon_b64 = base64.b64encode(f.read()).decode()
         html = (PDI_WHITEPAPER_HTML
                 .replace("__ITRAIN_FULL_LOGO__", f"data:image/png;base64,{full_b64}")
