@@ -14,7 +14,8 @@
 Las imágenes fuente `/app/frontend/public/brand/itrain-full-pdf.png` (623x240) e `itrain-icon-pdf.png` (113x240) tenían el contenido tocando literalmente el borde derecho del lienzo PNG: la última columna (x=622) tenía 46-61 píxeles no transparentes. Cualquier mínimo subpíxel de rendering cortaba la letra "N" final de "iTRAIN". Ningún ajuste de CSS podía salvarlo porque la imagen fuente ya venía mal recortada.
 
 **Fix aplicado:**
-- Regenerados ambos PNG desde las fuentes limpias (`itrain-full-dark.png`, `itrain-icon-dark-v2.png`) añadiendo padding transparente del 10% (mín 14px) en los 4 lados. Resultado: `itrain-full-pdf.png` 649x168 (aspect 3.86), `itrain-icon-pdf.png` 169x168 (aspect 1.0). Verificado: 0 píxeles no transparentes en la última columna.
+- Regenerados ambos PNG añadiendo padding transparente del 10% (mín 14px) en los 4 lados. **Para el HERO (fondo oscuro) se usa `itrain-full-light.png` (texto BLANCO)**, y para el footer (fondo claro) `itrain-icon-dark-v2.png` (azul oscuro). Resultado: `itrain-full-pdf.png` 628×161 (aspect 3.90), `itrain-icon-pdf.png` 169×168 (aspect 1.0). Verificado: 0 píxeles no transparentes en la última columna.
+- **Segunda iteración**: el primer intento usó por error `itrain-full-dark.png` (texto azul oscuro) sobre el hero oscuro, lo cual fundía el logo con el fondo. Fixed usando la versión light.
 - Actualizados los estilos CSS en `/app/backend/routes/periodization_models.py` (`PDI_WHITEPAPER_HTML`):
   - `.brand-mark img`: `height: 34pt; width: 132pt` (respeta nuevo aspect 3.86)
   - `.footer-brand img`: `height: 20pt; width: 20pt` (nuevo icon es cuadrado 1:1)
