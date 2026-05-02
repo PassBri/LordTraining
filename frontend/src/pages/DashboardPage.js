@@ -3144,7 +3144,7 @@ const DashboardPage = () => {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="columns-1 lg:columns-2 gap-4 [&>*]:break-inside-avoid [&>*]:mb-4">
             {/* Información del Plan Anterior */}
             <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-[#007AFF]">
               <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">

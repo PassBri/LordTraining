@@ -82,6 +82,73 @@ def _esc(s) -> str:
             .replace(">", "&gt;").replace('"', "&quot;"))
 
 
+def _radar_svg(values, labels, size: int = 320, dark: bool = True) -> str:
+    """Genera un gráfico radar (pentágono) SVG con los 5 ejes de cumplimiento.
+    values: lista de ints 0-100. labels: lista de nombres de eje. dark=True para fondos oscuros."""
+    import math
+    n = len(values)
+    cx = cy = size / 2
+    R = size * 0.34
+    grid_stroke = "rgba(255,255,255,0.15)" if dark else "#e2e8f0"
+    axis_stroke = "rgba(255,255,255,0.22)" if dark else "#cbd5e1"
+    label_fill = "#FFFFFF" if dark else "#0f172a"
+
+    def _pt(radius, i):
+        ang = -math.pi / 2 + (2 * math.pi / n) * i
+        return (cx + radius * math.cos(ang), cy + radius * math.sin(ang))
+
+    grid_polys = []
+    for frac in (0.2, 0.4, 0.6, 0.8, 1.0):
+        pts = [_pt(R * frac, i) for i in range(n)]
+        d = " ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+        grid_polys.append(
+            f'<polygon points="{d}" fill="none" stroke="{grid_stroke}" stroke-width="1" />'
+        )
+    axes = []
+    for i in range(n):
+        x, y = _pt(R, i)
+        axes.append(
+            f'<line x1="{cx:.1f}" y1="{cy:.1f}" x2="{x:.1f}" y2="{y:.1f}" stroke="{axis_stroke}" stroke-width="1" />'
+        )
+    val_pts = [_pt(R * (max(0, min(100, v)) / 100.0), i) for i, v in enumerate(values)]
+    val_d = " ".join(f"{x:.1f},{y:.1f}" for x, y in val_pts)
+    dots = []
+    for (x, y), v in zip(val_pts, values):
+        _, c = _cumpl_status(v)
+        dots.append(
+            f'<circle cx="{x:.1f}" cy="{y:.1f}" r="4" fill="{c}" stroke="#fff" stroke-width="1.5" />'
+        )
+    label_els = []
+    for i, label in enumerate(labels):
+        lx, ly = _pt(R * 1.28, i)
+        anchor = "middle"
+        if lx < cx - 10:
+            anchor = "end"
+        elif lx > cx + 10:
+            anchor = "start"
+        pct = values[i]
+        _, color = _cumpl_status(pct)
+        label_els.append(
+            f'<text x="{lx:.1f}" y="{ly - 3:.1f}" text-anchor="{anchor}" '
+            f'font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="700" fill="{label_fill}">{_esc(label)}</text>'
+            f'<text x="{lx:.1f}" y="{ly + 10:.1f}" text-anchor="{anchor}" '
+            f'font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="900" fill="{color}">{pct}%</text>'
+        )
+    return (
+        f'<svg viewBox="0 0 {size} {size}" width="{size}" height="{size}" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">'
+        f'<defs><linearGradient id="radarFill" x1="0" x2="1" y1="0" y2="1">'
+        f'<stop offset="0%" stop-color="#CCFF00" stop-opacity="0.55"/>'
+        f'<stop offset="100%" stop-color="#a3e635" stop-opacity="0.20"/>'
+        f'</linearGradient></defs>'
+        + "".join(grid_polys)
+        + "".join(axes)
+        + f'<polygon points="{val_d}" fill="url(#radarFill)" stroke="#CCFF00" stroke-width="2" stroke-linejoin="round" />'
+        + "".join(dots)
+        + "".join(label_els)
+        + '</svg>'
+    )
+
+
 def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = None) -> str:
     """Construye el HTML del análisis. Si share_id se provee, se marca como vista pública."""
     data = analysis_doc.get("data") or {}
@@ -113,6 +180,8 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
 
     # --- Cumplimiento rows (nuevo formato: {descripcion, porcentaje}; compat con formato antiguo: string) ---
     cumpl_rows = []
+    radar_values = []
+    radar_labels = []
     for key, label in OBJ_LABELS:
         val = cumpl.get(key)
         if isinstance(val, dict):
@@ -128,6 +197,10 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
             desc = ""
         lbl, color = _cumpl_status(pct)
         desc_html = f'<div class="cumpl-desc">{_esc(desc)}</div>' if desc else ""
+        # Para el radar: acortar etiquetas largas
+        short = label.replace("Preparación ", "Prep. ").replace("Objetivo ", "Obj. ")
+        radar_values.append(pct)
+        radar_labels.append(short)
         cumpl_rows.append(
             f'''<tr class="cumpl-row">
               <td style="width:28%"><strong>{_esc(label)}</strong>{desc_html}</td>
@@ -140,6 +213,7 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
             </tr>'''
         )
     cumpl_html = "".join(cumpl_rows)
+    radar_svg_html = _radar_svg(radar_values, radar_labels, size=320)
 
     # --- Indicadores rows ---
     ind_rows = []
@@ -212,6 +286,11 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
   .cumpl-row td {{ vertical-align: middle; padding: 8pt 6pt; }}
   .cumpl-desc {{ font-size: 8.5pt; color: #64748b; margin-top: 2pt; font-style: italic; line-height: 1.35; }}
   .pct-big {{ font-size: 14pt; font-weight: 900; letter-spacing: -0.02em; }}
+  .radar-row {{ display: grid; grid-template-columns: 240pt 1fr; gap: 14pt; align-items: center; margin-top: 8pt; }}
+  .radar-wrap {{ background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 10pt; padding: 10pt; color: #fff; }}
+  .radar-title {{ color: #CCFF00; font-size: 9pt; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; text-align: center; margin-bottom: 4pt; }}
+  .radar-table {{ min-width: 0; }}
+  .radar-table table {{ margin: 0; }}
   .pill {{ display:inline-block; padding:2pt 8pt; border-radius: 20pt; font-size:9pt; font-weight:700; }}
   ul {{ margin: 4pt 0 4pt 16pt; padding: 0; }}
   li {{ margin: 3pt 0; }}
@@ -262,10 +341,18 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
 
 <h2>2. Cumplimiento de Objetivos</h2>
 {pct_bar}
-<table>
-  <thead><tr><th>Área · Logros</th><th>Progreso</th><th style="text-align:right">Estado</th></tr></thead>
-  <tbody>{cumpl_html}</tbody>
-</table>
+<div class="radar-row">
+  <div class="radar-wrap">
+    <div class="radar-title">Perfil de cumplimiento</div>
+    {radar_svg_html}
+  </div>
+  <div class="radar-table">
+    <table>
+      <thead><tr><th>Área · Logros</th><th>Progreso</th><th style="text-align:right">%</th></tr></thead>
+      <tbody>{cumpl_html}</tbody>
+    </table>
+  </div>
+</div>
 
 <h2>3. Indicadores de Rendimiento</h2>
 <table>

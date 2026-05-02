@@ -8,6 +8,15 @@
 - DB: MongoDB (11 colecciones V2)
 
 
+### Plan Anterior — Radar chart en PDF + layout masonry en UI (Feb 2026)
+
+**Cambios:**
+- **Layout masonry (frontend)**: la sección `prev-plan` pasó de `grid grid-cols-1 lg:grid-cols-2` a `columns-1 lg:columns-2` con `[&>*]:break-inside-avoid`. Las 6 cards ahora fluyen tipo masonry/Pinterest, eliminando el espacio en blanco que se generaba cuando "Información del Plan Anterior" (corta) quedaba a la izquierda y "Cumplimiento de Objetivos" (alta) a la derecha. Ahora las tarjetas se acomodan automáticamente para llenar el espacio disponible.
+- **Radar chart en PDF (backend)**: nueva función `_radar_svg()` en `/app/backend/routes/previous_analysis_export.py` que genera un gráfico pentágono SVG inline (sin dependencias externas) con 5 ejes, grid concéntrico al 20/40/60/80/100%, polígono relleno con gradient lima, puntos en los vértices con color semántico (verde/ámbar/rojo según nivel) y labels etiquetados. Se renderiza sobre un card de fondo oscuro (`linear-gradient(135deg, #0f172a 0%, #1e293b 100%)`) con título "PERFIL DE CUMPLIMIENTO" en lima.
+- Sección 2 del PDF ahora tiene layout de 2 columnas: radar a la izquierda (240pt de ancho) + tabla compacta de cumplimiento a la derecha.
+- **Validado con `analyze_file_tool`**: PDF 177KB. El radar muestra correctamente las 5 áreas con sus %s, la asimetría de los datos (se expande hacia áreas fuertes, se contrae en las débiles), etiquetas blancas legibles sobre fondo oscuro, puntos coloridos en los vértices según nivel.
+
+
 ### Plan Anterior — Cumplimiento con slider y descripción por objetivo (Feb 2026)
 
 **Problema del usuario**: Antes cada objetivo (Objetivo General, Preparación Física/Técnica/Táctica/Psicológica) era sólo un dropdown con 3 estados fijos. El usuario pidió: poder escribir logros/texto por objetivo + una barra para el nivel de cumplimiento + todo visible en el PDF.
