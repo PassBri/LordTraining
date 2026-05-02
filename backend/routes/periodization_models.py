@@ -178,7 +178,29 @@ async def reset_defaults(user=Depends(get_current_user_dep())):
     """Re-siembra la biblioteca por defecto del usuario (no toca los modelos custom)."""
     uid = _get_user_id(user)
     await models_collection.delete_many({"user_id": uid, "is_default": True})
-    await _seed_user_library_if_empty(uid)
+    now = datetime.now(timezone.utc).isoformat()
+    docs = []
+    for m in DEFAULT_PERIODIZATION_LIBRARY:
+        docs.append({
+            "id": str(uuid.uuid4()),
+            "user_id": uid,
+            "name": m["name"],
+            "author": m.get("author", ""),
+            "category": m.get("category", "Clásico"),
+            "description": m.get("description", ""),
+            "icon": m.get("icon", "📊"),
+            "color": m.get("color", "#3B82F6"),
+            "phases": m.get("phases", []),
+            "characteristics": m.get("characteristics", []),
+            "applicable_sports": m.get("applicable_sports", []),
+            "recommended_duration": m.get("recommended_duration", ""),
+            "is_default": True,
+            "default_key": m["id"],
+            "created_at": now,
+            "updated_at": now,
+        })
+    if docs:
+        await models_collection.insert_many(docs)
     cursor = models_collection.find({"user_id": uid}, {"_id": 0, "user_id": 0})
     items = await cursor.to_list(length=500)
     return items

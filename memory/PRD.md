@@ -712,3 +712,12 @@
   DashboardPage (top bar), SessionViewPage (header + footer)
 - Favicon actualizado (favicon.ico, favicon-16/32/64.png)
 - theme-color meta actualizado a #CCFF00
+
+## 2026-02-22: Biblioteca de Modelos de Periodización (Datos > Herramientas > Modelos)
+- Nuevo feature CRUD de modelos de periodización en `/api/periodization-library`.
+- Pre-cargados 29 modelos de referencia científica (Matveiev, ATR, Verkhoshansky, DUP, WUP, Conjugado, Trifásico, Táctica Frade, Polarizado, Péndulo, etc).
+- Cada usuario recibe una copia editable de los 29 defaults en su primer acceso.
+- Los modelos se integran al wizard "Crear Plan" (paso Modelo): aparecen junto a los defaults y en una nueva categoría "Mis Modelos Personalizados" para los custom, con badge "MIO".
+- Backend: `/app/backend/routes/periodization_models.py` + `/app/backend/data/periodization_library.py`.
+- Frontend: `/app/frontend/src/components/PeriodizationModelsManager.js` + integración en DashboardPage (nav Herramientas) y PeriodizationComplete (wizard).
+- Testing: backend 11/12 pass + reset-defaults fix aplicado. Frontend data-testids validados.
