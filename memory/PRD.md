@@ -721,3 +721,18 @@
 - Backend: `/app/backend/routes/periodization_models.py` + `/app/backend/data/periodization_library.py`.
 - Frontend: `/app/frontend/src/components/PeriodizationModelsManager.js` + integración en DashboardPage (nav Herramientas) y PeriodizationComplete (wizard).
 - Testing: backend 11/12 pass + reset-defaults fix aplicado. Frontend data-testids validados.
+
+## 2026-02-22: Modelo iTrain PDI + Comparador de Modelos
+- **Modelo exclusivo iTrain PDI** (Periodización Dual Integrada) agregado como primer modelo de la biblioteca default.
+  - Autor: Brian · Route to Top / iTrain.app
+  - 5 fases (Acumulación, Transformación, Realización, Mantenimiento, Recuperación) con integración PAI + CSE + Motor de Convergencia
+  - 9 características distintivas, 7 deportes aplicables, color lima #CCFF00, icono 🧠
+- **Seed inteligente**: `_seed_user_library_if_empty` ahora añade modelos NUEVOS por `default_key` sin duplicar los existentes. Usuarios con 29 modelos reciben automáticamente el 30º.
+- **Comparador de Modelos** (`/app/frontend/src/components/PeriodizationComparator.js`):
+  - Selección de 2-3 modelos via botón toggle en cada card
+  - Gráfica de barras Volumen por fase (Recharts)
+  - Gráfica de línea Intensidad por fase
+  - Tabla side-by-side de fases con volumen/intensidad/duración
+  - Matriz de características con check/cross
+  - Badges de deportes aplicables con ratio de coincidencia
+- Testing: backend 14/14 pytest PASS, PDI verificado en DB.
