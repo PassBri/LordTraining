@@ -234,11 +234,8 @@ PDI_WHITEPAPER_HTML = """<!DOCTYPE html>
   .hero { background: linear-gradient(135deg, #0b1020 0%, #1e293b 100%); color: #fff; padding: 40pt 30pt; border-radius: 10pt; margin-bottom: 20pt; position: relative; }
   .hero h1 { color: #fff; }
   .hero .subtitle { color: rgba(255,255,255,0.7); font-size: 14pt; margin-top: 6pt; }
-  .brand-mark { display: flex; align-items: center; gap: 8pt; margin-bottom: 18pt; }
-  .brand-mark svg { height: 28pt; width: auto; }
-  .brand-mark .brand-text { font-size: 18pt; font-weight: 900; letter-spacing: -0.02em; font-style: italic; }
-  .brand-mark .brand-text .i-lime { color: #CCFF00; }
-  .brand-mark .brand-text .brand-white { color: #fff; }
+  .brand-mark { display: flex; align-items: center; gap: 10pt; margin-bottom: 18pt; }
+  .brand-mark img { height: 36pt; width: auto; display: block; }
   .badge { display: inline-block; background: #CCFF00; color: #0f172a; padding: 4pt 10pt; border-radius: 20pt; font-size: 9pt; font-weight: 800; letter-spacing: 1px; margin-bottom: 10pt; }
   .author { font-size: 10pt; color: rgba(255,255,255,0.5); margin-top: 16pt; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8pt; }
   .pillar { background: #f8fafc; border-left: 4pt solid #CCFF00; padding: 10pt 14pt; margin: 8pt 0; border-radius: 4pt; }
@@ -257,18 +254,13 @@ PDI_WHITEPAPER_HTML = """<!DOCTYPE html>
   .glossary-grid .g-item { display: flex; gap: 6pt; border-bottom: 1px solid #f1f5f9; padding: 3pt 0; font-size: 9pt; }
   .glossary-grid .g-k { font-weight: 800; min-width: 60pt; color: #0f172a; }
   .footer-brand { display: flex; align-items: center; justify-content: center; gap: 8pt; color: #94a3b8; font-size: 9pt; margin-top: 30pt; padding-top: 12pt; border-top: 1px solid #e2e8f0; }
-  .footer-brand svg { height: 18pt; }
+  .footer-brand img { height: 20pt; width: auto; display: block; }
   .footer-brand strong { color: #CCFF00; background: #0f172a; padding: 2pt 6pt; border-radius: 3pt; }
 </style></head><body>
 
 <div class="hero">
   <div class="brand-mark">
-    <svg viewBox="0 0 100 210" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="50" cy="105" rx="50" ry="100" fill="#CCFF00"/>
-      <path d="M 58 35 L 71 35 L 68 66 L 55 66 Z" fill="#0b1020"/>
-      <path d="M 55 80 L 71 80 L 61 178 L 45 178 Z" fill="#0b1020"/>
-    </svg>
-    <span class="brand-text"><span class="i-lime">i</span><span class="brand-white">TRAIN</span></span>
+    <img src="__ITRAIN_FULL_LOGO__" alt="iTRAIN"/>
   </div>
   <span class="badge">MODELO EXCLUSIVO iTRAIN</span>
   <h1>iTrain PDI</h1>
@@ -388,7 +380,7 @@ sino de la <strong>gestión inteligente de la tensión</strong> entre ambos. El 
 El modelo escala desde equipos amateur hasta profesionales de élite con calendarios de 70-80 partidos anuales.</p>
 
 <div class="footer-brand">
-  <svg viewBox="0 0 100 210" xmlns="http://www.w3.org/2000/svg"><ellipse cx="50" cy="105" rx="50" ry="100" fill="#CCFF00"/><path d="M 58 35 L 71 35 L 68 66 L 55 66 Z" fill="#0b1020"/><path d="M 55 80 L 71 80 L 61 178 L 45 178 Z" fill="#0b1020"/></svg>
+  <img src="__ITRAIN_ICON_LOGO__" alt="iTRAIN"/>
   <span>Modelo registrado · <strong>iTRAIN</strong> · iTrain.app · Generado automáticamente desde la Ficha Técnica</span>
 </div>
 
@@ -399,7 +391,17 @@ El modelo escala desde equipos amateur hasta profesionales de élite con calenda
 async def download_pdi_whitepaper(user=Depends(get_current_user_dep())):
     """Genera y devuelve el whitepaper del modelo iTrain PDI en PDF usando Playwright."""
     try:
-        # Ensure playwright uses the custom browser path if set in the system
+        import base64
+        # Load the official iTRAIN brand images (same as Dashboard)
+        brand_dir = "/app/frontend/public/brand"
+        with open(f"{brand_dir}/itrain-full-light.png", "rb") as f:
+            full_b64 = base64.b64encode(f.read()).decode()
+        with open(f"{brand_dir}/itrain-icon-light.png", "rb") as f:
+            icon_b64 = base64.b64encode(f.read()).decode()
+        html = (PDI_WHITEPAPER_HTML
+                .replace("__ITRAIN_FULL_LOGO__", f"data:image/png;base64,{full_b64}")
+                .replace("__ITRAIN_ICON_LOGO__", f"data:image/png;base64,{icon_b64}"))
+
         os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", "/pw-browsers")
         from playwright.async_api import async_playwright
         async with async_playwright() as p:
@@ -408,7 +410,7 @@ async def download_pdi_whitepaper(user=Depends(get_current_user_dep())):
                 args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
             )
             page = await browser.new_page(viewport={"width": 794, "height": 1123})
-            await page.set_content(PDI_WHITEPAPER_HTML, wait_until="domcontentloaded")
+            await page.set_content(html, wait_until="domcontentloaded")
             await page.wait_for_timeout(500)
             pdf = await page.pdf(format="A4", print_background=True, margin={"top": "0", "bottom": "0", "left": "0", "right": "0"})
             await browser.close()
