@@ -677,191 +677,169 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
   }, [weeks, viewOffset, visibleWeeks, totalWeeks]);
 
   // ═══ CHART DATA FROM V2 STORE (real calculated metrics) ═══
-  // Calculate load magnitude data for charts (Carga y Recuperación)
-  const loadChartData = useMemo(() => {
-    return displayedWeeks.map(week => {
-      // Check manual override first
-      const manualCarga = planData.load_chart?.[`carga_${week}`];
-      const manualRecup = planData.load_chart?.[`recuperacion_${week}`];
-      if (manualCarga !== undefined || manualRecup !== undefined) {
-        const cargaVal = (manualCarga || 0) * 10;
-        const recupVal = (manualRecup || 0) * 10;
-        return {
-          week: `S${week}`, weekNum: week,
-          carga: cargaVal, recuperacion: recupVal,
-          fase: MACROCYCLE_TYPES.find(t => t.id === planData.phases?.[week])?.label || '',
-          cargaUA: 0, ACWR: 0, RPE: 0,
-        };
-      }
-      // Try V2 micro data
-      const v2Micro = v2Micros.find(m => m.numero_semana === week);
-      if (v2Micro && v2Micro.carga_total > 0) {
-        const maxCarga = Math.max(...v2Micros.map(m => m.carga_total || 0), 1);
-        const cargaPct = Math.round((v2Micro.carga_total / maxCarga) * 100);
-        return {
-          week: `S${week}`, weekNum: week,
-          carga: cargaPct, recuperacion: Math.max(0, 100 - cargaPct),
-          fase: MACROCYCLE_TYPES.find(t => t.id === planData.phases?.[week])?.label || '',
-          cargaUA: Math.round(v2Micro.carga_total), ACWR: v2Micro.ACWR || 0, RPE: v2Micro.RPE_promedio || 0,
-        };
-      }
-      // Fallback to local planData
-      let totalLoad = 0;
-      INTENSITY_LEVELS.forEach((level, idx) => {
-        const value = planData.intensity?.[`${level.id}_${week}`] || 0;
-        totalLoad += value * (5 - idx);
-      });
-      const recovery = Math.max(0, 100 - totalLoad * 20);
+  // Mapper functions parametrizables — usados en 2 versiones:
+  //   • con `displayedWeeks` para las filas inline de la tabla
+  //   • con `weeks` (full range) para el InteractiveChart expandido en Dialog
+  const _buildLoadData = (weekList) => weekList.map(week => {
+    const manualCarga = planData.load_chart?.[`carga_${week}`];
+    const manualRecup = planData.load_chart?.[`recuperacion_${week}`];
+    if (manualCarga !== undefined || manualRecup !== undefined) {
       return {
         week: `S${week}`, weekNum: week,
-        carga: Math.min(100, totalLoad * 20), recuperacion: recovery,
+        carga: (manualCarga || 0) * 10, recuperacion: (manualRecup || 0) * 10,
         fase: MACROCYCLE_TYPES.find(t => t.id === planData.phases?.[week])?.label || '',
         cargaUA: 0, ACWR: 0, RPE: 0,
       };
-    });
-  }, [displayedWeeks, planData.intensity, planData.phases, planData.load_chart, v2Micros]);
-
-  // Calculate volume and intensity data for charts
-  const volumeIntensityChartData = useMemo(() => {
-    return displayedWeeks.map(week => {
-      // Check manual override first
-      const manualVol = planData.volint_chart?.[`volumen_${week}`];
-      const manualInt = planData.volint_chart?.[`intensidad_${week}`];
-      if (manualVol !== undefined || manualInt !== undefined) {
-        return {
-          week: `S${week}`, weekNum: week,
-          volumen: (manualVol || 0) * 10, intensidad: (manualInt || 0) * 10,
-          mesociclo: MESOCYCLE_TYPES.find(t => t.id === planData.mesocycles?.[week])?.label || '',
-          tonelaje: 0, carga: 0,
-        };
-      }
-      // Try V2 micro data
-      const v2Micro = v2Micros.find(m => m.numero_semana === week);
-      if (v2Micro && (v2Micro.vol_calculado > 0 || v2Micro.int_calculado > 0)) {
-        return {
-          week: `S${week}`, weekNum: week,
-          volumen: Math.round(v2Micro.vol_calculado), intensidad: Math.round(v2Micro.int_calculado),
-          mesociclo: MESOCYCLE_TYPES.find(t => t.id === planData.mesocycles?.[week])?.label || '',
-          tonelaje: Math.round(v2Micro.tonelaje_kg || 0), carga: Math.round(v2Micro.carga_total || 0),
-        };
-      }
-      // Fallback
-      let volumeSum = 0, volumeCount = 0;
-      INTENSITY_LEVELS.forEach(level => {
-        const value = planData.volume?.[`${level.id}_${week}`];
-        if (value) { volumeSum += value; volumeCount++; }
-      });
-      let intensitySum = 0, intensityCount = 0;
-      INTENSITY_LEVELS.forEach((level, idx) => {
-        const value = planData.intensity?.[`${level.id}_${week}`];
-        if (value) { intensitySum += value * (100 - idx * 15); intensityCount += value; }
-      });
+    }
+    const v2Micro = v2Micros.find(m => m.numero_semana === week);
+    if (v2Micro && v2Micro.carga_total > 0) {
+      const maxCarga = Math.max(...v2Micros.map(m => m.carga_total || 0), 1);
+      const cargaPct = Math.round((v2Micro.carga_total / maxCarga) * 100);
       return {
         week: `S${week}`, weekNum: week,
-        volumen: volumeCount > 0 ? Math.round(volumeSum / volumeCount * 20) : 0,
-        intensidad: intensityCount > 0 ? Math.round(intensitySum / intensityCount) : 0,
+        carga: cargaPct, recuperacion: Math.max(0, 100 - cargaPct),
+        fase: MACROCYCLE_TYPES.find(t => t.id === planData.phases?.[week])?.label || '',
+        cargaUA: Math.round(v2Micro.carga_total), ACWR: v2Micro.ACWR || 0, RPE: v2Micro.RPE_promedio || 0,
+      };
+    }
+    let totalLoad = 0;
+    INTENSITY_LEVELS.forEach((level, idx) => {
+      const value = planData.intensity?.[`${level.id}_${week}`] || 0;
+      totalLoad += value * (5 - idx);
+    });
+    return {
+      week: `S${week}`, weekNum: week,
+      carga: Math.min(100, totalLoad * 20), recuperacion: Math.max(0, 100 - totalLoad * 20),
+      fase: MACROCYCLE_TYPES.find(t => t.id === planData.phases?.[week])?.label || '',
+      cargaUA: 0, ACWR: 0, RPE: 0,
+    };
+  });
+  const loadChartData = useMemo(() => _buildLoadData(displayedWeeks), [displayedWeeks, planData.intensity, planData.phases, planData.load_chart, v2Micros]);
+  const loadChartDataFull = useMemo(() => _buildLoadData(weeks), [weeks, planData.intensity, planData.phases, planData.load_chart, v2Micros]);
+
+  const _buildVolIntData = (weekList) => weekList.map(week => {
+    const manualVol = planData.volint_chart?.[`volumen_${week}`];
+    const manualInt = planData.volint_chart?.[`intensidad_${week}`];
+    if (manualVol !== undefined || manualInt !== undefined) {
+      return {
+        week: `S${week}`, weekNum: week,
+        volumen: (manualVol || 0) * 10, intensidad: (manualInt || 0) * 10,
         mesociclo: MESOCYCLE_TYPES.find(t => t.id === planData.mesocycles?.[week])?.label || '',
         tonelaje: 0, carga: 0,
       };
-    });
-  }, [displayedWeeks, planData.volume, planData.intensity, planData.mesocycles, planData.volint_chart, v2Micros]);
-
-  // ═══ NEW: Preparation chart data (from grid cells + V2) ═══
-  const preparationChartData = useMemo(() => {
-    return displayedWeeks.map(week => {
-      const row = { week: `S${week}` };
-      PREPARATION_TYPES.forEach(prep => {
-        row[prep.id] = (planData.preparation?.[`${prep.id}_${week}`] || 0) * 10; // scale 0-10 → 0-100
-      });
-      return row;
-    });
-  }, [displayedWeeks, planData.preparation]);
-
-  // ═══ NEW: Physical preparation chart data (from grid + V2 exercises) ═══
-  const physicalChartData = useMemo(() => {
-    return displayedWeeks.map(week => {
-      const row = { week: `S${week}` };
-      PHYSICAL_COMPONENTS.forEach(comp => {
-        row[comp.id] = (planData.physical?.[`${comp.id}_${week}`] || 0) * 10;
-      });
-      return row;
-    });
-  }, [displayedWeeks, planData.physical]);
-
-  // ═══ NEW: Activity chart data (from grid cells) ═══
-  const activityChartData = useMemo(() => {
-    return displayedWeeks.map(week => {
-      const v2Micro = v2Micros.find(m => m.numero_semana === week);
-      const sessions = v2Micro ? v2Sesiones.filter(s => s.microciclo_id === v2Micro.id) : [];
-      const hasTraining = planData.activities?.[`training_${week}`] || sessions.length > 0;
-      const hasMainComp = planData.activities?.[`main_competition_${week}`];
-      const hasSecComp = planData.activities?.[`secondary_competition_${week}`];
-      const hasRecovery = planData.activities?.[`recovery_${week}`];
-      return {
-        week: `S${week}`,
-        entrenamiento: hasTraining ? (sessions.length || 5) : 0,
-        competenciaPrincipal: hasMainComp ? 1 : 0,
-        competenciaSecundaria: hasSecComp ? 1 : 0,
-        recuperacion: hasRecovery ? 1 : 0,
-        totalSesiones: sessions.length,
-      };
-    });
-  }, [displayedWeeks, planData.activities, v2Micros, v2Sesiones]);
-
-  // ═══ NEW: Monitoring chart data ═══
-  const monitoringChartData = useMemo(() => {
-    return displayedWeeks.map(week => {
-      const row = { week: `S${week}` };
-      MONITORING_AREAS.forEach(area => {
-        row[area.id] = planData.monitoring?.[`${area.id}_${week}`] ? 1 : 0;
-      });
-      return row;
-    });
-  }, [displayedWeeks, planData.monitoring]);
-  const densityChartData = useMemo(() => {
-    return displayedWeeks.map(week => {
-      const v2Micro = v2Micros.find(m => m.numero_semana === week);
-      const den = v2Micro?.den_calculado || 0;
-      const denPct = Math.round(den * 100); // series/min → display scale
-      const level = denPct > 12 ? 'alto' : denPct > 6 ? 'medio' : 'bajo';
-      return {
-        week: `S${week}`,
-        weekNum: week,
-        densidad: Math.round(den * 1000) / 10, // e.g. 0.0234 → 2.3
-        nivel: level,
-        fill: level === 'alto' ? '#EF4444' : level === 'medio' ? '#F59E0B' : '#10B981',
-      };
-    });
-  }, [displayedWeeks, v2Micros]);
-
-  // ═══ NEW: Duration chart data ═══
-  const durationChartData = useMemo(() => {
-    return displayedWeeks.map(week => {
-      // Check manual override first
-      const manualCal = planData.duration_chart?.[`calentamiento_${week}`];
-      const manualPri = planData.duration_chart?.[`principal_${week}`];
-      const manualVc = planData.duration_chart?.[`vueltaCalma_${week}`];
-      if (manualCal !== undefined || manualPri !== undefined || manualVc !== undefined) {
-        return {
-          week: `S${week}`, weekNum: week,
-          calentamiento: (manualCal || 0) * 10, principal: (manualPri || 0) * 10,
-          vueltaCalma: (manualVc || 0) * 10,
-          total: ((manualCal || 0) + (manualPri || 0) + (manualVc || 0)) * 10, sesiones: 0,
-        };
-      }
-      const v2Micro = v2Micros.find(m => m.numero_semana === week);
-      const sessions = v2Micro ? v2Sesiones.filter(s => s.microciclo_id === v2Micro.id) : [];
-      const totalMin = sessions.reduce((s, se) => s + (se.duracion_minutos || 0), 0);
-      const warmup = Math.round(totalMin * 0.15);
-      const main = Math.round(totalMin * 0.70);
-      const cooldown = totalMin - warmup - main;
+    }
+    const v2Micro = v2Micros.find(m => m.numero_semana === week);
+    if (v2Micro && (v2Micro.vol_calculado > 0 || v2Micro.int_calculado > 0)) {
       return {
         week: `S${week}`, weekNum: week,
-        calentamiento: warmup, principal: main, vueltaCalma: cooldown,
-        total: totalMin, sesiones: sessions.length,
+        volumen: Math.round(v2Micro.vol_calculado), intensidad: Math.round(v2Micro.int_calculado),
+        mesociclo: MESOCYCLE_TYPES.find(t => t.id === planData.mesocycles?.[week])?.label || '',
+        tonelaje: Math.round(v2Micro.tonelaje_kg || 0), carga: Math.round(v2Micro.carga_total || 0),
       };
+    }
+    let volumeSum = 0, volumeCount = 0;
+    INTENSITY_LEVELS.forEach(level => {
+      const value = planData.volume?.[`${level.id}_${week}`];
+      if (value) { volumeSum += value; volumeCount++; }
     });
-  }, [displayedWeeks, v2Micros, v2Sesiones, planData.duration_chart]);
+    let intensitySum = 0, intensityCount = 0;
+    INTENSITY_LEVELS.forEach((level, idx) => {
+      const value = planData.intensity?.[`${level.id}_${week}`];
+      if (value) { intensitySum += value * (100 - idx * 15); intensityCount += value; }
+    });
+    return {
+      week: `S${week}`, weekNum: week,
+      volumen: volumeCount > 0 ? Math.round(volumeSum / volumeCount * 20) : 0,
+      intensidad: intensityCount > 0 ? Math.round(intensitySum / intensityCount) : 0,
+      mesociclo: MESOCYCLE_TYPES.find(t => t.id === planData.mesocycles?.[week])?.label || '',
+      tonelaje: 0, carga: 0,
+    };
+  });
+  const volumeIntensityChartData = useMemo(() => _buildVolIntData(displayedWeeks), [displayedWeeks, planData.volume, planData.intensity, planData.mesocycles, planData.volint_chart, v2Micros]);
+  const volumeIntensityChartDataFull = useMemo(() => _buildVolIntData(weeks), [weeks, planData.volume, planData.intensity, planData.mesocycles, planData.volint_chart, v2Micros]);
+
+  const _buildPrepData = (weekList) => weekList.map(week => {
+    const row = { week: `S${week}` };
+    PREPARATION_TYPES.forEach(prep => {
+      row[prep.id] = (planData.preparation?.[`${prep.id}_${week}`] || 0) * 10;
+    });
+    return row;
+  });
+  const preparationChartData = useMemo(() => _buildPrepData(displayedWeeks), [displayedWeeks, planData.preparation]);
+  const preparationChartDataFull = useMemo(() => _buildPrepData(weeks), [weeks, planData.preparation]);
+
+  const _buildPhysData = (weekList) => weekList.map(week => {
+    const row = { week: `S${week}` };
+    PHYSICAL_COMPONENTS.forEach(comp => {
+      row[comp.id] = (planData.physical?.[`${comp.id}_${week}`] || 0) * 10;
+    });
+    return row;
+  });
+  const physicalChartData = useMemo(() => _buildPhysData(displayedWeeks), [displayedWeeks, planData.physical]);
+  const physicalChartDataFull = useMemo(() => _buildPhysData(weeks), [weeks, planData.physical]);
+
+  const _buildActivityData = (weekList) => weekList.map(week => {
+    const v2Micro = v2Micros.find(m => m.numero_semana === week);
+    const sessions = v2Micro ? v2Sesiones.filter(s => s.microciclo_id === v2Micro.id) : [];
+    const hasTraining = planData.activities?.[`training_${week}`] || sessions.length > 0;
+    return {
+      week: `S${week}`,
+      entrenamiento: hasTraining ? (sessions.length || 5) : 0,
+      competenciaPrincipal: planData.activities?.[`main_competition_${week}`] ? 1 : 0,
+      competenciaSecundaria: planData.activities?.[`secondary_competition_${week}`] ? 1 : 0,
+      recuperacion: planData.activities?.[`recovery_${week}`] ? 1 : 0,
+      totalSesiones: sessions.length,
+    };
+  });
+  const activityChartData = useMemo(() => _buildActivityData(displayedWeeks), [displayedWeeks, planData.activities, v2Micros, v2Sesiones]);
+
+  const _buildMonitoringData = (weekList) => weekList.map(week => {
+    const row = { week: `S${week}` };
+    MONITORING_AREAS.forEach(area => {
+      row[area.id] = planData.monitoring?.[`${area.id}_${week}`] ? 1 : 0;
+    });
+    return row;
+  });
+  const monitoringChartData = useMemo(() => _buildMonitoringData(displayedWeeks), [displayedWeeks, planData.monitoring]);
+
+  const _buildDensityData = (weekList) => weekList.map(week => {
+    const v2Micro = v2Micros.find(m => m.numero_semana === week);
+    const den = v2Micro?.den_calculado || 0;
+    const denPct = Math.round(den * 100);
+    const level = denPct > 12 ? 'alto' : denPct > 6 ? 'medio' : 'bajo';
+    return {
+      week: `S${week}`, weekNum: week,
+      densidad: Math.round(den * 1000) / 10, nivel: level,
+      fill: level === 'alto' ? '#EF4444' : level === 'medio' ? '#F59E0B' : '#10B981',
+    };
+  });
+  const densityChartData = useMemo(() => _buildDensityData(displayedWeeks), [displayedWeeks, v2Micros]);
+
+  const _buildDurationData = (weekList) => weekList.map(week => {
+    const manualCal = planData.duration_chart?.[`calentamiento_${week}`];
+    const manualPri = planData.duration_chart?.[`principal_${week}`];
+    const manualVc = planData.duration_chart?.[`vueltaCalma_${week}`];
+    if (manualCal !== undefined || manualPri !== undefined || manualVc !== undefined) {
+      return {
+        week: `S${week}`, weekNum: week,
+        calentamiento: (manualCal || 0) * 10, principal: (manualPri || 0) * 10,
+        vueltaCalma: (manualVc || 0) * 10,
+        total: ((manualCal || 0) + (manualPri || 0) + (manualVc || 0)) * 10, sesiones: 0,
+      };
+    }
+    const v2Micro = v2Micros.find(m => m.numero_semana === week);
+    const sessions = v2Micro ? v2Sesiones.filter(s => s.microciclo_id === v2Micro.id) : [];
+    const totalMin = sessions.reduce((s, se) => s + (se.duracion_minutos || 0), 0);
+    const warmup = Math.round(totalMin * 0.15);
+    const main = Math.round(totalMin * 0.70);
+    return {
+      week: `S${week}`, weekNum: week,
+      calentamiento: warmup, principal: main, vueltaCalma: totalMin - warmup - main,
+      total: totalMin, sesiones: sessions.length,
+    };
+  });
+  const durationChartData = useMemo(() => _buildDurationData(displayedWeeks), [displayedWeeks, v2Micros, v2Sesiones, planData.duration_chart]);
+  const durationChartDataFull = useMemo(() => _buildDurationData(weeks), [weeks, v2Micros, v2Sesiones, planData.duration_chart]);
 
   // Load existing plan
   useEffect(() => {
@@ -1766,28 +1744,9 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
 
                 {/* ══════════ INLINE CHARTS — perfectly aligned with week columns ══════════ */}
 
-                {/* CHART 1: Magnitud de Carga y Recuperación */}
-                <ChartSectionHeader
-                  title="Magnitud de Carga y Recuperación"
-                  icon={Activity}
-                  bgColor="bg-red-50"
-                  textColor="text-red-800"
-                  chartConfig={{
-                    title: 'Magnitud de Carga y Recuperacion',
-                    icon: Activity,
-                    data: loadChartData,
-                    dataKeys: [
-                      { key: 'carga', name: 'Carga %', color: '#EF4444' },
-                      { key: 'recuperacion', name: 'Recuperacion %', color: '#3B82F6' }
-                    ],
-                    chartType: 'bar',
-                    yAxisDomain: [0, 100]
-                  }}
-                />
-                <InlineChartRow label="Carga %" data={loadChartData} dataKey="carga" color="#EF4444" maxVal={100} onCellClick={handleCellClick} section="load_chart" />
-                <InlineChartRow label="Recuperación %" data={loadChartData} dataKey="recuperacion" color="#3B82F6" maxVal={100} onCellClick={handleCellClick} section="load_chart" />
-
-                {/* CHART 2: Volumen, Intensidad y Densidad */}
+                {/* CHART 1: Volumen, Intensidad y Densidad
+                    (la fila "Magnitud de Carga y Recuperación" fue removida porque
+                     está disponible de manera más completa en Periodización → Estructura) */}
                 <ChartSectionHeader
                   title="Volumen e Intensidad"
                   icon={TrendingUp}
@@ -1796,7 +1755,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                   chartConfig={{
                     title: 'Volumen, Intensidad y Densidad',
                     icon: TrendingUp,
-                    data: volumeIntensityChartData,
+                    data: volumeIntensityChartDataFull,
                     dataKeys: [
                       { key: 'volumen', name: 'Volumen %', color: '#22C55E' },
                       { key: 'intensidad', name: 'Intensidad %', color: '#EF4444' }
@@ -1808,7 +1767,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 <InlineChartRow label="Volumen %" data={volumeIntensityChartData} dataKey="volumen" color="#22C55E" maxVal={100} onCellClick={handleCellClick} section="volint_chart" />
                 <InlineChartRow label="Intensidad %" data={volumeIntensityChartData} dataKey="intensidad" color="#EF4444" maxVal={100} onCellClick={handleCellClick} section="volint_chart" />
 
-                {/* CHART 3: Preparación por Componentes */}
+                {/* CHART 2: Preparación por Componentes */}
                 <ChartSectionHeader
                   title="Preparación por Componentes"
                   icon={Dumbbell}
@@ -1817,7 +1776,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                   chartConfig={{
                     title: 'Preparacion por Componentes',
                     icon: Dumbbell,
-                    data: preparationChartData,
+                    data: preparationChartDataFull,
                     dataKeys: [
                       { key: 'general_physical', name: 'Física General', color: '#2563EB' },
                       { key: 'specific_physical', name: 'Física Específica', color: '#6366F1' },
@@ -1837,7 +1796,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 <InlineChartRow label="Psicológica" data={preparationChartData} dataKey="psychological" color="#A855F7" maxVal={100} onCellClick={handleCellClick} section="preparation" />
                 <InlineChartRow label="Teórica" data={preparationChartData} dataKey="theoretical" color="#EC4899" maxVal={100} onCellClick={handleCellClick} section="preparation" />
 
-                {/* CHART 4: Preparación Física por Capacidades */}
+                {/* CHART 3: Preparación Física por Capacidades */}
                 <ChartSectionHeader
                   title="Capacidades Físicas"
                   icon={Heart}
@@ -1846,7 +1805,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                   chartConfig={{
                     title: 'Preparacion Fisica por Capacidades',
                     icon: Heart,
-                    data: physicalChartData,
+                    data: physicalChartDataFull,
                     dataKeys: [
                       { key: 'endurance', name: 'Resistencia', color: '#DC2626' },
                       { key: 'strength', name: 'Fuerza', color: '#EA580C' },
@@ -1864,7 +1823,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 <InlineChartRow label="Coordinación" data={physicalChartData} dataKey="coordination" color="#16A34A" maxVal={100} onCellClick={handleCellClick} section="physical" />
                 <InlineChartRow label="Flexibilidad" data={physicalChartData} dataKey="flexibility" color="#3B82F6" maxVal={100} onCellClick={handleCellClick} section="physical" />
 
-                {/* CHART 5: Duración y Actividad Semanal */}
+                {/* CHART 4: Duración y Actividad Semanal */}
                 <ChartSectionHeader
                   title="Duración y Actividad"
                   icon={Timer}
@@ -1873,7 +1832,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                   chartConfig={{
                     title: 'Duracion y Actividad Semanal',
                     icon: Timer,
-                    data: durationChartData,
+                    data: durationChartDataFull,
                     dataKeys: [
                       { key: 'calentamiento', name: 'Calentamiento', color: '#FBBF24' },
                       { key: 'principal', name: 'Parte principal', color: '#3B82F6' },
@@ -2063,7 +2022,12 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 showControls={true}
                 showLiveIndicator={true}
                 defaultChartType={expandedChart.chartType || 'bar'}
-                defaultTimeRange="sessions"
+                defaultTimeRange={
+                  cycleDuration === 'olympic' ? 'olympic'
+                  : cycleDuration === 'biannual' ? '2years'
+                  : cycleDuration === 'annual' ? '1year'
+                  : 'sessions'
+                }
                 yAxisDomain={expandedChart.yAxisDomain || [0, 100]}
               />
             </div>

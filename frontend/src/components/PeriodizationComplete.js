@@ -68,13 +68,14 @@ const MICROCYCLE_TYPES_ARRAY = [
 ];
 
 const SESSION_TYPES = [
-  { id: 'strength', name: 'Fuerza', color: '#EF4444', bgColor: 'bg-red-100 border-red-300' },
-  { id: 'endurance', name: 'Resistencia', color: '#3B82F6', bgColor: 'bg-blue-100 border-blue-300' },
-  { id: 'speed', name: 'Velocidad', color: '#F59E0B', bgColor: 'bg-yellow-100 border-yellow-300' },
-  { id: 'technical', name: 'Técnica', color: '#10B981', bgColor: 'bg-green-100 border-green-300' },
-  { id: 'tactical', name: 'Táctica', color: '#8B5CF6', bgColor: 'bg-violet-100 border-violet-300' },
-  { id: 'recovery', name: 'Recuperación', color: '#A78BFA', bgColor: 'bg-purple-100 border-purple-300' },
-  { id: 'flexibility', name: 'Flexibilidad', color: '#EC4899', bgColor: 'bg-pink-100 border-pink-300' }
+  // Material Design 3 vivid palette — coincide con la gráfica "Capacidades Físicas"
+  { id: 'strength', name: 'Fuerza', color: '#F44336', bgColor: 'bg-red-100 border-red-300' },         // Material Red 500
+  { id: 'endurance', name: 'Resistencia', color: '#2196F3', bgColor: 'bg-blue-100 border-blue-300' }, // Material Blue 500
+  { id: 'speed', name: 'Velocidad', color: '#FF9800', bgColor: 'bg-orange-100 border-orange-300' },   // Material Orange 500
+  { id: 'technical', name: 'Técnica', color: '#4CAF50', bgColor: 'bg-green-100 border-green-300' },   // Material Green 500
+  { id: 'tactical', name: 'Táctica', color: '#9C27B0', bgColor: 'bg-purple-100 border-purple-300' },  // Material Purple 500
+  { id: 'recovery', name: 'Recuperación', color: '#00BCD4', bgColor: 'bg-cyan-100 border-cyan-300' }, // Material Cyan 500
+  { id: 'flexibility', name: 'Flexibilidad', color: '#E91E63', bgColor: 'bg-pink-100 border-pink-300' } // Material Pink 500
 ];
 
 const CYCLE_DURATIONS = {
@@ -2428,12 +2429,13 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                                   <div className="text-[10px] font-bold text-slate-800 leading-tight truncate" style={{ fontFamily: "'DM Sans',sans-serif" }}>
                                                     {sessionDateStr || dayInfo.name}
                                                   </div>
-                                                  <div className="flex items-center gap-1 mt-0.5">
-                                                    <div className="w-1 h-1 rounded-full" style={{ background: sColor }} />
-                                                    <span className="text-[8.5px] font-semibold truncate leading-none" style={{ color: sColor }}>
-                                                      {sType?.name || 'General'}
-                                                    </span>
-                                                  </div>
+                                                  <span
+                                                    className="inline-flex items-center gap-1 text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider leading-none mt-0.5 truncate max-w-full"
+                                                    style={{ background: `${sColor}1f`, color: sColor }}
+                                                  >
+                                                    <span className="w-1 h-1 rounded-full" style={{ background: sColor }} />
+                                                    {sType?.name || 'General'}
+                                                  </span>
                                                 </div>
                                               </div>
                                               <div className="shrink-0 scale-75 origin-right">
