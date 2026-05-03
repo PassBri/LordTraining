@@ -328,8 +328,8 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
   .cumpl-row td {{ vertical-align: middle; padding: 8pt 6pt; }}
   .cumpl-desc {{ font-size: 8.5pt; color: #64748b; margin-top: 2pt; font-style: italic; line-height: 1.35; }}
   .pct-big {{ font-size: 14pt; font-weight: 900; letter-spacing: -0.02em; }}
-  .radar-row {{ display: grid; grid-template-columns: 270pt 1fr; gap: 12pt; align-items: start; margin-top: 8pt; }}
-  .radar-wrap {{ background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 10pt; padding: 10pt 8pt; color: #fff; }}
+  .radar-row {{ display: block; margin-top: 8pt; }}
+  .radar-wrap {{ background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 10pt; padding: 12pt 8pt; color: #fff; max-width: 360pt; margin: 0 auto 12pt; }}
   .radar-title {{ color: #CCFF00; font-size: 9pt; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; text-align: center; margin-bottom: 4pt; }}
   .radar-legend {{ display: flex; justify-content: center; gap: 10pt; margin-bottom: 4pt; font-size: 7.5pt; color: rgba(255,255,255,0.85); }}
   .leg-item {{ display: inline-flex; align-items: center; gap: 4pt; font-weight: 700; letter-spacing: 0.5px; }}
