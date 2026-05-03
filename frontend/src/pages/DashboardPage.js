@@ -17,7 +17,7 @@ import {
   Building2, Building, GraduationCap, Trophy, Timer, Flame, Gamepad2, Lightbulb, X, Trash2,
   Medal, MapPin, LayoutGrid, GitBranch, Share2, History, Filter, CreditCard, Sparkles,
   AlertTriangle, CheckCircle, TrendingUp, RefreshCw, Clock, Edit, Copy, Printer, Gauge, Wrench,
-  Stethoscope, CalendarDays, ClipboardList, Calculator, UsersRound, ListChecks, PieChart, MessageCircle, Link as LinkIcon, ArrowRight
+  Stethoscope, CalendarDays, ClipboardList, Calculator, UsersRound, ListChecks, PieChart, MessageCircle, Link as LinkIcon, ArrowRight, FileBarChart2
 } from 'lucide-react';
 import { 
   LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, 
@@ -61,6 +61,7 @@ import ControlPanel from '../components/ControlPanel';
 import EntityDashboard from '../components/EntityDashboard';
 import SmartAlerts from '../components/SmartAlerts';
 import PDFExportModal from '../components/PDFExportModal';
+import MasterReportModal from '../components/MasterReportModal';
 import ObjectivesIndicators from '../components/ObjectivesIndicators';
 import TrainingSystemHub from '../components/TrainingSystemHub';
 import TournamentManager from '../components/TournamentManager';
@@ -186,6 +187,7 @@ const DashboardPage = () => {
   
   // PDF Export Modal State
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+  const [isMasterReportOpen, setIsMasterReportOpen] = useState(false);
 
   // Filters Dropdown State
   const [showExportMenu, setShowExportMenu] = useState(false);
@@ -3074,6 +3076,9 @@ const DashboardPage = () => {
               <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-slate-300 hover:bg-slate-50" onClick={handleDownloadObjectivesPDF} disabled={savingEvaluation || !activePlan} data-testid="active-plan-pdf-btn" title="Descargar PDF estilo Whitepaper">
                 <Download className="w-3.5 h-3.5 mr-1.5" />PDF
               </Button>
+              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-[#CCFF00] bg-[#CCFF00]/10 hover:bg-[#CCFF00]/20 text-slate-900 font-semibold" onClick={() => setIsMasterReportOpen(true)} disabled={!activePlan} data-testid="active-plan-master-report-btn" title="Reporte Maestro · 5 estilos · selección de secciones · logo del club">
+                <FileBarChart2 className="w-3.5 h-3.5 mr-1.5" />Reporte Maestro
+              </Button>
               <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-slate-300 hover:bg-slate-50" onClick={handleShareObjectivesLink} disabled={savingEvaluation || !activePlan} data-testid="active-plan-link-btn" title="Copiar enlace público al portapapeles">
                 <LinkIcon className="w-3.5 h-3.5 mr-1.5" />Enlace
               </Button>
@@ -4849,6 +4854,15 @@ const DashboardPage = () => {
         athleteId={selectedAthleteId}
         athleteName={athletes.find(a => a.id === selectedAthleteId)?.name}
         periodizationData={periodizationData}
+      />
+
+      {/* Master Report PDF Modal */}
+      <MasterReportModal
+        open={isMasterReportOpen}
+        onOpenChange={setIsMasterReportOpen}
+        plan={activePlan}
+        athleteName={athletes.find(a => a.id === selectedAthleteId)?.name || ''}
+        coachName={user?.full_name || user?.name || ''}
       />
     </div>
   );
