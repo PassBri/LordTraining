@@ -8,7 +8,38 @@
 - DB: MongoDB (11 colecciones V2 + plan_previous_analysis_ai_cache + plan_evaluations_v2 + evaluation_templates + plan_evaluations_shares)
 
 
-### Reporte PDF Maestro · T6+T7 (May 2026)
+### Reporte PDF Maestro · 8 estilos premium + diseño rico (May 2026)
+
+**Reescritura completa de `_build_html`** en `/app/backend/routes/master_report.py` siguiendo el patrón visual del Whitepaper PDI (Plan Anterior). Resultado: PDFs 200-650KB con cover hero gradient, KPI cards, badges pill, tablas con header oscuro, footer iTRAIN.
+
+**8 estilos disponibles** (renombrados/agregados según pedido del usuario):
+- `olimpico` (antes APA) — azul medianoche `#0B1438` + dorado `#D4AF37`. Tipografía Playfair Display itálica clásica.
+- `atleta` (antes Michigan) — carbón `#0F172A` + lima neón `#CCFF00`. Inter sans-serif. Datos crudos.
+- `sport` — Bebas Neue + magazine deportivo dark. Cyan/Naranja.
+- `training` — Inter limpio + verde clínico `#16A34A`.
+- `coach` — Roboto Slab + violeta/ámbar manual.
+- `federation` — institucional carbón + lima.
+- `campeon` (NUEVO) — Bebas Neue masivo + dorado brillante `#FFD700` sobre negro. Esencia trofeo/victoria.
+- `primer-lugar` (NUEVO) — Oswald + plata/oro premium `#C9B037`. Ranking podio editorial.
+
+**Mejoras visuales del PDF (para todos los estilos):**
+- Cover hero ocupa 70vh con gradient propio del estilo + radial accent + márgenes negativos full-bleed.
+- Badge pill con accent color, título 44pt font-weight 900, subtítulo, KPIs del plan en 3 cols (deporte/duración/modelo).
+- Cover-meta inferior con Atleta/Entrenador/Fecha/Estilo separados por borde-left con accent.
+- TOC numerada con bullets cuadrados accent y dots elegantes.
+- Sections con badge pill + h2 subrayado con accent 3pt + count secundario.
+- KPI cards con border-left accent 4pt, eyebrow uppercase, value 22pt 900.
+- Tablas premium: header background primary + texto accent letterspacing, filas alternadas, border-radius.
+- Bloques de evaluación con cumplimiento global coloreado (verde≥80%, ámbar≥50%, rojo<50%).
+- Callouts con primary background + accent strong.
+- Footer con icon iTRAIN + "Generado por <strong>iTRAIN</strong>" + fecha.
+- Google Fonts inyectados (Inter, Bebas Neue, Oswald, Roboto Slab, Playfair Display, Russo One).
+
+**Frontend `MasterReportModal.js`**: actualizado el mapping `STYLE_ICONS` con los 8 nuevos ids (olimpico→Medal, atleta→Activity, sport→Activity, training→FileBarChart2, coach→Notebook, federation→Crown, campeon→Trophy, primer-lugar→Award). Default style cambiado a `atleta`.
+
+**Validación**: 8/8 PDFs generados (200-650KB). Análisis visual con `analyze_file_tool`: estilo `olimpico` confirmó portada gradient azul + dorado, badge dorado, Playfair itálica, KPI cards con borde dorado, TOC numerada, tablas con header oscuro/texto dorado, footer iTRAIN. Estilo `campeon` confirmó portada negra + dorado, Bebas Neue masivo, KPI cards crema + borde dorado, tablas negro/oro.
+
+
 
 **Backend** `/app/backend/routes/master_report.py` (~480 líneas, registrado en `server.py` con prefix `/api`):
 - 5 estilos visuales (`STYLES` dict): **APA** (académico Times serif), **Michigan** (universitario azul/dorado), **Sport** (magazine deportivo dark Bebas Neue), **Training** (clínico Inter verde) y **Coach** (manual Roboto Slab violeta).

@@ -7,18 +7,21 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
 import {
-  FileBarChart2, GraduationCap, Building2, Sparkles, Notebook, Activity,
-  Image as ImageIcon, X, Download, Loader2,
+  FileBarChart2, Sparkles, Notebook, Activity,
+  Image as ImageIcon, X, Download, Loader2, Crown, Trophy, Award, Medal,
 } from 'lucide-react';
 
 const API = process.env.REACT_APP_BACKEND_URL;
 
 const STYLE_ICONS = {
-  apa: GraduationCap,
-  michigan: Building2,
+  olimpico: Medal,
+  atleta: Activity,
   sport: Activity,
   training: FileBarChart2,
   coach: Notebook,
+  federation: Crown,
+  campeon: Trophy,
+  'primer-lugar': Award,
 };
 
 // Default sections preselected when modal opens
@@ -32,7 +35,7 @@ const DEFAULT_SELECTION = {
 export default function MasterReportModal({ open, onOpenChange, plan, athleteName, coachName }) {
   const [styles, setStyles] = useState([]);
   const [groups, setGroups] = useState([]);
-  const [styleId, setStyleId] = useState('training');
+  const [styleId, setStyleId] = useState('atleta');
   const [sections, setSections] = useState({ ...DEFAULT_SELECTION });
   const [orgName, setOrgName] = useState('');
   const [orgLogoB64, setOrgLogoB64] = useState('');
