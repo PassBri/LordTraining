@@ -1556,3 +1556,53 @@ async def generate_master_report(payload: MasterReportPayload, user=Depends(get_
     fname = f"reporte_{(payload.title or 'plan').replace(' ', '_').lower()}_{payload.style}.pdf"
     return Response(content=pdf, media_type="application/pdf",
                     headers={"Content-Disposition": f'attachment; filename="{fname}"'})
+
+
+# ============= SHARE / PUBLIC DOWNLOAD =============
+
+@router.post("/share")
+async def create_master_report_share(payload: MasterReportPayload, user=Depends(get_current_user_dep())):
+    """Persiste el payload del reporte y devuelve share_id (PDF descargable sin auth durante 30 días)."""
+    import secrets as _secrets
+    from datetime import timedelta as _td
+    uid = user.get("id") or user.get("user_id")
+    if not payload.plan_id:
+        raise HTTPException(400, "plan_id es requerido para compartir")
+    plan = await _fetch_plan(payload.plan_id, uid)
+    if not plan:
+        raise HTTPException(404, "Plan no encontrado")
+    share_id = f"MRP-{_secrets.token_hex(4)}"
+    doc = {
+        "share_id": share_id,
+        "owner_uid": uid,
+        "plan_id": payload.plan_id,
+        "payload": payload.model_dump() if hasattr(payload, 'model_dump') else payload.dict(),
+        "created_at": datetime.now(timezone.utc),
+        "expires_at": datetime.now(timezone.utc) + _td(days=30),
+    }
+    await _db.master_report_shares.insert_one(doc)
+    return {"share_id": share_id, "expires_in_days": 30}
+
+
+@router.get("/shared/{share_id}/pdf")
+async def download_shared_master_report(share_id: str):
+    """Descarga pública (sin auth) del PDF compartido."""
+    doc = await _db.master_report_shares.find_one({"share_id": share_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Reporte compartido no encontrado")
+    expires_at = doc.get("expires_at")
+    if expires_at:
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        if expires_at < datetime.now(timezone.utc):
+            raise HTTPException(410, "El enlace ha expirado")
+    payload_dict = doc.get("payload") or {}
+    payload = MasterReportPayload(**payload_dict)
+    html = await _build_html(payload, doc.get("owner_uid"))
+    try:
+        pdf = await _render_pdf(html)
+    except Exception as e:
+        raise HTTPException(500, f"Error generando PDF: {e}")
+    fname = f"reporte_{(payload.title or 'plan').replace(' ', '_').lower()}_{payload.style}.pdf"
+    return Response(content=pdf, media_type="application/pdf",
+                    headers={"Content-Disposition": f'attachment; filename="{fname}"'})

@@ -9,7 +9,7 @@ import { Checkbox } from './ui/checkbox';
 import {
   FileBarChart2, Sparkles, Notebook, Activity,
   Image as ImageIcon, X, Download, Loader2, Crown, Trophy, Award, Medal, Eye,
-  GripVertical, Zap,
+  GripVertical, Zap, Link as LinkIcon, MessageCircle,
 } from 'lucide-react';
 
 const API = process.env.REACT_APP_BACKEND_URL;
@@ -250,8 +250,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
       return;
     }
     setGenerating(true);
-    try {
-      const token = localStorage.getItem('train_token') || localStorage.getItem('token');
+    try {      const token = localStorage.getItem('train_token') || localStorage.getItem('token');
       const res = await axios.post(`${API}/api/master-report/generate`, buildPayload(), {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob',
@@ -284,6 +283,36 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
   };
 
   const totalSelected = Object.values(sections).filter(Boolean).length;
+
+  // ---- Share / WhatsApp ----
+  const [sharing, setSharing] = useState(false);
+  const handleShare = async (target /* 'link' | 'whatsapp' */) => {
+    if (!Object.values(sections).some(Boolean)) {
+      toast.error('Selecciona al menos una sección');
+      return;
+    }
+    setSharing(true);
+    try {
+      const token = localStorage.getItem('train_token') || localStorage.getItem('token');
+      const res = await axios.post(`${API}/api/master-report/share`, buildPayload(), {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const shareId = res.data.share_id;
+      const url = `${API}/api/master-report/shared/${shareId}/pdf`;
+      if (target === 'whatsapp') {
+        const msg = `📊 Reporte Maestro · ${plan?.name || 'Plan'}\n\nDescargar PDF: ${url}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+        toast.success('Abriendo WhatsApp…');
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success('Enlace copiado al portapapeles', { description: url });
+      }
+    } catch (err) {
+      toast.error('Error al crear enlace: ' + (err?.response?.data?.detail || err?.message || ''));
+    } finally {
+      setSharing(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -743,53 +772,83 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
           )}
         </div>
 
-        {/* FOOTER */}
-        <div className="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between gap-3">
-          <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            Plan: <strong className="text-slate-800">{plan?.name || '—'}</strong>
-            <span className="text-slate-400">·</span>
-            <span className="font-semibold text-slate-700">{styles.find(s => s.id === styleId)?.name || styleId}</span>
+        {/* FOOTER (2 filas: status + acciones) */}
+        <div className="border-t border-slate-200 bg-white shrink-0">
+          <div className="px-6 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-3 flex-wrap">
+            <div className="text-[11px] text-slate-500 flex items-center gap-1.5 flex-wrap">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+              <span>Plan: <strong className="text-slate-800">{plan?.name || '—'}</strong></span>
+              <span className="text-slate-300">·</span>
+              <span>Estilo: <strong className="text-slate-700">{styles.find(s => s.id === styleId)?.name || styleId}</strong></span>
+              <span className="text-slate-300">·</span>
+              <span><strong className="text-slate-900">{totalSelected}</strong> secciones</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="px-6 py-3 flex items-center justify-between gap-3 flex-wrap">
             <Button
-              variant="outline" size="sm"
+              variant="ghost"
               onClick={() => onOpenChange(false)}
-              disabled={generating}
-              className="h-9 text-xs"
+              disabled={generating || sharing}
+              className="text-slate-600 hover:text-slate-900"
               data-testid="mr-cancel-btn">
-              Cancelar
+              <X className="w-4 h-4 mr-1" /> Cancelar
             </Button>
-            <Button
-              variant="outline" size="sm"
-              onClick={handleSummaryDownload}
-              disabled={generating || previewing}
-              className="h-9 text-xs border-amber-300 text-amber-700 hover:bg-amber-50"
-              data-testid="mr-summary-btn"
-              title="Descargar resumen ejecutivo (portada + diagnóstico + estructura + conclusiones)">
-              <Sparkles className="w-3.5 h-3.5 mr-1.5" />Resumen
-            </Button>
-            <Button
-              variant="outline" size="sm"
-              onClick={handlePreview}
-              disabled={generating || previewing}
-              className="h-9 text-xs"
-              data-testid="mr-quick-preview-btn">
-              {previewing ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Eye className="w-3.5 h-3.5 mr-1.5" />}
-              Vista previa
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleGenerate}
-              disabled={generating}
-              className="h-9 text-xs bg-slate-900 hover:bg-slate-800 text-[#CCFF00] font-bold px-4"
-              data-testid="mr-generate-btn">
-              {generating ? (
-                <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generando…</>
-              ) : (
-                <><Download className="w-3.5 h-3.5 mr-1.5" />Generar PDF</>
-              )}
-            </Button>
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Share group */}
+              <Button
+                variant="outline" size="sm"
+                onClick={() => handleShare('link')}
+                disabled={generating || previewing || sharing}
+                data-testid="mr-share-link-btn"
+                className="h-9 border-sky-300 text-sky-700 hover:bg-sky-50"
+                title="Copiar enlace público del reporte">
+                {sharing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <LinkIcon className="w-3.5 h-3.5" />}
+                <span className="ml-1.5 hidden sm:inline">Enlace</span>
+              </Button>
+              <Button
+                variant="outline" size="sm"
+                onClick={() => handleShare('whatsapp')}
+                disabled={generating || previewing || sharing}
+                data-testid="mr-share-whatsapp-btn"
+                className="h-9 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                title="Compartir por WhatsApp">
+                <MessageCircle className="w-3.5 h-3.5" />
+                <span className="ml-1.5 hidden sm:inline">WhatsApp</span>
+              </Button>
+              {/* Divider */}
+              <div className="w-px h-6 bg-slate-300 mx-1" />
+              {/* Action group */}
+              <Button
+                variant="outline" size="sm"
+                onClick={handleSummaryDownload}
+                disabled={generating || previewing}
+                className="h-9 text-xs border-amber-300 text-amber-700 hover:bg-amber-50"
+                data-testid="mr-summary-btn"
+                title="Descargar resumen ejecutivo">
+                <Sparkles className="w-3.5 h-3.5 mr-1.5" />Resumen
+              </Button>
+              <Button
+                variant="outline" size="sm"
+                onClick={handlePreview}
+                disabled={generating || previewing}
+                className="h-9 text-xs"
+                data-testid="mr-quick-preview-btn">
+                {previewing ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Eye className="w-3.5 h-3.5 mr-1.5" />}
+                Vista previa
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleGenerate}
+                disabled={generating}
+                className="h-9 text-xs bg-slate-900 hover:bg-slate-800 text-[#CCFF00] font-bold px-4"
+                data-testid="mr-generate-btn">
+                {generating ? (
+                  <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generando…</>
+                ) : (
+                  <><Download className="w-3.5 h-3.5 mr-1.5" />Generar PDF</>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>

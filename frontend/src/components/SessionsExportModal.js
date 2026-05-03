@@ -5,8 +5,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
 import {
-  CalendarDays, FileText, Files, Archive, Loader2, X, CheckSquare, Square,
-  Calendar, Clock, Activity, ListChecks,
+  CalendarDays, Files, Archive, Loader2, X, CheckSquare, Square,
+  Calendar, Clock, Activity, ListChecks, Sun, Moon, LayoutGrid, FileText,
+  Link as LinkIcon, MessageCircle, Check, Dumbbell, Target, Flame, Hash,
 } from 'lucide-react';
 
 const API = process.env.REACT_APP_BACKEND_URL;
@@ -20,6 +21,17 @@ const PHASE_COLORS = {
   'AC - Meso 1': '#10b981',
   'CE - Meso 1': '#3b82f6',
   'RE - Meso 1': '#ef4444',
+};
+
+const SESSION_TYPE_COLORS = {
+  fuerza: { bg: 'bg-red-50', text: 'text-red-700', icon: Dumbbell },
+  resistencia: { bg: 'bg-blue-50', text: 'text-blue-700', icon: Activity },
+  velocidad: { bg: 'bg-amber-50', text: 'text-amber-700', icon: Flame },
+  tecnica: { bg: 'bg-purple-50', text: 'text-purple-700', icon: Target },
+  tactica: { bg: 'bg-violet-50', text: 'text-violet-700', icon: Target },
+  recuperacion: { bg: 'bg-emerald-50', text: 'text-emerald-700', icon: Activity },
+  recuperación: { bg: 'bg-emerald-50', text: 'text-emerald-700', icon: Activity },
+  general: { bg: 'bg-slate-100', text: 'text-slate-700', icon: Activity },
 };
 
 function downloadBlob(blob, filename) {
@@ -37,7 +49,10 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
   const [tree, setTree] = useState({ items: [], total_sessions: 0 });
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(new Set());
-  const [exporting, setExporting] = useState(null); // null | 'combined' | 'zip'
+  const [exporting, setExporting] = useState(null);          // null | 'combined' | 'zip'
+  const [theme, setTheme] = useState('light');               // 'light' | 'dark'
+  const [layout, setLayout] = useState('classic');           // 'classic' | 'hero'
+  const [sharing, setSharing] = useState(false);
 
   useEffect(() => {
     if (!open || !plan?.id) return;
@@ -94,6 +109,14 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
   const selectAll = () => setSelected(new Set(allSessionIds));
   const clearAll = () => setSelected(new Set());
 
+  const buildPayload = () => ({
+    plan_id: plan.id,
+    session_ids: Array.from(selected),
+    athlete_name: athleteName || 'Atleta',
+    theme,
+    layout,
+  });
+
   const handleExport = async (format) => {
     if (selected.size === 0) {
       toast.warning('Debes seleccionar al menos una sesión');
@@ -104,12 +127,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
       const token = localStorage.getItem('train_token') || localStorage.getItem('token');
       const res = await axios.post(
         `${API}/api/sessions-export/generate`,
-        {
-          plan_id: plan.id,
-          session_ids: Array.from(selected),
-          format,
-          athlete_name: athleteName || 'Atleta',
-        },
+        { ...buildPayload(), format },
         {
           headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
           responseType: 'blob',
@@ -117,7 +135,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
       );
       const ext = format === 'zip' ? 'zip' : 'pdf';
       const planSlug = (plan?.name || 'plan').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-');
-      downloadBlob(res.data, `sesiones_${planSlug}.${ext}`);
+      downloadBlob(res.data, `sesiones_${planSlug}_${theme}_${layout}.${ext}`);
       toast.success(format === 'zip'
         ? `ZIP descargado · ${selected.size} sesion${selected.size !== 1 ? 'es' : ''}`
         : `PDF combinado descargado · ${selected.size} sesion${selected.size !== 1 ? 'es' : ''}`);
@@ -128,18 +146,50 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
     }
   };
 
+  const handleShare = async (target /* 'link' | 'whatsapp' */) => {
+    if (selected.size === 0) {
+      toast.warning('Debes seleccionar al menos una sesión');
+      return;
+    }
+    setSharing(true);
+    try {
+      const token = localStorage.getItem('train_token') || localStorage.getItem('token');
+      const res = await axios.post(
+        `${API}/api/sessions-export/share`,
+        buildPayload(),
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const shareId = res.data.share_id;
+      const url = `${window.location.origin}/sessions-bundle/${shareId}`;
+      if (target === 'whatsapp') {
+        const msg = `📋 ${plan?.name || 'Plan'} · ${selected.size} sesión${selected.size !== 1 ? 'es' : ''} de entrenamiento\n\n${url}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+        toast.success('Abriendo WhatsApp…');
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success('Enlace copiado al portapapeles', { description: url });
+      }
+    } catch (err) {
+      toast.error('Error al crear enlace: ' + (err.response?.data?.detail || err.message));
+    } finally {
+      setSharing(false);
+    }
+  };
+
   const totalSelected = selected.size;
   const totalAvailable = tree.total_sessions || 0;
+
+  const formatLabel = layout === 'hero' ? 'Hero · pizarras protagonistas' : 'Clásico · ReportLab';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-w-5xl max-h-[92vh] overflow-hidden p-0 bg-white"
+        className="max-w-6xl max-h-[94vh] overflow-hidden p-0 bg-white flex flex-col"
         data-testid="sessions-export-modal"
       >
         {/* Header */}
-        <DialogHeader className="px-6 py-4 border-b border-slate-200 bg-gradient-to-br from-slate-900 to-slate-800">
-          <div className="flex items-center justify-between gap-4">
+        <DialogHeader className="px-6 py-4 border-b border-slate-200 bg-gradient-to-br from-slate-900 to-slate-800 shrink-0">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-xl bg-[#CCFF00]/15 border border-[#CCFF00]/40 flex items-center justify-center">
                 <CalendarDays className="w-6 h-6 text-[#CCFF00]" strokeWidth={2.2} />
@@ -153,34 +203,76 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                 </DialogDescription>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span
-                className="px-3 py-1.5 rounded-full bg-[#CCFF00] text-slate-900 text-xs font-bold tracking-wide"
-                data-testid="sessions-export-counter"
-              >
-                {totalSelected} de {totalAvailable} seleccionadas
-              </span>
-            </div>
+            <span
+              className="px-3.5 py-1.5 rounded-full bg-[#CCFF00] text-slate-900 text-xs font-bold tracking-wide shadow-lg shadow-[#CCFF00]/30"
+              data-testid="sessions-export-counter"
+            >
+              {totalSelected} de {totalAvailable} seleccionadas
+            </span>
           </div>
         </DialogHeader>
 
-        {/* Toolbar */}
-        <div className="px-6 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-2">
+        {/* Toolbar — theme + layout + select-all */}
+        <div className="px-6 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between gap-3 flex-wrap shrink-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Tema */}
+            <div className="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden shadow-sm">
+              <span className="px-2.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Tema</span>
+              <button
+                onClick={() => setTheme('light')}
+                data-testid="sessions-export-theme-light"
+                className={`px-3 h-8 text-xs font-semibold transition flex items-center gap-1.5 ${
+                  theme === 'light' ? 'bg-amber-100 text-amber-900 border-l border-amber-200' : 'text-slate-500 hover:bg-slate-50 border-l border-slate-200'
+                }`}
+              >
+                <Sun className="w-3.5 h-3.5" /> Claro
+              </button>
+              <button
+                onClick={() => setTheme('dark')}
+                data-testid="sessions-export-theme-dark"
+                className={`px-3 h-8 text-xs font-semibold transition flex items-center gap-1.5 ${
+                  theme === 'dark' ? 'bg-slate-900 text-[#CCFF00]' : 'text-slate-500 hover:bg-slate-50 border-l border-slate-200'
+                }`}
+              >
+                <Moon className="w-3.5 h-3.5" /> Oscuro
+              </button>
+            </div>
+
+            {/* Layout */}
+            <div className="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden shadow-sm">
+              <span className="px-2.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Layout</span>
+              <button
+                onClick={() => setLayout('classic')}
+                data-testid="sessions-export-layout-classic"
+                className={`px-3 h-8 text-xs font-semibold transition flex items-center gap-1.5 ${
+                  layout === 'classic' ? 'bg-blue-100 text-blue-900 border-l border-blue-200' : 'text-slate-500 hover:bg-slate-50 border-l border-slate-200'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5" /> Clásico
+              </button>
+              <button
+                onClick={() => setLayout('hero')}
+                data-testid="sessions-export-layout-hero"
+                className={`px-3 h-8 text-xs font-semibold transition flex items-center gap-1.5 ${
+                  layout === 'hero' ? 'bg-emerald-100 text-emerald-900 border-l border-emerald-200' : 'text-slate-500 hover:bg-slate-50 border-l border-slate-200'
+                }`}
+              >
+                <LayoutGrid className="w-3.5 h-3.5" /> Pizarras
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5">
             <Button
-              size="sm"
-              variant="outline"
-              onClick={selectAll}
+              size="sm" variant="outline" onClick={selectAll}
               disabled={loading || allSessionIds.length === 0}
               data-testid="sessions-export-select-all"
               className="h-8 text-xs"
             >
-              <CheckSquare className="w-3.5 h-3.5 mr-1.5" /> Seleccionar todas
+              <CheckSquare className="w-3.5 h-3.5 mr-1.5" /> Todas
             </Button>
             <Button
-              size="sm"
-              variant="outline"
-              onClick={clearAll}
+              size="sm" variant="outline" onClick={clearAll}
               disabled={loading || totalSelected === 0}
               data-testid="sessions-export-clear-all"
               className="h-8 text-xs"
@@ -188,14 +280,10 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
               <Square className="w-3.5 h-3.5 mr-1.5" /> Limpiar
             </Button>
           </div>
-          <div className="text-xs text-slate-500 flex items-center gap-2">
-            <ListChecks className="w-3.5 h-3.5" />
-            Formato: PDF clásico de sesión (ReportLab)
-          </div>
         </div>
 
         {/* Body */}
-        <div className="px-6 py-4 overflow-y-auto max-h-[calc(92vh-260px)]">
+        <div className="px-6 py-4 overflow-y-auto flex-1">
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
@@ -225,7 +313,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                     >
                       <div className="flex items-center gap-3">
                         <div
-                          className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-sm"
+                          className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-sm"
                           style={{ backgroundColor: mesoColor }}
                         >
                           M{mi + 1}
@@ -239,13 +327,20 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                           )}
                         </div>
                       </div>
-                      <button
-                        onClick={() => toggleMeso(meso)}
-                        className="text-xs font-semibold px-3 py-1.5 rounded-md border border-slate-300 hover:bg-slate-100 text-slate-700"
-                        data-testid={`sessions-export-toggle-meso-${meso.meso_id || mi}`}
-                      >
-                        {mesoSelectedCount === mesoIds.length ? 'Quitar todo' : `Marcar todo (${mesoIds.length})`}
-                      </button>
+                      <div className="flex items-center gap-2">
+                        {mesoSelectedCount > 0 && (
+                          <span className="text-[10px] px-2 py-1 rounded-full bg-[#CCFF00] text-slate-900 font-bold">
+                            {mesoSelectedCount}/{mesoIds.length}
+                          </span>
+                        )}
+                        <button
+                          onClick={() => toggleMeso(meso)}
+                          className="text-xs font-semibold px-3 py-1.5 rounded-md border border-slate-300 hover:bg-slate-100 text-slate-700 bg-white"
+                          data-testid={`sessions-export-toggle-meso-${meso.meso_id || mi}`}
+                        >
+                          {mesoSelectedCount === mesoIds.length ? 'Quitar todo' : `Marcar todo (${mesoIds.length})`}
+                        </button>
+                      </div>
                     </div>
 
                     <div className="p-3 space-y-3">
@@ -270,58 +365,84 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                                     SEMANA {mc.week_number}
                                   </span>
                                 )}
+                                {microSelectedCount > 0 && (
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#CCFF00] text-slate-900 font-bold">
+                                    {microSelectedCount}/{microIds.length}
+                                  </span>
+                                )}
                               </div>
                               <button
                                 onClick={() => toggleMicro(mc.sessions)}
-                                className="text-[11px] font-semibold text-slate-600 hover:text-slate-900"
+                                className="text-[11px] font-semibold text-slate-600 hover:text-slate-900 px-2 py-0.5 rounded hover:bg-white"
                                 data-testid={`sessions-export-toggle-micro-${mc.micro_id || `${mi}-${mci}`}`}
                               >
                                 {microSelectedCount === microIds.length ? 'Quitar' : `Todas (${microIds.length})`}
                               </button>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 p-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5 p-3">
                               {mc.sessions.map((s) => {
                                 const checked = selected.has(s.id);
+                                const stype = (s.session_type || 'general').toLowerCase();
+                                const tcfg = SESSION_TYPE_COLORS[stype] || SESSION_TYPE_COLORS.general;
+                                const TIcon = tcfg.icon;
                                 return (
                                   <label
                                     key={s.id}
                                     className={`group cursor-pointer relative flex items-start gap-2.5 p-3 rounded-lg border-2 transition-all ${
                                       checked
-                                        ? 'border-[#CCFF00] bg-[#CCFF00]/8 shadow-sm'
-                                        : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                                        ? 'border-[#CCFF00] bg-gradient-to-br from-[#CCFF00]/20 to-[#CCFF00]/5 shadow-md ring-2 ring-[#CCFF00]/40 scale-[1.015]'
+                                        : 'border-slate-200 bg-white hover:border-slate-400 hover:bg-slate-50 hover:shadow-sm'
                                     }`}
                                     data-testid={`sessions-export-card-${s.id}`}
                                   >
+                                    {checked && (
+                                      <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#CCFF00] border-2 border-white flex items-center justify-center shadow-md">
+                                        <Check className="w-3.5 h-3.5 text-slate-900" strokeWidth={3} />
+                                      </div>
+                                    )}
                                     <Checkbox
                                       checked={checked}
                                       onCheckedChange={() => toggleSession(s.id)}
-                                      className="mt-0.5"
+                                      className="mt-0.5 data-[state=checked]:bg-slate-900 data-[state=checked]:border-slate-900"
                                       data-testid={`sessions-export-checkbox-${s.id}`}
                                     />
                                     <div className="flex-1 min-w-0">
-                                      <div className="font-semibold text-sm text-slate-900 truncate">
-                                        {s.name || 'Sesión'}
+                                      <div className="flex items-center gap-1.5">
+                                        <TIcon className={`w-3.5 h-3.5 ${tcfg.text} shrink-0`} />
+                                        <div className={`font-bold text-sm truncate ${checked ? 'text-slate-900' : 'text-slate-800'}`}>
+                                          {s.name || 'Sesión'}
+                                        </div>
                                       </div>
-                                      <div className="flex items-center flex-wrap gap-1.5 mt-1">
+                                      {s.date && (
+                                        <div className="text-[10px] text-slate-500 mt-0.5 font-medium">
+                                          {new Date(s.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
+                                        </div>
+                                      )}
+                                      <div className="flex items-center flex-wrap gap-1 mt-1.5">
                                         {s.day && (
-                                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-medium">
-                                            Día {s.day}
+                                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold flex items-center gap-0.5">
+                                            <Hash className="w-2.5 h-2.5" />Día {s.day}
                                           </span>
                                         )}
                                         {s.session_type && (
-                                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">
+                                          <span className={`text-[10px] px-1.5 py-0.5 rounded font-semibold ${tcfg.bg} ${tcfg.text}`}>
                                             {s.session_type}
                                           </span>
                                         )}
                                         {s.duration_minutes && (
-                                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-medium flex items-center gap-1">
-                                            <Clock className="w-2.5 h-2.5" /> {s.duration_minutes}min
+                                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-semibold flex items-center gap-0.5">
+                                            <Clock className="w-2.5 h-2.5" />{s.duration_minutes}min
                                           </span>
                                         )}
                                         {s.exercises_count > 0 && (
-                                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-medium flex items-center gap-1">
-                                            <Activity className="w-2.5 h-2.5" /> {s.exercises_count} ej.
+                                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold flex items-center gap-0.5">
+                                            <Activity className="w-2.5 h-2.5" />{s.exercises_count} ej.
+                                          </span>
+                                        )}
+                                        {s.intensity != null && s.intensity !== '' && (
+                                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 font-semibold flex items-center gap-0.5">
+                                            <Flame className="w-2.5 h-2.5" />{s.intensity}%
                                           </span>
                                         )}
                                       </div>
@@ -341,51 +462,91 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
           )}
         </div>
 
-        {/* Footer */}
-        <div className="px-6 py-4 border-t border-slate-200 bg-white flex items-center justify-between gap-3 flex-wrap">
-          <div className="text-xs text-slate-600">
-            {totalSelected > 0 ? (
-              <span className="font-semibold text-slate-900">
-                {totalSelected} sesión{totalSelected !== 1 ? 'es' : ''} seleccionada{totalSelected !== 1 ? 's' : ''}
+        {/* Footer reorganizado en 2 filas: status + acciones agrupadas */}
+        <div className="border-t border-slate-200 bg-white shrink-0">
+          {/* Status row */}
+          <div className="px-6 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-3 flex-wrap text-[11px]">
+            <div className="flex items-center gap-3 text-slate-600">
+              <span className="flex items-center gap-1">
+                <ListChecks className="w-3.5 h-3.5" />
+                <strong className="text-slate-900">{totalSelected}</strong> sesión{totalSelected !== 1 ? 'es' : ''}
               </span>
-            ) : (
-              <span className="text-slate-400 italic">
-                Marca las sesiones que quieres imprimir
-              </span>
-            )}
+              <span className="text-slate-300">·</span>
+              <span>Formato: <strong className="text-slate-700">{formatLabel}</strong></span>
+              <span className="text-slate-300">·</span>
+              <span>Tema: <strong className={theme === 'dark' ? 'text-slate-700' : 'text-amber-700'}>{theme === 'dark' ? 'Oscuro' : 'Claro'}</strong></span>
+            </div>
+            <div className="text-slate-400 italic">
+              {totalSelected === 0 && 'Marca las sesiones que quieres imprimir'}
+            </div>
           </div>
-          <div className="flex items-center gap-2">
+          {/* Actions row */}
+          <div className="px-6 py-3 flex items-center justify-between gap-3 flex-wrap">
             <Button
-              variant="outline"
+              variant="ghost"
               onClick={() => onOpenChange(false)}
-              disabled={!!exporting}
+              disabled={!!exporting || sharing}
               data-testid="sessions-export-cancel-btn"
+              className="text-slate-600 hover:text-slate-900"
             >
               <X className="w-4 h-4 mr-1" /> Cancelar
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => handleExport('zip')}
-              disabled={!!exporting || totalSelected === 0}
-              data-testid="sessions-export-zip-btn"
-              className="border-slate-300"
-            >
-              {exporting === 'zip'
-                ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
-                : <Archive className="w-4 h-4 mr-1.5" />}
-              ZIP individual
-            </Button>
-            <Button
-              onClick={() => handleExport('combined')}
-              disabled={!!exporting || totalSelected === 0}
-              data-testid="sessions-export-combined-btn"
-              className="bg-slate-900 hover:bg-slate-800 text-white"
-            >
-              {exporting === 'combined'
-                ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
-                : <Files className="w-4 h-4 mr-1.5" />}
-              PDF combinado
-            </Button>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Share group */}
+              <div className="flex items-center gap-1 mr-2">
+                <Button
+                  variant="outline" size="sm"
+                  onClick={() => handleShare('link')}
+                  disabled={!!exporting || sharing || totalSelected === 0}
+                  data-testid="sessions-export-link-btn"
+                  className="h-9 border-sky-300 text-sky-700 hover:bg-sky-50"
+                  title="Copiar enlace de compartir"
+                >
+                  {sharing
+                    ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    : <LinkIcon className="w-3.5 h-3.5" />}
+                  <span className="ml-1.5 hidden sm:inline">Enlace</span>
+                </Button>
+                <Button
+                  variant="outline" size="sm"
+                  onClick={() => handleShare('whatsapp')}
+                  disabled={!!exporting || sharing || totalSelected === 0}
+                  data-testid="sessions-export-whatsapp-btn"
+                  className="h-9 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                  title="Compartir por WhatsApp"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  <span className="ml-1.5 hidden sm:inline">WhatsApp</span>
+                </Button>
+              </div>
+
+              {/* Download group */}
+              <Button
+                variant="outline" size="sm"
+                onClick={() => handleExport('zip')}
+                disabled={!!exporting || sharing || totalSelected === 0}
+                data-testid="sessions-export-zip-btn"
+                className="h-9 border-slate-300"
+              >
+                {exporting === 'zip'
+                  ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                  : <Archive className="w-3.5 h-3.5 mr-1.5" />}
+                ZIP
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => handleExport('combined')}
+                disabled={!!exporting || sharing || totalSelected === 0}
+                data-testid="sessions-export-combined-btn"
+                className="h-9 bg-slate-900 hover:bg-slate-800 text-[#CCFF00] font-bold px-4"
+              >
+                {exporting === 'combined'
+                  ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                  : <Files className="w-3.5 h-3.5 mr-1.5" />}
+                PDF combinado
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>
