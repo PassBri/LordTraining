@@ -101,15 +101,17 @@ const InteractiveChart = ({
     return data.slice(0, maxWeeks);
   }, [data, timeRange]);
 
-  // Resetear brush range cuando cambian los datos
+  // Resetear brush range cuando cambian los datos:
+  // muestra TODO el rango filtrado (no capado a 11) para que al cambiar a 4A/2A/1A
+  // el brush abarque la totalidad y el usuario pueda navegar con el slider inferior.
   React.useEffect(() => {
     if (filteredData.length > 0) {
-      setBrushRange({ 
-        startIndex: 0, 
-        endIndex: Math.min(filteredData.length - 1, 11) 
+      setBrushRange({
+        startIndex: 0,
+        endIndex: filteredData.length - 1,
       });
     }
-  }, [filteredData.length]);
+  }, [filteredData.length, timeRange]);
 
   // Manejar cambio de brush
   const handleBrushChange = useCallback((newRange) => {

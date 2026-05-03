@@ -367,6 +367,33 @@ Las imágenes fuente `/app/frontend/public/brand/itrain-full-pdf.png` (623x240) 
 - **Validación visual con `analyze_file_tool`**: confirmado 100% que el logo del hero y del footer se ven completos, todas las letras (i, T, R, A, I, N) visibles, proporciones correctas, padding adecuado, sin recortes.
 
 
+### Restauración Magnitud de Carga + Panel "Carga" + Expanded Chart full-screen (Feb 2026)
+
+Tres bugs/peticiones del usuario resueltos en una iteración:
+
+**1. Restaurada fila "Magnitud de Carga y Recuperación"** en Plan Gráfico (`GraphicPlan.js`):
+- El usuario pidió REVERTIR la remoción del request anterior. Vuelven a aparecer los rows "Carga %" y "Recuperación %" con sus celdas y el ChartSectionHeader expandible.
+- Ahora usa `loadChartDataFull` para que al expandir muestre las 52 semanas (no 12).
+
+**2. Nuevo componente Panel "Carga"** (`/app/frontend/src/components/LoadPanel.js`, ~270 líneas):
+- Renderizado cuando `activeDataSection === 'period-load'` en DashboardPage. Antes el tab "Carga" del sidebar quedaba vacío.
+- Computa métricas en tiempo real desde `activePlan.macrocycles[].mesocycles[].microcycles[].sessions[]`:
+  - **Carga UA** (Foster modificado: `vol * intensidad / 100`)
+  - **ACWR** (carga aguda última semana / promedio últimas 4)
+  - **Tendencia** (creciente / decreciente / estable comparando últimas 3 vs 3 anteriores)
+  - **RPE promedio** + total acumulado + pico + mínimo
+- UI ejecutiva con 4 KPI cards Material Design 3 (Carga aguda · Carga crónica · ACWR · Tendencia), banner inteligente con zonas ACWR (Detraining < 0.8 · Óptima 0.8-1.3 · Precaución 1.3-1.5 · Sobrecarga > 1.5), ComposedChart con barras (Carga UA + Volumen) + línea Intensidad + área ACWR overlay con líneas de referencia, heatmap de distribución por mesociclo, footer con 4 cards resumen.
+
+**3. Bug fix expanded chart** (`InteractiveChart.js` + `GraphicPlan.js`):
+- **Causa raíz**: el `useEffect` de reset del brush limitaba el `endIndex` a `Math.min(filteredData.length - 1, 11)` — siempre mostraba solo 12 entradas en el slider inferior, sin importar que se eligiera 4A/2A/1A/6M. Fix: eliminar el cap de 11; el brush ahora abarca todo el `filteredData.length`.
+- **Tamaño del Dialog ampliado** de `max-w-6xl max-h-[85vh]` a `!max-w-[96vw] !max-h-[94vh]` con header oscuro premium (gradient slate-900 + icono lima + título + metadata "N semanas · M series · Plan {duration}").
+- Altura del chart ahora `Math.max(420, window.innerHeight * 0.62)` — antes 400 fija.
+- `defaultTimeRange` dinámico según `cycleDuration` (annual=1year, biannual=2years, olympic=olympic, otherwise sessions).
+- Datos del chart usan `*ChartDataFull` (refactorizados como mappers reutilizables `_buildXxxData(weekList)`) que mapean sobre `weeks` (full plan range), no `displayedWeeks`.
+
+**Validación**: Screenshot E2E confirmado: dialog se abre correcto en 94vh, eje X muestra S1...S52 (las 52 semanas del plan annual), botones de rango funcionales (1A activo, 4A/2A/6M/3M/1M/S/Últ.4/Últ.8/Todo presentes), brush slider abarca toda la franja inferior. Magnitud de Carga restaurada visible en el Plan Gráfico (valores reales 83/88/88/32/84/89/89/53/100/100/83). Panel Carga con 4 KPIs + ACWR alert + chart composed + heatmap por mesociclo. Lints ✅. 0 regresiones.
+
+
 ### UI/UX consolidación — Coach AI clean, Periodización compacta y Plan Gráfico con Dialog (Feb 2026)
 
 Iteración de 6 mejoras coordinadas tras feedback del usuario:

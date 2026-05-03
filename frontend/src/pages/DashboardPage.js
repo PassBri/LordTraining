@@ -63,6 +63,7 @@ import SmartAlerts from '../components/SmartAlerts';
 import PDFExportModal from '../components/PDFExportModal';
 import MasterReportModal from '../components/MasterReportModal';
 import SessionsExportModal from '../components/SessionsExportModal';
+import LoadPanel from '../components/LoadPanel';
 import FederationPanel from '../components/FederationPanel';
 import ObjectivesIndicators from '../components/ObjectivesIndicators';
 import TrainingSystemHub from '../components/TrainingSystemHub';
@@ -4090,6 +4091,11 @@ const DashboardPage = () => {
           }}
         />
       );
+    }
+
+    // Periodización → Carga: panel ejecutivo de magnitud de carga, ACWR, tendencia
+    if (activeDataSection === 'period-load') {
+      return <LoadPanel activePlan={activePlan} />;
     }
 
 

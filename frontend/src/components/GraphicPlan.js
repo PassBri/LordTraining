@@ -1744,9 +1744,28 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
 
                 {/* ══════════ INLINE CHARTS — perfectly aligned with week columns ══════════ */}
 
-                {/* CHART 1: Volumen, Intensidad y Densidad
-                    (la fila "Magnitud de Carga y Recuperación" fue removida porque
-                     está disponible de manera más completa en Periodización → Estructura) */}
+                {/* CHART 1: Magnitud de Carga y Recuperación */}
+                <ChartSectionHeader
+                  title="Magnitud de Carga y Recuperación"
+                  icon={Activity}
+                  bgColor="bg-red-50"
+                  textColor="text-red-800"
+                  chartConfig={{
+                    title: 'Magnitud de Carga y Recuperacion',
+                    icon: Activity,
+                    data: loadChartDataFull,
+                    dataKeys: [
+                      { key: 'carga', name: 'Carga %', color: '#EF4444' },
+                      { key: 'recuperacion', name: 'Recuperacion %', color: '#3B82F6' }
+                    ],
+                    chartType: 'bar',
+                    yAxisDomain: [0, 100]
+                  }}
+                />
+                <InlineChartRow label="Carga %" data={loadChartData} dataKey="carga" color="#EF4444" maxVal={100} onCellClick={handleCellClick} section="load_chart" />
+                <InlineChartRow label="Recuperación %" data={loadChartData} dataKey="recuperacion" color="#3B82F6" maxVal={100} onCellClick={handleCellClick} section="load_chart" />
+
+                {/* CHART 2: Volumen, Intensidad y Densidad */}
                 <ChartSectionHeader
                   title="Volumen e Intensidad"
                   icon={TrendingUp}
@@ -2006,31 +2025,49 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
         </CardContent>
       </Card>
 
-      {/* Dialog for expanded interactive chart */}
+      {/* Dialog for expanded interactive chart — full premium experience */}
       <Dialog open={!!expandedChart} onOpenChange={() => setExpandedChart(null)}>
-        <DialogContent className="max-w-6xl max-h-[85vh] overflow-auto p-0">
+        <DialogContent className="!max-w-[96vw] w-[96vw] !max-h-[94vh] h-[94vh] overflow-hidden p-0 flex flex-col">
           {expandedChart && (
-            <div className="p-4">
-              <InteractiveChart
-                title={expandedChart.title}
-                icon={expandedChart.icon}
-                data={expandedChart.data}
-                dataKeys={expandedChart.dataKeys}
-                xAxisKey="week"
-                height={400}
-                showBrush={true}
-                showControls={true}
-                showLiveIndicator={true}
-                defaultChartType={expandedChart.chartType || 'bar'}
-                defaultTimeRange={
-                  cycleDuration === 'olympic' ? 'olympic'
-                  : cycleDuration === 'biannual' ? '2years'
-                  : cycleDuration === 'annual' ? '1year'
-                  : 'sessions'
-                }
-                yAxisDomain={expandedChart.yAxisDomain || [0, 100]}
-              />
-            </div>
+            <>
+              <div className="px-6 py-3 border-b border-slate-200 bg-gradient-to-br from-slate-900 to-slate-800 text-white flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#CCFF00]/15 border border-[#CCFF00]/40 flex items-center justify-center">
+                    {expandedChart.icon && <expandedChart.icon className="w-5 h-5 text-[#CCFF00]" />}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg tracking-tight">{expandedChart.title}</h3>
+                    <p className="text-[11px] text-slate-300">
+                      {(expandedChart.data || []).length} semanas · {(expandedChart.dataKeys || []).length} series ·
+                      Plan {cycleDuration === 'olympic' ? '4 años (208 sem)' : cycleDuration === 'biannual' ? '2 años (104 sem)' : cycleDuration === 'annual' ? '1 año (52 sem)' : 'corto (12 sem)'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex-1 overflow-auto p-6 bg-slate-50">
+                <div className="bg-white rounded-2xl shadow-md border border-slate-200 p-4">
+                  <InteractiveChart
+                    title={expandedChart.title}
+                    icon={expandedChart.icon}
+                    data={expandedChart.data}
+                    dataKeys={expandedChart.dataKeys}
+                    xAxisKey="week"
+                    height={Math.max(420, Math.floor(window.innerHeight * 0.62))}
+                    showBrush={true}
+                    showControls={true}
+                    showLiveIndicator={true}
+                    defaultChartType={expandedChart.chartType || 'bar'}
+                    defaultTimeRange={
+                      cycleDuration === 'olympic' ? 'olympic'
+                      : cycleDuration === 'biannual' ? '2years'
+                      : cycleDuration === 'annual' ? '1year'
+                      : 'sessions'
+                    }
+                    yAxisDomain={expandedChart.yAxisDomain || [0, 100]}
+                  />
+                </div>
+              </div>
+            </>
           )}
         </DialogContent>
       </Dialog>
