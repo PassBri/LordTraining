@@ -8251,6 +8251,10 @@ app.include_router(previous_analysis_export_router, prefix="/api")
 from routes.active_plan_export import router as active_plan_export_router
 app.include_router(active_plan_export_router, prefix="/api")
 
+# Info Catalog Export: PDF + Share for entities, teams, athletes, sports, tournaments
+from routes.info_catalog_export import router as info_catalog_export_router
+app.include_router(info_catalog_export_router, prefix="/api")
+
 # Store db reference in app state for V2 routes
 app.state.db = db
 

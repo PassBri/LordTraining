@@ -8,7 +8,48 @@
 - DB: MongoDB (11 colecciones V2 + plan_previous_analysis_ai_cache)
 
 
+### Información — 5 catálogos con header Material Design + Export PDF/Share/WhatsApp (Feb 2026)
+
+**Backend** (`/app/backend/routes/info_catalog_export.py` ~360 líneas): 4 endpoints genéricos parametrizados por `{catalog_type}` (entities/teams/athletes/sports/tournaments). `TYPE_CONFIG` mapping con colección Mongo, label, color y columnas. Helper `_value_for(item, key)` con aliases. Colección `info_catalog_shares`. Template PDF con hero oscuro tematizado por color, badge "CATÁLOGO · X", 3 stat-cards, tabla negro/lima. Validado: 5/5 PDFs generados (107-120KB).
+
+**Frontend componente reusable** (`/app/frontend/src/components/InfoSectionHeader.js` ~180 líneas): Toolbar Material Design idéntico a Plan Anterior/Plan Activo con 4 botones (PDF/Enlace/WhatsApp/Guardar). Handlers internos. Integrado en las 5 secciones (`entities`, `teams`, `athletes`, `sports`, `tournaments`) en `DashboardPage.js` con colores temáticos (sky/emerald/amber/red/violet). Validado por screenshot end-to-end.
+
+
 ### Plan Activo — Rediseño estilo Plan Anterior + Export PDF/Share/WhatsApp (Feb 2026)
+
+**Backend** (`/app/backend/routes/active_plan_export.py` ~280 líneas): 4 endpoints (`/objectives/{plan_id}/pdf`, `/share`, `/shared/{share_id}`, `/shared/{share_id}/pdf`). Colección `plan_objectives_shares`. Template HTML whitepaper con hero oscuro + badge "PLAN ACTIVO", info-grid, 3 goal-cards (Largo/Medio/Corto Plazo), tabla de Aspectos, callout SMART. PDF de 121KB validado con `analyze_file_tool`.
+
+**Frontend** (`DashboardPage.js`): Header centrado gigante reemplazado por toolbar Material Design compacto (estilo Plan Anterior). Handlers `handleDownloadObjectivesPDF`, `handleShareObjectivesLink`, `handleShareObjectivesWhatsApp`. Reorganización: Información General full-width, Objetivos por Horizonte en 3 cards (Macro/Meso/Micro con badges), Tabla Aspectos negro/lima, Callout SMART al pie. Inputs y textareas compactados.
+- 4 endpoints genéricos parametrizados por `{catalog_type}` (entities/teams/athletes/sports/tournaments):
+  - `GET /api/info-export/{type}/pdf` (auth)
+  - `POST /api/info-export/{type}/share` (auth)
+  - `GET /api/info-export/shared/{share_id}` (HTML público)
+  - `GET /api/info-export/shared/{share_id}/pdf` (PDF público)
+- `TYPE_CONFIG` mapping con colección Mongo, label, subtitle, color y columnas por tipo. Validación 400 si tipo no existe.
+- Helper `_value_for(item, key)` con aliases comunes (nombre↔name, ciudad↔city, etc) para resolver campos heterogéneos sin alterar las colecciones existentes.
+- Enriquecimiento on-demand: `teams` añade conteo `athlete_count`.
+- Colección nueva `info_catalog_shares` para snapshots públicos.
+- Template PDF con hero oscuro tematizado por color del catálogo (sky/emerald/amber/red/violet), badge "CATÁLOGO · X", 3 stat-cards (Total / Activos / Mes), tabla con header negro/lima y filas alternadas con índice numérico.
+- Validado: 5/5 PDFs generados (114-120KB) + share IDs creados + 400 en tipo inválido. PDF Catálogo Deportes verificado con `analyze_file_tool`: 48 registros, hero oscuro con badge rojo, 3 stat-cards, tabla con todos los deportes listados.
+
+**Frontend nuevo componente reusable** (`/app/frontend/src/components/InfoSectionHeader.js` ~180 líneas):
+- Componente `<InfoSectionHeader>` propsado por `catalogType + title + subtitle + icon + color + onRefresh + rightExtra`.
+- Toolbar Material Design idéntico al de Plan Anterior/Plan Activo: icono temático en cuadro slate-900 + título/subtítulo + 4 botones acción (PDF / Enlace / WhatsApp / Guardar).
+- Handlers internos para PDF download (descarga blob), share link (copia al portapapeles + toast), WhatsApp (compone mensaje + abre wa.me), refresh (callback opcional con toast).
+- Estado `busy` para deshabilitar todos los botones durante la operación.
+- data-testids: `info-section-header-{type}`, `{type}-pdf-btn`, `{type}-link-btn`, `{type}-whatsapp-btn`, `{type}-refresh-btn`.
+
+**Integración en `DashboardPage.js`** (5 secciones):
+- `entities` (sky-500 + Building2): toolbar + EntityManager existente.
+- `teams` (emerald-500 + UsersRound): toolbar + TeamManager existente.
+- `athletes` (amber-500 + User): toolbar arriba de los tabs internos (sports/tournaments/teams/athletes).
+- `sports` (red-500 + Medal): toolbar + onRefresh = fetchSportsCatalog.
+- `tournaments` (violet-500 + Shield): toolbar + onRefresh = fetchTournaments.
+- Wrapper consistente: `p-4 space-y-4 overflow-y-auto h-full bg-[#fafaf8]` igual que Plan Anterior/Plan Activo para mantener visual cohesivo.
+- Validado por screenshot end-to-end: las 5 secciones renderizan el header correctamente con colores temáticos y los 4 botones funcionales.
+
+
+
 
 **Backend nuevo** (`/app/backend/routes/active_plan_export.py`, ~280 líneas, registrado en `server.py`):
 - 4 endpoints siguiendo el mismo patrón de `previous_analysis_export.py`:

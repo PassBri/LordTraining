@@ -49,6 +49,7 @@ import ExerciseLibrary from '../components/ExerciseLibrary';
 
 import PeriodizationWizard from '../components/PeriodizationWizard';
 import PeriodizationComplete from '../components/PeriodizationComplete';
+import InfoSectionHeader from '../components/InfoSectionHeader';
 import PlansList from '../components/PlansList';
 import EntityManager from '../components/EntityManager';
 import TeamManager from '../components/TeamManager';
@@ -1963,7 +1964,15 @@ const DashboardPage = () => {
       const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
       
       return (
-        <div className="p-4">
+        <div className="p-4 space-y-4">
+          <InfoSectionHeader
+            catalogType="athletes"
+            title="Atletas"
+            subtitle="Plantilla de atletas registrados · perfiles deportivos"
+            icon={User}
+            color="#F59E0B"
+            onRefresh={async () => { try { await fetchAthletes(); } catch (e) { /* silent */ } }}
+          />
 
           {/* Vista de Deportes por Categorías - EDITABLE */}
           {activeAthleteTab === 'sports' && (
@@ -2370,7 +2379,14 @@ const DashboardPage = () => {
     // ===== SECCIÓN: EQUIPOS =====
     if (activeDataSection === 'teams') {
       return (
-        <div className="p-4">
+        <div className="p-4 space-y-4 overflow-y-auto h-full bg-[#fafaf8]">
+          <InfoSectionHeader
+            catalogType="teams"
+            title="Equipos"
+            subtitle="Equipos deportivos · plantillas · staff técnico"
+            icon={UsersRound}
+            color="#10B981"
+          />
           <TeamManager />
         </div>
       );
@@ -2379,7 +2395,15 @@ const DashboardPage = () => {
     // ===== SECCIÓN: DEPORTES CON CARACTERIZACIÓN TÉCNICA =====
     if (activeDataSection === 'sports') {
       return (
-        <div className="p-4">
+        <div className="p-4 space-y-4 overflow-y-auto h-full bg-[#fafaf8]">
+          <InfoSectionHeader
+            catalogType="sports"
+            title="Deportes"
+            subtitle="Catálogo de deportes con caracterización técnica"
+            icon={Medal}
+            color="#EF4444"
+            onRefresh={fetchSportsCatalog}
+          />
           <div className="space-y-4">
             <Card className="border-0 shadow-md overflow-hidden">
               <div className="bg-white border-b border-slate-200 text-slate-900 py-4 px-5">
@@ -2675,7 +2699,15 @@ const DashboardPage = () => {
     // ===== SECCIÓN: TORNEOS =====
     if (activeDataSection === 'tournaments') {
       return (
-        <div className="p-4">
+        <div className="p-4 space-y-4 overflow-y-auto h-full bg-[#fafaf8]">
+          <InfoSectionHeader
+            catalogType="tournaments"
+            title="Torneos"
+            subtitle="Calendario de competencias · brackets · participantes"
+            icon={Shield}
+            color="#8B5CF6"
+            onRefresh={fetchTournaments}
+          />
           <Card className="border-0 shadow-lg overflow-hidden">
             <TournamentManager
               tournaments={tournaments}
@@ -4380,7 +4412,14 @@ const DashboardPage = () => {
     // Render Entity Manager
     if (activeDataSection === 'entities') {
       return (
-        <div className="p-4">
+        <div className="p-4 space-y-4 overflow-y-auto h-full bg-[#fafaf8]">
+          <InfoSectionHeader
+            catalogType="entities"
+            title="Entidades"
+            subtitle="Federaciones, clubes, escuelas y organizaciones deportivas"
+            icon={Building2}
+            color="#0EA5E9"
+          />
           <EntityManager />
         </div>
       );
