@@ -4632,7 +4632,7 @@ const DashboardPage = () => {
                 <span className={`text-[8px] font-bold tracking-wide leading-tight text-center transition-colors duration-300 ${
                   canManageOrg ? 'text-slate-400 group-hover:text-emerald-600' : 'text-slate-300 group-hover:text-slate-400'
                 }`}>
-                  Equipo
+                  Admin
                 </span>
               </button>
             </Link>
