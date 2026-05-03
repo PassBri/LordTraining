@@ -135,6 +135,21 @@ class SectionFlags(BaseModel):
     periodization_load: bool = False
     graphic_plan: bool = False
     tools: bool = False
+    conclusions: bool = False
+
+
+class CoverData(BaseModel):
+    """Campos extra de la portada estilo APA / institucional."""
+    author: Optional[str] = ""           # Autor / responsable
+    advisor: Optional[str] = ""          # Director técnico / asesor
+    program: Optional[str] = ""          # Programa / disciplina / asignatura
+    department: Optional[str] = ""       # Departamento / facultad / área
+    institution: Optional[str] = ""      # Universidad / Federación / Club
+    location: Optional[str] = ""         # Ciudad, País
+    period: Optional[str] = ""           # Temporada / periodo (ej: "Macrociclo 2026 · 24 sem")
+    document_code: Optional[str] = ""    # Código documento / referencia
+    dedication: Optional[str] = ""       # Dedicatoria opcional
+    cover_layout: Optional[str] = "modern"  # modern | apa | minimal | institutional
 
 
 class MasterReportPayload(BaseModel):
@@ -147,6 +162,10 @@ class MasterReportPayload(BaseModel):
     org_logo_b64: Optional[str] = ""
     coach_name: Optional[str] = ""
     athlete_name: Optional[str] = ""
+    # New: extended cover + custom narrative
+    cover: Optional[CoverData] = Field(default_factory=CoverData)
+    custom_intro: Optional[str] = ""        # Texto libre para Introducción
+    custom_conclusions: Optional[str] = ""  # Texto libre para Conclusiones
 
 
 # ============= STYLES ENDPOINT =============
@@ -203,6 +222,20 @@ async def sections_catalog():
         {"id": "tools", "title": "Herramientas", "items": [
             {"id": "tools", "label": "Herramientas y calculadoras"},
         ]},
+        {"id": "closing", "title": "Cierre", "items": [
+            {"id": "conclusions", "label": "Conclusiones"},
+        ]},
+    ]}
+
+
+@router.get("/cover-layouts")
+async def cover_layouts():
+    """Layouts de portada disponibles."""
+    return {"layouts": [
+        {"id": "modern", "name": "Moderno", "vibe": "Hero gradient con KPIs y meta-info en grilla"},
+        {"id": "apa", "name": "APA / Académico", "vibe": "Centrado en tabla institucional clásica con tipografía serif"},
+        {"id": "minimal", "name": "Minimalista", "vibe": "Espacio en blanco · título XL · línea de acento"},
+        {"id": "institutional", "name": "Institucional", "vibe": "Logo gigante centrado · sello federativo · marco doble"},
     ]}
 
 
@@ -277,31 +310,119 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
 
     # ----- COVER -----
     if payload.sections.cover:
-        # Mini KPIs si hay plan
-        cover_kpis = ""
-        if plan_doc:
-            sport = plan_doc.get("sport") or "—"
-            weeks = plan_doc.get("total_weeks") or "—"
-            model = plan_doc.get("model_name") or plan_doc.get("model") or "—"
-            cover_kpis = f"""
+        cover_data = payload.cover or CoverData()
+        layout = (cover_data.cover_layout or "modern").lower()
+
+        # Build COVER based on layout
+        if layout == "apa":
+            # Estilo APA — tabla institucional centrada serif
+            apa_rows = []
+            if cover_data.institution: apa_rows.append(("INSTITUCIÓN", cover_data.institution))
+            if cover_data.department:  apa_rows.append(("DEPARTAMENTO / FACULTAD", cover_data.department))
+            if cover_data.program:     apa_rows.append(("PROGRAMA / DISCIPLINA", cover_data.program))
+            if payload.athlete_name:   apa_rows.append(("ATLETA / DEPORTISTA", payload.athlete_name))
+            if cover_data.author:      apa_rows.append(("AUTOR", cover_data.author))
+            if cover_data.advisor:     apa_rows.append(("DIRECTOR TÉCNICO", cover_data.advisor))
+            if payload.coach_name:     apa_rows.append(("ENTRENADOR", payload.coach_name))
+            if cover_data.location:    apa_rows.append(("UBICACIÓN", cover_data.location))
+            if cover_data.period:      apa_rows.append(("PERIODO", cover_data.period))
+            apa_rows.append(("FECHA", today))
+            if cover_data.document_code: apa_rows.append(("CÓDIGO", cover_data.document_code))
+            apa_table = "".join([
+                f'<tr><td class="apa-key">{_esc(k)}</td><td class="apa-val">{_esc(v)}</td></tr>'
+                for k, v in apa_rows
+            ])
+            ded = (
+                f'<div class="apa-dedication"><em>{_esc(cover_data.dedication)}</em></div>'
+                if cover_data.dedication else ""
+            )
+            parts.append(f"""<section class="cover apa-cover">
+  {org_block}
+  <div class="apa-stack">
+    {f'<div class="apa-org">{_esc(payload.org_name or cover_data.institution or "")}</div>' if (payload.org_name or cover_data.institution) else ''}
+    <div class="apa-rule"></div>
+    <h1 class="apa-title">{_esc(plan_name)}</h1>
+    {f'<p class="apa-sub">{_esc(payload.subtitle)}</p>' if payload.subtitle else ''}
+    <table class="apa-table">{apa_table}</table>
+    {ded}
+  </div>
+</section>""")
+        elif layout == "minimal":
+            parts.append(f"""<section class="cover minimal-cover">
+  <div class="min-rule"></div>
+  {f'<div class="min-org">{_esc(payload.org_name)}</div>' if payload.org_name else ''}
+  <h1 class="min-title">{_esc(plan_name)}</h1>
+  {f'<p class="min-sub">{_esc(payload.subtitle)}</p>' if payload.subtitle else ''}
+  <div class="min-meta">
+    {f'<span><strong>{_esc(cover_data.author or payload.coach_name or "")}</strong></span>' if (cover_data.author or payload.coach_name) else ''}
+    {f'<span>{_esc(cover_data.location)}</span>' if cover_data.location else ''}
+    <span>{today}</span>
+  </div>
+</section>""")
+        elif layout == "institutional":
+            parts.append(f"""<section class="cover inst-cover">
+  <div class="inst-frame">
+    <div class="inst-inner">
+      {org_block}
+      {f'<div class="inst-org">{_esc(payload.org_name)}</div>' if payload.org_name else ''}
+      {f'<div class="inst-program">{_esc(cover_data.program or cover_data.department or "")}</div>' if (cover_data.program or cover_data.department) else ''}
+      <div class="inst-line"></div>
+      <h1 class="inst-title">{_esc(plan_name)}</h1>
+      {f'<p class="inst-sub">{_esc(payload.subtitle)}</p>' if payload.subtitle else ''}
+      <div class="inst-line"></div>
+      <div class="inst-meta">
+        {f'<div><span>Autor</span><strong>{_esc(cover_data.author or payload.coach_name or "—")}</strong></div>' if (cover_data.author or payload.coach_name) else ''}
+        {f'<div><span>Dirección Técnica</span><strong>{_esc(cover_data.advisor)}</strong></div>' if cover_data.advisor else ''}
+        {f'<div><span>Atleta</span><strong>{_esc(payload.athlete_name)}</strong></div>' if payload.athlete_name else ''}
+        {f'<div><span>Periodo</span><strong>{_esc(cover_data.period)}</strong></div>' if cover_data.period else ''}
+        {f'<div><span>Lugar</span><strong>{_esc(cover_data.location)}</strong></div>' if cover_data.location else ''}
+        <div><span>Fecha</span><strong>{today}</strong></div>
+      </div>
+    </div>
+  </div>
+</section>""")
+        else:
+            # MODERN (default): hero gradient con KPIs + meta
+            cover_kpis = ""
+            if plan_doc:
+                sport = plan_doc.get("sport") or "—"
+                weeks = plan_doc.get("total_weeks") or "—"
+                model = plan_doc.get("model_name") or plan_doc.get("model") or "—"
+                cover_kpis = f"""
 <div class="cover-kpis">
   <div><strong>DEPORTE</strong><span>{_esc(sport)}</span></div>
   <div><strong>DURACIÓN</strong><span>{weeks} semanas</span></div>
   <div><strong>MODELO</strong><span>{_esc(model)}</span></div>
 </div>"""
-        parts.append(f"""<section class="cover">
+            meta_items = []
+            if cover_data.author or payload.coach_name:
+                meta_items.append(("AUTOR", cover_data.author or payload.coach_name))
+            if cover_data.advisor:
+                meta_items.append(("DIRECCIÓN TÉCNICA", cover_data.advisor))
+            if payload.athlete_name:
+                meta_items.append(("ATLETA", payload.athlete_name))
+            if cover_data.program:
+                meta_items.append(("PROGRAMA", cover_data.program))
+            if cover_data.period:
+                meta_items.append(("PERIODO", cover_data.period))
+            if cover_data.location:
+                meta_items.append(("UBICACIÓN", cover_data.location))
+            meta_items.append(("FECHA", today))
+            if cover_data.document_code:
+                meta_items.append(("CÓDIGO", cover_data.document_code))
+            meta_html = "".join([
+                f"<div><strong>{_esc(k)}</strong><span>{_esc(v)}</span></div>"
+                for k, v in meta_items
+            ])
+            parts.append(f"""<section class="cover">
   {org_block}
   {f'<div class="org-name">{_esc(payload.org_name)}</div>' if payload.org_name else ''}
   <span class="badge">REPORTE MAESTRO</span>
   <h1 class="cover-title">{_esc(plan_name)}</h1>
   {f'<p class="cover-sub">{_esc(payload.subtitle)}</p>' if payload.subtitle else ''}
   {cover_kpis}
-  <div class="cover-meta">
-    {f'<div><strong>ATLETA</strong><span>{_esc(payload.athlete_name)}</span></div>' if payload.athlete_name else ''}
-    {f'<div><strong>ENTRENADOR</strong><span>{_esc(payload.coach_name)}</span></div>' if payload.coach_name else ''}
-    <div><strong>FECHA</strong><span>{today}</span></div>
-    <div><strong>ESTILO</strong><span>{_esc(style['name'])}</span></div>
-  </div>
+  <div class="cover-meta">{meta_html}</div>
+  {f'<div class="cover-dedication"><em>{_esc(cover_data.dedication)}</em></div>' if cover_data.dedication else ''}
 </section>""")
 
     # ----- TOC -----
@@ -330,6 +451,7 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
             "periodization_load": "Periodización · Carga",
             "graphic_plan": "Plan Gráfico",
             "tools": "Herramientas y calculadoras",
+            "conclusions": "Conclusiones",
         }
         toc_items = []
         n = 1
@@ -347,11 +469,22 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
 
     # ----- INTRODUCTION -----
     if payload.sections.introduction:
+        intro_body = payload.custom_intro or (
+            f"El presente documento detalla el plan de entrenamiento <strong>{_esc(plan_name)}</strong> "
+            f"elaborado por {_esc(payload.coach_name) or 'el cuerpo técnico'}"
+            f"{f' para {_esc(payload.athlete_name)}' if payload.athlete_name else ''}.<br/><br/>"
+            "Se incluye la planificación estructural, la distribución de cargas, los controles previstos, "
+            "las evaluaciones de los atletas y los objetivos de la temporada."
+        )
+        # If user passed plain text, render paragraphs
+        if payload.custom_intro:
+            paras = "".join([f"<p>{_esc(p)}</p>" for p in payload.custom_intro.split("\n\n") if p.strip()])
+        else:
+            paras = f"<p>{intro_body}</p>"
         parts.append(f"""<section class="page-break">
 <span class="badge">PRESENTACIÓN</span>
 <h2>Introducción</h2>
-<p>El presente documento detalla el plan de entrenamiento <strong>{_esc(plan_name)}</strong> elaborado por {_esc(payload.coach_name) or 'el cuerpo técnico'}{f' para {_esc(payload.athlete_name)}' if payload.athlete_name else ''}.</p>
-<p>Se incluye la planificación estructural, la distribución de cargas, los controles previstos, las evaluaciones de los atletas y los objetivos de la temporada.</p>
+{paras}
 <div class="callout">Estilo de documento: <strong>{_esc(style['name'])}</strong>. {_esc(style['vibe'])}.</div>
 </section>""")
 
@@ -546,6 +679,24 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
 <p class="muted">Antropometría · Nutrición · Control médico · Periodización avanzada</p>
 </section>""")
 
+    # ----- CONCLUSIONS -----
+    if payload.sections.conclusions:
+        if payload.custom_conclusions:
+            paras = "".join([f"<p>{_esc(p)}</p>" for p in payload.custom_conclusions.split("\n\n") if p.strip()])
+        else:
+            paras = (
+                "<p>El plan presentado consolida los lineamientos de periodización, control y evaluación necesarios "
+                "para alcanzar los objetivos establecidos en la temporada.</p>"
+                "<p>Se recomienda la revisión continua de las cargas, indicadores y resultados de competencia para "
+                "ajustar el plan en cada mesociclo.</p>"
+            )
+        parts.append(f"""<section class="page-break">
+<span class="badge">CIERRE</span>
+<h2>Conclusiones</h2>
+{paras}
+<div class="callout"><strong>Próximos pasos</strong> · Consolidar evaluaciones del próximo control, ajustar la curva de carga semanal y revisar el calendario competitivo. iTRAIN actualiza estos datos en tiempo real.</div>
+</section>""")
+
     body_html = ''.join(parts)
 
     # ====== FOOTER ======
@@ -637,6 +788,46 @@ section:first-child {{ margin-top: 0; }}
   margin-bottom: 2pt;
 }}
 .cover-meta span {{ color: rgba(255,255,255,0.92); font-size: 10pt; font-weight: 600; }}
+.cover-dedication {{ margin-top: 22pt; padding: 10pt 16pt; border-left: 2pt solid {accent}88; color: rgba(255,255,255,0.7); font-size: 10pt; max-width: 480pt; }}
+
+/* APA COVER */
+.apa-cover {{ background: #fff !important; color: {fg}; min-height: 92vh; padding: 48pt 60pt; display: flex; align-items: center; justify-content: center; margin: 0 !important; }}
+.apa-cover::after {{ display: none; }}
+.apa-stack {{ width: 100%; max-width: 480pt; text-align: center; }}
+.apa-org {{ font-family: 'Playfair Display', Georgia, serif; font-size: 16pt; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: {primary}; margin-bottom: 14pt; }}
+.apa-rule {{ width: 80pt; height: 3pt; background: {accent}; margin: 0 auto 28pt; }}
+.apa-title {{ font-family: 'Playfair Display', Georgia, serif; font-size: 30pt; font-weight: 900; line-height: 1.2; color: {primary}; margin: 0 0 8pt; letter-spacing: -0.5px; }}
+.apa-sub {{ font-family: 'Playfair Display', Georgia, serif; font-size: 14pt; color: #475569; font-style: italic; margin: 0 0 32pt; }}
+.apa-table {{ width: auto; max-width: 380pt; margin: 0 auto; border-collapse: collapse; font-size: 10pt; }}
+.apa-table td {{ padding: 7pt 12pt; border: none; text-align: left; vertical-align: top; }}
+.apa-table .apa-key {{ font-weight: 800; color: {primary}; text-transform: uppercase; letter-spacing: 1px; font-size: 8.5pt; width: 150pt; padding-right: 14pt; border-right: 2pt solid {accent}; }}
+.apa-table .apa-val {{ color: {fg}; font-weight: 600; }}
+.apa-dedication {{ margin-top: 28pt; padding-top: 16pt; border-top: 1pt solid #e2e8f0; color: #64748b; font-size: 10pt; font-style: italic; }}
+
+/* MINIMAL COVER */
+.minimal-cover {{ background: #fff !important; color: {fg}; padding: 100pt 60pt; min-height: 90vh; margin: 0 !important; }}
+.minimal-cover::after {{ display: none; }}
+.min-rule {{ width: 50pt; height: 4pt; background: {accent}; margin-bottom: 32pt; }}
+.min-org {{ color: {primary}; font-size: 9pt; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 16pt; }}
+.min-title {{ color: {primary}; font-size: 56pt; font-weight: 900; line-height: 1; letter-spacing: -2.5px; margin: 0 0 12pt; max-width: 90%; }}
+.min-sub {{ color: #475569; font-size: 14pt; max-width: 70%; margin: 0 0 60pt; font-weight: 500; }}
+.min-meta {{ display: flex; gap: 24pt; flex-wrap: wrap; color: #64748b; font-size: 9.5pt; padding-top: 14pt; border-top: 2pt solid {accent}; }}
+.min-meta strong {{ color: {primary}; }}
+
+/* INSTITUTIONAL COVER */
+.inst-cover {{ background: #fff !important; color: {fg}; padding: 24pt; min-height: 96vh; margin: 0 !important; }}
+.inst-cover::after {{ display: none; }}
+.inst-frame {{ border: 3pt double {primary}; padding: 12pt; height: calc(96vh - 48pt); }}
+.inst-inner {{ border: 1pt solid {accent}; padding: 36pt 30pt; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }}
+.inst-org {{ color: {primary}; font-size: 13pt; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; margin: 18pt 0 4pt; }}
+.inst-program {{ color: #64748b; font-size: 10pt; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 16pt; }}
+.inst-line {{ width: 240pt; height: 2pt; background: {accent}; margin: 12pt auto; }}
+.inst-title {{ color: {primary}; font-size: 28pt; font-weight: 900; line-height: 1.15; max-width: 90%; margin: 4pt 0; letter-spacing: -0.5px; }}
+.inst-sub {{ color: #475569; font-size: 13pt; font-style: italic; margin: 6pt 0 0; }}
+.inst-meta {{ display: grid; grid-template-columns: 1fr 1fr; gap: 14pt; margin-top: 28pt; max-width: 420pt; width: 100%; }}
+.inst-meta > div {{ text-align: left; padding: 6pt 10pt; background: {secondary}; border-left: 3pt solid {accent}; border-radius: 4pt; }}
+.inst-meta span {{ display: block; font-size: 7.5pt; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 2pt; }}
+.inst-meta strong {{ color: {primary}; font-size: 10.5pt; }}
 
 /* SECTION HEADERS */
 .badge {{
@@ -878,6 +1069,37 @@ async def _render_pdf(html: str) -> bytes:
                              margin={"top": "0", "bottom": "0", "left": "0", "right": "0"})
         await browser.close()
     return pdf
+
+
+async def _render_preview_png(html: str) -> bytes:
+    """Render HTML and capture COVER (first page A4) as PNG for fast preview."""
+    os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", "/pw-browsers")
+    from playwright.async_api import async_playwright
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True,
+            args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'])
+        page = await browser.new_page(viewport={"width": 794, "height": 1123},
+                                      device_scale_factor=2)
+        await page.set_content(html, wait_until="networkidle")
+        await page.wait_for_timeout(600)
+        png = await page.screenshot(full_page=False, type="png", clip={
+            "x": 0, "y": 0, "width": 794, "height": 1123
+        })
+        await browser.close()
+    return png
+
+
+@router.post("/preview")
+async def preview_master_report(payload: MasterReportPayload, user=Depends(get_current_user_dep())):
+    """Devuelve PNG de la primera página (cover) — feedback rápido sin PDF."""
+    uid = user.get("id") or user.get("user_id")
+    html = await _build_html(payload, uid)
+    try:
+        png = await _render_preview_png(html)
+    except Exception as e:
+        raise HTTPException(500, f"Error generando preview: {e}")
+    return Response(content=png, media_type="image/png",
+                    headers={"Cache-Control": "no-store"})
 
 
 @router.post("/generate")
