@@ -369,6 +369,50 @@ Las imágenes fuente `/app/frontend/public/brand/itrain-full-pdf.png` (623x240) 
 
 ## Implementado
 
+### Sessions Export V2 + Master Report Share — theme/layout/share/whatsapp (Feb 2026)
+
+**Mejoras al modal Sesiones (5 áreas) y al Master Report:**
+
+**1. Estado seleccionado MUY visible** (`SessionsExportModal.js`):
+- Antes: borde lima 2px sutil, fondo lima/8 — apenas perceptible
+- Ahora: `border-2 border-[#CCFF00] + bg-gradient-to-br from-[#CCFF00]/20 to-[#CCFF00]/5 + ring-2 ring-[#CCFF00]/40 + shadow-md + scale-[1.015]`
+- Checkmark badge (lima con border-2 white) en esquina superior derecha de cada card seleccionada
+
+**2. Selectores Theme + Layout** en toolbar del modal Sesiones:
+- Theme chips: Claro (Sun, amber-100) | Oscuro (Moon, slate-900 + lima)
+- Layout chips: Clásico (FileText, blue-100) | Pizarras (LayoutGrid, emerald-100)
+- 4 combinaciones soportadas: classic-light, classic-dark, hero-light, hero-dark
+
+**3. Visual de cada card mejorado**:
+- Iconos por tipo de sesión (Dumbbell/fuerza, Activity/resistencia, Flame/velocidad, Target/técnica, etc.)
+- Badges con iconos: `# Día N`, tipo coloreado por tipología, `clock 60min`, `activity X ej.`, `flame intensity%`
+- Counter parcial "X/Y" en headers de mesociclo y microciclo cuando hay selección parcial
+
+**4. Footer reorganizado en 2 filas** (ambos modales):
+- Status row (bg-slate-50): contador de seleccionadas + formato + tema
+- Actions row (bg-white): Cancel | Enlace · WhatsApp | ZIP · PDF combinado / (Cancel | Enlace · WhatsApp · | Resumen · Vista previa · Generar PDF)
+
+**5. Botones Compartir + WhatsApp** en ambos modales:
+- `sessions-export-link-btn`, `sessions-export-whatsapp-btn` (sky-300 + emerald-300 outlines)
+- `mr-share-link-btn`, `mr-share-whatsapp-btn`
+- Link copia URL al portapapeles + toast con descripción
+- WhatsApp abre `wa.me/?text=...` con mensaje compuesto (plan name + URL pública)
+
+**Backend nuevo** (`/app/backend/routes/sessions_export.py`, ~600 líneas, REESCRITO):
+- `_build_session_pdf_classic(session, athlete, meso, micro, week, theme)` — ReportLab con soporte light/dark (fondo `#0a0a0f` + ink `#e5e7eb` cuando dark; respeta el accent lima del header)
+- `_build_session_html_hero(...)` — HTML con cards 2-col, board-hero 336px, court-bg verde sólido `#2d5f3e` (dark) o gradient cancha (light), página por sesión con `page-break-after`
+- `_render_hero_pdf_bytes(htmls)` — concatena múltiples HTML en uno solo y renderiza con Playwright en una pasada (mucho más eficiente que N pasadas)
+- `POST /api/sessions-export/generate` ahora acepta `theme + layout` con validación 400 si inválidos
+- `POST /api/sessions-export/share` body=`{plan_id, session_ids, theme, layout, athlete_name}` → guarda en `sessions_export_shares` colección, devuelve `{share_id: SXB-{hex}, expires_in_days: 30}`
+- `GET /api/sessions-export/shared/{share_id}/pdf?format=combined|zip` (sin auth) regenera y descarga; 410 si expirado, 404 si missing
+
+**Backend Master Report Share** (`/app/backend/routes/master_report.py`):
+- `POST /api/master-report/share` body=`MasterReportPayload` → guarda en `master_report_shares`, devuelve `{share_id: MRP-{hex}, expires_in_days: 30}`. Valida 400 si no hay `plan_id`.
+- `GET /api/master-report/shared/{share_id}/pdf` (sin auth) regenera con `_build_html` + `_render_pdf` usando el payload persistido y el `owner_uid` para resolver el plan.
+
+**Validación** (`testing_agent_v3_fork iter_59`): 23/23 backend pytest PASS (8 regression + 15 nuevos cubriendo 4 combinaciones theme×layout, ZIP+hero, validaciones 400, share flow ambos modales con expires/404/410). Frontend 100%: chips theme/layout estado correcto, selected state altamente visible, contadores parciales por meso/micro, footer 2-row sin overlap, todos los botones share/WhatsApp funcionales. 0 regresiones.
+
+
 ### Botón "Sesiones" — exportación independiente de sesiones específicas (Feb 2026)
 
 **Continuación del flujo Master Report.** Nuevo botón "Sesiones" en el header de Plan Activo, al lado del botón "Reporte Maestro", que abre un modal selector de sesiones específicas para imprimirlas con el diseño clásico ReportLab del PDF de sesión.

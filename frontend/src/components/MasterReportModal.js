@@ -300,7 +300,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
       const shareId = res.data.share_id;
       const url = `${API}/api/master-report/shared/${shareId}/pdf`;
       if (target === 'whatsapp') {
-        const msg = `📊 Reporte Maestro · ${plan?.name || 'Plan'}\n\nDescargar PDF: ${url}`;
+        const msg = `iTRAIN · Reporte Maestro · ${plan?.name || 'Plan'}\n\nDescargar PDF: ${url}`;
         window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         toast.success('Abriendo WhatsApp…');
       } else {
