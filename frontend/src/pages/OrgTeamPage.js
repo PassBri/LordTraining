@@ -123,9 +123,13 @@ const OrgTeamPage = () => {
     setActing(true);
     try {
       const res = await inviteCoach(inviteForm);
-      toast.success('Entrenador invitado');
+      if (res.data.email_sent) {
+        toast.success('Entrenador invitado. Email enviado con sus credenciales.');
+      } else {
+        toast.success('Entrenador invitado. Comparte la contraseña manualmente.');
+      }
       setInviteOpen(false);
-      setTempPasswordDialog({ coach: res.data.coach, password: res.data.temp_password });
+      setTempPasswordDialog({ coach: res.data.coach, password: res.data.temp_password, emailSent: res.data.email_sent });
       setInviteForm({ email: '', name: '', role_label: 'coach' });
       await refresh();
     } catch (e) {
@@ -150,7 +154,8 @@ const OrgTeamPage = () => {
     setActing(true);
     try {
       const res = await resetCoachPassword(coach.id);
-      setTempPasswordDialog({ coach, password: res.data.temp_password });
+      setTempPasswordDialog({ coach, password: res.data.temp_password, emailSent: res.data.email_sent });
+      if (res.data.email_sent) toast.success('Nueva contraseña enviada por email');
     } catch (e) {
       toast.error(e.response?.data?.detail || 'Error');
     } finally { setActing(false); }
@@ -375,10 +380,25 @@ const OrgTeamPage = () => {
               <KeyRound className="w-5 h-5 text-amber-500" /> Contraseña temporal
             </DialogTitle>
             <DialogDescription>
-              Comparte estos datos de forma segura con <strong>{tempPasswordDialog?.coach?.name}</strong>. Se le pedirá cambiarla al iniciar sesión.
+              {tempPasswordDialog?.emailSent ? (
+                <>Email enviado a <strong>{tempPasswordDialog?.coach?.email}</strong> con sus credenciales.</>
+              ) : (
+                <>Comparte estos datos manualmente con <strong>{tempPasswordDialog?.coach?.name}</strong>. Se le pedirá cambiar la contraseña al iniciar sesión.</>
+              )}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
+            {tempPasswordDialog?.emailSent ? (
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 border border-emerald-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span className="text-[12px] text-emerald-700 font-medium">Email enviado correctamente</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-50 border border-amber-200">
+                <XCircle className="w-4 h-4 text-amber-600" />
+                <span className="text-[12px] text-amber-700 font-medium">Email automático no enviado — copia los datos manualmente</span>
+              </div>
+            )}
             <div className="bg-slate-50 border border-slate-200 rounded-lg px-4 py-3">
               <p className="text-[11px] text-slate-500 uppercase tracking-wider mb-1">Email</p>
               <p className="text-sm font-mono text-slate-800">{tempPasswordDialog?.coach?.email}</p>

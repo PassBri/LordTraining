@@ -22,6 +22,11 @@ import secrets
 import string
 import jwt
 import os
+import logging
+
+from services.email_service import send_coach_invitation, send_password_reset, is_email_enabled
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/org", tags=["Organization"])
 security = HTTPBearer()
@@ -186,10 +191,29 @@ async def invite_coach(payload: CoachInvite, request: Request, user: dict = Depe
     await db.users.insert_one(new_user)
     new_user.pop("_id", None)
     new_user.pop("password", None)
+
+    # Send invitation email (non-blocking failure: log + return temp_password anyway)
+    email_result = await send_coach_invitation(
+        coach_name=payload.name,
+        coach_email=payload.email,
+        temp_password=temp_password,
+        org_name=org["name"],
+        inviter_name=user.get("name") or "El administrador",
+        role_label=payload.role_label or "Entrenador",
+    )
+    if not email_result.get("sent"):
+        logger.warning("Email invitation NOT sent for %s: %s", payload.email, email_result.get("error"))
+
     return {
         "coach": new_user,
         "temp_password": temp_password,  # FRONTEND must show this once for the admin to share
-        "message": "Entrenador invitado. Comparte la contraseña temporal con seguridad. Se le pedirá cambiarla al iniciar sesión."
+        "email_sent": email_result.get("sent", False),
+        "email_error": email_result.get("error"),
+        "message": (
+            "Entrenador invitado. Email enviado con sus credenciales."
+            if email_result.get("sent")
+            else "Entrenador invitado. Comparte la contraseña temporal con seguridad. (Email automático no enviado: configura RESEND_API_KEY en backend)"
+        )
     }
 
 
@@ -249,9 +273,25 @@ async def reset_coach_password(coach_id: str, request: Request, user: dict = Dep
         {"id": coach_id},
         {"$set": {"password": _hash_password(temp_password), "must_change_password": True}}
     )
+
+    # Send password reset email
+    email_result = await send_password_reset(
+        coach_name=coach.get("name", ""),
+        coach_email=coach["email"],
+        temp_password=temp_password,
+        org_name=org["name"],
+    )
+    if not email_result.get("sent"):
+        logger.warning("Password reset email NOT sent for %s: %s", coach.get("email"), email_result.get("error"))
+
     return {
         "temp_password": temp_password,
-        "message": "Nueva contraseña temporal generada. Compártela de forma segura."
+        "email_sent": email_result.get("sent", False),
+        "message": (
+            "Nueva contraseña temporal generada y enviada por email."
+            if email_result.get("sent")
+            else "Nueva contraseña temporal generada. Compártela de forma segura. (Email automático no enviado)"
+        )
     }
 
 
