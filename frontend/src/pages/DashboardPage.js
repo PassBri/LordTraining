@@ -3076,9 +3076,6 @@ const DashboardPage = () => {
               <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-slate-300 hover:bg-slate-50" onClick={handleDownloadObjectivesPDF} disabled={savingEvaluation || !activePlan} data-testid="active-plan-pdf-btn" title="Descargar PDF estilo Whitepaper">
                 <Download className="w-3.5 h-3.5 mr-1.5" />PDF
               </Button>
-              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-[#CCFF00] bg-[#CCFF00]/10 hover:bg-[#CCFF00]/20 text-slate-900 font-semibold" onClick={() => setIsMasterReportOpen(true)} disabled={!activePlan} data-testid="active-plan-master-report-btn" title="Reporte Maestro · 5 estilos · selección de secciones · logo del club">
-                <FileBarChart2 className="w-3.5 h-3.5 mr-1.5" />Reporte Maestro
-              </Button>
               <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-slate-300 hover:bg-slate-50" onClick={handleShareObjectivesLink} disabled={savingEvaluation || !activePlan} data-testid="active-plan-link-btn" title="Copiar enlace público al portapapeles">
                 <LinkIcon className="w-3.5 h-3.5 mr-1.5" />Enlace
               </Button>
@@ -4468,17 +4465,18 @@ const DashboardPage = () => {
                 );
               })}
 
-              {/* PDF FAB */}
+              {/* Reporte Maestro FAB (sustituye el viejo PDF + consolida) */}
               <button
-                onClick={() => setIsPdfModalOpen(true)}
+                onClick={() => setIsMasterReportOpen(true)}
                 className="group flex flex-col items-center gap-1 shrink-0 outline-none"
-                data-testid="export-pdf-btn"
+                data-testid="header-master-report-btn"
+                title="Reporte Maestro · 5 estilos · selección de secciones · logo del club"
               >
-                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg hover:text-emerald-600">
-                  <Download className="w-[18px] h-[18px] transition-transform duration-300 group-hover:text-emerald-600" strokeWidth={1.8} />
+                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-700 shadow-md border-2 border-[#CCFF00] hover:shadow-lg hover:bg-[#CCFF00]/15">
+                  <FileBarChart2 className="w-[18px] h-[18px] transition-transform duration-300" strokeWidth={2} />
                 </div>
-                <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-emerald-600 transition-colors duration-300">
-                  PDF
+                <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-700 group-hover:text-slate-900 transition-colors duration-300 max-w-[60px]">
+                  Reporte
                 </span>
               </button>
 

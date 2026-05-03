@@ -6,7 +6,6 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
-import { ScrollArea } from './ui/scroll-area';
 import {
   FileBarChart2, GraduationCap, Building2, Sparkles, Notebook, Activity,
   Image as ImageIcon, X, Download, Loader2,
@@ -43,7 +42,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
 
   useEffect(() => {
     if (!open) return;
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('train_token') || localStorage.getItem('token');
     const headers = { Authorization: `Bearer ${token}` };
     axios.get(`${API}/api/master-report/styles`, { headers })
       .then(r => setStyles(r.data.styles || []))
@@ -83,34 +82,44 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
     }
     setGenerating(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('train_token') || localStorage.getItem('token');
       const payload = {
-        plan_id: plan?.id,
+        plan_id: plan?.id || null,
         title: title || plan?.name || 'Plan de Entrenamiento',
-        subtitle,
+        subtitle: subtitle || '',
         style: styleId,
         sections,
-        org_name: orgName,
-        org_logo_b64: orgLogoB64,
+        org_name: orgName || '',
+        org_logo_b64: orgLogoB64 || '',
         coach_name: coachName || '',
         athlete_name: athleteName || '',
       };
       const res = await axios.post(`${API}/api/master-report/generate`, payload, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob',
+        validateStatus: () => true, // we handle non-2xx ourselves
       });
+      // If server returned a JSON error with responseType=blob, decode it
+      const ct = res.headers?.['content-type'] || '';
+      if (res.status >= 400 || ct.includes('application/json')) {
+        const errText = await res.data.text();
+        let detail = errText;
+        try { detail = JSON.parse(errText).detail || errText; } catch (_) {}
+        toast.error(`Error generando reporte: ${detail || res.status}`);
+        return;
+      }
       const blob = new Blob([res.data], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `reporte_${(title || 'plan').replace(/\s+/g, '_').toLowerCase()}_${styleId}.pdf`;
+      a.download = `reporte_${(title || plan?.name || 'plan').toString().replace(/\s+/g, '_').toLowerCase()}_${styleId}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
       toast.success('Reporte Maestro descargado');
     } catch (err) {
-      toast.error('Error generando reporte: ' + (err?.response?.data?.detail || err.message));
+      toast.error('Error generando reporte: ' + (err?.message || 'desconocido'));
     } finally {
       setGenerating(false);
     }
@@ -138,7 +147,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto">
           <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
             {/* LEFT — meta + style + logo */}
             <div className="lg:col-span-5 space-y-5">
@@ -283,7 +292,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
               </div>
             </div>
           </div>
-        </ScrollArea>
+        </div>
 
         {/* FOOTER */}
         <div className="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between gap-3">

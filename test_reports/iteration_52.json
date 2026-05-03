@@ -1,0 +1,40 @@
+{
+  "summary": "Frontend E2E validation of the Reporte Maestro UI relocation and runtime error fix. The button was correctly moved to the global context bar after tab-panel/tab-datos; the old header export-pdf-btn and duplicated active-plan-master-report-btn were removed correctly. HOWEVER initial run reproduced the user-reported runtime error due to a separate bug (wrong localStorage token key). Testing agent fixed the token key and re-validated end-to-end: modal opens without errors, PDF downloads succeed for both 'training' and 'sport' styles, cancel cleanly closes modal. No pageerror or console [error] entries remain after fix.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Master Report POST /api/master-report/generate",
+        "issue": "Pre-fix: MasterReportModal.js used localStorage.getItem('token') while the app stores auth under 'train_token'. This caused Authorization: Bearer null -> 401 Unauthorized, and axios tried to read responseText on a blob response, raising an uncaught window error ('Failed to read the responseText property from XMLHttpRequest'). This was the exact runtime error the user reported. Fixed by testing agent (fallback chain). Please confirm this is the intended fix or centralize token retrieval.",
+        "affected_selectors": ["mr-generate-btn"]
+      }
+    ],
+    "design_issues": [
+      {
+        "screen": "MasterReportModal",
+        "issues": ["Radix DialogContent warning: Missing `Description` or `aria-describedby` for {DialogContent}. Low priority a11y warning; add <DialogDescription> or aria-describedby to silence."]
+      }
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Confirm fix applied by testing agent in /app/frontend/src/components/MasterReportModal.js (use 'train_token' fallback to 'token' when reading bearer token). Better: centralize auth header via a shared util / axios instance to avoid this class of bug recurring.",
+    "Optional: add <DialogDescription> inside MasterReportModal to resolve Radix a11y warning."
+  ],
+  "critical_code_review_comments": [
+    "MasterReportModal.js was using a different localStorage key ('token') than the rest of the app ('train_token'). This is a code-consistency/DRY issue: every other file in DashboardPage.js reads 'train_token'. Recommend extracting a getAuthHeaders() helper or creating a preconfigured axios instance.",
+    "With responseType:'blob' + validateStatus:()=>true the handler now correctly decodes JSON error bodies via res.data.text(). Good.",
+    "Replacing shadcn ScrollArea with native div overflow-y-auto is a pragmatic fix; verified no Radix crash on open."
+  ],
+  "updated_files": [
+    "/app/frontend/src/components/MasterReportModal.js (token key fallback: localStorage.getItem('train_token') || localStorage.getItem('token') in both useEffect and handleGenerate)"
+  ],
+  "success_rate": {"backend": "n/a (not re-tested; iter_51 had 12/12)", "frontend": "100% after token-key fix"},
+  "test_credentials": "test@train.com / test123456",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "UI placement validated: global-context-bar L-R order = [tab-panel, tab-datos, header-master-report-btn]. active-plan-master-report-btn is gone. active-plan-{pdf,link,whatsapp,save}-btn remain in Plan Activo header as intended. Old export-pdf-btn removed from top bar (still exists in PeriodizationComplete & SessionEditor section contexts - intentional, not the top bar). PDF generation verified for styles training & sport, with and without section edits.",
+  "rca of the issue": "User-reported runtime 'Script error' root cause: MasterReportModal.js read wrong localStorage key ('token' vs app-wide 'train_token') -> Bearer null sent -> backend 401 -> axios with responseType:'blob' + some internal path attempted to access xhr.responseText which throws DOMException because responseType is 'blob'. The error surfaced as an unhandled window error. Reproduction: open modal from header button without prior 'token' localStorage entry and click Generate. Mitigation applied: fallback chain for the token key. Permanent fix recommended: unify auth header retrieval across the app via a shared util or axios instance configured with interceptors."
+}
