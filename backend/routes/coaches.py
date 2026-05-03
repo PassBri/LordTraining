@@ -127,3 +127,77 @@ async def delete_coach(coach_id: str, user=Depends(get_current_user_dep())):
     if res.deleted_count == 0:
         raise HTTPException(404, "Entrenador no encontrado")
     return {"ok": True}
+
+
+# ===================== STAFF ASIGNADO POR PLAN =====================
+class StaffAssignment(BaseModel):
+    coach_id: str = Field(..., min_length=1)
+    role: str = Field(..., min_length=1, max_length=120)  # ej: "Director Técnico"
+    notes: Optional[str] = Field(default=None, max_length=400)
+
+
+_plans = _db["training_plans"]
+
+
+@router.get("/by-plan/{plan_id}/staff")
+async def list_plan_staff(plan_id: str, user=Depends(get_current_user_dep())):
+    """Lista los entrenadores asignados al plan, hidratados con sus perfiles."""
+    uid = _uid(user)
+    plan = await _plans.find_one({"id": plan_id, "coach_id": uid}, {"_id": 0, "id": 1, "staff": 1})
+    if plan is None:
+        raise HTTPException(404, "Plan no encontrado")
+    assignments = plan.get("staff") or []
+    if not assignments:
+        return []
+    coach_ids = [a.get("coach_id") for a in assignments if a.get("coach_id")]
+    coaches_docs = await _coaches.find(
+        {"id": {"$in": coach_ids}, "coach_id": uid}, {"_id": 0}
+    ).to_list(200)
+    by_id = {c["id"]: c for c in coaches_docs}
+    out = []
+    for a in assignments:
+        cid = a.get("coach_id")
+        prof = by_id.get(cid)
+        if not prof:
+            continue
+        out.append({
+            "coach_id": cid,
+            "role": a.get("role") or "Staff",
+            "notes": a.get("notes") or "",
+            "name": prof.get("name"),
+            "specialty": prof.get("specialty"),
+            "photo_url": prof.get("photo_url"),
+            "level": prof.get("level"),
+            "current_organization": prof.get("current_organization"),
+            "years_experience": prof.get("years_experience"),
+        })
+    return out
+
+
+@router.post("/by-plan/{plan_id}/staff")
+async def assign_coach_to_plan(plan_id: str, payload: StaffAssignment, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    plan = await _plans.find_one({"id": plan_id, "coach_id": uid}, {"_id": 0, "id": 1, "staff": 1})
+    if plan is None:
+        raise HTTPException(404, "Plan no encontrado")
+    coach_doc = await _coaches.find_one({"id": payload.coach_id, "coach_id": uid}, {"_id": 0, "id": 1})
+    if not coach_doc:
+        raise HTTPException(404, "Entrenador no encontrado")
+    staff = plan.get("staff") or []
+    # Reemplazar si ya existe
+    staff = [s for s in staff if s.get("coach_id") != payload.coach_id]
+    staff.append({"coach_id": payload.coach_id, "role": payload.role, "notes": payload.notes or ""})
+    await _plans.update_one({"id": plan_id, "coach_id": uid}, {"$set": {"staff": staff}})
+    return {"ok": True, "staff_count": len(staff)}
+
+
+@router.delete("/by-plan/{plan_id}/staff/{coach_id}")
+async def remove_coach_from_plan(plan_id: str, coach_id: str, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    res = await _plans.update_one(
+        {"id": plan_id, "coach_id": uid},
+        {"$pull": {"staff": {"coach_id": coach_id}}}
+    )
+    if res.matched_count == 0:
+        raise HTTPException(404, "Plan no encontrado")
+    return {"ok": True}

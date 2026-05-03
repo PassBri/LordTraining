@@ -23,6 +23,7 @@ _db = _client[db_name]
 _objectives = _db["plan_objectives"]
 _obj_shares = _db["plan_objectives_shares"]
 _plans = _db["training_plans"]
+_coaches = _db["coaches"]
 
 
 def _get_user_id(user):
@@ -52,7 +53,7 @@ ASPECT_LABELS = [
 ]
 
 
-def _build_html(obj_doc: dict, plan_name: str, share_id: Optional[str] = None) -> str:
+def _build_html(obj_doc: dict, plan_name: str, share_id: Optional[str] = None, staff_html: str = "") -> str:
     data = obj_doc.get("data") or {}
     deporte = data.get("deporteObjetivo") or "(Sin definir)"
     categoria = data.get("categoria") or "—"
@@ -203,6 +204,8 @@ def _build_html(obj_doc: dict, plan_name: str, share_id: Optional[str] = None) -
   <tbody>{aspect_html}</tbody>
 </table>
 
+{staff_html}
+
 <div class="callout">
   La claridad de estos objetivos es crítica para guiar el desarrollo del programa de entrenamiento
   y medir el progreso. Cada objetivo debe ser <strong>específico, medible, alcanzable, relevante
@@ -239,6 +242,86 @@ async def _get_plan_name(plan_id: str) -> str:
     return (plan or {}).get("name") or "Plan sin nombre"
 
 
+async def _get_plan_staff(plan_id: str, user_id: str) -> list:
+    """Obtiene el staff asignado al plan hidratado con perfiles de coaches."""
+    plan = await _plans.find_one({"id": plan_id, "coach_id": user_id}, {"_id": 0, "id": 1, "staff": 1})
+    if plan is None:
+        return []
+    assignments = plan.get("staff") or []
+    if not assignments:
+        return []
+    coach_ids = [a.get("coach_id") for a in assignments if a.get("coach_id")]
+    if not coach_ids:
+        return []
+    coaches_docs = await _coaches.find(
+        {"id": {"$in": coach_ids}, "coach_id": user_id}, {"_id": 0}
+    ).to_list(200)
+    by_id = {c["id"]: c for c in coaches_docs}
+    out = []
+    for a in assignments:
+        prof = by_id.get(a.get("coach_id"))
+        if not prof:
+            continue
+        out.append({**prof, "_role": a.get("role") or "Staff", "_notes": a.get("notes") or ""})
+    return out
+
+
+def _staff_section_html(staff: list) -> str:
+    """Renderiza HTML de la sección 'Cuerpo Técnico Asignado' para el PDF."""
+    if not staff:
+        return ""
+    cards = []
+    for c in staff:
+        name = _esc(c.get("name") or "—")
+        initial = (c.get("name") or "C")[0].upper()
+        photo = c.get("photo_url") or ""
+        role = _esc(c.get("_role") or "Staff")
+        specialty = _esc(c.get("specialty") or "")
+        years = c.get("years_experience")
+        years_lbl = f"{years} años" if isinstance(years, int) else "—"
+        level = _esc(c.get("level") or "")
+        org = _esc(c.get("current_organization") or "")
+        notes = _esc(c.get("_notes") or "")
+        avatar = (
+            f'<img src="{photo}" alt="{name}" class="st-avatar"/>' if photo
+            else f'<div class="st-avatar st-avatar-fb">{initial}</div>'
+        )
+        cards.append(f"""
+<div class="staff-card">
+  <div class="staff-head">
+    {avatar}
+    <div class="staff-id">
+      <div class="st-role">{role}</div>
+      <div class="st-name">{name}</div>
+      <div class="st-spec">{specialty}{(" · " + level) if level else ""}</div>
+    </div>
+    <div class="st-exp"><div class="exp-num">{years_lbl}</div><div class="exp-lbl">Experiencia</div></div>
+  </div>
+  {f'<div class="st-org">📍 {org}</div>' if org else ''}
+  {f'<div class="st-notes">{notes}</div>' if notes else ''}
+</div>""")
+    return f"""
+<h2>4. Cuerpo Técnico Asignado</h2>
+<div class="staff-grid">{"".join(cards)}</div>
+<style>
+  .staff-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 8pt; margin-top: 6pt; }}
+  .staff-card {{ background: #fff; border: 1px solid #e2e8f0; border-left: 3pt solid #0EA5E9; border-radius: 10pt; padding: 10pt 12pt; page-break-inside: avoid; break-inside: avoid; }}
+  .staff-head {{ display: flex; align-items: center; gap: 10pt; margin-bottom: 4pt; }}
+  .st-avatar {{ width: 38pt; height: 38pt; border-radius: 50%; object-fit: cover; }}
+  .st-avatar-fb {{ background: linear-gradient(135deg, #0EA5E9, #0f172a); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 16pt; font-weight: 900; }}
+  .staff-id {{ flex: 1; min-width: 0; }}
+  .st-role {{ font-size: 7.5pt; font-weight: 800; color: #0EA5E9; text-transform: uppercase; letter-spacing: 0.7px; }}
+  .st-name {{ font-size: 11pt; font-weight: 900; color: #0f172a; line-height: 1.1; }}
+  .st-spec {{ font-size: 8.5pt; color: #475569; font-weight: 600; margin-top: 1pt; }}
+  .st-exp {{ text-align: right; flex-shrink: 0; }}
+  .exp-num {{ font-size: 11pt; font-weight: 900; color: #0EA5E9; line-height: 1; }}
+  .exp-lbl {{ font-size: 6.5pt; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.7px; margin-top: 1pt; }}
+  .st-org {{ font-size: 8.5pt; color: #475569; margin-top: 4pt; padding-top: 4pt; border-top: 1px dashed #e2e8f0; }}
+  .st-notes {{ font-size: 8pt; color: #64748b; font-style: italic; margin-top: 3pt; }}
+</style>
+"""
+
+
 @router.get("/{plan_id}/pdf")
 async def download_objectives_pdf(plan_id: str, user=Depends(get_current_user_dep())):
     uid = _get_user_id(user)
@@ -246,7 +329,8 @@ async def download_objectives_pdf(plan_id: str, user=Depends(get_current_user_de
     if not doc:
         raise HTTPException(404, "Aún no hay objetivos guardados. Haz clic en 'Guardar' primero.")
     plan_name = await _get_plan_name(plan_id)
-    html = _build_html(doc, plan_name)
+    staff = await _get_plan_staff(plan_id, uid)
+    html = _build_html(doc, plan_name, staff_html=_staff_section_html(staff))
     try:
         pdf = await _render_pdf(html)
     except Exception as e:
@@ -271,11 +355,12 @@ async def create_objectives_share_link(plan_id: str, user=Depends(get_current_us
         raise HTTPException(404, "Debes guardar los objetivos antes de compartirlos.")
     existing = await _obj_shares.find_one({"plan_id": plan_id, "user_id": uid}, {"_id": 0})
     plan_name = await _get_plan_name(plan_id)
+    staff = await _get_plan_staff(plan_id, uid)
     if existing and existing.get("share_id"):
         share_id = existing["share_id"]
         await _obj_shares.update_one(
             {"share_id": share_id},
-            {"$set": {"snapshot": doc, "plan_name": plan_name, "updated_at": datetime.now(timezone.utc).isoformat()}}
+            {"$set": {"snapshot": doc, "plan_name": plan_name, "staff": staff, "updated_at": datetime.now(timezone.utc).isoformat()}}
         )
     else:
         share_id = uuid.uuid4().hex[:14]
@@ -286,6 +371,7 @@ async def create_objectives_share_link(plan_id: str, user=Depends(get_current_us
             "user_id": uid,
             "plan_name": plan_name,
             "snapshot": doc,
+            "staff": staff,
             "created_at": now,
             "updated_at": now,
         })
@@ -299,7 +385,8 @@ async def view_shared_objectives(share_id: str):
     share = await _obj_shares.find_one({"share_id": share_id}, {"_id": 0})
     if not share:
         raise HTTPException(404, "Enlace no válido o expirado")
-    html = _build_html(share["snapshot"], share.get("plan_name") or "Plan de entrenamiento", share_id=share_id)
+    staff_html = _staff_section_html(share.get("staff") or [])
+    html = _build_html(share["snapshot"], share.get("plan_name") or "Plan de entrenamiento", share_id=share_id, staff_html=staff_html)
     return HTMLResponse(content=html)
 
 
@@ -308,7 +395,8 @@ async def download_shared_objectives_pdf(share_id: str):
     share = await _obj_shares.find_one({"share_id": share_id}, {"_id": 0})
     if not share:
         raise HTTPException(404, "Enlace no válido o expirado")
-    html = _build_html(share["snapshot"], share.get("plan_name") or "Plan de entrenamiento", share_id=share_id)
+    staff_html = _staff_section_html(share.get("staff") or [])
+    html = _build_html(share["snapshot"], share.get("plan_name") or "Plan de entrenamiento", share_id=share_id, staff_html=staff_html)
     try:
         pdf = await _render_pdf(html)
     except Exception as e:

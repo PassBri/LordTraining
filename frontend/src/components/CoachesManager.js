@@ -255,7 +255,7 @@ const CoachesManager = () => {
 
       {/* Modal de creación / edición */}
       <Dialog open={!!editing} onOpenChange={(o) => { if (!o) close(); }}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" data-testid="coach-modal">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white border border-slate-200 shadow-2xl" data-testid="coach-modal">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-lg">
               <UserCircle className="w-5 h-5 text-sky-500" />

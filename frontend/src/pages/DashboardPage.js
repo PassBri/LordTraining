@@ -51,6 +51,7 @@ import PeriodizationWizard from '../components/PeriodizationWizard';
 import PeriodizationComplete from '../components/PeriodizationComplete';
 import InfoSectionHeader from '../components/InfoSectionHeader';
 import CoachesManager from '../components/CoachesManager';
+import PlanStaffPanel from '../components/PlanStaffPanel';
 import PlansList from '../components/PlansList';
 import EntityManager from '../components/EntityManager';
 import TeamManager from '../components/TeamManager';
@@ -3337,6 +3338,9 @@ const DashboardPage = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Cuerpo Técnico Asignado al Plan */}
+          {activePlan?.id && <PlanStaffPanel planId={activePlan.id} />}
 
           {/* SMART Callout */}
           <div className="rounded-xl p-4 flex items-start gap-3" style={{ background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', borderLeft: '4px solid #CCFF00' }}>
