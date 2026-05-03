@@ -8255,6 +8255,10 @@ app.include_router(active_plan_export_router, prefix="/api")
 from routes.info_catalog_export import router as info_catalog_export_router
 app.include_router(info_catalog_export_router, prefix="/api")
 
+# Coaches: CRUD + perfiles profesionales (entrenadores/staff)
+from routes.coaches import router as coaches_router
+app.include_router(coaches_router, prefix="/api")
+
 # Store db reference in app state for V2 routes
 app.state.db = db
 

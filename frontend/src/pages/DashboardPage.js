@@ -50,6 +50,7 @@ import ExerciseLibrary from '../components/ExerciseLibrary';
 import PeriodizationWizard from '../components/PeriodizationWizard';
 import PeriodizationComplete from '../components/PeriodizationComplete';
 import InfoSectionHeader from '../components/InfoSectionHeader';
+import CoachesManager from '../components/CoachesManager';
 import PlansList from '../components/PlansList';
 import EntityManager from '../components/EntityManager';
 import TeamManager from '../components/TeamManager';
@@ -1516,6 +1517,7 @@ const DashboardPage = () => {
     { id: 'athletes', label: t('dashboard.controlPanel.athletes'), icon: User, section: 'informacion' },
     { id: 'sports', label: 'Deportes', icon: Medal, section: 'informacion' },
     { id: 'tournaments', label: 'Torneos', icon: Shield, section: 'informacion' },
+    { id: 'coaches', label: 'Entrenadores', icon: UserCheck, section: 'informacion' },
     
     // === 3. EVALUACIÓN / CONTROLES ===
     { id: 'control-medical', label: 'Control Médico', icon: Stethoscope, section: 'evaluacion' },
@@ -4479,6 +4481,21 @@ const DashboardPage = () => {
             color="#0EA5E9"
           />
           <EntityManager />
+        </div>
+      );
+    }
+
+    if (activeDataSection === 'coaches') {
+      return (
+        <div className="p-4 space-y-4 overflow-y-auto h-full bg-[#fafaf8]">
+          <InfoSectionHeader
+            catalogType="coaches"
+            title="Entrenadores"
+            subtitle="Staff técnico · perfiles profesionales · trayectoria · campeonatos"
+            icon={UserCheck}
+            color="#0EA5E9"
+          />
+          <CoachesManager />
         </div>
       );
     }

@@ -118,6 +118,21 @@ TYPE_CONFIG = {
             {"key": "location", "label": "Sede", "width": "10%"},
         ],
     },
+    "coaches": {
+        "collection": "coaches",
+        "label": "Entrenadores",
+        "subtitle": "Perfiles profesionales · staff técnico · trayectoria y logros",
+        "icon": "👨‍🏫",
+        "color": "#0EA5E9",  # sky-500
+        "filter_field": "coach_id",
+        "columns": [
+            {"key": "name", "label": "Nombre", "width": "28%"},
+            {"key": "specialty", "label": "Especialidad", "width": "20%"},
+            {"key": "years_experience", "label": "Años exp.", "width": "10%"},
+            {"key": "level", "label": "Nivel", "width": "20%"},
+            {"key": "current_organization", "label": "Organización", "width": "22%"},
+        ],
+    },
 }
 
 
@@ -516,6 +531,257 @@ async def _coach_name(user_id: str) -> str:
     return u.get("name") or u.get("email") or ""
 
 
+# ============== TEMPLATE ESPECIAL: ENTRENADORES (Material Design Cards) ==============
+def _build_coaches_html(items: List[Dict[str, Any]], coach_name: str = "", share_id: Optional[str] = None) -> str:
+    cfg = TYPE_CONFIG["coaches"]
+    color = cfg["color"]
+
+    brand_dir = "/app/frontend/public/brand"
+    try:
+        with open(f"{brand_dir}/itrain-full-pdf.png", "rb") as f:
+            full_b64 = base64.b64encode(f.read()).decode()
+        with open(f"{brand_dir}/itrain-icon-pdf.png", "rb") as f:
+            icon_b64 = base64.b64encode(f.read()).decode()
+    except FileNotFoundError:
+        full_b64 = icon_b64 = ""
+
+    cards = []
+    total_achievements = 0
+    avg_exp = 0
+    exp_count = 0
+
+    for c in items:
+        name = _esc(c.get("name") or "Entrenador")
+        photo = c.get("photo_url") or ""
+        specialty = _esc(c.get("specialty") or "—")
+        sub_specialty = _esc(c.get("sub_specialty") or "")
+        years = c.get("years_experience")
+        if isinstance(years, int):
+            avg_exp += years
+            exp_count += 1
+        years_lbl = f"{years} años" if isinstance(years, int) else "—"
+        level = _esc(c.get("level") or "—")
+        org = _esc(c.get("current_organization") or "—")
+        role = _esc(c.get("role_in_org") or "")
+        nationality = _esc(c.get("nationality") or "")
+        bio = _esc(c.get("bio") or "")
+
+        studies = c.get("studies") or []
+        certifications = c.get("certifications") or []
+        career = c.get("career_history") or []
+        achievements = c.get("achievements") or []
+        languages = c.get("languages") or []
+        total_achievements += len(achievements)
+
+        # Avatar / inicial
+        initial = (name or "C")[0].upper()
+        avatar_html = (
+            f'<img src="{photo}" alt="{name}" class="coach-avatar"/>' if photo
+            else f'<div class="coach-avatar-fallback" style="background:linear-gradient(135deg,{color},#0f172a)">{initial}</div>'
+        )
+
+        # Logros: top 3 tarjetitas
+        ach_html = ""
+        if achievements:
+            chips = []
+            for a in achievements[:5]:
+                title = _esc((a or {}).get("title") or (a or {}).get("nombre") or "Logro")
+                year = _esc((a or {}).get("year") or "")
+                chips.append(f'<span class="ach-chip">🏆 {title}{(" · " + year) if year else ""}</span>')
+            ach_html = "".join(chips)
+        else:
+            ach_html = '<span class="muted">Sin logros registrados</span>'
+
+        # Studies summary
+        st_html = []
+        for s in studies[:3]:
+            t = _esc((s or {}).get("title") or "")
+            inst = _esc((s or {}).get("institution") or "")
+            yr = _esc((s or {}).get("year") or "")
+            if t:
+                st_html.append(f'<li><strong>{t}</strong>{(" · " + inst) if inst else ""}{(" · " + yr) if yr else ""}</li>')
+        st_block = ("<ul class='cv-list'>" + "".join(st_html) + "</ul>") if st_html else '<span class="muted">Sin estudios registrados</span>'
+
+        # Certifications
+        cert_html = []
+        for ct in certifications[:3]:
+            t = _esc((ct or {}).get("title") or "")
+            inst = _esc((ct or {}).get("institution") or "")
+            if t:
+                cert_html.append(f'<li><strong>{t}</strong>{(" · " + inst) if inst else ""}</li>')
+        cert_block = ("<ul class='cv-list'>" + "".join(cert_html) + "</ul>") if cert_html else '<span class="muted">Sin certificaciones</span>'
+
+        # Career history
+        car_html = []
+        for k in career[:3]:
+            org_k = _esc((k or {}).get("organization") or "")
+            role_k = _esc((k or {}).get("role") or "")
+            fr = _esc((k or {}).get("from_year") or "")
+            to = _esc((k or {}).get("to_year") or "Actual")
+            if org_k:
+                car_html.append(f'<li><strong>{org_k}</strong>{(" · " + role_k) if role_k else ""}{(" · " + fr + "–" + to) if fr else ""}</li>')
+        car_block = ("<ul class='cv-list'>" + "".join(car_html) + "</ul>") if car_html else '<span class="muted">Sin trayectoria registrada</span>'
+
+        # Languages
+        lang_html = ""
+        if languages:
+            lang_html = "".join([f'<span class="lang-chip">{_esc(lg)}</span>' for lg in languages[:5]])
+
+        cards.append(f"""
+<div class="coach-card">
+  <div class="coach-card-head">
+    <div class="coach-avatar-wrap">
+      {avatar_html}
+    </div>
+    <div class="coach-id">
+      <div class="coach-name">{name}</div>
+      <div class="coach-spec">{specialty}{(" · " + sub_specialty) if sub_specialty else ""}</div>
+      {f'<div class="coach-nat">{nationality}</div>' if nationality else ''}
+    </div>
+    <div class="coach-stats">
+      <div class="stat-num">{years_lbl}</div>
+      <div class="stat-lbl">Experiencia</div>
+    </div>
+  </div>
+
+  <div class="coach-pills">
+    <span class="pill" style="background:{color}1a;color:{color};border:1px solid {color}55">{level}</span>
+    {f'<span class="pill" style="background:#0f172a;color:#fff;border:1px solid #0f172a">{org}{(" · " + role) if role else ""}</span>' if org != "—" else ''}
+    {lang_html}
+  </div>
+
+  {f'<div class="coach-bio">{bio}</div>' if bio else ''}
+
+  <div class="coach-grid">
+    <div class="coach-section">
+      <div class="cs-title">🎓 Estudios</div>
+      <div class="cs-body">{st_block}</div>
+    </div>
+    <div class="coach-section">
+      <div class="cs-title">📜 Certificaciones</div>
+      <div class="cs-body">{cert_block}</div>
+    </div>
+    <div class="coach-section">
+      <div class="cs-title">💼 Trayectoria</div>
+      <div class="cs-body">{car_block}</div>
+    </div>
+    <div class="coach-section">
+      <div class="cs-title">🏅 Campeonatos &amp; Logros</div>
+      <div class="cs-body achievements-block">{ach_html}</div>
+    </div>
+  </div>
+</div>
+""")
+
+    cards_html = "".join(cards) if cards else (
+        '<div class="empty-state"><p>Aún no has registrado entrenadores.</p></div>'
+    )
+
+    avg_exp_val = round(avg_exp / exp_count) if exp_count else 0
+
+    share_banner = ""
+    if share_id:
+        share_banner = '<div class="share-ribbon">DOCUMENTO COMPARTIDO · Solo lectura · Generado por iTrain.app</div>'
+
+    coach_line = f'<div><strong>Generado por</strong>{_esc(coach_name)}</div>' if coach_name else ""
+    today = datetime.now(timezone.utc).strftime("%d/%m/%Y")
+
+    return f"""<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><title>Catálogo Entrenadores · iTrain</title>
+<style>
+  @page {{ size: A4; margin: 14mm 12mm; }}
+  * {{ box-sizing: border-box; }}
+  body {{ font-family: 'Helvetica Neue', Arial, sans-serif; color: #0f172a; line-height: 1.5; font-size: 10pt; }}
+  h1 {{ font-size: 28pt; font-weight: 900; letter-spacing: -0.02em; margin: 0 0 4pt; color: #fff; }}
+  h2 {{ font-size: 13pt; font-weight: 800; margin: 14pt 0 8pt; color: #0f172a; border-bottom: 2px solid {color}; padding-bottom: 4pt; }}
+  .muted {{ color: #94a3b8; font-style: italic; }}
+
+  .hero {{ background: linear-gradient(135deg, #0b1020 0%, #1e293b 100%); color: #fff; padding: 24pt 26pt; border-radius: 12pt; margin-bottom: 14pt; position: relative; overflow: hidden; }}
+  .hero::after {{ content: ""; position: absolute; right: -50pt; top: -50pt; width: 220pt; height: 220pt; background: radial-gradient(circle, {color}55 0%, transparent 65%); }}
+  .hero .subtitle {{ color: rgba(255,255,255,0.78); font-size: 11.5pt; margin-top: 4pt; }}
+  .brand-mark img {{ height: 30pt; width: 120pt; object-fit: contain; display: block; margin-bottom: 12pt; }}
+  .badge {{ display: inline-block; background: {color}; color: #fff; padding: 4pt 10pt; border-radius: 20pt; font-size: 8.5pt; font-weight: 800; letter-spacing: 1px; margin-bottom: 8pt; text-transform: uppercase; }}
+  .meta {{ display: flex; flex-wrap: wrap; gap: 18pt; margin-top: 12pt; color: rgba(255,255,255,0.85); font-size: 9pt; position: relative; z-index: 1; }}
+  .meta strong {{ color: {color}; display: block; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-bottom: 2pt; }}
+
+  .stats {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 8pt; margin-bottom: 12pt; }}
+  .stat-card {{ background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-radius: 10pt; padding: 12pt 14pt; border: 1px solid #e2e8f0; border-top: 3pt solid {color}; }}
+  .stat-card .num {{ font-size: 20pt; font-weight: 900; color: #0f172a; line-height: 1; }}
+  .stat-card .lbl {{ font-size: 7.5pt; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 4pt; }}
+
+  /* COACH CARDS */
+  .coach-card {{ background: #fff; border: 1px solid #e2e8f0; border-radius: 12pt; padding: 14pt 16pt; margin-bottom: 10pt; page-break-inside: avoid; break-inside: avoid; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }}
+  .coach-card-head {{ display: flex; align-items: center; gap: 12pt; padding-bottom: 10pt; border-bottom: 1px solid #f1f5f9; margin-bottom: 10pt; }}
+  .coach-avatar-wrap {{ flex-shrink: 0; }}
+  .coach-avatar, .coach-avatar-fallback {{ width: 50pt; height: 50pt; border-radius: 50%; object-fit: cover; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22pt; font-weight: 900; box-shadow: 0 2pt 6pt rgba(0,0,0,0.1); }}
+  .coach-id {{ flex: 1; min-width: 0; }}
+  .coach-name {{ font-size: 14pt; font-weight: 900; color: #0f172a; line-height: 1.1; letter-spacing: -0.01em; }}
+  .coach-spec {{ font-size: 9.5pt; color: #475569; font-weight: 600; margin-top: 2pt; }}
+  .coach-nat {{ font-size: 8pt; color: #64748b; margin-top: 2pt; font-weight: 600; }}
+  .coach-stats {{ flex-shrink: 0; text-align: right; }}
+  .coach-stats .stat-num {{ font-size: 14pt; font-weight: 900; color: {color}; line-height: 1; }}
+  .coach-stats .stat-lbl {{ font-size: 7pt; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2pt; }}
+
+  .coach-pills {{ display: flex; flex-wrap: wrap; gap: 4pt; margin-bottom: 8pt; }}
+  .pill {{ display: inline-block; padding: 2pt 8pt; border-radius: 999pt; font-size: 8.5pt; font-weight: 700; }}
+  .lang-chip {{ display: inline-block; padding: 2pt 7pt; border-radius: 4pt; font-size: 8pt; font-weight: 700; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }}
+
+  .coach-bio {{ font-size: 9pt; color: #475569; line-height: 1.5; padding: 8pt 10pt; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-left: 3pt solid {color}; border-radius: 6pt; margin-bottom: 8pt; font-style: italic; }}
+
+  .coach-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 8pt; }}
+  .coach-section {{ background: #f8fafc; border-radius: 8pt; padding: 8pt 10pt; }}
+  .cs-title {{ font-size: 8.5pt; font-weight: 900; color: #0f172a; margin-bottom: 4pt; text-transform: uppercase; letter-spacing: 0.6px; }}
+  .cs-body {{ font-size: 8.5pt; color: #334155; line-height: 1.5; }}
+  .cv-list {{ margin: 0; padding-left: 14pt; }}
+  .cv-list li {{ margin-bottom: 2pt; }}
+  .achievements-block {{ display: flex; flex-wrap: wrap; gap: 4pt; }}
+  .ach-chip {{ display: inline-block; padding: 3pt 8pt; border-radius: 999pt; font-size: 8pt; font-weight: 700; background: #fffbeb; color: #92400e; border: 1px solid #fcd34d; }}
+
+  .empty-state {{ text-align: center; padding: 30pt 20pt; background: #f8fafc; border-radius: 10pt; color: #94a3b8; }}
+
+  .footer-brand {{ margin-top: 14pt; padding-top: 10pt; border-top: 1px solid #e2e8f0; display: flex; align-items: center; gap: 8pt; color: #64748b; font-size: 8pt; }}
+  .footer-brand img {{ height: 18pt; width: 18pt; }}
+  .share-ribbon {{ background: #0f172a; color: #CCFF00; text-align: center; padding: 7pt; border-radius: 8pt; margin-bottom: 12pt; font-size: 9pt; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }}
+</style></head>
+<body>
+
+{share_banner}
+
+<div class="hero">
+  <div class="brand-mark">
+    <img src="data:image/png;base64,{full_b64}" alt="iTRAIN" width="160" height="42" style="width:160px;height:42px;object-fit:contain;display:block;"/>
+  </div>
+  <span class="badge">CATÁLOGO · ENTRENADORES</span>
+  <h1>Staff Técnico</h1>
+  <div class="subtitle">{_esc(cfg['subtitle'])}</div>
+  <div class="meta">
+    <div><strong>Total entrenadores</strong>{len(items)}</div>
+    <div><strong>Experiencia promedio</strong>{avg_exp_val} años</div>
+    <div><strong>Logros registrados</strong>{total_achievements}</div>
+    <div><strong>Generado el</strong>{today}</div>
+    {coach_line}
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat-card"><div class="num">{len(items)}</div><div class="lbl">Total Entrenadores</div></div>
+  <div class="stat-card"><div class="num">{len([x for x in items if x.get('is_active', True)])}</div><div class="lbl">Activos</div></div>
+  <div class="stat-card"><div class="num">{avg_exp_val}</div><div class="lbl">Años Exp. Promedio</div></div>
+  <div class="stat-card"><div class="num">{total_achievements}</div><div class="lbl">Logros / Campeonatos</div></div>
+</div>
+
+<h2>Plantilla Técnica</h2>
+
+{cards_html}
+
+<div class="footer-brand">
+  <img src="data:image/png;base64,{icon_b64}" alt="iTRAIN"/>
+  <span>Generado por <strong>iTRAIN</strong> · iTrain.app · Catálogo Profesional de Entrenadores</span>
+</div>
+
+</body></html>"""
+
+
 @router.get("/{catalog_type}/pdf")
 async def download_catalog_pdf(catalog_type: str, user=Depends(get_current_user_dep())):
     _validate_type(catalog_type)
@@ -524,6 +790,8 @@ async def download_catalog_pdf(catalog_type: str, user=Depends(get_current_user_
     coach = await _coach_name(uid)
     if catalog_type == "sports":
         html = _build_sports_html(items, coach)
+    elif catalog_type == "coaches":
+        html = _build_coaches_html(items, coach)
     else:
         html = _build_html(catalog_type, items, coach)
     try:
@@ -581,6 +849,8 @@ async def view_shared_catalog(share_id: str):
     coach = snap.get("coach_name") or ""
     if share["catalog_type"] == "sports":
         html = _build_sports_html(items, coach, share_id=share_id)
+    elif share["catalog_type"] == "coaches":
+        html = _build_coaches_html(items, coach, share_id=share_id)
     else:
         html = _build_html(share["catalog_type"], items, coach, share_id=share_id)
     return HTMLResponse(content=html)
@@ -596,6 +866,8 @@ async def download_shared_catalog_pdf(share_id: str):
     coach = snap.get("coach_name") or ""
     if share["catalog_type"] == "sports":
         html = _build_sports_html(items, coach, share_id=share_id)
+    elif share["catalog_type"] == "coaches":
+        html = _build_coaches_html(items, coach, share_id=share_id)
     else:
         html = _build_html(share["catalog_type"], items, coach, share_id=share_id)
     try:
