@@ -8,6 +8,36 @@
 - DB: MongoDB (11 colecciones V2 + plan_previous_analysis_ai_cache + plan_evaluations_v2 + evaluation_templates + plan_evaluations_shares)
 
 
+### Reporte PDF Maestro · T6+T7 (May 2026)
+
+**Backend** `/app/backend/routes/master_report.py` (~480 líneas, registrado en `server.py` con prefix `/api`):
+- 5 estilos visuales (`STYLES` dict): **APA** (académico Times serif), **Michigan** (universitario azul/dorado), **Sport** (magazine deportivo dark Bebas Neue), **Training** (clínico Inter verde) y **Coach** (manual Roboto Slab violeta).
+- Cada estilo define `font, primary, accent, bg, fg?, heading_size, body_size, page_margin, vibe, dark?`. Cover, sec-title, hr y tablas se derivan de estas variables. Override por estilo via `style_overrides[id]` (ej: APA italic + double-spacing; Michigan border-bottom doble; Sport background dark).
+- 22 secciones seleccionables agrupadas en 8 bloques: Inicio (cover/toc/introduction), Diagnóstico (plan anterior/activo), Información (entities/teams/athletes/sports/tournaments/coaches), Evaluación (8 tipos), Competencias, Periodización (estructura/carga), Visualización (graphic_plan), Herramientas.
+- Endpoints:
+  - `GET /api/master-report/styles` lista los 5 estilos para el frontend.
+  - `GET /api/master-report/sections-catalog` devuelve los 8 grupos con items `{id, label}`.
+  - `POST /api/master-report/generate` body=`MasterReportPayload {plan_id?, title?, subtitle?, style, sections:SectionFlags, org_name?, org_logo_b64?, coach_name?, athlete_name?}` → PDF A4 stream.
+- Pipeline: `_build_html()` arma todas las secciones según flags (carga el plan activo, evaluaciones plan_evaluations_v2 últimas 10 por tipo, info catalogs por colección, tournaments, plan_previous_analysis_ai_cache, graphic_plan_shares con image_b64) → `_render_pdf()` con Playwright `set_content` + `pdf(format='A4', print_background=True)`.
+- Logo del club opcional vía `org_logo_b64` (data URL base64) embebido en la portada con max-height 80pt; si no, fallback al brand iTRAIN.
+
+**Frontend** `/app/frontend/src/components/MasterReportModal.js` (~270 líneas):
+- Dialog full-feature con header gradient slate-900 + icon FileBarChart2 lima, ScrollArea body en grid 12-cols.
+- LEFT (col-5): inputs Título / Subtítulo / Organización / Logo (file upload → base64, preview + botón X), grid 2x con cards de los 5 estilos (active state slate-900 + scale[1.02], swatches primary/accent visibles, vibe descriptivo).
+- RIGHT (col-7): contador "X seleccionadas" en pill lima, los 8 grupos como cards con header "Marcar todo / Quitar todo" y checkboxes en grid 2-col por sección. Default selection: cover+toc+introduction+diagnostic_active+periodization_structure+graphic_plan.
+- Footer sticky con plan name + botones Cancelar / Generar (Loader2 spinner + descarga blob automática como `reporte_<title>_<style>.pdf`).
+- data-testids: `master-report-modal`, `mr-title-input`, `mr-subtitle-input`, `mr-org-input`, `mr-logo-input`, `mr-style-{apa|michigan|sport|training|coach}`, `mr-section-{id}`, `mr-group-{id}-toggle-all`, `mr-cancel-btn`, `mr-generate-btn`.
+
+**Integración** `DashboardPage.js`:
+- Estado `isMasterReportOpen` + import `MasterReportModal`.
+- Botón "Reporte Maestro" en el header de Plan Activo (`data-testid="active-plan-master-report-btn"`) con borde y bg lima-tinted, al lado de PDF/Enlace/WhatsApp.
+- Modal montado al final del componente con props: open/onOpenChange/plan=activePlan/athleteName/coachName.
+
+**Validación**: 12/12 backend tests PASS (testing_agent_v3_fork iter_51) — los 5 estilos generan PDF 90-130KB. Validación visual de PDF Sport con `analyze_file_tool`: portada con título grande + bloque atleta/coach/fecha, TOC con paginación "p. N", todas las secciones presentes (Diagnóstico previo+activo, Info atletas/deportes/torneos, 3 evaluaciones, Competencias, Periodización estructura+carga, Plan Gráfico, Herramientas), estilo dark/condensed correcto. Code review frontend confirmó todos los data-testid + integración OK.
+
+
+
+
 ### Evolución de Controles — Mini chart + Vista global multi-tipo (Feb 2026)
 
 **Component nuevo** `/app/frontend/src/components/EvaluationEvolution.js` (~280 líneas):
