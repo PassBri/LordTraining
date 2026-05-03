@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -140,9 +140,9 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
             </div>
             <div>
               <div className="text-base font-bold tracking-tight">Reporte Maestro · PDF</div>
-              <div className="text-[11px] text-slate-300 font-normal">
+              <DialogDescription className="text-[11px] text-slate-300 font-normal">
                 Constructor selectivo · 5 estilos · logo del club · 22 secciones
-              </div>
+              </DialogDescription>
             </div>
           </DialogTitle>
         </DialogHeader>
