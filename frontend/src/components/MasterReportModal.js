@@ -60,6 +60,8 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
   const [previewUrl, setPreviewUrl] = useState('');
   const [previewing, setPreviewing] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [sessionTree, setSessionTree] = useState({ items: [], total_sessions: 0 });
+  const [selectedSessionIds, setSelectedSessionIds] = useState(null); // null = all, [] = none, [...] = filtered
   const debounceRef = useRef(null);
   const lastPayloadRef = useRef('');
 
@@ -75,6 +77,11 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
       .catch(() => toast.error('No se pudo cargar el catálogo de secciones'));
     axios.get(`${API}/api/master-report/cover-layouts`, { headers })
       .then(r => setLayouts(r.data.layouts || [])).catch(() => {});
+    if (plan?.id) {
+      axios.get(`${API}/api/master-report/sessions-list/${plan.id}`, { headers })
+        .then(r => setSessionTree(r.data || { items: [], total_sessions: 0 }))
+        .catch(() => setSessionTree({ items: [], total_sessions: 0 }));
+    }
     if (plan?.name) setTitle(plan.name);
   }, [open, plan]);
 
@@ -125,13 +132,14 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
     });
   }, [sections, enabledSectionIds]);
 
-  const buildPayload = () => ({
+  const buildPayload = (overrides = {}) => ({
     plan_id: plan?.id || null,
     title: title || plan?.name || 'Plan de Entrenamiento',
     subtitle: subtitle || '',
     style: styleId,
     sections,
     section_order: sectionOrder.length ? sectionOrder : undefined,
+    selected_session_ids: selectedSessionIds && selectedSessionIds.length >= 0 ? selectedSessionIds : undefined,
     org_name: orgName || '',
     org_logo_b64: orgLogoB64 || '',
     coach_name: coachName || '',
@@ -139,7 +147,47 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
     cover: coverData,
     custom_intro: customIntro || '',
     custom_conclusions: customConclusions || '',
+    ...overrides,
   });
+
+  // Quick downloadable summary preset
+  const handleSummaryDownload = async () => {
+    setGenerating(true);
+    try {
+      const token = localStorage.getItem('train_token') || localStorage.getItem('token');
+      const summarySections = {
+        cover: true, toc: true, introduction: true,
+        diagnostic_active: true, periodization_structure: true, conclusions: true,
+      };
+      const payload = buildPayload({
+        sections: summarySections,
+        section_order: undefined,
+        selected_session_ids: undefined,
+        title: (title || plan?.name || 'Resumen del Plan') + ' · Resumen',
+        custom_intro: customIntro || `Resumen ejecutivo del plan ${plan?.name || ''}, con su estructura, periodización y conclusiones principales.`,
+      });
+      const res = await axios.post(`${API}/api/master-report/generate`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: 'blob', validateStatus: () => true,
+      });
+      if (res.status >= 400) {
+        toast.error('Error generando resumen');
+        return;
+      }
+      const blob = new Blob([res.data], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `resumen_${(title || plan?.name || 'plan').toString().replace(/\s+/g, '_').toLowerCase()}.pdf`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      toast.success('Resumen del plan descargado');
+    } catch (err) {
+      toast.error('Error generando resumen: ' + (err?.message || ''));
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   const handlePreview = async () => {
     setPreviewing(true);
@@ -180,7 +228,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, autoPreview, styleId, sections, sectionOrder, coverData, customIntro,
-      customConclusions, title, subtitle, orgName, orgLogoB64]);
+      customConclusions, title, subtitle, orgName, orgLogoB64, selectedSessionIds]);
 
   // ---- Drag & drop reorder ----
   const onDragStart = (sid) => setDragSid(sid);
@@ -466,6 +514,91 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
               </div>
             </div>
 
+            {/* Session selector — only when sections.sessions is on */}
+            {sections.sessions && sessionTree.total_sessions > 0 && (
+              <div className="bg-white border-2 border-amber-200 rounded-xl p-4 space-y-2"
+                   data-testid="mr-sessions-selector">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div>
+                    <h3 className="text-[12px] font-bold text-slate-800">Selecciona qué sesiones imprimir</h3>
+                    <p className="text-[10px] text-slate-500">
+                      {selectedSessionIds === null
+                        ? `Todas las sesiones (${sessionTree.total_sessions}) se incluirán`
+                        : `${selectedSessionIds.length} de ${sessionTree.total_sessions} seleccionadas`}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setSelectedSessionIds(null)}
+                      className="text-[10px] uppercase font-bold tracking-wider text-emerald-700 hover:underline"
+                      data-testid="mr-sessions-all">
+                      Todas
+                    </button>
+                    <button
+                      onClick={() => setSelectedSessionIds([])}
+                      className="text-[10px] uppercase font-bold tracking-wider text-red-700 hover:underline"
+                      data-testid="mr-sessions-none">
+                      Ninguna
+                    </button>
+                  </div>
+                </div>
+                <div className="max-h-72 overflow-y-auto space-y-2 pr-1">
+                  {sessionTree.items.map(meso => (
+                    <div key={meso.meso_id} className="border border-slate-200 rounded-lg overflow-hidden">
+                      <div className="bg-slate-100 px-2.5 py-1.5 text-[10px] font-bold text-slate-700">
+                        {meso.meso_name} <span className="font-normal text-slate-500">· {meso.phase}</span>
+                      </div>
+                      {meso.microcycles.map(micro => (
+                        <div key={micro.micro_id} className="border-t border-slate-100">
+                          <div className="px-2.5 py-1 bg-slate-50 text-[10px] text-slate-600 flex items-center justify-between">
+                            <span><strong>{micro.micro_name}</strong> · Sem {micro.week_number} · {micro.sessions.length} sesiones</span>
+                            <button
+                              onClick={() => {
+                                const ids = micro.sessions.map(s => s.id);
+                                const set = new Set(selectedSessionIds === null ? sessionTree.items.flatMap(me => me.microcycles.flatMap(mc => mc.sessions.map(s => s.id))) : selectedSessionIds);
+                                const allOn = ids.every(i => set.has(i));
+                                ids.forEach(i => allOn ? set.delete(i) : set.add(i));
+                                setSelectedSessionIds(Array.from(set));
+                              }}
+                              className="text-[9px] uppercase font-bold text-slate-500 hover:text-slate-900">
+                              Toggle
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 p-1.5">
+                            {micro.sessions.map(s => {
+                              const isOn = selectedSessionIds === null
+                                ? true
+                                : selectedSessionIds.includes(s.id);
+                              return (
+                                <label
+                                  key={s.id}
+                                  className={`flex items-center gap-2 p-1.5 rounded text-[10px] cursor-pointer transition ${
+                                    isOn ? 'bg-emerald-50 border border-emerald-200' : 'bg-slate-50 hover:bg-slate-100 border border-transparent'
+                                  }`}
+                                  data-testid={`mr-session-${s.id}`}>
+                                  <Checkbox
+                                    checked={isOn}
+                                    onCheckedChange={() => {
+                                      const all = sessionTree.items.flatMap(me => me.microcycles.flatMap(mc => mc.sessions.map(x => x.id)));
+                                      let curr = selectedSessionIds === null ? [...all] : [...selectedSessionIds];
+                                      if (curr.includes(s.id)) curr = curr.filter(i => i !== s.id);
+                                      else curr.push(s.id);
+                                      setSelectedSessionIds(curr);
+                                    }} />
+                                  <span className="font-semibold text-slate-700 truncate flex-1">D{s.day} · {s.name}</span>
+                                  <span className="text-[9px] text-slate-400 capitalize">{s.session_type}</span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Sections selector */}
             <div>
               <div className="flex items-center justify-between mb-3">
@@ -618,7 +751,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
             <span className="text-slate-400">·</span>
             <span className="font-semibold text-slate-700">{styles.find(s => s.id === styleId)?.name || styleId}</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Button
               variant="outline" size="sm"
               onClick={() => onOpenChange(false)}
@@ -626,6 +759,15 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
               className="h-9 text-xs"
               data-testid="mr-cancel-btn">
               Cancelar
+            </Button>
+            <Button
+              variant="outline" size="sm"
+              onClick={handleSummaryDownload}
+              disabled={generating || previewing}
+              className="h-9 text-xs border-amber-300 text-amber-700 hover:bg-amber-50"
+              data-testid="mr-summary-btn"
+              title="Descargar resumen ejecutivo (portada + diagnóstico + estructura + conclusiones)">
+              <Sparkles className="w-3.5 h-3.5 mr-1.5" />Resumen
             </Button>
             <Button
               variant="outline" size="sm"

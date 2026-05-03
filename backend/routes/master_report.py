@@ -169,6 +169,9 @@ class MasterReportPayload(BaseModel):
     custom_conclusions: Optional[str] = ""  # Texto libre para Conclusiones
     # Order in which sections should appear (when omitted, default order is used)
     section_order: Optional[List[str]] = None
+    # When sections.sessions=true, optionally filter the printed sessions.
+    # Empty/None = print ALL sessions. Otherwise, only those whose id is in this list.
+    selected_session_ids: Optional[List[str]] = None
 
 
 # ============= STYLES ENDPOINT =============
@@ -243,6 +246,49 @@ async def cover_layouts():
         {"id": "minimal", "name": "Minimalista", "vibe": "Espacio en blanco · título XL · línea de acento"},
         {"id": "institutional", "name": "Institucional", "vibe": "Logo gigante centrado · sello federativo · marco doble"},
     ]}
+
+
+@router.get("/sessions-list/{plan_id}")
+async def list_plan_sessions(plan_id: str, user=Depends(get_current_user_dep())):
+    """Listado plano de todas las sesiones del plan, agrupadas por mesociclo y microciclo,
+    para alimentar el selector multi-checkbox del frontend."""
+    uid = user.get("id") or user.get("user_id")
+    plan = await _fetch_plan(plan_id, uid)
+    if not plan:
+        raise HTTPException(404, "Plan no encontrado")
+    out = []
+    for mi, m in enumerate(plan.get("macrocycles") or []):
+        for ms in (m.get("mesocycles") or []):
+            meso_node = {
+                "meso_id": ms.get("id") or f"meso_{mi}",
+                "meso_name": ms.get("name") or "Mesociclo",
+                "phase": _phase_label(ms.get("phase")),
+                "microcycles": [],
+            }
+            for mc in (ms.get("microcycles") or []):
+                micro_node = {
+                    "micro_id": mc.get("id") or "",
+                    "micro_name": mc.get("name") or "Microciclo",
+                    "week_number": mc.get("week_number"),
+                    "sessions": [],
+                }
+                for s in (mc.get("sessions") or []):
+                    micro_node["sessions"].append({
+                        "id": s.get("id"),
+                        "day": s.get("day"),
+                        "name": s.get("name") or "Sesión",
+                        "session_type": s.get("session_type") or "general",
+                        "duration_minutes": s.get("duration_minutes"),
+                        "intensity": s.get("intensity"),
+                        "exercises_count": len(s.get("exercises") or []),
+                    })
+                if micro_node["sessions"]:
+                    meso_node["microcycles"].append(micro_node)
+            if meso_node["microcycles"]:
+                out.append(meso_node)
+    return {"items": out, "total_sessions": sum(
+        len(mc["sessions"]) for ms in out for mc in ms["microcycles"]
+    )}
 
 
 # ============= HELPERS =============
@@ -575,7 +621,7 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
         for key, label in labels.items():
             if flags.get(key):
                 toc_items.append(
-                    f'<li><span class="toc-num">{n:02d}</span><span class="toc-label">{_esc(label)}</span><span class="toc-dots"></span><span class="toc-page">{n}</span></li>'
+                    f'<li><a href="#sec-{key}" style="display:flex;align-items:baseline;gap:8pt;color:inherit;text-decoration:none;width:100%;"><span class="toc-num">{n:02d}</span><span class="toc-label">{_esc(label)}</span><span class="toc-dots"></span><span class="toc-page">{n}</span></a></li>'
                 )
                 n += 1
         parts.append(("toc", f"""<section class="page-break">
@@ -909,13 +955,16 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
             "tecnica": "#8B5CF6", "tactica": "#EC4899", "recuperacion": "#10B981",
             "cardio": "#06B6D4", "flexibilidad": "#84CC16",
         }
+        # Filter by selected_session_ids if provided
+        sel_ids = set(payload.selected_session_ids or [])
         meso_blocks = []
         total_sessions = 0
         for mi, m in enumerate(macros):
             for ms in (m.get("mesocycles") or []):
                 micro_blocks = []
                 for mc in (ms.get("microcycles") or []):
-                    sessions = mc.get("sessions") or []
+                    raw_sessions = mc.get("sessions") or []
+                    sessions = [s for s in raw_sessions if not sel_ids or s.get("id") in sel_ids]
                     if not sessions:
                         continue
                     sess_rows = []
@@ -923,31 +972,59 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
                         total_sessions += 1
                         st = (s.get("session_type") or "general").lower()
                         col = SESSION_TYPE_COLORS.get(st, "#64748B")
-                        objs = ", ".join(s.get("objectives") or [])
+                        objs = s.get("objectives") or []
+                        # Objectives as cards instead of plain string
+                        obj_html = ''
+                        if objs:
+                            obj_pills = ''.join([
+                                f'<span class="pill" style="background:{col}15;color:{col};border:1pt solid {col}40;margin:1pt;">{_esc(o)}</span>'
+                                for o in objs[:8]
+                            ])
+                            obj_html = f'<div style="margin-top:6pt;">{obj_pills}</div>'
                         exercises = s.get("exercises") or []
                         ex_html = ""
                         if exercises:
                             ex_rows = []
-                            for ex in exercises[:20]:
-                                ex_rows.append(f"<tr><td><strong>{_esc(ex.get('name') or '—')}</strong></td><td class='td-cat'>{_esc(ex.get('category') or '—')}</td><td class='td-num'>{ex.get('sets', '—')}</td><td class='td-num'>{ex.get('reps', '—')}</td><td class='td-num'>{ex.get('rest', '—')}</td><td>{_esc(ex.get('notes') or '')}</td></tr>")
-                            ex_html = f"""<table class="data-tbl" style="font-size:8.5pt;margin:4pt 0 8pt;">
-<thead><tr><th>Ejercicio</th><th>Categoría</th><th style="width:38pt">Series</th><th style="width:38pt">Reps</th><th style="width:38pt">Desc.</th><th>Notas</th></tr></thead>
-<tbody>{''.join(ex_rows)}</tbody></table>"""
+                            for ex in exercises[:25]:
+                                ex_rows.append(
+                                    f"<tr><td><strong>{_esc(ex.get('name') or '—')}</strong></td>"
+                                    f"<td class='td-cat'>{_esc(ex.get('category') or '—')}</td>"
+                                    f"<td class='td-num'>{ex.get('sets', '—')}</td>"
+                                    f"<td class='td-num'>{ex.get('reps', '—')}</td>"
+                                    f"<td class='td-num'>{ex.get('rest', '—')}</td>"
+                                    f"<td>{_esc(ex.get('notes') or '')}</td></tr>"
+                                )
+                            ex_html = (
+                                '<table class="data-tbl" style="font-size:8.5pt;margin:6pt 0 4pt;">'
+                                '<thead><tr><th>Ejercicio</th><th>Categoría</th>'
+                                '<th style="width:38pt">Series</th><th style="width:38pt">Reps</th>'
+                                '<th style="width:42pt">Desc.</th><th>Notas</th></tr></thead>'
+                                f'<tbody>{"".join(ex_rows)}</tbody></table>'
+                            )
                         else:
                             ex_html = '<p class="muted" style="font-size:8.5pt;margin:4pt 0;">Sin ejercicios detallados.</p>'
-                        sess_rows.append(f"""<div class="ev-block" style="border-left-color:{col};margin:6pt 0;page-break-inside:avoid;">
-<div class="ev-head">
-  <div>
-    <div class="ev-date">DÍA {s.get('day') or '—'} · {st.upper()}</div>
-    <div class="ev-title" style="font-size:11pt;">{_esc(s.get('name') or 'Sesión')}</div>
-    {f'<div class="td-cat" style="margin-top:2pt;">{_esc(objs)}</div>' if objs else ''}
-  </div>
-  <div class="ev-pct" style="color:{col}">
-    <div class="ev-pct-num" style="font-size:14pt;">{s.get('intensity') or 0}%</div>
-    <div class="ev-pct-lbl">INT · {s.get('duration_minutes') or '—'} min</div>
+                        # Volume + monitoring meta
+                        meta_pills = ''
+                        if s.get('duration_minutes'):
+                            meta_pills += f'<span class="pill" style="background:#f1f5f9;color:#0f172a;margin-right:4pt;">⏱ {s.get("duration_minutes")} min</span>'
+                        if s.get('intensity'):
+                            meta_pills += f'<span class="pill" style="background:{col};color:#fff;margin-right:4pt;">INT {s.get("intensity")}%</span>'
+                        if s.get('volume'):
+                            meta_pills += f'<span class="pill" style="background:#e2e8f0;color:#0f172a;margin-right:4pt;">VOL {s.get("volume")}</span>'
+                        sess_rows.append(f"""<div class="ev-block sess-card" style="border-left-color:{col};margin:8pt 0;page-break-inside:avoid;">
+<div class="sess-head" style="background:linear-gradient(135deg, {col} 0%, {col}cc 100%); color:#fff; padding:8pt 12pt; border-radius:6pt 6pt 0 0; margin:-12pt -14pt 8pt -14pt;">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <div style="font-size:8pt;font-weight:800;letter-spacing:1.5px;opacity:0.9;">DÍA {s.get('day') or '—'} · {st.upper()}</div>
+      <div style="font-size:13pt;font-weight:900;margin-top:2pt;">{_esc(s.get('name') or 'Sesión')}</div>
+    </div>
+    <div style="text-align:right;font-size:8pt;font-weight:700;letter-spacing:1px;opacity:0.85;">SESIÓN<br/>#{total_sessions:03d}</div>
   </div>
 </div>
+{f'<div style="margin:0 0 6pt;">{meta_pills}</div>' if meta_pills else ''}
+{obj_html}
 {ex_html}
+{f'<p style="font-size:9pt; color:#64748b; margin-top:6pt; font-style:italic;">📝 {_esc(s.get("notes"))}</p>' if s.get('notes') else ''}
 </div>""")
                     micro_blocks.append(f"""<div style="margin-top:10pt;">
 <h3 style="font-size:12pt;color:{primary};margin:6pt 0 4pt;font-weight:800;">{_esc(mc.get('name') or 'Microciclo')} <span style="font-weight:500;color:#94a3b8;">· Sem {mc.get('week_number','—')} · {len(sessions)} sesiones</span></h3>
@@ -960,12 +1037,13 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
 {''.join(micro_blocks)}
 </div>""")
         if not meso_blocks:
-            content = '<p class="muted">No hay sesiones detalladas registradas en los microciclos del plan.</p>'
+            content = '<p class="muted">No hay sesiones detalladas registradas o ninguna seleccionada.</p>'
         else:
             content = ''.join(meso_blocks)
+        sel_note = (f' · {len(sel_ids)} seleccionadas' if sel_ids else '')
         parts.append(("sessions", f"""<section class="page-break">
 <span class="badge">MANUAL DEL PLAN</span>
-<h2>Sesiones de Entrenamiento <span class="count">· {total_sessions} sesiones totales</span></h2>
+<h2>Sesiones de Entrenamiento <span class="count">· {total_sessions} sesiones{sel_note}</span></h2>
 <p>Detalle completo de cada sesión del plan, organizadas por mesociclo y microciclo. Esta sección sirve como manual de referencia diaria para el cuerpo técnico.</p>
 {content}
 </section>"""))
@@ -1022,7 +1100,16 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
         order_idx = {sid: i for i, sid in enumerate(payload.section_order)}
         parts.sort(key=lambda t: order_idx.get(t[0], 9000 + DEFAULT_ORDER.index(t[0])
                                                 if t[0] in DEFAULT_ORDER else 9999))
-    body_html = ''.join(html for _, html in parts)
+
+    # Inject anchor id="sec-{sid}" on every <section> opening tag for clickable TOC
+    def _inject_id(sid: str, html: str) -> str:
+        for klass in ('page-break', 'cover apa-cover', 'cover minimal-cover',
+                      'cover inst-cover', 'cover'):
+            opener = f'<section class="{klass}">'
+            if opener in html:
+                return html.replace(opener, f'<section class="{klass}" id="sec-{sid}">', 1)
+        return html
+    body_html = ''.join(_inject_id(sid, html) for sid, html in parts)
 
     # ====== FOOTER ======
     footer_html = f"""<div class="footer-brand">
