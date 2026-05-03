@@ -1,0 +1,50 @@
+{
+  "summary": "Frontend E2E validation of P0 enhancements: (1) LoadPanel with activePlan real data, (2) Plan Gráfico header auto-fill, (3) 5 charts × 4 action buttons (Share/WhatsApp/Download/Expand). LoadPanel ✅ PASS — KPIs show real values (Carga aguda=109, Crónica=154, ACWR=0.71 Detraining, Tendencia=Decreciente RPE prom.0), no empty state, plan banner 'TEST Plan Fútbol ATR' visible with Deporte/Modelo/Semanas chips. Chart buttons ✅ PASS — 5 charts × 4 buttons = 20 buttons confirmed (chart-share-*, chart-whatsapp-*, chart-download-*, expand-chart-* for magnitud-de-carga-y-recuperación, volumen-e-intensidad, preparación-por-componentes, capacidades-físicas, duración-y-actividad). Header inputs ⚠ PARTIAL — 4/7 auto-filled correctly (input-sport='football', input-coach='Test User', input-duration='11 sem · 3 meses', input-model='ATR (Issurin)'). 3/7 NOT auto-filled: input-category='' (empty), input-athlete='' (empty), input-periodization-type='None' (literal 'None' string). chart-share click ⚠ PARTIAL — toast 'copiado' appeared BUT no request to /api/graphic-plan/share was observed in network (expected backend call did not fire). chart-download ✅ no console errors. chart-whatsapp ⚠ no popup event fired (may be suppressed by browser automation). expand-chart ⚠ [role='dialog'] NOT found in DOM after click (regression risk vs iteration_60 where dialog-mev-chart was found).",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/graphic-plan/share", "issue": "Frontend chart-share button shows success toast but does NOT appear to invoke this endpoint. Either the endpoint is not wired or the call is mocked client-side."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "GraphicPlan header inputs", "issue": "input-category renders empty. activePlan has no category field mapped OR fallback not applied.", "selector": "[data-testid='input-category']", "priority": "MEDIUM"},
+      {"component": "GraphicPlan header inputs", "issue": "input-athlete renders empty. athleteName prop from DashboardPage.js line 4185 may not be passed or activePlan.athlete_name is null.", "selector": "[data-testid='input-athlete']", "priority": "MEDIUM"},
+      {"component": "GraphicPlan header inputs", "issue": "input-periodization-type shows literal string 'None' instead of 'ATR' (model is ATR Issurin). useEffect at GraphicPlan.js ~545-578 likely stringifies a null/None Python value — should fallback to empty string or derived value from activePlan.periodization_type/model.", "selector": "[data-testid='input-periodization-type']", "priority": "HIGH"},
+      {"component": "GraphicPlan expand-chart", "issue": "Clicking expand-chart-magnitud-de-carga-y-recuperación did not create a [role='dialog'] element in DOM. Possible regression of the expand Dialog for ChartSectionHeader charts (not to be confused with gp-mev-btn which worked in iteration_60).", "selector": "[data-testid^='expand-chart-']", "priority": "HIGH"},
+      {"component": "GraphicPlan chart-whatsapp", "issue": "No window.open popup or navigation detected when clicking chart-whatsapp-*. Handler may be incomplete.", "selector": "[data-testid^='chart-whatsapp-']", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [
+      {"flow": "Chart Share (chart-share-*)", "issue": "Toast 'Enlace de la gráfica copiado' appears (clipboard presumably written), but the POST /api/graphic-plan/share endpoint is NOT being invoked according to network listener. Main agent requirement was to call backend endpoint + copy URL + show toast — the backend call portion is missing.", "affected_selectors": ["[data-testid^='chart-share-']"]}
+    ],
+    "design_issues": [
+      {"screen": "Dashboard — entire Datos layout", "issues": ["Persistent hydration error in console: '<span> cannot be a child of <tbody>/<tr>/<th>/<td>' — same issue reported in iteration_60. Stray <span data-ve-dynamic> wrappers leak into table children. Non-blocking but pollutes console."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Fix input-periodization-type auto-fill: GraphicPlan.js useEffect (~545-578) must not stringify None/null. Map activePlan.periodization_type (e.g., 'ATR' or 'Tradicional') or fallback to empty string.",
+    "Fix input-category auto-fill: ensure activePlan.category or athleteCategory prop (DashboardPage.js line 4185) is used and defaults to empty when absent, not missing entirely.",
+    "Fix input-athlete auto-fill: verify athleteName prop is being set on GraphicPlan from DashboardPage.js ~4185 and that activePlan has the athlete linked.",
+    "Investigate why expand-chart-* no longer opens a Dialog for the 5 main charts. Check ChartSectionHeader Maximize2 handler — may be that state wiring for modal is broken after recent refactor.",
+    "Wire chart-share button to actually POST /api/graphic-plan/share as per spec. Currently toast shows but no backend call fires.",
+    "Verify chart-whatsapp uses window.open with WhatsApp share URL; popup event did not fire in Playwright.",
+    "(Non-blocking) Remove stray <span data-ve-dynamic> wrappers inside <table>/<tr>/<tbody> to clear hydration warnings."
+  ],
+  "critical_code_review_comments": [
+    "LoadPanel.js successfully bound to activePlan real data — KPIs rendering correct values. ✅",
+    "GraphicPlan.js ChartSectionHeader now has 4 action buttons per chart (20 total across 5 charts) with proper data-testid naming using slugified chart titles. ✅",
+    "GraphicPlan.js useEffect auto-fill (lines 545-578) has issues: 3 of 7 header inputs not hydrated — category, athlete, periodization-type. The 'None' string is particularly concerning (suggests Python backend None value serialized directly to JSON string).",
+    "chart-share handler appears to show UI success toast without actually invoking /api/graphic-plan/share backend endpoint — consumer contract deviation from spec.",
+    "Persistent hydration warnings '<span> cannot be child of <tbody>/<tr>/<th>/<td>' from data-ve-dynamic wrappers — same as iteration_60, still unresolved.",
+    "Potential regression: expand-chart-* does not open dialog while in iteration_60 the dialog-mev-chart opened fine (but that was gp-mev-btn, different button). Need to confirm if expand on the 5 main ChartSection charts ever opened dialogs or uses a different modal mechanism."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only)", "frontend": "~60% (LoadPanel ✅, chart buttons count ✅, 4/7 header inputs ✅, 3/7 header inputs ❌, chart-share backend wiring ❌, expand-chart dialog ❌, chart-whatsapp popup ❌, chart-download ✅-no errors)"},
+  "test_credentials": "test@train.com / test123456",
+  "seed_data_creation": "None — used existing TEST Plan Fútbol ATR (id=a6f2f198-5eba-4c72-ad09-ecfb7c7376dc).",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Navigation path confirmed: /auth → login test@train.com/test123456 → /dashboard → [data-testid='tab-datos'] → [data-testid='sidebar-plan-a6f2f198-5eba-4c72-ad09-ecfb7c7376dc'] → [data-testid='section-tab-periodizacion'] → [data-testid='subnav-period-load'] for LoadPanel, or [data-testid='section-tab-visualizacion'] for Plan Gráfico. Chart button testids use slugified (lowercase + accents + dashes) Spanish titles, e.g. 'magnitud-de-carga-y-recuperación'. Issue summary: header auto-fill is incomplete (input-category, input-athlete empty; input-periodization-type literal 'None'). chart-share fires toast but NOT the /api/graphic-plan/share endpoint. expand-chart does not open a Dialog. These need main-agent fix-pass.",
+  "rca_of_the_issue": "Header auto-fill: GraphicPlan.js useEffect (~545-578) likely references activePlan.athlete / activePlan.category but those are null in TEST Plan Fútbol ATR seed; fallback logic missing — recommend null-coalesce to '' and derive periodization type from activePlan.periodization_model when periodization_type is absent. chart-share missing backend call: handler (GraphicPlan.js ~925-1017 offscreen-capture) likely calls navigator.clipboard.writeText with a hardcoded URL instead of POSTing to /api/graphic-plan/share to get a share_url then copying. expand-chart no dialog: either the Dialog open state is not being set in ChartSectionHeader click handler or the dialog component was removed/refactored — investigate the Maximize2 icon onClick wiring."
+}

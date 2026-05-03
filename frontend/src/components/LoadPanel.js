@@ -23,6 +23,9 @@ import {
 export default function LoadPanel({ activePlan }) {
   // Extraer microciclos directamente del activePlan (estructura plan→macro→meso→micro→sesiones).
   // Calcular carga total (UA = vol*int/100), RPE prom, ACWR por semana de manera autónoma.
+  // Fallback inteligente: usa detailed_data.fases si existe, si no usa los campos directos
+  // de la sesión (volume, intensity, duration_minutes), y como último recurso los porcentajes
+  // del meso/micro (load_percent, volume, intensity).
   const data = useMemo(() => {
     if (!activePlan?.macrocycles) return [];
     const rows = [];
@@ -31,34 +34,71 @@ export default function LoadPanel({ activePlan }) {
       (macro.mesocycles || []).forEach((meso) => {
         (meso.microcycles || []).forEach((mc) => {
           const sessions = mc.sessions || [];
-          let totalSeries = 0, totalVolumen = 0, sumIntensity = 0, sumRpe = 0;
-          let actCount = 0, sesCount = sessions.length;
+          let totalSeries = 0, totalVolumen = 0, sumIntensity = 0, sumRpe = 0, sumDuration = 0;
+          let actCount = 0, sesCount = sessions.length, sesWithIntensity = 0, sesWithRpe = 0;
           sessions.forEach((ses) => {
             const sd = ses.sessionData || ses.detailed_data;
-            if (sd?.fases) {
+            let sessionUsedDetailed = false;
+            if (sd && typeof sd === 'object' && sd.fases && Object.keys(sd.fases).length > 0) {
               Object.values(sd.fases).forEach((fase) => {
                 (fase.actividades || []).forEach((act) => {
                   totalSeries += parseInt(act.series) || 0;
                   totalVolumen += parseFloat(act.volumen) || 0;
-                  sumIntensity += parseFloat(act.intensidad) || 0;
-                  actCount++;
+                  const actInt = parseFloat(act.intensidad) || 0;
+                  if (actInt > 0) {
+                    sumIntensity += actInt;
+                    actCount++;
+                    sessionUsedDetailed = true;
+                  }
                 });
               });
             }
-            sumRpe += ses.rpe || 0;
+            // Fallback a campos directos de la sesión
+            if (!sessionUsedDetailed) {
+              const sesVol = parseFloat(ses.volume) || 0;
+              const sesInt = parseFloat(ses.intensity) || 0;
+              const sesDur = parseFloat(ses.duration_minutes) || 0;
+              if (sesVol > 0) totalVolumen += sesVol;
+              else if (sesDur > 0) totalVolumen += sesDur; // usar duración como proxy de volumen
+              if (sesInt > 0) {
+                sumIntensity += sesInt;
+                sesWithIntensity++;
+              }
+              sumDuration += sesDur;
+            }
+            const rpe = parseFloat(ses.rpe) || (sd?.monitoreo?.rpe ? parseFloat(sd.monitoreo.rpe) : 0);
+            if (rpe > 0) {
+              sumRpe += rpe;
+              sesWithRpe++;
+            }
           });
-          const avgInt = actCount > 0 ? Math.round(sumIntensity / actCount) : 0;
-          const avgRpe = sesCount > 0 ? +(sumRpe / sesCount).toFixed(1) : 0;
-          // Carga UA = volumen * intensidad / 100 (Foster modificado)
-          const cargaUA = Math.round((totalVolumen * avgInt) / 100);
+          // Promedio de intensidad: priorizar actividades, sino sesiones
+          const avgInt = actCount > 0
+            ? Math.round(sumIntensity / actCount)
+            : (sesWithIntensity > 0 ? Math.round(sumIntensity / sesWithIntensity) : 0);
+          const avgRpe = sesWithRpe > 0 ? +(sumRpe / sesWithRpe).toFixed(1) : 0;
+          // Si no hay datos de sesiones, usar load del microciclo del backend
+          let cargaUA = Math.round((totalVolumen * avgInt) / 100);
+          if (cargaUA === 0) {
+            const microLoad = parseFloat(mc.load_percent) || 0;
+            const microVol = parseFloat(mc.volume) || 0;
+            const microInt = parseFloat(mc.intensity) || 0;
+            if (microVol > 0 && microInt > 0) {
+              cargaUA = Math.round((microVol * microInt) / 100);
+            } else if (microLoad > 0) {
+              // Estimar UA escalando 0-100 a una banda plausible 0-1500 UA semanales
+              cargaUA = Math.round((microLoad / 100) * 1500);
+            }
+          }
           rows.push({
             week: `S${weekCounter}`,
             weekNum: weekCounter,
             carga: cargaUA,
-            vol: Math.round(totalVolumen),
-            int: avgInt,
+            vol: Math.round(totalVolumen) || Math.round(parseFloat(mc.volume) || 0),
+            int: avgInt || Math.round(parseFloat(mc.intensity) || 0),
             rpe: avgRpe,
             sessions: sesCount,
+            duration: Math.round(sumDuration),
             meso: meso.name || 'Mesociclo',
             mesoColor: meso.color || '#0ea5e9',
           });
@@ -133,6 +173,24 @@ export default function LoadPanel({ activePlan }) {
 
   return (
     <div className="space-y-5" data-testid="load-panel" style={{ fontFamily: "'DM Sans',sans-serif" }}>
+      {/* Plan info banner — confirma de dónde se calcula la carga */}
+      <div className="flex items-center justify-between bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl px-5 py-3 text-white shadow-md">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-[#CCFF00]/15 border border-[#CCFF00]/40 flex items-center justify-center">
+            <Flame className="w-5 h-5 text-[#CCFF00]" />
+          </div>
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-slate-400 font-bold">Carga · Plan activo</div>
+            <div className="text-sm font-bold">{activePlan.name || 'Plan sin nombre'}</div>
+          </div>
+        </div>
+        <div className="hidden md:flex items-center gap-4 text-[11px]">
+          {activePlan.sport && <span><span className="text-slate-400">Deporte:</span> <strong className="capitalize">{activePlan.sport}</strong></span>}
+          {activePlan.model_name && <span><span className="text-slate-400">Modelo:</span> <strong>{activePlan.model_name}</strong></span>}
+          <span><span className="text-slate-400">Semanas:</span> <strong>{data.length}</strong></span>
+        </div>
+      </div>
+
       {/* Hero KPI cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {/* Carga aguda */}

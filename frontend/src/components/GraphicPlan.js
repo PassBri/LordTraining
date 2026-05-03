@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
@@ -34,7 +34,9 @@ import {
   TrendingUp,
   Image,
   Timer,
-  Gauge
+  Gauge,
+  Share2,
+  MessageCircle
 } from 'lucide-react';import { toast } from 'sonner';
 import axios from 'axios';
 import html2canvas from 'html2canvas';
@@ -130,7 +132,7 @@ const MICROCYCLE_TYPES = [
   { id: 'restablecimiento', label: 'Restablecimiento', color: 'bg-purple-200' }
 ];
 
-const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, competitions = [] }) => {
+const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategory, coachName, activePlan, competitions = [] }) => {
   // ═══ V2 STORE CONNECTION ═══
   const v2Store = usePlanStore();
   const v2Macros = v2Store.macrociclos;
@@ -169,7 +171,9 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
     category: '',
     athlete: '',
     coach: '',
-    periodizationType: 'tradicional'
+    periodizationType: 'tradicional',
+    duration: '',
+    model: ''
   });
   
   // Plan data structure
@@ -541,20 +545,39 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
     }
   }, [periodizationData, importPeriodizationData, v2Micros.length]);
 
-  // Load data from active plan
+  // Load data from active plan — auto-llena el encabezado con datos reales
   useEffect(() => {
     if (activePlan) {
+      // Calcular duración legible (ej: "26 semanas · 6 meses")
+      const totalWeeks = activePlan.total_weeks || 0;
+      const months = totalWeeks > 0 ? Math.round(totalWeeks / 4.33) : 0;
+      let durationStr = '';
+      if (totalWeeks > 0) {
+        durationStr = `${totalWeeks} sem`;
+        if (months > 0) {
+          if (months >= 12) {
+            const years = Math.round((months / 12) * 10) / 10;
+            durationStr += ` · ${years} año${years === 1 ? '' : 's'}`;
+          } else {
+            durationStr += ` · ${months} mes${months === 1 ? '' : 'es'}`;
+          }
+        }
+      }
       setGeneralInfo(prev => ({
         ...prev,
         sport: activePlan.sport || prev.sport,
-        periodizationType: activePlan.model || activePlan.model_name || 'tradicional',
-        athlete: athleteName || prev.athlete
+        category: athleteCategory || activePlan.category || prev.category,
+        athlete: athleteName || prev.athlete,
+        coach: coachName || activePlan.coach_name || prev.coach,
+        periodizationType: activePlan.model || prev.periodizationType || 'tradicional',
+        duration: durationStr || prev.duration,
+        model: activePlan.model_name || activePlan.model || prev.model,
       }));
       if (activePlan.macrocycles?.length > 0 && !v2Micros.length) {
         importPeriodizationData(activePlan.macrocycles[0]);
       }
     }
-  }, [activePlan, athleteName, importPeriodizationData, v2Micros.length]);
+  }, [activePlan, athleteName, athleteCategory, coachName, importPeriodizationData, v2Micros.length]);
 
   // Load calendar events
   useEffect(() => {
@@ -903,7 +926,88 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
   const [exportingPdf, setExportingPdf] = useState(false);
   const [sharing, setSharing] = useState(false);
   const [expandedChart, setExpandedChart] = useState(null);
-  
+  // Offscreen capture: when set, renders an InteractiveChart in a hidden container
+  // so we can capture an image of it without showing the dialog
+  const [offscreenChart, setOffscreenChart] = useState(null);
+  const offscreenRef = useRef(null);
+
+  // Wait until offscreen chart is rendered, then capture & return base64 PNG
+  const captureOffscreenChart = async (chartConfig) => {
+    setOffscreenChart(chartConfig);
+    // Wait for DOM render + Recharts ResponsiveContainer to size
+    await new Promise(res => setTimeout(res, 600));
+    const node = offscreenRef.current;
+    if (!node) {
+      setOffscreenChart(null);
+      throw new Error('No se pudo renderizar el gráfico');
+    }
+    const canvas = await html2canvas(node, { backgroundColor: '#ffffff', scale: 2, useCORS: true, logging: false });
+    const imgData = canvas.toDataURL('image/png');
+    setOffscreenChart(null);
+    return { imgData, canvas };
+  };
+
+  const handleChartDownload = async (chartConfig) => {
+    setSharing(true);
+    try {
+      const { imgData } = await captureOffscreenChart(chartConfig);
+      const slug = (chartConfig.title || 'grafica').replace(/\s+/g, '_').toLowerCase();
+      const a = document.createElement('a');
+      a.href = imgData;
+      a.download = `${slug}_${activePlan?.name?.replace(/\s+/g, '_') || 'plan'}_${new Date().toISOString().split('T')[0]}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      toast.success('Imagen descargada');
+    } catch (e) {
+      console.error(e);
+      toast.error('Error al descargar la gráfica');
+    } finally { setSharing(false); }
+  };
+
+  const handleChartShareLink = async (chartConfig) => {
+    setSharing(true);
+    try {
+      const { imgData } = await captureOffscreenChart(chartConfig);
+      const token = localStorage.getItem('train_token');
+      const r = await fetch(`${BACKEND_URL}/api/graphic-plan/share`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ plan_id: activePlan?.id, image_b64: imgData, plan_name: `${activePlan?.name || 'Plan'} · ${chartConfig.title}` })
+      });
+      if (!r.ok) throw new Error();
+      const d = await r.json();
+      const fullUrl = `${window.location.origin}/api/graphic-plan/shared/${d.share_id}`;
+      await navigator.clipboard.writeText(fullUrl);
+      toast.success('Enlace de la gráfica copiado');
+    } catch (e) {
+      console.error(e);
+      toast.error('Error al compartir la gráfica');
+    } finally { setSharing(false); }
+  };
+
+  const handleChartShareWhatsApp = async (chartConfig) => {
+    setSharing(true);
+    try {
+      const { imgData } = await captureOffscreenChart(chartConfig);
+      const token = localStorage.getItem('train_token');
+      const r = await fetch(`${BACKEND_URL}/api/graphic-plan/share`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ plan_id: activePlan?.id, image_b64: imgData, plan_name: `${activePlan?.name || 'Plan'} · ${chartConfig.title}` })
+      });
+      if (!r.ok) throw new Error();
+      const d = await r.json();
+      const fullUrl = `${window.location.origin}/api/graphic-plan/shared/${d.share_id}`;
+      const msg = encodeURIComponent(`📊 ${chartConfig.title}\n${activePlan?.name || ''}\n\n${fullUrl}`);
+      window.open(`https://wa.me/?text=${msg}`, '_blank');
+      toast.success('Compartiendo por WhatsApp');
+    } catch (e) {
+      console.error(e);
+      toast.error('Error al compartir');
+    } finally { setSharing(false); }
+  };
+
   const handleExportPDF = async () => {
     setExportingPdf(true);
     try {
@@ -1173,6 +1277,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
 
   // ═══ CHART SECTION HEADER: Title row with expand button ═══
   const ChartSectionHeader = ({ title, icon: Icon, bgColor, textColor, chartConfig }) => {
+    const slug = title.replace(/\s/g, '-').toLowerCase();
     return (
       <tr className={bgColor}>
         <td colSpan={displayedWeeks.length + 1} className={`px-2 py-1.5 font-bold ${textColor} border border-gray-300`}>
@@ -1181,14 +1286,43 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
               {Icon && <Icon className="w-3.5 h-3.5" />}
               {title}
             </div>
-            <button
-              onClick={() => setExpandedChart(chartConfig)}
-              className="p-0.5 rounded hover:bg-black/10 transition-colors"
-              title="Expandir gráfico interactivo"
-              data-testid={`expand-chart-${title.replace(/\s/g, '-').toLowerCase()}`}
-            >
-              <Maximize2 className="w-3.5 h-3.5" />
-            </button>
+            <div className="flex items-center gap-0.5">
+              <button
+                onClick={() => handleChartShareLink(chartConfig)}
+                disabled={sharing}
+                className="p-1 rounded hover:bg-black/10 transition-colors disabled:opacity-40"
+                title="Compartir enlace de la gráfica"
+                data-testid={`chart-share-${slug}`}
+              >
+                <Share2 className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => handleChartShareWhatsApp(chartConfig)}
+                disabled={sharing}
+                className="p-1 rounded hover:bg-emerald-200/40 text-emerald-700 transition-colors disabled:opacity-40"
+                title="Compartir por WhatsApp"
+                data-testid={`chart-whatsapp-${slug}`}
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => handleChartDownload(chartConfig)}
+                disabled={sharing}
+                className="p-1 rounded hover:bg-black/10 transition-colors disabled:opacity-40"
+                title="Descargar imagen PNG"
+                data-testid={`chart-download-${slug}`}
+              >
+                <Download className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => setExpandedChart(chartConfig)}
+                className="p-1 rounded hover:bg-black/10 transition-colors"
+                title="Expandir gráfico interactivo"
+                data-testid={`expand-chart-${slug}`}
+              >
+                <Maximize2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         </td>
       </tr>
@@ -1318,7 +1452,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
         <CardContent className="p-4" data-testid="graphic-plan-content">
           {/* General Information */}
           <div className="mb-4 p-3 bg-gray-50 rounded-lg border">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
               <div>
                 <label className="text-xs font-medium text-gray-600">Deporte</label>
                 <Input
@@ -1365,7 +1499,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                   value={generalInfo.periodizationType} 
                   onValueChange={(v) => setGeneralInfo({ ...generalInfo, periodizationType: v })}
                 >
-                  <SelectTrigger className="h-8 text-sm">
+                  <SelectTrigger className="h-8 text-sm" data-testid="input-periodization-type">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -1373,8 +1507,35 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                     <SelectItem value="atr">ATR</SelectItem>
                     <SelectItem value="bloques">Por Bloques</SelectItem>
                     <SelectItem value="ondulante">Ondulante</SelectItem>
+                    <SelectItem value="lineal">Lineal</SelectItem>
+                    <SelectItem value="polarizado">Polarizado</SelectItem>
+                    <SelectItem value="pdi">PDI</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-600">Duración</label>
+                <Input
+                  value={generalInfo.duration}
+                  onChange={(e) => setGeneralInfo({ ...generalInfo, duration: e.target.value })}
+                  placeholder="Duración"
+                  className="h-8 text-sm"
+                  data-testid="input-duration"
+                  readOnly={!!activePlan?.total_weeks}
+                  title={activePlan?.total_weeks ? 'Calculado automáticamente desde el plan activo' : ''}
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-600">Modelo de entrenamiento</label>
+                <Input
+                  value={generalInfo.model}
+                  onChange={(e) => setGeneralInfo({ ...generalInfo, model: e.target.value })}
+                  placeholder="Modelo"
+                  className="h-8 text-sm"
+                  data-testid="input-model"
+                  readOnly={!!activePlan?.model_name}
+                  title={activePlan?.model_name ? 'Auto-rellenado desde el plan activo' : ''}
+                />
               </div>
             </div>
           </div>
@@ -2071,6 +2232,53 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
           )}
         </DialogContent>
       </Dialog>
+      {/* Offscreen capture surface for individual chart export */}
+      {offscreenChart && (
+        <div
+          ref={offscreenRef}
+          style={{
+            position: 'fixed',
+            left: '-99999px',
+            top: 0,
+            width: '1280px',
+            height: '720px',
+            background: '#ffffff',
+            padding: '32px',
+            zIndex: -1,
+            pointerEvents: 'none',
+          }}
+          aria-hidden="true"
+          data-testid="offscreen-chart-capture"
+        >
+          <div style={{ marginBottom: '14px' }}>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a' }}>{offscreenChart.title}</div>
+            <div style={{ fontSize: '11px', color: '#64748b', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              {(offscreenChart.data || []).length} semanas · {activePlan?.name || 'Plan'} · {generalInfo.athlete || 'Atleta'}
+            </div>
+          </div>
+          <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '12px', height: '600px' }}>
+            <InteractiveChart
+              title={offscreenChart.title}
+              icon={offscreenChart.icon}
+              data={offscreenChart.data}
+              dataKeys={offscreenChart.dataKeys}
+              xAxisKey="week"
+              height={560}
+              showBrush={false}
+              showControls={false}
+              showLiveIndicator={false}
+              defaultChartType={offscreenChart.chartType || 'bar'}
+              defaultTimeRange={
+                cycleDuration === 'olympic' ? 'olympic'
+                : cycleDuration === 'biannual' ? '2years'
+                : cycleDuration === 'annual' ? '1year'
+                : 'sessions'
+              }
+              yAxisDomain={offscreenChart.yAxisDomain || [0, 100]}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -4186,6 +4186,8 @@ const DashboardPage = () => {
           athleteId={selectedAthleteId} 
           periodizationData={periodizationData}
           athleteName={selectedAthlete?.name}
+          athleteCategory={selectedAthlete?.category || selectedAthlete?.classification}
+          coachName={user?.full_name || user?.name || ''}
           activePlan={activePlan}
           competitions={planData?.competitions || []}
         />
