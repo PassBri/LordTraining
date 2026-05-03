@@ -17,7 +17,7 @@ import {
   Building2, Building, GraduationCap, Trophy, Timer, Flame, Gamepad2, Lightbulb, X, Trash2,
   Medal, MapPin, LayoutGrid, GitBranch, Share2, History, Filter, CreditCard, Sparkles,
   AlertTriangle, CheckCircle, TrendingUp, RefreshCw, Clock, Edit, Copy, Printer, Gauge, Wrench,
-  Stethoscope, CalendarDays, ClipboardList, Calculator, UsersRound, ListChecks, PieChart, MessageCircle, Link as LinkIcon, ArrowRight, FileBarChart2
+  Stethoscope, CalendarDays, ClipboardList, Calculator, UsersRound, ListChecks, PieChart, MessageCircle, Link as LinkIcon, ArrowRight, FileBarChart2, Crown
 } from 'lucide-react';
 import { 
   LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, 
@@ -62,6 +62,7 @@ import EntityDashboard from '../components/EntityDashboard';
 import SmartAlerts from '../components/SmartAlerts';
 import PDFExportModal from '../components/PDFExportModal';
 import MasterReportModal from '../components/MasterReportModal';
+import FederationPanel from '../components/FederationPanel';
 import ObjectivesIndicators from '../components/ObjectivesIndicators';
 import TrainingSystemHub from '../components/TrainingSystemHub';
 import TournamentManager from '../components/TournamentManager';
@@ -1523,6 +1524,7 @@ const DashboardPage = () => {
     
     // === 2. INFORMACIÓN BASE ===
     { id: 'entities', label: 'Entidades', icon: Building2, section: 'informacion' },
+    { id: 'federation-panel', label: 'Federación', icon: Crown, section: 'informacion' },
     { id: 'teams', label: 'Equipos', icon: UsersRound, section: 'informacion' },
     { id: 'athletes', label: t('dashboard.controlPanel.athletes'), icon: User, section: 'informacion' },
     { id: 'sports', label: 'Deportes', icon: Medal, section: 'informacion' },
@@ -4195,6 +4197,18 @@ const DashboardPage = () => {
           />
           <EntityManager />
         </div>
+      );
+    }
+
+    // Render Federation Panel (T9)
+    if (activeDataSection === 'federation-panel') {
+      return (
+        <FederationPanel
+          onOpenMasterReport={(opts) => {
+            // Open Master Report modal with federation context
+            setIsMasterReportOpen(true);
+          }}
+        />
       );
     }
 

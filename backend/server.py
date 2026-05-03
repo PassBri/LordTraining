@@ -8317,6 +8317,9 @@ app.include_router(graphic_plan_share_router, prefix="/api")
 from routes.master_report import router as master_report_router
 app.include_router(master_report_router, prefix="/api")
 
+from routes.federations import router as federations_router
+app.include_router(federations_router, prefix="/api")
+
 # Store db reference in app state for V2 routes
 app.state.db = db
 

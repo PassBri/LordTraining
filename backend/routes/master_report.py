@@ -90,6 +90,17 @@ STYLES: Dict[str, Dict[str, str]] = {
         "page_margin": "20mm",
         "vibe": "Manual ilustrado · acentos cálidos · sidebar de pistas y tips",
     },
+    "federation": {
+        "name": "Federación · Institucional",
+        "font": "'Inter', 'Helvetica Neue', system-ui, sans-serif",
+        "primary": "#0F172A",
+        "accent": "#CCFF00",
+        "bg": "#FFFFFF",
+        "heading_size": "24pt",
+        "body_size": "10.5pt",
+        "page_margin": "18mm 16mm",
+        "vibe": "Institucional · sello federativo · KPIs ejecutivos · tablas comparativas",
+    },
 }
 
 # ============= MODELS =============
@@ -438,6 +449,7 @@ Se incluye la planificación estructural, la distribución de cargas, los contro
         "sport": ".cover-title { text-transform: uppercase; letter-spacing: -1px; } body { background: " + bg + "; color: " + fg + "; } .info-tbl { background: rgba(255,255,255,0.05); } .info-tbl td { border-color: rgba(255,255,255,0.1); }",
         "training": ".cover-title { font-weight: 700; } .sec-title { background: linear-gradient(90deg, " + primary + "10, transparent); padding: 8pt 12pt; border-radius: 4pt; }",
         "coach": ".cover-title { font-family: 'Georgia', serif; } .sec-title { color: " + accent + "; border-left: 6pt solid " + primary + "; padding-left: 10pt; }",
+        "federation": ".cover { background: linear-gradient(135deg, " + primary + " 0%, #1e293b 100%); color: #fff; min-height: 100vh; padding-top: 120pt; } .cover-title { color: " + accent + "; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; } .cover-sub, .cover-meta strong { color: " + accent + "; } .cover-meta div { border-left-color: " + accent + "; } .org { color: " + accent + "; } .sec-title { background: " + primary + "; color: " + accent + "; padding: 8pt 12pt; border-radius: 4pt; } .info-tbl th { background: " + primary + "; color: " + accent + "; }",
     }
     
     return f"""<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
