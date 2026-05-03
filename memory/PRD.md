@@ -5,7 +5,54 @@
 ## Arquitectura
 - Frontend: React + Zustand + Recharts + Shadcn/UI
 - Backend: FastAPI + Motor (MongoDB async)
-- DB: MongoDB (11 colecciones V2 + plan_previous_analysis_ai_cache)
+- DB: MongoDB (11 colecciones V2 + plan_previous_analysis_ai_cache + plan_evaluations_v2 + evaluation_templates + plan_evaluations_shares)
+
+
+### Evaluaciones Multi-control + Vinculación con Plan Gráfico (Feb 2026)
+
+**Estado**: 29/29 backend tests + frontend E2E PASS (iter_50). 8 tipos: medical, physical, technical, tactical, psychological, theoretical, **anthropometric** (NUEVO), **biomechanical** (NUEVO).
+
+**Backend** (`/app/backend/routes/evaluations_export.py` ~700 líneas, prefix `/plan-data/evaluations-export`):
+- **Multi-control**: cada control tiene `id` (uuid) + `date` + `title`. POST sin id crea uno nuevo; con id actualiza. Colección `plan_evaluations_v2` clave por id.
+- **Endpoints**:
+  - `POST ""` save (id opcional)
+  - `GET /list/{plan_id}/{type}` lista de controles ordenada por fecha desc + global_pct
+  - `GET /timeline/{plan_id}` todos los controles del plan (para Plan Gráfico)
+  - `GET /by-id/{evaluation_id}` doc completo
+  - `DELETE /by-id/{id}` elimina control + limpia shares asociados
+  - `GET /by-id/{id}/pdf` PDF individual
+  - `POST /by-id/{id}/share` link público idempotente
+  - `GET /shared/{share_id}` HTML público (sin auth)
+  - `GET /shared/{share_id}/pdf` PDF público (sin auth)
+  - `GET /templates/{type}` lista plantillas + system_default
+  - `POST /templates`, `POST /templates/{id}/set-default`, `DELETE /templates/{id}` CRUD plantillas
+  - `GET /{plan_id}/{type}` retrocompat (último control o template)
+- **Route ordering FIX**: rutas específicas (`/list`, `/timeline`, `/templates`, `/by-id`, `/shared`) declaradas ANTES del catch-all `/{plan_id}/{type}` para evitar colisiones FastAPI.
+- **Templates por defecto del sistema**: 8 tipos con 5-7 aspectos cada uno (DEFAULT_TEMPLATES dict). Cada aspecto tiene `label, category, scale_min, scale_max, scale_unit, target`.
+- **PDF Material Design**: hero oscuro tematizado por color, badge "EVALUACIÓN · {tipo}", global card con % normalizado, 3 stat-cards, sección por categoría con barras coloreadas (verde≥80%, ámbar≥40%, rojo<40%), fortalezas/áreas mejora, share-ribbon en públicos.
+
+**Frontend EvaluationSection** (`/app/frontend/src/components/EvaluationSection.js` ~510 líneas):
+- Toolbar Material Design con 6 botones: **Nuevo control** (verde tematizado) | Plantillas | PDF | Enlace | WhatsApp | Guardar
+- Barra dedicada con `Fecha del control` (date input) + `Título del control` (texto opcional) + `Eliminar este control` (visible solo si activeId)
+- **Historial de controles**: chips clickeables con fecha + título + global_pct%; el activo destacado en color del tipo. Click en chip carga ese control en el form
+- Aspect rows dinámicos: nombre + categoría + unidad + min/max/objetivo/valor + % cumplimiento con barra visual
+- Botón "+ Agregar aspecto a evaluar" + Trash en cada row
+- TemplatesModal: cargar/guardar/eliminar/marcar default; system_default siempre disponible
+- `handleSave` dispara `window.dispatchEvent('itrain:evaluation-saved', {detail: {plan_id, evaluation_type, date}})` para sincronizar Plan Gráfico
+- data-testids: `eval-{type}-{new-control,templates,pdf,link,whatsapp,save,delete,date-input,title-input,history,history-item-{id},aspect-{id},aspect-value-{id},add-aspect}-btn`
+
+**GraphicPlan integration** (`/app/frontend/src/components/GraphicPlan.js`):
+- `MONITORING_AREAS` ampliado a 8 entradas: medical, anthropometric (cyan), physical, biomechanical (emerald), technical, tactical, psychological, theoretical
+- Color mapping en `colors` dict (línea 1521) y `monColors` dict (línea 1539) para 8 tipos
+- Nuevo `useEffect` (líneas ~575-617) fetcha `/api/plan-data/evaluations-export/timeline/{plan_id}` y para cada control con date dentro del rango del plan calcula `weekIdx = floor((ctrlDate - plan.start_date) / 7days) + 1` y marca `planData.monitoring[`${type}_${weekIdx}`] = true`
+- Listener `window.addEventListener('itrain:evaluation-saved', handler)` re-fetcha el timeline al guardar/eliminar un control desde EvaluationSection — sincronización en tiempo real
+
+**Flujo cierre del bucle**:
+1. Coach va a Evaluación → Control Médico → click "Nuevo control" → llena fecha 2024-03-15 + valores → Guardar
+2. EvaluationSection POST `/api/plan-data/evaluations-export` → server crea doc con uuid, dispara event
+3. GraphicPlan listener re-fetcha timeline → calcula semana 9 (15/03 - 15/01)/7 = 8.5 → semana 9
+4. Celda monitoring `medical_9` se marca en rojo automáticamente
+5. Aparece círculo rojo en columna semana 9 fila Monitoreo agregado + cuadrado en fila Control médico
 
 
 ### Información — 5 catálogos con header Material Design + Export PDF/Share/WhatsApp (Feb 2026)
