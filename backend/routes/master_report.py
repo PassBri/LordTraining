@@ -136,6 +136,7 @@ class SectionFlags(BaseModel):
     graphic_plan: bool = False
     tools: bool = False
     conclusions: bool = False
+    sessions: bool = False  # NEW: imprimir todas las sesiones del plan
 
 
 class CoverData(BaseModel):
@@ -221,6 +222,9 @@ async def sections_catalog():
         {"id": "viz", "title": "Visualización", "items": [
             {"id": "graphic_plan", "label": "Plan Gráfico"},
         ]},
+        {"id": "sessions", "title": "Sesiones de entrenamiento", "items": [
+            {"id": "sessions", "label": "Todas las sesiones (con ejercicios)"},
+        ]},
         {"id": "tools", "title": "Herramientas", "items": [
             {"id": "tools", "label": "Herramientas y calculadoras"},
         ]},
@@ -251,23 +255,53 @@ async def _fetch_plan(plan_id: str, uid: str) -> Optional[dict]:
     )
     if not plan:
         return None
+
+    def _is_uuid(s: Any) -> bool:
+        s = str(s or "")
+        return len(s) >= 30 and s.count("-") >= 4
+
     # Resolve sport UUID → name
     sport_val = plan.get("sport")
-    if sport_val and len(str(sport_val)) > 20 and "-" in str(sport_val):
+    if _is_uuid(sport_val):
         sport_doc = await _db.sports.find_one({"id": sport_val}, {"_id": 0, "name": 1})
         if sport_doc:
-            plan["sport_name"] = sport_doc.get("name", sport_val)
-            plan["sport"] = sport_doc.get("name", sport_val)
+            plan["sport_name"] = sport_doc.get("name", "Personalizado")
+            plan["sport"] = plan["sport_name"]
+        else:
+            plan["sport_name"] = "Personalizado"
     elif sport_val:
         plan["sport_name"] = sport_val
-    # Resolve model UUID → name
+
+    # Resolve model UUID → name (multi-source lookup)
     model_val = plan.get("model")
-    if model_val and len(str(model_val)) > 20 and "-" in str(model_val):
+    model_name_val = plan.get("model_name")
+    if _is_uuid(model_val):
+        # 1) lookup en periodization_models collection
         m_doc = await _db.periodization_models.find_one({"id": model_val}, {"_id": 0, "name": 1})
-        if m_doc:
-            plan["model_name"] = m_doc.get("name", model_val)
-        else:
-            plan["model_name"] = plan.get("model_name") or "Modelo personalizado"
+        # 2) lookup en custom_models / model_templates / training_models si existieran
+        if not m_doc:
+            for coll in ("custom_models", "model_templates", "training_models", "models"):
+                if coll in await _db.list_collection_names():
+                    d = await _db[coll].find_one({"id": model_val}, {"_id": 0, "name": 1})
+                    if d:
+                        m_doc = d
+                        break
+        if m_doc and m_doc.get("name"):
+            plan["model_name"] = m_doc["name"]
+        elif _is_uuid(model_name_val) or not model_name_val:
+            # 3) Try to extract from plan name pattern "Plan X - <Model Name>"
+            pname = plan.get("name") or ""
+            if " - " in pname:
+                candidate = pname.rsplit(" - ", 1)[1].strip()
+                if candidate and not _is_uuid(candidate):
+                    plan["model_name"] = candidate
+                else:
+                    plan["model_name"] = "Modelo personalizado"
+            else:
+                plan["model_name"] = "Modelo personalizado"
+    elif _is_uuid(model_name_val):
+        # model is short id but model_name was incorrectly stored as UUID — clean up
+        plan["model_name"] = model_val.replace("_", " ").title() if model_val else "Modelo personalizado"
     return plan
 
 
@@ -532,6 +566,7 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
             "periodization_structure": "Periodización · Estructura",
             "periodization_load": "Periodización · Carga",
             "graphic_plan": "Plan Gráfico",
+            "sessions": "Sesiones de entrenamiento",
             "tools": "Herramientas y calculadoras",
             "conclusions": "Conclusiones",
         }
@@ -805,29 +840,134 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
 <div class="callout">La gráfica detallada con la evolución semanal está disponible en el módulo <strong>Plan Gráfico</strong>.</div>
 </section>"""))
 
-    if payload.sections.graphic_plan:
-        share = await _db.graphic_plan_shares.find_one(
-            {"user_id": user_id, "plan_id": payload.plan_id},
-            sort=[("created_at", -1)]
-        )
-        gp_image_b64 = (share or {}).get("image_b64")
-        # On-demand capture if no share exists yet
-        if not gp_image_b64 and payload.plan_id:
-            try:
-                gp_image_b64 = await _capture_graphic_plan_on_demand(payload.plan_id, user_id)
-            except Exception:
-                gp_image_b64 = None
-        if gp_image_b64:
-            parts.append(("graphic_plan", f"""<section class="page-break">
-<span class="badge">VISUALIZACIÓN</span>
-<h2>Plan Gráfico</h2>
-<img src='{gp_image_b64}' style='max-width:100%;display:block;margin:6pt auto;border-radius:8pt;border:1pt solid {accent}40;'/>
-</section>"""))
+    if payload.sections.graphic_plan and plan_doc:
+        # Generate a server-side "graphic plan" — a Gantt-like weekly grid
+        macros = plan_doc.get("macrocycles") or []
+        # Phase color palette
+        PHASE_COLORS = {
+            "preparation_general": "#10B981",
+            "preparation_specific": "#0EA5E9",
+            "pre_competitive": "#F59E0B",
+            "competitive": "#EF4444",
+            "transition": "#94A3B8",
+            "maintenance": "#8B5CF6",
+            "custom": "#6366F1",
+        }
+        # Flatten weeks
+        all_weeks: List[dict] = []
+        for mi, m in enumerate(macros):
+            for ms in (m.get("mesocycles") or []):
+                phase_id = (ms.get("phase") or "custom").rsplit("_", 1)
+                phase_key = phase_id[0] if phase_id[-1].isdigit() else (ms.get("phase") or "custom")
+                color = PHASE_COLORS.get(phase_key, "#6366F1")
+                phase_lbl = _phase_label(ms.get("phase"))
+                for mc in (ms.get("microcycles") or []):
+                    all_weeks.append({
+                        "week": mc.get("week_number") or len(all_weeks)+1,
+                        "name": mc.get("name") or "—",
+                        "type": mc.get("type") or "—",
+                        "load": mc.get("load_percent") or mc.get("load") or 0,
+                        "vol": mc.get("volume") or 0,
+                        "intensity": mc.get("intensity") or 0,
+                        "phase_lbl": phase_lbl,
+                        "color": color,
+                        "meso": ms.get("name") or "—",
+                    })
+        if not all_weeks:
+            all_weeks_html = '<p class="muted">Sin microciclos registrados en este plan.</p>'
         else:
-            parts.append(("graphic_plan", f"""<section class="page-break">
+            # Build table grid
+            rows = []
+            for w in all_weeks:
+                bar_w = max(8, min(100, int(w["load"] or 50)))
+                rows.append(f"""<tr>
+<td class="td-num"><strong>{w['week']:02d}</strong></td>
+<td><span class="pill" style="background:{w['color']};color:#fff;">{_esc(w['phase_lbl'])}</span></td>
+<td>{_esc(w['meso'])}</td>
+<td><span class='pill' style='background:#f1f5f9;color:#0f172a;'>{_esc(w['type'])}</span></td>
+<td><div style="background:#e2e8f0;border-radius:99pt;height:10pt;width:120pt;position:relative;overflow:hidden;"><div style="background:{w['color']};height:100%;width:{bar_w}%;border-radius:99pt;"></div></div></td>
+<td class="td-num">{w['load']}%</td>
+<td class="td-num">{w['vol']}</td>
+<td class="td-num">{w['intensity']}</td>
+</tr>""")
+            all_weeks_html = f"""<table class="data-tbl">
+<thead><tr><th style="width:36pt">SEM</th><th>FASE</th><th>MESOCICLO</th><th>TIPO</th><th>CARGA</th><th style="width:48pt">% CARGA</th><th style="width:48pt">VOL.</th><th style="width:48pt">INT.</th></tr></thead>
+<tbody>{''.join(rows)}</tbody>
+</table>"""
+        parts.append(("graphic_plan", f"""<section class="page-break">
 <span class="badge">VISUALIZACIÓN</span>
-<h2>Plan Gráfico</h2>
-<p class="muted">Captura del Plan Gráfico no disponible. Genere el enlace público desde la sección <strong>Plan Gráfico</strong> para incluirla aquí.</p>
+<h2>Plan Gráfico <span class="count">· {len(all_weeks)} semanas</span></h2>
+<p class="muted" style="margin-bottom:6pt;">Distribución semanal del plan, fase a fase, con cargas e intensidades.</p>
+{all_weeks_html}
+</section>"""))
+
+    # ----- SESSIONS — Manual completo del plan -----
+    if payload.sections.sessions and plan_doc:
+        macros = plan_doc.get("macrocycles") or []
+        SESSION_TYPE_COLORS = {
+            "fuerza": "#EF4444", "resistencia": "#0EA5E9", "potencia": "#F59E0B",
+            "tecnica": "#8B5CF6", "tactica": "#EC4899", "recuperacion": "#10B981",
+            "cardio": "#06B6D4", "flexibilidad": "#84CC16",
+        }
+        meso_blocks = []
+        total_sessions = 0
+        for mi, m in enumerate(macros):
+            for ms in (m.get("mesocycles") or []):
+                micro_blocks = []
+                for mc in (ms.get("microcycles") or []):
+                    sessions = mc.get("sessions") or []
+                    if not sessions:
+                        continue
+                    sess_rows = []
+                    for s in sessions:
+                        total_sessions += 1
+                        st = (s.get("session_type") or "general").lower()
+                        col = SESSION_TYPE_COLORS.get(st, "#64748B")
+                        objs = ", ".join(s.get("objectives") or [])
+                        exercises = s.get("exercises") or []
+                        ex_html = ""
+                        if exercises:
+                            ex_rows = []
+                            for ex in exercises[:20]:
+                                ex_rows.append(f"<tr><td><strong>{_esc(ex.get('name') or '—')}</strong></td><td class='td-cat'>{_esc(ex.get('category') or '—')}</td><td class='td-num'>{ex.get('sets', '—')}</td><td class='td-num'>{ex.get('reps', '—')}</td><td class='td-num'>{ex.get('rest', '—')}</td><td>{_esc(ex.get('notes') or '')}</td></tr>")
+                            ex_html = f"""<table class="data-tbl" style="font-size:8.5pt;margin:4pt 0 8pt;">
+<thead><tr><th>Ejercicio</th><th>Categoría</th><th style="width:38pt">Series</th><th style="width:38pt">Reps</th><th style="width:38pt">Desc.</th><th>Notas</th></tr></thead>
+<tbody>{''.join(ex_rows)}</tbody></table>"""
+                        else:
+                            ex_html = '<p class="muted" style="font-size:8.5pt;margin:4pt 0;">Sin ejercicios detallados.</p>'
+                        sess_rows.append(f"""<div class="ev-block" style="border-left-color:{col};margin:6pt 0;page-break-inside:avoid;">
+<div class="ev-head">
+  <div>
+    <div class="ev-date">DÍA {s.get('day') or '—'} · {st.upper()}</div>
+    <div class="ev-title" style="font-size:11pt;">{_esc(s.get('name') or 'Sesión')}</div>
+    {f'<div class="td-cat" style="margin-top:2pt;">{_esc(objs)}</div>' if objs else ''}
+  </div>
+  <div class="ev-pct" style="color:{col}">
+    <div class="ev-pct-num" style="font-size:14pt;">{s.get('intensity') or 0}%</div>
+    <div class="ev-pct-lbl">INT · {s.get('duration_minutes') or '—'} min</div>
+  </div>
+</div>
+{ex_html}
+</div>""")
+                    micro_blocks.append(f"""<div style="margin-top:10pt;">
+<h3 style="font-size:12pt;color:{primary};margin:6pt 0 4pt;font-weight:800;">{_esc(mc.get('name') or 'Microciclo')} <span style="font-weight:500;color:#94a3b8;">· Sem {mc.get('week_number','—')} · {len(sessions)} sesiones</span></h3>
+{''.join(sess_rows)}
+</div>""")
+                if micro_blocks:
+                    meso_blocks.append(f"""<div class="page-break">
+<span class="badge">MESOCICLO</span>
+<h2 style="font-size:16pt;">{_esc(ms.get('name') or 'Mesociclo')}<span class="count"> · {_phase_label(ms.get('phase'))}</span></h2>
+{''.join(micro_blocks)}
+</div>""")
+        if not meso_blocks:
+            content = '<p class="muted">No hay sesiones detalladas registradas en los microciclos del plan.</p>'
+        else:
+            content = ''.join(meso_blocks)
+        parts.append(("sessions", f"""<section class="page-break">
+<span class="badge">MANUAL DEL PLAN</span>
+<h2>Sesiones de Entrenamiento <span class="count">· {total_sessions} sesiones totales</span></h2>
+<p>Detalle completo de cada sesión del plan, organizadas por mesociclo y microciclo. Esta sección sirve como manual de referencia diaria para el cuerpo técnico.</p>
+{content}
 </section>"""))
 
     if payload.sections.tools:
@@ -875,7 +1015,7 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
         "eval_psychological", "eval_theoretical",
         "competitions",
         "periodization_structure", "periodization_load",
-        "graphic_plan", "tools", "conclusions",
+        "graphic_plan", "sessions", "tools", "conclusions",
     ]
     if payload.section_order:
         # Build ordered list following user's preference + append any leftover parts

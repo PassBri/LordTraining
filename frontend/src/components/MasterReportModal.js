@@ -251,7 +251,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
             <div className="flex-1">
               <div className="text-base font-bold tracking-tight">Reporte Maestro · PDF</div>
               <DialogDescription className="text-[11px] text-slate-300 font-normal">
-                Constructor selectivo · 8 estilos · 4 layouts de portada · 23 secciones · vista previa en tiempo real
+                Constructor selectivo · 8 estilos · 4 layouts · 24 secciones · sesiones detalladas · Plan Gráfico
               </DialogDescription>
             </div>
           </DialogTitle>
