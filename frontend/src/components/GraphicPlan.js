@@ -1561,18 +1561,27 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 
                 {/* Microcycle */}
                 {(() => {
-                  // Construir mapping week → meso (a partir de activePlan)
+                  // Construir mapping week → meso con un contador cumulativo
+                  // (los microcycles del backend a veces traen week_number duplicados;
+                  //  por eso siempre asignamos posiciones secuenciales 1..N a través
+                  //  del plan completo)
                   const weekToMeso = {};
+                  let weekCounter = 1;
                   (activePlan?.macrocycles || []).forEach((macro, mi) => {
                     (macro.mesocycles || []).forEach((meso, mei) => {
-                      const weeks = (meso.microcycles || [])
-                        .map(mc => mc.week_number || mc.numero_semana)
-                        .filter(w => Number.isFinite(w));
-                      if (weeks.length === 0) return;
-                      const startWeek = Math.min(...weeks);
-                      weeks.forEach(w => {
-                        weekToMeso[w] = { meso, mesoIdx: mei, macroIdx: mi, startWeek, color: meso.color || '#0ea5e9' };
+                      const microsCount = (meso.microcycles || []).length;
+                      if (microsCount === 0) return;
+                      const mesoWeeks = Array.from({ length: microsCount }, (_, idx) => weekCounter + idx);
+                      const startWeek = mesoWeeks[0];
+                      const colorPalette = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+                      const fallbackColor = colorPalette[(mi * 3 + mei) % colorPalette.length];
+                      mesoWeeks.forEach(w => {
+                        weekToMeso[w] = {
+                          meso, mesoIdx: mei, macroIdx: mi, startWeek,
+                          color: meso.color || fallbackColor,
+                        };
                       });
+                      weekCounter += microsCount;
                     });
                   });
                   if (Object.keys(weekToMeso).length === 0) return null;

@@ -367,6 +367,40 @@ Las imágenes fuente `/app/frontend/public/brand/itrain-full-pdf.png` (623x240) 
 - **Validación visual con `analyze_file_tool`**: confirmado 100% que el logo del hero y del footer se ven completos, todas las letras (i, T, R, A, I, N) visibles, proporciones correctas, padding adecuado, sin recortes.
 
 
+### UI/UX consolidación — Coach AI clean, Periodización compacta y Plan Gráfico con Dialog (Feb 2026)
+
+Iteración de 6 mejoras coordinadas tras feedback del usuario:
+
+**1. Coach AI Drawer** (`DashboardPage.js`):
+- Eliminada la pestaña "Planes (3)" — el drawer ahora es un workspace dedicado al chat AI a pantalla completa.
+- Header rediseñado: gradient slate-900 con glows decorativos, icono Brain en cuadro lima/40, indicador "En línea" pulsante verde.
+- Footer simplificado: avatar usuario + rol + badge "Plan activo" cuando aplica.
+- Width 440px (antes 384px), con animation slide-in-from-right.
+
+**2. Periodización — sesiones de la semana** (`PeriodizationComplete.js`):
+- Grid restaurado a `grid-cols-2 sm:3 md:4 lg:5 xl:7` para mostrar **7 días en una fila**.
+- Card compactada (Material Design 3): top accent strip con gradient day→type, day pill 28x28 con sombra, métricas DUR/VOL/INT/RPE en grid 2x2 de chips con bordes sutiles, barra de carga acumulada multi-color, density chip + fatigue chip al pie.
+- Hover: shadow-lg + translate-y-0.5.
+- Tamaños tipográficos reducidos manteniendo legibilidad (text-[10px] para etiquetas, text-[10px]-[11px] para valores).
+
+**3. Periodización — chart MEV→MAV→MRV removido del mesociclo**:
+- Eliminadas 202 líneas (IIFE entre 2237-2439) que renderizaban el chart gigante dentro de cada mesociclo expandido.
+- Chart extraído a `/app/frontend/src/components/charts/MesoMevMavMrvChart.js` (componente standalone reutilizable con state interno).
+
+**4. Plan Gráfico — Proyección por mesociclo como Dialog** (`GraphicPlan.js`):
+- Bloque grande "Proyección por mesociclo" debajo de la tabla → REMOVIDO.
+- Nueva fila **"Proyección"** insertada en la tabla justo encima de "Microciclo" (data-testid `gp-mev-projection-row`).
+- 1 botón pequeño con icono `BarChart3` por mesociclo (data-testid `gp-mev-btn-{macroIdx}-{mesoIdx}`), posicionado al inicio de cada bloque (startWeek).
+- Click → abre Dialog modal centrado con header oscuro premium + icono lima + chart completo MesoMevMavMrvChart.
+
+**5. Bug fix: 3 botones en lugar de 1**:
+- Causa raíz: API devuelve todos los `microcycles[].week_number === 1` (defectuoso), causando colisión en `weekToMeso[1]` y mostrando solo el último meso (Realización).
+- Fix: usar siempre un **contador cumulativo** (1..N) ignorando el `week_number` del backend. Cada meso obtiene weeks únicas consecutivas.
+- Validado: 3 botones visibles en x=451, x=692, x=934 (uno por macrociclo Acumulación / Transformación / Realización).
+
+**Validación** (`testing_agent_v3_fork iter_60`): Frontend E2E 12/13 PRD criterios PASS. Coach AI sin tabs ✓, hidratación warning de `<span>` no bloqueante. Después del fix de botones (3/3) y screenshot E2E confirmado por main agent. 0 regresiones.
+
+
 ### Bug fix: "Enlace" debe abrir página HTML, no PDF (Feb 2026)
 
 **Problema reportado**: Click en botón "Enlace" en modal Sesiones y modal Reporte Maestro generaba/copiaba una URL al PDF directo. El usuario quería una **página HTML pública no editable (solo lectura)**.
