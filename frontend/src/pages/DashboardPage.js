@@ -57,6 +57,7 @@ import EntityManager from '../components/EntityManager';
 import TeamManager from '../components/TeamManager';
 import EvaluationSection from '../components/EvaluationSection';
 import EvaluationEvolution from '../components/EvaluationEvolution';
+import CalculatorsHub from '../components/calculators/CalculatorsHub';
 import ControlPanel from '../components/ControlPanel';
 import EntityDashboard from '../components/EntityDashboard';
 import SmartAlerts from '../components/SmartAlerts';
@@ -4247,6 +4248,11 @@ const DashboardPage = () => {
     // Evolución de Controles
     if (activeDataSection === 'evaluation-evolution') {
       return <EvaluationEvolution activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
+    }
+
+    // Calculadoras Hub (10 módulos)
+    if (activeDataSection === 'calculators') {
+      return <CalculatorsHub />;
     }
 
     // Render Test Evaluations
