@@ -253,6 +253,13 @@ const DashboardPage = () => {
     conclusiones: '', recomendaciones: ''
   });
 
+  // ====== GAP ANALYSIS IA STATE ======
+  const [aiGapData, setAiGapData] = useState(null);
+  const [aiGapLoading, setAiGapLoading] = useState(false);
+  const [aiGapProvider, setAiGapProvider] = useState('openai'); // openai | anthropic
+  const [aiSelectedModels, setAiSelectedModels] = useState([]); // model_keys
+  const [periodLibrary, setPeriodLibrary] = useState([]); // [{id, name, category, ...}]
+
   // ====== OBJECTIVES STATE ======
   const [objectivesData, setObjectivesData] = useState({
     deporteObjetivo: '', categoria: '', edad: '', clasificacion: '', fechaInicio: '', fechaFin: '', entrenador: '',
@@ -375,6 +382,21 @@ const DashboardPage = () => {
   };
 
   useEffect(() => { fetchTournaments(); }, []);
+
+  // Cargar biblioteca de modelos y datos IA cacheados cuando el usuario entra a Plan Anterior
+  useEffect(() => {
+    if (activeDataSection === 'prev-plan') {
+      if (periodLibrary.length === 0) fetchPeriodLibrary();
+      if (activePlan?.id) fetchGapAnalysisAI(activePlan.id);
+      // Pre-seleccionar el modelo activo si aún no hay selección
+      setAiSelectedModels(prev => {
+        if (prev.length > 0) return prev;
+        if (activePlan?.model) return [activePlan.model];
+        return [];
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeDataSection, activePlan?.id]);
   
   const [categoryDialogOpenTournament, setCategoryDialogOpenTournament] = useState(false);
   const [tournamentCategoryForm, setTournamentCategoryForm] = useState({ name: '', gender: '', max_participants: '' });
@@ -602,6 +624,80 @@ const DashboardPage = () => {
       toast.error('Error al guardar análisis');
     }
     setSavingEvaluation(false);
+  };
+
+  // ====== GAP ANALYSIS IA: cargar biblioteca de modelos + datos cacheados ======
+  const fetchPeriodLibrary = async () => {
+    try {
+      const token = localStorage.getItem('train_token');
+      const res = await fetch(`${API_URL}/api/periodization-library`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPeriodLibrary(Array.isArray(data) ? data : []);
+      }
+    } catch { /* silent */ }
+  };
+
+  const fetchGapAnalysisAI = async (planId) => {
+    if (!planId) return;
+    try {
+      const token = localStorage.getItem('train_token');
+      const res = await fetch(`${API_URL}/api/plan-data/previous-analysis/${planId}/gap-analysis-ai`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.gap_analysis_ai) {
+          setAiGapData(data.gap_analysis_ai);
+          // Pre-cargar modelos seleccionados desde el cache
+          const cached = data.gap_analysis_ai.comparisons || [];
+          if (cached.length > 0) {
+            setAiSelectedModels(cached.map(c => c.model_key));
+          }
+        }
+      }
+    } catch { /* silent */ }
+  };
+
+  const handleGenerateGapAnalysisAI = async (forceRefresh = false) => {
+    if (!activePlan) { toast.error('Selecciona un plan primero'); return; }
+    if (aiSelectedModels.length === 0) {
+      toast.error('Selecciona al menos un modelo de periodización');
+      return;
+    }
+    setAiGapLoading(true);
+    try {
+      // Guardar el análisis primero para asegurar que el backend tiene los datos al día
+      await handleSavePreviousAnalysis();
+      const token = localStorage.getItem('train_token');
+      const res = await fetch(`${API_URL}/api/plan-data/previous-analysis/${activePlan.id}/gap-analysis-ai`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          models: aiSelectedModels,
+          provider: aiGapProvider,
+          force_refresh: forceRefresh,
+        })
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: 'Error generando IA' }));
+        toast.error(err.detail || 'Error generando IA');
+        return;
+      }
+      const data = await res.json();
+      setAiGapData(data);
+      if (data.cached) {
+        toast.success('Análisis cargado desde caché');
+      } else {
+        toast.success(`Análisis generado con ${aiGapProvider === 'openai' ? 'GPT-5.2' : 'Claude Sonnet 4.5'}`);
+      }
+    } catch (error) {
+      toast.error('Error generando análisis con IA');
+    } finally {
+      setAiGapLoading(false);
+    }
   };
 
   // Descargar PDF del plan anterior (estilo whitepaper)
@@ -3599,6 +3695,227 @@ const DashboardPage = () => {
           </div>
 
           {/* (Conclusiones y Recomendaciones se renderizan ahora dentro del grid, en col 2) */}
+
+          {/* ====== GAP ANALYSIS CON IA ====== */}
+          <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-[#CCFF00]" data-testid="ai-gap-analysis-card">
+            <CardHeader className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b-2 border-[#CCFF00] py-3 px-4">
+              <CardTitle className="flex items-center justify-between gap-2 text-sm font-bold text-white flex-wrap">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: '#CCFF00', boxShadow: '0 0 12px rgba(204,255,0,0.4)' }}>
+                    <Sparkles className="w-4 h-4 text-slate-900" />
+                  </div>
+                  <div className="leading-tight">
+                    <div className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: '#CCFF00' }}>Gap Analysis con IA</div>
+                    <div className="text-sm font-bold text-white">Diagnóstico Cruzado vs Modelos de Periodización</div>
+                  </div>
+                </div>
+                {aiGapData && (
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full" style={{ background: 'rgba(204,255,0,0.15)', color: '#CCFF00', border: '1px solid rgba(204,255,0,0.4)' }}>
+                    {(aiGapData.provider || '').toUpperCase()} · {aiGapData.llm_model || ''}
+                  </span>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 space-y-3">
+              {/* Provider selector + multi-select de modelos */}
+              <div className="grid md:grid-cols-[180px_1fr_auto] gap-3 items-start">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-600">Motor IA</label>
+                  <div className="flex gap-1.5" data-testid="ai-provider-selector">
+                    <button
+                      type="button"
+                      onClick={() => setAiGapProvider('openai')}
+                      data-testid="ai-provider-openai"
+                      className={`flex-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold border-2 transition-all ${aiGapProvider === 'openai' ? 'border-slate-900 bg-slate-900 text-[#CCFF00]' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-400'}`}
+                    >GPT-5.2</button>
+                    <button
+                      type="button"
+                      onClick={() => setAiGapProvider('anthropic')}
+                      data-testid="ai-provider-anthropic"
+                      className={`flex-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold border-2 transition-all ${aiGapProvider === 'anthropic' ? 'border-slate-900 bg-slate-900 text-[#CCFF00]' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-400'}`}
+                    >Claude 4.5</button>
+                  </div>
+                </div>
+
+                <div className="space-y-1 min-w-0">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                    Modelos a comparar ({aiSelectedModels.length}/6)
+                  </label>
+                  <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-2 bg-slate-50 rounded-lg border border-slate-200" data-testid="ai-models-selector">
+                    {periodLibrary.length === 0 ? (
+                      <span className="text-[11px] text-slate-400 italic">Cargando biblioteca...</span>
+                    ) : (
+                      periodLibrary.map(m => {
+                        const isSelected = aiSelectedModels.includes(m.id);
+                        const reachedCap = !isSelected && aiSelectedModels.length >= 6;
+                        return (
+                          <button
+                            key={m.id}
+                            type="button"
+                            disabled={reachedCap}
+                            data-testid={`ai-model-chip-${m.id}`}
+                            onClick={() => {
+                              setAiSelectedModels(prev => isSelected
+                                ? prev.filter(x => x !== m.id)
+                                : (prev.length < 6 ? [...prev, m.id] : prev));
+                            }}
+                            className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-all ${
+                              isSelected
+                                ? 'border-slate-900 bg-slate-900 text-[#CCFF00] shadow-sm'
+                                : reachedCap
+                                  ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
+                                  : 'border-slate-300 bg-white text-slate-700 hover:border-slate-900 hover:bg-slate-50'
+                            }`}
+                            title={m.description || m.name}
+                          >
+                            {m.icon ? <span className="mr-1">{m.icon}</span> : null}
+                            {m.name}
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5 md:items-end pt-4">
+                  <button
+                    type="button"
+                    onClick={() => handleGenerateGapAnalysisAI(false)}
+                    disabled={aiGapLoading || !activePlan || aiSelectedModels.length === 0}
+                    data-testid="ai-generate-btn"
+                    className="px-4 py-2 rounded-lg font-bold text-[12px] uppercase tracking-wider transition-all flex items-center gap-1.5 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ background: '#CCFF00', color: '#0f172a', boxShadow: aiGapLoading ? 'none' : '0 4px 12px rgba(204,255,0,0.4)' }}
+                  >
+                    {aiGapLoading ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Generando...</>
+                    ) : aiGapData ? (
+                      <><Sparkles className="w-4 h-4" /> Regenerar</>
+                    ) : (
+                      <><Sparkles className="w-4 h-4" /> Generar IA</>
+                    )}
+                  </button>
+                  {aiGapData && (
+                    <button
+                      type="button"
+                      onClick={() => handleGenerateGapAnalysisAI(true)}
+                      disabled={aiGapLoading}
+                      className="text-[10px] text-slate-500 hover:text-slate-900 underline"
+                      data-testid="ai-force-refresh-btn"
+                    >Forzar regeneración</button>
+                  )}
+                </div>
+              </div>
+
+              {/* Resultado IA */}
+              {!aiGapData && !aiGapLoading && (
+                <div className="bg-gradient-to-br from-slate-50 to-white border border-dashed border-slate-300 rounded-xl p-6 text-center" data-testid="ai-empty-state">
+                  <Sparkles className="w-10 h-10 mx-auto mb-2 text-slate-300" />
+                  <p className="text-sm font-bold text-slate-700 mb-1">Análisis Inteligente de Brechas</p>
+                  <p className="text-[12px] text-slate-500 max-w-md mx-auto leading-relaxed">
+                    Compara tu rendimiento real con los modelos de periodización seleccionados.
+                    La IA generará 3-5 recomendaciones accionables específicas para cerrar las brechas detectadas.
+                  </p>
+                </div>
+              )}
+
+              {aiGapLoading && (
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center">
+                  <Loader2 className="w-8 h-8 mx-auto mb-2 text-slate-400 animate-spin" />
+                  <p className="text-sm font-bold text-slate-700">Analizando con {aiGapProvider === 'openai' ? 'GPT-5.2' : 'Claude Sonnet 4.5'}...</p>
+                  <p className="text-[11px] text-slate-500 mt-1">Esto puede tardar 10-30 segundos</p>
+                </div>
+              )}
+
+              {aiGapData && !aiGapLoading && (
+                <div className="space-y-3" data-testid="ai-gap-results">
+                  {/* Executive Summary */}
+                  {aiGapData.executive_summary && (
+                    <div className="rounded-xl p-3.5 border-l-4 border-[#CCFF00]" style={{ background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)' }}>
+                      <div className="text-[9px] font-black uppercase tracking-widest text-slate-700 mb-1">Resumen Ejecutivo</div>
+                      <p className="text-[12.5px] text-slate-800 leading-relaxed italic">{aiGapData.executive_summary}</p>
+                    </div>
+                  )}
+
+                  {/* Tabla comparativa por modelo */}
+                  {Array.isArray(aiGapData.comparisons) && aiGapData.comparisons.length > 0 && (
+                    <div className="rounded-xl border border-slate-200 overflow-hidden">
+                      <div className="bg-slate-900 text-[#CCFF00] px-3 py-2 text-[10px] font-black uppercase tracking-widest grid grid-cols-[1fr_auto_70px] gap-2">
+                        <span>Modelo</span>
+                        <span>Brechas top 3</span>
+                        <span className="text-right">Coincidencia</span>
+                      </div>
+                      <div className="divide-y divide-slate-100">
+                        {aiGapData.comparisons.map((c, idx) => {
+                          const gaps = (c.gaps || []).slice().sort((a, b) => (b.gap || 0) - (a.gap || 0));
+                          const top3 = gaps.slice(0, 3);
+                          const meanGap = gaps.length ? Math.round(gaps.reduce((s, g) => s + (g.gap || 0), 0) / gaps.length) : 0;
+                          const coinc = Math.max(0, 100 - meanGap);
+                          const coincColor = coinc >= 75 ? '#10B981' : coinc >= 50 ? '#F59E0B' : '#EF4444';
+                          return (
+                            <div key={idx} className="grid grid-cols-[1fr_auto_70px] gap-2 items-center px-3 py-2 hover:bg-slate-50">
+                              <div className="font-bold text-slate-800 text-[12px] truncate">{c.model_name}</div>
+                              <div className="flex flex-wrap gap-1 justify-start max-w-md">
+                                {top3.length === 0 ? <span className="text-[11px] text-slate-400">Sin brechas</span> :
+                                  top3.map((g, gi) => (
+                                    <span key={gi} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200">
+                                      {g.label} <span className="text-red-600">−{g.gap}%</span>
+                                    </span>
+                                  ))
+                                }
+                              </div>
+                              <div className="text-right">
+                                <span className="text-[15px] font-black tabular-nums" style={{ color: coincColor }}>{coinc}%</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Recomendaciones */}
+                  {Array.isArray(aiGapData.recommendations) && aiGapData.recommendations.length > 0 && (
+                    <div className="space-y-2" data-testid="ai-recommendations-list">
+                      <div className="flex items-center gap-2 mt-2">
+                        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-700 px-2">Recomendaciones Accionables</span>
+                        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
+                      </div>
+                      {aiGapData.recommendations.map((r, i) => {
+                        const prio = String(r.priority || r.prioridad || 'media').toLowerCase();
+                        const prioColor = prio === 'alta' ? '#EF4444' : prio === 'baja' ? '#10B981' : '#F59E0B';
+                        const title = r.title || r.titulo || `Recomendación ${i + 1}`;
+                        const desc = r.description || r.descripcion || '';
+                        return (
+                          <div key={i} className="bg-white border border-slate-200 rounded-xl p-3 border-l-4 hover:shadow-md transition-shadow" style={{ borderLeftColor: '#CCFF00' }} data-testid={`ai-rec-${i}`}>
+                            <div className="flex items-start gap-2.5 mb-1.5">
+                              <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-[12px] font-black bg-slate-900" style={{ color: '#CCFF00' }}>
+                                {i + 1}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-[13px] font-bold text-slate-900 leading-snug">{title}</div>
+                                {r.area && <div className="text-[10px] font-semibold text-slate-500 mt-0.5">Área: <span className="text-slate-700">{r.area}</span></div>}
+                              </div>
+                              <span
+                                className="text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-full whitespace-nowrap flex-shrink-0"
+                                style={{ background: prioColor + '20', color: prioColor, border: `1px solid ${prioColor}80` }}
+                              >{prio}</span>
+                            </div>
+                            <p className="text-[11.5px] text-slate-700 leading-relaxed pl-9.5" style={{ paddingLeft: '38px' }}>{desc}</p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  <p className="text-[10px] text-slate-400 italic text-center pt-2">
+                    Recomendaciones generadas por IA. Validar siempre con criterio del cuerpo técnico.
+                    {aiGapData.cached && ' · Resultado desde caché.'}
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
         </div>
       );
