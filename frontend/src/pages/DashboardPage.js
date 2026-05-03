@@ -1527,8 +1527,9 @@ const DashboardPage = () => {
     
     // === 3. EVALUACIÓN / CONTROLES ===
     { id: 'control-medical', label: 'Control Médico', icon: Stethoscope, section: 'evaluacion' },
-    { id: 'anthropometric', label: 'Antropometría', icon: LineChart, section: 'evaluacion' },
+    { id: 'control-anthropometric', label: 'Antropometría', icon: LineChart, section: 'evaluacion' },
     { id: 'control-physical', label: 'Control Físico', icon: Dumbbell, section: 'evaluacion' },
+    { id: 'control-biomechanical', label: 'Biomecánica', icon: Activity, section: 'evaluacion' },
     { id: 'control-technical', label: 'Control Técnico', icon: Target, section: 'evaluacion' },
     { id: 'control-tactical', label: 'Control Táctico', icon: Layers, section: 'evaluacion' },
     { id: 'control-psychological', label: 'Control Psicológico', icon: Brain, section: 'evaluacion' },
@@ -4199,260 +4200,46 @@ const DashboardPage = () => {
       return <TrainingMethods athleteId={selectedAthleteId} />;
     }
 
-    // Render Anthropometric Data
-    if (activeDataSection === 'anthropometric') {
-      return <AnthropometricData athleteId={selectedAthleteId} activePlan={activePlan} />;
+    // Render Anthropometric Data (legacy redirect to new EvaluationSection)
+    if (activeDataSection === 'anthropometric' || activeDataSection === 'control-anthropometric') {
+      return <EvaluationSection sectionId="control-anthropometric" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
     }
 
     // ====== NUEVAS SECCIONES DE EVALUACIÓN ======
 
-    // Análisis Biomecánico
-    if (activeDataSection === 'biomechanical') {
-      const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
-      return (
-        <div className="p-6 space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-                <Activity className="w-7 h-7 text-emerald-500" />
-                Análisis Biomecánico
-              </h2>
-              <p className="text-slate-500 mt-1">Evaluación del movimiento y técnica deportiva</p>
-            </div>
-            {selectedAthlete && (
-              <Badge className="bg-emerald-50 text-emerald-700">{selectedAthlete.name}</Badge>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Análisis de Marcha/Carrera */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Activity className="w-4 h-4" />
-                  Análisis de Marcha/Carrera
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Tipo de Pisada</label>
-                  <Select defaultValue="neutral">
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pronador">Pronador</SelectItem>
-                      <SelectItem value="supinador">Supinador</SelectItem>
-                      <SelectItem value="neutral">Neutral</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Longitud de Zancada (cm)</label>
-                  <Input type="number" placeholder="120" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Frecuencia de Paso (pasos/min)</label>
-                  <Input type="number" placeholder="180" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Tiempo de Contacto (ms)</label>
-                  <Input type="number" placeholder="200" />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Análisis Postural */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  Análisis Postural
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Alineación Columna</label>
-                  <Select defaultValue="normal">
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="normal">Normal</SelectItem>
-                      <SelectItem value="cifosis">Cifosis</SelectItem>
-                      <SelectItem value="lordosis">Lordosis</SelectItem>
-                      <SelectItem value="escoliosis">Escoliosis</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Inclinación Pélvica</label>
-                  <Select defaultValue="neutral">
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="anterior">Anterior</SelectItem>
-                      <SelectItem value="posterior">Posterior</SelectItem>
-                      <SelectItem value="neutral">Neutral</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Alineación Rodillas</label>
-                  <Select defaultValue="normal">
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="normal">Normal</SelectItem>
-                      <SelectItem value="valgo">Valgo (X)</SelectItem>
-                      <SelectItem value="varo">Varo (O)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Rangos de Movimiento */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Target className="w-4 h-4" />
-                  Rangos de Movimiento (ROM)
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <label className="text-xs text-slate-500">Hombro Flex.</label>
-                    <Input type="number" placeholder="180°" className="h-8" />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs text-slate-500">Hombro Ext.</label>
-                    <Input type="number" placeholder="60°" className="h-8" />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs text-slate-500">Cadera Flex.</label>
-                    <Input type="number" placeholder="120°" className="h-8" />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs text-slate-500">Cadera Ext.</label>
-                    <Input type="number" placeholder="30°" className="h-8" />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs text-slate-500">Rodilla Flex.</label>
-                    <Input type="number" placeholder="135°" className="h-8" />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs text-slate-500">Tobillo Dorsi.</label>
-                    <Input type="number" placeholder="20°" className="h-8" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Análisis de Fuerza */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Dumbbell className="w-4 h-4" />
-                  Asimetrías de Fuerza
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Fuerza Pierna Izq (kg)</label>
-                  <Input type="number" placeholder="85" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Fuerza Pierna Der (kg)</label>
-                  <Input type="number" placeholder="90" />
-                </div>
-                <div className="p-2 bg-slate-50 rounded-lg">
-                  <p className="text-xs text-slate-500">Índice de Asimetría</p>
-                  <p className="text-lg font-bold text-orange-600">5.7%</p>
-                  <p className="text-xs text-slate-400">Normal: &lt;10%</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Eficiencia del Movimiento */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Zap className="w-4 h-4" />
-                  Eficiencia del Movimiento
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">FMS Score Total (0-21)</label>
-                  <Input type="number" placeholder="17" max="21" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-500">Sentadilla Profunda (0-3)</label>
-                  <Select defaultValue="2">
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="0">0 - Dolor</SelectItem>
-                      <SelectItem value="1">1 - Incapaz</SelectItem>
-                      <SelectItem value="2">2 - Compensación</SelectItem>
-                      <SelectItem value="3">3 - Óptimo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Observaciones */}
-            <Card className="border-0 shadow-md">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  Observaciones y Recomendaciones
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <textarea 
-                  className="w-full h-32 p-2 text-sm border rounded-lg resize-none"
-                  placeholder="Notas sobre patrones de movimiento, limitaciones observadas, recomendaciones de trabajo correctivo..."
-                />
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <Button variant="outline">Cancelar</Button>
-            <Button className="bg-emerald-600 hover:bg-emerald-700">
-              <Save className="w-4 h-4 mr-2" />
-              Guardar Evaluación
-            </Button>
-          </div>
-        </div>
-      );
+    // Análisis Biomecánico (legacy redirect to new EvaluationSection)
+    if (activeDataSection === 'biomechanical' || activeDataSection === 'control-biomechanical') {
+      return <EvaluationSection sectionId="control-biomechanical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
     }
 
     // Control Médico
     if (activeDataSection === 'control-medical') {
-      return <EvaluationSection sectionId="control-medical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} evalData={medicalData} setEvalData={setMedicalData} />;
+      return <EvaluationSection sectionId="control-medical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
     }
 
     // Control Físico
     if (activeDataSection === 'control-physical') {
-      return <EvaluationSection sectionId="control-physical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} evalData={physicalData} setEvalData={setPhysicalData} />;
+      return <EvaluationSection sectionId="control-physical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
     }
 
     // Control Técnico
     if (activeDataSection === 'control-technical') {
-      return <EvaluationSection sectionId="control-technical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} evalData={technicalData} setEvalData={setTechnicalData} />;
+      return <EvaluationSection sectionId="control-technical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
     }
 
     // Control Táctico
     if (activeDataSection === 'control-tactical') {
-      return <EvaluationSection sectionId="control-tactical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} evalData={tacticalData} setEvalData={setTacticalData} />;
+      return <EvaluationSection sectionId="control-tactical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
     }
 
     // Control Psicológico
     if (activeDataSection === 'control-psychological') {
-      return <EvaluationSection sectionId="control-psychological" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} evalData={psychologicalData} setEvalData={setPsychologicalData} />;
+      return <EvaluationSection sectionId="control-psychological" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
     }
 
     // Control Teórico
     if (activeDataSection === 'control-theoretical') {
-      return <EvaluationSection sectionId="control-theoretical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} evalData={theoreticalData} setEvalData={setTheoreticalData} />;
+      return <EvaluationSection sectionId="control-theoretical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
     }
 
     // Render Test Evaluations
