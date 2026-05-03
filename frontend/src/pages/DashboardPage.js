@@ -230,6 +230,11 @@ const DashboardPage = () => {
     motivacion: '', concentracion: '', manejoEstres: '', autoconfianza: '',
     controlEmocional: '', resilencia: '', cohesionGrupal: '', observaciones: ''
   });
+  const [theoreticalData, setTheoreticalData] = useState({
+    reglamento: '', tacticaTeorica: '', historiaDeporte: '', nutricionDeportiva: '',
+    prevencionLesiones: '', principiosEntrenamiento: '', planificacionDeportiva: '',
+    biomecanicaBasica: '', analisisRendimiento: '', fairPlayEtica: '', observaciones: ''
+  });
   const [savingEvaluation, setSavingEvaluation] = useState(false);
   const [loadingPlanData, setLoadingPlanData] = useState(false);
   const [planData, setPlanData] = useState(null); // Datos completos del plan
@@ -1527,6 +1532,7 @@ const DashboardPage = () => {
     { id: 'control-technical', label: 'Control Técnico', icon: Target, section: 'evaluacion' },
     { id: 'control-tactical', label: 'Control Táctico', icon: Layers, section: 'evaluacion' },
     { id: 'control-psychological', label: 'Control Psicológico', icon: Brain, section: 'evaluacion' },
+    { id: 'control-theoretical', label: 'Control Teórico', icon: BookOpen, section: 'evaluacion' },
     
     // === 4. COMPETENCIAS ===
     { id: 'events', label: t('dashboard.sections.competitions'), icon: Award, section: 'competencias' },
