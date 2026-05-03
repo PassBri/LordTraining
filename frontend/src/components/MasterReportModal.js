@@ -298,14 +298,14 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
         headers: { Authorization: `Bearer ${token}` },
       });
       const shareId = res.data.share_id;
-      const url = `${API}/api/master-report/shared/${shareId}/pdf`;
+      const url = `${API}/api/master-report/shared/${shareId}`;
       if (target === 'whatsapp') {
-        const msg = `iTRAIN · Reporte Maestro · ${plan?.name || 'Plan'}\n\nDescargar PDF: ${url}`;
+        const msg = `iTRAIN · Reporte Maestro · ${plan?.name || 'Plan'}\n\nVer en línea: ${url}`;
         window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         toast.success('Abriendo WhatsApp…');
       } else {
         await navigator.clipboard.writeText(url);
-        toast.success('Enlace copiado al portapapeles', { description: url });
+        toast.success('Enlace copiado · página de solo lectura', { description: url });
       }
     } catch (err) {
       toast.error('Error al crear enlace: ' + (err?.response?.data?.detail || err?.message || ''));

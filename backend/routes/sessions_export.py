@@ -801,3 +801,114 @@ async def download_shared_sessions_pdf(share_id: str, format: str = "combined"):
     )
     return Response(content=content, media_type=media,
                     headers={"Content-Disposition": f'attachment; filename="{filename}"'})
+
+
+@router.get("/shared/{share_id}")
+async def view_shared_sessions(share_id: str):
+    """Vista HTML pública NO editable (read-only) de las sesiones compartidas.
+    Usa siempre el layout 'hero' para presentación visual con pizarras.
+    Incluye banner 'DOCUMENTO COMPARTIDO' + botón 'Descargar PDF'."""
+    from fastapi.responses import HTMLResponse
+    doc = await _db.sessions_export_shares.find_one({"share_id": share_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Enlace no encontrado")
+    expires_at = doc.get("expires_at")
+    if expires_at:
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        if expires_at < datetime.now(timezone.utc):
+            raise HTTPException(410, "El enlace ha expirado")
+
+    plan = await _db.training_plans.find_one({"id": doc["plan_id"]}, {"_id": 0})
+    if not plan:
+        raise HTTPException(404, "Plan no encontrado")
+
+    requested = set(doc["session_ids"])
+    found = []
+    for s, meso, micro, week in _walk_plan_sessions(plan):
+        sid = s.get("id")
+        if sid and sid in requested:
+            found.append((s, meso, micro, week))
+
+    theme = doc.get("theme", "light")
+    athlete = doc.get("athlete_name", "Atleta")
+
+    # Render todas las sesiones como HTML hero, concatenadas como secciones de página
+    section_htmls = []
+    for s, meso, micro, week in found:
+        section_htmls.append(_build_session_html_hero(s, athlete, meso, micro, week, theme))
+
+    # Tomar el head del primero, body de todos
+    if not section_htmls:
+        body_inner = '<div style="padding:40px;text-align:center;color:#64748b;">Sin sesiones disponibles.</div>'
+        head_html = '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>iTRAIN · Compartido</title></head>'
+    else:
+        first = section_htmls[0]
+        head_end = first.find('</head>')
+        head_html = first[:head_end + len('</head>')]
+        bodies = []
+        for h in section_htmls:
+            bs = h.find('<body>')
+            be = h.find('</body>')
+            if bs >= 0 and be >= 0:
+                bodies.append(h[bs + len('<body>'):be])
+        body_inner = ''.join(bodies)
+
+    is_dark = theme == "dark"
+    bg = "#0a0a0f" if is_dark else "#f5f7f2"
+    ink = "#e5e7eb" if is_dark else "#0f172a"
+    pdf_url = f"/api/sessions-export/shared/{share_id}/pdf?format=combined"
+    zip_url = f"/api/sessions-export/shared/{share_id}/pdf?format=zip"
+
+    banner = f"""
+    <div id="share-ribbon" style="position:sticky;top:0;z-index:9999;
+      background:linear-gradient(90deg,#0f172a 0%,#1e293b 100%);color:#fff;
+      padding:12px 20px;display:flex;align-items:center;justify-content:space-between;
+      gap:14px;box-shadow:0 2px 14px rgba(0,0,0,0.18);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;">
+      <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+        <span style="background:#CCFF00;color:#0a0a0f;font-weight:900;font-size:10px;
+          letter-spacing:0.18em;padding:4px 10px;border-radius:999px;flex-shrink:0;">
+          DOCUMENTO COMPARTIDO
+        </span>
+        <span style="font-size:13px;font-weight:600;opacity:0.95;
+          white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+          {_html.escape(doc.get('plan_name') or 'Plan')} · {len(found)} sesión{'es' if len(found) != 1 else ''}
+        </span>
+        <span style="font-size:11px;color:#94a3b8;flex-shrink:0;">Solo lectura</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0;">
+        <a href="{pdf_url}" download
+          style="background:#CCFF00;color:#0a0a0f;font-weight:800;font-size:12px;
+            padding:7px 14px;border-radius:6px;text-decoration:none;
+            display:inline-flex;align-items:center;gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          PDF combinado
+        </a>
+        <a href="{zip_url}" download
+          style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.3);
+            font-weight:700;font-size:12px;padding:7px 12px;border-radius:6px;
+            text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+          ZIP
+        </a>
+      </div>
+    </div>
+    """
+
+    # Override @page (no aplicable en pantalla); habilitar scroll natural
+    style_override = f"""
+    <style>
+      @page {{ size: A4; margin: 8mm; }}
+      html, body {{ background:{bg} !important; color:{ink} !important;
+        height:auto !important; min-height:100vh !important;
+        margin:0 !important; padding:0 !important; }}
+      body {{ overflow-x:hidden; }}
+      .page {{ max-width: 1100px; margin: 0 auto; padding: 18px 22px !important;
+        min-height: auto !important; box-shadow: 0 2px 18px rgba(0,0,0,0.06); }}
+      .page + .page {{ margin-top: 24px; }}
+      @media print {{ #share-ribbon {{ display: none !important; }} }}
+    </style>
+    """
+
+    full = f"{head_html}{style_override}<body>{banner}{body_inner}</body></html>"
+    return HTMLResponse(content=full)

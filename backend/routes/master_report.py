@@ -1606,3 +1606,80 @@ async def download_shared_master_report(share_id: str):
     fname = f"reporte_{(payload.title or 'plan').replace(' ', '_').lower()}_{payload.style}.pdf"
     return Response(content=pdf, media_type="application/pdf",
                     headers={"Content-Disposition": f'attachment; filename="{fname}"'})
+
+
+@router.get("/shared/{share_id}")
+async def view_shared_master_report(share_id: str):
+    """Vista HTML pública NO editable del Reporte Maestro compartido.
+    Renderiza el mismo HTML del PDF pero con un banner 'DOCUMENTO COMPARTIDO' fijo
+    arriba + botón 'Descargar PDF'. Read-only."""
+    from fastapi.responses import HTMLResponse
+    doc = await _db.master_report_shares.find_one({"share_id": share_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Reporte compartido no encontrado")
+    expires_at = doc.get("expires_at")
+    if expires_at:
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        if expires_at < datetime.now(timezone.utc):
+            raise HTTPException(410, "El enlace ha expirado")
+    payload_dict = doc.get("payload") or {}
+    payload = MasterReportPayload(**payload_dict)
+    html = await _build_html(payload, doc.get("owner_uid"))
+
+    pdf_url = f"/api/master-report/shared/{share_id}/pdf"
+    title_safe = _esc(payload.title or "Plan")
+    style_safe = _esc(payload.style or "atleta")
+
+    banner = f"""
+    <div id="share-ribbon" style="position:sticky;top:0;z-index:9999;
+      background:linear-gradient(90deg,#0f172a 0%,#1e293b 100%);color:#fff;
+      padding:12px 20px;display:flex;align-items:center;justify-content:space-between;
+      gap:14px;box-shadow:0 2px 14px rgba(0,0,0,0.18);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;">
+      <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+        <span style="background:#CCFF00;color:#0a0a0f;font-weight:900;font-size:10px;
+          letter-spacing:0.18em;padding:4px 10px;border-radius:999px;flex-shrink:0;">
+          DOCUMENTO COMPARTIDO
+        </span>
+        <span style="font-size:13px;font-weight:600;opacity:0.95;
+          white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+          {title_safe} · Reporte Maestro
+        </span>
+        <span style="font-size:11px;color:#94a3b8;flex-shrink:0;">Solo lectura · {style_safe}</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0;">
+        <a href="{pdf_url}" download
+          style="background:#CCFF00;color:#0a0a0f;font-weight:800;font-size:12px;
+            padding:7px 14px;border-radius:6px;text-decoration:none;
+            display:inline-flex;align-items:center;gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar PDF
+        </a>
+      </div>
+    </div>
+    """
+
+    style_override = """
+    <style>
+      @page { size: A4; margin: 8mm; }
+      html, body { height: auto !important; min-height: 100vh !important;
+        margin: 0 !important; padding: 0 !important; }
+      body { overflow-x: hidden; }
+      .page, .doc, main, .container { max-width: 1100px; margin: 0 auto;
+        box-shadow: 0 2px 18px rgba(0,0,0,0.06); }
+      @media print { #share-ribbon { display: none !important; } }
+    </style>
+    """
+
+    # Inyectar banner + style override justo después de <body>
+    body_idx = html.find('<body')
+    if body_idx >= 0:
+        body_close = html.find('>', body_idx)
+        if body_close >= 0:
+            insert_at = body_close + 1
+            html = html[:insert_at] + banner + html[insert_at:]
+    head_end = html.find('</head>')
+    if head_end >= 0:
+        html = html[:head_end] + style_override + html[head_end:]
+
+    return HTMLResponse(content=html)

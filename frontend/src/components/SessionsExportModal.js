@@ -160,14 +160,14 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const shareId = res.data.share_id;
-      const url = `${window.location.origin}/sessions-bundle/${shareId}`;
+      const url = `${API}/api/sessions-export/shared/${shareId}`;
       if (target === 'whatsapp') {
-        const msg = `iTRAIN · ${plan?.name || 'Plan'} · ${selected.size} sesion${selected.size !== 1 ? 'es' : ''} de entrenamiento\n\n${url}`;
+        const msg = `iTRAIN · ${plan?.name || 'Plan'} · ${selected.size} sesion${selected.size !== 1 ? 'es' : ''} de entrenamiento\n\nVer en línea: ${url}`;
         window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         toast.success('Abriendo WhatsApp…');
       } else {
         await navigator.clipboard.writeText(url);
-        toast.success('Enlace copiado al portapapeles', { description: url });
+        toast.success('Enlace copiado · página de solo lectura', { description: url });
       }
     } catch (err) {
       toast.error('Error al crear enlace: ' + (err.response?.data?.detail || err.message));

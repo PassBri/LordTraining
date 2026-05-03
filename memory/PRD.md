@@ -367,6 +367,23 @@ Las imágenes fuente `/app/frontend/public/brand/itrain-full-pdf.png` (623x240) 
 - **Validación visual con `analyze_file_tool`**: confirmado 100% que el logo del hero y del footer se ven completos, todas las letras (i, T, R, A, I, N) visibles, proporciones correctas, padding adecuado, sin recortes.
 
 
+### Bug fix: "Enlace" debe abrir página HTML, no PDF (Feb 2026)
+
+**Problema reportado**: Click en botón "Enlace" en modal Sesiones y modal Reporte Maestro generaba/copiaba una URL al PDF directo. El usuario quería una **página HTML pública no editable (solo lectura)**.
+
+**Fix backend**:
+- `GET /api/sessions-export/shared/{share_id}` — devuelve `text/html` con banner sticky oscuro arriba ("DOCUMENTO COMPARTIDO" + plan + N sesiones + "Solo lectura"), botones "PDF combinado" + "ZIP" en el banner, contenido renderizado como hero layout (cards con pizarras, badges, stats). `@media print { #share-ribbon { display: none } }` para que al imprimir no salga el banner.
+- `GET /api/master-report/shared/{share_id}` — devuelve `text/html` reutilizando `_build_html(payload, owner_uid)` con inyección post-`<body>` del banner + botón "Descargar PDF" (lima). Style override habilita scroll natural en pantalla manteniendo `@page A4` para impresión.
+- Ambos endpoints: 404 si share inválido, 410 si expirado (>30d).
+
+**Fix frontend**:
+- `SessionsExportModal.handleShare`: URL ahora es `${API}/api/sessions-export/shared/${shareId}` (sin `/pdf`). Toast actualizado: "Enlace copiado · página de solo lectura".
+- `MasterReportModal.handleShare`: URL ahora es `${API}/api/master-report/shared/${shareId}` (sin `/pdf`). Mismo toast.
+- WhatsApp messages actualizados: "Ver en línea: <url>" en lugar de "Descargar PDF: <url>".
+
+**Validación**: Curl + screenshot confirman ambas vistas HTML públicas renderizan correctamente con banner DOCUMENTO COMPARTIDO + botones de descarga PDF/ZIP funcionales. Test E2E con Playwright: clipboard contiene URL HTML (verificado `is_html_url=True`, sin `/pdf`).
+
+
 ## Implementado
 
 ### Sessions Export V2 + Master Report Share — theme/layout/share/whatsapp (Feb 2026)
