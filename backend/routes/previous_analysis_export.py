@@ -240,8 +240,8 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
         radar_labels.append(short)
         cumpl_rows.append(
             f'''<tr class="cumpl-row">
-              <td style="width:28%"><strong>{_esc(label)}</strong>{desc_html}</td>
-              <td style="width:56%">
+              <td style="width:42%"><strong>{_esc(label)}</strong>{desc_html}</td>
+              <td style="width:42%">
                 <div class="bar-wrap">
                   <div class="bar-bg"><div class="bar-fg" style="width:{pct}%;background:linear-gradient(90deg, {color}aa, {color})"></div></div>
                 </div>
@@ -255,7 +255,49 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
     bench = MODEL_PROFILES.get(mk) or MODEL_PROFILES.get("atr")
     bench_values = [bench.get(key, 0) for key, _ in OBJ_LABELS] if bench else None
     bench_label = model_name or model_key or "ATR"
-    radar_svg_html = _radar_svg(radar_values, radar_labels, size=340, benchmark=bench_values, benchmark_label=bench_label)
+    radar_svg_html = _radar_svg(radar_values, radar_labels, size=460, benchmark=bench_values, benchmark_label=bench_label)
+
+    # KPIs derivados del radar
+    if radar_values:
+        max_idx = max(range(len(radar_values)), key=lambda i: radar_values[i])
+        best_label = OBJ_LABELS[max_idx][1]
+        best_pct = radar_values[max_idx]
+        # Brecha más grande (real menor que ideal)
+        if bench_values:
+            gaps = [(bench_values[i] - radar_values[i], i) for i in range(len(radar_values))]
+            worst_gap, worst_idx = max(gaps, key=lambda x: x[0])
+            worst_label = OBJ_LABELS[worst_idx][1]
+            # Coincidencia: 100 - mean(|real - ideal|)
+            mean_abs_diff = sum(abs(radar_values[i] - bench_values[i]) for i in range(len(radar_values))) / len(radar_values)
+            coincidencia = max(0, round(100 - mean_abs_diff))
+        else:
+            worst_label, worst_gap, coincidencia = "—", 0, 0
+    else:
+        best_label, best_pct, worst_label, worst_gap, coincidencia = "—", 0, "—", 0, 0
+
+    _, best_color = _cumpl_status(best_pct)
+    coinc_color = "#10B981" if coincidencia >= 75 else "#F59E0B" if coincidencia >= 50 else "#EF4444"
+    kpi_cards_html = f'''
+    <div class="kpi-row">
+      <div class="kpi-card kpi-best">
+        <div class="kpi-eyebrow">Mejor área</div>
+        <div class="kpi-title">{_esc(best_label)}</div>
+        <div class="kpi-value" style="color:{best_color}">{best_pct}<span>%</span></div>
+      </div>
+      <div class="kpi-card kpi-gap">
+        <div class="kpi-eyebrow">Brecha más grande</div>
+        <div class="kpi-title">{_esc(worst_label)}</div>
+        <div class="kpi-value" style="color:#EF4444">−{worst_gap}<span> pts</span></div>
+        <div class="kpi-sub">vs ideal {_esc(bench_label)}</div>
+      </div>
+      <div class="kpi-card kpi-fit">
+        <div class="kpi-eyebrow">Coincidencia con modelo</div>
+        <div class="kpi-title">{_esc(bench_label)}</div>
+        <div class="kpi-value" style="color:{coinc_color}">{coincidencia}<span>%</span></div>
+        <div class="kpi-sub">similitud real vs ideal</div>
+      </div>
+    </div>
+    '''
 
     # --- Indicadores rows ---
     ind_rows = []
@@ -329,7 +371,19 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
   .cumpl-desc {{ font-size: 8.5pt; color: #64748b; margin-top: 2pt; font-style: italic; line-height: 1.35; }}
   .pct-big {{ font-size: 14pt; font-weight: 900; letter-spacing: -0.02em; }}
   .radar-row {{ display: block; margin-top: 8pt; }}
-  .radar-wrap {{ background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 10pt; padding: 12pt 8pt; color: #fff; max-width: 360pt; margin: 0 auto 12pt; }}
+  .radar-wrap {{ background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 12pt; padding: 14pt 12pt; color: #fff; max-width: 480pt; margin: 0 auto 12pt; }}
+  .kpi-row {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10pt; margin: 12pt 0 14pt; }}
+  .kpi-card {{ background: #f8fafc; border-radius: 10pt; padding: 10pt 12pt; border-left: 4pt solid #CCFF00; }}
+  .kpi-card.kpi-gap {{ border-left-color: #EF4444; background: #fef2f2; }}
+  .kpi-card.kpi-fit {{ border-left-color: #0f172a; background: #0f172a; color: #fff; }}
+  .kpi-eyebrow {{ font-size: 7.5pt; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #64748b; margin-bottom: 2pt; }}
+  .kpi-card.kpi-fit .kpi-eyebrow {{ color: #CCFF00; }}
+  .kpi-title {{ font-size: 9.5pt; font-weight: 800; color: #0f172a; line-height: 1.15; min-height: 22pt; }}
+  .kpi-card.kpi-fit .kpi-title {{ color: #fff; }}
+  .kpi-value {{ font-size: 24pt; font-weight: 900; line-height: 1; letter-spacing: -0.02em; margin-top: 2pt; }}
+  .kpi-value span {{ font-size: 11pt; font-weight: 700; margin-left: 1pt; }}
+  .kpi-sub {{ font-size: 7.5pt; color: #94a3b8; margin-top: 2pt; font-weight: 600; }}
+  .kpi-card.kpi-fit .kpi-sub {{ color: rgba(255,255,255,0.55); }}
   .radar-title {{ color: #CCFF00; font-size: 9pt; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; text-align: center; margin-bottom: 4pt; }}
   .radar-legend {{ display: flex; justify-content: center; gap: 10pt; margin-bottom: 4pt; font-size: 7.5pt; color: rgba(255,255,255,0.85); }}
   .leg-item {{ display: inline-flex; align-items: center; gap: 4pt; font-weight: 700; letter-spacing: 0.5px; }}
@@ -397,6 +451,7 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
     </div>
     {radar_svg_html}
   </div>
+  {kpi_cards_html}
   <div class="radar-table">
     <table>
       <thead><tr><th>Área · Logros</th><th>Progreso</th><th style="text-align:right">%</th></tr></thead>
