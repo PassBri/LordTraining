@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 import { getDashboardStats, getAthletes, seedExercises, getTournaments, createTournament, deleteTournament, getTournament, addTournamentCategory, registerParticipant, generateBracket, getTournamentMatches, updateMatchScore, exportTournamentPDF, getTeams as fetchTeamsApi } from '../services/api';
 import usePlanGate from '../hooks/usePlanGate';
+import SessionCalendar from '../components/SessionCalendar';
 import { 
   Target, Send, Heart, Zap, Brain, ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
   FileText, Users, Clipboard, Calendar, Award, BookOpen, 
@@ -2835,70 +2836,7 @@ const DashboardPage = () => {
 
     // Render Calendario section inline - COMPLETE
     if (activeDataSection === 'calendar-view') {
-      const diasSemana = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-      const hoy = new Date();
-      const diasMes = Array.from({ length: 35 }, (_, i) => {
-        const fecha = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-        fecha.setDate(fecha.getDate() - fecha.getDay() + 1 + i);
-        return fecha;
-      });
-      
-      return (
-        <div className="p-4 space-y-4">
-          <Card className="border-0 shadow-md overflow-hidden">
-            <div className="bg-white border-b border-slate-200 text-slate-900 py-4 px-5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-lg font-semibold">
-                  <Calendar className="w-5 h-5" />
-                  Calendario de Entrenamiento
-                </div>
-                <div className="flex gap-2 items-center">
-                  <Button size="sm" variant="ghost" className="text-slate-600 hover:bg-slate-100 rounded-full w-8 h-8 p-0">◀</Button>
-                  <span className="px-4 py-1.5 bg-white/20 rounded-full text-sm font-medium">{hoy.toLocaleDateString('es', { month: 'long', year: 'numeric' })}</span>
-                  <Button size="sm" variant="ghost" className="text-slate-600 hover:bg-slate-100 rounded-full w-8 h-8 p-0">▶</Button>
-                </div>
-              </div>
-            </div>
-            <CardContent className="p-5">
-              {/* Leyenda */}
-              <div className="flex flex-wrap gap-4 mb-5 text-sm">
-                <div className="flex items-center gap-2"><span className="w-3 h-3 bg-[#007AFF] rounded-full inline-block"></span> Entrenamiento</div>
-                <div className="flex items-center gap-2"><span className="w-3 h-3 bg-emerald-500 rounded-full inline-block"></span> Competencia</div>
-                <div className="flex items-center gap-2"><span className="w-3 h-3 bg-amber-500 rounded-full inline-block"></span> Test</div>
-                <div className="flex items-center gap-2"><span className="w-3 h-3 bg-slate-300 rounded-full inline-block"></span> Descanso</div>
-              </div>
-              
-              {/* Calendario */}
-              <div className="border border-slate-200 rounded-xl overflow-hidden">
-                <div className="grid grid-cols-7 bg-slate-100">
-                  {diasSemana.map(dia => (
-                    <div key={dia} className="p-3 text-center font-semibold text-sm text-slate-600">{dia}</div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-7">
-                  {diasMes.map((fecha, i) => {
-                    const esHoy = fecha.toDateString() === hoy.toDateString();
-                    const esMesActual = fecha.getMonth() === hoy.getMonth();
-                    return (
-                      <div 
-                        key={i} 
-                        className={`min-h-[85px] p-2 border-t border-l border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors ${!esMesActual ? 'bg-slate-50/50 text-slate-400' : ''} ${esHoy ? 'bg-indigo-50' : ''}`}
-                      >
-                        <div className={`text-sm font-medium mb-1 ${esHoy ? 'bg-[#007AFF] text-white w-7 h-7 rounded-full flex items-center justify-center' : ''}`}>
-                          {fecha.getDate()}
-                        </div>
-                        {esMesActual && i % 3 === 0 && (
-                          <div className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full truncate font-medium">Sesión</div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      );
+      return <SessionCalendar activePlan={activePlan} />;
     }
 
     // Render Generar con IA section inline - COMPLETE
