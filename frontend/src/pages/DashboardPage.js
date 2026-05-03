@@ -2527,47 +2527,105 @@ const DashboardPage = () => {
                       <div className="p-4">
                         {category.sports?.length > 0 ? (
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {category.sports.map(sport => (
-                              <div 
-                                key={sport.id} 
-                                className="p-3 border border-slate-200 rounded-lg hover:shadow-md transition-all group"
-                              >
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-2xl">{getSportIcon(sport)}</span>
-                                    <span className="font-medium text-slate-700">{sport.name}</span>
+                            {category.sports.map(sport => {
+                              const char = sport.characterization || {};
+                              const filled = ['type', 'energySystem', 'physicalCapabilities', 'technicalSkills', 'tacticalFactors']
+                                .filter(k => char[k]).length;
+                              const pct = Math.round((filled / 5) * 100);
+                              const ringColor = pct >= 80 ? '#10b981' : pct >= 40 ? '#f59e0b' : '#cbd5e1';
+                              const typeLabels = { individual: 'Individual', colectivo: 'Colectivo', combate: 'Combate', precision: 'Precisión', raquetas: 'Raquetas', agua: 'Acuático' };
+                              const energyLabels = { aerobico: 'Aeróbico', 'anaerobico-lactico': 'Anaer. Láctico', 'anaerobico-alactico': 'Anaer. Aláctico', mixto: 'Mixto' };
+                              const typeColors = { individual: 'bg-sky-50 text-sky-700 border-sky-200', colectivo: 'bg-emerald-50 text-emerald-700 border-emerald-200', combate: 'bg-red-50 text-red-700 border-red-200', precision: 'bg-violet-50 text-violet-700 border-violet-200', raquetas: 'bg-amber-50 text-amber-700 border-amber-200', agua: 'bg-cyan-50 text-cyan-700 border-cyan-200' };
+                              const energyColors = { aerobico: 'bg-emerald-50 text-emerald-700 border-emerald-200', 'anaerobico-lactico': 'bg-amber-50 text-amber-700 border-amber-200', 'anaerobico-alactico': 'bg-red-50 text-red-700 border-red-200', mixto: 'bg-violet-50 text-violet-700 border-violet-200' };
+                              return (
+                                <div
+                                  key={sport.id}
+                                  data-testid={`sport-card-${sport.id}`}
+                                  className="group relative bg-gradient-to-br from-white to-slate-50/40 border border-slate-200 rounded-xl p-3.5 hover:shadow-lg hover:border-slate-300 hover:-translate-y-0.5 transition-all duration-200"
+                                >
+                                  {/* Header: icon + name + completeness ring */}
+                                  <div className="flex items-start justify-between gap-2 mb-2.5">
+                                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                                      <div className="w-11 h-11 rounded-lg bg-white border border-slate-200 shadow-sm flex items-center justify-center flex-shrink-0 text-2xl group-hover:scale-105 transition-transform">
+                                        {getSportIcon(sport)}
+                                      </div>
+                                      <div className="min-w-0 flex-1">
+                                        <div className="font-bold text-[13px] text-slate-900 leading-tight truncate">{sport.name}</div>
+                                        <div className="text-[10px] font-semibold uppercase tracking-wider mt-0.5" style={{ color: ringColor }}>
+                                          {pct === 100 ? 'Completo' : pct >= 40 ? 'Parcial' : 'Sin caracterizar'}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    {/* Conic-gradient completeness circle */}
+                                    <div
+                                      className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+                                      style={{ background: `conic-gradient(${ringColor} ${pct}%, #e2e8f0 ${pct}% 100%)` }}
+                                      title={`Caracterización: ${pct}%`}
+                                    >
+                                      <div className="w-7 h-7 bg-white rounded-full flex items-center justify-center text-[9px] font-black tabular-nums" style={{ color: ringColor }}>
+                                        {pct}%
+                                      </div>
+                                    </div>
                                   </div>
-                                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <Button 
-                                      variant="ghost" 
-                                      size="sm"
-                                      className="h-7 w-7 p-0 text-blue-500 hover:bg-blue-50"
-                                      onClick={() => {
-                                        setEditingSportId(sport.id);
-                                        setEditingSportCharacterization(sport.characterization || {});
-                                      }}
-                                      title="Editar Caracterización Técnica"
-                                    >
-                                      <FileText className="w-3.5 h-3.5" />
-                                    </Button>
-                                    <Button 
-                                      variant="ghost" 
-                                      size="sm"
-                                      className="h-7 w-7 p-0 text-slate-400 hover:text-red-500"
-                                      onClick={() => handleDeleteSport(sport.id)}
-                                    >
-                                      <Trash2 className="w-3.5 h-3.5" />
-                                    </Button>
+
+                                  {/* Pills tipo + sistema energético */}
+                                  {(char.type || char.energySystem) && (
+                                    <div className="flex flex-wrap gap-1 mb-2">
+                                      {char.type && (
+                                        <span className={`text-[9.5px] font-bold px-2 py-0.5 rounded-full border ${typeColors[char.type] || 'bg-slate-50 text-slate-600 border-slate-200'}`}>
+                                          {typeLabels[char.type] || char.type}
+                                        </span>
+                                      )}
+                                      {char.energySystem && (
+                                        <span className={`text-[9.5px] font-bold px-2 py-0.5 rounded-full border ${energyColors[char.energySystem] || 'bg-slate-50 text-slate-600 border-slate-200'}`}>
+                                          {energyLabels[char.energySystem] || char.energySystem}
+                                        </span>
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {/* Footer: caracterización badge + actions */}
+                                  <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                                    {sport.characterization && Object.keys(sport.characterization).length > 0 ? (
+                                      <div className="flex items-center gap-1 text-[10px] font-semibold text-emerald-700">
+                                        <CheckCircle className="w-3 h-3" />
+                                        <span>Caracterización guardada</span>
+                                      </div>
+                                    ) : (
+                                      <div className="flex items-center gap-1 text-[10px] font-medium text-slate-400 italic">
+                                        <FileText className="w-3 h-3" />
+                                        <span>Sin caracterizar</span>
+                                      </div>
+                                    )}
+                                    <div className="flex items-center gap-1">
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-7 w-7 p-0 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-md"
+                                        onClick={() => {
+                                          setEditingSportId(sport.id);
+                                          setEditingSportCharacterization(sport.characterization || {});
+                                        }}
+                                        title="Editar Caracterización Técnica"
+                                        data-testid={`sport-edit-${sport.id}`}
+                                      >
+                                        <FileText className="w-3.5 h-3.5" />
+                                      </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-7 w-7 p-0 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md"
+                                        onClick={() => handleDeleteSport(sport.id)}
+                                        title="Eliminar deporte"
+                                        data-testid={`sport-delete-${sport.id}`}
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </Button>
+                                    </div>
                                   </div>
                                 </div>
-                                {sport.characterization && Object.keys(sport.characterization).length > 0 && (
-                                  <div className="mt-2 flex items-center gap-1 text-xs text-emerald-600">
-                                    <CheckCircle className="w-3 h-3" />
-                                    Caracterización técnica configurada
-                                  </div>
-                                )}
-                              </div>
-                            ))}
+                              );
+                            })}
                           </div>
                         ) : (
                           <p className="text-center text-slate-400 py-4">Sin deportes en esta categoría</p>
