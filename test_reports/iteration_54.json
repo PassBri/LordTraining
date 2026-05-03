@@ -1,0 +1,30 @@
+{
+  "summary": "Validated Reporte Maestro v3: full-page preview PNG, section_order backend field, frontend auto-preview debounce (800ms), auto toggle ON/OFF, drag-and-drop reorder, manual preview buttons, and PDF generation with custom section order. Backend: 7/7 pytest cases pass (full-page PNG > 500KB, section_order respected in PDF output verified via pypdf, section_order ignores unknown/disabled sections). Frontend: all 13 scenarios from the request pass end-to-end. Drag & drop with Playwright's drag_to works natively against the HTML5 handlers in MasterReportModal; payload sent to /preview and /generate contains the user-reordered section_order. Initial auto-preview fires correctly; debounce is observed (no call at 300ms, 1 call after 1.8s post-edit). Auto toggle text switches between 'Auto · ON' / 'Auto · OFF' and OFF truly suppresses auto-fires.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_master_report_v3.py",
+    "/app/test_reports/pytest/master_report_v3_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "master_report.py is still ~1136 lines. Splitting (models, styles, html_builder, routes) would help maintainability.",
+    "Line 715-719 in master_report.py: the sort key uses an inline 'index if in DEFAULT_ORDER else 9999' that is a bit convoluted but works; consider extracting to a helper with a test comment.",
+    "MasterReportModal.js: debounceRef is cleared on unmount only for the last effect; multiple independent debounces are not a problem today because there is a single effect, but future additions should preserve this discipline.",
+    "Drag & drop uses native HTML5 events — no accessibility (keyboard) fallback. Not blocking but worth noting for a future a11y pass."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_master_report_v3.py (new — 7 tests for v3 features)"
+  ],
+  "success_rate": {"backend": "100% (7/7)", "frontend": "100% (13/13 scenarios)"},
+  "test_credentials": "test@train.com / test123456",
+  "seed_data_creation": "none; uses first training plan of test user",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Master Report modal tabs are: mr-tab-design, mr-tab-cover, mr-tab-content, mr-tab-preview (NOT mr-tab-style). Style buttons live inside the Design tab as mr-style-{id}. Preview canvas has data-testid='mr-preview-canvas' with overflow-y:auto and max-height:640px. Order list is data-testid='mr-order-list' with items mr-order-item-{sid} (draggable=true). Debounce is 800ms; use wait_for_timeout(>=1500) after edits to catch auto-preview. Manual preview: mr-preview-btn (header) and mr-quick-preview-btn (footer). PDF: mr-generate-btn triggers a download with toast 'Reporte Maestro descargado'.",
+  "rca of the issue": "n/a — all requested v3 features work correctly on both backend and frontend."
+}

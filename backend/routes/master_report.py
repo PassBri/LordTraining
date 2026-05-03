@@ -166,6 +166,8 @@ class MasterReportPayload(BaseModel):
     cover: Optional[CoverData] = Field(default_factory=CoverData)
     custom_intro: Optional[str] = ""        # Texto libre para Introducción
     custom_conclusions: Optional[str] = ""  # Texto libre para Conclusiones
+    # Order in which sections should appear (when omitted, default order is used)
+    section_order: Optional[List[str]] = None
 
 
 # ============= STYLES ENDPOINT =============
@@ -306,7 +308,7 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
         )
 
     # ====== Sections ======
-    parts: List[str] = []
+    parts: List[tuple] = []  # list of (sid, html) so we can reorder via payload.section_order
 
     # ----- COVER -----
     if payload.sections.cover:
@@ -336,7 +338,7 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
                 f'<div class="apa-dedication"><em>{_esc(cover_data.dedication)}</em></div>'
                 if cover_data.dedication else ""
             )
-            parts.append(f"""<section class="cover apa-cover">
+            parts.append(("cover", f"""<section class="cover apa-cover">
   {org_block}
   <div class="apa-stack">
     {f'<div class="apa-org">{_esc(payload.org_name or cover_data.institution or "")}</div>' if (payload.org_name or cover_data.institution) else ''}
@@ -346,9 +348,9 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
     <table class="apa-table">{apa_table}</table>
     {ded}
   </div>
-</section>""")
+</section>"""))
         elif layout == "minimal":
-            parts.append(f"""<section class="cover minimal-cover">
+            parts.append(("cover", f"""<section class="cover minimal-cover">
   <div class="min-rule"></div>
   {f'<div class="min-org">{_esc(payload.org_name)}</div>' if payload.org_name else ''}
   <h1 class="min-title">{_esc(plan_name)}</h1>
@@ -358,9 +360,9 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
     {f'<span>{_esc(cover_data.location)}</span>' if cover_data.location else ''}
     <span>{today}</span>
   </div>
-</section>""")
+</section>"""))
         elif layout == "institutional":
-            parts.append(f"""<section class="cover inst-cover">
+            parts.append(("cover", f"""<section class="cover inst-cover">
   <div class="inst-frame">
     <div class="inst-inner">
       {org_block}
@@ -380,7 +382,7 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
       </div>
     </div>
   </div>
-</section>""")
+</section>"""))
         else:
             # MODERN (default): hero gradient con KPIs + meta
             cover_kpis = ""
@@ -414,7 +416,7 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
                 f"<div><strong>{_esc(k)}</strong><span>{_esc(v)}</span></div>"
                 for k, v in meta_items
             ])
-            parts.append(f"""<section class="cover">
+            parts.append(("cover", f"""<section class="cover">
   {org_block}
   {f'<div class="org-name">{_esc(payload.org_name)}</div>' if payload.org_name else ''}
   <span class="badge">REPORTE MAESTRO</span>
@@ -423,7 +425,7 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
   {cover_kpis}
   <div class="cover-meta">{meta_html}</div>
   {f'<div class="cover-dedication"><em>{_esc(cover_data.dedication)}</em></div>' if cover_data.dedication else ''}
-</section>""")
+</section>"""))
 
     # ----- TOC -----
     if payload.sections.toc:
@@ -461,11 +463,11 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
                     f'<li><span class="toc-num">{n:02d}</span><span class="toc-label">{_esc(label)}</span><span class="toc-dots"></span><span class="toc-page">{n}</span></li>'
                 )
                 n += 1
-        parts.append(f"""<section class="page-break">
+        parts.append(("toc", f"""<section class="page-break">
 <span class="badge">ÍNDICE</span>
 <h2>Tabla de Contenido</h2>
 <ol class="toc">{''.join(toc_items)}</ol>
-</section>""")
+</section>"""))
 
     # ----- INTRODUCTION -----
     if payload.sections.introduction:
@@ -481,29 +483,29 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
             paras = "".join([f"<p>{_esc(p)}</p>" for p in payload.custom_intro.split("\n\n") if p.strip()])
         else:
             paras = f"<p>{intro_body}</p>"
-        parts.append(f"""<section class="page-break">
+        parts.append(("introduction", f"""<section class="page-break">
 <span class="badge">PRESENTACIÓN</span>
 <h2>Introducción</h2>
 {paras}
 <div class="callout">Estilo de documento: <strong>{_esc(style['name'])}</strong>. {_esc(style['vibe'])}.</div>
-</section>""")
+</section>"""))
 
     # ----- DIAGNOSTIC PREVIOUS -----
     if payload.sections.diagnostic_previous:
         prev = await _db.plan_previous_analysis_ai_cache.find_one({"user_id": user_id}, {"_id": 0}) or {}
         prev_summary = prev.get("summary") or "Análisis y aprendizajes del ciclo anterior aún no registrados."
-        parts.append(f"""<section class="page-break">
+        parts.append(("diagnostic_previous", f"""<section class="page-break">
 <span class="badge">RETROSPECTIVO</span>
 <h2>Diagnóstico · Plan Anterior</h2>
 <p>{_esc(prev_summary)}</p>
-</section>""")
+</section>"""))
 
     # ----- DIAGNOSTIC ACTIVE -----
     if payload.sections.diagnostic_active and plan_doc:
         weeks = plan_doc.get("total_weeks", "—")
         sport = plan_doc.get("sport", "—")
         objective = plan_doc.get("main_objective") or plan_doc.get("description") or ""
-        parts.append(f"""<section class="page-break">
+        parts.append(("diagnostic_active", f"""<section class="page-break">
 <span class="badge">PLAN ACTIVO</span>
 <h2>Diagnóstico · Plan Activo</h2>
 <div class="kpi-row">
@@ -512,7 +514,7 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
   {_stat_card('SEMANAS', weeks)}
 </div>
 {f'<div class="callout"><strong>Objetivo principal</strong><br/>{_esc(objective)}</div>' if objective else ''}
-</section>""")
+</section>"""))
 
     # ----- INFO sections -----
     info_map = [
@@ -531,14 +533,14 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
                 f"<tr><td class='td-num'>{i+1:02d}</td><td><strong>{_esc(it.get('name') or it.get('full_name') or '—')}</strong></td><td>{_esc(it.get('description') or it.get('specialization') or it.get('sport') or it.get('city') or '—')}</td></tr>"
                 for i, it in enumerate(items)
             ]) or "<tr><td colspan='3' class='muted'>Sin registros</td></tr>"
-            parts.append(f"""<section class="page-break">
+            parts.append((flag_key, f"""<section class="page-break">
 <span class="badge">INFORMACIÓN</span>
 <h2>{_esc(title)} <span class="count">· {len(items)} registros</span></h2>
 <table class="data-tbl">
   <thead><tr><th style="width:40pt">#</th><th>Nombre</th><th>Detalle</th></tr></thead>
   <tbody>{rows}</tbody>
 </table>
-</section>""")
+</section>"""))
 
     # ----- EVALUATIONS -----
     eval_map = [
@@ -558,11 +560,11 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
             cur = _db.plan_evaluations_v2.find(q, {"_id": 0}).sort("date", -1).limit(10)
             evs = await cur.to_list(10)
             if not evs:
-                parts.append(f"""<section class="page-break">
+                parts.append((flag_key, f"""<section class="page-break">
 <span class="badge">EVALUACIÓN</span>
 <h2>{_esc(title)}</h2>
 <p class="muted">Sin controles registrados para este tipo.</p>
-</section>""")
+</section>"""))
                 continue
             blocks = []
             for ev in evs:
@@ -597,11 +599,11 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
     <tbody>{rows}</tbody>
   </table>
 </div>""")
-            parts.append(f"""<section class="page-break">
+            parts.append((flag_key, f"""<section class="page-break">
 <span class="badge">EVALUACIÓN</span>
 <h2>{_esc(title)} <span class="count">· {len(evs)} controles</span></h2>
 {''.join(blocks)}
-</section>""")
+</section>"""))
 
     # ----- COMPETITIONS -----
     if payload.sections.competitions:
@@ -611,14 +613,14 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
             f"<tr><td><strong>{_esc(c.get('name'))}</strong></td><td class='td-num'>{_esc(c.get('start_date'))}</td><td>{_esc(c.get('location') or '—')}</td><td class='td-cat'>{_esc(c.get('category') or '—')}</td></tr>"
             for c in comps
         ]) or "<tr><td colspan='4' class='muted'>Sin competencias</td></tr>"
-        parts.append(f"""<section class="page-break">
+        parts.append(("competitions", f"""<section class="page-break">
 <span class="badge">CALENDARIO</span>
 <h2>Competencias <span class="count">· {len(comps)} torneos</span></h2>
 <table class="data-tbl">
   <thead><tr><th>Nombre</th><th style="width:90pt">Fecha</th><th>Lugar</th><th>Categoría</th></tr></thead>
   <tbody>{rows}</tbody>
 </table>
-</section>""")
+</section>"""))
 
     # ----- PERIODIZATION -----
     if payload.sections.periodization_structure and plan_doc:
@@ -628,22 +630,22 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
             for ms in (m.get("mesocycles") or []):
                 rows.append(f"<tr><td class='td-num'>{mi+1}</td><td><strong>{_esc(ms.get('name') or '—')}</strong></td><td><span class='pill pill-phase'>{_esc(ms.get('phase') or '—')}</span></td><td class='td-num'>{ms.get('weeks', '—')}</td><td class='td-num'>{ms.get('volume_pct') or ms.get('volume') or '—'}%</td><td class='td-num'>{ms.get('intensity_pct') or ms.get('intensity') or '—'}%</td></tr>")
         rows_html = ''.join(rows) or "<tr><td colspan='6' class='muted'>Sin estructura registrada</td></tr>"
-        parts.append(f"""<section class="page-break">
+        parts.append(("periodization_structure", f"""<section class="page-break">
 <span class="badge">ESTRUCTURA</span>
 <h2>Periodización · Estructura</h2>
 <table class="data-tbl">
   <thead><tr><th style="width:40pt">Macro</th><th>Mesociclo</th><th>Fase</th><th style="width:50pt">Sem.</th><th style="width:55pt">Volumen</th><th style="width:55pt">Intens.</th></tr></thead>
   <tbody>{rows_html}</tbody>
 </table>
-</section>""")
+</section>"""))
 
     if payload.sections.periodization_load:
-        parts.append(f"""<section class="page-break">
+        parts.append(("periodization_load", f"""<section class="page-break">
 <span class="badge">CARGA</span>
 <h2>Periodización · Carga</h2>
 <p>Distribución de carga semanal y monitorización ACWR (Acute:Chronic Workload Ratio).</p>
 <div class="callout">La gráfica detallada con la evolución semanal está disponible en el módulo <strong>Plan Gráfico</strong>.</div>
-</section>""")
+</section>"""))
 
     if payload.sections.graphic_plan:
         share = await _db.graphic_plan_shares.find_one(
@@ -651,20 +653,20 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
             sort=[("created_at", -1)]
         )
         if share and share.get("image_b64"):
-            parts.append(f"""<section class="page-break">
+            parts.append(("graphic_plan", f"""<section class="page-break">
 <span class="badge">VISUALIZACIÓN</span>
 <h2>Plan Gráfico</h2>
 <img src='{share['image_b64']}' style='max-width:100%;display:block;margin:6pt auto;border-radius:8pt;border:1pt solid {accent}40;'/>
-</section>""")
+</section>"""))
         else:
-            parts.append(f"""<section class="page-break">
+            parts.append(("graphic_plan", f"""<section class="page-break">
 <span class="badge">VISUALIZACIÓN</span>
 <h2>Plan Gráfico</h2>
 <p class="muted">Captura del Plan Gráfico no disponible. Genere el enlace público desde la sección <strong>Plan Gráfico</strong> para incluirla aquí.</p>
-</section>""")
+</section>"""))
 
     if payload.sections.tools:
-        parts.append(f"""<section class="page-break">
+        parts.append(("tools", f"""<section class="page-break">
 <span class="badge">SUITE</span>
 <h2>Herramientas y calculadoras</h2>
 <p>iTRAIN incluye una suite de <strong>47 calculadoras científicas</strong> distribuidas en <strong>10 módulos</strong>:</p>
@@ -677,7 +679,7 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
   {_stat_card('TESTS', '5', 'evaluación')}
 </div>
 <p class="muted">Antropometría · Nutrición · Control médico · Periodización avanzada</p>
-</section>""")
+</section>"""))
 
     # ----- CONCLUSIONS -----
     if payload.sections.conclusions:
@@ -690,14 +692,32 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
                 "<p>Se recomienda la revisión continua de las cargas, indicadores y resultados de competencia para "
                 "ajustar el plan en cada mesociclo.</p>"
             )
-        parts.append(f"""<section class="page-break">
+        parts.append(("conclusions", f"""<section class="page-break">
 <span class="badge">CIERRE</span>
 <h2>Conclusiones</h2>
 {paras}
 <div class="callout"><strong>Próximos pasos</strong> · Consolidar evaluaciones del próximo control, ajustar la curva de carga semanal y revisar el calendario competitivo. iTRAIN actualiza estos datos en tiempo real.</div>
-</section>""")
+</section>"""))
 
-    body_html = ''.join(parts)
+    # Default order if user did not provide one
+    DEFAULT_ORDER = [
+        "cover", "toc", "introduction",
+        "diagnostic_previous", "diagnostic_active",
+        "info_entities", "info_teams", "info_athletes", "info_sports",
+        "info_tournaments", "info_coaches",
+        "eval_medical", "eval_anthropometric", "eval_physical",
+        "eval_biomechanical", "eval_technical", "eval_tactical",
+        "eval_psychological", "eval_theoretical",
+        "competitions",
+        "periodization_structure", "periodization_load",
+        "graphic_plan", "tools", "conclusions",
+    ]
+    if payload.section_order:
+        # Build ordered list following user's preference + append any leftover parts
+        order_idx = {sid: i for i, sid in enumerate(payload.section_order)}
+        parts.sort(key=lambda t: order_idx.get(t[0], 9000 + DEFAULT_ORDER.index(t[0])
+                                                if t[0] in DEFAULT_ORDER else 9999))
+    body_html = ''.join(html for _, html in parts)
 
     # ====== FOOTER ======
     footer_html = f"""<div class="footer-brand">
@@ -1072,19 +1092,19 @@ async def _render_pdf(html: str) -> bytes:
 
 
 async def _render_preview_png(html: str) -> bytes:
-    """Render HTML and capture COVER (first page A4) as PNG for fast preview."""
+    """Render HTML and capture COMPLETE document as a tall PNG for scrollable preview."""
     os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", "/pw-browsers")
     from playwright.async_api import async_playwright
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True,
             args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'])
         page = await browser.new_page(viewport={"width": 794, "height": 1123},
-                                      device_scale_factor=2)
+                                      device_scale_factor=1.5)
         await page.set_content(html, wait_until="networkidle")
-        await page.wait_for_timeout(600)
-        png = await page.screenshot(full_page=False, type="png", clip={
-            "x": 0, "y": 0, "width": 794, "height": 1123
-        })
+        await page.wait_for_timeout(500)
+        # Full-page screenshot — captures the entire scroll height so the user
+        # can read the whole document inside the modal like a Word preview.
+        png = await page.screenshot(full_page=True, type="png")
         await browser.close()
     return png
 

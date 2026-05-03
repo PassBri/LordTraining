@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
@@ -9,6 +9,7 @@ import { Checkbox } from './ui/checkbox';
 import {
   FileBarChart2, Sparkles, Notebook, Activity,
   Image as ImageIcon, X, Download, Loader2, Crown, Trophy, Award, Medal, Eye,
+  GripVertical, Zap,
 } from 'lucide-react';
 
 const API = process.env.REACT_APP_BACKEND_URL;
@@ -45,6 +46,9 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
   const [layouts, setLayouts] = useState([]);
   const [styleId, setStyleId] = useState('atleta');
   const [sections, setSections] = useState({ ...DEFAULT_SELECTION });
+  const [sectionOrder, setSectionOrder] = useState([]);  // ordered list of section ids
+  const [dragSid, setDragSid] = useState(null);          // currently dragged section id
+  const [autoPreview, setAutoPreview] = useState(true);  // auto-update preview on changes
   const [orgName, setOrgName] = useState('');
   const [orgLogoB64, setOrgLogoB64] = useState('');
   const [title, setTitle] = useState('');
@@ -52,10 +56,12 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
   const [coverData, setCoverData] = useState({ ...DEFAULT_COVER });
   const [customIntro, setCustomIntro] = useState('');
   const [customConclusions, setCustomConclusions] = useState('');
-  const [activeTab, setActiveTab] = useState('design'); // design | cover | content
+  const [activeTab, setActiveTab] = useState('design'); // design | cover | content | preview
   const [previewUrl, setPreviewUrl] = useState('');
   const [previewing, setPreviewing] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const debounceRef = useRef(null);
+  const lastPayloadRef = useRef('');
 
   useEffect(() => {
     if (!open) return;
@@ -102,12 +108,30 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
     });
   };
 
+  // ---- Section order helpers ----
+  // Build the canonical ordered list of section ids that are currently enabled.
+  const enabledSectionIds = useCallback(() => {
+    return Object.entries(sections).filter(([, v]) => !!v).map(([k]) => k);
+  }, [sections]);
+
+  // Keep sectionOrder in sync with which sections are enabled.
+  useEffect(() => {
+    const enabled = enabledSectionIds();
+    setSectionOrder(prev => {
+      // Preserve existing order, append new ones, remove disabled ones.
+      const kept = prev.filter(s => enabled.includes(s));
+      const added = enabled.filter(s => !kept.includes(s));
+      return [...kept, ...added];
+    });
+  }, [sections, enabledSectionIds]);
+
   const buildPayload = () => ({
     plan_id: plan?.id || null,
     title: title || plan?.name || 'Plan de Entrenamiento',
     subtitle: subtitle || '',
     style: styleId,
     sections,
+    section_order: sectionOrder.length ? sectionOrder : undefined,
     org_name: orgName || '',
     org_logo_b64: orgLogoB64 || '',
     coach_name: coachName || '',
@@ -121,7 +145,9 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
     setPreviewing(true);
     try {
       const token = localStorage.getItem('train_token') || localStorage.getItem('token');
-      const res = await axios.post(`${API}/api/master-report/preview`, buildPayload(), {
+      const payload = buildPayload();
+      lastPayloadRef.current = JSON.stringify(payload);
+      const res = await axios.post(`${API}/api/master-report/preview`, payload, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob',
         validateStatus: () => true,
@@ -134,12 +160,40 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
       const blob = new Blob([res.data], { type: 'image/png' });
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(URL.createObjectURL(blob));
-      toast.success('Vista previa actualizada');
     } catch (err) {
       toast.error('Error preview: ' + (err?.message || ''));
     } finally {
       setPreviewing(false);
     }
+  };
+
+  // ---- Auto-preview with debounce 800ms ----
+  useEffect(() => {
+    if (!open || !autoPreview) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      const payload = buildPayload();
+      const sig = JSON.stringify(payload);
+      if (sig === lastPayloadRef.current) return; // no real change
+      handlePreview();
+    }, 800);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, autoPreview, styleId, sections, sectionOrder, coverData, customIntro,
+      customConclusions, title, subtitle, orgName, orgLogoB64]);
+
+  // ---- Drag & drop reorder ----
+  const onDragStart = (sid) => setDragSid(sid);
+  const onDragOver = (e) => e.preventDefault();
+  const onDrop = (targetSid) => {
+    if (!dragSid || dragSid === targetSid) return;
+    setSectionOrder(prev => {
+      const next = prev.filter(s => s !== dragSid);
+      const idx = next.indexOf(targetSid);
+      next.splice(idx === -1 ? next.length : idx, 0, dragSid);
+      return next;
+    });
+    setDragSid(null);
   };
 
   const handleGenerate = async () => {
@@ -464,31 +518,94 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
           {/* === TAB: PREVIEW === */}
           {activeTab === 'preview' && (
           <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-sm font-bold text-slate-900">Vista previa de la portada</h3>
-                <p className="text-[11px] text-slate-500">Renderizado en alta resolución · refleja el estilo y layout actual.</p>
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+              <div className="flex items-center gap-3">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">Vista previa del documento</h3>
+                  <p className="text-[11px] text-slate-500">Documento completo · scrollable como un Word · auto-actualiza al editar.</p>
+                </div>
+                <button
+                  onClick={() => setAutoPreview(v => !v)}
+                  className={`flex items-center gap-1.5 px-2.5 h-7 rounded-full text-[10px] font-bold uppercase tracking-wider transition ${
+                    autoPreview ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' : 'bg-slate-100 text-slate-500 border border-slate-200'
+                  }`}
+                  data-testid="mr-auto-preview-toggle"
+                  title="Activar/desactivar auto-actualización al editar">
+                  <Zap className={`w-3 h-3 ${autoPreview ? 'fill-emerald-600' : ''}`} />
+                  Auto · {autoPreview ? 'ON' : 'OFF'}
+                </button>
               </div>
               <Button
                 size="sm" onClick={handlePreview} disabled={previewing}
                 className="h-9 text-xs bg-slate-900 hover:bg-slate-800 text-white"
                 data-testid="mr-preview-btn">
                 {previewing ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Renderizando…</> :
-                  <><Eye className="w-3.5 h-3.5 mr-1.5" />Generar vista previa</>}
+                  <><Eye className="w-3.5 h-3.5 mr-1.5" />Actualizar ahora</>}
               </Button>
             </div>
-            <div className="bg-slate-100 rounded-xl border-2 border-dashed border-slate-300 p-4 min-h-[480px] flex items-center justify-center"
+            <div className="bg-slate-100 rounded-xl border-2 border-dashed border-slate-300 p-3 max-h-[640px] overflow-y-auto flex items-start justify-center"
               data-testid="mr-preview-canvas">
               {previewUrl ? (
-                <img src={previewUrl} alt="Vista previa" className="max-w-full max-h-[600px] shadow-2xl rounded-lg border border-slate-300" />
+                <div className="relative">
+                  {previewing && (
+                    <div className="absolute top-2 right-2 z-10 bg-slate-900/85 text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-1.5 backdrop-blur-sm">
+                      <Loader2 className="w-3 h-3 animate-spin" />Actualizando…
+                    </div>
+                  )}
+                  <img src={previewUrl} alt="Vista previa"
+                    className="max-w-full shadow-2xl rounded-lg border border-slate-300 bg-white"
+                    style={{ maxWidth: '720px' }} />
+                </div>
+              ) : previewing ? (
+                <div className="text-center text-slate-500 py-20">
+                  <Loader2 className="w-10 h-10 mx-auto mb-2 animate-spin text-slate-400" />
+                  <p className="text-sm">Renderizando documento…</p>
+                </div>
               ) : (
-                <div className="text-center text-slate-500">
+                <div className="text-center text-slate-500 py-20">
                   <Eye className="w-10 h-10 mx-auto mb-2 opacity-30" />
                   <p className="text-sm">Aún no hay vista previa generada.</p>
-                  <p className="text-[11px]">Pulsa "Generar vista previa" para verla.</p>
+                  <p className="text-[11px]">Activa Auto · ON o pulsa "Actualizar ahora".</p>
                 </div>
               )}
             </div>
+            {/* Order editor */}
+            {sectionOrder.length > 0 && (
+              <div className="mt-4 bg-white border border-slate-200 rounded-xl p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                    Orden del documento <span className="normal-case font-normal text-slate-400">· arrastra para reorganizar</span>
+                  </h4>
+                  <span className="text-[10px] text-slate-500">{sectionOrder.length} secciones</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5" data-testid="mr-order-list">
+                  {sectionOrder.map((sid, idx) => {
+                    const label = (groups.flatMap(g => g.items).find(it => it.id === sid) || {}).label || sid;
+                    const isDragging = dragSid === sid;
+                    return (
+                      <div
+                        key={sid}
+                        draggable
+                        onDragStart={() => onDragStart(sid)}
+                        onDragOver={onDragOver}
+                        onDrop={() => onDrop(sid)}
+                        onDragEnd={() => setDragSid(null)}
+                        className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg border-2 cursor-move transition select-none ${
+                          isDragging
+                            ? 'opacity-40 border-slate-900 bg-slate-50'
+                            : 'border-slate-200 bg-white hover:border-slate-400 hover:bg-slate-50'
+                        }`}
+                        data-testid={`mr-order-item-${sid}`}
+                      >
+                        <GripVertical className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                        <span className="text-[10px] font-bold text-slate-400 tabular-nums w-5 text-center">{idx + 1}</span>
+                        <span className="text-xs text-slate-800 truncate flex-1">{label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
           )}
         </div>
