@@ -3294,14 +3294,14 @@ const DashboardPage = () => {
             </Card>
 
             {/* Cumplimiento de Objetivos — col 2, ocupa 5 rows (toda la altura de col 1) */}
-            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-emerald-500 lg:col-start-2 lg:row-start-1 lg:row-end-6">
-              <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-emerald-500 lg:col-start-2 lg:row-start-1 lg:row-end-6 lg:h-full flex flex-col">
+              <CardHeader className="bg-white border-b border-slate-100 py-3 px-4 flex-shrink-0">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
                   <CheckCircle className="w-4 h-4 text-emerald-500" />
                   Cumplimiento de Objetivos
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-3.5 space-y-2.5">
+              <CardContent className="p-3.5 space-y-2.5 flex flex-col flex-1 min-h-0">
                 {/* Radar interactivo — feedback visual en tiempo real */}
                 <div className="rounded-xl p-2.5" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}>
                   <div className="flex items-center justify-center gap-3 mb-1 flex-wrap">
@@ -3414,18 +3414,21 @@ const DashboardPage = () => {
                     setTimeout(() => setPreviousAnalysisData(prev => ({ ...prev, porcentajeCumplimiento: pctG })), 0);
                   }
                   return (
-                    <div className="mt-3 p-3 rounded-xl text-slate-900" style={{ background: 'linear-gradient(135deg, #CCFF00 0%, #a3e635 100%)' }}>
-                      <div className="flex items-center justify-between mb-1.5">
+                    <div className="mt-auto p-5 lg:p-6 rounded-2xl text-slate-900 shadow-lg flex flex-col justify-center" style={{ background: 'linear-gradient(135deg, #CCFF00 0%, #a3e635 100%)', minHeight: '180px' }}>
+                      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-black uppercase tracking-widest">% Global de Cumplimiento</span>
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-900/85 text-[#CCFF00] uppercase tracking-wider">Auto</span>
+                          <span className="text-[12px] lg:text-[13px] font-black uppercase tracking-[0.2em]">% Global de Cumplimiento</span>
+                          <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-slate-900/85 text-[#CCFF00] uppercase tracking-wider">Auto</span>
                         </div>
-                        <span className="text-2xl font-black tabular-nums" data-testid="prev-porcentaje-global" style={{ color: '#0f172a' }}>{pctG}<span className="text-sm font-bold ml-0.5">%</span></span>
+                        <span className="text-5xl lg:text-6xl font-black tabular-nums leading-none" data-testid="prev-porcentaje-global" style={{ color: '#0f172a', letterSpacing: '-0.04em' }}>{pctG}<span className="text-2xl lg:text-3xl font-bold ml-1 align-top">%</span></span>
                       </div>
-                      <div className="h-2.5 bg-black/15 rounded-full overflow-hidden mt-1">
-                        <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pctG}%`, background: '#0f172a' }} />
+                      <div className="h-4 lg:h-5 bg-black/15 rounded-full overflow-hidden mt-2 shadow-inner">
+                        <div className="h-full rounded-full transition-all duration-700 shadow-md" style={{ width: `${pctG}%`, background: 'linear-gradient(90deg, #0f172a 0%, #1e293b 100%)' }} />
                       </div>
-                      <p className="text-[9px] text-slate-800/70 font-medium mt-1.5 italic">Promedio automático de las 7 áreas de cumplimiento</p>
+                      <div className="flex items-center justify-between mt-3 text-[10px] lg:text-[11px] text-slate-800/75 font-semibold">
+                        <span className="italic">Promedio automático de las 7 áreas</span>
+                        <span className="uppercase tracking-wider">{pctG >= 85 ? '✓ Excelente' : pctG >= 70 ? '◐ Bueno' : pctG >= 50 ? '○ Aceptable' : '◌ Mejorar'}</span>
+                      </div>
                     </div>
                   );
                 })()}

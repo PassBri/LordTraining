@@ -5,8 +5,46 @@
 ## Arquitectura
 - Frontend: React + Zustand + Recharts + Shadcn/UI
 - Backend: FastAPI + Motor (MongoDB async)
-- DB: MongoDB (11 colecciones V2)
+- DB: MongoDB (11 colecciones V2 + plan_previous_analysis_ai_cache)
 
+
+### Gap Analysis con IA en Plan Anterior — multi-modelo + multi-LLM (Feb 2026)
+
+**Cierre del ciclo con IA — el coach recibe el "qué hacer al respecto":**
+- Backend `/app/backend/routes/previous_analysis_export.py` (~1100 líneas):
+  - Nueva colección `plan_previous_analysis_ai_cache` con cache_key hash de (plan_id, areas_real, models_seleccionados, provider, llm_model).
+  - Helpers: `_resolve_model_profile` (busca en MODEL_PROFILES → fallback a `_CATEGORY_PROFILES` por categoría → 'Custom' equilibrado); `_radar_values_from_cumpl`; `_hash_payload`; `_build_gap_prompt`; `_parse_llm_json`; `_call_llm_for_gap` (vía `emergentintegrations.LlmChat`).
+  - Endpoints nuevos:
+    - `GET /api/plan-data/previous-analysis/{plan_id}/gap-analysis-ai` → devuelve `{gap_analysis_ai}` cacheado (200 con null si no existe; 404 sólo si no hay análisis).
+    - `POST /.../gap-analysis-ai` body=`{models[], provider:openai|anthropic, llm_model?, force_refresh?}` → calcula deltas vs cada modelo, llama al LLM (cap 6 modelos), parsea JSON, persiste cache + en `plan_previous_analysis.gap_analysis_ai`.
+    - `DELETE /.../gap-analysis-ai` → limpia cache + campo del documento.
+  - Provider dispatch via `_select_llm_model`: openai→`gpt-5.2` · anthropic→`claude-sonnet-4-5-20250929`.
+  - Prompt estructurado en español con 7 áreas reales + perfiles ideales por modelo seleccionado, exigiendo JSON con `executive_summary` + 3-5 `recommendations[{title, description, priority:alta|media|baja, area}]`.
+  - `_build_html` ahora acepta `ai_data` o lo lee del doc; renderiza nueva sección "7. Gap Analysis con IA" con pill provider, contador modelos, resumen ejecutivo (callout amarillo), tabla comparativa modelos (brechas top 3 + % coincidencia), 3-5 cards de recomendaciones numeradas con badges de prioridad. PDF compartido (sin auth) también la incluye.
+
+- Frontend `DashboardPage.js`:
+  - Estado: `aiGapData`, `aiGapLoading`, `aiGapProvider`, `aiSelectedModels`, `periodLibrary`.
+  - `useEffect` autoload de biblioteca + cache IA al entrar a Plan Anterior. Pre-selecciona el modelo del plan activo.
+  - Handlers: `fetchPeriodLibrary`, `fetchGapAnalysisAI`, `handleGenerateGapAnalysisAI(force)`.
+  - Card UI nueva (`data-testid='ai-gap-analysis-card'`) con header negro + lima:
+    - Provider selector toggle (`ai-provider-openai`, `ai-provider-anthropic`).
+    - Multi-select chips de los 30 modelos de la biblioteca (`ai-models-selector`, cap visual+lógico de 6, chips deshabilitados al límite).
+    - Botón "Generar IA" / "Regenerar" + link "Forzar regeneración" (skip cache).
+    - Estados: empty (CTA), loading (spinner), results (`ai-gap-results`):
+      - Resumen Ejecutivo en card lima italic.
+      - Tabla comparativa con coincidencia codificada por color (verde/ámbar/rojo).
+      - Lista numerada de recomendaciones con borde lima y badge de prioridad coloreado.
+
+- Validación: `testing_agent_v3_fork iter_49` → 8/9 backend tests PASS (1 bug menor de truthiness en GET arreglado: `count_documents` en lugar de `if not doc`). PDF descargado de 232KB con sección IA renderizada (verificada con `analyze_file_tool`: pill OPENAI · GPT-5.2, 2 modelos comparados, tabla con ATR 94% y pdi 81% coincidencia, 5 cards de recomendaciones con prioridades ALTA/MEDIA, áreas y descripciones técnicas). Cache hit: True confirmado en segunda llamada idéntica.
+
+### Plan Anterior — % Global de Cumplimiento HERO (Feb 2026)
+
+- Card "% Global de Cumplimiento" rediseñado como hero card que llena el espacio vertical sobrante de la columna 2 (`mt-auto` + `flex-1` + `min-h-180px`):
+  - Cumplimiento Card: ahora `flex flex-col` con `lg:h-full` para forzar stretch a la altura de col 1.
+  - CardContent con `flex flex-col flex-1 min-h-0` + el % Global con `mt-auto` se pega al fondo.
+  - Tipografía masiva: % en `text-5xl lg:text-6xl` (antes text-2xl), pill "AUTO" más grande, label en text-[12-13px] con tracking 0.2em.
+  - Barra progreso `h-4 lg:h-5` (antes 2.5) con gradient interior y shadow.
+  - Indicador de estado dinámico ("✓ Excelente / ◐ Bueno / ○ Aceptable / ◌ Mejorar") según el %.
 
 ### Wizard "Crear Plan" autocompletado desde Plan Anterior (Feb 2026)
 

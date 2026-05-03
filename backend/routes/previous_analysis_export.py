@@ -970,12 +970,15 @@ Reglas:
 async def get_gap_analysis_ai(plan_id: str, user=Depends(get_current_user_dep())):
     """Devuelve el Gap Analysis IA cacheado para el plan, si existe."""
     uid = _get_user_id(user)
+    # Verificar primero la existencia del documento (sin proyección) para evitar
+    # falso 404 cuando el campo gap_analysis_ai está ausente/unset (proyección retorna {}).
+    exists = await _analysis.count_documents({"plan_id": plan_id, "user_id": uid}, limit=1)
+    if exists == 0:
+        raise HTTPException(404, "Aún no hay análisis guardado.")
     doc = await _analysis.find_one(
         {"plan_id": plan_id, "user_id": uid},
         {"_id": 0, "gap_analysis_ai": 1}
-    )
-    if not doc:
-        raise HTTPException(404, "Aún no hay análisis guardado.")
+    ) or {}
     return {"gap_analysis_ai": doc.get("gap_analysis_ai")}
 
 
