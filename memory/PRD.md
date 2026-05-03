@@ -12,6 +12,14 @@
 
 **Backend** (`/app/backend/routes/info_catalog_export.py` ~360 líneas): 4 endpoints genéricos parametrizados por `{catalog_type}` (entities/teams/athletes/sports/tournaments). `TYPE_CONFIG` mapping con colección Mongo, label, color y columnas. Helper `_value_for(item, key)` con aliases. Colección `info_catalog_shares`. Template PDF con hero oscuro tematizado por color, badge "CATÁLOGO · X", 3 stat-cards, tabla negro/lima. Validado: 5/5 PDFs generados (107-120KB).
 
+**Mejora Deportes — PDF Material Design tipo galería** (Feb 2026): el catálogo de deportes ahora usa un template especial `_build_sports_html` con cards Material Design en grid 2-columnas, mostrando TODOS los campos de caracterización técnica:
+- Header con nombre del deporte, categoría y círculo de completitud (% conic-gradient codificado por color: verde ≥80%, ámbar ≥40%, rojo <40%).
+- Pills de Tipo (Individual/Colectivo/Combate/Precisión/Raquetas/Acuático) y Sistema Energético (Aeróbico/Anaeróbico Láctico/Anaeróbico Aláctico/Mixto) con colores temáticos.
+- 3 secciones expandidas (Capacidades Físicas verde, Habilidades Técnicas azul, Factores Tácticos ámbar) con dots de color y fallback "No definido".
+- Hero con 4 stat-cards (Total / Caracterizados / Sin caracterizar / Cobertura %).
+- Diccionarios `SPORT_TYPE_LABELS` y `ENERGY_SYSTEM_LABELS` para traducción de claves a labels humanos en español.
+- Dispatch automático en endpoints PDF y shared cuando `catalog_type == "sports"`. Validado con `analyze_file_tool`: 48 deportes en grid 2-col, hero, stat-cards, todos los campos visibles.
+
 **Frontend componente reusable** (`/app/frontend/src/components/InfoSectionHeader.js` ~180 líneas): Toolbar Material Design idéntico a Plan Anterior/Plan Activo con 4 botones (PDF/Enlace/WhatsApp/Guardar). Handlers internos. Integrado en las 5 secciones (`entities`, `teams`, `athletes`, `sports`, `tournaments`) en `DashboardPage.js` con colores temáticos (sky/emerald/amber/red/violet). Validado por screenshot end-to-end.
 
 
