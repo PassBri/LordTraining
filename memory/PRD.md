@@ -369,6 +369,38 @@ Las imágenes fuente `/app/frontend/public/brand/itrain-full-pdf.png` (623x240) 
 
 ## Implementado
 
+### Botón "Sesiones" — exportación independiente de sesiones específicas (Feb 2026)
+
+**Continuación del flujo Master Report.** Nuevo botón "Sesiones" en el header de Plan Activo, al lado del botón "Reporte Maestro", que abre un modal selector de sesiones específicas para imprimirlas con el diseño clásico ReportLab del PDF de sesión.
+
+**Backend** (`/app/backend/routes/sessions_export.py`, ~340 líneas, registrado en `server.py` con prefix `/api`):
+- Helper `_build_session_pdf_bytes(session_data, athlete_name, meso_name, micro_name, week_number)` — replica exacta del PDF clásico de `/api/export/session-pdf` (Helvetica + ReportLab) con: header gradient azul, etiqueta meso·micro·semana, objetivos en grid 2x3, fases inicial/principal/final con tabla 8-col (Ejercicio · Cap.Física · Método · Series · Reps · Int. · Vol. · Recup.), monitoreo FC + estado del deportista, observaciones opcionales, footer iTRAIN.
+- `POST /api/sessions-export/generate` body=`{plan_id, session_ids:[], format:"combined"|"zip", athlete_name?}`:
+  - Carga plan con `_db.training_plans.find_one({id:plan_id, $or:[{user_id},{coach_id}]})`.
+  - `_walk_plan_sessions()` itera todos los nodos plan→macro→meso→micro→session yieldando tuplas (session, meso_name, micro_name, week_number) en orden.
+  - Filtra por `session_ids` y genera un PDF por sesión preservando el orden del plan.
+  - `format="combined"` → merge con `pypdf.PdfWriter` en un único PDF (ej: 3 sesiones = 3 páginas).
+  - `format="zip"` → `zipfile.ZipFile(ZIP_DEFLATED)` con un PDF por sesión, filenames `sesion_{date}_{slug}.pdf` (handler de duplicados con índice incremental).
+- Validaciones: 400 si `session_ids` vacío, 400 si format inválido, 404 si plan no existe o ninguna session_id matchea, 401/403 sin token.
+
+**Frontend** (`/app/frontend/src/components/SessionsExportModal.js`, ~290 líneas):
+- Dialog full-feature con header gradient slate-900 + icono `CalendarDays` lima en cuadro brand. Counter pill "X de Y seleccionadas" en lima.
+- Toolbar: "Seleccionar todas" / "Limpiar" + tag "Formato: PDF clásico de sesión (ReportLab)".
+- Body grid: cards por mesociclo (border-left tematizado por color de fase) con header "M{N}" + meso name + phase + botón "Marcar todo (N)/Quitar todo". Cada microciclo dentro tiene su propio header con badge "SEMANA {N}" + botón "Todas (N)/Quitar". Sesiones en grid 1/2/3-col responsivo, cada card con checkbox, nombre, badges de Día/tipo/duración/ejercicios. Selected state: borde lima + bg lima/8.
+- Footer: contador "X sesion{es} seleccionada{s}" + 3 botones (Cancelar / ZIP individual / PDF combinado).
+- Reutiliza `GET /api/master-report/sessions-list/{plan_id}` para cargar el árbol.
+- Descarga blob con `responseType:'blob'` + `URL.createObjectURL` + `<a download>`.
+- data-testids: `header-sessions-export-btn`, `sessions-export-modal`, `sessions-export-counter`, `sessions-export-select-all`, `sessions-export-clear-all`, `sessions-export-meso-{id}`, `sessions-export-toggle-meso-{id}`, `sessions-export-micro-{id}`, `sessions-export-toggle-micro-{id}`, `sessions-export-card-{id}`, `sessions-export-checkbox-{id}`, `sessions-export-cancel-btn`, `sessions-export-zip-btn`, `sessions-export-combined-btn`.
+
+**Integración** `DashboardPage.js`:
+- Estado `isSessionsExportOpen` + import `SessionsExportModal`.
+- Botón "Sesiones" (CalendarDays icon, borde sky-400) al lado de "Reporte" en el header (`data-testid="header-sessions-export-btn"`).
+- Click sin activePlan → toast warning "Selecciona un plan activo primero".
+- Modal montado al final del componente con props open/onOpenChange/plan=activePlan/athleteName.
+
+**Validación** (`testing_agent_v3_fork iter_58`): 8/8 backend pytest PASS, frontend E2E 100% — botón visible, toast no-plan, modal abre con 55 cards correctamente agrupadas, counter actualiza, toggles meso/micro funcionan, descargas combined PDF (3 páginas válidas con %PDF- signature, filename `sesiones_<plan-slug>.pdf`) y ZIP (PK signature, filename `sesiones_<plan-slug>.zip`) verificadas. 0 regresiones.
+
+
 ### Zonas Karvonen clickeables en chart + PDF Pizarras (Feb 2026)
 
 **Feature A — Zonas Karvonen interactivas:**
