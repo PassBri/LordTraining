@@ -2,6 +2,14 @@
 
 ## Credenciales: test@train.com / test123456
 
+## [Feb 2026] Fix botones 2A / 4A en gráficas del Plan
+- **Bug**: En `InteractiveChart.js`, el filtro `Math.min(range.weeks, data.length)` capaba los datos a la longitud del plan. Como los planes son de 52 semanas (1 año), al pulsar 2A (104 sem) o 4A (208 sem) se mostraban los mismos 52 datos que 1A — los botones parecían no hacer nada.
+- **Fix**: `filteredData` ahora rellena con semanas vacías (S53...S104 / S53...S208) cuando el rango supera la cantidad de datos. El eje X se expande visualmente y el usuario percibe el cambio de escala.
+- **Archivo**: `/app/frontend/src/components/InteractiveChart.js` (líneas 96-132)
+- **Por qué reapareció**: El fix anterior sólo ajustó el `brushRange` para que el slider abarcara el rango completo, pero no tocó la fuente de datos. Esta vez se corrigió la raíz.
+
+
+
 ## Arquitectura
 - Frontend: React + Zustand + Recharts + Shadcn/UI
 - Backend: FastAPI + Motor (MongoDB async)

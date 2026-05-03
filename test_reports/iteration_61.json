@@ -42,7 +42,7 @@
   "updated_files": [],
   "success_rate": {"backend": "n/a (frontend-only)", "frontend": "~60% (LoadPanel ✅, chart buttons count ✅, 4/7 header inputs ✅, 3/7 header inputs ❌, chart-share backend wiring ❌, expand-chart dialog ❌, chart-whatsapp popup ❌, chart-download ✅-no errors)"},
   "test_credentials": "test@train.com / test123456",
-  "seed_data_creation": "None — used existing TEST Plan Fútbol ATR (id=a6f2f198-5eba-4c72-ad09-ecfb7c7376dc).",
+  "seed_data_creation": "None — used existing TEST Plan Fútbol ATR (id=training-analytics-9).",
   "retest_needed": true,
   "should_main_agent_self_test": false,
   "context_for_next_testing_agent": "Navigation path confirmed: /auth → login test@train.com/test123456 → /dashboard → [data-testid='tab-datos'] → [data-testid='sidebar-plan-a6f2f198-5eba-4c72-ad09-ecfb7c7376dc'] → [data-testid='section-tab-periodizacion'] → [data-testid='subnav-period-load'] for LoadPanel, or [data-testid='section-tab-visualizacion'] for Plan Gráfico. Chart button testids use slugified (lowercase + accents + dashes) Spanish titles, e.g. 'magnitud-de-carga-y-recuperación'. Issue summary: header auto-fill is incomplete (input-category, input-athlete empty; input-periodization-type literal 'None'). chart-share fires toast but NOT the /api/graphic-plan/share endpoint. expand-chart does not open a Dialog. These need main-agent fix-pass.",

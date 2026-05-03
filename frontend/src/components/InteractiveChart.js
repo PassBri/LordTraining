@@ -93,13 +93,42 @@ const InteractiveChart = ({
   const [showCrosshair, setShowCrosshair] = useState(true);
   const chartContainerRef = useRef(null);
 
-  // Filtrar datos según el rango de tiempo seleccionado
+  // Filtrar datos según el rango de tiempo seleccionado.
+  // Si el rango pedido (ej. 2A=104, 4A=208) supera la longitud de los datos,
+  // rellenamos con semanas vacías para que el eje X se expanda visualmente
+  // y el usuario perciba que el botón cambió la escala.
   const filteredData = useMemo(() => {
     const range = TIME_RANGES.find(r => r.id === timeRange);
     if (!range || !data.length) return data;
-    const maxWeeks = Math.min(range.weeks, data.length);
-    return data.slice(0, maxWeeks);
-  }, [data, timeRange]);
+
+    if (range.weeks <= data.length) {
+      return data.slice(0, range.weeks);
+    }
+
+    // Rango supera los datos: rellenar con placeholders vacíos
+    const padded = data.slice();
+    const baseKeys = Object.keys(data[0] || {});
+    for (let i = data.length; i < range.weeks; i++) {
+      const empty = {};
+      baseKeys.forEach(k => {
+        // Mantener etiquetas del eje X (semana/sesión) numeradas, resto null
+        if (k === xAxisKey) {
+          const baseVal = data[0]?.[xAxisKey];
+          if (typeof baseVal === 'number') {
+            empty[k] = i + 1;
+          } else if (typeof baseVal === 'string' && /^S\d+$/i.test(baseVal)) {
+            empty[k] = `S${i + 1}`;
+          } else {
+            empty[k] = `S${i + 1}`;
+          }
+        } else {
+          empty[k] = null;
+        }
+      });
+      padded.push(empty);
+    }
+    return padded;
+  }, [data, timeRange, xAxisKey]);
 
   // Resetear brush range cuando cambian los datos:
   // muestra TODO el rango filtrado (no capado a 11) para que al cambiar a 4A/2A/1A
