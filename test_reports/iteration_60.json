@@ -1,0 +1,31 @@
+{
+  "summary": "Frontend E2E validation of 6 consecutive improvements: Coach AI redesigned drawer (no tabs), Periodización Estructura (big MEV→MAV→MRV chart removed), Plan Gráfico (big block removed + new Proyección row with button + Dialog). ALL PRIMARY criteria verified OK. Coach AI: drawer visible, 0 tabs (confirmed no role=tab/tablist), Brain icon in lime box, 'En línea' pulsing dot, chat has quick-action chips (Ejercicios/Cargas/Progresión/Recuperación), footer with user Test User/Entrenador, close button functional. Periodización Estructura: big 'Proyección por mesociclo' chart NOT present in meso view (0 count confirmed at both structure root and after meso expand). Plan Gráfico: gp-mev-projection-row present (count=1), graphic-plan-mev-by-meso removed (count=0), MEV button opens Dialog (data-testid=dialog-mev-chart found), dialog header shows 'Proyección MEV → MAV → MRV', 4 chart control buttons (Barras/Lineas/Mixta/Puntos) all visible, ESC closes dialog cleanly.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [
+      { "component": "GraphicPlan - Proyección row", "issue": "Only 1 MEV button (gp-mev-btn-*) found in projection row but plan has 3 mesociclos (1 per macro: Acumulación, Transformación, Realización). Expected 3 buttons (one at each meso startWeek) but only the first meso's button is rendering. Possibly weekToMeso mapping is incomplete OR the mesos' weeks arrays only contain weeks for the first macro (data shape issue).", "selector": "[data-testid^='gp-mev-btn-']", "priority": "MEDIUM" }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Investigate why only 1 gp-mev-btn renders in Plan Gráfico Proyección row when plan has 3 mesociclos. Check weekToMeso construction in GraphicPlan.js ~lines 1556-1577 — ensure iteration loops correctly across all macrocycles/mesocycles or that each meso's weeks array has startWeek properly defined.",
+    "(Minor) VOL/INT/DEN chips inside MesoMevMavMrvChart were not matched by exact text selectors '^VOL$|^INT$|^DEN$' — likely they are 'Volumen'/'Intensidad'/'Densidad' chips (not abbreviations) or rendered inside legend/SVG (text-anchor not matching). Non-blocking; confirm chip labels match PRD if spec requires exact 'VOL'/'INT'/'DEN' abbreviations."
+  ],
+  "critical_code_review_comments": [
+    "DashboardPage.js ~4706: Drawer content area uses AITrainingAssistant directly without tabs. Clean refactor, keeps full chat full-height (flex-grow). Good.",
+    "GraphicPlan.js ~1886: Dialog uses Radix Dialog with proper open/onOpenChange. ESC + click-outside both close correctly. Standard pattern.",
+    "GraphicPlan.js ~1580 projection-row: new row correctly placed BEFORE Microcycle row per PRD. Clean implementation with BarChart3 icon.",
+    "Console hydration warning: '<span> cannot be a child of <tbody>' observed in console during Plan Gráfico render. Likely a stray <span> inside tbody somewhere — should be wrapped in a <td>/<tr>. Not blocking rendering but worth fixing.",
+    "Potential BUG: Only 1 gp-mev-btn renders when 3 expected — weekToMeso mapping iteration may be skipping mesos in other macrocycles. Needs code review at GraphicPlan.js ~1556-1577."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "n/a (frontend-only)", "frontend": "~92% (12/13 PRD criteria explicitly verified; 1 criterion — 7-col session grid — could not be expanded in auto-test; 1 minor issue with button count)" },
+  "test_credentials": "test@train.com / test123456",
+  "seed_data_creation": "None — used existing TEST Plan Fútbol ATR (a6f2f198-5eba-4c72-ad09-ecfb7c7376dc).",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Coach AI drawer redesign + Plan Gráfico Dialog chart working. One potential bug: gp-mev-btn-* count=1 when plan has 3 mesociclos. Also hydration warning '<span> cannot be child of <tbody>' in Plan Gráfico console. Session 7-col grid verification blocked because Playwright couldn't click 'Microciclo N' text to expand inside the mesociclo card (selector may need refinement or meso wasn't actually expanded — PeriodizationComplete may use a different expand affordance; main agent has visually validated this per agent_to_agent_context_note).",
+  "rca_of_the_issue": "gp-mev-btn count=1: likely the weekToMeso iteration in GraphicPlan.js iterates outer macros and inner mesos, calling weeks.forEach; if meso 2 & 3 (inside Transformación and Realización macros) have empty weeks arrays or their startWeek is computed incorrectly (e.g., Math.min of undefined), the condition `isStart && info.startWeek === week` never fires. Fix: verify that each meso's `weeks` property is always populated OR compute startWeek from (macroStartWeek + cumulative offset). Main agent should inspect the meso data structure and the weekToMeso builder."
+}

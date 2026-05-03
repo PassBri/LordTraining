@@ -35,12 +35,12 @@ import {
   Image,
   Timer,
   Gauge
-} from 'lucide-react';
-import { toast } from 'sonner';
+} from 'lucide-react';import { toast } from 'sonner';
 import axios from 'axios';
 import html2canvas from 'html2canvas';
 import usePlanStore from '../stores/planStore';
 import InteractiveChart from './InteractiveChart';
+import MesoMevMavMrvChart from './charts/MesoMevMavMrvChart';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -150,6 +150,8 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
   const [viewOffset, setViewOffset] = useState(0);
   const [visibleWeeks, setVisibleWeeks] = useState(24);
   const [hasImportedData, setHasImportedData] = useState(false);
+  // MEV→MAV→MRV chart dialog
+  const [mevChartMeso, setMevChartMeso] = useState(null);
   
   // Chart type selections (managed internally by InteractiveChart)
   // Legacy states kept for backward compatibility
@@ -1558,6 +1560,66 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                 </tr>
                 
                 {/* Microcycle */}
+                {(() => {
+                  // Construir mapping week → meso (a partir de activePlan)
+                  const weekToMeso = {};
+                  (activePlan?.macrocycles || []).forEach((macro, mi) => {
+                    (macro.mesocycles || []).forEach((meso, mei) => {
+                      const weeks = (meso.microcycles || [])
+                        .map(mc => mc.week_number || mc.numero_semana)
+                        .filter(w => Number.isFinite(w));
+                      if (weeks.length === 0) return;
+                      const startWeek = Math.min(...weeks);
+                      weeks.forEach(w => {
+                        weekToMeso[w] = { meso, mesoIdx: mei, macroIdx: mi, startWeek, color: meso.color || '#0ea5e9' };
+                      });
+                    });
+                  });
+                  if (Object.keys(weekToMeso).length === 0) return null;
+                  return (
+                    <tr data-testid="gp-mev-projection-row">
+                      <td className="sticky left-0 bg-cyan-50 px-2 py-1 text-[11px] font-semibold border border-gray-300 text-cyan-700" style={{ width: 160 }}>
+                        <span className="flex items-center gap-1.5">
+                          <BarChart3 className="w-3 h-3" /> Proyección
+                        </span>
+                      </td>
+                      {displayedWeeks.map(week => {
+                        const info = weekToMeso[week];
+                        const isStart = info && info.startWeek === week;
+                        const inMeso = !!info;
+                        if (!inMeso) {
+                          return <td key={`mev-${week}`} className="w-6 h-6 border border-gray-300 bg-slate-50/40" />;
+                        }
+                        return (
+                          <td
+                            key={`mev-${week}`}
+                            className="w-6 h-6 border border-gray-300 relative"
+                            style={{ background: `${info.color}10` }}
+                            title={`Mesociclo: ${info.meso.name || `M${info.mesoIdx + 1}`}`}
+                          >
+                            {isStart && (
+                              <button
+                                onClick={() => setMevChartMeso(info.meso)}
+                                className="absolute inset-0 flex items-center justify-center hover:bg-cyan-100/60 transition-colors group"
+                                data-testid={`gp-mev-btn-${info.macroIdx}-${info.mesoIdx}`}
+                                title={`Ver proyección MEV → MAV → MRV de ${info.meso.name || 'mesociclo'}`}
+                              >
+                                <span
+                                  className="flex items-center justify-center w-5 h-5 rounded-md text-white font-black text-[8px] shadow-sm group-hover:scale-110 transition-transform"
+                                  style={{ background: info.color }}
+                                >
+                                  <BarChart3 className="w-3 h-3" strokeWidth={2.5} />
+                                </span>
+                              </button>
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })()}
+
+                {/* Microcycle */}
                 {renderCycleRow('microcycles', MICROCYCLE_TYPES)}
                 
                 {/* Microcycle type */}
@@ -1819,6 +1881,31 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
               </tbody>
             </table>
           </div>
+
+          {/* Dialog: MEV→MAV→MRV chart por mesociclo */}
+          <Dialog open={!!mevChartMeso} onOpenChange={(o) => !o && setMevChartMeso(null)}>
+            <DialogContent className="max-w-3xl p-0 overflow-hidden">
+              <div className="px-5 py-3 border-b border-slate-200 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-[#CCFF00]/15 border border-[#CCFF00]/40 flex items-center justify-center">
+                    <BarChart3 className="w-5 h-5 text-[#CCFF00]" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base tracking-tight">Proyección MEV → MAV → MRV</h3>
+                    <p className="text-[11px] text-slate-300">{mevChartMeso?.name || 'Mesociclo'} · {(mevChartMeso?.microcycles || []).length} microciclos</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-4 bg-slate-50 max-h-[70vh] overflow-y-auto">
+                {mevChartMeso && (
+                  <MesoMevMavMrvChart
+                    microcycles={mevChartMeso.microcycles || []}
+                    testId="dialog-mev-chart"
+                  />
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
 
           {/* Navigation Slider Bar — sticky at bottom while scrolling through table */}
           <div className="sticky bottom-0 z-30 bg-white/95 backdrop-blur-sm border-t py-2 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]" data-testid="week-slider-nav">

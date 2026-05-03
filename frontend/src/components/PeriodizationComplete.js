@@ -2234,209 +2234,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                     {mesoExpanded && (
                       <div className="border-t border-slate-100 bg-white px-4 pb-4 pt-2">
 
-                        {/* ══ MEV → MAV → MRV Proyeccion del Mesociclo ══ */}
-                        {(() => {
-                          const micros = meso.microcycles || [];
-                          if (micros.length === 0) return null;
-
-                          const microData = micros.map((micro, mi) => {
-                            const sessions = micro.sessions || [];
-                            let totalSeries = 0;
-                            let totalVolumen = 0;
-                            let totalIntensidad = 0;
-                            let actCount = 0;
-                            let totalDensidad = 0;
-                            let densCount = 0;
-                            sessions.forEach(ses => {
-                              const sd = ses.sessionData || ses.detailed_data;
-                              if (sd?.fases) {
-                                let sesSeries = 0, sesTimeSec = 0;
-                                Object.values(sd.fases).forEach(fase => {
-                                  (fase.actividades || []).forEach(act => {
-                                    totalSeries += parseInt(act.series) || 0;
-                                    totalVolumen += parseFloat(act.volumen) || 0;
-                                    totalIntensidad += parseFloat(act.intensidad) || 0;
-                                    actCount++;
-                                    const s = parseInt(act.series) || 0;
-                                    const r = parseInt(act.repeticiones) || 10;
-                                    const rec = parseFloat(act.recuperacion) || 2;
-                                    sesSeries += s;
-                                    sesTimeSec += s * (r * 3 + rec * 60);
-                                  });
-                                });
-                                if (sesTimeSec > 0) { totalDensidad += sesSeries / (sesTimeSec / 60); densCount++; }
-                              } else {
-                                totalSeries += Math.round((ses.duration || 60) / 5);
-                                totalVolumen += ses.duration || 60;
-                                totalIntensidad += 70;
-                                actCount++;
-                              }
-                            });
-                            const microLoad = micro.type?.load || micro.type?.loadPercent || 70;
-                            const isDeload = (micro.type?.id === 'descarga' || micro.type?.id === 'recuperacion' || micro.type?.name?.toLowerCase().includes('descarga') || micro.type?.name?.toLowerCase().includes('recup'));
-                            return {
-                              name: `S${mi + 1}`,
-                              series: totalSeries || Math.round(microLoad * 0.4),
-                              volumen: Math.round(totalVolumen) || Math.round(microLoad * 0.6),
-                              intensidad: actCount > 0 ? Math.round(totalIntensidad / actCount) : microLoad,
-                              densidad: densCount > 0 ? +(totalDensidad / densCount).toFixed(2) : +(1 / (3 + mi * 0.3)).toFixed(2),
-                              load: microLoad,
-                              isDeload,
-                              sessions: sessions.length
-                            };
-                          });
-
-                          const maxSeries = Math.max(...microData.map(d => d.series), 1);
-                          const maxVolumen = Math.max(...microData.map(d => d.volumen), 1);
-
-                          const mesoChartKey = `meso-chart-${macroIdx}-${mesoIdx}`;
-                          const chartMode = expandedPanels?.[mesoChartKey] || 'mixta';
-                          const mesoMetricKey = `meso-metric-${macroIdx}-${mesoIdx}`;
-                          const activeMetrics = expandedPanels?.[mesoMetricKey] || { vol: true, int: true, den: false };
-
-                          // MEV/MAV/MRV adapt to the dominant visible left-axis metric
-                          const dominantMax = activeMetrics.vol ? Math.max(maxSeries, maxVolumen) : maxSeries;
-                          const mevLine = Math.round(dominantMax * 0.35);
-                          const mavLine = Math.round(dominantMax * 0.7);
-                          const mrvLine = Math.round(dominantMax * 1.05);
-                          const yLeftMax = Math.round(dominantMax * 1.2);
-
-                          const setChartMode = (mode) => setExpandedPanels(prev => ({...prev, [mesoChartKey]: mode}));
-                          const toggleMetric = (m) => setExpandedPanels(prev => {
-                            const cur = prev[mesoMetricKey] || { vol: true, int: true, den: false };
-                            return {...prev, [mesoMetricKey]: {...cur, [m]: !cur[m]}};
-                          });
-
-                          const showBars = chartMode === 'barras' || chartMode === 'mixta';
-                          const showLines = chartMode === 'lineas' || chartMode === 'mixta';
-                          const showDots = chartMode === 'puntos';
-
-                          const CustomTooltipMeso = ({ active, payload, label }) => {
-                            if (!active || !payload?.length) return null;
-                            const d = payload[0]?.payload;
-                            const pct = d.series / maxSeries;
-                            const zone = d.isDeload ? 'Descarga' : pct > 0.85 ? 'MRV' : pct > 0.5 ? 'MAV' : 'MEV';
-                            const zoneColor = d.isDeload ? '#818cf8' : pct > 0.85 ? '#e11d48' : pct > 0.5 ? '#0891b2' : '#16a34a';
-                            return (
-                              <div className="bg-white rounded-xl shadow-xl border border-slate-200 p-3.5" style={{fontFamily:"'DM Sans',sans-serif",minWidth:210}}>
-                                <div className="flex items-center gap-2 mb-2">
-                                  <div className="w-3 h-3 rounded" style={{background:zoneColor}} />
-                                  <span className="text-[12px] font-bold text-slate-800">{label} — {zone}</span>
-                                </div>
-                                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] mb-2">
-                                  <div className="flex justify-between"><span className="text-slate-400">Series</span><span className="font-bold text-slate-700">{d.series}</span></div>
-                                  <div className="flex justify-between"><span className="text-slate-400">Volumen</span><span className="font-bold" style={{color:'#CCFF00'}}>{d.volumen}</span></div>
-                                  <div className="flex justify-between"><span className="text-slate-400">Intensidad</span><span className="font-bold" style={{color:'#f59e0b'}}>{d.intensidad}%</span></div>
-                                  <div className="flex justify-between"><span className="text-slate-400">Densidad</span><span className="font-bold" style={{color:'#8b5cf6'}}>{d.densidad}</span></div>
-                                </div>
-                                <div className="pt-1.5 border-t border-slate-100 text-[9px] text-slate-400">{d.sessions} sesiones · Carga {d.load}%</div>
-                              </div>
-                            );
-                          };
-
-                          return (
-                            <div className="mb-4 rounded-xl border border-slate-200 bg-white overflow-hidden" data-testid={`meso-chart-${macroIdx}-${mesoIdx}`}>
-                              {/* Header */}
-                              <div className="px-5 pt-4 pb-1 flex items-start justify-between">
-                                <div>
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <TrendingUp className="w-4 h-4 text-cyan-600" />
-                                    <span className="text-[14px] font-bold text-slate-800" style={{fontFamily:"'DM Sans',sans-serif"}}>Proyeccion MEV → MAV → MRV</span>
-                                  </div>
-                                  <p className="text-[11px] text-slate-400" style={{fontFamily:"'DM Sans',sans-serif"}}>Volumen semanal por microciclo — Modelo Dr. Mike Israetel (Renaissance Periodization)</p>
-                                </div>
-                                <div className="relative group/mevinfo">
-                                  <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center cursor-help hover:bg-slate-200 transition-colors">
-                                    <AlertCircle className="w-3.5 h-3.5 text-slate-400" />
-                                  </div>
-                                  <div className="absolute right-0 top-8 w-[320px] p-4 rounded-xl bg-white shadow-2xl border border-slate-200 opacity-0 invisible group-hover/mevinfo:opacity-100 group-hover/mevinfo:visible transition-all z-50" style={{fontFamily:"'DM Sans',sans-serif"}}>
-                                    <p className="text-[13px] font-bold text-slate-800 mb-3">Modelo de Volumen MEV → MAV → MRV</p>
-                                    <table className="w-full text-[10px] mb-3">
-                                      <thead><tr className="border-b border-slate-100"><th className="text-left py-1 font-bold text-slate-500">Sigla</th><th className="text-left py-1 font-bold text-slate-500">Significado</th><th className="text-left py-1 font-bold text-slate-500">Descripcion</th></tr></thead>
-                                      <tbody>
-                                        <tr className="border-b border-slate-50"><td className="py-1.5 font-bold" style={{color:'#16a34a'}}>MEV</td><td className="py-1.5 text-slate-600">Min. Volumen Efectivo</td><td className="py-1.5 text-slate-400">Minimo para generar adaptaciones</td></tr>
-                                        <tr className="border-b border-slate-50"><td className="py-1.5 font-bold" style={{color:'#0891b2'}}>MAV</td><td className="py-1.5 text-slate-600">Max. Volumen Adaptativo</td><td className="py-1.5 text-slate-400">Optimo para maximizar ganancias</td></tr>
-                                        <tr><td className="py-1.5 font-bold" style={{color:'#e11d48'}}>MRV</td><td className="py-1.5 text-slate-600">Max. Volumen Recuperable</td><td className="py-1.5 text-slate-400">Techo sin sobreentrenamiento</td></tr>
-                                      </tbody>
-                                    </table>
-                                    <div className="space-y-1 text-[10px] text-slate-500">
-                                      <p>• <b>Evitar sobreentrenamiento</b> — sabiendo cuando estas cerca del MRV</p>
-                                      <p>• <b>Maximizar hipertrofia/fuerza</b> — operando en el rango MEV–MRV</p>
-                                      <p>• <b>Planificar descargas</b> — la semana en <span className="font-bold" style={{color:'#818cf8'}}>violeta</span> es el deload</p>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Controls row: chart type + metric toggles */}
-                              <div className="px-5 py-2 flex items-center justify-between">
-                                {/* Chart type selector */}
-                                <div className="flex items-center gap-0.5 bg-slate-100 rounded-lg p-0.5">
-                                  {[{id:'barras',label:'Barras'},{id:'lineas',label:'Lineas'},{id:'mixta',label:'Mixta'},{id:'puntos',label:'Puntos'}].map(t => (
-                                    <button key={t.id} onClick={() => setChartMode(t.id)}
-                                      className={`px-3 py-1 rounded-md transition-all text-[11px] font-medium ${chartMode === t.id ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                                      style={{fontFamily:"'DM Sans',sans-serif"}}
-                                    >{t.label}</button>
-                                  ))}
-                                </div>
-                                {/* Metric toggles */}
-                                <div className="flex items-center gap-1.5">
-                                  <button onClick={() => toggleMetric('vol')} className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all ${activeMetrics.vol ? 'text-white shadow-sm' : 'bg-slate-100 text-slate-400'}`} style={activeMetrics.vol ? {background:'#84cc16'} : {}}>
-                                    <div className="w-1.5 h-1.5 rounded-full" style={{background: activeMetrics.vol ? 'white' : '#84cc16'}} /> VOL
-                                  </button>
-                                  <button onClick={() => toggleMetric('int')} className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all ${activeMetrics.int ? 'text-white shadow-sm' : 'bg-slate-100 text-slate-400'}`} style={activeMetrics.int ? {background:'#f59e0b'} : {}}>
-                                    <div className="w-1.5 h-1.5 rounded-full" style={{background: activeMetrics.int ? 'white' : '#f59e0b'}} /> INT
-                                  </button>
-                                  <button onClick={() => toggleMetric('den')} className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all ${activeMetrics.den ? 'text-white shadow-sm' : 'bg-slate-100 text-slate-400'}`} style={activeMetrics.den ? {background:'#8b5cf6'} : {}}>
-                                    <div className="w-1.5 h-1.5 rounded-full" style={{background: activeMetrics.den ? 'white' : '#8b5cf6'}} /> DEN
-                                  </button>
-                                </div>
-                              </div>
-
-                              {/* Legend */}
-                              <div className="px-5 pb-2 flex flex-wrap items-center gap-3">
-                                <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded" style={{background:'#0891b2'}} /><span className="text-[10px] font-semibold text-slate-500">Series</span></div>
-                                {activeMetrics.vol && <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded" style={{background:'#84cc16'}} /><span className="text-[10px] font-semibold text-slate-500">Volumen</span></div>}
-                                {activeMetrics.int && <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded" style={{background:'#f59e0b'}} /><span className="text-[10px] font-semibold text-slate-500">Intensidad %</span></div>}
-                                {activeMetrics.den && <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded" style={{background:'#8b5cf6'}} /><span className="text-[10px] font-semibold text-slate-500">Densidad</span></div>}
-                                <span className="text-slate-300">|</span>
-                                <div className="flex items-center gap-1.5"><div className="w-4 h-[1px]" style={{borderTop:'2px dashed #16a34a'}} /><span className="text-[10px] font-semibold text-slate-500">MEV</span></div>
-                                <div className="flex items-center gap-1.5"><div className="w-4 h-[1px]" style={{borderTop:'2px dashed #0891b2'}} /><span className="text-[10px] font-semibold text-slate-500">MAV</span></div>
-                                <div className="flex items-center gap-1.5"><div className="w-4 h-[1px]" style={{borderTop:'2px dashed #e11d48'}} /><span className="text-[10px] font-semibold text-slate-500">MRV</span></div>
-                              </div>
-
-                              {/* Chart */}
-                              <div className="px-2 pb-3">
-                                <ResponsiveContainer width="100%" height={220}>
-                                  <ComposedChart data={microData} margin={{top:10,right:25,left:0,bottom:5}}>
-                                    <CartesianGrid strokeDasharray="4 4" stroke="rgba(148,163,184,0.12)" />
-                                    <XAxis dataKey="name" tick={{fontSize:11,fill:'#64748b',fontWeight:600}} axisLine={{stroke:'#e2e8f0'}} tickLine={false} />
-                                    <YAxis yAxisId="left" tick={{fontSize:10,fill:'#94a3b8'}} axisLine={false} tickLine={false} domain={[0, yLeftMax]} />
-                                    <YAxis yAxisId="right" orientation="right" tick={{fontSize:10,fill:'#94a3b8'}} axisLine={false} tickLine={false} domain={[0, 100]} />
-                                    <Tooltip content={<CustomTooltipMeso />} />
-                                    <ReferenceLine yAxisId="left" y={mevLine} stroke="#16a34a" strokeDasharray="6 4" strokeWidth={1.5} label={{value:`MEV ${mevLine}`,position:'insideTopRight',fontSize:8,fill:'#16a34a',fontWeight:700}} />
-                                    <ReferenceLine yAxisId="left" y={mavLine} stroke="#0891b2" strokeDasharray="6 4" strokeWidth={1.5} label={{value:`MAV ${mavLine}`,position:'insideTopRight',fontSize:8,fill:'#0891b2',fontWeight:700}} />
-                                    <ReferenceLine yAxisId="left" y={mrvLine} stroke="#e11d48" strokeDasharray="6 4" strokeWidth={1.5} label={{value:`MRV ${mrvLine}`,position:'insideTopRight',fontSize:8,fill:'#e11d48',fontWeight:700}} />
-
-                                    {/* Series bars */}
-                                    {showBars && <Bar yAxisId="left" dataKey="series" fill="#0891b2" radius={[6,6,0,0]} maxBarSize={45} fillOpacity={0.85} />}
-                                    {/* Volumen bars */}
-                                    {showBars && activeMetrics.vol && <Bar yAxisId="left" dataKey="volumen" fill="#84cc16" radius={[6,6,0,0]} maxBarSize={45} fillOpacity={0.6} />}
-
-                                    {/* Series line */}
-                                    {(showLines || showDots) && <Line yAxisId="left" type="monotone" dataKey="series" stroke="#0891b2" strokeWidth={showDots ? 0 : 2.5} dot={{fill:'#0891b2',r:showDots ? 6 : 4,strokeWidth:2,stroke:'white'}} activeDot={{r:8,fill:'#0891b2',stroke:'white',strokeWidth:2}} />}
-                                    {/* Volumen line */}
-                                    {(showLines || showDots) && activeMetrics.vol && <Line yAxisId="left" type="monotone" dataKey="volumen" stroke="#84cc16" strokeWidth={showDots ? 0 : 2} strokeDasharray={showDots ? '' : '5 3'} dot={{fill:'#84cc16',r:showDots ? 6 : 3.5,strokeWidth:2,stroke:'white'}} activeDot={{r:7,fill:'#84cc16',stroke:'white',strokeWidth:2}} />}
-                                    {/* Intensidad line */}
-                                    {activeMetrics.int && <Line yAxisId="right" type="monotone" dataKey="intensidad" stroke="#f59e0b" strokeWidth={showDots ? 0 : 2} dot={{fill:'#f59e0b',r:showDots ? 6 : 3.5,strokeWidth:2,stroke:'white'}} activeDot={{r:7,fill:'#f59e0b',stroke:'white',strokeWidth:2}} />}
-                                    {/* Densidad area */}
-                                    {activeMetrics.den && <Area yAxisId="right" type="monotone" dataKey="densidad" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.08} strokeWidth={showDots ? 0 : 1.5} dot={{fill:'#8b5cf6',r:showDots ? 6 : 3,strokeWidth:2,stroke:'white'}} />}
-                                  </ComposedChart>
-                                </ResponsiveContainer>
-                              </div>
-                            </div>
-                          );
-                        })()}
+                        {/* MEV → MAV → MRV chart REMOVED · ahora aparece dentro del Plan Gráfico por mesociclo */}
                         <div className="flex justify-between items-center mb-3">
                           <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Microciclos</span>
                           <Button size="sm" variant="outline" className="h-6 text-[10px] rounded-md border-slate-200 px-2" onClick={() => handleAddMicrocycle(macroIdx, mesoIdx)}>
@@ -2545,7 +2343,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                     </Button>
                                   </div>
 
-                                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-3">
+                                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-2">
                                     {sessions.map((session, sIdx) => {
                                       const sType = SESSION_TYPES.find(t => t.id === session.type);
                                       const sColor = sType?.color || '#94a3b8';
@@ -2589,70 +2387,112 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                       return (
                                         <div
                                           key={session.id}
-                                          className="group relative rounded-xl overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
-                                          style={{ background:'white', boxShadow:`0 1px 3px rgba(0,0,0,0.06), 0 0 0 1px ${dayColor}12` }}
+                                          className="group relative rounded-xl overflow-hidden cursor-pointer transition-all duration-300 ease-out bg-white hover:shadow-lg hover:-translate-y-0.5"
+                                          style={{
+                                            boxShadow: `0 1px 2px rgba(0,0,0,0.04), 0 0 0 1px ${dayColor}1a`,
+                                          }}
                                           onClick={() => handleEditSession(session, macroIdx, mesoIdx, microIdx, sIdx)}
                                           data-testid={`session-${sIdx}`}
                                         >
-                                          {/* Left accent + Top color line */}
-                                          <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl" style={{background: dayColor}} />
-                                          <div className="h-[2px]" style={{background:`linear-gradient(90deg, ${dayColor}, ${dayColor}40)`}} />
+                                          {/* Top accent strip */}
+                                          <div
+                                            className="h-1"
+                                            style={{ background: `linear-gradient(90deg, ${dayColor} 0%, ${dayColor}aa 60%, ${sColor}80 100%)` }}
+                                          />
 
-                                          {/* Delete */}
-                                          <div className="absolute top-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10" onClick={(e) => e.stopPropagation()}>
-                                            <button className="p-0.5 rounded-md bg-white/90 shadow hover:bg-red-50" onClick={() => handleDeleteSession(macroIdx, mesoIdx, microIdx, sIdx)}>
+                                          {/* Delete on hover */}
+                                          <div
+                                            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                            onClick={(e) => e.stopPropagation()}
+                                          >
+                                            <button
+                                              className="p-0.5 rounded-full bg-white shadow-md hover:bg-red-50 transition-colors"
+                                              onClick={() => handleDeleteSession(macroIdx, mesoIdx, microIdx, sIdx)}
+                                              title="Eliminar"
+                                            >
                                               <Trash2 className="w-2.5 h-2.5 text-red-400" />
                                             </button>
                                           </div>
 
-                                          <div className="pl-3 pr-2.5 py-2.5">
-                                            {/* Row 1: Day chip + date + status */}
-                                            <div className="flex items-center justify-between mb-2">
-                                              <div className="flex items-center gap-2">
-                                                <span className="text-[11px] font-black px-2 py-0.5 rounded-md text-white" style={{background: dayColor, fontFamily:"'DM Sans',sans-serif"}}>{session.dayName}</span>
-                                                <span className="text-[11px] font-semibold" style={{color: dayInfo.text, fontFamily:"'DM Sans',sans-serif"}}>{sessionDateStr || dayInfo.name}</span>
+                                          <div className="p-2">
+                                            {/* Row 1: Day pill + status — compact */}
+                                            <div className="flex items-center justify-between gap-1 mb-1.5">
+                                              <div className="flex items-center gap-1.5 min-w-0">
+                                                <div
+                                                  className="flex items-center justify-center w-7 h-7 rounded-lg text-white font-black text-[10px] shadow-sm shrink-0"
+                                                  style={{ background: dayColor, fontFamily: "'DM Sans',sans-serif" }}
+                                                >
+                                                  {(session.dayName || 'N').slice(0, 3)}
+                                                </div>
+                                                <div className="min-w-0">
+                                                  <div className="text-[10px] font-bold text-slate-800 leading-tight truncate" style={{ fontFamily: "'DM Sans',sans-serif" }}>
+                                                    {sessionDateStr || dayInfo.name}
+                                                  </div>
+                                                  <div className="flex items-center gap-1 mt-0.5">
+                                                    <div className="w-1 h-1 rounded-full" style={{ background: sColor }} />
+                                                    <span className="text-[8.5px] font-semibold truncate leading-none" style={{ color: sColor }}>
+                                                      {sType?.name || 'General'}
+                                                    </span>
+                                                  </div>
+                                                </div>
                                               </div>
-                                              <StatusBadge status={session.status || 'planned'} />
+                                              <div className="shrink-0 scale-75 origin-right">
+                                                <StatusBadge status={session.status || 'planned'} />
+                                              </div>
                                             </div>
 
-                                            {/* Row 2: Type + objective */}
-                                            <div className="flex items-center gap-1.5 mb-2">
-                                              <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{background: sColor}} />
-                                              <span className="text-[10px] font-bold truncate" style={{color: sColor}}>{sType?.name || '-'}</span>
-                                              {session.objective && <span className="text-[9px] text-slate-400 truncate">· {session.objective}</span>}
-                                            </div>
-
-                                            {/* Row 3: Metrics inline - compact chips */}
-                                            <div className="flex gap-1 mb-2">
+                                            {/* Metrics — compact 2x2 grid */}
+                                            <div className="grid grid-cols-2 gap-1 mb-1.5">
                                               {[
-                                                {l:'DUR', v:`${session.duration || 0}m`, c: dayColor},
-                                                {l:'VOL', v:`${volVal}%`, c: dayColor},
-                                                {l:'INT', v:`${intensityVal}%`, c:'#f59e0b'},
-                                                {l:'RPE', v:`${rpe}`, c: rpeColor}
-                                              ].map((chip,ci) => (
-                                                <div key={ci} className="flex-1 text-center py-1 rounded-lg" style={{background:`${chip.c}08`}}>
-                                                  <div className="text-[7px] font-bold uppercase tracking-wider" style={{color:`${chip.c}70`}}>{chip.l}</div>
-                                                  <div className="text-[12px] font-black" style={{color: chip.c, fontFamily:"'DM Sans',sans-serif"}}>{chip.v}</div>
+                                                { l: 'DUR', v: `${session.duration || 0}m`, c: dayColor },
+                                                { l: 'VOL', v: `${volVal}%`, c: '#84cc16' },
+                                                { l: 'INT', v: `${intensityVal}%`, c: '#f59e0b' },
+                                                { l: 'RPE', v: `${rpe}`, c: rpeColor },
+                                              ].map((chip, ci) => (
+                                                <div
+                                                  key={ci}
+                                                  className="text-center py-0.5 px-0.5 rounded-md"
+                                                  style={{ background: `${chip.c}10`, border: `1px solid ${chip.c}20` }}
+                                                >
+                                                  <div className="text-[7px] font-black uppercase tracking-wider leading-none" style={{ color: `${chip.c}aa` }}>
+                                                    {chip.l}
+                                                  </div>
+                                                  <div className="text-[10px] font-black leading-none mt-0.5" style={{ color: chip.c, fontFamily: "'DM Sans',sans-serif" }}>
+                                                    {chip.v}
+                                                  </div>
                                                 </div>
                                               ))}
                                             </div>
 
-                                            {/* Row 4: Visual load bar (stacked) */}
-                                            <div className="flex h-2 rounded-full overflow-hidden mb-2" style={{background:'#f1f5f9'}}>
-                                              <div style={{width:`${intensityVal * 0.5}%`, background: dayColor}} />
-                                              <div style={{width:`${volVal * 0.3}%`, background:'#f59e0b'}} />
-                                              <div style={{width:`${rpe * 3}%`, background: rpeColor}} />
-                                              <div style={{width:`${Math.min(densVal * 20, 15)}%`, background:'#8b5cf6'}} />
+                                            {/* Visual stacked load bar — compact */}
+                                            <div className="flex h-1 rounded-full overflow-hidden mb-1.5" style={{ background: '#f1f5f9' }}>
+                                              <div style={{ width: `${intensityVal * 0.5}%`, background: dayColor }} />
+                                              <div style={{ width: `${volVal * 0.3}%`, background: '#f59e0b' }} />
+                                              <div style={{ width: `${rpe * 3}%`, background: rpeColor }} />
+                                              <div style={{ width: `${Math.min(densVal * 20, 15)}%`, background: '#8b5cf6' }} />
                                             </div>
 
-                                            {/* Row 5: Bottom - intensity badge + density + fatigue */}
-                                            <div className="flex items-center justify-between">
-                                              <IntensityBadge level={session.intensity} size="xs" />
-                                              <div className="flex items-center gap-1.5">
-                                                {densVal > 0 && <span className="text-[8px] font-semibold px-1.5 py-0.5 rounded-md" style={{background:'rgba(139,92,246,0.08)', color:'#7c3aed'}}>D:{densVal}</span>}
-                                                {session.internalLoad > 0 && <span className="text-[8px] font-semibold px-1.5 py-0.5 rounded-md bg-slate-50 text-slate-500">UA:{session.internalLoad}</span>}
+                                            {/* Bottom row: tiny indicators */}
+                                            <div className="flex items-center justify-between gap-1">
+                                              <div className="scale-75 origin-left">
+                                                <IntensityBadge level={session.intensity} size="xs" />
+                                              </div>
+                                              <div className="flex items-center gap-0.5 shrink-0">
+                                                {densVal > 0 && (
+                                                  <span className="text-[8px] font-bold px-1 py-0.5 rounded" style={{ background: 'rgba(139,92,246,0.10)', color: '#7c3aed' }}>
+                                                    {densVal}
+                                                  </span>
+                                                )}
                                                 {session.fatigue > 0 && (
-                                                  <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-md" style={{background: (session.fatigue >= 7 ? '#fef2f2' : session.fatigue >= 5 ? '#fffbeb' : '#ecfdf5'), color: (session.fatigue >= 7 ? '#dc2626' : session.fatigue >= 5 ? '#d97706' : '#059669')}}>F:{session.fatigue}</span>
+                                                  <span
+                                                    className="text-[8px] font-bold px-1 py-0.5 rounded"
+                                                    style={{
+                                                      background: session.fatigue >= 7 ? '#fef2f2' : session.fatigue >= 5 ? '#fffbeb' : '#ecfdf5',
+                                                      color: session.fatigue >= 7 ? '#dc2626' : session.fatigue >= 5 ? '#d97706' : '#059669',
+                                                    }}
+                                                  >
+                                                    F{session.fatigue}
+                                                  </span>
                                                 )}
                                               </div>
                                             </div>
