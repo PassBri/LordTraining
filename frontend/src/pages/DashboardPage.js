@@ -791,6 +791,68 @@ const DashboardPage = () => {
     setSavingEvaluation(false);
   };
 
+  // ====== Plan Activo: PDF / Share / WhatsApp ======
+  const handleDownloadObjectivesPDF = async () => {
+    if (!activePlan) { toast.error('Selecciona un plan primero'); return; }
+    try {
+      await handleSaveObjectives();
+      const token = localStorage.getItem('train_token');
+      const res = await fetch(`${API_URL}/api/plan-data/objectives/${activePlan.id}/pdf`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: 'Error descargando PDF' }));
+        toast.error(err.detail || 'Error descargando PDF');
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Plan_Activo_${activePlan.name || activePlan.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success('PDF descargado');
+    } catch (error) {
+      toast.error('Error al descargar PDF');
+    }
+  };
+
+  const handleShareObjectivesLink = async () => {
+    if (!activePlan) { toast.error('Selecciona un plan primero'); return null; }
+    try {
+      await handleSaveObjectives();
+      const token = localStorage.getItem('train_token');
+      const res = await fetch(`${API_URL}/api/plan-data/objectives/${activePlan.id}/share`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) { toast.error('Error creando enlace'); return null; }
+      const data = await res.json();
+      const publicUrl = `${window.location.origin}/api/plan-data/objectives/shared/${data.share_id}`;
+      try {
+        await navigator.clipboard.writeText(publicUrl);
+        toast.success('Enlace copiado al portapapeles', { description: publicUrl });
+      } catch {
+        toast.info('Enlace listo', { description: publicUrl });
+      }
+      return publicUrl;
+    } catch (error) {
+      toast.error('Error al crear enlace');
+      return null;
+    }
+  };
+
+  const handleShareObjectivesWhatsApp = async () => {
+    const publicUrl = await handleShareObjectivesLink();
+    if (!publicUrl) return;
+    const planName = activePlan?.name || 'Plan Activo';
+    const text = encodeURIComponent(`Plan Activo · ${planName}\n\nObjetivos del ciclo y aspectos de preparación:\n${publicUrl}\n\nGenerado por iTrain.app`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  };
+
   // Delete a training plan
   const handleDeleteTrainingPlan = async (planId) => {
     if (!window.confirm('¿Eliminar este plan de entrenamiento y todos sus datos asociados?')) return;
@@ -2976,203 +3038,205 @@ const DashboardPage = () => {
         { key: 'psicologica', label: 'Prep. Psicológica', color: '#ec4899', hover: '#fdf2f8' }
       ];
       return (
-        <div className="p-6 space-y-6 overflow-y-auto h-full bg-[#fafaf8]">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-2xl mb-4">
-              <Target className="w-8 h-8 text-slate-500" />
+        <div className="p-4 space-y-4 overflow-y-auto h-full bg-[#fafaf8]">
+          {/* Compact Material Design header — matching Plan Anterior style */}
+          <div className="flex items-center justify-between flex-wrap gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3 shadow-sm">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 bg-gradient-to-br from-slate-900 to-slate-700 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
+                <Target className="w-5 h-5 text-[#CCFF00]" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-base font-bold text-slate-900 truncate">Plan Activo</h1>
+                <p className="text-[11px] text-slate-500 truncate">Información general · Objetivos por horizonte temporal y aspecto de preparación</p>
+              </div>
             </div>
-            <h1 className="text-3xl font-bold text-slate-800 mb-2">Información General y Objetivos del Plan</h1>
-            <p className="text-slate-500 max-w-2xl mx-auto">
-              Esta sección sirve como la introducción al plan de entrenamiento, estableciendo las bases para la identificación de metas y la planificación efectiva.
-            </p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-slate-300 hover:bg-slate-50" onClick={handleDownloadObjectivesPDF} disabled={savingEvaluation || !activePlan} data-testid="active-plan-pdf-btn" title="Descargar PDF estilo Whitepaper">
+                <Download className="w-3.5 h-3.5 mr-1.5" />PDF
+              </Button>
+              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-slate-300 hover:bg-slate-50" onClick={handleShareObjectivesLink} disabled={savingEvaluation || !activePlan} data-testid="active-plan-link-btn" title="Copiar enlace público al portapapeles">
+                <LinkIcon className="w-3.5 h-3.5 mr-1.5" />Enlace
+              </Button>
+              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-emerald-300 text-emerald-700 hover:bg-emerald-50 bg-emerald-50/40" onClick={handleShareObjectivesWhatsApp} disabled={savingEvaluation || !activePlan} data-testid="active-plan-whatsapp-btn" title="Compartir por WhatsApp">
+                <MessageCircle className="w-3.5 h-3.5 mr-1.5" />WhatsApp
+              </Button>
+              <Button className="bg-slate-900 hover:bg-slate-800 text-white h-9 text-xs px-4" onClick={handleSaveObjectives} disabled={savingEvaluation || !activePlan} data-testid="active-plan-save-btn">
+                <Save className="w-3.5 h-3.5 mr-1.5" />
+                {savingEvaluation ? 'Guardando...' : 'Guardar'}
+              </Button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* INFORMACIÓN GENERAL */}
-            <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <FileText className="w-5 h-5" />
-                  Información General
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-5 space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">1</span>
-                      Deporte / Objetivo de Entrenamiento
-                    </label>
-                    <Input data-testid="obj-deporte" placeholder="Ej: Fútbol - Preparación pretemporada" className="border-slate-200" value={objectivesData.deporteObjetivo} onChange={(e) => setObjectivesData({...objectivesData, deporteObjetivo: e.target.value})} />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">2</span>
-                      Categoría
-                    </label>
-                    <Select value={objectivesData.categoria} onValueChange={(val) => setObjectivesData({...objectivesData, categoria: val})}>
-                      <SelectTrigger data-testid="obj-categoria"><SelectValue placeholder="Seleccionar categoría" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="infantil">Infantil</SelectItem>
-                        <SelectItem value="cadete">Cadete</SelectItem>
-                        <SelectItem value="juvenil">Juvenil</SelectItem>
-                        <SelectItem value="sub23">Sub-23</SelectItem>
-                        <SelectItem value="senior">Senior</SelectItem>
-                        <SelectItem value="master">Master</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">3</span>
-                      Edad / Rango de Edades
-                    </label>
-                    <Input data-testid="obj-edad" placeholder="Ej: 18-22 años" className="border-slate-200" value={objectivesData.edad} onChange={(e) => setObjectivesData({...objectivesData, edad: e.target.value})} />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">4</span>
-                      Clasificación / Nivel
-                    </label>
-                    <Select value={objectivesData.clasificacion} onValueChange={(val) => setObjectivesData({...objectivesData, clasificacion: val})}>
-                      <SelectTrigger data-testid="obj-clasificacion"><SelectValue placeholder="Seleccionar nivel" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="iniciacion">Iniciación</SelectItem>
-                        <SelectItem value="formacion">Formación</SelectItem>
-                        <SelectItem value="perfeccionamiento">Perfeccionamiento</SelectItem>
-                        <SelectItem value="alto-rendimiento">Alto Rendimiento</SelectItem>
-                        <SelectItem value="elite">Élite</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">5</span>
-                      Fecha de Inicio
-                    </label>
-                    <Input data-testid="obj-fecha-inicio" type="date" className="border-slate-200" value={objectivesData.fechaInicio} onChange={(e) => setObjectivesData({...objectivesData, fechaInicio: e.target.value})} />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">5</span>
-                      Fecha de Finalización
-                    </label>
-                    <Input data-testid="obj-fecha-fin" type="date" className="border-slate-200" value={objectivesData.fechaFin} onChange={(e) => setObjectivesData({...objectivesData, fechaFin: e.target.value})} />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                    <span className="w-6 h-6 bg-blue-50 text-[#007AFF] rounded-full flex items-center justify-center text-xs font-bold">6</span>
-                    Entrenador Responsable
-                  </label>
-                  <Input data-testid="obj-entrenador" placeholder="Nombre del entrenador" className="border-slate-200" value={objectivesData.entrenador} onChange={(e) => setObjectivesData({...objectivesData, entrenador: e.target.value})} />
-                </div>
-              </CardContent>
-            </Card>
+          {!activePlan && (
+            <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-2.5 text-xs flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+              Selecciona un plan activo en el panel izquierdo para guardar y compartir.
+            </div>
+          )}
 
-            {/* OBJETIVOS A LARGO PLAZO */}
-            <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Target className="w-5 h-5" />
-                  Objetivos a Largo Plazo
-                  <Badge className="bg-slate-100 text-slate-700 ml-2">Macrociclo</Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-5 space-y-4">
-                <p className="text-xs text-slate-500 mb-3">Ejemplo: Mejorar el rendimiento general, alcanzar el pico en la competencia principal del año.</p>
-                {[0, 1, 2].map((idx) => (
-                  <div key={idx} className="space-y-2">
-                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <span className="w-6 h-6 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-xs font-bold">{idx + 1}</span>
-                      Objetivo {idx + 1}
-                    </label>
-                    <textarea data-testid={`obj-largo-${idx}`} className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" rows={2} placeholder={`Describir objetivo a largo plazo ${idx + 1}...`} value={objectivesData.largoPlazo[idx]} onChange={(e) => { const arr = [...objectivesData.largoPlazo]; arr[idx] = e.target.value; setObjectivesData({...objectivesData, largoPlazo: arr}); }} />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* OBJETIVOS A MEDIO PLAZO */}
-            <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Target className="w-5 h-5" />
-                  Objetivos a Medio Plazo
-                  <Badge className="bg-slate-100 text-slate-700 ml-2">Mesociclo</Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-5 space-y-4">
-                <p className="text-xs text-slate-500 mb-3">Ejemplo: Incrementar la resistencia base, mejorar la técnica específica del deporte.</p>
-                {[0, 1, 2].map((idx) => (
-                  <div key={idx} className="space-y-2">
-                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <span className="w-6 h-6 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-xs font-bold">{idx + 1}</span>
-                      Objetivo {idx + 1}
-                    </label>
-                    <textarea data-testid={`obj-medio-${idx}`} className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-amber-500 focus:border-transparent" rows={2} placeholder={`Describir objetivo a medio plazo ${idx + 1}...`} value={objectivesData.medianoPlazo[idx]} onChange={(e) => { const arr = [...objectivesData.medianoPlazo]; arr[idx] = e.target.value; setObjectivesData({...objectivesData, medianoPlazo: arr}); }} />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* OBJETIVOS A CORTO PLAZO */}
-            <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Target className="w-5 h-5" />
-                  Objetivos a Corto Plazo
-                  <Badge className="bg-slate-100 text-slate-700 ml-2">Microciclo</Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-5 space-y-4">
-                <p className="text-xs text-slate-500 mb-3">Ejemplo: Mejorar el tiempo en una distancia específica, aumentar la capacidad de recuperación post-entrenamiento.</p>
-                {[0, 1, 2].map((idx) => (
-                  <div key={idx} className="space-y-2">
-                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <span className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">{idx + 1}</span>
-                      Objetivo {idx + 1}
-                    </label>
-                    <textarea data-testid={`obj-corto-${idx}`} className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" rows={2} placeholder={`Describir objetivo a corto plazo ${idx + 1}...`} value={objectivesData.cortoPlazo[idx]} onChange={(e) => { const arr = [...objectivesData.cortoPlazo]; arr[idx] = e.target.value; setObjectivesData({...objectivesData, cortoPlazo: arr}); }} />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* TABLA DE OBJETIVOS POR ASPECTO DE PREPARACIÓN */}
-          <Card className="border-0 shadow-xl overflow-hidden">
-            <CardHeader className="bg-white border-b border-slate-200 text-slate-900 py-4">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Layers className="w-5 h-5" />
-                Objetivos por Aspecto de Preparación
+          {/* Información General — full-width compact */}
+          <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-[#007AFF]">
+            <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
+              <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
+                <FileText className="w-4 h-4 text-[#007AFF]" />
+                Información General del Plan
               </CardTitle>
-              <p className="text-sm text-slate-500 mt-1">Defina los objetivos e indicadores para cada aspecto de la preparación deportiva</p>
+            </CardHeader>
+            <CardContent className="p-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Deporte / Objetivo</label>
+                  <Input data-testid="obj-deporte" placeholder="Ej: Fútbol pretemporada" className="border-slate-200 h-9 text-sm" value={objectivesData.deporteObjetivo} onChange={(e) => setObjectivesData({...objectivesData, deporteObjetivo: e.target.value})} />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Categoría</label>
+                  <Select value={objectivesData.categoria} onValueChange={(val) => setObjectivesData({...objectivesData, categoria: val})}>
+                    <SelectTrigger data-testid="obj-categoria" className="h-9 text-sm border-slate-200"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="infantil">Infantil</SelectItem>
+                      <SelectItem value="cadete">Cadete</SelectItem>
+                      <SelectItem value="juvenil">Juvenil</SelectItem>
+                      <SelectItem value="sub23">Sub-23</SelectItem>
+                      <SelectItem value="senior">Senior</SelectItem>
+                      <SelectItem value="master">Master</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Edad / Rango</label>
+                  <Input data-testid="obj-edad" placeholder="Ej: 18-22 años" className="border-slate-200 h-9 text-sm" value={objectivesData.edad} onChange={(e) => setObjectivesData({...objectivesData, edad: e.target.value})} />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Clasificación / Nivel</label>
+                  <Select value={objectivesData.clasificacion} onValueChange={(val) => setObjectivesData({...objectivesData, clasificacion: val})}>
+                    <SelectTrigger data-testid="obj-clasificacion" className="h-9 text-sm border-slate-200"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="iniciacion">Iniciación</SelectItem>
+                      <SelectItem value="formacion">Formación</SelectItem>
+                      <SelectItem value="perfeccionamiento">Perfeccionamiento</SelectItem>
+                      <SelectItem value="alto-rendimiento">Alto Rendimiento</SelectItem>
+                      <SelectItem value="elite">Élite</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Fecha de Inicio</label>
+                  <Input data-testid="obj-fecha-inicio" type="date" className="border-slate-200 h-9 text-sm" value={objectivesData.fechaInicio} onChange={(e) => setObjectivesData({...objectivesData, fechaInicio: e.target.value})} />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Fecha de Finalización</label>
+                  <Input data-testid="obj-fecha-fin" type="date" className="border-slate-200 h-9 text-sm" value={objectivesData.fechaFin} onChange={(e) => setObjectivesData({...objectivesData, fechaFin: e.target.value})} />
+                </div>
+                <div className="space-y-1 sm:col-span-2 lg:col-span-3">
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Entrenador Responsable</label>
+                  <Input data-testid="obj-entrenador" placeholder="Nombre del entrenador" className="border-slate-200 h-9 text-sm" value={objectivesData.entrenador} onChange={(e) => setObjectivesData({...objectivesData, entrenador: e.target.value})} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Objetivos por Horizonte Temporal — 3 columnas */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* LARGO PLAZO */}
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-emerald-500">
+              <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
+                <CardTitle className="flex items-center justify-between gap-2 text-sm font-bold text-slate-800">
+                  <div className="flex items-center gap-2">
+                    <Target className="w-4 h-4 text-emerald-500" />
+                    Largo Plazo
+                  </div>
+                  <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] uppercase tracking-wider font-bold">Macrociclo</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-3.5 space-y-2">
+                <p className="text-[11px] text-slate-500 italic">Pico anual · objetivo principal del macrociclo</p>
+                {[0, 1, 2].map((idx) => (
+                  <div key={idx} className="flex items-start gap-2">
+                    <span className="w-5 h-5 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
+                    <textarea data-testid={`obj-largo-${idx}`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500" rows={2} placeholder={`Objetivo ${idx + 1}...`} value={objectivesData.largoPlazo[idx]} onChange={(e) => { const arr = [...objectivesData.largoPlazo]; arr[idx] = e.target.value; setObjectivesData({...objectivesData, largoPlazo: arr}); }} />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* MEDIO PLAZO */}
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-amber-500">
+              <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
+                <CardTitle className="flex items-center justify-between gap-2 text-sm font-bold text-slate-800">
+                  <div className="flex items-center gap-2">
+                    <Target className="w-4 h-4 text-amber-500" />
+                    Medio Plazo
+                  </div>
+                  <Badge className="bg-amber-50 text-amber-700 border border-amber-200 text-[9px] uppercase tracking-wider font-bold">Mesociclo</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-3.5 space-y-2">
+                <p className="text-[11px] text-slate-500 italic">Bloques 4-6 semanas · capacidades específicas</p>
+                {[0, 1, 2].map((idx) => (
+                  <div key={idx} className="flex items-start gap-2">
+                    <span className="w-5 h-5 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
+                    <textarea data-testid={`obj-medio-${idx}`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500" rows={2} placeholder={`Objetivo ${idx + 1}...`} value={objectivesData.medianoPlazo[idx]} onChange={(e) => { const arr = [...objectivesData.medianoPlazo]; arr[idx] = e.target.value; setObjectivesData({...objectivesData, medianoPlazo: arr}); }} />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* CORTO PLAZO */}
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-[#007AFF]">
+              <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
+                <CardTitle className="flex items-center justify-between gap-2 text-sm font-bold text-slate-800">
+                  <div className="flex items-center gap-2">
+                    <Target className="w-4 h-4 text-[#007AFF]" />
+                    Corto Plazo
+                  </div>
+                  <Badge className="bg-blue-50 text-blue-700 border border-blue-200 text-[9px] uppercase tracking-wider font-bold">Microciclo</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-3.5 space-y-2">
+                <p className="text-[11px] text-slate-500 italic">Semana actual · sesiones inmediatas</p>
+                {[0, 1, 2].map((idx) => (
+                  <div key={idx} className="flex items-start gap-2">
+                    <span className="w-5 h-5 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
+                    <textarea data-testid={`obj-corto-${idx}`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500" rows={2} placeholder={`Objetivo ${idx + 1}...`} value={objectivesData.cortoPlazo[idx]} onChange={(e) => { const arr = [...objectivesData.cortoPlazo]; arr[idx] = e.target.value; setObjectivesData({...objectivesData, cortoPlazo: arr}); }} />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* TABLA DE OBJETIVOS POR ASPECTO DE PREPARACIÓN — compactada */}
+          <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-violet-500">
+            <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
+              <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
+                <Layers className="w-4 h-4 text-violet-500" />
+                Objetivos por Aspecto de Preparación
+                <span className="ml-auto text-[10px] font-medium text-slate-500 italic">7 aspectos deportivos</span>
+              </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-slate-100">
+                  <thead className="bg-slate-900">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider w-48">Tipo de Objetivo</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Objetivo</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider w-64">Indicador</th>
+                      <th className="px-3 py-2 text-left text-[10px] font-black uppercase tracking-wider w-44" style={{ color: '#CCFF00' }}>Aspecto</th>
+                      <th className="px-3 py-2 text-left text-[10px] font-black uppercase tracking-wider" style={{ color: '#CCFF00' }}>Objetivo</th>
+                      <th className="px-3 py-2 text-left text-[10px] font-black uppercase tracking-wider w-72" style={{ color: '#CCFF00' }}>Indicador</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {aspectRows.map((row) => (
-                      <tr key={row.key} className="transition-colors" style={{ '--hover-bg': row.hover }}>
-                        <td className="px-4 py-3">
+                      <tr key={row.key} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-3 py-2">
                           <div className="flex items-center gap-2">
-                            <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: row.color }}></span>
-                            <span className="font-medium text-slate-700">{row.label}</span>
+                            <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: row.color }}></span>
+                            <span className="font-semibold text-slate-700 text-[12px]">{row.label}</span>
                           </div>
                         </td>
-                        <td className="px-4 py-2">
-                          <textarea data-testid={`obj-aspecto-${row.key}-obj`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={`Objetivo de ${row.label.toLowerCase()}...`} value={objectivesData.porAspecto[row.key]?.objetivo || ''} onChange={(e) => setObjectivesData({...objectivesData, porAspecto: {...objectivesData.porAspecto, [row.key]: {...objectivesData.porAspecto[row.key], objetivo: e.target.value}}})} />
+                        <td className="px-3 py-1.5">
+                          <textarea data-testid={`obj-aspecto-${row.key}-obj`} className="w-full p-1.5 border border-slate-200 rounded-md text-[12px] resize-none" rows={1} placeholder={`Objetivo de ${row.label.toLowerCase()}...`} value={objectivesData.porAspecto[row.key]?.objetivo || ''} onChange={(e) => setObjectivesData({...objectivesData, porAspecto: {...objectivesData.porAspecto, [row.key]: {...objectivesData.porAspecto[row.key], objetivo: e.target.value}}})} />
                         </td>
-                        <td className="px-4 py-2">
-                          <textarea data-testid={`obj-aspecto-${row.key}-ind`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="¿Cómo se medirá?" value={objectivesData.porAspecto[row.key]?.indicador || ''} onChange={(e) => setObjectivesData({...objectivesData, porAspecto: {...objectivesData.porAspecto, [row.key]: {...objectivesData.porAspecto[row.key], indicador: e.target.value}}})} />
+                        <td className="px-3 py-1.5">
+                          <textarea data-testid={`obj-aspecto-${row.key}-ind`} className="w-full p-1.5 border border-slate-200 rounded-md text-[12px] resize-none" rows={1} placeholder="¿Cómo se medirá?" value={objectivesData.porAspecto[row.key]?.indicador || ''} onChange={(e) => setObjectivesData({...objectivesData, porAspecto: {...objectivesData.porAspecto, [row.key]: {...objectivesData.porAspecto[row.key], indicador: e.target.value}}})} />
                         </td>
                       </tr>
                     ))}
@@ -3182,22 +3246,16 @@ const DashboardPage = () => {
             </CardContent>
           </Card>
 
-          <div className="bg-slate-100 rounded-xl p-4 text-center">
-            <p className="text-slate-600 text-sm">
-              <Sparkles className="w-4 h-4 inline mr-2 text-amber-400" />
-              La claridad en esta sección es crucial para guiar el desarrollo del programa de entrenamiento y medir el progreso hacia los objetivos establecidos.
-            </p>
-          </div>
-
-          <div className="flex justify-end gap-3 pt-4">
-            <Button variant="outline" className="border-slate-300" data-testid="obj-cancel-btn">
-              <X className="w-4 h-4 mr-2" />
-              Cancelar
-            </Button>
-            <Button className="bg-slate-900 hover:bg-slate-800 text-white" onClick={handleSaveObjectives} disabled={savingEvaluation} data-testid="obj-save-btn">
-              <Save className="w-4 h-4 mr-2" />
-              {savingEvaluation ? 'Guardando...' : 'Guardar Objetivos del Plan'}
-            </Button>
+          {/* SMART Callout */}
+          <div className="rounded-xl p-4 flex items-start gap-3" style={{ background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', borderLeft: '4px solid #CCFF00' }}>
+            <Sparkles className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-[12px] font-bold text-slate-800 mb-1">Objetivos SMART</p>
+              <p className="text-[11.5px] text-slate-700 leading-relaxed">
+                La claridad de estos objetivos es crítica para guiar el desarrollo del programa. Cada objetivo debe ser
+                <strong> Específico, Medible, Alcanzable, Relevante y Temporal</strong>. Validar periódicamente con el cuerpo técnico.
+              </p>
+            </div>
           </div>
         </div>
       );

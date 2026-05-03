@@ -8,6 +8,30 @@
 - DB: MongoDB (11 colecciones V2 + plan_previous_analysis_ai_cache)
 
 
+### Plan Activo — Rediseño estilo Plan Anterior + Export PDF/Share/WhatsApp (Feb 2026)
+
+**Backend nuevo** (`/app/backend/routes/active_plan_export.py`, ~280 líneas, registrado en `server.py`):
+- 4 endpoints siguiendo el mismo patrón de `previous_analysis_export.py`:
+  - `GET /api/plan-data/objectives/{plan_id}/pdf` — PDF whitepaper iTRAIN autenticado.
+  - `POST /api/plan-data/objectives/{plan_id}/share` — crea/reutiliza `share_id` público.
+  - `GET /api/plan-data/objectives/shared/{share_id}` — HTML público sin auth (ribbon "DOCUMENTO COMPARTIDO").
+  - `GET /api/plan-data/objectives/shared/{share_id}/pdf` — PDF público sin auth.
+- Colección nueva `plan_objectives_shares` para los snapshots compartidos.
+- Template HTML con hero oscuro + badge "PLAN ACTIVO", info-grid 2x2 (Deporte/Entrenador/Edad/Clasificación), 3 cards de objetivos por horizonte (Largo verde · Medio ámbar · Corto azul) con `goals-grid` 3-col, tabla de Aspectos con header negro/lima y aspect-pills coloreados, callout SMART final.
+- Validado: PDF de 121KB con todas las secciones renderizadas correctamente (analyze_file_tool: hero + badge + 3 cards + tabla + callout SMART).
+
+**Frontend rediseño** (`DashboardPage.js`):
+- Reemplazado el header centrado gigante por el toolbar compacto Material Design (estilo Plan Anterior): icono lima `Target` en cuadro slate-900, título "Plan Activo" + subtítulo, 4 botones (PDF/Enlace/WhatsApp/Guardar) y warning si no hay plan activo.
+- Handlers nuevos: `handleDownloadObjectivesPDF`, `handleShareObjectivesLink`, `handleShareObjectivesWhatsApp` — guardan automáticamente antes de exportar.
+- **Reorganización de contenido**:
+  - Información General full-width con grid 1/2/3 columnas responsivo (border-l-[#007AFF]).
+  - Objetivos por Horizonte cambiados de 4 cards (1 info + 3 obj) a 3 cards horizontales con badges contextuales (MACROCICLO/MESOCICLO/MICROCICLO).
+  - Tabla de Aspectos con header negro/lima estilo iTRAIN, color-pill por aspecto.
+  - Callout SMART al pie con borde lima (reemplazo del bloque "Cancelar/Guardar").
+- Inputs y textareas compactados (h-9, p-2, rows={1-2}, text-sm) para mayor densidad de información sin perder claridad.
+
+
+
 ### Gap Analysis con IA en Plan Anterior — multi-modelo + multi-LLM (Feb 2026)
 
 **Cierre del ciclo con IA — el coach recibe el "qué hacer al respecto":**

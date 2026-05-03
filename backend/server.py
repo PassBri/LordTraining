@@ -8247,6 +8247,10 @@ app.include_router(periodization_models_router, prefix="/api")
 from routes.previous_analysis_export import router as previous_analysis_export_router
 app.include_router(previous_analysis_export_router, prefix="/api")
 
+# Active Plan (Objectives): PDF export + share link
+from routes.active_plan_export import router as active_plan_export_router
+app.include_router(active_plan_export_router, prefix="/api")
+
 # Store db reference in app state for V2 routes
 app.state.db = db
 
