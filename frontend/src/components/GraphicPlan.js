@@ -90,7 +90,9 @@ const ACTIVITY_TYPES = [
 // Monitoring areas
 const MONITORING_AREAS = [
   { id: 'medical', label: 'Control médico', color: 'bg-red-100' },
+  { id: 'anthropometric', label: 'Antropometría', color: 'bg-cyan-100' },
   { id: 'physical', label: 'Control físico', color: 'bg-orange-100' },
+  { id: 'biomechanical', label: 'Biomecánica', color: 'bg-emerald-100' },
   { id: 'technical', label: 'Control técnico', color: 'bg-yellow-100' },
   { id: 'tactical', label: 'Control táctico', color: 'bg-green-100' },
   { id: 'psychological', label: 'Control psicológico', color: 'bg-blue-100' },
@@ -570,6 +572,49 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
     };
     loadEvents();
   }, [athleteId]);
+
+  // Load evaluation controls timeline → auto-mark monitoring weeks based on real control dates
+  useEffect(() => {
+    if (!activePlan?.id) return;
+    let cancelled = false;
+    const loadEvaluations = async () => {
+      try {
+        const token = localStorage.getItem('train_token');
+        const r = await axios.get(
+          `${BACKEND_URL}/api/plan-data/evaluations-export/timeline/${activePlan.id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (cancelled) return;
+        const list = r.data?.controls || [];
+        if (!list.length) return;
+        const startDate = activePlan?.start_date ? new Date(activePlan.start_date) : null;
+        if (!startDate || isNaN(startDate.getTime())) return;
+        setPlanData(prev => {
+          const monitoring = { ...(prev.monitoring || {}) };
+          list.forEach(ctrl => {
+            if (!ctrl.date || !ctrl.evaluation_type) return;
+            const ctrlDate = new Date(ctrl.date);
+            if (isNaN(ctrlDate.getTime())) return;
+            const diffDays = Math.floor((ctrlDate - startDate) / (1000 * 60 * 60 * 24));
+            const weekIdx = Math.floor(diffDays / 7) + 1; // 1-based week
+            if (weekIdx >= 1 && weekIdx <= 52) {
+              monitoring[`${ctrl.evaluation_type}_${weekIdx}`] = true;
+            }
+          });
+          return { ...prev, monitoring };
+        });
+      } catch (e) {
+        // No timeline data — ok
+      }
+    };
+    loadEvaluations();
+    // Re-run when an evaluation is saved/deleted from EvaluationSection
+    const handler = (e) => {
+      if (e?.detail?.plan_id === activePlan.id) loadEvaluations();
+    };
+    window.addEventListener('itrain:evaluation-saved', handler);
+    return () => { cancelled = true; window.removeEventListener('itrain:evaluation-saved', handler); };
+  }, [activePlan?.id, activePlan?.start_date]);
 
   // Total weeks based on cycle duration - MUST be defined before useMemo that uses it
   const totalWeeks = CYCLE_DURATIONS[cycleDuration].weeks;
@@ -1517,7 +1562,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                   </td>
                   {displayedWeeks.map(week => {
                     const checks = MONITORING_AREAS.filter(a => planData.monitoring?.[`${a.id}_${week}`]);
-                    const colors = { medical: '#DC2626', physical: '#EA580C', technical: '#CA8A04', tactical: '#16A34A', psychological: '#2563EB', theoretical: '#9333EA' };
+                    const colors = { medical: '#DC2626', anthropometric: '#06B6D4', physical: '#EA580C', biomechanical: '#10B981', technical: '#CA8A04', tactical: '#16A34A', psychological: '#2563EB', theoretical: '#9333EA' };
                     return (
                       <td key={`mon-${week}`} className="border border-gray-300 p-0 text-center" style={{ height: 24 }}>
                         {checks.length > 0 && (
@@ -1534,7 +1579,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
 
                 {/* MONITORING AREA sub-rows with colored squares */}
                 {MONITORING_AREAS.map(area => {
-                  const monColors = { medical: 'bg-red-100', physical: 'bg-orange-100', technical: 'bg-yellow-100', tactical: 'bg-green-100', psychological: 'bg-blue-100', theoretical: 'bg-purple-100' };
+                  const monColors = { medical: 'bg-red-100', anthropometric: 'bg-cyan-100', physical: 'bg-orange-100', biomechanical: 'bg-emerald-100', technical: 'bg-yellow-100', tactical: 'bg-green-100', psychological: 'bg-blue-100', theoretical: 'bg-purple-100' };
                   return (
                     <tr key={`mon-${area.id}`} className="bg-cyan-50/50">
                       <td className="sticky left-0 bg-cyan-50/50 px-2 py-0 text-[10px] border border-gray-300 z-10 pl-4" style={{ width: 160 }}>

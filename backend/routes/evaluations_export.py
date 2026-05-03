@@ -1,9 +1,15 @@
 """
-Exportación PDF + Share + Plantillas para Evaluaciones / Controles deportivos.
+Exportación PDF + Share + Plantillas + Multi-control para Evaluaciones deportivas.
 8 tipos: medical, physical, technical, tactical, psychological, theoretical,
-        anthropometric, biomechanical
-Datos personalizables: cada control tiene aspectos dinámicos (label + categoría +
-escala + objetivo + valor + nota). Plantillas reutilizables por tipo.
+        anthropometric, biomechanical.
+
+CAMBIOS RELEVANTES (v3):
+- Múltiples controles por tipo: cada control tiene su propio `id` (uuid) y `date`.
+- Endpoint `list` para listar todos los controles de un (plan, tipo, atleta).
+- Endpoint `timeline` para Plan Gráfico: todos los controles del plan con su fecha.
+- Reordenamiento de rutas: específicas (`/list`, `/templates/*`, `/shared/*`,
+  `/by-id/*`, `/timeline`) declaradas ANTES del catch-all `/{plan_id}/{type}`
+  para evitar colisiones de routing en FastAPI.
 """
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -16,14 +22,13 @@ import os
 import base64
 from motor.motor_asyncio import AsyncIOMotorClient
 
-# Prefix dedicado para no chocar con el endpoint existente /plan-data/evaluations
 router = APIRouter(prefix="/plan-data/evaluations-export", tags=["evaluations-export"])
 
 mongo_url = os.environ['MONGO_URL']
 db_name = os.environ['DB_NAME']
 _client = AsyncIOMotorClient(mongo_url)
 _db = _client[db_name]
-_evals = _db["plan_evaluations_v2"]              # Nueva colección rica (no toca la antigua)
+_evals = _db["plan_evaluations_v2"]
 _eval_shares = _db["plan_evaluations_shares"]
 _eval_templates = _db["evaluation_templates"]
 _plans = _db["training_plans"]
@@ -46,6 +51,14 @@ def _esc(s) -> str:
             .replace(">", "&gt;").replace('"', "&quot;"))
 
 
+def _new_id(n: int = 14) -> str:
+    return uuid.uuid4().hex[:n]
+
+
+def _new_aspect_id() -> str:
+    return uuid.uuid4().hex[:10]
+
+
 EVAL_META: Dict[str, Dict[str, str]] = {
     "medical":       {"title": "Control Médico",       "color": "#EF4444", "icon": "🩺", "subtitle": "Estado de salud y aptitud para el entrenamiento"},
     "physical":      {"title": "Control Físico",       "color": "#3B82F6", "icon": "💪", "subtitle": "Capacidades físicas y condición"},
@@ -58,7 +71,6 @@ EVAL_META: Dict[str, Dict[str, str]] = {
 }
 
 
-# ---------------- DEFAULT TEMPLATES ----------------
 DEFAULT_TEMPLATES: Dict[str, List[Dict[str, Any]]] = {
     "medical": [
         {"label": "FC en reposo", "category": "Signos Vitales", "scale_min": 40, "scale_max": 100, "scale_unit": "lpm", "target": 60},
@@ -126,12 +138,7 @@ DEFAULT_TEMPLATES: Dict[str, List[Dict[str, Any]]] = {
 }
 
 
-def _new_aspect_id() -> str:
-    return uuid.uuid4().hex[:10]
-
-
 def _seed_default_aspects(eval_type: str) -> List[Dict[str, Any]]:
-    """Devuelve aspectos por defecto con id e value vacío."""
     out = []
     for a in DEFAULT_TEMPLATES.get(eval_type, []):
         out.append({
@@ -146,6 +153,47 @@ def _seed_default_aspects(eval_type: str) -> List[Dict[str, Any]]:
             "notes": "",
         })
     return out
+
+
+def _today_iso() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+
+def _summarize(doc: Dict[str, Any]) -> Dict[str, Any]:
+    """Resumen rápido de un control para listados/timeline."""
+    aspects = doc.get("aspects") or []
+    total = len(aspects)
+    measured = 0
+    norm_sum = 0.0
+    norm_count = 0
+    for a in aspects:
+        v = a.get("value")
+        try:
+            if v is None or v == "":
+                continue
+            v = float(v)
+            measured += 1
+            mn = float(a.get("scale_min", 0))
+            mx = float(a.get("scale_max", 10))
+            if mx != mn:
+                pct = max(0.0, min(100.0, (v - mn) / (mx - mn) * 100))
+                norm_sum += pct
+                norm_count += 1
+        except Exception:
+            continue
+    global_pct = round(norm_sum / norm_count) if norm_count else 0
+    return {
+        "id": doc.get("id"),
+        "evaluation_type": doc.get("evaluation_type"),
+        "plan_id": doc.get("plan_id"),
+        "athlete_id": doc.get("athlete_id"),
+        "date": doc.get("date") or "",
+        "title": doc.get("title") or "",
+        "total": total,
+        "measured": measured,
+        "global_pct": global_pct,
+        "updated_at": doc.get("updated_at"),
+    }
 
 
 # =====================================================================
@@ -165,10 +213,12 @@ class Aspect(BaseModel):
 
 
 class EvaluationSavePayload(BaseModel):
+    id: Optional[str] = None  # NUEVO: si presente, actualiza ese control; si no, crea uno nuevo
     plan_id: str
     athlete_id: Optional[str] = None
     evaluation_type: str
     date: Optional[str] = None
+    title: Optional[str] = ""  # NUEVO: nombre legible del control (ej: "Control inicial pretemporada")
     aspects: List[Aspect] = Field(default_factory=list)
     fortalezas: Optional[str] = ""
     areas_mejora: Optional[str] = ""
@@ -183,8 +233,10 @@ class TemplateSavePayload(BaseModel):
 
 
 # =====================================================================
-# EVALUACIONES (CRUD)
+# RUTAS ESPECÍFICAS PRIMERO (orden importa en FastAPI)
 # =====================================================================
+
+# ---------- 1. SAVE EVALUATION (POST raíz) ----------
 
 @router.post("")
 async def save_evaluation(payload: EvaluationSavePayload, user=Depends(get_current_user_dep())):
@@ -192,57 +244,74 @@ async def save_evaluation(payload: EvaluationSavePayload, user=Depends(get_curre
         raise HTTPException(400, f"Tipo de evaluación inválido: {payload.evaluation_type}")
     uid = _uid(user)
     now = datetime.now(timezone.utc).isoformat()
-    key = {
-        "plan_id": payload.plan_id, "user_id": uid,
-        "evaluation_type": payload.evaluation_type,
-        "athlete_id": payload.athlete_id or None,
-    }
     aspects_clean = []
     for a in payload.aspects:
         d = a.model_dump()
         if not d.get("id"):
             d["id"] = _new_aspect_id()
         aspects_clean.append(d)
-    doc = {**key, **payload.model_dump(), "user_id": uid,
-           "aspects": aspects_clean, "updated_at": now}
-    await _evals.update_one(key, {"$set": doc, "$setOnInsert": {"created_at": now}}, upsert=True)
-    return {"ok": True, "aspects": aspects_clean}
+
+    eval_id = payload.id or _new_id()
+    body = payload.model_dump()
+    body["id"] = eval_id
+    body["aspects"] = aspects_clean
+    body["user_id"] = uid
+    body["date"] = body.get("date") or _today_iso()
+    body["updated_at"] = now
+
+    await _evals.update_one(
+        {"id": eval_id, "user_id": uid},
+        {"$set": body, "$setOnInsert": {"created_at": now}},
+        upsert=True,
+    )
+    return {"ok": True, "id": eval_id, "aspects": aspects_clean}
 
 
-@router.get("/{plan_id}/{evaluation_type}")
-async def get_evaluation(plan_id: str, evaluation_type: str,
-                         athlete_id: Optional[str] = None,
-                         user=Depends(get_current_user_dep())):
+# ---------- 2. TIMELINE (todos los controles del plan, para Plan Gráfico) ----------
+
+@router.get("/timeline/{plan_id}")
+async def timeline(plan_id: str, athlete_id: Optional[str] = None,
+                   user=Depends(get_current_user_dep())):
+    """Devuelve todos los controles de un plan, con fecha y resumen.
+    Usado por GraphicPlan para marcar las semanas correspondientes."""
+    uid = _uid(user)
+    q = {"plan_id": plan_id, "user_id": uid}
+    if athlete_id:
+        q["athlete_id"] = athlete_id
+    cur = _evals.find(q, {"_id": 0}).sort("date", 1)
+    docs = await cur.to_list(length=2000)
+    return {"controls": [_summarize(d) for d in docs]}
+
+
+# ---------- 3. LIST de un tipo (lista de controles de un plan + tipo) ----------
+
+@router.get("/list/{plan_id}/{evaluation_type}")
+async def list_controls(plan_id: str, evaluation_type: str,
+                        athlete_id: Optional[str] = None,
+                        user=Depends(get_current_user_dep())):
     if evaluation_type not in EVAL_META:
         raise HTTPException(400, f"Tipo inválido: {evaluation_type}")
     uid = _uid(user)
-    doc = await _evals.find_one(
-        {"plan_id": plan_id, "user_id": uid, "evaluation_type": evaluation_type,
-         "athlete_id": athlete_id},
-        {"_id": 0}
-    )
-    if doc and doc.get("aspects"):
-        return doc
-    # Fallback: aspectos del template default del usuario o del sistema
-    user_default = await _eval_templates.find_one(
-        {"user_id": uid, "evaluation_type": evaluation_type, "is_default": True},
-        {"_id": 0}
-    )
-    if user_default and user_default.get("aspects"):
-        seeded = []
-        for a in user_default["aspects"]:
-            seeded.append({**a, "id": a.get("id") or _new_aspect_id(), "value": None, "notes": a.get("notes") or ""})
-        return {"aspects": seeded, "fortalezas": "", "areas_mejora": "", "notes": "", "from_template": user_default.get("name")}
-    return {
-        "aspects": _seed_default_aspects(evaluation_type),
-        "fortalezas": "", "areas_mejora": "", "notes": "",
-        "from_template": "Plantilla del sistema",
-    }
+    q = {"plan_id": plan_id, "user_id": uid, "evaluation_type": evaluation_type,
+         "athlete_id": athlete_id}
+    cur = _evals.find(q, {"_id": 0}).sort([("date", -1), ("updated_at", -1)])
+    docs = await cur.to_list(length=200)
+    # Asegurar que cada doc tiene id (migración suave para datos antiguos)
+    out = []
+    for d in docs:
+        if not d.get("id"):
+            d["id"] = _new_id()
+            await _evals.update_one(
+                {"_id": d.get("_mid")} if d.get("_mid") else
+                {"plan_id": d["plan_id"], "user_id": uid, "evaluation_type": evaluation_type,
+                 "athlete_id": d.get("athlete_id")},
+                {"$set": {"id": d["id"]}}
+            )
+        out.append(_summarize(d))
+    return {"controls": out}
 
 
-# =====================================================================
-# TEMPLATES (CRUD)
-# =====================================================================
+# ---------- 4. TEMPLATES ----------
 
 @router.get("/templates/{evaluation_type}")
 async def list_templates(evaluation_type: str, user=Depends(get_current_user_dep())):
@@ -254,7 +323,6 @@ async def list_templates(evaluation_type: str, user=Depends(get_current_user_dep
         {"_id": 0}
     ).sort("updated_at", -1)
     items = await cur.to_list(length=200)
-    # Inject system default as virtual template (siempre disponible)
     sys_default = {
         "id": f"system::{evaluation_type}",
         "name": f"Plantilla del sistema · {EVAL_META[evaluation_type]['title']}",
@@ -277,9 +345,9 @@ async def save_template(payload: TemplateSavePayload, user=Depends(get_current_u
         d = a.model_dump()
         if not d.get("id"):
             d["id"] = _new_aspect_id()
-        d["value"] = None  # En plantillas no guardamos valores reales
+        d["value"] = None
         aspects_clean.append(d)
-    tid = uuid.uuid4().hex[:14]
+    tid = _new_id()
     doc = {
         "id": tid, "user_id": uid, "name": payload.name,
         "evaluation_type": payload.evaluation_type,
@@ -288,7 +356,6 @@ async def save_template(payload: TemplateSavePayload, user=Depends(get_current_u
         "created_at": now, "updated_at": now,
     }
     if payload.is_default:
-        # Solo una plantilla por defecto por tipo
         await _eval_templates.update_many(
             {"user_id": uid, "evaluation_type": payload.evaluation_type},
             {"$set": {"is_default": False}}
@@ -320,12 +387,158 @@ async def set_template_default(template_id: str, user=Depends(get_current_user_d
     return {"ok": True}
 
 
+# ---------- 5. BY-ID (operaciones sobre un control específico) ----------
+
+@router.get("/by-id/{evaluation_id}")
+async def get_evaluation_by_id(evaluation_id: str, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    doc = await _evals.find_one({"id": evaluation_id, "user_id": uid}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Control no encontrado")
+    return doc
+
+
+@router.delete("/by-id/{evaluation_id}")
+async def delete_evaluation_by_id(evaluation_id: str, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    res = await _evals.delete_one({"id": evaluation_id, "user_id": uid})
+    if res.deleted_count == 0:
+        raise HTTPException(404, "Control no encontrado")
+    # Limpiar shares asociados
+    await _eval_shares.delete_many({"evaluation_id": evaluation_id, "user_id": uid})
+    return {"ok": True}
+
+
+@router.get("/by-id/{evaluation_id}/pdf")
+async def download_evaluation_pdf_by_id(evaluation_id: str, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    doc = await _evals.find_one({"id": evaluation_id, "user_id": uid}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Control no encontrado")
+    plan_name = await _get_plan_name(doc.get("plan_id"))
+    athlete_name = await _get_athlete_name(doc.get("athlete_id"))
+    html = _build_html(doc, plan_name, athlete_name=athlete_name)
+    try:
+        pdf = await _render_pdf(html)
+    except Exception as e:
+        raise HTTPException(500, f"Error generando PDF: {e}")
+    return Response(
+        content=pdf, media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{doc.get("evaluation_type")}_{evaluation_id[:8]}.pdf"'},
+    )
+
+
+class ShareEvalResponse(BaseModel):
+    share_id: str
+    share_url: str
+
+
+@router.post("/by-id/{evaluation_id}/share", response_model=ShareEvalResponse)
+async def create_eval_share_by_id(evaluation_id: str, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    doc = await _evals.find_one({"id": evaluation_id, "user_id": uid}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Control no encontrado")
+    plan_name = await _get_plan_name(doc.get("plan_id"))
+    athlete_name = await _get_athlete_name(doc.get("athlete_id"))
+    now = datetime.now(timezone.utc).isoformat()
+    snapshot = {**doc, "plan_name": plan_name, "athlete_name": athlete_name}
+    existing = await _eval_shares.find_one({"evaluation_id": evaluation_id, "user_id": uid}, {"_id": 0})
+    if existing and existing.get("share_id"):
+        share_id = existing["share_id"]
+        await _eval_shares.update_one(
+            {"share_id": share_id},
+            {"$set": {"snapshot": snapshot, "updated_at": now}}
+        )
+    else:
+        share_id = _new_id()
+        await _eval_shares.insert_one({
+            "share_id": share_id, "evaluation_id": evaluation_id, "user_id": uid,
+            "snapshot": snapshot, "created_at": now, "updated_at": now,
+        })
+    base = os.environ.get("PUBLIC_BASE_URL", "")
+    share_url = f"{base}/api/plan-data/evaluations-export/shared/{share_id}" if base else f"/api/plan-data/evaluations-export/shared/{share_id}"
+    return ShareEvalResponse(share_id=share_id, share_url=share_url)
+
+
+# ---------- 6. SHARED (público, sin auth) ----------
+
+@router.get("/shared/{share_id}", response_class=HTMLResponse)
+async def view_shared_eval(share_id: str):
+    share = await _eval_shares.find_one({"share_id": share_id}, {"_id": 0})
+    if not share:
+        raise HTTPException(404, "Enlace no válido")
+    snap = share.get("snapshot") or {}
+    html = _build_html(snap, snap.get("plan_name") or "Plan",
+                       athlete_name=snap.get("athlete_name") or "",
+                       share_id=share_id)
+    return HTMLResponse(content=html)
+
+
+@router.get("/shared/{share_id}/pdf")
+async def download_shared_eval_pdf(share_id: str):
+    share = await _eval_shares.find_one({"share_id": share_id}, {"_id": 0})
+    if not share:
+        raise HTTPException(404, "Enlace no válido")
+    snap = share.get("snapshot") or {}
+    html = _build_html(snap, snap.get("plan_name") or "Plan",
+                       athlete_name=snap.get("athlete_name") or "",
+                       share_id=share_id)
+    try:
+        pdf = await _render_pdf(html)
+    except Exception as e:
+        raise HTTPException(500, f"Error generando PDF: {e}")
+    return Response(
+        content=pdf, media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{snap.get("evaluation_type", "evaluacion")}.pdf"'},
+    )
+
+
+# ---------- 7. CATCH-ALL: GET por (plan, type) — DEBE SER EL ÚLTIMO ----------
+
+@router.get("/{plan_id}/{evaluation_type}")
+async def get_evaluation(plan_id: str, evaluation_type: str,
+                         athlete_id: Optional[str] = None,
+                         user=Depends(get_current_user_dep())):
+    """Retrocompat: devuelve el control MÁS RECIENTE de este (plan, tipo, atleta)
+    o aspectos por defecto si no hay ninguno (template del sistema)."""
+    if evaluation_type not in EVAL_META:
+        raise HTTPException(400, f"Tipo inválido: {evaluation_type}")
+    uid = _uid(user)
+    doc = await _evals.find_one(
+        {"plan_id": plan_id, "user_id": uid, "evaluation_type": evaluation_type,
+         "athlete_id": athlete_id},
+        {"_id": 0},
+        sort=[("date", -1), ("updated_at", -1)]
+    )
+    if doc and doc.get("aspects"):
+        if not doc.get("id"):
+            doc["id"] = _new_id()
+        return doc
+    user_default = await _eval_templates.find_one(
+        {"user_id": uid, "evaluation_type": evaluation_type, "is_default": True},
+        {"_id": 0}
+    )
+    if user_default and user_default.get("aspects"):
+        seeded = []
+        for a in user_default["aspects"]:
+            seeded.append({**a, "id": a.get("id") or _new_aspect_id(), "value": None, "notes": a.get("notes") or ""})
+        return {"id": None, "aspects": seeded, "fortalezas": "", "areas_mejora": "",
+                "notes": "", "from_template": user_default.get("name"), "date": _today_iso()}
+    return {
+        "id": None,
+        "aspects": _seed_default_aspects(evaluation_type),
+        "fortalezas": "", "areas_mejora": "", "notes": "",
+        "from_template": "Plantilla del sistema",
+        "date": _today_iso(),
+    }
+
+
 # =====================================================================
-# PDF + SHARE
+# RENDER HTML / PDF
 # =====================================================================
 
 def _normalize_value(v, mn, mx):
-    """Mapea v dentro de [mn,mx] a 0..100 para barra de progreso."""
     try:
         v = float(v); mn = float(mn); mx = float(mx)
     except Exception:
@@ -337,7 +550,6 @@ def _normalize_value(v, mn, mx):
 
 
 def _value_color(v, target, scale_min, scale_max):
-    """Verde si v ≥ 80% recorrido o cerca del target; ámbar 40-80%; rojo <40%."""
     try:
         v = float(v); scale_min = float(scale_min); scale_max = float(scale_max)
     except Exception:
@@ -349,15 +561,18 @@ def _value_color(v, target, scale_min, scale_max):
         try:
             target = float(target)
             tgt_norm = (target - scale_min) / (scale_max - scale_min) * 100
-            # Si target < midpoint, valor menor es mejor (e.g. % grasa)
             if tgt_norm < 50:
-                if norm <= tgt_norm * 1.2: return "#10B981"
-                if norm <= tgt_norm * 1.6: return "#F59E0B"
+                if norm <= tgt_norm * 1.2:
+                    return "#10B981"
+                if norm <= tgt_norm * 1.6:
+                    return "#F59E0B"
                 return "#EF4444"
         except Exception:
             pass
-    if norm >= 80: return "#10B981"
-    if norm >= 40: return "#F59E0B"
+    if norm >= 80:
+        return "#10B981"
+    if norm >= 40:
+        return "#F59E0B"
     return "#EF4444"
 
 
@@ -371,7 +586,8 @@ def _build_html(eval_doc: dict, plan_name: str, athlete_name: str = "",
     notes = eval_doc.get("notes") or ""
     fortalezas = eval_doc.get("fortalezas") or ""
     areas = eval_doc.get("areas_mejora") or ""
-    date = eval_doc.get("date") or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    date = eval_doc.get("date") or _today_iso()
+    control_title = eval_doc.get("title") or ""
 
     brand_dir = "/app/frontend/public/brand"
     try:
@@ -382,7 +598,6 @@ def _build_html(eval_doc: dict, plan_name: str, athlete_name: str = "",
     except FileNotFoundError:
         full_b64 = icon_b64 = ""
 
-    # Agrupar por categoría
     groups: Dict[str, List[Dict[str, Any]]] = {}
     for a in aspects:
         cat = (a or {}).get("category") or "General"
@@ -451,6 +666,7 @@ def _build_html(eval_doc: dict, plan_name: str, athlete_name: str = "",
 
     today = datetime.now(timezone.utc).strftime("%d/%m/%Y")
     athlete_block = f'<div><strong>Atleta</strong>{_esc(athlete_name)}</div>' if athlete_name else ""
+    control_subtitle = f' · {_esc(control_title)}' if control_title else ""
 
     return f"""<!DOCTYPE html>
 <html lang="es"><head><meta charset="UTF-8"><title>{title} · iTrain</title>
@@ -507,7 +723,7 @@ def _build_html(eval_doc: dict, plan_name: str, athlete_name: str = "",
     <img src="data:image/png;base64,{full_b64}" alt="iTRAIN" width="160" height="42" style="width:160px;height:42px;object-fit:contain;display:block;"/>
   </div>
   <span class="badge">EVALUACIÓN · {meta['icon']} {title.upper()}</span>
-  <h1>{title}</h1>
+  <h1>{title}{control_subtitle}</h1>
   <div class="subtitle">{_esc(plan_name)}</div>
   <div class="meta">
     <div><strong>Fecha</strong>{_esc(date)}</div>
@@ -574,7 +790,9 @@ async def _render_pdf(html: str) -> bytes:
     return pdf
 
 
-async def _get_plan_name(plan_id: str) -> str:
+async def _get_plan_name(plan_id: Optional[str]) -> str:
+    if not plan_id:
+        return "Plan sin nombre"
     plan = await _plans.find_one({"id": plan_id}, {"_id": 0, "name": 1})
     return (plan or {}).get("name") or "Plan sin nombre"
 
@@ -584,102 +802,3 @@ async def _get_athlete_name(athlete_id: Optional[str]) -> str:
         return ""
     a = await _athletes.find_one({"id": athlete_id}, {"_id": 0, "name": 1})
     return (a or {}).get("name") or ""
-
-
-@router.get("/{plan_id}/{evaluation_type}/pdf")
-async def download_evaluation_pdf(plan_id: str, evaluation_type: str,
-                                  athlete_id: Optional[str] = None,
-                                  user=Depends(get_current_user_dep())):
-    if evaluation_type not in EVAL_META:
-        raise HTTPException(400, f"Tipo inválido: {evaluation_type}")
-    uid = _uid(user)
-    doc = await _evals.find_one(
-        {"plan_id": plan_id, "user_id": uid, "evaluation_type": evaluation_type,
-         "athlete_id": athlete_id},
-        {"_id": 0}
-    )
-    if not doc:
-        raise HTTPException(404, "Aún no hay evaluación guardada. Haz clic en 'Guardar' primero.")
-    plan_name = await _get_plan_name(plan_id)
-    athlete_name = await _get_athlete_name(athlete_id)
-    html = _build_html(doc, plan_name, athlete_name=athlete_name)
-    try:
-        pdf = await _render_pdf(html)
-    except Exception as e:
-        raise HTTPException(500, f"Error generando PDF: {e}")
-    return Response(
-        content=pdf, media_type="application/pdf",
-        headers={"Content-Disposition": f'attachment; filename="{evaluation_type}.pdf"'},
-    )
-
-
-class ShareEvalResponse(BaseModel):
-    share_id: str
-    share_url: str
-
-
-@router.post("/{plan_id}/{evaluation_type}/share", response_model=ShareEvalResponse)
-async def create_eval_share(plan_id: str, evaluation_type: str,
-                            athlete_id: Optional[str] = None,
-                            user=Depends(get_current_user_dep())):
-    if evaluation_type not in EVAL_META:
-        raise HTTPException(400, f"Tipo inválido: {evaluation_type}")
-    uid = _uid(user)
-    doc = await _evals.find_one(
-        {"plan_id": plan_id, "user_id": uid, "evaluation_type": evaluation_type,
-         "athlete_id": athlete_id},
-        {"_id": 0}
-    )
-    if not doc:
-        raise HTTPException(404, "Debes guardar la evaluación antes de compartirla.")
-    plan_name = await _get_plan_name(plan_id)
-    athlete_name = await _get_athlete_name(athlete_id)
-    key = {"plan_id": plan_id, "user_id": uid, "evaluation_type": evaluation_type,
-           "athlete_id": athlete_id}
-    existing = await _eval_shares.find_one(key, {"_id": 0})
-    now = datetime.now(timezone.utc).isoformat()
-    snapshot = {**doc, "plan_name": plan_name, "athlete_name": athlete_name}
-    if existing and existing.get("share_id"):
-        share_id = existing["share_id"]
-        await _eval_shares.update_one({"share_id": share_id},
-                                      {"$set": {"snapshot": snapshot, "updated_at": now}})
-    else:
-        share_id = uuid.uuid4().hex[:14]
-        await _eval_shares.insert_one({
-            **key, "share_id": share_id, "snapshot": snapshot,
-            "created_at": now, "updated_at": now,
-        })
-    base = os.environ.get("PUBLIC_BASE_URL", "")
-    share_url = f"{base}/api/plan-data/evaluations-export/shared/{share_id}" if base else f"/api/plan-data/evaluations-export/shared/{share_id}"
-    return ShareEvalResponse(share_id=share_id, share_url=share_url)
-
-
-@router.get("/shared/{share_id}", response_class=HTMLResponse)
-async def view_shared_eval(share_id: str):
-    share = await _eval_shares.find_one({"share_id": share_id}, {"_id": 0})
-    if not share:
-        raise HTTPException(404, "Enlace no válido")
-    snap = share.get("snapshot") or {}
-    html = _build_html(snap, snap.get("plan_name") or "Plan",
-                       athlete_name=snap.get("athlete_name") or "",
-                       share_id=share_id)
-    return HTMLResponse(content=html)
-
-
-@router.get("/shared/{share_id}/pdf")
-async def download_shared_eval_pdf(share_id: str):
-    share = await _eval_shares.find_one({"share_id": share_id}, {"_id": 0})
-    if not share:
-        raise HTTPException(404, "Enlace no válido")
-    snap = share.get("snapshot") or {}
-    html = _build_html(snap, snap.get("plan_name") or "Plan",
-                       athlete_name=snap.get("athlete_name") or "",
-                       share_id=share_id)
-    try:
-        pdf = await _render_pdf(html)
-    except Exception as e:
-        raise HTTPException(500, f"Error generando PDF: {e}")
-    return Response(
-        content=pdf, media_type="application/pdf",
-        headers={"Content-Disposition": f'attachment; filename="{snap.get("evaluation_type", "evaluacion")}.pdf"'},
-    )

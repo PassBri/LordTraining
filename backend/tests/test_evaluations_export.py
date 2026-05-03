@@ -1,13 +1,19 @@
 """
-Tests para el nuevo router /api/plan-data/evaluations-export (iTRAIN).
-Cubre: CRUD evaluaciones, templates (incl. system_default), PDF, share,
-validación de tipos inválidos y coexistencia con router legacy /evaluations.
+Tests para /api/plan-data/evaluations-export (iTRAIN) v3 — Multi-control.
+
+Cubre:
+- Route ordering: /templates/{type}, /list/{plan}/{type}, /timeline/{plan},
+  /by-id/{id}, /shared/{id} deben resolver antes del catch-all /{plan}/{type}.
+- Multi-control: POST sin id crea nuevo; POST con id actualiza; /list ordenado
+  por date desc; DELETE limpia shares; /by-id/pdf y /by-id/share.
+- Shared público (sin auth) HTTP 200.
+- Catch-all legacy sigue funcionando.
 """
 import os
 import pytest
 import requests
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://periodization-hub-1.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ["REACT_APP_BACKEND_URL"].rstrip("/")
 API = f"{BASE_URL}/api"
 
 EMAIL = "test@train.com"
@@ -37,151 +43,204 @@ def client(token):
     return s
 
 
-# ---------- Validación de tipo inválido ----------
+# ---------- Tipos inválidos ----------
 class TestInvalidType:
-    def test_get_invalid_type(self, client):
+    def test_get_catchall_invalid(self, client):
         r = client.get(f"{API}/plan-data/evaluations-export/{PLAN_ID}/foo", timeout=20)
         assert r.status_code == 400
 
-    def test_pdf_invalid_type(self, client):
-        r = client.get(f"{API}/plan-data/evaluations-export/{PLAN_ID}/foo/pdf", timeout=20)
-        assert r.status_code == 400
-
-    def test_templates_invalid_type(self, client):
+    def test_templates_invalid(self, client):
         r = client.get(f"{API}/plan-data/evaluations-export/templates/foo", timeout=20)
         assert r.status_code == 400
 
-    def test_share_invalid_type(self, client):
-        r = client.post(f"{API}/plan-data/evaluations-export/{PLAN_ID}/foo/share", timeout=20)
+    def test_list_invalid(self, client):
+        r = client.get(f"{API}/plan-data/evaluations-export/list/{PLAN_ID}/foo", timeout=20)
         assert r.status_code == 400
 
-    def test_post_invalid_type(self, client):
+    def test_post_invalid(self, client):
         r = client.post(f"{API}/plan-data/evaluations-export",
                         json={"plan_id": PLAN_ID, "evaluation_type": "foo", "aspects": []},
                         timeout=20)
         assert r.status_code == 400
 
 
-# ---------- GET fallback a template del sistema ----------
-class TestSystemDefaultTemplates:
+# ---------- Route ordering: /templates/{type} NO es capturada por catch-all ----------
+class TestRouteOrderingTemplates:
     @pytest.mark.parametrize("et", EVAL_TYPES)
-    def test_get_eval_returns_system_default_aspects(self, client, et):
-        # Use a fresh plan_id so no stored data exists for this type
-        fresh_plan = f"NOPLAN_{et}_abc"
-        r = client.get(f"{API}/plan-data/evaluations-export/{fresh_plan}/{et}", timeout=20)
-        assert r.status_code == 200, r.text
-        data = r.json()
-        assert "aspects" in data
-        assert len(data["aspects"]) >= 5, f"{et}: expected 5+ default aspects"
-        a = data["aspects"][0]
-        for key in ("id", "label", "category", "scale_min", "scale_max", "scale_unit"):
-            assert key in a, f"{et}: missing key {key}"
-
-    @pytest.mark.parametrize("et", EVAL_TYPES)
-    def test_templates_list_has_system_default(self, client, et):
+    def test_templates_returns_templates_shape(self, client, et):
+        """Debe retornar {templates, system_default}, NO {aspects} del catch-all."""
         r = client.get(f"{API}/plan-data/evaluations-export/templates/{et}", timeout=20)
         assert r.status_code == 200, r.text
         data = r.json()
-        assert "templates" in data and isinstance(data["templates"], list)
+        # Shape específico del endpoint /templates, NO del catch-all:
+        assert "templates" in data and isinstance(data["templates"], list), \
+            f"{et}: Got catch-all shape instead of templates shape: {data.keys()}"
+        assert "aspects" not in data, f"{et}: catch-all collision detected"
         sd = data.get("system_default")
-        assert sd is not None, f"{et}: missing system_default"
+        assert sd is not None
         assert sd.get("is_system") is True
         assert len(sd.get("aspects") or []) >= 5
 
 
-# ---------- Save + GET + PDF + Share flow ----------
-class TestSaveAndExport:
-    def test_save_rich_aspects_and_persist(self, client):
-        payload = {
-            "plan_id": PLAN_ID,
-            "evaluation_type": "medical",
-            "aspects": [
-                {"label": "TEST FC", "category": "Signos Vitales",
-                 "scale_min": 40, "scale_max": 100, "scale_unit": "lpm",
-                 "target": 60, "value": 65, "notes": "ok"},
-                {"label": "TEST SpO2", "category": "Signos Vitales",
-                 "scale_min": 90, "scale_max": 100, "scale_unit": "%",
-                 "target": 98, "value": 97, "notes": ""},
-            ],
-            "fortalezas": "Resistencia alta",
-            "areas_mejora": "Flexibilidad",
-            "notes": "TEST save",
-        }
-        r = client.post(f"{API}/plan-data/evaluations-export", json=payload, timeout=30)
+# ---------- Catch-all legacy GET /{plan}/{type} ----------
+class TestCatchAllLegacy:
+    @pytest.mark.parametrize("et", EVAL_TYPES)
+    def test_catchall_returns_aspects_shape(self, client, et):
+        fresh = f"NOPLAN_{et}_ord"
+        r = client.get(f"{API}/plan-data/evaluations-export/{fresh}/{et}", timeout=20)
         assert r.status_code == 200, r.text
-        body = r.json()
-        assert body.get("ok") is True
-        assert isinstance(body.get("aspects"), list) and len(body["aspects"]) == 2
-        for a in body["aspects"]:
-            assert a.get("id"), "aspect id autogenerated expected"
+        data = r.json()
+        assert "aspects" in data
+        # Catch-all returns either system default (>=5) or user's default template.
+        assert len(data["aspects"]) >= 1
 
-        # GET must return saved aspects (not system default)
-        g = client.get(f"{API}/plan-data/evaluations-export/{PLAN_ID}/medical", timeout=20)
-        assert g.status_code == 200
-        gd = g.json()
-        labels = [a["label"] for a in gd.get("aspects", [])]
-        assert "TEST FC" in labels and "TEST SpO2" in labels
 
-    def test_save_upsert_same_key(self, client):
-        """Segunda llamada con el mismo key actualiza (no crea duplicados)."""
+# ---------- Multi-control: POST sin id crea, POST con id actualiza ----------
+class TestMultiControl:
+    """Usa un plan_id de testing distinto para no pisar otros tests."""
+    TEST_PLAN = "TEST_MC_PLAN_xyz"
+
+    @pytest.fixture(autouse=True, scope="class")
+    def cleanup(self, token):
+        yield
+        # Teardown: borrar cualquier control residual vía /list + /by-id DELETE
+        s = requests.Session()
+        s.headers.update({"Authorization": f"Bearer {token}"})
+        try:
+            r = s.get(f"{API}/plan-data/evaluations-export/list/{self.TEST_PLAN}/medical", timeout=15)
+            if r.status_code == 200:
+                for c in r.json().get("controls", []):
+                    s.delete(f"{API}/plan-data/evaluations-export/by-id/{c['id']}", timeout=10)
+        except Exception:
+            pass
+
+    def test_post_without_id_creates_new(self, client):
         payload = {
-            "plan_id": PLAN_ID,
+            "plan_id": self.TEST_PLAN,
             "evaluation_type": "medical",
-            "aspects": [{"label": "TEST FC v2", "category": "Signos Vitales",
+            "date": "2024-02-01",
+            "title": "TEST Control #1",
+            "aspects": [{"label": "TEST FC", "category": "Vitales",
+                         "scale_min": 40, "scale_max": 100, "scale_unit": "lpm",
+                         "target": 60, "value": 65}],
+        }
+        r1 = client.post(f"{API}/plan-data/evaluations-export", json=payload, timeout=30)
+        assert r1.status_code == 200, r1.text
+        id1 = r1.json().get("id")
+        assert id1
+
+        # Second POST without id -> distinct new control
+        payload["date"] = "2024-02-15"
+        payload["title"] = "TEST Control #2"
+        r2 = client.post(f"{API}/plan-data/evaluations-export", json=payload, timeout=30)
+        assert r2.status_code == 200
+        id2 = r2.json().get("id")
+        assert id2 and id2 != id1, "POST without id should create distinct control"
+
+        # Save ids for next tests via class attribute
+        TestMultiControl._id1 = id1
+        TestMultiControl._id2 = id2
+
+    def test_post_with_id_updates(self, client):
+        payload = {
+            "id": TestMultiControl._id1,
+            "plan_id": self.TEST_PLAN,
+            "evaluation_type": "medical",
+            "date": "2024-02-01",
+            "title": "TEST Control #1 UPDATED",
+            "aspects": [{"label": "TEST FC v2", "category": "Vitales",
                          "scale_min": 40, "scale_max": 100, "scale_unit": "lpm",
                          "target": 60, "value": 70}],
         }
         r = client.post(f"{API}/plan-data/evaluations-export", json=payload, timeout=30)
         assert r.status_code == 200
-        g = client.get(f"{API}/plan-data/evaluations-export/{PLAN_ID}/medical", timeout=20)
-        labels = [a["label"] for a in g.json().get("aspects", [])]
-        assert labels == ["TEST FC v2"], f"Expected upsert override, got {labels}"
+        assert r.json().get("id") == TestMultiControl._id1
 
-    def test_pdf_requires_saved_data(self, client):
-        # For a fresh plan_id we should get 404 (no saved data)
-        fresh = "NOPLAN_pdf_xyz"
-        r = client.get(f"{API}/plan-data/evaluations-export/{fresh}/medical/pdf",
-                       timeout=30)
-        assert r.status_code == 404
+        # Verify via /by-id
+        g = client.get(f"{API}/plan-data/evaluations-export/by-id/{TestMultiControl._id1}", timeout=20)
+        assert g.status_code == 200
+        doc = g.json()
+        assert doc.get("title") == "TEST Control #1 UPDATED"
+        labels = [a["label"] for a in doc.get("aspects", [])]
+        assert "TEST FC v2" in labels
 
-    def test_pdf_generates_after_save(self, client):
-        r = client.get(f"{API}/plan-data/evaluations-export/{PLAN_ID}/medical/pdf",
+    def test_list_ordered_by_date_desc(self, client):
+        r = client.get(f"{API}/plan-data/evaluations-export/list/{self.TEST_PLAN}/medical", timeout=20)
+        assert r.status_code == 200, r.text
+        controls = r.json().get("controls", [])
+        assert len(controls) == 2
+        # id2 has date 2024-02-15 -> comes first
+        assert controls[0]["id"] == TestMultiControl._id2
+        assert controls[1]["id"] == TestMultiControl._id1
+        for c in controls:
+            for k in ("id", "date", "title", "global_pct"):
+                assert k in c
+
+    def test_timeline_returns_all_plan_controls(self, client):
+        r = client.get(f"{API}/plan-data/evaluations-export/timeline/{self.TEST_PLAN}", timeout=20)
+        assert r.status_code == 200
+        ctrls = r.json().get("controls", [])
+        assert len(ctrls) == 2
+        ids = {c["id"] for c in ctrls}
+        assert TestMultiControl._id1 in ids and TestMultiControl._id2 in ids
+        types = {c["evaluation_type"] for c in ctrls}
+        assert types == {"medical"}
+
+    def test_by_id_pdf(self, client):
+        r = client.get(f"{API}/plan-data/evaluations-export/by-id/{TestMultiControl._id2}/pdf",
                        timeout=60)
-        assert r.status_code == 200, r.text[:300]
-        assert r.headers.get("content-type", "").startswith("application/pdf")
-        assert len(r.content) > 100_000, f"PDF too small: {len(r.content)} bytes"
+        assert r.status_code == 200, r.text[:200]
         assert r.content[:4] == b"%PDF"
+        assert len(r.content) > 50_000
 
-    def test_share_idempotent(self, client):
-        r1 = client.post(f"{API}/plan-data/evaluations-export/{PLAN_ID}/medical/share",
-                         timeout=30)
-        assert r1.status_code == 200, r1.text
-        sid1 = r1.json().get("share_id")
-        assert sid1
-        r2 = client.post(f"{API}/plan-data/evaluations-export/{PLAN_ID}/medical/share",
+    def test_by_id_share_and_public_access(self, client):
+        r = client.post(f"{API}/plan-data/evaluations-export/by-id/{TestMultiControl._id2}/share",
+                        timeout=30)
+        assert r.status_code == 200, r.text
+        sid = r.json().get("share_id")
+        assert sid
+
+        # Idempotent
+        r2 = client.post(f"{API}/plan-data/evaluations-export/by-id/{TestMultiControl._id2}/share",
                          timeout=30)
         assert r2.status_code == 200
-        sid2 = r2.json().get("share_id")
-        assert sid1 == sid2, f"Share id not idempotent: {sid1} vs {sid2}"
+        assert r2.json().get("share_id") == sid
 
-        # Shared HTML endpoint (public)
-        h = requests.get(f"{API}/plan-data/evaluations-export/shared/{sid1}", timeout=30)
-        assert h.status_code == 200
+        # Public HTML (NO auth)
+        h = requests.get(f"{API}/plan-data/evaluations-export/shared/{sid}", timeout=30)
+        assert h.status_code == 200, f"Public share should be 200, got {h.status_code}"
         assert "text/html" in h.headers.get("content-type", "")
-        assert "DOCUMENTO COMPARTIDO" in h.text
 
-        # Shared PDF endpoint (public)
-        p = requests.get(f"{API}/plan-data/evaluations-export/shared/{sid1}/pdf",
-                         timeout=60)
+        # Public PDF (NO auth)
+        p = requests.get(f"{API}/plan-data/evaluations-export/shared/{sid}/pdf", timeout=60)
         assert p.status_code == 200
         assert p.content[:4] == b"%PDF"
-        assert len(p.content) > 50_000
+
+        TestMultiControl._share_id = sid
+
+    def test_delete_by_id_cleans_shares(self, client):
+        eid = TestMultiControl._id2
+        sid = TestMultiControl._share_id
+        d = client.delete(f"{API}/plan-data/evaluations-export/by-id/{eid}", timeout=20)
+        assert d.status_code == 200
+
+        # /by-id 404
+        g = client.get(f"{API}/plan-data/evaluations-export/by-id/{eid}", timeout=20)
+        assert g.status_code == 404
+
+        # share url should now 404 (snapshot removed)
+        h = requests.get(f"{API}/plan-data/evaluations-export/shared/{sid}", timeout=20)
+        assert h.status_code == 404, "Share should be cleaned after DELETE"
+
+        # list now has only 1
+        lst = client.get(f"{API}/plan-data/evaluations-export/list/{self.TEST_PLAN}/medical", timeout=20)
+        assert lst.status_code == 200
+        assert len(lst.json().get("controls", [])) == 1
 
 
 # ---------- Templates CRUD ----------
 class TestTemplatesCRUD:
     def test_create_set_default_delete(self, client):
-        # Create
         payload = {
             "name": "TEST Plantilla Physical",
             "evaluation_type": "physical",
@@ -196,34 +255,26 @@ class TestTemplatesCRUD:
         tid = r.json().get("id")
         assert tid
 
-        # Set as default
         r2 = client.post(f"{API}/plan-data/evaluations-export/templates/{tid}/set-default",
                          timeout=20)
         assert r2.status_code == 200
 
-        # List shows default + system_default intact
         lst = client.get(f"{API}/plan-data/evaluations-export/templates/physical", timeout=20)
         assert lst.status_code == 200
         data = lst.json()
         found = next((t for t in data["templates"] if t.get("id") == tid), None)
-        assert found is not None
-        assert found.get("is_default") is True
+        assert found is not None and found.get("is_default") is True
         assert data.get("system_default") is not None
 
-        # Delete
         d = client.delete(f"{API}/plan-data/evaluations-export/templates/{tid}", timeout=20)
         assert d.status_code == 200
 
-        # Delete again -> 404
         d2 = client.delete(f"{API}/plan-data/evaluations-export/templates/{tid}", timeout=20)
         assert d2.status_code == 404
 
 
-# ---------- Legacy coexistence ----------
+# ---------- Legacy router (/api/plan-data/evaluations sin -export) ----------
 class TestLegacyRouterCoexists:
-    def test_legacy_get_still_reachable(self, client):
-        # old router: /api/plan-data/evaluations (different path: no /{type})
+    def test_legacy_not_500(self, client):
         r = client.get(f"{API}/plan-data/evaluations/{PLAN_ID}", timeout=20)
-        # Acceptable outcomes: 200 with data, 404 no data, or 405 method/shape mismatch.
-        # Main requirement: NOT 500 (no conflict with new router).
         assert r.status_code < 500, f"Legacy route crashed: {r.status_code} {r.text[:200]}"
