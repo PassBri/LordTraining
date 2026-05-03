@@ -10,38 +10,72 @@ import { toast } from 'sonner';
 const PLANS = [
   {
     id: 'starter',
-    name: 'Starter — Entrenador',
-    price: '4.99',
+    name: 'Starter',
+    price: '9.99',
     description: 'Para entrenadores que están comenzando',
-    features: ['5 atletas', '2 planes de entrenamiento', '20 exportaciones PDF', '5 generaciones con IA', 'Exportación básica'],
-    limits: { athletes: 5, plans: 2, ai: 5 },
+    features: [
+      '5 atletas',
+      '2 planes de entrenamiento',
+      'Biblioteca de ejercicios completa (271 ejercicios)',
+      'Exportación PDF básica',
+      '10 generaciones con IA',
+      'Diagnóstico y evaluaciones básicas'
+    ],
+    limits: { athletes: 5, plans: 2, ai: 10 },
     cta: 'Empezar ahora'
   },
   {
     id: 'basic',
-    name: 'Pro — Entrenador',
-    price: '9.99',
-    description: 'Para entrenadores independientes y preparadores',
-    features: ['20 atletas', '5 planes de entrenamiento', '20 generaciones con IA', 'Exportación PDF', 'Soporte email'],
-    limits: { athletes: 20, plans: 5, ai: 20 },
+    name: 'Pro',
+    price: '19.99',
+    description: 'Para entrenadores independientes y preparadores físicos',
+    features: [
+      '20 atletas',
+      'Planes de entrenamiento ilimitados',
+      'Biblioteca completa + pizarra táctica',
+      '50 generaciones con IA',
+      'Diagnóstico y evaluaciones completas',
+      'Exportación PDF/Excel',
+      'Soporte email'
+    ],
+    limits: { athletes: 20, plans: 999, ai: 50 },
     cta: 'Empezar ahora'
   },
   {
     id: 'pro',
     name: 'Club / Academia',
-    price: '29.99',
-    description: 'Para clubes y academias de formación',
-    features: ['Atletas ilimitados', 'Planes ilimitados', '100 generaciones con IA', 'Exportación PDF/Excel', 'Soporte prioritario', 'Biblioteca completa', 'Personalización de plantillas'],
-    limits: { athletes: 999, plans: 999, ai: 100 },
+    price: '49.99',
+    description: 'Para clubes, academias y organizaciones deportivas',
+    features: [
+      'Atletas ilimitados',
+      'Todo lo del plan Pro',
+      '150 generaciones con IA',
+      'Periodización ATR completa (Issurin)',
+      'Modelos y métodos avanzados',
+      'Personalización de plantillas',
+      'Soporte prioritario',
+      'Biblioteca completa con diagramas de ejercicios'
+    ],
+    limits: { athletes: 999, plans: 999, ai: 150 },
     popular: true,
     cta: 'Empezar ahora'
   },
   {
     id: 'enterprise',
     name: 'Institucional',
-    price: '99.99',
-    description: 'Ligas, federaciones y universidades',
-    features: ['Múltiples entrenadores', 'Panel de coordinador', 'Analítica por grupo', 'Atletas ilimitados', 'Todo ilimitado', 'API personalizada', 'Soporte 24/7', 'Formación incluida', 'Personalización de plantillas'],
+    price: '149.99',
+    description: 'Para ligas, federaciones y universidades',
+    features: [
+      'Múltiples entrenadores',
+      'Todo ilimitado',
+      'Generaciones IA ilimitadas',
+      'Panel de coordinación de equipos',
+      'Analítica grupal avanzada',
+      'API personalizada',
+      'Formación incluida',
+      'Soporte 24/7',
+      'Onboarding dedicado'
+    ],
     limits: { athletes: 999, plans: 999, ai: 999 },
     cta: 'Contactar ventas'
   }

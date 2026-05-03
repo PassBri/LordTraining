@@ -2,6 +2,12 @@
 
 ## Credenciales: test@train.com / test123456
 
+## [Feb 2026] Actualización de precios y planes (Starter / Pro / Club / Institucional)
+- **Frontend Landing** (`LandingPage.js`): array de pricing actualizado a 4 planes ($9.99/$19.99/$49.99/$149.99) con 6/7/8/9 features.
+- **Frontend Dashboard → botón Plan** (`SubscriptionPage.js`): array `PLANS` reescrito con descripciones, features y precios alineados.
+- **i18n** (`es.json` + `en.json`): claves `landing.pricing.*` reescritas para los 4 planes (starter/pro/club/inst) con todas las features nuevas y CTAs.
+- **Backend** (`server.py`): `SubscriptionPlan` enum extendido con `STARTER`, `SUBSCRIPTION_PRICES` actualizado (9.99/19.99/49.99/149.99), `SUBSCRIPTION_LIMITS` reflejando atletas/planes/IA según pliego del usuario (5/2/10, 20/∞/50, ∞/∞/150, ∞/∞/∞).
+
 ## [Feb 2026] Fix botones 2A / 4A en gráficas del Plan
 - **Bug**: En `InteractiveChart.js`, el filtro `Math.min(range.weeks, data.length)` capaba los datos a la longitud del plan. Como los planes son de 52 semanas (1 año), al pulsar 2A (104 sem) o 4A (208 sem) se mostraban los mismos 52 datos que 1A — los botones parecían no hacer nada.
 - **Fix**: `filteredData` ahora rellena con semanas vacías (S53...S104 / S53...S208) cuando el rango supera la cantidad de datos. El eje X se expande visualmente y el usuario percibe el cambio de escala.

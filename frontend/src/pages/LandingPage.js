@@ -443,10 +443,10 @@ const LandingPage = () => {
   const { t } = useTranslation();
 
   const PRICING = [
-    { key: 'free', price: '0', pop: false, fcount: 5 },
-    { key: 'pro', price: '9.99', pop: false, fcount: 5 },
-    { key: 'club', price: '29.99', pop: true, fcount: 7 },
-    { key: 'inst', price: '99.99', pop: false, fcount: 9 },
+    { key: 'starter', price: '9.99', pop: false, fcount: 6 },
+    { key: 'pro', price: '19.99', pop: false, fcount: 7 },
+    { key: 'club', price: '49.99', pop: true, fcount: 8 },
+    { key: 'inst', price: '149.99', pop: false, fcount: 9 },
   ];
 
   return (
@@ -1115,10 +1115,10 @@ const LandingPage = () => {
         {/* 4 Plans */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {[
-            { key:'starter', price:'4.99', num:'01', color:'#64748b', pop:false, fcount:5 },
-            { key:'pro', price:'9.99', num:'02', color:'#378ADD', pop:false, fcount:5 },
-            { key:'club', price:'29.99', num:'03', color:'#c8f700', pop:true, fcount:7 },
-            { key:'inst', price:'99.99', num:'04', color:'#EF9F27', pop:false, fcount:9 },
+            { key:'starter', price:'9.99', num:'01', color:'#64748b', pop:false, fcount:6 },
+            { key:'pro', price:'19.99', num:'02', color:'#378ADD', pop:false, fcount:7 },
+            { key:'club', price:'49.99', num:'03', color:'#c8f700', pop:true, fcount:8 },
+            { key:'inst', price:'149.99', num:'04', color:'#EF9F27', pop:false, fcount:9 },
           ].map((plan, idx) => {
             const features = Array.from({length: plan.fcount}, (_, j) => t(`landing.pricing.${plan.key}_f${j+1}`));
             return (

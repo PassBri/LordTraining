@@ -66,6 +66,7 @@ class EntityType(str, Enum):
 
 class SubscriptionPlan(str, Enum):
     FREE = "free"
+    STARTER = "starter"
     BASIC = "basic"
     PRO = "pro"
     ENTERPRISE = "enterprise"
@@ -815,15 +816,17 @@ def calculate_load(volume: float, intensity: Intensity) -> float:
 
 # =============== SUBSCRIPTION PLANS ===============
 SUBSCRIPTION_PRICES = {
-    SubscriptionPlan.BASIC: 9.99,
-    SubscriptionPlan.PRO: 29.99,
-    SubscriptionPlan.ENTERPRISE: 99.99
+    SubscriptionPlan.STARTER: 9.99,
+    SubscriptionPlan.BASIC: 19.99,      # Pro — Entrenador
+    SubscriptionPlan.PRO: 49.99,        # Club / Academia
+    SubscriptionPlan.ENTERPRISE: 149.99 # Institucional
 }
 
 SUBSCRIPTION_LIMITS = {
     SubscriptionPlan.FREE: {"athletes": 3, "plans": 1, "ai_generations": 3, "pdf_exports": 10},
-    SubscriptionPlan.BASIC: {"athletes": 20, "plans": 5, "ai_generations": 20, "pdf_exports": 999},
-    SubscriptionPlan.PRO: {"athletes": 999, "plans": 999, "ai_generations": 100, "pdf_exports": 999},
+    SubscriptionPlan.STARTER: {"athletes": 5, "plans": 2, "ai_generations": 10, "pdf_exports": 50},
+    SubscriptionPlan.BASIC: {"athletes": 20, "plans": 999, "ai_generations": 50, "pdf_exports": 999},
+    SubscriptionPlan.PRO: {"athletes": 999, "plans": 999, "ai_generations": 150, "pdf_exports": 999},
     SubscriptionPlan.ENTERPRISE: {"athletes": 999, "plans": 999, "ai_generations": 999, "pdf_exports": 999}
 }
 
