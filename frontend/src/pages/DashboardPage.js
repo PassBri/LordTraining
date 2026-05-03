@@ -3192,8 +3192,8 @@ const DashboardPage = () => {
               </CardContent>
             </Card>
 
-            {/* Cumplimiento de Objetivos — col 2, row-span 5, se estira a toda la altura */}
-            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-emerald-500 lg:col-start-2 lg:row-start-1 lg:row-span-5 lg:self-stretch">
+            {/* Cumplimiento de Objetivos — col 2, row-span 5 */}
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-emerald-500 lg:col-start-2 lg:row-start-1 lg:row-span-3">
               <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
                   <CheckCircle className="w-4 h-4 text-emerald-500" />
@@ -3436,27 +3436,29 @@ const DashboardPage = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Conclusiones y Recomendaciones — col 2, después de Cumplimiento */}
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-slate-900 lg:col-start-2">
+              <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
+                <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
+                  <Lightbulb className="w-4 h-4 text-amber-500" />
+                  Conclusiones y Recomendaciones
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-3.5 space-y-3">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Conclusiones Principales</label>
+                  <textarea data-testid="prev-conclusiones" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm resize-none" rows={3} placeholder="Resumen de los principales aprendizajes del plan anterior..." value={previousAnalysisData.conclusiones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, conclusiones: e.target.value})} />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Recomendaciones para el Próximo Plan</label>
+                  <textarea data-testid="prev-recomendaciones" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm resize-none" rows={3} placeholder="Qué mantener, qué cambiar, qué nuevos enfoques aplicar..." value={previousAnalysisData.recomendaciones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, recomendaciones: e.target.value})} />
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Conclusiones y Recomendaciones */}
-          <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-slate-900">
-            <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
-              <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                <Lightbulb className="w-4 h-4 text-amber-500" />
-                Conclusiones y Recomendaciones
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-3.5 grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Conclusiones Principales</label>
-                <textarea data-testid="prev-conclusiones" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm resize-none" rows={3} placeholder="Resumen de los principales aprendizajes del plan anterior..." value={previousAnalysisData.conclusiones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, conclusiones: e.target.value})} />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Recomendaciones para el Próximo Plan</label>
-                <textarea data-testid="prev-recomendaciones" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm resize-none" rows={3} placeholder="Qué mantener, qué cambiar, qué nuevos enfoques aplicar..." value={previousAnalysisData.recomendaciones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, recomendaciones: e.target.value})} />
-              </div>
-            </CardContent>
-          </Card>
+          {/* (Conclusiones y Recomendaciones se renderizan ahora dentro del grid, en col 2) */}
 
         </div>
       );

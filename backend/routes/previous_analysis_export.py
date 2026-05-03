@@ -371,7 +371,7 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
   .cumpl-desc {{ font-size: 8.5pt; color: #64748b; margin-top: 2pt; font-style: italic; line-height: 1.35; }}
   .pct-big {{ font-size: 14pt; font-weight: 900; letter-spacing: -0.02em; }}
   .radar-row {{ display: block; margin-top: 8pt; }}
-  .radar-wrap {{ background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 12pt; padding: 14pt 12pt; color: #fff; max-width: 480pt; margin: 0 auto 12pt; }}
+  .radar-wrap {{ background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 12pt; padding: 14pt 12pt; color: #fff; max-width: 480pt; margin: 0 auto 12pt; page-break-inside: avoid; break-inside: avoid; }}
   .kpi-row {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10pt; margin: 12pt 0 14pt; }}
   .kpi-card {{ background: #f8fafc; border-radius: 10pt; padding: 10pt 12pt; border-left: 4pt solid #CCFF00; }}
   .kpi-card.kpi-gap {{ border-left-color: #EF4444; background: #fef2f2; }}
