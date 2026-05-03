@@ -8320,6 +8320,9 @@ app.include_router(master_report_router, prefix="/api")
 from routes.federations import router as federations_router
 app.include_router(federations_router, prefix="/api")
 
+from routes.sessions_export import router as sessions_export_router
+app.include_router(sessions_export_router, prefix="/api")
+
 # Store db reference in app state for V2 routes
 app.state.db = db
 

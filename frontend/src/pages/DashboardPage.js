@@ -62,6 +62,7 @@ import EntityDashboard from '../components/EntityDashboard';
 import SmartAlerts from '../components/SmartAlerts';
 import PDFExportModal from '../components/PDFExportModal';
 import MasterReportModal from '../components/MasterReportModal';
+import SessionsExportModal from '../components/SessionsExportModal';
 import FederationPanel from '../components/FederationPanel';
 import ObjectivesIndicators from '../components/ObjectivesIndicators';
 import TrainingSystemHub from '../components/TrainingSystemHub';
@@ -189,6 +190,7 @@ const DashboardPage = () => {
   // PDF Export Modal State
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
   const [isMasterReportOpen, setIsMasterReportOpen] = useState(false);
+  const [isSessionsExportOpen, setIsSessionsExportOpen] = useState(false);
 
   // Filters Dropdown State
   const [showExportMenu, setShowExportMenu] = useState(false);
@@ -4494,6 +4496,27 @@ const DashboardPage = () => {
                 </span>
               </button>
 
+              {/* Sesiones FAB — exportación independiente de sesiones específicas */}
+              <button
+                onClick={() => {
+                  if (!activePlan?.id) {
+                    toast.warning('Selecciona un plan activo primero');
+                    return;
+                  }
+                  setIsSessionsExportOpen(true);
+                }}
+                className="group flex flex-col items-center gap-1 shrink-0 outline-none"
+                data-testid="header-sessions-export-btn"
+                title="Exportar sesiones específicas a PDF (combinado o ZIP individual)"
+              >
+                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-700 shadow-md border-2 border-sky-400 hover:shadow-lg hover:bg-sky-50">
+                  <CalendarDays className="w-[18px] h-[18px] transition-transform duration-300" strokeWidth={2} />
+                </div>
+                <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-700 group-hover:text-slate-900 transition-colors duration-300 max-w-[60px]">
+                  Sesiones
+                </span>
+              </button>
+
           </div>
           </div>
 
@@ -4875,6 +4898,14 @@ const DashboardPage = () => {
         plan={activePlan}
         athleteName={athletes.find(a => a.id === selectedAthleteId)?.name || ''}
         coachName={user?.full_name || user?.name || ''}
+      />
+
+      {/* Sessions Export Modal — selector + PDF combinado / ZIP individual */}
+      <SessionsExportModal
+        open={isSessionsExportOpen}
+        onOpenChange={setIsSessionsExportOpen}
+        plan={activePlan}
+        athleteName={athletes.find(a => a.id === selectedAthleteId)?.name || ''}
       />
     </div>
   );
