@@ -11,7 +11,6 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 
 import PeriodizationComplete from './PeriodizationComplete';
-import TestEvaluations from './TestEvaluations';
 import TrainingLoad from './TrainingLoad';
 import TrainingControl from './TrainingControl';
 import LoadMetricsDashboard from './LoadMetricsDashboard';
@@ -286,7 +285,6 @@ const TrainingSystemHub = ({ athleteId, athleteName, onNavigate, activePlan, hid
           <TabsContent value="periodization" className="mt-0">
             <PeriodizationComplete athleteId={athleteId} athleteName={athleteName} onNavigate={onNavigate} activePlan={activePlan} />
           </TabsContent>
-          <TabsContent value="tests" className="mt-0"><TestEvaluations athleteId={athleteId} /></TabsContent>
           <TabsContent value="load" className="mt-0"><LoadMetricsDashboard activePlan={activePlan} /></TabsContent>
           <TabsContent value="control" className="mt-0"><TrainingControl athleteId={athleteId} athleteName={athleteName} /></TabsContent>
         </Tabs>

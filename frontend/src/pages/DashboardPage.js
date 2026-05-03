@@ -40,7 +40,6 @@ import PeriodizationModels from '../components/PeriodizationModels';
 import ComprehensiveTrainingPlanner from '../components/ComprehensiveTrainingPlanner';
 import TrainingMethods from '../components/TrainingMethods';
 import AnthropometricData from '../components/AnthropometricData';
-import TestEvaluations from '../components/TestEvaluations';
 import TrainingLoad from '../components/TrainingLoad';
 import GraphicPlan from '../components/GraphicPlan';
 import AthleteSummary from '../components/AthleteSummary';
@@ -65,7 +64,6 @@ import PDFExportModal from '../components/PDFExportModal';
 import ObjectivesIndicators from '../components/ObjectivesIndicators';
 import TrainingSystemHub from '../components/TrainingSystemHub';
 import TournamentManager from '../components/TournamentManager';
-import AutoTestingSystem from '../components/AutoTestingSystem';
 import AITrainingAssistant from '../components/AITrainingAssistant';
 import PlanSidebar from '../components/PlanSidebar';
 import TrainingControl from '../components/TrainingControl';
@@ -469,6 +467,8 @@ const DashboardPage = () => {
       await loadPlanData(plan.id);
       // Navegar automáticamente a la primera sección del plan (Diagnóstico)
       setActiveDataSection('prev-plan');
+      // Notificar a Panel de Control y otras secciones para refrescar
+      window.dispatchEvent(new CustomEvent('itrain:plan-data-updated', { detail: { plan_id: plan.id } }));
     } else {
       localStorage.removeItem('train_active_plan_id');
       setPlanData(null);
@@ -4161,11 +4161,6 @@ const DashboardPage = () => {
       return <CalculatorsHub />;
     }
 
-    // Render Test Evaluations
-    if (activeDataSection === 'tests') {
-      return <TestEvaluations athleteId={selectedAthleteId} />;
-    }
-
     // Render Training Load
     if (activeDataSection === 'load') {
       return <TrainingLoad athleteId={selectedAthleteId} />;
@@ -4565,28 +4560,6 @@ const DashboardPage = () => {
 
           {/* Right: Testing + User Action FABs */}
           <div className="flex items-start gap-2 shrink-0 pl-2">
-            {/* Auto Testing System FAB */}
-            <div className="hidden sm:block">
-              <AutoTestingSystem 
-                fabStyle
-                onLoadTemplate={(plan) => {
-                  const savedPlans = JSON.parse(localStorage.getItem('train_generated_plans') || '[]');
-                  setGeneratedPlans(savedPlans);
-                  setIsCoachDrawerOpen(true);
-                  setCoachDrawerTab('history');
-                  toast.success('Template cargado - Ver en Historial');
-                }}
-                onSavePlan={(plan) => {
-                  const savedPlans = JSON.parse(localStorage.getItem('train_generated_plans') || '[]');
-                  setGeneratedPlans(savedPlans);
-                  setIsCoachDrawerOpen(true);
-                  setCoachDrawerTab('history');
-                }}
-                currentUser={user}
-                sportsCatalog={sportsCatalog}
-              />
-            </div>
-
             {/* Suscripción FAB */}
             <Link to="/subscription">
               <button

@@ -3953,11 +3953,22 @@ class ExportPDFRequest(BaseModel):
     custom_sections: Optional[List[str]] = None
 
 @api_router.get("/control-panel/stats")
-async def get_control_panel_stats(user: dict = Depends(get_current_user)):
-    """Obtiene estadísticas completas para el Panel de Control"""
+async def get_control_panel_stats(user: dict = Depends(get_current_user), plan_id: Optional[str] = None):
+    """Obtiene estadísticas para el Panel de Control.
+    Si se pasa plan_id, prioriza datos del plan activo (training_plans).
+    """
     
     # Conteos básicos
     athletes_count = await db.athletes.count_documents({"coach_id": user["id"]})
+    
+    # Si hay plan activo, intentar usarlo como fuente principal
+    active_plan_doc = None
+    if plan_id:
+        active_plan_doc = await db.training_plans.find_one(
+            {"id": plan_id, "user_id": user["id"]}, {"_id": 0}
+        ) or await db.training_plans.find_one(
+            {"id": plan_id, "coach_id": user["id"]}, {"_id": 0}
+        )
     
     # Obtener atletas con sus datos
     athletes_cursor = db.athletes.find({"coach_id": user["id"]}, {"_id": 0})
@@ -4048,6 +4059,41 @@ async def get_control_panel_stats(user: dict = Depends(get_current_user)):
         for name, count in phase_distribution.items()
     ]
     
+    # Si hay plan activo, sobrescribir con sus datos reales
+    plan_volume_data = []
+    plan_intensity_data = []
+    plan_phase_distribution = phase_distribution_pct
+    plan_total_weeks = 0
+    plan_active_macrocycles = len(periodization_stats)
+    
+    if active_plan_doc:
+        plan_total_weeks = active_plan_doc.get("total_weeks") or 0
+        plan_active_macrocycles = len(active_plan_doc.get("macrocycles") or [])
+        # Construir volume/intensity data desde el plan
+        macros = active_plan_doc.get("macrocycles") or []
+        wk = 0
+        for macro in macros:
+            for meso in (macro.get("mesocycles") or []):
+                meso_weeks = int(meso.get("weeks") or 0)
+                vol_base = float(meso.get("volume_pct") or meso.get("volume") or 70)
+                int_base = float(meso.get("intensity_pct") or meso.get("intensity") or 50)
+                for i in range(meso_weeks):
+                    wk += 1
+                    plan_volume_data.append({"week": wk, "volume": round(vol_base + (i * 2))})
+                    plan_intensity_data.append({"week": wk, "intensity": round(int_base + (i * 1.5))})
+        # Phase distribution desde el plan
+        phase_count = {}
+        for macro in macros:
+            for meso in (macro.get("mesocycles") or []):
+                phase = meso.get("phase") or "preparatory_general"
+                weeks = int(meso.get("weeks") or 0)
+                phase_count[phase] = phase_count.get(phase, 0) + weeks
+        if phase_count:
+            tot = sum(phase_count.values()) or 1
+            plan_phase_distribution = [
+                {"name": k, "value": round(v / tot * 100)} for k, v in phase_count.items()
+            ]
+    
     return {
         "athletes_count": athletes_count,
         "athletes": athletes,
@@ -4057,10 +4103,13 @@ async def get_control_panel_stats(user: dict = Depends(get_current_user)):
         "completed_sessions": completed_sessions,
         "completion_rate": round((completed_sessions / total_sessions * 100), 1) if total_sessions > 0 else 0,
         "periodization_stats": periodization_stats,
-        "volume_data": volume_data[:52],
-        "intensity_data": intensity_data[:52],
-        "phase_distribution": phase_distribution_pct,
-        "active_macrocycles": len(periodization_stats)
+        "volume_data": (plan_volume_data or volume_data)[:52],
+        "intensity_data": (plan_intensity_data or intensity_data)[:52],
+        "phase_distribution": plan_phase_distribution,
+        "active_macrocycles": plan_active_macrocycles,
+        "active_plan_id": (active_plan_doc or {}).get("id"),
+        "active_plan_name": (active_plan_doc or {}).get("name"),
+        "active_plan_weeks": plan_total_weeks,
     }
 
 @api_router.post("/control-panel/export-pdf")

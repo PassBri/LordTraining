@@ -203,12 +203,13 @@ const ControlPanel = ({
     setMotivationalMessage(MOTIVATIONAL_MESSAGES[randomIndex]);
   }, []);
 
-  // Cargar estadísticas del Panel de Control desde API
+  // Cargar estadísticas del Panel de Control desde API (filtradas por plan activo)
   const fetchPanelStats = useCallback(async () => {
     setLoadingStats(true);
     try {
       const token = localStorage.getItem('train_token');
-      const response = await fetch(`${API_URL}/api/control-panel/stats`, {
+      const planQs = activePlan?.id ? `?plan_id=${encodeURIComponent(activePlan.id)}` : '';
+      const response = await fetch(`${API_URL}/api/control-panel/stats${planQs}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -236,12 +237,27 @@ const ControlPanel = ({
       console.error('Error fetching panel stats:', error);
     }
     setLoadingStats(false);
-  }, []);
+  }, [activePlan?.id]);
 
-  // Cargar stats al montar el componente
+  // Re-fetch stats al montar y cada vez que cambie el plan activo
   useEffect(() => {
     fetchPanelStats();
   }, [fetchPanelStats]);
+
+  // Listener: re-fetch cuando cualquier sección guarde datos del plan
+  useEffect(() => {
+    const handler = (e) => {
+      if (!activePlan?.id || e?.detail?.plan_id === activePlan.id) {
+        fetchPanelStats();
+      }
+    };
+    window.addEventListener('itrain:plan-data-updated', handler);
+    window.addEventListener('itrain:evaluation-saved', handler);
+    return () => {
+      window.removeEventListener('itrain:plan-data-updated', handler);
+      window.removeEventListener('itrain:evaluation-saved', handler);
+    };
+  }, [activePlan?.id, fetchPanelStats]);
 
   // Función para formatear nombre de fase
   const formatPhaseName = (name) => {
