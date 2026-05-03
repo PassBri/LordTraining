@@ -8,6 +8,25 @@
 - DB: MongoDB (11 colecciones V2)
 
 
+### Wizard "Crear Plan" autocompletado desde Plan Anterior (Feb 2026)
+
+**Cierre del ciclo Plan Anterior → Nuevo Plan (1 clic):**
+- Cuando el coach hace clic en "Generar próximo plan" desde la sección Plan Anterior, se persiste un seed en `localStorage.itrain_next_plan_seed` con `source_model`, `source_model_name`, `focus_area`, `gap_analysis[]`, `recomendaciones`, `conclusiones`. Ahora la navegación va directo a `setActiveDataSection('create-plan')` (antes iba a `training-system` con un evento `itrain:open-create-plan-wizard` que nadie escuchaba — eliminado).
+- **`PeriodizationComplete.js`** ahora detecta el seed al montar:
+  - Estado: `nextPlanSeed`, `seedDismissed`, `seedApplied`. `useEffect` lee localStorage en el mount.
+  - Cuando `apiModels` está disponible, un segundo `useEffect` aplica el seed a `planConfig`: pre-llena `model` (validando que exista en `effectiveModels`) y `mainObjective` (texto compuesto por área de foco + recomendaciones + conclusiones).
+  - Mapa `PREV_AREA_LABELS` traduce `focus_area` (clave) a etiqueta humana (ej: `tactica` → "Preparación Táctica").
+- **Banner visual** (testid `next-plan-seed-banner`) renderizado al tope del wizard, antes del stepper:
+  - Card oscura con borde lima 2px, ícono `Sparkles` lima, badge "CIERRA EL CICLO".
+  - Heading: "Detectamos que vienes del análisis del Plan Anterior".
+  - Body: muestra el modelo pre-seleccionado y la fase de mayor brecha en lima.
+  - Chips (testid `seed-gap-chips`) con las 4 mayores brechas negativas (ej: "Preparación Táctica −35%").
+  - Botón X (testid `seed-dismiss-btn`) que descarta la pre-selección y limpia localStorage.
+- **Limpieza automática del seed**: tras `handleCreatePlan` o `handleCreateFromGenerated` exitoso, `clearNextPlanSeed()` elimina la clave de localStorage para evitar re-aplicación.
+- **Sidebar refresca el plan automáticamente**: `onPlanCreated` callback en DashboardPage.js (líneas 3636-3651) ya invocaba `fetchTrainingPlans()` + `handleSetActivePlan()`, por lo que el nuevo plan aparece en la barra lateral sin código adicional.
+- **Validación (testing_agent_v3_fork iter_48)**: 100% PASS en heading, model name, focus area label, gap chips, dismiss button, localStorage cleanup. Code review confirma lógica de pre-selección de modelo y prefill de objetivo.
+
+
 ### Plan Anterior — Benchmark vs Modelo en radar + fix layout definitivo (Feb 2026)
 
 **Fix del espacio vacío (definitivo):**
