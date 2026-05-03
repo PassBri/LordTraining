@@ -577,6 +577,7 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
                 for k, v in meta_items
             ])
             parts.append(("cover", f"""<section class="cover">
+  <span class="cover-watermark">01</span>
   {org_block}
   {f'<div class="org-name">{_esc(payload.org_name)}</div>' if payload.org_name else ''}
   <span class="badge">REPORTE MAESTRO</span>
@@ -1143,6 +1144,29 @@ section:first-child {{ margin-top: 0; }}
   overflow: hidden;
   page-break-after: always;
 }}
+/* subtle dot grid pattern overlay for premium feel */
+.cover::before {{
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1.5px),
+    radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1.5px);
+  background-size: 28pt 28pt, 56pt 56pt;
+  background-position: 0 0, 14pt 14pt;
+  pointer-events: none;
+  opacity: 0.55;
+}}
+/* huge faint watermark style mark */
+.cover-watermark {{
+  position: absolute;
+  bottom: -36pt; right: -24pt;
+  font-size: 240pt; font-weight: 900;
+  color: {accent}; opacity: 0.05;
+  line-height: 1; letter-spacing: -10pt;
+  pointer-events: none; user-select: none;
+  font-family: 'Bebas Neue', Impact, sans-serif;
+}}
 .cover::after {{
   content: '';
   position: absolute;
@@ -1219,27 +1243,32 @@ section:first-child {{ margin-top: 0; }}
 .apa-dedication {{ margin-top: 28pt; padding-top: 16pt; border-top: 1pt solid #e2e8f0; color: #64748b; font-size: 10pt; font-style: italic; }}
 
 /* MINIMAL COVER */
-.minimal-cover {{ background: #fff !important; color: {fg}; padding: 100pt 60pt; min-height: 100vh; height: 100vh; margin: -18mm -14mm 0 -14mm !important; page-break-after: always; }}
+.minimal-cover {{ background: #fff !important; color: {fg}; padding: 96pt 64pt; min-height: 100vh; height: 100vh; margin: -18mm -14mm 0 -14mm !important; page-break-after: always; position: relative; display: flex; flex-direction: column; justify-content: space-between; }}
 .minimal-cover::after {{ display: none; }}
+.minimal-cover::before {{ content: '01'; position: absolute; top: 60pt; right: 64pt; font-family: 'Oswald', sans-serif; font-size: 92pt; font-weight: 200; color: {accent}; opacity: 0.18; line-height: 1; letter-spacing: -4pt; }}
 .min-rule {{ width: 50pt; height: 4pt; background: {accent}; margin-bottom: 32pt; }}
 .min-org {{ color: {primary}; font-size: 9pt; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 16pt; }}
 .min-title {{ color: {primary}; font-size: 56pt; font-weight: 900; line-height: 1; letter-spacing: -2.5px; margin: 0 0 12pt; max-width: 90%; }}
-.min-sub {{ color: #475569; font-size: 14pt; max-width: 70%; margin: 0 0 60pt; font-weight: 500; }}
-.min-meta {{ display: flex; gap: 24pt; flex-wrap: wrap; color: #64748b; font-size: 9.5pt; padding-top: 14pt; border-top: 2pt solid {accent}; }}
-.min-meta strong {{ color: {primary}; }}
+.min-sub {{ color: #475569; font-size: 14pt; max-width: 70%; margin: 0 0 60pt; font-weight: 500; line-height: 1.45; }}
+.min-meta {{ display: flex; gap: 32pt; flex-wrap: wrap; color: #64748b; font-size: 9.5pt; padding-top: 16pt; border-top: 2pt solid {accent}; align-items: baseline; }}
+.min-meta strong {{ color: {primary}; font-weight: 700; }}
 
 /* INSTITUTIONAL COVER */
 .inst-cover {{ background: #fff !important; color: {fg}; padding: 24pt; min-height: 100vh; height: 100vh; margin: -18mm -14mm 0 -14mm !important; page-break-after: always; }}
 .inst-cover::after {{ display: none; }}
-.inst-frame {{ border: 3pt double {primary}; padding: 12pt; height: calc(100vh - 48pt); }}
-.inst-inner {{ border: 1pt solid {accent}; padding: 36pt 30pt; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }}
-.inst-org {{ color: {primary}; font-size: 13pt; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; margin: 18pt 0 4pt; }}
+.inst-frame {{ border: 3pt double {primary}; padding: 12pt; height: calc(100vh - 48pt); position: relative; }}
+.inst-frame::before, .inst-frame::after {{ content: ''; position: absolute; width: 24pt; height: 24pt; border: 3pt solid {accent}; }}
+.inst-frame::before {{ top: -3pt; left: -3pt; border-right: none; border-bottom: none; }}
+.inst-frame::after {{ bottom: -3pt; right: -3pt; border-left: none; border-top: none; }}
+.inst-inner {{ border: 1pt solid {accent}; padding: 36pt 30pt; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; position: relative; }}
+.inst-org {{ color: {primary}; font-size: 13pt; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; margin: 18pt 0 4pt; }}
 .inst-program {{ color: #64748b; font-size: 10pt; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 16pt; }}
-.inst-line {{ width: 240pt; height: 2pt; background: {accent}; margin: 12pt auto; }}
+.inst-line {{ width: 240pt; height: 0; border-top: 2pt solid {accent}; margin: 12pt auto; position: relative; }}
+.inst-line::before {{ content: '◆'; position: absolute; top: -7pt; left: 50%; transform: translateX(-50%); color: {accent}; font-size: 9pt; background: #fff; padding: 0 4pt; }}
 .inst-title {{ color: {primary}; font-size: 28pt; font-weight: 900; line-height: 1.15; max-width: 90%; margin: 4pt 0; letter-spacing: -0.5px; }}
 .inst-sub {{ color: #475569; font-size: 13pt; font-style: italic; margin: 6pt 0 0; }}
 .inst-meta {{ display: grid; grid-template-columns: 1fr 1fr; gap: 14pt; margin-top: 28pt; max-width: 420pt; width: 100%; }}
-.inst-meta > div {{ text-align: left; padding: 6pt 10pt; background: {secondary}; border-left: 3pt solid {accent}; border-radius: 4pt; }}
+.inst-meta > div {{ text-align: left; padding: 8pt 12pt; background: {secondary}; border-left: 4pt solid {accent}; border-radius: 4pt; }}
 .inst-meta span {{ display: block; font-size: 7.5pt; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 2pt; }}
 .inst-meta strong {{ color: {primary}; font-size: 10.5pt; }}
 
