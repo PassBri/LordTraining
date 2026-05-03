@@ -8,6 +8,23 @@
 - DB: MongoDB (11 colecciones V2 + plan_previous_analysis_ai_cache + plan_evaluations_v2 + evaluation_templates + plan_evaluations_shares)
 
 
+### Evolución de Controles — Mini chart + Vista global multi-tipo (Feb 2026)
+
+**Component nuevo** `/app/frontend/src/components/EvaluationEvolution.js` (~280 líneas):
+- **`EvaluationMiniChart`** (named export): mini línea Recharts dentro de cada `EvaluationSection`. Visible cuando hay ≥2 controles del mismo tipo. Header inteligente "Inicial: X% → Actual: Y% (+Δ%)" coloreado por tendencia. Línea de referencia 50%. Tooltip con fecha+título+%.
+- **`EvaluationEvolution`** (default export): vista global con `LineChart` overlaid de los 8 tipos. Líneas de referencia 80% (Excelente verde) y 50% (Aceptable ámbar). 8 cards de tipo clickables (toggle ocultar/mostrar serie) con métricas Último/Promedio/Tendencia (▲▼● color-coded). Listener `itrain:evaluation-saved` para auto-refresh. Empty state cuando no hay controles. Usa endpoint existente `/api/plan-data/evaluations-export/timeline/{plan_id}`.
+- Diccionario `TYPE_META` con 8 entradas (color + icono Lucide + título corto).
+- data-testids: `eval-evolution`, `eval-evolution-chart`, `eval-evolution-type-{type}`, `eval-{type}-mini-evolution`.
+
+**Integración**:
+- `EvaluationSection.js`: importa `EvaluationMiniChart`, lo renderiza después del hero global, antes de los grupos de aspectos. Solo cuando `controls.length >= 2`. El listener `itrain:evaluation-saved` ya existente sincroniza al guardar.
+- `DashboardPage.js`: nuevo nav item `evaluation-evolution` (ícono `TrendingUp`) bajo sección `evaluacion`. Routing condicional en `renderSection()` retorna `<EvaluationEvolution />`.
+
+**Validación**: 12 controles sembrados via curl (medical x5, physical x3, technical x2, anthropometric x2). Screenshots confirmaron:
+- Mini-chart en Control Médico: línea con 5 puntos + delta "+28%" verde.
+- Vista global: chart con 4 series overlaid (cyan/blue/red/violet), 8 cards (4 con datos, 4 "Sin datos" en opacidad reducida), referencias 80%/50%, leyenda inferior.
+
+
 ### Evaluaciones Multi-control + Vinculación con Plan Gráfico (Feb 2026)
 
 **Estado**: 29/29 backend tests + frontend E2E PASS (iter_50). 8 tipos: medical, physical, technical, tactical, psychological, theoretical, **anthropometric** (NUEVO), **biomechanical** (NUEVO).

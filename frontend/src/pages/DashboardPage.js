@@ -56,6 +56,7 @@ import PlansList from '../components/PlansList';
 import EntityManager from '../components/EntityManager';
 import TeamManager from '../components/TeamManager';
 import EvaluationSection from '../components/EvaluationSection';
+import EvaluationEvolution from '../components/EvaluationEvolution';
 import ControlPanel from '../components/ControlPanel';
 import EntityDashboard from '../components/EntityDashboard';
 import SmartAlerts from '../components/SmartAlerts';
@@ -1534,6 +1535,7 @@ const DashboardPage = () => {
     { id: 'control-tactical', label: 'Control Táctico', icon: Layers, section: 'evaluacion' },
     { id: 'control-psychological', label: 'Control Psicológico', icon: Brain, section: 'evaluacion' },
     { id: 'control-theoretical', label: 'Control Teórico', icon: BookOpen, section: 'evaluacion' },
+    { id: 'evaluation-evolution', label: 'Evolución de Controles', icon: TrendingUp, section: 'evaluacion' },
     
     // === 4. COMPETENCIAS ===
     { id: 'events', label: t('dashboard.sections.competitions'), icon: Award, section: 'competencias' },
@@ -4240,6 +4242,11 @@ const DashboardPage = () => {
     // Control Teórico
     if (activeDataSection === 'control-theoretical') {
       return <EvaluationSection sectionId="control-theoretical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
+    }
+
+    // Evolución de Controles
+    if (activeDataSection === 'evaluation-evolution') {
+      return <EvaluationEvolution activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
     }
 
     // Render Test Evaluations

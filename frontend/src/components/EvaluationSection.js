@@ -9,6 +9,7 @@ import {
   FileDown, Link2, Send, Library, Star, X, Calendar, ChevronRight
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { EvaluationMiniChart } from './EvaluationEvolution';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -574,6 +575,10 @@ const EvaluationSection = ({ sectionId, activePlan, athletes = [], selectedAthle
       </div>
 
       {loading && <div className="text-center py-10 text-slate-400"><Loader2 className="w-6 h-6 animate-spin inline" /><p className="text-sm mt-2">Cargando aspectos...</p></div>}
+
+      {!loading && controls.length >= 2 && (
+        <EvaluationMiniChart controls={controls} color={config.color} type={evalType} />
+      )}
 
       {!loading && Object.entries(grouped).map(([cat, items]) => (
         <Card key={cat} className="border-0 shadow-sm" data-testid={`eval-${evalType}-category-${cat}`}>
