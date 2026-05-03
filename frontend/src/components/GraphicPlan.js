@@ -13,6 +13,8 @@ import {
   Save,
   Loader2,
   Download,
+  Link2,
+  Send,
   Calendar,
   Target,
   Activity,
@@ -918,8 +920,78 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
 
   // Export plan as image
   const [exportingImage, setExportingImage] = useState(false);
+  const [exportingPdf, setExportingPdf] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const [expandedChart, setExpandedChart] = useState(null);
   
+  const handleExportPDF = async () => {
+    setExportingPdf(true);
+    try {
+      const planElement = document.querySelector('[data-testid="graphic-plan-content"]');
+      if (!planElement) { toast.error('No se encontró el plan gráfico'); return; }
+      const canvas = await html2canvas(planElement, { backgroundColor: '#ffffff', scale: 2, useCORS: true, logging: false });
+      const imgData = canvas.toDataURL('image/png');
+      // jsPDF dynamically
+      const { jsPDF } = await import('jspdf');
+      const pdf = new jsPDF({ orientation: canvas.width > canvas.height ? 'landscape' : 'portrait', unit: 'pt', format: 'a4' });
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const ratio = Math.min(pageW / canvas.width, pageH / canvas.height);
+      const w = canvas.width * ratio;
+      const h = canvas.height * ratio;
+      pdf.addImage(imgData, 'PNG', (pageW - w) / 2, (pageH - h) / 2, w, h);
+      pdf.save(`plan_grafico_${generalInfo.athlete?.replace(/\s+/g, '_') || 'atleta'}_${new Date().toISOString().split('T')[0]}.pdf`);
+      toast.success('PDF generado');
+    } catch (e) {
+      console.error(e); toast.error('Error generando PDF');
+    } finally { setExportingPdf(false); }
+  };
+
+  const handleShareLink = async () => {
+    setSharing(true);
+    try {
+      const planElement = document.querySelector('[data-testid="graphic-plan-content"]');
+      if (!planElement) { toast.error('No se encontró el plan gráfico'); return; }
+      const canvas = await html2canvas(planElement, { backgroundColor: '#ffffff', scale: 1.5, useCORS: true, logging: false });
+      const imgData = canvas.toDataURL('image/png');
+      const token = localStorage.getItem('train_token');
+      const r = await fetch(`${BACKEND_URL}/api/graphic-plan/share`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ plan_id: activePlan?.id, image_b64: imgData, plan_name: activePlan?.name || 'Plan' })
+      });
+      if (!r.ok) throw new Error();
+      const d = await r.json();
+      const fullUrl = `${window.location.origin}/api/graphic-plan/shared/${d.share_id}`;
+      await navigator.clipboard.writeText(fullUrl);
+      toast.success('Enlace copiado al portapapeles');
+    } catch { toast.error('Error compartiendo'); }
+    setSharing(false);
+  };
+
+  const handleShareWhatsApp = async () => {
+    setSharing(true);
+    try {
+      const planElement = document.querySelector('[data-testid="graphic-plan-content"]');
+      if (!planElement) return;
+      const canvas = await html2canvas(planElement, { backgroundColor: '#ffffff', scale: 1.5, useCORS: true, logging: false });
+      const imgData = canvas.toDataURL('image/png');
+      const token = localStorage.getItem('train_token');
+      const r = await fetch(`${BACKEND_URL}/api/graphic-plan/share`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ plan_id: activePlan?.id, image_b64: imgData, plan_name: activePlan?.name || 'Plan' })
+      });
+      if (!r.ok) throw new Error();
+      const d = await r.json();
+      const fullUrl = `${window.location.origin}/api/graphic-plan/shared/${d.share_id}`;
+      const msg = encodeURIComponent(`📊 Plan Gráfico · ${activePlan?.name || ''}\n\n${fullUrl}`);
+      window.open(`https://wa.me/?text=${msg}`, '_blank');
+      toast.success('Compartiendo por WhatsApp');
+    } catch { toast.error('Error compartiendo'); }
+    setSharing(false);
+  };
+
   const handleExportAsImage = async () => {
     setExportingImage(true);
     try {
@@ -1214,6 +1286,24 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                   Datos importados
                 </span>
               )}
+              <Button size="sm" variant="ghost" className="text-white hover:bg-white/10"
+                onClick={handleExportPDF} disabled={exportingPdf}
+                data-testid="graphic-plan-pdf-btn">
+                {exportingPdf ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Download className="w-4 h-4 mr-1" />}
+                PDF
+              </Button>
+              <Button size="sm" variant="ghost" className="text-white hover:bg-white/10"
+                onClick={handleShareLink} disabled={sharing}
+                data-testid="graphic-plan-link-btn">
+                {sharing ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Link2 className="w-4 h-4 mr-1" />}
+                Enlace
+              </Button>
+              <Button size="sm" variant="ghost" className="text-white hover:bg-green-500/30"
+                onClick={handleShareWhatsApp} disabled={sharing}
+                data-testid="graphic-plan-whatsapp-btn">
+                <Send className="w-4 h-4 mr-1" />
+                WhatsApp
+              </Button>
               <Button
                 size="sm"
                 variant="ghost"
@@ -1318,11 +1408,21 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, activePlan, co
                   <th className="sticky left-0 bg-gray-200 px-2 py-1 border border-gray-300 text-left" style={{ width: 160 }}>
                     Semana
                   </th>
-                  {displayedWeeks.map(week => (
-                    <th key={week} className="border border-gray-300 text-center font-medium">
-                      {week}
-                    </th>
-                  ))}
+                  {displayedWeeks.map(week => {
+                    const startDate = activePlan?.start_date ? new Date(activePlan.start_date) : null;
+                    let weekDate = '';
+                    if (startDate && !isNaN(startDate.getTime())) {
+                      const d = new Date(startDate);
+                      d.setDate(d.getDate() + (week - 1) * 7);
+                      weekDate = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
+                    }
+                    return (
+                      <th key={week} className="border border-gray-300 text-center font-medium px-1 py-1" style={{ minWidth: 38 }}>
+                        <div className="text-xs font-bold text-slate-900">{week}</div>
+                        {weekDate && <div className="text-[9px] font-normal text-slate-500 tabular-nums leading-tight">{weekDate}</div>}
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
               

@@ -190,7 +190,7 @@ const DashboardPage = () => {
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
   // Filters Dropdown State
-  const [showFiltersDropdown, setShowFiltersDropdown] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   // ====== COACH AI DRAWER STATE ======
   const [isCoachDrawerOpen, setIsCoachDrawerOpen] = useState(false);
@@ -1539,18 +1539,15 @@ const DashboardPage = () => {
     { id: 'evaluation-evolution', label: 'Evolución de Controles', icon: TrendingUp, section: 'evaluacion' },
     
     // === 4. COMPETENCIAS ===
-    { id: 'events', label: t('dashboard.sections.competitions'), icon: Award, section: 'competencias' },
-    { id: 'competitions', label: t('dashboard.sections.competitions'), icon: ListChecks, section: 'competencias' },
+    { id: 'competitions', label: t('dashboard.sections.competitions'), icon: Trophy, section: 'competencias' },
     
     // === 5. PERIODIZACIÓN (sub-secciones directas sin tab intermedio) ===
     { id: 'period-overview', label: 'Resumen', icon: Gauge, section: 'periodizacion' },
     { id: 'period-structure', label: 'Estructura', icon: LayoutGrid, section: 'periodizacion' },
-    { id: 'period-tests', label: 'Evaluaciones', icon: ClipboardList, section: 'periodizacion' },
     { id: 'period-load', label: 'Carga', icon: Flame, section: 'periodizacion' },
-    { id: 'period-control', label: 'Control', icon: TrendingUp, section: 'periodizacion' },
     
-    // === 6. VISUALIZACIÓN ===
-    { id: 'graphic-plan', label: t('dashboard.sections.visualization'), icon: PieChart, section: 'visualizacion' },
+    // === 6. PLAN GRÁFICO ===
+    { id: 'graphic-plan', label: 'Plan Gráfico', icon: PieChart, section: 'visualizacion' },
     { id: 'calendar-view', label: 'Calendario', icon: CalendarDays, section: 'visualizacion' },
     { id: 'smart-alerts', label: 'Alertas', icon: Zap, section: 'visualizacion' },
     
@@ -1561,7 +1558,6 @@ const DashboardPage = () => {
     { id: 'exercises', label: 'Métodos', icon: Timer, section: 'herramientas' },
     { id: 'exercises-lib', label: t('dashboard.controlPanel.exercises'), icon: Dumbbell, section: 'herramientas' },
     { id: 'tactical-board', label: 'Pizarra Tactica', icon: LayoutGrid, section: 'herramientas' },
-    { id: 'ai-generator', label: 'AI', icon: Sparkles, section: 'herramientas' },
   ];
 
   // ====== PLAN SECTIONS & COLORS (top-level for top bar integration) ======
@@ -1571,7 +1567,7 @@ const DashboardPage = () => {
     { key: 'evaluacion', title: t('dashboard.sections.evaluation'), color: 'emerald', icon: Heart },
     { key: 'competencias', title: t('dashboard.sections.competitions'), color: 'violet', icon: Trophy },
     { key: 'periodizacion', title: t('dashboard.sections.periodization'), color: 'cyan', icon: Calendar },
-    { key: 'visualizacion', title: t('dashboard.sections.visualization'), color: 'amber', icon: BarChart },
+    { key: 'visualizacion', title: 'Plan Gráfico', color: 'amber', icon: BarChart },
     { key: 'herramientas', title: t('dashboard.sections.tools'), color: 'slate', icon: Wrench },
   ];
 
@@ -1869,7 +1865,7 @@ const DashboardPage = () => {
 
     // ====== VERIFICAR SI SE NECESITA UN PLAN ACTIVO ======
     // Secciones que NO requieren plan activo (se pueden ver sin tener un plan seleccionado)
-    const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators', 'periodization-models', 'pdi-sheet', 'tactical-board', 'create-plan', 'period-overview', 'period-structure', 'period-tests', 'period-load', 'period-control'];
+    const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'calculators', 'periodization-models', 'pdi-sheet', 'tactical-board', 'create-plan', 'period-overview', 'period-structure', 'period-load'];
     
     if (!activePlan && !sectionsWithoutPlan.includes(activeDataSection)) {
       // Mostrar mensaje de que se necesita seleccionar un plan
@@ -2897,85 +2893,6 @@ const DashboardPage = () => {
     }
 
     // Render Generar con IA section inline - COMPLETE
-    if (activeDataSection === 'ai-generator') {
-      return (
-        <div className="p-4 space-y-4">
-          <Card className="border-0 shadow-md overflow-hidden">
-            <div className="bg-white border-b border-slate-200 text-slate-900 py-4 px-5">
-              <div className="flex items-center gap-2 text-lg font-semibold">
-                <Brain className="w-5 h-5" />
-                Generar Plan con Inteligencia Artificial
-              </div>
-            </div>
-            <CardContent className="p-5">
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Formulario */}
-                <div className="space-y-4">
-                  <h4 className="font-semibold text-slate-800 flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-amber-500" />
-                    Parámetros del Plan
-                  </h4>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Objetivo Principal</label>
-                      <Input placeholder="Ej: Mejorar resistencia aeróbica" className="mt-1 border-slate-200 focus:border-amber-400" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Duración (semanas)</label>
-                        <Input type="number" placeholder="12" className="mt-1 border-slate-200 focus:border-amber-400" />
-                      </div>
-                      <div>
-                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Sesiones/semana</label>
-                        <Input type="number" placeholder="5" className="mt-1 border-slate-200 focus:border-amber-400" />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Deporte</label>
-                      <Input placeholder="Ej: Atletismo - Fondo" className="mt-1 border-slate-200 focus:border-amber-400" />
-                    </div>
-                    <div>
-                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Nivel del Atleta</label>
-                      <Select>
-                        <SelectTrigger className="border-slate-200"><SelectValue placeholder="Seleccionar nivel" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="principiante">Principiante (0-1 año)</SelectItem>
-                          <SelectItem value="intermedio">Intermedio (1-3 años)</SelectItem>
-                          <SelectItem value="avanzado">Avanzado (3-5 años)</SelectItem>
-                          <SelectItem value="elite">Elite (+5 años)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Competencia Objetivo</label>
-                      <Input type="date" className="mt-1 border-slate-200 focus:border-amber-400" />
-                    </div>
-                    <div>
-                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Observaciones adicionales</label>
-                      <textarea className="w-full border border-slate-200 rounded-lg p-3 text-sm h-24 mt-1 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400" placeholder="Lesiones previas, limitaciones, preferencias..." />
-                    </div>
-                    <Button className="w-full bg-slate-900 hover:bg-slate-800 font-semibold h-11">
-                      <Brain className="w-4 h-4 mr-2" />
-                      Generar Plan con IA
-                    </Button>
-                  </div>
-                </div>
-                
-                {/* Preview */}
-                <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
-                  <h4 className="font-semibold text-amber-900 mb-4">Vista Previa del Plan</h4>
-                  <div className="text-center py-12 text-amber-700/60">
-                    <Brain className="w-20 h-20 mx-auto mb-4 opacity-30" />
-                    <p className="font-medium">Configura los parámetros y genera tu plan personalizado</p>
-                    <p className="text-sm mt-2 opacity-75">El plan incluirá macrociclos, mesociclos, microciclos y sesiones detalladas</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      );
-    }
 
     // Render Pizarra Tactica section
     if (activeDataSection === 'tactical-board') {
@@ -4169,17 +4086,6 @@ const DashboardPage = () => {
       );
     }
 
-    if (activeDataSection === 'period-tests') {
-      return <TestEvaluations athleteId={selectedAthleteId} />;
-    }
-
-    if (activeDataSection === 'period-load') {
-      return <LoadMetricsDashboard activePlan={activePlan} />;
-    }
-
-    if (activeDataSection === 'period-control') {
-      return <TrainingControl athleteId={selectedAthleteId} athleteName={athletes.find(a => a.id === selectedAthleteId)?.name} />;
-    }
 
     // Fallback: training-system (mantener para compatibilidad)
     if (activeDataSection === 'training-system') {
@@ -4393,7 +4299,7 @@ const DashboardPage = () => {
   const renderMainContent = () => {
     if (activePanel === 'datos') {
       // ====== LAYOUT: SIDEBAR DE PLANES + CONTENIDO ======
-      const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'ai-generator', 'calculators', 'periodization-models', 'pdi-sheet', 'tactical-board', 'sports', 'tournaments', 'create-plan', 'period-overview', 'period-structure', 'period-tests', 'period-load', 'period-control'];
+      const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'calculators', 'periodization-models', 'pdi-sheet', 'tactical-board', 'sports', 'tournaments', 'create-plan', 'period-overview', 'period-structure', 'period-load'];
 
       return (
         <div className="flex h-full" data-testid="datos-layout">
@@ -4576,145 +4482,7 @@ const DashboardPage = () => {
                 </span>
               </button>
 
-              {/* Filtros FAB */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowFiltersDropdown(!showFiltersDropdown)}
-                  className="group flex flex-col items-center gap-1 shrink-0 outline-none"
-                  data-testid="filters-dropdown-btn"
-                >
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
-                    showFiltersDropdown
-                      ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
-                      : 'bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg'
-                  }`}>
-                    <Filter className={`w-[18px] h-[18px] transition-transform duration-300 ${showFiltersDropdown ? 'text-white' : 'group-hover:text-amber-500'}`} strokeWidth={showFiltersDropdown ? 2.5 : 1.8} />
-                  </div>
-                  <span className={`text-[8px] font-bold tracking-wide leading-tight text-center transition-colors duration-300 ${
-                    showFiltersDropdown ? 'text-amber-600' : 'text-slate-400 group-hover:text-amber-500'
-                  }`}>
-                    Filtros
-                  </span>
-                </button>
-
-                {/* Filters Dropdown Panel */}
-                {showFiltersDropdown && (
-                  <>
-                    <div 
-                      className="fixed inset-0 z-40" 
-                      onClick={() => setShowFiltersDropdown(false)}
-                    />
-                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 bg-white rounded-xl shadow-2xl border border-slate-200 p-4 min-w-[320px]">
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
-                          <Filter className="w-4 h-4 text-amber-500" />
-                          Filtros de Contexto
-                        </h3>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setShowFiltersDropdown(false)}
-                          className="h-6 w-6 p-0 text-slate-400 hover:text-slate-600"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <div>
-                          <label className="text-xs font-medium text-slate-500 mb-1 block">Entidad</label>
-                          <Select value={globalContext.entityId} onValueChange={handleEntityChange}>
-                            <SelectTrigger className="w-full h-9 text-sm" data-testid="context-entity-select">
-                              <Building2 className="w-4 h-4 mr-2 text-amber-500" />
-                              <SelectValue placeholder="Seleccionar entidad" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="all">Todas las entidades</SelectItem>
-                              {entities.filter(e => e.entity_type === 'federation').map(e => (
-                                <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
-                              ))}
-                              {entities.filter(e => e.entity_type === 'club').map(e => (
-                                <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
-                              ))}
-                              {entities.filter(e => e.entity_type === 'school').map(e => (
-                                <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div>
-                          <label className="text-xs font-medium text-slate-500 mb-1 block">Equipo</label>
-                          <Select value={globalContext.teamId} onValueChange={handleTeamChange}>
-                            <SelectTrigger className="w-full h-9 text-sm" data-testid="context-team-select">
-                              <Users className="w-4 h-4 mr-2 text-amber-500" />
-                              <SelectValue placeholder="Seleccionar equipo" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="all">Todos los equipos</SelectItem>
-                              {filteredTeams.map(t => (
-                                <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div>
-                          <label className="text-xs font-medium text-slate-500 mb-1 block">Atleta</label>
-                          <Select value={globalContext.athleteId} onValueChange={handleAthleteChange}>
-                            <SelectTrigger className="w-full h-9 text-sm" data-testid="context-athlete-select">
-                              <User className="w-4 h-4 mr-2 text-amber-500" />
-                              <SelectValue placeholder="Seleccionar atleta" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="all">Todos los atletas</SelectItem>
-                              {filteredAthletes.map(a => (
-                                <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div>
-                          <label className="text-xs font-medium text-slate-500 mb-1 block">Deporte</label>
-                          <Select value={globalContext.sportId} onValueChange={handleSportChange}>
-                            <SelectTrigger className="w-full h-9 text-sm" data-testid="context-sport-select">
-                              <Trophy className="w-4 h-4 mr-2 text-amber-500" />
-                              <SelectValue placeholder="Seleccionar deporte" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="all">Todos los deportes</SelectItem>
-                              {allSports.map(s => (
-                                <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        {(globalContext.entityId !== 'all' || globalContext.teamId !== 'all' || 
-                          globalContext.athleteId !== 'all' || globalContext.sportId !== 'all') && (
-                          <div className="pt-2 border-t border-slate-100">
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs text-slate-500">Filtros activos</span>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setGlobalContext({ entityId: 'all', teamId: 'all', athleteId: 'all', sportId: 'all' });
-                                }}
-                                className="h-6 text-xs text-amber-600 hover:text-amber-700"
-                              >
-                                Limpiar todo
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
+          </div>
           </div>
 
           {/* ====== CENTER: Section + Sub-section FABs (only when Datos + activePlan) ====== */}

@@ -102,9 +102,19 @@ const TacticalBoardSection = ({ token }) => {
                   onClick={() => window.open(`/tactical-board.html?id=${board.id}`, '_blank')}>
                   <div className="aspect-[4/3] bg-gradient-to-br from-green-100 to-green-50 flex items-center justify-center relative overflow-hidden">
                     {board.thumbnail ? (
-                      <img src={board.thumbnail} alt="" className="w-full h-full object-cover" />
+                      // El backend guarda el SVG en base64 puro (sin prefijo data-URL).
+                      // Soportamos ambos casos: data-URL completa o base64 desnudo.
+                      <img
+                        src={board.thumbnail.startsWith('data:') ? board.thumbnail : `data:image/svg+xml;base64,${board.thumbnail}`}
+                        alt=""
+                        className="w-full h-full object-cover"
+                        onError={(e) => { e.target.style.display = 'none'; }}
+                      />
                     ) : (
-                      <Gamepad2 className="w-10 h-10 text-green-300" />
+                      <div className="flex flex-col items-center gap-1 text-green-600/60">
+                        <Gamepad2 className="w-10 h-10" />
+                        <span className="text-[9px] font-bold uppercase tracking-wider">{board.sportName || board.sport || 'Pizarra'}</span>
+                      </div>
                     )}
                     <div className="absolute top-1.5 right-1.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button onClick={(e) => { e.stopPropagation(); duplicateBoard(board); }} className="p-1.5 bg-white rounded-lg shadow hover:bg-blue-50 transition-colors" title="Duplicar"><Copy className="w-3.5 h-3.5 text-slate-700" /></button>

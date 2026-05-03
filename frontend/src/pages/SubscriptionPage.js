@@ -9,13 +9,13 @@ import { toast } from 'sonner';
 
 const PLANS = [
   {
-    id: 'free',
-    name: 'Free / Académico',
-    price: '0',
-    description: 'Para estudiantes y entrenadores explorando',
-    features: ['3 atletas', '1 plan de entrenamiento', '10 exportaciones PDF', '3 generaciones con IA', 'Exportación básica'],
-    limits: { athletes: 3, plans: 1, ai: 3 },
-    cta: 'Plan Gratuito'
+    id: 'starter',
+    name: 'Starter — Entrenador',
+    price: '4.99',
+    description: 'Para entrenadores que están comenzando',
+    features: ['5 atletas', '2 planes de entrenamiento', '20 exportaciones PDF', '5 generaciones con IA', 'Exportación básica'],
+    limits: { athletes: 5, plans: 2, ai: 5 },
+    cta: 'Empezar ahora'
   },
   {
     id: 'basic',

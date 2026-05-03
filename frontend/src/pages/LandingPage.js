@@ -1115,7 +1115,7 @@ const LandingPage = () => {
         {/* 4 Plans */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {[
-            { key:'free', price:'0', num:'01', color:'#64748b', pop:false, fcount:5 },
+            { key:'starter', price:'4.99', num:'01', color:'#64748b', pop:false, fcount:5 },
             { key:'pro', price:'9.99', num:'02', color:'#378ADD', pop:false, fcount:5 },
             { key:'club', price:'29.99', num:'03', color:'#c8f700', pop:true, fcount:7 },
             { key:'inst', price:'99.99', num:'04', color:'#EF9F27', pop:false, fcount:9 },
@@ -1157,7 +1157,7 @@ const LandingPage = () => {
                 <div className="mb-6">
                   <div className="flex items-baseline gap-1">
                     <span className="text-[42px] font-black leading-none" style={{fontFamily:BC, color: plan.pop ? plan.color : '#fff'}}>${plan.price}</span>
-                    {plan.price !== '0' && <span className="text-[12px] text-white/25">{t('landing.pricing.perMonth')}</span>}
+                    <span className="text-[12px] text-white/25">{t('landing.pricing.perMonth')}</span>
                   </div>
                 </div>
 

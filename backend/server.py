@@ -8262,6 +8262,9 @@ app.include_router(coaches_router, prefix="/api")
 from routes.evaluations_export import router as evaluations_export_router
 app.include_router(evaluations_export_router, prefix="/api")
 
+from routes.graphic_plan_share import router as graphic_plan_share_router
+app.include_router(graphic_plan_share_router, prefix="/api")
+
 # Store db reference in app state for V2 routes
 app.state.db = db
 
