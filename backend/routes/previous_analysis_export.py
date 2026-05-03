@@ -299,23 +299,44 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
     </div>
     '''
 
-    # --- Indicadores rows ---
+    # --- Indicadores rows (formato dinámico nuevo: indicadoresLista, fallback a formato antiguo: indicadores) ---
     ind_rows = []
     has_ind = False
-    for key, label in IND_LABELS:
-        ind = indicadores.get(key) or {}
-        ini = ind.get("inicial") or ""
-        fin = ind.get("final") or ""
-        delta = ind.get("delta") or ""
-        if ini or fin or delta:
-            has_ind = True
-        delta_str = _esc(delta)
-        delta_color = "#10B981" if (delta and str(delta).startswith(("+", "1", "2", "3", "4", "5", "6", "7", "8", "9"))) else ("#EF4444" if delta and str(delta).startswith("-") else "#64748b")
-        ind_rows.append(
-            f'<tr><td>{_esc(label)}</td><td style="text-align:center">{_esc(ini) or "—"}</td>'
-            f'<td style="text-align:center">{_esc(fin) or "—"}</td>'
-            f'<td style="text-align:center;color:{delta_color};font-weight:700">{delta_str or "—"}</td></tr>'
-        )
+    indicadores_lista = data.get("indicadoresLista") or []
+    if indicadores_lista:
+        # Formato nuevo: lista de objetos {nombre, inicial, final, delta}
+        for ind in indicadores_lista:
+            label = (ind.get("nombre") or "").strip()
+            if not label:
+                continue
+            ini = ind.get("inicial") or ""
+            fin = ind.get("final") or ""
+            delta = ind.get("delta") or ""
+            if ini or fin or delta or label:
+                has_ind = True
+            delta_str = _esc(delta)
+            delta_color = "#10B981" if (delta and str(delta).startswith(("+", "1", "2", "3", "4", "5", "6", "7", "8", "9"))) else ("#EF4444" if delta and str(delta).startswith("-") else "#64748b")
+            ind_rows.append(
+                f'<tr><td>{_esc(label)}</td><td style="text-align:center">{_esc(ini) or "—"}</td>'
+                f'<td style="text-align:center">{_esc(fin) or "—"}</td>'
+                f'<td style="text-align:center;color:{delta_color};font-weight:700">{delta_str or "—"}</td></tr>'
+            )
+    else:
+        # Compat: formato antiguo (objeto con keys fijas)
+        for key, label in IND_LABELS:
+            ind = indicadores.get(key) or {}
+            ini = ind.get("inicial") or ""
+            fin = ind.get("final") or ""
+            delta = ind.get("delta") or ""
+            if ini or fin or delta:
+                has_ind = True
+            delta_str = _esc(delta)
+            delta_color = "#10B981" if (delta and str(delta).startswith(("+", "1", "2", "3", "4", "5", "6", "7", "8", "9"))) else ("#EF4444" if delta and str(delta).startswith("-") else "#64748b")
+            ind_rows.append(
+                f'<tr><td>{_esc(label)}</td><td style="text-align:center">{_esc(ini) or "—"}</td>'
+                f'<td style="text-align:center">{_esc(fin) or "—"}</td>'
+                f'<td style="text-align:center;color:{delta_color};font-weight:700">{delta_str or "—"}</td></tr>'
+            )
     indicadores_html = "".join(ind_rows)
 
     # --- Fortalezas / Debilidades ---

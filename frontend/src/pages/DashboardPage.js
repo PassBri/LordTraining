@@ -17,7 +17,7 @@ import {
   Building2, Building, GraduationCap, Trophy, Timer, Flame, Gamepad2, Lightbulb, X, Trash2,
   Medal, MapPin, LayoutGrid, GitBranch, Share2, History, Filter, CreditCard, Sparkles,
   AlertTriangle, CheckCircle, TrendingUp, RefreshCw, Clock, Edit, Copy, Printer, Gauge, Wrench,
-  Stethoscope, CalendarDays, ClipboardList, Calculator, UsersRound, ListChecks, PieChart, MessageCircle, Link as LinkIcon
+  Stethoscope, CalendarDays, ClipboardList, Calculator, UsersRound, ListChecks, PieChart, MessageCircle, Link as LinkIcon, ArrowRight
 } from 'lucide-react';
 import { 
   LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, 
@@ -244,6 +244,11 @@ const DashboardPage = () => {
     fortalezas: ['', '', ''],
     debilidades: ['', '', ''],
     indicadores: { vo2max: { inicial: '', final: '', delta: '' }, sentadilla: { inicial: '', final: '', delta: '' }, sprint: { inicial: '', final: '', delta: '' }, cmj: { inicial: '', final: '', delta: '' }, flexibilidad: { inicial: '', final: '', delta: '' } },
+    indicadoresLista: [
+      { id: 'ind-1', nombre: '', inicial: '', final: '', delta: '' },
+      { id: 'ind-2', nombre: '', inicial: '', final: '', delta: '' },
+      { id: 'ind-3', nombre: '', inicial: '', final: '', delta: '' },
+    ],
     lesiones: 'no', descripcionLesiones: '', diasPerdidos: '',
     conclusiones: '', recomendaciones: ''
   });
@@ -3161,7 +3166,7 @@ const DashboardPage = () => {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start grid-flow-row-dense">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start grid-flow-row-dense lg:auto-rows-min">
             {/* Información del Plan Anterior — col 1 */}
             <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-[#007AFF] lg:col-start-1">
               <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
@@ -3192,8 +3197,8 @@ const DashboardPage = () => {
               </CardContent>
             </Card>
 
-            {/* Cumplimiento de Objetivos — col 2, row-span 5 */}
-            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-emerald-500 lg:col-start-2 lg:row-start-1 lg:row-span-3">
+            {/* Cumplimiento de Objetivos — col 2, ocupa 5 rows (toda la altura de col 1) */}
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-emerald-500 lg:col-start-2 lg:row-start-1 lg:row-end-6">
               <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
                   <CheckCircle className="w-4 h-4 text-emerald-500" />
@@ -3369,37 +3374,121 @@ const DashboardPage = () => {
               </CardContent>
             </Card>
 
-            {/* Indicadores de Rendimiento — col 1 */}
+            {/* Indicadores de Rendimiento — col 1 (lista dinámica creada por el entrenador) */}
             <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-emerald-500 lg:col-start-1">
-              <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
+              <CardHeader className="bg-white border-b border-slate-100 py-3 px-4 flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
                   <BarChart className="w-4 h-4 text-emerald-500" />
                   Indicadores de Rendimiento
                 </CardTitle>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 px-2 text-[11px] border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                  data-testid="prev-ind-add-btn"
+                  onClick={() => {
+                    const lista = previousAnalysisData.indicadoresLista || [];
+                    setPreviousAnalysisData({
+                      ...previousAnalysisData,
+                      indicadoresLista: [...lista, { id: `ind-${Date.now()}`, nombre: '', inicial: '', final: '', delta: '' }]
+                    });
+                  }}
+                >
+                  <Plus className="w-3 h-3 mr-1" />Añadir
+                </Button>
               </CardHeader>
               <CardContent className="p-3">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr className="border-b border-slate-200">
-                        <th className="text-left py-1.5 px-2 text-slate-600 font-semibold uppercase tracking-wide text-[10px]">Indicador</th>
-                        <th className="text-center py-1.5 px-2 text-slate-600 font-semibold uppercase tracking-wide text-[10px]">Inicial</th>
-                        <th className="text-center py-1.5 px-2 text-slate-600 font-semibold uppercase tracking-wide text-[10px]">Final</th>
-                        <th className="text-center py-1.5 px-2 text-slate-600 font-semibold uppercase tracking-wide text-[10px]">Delta%</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {indicadorKeys.map((key, idx) => (
-                        <tr key={key} className="border-b border-slate-100 hover:bg-slate-50">
-                          <td className="py-1.5 px-2 font-medium text-slate-700 text-xs">{indicadorLabels[idx]}</td>
-                          <td className="py-1 px-1"><Input data-testid={`prev-ind-${key}-ini`} className="h-7 w-20 text-center text-xs" placeholder="--" value={previousAnalysisData.indicadores[key]?.inicial || ''} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, indicadores: {...previousAnalysisData.indicadores, [key]: {...previousAnalysisData.indicadores[key], inicial: e.target.value}}})} /></td>
-                          <td className="py-1 px-1"><Input data-testid={`prev-ind-${key}-fin`} className="h-7 w-20 text-center text-xs" placeholder="--" value={previousAnalysisData.indicadores[key]?.final || ''} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, indicadores: {...previousAnalysisData.indicadores, [key]: {...previousAnalysisData.indicadores[key], final: e.target.value}}})} /></td>
-                          <td className="py-1 px-1"><Input data-testid={`prev-ind-${key}-delta`} className="h-7 w-20 text-center text-xs" placeholder="--%" value={previousAnalysisData.indicadores[key]?.delta || ''} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, indicadores: {...previousAnalysisData.indicadores, [key]: {...previousAnalysisData.indicadores[key], delta: e.target.value}}})} /></td>
+                {(!previousAnalysisData.indicadoresLista || previousAnalysisData.indicadoresLista.length === 0) ? (
+                  <div className="text-center py-6 text-slate-400 text-xs">
+                    <BarChart className="w-8 h-8 mx-auto mb-2 opacity-40" />
+                    Sin indicadores. Haz clic en <strong className="text-emerald-600">Añadir</strong> para crear el primero.
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b border-slate-200">
+                          <th className="text-left py-1.5 px-2 text-slate-600 font-semibold uppercase tracking-wide text-[10px]">Indicador</th>
+                          <th className="text-center py-1.5 px-1 text-slate-600 font-semibold uppercase tracking-wide text-[10px]">Inicial</th>
+                          <th className="text-center py-1.5 px-1 text-slate-600 font-semibold uppercase tracking-wide text-[10px]">Final</th>
+                          <th className="text-center py-1.5 px-1 text-slate-600 font-semibold uppercase tracking-wide text-[10px]">Delta%</th>
+                          <th className="w-6"></th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {previousAnalysisData.indicadoresLista.map((ind, idx) => (
+                          <tr key={ind.id} className="border-b border-slate-100 hover:bg-slate-50">
+                            <td className="py-1 px-2">
+                              <Input
+                                data-testid={`prev-ind-nombre-${idx}`}
+                                className="h-7 text-xs"
+                                placeholder={`Ej: VO2 Máx, 1RM Sentadilla...`}
+                                value={ind.nombre || ''}
+                                onChange={(e) => {
+                                  const lista = [...previousAnalysisData.indicadoresLista];
+                                  lista[idx] = { ...lista[idx], nombre: e.target.value };
+                                  setPreviousAnalysisData({ ...previousAnalysisData, indicadoresLista: lista });
+                                }}
+                              />
+                            </td>
+                            <td className="py-1 px-1">
+                              <Input
+                                data-testid={`prev-ind-${idx}-ini`}
+                                className="h-7 w-20 text-center text-xs"
+                                placeholder="--"
+                                value={ind.inicial || ''}
+                                onChange={(e) => {
+                                  const lista = [...previousAnalysisData.indicadoresLista];
+                                  lista[idx] = { ...lista[idx], inicial: e.target.value };
+                                  setPreviousAnalysisData({ ...previousAnalysisData, indicadoresLista: lista });
+                                }}
+                              />
+                            </td>
+                            <td className="py-1 px-1">
+                              <Input
+                                data-testid={`prev-ind-${idx}-fin`}
+                                className="h-7 w-20 text-center text-xs"
+                                placeholder="--"
+                                value={ind.final || ''}
+                                onChange={(e) => {
+                                  const lista = [...previousAnalysisData.indicadoresLista];
+                                  lista[idx] = { ...lista[idx], final: e.target.value };
+                                  setPreviousAnalysisData({ ...previousAnalysisData, indicadoresLista: lista });
+                                }}
+                              />
+                            </td>
+                            <td className="py-1 px-1">
+                              <Input
+                                data-testid={`prev-ind-${idx}-delta`}
+                                className="h-7 w-20 text-center text-xs"
+                                placeholder="--%"
+                                value={ind.delta || ''}
+                                onChange={(e) => {
+                                  const lista = [...previousAnalysisData.indicadoresLista];
+                                  lista[idx] = { ...lista[idx], delta: e.target.value };
+                                  setPreviousAnalysisData({ ...previousAnalysisData, indicadoresLista: lista });
+                                }}
+                              />
+                            </td>
+                            <td className="py-1 px-0.5">
+                              <button
+                                data-testid={`prev-ind-remove-${idx}`}
+                                className="w-6 h-6 rounded-md flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                                onClick={() => {
+                                  const lista = previousAnalysisData.indicadoresLista.filter((_, i) => i !== idx);
+                                  setPreviousAnalysisData({ ...previousAnalysisData, indicadoresLista: lista });
+                                }}
+                                title="Eliminar indicador"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -3437,8 +3526,8 @@ const DashboardPage = () => {
               </CardContent>
             </Card>
 
-            {/* Conclusiones y Recomendaciones — col 2, después de Cumplimiento */}
-            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-slate-900 lg:col-start-2">
+            {/* Conclusiones y Recomendaciones — full-width row 6 (cierra el grid sin espacios vacíos) */}
+            <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-slate-900 lg:col-span-2 lg:row-start-6">
               <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
                   <Lightbulb className="w-4 h-4 text-amber-500" />
@@ -3446,6 +3535,7 @@ const DashboardPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3.5 space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Conclusiones Principales</label>
                   <textarea data-testid="prev-conclusiones" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm resize-none" rows={3} placeholder="Resumen de los principales aprendizajes del plan anterior..." value={previousAnalysisData.conclusiones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, conclusiones: e.target.value})} />
@@ -3453,6 +3543,59 @@ const DashboardPage = () => {
                 <div className="space-y-1">
                   <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Recomendaciones para el Próximo Plan</label>
                   <textarea data-testid="prev-recomendaciones" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm resize-none" rows={3} placeholder="Qué mantener, qué cambiar, qué nuevos enfoques aplicar..." value={previousAnalysisData.recomendaciones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, recomendaciones: e.target.value})} />
+                </div>
+                </div>
+                {/* CTA: Generar próximo plan basado en este análisis */}
+                <div className="pt-1">
+                  <button
+                    data-testid="prev-generate-next-plan-btn"
+                    className="w-full group relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-white px-4 py-3 transition-all shadow-md hover:shadow-lg flex items-center justify-between gap-3 text-left"
+                    onClick={() => {
+                      // Determinar área con mayor brecha real-vs-ideal
+                      const cumpl = previousAnalysisData.cumplimiento || {};
+                      const gaps = cumplKeys.map((k) => {
+                        const item = (typeof cumpl[k] === 'object' && cumpl[k] !== null) ? cumpl[k] : {};
+                        const real = Number(item.porcentaje ?? 0);
+                        const ideal = Number((benchmarkProfile && benchmarkProfile[k]) ?? 0);
+                        return { area: k, gap: ideal - real };
+                      });
+                      gaps.sort((a, b) => b.gap - a.gap);
+                      const focusArea = gaps[0]?.area || 'general';
+                      // Persistir contexto en localStorage para el wizard
+                      try {
+                        localStorage.setItem('itrain_next_plan_seed', JSON.stringify({
+                          source_plan_id: activePlan?.id || '',
+                          source_model: activePlan?.model || '',
+                          source_model_name: activePlan?.model_name || '',
+                          recomendaciones: previousAnalysisData.recomendaciones || '',
+                          conclusiones: previousAnalysisData.conclusiones || '',
+                          focus_area: focusArea,
+                          gap_analysis: gaps,
+                          created_at: new Date().toISOString(),
+                        }));
+                        toast.success('Datos preparados', { description: 'El nuevo plan se basará en este análisis y la mayor brecha detectada.' });
+                      } catch (err) {
+                        toast.info('Continuando al wizard...');
+                      }
+                      // Navegar al wizard "Crear Plan" (sección Sistema/Crear Plan dentro de Datos)
+                      setActivePanel('datos');
+                      setActiveDataSection('training-system');
+                      setTimeout(() => {
+                        window.dispatchEvent(new CustomEvent('itrain:open-create-plan-wizard'));
+                      }, 200);
+                    }}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: '#CCFF00' }}>
+                        <Plus className="w-5 h-5 text-slate-900" strokeWidth={2.5} />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[10px] font-black uppercase tracking-widest" style={{ color: '#CCFF00' }}>Cierra el ciclo</div>
+                        <div className="text-sm font-bold truncate">Generar próximo plan basado en este análisis</div>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-5 h-5 flex-shrink-0 transition-transform group-hover:translate-x-1" />
+                  </button>
                 </div>
               </CardContent>
             </Card>
