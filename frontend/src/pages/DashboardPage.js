@@ -3577,12 +3577,9 @@ const DashboardPage = () => {
                       } catch (err) {
                         toast.info('Continuando al wizard...');
                       }
-                      // Navegar al wizard "Crear Plan" (sección Sistema/Crear Plan dentro de Datos)
+                      // Navegar al wizard "Crear Plan" (apertura directa con seed pre-cargado)
                       setActivePanel('datos');
-                      setActiveDataSection('training-system');
-                      setTimeout(() => {
-                        window.dispatchEvent(new CustomEvent('itrain:open-create-plan-wizard'));
-                      }, 200);
+                      setActiveDataSection('create-plan');
                     }}
                   >
                     <div className="flex items-center gap-3 min-w-0">

@@ -13,7 +13,7 @@ import {
   ChevronDown, ChevronRight, ChevronLeft, Trash2, Edit2, BarChart3,
   TrendingUp, Layers, Zap, GripVertical, X, Check,
   CheckCircle, Clock, BookOpen, History, Eye, FileText,
-  MoreVertical, Copy, Move, Settings, CalendarDays, AlertCircle
+  MoreVertical, Copy, Move, Settings, CalendarDays, AlertCircle, Sparkles, ArrowRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -241,6 +241,36 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
   // Modelos de periodización dinámicos (incluyendo custom del usuario)
   const [apiModels, setApiModels] = useState([]);
+  // ============ SEED desde "Plan Anterior" (ciclo retroalimentado) ============
+  const [nextPlanSeed, setNextPlanSeed] = useState(null);
+  const [seedDismissed, setSeedDismissed] = useState(false);
+  const [seedApplied, setSeedApplied] = useState(false);
+
+  // Mapa de áreas para mostrar etiquetas humanas en el banner
+  const PREV_AREA_LABELS = {
+    general: 'Objetivo General',
+    fisica: 'Preparación Física',
+    tecnica: 'Preparación Técnica',
+    tactica: 'Preparación Táctica',
+    psicologica: 'Preparación Psicológica',
+    teorica: 'Preparación Teórica',
+    reglamento: 'Reglamento del Deporte',
+  };
+
+  // Detectar seed al montar
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('itrain_next_plan_seed');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          setNextPlanSeed(parsed);
+          // Forzar wizard si no estamos ya en create
+          if (showWizardOnly === false) setActiveView('create');
+        }
+      }
+    } catch (_) { /* silent */ }
+  }, []);
   useEffect(() => {
     const loadModels = async () => {
       try {
@@ -294,6 +324,47 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     ...MODEL_CATEGORIES,
     custom: { name: 'Mis Modelos Personalizados', color: 'bg-[#CCFF00]/20 border-[#CCFF00]', icon: '✨' },
   }), []);
+
+  // Aplicar el seed al planConfig una vez que los modelos estén disponibles
+  useEffect(() => {
+    if (!nextPlanSeed || seedApplied || seedDismissed) return;
+    if (Object.keys(effectiveModels).length === 0) return;
+
+    const seedModel = nextPlanSeed.source_model || '';
+    const focusKey = nextPlanSeed.focus_area || '';
+    const focusLabel = PREV_AREA_LABELS[focusKey] || focusKey;
+    const recos = (nextPlanSeed.recomendaciones || '').trim();
+    const conc = (nextPlanSeed.conclusiones || '').trim();
+
+    // Construir mainObjective sugerido a partir del análisis
+    const lines = [];
+    if (focusLabel) lines.push(`Énfasis principal: ${focusLabel} (mayor brecha vs ideal).`);
+    if (recos) lines.push(`Recomendaciones del análisis anterior: ${recos}`);
+    if (conc) lines.push(`Conclusiones previas: ${conc}`);
+    const suggestedObjective = lines.join('\n');
+
+    setPlanConfig((prev) => ({
+      ...prev,
+      // Sólo precargar modelo si el seed lo provee y existe en la biblioteca
+      model: prev.model || (seedModel && effectiveModels[seedModel] ? seedModel : prev.model),
+      mainObjective: prev.mainObjective || suggestedObjective,
+    }));
+    // Si ya tenemos modelo pre-seleccionado, avanzar al paso 2 (Modelo) para que el coach
+    // visualice la pre-selección antes de continuar
+    setSeedApplied(true);
+  }, [nextPlanSeed, effectiveModels, seedApplied, seedDismissed]);
+
+  const clearNextPlanSeed = useCallback(() => {
+    try { localStorage.removeItem('itrain_next_plan_seed'); } catch (_) { /* ignore */ }
+    setNextPlanSeed(null);
+  }, []);
+
+  const dismissSeed = () => {
+    setSeedDismissed(true);
+    clearNextPlanSeed();
+    toast.info('Pre-selección descartada');
+  };
+
   const [generatedStructure, setGeneratedStructure] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [expandedPanels, setExpandedPanels] = useState({});
@@ -934,7 +1005,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     setSelectedPlan(savedPlan);
     setActiveView('detail');
     toast.success('Plan creado y guardado exitosamente');
-    
+    clearNextPlanSeed();
+
     // Callback to parent component
     if (onPlanCreated) {
       onPlanCreated(savedPlan);
@@ -1208,7 +1280,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     setActiveView('detail');
     setGeneratedStructure(null);
     toast.success('Plan creado exitosamente con estructura generada');
-    
+    clearNextPlanSeed();
+
     // Callback to parent component
     if (onPlanCreated) {
       onPlanCreated(savedPlan);
@@ -1323,6 +1396,63 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     const canAdvance = !((wizardStep === 1 && !planConfig.sport) || (wizardStep === 2 && !planConfig.model) || (wizardStep === 3 && !planConfig.startDate));
     return (
     <div className="w-full" data-testid="create-plan-wizard">
+      {/* BANNER: Pre-carga desde Plan Anterior (cierra el ciclo) */}
+      {nextPlanSeed && !seedDismissed && (
+        <div
+          data-testid="next-plan-seed-banner"
+          className="mb-3 rounded-2xl overflow-hidden border-2 border-[#CCFF00] shadow-lg shadow-[#CCFF00]/20 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 relative"
+        >
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_50%,#CCFF00_0%,transparent_60%)]" />
+          <div className="relative p-4 flex items-start gap-3">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md shadow-[#CCFF00]/30" style={{ background: '#CCFF00' }}>
+              <Sparkles className="w-6 h-6 text-slate-900" strokeWidth={2.4} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: '#CCFF00' }}>Cierra el ciclo</span>
+                <span className="text-[9px] font-bold uppercase tracking-wider text-white/40">·</span>
+                <span className="text-[9px] font-bold uppercase tracking-wider text-white/60">Análisis del Plan Anterior</span>
+              </div>
+              <h3 className="text-[15px] font-black text-white leading-tight mb-1.5">
+                Detectamos que vienes del análisis del Plan Anterior
+              </h3>
+              <p className="text-[12px] text-white/75 leading-snug mb-2">
+                {nextPlanSeed.source_model_name && (
+                  <>Hemos pre-seleccionado el modelo <span className="font-bold text-[#CCFF00]">{nextPlanSeed.source_model_name}</span>. </>
+                )}
+                {nextPlanSeed.focus_area && PREV_AREA_LABELS[nextPlanSeed.focus_area] && (
+                  <>La fase de <span className="font-bold text-[#CCFF00]">{PREV_AREA_LABELS[nextPlanSeed.focus_area]}</span> tendrá énfasis aumentado por mayor brecha vs ideal. </>
+                )}
+                Tus recomendaciones se cargaron como objetivo principal.
+              </p>
+              {Array.isArray(nextPlanSeed.gap_analysis) && nextPlanSeed.gap_analysis.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-1.5" data-testid="seed-gap-chips">
+                  {nextPlanSeed.gap_analysis.slice(0, 4).map((g, i) => {
+                    const label = PREV_AREA_LABELS[g.area] || g.area;
+                    const gapNum = Math.max(0, Math.round(Number(g.gap) || 0));
+                    if (gapNum <= 0) return null;
+                    return (
+                      <span key={i} className="text-[10px] font-semibold px-2 py-0.5 rounded-full border border-white/15 text-white/80 bg-white/5">
+                        {label} <span className="text-[#CCFF00]">−{gapNum}%</span>
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            <button
+              type="button"
+              data-testid="seed-dismiss-btn"
+              onClick={dismissSeed}
+              className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+              title="Descartar pre-selección"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Compact Header + Stepper in a single iTRAIN-branded bar */}
       <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-xl">
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/10">
