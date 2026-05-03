@@ -244,10 +244,90 @@ async def cover_layouts():
 # ============= HELPERS =============
 
 async def _fetch_plan(plan_id: str, uid: str) -> Optional[dict]:
-    return await _db.training_plans.find_one(
+    """Fetch plan and enrich UUID fields with human-readable names."""
+    plan = await _db.training_plans.find_one(
         {"id": plan_id, "$or": [{"user_id": uid}, {"coach_id": uid}]},
         {"_id": 0}
     )
+    if not plan:
+        return None
+    # Resolve sport UUID → name
+    sport_val = plan.get("sport")
+    if sport_val and len(str(sport_val)) > 20 and "-" in str(sport_val):
+        sport_doc = await _db.sports.find_one({"id": sport_val}, {"_id": 0, "name": 1})
+        if sport_doc:
+            plan["sport_name"] = sport_doc.get("name", sport_val)
+            plan["sport"] = sport_doc.get("name", sport_val)
+    elif sport_val:
+        plan["sport_name"] = sport_val
+    # Resolve model UUID → name
+    model_val = plan.get("model")
+    if model_val and len(str(model_val)) > 20 and "-" in str(model_val):
+        m_doc = await _db.periodization_models.find_one({"id": model_val}, {"_id": 0, "name": 1})
+        if m_doc:
+            plan["model_name"] = m_doc.get("name", model_val)
+        else:
+            plan["model_name"] = plan.get("model_name") or "Modelo personalizado"
+    return plan
+
+
+# Phase ID → human label (matches server.py _type_meta map)
+_PHASE_LABELS = {
+    "preparation_general": "Preparación General",
+    "preparation_specific": "Preparación Específica",
+    "pre_competitive": "Pre-Competitivo",
+    "competitive": "Competitivo",
+    "transition": "Transición / Recuperación",
+    "maintenance": "Mantenimiento",
+    "custom": "Personalizada",
+}
+
+def _phase_label(phase: str) -> str:
+    if not phase:
+        return "—"
+    p = str(phase)
+    # Strip trailing _N suffix if present (e.g. "preparation_general_1" → "preparation_general")
+    base = p.rsplit("_", 1)[0] if p.split("_")[-1].isdigit() else p
+    return _PHASE_LABELS.get(base, p.replace("_", " ").title())
+
+
+async def _capture_graphic_plan_on_demand(plan_id: str, user_id: str) -> Optional[str]:
+    """Render the public graphic_plan page and return an inline data URL (PNG base64)."""
+    import uuid as _uuid
+    # Create a temporary share so the public URL renders the right plan
+    share_id = str(_uuid.uuid4())
+    plan = await _db.training_plans.find_one({"id": plan_id, "$or": [{"user_id": user_id}, {"coach_id": user_id}]}, {"_id": 0})
+    if not plan:
+        return None
+    share_doc = {
+        "id": share_id,
+        "share_id": share_id,
+        "plan_id": plan_id,
+        "user_id": user_id,
+        "plan_snapshot": plan,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "auto_capture": True,
+    }
+    await _db.graphic_plan_shares.insert_one(share_doc)
+    # Try to render via Playwright the public viewer
+    os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", "/pw-browsers")
+    try:
+        from playwright.async_api import async_playwright
+        backend_url = os.environ.get('PUBLIC_FRONTEND_URL') or os.environ.get('REACT_APP_BACKEND_URL', '')
+        if not backend_url:
+            return None
+        url = f"{backend_url.rstrip('/')}/api/graphic-plan/shared/{share_id}"
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True,
+                args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'])
+            page = await browser.new_page(viewport={"width": 1600, "height": 900})
+            await page.goto(url, wait_until="networkidle", timeout=20000)
+            await page.wait_for_timeout(1500)
+            png = await page.screenshot(full_page=True, type="png")
+            await browser.close()
+        return "data:image/png;base64," + base64.b64encode(png).decode()
+    except Exception:
+        return None
 
 
 def _h2(title: str, style: dict) -> str:
@@ -502,21 +582,46 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
 
     # ----- DIAGNOSTIC ACTIVE -----
     if payload.sections.diagnostic_active and plan_doc:
-        weeks = plan_doc.get("total_weeks", "—")
-        sport = plan_doc.get("sport", "—")
+        weeks = plan_doc.get("total_weeks") or "—"
+        sport_label = plan_doc.get("sport_name") or plan_doc.get("sport") or "—"
+        model_label = plan_doc.get("model_name") or plan_doc.get("model") or "—"
+        # If model still looks like UUID, mask it
+        if model_label and isinstance(model_label, str) and len(model_label) > 30 and model_label.count("-") >= 4:
+            model_label = "Personalizado"
         objective = plan_doc.get("main_objective") or plan_doc.get("description") or ""
+        macros = plan_doc.get("macrocycles") or []
+        n_macros = len(macros)
+        n_mesos = sum(len(m.get("mesocycles") or []) for m in macros)
+        n_micros = 0
+        for m in macros:
+            for ms in (m.get("mesocycles") or []):
+                n_micros += len(ms.get("microcycles") or [])
         parts.append(("diagnostic_active", f"""<section class="page-break">
 <span class="badge">PLAN ACTIVO</span>
 <h2>Diagnóstico · Plan Activo</h2>
 <div class="kpi-row">
-  {_stat_card('MODELO', _esc(plan_doc.get('model_name') or plan_doc.get('model') or '—'))}
-  {_stat_card('DEPORTE', _esc(sport))}
+  {_stat_card('MODELO', _esc(model_label))}
+  {_stat_card('DEPORTE', _esc(sport_label))}
   {_stat_card('SEMANAS', weeks)}
+</div>
+<div class="kpi-row">
+  {_stat_card('MACROCICLOS', n_macros)}
+  {_stat_card('MESOCICLOS', n_mesos)}
+  {_stat_card('MICROCICLOS', n_micros or weeks)}
 </div>
 {f'<div class="callout"><strong>Objetivo principal</strong><br/>{_esc(objective)}</div>' if objective else ''}
 </section>"""))
 
     # ----- INFO sections -----
+    # Per-collection field mapping for "Detalle" column
+    INFO_FIELDS = {
+        "entities":    ("name",      ["entity_type", "city", "country", "description"]),
+        "teams":       ("name",      ["sport", "category", "level", "description"]),
+        "athletes":    ("name",      ["sport", "age", "level", "position"]),
+        "sports":      ("name",      ["category", "type", "description"]),
+        "tournaments": ("name",      ["start_date", "location", "category", "level"]),
+        "coaches":     ("full_name", ["specialization", "experience_years", "city", "description"]),
+    }
     info_map = [
         ("info_entities", "Entidades", "entities"),
         ("info_teams", "Equipos", "teams"),
@@ -527,18 +632,28 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
     ]
     for flag_key, title, coll in info_map:
         if getattr(payload.sections, flag_key):
-            cur = _db[coll].find({"$or": [{"user_id": user_id}, {"coach_id": user_id}]}, {"_id": 0}).limit(50)
-            items = await cur.to_list(50)
-            rows = ''.join([
-                f"<tr><td class='td-num'>{i+1:02d}</td><td><strong>{_esc(it.get('name') or it.get('full_name') or '—')}</strong></td><td>{_esc(it.get('description') or it.get('specialization') or it.get('sport') or it.get('city') or '—')}</td></tr>"
-                for i, it in enumerate(items)
-            ]) or "<tr><td colspan='3' class='muted'>Sin registros</td></tr>"
+            cur = _db[coll].find({"$or": [{"user_id": user_id}, {"coach_id": user_id}]}, {"_id": 0}).limit(80)
+            items = await cur.to_list(80)
+            name_field, detail_fields = INFO_FIELDS.get(coll, ("name", ["description"]))
+            rows = []
+            for i, it in enumerate(items):
+                name = it.get(name_field) or it.get("name") or it.get("full_name") or "—"
+                detail_parts = []
+                for f in detail_fields:
+                    v = it.get(f)
+                    if v not in (None, "", []):
+                        if f == "age" and v: detail_parts.append(f"{v} años")
+                        elif f == "experience_years" and v: detail_parts.append(f"{v} años exp.")
+                        else: detail_parts.append(str(v))
+                detail = " · ".join(detail_parts[:3]) or "—"
+                rows.append(f"<tr><td class='td-num'>{i+1:02d}</td><td><strong>{_esc(name)}</strong></td><td>{_esc(detail)}</td></tr>")
+            rows_html = ''.join(rows) or "<tr><td colspan='3' class='muted'>Sin registros</td></tr>"
             parts.append((flag_key, f"""<section class="page-break">
 <span class="badge">INFORMACIÓN</span>
 <h2>{_esc(title)} <span class="count">· {len(items)} registros</span></h2>
 <table class="data-tbl">
   <thead><tr><th style="width:40pt">#</th><th>Nombre</th><th>Detalle</th></tr></thead>
-  <tbody>{rows}</tbody>
+  <tbody>{rows_html}</tbody>
 </table>
 </section>"""))
 
@@ -628,8 +743,50 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
         rows = []
         for mi, m in enumerate(macros):
             for ms in (m.get("mesocycles") or []):
-                rows.append(f"<tr><td class='td-num'>{mi+1}</td><td><strong>{_esc(ms.get('name') or '—')}</strong></td><td><span class='pill pill-phase'>{_esc(ms.get('phase') or '—')}</span></td><td class='td-num'>{ms.get('weeks', '—')}</td><td class='td-num'>{ms.get('volume_pct') or ms.get('volume') or '—'}%</td><td class='td-num'>{ms.get('intensity_pct') or ms.get('intensity') or '—'}%</td></tr>")
+                phase_lbl = _phase_label(ms.get("phase") or ms.get("phase_id"))
+                vol = ms.get("volume_pct") or ms.get("volume") or "—"
+                inten = ms.get("intensity_pct") or ms.get("intensity") or "—"
+                wks = ms.get("weeks") or len(ms.get("microcycles") or []) or "—"
+                rows.append(
+                    f"<tr><td class='td-num'>M{mi+1}</td>"
+                    f"<td><strong>{_esc(ms.get('name') or '—')}</strong></td>"
+                    f"<td><span class='pill pill-phase'>{_esc(phase_lbl)}</span></td>"
+                    f"<td class='td-num'>{wks}</td>"
+                    f"<td class='td-num'>{vol}{'%' if vol not in ('—',) else ''}</td>"
+                    f"<td class='td-num'>{inten}{'%' if inten not in ('—',) else ''}</td></tr>"
+                )
         rows_html = ''.join(rows) or "<tr><td colspan='6' class='muted'>Sin estructura registrada</td></tr>"
+        # Microcycles detail per mesocycle
+        micro_blocks = []
+        for mi, m in enumerate(macros):
+            for ms in (m.get("mesocycles") or []):
+                micros = ms.get("microcycles") or []
+                if not micros:
+                    continue
+                micro_rows = []
+                for wi, mc in enumerate(micros):
+                    mc_name = mc.get("name") or f"Sem {wi+1}"
+                    mc_phase = _phase_label(mc.get("phase") or ms.get("phase"))
+                    mc_vol = mc.get("volume_pct") or mc.get("volume") or "—"
+                    mc_int = mc.get("intensity_pct") or mc.get("intensity") or "—"
+                    mc_load = mc.get("load_type") or mc.get("type") or "—"
+                    mc_obj = mc.get("objective") or mc.get("focus") or ""
+                    micro_rows.append(
+                        f"<tr><td class='td-num'>{wi+1:02d}</td>"
+                        f"<td><strong>{_esc(mc_name)}</strong></td>"
+                        f"<td>{_esc(mc_phase)}</td>"
+                        f"<td>{_esc(mc_load)}</td>"
+                        f"<td class='td-num'>{mc_vol}{'%' if mc_vol not in ('—',) else ''}</td>"
+                        f"<td class='td-num'>{mc_int}{'%' if mc_int not in ('—',) else ''}</td>"
+                        f"<td>{_esc(mc_obj[:60])}</td></tr>"
+                    )
+                micro_blocks.append(f"""
+<div style="margin-top:14pt"><h3 style="font-size:13pt; color:{primary}; margin:8pt 0 6pt; font-weight:800;">{_esc(ms.get('name') or 'Mesociclo')} <span style="font-weight:500; color:#94a3b8;">· {len(micros)} microciclos</span></h3>
+<table class="data-tbl">
+  <thead><tr><th style="width:30pt">#</th><th>Microciclo</th><th>Fase</th><th>Tipo</th><th style="width:55pt">Vol.</th><th style="width:55pt">Int.</th><th>Objetivo</th></tr></thead>
+  <tbody>{''.join(micro_rows)}</tbody>
+</table></div>""")
+        micro_html = ''.join(micro_blocks)
         parts.append(("periodization_structure", f"""<section class="page-break">
 <span class="badge">ESTRUCTURA</span>
 <h2>Periodización · Estructura</h2>
@@ -637,6 +794,7 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
   <thead><tr><th style="width:40pt">Macro</th><th>Mesociclo</th><th>Fase</th><th style="width:50pt">Sem.</th><th style="width:55pt">Volumen</th><th style="width:55pt">Intens.</th></tr></thead>
   <tbody>{rows_html}</tbody>
 </table>
+{micro_html}
 </section>"""))
 
     if payload.sections.periodization_load:
@@ -652,11 +810,18 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
             {"user_id": user_id, "plan_id": payload.plan_id},
             sort=[("created_at", -1)]
         )
-        if share and share.get("image_b64"):
+        gp_image_b64 = (share or {}).get("image_b64")
+        # On-demand capture if no share exists yet
+        if not gp_image_b64 and payload.plan_id:
+            try:
+                gp_image_b64 = await _capture_graphic_plan_on_demand(payload.plan_id, user_id)
+            except Exception:
+                gp_image_b64 = None
+        if gp_image_b64:
             parts.append(("graphic_plan", f"""<section class="page-break">
 <span class="badge">VISUALIZACIÓN</span>
 <h2>Plan Gráfico</h2>
-<img src='{share['image_b64']}' style='max-width:100%;display:block;margin:6pt auto;border-radius:8pt;border:1pt solid {accent}40;'/>
+<img src='{gp_image_b64}' style='max-width:100%;display:block;margin:6pt auto;border-radius:8pt;border:1pt solid {accent}40;'/>
 </section>"""))
         else:
             parts.append(("graphic_plan", f"""<section class="page-break">
@@ -742,12 +907,14 @@ section:first-child {{ margin-top: 0; }}
   padding: 56pt 40pt 40pt;
   border-radius: 0;
   margin: -18mm -14mm 18pt -14mm;
-  min-height: 70vh;
+  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   position: relative;
   overflow: hidden;
+  page-break-after: always;
 }}
 .cover::after {{
   content: '';
@@ -811,7 +978,7 @@ section:first-child {{ margin-top: 0; }}
 .cover-dedication {{ margin-top: 22pt; padding: 10pt 16pt; border-left: 2pt solid {accent}88; color: rgba(255,255,255,0.7); font-size: 10pt; max-width: 480pt; }}
 
 /* APA COVER */
-.apa-cover {{ background: #fff !important; color: {fg}; min-height: 92vh; padding: 48pt 60pt; display: flex; align-items: center; justify-content: center; margin: 0 !important; }}
+.apa-cover {{ background: #fff !important; color: {fg}; min-height: 100vh; height: 100vh; padding: 48pt 60pt; display: flex; align-items: center; justify-content: center; margin: -18mm -14mm 0 -14mm !important; page-break-after: always; }}
 .apa-cover::after {{ display: none; }}
 .apa-stack {{ width: 100%; max-width: 480pt; text-align: center; }}
 .apa-org {{ font-family: 'Playfair Display', Georgia, serif; font-size: 16pt; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: {primary}; margin-bottom: 14pt; }}
@@ -825,7 +992,7 @@ section:first-child {{ margin-top: 0; }}
 .apa-dedication {{ margin-top: 28pt; padding-top: 16pt; border-top: 1pt solid #e2e8f0; color: #64748b; font-size: 10pt; font-style: italic; }}
 
 /* MINIMAL COVER */
-.minimal-cover {{ background: #fff !important; color: {fg}; padding: 100pt 60pt; min-height: 90vh; margin: 0 !important; }}
+.minimal-cover {{ background: #fff !important; color: {fg}; padding: 100pt 60pt; min-height: 100vh; height: 100vh; margin: -18mm -14mm 0 -14mm !important; page-break-after: always; }}
 .minimal-cover::after {{ display: none; }}
 .min-rule {{ width: 50pt; height: 4pt; background: {accent}; margin-bottom: 32pt; }}
 .min-org {{ color: {primary}; font-size: 9pt; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 16pt; }}
@@ -835,9 +1002,9 @@ section:first-child {{ margin-top: 0; }}
 .min-meta strong {{ color: {primary}; }}
 
 /* INSTITUTIONAL COVER */
-.inst-cover {{ background: #fff !important; color: {fg}; padding: 24pt; min-height: 96vh; margin: 0 !important; }}
+.inst-cover {{ background: #fff !important; color: {fg}; padding: 24pt; min-height: 100vh; height: 100vh; margin: -18mm -14mm 0 -14mm !important; page-break-after: always; }}
 .inst-cover::after {{ display: none; }}
-.inst-frame {{ border: 3pt double {primary}; padding: 12pt; height: calc(96vh - 48pt); }}
+.inst-frame {{ border: 3pt double {primary}; padding: 12pt; height: calc(100vh - 48pt); }}
 .inst-inner {{ border: 1pt solid {accent}; padding: 36pt 30pt; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }}
 .inst-org {{ color: {primary}; font-size: 13pt; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; margin: 18pt 0 4pt; }}
 .inst-program {{ color: #64748b; font-size: 10pt; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 16pt; }}

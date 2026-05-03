@@ -1,0 +1,30 @@
+{
+  "summary": "Validated Master Report v4 fixes: UUID resolution (sport_name/model_name), 6 KPI cards in Diagnóstico Plan Activo, full-page covers across 4 layouts, periodization with phase humanization & microcycle detail blocks, INFO tables with non-empty Detalle column, and front-end preview canvas with max-width:760px + scrollable container. Backend 10/10 pytest pass. Frontend end-to-end via Playwright passes: header subtitle, preview tab rendering, Olímpico style auto-preview update.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_master_report_v4.py",
+    "/app/test_reports/pytest/master_report_v4_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "_PHASE_LABELS dict in master_report.py only covers Spanish base IDs (preparation_general/specific/pre_competitive/competitive/transition/maintenance/custom). Real plans in DB use English keys like 'development', 'build', 'peak', 'taper', 'base', 'accumulation', 'realization' — these fall back to Title-case English (Development, Build, Peak). Functionally not a raw ID leak, but inconsistent with stated Spanish-only label set. Recommend extending the map to include common English/ATR phase keys.",
+    "_capture_graphic_plan_on_demand creates a graphic_plan_shares document on every report generation but never deletes it on failure (no try/finally cleanup) — over time the 'graphic_plan_shares' collection will grow unbounded. Add cleanup or TTL index.",
+    "master_report.py is 1303 lines — splitting into models / styles / html_builder / routes is overdue (already noted in iter 54).",
+    "Plan ID 0cd4acaa-7e8e-463d-b4ac-54c3a47a766b mentioned in the request as 'main plan with 1 macro/1 meso/26 micros' actually has 0 microcycles in DB — likely a stale note. Verified TEST Plan Fútbol ATR (a6f2f198-...) for microcycle render path."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_master_report_v4.py (new)"
+  ],
+  "success_rate": {"backend": "100% (10/10)", "frontend": "100% (4/4 scenarios)"},
+  "test_credentials": "test@train.com / test123456",
+  "seed_data_creation": "none — used existing TEST plans",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Auth response uses 'token' (NOT 'access_token'). BASE_URL fallback loads from /app/frontend/.env. Plan IDs in DB: '0cd4acaa-...' = Plan Test API (1 macro / 0 micros), 'a6f2f198-...' = TEST Plan Fútbol ATR (3 macros / 11 micros, good for periodization tests), 'f3613fdc-...' = Powerlifting Matveiev (5/21). Microcycle keys use 'volume'/'intensity'/'type' (not _pct suffix); the code already handles both. master_report.py phase labels are Spanish-only — Title-case English fallback is acceptable.",
+  "rca of the issue": "n/a — all requested fixes verified working."
+}

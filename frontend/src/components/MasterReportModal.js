@@ -251,7 +251,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
             <div className="flex-1">
               <div className="text-base font-bold tracking-tight">Reporte Maestro · PDF</div>
               <DialogDescription className="text-[11px] text-slate-300 font-normal">
-                Constructor selectivo · 8 estilos · 4 layouts de portada · 23 secciones
+                Constructor selectivo · 8 estilos · 4 layouts de portada · 23 secciones · vista previa en tiempo real
               </DialogDescription>
             </div>
           </DialogTitle>
@@ -546,15 +546,15 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
             <div className="bg-slate-100 rounded-xl border-2 border-dashed border-slate-300 p-3 max-h-[640px] overflow-y-auto flex items-start justify-center"
               data-testid="mr-preview-canvas">
               {previewUrl ? (
-                <div className="relative">
+                <div className="relative w-full flex justify-center">
                   {previewing && (
                     <div className="absolute top-2 right-2 z-10 bg-slate-900/85 text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-1.5 backdrop-blur-sm">
                       <Loader2 className="w-3 h-3 animate-spin" />Actualizando…
                     </div>
                   )}
                   <img src={previewUrl} alt="Vista previa"
-                    className="max-w-full shadow-2xl rounded-lg border border-slate-300 bg-white"
-                    style={{ maxWidth: '720px' }} />
+                    className="shadow-2xl rounded-lg border border-slate-300 bg-white"
+                    style={{ width: '100%', maxWidth: '760px', height: 'auto' }} />
                 </div>
               ) : previewing ? (
                 <div className="text-center text-slate-500 py-20">
