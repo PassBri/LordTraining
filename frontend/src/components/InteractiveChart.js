@@ -395,6 +395,7 @@ const InteractiveChart = ({
                 strokeWidth={2}
                 dot={{ r: 4, fill: dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6' }}
                 activeDot={{ r: 6, strokeWidth: 2, stroke: '#fff' }}
+                connectNulls={true}
               />
             ))}
             {renderReferenceLines()}
@@ -422,6 +423,7 @@ const InteractiveChart = ({
                 stroke={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6'}
                 fill={`url(#gradient-${dk.key})`}
                 strokeWidth={2}
+                connectNulls={true}
               />
             ))}
             {renderReferenceLines()}
@@ -486,6 +488,7 @@ const InteractiveChart = ({
                   stroke={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6'}
                   strokeWidth={3}
                   dot={{ r: 4, fill: dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6' }}
+                  connectNulls={true}
                 />
               );
             })}
