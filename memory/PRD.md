@@ -2,7 +2,12 @@
 
 ## Credenciales: test@train.com / test123456
 
-## [Feb 2026] Actualización de precios y planes (Starter / Pro / Club / Institucional)
+## [Feb 2026] Tarea 1 — Toggle Mensual/Anual con 20% off
+- **Landing** (`LandingPage.js`): pill toggle premium (estilo dark glass + acento lima cuando "Anual" activo) encima de las 4 cards. Estado `billingCycle`. Anual aplica `monthly * 0.8`, muestra precio tachado, total anual y badge `−20%`.
+- **Subscription Page** (`SubscriptionPage.js`): mismo toggle (light theme + emerald accent) sobre el grid de planes. `handleSubscribe(planId, cycle)` ahora propaga el ciclo al backend (preparado para Stripe).
+- **Conversión esperada**: anual elimina la pregunta "¿lo pagaré 12 veces?" y muestra ahorro tangible. Pro pasa de $19.99/mes a "ahorra $47.98/año" (mensaje aspiracional pero accesible).
+
+
 - **Frontend Landing** (`LandingPage.js`): array de pricing actualizado a 4 planes ($9.99/$19.99/$49.99/$149.99) con 6/7/8/9 features.
 - **Frontend Dashboard → botón Plan** (`SubscriptionPage.js`): array `PLANS` reescrito con descripciones, features y precios alineados.
 - **i18n** (`es.json` + `en.json`): claves `landing.pricing.*` reescritas para los 4 planes (starter/pro/club/inst) con todas las features nuevas y CTAs.

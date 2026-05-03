@@ -441,6 +441,7 @@ const TestimonialsCarousel = ({ t }) => {
 /* ═══════════════════════════════ PAGE ═══════════════════════════════ */
 const LandingPage = () => {
   const { t } = useTranslation();
+  const [billingCycle, setBillingCycle] = useState('monthly'); // 'monthly' | 'annual'
 
   const PRICING = [
     { key: 'starter', price: '9.99', pop: false, fcount: 6 },
@@ -1106,10 +1107,35 @@ const LandingPage = () => {
 
       <div className="max-w-[1120px] mx-auto relative z-10">
         {/* Header */}
-        <Reveal direction="up" className="text-center mb-16">
+        <Reveal direction="up" className="text-center mb-10">
           <SectionTag>{t('landing.pricing.tag')}</SectionTag>
           <h2 className="text-[36px] md:text-[48px] font-extrabold text-white leading-[1.05] tracking-[-1px] mb-4" style={{fontFamily:INT}}>{t('landing.pricing.title')}</h2>
           <p className="text-[15px] text-white/30 max-w-[440px] mx-auto">{t('landing.pricing.subtitle')}</p>
+        </Reveal>
+
+        {/* Billing toggle */}
+        <Reveal direction="up" delay={0.1} className="flex justify-center mb-12">
+          <div className="inline-flex items-center gap-1 p-1 rounded-full border border-white/10" style={{background:'rgba(255,255,255,0.02)', backdropFilter:'blur(12px)'}} data-testid="billing-toggle">
+            <button
+              onClick={() => setBillingCycle('monthly')}
+              className={`relative px-5 py-2 rounded-full text-[12px] font-bold transition-all duration-300 ${billingCycle === 'monthly' ? 'bg-white text-slate-900 shadow-lg' : 'text-white/50 hover:text-white/80'}`}
+              style={{fontFamily:BC, letterSpacing:'0.04em'}}
+              data-testid="billing-monthly-btn"
+            >
+              MENSUAL
+            </button>
+            <button
+              onClick={() => setBillingCycle('annual')}
+              className={`relative px-5 py-2 rounded-full text-[12px] font-bold transition-all duration-300 flex items-center gap-2 ${billingCycle === 'annual' ? 'bg-[#c8f700] text-slate-900 shadow-lg shadow-[#c8f700]/20' : 'text-white/50 hover:text-white/80'}`}
+              style={{fontFamily:BC, letterSpacing:'0.04em'}}
+              data-testid="billing-annual-btn"
+            >
+              ANUAL
+              <span className={`px-1.5 py-0.5 rounded-md text-[9px] font-black ${billingCycle === 'annual' ? 'bg-slate-900 text-[#c8f700]' : 'bg-[#c8f700]/20 text-[#c8f700]'}`}>
+                −20%
+              </span>
+            </button>
+          </div>
         </Reveal>
 
         {/* 4 Plans */}
@@ -1121,6 +1147,11 @@ const LandingPage = () => {
             { key:'inst', price:'149.99', num:'04', color:'#EF9F27', pop:false, fcount:9 },
           ].map((plan, idx) => {
             const features = Array.from({length: plan.fcount}, (_, j) => t(`landing.pricing.${plan.key}_f${j+1}`));
+            const monthlyPrice = parseFloat(plan.price);
+            const annualMonthly = (monthlyPrice * 0.8).toFixed(2);
+            const annualTotal = (monthlyPrice * 0.8 * 12).toFixed(2);
+            const isAnnual = billingCycle === 'annual';
+            const displayPrice = isAnnual ? annualMonthly : plan.price;
             return (
             <Reveal key={plan.key} delay={idx * 0.08} direction="up">
             <div className={`relative rounded-2xl h-full flex flex-col overflow-hidden transition-all duration-300 group ${plan.pop ? 'ring-1 scale-[1.02] z-10' : 'hover:scale-[1.01]'}`}
@@ -1154,11 +1185,21 @@ const LandingPage = () => {
                 </div>
 
                 {/* Price */}
-                <div className="mb-6">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-[42px] font-black leading-none" style={{fontFamily:BC, color: plan.pop ? plan.color : '#fff'}}>${plan.price}</span>
+                <div className="mb-6 min-h-[78px]">
+                  <div className="flex items-baseline gap-1 transition-all duration-300" key={billingCycle}>
+                    <span className="text-[42px] font-black leading-none" style={{fontFamily:BC, color: plan.pop ? plan.color : '#fff'}} data-testid={`price-${plan.key}`}>${displayPrice}</span>
                     <span className="text-[12px] text-white/25">{t('landing.pricing.perMonth')}</span>
                   </div>
+                  {isAnnual ? (
+                    <div className="flex items-center gap-2 mt-1.5 text-[11px]">
+                      <span className="line-through text-white/20">${plan.price}/mes</span>
+                      <span className="text-[#c8f700]/80 font-semibold">${annualTotal}/año</span>
+                    </div>
+                  ) : (
+                    <div className="text-[11px] text-white/25 mt-1.5">
+                      Anual: ahorra ${(monthlyPrice * 12 * 0.2).toFixed(2)}/año
+                    </div>
+                  )}
                 </div>
 
                 {/* Divider */}

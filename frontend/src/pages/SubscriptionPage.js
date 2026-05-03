@@ -112,16 +112,17 @@ const SubscriptionPage = () => {
     finally { setCheckingPayment(false); }
   };
 
-  const handleSubscribe = async (planId) => {
+  const handleSubscribe = async (planId, cycle = 'monthly') => {
     if (planId === 'free' || planId === user?.subscription) return;
     setLoading(true);
     try {
-      const response = await createCheckout(planId, window.location.origin);
+      const response = await createCheckout(planId, window.location.origin, cycle);
       if (response.data.url) { window.location.href = response.data.url; }
     } catch (error) { toast.error(error.response?.data?.detail || 'Error al iniciar el pago'); }
     finally { setLoading(false); }
   };
 
+  const [billingCycle, setBillingCycle] = useState('monthly');
   const currentPlan = PLANS.find(p => p.id === user?.subscription) || PLANS[0];
 
   return (
@@ -195,15 +196,43 @@ const SubscriptionPage = () => {
 
         {/* Plans grid — same style as Landing Page */}
         <div>
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#007AFF] mb-2">Precios</p>
             <h2 className="text-[28px] font-bold text-slate-900 leading-tight">Planes y Precios</h2>
+          </div>
+
+          {/* Billing toggle */}
+          <div className="flex justify-center mb-8">
+            <div className="inline-flex items-center gap-1 p-1 rounded-full border border-slate-200 bg-white shadow-sm" data-testid="sub-billing-toggle">
+              <button
+                onClick={() => setBillingCycle('monthly')}
+                className={`px-5 py-2 rounded-full text-[12px] font-bold uppercase tracking-wider transition-all duration-300 ${billingCycle === 'monthly' ? 'bg-slate-900 text-white shadow' : 'text-slate-500 hover:text-slate-800'}`}
+                data-testid="sub-billing-monthly-btn"
+              >
+                Mensual
+              </button>
+              <button
+                onClick={() => setBillingCycle('annual')}
+                className={`px-5 py-2 rounded-full text-[12px] font-bold uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${billingCycle === 'annual' ? 'bg-emerald-500 text-white shadow shadow-emerald-200' : 'text-slate-500 hover:text-slate-800'}`}
+                data-testid="sub-billing-annual-btn"
+              >
+                Anual
+                <span className={`px-1.5 py-0.5 rounded-md text-[9px] font-black ${billingCycle === 'annual' ? 'bg-white text-emerald-600' : 'bg-emerald-100 text-emerald-700'}`}>
+                  −20%
+                </span>
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {PLANS.map((plan) => {
               const isCurrent = plan.id === user?.subscription;
               const isUpgrade = PLANS.findIndex(p => p.id === plan.id) > PLANS.findIndex(p => p.id === user?.subscription);
+              const monthly = parseFloat(plan.price);
+              const annualMonthly = (monthly * 0.8).toFixed(2);
+              const annualTotal = (monthly * 0.8 * 12).toFixed(2);
+              const isAnnual = billingCycle === 'annual';
+              const displayPrice = isAnnual ? annualMonthly : plan.price;
 
               return (
                 <div
@@ -234,11 +263,23 @@ const SubscriptionPage = () => {
                   <h3 className={`text-[15px] font-semibold ${plan.popular ? 'text-white' : 'text-slate-900'}`}>{plan.name}</h3>
                   <p className={`text-[12px] mt-0.5 ${plan.popular ? 'text-slate-400' : 'text-slate-500'}`}>{plan.description}</p>
 
-                  <div className="flex items-baseline mt-4 mb-5">
-                    <span className={`text-[32px] font-black leading-none ${plan.popular ? 'text-[#CCFF00]' : 'text-slate-900'}`}>
-                      ${plan.price}
-                    </span>
-                    <span className={`text-[13px] ml-1 ${plan.popular ? 'text-slate-500' : 'text-slate-400'}`}>/mes</span>
+                  <div className="mt-4 mb-5 min-h-[68px]">
+                    <div className="flex items-baseline" key={billingCycle}>
+                      <span className={`text-[32px] font-black leading-none ${plan.popular ? 'text-[#CCFF00]' : 'text-slate-900'}`} data-testid={`sub-price-${plan.id}`}>
+                        ${displayPrice}
+                      </span>
+                      <span className={`text-[13px] ml-1 ${plan.popular ? 'text-slate-500' : 'text-slate-400'}`}>/mes</span>
+                    </div>
+                    {isAnnual ? (
+                      <div className="flex items-center gap-2 mt-1.5 text-[11px]">
+                        <span className={`line-through ${plan.popular ? 'text-slate-500' : 'text-slate-400'}`}>${plan.price}/mes</span>
+                        <span className={plan.popular ? 'text-emerald-400 font-semibold' : 'text-emerald-600 font-semibold'}>${annualTotal}/año</span>
+                      </div>
+                    ) : (
+                      <div className={`text-[11px] mt-1.5 ${plan.popular ? 'text-slate-500' : 'text-slate-400'}`}>
+                        Anual: ahorra ${(monthly * 12 * 0.2).toFixed(2)}/año
+                      </div>
+                    )}
                   </div>
 
                   <ul className="space-y-2.5 mb-6">
@@ -259,7 +300,7 @@ const SubscriptionPage = () => {
                           : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'
                     }`}
                     disabled={isCurrent || loading || plan.id === 'free'}
-                    onClick={() => handleSubscribe(plan.id)}
+                    onClick={() => handleSubscribe(plan.id, billingCycle)}
                     data-testid={`subscribe-${plan.id}`}
                   >
                     {loading ? (
