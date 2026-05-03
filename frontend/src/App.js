@@ -12,6 +12,7 @@ import SubscriptionPage from './pages/SubscriptionPage';
 import SessionViewPage from './pages/SessionViewPage';
 import TournamentPublicPage from './pages/TournamentPublicPage';
 import SharedPlanPage from './pages/SharedPlanPage';
+import OrgTeamPage from './pages/OrgTeamPage';
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -71,6 +72,11 @@ function AppRoutes() {
       <Route path="/subscription" element={
         <ProtectedRoute>
           <SubscriptionPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/org/team" element={
+        <ProtectedRoute>
+          <OrgTeamPage />
         </ProtectedRoute>
       } />
       

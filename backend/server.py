@@ -830,6 +830,74 @@ SUBSCRIPTION_LIMITS = {
     SubscriptionPlan.ENTERPRISE: {"athletes": 999, "plans": 999, "ai_generations": 999, "pdf_exports": 999}
 }
 
+# Plan rank for "minimum tier" feature gating
+PLAN_RANK = {
+    SubscriptionPlan.FREE: 0,
+    SubscriptionPlan.STARTER: 1,
+    SubscriptionPlan.BASIC: 2,       # Pro
+    SubscriptionPlan.PRO: 3,         # Club / Academia
+    SubscriptionPlan.ENTERPRISE: 4   # Institucional
+}
+
+# Each feature mapped to its minimum required plan
+FEATURE_MIN_PLAN = {
+    # Starter+
+    "exercise_library_full": SubscriptionPlan.STARTER,
+    "pdf_export_basic": SubscriptionPlan.STARTER,
+    "diagnostics_basic": SubscriptionPlan.STARTER,
+    # Pro (BASIC) +
+    "tactical_board": SubscriptionPlan.BASIC,
+    "calendar": SubscriptionPlan.BASIC,
+    "pdf_excel_export": SubscriptionPlan.BASIC,
+    "diagnostics_full": SubscriptionPlan.BASIC,
+    "email_support": SubscriptionPlan.BASIC,
+    "unlimited_plans": SubscriptionPlan.BASIC,
+    # Club (PRO) +
+    "atr_periodization": SubscriptionPlan.PRO,
+    "advanced_models": SubscriptionPlan.PRO,
+    "template_customization": SubscriptionPlan.PRO,
+    "priority_support": SubscriptionPlan.PRO,
+    "exercise_diagrams": SubscriptionPlan.PRO,
+    "unlimited_athletes": SubscriptionPlan.PRO,
+    # Institutional (ENTERPRISE) only
+    "multi_coach": SubscriptionPlan.ENTERPRISE,
+    "coordination_panel": SubscriptionPlan.ENTERPRISE,
+    "group_analytics": SubscriptionPlan.ENTERPRISE,
+    "custom_api": SubscriptionPlan.ENTERPRISE,
+    "training_included": SubscriptionPlan.ENTERPRISE,
+    "support_24_7": SubscriptionPlan.ENTERPRISE,
+    "dedicated_onboarding": SubscriptionPlan.ENTERPRISE,
+    "unlimited_ai": SubscriptionPlan.ENTERPRISE,
+    "org_management": SubscriptionPlan.PRO,  # Club+ pueden tener organización con coaches
+}
+
+def has_plan_feature(user_plan: str, feature_key: str) -> bool:
+    """Returns True if the user's plan tier is >= the minimum required for the feature."""
+    try:
+        user_rank = PLAN_RANK.get(SubscriptionPlan(user_plan), 0)
+        required_plan = FEATURE_MIN_PLAN.get(feature_key)
+        if required_plan is None:
+            return True  # Unknown features are open by default
+        required_rank = PLAN_RANK.get(required_plan, 99)
+        return user_rank >= required_rank
+    except Exception:
+        return False
+
+def require_plan_feature(user: dict, feature_key: str):
+    """Raises 403 if the user's subscription doesn't meet the feature requirement."""
+    if not has_plan_feature(user.get("subscription", "free"), feature_key):
+        required = FEATURE_MIN_PLAN.get(feature_key)
+        plan_name = required.value if required else "superior"
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "plan_upgrade_required",
+                "feature": feature_key,
+                "required_plan": plan_name,
+                "message": f"Esta función requiere el plan {plan_name.upper()} o superior. Mejora tu suscripción para desbloquearla."
+            }
+        )
+
 # =============== AUTH ROUTES ===============
 @api_router.post("/auth/register", response_model=UserResponse)
 async def register(user: UserCreate):
@@ -909,6 +977,25 @@ async def get_available_roles():
         {"id": "user", "name": "Usuario", "description": "Rol básico sin atletas asignados"}
     ]
     return roles
+
+@api_router.get("/plan-features")
+async def get_plan_features(user: dict = Depends(get_current_user)):
+    """Returns the user's plan + which features they can access. Used by frontend PlanGate."""
+    plan = user.get("subscription", "free")
+    limits = SUBSCRIPTION_LIMITS.get(SubscriptionPlan(plan), SUBSCRIPTION_LIMITS[SubscriptionPlan.FREE])
+    features = {fk: has_plan_feature(plan, fk) for fk in FEATURE_MIN_PLAN.keys()}
+    return {
+        "plan": plan,
+        "plan_rank": PLAN_RANK.get(SubscriptionPlan(plan), 0),
+        "limits": limits,
+        "usage": {
+            "athletes": user.get("athletes_count", 0),
+            "plans": user.get("plans_count", 0),
+            "ai_generations": user.get("ai_generations_used", 0),
+        },
+        "features": features,
+        "feature_min_plan": {k: v.value for k, v in FEATURE_MIN_PLAN.items()},
+    }
 
 # Endpoint para obtener modelos de periodización disponibles
 @api_router.get("/periodization-models-catalog")
@@ -8325,6 +8412,9 @@ app.include_router(federations_router, prefix="/api")
 
 from routes.sessions_export import router as sessions_export_router
 app.include_router(sessions_export_router, prefix="/api")
+
+from routes.org_management import router as org_management_router
+app.include_router(org_management_router, prefix="/api")
 
 # Store db reference in app state for V2 routes
 app.state.db = db

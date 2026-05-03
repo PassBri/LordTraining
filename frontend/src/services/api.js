@@ -111,4 +111,17 @@ export const getCategoryStandings = (tournamentId, categoryId) => axios.get(`${A
 export const getPublicTournament = (shareId) => axios.get(`${API}/tournaments/public/${shareId}`);
 export const exportTournamentPDF = (tournamentId) => `${API}/tournaments/${tournamentId}/export-pdf?token=${localStorage.getItem('train_token')}`;
 
+// Plan Features (gating)
+export const getPlanFeatures = () => axios.get(`${API}/plan-features`, getAuthHeader());
+
+// Organization (Club / Federation / Institution)
+export const createOrganization = (data) => axios.post(`${API}/org/create`, data, getAuthHeader());
+export const getMyOrganization = () => axios.get(`${API}/org/me`, getAuthHeader());
+export const getOrgCoaches = () => axios.get(`${API}/org/coaches`, getAuthHeader());
+export const inviteCoach = (data) => axios.post(`${API}/org/coaches/invite`, data, getAuthHeader());
+export const updateCoach = (coachId, data) => axios.patch(`${API}/org/coaches/${coachId}`, data, getAuthHeader());
+export const resetCoachPassword = (coachId) => axios.post(`${API}/org/coaches/${coachId}/reset-password`, {}, getAuthHeader());
+export const removeCoach = (coachId) => axios.delete(`${API}/org/coaches/${coachId}`, getAuthHeader());
+export const getOrgStats = () => axios.get(`${API}/org/stats`, getAuthHeader());
+
 export default API;

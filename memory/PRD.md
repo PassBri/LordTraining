@@ -2,7 +2,31 @@
 
 ## Credenciales: test@train.com / test123456
 
-## [Feb 2026] Tarea 1 — Toggle Mensual/Anual con 20% off
+## [Feb 2026] Tarea 2 — Sistema de control de planes + Multi-Coach Org
+**Backend** (`server.py` + `routes/org_management.py` NUEVO):
+- `PLAN_RANK` + `FEATURE_MIN_PLAN` + helper `has_plan_feature()` / `require_plan_feature()` para gating consistente.
+- Nuevo endpoint `GET /api/plan-features` devuelve plan, límites, uso y mapa completo de features para frontend.
+- Nuevo router `routes/org_management.py` con endpoints:
+  - `POST /api/org/create` (Club/Institucional)
+  - `GET /api/org/me` · `GET /api/org/coaches` · `GET /api/org/stats`
+  - `POST /api/org/coaches/invite` (genera password temporal)
+  - `PATCH /api/org/coaches/{id}` (suspender/activar/cambiar rol)
+  - `POST /api/org/coaches/{id}/reset-password`
+  - `DELETE /api/org/coaches/{id}` (remueve del org, mantiene cuenta)
+- Nueva colección `organizations` + campos opcionales `org_id`, `org_role`, `org_role_label`, `status`, `must_change_password` en `users`.
+
+**Frontend** (NUEVOS):
+- `hooks/usePlanGate.js` — hook con cache 60s que devuelve `{ allowed, requiredPlan, plan, features, limits, usage }`.
+- `components/PlanGate.js` — wrapper con 3 modos: `overlay` (default, blur + lock), `softblock` (intercepta clicks), `block` (no renderiza). Modal de upgrade con CTA al `/subscription`.
+- `pages/OrgTeamPage.js` — Panel admin completo: 4 stat cards, tabla de entrenadores con avatares, badges (OWNER/PENDIENTE/SUSPENDIDO), acciones (reset password, suspender, eliminar), modal "Crear organización" (escala según plan: 20 coaches Club / ∞ Institucional), modal "Invitar entrenador", modal "Contraseña temporal" (con copy-to-clipboard).
+- Ruta `/org/team` añadida en `App.js`.
+- Botón FAB **"Equipo"** (icono Building2) condicional en dashboard, solo visible si `usePlanGate('org_management').allowed` (Club o Institucional).
+
+**Validación**:
+- Backend: probado E2E vía curl (create org + invite + list devuelven 200 con datos correctos; user free recibe 403 con mensaje claro).
+- Frontend: screenshots `/org/team` muestran org + coaches + acciones funcionando. Botón Equipo aparece en dashboard del usuario enterprise.
+
+
 - **Landing** (`LandingPage.js`): pill toggle premium (estilo dark glass + acento lima cuando "Anual" activo) encima de las 4 cards. Estado `billingCycle`. Anual aplica `monthly * 0.8`, muestra precio tachado, total anual y badge `−20%`.
 - **Subscription Page** (`SubscriptionPage.js`): mismo toggle (light theme + emerald accent) sobre el grid de planes. `handleSubscribe(planId, cycle)` ahora propaga el ciclo al backend (preparado para Stripe).
 - **Conversión esperada**: anual elimina la pregunta "¿lo pagaré 12 veces?" y muestra ahorro tangible. Pro pasa de $19.99/mes a "ahorra $47.98/año" (mensaje aspiracional pero accesible).

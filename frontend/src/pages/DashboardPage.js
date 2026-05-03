@@ -9,6 +9,7 @@ import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 import { getDashboardStats, getAthletes, seedExercises, getTournaments, createTournament, deleteTournament, getTournament, addTournamentCategory, registerParticipant, generateBracket, getTournamentMatches, updateMatchScore, exportTournamentPDF, getTeams as fetchTeamsApi } from '../services/api';
+import usePlanGate from '../hooks/usePlanGate';
 import { 
   Target, Send, Heart, Zap, Brain, ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
   FileText, Users, Clipboard, Calendar, Award, BookOpen, 
@@ -90,6 +91,7 @@ const DashboardPage = () => {
   const { t } = useTranslation();
   const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
+  const { allowed: canManageOrg } = usePlanGate('org_management');
   const [stats, setStats] = useState(null);
   const [athletes, setAthletes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -4608,6 +4610,23 @@ const DashboardPage = () => {
 
           {/* Right: Testing + User Action FABs */}
           <div className="flex items-start gap-2 shrink-0 pl-2">
+            {/* Equipo (Org) FAB — solo Club / Institucional */}
+            {canManageOrg && (
+              <Link to="/org/team">
+                <button
+                  className="group flex flex-col items-center gap-1 shrink-0 outline-none"
+                  data-testid="org-team-btn"
+                >
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg hover:text-emerald-600">
+                    <Building2 className="w-[18px] h-[18px] transition-transform duration-300 group-hover:text-emerald-600" strokeWidth={1.8} />
+                  </div>
+                  <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-emerald-600 transition-colors duration-300">
+                    Equipo
+                  </span>
+                </button>
+              </Link>
+            )}
+
             {/* Suscripción FAB */}
             <Link to="/subscription">
               <button
