@@ -225,8 +225,7 @@ const SuperAdminPage = () => {
                 <h2 className="text-3xl font-bold text-white">{stats.total_users} usuarios totales</h2>
                 <p className="text-[13px] text-white/70 mt-1.5">{stats.total_orgs} organizaciones · {stats.total_plans} planes · {stats.total_athletes} atletas</p>
 
-                <div className="mt-5 grid grid-cols-2 sm:grid-cols-5 gap-2">
-                  <PlanCount label="Free" value={stats.by_plan.free} />
+                <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
                   <PlanCount label="Starter" value={stats.by_plan.starter} />
                   <PlanCount label="Pro" value={stats.by_plan.basic} />
                   <PlanCount label="Club" value={stats.by_plan.pro} />
@@ -791,7 +790,7 @@ const FinanceDashboard = ({ finance, alerts, onRefund }) => {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-[13px] font-bold text-slate-900">Embudo de conversión</h3>
-            <p className="text-[11px] text-slate-500">Free → Plans pagados</p>
+            <p className="text-[11px] text-slate-500">Starter → Pro → Club → Institucional</p>
           </div>
           <Award className="w-4 h-4 text-purple-600" />
         </div>

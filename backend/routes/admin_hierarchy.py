@@ -188,7 +188,6 @@ async def get_hierarchy(request: Request, user: dict = Depends(_get_current_user
             "total_plans": total_plans,
             "total_athletes": total_athletes,
             "by_plan": {
-                "free": sum(1 for u in all_users if u.get("subscription") == "free"),
                 "starter": sum(1 for u in all_users if u.get("subscription") == "starter"),
                 "basic": sum(1 for u in all_users if u.get("subscription") == "basic"),
                 "pro": sum(1 for u in all_users if u.get("subscription") == "pro"),
@@ -435,14 +434,13 @@ async def get_finance(request: Request, user: dict = Depends(_get_current_user))
             "revenue": round(in_month_revenue, 2),
         })
 
-    # Conversion funnel
+    # Conversion funnel (excluyendo Free)
     total_users = await db.users.count_documents({})
     by_plan = {}
-    for plan in ["free", "starter", "basic", "pro", "enterprise"]:
+    for plan in ["starter", "basic", "pro", "enterprise"]:
         by_plan[plan] = await db.users.count_documents({"subscription": plan})
     funnel = [
         {"stage": "Registrados", "count": total_users, "rate": 100.0},
-        {"stage": "Starter+", "count": total_users - by_plan["free"], "rate": round((total_users - by_plan["free"]) / total_users * 100, 1) if total_users else 0},
         {"stage": "Pro+", "count": by_plan["basic"] + by_plan["pro"] + by_plan["enterprise"], "rate": round((by_plan["basic"] + by_plan["pro"] + by_plan["enterprise"]) / total_users * 100, 1) if total_users else 0},
         {"stage": "Club+", "count": by_plan["pro"] + by_plan["enterprise"], "rate": round((by_plan["pro"] + by_plan["enterprise"]) / total_users * 100, 1) if total_users else 0},
         {"stage": "Institucional", "count": by_plan["enterprise"], "rate": round(by_plan["enterprise"] / total_users * 100, 1) if total_users else 0},
@@ -592,16 +590,16 @@ async def get_alerts(request: Request, user: dict = Depends(_get_current_user)):
             "value": str(recent_redemptions),
         })
 
-    # 5) Free users on plataform (potential conversions)
-    total_free = await db.users.count_documents({"subscription": "free"})
+    # 5) Starter users on platform (potential upgrades to Pro+)
+    total_starter = await db.users.count_documents({"subscription": "starter"})
     total_users = await db.users.count_documents({})
-    free_pct = (total_free / total_users * 100) if total_users else 0
-    if free_pct > 80 and total_users >= 10:
+    starter_pct = (total_starter / total_users * 100) if total_users else 0
+    if starter_pct > 60 and total_users >= 10:
         alerts.append({
             "level": "info", "icon": "trending_up",
-            "title": f"{free_pct:.0f}% de usuarios siguen en plan Free",
-            "message": f"Hay {total_free} oportunidades de conversión. Una campaña con código GRATIS30 podría acelerarlo.",
-            "value": f"{total_free} users",
+            "title": f"{starter_pct:.0f}% de usuarios siguen en Starter",
+            "message": f"Hay {total_starter} oportunidades de upgrade a Pro. Una campaña con código UPGRADE50 podría acelerar la conversión.",
+            "value": f"{total_starter} users",
         })
 
     # 6) Refunds spike

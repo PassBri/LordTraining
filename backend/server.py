@@ -915,7 +915,7 @@ async def register(user: UserCreate):
         "password": hash_password(user.password),
         "name": user.name,
         "role": user.role.value,
-        "subscription": SubscriptionPlan.FREE.value,
+        "subscription": SubscriptionPlan.STARTER.value,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "ai_generations_used": 0
     }
