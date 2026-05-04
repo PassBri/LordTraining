@@ -13,6 +13,7 @@ import SessionViewPage from './pages/SessionViewPage';
 import TournamentPublicPage from './pages/TournamentPublicPage';
 import SharedPlanPage from './pages/SharedPlanPage';
 import OrgTeamPage from './pages/OrgTeamPage';
+import SuperAdminPage from './pages/SuperAdminPage';
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -77,6 +78,11 @@ function AppRoutes() {
       <Route path="/org/team" element={
         <ProtectedRoute>
           <OrgTeamPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/super" element={
+        <ProtectedRoute>
+          <SuperAdminPage />
         </ProtectedRoute>
       } />
       

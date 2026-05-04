@@ -111,11 +111,44 @@ async def listar_planes(request: Request, user: dict = Depends(get_current_user)
 @router.get("/planes/{plan_id}/completo")
 async def get_plan_completo(plan_id: str, request: Request, user: dict = Depends(get_current_user)):
     db = get_db(request)
+
+    async def _pick_best(candidates: list):
+        """From a list of candidate V2 plans, return the one with most macros (most populated)."""
+        if not candidates:
+            return None
+        best, best_count = None, -1
+        for c in candidates:
+            n = await db.macrociclos_v2.count_documents({"plan_id": c["id"]})
+            if n > best_count:
+                best, best_count = c, n
+        return best
+
+    # 1) Try exact match
     plan = await db.planes_entrenamiento.find_one(
         {"id": plan_id, "coach_id": user["id"]}, {"_id": 0}
     )
+    # 2) Fallback: V2 plan migrated from V1 (maps via _v1_id) — pick best populated
+    if not plan or await db.macrociclos_v2.count_documents({"plan_id": plan["id"]}) == 0:
+        candidates = await db.planes_entrenamiento.find(
+            {"_v1_id": plan_id, "coach_id": user["id"]}, {"_id": 0}
+        ).to_list(20)
+        best = await _pick_best(candidates)
+        if best and await db.macrociclos_v2.count_documents({"plan_id": best["id"]}) > 0:
+            plan = best
+    # 3) Fallback: legacy V1 plan in `training_plans` collection — find by name
+    if not plan or await db.macrociclos_v2.count_documents({"plan_id": plan["id"]}) == 0:
+        v1_plan = await db.training_plans.find_one({"id": plan_id}, {"_id": 0})
+        if v1_plan and v1_plan.get("name"):
+            candidates = await db.planes_entrenamiento.find(
+                {"nombre": v1_plan["name"], "coach_id": user["id"]}, {"_id": 0}
+            ).to_list(20)
+            best = await _pick_best(candidates)
+            if best and await db.macrociclos_v2.count_documents({"plan_id": best["id"]}) > 0:
+                plan = best
     if not plan:
         raise HTTPException(404, "Plan no encontrado")
+    # Use the actual v2 plan id for downstream queries
+    plan_id = plan["id"]
 
     macros = await db.macrociclos_v2.find({"plan_id": plan_id}, {"_id": 0}).to_list(100)
 

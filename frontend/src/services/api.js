@@ -114,6 +114,17 @@ export const exportTournamentPDF = (tournamentId) => `${API}/tournaments/${tourn
 // Plan Features (gating)
 export const getPlanFeatures = () => axios.get(`${API}/plan-features`, getAuthHeader());
 
+// Admin Hierarchy + Promo Codes
+export const getAdminHierarchy = () => axios.get(`${API}/admin/hierarchy`, getAuthHeader());
+export const getOrgMembers = (orgId) => axios.get(`${API}/admin/orgs/${orgId}/members`, getAuthHeader());
+export const grantPlan = (data) => axios.post(`${API}/admin/grant-plan`, data, getAuthHeader());
+export const createPromoCode = (data) => axios.post(`${API}/admin/codes/create`, data, getAuthHeader());
+export const listPromoCodes = () => axios.get(`${API}/admin/codes`, getAuthHeader());
+export const togglePromoCode = (codeId, active) => axios.patch(`${API}/admin/codes/${codeId}?active=${active}`, {}, getAuthHeader());
+export const deletePromoCode = (codeId) => axios.delete(`${API}/admin/codes/${codeId}`, getAuthHeader());
+export const redeemPromoCode = (code) => axios.post(`${API}/admin/codes/redeem?code=${encodeURIComponent(code)}`, {}, getAuthHeader());
+export const setOrgEntityType = (orgId, entityType) => axios.post(`${API}/admin/orgs/${orgId}/set-entity-type?entity_type=${entityType}`, {}, getAuthHeader());
+
 // Organization (Club / Federation / Institution)
 export const createOrganization = (data) => axios.post(`${API}/org/create`, data, getAuthHeader());
 export const getMyOrganization = () => axios.get(`${API}/org/me`, getAuthHeader());

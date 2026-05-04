@@ -180,6 +180,9 @@ class UserResponse(BaseModel):
     role: UserRole
     subscription: SubscriptionPlan
     created_at: str
+    is_super_admin: Optional[bool] = False
+    org_id: Optional[str] = None
+    org_role: Optional[str] = None
 
 # =============== ENTITY MODELS ===============
 class EntityCreate(BaseModel):
@@ -8415,6 +8418,9 @@ app.include_router(sessions_export_router, prefix="/api")
 
 from routes.org_management import router as org_management_router
 app.include_router(org_management_router, prefix="/api")
+
+from routes.admin_hierarchy import router as admin_hierarchy_router
+app.include_router(admin_hierarchy_router, prefix="/api")
 
 # Store db reference in app state for V2 routes
 app.state.db = db

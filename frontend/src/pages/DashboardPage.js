@@ -4549,26 +4549,31 @@ const DashboardPage = () => {
           {/* Right: Testing + User Action FABs */}
           <div className="flex items-start gap-2 shrink-0 pl-2">
             {/* Equipo (Org) FAB — siempre visible, bloqueado si no tiene plan Club+ */}
-            <Link to="/org/team">
+            <Link to={user?.is_super_admin ? '/admin/super' : '/org/team'}>
               <button
                 className="group flex flex-col items-center gap-1 shrink-0 outline-none relative"
                 data-testid="org-team-btn"
-                title={canManageOrg ? 'Gestionar equipo de entrenadores' : 'Disponible en plan Club / Institucional'}
+                title={user?.is_super_admin ? 'Panel Super Admin' : (canManageOrg ? 'Gestionar equipo de entrenadores' : 'Disponible en plan Club / Institucional')}
               >
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out shadow-md border ${
-                  canManageOrg
-                    ? 'bg-white text-slate-500 border-slate-100 hover:shadow-lg hover:text-emerald-600'
-                    : 'bg-slate-50 text-slate-300 border-slate-100 hover:shadow-md hover:text-slate-400'
+                  user?.is_super_admin
+                    ? 'bg-purple-50 text-purple-700 border-purple-200 hover:shadow-lg hover:bg-purple-100'
+                    : canManageOrg
+                      ? 'bg-white text-slate-500 border-slate-100 hover:shadow-lg hover:text-emerald-600'
+                      : 'bg-slate-50 text-slate-300 border-slate-100 hover:shadow-md hover:text-slate-400'
                 }`}>
-                  <Building2 className={`w-[18px] h-[18px] transition-transform duration-300 ${canManageOrg ? 'group-hover:text-emerald-600' : 'group-hover:text-slate-400'}`} strokeWidth={1.8} />
-                  {!canManageOrg && (
+                  <Building2 className={`w-[18px] h-[18px] transition-transform duration-300 ${user?.is_super_admin ? '' : (canManageOrg ? 'group-hover:text-emerald-600' : 'group-hover:text-slate-400')}`} strokeWidth={1.8} />
+                  {!canManageOrg && !user?.is_super_admin && (
                     <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-slate-400 border-2 border-white flex items-center justify-center">
                       <svg className="w-2 h-2 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 1 1 6 0v3H9z"/></svg>
                     </span>
                   )}
+                  {user?.is_super_admin && (
+                    <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-purple-600 border-2 border-white" />
+                  )}
                 </div>
                 <span className={`text-[8px] font-bold tracking-wide leading-tight text-center transition-colors duration-300 ${
-                  canManageOrg ? 'text-slate-400 group-hover:text-emerald-600' : 'text-slate-300 group-hover:text-slate-400'
+                  user?.is_super_admin ? 'text-purple-700' : (canManageOrg ? 'text-slate-400 group-hover:text-emerald-600' : 'text-slate-300 group-hover:text-slate-400')
                 }`}>
                   Admin
                 </span>
