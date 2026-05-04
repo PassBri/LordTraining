@@ -124,6 +124,8 @@ export const togglePromoCode = (codeId, active) => axios.patch(`${API}/admin/cod
 export const deletePromoCode = (codeId) => axios.delete(`${API}/admin/codes/${codeId}`, getAuthHeader());
 export const redeemPromoCode = (code) => axios.post(`${API}/admin/codes/redeem?code=${encodeURIComponent(code)}`, {}, getAuthHeader());
 export const setOrgEntityType = (orgId, entityType) => axios.post(`${API}/admin/orgs/${orgId}/set-entity-type?entity_type=${entityType}`, {}, getAuthHeader());
+export const getFinanceDashboard = () => axios.get(`${API}/admin/finance`, getAuthHeader());
+export const createRefund = (data) => axios.post(`${API}/admin/refunds`, data, getAuthHeader());
 
 // Organization (Club / Federation / Institution)
 export const createOrganization = (data) => axios.post(`${API}/org/create`, data, getAuthHeader());

@@ -370,3 +370,145 @@ async def set_entity_type(org_id: str, entity_type: str = Query(...), request: R
         raise HTTPException(status_code=400, detail="Tipo inválido")
     await db.organizations.update_one({"id": org_id}, {"$set": {"entity_type": entity_type}})
     return {"updated": True, "entity_type": entity_type}
+
+
+# ─── Finance Dashboard ─────────────────────────────
+PLAN_PRICES_USD = {
+    "free": 0.0,
+    "starter": 9.99,
+    "basic": 19.99,
+    "pro": 49.99,
+    "enterprise": 149.99,
+}
+
+@router.get("/finance")
+async def get_finance(request: Request, user: dict = Depends(_get_current_user)):
+    """Returns sales / revenue / refunds dashboard for super admin."""
+    if not _is_super(user):
+        raise HTTPException(status_code=403, detail="Solo super admin")
+    db = request.app.state.db
+
+    # All paying users (excluding free)
+    cursor = db.users.find(
+        {"subscription": {"$in": ["starter", "basic", "pro", "enterprise"]}},
+        {"_id": 0, "password": 0}
+    )
+    paying_users = await cursor.to_list(5000)
+
+    # MRR (Monthly Recurring Revenue) = sum of paying users' plan prices
+    mrr = sum(PLAN_PRICES_USD.get(u.get("subscription", "free"), 0) for u in paying_users)
+    arr = mrr * 12
+
+    # Per-plan breakdown
+    plan_breakdown = {}
+    for plan, price in PLAN_PRICES_USD.items():
+        if plan == "free":
+            continue
+        count = sum(1 for u in paying_users if u.get("subscription") == plan)
+        plan_breakdown[plan] = {
+            "count": count,
+            "price_per_month": price,
+            "monthly_revenue": round(count * price, 2),
+        }
+
+    # Last 12 months — synthetic monthly revenue from real signup dates
+    now = datetime.now(timezone.utc)
+    months = []
+    for i in range(11, -1, -1):
+        month_start = (now.replace(day=1) - timedelta(days=30 * i)).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        next_month = (month_start + timedelta(days=32)).replace(day=1)
+        # Users who signed up within this month and are now paying
+        in_month_revenue = 0.0
+        in_month_count = 0
+        for u in paying_users:
+            try:
+                created = datetime.fromisoformat(u.get("created_at", "").replace("Z", "+00:00"))
+                if month_start <= created < next_month:
+                    in_month_revenue += PLAN_PRICES_USD.get(u.get("subscription", "free"), 0)
+                    in_month_count += 1
+            except Exception:
+                continue
+        months.append({
+            "month": month_start.strftime("%Y-%m"),
+            "label": month_start.strftime("%b %Y"),
+            "new_subscriptions": in_month_count,
+            "revenue": round(in_month_revenue, 2),
+        })
+
+    # Conversion funnel
+    total_users = await db.users.count_documents({})
+    by_plan = {}
+    for plan in ["free", "starter", "basic", "pro", "enterprise"]:
+        by_plan[plan] = await db.users.count_documents({"subscription": plan})
+    funnel = [
+        {"stage": "Registrados", "count": total_users, "rate": 100.0},
+        {"stage": "Starter+", "count": total_users - by_plan["free"], "rate": round((total_users - by_plan["free"]) / total_users * 100, 1) if total_users else 0},
+        {"stage": "Pro+", "count": by_plan["basic"] + by_plan["pro"] + by_plan["enterprise"], "rate": round((by_plan["basic"] + by_plan["pro"] + by_plan["enterprise"]) / total_users * 100, 1) if total_users else 0},
+        {"stage": "Club+", "count": by_plan["pro"] + by_plan["enterprise"], "rate": round((by_plan["pro"] + by_plan["enterprise"]) / total_users * 100, 1) if total_users else 0},
+        {"stage": "Institucional", "count": by_plan["enterprise"], "rate": round(by_plan["enterprise"] / total_users * 100, 1) if total_users else 0},
+    ]
+
+    # Refunds (placeholder: from a future `refunds` collection)
+    refunds = await db.refunds.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    total_refunded = sum(r.get("amount", 0) for r in refunds)
+
+    # Sales list (paying users with details)
+    sales = []
+    for u in paying_users:
+        plan = u.get("subscription", "free")
+        sales.append({
+            "user_id": u["id"],
+            "name": u.get("name", ""),
+            "email": u.get("email", ""),
+            "plan": plan,
+            "monthly_fee": PLAN_PRICES_USD.get(plan, 0),
+            "annual_value": round(PLAN_PRICES_USD.get(plan, 0) * 12, 2),
+            "subscribed_since": u.get("created_at", ""),
+            "expires_at": u.get("subscription_expires_at"),
+            "granted": bool(u.get("subscription_granted_by")),
+        })
+
+    return {
+        "mrr": round(mrr, 2),
+        "arr": round(arr, 2),
+        "total_paying_users": len(paying_users),
+        "total_users": total_users,
+        "plan_breakdown": plan_breakdown,
+        "monthly_history": months,
+        "funnel": funnel,
+        "refunds": refunds,
+        "total_refunded": round(total_refunded, 2),
+        "sales": sales,
+        "plan_prices": PLAN_PRICES_USD,
+    }
+
+
+class RefundCreate(BaseModel):
+    user_id: str
+    amount: float
+    reason: str = ""
+
+
+@router.post("/refunds")
+async def create_refund(payload: RefundCreate, request: Request, user: dict = Depends(_get_current_user)):
+    """Super admin records a manual refund (when payment integration is live, this will be auto-triggered by Stripe webhook)."""
+    if not _is_super(user):
+        raise HTTPException(status_code=403, detail="Solo super admin")
+    db = request.app.state.db
+    target = await db.users.find_one({"id": payload.user_id}, {"_id": 0})
+    if not target:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    refund = {
+        "id": str(uuid.uuid4()),
+        "user_id": payload.user_id,
+        "user_name": target.get("name", ""),
+        "user_email": target.get("email", ""),
+        "amount": payload.amount,
+        "reason": payload.reason,
+        "plan": target.get("subscription", ""),
+        "processed_by": user["id"],
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.refunds.insert_one(refund)
+    refund.pop("_id", None)
+    return refund

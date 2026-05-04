@@ -5,17 +5,18 @@ import {
   ArrowLeft, ShieldCheck, Building2, Trophy, GraduationCap, Landmark,
   Users, UserCheck, BadgeCheck, Loader2, Search, Sparkles,
   Tag, Gift, Link2, Plus, Power, Trash2, Copy, Filter,
-  TrendingUp, Award, Briefcase, ChevronRight,
+  TrendingUp, Award, Briefcase, ChevronRight, DollarSign, RefreshCw, Banknote,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
 import { Badge } from '../components/ui/badge';
+import { BarChart, Bar, LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, FunnelChart, Funnel, LabelList, Cell } from 'recharts';
 import {
   getAdminHierarchy, getOrgMembers, grantPlan,
   createPromoCode, listPromoCodes, togglePromoCode, deletePromoCode,
-  setOrgEntityType,
+  setOrgEntityType, getFinanceDashboard, createRefund,
 } from '../services/api';
 
 // Material Design 3 palette
@@ -61,6 +62,11 @@ const SuperAdminPage = () => {
   const [createOpen, setCreateOpen] = useState(false);
   const [newCode, setNewCode] = useState({ code_type: 'discount', code: '', discount_percent: 20, gift_days: 30, gift_plan: 'basic', max_uses: 100, expires_in_days: 30, description: '' });
 
+  // Finance
+  const [finance, setFinance] = useState(null);
+  const [refundOpen, setRefundOpen] = useState(null); // sale object
+  const [refundForm, setRefundForm] = useState({ amount: 0, reason: '' });
+
   // Grant plan
   const [grantOpen, setGrantOpen] = useState(null); // user object
   const [grantForm, setGrantForm] = useState({ plan: 'basic', duration_days: 30, reason: '' });
@@ -83,7 +89,14 @@ const SuperAdminPage = () => {
     } catch (e) { /* not super admin */ }
   };
 
-  useEffect(() => { refresh(); refreshCodes(); }, []);
+  const refreshFinance = async () => {
+    try {
+      const res = await getFinanceDashboard();
+      setFinance(res.data);
+    } catch (e) { /* not super admin */ }
+  };
+
+  useEffect(() => { refresh(); refreshCodes(); refreshFinance(); }, []);
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center bg-[#fafaf8]"><Loader2 className="w-7 h-7 animate-spin text-slate-400" /></div>;
@@ -132,6 +145,17 @@ const SuperAdminPage = () => {
     } catch (e) { toast.error(e.response?.data?.detail || 'Error'); }
   };
 
+  const handleRefund = async () => {
+    if (!refundOpen || !refundForm.amount) return;
+    try {
+      await createRefund({ user_id: refundOpen.user_id, amount: parseFloat(refundForm.amount), reason: refundForm.reason });
+      toast.success('Devolución registrada');
+      setRefundOpen(null);
+      setRefundForm({ amount: 0, reason: '' });
+      refreshFinance();
+    } catch (e) { toast.error(e.response?.data?.detail || 'Error'); }
+  };
+
   // Filtering
   const filterUsers = (users) => {
     if (!search) return users;
@@ -173,6 +197,7 @@ const SuperAdminPage = () => {
           <div className="max-w-[1280px] mx-auto px-6 flex items-center gap-1 -mb-px">
             <TabBtn active={activeTab === 'hierarchy'} onClick={() => setActiveTab('hierarchy')} icon={Users} label="Jerarquía & Usuarios" />
             <TabBtn active={activeTab === 'codes'} onClick={() => setActiveTab('codes')} icon={Tag} label="Códigos & Promociones" />
+            <TabBtn active={activeTab === 'finance'} onClick={() => setActiveTab('finance')} icon={DollarSign} label="Finanzas" />
           </div>
         )}
       </div>
@@ -355,11 +380,15 @@ const SuperAdminPage = () => {
             </div>
           </>
         )}
+        {/* FINANCE TAB */}
+        {activeTab === 'finance' && isSuper && (
+          <FinanceDashboard finance={finance} onRefund={(sale) => { setRefundOpen(sale); setRefundForm({ amount: sale.monthly_fee, reason: '' }); }} />
+        )}
       </div>
 
       {/* ─── Org members modal ─── */}
       <Dialog open={!!selectedOrg} onOpenChange={(o) => !o && setSelectedOrg(null)}>
-        <DialogContent className="max-w-2xl" data-testid="org-detail-modal">
+        <DialogContent className="max-w-2xl bg-white" data-testid="org-detail-modal">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {selectedOrg && (() => {
@@ -402,7 +431,7 @@ const SuperAdminPage = () => {
 
       {/* ─── Grant plan modal ─── */}
       <Dialog open={!!grantOpen} onOpenChange={(o) => !o && setGrantOpen(null)}>
-        <DialogContent className="max-w-md" data-testid="grant-modal">
+        <DialogContent className="max-w-md bg-white" data-testid="grant-modal">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2"><Sparkles className="w-5 h-5 text-purple-600" /> Regalar plan</DialogTitle>
             <DialogDescription>Otorgas un plan premium temporal a <strong>{grantOpen?.name}</strong> ({grantOpen?.email}).</DialogDescription>
@@ -411,10 +440,10 @@ const SuperAdminPage = () => {
             <div>
               <Label>Plan</Label>
               <select value={grantForm.plan} onChange={(e) => setGrantForm({ ...grantForm, plan: e.target.value })} className="w-full mt-1.5 h-10 px-3 rounded-md border border-slate-200 text-sm bg-white">
-                <option value="starter">Starter</option>
-                <option value="basic">Pro</option>
-                <option value="pro">Club / Academia</option>
-                <option value="enterprise">Institucional</option>
+                <option value="starter">Starter — $9.99/mes</option>
+                <option value="basic">Pro — $19.99/mes</option>
+                <option value="pro">Club / Academia — $49.99/mes</option>
+                <option value="enterprise">Institucional — $149.99/mes</option>
               </select>
             </div>
             <div>
@@ -432,7 +461,7 @@ const SuperAdminPage = () => {
 
       {/* ─── Create code modal ─── */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent className="max-w-md" data-testid="create-code-modal">
+        <DialogContent className="max-w-md bg-white" data-testid="create-code-modal">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2"><Tag className="w-5 h-5 text-emerald-600" /> Nuevo código</DialogTitle>
             <DialogDescription>Crea un código de descuento, regalo o referido.</DialogDescription>
@@ -468,10 +497,10 @@ const SuperAdminPage = () => {
                 <div>
                   <Label>Plan a regalar</Label>
                   <select value={newCode.gift_plan} onChange={(e) => setNewCode({ ...newCode, gift_plan: e.target.value })} className="w-full mt-1.5 h-10 px-3 rounded-md border border-slate-200 text-sm bg-white">
-                    <option value="starter">Starter</option>
-                    <option value="basic">Pro</option>
-                    <option value="pro">Club</option>
-                    <option value="enterprise">Institucional</option>
+                    <option value="starter">Starter — $9.99</option>
+                    <option value="basic">Pro — $19.99</option>
+                    <option value="pro">Club — $49.99</option>
+                    <option value="enterprise">Institucional — $149.99</option>
                   </select>
                 </div>
                 <div>
@@ -495,6 +524,28 @@ const SuperAdminPage = () => {
               <Input value={newCode.description} onChange={(e) => setNewCode({ ...newCode, description: e.target.value })} placeholder="Black Friday 2026" className="mt-1.5" />
             </div>
             <Button onClick={handleCreateCode} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" data-testid="create-code-confirm">Crear código</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ─── Refund modal ─── */}
+      <Dialog open={!!refundOpen} onOpenChange={(o) => !o && setRefundOpen(null)}>
+        <DialogContent className="max-w-md bg-white" data-testid="refund-modal">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><RefreshCw className="w-5 h-5 text-amber-600" /> Registrar devolución</DialogTitle>
+            <DialogDescription>Registras una devolución manual a <strong>{refundOpen?.name}</strong> ({refundOpen?.email}). Cuando integremos Stripe, esto será automático vía webhook.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Monto a devolver (USD)</Label>
+              <Input type="number" step="0.01" value={refundForm.amount} onChange={(e) => setRefundForm({ ...refundForm, amount: e.target.value })} className="mt-1.5" />
+              <p className="text-[11px] text-slate-500 mt-1">Sugerido: ${refundOpen?.monthly_fee} (cuota mensual del plan)</p>
+            </div>
+            <div>
+              <Label>Razón</Label>
+              <Input value={refundForm.reason} onChange={(e) => setRefundForm({ ...refundForm, reason: e.target.value })} placeholder="Cancelación · Insatisfacción · Cobro duplicado" className="mt-1.5" />
+            </div>
+            <Button onClick={handleRefund} className="w-full bg-amber-600 hover:bg-amber-700 text-white" data-testid="refund-confirm">Registrar devolución</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -577,6 +628,197 @@ const HierarchyGroup = ({ title, entityKey, orgs, onOpen, onSetType, isSuper }) 
           </div>
         ))}
       </div>
+    </div>
+  );
+};
+
+// ─── Finance Dashboard component ─────────────────────
+const PLAN_DISPLAY = {
+  starter: { label: 'Starter', color: '#64748B' },
+  basic:   { label: 'Pro', color: '#3B82F6' },
+  pro:     { label: 'Club', color: '#10B981' },
+  enterprise: { label: 'Institucional', color: '#F59E0B' },
+};
+
+const FinanceDashboard = ({ finance, onRefund }) => {
+  if (!finance) {
+    return <div className="py-16 text-center text-sm text-slate-500"><Loader2 className="w-5 h-5 animate-spin mx-auto" /></div>;
+  }
+  const planChartData = Object.entries(finance.plan_breakdown).map(([k, v]) => ({
+    name: PLAN_DISPLAY[k]?.label || k,
+    color: PLAN_DISPLAY[k]?.color || '#94A3B8',
+    revenue: v.monthly_revenue,
+    count: v.count,
+  }));
+
+  return (
+    <div className="space-y-6">
+      <div className="rounded-3xl p-6 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #064E3B 0%, #022C22 100%)' }}>
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: 'radial-gradient(circle at 70% 30%, rgba(204,255,0,0.4) 1px, transparent 1px)',
+          backgroundSize: '32px 32px',
+        }} />
+        <div className="relative">
+          <p className="text-[11px] tracking-[0.2em] uppercase text-[#CCFF00]/80 font-bold mb-1.5">Resumen Financiero</p>
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-3">
+            <div>
+              <p className="text-[11px] uppercase tracking-wider text-white/50">MRR</p>
+              <p className="text-3xl font-black text-white">${finance.mrr.toLocaleString('en-US', {minimumFractionDigits:2})}</p>
+              <p className="text-[11px] text-white/50">por mes recurrente</p>
+            </div>
+            <div>
+              <p className="text-[11px] uppercase tracking-wider text-white/50">ARR</p>
+              <p className="text-3xl font-black text-[#CCFF00]">${finance.arr.toLocaleString('en-US', {minimumFractionDigits:2})}</p>
+              <p className="text-[11px] text-white/50">proyección anual</p>
+            </div>
+            <div>
+              <p className="text-[11px] uppercase tracking-wider text-white/50">Clientes</p>
+              <p className="text-3xl font-black text-white">{finance.total_paying_users}<span className="text-base text-white/50">/{finance.total_users}</span></p>
+              <p className="text-[11px] text-white/50">{finance.total_users ? ((finance.total_paying_users/finance.total_users)*100).toFixed(1) : 0}% conversión</p>
+            </div>
+            <div>
+              <p className="text-[11px] uppercase tracking-wider text-white/50">Devoluciones</p>
+              <p className="text-3xl font-black text-amber-400">${finance.total_refunded.toLocaleString('en-US', {minimumFractionDigits:2})}</p>
+              <p className="text-[11px] text-white/50">{finance.refunds.length} registradas</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="bg-white rounded-2xl border border-slate-200 p-5">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="text-[13px] font-bold text-slate-900">Ingresos mensuales</h3>
+              <p className="text-[11px] text-slate-500">Últimos 12 meses</p>
+            </div>
+            <TrendingUp className="w-4 h-4 text-emerald-600" />
+          </div>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={finance.monthly_history}>
+              <CartesianGrid stroke="#f1f5f9" vertical={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#64748B' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 10, fill: '#64748B' }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v}`} />
+              <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12 }} formatter={(v, name) => name === 'revenue' ? [`$${v}`, 'Ingresos'] : [v, 'Suscripciones']} />
+              <Bar dataKey="revenue" fill="#10B981" radius={[6, 6, 0, 0]} maxBarSize={32} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-slate-200 p-5">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="text-[13px] font-bold text-slate-900">Ingreso por plan</h3>
+              <p className="text-[11px] text-slate-500">Distribución del MRR</p>
+            </div>
+            <Banknote className="w-4 h-4 text-emerald-600" />
+          </div>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={planChartData} layout="vertical">
+              <CartesianGrid stroke="#f1f5f9" horizontal={false} />
+              <XAxis type="number" tick={{ fontSize: 10, fill: '#64748B' }} tickFormatter={(v) => `$${v}`} />
+              <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: '#0f172a', fontWeight: 600 }} width={100} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v) => [`$${v}`, 'Ingresos']} />
+              <Bar dataKey="revenue" radius={[0, 6, 6, 0]} maxBarSize={28}>
+                {planChartData.map((d, i) => <Cell key={i} fill={d.color} />)}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-slate-200 p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-[13px] font-bold text-slate-900">Embudo de conversión</h3>
+            <p className="text-[11px] text-slate-500">Free → Plans pagados</p>
+          </div>
+          <Award className="w-4 h-4 text-purple-600" />
+        </div>
+        <div className="space-y-2">
+          {finance.funnel.map((f, idx) => {
+            const widthPct = f.rate;
+            return (
+              <div key={f.stage} className="flex items-center gap-3">
+                <span className="w-28 text-[12px] font-semibold text-slate-700 truncate">{f.stage}</span>
+                <div className="flex-1 h-9 bg-slate-100 rounded-lg overflow-hidden relative">
+                  <div className="h-full rounded-lg flex items-center px-3 transition-all duration-700" style={{ width: `${Math.max(widthPct, 4)}%`, background: `linear-gradient(90deg, ${['#94A3B8','#64748B','#3B82F6','#10B981','#F59E0B'][idx]} 0%, ${['#64748B','#475569','#1E40AF','#047857','#92400E'][idx]} 100%)` }}>
+                    <span className="text-white text-[11px] font-bold tracking-wider">{f.count} ({f.rate}%)</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center">
+            <Briefcase className="w-4 h-4 text-emerald-700" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-[14px] font-bold text-slate-900">Ventas activas <span className="text-slate-400 font-normal">({finance.sales.length})</span></h3>
+            <p className="text-[11px] text-slate-500">Cada usuario pagando, su plan y su cuota</p>
+          </div>
+        </div>
+        <div className="divide-y divide-slate-100 max-h-[480px] overflow-y-auto">
+          {finance.sales.length === 0 ? (
+            <p className="px-5 py-12 text-center text-sm text-slate-500">Aún no hay ventas (todos los usuarios en Free)</p>
+          ) : finance.sales.map(s => {
+            const cfg = PLAN_DISPLAY[s.plan] || { label: s.plan, color: '#94A3B8' };
+            return (
+              <div key={s.user_id} className="px-5 py-3 flex items-center justify-between gap-3 hover:bg-slate-50/50" data-testid={`sale-${s.user_id}`}>
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-bold text-white" style={{ background: cfg.color }}>
+                    {s.name?.[0]?.toUpperCase() || '?'}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-[13px] font-semibold text-slate-900 truncate">{s.name || 'Sin nombre'}</p>
+                      <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full text-white" style={{ background: cfg.color }}>{cfg.label}</span>
+                      {s.granted && <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-purple-100 text-purple-700">Regalado</span>}
+                    </div>
+                    <p className="text-[11px] text-slate-500 truncate">{s.email} · desde {s.subscribed_since ? new Date(s.subscribed_since).toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-[14px] font-black text-slate-900">${s.monthly_fee}<span className="text-[10px] text-slate-400 font-normal">/mes</span></p>
+                  <p className="text-[10px] text-slate-500">${s.annual_value}/año</p>
+                </div>
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-slate-400 hover:text-amber-600" onClick={() => onRefund(s)} title="Registrar devolución" data-testid={`refund-btn-${s.user_id}`}>
+                  <RefreshCw className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {finance.refunds.length > 0 && (
+        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center">
+              <RefreshCw className="w-4 h-4 text-amber-700" />
+            </div>
+            <div>
+              <h3 className="text-[14px] font-bold text-slate-900">Devoluciones registradas <span className="text-slate-400 font-normal">({finance.refunds.length})</span></h3>
+              <p className="text-[11px] text-slate-500">Total: ${finance.total_refunded.toFixed(2)}</p>
+            </div>
+          </div>
+          <div className="divide-y divide-slate-100 max-h-[300px] overflow-y-auto">
+            {finance.refunds.map(r => (
+              <div key={r.id} className="px-5 py-3 flex items-center justify-between">
+                <div className="min-w-0">
+                  <p className="text-[13px] font-semibold text-slate-900 truncate">{r.user_name || r.user_email}</p>
+                  <p className="text-[11px] text-slate-500">{r.reason || 'Sin razón'} · {new Date(r.created_at).toLocaleDateString('es')}</p>
+                </div>
+                <p className="text-[14px] font-black text-amber-700">−${r.amount}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

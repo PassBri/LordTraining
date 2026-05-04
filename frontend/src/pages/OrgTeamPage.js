@@ -200,7 +200,7 @@ const OrgTeamPage = () => {
         </div>
 
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-          <DialogContent className="max-w-md" data-testid="create-org-modal">
+          <DialogContent className="max-w-md bg-white" data-testid="create-org-modal">
             <DialogHeader>
               <DialogTitle>Nueva Organización</DialogTitle>
               <DialogDescription>Configura el nombre y tipo de tu Club, Federación o Institución.</DialogDescription>
@@ -336,7 +336,7 @@ const OrgTeamPage = () => {
 
       {/* Invite Modal */}
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
-        <DialogContent className="max-w-md" data-testid="invite-modal">
+        <DialogContent className="max-w-md bg-white" data-testid="invite-modal">
           <DialogHeader>
             <DialogTitle>Invitar entrenador</DialogTitle>
             <DialogDescription>Se generará una contraseña temporal que deberás compartir de forma segura.</DialogDescription>
@@ -374,7 +374,7 @@ const OrgTeamPage = () => {
 
       {/* Temp Password Dialog */}
       <Dialog open={!!tempPasswordDialog} onOpenChange={(o) => !o && setTempPasswordDialog(null)}>
-        <DialogContent className="max-w-md" data-testid="temp-password-modal">
+        <DialogContent className="max-w-md bg-white" data-testid="temp-password-modal">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <KeyRound className="w-5 h-5 text-amber-500" /> Contraseña temporal
