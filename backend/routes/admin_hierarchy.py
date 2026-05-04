@@ -512,3 +512,106 @@ async def create_refund(payload: RefundCreate, request: Request, user: dict = De
     await db.refunds.insert_one(refund)
     refund.pop("_id", None)
     return refund
+
+
+@router.get("/alerts")
+async def get_alerts(request: Request, user: dict = Depends(_get_current_user)):
+    """Smart alerts derived from real data — MRR change, churn, new high-value, etc."""
+    if not _is_super(user):
+        raise HTTPException(status_code=403, detail="Solo super admin")
+    db = request.app.state.db
+    alerts = []
+    now = datetime.now(timezone.utc)
+
+    # 1) MRR change vs previous month
+    paying = await db.users.find(
+        {"subscription": {"$in": ["starter", "basic", "pro", "enterprise"]}},
+        {"_id": 0, "id": 1, "subscription": 1, "created_at": 1}
+    ).to_list(5000)
+    current_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    prev_month_start = (current_month_start - timedelta(days=1)).replace(day=1)
+    new_this_month = sum(
+        PLAN_PRICES_USD.get(u["subscription"], 0)
+        for u in paying
+        if u.get("created_at") and datetime.fromisoformat(u["created_at"].replace("Z", "+00:00")) >= current_month_start
+    )
+    new_prev_month = sum(
+        PLAN_PRICES_USD.get(u["subscription"], 0)
+        for u in paying
+        if u.get("created_at") and prev_month_start <= datetime.fromisoformat(u["created_at"].replace("Z", "+00:00")) < current_month_start
+    )
+    if new_prev_month > 0:
+        delta = (new_this_month - new_prev_month) / new_prev_month * 100
+        if delta < -15:
+            alerts.append({
+                "level": "danger", "icon": "trending_down",
+                "title": f"Tu MRR cayó {abs(delta):.1f}% este mes",
+                "message": f"Nuevas suscripciones generaron ${new_this_month:.2f} vs ${new_prev_month:.2f} el mes pasado. Considera lanzar una promoción.",
+                "value": f"-{abs(delta):.1f}%",
+            })
+        elif delta > 25:
+            alerts.append({
+                "level": "success", "icon": "trending_up",
+                "title": f"MRR creció {delta:.1f}% este mes",
+                "message": f"${new_this_month:.2f} en nuevas suscripciones — ¡excelente trabajo!",
+                "value": f"+{delta:.1f}%",
+            })
+
+    # 2) Recent cancellations (subscription_expires_at in past + plan reverted to free)
+    seven_days_ago = now - timedelta(days=7)
+    cancellations = await db.users.count_documents({
+        "subscription": "free",
+        "subscription_granted_by": {"$exists": True},
+        "subscription_expires_at": {"$lt": now.isoformat()},
+    })
+    if cancellations >= 3:
+        alerts.append({
+            "level": "warning", "icon": "user_minus",
+            "title": f"{cancellations} usuarios perdieron acceso premium",
+            "message": "Sus suscripciones regaladas expiraron. Considera contactarlos con una oferta de retención.",
+            "value": str(cancellations),
+        })
+
+    # 3) New high-value signups
+    high_value = [u for u in paying if u.get("subscription") in ("pro", "enterprise") and u.get("created_at") and datetime.fromisoformat(u["created_at"].replace("Z", "+00:00")) >= seven_days_ago]
+    if high_value:
+        alerts.append({
+            "level": "success", "icon": "award",
+            "title": f"{len(high_value)} nuevo{'s' if len(high_value) > 1 else ''} cliente{'s' if len(high_value) > 1 else ''} de alto valor",
+            "message": f"Plan Club o Institucional · ${sum(PLAN_PRICES_USD.get(u['subscription'],0) for u in high_value):.2f}/mes adicional",
+            "value": str(len(high_value)),
+        })
+
+    # 4) Code redemption surge
+    recent_redemptions = await db.promo_redemptions.count_documents({"redeemed_at": {"$gte": seven_days_ago.isoformat()}})
+    if recent_redemptions >= 5:
+        alerts.append({
+            "level": "info", "icon": "tag",
+            "title": f"{recent_redemptions} códigos redimidos en 7 días",
+            "message": "Tus campañas están funcionando. Considera extender o crear más códigos similares.",
+            "value": str(recent_redemptions),
+        })
+
+    # 5) Free users on plataform (potential conversions)
+    total_free = await db.users.count_documents({"subscription": "free"})
+    total_users = await db.users.count_documents({})
+    free_pct = (total_free / total_users * 100) if total_users else 0
+    if free_pct > 80 and total_users >= 10:
+        alerts.append({
+            "level": "info", "icon": "trending_up",
+            "title": f"{free_pct:.0f}% de usuarios siguen en plan Free",
+            "message": f"Hay {total_free} oportunidades de conversión. Una campaña con código GRATIS30 podría acelerarlo.",
+            "value": f"{total_free} users",
+        })
+
+    # 6) Refunds spike
+    recent_refunds = await db.refunds.count_documents({"created_at": {"$gte": seven_days_ago.isoformat()}})
+    if recent_refunds >= 2:
+        alerts.append({
+            "level": "danger", "icon": "rotate_ccw",
+            "title": f"{recent_refunds} devoluciones en últimos 7 días",
+            "message": "Investiga la causa antes de que se vuelva tendencia.",
+            "value": str(recent_refunds),
+        })
+
+    return {"alerts": alerts, "generated_at": now.isoformat()}

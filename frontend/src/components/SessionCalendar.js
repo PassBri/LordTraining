@@ -35,7 +35,7 @@ const sessionColor = (sesion) => {
 };
 
 const SessionCalendar = ({ activePlan }) => {
-  const { plan, sesiones, microciclos, cargarPlanCompleto, actualizarSesion, loading } = usePlanStore();
+  const { plan, sesiones, microciclos, mesociclos, macrociclos, cargarPlanCompleto, actualizarSesion, loading } = usePlanStore();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(null);
   const [draggedSession, setDraggedSession] = useState(null);
@@ -302,7 +302,7 @@ const SessionCalendar = ({ activePlan }) => {
 
       {/* Day detail dialog */}
       <Dialog open={!!selectedDay} onOpenChange={(o) => !o && setSelectedDay(null)}>
-        <DialogContent className="max-w-md" data-testid="day-detail-modal">
+        <DialogContent className="max-w-md bg-white" data-testid="day-detail-modal">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CalendarDays className="w-5 h-5 text-blue-600" />
@@ -313,6 +313,8 @@ const SessionCalendar = ({ activePlan }) => {
             {selectedDay?.sessions.map(s => {
               const color = sessionColor(s);
               const micro = microciclos.find(m => m.id === s.microciclo_id);
+              const meso = mesociclos.find(me => me.id === micro?.mesociclo_id);
+              const macro = macrociclos.find(ma => ma.id === meso?.macrociclo_id);
               return (
                 <div key={s.id} className="rounded-xl border border-slate-200 p-4 hover:shadow-sm transition-shadow" style={{ borderLeft: `4px solid ${color}` }}>
                   <div className="flex items-start justify-between gap-2">
@@ -323,28 +325,61 @@ const SessionCalendar = ({ activePlan }) => {
                       </span>
                     )}
                   </div>
-                  <div className="mt-2 grid grid-cols-2 gap-2 text-[11px]">
+
+                  {/* Periodization context */}
+                  {(macro || meso || micro) && (
+                    <div className="mt-2 mb-2 flex flex-wrap items-center gap-1.5 text-[10px]">
+                      {macro && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 font-semibold uppercase tracking-wider">
+                          M{macro.numero}: {macro.nombre || 'Macro'}
+                        </span>
+                      )}
+                      {meso && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-semibold uppercase tracking-wider">
+                          {meso.tipo || meso.nombre || `Meso ${meso.numero}`}
+                        </span>
+                      )}
+                      {micro && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-semibold uppercase tracking-wider">
+                          Sem {micro.numero_semana} · {micro.tipo || 'choque'}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-2 text-[11px]">
                     {s.duracion_minutos > 0 && (
-                      <div className="flex items-center gap-1.5 text-slate-600">
-                        <Clock className="w-3 h-3" /> {s.duracion_minutos} min
+                      <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-slate-50">
+                        <Clock className="w-3 h-3 text-slate-500" />
+                        <span><strong className="text-slate-800">{s.duracion_minutos}</strong> min</span>
                       </div>
                     )}
                     {s.RPE_sesion > 0 && (
-                      <div className="flex items-center gap-1.5 text-slate-600">
-                        <Activity className="w-3 h-3" /> RPE {s.RPE_sesion}
+                      <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-slate-50">
+                        <Activity className="w-3 h-3 text-slate-500" />
+                        <span>RPE <strong className="text-slate-800">{s.RPE_sesion}</strong></span>
                       </div>
                     )}
                     {s.capacidad_principal && (
-                      <div className="flex items-center gap-1.5 text-slate-600 col-span-2">
-                        <Target className="w-3 h-3" />
-                        <span className="capitalize">{s.capacidad_principal}</span>
+                      <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-md col-span-2" style={{ background: color + '15' }}>
+                        <Target className="w-3 h-3" style={{ color }} />
+                        <span className="capitalize font-semibold" style={{ color }}>{s.capacidad_principal}</span>
                       </div>
                     )}
-                    {micro?.numero_semana && (
-                      <div className="text-slate-400 col-span-2">Semana {micro.numero_semana}</div>
-                    )}
                   </div>
-                  {s.notas && <p className="mt-2 text-[12px] text-slate-600 italic leading-snug">"{s.notas}"</p>}
+
+                  {s.notas && <p className="mt-2 text-[12px] text-slate-600 italic leading-snug border-l-2 border-slate-200 pl-2">"{s.notas}"</p>}
+
+                  {/* CTA */}
+                  <Button
+                    onClick={() => { setSelectedDay(null); window.dispatchEvent(new CustomEvent('navigate-periodization', { detail: { sessionId: s.id, microId: micro?.id } })); }}
+                    variant="ghost"
+                    size="sm"
+                    className="mt-3 w-full text-[11px] text-blue-700 hover:bg-blue-50 h-8"
+                    data-testid={`open-in-periodization-${s.id}`}
+                  >
+                    <Activity className="w-3 h-3 mr-1.5" /> Ver/editar en Periodización →
+                  </Button>
                 </div>
               );
             })}

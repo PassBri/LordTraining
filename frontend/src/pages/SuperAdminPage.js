@@ -5,7 +5,8 @@ import {
   ArrowLeft, ShieldCheck, Building2, Trophy, GraduationCap, Landmark,
   Users, UserCheck, BadgeCheck, Loader2, Search, Sparkles,
   Tag, Gift, Link2, Plus, Power, Trash2, Copy, Filter,
-  TrendingUp, Award, Briefcase, ChevronRight, DollarSign, RefreshCw, Banknote,
+  TrendingUp, TrendingDown, Award, Briefcase, ChevronRight, DollarSign, RefreshCw, Banknote,
+  AlertTriangle, Bell, UserMinus, RotateCcw, Info,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -16,7 +17,7 @@ import { BarChart, Bar, LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tool
 import {
   getAdminHierarchy, getOrgMembers, grantPlan,
   createPromoCode, listPromoCodes, togglePromoCode, deletePromoCode,
-  setOrgEntityType, getFinanceDashboard, createRefund,
+  setOrgEntityType, getFinanceDashboard, createRefund, getAdminAlerts,
 } from '../services/api';
 
 // Material Design 3 palette
@@ -66,6 +67,7 @@ const SuperAdminPage = () => {
   const [finance, setFinance] = useState(null);
   const [refundOpen, setRefundOpen] = useState(null); // sale object
   const [refundForm, setRefundForm] = useState({ amount: 0, reason: '' });
+  const [alerts, setAlerts] = useState([]);
 
   // Grant plan
   const [grantOpen, setGrantOpen] = useState(null); // user object
@@ -96,7 +98,14 @@ const SuperAdminPage = () => {
     } catch (e) { /* not super admin */ }
   };
 
-  useEffect(() => { refresh(); refreshCodes(); refreshFinance(); }, []);
+  const refreshAlerts = async () => {
+    try {
+      const res = await getAdminAlerts();
+      setAlerts(res.data.alerts || []);
+    } catch (e) { /* not super admin */ }
+  };
+
+  useEffect(() => { refresh(); refreshCodes(); refreshFinance(); refreshAlerts(); }, []);
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center bg-[#fafaf8]"><Loader2 className="w-7 h-7 animate-spin text-slate-400" /></div>;
@@ -382,7 +391,7 @@ const SuperAdminPage = () => {
         )}
         {/* FINANCE TAB */}
         {activeTab === 'finance' && isSuper && (
-          <FinanceDashboard finance={finance} onRefund={(sale) => { setRefundOpen(sale); setRefundForm({ amount: sale.monthly_fee, reason: '' }); }} />
+          <FinanceDashboard finance={finance} alerts={alerts} onRefund={(sale) => { setRefundOpen(sale); setRefundForm({ amount: sale.monthly_fee, reason: '' }); }} />
         )}
       </div>
 
@@ -640,7 +649,7 @@ const PLAN_DISPLAY = {
   enterprise: { label: 'Institucional', color: '#F59E0B' },
 };
 
-const FinanceDashboard = ({ finance, onRefund }) => {
+const FinanceDashboard = ({ finance, alerts, onRefund }) => {
   if (!finance) {
     return <div className="py-16 text-center text-sm text-slate-500"><Loader2 className="w-5 h-5 animate-spin mx-auto" /></div>;
   }
@@ -651,8 +660,59 @@ const FinanceDashboard = ({ finance, onRefund }) => {
     count: v.count,
   }));
 
+  const ALERT_STYLE = {
+    danger:  { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', icon: 'text-red-600', dot: 'bg-red-500' },
+    warning: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', icon: 'text-amber-600', dot: 'bg-amber-500' },
+    success: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', icon: 'text-emerald-600', dot: 'bg-emerald-500' },
+    info:    { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', icon: 'text-blue-600', dot: 'bg-blue-500' },
+  };
+  const ALERT_ICON = {
+    trending_down: TrendingDown,
+    trending_up: TrendingUp,
+    user_minus: UserMinus,
+    award: Award,
+    tag: Tag,
+    rotate_ccw: RotateCcw,
+    info: Info,
+  };
+
   return (
     <div className="space-y-6">
+      {/* Smart Alerts */}
+      {(alerts && alerts.length > 0) && (
+        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-purple-50 flex items-center justify-center">
+              <Bell className="w-4 h-4 text-purple-700" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-[14px] font-bold text-slate-900">Alertas inteligentes <span className="text-slate-400 font-normal">({alerts.length})</span></h3>
+              <p className="text-[11px] text-slate-500">Detecciones automáticas sobre tu MRR, churn y oportunidades</p>
+            </div>
+          </div>
+          <div className="divide-y divide-slate-100">
+            {alerts.map((a, idx) => {
+              const st = ALERT_STYLE[a.level] || ALERT_STYLE.info;
+              const Ico = ALERT_ICON[a.icon] || Info;
+              return (
+                <div key={idx} className={`px-5 py-3.5 flex items-start gap-3 ${st.bg}`} data-testid={`alert-${idx}`}>
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${st.bg} ${st.border} border`}>
+                    <Ico className={`w-4 h-4 ${st.icon}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className={`text-[13px] font-bold ${st.text}`}>{a.title}</p>
+                      {a.value && <span className={`text-[10px] font-black px-1.5 py-0.5 rounded ${st.dot} text-white`}>{a.value}</span>}
+                    </div>
+                    <p className="text-[11px] text-slate-600 mt-0.5">{a.message}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <div className="rounded-3xl p-6 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #064E3B 0%, #022C22 100%)' }}>
         <div className="absolute inset-0 opacity-10" style={{
           backgroundImage: 'radial-gradient(circle at 70% 30%, rgba(204,255,0,0.4) 1px, transparent 1px)',
