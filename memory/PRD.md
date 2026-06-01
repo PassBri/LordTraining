@@ -2,6 +2,43 @@
 
 ## Credenciales: test@train.com / test123456
 
+## [Feb 2026] Hotmart Payment Integration — FASE 1 (Code Ready, Awaiting Credentials)
+
+**Backend** (NUEVOS):
+- `services/hotmart_client.py` — HotConnect API client (OAuth2 client_credentials, cancel_subscription, get_subscription_summary)
+- `services/hotmart_plans.py` — Plan slug ↔ Hotmart offer mapping via ENV vars (8 products: starter/basic/pro/enterprise × monthly/annual)
+- `routes/hotmart_billing.py`:
+  - `GET  /api/billing/hotmart/config` — público; expone qué tiers están configurados
+  - `POST /api/billing/hotmart/checkout` — auth; devuelve URL Hotmart con `sck=user_<id>|<tier>_<cycle>` para correlación
+  - `GET  /api/billing/hotmart/subscription` — auth; devuelve subscription doc del usuario
+  - `POST /api/billing/hotmart/cancel` — auth; cancela vía Hotmart API
+- `routes/hotmart_webhooks.py`:
+  - `POST /api/webhooks/hotmart` — validación Hottok + idempotencia (índice único en event_id) + dispatcher por evento
+  - Maneja: PURCHASE_APPROVED, PURCHASE_COMPLETE, PURCHASE_CANCELED, SUBSCRIPTION_CANCELLATION, PURCHASE_REFUNDED, CHARGEBACK, PURCHASE_EXPIRED, SWITCH_PLAN, UPDATE_SUBSCRIPTION_CHARGE_DATE
+- Nuevas colecciones: `hotmart_subscriptions` (índices: user_id, subscriber_code unique), `hotmart_webhook_events` (índice único en event_id para idempotencia)
+- `routes/admin_hierarchy.py` — `/api/admin/finance` ahora calcula MRR real desde `hotmart_subscriptions` (cycles anuales amortizados a monthly) + fallback para usuarios admin-granted
+
+**Frontend**:
+- `services/api.js` — añadidas: `getHotmartConfig`, `createHotmartCheckout`, `getMyHotmartSubscription`, `cancelHotmartSubscription`
+- `pages/SubscriptionPage.js` — usa Hotmart cuando está configurado; si no, muestra toast "Disponible muy pronto" en lugar de fallback Stripe. Card "Suscripción activa" + botón "Cancelar suscripción" cuando hay `activeSub.status==='active'`. Banner inferior cambiado de Stripe → Hotmart (menciona PSE, Nequi, Bancolombia, PayPal)
+
+**ENV vars añadidas a `/app/backend/.env`** (placeholders vacíos):
+- `HOTMART_HOTTOK`, `HOTMART_CLIENT_ID`, `HOTMART_CLIENT_SECRET`, `HOTMART_BASIC_TOKEN`
+- `HOTMART_OAUTH_TOKEN_URL`, `HOTMART_API_BASE`
+- `HOTMART_OFFER_<TIER>_<CYCLE>` para 8 productos
+
+**Testing**: `testing_agent_v3_fork` (iteration_62) — Backend 17/17 pytest pass, Frontend 100%, 0 regresiones.
+
+**Próxima acción (FASE 2)** — usuario debe:
+1. Crear 8 productos de suscripción en Hotmart (4 tiers × 2 cycles) con precios USD: 9.99/19.99/49.99/149.99 mensual; anual = mensual × 12 × 0.8 = 95.90/191.90/479.90/1439.90
+2. Generar Hottok en Hotmart → Webhook → Autenticación
+3. Crear credenciales de desarrollador en Hotmart Developers (Client ID + Client Secret + Basic Token)
+4. Pegar todos los valores en las variables de entorno del deploy
+5. Registrar webhook URL en Hotmart: `https://<deploy-url>/api/webhooks/hotmart`
+6. Probar con "Send test" de Hotmart antes de ir a producción
+
+
+
 ## [Feb 2026] Tarea 2 — Sistema de control de planes + Multi-Coach Org
 **Backend** (`server.py` + `routes/org_management.py` NUEVO):
 - `PLAN_RANK` + `FEATURE_MIN_PLAN` + helper `has_plan_feature()` / `require_plan_feature()` para gating consistente.

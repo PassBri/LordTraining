@@ -145,20 +145,17 @@ const SubscriptionPage = () => {
 
   const handleSubscribe = async (planId, cycle = 'monthly') => {
     if (planId === user?.subscription && cycle === (activeSub?.cycle || 'monthly')) return;
+    if (!hotmartEnabled || !hotmartConfig?.tiers_configured?.[`${planId}_${cycle}`]) {
+      toast.info('Los pagos estarán disponibles muy pronto. Estamos terminando la configuración con Hotmart.');
+      return;
+    }
     setLoading(true);
     try {
-      if (hotmartEnabled && hotmartConfig?.tiers_configured?.[`${planId}_${cycle}`]) {
-        // Use Hotmart checkout
-        const response = await createHotmartCheckout(planId, cycle);
-        if (response.data.checkout_url) {
-          // Redirect to Hotmart hosted checkout
-          window.location.href = response.data.checkout_url;
-          return;
-        }
+      const response = await createHotmartCheckout(planId, cycle);
+      if (response.data.checkout_url) {
+        window.location.href = response.data.checkout_url;
+        return;
       }
-      // Fallback to legacy Stripe checkout
-      const response = await createCheckout(planId, window.location.origin);
-      if (response.data.url) { window.location.href = response.data.url; }
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Error al iniciar el pago');
     }

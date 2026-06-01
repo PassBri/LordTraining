@@ -325,6 +325,22 @@ EVENT_DISPATCH = {
 
 
 # ─── Endpoint ─────────────────────────────────────────
+@router.get("/hotmart")
+async def hotmart_webhook_healthcheck():
+    """
+    GET healthcheck so Hotmart (or any external validator) can verify
+    the URL is reachable when registering the webhook.
+
+    Does NOT expose any sensitive info — only confirms availability.
+    """
+    return {
+        "ok": True,
+        "service": "iTRAIN Hotmart webhook receiver",
+        "method": "POST",
+        "configured": bool(_expected_hottok()),
+    }
+
+
 @router.post("/hotmart", status_code=status.HTTP_200_OK)
 async def receive_hotmart_webhook(request: Request):
     db = request.app.state.db

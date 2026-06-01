@@ -1,19 +1,28 @@
-# Test Credentials
+# Test Credentials for iTRAIN
 
-## Main Test Account
-- Email: test@train.com
-- Password: test123456
-- Subscription: **enterprise** (Institucional) — owner of demo organization "iTRAIN Club Demo"
-- org_role: admin
+## Test Users
 
-## Demo Coach (invited)
-- Email: coach1@itrain.com
-- Password: temporal generada al invitar (regenerable desde /org/team)
-- org_role: coach (Preparador Físico)
+### Regular user (Enterprise tier — for full feature access)
+- **Email**: `test@train.com`
+- **Password**: `test123456`
+- **Tier**: enterprise
+- **Use for**: testing all features, subscriptions, calculators, periodization
 
-## Notes
-- This account has 6+ training plans including "TEST Plan Futbol ATR" for existing V1 system
-- V2 Seed: "ATR Futbol Pre-temporada" (plan_id varies per seed run) with demo athlete
-- V2 API endpoints require Bearer token from /api/auth/login
-- The test user is set to `enterprise` plan + org admin so the testing agent can validate `/org/team`, `usePlanGate('org_management')`, and the new `Equipo` FAB in dashboard.
+### Super Admin
+- **Email**: `juegolaureado@gmail.com`
+- **Password**: *(set by user — ask if needed)*
+- **is_super_admin**: True
+- **Tier**: enterprise
+- **Use for**: testing Super Admin Panel, /admin endpoints, finance, alerts, hierarchy
 
+## API Base URL
+- Frontend `.env` → `REACT_APP_BACKEND_URL=https://training-analytics-9.preview.emergentagent.com`
+- All API routes prefixed with `/api`
+
+## Hotmart Integration Status (FASE 1)
+- Code is implemented and registered
+- Env vars in `/app/backend/.env` are PLACEHOLDERS (empty) → endpoints return 503 until configured
+- Required env vars when going live:
+  - `HOTMART_HOTTOK` (webhook validation)
+  - `HOTMART_CLIENT_ID`, `HOTMART_CLIENT_SECRET`, `HOTMART_BASIC_TOKEN` (HotConnect API)
+  - `HOTMART_OFFER_<TIER>_<CYCLE>` (8 products: starter/basic/pro/enterprise × monthly/annual)
