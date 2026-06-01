@@ -1,0 +1,48 @@
+{
+  "summary": "Hotmart FASE 1 (placeholders) tested end-to-end. All 6 Hotmart endpoints return expected status codes (config disabled, checkout 503/400, subscription null, cancel 404, webhook 503 Hottok). Regression on auth, dashboard, athletes, periodization catalog, admin hierarchy, admin finance (MRR/ARR fields present when accessible) all pass. Frontend SubscriptionPage renders 4 plan cards + Mensual/Anual toggle + Hotmart info banner (no Stripe text). Legacy Stripe fallback works without crashing.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Stripe legacy fallback",
+        "issue": "When Hotmart is disabled, clicking 'Empezar ahora' falls back to legacy createCheckout which routes to a Stripe Sandbox session showing US$19.98 for basic monthly (expected $19.99 per FASE 1 spec). This is the LEGACY Stripe pricing, not Hotmart. Fallback works (page does not crash), but pricing mismatch with new tier pricing should be reviewed before deployment.",
+        "affected_selectors": ["[data-testid='subscribe-basic']"]
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_hotmart_billing.py",
+    "/app/test_reports/pytest/hotmart_results.xml"
+  ],
+  "action_items": [
+    "Hotmart integration is correctly wired for FASE 1. No fixes required.",
+    "Before FASE 2: configure HOTMART_HOTTOK + HOTMART_OFFER_* + HOTMART_CHECKOUT_URL_* env vars. The webhook endpoint will then accept valid Hottok deliveries (currently returns 503 as designed).",
+    "Optional: align legacy Stripe fallback prices ($19.98) with the new Hotmart pricing ($19.99/$49.99) OR remove the Stripe fallback entirely once Hotmart is live so users do not get charged via Stripe at all.",
+    "Optional: pre-flight on the frontend — if hotmartEnabled === false, disable the 'Empezar ahora' button (or show a 'Próximamente' state) instead of routing to legacy Stripe. This avoids confusing users with a different checkout flow during FASE 1."
+  ],
+  "critical_code_review_comments": [
+    "hotmart_webhooks.py: handler-level errors (line 369) delete the idempotency ledger entry to allow Hotmart retries. Good. But if handler succeeds partially (e.g., subscription upserted, but _set_user_subscription fails), there is no compensating action — consider wrapping in a try/except per side effect or using Mongo transactions for at-least-once consistency.",
+    "hotmart_webhooks.py:_extract_hottok also reads payload.get('hottok'). Logging the hottok value (line 345 truncated) is fine; ensure it is never logged in full in production.",
+    "hotmart_billing.py:get_my_subscription returns user.subscription as 'starter' default — confirm the user.subscription field is always one of the known tiers; otherwise frontend could mis-render.",
+    "hotmart_billing.py:_get_current_user uses JWT_SECRET fallback 'train-secret-key' — same as server.py default. Make sure production env actually overrides JWT_SECRET; otherwise tokens become forgeable.",
+    "SubscriptionPage.js: when Hotmart is disabled, UI silently routes users to the legacy Stripe endpoint. Consider gating CTAs behind hotmartEnabled to make FASE 1 behaviour predictable."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_hotmart_billing.py"
+  ],
+  "success_rate": {
+    "backend": "100% (17/17 pytest)",
+    "frontend": "100% (all checks pass; one minor UX observation re Stripe fallback pricing)"
+  },
+  "test_credentials": "test@train.com / test123456 (enterprise tier). Used for all Hotmart auth-required endpoints. /api/admin/finance returned 200 with mrr+arr fields, so this account has super_admin or the endpoint is open to authenticated users.",
+  "seed_data_creation": "None. No hotmart_subscriptions docs were created (all checkout calls correctly returned 503 before reaching Hotmart).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "FASE 1 of Hotmart is verified. For FASE 2 testing (once HOTMART_HOTTOK + HOTMART_OFFER_* are configured): (1) re-run /api/billing/hotmart/config and assert enabled:true with at least one tier=true; (2) POST /api/webhooks/hotmart with header 'X-Hotmart-Hottok: <real-token>' and a PURCHASE_APPROVED payload containing a sck like 'iTrain.<userid>.basic.monthly' — assert user.subscription updates and hotmart_subscriptions doc created; (3) verify idempotency by replaying same payload — expect status:'duplicate'; (4) verify the cancel flow works once an active sub exists.",
+  "rca of the issue": "No issues found. The Hotmart integration intentionally returns 503 when env vars are empty, which IS the expected FASE 1 behavior."
+}

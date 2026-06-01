@@ -2,9 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Progress } from '../components/ui/progress';
-import { createCheckout, getPaymentStatus } from '../services/api';
+import {
+  createCheckout,
+  getPaymentStatus,
+  getHotmartConfig,
+  createHotmartCheckout,
+  getMyHotmartSubscription,
+  cancelHotmartSubscription,
+} from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { Check, CreditCard, Loader2, Sparkles, Users, Zap, ArrowLeft } from 'lucide-react';
+import { Check, CreditCard, Loader2, Sparkles, Users, Zap, ArrowLeft, ShieldCheck, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 const PLANS = [
@@ -87,6 +94,30 @@ const SubscriptionPage = () => {
   const { user, setUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [checkingPayment, setCheckingPayment] = useState(false);
+  const [hotmartEnabled, setHotmartEnabled] = useState(false);
+  const [hotmartConfig, setHotmartConfig] = useState(null);
+  const [activeSub, setActiveSub] = useState(null);
+  const [canceling, setCanceling] = useState(false);
+
+  // Load Hotmart config + current subscription
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const cfgRes = await getHotmartConfig();
+        if (!cancelled) {
+          setHotmartConfig(cfgRes.data);
+          setHotmartEnabled(!!cfgRes.data?.enabled);
+        }
+      } catch (e) { /* silent */ }
+      try {
+        const subRes = await getMyHotmartSubscription();
+        if (!cancelled) setActiveSub(subRes.data?.subscription || null);
+      } catch (e) { /* silent */ }
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [user?.subscription]);
 
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
@@ -108,18 +139,44 @@ const SubscriptionPage = () => {
         setTimeout(() => pollPaymentStatus(sessionId, attempts + 1), 2000);
         return;
       }
-    } catch (error) { console.error('Error checking payment:', error); }
+    } catch (error) { console.warn('Error checking payment:', error); }
     finally { setCheckingPayment(false); }
   };
 
   const handleSubscribe = async (planId, cycle = 'monthly') => {
-    if (planId === 'free' || planId === user?.subscription) return;
+    if (planId === user?.subscription && cycle === (activeSub?.cycle || 'monthly')) return;
     setLoading(true);
     try {
-      const response = await createCheckout(planId, window.location.origin, cycle);
+      if (hotmartEnabled && hotmartConfig?.tiers_configured?.[`${planId}_${cycle}`]) {
+        // Use Hotmart checkout
+        const response = await createHotmartCheckout(planId, cycle);
+        if (response.data.checkout_url) {
+          // Redirect to Hotmart hosted checkout
+          window.location.href = response.data.checkout_url;
+          return;
+        }
+      }
+      // Fallback to legacy Stripe checkout
+      const response = await createCheckout(planId, window.location.origin);
       if (response.data.url) { window.location.href = response.data.url; }
-    } catch (error) { toast.error(error.response?.data?.detail || 'Error al iniciar el pago'); }
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Error al iniciar el pago');
+    }
     finally { setLoading(false); }
+  };
+
+  const handleCancel = async () => {
+    if (!window.confirm('¿Seguro que quieres cancelar tu suscripción? Mantendrás acceso hasta el fin del período pagado.')) return;
+    setCanceling(true);
+    try {
+      await cancelHotmartSubscription('Cancelado por el usuario desde la app');
+      toast.success('Suscripción cancelada. Tu acceso se mantendrá hasta el fin del período pagado.');
+      setActiveSub(prev => prev ? { ...prev, status: 'canceled' } : prev);
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'No se pudo cancelar la suscripción');
+    } finally {
+      setCanceling(false);
+    }
   };
 
   const [billingCycle, setBillingCycle] = useState('monthly');
@@ -320,13 +377,46 @@ const SubscriptionPage = () => {
           </div>
         </div>
 
-        {/* Stripe info */}
+        {/* Active subscription management (only when there is a real Hotmart subscription) */}
+        {activeSub && activeSub.status === 'active' && (
+          <div className="bg-white rounded-2xl border border-emerald-200 p-5" data-testid="active-subscription-card">
+            <div className="flex items-start justify-between gap-4 flex-wrap">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-emerald-600 mb-1">Suscripción activa</p>
+                <h3 className="text-sm font-bold text-slate-900">
+                  {activeSub.tier?.toUpperCase()} · {activeSub.cycle === 'annual' ? 'Anual' : 'Mensual'}
+                </h3>
+                {activeSub.next_charge_date && (
+                  <p className="text-xs text-slate-500 mt-1">
+                    Próximo cobro: <strong className="text-slate-700">{new Date(activeSub.next_charge_date).toLocaleDateString('es-CO')}</strong>
+                  </p>
+                )}
+                {activeSub.subscriber_code && (
+                  <p className="text-[10px] text-slate-400 mt-0.5 font-mono">ID: {activeSub.subscriber_code}</p>
+                )}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-rose-600 border-rose-200 hover:bg-rose-50"
+                disabled={canceling}
+                onClick={handleCancel}
+                data-testid="cancel-subscription-btn"
+              >
+                {canceling ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <XCircle className="w-3.5 h-3.5 mr-1.5" />}
+                Cancelar suscripción
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Hotmart info */}
         <div className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-200">
-          <div className="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
-            <CreditCard className="w-4 h-4 text-slate-500" />
+          <div className="w-9 h-9 bg-orange-50 rounded-lg flex items-center justify-center flex-shrink-0">
+            <ShieldCheck className="w-4 h-4 text-orange-500" />
           </div>
           <p className="text-[12px] text-slate-500 leading-snug">
-            Pagos seguros con <strong className="text-slate-700">Stripe</strong>. No almacenamos datos de tarjetas. Cancela en cualquier momento.
+            Pagos seguros con <strong className="text-slate-700">Hotmart</strong>. Acepta tarjetas, PSE, Nequi, Bancolombia, PayPal y más métodos locales en LATAM. Cancela cuando quieras desde tu cuenta.
           </p>
         </div>
       </div>

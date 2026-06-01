@@ -8422,6 +8422,12 @@ app.include_router(org_management_router, prefix="/api")
 from routes.admin_hierarchy import router as admin_hierarchy_router
 app.include_router(admin_hierarchy_router, prefix="/api")
 
+from routes.hotmart_billing import router as hotmart_billing_router
+app.include_router(hotmart_billing_router, prefix="/api")
+
+from routes.hotmart_webhooks import router as hotmart_webhooks_router
+app.include_router(hotmart_webhooks_router, prefix="/api")
+
 # Store db reference in app state for V2 routes
 app.state.db = db
 
@@ -8437,6 +8443,17 @@ app.add_middleware(
 async def startup_create_indices():
     """Create MongoDB indices for V2 collections on startup"""
     await crear_indices(db)
+    # Hotmart indices
+    try:
+        await db.hotmart_webhook_events.create_index("event_id", unique=True)
+        await db.hotmart_webhook_events.create_index("processed_at")
+        await db.hotmart_subscriptions.create_index("user_id")
+        await db.hotmart_subscriptions.create_index(
+            "subscriber_code", unique=True, sparse=True
+        )
+        await db.hotmart_subscriptions.create_index("status")
+    except Exception as e:
+        logger.warning(f"Hotmart index creation: {e}")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

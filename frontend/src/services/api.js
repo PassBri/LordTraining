@@ -50,6 +50,14 @@ export const generatePlan = (data) => axios.post(`${API}/plans/generate`, data, 
 export const createCheckout = (plan, originUrl) => axios.post(`${API}/payments/checkout`, { plan, origin_url: originUrl }, getAuthHeader());
 export const getPaymentStatus = (sessionId) => axios.get(`${API}/payments/status/${sessionId}`, getAuthHeader());
 
+// Hotmart Billing
+export const getHotmartConfig = () => axios.get(`${API}/billing/hotmart/config`);
+export const createHotmartCheckout = (tier, cycle = 'monthly') =>
+  axios.post(`${API}/billing/hotmart/checkout`, { tier, cycle }, getAuthHeader());
+export const getMyHotmartSubscription = () => axios.get(`${API}/billing/hotmart/subscription`, getAuthHeader());
+export const cancelHotmartSubscription = (reason = '') =>
+  axios.post(`${API}/billing/hotmart/cancel`, { reason }, getAuthHeader());
+
 // Export
 export const exportPlanPDF = (macrocycleId) => `${API}/export/plan/${macrocycleId}/pdf?token=${localStorage.getItem('train_token')}`;
 

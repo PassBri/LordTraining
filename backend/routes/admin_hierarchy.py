@@ -382,7 +382,12 @@ PLAN_PRICES_USD = {
 
 @router.get("/finance")
 async def get_finance(request: Request, user: dict = Depends(_get_current_user)):
-    """Returns sales / revenue / refunds dashboard for super admin."""
+    """Returns sales / revenue / refunds dashboard for super admin.
+
+    Counts ALL users who have an active subscription tier on the user record.
+    When real Hotmart subscriptions are present in `hotmart_subscriptions`, those
+    take precedence (they hold the actual cycle: monthly vs annual amortized).
+    """
     if not _is_super(user):
         raise HTTPException(status_code=403, detail="Solo super admin")
     db = request.app.state.db
@@ -394,8 +399,32 @@ async def get_finance(request: Request, user: dict = Depends(_get_current_user))
     )
     paying_users = await cursor.to_list(5000)
 
-    # MRR (Monthly Recurring Revenue) = sum of paying users' plan prices
-    mrr = sum(PLAN_PRICES_USD.get(u.get("subscription", "free"), 0) for u in paying_users)
+    # Real Hotmart subscriptions (authoritative when present)
+    hm_subs = await db.hotmart_subscriptions.find(
+        {"status": {"$in": ["active", "delayed"]}},
+        {"_id": 0, "raw_payload": 0},
+    ).to_list(5000)
+    hm_by_user = {s.get("user_id"): s for s in hm_subs if s.get("user_id")}
+
+    # MRR — Hotmart subscriptions amortize annual cycles to monthly equivalent
+    real_mrr = 0.0
+    for s in hm_subs:
+        tier = s.get("tier") or ""
+        cycle = s.get("cycle") or "monthly"
+        monthly_price = PLAN_PRICES_USD.get(tier, 0)
+        if cycle == "annual":
+            # annual amount is monthly * 12 * 0.8 — already paid upfront → amortize
+            real_mrr += monthly_price * 0.8
+        else:
+            real_mrr += monthly_price
+
+    # Fallback MRR for users without Hotmart sub (admin-granted, legacy, etc.)
+    fallback_mrr = sum(
+        PLAN_PRICES_USD.get(u.get("subscription", "free"), 0)
+        for u in paying_users
+        if u["id"] not in hm_by_user
+    )
+    mrr = real_mrr + fallback_mrr
     arr = mrr * 12
 
     # Per-plan breakdown
