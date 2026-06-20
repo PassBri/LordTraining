@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="40 90 432 440" width="512" height="512">
+  <defs>
+    <linearGradient id="shieldGradC" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1a1a1a"/>
+      <stop offset="100%" stop-color="#222"/>
+    </linearGradient>
+    <filter id="neonGlowC" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="1" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Shield only -->
+  <path d="M 80 130 L 432 130 L 432 290 Q 432 410 256 510 Q 80 410 80 290 Z"
+        fill="url(#shieldGradC)" stroke="#CCFF00" stroke-width="10" stroke-linejoin="round"/>
+  <!-- Quartering subtle -->
+  <line x1="256" y1="130" x2="256" y2="510" stroke="#CCFF00" stroke-width="2" opacity="0.18"/>
+  <line x1="80" y1="310" x2="432" y2="310" stroke="#CCFF00" stroke-width="2" opacity="0.18"/>
+  <!-- Dragon centered -->
+  <g transform="translate(256, 320) scale(1.4)" filter="url(#neonGlowC)">
+    <path d="M -8 -90 C -22 -90, -32 -80, -34 -64 L -28 -52 C -22 -50, -16 -50, -10 -52 L -6 -58 C -2 -60, 4 -60, 8 -56 L 12 -52 C 18 -50, 24 -52, 28 -56 L 24 -68 C 20 -82, 8 -92, -8 -90 Z" fill="#CCFF00"/>
+    <circle cx="-14" cy="-72" r="3" fill="#222"/>
+    <path d="M -22 -86 L -28 -100 L -16 -90 Z" fill="#CCFF00"/>
+    <path d="M -2 -88 L 2 -100 L 8 -92 Z" fill="#A8D900"/>
+    <path d="M -10 -52 C -14 -42, -16 -32, -10 -20 C -4 -10, 2 -6, 8 -8 L 10 -16 C 4 -20, -2 -28, -2 -38 L -10 -52 Z" fill="#CCFF00"/>
+    <path d="M -10 -20 C -16 -10, -22 5, -22 22 C -22 38, -16 52, -8 60 L 6 60 C 14 52, 18 38, 18 22 C 18 5, 12 -10, 8 -8 C 2 -6, -4 -10, -10 -20 Z" fill="#CCFF00"/>
+    <path d="M 6 -8 L 30 -36 L 56 -22 L 60 -2 L 50 12 L 42 6 L 38 18 L 28 10 L 22 22 L 16 12 L 14 0 Z" fill="#A8D900"/>
+    <path d="M -18 -16 C -32 -22, -42 -34, -44 -50 L -38 -52 C -36 -42, -28 -34, -20 -28 L -16 -22 Z" fill="#CCFF00"/>
+    <path d="M -44 -50 L -50 -58 L -42 -54 Z" fill="#CCFF00"/>
+    <path d="M -42 -54 L -46 -60 L -38 -56 Z" fill="#CCFF00"/>
+    <path d="M -38 -56 L -40 -62 L -34 -58 Z" fill="#CCFF00"/>
+    <path d="M 14 -8 C 26 -8, 36 -2, 40 8 L 36 14 C 30 10, 22 8, 14 8 Z" fill="#A8D900"/>
+    <path d="M -8 60 C -14 70, -16 80, -12 92 L -6 92 L -4 78 L 0 78 L -2 60 Z" fill="#CCFF00"/>
+    <path d="M 6 60 C 12 70, 14 80, 10 92 L 4 92 L 2 78 L -2 78 L 0 60 Z" fill="#CCFF00"/>
+    <path d="M -8 60 C -20 70, -30 75, -38 70 C -44 65, -46 55, -42 48 C -38 42, -32 44, -32 50 L -36 52 L -34 56 L -30 54 L -26 60 L -22 56 L -16 62 L -10 62 Z" fill="#CCFF00"/>
+    <path d="M -42 48 L -48 38 L -38 42 Z" fill="#CCFF00"/>
+  </g>
+</svg>

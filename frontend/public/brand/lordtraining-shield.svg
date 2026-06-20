@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 640">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#06142C"/>
+      <stop offset="100%" stop-color="#0A1F3F"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#06142C" flood-opacity="0.40"/>
+    </filter>
+    <filter id="neonGlow" x="-15%" y="-15%" width="130%" height="130%">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="shieldClip">
+      <path d="M 80 130 L 432 130 L 432 290 Q 432 410 256 510 Q 80 410 80 290 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- ═══════ LORD'S CORONET ═══════ -->
+  <g transform="translate(256, 80)" filter="url(#neonGlow)">
+    <!-- Base band with subtle gradient -->
+    <rect x="-92" y="22" width="184" height="16" rx="3" fill="#CCFF00"/>
+    <rect x="-92" y="38" width="184" height="4" rx="1" fill="#A8D900"/>
+    <!-- 5 fleurons (heraldic Lord crown spikes) -->
+    <!-- Spike 1 left -->
+    <path d="M -88 22 L -88 -2 L -68 14 Z" fill="#CCFF00"/>
+    <circle cx="-88" cy="-2" r="7" fill="#CCFF00"/>
+    <!-- Spike 2 -->
+    <path d="M -42 22 L -42 -12 L -22 12 L -42 12 Z" fill="#CCFF00"/>
+    <circle cx="-42" cy="-12" r="7" fill="#CCFF00"/>
+    <!-- Center spike (tallest with cross-like fleuron) -->
+    <path d="M 0 22 L 0 -32 L 18 -2 L -18 -2 Z" fill="#CCFF00"/>
+    <circle cx="0" cy="-32" r="9" fill="#CCFF00"/>
+    <rect x="-4" y="-44" width="8" height="14" fill="#CCFF00"/>
+    <!-- Spike 4 -->
+    <path d="M 42 22 L 42 -12 L 22 12 L 42 12 Z" fill="#CCFF00"/>
+    <circle cx="42" cy="-12" r="7" fill="#CCFF00"/>
+    <!-- Spike 5 right -->
+    <path d="M 88 22 L 88 -2 L 68 14 Z" fill="#CCFF00"/>
+    <circle cx="88" cy="-2" r="7" fill="#CCFF00"/>
+  </g>
+
+  <!-- ═══════ SHIELD ═══════ -->
+  <g filter="url(#shadow)">
+    <!-- Shield outline with neon border -->
+    <path d="M 80 130 L 432 130 L 432 290 Q 432 410 256 510 Q 80 410 80 290 Z"
+          fill="url(#shieldGrad)" stroke="#CCFF00" stroke-width="6" stroke-linejoin="round"/>
+
+    <!-- Quartering lines (4 cuarteles) -->
+    <g clip-path="url(#shieldClip)" opacity="0.20">
+      <line x1="256" y1="130" x2="256" y2="510" stroke="#CCFF00" stroke-width="3"/>
+      <line x1="80" y1="312" x2="432" y2="312" stroke="#CCFF00" stroke-width="3"/>
+    </g>
+
+    <!-- Cuartel decorations (subtle, small in each quadrant) -->
+    <!-- Top-left: chevron (^) -->
+    <g transform="translate(140, 188)" opacity="0.30">
+      <path d="M -16 6 L 0 -10 L 16 6" stroke="#CCFF00" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </g>
+    <!-- Top-right: 3 bars (periodization) -->
+    <g transform="translate(372, 188)" opacity="0.30">
+      <rect x="-18" y="-10" width="36" height="2.5" rx="1" fill="#CCFF00"/>
+      <rect x="-12" y="-2" width="24" height="2.5" rx="1" fill="#CCFF00"/>
+      <rect x="-6"  y="6" width="12" height="2.5" rx="1" fill="#CCFF00"/>
+    </g>
+    <!-- Bottom-left: star -->
+    <g transform="translate(140, 420)" opacity="0.30">
+      <path d="M 0 -14 L 4 -4 L 14 -4 L 6 3 L 9 12 L 0 6 L -9 12 L -6 3 L -14 -4 L -4 -4 Z" fill="#CCFF00"/>
+    </g>
+    <!-- Bottom-right: laurel -->
+    <g transform="translate(372, 420)" opacity="0.30">
+      <path d="M -12 12 Q -12 -3 0 -12 Q 12 -3 12 12" stroke="#CCFF00" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="-10" cy="-1" rx="3" ry="5" fill="#CCFF00" transform="rotate(-30 -10 -1)"/>
+      <ellipse cx="-1" cy="-9" rx="3" ry="5" fill="#CCFF00" transform="rotate(-10 -1 -9)"/>
+      <ellipse cx="10" cy="-1" rx="3" ry="5" fill="#CCFF00" transform="rotate(30 10 -1)"/>
+    </g>
+
+    <!-- ═══════ RAMPANT DRAGON ═══════ -->
+    <g transform="translate(256, 320) scale(0.85)" filter="url(#neonGlow)">
+      
+<!-- WINGS BACKGROUND (drawn first so body overlaps) -->
+<!-- Left wing (rear) - large bat wing extending up and out -->
+<path d="
+  M -10 -20
+  C -50 -50, -100 -90, -150 -130
+  C -160 -110, -158 -90, -150 -80
+  L -130 -85
+  L -135 -65
+  L -110 -75
+  L -115 -55
+  L -90 -65
+  L -95 -45
+  L -75 -55
+  L -78 -35
+  L -55 -45
+  L -55 -22
+  L -30 -20
+  Z" fill="#CCFF00" opacity="0.92"/>
+<!-- Wing membrane lines (Material thin strokes for depth) -->
+<g stroke="#06142C" stroke-width="1.8" fill="none" opacity="0.55">
+  <path d="M -30 -20 L -150 -130"/>
+  <path d="M -30 -20 L -135 -65"/>
+  <path d="M -30 -20 L -115 -55"/>
+  <path d="M -30 -20 L -95 -45"/>
+  <path d="M -30 -20 L -78 -35"/>
+</g>
+
+<!-- Right wing (forward) - smaller, slightly different angle -->
+<path d="
+  M 10 -20
+  C 50 -50, 100 -85, 140 -110
+  C 148 -90, 145 -75, 138 -68
+  L 120 -72
+  L 124 -55
+  L 100 -62
+  L 105 -45
+  L 80 -52
+  L 82 -36
+  L 60 -42
+  L 60 -22
+  L 30 -20
+  Z" fill="#A8D900" opacity="0.85"/>
+<g stroke="#06142C" stroke-width="1.8" fill="none" opacity="0.55">
+  <path d="M 30 -20 L 140 -110"/>
+  <path d="M 30 -20 L 124 -55"/>
+  <path d="M 30 -20 L 105 -45"/>
+  <path d="M 30 -20 L 82 -36"/>
+</g>
+
+<!-- TAIL - long curling behind dragon -->
+<path d="
+  M -8 70
+  C -25 80, -50 85, -75 75
+  C -100 65, -118 45, -125 20
+  C -130 0, -125 -15, -110 -22
+  C -100 -25, -92 -18, -94 -8
+  L -100 -6
+  L -98 0
+  L -92 -3
+  L -85 8
+  L -78 0
+  L -68 12
+  L -60 4
+  L -50 18
+  L -40 12
+  L -30 28
+  L -18 22
+  L -10 40
+  L 0 32
+  Z" fill="#CCFF00"/>
+<!-- Tail tip arrow -->
+<path d="M -125 20 L -140 -2 L -118 8 Z" fill="#CCFF00"/>
+
+<!-- BODY - vertical, muscular -->
+<path d="
+  M -14 -20
+  C -22 -8, -28 8, -28 30
+  C -28 50, -22 68, -10 78
+  L 12 78
+  C 24 68, 30 50, 30 30
+  C 30 8, 24 -8, 16 -20
+  L 10 -22
+  L 6 -28
+  L -6 -28
+  L -10 -22
+  Z" fill="#CCFF00"/>
+<!-- Body shading line (Material accent) -->
+<path d="M 0 -22 C 4 0, 4 30, 0 78"
+      stroke="#A8D900" stroke-width="2" fill="none" opacity="0.45"/>
+<!-- Spinal spikes (3 small triangles down the back) -->
+<g fill="#CCFF00">
+  <path d="M -2 -10 L 4 -10 L 1 -18 Z" opacity="0.7"/>
+  <path d="M -2 10 L 4 10 L 1 2 Z" opacity="0.6"/>
+  <path d="M -2 30 L 4 30 L 1 22 Z" opacity="0.5"/>
+</g>
+
+<!-- NECK - arching forward (sinuous S-curve) -->
+<path d="
+  M -14 -20
+  C -24 -30, -32 -42, -28 -56
+  C -22 -68, -10 -72, 0 -68
+  L 4 -76
+  C -2 -82, -16 -82, -28 -76
+  L -34 -68
+  C -38 -56, -32 -42, -22 -32
+  L -18 -28
+  Z" fill="#CCFF00"/>
+
+<!-- HEAD - facing forward-left, fierce -->
+<path d="
+  M 0 -68
+  C -14 -78, -28 -82, -38 -78
+  L -42 -88
+  C -38 -98, -22 -104, -8 -100
+  L 2 -94
+  C 8 -90, 12 -84, 12 -78
+  L 8 -72
+  C 4 -68, 0 -68, 0 -68 Z" fill="#CCFF00"/>
+
+<!-- Horns (2 backswept) -->
+<path d="M -18 -100 L -28 -118 L -10 -106 Z" fill="#CCFF00"/>
+<path d="M -2 -98 L 6 -114 L 6 -100 Z" fill="#A8D900"/>
+
+<!-- Eye (negative space - navy on neon) -->
+<circle cx="-20" cy="-88" r="3.5" fill="#06142C"/>
+<!-- Nostril detail -->
+<circle cx="-40" cy="-86" r="1.5" fill="#06142C"/>
+<!-- Tooth / fang detail (small triangle below mouth) -->
+<path d="M -36 -82 L -33 -76 L -30 -82 Z" fill="#06142C"/>
+
+<!-- RAISED CLAW (left arm rampant) -->
+<path d="
+  M -20 -10
+  C -36 -16, -52 -28, -58 -46
+  L -50 -50
+  C -44 -38, -36 -28, -26 -22
+  L -22 -16
+  Z" fill="#CCFF00"/>
+<!-- 3 talons -->
+<g fill="#CCFF00">
+  <path d="M -58 -46 L -68 -54 L -56 -50 Z"/>
+  <path d="M -56 -50 L -64 -58 L -52 -52 Z"/>
+  <path d="M -52 -52 L -56 -62 L -48 -54 Z"/>
+</g>
+
+<!-- RIGHT ARM (lowered, against body) -->
+<path d="
+  M 18 -10
+  C 30 -8, 42 -2, 48 10
+  L 44 16
+  C 36 12, 26 10, 18 10
+  Z" fill="#A8D900"/>
+<g fill="#A8D900">
+  <path d="M 48 10 L 56 18 L 46 14 Z"/>
+  <path d="M 48 10 L 52 22 L 44 16 Z"/>
+</g>
+
+<!-- HIND LEGS - powerful, rampant pose -->
+<!-- Left leg -->
+<path d="
+  M -10 78
+  C -16 90, -18 102, -14 116
+  L -8 116
+  L -6 100
+  L -2 100
+  L -4 78 Z" fill="#CCFF00"/>
+<!-- Right leg -->
+<path d="
+  M 10 78
+  C 16 90, 18 102, 14 116
+  L 8 116
+  L 6 100
+  L 2 100
+  L 4 78 Z" fill="#CCFF00"/>
+<!-- Feet (claws) -->
+<g fill="#CCFF00">
+  <path d="M -14 116 L -18 124 L -12 122 L -8 124 L -6 118 Z"/>
+  <path d="M 14 116 L 18 124 L 12 122 L 8 124 L 6 118 Z"/>
+</g>
+
+    </g>
+  </g>
+
+  <!-- ═══════ MOTTO RIBBON ═══════ -->
+  <g filter="url(#shadow)">
+    <path d="
+      M 30 528
+      L 64 518
+      L 448 518
+      L 482 528
+      L 470 562
+      L 448 554
+      L 64 554
+      L 42 562 Z"
+      fill="#06142C" stroke="#CCFF00" stroke-width="2.5"/>
+    <!-- Ribbon end folds (depth) -->
+    <path d="M 30 528 L 42 562 L 54 552 L 60 530 Z" fill="#0A1F3F" opacity="0.85"/>
+    <path d="M 482 528 L 470 562 L 458 552 L 452 530 Z" fill="#0A1F3F" opacity="0.85"/>
+    <!-- Motto text -->
+    <text x="256" y="546"
+          font-family="Georgia, 'Times New Roman', serif"
+          font-size="20"
+          font-weight="700"
+          letter-spacing="2.5"
+          text-anchor="middle"
+          fill="#CCFF00">AD VICTORIAM PER DISCIPLINAM</text>
+  </g>
+</svg>
