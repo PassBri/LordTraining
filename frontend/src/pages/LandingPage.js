@@ -129,7 +129,7 @@ const PeriodizationMiniChart = ({ t }) => {
 
   return (
     <div className="relative w-full">
-      <div className="bg-slate-800/60 backdrop-blur-md rounded-2xl border border-slate-700/40 p-5 shadow-2xl">
+      <div className="bg-slate-800/60 backdrop-blur-md rounded-2xl border border-slate-700/40 p-6 lg:p-7 shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -157,7 +157,7 @@ const PeriodizationMiniChart = ({ t }) => {
         </div>
         {/* Interactive bar chart */}
         <div className="relative">
-          <div className="flex items-end gap-[2px] h-40 mb-2 px-0.5" onMouseLeave={() => setHoverIdx(null)}>
+          <div className="flex items-end gap-[2px] h-52 lg:h-64 mb-2 px-0.5" onMouseLeave={() => setHoverIdx(null)}>
             {volData.map((_, i) => {
               const isHover = hoverIdx === i;
               return (
@@ -460,14 +460,17 @@ const LandingPage = () => {
       .bar-animate { animation: barGrow 0.8s cubic-bezier(0.16,1,0.3,1) both; transform-origin: bottom; }
       @keyframes countUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
       .count-animate { animation: countUp 0.5s cubic-bezier(0.16,1,0.3,1) both; }
+      @keyframes shieldGlow { 0%,100% { opacity: 0.55; transform: scale(0.92); } 50% { opacity: 1; transform: scale(1.08); } }
+      @keyframes shieldFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
     `}</style>
 
     {/* NAV — Dark, cinematic */}
     <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/40" data-testid="main-nav">
       <div className="max-w-[1120px] mx-auto px-6">
         <div className="flex items-center justify-between h-[56px]">
-          <Link to="/" className="flex items-center gap-2.5" data-testid="nav-brand-logo">
-            <BrandLogo variant="full" theme="light" size={32} />
+          <Link to="/" className="flex items-center gap-3" data-testid="nav-brand-logo">
+            <img src="/brand/lordtraining-scale.png" alt="" className="h-11 w-11 object-contain" style={{filter:'drop-shadow(0 4px 10px rgba(0,0,0,0.45))'}} />
+            <span className="text-[17px] font-black text-white tracking-tight" style={{fontFamily:BC, letterSpacing:'0.01em'}}>Lord<span className="text-[#CCFF00]">Training</span></span>
           </Link>
           <div className="hidden md:flex items-center gap-8">
             {[['#features', t('landing.nav.features')],['#how-it-works', t('landing.nav.howItWorks')],['#pricing', t('landing.nav.pricing')]].map(([h,l]) => (
@@ -511,12 +514,19 @@ const LandingPage = () => {
           <div className="lg:col-span-5 flex flex-col items-center lg:items-start gap-7">
             {/* Big heraldic shield — hero brand mark */}
             <Reveal delay={0.15} direction="up">
-              <div className="flex justify-center lg:justify-start" data-testid="hero-shield">
+              <div className="flex justify-center lg:justify-start relative" data-testid="hero-shield">
+                {/* Pulsing golden glow halo */}
+                <span className="absolute inset-0 m-auto rounded-full pointer-events-none" style={{
+                  width: '70%', height: '70%', top: 0, bottom: 0, left: 0, right: 0,
+                  background: 'radial-gradient(circle, rgba(245,200,80,0.45) 0%, rgba(204,255,0,0.18) 35%, transparent 70%)',
+                  filter: 'blur(28px)',
+                  animation: 'shieldGlow 3s ease-in-out infinite',
+                }} />
                 <img
                   src="/brand/lordtraining-master.png"
                   alt="LordTraining"
-                  className="h-[220px] sm:h-[260px] lg:h-[300px] w-auto"
-                  style={{ filter: 'drop-shadow(0 18px 32px rgba(0,0,0,0.55)) drop-shadow(0 0 28px rgba(204,255,0,0.12))' }}
+                  className="relative h-[220px] sm:h-[260px] lg:h-[300px] w-auto"
+                  style={{ filter: 'drop-shadow(0 18px 32px rgba(0,0,0,0.55))', animation: 'shieldFloat 3s ease-in-out infinite' }}
                 />
               </div>
             </Reveal>
@@ -1265,8 +1275,9 @@ const LandingPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
           {/* Brand */}
           <div className="md:col-span-1">
-            <div className="flex items-center gap-2.5 mb-4" data-testid="footer-brand-logo">
-              <BrandLogo variant="full" theme="light" size={32} />
+            <div className="flex items-center gap-3 mb-4" data-testid="footer-brand-logo">
+              <img src="/brand/lordtraining-scale.png" alt="" className="h-12 w-12 object-contain" style={{filter:'drop-shadow(0 4px 10px rgba(0,0,0,0.45))'}} />
+              <span className="text-[18px] font-black text-white tracking-tight" style={{fontFamily:BC}}>Lord<span className="text-[#CCFF00]">Training</span></span>
             </div>
             <p className="text-[13px] text-slate-500 leading-[1.6]">{t('landing.hero.tagline')}</p>
           </div>
