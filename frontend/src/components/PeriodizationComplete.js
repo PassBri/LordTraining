@@ -261,7 +261,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
   // Detectar seed al montar
   useEffect(() => {
     try {
-      const raw = localStorage.getItem('itrain_next_plan_seed');
+      const raw = localStorage.getItem('lordtraining_next_plan_seed');
       if (raw) {
         const parsed = JSON.parse(raw);
         if (parsed && typeof parsed === 'object') {
@@ -356,7 +356,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
   }, [nextPlanSeed, effectiveModels, seedApplied, seedDismissed]);
 
   const clearNextPlanSeed = useCallback(() => {
-    try { localStorage.removeItem('itrain_next_plan_seed'); } catch (_) { /* ignore */ }
+    try { localStorage.removeItem('lordtraining_next_plan_seed'); } catch (_) { /* ignore */ }
     setNextPlanSeed(null);
   }, []);
 
@@ -1454,7 +1454,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         </div>
       )}
 
-      {/* Compact Header + Stepper in a single iTRAIN-branded bar */}
+      {/* Compact Header + Stepper in a single LordTraining-branded bar */}
       <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-xl">
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/10">
           <div className="flex items-center gap-3">
@@ -1858,7 +1858,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
           </div>
 
-          {/* Navigation Buttons - iTRAIN sticky footer */}
+          {/* Navigation Buttons - LordTraining sticky footer */}
           <div className="px-5 md:px-6 py-3.5 border-t border-slate-200 bg-gradient-to-b from-slate-50 to-white flex items-center justify-between rounded-b-2xl">
             <Button
               variant="ghost"

@@ -59,10 +59,10 @@ async def view_shared(share_id: str):
   .footer {{ text-align:center; padding:16px; color:#94a3b8; font-size:11px; }}
 </style></head><body>
 <div class="container">
-  <div class="ribbon">📊 Documento compartido · Solo lectura · iTRAIN</div>
+  <div class="ribbon">📊 Documento compartido · Solo lectura · LordTraining</div>
   <h1>{name}</h1>
   <img src="{img}" alt="Plan Gráfico" />
-  <div class="footer">Generado por <strong>iTRAIN</strong> · iTrain.app</div>
+  <div class="footer">Generado por <strong>LordTraining</strong> · LordTraining.app</div>
 </div>
 </body></html>"""
     return HTMLResponse(content=html)

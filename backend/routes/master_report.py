@@ -10,7 +10,7 @@ Reporte PDF Maestro · Constructor selectivo (T6 + T7)
   * campeon   (dorado · negro · victoria)
   * primer-lugar (plata · oro · podio)
 - Logo opcional del club/escuela/federación
-- Hero card tipo whitepaper iTRAIN, badges, KPIs, tablas premium
+- Hero card tipo whitepaper LordTraining, badges, KPIs, tablas premium
 """
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import Response
@@ -446,15 +446,15 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
     full_b64 = ""
     icon_b64 = ""
     try:
-        with open("/app/frontend/public/brand/itrain-full-pdf.png", "rb") as f:
+        with open("/app/frontend/public/brand/lordtraining-full-pdf.png", "rb") as f:
             full_b64 = base64.b64encode(f.read()).decode()
     except Exception: pass
     try:
-        with open("/app/frontend/public/brand/itrain-icon-pdf.png", "rb") as f:
+        with open("/app/frontend/public/brand/lordtraining-icon-pdf.png", "rb") as f:
             icon_b64 = base64.b64encode(f.read()).decode()
     except Exception: pass
 
-    # ====== Logo del club (preferred over brand iTRAIN in cover) ======
+    # ====== Logo del club (preferred over brand LordTraining in cover) ======
     org_block = ""
     if payload.org_logo_b64:
         org_block = (
@@ -463,7 +463,7 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
         )
     elif full_b64:
         org_block = (
-            f'<img src="data:image/png;base64,{full_b64}" alt="iTRAIN" '
+            f'<img src="data:image/png;base64,{full_b64}" alt="LordTraining" '
             f'style="height:38pt;width:148pt;object-fit:contain;display:block;margin:0 0 14pt;"/>'
         )
 
@@ -1053,7 +1053,7 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
         parts.append(("tools", f"""<section class="page-break">
 <span class="badge">SUITE</span>
 <h2>Herramientas y calculadoras</h2>
-<p>iTRAIN incluye una suite de <strong>47 calculadoras científicas</strong> distribuidas en <strong>10 módulos</strong>:</p>
+<p>LordTraining incluye una suite de <strong>47 calculadoras científicas</strong> distribuidas en <strong>10 módulos</strong>:</p>
 <div class="kpi-row">
   {_stat_card('PLANIFICACIÓN', '5', 'estructural')}
   {_stat_card('CARGA Y FUERZA', '6', 'periodización')}
@@ -1080,7 +1080,7 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
 <span class="badge">CIERRE</span>
 <h2>Conclusiones</h2>
 {paras}
-<div class="callout"><strong>Próximos pasos</strong> · Consolidar evaluaciones del próximo control, ajustar la curva de carga semanal y revisar el calendario competitivo. iTRAIN actualiza estos datos en tiempo real.</div>
+<div class="callout"><strong>Próximos pasos</strong> · Consolidar evaluaciones del próximo control, ajustar la curva de carga semanal y revisar el calendario competitivo. LordTraining actualiza estos datos en tiempo real.</div>
 </section>"""))
 
     # Default order if user did not provide one
@@ -1115,7 +1115,7 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
     # ====== FOOTER ======
     footer_html = f"""<div class="footer-brand">
   {f'<img src="data:image/png;base64,{icon_b64}" alt=""/>' if icon_b64 else ''}
-  Generado por <strong>iTRAIN</strong> · {today}
+  Generado por <strong>LordTraining</strong> · {today}
 </div>"""
 
     # ====== CSS PREMIUM ======

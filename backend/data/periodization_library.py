@@ -6,15 +6,15 @@ Luego puede editarlos/eliminarlos o crear los suyos propios.
 """
 
 DEFAULT_PERIODIZATION_LIBRARY = [
-    # ============= MODELO EXCLUSIVO iTRAIN =============
+    # ============= MODELO EXCLUSIVO LordTraining =============
     {
-        "id": "itrain_pdi",
-        "name": "iTrain PDI · Periodización Dual Integrada",
-        "author": "Dr. Brian Gonzalo Suárez Acevedo · iTrain.app",
+        "id": "lordtraining_pdi",
+        "name": "LordTraining PDI · Periodización Dual Integrada",
+        "author": "Dr. Brian Gonzalo Suárez Acevedo · LordTraining.app",
         "category": "Avanzado",
         "icon": "🧠",
         "color": "#CCFF00",
-        "description": "Modelo exclusivo iTrain. Resuelve la tensión entre necesidades individuales (PAI) y coherencia de equipo (CSE) mediante arquitectura de 3 capas: Colectiva + Individual + Motor de Convergencia. Ajusta cargas en tiempo real con RPE/HRV y gestiona 5 tipos adaptativos de atleta.",
+        "description": "Modelo exclusivo LordTraining. Resuelve la tensión entre necesidades individuales (PAI) y coherencia de equipo (CSE) mediante arquitectura de 3 capas: Colectiva + Individual + Motor de Convergencia. Ajusta cargas en tiempo real con RPE/HRV y gestiona 5 tipos adaptativos de atleta.",
         "phases": [
             {"name": "Acumulación (Colectiva + PAI)", "color": "#3B82F6", "volume": 90, "intensity": 55, "duration_weeks": "4-6", "description": "Base aeróbica + fuerza general + técnica colectiva. Individual 3-8 sem según tipo PAI."},
             {"name": "Transformación (CIA sincronizado)", "color": "#8B5CF6", "volume": 70, "intensity": 80, "duration_weeks": "3-5", "description": "Convertir base en especificidad deportiva. Fuerza especial + resistencia específica + táctica avanzada. Individual 2-6 sem."},

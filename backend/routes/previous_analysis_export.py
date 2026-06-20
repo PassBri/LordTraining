@@ -53,7 +53,7 @@ MODEL_PROFILES = {
     "atr": {"general": 85, "fisica": 92, "tecnica": 78, "tactica": 75, "psicologica": 65, "teorica": 55, "reglamento": 60},
     "issurin": {"general": 85, "fisica": 92, "tecnica": 80, "tactica": 82, "psicologica": 68, "teorica": 60, "reglamento": 65},
     "pdi": {"general": 88, "fisica": 82, "tecnica": 85, "tactica": 85, "psicologica": 88, "teorica": 85, "reglamento": 80},
-    "itrain_pdi": {"general": 88, "fisica": 82, "tecnica": 85, "tactica": 85, "psicologica": 88, "teorica": 85, "reglamento": 80},
+    "lordtraining_pdi": {"general": 88, "fisica": 82, "tecnica": 85, "tactica": 85, "psicologica": 88, "teorica": 85, "reglamento": 80},
     "lineal": {"general": 80, "fisica": 88, "tecnica": 72, "tactica": 65, "psicologica": 55, "teorica": 50, "reglamento": 55},
     "tradicional": {"general": 80, "fisica": 88, "tecnica": 72, "tactica": 65, "psicologica": 55, "teorica": 50, "reglamento": 55},
     "ondulante": {"general": 82, "fisica": 85, "tecnica": 78, "tactica": 72, "psicologica": 65, "teorica": 58, "reglamento": 60},
@@ -279,9 +279,9 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
     # --- Logos base64 ---
     brand_dir = "/app/frontend/public/brand"
     try:
-        with open(f"{brand_dir}/itrain-full-pdf.png", "rb") as f:
+        with open(f"{brand_dir}/lordtraining-full-pdf.png", "rb") as f:
             full_b64 = base64.b64encode(f.read()).decode()
-        with open(f"{brand_dir}/itrain-icon-pdf.png", "rb") as f:
+        with open(f"{brand_dir}/lordtraining-icon-pdf.png", "rb") as f:
             icon_b64 = base64.b64encode(f.read()).decode()
     except FileNotFoundError:
         full_b64 = icon_b64 = ""
@@ -439,7 +439,7 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
 
     share_banner = ""
     if share_id:
-        share_banner = '<div class="share-ribbon">DOCUMENTO COMPARTIDO · Solo lectura · Generado por iTrain.app</div>'
+        share_banner = '<div class="share-ribbon">DOCUMENTO COMPARTIDO · Solo lectura · Generado por LordTraining.app</div>'
 
     no_ind_html = "" if has_ind else '<tr><td colspan="4" class="muted" style="text-align:center;padding:14pt">Sin indicadores registrados.</td></tr>'
 
@@ -514,7 +514,7 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
 '''
 
     return f"""<!DOCTYPE html>
-<html lang="es"><head><meta charset="UTF-8"><title>Análisis del Plan Anterior · iTrain</title>
+<html lang="es"><head><meta charset="UTF-8"><title>Análisis del Plan Anterior · LordTraining</title>
 <style>
   @page {{ size: A4; margin: 18mm 15mm; }}
   * {{ box-sizing: border-box; }}
@@ -609,7 +609,7 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
 
 <div class="hero">
   <div class="brand-mark">
-    <img src="data:image/png;base64,{full_b64}" alt="iTRAIN" width="176" height="46" style="width:176px;height:46px;object-fit:contain;display:block;"/>
+    <img src="data:image/png;base64,{full_b64}" alt="LordTraining" width="176" height="46" style="width:176px;height:46px;object-fit:contain;display:block;"/>
   </div>
   <span class="badge">ANÁLISIS RETROSPECTIVO</span>
   <h1>Análisis del Plan Anterior</h1>
@@ -694,8 +694,8 @@ def _build_html(analysis_doc: dict, plan_name: str, share_id: Optional[str] = No
 </div>
 
 <div class="footer-brand">
-  <img src="data:image/png;base64,{icon_b64}" alt="iTRAIN"/>
-  <span>Generado por <strong>iTRAIN</strong> · iTrain.app · Análisis del Plan Anterior</span>
+  <img src="data:image/png;base64,{icon_b64}" alt="LordTraining"/>
+  <span>Generado por <strong>LordTraining</strong> · LordTraining.app · Análisis del Plan Anterior</span>
 </div>
 
 </body></html>"""

@@ -477,7 +477,7 @@ const DashboardPage = () => {
       // Navegar automáticamente a la primera sección del plan (Diagnóstico)
       setActiveDataSection('prev-plan');
       // Notificar a Panel de Control y otras secciones para refrescar
-      window.dispatchEvent(new CustomEvent('itrain:plan-data-updated', { detail: { plan_id: plan.id } }));
+      window.dispatchEvent(new CustomEvent('lordtraining:plan-data-updated', { detail: { plan_id: plan.id } }));
     } else {
       localStorage.removeItem('train_active_plan_id');
       setPlanData(null);
@@ -781,7 +781,7 @@ const DashboardPage = () => {
     if (!url) return;
     const planName = activePlan?.name || 'el plan';
     const msg = encodeURIComponent(
-      `📊 Análisis del Plan Anterior — ${planName}\n\nTe comparto el análisis retrospectivo del plan de entrenamiento generado con iTrain:\n\n${url}`
+      `📊 Análisis del Plan Anterior — ${planName}\n\nTe comparto el análisis retrospectivo del plan de entrenamiento generado con LordTraining:\n\n${url}`
     );
     window.open(`https://wa.me/?text=${msg}`, '_blank', 'noopener,noreferrer');
   };
@@ -868,7 +868,7 @@ const DashboardPage = () => {
     const publicUrl = await handleShareObjectivesLink();
     if (!publicUrl) return;
     const planName = activePlan?.name || 'Plan Activo';
-    const text = encodeURIComponent(`Plan Activo · ${planName}\n\nObjetivos del ciclo y aspectos de preparación:\n${publicUrl}\n\nGenerado por iTrain.app`);
+    const text = encodeURIComponent(`Plan Activo · ${planName}\n\nObjetivos del ciclo y aspectos de preparación:\n${publicUrl}\n\nGenerado por LordTraining.app`);
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 
@@ -1563,7 +1563,7 @@ const DashboardPage = () => {
     
     // === 7. HERRAMIENTAS ===
     { id: 'calculators', label: t('dashboard.nav.calculators'), icon: Calculator, section: 'herramientas' },
-    { id: 'pdi-sheet', label: 'iTrain PDI', icon: Brain, section: 'herramientas' },
+    { id: 'pdi-sheet', label: 'LordTraining PDI', icon: Brain, section: 'herramientas' },
     { id: 'periodization-models', label: 'Modelos', icon: Layers, section: 'herramientas' },
     { id: 'exercises', label: 'Métodos', icon: Timer, section: 'herramientas' },
     { id: 'exercises-lib', label: t('dashboard.controlPanel.exercises'), icon: Dumbbell, section: 'herramientas' },
@@ -2829,7 +2829,7 @@ const DashboardPage = () => {
       );
     }
 
-    // Render iTrain PDI Technical Sheet
+    // Render LordTraining PDI Technical Sheet
     if (activeDataSection === 'pdi-sheet') {
       return <PDITechnicalSheet />;
     }
@@ -3243,7 +3243,7 @@ const DashboardPage = () => {
         atr: { general: 85, fisica: 92, tecnica: 78, tactica: 75, psicologica: 65, teorica: 55, reglamento: 60 },
         issurin: { general: 85, fisica: 92, tecnica: 80, tactica: 82, psicologica: 68, teorica: 60, reglamento: 65 },
         pdi: { general: 88, fisica: 82, tecnica: 85, tactica: 85, psicologica: 88, teorica: 85, reglamento: 80 },
-        itrain_pdi: { general: 88, fisica: 82, tecnica: 85, tactica: 85, psicologica: 88, teorica: 85, reglamento: 80 },
+        lordtraining_pdi: { general: 88, fisica: 82, tecnica: 85, tactica: 85, psicologica: 88, teorica: 85, reglamento: 80 },
         lineal: { general: 80, fisica: 88, tecnica: 72, tactica: 65, psicologica: 55, teorica: 50, reglamento: 55 },
         tradicional: { general: 80, fisica: 88, tecnica: 72, tactica: 65, psicologica: 55, teorica: 50, reglamento: 55 },
         ondulante: { general: 82, fisica: 85, tecnica: 78, tactica: 72, psicologica: 65, teorica: 58, reglamento: 60 },
@@ -3690,7 +3690,7 @@ const DashboardPage = () => {
                       const focusArea = gaps[0]?.area || 'general';
                       // Persistir contexto en localStorage para el wizard
                       try {
-                        localStorage.setItem('itrain_next_plan_seed', JSON.stringify({
+                        localStorage.setItem('lordtraining_next_plan_seed', JSON.stringify({
                           source_plan_id: activePlan?.id || '',
                           source_model: activePlan?.model || '',
                           source_model_name: activePlan?.model_name || '',

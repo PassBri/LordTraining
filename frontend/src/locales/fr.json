@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "iTRAIN",
+    "appName": "LordTraining",
     "tagline": "Planifiez mieux. Entrainez-vous avec méthode. Compétitionnez avec avantage.",
     "loading": "Chargement...",
     "save": "Enregistrer",
@@ -86,7 +86,7 @@
     },
     "howItWorks": {
       "tag": "PROCESSUS",
-      "title": "Comment fonctionne iTRAIN",
+      "title": "Comment fonctionne LordTraining",
       "subtitle": "Du diagnostic initial à l'exportation professionnelle — un flux complet en 6 phases",
       "step1_title": "Caractérisez votre sport",
       "step1_desc": "Définissez le sport, la catégorie compétitive, les capacités physiques dominantes et les objectifs de la période.",
@@ -180,7 +180,7 @@
     },
     "cta": {
       "title": "Commencez à planifier avec des critères scientifiques",
-      "desc": "Rejoignez les entraîneurs qui font confiance à iTRAIN pour améliorer leur planification sportive.",
+      "desc": "Rejoignez les entraîneurs qui font confiance à LordTraining pour améliorer leur planification sportive.",
       "button": "Commencer maintenant"
     },
     "chart": {
@@ -227,8 +227,8 @@
       "m_central": "CENTRAL"
     },
     "audiences": {
-      "impact": "80% des entraîneurs planifient sans données réelles. iTRAIN change la donne : périodisation scientifique, suivi en temps réel et décisions basées sur des preuves — pour tout niveau.",
-      "trustLine": "+1 200 entraîneurs · 340 clubs · 18 fédérations font confiance à iTRAIN",
+      "impact": "80% des entraîneurs planifient sans données réelles. LordTraining change la donne : périodisation scientifique, suivi en temps réel et décisions basées sur des preuves — pour tout niveau.",
+      "trustLine": "+1 200 entraîneurs · 340 clubs · 18 fédérations font confiance à LordTraining",
       "tag": "AUDIENCES",
       "title": "De l'entraîneur indépendant à la fédération nationale",
       "coaches_title": "Pour les entraîneurs",
@@ -267,19 +267,19 @@
       "t2_role": "Directrice Sportive - Club Haute Performance",
       "t3_text": "Avec l'ACWR et les indicateurs de monotonie, nous avons réduit les blessures dès la première saison.",
       "t3_role": "Coach de Force - Fédération Régionale d'Athlétisme",
-      "t4_text": "Je gère 4 équipes depuis un seul panneau. Avant j'avais besoin de trois outils différents. Maintenant tout est dans iTRAIN.",
+      "t4_text": "Je gère 4 équipes depuis un seul panneau. Avant j'avais besoin de trois outils différents. Maintenant tout est dans LordTraining.",
       "t4_role": "Directeur Sportif - Club Polysportif Municipal",
       "t5_text": "Mes jeunes athlètes ont maintenant un vrai suivi de développement. Les parents voient les progrès, je contrôle la charge.",
       "t5_role": "Directrice - École de Natation Formative",
       "t6_text": "Nous avons standardisé la méthodologie pour les 18 clubs affiliés. Pour la première fois nous avons des données comparables.",
       "t6_role": "Coordinateur Technique National - Fédération de Cyclisme",
-      "t7_text": "Je ne suis pas expert en technologie mais j'ai compris iTRAIN en une après-midi. Maintenant je génère les plans en minutes.",
+      "t7_text": "Je ne suis pas expert en technologie mais j'ai compris LordTraining en une après-midi. Maintenant je génère les plans en minutes.",
       "t7_role": "Coach Personnel - Spécialiste Force",
       "t8_text": "Le suivi du développement à long terme nous a aidés à identifier des talents qui passaient inaperçus.",
       "t8_role": "Coordinatrice Pédagogique - Académie de Football",
       "t9_text": "Les rapports automatiques m'économisent des heures chaque semaine. Maintenant j'exporte en deux clics.",
       "t9_role": "Préparatrice Physique - Club de Volleyball Féminin",
-      "t10_text": "Nous avons implémenté iTRAIN comme protocole officiel pour les convocations nationales.",
+      "t10_text": "Nous avons implémenté LordTraining comme protocole officiel pour les convocations nationales.",
       "t10_role": "Chef de Haute Performance - Fédération Nationale de Triathlon"
     }
   },

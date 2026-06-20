@@ -1,7 +1,7 @@
 {
   "common": {
-    "appName": "iTRAIN",
-    "tagline": "Planeje melhor. Treine com critério. Compita com vantagem.",
+    "appName": "LordTraining",
+    "tagline": "Onde a ciência do esporte vira poder.",
     "loading": "Carregando...",
     "save": "Salvar",
     "cancel": "Cancelar",
@@ -86,7 +86,7 @@
     },
     "howItWorks": {
       "tag": "PROCESSO",
-      "title": "Como o iTRAIN funciona",
+      "title": "Como o LordTraining funciona",
       "subtitle": "Do diagnóstico inicial à exportação profissional — um fluxo completo em 6 fases",
       "step1_title": "Caracterize seu esporte",
       "step1_desc": "Defina o esporte, categoria competitiva, capacidades físicas dominantes e objetivos do período. O sistema adapta todos os parâmetros ao seu contexto.",
@@ -180,7 +180,7 @@
     },
     "cta": {
       "title": "Comece a planificar com critério científico",
-      "desc": "Junte-se aos treinadores que confiam no iTRAIN para levar seu planejamento esportivo ao próximo nível.",
+      "desc": "Junte-se aos treinadores que confiam no LordTraining para levar seu planejamento esportivo ao próximo nível.",
       "button": "Começar agora"
     },
     "chart": {
@@ -227,8 +227,8 @@
       "m_central": "CENTRAL"
     },
     "audiences": {
-      "impact": "80% dos treinadores planeja sem dados reais. iTRAIN muda isso: periodização científica, acompanhamento em tempo real e decisões baseadas em evidência — para qualquer nível.",
-      "trustLine": "+1.200 treinadores · 340 clubes · 18 federações confiam no iTRAIN",
+      "impact": "80% dos treinadores planeja sem dados reais. LordTraining muda isso: periodização científica, acompanhamento em tempo real e decisões baseadas em evidência — para qualquer nível.",
+      "trustLine": "+1.200 treinadores · 340 clubes · 18 federações confiam no LordTraining",
       "tag": "AUDIÊNCIAS",
       "title": "Do treinador independente à federação nacional",
       "coaches_title": "Para treinadores",
@@ -267,19 +267,19 @@
       "t2_role": "Diretora Esportiva - Clube de Alto Rendimento",
       "t3_text": "Com o ACWR e os indicadores de monotonia reduzimos as lesões notavelmente na primeira temporada. Agora tomamos decisões com dados, não com intuição.",
       "t3_role": "Treinador de Força - Federação Regional de Atletismo",
-      "t4_text": "Gerencio 4 equipes de um único painel. Antes precisava de três ferramentas diferentes e ainda perdia informação. Agora tudo está no iTRAIN.",
+      "t4_text": "Gerencio 4 equipes de um único painel. Antes precisava de três ferramentas diferentes e ainda perdia informação. Agora tudo está no LordTraining.",
       "t4_role": "Diretor Esportivo - Clube Poliesportivo Municipal",
       "t5_text": "Meus atletas juvenis agora têm acompanhamento real do seu desenvolvimento. Os pais veem o progresso, eu controlo a carga. Profissionalizei minha escola sem contratar mais pessoal.",
       "t5_role": "Diretora - Escola de Natação Formativa",
       "t6_text": "Padronizamos a metodologia de planejamento para os 18 clubes afiliados. Pela primeira vez temos dados comparáveis entre regiões.",
       "t6_role": "Coordenador Técnico Nacional - Federação de Ciclismo",
-      "t7_text": "Não sou expert em tecnologia mas entendi o iTRAIN em uma tarde. Agora gero os planos dos meus atletas em minutos.",
+      "t7_text": "Não sou expert em tecnologia mas entendi o LordTraining em uma tarde. Agora gero os planos dos meus atletas em minutos.",
       "t7_role": "Treinador Personal - Especialista em Força",
       "t8_text": "O acompanhamento do desenvolvimento a longo prazo nos ajudou a identificar talentos que antes passavam despercebidos.",
       "t8_role": "Coordenadora Pedagógica - Academia de Futebol de Base",
       "t9_text": "Os relatórios automáticos me economizam horas toda semana. Antes preparar o relatório mensal levava um dia inteiro. Agora exporto em dois cliques.",
       "t9_role": "Preparadora Física - Clube de Vôlei Feminino",
-      "t10_text": "Implementamos o iTRAIN como protocolo oficial para as convocações nacionais. A seleção agora chega com dados reais de carga de cada atleta.",
+      "t10_text": "Implementamos o LordTraining como protocolo oficial para as convocações nacionais. A seleção agora chega com dados reais de carga de cada atleta.",
       "t10_role": "Chefe de Alto Rendimento - Federação Nacional de Triathlon"
     }
   },

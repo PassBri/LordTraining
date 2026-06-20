@@ -90,7 +90,7 @@ export const InfoSectionHeader = ({
     const publicUrl = await handleShareLink();
     if (!publicUrl) return;
     const text = encodeURIComponent(
-      `Catálogo · ${title}\n\n${subtitle}\n${publicUrl}\n\nGenerado por iTrain.app`
+      `Catálogo · ${title}\n\n${subtitle}\n${publicUrl}\n\nGenerado por LordTraining.app`
     );
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };

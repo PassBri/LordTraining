@@ -352,7 +352,7 @@ def _build_session_pdf_classic(
     c.rect(0, 0, width, 35, fill=1, stroke=0)
     c.setFillColor(white)
     c.setFont("Helvetica-Bold", 9)
-    c.drawString(40, 15, "iTRAIN · Sistema de Gestión Deportiva")
+    c.drawString(40, 15, "LordTraining · Sistema de Gestión Deportiva")
     c.setFont("Helvetica", 8)
     c.drawString(40, 5, datetime.now().strftime('%d/%m/%Y %H:%M'))
     c.setFont("Helvetica-Bold", 9)
@@ -497,7 +497,7 @@ def _build_session_html_hero(
 
     return f"""<!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"/>
-<title>iTRAIN · {esc(session_name)}</title>
+<title>LordTraining · {esc(session_name)}</title>
 <style>
   @page {{ size: A4; margin: 0; }}
   * {{ box-sizing: border-box; }}
@@ -572,7 +572,7 @@ def _build_session_html_hero(
   <div class="page">
     <header class="hd">
       <div>
-        <div class="brand">iTRAIN · Plan de Sesión</div>
+        <div class="brand">LordTraining · Plan de Sesión</div>
         <h1 class="title">{esc(session_name)}</h1>
         <div class="meta">
           <span><strong>Deportista:</strong> {esc(athlete_name)}</span>
@@ -584,7 +584,7 @@ def _build_session_html_hero(
     </header>
     {objetivos_html}
     {''.join(cards_parts)}
-    <footer class="ft">Generado con iTRAIN</footer>
+    <footer class="ft">Generado con LordTraining</footer>
   </div>
 </body></html>"""
 
@@ -841,7 +841,7 @@ async def view_shared_sessions(share_id: str):
     # Tomar el head del primero, body de todos
     if not section_htmls:
         body_inner = '<div style="padding:40px;text-align:center;color:#64748b;">Sin sesiones disponibles.</div>'
-        head_html = '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>iTRAIN · Compartido</title></head>'
+        head_html = '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>LordTraining · Compartido</title></head>'
     else:
         first = section_htmls[0]
         head_end = first.find('</head>')

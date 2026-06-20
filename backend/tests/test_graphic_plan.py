@@ -1,5 +1,5 @@
 """
-Backend API Tests for Sistema TRAIN
+Backend API Tests for LordTraining
 Tests: Auth, GraphicPlan, and related endpoints
 """
 import pytest

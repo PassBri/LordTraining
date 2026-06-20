@@ -251,11 +251,11 @@ const ControlPanel = ({
         fetchPanelStats();
       }
     };
-    window.addEventListener('itrain:plan-data-updated', handler);
-    window.addEventListener('itrain:evaluation-saved', handler);
+    window.addEventListener('lordtraining:plan-data-updated', handler);
+    window.addEventListener('lordtraining:evaluation-saved', handler);
     return () => {
-      window.removeEventListener('itrain:plan-data-updated', handler);
-      window.removeEventListener('itrain:evaluation-saved', handler);
+      window.removeEventListener('lordtraining:plan-data-updated', handler);
+      window.removeEventListener('lordtraining:evaluation-saved', handler);
     };
   }, [activePlan?.id, fetchPanelStats]);
 

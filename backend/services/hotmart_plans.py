@@ -1,7 +1,7 @@
 """
-Mapping between iTRAIN internal plan slugs and Hotmart products/offers.
+Mapping between LordTraining internal plan slugs and Hotmart products/offers.
 
-Each iTRAIN tier has 2 cycles (monthly, annual) = 8 Hotmart products.
+Each LordTraining tier has 2 cycles (monthly, annual) = 8 Hotmart products.
 The values come from environment variables so they can be configured
 without code changes once products are created in Hotmart.
 
@@ -41,7 +41,7 @@ def _plan_key(tier: str, cycle: str) -> str:
 
 def get_hotmart_offer(tier: str, cycle: str = "monthly") -> Optional[Dict[str, str]]:
     """
-    Returns the Hotmart offer info for a given iTRAIN tier + cycle.
+    Returns the Hotmart offer info for a given LordTraining tier + cycle.
     Looks up environment variables of the form:
         HOTMART_PRODUCT_<TIER>_<CYCLE>          (numeric product id)
         HOTMART_OFFER_<TIER>_<CYCLE>            (offer code, e.g. D12345678X)

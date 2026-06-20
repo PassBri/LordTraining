@@ -27,7 +27,7 @@ const PDITechnicalSheet = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'iTrain_PDI_Whitepaper.pdf';
+      a.download = 'LordTraining_PDI_Whitepaper.pdf';
       a.click();
       window.URL.revokeObjectURL(url);
       toast.success('Whitepaper descargado');
@@ -52,10 +52,10 @@ const PDITechnicalSheet = () => {
           </div>
           <div className="flex-1 min-w-[280px]">
             <div className="inline-block px-2 py-0.5 rounded-full bg-[#CCFF00]/20 border border-[#CCFF00]/30 text-[10px] font-bold text-[#CCFF00] uppercase tracking-wider mb-2">
-              Modelo exclusivo iTRAIN
+              Modelo exclusivo LordTraining
             </div>
             <h1 className="text-2xl md:text-4xl font-black tracking-tight leading-none mb-2">
-              iTrain PDI
+              LordTraining PDI
             </h1>
             <p className="text-base md:text-lg text-white/80 font-medium">
               Periodización Dual Integrada
@@ -138,7 +138,7 @@ const OverviewTab = () => {
           <span className="font-semibold">Autor conceptual:</span>
           <span>Dr. Brian Gonzalo Suárez Acevedo</span>
           <span className="text-slate-300">|</span>
-          <span>iTrain.app</span>
+          <span>LordTraining.app</span>
         </div>
       </section>
 

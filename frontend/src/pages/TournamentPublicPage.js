@@ -275,7 +275,7 @@ const TournamentPublicPage = () => {
 
         {/* Footer */}
         <div className="mt-8 text-center text-sm text-slate-400">
-          <p>Creado con Sistema TRAIN</p>
+          <p>Creado con LordTraining</p>
           <Link to="/" className="text-amber-600 hover:underline">
             train.app
           </Link>

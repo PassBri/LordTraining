@@ -334,7 +334,7 @@ const EvaluationSection = ({ sectionId, activePlan, athletes = [], selectedAthle
       toast.success(`${config.title} guardado`);
       // Refresca lista + dispara evento global para que GraphicPlan se actualice
       await fetchList();
-      window.dispatchEvent(new CustomEvent('itrain:evaluation-saved', { detail: { plan_id: activePlan.id, evaluation_type: evalType, date } }));
+      window.dispatchEvent(new CustomEvent('lordtraining:evaluation-saved', { detail: { plan_id: activePlan.id, evaluation_type: evalType, date } }));
     } catch { toast.error('Error al guardar'); }
     setSaving(false);
   };
@@ -419,7 +419,7 @@ const EvaluationSection = ({ sectionId, activePlan, athletes = [], selectedAthle
       const list = await fetchList();
       if (list.length > 0) await loadControl(list[0].id);
       else await loadControl(null);
-      window.dispatchEvent(new CustomEvent('itrain:evaluation-saved', { detail: { plan_id: activePlan.id, evaluation_type: evalType } }));
+      window.dispatchEvent(new CustomEvent('lordtraining:evaluation-saved', { detail: { plan_id: activePlan.id, evaluation_type: evalType } }));
     } catch { toast.error('Error eliminando'); }
   };
 

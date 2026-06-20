@@ -516,7 +516,7 @@ const PDFExportModal = ({ isOpen, onClose, athleteId, athleteName, periodization
                     onChange={(e) => setFormatOptions(prev => ({ ...prev, include_logo: e.target.checked }))}
                     className="w-4 h-4 rounded border-slate-300 text-indigo-500"
                   />
-                  <span className="text-sm text-slate-600">Incluir logo de TRAIN</span>
+                  <span className="text-sm text-slate-600">Incluir logo de LordTraining</span>
                 </label>
 
                 <label className="flex items-center gap-3 cursor-pointer">

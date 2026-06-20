@@ -56,7 +56,7 @@ def render_coach_invite_email(
     role_label: str = "Entrenador",
 ) -> str:
     """Branded HTML invitation email (table-based for email-client compatibility)."""
-    login_url = f"{APP_PUBLIC_URL}/auth" if APP_PUBLIC_URL else "https://itrain.app/auth"
+    login_url = f"{APP_PUBLIC_URL}/auth" if APP_PUBLIC_URL else "https://lordtraining.app/auth"
 
     return f"""<!DOCTYPE html>
 <html>
@@ -73,7 +73,7 @@ def render_coach_invite_email(
         <tr><td style="background:linear-gradient(135deg,#0a0f19 0%,#1a2033 100%); padding:32px 40px; border-bottom:3px solid #CCFF00;">
           <table width="100%" cellpadding="0" cellspacing="0" border="0">
             <tr>
-              <td style="font-family:'Bebas Neue','Arial Black',Arial,sans-serif; font-size:32px; letter-spacing:2px; color:#CCFF00; font-weight:900;">i<span style="color:#fff;">TRAIN</span></td>
+              <td style="font-family:'Bebas Neue','Arial Black',Arial,sans-serif; font-size:32px; letter-spacing:2px; color:#CCFF00; font-weight:900;">LordTraining</td>
               <td align="right" style="color:#94a3b8; font-size:11px; letter-spacing:1px; text-transform:uppercase;">Sport Periodization Software</td>
             </tr>
           </table>
@@ -85,7 +85,7 @@ def render_coach_invite_email(
           <h1 style="margin:0 0 12px 0; color:#0f172a; font-size:26px; font-weight:800; line-height:1.2;">Hola {coach_name},</h1>
           <p style="margin:0 0 18px 0; color:#475569; font-size:15px; line-height:1.6;">
             <strong>{inviter_name}</strong> te ha invitado a unirte a
-            <strong style="color:#0f172a;">{org_name}</strong> como <strong>{role_label}</strong> en iTRAIN — la plataforma profesional de periodización deportiva.
+            <strong style="color:#0f172a;">{org_name}</strong> como <strong>{role_label}</strong> en LordTraining — la plataforma profesional de periodización deportiva.
           </p>
         </td></tr>
 
@@ -112,7 +112,7 @@ def render_coach_invite_email(
           <table cellpadding="0" cellspacing="0" border="0">
             <tr><td style="background:#0f172a; border-radius:10px;">
               <a href="{login_url}" style="display:inline-block; padding:14px 36px; color:#CCFF00; font-size:14px; font-weight:800; text-decoration:none; letter-spacing:1px; text-transform:uppercase;">
-                Iniciar sesión en iTRAIN →
+                Iniciar sesión en LordTraining →
               </a>
             </td></tr>
           </table>
@@ -142,7 +142,7 @@ def render_coach_invite_email(
             Si no esperabas esta invitación, puedes ignorar este email.
           </p>
           <p style="margin:0; color:#64748b; font-size:10px; letter-spacing:1px; text-transform:uppercase;">
-            © iTRAIN · Sport Periodization Software
+            © LordTraining · Sport Periodization Software
           </p>
         </td></tr>
 
@@ -162,7 +162,7 @@ async def send_coach_invitation(
     inviter_name: str,
     role_label: str = "Entrenador",
 ) -> dict:
-    subject = f"Invitación a {org_name} en iTRAIN"
+    subject = f"Invitación a {org_name} en LordTraining"
     html = render_coach_invite_email(
         coach_name=coach_name,
         coach_email=coach_email,

@@ -591,9 +591,9 @@ def _build_html(eval_doc: dict, plan_name: str, athlete_name: str = "",
 
     brand_dir = "/app/frontend/public/brand"
     try:
-        with open(f"{brand_dir}/itrain-full-pdf.png", "rb") as f:
+        with open(f"{brand_dir}/lordtraining-full-pdf.png", "rb") as f:
             full_b64 = base64.b64encode(f.read()).decode()
-        with open(f"{brand_dir}/itrain-icon-pdf.png", "rb") as f:
+        with open(f"{brand_dir}/lordtraining-icon-pdf.png", "rb") as f:
             icon_b64 = base64.b64encode(f.read()).decode()
     except FileNotFoundError:
         full_b64 = icon_b64 = ""
@@ -662,14 +662,14 @@ def _build_html(eval_doc: dict, plan_name: str, athlete_name: str = "",
 
     share_banner = ""
     if share_id:
-        share_banner = '<div class="share-ribbon">DOCUMENTO COMPARTIDO · Solo lectura · Generado por iTrain.app</div>'
+        share_banner = '<div class="share-ribbon">DOCUMENTO COMPARTIDO · Solo lectura · Generado por LordTraining.app</div>'
 
     today = datetime.now(timezone.utc).strftime("%d/%m/%Y")
     athlete_block = f'<div><strong>Atleta</strong>{_esc(athlete_name)}</div>' if athlete_name else ""
     control_subtitle = f' · {_esc(control_title)}' if control_title else ""
 
     return f"""<!DOCTYPE html>
-<html lang="es"><head><meta charset="UTF-8"><title>{title} · iTrain</title>
+<html lang="es"><head><meta charset="UTF-8"><title>{title} · LordTraining</title>
 <style>
   @page {{ size: A4; margin: 14mm 12mm; }}
   * {{ box-sizing: border-box; }}
@@ -720,7 +720,7 @@ def _build_html(eval_doc: dict, plan_name: str, athlete_name: str = "",
 
 <div class="hero">
   <div class="brand-mark">
-    <img src="data:image/png;base64,{full_b64}" alt="iTRAIN" width="160" height="42" style="width:160px;height:42px;object-fit:contain;display:block;"/>
+    <img src="data:image/png;base64,{full_b64}" alt="LordTraining" width="160" height="42" style="width:160px;height:42px;object-fit:contain;display:block;"/>
   </div>
   <span class="badge">EVALUACIÓN · {meta['icon']} {title.upper()}</span>
   <h1>{title}{control_subtitle}</h1>
@@ -766,8 +766,8 @@ def _build_html(eval_doc: dict, plan_name: str, athlete_name: str = "",
 {f'<h2>Notas adicionales</h2><p>{_esc(notes)}</p>' if notes else ''}
 
 <div class="footer-brand">
-  <img src="data:image/png;base64,{icon_b64}" alt="iTRAIN"/>
-  <span>Generado por <strong>iTRAIN</strong> · iTrain.app · {title}</span>
+  <img src="data:image/png;base64,{icon_b64}" alt="LordTraining"/>
+  <span>Generado por <strong>LordTraining</strong> · LordTraining.app · {title}</span>
 </div>
 
 </body></html>"""

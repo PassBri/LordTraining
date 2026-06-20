@@ -39,7 +39,7 @@ JWT_SECRET = os.environ.get('JWT_SECRET', 'train-secret-key')
 JWT_ALGORITHM = "HS256"
 
 # App config
-app = FastAPI(title="Sistema TRAIN API")
+app = FastAPI(title="LordTraining API")
 api_router = APIRouter(prefix="/api")
 security = HTTPBearer()
 
@@ -2356,7 +2356,7 @@ async def export_training_plan_pdf(plan_id: str, user: dict = Depends(get_curren
     c.rect(0, height - 80, width, 80, fill=True)
     c.setFillColor(HexColor("#ffffff"))
     c.setFont("Helvetica-Bold", 24)
-    c.drawString(50, height - 50, "SISTEMA TRAIN")
+    c.drawString(50, height - 50, "LORDTRAINING")
     c.setFont("Helvetica", 12)
     c.drawString(50, height - 70, f"Plan de Entrenamiento: {plan['name']}")
     
@@ -2444,7 +2444,7 @@ async def export_training_plan_pdf(plan_id: str, user: dict = Depends(get_curren
     # Footer
     c.setFont("Helvetica", 8)
     c.setFillColor(HexColor("#94a3b8"))
-    c.drawString(50, 30, f"Generado por Sistema TRAIN - {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    c.drawString(50, 30, f"Generado por LordTraining - {datetime.now().strftime('%Y-%m-%d %H:%M')}")
     
     c.save()
     buffer.seek(0)
@@ -3901,7 +3901,7 @@ async def export_tournament_pdf(tournament_id: str, user: dict = Depends(get_cur
     
     # Footer
     story.append(Spacer(1, 20))
-    story.append(Paragraph(f"Generado por Sistema TRAIN - {datetime.now().strftime('%d/%m/%Y %H:%M')}", 
+    story.append(Paragraph(f"Generado por LordTraining - {datetime.now().strftime('%d/%m/%Y %H:%M')}", 
                           ParagraphStyle('Footer', parent=styles['Normal'], fontSize=8, textColor=colors.grey)))
     
     doc.build(story)
@@ -4239,7 +4239,7 @@ async def export_control_panel_pdf(request: ExportPDFRequest, user: dict = Depen
     stats = await get_control_panel_stats(user)
     
     # Título principal
-    story.append(Paragraph("Reporte de Entrenamiento - TRAIN", title_style))
+    story.append(Paragraph("Reporte de Entrenamiento - LordTraining", title_style))
     story.append(Paragraph(f"Generado: {datetime.now().strftime('%d/%m/%Y %H:%M')}", styles['Normal']))
     story.append(Paragraph(f"Entrenador: {user.get('name', user.get('email'))}", styles['Normal']))
     story.append(Spacer(1, 20))
@@ -4406,7 +4406,7 @@ async def export_control_panel_pdf(request: ExportPDFRequest, user: dict = Depen
     # Pie de página
     story.append(Spacer(1, 30))
     story.append(Paragraph("---", styles['Normal']))
-    story.append(Paragraph("Generado por Sistema TRAIN - Planificación Deportiva Inteligente", styles['Normal']))
+    story.append(Paragraph("Generado por LordTraining - Planificación Deportiva Inteligente", styles['Normal']))
     
     doc.build(story)
     buffer.seek(0)
@@ -4536,7 +4536,7 @@ async def export_plan_pdf(macrocycle_id: str, user: dict = Depends(get_current_u
     # Header
     c.setFillColor(HexColor("#0f172a"))
     c.setFont("Helvetica-Bold", 24)
-    c.drawString(50, height - 50, "SISTEMA TRAIN")
+    c.drawString(50, height - 50, "LORDTRAINING")
     
     c.setFont("Helvetica", 12)
     c.setFillColor(HexColor("#64748b"))
@@ -4614,7 +4614,7 @@ async def export_plan_pdf(macrocycle_id: str, user: dict = Depends(get_current_u
     # Footer
     c.setFont("Helvetica", 8)
     c.setFillColor(HexColor("#94a3b8"))
-    c.drawString(50, 30, f"Generado por Sistema TRAIN - {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    c.drawString(50, 30, f"Generado por LordTraining - {datetime.now().strftime('%Y-%m-%d %H:%M')}")
     
     c.save()
     buffer.seek(0)
@@ -4858,7 +4858,7 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
     if request.format.include_logo:
         # Create header card
         header_data = [[
-            Paragraph("TRAIN", styles['MainTitle']),
+            Paragraph("LordTraining", styles['MainTitle']),
         ], [
             Paragraph("Sistema de Planificación Deportiva", styles['Subtitle'])
         ]]
@@ -7054,7 +7054,7 @@ async def export_session_pdf(request: SessionPDFRequest, authorization: str = He
         c.rect(0, 0, width, 35, fill=1, stroke=0)
         c.setFillColor(white)
         c.setFont("Helvetica-Bold", 9)
-        c.drawString(40, 15, "Generado por Sistema TRAIN")
+        c.drawString(40, 15, "Generado por LordTraining")
         c.setFont("Helvetica", 8)
         c.drawString(40, 5, datetime.now().strftime('%d/%m/%Y %H:%M'))
         c.setFont("Helvetica-Bold", 9)
@@ -7186,8 +7186,8 @@ async def create_board_share(request: BoardShareRequest):
             "sport": request.sport or (request.payload.get("sport") if isinstance(request.payload, dict) else None),
             "payload": request.payload,
             "thumbnail": request.thumbnail,
-            "title": request.title or f"Jugada táctica · {request.sport or 'iTRAIN'}",
-            "description": request.description or "Pizarra táctica creada en iTRAIN",
+            "title": request.title or f"Jugada táctica · {request.sport or 'LordTraining'}",
+            "description": request.description or "Pizarra táctica creada en LordTraining",
             "coach_slug": (request.coach_slug or "").strip().lower().replace(' ', '-')[:48] or None,
             "coach_name": (request.coach_name or "").strip()[:60] or None,
             "created_at": datetime.now(timezone.utc),
@@ -7327,8 +7327,8 @@ async def coach_share_landing(slug: str, request: Request):
         proto = request.headers.get("x-forwarded-proto") or "https"
         base_url = f"{proto}://{host}"
         og_image = f"{base_url}/api/coaches/og/{s}.png"
-        title = f"{display_name} · Coach iTRAIN"
-        top3 = ", ".join([i["title"][:40] for i in items[:3]]) if items else "Perfil de entrenador iTRAIN"
+        title = f"{display_name} · Coach LordTraining"
+        top3 = ", ".join([i["title"][:40] for i in items[:3]]) if items else "Perfil de entrenador LordTraining"
         desc = f"{totals_boards} jugadas · {totals_views} vistas · {totals_dup} duplicadas. Top: {top3}"
         target_rel = f"/coach.html?slug={s}"
         html = f"""<!DOCTYPE html>
@@ -7344,7 +7344,7 @@ async def coach_share_landing(slug: str, request: Request):
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:url" content="{base_url}/api/c/{s}">
-<meta property="og:site_name" content="iTRAIN Coach">
+<meta property="og:site_name" content="LordTraining Coach">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{title}">
 <meta name="twitter:description" content="{desc}">
@@ -7420,7 +7420,7 @@ async def get_coach_og_image(slug: str):
 
         # Brand stripe top
         draw.rectangle([(0, 0), (W, 8)], fill=(200, 247, 0))
-        draw.text((40, 28), "iTRAIN · COACH", font=F_TAG, fill=(200, 247, 0))
+        draw.text((40, 28), "LordTraining · COACH", font=F_TAG, fill=(200, 247, 0))
 
         # Avatar circle (lime gradient)
         avX, avY, avR = 150, 220, 90
@@ -7469,7 +7469,7 @@ async def get_coach_og_image(slug: str):
             draw.text((40, 475), "Aún no hay jugadas publicadas", font=F_BODY, fill=(148, 163, 184))
 
         # Footer
-        draw.text((40, H - 40), "itrain.coach  ·  Pizarra táctica inteligente", font=F_SMALL, fill=(100, 116, 139))
+        draw.text((40, H - 40), "lordtraining.coach  ·  Pizarra táctica inteligente", font=F_SMALL, fill=(100, 116, 139))
 
         buf = io.BytesIO()
         img.save(buf, format="PNG", optimize=True)
@@ -7544,8 +7544,8 @@ async def board_share_landing(share_id: str, request: Request):
         shared = await db.shared_boards.find_one({"share_id": share_id}, {"_id": 0, "payload": 0})
         if not shared:
             return HTMLResponse("<h1>Pizarra no encontrada o enlace expirado</h1>", status_code=404)
-        title = shared.get("title") or f"Jugada táctica · {shared.get('sport') or 'iTRAIN'}"
-        desc = shared.get("description") or f"Pizarra táctica de {shared.get('sport') or 'iTRAIN'} creada en iTRAIN Coach"
+        title = shared.get("title") or f"Jugada táctica · {shared.get('sport') or 'LordTraining'}"
+        desc = shared.get("description") or f"Pizarra táctica de {shared.get('sport') or 'LordTraining'} creada en LordTraining Coach"
         # Build external base URL from forwarded headers (ingress)
         host = request.headers.get("x-forwarded-host") or request.headers.get("host") or request.base_url.hostname
         proto = request.headers.get("x-forwarded-proto") or ("https" if str(request.url).startswith("https") else "https")
@@ -7558,7 +7558,7 @@ async def board_share_landing(share_id: str, request: Request):
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>{title} · iTRAIN</title>
+<title>{title} · LordTraining</title>
 <meta name="description" content="{desc}">
 <meta property="og:type" content="website">
 <meta property="og:title" content="{title}">
@@ -7567,7 +7567,7 @@ async def board_share_landing(share_id: str, request: Request):
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:url" content="{base_url}/api/s/{share_id}">
-<meta property="og:site_name" content="iTRAIN Coach">
+<meta property="og:site_name" content="LordTraining Coach">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{title}">
 <meta name="twitter:description" content="{desc}">
@@ -7643,7 +7643,7 @@ async def download_session_pdf(share_id: str, theme: str = "dark"):
             
             await browser.close()
         
-        filename = f"iTRAIN_{share_id}.pdf"
+        filename = f"LordTraining_{share_id}.pdf"
         return Response(
             content=pdf_bytes,
             media_type="application/pdf",
@@ -7808,7 +7808,7 @@ async def download_session_boards_pdf(share_id: str, theme: str = "light"):
 
         full_html = f"""<!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"/>
-<title>iTRAIN · {_esc(session_name)}</title>
+<title>LordTraining · {_esc(session_name)}</title>
 <style>
   @page {{ size: A4; margin: 0; }}
   * {{ box-sizing: border-box; }}
@@ -7902,7 +7902,7 @@ async def download_session_boards_pdf(share_id: str, theme: str = "light"):
   <div class="page">
     <header class="hd">
       <div>
-        <div class="brand">iTRAIN · Plan de Sesión</div>
+        <div class="brand">LordTraining · Plan de Sesión</div>
         <h1 class="title">{_esc(session_name)}</h1>
         <div class="meta">
           <span><strong>Deportista:</strong> {_esc(athlete_name)}</span>
@@ -7914,7 +7914,7 @@ async def download_session_boards_pdf(share_id: str, theme: str = "light"):
     </header>
     {objetivos_html}
     {''.join(cards_html_parts)}
-    <footer class="ft">Generado con iTRAIN · {share_id}</footer>
+    <footer class="ft">Generado con LordTraining · {share_id}</footer>
   </div>
 </body></html>"""
 
@@ -7941,7 +7941,7 @@ async def download_session_boards_pdf(share_id: str, theme: str = "light"):
             await browser.close()
 
         safe_name = ''.join(c if c.isalnum() or c in ('-','_') else '-' for c in str(session_name))[:60]
-        filename = f"iTRAIN_pizarras_{safe_name}_{theme}.pdf"
+        filename = f"LordTraining_pizarras_{safe_name}_{theme}.pdf"
         return Response(
             content=pdf_bytes,
             media_type="application/pdf",
@@ -8364,7 +8364,7 @@ async def delete_tactical_board(board_id: str, user: dict = Depends(get_current_
 # =============== ROOT & HEALTH ===============
 @api_router.get("/")
 async def root():
-    return {"message": "Sistema TRAIN API", "version": "1.0.0"}
+    return {"message": "LordTraining API", "version": "1.0.0"}
 
 @api_router.get("/health")
 async def health():

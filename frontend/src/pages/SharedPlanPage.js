@@ -156,7 +156,7 @@ const SharedPlanPage = () => {
 
         {/* Footer */}
         <div className="text-center text-xs text-slate-400 py-4">
-          Compartido desde <span className="font-semibold text-slate-500">iTRAIN</span> — Plataforma de Gestión Deportiva
+          Compartido desde <span className="font-semibold text-slate-500">LordTraining</span> — Plataforma de Gestión Deportiva
         </div>
       </div>
     </div>

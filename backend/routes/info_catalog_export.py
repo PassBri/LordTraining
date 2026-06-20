@@ -1,7 +1,7 @@
 """
 Exportación y compartición de Catálogos de Información:
 - Entidades · Equipos · Atletas · Deportes · Torneos
-- PDF estilo whitepaper iTRAIN
+- PDF estilo whitepaper LordTraining
 - Link público compartible
 """
 
@@ -203,9 +203,9 @@ def _build_html(catalog_type: str, items: List[Dict[str, Any]], coach_name: str 
     # Logos
     brand_dir = "/app/frontend/public/brand"
     try:
-        with open(f"{brand_dir}/itrain-full-pdf.png", "rb") as f:
+        with open(f"{brand_dir}/lordtraining-full-pdf.png", "rb") as f:
             full_b64 = base64.b64encode(f.read()).decode()
-        with open(f"{brand_dir}/itrain-icon-pdf.png", "rb") as f:
+        with open(f"{brand_dir}/lordtraining-icon-pdf.png", "rb") as f:
             icon_b64 = base64.b64encode(f.read()).decode()
     except FileNotFoundError:
         full_b64 = icon_b64 = ""
@@ -227,13 +227,13 @@ def _build_html(catalog_type: str, items: List[Dict[str, Any]], coach_name: str 
 
     share_banner = ""
     if share_id:
-        share_banner = '<div class="share-ribbon">DOCUMENTO COMPARTIDO · Solo lectura · Generado por iTrain.app</div>'
+        share_banner = '<div class="share-ribbon">DOCUMENTO COMPARTIDO · Solo lectura · Generado por LordTraining.app</div>'
 
     coach_line = f"<div><strong>Entrenador</strong>{_esc(coach_name)}</div>" if coach_name else ""
     today = datetime.now(timezone.utc).strftime("%d/%m/%Y")
 
     return f"""<!DOCTYPE html>
-<html lang="es"><head><meta charset="UTF-8"><title>Catálogo {cfg['label']} · iTrain</title>
+<html lang="es"><head><meta charset="UTF-8"><title>Catálogo {cfg['label']} · LordTraining</title>
 <style>
   @page {{ size: A4; margin: 18mm 14mm; }}
   * {{ box-sizing: border-box; }}
@@ -268,7 +268,7 @@ def _build_html(catalog_type: str, items: List[Dict[str, Any]], coach_name: str 
 
 <div class="hero">
   <div class="brand-mark">
-    <img src="data:image/png;base64,{full_b64}" alt="iTRAIN" width="166" height="44" style="width:166px;height:44px;object-fit:contain;display:block;"/>
+    <img src="data:image/png;base64,{full_b64}" alt="LordTraining" width="166" height="44" style="width:166px;height:44px;object-fit:contain;display:block;"/>
   </div>
   <span class="badge">CATÁLOGO · {_esc(cfg['label'])}</span>
   <h1>{_esc(cfg['label'])}</h1>
@@ -293,8 +293,8 @@ def _build_html(catalog_type: str, items: List[Dict[str, Any]], coach_name: str 
 </table>
 
 <div class="footer-brand">
-  <img src="data:image/png;base64,{icon_b64}" alt="iTRAIN"/>
-  <span>Generado por <strong>iTRAIN</strong> · iTrain.app · Catálogo de {_esc(cfg['label'])}</span>
+  <img src="data:image/png;base64,{icon_b64}" alt="LordTraining"/>
+  <span>Generado por <strong>LordTraining</strong> · LordTraining.app · Catálogo de {_esc(cfg['label'])}</span>
 </div>
 
 </body></html>"""
@@ -350,9 +350,9 @@ def _build_sports_html(items: List[Dict[str, Any]], coach_name: str = "", share_
 
     brand_dir = "/app/frontend/public/brand"
     try:
-        with open(f"{brand_dir}/itrain-full-pdf.png", "rb") as f:
+        with open(f"{brand_dir}/lordtraining-full-pdf.png", "rb") as f:
             full_b64 = base64.b64encode(f.read()).decode()
-        with open(f"{brand_dir}/itrain-icon-pdf.png", "rb") as f:
+        with open(f"{brand_dir}/lordtraining-icon-pdf.png", "rb") as f:
             icon_b64 = base64.b64encode(f.read()).decode()
     except FileNotFoundError:
         full_b64 = icon_b64 = ""
@@ -428,13 +428,13 @@ def _build_sports_html(items: List[Dict[str, Any]], coach_name: str = "", share_
 
     share_banner = ""
     if share_id:
-        share_banner = '<div class="share-ribbon">DOCUMENTO COMPARTIDO · Solo lectura · Generado por iTrain.app</div>'
+        share_banner = '<div class="share-ribbon">DOCUMENTO COMPARTIDO · Solo lectura · Generado por LordTraining.app</div>'
 
     coach_line = f'<div><strong>Entrenador</strong>{_esc(coach_name)}</div>' if coach_name else ""
     today = datetime.now(timezone.utc).strftime("%d/%m/%Y")
 
     return f"""<!DOCTYPE html>
-<html lang="es"><head><meta charset="UTF-8"><title>Catálogo Deportes · iTrain</title>
+<html lang="es"><head><meta charset="UTF-8"><title>Catálogo Deportes · LordTraining</title>
 <style>
   @page {{ size: A4; margin: 14mm 12mm; }}
   * {{ box-sizing: border-box; }}
@@ -489,7 +489,7 @@ def _build_sports_html(items: List[Dict[str, Any]], coach_name: str = "", share_
 
 <div class="hero">
   <div class="brand-mark">
-    <img src="data:image/png;base64,{full_b64}" alt="iTRAIN" width="160" height="42" style="width:160px;height:42px;object-fit:contain;display:block;"/>
+    <img src="data:image/png;base64,{full_b64}" alt="LordTraining" width="160" height="42" style="width:160px;height:42px;object-fit:contain;display:block;"/>
   </div>
   <span class="badge">CATÁLOGO · DEPORTES</span>
   <h1>Caracterización Deportiva</h1>
@@ -516,8 +516,8 @@ def _build_sports_html(items: List[Dict[str, Any]], coach_name: str = "", share_
 </div>
 
 <div class="footer-brand">
-  <img src="data:image/png;base64,{icon_b64}" alt="iTRAIN"/>
-  <span>Generado por <strong>iTRAIN</strong> · iTrain.app · Catálogo de Deportes con Caracterización Técnica</span>
+  <img src="data:image/png;base64,{icon_b64}" alt="LordTraining"/>
+  <span>Generado por <strong>LordTraining</strong> · LordTraining.app · Catálogo de Deportes con Caracterización Técnica</span>
 </div>
 
 </body></html>"""
@@ -538,9 +538,9 @@ def _build_coaches_html(items: List[Dict[str, Any]], coach_name: str = "", share
 
     brand_dir = "/app/frontend/public/brand"
     try:
-        with open(f"{brand_dir}/itrain-full-pdf.png", "rb") as f:
+        with open(f"{brand_dir}/lordtraining-full-pdf.png", "rb") as f:
             full_b64 = base64.b64encode(f.read()).decode()
-        with open(f"{brand_dir}/itrain-icon-pdf.png", "rb") as f:
+        with open(f"{brand_dir}/lordtraining-icon-pdf.png", "rb") as f:
             icon_b64 = base64.b64encode(f.read()).decode()
     except FileNotFoundError:
         full_b64 = icon_b64 = ""
@@ -681,13 +681,13 @@ def _build_coaches_html(items: List[Dict[str, Any]], coach_name: str = "", share
 
     share_banner = ""
     if share_id:
-        share_banner = '<div class="share-ribbon">DOCUMENTO COMPARTIDO · Solo lectura · Generado por iTrain.app</div>'
+        share_banner = '<div class="share-ribbon">DOCUMENTO COMPARTIDO · Solo lectura · Generado por LordTraining.app</div>'
 
     coach_line = f'<div><strong>Generado por</strong>{_esc(coach_name)}</div>' if coach_name else ""
     today = datetime.now(timezone.utc).strftime("%d/%m/%Y")
 
     return f"""<!DOCTYPE html>
-<html lang="es"><head><meta charset="UTF-8"><title>Catálogo Entrenadores · iTrain</title>
+<html lang="es"><head><meta charset="UTF-8"><title>Catálogo Entrenadores · LordTraining</title>
 <style>
   @page {{ size: A4; margin: 14mm 12mm; }}
   * {{ box-sizing: border-box; }}
@@ -749,7 +749,7 @@ def _build_coaches_html(items: List[Dict[str, Any]], coach_name: str = "", share
 
 <div class="hero">
   <div class="brand-mark">
-    <img src="data:image/png;base64,{full_b64}" alt="iTRAIN" width="160" height="42" style="width:160px;height:42px;object-fit:contain;display:block;"/>
+    <img src="data:image/png;base64,{full_b64}" alt="LordTraining" width="160" height="42" style="width:160px;height:42px;object-fit:contain;display:block;"/>
   </div>
   <span class="badge">CATÁLOGO · ENTRENADORES</span>
   <h1>Staff Técnico</h1>
@@ -775,8 +775,8 @@ def _build_coaches_html(items: List[Dict[str, Any]], coach_name: str = "", share
 {cards_html}
 
 <div class="footer-brand">
-  <img src="data:image/png;base64,{icon_b64}" alt="iTRAIN"/>
-  <span>Generado por <strong>iTRAIN</strong> · iTrain.app · Catálogo Profesional de Entrenadores</span>
+  <img src="data:image/png;base64,{icon_b64}" alt="LordTraining"/>
+  <span>Generado por <strong>LordTraining</strong> · LordTraining.app · Catálogo Profesional de Entrenadores</span>
 </div>
 
 </body></html>"""

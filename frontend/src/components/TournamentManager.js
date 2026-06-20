@@ -254,7 +254,7 @@ const generateTournamentPDF = (tournament, participants, matches) => {
       `).join('')}
       
       <p style="margin-top: 30px; color: #6b7280; font-size: 12px;">
-        Generado por TRAIN Sports Management - ${new Date().toLocaleDateString('es-ES')}
+        Generado por LordTraining - ${new Date().toLocaleDateString('es-ES')}
       </p>
     </body>
     </html>

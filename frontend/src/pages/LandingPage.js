@@ -928,7 +928,7 @@ const LandingPage = () => {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <div className="flex gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-red-500" /><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /><div className="w-2.5 h-2.5 rounded-full bg-emerald-500" /></div>
-                  <span className="text-[12px] text-slate-400 ml-2 font-mono">iTRAIN {t('landing.chart.dashboard')} v3.0</span>
+                  <span className="text-[12px] text-slate-400 ml-2 font-mono">LordTraining {t('landing.chart.dashboard')} v3.0</span>
                 </div>
                 <div className="flex gap-3">
                   <span className="flex items-center gap-1.5 text-[11px] font-bold text-blue-400"><span className="w-2 h-2 rounded-full bg-blue-400"/>{t('landing.chart.volume')}</span>
@@ -1314,7 +1314,7 @@ const LandingPage = () => {
         </div>
         {/* Bottom bar */}
         <div className="pt-6 border-t border-slate-800/40 flex items-center justify-between">
-          <p className="text-[12px] text-slate-600">© 2026 iTRAIN. {t('landing.footer.copyright')}</p>
+          <p className="text-[12px] text-slate-600">© 2026 LordTraining. {t('landing.footer.copyright')}</p>
           <div className="flex gap-4">
             {['Términos','Privacidad'].map(l => (
               <span key={l} className="text-[12px] text-slate-600 hover:text-slate-400 cursor-pointer transition-colors">{l}</span>

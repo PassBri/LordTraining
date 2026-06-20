@@ -1,5 +1,5 @@
 """
-Test PDF Export with Material Design - Sistema TRAIN
+Test PDF Export with Material Design - LordTraining
 Tests for POST /api/export/comprehensive-pdf endpoint
 Verifies: 12 sections, solid backgrounds, Material Design colors, Q&A format
 """

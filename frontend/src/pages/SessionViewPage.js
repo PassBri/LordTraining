@@ -55,7 +55,7 @@ const SessionViewPage = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `iTRAIN_${shareId}_${theme}.pdf`;
+      a.download = `LordTraining_${shareId}_${theme}.pdf`;
       a.click();
       window.URL.revokeObjectURL(url);
     } catch (e) { console.error(e); }
@@ -398,7 +398,7 @@ const SessionViewPage = () => {
         <div className="text-center py-6">
           <div className="flex items-center justify-center gap-2">
             <BrandLogo variant="icon" theme={isLight ? 'dark' : 'light'} size={18} />
-            <span className="text-xs" style={{color:T.subtle}}>Generado con <span style={{color:T.accent,fontWeight:600}}>iTRAIN</span></span>
+            <span className="text-xs" style={{color:T.subtle}}>Generado con <span style={{color:T.accent,fontWeight:600}}>LordTraining</span></span>
           </div>
         </div>
       </div>

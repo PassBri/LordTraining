@@ -140,7 +140,7 @@ async def _mark_processed(db, event_id: str) -> bool:
 
 
 async def _resolve_user(db, info: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """Find iTRAIN user from webhook payload via sck → email → buyer email fallback."""
+    """Find LordTraining user from webhook payload via sck → email → buyer email fallback."""
     sck = parse_sck(info.get("sck", ""))
     if sck:
         u = await db.users.find_one({"id": sck["user_id"]}, {"_id": 0})
@@ -335,7 +335,7 @@ async def hotmart_webhook_healthcheck():
     """
     return {
         "ok": True,
-        "service": "iTRAIN Hotmart webhook receiver",
+        "service": "LordTraining Hotmart webhook receiver",
         "method": "POST",
         "configured": bool(_expected_hottok()),
     }

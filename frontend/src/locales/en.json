@@ -1,7 +1,7 @@
 {
   "common": {
-    "appName": "iTRAIN",
-    "tagline": "Plan better. Train with criteria. Compete with an edge.",
+    "appName": "LordTraining",
+    "tagline": "Where sports science becomes power.",
     "loading": "Loading...",
     "save": "Save",
     "cancel": "Cancel",
@@ -48,7 +48,7 @@
       "pill1": "PERIODIZATION",
       "pill2": "PLANNING",
       "pill3": "SCIENCE",
-      "headline": "TRAIN WITH SCIENCE.\nCOMPETE WITH AN EDGE.",
+      "headline": "LordTraining WITH SCIENCE.\nCOMPETE WITH AN EDGE.",
       "headline_verb1": "Train",
       "headline_rest1": " with method.",
       "headline_verb2": "Compete",
@@ -86,7 +86,7 @@
     },
     "howItWorks": {
       "tag": "PROCESS",
-      "title": "How iTRAIN works",
+      "title": "How LordTraining works",
       "subtitle": "From initial diagnosis to professional export — a complete flow in 6 phases",
       "step1_title": "Characterize your sport",
       "step1_desc": "Define the sport, competitive category, dominant physical capabilities and period objectives. The system adapts all parameters to your context.",
@@ -168,7 +168,7 @@
     },
     "cta": {
       "title": "Start planning with scientific criteria",
-      "desc": "Join coaches who trust iTRAIN to take their sports planning to the next level.",
+      "desc": "Join coaches who trust LordTraining to take their sports planning to the next level.",
       "button": "Get started now"
     },
     "models": {
@@ -232,8 +232,8 @@
       "m_central": "CENTRAL"
     },
     "audiences": {
-      "impact": "80% of coaches plan without real data. iTRAIN changes that: scientific periodization, real-time tracking and evidence-based decisions — for any level.",
-      "trustLine": "+1,200 coaches · 340 clubs · 18 federations trust iTRAIN",
+      "impact": "80% of coaches plan without real data. LordTraining changes that: scientific periodization, real-time tracking and evidence-based decisions — for any level.",
+      "trustLine": "+1,200 coaches · 340 clubs · 18 federations trust LordTraining",
       "tag": "AUDIENCES",
       "title": "From the independent coach to the national federation",
       "coaches_title": "For coaches",
@@ -272,19 +272,19 @@
       "t2_role": "Sports Director - High Performance Club",
       "t3_text": "With ACWR and monotony indicators we notably reduced injuries in the first season. Now we make decisions with data, not intuition.",
       "t3_role": "Strength Coach - Regional Athletics Federation",
-      "t4_text": "I manage 4 teams from a single panel. Before I needed three different tools and still lost information. Now everything is in iTRAIN.",
+      "t4_text": "I manage 4 teams from a single panel. Before I needed three different tools and still lost information. Now everything is in LordTraining.",
       "t4_role": "Sports Director - Municipal Sports Club",
       "t5_text": "My youth athletes now have real development tracking. Parents see progress, I control the load. I professionalized my school without hiring more staff.",
       "t5_role": "Director - Formative Swimming School",
       "t6_text": "We standardized the planning methodology for 18 affiliated clubs. For the first time we have comparable data across regions and can make real decisions.",
       "t6_role": "National Technical Coordinator - Cycling Federation",
-      "t7_text": "I'm not a tech expert but I understood iTRAIN in one afternoon. Now I generate my athletes' plans in minutes and have all history accessible from my phone.",
+      "t7_text": "I'm not a tech expert but I understood LordTraining in one afternoon. Now I generate my athletes' plans in minutes and have all history accessible from my phone.",
       "t7_role": "Personal Trainer - Strength Specialist",
       "t8_text": "Long-term development tracking helped us identify talents that went unnoticed before. Now we develop better because we measure better.",
       "t8_role": "Pedagogical Coordinator - Youth Football Academy",
       "t9_text": "Automatic reports save me hours every week. Before, preparing the monthly board report took me a full day. Now I export it in two clicks.",
       "t9_role": "Strength Coach - Women's Volleyball Club",
-      "t10_text": "We implemented iTRAIN as the official protocol for national call-ups. The selection team now arrives with real load data from each athlete. It's a before and after.",
+      "t10_text": "We implemented LordTraining as the official protocol for national call-ups. The selection team now arrives with real load data from each athlete. It's a before and after.",
       "t10_role": "Head of High Performance - National Triathlon Federation"
     }
   },

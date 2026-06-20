@@ -639,8 +639,8 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     const handler = (e) => {
       if (e?.detail?.plan_id === activePlan.id) loadEvaluations();
     };
-    window.addEventListener('itrain:evaluation-saved', handler);
-    return () => { cancelled = true; window.removeEventListener('itrain:evaluation-saved', handler); };
+    window.addEventListener('lordtraining:evaluation-saved', handler);
+    return () => { cancelled = true; window.removeEventListener('lordtraining:evaluation-saved', handler); };
   }, [activePlan?.id, activePlan?.start_date]);
 
   // Total weeks based on cycle duration - MUST be defined before useMemo that uses it

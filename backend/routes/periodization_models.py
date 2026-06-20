@@ -220,9 +220,9 @@ async def reset_defaults(user=Depends(get_current_user_dep())):
     return items
 
 
-# ====================== iTrain PDI WHITEPAPER (PDF) ======================
+# ====================== LordTraining PDI WHITEPAPER (PDF) ======================
 PDI_WHITEPAPER_HTML = """<!DOCTYPE html>
-<html lang="es"><head><meta charset="UTF-8"><title>iTrain PDI · Whitepaper</title>
+<html lang="es"><head><meta charset="UTF-8"><title>LordTraining PDI · Whitepaper</title>
 <style>
   @page { size: A4; margin: 18mm 15mm; }
   * { box-sizing: border-box; }
@@ -260,10 +260,10 @@ PDI_WHITEPAPER_HTML = """<!DOCTYPE html>
 
 <div class="hero">
   <div class="brand-mark">
-    <img src="__ITRAIN_FULL_LOGO__" alt="iTRAIN" width="176" height="46" style="width:176px;height:46px;object-fit:contain;display:block;"/>
+    <img src="__LORDTRAINING_FULL_LOGO__" alt="LordTraining" width="176" height="46" style="width:176px;height:46px;object-fit:contain;display:block;"/>
   </div>
-  <span class="badge">MODELO EXCLUSIVO iTRAIN</span>
-  <h1>iTrain PDI</h1>
+  <span class="badge">MODELO EXCLUSIVO LordTraining</span>
+  <h1>LordTraining PDI</h1>
   <div class="subtitle">Periodización Dual Integrada · Whitepaper técnico</div>
   <p style="margin-top: 14pt; color: rgba(255,255,255,0.8); max-width: 500pt;">
     El primer modelo que formaliza la resolución de la tensión entre necesidades individuales (PAI)
@@ -271,7 +271,7 @@ PDI_WHITEPAPER_HTML = """<!DOCTYPE html>
   </p>
   <div class="author">
     <strong style="color: #CCFF00;">Autor conceptual:</strong> Dr. Brian Gonzalo Suárez Acevedo<br>
-    <strong style="color: #CCFF00;">Plataforma:</strong> iTrain.app &nbsp;·&nbsp; <strong style="color: #CCFF00;">Documento técnico:</strong> v1.0
+    <strong style="color: #CCFF00;">Plataforma:</strong> LordTraining.app &nbsp;·&nbsp; <strong style="color: #CCFF00;">Documento técnico:</strong> v1.0
   </div>
 </div>
 
@@ -380,8 +380,8 @@ sino de la <strong>gestión inteligente de la tensión</strong> entre ambos. El 
 El modelo escala desde equipos amateur hasta profesionales de élite con calendarios de 70-80 partidos anuales.</p>
 
 <div class="footer-brand">
-  <img src="__ITRAIN_ICON_LOGO__" alt="iTRAIN"/>
-  <span>Modelo registrado · <strong>iTRAIN</strong> · iTrain.app · Generado automáticamente desde la Ficha Técnica</span>
+  <img src="__LORDTRAINING_ICON_LOGO__" alt="LordTraining"/>
+  <span>Modelo registrado · <strong>LordTraining</strong> · LordTraining.app · Generado automáticamente desde la Ficha Técnica</span>
 </div>
 
 </body></html>"""
@@ -389,18 +389,18 @@ El modelo escala desde equipos amateur hasta profesionales de élite con calenda
 
 @router.get("/pdi/whitepaper")
 async def download_pdi_whitepaper(user=Depends(get_current_user_dep())):
-    """Genera y devuelve el whitepaper del modelo iTrain PDI en PDF usando Playwright."""
+    """Genera y devuelve el whitepaper del modelo LordTraining PDI en PDF usando Playwright."""
     try:
         import base64
-        # Load the official iTRAIN brand images (PDF optimized with transparent bg)
+        # Load the official LordTraining brand images (PDF optimized with transparent bg)
         brand_dir = "/app/frontend/public/brand"
-        with open(f"{brand_dir}/itrain-full-pdf.png", "rb") as f:
+        with open(f"{brand_dir}/lordtraining-full-pdf.png", "rb") as f:
             full_b64 = base64.b64encode(f.read()).decode()
-        with open(f"{brand_dir}/itrain-icon-pdf.png", "rb") as f:
+        with open(f"{brand_dir}/lordtraining-icon-pdf.png", "rb") as f:
             icon_b64 = base64.b64encode(f.read()).decode()
         html = (PDI_WHITEPAPER_HTML
-                .replace("__ITRAIN_FULL_LOGO__", f"data:image/png;base64,{full_b64}")
-                .replace("__ITRAIN_ICON_LOGO__", f"data:image/png;base64,{icon_b64}"))
+                .replace("__LORDTRAINING_FULL_LOGO__", f"data:image/png;base64,{full_b64}")
+                .replace("__LORDTRAINING_ICON_LOGO__", f"data:image/png;base64,{icon_b64}"))
 
         os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", "/pw-browsers")
         from playwright.async_api import async_playwright
@@ -417,7 +417,7 @@ async def download_pdi_whitepaper(user=Depends(get_current_user_dep())):
         return Response(
             content=pdf,
             media_type="application/pdf",
-            headers={"Content-Disposition": 'attachment; filename="iTrain_PDI_Whitepaper.pdf"'},
+            headers={"Content-Disposition": 'attachment; filename="LordTraining_PDI_Whitepaper.pdf"'},
         )
     except Exception as e:
         raise HTTPException(500, f"Error generando PDF: {e}")

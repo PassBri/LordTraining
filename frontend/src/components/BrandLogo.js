@@ -1,15 +1,15 @@
 import React from 'react';
 
 /**
- * BrandLogo - Logo oficial iTRAIN
+ * BrandLogo - Logo oficial LordTraining
  *
  * Variants:
- *   - "icon": solo óvalo con "i"
- *   - "full": óvalo + wordmark "iTRAIN"
+ *   - "icon": solo corona
+ *   - "full": corona + wordmark "LordTraining"
  *
  * Theme:
- *   - "light": para fondos OSCUROS (óvalo lima + texto blanco)
- *   - "dark":  para fondos CLAROS  (óvalo azul oscuro + texto azul oscuro, "i" lima)
+ *   - "light": para fondos OSCUROS (corona lima + texto blanco)
+ *   - "dark":  para fondos CLAROS  (corona navy + texto navy)
  *
  * @param {'icon'|'full'} variant
  * @param {'light'|'dark'} theme
@@ -22,19 +22,14 @@ const BrandLogo = ({
   className = '',
   ...props
 }) => {
-  // Tamaños nativos (w x h):
-  // - full-light 524x135  → aspect 3.88
-  // - full-dark  541x140  → aspect 3.86
-  // - icon-light 136x135  → aspect 1.01
-  // - icon-dark  141x140  → aspect 1.01
   const assets = {
     full: {
-      light: { src: '/brand/itrain-full-light.png', aspect: 524 / 135 },
-      dark:  { src: '/brand/itrain-full-dark.png',  aspect: 541 / 140 },
+      light: { src: '/brand/lordtraining-full-light.png', aspect: 563 / 135 },
+      dark:  { src: '/brand/lordtraining-full-dark.png',  aspect: 587 / 140 },
     },
     icon: {
-      light: { src: '/brand/itrain-icon-light.png', aspect: 136 / 135 },
-      dark:  { src: '/brand/itrain-icon-dark-v2.png', aspect: 141 / 140 },
+      light: { src: '/brand/lordtraining-icon-light.png', aspect: 1 },
+      dark:  { src: '/brand/lordtraining-icon-dark.png',  aspect: 1 },
     },
   };
 
@@ -45,7 +40,7 @@ const BrandLogo = ({
   return (
     <img
       src={src}
-      alt="iTRAIN"
+      alt="LordTraining"
       height={height}
       width={width}
       style={{

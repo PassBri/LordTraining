@@ -162,7 +162,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
       const shareId = res.data.share_id;
       const url = `${API}/api/sessions-export/shared/${shareId}`;
       if (target === 'whatsapp') {
-        const msg = `iTRAIN · ${plan?.name || 'Plan'} · ${selected.size} sesion${selected.size !== 1 ? 'es' : ''} de entrenamiento\n\nVer en línea: ${url}`;
+        const msg = `LordTraining · ${plan?.name || 'Plan'} · ${selected.size} sesion${selected.size !== 1 ? 'es' : ''} de entrenamiento\n\nVer en línea: ${url}`;
         window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         toast.success('Abriendo WhatsApp…');
       } else {

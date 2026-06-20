@@ -887,7 +887,7 @@ const SessionEditor = ({
       a.href = url;
       const nm = (sessionData.sessionName || 'Sesion').replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s-]/g, '').replace(/\s+/g, '-');
       const prefix = mode === 'boards' ? 'pizarras' : 'sesion';
-      a.download = `iTRAIN_${prefix}_${sesCode}_${nm}_${theme}.pdf`;
+      a.download = `LordTraining_${prefix}_${sesCode}_${nm}_${theme}.pdf`;
       a.click();
       window.URL.revokeObjectURL(url);
       
@@ -1419,7 +1419,7 @@ const SessionEditor = ({
                   <span className="text-[18px] font-black leading-none" style={{color:'#0f172a',fontFamily:BC}}>i</span>
                 </div>
                 <span className="text-[15px] font-black tracking-tight" style={{fontFamily:BC}}>
-                  <span style={{color:'#CCFF00'}}>i</span><span className="text-white">TRAIN</span>
+                  LordTraining
                 </span>
               </div>
               {/* Session name + code + subtitle */}

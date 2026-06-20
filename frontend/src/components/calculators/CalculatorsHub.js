@@ -130,7 +130,7 @@ const CalculatorsHub = () => {
             <Calculator className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight">Calculadoras Científicas iTRAIN</h1>
+            <h1 className="text-2xl font-extrabold tracking-tight">Calculadoras Científicas LordTraining</h1>
             <p className="text-sm text-white/80">{MODULES.length} módulos · {totalCalcs} calculadoras especializadas</p>
           </div>
         </div>

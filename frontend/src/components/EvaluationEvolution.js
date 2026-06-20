@@ -49,8 +49,8 @@ const EvaluationEvolution = ({ activePlan, athletes = [], selectedAthleteId }) =
   useEffect(() => {
     fetchTimeline();
     const handler = (e) => { if (e?.detail?.plan_id === activePlan?.id) fetchTimeline(); };
-    window.addEventListener('itrain:evaluation-saved', handler);
-    return () => window.removeEventListener('itrain:evaluation-saved', handler);
+    window.addEventListener('lordtraining:evaluation-saved', handler);
+    return () => window.removeEventListener('lordtraining:evaluation-saved', handler);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activePlan?.id, selectedAthleteId]);
 

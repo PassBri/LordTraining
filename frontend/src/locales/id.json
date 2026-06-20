@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "iTRAIN",
+    "appName": "LordTraining",
     "tagline": "Rencanakan lebih baik. Latih dengan kriteria. Bersaing dengan keunggulan.",
     "loading": "Memuat...",
     "save": "Simpan",
@@ -86,7 +86,7 @@
     },
     "howItWorks": {
       "tag": "PROSES",
-      "title": "Cara kerja iTRAIN",
+      "title": "Cara kerja LordTraining",
       "subtitle": "Dari diagnosis awal hingga ekspor profesional — alur lengkap dalam 6 fase",
       "step1_title": "Karakterisasi olahraga Anda",
       "step1_desc": "Tentukan olahraga, kategori kompetitif, kemampuan fisik dominan, dan tujuan periode.",
@@ -180,7 +180,7 @@
     },
     "cta": {
       "title": "Mulai merencanakan dengan kriteria ilmiah",
-      "desc": "Bergabunglah dengan pelatih yang mempercayai iTRAIN untuk membawa perencanaan olahraga mereka ke tingkat berikutnya.",
+      "desc": "Bergabunglah dengan pelatih yang mempercayai LordTraining untuk membawa perencanaan olahraga mereka ke tingkat berikutnya.",
       "button": "Mulai sekarang"
     },
     "chart": {
@@ -227,8 +227,8 @@
       "m_central": "PUSAT"
     },
     "audiences": {
-      "impact": "80% pelatih merencanakan tanpa data nyata. iTRAIN mengubahnya: periodisasi ilmiah, pelacakan real-time dan keputusan berbasis bukti — untuk level apa pun.",
-      "trustLine": "+1.200 pelatih · 340 klub · 18 federasi mempercayai iTRAIN",
+      "impact": "80% pelatih merencanakan tanpa data nyata. LordTraining mengubahnya: periodisasi ilmiah, pelacakan real-time dan keputusan berbasis bukti — untuk level apa pun.",
+      "trustLine": "+1.200 pelatih · 340 klub · 18 federasi mempercayai LordTraining",
       "tag": "AUDIENS",
       "title": "Dari pelatih independen hingga federasi nasional",
       "coaches_title": "Untuk pelatih",
@@ -273,13 +273,13 @@
       "t5_role": "Direktur - Sekolah Renang Formatif",
       "t6_text": "Kami menstandardisasi metodologi perencanaan untuk 18 klub afiliasi. Pertama kalinya punya data yang bisa dibandingkan.",
       "t6_role": "Koordinator Teknis Nasional - Federasi Bersepeda",
-      "t7_text": "Saya bukan ahli teknologi tapi memahami iTRAIN dalam satu sore. Sekarang membuat rencana dalam hitungan menit.",
+      "t7_text": "Saya bukan ahli teknologi tapi memahami LordTraining dalam satu sore. Sekarang membuat rencana dalam hitungan menit.",
       "t7_role": "Pelatih Personal - Spesialis Kekuatan",
       "t8_text": "Pelacakan perkembangan jangka panjang membantu kami mengidentifikasi bakat yang sebelumnya terlewatkan.",
       "t8_role": "Koordinator Pedagogis - Akademi Sepak Bola Muda",
       "t9_text": "Laporan otomatis menghemat waktu berjam-jam setiap minggu. Sekarang ekspor dalam dua klik.",
       "t9_role": "Pelatih Fisik - Klub Voli Putri",
-      "t10_text": "Kami menerapkan iTRAIN sebagai protokol resmi untuk pemanggilan nasional.",
+      "t10_text": "Kami menerapkan LordTraining sebagai protokol resmi untuk pemanggilan nasional.",
       "t10_role": "Kepala Performa Tinggi - Federasi Triathlon Nasional"
     }
   },

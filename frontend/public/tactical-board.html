@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>iTRAIN — Pizarra Tactica Digital</title>
+<title>LordTraining — Pizarra Tactica Digital</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -453,7 +453,7 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
   <!-- Logo + Close -->
   <div class="sb-header">
    <div class="logo"><span>i</span></div>
-   <div class="brand-text">iTRAIN</div>
+   <div class="brand-text">LordTraining</div>
    <a class="sb-prem-btn" href="/top-jugadas.html" target="_blank" rel="noopener" title="Top Jugadas (ranking viral)" data-testid="top-rank-sidebar-btn" style="margin-left:auto"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>TOP</a>
    <button class="sb-prem-btn" onclick="S.togglePresentation()" title="Modo presentación pantalla completa (Shift+F)" data-testid="presentation-sidebar-btn" style="margin-left:6px;margin-right:6px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>PRES</button>
    <button class="sb-close" onclick="S.closeBoard()" title="Volver" data-testid="close-board-btn"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></button>
@@ -4613,7 +4613,7 @@ flashGoal(label) {
    ? `background:linear-gradient(90deg,${ts.gradient.from},${ts.gradient.to});-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent`
    : `color:${ts.color}`;
   html += `<div style="padding:12px 8px;text-align:center;background:var(--surface-2);border-radius:10px;margin-bottom:12px;min-height:50px;display:flex;align-items:center;justify-content:center">`;
-  html += `<span style="font-family:'${ts.font}',sans-serif;font-size:${Math.min(ts.size + 6, 40)}px;font-weight:700;letter-spacing:0.04em;${shadowStyle};${strokeStyle};${previewFill};${ts.italic?'font-style:italic':''}">iTRAIN</span>`;
+  html += `<span style="font-family:'${ts.font}',sans-serif;font-size:${Math.min(ts.size + 6, 40)}px;font-weight:700;letter-spacing:0.04em;${shadowStyle};${strokeStyle};${previewFill};${ts.italic?'font-style:italic':''}">LordTraining</span>`;
   html += `</div>`;
   // 2-column layout: fonts left, rest right
   html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">`;
@@ -5909,7 +5909,7 @@ flashGoal(label) {
      sport: ST.sport,
      thumbnail,
      title: `Jugada táctica · ${ST.sport}`,
-     description: `Pizarra de ${ST.sport} con ${(ST.elements||[]).length} elementos — creada en iTRAIN Coach`,
+     description: `Pizarra de ${ST.sport} con ${(ST.elements||[]).length} elementos — creada en LordTraining Coach`,
      coach_slug: coachSlug || null,
      coach_name: coachName || null
     };
@@ -5970,7 +5970,7 @@ flashGoal(label) {
      // Branding
      ctx.fillStyle = '#c8f700';
      ctx.font = 'bold 36px system-ui, Arial';
-     ctx.fillText('iTRAIN', 40, H - 40);
+     ctx.fillText('LordTraining', 40, H - 40);
      ctx.fillStyle = 'rgba(255,255,255,0.78)';
      ctx.font = '20px system-ui, Arial';
      ctx.fillText((ST.sport || '').toUpperCase() + ' · Pizarra táctica', 150, H - 40);
@@ -6025,7 +6025,7 @@ flashGoal(label) {
    } else { this._sharePrompt(url); }
   };
   document.getElementById('share-whatsapp-btn').onclick = () => {
-   const txt = encodeURIComponent(`Mira esta jugada que preparé en iTRAIN: ${url}`);
+   const txt = encodeURIComponent(`Mira esta jugada que preparé en LordTraining: ${url}`);
    window.open(`https://wa.me/?text=${txt}`, '_blank');
   };
   document.getElementById('share-close-btn').onclick = () => overlay.remove();
@@ -7143,7 +7143,7 @@ S.init();
 
 <!-- Viewer mode floating bar and play FAB (shown when ?s=... is present) -->
 <div id="viewer-bar">
- <div class="vw-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>iTRAIN</div>
+ <div class="vw-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>LordTraining</div>
  <div class="vw-title" id="viewer-title">Jugada táctica</div>
  <div class="vw-views" id="viewer-views" style="display:none;align-items:center;gap:4px;font-size:11px;font-weight:700;color:rgba(200,247,0,0.9);letter-spacing:0.04em;padding:4px 9px;background:rgba(200,247,0,0.08);border:1px solid rgba(200,247,0,0.25);border-radius:8px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span id="viewer-views-count">—</span> <span style="opacity:0.7">entrenadores</span></div>
  <button class="vw-btn" id="vw-replay" data-testid="vw-replay" onclick="(function(){try{S.startPlayback();}catch(e){} })()" title="Reproducir"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>Reproducir</button>

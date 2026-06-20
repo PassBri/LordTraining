@@ -300,7 +300,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
       const shareId = res.data.share_id;
       const url = `${API}/api/master-report/shared/${shareId}`;
       if (target === 'whatsapp') {
-        const msg = `iTRAIN · Reporte Maestro · ${plan?.name || 'Plan'}\n\nVer en línea: ${url}`;
+        const msg = `LordTraining · Reporte Maestro · ${plan?.name || 'Plan'}\n\nVer en línea: ${url}`;
         window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         toast.success('Abriendo WhatsApp…');
       } else {
@@ -526,7 +526,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
                   value={customIntro}
                   onChange={e => setCustomIntro(e.target.value)}
                   rows={5}
-                  placeholder="Escribe una introducción personalizada. Si lo dejas vacío, iTRAIN generará una por ti."
+                  placeholder="Escribe una introducción personalizada. Si lo dejas vacío, LordTraining generará una por ti."
                   className="w-full text-sm p-3 border border-slate-200 rounded-lg focus:outline-none focus:border-slate-400 resize-y" />
               </div>
               <div>

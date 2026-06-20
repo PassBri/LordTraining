@@ -1,6 +1,6 @@
 """
 Rutas de exportación y compartición del Plan Activo (Objetivos).
-- PDF estilo whitepaper iTRAIN vía Playwright
+- PDF estilo whitepaper LordTraining vía Playwright
 - Link público compartible (HTML + PDF) sin autenticación
 """
 
@@ -70,9 +70,9 @@ def _build_html(obj_doc: dict, plan_name: str, share_id: Optional[str] = None, s
     # Logos base64
     brand_dir = "/app/frontend/public/brand"
     try:
-        with open(f"{brand_dir}/itrain-full-pdf.png", "rb") as f:
+        with open(f"{brand_dir}/lordtraining-full-pdf.png", "rb") as f:
             full_b64 = base64.b64encode(f.read()).decode()
-        with open(f"{brand_dir}/itrain-icon-pdf.png", "rb") as f:
+        with open(f"{brand_dir}/lordtraining-icon-pdf.png", "rb") as f:
             icon_b64 = base64.b64encode(f.read()).decode()
     except FileNotFoundError:
         full_b64 = icon_b64 = ""
@@ -107,10 +107,10 @@ def _build_html(obj_doc: dict, plan_name: str, share_id: Optional[str] = None, s
 
     share_banner = ""
     if share_id:
-        share_banner = '<div class="share-ribbon">DOCUMENTO COMPARTIDO · Solo lectura · Generado por iTrain.app</div>'
+        share_banner = '<div class="share-ribbon">DOCUMENTO COMPARTIDO · Solo lectura · Generado por LordTraining.app</div>'
 
     return f"""<!DOCTYPE html>
-<html lang="es"><head><meta charset="UTF-8"><title>Plan Activo · iTrain</title>
+<html lang="es"><head><meta charset="UTF-8"><title>Plan Activo · LordTraining</title>
 <style>
   @page {{ size: A4; margin: 18mm 15mm; }}
   * {{ box-sizing: border-box; }}
@@ -156,7 +156,7 @@ def _build_html(obj_doc: dict, plan_name: str, share_id: Optional[str] = None, s
 
 <div class="hero">
   <div class="brand-mark">
-    <img src="data:image/png;base64,{full_b64}" alt="iTRAIN" width="176" height="46" style="width:176px;height:46px;object-fit:contain;display:block;"/>
+    <img src="data:image/png;base64,{full_b64}" alt="LordTraining" width="176" height="46" style="width:176px;height:46px;object-fit:contain;display:block;"/>
   </div>
   <span class="badge">PLAN ACTIVO</span>
   <h1>Plan de Entrenamiento</h1>
@@ -213,8 +213,8 @@ def _build_html(obj_doc: dict, plan_name: str, share_id: Optional[str] = None, s
 </div>
 
 <div class="footer-brand">
-  <img src="data:image/png;base64,{icon_b64}" alt="iTRAIN"/>
-  <span>Generado por <strong>iTRAIN</strong> · iTrain.app · Plan Activo</span>
+  <img src="data:image/png;base64,{icon_b64}" alt="LordTraining"/>
+  <span>Generado por <strong>LordTraining</strong> · LordTraining.app · Plan Activo</span>
 </div>
 
 </body></html>"""
