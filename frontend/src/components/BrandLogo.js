@@ -1,19 +1,25 @@
 import React from 'react';
 
 /**
- * BrandLogo - Logo oficial LordTraining
+ * BrandLogo — Marca LordTraining
+ *
+ * Usa la "escama de dragón" como icono (mucho más legible a tamaño pequeño
+ * que el escudo heráldico completo). El wordmark "LordTraining" se renderiza
+ * como texto HTML para máxima nitidez en cualquier tamaño/DPI.
  *
  * Variants:
- *   - "icon": solo corona
- *   - "full": corona + wordmark "LordTraining"
+ *   - "icon": solo escama de dragón
+ *   - "full": escama + wordmark "LordTraining"
+ *   - "shield": escudo heráldico completo (úsalo solo en zonas grandes,
+ *     ej. hero de la landing o el login)
  *
  * Theme:
- *   - "light": para fondos OSCUROS (corona lima + texto blanco)
- *   - "dark":  para fondos CLAROS  (corona navy + texto navy)
+ *   - "light": para fondos OSCUROS (texto blanco + acento lima en "Training")
+ *   - "dark":  para fondos CLAROS  (texto slate-900 + acento lima)
  *
- * @param {'icon'|'full'} variant
+ * @param {'icon'|'full'|'shield'} variant
  * @param {'light'|'dark'} theme
- * @param {number} size - altura en px
+ * @param {number} size - altura en px (referencia del icono)
  */
 const BrandLogo = ({
   variant = 'icon',
@@ -22,36 +28,89 @@ const BrandLogo = ({
   className = '',
   ...props
 }) => {
-  const assets = {
-    full: {
-      light: { src: '/brand/lordtraining-full-light.png', aspect: 1100 / 280 },
-      dark:  { src: '/brand/lordtraining-full-dark.png',  aspect: 1100 / 280 },
-    },
-    icon: {
-      light: { src: '/brand/lordtraining-icon-light.png', aspect: 1 },
-      dark:  { src: '/brand/lordtraining-icon-dark.png',  aspect: 1 },
-    },
-  };
+  const scaleSrc = '/brand/lordtraining-scale.png';
+  const shieldSrc = '/brand/lordtraining-master.png';
 
-  const { src, aspect } = assets[variant][theme];
-  const height = size;
-  const width = size * aspect;
+  const isDark = theme === 'dark'; // fondo claro
+  const textColor = isDark ? '#0f172a' : '#ffffff';
+  const accent = '#CCFF00';
 
+  // Shield variant — only the heraldic shield image (no extra text)
+  if (variant === 'shield') {
+    return (
+      <img
+        src={shieldSrc}
+        alt="LordTraining"
+        style={{
+          height: `${size}px`,
+          width: 'auto',
+          objectFit: 'contain',
+          flexShrink: 0,
+          filter: 'drop-shadow(0 6px 14px rgba(0,0,0,0.35))',
+        }}
+        className={className}
+        {...props}
+      />
+    );
+  }
+
+  // Icon-only variant — just the dragon scale
+  if (variant === 'icon') {
+    return (
+      <img
+        src={scaleSrc}
+        alt="LordTraining"
+        style={{
+          height: `${size}px`,
+          width: `${size}px`,
+          objectFit: 'contain',
+          flexShrink: 0,
+          filter: 'drop-shadow(0 3px 8px rgba(0,0,0,0.35))',
+        }}
+        className={className}
+        {...props}
+      />
+    );
+  }
+
+  // Full variant — scale + wordmark text
+  const fontSize = Math.round(size * 0.55);
   return (
-    <img
-      src={src}
-      alt="LordTraining"
-      height={height}
-      width={width}
+    <span
+      className={className}
       style={{
-        height: `${height}px`,
-        width: `${width}px`,
-        objectFit: 'contain',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: `${Math.round(size * 0.28)}px`,
         flexShrink: 0,
       }}
-      className={className}
       {...props}
-    />
+    >
+      <img
+        src={scaleSrc}
+        alt=""
+        style={{
+          height: `${size}px`,
+          width: `${size}px`,
+          objectFit: 'contain',
+          flexShrink: 0,
+          filter: 'drop-shadow(0 3px 8px rgba(0,0,0,0.35))',
+        }}
+      />
+      <span
+        style={{
+          fontFamily: '"Bebas Neue", "Inter", sans-serif',
+          fontWeight: 900,
+          fontSize: `${fontSize}px`,
+          letterSpacing: '0.01em',
+          color: textColor,
+          lineHeight: 1,
+          whiteSpace: 'nowrap',
+        }}
+      >
+        Lord<span style={{ color: accent }}>Training</span>
+      </span>
+    </span>
   );
 };
 
