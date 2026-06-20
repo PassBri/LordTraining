@@ -389,7 +389,29 @@ const AuthPage = () => {
       <div className="w-full lg:w-[45%] flex flex-col justify-center px-8 md:px-14 lg:px-16" style={{background:'#0b0e14'}}>
         <div className="max-w-[380px] w-full mx-auto">
 
-          {/* Back + Language */}
+          {/* Heraldic shield — top of page, maximum prominence */}
+          <Link to="/" className="flex flex-col items-center mb-5 group" data-testid="auth-brand-logo">
+            <div className="relative">
+              <span className="absolute inset-0 m-auto rounded-full pointer-events-none" style={{
+                width: '85%', height: '85%', top: 0, bottom: 0, left: 0, right: 0,
+                background: 'radial-gradient(circle, rgba(245,200,80,0.5) 0%, rgba(204,255,0,0.18) 40%, transparent 72%)',
+                filter: 'blur(30px)',
+                animation: 'authShieldGlow 3s ease-in-out infinite',
+              }} />
+              <img
+                src="/brand/lordtraining-master.png"
+                alt="LordTraining"
+                className="relative h-[230px] w-auto transition-transform group-hover:scale-105"
+                style={{ filter: 'drop-shadow(0 16px 32px rgba(0,0,0,0.6))', animation: 'authShieldFloat 3s ease-in-out infinite' }}
+              />
+            </div>
+          </Link>
+          <style>{`
+            @keyframes authShieldGlow { 0%,100% { opacity: 0.55; transform: scale(0.92); } 50% { opacity: 1; transform: scale(1.08); } }
+            @keyframes authShieldFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+          `}</style>
+
+          {/* Back + Language (below shield) */}
           <div className="flex items-center justify-end mb-6">
             <div className="flex items-center gap-2">
               <LanguageSelector variant="dark" compact />
@@ -400,34 +422,9 @@ const AuthPage = () => {
             </div>
           </div>
 
-          {/* Heraldic shield — prominent brand mark */}
-          <Link to="/" className="flex flex-col items-center mb-6 group" data-testid="auth-brand-logo">
-            <div className="relative">
-              <span className="absolute inset-0 m-auto rounded-full pointer-events-none" style={{
-                width: '80%', height: '80%', top: 0, bottom: 0, left: 0, right: 0,
-                background: 'radial-gradient(circle, rgba(245,200,80,0.45) 0%, rgba(204,255,0,0.16) 40%, transparent 72%)',
-                filter: 'blur(26px)',
-                animation: 'authShieldGlow 3s ease-in-out infinite',
-              }} />
-              <img
-                src="/brand/lordtraining-master.png"
-                alt="LordTraining"
-                className="relative h-[180px] w-auto transition-transform group-hover:scale-105"
-                style={{ filter: 'drop-shadow(0 14px 28px rgba(0,0,0,0.6))', animation: 'authShieldFloat 3s ease-in-out infinite' }}
-              />
-            </div>
-            <span className="text-[20px] font-black text-white tracking-tight mt-3" style={{fontFamily:'inherit'}}>
-              Lord<span className="text-[#c8f700]">Training</span>
-            </span>
-          </Link>
-          <style>{`
-            @keyframes authShieldGlow { 0%,100% { opacity: 0.55; transform: scale(0.92); } 50% { opacity: 1; transform: scale(1.08); } }
-            @keyframes authShieldFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-          `}</style>
-
           {/* Title */}
           <h1 className="text-[22px] font-bold text-white mb-1 text-center" style={{ fontFamily: INT }} data-testid="auth-title">
-            {t('common.welcome')} {t('common.appName')}
+            {t('common.welcome')} a {t('common.appName')}
           </h1>
           <p className="text-[13px] text-slate-400 mb-1 text-center" data-testid="auth-subtitle">
             {t('common.tagline')}
