@@ -1415,8 +1415,8 @@ const SessionEditor = ({
             <div className="flex items-center gap-3 px-5 py-3">
               {/* Logo */}
               <div className="flex items-center gap-2.5 flex-shrink-0">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{background:'#CCFF00'}}>
-                  <span className="text-[18px] font-black leading-none" style={{color:'#0f172a',fontFamily:BC}}>i</span>
+                <div className="w-9 h-9 flex items-center justify-center" data-testid="session-editor-brand-logo">
+                  <img src="/brand/lordtraining-scale.png" alt="LordTraining" className="w-full h-full object-contain" style={{filter:'drop-shadow(0 2px 6px rgba(204,255,0,0.25))'}} />
                 </div>
                 <span className="text-[15px] font-black tracking-tight" style={{fontFamily:BC}}>
                   LordTraining

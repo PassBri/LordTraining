@@ -68,8 +68,9 @@ body.viewer-mode #viewer-bar{display:flex !important}
 body.viewer-mode #viewer-fab{display:inline-flex;align-items:center;gap:8px}
 .sb-header{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border);gap:10px;position:relative}
 .sb-header .brand-text{font-size:13px;font-weight:900;letter-spacing:0.22em;color:var(--text);margin-right:auto}
-.logo{width:34px;height:34px;background:var(--brand);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 16px var(--brand-glow),inset 0 -2px 0 rgba(0,0,0,0.12);position:relative}
-.logo::after{content:'';position:absolute;inset:-3px;border-radius:13px;background:linear-gradient(135deg,var(--brand),transparent 60%);opacity:0.35;z-index:-1;filter:blur(6px)}
+.logo{width:36px;height:36px;background:transparent;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
+.logo::after{content:'';position:absolute;inset:-2px;border-radius:13px;background:radial-gradient(circle,var(--brand-glow),transparent 70%);opacity:0.5;z-index:-1;filter:blur(7px)}
+.logo img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 5px rgba(204,255,0,0.25))}
 .logo span{font-size:16px;font-weight:900;color:#0a0f1f;font-family:var(--font-display)}
 .sb-close{width:30px;height:30px;border-radius:8px;background:var(--hover);display:flex;align-items:center;justify-content:center;color:var(--text-muted);transition:all .15s}
 .sb-close:hover{background:var(--surface-2);color:var(--text);transform:rotate(90deg)}
@@ -452,7 +453,7 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
  <div id="sidebar">
   <!-- Logo + Close -->
   <div class="sb-header">
-   <div class="logo"><span>i</span></div>
+   <div class="logo"><img src="/brand/lordtraining-scale.png" alt="LordTraining"/></div>
    <div class="brand-text">LordTraining</div>
    <a class="sb-prem-btn" href="/top-jugadas.html" target="_blank" rel="noopener" title="Top Jugadas (ranking viral)" data-testid="top-rank-sidebar-btn" style="margin-left:auto"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>TOP</a>
    <button class="sb-prem-btn" onclick="S.togglePresentation()" title="Modo presentación pantalla completa (Shift+F)" data-testid="presentation-sidebar-btn" style="margin-left:6px;margin-right:6px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>PRES</button>
@@ -7143,7 +7144,7 @@ S.init();
 
 <!-- Viewer mode floating bar and play FAB (shown when ?s=... is present) -->
 <div id="viewer-bar">
- <div class="vw-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>LordTraining</div>
+ <div class="vw-logo"><img src="/brand/lordtraining-scale.png" alt="" style="width:20px;height:20px;object-fit:contain;filter:drop-shadow(0 1px 3px rgba(204,255,0,0.3))"/>LordTraining</div>
  <div class="vw-title" id="viewer-title">Jugada táctica</div>
  <div class="vw-views" id="viewer-views" style="display:none;align-items:center;gap:4px;font-size:11px;font-weight:700;color:rgba(200,247,0,0.9);letter-spacing:0.04em;padding:4px 9px;background:rgba(200,247,0,0.08);border:1px solid rgba(200,247,0,0.25);border-radius:8px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span id="viewer-views-count">—</span> <span style="opacity:0.7">entrenadores</span></div>
  <button class="vw-btn" id="vw-replay" data-testid="vw-replay" onclick="(function(){try{S.startPlayback();}catch(e){} })()" title="Reproducir"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>Reproducir</button>
