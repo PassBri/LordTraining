@@ -24,8 +24,8 @@ const BrandLogo = ({
 }) => {
   const assets = {
     full: {
-      light: { src: '/brand/lordtraining-full-light.png', aspect: 563 / 135 },
-      dark:  { src: '/brand/lordtraining-full-dark.png',  aspect: 587 / 140 },
+      light: { src: '/brand/lordtraining-full-light.png', aspect: 632 / 160 },
+      dark:  { src: '/brand/lordtraining-full-dark.png',  aspect: 632 / 160 },
     },
     icon: {
       light: { src: '/brand/lordtraining-icon-light.png', aspect: 1 },
