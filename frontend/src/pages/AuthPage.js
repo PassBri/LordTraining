@@ -401,7 +401,7 @@ const AuthPage = () => {
               <img
                 src="/brand/lordtraining-master.png"
                 alt="LordTraining"
-                className="relative h-[230px] w-auto transition-transform group-hover:scale-105"
+                className="relative h-[300px] w-auto transition-transform group-hover:scale-105"
                 style={{ filter: 'drop-shadow(0 16px 32px rgba(0,0,0,0.6))', animation: 'authShieldFloat 3s ease-in-out infinite' }}
               />
             </div>
