@@ -445,6 +445,7 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
     # ====== Brand assets ======
     full_b64 = ""
     icon_b64 = ""
+    scale_b64 = ""
     try:
         with open("/app/frontend/public/brand/lordtraining-full-pdf.png", "rb") as f:
             full_b64 = base64.b64encode(f.read()).decode()
@@ -453,6 +454,13 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
         with open("/app/frontend/public/brand/lordtraining-icon-pdf.png", "rb") as f:
             icon_b64 = base64.b64encode(f.read()).decode()
     except Exception: pass
+    try:
+        with open("/app/frontend/public/brand/lordtraining-scale.png", "rb") as f:
+            scale_b64 = base64.b64encode(f.read()).decode()
+    except Exception: pass
+    # Fallback: ensure footer icon is always the clean scale (better legibility than the full shield)
+    if not icon_b64 and scale_b64:
+        icon_b64 = scale_b64
 
     # ====== Logo del club (preferred over brand LordTraining in cover) ======
     org_block = ""
@@ -461,10 +469,17 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
             f'<img src="{payload.org_logo_b64}" alt="logo" '
             f'style="max-height:80pt;max-width:200pt;object-fit:contain;display:block;margin:0 0 14pt;"/>'
         )
-    elif full_b64:
+    elif scale_b64:
+        # Clean HTML wordmark — escama (scale) + texto "LordTraining"
+        # Esto da nitidez perfecta en PDF (texto vectorial) sin depender de un bitmap chico.
         org_block = (
-            f'<img src="data:image/png;base64,{full_b64}" alt="LordTraining" '
-            f'style="height:38pt;width:148pt;object-fit:contain;display:block;margin:0 0 14pt;"/>'
+            '<div style="display:flex;align-items:center;gap:10pt;margin:0 0 14pt;">'
+            f'<img src="data:image/png;base64,{scale_b64}" alt="LordTraining" '
+            f'style="height:42pt;width:42pt;object-fit:contain;display:block;"/>'
+            '<span style="font-family:\'Bebas Neue\',\'Inter\',sans-serif;font-weight:900;'
+            'font-size:26pt;letter-spacing:0.02em;color:#ffffff;line-height:1;white-space:nowrap;">'
+            'Lord<span style="color:#CCFF00;">Training</span></span>'
+            '</div>'
         )
 
     # ====== Sections ======
