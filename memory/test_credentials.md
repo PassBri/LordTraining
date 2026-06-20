@@ -16,7 +16,7 @@
 - **Use for**: testing Super Admin Panel, /admin endpoints, finance, alerts, hierarchy
 
 ## API Base URL
-- Frontend `.env` → `REACT_APP_BACKEND_URL=https://training-analytics-9.preview.emergentagent.com`
+- Frontend `.env` → `REACT_APP_BACKEND_URL=https://coach-command-23.preview.emergentagent.com`
 - All API routes prefixed with `/api`
 
 ## Hotmart Integration Status (FASE 1)

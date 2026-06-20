@@ -40,6 +40,24 @@ def get_current_user_dep():
     return get_current_user
 
 
+# ---------------- Brand logo (escama) ----------------
+_SCALE_LOGO_PATH = "/app/frontend/public/brand/lordtraining-scale.png"
+_scale_b64_cache: Optional[str] = None
+
+
+def _scale_logo_b64() -> str:
+    """Devuelve la escama de marca en base64 (cacheada) para embeber en HTML."""
+    global _scale_b64_cache
+    if _scale_b64_cache is None:
+        import base64
+        try:
+            with open(_SCALE_LOGO_PATH, "rb") as f:
+                _scale_b64_cache = base64.b64encode(f.read()).decode()
+        except Exception:
+            _scale_b64_cache = ""
+    return _scale_b64_cache
+
+
 # ---------------- Models ----------------
 class SessionsExportRequest(BaseModel):
     plan_id: str
@@ -119,19 +137,33 @@ def _build_session_pdf_classic(
     # ============ HEADER ============
     c.setFillColor(accent)
     c.roundRect(30, height - 110, width - 60, 80, 15, fill=1, stroke=0)
+
+    # Escama de marca dentro del banner (izquierda)
+    text_x = 50
+    try:
+        from reportlab.lib.utils import ImageReader
+        logo_size = 58
+        logo_y = height - 105 + (80 - logo_size) / 2
+        c.drawImage(ImageReader(_SCALE_LOGO_PATH), 48, logo_y,
+                    width=logo_size, height=logo_size,
+                    mask='auto', preserveAspectRatio=True)
+        text_x = 48 + logo_size + 16
+    except Exception:
+        text_x = 50
+
     title_color = HexColor('#0a0a0f') if is_dark else white
     c.setFillColor(title_color)
     c.setFont("Helvetica-Bold", 22)
-    c.drawString(50, height - 55, "SESIÓN DE ENTRENAMIENTO")
+    c.drawString(text_x, height - 55, "SESIÓN DE ENTRENAMIENTO")
     c.setFont("Helvetica", 13)
-    c.drawString(50, height - 78, f"Atleta: {athlete_name}")
+    c.drawString(text_x, height - 78, f"Atleta: {athlete_name}")
     extra_bits = []
     if meso_name: extra_bits.append(meso_name)
     if micro_name: extra_bits.append(micro_name)
     if week_number is not None: extra_bits.append(f"Semana {week_number}")
     if extra_bits:
         c.setFont("Helvetica", 10)
-        c.drawString(50, height - 95, " · ".join(extra_bits))
+        c.drawString(text_x, height - 95, " · ".join(extra_bits))
 
     session_date = session_data.get('date', datetime.now().strftime('%Y-%m-%d'))
     day_name = session_data.get('dayName', '') or session_data.get('day', '')
@@ -350,6 +382,12 @@ def _build_session_pdf_classic(
 
     c.setFillColor(HexColor('#1e293b') if not is_dark else HexColor('#000000'))
     c.rect(0, 0, width, 35, fill=1, stroke=0)
+    try:
+        from reportlab.lib.utils import ImageReader
+        c.drawImage(ImageReader(_SCALE_LOGO_PATH), 10, 6, width=23, height=23,
+                    mask='auto', preserveAspectRatio=True)
+    except Exception:
+        pass
     c.setFillColor(white)
     c.setFont("Helvetica-Bold", 9)
     c.drawString(40, 15, "LordTraining · Sistema de Gestión Deportiva")
@@ -494,6 +532,11 @@ def _build_session_html_hero(
         objetivos_html = f'<section class="objectives"><h2>Objetivos</h2><ul>{items}</ul></section>'
 
     extra_meta = " · ".join([str(x) for x in [meso_name, micro_name, f"Semana {week_number}" if week_number is not None else ""] if x])
+    scale_b64 = _scale_logo_b64()
+    brand_logo_html = (f'<img class="brand-logo" src="data:image/png;base64,{scale_b64}" alt=""/>'
+                       if scale_b64 else '')
+    footer_logo_html = (f'<img src="data:image/png;base64,{scale_b64}" alt=""/>'
+                        if scale_b64 else '')
 
     return f"""<!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"/>
@@ -509,6 +552,9 @@ def _build_session_html_hero(
   .page:last-child {{ page-break-after: auto; }}
   header.hd {{ display:flex; align-items:flex-end; justify-content:space-between;
     border-bottom: 2px solid {accent}; padding-bottom: 9px; margin-bottom: 10px; }}
+  .hd-left {{ display:flex; align-items:flex-start; gap:11px; }}
+  .brand-logo {{ width:48px; height:48px; object-fit:contain; flex-shrink:0; margin-top:2px;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.18)); }}
   .brand {{ font-size: 9px; letter-spacing: 0.32em; color: {accent};
     font-weight: 900; text-transform: uppercase; }}
   .title {{ font-size: 20px; font-weight: 900; color: {ink};
@@ -566,25 +612,30 @@ def _build_session_html_hero(
     padding: 28px; border: 1px dashed {border}; border-radius: 8px; }}
   footer.ft {{ margin-top: 10px; font-size: 8px; color: {ink_muted};
     text-align: right; border-top: 1px solid {border}; padding-top: 5px;
-    letter-spacing: 0.08em; text-transform: uppercase; }}
+    letter-spacing: 0.08em; text-transform: uppercase;
+    display:flex; align-items:center; justify-content:flex-end; gap:6px; }}
+  footer.ft img {{ width:14px; height:14px; object-fit:contain; opacity:0.85; }}
 </style></head>
 <body>
   <div class="page">
     <header class="hd">
-      <div>
-        <div class="brand">LordTraining · Plan de Sesión</div>
-        <h1 class="title">{esc(session_name)}</h1>
-        <div class="meta">
-          <span><strong>Deportista:</strong> {esc(athlete_name)}</span>
-          {f'<span>{esc(extra_meta)}</span>' if extra_meta else ''}
-          <span><strong>Ejercicios:</strong> {total_acts}</span>
+      <div class="hd-left">
+        {brand_logo_html}
+        <div>
+          <div class="brand">LordTraining · Plan de Sesión</div>
+          <h1 class="title">{esc(session_name)}</h1>
+          <div class="meta">
+            <span><strong>Deportista:</strong> {esc(athlete_name)}</span>
+            {f'<span>{esc(extra_meta)}</span>' if extra_meta else ''}
+            <span><strong>Ejercicios:</strong> {total_acts}</span>
+          </div>
         </div>
       </div>
       <div class="tag">Pizarras {('Oscuras' if is_dark else 'Claras')}</div>
     </header>
     {objetivos_html}
     {''.join(cards_parts)}
-    <footer class="ft">Generado con LordTraining</footer>
+    <footer class="ft">{footer_logo_html}<span>Generado con LordTraining</span></footer>
   </div>
 </body></html>"""
 
