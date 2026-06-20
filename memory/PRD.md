@@ -1339,3 +1339,26 @@ Iteración de 6 mejoras coordinadas tras feedback del usuario:
   - **Simulador**: sliders de RPE/HRV/minutos/DFI + selección de tipo adaptativo + sesión (MD±X), calcula CIA en tiempo real con reglas del Motor y muestra zona VERDE/AMARILLO/NARANJA/ROJO + razones aplicadas + comparación MC vs CIA
 - **Whitepaper PDF descargable** desde endpoint `/api/periodization-library/pdi/whitepaper` (Playwright, 70KB, A4, con portada hero + 7 secciones + glosario + tabla de fases con barras visuales)
 - PDF verificado: portada profesional dark + título, 3 capas estructuradas, tabla con barras vol/int por fase, glosario completo, branding iTRAIN lima.
+
+---
+## 2026-02 — Refinamiento de Branding LordTraining (Hero + Favicon)
+
+**Cambios visuales aplicados:**
+- Hero de la Landing rediseñado: escudo heráldico LordTraining (escudo dragones + lema "Ad Victoriam Per Disciplinam") ahora se muestra GRANDE (h-[200/240/280px]) en el lugar donde antes estaba el slogan textual.
+- Slogan principal del hero cambiado de "Entrena con método. / Compite sin límites." a "**Por la disciplina, el método. / Por la victoria, el entrenamiento.**" (traducción del lema latino del escudo).
+- Tamaño tipográfico del H1 reducido (de 2.25-3.25rem a 1.5-1.95rem) para que la frase larga quepa bien y el protagonismo lo tome el escudo.
+- Favicon completo regenerado a partir de la nueva imagen de **escama de dragón con corona** (gota dorada con tonos verde/azul):
+  - `favicon.ico` (multi-res 16/32/48/64)
+  - `favicon-16.png`, `favicon-32.png`, `favicon-64.png`
+  - `apple-touch-icon.png` (180px)
+  - `logo192.png`, `logo512.png`
+  - Asset master guardado en `/brand/lordtraining-scale.png`
+- `locales/es.json`: actualizados los 4 fragmentos del headline (`headline_verb1`, `headline_rest1`, `headline_verb2`, `headline_rest2`).
+
+**Archivos tocados:**
+- `frontend/src/pages/LandingPage.js` (hero block ~líneas 511-525)
+- `frontend/src/locales/es.json`
+- `frontend/public/favicon.ico` + favicon-*.png + apple-touch-icon.png + logo192/512.png
+- `frontend/public/brand/lordtraining-scale.png` (nuevo)
+
+**Verificación:** Screenshot 1440x900 OK — escudo se ve correctamente posicionado, el slogan nuevo se lee claro en lima/blanco, el favicon del browser ahora es la escama de dragón.

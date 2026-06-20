@@ -510,8 +510,19 @@ const LandingPage = () => {
           {/* Left column — branding + CTA */}
           <div className="lg:col-span-5 flex flex-col justify-between">
             <div>
-              <Reveal delay={0.2} direction="left">
-                <h1 className="text-[2.25rem] sm:text-[2.75rem] lg:text-[3.25rem] font-black leading-[1.05] tracking-[-0.02em] mb-6 whitespace-nowrap" style={{fontFamily:BC}} data-testid="hero-headline">
+              {/* Big heraldic shield — hero brand mark */}
+              <Reveal delay={0.15} direction="up">
+                <div className="flex justify-center lg:justify-start mb-5" data-testid="hero-shield">
+                  <img
+                    src="/brand/lordtraining-master.png"
+                    alt="LordTraining"
+                    className="h-[200px] sm:h-[240px] lg:h-[280px] w-auto drop-shadow-[0_0_40px_rgba(204,255,0,0.18)]"
+                    style={{ filter: 'drop-shadow(0 12px 24px rgba(0,0,0,0.5))' }}
+                  />
+                </div>
+              </Reveal>
+              <Reveal delay={0.3} direction="left">
+                <h1 className="text-[1.5rem] sm:text-[1.75rem] lg:text-[1.95rem] font-black leading-[1.2] tracking-[-0.01em] mb-6 text-center lg:text-left" style={{fontFamily:BC}} data-testid="hero-headline">
                   <span className="text-[#CCFF00]">{t('landing.hero.headline_verb1')}</span><span className="text-white">{t('landing.hero.headline_rest1')}</span><br/>
                   <span className="text-[#CCFF00]">{t('landing.hero.headline_verb2')}</span><span className="text-white">{t('landing.hero.headline_rest2')}</span>
                 </h1>
