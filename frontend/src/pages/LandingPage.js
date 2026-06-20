@@ -505,68 +505,49 @@ const LandingPage = () => {
       <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:32px_32px] opacity-10" />
 
       <div className="max-w-[1120px] mx-auto px-6 relative z-10 w-full pt-10 pb-6">
-        {/* Main grid: text left + chart right */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Main grid: brand left + chart right (Material Design — generous spacing, vertically centered) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           {/* Left column — branding + CTA */}
-          <div className="lg:col-span-5 flex flex-col justify-between">
-            <div>
-              {/* Big heraldic shield — hero brand mark */}
-              <Reveal delay={0.15} direction="up">
-                <div className="flex justify-center lg:justify-start mb-5" data-testid="hero-shield">
-                  <img
-                    src="/brand/lordtraining-master.png"
-                    alt="LordTraining"
-                    className="h-[200px] sm:h-[240px] lg:h-[280px] w-auto drop-shadow-[0_0_40px_rgba(204,255,0,0.18)]"
-                    style={{ filter: 'drop-shadow(0 12px 24px rgba(0,0,0,0.5))' }}
-                  />
-                </div>
-              </Reveal>
-              <Reveal delay={0.3} direction="left">
-                <h1 className="text-[1.5rem] sm:text-[1.75rem] lg:text-[1.95rem] font-black leading-[1.2] tracking-[-0.01em] mb-6 text-center lg:text-left" style={{fontFamily:BC}} data-testid="hero-headline">
-                  <span className="text-[#CCFF00]">{t('landing.hero.headline_verb1')}</span><span className="text-white">{t('landing.hero.headline_rest1')}</span><br/>
-                  <span className="text-[#CCFF00]">{t('landing.hero.headline_verb2')}</span><span className="text-white">{t('landing.hero.headline_rest2')}</span>
-                </h1>
-              </Reveal>
-              <Reveal delay={0.35} direction="up">
-                <p className="text-[15px] text-slate-400 leading-[1.7] mb-6 max-w-[380px]" data-testid="hero-subtitle">
-                  {t('landing.hero.subtitle')}
-                </p>
-              </Reveal>
-              <Reveal delay={0.5} direction="up">
-                <div className="flex gap-3 mb-5">
-                  <Link to="/auth">
-                    <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] h-11 px-7 text-[13px] font-bold rounded-xl shadow-lg shadow-[#CCFF00]/10" style={{fontFamily:BC}} data-testid="hero-cta-btn">
-                      {t('landing.hero.cta_primary')} <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </Link>
-                  <a href="#features">
-                    <Button variant="outline" className="h-11 px-5 text-[13px] font-medium border-slate-700 text-slate-300 hover:bg-slate-800 rounded-xl">
-                      {t('landing.hero.cta_secondary')}
-                    </Button>
-                  </a>
-                </div>
-              </Reveal>
-            </div>
+          <div className="lg:col-span-5 flex flex-col items-center lg:items-start gap-7">
+            {/* Big heraldic shield — hero brand mark */}
+            <Reveal delay={0.15} direction="up">
+              <div className="flex justify-center lg:justify-start" data-testid="hero-shield">
+                <img
+                  src="/brand/lordtraining-master.png"
+                  alt="LordTraining"
+                  className="h-[220px] sm:h-[260px] lg:h-[300px] w-auto"
+                  style={{ filter: 'drop-shadow(0 18px 32px rgba(0,0,0,0.55)) drop-shadow(0 0 28px rgba(204,255,0,0.12))' }}
+                />
+              </div>
+            </Reveal>
 
-            {/* Inline stat cards */}
-            <div className="grid grid-cols-2 gap-3 mt-2">
-              {[
-                {icon: <Zap className="w-4 h-4 text-blue-400" />, v:'0.87', l:'ACWR', bg:'bg-blue-500/10', border:'border-blue-500/20'},
-                {icon: <Heart className="w-4 h-4 text-emerald-400" />, v:'156', l:t('landing.chart.fcMax'), bg:'bg-emerald-500/10', border:'border-emerald-500/20'},
-                {icon: <Users className="w-4 h-4 text-[#CCFF00]" />, v:'24', l:t('landing.chart.athletes'), bg:'bg-[#CCFF00]/10', border:'border-[#CCFF00]/20'},
-                {icon: <Target className="w-4 h-4 text-purple-400" />, v:'94%', l:t('landing.chart.adherence').toUpperCase(), bg:'bg-purple-500/10', border:'border-purple-500/20'},
-              ].map((s,i) => (
-                <Reveal key={i} delay={0.7 + i * 0.1} direction="up">
-                  <div className={`${s.bg} ${s.border} border rounded-xl px-3.5 py-2.5 flex items-center gap-2.5`}>
-                    <div className="w-8 h-8 rounded-lg bg-slate-800/80 flex items-center justify-center">{s.icon}</div>
-                    <div>
-                      <div className="text-[16px] font-black text-white leading-none" style={{fontFamily:BC}}>{s.v}</div>
-                      <div className="text-[8px] text-slate-500 font-bold mt-0.5">{s.l}</div>
-                    </div>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
+            <Reveal delay={0.3} direction="up">
+              <h1 className="text-[1.55rem] sm:text-[1.8rem] lg:text-[2rem] font-black leading-[1.2] tracking-[-0.01em] text-center lg:text-left" style={{fontFamily:BC}} data-testid="hero-headline">
+                <span className="text-[#CCFF00]">{t('landing.hero.headline_verb1')}</span><span className="text-white">{t('landing.hero.headline_rest1')}</span><br/>
+                <span className="text-[#CCFF00]">{t('landing.hero.headline_verb2')}</span><span className="text-white">{t('landing.hero.headline_rest2')}</span>
+              </h1>
+            </Reveal>
+
+            <Reveal delay={0.4} direction="up">
+              <p className="text-[15px] text-slate-400 leading-[1.7] max-w-[440px] text-center lg:text-left" data-testid="hero-subtitle">
+                {t('landing.hero.subtitle')}
+              </p>
+            </Reveal>
+
+            <Reveal delay={0.5} direction="up">
+              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+                <Link to="/auth">
+                  <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] h-12 px-8 text-[13px] font-bold rounded-xl shadow-lg shadow-[#CCFF00]/20 transition-all hover:-translate-y-0.5" style={{fontFamily:BC}} data-testid="hero-cta-btn">
+                    {t('landing.hero.cta_primary')} <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+                <a href="#features">
+                  <Button variant="outline" className="h-12 px-6 text-[13px] font-medium border-slate-700 text-slate-300 hover:bg-slate-800 hover:border-slate-600 rounded-xl transition-all">
+                    {t('landing.hero.cta_secondary')}
+                  </Button>
+                </a>
+              </div>
+            </Reveal>
           </div>
 
           {/* Right column — Chart */}
