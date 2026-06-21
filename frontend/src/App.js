@@ -14,6 +14,7 @@ import TournamentPublicPage from './pages/TournamentPublicPage';
 import SharedPlanPage from './pages/SharedPlanPage';
 import OrgTeamPage from './pages/OrgTeamPage';
 import SuperAdminPage from './pages/SuperAdminPage';
+import ThankYouPage from './pages/ThankYouPage';
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -89,6 +90,9 @@ function AppRoutes() {
       {/* Public session view (no auth required) */}
       <Route path="/session/view/:shareId" element={<SessionViewPage />} />
       <Route path="/s/:shareId" element={<SessionViewPage />} />
+
+      {/* Thank-you page after Hotmart purchase (no auth required) */}
+      <Route path="/gracias" element={<ThankYouPage />} />
       
       {/* Public tournament view (no auth required) */}
       <Route path="/tournament/:shareId" element={<TournamentPublicPage />} />
