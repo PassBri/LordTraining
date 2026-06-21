@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../components/ui/button';
 import { LanguageSelector } from '../components/LanguageSelector';
@@ -439,9 +439,24 @@ const TestimonialsCarousel = ({ t }) => {
 };
 
 /* ═══════════════════════════════ PAGE ═══════════════════════════════ */
+const LANDING_TIER_MAP = { starter: 'starter', pro: 'basic', club: 'pro', inst: 'enterprise' };
+
 const LandingPage = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [billingCycle, setBillingCycle] = useState('monthly'); // 'monthly' | 'annual'
+
+  const handlePlanCheckout = (landingKey) => {
+    const tier = LANDING_TIER_MAP[landingKey] || 'starter';
+    const cycle = billingCycle;
+    const token = localStorage.getItem('train_token');
+    if (token) {
+      navigate(`/subscription?plan=${tier}&cycle=${cycle}&autocheckout=1`);
+    } else {
+      sessionStorage.setItem('pending_checkout', JSON.stringify({ tier, cycle }));
+      navigate('/auth');
+    }
+  };
 
   const PRICING = [
     { key: 'starter', price: '9.99', pop: false, fcount: 6 },
@@ -1218,16 +1233,14 @@ const LandingPage = () => {
                 </ul>
 
                 {/* CTA */}
-                <Link to="/auth">
-                  <Button className="w-full rounded-xl h-11 text-[12px] font-bold transition-all duration-200" style={{
-                    background: plan.pop ? plan.color : 'transparent',
-                    border: `1px solid ${plan.pop ? plan.color : `${plan.color}30`}`,
-                    color: plan.pop ? '#070a10' : plan.color,
-                    fontFamily: BC
-                  }} data-testid={`pricing-cta-${plan.key}`}>
-                    {t(`landing.pricing.${plan.key}_cta`)}
-                  </Button>
-                </Link>
+                <Button onClick={() => handlePlanCheckout(plan.key)} className="w-full rounded-xl h-11 text-[12px] font-bold transition-all duration-200" style={{
+                  background: plan.pop ? plan.color : 'transparent',
+                  border: `1px solid ${plan.pop ? plan.color : `${plan.color}30`}`,
+                  color: plan.pop ? '#070a10' : plan.color,
+                  fontFamily: BC
+                }} data-testid={`pricing-cta-${plan.key}`}>
+                  {t(`landing.pricing.${plan.key}_cta`)}
+                </Button>
               </div>
             </div>
             </Reveal>

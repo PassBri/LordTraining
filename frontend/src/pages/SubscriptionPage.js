@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Progress } from '../components/ui/progress';
@@ -162,8 +162,21 @@ const SubscriptionPage = () => {
     finally { setLoading(false); }
   };
 
-  const handleCancel = async () => {
-    if (!window.confirm('¿Seguro que quieres cancelar tu suscripción? Mantendrás acceso hasta el fin del período pagado.')) return;
+  const autoCheckoutRef = useRef(false);
+  useEffect(() => {
+    if (autoCheckoutRef.current) return;
+    const auto = searchParams.get('autocheckout');
+    const plan = searchParams.get('plan');
+    const cyc = searchParams.get('cycle') || 'monthly';
+    if (auto === '1' && plan && hotmartEnabled && hotmartConfig) {
+      autoCheckoutRef.current = true;
+      window.history.replaceState({}, '', '/subscription');
+      handleSubscribe(plan, cyc);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hotmartEnabled, hotmartConfig, searchParams]);
+
+  const handleCancel = async () => {    if (!window.confirm('¿Seguro que quieres cancelar tu suscripción? Mantendrás acceso hasta el fin del período pagado.')) return;
     setCanceling(true);
     try {
       await cancelHotmartSubscription('Cancelado por el usuario desde la app');

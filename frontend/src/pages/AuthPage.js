@@ -357,7 +357,16 @@ const AuthPage = () => {
     try {
       await login(loginEmail, loginPassword);
       toast.success(t('common.welcome') + '!');
-      navigate('/dashboard');
+      const pending = sessionStorage.getItem('pending_checkout');
+      if (pending) {
+        sessionStorage.removeItem('pending_checkout');
+        try {
+          const { tier, cycle } = JSON.parse(pending);
+          navigate(`/subscription?plan=${tier}&cycle=${cycle || 'monthly'}&autocheckout=1`);
+        } catch { navigate('/dashboard'); }
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       toast.error(error.response?.data?.detail || t('auth.login.error'));
     } finally {
