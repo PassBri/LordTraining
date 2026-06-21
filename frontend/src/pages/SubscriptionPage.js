@@ -84,7 +84,7 @@ const PLANS = [
       'Onboarding dedicado'
     ],
     limits: { athletes: 999, plans: 999, ai: 999 },
-    cta: 'Contactar ventas'
+    cta: 'Empezar ahora'
   }
 ];
 
