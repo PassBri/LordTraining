@@ -8454,6 +8454,52 @@ async def startup_create_indices():
         await db.hotmart_subscriptions.create_index("status")
     except Exception as e:
         logger.warning(f"Hotmart index creation: {e}")
+    # Seed/ensure super admin (for production where DB starts empty)
+    try:
+        await seed_super_admin()
+    except Exception as e:
+        logger.warning(f"Super admin seed: {e}")
+
+
+async def seed_super_admin():
+    """Idempotently ensure the super admin account exists and is privileged.
+    Controlled via env vars SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD.
+    Creates the user if missing (mirrors /auth/register) and always guarantees
+    is_super_admin + enterprise tier. Never overwrites an existing password.
+    """
+    email = (os.environ.get("SUPER_ADMIN_EMAIL", "") or "").strip().lower()
+    password = os.environ.get("SUPER_ADMIN_PASSWORD", "") or ""
+    if not email:
+        return
+    existing = await db.users.find_one({"email": email})
+    if existing:
+        await db.users.update_one(
+            {"email": email},
+            {"$set": {"is_super_admin": True, "role": "admin", "subscription": "enterprise"}},
+        )
+        logger.info("Super admin ensured (existing): %s", email)
+        return
+    if not password:
+        logger.warning("SUPER_ADMIN_EMAIL set but SUPER_ADMIN_PASSWORD missing; cannot create %s", email)
+        return
+    user_id = str(uuid.uuid4())
+    user_doc = {
+        "id": user_id,
+        "email": email,
+        "password": hash_password(password),
+        "name": os.environ.get("SUPER_ADMIN_NAME", "Super Admin"),
+        "role": "admin",
+        "is_super_admin": True,
+        "subscription": "enterprise",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "ai_generations_used": 0,
+    }
+    await db.users.insert_one(user_doc)
+    try:
+        await seed_default_sports(user_id)
+    except Exception:
+        pass
+    logger.info("Super admin created: %s", email)
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
