@@ -55,6 +55,10 @@ class UserRole(str, Enum):
     ATHLETE = "athlete"  # Atleta - Solo puede ver su propio plan
     TEAM = "team"  # Equipo - Grupo de atletas con plan compartido
     USER = "user"  # Usuario - Rol básico sin atletas asignados
+    CLUB = "club"  # Club deportivo
+    SCHOOL = "school"  # Escuela deportiva
+    ACADEMY = "academy"  # Academia deportiva
+    ENTITY = "entity"  # Entidad / Organización
 
 class EntityType(str, Enum):
     FEDERATION = "federation"  # Federación - nivel nacional/regional

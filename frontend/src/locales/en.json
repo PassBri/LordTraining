@@ -315,7 +315,11 @@
         "coach": "Coach",
         "athlete": "Athlete",
         "coordinator": "Coordinator",
-        "admin": "Administrator"
+        "admin": "Administrator",
+        "club": "Club",
+        "school": "School",
+        "academy": "Academy",
+        "entity": "Entity"
       },
       "submit": "Create Account",
       "hasAccount": "Already have an account?",

@@ -315,7 +315,11 @@
         "coach": "Entrenador",
         "athlete": "Deportista",
         "coordinator": "Coordinador",
-        "admin": "Administrador"
+        "admin": "Administrador",
+        "club": "Club",
+        "school": "Escuela",
+        "academy": "Academia",
+        "entity": "Entidad"
       },
       "submit": "Crear Cuenta",
       "hasAccount": "¿Ya tienes cuenta?",

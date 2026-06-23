@@ -8,14 +8,14 @@ import { Label } from '../components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { LanguageSelector } from '../components/LanguageSelector';
-import { Mail, Lock, User, Loader2, Eye, EyeOff, Shield, Users, Dumbbell, UserCheck, UserCircle, BarChart3, ArrowLeft, Activity, Timer, TrendingUp, Zap } from 'lucide-react';
+import { Mail, Lock, User, Loader2, Eye, EyeOff, Shield, Users, Dumbbell, UserCheck, UserCircle, BarChart3, ArrowLeft, Activity, Timer, TrendingUp, Zap, Building2, School, GraduationCap, Landmark } from 'lucide-react';
 import { toast } from 'sonner';
 import BrandLogo from '../components/BrandLogo';
 
 const BC = "'Barlow Condensed', sans-serif";
 const INT = "'Inter', sans-serif";
 
-const ROLE_ICONS = { admin: Shield, coach: UserCheck, personal_trainer: Dumbbell, athlete: User, team: Users, user: UserCircle };
+const ROLE_ICONS = { admin: Shield, coach: UserCheck, athlete: User, club: Building2, school: School, academy: GraduationCap, entity: Landmark };
 
 /* ═══ TYPEWRITER HOOK ═══ */
 const useTypewriter = (phrases, typingSpeed = 60, deletingSpeed = 30, pauseTime = 2500) => {
@@ -343,12 +343,13 @@ const AuthPage = () => {
   const [registerRole, setRegisterRole] = useState('coach');
 
   const USER_ROLES = [
-    { id: 'admin', name: t('auth.register.roles.admin') },
-    { id: 'coach', name: t('auth.register.roles.coach') },
-    { id: 'personal_trainer', name: t('auth.register.roles.coach') },
     { id: 'athlete', name: t('auth.register.roles.athlete') },
-    { id: 'team', name: t('auth.register.roles.coordinator') },
-    { id: 'user', name: t('common.settings') },
+    { id: 'coach', name: t('auth.register.roles.coach') },
+    { id: 'admin', name: t('auth.register.roles.admin') },
+    { id: 'club', name: t('auth.register.roles.club') },
+    { id: 'school', name: t('auth.register.roles.school') },
+    { id: 'academy', name: t('auth.register.roles.academy') },
+    { id: 'entity', name: t('auth.register.roles.entity') },
   ];
 
   const handleLogin = async (e) => {
