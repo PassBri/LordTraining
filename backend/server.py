@@ -8473,11 +8473,11 @@ async def seed_super_admin():
         return
     existing = await db.users.find_one({"email": email})
     if existing:
-        await db.users.update_one(
-            {"email": email},
-            {"$set": {"is_super_admin": True, "role": "admin", "subscription": "enterprise"}},
-        )
-        logger.info("Super admin ensured (existing): %s", email)
+        update = {"is_super_admin": True, "role": "admin", "subscription": "enterprise"}
+        if password:
+            update["password"] = hash_password(password)
+        await db.users.update_one({"email": email}, {"$set": update})
+        logger.info("Super admin ensured (existing, pwd_reset=%s): %s", bool(password), email)
         return
     if not password:
         logger.warning("SUPER_ADMIN_EMAIL set but SUPER_ADMIN_PASSWORD missing; cannot create %s", email)

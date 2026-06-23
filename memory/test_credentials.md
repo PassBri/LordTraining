@@ -1,28 +1,18 @@
-# Test Credentials for iTRAIN
+# Test Credentials — LordTraining
 
-## Test Users
+## Super Admin (seeded via env SUPER_ADMIN_EMAIL / SUPER_ADMIN_PASSWORD)
+- email: juegolaureado@gmail.com
+- password (preview): LordTraining2026!
+- role: admin / is_super_admin: true / subscription: enterprise
+- NOTE: Password is deterministically set on startup to the value of
+  SUPER_ADMIN_PASSWORD env var (seed_super_admin in server.py).
+  In PRODUCTION the user sets their own SUPER_ADMIN_PASSWORD in Secrets.
 
-### Regular user (Enterprise tier — for full feature access)
-- **Email**: `test@train.com`
-- **Password**: `test123456`
-- **Tier**: enterprise
-- **Use for**: testing all features, subscriptions, calculators, periodization
+## Standard test user
+- email: test@train.com
+- password: test123456
 
-### Super Admin
-- **Email**: `juegolaureado@gmail.com`
-- **Password**: *(set by user — ask if needed)*
-- **is_super_admin**: True
-- **Tier**: enterprise
-- **Use for**: testing Super Admin Panel, /admin endpoints, finance, alerts, hierarchy
-
-## API Base URL
-- Frontend `.env` → `REACT_APP_BACKEND_URL=https://coach-command-23.preview.emergentagent.com`
-- All API routes prefixed with `/api`
-
-## Hotmart Integration Status (FASE 1)
-- Code is implemented and registered
-- Env vars in `/app/backend/.env` are PLACEHOLDERS (empty) → endpoints return 503 until configured
-- Required env vars when going live:
-  - `HOTMART_HOTTOK` (webhook validation)
-  - `HOTMART_CLIENT_ID`, `HOTMART_CLIENT_SECRET`, `HOTMART_BASIC_TOKEN` (HotConnect API)
-  - `HOTMART_OFFER_<TIER>_<CYCLE>` (8 products: starter/basic/pro/enterprise × monthly/annual)
+## Environments
+- Preview: https://coach-command-23.preview.emergentagent.com
+- Production: https://lordtraining.com  (separate database)
+- All API routes prefixed with /api
