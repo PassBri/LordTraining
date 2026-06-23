@@ -4,7 +4,7 @@ import axios from 'axios';
 import { CheckCircle2, Loader2, ArrowRight, LogIn, Sparkles } from 'lucide-react';
 import { Button } from '../components/ui/button';
 
-const API = process.env.REACT_APP_BACKEND_URL;
+const API = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 const BC = "'Bricolage Grotesque', sans-serif";
 const INT = "'Inter', sans-serif";
 

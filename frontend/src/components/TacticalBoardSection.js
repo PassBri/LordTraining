@@ -5,7 +5,7 @@ import { Input } from './ui/input';
 import { Gamepad2, Copy, Download, Trash2, Loader2, Plus, Lightbulb } from 'lucide-react';
 import { toast } from 'sonner';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 
 const TacticalBoardSection = ({ token }) => {
   const [boards, setBoards] = React.useState([]);

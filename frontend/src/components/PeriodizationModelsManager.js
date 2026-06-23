@@ -14,7 +14,7 @@ import {
 import { toast } from 'sonner';
 import PeriodizationComparator from './PeriodizationComparator';
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const API = `${(process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL))}/api`;
 
 const CATEGORIES = ['Clásico', 'Ondulatorio', 'Avanzado', 'Específico', 'Fuerza', 'Equipo', 'Custom'];
 const CATEGORY_COLORS = {

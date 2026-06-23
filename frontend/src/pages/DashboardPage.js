@@ -391,7 +391,7 @@ const DashboardPage = () => {
   const fetchTournaments = async () => {
     try {
       const token = localStorage.getItem('train_token');
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/tournaments`, {
+      const response = await fetch(`${(process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL))}/api/tournaments`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) { setTournaments(await response.json()); }
@@ -436,7 +436,7 @@ const DashboardPage = () => {
   const STATUS_LABELS = { draft: 'Borrador', registration: 'Inscripciones', in_progress: 'En Curso', completed: 'Finalizado' };
 
   // API Base URL
-  const API_URL = process.env.REACT_APP_BACKEND_URL;
+  const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 
   // ====== TRAINING PLANS FUNCTIONS ======
   // Fetch training plans from API
@@ -2162,7 +2162,7 @@ const DashboardPage = () => {
                 onCreateTournament={async (newTournament) => {
                   try {
                     const token = localStorage.getItem('train_token');
-                    const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/tournaments`, {
+                    const res = await fetch(`${(process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL))}/api/tournaments`, {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                       body: JSON.stringify({
@@ -2191,7 +2191,7 @@ const DashboardPage = () => {
                     const token = localStorage.getItem('train_token');
                     const existing = tournaments.find(t => t.id === id);
                     const merged = { ...existing, ...updatedData };
-                    await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/tournaments/${id}`, {
+                    await fetch(`${(process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL))}/api/tournaments/${id}`, {
                       method: 'PUT',
                       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                       body: JSON.stringify(merged)
@@ -2202,7 +2202,7 @@ const DashboardPage = () => {
                 onDeleteTournament={async (id) => {
                   try {
                     const token = localStorage.getItem('train_token');
-                    const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/tournaments/${id}`, {
+                    const res = await fetch(`${(process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL))}/api/tournaments/${id}`, {
                       method: 'DELETE',
                       headers: { 'Authorization': `Bearer ${token}` }
                     });

@@ -12,7 +12,7 @@ import { Label } from './ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 
-const API = process.env.REACT_APP_BACKEND_URL;
+const API = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 const tokenH = () => {
   const t = localStorage.getItem('train_token') || localStorage.getItem('token');
   return { Authorization: `Bearer ${t}` };

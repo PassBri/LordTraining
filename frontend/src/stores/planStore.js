@@ -6,7 +6,7 @@
  */
 import { create } from 'zustand';
 
-const API = process.env.REACT_APP_BACKEND_URL;
+const API = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 
 const usePlanStore = create((set, get) => ({
   // ============ STATE ============

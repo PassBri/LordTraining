@@ -44,7 +44,7 @@ import usePlanStore from '../stores/planStore';
 import InteractiveChart from './InteractiveChart';
 import MesoMevMavMrvChart from './charts/MesoMevMavMrvChart';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 
 // Cycle duration options
 const CYCLE_DURATIONS = {

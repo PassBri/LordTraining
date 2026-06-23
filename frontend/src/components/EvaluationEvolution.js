@@ -8,7 +8,7 @@ import {
 import { toast } from 'sonner';
 import InteractiveChart from './InteractiveChart';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 
 const TYPE_META = {
   medical:        { title: 'Médico',         color: '#EF4444', icon: Heart },

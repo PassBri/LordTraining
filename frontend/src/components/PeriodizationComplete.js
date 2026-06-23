@@ -23,7 +23,7 @@ import {
 import SessionEditor from './SessionEditor';
 import DashboardGeneral from './DashboardGeneral';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 
 // ============ CONSTANTES ============
 const MACROCYCLE_PHASES = [

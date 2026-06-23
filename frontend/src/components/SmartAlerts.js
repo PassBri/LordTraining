@@ -9,7 +9,7 @@ import {
 import { toast } from 'sonner';
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 
 const ALERT_TYPES = {
   overtraining: {

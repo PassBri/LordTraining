@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import IconPicker, { getIconById, ICON_CATALOG } from './IconPicker';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 
 // ═══ COLOR PALETTE ═══
 const COLOR_PALETTE = [

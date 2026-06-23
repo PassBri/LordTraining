@@ -15,7 +15,7 @@ import TrainingLoad from './TrainingLoad';
 import TrainingControl from './TrainingControl';
 import LoadMetricsDashboard from './LoadMetricsDashboard';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 const BC = "'Barlow Condensed', sans-serif";
 
 const TrainingSystemHub = ({ athleteId, athleteName, onNavigate, activePlan, hideTabBar = false }) => {

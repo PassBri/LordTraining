@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 const DM = "'DM Sans', sans-serif";
 const BC = "'Barlow Condensed', sans-serif";
 

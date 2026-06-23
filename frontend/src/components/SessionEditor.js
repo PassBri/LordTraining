@@ -21,7 +21,7 @@ import {
 import { toast } from 'sonner';
 import { EJERCICIOS_INICIALES } from './ExerciseLibrary';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 
 const BC = "'Barlow Condensed', sans-serif";
 const DM = "'DM Sans', sans-serif";
@@ -672,7 +672,7 @@ const SessionEditor = ({
     try {
       const token = localStorage.getItem('train_token');
       if (!token) return;
-      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/exercise-library`, {
+      const res = await fetch(`${(process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL))}/api/exercise-library`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) return;
