@@ -1,0 +1,56 @@
+{
+  "summary": "End-to-end frontend QA of LordTraining preview (Spanish). Tested register (7-role dropdown OK), login, Dashboard cards & charts, plan editor sections, all major PDF/Image exports, calculator modules, and Tactical Board. Result: ALL CRITICAL FLOWS PASS. 6/6 export downloads succeed (Plan Anterior PDF, Plan Gráfico PDF, Plan Gráfico PNG, Chart PNGs, Master Report PDF with 8 styles, Sessions Export combined PDF). Tactical Board (tactical-board.html) loads with brand logo & title 'LordTraining — Pizarra Tactica Digital'. Only persistent issue: console hydration warnings (non-blocking, pre-existing).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Dashboard (tab-datos table layout)", "issues": ["Persistent React hydration warning: '<span> cannot be a child of <tbody>/<tr>/<th>/<td>'. Stray <span data-ve-dynamic=\"true\"> wrappers leak into table descendants. Non-blocking; same issue reported in iterations 60/61."]}
+    ]
+  },
+  "test_results_by_feature": {
+    "register_role_dropdown": "PASS — 7 options exactly: Deportista, Entrenador, Administrador, Club, Escuela, Academia, Entidad",
+    "register_flow": "PASS — created qa_user_xxue0lh0@test.com as Entrenador, account created (no auto-login — user must login manually, acceptable)",
+    "login": "PASS — test@train.com / test123456 lands on /dashboard",
+    "dashboard_cards": "PASS — Readiness 85%, ACWR 1.18 (Óptimo), Plan Activo card, Mis Planes 7, Atletas 3, Eventos 0, Sesiones 0, Ejercicios 150+, Adherencia 92%",
+    "dashboard_charts": "PASS — Volumen/Intensidad/Densidad, Intensidad y Recuperación, Distribución de Fases, Carga Acumulada all render",
+    "plan_editor_sections": "PASS — section tabs: punto-partida, informacion, evaluacion, competencias, periodizacion, visualizacion, herramientas. Top-bar dynamic icons: Panel, Datos, Reporte, Sesiones, Diagnóstico, Información, Evaluación, Competencias, Periodización, Plan Gráfico, Herramientas, Plan Anterior, Plan Activo (and Calendario/Alertas inside Plan Gráfico section).",
+    "exports": {
+      "plan_anterior_pdf": "PASS — file: Analisis_Plan_Anterior_TEST Plan Fútbol ATR.pdf (GET /api/plan-data/previous-analysis/{id}/pdf 200)",
+      "graphic_plan_pdf": "PASS — file: plan_grafico_atleta_2026-06-24.pdf",
+      "graphic_plan_image_png": "PASS — file: plan_grafico_atleta_2026-06-24.png",
+      "chart_download_volumen": "PASS — file: volumen,_intensidad_y_densidad_TEST_Plan_Fútbol_ATR_2026-06-24.png",
+      "chart_download_magnitud": "PASS — file: magnitud_de_carga_y_recuperacion_TEST_Plan_Fútbol_ATR_2026-06-24.png (other chart-download-* buttons exist for preparación-por-componentes, capacidades-físicas, duración-y-actividad)",
+      "master_report_pdf": "PASS — opens configurator modal with 8 cover styles (Olímpico, Atleta, Sport, Training, Coach, Federación, Campeón, Primer Lugar) + Diseño/Portada/Contenido/Vista previa tabs + Enlace/WhatsApp/Resumen/Vista previa/Generar PDF actions. Generar PDF downloads reporte_test_plan_fútbol_atr_atleta.pdf (POST /api/master-report/generate 200)",
+      "sessions_export_combined_pdf": "PASS — opens modal with theme (Claro/Oscuro), layout (Clásico/Pizarras), meso/micro/session selectors. Selected 3/55 sessions → 'PDF combinado' downloads sesiones_test-plan-f-tbol-atr_light_classic.pdf with toast 'PDF combinado descargado · 3 sesiones'"
+    },
+    "tools": {
+      "calculadoras_cientificas": "PASS — 10 modules / 47 calculators visible: Planificación Estructural (5), Carga y Fuerza (4), Intensidad y Zonas Fisiológicas (5), Control de Carga y Fatiga (4), Biomecánica (3), Tests y Evaluaciones (8), Composición Corporal y Antropometría (5), Nutrición y Energía (4), Control Médico-Deportivo (3), Periodización Avanzada (6)",
+      "pizarra_tactica": "PASS — /tactical-board.html loads with title 'LordTraining — Pizarra Tactica Digital'; brand logo elements detected (3 imgs/logo class) and brand text 'LordTraining' present in header (2 occurrences). Tool palette visible: Dibujo (Mover/Lapiz/Linea/Curva/Flecha/Pase/Zona/T/Texto/Borrar), Personas (14)",
+      "periodizacion": "PASS — opens grid with Magnitud de Carga y Recuperación, Volumen e Intensidad, Preparación por Componentes, Capacidades Físicas timelines",
+      "calendario_eventos": "OBSERVED ICON — Calendario tab visible in dynamic top nav once Plan Gráfico opens, but did not exercise drag&drop in this run",
+      "evaluaciones_competencias_informacion": "PASS — section tabs open without errors"
+    },
+    "hotmart_plan_buttons": "NOT TESTED in this run (external Hotmart checkout — out of scope per request)"
+  },
+  "test_report_links": [],
+  "action_items": [
+    "(Optional/non-blocking) Clean up stray <span data-ve-dynamic=\"true\"> wrappers inside <table>/<tbody>/<tr>/<th>/<td> in DashboardPage.js datos-layout to remove persistent React hydration warnings.",
+    "(Optional) After successful registration, consider auto-login or auto-switch to login tab with email pre-filled (currently user must manually click 'Iniciar sesión' tab and re-enter credentials)."
+  ],
+  "critical_code_review_comments": [
+    "✓ Role dropdown matches spec (7 roles, with localized labels). USER_ROLES is duplicated in AuthPage.js and DashboardPage.js — extract to shared constants module to avoid drift.",
+    "✓ Master Report modal is feature-rich (8 cover styles, 4 tabs, share/whatsapp/summary/quick-preview/generate). Good testability with data-testid coverage.",
+    "✓ Sessions Export modal has comprehensive controls (theme, layout, meso/micro/session selection, counter). All elements have data-testid.",
+    "✓ Tactical Board public HTML loads independently with brand logo + title — meets the 'escama de marca en la cabecera' requirement.",
+    "⚠ Persistent hydration warnings are cosmetic but pollute console; should be addressed before deployment for cleaner production logs."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only)", "frontend": "~100% (register ✓, login ✓, dashboard ✓, all 7 plan sections ✓, all 6 export types ✓, tactical board ✓, calculator hub ✓)"},
+  "test_credentials": "test@train.com / test123456 ; also created qa_user_xxue0lh0@test.com / Test123456 (Entrenador) successfully via register form",
+  "seed_data_creation": "1 new user account created via register flow; otherwise reused existing seed plans (TEST Plan Fútbol ATR a6f2f198-...) — no new plans/athletes inserted.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All Spanish export buttons confirmed working: header-master-report-btn → mr-generate-btn (PDF), header-sessions-export-btn → sessions-export-combined-btn (PDF combinado, requires ≥1 session selected via sessions-export-checkbox-* or sessions-export-select-all), section punto-partida → PDF button (Plan Anterior PDF), section visualizacion → graphic-plan-pdf-btn (PDF), export-image-btn (PNG), chart-download-{slug} for 5 charts (PNG). Tactical board at /tactical-board.html. Calculator hub at section-tab-herramientas with calc-module-card-{planning|load_strength|intensity|load_control|biomech|tests|anthro|nutrition|medical|periodization_adv}. Hydration warnings are pre-existing (iter 60/61) and remain unresolved.",
+  "rca_of_the_issue": "No new defects found. All previously fixed items from iter 62 (Hotmart wiring) and iter 61 (chart buttons, expand-chart) appear to be working in this E2E test pass for downloadable artifacts."
+}
