@@ -10,7 +10,7 @@ import pytest
 import requests
 
 BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "").rstrip("/") or \
-           "https://coach-command-23.preview.emergentagent.com"
+           "https://lord-deploy-test.preview.emergentagent.com"
 
 EMAIL = "test@train.com"
 PASSWORD = "test123456"

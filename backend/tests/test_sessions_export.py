@@ -10,7 +10,7 @@ import zipfile
 import pytest
 import requests
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://coach-command-23.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://lord-deploy-test.preview.emergentagent.com").rstrip("/")
 EMAIL = "test@train.com"
 PASSWORD = "test123456"
 PLAN_ID = "a6f2f198-5eba-4c72-ad09-ecfb7c7376dc"

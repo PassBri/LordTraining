@@ -13,6 +13,6 @@
 - password: test123456
 
 ## Environments
-- Preview: https://coach-command-23.preview.emergentagent.com
+- Preview: https://lord-deploy-test.preview.emergentagent.com
 - Production: https://lordtraining.com  (separate database)
 - All API routes prefixed with /api
