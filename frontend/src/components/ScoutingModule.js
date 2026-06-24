@@ -7,10 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { toast } from 'sonner';
 import { VideoGallery } from './VideoEmbed';
 import ProspectStats from './ProspectStats';
+import ScoutingAlerts from './ScoutingAlerts';
+import ScoutingContacts from './ScoutingContacts';
+import ScoutingMap from './ScoutingMap';
 import {
   Target, Plus, Users, Trello, ClipboardCheck, Trophy, X, Trash2, Edit2, Sparkles,
   FileDown, UserPlus, Camera, Video, Star, ChevronRight, MapPin, Loader2, Award,
-  TrendingUp, AlertTriangle, GitCompare, Phone, Mail, Instagram, Share2, Copy, Globe, Check
+  TrendingUp, AlertTriangle, GitCompare, Phone, Mail, Instagram, Share2, Copy, Globe, Check,
+  BellRing, Contact, Map as MapIcon, Crown, CalendarClock
 } from 'lucide-react';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL && process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com') === -1 ? process.env.REACT_APP_BACKEND_URL : (typeof window !== 'undefined' ? window.location.origin : process.env.REACT_APP_BACKEND_URL));
@@ -44,6 +48,9 @@ const TABS = [
   { key: 'pipeline', label: 'Pipeline', icon: Trello },
   { key: 'evaluation', label: 'Evaluación', icon: ClipboardCheck },
   { key: 'ranking', label: 'Ranking', icon: Trophy },
+  { key: 'alerts', label: 'Alertas', icon: BellRing },
+  { key: 'contacts', label: 'Contactos', icon: Contact },
+  { key: 'map', label: 'Mapa', icon: MapIcon },
 ];
 
 const emptyProspect = () => ({
@@ -51,7 +58,12 @@ const emptyProspect = () => ({
   nationality: '', gender: '', height_cm: '', weight_kg: '', dominant_side: '', email: '', phone: '',
   guardian_contact: '', photo_path: null, bio: '', social_links: {}, video_links: [], achievements: [],
   key_stats: {}, tags: [], stage: 'prospect', outcome: null,
+  market_value: '', market_currency: 'USD', market_value_public: false, sponsorships: [], transfers: [],
+  contract_end: '', origin_city: '', origin_country: '', origin_lat: '', origin_lng: '',
 });
+
+const VIDEO_CATS = [['technical', 'Técnico'], ['physical', 'Físico'], ['match', 'Partido'], ['tactical', 'Táctico'], ['highlights', 'Highlights'], ['interview', 'Entrevista']];
+const VCAT_LABEL = Object.fromEntries(VIDEO_CATS);
 
 const SPORTS = [
   ['football', 'Fútbol'], ['basketball', 'Baloncesto'], ['volleyball', 'Voleibol'],
@@ -91,6 +103,12 @@ export default function ScoutingModule() {
     setProspects(prev => prev.map(x => x.id === id ? p : x));
     if (detail?.id === id) setDetail(p);
     return p;
+  };
+
+  const openById = async (id) => {
+    const local = prospects.find(x => x.id === id);
+    if (local) { setDetail(local); return; }
+    try { setDetail(await api(`/prospects/${id}`)); } catch { toast.error('No se pudo abrir el prospecto'); }
   };
 
   return (
@@ -135,6 +153,9 @@ export default function ScoutingModule() {
           {tab === 'pipeline' && <Pipeline prospects={prospects} onOpen={setDetail} onMoved={refreshOne} setProspects={setProspects} />}
           {tab === 'evaluation' && <EvaluationTab prospects={prospects} onSaved={refreshOne} />}
           {tab === 'ranking' && <RankingTab dash={dash} prospects={prospects} compare={compare} setCompare={setCompare} onOpen={setDetail} />}
+          {tab === 'alerts' && <ScoutingAlerts onOpen={openById} />}
+          {tab === 'contacts' && <ScoutingContacts prospects={prospects} />}
+          {tab === 'map' && <ScoutingMap onOpen={openById} />}
         </>
       )}
 
@@ -501,21 +522,69 @@ function RankingTab({ dash, prospects, compare, setCompare, onOpen }) {
 function Comparison({ items }) {
   const cats = ['technical', 'physical', 'tactical', 'mental'];
   const catLabel = { technical: 'Técnico', physical: 'Físico', tactical: 'Táctico', mental: 'Mental' };
+  // Filas comparables: score, categorías y atributos físicos
+  const rows = [
+    { key: 'overall', label: 'Score General', val: p => p.overall_score, higher: true, badge: true },
+    ...cats.map(c => ({ key: c, label: catLabel[c], val: p => p.evaluation?.category_averages?.[c], higher: true })),
+    { key: 'age', label: 'Edad', val: p => p.age, higher: false, suffix: ' a' },
+    { key: 'height_cm', label: 'Altura', val: p => p.height_cm, higher: true, suffix: ' cm' },
+    { key: 'weight_kg', label: 'Peso', val: p => p.weight_kg, higher: false, suffix: ' kg' },
+  ];
+  // Conteo de victorias por categoría de evaluación (para el ganador)
+  const wins = {};
+  items.forEach(p => { wins[p.id] = 0; });
+  ['overall', ...cats].forEach(key => {
+    const row = rows.find(r => r.key === key);
+    let best = -Infinity, bestId = null, tie = false;
+    items.forEach(p => { const v = row.val(p); if (typeof v === 'number') { if (v > best) { best = v; bestId = p.id; tie = false; } else if (v === best) tie = true; } });
+    if (bestId && !tie) wins[bestId] += 1;
+  });
+  const winnerId = items.reduce((bestId, p) => (wins[p.id] > wins[bestId] ? p.id : bestId), items[0]?.id);
+  const winnerName = items.find(p => p.id === winnerId)?.name;
+
+  const bestForRow = (row) => {
+    const vals = items.map(p => row.val(p)).filter(v => typeof v === 'number');
+    if (!vals.length) return null;
+    return row.higher ? Math.max(...vals) : Math.min(...vals);
+  };
+
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-4 overflow-x-auto">
-      <div className="flex items-center gap-2 mb-3"><GitCompare className="w-4 h-4 text-slate-500" /><span className="font-black text-slate-800">Comparativa lado a lado</span></div>
+    <div className="bg-white rounded-xl border border-slate-200 p-4 overflow-x-auto" data-testid="comparison-panel">
+      <div className="flex items-center gap-2 mb-1"><GitCompare className="w-4 h-4 text-slate-500" /><span className="font-black text-slate-800">Comparativa lado a lado</span></div>
+      {winnerName && Math.max(...Object.values(wins)) > 0 && (
+        <div className="flex items-center gap-1.5 mb-3 text-[12px] font-bold text-amber-600" data-testid="comparison-winner">
+          <Crown className="w-4 h-4" />Líder de la comparativa: <span className="text-slate-900">{winnerName}</span>
+          <span className="text-slate-400 font-medium">({wins[winnerId]} categorías ganadas)</span>
+        </div>
+      )}
       <table className="w-full text-sm">
         <thead><tr><th className="text-left text-[11px] text-slate-400 uppercase font-bold pb-2">Criterio</th>
-          {items.map(p => <th key={p.id} className="px-3 pb-2 text-center text-slate-800 font-bold">{p.name.split(' ')[0]}</th>)}</tr></thead>
+          {items.map(p => (
+            <th key={p.id} className="px-3 pb-2 text-center text-slate-800 font-bold">
+              <span className="inline-flex items-center gap-1">{p.id === winnerId && Math.max(...Object.values(wins)) > 0 && <Crown className="w-3.5 h-3.5 text-amber-500" />}{p.name.split(' ')[0]}</span>
+            </th>
+          ))}</tr></thead>
         <tbody>
-          <tr className="border-t border-slate-100"><td className="py-2 font-bold text-slate-700">Score General</td>
-            {items.map(p => <td key={p.id} className="text-center"><span className="inline-block w-9 h-9 leading-9 rounded-lg text-white font-black" style={{ background: scoreColor(p.overall_score) }}>{p.overall_score ?? '—'}</span></td>)}</tr>
-          {cats.map(c => (
-            <tr key={c} className="border-t border-slate-100">
-              <td className="py-2 text-slate-600">{catLabel[c]}</td>
-              {items.map(p => { const v = p.evaluation?.category_averages?.[c]; return <td key={p.id} className="text-center font-black" style={{ color: scoreColor(v) }}>{v ?? '—'}</td>; })}
-            </tr>
-          ))}
+          {rows.map(row => {
+            const best = bestForRow(row);
+            return (
+              <tr key={row.key} className="border-t border-slate-100">
+                <td className="py-2 font-medium text-slate-600">{row.label}</td>
+                {items.map(p => {
+                  const v = row.val(p);
+                  const isBest = typeof v === 'number' && v === best && items.filter(x => row.val(x) === best).length === 1;
+                  if (row.badge) {
+                    return <td key={p.id} className="text-center"><span className="inline-block w-9 h-9 leading-9 rounded-lg text-white font-black" style={{ background: scoreColor(v), outline: isBest ? '2px solid #f59e0b' : 'none', outlineOffset: '2px' }}>{v ?? '—'}</span></td>;
+                  }
+                  return (
+                    <td key={p.id} className="text-center font-black" style={{ color: row.key in catLabel || ['technical','physical','tactical','mental'].includes(row.key) ? scoreColor(v) : '#0f172a' }}>
+                      <span className={isBest ? 'px-1.5 py-0.5 rounded bg-amber-100 text-amber-700' : ''}>{v != null ? `${v}${row.suffix || ''}` : '—'}</span>
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -552,7 +621,7 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
   const pdf = async () => {
     setPdfLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/recruiting/prospects/${p.id}/profile-pdf`, { headers: { Authorization: `Bearer ${token()}` } });
+      const res = await fetch(`${API_URL}/api/recruiting/prospects/${p.id}/profile-pdf?origin=${encodeURIComponent(window.location.origin)}`, { headers: { Authorization: `Bearer ${token()}` } });
       if (!res.ok) throw new Error(await res.text());
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
@@ -657,13 +726,17 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
         {/* Videos / achievements / contact */}
         <div className="px-5 pb-4 grid md:grid-cols-2 gap-5">
           <div>
-            {p.video_links?.length > 0 && <><SectionTitle>Video Highlights</SectionTitle>
+            {p.video_links?.length > 0 && <><SectionTitle>Galería de Videos</SectionTitle>
               {(() => {
-                const playing = p.video_links.filter(v => (v.type || 'match') === 'match');
-                const training = p.video_links.filter(v => v.type === 'training');
+                const byCat = {};
+                p.video_links.forEach(v => { const c = v.category || v.type || 'highlights'; (byCat[c] = byCat[c] || []).push(v); });
                 return (<div className="space-y-3">
-                  {playing.length > 0 && <div><div className="text-[10px] font-bold text-emerald-600 uppercase mb-1">Jugando</div><VideoGallery videos={playing} /></div>}
-                  {training.length > 0 && <div><div className="text-[10px] font-bold text-sky-600 uppercase mb-1">Entrenando</div><VideoGallery videos={training} /></div>}
+                  {Object.entries(byCat).map(([c, vids]) => (
+                    <div key={c}>
+                      <div className="text-[10px] font-bold text-slate-500 uppercase mb-1 flex items-center gap-1.5">{VCAT_LABEL[c] || c}<span className="text-slate-300">· {vids.length}</span></div>
+                      <VideoGallery videos={vids} />
+                    </div>
+                  ))}
                 </div>);
               })()}</>}
             {p.achievements?.length > 0 && <><SectionTitle className="mt-3">Logros</SectionTitle><ul className="list-disc pl-5 text-[12px] text-slate-600">{p.achievements.map((a, i) => <li key={i}>{a}</li>)}</ul></>}
@@ -804,9 +877,15 @@ function ProspectForm({ initial, onClose, onSaved }) {
   // Videos
   const videos = f.video_links || [];
   const setVideos = (v) => set('video_links', v);
-  const addVideo = () => setVideos([...videos, { title: '', url: '', type: 'match' }]);
+  const addVideo = () => setVideos([...videos, { title: '', url: '', category: 'highlights', recorded_at: '', notes: '', is_public: true }]);
   const updVideo = (i, k, val) => setVideos(videos.map((v, idx) => idx === i ? { ...v, [k]: val } : v));
   const rmVideo = (i) => setVideos(videos.filter((_, idx) => idx !== i));
+  // Patrocinios
+  const sponsors = Array.isArray(f.sponsorships) ? f.sponsorships : [];
+  const setSponsors = (s) => set('sponsorships', s);
+  const addSponsor = () => setSponsors([...sponsors, { name: '', amount: '', is_public: true }]);
+  const updSponsor = (i, k, val) => setSponsors(sponsors.map((s, idx) => idx === i ? { ...s, [k]: val } : s));
+  const rmSponsor = (i) => setSponsors(sponsors.filter((_, idx) => idx !== i));
   // Transferencias
   const transfers = f.transfers || [];
   const setTransfers = (t) => set('transfers', t);
@@ -834,6 +913,9 @@ function ProspectForm({ initial, onClose, onSaved }) {
       height_cm: f.height_cm ? parseInt(f.height_cm) : null,
       weight_kg: f.weight_kg ? parseInt(f.weight_kg) : null,
       market_value: f.market_value !== '' && f.market_value != null ? parseFloat(f.market_value) : null,
+      contract_end: f.contract_end || null,
+      origin_lat: f.origin_lat !== '' && f.origin_lat != null ? parseFloat(f.origin_lat) : null,
+      origin_lng: f.origin_lng !== '' && f.origin_lng != null ? parseFloat(f.origin_lng) : null,
       sponsorships: typeof f.sponsorships === 'string'
         ? f.sponsorships.split('\n').filter(Boolean).map(l => { const [name, amount] = l.split('|').map(x => x.trim()); return amount ? { name, amount } : { name }; })
         : (f.sponsorships || []),
@@ -903,6 +985,9 @@ function ProspectForm({ initial, onClose, onSaved }) {
             </Field>
             <Field label="Email"><Input value={f.email} onChange={e => set('email', e.target.value)} className="bg-white" /></Field>
             <Field label="Teléfono"><Input value={f.phone} onChange={e => set('phone', e.target.value)} className="bg-white" /></Field>
+            <Field label="Ciudad de origen"><Input value={f.origin_city} onChange={e => set('origin_city', e.target.value)} className="bg-white" placeholder="Ej. Medellín" data-testid="form-origin-city" /></Field>
+            <Field label="País de origen"><Input value={f.origin_country} onChange={e => set('origin_country', e.target.value)} className="bg-white" placeholder="Ej. Colombia (se ubica en el mapa)" data-testid="form-origin-country" /></Field>
+            <Field label="Fin de contrato (alertas)"><Input type="date" value={f.contract_end || ''} onChange={e => set('contract_end', e.target.value)} className="bg-white" data-testid="form-contract-end" /></Field>
           </div>
           {/* Videos múltiples (entrenando / jugando) */}
           <div>
@@ -912,17 +997,22 @@ function ProspectForm({ initial, onClose, onSaved }) {
             </div>
             <div className="space-y-2">
               {videos.map((v, i) => (
-                <div key={i} className="flex gap-1.5 items-center" data-testid={`form-video-${i}`}>
+                <div key={i} className="flex flex-wrap gap-1.5 items-center bg-slate-50 rounded-lg p-2" data-testid={`form-video-${i}`}>
                   <Input value={v.title || ''} onChange={e => updVideo(i, 'title', e.target.value)} placeholder="Título" className="bg-white w-32" />
-                  <Input value={v.url || ''} onChange={e => updVideo(i, 'url', e.target.value)} placeholder="https://youtube.com/..." className="bg-white flex-1" data-testid={`form-video-url-${i}`} />
-                  <Select value={v.type || 'match'} onValueChange={val => updVideo(i, 'type', val)}>
-                    <SelectTrigger className="bg-white w-32 shrink-0" data-testid={`form-video-type-${i}`}><SelectValue /></SelectTrigger>
-                    <SelectContent><SelectItem value="match">Jugando</SelectItem><SelectItem value="training">Entrenando</SelectItem></SelectContent>
+                  <Input value={v.url || ''} onChange={e => updVideo(i, 'url', e.target.value)} placeholder="https://youtube.com/..." className="bg-white flex-1 min-w-[160px]" data-testid={`form-video-url-${i}`} />
+                  <Select value={v.category || 'highlights'} onValueChange={val => updVideo(i, 'category', val)}>
+                    <SelectTrigger className="bg-white w-32 shrink-0" data-testid={`form-video-cat-${i}`}><SelectValue /></SelectTrigger>
+                    <SelectContent>{VIDEO_CATS.map(([val, l]) => <SelectItem key={val} value={val}>{l}</SelectItem>)}</SelectContent>
                   </Select>
+                  <Input type="date" value={v.recorded_at || ''} onChange={e => updVideo(i, 'recorded_at', e.target.value)} className="bg-white w-36 shrink-0" />
+                  <label className="flex items-center gap-1 text-[11px] font-bold text-slate-500 cursor-pointer" title="Visible en perfil público/PDF">
+                    <input type="checkbox" checked={v.is_public !== false} onChange={e => updVideo(i, 'is_public', e.target.checked)} className="accent-slate-900" data-testid={`form-video-public-${i}`} />Público
+                  </label>
                   <button type="button" onClick={() => rmVideo(i)} className="text-slate-300 hover:text-red-500"><X className="w-4 h-4" /></button>
+                  <Input value={v.notes || ''} onChange={e => updVideo(i, 'notes', e.target.value)} placeholder="Notas (opcional)" className="bg-white w-full" />
                 </div>
               ))}
-              {!videos.length && <p className="text-[11px] text-slate-400">Agrega videos del prospecto jugando y entrenando.</p>}
+              {!videos.length && <p className="text-[11px] text-slate-400">Agrega videos del prospecto (técnico, físico, partido, táctico, highlights, entrevista).</p>}
             </div>
           </div>
 
@@ -936,10 +1026,30 @@ function ProspectForm({ initial, onClose, onSaved }) {
                 </Select>
                 <Input type="number" value={f.market_value ?? ''} onChange={e => set('market_value', e.target.value)} className="bg-white" placeholder="0" data-testid="form-market-value" />
               </div>
+              <label className="flex items-center gap-1 text-[11px] font-bold text-slate-500 cursor-pointer mt-1">
+                <input type="checkbox" checked={!!f.market_value_public} onChange={e => set('market_value_public', e.target.checked)} className="accent-slate-900" data-testid="form-market-public" />Mostrar en perfil público
+              </label>
             </Field>
-            <Field label="Patrocinios (Nombre | monto, uno por línea)">
-              <Textarea rows={2} value={sponsorshipsStr} onChange={e => set('sponsorships', e.target.value)} className="bg-white" placeholder="Nike | 5000" data-testid="form-sponsorships" />
-            </Field>
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Patrocinios</label>
+                <button type="button" onClick={addSponsor} className="text-[11px] font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1" data-testid="form-add-sponsor"><Plus className="w-3.5 h-3.5" />Agregar</button>
+              </div>
+              <div className="space-y-1.5">
+                {sponsors.map((s, i) => (
+                  <div key={i} className="flex gap-1.5 items-center" data-testid={`form-sponsor-${i}`}>
+                    <Input value={s.name || ''} onChange={e => updSponsor(i, 'name', e.target.value)} placeholder="Marca" className="bg-white flex-1" />
+                    <Input value={s.amount || ''} onChange={e => updSponsor(i, 'amount', e.target.value)} placeholder="Monto" className="bg-white w-24" />
+                    <Input type="date" value={s.expires_at || ''} onChange={e => updSponsor(i, 'expires_at', e.target.value)} className="bg-white w-36 shrink-0" title="Vencimiento (alertas)" data-testid={`form-sponsor-expires-${i}`} />
+                    <label className="flex items-center gap-1 text-[10px] font-bold text-slate-500 cursor-pointer">
+                      <input type="checkbox" checked={s.is_public !== false} onChange={e => updSponsor(i, 'is_public', e.target.checked)} className="accent-slate-900" data-testid={`form-sponsor-public-${i}`} />Púb.
+                    </label>
+                    <button type="button" onClick={() => rmSponsor(i)} className="text-slate-300 hover:text-red-500"><X className="w-4 h-4" /></button>
+                  </div>
+                ))}
+                {!sponsors.length && <p className="text-[11px] text-slate-400">Sin patrocinios.</p>}
+              </div>
+            </div>
           </div>
 
           {/* Transferencias / trayectoria */}
@@ -959,6 +1069,9 @@ function ProspectForm({ initial, onClose, onSaved }) {
                     <SelectContent>{['escuela', 'club', 'equipo', 'institución', 'federación', 'universidad'].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
                   </Select>
                   <Input type="date" value={t.date || ''} onChange={e => updTransfer(i, 'date', e.target.value)} className="bg-white w-36 shrink-0" />
+                  <label className="flex items-center gap-1 text-[10px] font-bold text-slate-500 cursor-pointer">
+                    <input type="checkbox" checked={t.is_public !== false} onChange={e => updTransfer(i, 'is_public', e.target.checked)} className="accent-slate-900" data-testid={`form-transfer-public-${i}`} />Púb.
+                  </label>
                   <button type="button" onClick={() => rmTransfer(i)} className="text-slate-300 hover:text-red-500"><X className="w-4 h-4" /></button>
                 </div>
               ))}

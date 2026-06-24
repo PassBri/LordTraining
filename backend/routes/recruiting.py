@@ -32,6 +32,8 @@ _athletes = _db["athletes"]
 _criteria_custom = _db["recruiting_criteria_custom"]
 _stats = _db["prospect_stats"]
 _sport_templates = _db["sport_templates"]
+_contacts = _db["recruiting_contacts"]
+_settings = _db["recruiting_settings"]
 
 
 def get_current_user_dep():
@@ -214,7 +216,11 @@ CLUB_STANDARD = 70  # referencia configurable del club (overall objetivo)
 class VideoLink(BaseModel):
     title: Optional[str] = "Highlight"
     url: str
-    type: Optional[str] = "match"   # match (jugando) | training (entrenando)
+    category: Optional[str] = "highlights"   # technical|physical|match|tactical|highlights|interview
+    type: Optional[str] = "match"            # compat
+    recorded_at: Optional[str] = None
+    notes: Optional[str] = None
+    is_public: Optional[bool] = True
 
 
 class Observation(BaseModel):
@@ -255,9 +261,17 @@ class ProspectIn(BaseModel):
     # Valor comercial y patrocinios
     market_value: Optional[float] = None
     market_currency: Optional[str] = "USD"
-    sponsorships: List[Dict[str, Any]] = Field(default_factory=list)   # [{name, amount?, currency?}]
+    market_value_public: Optional[bool] = False
+    sponsorships: List[Dict[str, Any]] = Field(default_factory=list)   # [{name, amount?, currency?, is_public?}]
     # Trayectoria / transferencias (escuela → club/equipo/institución/federación/universidad)
-    transfers: List[Dict[str, Any]] = Field(default_factory=list)      # [{from_entity, to_entity, type, date, fee?, notes?}]
+    transfers: List[Dict[str, Any]] = Field(default_factory=list)      # [{from_entity, to_entity, type, date, fee?, notes?, is_public?}]
+    # Contrato (para alertas de vencimiento)
+    contract_end: Optional[str] = None
+    # Origen geográfico (mapa de procedencia)
+    origin_city: Optional[str] = None
+    origin_country: Optional[str] = None
+    origin_lat: Optional[float] = None
+    origin_lng: Optional[float] = None
     # Pipeline
     stage: str = "prospect"        # prospect | contacted | trial | decision
     outcome: Optional[str] = None  # None | recruited | declined
@@ -663,14 +677,14 @@ def _public_view(p: dict) -> dict:
             "projected_ceiling": ai.get("projected_ceiling"),
         } if ai else None,
         "achievements": p.get("achievements") or [],
-        "video_links": p.get("video_links") or [],
+        "video_links": [v for v in (p.get("video_links") or []) if v.get("is_public", True)],
         "key_stats": p.get("key_stats") or {},
         "bio": p.get("bio"),
         "tags": p.get("tags") or [],
-        "market_value": p.get("market_value"),
+        "market_value": p.get("market_value") if p.get("market_value_public") else None,
         "market_currency": p.get("market_currency") or "USD",
-        "sponsorships": p.get("sponsorships") or [],
-        "transfers": p.get("transfers") or [],
+        "sponsorships": [s for s in (p.get("sponsorships") or []) if s.get("is_public", True)],
+        "transfers": [t for t in (p.get("transfers") or []) if t.get("is_public", True)],
         "contact": {"email": p.get("email"), "phone": p.get("phone")},
     }
 
@@ -724,10 +738,12 @@ async def public_photo(share_id: str):
 
 
 @router.get("/public/{share_id}/pdf")
-async def public_pdf(share_id: str):
+async def public_pdf(share_id: str, origin: str = Query(None)):
     p = await _get_shared(share_id)
     photo_uri = await _photo_data_uri(p.get("photo_path"))
-    html = _build_profile_html(p, photo_uri)
+    season_html = await _season_html_for(p["id"], p["coach_id"], p.get("sport"))
+    public_url = f"{origin.rstrip('/')}/scouting/p/{share_id}" if origin else None
+    html = _build_profile_html(p, photo_uri, public_url=public_url, season_html=season_html, public_only=True)
     try:
         pdf = await _render_pdf(html)
     except Exception as e:
@@ -948,6 +964,215 @@ async def dashboard(user=Depends(get_current_user_dep())):
     }
 
 
+# ───────────────────────── CONFIGURACIÓN DE ALERTAS ─────────────────────────
+DEFAULT_SETTINGS = {"eval_days": 14, "expiry_days": 30}
+
+
+async def _get_settings(uid):
+    s = await _settings.find_one({"coach_id": uid}, {"_id": 0})
+    return {**DEFAULT_SETTINGS, **(s or {})}
+
+
+class SettingsIn(BaseModel):
+    eval_days: int = Field(default=14, ge=1, le=365)
+    expiry_days: int = Field(default=30, ge=1, le=365)
+
+
+@router.get("/settings")
+async def get_settings(user=Depends(get_current_user_dep())):
+    return await _get_settings(_uid(user))
+
+
+@router.put("/settings")
+async def update_settings(payload: SettingsIn, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    doc = {"coach_id": uid, "eval_days": payload.eval_days, "expiry_days": payload.expiry_days,
+           "updated_at": datetime.now(timezone.utc).isoformat()}
+    await _settings.update_one({"coach_id": uid}, {"$set": doc}, upsert=True)
+    return await _get_settings(uid)
+
+
+# ───────────────────────── ALERTAS Y SEGUIMIENTO ─────────────────────────
+def _parse_date(s):
+    if not s:
+        return None
+    try:
+        return datetime.fromisoformat(str(s).replace("Z", "+00:00")).replace(tzinfo=None)
+    except Exception:
+        try:
+            return datetime.strptime(str(s)[:10], "%Y-%m-%d")
+        except Exception:
+            return None
+
+
+@router.get("/alerts")
+async def get_alerts(user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    cfg = await _get_settings(uid)
+    eval_days, expiry_days = cfg["eval_days"], cfg["expiry_days"]
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    items = await _prospects.find({"coach_id": uid}, {"_id": 0}).to_list(3000)
+    alerts = []
+    for p in items:
+        if p.get("outcome") in ("recruited", "declined"):
+            continue
+        pid, name = p["id"], p.get("name")
+        ev = p.get("evaluation") or {}
+        last_eval = _parse_date(ev.get("date"))
+        created = _parse_date(p.get("created_at"))
+        # Sin evaluación
+        if not last_eval:
+            ref = created or now
+            days = (now - ref).days
+            if days >= eval_days:
+                alerts.append({"type": "no_evaluation", "severity": "warning", "prospect_id": pid,
+                               "name": name, "days": days, "stage": p.get("stage"),
+                               "message": f"Sin evaluar desde su registro ({days} días)"})
+        else:
+            days = (now - last_eval).days
+            if days >= eval_days:
+                alerts.append({"type": "stale_evaluation", "severity": "info", "prospect_id": pid,
+                               "name": name, "days": days, "stage": p.get("stage"),
+                               "message": f"Última evaluación hace {days} días"})
+        # Contrato por vencer
+        ce = _parse_date(p.get("contract_end"))
+        if ce:
+            d = (ce - now).days
+            if d < 0:
+                alerts.append({"type": "contract_expired", "severity": "danger", "prospect_id": pid,
+                               "name": name, "days": d, "date": p.get("contract_end"),
+                               "message": f"Contrato vencido hace {abs(d)} días"})
+            elif d <= expiry_days:
+                alerts.append({"type": "contract_expiring", "severity": "warning", "prospect_id": pid,
+                               "name": name, "days": d, "date": p.get("contract_end"),
+                               "message": f"Contrato vence en {d} días"})
+        # Patrocinios por vencer
+        for s in (p.get("sponsorships") or []):
+            se = _parse_date(s.get("expires_at"))
+            if se:
+                d = (se - now).days
+                sname = s.get("name") or "Patrocinio"
+                if d < 0:
+                    alerts.append({"type": "sponsor_expired", "severity": "danger", "prospect_id": pid,
+                                   "name": name, "days": d, "sponsor": sname, "date": s.get("expires_at"),
+                                   "message": f"Patrocinio «{sname}» vencido hace {abs(d)} días"})
+                elif d <= expiry_days:
+                    alerts.append({"type": "sponsor_expiring", "severity": "warning", "prospect_id": pid,
+                                   "name": name, "days": d, "sponsor": sname, "date": s.get("expires_at"),
+                                   "message": f"Patrocinio «{sname}» vence en {d} días"})
+    sev_order = {"danger": 0, "warning": 1, "info": 2}
+    alerts.sort(key=lambda a: (sev_order.get(a["severity"], 3), a.get("days", 9999)))
+    counts = {"danger": 0, "warning": 0, "info": 0}
+    for a in alerts:
+        counts[a["severity"]] = counts.get(a["severity"], 0) + 1
+    return {"alerts": alerts, "counts": counts, "total": len(alerts), "settings": cfg}
+
+
+# ───────────────────────── RED DE CONTACTOS ─────────────────────────
+class ContactIn(BaseModel):
+    name: str = Field(..., min_length=1, max_length=200)
+    role: str = "agent"   # agent | representative | parent | institution | scout | club | other
+    organization: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    location: Optional[str] = None
+    notes: Optional[str] = None
+    linked_prospect_ids: List[str] = Field(default_factory=list)
+
+
+@router.get("/contacts")
+async def list_contacts(role: Optional[str] = None, prospect_id: Optional[str] = None,
+                        user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    q = {"coach_id": uid}
+    if role:
+        q["role"] = role
+    if prospect_id:
+        q["linked_prospect_ids"] = prospect_id
+    items = await _contacts.find(q, {"_id": 0}).sort("created_at", -1).to_list(2000)
+    return items
+
+
+@router.post("/contacts")
+async def create_contact(payload: ContactIn, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    now = datetime.now(timezone.utc).isoformat()
+    doc = {"id": uuid.uuid4().hex, "coach_id": uid, **payload.model_dump(),
+           "created_at": now, "updated_at": now}
+    await _contacts.insert_one(dict(doc))
+    doc.pop("_id", None)
+    return doc
+
+
+@router.put("/contacts/{cid}")
+async def update_contact(cid: str, payload: ContactIn, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    data = {**payload.model_dump(), "updated_at": datetime.now(timezone.utc).isoformat()}
+    res = await _contacts.update_one({"id": cid, "coach_id": uid}, {"$set": data})
+    if res.matched_count == 0:
+        raise HTTPException(404, "Contacto no encontrado")
+    c = await _contacts.find_one({"id": cid}, {"_id": 0})
+    return c
+
+
+@router.delete("/contacts/{cid}")
+async def delete_contact(cid: str, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    res = await _contacts.delete_one({"id": cid, "coach_id": uid})
+    if res.deleted_count == 0:
+        raise HTTPException(404, "Contacto no encontrado")
+    return {"ok": True}
+
+
+# ───────────────────────── MAPA DE ORIGEN ─────────────────────────
+COUNTRY_CENTROIDS = {
+    "argentina": [-38.4, -63.6], "bolivia": [-16.3, -63.6], "brasil": [-14.2, -51.9], "brazil": [-14.2, -51.9],
+    "chile": [-35.7, -71.5], "colombia": [4.6, -74.3], "costa rica": [9.7, -83.8], "cuba": [21.5, -77.8],
+    "ecuador": [-1.8, -78.2], "el salvador": [13.8, -88.9], "españa": [40.5, -3.7], "spain": [40.5, -3.7],
+    "estados unidos": [37.1, -95.7], "usa": [37.1, -95.7], "united states": [37.1, -95.7],
+    "guatemala": [15.8, -90.2], "honduras": [15.2, -86.2], "méxico": [23.6, -102.5], "mexico": [23.6, -102.5],
+    "nicaragua": [12.9, -85.2], "panamá": [8.5, -80.8], "panama": [8.5, -80.8], "paraguay": [-23.4, -58.4],
+    "perú": [-9.2, -75.0], "peru": [-9.2, -75.0], "puerto rico": [18.2, -66.6],
+    "república dominicana": [18.7, -70.2], "dominican republic": [18.7, -70.2],
+    "uruguay": [-32.5, -55.8], "venezuela": [6.4, -66.6], "portugal": [39.4, -8.2],
+    "francia": [46.2, 2.2], "france": [46.2, 2.2], "italia": [41.9, 12.6], "italy": [41.9, 12.6],
+    "alemania": [51.2, 10.4], "germany": [51.2, 10.4], "inglaterra": [52.4, -1.5], "england": [52.4, -1.5],
+    "reino unido": [55.4, -3.4], "uk": [55.4, -3.4], "nigeria": [9.1, 8.7], "senegal": [14.5, -14.5],
+    "ghana": [7.9, -1.0], "marruecos": [31.8, -7.1], "morocco": [31.8, -7.1], "japón": [36.2, 138.3],
+    "japan": [36.2, 138.3], "china": [35.9, 104.2], "australia": [-25.3, 133.8], "canadá": [56.1, -106.3],
+    "canada": [56.1, -106.3],
+}
+
+
+def _coords_for(p):
+    if p.get("origin_lat") is not None and p.get("origin_lng") is not None:
+        return [p["origin_lat"], p["origin_lng"]]
+    key = (p.get("origin_country") or p.get("nationality") or "").strip().lower()
+    return COUNTRY_CENTROIDS.get(key)
+
+
+@router.get("/map")
+async def map_origins(user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    items = await _prospects.find({"coach_id": uid}, {"_id": 0}).to_list(3000)
+    points = []
+    unlocated = 0
+    for p in items:
+        c = _coords_for(p)
+        if not c:
+            unlocated += 1
+            continue
+        points.append({
+            "id": p["id"], "name": p.get("name"), "lat": c[0], "lng": c[1],
+            "city": p.get("origin_city"), "country": p.get("origin_country") or p.get("nationality"),
+            "sport_name": p.get("sport_name") or p.get("sport"), "position": p.get("position"),
+            "overall_score": p.get("overall_score"), "stage": p.get("stage"),
+            "verdict": (p.get("ai_recommendation") or {}).get("verdict"),
+            "exact": p.get("origin_lat") is not None,
+        })
+    return {"points": points, "unlocated": unlocated, "total": len(items)}
+
+
 # ───────────────────────── FOTOS ─────────────────────────
 @router.post("/upload-photo")
 async def upload_photo(file: UploadFile = File(...), user=Depends(get_current_user_dep())):
@@ -1016,7 +1241,36 @@ async def _photo_data_uri(photo_path: Optional[str]) -> Optional[str]:
         return None
 
 
-def _build_profile_html(p: dict, photo_uri: Optional[str]) -> str:
+async def _season_html_for(prospect_id, coach_id, sport):
+    records = await _stats.find({"prospect_id": prospect_id, "coach_id": coach_id}, {"_id": 0}).to_list(1000)
+    if not records:
+        return ""
+    template = await _stat_template(coach_id, sport)
+    agg = _aggregate_stats(records, template)
+    if not agg["count"]:
+        return ""
+    labels = {m["key"]: m["label"] for c in template["categories"] for m in c["metrics"]}
+    items = list(agg["averages"].items())[:8]
+    cells = "".join(f"<div style='background:#0b1220;border:1px solid #1e293b;border-radius:8px;padding:6px;text-align:center;'><div style='font-size:8px;color:#94a3b8;text-transform:uppercase;'>{_esc(labels.get(k, k))}</div><div style='font-size:15px;font-weight:800;color:#CCFF00;'>{v}</div></div>" for k, v in items)
+    return f"<div style='font-size:9px;color:#64748b;margin-bottom:6px;'>{agg['count']} partidos/competencias · promedios</div><div style='display:grid;grid-template-columns:repeat(4,1fr);gap:8px;'>{cells}</div>"
+
+
+def _qr_data_uri(url: str):
+    if not url:
+        return None
+    try:
+        import qrcode
+        import io
+        img = qrcode.make(url)
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+        return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
+    except Exception:
+        return None
+
+
+def _build_profile_html(p: dict, photo_uri: Optional[str], public_url: Optional[str] = None,
+                        season_html: str = "", public_only: bool = False) -> str:
     ev = p.get("evaluation") or {}
     ai = p.get("ai_recommendation") or {}
     cat_avgs = ev.get("category_averages") or {}
@@ -1040,7 +1294,40 @@ def _build_profile_html(p: dict, photo_uri: Optional[str]) -> str:
         for k, v in (p.get("key_stats") or {}).items()
     )
     achievements = "".join(f"<li style='margin-bottom:4px;'>{_esc(a)}</li>" for a in (p.get("achievements") or []))
-    videos = "".join(f"<div style='font-size:11px;color:#0ea5e9;margin-bottom:3px;'>▶ {_esc(v.get('title') or 'Highlight')}: {_esc(v.get('url'))}</div>" for v in (p.get("video_links") or []))
+
+    # Videos públicos
+    pub_videos = [v for v in (p.get("video_links") or []) if v.get("is_public", True)]
+    VCAT = {"technical": "Técnico", "physical": "Físico", "match": "Partido", "tactical": "Táctico", "highlights": "Highlights", "interview": "Entrevista"}
+    videos = "".join(f"<div style='font-size:11px;color:#0ea5e9;margin-bottom:3px;'>▶ [{_esc(VCAT.get(v.get('category') or v.get('type'), 'Video'))}] {_esc(v.get('title') or 'Video')}: {_esc(v.get('url'))}</div>" for v in pub_videos)
+
+    # Transferencias (timeline)
+    transfers = [t for t in (p.get("transfers") or []) if (not public_only or t.get("is_public", True))]
+    transfers_html = ""
+    for t in transfers:
+        transfers_html += f"""<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;font-size:11px;color:#cbd5e1;">
+          <span style="width:8px;height:8px;border-radius:99px;background:#CCFF00;"></span>
+          <span style="font-weight:700;color:#fff;">{_esc(t.get('from_entity') or '—')}</span>
+          <span style="color:#64748b;">→</span>
+          <span style="font-weight:700;color:#fff;">{_esc(t.get('to_entity') or '—')}</span>
+          <span style="font-size:9px;text-transform:uppercase;background:#1e293b;border-radius:4px;padding:1px 5px;color:#94a3b8;">{_esc(t.get('type') or '')}</span>
+          <span style="margin-left:auto;color:#64748b;font-size:10px;">{_esc(t.get('date') or '')}</span></div>"""
+
+    # Valor comercial
+    show_value = (not public_only) or p.get("market_value_public")
+    market_html = ""
+    if show_value and p.get("market_value") is not None:
+        try:
+            mv = f"{float(p.get('market_value')):,.0f}"
+        except Exception:
+            mv = str(p.get("market_value"))
+        market_html = f"<div style='font-size:22px;font-weight:900;color:#CCFF00;'>{_esc(p.get('market_currency') or 'USD')} {mv}</div><div style='font-size:10px;color:#64748b;'>Valor de mercado</div>"
+
+    # Patrocinios
+    sponsors = [s for s in (p.get("sponsorships") or []) if (not public_only or s.get("is_public", True))]
+    sponsors_html = "".join(f"<span style='display:inline-block;background:#1e293b;border-radius:99px;padding:3px 10px;font-size:10px;color:#e2e8f0;margin:2px;'>{_esc(s.get('name'))}{(' · ' + _esc(str(s.get('amount')))) if s.get('amount') else ''}</span>" for s in sponsors)
+
+    qr_uri = _qr_data_uri(public_url) if public_url else None
+    qr_html = (f"<div style='text-align:center;'><img src='{qr_uri}' style='width:90px;height:90px;background:#fff;border-radius:8px;padding:4px;'/><div style='font-size:8px;color:#64748b;margin-top:3px;'>Perfil interactivo</div></div>" if qr_uri else "")
 
     overall = p.get("overall_score")
     verdict = ai.get("verdict") or "—"
@@ -1048,7 +1335,9 @@ def _build_profile_html(p: dict, photo_uri: Optional[str]) -> str:
 
     photo_html = (f"<img src='{photo_uri}' style='width:130px;height:160px;object-fit:cover;border-radius:12px;border:3px solid #CCFF00;'/>"
                   if photo_uri else
-                  "<div style='width:130px;height:160px;border-radius:12px;background:#1e293b;display:flex;align-items:center;justify-content:center;color:#475569;font-size:40px;'>👤</div>")
+                  "<div style='width:130px;height:160px;border-radius:12px;background:#1e293b;display:flex;align-items:center;justify-content:center;color:#475569;font-size:40px;'>★</div>")
+
+    sec_title = "font-size:12px;font-weight:800;color:#CCFF00;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;"
 
     return f"""<!doctype html><html><head><meta charset="utf-8">
 <style>*{{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif;}}</style></head>
@@ -1078,27 +1367,39 @@ def _build_profile_html(p: dict, photo_uri: Optional[str]) -> str:
     </div>
   </div>
 
-  <div style="display:flex;gap:20px;padding:24px 32px;">
+  <div style="display:flex;gap:20px;padding:24px 32px 14px;">
     <div style="flex:1;">
-      <div style="font-size:12px;font-weight:800;color:#CCFF00;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Evaluación por área</div>
+      <div style="{sec_title}">Evaluación por área</div>
       {bars or '<div style="color:#64748b;font-size:11px;">Sin evaluación registrada.</div>'}
       <div style="font-size:11px;color:#64748b;margin-top:8px;">Estándar del club: <b style="color:#e2e8f0;">{CLUB_STANDARD}</b></div>
-      {('<div style="margin-top:18px;font-size:12px;font-weight:800;color:#CCFF00;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Stats clave</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">' + stats + '</div>') if stats else ''}
+      {('<div style="margin-top:16px;' + sec_title + '">Stats clave</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">' + stats + '</div>') if stats else ''}
     </div>
     <div style="flex:1;">
-      <div style="font-size:12px;font-weight:800;color:#CCFF00;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Informe IA</div>
+      <div style="{sec_title}">Informe IA</div>
       <div style="font-size:12px;color:#cbd5e1;line-height:1.55;margin-bottom:12px;">{_esc(ai.get('summary') or p.get('bio') or 'Sin informe generado.')}</div>
       {('<div style="font-size:10px;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Fortalezas</div><ul style="font-size:11px;color:#86efac;padding-left:16px;margin-bottom:10px;">' + ''.join('<li>' + _esc(s) + '</li>' for s in ai.get('strengths', [])) + '</ul>') if ai.get('strengths') else ''}
-      {('<div style="font-size:10px;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">A mejorar</div><ul style="font-size:11px;color:#fca5a5;padding-left:16px;">' + ''.join('<li>' + _esc(w) + '</li>' for w in ai.get('weaknesses', [])) + '</ul>') if ai.get('weaknesses') else ''}
     </div>
   </div>
 
-  <div style="padding:0 32px 24px;">
-    {('<div style="font-size:12px;font-weight:800;color:#CCFF00;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Logros</div><ul style="font-size:12px;color:#cbd5e1;padding-left:18px;">' + achievements + '</ul>') if achievements else ''}
-    {('<div style="margin-top:14px;font-size:12px;font-weight:800;color:#CCFF00;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Video Highlights</div>' + videos) if videos else ''}
+  {('<div style="padding:0 32px 14px;"><div style="' + sec_title + '">Estadísticas de temporada</div>' + season_html + '</div>') if season_html else ''}
+
+  {('<div style="padding:0 32px 14px;"><div style="' + sec_title + '">Trayectoria / Transferencias</div>' + transfers_html + '</div>') if transfers_html else ''}
+
+  <div style="display:flex;gap:20px;padding:0 32px 14px;">
+    {('<div style="flex:1;"><div style="' + sec_title + '">Valor & Patrocinios</div>' + market_html + ('<div style="margin-top:6px;">' + sponsors_html + '</div>' if sponsors_html else '') + '</div>') if (market_html or sponsors_html) else '<div style="flex:1;"></div>'}
+    {('<div><div style="' + sec_title + '">Logros</div><ul style="font-size:11px;color:#cbd5e1;padding-left:16px;">' + achievements + '</ul></div>') if achievements else ''}
   </div>
 
-  <div style="background:#0b1220;padding:16px 32px;border-top:1px solid #1e293b;display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;">
+  {('<div style="padding:0 32px 14px;"><div style="' + sec_title + '">Videos públicos</div>' + videos + '</div>') if videos else ''}
+
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;padding:14px 32px 6px;border-top:1px solid #1e293b;margin-top:6px;">
+    <div style="text-align:center;">
+      <div style="width:180px;border-top:1px solid #475569;padding-top:4px;font-size:10px;color:#94a3b8;">Firma del entrenador / club</div>
+    </div>
+    {qr_html}
+  </div>
+
+  <div style="background:#0b1220;padding:14px 32px;display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;">
     <span>📧 {_esc(p.get('email') or '—')} &nbsp; 📞 {_esc(p.get('phone') or '—')}</span>
     <span style="color:#CCFF00;font-weight:700;">Identifica el talento. Construye el futuro.</span>
   </div>
@@ -1121,7 +1422,7 @@ async def _render_pdf(html: str) -> bytes:
 
 
 @router.get("/prospects/{pid}/profile-pdf")
-async def profile_pdf(pid: str, auth: str = Query(None), authorization: str = Header(None), user=None):
+async def profile_pdf(pid: str, auth: str = Query(None), origin: str = Query(None), authorization: str = Header(None), user=None):
     # Acepta auth por query (?auth=) o header
     token = None
     if authorization and authorization.startswith("Bearer "):
@@ -1138,7 +1439,11 @@ async def profile_pdf(pid: str, auth: str = Query(None), authorization: str = He
     if not p:
         raise HTTPException(404, "Prospecto no encontrado")
     photo_uri = await _photo_data_uri(p.get("photo_path"))
-    html = _build_profile_html(p, photo_uri)
+    season_html = await _season_html_for(pid, uid, p.get("sport"))
+    public_url = None
+    if origin and p.get("share_enabled") and p.get("share_id"):
+        public_url = f"{origin.rstrip('/')}/scouting/p/{p['share_id']}"
+    html = _build_profile_html(p, photo_uri, public_url=public_url, season_html=season_html, public_only=False)
     try:
         pdf = await _render_pdf(html)
     except Exception as e:

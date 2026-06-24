@@ -1,0 +1,53 @@
+{
+  "summary": "E2E testing of Recruiting Phase 2 (Scouting): Alerts, Settings, Contacts CRUD, Origin Map, enhanced Comparator, and new prospect fields (origin_city/country/lat/lng, contract_end, sponsorship expires_at). Backend: 9/9 pytest cases PASS (test_recruiting_phase2.py). Frontend: 7 tabs render correctly; settings save+persist; contact create/list/delete works; leaflet map renders with country centroid for Colombia (8 leaflet panes, 15 tiles loaded); prospect form exposes all new fields (form-origin-city/country, form-contract-end, form-sponsor-expires-0).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Scouting Mapa tab", "issues": ["Leaflet canvas background renders very dark (#0b1220) before tiles fully paint, which can look like a broken/empty map on first paint. Tiles do load (verified 15 .leaflet-tile elements). Consider showing a subtle loading shimmer or a lighter base color during tile fetch."]}
+    ]
+  },
+  "test_results_by_feature": {
+    "backend_settings": "PASS — GET returns defaults {eval_days:14, expiry_days:30}; PUT persists custom {21,45} and a re-GET confirms persistence in recruiting_settings.",
+    "backend_alerts_shape": "PASS — GET /alerts returns {alerts, counts:{danger,warning,info}, total, settings}.",
+    "backend_alerts_logic": "PASS — Prospect created with stage=trial, contract_end +5d and sponsorship expires_at +10d produces both contract_expiring and sponsor_expiring alerts.",
+    "backend_alerts_outcome_filter": "PASS — Prospects with outcome=declined are excluded from alerts (also recruited per code).",
+    "backend_prospect_new_fields": "PASS — POST persists origin_city, origin_country, origin_lat, origin_lng, contract_end, sponsorships[].expires_at; GET round-trip confirms; PUT updates the same fields.",
+    "backend_contacts_crud": "PASS — POST creates contact (role=agent, linked_prospect_ids), GET lists, role filter + prospect_id filter work, PUT updates role/notes, DELETE removes (200), second DELETE returns 404.",
+    "backend_map": "PASS — GET /map returns {points, unlocated, total}; Colombia prospect mapped at ~(4.6,-74.3) with exact:false; prospect without origin counted in 'unlocated'.",
+    "frontend_tabs_render": "PASS — All 7 tabs visible: scouting-tab-prospects/pipeline/evaluation/ranking/alerts/contacts/map.",
+    "frontend_alerts_tab": "PASS — scouting-alerts panel + alerts-eval-days, alerts-expiry-days, alerts-save-settings visible. Edit→Save→Restore cycle works (toast/spinner observed). Backend GET confirms persistence.",
+    "frontend_contacts_tab": "PASS — scouting-contacts + contacts-new-btn open contact-form; contact-name + contact-save-btn creates contact (visible in list); contact-delete-{id} with browser confirm removes it.",
+    "frontend_map_tab": "PASS — scouting-map + scouting-map-canvas render; leaflet initialized (8 panes / 15 tiles). Sidebar shows 'Origen de prospectos · 1 ubicados / 2 total · 1 sin país' with Colombia entry listing the Colombia-origin prospect.",
+    "frontend_prospect_form_new_fields": "PASS — prospect-form contains form-origin-city, form-origin-country, form-contract-end; form-add-sponsor adds row with form-sponsor-expires-0 date input.",
+    "frontend_comparator_winner": "NOT VERIFIED VISUALLY — only 1 prospect has an overall_score in the current seed (compare-check count = 1), same data limitation as iteration_65. Code review confirms comparison-panel + comparison-winner are wired (ScoutingModule.js line 552/555) and render when ≥2 checkboxes are toggled."
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_recruiting_phase2.py",
+    "/app/test_reports/pytest/recruiting_phase2_results.xml"
+  ],
+  "action_items": [
+    "(Optional / data) Seed a second prospect with overall_score so the comparator (comparison-panel + comparison-winner crown) can be visually exercised in future E2E runs.",
+    "(Optional / cosmetic) Lighten Leaflet canvas background or add a 'cargando mapa…' shimmer to avoid the initial dark/empty look on the Mapa tab."
+  ],
+  "critical_code_review_comments": [
+    "✓ /alerts logic correctly skips outcome in {recruited, declined} and respects per-coach eval_days/expiry_days from recruiting_settings.",
+    "✓ /contacts CRUD is scoped per coach_id with ObjectId excluded; role + prospect_id filters use Mongo native indexes.",
+    "✓ /map falls back to nationality when origin_country missing and exposes exact:true when origin_lat/lng are provided — clean UX signal.",
+    "⚠ recruiting.py is now 1454 lines (was 788 in iter 65). Strongly recommend splitting into submodules: alerts.py, contacts.py, map.py, photos.py, pdf.py, ai.py. Exceeds the 700-line guideline by ~2x.",
+    "⚠ ProspectIn model now spans many fields (origin_*, contract_end, sponsorships, transfers, market_value, videos…). Consider grouping origin into a nested Pydantic model (Origin{city,country,lat,lng}) to keep the API contract clean.",
+    "⚠ Sponsorships are stored as a free-form list[dict]; consider a typed SponsorshipItem (name, expires_at, is_public) to validate expires_at as date and prevent malformed entries.",
+    "⚠ Alert dedupe: a single prospect with both contract_end + multiple sponsorships expiring on the same day produces multiple warning rows — UI groups them OK, but consider an option to aggregate per prospect in /alerts for high-volume coaches."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_recruiting_phase2.py (new)"
+  ],
+  "success_rate": {"backend": "100% (9/9 pytest phase2 + 21/21 regression from iter 65)", "frontend": "100% (13/13 listed E2E checks; comparator winner crown not visually exercised due to single-scored-prospect seed)"},
+  "test_credentials": "juegolaureado@gmail.com / LordTraining2026! (super admin)",
+  "seed_data_creation": "Backend tests create TEST_Phase2_* prospects and TEST_Phase2_Agent contact; all cleaned up by module-scope fixture (verified). Frontend test created TEST_E2E_Contact_Phase2 which was deleted in the same script.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Scouting module is reached via dashboard data-testid='tab-scouting' (NOT URL /scouting which is reserved for /scouting/p/:shareId public profiles). Phase 2 testids: scouting-tab-alerts/contacts/map, scouting-alerts, alerts-eval-days/expiry-days/save-settings, alert-row-{i}, scouting-contacts, contacts-new-btn, contacts-filter-{role}, contact-form, contact-name, contact-role, contact-save-btn, contact-card-{id}, contact-edit-{id}, contact-delete-{id}, contact-link-{prospect_id}, scouting-map, scouting-map-canvas, map-unlocated. Prospect form new fields: form-origin-city, form-origin-country, form-contract-end, form-sponsor-expires-{i}. Comparator: comparison-panel + comparison-winner (needs ≥2 scored prospects).",
+  "rca_of_the_issue": "N/A — all Phase 2 endpoints and UI flows work end-to-end. Only non-blocking items: (a) comparator winner crown couldn't be visually verified due to insufficient scored prospects in seed, (b) Mapa initial dark canvas is a cosmetic concern, (c) recruiting.py file size now exceeds guideline and should be split for maintainability."
+}
