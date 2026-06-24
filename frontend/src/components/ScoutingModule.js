@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from './ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { toast } from 'sonner';
 import {
@@ -475,6 +475,10 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-3xl p-0 overflow-hidden max-h-[92vh] overflow-y-auto bg-white" data-testid="prospect-detail">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Perfil del prospecto {p.name}</DialogTitle>
+          <DialogDescription>Ficha de scouting con evaluación, informe IA, observaciones y acciones.</DialogDescription>
+        </DialogHeader>
         {/* Hero */}
         <div className="relative p-6 text-white" style={{ background: 'linear-gradient(120deg,#0f172a,#13203a 60%,#0b1220)' }}>
           <div className="flex gap-5 items-center">
@@ -570,7 +574,9 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
         {convertOpen && (
           <Dialog open onOpenChange={() => setConvertOpen(false)}>
             <DialogContent className="max-w-sm bg-white">
-              <DialogHeader><DialogTitle>Reclutar → Convertir en Atleta</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle>Reclutar → Convertir en Atleta</DialogTitle>
+                <DialogDescription>Se creará un atleta en Gestión de Equipos con los datos del prospecto.</DialogDescription>
+              </DialogHeader>
               <p className="text-[13px] text-slate-500">Se creará un atleta en Gestión de Equipos con los datos del prospecto.</p>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase">Equipo (opcional)</label>
@@ -638,7 +644,9 @@ function ProspectForm({ initial, onClose, onSaved }) {
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-2xl bg-white max-h-[92vh] overflow-y-auto" data-testid="prospect-form">
-        <DialogHeader><DialogTitle>{isEdit ? 'Editar Prospecto' : 'Nuevo Prospecto'}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>{isEdit ? 'Editar Prospecto' : 'Nuevo Prospecto'}</DialogTitle>
+          <DialogDescription>Completa los datos del prospecto. Solo el nombre es obligatorio.</DialogDescription>
+        </DialogHeader>
         <div className="space-y-4 py-2">
           {/* Photo */}
           <div className="flex items-center gap-4">
