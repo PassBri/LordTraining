@@ -48,6 +48,19 @@
 
 ## Pendientes / Notas
 
+## 2026-06-24 — Gestión de Usuarios en Panel Super Admin 👤
+- **Backend** (`routes/admin_hierarchy.py`, solo `is_super_admin`): CRUD completo de usuarios + contraseñas. Hash con **bcrypt** (consistente con la app). Endpoints: `GET/POST /api/admin/users`, `PUT /api/admin/users/{id}`, `POST /api/admin/users/{id}/reset-password`, `PATCH /api/admin/users/{id}/status`, `DELETE /api/admin/users/{id}`.
+  - Crear: nombre, email (único, lowercase), contraseña, rol, plan, flag super admin.
+  - Editar: nombre/rol/plan/super admin. Reset password. Activar/desactivar (`active` flag). Eliminar.
+  - **Login** (`server.py`) ahora rechaza cuentas `active:false` con 403.
+  - **Guardas anti-bloqueo**: no puedes eliminar, desactivar ni quitarte tus propios privilegios de Super Admin.
+- **Frontend**: nueva pestaña **"Gestión de Usuarios"** en `SuperAdminPage.js` → componente `AdminUserManagement.js` (tabla con badges rol/plan, búsqueda + filtros rol/plan, diálogos crear/editar y restablecer contraseña, toggle activar/desactivar, eliminar). Servicios en `services/api.js`. Botones destructivos ocultos en la fila propia.
+- Suprimido warning benigno de ResizeObserver en `index.js` (dev only).
+- **Testing**: backend validado por curl (6 ops + guardas); frontend testing_agent iteration_68 → **9/9 flujos PASS (100%)**.
+- **PENDIENTE USUARIO**: hacer **Deploy** para llevarlo a lordtraining.com.
+
+
+
 ## 2026-06-24 — FIX CRÍTICO: PDF de Scouting en PRODUCCIÓN + temas + mapa 🛠️
 - **Causa raíz del PDF que fallaba SOLO en producción (500)**: la ficha usaba **Playwright (Chromium headless)** para renderizar HTML→PDF. En el contenedor de producción el navegista headless no está disponible/operativo (en preview sí), por eso devolvía 500. Los PDFs basados en **ReportLab** del proyecto (ej. PDF de sesión "classic") sí funcionan en prod.
 - **Solución**: Reescrita la ficha de scouting con **ReportLab** (`_build_scout_pdf` en `routes/recruiting.py`), sin navegador → funciona en producción. Soporta **tema oscuro y claro** (verificado: fondo oscuro #0f172a vs blanco #ffffff, texto legible, sin solapamientos, header con foto/score/verdict, QR, banda inferior con tagline). Eliminadas funciones obsoletas `_build_profile_html`, `_render_pdf`, `_photo_data_uri`, `_season_html_for`, `_qr_data_uri`, `_PDF_THEMES`. Nuevas: `_photo_bytes`, `_season_summary_for`, `_qr_reader`, `_build_scout_pdf`.
