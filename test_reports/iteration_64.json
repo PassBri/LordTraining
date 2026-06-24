@@ -1,0 +1,39 @@
+{
+  "summary": "Verified the new Periodization 'Estructura' edit modals (Macrociclo/Mesociclo/Microciclo) on preview as admin juegolaureado@gmail.com. ALL acceptance criteria PASS: (1) modals open with WHITE background (computed bg rgb(255,255,255), text rgb(15,23,42)/slate-900) and are fully legible; (2) each modal exposes the new Volumen %, Intensidad % and Progreso % inputs alongside Nombre/Fase|Tipo/Semanas (data-testids: macro|meso|micro-{volume,intensity,progress}-input); (3) saving works without errors, modals close, toast 'Macrociclo/Mesociclo/Microciclo actualizado' appears and rollup re-render keeps the 4 macrocycles intact (Acumulación Vol updated 72% → 75%); (4) microcycle volume manually set to 88 persists after save (viLocked) – reopening the modal shows volume=88, confirming the lock is respected; (5) zero JS pageerrors and zero non-hydration console errors during the entire flow.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Dashboard datos-layout (pre-existing, not part of this change)", "issues": ["Console still emits the pre-existing React hydration warnings: '<span> cannot be a child of <tbody>/<tr>' from stray <span data-ve-dynamic=\"true\"> wrappers in DashboardPage. Non-blocking, already documented in iterations 60/61/63."]}
+    ]
+  },
+  "test_results_by_feature": {
+    "navigation_to_structure": "PASS – Login → click 'MIS PLANES' card (plans-stat-card) → select sidebar-plan-25b9abc7-… (Plan Deporte General - ATR (Issurin), 47 sem, 4 macros / 12 mesos / 47 sems) → section-tab-periodizacion → click 'Estructura' sub-tab (icon-tab next to Dashboard/Calendario/Grafico). Macrocycle cards rendered with data-testid macrocycle-0..3.",
+    "macrocycle_edit_modal": "PASS – Edit (pencil) button = first <button> inside macrocycle-0 card. Modal opens; computed bg rgb(255,255,255), color rgb(15,23,42); macro-volume-input/macro-intensity-input/macro-progress-input all visible; setting Volumen=75 and clicking Guardar closes modal and toast 'Macrociclo actualizado' shows. Acumulación card Vol bar updates 72% → 75% confirming state propagation and re-render.",
+    "mesocycle_edit_modal": "PASS – Expanding macrocycle-0 reveals mesocycle-0-0..0-4. Edit on mesocycle-0-0 opens white modal with meso-volume-input/meso-intensity-input/meso-progress-input. Saving Volumen=65 closes modal with toast 'Mesociclo actualizado'.",
+    "microcycle_edit_modal": "PASS – Expanding mesocycle-0-0 reveals microcycle-0-0-0..0-0-3. Edit on microcycle-0-0-0 opens white modal with micro-volume-input/micro-intensity-input/micro-progress-input. Saving Volumen=88 closes modal with toast 'Microciclo actualizado'.",
+    "microcycle_value_persistence_viLocked": "PASS – Reopening microcycle-0-0-0 edit modal after save returns micro-volume-input.value = '88'. Manual value is NOT overwritten by rollup (viLocked flag is being set on save as per handleSaveMicrocycle).",
+    "structure_render_after_save": "PASS – After all 3 saves, structure tab still shows 4 macrocycles (Acumulación/Transformación/Realización/Recuperación) with updated bars; no broken charts or empty states; final macro count = 4.",
+    "console_and_page_errors": "PASS – 0 page errors, 0 non-hydration console errors during open/save of all 3 modal levels. Only pre-existing hydration warnings unrelated to this change."
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "✓ Modals use className 'max-w-lg bg-white text-slate-900 border border-slate-200' on DialogContent (lines 2856, 2898, 2942) – styling is consistent and uses Tailwind tokens.",
+    "✓ data-testid coverage is complete and matches the spec (macro|meso|micro-volume|intensity|progress-input).",
+    "✓ viLocked flag is correctly set ONLY when isNew is false (handleSaveMacrocycle/Mesocycle/Microcycle lines 526, 583, 637) – so newly-created items still participate in rollup until manually edited. Sensible design.",
+    "✓ computeRollups (line 776) cleanly walks children → parent averaging volume/intensity/progress and skips locked nodes. Math.round/avg() pattern is consistent across 3 levels.",
+    "⚠ Minor: file is now 3281 lines — should be split (handlers vs modals vs render) per file-size guideline (>700 lines). Not blocking.",
+    "⚠ Minor: mesocycle modal stores Volumen on field name 'volume_percent', microcycle uses 'volume' (line 2959), macrocycle uses 'volume_percent' too. Inconsistent field naming between micro and meso/macro could cause subtle bugs in serializers/exports if not handled. Worth normalizing in a follow-up.",
+    "⚠ Pre-existing hydration warnings in Dashboard datos-layout still pollute console (iter 60/61/63). Outside scope of this change."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only)", "frontend": "100% (3/3 modal levels white-bg + 3 new fields + save OK + viLocked persistence verified)"},
+  "test_credentials": "juegolaureado@gmail.com / LordTraining2026!  (admin/enterprise, 3 plans, opened plan 25b9abc7-b264-4809-a998-b688f660a6ca = 'Plan Deporte General - ATR (Issurin)', 47 semanas)",
+  "seed_data_creation": "None – used existing seeded admin plan. Persisted edits: macrocycle-0 Vol=75, mesocycle-0-0 Vol=65, microcycle-0-0-0 Vol=88. Main agent may want to revert if seed integrity matters.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Navigation path that worked: Login → click data-testid='plans-stat-card' (MIS PLANES) → click data-testid='sidebar-plan-{planId}' → click data-testid='section-tab-periodizacion' → click text 'Estructura' (icon sub-tab). Edit buttons inside macrocycle-/mesocycle-/microcycle- cards are the FIRST <button> child of the card (Edit2 lucide icon); the second is delete (Trash2). Modal data-testids confirmed: macro-{volume|intensity|progress}-input, meso-{...}-input, micro-{...}-input. Save handlers set viLocked=true on existing items (not new) so rollup respects manual edits.",
+  "rca_of_the_issue": "N/A – feature works as designed. The new modal styling (bg-white text-slate-900), the 3 new percentage inputs, the rollup averaging in computeRollups, and the viLocked persistence are all functioning correctly end-to-end on preview."
+}

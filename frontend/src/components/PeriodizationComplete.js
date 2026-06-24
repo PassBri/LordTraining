@@ -523,6 +523,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
   const handleSaveMacrocycle = () => {
     const { data, indices } = editModal;
+    if (!indices.isNew) data.viLocked = true;
     const updatedPlan = { ...selectedPlan };
     
     if (indices.isNew) {
@@ -579,6 +580,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
   const handleSaveMesocycle = () => {
     const { data, indices } = editModal;
+    if (!indices.isNew) data.viLocked = true;
     const updatedPlan = { ...selectedPlan };
     
     if (indices.isNew) {
@@ -632,6 +634,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
   const handleSaveMicrocycle = () => {
     const { data, indices } = editModal;
+    if (!indices.isNew) data.viLocked = true;
     const updatedPlan = { ...selectedPlan };
     
     if (indices.isNew) {
@@ -767,7 +770,49 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     }));
   };
 
+  // Consolida (de abajo hacia arriba) volumen/intensidad/progreso:
+  // sesiones -> microciclo -> mesociclo -> macrociclo. Usa promedio (los valores
+  // son porcentajes) y guarda también la suma total en *_total para referencia.
+  const computeRollups = (plan) => {
+    const avg = (arr) => arr.length ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : null;
+    const sum = (arr) => arr.reduce((a, b) => a + (Number(b) || 0), 0);
+    (plan.macrocycles || []).forEach(macro => {
+      const mesoVols = [], mesoInts = [], mesoProgs = [];
+      (macro.mesocycles || []).forEach(meso => {
+        const microVols = [], microInts = [], microProgs = [];
+        (meso.microcycles || []).forEach(micro => {
+          const sess = micro.sessions || [];
+          const sVols = sess.map(s => Number(s.volume)).filter(n => !isNaN(n));
+          const sInts = sess.map(s => Number(s.intensity)).filter(n => !isNaN(n));
+          const sProgs = sess.map(s => Number(s.progress)).filter(n => !isNaN(n));
+          if (sVols.length && !micro.viLocked) micro.volume = avg(sVols);
+          if (sInts.length && !micro.viLocked) micro.intensity = avg(sInts);
+          if (sProgs.length && !micro.viLocked) micro.progress = avg(sProgs);
+          micro.volume_total = sum(sVols);
+          micro.intensity_total = sum(sInts);
+          if (micro.volume != null) microVols.push(Number(micro.volume));
+          if (micro.intensity != null) microInts.push(Number(micro.intensity));
+          if (micro.progress != null) microProgs.push(Number(micro.progress));
+        });
+        if (microVols.length && !meso.viLocked) meso.volume_percent = avg(microVols);
+        if (microInts.length && !meso.viLocked) meso.intensity_percent = avg(microInts);
+        if (microProgs.length && !meso.viLocked) meso.progress = avg(microProgs);
+        meso.volume_total = sum(microVols);
+        meso.intensity_total = sum(microInts);
+        if (meso.volume_percent != null) mesoVols.push(Number(meso.volume_percent));
+        if (meso.intensity_percent != null) mesoInts.push(Number(meso.intensity_percent));
+        if (meso.progress != null) mesoProgs.push(Number(meso.progress));
+      });
+      if (mesoVols.length && !macro.viLocked) macro.volume_percent = avg(mesoVols);
+      if (mesoInts.length && !macro.viLocked) macro.intensity_percent = avg(mesoInts);
+      if (mesoProgs.length && !macro.viLocked) macro.progress = avg(mesoProgs);
+      macro.volume_total = sum(mesoVols);
+      macro.intensity_total = sum(mesoInts);
+    });
+  };
+
   const rebuildPlanData = (plan) => {
+    computeRollups(plan);
     // Rebuild chart data from macrocycles
     const chartData = [];
     let weekNum = 1;
@@ -2808,23 +2853,37 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     <>
       {/* Macrocycle Modal */}
       <Dialog open={editModal.type === 'macrocycle'} onOpenChange={() => setEditModal({ type: null, data: null, indices: null })}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle>{editModal.indices?.isNew ? 'Nuevo Macrociclo' : 'Editar Macrociclo'}</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-lg bg-white text-slate-900 border border-slate-200">
+          <DialogHeader><DialogTitle className="text-slate-900">{editModal.indices?.isNew ? 'Nuevo Macrociclo' : 'Editar Macrociclo'}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <label className="text-sm font-medium">Nombre</label>
-              <Input value={editModal.data?.name || ''} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, name: e.target.value } })} className="mt-1" />
+              <label className="text-sm font-medium text-slate-700">Nombre</label>
+              <Input value={editModal.data?.name || ''} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, name: e.target.value } })} className="mt-1 bg-white text-slate-900" />
             </div>
             <div>
-              <label className="text-sm font-medium">Fase</label>
+              <label className="text-sm font-medium text-slate-700">Fase</label>
               <Select value={editModal.data?.phase?.id || ''} onValueChange={(v) => setEditModal({ ...editModal, data: { ...editModal.data, phase: MACROCYCLE_PHASES.find(p => p.id === v) } })}>
-                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="mt-1 bg-white text-slate-900"><SelectValue /></SelectTrigger>
                 <SelectContent>{MACROCYCLE_PHASES.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div>
-              <label className="text-sm font-medium">Semanas</label>
-              <Input type="number" value={editModal.data?.weeks || 4} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, weeks: parseInt(e.target.value) } })} className="mt-1" />
+              <label className="text-sm font-medium text-slate-700">Semanas</label>
+              <Input type="number" value={editModal.data?.weeks || 4} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, weeks: parseInt(e.target.value) } })} className="mt-1 bg-white text-slate-900" />
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="text-sm font-medium text-slate-700">Volumen %</label>
+                <Input type="number" min="0" max="100" value={editModal.data?.volume_percent ?? editModal.data?.phase?.volumePercent ?? 80} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, volume_percent: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="macro-volume-input" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-slate-700">Intensidad %</label>
+                <Input type="number" min="0" max="100" value={editModal.data?.intensity_percent ?? editModal.data?.phase?.intensityPercent ?? 60} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, intensity_percent: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="macro-intensity-input" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-slate-700">Progreso %</label>
+                <Input type="number" min="0" max="100" value={editModal.data?.progress ?? 0} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, progress: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="macro-progress-input" />
+              </div>
             </div>
           </div>
           <DialogFooter>
@@ -2836,26 +2895,40 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
       {/* Mesocycle Modal */}
       <Dialog open={editModal.type === 'mesocycle'} onOpenChange={() => setEditModal({ type: null, data: null, indices: null })}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle>{editModal.indices?.isNew ? 'Nuevo Mesociclo' : 'Editar Mesociclo'}</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-lg bg-white text-slate-900 border border-slate-200">
+          <DialogHeader><DialogTitle className="text-slate-900">{editModal.indices?.isNew ? 'Nuevo Mesociclo' : 'Editar Mesociclo'}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <label className="text-sm font-medium">Nombre</label>
-              <Input value={editModal.data?.name || ''} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, name: e.target.value } })} className="mt-1" />
+              <label className="text-sm font-medium text-slate-700">Nombre</label>
+              <Input value={editModal.data?.name || ''} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, name: e.target.value } })} className="mt-1 bg-white text-slate-900" />
             </div>
             <div>
-              <label className="text-sm font-medium">Tipo</label>
+              <label className="text-sm font-medium text-slate-700">Tipo</label>
               <Select value={editModal.data?.type?.id || ''} onValueChange={(v) => setEditModal({ ...editModal, data: { ...editModal.data, type: MESOCYCLE_TYPES.find(t => t.id === v) } })}>
-                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="mt-1 bg-white text-slate-900"><SelectValue /></SelectTrigger>
                 <SelectContent>{MESOCYCLE_TYPES.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             {editModal.indices?.isNew && (
               <div>
-                <label className="text-sm font-medium">Semanas</label>
-                <Input type="number" value={editModal.data?.weeks || 4} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, weeks: parseInt(e.target.value) } })} className="mt-1" />
+                <label className="text-sm font-medium text-slate-700">Semanas</label>
+                <Input type="number" value={editModal.data?.weeks || 4} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, weeks: parseInt(e.target.value) } })} className="mt-1 bg-white text-slate-900" />
               </div>
             )}
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="text-sm font-medium text-slate-700">Volumen %</label>
+                <Input type="number" min="0" max="100" value={editModal.data?.volume_percent ?? editModal.data?.volume ?? 80} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, volume_percent: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="meso-volume-input" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-slate-700">Intensidad %</label>
+                <Input type="number" min="0" max="100" value={editModal.data?.intensity_percent ?? editModal.data?.intensity ?? 70} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, intensity_percent: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="meso-intensity-input" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-slate-700">Progreso %</label>
+                <Input type="number" min="0" max="100" value={editModal.data?.progress ?? 0} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, progress: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="meso-progress-input" />
+              </div>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditModal({ type: null, data: null, indices: null })}>Cancelar</Button>
@@ -2866,19 +2939,33 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
       {/* Microcycle Modal */}
       <Dialog open={editModal.type === 'microcycle'} onOpenChange={() => setEditModal({ type: null, data: null, indices: null })}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle>{editModal.indices?.isNew ? 'Nuevo Microciclo' : 'Editar Microciclo'}</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-lg bg-white text-slate-900 border border-slate-200">
+          <DialogHeader><DialogTitle className="text-slate-900">{editModal.indices?.isNew ? 'Nuevo Microciclo' : 'Editar Microciclo'}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <label className="text-sm font-medium">Nombre</label>
-              <Input value={editModal.data?.name || ''} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, name: e.target.value } })} className="mt-1" />
+              <label className="text-sm font-medium text-slate-700">Nombre</label>
+              <Input value={editModal.data?.name || ''} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, name: e.target.value } })} className="mt-1 bg-white text-slate-900" />
             </div>
             <div>
-              <label className="text-sm font-medium">Tipo</label>
+              <label className="text-sm font-medium text-slate-700">Tipo</label>
               <Select value={editModal.data?.type?.id || ''} onValueChange={(v) => setEditModal({ ...editModal, data: { ...editModal.data, type: MICROCYCLE_TYPES_ARRAY.find(t => t.id === v) } })}>
-                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="mt-1 bg-white text-slate-900"><SelectValue /></SelectTrigger>
                 <SelectContent>{MICROCYCLE_TYPES_ARRAY.map(t => <SelectItem key={t.id} value={t.id}>{t.name} ({t.loadPercent}%)</SelectItem>)}</SelectContent>
               </Select>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="text-sm font-medium text-slate-700">Volumen %</label>
+                <Input type="number" min="0" max="100" value={editModal.data?.volume ?? 100} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, volume: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="micro-volume-input" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-slate-700">Intensidad %</label>
+                <Input type="number" min="0" max="100" value={editModal.data?.intensity ?? 70} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, intensity: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="micro-intensity-input" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-slate-700">Progreso %</label>
+                <Input type="number" min="0" max="100" value={editModal.data?.progress ?? 0} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, progress: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="micro-progress-input" />
+              </div>
             </div>
           </div>
           <DialogFooter>
