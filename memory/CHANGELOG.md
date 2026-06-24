@@ -13,6 +13,15 @@
 - Página /gracias (post-compra) creada.
 - Escama de marca en cabeceras (Pizarra, editor de Sesiones) y en PDFs de Sesiones.
 
+## 2026-06-24 — Scouting: Stats multi-deporte + valor/transferencias + fix PDF
+- **Fix descarga PDF**: ahora la ficha se descarga vía `fetch`→blob autenticado (detalle) y blob público (página pública), eliminando el fallo de `window.open`/attachment. Requiere redeploy para producción.
+- **Catálogo de deportes**: el selector de deporte del prospecto usa el catálogo de periodización **agrupado por categoría** (`/api/sports-catalog`).
+- **Estadísticas multi-deporte** (`prospect_stats` + `sport_templates` en Mongo, JSON flexible): plantillas por deporte (voleibol, fútbol/futsal, baloncesto, natación, atletismo, tenis, ciclismo + genérico + custom por entrenador). Endpoints `GET/POST /sport-stats-template`, CRUD `/prospects/{id}/stats`. Tab **"Por Partido/Competencia"** (registro por fecha/rival, campos dinámicos, **eficiencias % auto**) y tab **"Temporada"** (promedios/totales, **gráfica de evolución Recharts**, mejor actuación). Componente `ProspectStats.js`.
+- **Valor comercial/precio + patrocinios** y **Transferencias/Trayectoria** (escuela→club/equipo/institución/federación/universidad) en el formulario, detalle y ficha pública.
+- **Videos múltiples** con tipo **Jugando/Entrenando** (`VideoLink.type`), agrupados en detalle y público.
+- **IA** ahora usa las estadísticas reales (agregados de temporada) como evidencia y ya no menciona "sin datos verificables".
+- Verificado E2E: plantillas/registro/agregados (curl), formulario dinámico con eficiencia 66.7% auto, tabs de detalle, catálogo agrupado, descarga PDF (download event), consola 0 errores.
+
 ## 2026-06-24 — Scouting: Video player (YouTube/Vimeo) + Criterios personalizados
 - **Reproductor de video** (`components/VideoEmbed.js`): incrusta YouTube y Vimeo en miniatura/mini-player con botón de **ampliar** a lightbox grande (autoplay, fullscreen); enlaces no soportados (Drive, etc.) como botón "Abrir". Usado en el detalle del prospecto y en la ficha pública.
 - **Criterios de evaluación personalizados** con 3 alcances: `prospect` (solo este prospecto, badge "propio"), `sport` (plantilla reutilizable del deporte, badge "deporte"), `global` (plantilla del club, badge "club"). Backend: `POST/DELETE /api/recruiting/criteria/custom` + merge en `GET /criteria` (deepcopy, sport+global del entrenador). Persistencia de criterios de alcance prospecto en `evaluation.custom_labels`; incluidos en el cálculo de score y en el prompt de IA.

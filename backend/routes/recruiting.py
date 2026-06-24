@@ -30,6 +30,8 @@ _prospects = _db["recruiting_prospects"]
 _files = _db["recruiting_files"]
 _athletes = _db["athletes"]
 _criteria_custom = _db["recruiting_criteria_custom"]
+_stats = _db["prospect_stats"]
+_sport_templates = _db["sport_templates"]
 
 
 def get_current_user_dep():
@@ -212,6 +214,7 @@ CLUB_STANDARD = 70  # referencia configurable del club (overall objetivo)
 class VideoLink(BaseModel):
     title: Optional[str] = "Highlight"
     url: str
+    type: Optional[str] = "match"   # match (jugando) | training (entrenando)
 
 
 class Observation(BaseModel):
@@ -249,6 +252,12 @@ class ProspectIn(BaseModel):
     key_stats: Dict[str, Any] = Field(default_factory=dict)
     bio: Optional[str] = None
     tags: List[str] = Field(default_factory=list)
+    # Valor comercial y patrocinios
+    market_value: Optional[float] = None
+    market_currency: Optional[str] = "USD"
+    sponsorships: List[Dict[str, Any]] = Field(default_factory=list)   # [{name, amount?, currency?}]
+    # Trayectoria / transferencias (escuela → club/equipo/institución/federación/universidad)
+    transfers: List[Dict[str, Any]] = Field(default_factory=list)      # [{from_entity, to_entity, type, date, fee?, notes?}]
     # Pipeline
     stage: str = "prospect"        # prospect | contacted | trial | decision
     outcome: Optional[str] = None  # None | recruited | declined
@@ -519,31 +528,47 @@ async def ai_recommendation(pid: str, payload: AIRequest, user=Depends(get_curre
     for cat, crits in (ev.get("scores") or {}).items():
         scores_txt += f"\n  {cat}: " + ", ".join(f"{label_map.get(k, k)}={v}" for k, v in crits.items())
 
+    # Estadísticas deportivas reales (agregados de temporada)
+    stat_records = await _stats.find({"prospect_id": pid, "coach_id": uid}, {"_id": 0}).sort("date", -1).to_list(1000)
+    stat_template = await _stat_template(uid, p.get("sport"))
+    agg = _aggregate_stats(stat_records, stat_template) if stat_records else None
+    stats_txt = ""
+    if agg and agg["count"]:
+        stat_labels = {mt["key"]: mt["label"] for cat in stat_template.get("categories", []) for mt in cat["metrics"]}
+        stats_txt = f"{agg['count']} partidos/competencias registrados.\n  Promedios: " + ", ".join(f"{stat_labels.get(k, k)}={v}" for k, v in agg["averages"].items())
+        stats_txt += "\n  Totales: " + ", ".join(f"{stat_labels.get(k, k)}={v}" for k, v in agg["totals"].items())
+
     profile = {
         "nombre": p.get("name"), "deporte": p.get("sport_name") or p.get("sport"),
         "posicion": p.get("position"), "edad": p.get("age"),
         "club_actual": p.get("current_club"), "altura_cm": p.get("height_cm"),
         "peso_kg": p.get("weight_kg"), "lado_dominante": p.get("dominant_side"),
         "logros": p.get("achievements"), "stats": p.get("key_stats"),
+        "valor_comercial": p.get("market_value"), "patrocinios": p.get("sponsorships"),
+        "trayectoria": p.get("transfers"),
         "score_general": ev.get("overall"), "estandar_club": CLUB_STANDARD,
     }
 
     system = (
         "Eres un Director de Scouting de élite con 20 años de experiencia detectando talento deportivo. "
-        "Analizas prospectos de forma objetiva, profesional y accionable. "
+        "Analizas prospectos de forma objetiva, profesional y accionable, usando las estadísticas REALES "
+        "proporcionadas como evidencia concreta. Si hay estadísticas de partidos, basa tu análisis en ellas "
+        "y NO menciones que faltan datos verificables. "
         "Respondes SIEMPRE en español y SOLO en JSON válido, sin texto adicional."
     )
-    prompt = f"""Analiza el siguiente prospecto y genera un informe de scouting.
+    prompt = f"""Analiza el siguiente prospecto de {profile['deporte']} y genera un informe de scouting basado en evidencia.
 
 PERFIL: {json.dumps(profile, ensure_ascii=False)}
 PUNTAJES POR CRITERIO (0-100): {scores_txt or 'sin evaluación detallada'}
+ESTADÍSTICAS DEPORTIVAS REALES: {stats_txt or 'sin estadísticas registradas aún'}
 
+Usa las estadísticas reales como evidencia principal cuando existan. Compara contra el estándar del club ({CLUB_STANDARD}).
 Devuelve EXACTAMENTE este JSON:
 {{
   "verdict": "RECRUIT | MONITOR | PASS",
   "confidence": <0-100>,
   "projected_ceiling": "breve descripción del techo de rendimiento",
-  "summary": "2-3 frases de resumen ejecutivo del prospecto",
+  "summary": "2-3 frases de resumen ejecutivo citando datos reales si los hay",
   "strengths": ["fortaleza 1", "fortaleza 2", "fortaleza 3"],
   "weaknesses": ["área de mejora 1", "área de mejora 2"],
   "development_plan": ["recomendación de desarrollo 1", "recomendación 2", "recomendación 3"],
@@ -642,6 +667,10 @@ def _public_view(p: dict) -> dict:
         "key_stats": p.get("key_stats") or {},
         "bio": p.get("bio"),
         "tags": p.get("tags") or [],
+        "market_value": p.get("market_value"),
+        "market_currency": p.get("market_currency") or "USD",
+        "sponsorships": p.get("sponsorships") or [],
+        "transfers": p.get("transfers") or [],
         "contact": {"email": p.get("email"), "phone": p.get("phone")},
     }
 
@@ -706,6 +735,176 @@ async def public_pdf(share_id: str):
     fname = f"scouting_{(p.get('name') or 'prospecto').replace(' ', '_').lower()}.pdf"
     return Response(content=pdf, media_type="application/pdf",
                     headers={"Content-Disposition": f'inline; filename=\"{fname}\"'})
+
+
+# ───────────────────────── ESTADÍSTICAS MULTI-DEPORTE ─────────────────────────
+def _m(key, label, type="number", formula=None):
+    d = {"key": key, "label": label, "type": type}
+    if formula:
+        d["formula"] = formula
+    return d
+
+def _scat(key, label, metrics):
+    return {"key": key, "label": label, "metrics": metrics}
+
+# pct: porcentaje auto = sum(num)/sum(den)*100
+def _pct(key, label, num, den):
+    return _m(key, label, "percent", {"num": num, "den": den})
+
+STAT_TEMPLATES = {
+    "volleyball": {"primary": "attack_eff", "categories": [
+        _scat("attack", "Ataque", [_m("attack_total", "Totales"), _m("attack_kills", "Efectivos"), _m("attack_errors", "Errores"), _pct("attack_eff", "Eficiencia %", ["attack_kills"], ["attack_total"])]),
+        _scat("serve", "Saque", [_m("serve_total", "Totales"), _m("serve_aces", "Aces"), _m("serve_errors", "Errores"), _pct("serve_eff", "Eficiencia %", ["serve_aces"], ["serve_total"])]),
+        _scat("reception", "Recepción", [_m("rec_perfect", "Perfectas"), _m("rec_positive", "Positivas"), _m("rec_errors", "Errores"), _pct("rec_eff", "Eficiencia %", ["rec_perfect", "rec_positive"], ["rec_perfect", "rec_positive", "rec_errors"])]),
+        _scat("block", "Bloqueo", [_m("block_total", "Totales"), _m("block_kills", "Efectivos"), _m("block_errors", "Errores")]),
+        _scat("defense", "Defensa", [_m("dig_total", "Digs totales"), _m("dig_success", "Exitosos"), _m("dig_errors", "Errores")]),
+    ]},
+    "football": {"primary": "goals", "categories": [
+        _scat("offense", "Ofensivo", [_m("goals", "Goles"), _m("assists", "Asistencias"), _m("shots", "Disparos"), _m("shots_on_target", "Disparos al arco"), _pct("shot_acc", "Precisión %", ["shots_on_target"], ["shots"])]),
+        _scat("passing", "Pases", [_m("pass_total", "Totales"), _m("pass_completed", "Completados"), _pct("pass_acc", "Precisión %", ["pass_completed"], ["pass_total"])]),
+        _scat("defense", "Defensivo", [_m("recoveries", "Recuperaciones"), _m("interceptions", "Intercepciones"), _m("duels_won", "Duelos ganados")]),
+        _scat("gk", "Portero (opcional)", [_m("saves", "Atajadas"), _m("goals_conceded", "Goles recibidos"), _pct("save_eff", "Efectividad %", ["saves"], ["saves", "goals_conceded"])]),
+    ]},
+    "basketball": {"primary": "points", "categories": [
+        _scat("offense", "Ofensivo", [_m("points", "Puntos"), _m("fg_made", "Tiros campo anotados"), _m("fg_att", "Tiros campo intentados"), _pct("fg_pct", "Tiros de campo %", ["fg_made"], ["fg_att"]), _m("tp_made", "Triples anotados"), _m("tp_att", "Triples intentados"), _pct("tp_pct", "Triples %", ["tp_made"], ["tp_att"]), _m("ft_made", "Libres anotados"), _m("ft_att", "Libres intentados"), _pct("ft_pct", "Tiros libres %", ["ft_made"], ["ft_att"])]),
+        _scat("rebounds", "Rebotes", [_m("reb_off", "Ofensivos"), _m("reb_def", "Defensivos"), _m("reb_total", "Totales")]),
+        _scat("other", "Otros", [_m("assists", "Asistencias"), _m("steals", "Robos"), _m("blocks", "Bloqueos"), _m("turnovers", "Pérdidas")]),
+    ]},
+    "swimming": {"primary": "improvement", "categories": [
+        _scat("event", "Prueba", [_m("event", "Prueba (50m/100m...)", "text"), _m("style", "Estilo", "text"), _m("time_sec", "Tiempo (seg)"), _m("prev_best", "Marca anterior (seg)"), _m("improvement", "Mejora (seg)", "diff", {"a": "prev_best", "b": "time_sec"})]),
+    ]},
+    "tennis": {"primary": "winners", "categories": [
+        _scat("match", "Partido", [_m("sets_won", "Sets ganados"), _m("sets_lost", "Sets perdidos"), _m("first_serve_pct", "% primer saque"), _m("aces", "Aces"), _m("winners", "Winners"), _m("unforced_errors", "Errores no forzados"), _m("breaks", "Quiebres")]),
+    ]},
+    "cycling": {"primary": "avg_watts", "categories": [
+        _scat("ride", "Recorrido", [_m("time_min", "Tiempo (min)"), _m("distance_km", "Distancia (km)"), _m("avg_watts", "Vatios promedio"), _m("vam", "VAM (m/h)")]),
+    ]},
+}
+_ATHLETICS = {"primary": "mark", "categories": [
+    _scat("event", "Prueba", [_m("event", "Prueba (100m/salto...)", "text"), _m("mark", "Marca"), _m("personal_best", "Mejor marca personal"), _m("conditions", "Condiciones", "text")]),
+]}
+for _s in ("sprints", "athletics_jumps", "athletics_throws", "marathon", "triathlon"):
+    STAT_TEMPLATES[_s] = _ATHLETICS
+
+_GENERIC_STATS = {"primary": "rating", "categories": [
+    _scat("performance", "Rendimiento", [_m("minutes", "Minutos jugados"), _m("rating", "Valoración (0-10)")]),
+    _scat("offense", "Ofensivo", [_m("points_actions", "Acciones ofensivas"), _m("key_actions", "Acciones clave")]),
+    _scat("defense", "Defensivo", [_m("def_actions", "Acciones defensivas"), _m("errors", "Errores")]),
+]}
+
+
+async def _stat_template(coach_id, sport):
+    base = copy.deepcopy(STAT_TEMPLATES.get((sport or "").lower(), _GENERIC_STATS))
+    custom = await _sport_templates.find_one({"coach_id": coach_id, "sport": (sport or "").lower()}, {"_id": 0})
+    if custom and custom.get("categories"):
+        # añade categorías personalizadas (o reemplaza si el deporte es 'custom')
+        base = {"primary": custom.get("primary") or base.get("primary"), "categories": (base["categories"] if not custom.get("replace") else []) + custom["categories"], "custom": True}
+    base["sport"] = sport
+    return base
+
+
+@router.get("/sport-stats-template")
+async def get_stat_template(sport: Optional[str] = None, user=Depends(get_current_user_dep())):
+    return await _stat_template(_uid(user), sport)
+
+
+class SportTemplateIn(BaseModel):
+    sport: str
+    categories: List[Dict[str, Any]]
+    primary: Optional[str] = None
+    replace: bool = False
+
+
+@router.post("/sport-stats-template")
+async def save_stat_template(payload: SportTemplateIn, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    doc = {"coach_id": uid, "sport": payload.sport.lower(), "categories": payload.categories,
+           "primary": payload.primary, "replace": payload.replace,
+           "updated_at": datetime.now(timezone.utc).isoformat()}
+    await _sport_templates.update_one({"coach_id": uid, "sport": payload.sport.lower()}, {"$set": doc}, upsert=True)
+    return await _stat_template(uid, payload.sport)
+
+
+class StatRecordIn(BaseModel):
+    date: Optional[str] = None
+    opponent: Optional[str] = None
+    competition: Optional[str] = None
+    result: Optional[str] = None
+    metrics: Dict[str, Any] = Field(default_factory=dict)
+
+
+def _num(v):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def _aggregate_stats(records, template):
+    numeric_keys = {}
+    for r in records:
+        for k, v in (r.get("metrics") or {}).items():
+            n = _num(v)
+            if n is not None:
+                numeric_keys.setdefault(k, []).append(n)
+    averages = {k: round(sum(v) / len(v), 1) for k, v in numeric_keys.items()}
+    totals = {k: round(sum(v), 1) for k, v in numeric_keys.items()}
+    primary = template.get("primary")
+    best = None
+    if primary and primary in numeric_keys:
+        best = max(records, key=lambda r: _num((r.get("metrics") or {}).get(primary)) or -1e9)
+    series = sorted(
+        [{"date": r.get("date"), "label": r.get("opponent") or r.get("competition") or "", **{k: _num(v) for k, v in (r.get("metrics") or {}).items() if _num(v) is not None}} for r in records],
+        key=lambda x: x.get("date") or ""
+    )
+    return {"count": len(records), "averages": averages, "totals": totals, "primary": primary,
+            "best": best, "series": series}
+
+
+@router.post("/prospects/{pid}/stats")
+async def add_stat_record(pid: str, payload: StatRecordIn, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    p = await _prospects.find_one({"id": pid, "coach_id": uid}, {"_id": 0})
+    if not p:
+        raise HTTPException(404, "Prospecto no encontrado")
+    rec = {"id": uuid.uuid4().hex, "prospect_id": pid, "coach_id": uid, "sport": p.get("sport"),
+           "date": payload.date or datetime.now(timezone.utc).date().isoformat(),
+           "opponent": payload.opponent, "competition": payload.competition, "result": payload.result,
+           "metrics": payload.metrics, "created_at": datetime.now(timezone.utc).isoformat()}
+    await _stats.insert_one(dict(rec))
+    rec.pop("_id", None)
+    return rec
+
+
+@router.get("/prospects/{pid}/stats")
+async def list_stat_records(pid: str, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    p = await _prospects.find_one({"id": pid, "coach_id": uid}, {"_id": 0})
+    if not p:
+        raise HTTPException(404, "Prospecto no encontrado")
+    records = await _stats.find({"prospect_id": pid, "coach_id": uid}, {"_id": 0}).sort("date", -1).to_list(1000)
+    template = await _stat_template(uid, p.get("sport"))
+    return {"records": records, "aggregates": _aggregate_stats(records, template), "template": template}
+
+
+@router.put("/prospects/{pid}/stats/{rid}")
+async def update_stat_record(pid: str, rid: str, payload: StatRecordIn, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    upd = {"date": payload.date, "opponent": payload.opponent, "competition": payload.competition,
+           "result": payload.result, "metrics": payload.metrics}
+    res = await _stats.update_one({"id": rid, "prospect_id": pid, "coach_id": uid}, {"$set": upd})
+    if res.matched_count == 0:
+        raise HTTPException(404, "Registro no encontrado")
+    return {"ok": True}
+
+
+@router.delete("/prospects/{pid}/stats/{rid}")
+async def delete_stat_record(pid: str, rid: str, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    res = await _stats.delete_one({"id": rid, "prospect_id": pid, "coach_id": uid})
+    if res.deleted_count == 0:
+        raise HTTPException(404, "Registro no encontrado")
+    return {"ok": True}
 
 
 # ───────────────────────── DASHBOARD / RANKING ─────────────────────────

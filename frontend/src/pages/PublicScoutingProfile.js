@@ -142,7 +142,28 @@ export default function PublicScoutingProfile() {
             <div>
               {p.video_links?.length > 0 && (<>
                 <H>Video Highlights</H>
-                <VideoGallery videos={p.video_links} dark />
+                {(() => {
+                  const playing = p.video_links.filter(v => (v.type || 'match') === 'match');
+                  const training = p.video_links.filter(v => v.type === 'training');
+                  return (<div className="space-y-3">
+                    {playing.length > 0 && <div><div className="text-[10px] font-bold text-emerald-400 uppercase mb-1.5">Jugando</div><VideoGallery videos={playing} dark /></div>}
+                    {training.length > 0 && <div><div className="text-[10px] font-bold text-sky-400 uppercase mb-1.5">Entrenando</div><VideoGallery videos={training} dark /></div>}
+                  </div>);
+                })()}
+              </>)}
+              {(p.market_value != null || (p.sponsorships || []).length > 0) && (<>
+                <H className="mt-4">Valor & Patrocinios</H>
+                {p.market_value != null && <div className="text-2xl font-black text-[#CCFF00]">{p.market_currency || 'USD'} {Number(p.market_value).toLocaleString()}</div>}
+                {(p.sponsorships || []).length > 0 && <div className="flex flex-wrap gap-1.5 mt-1">{p.sponsorships.map((s, i) => <span key={i} className="text-[11px] bg-white/10 rounded-full px-2.5 py-1 text-slate-200">{s.name}</span>)}</div>}
+              </>)}
+              {(p.transfers || []).length > 0 && (<>
+                <H className="mt-4">Trayectoria</H>
+                <div className="space-y-1.5">{p.transfers.map((t, i) => (
+                  <div key={i} className="text-[12px] text-slate-300 flex items-center gap-1.5">
+                    <span className="font-bold">{t.from_entity || '—'}</span><span className="text-slate-500">→</span><span className="font-bold">{t.to_entity || '—'}</span>
+                    {t.type && <span className="text-[9px] uppercase bg-white/10 rounded px-1 py-0.5 text-slate-400">{t.type}</span>}
+                  </div>
+                ))}</div>
               </>)}
               {p.achievements?.length > 0 && (<>
                 <H className="mt-4">Logros</H>

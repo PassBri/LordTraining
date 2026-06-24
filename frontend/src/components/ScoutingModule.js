@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { toast } from 'sonner';
 import { VideoGallery } from './VideoEmbed';
+import ProspectStats from './ProspectStats';
 import {
   Target, Plus, Users, Trello, ClipboardCheck, Trophy, X, Trash2, Edit2, Sparkles,
   FileDown, UserPlus, Camera, Video, Star, ChevronRight, MapPin, Loader2, Award,
@@ -532,6 +533,7 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
   const [sharing, setSharing] = useState(false);
   const [copied, setCopied] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [detailTab, setDetailTab] = useState('resumen');
   const shareUrl = shareId ? `${window.location.origin}/scouting/p/${shareId}` : null;
   const sm = stageMeta(p.stage);
   const ev = p.evaluation;
@@ -619,6 +621,16 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
           </div>
         </div>
 
+        {/* Detail tabs */}
+        <div className="flex items-center gap-2 px-5 pt-4">
+          {[['resumen', 'Resumen'], ['estadisticas', 'Estadísticas']].map(([k, l]) => (
+            <button key={k} onClick={() => setDetailTab(k)} data-testid={`detail-tab-${k}`}
+              className="px-3 py-1.5 rounded-full text-xs font-bold transition"
+              style={detailTab === k ? { background: '#0f172a', color: '#CCFF00' } : { background: '#f1f5f9', color: '#64748b' }}>{l}</button>
+          ))}
+        </div>
+
+        {detailTab === 'resumen' && (<>
         <div className="p-5 grid md:grid-cols-2 gap-5">
           {/* Evaluation bars */}
           <div>
@@ -646,7 +658,14 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
         <div className="px-5 pb-4 grid md:grid-cols-2 gap-5">
           <div>
             {p.video_links?.length > 0 && <><SectionTitle>Video Highlights</SectionTitle>
-              <VideoGallery videos={p.video_links} /></>}
+              {(() => {
+                const playing = p.video_links.filter(v => (v.type || 'match') === 'match');
+                const training = p.video_links.filter(v => v.type === 'training');
+                return (<div className="space-y-3">
+                  {playing.length > 0 && <div><div className="text-[10px] font-bold text-emerald-600 uppercase mb-1">Jugando</div><VideoGallery videos={playing} /></div>}
+                  {training.length > 0 && <div><div className="text-[10px] font-bold text-sky-600 uppercase mb-1">Entrenando</div><VideoGallery videos={training} /></div>}
+                </div>);
+              })()}</>}
             {p.achievements?.length > 0 && <><SectionTitle className="mt-3">Logros</SectionTitle><ul className="list-disc pl-5 text-[12px] text-slate-600">{p.achievements.map((a, i) => <li key={i}>{a}</li>)}</ul></>}
           </div>
           <div className="text-[12px] text-slate-600 space-y-1">
@@ -676,6 +695,34 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
             {!(p.observations || []).length && <p className="text-[12px] text-slate-400">Sin observaciones aún.</p>}
           </div>
         </div>
+
+        {/* Mercado y trayectoria */}
+        {(p.market_value != null || (p.sponsorships || []).length > 0 || (p.transfers || []).length > 0) && (
+          <div className="px-5 pb-6 grid md:grid-cols-2 gap-5">
+            <div>
+              <SectionTitle>Valor & Patrocinios</SectionTitle>
+              {p.market_value != null && <div className="text-2xl font-black text-slate-900 mb-2" data-testid="detail-market-value">{p.market_currency || 'USD'} {Number(p.market_value).toLocaleString()}<span className="text-[11px] font-medium text-slate-400 ml-1">valor comercial</span></div>}
+              {(p.sponsorships || []).length > 0 && <div className="flex flex-wrap gap-1.5">{p.sponsorships.map((s, i) => <span key={i} className="text-[11px] bg-slate-100 rounded-full px-2.5 py-1 text-slate-700">{s.name}{s.amount ? ` · ${s.currency || ''}${s.amount}` : ''}</span>)}</div>}
+            </div>
+            <div>
+              {(p.transfers || []).length > 0 && <><SectionTitle>Trayectoria / Transferencias</SectionTitle>
+                <div className="space-y-1.5">{p.transfers.map((t, i) => (
+                  <div key={i} className="text-[12px] text-slate-600 flex items-center gap-1.5">
+                    <span className="font-bold text-slate-700">{t.from_entity || '—'}</span>
+                    <span className="text-slate-400">→</span>
+                    <span className="font-bold text-slate-700">{t.to_entity || '—'}</span>
+                    {t.type && <span className="text-[9px] uppercase bg-slate-100 rounded px-1 py-0.5 text-slate-500">{t.type}</span>}
+                    {t.date && <span className="text-slate-400 text-[10px] ml-auto">{t.date}</span>}
+                  </div>
+                ))}</div></>}
+            </div>
+          </div>
+        )}
+        </>)}
+
+        {detailTab === 'estadisticas' && (
+          <div className="p-5"><ProspectStats prospectId={p.id} sport={p.sport} onStatsChanged={() => onChanged(p.id)} /></div>
+        )}
 
         {/* Share dialog */}
         {shareOpen && (
@@ -749,6 +796,23 @@ function ProspectForm({ initial, onClose, onSaved }) {
   const fileRef = useRef();
   const isEdit = !!initial.id;
   const set = (k, v) => setF(s => ({ ...s, [k]: v }));
+  const [catalog, setCatalog] = useState({});
+  useEffect(() => { fetch(`${API_URL}/api/sports-catalog`).then(r => r.json()).then(setCatalog).catch(() => {}); }, []);
+  const CAT_LABELS = { team: 'Deportes de equipo', combat: 'Combate', racquet: 'Raqueta', endurance: 'Resistencia', strength: 'Fuerza', speed: 'Velocidad/Atletismo', fitness: 'Fitness', general: 'General' };
+  const sportNameOf = (id) => { for (const arr of Object.values(catalog)) { const s = arr.find(x => x.id === id); if (s) return s.name; } return id; };
+
+  // Videos
+  const videos = f.video_links || [];
+  const setVideos = (v) => set('video_links', v);
+  const addVideo = () => setVideos([...videos, { title: '', url: '', type: 'match' }]);
+  const updVideo = (i, k, val) => setVideos(videos.map((v, idx) => idx === i ? { ...v, [k]: val } : v));
+  const rmVideo = (i) => setVideos(videos.filter((_, idx) => idx !== i));
+  // Transferencias
+  const transfers = f.transfers || [];
+  const setTransfers = (t) => set('transfers', t);
+  const addTransfer = () => setTransfers([...transfers, { from_entity: '', to_entity: '', type: 'club', date: '' }]);
+  const updTransfer = (i, k, val) => setTransfers(transfers.map((t, idx) => idx === i ? { ...t, [k]: val } : t));
+  const rmTransfer = (i) => setTransfers(transfers.filter((_, idx) => idx !== i));
 
   const upload = async (file) => {
     if (!file) return;
@@ -769,6 +833,12 @@ function ProspectForm({ initial, onClose, onSaved }) {
       age: f.age ? parseInt(f.age) : null,
       height_cm: f.height_cm ? parseInt(f.height_cm) : null,
       weight_kg: f.weight_kg ? parseInt(f.weight_kg) : null,
+      market_value: f.market_value !== '' && f.market_value != null ? parseFloat(f.market_value) : null,
+      sponsorships: typeof f.sponsorships === 'string'
+        ? f.sponsorships.split('\n').filter(Boolean).map(l => { const [name, amount] = l.split('|').map(x => x.trim()); return amount ? { name, amount } : { name }; })
+        : (f.sponsorships || []),
+      transfers: (f.transfers || []).filter(t => t.from_entity || t.to_entity),
+      video_links: (f.video_links || []).filter(v => v.url && v.url.trim()),
       achievements: typeof f.achievements === 'string' ? f.achievements.split('\n').filter(Boolean) : f.achievements,
     };
     try {
@@ -780,6 +850,7 @@ function ProspectForm({ initial, onClose, onSaved }) {
   };
 
   const achievementsStr = Array.isArray(f.achievements) ? f.achievements.join('\n') : (f.achievements || '');
+  const sponsorshipsStr = Array.isArray(f.sponsorships) ? f.sponsorships.map(s => s.amount ? `${s.name} | ${s.amount}` : s.name).join('\n') : (f.sponsorships || '');
 
   return (
     <Dialog open onOpenChange={onClose}>
@@ -805,9 +876,16 @@ function ProspectForm({ initial, onClose, onSaved }) {
           <div className="grid grid-cols-2 gap-3">
             <Field label="Nombre *"><Input value={f.name} onChange={e => set('name', e.target.value)} className="bg-white" data-testid="form-name" /></Field>
             <Field label="Deporte">
-              <Select value={f.sport} onValueChange={(v) => { const s = SPORTS.find(x => x[0] === v); set('sport', v); set('sport_name', s?.[1] || v); }}>
-                <SelectTrigger className="bg-white" data-testid="form-sport"><SelectValue /></SelectTrigger>
-                <SelectContent>{SPORTS.map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}</SelectContent>
+              <Select value={f.sport} onValueChange={(v) => { set('sport', v); set('sport_name', sportNameOf(v)); }}>
+                <SelectTrigger className="bg-white" data-testid="form-sport"><SelectValue placeholder="Elegir deporte" /></SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {Object.entries(catalog).map(([cat, sports]) => (
+                    <div key={cat}>
+                      <div className="px-2 py-1 text-[10px] font-black uppercase text-slate-400">{CAT_LABELS[cat] || cat}</div>
+                      {sports.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                    </div>
+                  ))}
+                </SelectContent>
               </Select>
             </Field>
             <Field label="Posición"><Input value={f.position} onChange={e => set('position', e.target.value)} className="bg-white" /></Field>
@@ -826,9 +904,68 @@ function ProspectForm({ initial, onClose, onSaved }) {
             <Field label="Email"><Input value={f.email} onChange={e => set('email', e.target.value)} className="bg-white" /></Field>
             <Field label="Teléfono"><Input value={f.phone} onChange={e => set('phone', e.target.value)} className="bg-white" /></Field>
           </div>
-          <Field label="Video highlights (una URL por línea)">
-            <Textarea rows={2} value={(f.video_links || []).map(v => v.url).join('\n')} onChange={e => set('video_links', e.target.value.split('\n').filter(Boolean).map(u => ({ title: 'Highlight', url: u.trim() })))} className="bg-white" placeholder="https://youtube.com/..." />
-          </Field>
+          {/* Videos múltiples (entrenando / jugando) */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Videos (YouTube / Vimeo)</label>
+              <button type="button" onClick={addVideo} className="text-[11px] font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1" data-testid="form-add-video"><Plus className="w-3.5 h-3.5" />Agregar video</button>
+            </div>
+            <div className="space-y-2">
+              {videos.map((v, i) => (
+                <div key={i} className="flex gap-1.5 items-center" data-testid={`form-video-${i}`}>
+                  <Input value={v.title || ''} onChange={e => updVideo(i, 'title', e.target.value)} placeholder="Título" className="bg-white w-32" />
+                  <Input value={v.url || ''} onChange={e => updVideo(i, 'url', e.target.value)} placeholder="https://youtube.com/..." className="bg-white flex-1" data-testid={`form-video-url-${i}`} />
+                  <Select value={v.type || 'match'} onValueChange={val => updVideo(i, 'type', val)}>
+                    <SelectTrigger className="bg-white w-32 shrink-0" data-testid={`form-video-type-${i}`}><SelectValue /></SelectTrigger>
+                    <SelectContent><SelectItem value="match">Jugando</SelectItem><SelectItem value="training">Entrenando</SelectItem></SelectContent>
+                  </Select>
+                  <button type="button" onClick={() => rmVideo(i)} className="text-slate-300 hover:text-red-500"><X className="w-4 h-4" /></button>
+                </div>
+              ))}
+              {!videos.length && <p className="text-[11px] text-slate-400">Agrega videos del prospecto jugando y entrenando.</p>}
+            </div>
+          </div>
+
+          {/* Valor comercial + patrocinios */}
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Valor comercial / precio">
+              <div className="flex gap-1.5">
+                <Select value={f.market_currency || 'USD'} onValueChange={v => set('market_currency', v)}>
+                  <SelectTrigger className="bg-white w-24 shrink-0"><SelectValue /></SelectTrigger>
+                  <SelectContent>{['USD', 'EUR', 'COP', 'MXN', 'ARS', 'BRL'].map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                </Select>
+                <Input type="number" value={f.market_value ?? ''} onChange={e => set('market_value', e.target.value)} className="bg-white" placeholder="0" data-testid="form-market-value" />
+              </div>
+            </Field>
+            <Field label="Patrocinios (Nombre | monto, uno por línea)">
+              <Textarea rows={2} value={sponsorshipsStr} onChange={e => set('sponsorships', e.target.value)} className="bg-white" placeholder="Nike | 5000" data-testid="form-sponsorships" />
+            </Field>
+          </div>
+
+          {/* Transferencias / trayectoria */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Transferencias / Trayectoria</label>
+              <button type="button" onClick={addTransfer} className="text-[11px] font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1" data-testid="form-add-transfer"><Plus className="w-3.5 h-3.5" />Agregar</button>
+            </div>
+            <div className="space-y-2">
+              {transfers.map((t, i) => (
+                <div key={i} className="flex gap-1.5 items-center" data-testid={`form-transfer-${i}`}>
+                  <Input value={t.from_entity || ''} onChange={e => updTransfer(i, 'from_entity', e.target.value)} placeholder="Desde (escuela...)" className="bg-white flex-1" />
+                  <span className="text-slate-400">→</span>
+                  <Input value={t.to_entity || ''} onChange={e => updTransfer(i, 'to_entity', e.target.value)} placeholder="Hacia (club...)" className="bg-white flex-1" />
+                  <Select value={t.type || 'club'} onValueChange={val => updTransfer(i, 'type', val)}>
+                    <SelectTrigger className="bg-white w-32 shrink-0"><SelectValue /></SelectTrigger>
+                    <SelectContent>{['escuela', 'club', 'equipo', 'institución', 'federación', 'universidad'].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
+                  </Select>
+                  <Input type="date" value={t.date || ''} onChange={e => updTransfer(i, 'date', e.target.value)} className="bg-white w-36 shrink-0" />
+                  <button type="button" onClick={() => rmTransfer(i)} className="text-slate-300 hover:text-red-500"><X className="w-4 h-4" /></button>
+                </div>
+              ))}
+              {!transfers.length && <p className="text-[11px] text-slate-400">Ej: Escuela X → Club Y (universidad/federación/institución).</p>}
+            </div>
+          </div>
+
           <Field label="Logros (uno por línea)">
             <Textarea rows={2} value={achievementsStr} onChange={e => set('achievements', e.target.value)} className="bg-white" />
           </Field>
