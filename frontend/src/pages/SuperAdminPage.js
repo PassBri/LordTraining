@@ -13,6 +13,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
 import { Badge } from '../components/ui/badge';
+import AdminUserManagement from '../components/AdminUserManagement';
 import { BarChart, Bar, LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, FunnelChart, Funnel, LabelList, Cell } from 'recharts';
 import {
   getAdminHierarchy, getOrgMembers, grantPlan,
@@ -205,6 +206,7 @@ const SuperAdminPage = () => {
         {isSuper && (
           <div className="max-w-[1280px] mx-auto px-6 flex items-center gap-1 -mb-px">
             <TabBtn active={activeTab === 'hierarchy'} onClick={() => setActiveTab('hierarchy')} icon={Users} label="Jerarquía & Usuarios" />
+            <TabBtn active={activeTab === 'users'} onClick={() => setActiveTab('users')} icon={UserCheck} label="Gestión de Usuarios" />
             <TabBtn active={activeTab === 'codes'} onClick={() => setActiveTab('codes')} icon={Tag} label="Códigos & Promociones" />
             <TabBtn active={activeTab === 'finance'} onClick={() => setActiveTab('finance')} icon={DollarSign} label="Finanzas" />
           </div>
@@ -319,6 +321,12 @@ const SuperAdminPage = () => {
         )}
 
         {/* PROMO CODES TAB */}
+        {activeTab === 'users' && isSuper && (
+          <div className="rounded-3xl bg-white/60 p-1">
+            <AdminUserManagement />
+          </div>
+        )}
+
         {activeTab === 'codes' && isSuper && (
           <>
             <div className="rounded-3xl p-6 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #00BFA5 0%, #00695C 100%)' }}>

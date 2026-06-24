@@ -642,3 +642,148 @@ async def get_alerts(request: Request, user: dict = Depends(_get_current_user)):
         })
 
     return {"alerts": alerts, "generated_at": now.isoformat()}
+
+
+
+# ═══════════════════════ GESTIÓN DE USUARIOS (Super Admin) ═══════════════════════
+import bcrypt as _bcrypt
+
+
+def _hash_pw(pw: str) -> str:
+    return _bcrypt.hashpw(pw.encode("utf-8")[:72], _bcrypt.gensalt()).decode("utf-8")
+
+
+def _public_user(u: dict) -> dict:
+    return {
+        "id": u.get("id"),
+        "email": u.get("email"),
+        "name": u.get("name"),
+        "role": u.get("role"),
+        "subscription": u.get("subscription"),
+        "is_super_admin": bool(u.get("is_super_admin")),
+        "active": u.get("active", True),
+        "org_id": u.get("org_id"),
+        "created_at": u.get("created_at"),
+    }
+
+
+class AdminUserCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=120)
+    email: str = Field(..., min_length=3, max_length=200)
+    password: str = Field(..., min_length=6, max_length=200)
+    role: str = "coach"
+    subscription: str = "starter"
+    is_super_admin: bool = False
+    org_id: Optional[str] = None
+
+
+class AdminUserUpdate(BaseModel):
+    name: Optional[str] = None
+    role: Optional[str] = None
+    subscription: Optional[str] = None
+    is_super_admin: Optional[bool] = None
+    org_id: Optional[str] = None
+
+
+class PasswordResetIn(BaseModel):
+    new_password: str = Field(..., min_length=6, max_length=200)
+
+
+class StatusIn(BaseModel):
+    active: bool
+
+
+def _require_super(user: dict):
+    if not _is_super(user):
+        raise HTTPException(status_code=403, detail="Solo el Super Admin puede gestionar usuarios")
+
+
+@router.get("/users")
+async def list_users(request: Request, search: Optional[str] = None, role: Optional[str] = None,
+                     plan: Optional[str] = None, user: dict = Depends(_get_current_user)):
+    _require_super(user)
+    db = request.app.state.db
+    q = {}
+    if search:
+        q["$or"] = [{"email": {"$regex": search, "$options": "i"}},
+                    {"name": {"$regex": search, "$options": "i"}}]
+    if role:
+        q["role"] = role
+    if plan:
+        q["subscription"] = plan
+    docs = await db.users.find(q, {"_id": 0, "password": 0}).sort("created_at", -1).to_list(5000)
+    return {"users": [_public_user(d) for d in docs], "total": len(docs)}
+
+
+@router.post("/users")
+async def create_user(request: Request, payload: AdminUserCreate, user: dict = Depends(_get_current_user)):
+    _require_super(user)
+    db = request.app.state.db
+    email = payload.email.strip().lower()
+    if await db.users.find_one({"email": email}):
+        raise HTTPException(status_code=400, detail="Ese email ya está registrado")
+    doc = {
+        "id": str(uuid.uuid4()),
+        "email": email,
+        "password": _hash_pw(payload.password),
+        "name": payload.name.strip(),
+        "role": payload.role,
+        "subscription": payload.subscription,
+        "is_super_admin": payload.is_super_admin,
+        "org_id": payload.org_id,
+        "active": True,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "ai_generations_used": 0,
+    }
+    await db.users.insert_one(doc)
+    return _public_user(doc)
+
+
+@router.put("/users/{uid}")
+async def update_user(request: Request, uid: str, payload: AdminUserUpdate, user: dict = Depends(_get_current_user)):
+    _require_super(user)
+    db = request.app.state.db
+    target = await db.users.find_one({"id": uid}, {"_id": 0})
+    if not target:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    updates = {k: v for k, v in payload.model_dump(exclude_unset=True).items() if v is not None}
+    if uid == user["id"] and updates.get("is_super_admin") is False:
+        raise HTTPException(status_code=400, detail="No puedes quitarte tus propios privilegios de Super Admin")
+    if updates:
+        await db.users.update_one({"id": uid}, {"$set": updates})
+    updated = await db.users.find_one({"id": uid}, {"_id": 0, "password": 0})
+    return _public_user(updated)
+
+
+@router.post("/users/{uid}/reset-password")
+async def reset_user_password(request: Request, uid: str, payload: PasswordResetIn, user: dict = Depends(_get_current_user)):
+    _require_super(user)
+    db = request.app.state.db
+    res = await db.users.update_one({"id": uid}, {"$set": {"password": _hash_pw(payload.new_password)}})
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return {"ok": True, "message": "Contraseña actualizada"}
+
+
+@router.patch("/users/{uid}/status")
+async def set_user_status(request: Request, uid: str, payload: StatusIn, user: dict = Depends(_get_current_user)):
+    _require_super(user)
+    db = request.app.state.db
+    if uid == user["id"] and not payload.active:
+        raise HTTPException(status_code=400, detail="No puedes desactivar tu propia cuenta")
+    res = await db.users.update_one({"id": uid}, {"$set": {"active": payload.active}})
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return {"ok": True, "active": payload.active}
+
+
+@router.delete("/users/{uid}")
+async def delete_user(request: Request, uid: str, user: dict = Depends(_get_current_user)):
+    _require_super(user)
+    if uid == user["id"]:
+        raise HTTPException(status_code=400, detail="No puedes eliminar tu propia cuenta")
+    db = request.app.state.db
+    res = await db.users.delete_one({"id": uid})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return {"ok": True}

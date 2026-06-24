@@ -933,6 +933,8 @@ async def login(credentials: UserLogin):
     user = await db.users.find_one({"email": credentials.email})
     if not user or not verify_password(credentials.password, user["password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
+    if user.get("active") is False:
+        raise HTTPException(status_code=403, detail="Tu cuenta está desactivada. Contacta al administrador.")
     
     token = create_token(user["id"], user["email"], user["role"])
     return {

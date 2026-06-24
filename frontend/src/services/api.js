@@ -136,6 +136,14 @@ export const getFinanceDashboard = () => axios.get(`${API}/admin/finance`, getAu
 export const createRefund = (data) => axios.post(`${API}/admin/refunds`, data, getAuthHeader());
 export const getAdminAlerts = () => axios.get(`${API}/admin/alerts`, getAuthHeader());
 
+// Admin User Management (Super Admin)
+export const adminListUsers = (params = {}) => axios.get(`${API}/admin/users`, { ...getAuthHeader(), params });
+export const adminCreateUser = (data) => axios.post(`${API}/admin/users`, data, getAuthHeader());
+export const adminUpdateUser = (uid, data) => axios.put(`${API}/admin/users/${uid}`, data, getAuthHeader());
+export const adminResetPassword = (uid, new_password) => axios.post(`${API}/admin/users/${uid}/reset-password`, { new_password }, getAuthHeader());
+export const adminSetUserStatus = (uid, active) => axios.patch(`${API}/admin/users/${uid}/status`, { active }, getAuthHeader());
+export const adminDeleteUser = (uid) => axios.delete(`${API}/admin/users/${uid}`, getAuthHeader());
+
 // Organization (Club / Federation / Institution)
 export const createOrganization = (data) => axios.post(`${API}/org/create`, data, getAuthHeader());
 export const getMyOrganization = () => axios.get(`${API}/org/me`, getAuthHeader());
