@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Target, Loader2, FileDown, Video, Award, Mail, Phone, ShieldCheck, ArrowRight } from 'lucide-react';
+import { VideoGallery } from '../components/VideoEmbed';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL && process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com') === -1 ? process.env.REACT_APP_BACKEND_URL : (typeof window !== 'undefined' ? window.location.origin : process.env.REACT_APP_BACKEND_URL));
 
@@ -127,11 +128,7 @@ export default function PublicScoutingProfile() {
             <div>
               {p.video_links?.length > 0 && (<>
                 <H>Video Highlights</H>
-                {p.video_links.map((v, i) => (
-                  <a key={i} href={v.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-sky-400 hover:text-sky-300 mb-1.5">
-                    <Video className="w-4 h-4" /> {v.title || 'Highlight'}
-                  </a>
-                ))}
+                <VideoGallery videos={p.video_links} dark />
               </>)}
               {p.achievements?.length > 0 && (<>
                 <H className="mt-4">Logros</H>

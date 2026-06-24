@@ -15,6 +15,7 @@ import os
 import base64
 import json
 import re
+import copy
 import requests
 
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -28,6 +29,7 @@ _db = _client[db_name]
 _prospects = _db["recruiting_prospects"]
 _files = _db["recruiting_files"]
 _athletes = _db["athletes"]
+_criteria_custom = _db["recruiting_criteria_custom"]
 
 
 def get_current_user_dep():
@@ -274,7 +276,57 @@ def _clean(doc):
 # ───────────────────────── CRUD ─────────────────────────
 @router.get("/criteria")
 async def get_criteria(sport: Optional[str] = None, user=Depends(get_current_user_dep())):
-    return {"sport": sport, "club_standard": CLUB_STANDARD, "blocks": _criteria_for(sport)}
+    uid = _uid(user)
+    blocks = copy.deepcopy(_criteria_for(sport))
+    block_by_key = {b["key"]: b for b in blocks}
+    # Merge custom criteria del entrenador (global + del deporte)
+    q = {"coach_id": uid, "$or": [{"scope": "global"}]}
+    if sport:
+        q["$or"].append({"scope": "sport", "sport": str(sport).strip().lower()})
+    customs = await _criteria_custom.find(q, {"_id": 0}).to_list(500)
+    for c in customs:
+        blk = block_by_key.get(c.get("block"))
+        if blk:
+            blk["criteria"].append({"key": c["key"], "label": c["label"], "custom": True, "scope": c["scope"], "id": c["id"]})
+    return {"sport": sport, "club_standard": CLUB_STANDARD, "blocks": blocks}
+
+
+class CustomCriterionIn(BaseModel):
+    scope: str          # 'sport' | 'global'
+    block: str          # technical | physical | tactical | mental
+    label: str = Field(..., min_length=1, max_length=120)
+    sport: Optional[str] = None
+
+
+@router.post("/criteria/custom")
+async def add_custom_criterion(payload: CustomCriterionIn, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    if payload.scope not in ("sport", "global"):
+        raise HTTPException(400, "scope inválido")
+    if payload.scope == "sport" and not payload.sport:
+        raise HTTPException(400, "Falta el deporte para alcance 'sport'")
+    doc = {
+        "id": uuid.uuid4().hex,
+        "coach_id": uid,
+        "scope": payload.scope,
+        "block": payload.block,
+        "label": payload.label.strip(),
+        "key": "cst_" + uuid.uuid4().hex[:10],
+        "sport": str(payload.sport).strip().lower() if payload.sport else None,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await _criteria_custom.insert_one(dict(doc))
+    doc.pop("_id", None)
+    return {"key": doc["key"], "label": doc["label"], "block": doc["block"], "scope": doc["scope"], "id": doc["id"], "custom": True}
+
+
+@router.delete("/criteria/custom/{cid}")
+async def delete_custom_criterion(cid: str, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    res = await _criteria_custom.delete_one({"id": cid, "coach_id": uid})
+    if res.deleted_count == 0:
+        raise HTTPException(404, "Criterio no encontrado")
+    return {"ok": True}
 
 
 @router.post("/prospects", response_model=ProspectOut)
@@ -392,6 +444,8 @@ class EvaluationIn(BaseModel):
     scores: Dict[str, Dict[str, int]]
     evaluator: Optional[str] = None
     notes: Optional[str] = None
+    # custom_labels: { categoryKey: { criterionKey: label } } — criterios propios de este prospecto
+    custom_labels: Dict[str, Dict[str, str]] = Field(default_factory=dict)
 
 
 def _compute_overall(scores: Dict[str, Dict[str, int]]):
@@ -420,6 +474,7 @@ async def save_evaluation(pid: str, payload: EvaluationIn, user=Depends(get_curr
         "club_standard": CLUB_STANDARD,
         "evaluator": payload.evaluator,
         "notes": payload.notes,
+        "custom_labels": payload.custom_labels,
         "date": datetime.now(timezone.utc).isoformat(),
     }
     await _prospects.update_one({"id": pid}, {"$set": {
@@ -455,6 +510,10 @@ async def ai_recommendation(pid: str, payload: AIRequest, user=Depends(get_curre
     for b in blocks:
         for c in b["criteria"]:
             label_map[c["key"]] = c["label"]
+    # incluir labels de criterios personalizados de este prospecto
+    for cat, labels in (ev.get("custom_labels") or {}).items():
+        for k, lbl in labels.items():
+            label_map[k] = lbl
 
     scores_txt = ""
     for cat, crits in (ev.get("scores") or {}).items():

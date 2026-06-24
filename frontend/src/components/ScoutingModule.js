@@ -5,6 +5,7 @@ import { Textarea } from './ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from './ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { toast } from 'sonner';
+import { VideoGallery } from './VideoEmbed';
 import {
   Target, Plus, Users, Trello, ClipboardCheck, Trophy, X, Trash2, Edit2, Sparkles,
   FileDown, UserPlus, Camera, Video, Star, ChevronRight, MapPin, Loader2, Award,
@@ -248,25 +249,67 @@ function EvaluationTab({ prospects, onSaved }) {
   const [aiProvider, setAiProvider] = useState('openai');
   const [aiLoading, setAiLoading] = useState(false);
   const [ai, setAi] = useState(null);
+  const [localCustom, setLocalCustom] = useState({});         // {block: {key: label}} alcance prospecto
+  const [addForm, setAddForm] = useState({ block: null, label: '', scope: 'prospect' });
+
+  const buildScores = (blocks, prev) => {
+    const init = {};
+    blocks.forEach(b => { init[b.key] = {}; b.criteria.forEach(cr => { init[b.key][cr.key] = prev?.[b.key]?.[cr.key] ?? prospect?.evaluation?.scores?.[b.key]?.[cr.key] ?? 50; }); });
+    return init;
+  };
+  const loadCriteria = async (preserve) => {
+    const c = await api(`/criteria?sport=${prospect.sport || ''}`);
+    const pc = prospect.evaluation?.custom_labels || {};
+    c.blocks.forEach(b => {
+      Object.entries(pc[b.key] || {}).forEach(([k, lbl]) => {
+        if (!b.criteria.find(x => x.key === k)) b.criteria.push({ key: k, label: lbl, custom: true, scope: 'prospect' });
+      });
+    });
+    setCriteria(c);
+    if (!preserve) setLocalCustom(pc);
+    setScores(s => buildScores(c.blocks, preserve ? s : null));
+  };
 
   useEffect(() => {
     if (!prospect) return;
     setAi(prospect.ai_recommendation || null);
-    api(`/criteria?sport=${prospect.sport || ''}`).then(c => {
-      setCriteria(c);
-      const init = {};
-      (c.blocks || []).forEach(b => { init[b.key] = {}; b.criteria.forEach(cr => { init[b.key][cr.key] = prospect.evaluation?.scores?.[b.key]?.[cr.key] ?? 50; }); });
-      setScores(init);
-    });
+    setLocalCustom(prospect.evaluation?.custom_labels || {});
+    loadCriteria(false);
   }, [pid]); // eslint-disable-line
 
   const allVals = Object.values(scores).flatMap(o => Object.values(o));
   const overall = allVals.length ? Math.round(allVals.reduce((a, b) => a + b, 0) / allVals.length) : 0;
   const std = criteria?.club_standard ?? 70;
 
+  const addCriterion = async () => {
+    const { block, label, scope } = addForm;
+    if (!label.trim() || !block) return;
+    if (scope === 'prospect') {
+      const key = 'cst_' + Math.random().toString(36).slice(2, 10);
+      setCriteria(c => ({ ...c, blocks: c.blocks.map(b => b.key === block ? { ...b, criteria: [...b.criteria, { key, label: label.trim(), custom: true, scope: 'prospect' }] } : b) }));
+      setLocalCustom(lc => ({ ...lc, [block]: { ...(lc[block] || {}), [key]: label.trim() } }));
+      setScores(s => ({ ...s, [block]: { ...(s[block] || {}), [key]: 50 } }));
+      toast.success('Criterio agregado a este prospecto');
+    } else {
+      try { await api('/criteria/custom', { method: 'POST', body: { scope, block, label: label.trim(), sport: prospect.sport } }); await loadCriteria(true); toast.success(scope === 'sport' ? 'Criterio guardado para el deporte' : 'Criterio guardado para el club'); }
+      catch { toast.error('Error agregando criterio'); }
+    }
+    setAddForm({ block: null, label: '', scope: 'prospect' });
+  };
+  const removeCriterion = async (block, cr) => {
+    if (cr.scope === 'prospect') {
+      setCriteria(c => ({ ...c, blocks: c.blocks.map(b => b.key === block ? { ...b, criteria: b.criteria.filter(x => x.key !== cr.key) } : b) }));
+      setLocalCustom(lc => { const n = { ...lc, [block]: { ...(lc[block] || {}) } }; delete n[block][cr.key]; return n; });
+      setScores(s => { const n = { ...s, [block]: { ...(s[block] || {}) } }; delete n[block][cr.key]; return n; });
+    } else {
+      try { await api(`/criteria/custom/${cr.id}`, { method: 'DELETE' }); await loadCriteria(true); toast.success('Criterio eliminado'); }
+      catch { toast.error('Error'); }
+    }
+  };
+
   const save = async () => {
     setSaving(true);
-    try { const p = await api(`/prospects/${pid}/evaluation`, { method: 'POST', body: { scores } }); onSaved(pid); toast.success(`Evaluación guardada · Score ${p.overall_score}`); }
+    try { const p = await api(`/prospects/${pid}/evaluation`, { method: 'POST', body: { scores, custom_labels: localCustom } }); onSaved(pid); toast.success(`Evaluación guardada · Score ${p.overall_score}`); }
     catch { toast.error('Error guardando'); }
     setSaving(false);
   };
@@ -297,9 +340,15 @@ function EvaluationTab({ prospects, onSaved }) {
                     const val = scores[b.key]?.[cr.key] ?? 50;
                     return (
                       <div key={cr.key}>
-                        <div className="flex justify-between text-[12px] mb-1">
-                          <span className="text-slate-600 font-medium">{cr.label}</span>
-                          <span className="font-black" style={{ color: scoreColor(val) }}>{val}</span>
+                        <div className="flex justify-between items-center text-[12px] mb-1">
+                          <span className="text-slate-600 font-medium flex items-center gap-1.5">
+                            {cr.label}
+                            {cr.custom && <span className="text-[8px] font-black uppercase px-1 py-0.5 rounded" style={{ background: cr.scope === 'global' ? '#8b5cf622' : cr.scope === 'sport' ? '#0ea5e922' : '#64748b22', color: cr.scope === 'global' ? '#8b5cf6' : cr.scope === 'sport' ? '#0ea5e9' : '#64748b' }}>{cr.scope === 'global' ? 'club' : cr.scope === 'sport' ? 'deporte' : 'propio'}</span>}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="font-black" style={{ color: scoreColor(val) }}>{val}</span>
+                            {cr.custom && <button onClick={() => removeCriterion(b.key, cr)} className="text-slate-300 hover:text-red-500" title="Quitar criterio" data-testid={`eval-remove-${b.key}-${cr.key}`}><X className="w-3.5 h-3.5" /></button>}
+                          </div>
                         </div>
                         <input type="range" min="0" max="100" value={val} data-testid={`eval-slider-${b.key}-${cr.key}`}
                           onChange={(e) => setScores(s => ({ ...s, [b.key]: { ...s[b.key], [cr.key]: parseInt(e.target.value) } }))}
@@ -308,6 +357,28 @@ function EvaluationTab({ prospects, onSaved }) {
                     );
                   })}
                 </div>
+                {/* Agregar criterio */}
+                {addForm.block === b.key ? (
+                  <div className="mt-3 p-2.5 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
+                    <Input autoFocus value={addForm.label} onChange={(e) => setAddForm(f => ({ ...f, label: e.target.value }))} placeholder="Nuevo criterio (ej. Definición pie izquierdo)" className="bg-white h-8 text-[13px]" data-testid="eval-new-criterion-label" onKeyDown={(e) => e.key === 'Enter' && addCriterion()} />
+                    <div className="flex gap-2">
+                      <Select value={addForm.scope} onValueChange={(v) => setAddForm(f => ({ ...f, scope: v }))}>
+                        <SelectTrigger className="bg-white h-8 text-[12px]" data-testid="eval-new-criterion-scope"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="prospect">Solo este prospecto</SelectItem>
+                          <SelectItem value="sport">Plantilla del deporte</SelectItem>
+                          <SelectItem value="global">Plantilla global del club</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button size="sm" onClick={addCriterion} className="bg-slate-900 text-white h-8" data-testid="eval-add-criterion-confirm">Añadir</Button>
+                      <Button size="sm" variant="outline" onClick={() => setAddForm({ block: null, label: '', scope: 'prospect' })} className="h-8">Cancelar</Button>
+                    </div>
+                  </div>
+                ) : (
+                  <button onClick={() => setAddForm({ block: b.key, label: '', scope: 'prospect' })} className="mt-3 flex items-center gap-1 text-[12px] font-bold text-slate-400 hover:text-slate-700" data-testid={`eval-add-criterion-${b.key}`}>
+                    <Plus className="w-3.5 h-3.5" /> Agregar criterio
+                  </button>
+                )}
               </div>
             ))}
             <Button onClick={save} disabled={saving} data-testid="eval-save-btn" className="bg-slate-900 hover:bg-slate-800 text-white font-bold">
@@ -560,7 +631,7 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
         <div className="px-5 pb-4 grid md:grid-cols-2 gap-5">
           <div>
             {p.video_links?.length > 0 && <><SectionTitle>Video Highlights</SectionTitle>
-              {p.video_links.map((v, i) => <a key={i} href={v.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-[12px] text-sky-600 hover:underline mb-1"><Video className="w-3.5 h-3.5" />{v.title || 'Highlight'}</a>)}</>}
+              <VideoGallery videos={p.video_links} /></>}
             {p.achievements?.length > 0 && <><SectionTitle className="mt-3">Logros</SectionTitle><ul className="list-disc pl-5 text-[12px] text-slate-600">{p.achievements.map((a, i) => <li key={i}>{a}</li>)}</ul></>}
           </div>
           <div className="text-[12px] text-slate-600 space-y-1">
@@ -656,7 +727,8 @@ const SectionTitle = ({ children, className = '' }) => (
 
 /* ---------------- Prospect Form (create/edit) ---------------- */
 function ProspectForm({ initial, onClose, onSaved }) {
-  const [f, setF] = useState({ ...initial });
+  const NULLABLE = ['age', 'height_cm', 'weight_kg', 'nationality', 'position', 'current_club', 'dominant_side', 'email', 'phone', 'gender', 'guardian_contact', 'bio'];
+  const [f, setF] = useState(() => { const n = { ...initial }; NULLABLE.forEach(k => { if (n[k] == null) n[k] = ''; }); return n; });
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef();
