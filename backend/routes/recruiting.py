@@ -260,6 +260,8 @@ class ProspectOut(ProspectIn):
     ai_recommendation: Optional[Dict[str, Any]] = None
     observations: List[Dict[str, Any]] = Field(default_factory=list)
     converted_athlete_id: Optional[str] = None
+    share_id: Optional[str] = None
+    share_enabled: Optional[bool] = False
     created_at: str
     updated_at: Optional[str] = None
 
@@ -544,6 +546,107 @@ async def convert_to_athlete(pid: str, payload: ConvertIn, user=Depends(get_curr
         "updated_at": datetime.now(timezone.utc).isoformat(),
     }})
     return {"ok": True, "athlete_id": athlete["id"]}
+
+
+# ───────────────────────── LINK PÚBLICO (SCOUTING LINK) ─────────────────────────
+def _public_view(p: dict) -> dict:
+    ev = p.get("evaluation") or {}
+    ai = p.get("ai_recommendation") or {}
+    return {
+        "share_id": p.get("share_id"),
+        "name": p.get("name"),
+        "has_photo": bool(p.get("photo_path")),
+        "sport": p.get("sport"),
+        "sport_name": p.get("sport_name"),
+        "position": p.get("position"),
+        "current_club": p.get("current_club"),
+        "age": p.get("age"),
+        "nationality": p.get("nationality"),
+        "height_cm": p.get("height_cm"),
+        "weight_kg": p.get("weight_kg"),
+        "dominant_side": p.get("dominant_side"),
+        "overall_score": p.get("overall_score"),
+        "evaluation": {
+            "category_averages": ev.get("category_averages"),
+            "overall": ev.get("overall"),
+            "club_standard": ev.get("club_standard", CLUB_STANDARD),
+        } if ev else None,
+        "ai": {
+            "verdict": ai.get("verdict"),
+            "summary": ai.get("summary"),
+            "strengths": ai.get("strengths"),
+            "weaknesses": ai.get("weaknesses"),
+            "projected_ceiling": ai.get("projected_ceiling"),
+        } if ai else None,
+        "achievements": p.get("achievements") or [],
+        "video_links": p.get("video_links") or [],
+        "key_stats": p.get("key_stats") or {},
+        "bio": p.get("bio"),
+        "tags": p.get("tags") or [],
+        "contact": {"email": p.get("email"), "phone": p.get("phone")},
+    }
+
+
+@router.post("/prospects/{pid}/share")
+async def enable_share(pid: str, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    p = await _prospects.find_one({"id": pid, "coach_id": uid}, {"_id": 0})
+    if not p:
+        raise HTTPException(404, "Prospecto no encontrado")
+    share_id = p.get("share_id") or uuid.uuid4().hex
+    await _prospects.update_one({"id": pid}, {"$set": {
+        "share_id": share_id, "share_enabled": True,
+        "shared_at": datetime.now(timezone.utc).isoformat(),
+    }})
+    return {"share_id": share_id, "share_enabled": True}
+
+
+@router.delete("/prospects/{pid}/share")
+async def disable_share(pid: str, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    res = await _prospects.update_one({"id": pid, "coach_id": uid}, {"$set": {"share_enabled": False}})
+    if res.matched_count == 0:
+        raise HTTPException(404, "Prospecto no encontrado")
+    return {"share_enabled": False}
+
+
+async def _get_shared(share_id: str):
+    p = await _prospects.find_one({"share_id": share_id, "share_enabled": True}, {"_id": 0})
+    if not p:
+        raise HTTPException(404, "Ficha no disponible o enlace desactivado")
+    return p
+
+
+@router.get("/public/{share_id}")
+async def public_profile(share_id: str):
+    p = await _get_shared(share_id)
+    return _public_view(p)
+
+
+@router.get("/public/{share_id}/photo")
+async def public_photo(share_id: str):
+    p = await _get_shared(share_id)
+    if not p.get("photo_path"):
+        raise HTTPException(404, "Sin foto")
+    try:
+        content, ctype = _get_object(p["photo_path"])
+    except Exception as e:
+        raise HTTPException(500, f"Error obteniendo foto: {e}")
+    return Response(content=content, media_type=ctype, headers={"Cache-Control": "public, max-age=86400"})
+
+
+@router.get("/public/{share_id}/pdf")
+async def public_pdf(share_id: str):
+    p = await _get_shared(share_id)
+    photo_uri = await _photo_data_uri(p.get("photo_path"))
+    html = _build_profile_html(p, photo_uri)
+    try:
+        pdf = await _render_pdf(html)
+    except Exception as e:
+        raise HTTPException(500, f"Error generando PDF: {e}")
+    fname = f"scouting_{(p.get('name') or 'prospecto').replace(' ', '_').lower()}.pdf"
+    return Response(content=pdf, media_type="application/pdf",
+                    headers={"Content-Disposition": f'inline; filename=\"{fname}\"'})
 
 
 # ───────────────────────── DASHBOARD / RANKING ─────────────────────────

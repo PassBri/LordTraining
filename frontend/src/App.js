@@ -15,6 +15,7 @@ import SharedPlanPage from './pages/SharedPlanPage';
 import OrgTeamPage from './pages/OrgTeamPage';
 import SuperAdminPage from './pages/SuperAdminPage';
 import ThankYouPage from './pages/ThankYouPage';
+import PublicScoutingProfile from './pages/PublicScoutingProfile';
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -99,6 +100,9 @@ function AppRoutes() {
       
       {/* Public shared plan view (no auth required) */}
       <Route path="/plan/shared/:shareToken" element={<SharedPlanPage />} />
+
+      {/* Public scouting profile (no auth required) */}
+      <Route path="/scouting/p/:shareId" element={<PublicScoutingProfile />} />
       
       {/* Catch all */}
       <Route path="*" element={<Navigate to="/" replace />} />

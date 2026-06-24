@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import {
   Target, Plus, Users, Trello, ClipboardCheck, Trophy, X, Trash2, Edit2, Sparkles,
   FileDown, UserPlus, Camera, Video, Star, ChevronRight, MapPin, Loader2, Award,
-  TrendingUp, AlertTriangle, GitCompare, Phone, Mail, Instagram
+  TrendingUp, AlertTriangle, GitCompare, Phone, Mail, Instagram, Share2, Copy, Globe, Check
 } from 'lucide-react';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL && process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com') === -1 ? process.env.REACT_APP_BACKEND_URL : (typeof window !== 'undefined' ? window.location.origin : process.env.REACT_APP_BACKEND_URL));
@@ -456,6 +456,11 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
   const [obsCtx, setObsCtx] = useState('');
   const [convertOpen, setConvertOpen] = useState(false);
   const [teamId, setTeamId] = useState('');
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareId, setShareId] = useState(p.share_enabled ? p.share_id : null);
+  const [sharing, setSharing] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const shareUrl = shareId ? `${window.location.origin}/scouting/p/${shareId}` : null;
   const sm = stageMeta(p.stage);
   const ev = p.evaluation;
   const catLabel = { technical: 'Técnico', physical: 'Físico', tactical: 'Táctico', mental: 'Mental' };
@@ -471,6 +476,21 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
     catch { toast.error('Error al convertir'); }
   };
   const pdf = () => window.open(`${API_URL}/api/recruiting/prospects/${p.id}/profile-pdf?auth=${token()}`, '_blank');
+
+  const openShare = async () => {
+    setShareOpen(true);
+    if (!shareId) {
+      setSharing(true);
+      try { const r = await api(`/prospects/${p.id}/share`, { method: 'POST' }); setShareId(r.share_id); onChanged(p.id); }
+      catch { toast.error('No se pudo crear el enlace'); }
+      setSharing(false);
+    }
+  };
+  const copyLink = () => { navigator.clipboard?.writeText(shareUrl); setCopied(true); toast.success('Enlace copiado'); setTimeout(() => setCopied(false), 1800); };
+  const disableShare = async () => {
+    try { await api(`/prospects/${p.id}/share`, { method: 'DELETE' }); setShareId(null); setShareOpen(false); onChanged(p.id); toast.success('Enlace desactivado'); }
+    catch { toast.error('Error'); }
+  };
 
   return (
     <Dialog open onOpenChange={onClose}>
@@ -504,6 +524,7 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
           <div className="flex flex-wrap gap-2 mt-5">
             <Button size="sm" onClick={() => onEdit(p)} className="bg-white/10 hover:bg-white/20 text-white border border-white/20" data-testid="detail-edit-btn"><Edit2 className="w-3.5 h-3.5 mr-1" />Editar</Button>
             <Button size="sm" onClick={pdf} className="bg-white/10 hover:bg-white/20 text-white border border-white/20" data-testid="detail-pdf-btn"><FileDown className="w-3.5 h-3.5 mr-1" />Ficha PDF</Button>
+            <Button size="sm" onClick={openShare} className="bg-white/10 hover:bg-white/20 text-white border border-white/20" data-testid="detail-share-btn"><Share2 className="w-3.5 h-3.5 mr-1" />Compartir</Button>
             {!p.converted_athlete_id ? (
               <Button size="sm" onClick={() => setConvertOpen(true)} className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] font-bold" data-testid="detail-convert-btn"><UserPlus className="w-3.5 h-3.5 mr-1" />Reclutar → Atleta</Button>
             ) : <span className="text-[11px] text-emerald-300 self-center flex items-center gap-1"><Award className="w-4 h-4" />Reclutado como atleta</span>}
@@ -569,6 +590,38 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
             {!(p.observations || []).length && <p className="text-[12px] text-slate-400">Sin observaciones aún.</p>}
           </div>
         </div>
+
+        {/* Share dialog */}
+        {shareOpen && (
+          <Dialog open onOpenChange={() => setShareOpen(false)}>
+            <DialogContent className="max-w-md bg-white" data-testid="share-dialog">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2"><Globe className="w-5 h-5 text-emerald-500" />Link de Scouting público</DialogTitle>
+                <DialogDescription>Cualquiera con este enlace puede ver la ficha del deportista, sin necesidad de cuenta. Ideal para universidades y agencias.</DialogDescription>
+              </DialogHeader>
+              {sharing ? (
+                <div className="flex justify-center py-6"><Loader2 className="w-6 h-6 animate-spin text-slate-400" /></div>
+              ) : shareUrl ? (
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <Input readOnly value={shareUrl} className="bg-slate-50 text-slate-700 text-[13px]" data-testid="share-url-input" onFocus={(e) => e.target.select()} />
+                    <Button onClick={copyLink} className="bg-slate-900 text-white shrink-0" data-testid="share-copy-btn">
+                      {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    </Button>
+                  </div>
+                  <div className="flex gap-2">
+                    <a href={shareUrl} target="_blank" rel="noreferrer" className="flex-1">
+                      <Button variant="outline" className="w-full border-slate-300" data-testid="share-open-btn"><Globe className="w-4 h-4 mr-1" />Abrir ficha</Button>
+                    </a>
+                    <Button variant="outline" onClick={disableShare} className="border-red-200 text-red-500 hover:bg-red-50" data-testid="share-disable-btn">Desactivar enlace</Button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-slate-500 py-4">No se pudo generar el enlace.</p>
+              )}
+            </DialogContent>
+          </Dialog>
+        )}
 
         {/* Convert dialog */}
         {convertOpen && (
