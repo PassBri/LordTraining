@@ -740,12 +740,11 @@ async def public_photo(share_id: str):
 @router.get("/public/{share_id}/pdf")
 async def public_pdf(share_id: str, origin: str = Query(None), theme: str = Query("dark")):
     p = await _get_shared(share_id)
-    photo_uri = await _photo_data_uri(p.get("photo_path"))
-    season_html = await _season_html_for(p["id"], p["coach_id"], p.get("sport"))
+    photo = await _photo_bytes(p.get("photo_path"))
+    season = await _season_summary_for(p["id"], p["coach_id"], p.get("sport"))
     public_url = f"{origin.rstrip('/')}/scouting/p/{share_id}" if origin else None
-    html = _build_profile_html(p, photo_uri, public_url=public_url, season_html=season_html, public_only=True, theme=theme)
     try:
-        pdf = await _render_pdf(html)
+        pdf = _build_scout_pdf(p, photo, public_url=public_url, season=season, public_only=True, theme=theme)
     except Exception as e:
         raise HTTPException(500, f"Error generando PDF: {e}")
     fname = f"scouting_{(p.get('name') or 'prospecto').replace(' ', '_').lower()}.pdf"
@@ -1230,210 +1229,354 @@ def _esc(s) -> str:
     return str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-async def _photo_data_uri(photo_path: Optional[str]) -> Optional[str]:
+async def _photo_bytes(photo_path: Optional[str]) -> Optional[bytes]:
     if not photo_path:
         return None
     try:
-        content, ctype = _get_object(photo_path)
-        b64 = base64.b64encode(content).decode()
-        return f"data:{ctype};base64,{b64}"
+        content, _ = _get_object(photo_path)
+        return content
     except Exception:
         return None
 
 
-async def _season_html_for(prospect_id, coach_id, sport):
+async def _season_summary_for(prospect_id, coach_id, sport):
     records = await _stats.find({"prospect_id": prospect_id, "coach_id": coach_id}, {"_id": 0}).to_list(1000)
     if not records:
-        return ""
+        return {"count": 0, "items": []}
     template = await _stat_template(coach_id, sport)
     agg = _aggregate_stats(records, template)
     if not agg["count"]:
-        return ""
+        return {"count": 0, "items": []}
     labels = {m["key"]: m["label"] for c in template["categories"] for m in c["metrics"]}
-    items = list(agg["averages"].items())[:8]
-    cells = "".join(f"<div style='background:#0b1220;border:1px solid #1e293b;border-radius:8px;padding:6px;text-align:center;'><div style='font-size:8px;color:#94a3b8;text-transform:uppercase;'>{_esc(labels.get(k, k))}</div><div style='font-size:15px;font-weight:800;color:#CCFF00;'>{v}</div></div>" for k, v in items)
-    return f"<div style='font-size:9px;color:#64748b;margin-bottom:6px;'>{agg['count']} partidos/competencias · promedios</div><div style='display:grid;grid-template-columns:repeat(4,1fr);gap:8px;'>{cells}</div>"
+    items = [(labels.get(k, k), v) for k, v in list(agg["averages"].items())[:8]]
+    return {"count": agg["count"], "items": items}
 
 
-def _qr_data_uri(url: str):
+def _qr_reader(url: str):
     if not url:
         return None
     try:
         import qrcode
-        import io
+        import io as _io
+        from reportlab.lib.utils import ImageReader
         img = qrcode.make(url)
-        buf = io.BytesIO()
+        buf = _io.BytesIO()
         img.save(buf, format="PNG")
-        return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
+        buf.seek(0)
+        return ImageReader(buf)
     except Exception:
         return None
 
 
-_PDF_THEMES = {
-    "dark": {
-        "page": "#0f172a", "text": "#e2e8f0", "strong": "#ffffff", "muted": "#94a3b8",
-        "faint": "#64748b", "card": "#0b1220", "border": "#1e293b", "track": "#1e293b",
-        "footer": "#0b1220", "titlecol": "#CCFF00", "barlabel": "#e2e8f0", "summary": "#cbd5e1",
-    },
-    "light": {
-        "page": "#ffffff", "text": "#334155", "strong": "#0f172a", "muted": "#64748b",
-        "faint": "#94a3b8", "card": "#0f172a", "border": "#e2e8f0", "track": "#e2e8f0",
-        "footer": "#0f172a", "titlecol": "#0f172a", "barlabel": "#0f172a", "summary": "#334155",
-    },
-}
+def _score_hex(v):
+    if v is None:
+        return '#94a3b8'
+    return '#10b981' if v >= 80 else '#f59e0b' if v >= 65 else '#ef4444'
 
 
-def _build_profile_html(p: dict, photo_uri: Optional[str], public_url: Optional[str] = None,
-                        season_html: str = "", public_only: bool = False, theme: str = "dark") -> str:
-    T = _PDF_THEMES.get(theme, _PDF_THEMES["dark"])
-    ev = p.get("evaluation") or {}
-    ai = p.get("ai_recommendation") or {}
-    cat_avgs = ev.get("category_averages") or {}
-    blocks = _criteria_for(p.get("sport"))
-    cat_label = {b["key"]: b["label"] for b in blocks}
+def _verdict_hex(v):
+    return '#10b981' if v == 'RECRUIT' else '#f59e0b' if v == 'MONITOR' else '#ef4444' if v == 'PASS' else '#64748b'
 
-    bars = ""
-    for ckey, avg in cat_avgs.items():
-        pct = max(0, min(100, avg))
-        color = "#10b981" if pct >= CLUB_STANDARD else "#f59e0b" if pct >= CLUB_STANDARD - 15 else "#ef4444"
-        bars += f"""<div style="margin-bottom:10px;">
-          <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:{T['barlabel']};margin-bottom:3px;">
-            <span>{_esc(cat_label.get(ckey, ckey))}</span><span style="color:{color}">{pct}</span></div>
-          <div style="height:8px;background:{T['track']};border-radius:99px;overflow:hidden;">
-            <div style="width:{pct}%;height:100%;background:{color};"></div></div></div>"""
 
-    stats = "".join(
-        f"""<div style="background:{T['card']};border:1px solid {T['border']};border-radius:10px;padding:8px 10px;text-align:center;">
-            <div style="font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;">{_esc(k)}</div>
-            <div style="font-size:16px;font-weight:800;color:#CCFF00;">{_esc(v)}</div></div>"""
-        for k, v in (p.get("key_stats") or {}).items()
-    )
-    achievements = "".join(f"<li style='margin-bottom:4px;'>{_esc(a)}</li>" for a in (p.get("achievements") or []))
+def _bar_hex(v):
+    return '#10b981' if v >= CLUB_STANDARD else '#f59e0b' if v >= CLUB_STANDARD - 15 else '#ef4444'
 
-    # Videos públicos
-    pub_videos = [v for v in (p.get("video_links") or []) if v.get("is_public", True)]
-    VCAT = {"technical": "Técnico", "physical": "Físico", "match": "Partido", "tactical": "Táctico", "highlights": "Highlights", "interview": "Entrevista"}
-    videos = "".join(f"<div style='font-size:11px;color:#0ea5e9;margin-bottom:3px;'>▶ [{_esc(VCAT.get(v.get('category') or v.get('type'), 'Video'))}] {_esc(v.get('title') or 'Video')}: {_esc(v.get('url'))}</div>" for v in pub_videos)
 
-    # Transferencias (timeline)
-    transfers = [t for t in (p.get("transfers") or []) if (not public_only or t.get("is_public", True))]
-    transfers_html = ""
-    for t in transfers:
-        transfers_html += f"""<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;font-size:11px;color:{T['text']};">
-          <span style="width:8px;height:8px;border-radius:99px;background:#CCFF00;"></span>
-          <span style="font-weight:700;color:{T['strong']};">{_esc(t.get('from_entity') or '—')}</span>
-          <span style="color:{T['faint']};">→</span>
-          <span style="font-weight:700;color:{T['strong']};">{_esc(t.get('to_entity') or '—')}</span>
-          <span style="font-size:9px;text-transform:uppercase;background:{T['card']};border-radius:4px;padding:1px 5px;color:#94a3b8;">{_esc(t.get('type') or '')}</span>
-          <span style="margin-left:auto;color:{T['faint']};font-size:10px;">{_esc(t.get('date') or '')}</span></div>"""
+def _build_scout_pdf(p: dict, photo_bytes: Optional[bytes], public_url: Optional[str],
+                     season: dict, public_only: bool, theme: str) -> bytes:
+    """Genera la ficha de scouting con ReportLab (sin navegador headless → funciona en producción)."""
+    import io
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib.colors import HexColor
+    from reportlab.lib.utils import ImageReader
+    from reportlab.pdfbase.pdfmetrics import stringWidth
 
-    # Valor comercial
-    show_value = (not public_only) or p.get("market_value_public")
-    market_html = ""
-    if show_value and p.get("market_value") is not None:
+    is_dark = theme != "light"
+    bg = HexColor('#0f172a') if is_dark else HexColor('#ffffff')
+    ink = HexColor('#e5e7eb') if is_dark else HexColor('#1e293b')
+    muted = HexColor('#94a3b8') if is_dark else HexColor('#64748b')
+    surface = HexColor('#0b1220') if is_dark else HexColor('#f1f5f9')
+    border = HexColor('#1e293b') if is_dark else HexColor('#e2e8f0')
+    accent = HexColor('#CCFF00')
+    header_bg = HexColor('#0f172a')
+    white = HexColor('#ffffff')
+    card_bg = HexColor('#0b1220') if is_dark else HexColor('#0f172a')
+    title_col = accent if is_dark else HexColor('#0f172a')
+
+    W, H = letter
+    M = 36
+    F, FB = "Helvetica", "Helvetica-Bold"
+    buf = io.BytesIO()
+    c = canvas.Canvas(buf, pagesize=letter)
+
+    def paint_bg():
+        c.setFillColor(bg)
+        c.rect(0, 0, W, H, fill=1, stroke=0)
+
+    paint_bg()
+
+    def text(x, y, s, size=10, color=ink, bold=False):
+        c.setFont(FB if bold else F, size)
+        c.setFillColor(color)
+        c.drawString(x, y, str(s))
+
+    def rtext(x, y, s, size=10, color=ink, bold=False):
+        c.setFont(FB if bold else F, size)
+        c.setFillColor(color)
+        c.drawRightString(x, y, str(s))
+
+    def wrap(s, size, max_w, bold=False):
+        font = FB if bold else F
+        out, cur = [], ""
+        for w in str(s).split():
+            t = (cur + " " + w).strip()
+            if stringWidth(t, font, size) <= max_w:
+                cur = t
+            else:
+                if cur:
+                    out.append(cur)
+                cur = w
+        if cur:
+            out.append(cur)
+        return out
+
+    state = {"y": 0}
+
+    def newpage():
+        c.showPage()
+        paint_bg()
+        state["y"] = H - 44
+
+    def ensure(need):
+        if state["y"] - need < 54:
+            newpage()
+
+    def section(title):
+        ensure(30)
+        y = state["y"]
+        c.setFillColor(accent)
+        c.rect(M, y - 1, 3, 12, fill=1, stroke=0)
+        text(M + 9, y, title.upper(), 11, title_col, True)
+        state["y"] = y - 17
+
+    # ───── HEADER ─────
+    hh = 150
+    c.setFillColor(header_bg)
+    c.roundRect(M, H - 30 - hh, W - 2 * M, hh, 12, fill=1, stroke=0)
+    c.setFillColor(accent)
+    c.rect(M, H - 30 - hh, W - 2 * M, 4, fill=1, stroke=0)
+    text(M + 16, H - 50, "LORDTRAINING", 10, accent, True)
+    c.setFont(FB, 10)
+    c.setFillColor(white)
+    c.drawString(M + 16 + stringWidth("LORDTRAINING", FB, 10), H - 50, " · SCOUTING REPORT")
+    rtext(W - M - 16, H - 50, datetime.now().strftime('%d/%m/%Y'), 9, muted)
+
+    px, py, pw, ph = M + 16, H - 30 - hh + 20, 78, 98
+    drew = False
+    if photo_bytes:
         try:
-            mv = f"{float(p.get('market_value')):,.0f}"
+            c.drawImage(ImageReader(io.BytesIO(photo_bytes)), px, py, pw, ph, mask='auto')
+            drew = True
         except Exception:
-            mv = str(p.get("market_value"))
-        market_html = f"<div style='font-size:22px;font-weight:900;color:#10b981;'>{_esc(p.get('market_currency') or 'USD')} {mv}</div><div style='font-size:10px;color:{T['faint']};'>Valor de mercado</div>"
+            drew = False
+    if not drew:
+        c.setFillColor(HexColor('#1e293b'))
+        c.roundRect(px, py, pw, ph, 8, fill=1, stroke=0)
+        c.setFont(FB, 26)
+        c.setFillColor(HexColor('#475569'))
+        c.drawCentredString(px + pw / 2, py + ph / 2 - 9, "★")
+    c.setStrokeColor(accent)
+    c.setLineWidth(2)
+    c.roundRect(px, py, pw, ph, 8, fill=0, stroke=1)
 
-    # Patrocinios
+    ix = px + pw + 18
+    text(ix, H - 66, (p.get('name') or '')[:34], 19, white, True)
+    pos_sport = " · ".join([x for x in [p.get('position'), p.get('sport_name') or p.get('sport')] if x])
+    if pos_sport:
+        text(ix, H - 84, pos_sport[:48], 11, accent, True)
+    meta1 = "   •   ".join([x for x in [("Edad " + str(p.get('age'))) if p.get('age') else None,
+                                        p.get('current_club') or 'Sin club', p.get('nationality')] if x])
+    text(ix, H - 101, meta1[:60], 9, muted)
+    meta2 = "   •   ".join([x for x in [(str(p.get('height_cm')) + ' cm') if p.get('height_cm') else None,
+                                        (str(p.get('weight_kg')) + ' kg') if p.get('weight_kg') else None,
+                                        p.get('dominant_side')] if x])
+    if meta2:
+        text(ix, H - 114, meta2[:60], 9, muted)
+
+    overall = p.get('overall_score')
+    rtext(W - M - 22, H - 58, "SCORE", 8, muted)
+    c.setFont(FB, 34)
+    c.setFillColor(accent)
+    c.drawRightString(W - M - 22, H - 94, str(overall) if overall is not None else "—")
+    ai = p.get('ai_recommendation') or {}
+    verdict = ai.get('verdict') or "—"
+    vcol = HexColor(_verdict_hex(verdict))
+    vw = stringWidth(verdict, FB, 8) + 16
+    c.setFillColor(vcol)
+    c.roundRect(W - M - 22 - vw, H - 116, vw, 15, 7, fill=1, stroke=0)
+    c.setFont(FB, 8)
+    c.setFillColor(white)
+    c.drawCentredString(W - M - 22 - vw / 2, H - 111, verdict)
+
+    state["y"] = H - 30 - hh - 24
+
+    # ───── EVALUACIÓN POR ÁREA ─────
+    ev = p.get('evaluation') or {}
+    cat_avgs = ev.get('category_averages') or {}
+    blocks = _criteria_for(p.get('sport'))
+    cat_label = {b["key"]: b["label"] for b in blocks}
+    section("Evaluación por área")
+    if cat_avgs:
+        track_w = W - 2 * M - 120
+        for ckey, avg in cat_avgs.items():
+            ensure(22)
+            y = state["y"]
+            pct = max(0, min(100, avg))
+            col = HexColor(_bar_hex(pct))
+            text(M, y, cat_label.get(ckey, ckey), 10, ink, True)
+            rtext(M + 110 + track_w, y, str(pct), 10, col, True)
+            c.setFillColor(border)
+            c.roundRect(M + 100, y - 2, track_w, 7, 3, fill=1, stroke=0)
+            c.setFillColor(col)
+            c.roundRect(M + 100, y - 2, max(2, track_w * pct / 100.0), 7, 3, fill=1, stroke=0)
+            state["y"] = y - 18
+        text(M, state["y"], f"Estándar del club: {CLUB_STANDARD}", 9, muted)
+        state["y"] -= 16
+    else:
+        text(M, state["y"], "Sin evaluación registrada.", 9, muted)
+        state["y"] -= 16
+
+    # ───── INFORME IA ─────
+    summary = ai.get('summary') or p.get('bio') or 'Sin informe generado.'
+    section("Informe IA")
+    for ln in wrap(summary, 10, W - 2 * M)[:12]:
+        ensure(14)
+        text(M, state["y"], ln, 10, ink)
+        state["y"] -= 13
+    strengths = ai.get('strengths') or []
+    if strengths:
+        state["y"] -= 4
+        text(M, state["y"], "FORTALEZAS", 8, muted, True)
+        state["y"] -= 13
+        for s in strengths[:4]:
+            for i, ln in enumerate(wrap("• " + str(s), 9, W - 2 * M - 8)):
+                ensure(13)
+                text(M + (0 if i == 0 else 10), state["y"], ln, 9, HexColor('#16a34a'))
+                state["y"] -= 12
+    state["y"] -= 8
+
+    # ───── ESTADÍSTICAS DE TEMPORADA ─────
+    if season.get("count"):
+        section(f"Estadísticas de temporada ({season['count']} registros · promedios)")
+        items = season["items"]
+        cols, gap = 4, 8
+        cw = (W - 2 * M - (cols - 1) * gap) / cols
+        chh = 40
+        for row_start in range(0, len(items), cols):
+            ensure(chh + 8)
+            y = state["y"]
+            row = items[row_start:row_start + cols]
+            for i, (lbl, val) in enumerate(row):
+                cx = M + i * (cw + gap)
+                c.setFillColor(card_bg)
+                c.roundRect(cx, y - chh, cw, chh, 8, fill=1, stroke=0)
+                c.setFont(FB, 7)
+                c.setFillColor(HexColor('#94a3b8'))
+                c.drawCentredString(cx + cw / 2, y - 13, str(lbl)[:16].upper())
+                c.setFont(FB, 15)
+                c.setFillColor(accent)
+                c.drawCentredString(cx + cw / 2, y - 31, str(val))
+            state["y"] = y - chh - 8
+
+    # ───── TRAYECTORIA / TRANSFERENCIAS ─────
+    transfers = [t for t in (p.get("transfers") or []) if (not public_only or t.get("is_public", True))]
+    if transfers:
+        section("Trayectoria / Transferencias")
+        for t in transfers:
+            ensure(15)
+            y = state["y"]
+            c.setFillColor(accent)
+            c.circle(M + 3, y + 3, 3, fill=1, stroke=0)
+            line = f"{t.get('from_entity') or '—'}  →  {t.get('to_entity') or '—'}"
+            text(M + 12, y, line[:60], 10, ink, True)
+            extra = " ".join([x for x in [t.get('type'), t.get('date')] if x])
+            if extra:
+                rtext(W - M, y, extra, 9, muted)
+            state["y"] = y - 15
+        state["y"] -= 6
+
+    # ───── VALOR & PATROCINIOS ─────
+    show_value = (not public_only) or p.get("market_value_public")
     sponsors = [s for s in (p.get("sponsorships") or []) if (not public_only or s.get("is_public", True))]
-    sponsors_html = "".join(f"<span style='display:inline-block;background:{T['card']};border-radius:99px;padding:3px 10px;font-size:10px;color:#e2e8f0;margin:2px;'>{_esc(s.get('name'))}{(' · ' + _esc(str(s.get('amount')))) if s.get('amount') else ''}</span>" for s in sponsors)
+    if (show_value and p.get("market_value") is not None) or sponsors:
+        section("Valor & Patrocinios")
+        if show_value and p.get("market_value") is not None:
+            ensure(20)
+            try:
+                mv = f"{float(p.get('market_value')):,.0f}"
+            except Exception:
+                mv = str(p.get("market_value"))
+            text(M, state["y"], f"{p.get('market_currency') or 'USD'} {mv}", 16, HexColor('#10b981'), True)
+            text(M + stringWidth(f"{p.get('market_currency') or 'USD'} {mv}", FB, 16) + 8, state["y"], "valor de mercado", 9, muted)
+            state["y"] -= 18
+        if sponsors:
+            names = "   ·   ".join([f"{s.get('name')}{(' (' + str(s.get('amount')) + ')') if s.get('amount') else ''}" for s in sponsors])
+            for ln in wrap(names, 9, W - 2 * M):
+                ensure(13)
+                text(M, state["y"], ln, 9, ink)
+                state["y"] -= 12
+        state["y"] -= 6
 
-    qr_uri = _qr_data_uri(public_url) if public_url else None
-    qr_html = (f"<div style='text-align:center;'><img src='{qr_uri}' style='width:90px;height:90px;background:#fff;border-radius:8px;padding:4px;'/><div style='font-size:8px;color:{T['faint']};margin-top:3px;'>Perfil interactivo</div></div>" if qr_uri else "")
+    # ───── LOGROS ─────
+    achievements = p.get("achievements") or []
+    if achievements:
+        section("Logros")
+        for a in achievements:
+            for i, ln in enumerate(wrap("• " + str(a), 9, W - 2 * M - 8)):
+                ensure(13)
+                text(M + (0 if i == 0 else 10), state["y"], ln, 9, ink)
+                state["y"] -= 12
+        state["y"] -= 6
 
-    overall = p.get("overall_score")
-    verdict = ai.get("verdict") or "—"
-    vcolor = "#10b981" if verdict == "RECRUIT" else "#f59e0b" if verdict == "MONITOR" else "#ef4444" if verdict == "PASS" else "#64748b"
+    # ───── VIDEOS PÚBLICOS ─────
+    VCAT = {"technical": "Técnico", "physical": "Físico", "match": "Partido", "tactical": "Táctico", "highlights": "Highlights", "interview": "Entrevista"}
+    pub_videos = [v for v in (p.get("video_links") or []) if v.get("is_public", True)]
+    if pub_videos:
+        section("Videos públicos")
+        for v in pub_videos:
+            ensure(13)
+            cat = VCAT.get(v.get('category') or v.get('type'), 'Video')
+            line = f"▶ [{cat}] {v.get('title') or 'Video'}: {v.get('url')}"
+            text(M, state["y"], line[:88], 9, HexColor('#0ea5e9'))
+            state["y"] -= 12
+        state["y"] -= 6
 
-    photo_html = (f"<img src='{photo_uri}' style='width:130px;height:160px;object-fit:cover;border-radius:12px;border:3px solid #CCFF00;'/>"
-                  if photo_uri else
-                  "<div style='width:130px;height:160px;border-radius:12px;background:#1e293b;display:flex;align-items:center;justify-content:center;color:#475569;font-size:40px;'>★</div>")
+    # ───── FIRMA + QR ─────
+    ensure(70)
+    y = state["y"] - 6
+    c.setStrokeColor(muted)
+    c.setLineWidth(0.6)
+    c.line(M, y - 26, M + 170, y - 26)
+    text(M, y - 38, "Firma del entrenador / club", 9, muted)
+    qr = _qr_reader(public_url) if public_url else None
+    if qr:
+        try:
+            c.drawImage(qr, W - M - 64, y - 64, 64, 64, mask='auto')
+            rtext(W - M, y - 74, "Perfil interactivo", 7, muted)
+        except Exception:
+            pass
 
-    sec_title = f"font-size:12px;font-weight:800;color:{T['titlecol']};border-left:3px solid #CCFF00;padding-left:8px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;"
+    # ───── BANDA INFERIOR ─────
+    c.setFillColor(card_bg)
+    c.rect(0, 0, W, 32, fill=1, stroke=0)
+    text(M, 12, f"{p.get('email') or '—'}    {p.get('phone') or '—'}", 9, HexColor('#94a3b8'))
+    rtext(W - M, 12, "Identifica el talento. Construye el futuro.", 9, accent, True)
 
-    return f"""<!doctype html><html><head><meta charset="utf-8">
-<style>*{{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif;}}</style></head>
-<body style="width:794px;background:{T['page']};color:{T['text']};padding:0;">
-  <div style="background:linear-gradient(120deg,#0f172a 0%,#111c33 60%,#0b1220 100%);padding:28px 32px;border-bottom:4px solid #CCFF00;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
-      <div style="font-size:13px;font-weight:800;letter-spacing:2px;color:#CCFF00;">LORD<span style="color:#fff;">TRAINING</span> · SCOUTING REPORT</div>
-      <div style="font-size:10px;color:#64748b;">{datetime.now().strftime('%d/%m/%Y')}</div>
-    </div>
-    <div style="display:flex;gap:22px;align-items:center;">
-      {photo_html}
-      <div style="flex:1;">
-        <div style="font-size:30px;font-weight:900;color:#fff;line-height:1;">{_esc(p.get('name'))}</div>
-        <div style="font-size:14px;color:#CCFF00;font-weight:700;margin-top:4px;">{_esc(p.get('position') or '')} · {_esc(p.get('sport_name') or p.get('sport') or '')}</div>
-        <div style="font-size:12px;color:#94a3b8;margin-top:8px;">
-          {('Edad ' + str(p.get('age'))) if p.get('age') else ''} &nbsp;•&nbsp; {_esc(p.get('current_club') or 'Sin club')} &nbsp;•&nbsp; {_esc(p.get('nationality') or '')}
-        </div>
-        <div style="font-size:12px;color:#94a3b8;margin-top:3px;">
-          {(str(p.get('height_cm')) + ' cm') if p.get('height_cm') else ''} {('· ' + str(p.get('weight_kg')) + ' kg') if p.get('weight_kg') else ''} {('· ' + _esc(p.get('dominant_side'))) if p.get('dominant_side') else ''}
-        </div>
-      </div>
-      <div style="text-align:center;">
-        <div style="font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;">Score</div>
-        <div style="font-size:46px;font-weight:900;color:#CCFF00;line-height:1;">{overall if overall is not None else '—'}</div>
-        <div style="margin-top:6px;display:inline-block;padding:3px 10px;border-radius:99px;background:{vcolor}22;color:{vcolor};font-size:11px;font-weight:800;">{_esc(verdict)}</div>
-      </div>
-    </div>
-  </div>
+    c.showPage()
+    c.save()
+    return buf.getvalue()
 
-  <div style="display:flex;gap:20px;padding:24px 32px 14px;">
-    <div style="flex:1;">
-      <div style="{sec_title}">Evaluación por área</div>
-      {bars or f'<div style="color:{T["faint"]};font-size:11px;">Sin evaluación registrada.</div>'}
-      <div style="font-size:11px;color:{T['muted']};margin-top:8px;">Estándar del club: <b style="color:{T['strong']};">{CLUB_STANDARD}</b></div>
-      {('<div style="margin-top:16px;' + sec_title + '">Stats clave</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">' + stats + '</div>') if stats else ''}
-    </div>
-    <div style="flex:1;">
-      <div style="{sec_title}">Informe IA</div>
-      <div style="font-size:12px;color:{T['summary']};line-height:1.55;margin-bottom:12px;">{_esc(ai.get('summary') or p.get('bio') or 'Sin informe generado.')}</div>
-      {('<div style="font-size:10px;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Fortalezas</div><ul style="font-size:11px;color:#16a34a;padding-left:16px;margin-bottom:10px;">' + ''.join('<li>' + _esc(s) + '</li>' for s in ai.get('strengths', [])) + '</ul>') if ai.get('strengths') else ''}
-    </div>
-  </div>
-
-  {('<div style="padding:0 32px 14px;"><div style="' + sec_title + '">Estadísticas de temporada</div>' + season_html + '</div>') if season_html else ''}
-
-  {('<div style="padding:0 32px 14px;"><div style="' + sec_title + '">Trayectoria / Transferencias</div>' + transfers_html + '</div>') if transfers_html else ''}
-
-  <div style="display:flex;gap:20px;padding:0 32px 14px;">
-    {('<div style="flex:1;"><div style="' + sec_title + '">Valor & Patrocinios</div>' + market_html + ('<div style="margin-top:6px;">' + sponsors_html + '</div>' if sponsors_html else '') + '</div>') if (market_html or sponsors_html) else '<div style="flex:1;"></div>'}
-    {('<div><div style="' + sec_title + '">Logros</div><ul style="font-size:11px;color:' + T['text'] + ';padding-left:16px;">' + achievements + '</ul></div>') if achievements else ''}
-  </div>
-
-  {('<div style="padding:0 32px 14px;"><div style="' + sec_title + '">Videos públicos</div>' + videos + '</div>') if videos else ''}
-
-  <div style="display:flex;justify-content:space-between;align-items:flex-end;padding:14px 32px 6px;border-top:1px solid {T['border']};margin-top:6px;">
-    <div style="text-align:center;">
-      <div style="width:180px;border-top:1px solid {T['muted']};padding-top:4px;font-size:10px;color:{T['muted']};">Firma del entrenador / club</div>
-    </div>
-    {qr_html}
-  </div>
-
-  <div style="background:{T['footer']};padding:14px 32px;display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;">
-    <span>📧 {_esc(p.get('email') or '—')} &nbsp; 📞 {_esc(p.get('phone') or '—')}</span>
-    <span style="color:#CCFF00;font-weight:700;">Identifica el talento. Construye el futuro.</span>
-  </div>
-</body></html>"""
-
-
-async def _render_pdf(html: str) -> bytes:
-    os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/pw-browsers"
-    from playwright.async_api import async_playwright
-    async with async_playwright() as pw:
-        browser = await pw.chromium.launch(headless=True,
-            args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'])
-        page = await browser.new_page(viewport={"width": 794, "height": 1123})
-        await page.set_content(html, wait_until="networkidle")
-        await page.wait_for_timeout(500)
-        pdf = await page.pdf(format="A4", print_background=True,
-                             margin={"top": "0", "bottom": "0", "left": "0", "right": "0"})
-        await browser.close()
-    return pdf
 
 
 @router.get("/prospects/{pid}/profile-pdf")
@@ -1453,14 +1596,13 @@ async def profile_pdf(pid: str, auth: str = Query(None), origin: str = Query(Non
     p = await _prospects.find_one({"id": pid, "coach_id": uid}, {"_id": 0})
     if not p:
         raise HTTPException(404, "Prospecto no encontrado")
-    photo_uri = await _photo_data_uri(p.get("photo_path"))
-    season_html = await _season_html_for(pid, uid, p.get("sport"))
+    photo = await _photo_bytes(p.get("photo_path"))
+    season = await _season_summary_for(pid, uid, p.get("sport"))
     public_url = None
     if origin and p.get("share_enabled") and p.get("share_id"):
         public_url = f"{origin.rstrip('/')}/scouting/p/{p['share_id']}"
-    html = _build_profile_html(p, photo_uri, public_url=public_url, season_html=season_html, public_only=False, theme=theme)
     try:
-        pdf = await _render_pdf(html)
+        pdf = _build_scout_pdf(p, photo, public_url=public_url, season=season, public_only=False, theme=theme)
     except Exception as e:
         raise HTTPException(500, f"Error generando PDF: {e}")
     fname = f"scouting_{(p.get('name') or 'prospecto').replace(' ', '_').lower()}.pdf"

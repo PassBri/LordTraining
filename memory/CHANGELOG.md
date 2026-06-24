@@ -48,6 +48,16 @@
 
 ## Pendientes / Notas
 
+## 2026-06-24 — FIX CRÍTICO: PDF de Scouting en PRODUCCIÓN + temas + mapa 🛠️
+- **Causa raíz del PDF que fallaba SOLO en producción (500)**: la ficha usaba **Playwright (Chromium headless)** para renderizar HTML→PDF. En el contenedor de producción el navegista headless no está disponible/operativo (en preview sí), por eso devolvía 500. Los PDFs basados en **ReportLab** del proyecto (ej. PDF de sesión "classic") sí funcionan en prod.
+- **Solución**: Reescrita la ficha de scouting con **ReportLab** (`_build_scout_pdf` en `routes/recruiting.py`), sin navegador → funciona en producción. Soporta **tema oscuro y claro** (verificado: fondo oscuro #0f172a vs blanco #ffffff, texto legible, sin solapamientos, header con foto/score/verdict, QR, banda inferior con tagline). Eliminadas funciones obsoletas `_build_profile_html`, `_render_pdf`, `_photo_data_uri`, `_season_html_for`, `_qr_data_uri`, `_PDF_THEMES`. Nuevas: `_photo_bytes`, `_season_summary_for`, `_qr_reader`, `_build_scout_pdf`.
+- **Botones PDF Oscuro / Claro**: en el detalle del prospecto (`detail-pdf-dark-btn`, `detail-pdf-light-btn`) y en la página pública (`public-pdf-dark-btn`, `public-pdf-light-btn`). Endpoints `profile-pdf` y `public/{share_id}/pdf` aceptan `?theme=dark|light`.
+- **Mapa ya no se ve negro**: tiles cambiados de `dark_all` a **`voyager`** (claro/colorido) de CartoDB en `ScoutingMap.js`, con overlay de carga.
+- Verificado por curl: profile-pdf y public pdf, ambos temas → HTTP 200, PDF válido (~16KB ReportLab).
+- **PENDIENTE USUARIO**: hacer **Deploy** para que el fix llegue a lordtraining.com.
+
+
+
 ## 2026-06-24 — FASE 2: Recruiting & Talent ID (todo en MongoDB) 🚀
 - **Backend** `/app/backend/routes/recruiting.py` (nuevas colecciones `recruiting_contacts`, `recruiting_settings`):
   - **Alertas y seguimiento**: `GET /api/recruiting/alerts` (sin evaluar hace N días, contrato/patrocinio por vencer/vencido, severidades danger/warning/info; omite prospectos recruited/declined). `GET/PUT /api/recruiting/settings` (eval_days, expiry_days persistidos).
