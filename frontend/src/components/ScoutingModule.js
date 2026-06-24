@@ -1,0 +1,711 @@
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { toast } from 'sonner';
+import {
+  Target, Plus, Users, Trello, ClipboardCheck, Trophy, X, Trash2, Edit2, Sparkles,
+  FileDown, UserPlus, Camera, Video, Star, ChevronRight, MapPin, Loader2, Award,
+  TrendingUp, AlertTriangle, GitCompare, Phone, Mail, Instagram
+} from 'lucide-react';
+
+const API_URL = (process.env.REACT_APP_BACKEND_URL && process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com') === -1 ? process.env.REACT_APP_BACKEND_URL : (typeof window !== 'undefined' ? window.location.origin : process.env.REACT_APP_BACKEND_URL));
+
+const token = () => localStorage.getItem('train_token');
+const api = async (path, { method = 'GET', body, raw } = {}) => {
+  const res = await fetch(`${API_URL}/api/recruiting${path}`, {
+    method,
+    headers: { 'Authorization': `Bearer ${token()}`, ...(body && !raw ? { 'Content-Type': 'application/json' } : {}) },
+    body: body ? (raw ? body : JSON.stringify(body)) : undefined,
+  });
+  if (!res.ok) { const t = await res.text(); throw new Error(t || res.statusText); }
+  const ct = res.headers.get('content-type') || '';
+  return ct.includes('application/json') ? res.json() : res;
+};
+
+const photoUrl = (p) => p ? `${API_URL}/api/recruiting/files/${p}?auth=${token()}` : null;
+
+const STAGES = [
+  { key: 'prospect', label: 'Prospect', color: '#64748b' },
+  { key: 'contacted', label: 'Contacted', color: '#0ea5e9' },
+  { key: 'trial', label: 'Trial', color: '#f59e0b' },
+  { key: 'decision', label: 'Decision', color: '#8b5cf6' },
+];
+const stageMeta = (k) => STAGES.find(s => s.key === k) || STAGES[0];
+const scoreColor = (s) => s == null ? '#94a3b8' : s >= 80 ? '#10b981' : s >= 65 ? '#f59e0b' : '#ef4444';
+const verdictColor = (v) => v === 'RECRUIT' ? '#10b981' : v === 'MONITOR' ? '#f59e0b' : v === 'PASS' ? '#ef4444' : '#64748b';
+
+const TABS = [
+  { key: 'prospects', label: 'Prospectos', icon: Users },
+  { key: 'pipeline', label: 'Pipeline', icon: Trello },
+  { key: 'evaluation', label: 'Evaluación', icon: ClipboardCheck },
+  { key: 'ranking', label: 'Ranking', icon: Trophy },
+];
+
+const emptyProspect = () => ({
+  name: '', sport: 'football', sport_name: 'Fútbol', position: '', current_club: '', age: '',
+  nationality: '', gender: '', height_cm: '', weight_kg: '', dominant_side: '', email: '', phone: '',
+  guardian_contact: '', photo_path: null, bio: '', social_links: {}, video_links: [], achievements: [],
+  key_stats: {}, tags: [], stage: 'prospect', outcome: null,
+});
+
+const SPORTS = [
+  ['football', 'Fútbol'], ['basketball', 'Baloncesto'], ['volleyball', 'Voleibol'],
+  ['tennis', 'Tenis'], ['handball', 'Balonmano'], ['rugby', 'Rugby'], ['other', 'Otro'],
+];
+
+export default function ScoutingModule() {
+  const [tab, setTab] = useState('prospects');
+  const [prospects, setProspects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [detail, setDetail] = useState(null);     // prospect being viewed
+  const [editing, setEditing] = useState(null);   // prospect being edited (form)
+  const [dash, setDash] = useState(null);
+  const [teams, setTeams] = useState([]);
+  const [compare, setCompare] = useState([]);      // ids selected to compare
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await api('/prospects');
+      setProspects(data);
+    } catch (e) { toast.error('Error cargando prospectos'); }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    if (tab === 'ranking') api('/dashboard').then(setDash).catch(() => {});
+  }, [tab, prospects]);
+  useEffect(() => {
+    fetch(`${API_URL}/api/teams`, { headers: { Authorization: `Bearer ${token()}` } })
+      .then(r => r.ok ? r.json() : []).then(setTeams).catch(() => {});
+  }, []);
+
+  const refreshOne = async (id) => {
+    const p = await api(`/prospects/${id}`);
+    setProspects(prev => prev.map(x => x.id === id ? p : x));
+    if (detail?.id === id) setDetail(p);
+    return p;
+  };
+
+  return (
+    <div className="p-4 sm:p-6 max-w-[1400px] mx-auto" data-testid="scouting-module">
+      {/* Header */}
+      <div className="rounded-2xl p-5 mb-5 relative overflow-hidden" style={{ background: 'linear-gradient(120deg,#0f172a 0%,#13203a 55%,#0b1220 100%)' }}>
+        <div className="absolute -right-8 -top-8 opacity-10"><Target className="w-40 h-40 text-[#CCFF00]" /></div>
+        <div className="flex items-center gap-3 relative">
+          <div className="w-12 h-12 rounded-xl bg-[#CCFF00] flex items-center justify-center shadow-lg"><Target className="w-7 h-7 text-slate-900" strokeWidth={2.5} /></div>
+          <div>
+            <h1 className="text-white text-2xl font-black tracking-tight" style={{ fontFamily: "'DM Sans',sans-serif" }}>Recruiting & Talent ID</h1>
+            <p className="text-[#CCFF00] text-sm font-medium">Identifica el talento. Construye el futuro.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Internal Tabs */}
+      <div className="flex items-center gap-2 mb-5 flex-wrap">
+        {TABS.map(t => {
+          const Icon = t.icon; const active = tab === t.key;
+          return (
+            <button key={t.key} onClick={() => setTab(t.key)} data-testid={`scouting-tab-${t.key}`}
+              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all"
+              style={active ? { background: '#0f172a', color: '#CCFF00' } : { background: '#fff', color: '#475569', border: '1px solid #e2e8f0' }}>
+              <Icon className="w-4 h-4" /> {t.label}
+            </button>
+          );
+        })}
+        <div className="flex-1" />
+        {tab === 'prospects' && (
+          <Button onClick={() => setEditing(emptyProspect())} data-testid="scouting-new-prospect-btn" className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] font-bold rounded-full">
+            <Plus className="w-4 h-4 mr-1" /> Nuevo Prospecto
+          </Button>
+        )}
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-slate-400" /></div>
+      ) : (
+        <>
+          {tab === 'prospects' && <ProspectsGrid prospects={prospects} onOpen={setDetail} onEdit={setEditing} />}
+          {tab === 'pipeline' && <Pipeline prospects={prospects} onOpen={setDetail} onMoved={refreshOne} setProspects={setProspects} />}
+          {tab === 'evaluation' && <EvaluationTab prospects={prospects} onSaved={refreshOne} />}
+          {tab === 'ranking' && <RankingTab dash={dash} prospects={prospects} compare={compare} setCompare={setCompare} onOpen={setDetail} />}
+        </>
+      )}
+
+      {detail && <ProspectDetail prospect={detail} teams={teams} onClose={() => setDetail(null)}
+        onChanged={refreshOne} onDeleted={(id) => { setProspects(prev => prev.filter(x => x.id !== id)); setDetail(null); }}
+        onEdit={(p) => { setDetail(null); setEditing(p); }} />}
+
+      {editing && <ProspectForm initial={editing} onClose={() => setEditing(null)}
+        onSaved={(p) => { setEditing(null); load(); }} />}
+    </div>
+  );
+}
+
+/* ---------------- Prospect Card (social style) ---------------- */
+function ProspectCard({ p, onOpen, onEdit, draggable, onDragStart, compact }) {
+  const sc = p.overall_score;
+  const sm = stageMeta(p.stage);
+  const verdict = p.ai_recommendation?.verdict;
+  return (
+    <div data-testid={`prospect-card-${p.id}`} draggable={draggable} onDragStart={onDragStart}
+      onClick={() => onOpen(p)}
+      className="group relative rounded-2xl overflow-hidden cursor-pointer bg-white transition-all duration-300 hover:-translate-y-1"
+      style={{ boxShadow: '0 1px 3px rgba(0,0,0,.08), 0 0 0 1px rgba(15,23,42,.06)' }}
+      onMouseEnter={e => e.currentTarget.style.boxShadow = '0 16px 34px -10px rgba(15,23,42,.35)'}
+      onMouseLeave={e => e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,.08), 0 0 0 1px rgba(15,23,42,.06)'}>
+      <div className="relative" style={{ aspectRatio: compact ? '16/9' : '4/3', background: 'linear-gradient(135deg,#1e293b,#0f172a)' }}>
+        {p.photo_path ? (
+          <img src={photoUrl(p.photo_path)} alt={p.name} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-slate-600 text-5xl font-black">{(p.name || '?').slice(0, 1)}</div>
+        )}
+        <div className="absolute inset-x-0 bottom-0 h-2/3" style={{ background: 'linear-gradient(to top,rgba(15,23,42,.92),transparent)' }} />
+        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide" style={{ background: sm.color + 'e6', color: '#fff' }}>{sm.label}</div>
+        {sc != null && (
+          <div className="absolute top-2 right-2 w-11 h-11 rounded-full flex flex-col items-center justify-center" style={{ background: scoreColor(sc), boxShadow: '0 2px 8px rgba(0,0,0,.3)' }}>
+            <span className="text-white font-black text-base leading-none">{sc}</span>
+          </div>
+        )}
+        <div className="absolute bottom-2 left-3 right-3">
+          <div className="text-white font-black text-lg leading-tight truncate" style={{ fontFamily: "'DM Sans',sans-serif" }}>{p.name}</div>
+          <div className="text-[#CCFF00] text-[11px] font-bold truncate">{p.position || '—'} · {p.sport_name || p.sport}</div>
+        </div>
+      </div>
+      <div className="px-3 py-2 flex items-center justify-between">
+        <div className="text-[11px] text-slate-500 truncate flex items-center gap-1"><MapPin className="w-3 h-3" />{p.current_club || 'Sin club'}{p.age ? ` · ${p.age}a` : ''}</div>
+        <div className="flex items-center gap-1">
+          {verdict && <span className="text-[9px] font-black px-1.5 py-0.5 rounded" style={{ background: verdictColor(verdict) + '22', color: verdictColor(verdict) }}>{verdict}</span>}
+          {onEdit && <button onClick={(e) => { e.stopPropagation(); onEdit(p); }} className="text-slate-300 hover:text-blue-600 p-1"><Edit2 className="w-3.5 h-3.5" /></button>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProspectsGrid({ prospects, onOpen, onEdit }) {
+  if (!prospects.length) return <EmptyState text="Aún no hay prospectos. Crea el primero con “Nuevo Prospecto”." />;
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      {prospects.map(p => <ProspectCard key={p.id} p={p} onOpen={onOpen} onEdit={onEdit} />)}
+    </div>
+  );
+}
+
+/* ---------------- Pipeline (Kanban with drag & drop) ---------------- */
+function Pipeline({ prospects, onOpen, onMoved, setProspects }) {
+  const [dragId, setDragId] = useState(null);
+  const move = async (id, stage) => {
+    const p = prospects.find(x => x.id === id);
+    if (!p || p.stage === stage) return;
+    setProspects(prev => prev.map(x => x.id === id ? { ...x, stage } : x));  // optimistic
+    try {
+      await api(`/prospects/${id}/stage`, { method: 'PATCH', body: { stage, outcome: stage === 'decision' ? (p.outcome || null) : null } });
+      onMoved(id);
+      toast.success(`Movido a ${stageMeta(stage).label}`);
+    } catch { toast.error('No se pudo mover'); setProspects(prev => prev.map(x => x.id === id ? p : x)); }
+  };
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {STAGES.map(st => {
+        const items = prospects.filter(p => p.stage === st.key);
+        return (
+          <div key={st.key} data-testid={`kanban-col-${st.key}`}
+            onDragOver={(e) => e.preventDefault()} onDrop={() => { if (dragId) move(dragId, st.key); setDragId(null); }}
+            className="rounded-2xl p-3 min-h-[300px]" style={{ background: '#f8fafc', border: `2px dashed ${st.color}33` }}>
+            <div className="flex items-center justify-between mb-3 px-1">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: st.color }} />
+                <span className="text-sm font-black text-slate-700">{st.label}</span>
+              </div>
+              <span className="text-xs font-bold text-slate-400">{items.length}</span>
+            </div>
+            <div className="space-y-3">
+              {items.map(p => (
+                <ProspectCard key={p.id} p={p} onOpen={onOpen} compact draggable
+                  onDragStart={() => setDragId(p.id)} />
+              ))}
+              {!items.length && <div className="text-center text-[11px] text-slate-300 py-8">Arrastra aquí</div>}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ---------------- Evaluation Tab ---------------- */
+function EvaluationTab({ prospects, onSaved }) {
+  const [pid, setPid] = useState('');
+  const prospect = prospects.find(p => p.id === pid);
+  const [criteria, setCriteria] = useState(null);
+  const [scores, setScores] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [aiProvider, setAiProvider] = useState('openai');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [ai, setAi] = useState(null);
+
+  useEffect(() => {
+    if (!prospect) return;
+    setAi(prospect.ai_recommendation || null);
+    api(`/criteria?sport=${prospect.sport || ''}`).then(c => {
+      setCriteria(c);
+      const init = {};
+      (c.blocks || []).forEach(b => { init[b.key] = {}; b.criteria.forEach(cr => { init[b.key][cr.key] = prospect.evaluation?.scores?.[b.key]?.[cr.key] ?? 50; }); });
+      setScores(init);
+    });
+  }, [pid]); // eslint-disable-line
+
+  const allVals = Object.values(scores).flatMap(o => Object.values(o));
+  const overall = allVals.length ? Math.round(allVals.reduce((a, b) => a + b, 0) / allVals.length) : 0;
+  const std = criteria?.club_standard ?? 70;
+
+  const save = async () => {
+    setSaving(true);
+    try { const p = await api(`/prospects/${pid}/evaluation`, { method: 'POST', body: { scores } }); onSaved(pid); toast.success(`Evaluación guardada · Score ${p.overall_score}`); }
+    catch { toast.error('Error guardando'); }
+    setSaving(false);
+  };
+  const runAI = async () => {
+    setAiLoading(true);
+    try { const r = await api(`/prospects/${pid}/ai-recommendation`, { method: 'POST', body: { provider: aiProvider } }); setAi(r); onSaved(pid); toast.success('Informe IA generado'); }
+    catch (e) { toast.error('Error de IA'); }
+    setAiLoading(false);
+  };
+
+  return (
+    <div>
+      <div className="mb-4 max-w-sm">
+        <label className="text-xs font-bold text-slate-500 uppercase">Selecciona prospecto</label>
+        <Select value={pid} onValueChange={setPid}>
+          <SelectTrigger className="mt-1 bg-white" data-testid="eval-select-prospect"><SelectValue placeholder="Elegir prospecto..." /></SelectTrigger>
+          <SelectContent>{prospects.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
+        </Select>
+      </div>
+      {!prospect ? <EmptyState text="Elige un prospecto para evaluarlo por criterios." /> : (
+        <div className="grid lg:grid-cols-3 gap-5">
+          <div className="lg:col-span-2 space-y-4">
+            {(criteria?.blocks || []).map(b => (
+              <div key={b.key} className="bg-white rounded-xl border border-slate-200 p-4">
+                <div className="text-sm font-black text-slate-800 mb-3">{b.label}</div>
+                <div className="space-y-3">
+                  {b.criteria.map(cr => {
+                    const val = scores[b.key]?.[cr.key] ?? 50;
+                    return (
+                      <div key={cr.key}>
+                        <div className="flex justify-between text-[12px] mb-1">
+                          <span className="text-slate-600 font-medium">{cr.label}</span>
+                          <span className="font-black" style={{ color: scoreColor(val) }}>{val}</span>
+                        </div>
+                        <input type="range" min="0" max="100" value={val} data-testid={`eval-slider-${b.key}-${cr.key}`}
+                          onChange={(e) => setScores(s => ({ ...s, [b.key]: { ...s[b.key], [cr.key]: parseInt(e.target.value) } }))}
+                          className="w-full accent-slate-900" style={{ accentColor: scoreColor(val) }} />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+            <Button onClick={save} disabled={saving} data-testid="eval-save-btn" className="bg-slate-900 hover:bg-slate-800 text-white font-bold">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null} Guardar Evaluación
+            </Button>
+          </div>
+          <div className="space-y-4">
+            <div className="bg-white rounded-xl border border-slate-200 p-5 text-center">
+              <div className="text-xs font-bold text-slate-400 uppercase">Score General</div>
+              <div className="text-6xl font-black my-1" style={{ color: scoreColor(overall) }}>{overall}</div>
+              <div className="text-[11px] text-slate-500">Estándar del club: <b>{std}</b></div>
+              <div className="mt-2 h-2 bg-slate-100 rounded-full overflow-hidden relative">
+                <div className="h-full" style={{ width: `${overall}%`, background: scoreColor(overall) }} />
+                <div className="absolute top-0 h-full w-0.5 bg-slate-900" style={{ left: `${std}%` }} title="Estándar" />
+              </div>
+              <div className="text-[11px] mt-2 font-bold" style={{ color: overall >= std ? '#10b981' : '#ef4444' }}>
+                {overall >= std ? `+${overall - std} sobre estándar` : `${overall - std} bajo estándar`}
+              </div>
+            </div>
+            <div className="bg-white rounded-xl border border-slate-200 p-4">
+              <div className="flex items-center gap-2 mb-2"><Sparkles className="w-4 h-4 text-amber-500" /><span className="text-sm font-black text-slate-800">Recomendación IA</span></div>
+              <div className="flex gap-1 mb-3">
+                {[['openai', 'GPT-5.5'], ['anthropic', 'Claude 4.6']].map(([v, l]) => (
+                  <button key={v} onClick={() => setAiProvider(v)} className="flex-1 py-1.5 rounded-lg text-[11px] font-bold border transition"
+                    style={aiProvider === v ? { background: '#0f172a', color: '#CCFF00', borderColor: '#0f172a' } : { background: '#fff', color: '#64748b', borderColor: '#e2e8f0' }} data-testid={`ai-provider-${v}`}>{l}</button>
+                ))}
+              </div>
+              <Button onClick={runAI} disabled={aiLoading} data-testid="ai-run-btn" className="w-full bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] font-bold mb-3">
+                {aiLoading ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Sparkles className="w-4 h-4 mr-1" />} Generar informe
+              </Button>
+              {ai && <AIReport ai={ai} />}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AIReport({ ai }) {
+  return (
+    <div className="text-[12px] space-y-2" data-testid="ai-report">
+      {ai.verdict && (
+        <div className="flex items-center gap-2">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-black" style={{ background: verdictColor(ai.verdict) + '22', color: verdictColor(ai.verdict) }}>{ai.verdict}</span>
+          {ai.confidence != null && <span className="text-slate-400 text-[10px]">Confianza {ai.confidence}%</span>}
+          {ai.model && <span className="text-slate-300 text-[9px] ml-auto">{ai.model}</span>}
+        </div>
+      )}
+      {ai.summary && <p className="text-slate-700 leading-relaxed">{ai.summary}</p>}
+      {ai.strengths?.length > 0 && <div><div className="text-[10px] uppercase text-slate-400 font-bold">Fortalezas</div><ul className="list-disc pl-4 text-emerald-600">{ai.strengths.map((s, i) => <li key={i}>{s}</li>)}</ul></div>}
+      {ai.weaknesses?.length > 0 && <div><div className="text-[10px] uppercase text-slate-400 font-bold">A mejorar</div><ul className="list-disc pl-4 text-red-500">{ai.weaknesses.map((s, i) => <li key={i}>{s}</li>)}</ul></div>}
+      {ai.development_plan?.length > 0 && <div><div className="text-[10px] uppercase text-slate-400 font-bold">Plan de desarrollo</div><ul className="list-disc pl-4 text-slate-600">{ai.development_plan.map((s, i) => <li key={i}>{s}</li>)}</ul></div>}
+    </div>
+  );
+}
+
+/* ---------------- Ranking / Dashboard ---------------- */
+function RankingTab({ dash, prospects, compare, setCompare, onOpen }) {
+  if (!dash) return <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-slate-400" /></div>;
+  const toggle = (id) => setCompare(c => c.includes(id) ? c.filter(x => x !== id) : c.length < 3 ? [...c, id] : c);
+  const cmpItems = compare.map(id => prospects.find(p => p.id === id)).filter(Boolean);
+  const stats = [
+    { l: 'Prospectos', v: dash.total, c: '#0f172a' },
+    { l: 'Reclutados', v: dash.recruited, c: '#10b981' },
+    { l: 'Score Prom.', v: dash.avg_score, c: '#f59e0b' },
+    { l: 'En Trial', v: dash.by_stage?.trial || 0, c: '#8b5cf6' },
+  ];
+  return (
+    <div className="space-y-5">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {stats.map((s, i) => (
+          <div key={i} className="bg-white rounded-xl border border-slate-200 p-4" style={{ borderTop: `3px solid ${s.c}` }}>
+            <div className="text-[11px] font-bold uppercase tracking-wide" style={{ color: s.c }}>{s.l}</div>
+            <div className="text-3xl font-black text-slate-800">{s.v}</div>
+          </div>
+        ))}
+      </div>
+
+      {dash.follow_ups?.length > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div className="flex items-center gap-2 text-amber-700 font-bold text-sm mb-2"><AlertTriangle className="w-4 h-4" /> Alertas de seguimiento</div>
+          <div className="flex flex-wrap gap-2">
+            {dash.follow_ups.map(f => <span key={f.id} className="text-[11px] bg-white border border-amber-200 rounded-full px-2.5 py-1 text-amber-800">{f.name} · {f.reason}</span>)}
+          </div>
+        </div>
+      )}
+
+      {cmpItems.length >= 2 && <Comparison items={cmpItems} />}
+
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
+          <Trophy className="w-4 h-4 text-amber-500" /><span className="font-black text-slate-800">Ranking de Prospectos</span>
+          <span className="text-[11px] text-slate-400 ml-2 flex items-center gap-1"><GitCompare className="w-3 h-3" /> Marca hasta 3 para comparar</span>
+        </div>
+        <div className="divide-y divide-slate-100">
+          {dash.ranking.map((p, i) => (
+            <div key={p.id} className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50" data-testid={`ranking-row-${p.id}`}>
+              <div className="w-7 text-center font-black text-slate-400">{i + 1}</div>
+              <input type="checkbox" checked={compare.includes(p.id)} onChange={() => toggle(p.id)} className="accent-slate-900" data-testid={`compare-check-${p.id}`} />
+              <div className="w-9 h-9 rounded-full overflow-hidden bg-slate-200 shrink-0">
+                {p.photo_path ? <img src={photoUrl(p.photo_path)} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-slate-500 font-black">{p.name.slice(0, 1)}</div>}
+              </div>
+              <div className="flex-1 min-w-0 cursor-pointer" onClick={() => onOpen(prospects.find(x => x.id === p.id))}>
+                <div className="font-bold text-slate-800 text-sm truncate">{p.name}</div>
+                <div className="text-[11px] text-slate-400 truncate">{p.position || '—'} · {p.sport_name} {p.current_club ? `· ${p.current_club}` : ''}</div>
+              </div>
+              {p.verdict && <span className="text-[9px] font-black px-1.5 py-0.5 rounded" style={{ background: verdictColor(p.verdict) + '22', color: verdictColor(p.verdict) }}>{p.verdict}</span>}
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center font-black text-white" style={{ background: scoreColor(p.overall_score) }}>{p.overall_score}</div>
+            </div>
+          ))}
+          {!dash.ranking.length && <div className="p-8 text-center text-slate-400 text-sm">Evalúa prospectos para verlos en el ranking.</div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Comparison({ items }) {
+  const cats = ['technical', 'physical', 'tactical', 'mental'];
+  const catLabel = { technical: 'Técnico', physical: 'Físico', tactical: 'Táctico', mental: 'Mental' };
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 p-4 overflow-x-auto">
+      <div className="flex items-center gap-2 mb-3"><GitCompare className="w-4 h-4 text-slate-500" /><span className="font-black text-slate-800">Comparativa lado a lado</span></div>
+      <table className="w-full text-sm">
+        <thead><tr><th className="text-left text-[11px] text-slate-400 uppercase font-bold pb-2">Criterio</th>
+          {items.map(p => <th key={p.id} className="px-3 pb-2 text-center text-slate-800 font-bold">{p.name.split(' ')[0]}</th>)}</tr></thead>
+        <tbody>
+          <tr className="border-t border-slate-100"><td className="py-2 font-bold text-slate-700">Score General</td>
+            {items.map(p => <td key={p.id} className="text-center"><span className="inline-block w-9 h-9 leading-9 rounded-lg text-white font-black" style={{ background: scoreColor(p.overall_score) }}>{p.overall_score ?? '—'}</span></td>)}</tr>
+          {cats.map(c => (
+            <tr key={c} className="border-t border-slate-100">
+              <td className="py-2 text-slate-600">{catLabel[c]}</td>
+              {items.map(p => { const v = p.evaluation?.category_averages?.[c]; return <td key={p.id} className="text-center font-black" style={{ color: scoreColor(v) }}>{v ?? '—'}</td>; })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/* ---------------- Prospect Detail (social profile) ---------------- */
+function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onEdit }) {
+  const [obs, setObs] = useState('');
+  const [obsCtx, setObsCtx] = useState('');
+  const [convertOpen, setConvertOpen] = useState(false);
+  const [teamId, setTeamId] = useState('');
+  const sm = stageMeta(p.stage);
+  const ev = p.evaluation;
+  const catLabel = { technical: 'Técnico', physical: 'Físico', tactical: 'Táctico', mental: 'Mental' };
+
+  const addObs = async () => {
+    if (!obs.trim()) return;
+    try { await api(`/prospects/${p.id}/observations`, { method: 'POST', body: { note: obs, context: obsCtx } }); setObs(''); setObsCtx(''); onChanged(p.id); toast.success('Observación añadida'); }
+    catch { toast.error('Error'); }
+  };
+  const del = async () => { if (!window.confirm('¿Eliminar prospecto?')) return; try { await api(`/prospects/${p.id}`, { method: 'DELETE' }); onDeleted(p.id); toast.success('Eliminado'); } catch { toast.error('Error'); } };
+  const convert = async () => {
+    try { const r = await api(`/prospects/${p.id}/convert`, { method: 'POST', body: { team_id: teamId || null } }); setConvertOpen(false); onChanged(p.id); toast.success(r.already ? 'Ya era atleta' : '¡Reclutado! Ahora es atleta en Equipos.'); }
+    catch { toast.error('Error al convertir'); }
+  };
+  const pdf = () => window.open(`${API_URL}/api/recruiting/prospects/${p.id}/profile-pdf?auth=${token()}`, '_blank');
+
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="max-w-3xl p-0 overflow-hidden max-h-[92vh] overflow-y-auto bg-white" data-testid="prospect-detail">
+        {/* Hero */}
+        <div className="relative p-6 text-white" style={{ background: 'linear-gradient(120deg,#0f172a,#13203a 60%,#0b1220)' }}>
+          <div className="flex gap-5 items-center">
+            <div className="w-28 h-32 rounded-2xl overflow-hidden border-2 border-[#CCFF00] shrink-0 bg-slate-800">
+              {p.photo_path ? <img src={photoUrl(p.photo_path)} alt={p.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-4xl font-black text-slate-600">{p.name.slice(0, 1)}</div>}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase inline-block mb-1" style={{ background: sm.color, color: '#fff' }}>{sm.label}{p.outcome ? ` · ${p.outcome}` : ''}</div>
+              <h2 className="text-3xl font-black leading-none" style={{ fontFamily: "'DM Sans',sans-serif" }}>{p.name}</h2>
+              <div className="text-[#CCFF00] font-bold text-sm mt-1">{p.position || '—'} · {p.sport_name || p.sport}</div>
+              <div className="text-slate-300 text-[12px] mt-2 flex flex-wrap gap-x-3 gap-y-1">
+                {p.current_club && <span>🏟 {p.current_club}</span>}{p.age && <span>🎂 {p.age} años</span>}
+                {p.height_cm && <span>📏 {p.height_cm} cm</span>}{p.weight_kg && <span>⚖ {p.weight_kg} kg</span>}
+                {p.dominant_side && <span>🦶 {p.dominant_side}</span>}{p.nationality && <span>🌍 {p.nationality}</span>}
+              </div>
+            </div>
+            <div className="text-center shrink-0">
+              <div className="text-[10px] text-slate-400 uppercase">Score</div>
+              <div className="text-5xl font-black" style={{ color: scoreColor(p.overall_score) }}>{p.overall_score ?? '—'}</div>
+            </div>
+          </div>
+          {/* Action bar */}
+          <div className="flex flex-wrap gap-2 mt-5">
+            <Button size="sm" onClick={() => onEdit(p)} className="bg-white/10 hover:bg-white/20 text-white border border-white/20" data-testid="detail-edit-btn"><Edit2 className="w-3.5 h-3.5 mr-1" />Editar</Button>
+            <Button size="sm" onClick={pdf} className="bg-white/10 hover:bg-white/20 text-white border border-white/20" data-testid="detail-pdf-btn"><FileDown className="w-3.5 h-3.5 mr-1" />Ficha PDF</Button>
+            {!p.converted_athlete_id ? (
+              <Button size="sm" onClick={() => setConvertOpen(true)} className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] font-bold" data-testid="detail-convert-btn"><UserPlus className="w-3.5 h-3.5 mr-1" />Reclutar → Atleta</Button>
+            ) : <span className="text-[11px] text-emerald-300 self-center flex items-center gap-1"><Award className="w-4 h-4" />Reclutado como atleta</span>}
+            <Button size="sm" onClick={del} className="bg-red-500/20 hover:bg-red-500/30 text-red-200 border border-red-400/30 ml-auto"><Trash2 className="w-3.5 h-3.5" /></Button>
+            <button onClick={onClose} className="absolute top-3 right-3 text-white/60 hover:text-white"><X className="w-5 h-5" /></button>
+          </div>
+        </div>
+
+        <div className="p-5 grid md:grid-cols-2 gap-5">
+          {/* Evaluation bars */}
+          <div>
+            <SectionTitle>Evaluación por área</SectionTitle>
+            {ev?.category_averages ? Object.entries(ev.category_averages).map(([k, v]) => (
+              <div key={k} className="mb-2.5">
+                <div className="flex justify-between text-[12px] font-bold mb-1"><span className="text-slate-600">{catLabel[k] || k}</span><span style={{ color: scoreColor(v) }}>{v}</span></div>
+                <div className="h-2 bg-slate-100 rounded-full overflow-hidden relative"><div className="h-full" style={{ width: `${v}%`, background: scoreColor(v) }} /><div className="absolute top-0 h-full w-0.5 bg-slate-900" style={{ left: `${ev.club_standard || 70}%` }} /></div>
+              </div>
+            )) : <p className="text-[12px] text-slate-400">Sin evaluación. Usa la pestaña Evaluación.</p>}
+            {Object.keys(p.key_stats || {}).length > 0 && (<>
+              <SectionTitle className="mt-4">Stats clave</SectionTitle>
+              <div className="grid grid-cols-3 gap-2">{Object.entries(p.key_stats).map(([k, v]) => (
+                <div key={k} className="bg-slate-900 rounded-lg p-2 text-center"><div className="text-[8px] text-slate-400 uppercase">{k}</div><div className="text-[#CCFF00] font-black">{v}</div></div>
+              ))}</div></>)}
+          </div>
+          {/* AI */}
+          <div>
+            <SectionTitle>Informe IA</SectionTitle>
+            {p.ai_recommendation ? <AIReport ai={p.ai_recommendation} /> : <p className="text-[12px] text-slate-400">{p.bio || 'Sin informe. Genera uno en la pestaña Evaluación.'}</p>}
+          </div>
+        </div>
+
+        {/* Videos / achievements / contact */}
+        <div className="px-5 pb-4 grid md:grid-cols-2 gap-5">
+          <div>
+            {p.video_links?.length > 0 && <><SectionTitle>Video Highlights</SectionTitle>
+              {p.video_links.map((v, i) => <a key={i} href={v.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-[12px] text-sky-600 hover:underline mb-1"><Video className="w-3.5 h-3.5" />{v.title || 'Highlight'}</a>)}</>}
+            {p.achievements?.length > 0 && <><SectionTitle className="mt-3">Logros</SectionTitle><ul className="list-disc pl-5 text-[12px] text-slate-600">{p.achievements.map((a, i) => <li key={i}>{a}</li>)}</ul></>}
+          </div>
+          <div className="text-[12px] text-slate-600 space-y-1">
+            <SectionTitle>Contacto</SectionTitle>
+            {p.email && <div className="flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-slate-400" />{p.email}</div>}
+            {p.phone && <div className="flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-slate-400" />{p.phone}</div>}
+            {p.guardian_contact && <div className="flex items-center gap-2"><Users className="w-3.5 h-3.5 text-slate-400" />Tutor: {p.guardian_contact}</div>}
+            {p.social_links?.instagram && <div className="flex items-center gap-2"><Instagram className="w-3.5 h-3.5 text-slate-400" />{p.social_links.instagram}</div>}
+          </div>
+        </div>
+
+        {/* Observations timeline */}
+        <div className="px-5 pb-6">
+          <SectionTitle>Observaciones de scouting</SectionTitle>
+          <div className="flex gap-2 mb-3">
+            <Input value={obsCtx} onChange={(e) => setObsCtx(e.target.value)} placeholder="Contexto (ej. Partido vs X)" className="bg-white w-48" data-testid="obs-context" />
+            <Input value={obs} onChange={(e) => setObs(e.target.value)} placeholder="Nueva observación..." className="bg-white flex-1" data-testid="obs-note" onKeyDown={(e) => e.key === 'Enter' && addObs()} />
+            <Button onClick={addObs} className="bg-slate-900 text-white" data-testid="obs-add-btn"><Plus className="w-4 h-4" /></Button>
+          </div>
+          <div className="space-y-2">
+            {(p.observations || []).slice().reverse().map(o => (
+              <div key={o.id} className="bg-slate-50 rounded-lg p-2.5 text-[12px]">
+                <div className="flex justify-between"><span className="font-bold text-slate-700">{o.context || 'Observación'}</span><span className="text-slate-400 text-[10px]">{(o.date || '').slice(0, 10)}</span></div>
+                <div className="text-slate-600">{o.note}</div>
+              </div>
+            ))}
+            {!(p.observations || []).length && <p className="text-[12px] text-slate-400">Sin observaciones aún.</p>}
+          </div>
+        </div>
+
+        {/* Convert dialog */}
+        {convertOpen && (
+          <Dialog open onOpenChange={() => setConvertOpen(false)}>
+            <DialogContent className="max-w-sm bg-white">
+              <DialogHeader><DialogTitle>Reclutar → Convertir en Atleta</DialogTitle></DialogHeader>
+              <p className="text-[13px] text-slate-500">Se creará un atleta en Gestión de Equipos con los datos del prospecto.</p>
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase">Equipo (opcional)</label>
+                <Select value={teamId} onValueChange={setTeamId}>
+                  <SelectTrigger className="mt-1 bg-white" data-testid="convert-team-select"><SelectValue placeholder="Sin equipo" /></SelectTrigger>
+                  <SelectContent>{teams.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setConvertOpen(false)}>Cancelar</Button>
+                <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] font-bold" onClick={convert} data-testid="convert-confirm-btn">Reclutar</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+const SectionTitle = ({ children, className = '' }) => (
+  <div className={`text-[11px] font-black uppercase tracking-wide text-slate-400 mb-2 ${className}`}>{children}</div>
+);
+
+/* ---------------- Prospect Form (create/edit) ---------------- */
+function ProspectForm({ initial, onClose, onSaved }) {
+  const [f, setF] = useState({ ...initial });
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef();
+  const isEdit = !!initial.id;
+  const set = (k, v) => setF(s => ({ ...s, [k]: v }));
+
+  const upload = async (file) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData(); fd.append('file', file);
+      const r = await api('/upload-photo', { method: 'POST', body: fd, raw: true });
+      set('photo_path', r.path); toast.success('Foto subida');
+    } catch { toast.error('Error subiendo foto'); }
+    setUploading(false);
+  };
+
+  const save = async () => {
+    if (!f.name?.trim()) { toast.error('El nombre es obligatorio'); return; }
+    setSaving(true);
+    const payload = {
+      ...f,
+      age: f.age ? parseInt(f.age) : null,
+      height_cm: f.height_cm ? parseInt(f.height_cm) : null,
+      weight_kg: f.weight_kg ? parseInt(f.weight_kg) : null,
+      achievements: typeof f.achievements === 'string' ? f.achievements.split('\n').filter(Boolean) : f.achievements,
+    };
+    try {
+      if (isEdit) await api(`/prospects/${initial.id}`, { method: 'PUT', body: payload });
+      else await api('/prospects', { method: 'POST', body: payload });
+      toast.success(isEdit ? 'Prospecto actualizado' : 'Prospecto creado'); onSaved();
+    } catch { toast.error('Error guardando'); }
+    setSaving(false);
+  };
+
+  const achievementsStr = Array.isArray(f.achievements) ? f.achievements.join('\n') : (f.achievements || '');
+
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl bg-white max-h-[92vh] overflow-y-auto" data-testid="prospect-form">
+        <DialogHeader><DialogTitle>{isEdit ? 'Editar Prospecto' : 'Nuevo Prospecto'}</DialogTitle></DialogHeader>
+        <div className="space-y-4 py-2">
+          {/* Photo */}
+          <div className="flex items-center gap-4">
+            <div className="w-24 h-28 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+              {f.photo_path ? <img src={photoUrl(f.photo_path)} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-slate-300"><Camera className="w-7 h-7" /></div>}
+            </div>
+            <div>
+              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => upload(e.target.files?.[0])} data-testid="photo-input" />
+              <Button type="button" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                {uploading ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Camera className="w-4 h-4 mr-1" />} Subir foto
+              </Button>
+              <p className="text-[11px] text-slate-400 mt-1">JPG/PNG/WebP · máx 8MB</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Nombre *"><Input value={f.name} onChange={e => set('name', e.target.value)} className="bg-white" data-testid="form-name" /></Field>
+            <Field label="Deporte">
+              <Select value={f.sport} onValueChange={(v) => { const s = SPORTS.find(x => x[0] === v); set('sport', v); set('sport_name', s?.[1] || v); }}>
+                <SelectTrigger className="bg-white" data-testid="form-sport"><SelectValue /></SelectTrigger>
+                <SelectContent>{SPORTS.map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}</SelectContent>
+              </Select>
+            </Field>
+            <Field label="Posición"><Input value={f.position} onChange={e => set('position', e.target.value)} className="bg-white" /></Field>
+            <Field label="Club actual"><Input value={f.current_club} onChange={e => set('current_club', e.target.value)} className="bg-white" /></Field>
+            <Field label="Edad"><Input type="number" value={f.age} onChange={e => set('age', e.target.value)} className="bg-white" /></Field>
+            <Field label="Nacionalidad"><Input value={f.nationality} onChange={e => set('nationality', e.target.value)} className="bg-white" /></Field>
+            <Field label="Altura (cm)"><Input type="number" value={f.height_cm} onChange={e => set('height_cm', e.target.value)} className="bg-white" /></Field>
+            <Field label="Peso (kg)"><Input type="number" value={f.weight_kg} onChange={e => set('weight_kg', e.target.value)} className="bg-white" /></Field>
+            <Field label="Lado dominante"><Input value={f.dominant_side} onChange={e => set('dominant_side', e.target.value)} placeholder="Derecha / Izquierda" className="bg-white" /></Field>
+            <Field label="Estado">
+              <Select value={f.stage} onValueChange={v => set('stage', v)}>
+                <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+                <SelectContent>{STAGES.map(s => <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>)}</SelectContent>
+              </Select>
+            </Field>
+            <Field label="Email"><Input value={f.email} onChange={e => set('email', e.target.value)} className="bg-white" /></Field>
+            <Field label="Teléfono"><Input value={f.phone} onChange={e => set('phone', e.target.value)} className="bg-white" /></Field>
+          </div>
+          <Field label="Video highlights (una URL por línea)">
+            <Textarea rows={2} value={(f.video_links || []).map(v => v.url).join('\n')} onChange={e => set('video_links', e.target.value.split('\n').filter(Boolean).map(u => ({ title: 'Highlight', url: u.trim() })))} className="bg-white" placeholder="https://youtube.com/..." />
+          </Field>
+          <Field label="Logros (uno por línea)">
+            <Textarea rows={2} value={achievementsStr} onChange={e => set('achievements', e.target.value)} className="bg-white" />
+          </Field>
+          <Field label="Bio / notas de scouting">
+            <Textarea rows={2} value={f.bio || ''} onChange={e => set('bio', e.target.value)} className="bg-white" />
+          </Field>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button onClick={save} disabled={saving} className="bg-slate-900 text-white hover:bg-slate-800" data-testid="form-save-btn">
+            {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null} Guardar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+const Field = ({ label, children }) => (
+  <div><label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">{label}</label><div className="mt-1">{children}</div></div>
+);
+
+const EmptyState = ({ text }) => (
+  <div className="flex flex-col items-center justify-center py-20 text-center">
+    <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-3"><Target className="w-8 h-8 text-slate-300" /></div>
+    <p className="text-slate-400 text-sm max-w-xs">{text}</p>
+  </div>
+);

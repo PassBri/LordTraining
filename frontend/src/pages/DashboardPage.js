@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { getDashboardStats, getAthletes, seedExercises, getTournaments, createTournament, deleteTournament, getTournament, addTournamentCategory, registerParticipant, generateBracket, getTournamentMatches, updateMatchScore, exportTournamentPDF, getTeams as fetchTeamsApi } from '../services/api';
 import usePlanGate from '../hooks/usePlanGate';
 import SessionCalendar from '../components/SessionCalendar';
+import ScoutingModule from '../components/ScoutingModule';
 import { 
   Target, Send, Heart, Zap, Brain, ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
   FileText, Users, Clipboard, Calendar, Award, BookOpen, 
@@ -1672,6 +1673,10 @@ const DashboardPage = () => {
   };
 
   const renderDataContent = () => {
+    // ====== MÓDULO: SCOUTING / RECRUITING & TALENT ID ======
+    if (activeDataSection === 'scouting') {
+      return <ScoutingModule />;
+    }
     // ====== SECCIÓN: GESTIÓN DE PLANES (plan-manager) ======
     if (activeDataSection === 'plan-manager') {
       return (
@@ -1875,7 +1880,7 @@ const DashboardPage = () => {
 
     // ====== VERIFICAR SI SE NECESITA UN PLAN ACTIVO ======
     // Secciones que NO requieren plan activo (se pueden ver sin tener un plan seleccionado)
-    const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'calculators', 'periodization-models', 'pdi-sheet', 'tactical-board', 'create-plan', 'period-overview', 'period-structure', 'period-load'];
+    const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'calculators', 'periodization-models', 'pdi-sheet', 'tactical-board', 'create-plan', 'period-overview', 'period-structure', 'period-load', 'scouting'];
     
     if (!activePlan && !sectionsWithoutPlan.includes(activeDataSection)) {
       // Mostrar mensaje de que se necesita seleccionar un plan
@@ -4260,7 +4265,7 @@ const DashboardPage = () => {
   const renderMainContent = () => {
     if (activePanel === 'datos') {
       // ====== LAYOUT: SIDEBAR DE PLANES + CONTENIDO ======
-      const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'calculators', 'periodization-models', 'pdi-sheet', 'tactical-board', 'sports', 'tournaments', 'create-plan', 'period-overview', 'period-structure', 'period-load'];
+      const sectionsWithoutPlan = ['athletes', 'entities', 'training-system', 'exercises-lib', 'calculators', 'periodization-models', 'pdi-sheet', 'tactical-board', 'sports', 'tournaments', 'create-plan', 'period-overview', 'period-structure', 'period-load', 'scouting'];
 
       return (
         <div className="flex h-full" data-testid="datos-layout">
@@ -4428,6 +4433,26 @@ const DashboardPage = () => {
                   </button>
                 );
               })}
+
+              {/* Scouting FAB — Recruiting & Talent ID */}
+              {(() => {
+                const scoutActive = activePanel === 'datos' && activeDataSection === 'scouting';
+                return (
+                  <button
+                    onClick={() => { setActivePanel('datos'); setActiveDataSection('scouting'); }}
+                    className="group flex flex-col items-center gap-1 shrink-0 outline-none"
+                    data-testid="tab-scouting"
+                    title="Recruiting & Talent ID — Identifica el talento"
+                  >
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${scoutActive ? 'bg-slate-900 text-[#CCFF00] shadow-lg shadow-slate-900/30' : 'bg-white text-slate-700 shadow-md border-2 border-[#CCFF00] hover:shadow-lg hover:bg-[#CCFF00]/15'}`}>
+                      <Target className="w-[18px] h-[18px] transition-transform duration-300" strokeWidth={scoutActive ? 2.5 : 2} />
+                    </div>
+                    <span className={`text-[8px] font-bold tracking-wide leading-tight text-center max-w-[60px] transition-colors duration-300 ${scoutActive ? 'text-slate-900' : 'text-slate-700 group-hover:text-slate-900'}`}>
+                      Scouting
+                    </span>
+                  </button>
+                );
+              })()}
 
               {/* Reporte Maestro FAB (sustituye el viejo PDF + consolida) */}
               <button
