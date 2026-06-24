@@ -20,7 +20,7 @@ export default function ScoutingMap({ onOpen }) {
     if (loading || !mapEl.current || !data) return;
     if (!mapRef.current) {
       mapRef.current = L.map(mapEl.current, { scrollWheelZoom: false, attributionControl: false }).setView([10, -60], 2);
-      const tiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 });
+      const tiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 18 });
       tiles.on('load', () => setTilesReady(true));
       tiles.addTo(mapRef.current);
       layerRef.current = L.layerGroup().addTo(mapRef.current);

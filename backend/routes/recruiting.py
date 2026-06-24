@@ -738,12 +738,12 @@ async def public_photo(share_id: str):
 
 
 @router.get("/public/{share_id}/pdf")
-async def public_pdf(share_id: str, origin: str = Query(None)):
+async def public_pdf(share_id: str, origin: str = Query(None), theme: str = Query("dark")):
     p = await _get_shared(share_id)
     photo_uri = await _photo_data_uri(p.get("photo_path"))
     season_html = await _season_html_for(p["id"], p["coach_id"], p.get("sport"))
     public_url = f"{origin.rstrip('/')}/scouting/p/{share_id}" if origin else None
-    html = _build_profile_html(p, photo_uri, public_url=public_url, season_html=season_html, public_only=True)
+    html = _build_profile_html(p, photo_uri, public_url=public_url, season_html=season_html, public_only=True, theme=theme)
     try:
         pdf = await _render_pdf(html)
     except Exception as e:
@@ -1269,8 +1269,23 @@ def _qr_data_uri(url: str):
         return None
 
 
+_PDF_THEMES = {
+    "dark": {
+        "page": "#0f172a", "text": "#e2e8f0", "strong": "#ffffff", "muted": "#94a3b8",
+        "faint": "#64748b", "card": "#0b1220", "border": "#1e293b", "track": "#1e293b",
+        "footer": "#0b1220", "titlecol": "#CCFF00", "barlabel": "#e2e8f0", "summary": "#cbd5e1",
+    },
+    "light": {
+        "page": "#ffffff", "text": "#334155", "strong": "#0f172a", "muted": "#64748b",
+        "faint": "#94a3b8", "card": "#0f172a", "border": "#e2e8f0", "track": "#e2e8f0",
+        "footer": "#0f172a", "titlecol": "#0f172a", "barlabel": "#0f172a", "summary": "#334155",
+    },
+}
+
+
 def _build_profile_html(p: dict, photo_uri: Optional[str], public_url: Optional[str] = None,
-                        season_html: str = "", public_only: bool = False) -> str:
+                        season_html: str = "", public_only: bool = False, theme: str = "dark") -> str:
+    T = _PDF_THEMES.get(theme, _PDF_THEMES["dark"])
     ev = p.get("evaluation") or {}
     ai = p.get("ai_recommendation") or {}
     cat_avgs = ev.get("category_averages") or {}
@@ -1282,13 +1297,13 @@ def _build_profile_html(p: dict, photo_uri: Optional[str], public_url: Optional[
         pct = max(0, min(100, avg))
         color = "#10b981" if pct >= CLUB_STANDARD else "#f59e0b" if pct >= CLUB_STANDARD - 15 else "#ef4444"
         bars += f"""<div style="margin-bottom:10px;">
-          <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:#0f172a;margin-bottom:3px;">
+          <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:{T['barlabel']};margin-bottom:3px;">
             <span>{_esc(cat_label.get(ckey, ckey))}</span><span style="color:{color}">{pct}</span></div>
-          <div style="height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+          <div style="height:8px;background:{T['track']};border-radius:99px;overflow:hidden;">
             <div style="width:{pct}%;height:100%;background:{color};"></div></div></div>"""
 
     stats = "".join(
-        f"""<div style="background:#0b1220;border:1px solid #1e293b;border-radius:10px;padding:8px 10px;text-align:center;">
+        f"""<div style="background:{T['card']};border:1px solid {T['border']};border-radius:10px;padding:8px 10px;text-align:center;">
             <div style="font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;">{_esc(k)}</div>
             <div style="font-size:16px;font-weight:800;color:#CCFF00;">{_esc(v)}</div></div>"""
         for k, v in (p.get("key_stats") or {}).items()
@@ -1304,13 +1319,13 @@ def _build_profile_html(p: dict, photo_uri: Optional[str], public_url: Optional[
     transfers = [t for t in (p.get("transfers") or []) if (not public_only or t.get("is_public", True))]
     transfers_html = ""
     for t in transfers:
-        transfers_html += f"""<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;font-size:11px;color:#cbd5e1;">
+        transfers_html += f"""<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;font-size:11px;color:{T['text']};">
           <span style="width:8px;height:8px;border-radius:99px;background:#CCFF00;"></span>
-          <span style="font-weight:700;color:#fff;">{_esc(t.get('from_entity') or '—')}</span>
-          <span style="color:#64748b;">→</span>
-          <span style="font-weight:700;color:#fff;">{_esc(t.get('to_entity') or '—')}</span>
-          <span style="font-size:9px;text-transform:uppercase;background:#1e293b;border-radius:4px;padding:1px 5px;color:#94a3b8;">{_esc(t.get('type') or '')}</span>
-          <span style="margin-left:auto;color:#64748b;font-size:10px;">{_esc(t.get('date') or '')}</span></div>"""
+          <span style="font-weight:700;color:{T['strong']};">{_esc(t.get('from_entity') or '—')}</span>
+          <span style="color:{T['faint']};">→</span>
+          <span style="font-weight:700;color:{T['strong']};">{_esc(t.get('to_entity') or '—')}</span>
+          <span style="font-size:9px;text-transform:uppercase;background:{T['card']};border-radius:4px;padding:1px 5px;color:#94a3b8;">{_esc(t.get('type') or '')}</span>
+          <span style="margin-left:auto;color:{T['faint']};font-size:10px;">{_esc(t.get('date') or '')}</span></div>"""
 
     # Valor comercial
     show_value = (not public_only) or p.get("market_value_public")
@@ -1320,14 +1335,14 @@ def _build_profile_html(p: dict, photo_uri: Optional[str], public_url: Optional[
             mv = f"{float(p.get('market_value')):,.0f}"
         except Exception:
             mv = str(p.get("market_value"))
-        market_html = f"<div style='font-size:22px;font-weight:900;color:#CCFF00;'>{_esc(p.get('market_currency') or 'USD')} {mv}</div><div style='font-size:10px;color:#64748b;'>Valor de mercado</div>"
+        market_html = f"<div style='font-size:22px;font-weight:900;color:#10b981;'>{_esc(p.get('market_currency') or 'USD')} {mv}</div><div style='font-size:10px;color:{T['faint']};'>Valor de mercado</div>"
 
     # Patrocinios
     sponsors = [s for s in (p.get("sponsorships") or []) if (not public_only or s.get("is_public", True))]
-    sponsors_html = "".join(f"<span style='display:inline-block;background:#1e293b;border-radius:99px;padding:3px 10px;font-size:10px;color:#e2e8f0;margin:2px;'>{_esc(s.get('name'))}{(' · ' + _esc(str(s.get('amount')))) if s.get('amount') else ''}</span>" for s in sponsors)
+    sponsors_html = "".join(f"<span style='display:inline-block;background:{T['card']};border-radius:99px;padding:3px 10px;font-size:10px;color:#e2e8f0;margin:2px;'>{_esc(s.get('name'))}{(' · ' + _esc(str(s.get('amount')))) if s.get('amount') else ''}</span>" for s in sponsors)
 
     qr_uri = _qr_data_uri(public_url) if public_url else None
-    qr_html = (f"<div style='text-align:center;'><img src='{qr_uri}' style='width:90px;height:90px;background:#fff;border-radius:8px;padding:4px;'/><div style='font-size:8px;color:#64748b;margin-top:3px;'>Perfil interactivo</div></div>" if qr_uri else "")
+    qr_html = (f"<div style='text-align:center;'><img src='{qr_uri}' style='width:90px;height:90px;background:#fff;border-radius:8px;padding:4px;'/><div style='font-size:8px;color:{T['faint']};margin-top:3px;'>Perfil interactivo</div></div>" if qr_uri else "")
 
     overall = p.get("overall_score")
     verdict = ai.get("verdict") or "—"
@@ -1337,11 +1352,11 @@ def _build_profile_html(p: dict, photo_uri: Optional[str], public_url: Optional[
                   if photo_uri else
                   "<div style='width:130px;height:160px;border-radius:12px;background:#1e293b;display:flex;align-items:center;justify-content:center;color:#475569;font-size:40px;'>★</div>")
 
-    sec_title = "font-size:12px;font-weight:800;color:#CCFF00;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;"
+    sec_title = f"font-size:12px;font-weight:800;color:{T['titlecol']};border-left:3px solid #CCFF00;padding-left:8px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;"
 
     return f"""<!doctype html><html><head><meta charset="utf-8">
 <style>*{{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif;}}</style></head>
-<body style="width:794px;background:#0f172a;color:#e2e8f0;padding:0;">
+<body style="width:794px;background:{T['page']};color:{T['text']};padding:0;">
   <div style="background:linear-gradient(120deg,#0f172a 0%,#111c33 60%,#0b1220 100%);padding:28px 32px;border-bottom:4px solid #CCFF00;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
       <div style="font-size:13px;font-weight:800;letter-spacing:2px;color:#CCFF00;">LORD<span style="color:#fff;">TRAINING</span> · SCOUTING REPORT</div>
@@ -1370,14 +1385,14 @@ def _build_profile_html(p: dict, photo_uri: Optional[str], public_url: Optional[
   <div style="display:flex;gap:20px;padding:24px 32px 14px;">
     <div style="flex:1;">
       <div style="{sec_title}">Evaluación por área</div>
-      {bars or '<div style="color:#64748b;font-size:11px;">Sin evaluación registrada.</div>'}
-      <div style="font-size:11px;color:#64748b;margin-top:8px;">Estándar del club: <b style="color:#e2e8f0;">{CLUB_STANDARD}</b></div>
+      {bars or f'<div style="color:{T["faint"]};font-size:11px;">Sin evaluación registrada.</div>'}
+      <div style="font-size:11px;color:{T['muted']};margin-top:8px;">Estándar del club: <b style="color:{T['strong']};">{CLUB_STANDARD}</b></div>
       {('<div style="margin-top:16px;' + sec_title + '">Stats clave</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">' + stats + '</div>') if stats else ''}
     </div>
     <div style="flex:1;">
       <div style="{sec_title}">Informe IA</div>
-      <div style="font-size:12px;color:#cbd5e1;line-height:1.55;margin-bottom:12px;">{_esc(ai.get('summary') or p.get('bio') or 'Sin informe generado.')}</div>
-      {('<div style="font-size:10px;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Fortalezas</div><ul style="font-size:11px;color:#86efac;padding-left:16px;margin-bottom:10px;">' + ''.join('<li>' + _esc(s) + '</li>' for s in ai.get('strengths', [])) + '</ul>') if ai.get('strengths') else ''}
+      <div style="font-size:12px;color:{T['summary']};line-height:1.55;margin-bottom:12px;">{_esc(ai.get('summary') or p.get('bio') or 'Sin informe generado.')}</div>
+      {('<div style="font-size:10px;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Fortalezas</div><ul style="font-size:11px;color:#16a34a;padding-left:16px;margin-bottom:10px;">' + ''.join('<li>' + _esc(s) + '</li>' for s in ai.get('strengths', [])) + '</ul>') if ai.get('strengths') else ''}
     </div>
   </div>
 
@@ -1387,19 +1402,19 @@ def _build_profile_html(p: dict, photo_uri: Optional[str], public_url: Optional[
 
   <div style="display:flex;gap:20px;padding:0 32px 14px;">
     {('<div style="flex:1;"><div style="' + sec_title + '">Valor & Patrocinios</div>' + market_html + ('<div style="margin-top:6px;">' + sponsors_html + '</div>' if sponsors_html else '') + '</div>') if (market_html or sponsors_html) else '<div style="flex:1;"></div>'}
-    {('<div><div style="' + sec_title + '">Logros</div><ul style="font-size:11px;color:#cbd5e1;padding-left:16px;">' + achievements + '</ul></div>') if achievements else ''}
+    {('<div><div style="' + sec_title + '">Logros</div><ul style="font-size:11px;color:' + T['text'] + ';padding-left:16px;">' + achievements + '</ul></div>') if achievements else ''}
   </div>
 
   {('<div style="padding:0 32px 14px;"><div style="' + sec_title + '">Videos públicos</div>' + videos + '</div>') if videos else ''}
 
-  <div style="display:flex;justify-content:space-between;align-items:flex-end;padding:14px 32px 6px;border-top:1px solid #1e293b;margin-top:6px;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;padding:14px 32px 6px;border-top:1px solid {T['border']};margin-top:6px;">
     <div style="text-align:center;">
-      <div style="width:180px;border-top:1px solid #475569;padding-top:4px;font-size:10px;color:#94a3b8;">Firma del entrenador / club</div>
+      <div style="width:180px;border-top:1px solid {T['muted']};padding-top:4px;font-size:10px;color:{T['muted']};">Firma del entrenador / club</div>
     </div>
     {qr_html}
   </div>
 
-  <div style="background:#0b1220;padding:14px 32px;display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;">
+  <div style="background:{T['footer']};padding:14px 32px;display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;">
     <span>📧 {_esc(p.get('email') or '—')} &nbsp; 📞 {_esc(p.get('phone') or '—')}</span>
     <span style="color:#CCFF00;font-weight:700;">Identifica el talento. Construye el futuro.</span>
   </div>
@@ -1407,7 +1422,7 @@ def _build_profile_html(p: dict, photo_uri: Optional[str], public_url: Optional[
 
 
 async def _render_pdf(html: str) -> bytes:
-    os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", "/pw-browsers")
+    os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/pw-browsers"
     from playwright.async_api import async_playwright
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(headless=True,
@@ -1422,7 +1437,7 @@ async def _render_pdf(html: str) -> bytes:
 
 
 @router.get("/prospects/{pid}/profile-pdf")
-async def profile_pdf(pid: str, auth: str = Query(None), origin: str = Query(None), authorization: str = Header(None), user=None):
+async def profile_pdf(pid: str, auth: str = Query(None), origin: str = Query(None), theme: str = Query("dark"), authorization: str = Header(None), user=None):
     # Acepta auth por query (?auth=) o header
     token = None
     if authorization and authorization.startswith("Bearer "):
@@ -1443,7 +1458,7 @@ async def profile_pdf(pid: str, auth: str = Query(None), origin: str = Query(Non
     public_url = None
     if origin and p.get("share_enabled") and p.get("share_id"):
         public_url = f"{origin.rstrip('/')}/scouting/p/{p['share_id']}"
-    html = _build_profile_html(p, photo_uri, public_url=public_url, season_html=season_html, public_only=False)
+    html = _build_profile_html(p, photo_uri, public_url=public_url, season_html=season_html, public_only=False, theme=theme)
     try:
         pdf = await _render_pdf(html)
     except Exception as e:

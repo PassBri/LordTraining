@@ -1,0 +1,45 @@
+{
+  "summary": "E2E validation of Scouting PDF themes (Dark/Light) + light Leaflet map. All 7 pytest cases PASS (test_scouting_pdf_themes.py: dark/light/default profile-pdf with auth + 401 negative + 404 negative + public dark/light). Frontend: detail-pdf-dark-btn & detail-pdf-light-btn visible in prospect detail, both download valid PDFs (~56KB) and show success toasts 'Ficha PDF (oscura/clara) descargada'. Public page /scouting/p/{share_id} renders public-pdf-dark-btn & public-pdf-light-btn, both download PDFs without any error alert. Map tab: voyager light tiles (cartocdn) loaded (15/15 tiles), canvas background #e2e8f0 (light grey) — map renders CLEAR/colorful, NOT black. Bug #1, #2, #3 from problem statement all confirmed fixed.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results_by_feature": {
+    "backend_profile_pdf_dark_auth": "PASS — 200, content-type application/pdf, starts with %PDF, 56KB",
+    "backend_profile_pdf_light_auth": "PASS — 200, content-type application/pdf, %PDF magic header, light theme legible per prior curl validation",
+    "backend_profile_pdf_default_theme": "PASS — defaults to dark when no theme param, valid PDF",
+    "backend_public_pdf_dark": "PASS — no-auth endpoint /api/recruiting/public/{share_id}/pdf?theme=dark returns valid PDF",
+    "backend_public_pdf_light": "PASS — no-auth /public/{share_id}/pdf?theme=light returns valid PDF",
+    "backend_pdf_unauthorized": "PASS — 401/403 when no Authorization header on profile-pdf",
+    "backend_pdf_not_found": "PASS — 404 for unknown prospect id",
+    "frontend_detail_pdf_buttons": "PASS — detail-pdf-dark-btn (text 'PDF Oscuro', dark style) + detail-pdf-light-btn (text 'PDF Claro', white style) both visible on prospect detail. Click triggers real download (scouting_test_e2e_prospect_dark.pdf 56884B, _light.pdf 56892B) and shows success toasts.",
+    "frontend_public_pdf_buttons": "PASS — public-pdf-dark-btn + public-pdf-light-btn visible on /scouting/p/{share_id}, both download valid PDFs with no error alert/toast.",
+    "frontend_map_light_tiles": "PASS — scouting-tab-map → scouting-map-canvas renders with light voyager tiles. JS audit: bg=rgb(226,232,240) #e2e8f0, 15 leaflet-tile-loaded / 15 total, sample src=https://c.basemaps.cartocdn.com/rastertiles/voyager/18/76968/127718.png. Map looks colorful/clear, NOT black. Marker visible for Colombia-origin prospect; sidebar shows '1 ubicados · 2 total · 1 sin país' with TEST_E2E_Prospect under Colombia."
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_scouting_pdf_themes.py",
+    "/app/test_reports/pytest/scouting_pdf_themes.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "✓ _PDF_THEMES table cleanly parameterises colors per theme; _build_profile_html(theme=...) reads from it with safe fallback to 'dark'.",
+    "✓ PDF endpoints accept theme as Query(default='dark'); maintains backward compat for existing callers.",
+    "✓ ScoutingMap.js uses cartocdn voyager light tiles + #e2e8f0 base + tiles.on('load') gate for 'tilesReady' shimmer — addresses iter_66 cosmetic concern.",
+    "✓ ScoutingModule.js detail bar renders two visually distinct buttons (dark slate / white) with proper data-testid and disabled+spinner during pdfLoading.",
+    "⚠ recruiting.py is still ~1469 lines. Recommend splitting (pdf.py, alerts.py, contacts.py, map.py) per iter_66 note — no regression, but maintenance cost grows.",
+    "⚠ Minor: stats inner color is still hardcoded '#CCFF00' in _build_profile_html (line 1308) regardless of theme; on the 'light' PDF this lime-yellow on light card can look low-contrast vs. T['titlecol']. Consider deriving the accent from theme for the light variant.",
+    "⚠ Note: PDF endpoints accept theme as free-form string; if a bogus value is sent it silently falls back to dark. A whitelist (theme in {'dark','light'}) with 400 on invalid values would be slightly cleaner."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_scouting_pdf_themes.py (new)"
+  ],
+  "success_rate": {"backend": "100% (7/7 pytest)", "frontend": "100% (3/3 flows: detail PDF buttons + public PDF buttons + light map)"},
+  "test_credentials": "juegolaureado@gmail.com / LordTraining2026! (super admin)",
+  "seed_data_creation": "Pytest creates TEST_PDF_Theme_Prospect and deletes it after module. Pre-existing TEST_E2E_Prospect (share_id=cd2df5ada54345e8aa8c0593d41ae728) used for public page UI test.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Scouting PDF theme testids: detail-pdf-dark-btn, detail-pdf-light-btn (ScoutingModule.js ~L683-684), public-pdf-dark-btn, public-pdf-light-btn (PublicScoutingProfile.js L63/L67). Backend: GET /api/recruiting/prospects/{pid}/profile-pdf?theme=dark|light (auth) and /api/recruiting/public/{share_id}/pdf?theme=dark|light (public). Default theme=dark. PDF download triggers a real File download in browser — use page.expect_download() to capture. Map tile layer is now cartocdn voyager (light); canvas bg #e2e8f0; shimmer overlay (tilesReady) until first tile load fires.",
+  "rca_of_the_issue": "All 3 user-reported issues resolved: (1) Map black → switched to cartocdn voyager light tiles + light canvas bg (#e2e8f0) in ScoutingMap.js; (2) PDF download failing in prod → _render_pdf now sets PLAYWRIGHT_BROWSERS_PATH=/pw-browsers directly, allowing Playwright to launch chromium in the deploy environment; (3) Dark + Light PDF design → _PDF_THEMES table + theme query param wired through both authenticated and public endpoints, with two clearly-styled UI buttons in detail bar and public page."
+}

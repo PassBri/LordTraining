@@ -618,18 +618,18 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
     try { const r = await api(`/prospects/${p.id}/convert`, { method: 'POST', body: { team_id: teamId || null } }); setConvertOpen(false); onChanged(p.id); toast.success(r.already ? 'Ya era atleta' : '¡Reclutado! Ahora es atleta en Equipos.'); }
     catch { toast.error('Error al convertir'); }
   };
-  const pdf = async () => {
+  const pdf = async (theme = 'dark') => {
     setPdfLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/recruiting/prospects/${p.id}/profile-pdf?origin=${encodeURIComponent(window.location.origin)}`, { headers: { Authorization: `Bearer ${token()}` } });
+      const res = await fetch(`${API_URL}/api/recruiting/prospects/${p.id}/profile-pdf?theme=${theme}&origin=${encodeURIComponent(window.location.origin)}`, { headers: { Authorization: `Bearer ${token()}` } });
       if (!res.ok) throw new Error(await res.text());
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = `scouting_${(p.name || 'prospecto').replace(/\s+/g, '_').toLowerCase()}.pdf`;
+      a.href = url; a.download = `scouting_${(p.name || 'prospecto').replace(/\s+/g, '_').toLowerCase()}_${theme}.pdf`;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 5000);
-      toast.success('Ficha PDF descargada');
+      toast.success(`Ficha PDF (${theme === 'light' ? 'clara' : 'oscura'}) descargada`);
     } catch (e) { toast.error('No se pudo generar el PDF'); }
     setPdfLoading(false);
   };
@@ -680,7 +680,8 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
           {/* Action bar */}
           <div className="flex flex-wrap gap-2 mt-5">
             <Button size="sm" onClick={() => onEdit(p)} className="bg-white/10 hover:bg-white/20 text-white border border-white/20" data-testid="detail-edit-btn"><Edit2 className="w-3.5 h-3.5 mr-1" />Editar</Button>
-            <Button size="sm" onClick={pdf} disabled={pdfLoading} className="bg-white/10 hover:bg-white/20 text-white border border-white/20" data-testid="detail-pdf-btn">{pdfLoading ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <FileDown className="w-3.5 h-3.5 mr-1" />}Ficha PDF</Button>
+            <Button size="sm" onClick={() => pdf('dark')} disabled={pdfLoading} className="bg-slate-900 hover:bg-slate-800 text-[#CCFF00] border border-white/20" data-testid="detail-pdf-dark-btn">{pdfLoading ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <FileDown className="w-3.5 h-3.5 mr-1" />}PDF Oscuro</Button>
+            <Button size="sm" onClick={() => pdf('light')} disabled={pdfLoading} className="bg-white hover:bg-slate-100 text-slate-900 border border-white/20" data-testid="detail-pdf-light-btn">{pdfLoading ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <FileDown className="w-3.5 h-3.5 mr-1" />}PDF Claro</Button>
             <Button size="sm" onClick={openShare} className="bg-white/10 hover:bg-white/20 text-white border border-white/20" data-testid="detail-share-btn"><Share2 className="w-3.5 h-3.5 mr-1" />Compartir</Button>
             {!p.converted_athlete_id ? (
               <Button size="sm" onClick={() => setConvertOpen(true)} className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] font-bold" data-testid="detail-convert-btn"><UserPlus className="w-3.5 h-3.5 mr-1" />Reclutar → Atleta</Button>
