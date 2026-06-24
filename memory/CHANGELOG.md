@@ -47,6 +47,18 @@
 - Verificado E2E con Playwright: login, navegación a Periodización→Estructura, edición de sesión y guardado correcto. Consola sin warnings de anidación.
 
 ## Pendientes / Notas
+
+## 2026-06-24 — FASE 2: Recruiting & Talent ID (todo en MongoDB) 🚀
+- **Backend** `/app/backend/routes/recruiting.py` (nuevas colecciones `recruiting_contacts`, `recruiting_settings`):
+  - **Alertas y seguimiento**: `GET /api/recruiting/alerts` (sin evaluar hace N días, contrato/patrocinio por vencer/vencido, severidades danger/warning/info; omite prospectos recruited/declined). `GET/PUT /api/recruiting/settings` (eval_days, expiry_days persistidos).
+  - **Red de contactos**: CRUD `/api/recruiting/contacts` (roles agent/representative/parent/institution/club/scout/other, vínculo a prospectos, filtro por role/prospect_id).
+  - **Mapa de origen**: `GET /api/recruiting/map` (puntos con lat/lng; usa `origin_lat/lng` exactos o centroide por país desde tabla COUNTRY_CENTROIDS; cuenta `unlocated`).
+  - **Modelo ProspectIn** ampliado: `contract_end`, `origin_city`, `origin_country`, `origin_lat`, `origin_lng`; patrocinios admiten `expires_at`.
+- **Frontend**: 3 nuevas tabs en `ScoutingModule.js` → **Alertas** (`ScoutingAlerts.js`), **Contactos** (`ScoutingContacts.js`), **Mapa** (`ScoutingMap.js` con Leaflet 1.9.4 + tiles cartocdn, overlay de carga). Comparador **mejorado** (corona de líder, resalte del ganador por categoría, atributos físicos). Formulario de prospecto con campos ciudad/país de origen, fin de contrato y vencimiento de patrocinios. Helper compartido `scoutingApi.js`.
+- **Dependencia nueva**: `leaflet@1.9.4` (frontend).
+- **Testing**: testing_agent iteration_66 → Backend 9/9 PASS, Frontend tabs/CRUD/mapa/comparador OK. Sin issues críticos.
+
+
 - Refactor pendiente: PeriodizationComplete.js (~3370 líneas), server.py (~8500), DashboardPage.js (~4750).
 - Migración de contenido preview→producción: pendiente de definir/ejecutar (flag `IMPORT_PREVIEW_DATA`).
 - Recordatorio: los cambios viven en Preview; el usuario debe hacer **Deploy** para reflejarlos en lordtraining.com.

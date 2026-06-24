@@ -7,6 +7,7 @@ import { api, scoreColor } from './scoutingApi';
 export default function ScoutingMap({ onOpen }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [tilesReady, setTilesReady] = useState(false);
   const mapEl = useRef(null);
   const mapRef = useRef(null);
   const layerRef = useRef(null);
@@ -19,7 +20,9 @@ export default function ScoutingMap({ onOpen }) {
     if (loading || !mapEl.current || !data) return;
     if (!mapRef.current) {
       mapRef.current = L.map(mapEl.current, { scrollWheelZoom: false, attributionControl: false }).setView([10, -60], 2);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(mapRef.current);
+      const tiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 });
+      tiles.on('load', () => setTilesReady(true));
+      tiles.addTo(mapRef.current);
       layerRef.current = L.layerGroup().addTo(mapRef.current);
     }
     layerRef.current.clearLayers();
@@ -56,8 +59,13 @@ export default function ScoutingMap({ onOpen }) {
 
   return (
     <div className="grid lg:grid-cols-3 gap-4" data-testid="scouting-map">
-      <div className="lg:col-span-2 rounded-2xl overflow-hidden border border-slate-200" style={{ height: 520 }}>
-        <div ref={mapEl} style={{ width: '100%', height: '100%', background: '#0b1220' }} data-testid="scouting-map-canvas" />
+      <div className="lg:col-span-2 rounded-2xl overflow-hidden border border-slate-200 relative" style={{ height: 520 }}>
+        {!tilesReady && (
+          <div className="absolute inset-0 z-[500] flex flex-col items-center justify-center gap-2 bg-slate-100/80 backdrop-blur-sm pointer-events-none" data-testid="map-loading">
+            <Loader2 className="w-6 h-6 animate-spin text-slate-400" /><span className="text-[12px] text-slate-500 font-medium">Cargando mapa…</span>
+          </div>
+        )}
+        <div ref={mapEl} style={{ width: '100%', height: '100%', background: '#e2e8f0' }} data-testid="scouting-map-canvas" />
       </div>
       <div className="space-y-3">
         <div className="bg-white rounded-xl border border-slate-200 p-4">
