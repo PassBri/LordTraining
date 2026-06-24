@@ -2886,9 +2886,12 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
               </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditModal({ type: null, data: null, indices: null })}>Cancelar</Button>
-            <Button onClick={handleSaveMacrocycle}>Guardar</Button>
+          <DialogFooter className="flex items-center justify-between sm:justify-between">
+            <span className="text-[12px] text-slate-500 mr-auto">Vol. total acumulado: <strong className="text-slate-800">{editModal.data?.volume_total ?? '—'}</strong></span>
+            <div className="flex gap-2">
+              <Button variant="outline" className="border-slate-300 text-slate-700" onClick={() => setEditModal({ type: null, data: null, indices: null })}>Cancelar</Button>
+              <Button className="bg-slate-900 hover:bg-slate-800 text-white" onClick={handleSaveMacrocycle} data-testid="save-macrocycle-btn">Guardar</Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -2930,9 +2933,12 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
               </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditModal({ type: null, data: null, indices: null })}>Cancelar</Button>
-            <Button onClick={handleSaveMesocycle}>Guardar</Button>
+          <DialogFooter className="flex items-center justify-between sm:justify-between">
+            <span className="text-[12px] text-slate-500 mr-auto">Vol. total acumulado: <strong className="text-slate-800">{editModal.data?.volume_total ?? '—'}</strong></span>
+            <div className="flex gap-2">
+              <Button variant="outline" className="border-slate-300 text-slate-700" onClick={() => setEditModal({ type: null, data: null, indices: null })}>Cancelar</Button>
+              <Button className="bg-slate-900 hover:bg-slate-800 text-white" onClick={handleSaveMesocycle} data-testid="save-mesocycle-btn">Guardar</Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -2968,9 +2974,12 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
               </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditModal({ type: null, data: null, indices: null })}>Cancelar</Button>
-            <Button onClick={handleSaveMicrocycle}>Guardar</Button>
+          <DialogFooter className="flex items-center justify-between sm:justify-between">
+            <span className="text-[12px] text-slate-500 mr-auto">Vol. total acumulado: <strong className="text-slate-800">{editModal.data?.volume_total ?? '—'}</strong></span>
+            <div className="flex gap-2">
+              <Button variant="outline" className="border-slate-300 text-slate-700" onClick={() => setEditModal({ type: null, data: null, indices: null })}>Cancelar</Button>
+              <Button className="bg-slate-900 hover:bg-slate-800 text-white" onClick={handleSaveMicrocycle} data-testid="save-microcycle-btn">Guardar</Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
