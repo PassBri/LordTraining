@@ -13,6 +13,7 @@ export default function PublicScoutingProfile() {
   const { shareId } = useParams();
   const [p, setP] = useState(null);
   const [state, setState] = useState('loading'); // loading | ok | error
+  const [dl, setDl] = useState(false);
 
   useEffect(() => {
     fetch(`${API_URL}/api/recruiting/public/${shareId}`)
@@ -34,7 +35,20 @@ export default function PublicScoutingProfile() {
   );
 
   const ev = p.evaluation; const ai = p.ai; const std = ev?.club_standard ?? 70;
-  const pdfUrl = `${API_URL}/api/recruiting/public/${shareId}/pdf`;
+  const downloadPdf = async () => {
+    setDl(true);
+    try {
+      const res = await fetch(`${API_URL}/api/recruiting/public/${shareId}/pdf`);
+      if (!res.ok) throw new Error();
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `scouting_${(p.name || 'prospecto').replace(/\s+/g, '_').toLowerCase()}.pdf`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    } catch { alert('No se pudo generar la ficha PDF. Intenta de nuevo.'); }
+    setDl(false);
+  };
 
   return (
     <div className="min-h-screen" style={{ background: 'radial-gradient(1200px 600px at 50% -10%, #13203a 0%, #0b1220 55%, #070d18 100%)' }}>
@@ -45,10 +59,10 @@ export default function PublicScoutingProfile() {
             <div className="w-8 h-8 rounded-lg bg-[#CCFF00] flex items-center justify-center"><Target className="w-5 h-5 text-slate-900" strokeWidth={2.5} /></div>
             <span className="text-white font-black tracking-tight">Lord<span className="text-[#CCFF00]">Training</span></span>
           </Link>
-          <a href={pdfUrl} target="_blank" rel="noreferrer" data-testid="public-pdf-btn"
-            className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-sm font-bold px-3 py-2 rounded-full border border-white/20 transition">
-            <FileDown className="w-4 h-4" /> Descargar Ficha
-          </a>
+          <button onClick={downloadPdf} disabled={dl} data-testid="public-pdf-btn"
+            className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-sm font-bold px-3 py-2 rounded-full border border-white/20 transition disabled:opacity-60">
+            {dl ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />} Descargar Ficha
+          </button>
         </div>
 
         {/* Hero card */}

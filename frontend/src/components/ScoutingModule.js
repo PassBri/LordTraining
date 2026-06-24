@@ -531,6 +531,7 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
   const [shareId, setShareId] = useState(p.share_enabled ? p.share_id : null);
   const [sharing, setSharing] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
   const shareUrl = shareId ? `${window.location.origin}/scouting/p/${shareId}` : null;
   const sm = stageMeta(p.stage);
   const ev = p.evaluation;
@@ -546,7 +547,21 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
     try { const r = await api(`/prospects/${p.id}/convert`, { method: 'POST', body: { team_id: teamId || null } }); setConvertOpen(false); onChanged(p.id); toast.success(r.already ? 'Ya era atleta' : '¡Reclutado! Ahora es atleta en Equipos.'); }
     catch { toast.error('Error al convertir'); }
   };
-  const pdf = () => window.open(`${API_URL}/api/recruiting/prospects/${p.id}/profile-pdf?auth=${token()}`, '_blank');
+  const pdf = async () => {
+    setPdfLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/recruiting/prospects/${p.id}/profile-pdf`, { headers: { Authorization: `Bearer ${token()}` } });
+      if (!res.ok) throw new Error(await res.text());
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `scouting_${(p.name || 'prospecto').replace(/\s+/g, '_').toLowerCase()}.pdf`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      toast.success('Ficha PDF descargada');
+    } catch (e) { toast.error('No se pudo generar el PDF'); }
+    setPdfLoading(false);
+  };
 
   const openShare = async () => {
     setShareOpen(true);
@@ -594,7 +609,7 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
           {/* Action bar */}
           <div className="flex flex-wrap gap-2 mt-5">
             <Button size="sm" onClick={() => onEdit(p)} className="bg-white/10 hover:bg-white/20 text-white border border-white/20" data-testid="detail-edit-btn"><Edit2 className="w-3.5 h-3.5 mr-1" />Editar</Button>
-            <Button size="sm" onClick={pdf} className="bg-white/10 hover:bg-white/20 text-white border border-white/20" data-testid="detail-pdf-btn"><FileDown className="w-3.5 h-3.5 mr-1" />Ficha PDF</Button>
+            <Button size="sm" onClick={pdf} disabled={pdfLoading} className="bg-white/10 hover:bg-white/20 text-white border border-white/20" data-testid="detail-pdf-btn">{pdfLoading ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <FileDown className="w-3.5 h-3.5 mr-1" />}Ficha PDF</Button>
             <Button size="sm" onClick={openShare} className="bg-white/10 hover:bg-white/20 text-white border border-white/20" data-testid="detail-share-btn"><Share2 className="w-3.5 h-3.5 mr-1" />Compartir</Button>
             {!p.converted_athlete_id ? (
               <Button size="sm" onClick={() => setConvertOpen(true)} className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] font-bold" data-testid="detail-convert-btn"><UserPlus className="w-3.5 h-3.5 mr-1" />Reclutar → Atleta</Button>
