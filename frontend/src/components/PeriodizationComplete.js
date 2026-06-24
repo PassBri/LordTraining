@@ -201,6 +201,34 @@ const MICROCYCLE_TYPES = {
   competitivo: { id: 'competitivo', name: 'Competitivo', load: 60, description: 'Semana de competencia' }
 };
 
+// ============ HELPERS DE VOLUMEN / INTENSIDAD ============
+// Convierte un valor (numérico o nivel string) a número 0-100
+const viNum = (x) => {
+  if (x == null || x === '') return null;
+  if (typeof x === 'number') return x;
+  const map = { high: 85, medium: 65, low: 40, very_high: 95, alta: 85, media: 65, baja: 40 };
+  if (typeof x === 'string') {
+    const k = x.toLowerCase();
+    if (k in map) return map[k];
+    const n = parseInt(x);
+    return isNaN(n) ? null : n;
+  }
+  return null;
+};
+// Devuelve el nivel ('high' | 'medium' | 'low') a partir de un valor numérico
+const viLevel = (n) => {
+  const v = viNum(n) ?? 0;
+  return v >= 75 ? 'high' : v >= 50 ? 'medium' : 'low';
+};
+// Sincroniza todas las variantes de keys de volumen/intensidad en un nodo
+const mirrorVI = (node) => {
+  if (!node) return;
+  const v = viNum(node.volume_percent ?? node.volume ?? node.volume_pct);
+  const i = viNum(node.intensity_percent ?? node.intensity ?? node.intensity_pct);
+  if (v != null) { node.volume = v; node.volume_percent = v; node.volume_pct = v; }
+  if (i != null) { node.intensity = i; node.intensity_percent = i; node.intensity_pct = i; }
+};
+
 // ============ COMPONENTE PRINCIPAL ============
 const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreated, showWizardOnly = false, onBack }) => {
   const [loading, setLoading] = useState(false);
@@ -726,6 +754,44 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     toast.success('Sesión eliminada');
   };
 
+  // Edición rápida de Volumen / Intensidad de la sesión (modal con fondo blanco)
+  const handleEditSessionVI = (session, macroIdx, mesoIdx, microIdx, sessionIdx) => {
+    setEditModal({
+      type: 'session',
+      data: {
+        ...session,
+        volume: viNum(session.volume) ?? 100,
+        intensity: viNum(session.intensity) ?? 70,
+        progress: session.progress ?? 0,
+      },
+      indices: { macroIdx, mesoIdx, microIdx, sessionIdx },
+    });
+  };
+
+  const handleSaveSessionVI = () => {
+    const { data, indices } = editModal;
+    const { macroIdx, mesoIdx, microIdx, sessionIdx } = indices;
+    const updatedPlan = { ...selectedPlan };
+    const micro = updatedPlan.macrocycles[macroIdx].mesocycles[mesoIdx].microcycles[microIdx];
+    const session = micro.sessions[sessionIdx];
+    session.volume = viNum(data.volume) ?? 100;
+    session.intensity = viNum(data.intensity) ?? 70;
+    session.progress = Number(data.progress) || 0;
+    if (data.name != null) session.name = data.name;
+    if (data.duration != null) session.duration = parseInt(data.duration) || session.duration;
+    session.edited = true;
+    mirrorVI(session);
+    // Desbloquear micro para que la suma en cascada recalcule desde las sesiones
+    micro.viLocked = false;
+    rebuildPlanData(updatedPlan);
+    setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
+    setSelectedPlan(updatedPlan);
+    setEditModal({ type: null, data: null, indices: null });
+    savePlanToAPI(updatedPlan).catch(e => console.error('Error guardando sesión:', e));
+    toast.success('Sesión actualizada');
+  };
+
+
   // ============ HELPERS ============
   
   // Helper to find sport name from both catalogs
@@ -755,7 +821,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       dayName: days[i % 7],
       type: types[i % types.length],
       duration: [90, 60, 45, 75, 40][i % 5],
-      intensity: ['high', 'medium', 'high', 'medium', 'low'][i % 5],
+      intensity: [85, 65, 88, 70, 40][i % 5],
       rpe: [8, 6, 9, 7, 4][i % 5],
       volume: [85, 70, 60, 75, 30][i % 5],
       internalLoad: [320, 220, 280, 250, 80][i % 5],
@@ -782,14 +848,16 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         const microVols = [], microInts = [], microProgs = [];
         (meso.microcycles || []).forEach(micro => {
           const sess = micro.sessions || [];
-          const sVols = sess.map(s => Number(s.volume)).filter(n => !isNaN(n));
-          const sInts = sess.map(s => Number(s.intensity)).filter(n => !isNaN(n));
+          (sess || []).forEach(s => mirrorVI(s));
+          const sVols = sess.map(s => viNum(s.volume)).filter(n => n != null);
+          const sInts = sess.map(s => viNum(s.intensity)).filter(n => n != null);
           const sProgs = sess.map(s => Number(s.progress)).filter(n => !isNaN(n));
           if (sVols.length && !micro.viLocked) micro.volume = avg(sVols);
           if (sInts.length && !micro.viLocked) micro.intensity = avg(sInts);
           if (sProgs.length && !micro.viLocked) micro.progress = avg(sProgs);
           micro.volume_total = sum(sVols);
           micro.intensity_total = sum(sInts);
+          mirrorVI(micro);
           if (micro.volume != null) microVols.push(Number(micro.volume));
           if (micro.intensity != null) microInts.push(Number(micro.intensity));
           if (micro.progress != null) microProgs.push(Number(micro.progress));
@@ -799,6 +867,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         if (microProgs.length && !meso.viLocked) meso.progress = avg(microProgs);
         meso.volume_total = sum(microVols);
         meso.intensity_total = sum(microInts);
+        mirrorVI(meso);
         if (meso.volume_percent != null) mesoVols.push(Number(meso.volume_percent));
         if (meso.intensity_percent != null) mesoInts.push(Number(meso.intensity_percent));
         if (meso.progress != null) mesoProgs.push(Number(meso.progress));
@@ -808,6 +877,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       if (mesoProgs.length && !macro.viLocked) macro.progress = avg(mesoProgs);
       macro.volume_total = sum(mesoVols);
       macro.intensity_total = sum(mesoInts);
+      mirrorVI(macro);
     });
   };
 
@@ -996,7 +1066,19 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           }))
         }))
       };
-      
+
+      // Unifica todas las variantes de keys (volume / volume_percent / volume_pct, idem intensity)
+      (apiPlan.macrocycles || []).forEach(ma => {
+        mirrorVI(ma);
+        (ma.mesocycles || []).forEach(me => {
+          mirrorVI(me);
+          (me.microcycles || []).forEach(mi => {
+            mirrorVI(mi);
+            (mi.sessions || []).forEach(se => mirrorVI(se));
+          });
+        });
+      });
+
       let response;
       if (plan.apiId) {
         // Update existing
@@ -2397,8 +2479,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                       const rpeColor = rpe >= 8 ? '#EF4444' : rpe >= 6 ? '#F59E0B' : '#10B981';
                                       const dayInfo = DAY_COLORS[session.dayName] || DAY_COLORS['Nueva'];
                                       const dayColor = dayInfo.bg;
-                                      const intensityVal = session.intensity === 'high' ? 85 : session.intensity === 'medium' ? 65 : session.intensity === 'low' ? 40 : 50;
-                                      const volVal = session.volume || 54;
+                                      const intensityVal = viNum(session.intensity) ?? 50;
+                                      const volVal = viNum(session.volume) ?? 54;
                                       const densVal = (() => {
                                         // Density = series/min from real session data
                                         const sd = session.sessionData || session.detailed_data;
@@ -2433,28 +2515,40 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                       return (
                                         <div
                                           key={session.id}
-                                          className="group relative rounded-xl overflow-hidden cursor-pointer transition-all duration-300 ease-out bg-white hover:shadow-lg hover:-translate-y-0.5"
+                                          className="group relative rounded-xl overflow-hidden cursor-pointer transition-all duration-300 ease-out hover:-translate-y-0.5"
                                           style={{
-                                            boxShadow: `0 1px 2px rgba(0,0,0,0.04), 0 0 0 1px ${dayColor}1a`,
+                                            background: `linear-gradient(160deg, #ffffff 55%, ${dayColor}10 100%)`,
+                                            boxShadow: `0 1px 3px rgba(0,0,0,0.06), 0 0 0 1px ${dayColor}26`,
                                           }}
+                                          onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 8px 20px -6px ${dayColor}55, 0 0 0 1.5px ${dayColor}66`; }}
+                                          onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 1px 3px rgba(0,0,0,0.06), 0 0 0 1px ${dayColor}26`; }}
                                           onClick={() => handleEditSession(session, macroIdx, mesoIdx, microIdx, sIdx)}
                                           data-testid={`session-${sIdx}`}
                                         >
                                           {/* Top accent strip */}
                                           <div
-                                            className="h-1"
-                                            style={{ background: `linear-gradient(90deg, ${dayColor} 0%, ${dayColor}aa 60%, ${sColor}80 100%)` }}
+                                            className="h-1.5"
+                                            style={{ background: `linear-gradient(90deg, ${dayColor} 0%, ${dayColor}cc 55%, ${sColor}99 100%)` }}
                                           />
 
-                                          {/* Delete on hover */}
+                                          {/* Action buttons on hover (Editar + Eliminar) */}
                                           <div
-                                            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                            className="absolute top-1 right-1 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                             onClick={(e) => e.stopPropagation()}
                                           >
+                                            <button
+                                              className="p-0.5 rounded-full bg-white shadow-md hover:bg-blue-50 transition-colors"
+                                              onClick={() => handleEditSessionVI(session, macroIdx, mesoIdx, microIdx, sIdx)}
+                                              title="Editar volumen / intensidad"
+                                              data-testid={`session-${sIdx}-edit-btn`}
+                                            >
+                                              <Edit2 className="w-2.5 h-2.5 text-blue-500" />
+                                            </button>
                                             <button
                                               className="p-0.5 rounded-full bg-white shadow-md hover:bg-red-50 transition-colors"
                                               onClick={() => handleDeleteSession(macroIdx, mesoIdx, microIdx, sIdx)}
                                               title="Eliminar"
+                                              data-testid={`session-${sIdx}-delete-btn`}
                                             >
                                               <Trash2 className="w-2.5 h-2.5 text-red-400" />
                                             </button>
@@ -2522,7 +2616,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                             {/* Bottom row: tiny indicators */}
                                             <div className="flex items-center justify-between gap-1">
                                               <div className="scale-75 origin-left">
-                                                <IntensityBadge level={session.intensity} size="xs" />
+                                                <IntensityBadge level={viLevel(intensityVal)} size="xs" />
                                               </div>
                                               <div className="flex items-center gap-0.5 shrink-0">
                                                 {densVal > 0 && (
@@ -2979,6 +3073,66 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
             <div className="flex gap-2">
               <Button variant="outline" className="border-slate-300 text-slate-700" onClick={() => setEditModal({ type: null, data: null, indices: null })}>Cancelar</Button>
               <Button className="bg-slate-900 hover:bg-slate-800 text-white" onClick={handleSaveMicrocycle} data-testid="save-microcycle-btn">Guardar</Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Session Quick-Edit Modal (Volumen / Intensidad) */}
+      <Dialog open={editModal.type === 'session'} onOpenChange={() => setEditModal({ type: null, data: null, indices: null })}>
+        <DialogContent className="max-w-lg bg-white text-slate-900 border border-slate-200">
+          <DialogHeader><DialogTitle className="text-slate-900">Editar Sesión</DialogTitle></DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-medium text-slate-700">Nombre</label>
+                <Input value={editModal.data?.name || ''} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, name: e.target.value } })} className="mt-1 bg-white text-slate-900" placeholder="Sesión" data-testid="session-name-input" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-slate-700">Duración (min)</label>
+                <Input type="number" min="0" value={editModal.data?.duration ?? 60} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, duration: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="session-duration-input" />
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="text-sm font-medium text-slate-700">Volumen %</label>
+                <Input type="number" min="0" max="100" value={editModal.data?.volume ?? 100} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, volume: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="session-volume-input" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-slate-700">Intensidad %</label>
+                <Input type="number" min="0" max="100" value={editModal.data?.intensity ?? 70} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, intensity: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="session-intensity-input" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-slate-700">Progreso %</label>
+                <Input type="number" min="0" max="100" value={editModal.data?.progress ?? 0} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, progress: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="session-progress-input" />
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-slate-700">Nivel de intensidad</label>
+              <div className="flex gap-2 mt-1">
+                {[{ id: 'low', label: 'Baja', val: 40, color: '#10B981' }, { id: 'medium', label: 'Media', val: 65, color: '#F59E0B' }, { id: 'high', label: 'Alta', val: 85, color: '#EF4444' }].map(lvl => {
+                  const active = viLevel(editModal.data?.intensity ?? 70) === lvl.id;
+                  return (
+                    <button
+                      key={lvl.id}
+                      type="button"
+                      onClick={() => setEditModal({ ...editModal, data: { ...editModal.data, intensity: lvl.val } })}
+                      className="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all border"
+                      style={active ? { background: lvl.color, color: '#fff', borderColor: lvl.color } : { background: `${lvl.color}12`, color: lvl.color, borderColor: `${lvl.color}33` }}
+                      data-testid={`session-level-${lvl.id}`}
+                    >
+                      {lvl.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="flex items-center justify-between sm:justify-between">
+            <span className="text-[12px] text-slate-500 mr-auto">La suma se recalcula en cascada hacia micro/meso/macro.</span>
+            <div className="flex gap-2">
+              <Button variant="outline" className="border-slate-300 text-slate-700" onClick={() => setEditModal({ type: null, data: null, indices: null })}>Cancelar</Button>
+              <Button className="bg-slate-900 hover:bg-slate-800 text-white" onClick={handleSaveSessionVI} data-testid="save-session-btn">Guardar</Button>
             </div>
           </DialogFooter>
         </DialogContent>

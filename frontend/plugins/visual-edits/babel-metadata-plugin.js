@@ -153,7 +153,33 @@ const buildDynamicExpressionWrapper = (child, t) =>
     false,
   );
 
+// Parent tags whose content model forbids a <span> child. Wrapping expression
+// children of these in a <span display:contents> produces invalid DOM nesting
+// (e.g. <tbody><span>, <tr><span>) and React 19 hydration warnings.
+const NON_WRAPPABLE_EXPR_PARENTS = new Set([
+  "table",
+  "thead",
+  "tbody",
+  "tfoot",
+  "tr",
+  "colgroup",
+  "select",
+  "optgroup",
+  "ul",
+  "ol",
+  "dl",
+  "menu",
+]);
+
 const wrapDynamicExpressionChildren = (jsxPath, t) => {
+  const parentName = jsxPath.node.openingElement?.name;
+  if (
+    parentName &&
+    parentName.type === "JSXIdentifier" &&
+    NON_WRAPPABLE_EXPR_PARENTS.has(parentName.name)
+  ) {
+    return;
+  }
   const children = jsxPath.node.children || [];
   let didChange = false;
 
