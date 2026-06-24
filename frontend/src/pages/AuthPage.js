@@ -380,7 +380,19 @@ const AuthPage = () => {
     setIsLoading(true);
     try {
       await register(registerEmail, registerPassword, registerName, registerRole);
-      toast.success(t('common.success'));
+      // Auto-login right after a successful registration (better conversion)
+      await login(registerEmail, registerPassword);
+      toast.success(t('common.welcome') + '!');
+      const pending = sessionStorage.getItem('pending_checkout');
+      if (pending) {
+        sessionStorage.removeItem('pending_checkout');
+        try {
+          const { tier, cycle } = JSON.parse(pending);
+          navigate(`/subscription?plan=${tier}&cycle=${cycle || 'monthly'}&autocheckout=1`);
+        } catch { navigate('/dashboard'); }
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       toast.error(error.response?.data?.detail || t('common.error'));
     } finally {
