@@ -402,18 +402,9 @@ async def download_pdi_whitepaper(user=Depends(get_current_user_dep())):
                 .replace("__LORDTRAINING_FULL_LOGO__", f"data:image/png;base64,{full_b64}")
                 .replace("__LORDTRAINING_ICON_LOGO__", f"data:image/png;base64,{icon_b64}"))
 
-        os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", "/pw-browsers")
-        from playwright.async_api import async_playwright
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(
-                headless=True,
-                args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-            )
-            page = await browser.new_page(viewport={"width": 794, "height": 1123})
-            await page.set_content(html, wait_until="domcontentloaded")
-            await page.wait_for_timeout(500)
-            pdf = await page.pdf(format="A4", print_background=True, margin={"top": "0", "bottom": "0", "left": "0", "right": "0"})
-            await browser.close()
+        import asyncio
+        from routes.pdf_render import html_to_pdf
+        pdf = await asyncio.to_thread(html_to_pdf, html, True)
         return Response(
             content=pdf,
             media_type="application/pdf",

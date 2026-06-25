@@ -372,42 +372,12 @@ def _phase_label(phase: str) -> str:
 
 
 async def _capture_graphic_plan_on_demand(plan_id: str, user_id: str) -> Optional[str]:
-    """Render the public graphic_plan page and return an inline data URL (PNG base64)."""
-    import uuid as _uuid
-    # Create a temporary share so the public URL renders the right plan
-    share_id = str(_uuid.uuid4())
-    plan = await _db.training_plans.find_one({"id": plan_id, "$or": [{"user_id": user_id}, {"coach_id": user_id}]}, {"_id": 0})
-    if not plan:
-        return None
-    share_doc = {
-        "id": share_id,
-        "share_id": share_id,
-        "plan_id": plan_id,
-        "user_id": user_id,
-        "plan_snapshot": plan,
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "auto_capture": True,
-    }
-    await _db.graphic_plan_shares.insert_one(share_doc)
-    # Try to render via Playwright the public viewer
-    os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", "/pw-browsers")
-    try:
-        from playwright.async_api import async_playwright
-        backend_url = os.environ.get('PUBLIC_FRONTEND_URL') or os.environ.get('REACT_APP_BACKEND_URL', '')
-        if not backend_url:
-            return None
-        url = f"{backend_url.rstrip('/')}/api/graphic-plan/shared/{share_id}"
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True,
-                args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'])
-            page = await browser.new_page(viewport={"width": 1600, "height": 900})
-            await page.goto(url, wait_until="networkidle", timeout=20000)
-            await page.wait_for_timeout(1500)
-            png = await page.screenshot(full_page=True, type="png")
-            await browser.close()
-        return "data:image/png;base64," + base64.b64encode(png).decode()
-    except Exception:
-        return None
+    """Captura del plan gráfico (página React) deshabilitada en producción.
+
+    WeasyPrint no puede renderizar la página React del visor; Playwright/Chromium
+    no está disponible en el entorno de despliegue. Se omite la captura de forma
+    segura (el reporte se genera sin esa imagen)."""
+    return None
 
 
 def _h2(title: str, style: dict) -> str:

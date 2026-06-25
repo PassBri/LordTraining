@@ -7598,68 +7598,12 @@ async def board_share_landing(share_id: str, request: Request):
 
 @api_router.get("/sessions/download-pdf/{share_id}")
 async def download_session_pdf(share_id: str, theme: str = "dark"):
-    """Genera PDF de la vista pública de sesión usando Playwright headless"""
-    from fastapi.responses import Response
-    try:
-        # Verificar que la sesión existe
-        shared = await db.shared_sessions.find_one({"share_id": share_id})
-        if not shared:
-            raise HTTPException(status_code=404, detail="Sesión no encontrada")
-        
-        import os as _os
-        _os.environ['PLAYWRIGHT_BROWSERS_PATH'] = '/pw-browsers'
-        from playwright.async_api import async_playwright
-        
-        # URL de la vista pública con tema
-        theme_param = "?theme=light" if theme == "light" else ""
-        page_url = f"http://localhost:3000/s/{share_id}{theme_param}"
-        
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(
-                headless=True,
-                args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-            )
-            page = await browser.new_page(viewport={"width": 794, "height": 1123})
-            
-            await page.goto(page_url, wait_until="networkidle", timeout=30000)
-            await page.wait_for_timeout(2000)
-            
-            bg_color = '#0a0a0f' if theme != 'light' else '#ffffff'
-            await page.evaluate(f"""
-                document.getElementById('download-btn')?.remove();
-                const s = document.createElement('style');
-                s.textContent = `
-                  html, body {{ background: {bg_color} !important; margin: 0 !important; padding: 0 !important; min-height: 100%; }}
-                  #session-view-content {{ min-height: 100vh; background: {bg_color} !important; }}
-                  .max-w-4xl {{ max-width: 100% !important; }}
-                  @media print {{ html, body {{ background: {bg_color} !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }} }}
-                  @page {{ margin: 0; size: A4; }}
-                `;
-                document.head.appendChild(s);
-            """)
-            
-            pdf_bytes = await page.pdf(
-                width="210mm",
-                height="297mm",
-                print_background=True,
-                margin={"top": "0mm", "right": "0mm", "bottom": "0mm", "left": "0mm"},
-                scale=1,
-                prefer_css_page_size=False
-            )
-            
-            await browser.close()
-        
-        filename = f"LordTraining_{share_id}.pdf"
-        return Response(
-            content=pdf_bytes,
-            media_type="application/pdf",
-            headers={"Content-Disposition": f'attachment; filename="{filename}"'}
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error generating PDF: {e}")
-        raise HTTPException(status_code=500, detail=f"Error al generar PDF: {str(e)}")
+    """Genera PDF de la sesión pública con WeasyPrint (producción-safe).
+
+    Reutiliza el generador de pizarras/boards que construye el HTML en el
+    servidor desde los datos de la sesión, evitando renderizar la página React.
+    """
+    return await download_session_boards_pdf(share_id, theme=theme)
 
 
 @api_router.get("/sessions/download-boards-pdf/{share_id}")
@@ -7924,27 +7868,9 @@ async def download_session_boards_pdf(share_id: str, theme: str = "light"):
   </div>
 </body></html>"""
 
-        import os as _os
-        _os.environ['PLAYWRIGHT_BROWSERS_PATH'] = '/pw-browsers'
-        from playwright.async_api import async_playwright
-
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(
-                headless=True,
-                args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-            )
-            page = await browser.new_page(viewport={"width": 794, "height": 1123})
-            await page.set_content(full_html, wait_until="networkidle", timeout=30000)
-            await page.wait_for_timeout(400)
-            pdf_bytes = await page.pdf(
-                width="210mm",
-                height="297mm",
-                print_background=True,
-                margin={"top": "0mm", "right": "0mm", "bottom": "0mm", "left": "0mm"},
-                scale=1,
-                prefer_css_page_size=False
-            )
-            await browser.close()
+        import asyncio
+        from routes.pdf_render import html_to_pdf
+        pdf_bytes = await asyncio.to_thread(html_to_pdf, full_html, True)
 
         safe_name = ''.join(c if c.isalnum() or c in ('-','_') else '-' for c in str(session_name))[:60]
         filename = f"LordTraining_pizarras_{safe_name}_{theme}.pdf"

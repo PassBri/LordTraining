@@ -141,3 +141,14 @@
 - Verificado: logo carga OK en Landing (nav-brand-logo), Auth (auth-brand-logo) y Dashboard (dashboard-brand-logo).
 
 **Pendiente de usuario:** Hacer clic en **Deploy** para reflejar estos cambios (y los anteriores) en Producción.
+
+## 2026-06-25 — Migración COMPLETA de PDFs a WeasyPrint (fix Producción)
+- Causa raíz: Playwright/Chromium no existe en el contenedor de Producción → error 500. Funcionaba en Preview porque allí sí hay Chromium.
+- Completada la migración que quedó a medias. Se eliminaron TODAS las referencias a Playwright en backend.
+- Endpoints migrados a WeasyPrint (helper routes/pdf_render.py):
+  - server.py: /api/sessions/download-pdf/{share_id} (ahora delega al builder de boards, HTML server-side) y /api/sessions/download-boards-pdf.
+  - previous_analysis_export.py: _render_pdf (análisis del plan anterior, público + auth).
+  - periodization_models.py: /api/periodization-library/pdi/whitepaper.
+  - master_report.py: _capture_graphic_plan_on_demand desactivado (devuelve None; WeasyPrint no renderiza React).
+- Validado vía curl en URL externa (todos 200 + %PDF-): session-pdf, boards-pdf, prev-analysis (pública 636KB + auth 653KB), PDI whitepaper (620KB), master-report generate (170KB) + preview PNG (155KB), active-plan (616KB).
+- Pendiente de usuario: hacer clic en **Deploy** para llevar el fix a lordtraining.com.
