@@ -48,6 +48,15 @@
 
 ## Pendientes / Notas
 
+## 2026-06-24 — Detalle de evolución clickeable + PDF de progreso + enlace público 🔗📊
+- **Frontend** (`AthleteProgress.js`): tarjetas de evolución ahora **clickeables** → abren modal `progress-detail-modal` con 5 stats (inicial/actual/mejor/promedio/cambio), gráfico grande (recharts) y **historial completo** (fecha + valor + nota). Botones: **Descargar PDF** y **Compartir enlace** (copia al portapapeles).
+- **Página pública** (`pages/PublicProgress.js`, ruta `/progress/p/:shareId`): sin login, tema oscuro, gráfico + stats + historial + botón de PDF público. Ideal para enviar a atletas/padres/patrocinadores.
+- **Backend** (`routes/calculator_results.py`): `POST /share` (idempotente, colección `calc_progress_shares`), `GET /public/{id}`, `GET /public/{id}/pdf`, `GET /progress-pdf` (authed). PDF de progresión con **ReportLab** (gráfico de línea con ejes/grilla/puntos, stats, historial, QR al enlace) → funciona en producción.
+- **Testing**: testing_agent iteration_70 → **5/5 flujos frontend + 4/4 endpoints backend PASS (100%)**.
+- **PENDIENTE USUARIO**: hacer **Deploy** para llevarlo a lordtraining.com.
+
+
+
 ## 2026-06-24 — Mini-línea de evolución en el perfil del atleta 📈
 - **Frontend** (`components/AthleteProgress.js`, integrado en `DashboardPage.js` bajo `AthleteSummary`): nueva sección **"Evolución del rendimiento"** en el perfil del atleta. Consume `GET /api/calculator-results?athlete_id=`, agrupa por calculadora + métrica principal (headline) y dibuja **mini-sparklines** (recharts) con: valor más reciente, % de cambio vs. el primero (verde sube / rojo baja / gris sin cambio), nº de registros y tooltip por fecha.
 - Verificado en preview: 1RM mostrando +7.4% ↗ y % Grasa -9.9% ↘ con sus mini-gráficos. Solo aparece cuando hay resultados guardados.
