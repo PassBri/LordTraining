@@ -48,6 +48,16 @@
 
 ## Pendientes / Notas
 
+## 2026-06-24 — Meta/Objetivo en el progreso + Logos de patrocinadores en el informe 🎯🏷️
+- **Meta/Objetivo**: por métrica (atleta+calculadora+label) se fija un valor objetivo. El gráfico (modal y página pública) muestra una **línea de referencia verde discontinua** ("Meta X") y una **barra de progreso con %** hacia la meta (badge "¡Alcanzada!" al 100%). El dominio del eje Y se expande para incluir la meta. Backend: `POST/DELETE /goal`, incluido en `_build_series` (progress_pct, reached) y en el PDF (línea de meta + "X% logrado").
+- **Patrocinadores**: subida de **logos** (object storage) a nivel coach. Aparecen en el modal, en el **PDF** (banda "PATROCINADORES") y en la **página pública**. Backend: `POST/GET/DELETE /sponsors`, `GET /sponsor-logo/{id}` (público).
+- **Endpoint nuevo** `GET /series` (authed) para que el modal obtenga meta+patrocinadores canónicos.
+- **Bug corregido**: `DELETE /goal` quedaba eclipsado por `DELETE /{rid}`; se movió la ruta genérica al final del archivo. Verificado.
+- **Testing**: testing_agent iteration_71 → frontend 100% (meta, upload/delete logo, PDF, compartir, página pública con meta+logos); backend 9/9 tras el fix.
+- **PENDIENTE USUARIO**: hacer **Deploy** para llevarlo a lordtraining.com.
+
+
+
 ## 2026-06-24 — Detalle de evolución clickeable + PDF de progreso + enlace público 🔗📊
 - **Frontend** (`AthleteProgress.js`): tarjetas de evolución ahora **clickeables** → abren modal `progress-detail-modal` con 5 stats (inicial/actual/mejor/promedio/cambio), gráfico grande (recharts) y **historial completo** (fecha + valor + nota). Botones: **Descargar PDF** y **Compartir enlace** (copia al portapapeles).
 - **Página pública** (`pages/PublicProgress.js`, ruta `/progress/p/:shareId`): sin login, tema oscuro, gráfico + stats + historial + botón de PDF público. Ideal para enviar a atletas/padres/patrocinadores.

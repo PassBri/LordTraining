@@ -99,15 +99,6 @@ async def list_results(athlete_id: Optional[str] = Query(None), plan_id: Optiona
     return {"results": items, "total": len(items)}
 
 
-@router.delete("/{rid}")
-async def delete_result(rid: str, user=Depends(get_current_user_dep())):
-    uid = _uid(user)
-    res = await _results.delete_one({"id": rid, "coach_id": uid})
-    if res.deleted_count == 0:
-        raise HTTPException(404, "Resultado no encontrado")
-    return {"ok": True}
-
-
 @router.get("/series")
 async def get_series(athlete_id: str = Query(...), calculator: str = Query(...),
                     label: str = Query(...), user=Depends(get_current_user_dep())):
@@ -509,3 +500,13 @@ def _build_progress_pdf(series: dict, public_url: Optional[str] = None) -> bytes
     c.save()
     return buf.getvalue()
 
+
+
+# Ruta genérica al final para que no eclipse a /goal, /share, /series, /sponsors
+@router.delete("/{rid}")
+async def delete_result(rid: str, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    res = await _results.delete_one({"id": rid, "coach_id": uid})
+    if res.deleted_count == 0:
+        raise HTTPException(404, "Resultado no encontrado")
+    return {"ok": True}
