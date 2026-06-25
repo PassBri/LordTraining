@@ -641,10 +641,7 @@ def _build_session_html_hero(
 
 
 async def _render_hero_pdf_bytes(htmls: List[str]) -> bytes:
-    """Renderiza un PDF a partir de uno o más bloques HTML concatenados como páginas con Playwright."""
-    os.environ['PLAYWRIGHT_BROWSERS_PATH'] = '/pw-browsers'
-    from playwright.async_api import async_playwright
-
+    """Renderiza un PDF a partir de uno o más bloques HTML concatenados como páginas (WeasyPrint)."""
     # Concatenar HTMLs: cada uno tiene su propio <html>, los reducimos a un body con secciones .page
     # Como cada html ya tiene .page con page-break-after, juntamos los body extrayendo el contenido.
     if len(htmls) == 1:
@@ -663,21 +660,9 @@ async def _render_hero_pdf_bytes(htmls: List[str]) -> bytes:
         head_html = htmls[0][:head_end + len('</head>')] if head_end >= 0 else htmls[0]
         merged = head_html + '<body>' + ''.join(bodies) + '</body></html>'
 
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(
-            headless=True,
-            args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-        )
-        page = await browser.new_page(viewport={"width": 794, "height": 1123})
-        await page.set_content(merged, wait_until="networkidle", timeout=45000)
-        await page.wait_for_timeout(400)
-        pdf_bytes = await page.pdf(
-            width="210mm", height="297mm", print_background=True,
-            margin={"top": "0mm", "right": "0mm", "bottom": "0mm", "left": "0mm"},
-            scale=1, prefer_css_page_size=False,
-        )
-        await browser.close()
-    return pdf_bytes
+    import asyncio
+    from routes.pdf_render import html_to_pdf
+    return await asyncio.to_thread(html_to_pdf, merged, True)
 
 
 # ============ COMMON BUILD ============

@@ -774,20 +774,9 @@ def _build_html(eval_doc: dict, plan_name: str, athlete_name: str = "",
 
 
 async def _render_pdf(html: str) -> bytes:
-    os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", "/pw-browsers")
-    from playwright.async_api import async_playwright
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(
-            headless=True,
-            args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-        )
-        page = await browser.new_page(viewport={"width": 794, "height": 1123})
-        await page.set_content(html, wait_until="domcontentloaded")
-        await page.wait_for_timeout(400)
-        pdf = await page.pdf(format="A4", print_background=True,
-                             margin={"top": "0", "bottom": "0", "left": "0", "right": "0"})
-        await browser.close()
-    return pdf
+    import asyncio
+    from routes.pdf_render import html_to_pdf
+    return await asyncio.to_thread(html_to_pdf, html)
 
 
 async def _get_plan_name(plan_id: Optional[str]) -> str:
