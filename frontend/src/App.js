@@ -16,6 +16,7 @@ import OrgTeamPage from './pages/OrgTeamPage';
 import SuperAdminPage from './pages/SuperAdminPage';
 import ThankYouPage from './pages/ThankYouPage';
 import PublicScoutingProfile from './pages/PublicScoutingProfile';
+import PublicProgress from './pages/PublicProgress';
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -103,6 +104,7 @@ function AppRoutes() {
 
       {/* Public scouting profile (no auth required) */}
       <Route path="/scouting/p/:shareId" element={<PublicScoutingProfile />} />
+      <Route path="/progress/p/:shareId" element={<PublicProgress />} />
       
       {/* Catch all */}
       <Route path="*" element={<Navigate to="/" replace />} />
