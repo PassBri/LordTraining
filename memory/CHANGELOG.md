@@ -159,3 +159,8 @@
 - deployment_agent: sin bloqueadores (compilation_passed). Añadido **/test_credentials.md a .gitignore.
 - NOTA: WeasyPrint requiere libs nativas (libpango/cairo/poppler) en runtime; presentes en el entorno. Si tras redeploy aún fallara, sería por libs nativas del contenedor de deploy → escalar a soporte.
 - ACCIÓN USUARIO: REDEPLOY obligatorio para llevar el fix de requirements.txt a producción.
+
+## 2026-06-25 — Logo PDFs (busto) + diagnóstico Reporte Maestro prod
+- Logo en PDFs: el usuario veía la "escama de dragón" (figura dorada con brazos+LORD). Reemplazados lordtraining-scale.png, lordtraining-icon-pdf.png, lordtraining-master.png por el busto dorado limpio transparente (500x500, RGBA) que adjuntó el usuario. Verificado visualmente en cover del Reporte Maestro: aparece el busto + "LORDTRAINING". Backend reiniciado para limpiar cache de sessions_export.
+- Reporte Maestro: FUNCIONA en Preview (200, 170KB, 1.1s). El fallo "Cloudflare could not parse / empty response" es EXCLUSIVO de PRODUCCIÓN → requiere REDEPLOY (incluye fix de requirements.txt weasyprint). Si persiste tras redeploy = libs nativas del contenedor de deploy → soporte.
+- ACCIÓN USUARIO: REDEPLOY para llevar a prod (a) requirements.txt con weasyprint, (b) nuevo logo busto en PDFs, (c) favicon ?v=2.
