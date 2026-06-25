@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -142,38 +142,25 @@ const ControlPanel = ({
 
   // ===== NUEVOS DATOS PARA VISUALIZACIONES ADICIONALES =====
   
-  // Progreso de Objetivos
-  const [objectivesProgress] = useState([
-    { id: 1, name: 'Aumentar fuerza máxima', progress: 78, target: 100, color: '#3B82F6' },
-    { id: 2, name: 'Mejorar resistencia aeróbica', progress: 65, target: 100, color: '#10B981' },
-    { id: 3, name: 'Reducir tiempo en 100m', progress: 45, target: 100, color: '#F59E0B' },
-    { id: 4, name: 'Aumentar flexibilidad', progress: 90, target: 100, color: '#8B5CF6' },
-    { id: 5, name: 'Mejorar técnica de salto', progress: 55, target: 100, color: '#EC4899' }
-  ]);
-
-  // Comparativa Semanal
-  const [weeklyComparison] = useState([
-    { metric: 'Volumen', actual: 85, anterior: 78, unidad: '%' },
-    { metric: 'Intensidad', actual: 72, anterior: 80, unidad: '%' },
-    { metric: 'Sesiones', actual: 5, anterior: 4, unidad: '' },
-    { metric: 'Tiempo Total', actual: 8.5, anterior: 7, unidad: 'h' },
-    { metric: 'RPE Promedio', actual: 7.2, anterior: 7.8, unidad: '' }
-  ]);
+  // Objetivos reales del plan (texto) — se cargan vía fetch más abajo
+  const [realObjectives, setRealObjectives] = useState([]);
 
   // ===== DATOS REALES (conectados a periodización / plan activo) =====
   const sesiones = usePlanStore(useShallow(s => s.sesiones));
   const microciclos = usePlanStore(useShallow(s => s.microciclos));
   const mesociclos = usePlanStore(useShallow(s => s.mesociclos));
   const macrociclos = usePlanStore(useShallow(s => s.macrociclos));
-  const planLoaded = usePlanStore(s => s.plan);
   const cargarPlanCompleto = usePlanStore(s => s.cargarPlanCompleto);
 
-  // Cargar el plan activo en el store si no está cargado
+  // Cargar el plan activo en el store si no está cargado (sin loop: el plan.id del store
+  // es el id v2 resuelto y no coincide con activePlan.id, por eso usamos un ref).
+  const loadedPlanRef = useRef(null);
   useEffect(() => {
-    if (activePlan?.id && planLoaded?.id !== activePlan.id) {
+    if (activePlan?.id && loadedPlanRef.current !== activePlan.id) {
+      loadedPlanRef.current = activePlan.id;
       cargarPlanCompleto(activePlan.id);
     }
-  }, [activePlan?.id, planLoaded?.id, cargarPlanCompleto]);
+  }, [activePlan?.id, cargarPlanCompleto]);
 
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [selectedCalendarDay, setSelectedCalendarDay] = useState(null);
@@ -192,6 +179,22 @@ const ControlPanel = ({
     });
     return map;
   }, [sesiones]);
+
+  // Saltar automáticamente al primer mes con sesiones reales (una vez por carga)
+  const autoJumpedRef = useRef(null);
+  useEffect(() => {
+    const keys = Object.keys(sessionsByDay).sort();
+    if (keys.length === 0) return;
+    const planKey = activePlan?.id || 'x';
+    if (autoJumpedRef.current === planKey) return;
+    const nowMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+    const hasCurrentMonth = keys.some(k => k.slice(0, 7) === nowMonth);
+    if (!hasCurrentMonth) {
+      const first = new Date(keys[0] + 'T00:00:00');
+      setCalendarMonth(new Date(first.getFullYear(), first.getMonth(), 1));
+    }
+    autoJumpedRef.current = planKey;
+  }, [sessionsByDay, activePlan?.id]);
 
   // Estado real de un día según sus sesiones
   const dayStatus = useCallback((dateStr, daySessions) => {
@@ -222,13 +225,59 @@ const ControlPanel = ({
     setCapacityDistribution(dist);
   }, [sesiones, calendarMonth]);
 
+  // Comparativa Semanal (real): esta semana vs semana anterior, según sesiones con fecha
+  const weeklyComparison = useMemo(() => {
+    const today = new Date();
+    const dow = (today.getDay() + 6) % 7; // Lun=0
+    const startThis = new Date(today); startThis.setHours(0, 0, 0, 0); startThis.setDate(today.getDate() - dow);
+    const startPrev = new Date(startThis); startPrev.setDate(startThis.getDate() - 7);
+    const endPrev = new Date(startThis);
+    const inRange = (s, a, b) => { if (!s.fecha) return false; const d = new Date(s.fecha.slice(0, 10) + 'T00:00:00'); return d >= a && d < b; };
+    const endThis = new Date(startThis); endThis.setDate(startThis.getDate() + 7);
+    const agg = (a, b) => {
+      const list = (sesiones || []).filter(s => inRange(s, a, b));
+      const mins = list.reduce((t, s) => t + (Number(s.duracion_minutos) || 0), 0);
+      const rpes = list.map(s => Number(s.RPE_sesion)).filter(v => v > 0);
+      return { count: list.length, minutes: mins, hours: +(mins / 60).toFixed(1), rpe: rpes.length ? +(rpes.reduce((x, y) => x + y, 0) / rpes.length).toFixed(1) : 0 };
+    };
+    const cur = agg(startThis, endThis);
+    const prev = agg(startPrev, endPrev);
+    const hasData = cur.count > 0 || prev.count > 0;
+    if (!hasData) return null;
+    return [
+      { metric: 'Sesiones', actual: cur.count, anterior: prev.count, unidad: '' },
+      { metric: 'Tiempo Total', actual: cur.hours, anterior: prev.hours, unidad: 'h' },
+      { metric: 'Volumen', actual: cur.minutes, anterior: prev.minutes, unidad: 'min' },
+      { metric: 'RPE Promedio', actual: cur.rpe, anterior: prev.rpe, unidad: '' },
+    ];
+  }, [sesiones]);
+
   // Fetch competencias + récords + capacidades reales del plan activo
   useEffect(() => {
     const planId = activePlan?.id;
-    if (!planId) { setRealCompetitions([]); setRealRecords([]); setRealCapabilities([]); return; }
+    if (!planId) { setRealCompetitions([]); setRealRecords([]); setRealCapabilities([]); setRealObjectives([]); return; }
     const token = localStorage.getItem('train_token');
     const headers = { 'Authorization': `Bearer ${token}` };
     const todayStr = ymdLocal(new Date());
+
+    // Objetivos reales del plan (corto/mediano/largo plazo + por aspecto)
+    const ASPECT_LABELS = { general: 'General', fisicaGeneral: 'Física general', fisicaEspecial: 'Física especial', tecnica: 'Técnica', tactica: 'Táctica', psicologica: 'Psicológica', teorica: 'Teórica', reglamento: 'Reglamento' };
+    const TERM_COLORS = { 'Corto plazo': '#F59E0B', 'Mediano plazo': '#10B981', 'Largo plazo': '#3B82F6' };
+    fetch(`${API_URL}/api/plan-data/objectives/${planId}`, { headers })
+      .then(r => r.ok ? r.json() : null)
+      .then(obj => {
+        const data = obj?.data || {};
+        const out = [];
+        if (obj?.main_objective && obj.main_objective.trim()) out.push({ id: 'main', label: 'Principal', text: obj.main_objective.trim(), color: '#8B5CF6' });
+        [['cortoPlazo', 'Corto plazo'], ['medianoPlazo', 'Mediano plazo'], ['largoPlazo', 'Largo plazo']].forEach(([k, label]) => {
+          (data[k] || []).forEach((t, i) => { if (t && t.trim()) out.push({ id: `${k}-${i}`, label, text: t.trim(), color: TERM_COLORS[label] }); });
+        });
+        Object.entries(data.porAspecto || {}).forEach(([asp, v]) => {
+          if (v && v.objetivo && v.objetivo.trim()) out.push({ id: `asp-${asp}`, label: ASPECT_LABELS[asp] || asp, text: v.objetivo.trim(), indicador: (v.indicador || '').trim(), color: '#EC4899' });
+        });
+        (obj?.secondary_objectives || []).forEach((t, i) => { if (t && t.trim()) out.push({ id: `sec-${i}`, label: 'Secundario', text: t.trim(), color: '#64748B' }); });
+        setRealObjectives(out);
+      }).catch(() => setRealObjectives([]));
 
     // Competencias del plan
     fetch(`${API_URL}/api/plan-data/competitions/${planId}`, { headers })
@@ -1307,41 +1356,51 @@ const ControlPanel = ({
         {/* Row 3: Progreso de Objetivos + Comparativa Semanal + Radar */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           
-          {/* 1. Progreso de Objetivos */}
-          <Card className="shadow-lg border-0 bg-white">
+          {/* 1. Objetivos del Plan (real) */}
+          <Card className="shadow-lg border-0 bg-white" data-testid="panel-objectives">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Target className="w-5 h-5 text-blue-500" />
-                Progreso de Objetivos
+                Objetivos del Plan
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              {objectivesProgress.map((obj) => (
-                <div key={obj.id} className="space-y-1">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-600 truncate pr-2">{obj.name}</span>
-                    <span className="font-semibold" style={{ color: obj.color }}>{obj.progress}%</span>
-                  </div>
-                  <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full rounded-full transition-all duration-500"
-                      style={{ width: `${obj.progress}%`, backgroundColor: obj.color }}
-                    />
+            <CardContent className="space-y-2.5 max-h-[260px] overflow-y-auto">
+              {realObjectives.length === 0 ? (
+                <div className="py-8 flex flex-col items-center justify-center text-center text-slate-400 gap-2">
+                  <Target className="w-8 h-8 text-slate-300" />
+                  <p className="text-sm">Aún sin objetivos definidos</p>
+                  <p className="text-xs text-slate-400">Define los objetivos del plan en Datos del plan → Objetivos.</p>
+                </div>
+              ) : realObjectives.map((obj) => (
+                <div key={obj.id} className="flex items-start gap-2.5" data-testid={`panel-objective-${obj.id}`}>
+                  <span className="mt-1 w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: obj.color }} />
+                  <div className="min-w-0">
+                    <span className="inline-block text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded mr-1" style={{ color: obj.color, backgroundColor: obj.color + '15' }}>{obj.label}</span>
+                    <span className="text-sm text-slate-700">{obj.text}</span>
+                    {obj.indicador && <p className="text-xs text-slate-400 mt-0.5">📊 {obj.indicador}</p>}
                   </div>
                 </div>
               ))}
             </CardContent>
           </Card>
 
-          {/* 2. Comparativa Semanal */}
-          <Card className="shadow-lg border-0 bg-white">
+          {/* 2. Comparativa Semanal (real) */}
+          <Card className="shadow-lg border-0 bg-white" data-testid="panel-weekly-comparison">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
                 <TrendingUp className="w-5 h-5 text-emerald-500" />
                 Comparativa Semanal
+                <span className="text-xs text-slate-400 font-normal ml-auto">vs semana anterior</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
+              {!weeklyComparison ? (
+                <div className="py-8 flex flex-col items-center justify-center text-center text-slate-400 gap-2">
+                  <TrendingUp className="w-8 h-8 text-slate-300" />
+                  <p className="text-sm">Sin sesiones con fecha esta/última semana</p>
+                  <p className="text-xs text-slate-400">Programa sesiones con fecha para comparar semanas.</p>
+                </div>
+              ) : (
               <div className="space-y-3">
                 {weeklyComparison.map((item, idx) => {
                   const diff = item.actual - item.anterior;
@@ -1371,6 +1430,7 @@ const ControlPanel = ({
                   );
                 })}
               </div>
+              )}
             </CardContent>
           </Card>
 

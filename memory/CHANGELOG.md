@@ -182,3 +182,22 @@
 - Categorías: Favicon, Logo Landing, Logo Login. Global para toda la plataforma.
 - Testeado E2E (iteration_73.json): 7/7 PASS, sin issues. Imágenes de prueba limpiadas de la BD.
 - ACCIÓN USUARIO: REDEPLOY para producción.
+
+## 2026-06-25 — Panel de Control conectado a datos REALES (antes mock)
+- ControlPanel.js: eliminados los datos mock (calendario con Math.random, zonas/competencias/récords/capacidades hardcodeados).
+- Calendario de Sesiones: ahora usa sesiones REALES del plan activo (usePlanStore → /api/v2/planes/{id}/completo), estado real Completada/Programada/Perdida por fecha, navegación de mes, salto automático al primer mes con sesiones, punto de color por capacidad, y CLICK en un día abre modal de detalle con contexto de periodización (Macro/Meso/Microciclo, duración, RPE, capacidad, notas) + botón a Periodización.
+- "Zonas de Entrenamiento" → reemplazado por "Distribución por Capacidad" (real, suma duración por capacidad del mes visible).
+- Próximas Competencias → /api/plan-data/competitions/{plan_id} (real, ordenadas por días restantes).
+- Récords Personales → /api/plan-data/previous-analysis (indicadores reales).
+- Capacidades (radar) → /api/plan-data/evaluations/{plan_id}/physical (real).
+- Estados vacíos en todas cuando no hay datos.
+- BUG corregido: loop de re-fetch (plan.id del store es id v2 resuelto ≠ activePlan.id) → ahora con useRef.
+- NOTA datos preview: las sesiones no tienen fecha asignada y evaluaciones/récords/competencias están vacías → el panel muestra estados vacíos (comportamiento correcto). Al programar sesiones (asignar fecha) y llenar esos datos, el panel se puebla automáticamente.
+- PENDIENTE (no solicitado aún): "Progreso de Objetivos" y "Comparativa Semanal" siguen siendo mock.
+- Testeado: render OK sin errores (iteration_74 detectó datos vacíos por falta de fechas, confirmado como esperado).
+
+## 2026-06-25 — Panel: "Progreso de Objetivos" y "Comparativa Semanal" → datos reales
+- "Progreso de Objetivos" → reemplazado por "Objetivos del Plan" (real): lista objetivos desde /api/plan-data/objectives (main, corto/mediano/largo plazo, porAspecto con objetivo+indicador, secundarios). Estado vacío cuando no hay. (No hay % de progreso real en el modelo, por eso es lista de objetivos en vez de barras inventadas.)
+- "Comparativa Semanal" → cálculo REAL desde sesiones con fecha: esta semana (Lun-Dom) vs semana anterior. Métricas: Sesiones, Tiempo Total (h), Volumen (min), RPE Promedio. Estado vacío si no hay sesiones con fecha en ninguna de las 2 semanas.
+- Compila OK, render verificado (estados vacíos correctos con datos preview).
+- Ya NO queda dato mock en ControlPanel salvo widgets superiores derivados de panelStats real (donut fases, carga, readiness).
