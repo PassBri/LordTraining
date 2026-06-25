@@ -152,3 +152,10 @@
   - master_report.py: _capture_graphic_plan_on_demand desactivado (devuelve None; WeasyPrint no renderiza React).
 - Validado vía curl en URL externa (todos 200 + %PDF-): session-pdf, boards-pdf, prev-analysis (pública 636KB + auth 653KB), PDI whitepaper (620KB), master-report generate (170KB) + preview PNG (155KB), active-plan (616KB).
 - Pendiente de usuario: hacer clic en **Deploy** para llevar el fix a lordtraining.com.
+
+## 2026-06-25 — FIX CRÍTICO: PDFs caían en PRODUCCIÓN (dependencias faltantes)
+- CAUSA RAÍZ REAL: weasyprint y pdf2image se instalaron a mano en Preview pero NUNCA se agregaron a backend/requirements.txt. El build de Producción no los instalaba → ImportError → 500 en TODOS los PDFs. (El trabajo de Preview nunca se perdió.)
+- FIX: agregados a requirements.txt: weasyprint==69.0, pdf2image==1.17.0, pydyf, tinycss2, cssselect2, pyphen, fonttools, cairocffi, tinyhtml5, Brotli, zopfli, webencodings. Verificado pip install -r limpio + render OK.
+- deployment_agent: sin bloqueadores (compilation_passed). Añadido **/test_credentials.md a .gitignore.
+- NOTA: WeasyPrint requiere libs nativas (libpango/cairo/poppler) en runtime; presentes en el entorno. Si tras redeploy aún fallara, sería por libs nativas del contenedor de deploy → escalar a soporte.
+- ACCIÓN USUARIO: REDEPLOY obligatorio para llevar el fix de requirements.txt a producción.
