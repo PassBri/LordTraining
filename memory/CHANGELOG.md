@@ -175,3 +175,10 @@
 ## 2026-06-25 — Logo "LORD figura" en Login
 - AuthPage.js: logo del login cambiado a /brand/lordtraining-login-figure.png (figura dorada "LORD corriendo", transparente, subida por usuario), tamaño aumentado a h-[230px]. Solo aplica al login.
 - ACCIÓN USUARIO: REDEPLOY para llevar a producción.
+
+## 2026-06-25 — Gestor de Marca (Super Admin) — NUEVA FEATURE
+- Backend: routes/branding.py (Object Storage Emergent). Endpoints: POST /api/branding/upload (form category+file, solo super_admin), GET /api/branding/list, POST /api/branding/{id}/activate, DELETE /api/branding/{id} (soft-delete), GET /api/branding/active (PUBLICO), GET /api/branding/file/{id} (PUBLICO, sirve bytes + cache). Colección branding_assets. Máx 5/categoría, 3MB, PNG/JPG/WEBP/ICO/SVG. Primera imagen de cada categoría se activa automáticamente; al eliminar la activa se promueve la más reciente.
+- Frontend: components/BrandingManager.js + tab 'Marca / Logos' en SuperAdminPage (/admin/super). utils/branding.js (fetchActiveBranding + applyFavicon dinámico). AuthPage (logo login), LandingPage (logo hero) y App.js (favicon) ahora usan el logo activo con fallback a los estáticos.
+- Categorías: Favicon, Logo Landing, Logo Login. Global para toda la plataforma.
+- Testeado E2E (iteration_73.json): 7/7 PASS, sin issues. Imágenes de prueba limpiadas de la BD.
+- ACCIÓN USUARIO: REDEPLOY para producción.
