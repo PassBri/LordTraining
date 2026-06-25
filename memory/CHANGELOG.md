@@ -201,3 +201,8 @@
 - "Comparativa Semanal" → cálculo REAL desde sesiones con fecha: esta semana (Lun-Dom) vs semana anterior. Métricas: Sesiones, Tiempo Total (h), Volumen (min), RPE Promedio. Estado vacío si no hay sesiones con fecha en ninguna de las 2 semanas.
 - Compila OK, render verificado (estados vacíos correctos con datos preview).
 - Ya NO queda dato mock en ControlPanel salvo widgets superiores derivados de panelStats real (donut fases, carga, readiness).
+
+## 2026-06-25 — Navegación rápida desde el Panel a Periodización
+- ControlPanel: click en un objetivo (tarjeta Objetivos del Plan) → onNavigate('datos','objectives'). Objetivos ahora son botones con icono ArrowUpRight en hover.
+- Click en "Ver/editar en Periodización" del modal de detalle de sesión → onNavigate('datos','period-structure') (PeriodizationComplete). Reemplazó el CustomEvent que no tenía listener.
+- Usa el mecanismo onNavigate/handleNavigateFromPanel ya existente en DashboardPage. Compila OK.

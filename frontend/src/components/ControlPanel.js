@@ -1372,14 +1372,21 @@ const ControlPanel = ({
                   <p className="text-xs text-slate-400">Define los objetivos del plan en Datos del plan → Objetivos.</p>
                 </div>
               ) : realObjectives.map((obj) => (
-                <div key={obj.id} className="flex items-start gap-2.5" data-testid={`panel-objective-${obj.id}`}>
+                <button
+                  key={obj.id}
+                  onClick={() => onNavigate && onNavigate('datos', 'objectives')}
+                  className="w-full flex items-start gap-2.5 text-left rounded-lg p-1.5 -mx-1.5 hover:bg-slate-50 transition-colors group"
+                  title="Editar objetivos en Periodización"
+                  data-testid={`panel-objective-${obj.id}`}
+                >
                   <span className="mt-1 w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: obj.color }} />
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <span className="inline-block text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded mr-1" style={{ color: obj.color, backgroundColor: obj.color + '15' }}>{obj.label}</span>
                     <span className="text-sm text-slate-700">{obj.text}</span>
                     {obj.indicador && <p className="text-xs text-slate-400 mt-0.5">📊 {obj.indicador}</p>}
                   </div>
-                </div>
+                  <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-blue-500 flex-shrink-0 mt-1 transition-colors" />
+                </button>
               ))}
             </CardContent>
           </Card>
@@ -1742,7 +1749,7 @@ const ControlPanel = ({
                   </div>
                   {s.notas && <p className="mt-2 text-[12px] text-slate-600 italic leading-snug border-l-2 border-slate-200 pl-2">"{s.notas}"</p>}
                   <Button
-                    onClick={() => { setSelectedCalendarDay(null); window.dispatchEvent(new CustomEvent('navigate-periodization', { detail: { sessionId: s.id, microId: micro?.id } })); }}
+                    onClick={() => { setSelectedCalendarDay(null); onNavigate && onNavigate('datos', 'period-structure'); }}
                     variant="ghost" size="sm" className="mt-3 w-full text-[11px] text-blue-700 hover:bg-blue-50 h-8"
                     data-testid={`panel-open-session-${s.id}`}
                   >
