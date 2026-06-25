@@ -164,3 +164,10 @@
 - Logo en PDFs: el usuario veía la "escama de dragón" (figura dorada con brazos+LORD). Reemplazados lordtraining-scale.png, lordtraining-icon-pdf.png, lordtraining-master.png por el busto dorado limpio transparente (500x500, RGBA) que adjuntó el usuario. Verificado visualmente en cover del Reporte Maestro: aparece el busto + "LORDTRAINING". Backend reiniciado para limpiar cache de sessions_export.
 - Reporte Maestro: FUNCIONA en Preview (200, 170KB, 1.1s). El fallo "Cloudflare could not parse / empty response" es EXCLUSIVO de PRODUCCIÓN → requiere REDEPLOY (incluye fix de requirements.txt weasyprint). Si persiste tras redeploy = libs nativas del contenedor de deploy → soporte.
 - ACCIÓN USUARIO: REDEPLOY para llevar a prod (a) requirements.txt con weasyprint, (b) nuevo logo busto en PDFs, (c) favicon ?v=2.
+
+## 2026-06-25 — Wordmark PDFs: escama→busto + legibilidad
+- CAUSA: lordtraining-full-pdf.png (wordmark usado en header de info_catalog, previous_analysis, active_plan, evaluations) contenía el ESCUDO ESCAMA + texto "Lord" oscuro → ilegible sobre el header navy oscuro (.hero #0b1020→#1e293b).
+- FIX: regenerado lordtraining-full-pdf.png (3200x720 transparente, PIL): busto dorado + "Lord" blanco + "Training" lima (#CCFF00) → legible sobre fondo oscuro. Verificado en header del Catálogo (busto + LordTraining legible, sin escama).
+- También ya reemplazados antes: lordtraining-icon-pdf.png, lordtraining-scale.png, lordtraining-master.png = busto limpio.
+- COBERTURA: todos los generadores PDF (catalog, prev-analysis, active-plan, evaluations, PDI whitepaper, master-report, sessions/boards) usan busto + wordmark legible. server.py session/boards PDFs usan texto HTML (ya legible).
+- ACCIÓN USUARIO: REDEPLOY para llevar todo a producción.
