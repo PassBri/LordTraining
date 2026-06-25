@@ -154,4 +154,17 @@ export const resetCoachPassword = (coachId) => axios.post(`${API}/org/coaches/${
 export const removeCoach = (coachId) => axios.delete(`${API}/org/coaches/${coachId}`, getAuthHeader());
 export const getOrgStats = () => axios.get(`${API}/org/stats`, getAuthHeader());
 
+// Branding (Super Admin)
+export const getBrandingActive = () => axios.get(`${API}/branding/active`);
+export const listBranding = () => axios.get(`${API}/branding/list`, getAuthHeader());
+export const uploadBranding = (category, file) => {
+  const fd = new FormData();
+  fd.append('category', category);
+  fd.append('file', file);
+  return axios.post(`${API}/branding/upload`, fd, { ...getAuthHeader(), headers: { ...getAuthHeader().headers, 'Content-Type': 'multipart/form-data' } });
+};
+export const activateBranding = (id) => axios.post(`${API}/branding/${id}/activate`, {}, getAuthHeader());
+export const deleteBranding = (id) => axios.delete(`${API}/branding/${id}`, getAuthHeader());
+export const brandingFileUrl = (path) => `${BACKEND_URL}${path}`;
+
 export default API;

@@ -1,0 +1,34 @@
+{
+  "summary": "E2E test of the Branding Manager (Gestor de Marca) feature for the Super Admin. Validated UI flows (upload, activate, delete, 5/cat limit, counters), public reflection on /auth and / landing, and dynamic favicon. All 7 requested test scenarios pass.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results_detailed": {
+    "1_tab_visible_3_sections_counters_0_5": "PASS - data-testid='branding-manager' renders 3 sections (favicon, landing, login), each shows '0/5' and a 'Subir' button.",
+    "2_upload_first_login_png_activates_automatically": "PASS - Counter 1/5, badge 'Activa' visible on the first item, item marked with emerald border.",
+    "3_upload_second_and_activate_moves_active": "PASS - Counter 2/5; clicking branding-activate-{id2} moved active state to image #2 only (single active per category).",
+    "4_delete_image_removes_and_decrements_counter": "PASS - branding-delete-{id} confirmed via window.confirm autoaccept; thumbnail disappears, counter decrements.",
+    "5_limit_5_disables_upload_button": "PASS - On reaching 5/5 the branding-upload-btn-login received the 'disabled' attribute and class 'cursor-not-allowed' (verified programatically).",
+    "6_login_logo_reflected_on_/auth_landing_on_/": "PASS - In fresh incognito context, /auth <img alt='LordTraining'> uses src='/api/branding/file/{id}' for the active login asset; / landing uses '/api/branding/file/{id}' for active landing asset (test_logo3.png in iteration 1).",
+    "7_public_GET_/api/branding/active_no_auth": "PASS - 200 OK without Authorization header. Returns {favicon, landing, login} with URLs of currently-active assets. Dynamic favicon swap on / verified (link[rel=icon] href changes to /api/branding/file/{id}?t=...)."
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "branding.py uses an in-process _file_cache dict (module-level). In a multi-worker uvicorn deployment, the cache is per-worker; first request after upload from a different worker will hit Object Storage and warm its own cache - acceptable but worth noting.",
+    "_storage_key is also module-level / not protected by a lock. With multiple concurrent requests after expiry, several threads may re-init concurrently. Minor; Emergent storage init should be idempotent.",
+    "ALLOWED_CT advertises SVG but the front-end UI text only mentions 'PNG, JPG, WEBP o ICO (máx. 3MB)'. Acceptable but inconsistent.",
+    "_public() exposes 'url' as '/api/branding/file/{id}' (relative path). Frontend wraps with brandingFileUrl(); fine. No PII / no _id leakage."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "100%", "frontend": "100%" },
+  "test_credentials": "Super Admin: juegolaureado@gmail.com / LordTraining2026! (verified working)",
+  "seed_data_creation": "All test branding assets uploaded during the run were deleted via DELETE /api/branding/{id} at the end of each script.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Branding Manager is feature-complete and integrated end-to-end. UI: /admin/super → tab 'Marca / Logos'. Data-testids: branding-manager, branding-section-{cat}, branding-upload-btn-{cat}, branding-input-{cat} (hidden file input -> use set_input_files), branding-item-{id}, branding-activate-{id}, branding-delete-{id}. Public endpoint GET /api/branding/active is unauthenticated. AuthPage uses fetchActiveBranding to override loginLogo, LandingPage swaps the hero logo, App.js swaps favicon. Note: when verifying /auth reflection, use a FRESH browser context (incognito) because authenticated users are redirected away from /auth to /dashboard.",
+  "rca of the issue": "No bugs found."
+}

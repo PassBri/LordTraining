@@ -8366,6 +8366,9 @@ app.include_router(recruiting_router, prefix="/api")
 from routes.calculator_results import router as calculator_results_router
 app.include_router(calculator_results_router, prefix="/api")
 
+from routes.branding import router as branding_router
+app.include_router(branding_router, prefix="/api")
+
 # Store db reference in app state for V2 routes
 app.state.db = db
 

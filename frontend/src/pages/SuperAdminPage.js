@@ -7,6 +7,7 @@ import {
   Tag, Gift, Link2, Plus, Power, Trash2, Copy, Filter,
   TrendingUp, TrendingDown, Award, Briefcase, ChevronRight, DollarSign, RefreshCw, Banknote,
   AlertTriangle, Bell, UserMinus, RotateCcw, Info,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -14,6 +15,7 @@ import { Label } from '../components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
 import { Badge } from '../components/ui/badge';
 import AdminUserManagement from '../components/AdminUserManagement';
+import BrandingManager from '../components/BrandingManager';
 import { BarChart, Bar, LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, FunnelChart, Funnel, LabelList, Cell } from 'recharts';
 import {
   getAdminHierarchy, getOrgMembers, grantPlan,
@@ -209,6 +211,7 @@ const SuperAdminPage = () => {
             <TabBtn active={activeTab === 'users'} onClick={() => setActiveTab('users')} icon={UserCheck} label="Gestión de Usuarios" />
             <TabBtn active={activeTab === 'codes'} onClick={() => setActiveTab('codes')} icon={Tag} label="Códigos & Promociones" />
             <TabBtn active={activeTab === 'finance'} onClick={() => setActiveTab('finance')} icon={DollarSign} label="Finanzas" />
+            <TabBtn active={activeTab === 'branding'} onClick={() => setActiveTab('branding')} icon={ImageIcon} label="Marca / Logos" />
           </div>
         )}
       </div>
@@ -325,6 +328,10 @@ const SuperAdminPage = () => {
           <div className="rounded-3xl bg-white/60 p-1">
             <AdminUserManagement />
           </div>
+        )}
+
+        {activeTab === 'branding' && isSuper && (
+          <BrandingManager />
         )}
 
         {activeTab === 'codes' && isSuper && (

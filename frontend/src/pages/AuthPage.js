@@ -335,6 +335,12 @@ const AuthPage = () => {
   const { login, register } = useAuth();
   const navigate = useNavigate();
 
+  const [loginLogo, setLoginLogo] = useState('/brand/lordtraining-login-figure.png');
+  useEffect(() => {
+    import('../utils/branding').then(({ fetchActiveBranding }) =>
+      fetchActiveBranding().then((b) => { if (b.login) setLoginLogo(b.login); }));
+  }, []);
+
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [registerName, setRegisterName] = useState('');
@@ -414,7 +420,7 @@ const AuthPage = () => {
           {/* Brand logo — top of page */}
           <Link to="/" className="flex flex-col items-center mb-5 group" data-testid="auth-brand-logo">
             <img
-              src="/brand/lordtraining-login-figure.png"
+              src={loginLogo}
               alt="LordTraining"
               className="relative h-[300px] sm:h-[360px] w-auto transition-transform group-hover:scale-105"
               style={{ animation: 'authShieldFloat 3s ease-in-out infinite' }}

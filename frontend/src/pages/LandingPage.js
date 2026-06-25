@@ -446,6 +446,12 @@ const LandingPage = () => {
   const navigate = useNavigate();
   const [billingCycle, setBillingCycle] = useState('monthly'); // 'monthly' | 'annual'
 
+  const [landingLogo, setLandingLogo] = useState('/brand/lordtraining-master.png');
+  useEffect(() => {
+    import('../utils/branding').then(({ fetchActiveBranding }) =>
+      fetchActiveBranding().then((b) => { if (b.landing) setLandingLogo(b.landing); }));
+  }, []);
+
   const handlePlanCheckout = (landingKey) => {
     const tier = LANDING_TIER_MAP[landingKey] || 'starter';
     const cycle = billingCycle;
@@ -538,7 +544,7 @@ const LandingPage = () => {
                   animation: 'shieldGlow 3s ease-in-out infinite',
                 }} />
                 <img
-                  src="/brand/lordtraining-master.png"
+                  src={landingLogo}
                   alt="LordTraining"
                   className="relative h-[220px] sm:h-[260px] lg:h-[300px] w-auto"
                   style={{ filter: 'drop-shadow(0 18px 32px rgba(0,0,0,0.55))', animation: 'shieldFloat 3s ease-in-out infinite' }}
