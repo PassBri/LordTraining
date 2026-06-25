@@ -291,9 +291,36 @@ async def _series_from_share(share_id):
     return series
 
 
+@router.get("/share-info")
+async def share_info(athlete_id: str = Query(...), calculator: str = Query(...),
+                     metric_label: str = Query(...), user=Depends(get_current_user_dep())):
+    """Stats de visualización del enlace público (para el coach)."""
+    uid = _uid(user)
+    s = await _shares.find_one(
+        {"coach_id": uid, "athlete_id": athlete_id, "calculator": calculator, "metric_label": metric_label},
+        {"_id": 0})
+    if not s:
+        return {"exists": False}
+    return {
+        "exists": True,
+        "share_id": s["share_id"],
+        "views_count": s.get("views_count", 0),
+        "first_viewed_at": s.get("first_viewed_at"),
+        "last_viewed_at": s.get("last_viewed_at"),
+    }
+
+
 @router.get("/public/{share_id}")
 async def public_progress(share_id: str):
-    return await _series_from_share(share_id)
+    series = await _series_from_share(share_id)
+    # Registrar visita (contador + fechas) para que el coach lo vea
+    now = datetime.now(timezone.utc).isoformat()
+    s = await _shares.find_one({"share_id": share_id}, {"_id": 0, "first_viewed_at": 1})
+    update = {"$inc": {"views_count": 1}, "$set": {"last_viewed_at": now}}
+    if not (s or {}).get("first_viewed_at"):
+        update["$set"]["first_viewed_at"] = now
+    await _shares.update_one({"share_id": share_id}, update)
+    return series
 
 
 @router.get("/public/{share_id}/pdf")

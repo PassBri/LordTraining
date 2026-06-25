@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, ResponsiveContainer, YAxis, XAxis, CartesianGrid, Tooltip, ReferenceLine } from 'recharts';
-import { TrendingUp, TrendingDown, Minus, LineChart as LineIcon, Loader2, X, FileDown, Share2, Copy, Check, Calendar, Target, Award, Plus, Trash2, Image as ImageIcon } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, LineChart as LineIcon, Loader2, X, FileDown, Share2, Copy, Check, Calendar, Target, Award, Plus, Trash2, Image as ImageIcon, Eye, Clock } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
@@ -13,6 +13,13 @@ const toNum = (v) => {
   if (v == null) return null;
   const n = parseFloat(String(v).replace(/[^0-9.\-]/g, ''));
   return isNaN(n) ? null : n;
+};
+
+const fmtDateTime = (iso) => {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleString('es', { day: '2-digit', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+  } catch { return '—'; }
 };
 
 export default function AthleteProgress({ athleteId }) {
@@ -115,6 +122,7 @@ function ProgressDetailModal({ s, athleteId, onClose }) {
   const [savingGoal, setSavingGoal] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [sponsorName, setSponsorName] = useState('');
+  const [shareStats, setShareStats] = useState(null);
   const fileRef = React.useRef(null);
 
   const pts = s.points;
@@ -130,6 +138,11 @@ function ProgressDetailModal({ s, athleteId, onClose }) {
     fetch(`${API_URL}/api/calculator-results/series?${q}`, { headers: { Authorization: `Bearer ${token()}` } })
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d) { setGoal(d.goal); setSponsors(d.sponsors || []); setGoalInput(d.goal?.target_value ?? ''); } })
+      .catch(() => {});
+    const sq = `athlete_id=${athleteId}&calculator=${encodeURIComponent(s.calculator)}&metric_label=${encodeURIComponent(s.label)}`;
+    fetch(`${API_URL}/api/calculator-results/share-info?${sq}`, { headers: { Authorization: `Bearer ${token()}` } })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.exists) setShareStats(d); else setShareStats(null); })
       .catch(() => {});
   }, [athleteId, s.calculator, s.label]);
   useEffect(() => { loadMeta(); }, [loadMeta]);
@@ -197,6 +210,7 @@ function ProgressDetailModal({ s, athleteId, onClose }) {
       const d = await res.json();
       const url = `${window.location.origin}/progress/p/${d.share_id}`;
       setShareUrl(url);
+      loadMeta();
       try { await navigator.clipboard.writeText(url); setCopied(true); toast.success('Enlace copiado al portapapeles'); }
       catch { toast.success('Enlace generado'); }
     } catch { toast.error('No se pudo generar el enlace'); }
@@ -321,6 +335,33 @@ function ProgressDetailModal({ s, athleteId, onClose }) {
             </div>
           )}
         </div>
+
+        {/* Estadísticas de visualización del enlace público */}
+        {shareStats && (
+          <div className="rounded-xl border border-violet-200 bg-violet-50/60 p-3" data-testid="share-stats">
+            <div className="flex items-center gap-2 mb-2">
+              <Eye className="w-4 h-4 text-violet-600" />
+              <span className="text-sm font-black text-slate-800">Seguimiento del enlace</span>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-white rounded-lg p-2 text-center border border-violet-100">
+                <p className="text-xl font-extrabold tabular-nums text-violet-700" data-testid="share-views-count">{shareStats.views_count || 0}</p>
+                <p className="text-[9px] font-bold uppercase text-slate-400">Visitas</p>
+              </div>
+              <div className="bg-white rounded-lg p-2 text-center border border-violet-100">
+                <p className="text-[11px] font-bold text-slate-700 leading-tight pt-1" data-testid="share-first-viewed">{fmtDateTime(shareStats.first_viewed_at)}</p>
+                <p className="text-[9px] font-bold uppercase text-slate-400 mt-0.5">Primera vista</p>
+              </div>
+              <div className="bg-white rounded-lg p-2 text-center border border-violet-100">
+                <p className="text-[11px] font-bold text-slate-700 leading-tight pt-1" data-testid="share-last-viewed">{fmtDateTime(shareStats.last_viewed_at)}</p>
+                <p className="text-[9px] font-bold uppercase text-slate-400 mt-0.5">Última vista</p>
+              </div>
+            </div>
+            {!shareStats.views_count && (
+              <p className="text-[11px] text-slate-500 mt-2 flex items-center gap-1"><Clock className="w-3 h-3" />Aún nadie ha abierto este enlace.</p>
+            )}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
