@@ -60,6 +60,7 @@ import TeamManager from '../components/TeamManager';
 import EvaluationSection from '../components/EvaluationSection';
 import EvaluationEvolution from '../components/EvaluationEvolution';
 import CalculatorsHub from '../components/calculators/CalculatorsHub';
+import AthleteProgress from '../components/AthleteProgress';
 import ControlPanel from '../components/ControlPanel';
 import EntityDashboard from '../components/EntityDashboard';
 import SmartAlerts from '../components/SmartAlerts';
@@ -2383,6 +2384,7 @@ const DashboardPage = () => {
                     athlete={selectedAthlete} 
                     onNavigate={(section) => setActiveDataSection(section)}
                   />
+                  <AthleteProgress athleteId={selectedAthlete.id} />
                 </div>
               ) : (
                 <div className="text-center py-16">

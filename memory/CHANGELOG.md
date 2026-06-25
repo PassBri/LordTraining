@@ -48,6 +48,13 @@
 
 ## Pendientes / Notas
 
+## 2026-06-24 — Mini-línea de evolución en el perfil del atleta 📈
+- **Frontend** (`components/AthleteProgress.js`, integrado en `DashboardPage.js` bajo `AthleteSummary`): nueva sección **"Evolución del rendimiento"** en el perfil del atleta. Consume `GET /api/calculator-results?athlete_id=`, agrupa por calculadora + métrica principal (headline) y dibuja **mini-sparklines** (recharts) con: valor más reciente, % de cambio vs. el primero (verde sube / rojo baja / gris sin cambio), nº de registros y tooltip por fecha.
+- Verificado en preview: 1RM mostrando +7.4% ↗ y % Grasa -9.9% ↘ con sus mini-gráficos. Solo aparece cuando hay resultados guardados.
+- **PENDIENTE USUARIO**: hacer **Deploy** para llevarlo a lordtraining.com.
+
+
+
 ## 2026-06-24 — Guardar resultados de Calculadoras al perfil del atleta/plan 💾
 - **Backend** (`routes/calculator_results.py`, colección `calculator_results`): `POST/GET/DELETE /api/calculator-results`. Guarda título, módulo, headline, items y nota; asociado a `athlete_id` (+ `plan_id` opcional). Resuelve y persiste `athlete_name`/`plan_name`.
 - **Frontend universal** (sin tocar las ~40 calculadoras): `CalcCard` (en `CalcShared.js`) ahora provee `CalcResultContext`; `BigResult` y `MiniStat` registran su valor automáticamente. Se inyecta un botón **"Guardar en atleta"** en cada calculadora (`CalcSaveBar.js`) con diálogo que carga atletas (`/athletes`) y planes (`/training-plans`) reales, permite elegir plan y nota.
