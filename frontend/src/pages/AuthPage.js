@@ -414,9 +414,9 @@ const AuthPage = () => {
           {/* Brand logo — top of page */}
           <Link to="/" className="flex flex-col items-center mb-5 group" data-testid="auth-brand-logo">
             <img
-              src="/brand/lordtraining-master.png"
+              src="/brand/lordtraining-login-figure.png"
               alt="LordTraining"
-              className="relative h-[170px] w-auto transition-transform group-hover:scale-105"
+              className="relative h-[230px] w-auto transition-transform group-hover:scale-105"
               style={{ animation: 'authShieldFloat 3s ease-in-out infinite' }}
             />
           </Link>

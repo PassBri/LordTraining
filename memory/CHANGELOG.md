@@ -171,3 +171,7 @@
 - También ya reemplazados antes: lordtraining-icon-pdf.png, lordtraining-scale.png, lordtraining-master.png = busto limpio.
 - COBERTURA: todos los generadores PDF (catalog, prev-analysis, active-plan, evaluations, PDI whitepaper, master-report, sessions/boards) usan busto + wordmark legible. server.py session/boards PDFs usan texto HTML (ya legible).
 - ACCIÓN USUARIO: REDEPLOY para llevar todo a producción.
+
+## 2026-06-25 — Logo "LORD figura" en Login
+- AuthPage.js: logo del login cambiado a /brand/lordtraining-login-figure.png (figura dorada "LORD corriendo", transparente, subida por usuario), tamaño aumentado a h-[230px]. Solo aplica al login.
+- ACCIÓN USUARIO: REDEPLOY para llevar a producción.
