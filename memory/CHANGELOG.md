@@ -48,6 +48,16 @@
 
 ## Pendientes / Notas
 
+## 2026-06-24 — Guardar resultados de Calculadoras al perfil del atleta/plan 💾
+- **Backend** (`routes/calculator_results.py`, colección `calculator_results`): `POST/GET/DELETE /api/calculator-results`. Guarda título, módulo, headline, items y nota; asociado a `athlete_id` (+ `plan_id` opcional). Resuelve y persiste `athlete_name`/`plan_name`.
+- **Frontend universal** (sin tocar las ~40 calculadoras): `CalcCard` (en `CalcShared.js`) ahora provee `CalcResultContext`; `BigResult` y `MiniStat` registran su valor automáticamente. Se inyecta un botón **"Guardar en atleta"** en cada calculadora (`CalcSaveBar.js`) con diálogo que carga atletas (`/athletes`) y planes (`/training-plans`) reales, permite elegir plan y nota.
+- **Historial**: toggle 'Resultados guardados' en el Hub de Calculadoras (`CalculatorsHub.js`) → `CalcResultsHistory` agrupa por atleta con borrado.
+- **Testing**: backend validado por curl (guardar/listar/eliminar); frontend testing_agent iteration_69 → **6/6 flujos PASS (100%)**.
+- Nota: warning de consola preexistente (`<span>` en `<option>` del `<Select>` nativo de algunas calculadoras) — sin impacto funcional, no introducido en esta tarea.
+- **PENDIENTE USUARIO**: hacer **Deploy** para llevarlo a lordtraining.com.
+
+
+
 ## 2026-06-24 — Gestión de Usuarios en Panel Super Admin 👤
 - **Backend** (`routes/admin_hierarchy.py`, solo `is_super_admin`): CRUD completo de usuarios + contraseñas. Hash con **bcrypt** (consistente con la app). Endpoints: `GET/POST /api/admin/users`, `PUT /api/admin/users/{id}`, `POST /api/admin/users/{id}/reset-password`, `PATCH /api/admin/users/{id}/status`, `DELETE /api/admin/users/{id}`.
   - Crear: nombre, email (único, lowercase), contraseña, rol, plan, flag super admin.
