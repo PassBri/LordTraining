@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -11,7 +11,7 @@ import {
   Flag, Timer, Flame, Save, Download, AlertTriangle, 
   CheckCircle, Info, Sparkles, Trophy, Star, MessageCircle,
   FileText, Loader2, X, LayoutDashboard, Medal, MapPin,
-  Clock, TrendingDown, Minus, CalendarDays
+  Clock, TrendingDown, Minus, CalendarDays, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend,
@@ -20,6 +20,21 @@ import {
 } from 'recharts';
 import { toast } from 'sonner';
 import InteractiveChart from './InteractiveChart';
+import usePlanStore from '../stores/planStore';
+import { useShallow } from 'zustand/react/shallow';
+
+// Capacidad → color (igual que en Plan Gráfico / SessionCalendar)
+const CAP_COLORS = {
+  fuerza: '#F97316', resistencia: '#EF4444', velocidad: '#EAB308',
+  flexibilidad: '#3B82F6', coordinacion: '#10B981', tecnica: '#8B5CF6',
+  tactica: '#EC4899', recuperacion: '#06B6D4', default: '#64748B',
+};
+const capColor = (cap) => {
+  const c = (cap || '').toLowerCase();
+  for (const k of Object.keys(CAP_COLORS)) { if (k !== 'default' && c.includes(k)) return CAP_COLORS[k]; }
+  return CAP_COLORS.default;
+};
+const ymdLocal = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 
@@ -145,57 +160,136 @@ const ControlPanel = ({
     { metric: 'RPE Promedio', actual: 7.2, anterior: 7.8, unidad: '' }
   ]);
 
-  // Capacidades Físicas (Radar)
-  const [physicalCapabilities] = useState([
-    { ability: 'Fuerza', value: 82, fullMark: 100 },
-    { ability: 'Resistencia', value: 75, fullMark: 100 },
-    { ability: 'Velocidad', value: 68, fullMark: 100 },
-    { ability: 'Flexibilidad', value: 60, fullMark: 100 },
-    { ability: 'Potencia', value: 78, fullMark: 100 },
-    { ability: 'Coordinación', value: 85, fullMark: 100 }
-  ]);
+  // ===== DATOS REALES (conectados a periodización / plan activo) =====
+  const sesiones = usePlanStore(useShallow(s => s.sesiones));
+  const microciclos = usePlanStore(useShallow(s => s.microciclos));
+  const mesociclos = usePlanStore(useShallow(s => s.mesociclos));
+  const macrociclos = usePlanStore(useShallow(s => s.macrociclos));
+  const planLoaded = usePlanStore(s => s.plan);
+  const cargarPlanCompleto = usePlanStore(s => s.cargarPlanCompleto);
 
-  // Zonas de Entrenamiento
-  const [trainingZones] = useState([
-    { zone: 'Z1 - Recuperación', minutes: 45, percent: 15, color: '#94A3B8' },
-    { zone: 'Z2 - Aeróbico Base', minutes: 90, percent: 30, color: '#3B82F6' },
-    { zone: 'Z3 - Tempo', minutes: 75, percent: 25, color: '#10B981' },
-    { zone: 'Z4 - Umbral', minutes: 60, percent: 20, color: '#F59E0B' },
-    { zone: 'Z5 - VO2 Max', minutes: 30, percent: 10, color: '#EF4444' }
-  ]);
-
-  // Mini Calendario de Sesiones (mes actual)
-  const [sessionCalendar] = useState(() => {
-    const today = new Date();
-    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-    const sessions = [];
-    for (let i = 1; i <= daysInMonth; i++) {
-      const status = i < today.getDate() 
-        ? (Math.random() > 0.3 ? 'completed' : 'missed')
-        : i === today.getDate() 
-          ? 'today'
-          : (Math.random() > 0.5 ? 'scheduled' : 'rest');
-      sessions.push({ day: i, status });
+  // Cargar el plan activo en el store si no está cargado
+  useEffect(() => {
+    if (activePlan?.id && planLoaded?.id !== activePlan.id) {
+      cargarPlanCompleto(activePlan.id);
     }
-    return sessions;
-  });
+  }, [activePlan?.id, planLoaded?.id, cargarPlanCompleto]);
 
-  // Próximas Competencias
-  const [upcomingCompetitions] = useState([
-    { id: 1, name: 'Campeonato Regional', date: '2026-02-28', daysLeft: 16, priority: 'high', location: 'Madrid' },
-    { id: 2, name: 'Copa Nacional', date: '2026-03-15', daysLeft: 31, priority: 'high', location: 'Barcelona' },
-    { id: 3, name: 'Torneo Preparatorio', date: '2026-02-20', daysLeft: 8, priority: 'medium', location: 'Valencia' },
-    { id: 4, name: 'Meeting Internacional', date: '2026-04-10', daysLeft: 57, priority: 'low', location: 'París' }
-  ]);
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
+  const [selectedCalendarDay, setSelectedCalendarDay] = useState(null);
+  const [realCompetitions, setRealCompetitions] = useState([]);
+  const [realRecords, setRealRecords] = useState([]);
+  const [realCapabilities, setRealCapabilities] = useState([]);
+  const [capacityDistribution, setCapacityDistribution] = useState([]);
 
-  // Récords Personales
-  const [personalRecords] = useState([
-    { id: 1, exercise: 'Sentadilla', value: 140, unit: 'kg', date: '2026-02-10', improvement: '+5kg' },
-    { id: 2, exercise: 'Press Banca', value: 95, unit: 'kg', date: '2026-02-08', improvement: '+2.5kg' },
-    { id: 3, exercise: '100m Sprint', value: 11.2, unit: 's', date: '2026-02-05', improvement: '-0.3s' },
-    { id: 4, exercise: 'Salto Vertical', value: 62, unit: 'cm', date: '2026-02-12', improvement: '+3cm' },
-    { id: 5, exercise: 'Cooper Test', value: 3200, unit: 'm', date: '2026-01-28', improvement: '+150m' }
-  ]);
+  // Mapa fecha(YYYY-MM-DD) → [sesiones reales]
+  const sessionsByDay = useMemo(() => {
+    const map = {};
+    (sesiones || []).forEach(s => {
+      if (!s.fecha) return;
+      const key = s.fecha.slice(0, 10);
+      (map[key] = map[key] || []).push(s);
+    });
+    return map;
+  }, [sesiones]);
+
+  // Estado real de un día según sus sesiones
+  const dayStatus = useCallback((dateStr, daySessions) => {
+    if (!daySessions || daySessions.length === 0) return 'rest';
+    const todayStr = ymdLocal(new Date());
+    const allDone = daySessions.every(s => s.completada);
+    if (allDone) return 'completed';
+    if (dateStr < todayStr) return 'missed';
+    return 'scheduled';
+  }, []);
+
+  // Distribución por capacidad (reemplaza "Zonas") desde sesiones reales del mes visible
+  useEffect(() => {
+    const y = calendarMonth.getFullYear(); const m = calendarMonth.getMonth();
+    const byCap = {};
+    (sesiones || []).forEach(s => {
+      if (!s.fecha) return;
+      const d = new Date(s.fecha.slice(0, 10) + 'T00:00:00');
+      if (d.getFullYear() !== y || d.getMonth() !== m) return;
+      const cap = (s.capacidad_principal || 'Sin capacidad').toString();
+      const mins = Number(s.duracion_minutos) || 0;
+      byCap[cap] = (byCap[cap] || 0) + (mins > 0 ? mins : 60);
+    });
+    const total = Object.values(byCap).reduce((a, b) => a + b, 0) || 1;
+    const dist = Object.entries(byCap)
+      .map(([cap, minutes]) => ({ zone: cap, minutes, percent: Math.round(minutes / total * 100), color: capColor(cap) }))
+      .sort((a, b) => b.minutes - a.minutes);
+    setCapacityDistribution(dist);
+  }, [sesiones, calendarMonth]);
+
+  // Fetch competencias + récords + capacidades reales del plan activo
+  useEffect(() => {
+    const planId = activePlan?.id;
+    if (!planId) { setRealCompetitions([]); setRealRecords([]); setRealCapabilities([]); return; }
+    const token = localStorage.getItem('train_token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    const todayStr = ymdLocal(new Date());
+
+    // Competencias del plan
+    fetch(`${API_URL}/api/plan-data/competitions/${planId}`, { headers })
+      .then(r => r.ok ? r.json() : [])
+      .then(list => {
+        const comps = (Array.isArray(list) ? list : [])
+          .filter(c => c.date && c.date >= todayStr)
+          .map(c => {
+            const daysLeft = Math.max(0, Math.round((new Date(c.date) - new Date(todayStr)) / 86400000));
+            const imp = (c.importance || '').toLowerCase();
+            const priority = ['a', 'alta', 'high', 'principal'].some(k => imp.includes(k)) ? 'high'
+              : ['b', 'media', 'medium'].some(k => imp.includes(k)) ? 'medium' : 'low';
+            return { id: c.id, name: c.name, date: c.date, location: c.location || '—', daysLeft, priority };
+          })
+          .sort((a, b) => a.daysLeft - b.daysLeft);
+        setRealCompetitions(comps);
+      }).catch(() => setRealCompetitions([]));
+
+    // Récords desde "análisis del plan anterior" (indicadores)
+    fetch(`${API_URL}/api/plan-data/previous-analysis/${planId}`, { headers })
+      .then(r => r.ok ? r.json() : null)
+      .then(pa => {
+        const data = pa?.data || {};
+        const recs = [];
+        const IND = { vo2max: { label: 'VO₂ Máx', unit: 'ml/kg' }, sentadilla: { label: 'Sentadilla', unit: 'kg' }, sprint: { label: 'Sprint', unit: 's' }, cmj: { label: 'CMJ (salto)', unit: 'cm' }, flexibilidad: { label: 'Flexibilidad', unit: 'cm' } };
+        Object.entries(data.indicadores || {}).forEach(([k, v]) => {
+          if (v && (v.final !== '' && v.final != null)) {
+            recs.push({ id: k, exercise: IND[k]?.label || k, value: v.final, unit: IND[k]?.unit || '', improvement: v.delta ? (String(v.delta).startsWith('-') ? v.delta : `+${v.delta}`) : '' });
+          }
+        });
+        (data.indicadoresLista || []).forEach((it, i) => {
+          if (it && it.nombre && it.final !== '' && it.final != null) {
+            recs.push({ id: `lista-${i}`, exercise: it.nombre, value: it.final, unit: '', improvement: it.delta ? (String(it.delta).startsWith('-') ? it.delta : `+${it.delta}`) : '' });
+          }
+        });
+        setRealRecords(recs);
+      }).catch(() => setRealRecords([]));
+
+    // Capacidades (radar) desde evaluación física real
+    fetch(`${API_URL}/api/plan-data/evaluations/${planId}/physical`, { headers })
+      .then(r => r.ok ? r.json() : [])
+      .then(list => {
+        const arr = Array.isArray(list) ? list : (list?.evaluations || []);
+        const last = arr && arr.length ? arr[arr.length - 1] : null;
+        const res = last?.results || {};
+        const MAP = [
+          ['Fuerza', ['fuerzaMaxima', 'fuerzaExplosiva']],
+          ['Resistencia', ['resistenciaAerobica', 'resistenciaAnaerobica']],
+          ['Velocidad', ['velocidadMaxima']],
+          ['Flexibilidad', ['flexibilidad']],
+          ['Potencia', ['potencia']],
+          ['Coordinación', ['coordinacion']],
+        ];
+        const caps = [];
+        MAP.forEach(([ability, keys]) => {
+          const vals = keys.map(k => parseFloat(res[k])).filter(v => !isNaN(v));
+          if (vals.length) caps.push({ ability, value: Math.min(100, Math.round(vals.reduce((a, b) => a + b, 0) / vals.length)), fullMark: 100 });
+        });
+        setRealCapabilities(caps);
+      }).catch(() => setRealCapabilities([]));
+  }, [activePlan?.id]);
 
   // Seleccionar mensaje motivacional aleatorio
   useEffect(() => {
@@ -1289,8 +1383,15 @@ const ControlPanel = ({
               </CardTitle>
             </CardHeader>
             <CardContent>
+              {realCapabilities.length === 0 ? (
+                <div className="h-[200px] flex flex-col items-center justify-center text-center text-slate-400 gap-2">
+                  <Activity className="w-8 h-8 text-slate-300" />
+                  <p className="text-sm">Aún sin datos de evaluación física</p>
+                  <p className="text-xs text-slate-400">Registra una evaluación física en Datos del plan para ver el radar.</p>
+                </div>
+              ) : (
               <ResponsiveContainer width="100%" height={200}>
-                <RadarChart data={physicalCapabilities}>
+                <RadarChart data={realCapabilities}>
                   <PolarGrid stroke="#E5E7EB" />
                   <PolarAngleAxis dataKey="ability" tick={{ fontSize: 10, fill: '#6B7280' }} />
                   <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 9 }} />
@@ -1305,6 +1406,7 @@ const ControlPanel = ({
                   <Tooltip />
                 </RadarChart>
               </ResponsiveContainer>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -1312,106 +1414,116 @@ const ControlPanel = ({
         {/* Row 4: Zonas de Entrenamiento + Mini Calendario */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           
-          {/* 4. Zonas de Entrenamiento */}
+          {/* 4. Distribución por Capacidad (real) */}
           <Card className="shadow-lg border-0 bg-white">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Zap className="w-5 h-5 text-amber-500" />
-                Zonas de Entrenamiento
-                <span className="text-xs text-slate-400 font-normal ml-auto">Esta semana</span>
+                Distribución por Capacidad
+                <span className="text-xs text-slate-400 font-normal ml-auto">
+                  {calendarMonth.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
+                </span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {/* Barra apilada horizontal */}
+              {capacityDistribution.length === 0 ? (
+                <div className="py-10 flex flex-col items-center justify-center text-center text-slate-400 gap-2">
+                  <Target className="w-8 h-8 text-slate-300" />
+                  <p className="text-sm">Sin sesiones planificadas este mes</p>
+                  <p className="text-xs text-slate-400">Diseña sesiones en Periodización para ver la distribución.</p>
+                </div>
+              ) : (
+              <>
               <div className="mb-4">
                 <div className="h-8 rounded-lg overflow-hidden flex">
-                  {trainingZones.map((zone, idx) => (
+                  {capacityDistribution.map((zone, idx) => (
                     <div
                       key={idx}
                       className="h-full flex items-center justify-center text-xs font-medium text-white transition-all hover:opacity-80"
                       style={{ width: `${zone.percent}%`, backgroundColor: zone.color }}
                       title={`${zone.zone}: ${zone.minutes} min`}
                     >
-                      {zone.percent >= 15 && `${zone.percent}%`}
+                      {zone.percent >= 12 && `${zone.percent}%`}
                     </div>
                   ))}
                 </div>
               </div>
-              {/* Leyenda detallada */}
               <div className="grid grid-cols-2 gap-2">
-                {trainingZones.map((zone, idx) => (
+                {capacityDistribution.map((zone, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-xs">
                     <div className="w-3 h-3 rounded" style={{ backgroundColor: zone.color }} />
-                    <span className="text-slate-600 truncate">{zone.zone}</span>
+                    <span className="text-slate-600 truncate capitalize">{zone.zone}</span>
                     <span className="text-slate-400 ml-auto">{zone.minutes}min</span>
                   </div>
                 ))}
               </div>
+              </>
+              )}
             </CardContent>
           </Card>
 
-          {/* 5. Mini Calendario de Sesiones */}
-          <Card className="shadow-lg border-0 bg-white">
+          {/* 5. Calendario de Sesiones (real, conectado a periodización) */}
+          <Card className="shadow-lg border-0 bg-white" data-testid="panel-session-calendar">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
                 <CalendarDays className="w-5 h-5 text-slate-400" />
                 Calendario de Sesiones
-                <span className="text-xs text-slate-400 font-normal ml-auto">
-                  {new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
-                </span>
+                <div className="ml-auto flex items-center gap-1">
+                  <button onClick={() => setCalendarMonth(d => new Date(d.getFullYear(), d.getMonth() - 1, 1))} className="p-1 rounded hover:bg-slate-100" data-testid="panel-cal-prev"><ChevronLeft className="w-4 h-4 text-slate-500" /></button>
+                  <span className="text-xs text-slate-500 font-medium capitalize min-w-[110px] text-center">
+                    {calendarMonth.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
+                  </span>
+                  <button onClick={() => setCalendarMonth(d => new Date(d.getFullYear(), d.getMonth() + 1, 1))} className="p-1 rounded hover:bg-slate-100" data-testid="panel-cal-next"><ChevronRight className="w-4 h-4 text-slate-500" /></button>
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {/* Días de la semana */}
               <div className="grid grid-cols-7 gap-1 mb-2">
                 {['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((day) => (
-                  <div key={day} className="text-center text-xs font-medium text-slate-400">
-                    {day}
-                  </div>
+                  <div key={day} className="text-center text-xs font-medium text-slate-400">{day}</div>
                 ))}
               </div>
-              {/* Días del mes */}
               <div className="grid grid-cols-7 gap-1">
-                {/* Espacios vacíos para alinear el primer día */}
-                {Array.from({ length: new Date(new Date().getFullYear(), new Date().getMonth(), 1).getDay() || 7 }).slice(1).map((_, idx) => (
-                  <div key={`empty-${idx}`} className="w-8 h-8" />
-                ))}
-                {sessionCalendar.map((session) => (
-                  <div
-                    key={session.day}
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-medium transition-all cursor-pointer hover:scale-110 ${
-                      session.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
-                      session.status === 'missed' ? 'bg-red-100 text-red-700' :
-                      session.status === 'today' ? 'bg-blue-500 text-white ring-2 ring-blue-300' :
-                      session.status === 'scheduled' ? 'bg-amber-100 text-amber-700' :
-                      'bg-slate-50 text-slate-400'
-                    }`}
-                    title={
-                      session.status === 'completed' ? 'Completada' :
-                      session.status === 'missed' ? 'No realizada' :
-                      session.status === 'today' ? 'Hoy' :
-                      session.status === 'scheduled' ? 'Programada' : 'Descanso'
-                    }
-                  >
-                    {session.day}
-                  </div>
-                ))}
+                {(() => {
+                  const y = calendarMonth.getFullYear(); const m = calendarMonth.getMonth();
+                  const firstWeekday = (new Date(y, m, 1).getDay() + 6) % 7; // Lun=0
+                  const daysInMonth = new Date(y, m + 1, 0).getDate();
+                  const todayStr = ymdLocal(new Date());
+                  const cells = [];
+                  for (let i = 0; i < firstWeekday; i++) cells.push(<div key={`e-${i}`} className="w-9 h-9" />);
+                  for (let d = 1; d <= daysInMonth; d++) {
+                    const dateObj = new Date(y, m, d);
+                    const dateStr = ymdLocal(dateObj);
+                    const daySessions = sessionsByDay[dateStr] || [];
+                    const isToday = dateStr === todayStr;
+                    const status = dayStatus(dateStr, daySessions);
+                    const cls = status === 'completed' ? 'bg-emerald-100 text-emerald-700'
+                      : status === 'missed' ? 'bg-red-100 text-red-700'
+                      : status === 'scheduled' ? 'bg-amber-100 text-amber-700'
+                      : 'bg-slate-50 text-slate-400';
+                    const dotColor = daySessions[0] ? capColor(daySessions[0].capacidad_principal) : null;
+                    cells.push(
+                      <button
+                        key={d}
+                        onClick={() => daySessions.length > 0 && setSelectedCalendarDay({ date: dateObj, sessions: daySessions })}
+                        className={`relative w-9 h-9 rounded-lg flex items-center justify-center text-xs font-medium transition-all ${cls} ${daySessions.length > 0 ? 'cursor-pointer hover:scale-110' : 'cursor-default'} ${isToday ? 'ring-2 ring-blue-400' : ''}`}
+                        title={daySessions.length > 0 ? `${daySessions.length} sesión(es) · ${status === 'completed' ? 'Completada' : status === 'missed' ? 'Perdida' : 'Programada'}` : 'Sin sesión'}
+                        data-testid={`panel-day-${dateStr}`}
+                      >
+                        {d}
+                        {dotColor && <span className="absolute bottom-0.5 w-1.5 h-1.5 rounded-full" style={{ background: dotColor }} />}
+                      </button>
+                    );
+                  }
+                  return cells;
+                })()}
               </div>
-              {/* Leyenda */}
               <div className="flex items-center justify-center gap-4 mt-3 pt-3 border-t border-slate-100">
-                <div className="flex items-center gap-1 text-xs">
-                  <div className="w-3 h-3 rounded bg-emerald-100" />
-                  <span className="text-slate-500">Completada</span>
-                </div>
-                <div className="flex items-center gap-1 text-xs">
-                  <div className="w-3 h-3 rounded bg-amber-100" />
-                  <span className="text-slate-500">Programada</span>
-                </div>
-                <div className="flex items-center gap-1 text-xs">
-                  <div className="w-3 h-3 rounded bg-red-100" />
-                  <span className="text-slate-500">Perdida</span>
-                </div>
+                <div className="flex items-center gap-1 text-xs"><div className="w-3 h-3 rounded bg-emerald-100" /><span className="text-slate-500">Completada</span></div>
+                <div className="flex items-center gap-1 text-xs"><div className="w-3 h-3 rounded bg-amber-100" /><span className="text-slate-500">Programada</span></div>
+                <div className="flex items-center gap-1 text-xs"><div className="w-3 h-3 rounded bg-red-100" /><span className="text-slate-500">Perdida</span></div>
               </div>
+              <p className="mt-2 text-[11px] text-slate-400 text-center">Click en un día con sesión para ver el detalle</p>
             </CardContent>
           </Card>
         </div>
@@ -1428,7 +1540,13 @@ const ControlPanel = ({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {upcomingCompetitions.sort((a, b) => a.daysLeft - b.daysLeft).map((comp) => (
+              {realCompetitions.length === 0 ? (
+                <div className="py-8 flex flex-col items-center justify-center text-center text-slate-400 gap-2">
+                  <Trophy className="w-8 h-8 text-slate-300" />
+                  <p className="text-sm">Sin competencias próximas</p>
+                  <p className="text-xs text-slate-400">Agrega competencias del plan en Datos del plan.</p>
+                </div>
+              ) : realCompetitions.map((comp) => (
                 <div 
                   key={comp.id} 
                   className={`p-3 rounded-xl border transition-all hover:shadow-md ${
@@ -1436,6 +1554,7 @@ const ControlPanel = ({
                     comp.priority === 'medium' ? 'border-amber-200 bg-amber-50/50' :
                     'border-slate-200 bg-slate-50/50'
                   }`}
+                  data-testid={`panel-competition-${comp.id}`}
                 >
                   <div className="flex items-start justify-between">
                     <div>
@@ -1472,10 +1591,17 @@ const ControlPanel = ({
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {personalRecords.map((pr) => (
+                {realRecords.length === 0 ? (
+                  <div className="py-8 flex flex-col items-center justify-center text-center text-slate-400 gap-2">
+                    <Medal className="w-8 h-8 text-slate-300" />
+                    <p className="text-sm">Aún sin récords registrados</p>
+                    <p className="text-xs text-slate-400">Completa los indicadores en "Análisis del Plan Anterior".</p>
+                  </div>
+                ) : realRecords.map((pr) => (
                   <div 
                     key={pr.id}
                     className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-100 hover:shadow-sm transition-all"
+                    data-testid={`panel-record-${pr.id}`}
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-lg bg-white border border-slate-200 flex items-center justify-center">
@@ -1483,19 +1609,18 @@ const ControlPanel = ({
                       </div>
                       <div>
                         <p className="font-semibold text-slate-800 text-sm">{pr.exercise}</p>
-                        <p className="text-xs text-slate-500">
-                          {new Date(pr.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
-                        </p>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-lg text-slate-800">
                         {pr.value}<span className="text-sm text-slate-500 ml-1">{pr.unit}</span>
                       </p>
-                      <p className="text-xs font-medium text-emerald-600 flex items-center justify-end gap-1">
-                        <ArrowUpRight className="w-3 h-3" />
-                        {pr.improvement}
-                      </p>
+                      {pr.improvement && (
+                        <p className={`text-xs font-medium flex items-center justify-end gap-1 ${String(pr.improvement).startsWith('-') ? 'text-blue-600' : 'text-emerald-600'}`}>
+                          <ArrowUpRight className="w-3 h-3" />
+                          {pr.improvement}
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -1505,6 +1630,70 @@ const ControlPanel = ({
         </div>
 
       </div>
+
+      {/* Modal detalle del día (sesiones reales) */}
+      <Dialog open={!!selectedCalendarDay} onOpenChange={(o) => !o && setSelectedCalendarDay(null)}>
+        <DialogContent className="max-w-md bg-white" data-testid="panel-day-detail-modal">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 capitalize">
+              <CalendarDays className="w-5 h-5 text-blue-600" />
+              {selectedCalendarDay && selectedCalendarDay.date.toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+            {selectedCalendarDay?.sessions.map(s => {
+              const color = capColor(s.capacidad_principal);
+              const micro = microciclos.find(m => m.id === s.microciclo_id);
+              const meso = mesociclos.find(me => me.id === micro?.mesociclo_id);
+              const macro = macrociclos.find(ma => ma.id === meso?.macrociclo_id);
+              return (
+                <div key={s.id} className="rounded-xl border border-slate-200 p-4" style={{ borderLeft: `4px solid ${color}` }}>
+                  <div className="flex items-start justify-between gap-2">
+                    <h4 className="text-sm font-bold text-slate-900">{s.nombre || `Sesión ${s.orden_dia || ''}`}</h4>
+                    {s.completada && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                        <CheckCircle className="w-2.5 h-2.5" /> Realizada
+                      </span>
+                    )}
+                  </div>
+                  {(macro || meso || micro) && (
+                    <div className="mt-2 mb-2 flex flex-wrap items-center gap-1.5 text-[10px]">
+                      {macro && <span className="px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 font-semibold uppercase tracking-wider">M{macro.numero}: {macro.nombre || 'Macro'}</span>}
+                      {meso && <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-semibold uppercase tracking-wider">{meso.tipo || meso.nombre || `Meso ${meso.numero}`}</span>}
+                      {micro && <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-semibold uppercase tracking-wider">Sem {micro.numero_semana} · {micro.tipo || 'choque'}</span>}
+                    </div>
+                  )}
+                  <div className="grid grid-cols-2 gap-2 text-[11px]">
+                    {s.duracion_minutos > 0 && (
+                      <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-slate-50">
+                        <Clock className="w-3 h-3 text-slate-500" /><span><strong className="text-slate-800">{s.duracion_minutos}</strong> min</span>
+                      </div>
+                    )}
+                    {s.RPE_sesion > 0 && (
+                      <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-slate-50">
+                        <Activity className="w-3 h-3 text-slate-500" /><span>RPE <strong className="text-slate-800">{s.RPE_sesion}</strong></span>
+                      </div>
+                    )}
+                    {s.capacidad_principal && (
+                      <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-md col-span-2" style={{ background: color + '15' }}>
+                        <Target className="w-3 h-3" style={{ color }} /><span className="capitalize font-semibold" style={{ color }}>{s.capacidad_principal}</span>
+                      </div>
+                    )}
+                  </div>
+                  {s.notas && <p className="mt-2 text-[12px] text-slate-600 italic leading-snug border-l-2 border-slate-200 pl-2">"{s.notas}"</p>}
+                  <Button
+                    onClick={() => { setSelectedCalendarDay(null); window.dispatchEvent(new CustomEvent('navigate-periodization', { detail: { sessionId: s.id, microId: micro?.id } })); }}
+                    variant="ghost" size="sm" className="mt-3 w-full text-[11px] text-blue-700 hover:bg-blue-50 h-8"
+                    data-testid={`panel-open-session-${s.id}`}
+                  >
+                    <Activity className="w-3 h-3 mr-1.5" /> Ver/editar en Periodización →
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Modal de Exportación PDF */}
       <Dialog open={showExportModal} onOpenChange={setShowExportModal}>

@@ -1,0 +1,39 @@
+{
+  "summary": "Frontend-only testing of Panel de Control with REAL periodization data. Login + plan selection + UI structure work. New empty-state messages and section titles render correctly. Old mock data (Cooper Test 3200m, Salto 62cm, Z1-Recuperación) confirmed removed. CRITICAL ISSUE: after selecting the ATR (Issurin) plan, the planStore.sesiones array is NOT populated (cargarPlanCompleto seems to fail — 3x 404 errors observed in console). Consequence: calendar days render as plain numbered cells WITHOUT capacity-color dots, 'Distribución por Capacidad' shows the empty state 'Sin sesiones planificadas este mes', the Sesiones stat card shows 0, and clicking any day does NOT open the panel-day-detail-modal (no session => no click handler fires). This breaks the core feature being tested.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "ControlPanel - Calendario de Sesiones", "issue": "Tras seleccionar plan ATR (Issurin) los días del calendario NO muestran color (Completada/Programada/Perdida) ni punto de capacidad. Plain numbers only. Indica que sesiones=[] en planStore.", "selector": "[data-testid='panel-session-calendar']", "priority": "CRITICAL"},
+      {"component": "ControlPanel - Día detalle modal", "issue": "Click en cualquier día del calendario NO abre el modal panel-day-detail-modal (porque el handler solo abre si hay sesiones, y la lista de sesiones está vacía).", "selector": "[data-testid='panel-day-YYYY-MM-DD']", "priority": "CRITICAL"},
+      {"component": "Distribución por Capacidad", "issue": "Muestra 'Sin sesiones planificadas este mes' aún teniendo el plan ATR activo con 4050 sesiones backend.", "selector": "Distribución por Capacidad card", "priority": "HIGH"},
+      {"component": "Sesiones stat card", "issue": "Muestra 0 sesiones con plan ATR activo (47 semanas) — inconsistente con datos reales.", "selector": "[data-testid='sessions-stat-card']", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [
+      {"flow": "cargarPlanCompleto al activar plan", "issue": "3x errores 404 en consola tras seleccionar el plan ATR. usePlanStore.cargarPlanCompleto(activePlan.id) llama a /api/v2/planes/{id}/completo y probablemente devuelve 404 o devuelve un payload sin 'sesiones'. Sin sesiones, todo el panel (calendario, distribución, modal de día) queda inutilizable.", "affected_selectors": ["[data-testid='panel-session-calendar']", "[data-testid^='panel-day-']", "[data-testid='panel-day-detail-modal']"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Investigar por qué planStore.sesiones queda vacío tras activar plan ATR. Revisar /api/v2/planes/{plan_id}/completo en backend: 1) que devuelva la lista 'sesiones'; 2) que las sesiones traigan campo 'fecha' (YYYY-MM-DD) y 'capacidad_principal'. Los 3 404 en consola son la pista principal.",
+    "Confirmar que ControlPanel.useEffect dispara cargarPlanCompleto(activePlan.id) al volver al tab 'Panel' (no solo al primer render). Posible bug: planLoaded?.id puede coincidir con activePlan.id por una carga previa parcial sin sesiones, impidiendo re-fetch.",
+    "Al menos en estado vacío, dejar el click en día abrir el modal con un mensaje 'Sin sesiones para este día' en lugar de no responder, para feedback al usuario (o deshabilitar visualmente los días sin sesiones).",
+    "Validar manualmente con curl: GET /api/v2/planes/{id_atr}/completo con auth — debe contener array sesiones con fecha y capacidad_principal."
+  ],
+  "critical_code_review_comments": [
+    "ControlPanel.js: dataSource state machine es frágil — el efecto de procesado de volumen/intensidad depende de dataSource y volumeData.length, lo que puede saltarse re-procesos cuando el plan cambia. Considerar resetear dataSource cuando activePlan.id cambia.",
+    "ControlPanel.js es muy grande (>1700 líneas). Recomendado partir en: ControlPanelCalendar, ControlPanelStats, ControlPanelCharts, ControlPanelEmptyStates.",
+    "El testid panel-day-YYYY-MM-DD se renderiza para TODOS los días del mes, no solo los que tienen sesión, lo que hace difícil tests E2E diferenciar días con/sin sesión. Sugerencia: usar testid distinto para días sin sesiones o exponer data-has-session='true|false'."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "55% — UI structure / empty states / mock removal OK; data wiring del plan activo a sesiones reales NO funciona"},
+  "test_credentials": "Super admin juegolaureado@gmail.com / LordTraining2026! (loaded from /app/memory/test_credentials.md, login successful)",
+  "seed_data_creation": "Ninguno creado. Usé el plan existente 'Plan Deporte General - ATR (Issurin)' (47 sem).",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Login ya validado. Bug raíz: planStore.sesiones queda vacío tras activar plan -> el calendario no muestra colores ni el modal abre. Verificar endpoint /api/v2/planes/{id}/completo y que retorne sesiones con 'fecha' y 'capacidad_principal'. Una vez fixeado, reproducir: Login -> Panel -> click 'Click para seleccionar' -> elegir Plan ATR -> volver a Panel -> calendario en jun 2026 debe mostrar días con color y al hacer click en uno debe abrir panel-day-detail-modal con Macro/Meso/Microciclo y botón 'Ver/editar en Periodización'.",
+  "rca of the issue": "RCA: Después de activar el plan ATR, useEffect en ControlPanel llama a usePlanStore.cargarPlanCompleto(activePlan.id) que pega a /api/v2/planes/{id}/completo. Se observaron 3 errores 404 en la consola justo después de seleccionar el plan, y la UI confirma que sesiones=[] (Distribución por Capacidad: 'Sin sesiones...', Sesiones stat=0, calendar sin puntos de color, click en día no abre modal). El frontend reacciona correctamente al estado vacío, pero la promesa del feature ('mostrar sesiones reales del plan activo por fecha') no se cumple porque los datos nunca llegan al store. Mitigation: revisar la ruta backend v2 (existencia/auth/plan_id correcto) o el flujo de carga del store; agregar logs en cargarPlanCompleto para ver el código de respuesta."
+}
