@@ -121,3 +121,23 @@
 - Refactor pendiente: PeriodizationComplete.js (~3370 líneas), server.py (~8500), DashboardPage.js (~4750).
 - Migración de contenido preview→producción: pendiente de definir/ejecutar (flag `IMPORT_PREVIEW_DATA`).
 - Recordatorio: los cambios viven en Preview; el usuario debe hacer **Deploy** para reflejarlos en lordtraining.com.
+
+## 2026-06-25 — Tracking de visitas en links públicos + Cambio global de logo
+
+**Tarea 1: Contador de visitas en reportes públicos de progreso (P0) — DONE & TESTED**
+- Backend (`/app/backend/routes/calculator_results.py`):
+  - `GET /public/{share_id}`: ahora registra `views_count` (+1), `first_viewed_at` (solo la 1ra vez) y `last_viewed_at` en `calc_progress_shares`.
+  - Nuevo endpoint `GET /share-info?athlete_id&calculator&metric_label`: devuelve `{exists, share_id, views_count, first_viewed_at, last_viewed_at}` al coach autenticado.
+- Frontend (`/app/frontend/src/components/AthleteProgress.js`):
+  - `loadMeta()` también consulta `/share-info`; panel "Seguimiento del enlace" (data-testid=`share-stats`) muestra visitas, primera y última vista.
+  - Helper `fmtDateTime` (locale es). Se refresca tras compartir.
+- Verificado: testing agent iter72 (100%) + curl (views_count incrementa correctamente).
+
+**Tarea 2: Cambio global de logo (P0) — DONE & TESTED**
+- Nuevo logo: `Gemini_Generated_Image_ytyzipytyzipytyz-removebg-preview.png` (531x470, RGBA transparente).
+- Reemplazados los assets de marca usados por `BrandLogo.js`: `/brand/lordtraining-scale.png` (icon/full) y `/brand/lordtraining-master.png` (shield).
+- Regenerados favicons: favicon.ico (16/32/48/64), favicon-16/32/64.png, apple-touch-icon.png (180px).
+- PDFs: se mantuvo SOLO el texto "LORDTRAINING" (decisión del usuario, sin imagen).
+- Verificado: logo carga OK en Landing (nav-brand-logo), Auth (auth-brand-logo) y Dashboard (dashboard-brand-logo).
+
+**Pendiente de usuario:** Hacer clic en **Deploy** para reflejar estos cambios (y los anteriores) en Producción.
