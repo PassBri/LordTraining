@@ -1,0 +1,44 @@
+{
+  "summary": "E2E + API testing for the new Athlete Progress enhancements: META/OBJETIVO line + sponsor logos in PDF & public link. Tested against the public preview URL with Super Admin. 9 backend tests written (8/9 PASS); 1 backend bug found: DELETE /api/calculator-results/goal is shadowed by DELETE /api/calculator-results/{rid} due to FastAPI route declaration order. Frontend flow PASSES end-to-end: goal-input → goal-progress-bar (60% for 130 vs 110→122), ReferenceLine 'Meta 130' rendered in chart and in public report, sponsor upload chip rendered, sponsor delete works, PDF download (3867B, %PDF header), share link generated, /progress/p/{id} public page shows public-goal + public-sponsors + 'Meta 130' line.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "DELETE /api/calculator-results/goal",
+        "issue": "Route is unreachable — shadowed by DELETE /api/calculator-results/{rid} which is declared earlier in routes/calculator_results.py (line 102 vs line 138). Request returns 404 'Resultado no encontrado' (from delete_result()) instead of the goal-deletion handler. Goals therefore can't be removed once set. UI currently only POSTs (upsert) /goal so user-facing impact is limited, but leaves orphaned goals in DB. Fix: move @router.delete('/{rid}') below all specific-path routes, or rename to @router.delete('/result/{rid}'), or use a path-prefix constraint."
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_progress_goal_sponsors.py",
+    "/app/test_reports/pytest/test_progress_goal_sponsors.xml"
+  ],
+  "action_items": [
+    "Fix DELETE /api/calculator-results/goal route ordering in /app/backend/routes/calculator_results.py — declare /goal handlers BEFORE /{rid} (currently /{rid} at line 102 swallows DELETE /goal). After fix, add a UI 'Quitar meta' button if desired (currently only POST upsert is wired)."
+  ],
+  "critical_code_review_comments": [
+    "calculator_results.py — Route ordering bug: @router.delete('/{rid}') is registered before @router.delete('/goal'), so the latter never matches. FastAPI matches routes in registration order. Same risk would apply if a future @router.delete('/sponsors/{sid}') were added below /{rid}; thankfully it is registered before via the path-prefix '/sponsors/'.",
+    "_build_series progress_pct formula: when target_value == first_value the divisor is 0 and falls through to 0/100. This is a sensible guard; OK.",
+    "Sponsors are coach-scoped (not athlete-scoped), so the same logos appear in every athlete's progress modal/PDF/public page for that coach. Confirm this is intentional (coach brand) — UI label is 'Patrocinadores del informe (aparecen en el PDF y el enlace público)' which suggests global-per-coach, so OK.",
+    "AthleteProgress.js (~310 lines) — clean, single-responsibility, full data-testid coverage. PublicProgress.js mirrors it. Token retrieval via localStorage('train_token') consistent with the rest of the app.",
+    "Sponsor logo size cap 4MB is reasonable; MIME whitelist covers jpg/png/webp/gif/svg. Defaults to 'png' when content_type missing — acceptable."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_progress_goal_sponsors.py (new)"
+  ],
+  "success_rate": {
+    "backend": "89% (8/9 endpoint tests pass; DELETE /goal fails due to route-ordering bug)",
+    "frontend": "100% (goal, sponsor upload+delete, PDF download, share link, public page with goal+sponsors all verified)"
+  },
+  "test_credentials": "Super Admin: juegolaureado@gmail.com / LordTraining2026! — worked.",
+  "seed_data_creation": "Seeded 3 TEST_seed_UI calc-1rm rows (110/116/122 kg) for athlete sds (id 8eaadfb1-9228-4fdc-a495-6fd382400f6f). After UI test, CLEANED UP all 3 calc rows and the TEST_SponsorUI sponsor via API. Note: one calc_progress_goal record (target_value=130 for athlete sds, calculator calc-1rm, label '1RM Promedio') is left orphaned in DB because DELETE /goal is broken (see backend bug above). Existing share row share_id=201ff32c31ae is reused (idempotent upsert from previous iterations).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Endpoint base: REACT_APP_BACKEND_URL=https://lord-deploy-test.preview.emergentagent.com. Login form: visit '/', click 'Iniciar Sesión' on landing, then fill email+password+submit. Path to athlete progress: [data-testid='tab-datos'] → 'Plan Deporte General' → 'Información' → 'Atletas' → first [data-testid^='athlete-fab-'] (sds). The AthleteProgress block is below the fold — scrollBy(0,800) before locating [data-testid='athlete-progress-card']. ProgressDetailModal selectors: progress-detail-modal, goal-manager, goal-input, goal-save-btn, goal-progress-bar, progress-chart, sponsors-manager, sponsor-name-input, sponsor-upload-btn (label-for hidden file input — use page.query_selector('[data-testid=\"sponsors-manager\"] input[type=\"file\"]').set_input_files()), sponsor-chip-{id}, sponsor-delete-{id}, progress-pdf-btn, progress-share-btn, progress-share-url. Public page: /progress/p/{share_id} → public-progress, public-goal, public-sponsors, public-progress-pdf. Backend test file: /app/backend/tests/test_progress_goal_sponsors.py covers all endpoints incl. share/public/PDF.",
+  "rca of the issue": "DELETE /goal route shadowed by DELETE /{rid}. Root cause: FastAPI uses first-match routing on registration order. In /app/backend/routes/calculator_results.py the generic delete_result is declared at line 102 with path '/{rid}' (path param accepts ANY string), then delete_goal at line 138 with path '/goal'. The literal 'goal' is captured by {rid}, so the goal-deletion handler is dead code. Reproduction: curl -X DELETE \"$URL/api/calculator-results/goal?athlete_id=x&calculator=y&metric_label=z\" -H 'Authorization: Bearer ...' → returns 404 with detail 'Resultado no encontrado' (the delete_result message, not the goal handler). Mitigation: re-order the routes so all literal paths (/goal, /sponsors, /sponsors/{sid}, /series, /share, /public/{...}, /progress-pdf, /sponsor-logo/{sid}) are declared BEFORE the catch-all @router.delete('/{rid}'). Alternative: change the result-deletion route to a more specific prefix like '/result/{rid}'."
+}

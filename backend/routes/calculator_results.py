@@ -2,7 +2,7 @@
 Calculator Results — Guardar resultados de las calculadoras científicas
 al perfil de un atleta y/o plan de entrenamiento.
 """
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form, Response
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timezone
@@ -20,6 +20,8 @@ _db = _client[db_name]
 _results = _db["calculator_results"]
 _athletes = _db["athletes"]
 _plans = _db["training_plans"]
+_goals = _db["calc_progress_goals"]
+_sponsors = _db["calc_sponsors"]
 
 
 def get_current_user_dep():
@@ -106,6 +108,91 @@ async def delete_result(rid: str, user=Depends(get_current_user_dep())):
     return {"ok": True}
 
 
+@router.get("/series")
+async def get_series(athlete_id: str = Query(...), calculator: str = Query(...),
+                    label: str = Query(...), user=Depends(get_current_user_dep())):
+    series = await _build_series(_uid(user), athlete_id, calculator, label)
+    if not series:
+        raise HTTPException(404, "Sin datos")
+    return series
+
+
+# ───────────────────── METAS / OBJETIVOS ─────────────────────
+class GoalIn(BaseModel):
+    athlete_id: str
+    calculator: str
+    metric_label: str
+    target_value: float
+
+
+@router.post("/goal")
+async def set_goal(payload: GoalIn, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    key = {"coach_id": uid, "athlete_id": payload.athlete_id, "calculator": payload.calculator,
+           "metric_label": payload.metric_label}
+    await _goals.update_one(key, {"$set": {**key, "target_value": payload.target_value,
+                                           "updated_at": datetime.now(timezone.utc).isoformat()}}, upsert=True)
+    return {"ok": True, "target_value": payload.target_value}
+
+
+@router.delete("/goal")
+async def delete_goal(athlete_id: str = Query(...), calculator: str = Query(...),
+                      metric_label: str = Query(...), user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    await _goals.delete_one({"coach_id": uid, "athlete_id": athlete_id, "calculator": calculator,
+                             "metric_label": metric_label})
+    return {"ok": True}
+
+
+# ───────────────────── PATROCINADORES (logos en el informe) ─────────────────────
+_SPONSOR_MIME = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif", "image/svg+xml": "svg"}
+
+
+@router.get("/sponsors")
+async def list_sponsors(user=Depends(get_current_user_dep())):
+    return await _get_sponsors(_uid(user))
+
+
+@router.post("/sponsors")
+async def add_sponsor(name: str = Form(""), file: UploadFile = File(...), user=Depends(get_current_user_dep())):
+    from routes.recruiting import _put_object
+    uid = _uid(user)
+    ext = _SPONSOR_MIME.get(file.content_type, "png")
+    data = await file.read()
+    if len(data) > 4 * 1024 * 1024:
+        raise HTTPException(400, "El logo no debe superar 4MB")
+    sid = uuid.uuid4().hex
+    path = f"sponsors/{uid}/{sid}.{ext}"
+    _put_object(path, data, file.content_type or "image/png")
+    doc = {"id": sid, "coach_id": uid, "name": name or "Patrocinador", "logo_path": path,
+           "content_type": file.content_type or "image/png", "created_at": datetime.now(timezone.utc).isoformat()}
+    await _sponsors.insert_one(dict(doc))
+    return {"id": sid, "name": doc["name"], "logo_url": f"/api/calculator-results/sponsor-logo/{sid}"}
+
+
+@router.delete("/sponsors/{sid}")
+async def delete_sponsor(sid: str, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    res = await _sponsors.delete_one({"id": sid, "coach_id": uid})
+    if res.deleted_count == 0:
+        raise HTTPException(404, "Patrocinador no encontrado")
+    return {"ok": True}
+
+
+@router.get("/sponsor-logo/{sid}")
+async def sponsor_logo(sid: str):
+    from routes.recruiting import _get_object
+    s = await _sponsors.find_one({"id": sid}, {"_id": 0})
+    if not s:
+        raise HTTPException(404, "No encontrado")
+    try:
+        content, ctype = _get_object(s["logo_path"])
+    except Exception:
+        raise HTTPException(404, "Logo no disponible")
+    return Response(content=content, media_type=ctype or "image/png",
+                    headers={"Cache-Control": "public, max-age=86400"})
+
+
 # ───────────────────── PROGRESIÓN: detalle, PDF y enlace público ─────────────────────
 _shares = _db["calc_progress_shares"]
 
@@ -116,6 +203,19 @@ def _to_num(v):
     import re
     m = re.findall(r"-?\d+\.?\d*", str(v))
     return float(m[0]) if m else None
+
+
+async def _get_goal(coach_id, athlete_id, calculator, label):
+    g = await _goals.find_one(
+        {"coach_id": coach_id, "athlete_id": athlete_id, "calculator": calculator, "metric_label": label},
+        {"_id": 0})
+    return g
+
+
+async def _get_sponsors(coach_id):
+    rows = await _sponsors.find({"coach_id": coach_id}, {"_id": 0}).sort("created_at", 1).to_list(50)
+    return [{"id": s["id"], "name": s.get("name"), "logo_path": s.get("logo_path"),
+             "logo_url": f"/api/calculator-results/sponsor-logo/{s['id']}"} for s in rows]
 
 
 async def _build_series(coach_id, athlete_id, calculator, label):
@@ -138,6 +238,19 @@ async def _build_series(coach_id, athlete_id, calculator, label):
     if not pts:
         return None
     first = rows[0]
+    # Meta / objetivo
+    goal = await _get_goal(coach_id, athlete_id, calculator, label)
+    goal_out = None
+    if goal:
+        tv = goal.get("target_value")
+        f, last = pts[0]["value"], pts[-1]["value"]
+        if tv is not None and (tv - f) != 0:
+            progress = (last - f) / (tv - f) * 100
+        else:
+            progress = 100.0 if (tv is not None and last == tv) else 0.0
+        progress = max(0, min(100, round(progress, 1)))
+        goal_out = {"target_value": tv, "progress_pct": progress, "reached": progress >= 100}
+    sponsors = await _get_sponsors(coach_id)
     return {
         "athlete_name": (a or {}).get("name") or "Atleta",
         "title": first.get("title"),
@@ -146,6 +259,8 @@ async def _build_series(coach_id, athlete_id, calculator, label):
         "color": first.get("color") or "#3B82F6",
         "module": first.get("module"),
         "points": pts,
+        "goal": goal_out,
+        "sponsors": sponsors,
     }
 
 
@@ -247,7 +362,14 @@ def _build_progress_pdf(series: dict, public_url: Optional[str] = None) -> bytes
     first, last = vals[0], vals[-1]
     delta = last - first
     pct = (delta / abs(first) * 100) if first else 0
-    vmin, vmax = min(vals), max(vals)
+    goal = series.get("goal") or {}
+    target = goal.get("target_value")
+    # Incluir la meta en el dominio del gráfico para que la línea sea visible
+    domain_vals = list(vals) + ([target] if target is not None else [])
+    vmin, vmax = min(domain_vals), max(domain_vals)
+    if vmin == vmax:
+        vmin -= 1
+        vmax += 1
 
     # Header
     hh = 96
@@ -267,6 +389,11 @@ def _build_progress_pdf(series: dict, public_url: Optional[str] = None) -> bytes
     dcol = HexColor("#10b981") if delta >= 0 else HexColor("#f87171")
     arrow = "▲" if delta > 0 else "▼" if delta < 0 else "■"
     t(W - M - 16, H - 102, f"{arrow} {'+' if delta > 0 else ''}{pct:.1f}% vs inicio", 10, dcol, True, right=True)
+    if target is not None:
+        gp = goal.get("progress_pct", 0)
+        reached = goal.get("reached")
+        gtxt = f"Meta {target}{(' ' + series['unit']) if series['unit'] else ''}: {gp:.0f}% logrado" + (" ✓" if reached else "")
+        t(W - M - 16, H - 116, gtxt, 9, accent if reached else HexColor("#cbd5e1"), True, right=True)
 
     # Chart area
     cx, cy, cw, ch = M, H - 30 - hh - 30 - 210, W - 2 * M, 210
@@ -297,6 +424,17 @@ def _build_progress_pdf(series: dict, public_url: Optional[str] = None) -> bytes
     c.setLineWidth(2.2)
     for i in range(len(pts) - 1):
         c.line(X(i), Y(pts[i]["value"]), X(i + 1), Y(pts[i + 1]["value"]))
+    # Línea de meta (objetivo) — discontinua
+    if target is not None:
+        gy = Y(target)
+        c.setStrokeColor(HexColor("#10b981"))
+        c.setLineWidth(1.4)
+        c.setDash(4, 3)
+        c.line(gx0, gy, gx1, gy)
+        c.setDash()
+        c.setFillColor(HexColor("#10b981"))
+        c.setFont(FB, 8)
+        c.drawString(gx0 + 2, gy + 3, f"META {target}{(' ' + series['unit']) if series['unit'] else ''}")
     # points + x labels
     for i, p in enumerate(pts):
         c.setFillColor(color)
@@ -348,6 +486,20 @@ def _build_progress_pdf(series: dict, public_url: Optional[str] = None) -> bytes
             t(W - M - 30, 34, "Ver online", 7, HexColor("#94a3b8"), center=True)
         except Exception:
             pass
+    # Patrocinadores (logos)
+    sponsors = series.get("sponsors") or []
+    if sponsors:
+        from reportlab.lib.utils import ImageReader as _IR
+        from routes.recruiting import _get_object
+        t(M, 84, "PATROCINADORES", 8, HexColor("#94a3b8"), True)
+        lx = M
+        for sp in sponsors[:6]:
+            try:
+                content, _ = _get_object(sp["logo_path"])
+                c.drawImage(_IR(io.BytesIO(content)), lx, 40, 64, 34, mask="auto", preserveAspectRatio=True, anchor='sw')
+                lx += 78
+            except Exception:
+                continue
     c.setFillColor(HexColor("#0f172a"))
     c.rect(0, 0, W, 26, fill=1, stroke=0)
     t(M, 9, "LordTraining · Reporte de progreso del atleta", 9, HexColor("#94a3b8"))

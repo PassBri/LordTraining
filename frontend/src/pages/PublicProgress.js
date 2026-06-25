@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
-import { Loader2, FileDown, TrendingUp, TrendingDown, Minus, Calendar } from 'lucide-react';
+import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine } from 'recharts';
+import { Loader2, FileDown, TrendingUp, TrendingDown, Minus, Calendar, Target } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -43,6 +43,10 @@ export default function PublicProgress() {
   const Trend = Math.abs(delta) < 1e-9 ? Minus : delta > 0 ? TrendingUp : TrendingDown;
   const trendColor = Math.abs(delta) < 1e-9 ? '#94a3b8' : delta > 0 ? '#10b981' : '#f87171';
   const color = data.color || '#3B82F6';
+  const target = data.goal?.target_value;
+  const yDomain = target != null
+    ? [(dmin) => Math.min(dmin, target) - 1, (dmax) => Math.max(dmax, target) + 1]
+    : ['auto', 'auto'];
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100" data-testid="public-progress">
@@ -58,6 +62,17 @@ export default function PublicProgress() {
             <span className="text-4xl font-black text-lime-300">{last}<span className="text-lg text-slate-400 ml-1">{data.unit}</span></span>
             <span className="flex items-center gap-1 text-sm font-bold" style={{ color: trendColor }}><Trend className="w-4 h-4" />{delta > 0 ? '+' : ''}{pct.toFixed(1)}% vs inicio</span>
           </div>
+          {data.goal?.target_value != null && (
+            <div className="mt-3" data-testid="public-goal">
+              <div className="flex justify-between text-[11px] font-bold mb-1">
+                <span className="text-slate-300 flex items-center gap-1"><Target className="w-3.5 h-3.5 text-emerald-400" />Meta: {data.goal.target_value}{data.unit ? ` ${data.unit}` : ''}{data.goal.reached ? ' · ¡Alcanzada! 🏆' : ''}</span>
+                <span className="text-emerald-400">{data.goal.progress_pct}%</span>
+              </div>
+              <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${data.goal.progress_pct}%` }} />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Stats */}
@@ -76,8 +91,12 @@ export default function PublicProgress() {
             <LineChart data={pts} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
               <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#64748b' }} tickFormatter={(d) => (d || '').slice(5)} />
-              <YAxis tick={{ fontSize: 10, fill: '#64748b' }} domain={['auto', 'auto']} width={36} />
+              <YAxis tick={{ fontSize: 10, fill: '#64748b' }} domain={yDomain} width={36} />
               <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, background: '#0f172a', border: '1px solid #334155', color: '#fff' }} formatter={(v) => [`${v}${data.unit ? ' ' + data.unit : ''}`, data.label]} />
+              {data.goal?.target_value != null && (
+                <ReferenceLine y={data.goal.target_value} stroke="#34d399" strokeDasharray="5 4" strokeWidth={1.5}
+                  label={{ value: `Meta ${data.goal.target_value}`, position: 'insideTopRight', fontSize: 10, fill: '#34d399', fontWeight: 700 }} />
+              )}
               <Line type="monotone" dataKey="value" stroke={color} strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} isAnimationActive={false} />
             </LineChart>
           </ResponsiveContainer>
@@ -101,6 +120,16 @@ export default function PublicProgress() {
           className="w-full flex items-center justify-center gap-2 bg-lime-300 hover:bg-lime-200 text-slate-900 font-bold py-3 rounded-xl transition disabled:opacity-60">
           {dl ? <Loader2 className="w-5 h-5 animate-spin" /> : <FileDown className="w-5 h-5" />}Descargar reporte PDF
         </button>
+        {!!(data.sponsors || []).length && (
+          <div className="mt-6 text-center" data-testid="public-sponsors">
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Patrocinadores</p>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              {data.sponsors.map(sp => (
+                <img key={sp.id} src={`${API_URL}${sp.logo_url}`} alt={sp.name} className="h-9 w-auto max-w-[110px] object-contain opacity-90" />
+              ))}
+            </div>
+          </div>
+        )}
         <p className="text-center text-[11px] text-slate-600 mt-4">Generado con LordTraining · Identifica el talento. Construye el futuro.</p>
       </div>
     </div>
