@@ -416,7 +416,7 @@ const AuthPage = () => {
             <img
               src="/brand/lordtraining-login-figure.png"
               alt="LordTraining"
-              className="relative h-[230px] w-auto transition-transform group-hover:scale-105"
+              className="relative h-[300px] sm:h-[360px] w-auto transition-transform group-hover:scale-105"
               style={{ animation: 'authShieldFloat 3s ease-in-out infinite' }}
             />
           </Link>
