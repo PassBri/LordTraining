@@ -41,7 +41,7 @@
         "exercises": "Übungen",
         "calculators": "Rechner"
       },
-      "free_trial": "14 Tage kostenlos",
+      "free_trial": "7 Tage kostenlos",
       "no_card": "Keine Karte",
       "cancel_anytime": "Jederzeit kündbar",
       "tagline": "Sportperiodisierungssoftware",
@@ -294,7 +294,7 @@
       "noAccount": "Kein Konto?",
       "createAccount": "Konto erstellen",
       "error": "Ungültige Anmeldedaten",
-      "freeTrial": "14 Tage kostenlos",
+      "freeTrial": "7 Tage kostenlos",
       "resetSent": "Falls die E-Mail existiert, erhalten Sie Anweisungen zum Zurücksetzen.",
       "haveAccount": "Bereits ein Konto?"
     },

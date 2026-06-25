@@ -41,7 +41,7 @@
         "exercises": "Latihan",
         "calculators": "Kalkulator"
       },
-      "free_trial": "14 hari gratis",
+      "free_trial": "7 hari gratis",
       "no_card": "Tanpa kartu",
       "cancel_anytime": "Batalkan kapan saja",
       "tagline": "Perangkat lunak periodisasi olahraga",
@@ -294,7 +294,7 @@
       "noAccount": "Belum punya akun?",
       "createAccount": "Buat akun",
       "error": "Kredensial tidak valid",
-      "freeTrial": "14 hari gratis",
+      "freeTrial": "7 hari gratis",
       "resetSent": "Jika email terdaftar, Anda akan menerima instruksi reset kata sandi.",
       "haveAccount": "Sudah punya akun?"
     },

@@ -41,7 +41,7 @@
         "exercises": "Exercices",
         "calculators": "Calculatrices"
       },
-      "free_trial": "14 jours gratuits",
+      "free_trial": "7 jours gratuits",
       "no_card": "Sans carte",
       "cancel_anytime": "Annulez à tout moment",
       "tagline": "Logiciel de périodisation sportive",
@@ -294,7 +294,7 @@
       "noAccount": "Pas de compte ?",
       "createAccount": "Créer un compte",
       "error": "Identifiants invalides",
-      "freeTrial": "14 jours gratuits",
+      "freeTrial": "7 jours gratuits",
       "resetSent": "Si l'email existe, vous recevrez des instructions de réinitialisation.",
       "haveAccount": "Vous avez déjà un compte ?"
     },

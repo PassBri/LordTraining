@@ -41,7 +41,7 @@
         "exercises": "운동",
         "calculators": "계산기"
       },
-      "free_trial": "14일 무료",
+      "free_trial": "7일 무료",
       "no_card": "카드 불필요",
       "cancel_anytime": "언제든 취소",
       "tagline": "스포츠 주기화 소프트웨어",
@@ -294,7 +294,7 @@
       "noAccount": "계정이 없으신가요?",
       "createAccount": "계정 만들기",
       "error": "잘못된 인증 정보",
-      "freeTrial": "14일 무료",
+      "freeTrial": "7일 무료",
       "resetSent": "이메일이 존재하면 비밀번호 재설정 안내를 받게 됩니다.",
       "haveAccount": "이미 계정이 있으신가요?"
     },

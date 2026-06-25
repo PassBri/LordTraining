@@ -41,7 +41,7 @@
         "exercises": "Exercises",
         "calculators": "Calculators"
       },
-      "free_trial": "14 days free",
+      "free_trial": "7 days free",
       "no_card": "No credit card",
       "cancel_anytime": "Cancel anytime",
       "tagline": "Sports periodization software",
@@ -299,7 +299,7 @@
       "noAccount": "Don't have an account?",
       "createAccount": "Create account",
       "error": "Invalid credentials",
-      "freeTrial": "14 days free",
+      "freeTrial": "7 days free",
       "resetSent": "If the email exists, you will receive password reset instructions.",
       "haveAccount": "Already have an account?"
     },

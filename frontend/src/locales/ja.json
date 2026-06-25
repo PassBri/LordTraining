@@ -41,7 +41,7 @@
         "exercises": "エクササイズ",
         "calculators": "計算機"
       },
-      "free_trial": "14日間無料",
+      "free_trial": "7日間無料",
       "no_card": "カード不要",
       "cancel_anytime": "いつでもキャンセル",
       "tagline": "スポーツピリオダイゼーションソフトウェア",
@@ -294,7 +294,7 @@
       "noAccount": "アカウントがない？",
       "createAccount": "アカウント作成",
       "error": "無効な認証情報",
-      "freeTrial": "14日間無料",
+      "freeTrial": "7日間無料",
       "resetSent": "メールが存在する場合、パスワードリセットの手順が送信されます。",
       "haveAccount": "アカウントをお持ちですか？"
     },

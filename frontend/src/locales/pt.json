@@ -41,7 +41,7 @@
         "exercises": "Exercícios",
         "calculators": "Calculadoras"
       },
-      "free_trial": "14 dias grátis",
+      "free_trial": "7 dias grátis",
       "no_card": "Sem cartão",
       "cancel_anytime": "Cancele quando quiser",
       "tagline": "Software de periodização esportiva",
@@ -294,7 +294,7 @@
       "noAccount": "Não tem conta?",
       "createAccount": "Criar conta",
       "error": "Credenciais inválidas",
-      "freeTrial": "14 dias grátis",
+      "freeTrial": "7 dias grátis",
       "resetSent": "Se o email existir, você receberá instruções para redefinir sua senha.",
       "haveAccount": "Já tem uma conta?"
     },

@@ -41,7 +41,7 @@
         "exercises": "练习",
         "calculators": "计算器"
       },
-      "free_trial": "14天免费",
+      "free_trial": "7天免费",
       "no_card": "无需信用卡",
       "cancel_anytime": "随时取消",
       "tagline": "运动周期化软件",
@@ -294,7 +294,7 @@
       "noAccount": "没有账户？",
       "createAccount": "创建账户",
       "error": "凭证无效",
-      "freeTrial": "14天免费",
+      "freeTrial": "7天免费",
       "resetSent": "如果邮箱存在，您将收到密码重置说明。",
       "haveAccount": "已有账户？"
     },
