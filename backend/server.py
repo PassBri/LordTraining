@@ -8437,6 +8437,9 @@ app.include_router(hotmart_webhooks_router, prefix="/api")
 from routes.recruiting import router as recruiting_router
 app.include_router(recruiting_router, prefix="/api")
 
+from routes.calculator_results import router as calculator_results_router
+app.include_router(calculator_results_router, prefix="/api")
+
 # Store db reference in app state for V2 routes
 app.state.db = db
 

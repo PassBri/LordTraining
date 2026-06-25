@@ -3,8 +3,9 @@ import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
 import {
   Calculator, Calendar, Dumbbell, Heart, BarChart3, Zap, Award,
-  Ruler, Apple, Brain, GitBranch, ChevronRight, ArrowLeft
+  Ruler, Apple, Brain, GitBranch, ChevronRight, ArrowLeft, History
 } from 'lucide-react';
+import { CalcResultsHistory } from './CalcSaveBar';
 
 import {
   Calc1RM, CalcPercentage1RM, CalcVolume, CalcRPE,
@@ -89,6 +90,7 @@ const MODULES = [
 
 const CalculatorsHub = () => {
   const [activeModule, setActiveModule] = useState(null);
+  const [showHistory, setShowHistory] = useState(false);
 
   if (activeModule) {
     const mod = MODULES.find(m => m.id === activeModule);
@@ -140,6 +142,15 @@ const CalculatorsHub = () => {
         </p>
       </div>
 
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-extrabold text-slate-700">{showHistory ? 'Resultados guardados por atleta' : 'Módulos'}</h3>
+        <button onClick={() => setShowHistory(s => !s)} data-testid="calc-history-toggle"
+          className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700">
+          <History className="w-4 h-4 text-violet-500" />{showHistory ? 'Ver módulos' : 'Resultados guardados'}
+        </button>
+      </div>
+
+      {showHistory ? <CalcResultsHistory /> : (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" data-testid="calculators-hub-grid">
         {MODULES.map((mod, idx) => {
           const Icon = mod.icon;
@@ -169,6 +180,7 @@ const CalculatorsHub = () => {
           );
         })}
       </div>
+      )}
     </div>
   );
 };

@@ -1,0 +1,35 @@
+{
+  "summary": "E2E UI testing of P2 'Guardar resultados de Calculadoras' feature. All 6 requested flows PASS end-to-end against the public preview URL. Hub renders 10 module cards; Save dialog opens with full preview (1RM Promedio Ponderado 115.5 kg + 7 fórmulas); athlete & plan selects populated from real data (5 athletes, 1 plan for 'sds'); save persists via POST /api/calculator-results and toast 'Resultado guardado en el perfil del atleta' is shown; history toggle renders grouped-by-athlete view with the saved entry visible; validation 'Selecciona un atleta' fires when athlete is empty; DELETE removes the row. Test record TEST_QA_NOTA_AUTOMATIZADA was created and cleaned up.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Calculators (any module that uses CalcShared <Select>)",
+        "issues": [
+          "React hydration warning in console: 'In HTML, <span> cannot be a child of <option>'. Source: /app/frontend/src/components/calculators/CalcShared.js Select component renders <option>{o.label}</option> but some o.label values are passed JSX nodes containing <span> (e.g., Carga y Fuerza module). Native <option> only accepts text. Fix: coerce o.label to string before placing inside <option>, or use a Radix Select. Low priority — no functional impact, but pollutes the dev console on every render of those modules."
+        ]
+      }
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "(LOW) Fix '<span> inside <option>' hydration warning in CalcShared.js Select — ensure labels passed to native <option> are plain strings (e.g., String(o.label) or precompute). Currently triggers a React warning on every render of calculators that use this Select."
+  ],
+  "critical_code_review_comments": [
+    "CalcSaveBar.js — clean, ~230 lines. Good data-testid coverage on every interactive element (calc-save-btn-{calc}, calc-save-dialog, calc-save-athlete, calc-save-plan, calc-save-note, calc-save-confirm, calc-history-toggle, calc-history, calc-history-row-{id}, calc-history-delete-{id}, calc-history-empty).",
+    "CalcShared.js — CalcResultContext + useRegisterResult pattern is elegant: BigResult registers as headline, MiniStat as item. Reset on every render keeps snapshots fresh. No memory leaks.",
+    "Native <select> in CalcShared.js Select is the only minor blemish; everything else uses shadcn/Radix Select correctly (athlete/plan selects in dialog).",
+    "Save dialog correctly disables Plan select until an athlete is chosen and filters plans by athlete_id — good UX.",
+    "History deduplicates via dedupe() and groups by athlete_name with collapsible groups — robust and tested."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "n/a (skipped per request — already validated via curl)", "frontend": "100% (6/6 flows)" },
+  "test_credentials": "Super Admin: juegolaureado@gmail.com / LordTraining2026! (worked).",
+  "seed_data_creation": "Created 1 calculator_result via UI (athlete 'sds', plan 'Sin plan específico', note 'TEST_QA_NOTA_AUTOMATIZADA') and DELETED it through the history UI. Body assertion confirmed full cleanup. One pre-existing 1RM record (note 'Test pretemporada') remained intact — not mine, did not delete.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Path to the Calculators Hub: login → click [data-testid=\"tab-datos\"] → click any plan in the left sidebar by text (the plan items DO NOT carry [data-testid=\"plan-card-{id}\"] in this view — that selector exists elsewhere in DashboardPage.js around line 1768 but is not the sidebar list; use page.click('text=Plan Deporte General') instead) → click [data-testid=\"section-tab-herramientas\"] → click [data-testid=\"subnav-calculators\"]. Hub testid: 'calculators-hub'. All 10 module cards have testid 'calc-module-card-{id}'. Save flow testids are listed above. Toast library is sonner; success text is 'Resultado guardado en el perfil del atleta'. The 'sds' athlete has 1 training plan, others may have 0. Token key in localStorage is 'train_token'.",
+  "rca of the issue": "N/A — no defects. Only a benign console warning (span inside option) noted above."
+}
