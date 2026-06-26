@@ -2,6 +2,26 @@
 
 ## Credenciales: test@train.com / test123456
 
+## [Jun 2026] FASE 4 + Onboarding + Recordatorio + Migración (COMPLETADO, 11/11 tests + E2E)
+**Métricas avanzadas del coach** `routes/coach_metrics.py` → `GET /api/coach/metrics?plan_id=`:
+- ACWR (carga aguda 7d / crónica 28d, carga = duración×RPE de sesiones completadas) con serie semanal + zona (bajo/óptimo/precaución/riesgo).
+- Adherencia % por semana (completadas/vencidas) + global.
+- `low_readiness_athletes`: atletas con readiness overall < 60 hoy.
+- UI: `components/AdvancedMetrics.js` (LineChart ACWR + BarChart adherencia + tarjeta baja disponibilidad) insertado en ControlPanel.
+
+**Onboarding self-service**: FAB "Demo" (siempre visible) en la barra superior del Dashboard (`demo-data-fab`) con menú "Cargar / Quitar datos de ejemplo" (llama seed/clear demo + recarga).
+
+**Recordatorio del atleta**: banner in-app en `/atleta/panel` (Mi Plan) si hay sesión hoy (`athlete-today-reminder`, dismissible).
+
+**Migración Preview→Producción** `routes/data_migration.py`:
+- `GET /api/admin/export-data` → JSON con planes/sesiones/competencias/etc del coach.
+- `POST /api/admin/import-data` → recrea en la cuenta actual; IDEMPOTENTE (por `id` o clave natural para colecciones sin id: plan_competitions/objectives/previous_analysis/evaluations); valida export_version.
+- UI: sección "Migración de datos" en Super Admin → tab "Datos de Ejemplo" (`export-data-btn`, `import-data-btn`).
+
+**Nota datos**: durante testing se duplicaron y luego se depuraron plan_competitions/objectives/previous_analysis/evaluations del coach (dedupe por clave natural).
+
+
+
 ## [Jun 2026] FASE 3 — Portal del Atleta (COMPLETADO, 21/21 tests + E2E)
 **Backend** `/app/backend/routes/athlete_portal.py` (prefix `/api/athlete-portal`, auth bcrypt + JWT role 'athlete', registrado en server.py + crear_indices_portal en startup):
 - PÚBLICO (sin login): `GET /public/{share_id}`, `POST /public/{share_id}/sessions/{session_id}` (marcar completada + rpe + comentario).

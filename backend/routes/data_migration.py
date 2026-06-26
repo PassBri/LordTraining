@@ -100,6 +100,14 @@ _USER_FIELD = {
     "plan_previous_analysis": "user_id", "plan_evaluations": "user_id",
 }
 
+# Claves naturales para colecciones que NO tienen campo 'id' propio (idempotencia)
+_NATURAL_KEY = {
+    "plan_competitions": ["plan_id", "name", "date"],
+    "plan_objectives": ["plan_id", "user_id"],
+    "plan_previous_analysis": ["plan_id", "user_id"],
+    "plan_evaluations": ["plan_id", "user_id", "evaluation_type"],
+}
+
 _IMPORT_ORDER = [
     "athletes", "training_plans", "planes_entrenamiento", "macrociclos_v2",
     "mesociclos_v2", "microciclos_v2", "sesiones_v2", "plan_competitions",
@@ -110,6 +118,8 @@ _IMPORT_ORDER = [
 @router.post("/import-data")
 async def import_data(payload: ImportPayload, request: Request, coach: dict = Depends(get_current_coach)):
     db = get_db(request)
+    if payload.export_version != EXPORT_VERSION:
+        raise HTTPException(400, f"Versión de export incompatible (esperada {EXPORT_VERSION})")
     uid = coach["id"]
     data = payload.data or {}
     result = {}
@@ -128,10 +138,15 @@ async def import_data(payload: ImportPayload, request: Request, coach: dict = De
                 doc[_COACH_FIELD[col]] = uid
             if col in _USER_FIELD:
                 doc[_USER_FIELD[col]] = uid
+            # Idempotencia: por 'id' si existe, si no por clave natural
             doc_id = doc.get("id")
             if doc_id:
-                exists = await db[col].find_one({"id": doc_id}, {"_id": 1})
-                if exists:
+                if await db[col].find_one({"id": doc_id}, {"_id": 1}):
+                    skipped += 1
+                    continue
+            elif col in _NATURAL_KEY:
+                nk = {k: doc.get(k) for k in _NATURAL_KEY[col]}
+                if await db[col].find_one(nk, {"_id": 1}):
                     skipped += 1
                     continue
             await db[col].insert_one(doc)
