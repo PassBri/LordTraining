@@ -45,11 +45,16 @@ def _parse(d):
 
 
 def _session_load(s):
-    """Carga = duración × RPE (sólo sesiones completadas cuentan como carga real)."""
+    """Carga = duración × RPE (sólo sesiones completadas cuentan como carga real).
+    Si la sesión no tiene RPE reportado ni planificado, la carga es 0 (no se infla el ACWR)."""
     if not s.get("completada"):
         return 0.0
     dur = s.get("duracion_minutos") or 0
-    rpe = s.get("rpe_reportado") or s.get("RPE_sesion") or 6
+    rpe = s.get("rpe_reportado")
+    if rpe is None:
+        rpe = s.get("RPE_sesion")
+    if rpe is None:
+        return 0.0
     try:
         return float(dur) * float(rpe)
     except Exception:
