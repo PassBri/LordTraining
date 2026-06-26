@@ -16,6 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Badge } from '../components/ui/badge';
 import AdminUserManagement from '../components/AdminUserManagement';
 import BrandingManager from '../components/BrandingManager';
+import DemoDataManager from '../components/DemoDataManager';
 import { BarChart, Bar, LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, FunnelChart, Funnel, LabelList, Cell } from 'recharts';
 import {
   getAdminHierarchy, getOrgMembers, grantPlan,
@@ -212,6 +213,7 @@ const SuperAdminPage = () => {
             <TabBtn active={activeTab === 'codes'} onClick={() => setActiveTab('codes')} icon={Tag} label="Códigos & Promociones" />
             <TabBtn active={activeTab === 'finance'} onClick={() => setActiveTab('finance')} icon={DollarSign} label="Finanzas" />
             <TabBtn active={activeTab === 'branding'} onClick={() => setActiveTab('branding')} icon={ImageIcon} label="Marca / Logos" />
+            <TabBtn active={activeTab === 'demo'} onClick={() => setActiveTab('demo')} icon={Sparkles} label="Datos de Ejemplo" />
           </div>
         )}
       </div>
@@ -332,6 +334,10 @@ const SuperAdminPage = () => {
 
         {activeTab === 'branding' && isSuper && (
           <BrandingManager />
+        )}
+
+        {activeTab === 'demo' && isSuper && (
+          <DemoDataManager />
         )}
 
         {activeTab === 'codes' && isSuper && (

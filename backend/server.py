@@ -4192,15 +4192,48 @@ async def get_control_panel_stats(user: dict = Depends(get_current_user), plan_i
             plan_phase_distribution = [
                 {"name": k, "value": round(v / tot * 100)} for k, v in phase_count.items()
             ]
-    
+
+    # Sobrescribir conteos de sesiones/eventos con datos reales del plan V2 + competencias
+    events_count = len(upcoming_events)
+    completion_rate_override = None
+    if active_plan_doc:
+        v2_plan = await db.planes_entrenamiento.find_one(
+            {"_v1_id": active_plan_doc["id"], "coach_id": user["id"]}, {"_id": 0, "id": 1}
+        )
+        if v2_plan:
+            macros2 = await db.macrociclos_v2.find({"plan_id": v2_plan["id"]}, {"_id": 0, "id": 1}).to_list(500)
+            mids = [m["id"] for m in macros2]
+            mesos2 = await db.mesociclos_v2.find({"macrociclo_id": {"$in": mids}}, {"_id": 0, "id": 1}).to_list(2000)
+            meids = [m["id"] for m in mesos2]
+            micros2 = await db.microciclos_v2.find({"mesociclo_id": {"$in": meids}}, {"_id": 0, "id": 1}).to_list(5000)
+            miids = [m["id"] for m in micros2]
+            ts = await db.sesiones_v2.count_documents({"microciclo_id": {"$in": miids}})
+            cs = await db.sesiones_v2.count_documents({"microciclo_id": {"$in": miids}, "completada": True})
+            today_str_s = datetime.now().strftime("%Y-%m-%d")
+            past_due = await db.sesiones_v2.count_documents(
+                {"microciclo_id": {"$in": miids}, "fecha": {"$ne": None, "$lt": today_str_s}}
+            )
+            if ts > 0:
+                total_sessions = ts
+                completed_sessions = cs
+                # Adherencia = completadas / sesiones vencidas (no sobre todo el plan futuro)
+                if past_due > 0:
+                    completion_rate_override = round((cs / past_due) * 100, 1)
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        comp_count = await db.plan_competitions.count_documents(
+            {"plan_id": active_plan_doc["id"], "user_id": user["id"], "date": {"$gte": today_str}}
+        )
+        if comp_count > 0:
+            events_count = comp_count
+
     return {
         "athletes_count": athletes_count,
         "athletes": athletes,
         "upcoming_events": upcoming_events[:10],
-        "upcoming_events_count": len(upcoming_events),
+        "upcoming_events_count": events_count,
         "total_sessions": total_sessions,
         "completed_sessions": completed_sessions,
-        "completion_rate": round((completed_sessions / total_sessions * 100), 1) if total_sessions > 0 else 0,
+        "completion_rate": completion_rate_override if completion_rate_override is not None else (round((completed_sessions / total_sessions * 100), 1) if total_sessions > 0 else 0),
         "periodization_stats": periodization_stats,
         "volume_data": (plan_volume_data or volume_data)[:52],
         "intensity_data": (plan_intensity_data or intensity_data)[:52],
@@ -8368,6 +8401,9 @@ app.include_router(calculator_results_router, prefix="/api")
 
 from routes.branding import router as branding_router
 app.include_router(branding_router, prefix="/api")
+
+from routes.demo_seed import router as demo_seed_router
+app.include_router(demo_seed_router)
 
 # Store db reference in app state for V2 routes
 app.state.db = db

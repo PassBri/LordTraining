@@ -167,4 +167,9 @@ export const activateBranding = (id) => axios.post(`${API}/branding/${id}/activa
 export const deleteBranding = (id) => axios.delete(`${API}/branding/${id}`, getAuthHeader());
 export const brandingFileUrl = (path) => `${BACKEND_URL}${path}`;
 
+// Demo / Onboarding seed
+export const seedDemoData = (planId = null) =>
+  axios.post(`${API}/admin/seed-demo-data`, { plan_id: planId, all_plans: !planId }, getAuthHeader());
+export const clearDemoData = () => axios.delete(`${API}/admin/seed-demo-data`, getAuthHeader());
+
 export default API;

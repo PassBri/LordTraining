@@ -2,6 +2,27 @@
 
 ## Credenciales: test@train.com / test123456
 
+## [Jun 2026] FASE 1 — Datos de Ejemplo / Onboarding (COMPLETADO)
+**Problema raíz**: todas las `sesiones_v2` tenían `fecha: null` (nunca migrada de v1), por eso el Panel de Control se veía vacío (calendario, comparativa semanal, distribución por capacidad).
+
+**Backend** `/app/backend/routes/demo_seed.py` (NUEVO, prefix `/api/admin`, registrado en server.py):
+- `POST /api/admin/seed-demo-data` body `{plan_id?, all_plans}` — asigna fechas a sesiones del/los plan(es) V2 del coach ancladas a `fecha_inicio`, marca pasadas como completadas (~85% determinista por hash), agrega `capacidad_principal` rotativa, micro `fecha_inicio/fin`, y siembra 3 competencias + 1 evaluación física + 5 indicadores si faltan. Idempotente, todo marcado `demo_seeded:true`.
+- `DELETE /api/admin/seed-demo-data` — revierte: limpia fechas/completado de sesiones demo y borra competencias/evaluaciones demo.
+- Verificado E2E: seed 188 ses (64 compl), revert 3855/30/10, re-seed OK.
+
+**Backend** `server.py` `/api/control-panel/stats`: cuando hay plan activo, ahora cuenta `total_sessions`/`completed_sessions` reales desde `sesiones_v2` del plan V2 (resuelto por `_v1_id`), `upcoming_events_count` desde `plan_competitions` futuras, y `completion_rate` = completadas/sesiones vencidas (adherencia realista, no sobre todo el plan futuro → 87.7%).
+
+**Frontend**:
+- `services/api.js`: `seedDemoData(planId)`, `clearDemoData()`.
+- `components/DemoDataManager.js` (NUEVO): UI con botón "Sembrar datos de ejemplo" + "Revertir" + resumen de totales. data-testids: `demo-data-manager`, `seed-demo-data-btn`, `clear-demo-data-btn`, `seed-demo-result`.
+- `pages/SuperAdminPage.js`: nuevo tab "Datos de Ejemplo" (icono Sparkles) → `<DemoDataManager />`.
+
+**Producción**: la BD de producción es separada. Para poblar producción: hacer DEPLOY → entrar a Super Admin (`/admin/super`) → tab "Datos de Ejemplo" → "Sembrar datos de ejemplo". El plan activo se elige en el dashboard (persistido en `localStorage.train_active_plan_id`).
+
+**Cambio de alcance FASE 2**: el usuario decidió NO usar WhatsApp/Twilio. En su lugar quiere un enlace público para enviar al atleta (ver FASE 3 - vista del atleta).
+
+
+
 ## [Feb 2026] Hotmart Payment Integration — FASE 1 (Code Ready, Awaiting Credentials)
 
 **Backend** (NUEVOS):
