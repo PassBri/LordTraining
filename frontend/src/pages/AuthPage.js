@@ -601,6 +601,14 @@ const AuthPage = () => {
               </p>
             </TabsContent>
           </Tabs>
+
+          <div className="flex items-center justify-center gap-3 mt-8 pt-5 border-t border-white/5" data-testid="auth-legal-links">
+            <Link to="/terminos" className="text-[11px] text-slate-600 hover:text-amber-400 transition-colors">Términos</Link>
+            <span className="text-slate-700">·</span>
+            <Link to="/privacidad" className="text-[11px] text-slate-600 hover:text-amber-400 transition-colors">Privacidad</Link>
+            <span className="text-slate-700">·</span>
+            <Link to="/politicas" className="text-[11px] text-slate-600 hover:text-amber-400 transition-colors">Políticas</Link>
+          </div>
         </div>
       </div>
 

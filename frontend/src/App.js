@@ -7,6 +7,7 @@ import { fetchActiveBranding, applyFavicon } from './utils/branding';
 
 // Pages
 import LandingPage from './pages/LandingPage';
+import LegalPage from './pages/LegalPage';
 import AuthPage from './pages/AuthPage';
 import DashboardPage from './pages/DashboardPage';
 import SubscriptionPage from './pages/SubscriptionPage';
@@ -62,6 +63,12 @@ function AppRoutes() {
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<LandingPage />} />
+      <Route path="/terminos" element={<LegalPage />} />
+      <Route path="/privacidad" element={<LegalPage />} />
+      <Route path="/politicas" element={<LegalPage />} />
+      <Route path="/terms" element={<LegalPage />} />
+      <Route path="/privacy" element={<LegalPage />} />
+      <Route path="/policies" element={<LegalPage />} />
       <Route path="/auth" element={
         <PublicRoute>
           <AuthPage />

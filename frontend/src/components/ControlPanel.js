@@ -1749,7 +1749,7 @@ const ControlPanel = ({
                   </div>
                   {s.notas && <p className="mt-2 text-[12px] text-slate-600 italic leading-snug border-l-2 border-slate-200 pl-2">"{s.notas}"</p>}
                   <Button
-                    onClick={() => { setSelectedCalendarDay(null); onNavigate && onNavigate('datos', 'period-structure'); }}
+                    onClick={() => { setSelectedCalendarDay(null); onNavigate && onNavigate('datos', 'period-structure', { week: micro?.numero_semana, date: s.fecha, sessionName: s.nombre }); }}
                     variant="ghost" size="sm" className="mt-3 w-full text-[11px] text-blue-700 hover:bg-blue-50 h-8"
                     data-testid={`panel-open-session-${s.id}`}
                   >

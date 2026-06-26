@@ -125,6 +125,7 @@ const DashboardPage = () => {
   const [savingAthlete, setSavingAthlete] = useState(false);
   const [savingEvent, setSavingEvent] = useState(false);
   const [periodizationData, setPeriodizationData] = useState(null);
+  const [periodizationFocus, setPeriodizationFocus] = useState(null);
   
   // Entity States for Athlete Affiliations
   const [entities, setEntities] = useState([]);
@@ -4022,6 +4023,7 @@ const DashboardPage = () => {
       return (
         <PeriodizationComplete
           activePlan={activePlan}
+          focusTarget={periodizationFocus}
           onPlanCreated={async (newPlan) => {
             await fetchTrainingPlans();
             if (newPlan?.apiId) {
@@ -4361,10 +4363,13 @@ const DashboardPage = () => {
     }
     
     // Panel de Control - Resumen visual con estadísticas y gráficos
-    const handleNavigateFromPanel = (panel, section) => {
+    const handleNavigateFromPanel = (panel, section, focus) => {
       setActivePanel(panel);
       if (section) {
         setActiveDataSection(section);
+      }
+      if (focus) {
+        setPeriodizationFocus({ ...focus, ts: Date.now() });
       }
     };
 

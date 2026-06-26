@@ -206,3 +206,9 @@
 - ControlPanel: click en un objetivo (tarjeta Objetivos del Plan) → onNavigate('datos','objectives'). Objetivos ahora son botones con icono ArrowUpRight en hover.
 - Click en "Ver/editar en Periodización" del modal de detalle de sesión → onNavigate('datos','period-structure') (PeriodizationComplete). Reemplazó el CustomEvent que no tenía listener.
 - Usa el mecanismo onNavigate/handleNavigateFromPanel ya existente en DashboardPage. Compila OK.
+
+## 2026-06-25 — Deep-link sesión→Periodización + Páginas Legales
+- DEEP-LINK: ControlPanel pasa onNavigate('datos','period-structure',{week,date,sessionName}). DashboardPage guarda periodizationFocus y lo pasa como focusTarget a PeriodizationComplete. Efecto en PeriodizationComplete: aplana micros, ubica por semana (o fecha), expande macro/meso/micro, scrollIntoView + resaltado (ring azul 3.5s) en data-testid=microcycle-{key}. Null-safe. NOTA: no testeable en preview (sesiones sin fecha); funcionará cuando las sesiones tengan fecha.
+- PÁGINAS LEGALES: nuevo /pages/LegalPage.js bilingüe (ES/EN según i18n) con 3 docs: Términos, Privacidad, Políticas (pestañas). Menciona Hotmart (pagos) e IA/GPT. Contacto: juegolaureado@gmail.com. Marca genérica 'LordTraining'.
+  Rutas en App.js: /terminos /privacidad /politicas (+ /terms /privacy /policies). Enlaces en footer de Landing y footer del Login. Verificado visualmente.
+- ACCIÓN USUARIO: REDEPLOY.

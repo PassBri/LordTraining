@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import InteractiveChart from './InteractiveChart';
 import usePlanStore from '../stores/planStore';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
@@ -230,7 +230,7 @@ const mirrorVI = (node) => {
 };
 
 // ============ COMPONENTE PRINCIPAL ============
-const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreated, showWizardOnly = false, onBack }) => {
+const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreated, showWizardOnly = false, onBack, focusTarget = null }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [activeView, setActiveView] = useState(showWizardOnly ? 'create' : 'history');
@@ -252,6 +252,40 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
   const [expandedMacro, setExpandedMacro] = useState(null);
   const [expandedMeso, setExpandedMeso] = useState(null);
   const [expandedMicro, setExpandedMicro] = useState(null);
+  const [highlightMicroKey, setHighlightMicroKey] = useState(null);
+
+  // ── Deep-link: abrir y resaltar el microciclo (semana) de una sesión venida del Panel ──
+  const lastFocusRef = useRef(null);
+  useEffect(() => {
+    if (!focusTarget || !focusTarget.week || !selectedPlan?.macrocycles) return;
+    const focusId = `${focusTarget.week}-${focusTarget.ts || ''}`;
+    if (lastFocusRef.current === focusId) return;
+    // Aplanar microciclos en orden para ubicar la semana global
+    let counter = 0; let found = null;
+    (selectedPlan.macrocycles || []).forEach((macro, macroIdx) => {
+      (macro.mesocycles || []).forEach((meso, mesoIdx) => {
+        (meso.microcycles || []).forEach((micro, microIdx) => {
+          counter += 1;
+          const matchByWeek = counter === focusTarget.week;
+          const matchByDate = focusTarget.date && micro.startDate && micro.startDate.slice(0, 10) === focusTarget.date.slice(0, 10);
+          if (!found && (matchByWeek || matchByDate)) found = { macroIdx, mesoIdx, microIdx };
+        });
+      });
+    });
+    if (!found) return;
+    lastFocusRef.current = focusId;
+    const microKey = `${found.macroIdx}-${found.mesoIdx}-${found.microIdx}`;
+    setActiveView('history');
+    setExpandedMacro(found.macroIdx);
+    setExpandedMeso(`${found.macroIdx}-${found.mesoIdx}`);
+    setExpandedMicro(microKey);
+    setHighlightMicroKey(microKey);
+    setTimeout(() => {
+      const el = document.querySelector(`[data-testid="microcycle-${microKey}"]`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 350);
+    setTimeout(() => setHighlightMicroKey(null), 3500);
+  }, [focusTarget, selectedPlan]);
   
   // Edit Modals
   const [editModal, setEditModal] = useState({ type: null, data: null, indices: null });
@@ -2394,7 +2428,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                             const microStartDate = micro.startDate || null;
 
                             return (
-                            <div key={micro.id} className="rounded-2xl overflow-hidden bg-white" style={{border:'1px solid rgba(0,0,0,0.06)',boxShadow:'0 1px 4px rgba(0,0,0,0.03)'}} data-testid={`microcycle-${microKey}`}>
+                            <div key={micro.id} className="rounded-2xl overflow-hidden bg-white transition-all" style={{border: highlightMicroKey === microKey ? '2px solid #3B82F6' : '1px solid rgba(0,0,0,0.06)', boxShadow: highlightMicroKey === microKey ? '0 0 0 4px rgba(59,130,246,0.18)' : '0 1px 4px rgba(0,0,0,0.03)'}} data-testid={`microcycle-${microKey}`}>
                               {/* ── Micro Header ── */}
                               <div
                                 className="flex items-center justify-between px-4 py-3 cursor-pointer transition-all"

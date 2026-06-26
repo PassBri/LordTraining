@@ -1338,9 +1338,9 @@ const LandingPage = () => {
         <div className="pt-6 border-t border-slate-800/40 flex items-center justify-between">
           <p className="text-[12px] text-slate-600">© 2026 LordTraining. {t('landing.footer.copyright')}</p>
           <div className="flex gap-4">
-            {['Términos','Privacidad'].map(l => (
-              <span key={l} className="text-[12px] text-slate-600 hover:text-slate-400 cursor-pointer transition-colors">{l}</span>
-            ))}
+            <Link to="/terminos" className="text-[12px] text-slate-600 hover:text-amber-400 cursor-pointer transition-colors" data-testid="footer-link-terms">{t('legal.terms', 'Términos')}</Link>
+            <Link to="/privacidad" className="text-[12px] text-slate-600 hover:text-amber-400 cursor-pointer transition-colors" data-testid="footer-link-privacy">{t('legal.privacy', 'Privacidad')}</Link>
+            <Link to="/politicas" className="text-[12px] text-slate-600 hover:text-amber-400 cursor-pointer transition-colors" data-testid="footer-link-policies">{t('legal.policies', 'Políticas')}</Link>
           </div>
         </div>
       </div>
