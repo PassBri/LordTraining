@@ -4665,7 +4665,7 @@ const DashboardPage = () => {
               {alertsOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setAlertsOpen(false)} />
-                  <div className="absolute right-0 top-12 z-50 w-80 rounded-xl bg-white shadow-xl border border-slate-150 p-2 max-h-[60vh] overflow-y-auto" data-testid="alerts-menu">
+                  <div className="fixed top-[70px] right-4 z-[70] w-80 rounded-xl bg-white shadow-xl border border-slate-150 p-2 max-h-[70vh] overflow-y-auto" data-testid="alerts-menu">
                     <button
                       onClick={() => { setAlertsOpen(false); setSummaryOpen(true); }}
                       className="w-full flex items-center justify-between gap-2 px-2.5 py-2 mb-1 rounded-lg text-sm font-semibold text-[#007AFF] bg-blue-50 hover:bg-blue-100"
@@ -4715,7 +4715,7 @@ const DashboardPage = () => {
               {demoMenuOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setDemoMenuOpen(false)} />
-                  <div className="absolute right-0 top-12 z-50 w-60 rounded-xl bg-white shadow-xl border border-slate-150 p-2" data-testid="demo-data-menu">
+                  <div className="fixed top-[70px] right-4 z-[70] w-60 rounded-xl bg-white shadow-xl border border-slate-150 p-2" data-testid="demo-data-menu">
                     <p className="text-[11px] text-slate-400 px-2 py-1">Datos de ejemplo (onboarding)</p>
                     <button
                       onClick={handleSeedDemo}
