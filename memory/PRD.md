@@ -2,6 +2,17 @@
 
 ## Credenciales: test@train.com / test123456
 
+## [Jun 2026] Alertas proactivas del coach (prevención de lesiones)
+**Backend** `routes/coach_metrics.py` → `GET /api/coach/metrics/alerts`:
+- Alerta **ACWR**: por cada plan del coach, si ACWR actual está en zona precaución (1.3–1.5, medium) o riesgo (>1.5, high); nombra atletas con `assigned_plan_id` = ese plan.
+- Alerta **readiness**: por atleta, si tiene ≥3 días consecutivos recientes con disponibilidad < 60% (≥5 = high). Helper `_readiness_streak`.
+- Helpers `_zone(acwr)` y `_plan_acwr(db, plan_id, coach_id)`.
+- Ajuste: `_session_load` ya no usa fallback RPE=6; si no hay RPE reportado ni planificado, la carga es 0 (no infla el ACWR).
+
+**Frontend** `DashboardPage.js`: FAB campana **"Alertas"** en la barra superior con badge de conteo (`alerts-fab`, `alerts-count-badge`) y dropdown (`alerts-menu`, `alert-item-N`) que lista las alertas con severidad (rojo=high, ámbar=medium). Fetch al montar.
+
+
+
 ## [Jun 2026] FASE 4 + Onboarding + Recordatorio + Migración (COMPLETADO, 11/11 tests + E2E)
 **Métricas avanzadas del coach** `routes/coach_metrics.py` → `GET /api/coach/metrics?plan_id=`:
 - ACWR (carga aguda 7d / crónica 28d, carga = duración×RPE de sesiones completadas) con serie semanal + zona (bajo/óptimo/precaución/riesgo).

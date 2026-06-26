@@ -20,7 +20,7 @@ import {
   Building2, Building, GraduationCap, Trophy, Timer, Flame, Gamepad2, Lightbulb, X, Trash2,
   Medal, MapPin, LayoutGrid, GitBranch, Share2, History, Filter, CreditCard, Sparkles,
   AlertTriangle, CheckCircle, TrendingUp, RefreshCw, Clock, Edit, Copy, Printer, Gauge, Wrench,
-  Stethoscope, CalendarDays, ClipboardList, Calculator, UsersRound, ListChecks, PieChart, MessageCircle, Link as LinkIcon, ArrowRight, FileBarChart2, Crown
+  Stethoscope, CalendarDays, ClipboardList, Calculator, UsersRound, ListChecks, PieChart, MessageCircle, Link as LinkIcon, ArrowRight, FileBarChart2, Crown, Bell
 } from 'lucide-react';
 import { 
   LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, 
@@ -1665,6 +1665,19 @@ const DashboardPage = () => {
   // Demo data (onboarding) — top bar
   const [demoMenuOpen, setDemoMenuOpen] = useState(false);
   const [demoBusy, setDemoBusy] = useState(null);
+
+  // Alertas proactivas del coach (ACWR riesgo + baja disponibilidad)
+  const [coachAlerts, setCoachAlerts] = useState([]);
+  const [alertsOpen, setAlertsOpen] = useState(false);
+  useEffect(() => {
+    const token = localStorage.getItem('train_token');
+    if (!token) return;
+    fetch(`${API_URL}/api/coach/metrics/alerts`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d) setCoachAlerts(d.alerts || []); })
+      .catch(() => {});
+  }, []);
+
   const handleSeedDemo = async () => {
     setDemoBusy('seed');
     try {
@@ -4613,6 +4626,53 @@ const DashboardPage = () => {
 
           {/* Right: Testing + User Action FABs */}
           <div className="flex items-start gap-2 shrink-0 pl-2">
+            {/* Alertas proactivas FAB */}
+            <div className="relative">
+              <button
+                onClick={() => setAlertsOpen(o => !o)}
+                className="group flex flex-col items-center gap-1 shrink-0 outline-none relative"
+                data-testid="alerts-fab"
+                title="Alertas de prevención (ACWR / disponibilidad)"
+              >
+                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg hover:text-rose-500">
+                  <Bell className="w-[18px] h-[18px] transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
+                  {coachAlerts.length > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] px-1 rounded-full bg-rose-500 border-2 border-white flex items-center justify-center text-[9px] font-bold text-white" data-testid="alerts-count-badge">
+                      {coachAlerts.length}
+                    </span>
+                  )}
+                </div>
+                <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-rose-500 transition-colors duration-300">
+                  Alertas
+                </span>
+              </button>
+              {alertsOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setAlertsOpen(false)} />
+                  <div className="absolute right-0 top-12 z-50 w-80 rounded-xl bg-white shadow-xl border border-slate-150 p-2 max-h-[60vh] overflow-y-auto" data-testid="alerts-menu">
+                    <p className="text-[11px] text-slate-400 px-2 py-1 flex items-center gap-1.5"><Bell className="w-3 h-3" />Prevención de lesiones</p>
+                    {coachAlerts.length === 0 ? (
+                      <div className="flex items-center gap-2 px-2.5 py-4 text-sm text-slate-500">
+                        <CheckCircle className="w-4 h-4 text-emerald-500" />Sin alertas. Todo en orden.
+                      </div>
+                    ) : (
+                      coachAlerts.map((a, i) => (
+                        <div key={i} className={`rounded-lg p-2.5 mb-1.5 border ${a.severity === 'high' ? 'bg-red-50 border-red-150' : 'bg-amber-50 border-amber-150'}`} data-testid={`alert-item-${i}`}>
+                          <div className="flex items-start gap-2">
+                            <AlertTriangle className={`w-4 h-4 mt-0.5 shrink-0 ${a.severity === 'high' ? 'text-red-500' : 'text-amber-500'}`} />
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold text-slate-800">{a.title}</p>
+                              <p className="text-xs text-slate-500 mt-0.5">{a.message}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+
             {/* Demo data FAB — siempre visible para cualquier coach */}
             <div className="relative">
               <button
