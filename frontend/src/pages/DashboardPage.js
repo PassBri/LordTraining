@@ -4427,13 +4427,13 @@ const DashboardPage = () => {
                   >
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
                       isActive
-                        ? `${nav.color} text-white shadow-lg ${nav.shadow}`
-                        : 'bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg'
+                        ? `${nav.color} text-white shadow-lg ${nav.shadow} ring-2 ring-offset-2 ring-slate-900/25 scale-110`
+                        : 'bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg hover:scale-105'
                     }`}>
                       <NavIcon className={`w-[18px] h-[18px] transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:text-slate-700'}`} strokeWidth={isActive ? 2.5 : 1.8} />
                     </div>
-                    <span className={`text-[8px] font-bold tracking-wide leading-tight text-center max-w-[56px] transition-colors duration-300 ${
-                      isActive ? 'text-slate-900' : 'text-slate-400 group-hover:text-slate-600'
+                    <span className={`text-[10px] tracking-wide leading-tight text-center max-w-[60px] transition-colors duration-300 ${
+                      isActive ? 'text-slate-900 font-bold' : 'text-slate-400 font-medium group-hover:text-slate-600'
                     }`}>
                       {nav.label}
                     </span>
@@ -4454,7 +4454,7 @@ const DashboardPage = () => {
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${scoutActive ? 'bg-slate-900 text-[#CCFF00] shadow-lg shadow-slate-900/30' : 'bg-white text-slate-700 shadow-md border-2 border-[#CCFF00] hover:shadow-lg hover:bg-[#CCFF00]/15'}`}>
                       <Target className="w-[18px] h-[18px] transition-transform duration-300" strokeWidth={scoutActive ? 2.5 : 2} />
                     </div>
-                    <span className={`text-[8px] font-bold tracking-wide leading-tight text-center max-w-[60px] transition-colors duration-300 ${scoutActive ? 'text-slate-900' : 'text-slate-700 group-hover:text-slate-900'}`}>
+                    <span className={`text-[10px] font-bold tracking-wide leading-tight text-center max-w-[60px] transition-colors duration-300 ${scoutActive ? 'text-slate-900' : 'text-slate-700 group-hover:text-slate-900'}`}>
                       Scouting
                     </span>
                   </button>
@@ -4471,7 +4471,7 @@ const DashboardPage = () => {
                 <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-700 shadow-md border-2 border-[#CCFF00] hover:shadow-lg hover:bg-[#CCFF00]/15">
                   <FileBarChart2 className="w-[18px] h-[18px] transition-transform duration-300" strokeWidth={2} />
                 </div>
-                <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-700 group-hover:text-slate-900 transition-colors duration-300 max-w-[60px]">
+                <span className="text-[10px] font-bold tracking-wide leading-tight text-center text-slate-700 group-hover:text-slate-900 transition-colors duration-300 max-w-[60px]">
                   Reporte
                 </span>
               </button>
@@ -4492,7 +4492,7 @@ const DashboardPage = () => {
                 <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-700 shadow-md border-2 border-sky-400 hover:shadow-lg hover:bg-sky-50">
                   <CalendarDays className="w-[18px] h-[18px] transition-transform duration-300" strokeWidth={2} />
                 </div>
-                <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-700 group-hover:text-slate-900 transition-colors duration-300 max-w-[60px]">
+                <span className="text-[10px] font-bold tracking-wide leading-tight text-center text-slate-700 group-hover:text-slate-900 transition-colors duration-300 max-w-[60px]">
                   Sesiones
                 </span>
               </button>
@@ -4523,13 +4523,13 @@ const DashboardPage = () => {
                     >
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
                         isActive
-                          ? `${colors.bg} text-white shadow-lg ${colors.shadow}`
-                          : `${colors.light} ${colors.text} shadow-sm hover:shadow-md`
+                          ? `${colors.bg} text-white shadow-lg ${colors.shadow} ring-2 ring-offset-2 ring-slate-900/15 scale-110`
+                          : `bg-white text-slate-400 border border-slate-200 shadow-sm hover:shadow-md hover:scale-105`
                       }`}>
-                        <SectionIcon className={`w-[18px] h-[18px] transition-transform duration-300 ${isActive ? 'text-white' : ''}`} strokeWidth={isActive ? 2.5 : 1.8} />
+                        <SectionIcon className={`w-[18px] h-[18px] transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:text-slate-600'}`} strokeWidth={isActive ? 2.5 : 1.8} />
                       </div>
-                      <span className={`text-[8px] font-bold tracking-wide leading-tight text-center max-w-[56px] transition-colors duration-300 ${
-                        isActive ? colors.text : 'text-slate-400 group-hover:text-slate-600'
+                      <span className={`text-[10px] tracking-wide leading-tight text-center max-w-[60px] transition-colors duration-300 ${
+                        isActive ? `${colors.text} font-bold` : 'text-slate-400 font-medium group-hover:text-slate-600'
                       }`}>
                         {section.title}
                       </span>
@@ -4555,13 +4555,13 @@ const DashboardPage = () => {
                         >
                           <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
                             isActive
-                              ? `${currentColors.bg} text-white shadow-lg ${currentColors.shadow}`
-                              : `bg-white ${currentColors.text} border-2 ${currentColors.border} shadow-sm hover:shadow-md`
+                              ? `${currentColors.bg} text-white shadow-lg ${currentColors.shadow} ring-2 ring-offset-2 ring-slate-900/15 scale-110`
+                              : `bg-white text-slate-400 border border-slate-200 shadow-sm hover:shadow-md hover:scale-105`
                           }`}>
-                            <ItemIcon className={`w-[18px] h-[18px] transition-transform duration-300 ${isActive ? 'text-white' : ''}`} strokeWidth={isActive ? 2.5 : 1.8} />
+                            <ItemIcon className={`w-[18px] h-[18px] transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:text-slate-600'}`} strokeWidth={isActive ? 2.5 : 1.8} />
                           </div>
-                          <span className={`text-[8px] font-bold tracking-wide text-center max-w-[56px] leading-tight transition-colors duration-300 ${
-                            isActive ? currentColors.text : 'text-slate-400 group-hover:text-slate-600'
+                          <span className={`text-[10px] text-center max-w-[60px] leading-tight transition-colors duration-300 ${
+                            isActive ? `${currentColors.text} font-bold` : 'text-slate-400 font-medium group-hover:text-slate-600'
                           }`}>
                             {item.label}
                           </span>
@@ -4604,7 +4604,7 @@ const DashboardPage = () => {
                     <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-purple-600 border-2 border-white" />
                   )}
                 </div>
-                <span className={`text-[8px] font-bold tracking-wide leading-tight text-center transition-colors duration-300 ${
+                <span className={`text-[10px] font-bold tracking-wide leading-tight text-center transition-colors duration-300 ${
                   user?.is_super_admin ? 'text-purple-700' : (canManageOrg ? 'text-slate-400 group-hover:text-emerald-600' : 'text-slate-300 group-hover:text-slate-400')
                 }`}>
                   Admin
@@ -4621,7 +4621,7 @@ const DashboardPage = () => {
                 <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg hover:text-violet-600">
                   <CreditCard className="w-[18px] h-[18px] transition-transform duration-300 group-hover:text-violet-600" strokeWidth={1.8} />
                 </div>
-                <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-violet-600 transition-colors duration-300">
+                <span className="text-[10px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-violet-600 transition-colors duration-300">
                   Plan
                 </span>
               </button>
@@ -4636,7 +4636,7 @@ const DashboardPage = () => {
               <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg hover:text-red-500">
                 <LogOut className="w-[18px] h-[18px] transition-transform duration-300 group-hover:text-red-500" strokeWidth={1.8} />
               </div>
-              <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-red-500 transition-colors duration-300">
+              <span className="text-[10px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-red-500 transition-colors duration-300">
                 Salir
               </span>
             </button>

@@ -212,3 +212,14 @@
 - PÁGINAS LEGALES: nuevo /pages/LegalPage.js bilingüe (ES/EN según i18n) con 3 docs: Términos, Privacidad, Políticas (pestañas). Menciona Hotmart (pagos) e IA/GPT. Contacto: juegolaureado@gmail.com. Marca genérica 'LordTraining'.
   Rutas en App.js: /terminos /privacidad /politicas (+ /terms /privacy /policies). Enlaces en footer de Landing y footer del Login. Verificado visualmente.
 - ACCIÓN USUARIO: REDEPLOY.
+
+## 2026-06-25 — Mejora UX barra de navegación (Dashboard)
+- Problema: estado activo poco claro + demasiados círculos de colores juntos (confusión). Diseño vía design_agent (/app/design_guidelines.json).
+- Implementado patrón "neutralizar inactivos / enfatizar activo" (bajo riesgo, sin cambiar layout):
+  - Inactivos: círculo blanco neutro + icono/label gris (antes todos con color → "arcoíris").
+  - Activo: relleno de color + ring-2 ring-offset-2 + scale-110 + label en negrita con color de sección.
+  - Aplicado a los 3 grupos: Nav principal (Panel/Datos/Scouting/Reporte/Sesiones), Secciones (7) y Sub-secciones.
+  - Etiquetas: de text-[8px] → text-[10px] en todo el header (legibilidad).
+- Verificado visualmente: activos (Datos azul, Diagnóstico/Plan Anterior rojo) resaltan claramente sobre los neutros.
+- OPCIÓN FUTURA (no implementada): rediseño mayor a Topbar + Sidebar lateral con acordeón (blueprint en design_guidelines.json) si se quiere separación total de jerarquía.
+- ACCIÓN USUARIO: REDEPLOY.
