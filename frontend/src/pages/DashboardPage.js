@@ -68,6 +68,7 @@ import PDFExportModal from '../components/PDFExportModal';
 import MasterReportModal from '../components/MasterReportModal';
 import SessionsExportModal from '../components/SessionsExportModal';
 import AthletePortalShareModal from '../components/AthletePortalShareModal';
+import WeeklySummaryModal from '../components/WeeklySummaryModal';
 import LoadPanel from '../components/LoadPanel';
 import FederationPanel from '../components/FederationPanel';
 import ObjectivesIndicators from '../components/ObjectivesIndicators';
@@ -1669,12 +1670,27 @@ const DashboardPage = () => {
   // Alertas proactivas del coach (ACWR riesgo + baja disponibilidad)
   const [coachAlerts, setCoachAlerts] = useState([]);
   const [alertsOpen, setAlertsOpen] = useState(false);
+  const [weeklySummary, setWeeklySummary] = useState(null);
+  const [summaryOpen, setSummaryOpen] = useState(false);
   useEffect(() => {
     const token = localStorage.getItem('train_token');
     if (!token) return;
     fetch(`${API_URL}/api/coach/metrics/alerts`, { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d) setCoachAlerts(d.alerts || []); })
+      .catch(() => {});
+    fetch(`${API_URL}/api/coach/metrics/weekly-summary`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (!d) return;
+        setWeeklySummary(d);
+        // Apertura automática los lunes (una vez por semana)
+        const seenKey = `weekly_summary_seen_${d.week_start}`;
+        if (new Date().getDay() === 1 && !localStorage.getItem(seenKey)) {
+          setSummaryOpen(true);
+          localStorage.setItem(seenKey, '1');
+        }
+      })
       .catch(() => {});
   }, []);
 
@@ -4650,6 +4666,14 @@ const DashboardPage = () => {
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setAlertsOpen(false)} />
                   <div className="absolute right-0 top-12 z-50 w-80 rounded-xl bg-white shadow-xl border border-slate-150 p-2 max-h-[60vh] overflow-y-auto" data-testid="alerts-menu">
+                    <button
+                      onClick={() => { setAlertsOpen(false); setSummaryOpen(true); }}
+                      className="w-full flex items-center justify-between gap-2 px-2.5 py-2 mb-1 rounded-lg text-sm font-semibold text-[#007AFF] bg-blue-50 hover:bg-blue-100"
+                      data-testid="open-weekly-summary-btn"
+                    >
+                      <span className="flex items-center gap-1.5"><TrendingUp className="w-4 h-4" />Ver resumen semanal</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
                     <p className="text-[11px] text-slate-400 px-2 py-1 flex items-center gap-1.5"><Bell className="w-3 h-3" />Prevención de lesiones</p>
                     {coachAlerts.length === 0 ? (
                       <div className="flex items-center gap-2 px-2.5 py-4 text-sm text-slate-500">
@@ -4914,6 +4938,13 @@ const DashboardPage = () => {
         onOpenChange={setIsAthletePortalOpen}
         plan={activePlan}
         athletes={athletes}
+      />
+
+      {/* Resumen semanal del coach */}
+      <WeeklySummaryModal
+        open={summaryOpen}
+        onOpenChange={setSummaryOpen}
+        summary={weeklySummary}
       />
     </div>
   );

@@ -134,9 +134,12 @@ async def _readiness_streak(db, athlete_id, threshold=60):
 async def coach_alerts(request: Request, coach: dict = Depends(get_current_coach)):
     """Alertas proactivas: ACWR en riesgo + baja disponibilidad sostenida."""
     db = get_db(request)
-    uid = coach["id"]
-    alerts = []
+    alerts = await _build_alerts(db, coach["id"])
+    return {"alerts": alerts, "count": len(alerts)}
 
+
+async def _build_alerts(db, uid):
+    alerts = []
     # 1) ACWR en zona de precaución/riesgo por plan
     plans = await db.training_plans.find({"coach_id": uid}, {"_id": 0, "id": 1, "name": 1}).to_list(200)
     for p in plans:
@@ -155,7 +158,6 @@ async def coach_alerts(request: Request, coach: dict = Depends(get_current_coach
                             + (f" Atletas: {names}." if names else "")),
                 "value": acwr,
             })
-
     # 2) Baja disponibilidad sostenida (>= 3 días seguidos)
     athletes = await db.athletes.find({"coach_id": uid}, {"_id": 0, "id": 1, "name": 1}).to_list(500)
     for a in athletes:
@@ -169,10 +171,59 @@ async def coach_alerts(request: Request, coach: dict = Depends(get_current_coach
                 "message": f"{streak} días seguidos con disponibilidad < 60%. Considera ajustar carga o descanso.",
                 "value": streak,
             })
-
     order = {"high": 0, "medium": 1, "low": 2}
     alerts.sort(key=lambda x: order.get(x["severity"], 9))
-    return {"alerts": alerts, "count": len(alerts)}
+    return alerts
+
+
+@router.get("/weekly-summary")
+async def weekly_summary(request: Request, coach: dict = Depends(get_current_coach)):
+    """Resumen de la semana actual (lunes–domingo) para revisión rápida."""
+    db = get_db(request)
+    uid = coach["id"]
+    today = date.today()
+    week_start = today - timedelta(days=today.weekday())  # lunes
+    week_end = week_start + timedelta(days=6)
+
+    plans = await db.training_plans.find({"coach_id": uid}, {"_id": 0, "id": 1, "name": 1}).to_list(200)
+    sessions_total = 0
+    completed = 0
+    due = 0
+    capacities = {}
+    for p in plans:
+        payload = await _plan_sessions_payload(db, p["id"], uid)
+        for s in payload.get("sessions", []):
+            d = _parse(s.get("fecha"))
+            if d and week_start <= d <= week_end:
+                sessions_total += 1
+                if d <= today:
+                    due += 1
+                    if s.get("completada"):
+                        completed += 1
+                cap = (s.get("capacidad_principal") or "general")
+                capacities[cap] = capacities.get(cap, 0) + 1
+    adherence = round(completed / due * 100) if due else 0
+    top_caps = sorted(capacities.items(), key=lambda x: -x[1])[:3]
+
+    alerts = await _build_alerts(db, uid)
+    acwr_risk = [a for a in alerts if a["type"] == "acwr"]
+    low_today = await _low_readiness(db, uid)
+    streak_alerts = [a for a in alerts if a["type"] == "readiness"]
+
+    return {
+        "week_start": week_start.isoformat(),
+        "week_end": week_end.isoformat(),
+        "sessions_total": sessions_total,
+        "sessions_completed": completed,
+        "sessions_due": due,
+        "adherence": adherence,
+        "top_capacities": [{"name": k, "count": v} for k, v in top_caps],
+        "athletes_acwr_risk": len(acwr_risk),
+        "athletes_low_readiness_today": len(low_today),
+        "athletes_low_readiness_streak": len(streak_alerts),
+        "alerts_total": len(alerts),
+        "alerts": alerts[:5],
+    }
 
 
 @router.get("")

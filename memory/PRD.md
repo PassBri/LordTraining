@@ -2,6 +2,18 @@
 
 ## Credenciales: test@train.com / test123456
 
+## [Jun 2026] Resumen semanal del coach
+**Backend** `routes/coach_metrics.py`:
+- Refactor: lógica de alertas extraída a `_build_alerts(db, uid)` (reutilizada por /alerts y /weekly-summary).
+- `GET /api/coach/metrics/weekly-summary`: semana actual (lunes–domingo) → sesiones_total/completed/due, adherencia %, top 3 capacidades, atletas_acwr_risk, atletas_low_readiness_today/streak, alerts_total + primeras 5 alertas.
+
+**Frontend** `components/WeeklySummaryModal.js` + `DashboardPage.js`:
+- Modal con KPIs de un vistazo (adherencia, sesiones, riesgo ACWR, baja disponibilidad), capacidades y alertas activas.
+- Botón "Ver resumen semanal" (`open-weekly-summary-btn`) en el dropdown de Alertas.
+- **Apertura automática los lunes** (gated por localStorage `weekly_summary_seen_<week_start>`).
+
+
+
 ## [Jun 2026] Alertas proactivas del coach (prevención de lesiones)
 **Backend** `routes/coach_metrics.py` → `GET /api/coach/metrics/alerts`:
 - Alerta **ACWR**: por cada plan del coach, si ACWR actual está en zona precaución (1.3–1.5, medium) o riesgo (>1.5, high); nombra atletas con `assigned_plan_id` = ese plan.
