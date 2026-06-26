@@ -2248,7 +2248,7 @@ const DashboardPage = () => {
                     }`}>
                       {athlete.name?.charAt(0)?.toUpperCase()}
                     </div>
-                    <span className={`text-[10px] max-w-[48px] truncate font-medium transition-colors ${
+                    <span className={`text-[8px] max-w-[48px] truncate font-medium transition-colors ${
                       selectedAthleteId === athlete.id ? 'text-[#1565C0]' : 'text-slate-400 group-hover:text-slate-600'
                     }`}>
                       {athlete.name?.split(' ')[0]}
@@ -2275,7 +2275,7 @@ const DashboardPage = () => {
                 >
                   <Plus className="w-4 h-4" />
                 </button>
-                <span className="text-[10px] text-slate-400">{athletes.length}</span>
+                <span className="text-[8px] text-slate-400">{athletes.length}</span>
               </div>
             </div>
 
@@ -2578,7 +2578,7 @@ const DashboardPage = () => {
                                       </div>
                                       <div className="min-w-0 flex-1">
                                         <div className="font-bold text-[13px] text-slate-900 leading-tight truncate">{sport.name}</div>
-                                        <div className="text-[10px] font-semibold uppercase tracking-wider mt-0.5" style={{ color: ringColor }}>
+                                        <div className="text-[8px] font-semibold uppercase tracking-wider mt-0.5" style={{ color: ringColor }}>
                                           {pct === 100 ? 'Completo' : pct >= 40 ? 'Parcial' : 'Sin caracterizar'}
                                         </div>
                                       </div>
@@ -2614,12 +2614,12 @@ const DashboardPage = () => {
                                   {/* Footer: caracterización badge + actions */}
                                   <div className="flex items-center justify-between pt-2 border-t border-slate-100">
                                     {sport.characterization && Object.keys(sport.characterization).length > 0 ? (
-                                      <div className="flex items-center gap-1 text-[10px] font-semibold text-emerald-700">
+                                      <div className="flex items-center gap-1 text-[8px] font-semibold text-emerald-700">
                                         <CheckCircle className="w-3 h-3" />
                                         <span>Caracterización guardada</span>
                                       </div>
                                     ) : (
-                                      <div className="flex items-center gap-1 text-[10px] font-medium text-slate-400 italic">
+                                      <div className="flex items-center gap-1 text-[8px] font-medium text-slate-400 italic">
                                         <FileText className="w-3 h-3" />
                                         <span>Sin caracterizar</span>
                                       </div>
@@ -3127,7 +3127,7 @@ const DashboardPage = () => {
                 <p className="text-[11px] text-slate-500 italic">Pico anual · objetivo principal del macrociclo</p>
                 {[0, 1, 2].map((idx) => (
                   <div key={idx} className="flex items-start gap-2">
-                    <span className="w-5 h-5 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
+                    <span className="w-5 h-5 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center text-[8px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
                     <textarea data-testid={`obj-largo-${idx}`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500" rows={2} placeholder={`Objetivo ${idx + 1}...`} value={objectivesData.largoPlazo[idx]} onChange={(e) => { const arr = [...objectivesData.largoPlazo]; arr[idx] = e.target.value; setObjectivesData({...objectivesData, largoPlazo: arr}); }} />
                   </div>
                 ))}
@@ -3149,7 +3149,7 @@ const DashboardPage = () => {
                 <p className="text-[11px] text-slate-500 italic">Bloques 4-6 semanas · capacidades específicas</p>
                 {[0, 1, 2].map((idx) => (
                   <div key={idx} className="flex items-start gap-2">
-                    <span className="w-5 h-5 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
+                    <span className="w-5 h-5 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center text-[8px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
                     <textarea data-testid={`obj-medio-${idx}`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500" rows={2} placeholder={`Objetivo ${idx + 1}...`} value={objectivesData.medianoPlazo[idx]} onChange={(e) => { const arr = [...objectivesData.medianoPlazo]; arr[idx] = e.target.value; setObjectivesData({...objectivesData, medianoPlazo: arr}); }} />
                   </div>
                 ))}
@@ -3171,7 +3171,7 @@ const DashboardPage = () => {
                 <p className="text-[11px] text-slate-500 italic">Semana actual · sesiones inmediatas</p>
                 {[0, 1, 2].map((idx) => (
                   <div key={idx} className="flex items-start gap-2">
-                    <span className="w-5 h-5 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
+                    <span className="w-5 h-5 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-[8px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
                     <textarea data-testid={`obj-corto-${idx}`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500" rows={2} placeholder={`Objetivo ${idx + 1}...`} value={objectivesData.cortoPlazo[idx]} onChange={(e) => { const arr = [...objectivesData.cortoPlazo]; arr[idx] = e.target.value; setObjectivesData({...objectivesData, cortoPlazo: arr}); }} />
                   </div>
                 ))}
@@ -3185,7 +3185,7 @@ const DashboardPage = () => {
               <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
                 <Layers className="w-4 h-4 text-violet-500" />
                 Objetivos por Aspecto de Preparación
-                <span className="ml-auto text-[10px] font-medium text-slate-500 italic">7 aspectos deportivos</span>
+                <span className="ml-auto text-[8px] font-medium text-slate-500 italic">7 aspectos deportivos</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
@@ -3193,9 +3193,9 @@ const DashboardPage = () => {
                 <table className="w-full">
                   <thead className="bg-slate-900">
                     <tr>
-                      <th className="px-3 py-2 text-left text-[10px] font-black uppercase tracking-wider w-44" style={{ color: '#CCFF00' }}>Aspecto</th>
-                      <th className="px-3 py-2 text-left text-[10px] font-black uppercase tracking-wider" style={{ color: '#CCFF00' }}>Objetivo</th>
-                      <th className="px-3 py-2 text-left text-[10px] font-black uppercase tracking-wider w-72" style={{ color: '#CCFF00' }}>Indicador</th>
+                      <th className="px-3 py-2 text-left text-[8px] font-black uppercase tracking-wider w-44" style={{ color: '#CCFF00' }}>Aspecto</th>
+                      <th className="px-3 py-2 text-left text-[8px] font-black uppercase tracking-wider" style={{ color: '#CCFF00' }}>Objetivo</th>
+                      <th className="px-3 py-2 text-left text-[8px] font-black uppercase tracking-wider w-72" style={{ color: '#CCFF00' }}>Indicador</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -3401,7 +3401,7 @@ const DashboardPage = () => {
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-xs font-bold text-slate-800 truncate">{obj}</span>
                           <div className="flex items-center gap-2 flex-shrink-0">
-                            <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${estado.text}`} style={{ background: estado.color + '22', border: `1px solid ${estado.color}50` }}>
+                            <span className={`inline-block px-2 py-0.5 rounded-full text-[8px] font-bold ${estado.text}`} style={{ background: estado.color + '22', border: `1px solid ${estado.color}50` }}>
                               {estado.lbl}
                             </span>
                             <span className="text-sm font-black tabular-nums" style={{ color: estado.color, minWidth: '42px', textAlign: 'right' }}>{pct}%</span>
@@ -3454,14 +3454,14 @@ const DashboardPage = () => {
                       <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                         <div className="flex items-center gap-2">
                           <span className="text-[12px] lg:text-[13px] font-black uppercase tracking-[0.2em]">% Global de Cumplimiento</span>
-                          <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-slate-900/85 text-[#CCFF00] uppercase tracking-wider">Auto</span>
+                          <span className="text-[8px] font-bold px-2 py-1 rounded-md bg-slate-900/85 text-[#CCFF00] uppercase tracking-wider">Auto</span>
                         </div>
                         <span className="text-5xl lg:text-6xl font-black tabular-nums leading-none" data-testid="prev-porcentaje-global" style={{ color: '#0f172a', letterSpacing: '-0.04em' }}>{pctG}<span className="text-2xl lg:text-3xl font-bold ml-1 align-top">%</span></span>
                       </div>
                       <div className="h-4 lg:h-5 bg-black/15 rounded-full overflow-hidden mt-2 shadow-inner">
                         <div className="h-full rounded-full transition-all duration-700 shadow-md" style={{ width: `${pctG}%`, background: 'linear-gradient(90deg, #0f172a 0%, #1e293b 100%)' }} />
                       </div>
-                      <div className="flex items-center justify-between mt-3 text-[10px] lg:text-[11px] text-slate-800/75 font-semibold">
+                      <div className="flex items-center justify-between mt-3 text-[8px] lg:text-[11px] text-slate-800/75 font-semibold">
                         <span className="italic">Promedio automático de las 7 áreas</span>
                         <span className="uppercase tracking-wider">{pctG >= 85 ? '✓ Excelente' : pctG >= 70 ? '◐ Bueno' : pctG >= 50 ? '○ Aceptable' : '◌ Mejorar'}</span>
                       </div>
@@ -3483,7 +3483,7 @@ const DashboardPage = () => {
                 <p className="text-[11px] text-slate-500">¿Qué funcionó bien? ¿Qué aspectos se deben mantener?</p>
                 {[0, 1, 2].map((idx) => (
                   <div key={idx} className="flex items-start gap-2">
-                    <span className="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
+                    <span className="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-[8px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
                     <textarea data-testid={`prev-fortaleza-${idx}`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={`Fortaleza ${idx + 1}...`} value={previousAnalysisData.fortalezas[idx]} onChange={(e) => { const arr = [...previousAnalysisData.fortalezas]; arr[idx] = e.target.value; setPreviousAnalysisData({...previousAnalysisData, fortalezas: arr}); }} />
                   </div>
                 ))}
@@ -3502,7 +3502,7 @@ const DashboardPage = () => {
                 <p className="text-[11px] text-slate-500">¿Qué no funcionó? ¿Qué se debe cambiar o mejorar?</p>
                 {[0, 1, 2].map((idx) => (
                   <div key={idx} className="flex items-start gap-2">
-                    <span className="w-5 h-5 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
+                    <span className="w-5 h-5 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-[8px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
                     <textarea data-testid={`prev-debilidad-${idx}`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={`Debilidad/Mejora ${idx + 1}...`} value={previousAnalysisData.debilidades[idx]} onChange={(e) => { const arr = [...previousAnalysisData.debilidades]; arr[idx] = e.target.value; setPreviousAnalysisData({...previousAnalysisData, debilidades: arr}); }} />
                   </div>
                 ))}
@@ -3543,10 +3543,10 @@ const DashboardPage = () => {
                     <table className="w-full text-xs">
                       <thead>
                         <tr className="border-b border-slate-200">
-                          <th className="text-left py-1.5 px-2 text-slate-600 font-semibold uppercase tracking-wide text-[10px]">Indicador</th>
-                          <th className="text-center py-1.5 px-1 text-slate-600 font-semibold uppercase tracking-wide text-[10px]">Inicial</th>
-                          <th className="text-center py-1.5 px-1 text-slate-600 font-semibold uppercase tracking-wide text-[10px]">Final</th>
-                          <th className="text-center py-1.5 px-1 text-slate-600 font-semibold uppercase tracking-wide text-[10px]">Delta%</th>
+                          <th className="text-left py-1.5 px-2 text-slate-600 font-semibold uppercase tracking-wide text-[8px]">Indicador</th>
+                          <th className="text-center py-1.5 px-1 text-slate-600 font-semibold uppercase tracking-wide text-[8px]">Inicial</th>
+                          <th className="text-center py-1.5 px-1 text-slate-600 font-semibold uppercase tracking-wide text-[8px]">Final</th>
+                          <th className="text-center py-1.5 px-1 text-slate-600 font-semibold uppercase tracking-wide text-[8px]">Delta%</th>
                           <th className="w-6"></th>
                         </tr>
                       </thead>
@@ -3722,7 +3722,7 @@ const DashboardPage = () => {
                         <Plus className="w-5 h-5 text-slate-900" strokeWidth={2.5} />
                       </div>
                       <div className="min-w-0">
-                        <div className="text-[10px] font-black uppercase tracking-widest" style={{ color: '#CCFF00' }}>Cierra el ciclo</div>
+                        <div className="text-[8px] font-black uppercase tracking-widest" style={{ color: '#CCFF00' }}>Cierra el ciclo</div>
                         <div className="text-sm font-bold truncate">Generar próximo plan basado en este análisis</div>
                       </div>
                     </div>
@@ -3744,12 +3744,12 @@ const DashboardPage = () => {
                     <Sparkles className="w-4 h-4 text-slate-900" />
                   </div>
                   <div className="leading-tight">
-                    <div className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: '#CCFF00' }}>Gap Analysis con IA</div>
+                    <div className="text-[8px] font-black uppercase tracking-[0.2em]" style={{ color: '#CCFF00' }}>Gap Analysis con IA</div>
                     <div className="text-sm font-bold text-white">Diagnóstico Cruzado vs Modelos de Periodización</div>
                   </div>
                 </div>
                 {aiGapData && (
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full" style={{ background: 'rgba(204,255,0,0.15)', color: '#CCFF00', border: '1px solid rgba(204,255,0,0.4)' }}>
+                  <span className="text-[8px] font-bold uppercase tracking-wider px-2 py-1 rounded-full" style={{ background: 'rgba(204,255,0,0.15)', color: '#CCFF00', border: '1px solid rgba(204,255,0,0.4)' }}>
                     {(aiGapData.provider || '').toUpperCase()} · {aiGapData.llm_model || ''}
                   </span>
                 )}
@@ -3759,7 +3759,7 @@ const DashboardPage = () => {
               {/* Provider selector + multi-select de modelos */}
               <div className="grid md:grid-cols-[180px_1fr_auto] gap-3 items-start">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-600">Motor IA</label>
+                  <label className="text-[8px] font-bold uppercase tracking-wider text-slate-600">Motor IA</label>
                   <div className="flex gap-1.5" data-testid="ai-provider-selector">
                     <button
                       type="button"
@@ -3777,7 +3777,7 @@ const DashboardPage = () => {
                 </div>
 
                 <div className="space-y-1 min-w-0">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                  <label className="text-[8px] font-bold uppercase tracking-wider text-slate-600">
                     Modelos a comparar ({aiSelectedModels.length}/6)
                   </label>
                   <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-2 bg-slate-50 rounded-lg border border-slate-200" data-testid="ai-models-selector">
@@ -3838,7 +3838,7 @@ const DashboardPage = () => {
                       type="button"
                       onClick={() => handleGenerateGapAnalysisAI(true)}
                       disabled={aiGapLoading}
-                      className="text-[10px] text-slate-500 hover:text-slate-900 underline"
+                      className="text-[8px] text-slate-500 hover:text-slate-900 underline"
                       data-testid="ai-force-refresh-btn"
                     >Forzar regeneración</button>
                   )}
@@ -3878,7 +3878,7 @@ const DashboardPage = () => {
                   {/* Tabla comparativa por modelo */}
                   {Array.isArray(aiGapData.comparisons) && aiGapData.comparisons.length > 0 && (
                     <div className="rounded-xl border border-slate-200 overflow-hidden">
-                      <div className="bg-slate-900 text-[#CCFF00] px-3 py-2 text-[10px] font-black uppercase tracking-widest grid grid-cols-[1fr_auto_70px] gap-2">
+                      <div className="bg-slate-900 text-[#CCFF00] px-3 py-2 text-[8px] font-black uppercase tracking-widest grid grid-cols-[1fr_auto_70px] gap-2">
                         <span>Modelo</span>
                         <span>Brechas top 3</span>
                         <span className="text-right">Coincidencia</span>
@@ -3896,7 +3896,7 @@ const DashboardPage = () => {
                               <div className="flex flex-wrap gap-1 justify-start max-w-md">
                                 {top3.length === 0 ? <span className="text-[11px] text-slate-400">Sin brechas</span> :
                                   top3.map((g, gi) => (
-                                    <span key={gi} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200">
+                                    <span key={gi} className="text-[8px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200">
                                       {g.label} <span className="text-red-600">−{g.gap}%</span>
                                     </span>
                                   ))
@@ -3917,7 +3917,7 @@ const DashboardPage = () => {
                     <div className="space-y-2" data-testid="ai-recommendations-list">
                       <div className="flex items-center gap-2 mt-2">
                         <div className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-700 px-2">Recomendaciones Accionables</span>
+                        <span className="text-[8px] font-black uppercase tracking-widest text-slate-700 px-2">Recomendaciones Accionables</span>
                         <div className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
                       </div>
                       {aiGapData.recommendations.map((r, i) => {
@@ -3933,7 +3933,7 @@ const DashboardPage = () => {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="text-[13px] font-bold text-slate-900 leading-snug">{title}</div>
-                                {r.area && <div className="text-[10px] font-semibold text-slate-500 mt-0.5">Área: <span className="text-slate-700">{r.area}</span></div>}
+                                {r.area && <div className="text-[8px] font-semibold text-slate-500 mt-0.5">Área: <span className="text-slate-700">{r.area}</span></div>}
                               </div>
                               <span
                                 className="text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-full whitespace-nowrap flex-shrink-0"
@@ -3947,7 +3947,7 @@ const DashboardPage = () => {
                     </div>
                   )}
 
-                  <p className="text-[10px] text-slate-400 italic text-center pt-2">
+                  <p className="text-[8px] text-slate-400 italic text-center pt-2">
                     Recomendaciones generadas por IA. Validar siempre con criterio del cuerpo técnico.
                     {aiGapData.cached && ' · Resultado desde caché.'}
                   </p>
@@ -4299,7 +4299,7 @@ const DashboardPage = () => {
                   <Clipboard className="w-5 h-5 text-[#CCFF00]" />
                 </div>
                 <div className="flex flex-col">
-                  <p className="text-[10px] text-slate-400 uppercase tracking-[0.15em] font-bold leading-none mb-0.5">Plan Activo</p>
+                  <p className="text-[8px] text-slate-400 uppercase tracking-[0.15em] font-bold leading-none mb-0.5">Plan Activo</p>
                   <h2 className="text-slate-900 font-bold text-base leading-tight">{activePlan.name}</h2>
                 </div>
                 <div className="hidden sm:flex items-center gap-1.5 ml-1">
@@ -4427,12 +4427,12 @@ const DashboardPage = () => {
                   >
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
                       isActive
-                        ? `${nav.color} text-white shadow-lg ${nav.shadow} ring-2 ring-offset-2 ring-slate-900/25 scale-110`
-                        : 'bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg hover:scale-105'
+                        ? `${nav.color} text-white shadow-lg ${nav.shadow} ring-2 ring-white/40`
+                        : 'bg-white text-slate-500 shadow-sm border border-slate-100 hover:bg-slate-50 hover:shadow-md'
                     }`}>
                       <NavIcon className={`w-[18px] h-[18px] transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:text-slate-700'}`} strokeWidth={isActive ? 2.5 : 1.8} />
                     </div>
-                    <span className={`text-[10px] tracking-wide leading-tight text-center max-w-[60px] transition-colors duration-300 ${
+                    <span className={`text-[8px] tracking-wide leading-tight text-center max-w-[56px] transition-colors duration-300 ${
                       isActive ? 'text-slate-900 font-bold' : 'text-slate-400 font-medium group-hover:text-slate-600'
                     }`}>
                       {nav.label}
@@ -4454,7 +4454,7 @@ const DashboardPage = () => {
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${scoutActive ? 'bg-slate-900 text-[#CCFF00] shadow-lg shadow-slate-900/30' : 'bg-white text-slate-700 shadow-md border-2 border-[#CCFF00] hover:shadow-lg hover:bg-[#CCFF00]/15'}`}>
                       <Target className="w-[18px] h-[18px] transition-transform duration-300" strokeWidth={scoutActive ? 2.5 : 2} />
                     </div>
-                    <span className={`text-[10px] font-bold tracking-wide leading-tight text-center max-w-[60px] transition-colors duration-300 ${scoutActive ? 'text-slate-900' : 'text-slate-700 group-hover:text-slate-900'}`}>
+                    <span className={`text-[8px] font-bold tracking-wide leading-tight text-center max-w-[60px] transition-colors duration-300 ${scoutActive ? 'text-slate-900' : 'text-slate-700 group-hover:text-slate-900'}`}>
                       Scouting
                     </span>
                   </button>
@@ -4471,7 +4471,7 @@ const DashboardPage = () => {
                 <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-700 shadow-md border-2 border-[#CCFF00] hover:shadow-lg hover:bg-[#CCFF00]/15">
                   <FileBarChart2 className="w-[18px] h-[18px] transition-transform duration-300" strokeWidth={2} />
                 </div>
-                <span className="text-[10px] font-bold tracking-wide leading-tight text-center text-slate-700 group-hover:text-slate-900 transition-colors duration-300 max-w-[60px]">
+                <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-700 group-hover:text-slate-900 transition-colors duration-300 max-w-[60px]">
                   Reporte
                 </span>
               </button>
@@ -4492,7 +4492,7 @@ const DashboardPage = () => {
                 <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-700 shadow-md border-2 border-sky-400 hover:shadow-lg hover:bg-sky-50">
                   <CalendarDays className="w-[18px] h-[18px] transition-transform duration-300" strokeWidth={2} />
                 </div>
-                <span className="text-[10px] font-bold tracking-wide leading-tight text-center text-slate-700 group-hover:text-slate-900 transition-colors duration-300 max-w-[60px]">
+                <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-700 group-hover:text-slate-900 transition-colors duration-300 max-w-[60px]">
                   Sesiones
                 </span>
               </button>
@@ -4523,12 +4523,12 @@ const DashboardPage = () => {
                     >
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
                         isActive
-                          ? `${colors.bg} text-white shadow-lg ${colors.shadow} ring-2 ring-offset-2 ring-slate-900/15 scale-110`
-                          : `bg-white text-slate-400 border border-slate-200 shadow-sm hover:shadow-md hover:scale-105`
+                          ? `${colors.bg} text-white shadow-lg ${colors.shadow} ring-2 ring-white/40`
+                          : `bg-white text-slate-400 border border-slate-200 shadow-sm hover:bg-slate-50 hover:shadow-md`
                       }`}>
                         <SectionIcon className={`w-[18px] h-[18px] transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:text-slate-600'}`} strokeWidth={isActive ? 2.5 : 1.8} />
                       </div>
-                      <span className={`text-[10px] tracking-wide leading-tight text-center max-w-[60px] transition-colors duration-300 ${
+                      <span className={`text-[8px] tracking-wide leading-tight text-center max-w-[60px] transition-colors duration-300 ${
                         isActive ? `${colors.text} font-bold` : 'text-slate-400 font-medium group-hover:text-slate-600'
                       }`}>
                         {section.title}
@@ -4555,12 +4555,12 @@ const DashboardPage = () => {
                         >
                           <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
                             isActive
-                              ? `${currentColors.bg} text-white shadow-lg ${currentColors.shadow} ring-2 ring-offset-2 ring-slate-900/15 scale-110`
-                              : `bg-white text-slate-400 border border-slate-200 shadow-sm hover:shadow-md hover:scale-105`
+                              ? `${currentColors.bg} text-white shadow-lg ${currentColors.shadow} ring-2 ring-white/40`
+                              : `bg-white text-slate-400 border border-slate-200 shadow-sm hover:bg-slate-50 hover:shadow-md`
                           }`}>
                             <ItemIcon className={`w-[18px] h-[18px] transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:text-slate-600'}`} strokeWidth={isActive ? 2.5 : 1.8} />
                           </div>
-                          <span className={`text-[10px] text-center max-w-[60px] leading-tight transition-colors duration-300 ${
+                          <span className={`text-[8px] text-center max-w-[60px] leading-tight transition-colors duration-300 ${
                             isActive ? `${currentColors.text} font-bold` : 'text-slate-400 font-medium group-hover:text-slate-600'
                           }`}>
                             {item.label}
@@ -4604,7 +4604,7 @@ const DashboardPage = () => {
                     <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-purple-600 border-2 border-white" />
                   )}
                 </div>
-                <span className={`text-[10px] font-bold tracking-wide leading-tight text-center transition-colors duration-300 ${
+                <span className={`text-[8px] font-bold tracking-wide leading-tight text-center transition-colors duration-300 ${
                   user?.is_super_admin ? 'text-purple-700' : (canManageOrg ? 'text-slate-400 group-hover:text-emerald-600' : 'text-slate-300 group-hover:text-slate-400')
                 }`}>
                   Admin
@@ -4621,7 +4621,7 @@ const DashboardPage = () => {
                 <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg hover:text-violet-600">
                   <CreditCard className="w-[18px] h-[18px] transition-transform duration-300 group-hover:text-violet-600" strokeWidth={1.8} />
                 </div>
-                <span className="text-[10px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-violet-600 transition-colors duration-300">
+                <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-violet-600 transition-colors duration-300">
                   Plan
                 </span>
               </button>
@@ -4636,7 +4636,7 @@ const DashboardPage = () => {
               <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg hover:text-red-500">
                 <LogOut className="w-[18px] h-[18px] transition-transform duration-300 group-hover:text-red-500" strokeWidth={1.8} />
               </div>
-              <span className="text-[10px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-red-500 transition-colors duration-300">
+              <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-red-500 transition-colors duration-300">
                 Salir
               </span>
             </button>
@@ -4735,7 +4735,7 @@ const DashboardPage = () => {
                   </p>
                 </div>
                 {activePlan && (
-                  <div className="flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold">
+                  <div className="flex items-center gap-1.5 text-[8px] px-2 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold">
                     <CheckCircle className="w-3 h-3" />
                     Plan activo
                   </div>

@@ -223,3 +223,9 @@
 - Verificado visualmente: activos (Datos azul, Diagnóstico/Plan Anterior rojo) resaltan claramente sobre los neutros.
 - OPCIÓN FUTURA (no implementada): rediseño mayor a Topbar + Sidebar lateral con acordeón (blueprint en design_guidelines.json) si se quiere separación total de jerarquía.
 - ACCIÓN USUARIO: REDEPLOY.
+
+## 2026-06-25 — Ajuste barra nav: revertir tamaño, mejorar solo con color/Material
+- A pedido del usuario: el aumento de tamaño (text-[10px], scale-110, ring-offset, max-w-[60px]) descuadraba el contenido inferior. Revertido a tamaños originales (w-10 h-10, text-[8px], max-w-[56px], sin scale).
+- Mejora conservada solo vía COLOR + Material Design (sin cambiar tamaño): activo = relleno color + shadow-lg + ring-2 ring-white/40 (halo, box-shadow sin impacto en layout); inactivo = blanco neutro + shadow-sm + hover:bg-slate-50 (state layer) + hover:shadow-md. Aplicado a los 3 grupos.
+- Verificado: barra compacta como antes, contenido inferior bien alineado, estados activos claros.
+- ACCIÓN USUARIO: REDEPLOY.
