@@ -1,123 +1,108 @@
 {
-  "identity": {
-    "name": "Sistema TRAIN",
-    "persona": "E1 - The Anti-AI Designer",
-    "tone": "Professional, Athletic, Precise, Scientific",
-    "archetype": "The Performance Pro (Swiss Sport Variant)"
+  "project_context": {
+    "domain": "Sports Management SaaS (LordTraining)",
+    "archetype": "2 (Performance Pro) - Tactical, Elite Athleticism, High Contrast",
+    "theme": "dark",
+    "core_problem": "Navigation cognitive overload, unrecognizable active states, microscopic text (8px), flat visual hierarchy combining 3 distinct levels of navigation into one row of circles."
   },
-  "typography": {
-    "font_family_heading": "Barlow Condensed, sans-serif",
-    "font_family_body": "Inter, sans-serif",
-    "import_url": "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap",
-    "scale": {
-      "h1": "text-6xl md:text-8xl font-black tracking-tight uppercase leading-[0.9]",
-      "h2": "text-4xl md:text-6xl font-bold tracking-tight uppercase",
-      "h3": "text-2xl md:text-3xl font-bold tracking-tight uppercase",
-      "body_lg": "text-lg font-medium leading-relaxed",
-      "body_base": "text-base font-normal leading-relaxed text-slate-600",
-      "label": "text-xs font-bold tracking-widest uppercase text-slate-500"
+  "design_system": {
+    "colors": {
+      "base": {
+        "obsidian": "#0A0A0A",
+        "surface": "#171717",
+        "surface_hover": "#262626",
+        "border": "#333333"
+      },
+      "brand": {
+        "volt_lime": "#CCFF00",
+        "athletic_blue": "#007AFF"
+      },
+      "text": {
+        "primary": "#FFFFFF",
+        "secondary": "#A1A1AA",
+        "muted": "#71717A",
+        "active": "#CCFF00"
+      },
+      "section_accents": {
+        "diagnostico": "rose",
+        "informacion": "indigo",
+        "evaluacion": "emerald",
+        "competencias": "violet",
+        "periodizacion": "cyan",
+        "plan_grafico": "amber",
+        "herramientas": "slate"
+      }
+    },
+    "typography": {
+      "fonts": {
+        "heading": "Barlow Condensed, sans-serif",
+        "body": "Inter, DM Sans, sans-serif"
+      },
+      "sizes": {
+        "nav_main": "text-sm md:text-base font-semibold tracking-wide",
+        "nav_section": "text-sm font-medium",
+        "nav_sub": "text-sm font-normal",
+        "forbidden": "NEVER use 8px (text-[8px]). Absolute minimum size is text-xs (12px) for overlines or tiny badges, and text-sm (14px) for interactive navigation labels."
+      }
+    },
+    "spacing_and_layout": {
+      "strategy": "Spatial Separation. Never combine global navigation (Group A) and contextual data navigation (Group B & C) in the same horizontal plane.",
+      "padding": "Generous padding for touch targets: min h-10, px-4, py-2."
     }
   },
-  "colors": {
-    "palette": {
-      "primary": "#0f172a",
-      "secondary": "#f8fafc",
-      "accent_blue": "#007AFF",
-      "accent_lime": "#CCFF00",
-      "success": "#22c55e",
-      "warning": "#f59e0b",
-      "error": "#ef4444",
-      "background": "#ffffff",
-      "surface": "#f8fafc",
-      "border": "#e2e8f0"
+  "navigation_blueprint": {
+    "architectural_shift": "Move from a single overloaded Topbar to a 'Global Topbar + Contextual Sidebar' layout. This naturally solves the 'too many options' problem.",
+    "level_1_global_topbar": {
+      "description": "Group A items (Panel, Datos, Scouting, Reporte, Sesiones). A persistent horizontal bar at the top.",
+      "layout": "flex items-center justify-between w-full h-16 px-6 bg-[#0A0A0A] border-b border-[#333333]",
+      "nav_group": "flex items-center gap-2 md:gap-6",
+      "item_structure": "Row-based. Icon on left, Text on right (hidden on extremely small mobile, but default visible).",
+      "states": {
+        "default": "text-zinc-400 flex items-center gap-2 px-3 py-2 rounded-md transition-all duration-200",
+        "hover": "text-white bg-zinc-800/50",
+        "active": "text-[#CCFF00] bg-[#CCFF00]/10 ring-1 ring-[#CCFF00]/20 font-bold",
+        "focus": "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#CCFF00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0A0A]"
+      },
+      "right_actions": "Group D (FABs: SuperAdmin, Idioma, Perfil) remain on the far right of the Topbar, separated by an auto-margin or flex spacer."
     },
-    "theme_strategy": "Light Mode Dominant (Clean Lab Aesthetic)",
-    "usage": {
-      "primary_text": "text-slate-900",
-      "secondary_text": "text-slate-500",
-      "accent_text": "text-blue-600",
-      "border_default": "border-slate-200",
-      "border_active": "border-blue-600",
-      "bg_canvas": "bg-white",
-      "bg_surface": "bg-slate-50"
+    "level_2_and_3_contextual_sidebar": {
+      "description": "When the user is in the 'Datos' panel, a Left Sidebar appears managing Group B (Sections) and Group C (Sub-sections). This utilizes an Accordion pattern.",
+      "layout": "w-64 h-[calc(100vh-64px)] flex-shrink-0 border-r border-[#333333] bg-[#0A0A0A] overflow-y-auto hidden md:block",
+      "mobile_strategy": "On mobile, this becomes a slide-out drawer or an expandable Shadcn Accordion right below the header.",
+      "group_b_sections_accordion_header": {
+        "description": "The 7 colored sections. Instead of filling the whole circle with color, use the color as a sophisticated accent (e.g., a left border or a tiny 8px dot).",
+        "classes": "flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors",
+        "active_classes": "bg-zinc-900 text-white font-bold border-l-4",
+        "color_implementation": "Dynamically apply border-l-{color}-500 when active, or render a <div className='w-2 h-2 rounded-full bg-{color}-500' /> next to the label. This tames the 'rainbow' effect while keeping the mental mapping."
+      },
+      "group_c_sub_sections_accordion_content": {
+        "description": "The 1 to 9 items inside a specific Group B section. Shown in a vertical list directly under the expanded Section header.",
+        "classes": "flex flex-col pl-10 pr-4 py-1 space-y-1 bg-[#0A0A0A]",
+        "item_classes": "flex items-center px-3 py-2 text-sm text-zinc-400 rounded-md transition-colors hover:text-white hover:bg-zinc-800/50",
+        "active_item_classes": "text-[#007AFF] bg-[#007AFF]/10 font-semibold",
+        "active_item_indicator": "Instead of full shapes, the active sub-item gets a subtle colored background and primary brand text color."
+      }
+    },
+    "alternative_horizontal_only_pattern": {
+      "description": "If the business explicitly refuses a Left Sidebar, implement a Two-Tier Horizontal Architecture.",
+      "tier_1": "Top Bar: Group A (exactly as defined above).",
+      "tier_2": "Secondary Sticky Bar below Top Bar. Uses a scrollable Tab List (Shadcn Tabs) for Group B. Active state is a bold border-bottom: border-b-2 border-{color}-500.",
+      "tier_3_subnav": "Pill-based horizontal scroll under Tier 2 for Group C. flex gap-2 overflow-x-auto. Pills are px-4 py-1.5 rounded-full text-sm. Active pill is bg-[#007AFF] text-white."
     }
   },
-  "layout_strategy": {
-    "spacing": {
-      "container_padding": "p-4 md:p-8 lg:p-12",
-      "section_gap": "gap-8 md:gap-16",
-      "component_gap": "gap-4 md:gap-6"
-    },
-    "grid_system": {
-      "dashboard": "grid grid-cols-1 md:grid-cols-12 gap-6",
-      "landing": "grid grid-cols-1 md:grid-cols-12 gap-y-12 gap-x-8"
-    },
-    "bento_grid": {
-      "hero_card": "col-span-12 md:col-span-8 row-span-2",
-      "stat_card": "col-span-6 md:col-span-4",
-      "list_card": "col-span-12 md:col-span-4 row-span-2"
+  "prioritized_action_plan": {
+    "step_1": "Kill the 8px circles: Immediately switch all navigation items to a Text + Icon Flex Row pattern with a minimum text size of 14px (text-sm).",
+    "step_2": "Fix Active States: Replace the 'fill color change' with high-contrast Active States. Use bg-[brand]/10 + text-[brand] + font-bold. The user must know instantly where they are.",
+    "step_3": "Separate Global from Contextual: Extract Group B and Group C from the Top Navigation bar. Move them into a Left Sidebar (Accordion) or a distinct secondary horizontal tab bar when 'Datos' is active.",
+    "step_4": "Tame the Rainbow Colors: Stop using the 7 section colors as massive filled shapes. Use them as subtle visual cues (left borders, 8px dots, or thin underlines) to reduce visual fatigue.",
+    "step_5": "Accessibility Pass: Ensure every interactive item has a focus ring (focus-visible:ring-2), clear contrast (WCAG AA), and proper data-testid attributes for testing."
+  },
+  "testing_attributes": {
+    "rule": "Every single navigation element MUST include a data-testid attribute.",
+    "examples": {
+      "group_a_item": "data-testid='nav-main-datos-button'",
+      "group_b_header": "data-testid='nav-section-evaluacion-accordion'",
+      "group_c_item": "data-testid='nav-sub-atletas-link'"
     }
-  },
-  "components": {
-    "buttons": {
-      "primary": "bg-slate-900 text-white hover:bg-slate-800 rounded-none font-bold uppercase tracking-wide px-8 py-4 transition-all active:scale-95",
-      "secondary": "bg-white border border-slate-200 text-slate-900 hover:bg-slate-50 rounded-none font-bold uppercase tracking-wide px-8 py-4",
-      "accent": "bg-[#007AFF] text-white hover:bg-blue-700 rounded-none font-bold uppercase tracking-wide px-8 py-4"
-    },
-    "cards": {
-      "base": "bg-white border border-slate-200 p-6 md:p-8 hover:border-slate-300 transition-colors rounded-xl md:rounded-2xl",
-      "active": "border-blue-600 ring-1 ring-blue-600 shadow-lg shadow-blue-900/5",
-      "glass": "bg-white/80 backdrop-blur-xl border border-white/40 shadow-sm"
-    },
-    "inputs": {
-      "base": "h-12 bg-slate-50 border border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 rounded-lg px-4 transition-all"
-    }
-  },
-  "visual_enhancers": {
-    "shadows": {
-      "soft": "shadow-[0_8px_30px_rgb(0,0,0,0.04)]",
-      "sharp": "shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
-      "glow": "shadow-[0_0_20px_rgba(0,122,255,0.3)]"
-    },
-    "borders": {
-      "tracing_beam": "relative after:absolute after:inset-0 after:rounded-xl after:border after:border-blue-500/50 after:opacity-0 hover:after:opacity-100 after:transition-opacity",
-      "glass_edge": "border-t border-white/50"
-    },
-    "textures": {
-      "dot_grid": "bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]",
-      "noise": "bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"
-    }
-  },
-  "image_urls": {
-    "hero_track": "https://images.unsplash.com/photo-1526676317768-d9b14f15615a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MjJ8MHwxfHNlYXJjaHwxfHxhdGhsZXRlJTIwcnVubmluZyUyMHRyYWNrJTIwc3ByaW50fGVufDB8fHx8MTc3MDY5MzM5NXww&ixlib=rb-4.1.0&q=85",
-    "feature_swimmer": "https://images.unsplash.com/photo-1569464371078-75f4a4ecc863?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzd8MHwxfHNlYXJjaHwxfHxzd2ltbWVyJTIwdW5kZXJ3YXRlcnxlbnwwfHx8fDE3NzA2OTMzOTZ8MA&ixlib=rb-4.1.0&q=85",
-    "feature_cyclist": "https://images.unsplash.com/photo-1575995330221-c20326537393?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MjJ8MHwxfHNlYXJjaHwxfHxjeWNsaXN0JTIwcm9hZCUyMG1ldHJpY3N8ZW58MHx8fHwxNzcwNjkzMzk3fDA&ixlib=rb-4.1.0&q=85",
-    "feature_gym": "https://images.unsplash.com/photo-1766287451380-999a0d37880d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxOTF8MHwxfHNlYXJjaHwyfHxneW0lMjB3ZWlnaHRsaWZ0aW5nJTIwZm9jdXN8ZW58MHx8fHwxNzcwNjkzMzk3fDA&ixlib=rb-4.1.0&q=85",
-    "testimonial_trainer": "https://images.unsplash.com/photo-1750698545009-679820502908?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODl8MHwxfHNlYXJjaHw0fHxmaXRuZXNzJTIwdHJhaW5lciUyMHBvcnRyYWl0fGVufDB8fHx8MTc3MDY5MzM5OHww&ixlib=rb-4.1.0&q=85"
-  },
-  "accessibility": {
-    "contrast_check": "Ensure 4.5:1 ratio for normal text. Use slate-900 on white.",
-    "focus_states": "focus:ring-2 focus:ring-blue-600 focus:outline-none",
-    "reduced_motion": "motion-reduce:transition-none motion-reduce:animate-none"
-  },
-  "instructions_to_main_agent": {
-    "general": "Do not build a generic template. This is a PRO tool. Think 'Swiss Sport Watch' precision. Use the provided fonts. Use white space aggressively.",
-    "landing_page": "Use the 'Tetris' grid. Hero section must be bold with the track runner image. Use the 'dot_grid' texture in the background of feature sections.",
-    "dashboard": "Use the 'Bento' grid. Dense but organized. No rounded corners greater than 'rounded-xl'. Use 'Barlow Condensed' for all data labels and metrics.",
-    "charts": "Use Recharts or Shadcn Charts. Colors: Blue for progress, Lime for success/peaks, Slate for baseline.",
-    "navigation": "Sidebar for dashboard, Sticky glass header for landing."
-  },
-  "universal_guidelines": [
-    "You tend to converge toward generic, 'on distribution' outputs. Avoid this.",
-    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients.",
-    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
-    "Create depth through layered design elements with z-index hierarchy.",
-    "Use glass-morphism effects with backdrop filters (12-24px blur).",
-    "You MUST NOT apply universal transition. Eg: 'transition: all'.",
-    "You MUST NOT center align the app container.",
-    "Always use modern button styles like pill-shaped, or sharp button with interaction animations.",
-    "NEVER: use AI assistant Emoji characters like 🤖🧠 etc.",
-    "Every interaction needs micro-animations - hover states, transitions, parallax effects.",
-    "Use 2-3x more spacing than feels comfortable."
-  ]
+  }
 }
