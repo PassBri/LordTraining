@@ -1,0 +1,42 @@
+{
+  "summary": "E2E testing of Athlete Portal (Fase 3). Backend: 21/21 pytest passing (public portal, athlete auth/me, plan/sessions/readiness/records, coach share/invite-code/readiness, auto-register, demo-seed regression). Frontend: public portal /atleta/ATP-dae6712f00504806 renders KPIs (188/64/88%/47), calendar with colored dots, competitions list, and the RPE+comment completion modal works end-to-end. Athlete login juan.atleta@test.com -> /atleta/panel redirect works; 3 tabs (Mi Plan, Mi estado, Récords) all functional; readiness 4 sliders + Guardar returns 75% disponibilidad; Records tab shows Capacidades. Coach Dashboard loads WITHOUT the previous null 'completed_sessions' crash (regression OK) and the Readiness Score card consumes /coach/readiness correctly (90/40/35/95 -> 85% 'Listo para entrenar'). CRITICAL REGRESSION FOUND OUTSIDE FASE 3 SCOPE: GET /api/athletes returns 500 because athletes created via /api/athlete-portal/auth/register (and possibly invite) lack required pydantic fields (age, sport) -- AthleteResponse raises ValidationError. Breaks coach athletes listing.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "GET /api/athletes", "issue": "500 Internal Server Error. AthleteResponse ValidationError: 'age' field required (also 'sport'). Root cause: /api/athlete-portal/auth/register (and likely existing athletes touched by the portal) inserts athletes without 'age' and 'sport'. server.py:2894 does [AthleteResponse(**a) for a in athletes] which crashes the whole list. Reproduce: POST /api/athlete-portal/invite-code then POST /api/athlete-portal/auth/register with a fresh email -> GET /api/athletes (as coach) returns 500.", "priority": "CRITICAL"}
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_athlete_portal.py",
+    "/app/test_reports/pytest/athlete_portal.xml"
+  ],
+  "action_items": [
+    "FIX HIGH: In /app/backend/routes/athlete_portal.py athlete_register(): when inserting a new athletes doc, default required fields: age=0 (or Optional), sport=inv.get('sport') or '' (or Optional). Alternatively make AthleteResponse.age and .sport Optional[int]/Optional[str] in server.py since Fase 3 self-registered athletes legitimately don't have those values at registration time. Recommend the second (Optional) so coach listing degrades gracefully.",
+    "OPTIONAL: athletes inserted by auto-register should set 'created_at' and link 'coach_id' (already done) but also reasonable defaults so coach can immediately view/edit them.",
+    "OPTIONAL: server.py:2894 should be defensive (skip athletes that fail validation OR use AthleteResponse.model_construct) so one bad doc doesn't 500 the whole list."
+  ],
+  "critical_code_review_comments": [
+    "athlete_portal.py _update_session_completion: completada=False sets fecha_completado=None but does NOT clear rpe_reportado/comentario_atleta. This means if an athlete un-marks a session, the previous RPE/comment lingers in the DB. Consider clearing them or persisting them only if completada=True.",
+    "athlete_portal.py: JWT_SECRET defaults to 'train-secret-key' if env missing. OK for preview but should fail-fast in production (already noted in env rules).",
+    "athlete_portal.py invite-code: codes do not expire and only have 8 hex chars (~4 bytes entropy). Consider TTL + 16 chars for production.",
+    "athlete_portal.py register: when athlete_id is found in invite but the athlete record was deleted, falls back to creating a new athlete -- OK, but the old invite still 'used'. Not a bug, just intentional.",
+    "athlete_portal.py: _plan_sessions_payload runs many separate Mongo queries (macros->mesos->micros->sesiones). For a 47-week plan this is fine, but adding $lookup or batch projection would help scale.",
+    "AthletePortalPanel.js & AthletePortalPublic.js share the same calendar / completion modal logic in AthletePlanView. Good DRY.",
+    "Frontend portal correctly uses athlete_token in localStorage (separate from coach train_token) -- no token collision."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_athlete_portal.py (new)"
+  ],
+  "success_rate": {"backend": "21/21 athlete-portal tests pass (100%)", "frontend": "100% on tested flows (public portal full, athlete login+panel full 3 tabs, dashboard regression OK). Coach share modal opening was not E2E-clicked because it requires manual plan selection; the underlying endpoints are 100% covered by backend tests."},
+  "test_credentials": "Coach juegolaureado@gmail.com / LordTraining2026! ; Athlete juan.atleta@test.com / 8c6nkWqG ; share ATP-dae6712f00504806 ; plan 25b9abc7-b264-4809-a998-b688f660a6ca",
+  "seed_data_creation": "Created multiple TEST_ athletes via /auth/register during automated tests; created multiple invite codes; saved readiness for juan.atleta. NOTE: these auto-registered athletes are what triggered the GET /api/athletes 500 because they have no 'age'/'sport'.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Fase 3 backend + frontend WORK as specified. The only outstanding bug is GET /api/athletes 500 due to AthleteResponse pydantic validation - fix by making age/sport Optional or defaulting them in auth/register. After the fix re-run /app/backend/tests/test_athlete_portal.py (already covers register flow) and additionally curl GET /api/athletes with coach token. Frontend regression for 'Cannot read properties of null (reading completed_sessions)' is CONFIRMED FIXED (Panel de Control loads cleanly).",
+  "rca of the issue": "RCA for GET /api/athletes 500: AthleteResponse pydantic model in server.py requires fields like 'age' (int) and 'sport' (str). The new Fase 3 endpoint POST /api/athlete-portal/auth/register inserts a minimal athlete doc with only {id, coach_id, name, email, created_at} and later updates portal_email/portal_password/assigned_plan_id. Neither path sets age/sport, so server.py:2894 [AthleteResponse(**a) for a in athletes] raises ValidationError and FastAPI maps it to 500. Mitigation options (pick one): (a) auth/register inserts defaults age=0, sport=''; (b) make age/sport Optional in AthleteResponse (recommended -- it tolerates legacy/auto-registered data); (c) wrap the list comp with try/except to skip invalid docs (least clean)."
+}

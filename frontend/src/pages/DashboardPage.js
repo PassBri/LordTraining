@@ -67,6 +67,7 @@ import SmartAlerts from '../components/SmartAlerts';
 import PDFExportModal from '../components/PDFExportModal';
 import MasterReportModal from '../components/MasterReportModal';
 import SessionsExportModal from '../components/SessionsExportModal';
+import AthletePortalShareModal from '../components/AthletePortalShareModal';
 import LoadPanel from '../components/LoadPanel';
 import FederationPanel from '../components/FederationPanel';
 import ObjectivesIndicators from '../components/ObjectivesIndicators';
@@ -198,6 +199,7 @@ const DashboardPage = () => {
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
   const [isMasterReportOpen, setIsMasterReportOpen] = useState(false);
   const [isSessionsExportOpen, setIsSessionsExportOpen] = useState(false);
+  const [isAthletePortalOpen, setIsAthletePortalOpen] = useState(false);
 
   // Filters Dropdown State
   const [showExportMenu, setShowExportMenu] = useState(false);
@@ -3035,6 +3037,9 @@ const DashboardPage = () => {
               <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-emerald-300 text-emerald-700 hover:bg-emerald-50 bg-emerald-50/40" onClick={handleShareObjectivesWhatsApp} disabled={savingEvaluation || !activePlan} data-testid="active-plan-whatsapp-btn" title="Compartir por WhatsApp">
                 <MessageCircle className="w-3.5 h-3.5 mr-1.5" />WhatsApp
               </Button>
+              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-[#007AFF]/40 text-[#007AFF] hover:bg-blue-50 bg-blue-50/40" onClick={() => activePlan ? setIsAthletePortalOpen(true) : toast.error('Selecciona un plan activo primero')} disabled={!activePlan} data-testid="active-plan-athlete-btn" title="Enviar al atleta (enlace + cuenta)">
+                <Send className="w-3.5 h-3.5 mr-1.5" />Atleta
+              </Button>
               <Button className="bg-slate-900 hover:bg-slate-800 text-white h-9 text-xs px-4" onClick={handleSaveObjectives} disabled={savingEvaluation || !activePlan} data-testid="active-plan-save-btn">
                 <Save className="w-3.5 h-3.5 mr-1.5" />
                 {savingEvaluation ? 'Guardando...' : 'Guardar'}
@@ -4770,6 +4775,14 @@ const DashboardPage = () => {
         onOpenChange={setIsSessionsExportOpen}
         plan={activePlan}
         athleteName={athletes.find(a => a.id === selectedAthleteId)?.name || ''}
+      />
+
+      {/* Athlete Portal — enlace público + cuenta del atleta */}
+      <AthletePortalShareModal
+        open={isAthletePortalOpen}
+        onOpenChange={setIsAthletePortalOpen}
+        plan={activePlan}
+        athletes={athletes}
       />
     </div>
   );

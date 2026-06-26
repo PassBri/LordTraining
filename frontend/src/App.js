@@ -16,6 +16,9 @@ import TournamentPublicPage from './pages/TournamentPublicPage';
 import SharedPlanPage from './pages/SharedPlanPage';
 import OrgTeamPage from './pages/OrgTeamPage';
 import SuperAdminPage from './pages/SuperAdminPage';
+import AthletePortalPublic from './pages/AthletePortalPublic';
+import AthletePortalAuth from './pages/AthletePortalAuth';
+import AthletePortalPanel from './pages/AthletePortalPanel';
 import ThankYouPage from './pages/ThankYouPage';
 import PublicScoutingProfile from './pages/PublicScoutingProfile';
 import PublicProgress from './pages/PublicProgress';
@@ -114,6 +117,12 @@ function AppRoutes() {
       <Route path="/scouting/p/:shareId" element={<PublicScoutingProfile />} />
       <Route path="/progress/p/:shareId" element={<PublicProgress />} />
       
+      {/* Athlete portal (public + athlete-auth, NOT coach auth) */}
+      <Route path="/atleta/login" element={<AthletePortalAuth />} />
+      <Route path="/atleta/registro" element={<AthletePortalAuth />} />
+      <Route path="/atleta/panel" element={<AthletePortalPanel />} />
+      <Route path="/atleta/:shareId" element={<AthletePortalPublic />} />
+
       {/* Catch all */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

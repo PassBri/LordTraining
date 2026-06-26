@@ -140,6 +140,23 @@ const ControlPanel = ({
   // Smart Alerts Data
   const [smartAlerts, setSmartAlerts] = useState([]);
 
+  // Readiness real del atleta seleccionado (alimentado por el portal del atleta)
+  useEffect(() => {
+    const aid = selectedAthleteId;
+    if (!aid) return;
+    const token = localStorage.getItem('train_token');
+    fetch(`${API_URL}/api/athlete-portal/coach/readiness/${aid}`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.latest) setReadinessScore({
+          overall: d.latest.overall, sleep: d.latest.sleep,
+          muscle_soreness: d.latest.muscle_soreness, stress: d.latest.stress,
+          motivation: d.latest.motivation, hydration: 80,
+        });
+      })
+      .catch(() => {});
+  }, [selectedAthleteId]);
+
   // ===== NUEVOS DATOS PARA VISUALIZACIONES ADICIONALES =====
   
   // Objetivos reales del plan (texto) — se cargan vía fetch más abajo
@@ -844,8 +861,8 @@ const ControlPanel = ({
   // Calcular estadísticas
   const totalAthletes = panelStats?.athletes_count ?? athletes.length;
   const upcomingEventsCount = panelStats?.upcoming_events_count ?? events.filter(e => new Date(e.date) > new Date()).length;
-  const completedSessions = panelStats?.completed_sessions ?? stats.completed_sessions ?? Math.floor(Math.random() * 50) + 20;
-  const totalSessions = panelStats?.total_sessions ?? stats.total_sessions ?? completedSessions + 10;
+  const completedSessions = panelStats?.completed_sessions ?? stats?.completed_sessions ?? Math.floor(Math.random() * 50) + 20;
+  const totalSessions = panelStats?.total_sessions ?? stats?.total_sessions ?? completedSessions + 10;
   const activeMacrocycles = panelStats?.active_macrocycles ?? (activePlan?.macrocycles?.length || (periodizationData ? 1 : 0));
 
   // Atleta seleccionado

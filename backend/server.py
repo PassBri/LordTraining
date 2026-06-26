@@ -8405,6 +8405,9 @@ app.include_router(branding_router, prefix="/api")
 from routes.demo_seed import router as demo_seed_router
 app.include_router(demo_seed_router)
 
+from routes.athlete_portal import router as athlete_portal_router, crear_indices_portal
+app.include_router(athlete_portal_router)
+
 # Store db reference in app state for V2 routes
 app.state.db = db
 
@@ -8420,6 +8423,7 @@ app.add_middleware(
 async def startup_create_indices():
     """Create MongoDB indices for V2 collections on startup"""
     await crear_indices(db)
+    await crear_indices_portal(db)
     # Hotmart indices
     try:
         await db.hotmart_webhook_events.create_index("event_id", unique=True)
