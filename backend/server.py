@@ -256,12 +256,12 @@ class AthleteResponse(BaseModel):
     name: str
     email: Optional[str] = None
     sport: str = "other"
-    age: int
-    level: str
+    age: Optional[int] = None
+    level: Optional[str] = None
     notes: Optional[str] = None
     affiliations: Optional[List[str]] = []
     team_id: Optional[str] = None
-    created_at: str
+    created_at: Optional[str] = None
 
 class ExerciseCreate(BaseModel):
     name: str

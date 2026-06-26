@@ -2,6 +2,26 @@
 
 ## Credenciales: test@train.com / test123456
 
+## [Jun 2026] FASE 3 — Portal del Atleta (COMPLETADO, 21/21 tests + E2E)
+**Backend** `/app/backend/routes/athlete_portal.py` (prefix `/api/athlete-portal`, auth bcrypt + JWT role 'athlete', registrado en server.py + crear_indices_portal en startup):
+- PÚBLICO (sin login): `GET /public/{share_id}`, `POST /public/{share_id}/sessions/{session_id}` (marcar completada + rpe + comentario).
+- COACH: `POST /share`, `GET /share/{plan_id}`, `POST /athletes/{id}/invite` (email+password temporal), `POST /invite-code` (auto-registro), `GET /athletes/{id}/account`, `GET /coach/readiness/{athlete_id}`.
+- ATLETA AUTH: `POST /auth/login`, `POST /auth/register` (por código), `GET /auth/me`, `POST /auth/change-password`.
+- ATLETA: `GET /me/plan`, `POST /me/sessions/{id}`, `POST|GET /me/readiness` (sueño/dolor/estrés/motivación → overall, upsert por día), `GET /me/records`.
+- Modelo: campos nuevos en `athletes` (portal_email, portal_password, assigned_plan_id, must_change_password, portal_active); colecciones `athlete_portal_shares`, `athlete_invite_codes`, `athlete_readiness`.
+- sesiones_v2: campos `rpe_reportado`, `comentario_atleta`, `fecha_completado` (se limpian al des-marcar).
+
+**Frontend**:
+- `pages/AthletePortalPublic.js` (ruta `/atleta/:shareId`), `pages/AthletePortalAuth.js` (`/atleta/login`, `/atleta/registro?code=`), `pages/AthletePortalPanel.js` (`/atleta/panel` con tabs Mi Plan / Mi estado / Récords).
+- `components/athlete/AthletePlanView.js` (calendario navegable + modal RPE/comentario, compartido por público y panel).
+- `services/athleteApi.js` (token separado `athlete_token` en localStorage).
+- `components/AthletePortalShareModal.js` + botón "Atleta" en Dashboard → Datos → (plan) → sub-tab "Plan Activo" (genera enlace público, cuenta con password temporal, código de auto-registro; copiar/WhatsApp/Email).
+- ControlPanel del coach: tarjeta "Readiness Score" alimentada por `coach/readiness/{athlete_id}` del atleta seleccionado.
+
+**Regresiones corregidas**: (1) crash `Cannot read properties of null (completed_sessions)` en ControlPanel (null-safe en `stats?.`); (2) `GET /api/athletes` 500 → `AthleteResponse.age/level/created_at` ahora Optional + register inserta defaults.
+
+
+
 ## [Jun 2026] FASE 1 — Datos de Ejemplo / Onboarding (COMPLETADO)
 **Problema raíz**: todas las `sesiones_v2` tenían `fecha: null` (nunca migrada de v1), por eso el Panel de Control se veía vacío (calendario, comparativa semanal, distribución por capacidad).
 

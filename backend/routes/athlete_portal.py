@@ -178,13 +178,19 @@ async def _plan_sessions_payload(db, v1_plan_id: str, coach_id: str):
 
 
 async def _update_session_completion(db, micro_session_id_set, session_id, completada, rpe, comentario):
-    upd = {"completada": bool(completada)}
-    if rpe is not None:
-        upd["rpe_reportado"] = float(rpe)
-    if comentario is not None:
-        upd["comentario_atleta"] = str(comentario)[:500]
-    upd["fecha_completado"] = _now() if completada else None
-    res = await db.sesiones_v2.update_one({"id": session_id}, {"$set": upd})
+    if completada:
+        upd = {"completada": True, "fecha_completado": _now()}
+        if rpe is not None:
+            upd["rpe_reportado"] = float(rpe)
+        if comentario is not None:
+            upd["comentario_atleta"] = str(comentario)[:500]
+        res = await db.sesiones_v2.update_one({"id": session_id}, {"$set": upd})
+    else:
+        res = await db.sesiones_v2.update_one(
+            {"id": session_id},
+            {"$set": {"completada": False, "fecha_completado": None},
+             "$unset": {"rpe_reportado": "", "comentario_atleta": ""}}
+        )
     return res.matched_count > 0
 
 
@@ -393,7 +399,8 @@ async def athlete_register(body: AthleteRegister, request: Request):
         await db.athletes.insert_one({
             "id": athlete_id, "coach_id": inv["coach_id"],
             "name": body.name or inv.get("athlete_name") or "Atleta",
-            "email": email, "created_at": _now(),
+            "email": email, "sport": "other", "age": None, "level": "amateur",
+            "affiliations": [], "created_at": _now(),
         })
     await db.athletes.update_one({"id": athlete_id}, {"$set": {
         "portal_email": email, "portal_password": _hash_pw(body.password),
