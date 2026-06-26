@@ -172,4 +172,9 @@ export const seedDemoData = (planId = null) =>
   axios.post(`${API}/admin/seed-demo-data`, { plan_id: planId, all_plans: !planId }, getAuthHeader());
 export const clearDemoData = () => axios.delete(`${API}/admin/seed-demo-data`, getAuthHeader());
 
+// Data migration (Preview -> Production)
+export const exportMyData = () => axios.get(`${API}/admin/export-data`, getAuthHeader());
+export const importMyData = (parsed) =>
+  axios.post(`${API}/admin/import-data`, { export_version: parsed.export_version || 1, data: parsed.data }, getAuthHeader());
+
 export default API;

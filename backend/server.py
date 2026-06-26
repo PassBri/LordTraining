@@ -8408,6 +8408,12 @@ app.include_router(demo_seed_router)
 from routes.athlete_portal import router as athlete_portal_router, crear_indices_portal
 app.include_router(athlete_portal_router)
 
+from routes.coach_metrics import router as coach_metrics_router
+app.include_router(coach_metrics_router)
+
+from routes.data_migration import router as data_migration_router
+app.include_router(data_migration_router)
+
 # Store db reference in app state for V2 routes
 app.state.db = db
 

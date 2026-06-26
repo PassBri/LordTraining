@@ -1,0 +1,46 @@
+{
+  "summary": "Fase 4 E2E (coach metrics + onboarding FAB + athlete reminder + export/import). Backend pytest 10/11 PASS. Frontend 100% on todos los flujos pedidos. ÚNICA falla: POST /api/admin/import-data NO es idempotente para las colecciones plan_competitions, plan_objectives, plan_previous_analysis y plan_evaluations -- estas colecciones NO tienen un campo 'id' propio (sólo Mongo _id), por lo que el bloque `if doc_id: exists check` en routes/data_migration.py:131-136 nunca aplica y todos los documentos se duplican en cada re-import (38 inserts vs 0 skips en el test). El resto -- coach metrics (ACWR 0.98 'optimo', adherencia 86%), export/data shape, regresión GET /api/athletes (200), athlete portal (login, /me/plan, /me/readiness, /me/me), seed-demo-data, todas las UI con data-testid pedidos (advanced-metrics, acwr-card, acwr-zone-badge='0.98 · Óptimo', adherence-card, adherence-overall-badge='86% global', low-readiness-card='Todos los atletas con readiness ≥ 60% hoy', demo-data-fab + demo-data-menu + demo-load-btn + demo-clear-btn, data-migration-section + export-data-btn + import-data-btn + import-data-input, athlete-today-reminder='Tienes entrenamiento hoy: Sesión 2' + athlete-reminder-dismiss) -- todo funcionando.",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "POST /api/admin/import-data",
+        "issue": "NO es idempotente para plan_competitions, plan_objectives, plan_previous_analysis, plan_evaluations. Estas colecciones se guardan en Mongo SIN un campo 'id' propio (sólo _id) -- ver mongosh: keys = ['plan_id','user_id',...] pero NO 'id'. En data_migration.py:131 `doc_id = doc.get('id')` devuelve None, por lo que el bloque `if doc_id:` se salta y se hace insert_one sin chequear duplicados. Resultado del test: re-import del mismo export = 38 inserciones nuevas (18 plan_competitions + 4 plan_objectives + 6 plan_previous_analysis + 10 plan_evaluations) en vez de skip. Esto duplicará competencias, objetivos, análisis y evaluaciones cada vez que el coach importe en producción.",
+        "priority": "HIGH"
+      }
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_fase4_coach_metrics_migration.py",
+    "/app/test_reports/pytest/fase4_results.xml"
+  ],
+  "action_items": [
+    "FIX HIGH (data_migration.py import-data): hacer idempotente las colecciones sin 'id'. Opciones: (a) generar un id=uuid4 ANTES de insertar y antes del check (no resuelve idempotencia entre exports/imports porque el id no existe en el export); (b) usar una clave compuesta natural por colección: plan_competitions => (plan_id,name,date); plan_objectives => (plan_id,user_id) (1:1 por plan); plan_previous_analysis => (plan_id,user_id); plan_evaluations => (plan_id,athlete_id,evaluation_type,date). Recomiendo (b): definir _NATURAL_KEY = {'plan_competitions':['plan_id','name','date'], 'plan_objectives':['plan_id'], 'plan_previous_analysis':['plan_id'], 'plan_evaluations':['plan_id','athlete_id','evaluation_type','date']} y antes del insert hacer db[col].find_one({k:doc.get(k) for k in keys}); si existe -> skipped++. Alternativa simple: añadir id=uuid4 al crear estos documentos en el resto del código y rellenar id en el export para los que no lo tengan.",
+    "OPCIONAL: añadir un campo 'imported_from_source_coach_id' en los documentos importados para auditar."
+  ],
+  "critical_code_review_comments": [
+    "routes/data_migration.py: _IMPORT_ORDER no incluye 'athlete_readiness' ni 'records_pesonales/marks' del atleta. Si el coach exporta en preview y produce en producción, los readiness diarios y récords NO se migran. Confirmar si está OK por diseño (probablemente sí: son datos del día a día).",
+    "routes/data_migration.py: el export NO incluye 'plan_links' o relaciones v1<->v2 explícitas; depende de que los IDs se preserven. Si en futuro se generan nuevos IDs en import, romperá. Considerar incluir un mapping table.",
+    "routes/coach_metrics.py:18 JWT_SECRET con default 'train-secret-key' -- mismo issue que athlete_portal, fallar rápido en producción si no está en env.",
+    "routes/coach_metrics.py:_session_load usa rpe_reportado || RPE_sesion || 6 -- el fallback 6 puede inflar carga aguda artificialmente si una sesión completada no tiene RPE. Considerar dejarlo en 0 o registrar telemetría.",
+    "routes/data_migration.py:import_data acepta cualquier export_version (no valida == 1) aunque el modelo Pydantic tiene default=1; un cliente puede enviar export_version=99 y se procesa igual. Añadir `if payload.export_version != EXPORT_VERSION: raise HTTPException(400)` para evitar import de formatos futuros incompatibles."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_fase4_coach_metrics_migration.py (nuevo)"
+  ],
+  "success_rate": {
+    "backend": "10/11 (91%) - única falla: import idempotency en 4 colecciones sin id",
+    "frontend": "100% en todos los data-testid pedidos: advanced-metrics, acwr-card (0.98 Óptimo), adherence-card (86% global), low-readiness-card, demo-data-fab + menu + load/clear btns, data-migration-section + export/import btns, athlete-today-reminder + dismiss"
+  },
+  "test_credentials": "Coach juegolaureado@gmail.com / LordTraining2026! ; Athlete juan.atleta@test.com / 8c6nkWqG ; plan 25b9abc7-b264-4809-a998-b688f660a6ca",
+  "seed_data_creation": "El test de idempotency hizo POST /api/admin/import-data del mismo export del coach. ESTO DUPLICÓ ~38 documentos (plan_competitions + plan_objectives + plan_previous_analysis + plan_evaluations) en la cuenta del coach juegolaureado. Recomiendo al main agent ejecutar limpieza después del fix, por ejemplo:\n  db.plan_competitions.aggregate(group by (plan_id,name,date) -> keep first) y borrar duplicados, o más simple: borrar todos los plan_competitions/plan_objectives/plan_previous_analysis/plan_evaluations del coach y re-importar UNA vez del export limpio. NOTA: las métricas ACWR/adherencia siguen siendo correctas porque NO dependen de plan_competitions ni plan_objectives.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Bug confirmado: import-data NO idempotente para 4 colecciones. Reproducir con: pytest backend/tests/test_fase4_coach_metrics_migration.py::TestExportImport::test_import_idempotent. Tras el fix, el assert `total_inserted == 0` debe pasar. Resto de Fase 4 OK 100%. NO ejecutar Demo→'Quitar datos de ejemplo' con all_plans en testing porque borraría 25b9abc7. La regresión Fase 3 (GET /api/athletes 500 reportada en iteration_75) está RESUELTA: ahora 200 con AthleteResponse age/level/created_at Optional.",
+  "rca_of_the_issue": "POST /api/admin/import-data en routes/data_migration.py iter sobre cada colección en _IMPORT_ORDER y para cada doc hace `doc_id = doc.get('id')`. Si doc_id existe -> chequea db.find_one({'id':doc_id}) y skip si existe. PROBLEMA: las colecciones plan_competitions, plan_objectives, plan_previous_analysis, plan_evaluations se crean SIN un campo 'id' (sus modelos Pydantic no lo definen y los endpoints que las insertan no le añaden uuid). Verificado con mongosh: las keys son ['plan_id','user_id','name','date','importance','location','expected_result','notes','created_at'] para plan_competitions -- no hay 'id'. Resultado: doc.get('id') = None, el `if doc_id:` se salta, se hace insert_one() siempre. Cada re-import duplica los 38 documentos. MITIGACIÓN: ver action_items: usar claves naturales por colección O añadir uuid en el código que las crea originalmente."
+}

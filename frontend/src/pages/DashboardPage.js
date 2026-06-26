@@ -8,7 +8,7 @@ import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
-import { getDashboardStats, getAthletes, seedExercises, getTournaments, createTournament, deleteTournament, getTournament, addTournamentCategory, registerParticipant, generateBracket, getTournamentMatches, updateMatchScore, exportTournamentPDF, getTeams as fetchTeamsApi } from '../services/api';
+import { getDashboardStats, getAthletes, seedExercises, getTournaments, createTournament, deleteTournament, getTournament, addTournamentCategory, registerParticipant, generateBracket, getTournamentMatches, updateMatchScore, exportTournamentPDF, getTeams as fetchTeamsApi, seedDemoData, clearDemoData } from '../services/api';
 import usePlanGate from '../hooks/usePlanGate';
 import SessionCalendar from '../components/SessionCalendar';
 import ScoutingModule from '../components/ScoutingModule';
@@ -1660,6 +1660,34 @@ const DashboardPage = () => {
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  // Demo data (onboarding) — top bar
+  const [demoMenuOpen, setDemoMenuOpen] = useState(false);
+  const [demoBusy, setDemoBusy] = useState(null);
+  const handleSeedDemo = async () => {
+    setDemoBusy('seed');
+    try {
+      const res = await seedDemoData(null);
+      const t = res.data?.totals || {};
+      toast.success(`Datos de ejemplo cargados: ${t.sessions || 0} sesiones, ${t.competitions || 0} competencias. Recargando…`);
+      setDemoMenuOpen(false);
+      setTimeout(() => window.location.reload(), 1200);
+    } catch (e) {
+      toast.error(e?.response?.data?.detail || 'No se pudieron cargar los datos de ejemplo');
+    } finally { setDemoBusy(null); }
+  };
+  const handleClearDemo = async () => {
+    if (!window.confirm('¿Quitar los datos de ejemplo? Se borrarán las fechas/completado de las sesiones de ejemplo y las competencias/evaluaciones de ejemplo.')) return;
+    setDemoBusy('clear');
+    try {
+      const res = await clearDemoData();
+      toast.success(`Datos de ejemplo eliminados (${res.data?.sessions_cleared || 0} sesiones). Recargando…`);
+      setDemoMenuOpen(false);
+      setTimeout(() => window.location.reload(), 1200);
+    } catch (e) {
+      toast.error(e?.response?.data?.detail || 'No se pudieron quitar los datos');
+    } finally { setDemoBusy(null); }
   };
 
   const handleSendMessage = () => {
@@ -4585,6 +4613,49 @@ const DashboardPage = () => {
 
           {/* Right: Testing + User Action FABs */}
           <div className="flex items-start gap-2 shrink-0 pl-2">
+            {/* Demo data FAB — siempre visible para cualquier coach */}
+            <div className="relative">
+              <button
+                onClick={() => setDemoMenuOpen(o => !o)}
+                className="group flex flex-col items-center gap-1 shrink-0 outline-none"
+                data-testid="demo-data-fab"
+                title="Cargar o quitar datos de ejemplo"
+              >
+                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#CCFF00]/15 text-slate-700 shadow-md border border-[#CCFF00]/50 hover:shadow-lg hover:bg-[#CCFF00]/25">
+                  <Sparkles className="w-[18px] h-[18px] transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
+                </div>
+                <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-500 group-hover:text-slate-700 transition-colors duration-300">
+                  Demo
+                </span>
+              </button>
+              {demoMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setDemoMenuOpen(false)} />
+                  <div className="absolute right-0 top-12 z-50 w-60 rounded-xl bg-white shadow-xl border border-slate-150 p-2" data-testid="demo-data-menu">
+                    <p className="text-[11px] text-slate-400 px-2 py-1">Datos de ejemplo (onboarding)</p>
+                    <button
+                      onClick={handleSeedDemo}
+                      disabled={demoBusy !== null}
+                      className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                      data-testid="demo-load-btn"
+                    >
+                      {demoBusy === 'seed' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4 text-emerald-600" />}
+                      Cargar datos de ejemplo
+                    </button>
+                    <button
+                      onClick={handleClearDemo}
+                      disabled={demoBusy !== null}
+                      className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+                      data-testid="demo-clear-btn"
+                    >
+                      {demoBusy === 'clear' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                      Quitar datos de ejemplo
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+
             {/* Equipo (Org) FAB — siempre visible, bloqueado si no tiene plan Club+ */}
             <Link to={user?.is_super_admin ? '/admin/super' : '/org/team'}>
               <button

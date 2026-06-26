@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Loader2, LogOut, Heart, Trophy, Activity, ClipboardList } from 'lucide-react';
+import { Loader2, LogOut, Heart, Trophy, Activity, ClipboardList, BellRing, X } from 'lucide-react';
 import AthletePlanView from '../components/athlete/AthletePlanView';
 import { athleteGetPlan, athleteCompleteSession, athleteSaveReadiness, athleteGetReadiness, athleteGetRecords } from '../services/athleteApi';
 
@@ -48,6 +48,11 @@ const AthletePortalPanel = () => {
 
   const logout = () => { localStorage.removeItem('athlete_token'); localStorage.removeItem('athlete_info'); navigate('/atleta/login'); };
 
+  const [reminderDismissed, setReminderDismissed] = useState(false);
+  const todayStr2 = new Date().toISOString().slice(0, 10);
+  const todaySessions = (plan?.sessions || []).filter(s => s.fecha && s.fecha.slice(0, 10) === todayStr2);
+  const todayPending = todaySessions.filter(s => !s.completada);
+
   if (loading) return <div className="min-h-screen bg-[#0a0e14] flex items-center justify-center"><Loader2 className="w-8 h-8 text-[#CCFF00] animate-spin" /></div>;
 
   const SLIDERS = [
@@ -78,6 +83,24 @@ const AthletePortalPanel = () => {
       </header>
 
       <main className="max-w-6xl mx-auto px-5 py-6">
+        {tab === 'plan' && todaySessions.length > 0 && !reminderDismissed && (
+          <div className="mb-5 rounded-2xl border border-[#CCFF00]/40 bg-[#CCFF00]/10 p-4 flex items-start gap-3" data-testid="athlete-today-reminder">
+            <BellRing className="w-5 h-5 text-[#CCFF00] mt-0.5 shrink-0" />
+            <div className="flex-1">
+              <p className="text-white font-semibold text-sm">
+                {todayPending.length > 0
+                  ? `Tienes entrenamiento hoy: ${todayPending.map(s => s.nombre).join(', ')}`
+                  : '¡Completaste tu entrenamiento de hoy! 💪'}
+              </p>
+              <p className="text-slate-300 text-xs mt-0.5">
+                {todayPending.length > 0
+                  ? 'Recuerda marcarlo como completado y registrar tu RPE al terminar.'
+                  : 'Buen trabajo. No olvides registrar tu estado en "Mi estado".'}
+              </p>
+            </div>
+            <button onClick={() => setReminderDismissed(true)} className="text-slate-400 hover:text-white" data-testid="athlete-reminder-dismiss"><X className="w-4 h-4" /></button>
+          </div>
+        )}
         {tab === 'plan' && (
           plan?.plan ? (
             <AthletePlanView athleteName={info.name} plan={plan.plan} sessions={plan.sessions} competitions={plan.competitions} onComplete={handleComplete} />

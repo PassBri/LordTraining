@@ -1,12 +1,50 @@
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { Loader2, Sparkles, Trash2, CalendarCheck, Trophy, Activity, CheckCircle2 } from 'lucide-react';
+import { Loader2, Sparkles, Trash2, CalendarCheck, Trophy, Activity, CheckCircle2, Download, Upload, ArrowRightLeft } from 'lucide-react';
 import { Button } from './ui/button';
-import { seedDemoData, clearDemoData } from '../services/api';
+import { seedDemoData, clearDemoData, exportMyData, importMyData } from '../services/api';
 
 const DemoDataManager = () => {
   const [busy, setBusy] = useState(null); // 'seed' | 'clear'
   const [result, setResult] = useState(null);
+  const [migBusy, setMigBusy] = useState(null); // 'export' | 'import'
+  const [importResult, setImportResult] = useState(null);
+  const fileRef = React.useRef(null);
+
+  const handleExport = async () => {
+    setMigBusy('export');
+    try {
+      const res = await exportMyData();
+      const blob = new Blob([JSON.stringify(res.data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `lordtraining-export-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      const c = res.data?.counts || {};
+      toast.success(`Exportado: ${c.training_plans || 0} planes, ${c.sesiones_v2 || 0} sesiones.`);
+    } catch (e) {
+      toast.error(e?.response?.data?.detail || 'No se pudo exportar');
+    } finally { setMigBusy(null); }
+  };
+
+  const handleImportFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setMigBusy('import');
+    setImportResult(null);
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      if (!parsed.data) throw new Error('Archivo inválido');
+      const res = await importMyData(parsed);
+      setImportResult(res.data?.imported || {});
+      toast.success('Importación completada. Recarga para ver tus planes.');
+    } catch (err) {
+      toast.error(err?.response?.data?.detail || err.message || 'No se pudo importar el archivo');
+    } finally { setMigBusy(null); if (fileRef.current) fileRef.current.value = ''; }
+  };
 
   const handleSeed = async () => {
     setBusy('seed');
@@ -105,6 +143,43 @@ const DemoDataManager = () => {
           <p className="text-[11px] text-emerald-600 mt-2">Abre el Panel de Control con un plan activo seleccionado para ver los datos.</p>
         </div>
       )}
+
+      {/* Migración Preview -> Producción */}
+      <div className="mt-8 pt-6 border-t border-slate-150" data-testid="data-migration-section">
+        <div className="flex items-start gap-3 mb-4">
+          <div className="w-11 h-11 rounded-xl bg-slate-900 flex items-center justify-center shrink-0">
+            <ArrowRightLeft className="w-5 h-5 text-[#CCFF00]" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-slate-900">Migración de datos (Preview → Producción)</h3>
+            <p className="text-sm text-slate-500 mt-0.5 max-w-2xl">
+              En <strong>Preview</strong>, exporta tus planes a un archivo JSON. Luego, en <strong>Producción</strong> (tras hacer Deploy),
+              importa ese archivo para recrear tus planes, sesiones y competencias en tu cuenta. Es idempotente (omite lo que ya existe).
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button onClick={handleExport} disabled={migBusy !== null} variant="outline" className="border-slate-300" data-testid="export-data-btn">
+            {migBusy === 'export' ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
+            Exportar mis datos
+          </Button>
+          <input ref={fileRef} type="file" accept="application/json" className="hidden" onChange={handleImportFile} data-testid="import-data-input" />
+          <Button onClick={() => fileRef.current?.click()} disabled={migBusy !== null} className="bg-slate-900 hover:bg-slate-800 text-white" data-testid="import-data-btn">
+            {migBusy === 'import' ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+            Importar datos
+          </Button>
+        </div>
+        {importResult && (
+          <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-4" data-testid="import-result">
+            <p className="text-sm font-semibold text-blue-800 mb-2">Importación completada:</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-xs text-blue-700">
+              {Object.entries(importResult).map(([k, v]) => (
+                <span key={k}>{k}: <strong>+{v.inserted}</strong>{v.skipped ? ` (${v.skipped} omitidos)` : ''}</span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

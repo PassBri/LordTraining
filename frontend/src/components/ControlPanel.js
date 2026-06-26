@@ -16,10 +16,11 @@ import {
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend,
   RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
-  BarChart, Bar, XAxis, YAxis
+  BarChart, Bar, XAxis, YAxis, LineChart, Line, CartesianGrid, ReferenceArea
 } from 'recharts';
 import { toast } from 'sonner';
 import InteractiveChart from './InteractiveChart';
+import AdvancedMetrics from './AdvancedMetrics';
 import usePlanStore from '../stores/planStore';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -139,6 +140,18 @@ const ControlPanel = ({
   
   // Smart Alerts Data
   const [smartAlerts, setSmartAlerts] = useState([]);
+
+  // Métricas avanzadas del coach (ACWR + adherencia + baja disponibilidad)
+  const [coachMetrics, setCoachMetrics] = useState(null);
+  useEffect(() => {
+    const token = localStorage.getItem('train_token');
+    const pid = activePlan?.id;
+    const qs = pid ? `?plan_id=${pid}` : '';
+    fetch(`${API_URL}/api/coach/metrics${qs}`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d) setCoachMetrics(d); })
+      .catch(() => {});
+  }, [activePlan?.id]);
 
   // Readiness real del atleta seleccionado (alimentado por el portal del atleta)
   useEffect(() => {
@@ -1494,6 +1507,9 @@ const ControlPanel = ({
             </CardContent>
           </Card>
         </div>
+
+        {/* Row 3.5: Métricas Avanzadas — ACWR + Adherencia + Baja disponibilidad */}
+        <AdvancedMetrics metrics={coachMetrics} onNavigate={onNavigate} />
 
         {/* Row 4: Zonas de Entrenamiento + Mini Calendario */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
