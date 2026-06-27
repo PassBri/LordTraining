@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import '../landing/landingThemes.css';
 import { Button } from '../components/ui/button';
 import { LanguageSelector } from '../components/LanguageSelector';
 import {
@@ -452,6 +453,16 @@ const LandingPage = () => {
       fetchActiveBranding().then((b) => { if (b.landing) setLandingLogo(b.landing); }));
   }, []);
 
+  // Apariencia del landing (tema global elegido por el super admin) — guardado en MongoDB
+  const [landingTheme, setLandingTheme] = useState('classic');
+  useEffect(() => {
+    const BACKEND = process.env.REACT_APP_BACKEND_URL;
+    fetch(`${BACKEND}/api/landing/theme`)
+      .then(r => r.json())
+      .then(d => { if (d?.active_theme) setLandingTheme(d.active_theme); })
+      .catch(() => {});
+  }, []);
+
   const handlePlanCheckout = (landingKey) => {
     const tier = LANDING_TIER_MAP[landingKey] || 'starter';
     const cycle = billingCycle;
@@ -472,8 +483,9 @@ const LandingPage = () => {
   ];
 
   return (
-  <div className="min-h-screen bg-slate-950 landing-reset" style={{fontFamily:INT}}>
+  <div className="min-h-screen bg-slate-950 landing-reset lt-theme" data-landing-theme={landingTheme} style={{fontFamily:INT}}>
     <style>{`
+      .lt-theme, .lt-theme * { transition: background-color .3s ease, color .3s ease, border-color .3s ease, box-shadow .3s ease; }
       .landing-reset h1,.landing-reset h2,.landing-reset h3,.landing-reset h4{font-family:inherit;font-weight:inherit;text-transform:none;letter-spacing:normal;}
       @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
       @keyframes glow { 0%,100% { opacity: 0.4; } 50% { opacity: 0.8; } }

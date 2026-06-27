@@ -1,0 +1,74 @@
+/* LordTraining — Sistema de temas del landing (toggle global del super admin).
+   Fase 1: define los tokens CSS de las 4 versiones + efecto base visible.
+   Las fases 2-4 (Futurista/Light/Material) consumirán estas variables por sección.
+   Especificidad .lt-theme[data-landing-theme] (0,2,0) vence a clases Tailwind sueltas. */
+
+.lt-theme[data-landing-theme="classic"] {
+  --bg-base: #050A14;
+  --bg-surface: #0C1322;
+  --text-primary: #FFFFFF;
+  --text-secondary: #A0AEC0;
+  --accent: #CCFF00;
+  --accent-gold: #C9A84C;
+  --border: rgba(255, 255, 255, 0.1);
+  --btn-primary-bg: #CCFF00;
+  --btn-primary-text: #050A14;
+  --radius-card: 12px;
+  --radius-btn: 8px;
+  --shadow-card: none;
+  background-color: #050A14;
+}
+
+.lt-theme[data-landing-theme="material"] {
+  --bg-base: #121212;
+  --bg-surface: #1E1E1E;
+  --bg-surface-elevated: #2C2C2C;
+  --text-primary: #E3E3E3;
+  --text-secondary: #C4C7C5;
+  --accent: #CCFF00;
+  --accent-gold: #C9A84C;
+  --border: #444746;
+  --btn-primary-bg: #CCFF00;
+  --btn-primary-text: #121212;
+  --radius-card: 24px;
+  --radius-btn: 100px;
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  --shadow-elevated: 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12), 0 5px 5px -3px rgba(0,0,0,0.2);
+  background-color: #121212;
+}
+
+.lt-theme[data-landing-theme="futuristic"] {
+  --bg-base: #050A14;
+  --bg-surface: #080D1A;
+  --bg-surface-elevated: #0A0F1E;
+  --text-primary: #FFFFFF;
+  --text-secondary: #888888;
+  --accent: #CCFF00;
+  --accent-gold: #C9A84C;
+  --border: rgba(255, 255, 255, 0.08);
+  --btn-primary-bg: #FFFFFF;
+  --btn-primary-text: #050A14;
+  --radius-card: 4px;
+  --radius-btn: 4px;
+  --shadow-card: none;
+  --shadow-elevated: 0 0 20px rgba(204, 255, 0, 0.15);
+  background-color: #050A14;
+}
+
+.lt-theme[data-landing-theme="light"] {
+  --bg-base: #FFFFFF;
+  --bg-surface: #F5F7FA;
+  --bg-surface-elevated: #FFFFFF;
+  --text-primary: #0A0F1E;
+  --text-secondary: #4A5568;
+  --accent: #CCFF00;
+  --accent-gold: #C9A84C;
+  --border: #E2E8F0;
+  --btn-primary-bg: #0A0F1E;
+  --btn-primary-text: #CCFF00;
+  --radius-card: 16px;
+  --radius-btn: 8px;
+  --shadow-card: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+  --shadow-elevated: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  background-color: #FFFFFF;
+}

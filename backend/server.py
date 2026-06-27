@@ -166,6 +166,9 @@ app.include_router(sharing_router)
 from routes.training_plans import router as training_plans_router
 app.include_router(training_plans_router)
 
+from routes.landing_settings import router as landing_settings_router
+app.include_router(landing_settings_router)
+
 # Store db reference in app state for V2 routes
 app.state.db = db
 
