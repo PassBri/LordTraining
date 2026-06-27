@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Dialog, DialogContent } from './ui/dialog';
@@ -35,29 +36,29 @@ const GRADIENTS = {
 
 // Rangos de tiempo predefinidos
 const TIME_RANGES = [
-  { id: 'olympic', label: 'Ciclo Olímpico', weeks: 208, shortLabel: '4A' },
-  { id: '2years', label: '2 Años', weeks: 104, shortLabel: '2A' },
-  { id: '1year', label: '1 Año', weeks: 52, shortLabel: '1A' },
-  { id: '6months', label: '6 Meses', weeks: 26, shortLabel: '6M' },
-  { id: '3months', label: '3 Meses', weeks: 13, shortLabel: '3M' },
-  { id: '1month', label: '1 Mes', weeks: 4, shortLabel: '1M' },
-  { id: 'sessions', label: 'Sesiones', weeks: 12, shortLabel: 'S' }
+  { id: 'olympic', labelKey: 'chart.rangeOlympic', weeks: 208, shortLabel: '4A' },
+  { id: '2years', labelKey: 'chart.range2years', weeks: 104, shortLabel: '2A' },
+  { id: '1year', labelKey: 'chart.range1year', weeks: 52, shortLabel: '1A' },
+  { id: '6months', labelKey: 'chart.range6months', weeks: 26, shortLabel: '6M' },
+  { id: '3months', labelKey: 'chart.range3months', weeks: 13, shortLabel: '3M' },
+  { id: '1month', labelKey: 'chart.range1month', weeks: 4, shortLabel: '1M' },
+  { id: 'sessions', labelKey: 'chart.rangeSessions', weeks: 12, shortLabel: 'S' }
 ];
 
 // Tipos de visualización
 const CHART_TYPES = [
-  { id: 'bar', label: 'Barras', icon: BarChart3 },
-  { id: 'line', label: 'Líneas', icon: TrendingUp },
-  { id: 'area', label: 'Área', icon: Layers },
-  { id: 'scatter', label: 'Puntos', icon: Activity },
-  { id: 'mixed', label: 'Mixta', icon: Settings2 }
+  { id: 'bar', labelKey: 'chart.typeBar', icon: BarChart3 },
+  { id: 'line', labelKey: 'chart.typeLine', icon: TrendingUp },
+  { id: 'area', labelKey: 'chart.typeArea', icon: Layers },
+  { id: 'scatter', labelKey: 'chart.typeScatter', icon: Activity },
+  { id: 'mixed', labelKey: 'chart.typeMixed', icon: Settings2 }
 ];
 
 // Rangos rápidos para navegación tipo trading
 const QUICK_RANGES = [
-  { id: 'last4', label: 'Últ. 4', count: 4 },
-  { id: 'last8', label: 'Últ. 8', count: 8 },
-  { id: 'all', label: 'Todo', count: -1 }
+  { id: 'last4', labelKey: 'chart.last4', count: 4 },
+  { id: 'last8', labelKey: 'chart.last8', count: 8 },
+  { id: 'all', labelKey: 'chart.all', count: -1 }
 ];
 
 const InteractiveChart = ({
@@ -82,6 +83,7 @@ const InteractiveChart = ({
   xAxisType = 'category',
   className = ''
 }) => {
+  const { t } = useTranslation();
   const [chartType, setChartType] = useState(defaultChartType);
   const [timeRange, setTimeRange] = useState(defaultTimeRange);
   const [brushRange, setBrushRange] = useState({ startIndex: 0, endIndex: 11 });
@@ -545,9 +547,9 @@ const InteractiveChart = ({
                 ? 'text-slate-400 hover:text-white hover:bg-slate-600'
                 : 'text-slate-500 hover:text-slate-700 hover:bg-white'
             }`}
-            title={range.label}
+            title={t(range.labelKey)}
           >
-            {range.label}
+            {t(range.labelKey)}
           </button>
         ))}
       </div>
@@ -565,7 +567,7 @@ const InteractiveChart = ({
             : (isFullscreenMode ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-700')
         }`}
         onClick={() => setShowCrosshair(!showCrosshair)}
-        title="Crosshair"
+        title={t('chart.crosshair')}
       >
         <MousePointer2 className="w-4 h-4" />
       </Button>
@@ -588,7 +590,7 @@ const InteractiveChart = ({
               {title}
               {showLiveIndicator && (
                 <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full ml-2">
-                  En vivo
+                  {t('chart.live')}
                 </span>
               )}
             </CardTitle>
@@ -601,7 +603,7 @@ const InteractiveChart = ({
                   size="sm" 
                   className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700"
                   onClick={handleZoomIn}
-                  title="Acercar (Shift + Scroll)"
+                  title={t('chart.zoomIn')}
                 >
                   <ZoomIn className="w-4 h-4" />
                 </Button>
@@ -610,7 +612,7 @@ const InteractiveChart = ({
                   size="sm" 
                   className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700"
                   onClick={handleZoomOut}
-                  title="Alejar (Shift + Scroll)"
+                  title={t('chart.zoomOut')}
                 >
                   <ZoomOut className="w-4 h-4" />
                 </Button>
@@ -619,7 +621,7 @@ const InteractiveChart = ({
                   size="sm" 
                   className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700"
                   onClick={handleResetZoom}
-                  title="Restablecer (Doble clic)"
+                  title={t('chart.reset')}
                 >
                   <RotateCcw className="w-4 h-4" />
                 </Button>
@@ -628,7 +630,7 @@ const InteractiveChart = ({
                   size="sm" 
                   className={`h-8 w-8 p-0 ${showSettings ? 'bg-blue-100 text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
                   onClick={() => setShowSettings(!showSettings)}
-                  title="Configuración"
+                  title={t('chart.settings')}
                 >
                   <Settings2 className="w-4 h-4" />
                 </Button>
@@ -638,7 +640,7 @@ const InteractiveChart = ({
                   size="sm" 
                   className="h-8 w-8 p-0 text-slate-500 hover:text-blue-600 hover:bg-blue-50"
                   onClick={() => setIsFullscreen(true)}
-                  title="Pantalla completa"
+                  title={t('chart.fullscreen')}
                 >
                   <Maximize2 className="w-4 h-4" />
                 </Button>
@@ -652,7 +654,7 @@ const InteractiveChart = ({
               {/* Selector de rango de tiempo */}
               {showTimeRange && (
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-slate-500 font-medium">Período:</span>
+                <span className="text-xs text-slate-500 font-medium">{t('chart.period')}</span>
                 <div className="flex bg-slate-100 rounded-lg p-0.5">
                   {TIME_RANGES.map(range => (
                     <button
@@ -663,7 +665,7 @@ const InteractiveChart = ({
                           ? 'bg-white text-blue-600 shadow-sm'
                           : 'text-slate-500 hover:text-slate-700'
                       }`}
-                      title={range.label}
+                      title={t(range.labelKey)}
                     >
                       {range.shortLabel}
                     </button>
@@ -674,7 +676,7 @@ const InteractiveChart = ({
 
               {/* Selector de tipo de gráfico */}
               <div className="flex items-center gap-1.5 flex-shrink-0">
-                <span className="text-xs text-slate-500 font-medium">Vista:</span>
+                <span className="text-xs text-slate-500 font-medium">{t('chart.view')}</span>
                 <div className="flex flex-wrap bg-slate-100 rounded-lg p-0.5">
                   {CHART_TYPES.map(type => {
                     const TypeIcon = type.icon;
@@ -688,11 +690,11 @@ const InteractiveChart = ({
                             ? 'bg-white text-blue-600 shadow-sm'
                             : 'text-slate-500 hover:text-slate-700'
                         }`}
-                        title={type.label}
+                        title={t(type.labelKey)}
                         data-testid={`chart-type-${type.id}`}
                       >
                         <TypeIcon className="w-4 h-4" />
-                        {isMixed && <span className="text-[10px] font-semibold leading-none">Mixta</span>}
+                        {isMixed && <span className="text-[10px] font-semibold leading-none">{t('chart.typeMixed')}</span>}
                       </button>
                     );
                   })}
@@ -704,7 +706,7 @@ const InteractiveChart = ({
 
               {/* Info del rango actual */}
               <div className="ml-auto text-xs text-slate-400 flex-shrink min-w-0 truncate">
-                {brushRange.endIndex - brushRange.startIndex + 1} de {filteredData.length} • Doble clic para reset
+                {brushRange.endIndex - brushRange.startIndex + 1} {t('chart.of')} {filteredData.length} • {t('chart.doubleClickReset')}
               </div>
             </div>
           )}
@@ -726,11 +728,11 @@ const InteractiveChart = ({
                           ? 'bg-white text-blue-600 shadow-sm'
                           : 'text-slate-400 hover:text-slate-600'
                       }`}
-                      title={type.label}
+                      title={t(type.labelKey)}
                       data-testid={`chart-type-compact-${type.id}`}
                     >
                       <TypeIcon className="w-3.5 h-3.5" />
-                      {isMixed && <span className="text-[10px] font-semibold leading-none">Mixta</span>}
+                      {isMixed && <span className="text-[10px] font-semibold leading-none">{t('chart.typeMixed')}</span>}
                     </button>
                   );
                 })}
@@ -748,7 +750,7 @@ const InteractiveChart = ({
                         ? 'bg-white text-blue-600 shadow-sm'
                         : 'text-slate-400 hover:text-slate-600'
                     }`}
-                    title={range.label}
+                    title={t(range.labelKey)}
                   >
                     {range.shortLabel}
                   </button>
@@ -764,9 +766,9 @@ const InteractiveChart = ({
                     key={range.id}
                     onClick={() => handleQuickRange(range.count)}
                     className="px-1.5 py-0.5 text-[10px] font-medium rounded text-slate-400 hover:text-slate-600 hover:bg-white transition-all"
-                    title={range.label}
+                    title={t(range.labelKey)}
                   >
-                    {range.label}
+                    {t(range.labelKey)}
                   </button>
                 ))}
               </div>
@@ -802,7 +804,7 @@ const InteractiveChart = ({
               <h2 className="text-xl font-bold text-white">{title}</h2>
               {showLiveIndicator && (
                 <span className="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full border border-green-500/30">
-                  ● En vivo
+                  ● {t('chart.live')}
                 </span>
               )}
             </div>
@@ -822,7 +824,7 @@ const InteractiveChart = ({
                           ? 'bg-blue-500 text-white'
                           : 'text-slate-400 hover:text-white hover:bg-slate-600'
                       }`}
-                      title={type.label}
+                      title={t(type.labelKey)}
                     >
                       <TypeIcon className="w-4 h-4" />
                     </button>
@@ -842,7 +844,7 @@ const InteractiveChart = ({
                         ? 'bg-blue-500 text-white'
                         : 'text-slate-400 hover:text-white hover:bg-slate-600'
                     }`}
-                    title={range.label}
+                    title={t(range.labelKey)}
                   >
                     {range.shortLabel}
                   </button>
@@ -858,9 +860,9 @@ const InteractiveChart = ({
                     key={range.id}
                     onClick={() => handleQuickRange(range.count)}
                     className="px-3 py-1.5 text-xs font-medium rounded-md text-slate-400 hover:text-white hover:bg-slate-600 transition-all"
-                    title={range.label}
+                    title={t(range.labelKey)}
                   >
-                    {range.label}
+                    {t(range.labelKey)}
                   </button>
                 ))}
               </div>
@@ -876,7 +878,7 @@ const InteractiveChart = ({
                     : 'text-slate-400 hover:text-white hover:bg-slate-700'
                 }`}
                 onClick={() => setShowCrosshair(!showCrosshair)}
-                title="Crosshair"
+                title={t('chart.crosshair')}
               >
                 <MousePointer2 className="w-5 h-5" />
               </Button>
@@ -889,7 +891,7 @@ const InteractiveChart = ({
                 size="sm" 
                 className="h-9 w-9 p-0 text-slate-400 hover:text-white hover:bg-slate-700"
                 onClick={handleZoomIn}
-                title="Acercar (Shift + Scroll)"
+                title={t('chart.zoomIn')}
               >
                 <ZoomIn className="w-5 h-5" />
               </Button>
@@ -898,7 +900,7 @@ const InteractiveChart = ({
                 size="sm" 
                 className="h-9 w-9 p-0 text-slate-400 hover:text-white hover:bg-slate-700"
                 onClick={handleZoomOut}
-                title="Alejar (Shift + Scroll)"
+                title={t('chart.zoomOut')}
               >
                 <ZoomOut className="w-5 h-5" />
               </Button>
@@ -907,7 +909,7 @@ const InteractiveChart = ({
                 size="sm" 
                 className="h-9 w-9 p-0 text-slate-400 hover:text-white hover:bg-slate-700"
                 onClick={handleResetZoom}
-                title="Restablecer (Doble clic)"
+                title={t('chart.reset')}
               >
                 <RotateCcw className="w-5 h-5" />
               </Button>
@@ -920,7 +922,7 @@ const InteractiveChart = ({
                 size="sm" 
                 className="h-9 w-9 p-0 text-slate-400 hover:text-red-400 hover:bg-red-500/10"
                 onClick={() => setIsFullscreen(false)}
-                title="Cerrar (ESC)"
+                title={t('chart.close')}
               >
                 <X className="w-5 h-5" />
               </Button>
@@ -946,10 +948,10 @@ const InteractiveChart = ({
             <div className="flex items-center justify-between text-xs text-slate-400">
               <div className="flex items-center gap-4">
                 <span className="font-mono">
-                  Mostrando <span className="text-blue-400 font-bold">{brushRange.endIndex - brushRange.startIndex + 1}</span> de {filteredData.length} períodos
+                  {t('chart.showing')} <span className="text-blue-400 font-bold">{brushRange.endIndex - brushRange.startIndex + 1}</span> {t('chart.of')} {filteredData.length} {t('chart.periods')}
                 </span>
                 <span className="text-slate-600">|</span>
-                <span>Período: <span className="text-slate-300">{TIME_RANGES.find(r => r.id === timeRange)?.label}</span></span>
+                <span>{t('chart.period')} <span className="text-slate-300">{(() => { const r = TIME_RANGES.find(r => r.id === timeRange); return r ? t(r.labelKey) : ''; })()}</span></span>
                 {crosshairData && (
                   <>
                     <span className="text-slate-600">|</span>
@@ -962,14 +964,14 @@ const InteractiveChart = ({
               <div className="flex items-center gap-4">
                 <span className="text-slate-500">
                   <kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-[10px] mr-1">Shift</kbd>
-                  + Scroll = Zoom
+                  {t('chart.scrollZoom')}
                 </span>
                 <span className="text-slate-600">•</span>
-                <span className="text-slate-500">Doble clic = Reset</span>
+                <span className="text-slate-500">{t('chart.doubleClickResetShort')}</span>
                 <span className="text-slate-600">•</span>
                 <span className="text-slate-500">
                   <kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-[10px]">ESC</kbd>
-                  = Cerrar
+                  {t('chart.escClose')}
                 </span>
               </div>
             </div>

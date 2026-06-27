@@ -277,10 +277,10 @@ const ControlPanel = ({
     const hasData = cur.count > 0 || prev.count > 0;
     if (!hasData) return null;
     return [
-      { metric: 'Sesiones', actual: cur.count, anterior: prev.count, unidad: '' },
-      { metric: 'Tiempo Total', actual: cur.hours, anterior: prev.hours, unidad: 'h' },
-      { metric: 'Volumen', actual: cur.minutes, anterior: prev.minutes, unidad: 'min' },
-      { metric: 'RPE Promedio', actual: cur.rpe, anterior: prev.rpe, unidad: '' },
+      { metric: t('chart.metricSessions'), actual: cur.count, anterior: prev.count, unidad: '' },
+      { metric: t('chart.metricTotalTime'), actual: cur.hours, anterior: prev.hours, unidad: 'h' },
+      { metric: t('chart.metricVolume'), actual: cur.minutes, anterior: prev.minutes, unidad: 'min' },
+      { metric: t('chart.metricAvgRPE'), actual: cur.rpe, anterior: prev.rpe, unidad: '' },
     ];
   }, [sesiones]);
 
@@ -435,15 +435,20 @@ const ControlPanel = ({
   }, [activePlan?.id, fetchPanelStats]);
 
   // Función para formatear nombre de fase
+  const PHASE_CANON = {
+    'preparatory_general': 'Prep. General', 'preparatory_specific': 'Prep. Específico',
+    'precompetitive': 'Precompetitivo', 'competitive': 'Competitivo', 'transition': 'Transición',
+  };
+  const PHASE_I18N = {
+    'preparatory_general': 'chart.phasePrepGeneral', 'Prep. General': 'chart.phasePrepGeneral',
+    'preparatory_specific': 'chart.phasePrepSpecific', 'Prep. Específico': 'chart.phasePrepSpecific',
+    'precompetitive': 'chart.phasePrecompetitive', 'Precompetitivo': 'chart.phasePrecompetitive',
+    'competitive': 'chart.phaseCompetitive', 'Competitivo': 'chart.phaseCompetitive',
+    'transition': 'chart.phaseTransition', 'Transición': 'chart.phaseTransition',
+  };
   const formatPhaseName = (name) => {
-    const phaseNames = {
-      'preparatory_general': 'Prep. General',
-      'preparatory_specific': 'Prep. Específico',
-      'precompetitive': 'Precompetitivo',
-      'competitive': 'Competitivo',
-      'transition': 'Transición'
-    };
-    return phaseNames[name] || name;
+    if (PHASE_I18N[name]) return t(PHASE_I18N[name]);
+    return PHASE_CANON[name] || name;
   };
 
   // Generar alertas inteligentes basadas en datos reales
@@ -736,7 +741,7 @@ const ControlPanel = ({
         const distribution = Object.entries(phaseCount).map(([name, count], index) => ({
           name: formatPhaseName(name),
           value: Math.round((count / totalWeeks) * 100),
-          color: COLORS.phases[name] || COLORS.phases[formatPhaseName(name)] || PHASE_COLORS[index % PHASE_COLORS.length]
+          color: COLORS.phases[name] || COLORS.phases[PHASE_CANON[name] || name] || PHASE_COLORS[index % PHASE_COLORS.length]
         }));
         setPhaseDistribution(distribution);
         setDataSource('plan');
@@ -798,7 +803,7 @@ const ControlPanel = ({
         const distribution = Object.entries(phaseCount).map(([name, count], index) => ({
           name: formatPhaseName(name),
           value: Math.round((count / totalWeeks) * 100),
-          color: COLORS.phases[name] || COLORS.phases[formatPhaseName(name)] || PHASE_COLORS[index % PHASE_COLORS.length]
+          color: COLORS.phases[name] || COLORS.phases[PHASE_CANON[name] || name] || PHASE_COLORS[index % PHASE_COLORS.length]
         }));
         setPhaseDistribution(distribution);
         setDataSource('local');
@@ -852,9 +857,9 @@ const ControlPanel = ({
       // Distribución de fases basada en el modelo - con colores únicos
       const totalSemanas = Object.values(phaseData).reduce((a, b) => a + b, 0);
       const distribution = Object.entries(phaseData).map(([name, count], index) => ({
-        name: name,
+        name: formatPhaseName(name),
         value: Math.round((count / totalSemanas) * 100),
-        color: COLORS.phases[name] || PHASE_COLORS[index % PHASE_COLORS.length]
+        color: COLORS.phases[name] || COLORS.phases[PHASE_CANON[name] || name] || PHASE_COLORS[index % PHASE_COLORS.length]
       }));
       setPhaseDistribution(distribution);
 
@@ -941,7 +946,7 @@ const ControlPanel = ({
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-        toast.success('Reporte PDF descargado correctamente');
+        toast.success(t('dashboard.controlPanel.pdfDownloaded'));
         setShowExportModal(false);
       } else {
         toast.error('Error al generar el reporte PDF');
@@ -1082,8 +1087,8 @@ const ControlPanel = ({
                   {trainingLoadRatio.trend === 'increasing' && <TrendingUp className="w-3 h-3 text-red-500" />}
                   {trainingLoadRatio.trend === 'decreasing' && <ArrowDownRight className="w-3 h-3 text-emerald-500" />}
                   {trainingLoadRatio.trend === 'stable' && <span className="text-slate-400">→</span>}
-                  <span>{trainingLoadRatio.trend === 'increasing' ? 'Subiendo' : 
-                         trainingLoadRatio.trend === 'decreasing' ? 'Bajando' : 'Estable'}</span>
+                  <span>{trainingLoadRatio.trend === 'increasing' ? t('dashboard.controlPanel.increasing') : 
+                         trainingLoadRatio.trend === 'decreasing' ? t('dashboard.controlPanel.decreasing') : t('dashboard.controlPanel.stable')}</span>
                 </div>
               </div>
               <div className="space-y-1.5 text-xs">
@@ -1279,9 +1284,9 @@ const ControlPanel = ({
             icon={BarChart3}
             data={volumeData}
             dataKeys={[
-              { key: 'volumen', name: 'Volumen %' },
-              { key: 'intensidad', name: 'Intensidad %' },
-              { key: 'densidad', name: 'Densidad %' }
+              { key: 'volumen', name: t('chart.seriesVolume') },
+              { key: 'intensidad', name: t('chart.seriesIntensity') },
+              { key: 'densidad', name: t('chart.seriesDensity') }
             ]}
             xAxisKey="semana"
             height={280}
@@ -1299,9 +1304,9 @@ const ControlPanel = ({
             icon={TrendingUp}
             data={intensityData}
             dataKeys={[
-              { key: 'intensidad', name: 'Intensidad %' },
-              { key: 'recuperacion', name: 'Recuperación %' },
-              { key: 'densidad', name: 'Densidad %' }
+              { key: 'intensidad', name: t('chart.seriesIntensity') },
+              { key: 'recuperacion', name: t('chart.seriesRecovery') },
+              { key: 'densidad', name: t('chart.seriesDensity') }
             ]}
             xAxisKey="semana"
             height={280}
@@ -1356,8 +1361,8 @@ const ControlPanel = ({
               icon={Flame}
               data={loadData}
               dataKeys={[
-                { key: 'carga', name: 'Carga Acumulada', color: COLORS.primary },
-                { key: 'fatiga', name: 'Índice de Fatiga', color: COLORS.danger }
+                { key: 'carga', name: t('chart.seriesLoad'), color: COLORS.primary },
+                { key: 'fatiga', name: t('chart.seriesFatigue'), color: COLORS.danger }
               ]}
               xAxisKey="semana"
               height={220}
@@ -1367,14 +1372,14 @@ const ControlPanel = ({
               defaultTimeRange="sessions"
               yAxisDomain={[0, 700]}
               referenceAreas={[
-                { y1: 550, y2: 700, color: '#EF4444', fillOpacity: 0.15, label: '⚠️ Sobrentrenamiento' },
-                { y1: 350, y2: 550, color: '#10B981', fillOpacity: 0.12, label: '✓ Zona Óptima' },
-                { y1: 150, y2: 350, color: '#F59E0B', fillOpacity: 0.12, label: '⚡ Carga Moderada' },
-                { y1: 0, y2: 150, color: '#6B7280', fillOpacity: 0.1, label: '↓ Carga Baja' }
+                { y1: 550, y2: 700, color: '#EF4444', fillOpacity: 0.15, label: t('chart.zoneOvertraining') },
+                { y1: 350, y2: 550, color: '#10B981', fillOpacity: 0.12, label: t('chart.zoneOptimal') },
+                { y1: 150, y2: 350, color: '#F59E0B', fillOpacity: 0.12, label: t('chart.zoneModerate') },
+                { y1: 0, y2: 150, color: '#6B7280', fillOpacity: 0.1, label: t('chart.zoneLow') }
               ]}
               referenceLines={[
-                { y: 550, color: '#EF4444', label: 'Límite Alto' },
-                { y: 150, color: '#6B7280', label: 'Límite Bajo' }
+                { y: 550, color: '#EF4444', label: t('chart.limitHigh') },
+                { y: 150, color: '#6B7280', label: t('chart.limitLow') }
               ]}
             />
           </div>
@@ -1739,7 +1744,7 @@ const ControlPanel = ({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 capitalize">
               <CalendarDays className="w-5 h-5 text-blue-600" />
-              {selectedCalendarDay && selectedCalendarDay.date.toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+              {selectedCalendarDay && selectedCalendarDay.date.toLocaleDateString(i18n.language, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-3 max-h-[60vh] overflow-y-auto">
@@ -1751,10 +1756,10 @@ const ControlPanel = ({
               return (
                 <div key={s.id} className="rounded-xl border border-slate-200 p-4" style={{ borderLeft: `4px solid ${color}` }}>
                   <div className="flex items-start justify-between gap-2">
-                    <h4 className="text-sm font-bold text-slate-900">{s.nombre || `Sesión ${s.orden_dia || ''}`}</h4>
+                    <h4 className="text-sm font-bold text-slate-900">{s.nombre || `${t('sessionCalendar.session')} ${s.orden_dia || ''}`}</h4>
                     {s.completada && (
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                        <CheckCircle className="w-2.5 h-2.5" /> Realizada
+                        <CheckCircle className="w-2.5 h-2.5" /> {t('sessionCalendar.done')}
                       </span>
                     )}
                   </div>
@@ -1762,7 +1767,7 @@ const ControlPanel = ({
                     <div className="mt-2 mb-2 flex flex-wrap items-center gap-1.5 text-[10px]">
                       {macro && <span className="px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 font-semibold uppercase tracking-wider">M{macro.numero}: {macro.nombre || 'Macro'}</span>}
                       {meso && <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-semibold uppercase tracking-wider">{meso.tipo || meso.nombre || `Meso ${meso.numero}`}</span>}
-                      {micro && <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-semibold uppercase tracking-wider">Sem {micro.numero_semana} · {micro.tipo || 'choque'}</span>}
+                      {micro && <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-semibold uppercase tracking-wider">{t('sessionCalendar.week')} {micro.numero_semana} · {micro.tipo || 'choque'}</span>}
                     </div>
                   )}
                   <div className="grid grid-cols-2 gap-2 text-[11px]">
@@ -1788,7 +1793,7 @@ const ControlPanel = ({
                     variant="ghost" size="sm" className="mt-3 w-full text-[11px] text-blue-700 hover:bg-blue-50 h-8"
                     data-testid={`panel-open-session-${s.id}`}
                   >
-                    <Activity className="w-3 h-3 mr-1.5" /> Ver/editar en Periodización →
+                    <Activity className="w-3 h-3 mr-1.5" /> {t('sessionCalendar.openInPeriodization')} →
                   </Button>
                 </div>
               );
@@ -1803,13 +1808,13 @@ const ControlPanel = ({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <FileText className="w-5 h-5 text-red-500" />
-              Exportar Reporte PDF
+              {t('dashboard.controlPanel.exportTitle')}
             </DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4 py-4">
             <p className="text-sm text-slate-600">
-              Selecciona las secciones que deseas incluir en tu reporte:
+              {t('dashboard.controlPanel.exportSelectSections')}
             </p>
             
             <div className="space-y-3">
@@ -1821,7 +1826,7 @@ const ControlPanel = ({
                 />
                 <Label htmlFor="summary" className="flex items-center gap-2 cursor-pointer">
                   <BarChart3 className="w-4 h-4 text-blue-500" />
-                  Resumen del Plan
+                  {t('dashboard.controlPanel.exportSummary')}
                 </Label>
               </div>
               
@@ -1833,7 +1838,7 @@ const ControlPanel = ({
                 />
                 <Label htmlFor="volume" className="flex items-center gap-2 cursor-pointer">
                   <TrendingUp className="w-4 h-4 text-green-500" />
-                  Gráficos de Volumen
+                  {t('dashboard.controlPanel.exportVolumeCharts')}
                 </Label>
               </div>
               
@@ -1845,7 +1850,7 @@ const ControlPanel = ({
                 />
                 <Label htmlFor="intensity" className="flex items-center gap-2 cursor-pointer">
                   <Activity className="w-4 h-4 text-red-500" />
-                  Gráficos de Intensidad
+                  {t('dashboard.controlPanel.exportIntensityCharts')}
                 </Label>
               </div>
               
@@ -1857,7 +1862,7 @@ const ControlPanel = ({
                 />
                 <Label htmlFor="calendar" className="flex items-center gap-2 cursor-pointer">
                   <Calendar className="w-4 h-4 text-slate-400" />
-                  Calendario de Sesiones y Eventos
+                  {t('dashboard.controlPanel.exportCalendar')}
                 </Label>
               </div>
             </div>
@@ -1865,7 +1870,7 @@ const ControlPanel = ({
 
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setShowExportModal(false)}>
-              Cancelar
+              {t('dashboard.controlPanel.cancel')}
             </Button>
             <Button 
               className="bg-red-500 hover:bg-red-600" 
@@ -1875,12 +1880,12 @@ const ControlPanel = ({
               {exporting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Generando...
+                  {t('dashboard.controlPanel.generating')}
                 </>
               ) : (
                 <>
                   <Download className="w-4 h-4 mr-2" />
-                  Descargar PDF
+                  {t('dashboard.controlPanel.downloadPdf')}
                 </>
               )}
             </Button>

@@ -2,6 +2,14 @@
 
 ## Credenciales: test@train.com / test123456
 
+## [Jun 2026] Multiidioma — FASE C1 (Charts del Panel + Export PDF) COMPLETADA
+- **InteractiveChart.js** (i18n desde cero): namespace nuevo `chart`. Arrays TIME_RANGES/CHART_TYPES/QUICK_RANGES migrados a `labelKey` resueltos con `t()` en render. Traducido: badge "En vivo"→Live, tooltips (zoom/reset/settings/fullscreen/close/crosshair), "Período:"/"Vista:", "Mixta", info footer ("Mostrando X de Y períodos", "Doble clic = Reset", "Shift + Scroll = Zoom", "ESC = Cerrar"), rangos (Ciclo Olímpico/2 Años/.../Sesiones) y tipos (Barras/Líneas/Área/Puntos/Mixta).
+- **ControlPanel.js charts:** series names (Volumen %/Intensidad %/Densidad %/Recuperación %/Carga Acumulada/Índice de Fatiga), zonas ref (Sobrentrenamiento/Zona Óptima/Carga Moderada/Carga Baja), líneas (Límite Alto/Bajo) → `t('chart.*')`. Trend "Subiendo/Bajando/Estable" → `dashboard.controlPanel.*`. Fases del pie (formatPhaseName ahora traduce vía `chart.phase*`; colores resueltos por `PHASE_CANON` para no romper el mapa de colores). Métricas comparativa semanal (Sesiones/Tiempo Total/Volumen/RPE Promedio) → `chart.metric*`.
+- **Modal Export PDF de ControlPanel** + **modal detalle del día**: claves bajo `dashboard.controlPanel.export*` + reuso de `sessionCalendar.*`; fechas con `i18n.language`.
+- Verificado en EN por screenshot (charts, pie Competitive/Gen. Prep./..., zonas, modal Export PDF "Plan Summary/Volume Charts/...").
+- **Pendiente Fase C (resto):** Periodización (`PeriodizationComplete.js` ~3500 líneas, `LoadPanel.js`, `MesoMevMavMrvChart.js`), Sesiones (`SessionEditor.js` ~2380, `SessionPlanning.js`, `SessionsExportModal.js`), Datos (secciones de `DashboardPage.js` + `GraphicPlan.js` ~2286). Son archivos grandes → se harán en sub-lotes.
+
+
 ## [Jun 2026] Multiidioma — FASE B (Portal Atleta) + FASE A MENOR COMPLETADAS
 - **Fase B Portal Atleta (COMPLETA, 12 idiomas):** internacionalizado `AthletePortalPanel.js` (tabs Mi Plan/Mi estado/Récords, registro diario/readiness, sliders, récords, capacidades, recordatorio "hoy", toasts) — los otros 3 archivos (`AthletePortalPublic.js`, `AthletePortalAuth.js`, `AthletePlanView.js`) ya estaban hechos. Namespace `athlete` en los 12 locales (todas las claves ya existían; sólo se añadió `athleteDefault`). Verificado en EN por screenshot (panel + tab "My status").
 - **Fase A menor (COMPLETA, 12 idiomas):**
