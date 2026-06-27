@@ -1,107 +1,155 @@
 {
-  "theme": {
-    "archetype": "2 (Performance Pro)",
-    "domain": "Sports, Fitness, Athletics SaaS",
-    "primary_mode": "dark_sidebar_light_content"
+  "project": "LordTraining Landing Page - 4 Themes Implementation",
+  "theme_strategy": {
+    "architecture": "CSS Variables applied via [data-theme=\"<theme_name>\"] attribute on the <html> or :root element.",
+    "global_transition": "All thematic properties (background-color, color, border-color, box-shadow) MUST include a transition of 300ms ease-in-out. Use: 'transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;' on global elements.",
+    "core_restrictions": "DO NOT change textual content, pricing table structure, LORD logo, Hotmart integration, language translation button logic/visibility, or section order. No parallax. No heavy/distracting animations."
   },
-  "colors": {
-    "navy": "#0A0F1E",
-    "lime": "#CCFF00",
-    "light_gray": "#F0F2F5",
-    "white": "#FFFFFF"
-  },
-  "typography": {
-    "headings": {
-      "font": "Outfit",
-      "weights": ["600", "700"],
-      "usage": "Headers, Module Titles, KPIs"
+  "typography_guide": {
+    "version_a_classic": {
+      "family": "'Inter', sans-serif",
+      "heading_weight": "700",
+      "tracking": "normal"
     },
-    "body": {
-      "font": "Manrope",
-      "weights": ["400", "500", "600"],
-      "usage": "Data tables, sidebars, buttons"
+    "version_b_material": {
+      "family": "'Google Sans', 'Roboto', sans-serif",
+      "heading_weight": "500",
+      "tracking": "normal",
+      "line_height": "1.4"
+    },
+    "version_c_futuristic": {
+      "family": "'Space Grotesk', 'Inter', sans-serif",
+      "heading_weight": "600",
+      "tracking": "-0.03em",
+      "hero_title_size": "clamp(60px, 8vw, 100px)",
+      "line_height": "1.05"
+    },
+    "version_d_light": {
+      "family": "'Inter', sans-serif",
+      "heading_weight": "600",
+      "tracking": "-0.01em",
+      "line_height": "1.5"
     }
   },
-  "layout_modes": {
-    "classic_mode": {
-      "description": "El dashboard ACTUAL tal cual. Se mantiene intacto.",
-      "background": "#FFFFFF",
-      "nav": "Top horizontal navigation with icons",
-      "cards": "White with subtle borders",
-      "accent": "#CCFF00",
-      "brand": "#0A0F1E"
+  "design_tokens": {
+    "version_a_classic": {
+      "css_variables": {
+        "--bg-base": "#050A14",
+        "--bg-surface": "#0C1322",
+        "--text-primary": "#FFFFFF",
+        "--text-secondary": "#A0AEC0",
+        "--accent": "#CCFF00",
+        "--accent-gold": "#C9A84C",
+        "--border": "rgba(255,255,255,0.1)",
+        "--btn-primary-bg": "#CCFF00",
+        "--btn-primary-text": "#050A14",
+        "--radius-card": "12px",
+        "--radius-btn": "8px",
+        "--shadow-card": "none"
+      }
     },
-    "whatsapp_mode": {
-      "description": "Inspired by WhatsApp Web. Left fixed sidebar + Right main content.",
-      "sidebar": {
-        "width": "30%",
-        "max_width": "360px",
-        "min_width": "280px",
-        "background": "#0A0F1E",
-        "text_color": "#FFFFFF",
-        "active_item_highlight": "#CCFF00"
-      },
-      "main_panel": {
-        "width": "70%",
-        "flex": "1",
-        "background": "#F0F2F5"
-      },
-      "cards": {
-        "background": "#FFFFFF",
-        "shadow": "shadow-sm",
-        "border": "border-none or extremely subtle border-gray-100"
-      },
-      "buttons": {
-        "background": "#0A0F1E",
-        "text_color": "#CCFF00",
-        "hover": "bg-[#151b2b]"
+    "version_b_material": {
+      "css_variables": {
+        "--bg-base": "#121212",
+        "--bg-surface": "#1E1E1E",
+        "--bg-surface-elevated": "#2C2C2C",
+        "--text-primary": "#E3E3E3",
+        "--text-secondary": "#C4C7C5",
+        "--accent": "#CCFF00",
+        "--accent-gold": "#C9A84C",
+        "--border": "#444746",
+        "--btn-primary-bg": "#CCFF00",
+        "--btn-primary-text": "#121212",
+        "--radius-card": "24px",
+        "--radius-btn": "100px",
+        "--shadow-card": "0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)",
+        "--shadow-elevated": "0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12), 0 5px 5px -3px rgba(0,0,0,0.2)"
+      }
+    },
+    "version_c_futuristic": {
+      "css_variables": {
+        "--bg-base": "#050A14",
+        "--bg-surface": "#080D1A",
+        "--bg-surface-elevated": "#0A0F1E",
+        "--text-primary": "#FFFFFF",
+        "--text-secondary": "#888888",
+        "--accent": "#CCFF00",
+        "--accent-gold": "#C9A84C",
+        "--border": "rgba(255,255,255,0.08)",
+        "--btn-primary-bg": "#FFFFFF",
+        "--btn-primary-text": "#050A14",
+        "--radius-card": "4px",
+        "--radius-btn": "4px",
+        "--shadow-card": "none",
+        "--shadow-elevated": "0 0 20px rgba(204, 255, 0, 0.15)"
+      }
+    },
+    "version_d_light": {
+      "css_variables": {
+        "--bg-base": "#FFFFFF",
+        "--bg-surface": "#F5F7FA",
+        "--bg-surface-elevated": "#FFFFFF",
+        "--text-primary": "#0A0F1E",
+        "--text-secondary": "#4A5568",
+        "--accent": "#CCFF00",
+        "--accent-gold": "#C9A84C",
+        "--border": "#E2E8F0",
+        "--btn-primary-bg": "#0A0F1E",
+        "--btn-primary-text": "#CCFF00",
+        "--radius-card": "16px",
+        "--radius-btn": "8px",
+        "--shadow-card": "0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03)",
+        "--shadow-elevated": "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)"
       }
     }
   },
-  "interactions": {
-    "theme_toggle": {
-      "state_storage": "localStorage (key: 'lordtraining_theme', values: 'classic' | 'whatsapp')",
-      "transition": "transition-all duration-300 ease-in-out",
-      "icons": "lucide-react (Sun/Moon or classic/pro toggle)",
-      "data_testid": "theme-toggle-button"
+  "section_treatments": {
+    "hero": {
+      "version_b_material": "Centered or 50/50 layout. Use pill-shaped primary buttons. Add a subtle shadow to the CTA. Software badge should be fully rounded.",
+      "version_c_futuristic": "Massive typography (60-100px). Minimalist pill/rectangular CTA. Implement a SINGLE 1px animated glowing line (Scanner effect) across the hero. Fade-in on scroll.",
+      "version_d_light": "High contrast text. Navy CTA (#0A0F1E) with lime (#CCFF00) text. Clean, generous spacing. Subtle inner shadow on the badge."
+    },
+    "multi_sport_board": {
+      "version_b_material": "Elevated cards (Shadow 1) with surface color #1E1E1E. Rounded 24px.",
+      "version_c_futuristic": "Bento grid approach. Flat dark cards #080D1A with 1px low opacity border. No shadow.",
+      "version_d_light": "White cards on #F5F7FA background. Soft shadow, #E2E8F0 border."
+    },
+    "features": {
+      "version_b_material": "Material icons, rounded feature containers, hover elevation lift.",
+      "version_c_futuristic": "Extremely generous whitespace. Grid layout. 1px borders dividing features (Linear style shell).",
+      "version_d_light": "Notion-like simplicity. Left-aligned, crisp typography. Soft grey containers."
+    },
+    "pricing_table": {
+      "rules": "DO NOT change text, pricing tiers, or layout structure.",
+      "version_b_material": "Elevated central/popular card. Rounded top headers.",
+      "version_c_futuristic": "Flat cards. Popular card distinguished by a 1px glowing neon border.",
+      "version_d_light": "White cards. Navy CTA for the popular tier."
     }
   },
-  "components": {
-    "SidebarNav": {
-      "style": "flex flex-col gap-2 p-4 h-full overflow-y-auto bg-[#0A0F1E] text-white",
-      "item_style": "flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-colors hover:bg-white/10",
-      "active_item_style": "bg-[#CCFF00]/10 text-[#CCFF00] border-l-4 border-[#CCFF00]"
+  "pages_treatments": {
+    "blog": {
+      "version_b_material": "Card-based layout (image on top, text below). Rounded 24px, subtle shadows.",
+      "version_c_futuristic": "1px grid list. Hovering over a blog post faintly glows the border. Sharp corners.",
+      "version_d_light": "Clean, light cards with soft shadows. Serif/Sans mix for editorial feel if possible, else stick to Inter."
     },
-    "MainContent": {
-      "style": "flex-1 flex flex-col h-full bg-[#F0F2F5] overflow-y-auto p-6 md:p-8"
+    "api_docs": {
+      "version_b_material": "Floating Action Button (FAB) for navigation, Material sidebar.",
+      "version_c_futuristic": "Stripe-inspired. Dark canvas, 2-column layout. Berkeley/JetBrains Mono for code. Sharp neon syntax highlighting.",
+      "version_d_light": "Linear light docs style. High contrast syntax highlighting on #F5F7FA code blocks."
     },
-    "TopHeader": {
-      "style": "flex justify-between items-center px-6 py-4 bg-white shadow-sm z-10 w-full",
-      "toggle_placement": "Right side, next to user profile"
+    "support": {
+      "version_b_material": "Material Expansion Panels for FAQs. Filled text fields for form.",
+      "version_c_futuristic": "Flat accordions with 1px border bottoms. Minimalist input lines (border bottom only).",
+      "version_d_light": "Clean boxed accordions. Standard outlined inputs."
     }
-  },
-  "media": {
-    "avatars": [
-      {
-        "url": "https://images.pexels.com/photos/6699959/pexels-photo-6699959.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-        "description": "Athlete/Coach Avatar Placeholder 1"
-      },
-      {
-        "url": "https://images.pexels.com/photos/10340260/pexels-photo-10340260.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-        "description": "Athlete/Coach Avatar Placeholder 2"
-      }
-    ]
   },
   "instructions_to_main_agent": [
-    "Create a React Context or useThemeToggle hook to manage 'classic' vs 'whatsapp' layout modes. Store preference in localStorage.",
-    "Implement the Layout wrapper for the Dashboard. If 'classic', render the existing layout. If 'whatsapp', render a 100vh split layout: <div className='flex h-screen w-full transition-all duration-300'>.",
-    "Inside WhatsApp mode: Left Sidebar (bg-[#0A0F1E], max-w-[360px]) + Right Panel (bg-[#F0F2F5], flex-1).",
-    "Use lucide-react icons for the Sidebar modules (Panel de Control, Datos del Atleta, Reportes, etc.).",
-    "Highlight the active Sidebar item with text-[#CCFF00], bg-[#CCFF00]/10, and a border-l-4 border-[#CCFF00].",
-    "Style the primary buttons across the dashboard as bg-[#0A0F1E] text-[#CCFF00].",
-    "Ensure the theme toggle switch is visible in the header, uses a Sun/Moon icon, and includes data-testid='theme-toggle-button'.",
-    "Add 'data-testid' to all critical interactive elements (sidebar links, cards, buttons).",
-    "Ensure all CSS transitions utilize duration-300 for a smooth layout shift.",
-    "For routes outside the Dashboard, apply the requested color theming but maintain their default layout (WhatsApp layout is ONLY for the Dashboard)."
+    "1. Do not rewrite textual content, pricing data, or core structural components. Only wrap/style them using the defined CSS variables.",
+    "2. Implement a theme switcher widget (e.g., floating or in the footer) that toggles the data-theme attribute on <html> between 'classic', 'material', 'futuristic', and 'light'.",
+    "3. Apply 'transition: all 0.3s ease' globally to backgrounds, text colors, and borders to ensure the 300ms smooth theme switch.",
+    "4. For Version C (futuristic), implement a single 1px glowing animated line in the hero section using CSS animations or Framer Motion.",
+    "5. Build the Resources pages (Blog, API Docs, Support) reusing the token system so they automatically adapt to the 4 themes.",
+    "6. Ensure the language selector (12 idiomas) remains visible, functioning, and properly themed across all 4 versions.",
+    "7. MUST add `data-testid` to all interactive elements."
   ]
 }
