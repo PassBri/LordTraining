@@ -1,0 +1,176 @@
+"""Rutas de autenticación y catálogos básicos (roles, plan-features, modelos de
+periodización, duraciones de ciclo). Extraído de server.py — FASE 1 segmentación."""
+from fastapi import APIRouter, HTTPException, Depends
+from typing import Optional
+from datetime import datetime, timezone
+from pydantic import BaseModel
+import uuid
+
+from core.auth import get_db, get_current_user, hash_password, verify_password, create_token, has_plan_feature
+from core.models import (
+    UserCreate, UserResponse, UserLogin, UserRole, SubscriptionPlan,
+    SUBSCRIPTION_LIMITS, PLAN_RANK, FEATURE_MIN_PLAN,
+)
+
+router = APIRouter(prefix="/api", tags=["Auth"])
+
+
+# =============== AUTH ROUTES ===============
+@router.post("/auth/register", response_model=UserResponse)
+async def register(user: UserCreate, db=Depends(get_db)):
+    existing = await db.users.find_one({"email": user.email})
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    user_id = str(uuid.uuid4())
+    user_doc = {
+        "id": user_id,
+        "email": user.email,
+        "password": hash_password(user.password),
+        "name": user.name,
+        "role": user.role.value,
+        "subscription": SubscriptionPlan.STARTER.value,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "ai_generations_used": 0
+    }
+    await db.users.insert_one(user_doc)
+    del user_doc["password"]
+    user_doc.pop("_id", None)
+    return UserResponse(**user_doc)
+
+@router.post("/auth/login")
+async def login(credentials: UserLogin, db=Depends(get_db)):
+    user = await db.users.find_one({"email": credentials.email})
+    if not user or not verify_password(credentials.password, user["password"]):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    if user.get("active") is False:
+        raise HTTPException(status_code=403, detail="Tu cuenta está desactivada. Contacta al administrador.")
+    
+    token = create_token(user["id"], user["email"], user["role"])
+    return {
+        "token": token,
+        "user": {
+            "id": user["id"],
+            "email": user["email"],
+            "name": user["name"],
+            "role": user["role"],
+            "subscription": user["subscription"]
+        }
+    }
+
+@router.get("/auth/me", response_model=UserResponse)
+async def get_me(user: dict = Depends(get_current_user), db=Depends(get_db)):
+    return UserResponse(**user)
+
+# Endpoint para actualizar el perfil del usuario (incluyendo rol)
+class UserProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    role: Optional[UserRole] = None
+
+@router.put("/auth/profile")
+async def update_profile(update_data: UserProfileUpdate, user: dict = Depends(get_current_user), db=Depends(get_db)):
+    update_fields = {}
+    if update_data.name:
+        update_fields["name"] = update_data.name
+    if update_data.role:
+        update_fields["role"] = update_data.role.value
+    
+    if update_fields:
+        await db.users.update_one(
+            {"id": user["id"]},
+            {"$set": update_fields}
+        )
+    
+    updated_user = await db.users.find_one({"id": user["id"]}, {"_id": 0, "password": 0})
+    return updated_user
+
+# Endpoint para obtener roles disponibles
+@router.get("/auth/roles")
+async def get_available_roles():
+    roles = [
+        {"id": "admin", "name": "Administrador", "description": "Acceso total al sistema"},
+        {"id": "coach", "name": "Entrenador", "description": "Puede crear planes para múltiples atletas"},
+        {"id": "personal_trainer", "name": "Entrenador Personal", "description": "Enfocado en clientes individuales"},
+        {"id": "athlete", "name": "Atleta", "description": "Solo puede ver su propio plan"},
+        {"id": "team", "name": "Equipo", "description": "Grupo de atletas con plan compartido"},
+        {"id": "user", "name": "Usuario", "description": "Rol básico sin atletas asignados"}
+    ]
+    return roles
+
+@router.get("/plan-features")
+async def get_plan_features(user: dict = Depends(get_current_user), db=Depends(get_db)):
+    """Returns the user's plan + which features they can access. Used by frontend PlanGate."""
+    plan = user.get("subscription", "free")
+    limits = SUBSCRIPTION_LIMITS.get(SubscriptionPlan(plan), SUBSCRIPTION_LIMITS[SubscriptionPlan.FREE])
+    features = {fk: has_plan_feature(plan, fk) for fk in FEATURE_MIN_PLAN.keys()}
+    return {
+        "plan": plan,
+        "plan_rank": PLAN_RANK.get(SubscriptionPlan(plan), 0),
+        "limits": limits,
+        "usage": {
+            "athletes": user.get("athletes_count", 0),
+            "plans": user.get("plans_count", 0),
+            "ai_generations": user.get("ai_generations_used", 0),
+        },
+        "features": features,
+        "feature_min_plan": {k: v.value for k, v in FEATURE_MIN_PLAN.items()},
+    }
+
+# Endpoint para obtener modelos de periodización disponibles
+@router.get("/periodization-models-catalog")
+async def get_periodization_models_catalog():
+    models = [
+        # Modelos Clásicos
+        {"id": "traditional", "name": "Tradicional (Matveiev)", "category": "Clásico", 
+         "description": "Periodización lineal clásica con fases bien definidas. Alto volumen inicial, baja intensidad progresando a bajo volumen, alta intensidad."},
+        {"id": "atr", "name": "ATR (Issurin)", "category": "Clásico",
+         "description": "Acumulación-Transformación-Realización. Mesociclos cortos y concentrados con objetivos específicos."},
+        {"id": "blocks", "name": "Por Bloques (Verkhoshansky)", "category": "Clásico",
+         "description": "Cargas concentradas unidireccionales. Desarrollo secuencial de cualidades físicas."},
+        
+        # Modelos Ondulatorios
+        {"id": "undulating_daily", "name": "Ondulatorio Diario", "category": "Ondulatorio",
+         "description": "Variación de volumen e intensidad día a día. Ideal para deportes con alta frecuencia de competencias."},
+        {"id": "undulating_weekly", "name": "Ondulatorio Semanal", "category": "Ondulatorio",
+         "description": "Variación semana a semana. Permite adaptación más gradual."},
+        
+        # Modelos Avanzados
+        {"id": "pendulum", "name": "Péndulo (Arosiev)", "category": "Avanzado",
+         "description": "Alternancia pendular entre preparación general y específica. Mantiene ambas cualidades."},
+        {"id": "structural_bells", "name": "Campanas Estructurales (Forteza)", "category": "Avanzado",
+         "description": "Acentuación de direcciones del entrenamiento en diferentes momentos del macrociclo."},
+        {"id": "contemporary", "name": "Contemporáneo (Bondarchuk)", "category": "Avanzado",
+         "description": "Basado en ejercicios de competición y especiales. Para atletas de alto rendimiento."},
+        {"id": "inverse", "name": "Periodización Inversa", "category": "Avanzado",
+         "description": "Comienza con alta intensidad y bajo volumen. Ideal para deportes de resistencia."},
+        {"id": "tactical", "name": "Táctico", "category": "Avanzado",
+         "description": "Diseñado para deportes de equipo. Integra preparación física con táctica."},
+        
+        # Modelos Específicos
+        {"id": "concurrent", "name": "Concurrente", "category": "Específico",
+         "description": "Desarrollo simultáneo de múltiples cualidades físicas. Para deportistas polivalentes."},
+        {"id": "conjugate", "name": "Conjugado (Westside)", "category": "Específico",
+         "description": "Método de esfuerzo máximo y dinámico. Principalmente para fuerza y potencia."},
+        {"id": "polarized", "name": "Polarizado", "category": "Específico",
+         "description": "80% baja intensidad, 20% alta intensidad. Muy usado en deportes de resistencia."}
+    ]
+    return models
+
+# Endpoint para obtener duraciones de ciclo disponibles
+@router.get("/cycle-durations")
+async def get_cycle_durations():
+    durations = [
+        {"id": "olympic", "name": "Ciclo Olímpico", "weeks": 208, "months": 48, "years": 4,
+         "description": "Planificación a largo plazo para competencias olímpicas"},
+        {"id": "biannual", "name": "Bianual", "weeks": 104, "months": 24, "years": 2,
+         "description": "Planificación de dos temporadas completas"},
+        {"id": "annual", "name": "Anual", "weeks": 52, "months": 12, "years": 1,
+         "description": "Macrociclo tradicional de una temporada"},
+        {"id": "semester", "name": "Semestral", "weeks": 26, "months": 6, "years": 0.5,
+         "description": "Media temporada o pretemporada extendida"},
+        {"id": "quarter", "name": "Trimestral", "weeks": 13, "months": 3, "years": 0.25,
+         "description": "Ciclo corto para objetivos específicos"},
+        {"id": "monthly", "name": "Mensual", "weeks": 4, "months": 1, "years": 0,
+         "description": "Mesociclo individual para ajustes rápidos"}
+    ]
+    return durations
