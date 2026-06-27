@@ -8,17 +8,19 @@ import { useState, useEffect } from 'react';
  */
 export const useGlobalContext = (teams = [], athletes = []) => {
   const [globalContext, setGlobalContext] = useState(() => {
-    const saved = localStorage.getItem('train_global_context');
-    return saved ? JSON.parse(saved) : {
-      entityId: 'all',
-      teamId: 'all',
-      athleteId: 'all',
-      sportId: 'all'
-    };
+    const defaults = { entityId: 'all', teamId: 'all', athleteId: 'all', sportId: 'all' };
+    try {
+      const saved = localStorage.getItem('train_dashboard_filters');
+      const parsed = saved ? JSON.parse(saved) : null;
+      // Init robusto: solo aceptar el objeto si tiene el esquema esperado.
+      return parsed && typeof parsed.entityId === 'string' ? parsed : defaults;
+    } catch (e) {
+      return defaults;
+    }
   });
 
   useEffect(() => {
-    localStorage.setItem('train_global_context', JSON.stringify(globalContext));
+    localStorage.setItem('train_dashboard_filters', JSON.stringify(globalContext));
   }, [globalContext]);
 
   const handleEntityChange = (value) => {

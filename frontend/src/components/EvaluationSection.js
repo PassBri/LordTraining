@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { EvaluationMiniChart } from './EvaluationEvolution';
+import { useDynamicTranslations } from '../lib/i18nDynamic';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 
@@ -40,7 +41,8 @@ const blankAspect = () => ({
 });
 
 // ===== Aspect Row =====
-const AspectRow = ({ aspect, color, onChange, onRemove, testidPrefix }) => {
+const AspectRow = ({ aspect, color, onChange, onRemove, testidPrefix, tr }) => {
+  const T = tr || ((x) => x);
   const norm = (() => {
     const v = parseFloat(aspect.value);
     const mn = parseFloat(aspect.scale_min);
@@ -55,12 +57,12 @@ const AspectRow = ({ aspect, color, onChange, onRemove, testidPrefix }) => {
       <div className="flex items-start gap-2">
         <div className="flex-1 grid grid-cols-12 gap-2">
           <Input className="col-span-12 md:col-span-6 h-9 font-semibold" placeholder="Nombre del aspecto a evaluar"
-            value={aspect.label} onChange={(e) => onChange({ ...aspect, label: e.target.value })}
+            value={T(aspect.label)} onChange={(e) => onChange({ ...aspect, label: e.target.value })}
             data-testid={`${testidPrefix}-aspect-label-${aspect.id}`} />
           <Input className="col-span-6 md:col-span-3 h-9 text-sm" placeholder="Categoría"
-            value={aspect.category} onChange={(e) => onChange({ ...aspect, category: e.target.value })} />
+            value={T(aspect.category)} onChange={(e) => onChange({ ...aspect, category: e.target.value })} />
           <Input className="col-span-6 md:col-span-3 h-9 text-sm" placeholder="Unidad"
-            value={aspect.scale_unit || ''} onChange={(e) => onChange({ ...aspect, scale_unit: e.target.value })} />
+            value={T(aspect.scale_unit || '')} onChange={(e) => onChange({ ...aspect, scale_unit: e.target.value })} />
         </div>
         <Button size="sm" variant="ghost" className="h-9 w-9 p-0 text-slate-400 hover:text-red-600 hover:bg-red-50"
           onClick={() => onRemove(aspect.id)} data-testid={`${testidPrefix}-aspect-remove-${aspect.id}`}>
@@ -216,6 +218,19 @@ const EvaluationSection = ({ sectionId, activePlan, athletes = [], selectedAthle
 
   const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
   const evalType = config?.type;
+
+  // Traducción dinámica de label/categoría/unidad de cada aspecto (valores de
+  // <input> que el traductor DOM global no alcanza) → 12 idiomas vía caché i18n.
+  const dynTexts = React.useMemo(() => {
+    const out = [];
+    aspects.forEach(a => {
+      if (a.label) out.push(a.label);
+      if (a.category) out.push(a.category);
+      if (a.scale_unit) out.push(a.scale_unit);
+    });
+    return out;
+  }, [aspects]);
+  const tr = useDynamicTranslations(dynTexts);
 
   // Lista de controles (cabecera de tabs)
   const fetchList = useCallback(async () => {
@@ -591,7 +606,7 @@ const EvaluationSection = ({ sectionId, activePlan, athletes = [], selectedAthle
           </CardHeader>
           <CardContent className="p-3 space-y-2 bg-slate-50/40">
             {items.map(a => (
-              <AspectRow key={a.id} aspect={a} color={config.color} onChange={updateAspect} onRemove={removeAspect} testidPrefix={`eval-${evalType}`} />
+              <AspectRow key={a.id} aspect={a} color={config.color} onChange={updateAspect} onRemove={removeAspect} testidPrefix={`eval-${evalType}`} tr={tr} />
             ))}
           </CardContent>
         </Card>

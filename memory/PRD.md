@@ -1,5 +1,19 @@
 # iTRAIN - Plataforma
 
+## [Jun 2026] FASE 2 refactor (hooks) + i18n Evaluación + Toggle ícono + Scouting en sidebar Pro — VERIFICADO
+- **FASE 2 (extracción de hooks de `DashboardPage.js`)**: creados 4 custom hooks que reducen ~360 líneas del monolito y consumidos destructurando los MISMOS nombres (JSX intacto):
+  - `hooks/useGlobalContext.js` (filtros barra superior entidad/equipo/atleta/deporte + persistencia + filteredTeams/filteredAthletes).
+  - `hooks/useGeneratedPlans.js` (historial Coach AI en localStorage).
+  - `hooks/useSportsCatalog.js` (catálogo Deportes/categorías: fetch + CRUD + getSportIcon + allSports; fetch on-mount).
+  - `hooks/useTournaments.js` (torneos: estado, constantes, fetch + handlers; fetch on-mount).
+  - Limpieza: imports api de torneos removidos de DashboardPage; combinado useEffect ya no llama fetchSportsCatalog/fetchTournamentsData (los hooks lo hacen).
+  - **Fix (testing iter_84)**: COLISIÓN preexistente de localStorage — `context/GlobalContext.js` (GlobalContextProvider, montado en App.js) usa clave `train_global_context` con esquema `{selectedEntity,...}`, igual clave que usaban los filtros del dashboard `{entityId,...}`. Resuelto: `useGlobalContext` ahora usa clave propia `train_dashboard_filters` + init robusto (default 'all' si el esquema no coincide). Decoplado del provider.
+- **i18n Evaluación (12 idiomas)**: los nombres de aspecto/categoría/unidad de los controles (Médico, Antropometría, Físico, Biomecánica, Técnico, Táctico, Psicológico, Teórico) son VALORES de `<input>` (no nodos de texto) → el traductor DOM global no los alcanzaba. Nuevo `lib/i18nDynamic.js` `useDynamicTranslations(texts)` reutiliza `POST /api/i18n/translate` + caché permanente compartida (`lt_pg_<lang>`). `EvaluationSection.js`/`AspectRow` muestran `tr(label/category/unit)` manteniendo el valor crudo (es) en estado (sin drift de datos hasta editar). Verificado EN: "Resting HR / Vital Signs / bpm / Systolic Blood Pressure / O₂ Saturation / Fitness Status". Nota: primera carga tiene breve latencia mientras se cachean strings nuevos; instantáneo después.
+- **ThemeToggle solo-ícono**: `ThemeToggle.js` ahora es botón circular w-9 h-9 con solo el ícono Sol/Luna (sin texto "Modo Clásico/Pro"). Tooltip conserva la acción. Verificado en Clásico y Pro.
+- **Scouting en sidebar Pro**: `lib/scoutingTabs.js` (módulo ligero con SCOUTING_TABS para no romper el lazy-load). `ScoutingModule.js` acepta props controladas `{activeTab,onTabChange}`. `DashboardPage` mantiene `scoutingTab` y lo pasa al módulo + al ctx de WhatsAppShell. `WhatsAppShell.js` renderiza el bloque "RECRUITING & TALENT ID" (Prospects/Pipeline/Evaluation/Ranking/Alerts/Contacts/Map) cuando Scouting está activo; click sincroniza el tab interno. Verificado en Pro+EN.
+
+
+
 ## [Jun 2026] Dual UI: mejoras UX (Sheet de planes clásico, sidebar Pro colapsable, búsqueda, título) — VERIFICADO
 - **Modo Clásico**: el `PlanSidebar` ya no ocupa espacio fijo; ahora se abre desde un botón "Planes" (ListChecks) en la barra superior → `Sheet` lateral izquierdo (`isPlansSheetOpen`). Contenido a ancho completo.
 - **Modo Pro — sidebar colapsable**: botón chevron (`PanelLeftClose/Open`, `proSidebarCollapsed`) reduce el sidebar a un rail de iconos (72px) y ensancha el contenido; footer/secciones se ocultan, módulos quedan icon-only con tooltip. Transición 300ms.

@@ -110,6 +110,7 @@ const DashboardPage = () => {
   // UI State
   const [isNavExpanded, setIsNavExpanded] = useState(true);
   const [activePanel, setActivePanel] = useState('panel');
+  const [scoutingTab, setScoutingTab] = useState('prospects');
   const [activeDataSection, setActiveDataSection] = useState(null); // null = welcome state in datos
   const [selectedAthleteId, setSelectedAthleteId] = useState(null);
   const [activeSubTab, setActiveSubTab] = useState('macrociclo');
@@ -1384,7 +1385,7 @@ const DashboardPage = () => {
   const renderDataContent = () => {
     // ====== MÓDULO: SCOUTING / RECRUITING & TALENT ID ======
     if (activeDataSection === 'scouting') {
-      return <ScoutingModule />;
+      return <ScoutingModule activeTab={scoutingTab} onTabChange={setScoutingTab} />;
     }
     // ====== SECCIÓN: GESTIÓN DE PLANES (plan-manager) ======
     if (activeDataSection === 'plan-manager') {
@@ -4053,6 +4054,7 @@ const DashboardPage = () => {
       proSearch, setProSearch, proSidebarCollapsed, setProSidebarCollapsed,
       setIsMasterReportOpen, setIsSessionsExportOpen, setIsCoachDrawerOpen,
       handleSetActivePlan, renderMainContent,
+      scoutingTab, setScoutingTab,
     }} />
   );
 

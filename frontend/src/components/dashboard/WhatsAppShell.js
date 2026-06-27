@@ -8,6 +8,7 @@ import BrandLogo from '../BrandLogo';
 import LanguageSelector from '../LanguageSelector';
 import ThemeToggle from '../ThemeToggle';
 import SectionSkeleton from '../SectionSkeleton';
+import { SCOUTING_TABS } from '../../lib/scoutingTabs';
 
 // Layout presentacional del Modo Pro (WhatsApp Web): sidebar navy 30% + contenido claro 70%.
 // Extraído de DashboardPage.js. Recibe todo el estado/handlers vía `ctx`.
@@ -19,6 +20,7 @@ const WhatsAppShell = ({ ctx }) => {
     proSearch, setProSearch, proSidebarCollapsed, setProSidebarCollapsed,
     setIsMasterReportOpen, setIsSessionsExportOpen, setIsCoachDrawerOpen,
     handleSetActivePlan, renderMainContent,
+    scoutingTab, setScoutingTab,
   } = ctx;
 
   const navIconCls = 'w-[18px] h-[18px] shrink-0';
@@ -127,6 +129,31 @@ const WhatsAppShell = ({ ctx }) => {
               </button>
             );
           })}
+
+          {/* Subsecciones de Scouting (Recruiting & Talent ID) — solo cuando Scouting está activo */}
+          {!collapsed && activePanel === 'datos' && activeDataSection === 'scouting' && setScoutingTab && (
+            <div className="mt-2" data-testid="wa-scouting-subsections">
+              <div className="h-px bg-white/10 my-3" />
+              <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-widest text-white/40">Recruiting & Talent ID</p>
+              {SCOUTING_TABS.filter((s) => match(s.label)).map((s) => {
+                const Icon = s.icon;
+                const isActive = scoutingTab === s.key;
+                return (
+                  <button
+                    key={s.key}
+                    onClick={() => setScoutingTab(s.key)}
+                    data-testid={`wa-scouting-${s.key}`}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200 ${
+                      isActive ? 'bg-[#CCFF00]/10 text-[#CCFF00] border-l-4 border-[#CCFF00] pl-2' : 'text-white/70 hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 shrink-0" strokeWidth={isActive ? 2.4 : 1.8} />
+                    <span className="truncate">{s.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {/* Resultados de atletas (cuando hay búsqueda) */}
           {!collapsed && q && (() => {

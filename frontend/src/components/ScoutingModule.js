@@ -12,6 +12,7 @@ import ProspectStats from './ProspectStats';
 import ScoutingAlerts from './ScoutingAlerts';
 import ScoutingContacts from './ScoutingContacts';
 import ScoutingMap from './ScoutingMap';
+import { SCOUTING_TABS as SCOUTING_TABS_SHARED } from '../lib/scoutingTabs';
 import {
   Target, Plus, Users, Trello, ClipboardCheck, Trophy, X, Trash2, Edit2, Sparkles,
   FileDown, UserPlus, Camera, Video, Star, ChevronRight, MapPin, Loader2, Award,
@@ -55,15 +56,8 @@ const stageMeta = (k) => STAGES.find(s => s.key === k) || STAGES[0];
 const scoreColor = (s) => s == null ? '#94a3b8' : s >= 80 ? '#10b981' : s >= 65 ? '#f59e0b' : '#ef4444';
 const verdictColor = (v) => v === 'RECRUIT' ? '#10b981' : v === 'MONITOR' ? '#f59e0b' : v === 'PASS' ? '#ef4444' : '#64748b';
 
-const TABS = [
-  { key: 'prospects', label: 'Prospectos', icon: Users },
-  { key: 'pipeline', label: 'Pipeline', icon: Trello },
-  { key: 'evaluation', label: 'Evaluación', icon: ClipboardCheck },
-  { key: 'ranking', label: 'Ranking', icon: Trophy },
-  { key: 'alerts', label: 'Alertas', icon: BellRing },
-  { key: 'contacts', label: 'Contactos', icon: Contact },
-  { key: 'map', label: 'Mapa', icon: MapIcon },
-];
+export const SCOUTING_TABS = SCOUTING_TABS_SHARED;
+const TABS = SCOUTING_TABS_SHARED;
 
 const emptyProspect = () => ({
   name: '', sport: 'football', sport_name: 'Fútbol', position: '', current_club: '', age: '',
@@ -82,9 +76,11 @@ const SPORTS = [
   ['tennis', 'Tenis'], ['handball', 'Balonmano'], ['rugby', 'Rugby'], ['other', 'Otro'],
 ];
 
-export default function ScoutingModule() {
+export default function ScoutingModule({ activeTab, onTabChange } = {}) {
   useTranslation();
-  const [tab, setTab] = useState('prospects');
+  const [internalTab, setInternalTab] = useState('prospects');
+  const tab = activeTab !== undefined && activeTab !== null ? activeTab : internalTab;
+  const setTab = onTabChange || setInternalTab;
   const [prospects, setProspects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [detail, setDetail] = useState(null);     // prospect being viewed

@@ -9,7 +9,7 @@ export const ThemeToggle = ({ variant = 'light', className = '' }) => {
   const isPro = uiMode === 'whatsapp';
 
   const base =
-    'group inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold transition-all duration-300 ease-in-out outline-none';
+    'group inline-flex items-center justify-center rounded-full w-9 h-9 transition-all duration-300 ease-in-out outline-none';
   const skin =
     variant === 'dark'
       ? 'bg-white/10 text-white hover:bg-white/20 border border-white/15'
@@ -31,7 +31,6 @@ export const ThemeToggle = ({ variant = 'light', className = '' }) => {
           <Sun className="w-4 h-4 transition-transform duration-300 group-hover:rotate-45" strokeWidth={2.4} />
         )}
       </span>
-      <span className="whitespace-nowrap tracking-wide">{isPro ? 'Modo Pro' : 'Modo Clásico'}</span>
     </button>
   );
 };
