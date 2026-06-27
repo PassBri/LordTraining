@@ -66,6 +66,7 @@ const TrainingSystemHub = lazy(() => import('../components/TrainingSystemHub'));
 const TournamentManager = lazy(() => import('../components/TournamentManager'));
 import AITrainingAssistant from '../components/AITrainingAssistant';
 import PlanSidebar from '../components/PlanSidebar';
+import SectionSkeleton from '../components/SectionSkeleton';
 import { Badge } from '../components/ui/badge';
 
 const TacticalBoardSection = lazy(() => import('../components/TacticalBoardSection'));
@@ -4739,7 +4740,7 @@ const DashboardPage = () => {
       <div className="pt-[64px] h-screen max-h-screen overflow-hidden">
         {/* Main Content - Full Width */}
         <div className="h-full overflow-hidden">
-          <Suspense fallback={<div className="flex items-center justify-center h-full w-full" data-testid="section-loading"><Loader2 className="w-8 h-8 text-slate-400 animate-spin" /></div>}>
+          <Suspense fallback={<SectionSkeleton />}>
             {renderMainContent()}
           </Suspense>
         </div>
