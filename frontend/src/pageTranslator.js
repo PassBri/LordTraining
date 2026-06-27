@@ -96,7 +96,7 @@ async function flush() {
 
 function run() {
   runTimer = null;
-  const root = document.getElementById('root');
+  const root = document.body;
   if (!root || applying) return;
   const lang = baseLang();
 
@@ -166,7 +166,7 @@ function scheduleRun() {
 export function initPageTranslator() {
   if (started || typeof window === 'undefined') return;
   started = true;
-  const root = document.getElementById('root');
+  const root = document.body;
   if (!root) { started = false; setTimeout(initPageTranslator, 300); return; }
 
   observer = new MutationObserver(() => { if (!applying) scheduleRun(); });
