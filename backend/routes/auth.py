@@ -1,12 +1,17 @@
 """Rutas de autenticación y catálogos básicos (roles, plan-features, modelos de
 periodización, duraciones de ciclo). Extraído de server.py — FASE 1 segmentación."""
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from typing import Optional
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel
 import uuid
+import jwt
 
-from core.auth import get_db, get_current_user, hash_password, verify_password, create_token, has_plan_feature
+from core.auth import (
+    get_db, get_current_user, hash_password, verify_password, create_token,
+    create_refresh_token, decode_token, has_plan_feature,
+)
+from core.ratelimit import limiter
 from core.models import (
     UserCreate, UserResponse, UserLogin, UserRole, SubscriptionPlan,
     SUBSCRIPTION_LIMITS, PLAN_RANK, FEATURE_MIN_PLAN,
@@ -14,18 +19,60 @@ from core.models import (
 
 router = APIRouter(prefix="/api", tags=["Auth"])
 
+# OWASP — Brute force: máx 5 intentos fallidos, bloqueo temporal de 15 min.
+MAX_LOGIN_ATTEMPTS = 5
+LOCKOUT_MINUTES = 15
+
+
+def _client_ip(request: Request) -> str:
+    fwd = request.headers.get("x-forwarded-for")
+    if fwd:
+        return fwd.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+async def _check_lockout(db, identifier: str):
+    rec = await db.login_attempts.find_one({"identifier": identifier})
+    if not rec:
+        return
+    locked_until = rec.get("locked_until")
+    if locked_until:
+        lu = locked_until if isinstance(locked_until, datetime) else datetime.fromisoformat(locked_until)
+        if lu.tzinfo is None:
+            lu = lu.replace(tzinfo=timezone.utc)
+        if lu > datetime.now(timezone.utc):
+            mins = max(1, int((lu - datetime.now(timezone.utc)).total_seconds() // 60) + 1)
+            raise HTTPException(status_code=429, detail=f"Demasiados intentos. Intenta de nuevo en {mins} minuto(s).")
+
+
+async def _record_failed(db, identifier: str):
+    now = datetime.now(timezone.utc)
+    rec = await db.login_attempts.find_one({"identifier": identifier})
+    count = (rec.get("count", 0) if rec else 0) + 1
+    update = {"count": count, "last_attempt": now.isoformat(), "updated_at": now}
+    if count >= MAX_LOGIN_ATTEMPTS:
+        update["locked_until"] = (now + timedelta(minutes=LOCKOUT_MINUTES)).isoformat()
+        update["count"] = 0  # reinicia el contador tras bloquear
+    await db.login_attempts.update_one({"identifier": identifier}, {"$set": update}, upsert=True)
+
+
+async def _clear_attempts(db, identifier: str):
+    await db.login_attempts.delete_one({"identifier": identifier})
+
 
 # =============== AUTH ROUTES ===============
 @router.post("/auth/register", response_model=UserResponse)
-async def register(user: UserCreate, db=Depends(get_db)):
-    existing = await db.users.find_one({"email": user.email})
+@limiter.limit("5/minute")
+async def register(user: UserCreate, request: Request, db=Depends(get_db)):
+    email_norm = (user.email or "").strip().lower()
+    existing = await db.users.find_one({"email": email_norm})
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
     
     user_id = str(uuid.uuid4())
     user_doc = {
         "id": user_id,
-        "email": user.email,
+        "email": email_norm,
         "password": hash_password(user.password),
         "name": user.name,
         "role": user.role.value,
@@ -39,16 +86,26 @@ async def register(user: UserCreate, db=Depends(get_db)):
     return UserResponse(**user_doc)
 
 @router.post("/auth/login")
-async def login(credentials: UserLogin, db=Depends(get_db)):
-    user = await db.users.find_one({"email": credentials.email})
+@limiter.limit("10/minute")
+async def login(credentials: UserLogin, request: Request, db=Depends(get_db)):
+    email_norm = (credentials.email or "").strip().lower()
+    identifier = f"{_client_ip(request)}:{email_norm}"
+    await _check_lockout(db, identifier)
+
+    user = await db.users.find_one({"email": email_norm})
     if not user or not verify_password(credentials.password, user["password"]):
+        await _record_failed(db, identifier)
+        # Mensaje genérico (no revela si el email existe)
         raise HTTPException(status_code=401, detail="Invalid credentials")
     if user.get("active") is False:
         raise HTTPException(status_code=403, detail="Tu cuenta está desactivada. Contacta al administrador.")
-    
+
+    await _clear_attempts(db, identifier)
     token = create_token(user["id"], user["email"], user["role"])
+    refresh = create_refresh_token(user["id"], user["email"], user["role"])
     return {
         "token": token,
+        "refresh_token": refresh,
         "user": {
             "id": user["id"],
             "email": user["email"],
@@ -57,6 +114,30 @@ async def login(credentials: UserLogin, db=Depends(get_db)):
             "subscription": user["subscription"]
         }
     }
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
+
+@router.post("/auth/refresh")
+@limiter.limit("30/minute")
+async def refresh_token_endpoint(body: RefreshRequest, request: Request, db=Depends(get_db)):
+    """Renueva el access token usando un refresh token válido (rotación)."""
+    try:
+        payload = decode_token(body.refresh_token)
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Refresh token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+    if payload.get("type") != "refresh":
+        raise HTTPException(status_code=401, detail="Invalid token type")
+    user = await db.users.find_one({"id": payload.get("user_id")}, {"_id": 0})
+    if not user or user.get("active") is False:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    token = create_token(user["id"], user["email"], user["role"])
+    new_refresh = create_refresh_token(user["id"], user["email"], user["role"])
+    return {"token": token, "refresh_token": new_refresh}
 
 @router.get("/auth/me", response_model=UserResponse)
 async def get_me(user: dict = Depends(get_current_user), db=Depends(get_db)):

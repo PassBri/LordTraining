@@ -177,6 +177,50 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# OWASP — Rate limiting (límites estrictos por decorador en endpoints de auth)
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
+from core.ratelimit import limiter
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
+
+# OWASP — Headers de seguridad HTTP en todas las respuestas
+_CSP = (
+    "default-src 'self'; "
+    "img-src 'self' data: https: blob:; "
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+    "font-src 'self' https://fonts.gstatic.com data:; "
+    "script-src 'self' 'unsafe-inline'; "
+    "connect-src 'self' https:; "
+    "frame-ancestors 'none'; "
+    "base-uri 'self'; "
+    "object-src 'none'"
+)
+
+@app.middleware("http")
+async def security_headers_middleware(request, call_next):
+    response = await call_next(request)
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["Content-Security-Policy"] = _CSP
+    return response
+
+
+# OWASP — Manejo de errores: no exponer stack traces al cliente en errores no controlados
+from fastapi.responses import JSONResponse
+
+@app.exception_handler(Exception)
+async def generic_exception_handler(request, exc):
+    logger.exception("Unhandled error on %s %s: %s", request.method, request.url.path, exc)
+    return JSONResponse(status_code=500, content={"detail": "Ocurrió un error interno. Intenta de nuevo más tarde."})
+
+
+
 @app.on_event("startup")
 async def startup_create_indices():
     """Create MongoDB indices for V2 collections on startup"""
@@ -193,6 +237,13 @@ async def startup_create_indices():
         await db.hotmart_subscriptions.create_index("status")
     except Exception as e:
         logger.warning(f"Hotmart index creation: {e}")
+    # OWASP — Brute force: índices de intentos de login (TTL auto-limpieza)
+    try:
+        await db.login_attempts.create_index("identifier", unique=True)
+        await db.login_attempts.create_index("updated_at", expireAfterSeconds=3600)
+        await db.users.create_index("email", unique=True)
+    except Exception as e:
+        logger.warning(f"Auth index creation: {e}")
     # Seed/ensure super admin (for production where DB starts empty)
     try:
         await seed_super_admin()

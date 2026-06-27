@@ -11,6 +11,9 @@ from core.models import Intensity, SubscriptionPlan, PLAN_RANK, FEATURE_MIN_PLAN
 
 JWT_SECRET = os.environ.get('JWT_SECRET', 'train-secret-key')
 JWT_ALGORITHM = "HS256"
+# OWASP: access token de vida corta + refresh token. Configurables por env.
+ACCESS_TOKEN_MINUTES = int(os.environ.get('ACCESS_TOKEN_MINUTES', '60'))
+REFRESH_TOKEN_DAYS = int(os.environ.get('REFRESH_TOKEN_DAYS', '7'))
 security = HTTPBearer()
 
 
@@ -27,21 +30,44 @@ def verify_password(password: str, hashed: str) -> bool:
 
 
 def create_token(user_id: str, email: str, role: str) -> str:
+    """Access token (vida corta). Mantiene la firma usada en todo el código."""
     payload = {
         "user_id": user_id,
         "email": email,
         "role": role,
-        "exp": datetime.now(timezone.utc) + timedelta(days=7)
+        "type": "access",
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_MINUTES)
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+
+def create_refresh_token(user_id: str, email: str, role: str) -> str:
+    """Refresh token (vida larga) usado solo para renovar el access token."""
+    payload = {
+        "user_id": user_id,
+        "email": email,
+        "role": role,
+        "type": "refresh",
+        "exp": datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_DAYS)
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+
+def decode_token(token: str) -> dict:
+    return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
 
 
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db=Depends(get_db)):
     try:
         payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        # Rechazar refresh tokens en endpoints normales (compat: tokens viejos sin 'type' = access)
+        if payload.get("type", "access") == "refresh":
+            raise HTTPException(status_code=401, detail="Invalid token")
         user = await db.users.find_one({"id": payload["user_id"]}, {"_id": 0})
         if not user:
             raise HTTPException(status_code=401, detail="User not found")
+        if user.get("active") is False:
+            raise HTTPException(status_code=403, detail="Account disabled")
         return user
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
