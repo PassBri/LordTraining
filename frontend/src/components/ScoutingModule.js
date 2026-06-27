@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import i18nInstance from '../i18n';
+import { useTranslation } from 'react-i18next';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
@@ -16,6 +18,16 @@ import {
   TrendingUp, AlertTriangle, GitCompare, Phone, Mail, Instagram, Share2, Copy, Globe, Check,
   BellRing, Contact, Map as MapIcon, Crown, CalendarClock
 } from 'lucide-react';
+
+// i18n: auto-traducción slug-based (scouting.lbl.*)
+const _slug = (s) => (s == null ? '' : s.toString()).toLowerCase()
+  .replace(/á/g,'a').replace(/é/g,'e').replace(/í/g,'i').replace(/ó/g,'o').replace(/ú/g,'u').replace(/ñ/g,'n')
+  .replace(/₂/g,'2').replace(/²/g,'2').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+const tt = (s) => {
+  if (s == null || s === '' || typeof s === 'number') return s;
+  const k = _slug(s);
+  return k ? i18nInstance.t(`scouting.lbl.${k}`, { defaultValue: s }) : s;
+};
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL && process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com') === -1 ? process.env.REACT_APP_BACKEND_URL : (typeof window !== 'undefined' ? window.location.origin : process.env.REACT_APP_BACKEND_URL));
 
@@ -71,6 +83,7 @@ const SPORTS = [
 ];
 
 export default function ScoutingModule() {
+  useTranslation();
   const [tab, setTab] = useState('prospects');
   const [prospects, setProspects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -85,7 +98,7 @@ export default function ScoutingModule() {
     try {
       const data = await api('/prospects');
       setProspects(data);
-    } catch (e) { toast.error('Error cargando prospectos'); }
+    } catch (e) { toast.error(tt('Error cargando prospectos')); }
     setLoading(false);
   }, []);
 
@@ -108,7 +121,7 @@ export default function ScoutingModule() {
   const openById = async (id) => {
     const local = prospects.find(x => x.id === id);
     if (local) { setDetail(local); return; }
-    try { setDetail(await api(`/prospects/${id}`)); } catch { toast.error('No se pudo abrir el prospecto'); }
+    try { setDetail(await api(`/prospects/${id}`)); } catch { toast.error(tt('No se pudo abrir el prospecto')); }
   };
 
   return (
@@ -119,8 +132,8 @@ export default function ScoutingModule() {
         <div className="flex items-center gap-3 relative">
           <div className="w-12 h-12 rounded-xl bg-[#CCFF00] flex items-center justify-center shadow-lg"><Target className="w-7 h-7 text-slate-900" strokeWidth={2.5} /></div>
           <div>
-            <h1 className="text-white text-2xl font-black tracking-tight" style={{ fontFamily: "'DM Sans',sans-serif" }}>Recruiting & Talent ID</h1>
-            <p className="text-[#CCFF00] text-sm font-medium">Identifica el talento. Construye el futuro.</p>
+            <h1 className="text-white text-2xl font-black tracking-tight" style={{ fontFamily: "'DM Sans',sans-serif" }}>{tt('Recruiting & Talent ID')}</h1>
+            <p className="text-[#CCFF00] text-sm font-medium">{tt('Identifica el talento. Construye el futuro.')}</p>
           </div>
         </div>
       </div>
@@ -133,14 +146,14 @@ export default function ScoutingModule() {
             <button key={t.key} onClick={() => setTab(t.key)} data-testid={`scouting-tab-${t.key}`}
               className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all"
               style={active ? { background: '#0f172a', color: '#CCFF00' } : { background: '#fff', color: '#475569', border: '1px solid #e2e8f0' }}>
-              <Icon className="w-4 h-4" /> {t.label}
+              <Icon className="w-4 h-4" /> {tt(t.label)}
             </button>
           );
         })}
         <div className="flex-1" />
         {tab === 'prospects' && (
           <Button onClick={() => setEditing(emptyProspect())} data-testid="scouting-new-prospect-btn" className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] font-bold rounded-full">
-            <Plus className="w-4 h-4 mr-1" /> Nuevo Prospecto
+            <Plus className="w-4 h-4 mr-1" /> {tt('Nuevo Prospecto')}
           </Button>
         )}
       </div>
@@ -188,7 +201,7 @@ function ProspectCard({ p, onOpen, onEdit, draggable, onDragStart, compact }) {
           <div className="w-full h-full flex items-center justify-center text-slate-600 text-5xl font-black">{(p.name || '?').slice(0, 1)}</div>
         )}
         <div className="absolute inset-x-0 bottom-0 h-2/3" style={{ background: 'linear-gradient(to top,rgba(15,23,42,.92),transparent)' }} />
-        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide" style={{ background: sm.color + 'e6', color: '#fff' }}>{sm.label}</div>
+        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide" style={{ background: sm.color + 'e6', color: '#fff' }}>{tt(sm.label)}</div>
         {sc != null && (
           <div className="absolute top-2 right-2 w-11 h-11 rounded-full flex flex-col items-center justify-center" style={{ background: scoreColor(sc), boxShadow: '0 2px 8px rgba(0,0,0,.3)' }}>
             <span className="text-white font-black text-base leading-none">{sc}</span>
@@ -211,7 +224,7 @@ function ProspectCard({ p, onOpen, onEdit, draggable, onDragStart, compact }) {
 }
 
 function ProspectsGrid({ prospects, onOpen, onEdit }) {
-  if (!prospects.length) return <EmptyState text="Aún no hay prospectos. Crea el primero con “Nuevo Prospecto”." />;
+  if (!prospects.length) return <EmptyState text={tt('Aún no hay prospectos. Crea el primero con “Nuevo Prospecto”.')} />;
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
       {prospects.map(p => <ProspectCard key={p.id} p={p} onOpen={onOpen} onEdit={onEdit} />)}
@@ -230,7 +243,7 @@ function Pipeline({ prospects, onOpen, onMoved, setProspects }) {
       await api(`/prospects/${id}/stage`, { method: 'PATCH', body: { stage, outcome: stage === 'decision' ? (p.outcome || null) : null } });
       onMoved(id);
       toast.success(`Movido a ${stageMeta(stage).label}`);
-    } catch { toast.error('No se pudo mover'); setProspects(prev => prev.map(x => x.id === id ? p : x)); }
+    } catch { toast.error(tt('No se pudo mover')); setProspects(prev => prev.map(x => x.id === id ? p : x)); }
   };
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -243,7 +256,7 @@ function Pipeline({ prospects, onOpen, onMoved, setProspects }) {
             <div className="flex items-center justify-between mb-3 px-1">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full" style={{ background: st.color }} />
-                <span className="text-sm font-black text-slate-700">{st.label}</span>
+                <span className="text-sm font-black text-slate-700">{tt(st.label)}</span>
               </div>
               <span className="text-xs font-bold text-slate-400">{items.length}</span>
             </div>
@@ -252,7 +265,7 @@ function Pipeline({ prospects, onOpen, onMoved, setProspects }) {
                 <ProspectCard key={p.id} p={p} onOpen={onOpen} compact draggable
                   onDragStart={() => setDragId(p.id)} />
               ))}
-              {!items.length && <div className="text-center text-[11px] text-slate-300 py-8">Arrastra aquí</div>}
+              {!items.length && <div className="text-center text-[11px] text-slate-300 py-8">{tt('Arrastra aquí')}</div>}
             </div>
           </div>
         );
@@ -311,10 +324,10 @@ function EvaluationTab({ prospects, onSaved }) {
       setCriteria(c => ({ ...c, blocks: c.blocks.map(b => b.key === block ? { ...b, criteria: [...b.criteria, { key, label: label.trim(), custom: true, scope: 'prospect' }] } : b) }));
       setLocalCustom(lc => ({ ...lc, [block]: { ...(lc[block] || {}), [key]: label.trim() } }));
       setScores(s => ({ ...s, [block]: { ...(s[block] || {}), [key]: 50 } }));
-      toast.success('Criterio agregado a este prospecto');
+      toast.success(tt('Criterio agregado a este prospecto'));
     } else {
       try { await api('/criteria/custom', { method: 'POST', body: { scope, block, label: label.trim(), sport: prospect.sport } }); await loadCriteria(true); toast.success(scope === 'sport' ? 'Criterio guardado para el deporte' : 'Criterio guardado para el club'); }
-      catch { toast.error('Error agregando criterio'); }
+      catch { toast.error(tt('Error agregando criterio')); }
     }
     setAddForm({ block: null, label: '', scope: 'prospect' });
   };
@@ -324,30 +337,30 @@ function EvaluationTab({ prospects, onSaved }) {
       setLocalCustom(lc => { const n = { ...lc, [block]: { ...(lc[block] || {}) } }; delete n[block][cr.key]; return n; });
       setScores(s => { const n = { ...s, [block]: { ...(s[block] || {}) } }; delete n[block][cr.key]; return n; });
     } else {
-      try { await api(`/criteria/custom/${cr.id}`, { method: 'DELETE' }); await loadCriteria(true); toast.success('Criterio eliminado'); }
-      catch { toast.error('Error'); }
+      try { await api(`/criteria/custom/${cr.id}`, { method: 'DELETE' }); await loadCriteria(true); toast.success(tt('Criterio eliminado')); }
+      catch { toast.error(tt('Error')); }
     }
   };
 
   const save = async () => {
     setSaving(true);
     try { const p = await api(`/prospects/${pid}/evaluation`, { method: 'POST', body: { scores, custom_labels: localCustom } }); onSaved(pid); toast.success(`Evaluación guardada · Score ${p.overall_score}`); }
-    catch { toast.error('Error guardando'); }
+    catch { toast.error(tt('Error guardando')); }
     setSaving(false);
   };
   const runAI = async () => {
     setAiLoading(true);
-    try { const r = await api(`/prospects/${pid}/ai-recommendation`, { method: 'POST', body: { provider: aiProvider } }); setAi(r); onSaved(pid); toast.success('Informe IA generado'); }
-    catch (e) { toast.error('Error de IA'); }
+    try { const r = await api(`/prospects/${pid}/ai-recommendation`, { method: 'POST', body: { provider: aiProvider } }); setAi(r); onSaved(pid); toast.success(tt('Informe IA generado')); }
+    catch (e) { toast.error(tt('Error de IA')); }
     setAiLoading(false);
   };
 
   return (
     <div>
       <div className="mb-4 max-w-sm">
-        <label className="text-xs font-bold text-slate-500 uppercase">Selecciona prospecto</label>
+        <label className="text-xs font-bold text-slate-500 uppercase">{tt('Selecciona prospecto')}</label>
         <Select value={pid} onValueChange={setPid}>
-          <SelectTrigger className="mt-1 bg-white" data-testid="eval-select-prospect"><SelectValue placeholder="Elegir prospecto..." /></SelectTrigger>
+          <SelectTrigger className="mt-1 bg-white" data-testid="eval-select-prospect"><SelectValue placeholder={tt('Elegir prospecto...')} /></SelectTrigger>
           <SelectContent>{prospects.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
         </Select>
       </div>
@@ -356,7 +369,7 @@ function EvaluationTab({ prospects, onSaved }) {
           <div className="lg:col-span-2 space-y-4">
             {(criteria?.blocks || []).map(b => (
               <div key={b.key} className="bg-white rounded-xl border border-slate-200 p-4">
-                <div className="text-sm font-black text-slate-800 mb-3">{b.label}</div>
+                <div className="text-sm font-black text-slate-800 mb-3">{tt(b.label)}</div>
                 <div className="space-y-3">
                   {b.criteria.map(cr => {
                     const val = scores[b.key]?.[cr.key] ?? 50;
@@ -364,12 +377,12 @@ function EvaluationTab({ prospects, onSaved }) {
                       <div key={cr.key}>
                         <div className="flex justify-between items-center text-[12px] mb-1">
                           <span className="text-slate-600 font-medium flex items-center gap-1.5">
-                            {cr.label}
+                            {tt(cr.label)}
                             {cr.custom && <span className="text-[8px] font-black uppercase px-1 py-0.5 rounded" style={{ background: cr.scope === 'global' ? '#8b5cf622' : cr.scope === 'sport' ? '#0ea5e922' : '#64748b22', color: cr.scope === 'global' ? '#8b5cf6' : cr.scope === 'sport' ? '#0ea5e9' : '#64748b' }}>{cr.scope === 'global' ? 'club' : cr.scope === 'sport' ? 'deporte' : 'propio'}</span>}
                           </span>
                           <div className="flex items-center gap-2">
                             <span className="font-black" style={{ color: scoreColor(val) }}>{val}</span>
-                            {cr.custom && <button onClick={() => removeCriterion(b.key, cr)} className="text-slate-300 hover:text-red-500" title="Quitar criterio" data-testid={`eval-remove-${b.key}-${cr.key}`}><X className="w-3.5 h-3.5" /></button>}
+                            {cr.custom && <button onClick={() => removeCriterion(b.key, cr)} className="text-slate-300 hover:text-red-500" title={tt('Quitar criterio')} data-testid={`eval-remove-${b.key}-${cr.key}`}><X className="w-3.5 h-3.5" /></button>}
                           </div>
                         </div>
                         <input type="range" min="0" max="100" value={val} data-testid={`eval-slider-${b.key}-${cr.key}`}
@@ -382,18 +395,18 @@ function EvaluationTab({ prospects, onSaved }) {
                 {/* Agregar criterio */}
                 {addForm.block === b.key ? (
                   <div className="mt-3 p-2.5 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
-                    <Input autoFocus value={addForm.label} onChange={(e) => setAddForm(f => ({ ...f, label: e.target.value }))} placeholder="Nuevo criterio (ej. Definición pie izquierdo)" className="bg-white h-8 text-[13px]" data-testid="eval-new-criterion-label" onKeyDown={(e) => e.key === 'Enter' && addCriterion()} />
+                    <Input autoFocus value={addForm.label} onChange={(e) => setAddForm(f => ({ ...f, label: e.target.value }))} placeholder={tt('Nuevo criterio (ej. Definición pie izquierdo)')} className="bg-white h-8 text-[13px]" data-testid="eval-new-criterion-label" onKeyDown={(e) => e.key === 'Enter' && addCriterion()} />
                     <div className="flex gap-2">
                       <Select value={addForm.scope} onValueChange={(v) => setAddForm(f => ({ ...f, scope: v }))}>
                         <SelectTrigger className="bg-white h-8 text-[12px]" data-testid="eval-new-criterion-scope"><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="prospect">Solo este prospecto</SelectItem>
-                          <SelectItem value="sport">Plantilla del deporte</SelectItem>
-                          <SelectItem value="global">Plantilla global del club</SelectItem>
+                          <SelectItem value="prospect">{tt('Solo este prospecto')}</SelectItem>
+                          <SelectItem value="sport">{tt('Plantilla del deporte')}</SelectItem>
+                          <SelectItem value="global">{tt('Plantilla global del club')}</SelectItem>
                         </SelectContent>
                       </Select>
-                      <Button size="sm" onClick={addCriterion} className="bg-slate-900 text-white h-8" data-testid="eval-add-criterion-confirm">Añadir</Button>
-                      <Button size="sm" variant="outline" onClick={() => setAddForm({ block: null, label: '', scope: 'prospect' })} className="h-8">Cancelar</Button>
+                      <Button size="sm" onClick={addCriterion} className="bg-slate-900 text-white h-8" data-testid="eval-add-criterion-confirm">{tt('Añadir')}</Button>
+                      <Button size="sm" variant="outline" onClick={() => setAddForm({ block: null, label: '', scope: 'prospect' })} className="h-8">{tt('Cancelar')}</Button>
                     </div>
                   </div>
                 ) : (
@@ -409,19 +422,19 @@ function EvaluationTab({ prospects, onSaved }) {
           </div>
           <div className="space-y-4">
             <div className="bg-white rounded-xl border border-slate-200 p-5 text-center">
-              <div className="text-xs font-bold text-slate-400 uppercase">Score General</div>
+              <div className="text-xs font-bold text-slate-400 uppercase">{tt('Score General')}</div>
               <div className="text-6xl font-black my-1" style={{ color: scoreColor(overall) }}>{overall}</div>
-              <div className="text-[11px] text-slate-500">Estándar del club: <b>{std}</b></div>
+              <div className="text-[11px] text-slate-500">{tt('Estándar del club:')} <b>{std}</b></div>
               <div className="mt-2 h-2 bg-slate-100 rounded-full overflow-hidden relative">
                 <div className="h-full" style={{ width: `${overall}%`, background: scoreColor(overall) }} />
-                <div className="absolute top-0 h-full w-0.5 bg-slate-900" style={{ left: `${std}%` }} title="Estándar" />
+                <div className="absolute top-0 h-full w-0.5 bg-slate-900" style={{ left: `${std}%` }} title={tt('Estándar')} />
               </div>
               <div className="text-[11px] mt-2 font-bold" style={{ color: overall >= std ? '#10b981' : '#ef4444' }}>
                 {overall >= std ? `+${overall - std} sobre estándar` : `${overall - std} bajo estándar`}
               </div>
             </div>
             <div className="bg-white rounded-xl border border-slate-200 p-4">
-              <div className="flex items-center gap-2 mb-2"><Sparkles className="w-4 h-4 text-amber-500" /><span className="text-sm font-black text-slate-800">Recomendación IA</span></div>
+              <div className="flex items-center gap-2 mb-2"><Sparkles className="w-4 h-4 text-amber-500" /><span className="text-sm font-black text-slate-800">{tt('Recomendación IA')}</span></div>
               <div className="flex gap-1 mb-3">
                 {[['openai', 'GPT-5.5'], ['anthropic', 'Claude 4.6']].map(([v, l]) => (
                   <button key={v} onClick={() => setAiProvider(v)} className="flex-1 py-1.5 rounded-lg text-[11px] font-bold border transition"
@@ -451,9 +464,9 @@ function AIReport({ ai }) {
         </div>
       )}
       {ai.summary && <p className="text-slate-700 leading-relaxed">{ai.summary}</p>}
-      {ai.strengths?.length > 0 && <div><div className="text-[10px] uppercase text-slate-400 font-bold">Fortalezas</div><ul className="list-disc pl-4 text-emerald-600">{ai.strengths.map((s, i) => <li key={i}>{s}</li>)}</ul></div>}
-      {ai.weaknesses?.length > 0 && <div><div className="text-[10px] uppercase text-slate-400 font-bold">A mejorar</div><ul className="list-disc pl-4 text-red-500">{ai.weaknesses.map((s, i) => <li key={i}>{s}</li>)}</ul></div>}
-      {ai.development_plan?.length > 0 && <div><div className="text-[10px] uppercase text-slate-400 font-bold">Plan de desarrollo</div><ul className="list-disc pl-4 text-slate-600">{ai.development_plan.map((s, i) => <li key={i}>{s}</li>)}</ul></div>}
+      {ai.strengths?.length > 0 && <div><div className="text-[10px] uppercase text-slate-400 font-bold">{tt('Fortalezas')}</div><ul className="list-disc pl-4 text-emerald-600">{ai.strengths.map((s, i) => <li key={i}>{s}</li>)}</ul></div>}
+      {ai.weaknesses?.length > 0 && <div><div className="text-[10px] uppercase text-slate-400 font-bold">{tt('A mejorar')}</div><ul className="list-disc pl-4 text-red-500">{ai.weaknesses.map((s, i) => <li key={i}>{s}</li>)}</ul></div>}
+      {ai.development_plan?.length > 0 && <div><div className="text-[10px] uppercase text-slate-400 font-bold">{tt('Plan de desarrollo')}</div><ul className="list-disc pl-4 text-slate-600">{ai.development_plan.map((s, i) => <li key={i}>{s}</li>)}</ul></div>}
     </div>
   );
 }
@@ -474,7 +487,7 @@ function RankingTab({ dash, prospects, compare, setCompare, onOpen }) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {stats.map((s, i) => (
           <div key={i} className="bg-white rounded-xl border border-slate-200 p-4" style={{ borderTop: `3px solid ${s.c}` }}>
-            <div className="text-[11px] font-bold uppercase tracking-wide" style={{ color: s.c }}>{s.l}</div>
+            <div className="text-[11px] font-bold uppercase tracking-wide" style={{ color: s.c }}>{tt(s.l)}</div>
             <div className="text-3xl font-black text-slate-800">{s.v}</div>
           </div>
         ))}
@@ -493,7 +506,7 @@ function RankingTab({ dash, prospects, compare, setCompare, onOpen }) {
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
-          <Trophy className="w-4 h-4 text-amber-500" /><span className="font-black text-slate-800">Ranking de Prospectos</span>
+          <Trophy className="w-4 h-4 text-amber-500" /><span className="font-black text-slate-800">{tt('Ranking de Prospectos')}</span>
           <span className="text-[11px] text-slate-400 ml-2 flex items-center gap-1"><GitCompare className="w-3 h-3" /> Marca hasta 3 para comparar</span>
         </div>
         <div className="divide-y divide-slate-100">
@@ -512,7 +525,7 @@ function RankingTab({ dash, prospects, compare, setCompare, onOpen }) {
               <div className="w-10 h-10 rounded-lg flex items-center justify-center font-black text-white" style={{ background: scoreColor(p.overall_score) }}>{p.overall_score}</div>
             </div>
           ))}
-          {!dash.ranking.length && <div className="p-8 text-center text-slate-400 text-sm">Evalúa prospectos para verlos en el ranking.</div>}
+          {!dash.ranking.length && <div className="p-8 text-center text-slate-400 text-sm">{tt('Evalúa prospectos para verlos en el ranking.')}</div>}
         </div>
       </div>
     </div>
@@ -550,7 +563,7 @@ function Comparison({ items }) {
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4 overflow-x-auto" data-testid="comparison-panel">
-      <div className="flex items-center gap-2 mb-1"><GitCompare className="w-4 h-4 text-slate-500" /><span className="font-black text-slate-800">Comparativa lado a lado</span></div>
+      <div className="flex items-center gap-2 mb-1"><GitCompare className="w-4 h-4 text-slate-500" /><span className="font-black text-slate-800">{tt('Comparativa lado a lado')}</span></div>
       {winnerName && Math.max(...Object.values(wins)) > 0 && (
         <div className="flex items-center gap-1.5 mb-3 text-[12px] font-bold text-amber-600" data-testid="comparison-winner">
           <Crown className="w-4 h-4" />Líder de la comparativa: <span className="text-slate-900">{winnerName}</span>
@@ -558,7 +571,7 @@ function Comparison({ items }) {
         </div>
       )}
       <table className="w-full text-sm">
-        <thead><tr><th className="text-left text-[11px] text-slate-400 uppercase font-bold pb-2">Criterio</th>
+        <thead><tr><th className="text-left text-[11px] text-slate-400 uppercase font-bold pb-2">{tt('Criterio')}</th>
           {items.map(p => (
             <th key={p.id} className="px-3 pb-2 text-center text-slate-800 font-bold">
               <span className="inline-flex items-center gap-1">{p.id === winnerId && Math.max(...Object.values(wins)) > 0 && <Crown className="w-3.5 h-3.5 text-amber-500" />}{p.name.split(' ')[0]}</span>
@@ -569,7 +582,7 @@ function Comparison({ items }) {
             const best = bestForRow(row);
             return (
               <tr key={row.key} className="border-t border-slate-100">
-                <td className="py-2 font-medium text-slate-600">{row.label}</td>
+                <td className="py-2 font-medium text-slate-600">{tt(row.label)}</td>
                 {items.map(p => {
                   const v = row.val(p);
                   const isBest = typeof v === 'number' && v === best && items.filter(x => row.val(x) === best).length === 1;
@@ -610,13 +623,13 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
 
   const addObs = async () => {
     if (!obs.trim()) return;
-    try { await api(`/prospects/${p.id}/observations`, { method: 'POST', body: { note: obs, context: obsCtx } }); setObs(''); setObsCtx(''); onChanged(p.id); toast.success('Observación añadida'); }
-    catch { toast.error('Error'); }
+    try { await api(`/prospects/${p.id}/observations`, { method: 'POST', body: { note: obs, context: obsCtx } }); setObs(''); setObsCtx(''); onChanged(p.id); toast.success(tt('Observación añadida')); }
+    catch { toast.error(tt('Error')); }
   };
-  const del = async () => { if (!window.confirm('¿Eliminar prospecto?')) return; try { await api(`/prospects/${p.id}`, { method: 'DELETE' }); onDeleted(p.id); toast.success('Eliminado'); } catch { toast.error('Error'); } };
+  const del = async () => { if (!window.confirm('¿Eliminar prospecto?')) return; try { await api(`/prospects/${p.id}`, { method: 'DELETE' }); onDeleted(p.id); toast.success(tt('Eliminado')); } catch { toast.error(tt('Error')); } };
   const convert = async () => {
     try { const r = await api(`/prospects/${p.id}/convert`, { method: 'POST', body: { team_id: teamId || null } }); setConvertOpen(false); onChanged(p.id); toast.success(r.already ? 'Ya era atleta' : '¡Reclutado! Ahora es atleta en Equipos.'); }
-    catch { toast.error('Error al convertir'); }
+    catch { toast.error(tt('Error al convertir')); }
   };
   const pdf = async (theme = 'dark') => {
     setPdfLoading(true);
@@ -630,7 +643,7 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 5000);
       toast.success(`Ficha PDF (${theme === 'light' ? 'clara' : 'oscura'}) descargada`);
-    } catch (e) { toast.error('No se pudo generar el PDF'); }
+    } catch (e) { toast.error(tt('No se pudo generar el PDF')); }
     setPdfLoading(false);
   };
 
@@ -639,22 +652,22 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
     if (!shareId) {
       setSharing(true);
       try { const r = await api(`/prospects/${p.id}/share`, { method: 'POST' }); setShareId(r.share_id); onChanged(p.id); }
-      catch { toast.error('No se pudo crear el enlace'); }
+      catch { toast.error(tt('No se pudo crear el enlace')); }
       setSharing(false);
     }
   };
-  const copyLink = () => { navigator.clipboard?.writeText(shareUrl); setCopied(true); toast.success('Enlace copiado'); setTimeout(() => setCopied(false), 1800); };
+  const copyLink = () => { navigator.clipboard?.writeText(shareUrl); setCopied(true); toast.success(tt('Enlace copiado')); setTimeout(() => setCopied(false), 1800); };
   const disableShare = async () => {
-    try { await api(`/prospects/${p.id}/share`, { method: 'DELETE' }); setShareId(null); setShareOpen(false); onChanged(p.id); toast.success('Enlace desactivado'); }
-    catch { toast.error('Error'); }
+    try { await api(`/prospects/${p.id}/share`, { method: 'DELETE' }); setShareId(null); setShareOpen(false); onChanged(p.id); toast.success(tt('Enlace desactivado')); }
+    catch { toast.error(tt('Error')); }
   };
 
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-3xl p-0 overflow-hidden max-h-[92vh] overflow-y-auto bg-white" data-testid="prospect-detail">
         <DialogHeader className="sr-only">
-          <DialogTitle>Perfil del prospecto {p.name}</DialogTitle>
-          <DialogDescription>Ficha de scouting con evaluación, informe IA, observaciones y acciones.</DialogDescription>
+          <DialogTitle>{tt('Perfil del prospecto')} {p.name}</DialogTitle>
+          <DialogDescription>{tt('Ficha de scouting con evaluación, informe IA, observaciones y acciones.')}</DialogDescription>
         </DialogHeader>
         {/* Hero */}
         <div className="relative p-6 text-white" style={{ background: 'linear-gradient(120deg,#0f172a,#13203a 60%,#0b1220)' }}>
@@ -663,7 +676,7 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
               {p.photo_path ? <img src={photoUrl(p.photo_path)} alt={p.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-4xl font-black text-slate-600">{p.name.slice(0, 1)}</div>}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase inline-block mb-1" style={{ background: sm.color, color: '#fff' }}>{sm.label}{p.outcome ? ` · ${p.outcome}` : ''}</div>
+              <div className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase inline-block mb-1" style={{ background: sm.color, color: '#fff' }}>{tt(sm.label)}{p.outcome ? ` · ${p.outcome}` : ''}</div>
               <h2 className="text-3xl font-black leading-none" style={{ fontFamily: "'DM Sans',sans-serif" }}>{p.name}</h2>
               <div className="text-[#CCFF00] font-bold text-sm mt-1">{p.position || '—'} · {p.sport_name || p.sport}</div>
               <div className="text-slate-300 text-[12px] mt-2 flex flex-wrap gap-x-3 gap-y-1">
@@ -673,7 +686,7 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
               </div>
             </div>
             <div className="text-center shrink-0">
-              <div className="text-[10px] text-slate-400 uppercase">Score</div>
+              <div className="text-[10px] text-slate-400 uppercase">{tt('Score')}</div>
               <div className="text-5xl font-black" style={{ color: scoreColor(p.overall_score) }}>{p.overall_score ?? '—'}</div>
             </div>
           </div>
@@ -704,22 +717,22 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
         <div className="p-5 grid md:grid-cols-2 gap-5">
           {/* Evaluation bars */}
           <div>
-            <SectionTitle>Evaluación por área</SectionTitle>
+            <SectionTitle>{tt('Evaluación por área')}</SectionTitle>
             {ev?.category_averages ? Object.entries(ev.category_averages).map(([k, v]) => (
               <div key={k} className="mb-2.5">
                 <div className="flex justify-between text-[12px] font-bold mb-1"><span className="text-slate-600">{catLabel[k] || k}</span><span style={{ color: scoreColor(v) }}>{v}</span></div>
                 <div className="h-2 bg-slate-100 rounded-full overflow-hidden relative"><div className="h-full" style={{ width: `${v}%`, background: scoreColor(v) }} /><div className="absolute top-0 h-full w-0.5 bg-slate-900" style={{ left: `${ev.club_standard || 70}%` }} /></div>
               </div>
-            )) : <p className="text-[12px] text-slate-400">Sin evaluación. Usa la pestaña Evaluación.</p>}
+            )) : <p className="text-[12px] text-slate-400">{tt('Sin evaluación. Usa la pestaña Evaluación.')}</p>}
             {Object.keys(p.key_stats || {}).length > 0 && (<>
-              <SectionTitle className="mt-4">Stats clave</SectionTitle>
+              <SectionTitle className="mt-4">{tt('Stats clave')}</SectionTitle>
               <div className="grid grid-cols-3 gap-2">{Object.entries(p.key_stats).map(([k, v]) => (
                 <div key={k} className="bg-slate-900 rounded-lg p-2 text-center"><div className="text-[8px] text-slate-400 uppercase">{k}</div><div className="text-[#CCFF00] font-black">{v}</div></div>
               ))}</div></>)}
           </div>
           {/* AI */}
           <div>
-            <SectionTitle>Informe IA</SectionTitle>
+            <SectionTitle>{tt('Informe IA')}</SectionTitle>
             {p.ai_recommendation ? <AIReport ai={p.ai_recommendation} /> : <p className="text-[12px] text-slate-400">{p.bio || 'Sin informe. Genera uno en la pestaña Evaluación.'}</p>}
           </div>
         </div>
@@ -727,23 +740,23 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
         {/* Videos / achievements / contact */}
         <div className="px-5 pb-4 grid md:grid-cols-2 gap-5">
           <div>
-            {p.video_links?.length > 0 && <><SectionTitle>Galería de Videos</SectionTitle>
+            {p.video_links?.length > 0 && <><SectionTitle>{tt('Galería de Videos')}</SectionTitle>
               {(() => {
                 const byCat = {};
                 p.video_links.forEach(v => { const c = v.category || v.type || 'highlights'; (byCat[c] = byCat[c] || []).push(v); });
                 return (<div className="space-y-3">
                   {Object.entries(byCat).map(([c, vids]) => (
                     <div key={c}>
-                      <div className="text-[10px] font-bold text-slate-500 uppercase mb-1 flex items-center gap-1.5">{VCAT_LABEL[c] || c}<span className="text-slate-300">· {vids.length}</span></div>
+                      <div className="text-[10px] font-bold text-slate-500 uppercase mb-1 flex items-center gap-1.5">{tt(VCAT_LABEL[c] || c)}<span className="text-slate-300">· {vids.length}</span></div>
                       <VideoGallery videos={vids} />
                     </div>
                   ))}
                 </div>);
               })()}</>}
-            {p.achievements?.length > 0 && <><SectionTitle className="mt-3">Logros</SectionTitle><ul className="list-disc pl-5 text-[12px] text-slate-600">{p.achievements.map((a, i) => <li key={i}>{a}</li>)}</ul></>}
+            {p.achievements?.length > 0 && <><SectionTitle className="mt-3">{tt('Logros')}</SectionTitle><ul className="list-disc pl-5 text-[12px] text-slate-600">{p.achievements.map((a, i) => <li key={i}>{a}</li>)}</ul></>}
           </div>
           <div className="text-[12px] text-slate-600 space-y-1">
-            <SectionTitle>Contacto</SectionTitle>
+            <SectionTitle>{tt('Contacto')}</SectionTitle>
             {p.email && <div className="flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-slate-400" />{p.email}</div>}
             {p.phone && <div className="flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-slate-400" />{p.phone}</div>}
             {p.guardian_contact && <div className="flex items-center gap-2"><Users className="w-3.5 h-3.5 text-slate-400" />Tutor: {p.guardian_contact}</div>}
@@ -753,10 +766,10 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
 
         {/* Observations timeline */}
         <div className="px-5 pb-6">
-          <SectionTitle>Observaciones de scouting</SectionTitle>
+          <SectionTitle>{tt('Observaciones de scouting')}</SectionTitle>
           <div className="flex gap-2 mb-3">
-            <Input value={obsCtx} onChange={(e) => setObsCtx(e.target.value)} placeholder="Contexto (ej. Partido vs X)" className="bg-white w-48" data-testid="obs-context" />
-            <Input value={obs} onChange={(e) => setObs(e.target.value)} placeholder="Nueva observación..." className="bg-white flex-1" data-testid="obs-note" onKeyDown={(e) => e.key === 'Enter' && addObs()} />
+            <Input value={obsCtx} onChange={(e) => setObsCtx(e.target.value)} placeholder={tt('Contexto (ej. Partido vs X)')} className="bg-white w-48" data-testid="obs-context" />
+            <Input value={obs} onChange={(e) => setObs(e.target.value)} placeholder={tt('Nueva observación...')} className="bg-white flex-1" data-testid="obs-note" onKeyDown={(e) => e.key === 'Enter' && addObs()} />
             <Button onClick={addObs} className="bg-slate-900 text-white" data-testid="obs-add-btn"><Plus className="w-4 h-4" /></Button>
           </div>
           <div className="space-y-2">
@@ -766,7 +779,7 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
                 <div className="text-slate-600">{o.note}</div>
               </div>
             ))}
-            {!(p.observations || []).length && <p className="text-[12px] text-slate-400">Sin observaciones aún.</p>}
+            {!(p.observations || []).length && <p className="text-[12px] text-slate-400">{tt('Sin observaciones aún.')}</p>}
           </div>
         </div>
 
@@ -774,12 +787,12 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
         {(p.market_value != null || (p.sponsorships || []).length > 0 || (p.transfers || []).length > 0) && (
           <div className="px-5 pb-6 grid md:grid-cols-2 gap-5">
             <div>
-              <SectionTitle>Valor & Patrocinios</SectionTitle>
-              {p.market_value != null && <div className="text-2xl font-black text-slate-900 mb-2" data-testid="detail-market-value">{p.market_currency || 'USD'} {Number(p.market_value).toLocaleString()}<span className="text-[11px] font-medium text-slate-400 ml-1">valor comercial</span></div>}
+              <SectionTitle>{tt('Valor & Patrocinios')}</SectionTitle>
+              {p.market_value != null && <div className="text-2xl font-black text-slate-900 mb-2" data-testid="detail-market-value">{p.market_currency || 'USD'} {Number(p.market_value).toLocaleString()}<span className="text-[11px] font-medium text-slate-400 ml-1">{tt('valor comercial')}</span></div>}
               {(p.sponsorships || []).length > 0 && <div className="flex flex-wrap gap-1.5">{p.sponsorships.map((s, i) => <span key={i} className="text-[11px] bg-slate-100 rounded-full px-2.5 py-1 text-slate-700">{s.name}{s.amount ? ` · ${s.currency || ''}${s.amount}` : ''}</span>)}</div>}
             </div>
             <div>
-              {(p.transfers || []).length > 0 && <><SectionTitle>Trayectoria / Transferencias</SectionTitle>
+              {(p.transfers || []).length > 0 && <><SectionTitle>{tt('Trayectoria / Transferencias')}</SectionTitle>
                 <div className="space-y-1.5">{p.transfers.map((t, i) => (
                   <div key={i} className="text-[12px] text-slate-600 flex items-center gap-1.5">
                     <span className="font-bold text-slate-700">{t.from_entity || '—'}</span>
@@ -804,7 +817,7 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
             <DialogContent className="max-w-md bg-white" data-testid="share-dialog">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2"><Globe className="w-5 h-5 text-emerald-500" />Link de Scouting público</DialogTitle>
-                <DialogDescription>Cualquiera con este enlace puede ver la ficha del deportista, sin necesidad de cuenta. Ideal para universidades y agencias.</DialogDescription>
+                <DialogDescription>{tt('Cualquiera con este enlace puede ver la ficha del deportista, sin necesidad de cuenta. Ideal para universidades y agencias.')}</DialogDescription>
               </DialogHeader>
               {sharing ? (
                 <div className="flex justify-center py-6"><Loader2 className="w-6 h-6 animate-spin text-slate-400" /></div>
@@ -820,11 +833,11 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
                     <a href={shareUrl} target="_blank" rel="noreferrer" className="flex-1">
                       <Button variant="outline" className="w-full border-slate-300" data-testid="share-open-btn"><Globe className="w-4 h-4 mr-1" />Abrir ficha</Button>
                     </a>
-                    <Button variant="outline" onClick={disableShare} className="border-red-200 text-red-500 hover:bg-red-50" data-testid="share-disable-btn">Desactivar enlace</Button>
+                    <Button variant="outline" onClick={disableShare} className="border-red-200 text-red-500 hover:bg-red-50" data-testid="share-disable-btn">{tt('Desactivar enlace')}</Button>
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-slate-500 py-4">No se pudo generar el enlace.</p>
+                <p className="text-sm text-slate-500 py-4">{tt('No se pudo generar el enlace.')}</p>
               )}
             </DialogContent>
           </Dialog>
@@ -834,20 +847,20 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
         {convertOpen && (
           <Dialog open onOpenChange={() => setConvertOpen(false)}>
             <DialogContent className="max-w-sm bg-white">
-              <DialogHeader><DialogTitle>Reclutar → Convertir en Atleta</DialogTitle>
-                <DialogDescription>Se creará un atleta en Gestión de Equipos con los datos del prospecto.</DialogDescription>
+              <DialogHeader><DialogTitle>{tt('Reclutar → Convertir en Atleta')}</DialogTitle>
+                <DialogDescription>{tt('Se creará un atleta en Gestión de Equipos con los datos del prospecto.')}</DialogDescription>
               </DialogHeader>
-              <p className="text-[13px] text-slate-500">Se creará un atleta en Gestión de Equipos con los datos del prospecto.</p>
+              <p className="text-[13px] text-slate-500">{tt('Se creará un atleta en Gestión de Equipos con los datos del prospecto.')}</p>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase">Equipo (opcional)</label>
                 <Select value={teamId} onValueChange={setTeamId}>
-                  <SelectTrigger className="mt-1 bg-white" data-testid="convert-team-select"><SelectValue placeholder="Sin equipo" /></SelectTrigger>
+                  <SelectTrigger className="mt-1 bg-white" data-testid="convert-team-select"><SelectValue placeholder={tt('Sin equipo')} /></SelectTrigger>
                   <SelectContent>{teams.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setConvertOpen(false)}>Cancelar</Button>
-                <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] font-bold" onClick={convert} data-testid="convert-confirm-btn">Reclutar</Button>
+                <Button variant="outline" onClick={() => setConvertOpen(false)}>{tt('Cancelar')}</Button>
+                <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] font-bold" onClick={convert} data-testid="convert-confirm-btn">{tt('Reclutar')}</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -900,13 +913,13 @@ function ProspectForm({ initial, onClose, onSaved }) {
     try {
       const fd = new FormData(); fd.append('file', file);
       const r = await api('/upload-photo', { method: 'POST', body: fd, raw: true });
-      set('photo_path', r.path); toast.success('Foto subida');
-    } catch { toast.error('Error subiendo foto'); }
+      set('photo_path', r.path); toast.success(tt('Foto subida'));
+    } catch { toast.error(tt('Error subiendo foto')); }
     setUploading(false);
   };
 
   const save = async () => {
-    if (!f.name?.trim()) { toast.error('El nombre es obligatorio'); return; }
+    if (!f.name?.trim()) { toast.error(tt('El nombre es obligatorio')); return; }
     setSaving(true);
     const payload = {
       ...f,
@@ -928,7 +941,7 @@ function ProspectForm({ initial, onClose, onSaved }) {
       if (isEdit) await api(`/prospects/${initial.id}`, { method: 'PUT', body: payload });
       else await api('/prospects', { method: 'POST', body: payload });
       toast.success(isEdit ? 'Prospecto actualizado' : 'Prospecto creado'); onSaved();
-    } catch { toast.error('Error guardando'); }
+    } catch { toast.error(tt('Error guardando')); }
     setSaving(false);
   };
 
@@ -938,8 +951,8 @@ function ProspectForm({ initial, onClose, onSaved }) {
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-2xl bg-white max-h-[92vh] overflow-y-auto" data-testid="prospect-form">
-        <DialogHeader><DialogTitle>{isEdit ? 'Editar Prospecto' : 'Nuevo Prospecto'}</DialogTitle>
-          <DialogDescription>Completa los datos del prospecto. Solo el nombre es obligatorio.</DialogDescription>
+        <DialogHeader><DialogTitle>{isEdit ? tt('Editar Prospecto') : tt('Nuevo Prospecto')}</DialogTitle>
+          <DialogDescription>{tt('Completa los datos del prospecto. Solo el nombre es obligatorio.')}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-2">
           {/* Photo */}
@@ -952,15 +965,15 @@ function ProspectForm({ initial, onClose, onSaved }) {
               <Button type="button" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading}>
                 {uploading ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Camera className="w-4 h-4 mr-1" />} Subir foto
               </Button>
-              <p className="text-[11px] text-slate-400 mt-1">JPG/PNG/WebP · máx 8MB</p>
+              <p className="text-[11px] text-slate-400 mt-1">{tt('JPG/PNG/WebP · máx 8MB')}</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Nombre *"><Input value={f.name} onChange={e => set('name', e.target.value)} className="bg-white" data-testid="form-name" /></Field>
-            <Field label="Deporte">
+            <Field label={tt('Nombre *')}><Input value={f.name} onChange={e => set('name', e.target.value)} className="bg-white" data-testid="form-name" /></Field>
+            <Field label={tt('Deporte')}>
               <Select value={f.sport} onValueChange={(v) => { set('sport', v); set('sport_name', sportNameOf(v)); }}>
-                <SelectTrigger className="bg-white" data-testid="form-sport"><SelectValue placeholder="Elegir deporte" /></SelectTrigger>
+                <SelectTrigger className="bg-white" data-testid="form-sport"><SelectValue placeholder={tt('Elegir deporte')} /></SelectTrigger>
                 <SelectContent className="max-h-72">
                   {Object.entries(catalog).map(([cat, sports]) => (
                     <div key={cat}>
@@ -971,24 +984,24 @@ function ProspectForm({ initial, onClose, onSaved }) {
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="Posición"><Input value={f.position} onChange={e => set('position', e.target.value)} className="bg-white" /></Field>
-            <Field label="Club actual"><Input value={f.current_club} onChange={e => set('current_club', e.target.value)} className="bg-white" /></Field>
-            <Field label="Edad"><Input type="number" value={f.age} onChange={e => set('age', e.target.value)} className="bg-white" /></Field>
-            <Field label="Nacionalidad"><Input value={f.nationality} onChange={e => set('nationality', e.target.value)} className="bg-white" /></Field>
-            <Field label="Altura (cm)"><Input type="number" value={f.height_cm} onChange={e => set('height_cm', e.target.value)} className="bg-white" /></Field>
-            <Field label="Peso (kg)"><Input type="number" value={f.weight_kg} onChange={e => set('weight_kg', e.target.value)} className="bg-white" /></Field>
-            <Field label="Lado dominante"><Input value={f.dominant_side} onChange={e => set('dominant_side', e.target.value)} placeholder="Derecha / Izquierda" className="bg-white" /></Field>
-            <Field label="Estado">
+            <Field label={tt('Posición')}><Input value={f.position} onChange={e => set('position', e.target.value)} className="bg-white" /></Field>
+            <Field label={tt('Club actual')}><Input value={f.current_club} onChange={e => set('current_club', e.target.value)} className="bg-white" /></Field>
+            <Field label={tt('Edad')}><Input type="number" value={f.age} onChange={e => set('age', e.target.value)} className="bg-white" /></Field>
+            <Field label={tt('Nacionalidad')}><Input value={f.nationality} onChange={e => set('nationality', e.target.value)} className="bg-white" /></Field>
+            <Field label={tt('Altura (cm)')}><Input type="number" value={f.height_cm} onChange={e => set('height_cm', e.target.value)} className="bg-white" /></Field>
+            <Field label={tt('Peso (kg)')}><Input type="number" value={f.weight_kg} onChange={e => set('weight_kg', e.target.value)} className="bg-white" /></Field>
+            <Field label={tt('Lado dominante')}><Input value={f.dominant_side} onChange={e => set('dominant_side', e.target.value)} placeholder={tt('Derecha / Izquierda')} className="bg-white" /></Field>
+            <Field label={tt('Estado')}>
               <Select value={f.stage} onValueChange={v => set('stage', v)}>
                 <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
-                <SelectContent>{STAGES.map(s => <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>)}</SelectContent>
+                <SelectContent>{STAGES.map(s => <SelectItem key={s.key} value={s.key}>{tt(s.label)}</SelectItem>)}</SelectContent>
               </Select>
             </Field>
-            <Field label="Email"><Input value={f.email} onChange={e => set('email', e.target.value)} className="bg-white" /></Field>
-            <Field label="Teléfono"><Input value={f.phone} onChange={e => set('phone', e.target.value)} className="bg-white" /></Field>
-            <Field label="Ciudad de origen"><Input value={f.origin_city} onChange={e => set('origin_city', e.target.value)} className="bg-white" placeholder="Ej. Medellín" data-testid="form-origin-city" /></Field>
-            <Field label="País de origen"><Input value={f.origin_country} onChange={e => set('origin_country', e.target.value)} className="bg-white" placeholder="Ej. Colombia (se ubica en el mapa)" data-testid="form-origin-country" /></Field>
-            <Field label="Fin de contrato (alertas)"><Input type="date" value={f.contract_end || ''} onChange={e => set('contract_end', e.target.value)} className="bg-white" data-testid="form-contract-end" /></Field>
+            <Field label={tt('Email')}><Input value={f.email} onChange={e => set('email', e.target.value)} className="bg-white" /></Field>
+            <Field label={tt('Teléfono')}><Input value={f.phone} onChange={e => set('phone', e.target.value)} className="bg-white" /></Field>
+            <Field label={tt('Ciudad de origen')}><Input value={f.origin_city} onChange={e => set('origin_city', e.target.value)} className="bg-white" placeholder={tt('Ej. Medellín')} data-testid="form-origin-city" /></Field>
+            <Field label={tt('País de origen')}><Input value={f.origin_country} onChange={e => set('origin_country', e.target.value)} className="bg-white" placeholder={tt('Ej. Colombia (se ubica en el mapa)')} data-testid="form-origin-country" /></Field>
+            <Field label={tt('Fin de contrato (alertas)')}><Input type="date" value={f.contract_end || ''} onChange={e => set('contract_end', e.target.value)} className="bg-white" data-testid="form-contract-end" /></Field>
           </div>
           {/* Videos múltiples (entrenando / jugando) */}
           <div>
@@ -999,18 +1012,18 @@ function ProspectForm({ initial, onClose, onSaved }) {
             <div className="space-y-2">
               {videos.map((v, i) => (
                 <div key={i} className="flex flex-wrap gap-1.5 items-center bg-slate-50 rounded-lg p-2" data-testid={`form-video-${i}`}>
-                  <Input value={v.title || ''} onChange={e => updVideo(i, 'title', e.target.value)} placeholder="Título" className="bg-white w-32" />
-                  <Input value={v.url || ''} onChange={e => updVideo(i, 'url', e.target.value)} placeholder="https://youtube.com/..." className="bg-white flex-1 min-w-[160px]" data-testid={`form-video-url-${i}`} />
+                  <Input value={v.title || ''} onChange={e => updVideo(i, 'title', e.target.value)} placeholder={tt('Título')} className="bg-white w-32" />
+                  <Input value={v.url || ''} onChange={e => updVideo(i, 'url', e.target.value)} placeholder={tt('https://youtube.com/...')} className="bg-white flex-1 min-w-[160px]" data-testid={`form-video-url-${i}`} />
                   <Select value={v.category || 'highlights'} onValueChange={val => updVideo(i, 'category', val)}>
                     <SelectTrigger className="bg-white w-32 shrink-0" data-testid={`form-video-cat-${i}`}><SelectValue /></SelectTrigger>
                     <SelectContent>{VIDEO_CATS.map(([val, l]) => <SelectItem key={val} value={val}>{l}</SelectItem>)}</SelectContent>
                   </Select>
                   <Input type="date" value={v.recorded_at || ''} onChange={e => updVideo(i, 'recorded_at', e.target.value)} className="bg-white w-36 shrink-0" />
-                  <label className="flex items-center gap-1 text-[11px] font-bold text-slate-500 cursor-pointer" title="Visible en perfil público/PDF">
+                  <label className="flex items-center gap-1 text-[11px] font-bold text-slate-500 cursor-pointer" title={tt('Visible en perfil público/PDF')}>
                     <input type="checkbox" checked={v.is_public !== false} onChange={e => updVideo(i, 'is_public', e.target.checked)} className="accent-slate-900" data-testid={`form-video-public-${i}`} />Público
                   </label>
                   <button type="button" onClick={() => rmVideo(i)} className="text-slate-300 hover:text-red-500"><X className="w-4 h-4" /></button>
-                  <Input value={v.notes || ''} onChange={e => updVideo(i, 'notes', e.target.value)} placeholder="Notas (opcional)" className="bg-white w-full" />
+                  <Input value={v.notes || ''} onChange={e => updVideo(i, 'notes', e.target.value)} placeholder={tt('Notas (opcional)')} className="bg-white w-full" />
                 </div>
               ))}
               {!videos.length && <p className="text-[11px] text-slate-400">Agrega videos del prospecto (técnico, físico, partido, táctico, highlights, entrevista).</p>}
@@ -1019,7 +1032,7 @@ function ProspectForm({ initial, onClose, onSaved }) {
 
           {/* Valor comercial + patrocinios */}
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Valor comercial / precio">
+            <Field label={tt('Valor comercial / precio')}>
               <div className="flex gap-1.5">
                 <Select value={f.market_currency || 'USD'} onValueChange={v => set('market_currency', v)}>
                   <SelectTrigger className="bg-white w-24 shrink-0"><SelectValue /></SelectTrigger>
@@ -1033,22 +1046,22 @@ function ProspectForm({ initial, onClose, onSaved }) {
             </Field>
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Patrocinios</label>
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">{tt('Patrocinios')}</label>
                 <button type="button" onClick={addSponsor} className="text-[11px] font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1" data-testid="form-add-sponsor"><Plus className="w-3.5 h-3.5" />Agregar</button>
               </div>
               <div className="space-y-1.5">
                 {sponsors.map((s, i) => (
                   <div key={i} className="flex gap-1.5 items-center" data-testid={`form-sponsor-${i}`}>
-                    <Input value={s.name || ''} onChange={e => updSponsor(i, 'name', e.target.value)} placeholder="Marca" className="bg-white flex-1" />
-                    <Input value={s.amount || ''} onChange={e => updSponsor(i, 'amount', e.target.value)} placeholder="Monto" className="bg-white w-24" />
-                    <Input type="date" value={s.expires_at || ''} onChange={e => updSponsor(i, 'expires_at', e.target.value)} className="bg-white w-36 shrink-0" title="Vencimiento (alertas)" data-testid={`form-sponsor-expires-${i}`} />
+                    <Input value={s.name || ''} onChange={e => updSponsor(i, 'name', e.target.value)} placeholder={tt('Marca')} className="bg-white flex-1" />
+                    <Input value={s.amount || ''} onChange={e => updSponsor(i, 'amount', e.target.value)} placeholder={tt('Monto')} className="bg-white w-24" />
+                    <Input type="date" value={s.expires_at || ''} onChange={e => updSponsor(i, 'expires_at', e.target.value)} className="bg-white w-36 shrink-0" title={tt('Vencimiento (alertas)')} data-testid={`form-sponsor-expires-${i}`} />
                     <label className="flex items-center gap-1 text-[10px] font-bold text-slate-500 cursor-pointer">
                       <input type="checkbox" checked={s.is_public !== false} onChange={e => updSponsor(i, 'is_public', e.target.checked)} className="accent-slate-900" data-testid={`form-sponsor-public-${i}`} />Púb.
                     </label>
                     <button type="button" onClick={() => rmSponsor(i)} className="text-slate-300 hover:text-red-500"><X className="w-4 h-4" /></button>
                   </div>
                 ))}
-                {!sponsors.length && <p className="text-[11px] text-slate-400">Sin patrocinios.</p>}
+                {!sponsors.length && <p className="text-[11px] text-slate-400">{tt('Sin patrocinios.')}</p>}
               </div>
             </div>
           </div>
@@ -1056,15 +1069,15 @@ function ProspectForm({ initial, onClose, onSaved }) {
           {/* Transferencias / trayectoria */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Transferencias / Trayectoria</label>
+              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">{tt('Transferencias / Trayectoria')}</label>
               <button type="button" onClick={addTransfer} className="text-[11px] font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1" data-testid="form-add-transfer"><Plus className="w-3.5 h-3.5" />Agregar</button>
             </div>
             <div className="space-y-2">
               {transfers.map((t, i) => (
                 <div key={i} className="flex gap-1.5 items-center" data-testid={`form-transfer-${i}`}>
-                  <Input value={t.from_entity || ''} onChange={e => updTransfer(i, 'from_entity', e.target.value)} placeholder="Desde (escuela...)" className="bg-white flex-1" />
+                  <Input value={t.from_entity || ''} onChange={e => updTransfer(i, 'from_entity', e.target.value)} placeholder={tt('Desde (escuela...)')} className="bg-white flex-1" />
                   <span className="text-slate-400">→</span>
-                  <Input value={t.to_entity || ''} onChange={e => updTransfer(i, 'to_entity', e.target.value)} placeholder="Hacia (club...)" className="bg-white flex-1" />
+                  <Input value={t.to_entity || ''} onChange={e => updTransfer(i, 'to_entity', e.target.value)} placeholder={tt('Hacia (club...)')} className="bg-white flex-1" />
                   <Select value={t.type || 'club'} onValueChange={val => updTransfer(i, 'type', val)}>
                     <SelectTrigger className="bg-white w-32 shrink-0"><SelectValue /></SelectTrigger>
                     <SelectContent>{['escuela', 'club', 'equipo', 'institución', 'federación', 'universidad'].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
@@ -1080,15 +1093,15 @@ function ProspectForm({ initial, onClose, onSaved }) {
             </div>
           </div>
 
-          <Field label="Logros (uno por línea)">
+          <Field label={tt('Logros (uno por línea)')}>
             <Textarea rows={2} value={achievementsStr} onChange={e => set('achievements', e.target.value)} className="bg-white" />
           </Field>
-          <Field label="Bio / notas de scouting">
+          <Field label={tt('Bio / notas de scouting')}>
             <Textarea rows={2} value={f.bio || ''} onChange={e => set('bio', e.target.value)} className="bg-white" />
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button variant="outline" onClick={onClose}>{tt('Cancelar')}</Button>
           <Button onClick={save} disabled={saving} className="bg-slate-900 text-white hover:bg-slate-800" data-testid="form-save-btn">
             {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null} Guardar
           </Button>

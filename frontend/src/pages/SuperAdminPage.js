@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import i18nInstance from '../i18n';
 import { toast } from 'sonner';
 import {
   ArrowLeft, ShieldCheck, Building2, Trophy, GraduationCap, Landmark,
@@ -23,6 +25,16 @@ import {
   createPromoCode, listPromoCodes, togglePromoCode, deletePromoCode,
   setOrgEntityType, getFinanceDashboard, createRefund, getAdminAlerts,
 } from '../services/api';
+
+// i18n: auto-traducción slug-based para labels del Super Admin (superadmin.lbl.*)
+const _slug = (s) => (s == null ? '' : s.toString()).toLowerCase()
+  .replace(/á/g,'a').replace(/é/g,'e').replace(/í/g,'i').replace(/ó/g,'o').replace(/ú/g,'u').replace(/ñ/g,'n')
+  .replace(/₂/g,'2').replace(/²/g,'2').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+const tt = (s) => {
+  if (s == null || s === '' || typeof s === 'number') return s;
+  const k = _slug(s);
+  return k ? i18nInstance.t(`superadmin.lbl.${k}`, { defaultValue: s }) : s;
+};
 
 // Material Design 3 palette
 const MD3 = {
@@ -53,6 +65,7 @@ const PLAN_BADGE = {
 };
 
 const SuperAdminPage = () => {
+  useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
@@ -126,16 +139,16 @@ const SuperAdminPage = () => {
       const res = await getOrgMembers(org.id);
       setMembers(res.data.members || []);
     } catch (e) {
-      toast.error('Error cargando miembros');
+      toast.error(tt('Error cargando miembros'));
     } finally { setLoadingMembers(false); }
   };
 
   const handleSetEntityType = async (orgId, et) => {
     try {
       await setOrgEntityType(orgId, et);
-      toast.success('Tipo actualizado');
+      toast.success(tt('Tipo actualizado'));
       refresh();
-    } catch (e) { toast.error('Error'); }
+    } catch (e) { toast.error(tt('Error')); }
   };
 
   const handleGrant = async () => {
@@ -162,7 +175,7 @@ const SuperAdminPage = () => {
     if (!refundOpen || !refundForm.amount) return;
     try {
       await createRefund({ user_id: refundOpen.user_id, amount: parseFloat(refundForm.amount), reason: refundForm.reason });
-      toast.success('Devolución registrada');
+      toast.success(tt('Devolución registrada'));
       setRefundOpen(null);
       setRefundForm({ amount: 0, reason: '' });
       refreshFinance();
@@ -196,8 +209,8 @@ const SuperAdminPage = () => {
               <ArrowLeft className="w-4 h-4 text-slate-600" />
             </button>
             <div>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">Panel Administrativo</p>
-              <h1 className="text-[15px] font-bold text-slate-900 leading-tight">{TitleByLevel[level] || 'Admin'}</h1>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">{tt('Panel Administrativo')}</p>
+              <h1 className="text-[15px] font-bold text-slate-900 leading-tight">{tt(TitleByLevel[level] || 'Admin')}</h1>
             </div>
           </div>
           {isSuper && (
@@ -208,12 +221,12 @@ const SuperAdminPage = () => {
         </div>
         {isSuper && (
           <div className="max-w-[1280px] mx-auto px-6 flex items-center gap-1 -mb-px">
-            <TabBtn active={activeTab === 'hierarchy'} onClick={() => setActiveTab('hierarchy')} icon={Users} label="Jerarquía & Usuarios" />
-            <TabBtn active={activeTab === 'users'} onClick={() => setActiveTab('users')} icon={UserCheck} label="Gestión de Usuarios" />
-            <TabBtn active={activeTab === 'codes'} onClick={() => setActiveTab('codes')} icon={Tag} label="Códigos & Promociones" />
-            <TabBtn active={activeTab === 'finance'} onClick={() => setActiveTab('finance')} icon={DollarSign} label="Finanzas" />
-            <TabBtn active={activeTab === 'branding'} onClick={() => setActiveTab('branding')} icon={ImageIcon} label="Marca / Logos" />
-            <TabBtn active={activeTab === 'demo'} onClick={() => setActiveTab('demo')} icon={Sparkles} label="Datos de Ejemplo" />
+            <TabBtn active={activeTab === 'hierarchy'} onClick={() => setActiveTab('hierarchy')} icon={Users} label={tt('Jerarquía & Usuarios')} />
+            <TabBtn active={activeTab === 'users'} onClick={() => setActiveTab('users')} icon={UserCheck} label={tt('Gestión de Usuarios')} />
+            <TabBtn active={activeTab === 'codes'} onClick={() => setActiveTab('codes')} icon={Tag} label={tt('Códigos & Promociones')} />
+            <TabBtn active={activeTab === 'finance'} onClick={() => setActiveTab('finance')} icon={DollarSign} label={tt('Finanzas')} />
+            <TabBtn active={activeTab === 'branding'} onClick={() => setActiveTab('branding')} icon={ImageIcon} label={tt('Marca / Logos')} />
+            <TabBtn active={activeTab === 'demo'} onClick={() => setActiveTab('demo')} icon={Sparkles} label={tt('Datos de Ejemplo')} />
           </div>
         )}
       </div>
@@ -228,15 +241,15 @@ const SuperAdminPage = () => {
                 backgroundSize: '32px 32px',
               }} />
               <div className="relative">
-                <p className="text-[11px] tracking-[0.2em] uppercase text-white/60 font-bold mb-1.5">Resumen Global</p>
-                <h2 className="text-3xl font-bold text-white">{stats.total_users} usuarios totales</h2>
-                <p className="text-[13px] text-white/70 mt-1.5">{stats.total_orgs} organizaciones · {stats.total_plans} planes · {stats.total_athletes} atletas</p>
+                <p className="text-[11px] tracking-[0.2em] uppercase text-white/60 font-bold mb-1.5">{tt('Resumen Global')}</p>
+                <h2 className="text-3xl font-bold text-white">{stats.total_users} {tt('usuarios totales')}</h2>
+                <p className="text-[13px] text-white/70 mt-1.5">{stats.total_orgs} {tt('organizaciones')} · {stats.total_plans} {tt('planes')} · {stats.total_athletes} {tt('atletas')}</p>
 
                 <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <PlanCount label="Starter" value={stats.by_plan.starter} />
-                  <PlanCount label="Pro" value={stats.by_plan.basic} />
-                  <PlanCount label="Club" value={stats.by_plan.pro} />
-                  <PlanCount label="Institucional" value={stats.by_plan.enterprise} highlight />
+                  <PlanCount label={tt('Starter')} value={stats.by_plan.starter} />
+                  <PlanCount label={tt('Pro')} value={stats.by_plan.basic} />
+                  <PlanCount label={tt('Club')} value={stats.by_plan.pro} />
+                  <PlanCount label={tt('Institucional')} value={stats.by_plan.enterprise} highlight />
                 </div>
               </div>
             </div>
@@ -247,7 +260,7 @@ const SuperAdminPage = () => {
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Buscar por nombre o email..."
+                placeholder={tt('Buscar por nombre o email...')}
                 className="pl-9 h-11 bg-white border-slate-200"
                 data-testid="search-input"
               />
@@ -255,7 +268,7 @@ const SuperAdminPage = () => {
 
             {/* Hierarchy Groups */}
             <HierarchyGroup
-              title="Federaciones / Universidades"
+              title={tt('Federaciones / Universidades')}
               entityKey="federation"
               orgs={groups.federations}
               onOpen={openOrg}
@@ -263,7 +276,7 @@ const SuperAdminPage = () => {
               isSuper={isSuper}
             />
             <HierarchyGroup
-              title="Ligas"
+              title={tt('Ligas')}
               entityKey="league"
               orgs={groups.leagues}
               onOpen={openOrg}
@@ -271,7 +284,7 @@ const SuperAdminPage = () => {
               isSuper={isSuper}
             />
             <HierarchyGroup
-              title="Clubes / Academias / Escuelas"
+              title={tt('Clubes / Academias / Escuelas')}
               entityKey="club"
               orgs={groups.clubs}
               onOpen={openOrg}
@@ -287,8 +300,8 @@ const SuperAdminPage = () => {
                     <UserCheck className="w-4 h-4 text-slate-600" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-[14px] font-bold text-slate-900">Entrenadores Independientes</h3>
-                    <p className="text-[11px] text-slate-500">{groups.independent_coaches.length} entrenadores sin organización asociada</p>
+                    <h3 className="text-[14px] font-bold text-slate-900">{tt('Entrenadores Independientes')}</h3>
+                    <p className="text-[11px] text-slate-500">{groups.independent_coaches.length} {tt('entrenadores sin organización asociada')}</p>
                   </div>
                 </div>
                 <div className="divide-y divide-slate-100 max-h-[480px] overflow-y-auto">
@@ -314,7 +327,7 @@ const SuperAdminPage = () => {
                           onClick={() => setGrantOpen(u)}
                           data-testid={`grant-${u.id}`}
                         >
-                          <Sparkles className="w-3 h-3 mr-1" /> Regalar plan
+                          <Sparkles className="w-3 h-3 mr-1" /> {tt('Regalar plan')}
                         </Button>
                       </div>
                     </div>
@@ -349,7 +362,7 @@ const SuperAdminPage = () => {
               }} />
               <div className="relative flex items-start justify-between gap-4 flex-wrap">
                 <div>
-                  <p className="text-[11px] tracking-[0.2em] uppercase text-white/60 font-bold mb-1.5">Códigos & Promociones</p>
+                  <p className="text-[11px] tracking-[0.2em] uppercase text-white/60 font-bold mb-1.5">{tt('Códigos & Promociones')}</p>
                   <h2 className="text-3xl font-bold text-white">{codes.length} códigos creados</h2>
                   <p className="text-[13px] text-white/70 mt-1.5">{codes.filter(c => c.active).length} activos · {codes.reduce((acc, c) => acc + (c.current_uses || 0), 0)} usos totales</p>
                 </div>
@@ -363,7 +376,7 @@ const SuperAdminPage = () => {
               {codes.length === 0 && (
                 <div className="col-span-full bg-white rounded-2xl border border-slate-200 py-12 text-center">
                   <Tag className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                  <p className="text-sm text-slate-500">Aún no hay códigos creados</p>
+                  <p className="text-sm text-slate-500">{tt('Aún no hay códigos creados')}</p>
                 </div>
               )}
               {codes.map(c => {
@@ -387,7 +400,7 @@ const SuperAdminPage = () => {
                         </p>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => { navigator.clipboard?.writeText(c.code); toast.success('Copiado'); }}>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => { navigator.clipboard?.writeText(c.code); toast.success(tt('Copiado')); }}>
                           <Copy className="w-3.5 h-3.5 text-slate-500" />
                         </Button>
                         <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={async () => { await togglePromoCode(c.id, !c.active); refreshCodes(); }} title={c.active ? 'Desactivar' : 'Activar'}>
@@ -399,9 +412,9 @@ const SuperAdminPage = () => {
                       </div>
                     </div>
                     <div className="mt-3 grid grid-cols-3 gap-2 text-[10px]">
-                      <Stat label="Usos" value={`${c.current_uses}/${c.max_uses}`} />
-                      <Stat label="Estado" value={!c.active ? 'Off' : exhausted ? 'Agotado' : expired ? 'Expirado' : 'Activo'} color={!c.active || exhausted || expired ? '#EF4444' : '#10B981'} />
-                      <Stat label="Expira" value={c.expires_at ? new Date(c.expires_at).toLocaleDateString('es', { day: '2-digit', month: 'short' }) : '—'} />
+                      <Stat label={tt('Usos')} value={`${c.current_uses}/${c.max_uses}`} />
+                      <Stat label={tt('Estado')} value={!c.active ? 'Off' : exhausted ? 'Agotado' : expired ? 'Expirado' : 'Activo'} color={!c.active || exhausted || expired ? '#EF4444' : '#10B981'} />
+                      <Stat label={tt('Expira')} value={c.expires_at ? new Date(c.expires_at).toLocaleDateString('es', { day: '2-digit', month: 'short' }) : '—'} />
                     </div>
                   </div>
                 );
@@ -432,14 +445,14 @@ const SuperAdminPage = () => {
               })()}
             </DialogTitle>
             <DialogDescription>
-              {selectedOrg && <>Plan: <strong className="capitalize">{selectedOrg.plan}</strong> · {selectedOrg.member_count} miembros · Owner: {selectedOrg.owner_name || selectedOrg.owner_email}</>}
+              {selectedOrg && <>{tt('Plan:')} <strong className="capitalize">{selectedOrg.plan}</strong> · {selectedOrg.member_count} {tt('miembros')} · {tt('Owner:')} {selectedOrg.owner_name || selectedOrg.owner_email}</>}
             </DialogDescription>
           </DialogHeader>
           <div className="max-h-[400px] overflow-y-auto divide-y divide-slate-100 -mx-6">
             {loadingMembers ? (
               <div className="py-12 text-center"><Loader2 className="w-5 h-5 animate-spin text-slate-400 mx-auto" /></div>
             ) : members.length === 0 ? (
-              <p className="px-6 py-8 text-center text-sm text-slate-500">Sin miembros</p>
+              <p className="px-6 py-8 text-center text-sm text-slate-500">{tt('Sin miembros')}</p>
             ) : members.map(m => (
               <div key={m.id} className="px-6 py-3 flex items-center justify-between" data-testid={`member-row-${m.id}`}>
                 <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -462,17 +475,17 @@ const SuperAdminPage = () => {
       <Dialog open={!!grantOpen} onOpenChange={(o) => !o && setGrantOpen(null)}>
         <DialogContent className="max-w-md bg-white" data-testid="grant-modal">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2"><Sparkles className="w-5 h-5 text-purple-600" /> Regalar plan</DialogTitle>
-            <DialogDescription>Otorgas un plan premium temporal a <strong>{grantOpen?.name}</strong> ({grantOpen?.email}).</DialogDescription>
+            <DialogTitle className="flex items-center gap-2"><Sparkles className="w-5 h-5 text-purple-600" /> {tt('Regalar plan')}</DialogTitle>
+            <DialogDescription>{tt('Otorgas un plan premium temporal a')} <strong>{grantOpen?.name}</strong> ({grantOpen?.email}).</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>Plan</Label>
+              <Label>{tt('Plan')}</Label>
               <select value={grantForm.plan} onChange={(e) => setGrantForm({ ...grantForm, plan: e.target.value })} className="w-full mt-1.5 h-10 px-3 rounded-md border border-slate-200 text-sm bg-white">
-                <option value="starter">Starter — $9.99/mes</option>
-                <option value="basic">Pro — $19.99/mes</option>
-                <option value="pro">Club / Academia — $49.99/mes</option>
-                <option value="enterprise">Institucional — $149.99/mes</option>
+                <option value="starter">{tt('Starter — $9.99/mes')}</option>
+                <option value="basic">{tt('Pro — $19.99/mes')}</option>
+                <option value="pro">{tt('Club / Academia — $49.99/mes')}</option>
+                <option value="enterprise">{tt('Institucional — $149.99/mes')}</option>
               </select>
             </div>
             <div>
@@ -481,9 +494,9 @@ const SuperAdminPage = () => {
             </div>
             <div>
               <Label>Razón (opcional)</Label>
-              <Input value={grantForm.reason} onChange={(e) => setGrantForm({ ...grantForm, reason: e.target.value })} placeholder="Ej. Influencer · Demo · Beta tester" className="mt-1.5" />
+              <Input value={grantForm.reason} onChange={(e) => setGrantForm({ ...grantForm, reason: e.target.value })} placeholder={tt('Ej. Influencer · Demo · Beta tester')} className="mt-1.5" />
             </div>
-            <Button onClick={handleGrant} className="w-full bg-purple-600 hover:bg-purple-700 text-white" data-testid="grant-confirm">Otorgar</Button>
+            <Button onClick={handleGrant} className="w-full bg-purple-600 hover:bg-purple-700 text-white" data-testid="grant-confirm">{tt('Otorgar')}</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -493,11 +506,11 @@ const SuperAdminPage = () => {
         <DialogContent className="max-w-md bg-white" data-testid="create-code-modal">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2"><Tag className="w-5 h-5 text-emerald-600" /> Nuevo código</DialogTitle>
-            <DialogDescription>Crea un código de descuento, regalo o referido.</DialogDescription>
+            <DialogDescription>{tt('Crea un código de descuento, regalo o referido.')}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>Tipo</Label>
+              <Label>{tt('Tipo')}</Label>
               <div className="grid grid-cols-3 gap-2 mt-1.5">
                 {[
                   { id: 'discount', label: 'Descuento', icon: Tag, c: '#3B82F6' },
@@ -506,41 +519,41 @@ const SuperAdminPage = () => {
                 ].map(t => (
                   <button key={t.id} onClick={() => setNewCode({ ...newCode, code_type: t.id })} className={`px-3 py-2.5 rounded-lg border text-[12px] font-semibold flex flex-col items-center gap-1 transition-all ${newCode.code_type === t.id ? 'border-slate-900 bg-slate-50' : 'border-slate-200 hover:border-slate-400'}`}>
                     <t.icon className="w-4 h-4" style={{ color: t.c }} />
-                    {t.label}
+                    {tt(t.label)}
                   </button>
                 ))}
               </div>
             </div>
             <div>
               <Label>Código (opcional)</Label>
-              <Input value={newCode.code} onChange={(e) => setNewCode({ ...newCode, code: e.target.value.toUpperCase() })} placeholder="Auto-generado si vacío" className="mt-1.5 font-mono" />
+              <Input value={newCode.code} onChange={(e) => setNewCode({ ...newCode, code: e.target.value.toUpperCase() })} placeholder={tt('Auto-generado si vacío')} className="mt-1.5 font-mono" />
             </div>
             {newCode.code_type === 'discount' && (
               <div>
-                <Label>% Descuento</Label>
+                <Label>{tt('% Descuento')}</Label>
                 <Input type="number" min="5" max="100" value={newCode.discount_percent} onChange={(e) => setNewCode({ ...newCode, discount_percent: parseInt(e.target.value || '0') || 20 })} className="mt-1.5" />
               </div>
             )}
             {newCode.code_type === 'gift' && (
               <>
                 <div>
-                  <Label>Plan a regalar</Label>
+                  <Label>{tt('Plan a regalar')}</Label>
                   <select value={newCode.gift_plan} onChange={(e) => setNewCode({ ...newCode, gift_plan: e.target.value })} className="w-full mt-1.5 h-10 px-3 rounded-md border border-slate-200 text-sm bg-white">
-                    <option value="starter">Starter — $9.99</option>
-                    <option value="basic">Pro — $19.99</option>
-                    <option value="pro">Club — $49.99</option>
-                    <option value="enterprise">Institucional — $149.99</option>
+                    <option value="starter">{tt('Starter — $9.99')}</option>
+                    <option value="basic">{tt('Pro — $19.99')}</option>
+                    <option value="pro">{tt('Club — $49.99')}</option>
+                    <option value="enterprise">{tt('Institucional — $149.99')}</option>
                   </select>
                 </div>
                 <div>
-                  <Label>Días gratis</Label>
+                  <Label>{tt('Días gratis')}</Label>
                   <Input type="number" value={newCode.gift_days} onChange={(e) => setNewCode({ ...newCode, gift_days: parseInt(e.target.value || '0') || 30 })} className="mt-1.5" />
                 </div>
               </>
             )}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Máx. usos</Label>
+                <Label>{tt('Máx. usos')}</Label>
                 <Input type="number" value={newCode.max_uses} onChange={(e) => setNewCode({ ...newCode, max_uses: parseInt(e.target.value || '0') || 100 })} className="mt-1.5" />
               </div>
               <div>
@@ -549,10 +562,10 @@ const SuperAdminPage = () => {
               </div>
             </div>
             <div>
-              <Label>Descripción</Label>
-              <Input value={newCode.description} onChange={(e) => setNewCode({ ...newCode, description: e.target.value })} placeholder="Black Friday 2026" className="mt-1.5" />
+              <Label>{tt('Descripción')}</Label>
+              <Input value={newCode.description} onChange={(e) => setNewCode({ ...newCode, description: e.target.value })} placeholder={tt('Black Friday 2026')} className="mt-1.5" />
             </div>
-            <Button onClick={handleCreateCode} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" data-testid="create-code-confirm">Crear código</Button>
+            <Button onClick={handleCreateCode} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" data-testid="create-code-confirm">{tt('Crear código')}</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -562,7 +575,7 @@ const SuperAdminPage = () => {
         <DialogContent className="max-w-md bg-white" data-testid="refund-modal">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2"><RefreshCw className="w-5 h-5 text-amber-600" /> Registrar devolución</DialogTitle>
-            <DialogDescription>Registras una devolución manual a <strong>{refundOpen?.name}</strong> ({refundOpen?.email}). Cuando integremos Stripe, esto será automático vía webhook.</DialogDescription>
+            <DialogDescription>{tt('Registras una devolución manual a')} <strong>{refundOpen?.name}</strong> ({refundOpen?.email}). Cuando integremos Stripe, esto será automático vía webhook.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -571,10 +584,10 @@ const SuperAdminPage = () => {
               <p className="text-[11px] text-slate-500 mt-1">Sugerido: ${refundOpen?.monthly_fee} (cuota mensual del plan)</p>
             </div>
             <div>
-              <Label>Razón</Label>
-              <Input value={refundForm.reason} onChange={(e) => setRefundForm({ ...refundForm, reason: e.target.value })} placeholder="Cancelación · Insatisfacción · Cobro duplicado" className="mt-1.5" />
+              <Label>{tt('Razón')}</Label>
+              <Input value={refundForm.reason} onChange={(e) => setRefundForm({ ...refundForm, reason: e.target.value })} placeholder={tt('Cancelación · Insatisfacción · Cobro duplicado')} className="mt-1.5" />
             </div>
-            <Button onClick={handleRefund} className="w-full bg-amber-600 hover:bg-amber-700 text-white" data-testid="refund-confirm">Registrar devolución</Button>
+            <Button onClick={handleRefund} className="w-full bg-amber-600 hover:bg-amber-700 text-white" data-testid="refund-confirm">{tt('Registrar devolución')}</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -614,13 +627,13 @@ const HierarchyGroup = ({ title, entityKey, orgs, onOpen, onSetType, isSuper }) 
         </div>
         <div className="flex-1">
           <h3 className="text-[14px] font-bold text-slate-900">{title} <span className="text-slate-400 font-normal">({orgs.length})</span></h3>
-          <p className="text-[11px] text-slate-500">{cfg.desc}</p>
+          <p className="text-[11px] text-slate-500">{tt(cfg.desc)}</p>
         </div>
       </div>
       <div className="divide-y divide-slate-100">
         {orgs.length === 0 ? (
           <div className="px-5 py-8 text-center">
-            <p className="text-[12px] text-slate-400">Aún no hay {title.toLowerCase()}</p>
+            <p className="text-[12px] text-slate-400">{tt('Aún no hay')} {title.toLowerCase()}</p>
           </div>
         ) : orgs.map(o => (
           <div key={o.id} className="px-5 py-3.5 flex items-center justify-between gap-3 hover:bg-slate-50/50 cursor-pointer group" onClick={() => onOpen(o)} data-testid={`org-${o.id}`}>
@@ -633,7 +646,7 @@ const HierarchyGroup = ({ title, entityKey, orgs, onOpen, onSetType, isSuper }) 
                   <p className="text-[13px] font-semibold text-slate-900 truncate">{o.name}</p>
                   <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${PLAN_BADGE[o.plan] || PLAN_BADGE.free}`}>{o.plan}</span>
                 </div>
-                <p className="text-[11px] text-slate-500 mt-0.5">{o.member_count}/{o.max_coaches === 999 ? '∞' : o.max_coaches} miembros · {o.plan_count} planes · Owner: {o.owner_name || o.owner_email}</p>
+                <p className="text-[11px] text-slate-500 mt-0.5">{o.member_count}/{o.max_coaches === 999 ? '∞' : o.max_coaches} {tt('miembros')} · {o.plan_count} {tt('planes')} · {tt('Owner:')} {o.owner_name || o.owner_email}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -645,11 +658,11 @@ const HierarchyGroup = ({ title, entityKey, orgs, onOpen, onSetType, isSuper }) 
                   className="text-[10px] h-7 px-2 rounded-md border border-slate-200 bg-white"
                   data-testid={`entity-type-${o.id}`}
                 >
-                  <option value="club">Club</option>
-                  <option value="school">Escuela</option>
-                  <option value="league">Liga</option>
-                  <option value="federation">Federación</option>
-                  <option value="university">Universidad</option>
+                  <option value="club">{tt('Club')}</option>
+                  <option value="school">{tt('Escuela')}</option>
+                  <option value="league">{tt('Liga')}</option>
+                  <option value="federation">{tt('Federación')}</option>
+                  <option value="university">{tt('Universidad')}</option>
                 </select>
               )}
               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 transition-colors" />
@@ -706,8 +719,8 @@ const FinanceDashboard = ({ finance, alerts, onRefund }) => {
               <Bell className="w-4 h-4 text-purple-700" />
             </div>
             <div className="flex-1">
-              <h3 className="text-[14px] font-bold text-slate-900">Alertas inteligentes <span className="text-slate-400 font-normal">({alerts.length})</span></h3>
-              <p className="text-[11px] text-slate-500">Detecciones automáticas sobre tu MRR, churn y oportunidades</p>
+              <h3 className="text-[14px] font-bold text-slate-900">{tt('Alertas inteligentes')} <span className="text-slate-400 font-normal">({alerts.length})</span></h3>
+              <p className="text-[11px] text-slate-500">{tt('Detecciones automáticas sobre tu MRR, churn y oportunidades')}</p>
             </div>
           </div>
           <div className="divide-y divide-slate-100">
@@ -739,25 +752,25 @@ const FinanceDashboard = ({ finance, alerts, onRefund }) => {
           backgroundSize: '32px 32px',
         }} />
         <div className="relative">
-          <p className="text-[11px] tracking-[0.2em] uppercase text-[#CCFF00]/80 font-bold mb-1.5">Resumen Financiero</p>
+          <p className="text-[11px] tracking-[0.2em] uppercase text-[#CCFF00]/80 font-bold mb-1.5">{tt('Resumen Financiero')}</p>
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-3">
             <div>
-              <p className="text-[11px] uppercase tracking-wider text-white/50">MRR</p>
+              <p className="text-[11px] uppercase tracking-wider text-white/50">{tt('MRR')}</p>
               <p className="text-3xl font-black text-white">${finance.mrr.toLocaleString('en-US', {minimumFractionDigits:2})}</p>
-              <p className="text-[11px] text-white/50">por mes recurrente</p>
+              <p className="text-[11px] text-white/50">{tt('por mes recurrente')}</p>
             </div>
             <div>
-              <p className="text-[11px] uppercase tracking-wider text-white/50">ARR</p>
+              <p className="text-[11px] uppercase tracking-wider text-white/50">{tt('ARR')}</p>
               <p className="text-3xl font-black text-[#CCFF00]">${finance.arr.toLocaleString('en-US', {minimumFractionDigits:2})}</p>
-              <p className="text-[11px] text-white/50">proyección anual</p>
+              <p className="text-[11px] text-white/50">{tt('proyección anual')}</p>
             </div>
             <div>
-              <p className="text-[11px] uppercase tracking-wider text-white/50">Clientes</p>
+              <p className="text-[11px] uppercase tracking-wider text-white/50">{tt('Clientes')}</p>
               <p className="text-3xl font-black text-white">{finance.total_paying_users}<span className="text-base text-white/50">/{finance.total_users}</span></p>
               <p className="text-[11px] text-white/50">{finance.total_users ? ((finance.total_paying_users/finance.total_users)*100).toFixed(1) : 0}% conversión</p>
             </div>
             <div>
-              <p className="text-[11px] uppercase tracking-wider text-white/50">Devoluciones</p>
+              <p className="text-[11px] uppercase tracking-wider text-white/50">{tt('Devoluciones')}</p>
               <p className="text-3xl font-black text-amber-400">${finance.total_refunded.toLocaleString('en-US', {minimumFractionDigits:2})}</p>
               <p className="text-[11px] text-white/50">{finance.refunds.length} registradas</p>
             </div>
@@ -769,8 +782,8 @@ const FinanceDashboard = ({ finance, alerts, onRefund }) => {
         <div className="bg-white rounded-2xl border border-slate-200 p-5">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h3 className="text-[13px] font-bold text-slate-900">Ingresos mensuales</h3>
-              <p className="text-[11px] text-slate-500">Últimos 12 meses</p>
+              <h3 className="text-[13px] font-bold text-slate-900">{tt('Ingresos mensuales')}</h3>
+              <p className="text-[11px] text-slate-500">{tt('Últimos 12 meses')}</p>
             </div>
             <TrendingUp className="w-4 h-4 text-emerald-600" />
           </div>
@@ -788,8 +801,8 @@ const FinanceDashboard = ({ finance, alerts, onRefund }) => {
         <div className="bg-white rounded-2xl border border-slate-200 p-5">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h3 className="text-[13px] font-bold text-slate-900">Ingreso por plan</h3>
-              <p className="text-[11px] text-slate-500">Distribución del MRR</p>
+              <h3 className="text-[13px] font-bold text-slate-900">{tt('Ingreso por plan')}</h3>
+              <p className="text-[11px] text-slate-500">{tt('Distribución del MRR')}</p>
             </div>
             <Banknote className="w-4 h-4 text-emerald-600" />
           </div>
@@ -810,8 +823,8 @@ const FinanceDashboard = ({ finance, alerts, onRefund }) => {
       <div className="bg-white rounded-2xl border border-slate-200 p-5">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-[13px] font-bold text-slate-900">Embudo de conversión</h3>
-            <p className="text-[11px] text-slate-500">Starter → Pro → Club → Institucional</p>
+            <h3 className="text-[13px] font-bold text-slate-900">{tt('Embudo de conversión')}</h3>
+            <p className="text-[11px] text-slate-500">{tt('Starter → Pro → Club → Institucional')}</p>
           </div>
           <Award className="w-4 h-4 text-purple-600" />
         </div>
@@ -838,13 +851,13 @@ const FinanceDashboard = ({ finance, alerts, onRefund }) => {
             <Briefcase className="w-4 h-4 text-emerald-700" />
           </div>
           <div className="flex-1">
-            <h3 className="text-[14px] font-bold text-slate-900">Ventas activas <span className="text-slate-400 font-normal">({finance.sales.length})</span></h3>
-            <p className="text-[11px] text-slate-500">Cada usuario pagando, su plan y su cuota</p>
+            <h3 className="text-[14px] font-bold text-slate-900">{tt('Ventas activas')} <span className="text-slate-400 font-normal">({finance.sales.length})</span></h3>
+            <p className="text-[11px] text-slate-500">{tt('Cada usuario pagando, su plan y su cuota')}</p>
           </div>
         </div>
         <div className="divide-y divide-slate-100 max-h-[480px] overflow-y-auto">
           {finance.sales.length === 0 ? (
-            <p className="px-5 py-12 text-center text-sm text-slate-500">Aún no hay ventas (todos los usuarios en Free)</p>
+            <p className="px-5 py-12 text-center text-sm text-slate-500">{tt('Aún no hay ventas (todos los usuarios en Free)')}</p>
           ) : finance.sales.map(s => {
             const cfg = PLAN_DISPLAY[s.plan] || { label: s.plan, color: '#94A3B8' };
             return (
@@ -856,17 +869,17 @@ const FinanceDashboard = ({ finance, alerts, onRefund }) => {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="text-[13px] font-semibold text-slate-900 truncate">{s.name || 'Sin nombre'}</p>
-                      <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full text-white" style={{ background: cfg.color }}>{cfg.label}</span>
-                      {s.granted && <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-purple-100 text-purple-700">Regalado</span>}
+                      <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full text-white" style={{ background: cfg.color }}>{tt(cfg.label)}</span>
+                      {s.granted && <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-purple-100 text-purple-700">{tt('Regalado')}</span>}
                     </div>
                     <p className="text-[11px] text-slate-500 truncate">{s.email} · desde {s.subscribed_since ? new Date(s.subscribed_since).toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-[14px] font-black text-slate-900">${s.monthly_fee}<span className="text-[10px] text-slate-400 font-normal">/mes</span></p>
+                  <p className="text-[14px] font-black text-slate-900">${s.monthly_fee}<span className="text-[10px] text-slate-400 font-normal">{tt('/mes')}</span></p>
                   <p className="text-[10px] text-slate-500">${s.annual_value}/año</p>
                 </div>
-                <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-slate-400 hover:text-amber-600" onClick={() => onRefund(s)} title="Registrar devolución" data-testid={`refund-btn-${s.user_id}`}>
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-slate-400 hover:text-amber-600" onClick={() => onRefund(s)} title={tt('Registrar devolución')} data-testid={`refund-btn-${s.user_id}`}>
                   <RefreshCw className="w-3.5 h-3.5" />
                 </Button>
               </div>
@@ -882,7 +895,7 @@ const FinanceDashboard = ({ finance, alerts, onRefund }) => {
               <RefreshCw className="w-4 h-4 text-amber-700" />
             </div>
             <div>
-              <h3 className="text-[14px] font-bold text-slate-900">Devoluciones registradas <span className="text-slate-400 font-normal">({finance.refunds.length})</span></h3>
+              <h3 className="text-[14px] font-bold text-slate-900">{tt('Devoluciones registradas')} <span className="text-slate-400 font-normal">({finance.refunds.length})</span></h3>
               <p className="text-[11px] text-slate-500">Total: ${finance.total_refunded.toFixed(2)}</p>
             </div>
           </div>

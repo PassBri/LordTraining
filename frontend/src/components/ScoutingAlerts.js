@@ -1,9 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import i18nInstance from '../i18n';
+import { useTranslation } from 'react-i18next';
 import { Loader2, AlertTriangle, CalendarClock, ClipboardX, Settings2, BellRing } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { toast } from 'sonner';
 import { api } from './scoutingApi';
+
+// i18n: auto-traducción slug-based (scouting.lbl.*)
+const _slug = (s) => (s == null ? '' : s.toString()).toLowerCase()
+  .replace(/á/g,'a').replace(/é/g,'e').replace(/í/g,'i').replace(/ó/g,'o').replace(/ú/g,'u').replace(/ñ/g,'n')
+  .replace(/₂/g,'2').replace(/²/g,'2').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+const tt = (s) => {
+  if (s == null || s === '' || typeof s === 'number') return s;
+  const k = _slug(s);
+  return k ? i18nInstance.t(`scouting.lbl.${k}`, { defaultValue: s }) : s;
+};
 
 const SEV = {
   danger: { color: '#ef4444', bg: '#fef2f2', border: '#fecaca', label: 'Crítico' },
@@ -13,6 +25,7 @@ const SEV = {
 const ICON = { no_evaluation: ClipboardX, stale_evaluation: ClipboardX, contract_expired: CalendarClock, contract_expiring: CalendarClock, sponsor_expired: CalendarClock, sponsor_expiring: CalendarClock };
 
 export default function ScoutingAlerts({ onOpen }) {
+  useTranslation();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [cfg, setCfg] = useState({ eval_days: 14, expiry_days: 30 });
@@ -26,8 +39,8 @@ export default function ScoutingAlerts({ onOpen }) {
 
   const saveCfg = async () => {
     setSaving(true);
-    try { await api('/settings', { method: 'PUT', body: { eval_days: Number(cfg.eval_days), expiry_days: Number(cfg.expiry_days) } }); toast.success('Preferencias guardadas'); load(); }
-    catch { toast.error('Error guardando preferencias'); }
+    try { await api('/settings', { method: 'PUT', body: { eval_days: Number(cfg.eval_days), expiry_days: Number(cfg.expiry_days) } }); toast.success(tt('Preferencias guardadas')); load(); }
+    catch { toast.error(tt('Error guardando preferencias')); }
     setSaving(false);
   };
 
@@ -61,7 +74,7 @@ export default function ScoutingAlerts({ onOpen }) {
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
-          <BellRing className="w-4 h-4 text-amber-500" /><span className="font-black text-slate-800">Alertas y seguimiento</span>
+          <BellRing className="w-4 h-4 text-amber-500" /><span className="font-black text-slate-800">{tt('Alertas y seguimiento')}</span>
           <span className="text-xs text-slate-400 ml-auto">{data.total} activas</span>
         </div>
         <div className="divide-y divide-slate-100">
@@ -75,12 +88,12 @@ export default function ScoutingAlerts({ onOpen }) {
                   <div className="font-bold text-slate-800 text-sm truncate">{a.name}</div>
                   <div className="text-[12px] text-slate-500 truncate">{a.message}</div>
                 </div>
-                <span className="text-[10px] font-black px-2 py-0.5 rounded-full shrink-0" style={{ background: sv.color + '22', color: sv.color }}>{sv.label}</span>
+                <span className="text-[10px] font-black px-2 py-0.5 rounded-full shrink-0" style={{ background: sv.color + '22', color: sv.color }}>{tt(sv.label)}</span>
               </button>
             );
           })}
           {!(data.alerts || []).length && (
-            <div className="p-10 text-center text-slate-400 text-sm">🎉 Todo al día. No hay alertas pendientes.</div>
+            <div className="p-10 text-center text-slate-400 text-sm">{tt('🎉 Todo al día. No hay alertas pendientes.')}</div>
           )}
         </div>
       </div>

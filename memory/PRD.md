@@ -9,7 +9,16 @@
 - **Claves nuevas traducidas a 12 idiomas** vía 4 specs: i18n_sessions_gap_spec, i18n_sessions_toasts_spec, i18n_period_gap_spec, i18n_period_micro_spec. Todos los locales válidos.
 - **Pendiente (data-driven, NO UI)**: nombres de micro/sesión/tipo de sesión ("Semana 1"/"Sesión 1"/"general") y nombres de fase/macro ("Preparatorio General/Precompetitivo") vienen del backend — requieren mapa de override por fase si se quiere localizar.
 
-## [Jun 2026] i18n FASE D — Calculadoras COMPLETADO (10/12 idiomas) — VERIFICADO EN
+## [Jun 2026] i18n FASE D — SuperAdmin + Reportes + Scouting COMPLETADO (12 idiomas) — VERIFICADO EN
+- **Enfoque eficiente (auto-traducción slug-based)**: cada archivo recibe un helper `tt(raw)` a nivel de módulo (usa `i18nInstance.t('<ns>.lbl.<slug>', {defaultValue:raw})`) + `useTranslation()` en el componente raíz para re-render. Script `i18n_file_labels.py <files> <ns>` extrae cadenas (tt() literales + valores config key:'val' + tuplas ['k','Label'] + texto JSX + toasts) y traduce a 12 idiomas. Auto-envoltura JSX/attrs/toasts vía `wrap_file.py`.
+- **SuperAdminPage.js** (ns `superadmin`, 121 claves): tabs, jerarquía/entidades (ENTITY label/desc), finanzas, códigos, headers, toasts. Verificado EN en /admin/super (login super admin: juegolaureado@gmail.com).
+- **MasterReportModal.js** (ns `reports`, 71 claves + 16 de estilos vía `i18n_report_styles.py`): builder, DOCUMENT INFORMATION/STYLE, 8 estilos+vibes (datos del backend mapeados al frontend), layouts, secciones, footer, botones. Verificado EN.
+- **ScoutingModule/Contacts/Map/Alerts** (ns `scouting`, 204 claves): header, 7 tabs, prospectos, pipeline, evaluación, ranking, alertas, contactos (ROLES), mapa. Verificado EN.
+- **Fix importante en extracción**: el filtro descartaba palabras sueltas en minúscula (disponibles/planes/Todos) creyéndolas IDs → corregido a solo snake/kebab. Re-corridos los 3 namespaces.
+- **Rutas**: SuperAdmin = `/admin/super` (no /superadmin). El link "Admin" del navbar va a `/org/team` (OrgTeamPage, AÚN EN ESPAÑOL — no estaba en la lista).
+- **Pendiente menor**: toasts cuyo texto viene del backend (ej. "Error generando preview:" + error de poppler en preview env); algunos templates dinámicos; `OrgTeamPage.js` (/org/team) sin i18n.
+
+## [Jun 2026] i18n FASE D — Calculadoras COMPLETADO (12 idiomas)
 - **CalculatorsHub.js COMPLETADO** (namespace `calculators`, 12 idiomas): títulos+descripciones de módulos (por id), hub hero, Modules/Saved results, MODULE {{n}}, calc. Verificado.
 - **Internos de calculadoras COMPLETADO** vía auto-traducción:
   - `CalcShared.js` exporta `useCalcT()` → helper `tc(raw)` slug-based (`calculators.lbl.<slug>`, fallback al original). CalcCard/Field/Select/BigResult/MiniStat auto-traducen sus props (title/subtitle/label/unit/sub/placeholder/badge/option.label) → ~500 cadenas SIN editar cada calculadora.

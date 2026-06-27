@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
+import i18nInstance from '../i18n';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Button } from './ui/button';
@@ -13,6 +15,16 @@ import {
 } from 'lucide-react';
 
 const API = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
+
+// i18n: auto-traducción slug-based para labels de reportes (reports.lbl.*)
+const _slug = (s) => (s == null ? '' : s.toString()).toLowerCase()
+  .replace(/á/g,'a').replace(/é/g,'e').replace(/í/g,'i').replace(/ó/g,'o').replace(/ú/g,'u').replace(/ñ/g,'n')
+  .replace(/₂/g,'2').replace(/²/g,'2').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+const tt = (s) => {
+  if (s == null || s === '' || typeof s === 'number') return s;
+  const k = _slug(s);
+  return k ? i18nInstance.t(`reports.lbl.${k}`, { defaultValue: s }) : s;
+};
 
 const STYLE_ICONS = {
   olimpico: Medal,
@@ -41,6 +53,7 @@ const DEFAULT_COVER = {
 };
 
 export default function MasterReportModal({ open, onOpenChange, plan, athleteName, coachName }) {
+  useTranslation();
   const [styles, setStyles] = useState([]);
   const [groups, setGroups] = useState([]);
   const [layouts, setLayouts] = useState([]);
@@ -71,10 +84,10 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
     const headers = { Authorization: `Bearer ${token}` };
     axios.get(`${API}/api/master-report/styles`, { headers })
       .then(r => setStyles(r.data.styles || []))
-      .catch(() => toast.error('No se pudo cargar la lista de estilos'));
+      .catch(() => toast.error(tt('No se pudo cargar la lista de estilos')));
     axios.get(`${API}/api/master-report/sections-catalog`, { headers })
       .then(r => setGroups(r.data.groups || []))
-      .catch(() => toast.error('No se pudo cargar el catálogo de secciones'));
+      .catch(() => toast.error(tt('No se pudo cargar el catálogo de secciones')));
     axios.get(`${API}/api/master-report/cover-layouts`, { headers })
       .then(r => setLayouts(r.data.layouts || [])).catch(() => {});
     if (plan?.id) {
@@ -99,7 +112,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
     const f = e.target.files?.[0];
     if (!f) return;
     if (f.size > 1024 * 1024 * 2) {
-      toast.error('Logo demasiado pesado (máx. 2MB)');
+      toast.error(tt('Logo demasiado pesado (máx. 2MB)'));
       return;
     }
     const reader = new FileReader();
@@ -171,7 +184,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
         responseType: 'blob', validateStatus: () => true,
       });
       if (res.status >= 400) {
-        toast.error('Error generando resumen');
+        toast.error(tt('Error generando resumen'));
         return;
       }
       const blob = new Blob([res.data], { type: 'application/pdf' });
@@ -181,9 +194,9 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
       a.download = `resumen_${(title || plan?.name || 'plan').toString().replace(/\s+/g, '_').toLowerCase()}.pdf`;
       document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
-      toast.success('Resumen del plan descargado');
+      toast.success(tt('Resumen del plan descargado'));
     } catch (err) {
-      toast.error('Error generando resumen: ' + (err?.message || ''));
+      toast.error(tt('Error generando resumen: ') + (err?.message || ''));
     } finally {
       setGenerating(false);
     }
@@ -202,14 +215,14 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
       });
       if (res.status >= 400) {
         const t = await res.data.text();
-        toast.error('Error preview: ' + t.slice(0, 200));
+        toast.error(tt('Error preview: ') + t.slice(0, 200));
         return;
       }
       const blob = new Blob([res.data], { type: 'image/png' });
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(URL.createObjectURL(blob));
     } catch (err) {
-      toast.error('Error preview: ' + (err?.message || ''));
+      toast.error(tt('Error preview: ') + (err?.message || ''));
     } finally {
       setPreviewing(false);
     }
@@ -246,7 +259,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
 
   const handleGenerate = async () => {
     if (!Object.values(sections).some(Boolean)) {
-      toast.error('Selecciona al menos una sección');
+      toast.error(tt('Selecciona al menos una sección'));
       return;
     }
     setGenerating(true);
@@ -274,9 +287,9 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
-      toast.success('Reporte Maestro descargado');
+      toast.success(tt('Reporte Maestro descargado'));
     } catch (err) {
-      toast.error('Error generando reporte: ' + (err?.message || 'desconocido'));
+      toast.error(tt('Error generando reporte: ') + (err?.message || 'desconocido'));
     } finally {
       setGenerating(false);
     }
@@ -288,7 +301,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
   const [sharing, setSharing] = useState(false);
   const handleShare = async (target /* 'link' | 'whatsapp' */) => {
     if (!Object.values(sections).some(Boolean)) {
-      toast.error('Selecciona al menos una sección');
+      toast.error(tt('Selecciona al menos una sección'));
       return;
     }
     setSharing(true);
@@ -302,13 +315,13 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
       if (target === 'whatsapp') {
         const msg = `LordTraining · Reporte Maestro · ${plan?.name || 'Plan'}\n\nVer en línea: ${url}`;
         window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-        toast.success('Abriendo WhatsApp…');
+        toast.success(tt('Abriendo WhatsApp…'));
       } else {
         await navigator.clipboard.writeText(url);
-        toast.success('Enlace copiado · página de solo lectura', { description: url });
+        toast.success(tt('Enlace copiado · página de solo lectura'), { description: url });
       }
     } catch (err) {
-      toast.error('Error al crear enlace: ' + (err?.response?.data?.detail || err?.message || ''));
+      toast.error(tt('Error al crear enlace: ') + (err?.response?.data?.detail || err?.message || ''));
     } finally {
       setSharing(false);
     }
@@ -326,9 +339,9 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
               <FileBarChart2 className="w-5 h-5 text-slate-900" />
             </div>
             <div className="flex-1">
-              <div className="text-base font-bold tracking-tight">Reporte Maestro · PDF</div>
+              <div className="text-base font-bold tracking-tight">{tt('Reporte Maestro · PDF')}</div>
               <DialogDescription className="text-[11px] text-slate-300 font-normal">
-                Constructor selectivo · 8 estilos · 4 layouts · 24 secciones · sesiones detalladas · Plan Gráfico
+                {tt('Constructor selectivo · 8 estilos · 4 layouts · 24 secciones · sesiones detalladas · Plan Gráfico')}
               </DialogDescription>
             </div>
           </DialogTitle>
@@ -346,7 +359,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
                 data-testid={`mr-tab-${t.id}`}
                 className={`px-3 h-7 text-[11px] font-bold uppercase tracking-wider rounded-md transition ${
                   activeTab === t.id ? 'bg-[#CCFF00] text-slate-900' : 'text-slate-300 hover:text-white'
-                }`}>{t.label}</button>
+                }`}>{tt(t.label)}</button>
             ))}
           </div>
         </DialogHeader>
@@ -358,33 +371,33 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
             <div className="lg:col-span-5 space-y-5">
               <section className="bg-slate-50 border border-slate-200 rounded-xl p-4">
                 <h3 className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 mb-3">
-                  Información del Documento
+                  {tt('Información del Documento')}
                 </h3>
                 <div className="space-y-2.5">
                   <div>
-                    <Label className="text-[11px] font-semibold text-slate-700">Título</Label>
+                    <Label className="text-[11px] font-semibold text-slate-700">{tt('Título')}</Label>
                     <Input
                       data-testid="mr-title-input"
                       value={title} onChange={e => setTitle(e.target.value)}
-                      placeholder="Plan de Entrenamiento" className="h-9 text-sm" />
+                      placeholder={tt('Plan de Entrenamiento')} className="h-9 text-sm" />
                   </div>
                   <div>
-                    <Label className="text-[11px] font-semibold text-slate-700">Subtítulo</Label>
+                    <Label className="text-[11px] font-semibold text-slate-700">{tt('Subtítulo')}</Label>
                     <Input
                       data-testid="mr-subtitle-input"
                       value={subtitle} onChange={e => setSubtitle(e.target.value)}
-                      placeholder="Macrociclo 2026 · Pre-temporada" className="h-9 text-sm" />
+                      placeholder={tt('Macrociclo 2026 · Pre-temporada')} className="h-9 text-sm" />
                   </div>
                   <div>
-                    <Label className="text-[11px] font-semibold text-slate-700">Organización</Label>
+                    <Label className="text-[11px] font-semibold text-slate-700">{tt('Organización')}</Label>
                     <Input
                       data-testid="mr-org-input"
                       value={orgName} onChange={e => setOrgName(e.target.value)}
-                      placeholder="Club / Federación / Escuela" className="h-9 text-sm" />
+                      placeholder={tt('Club / Federación / Escuela')} className="h-9 text-sm" />
                   </div>
                   <div>
                     <Label className="text-[11px] font-semibold text-slate-700 flex items-center gap-1.5">
-                      <ImageIcon className="w-3.5 h-3.5" /> Logo (opcional · PNG/JPG)
+                      <ImageIcon className="w-3.5 h-3.5" /> {tt('Logo (opcional · PNG/JPG)')}
                     </Label>
                     <div className="flex items-center gap-2 mt-1">
                       <Input
@@ -396,7 +409,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
                         <button
                           onClick={() => setOrgLogoB64('')}
                           className="p-1 rounded hover:bg-red-100 text-red-600"
-                          title="Quitar logo">
+                          title={tt('Quitar logo')}>
                           <X className="w-3.5 h-3.5" />
                         </button>
                       )}
@@ -413,7 +426,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
 
             <div className="lg:col-span-7">
               <h3 className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 mb-3">
-                Estilo del Documento <span className="text-slate-400 normal-case font-normal">· {styles.length} disponibles</span>
+                {tt('Estilo del Documento')} <span className="text-slate-400 normal-case font-normal">· {styles.length} {tt('disponibles')}</span>
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {styles.map(s => {
@@ -434,10 +447,10 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
                           style={{ background: active ? s.accent : s.primary, color: active ? s.primary : '#fff' }}>
                           <Icon className="w-3.5 h-3.5" />
                         </div>
-                        <span className="text-[12px] font-bold">{s.name}</span>
+                        <span className="text-[12px] font-bold">{tt(s.name)}</span>
                       </div>
                       <p className={`text-[10px] leading-tight ${active ? 'text-slate-300' : 'text-slate-500'}`}>
-                        {s.vibe}
+                        {tt(s.vibe)}
                       </p>
                       <div className="flex gap-1 mt-2">
                         <span className="w-3 h-3 rounded" style={{ background: s.primary }} />
@@ -469,7 +482,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
                       className={`p-3 rounded-xl border-2 text-left transition ${
                         active ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 hover:border-slate-400 bg-white'
                       }`}>
-                      <div className="text-sm font-bold mb-1">{l.name}</div>
+                      <div className="text-sm font-bold mb-1">{tt(l.name)}</div>
                       <div className={`text-[10px] leading-tight ${active ? 'text-slate-300' : 'text-slate-500'}`}>{l.vibe}</div>
                     </button>
                   );
@@ -506,7 +519,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
                   data-testid="mr-cover-dedication"
                   value={coverData.dedication || ''}
                   onChange={e => setCoverData(c => ({ ...c, dedication: e.target.value }))}
-                  placeholder="Dedicado a…" className="h-9 text-sm" />
+                  placeholder={tt('Dedicado a…')} className="h-9 text-sm" />
               </div>
             </div>
           </div>
@@ -538,7 +551,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
                   value={customConclusions}
                   onChange={e => setCustomConclusions(e.target.value)}
                   rows={5}
-                  placeholder="Resume los próximos pasos, hallazgos y compromisos del cuerpo técnico."
+                  placeholder={tt('Resume los próximos pasos, hallazgos y compromisos del cuerpo técnico.')}
                   className="w-full text-sm p-3 border border-slate-200 rounded-lg focus:outline-none focus:border-slate-400 resize-y" />
               </div>
             </div>
@@ -549,7 +562,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
                    data-testid="mr-sessions-selector">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div>
-                    <h3 className="text-[12px] font-bold text-slate-800">Selecciona qué sesiones imprimir</h3>
+                    <h3 className="text-[12px] font-bold text-slate-800">{tt('Selecciona qué sesiones imprimir')}</h3>
                     <p className="text-[10px] text-slate-500">
                       {selectedSessionIds === null
                         ? `Todas las sesiones (${sessionTree.total_sessions}) se incluirán`
@@ -644,7 +657,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
                   return (
                     <div key={g.id} className="bg-white border border-slate-200 rounded-xl overflow-hidden">
                       <div className="flex items-center justify-between px-3 py-2 bg-slate-50 border-b border-slate-200">
-                        <h4 className="text-xs font-bold text-slate-800">{g.title}</h4>
+                        <h4 className="text-xs font-bold text-slate-800">{tt(g.title)}</h4>
                         <button
                           data-testid={`mr-group-${g.id}-toggle-all`}
                           onClick={() => selectAllInGroup(g.items, !allOn)}
@@ -665,7 +678,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
                               data-testid={`mr-section-${it.id}`}
                               checked={!!sections[it.id]}
                               onCheckedChange={() => toggle(it.id)} />
-                            <span className="text-xs text-slate-800">{it.label}</span>
+                            <span className="text-xs text-slate-800">{tt(it.label)}</span>
                           </label>
                         ))}
                       </div>
@@ -683,8 +696,8 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
             <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
               <div className="flex items-center gap-3">
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900">Vista previa del documento</h3>
-                  <p className="text-[11px] text-slate-500">Documento completo · scrollable como un Word · auto-actualiza al editar.</p>
+                  <h3 className="text-sm font-bold text-slate-900">{tt('Vista previa del documento')}</h3>
+                  <p className="text-[11px] text-slate-500">{tt('Documento completo · scrollable como un Word · auto-actualiza al editar.')}</p>
                 </div>
                 <button
                   onClick={() => setAutoPreview(v => !v)}
@@ -692,7 +705,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
                     autoPreview ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' : 'bg-slate-100 text-slate-500 border border-slate-200'
                   }`}
                   data-testid="mr-auto-preview-toggle"
-                  title="Activar/desactivar auto-actualización al editar">
+                  title={tt('Activar/desactivar auto-actualización al editar')}>
                   <Zap className={`w-3 h-3 ${autoPreview ? 'fill-emerald-600' : ''}`} />
                   Auto · {autoPreview ? 'ON' : 'OFF'}
                 </button>
@@ -721,13 +734,13 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
               ) : previewing ? (
                 <div className="text-center text-slate-500 py-20">
                   <Loader2 className="w-10 h-10 mx-auto mb-2 animate-spin text-slate-400" />
-                  <p className="text-sm">Renderizando documento…</p>
+                  <p className="text-sm">{tt('Renderizando documento…')}</p>
                 </div>
               ) : (
                 <div className="text-center text-slate-500 py-20">
                   <Eye className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                  <p className="text-sm">Aún no hay vista previa generada.</p>
-                  <p className="text-[11px]">Activa Auto · ON o pulsa "Actualizar ahora".</p>
+                  <p className="text-sm">{tt('Aún no hay vista previa generada.')}</p>
+                  <p className="text-[11px]">{tt('Activa Auto · ON o pulsa "Actualizar ahora".')}</p>
                 </div>
               )}
             </div>
@@ -736,9 +749,9 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
               <div className="mt-4 bg-white border border-slate-200 rounded-xl p-3">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                    Orden del documento <span className="normal-case font-normal text-slate-400">· arrastra para reorganizar</span>
+                    Orden del documento <span className="normal-case font-normal text-slate-400">{tt('· arrastra para reorganizar')}</span>
                   </h4>
-                  <span className="text-[10px] text-slate-500">{sectionOrder.length} secciones</span>
+                  <span className="text-[10px] text-slate-500">{sectionOrder.length} {tt('secciones')}</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5" data-testid="mr-order-list">
                   {sectionOrder.map((sid, idx) => {
@@ -777,11 +790,11 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
           <div className="px-6 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-3 flex-wrap">
             <div className="text-[11px] text-slate-500 flex items-center gap-1.5 flex-wrap">
               <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-              <span>Plan: <strong className="text-slate-800">{plan?.name || '—'}</strong></span>
+              <span>{tt('Plan:')} <strong className="text-slate-800">{plan?.name || '—'}</strong></span>
               <span className="text-slate-300">·</span>
-              <span>Estilo: <strong className="text-slate-700">{styles.find(s => s.id === styleId)?.name || styleId}</strong></span>
+              <span>{tt('Estilo:')} <strong className="text-slate-700">{tt(styles.find(s => s.id === styleId)?.name || styleId)}</strong></span>
               <span className="text-slate-300">·</span>
-              <span><strong className="text-slate-900">{totalSelected}</strong> secciones</span>
+              <span><strong className="text-slate-900">{totalSelected}</strong> {tt('secciones')}</span>
             </div>
           </div>
           <div className="px-6 py-3 flex items-center justify-between gap-3 flex-wrap">
@@ -791,7 +804,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
               disabled={generating || sharing}
               className="text-slate-600 hover:text-slate-900"
               data-testid="mr-cancel-btn">
-              <X className="w-4 h-4 mr-1" /> Cancelar
+              <X className="w-4 h-4 mr-1" /> {tt('Cancelar')}
             </Button>
             <div className="flex items-center gap-2 flex-wrap">
               {/* Share group */}
@@ -801,9 +814,9 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
                 disabled={generating || previewing || sharing}
                 data-testid="mr-share-link-btn"
                 className="h-9 border-sky-300 text-sky-700 hover:bg-sky-50"
-                title="Copiar enlace público del reporte">
+                title={tt('Copiar enlace público del reporte')}>
                 {sharing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <LinkIcon className="w-3.5 h-3.5" />}
-                <span className="ml-1.5 hidden sm:inline">Enlace</span>
+                <span className="ml-1.5 hidden sm:inline">{tt('Enlace')}</span>
               </Button>
               <Button
                 variant="outline" size="sm"
@@ -811,9 +824,9 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
                 disabled={generating || previewing || sharing}
                 data-testid="mr-share-whatsapp-btn"
                 className="h-9 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
-                title="Compartir por WhatsApp">
+                title={tt('Compartir por WhatsApp')}>
                 <MessageCircle className="w-3.5 h-3.5" />
-                <span className="ml-1.5 hidden sm:inline">WhatsApp</span>
+                <span className="ml-1.5 hidden sm:inline">{tt('WhatsApp')}</span>
               </Button>
               {/* Divider */}
               <div className="w-px h-6 bg-slate-300 mx-1" />
@@ -824,8 +837,8 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
                 disabled={generating || previewing}
                 className="h-9 text-xs border-amber-300 text-amber-700 hover:bg-amber-50"
                 data-testid="mr-summary-btn"
-                title="Descargar resumen ejecutivo">
-                <Sparkles className="w-3.5 h-3.5 mr-1.5" />Resumen
+                title={tt('Descargar resumen ejecutivo')}>
+                <Sparkles className="w-3.5 h-3.5 mr-1.5" />{tt('Resumen')}
               </Button>
               <Button
                 variant="outline" size="sm"
@@ -834,7 +847,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
                 className="h-9 text-xs"
                 data-testid="mr-quick-preview-btn">
                 {previewing ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Eye className="w-3.5 h-3.5 mr-1.5" />}
-                Vista previa
+                {tt('Vista previa')}
               </Button>
               <Button
                 size="sm"
@@ -845,7 +858,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
                 {generating ? (
                   <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generando…</>
                 ) : (
-                  <><Download className="w-3.5 h-3.5 mr-1.5" />Generar PDF</>
+                  <><Download className="w-3.5 h-3.5 mr-1.5" />{tt('Generar PDF')}</>
                 )}
               </Button>
             </div>
