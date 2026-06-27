@@ -15,7 +15,7 @@ const scoreColor = (s) => {
   return 'bg-red-100 text-red-700';
 };
 
-export const AthleteRanking = ({ globalContext }) => {
+export const AthleteRanking = ({ globalContext, onOpenAthlete }) => {
   const { t } = useTranslation();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -85,7 +85,9 @@ export const AthleteRanking = ({ globalContext }) => {
         <div className="space-y-1.5" data-testid="ranking-list">
           {sorted.map((r, i) => (
             <div key={r.athlete_id}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg ${r.has_data ? 'hover:bg-slate-50' : 'opacity-50'} transition-colors`}
+              onClick={() => onOpenAthlete && onOpenAthlete(r.athlete_id)}
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg ${r.has_data ? 'hover:bg-slate-50' : 'opacity-50'} ${onOpenAthlete ? 'cursor-pointer' : ''} transition-colors`}
+              title={onOpenAthlete ? t('ranking.open_athlete', { defaultValue: 'Ver ficha del atleta' }) : undefined}
               data-testid={`ranking-row-${r.athlete_id}`}>
               <div className="w-6 flex-shrink-0 text-center">
                 {r.has_data && i < 3 ? (

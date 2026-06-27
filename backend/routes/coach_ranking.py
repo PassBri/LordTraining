@@ -7,7 +7,11 @@ Combina señales por atleta en un score 0–100:
 El score combinado es el promedio de las señales disponibles.
 """
 from fastapi import APIRouter, Depends, Query
-from typing import Optional
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+from typing import Optional, List
+from io import BytesIO
+from datetime import datetime
 
 from core.auth import get_current_user, get_db
 
@@ -97,3 +101,97 @@ async def athlete_ranking(
         r["rank"] = i + 1 if r["has_data"] else None
 
     return {"ranking": rows, "total": len(rows)}
+
+
+class WeeklyAlert(BaseModel):
+    title: str = ""
+    message: str = ""
+    severity: str = "info"  # high | medium | ok | info
+    athlete_name: Optional[str] = None
+
+class WeeklyAlertsPDFRequest(BaseModel):
+    alerts: List[WeeklyAlert] = []
+    week_label: Optional[str] = None
+
+
+@router.post("/weekly-alerts-pdf")
+async def weekly_alerts_pdf(body: WeeklyAlertsPDFRequest, user: dict = Depends(get_current_user)):
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.units import cm
+    from reportlab.lib.colors import HexColor, white
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+
+    SEV = {
+        "high":   ("ALTA",   HexColor("#DC2626")),
+        "medium": ("MEDIA",  HexColor("#F59E0B")),
+        "ok":     ("OK",     HexColor("#10B981")),
+        "info":   ("INFO",   HexColor("#3B82F6")),
+    }
+    order = {"high": 0, "medium": 1, "info": 2, "ok": 3}
+    alerts = sorted(body.alerts, key=lambda a: order.get(a.severity, 9))
+
+    buf = BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=A4, topMargin=2 * cm, bottomMargin=2 * cm, leftMargin=1.8 * cm, rightMargin=1.8 * cm)
+    styles = getSampleStyleSheet()
+    title_st = ParagraphStyle("t", parent=styles["Title"], fontSize=20, textColor=HexColor("#0F172A"), spaceAfter=4)
+    sub_st = ParagraphStyle("s", parent=styles["Normal"], fontSize=10, textColor=HexColor("#64748B"), spaceAfter=14)
+    h_st = ParagraphStyle("h", parent=styles["Heading2"], fontSize=13, textColor=HexColor("#0F172A"), spaceBefore=10, spaceAfter=6)
+    cell_st = ParagraphStyle("c", parent=styles["Normal"], fontSize=9, textColor=HexColor("#1E293B"))
+
+    counts = {k: 0 for k in SEV}
+    for a in alerts:
+        counts[a.severity if a.severity in counts else "info"] = counts.get(a.severity, 0) + 1
+
+    elems = []
+    elems.append(Paragraph("Resumen Semanal de Alertas", title_st))
+    elems.append(Paragraph(f"{user.get('name', 'Entrenador')} · {body.week_label or datetime.now().strftime('%d/%m/%Y')}", sub_st))
+
+    # Resumen por severidad
+    summary_data = [["Críticas", "Medias", "Informativas", "OK"],
+                    [str(counts.get("high", 0)), str(counts.get("medium", 0)), str(counts.get("info", 0)), str(counts.get("ok", 0))]]
+    st = Table(summary_data, colWidths=[4.1 * cm] * 4)
+    st.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), HexColor("#0F172A")),
+        ("TEXTCOLOR", (0, 0), (-1, 0), white),
+        ("FONTSIZE", (0, 0), (-1, -1), 10), ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ("FONTNAME", (0, 1), (-1, 1), "Helvetica-Bold"), ("FONTSIZE", (0, 1), (-1, 1), 16),
+        ("TEXTCOLOR", (0, 1), (0, 1), HexColor("#DC2626")),
+        ("TEXTCOLOR", (1, 1), (1, 1), HexColor("#F59E0B")),
+        ("TEXTCOLOR", (2, 1), (2, 1), HexColor("#3B82F6")),
+        ("TEXTCOLOR", (3, 1), (3, 1), HexColor("#10B981")),
+        ("TOPPADDING", (0, 0), (-1, -1), 8), ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+        ("GRID", (0, 0), (-1, -1), 0.5, HexColor("#E2E8F0")),
+    ]))
+    elems.append(st)
+    elems.append(Spacer(1, 12))
+
+    elems.append(Paragraph("Detalle de Alertas", h_st))
+    if not alerts:
+        elems.append(Paragraph("No hay alertas activas esta semana. ¡Buen trabajo!", cell_st))
+    else:
+        rows = [["Sev.", "Atleta", "Alerta"]]
+        for a in alerts:
+            label = SEV.get(a.severity, SEV["info"])[0]
+            text = f"<b>{a.title}</b>"
+            if a.message:
+                text += f"<br/>{a.message}"
+            rows.append([label, a.athlete_name or "Equipo", Paragraph(text, cell_st)])
+        tbl = Table(rows, colWidths=[2 * cm, 3.5 * cm, 11 * cm])
+        style = [
+            ("BACKGROUND", (0, 0), (-1, 0), HexColor("#F1F5F9")),
+            ("TEXTCOLOR", (0, 0), (-1, 0), HexColor("#0F172A")),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"), ("FONTSIZE", (0, 0), (-1, -1), 9),
+            ("VALIGN", (0, 0), (-1, -1), "TOP"), ("GRID", (0, 0), (-1, -1), 0.5, HexColor("#E2E8F0")),
+            ("TOPPADDING", (0, 0), (-1, -1), 6), ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+        ]
+        for i, a in enumerate(alerts, start=1):
+            style.append(("TEXTCOLOR", (0, i), (0, i), SEV.get(a.severity, SEV["info"])[1]))
+            style.append(("FONTNAME", (0, i), (0, i), "Helvetica-Bold"))
+        tbl.setStyle(TableStyle(style))
+        elems.append(tbl)
+
+    doc.build(elems)
+    buf.seek(0)
+    return StreamingResponse(buf, media_type="application/pdf",
+                             headers={"Content-Disposition": "attachment; filename=alertas-semanales.pdf"})

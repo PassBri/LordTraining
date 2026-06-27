@@ -4024,6 +4024,13 @@ const DashboardPage = () => {
       }
     };
 
+    const handleOpenAthleteFromRanking = (athleteId) => {
+      setSelectedAthleteId(athleteId);
+      setGlobalContext(prev => ({ ...prev, athleteId }));
+      setActivePanel('datos');
+      setActiveDataSection('athletes');
+    };
+
     return (
       <ControlPanel
         athletes={athletes}
@@ -4035,6 +4042,7 @@ const DashboardPage = () => {
         activePlan={activePlan}
         trainingPlans={trainingPlans}
         globalContext={globalContext}
+        onOpenAthlete={handleOpenAthleteFromRanking}
       />
     );
   };

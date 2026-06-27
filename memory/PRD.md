@@ -1,5 +1,9 @@
 # iTRAIN - Plataforma
 
+## [Jun 2026] Atajo ranking→ficha + PDF Resumen Semanal de Alertas — VERIFICADO
+- **Atajo**: clic en una fila del ranking (`AthleteRanking`) → `onOpenAthlete(athleteId)` en DashboardPage: setSelectedAthleteId + setGlobalContext({athleteId}) + navega a Datos → sección `athletes` (ficha del atleta con Antropometría/Evaluaciones/Carga/Caracterización). Verificado con Juan Pérez.
+- **PDF Alertas**: botón "PDF Alertas" (ámbar) en la cabecera del Panel del coach (`ControlPanel`, `export-alerts-pdf-btn`) → `handleExportAlertsPDF` mapea `smartAlerts` (sin íconos, con severidad por color) y hace POST a `POST /api/coach/weekly-alerts-pdf` (en `routes/coach_ranking.py`, ReportLab): resumen por severidad (críticas/medias/info/ok) + tabla detalle (severidad, atleta, alerta). Descarga blob. Verificado: PDF válido (%PDF-1.4, 200). Incluye todas las alertas que ve el coach (carga/ACWR, desbalances, readiness, evaluaciones).
+
 ## [Jun 2026] Ranking / comparativa de atletas en Panel del coach — VERIFICADO
 - **Backend** `routes/coach_ranking.py` (registrado /api): `GET /api/coach/athlete-ranking?team_id=&federation=&club=`. Combina por atleta: `readiness` (último `athlete_readiness.overall` 0–100) + `evaluation_avg` (promedio de global_pct de `plan_evaluations_v2`). Score = promedio de señales disponibles; ordena desc (atletas con datos primero, rank 1..n).
 - **Frontend** `components/AthleteRanking.js` montado en `ControlPanel` (Panel del coach, tras AdvancedMetrics). Top-3 con medallas, barras comparativas escaladas, badge de score con color, breakdown R/E, y pestañas ordenables Score/Readiness/Eval. (`ranking-sort-*`). Filtra por contexto global (entidad/equipo) → params federation/club/team_id. i18n vía defaultValue (ES) + traductor DOM.

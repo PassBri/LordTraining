@@ -101,7 +101,8 @@ const ControlPanel = ({
   onCreateMacrocycle,
   activePlan = null,
   trainingPlans = [],
-  globalContext = null
+  globalContext = null,
+  onOpenAthlete = null
 }) => {
   const { t, i18n } = useTranslation();
   const [volumeData, setVolumeData] = useState([]);
@@ -964,6 +965,42 @@ const ControlPanel = ({
     toast.success('Datos guardados correctamente');
   };
 
+  const [exportingAlerts, setExportingAlerts] = useState(false);
+  const handleExportAlertsPDF = async () => {
+    setExportingAlerts(true);
+    try {
+      const token = localStorage.getItem('train_token');
+      const payload = {
+        alerts: (smartAlerts || []).map(a => ({
+          title: a.title || '',
+          message: a.message || '',
+          severity: a.color === 'red' ? 'high' : (a.color === 'amber' ? 'medium' : (a.color === 'green' ? 'ok' : 'info')),
+          athlete_name: a.athleteName || a.athlete_name || null,
+        })),
+        week_label: new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }),
+      };
+      const res = await fetch(`${API_URL}/api/coach/weekly-alerts-pdf`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('PDF generation failed');
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `alertas-semanales-${new Date().toISOString().slice(0, 10)}.pdf`;
+      document.body.appendChild(link); link.click(); link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success('PDF de alertas generado');
+    } catch (e) {
+      console.error('Error exporting alerts PDF:', e);
+      toast.error('Error al generar el PDF de alertas');
+    } finally {
+      setExportingAlerts(false);
+    }
+  };
+
   return (
     <div className="overflow-y-auto h-full bg-[#fafaf8]">
       {/* Header */}
@@ -1007,6 +1044,10 @@ const ControlPanel = ({
             </div>
             
             <div className="flex items-center gap-2">
+              <Button size="sm" className="h-9 px-3 bg-amber-500 hover:bg-amber-600 text-white border-0 rounded-xl text-xs font-semibold" onClick={handleExportAlertsPDF} disabled={exportingAlerts} data-testid="export-alerts-pdf-btn" title="Exportar resumen semanal de alertas a PDF">
+                {exportingAlerts ? <Loader2 className="w-4 h-4 animate-spin" /> : <AlertTriangle className="w-4 h-4 mr-1" />}
+                <span className="hidden sm:inline">PDF Alertas</span>
+              </Button>
               <Button size="sm" className="h-9 w-9 bg-slate-100 hover:bg-slate-200 text-slate-600 border-0 rounded-xl" onClick={handleSave}>
                 <Save className="w-4 h-4" />
               </Button>
@@ -1521,7 +1562,7 @@ const ControlPanel = ({
         <AdvancedMetrics metrics={coachMetrics} onNavigate={onNavigate} />
 
         {/* Row 3.6: Ranking / comparativa de atletas */}
-        <AthleteRanking globalContext={globalContext} />
+        <AthleteRanking globalContext={globalContext} onOpenAthlete={onOpenAthlete} />
 
         {/* Row 4: Zonas de Entrenamiento + Mini Calendario */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
