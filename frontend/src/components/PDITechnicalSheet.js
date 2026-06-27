@@ -114,11 +114,11 @@ const OverviewTab = () => {
   ];
 
   const phases = [
-    { name: 'Cimentación Dual', duration: '4-6 sem', vol: 90, int: 55, color: '#3B82F6' },
-    { name: 'Convergencia Específica', duration: '3-5 sem', vol: 70, int: 80, color: '#8B5CF6' },
-    { name: 'Cúspide Convergente', duration: '2-4 sem', vol: 45, int: 95, color: '#10B981' },
-    { name: 'Sostén Sincronizado', duration: 'Temporada', vol: 55, int: 78, color: '#F59E0B' },
-    { name: 'Regeneración Dual', duration: '2-4 sem', vol: 35, int: 35, color: '#6B7280' },
+    { name: 'Fase de Inducción Adaptativa', duration: '4-6 sem', vol: 90, int: 55, color: '#3B82F6' },
+    { name: 'Fase de Carga Progresiva', duration: '3-5 sem', vol: 70, int: 80, color: '#8B5CF6' },
+    { name: 'Fase de Pico de Rendimiento', duration: '2-4 sem', vol: 45, int: 95, color: '#10B981' },
+    { name: 'Fase de Sostenimiento Adaptativo', duration: 'Temporada', vol: 55, int: 78, color: '#F59E0B' },
+    { name: 'Fase de Recuperación Funcional', duration: '2-4 sem', vol: 35, int: 35, color: '#6B7280' },
   ];
 
   return (

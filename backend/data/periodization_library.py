@@ -16,11 +16,11 @@ DEFAULT_PERIODIZATION_LIBRARY = [
         "color": "#CCFF00",
         "description": "Modelo exclusivo LordTraining. Resuelve la tensión entre necesidades individuales (PAI) y coherencia de equipo (CSE) mediante arquitectura de 3 capas: Colectiva + Individual + Motor de Convergencia. Ajusta cargas en tiempo real con RPE/HRV y gestiona 5 tipos adaptativos de atleta.",
         "phases": [
-            {"name": "Cimentación Dual (Colectiva + PAI)", "color": "#3B82F6", "volume": 90, "intensity": 55, "duration_weeks": "4-6", "description": "Base aeróbica + fuerza general + técnica colectiva. Individual 3-8 sem según tipo PAI."},
-            {"name": "Convergencia Específica (CIA sincronizado)", "color": "#8B5CF6", "volume": 70, "intensity": 80, "duration_weeks": "3-5", "description": "Convertir base en especificidad deportiva. Fuerza especial + resistencia específica + táctica avanzada. Individual 2-6 sem."},
-            {"name": "Cúspide Convergente (Pico Dual)", "color": "#10B981", "volume": 45, "intensity": 95, "duration_weeks": "2-4", "description": "Pico colectivo e individual. Velocidad + potencia + forma táctica máxima. Picos individuales pueden desplazarse ±1 sem del pico colectivo."},
-            {"name": "Sostén Sincronizado (Morfociclo MD-X)", "color": "#F59E0B", "volume": 55, "intensity": 78, "duration_weeks": "Temporada", "description": "Morfociclo semanal MD+1/MD-4/MD-3/MD-2/MD-1/MD. CIA ajustado por minutos jugados, RPE, HRV y deuda de fatiga (DFI)."},
-            {"name": "Regeneración Dual (Resincronización RP)", "color": "#6B7280", "volume": 35, "intensity": 35, "duration_weeks": "2-4", "description": "Regeneración total. Resincronización Progresiva para atletas con divergencia acumulada. 1-5 sem según DFI."},
+            {"name": "Fase de Inducción Adaptativa (Colectiva + PAI)", "color": "#3B82F6", "volume": 90, "intensity": 55, "duration_weeks": "4-6", "description": "Base aeróbica + fuerza general + técnica colectiva. Individual 3-8 sem según tipo PAI."},
+            {"name": "Fase de Carga Progresiva (CIA sincronizado)", "color": "#8B5CF6", "volume": 70, "intensity": 80, "duration_weeks": "3-5", "description": "Convertir base en especificidad deportiva. Fuerza especial + resistencia específica + táctica avanzada. Individual 2-6 sem."},
+            {"name": "Fase de Pico de Rendimiento (Pico Dual)", "color": "#10B981", "volume": 45, "intensity": 95, "duration_weeks": "2-4", "description": "Pico colectivo e individual. Velocidad + potencia + forma táctica máxima. Picos individuales pueden desplazarse ±1 sem del pico colectivo."},
+            {"name": "Fase de Sostenimiento Adaptativo (Morfociclo MD-X)", "color": "#F59E0B", "volume": 55, "intensity": 78, "duration_weeks": "Temporada", "description": "Morfociclo semanal MD+1/MD-4/MD-3/MD-2/MD-1/MD. CIA ajustado por minutos jugados, RPE, HRV y deuda de fatiga (DFI)."},
+            {"name": "Fase de Recuperación Funcional (Resincronización RP)", "color": "#6B7280", "volume": 35, "intensity": 35, "duration_weeks": "2-4", "description": "Regeneración total. Resincronización Progresiva para atletas con divergencia acumulada. 1-5 sem según DFI."},
         ],
         "characteristics": [
             "Único modelo que formaliza la tensión Individuo↔Equipo con reglas (ZTI · PDP · RP)",
