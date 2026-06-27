@@ -7,54 +7,44 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
-import { getDashboardStats, getAthletes, seedExercises, getTournaments, createTournament, deleteTournament, getTournament, addTournamentCategory, registerParticipant, generateBracket, getTournamentMatches, updateMatchScore, exportTournamentPDF, getTeams as fetchTeamsApi, seedDemoData, clearDemoData } from '../services/api';
+import { getDashboardStats, getAthletes, seedExercises, getTournaments, createTournament, deleteTournament, getTournament, addTournamentCategory, registerParticipant, generateBracket, getTournamentMatches, updateMatchScore, seedDemoData, clearDemoData } from '../services/api';
 import usePlanGate from '../hooks/usePlanGate';
 import SessionCalendar from '../components/SessionCalendar';
 import ScoutingModule from '../components/ScoutingModule';
 import { 
-  Target, Send, Heart, Zap, Brain, ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
-  FileText, Users, Clipboard, Calendar, Award, BookOpen, 
+  Target, Send, Heart, Zap, Brain, ChevronLeft,
+  FileText, Users, Clipboard, Calendar, BookOpen, 
   Activity, BarChart, LineChart, Loader2, LogOut, Save, Download, Layers, Plus, Dumbbell,
-  Shield, UserCheck, User, UserCircle, UserPlus, Settings, LayoutDashboard, Landmark,
-  Building2, Building, GraduationCap, Trophy, Timer, Flame, Gamepad2, Lightbulb, X, Trash2,
-  Medal, MapPin, LayoutGrid, GitBranch, Share2, History, Filter, CreditCard, Sparkles,
-  AlertTriangle, CheckCircle, TrendingUp, RefreshCw, Clock, Edit, Copy, Printer, Gauge, Wrench,
-  Stethoscope, CalendarDays, ClipboardList, Calculator, UsersRound, ListChecks, PieChart, MessageCircle, Link as LinkIcon, ArrowRight, FileBarChart2, Crown, Bell
+  Shield, UserCheck, User, UserCircle, UserPlus, LayoutDashboard,
+  Building2, Trophy, Timer, Flame, Lightbulb, X, Trash2,
+  Medal, LayoutGrid, Share2, History, Filter, CreditCard, Sparkles,
+  AlertTriangle, CheckCircle, TrendingUp, RefreshCw, Copy, Printer, Gauge, Wrench,
+  Stethoscope, CalendarDays, Calculator, UsersRound, PieChart, MessageCircle, Link as LinkIcon, ArrowRight, FileBarChart2, Crown, Bell
 } from 'lucide-react';
 import { 
-  LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, 
   Tooltip, ResponsiveContainer, RadarChart, Radar, PolarGrid, 
   PolarAngleAxis, PolarRadiusAxis 
 } from 'recharts';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { LanguageSelector } from '../components/LanguageSelector';
-import PreviousPlanAnalysis from '../components/PreviousPlanAnalysis';
 import BrandLogo from '../components/BrandLogo';
 import PeriodizationModelsManager from '../components/PeriodizationModelsManager';
 import PDITechnicalSheet from '../components/PDITechnicalSheet';
-import SessionPlanning from '../components/SessionPlanning';
 
 import HealthRecords from '../components/HealthRecords';
 import CompetitionAnalysis from '../components/CompetitionAnalysis';
 import TrainingStages from '../components/TrainingStages';
-import PeriodizationModels from '../components/PeriodizationModels';
-import ComprehensiveTrainingPlanner from '../components/ComprehensiveTrainingPlanner';
 import TrainingMethods from '../components/TrainingMethods';
-import AnthropometricData from '../components/AnthropometricData';
 import TrainingLoad from '../components/TrainingLoad';
 import GraphicPlan from '../components/GraphicPlan';
 import AthleteSummary from '../components/AthleteSummary';
-import PeriodizationPlanner from '../components/PeriodizationPlanner';
 import ExerciseLibrary from '../components/ExerciseLibrary';
 
-import PeriodizationWizard from '../components/PeriodizationWizard';
 import PeriodizationComplete from '../components/PeriodizationComplete';
 import InfoSectionHeader from '../components/InfoSectionHeader';
 import CoachesManager from '../components/CoachesManager';
 import PlanStaffPanel from '../components/PlanStaffPanel';
-import PlansList from '../components/PlansList';
 import EntityManager from '../components/EntityManager';
 import TeamManager from '../components/TeamManager';
 import EvaluationSection from '../components/EvaluationSection';
@@ -76,8 +66,6 @@ import TrainingSystemHub from '../components/TrainingSystemHub';
 import TournamentManager from '../components/TournamentManager';
 import AITrainingAssistant from '../components/AITrainingAssistant';
 import PlanSidebar from '../components/PlanSidebar';
-import TrainingControl from '../components/TrainingControl';
-import LoadMetricsDashboard from '../components/LoadMetricsDashboard';
 import { Badge } from '../components/ui/badge';
 
 import TacticalBoardSection from '../components/TacticalBoardSection';

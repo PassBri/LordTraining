@@ -7,7 +7,7 @@ from bson import ObjectId
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
 from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime, timezone, timedelta
@@ -24,7 +24,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib import colors
 from emergentintegrations.llm.chat import LlmChat, UserMessage
-from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionResponse, CheckoutStatusResponse, CheckoutSessionRequest
+from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionRequest
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -1521,11 +1521,6 @@ async def generate_training_structure(request: StructureGenerationRequest, user:
     # Determine sessions per week
     sessions_per_week = request.sessions_per_week or sport_config["sessions_per_week"]
     
-    # Adjust ratios based on sport category if team sport with long season
-    prep_ratio = sport_config["prep_ratio"]
-    comp_ratio = sport_config["comp_ratio"]
-    trans_ratio = sport_config["trans_ratio"]
-    
     # Level adjustments
     level_multipliers = {
         "beginner": {"volume": 0.75, "intensity": 0.80, "sessions": 0.80},
@@ -2762,7 +2757,7 @@ async def seed_default_sports(coach_id: str):
             await db.sports.insert_one(sport_doc)
 
 @api_router.get("/sports/catalog")
-async def get_sports_catalog(user: dict = Depends(get_current_user)):
+async def get_user_sports_catalog(user: dict = Depends(get_current_user)):
     """Get full sports catalog with categories and sports"""
     # Seed default sports if user doesn't have any
     await seed_default_sports(user["id"])
@@ -3134,7 +3129,6 @@ def generate_single_elimination_bracket(participants: List[dict], category_id: s
     import math
     rounds_needed = math.ceil(math.log2(n))
     total_slots = 2 ** rounds_needed
-    byes = total_slots - n
     
     matches = []
     match_id = 1
@@ -4688,10 +4682,10 @@ async def export_comprehensive_pdf(request: ComprehensivePDFRequest, user: dict 
     """Exporta un reporte PDF completo y personalizable con diseño Material Design"""
     from reportlab.lib.units import inch
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, KeepTogether
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
     from reportlab.lib import colors
     from reportlab.lib.pagesizes import letter, A4, legal, landscape
-    from reportlab.lib.enums import TA_LEFT, TA_CENTER
+    from reportlab.lib.enums import TA_CENTER
     import io
     
     # Determine page size
@@ -7493,7 +7487,6 @@ async def get_coach_og_image(slug: str):
         if items:
             for i, it in enumerate(items[:3]):
                 y = 475 + i * 42
-                medal = ["🥇", "🥈", "🥉"][i]
                 title_t = it["title"][:48]
                 sport_t = it["sport"][:16]
                 # Rank
@@ -7592,7 +7585,6 @@ async def board_share_landing(share_id: str, request: Request):
         og_image = f"{base_url}/api/boards/og/{share_id}.png"
         # Use RELATIVE redirect so browser resolves against the host it visited
         target_rel = f"/tactical-board.html?s={share_id}&viewer=1"
-        target_abs = f"{base_url}{target_rel}"
         html = f"""<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -8251,10 +8243,6 @@ async def save_tactical_board(request: TacticalBoardSaveRequest, user: dict = De
 
 @api_router.get("/tactical-boards")
 async def list_tactical_boards(user: dict = Depends(get_current_user)):
-    boards = await db.tactical_boards.find(
-        {"user_id": user["id"]},
-        {"_id": 0, "elements": 0}
-    ).sort("updated_at", -1).to_list(100)
     # Add id from _id for boards that need it
     boards_list = []
     cursor = db.tactical_boards.find({"user_id": user["id"]}).sort("updated_at", -1)

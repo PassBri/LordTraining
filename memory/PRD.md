@@ -1,5 +1,13 @@
 # iTRAIN - Plataforma
 
+## [Jun 2026] FIX PORTALES (i18n global) + REFACTOR FASE 1 — Incremento 1 — VERIFICADO (iter_81)
+**Fix P0 — Traducción en Portales (Modales/Dropdowns/Toasts):** `pageTranslator.js` ahora observa `document.body` (antes `#root`) en `run()` e `initPageTranslator()`. Los portales de Shadcn/Radix (se inyectan fuera de #root) ahora SÍ se traducen. Verificado por testing_agent (iter_81): popover de Alertas en EN ("View weekly summary / Injury prevention / No alerts. All good."), sin freeze ni bucle (el flag `applying` desconecta el observer durante la escritura).
+**Refactor FASE 1 (incremental, SIN nuevas features):**
+- `backend/server.py`: eliminados imports sin uso (pydantic.Field, Checkout*Response, reportlab PageBreak/KeepTogether/TA_LEFT), dead locals (prep/comp/trans_ratio, byes, medal, target_abs), query redundante en `list_tactical_boards`, y renombrada función duplicada `get_sports_catalog`→`get_user_sports_catalog` (ruta /sports/catalog). pyflakes 100% limpio; backend arranca OK; /api/sports-catalog → 200.
+- `frontend/src/pages/DashboardPage.js`: eliminados ~37 imports sin uso (Dialog*, 10 componentes muertos: PreviousPlanAnalysis/SessionPlanning/PeriodizationModels/ComprehensiveTrainingPlanner/AnthropometricData/PeriodizationPlanner/PeriodizationWizard/PlansList/TrainingControl/LoadMetricsDashboard; iconos lucide y recharts no usados; exportTournamentPDF, fetchTeamsApi). Compila limpio (solo warnings preexistentes exhaustive-deps).
+**Pendiente FASE 1 (próximos incrementos):** segmentar `server.py` (8.4k líneas) moviendo rutas inline a `/routes/`; extraer secciones grandes de `DashboardPage.js` (4.8k líneas) a `/components/`. Hacerlo por lotes con test entre cada uno.
+
+
 ## [Jun 2026] AUTO-TRADUCCIÓN DE TODA LA PÁGINA (DB + tiempo real) — VERIFICADO (iter_80)
 **Problema del usuario:** las subsecciones Data→Information (Entidades, Federación, Equipos, Atletas, Deportes, Torneos, Entrenadores) NO se traducían al cambiar idioma; método manual por-componente dejaba huecos.
 **Solución implementada (idea del usuario: "BD de strings + traducción automática"):**
