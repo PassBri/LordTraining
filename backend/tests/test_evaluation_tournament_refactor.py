@@ -10,7 +10,7 @@ import requests
 import os
 import time
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://lord-deploy-test.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://lordcoach-optimize.preview.emergentagent.com').rstrip('/')
 
 class TestEvaluationAndTournamentRefactor:
     """Tests for the refactored evaluation sections and tournament persistence"""

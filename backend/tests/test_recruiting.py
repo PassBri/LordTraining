@@ -4,7 +4,7 @@ import io
 import pytest
 import requests
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://lord-deploy-test.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://lordcoach-optimize.preview.emergentagent.com").rstrip("/")
 EMAIL = "juegolaureado@gmail.com"
 PASSWORD = "LordTraining2026!"
 

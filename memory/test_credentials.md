@@ -26,6 +26,6 @@
 - Solo accesible para is_super_admin. Login rechaza cuentas con active:false (403).
 
 ## Environments
-- Preview: https://lord-deploy-test.preview.emergentagent.com
+- Preview: https://lordcoach-optimize.preview.emergentagent.com
 - Production: https://lordtraining.com  (separate database)
 - All API routes prefixed with /api
