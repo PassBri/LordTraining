@@ -2,6 +2,14 @@
 
 ## Credenciales: test@train.com / test123456
 
+## [Jun 2026] Fix Selector de Idioma + i18n CAPACITY_CONFIG (SessionEditor) — VERIFICADO E2E
+- **LanguageSelector.js**: reescrito con `createPortal` + `getBoundingClientRect` (position:fixed, zIndex 99999). El dropdown de 12 idiomas ya NO se recorta bajo contenedores con `overflow`. Reposiciona en resize/scroll, cierra al click-outside. Verificado por screenshot (12 opciones visibles flotando).
+- **SessionEditor.js — BUG LATENTE CORREGIDO**: el componente usaba `t(...)` SIN declarar `const { t } = useTranslation();` → habría crasheado ('t is not defined') al abrir el editor. Hook agregado en línea ~617. Confirmado por testing_agent (iteration_77): el editor abre sin pageerror.
+- **i18n CAPACITY_CONFIG (Gap Fase C3)**: nuevo namespace `sessions.capcfg` (50 claves) en los 12 idiomas vía `i18n_tools.py translate i18n_capcfg_spec.json`. Helper `tCap(s)` + `slugCap(s)` (módulo) mapean subtipos, unidades vol/int, medidaLabel, intRef y zonas (zonaFC/zonaFuerza) a claves estables con `defaultValue`. Aplicado en renderActividadesTable (subtipos línea ~1263, unidadesVol ~1270, unidadesInt ~1277, intRef/medida/volUnit ~1098-1114, zonas ~1320-1321).
+- **VERIFICADO E2E en EN por screenshot**: SUB TYPE dropdown muestra "Maximum/Explosive/Endurance", "ZONE: Hypertrophy" (zonaFuerza), "METHOD Sets", capacidad "Strength", "V.U Reps". 
+- **Pendiente i18n (gaps detectados, fuera de alcance de este bloque)**: SessionsExportModal (Exportar Sesiones/Marcar todo/Cancelar/PDF combinado), vista Periodization>Structure (Macrociclos/Mesociclos/Semanas/Estructura/Calendario/Grafico/Tonelaje/sem/ses/Load), headers de fase del SessionEditor (Fase Inicial/Principal/Final, 'X actividades'), botones footer (Compartir/Dark PDF/Light PDF/Dark boards/Light boards/Salir/Guardar), 'Elegir fecha'. + **Fase D** (Calculadoras/Scouting/Reportes/SuperAdmin).
+- Warning cosmético pre-existente: `<span>` dentro de `<option>` en SessionEditor.js:1493 (hydration warning, sin impacto funcional).
+
 ## [Jun 2026] Multiidioma — FASE C3 (config sesiones) + FASE C4 (Datos) COMPLETADAS (12 idiomas)
 - **C3 config de sesiones:** capacidades, métodos, procedimientos organizativos, objetivos (OBJETIVO FÍSICO/...), fases HR, zonas HR, stats FC, modelos de progresión y labels de fila → traducidos vía id-keyed maps (`sessions.cap_*`, `met_*`, `proc_*`, `prog_*`, etc.) en `SessionEditor.js` y `SessionPlanning.js`. ru/zh de `sessions` re-traducidos tras recarga de budget.
 - **C4 Datos COMPLETO:**
