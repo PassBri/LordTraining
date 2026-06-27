@@ -2,6 +2,25 @@
 
 ## Credenciales: test@train.com / test123456
 
+## [Jun 2026] i18n GAPS visibles (Sesiones + Periodización) COMPLETADOS — VERIFICADO E2E
+- **SessionsExportModal.js** (namespace `sessions`): traducido título "Export Sessions", subtítulo, contador "{{sel}} of {{total}} selected", THEME Light/Dark, LAYOUT Classic/Boards, All/Clear, "Select all ({{n}})"/Remove all/Remove, "WEEK {{n}}", "Day {{n}}", "{{n}} ex.", footer (sessionCount plural, Format:/Theme:, "Select the sessions you want to print"), Cancel, Combined PDF, y toasts (ZIP/PDF downloaded, link copied, share/export errors, WhatsApp msg). Fechas con `i18n.language`. Verificado por screenshot en EN.
+- **SessionEditor.js**: añadidas claves `sessions.{share,exit,save,add,chooseDate,phaseInicial,phasePrincipal,phaseFinal,activity_one/other}`. Fase headers traducidos vía `t('sessions.phase'+Cap(faseKey))`, contador actividades con plural i18next, botones footer Compartir/Salir/Guardar, "Elegir fecha". `i18n` agregado al hook.
+- **PeriodizationComplete.js** (namespace `periodization`, vista Structure): stats (Macrocycles/Mesocycles/Weeks), tabs (Structure/Calendar/Chart), botones add (Macrocycle/Mesocycle/Week), "Back to plans", "{{weeks}} wk", "{{n}} meso/ses", "X sessions", "Imbalance", "Create with Structure", títulos de modales (New/Edit Macro/Meso/Micro), toasts (created/updated), default names. Verificado por screenshot en EN.
+- **Claves nuevas traducidas a 12 idiomas** vía 4 specs: i18n_sessions_gap_spec, i18n_sessions_toasts_spec, i18n_period_gap_spec, i18n_period_micro_spec. Todos los locales válidos.
+- **Pendiente (data-driven, NO UI)**: nombres de micro/sesión/tipo de sesión ("Semana 1"/"Sesión 1"/"general") y nombres de fase/macro ("Preparatorio General/Precompetitivo") vienen del backend — requieren mapa de override por fase si se quiere localizar.
+
+## [Jun 2026] i18n FASE D — EN PROGRESO
+- **CalculatorsHub.js COMPLETADO** (namespace nuevo `calculators`, 30 claves × 12 idiomas): los 10 títulos+descripciones de módulos (resueltos por id vía `t('calculators.mod_<id>_title/_desc')`), hub hero (título/subtítulo/descripción), "Modules"/"Saved results", "MODULE {{n}}", "{{n}} calc.", toggle de historial. Verificado por screenshot en EN (hub completo).
+- **PENDIENTE (próximos lotes, i18n desde cero — ninguno tiene useTranslation aún)**:
+  - Internos de calculadoras: `Module1_10.js` (378), `Module2_5_6.js` (333), `Module3_4_7_8_9.js` (481), `CalcSaveBar.js` (233). Las cadenas viven como props (`title=`, `subtitle=`, `label=`, `unit=`) que se pasan a `CalcShared` (CalcCard/Field/Select/BigResult/MiniStat). Cientos de labels.
+  - `pages/SuperAdminPage.js` (906) — finanzas/admin.
+  - `components/MasterReportModal.js` (857) — reportes.
+  - `components/ScoutingModule.js` (1110) + ScoutingContacts/Map/Alerts.
+- **Estrategia**: un módulo por lote (audit/extracción manual de props → spec es/en → i18n_tools.py translate → reemplazos t() → verificar). Validar exit codes por presupuesto LLM.
+
+
+
+
 ## [Jun 2026] Fix Selector de Idioma + i18n CAPACITY_CONFIG (SessionEditor) — VERIFICADO E2E
 - **LanguageSelector.js**: reescrito con `createPortal` + `getBoundingClientRect` (position:fixed, zIndex 99999). El dropdown de 12 idiomas ya NO se recorta bajo contenedores con `overflow`. Reposiciona en resize/scroll, cierra al click-outside. Verificado por screenshot (12 opciones visibles flotando).
 - **SessionEditor.js — BUG LATENTE CORREGIDO**: el componente usaba `t(...)` SIN declarar `const { t } = useTranslation();` → habría crasheado ('t is not defined') al abrir el editor. Hook agregado en línea ~617. Confirmado por testing_agent (iteration_77): el editor abre sin pageerror.

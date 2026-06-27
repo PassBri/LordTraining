@@ -47,7 +47,7 @@ function downloadBlob(blob, filename) {
 }
 
 export default function SessionsExportModal({ open, onOpenChange, plan, athleteName }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [tree, setTree] = useState({ items: [], total_sessions: 0 });
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(new Set());
@@ -139,10 +139,10 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
       const planSlug = (plan?.name || 'plan').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-');
       downloadBlob(res.data, `sesiones_${planSlug}_${theme}_${layout}.${ext}`);
       toast.success(format === 'zip'
-        ? `ZIP descargado · ${selected.size} sesion${selected.size !== 1 ? 'es' : ''}`
-        : `PDF combinado descargado · ${selected.size} sesion${selected.size !== 1 ? 'es' : ''}`);
+        ? t('sessions.tZipDownloaded', { count: selected.size })
+        : t('sessions.tPdfCombinedDownloaded', { count: selected.size }));
     } catch (err) {
-      toast.error('Error al generar la exportación: ' + (err.response?.data?.detail || err.message));
+      toast.error(t('sessions.tExportError', { msg: err.response?.data?.detail || err.message }));
     } finally {
       setExporting(null);
     }
@@ -164,15 +164,15 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
       const shareId = res.data.share_id;
       const url = `${API}/api/sessions-export/shared/${shareId}`;
       if (target === 'whatsapp') {
-        const msg = `LordTraining · ${plan?.name || 'Plan'} · ${selected.size} sesion${selected.size !== 1 ? 'es' : ''} de entrenamiento\n\nVer en línea: ${url}`;
+        const msg = `LordTraining · ${plan?.name || 'Plan'} · ${t('sessions.sessionCount', { count: selected.size })}\n\n${t('sessions.waViewOnline')} ${url}`;
         window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         toast.success(t('sessions.tOpeningWhatsapp'));
       } else {
         await navigator.clipboard.writeText(url);
-        toast.success('Enlace copiado · página de solo lectura', { description: url });
+        toast.success(t('sessions.tLinkCopiedRO'), { description: url });
       }
     } catch (err) {
-      toast.error('Error al crear enlace: ' + (err.response?.data?.detail || err.message));
+      toast.error(t('sessions.tShareLinkError', { msg: err.response?.data?.detail || err.message }));
     } finally {
       setSharing(false);
     }
@@ -181,7 +181,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
   const totalSelected = selected.size;
   const totalAvailable = tree.total_sessions || 0;
 
-  const formatLabel = layout === 'hero' ? 'Hero · pizarras protagonistas' : 'Clásico · ReportLab';
+  const formatLabel = layout === 'hero' ? t('sessions.formatHero') : t('sessions.formatClassic');
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -198,10 +198,10 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
               </div>
               <div>
                 <DialogTitle className="text-white text-xl tracking-tight">
-                  Exportar Sesiones
+                  {t('sessions.exportTitle')}
                 </DialogTitle>
                 <DialogDescription className="text-slate-300 text-sm mt-0.5">
-                  {plan?.name ? `Plan: ${plan.name}` : 'Selecciona las sesiones a imprimir'}
+                  {plan?.name ? t('sessions.planColon', { name: plan.name }) : t('sessions.selectToPrint')}
                 </DialogDescription>
               </div>
             </div>
@@ -209,7 +209,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
               className="px-3.5 py-1.5 rounded-full bg-[#CCFF00] text-slate-900 text-xs font-bold tracking-wide shadow-lg shadow-[#CCFF00]/30"
               data-testid="sessions-export-counter"
             >
-              {totalSelected} de {totalAvailable} seleccionadas
+              {t('sessions.selectedCount', { sel: totalSelected, total: totalAvailable })}
             </span>
           </div>
         </DialogHeader>
@@ -227,7 +227,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                   theme === 'light' ? 'bg-amber-100 text-amber-900 border-l border-amber-200' : 'text-slate-500 hover:bg-slate-50 border-l border-slate-200'
                 }`}
               >
-                <Sun className="w-3.5 h-3.5" /> Claro
+                <Sun className="w-3.5 h-3.5" /> {t('sessions.themeLight')}
               </button>
               <button
                 onClick={() => setTheme('dark')}
@@ -236,7 +236,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                   theme === 'dark' ? 'bg-slate-900 text-[#CCFF00]' : 'text-slate-500 hover:bg-slate-50 border-l border-slate-200'
                 }`}
               >
-                <Moon className="w-3.5 h-3.5" /> Oscuro
+                <Moon className="w-3.5 h-3.5" /> {t('sessions.themeDark')}
               </button>
             </div>
 
@@ -250,7 +250,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                   layout === 'classic' ? 'bg-blue-100 text-blue-900 border-l border-blue-200' : 'text-slate-500 hover:bg-slate-50 border-l border-slate-200'
                 }`}
               >
-                <FileText className="w-3.5 h-3.5" /> Clásico
+                <FileText className="w-3.5 h-3.5" /> {t('sessions.layoutClassic')}
               </button>
               <button
                 onClick={() => setLayout('hero')}
@@ -259,7 +259,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                   layout === 'hero' ? 'bg-emerald-100 text-emerald-900 border-l border-emerald-200' : 'text-slate-500 hover:bg-slate-50 border-l border-slate-200'
                 }`}
               >
-                <LayoutGrid className="w-3.5 h-3.5" /> Pizarras
+                <LayoutGrid className="w-3.5 h-3.5" /> {t('sessions.layoutBoards')}
               </button>
             </div>
           </div>
@@ -271,7 +271,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
               data-testid="sessions-export-select-all"
               className="h-8 text-xs"
             >
-              <CheckSquare className="w-3.5 h-3.5 mr-1.5" /> Todas
+              <CheckSquare className="w-3.5 h-3.5 mr-1.5" /> {t('sessions.selectAllSessions')}
             </Button>
             <Button
               size="sm" variant="outline" onClick={clearAll}
@@ -279,7 +279,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
               data-testid="sessions-export-clear-all"
               className="h-8 text-xs"
             >
-              <Square className="w-3.5 h-3.5 mr-1.5" /> Limpiar
+              <Square className="w-3.5 h-3.5 mr-1.5" /> {t('sessions.clearAllSessions')}
             </Button>
           </div>
         </div>
@@ -340,7 +340,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                           className="text-xs font-semibold px-3 py-1.5 rounded-md border border-slate-300 hover:bg-slate-100 text-slate-700 bg-white"
                           data-testid={`sessions-export-toggle-meso-${meso.meso_id || mi}`}
                         >
-                          {mesoSelectedCount === mesoIds.length ? 'Quitar todo' : `Marcar todo (${mesoIds.length})`}
+                          {mesoSelectedCount === mesoIds.length ? t('sessions.removeAll') : t('sessions.markAll', { n: mesoIds.length })}
                         </button>
                       </div>
                     </div>
@@ -364,7 +364,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                                 </span>
                                 {mc.week_number != null && (
                                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 text-slate-600 font-semibold">
-                                    SEMANA {mc.week_number}
+                                    {t('sessions.weekUpper', { n: mc.week_number })}
                                   </span>
                                 )}
                                 {microSelectedCount > 0 && (
@@ -378,7 +378,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                                 className="text-[11px] font-semibold text-slate-600 hover:text-slate-900 px-2 py-0.5 rounded hover:bg-white"
                                 data-testid={`sessions-export-toggle-micro-${mc.micro_id || `${mi}-${mci}`}`}
                               >
-                                {microSelectedCount === microIds.length ? 'Quitar' : `Todas (${microIds.length})`}
+                                {microSelectedCount === microIds.length ? t('sessions.removeSel') : t('sessions.allCount', { n: microIds.length })}
                               </button>
                             </div>
 
@@ -413,18 +413,18 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                                       <div className="flex items-center gap-1.5">
                                         <TIcon className={`w-3.5 h-3.5 ${tcfg.text} shrink-0`} />
                                         <div className={`font-bold text-sm truncate ${checked ? 'text-slate-900' : 'text-slate-800'}`}>
-                                          {s.name || 'Sesión'}
+                                          {s.name || t('sessions.sessionDefault')}
                                         </div>
                                       </div>
                                       {s.date && (
                                         <div className="text-[10px] text-slate-500 mt-0.5 font-medium">
-                                          {new Date(s.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
+                                          {new Date(s.date).toLocaleDateString(i18n.language, { day: '2-digit', month: 'short' })}
                                         </div>
                                       )}
                                       <div className="flex items-center flex-wrap gap-1 mt-1.5">
                                         {s.day && (
                                           <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold flex items-center gap-0.5">
-                                            <Hash className="w-2.5 h-2.5" />Día {s.day}
+                                            <Hash className="w-2.5 h-2.5" />{t('sessions.dayBadge', { n: s.day })}
                                           </span>
                                         )}
                                         {s.session_type && (
@@ -439,7 +439,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                                         )}
                                         {s.exercises_count > 0 && (
                                           <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold flex items-center gap-0.5">
-                                            <Activity className="w-2.5 h-2.5" />{s.exercises_count} ej.
+                                            <Activity className="w-2.5 h-2.5" />{t('sessions.exCountShort', { n: s.exercises_count })}
                                           </span>
                                         )}
                                         {s.intensity != null && s.intensity !== '' && (
@@ -471,15 +471,15 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
             <div className="flex items-center gap-3 text-slate-600">
               <span className="flex items-center gap-1">
                 <ListChecks className="w-3.5 h-3.5" />
-                <strong className="text-slate-900">{totalSelected}</strong> sesión{totalSelected !== 1 ? 'es' : ''}
+                <strong className="text-slate-900">{t('sessions.sessionCount', { count: totalSelected })}</strong>
               </span>
               <span className="text-slate-300">·</span>
-              <span>Formato: <strong className="text-slate-700">{formatLabel}</strong></span>
+              <span>{t('sessions.formatLabel')} <strong className="text-slate-700">{formatLabel}</strong></span>
               <span className="text-slate-300">·</span>
-              <span>Tema: <strong className={theme === 'dark' ? 'text-slate-700' : 'text-amber-700'}>{theme === 'dark' ? 'Oscuro' : 'Claro'}</strong></span>
+              <span>{t('sessions.themeLabel')} <strong className={theme === 'dark' ? 'text-slate-700' : 'text-amber-700'}>{theme === 'dark' ? t('sessions.themeDark') : t('sessions.themeLight')}</strong></span>
             </div>
             <div className="text-slate-400 italic">
-              {totalSelected === 0 && 'Marca las sesiones que quieres imprimir'}
+              {totalSelected === 0 && t('sessions.markToPrint')}
             </div>
           </div>
           {/* Actions row */}
@@ -491,7 +491,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
               data-testid="sessions-export-cancel-btn"
               className="text-slate-600 hover:text-slate-900"
             >
-              <X className="w-4 h-4 mr-1" /> Cancelar
+              <X className="w-4 h-4 mr-1" /> {t('sessions.cancel')}
             </Button>
 
             <div className="flex items-center gap-2 flex-wrap">
@@ -546,7 +546,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                 {exporting === 'combined'
                   ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                   : <Files className="w-3.5 h-3.5 mr-1.5" />}
-                PDF combinado
+                {t('sessions.pdfCombined')}
               </Button>
             </div>
           </div>

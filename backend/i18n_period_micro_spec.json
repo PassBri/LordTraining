@@ -1,0 +1,15 @@
+{
+  "namespace": "periodization",
+  "es": {
+    "mesoShort": "meso",
+    "sesShort": "ses",
+    "sessionsLong": "sesiones",
+    "imbalance": "Desbalance"
+  },
+  "en": {
+    "mesoShort": "meso",
+    "sesShort": "ses",
+    "sessionsLong": "sessions",
+    "imbalance": "Imbalance"
+  }
+}

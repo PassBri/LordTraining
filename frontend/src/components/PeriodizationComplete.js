@@ -581,7 +581,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     if (!selectedPlan) return;
     const newMacro = {
       id: `macro-${Date.now()}`,
-      name: 'Nuevo Macrociclo',
+      name: t('periodization.newMacro'),
       phase: MACROCYCLE_PHASES[0],
       startDate: selectedPlan.endDate || selectedPlan.startDate,
       weeks: 4,
@@ -622,7 +622,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
     setSelectedPlan(updatedPlan);
     setEditModal({ type: null, data: null, indices: null });
-    toast.success(indices.isNew ? 'Macrociclo creado' : 'Macrociclo actualizado');
+    toast.success(indices.isNew ? t('periodization.macroCreated') : t('periodization.macroUpdated'));
   };
 
   const handleDeleteMacrocycle = (macroIdx) => {
@@ -639,7 +639,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
   const handleAddMesocycle = (macroIdx) => {
     const newMeso = {
       id: `meso-${Date.now()}`,
-      name: 'Nuevo Mesociclo',
+      name: t('periodization.newMeso'),
       type: MESOCYCLE_TYPES[0],
       weeks: 4,
       microcycles: []
@@ -677,7 +677,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
     setSelectedPlan(updatedPlan);
     setEditModal({ type: null, data: null, indices: null });
-    toast.success(indices.isNew ? 'Mesociclo creado' : 'Mesociclo actualizado');
+    toast.success(indices.isNew ? t('periodization.mesoCreated') : t('periodization.mesoUpdated'));
   };
 
   const handleDeleteMesocycle = (macroIdx, mesoIdx) => {
@@ -720,7 +720,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
     setSelectedPlan(updatedPlan);
     setEditModal({ type: null, data: null, indices: null });
-    toast.success(indices.isNew ? 'Microciclo creado' : 'Microciclo actualizado');
+    toast.success(indices.isNew ? t('periodization.microCreated') : t('periodization.microUpdated'));
   };
 
   const handleDeleteMicrocycle = (macroIdx, mesoIdx, microIdx) => {
@@ -1942,7 +1942,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                     <div className="flex flex-wrap gap-2">
                       {generatedStructure.summary.phases.map((phase, i) => (
                         <Badge key={i} className="bg-blue-100 text-blue-700">
-                          {phase.name}: {phase.weeks} sem
+                          {phase.name}: {phase.weeks} {t('periodization.weekShort')}
                         </Badge>
                       ))}
                     </div>
@@ -2064,7 +2064,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                 disabled={!planConfig.startDate}
                 data-testid="wizard-create-btn"
               >
-                <Check className="w-4 h-4" /> {generatedStructure ? 'Crear con Estructura' : 'Crear Plan'}
+                <Check className="w-4 h-4" /> {generatedStructure ? t('periodization.createWithStructure') : t('periodization.createPlan')}
               </Button>
             )}
           </div>
@@ -2093,16 +2093,16 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
               <div>
                 {!activePlan && (
                 <button onClick={() => { setActiveView('history'); setSelectedPlan(null); }} className="text-[11px] text-slate-400 hover:text-white transition-colors mb-3 flex items-center gap-1">
-                  <ChevronLeft className="w-3 h-3" /> Volver a planes
+                  <ChevronLeft className="w-3 h-3" /> {t('periodization.backToPlans')}
                 </button>
                 )}
                 <h2 className="text-2xl font-black text-white tracking-tight" style={{ fontFamily: BC }}>{selectedPlan.name}</h2>
-                <p className="text-slate-400 text-sm mt-1">{selectedPlan.totalWeeks} sem &middot; {selectedPlan.modelName}</p>
+                <p className="text-slate-400 text-sm mt-1">{selectedPlan.totalWeeks} {t('periodization.weekShort')} &middot; {selectedPlan.modelName}</p>
                 <div className="flex gap-5 mt-4">
                   {[
-                    { v: selectedPlan.macrocycles?.length || 0, l: 'Macrociclos', c: '#007AFF' },
-                    { v: totalMesos, l: 'Mesociclos', c: '#8B5CF6' },
-                    { v: totalMicros, l: 'Semanas', c: '#10B981' },
+                    { v: selectedPlan.macrocycles?.length || 0, l: t('periodization.macrocyclesLabel'), c: '#007AFF' },
+                    { v: totalMesos, l: t('periodization.mesocyclesLabel'), c: '#8B5CF6' },
+                    { v: totalMicros, l: t('periodization.weeksLabel'), c: '#10B981' },
                   ].map((s, i) => (
                     <div key={i}>
                       <div className="text-xl font-black text-white leading-none" style={{ fontFamily: BC }}>{s.v}</div>
@@ -2179,9 +2179,9 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         <div className="flex items-start gap-4 pt-2" data-testid="view-mode-tabs">
           {[
             { id: 'dashboard', icon: Activity, label: 'Dashboard', color: '#0891B2' },
-            { id: 'structure', icon: Layers, label: 'Estructura', color: '#007AFF' },
-            { id: 'calendar', icon: CalendarDays, label: 'Calendario', color: '#8B5CF6' },
-            { id: 'chart', icon: BarChart3, label: 'Grafico', color: '#10B981' }
+            { id: 'structure', icon: Layers, label: t('periodization.viewStructure'), color: '#007AFF' },
+            { id: 'calendar', icon: CalendarDays, label: t('periodization.viewCalendar'), color: '#8B5CF6' },
+            { id: 'chart', icon: BarChart3, label: t('periodization.viewChart'), color: '#10B981' }
           ].map(({ id, icon: Icon, label, color }) => (
             <button key={id} className="group flex flex-col items-center gap-1.5 outline-none" onClick={() => setViewMode(id)} data-testid={`view-${id}`}>
               <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ${viewMode === id ? 'text-white shadow-lg' : 'bg-white text-slate-400 shadow-sm border border-slate-200 hover:shadow-md'}`} style={viewMode === id ? { backgroundColor: color } : {}}>
@@ -2243,7 +2243,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       {/* Add Macrocycle */}
       <div className="flex justify-end">
         <Button onClick={handleAddMacrocycle} className="bg-slate-900 hover:bg-slate-800 text-white rounded-lg h-9 text-[12px] font-semibold shadow-sm" data-testid="add-macrocycle-btn">
-          <Plus className="w-3.5 h-3.5 mr-1.5" /> Macrociclo
+          <Plus className="w-3.5 h-3.5 mr-1.5" /> {t('periodization.addMacro')}
         </Button>
       </div>
 
@@ -2281,18 +2281,18 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                       <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ color: phaseColor, backgroundColor: phaseColor + '15' }}>{resolvePhase(macro).name}</span>
                     </div>
                     <div className="flex items-center gap-3 mt-1 text-[11px] text-slate-400">
-                      <span className="font-medium">{macro.weeks} sem</span>
+                      <span className="font-medium">{macro.weeks} {t('periodization.weekShort')}</span>
                       <span className="w-1 h-1 bg-slate-300 rounded-full" />
-                      <span>{macro.mesocycles?.length || 0} meso</span>
+                      <span>{macro.mesocycles?.length || 0} {t('periodization.mesoShort')}</span>
                       <span className="w-1 h-1 bg-slate-300 rounded-full" />
-                      <span>{totalSessions} sesiones</span>
+                      <span>{totalSessions} {t('periodization.sessionsLong')}</span>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                   {loadBalance > 30 && (
                     <span className="text-[10px] px-2 py-1 bg-amber-50 text-amber-600 rounded-lg font-semibold flex items-center gap-1">
-                      <Zap className="w-3 h-3" /> Desbalance
+                      <Zap className="w-3 h-3" /> {t('periodization.imbalance')}
                     </span>
                   )}
                   <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-blue-600" onClick={() => handleEditMacrocycle(macro, macroIdx)}><Edit2 className="w-3.5 h-3.5" /></Button>
@@ -2347,7 +2347,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
               <div className="flex justify-between items-center px-5 pt-3 pb-2">
                 <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">{t('periodization.mesocyclesTab')}</span>
                 <Button size="sm" variant="outline" className="h-7 text-[11px] rounded-md border-slate-300" onClick={() => handleAddMesocycle(macroIdx)}>
-                  <Plus className="w-3 h-3 mr-1" /> Mesociclo
+                  <Plus className="w-3 h-3 mr-1" /> {t('periodization.addMeso')}
                 </Button>
               </div>
 
@@ -2378,7 +2378,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                         <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                           <div className="hidden sm:flex items-center gap-3 mr-2">
                             <span className="text-[10px] text-slate-400">{meso.microcycles?.length || 0} sem</span>
-                            <span className="text-[10px] text-slate-400">{mesoSessions} ses</span>
+                            <span className="text-[10px] text-slate-400">{mesoSessions} {t('periodization.sesShort')}</span>
                             <div className="flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded">
                               <span className="text-[9px] text-slate-400">{t('periodization.load')}</span>
                               <div className="w-8"><MiniBar value={mesoLoad * 100} color={mesoColor} h="h-1" /></div>
@@ -2411,7 +2411,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                         <div className="flex justify-between items-center mb-3">
                           <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">{t('periodization.microcyclesTab')}</span>
                           <Button size="sm" variant="outline" className="h-6 text-[10px] rounded-md border-slate-200 px-2" onClick={() => handleAddMicrocycle(macroIdx, mesoIdx)}>
-                            <Plus className="w-2.5 h-2.5 mr-1" /> Semana
+                            <Plus className="w-2.5 h-2.5 mr-1" /> {t('periodization.week')}
                           </Button>
                         </div>
 
@@ -2475,7 +2475,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                 </div>
                                 <div className="flex items-center gap-2.5 shrink-0" onClick={(e) => e.stopPropagation()}>
                                   <div className="hidden lg:flex items-center gap-3 text-[10px] mr-1" style={{fontFamily:"'DM Sans',sans-serif"}}>
-                                    <span className="text-slate-500 font-medium">{sessions.length} ses</span>
+                                    <span className="text-slate-500 font-medium">{sessions.length} {t('periodization.sesShort')}</span>
                                     <span className="text-slate-400">{totalDuration}min</span>
                                     <div className="flex items-center gap-1.5">
                                       <span className="text-slate-400">{t('periodization.load')}</span>
@@ -2993,7 +2993,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       {/* Macrocycle Modal */}
       <Dialog open={editModal.type === 'macrocycle'} onOpenChange={() => setEditModal({ type: null, data: null, indices: null })}>
         <DialogContent className="max-w-lg bg-white text-slate-900 border border-slate-200">
-          <DialogHeader><DialogTitle className="text-slate-900">{editModal.indices?.isNew ? 'Nuevo Macrociclo' : 'Editar Macrociclo'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="text-slate-900">{editModal.indices?.isNew ? t('periodization.newMacro') : t('periodization.editMacro')}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
             <div>
               <label className="text-sm font-medium text-slate-700">{t('periodization.name')}</label>
@@ -3038,7 +3038,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       {/* Mesocycle Modal */}
       <Dialog open={editModal.type === 'mesocycle'} onOpenChange={() => setEditModal({ type: null, data: null, indices: null })}>
         <DialogContent className="max-w-lg bg-white text-slate-900 border border-slate-200">
-          <DialogHeader><DialogTitle className="text-slate-900">{editModal.indices?.isNew ? 'Nuevo Mesociclo' : 'Editar Mesociclo'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="text-slate-900">{editModal.indices?.isNew ? t('periodization.newMeso') : t('periodization.editMeso')}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
             <div>
               <label className="text-sm font-medium text-slate-700">{t('periodization.name')}</label>
@@ -3085,7 +3085,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       {/* Microcycle Modal */}
       <Dialog open={editModal.type === 'microcycle'} onOpenChange={() => setEditModal({ type: null, data: null, indices: null })}>
         <DialogContent className="max-w-lg bg-white text-slate-900 border border-slate-200">
-          <DialogHeader><DialogTitle className="text-slate-900">{editModal.indices?.isNew ? 'Nuevo Microciclo' : 'Editar Microciclo'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="text-slate-900">{editModal.indices?.isNew ? t('periodization.newMicro') : t('periodization.editMicro')}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
             <div>
               <label className="text-sm font-medium text-slate-700">{t('periodization.name')}</label>

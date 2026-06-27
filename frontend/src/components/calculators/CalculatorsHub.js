@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
 import {
@@ -89,8 +90,11 @@ const MODULES = [
 ];
 
 const CalculatorsHub = () => {
+  const { t } = useTranslation();
   const [activeModule, setActiveModule] = useState(null);
   const [showHistory, setShowHistory] = useState(false);
+  const modTitle = (m) => t(`calculators.mod_${m.id}_title`, { defaultValue: m.title });
+  const modDesc = (m) => t(`calculators.mod_${m.id}_desc`, { defaultValue: m.desc });
 
   if (activeModule) {
     const mod = MODULES.find(m => m.id === activeModule);
@@ -108,10 +112,10 @@ const CalculatorsHub = () => {
             <Icon className="w-6 h-6 text-white" />
           </div>
           <div className="flex-1">
-            <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">{mod.title}</h2>
-            <p className="text-xs text-slate-500">{mod.desc}</p>
+            <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">{modTitle(mod)}</h2>
+            <p className="text-xs text-slate-500">{modDesc(mod)}</p>
           </div>
-          <Badge variant="outline">{mod.components.length} calculadoras</Badge>
+          <Badge variant="outline">{mod.components.length} {t('calculators.calculatorsCount')}</Badge>
         </div>
 
         {/* Calculators */}
@@ -132,21 +136,20 @@ const CalculatorsHub = () => {
             <Calculator className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight">Calculadoras Científicas LordTraining</h1>
-            <p className="text-sm text-white/80">{MODULES.length} módulos · {totalCalcs} calculadoras especializadas</p>
+            <h1 className="text-2xl font-extrabold tracking-tight">{t('calculators.hubTitle')}</h1>
+            <p className="text-sm text-white/80">{t('calculators.hubSubtitle', { modules: MODULES.length, calcs: totalCalcs })}</p>
           </div>
         </div>
         <p className="text-xs text-white/70 mt-3 max-w-3xl">
-          Suite completa para entrenadores: planificación estructural, control de carga, biomecánica, tests deportivos,
-          antropometría, nutrición y periodización avanzada — todas las fórmulas validadas científicamente.
+          {t('calculators.hubDescription')}
         </p>
       </div>
 
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-extrabold text-slate-700">{showHistory ? 'Resultados guardados por atleta' : 'Módulos'}</h3>
+        <h3 className="text-sm font-extrabold text-slate-700">{showHistory ? t('calculators.savedByAthlete') : t('calculators.modules')}</h3>
         <button onClick={() => setShowHistory(s => !s)} data-testid="calc-history-toggle"
           className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700">
-          <History className="w-4 h-4 text-violet-500" />{showHistory ? 'Ver módulos' : 'Resultados guardados'}
+          <History className="w-4 h-4 text-violet-500" />{showHistory ? t('calculators.viewModules') : t('calculators.savedResults')}
         </button>
       </div>
 
@@ -166,12 +169,12 @@ const CalculatorsHub = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] font-bold tabular-nums px-1.5 py-0.5 rounded" style={{ background: `${mod.color}20`, color: mod.color }}>
-                        MÓDULO {idx + 1}
+                        {t('calculators.moduleN', { n: idx + 1 })}
                       </span>
-                      <Badge variant="outline" className="text-[10px]">{mod.components.length} calc.</Badge>
+                      <Badge variant="outline" className="text-[10px]">{mod.components.length} {t('calculators.calcShort')}</Badge>
                     </div>
-                    <h3 className="text-sm font-extrabold text-slate-900 mt-1.5 leading-tight">{mod.title}</h3>
-                    <p className="text-[11px] text-slate-500 mt-1 leading-snug">{mod.desc}</p>
+                    <h3 className="text-sm font-extrabold text-slate-900 mt-1.5 leading-tight">{modTitle(mod)}</h3>
+                    <p className="text-[11px] text-slate-500 mt-1 leading-snug">{modDesc(mod)}</p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-300 mt-2 flex-shrink-0" />
                 </div>

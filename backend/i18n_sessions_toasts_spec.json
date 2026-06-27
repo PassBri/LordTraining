@@ -1,0 +1,21 @@
+{
+  "namespace": "sessions",
+  "es": {
+    "tZipDownloaded": "ZIP descargado · {{count}} sesiones",
+    "tExportError": "Error al generar la exportación: {{msg}}",
+    "tLinkCopiedRO": "Enlace copiado · página de solo lectura",
+    "tShareLinkError": "Error al crear enlace: {{msg}}",
+    "waViewOnline": "Ver en línea:",
+    "formatHero": "Hero · pizarras protagonistas",
+    "formatClassic": "Clásico · ReportLab"
+  },
+  "en": {
+    "tZipDownloaded": "ZIP downloaded · {{count}} sessions",
+    "tExportError": "Error generating export: {{msg}}",
+    "tLinkCopiedRO": "Link copied · read-only page",
+    "tShareLinkError": "Error creating link: {{msg}}",
+    "waViewOnline": "View online:",
+    "formatHero": "Hero · boards first",
+    "formatClassic": "Classic · ReportLab"
+  }
+}

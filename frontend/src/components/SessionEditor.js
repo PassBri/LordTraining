@@ -614,7 +614,7 @@ const SessionEditor = ({
   athleteId,
   athleteName
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const tCap = (s) => s ? t(`sessions.capcfg.${slugCap(s)}`, { defaultValue: s }) : s;
   const [sessionData, setSessionData] = useState(SESION_INICIAL);
   const [expandedPhases, setExpandedPhases] = useState({
@@ -1457,7 +1457,7 @@ const SessionEditor = ({
                     <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg cursor-pointer hover:opacity-80 transition-opacity" style={{background:'rgba(204,255,0,0.08)',border:'0.5px solid rgba(204,255,0,0.15)',fontFamily:DM}}>
                       <Calendar className="w-3.5 h-3.5" style={{color:'#CCFF00',opacity:0.6}} />
                       <span style={{fontSize:'12px',fontWeight:500,color:'rgba(255,255,255,0.9)'}}>
-                        {sessionDate ? sessionDate.toLocaleDateString('es-ES', {day:'2-digit',month:'short',year:'numeric'}) : 'Elegir fecha'}
+                        {sessionDate ? sessionDate.toLocaleDateString(i18n.language, {day:'2-digit',month:'short',year:'numeric'}) : t('sessions.chooseDate')}
                       </span>
                     </button>
                   </PopoverTrigger>
@@ -1636,10 +1636,10 @@ const SessionEditor = ({
                               }
                             </div>
                             <span style={{fontSize:'13px',fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',color: colors.accentDark,fontFamily:BC}}>
-                              {fase.nombre}
+                              {t('sessions.phase' + faseKey.charAt(0).toUpperCase() + faseKey.slice(1), { defaultValue: fase.nombre })}
                             </span>
                             <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{background:'rgba(0,0,0,0.12)',color: colors.accentDark,fontFamily:DM}}>
-                              {fase.actividades.length} {fase.actividades.length === 1 ? 'actividad' : 'actividades'}
+                              {fase.actividades.length} {t('sessions.activity', { count: fase.actividades.length })}
                             </span>
                           </div>
                           <Button
@@ -1650,7 +1650,7 @@ const SessionEditor = ({
                             style={{fontFamily:DM, background:'rgba(0,0,0,0.15)', color: colors.accentDark, backdropFilter:'blur(8px)'}}
                             data-testid={`add-activity-${faseKey}`}
                           >
-                            <Plus className="w-3 h-3 mr-1" /> Agregar
+                            <Plus className="w-3 h-3 mr-1" /> {t('sessions.add')}
                           </Button>
                         </div>
                         
@@ -2216,7 +2216,7 @@ const SessionEditor = ({
                 data-testid="share-session-btn"
               >
                 <Share2 className="w-3.5 h-3.5 mr-1.5" />
-                Compartir
+                {t('sessions.share')}
               </Button>
               <Button 
                 variant="outline"
@@ -2289,7 +2289,7 @@ const SessionEditor = ({
                 className="border-white/15 text-white/60 hover:bg-white/5 hover:text-white text-[11px] h-8"
                 data-testid="exit-session-btn"
               >
-                Salir
+                {t('sessions.exit')}
               </Button>
               <Button 
                 size="sm"
@@ -2299,7 +2299,7 @@ const SessionEditor = ({
                 data-testid="save-session-btn"
               >
                 <Save className="w-3.5 h-3.5 mr-1.5" />
-                Guardar
+                {t('sessions.save')}
               </Button>
             </div>
           </div>
