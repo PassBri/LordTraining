@@ -1,4 +1,18 @@
-# iTRAIN - Plataforma de Gestion Deportiva
+# iTRAIN - Plataforma
+
+## [Jun 2026] AUTO-TRADUCCIÓN DE TODA LA PÁGINA (DB + tiempo real) — VERIFICADO (iter_80)
+**Problema del usuario:** las subsecciones Data→Information (Entidades, Federación, Equipos, Atletas, Deportes, Torneos, Entrenadores) NO se traducían al cambiar idioma; método manual por-componente dejaba huecos.
+**Solución implementada (idea del usuario: "BD de strings + traducción automática"):**
+- **Backend `routes/auto_i18n.py`**: `POST /api/i18n/translate {lang, texts}` con caché PERMANENTE en Mongo `i18n_cache`. Traduce faltantes en lote vía Emergent LLM (gpt-4o-mini) y cachea para siempre. Cada (texto,idioma) se traduce 1 sola vez.
+- **Seed**: `seed_i18n_cache.py` sembró 23.417 traducciones reutilizando TODOS los locales existentes (mapea valor_es→valor_lang por ruta).
+- **Frontend `pageTranslator.js`** (init en `App.js`): traductor GLOBAL a nivel DOM. Recorre el texto renderizado, lo traduce al idioma activo vía el endpoint, cachea en localStorage (`lt_pg_<lang>`) y reaplica. MutationObserver para contenido dinámico. Gated en lang≠es. Traduce TODA la página sin envolver strings por componente.
+- **`lib/autoTranslate.js`** `tx()`: capa i18next (namespace `info`, 473 labels × 12 idiomas) para las 9 subsecciones (EntityManager, FederationPanel, TeamManager, TournamentManager, CoachesManager, SportCharacterization, AthleteSummary, AthleteCharacterization, EntityDashboard).
+- **i18n.js**: añadida detección por **querystring** (`?lng=en`) → order ['querystring','localStorage','navigator','htmlTag']. Permite forzar/compartir idioma por URL.
+**Verificación (iter_80, testing_agent):** con `/dashboard?lng=en` y `?lng=fr`, TODAS las subsecciones (Entities/Teams/Federation) y strings antes en español ahora traducen ("Entity Management","New Entity","Federation Panel","HIERARCHY TREE","ASSIGNED STAFF", etc.). retest_needed=false.
+**Nota:** el selector de idioma (globo) funciona en navegador real (capturas del usuario en EN) pero no se dispara en automatización headless; `?lng=` es alternativa confiable.
+**Scripts util:** `i18n_pdf_extra.py`, `i18n_pdf_sessions.py`, `seed_i18n_cache.py`, `wrap_file.py`, `i18n_file_labels.py`.
+
+ de Gestion Deportiva
 
 ## Credenciales: test@train.com / test123456
 
