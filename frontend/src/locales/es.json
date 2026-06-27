@@ -1550,7 +1550,15 @@
     "error_al_compartir": "Error al compartir",
     "no_se_encontro_el_plan_grafico": "No se encontró el plan gráfico",
     "enlace_copiado_al_portapapeles": "Enlace copiado al portapapeles",
-    "error_al_exportar_imagen": "Error al exportar imagen"
+    "error_al_exportar_imagen": "Error al exportar imagen",
+    "cargar_plantilla": "Cargar plantilla",
+    "cargar_plantilla_del_modelo": "Cargar valores sugeridos del modelo por fase",
+    "confirmar_cargar_plantilla": "¿Cargar los valores sugeridos del modelo? Se respetarán las celdas que ya editaste manualmente.",
+    "plantilla_cargada": "Plantilla del modelo cargada",
+    "semanas": "semanas",
+    "no_hay_modelo": "Este plan no tiene un modelo de periodización asignado.",
+    "configura_periodizacion_primero": "Configura primero la periodización (fases por semana) para autocargar valores.",
+    "error_cargar_plantilla": "Error al cargar la plantilla del modelo"
   },
   "calculators": {
     "mod_planning_title": "Planificación Estructural",

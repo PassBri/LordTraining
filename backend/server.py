@@ -106,6 +106,9 @@ app.include_router(calculator_results_router, prefix="/api")
 from routes.branding import router as branding_router
 app.include_router(branding_router, prefix="/api")
 
+from routes.plan_templates import router as plan_templates_router
+app.include_router(plan_templates_router, prefix="/api")
+
 from routes.demo_seed import router as demo_seed_router
 app.include_router(demo_seed_router)
 

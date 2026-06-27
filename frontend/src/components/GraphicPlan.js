@@ -227,7 +227,10 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     duration_chart: {},
     // Per-row volume unit preferences { rowId: { unit, mode } } + real values { rowId_week: number }
     volume_units: {},
-    volume_values: {}
+    volume_values: {},
+    // Celdas editadas manualmente por el entrenador (no se sobrescriben al cargar plantilla)
+    // clave: `${section}:${rowId}:${week}`
+    manual_cells: {}
   });
 
   // Inline edit state for value-mode cells { rowId, week }
@@ -952,6 +955,76 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     }
   };
 
+  // ── B1: Cargar plantilla del modelo (autollenado por fase, respeta ediciones manuales) ──
+  const [loadingTemplate, setLoadingTemplate] = useState(false);
+  const PREP_COMPONENTS = ['general_physical', 'specific_physical', 'technical', 'tactical', 'psychological', 'theoretical'];
+  // Fallback de fase si el modelo no define exactamente esa fase genérica
+  const PHASE_FALLBACK = {
+    precompetitive: ['precompetitive', 'competitive', 'preparatory_specific'],
+    competitive: ['competitive', 'precompetitive', 'preparatory_specific'],
+    preparatory_specific: ['preparatory_specific', 'preparatory_general'],
+    preparatory_general: ['preparatory_general', 'preparatory_specific'],
+    transition: ['transition', 'preparatory_general'],
+  };
+
+  const handleLoadModelTemplate = async () => {
+    const modelKey = activePlan?.model || generalInfo?.model;
+    if (!modelKey) { toast.error(t('graphicPlan.no_hay_modelo')); return; }
+
+    // Comprobar que hay fases por semana (periodización sincronizada)
+    const phaseWeeks = weeks.filter(w => planData.phases?.[w]);
+    if (phaseWeeks.length === 0) {
+      toast.error(t('graphicPlan.configura_periodizacion_primero'));
+      return;
+    }
+    if (!window.confirm(t('graphicPlan.confirmar_cargar_plantilla'))) return;
+
+    setLoadingTemplate(true);
+    try {
+      const token = localStorage.getItem('train_token');
+      const res = await axios.get(`${BACKEND_URL}/api/plan-templates/${modelKey}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const tplPhases = res.data?.phases || {};
+
+      setPlanData(prev => {
+        const manual = prev.manual_cells || {};
+        const load_chart = { ...(prev.load_chart || {}) };
+        const volint_chart = { ...(prev.volint_chart || {}) };
+        const preparation = { ...(prev.preparation || {}) };
+        const isManual = (section, rowId, w) => !!manual[`${section}:${rowId}:${w}`];
+        const setIfNotManual = (obj, section, rowId, w, pct) => {
+          if (isManual(section, rowId, w)) return;
+          obj[`${rowId}_${w}`] = Math.round((pct / 10) * 10) / 10; // guarda 0–10 (×10 = %)
+        };
+
+        let filled = 0;
+        phaseWeeks.forEach(w => {
+          const phaseId = prev.phases[w];
+          const chain = PHASE_FALLBACK[phaseId] || [phaseId];
+          const phaseKey = chain.find(p => tplPhases[p]);
+          const tpl = phaseKey ? tplPhases[phaseKey] : null;
+          if (!tpl) return;
+          setIfNotManual(load_chart, 'load_chart', 'carga', w, tpl.carga);
+          setIfNotManual(load_chart, 'load_chart', 'recuperacion', w, tpl.recuperacion);
+          setIfNotManual(volint_chart, 'volint_chart', 'volumen', w, tpl.volumen);
+          setIfNotManual(volint_chart, 'volint_chart', 'intensidad', w, tpl.intensidad);
+          PREP_COMPONENTS.forEach(c => setIfNotManual(preparation, 'preparation', c, w, (tpl.preparation || {})[c] || 0));
+          filled++;
+        });
+
+        toast.success(`${t('graphicPlan.plantilla_cargada')} (${filled} ${t('graphicPlan.semanas')})`);
+        return { ...prev, load_chart, volint_chart, preparation };
+      });
+    } catch (error) {
+      console.error('Error loading model template:', error);
+      toast.error(t('graphicPlan.error_cargar_plantilla'));
+    } finally {
+      setLoadingTemplate(false);
+    }
+  };
+
+
   // Export plan as image
   const [exportingImage, setExportingImage] = useState(false);
   const [exportingPdf, setExportingPdf] = useState(false);
@@ -1203,7 +1276,9 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
         sectionData[key] = !sectionData[key];
       }
       
-      return { ...prev, [section]: sectionData };
+      // Marcar la celda como editada manualmente
+      const manual = { ...(prev.manual_cells || {}), [`${section}:${rowId}:${weekIndex}`]: true };
+      return { ...prev, [section]: sectionData, manual_cells: manual };
     });
   };
 
@@ -1535,6 +1610,15 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
               )}
               {hasImportedData && (
                 <span className="text-xs bg-green-400 px-2 py-1 rounded-full">{t('graphicPlan.datos_importados')}</span>
+              )}
+              {(activePlan?.model || generalInfo?.model) && (
+                <Button size="sm" variant="ghost" className="text-white hover:bg-amber-400/30"
+                  onClick={handleLoadModelTemplate} disabled={loadingTemplate}
+                  title={t('graphicPlan.cargar_plantilla_del_modelo')}
+                  data-testid="load-model-template-btn">
+                  {loadingTemplate ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Gauge className="w-4 h-4 mr-1" />}
+                  {t('graphicPlan.cargar_plantilla')}
+                </Button>
               )}
               <Button size="sm" variant="ghost" className="text-white hover:bg-white/10"
                 onClick={handleExportPDF} disabled={exportingPdf}

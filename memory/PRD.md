@@ -1,5 +1,11 @@
 # iTRAIN - Plataforma
 
+## [Jun 2026] B1 — Plantillas de modelo (auto-carga de valores por fase en Plan Gráfico) — VERIFICADO
+- **Backend** `routes/plan_templates.py` (registrado en server.py, prefix /api): `GET /api/plan-templates/{model_key}` y `GET /api/plan-templates`. Deriva de `MODEL_PHASE_DISTRIBUTIONS` (training_plans) por fase genérica (preparatory_general/_specific, precompetitive, competitive, transition vía mapeo meso_type): volumen/intensidad (del modelo), carga (=0.55·vol+0.45·int), recuperacion (=100-carga) y preparation por componente (PREPARATION_BY_PHASE). Cachea en colección `plan_templates` (editable). Defaults añadidos para los 6 modelos sin distribución: pendulum, sequential, french_contrast, vertical_integration, cybernetic, flexible_nonlinear.
+- **Frontend** `GraphicPlan.js`: botón **"Cargar plantilla"** (header, visible si el plan tiene `model`) → `handleLoadModelTemplate`: confirma, fetch template, y por cada semana con fase (`planData.phases[w]`) escribe load_chart(carga/recuperacion), volint_chart(volumen/intensidad) y preparation(6 comps) como nivel 0–10 (=pct/10). Fallback de fase si el modelo no define exactamente esa fase.
+- **Protección de ediciones manuales**: `planData.manual_cells` (`${section}:${rowId}:${week}`) se marca en `handleCellClick`; el cargador NUNCA sobrescribe celdas manuales. Verificado: S1 manual=40 preservado, S2/S3=85 del modelo. Valores ATR exactos (Vol 85/60/40, Int 60/85/95). i18n keys añadidas a es.json (graphicPlan.*).
+- `plan.model` ya es la key ('atr','traditional','polarized'…) → se usa directo en la API.
+
 ## [Jun 2026] FEATURE A — Selector de unidad del Volumen por fila/capacidad (Plan Gráfico) — VERIFICADO
 - En `GraphicPlan.js`: cada fila objetivo tiene selector de **unidad** (%, km, m, min, h, tonelaje kg, series·reps) + toggle de **modo** (`label` escala 1–10 / `value` valor real). Aplica a: fila "Volumen %" (section volint_chart, key `volumen`) y a las 5 capacidades físicas (endurance/strength/speed/coordination/flexibility).
 - Defaults sugeridos por capacidad (`CAPACITY_DEFAULT_UNIT`): Resistencia→km, Fuerza→tonelaje, Velocidad→m, Coordinación→%, Flexibilidad→%, Volumen→%. Set completo disponible para todas.
