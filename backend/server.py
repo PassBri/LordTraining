@@ -169,6 +169,9 @@ app.include_router(training_plans_router)
 from routes.landing_settings import router as landing_settings_router
 app.include_router(landing_settings_router)
 
+from routes.resources import router as resources_router
+app.include_router(resources_router)
+
 # Store db reference in app state for V2 routes
 app.state.db = db
 

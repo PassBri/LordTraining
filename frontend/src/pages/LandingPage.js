@@ -512,6 +512,7 @@ const LandingPage = () => {
             {[['#features', t('landing.nav.features')],['#how-it-works', t('landing.nav.howItWorks')],['#pricing', t('landing.nav.pricing')]].map(([h,l]) => (
               <a key={h} href={h} className="text-[13px] text-slate-400 hover:text-white transition-colors">{l}</a>
             ))}
+            <Link to="/blog" className="text-[13px] text-slate-400 hover:text-white transition-colors" data-testid="nav-resources-link">{t('landing.nav.resources', { defaultValue: 'Recursos' })}</Link>
           </div>
           <div className="flex items-center gap-2">
             <LanguageSelector variant="dark" />

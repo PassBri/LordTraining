@@ -20,7 +20,8 @@ import AdminUserManagement from '../components/AdminUserManagement';
 import BrandingManager from '../components/BrandingManager';
 import DemoDataManager from '../components/DemoDataManager';
 import LandingAppearance from '../components/admin/LandingAppearance';
-import { Palette } from 'lucide-react';
+import ResourcesManager from '../components/admin/ResourcesManager';
+import { Palette, BookText } from 'lucide-react';
 import { BarChart, Bar, LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, FunnelChart, Funnel, LabelList, Cell } from 'recharts';
 import {
   getAdminHierarchy, getOrgMembers, grantPlan,
@@ -229,6 +230,7 @@ const SuperAdminPage = () => {
             <TabBtn active={activeTab === 'finance'} onClick={() => setActiveTab('finance')} icon={DollarSign} label={tt('Finanzas')} />
             <TabBtn active={activeTab === 'branding'} onClick={() => setActiveTab('branding')} icon={ImageIcon} label={tt('Marca / Logos')} />
             <TabBtn active={activeTab === 'appearance'} onClick={() => setActiveTab('appearance')} icon={Palette} label={tt('Apariencia de Landing')} />
+            <TabBtn active={activeTab === 'resources'} onClick={() => setActiveTab('resources')} icon={BookText} label={tt('Recursos')} />
             <TabBtn active={activeTab === 'demo'} onClick={() => setActiveTab('demo')} icon={Sparkles} label={tt('Datos de Ejemplo')} />
           </div>
         )}
@@ -358,6 +360,10 @@ const SuperAdminPage = () => {
 
         {activeTab === 'appearance' && isSuper && (
           <LandingAppearance />
+        )}
+
+        {activeTab === 'resources' && isSuper && (
+          <ResourcesManager />
         )}
 
         {activeTab === 'codes' && isSuper && (

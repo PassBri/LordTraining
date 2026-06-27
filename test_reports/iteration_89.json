@@ -1,0 +1,49 @@
+{
+  "summary": "FASE 5 Resources (Blog / API Docs / Support / Status) — Backend 20/20 PASS, Public frontend 7/8 PASS, 1 CRITICAL routing bug found on /api-docs. Created /app/backend/tests/test_resources.py with 20 pytest cases: public reads (blog list+detail+404, api-docs, support, status with real DB ping+latency+uptime, public contact submit), super-admin writes (blog CRUD, api-docs PUT, FAQ CRUD, support settings PUT, messages list) and full gating (9/9 endpoints return 403 for a freshly-registered non-super coach). Auth regression also covered (login returns token+refresh_token).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "ApiDocsPage / Ingress route",
+        "issue": "CRITICAL: Direct navigation to /api-docs (or full reload) returns JSON {\"detail\":\"Not Found\"} from FastAPI because Kubernetes ingress matches the /api* prefix and routes /api-docs to the backend instead of the React SPA. SPA navigation (clicking the nav link from /blog or /) works because React Router handles it client-side, but reloading the page, bookmarking it, or sharing the URL is broken. Verified with curl: HTTP 404 application/json. /blog and /support correctly return text/html (200).",
+        "selector": "/api-docs (URL)",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_resources.py",
+    "/app/test_reports/pytest/resources_results.xml"
+  ],
+  "action_items": [
+    "RENAME the public Resources /api-docs route to something that does NOT start with /api/ to avoid the ingress collision. Suggested: /docs, /api-reference, /api-docs-public or /resources/api-docs. Update App.js routes, the LandingPage/ResourceLayout nav link, and any sitemap. Backend endpoint /api/resources/api-docs stays the same — only the React route URL changes.",
+    "(Optional, low priority) Add a regression test that curls the public preview URL /api-docs and asserts text/html (after the route rename) so this collision can't regress."
+  ],
+  "critical_code_review_comments": [
+    "routes/resources.py: gating via _require_super correctly returns 403 for non-super coaches and 401 for invalid tokens (validated end-to-end across all 9 write endpoints).",
+    "routes/resources.py::system_status uses a real db.command('ping') with measured latency_ms — verified: returns 1ms in preview, uptime_seconds increases between calls.",
+    "routes/resources.py::_seed_blog and _seed_faqs run on first GET; they correctly skip when collection already populated. However, DEFAULT_FAQS is evaluated at module import time so the same UUIDs are reused across worker restarts — fine for a single-process backend but could cause duplicate-key issues if the collection were ever truncated and re-seeded by a different worker concurrently. Cosmetic.",
+    "routes/resources.py::list_blog has an 'all' query param to expose unpublished posts, but it is NOT gated — any anonymous caller can pass ?all=true and see drafts. Suggest requiring _require_super when all=true.",
+    "routes/resources.py::submit_contact stores ContactIn.email as a plain str (not EmailStr). Public endpoint with no rate-limit — easy to spam. Consider EmailStr validation + slowapi rate limiting (e.g. 5/min per IP).",
+    "Frontend /api-docs route collides with the /api* ingress prefix — see frontend_issues.ui_bugs above. This is the main blocker for FASE 5 acceptance.",
+    "ResourceLayout footer and Support page rendering verified visually OK with classic landing theme (dark navy + accent yellow). Contrast acceptable."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_resources.py (new — 20 pytest cases)"
+  ],
+  "success_rate": {
+    "backend": "100% (20/20)",
+    "frontend": "87% (7/8 public flows OK — only /api-docs direct URL broken; admin UI not exercised via Playwright due to login-form interaction timing in the headless runner, but all underlying super-admin write endpoints validated via pytest)"
+  },
+  "test_credentials": "Super Admin: juegolaureado@gmail.com / LordTraining2026! (testid login-email-input / login-password-input / login-submit-btn on /login). Non-super coach registered per-run as coach_res_<uuid>@example.com / CoachPass!2026 with is_super_admin forced to false in mongo.users.",
+  "seed_data_creation": "Test creates and cleans up: blog_posts with title prefix TEST_BlogPost_, support_faqs with question prefix TEST_Q_, support_messages with name=TEST_Contact, one coach user per session (coach_res_<uuid>@example.com). All TEST_ data is removed in finally/teardown blocks of test_resources.py.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Suite /app/backend/tests/test_resources.py is fully self-contained and idempotent. Reuses Coach login attempts cleanup pattern from iter_88. After main agent fixes the /api-docs ingress collision (rename to /docs or /resources/api-docs), re-run public UI smoke: curl preview_url/<new_route> must return text/html (200), and the in-app nav link + direct browser visit must both render the 4 sections (Introducción/Autenticación/Endpoints/Ejemplos). Admin UI Playwright test for ResourcesManager (resources-tab-blog/docs/support, blog-new-btn -> blog-title-input -> blog-save-btn, faq-q-input/faq-a-input/faq-add-btn, support-settings-save) was not fully run end-to-end because the headless Playwright runner couldn't interact reliably with login-email-input (testid present in DOM but Playwright reports 'not visible' — likely a CSS opacity transition timing). Recommendation: main agent should manually log in as super admin and click through the Resources sub-tabs to confirm. The 20 backend tests already prove the wire format is correct.",
+  "rca_of_the_issue": "The /api-docs frontend route is silently captured by the Kubernetes ingress rule that forwards every URL beginning with /api to the FastAPI backend on port 8001. FastAPI has no /api-docs route registered (the resources endpoint is /api/resources/api-docs), so it returns its default 404 JSON. The React app is never reached. Reproduction: curl -i https://lordcoach-optimize.preview.emergentagent.com/api-docs -> HTTP/2 404, content-type: application/json, body {\"detail\":\"Not Found\"}. Compare with /blog and /support which correctly return text/html. Mitigation: rename the React route to a path that does NOT start with /api (e.g. /docs, /api-reference, or move it under /resources/api-docs). The backend API path /api/resources/api-docs is fine and does not need to change."
+}

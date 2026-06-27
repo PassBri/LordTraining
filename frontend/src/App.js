@@ -24,6 +24,10 @@ import AthletePortalPanel from './pages/AthletePortalPanel';
 import ThankYouPage from './pages/ThankYouPage';
 import PublicScoutingProfile from './pages/PublicScoutingProfile';
 import PublicProgress from './pages/PublicProgress';
+import BlogPage from './pages/BlogPage';
+import BlogPostPage from './pages/BlogPostPage';
+import ApiDocsPage from './pages/ApiDocsPage';
+import SupportPage from './pages/SupportPage';
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -68,6 +72,10 @@ function AppRoutes() {
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<LandingPage />} />
+      <Route path="/blog" element={<BlogPage />} />
+      <Route path="/blog/:slug" element={<BlogPostPage />} />
+      <Route path="/api-docs" element={<ApiDocsPage />} />
+      <Route path="/support" element={<SupportPage />} />
       <Route path="/terminos" element={<LegalPage />} />
       <Route path="/privacidad" element={<LegalPage />} />
       <Route path="/politicas" element={<LegalPage />} />
