@@ -214,6 +214,7 @@ async def security_headers_middleware(request, call_next):
 # OWASP — Manejo de errores: no exponer stack traces al cliente en errores no controlados
 from fastapi.responses import JSONResponse
 
+
 @app.exception_handler(Exception)
 async def generic_exception_handler(request, exc):
     logger.exception("Unhandled error on %s %s: %s", request.method, request.url.path, exc)

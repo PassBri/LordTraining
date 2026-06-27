@@ -1,0 +1,28 @@
+{
+  "summary": "OWASP Phase 2 fully validated against preview backend — 21/21 pytest pass. (1) IDOR/ownership on sessions chain: as Coach B (newly registered), PUT /api/sessions/{id}/complete on Coach A's session returns 404, POST /api/microcycles?mesocycle_id=<A's> returns 404, POST /api/sessions?microcycle_id=<A's> returns 404, POST /api/mesocycles?macrocycle_id=<A's> returns 404; Coach A can complete his own session with 200. (2) NoSQL injection blocked by Pydantic typing: POST /api/auth/login with {\"email\":{\"$ne\":null},\"password\":\"x\"} -> 422; same for object password -> 422 (no 500). (3) XSS public share: POST /api/graphic-plan/share with plan_name='<script>alert(1)</script>' + image_b64='javascript:alert(2)' creates share; GET /api/graphic-plan/shared/{id} returns HTML with the plan_name escaped (&lt;script&gt;alert(1)&lt;/script&gt;), raw <script> tag absent, <img src=\"\"> empty (javascript: discarded). (4) Security headers present: X-Frame-Options=DENY, X-Content-Type-Options=nosniff, Content-Security-Policy, Referrer-Policy, Strict-Transport-Security. (5) Core regression GET 200 with access token: /training-plans, /athletes, /tournaments, /dashboard/stats, /plan-templates/levels. Login returns token+refresh_token; POST /auth/refresh with valid refresh -> 200. (6) Brute force still active on a disposable email: 5x 401 then 6th -> 429 (test@train.com NOT used for brute-force).",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": { "ui_bugs": [], "integration_issues": [], "design_issues": [] },
+  "test_report_links": [
+    "/app/backend/tests/test_owasp_phase2.py",
+    "/app/test_reports/pytest/owasp_phase2.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "routes/sessions.py::_assert_meso_owner returns 'Mesocycle not found' both when meso doesn't exist and when caller is not the owner — good (no info leak). Same pattern in _assert_micro_owner. OK.",
+    "routes/sessions.py::complete_session does an UPDATE without idempotency check; it always returns 200 even if the session was already completed. Cosmetic — consider returning the new state or 304.",
+    "routes/graphic_plan_share.py: html.escape applies to plan_name; image_b64 only kept if startswith('data:image/'). Good. Suggest also enforcing a Content-Security-Policy meta inside the rendered HTML page (defense in depth, currently relying only on server-set headers).",
+    "core/models.py UserLogin uses EmailStr — that is what blocks {\"$ne\":null} with 422. Confirmed working. Recommend extending the same EmailStr/str type strictness to any other endpoint that previously relied on the (now-removed) body-buffering middleware (e.g., search/filter endpoints accepting dicts as raw Body).",
+    "routes/auth.py register rate-limit is 5/minute — fine, but consider also brute-force/lockout on /auth/register email enumeration (currently returns 400 'Email already registered' which is an information disclosure).",
+    "server.py: CSP keeps 'unsafe-inline' for script-src (CRA inline runtime) — planned trade-off; document or migrate to nonces in next phase."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_owasp_phase2.py (new — 21 pytest cases covering IDOR, NoSQL-typing, XSS share escape, headers, regression, brute-force)"
+  ],
+  "success_rate": { "backend": "100% (21/21)", "frontend": "N/A — frontend testing skipped per request" },
+  "test_credentials": "Coach A: test@train.com / test123456 (NOT used in brute-force). Coach B: registered per run with email coachb_<uuid>@test.com / CoachB-Pass!2026. Brute-force test uses brute_<uuid>@test.com (disposable).",
+  "seed_data_creation": "Per run: 1 athlete TEST_Athlete_<hex>, 1 macrocycle TEST Macro, 1 mesocycle TEST Meso, 1 microcycle TEST Micro, 1 session under Coach A. Coach B registered (1 user). Disposable brute-force email leaves a login_attempts doc (TTL 3600s, auto-cleans).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "OWASP Phase 2 suite lives at /app/backend/tests/test_owasp_phase2.py. Safe to re-run — uses disposable Coach B + disposable brute-force email per run. If running in tight loop, slowapi 10/min on /auth/login may cause flakiness in TestBruteForceLockout (would return 429 before reaching 5 401s); wait ~60s between runs. The Phase 1 suite test_security_hardening.py from iter_86 remains valid.",
+  "rca_of_the_issue": "N/A — no bugs reproduced. All Phase 2 hardening (IDOR ownership chain, Pydantic-typed bodies replacing the removed buffering middleware, html.escape + data:image/ allow-list in share view, security headers, regression) verified end-to-end."
+}

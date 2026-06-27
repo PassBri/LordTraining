@@ -48,6 +48,11 @@ async def view_shared(share_id: str):
         raise HTTPException(404, "Enlace no válido")
     img = doc.get("image_b64", "")
     name = doc.get("plan_name") or "Plan Gráfico"
+    # OWASP — escapar contenido controlado por el usuario antes de inyectarlo en HTML
+    import html as _html
+    name = _html.escape(str(name))
+    # El src solo admite data URLs de imagen; cualquier otra cosa se descarta
+    img = _html.escape(img, quote=True) if isinstance(img, str) and img.startswith("data:image/") else ""
     html = f"""<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
 <title>Plan Gráfico · {name}</title>
 <style>

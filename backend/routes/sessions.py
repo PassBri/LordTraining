@@ -79,11 +79,28 @@ async def create_mesocycle(mesocycle: MesocycleCreate, macrocycle_id: str, user:
     return MesocycleResponse(**doc)
 
 # =============== MICROCYCLES ROUTES ===============
-@router.post("/microcycles", response_model=MicrocycleResponse)
-async def create_microcycle(microcycle: MicrocycleCreate, mesocycle_id: str, user: dict = Depends(get_current_user), db=Depends(get_db)):
+async def _assert_meso_owner(db, mesocycle_id, uid):
+    """Verifica propiedad subiendo la cadena meso→macro.coach_id."""
     meso = await db.mesocycles.find_one({"id": mesocycle_id})
     if not meso:
         raise HTTPException(status_code=404, detail="Mesocycle not found")
+    macro = await db.macrocycles.find_one({"id": meso.get("macrocycle_id"), "coach_id": uid})
+    if not macro:
+        raise HTTPException(status_code=404, detail="Mesocycle not found")
+    return meso
+
+
+async def _assert_micro_owner(db, microcycle_id, uid):
+    micro = await db.microcycles.find_one({"id": microcycle_id})
+    if not micro:
+        raise HTTPException(status_code=404, detail="Microcycle not found")
+    await _assert_meso_owner(db, micro.get("mesocycle_id"), uid)
+    return micro
+
+
+@router.post("/microcycles", response_model=MicrocycleResponse)
+async def create_microcycle(microcycle: MicrocycleCreate, mesocycle_id: str, user: dict = Depends(get_current_user), db=Depends(get_db)):
+    await _assert_meso_owner(db, mesocycle_id, user["id"])
     
     micro_id = str(uuid.uuid4())
     doc = {
@@ -100,9 +117,7 @@ async def create_microcycle(microcycle: MicrocycleCreate, mesocycle_id: str, use
 # =============== SESSIONS ROUTES ===============
 @router.post("/sessions", response_model=SessionResponse)
 async def create_session(session: SessionCreate, microcycle_id: str, user: dict = Depends(get_current_user), db=Depends(get_db)):
-    micro = await db.microcycles.find_one({"id": microcycle_id})
-    if not micro:
-        raise HTTPException(status_code=404, detail="Microcycle not found")
+    await _assert_micro_owner(db, microcycle_id, user["id"])
     
     session_id = str(uuid.uuid4())
     load = calculate_load(session.volume, session.intensity)
@@ -122,9 +137,12 @@ async def create_session(session: SessionCreate, microcycle_id: str, user: dict 
 
 @router.put("/sessions/{session_id}/complete")
 async def complete_session(session_id: str, user: dict = Depends(get_current_user), db=Depends(get_db)):
-    result = await db.sessions.update_one({"id": session_id}, {"$set": {"completed": True}})
-    if result.matched_count == 0:
+    session = await db.sessions.find_one({"id": session_id})
+    if not session:
         raise HTTPException(status_code=404, detail="Session not found")
+    # Verifica propiedad por la cadena sesión→micro→meso→macro.coach_id
+    await _assert_micro_owner(db, session.get("microcycle_id"), user["id"])
+    await db.sessions.update_one({"id": session_id}, {"$set": {"completed": True}})
     return {"message": "Session marked as completed"}
 
 @router.get("/sessions/calendar")

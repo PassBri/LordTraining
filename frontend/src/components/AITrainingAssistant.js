@@ -160,9 +160,13 @@ const AITrainingAssistant = ({
   // Format message text with markdown-like formatting
   const formatMessage = (text) => {
     if (!text) return '';
-    
+    // OWASP XSS — escapar HTML antes de aplicar formato (evita inyección desde el contenido del chat)
+    let formatted = String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
     // Convert **bold** to <strong>
-    let formatted = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     // Convert bullet points
     formatted = formatted.replace(/^• /gm, '<span class="text-blue-500 mr-1">•</span>');
     // Convert newlines to <br>
