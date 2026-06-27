@@ -1,6 +1,10 @@
 # iTRAIN - Plataforma
 
-## [Jun 2026] Landing FASE 3 — Versión D "Light" — DONE (screenshot)
+## [Jun 2026] Landing FASE 4 — Versión B "Material" (MD3) — DONE (screenshot). 4/4 versiones listas.
+- `landing/landingMaterial.css` (scoped a `[data-landing-theme="material"]`). MD3 dark: superficies `#121212`/`#1A1A1A`/`#2C2C2C`, texto `#E3E3E3`/`#C4C7C5`, outline `#444746`, **tipografía Roboto** (Google Fonts), **radios grandes 24px** en cards (16px chips), **botones pill (100px)**, **elevación/sombras MD3** en cards + estado hover (translateY + sombra elevada). Verificado por screenshot (hero Roboto + CTA pill 100px, pricing con cards elevadas y radios 24px). Reseteado a `classic`.
+- **Estado**: las 4 versiones del toggle están completas (Clásico, Futurista, Light, Material), conmutables en vivo desde Super Admin → "Apariencia de Landing", persistidas en MongoDB. Pendiente: validación integral con testing_agent (opcional) + FASE 5 (Resources).
+
+
 - `landing/landingLight.css` (scoped a `[data-landing-theme="light"]`). Invierte el landing dark→claro: fondos `#FFFFFF`/`#F5F7FA`, texto navy `#0A0F1E`, slate→gris medio `#4A5568`, bordes `#E2E8F0`, cards blancas con sombra suave, CTAs navy con texto `#CCFF00`. Acento lime se reserva a la franja navy (marquee) y CTAs (no como texto sobre blanco). Fix clave: los precios usaban `color:'#fff'` inline → forzados a navy con `[data-testid^="price-"]`. Verificado hero/multi-deporte/marquee/pricing por screenshot. Reseteado a `classic`.
 
 
