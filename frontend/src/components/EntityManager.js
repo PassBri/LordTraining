@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { tx as tt } from '../lib/autoTranslate';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -25,6 +27,7 @@ const ENTITY_TYPES = {
 };
 
 const EntityManager = () => {
+  useTranslation();
   const [entities, setEntities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -74,7 +77,7 @@ const EntityManager = () => {
   };
 
   const handleSave = async () => {
-    if (!formData.name.trim()) { toast.error('El nombre es requerido'); return; }
+    if (!formData.name.trim()) { toast.error(tt('El nombre es requerido')); return; }
     setSaving(true);
     try {
       const token = localStorage.getItem('train_token');
@@ -86,7 +89,7 @@ const EntityManager = () => {
       });
       if (res.ok) { toast.success(editingEntity ? 'Entidad actualizada' : 'Entidad creada'); setShowModal(false); resetForm(); fetchEntities(); }
       else { const err = await res.json(); toast.error(err.detail || 'Error al guardar'); }
-    } catch (e) { toast.error('Error al guardar'); }
+    } catch (e) { toast.error(tt('Error al guardar')); }
     setSaving(false);
   };
 
@@ -96,9 +99,9 @@ const EntityManager = () => {
     try {
       const token = localStorage.getItem('train_token');
       const res = await fetch(`${API_URL}/api/entities/${entityToDelete.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
-      if (res.ok) { toast.success('Entidad eliminada'); setShowDeleteModal(false); setEntityToDelete(null); fetchEntities(); }
-      else toast.error('Error al eliminar');
-    } catch (e) { toast.error('Error al eliminar'); }
+      if (res.ok) { toast.success(tt('Entidad eliminada')); setShowDeleteModal(false); setEntityToDelete(null); fetchEntities(); }
+      else toast.error(tt('Error al eliminar'));
+    } catch (e) { toast.error(tt('Error al eliminar')); }
     setSaving(false);
   };
 
@@ -127,7 +130,7 @@ const EntityManager = () => {
         </div>
         <div className="text-right mr-2">
           <p className="text-lg font-bold" style={{ color: c.color }}>{entity.athletes_count || 0}</p>
-          <p className="text-[10px] text-slate-400">atletas</p>
+          <p className="text-[10px] text-slate-400">{tt('atletas')}</p>
         </div>
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(entity)} data-testid={`edit-entity-${entity.id}`}>
@@ -151,8 +154,8 @@ const EntityManager = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-slate-800">Gestión de Entidades</h2>
-          <p className="text-xs text-slate-500">Organiza federaciones, clubes, escuelas y más en tu estructura deportiva</p>
+          <h2 className="text-xl font-bold text-slate-800">{tt('Gestión de Entidades')}</h2>
+          <p className="text-xs text-slate-500">{tt('Organiza federaciones, clubes, escuelas y más en tu estructura deportiva')}</p>
         </div>
         <Button onClick={() => openCreate()} className="text-white text-xs h-8 px-3" style={{ backgroundColor: '#1565C0' }} data-testid="new-entity-btn">
           <Plus className="w-3.5 h-3.5 mr-1" /> Nueva Entidad
@@ -193,7 +196,7 @@ const EntityManager = () => {
           ) : (
             <div className="text-center py-6 text-slate-400">
               <Building2 className="w-7 h-7 mx-auto mb-1.5 opacity-30" />
-              <p className="text-xs">Sin entidades de este tipo</p>
+              <p className="text-xs">{tt('Sin entidades de este tipo')}</p>
               <button onClick={() => openCreate(selectedType)} className="mt-2 text-xs font-medium px-3 py-1 rounded-full" style={{ color: ENTITY_TYPES[selectedType].color, backgroundColor: ENTITY_TYPES[selectedType].bg }}>
                 <Plus className="w-3 h-3 inline mr-1" />Crear primera
               </button>
@@ -218,20 +221,20 @@ const EntityManager = () => {
             {/* Row 1: Classification + Type */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-xs text-slate-500 mb-1 block">Clasificación</Label>
+                <Label className="text-xs text-slate-500 mb-1 block">{tt('Clasificación')}</Label>
                 <Select value={cfg.group} onValueChange={(v) => {
                   const firstOfGroup = Object.entries(ENTITY_TYPES).find(([, c]) => c.group === v);
                   if (firstOfGroup) setFormData({ ...formData, entity_type: firstOfGroup[0] });
                 }}>
                   <SelectTrigger className="h-9 text-sm border-slate-200 bg-white text-slate-800" data-testid="form-classification"><SelectValue /></SelectTrigger>
                   <SelectContent className="bg-white">
-                    <SelectItem value="publica">Pública</SelectItem>
-                    <SelectItem value="privada">Privada</SelectItem>
+                    <SelectItem value="publica">{tt('Pública')}</SelectItem>
+                    <SelectItem value="privada">{tt('Privada')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label className="text-xs text-slate-500 mb-1 block">Tipo de Entidad</Label>
+                <Label className="text-xs text-slate-500 mb-1 block">{tt('Tipo de Entidad')}</Label>
                 <Select value={formData.entity_type} onValueChange={(v) => setFormData({ ...formData, entity_type: v })}>
                   <SelectTrigger className="h-9 text-sm border-slate-200 bg-white text-slate-800" data-testid="form-type"><SelectValue /></SelectTrigger>
                   <SelectContent className="bg-white">
@@ -246,67 +249,67 @@ const EntityManager = () => {
             {/* Row 2: Name + Sport */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-xs text-slate-500 mb-1 block">Nombre *</Label>
-                <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="Nombre de la entidad" className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" data-testid="form-name" />
+                <Label className="text-xs text-slate-500 mb-1 block">{tt('Nombre *')}</Label>
+                <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder={tt('Nombre de la entidad')} className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" data-testid="form-name" />
               </div>
               <div>
-                <Label className="text-xs text-slate-500 mb-1 block">Deporte</Label>
-                <Input value={formData.sport} onChange={(e) => setFormData({ ...formData, sport: e.target.value })} placeholder="Ej: Atletismo" className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
+                <Label className="text-xs text-slate-500 mb-1 block">{tt('Deporte')}</Label>
+                <Input value={formData.sport} onChange={(e) => setFormData({ ...formData, sport: e.target.value })} placeholder={tt('Ej: Atletismo')} className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
               </div>
             </div>
 
             {/* Row 3: Country + City + Address */}
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <Label className="text-xs text-slate-500 mb-1 block">País</Label>
-                <Input value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} placeholder="País" className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" data-testid="form-country" />
+                <Label className="text-xs text-slate-500 mb-1 block">{tt('País')}</Label>
+                <Input value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} placeholder={tt('País')} className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" data-testid="form-country" />
               </div>
               <div>
-                <Label className="text-xs text-slate-500 mb-1 block">Ciudad</Label>
-                <Input value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} placeholder="Ciudad" className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
+                <Label className="text-xs text-slate-500 mb-1 block">{tt('Ciudad')}</Label>
+                <Input value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} placeholder={tt('Ciudad')} className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
               </div>
               <div>
-                <Label className="text-xs text-slate-500 mb-1 block">Dirección</Label>
-                <Input value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} placeholder="Dirección" className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
+                <Label className="text-xs text-slate-500 mb-1 block">{tt('Dirección')}</Label>
+                <Input value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} placeholder={tt('Dirección')} className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
               </div>
             </div>
 
             {/* Row 4: Contact */}
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <Label className="text-xs text-slate-500 mb-1 block">Teléfono</Label>
+                <Label className="text-xs text-slate-500 mb-1 block">{tt('Teléfono')}</Label>
                 <Input value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="+57 300 123 4567" className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
               </div>
               <div>
-                <Label className="text-xs text-slate-500 mb-1 block">Email</Label>
-                <Input value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="email@entidad.com" className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
+                <Label className="text-xs text-slate-500 mb-1 block">{tt('Email')}</Label>
+                <Input value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder={tt('email@entidad.com')} className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
               </div>
               <div>
-                <Label className="text-xs text-slate-500 mb-1 block">Sitio Web</Label>
-                <Input value={formData.website} onChange={(e) => setFormData({ ...formData, website: e.target.value })} placeholder="https://..." className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
+                <Label className="text-xs text-slate-500 mb-1 block">{tt('Sitio Web')}</Label>
+                <Input value={formData.website} onChange={(e) => setFormData({ ...formData, website: e.target.value })} placeholder={tt('https://...')} className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
               </div>
             </div>
 
             {/* Row 5: Legal */}
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <Label className="text-xs text-slate-500 mb-1 block">Representante</Label>
-                <Input value={formData.legal_representative} onChange={(e) => setFormData({ ...formData, legal_representative: e.target.value })} placeholder="Nombre" className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
+                <Label className="text-xs text-slate-500 mb-1 block">{tt('Representante')}</Label>
+                <Input value={formData.legal_representative} onChange={(e) => setFormData({ ...formData, legal_representative: e.target.value })} placeholder={tt('Nombre')} className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
               </div>
               <div>
-                <Label className="text-xs text-slate-500 mb-1 block">RUC/NIT</Label>
-                <Input value={formData.tax_id} onChange={(e) => setFormData({ ...formData, tax_id: e.target.value })} placeholder="ID fiscal" className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
+                <Label className="text-xs text-slate-500 mb-1 block">{tt('RUC/NIT')}</Label>
+                <Input value={formData.tax_id} onChange={(e) => setFormData({ ...formData, tax_id: e.target.value })} placeholder={tt('ID fiscal')} className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
               </div>
               <div>
-                <Label className="text-xs text-slate-500 mb-1 block">Fundación</Label>
+                <Label className="text-xs text-slate-500 mb-1 block">{tt('Fundación')}</Label>
                 <Input type="date" value={formData.foundation_date} onChange={(e) => setFormData({ ...formData, foundation_date: e.target.value })} className="h-9 text-sm border-slate-200 bg-white text-slate-800" />
               </div>
             </div>
 
             {/* Row 6: Description */}
             <div>
-              <Label className="text-xs text-slate-500 mb-1 block">Descripción</Label>
-              <Input value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Breve descripción (opcional)" className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
+              <Label className="text-xs text-slate-500 mb-1 block">{tt('Descripción')}</Label>
+              <Input value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder={tt('Breve descripción (opcional)')} className="h-9 text-sm border-slate-200 bg-white text-slate-800 placeholder:text-slate-400" />
             </div>
 
             {/* Parent Entity */}
@@ -314,9 +317,9 @@ const EntityManager = () => {
               <div>
                 <Label className="text-xs text-slate-500 mb-1 block">Entidad Padre (opcional)</Label>
                 <Select value={formData.parent_entity_id || 'none'} onValueChange={(v) => setFormData({ ...formData, parent_entity_id: v === 'none' ? '' : v })}>
-                  <SelectTrigger className="h-9 text-sm border-slate-200 bg-white text-slate-800"><SelectValue placeholder="Sin entidad padre" /></SelectTrigger>
+                  <SelectTrigger className="h-9 text-sm border-slate-200 bg-white text-slate-800"><SelectValue placeholder={tt('Sin entidad padre')} /></SelectTrigger>
                   <SelectContent className="bg-white">
-                    <SelectItem value="none">Sin entidad padre</SelectItem>
+                    <SelectItem value="none">{tt('Sin entidad padre')}</SelectItem>
                     {entities.filter(e => e.id !== editingEntity?.id).map(e => {
                       const ec = ENTITY_TYPES[e.entity_type] || ENTITY_TYPES.club;
                       return <SelectItem key={e.id} value={e.id}>{ec.label}: {e.name}</SelectItem>;
@@ -328,7 +331,7 @@ const EntityManager = () => {
           </div>
 
           <DialogFooter className="gap-2 pt-2">
-            <Button variant="outline" onClick={() => setShowModal(false)} className="h-8 text-xs border-slate-300 text-slate-700 bg-white hover:bg-slate-50">Cancelar</Button>
+            <Button variant="outline" onClick={() => setShowModal(false)} className="h-8 text-xs border-slate-300 text-slate-700 bg-white hover:bg-slate-50">{tt('Cancelar')}</Button>
             <Button onClick={handleSave} disabled={saving} className="h-8 text-xs text-white" style={{ backgroundColor: cfg.color }} data-testid="save-entity-btn">
               {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : null}
               {saving ? 'Guardando...' : editingEntity ? 'Actualizar' : 'Crear Entidad'}
@@ -346,11 +349,11 @@ const EntityManager = () => {
             </DialogTitle>
           </DialogHeader>
           <div className="py-3">
-            <p className="text-sm text-slate-700">¿Eliminar <strong>"{entityToDelete?.name}"</strong>?</p>
-            <p className="text-xs text-slate-500 mt-2">Los atletas afiliados perderán esta afiliación pero no serán eliminados.</p>
+            <p className="text-sm text-slate-700">{tt('¿Eliminar')} <strong>"{entityToDelete?.name}"</strong>?</p>
+            <p className="text-xs text-slate-500 mt-2">{tt('Los atletas afiliados perderán esta afiliación pero no serán eliminados.')}</p>
           </div>
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setShowDeleteModal(false)} className="h-9 text-sm border-slate-300 text-slate-700 bg-white">Cancelar</Button>
+            <Button variant="outline" onClick={() => setShowDeleteModal(false)} className="h-9 text-sm border-slate-300 text-slate-700 bg-white">{tt('Cancelar')}</Button>
             <Button onClick={handleDelete} disabled={saving} className="h-9 text-sm text-white bg-rose-600 hover:bg-rose-700">
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
               {saving ? 'Eliminando...' : 'Eliminar'}

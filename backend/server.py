@@ -8387,6 +8387,9 @@ app.include_router(org_management_router, prefix="/api")
 from routes.admin_hierarchy import router as admin_hierarchy_router
 app.include_router(admin_hierarchy_router, prefix="/api")
 
+from routes.auto_i18n import router as auto_i18n_router
+app.include_router(auto_i18n_router, prefix="/api")
+
 from routes.hotmart_billing import router as hotmart_billing_router
 app.include_router(hotmart_billing_router, prefix="/api")
 

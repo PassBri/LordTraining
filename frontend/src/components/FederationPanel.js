@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { tx as tt } from '../lib/autoTranslate';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { toast } from 'sonner';
 import {
@@ -174,6 +176,7 @@ function AssignCoachModal({ open, onOpenChange, entityId, entityName, roles, onS
 
 // ============ MAIN ============
 export default function FederationPanel({ onOpenMasterReport }) {
+  useTranslation();
   const [federations, setFederations] = useState([]);
   const [activeId, setActiveId] = useState('');
   const [stats, setStats] = useState(null);
@@ -192,7 +195,7 @@ export default function FederationPanel({ onOpenMasterReport }) {
       setFederations(items);
       if (items.length && !activeId) setActiveId(items[0].id);
     } catch (e) {
-      toast.error('No se pudo cargar la lista de federaciones');
+      toast.error(tt('No se pudo cargar la lista de federaciones'));
     }
   };
 
@@ -216,7 +219,7 @@ export default function FederationPanel({ onOpenMasterReport }) {
       setPlans(pl.data.items || []);
       setComps(cm.data.items || []);
     } catch (e) {
-      toast.error('Error cargando datos: ' + (e?.response?.data?.detail || e.message));
+      toast.error(tt('Error cargando datos: ') + (e?.response?.data?.detail || e.message));
     } finally {
       setLoading(false);
     }
@@ -229,10 +232,10 @@ export default function FederationPanel({ onOpenMasterReport }) {
     if (!window.confirm('¿Quitar esta asignación?')) return;
     try {
       await axios.delete(`${API}/api/federations/assign-coach/${assignmentId}`, { headers: tokenH() });
-      toast.success('Asignación eliminada');
+      toast.success(tt('Asignación eliminada'));
       loadDetails(activeId);
     } catch (e) {
-      toast.error('Error: ' + (e?.response?.data?.detail || e.message));
+      toast.error(tt('Error: ') + (e?.response?.data?.detail || e.message));
     }
   };
 
@@ -244,11 +247,11 @@ export default function FederationPanel({ onOpenMasterReport }) {
       <div className="p-6 max-w-3xl mx-auto" data-testid="federation-empty">
         <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center shadow-sm">
           <Crown className="w-12 h-12 text-violet-500 mx-auto mb-3" />
-          <h2 className="text-xl font-bold text-slate-900 mb-2">Panel de Federaciones</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">{tt('Panel de Federaciones')}</h2>
           <p className="text-sm text-slate-600 mb-4">
-            Aún no tienes una entidad raíz. Crea una <strong>Federación</strong>, <strong>Club</strong> o <strong>Selección Nacional</strong> desde la sección <strong>Datos → Entidades</strong> para coordinar varios clubes, escuelas, coaches y atletas bajo un mismo paraguas.
+            Aún no tienes una entidad raíz. Crea una <strong>{tt('Federación')}</strong>, <strong>{tt('Club')}</strong> {tt('o')} <strong>{tt('Selección Nacional')}</strong> {tt('desde la sección')} <strong>{tt('Datos → Entidades')}</strong> para coordinar varios clubes, escuelas, coaches y atletas bajo un mismo paraguas.
           </p>
-          <p className="text-xs text-slate-400">Una vez creada, este panel mostrará el árbol jerárquico, KPIs ejecutivos, asignaciones de staff y comparativa de cumplimiento entre clubes.</p>
+          <p className="text-xs text-slate-400">{tt('Una vez creada, este panel mostrará el árbol jerárquico, KPIs ejecutivos, asignaciones de staff y comparativa de cumplimiento entre clubes.')}</p>
         </div>
       </div>
     );
@@ -263,8 +266,8 @@ export default function FederationPanel({ onOpenMasterReport }) {
             <Crown className="w-5 h-5 text-white" />
           </div>
           <div className="min-w-0">
-            <h1 className="text-base font-bold text-slate-900 truncate">Panel de Federación</h1>
-            <p className="text-[11px] text-slate-500 truncate">Coordinación multi-club · multi-coach · multi-athlete</p>
+            <h1 className="text-base font-bold text-slate-900 truncate">{tt('Panel de Federación')}</h1>
+            <p className="text-[11px] text-slate-500 truncate">{tt('Coordinación multi-club · multi-coach · multi-athlete')}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -331,23 +334,23 @@ export default function FederationPanel({ onOpenMasterReport }) {
         {/* TREE */}
         <div className="lg:col-span-5 bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col" style={{ minHeight: 420 }}>
           <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">Árbol Jerárquico</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">{tt('Árbol Jerárquico')}</h3>
             <span className="text-[10px] text-slate-400">{stats?.tree_size || 0} nodos</span>
           </div>
           <div className="p-2 overflow-y-auto flex-1" data-testid="fed-tree">
-            {tree ? <TreeNode node={tree} /> : <div className="text-xs text-slate-400 p-4">Sin datos</div>}
+            {tree ? <TreeNode node={tree} /> : <div className="text-xs text-slate-400 p-4">{tt('Sin datos')}</div>}
           </div>
         </div>
 
         {/* COMPLIANCE COMPARISON */}
         <div className="lg:col-span-7 bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col" style={{ minHeight: 420 }}>
           <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">Comparativa de Cumplimiento por Club</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">{tt('Comparativa de Cumplimiento por Club')}</h3>
             <span className="text-[10px] text-slate-400">{compliance.length} entidades hijas</span>
           </div>
           <div className="p-3 overflow-y-auto flex-1 space-y-2" data-testid="fed-compliance">
             {compliance.length === 0 ? (
-              <div className="text-xs text-slate-400 p-4 text-center">No hay clubes/escuelas hijos directos.</div>
+              <div className="text-xs text-slate-400 p-4 text-center">{tt('No hay clubes/escuelas hijos directos.')}</div>
             ) : compliance.map(c => {
               const meta = ENTITY_META[c.type] || ENTITY_META.club;
               const Icon = meta.icon;
@@ -398,7 +401,7 @@ export default function FederationPanel({ onOpenMasterReport }) {
           </div>
           <div className="p-3 overflow-y-auto max-h-96" data-testid="fed-coaches">
             {coachesData.items.length === 0 ? (
-              <div className="text-xs text-slate-400 p-4 text-center">Sin staff asignado.</div>
+              <div className="text-xs text-slate-400 p-4 text-center">{tt('Sin staff asignado.')}</div>
             ) : coachesData.items.map(coach => (
               <div key={coach.coach_id} className="bg-slate-50 rounded-lg p-2.5 border border-slate-100 mb-2">
                 <div className="flex items-center gap-2 mb-1.5">
@@ -419,7 +422,7 @@ export default function FederationPanel({ onOpenMasterReport }) {
                       <button
                         onClick={() => removeAssignment(a.id)}
                         className="text-slate-400 hover:text-red-500 ml-1"
-                        title="Quitar asignación">
+                        title={tt('Quitar asignación')}>
                         <X className="w-3 h-3" />
                       </button>
                     </div>
@@ -441,7 +444,7 @@ export default function FederationPanel({ onOpenMasterReport }) {
             </div>
             <div className="p-2 overflow-y-auto max-h-44" data-testid="fed-plans">
               {plans.length === 0 ? (
-                <div className="text-xs text-slate-400 p-3 text-center">Sin planes registrados.</div>
+                <div className="text-xs text-slate-400 p-3 text-center">{tt('Sin planes registrados.')}</div>
               ) : plans.map(p => (
                 <div key={p.id} className="px-2 py-1.5 hover:bg-slate-50 rounded text-xs flex items-center gap-2">
                   {p.active && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />}
@@ -461,7 +464,7 @@ export default function FederationPanel({ onOpenMasterReport }) {
             </div>
             <div className="p-2 overflow-y-auto max-h-44" data-testid="fed-competitions">
               {comps.length === 0 ? (
-                <div className="text-xs text-slate-400 p-3 text-center">Sin competencias vinculadas.</div>
+                <div className="text-xs text-slate-400 p-3 text-center">{tt('Sin competencias vinculadas.')}</div>
               ) : comps.map(c => (
                 <div key={c.id} className="px-2 py-1.5 hover:bg-slate-50 rounded text-xs">
                   <div className="font-semibold text-slate-800 truncate">{c.name}</div>

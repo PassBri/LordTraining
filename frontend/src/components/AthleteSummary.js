@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { tx as tt } from '../lib/autoTranslate';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
@@ -15,6 +17,7 @@ import axios from 'axios';
 const BACKEND_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 
 const AthleteSummary = ({ athlete, onNavigate }) => {
+  useTranslation();
   const [loading, setLoading] = useState(false);
   const [anthropometricData, setAnthropometricData] = useState(null);
   const [testData, setTestData] = useState(null);
@@ -68,9 +71,9 @@ const AthleteSummary = ({ athlete, onNavigate }) => {
         { ...charData, athlete_id: athlete.id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success('Caracterización guardada');
+      toast.success(tt('Caracterización guardada'));
     } catch (error) {
-      toast.error('Error al guardar');
+      toast.error(tt('Error al guardar'));
     } finally {
       setSaving(false);
     }
@@ -159,8 +162,8 @@ const AthleteSummary = ({ athlete, onNavigate }) => {
           <div className="w-16 h-16 mx-auto rounded-full bg-slate-100 flex items-center justify-center mb-4">
             <User className="w-8 h-8 text-slate-300" />
           </div>
-          <p className="text-slate-500 font-medium text-base">Selecciona un atleta</p>
-          <p className="text-sm text-slate-400 mt-1">Ver resumen y datos del atleta</p>
+          <p className="text-slate-500 font-medium text-base">{tt('Selecciona un atleta')}</p>
+          <p className="text-sm text-slate-400 mt-1">{tt('Ver resumen y datos del atleta')}</p>
         </CardContent>
       </Card>
     );
@@ -217,7 +220,7 @@ const AthleteSummary = ({ athlete, onNavigate }) => {
               ))}
             </div>
           ) : (
-            <p className="text-xs text-center py-1" style={{ color: '#1976D2' }}>Sin datos</p>
+            <p className="text-xs text-center py-1" style={{ color: '#1976D2' }}>{tt('Sin datos')}</p>
           )}
         </div>
 
@@ -252,7 +255,7 @@ const AthleteSummary = ({ athlete, onNavigate }) => {
               <Dumbbell className="w-5 h-5" style={{ color: recommendedLoad.color }} />
             </div>
           ) : (
-            <p className="text-xs" style={{ color: '#E65100' }}>Completa evaluaciones</p>
+            <p className="text-xs" style={{ color: '#E65100' }}>{tt('Completa evaluaciones')}</p>
           )}
         </div>
       </div>
@@ -269,8 +272,8 @@ const AthleteSummary = ({ athlete, onNavigate }) => {
               <UserCheck className="w-5 h-5" style={{ color: '#283593' }} />
             </div>
             <div>
-              <h3 className="font-semibold text-slate-800 text-sm">Caracterización del Deportista</h3>
-              <p className="text-xs text-slate-500">Diagnóstico completo de condiciones</p>
+              <h3 className="font-semibold text-slate-800 text-sm">{tt('Caracterización del Deportista')}</h3>
+              <p className="text-xs text-slate-500">{tt('Diagnóstico completo de condiciones')}</p>
             </div>
           </div>
           <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-200 ${showCharacterization ? 'rotate-180' : ''}`} />

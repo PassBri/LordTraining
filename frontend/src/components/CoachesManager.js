@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { tx as tt } from '../lib/autoTranslate';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -60,7 +62,7 @@ const ListSection = ({ items, onAdd, onRemove, onChange, fields, addLabel, empty
             className="h-8 text-[12px]"
           />
         ))}
-        <button type="button" onClick={() => onRemove(idx)} className="text-slate-400 hover:text-red-500 px-1" title="Eliminar">
+        <button type="button" onClick={() => onRemove(idx)} className="text-slate-400 hover:text-red-500 px-1" title={tt('Eliminar')}>
           <X className="w-4 h-4" />
         </button>
       </div>
@@ -72,6 +74,7 @@ const ListSection = ({ items, onAdd, onRemove, onChange, fields, addLabel, empty
 );
 
 const CoachesManager = () => {
+  useTranslation();
   const [coaches, setCoaches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(null); // null | new | coach object
@@ -84,8 +87,8 @@ const CoachesManager = () => {
       const token = localStorage.getItem('train_token');
       const res = await fetch(`${API_URL}/api/coaches`, { headers: { Authorization: `Bearer ${token}` } });
       if (res.ok) setCoaches(await res.json());
-      else toast.error('Error cargando entrenadores');
-    } catch { toast.error('Error de red'); }
+      else toast.error(tt('Error cargando entrenadores'));
+    } catch { toast.error(tt('Error de red')); }
     finally { setLoading(false); }
   };
 
@@ -96,7 +99,7 @@ const CoachesManager = () => {
   const close = () => { setEditing(null); };
 
   const save = async () => {
-    if (!form.name.trim()) { toast.error('El nombre es obligatorio'); return; }
+    if (!form.name.trim()) { toast.error(tt('El nombre es obligatorio')); return; }
     try {
       const token = localStorage.getItem('train_token');
       const isNew = editing === 'new';
@@ -107,11 +110,11 @@ const CoachesManager = () => {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, years_experience: parseInt(form.years_experience) || 0 }),
       });
-      if (!res.ok) { toast.error('Error guardando'); return; }
+      if (!res.ok) { toast.error(tt('Error guardando')); return; }
       toast.success(isNew ? 'Entrenador creado' : 'Cambios guardados');
       close();
       await fetchCoaches();
-    } catch { toast.error('Error de red'); }
+    } catch { toast.error(tt('Error de red')); }
   };
 
   const remove = async (id) => {
@@ -119,9 +122,9 @@ const CoachesManager = () => {
     try {
       const token = localStorage.getItem('train_token');
       const res = await fetch(`${API_URL}/api/coaches/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
-      if (res.ok) { toast.success('Entrenador eliminado'); fetchCoaches(); }
-      else toast.error('Error eliminando');
-    } catch { toast.error('Error de red'); }
+      if (res.ok) { toast.success(tt('Entrenador eliminado')); fetchCoaches(); }
+      else toast.error(tt('Error eliminando'));
+    } catch { toast.error(tt('Error de red')); }
   };
 
   // Helpers de listas en el form
@@ -151,12 +154,12 @@ const CoachesManager = () => {
         </Button>
       </div>
 
-      {loading && <p className="text-center text-slate-400 text-sm py-6">Cargando...</p>}
+      {loading && <p className="text-center text-slate-400 text-sm py-6">{tt('Cargando...')}</p>}
 
       {!loading && coaches.length === 0 && (
         <div className="bg-gradient-to-br from-white to-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center">
           <UserCircle className="w-14 h-14 mx-auto text-slate-300 mb-3" />
-          <p className="text-base font-bold text-slate-700 mb-1">Sin entrenadores registrados</p>
+          <p className="text-base font-bold text-slate-700 mb-1">{tt('Sin entrenadores registrados')}</p>
           <p className="text-[12.5px] text-slate-500 max-w-md mx-auto leading-relaxed mb-4">
             Crea perfiles completos de tu staff técnico: especialidad, estudios, certificaciones, trayectoria y campeonatos ganados.
           </p>
@@ -203,8 +206,8 @@ const CoachesManager = () => {
                 </div>
                 <div className="flex flex-col items-end gap-1 flex-shrink-0">
                   <div className="text-right">
-                    <div className="text-base font-black tabular-nums" style={{ color: ring }}>{c.years_experience || 0}<span className="text-[10px]">a</span></div>
-                    <div className="text-[8px] uppercase tracking-wider font-bold text-slate-500">Exp.</div>
+                    <div className="text-base font-black tabular-nums" style={{ color: ring }}>{c.years_experience || 0}<span className="text-[10px]">{tt('a')}</span></div>
+                    <div className="text-[8px] uppercase tracking-wider font-bold text-slate-500">{tt('Exp.')}</div>
                   </div>
                 </div>
               </div>
@@ -221,15 +224,15 @@ const CoachesManager = () => {
               <div className="grid grid-cols-3 gap-1.5 mb-3 text-center">
                 <div className="bg-slate-50 rounded-md px-1 py-1.5 border border-slate-100">
                   <div className="text-[12px] font-black text-slate-900">{(c.studies || []).length}</div>
-                  <div className="text-[7.5px] uppercase tracking-wider font-bold text-slate-500">Estudios</div>
+                  <div className="text-[7.5px] uppercase tracking-wider font-bold text-slate-500">{tt('Estudios')}</div>
                 </div>
                 <div className="bg-amber-50 rounded-md px-1 py-1.5 border border-amber-100">
                   <div className="text-[12px] font-black text-amber-700">{(c.achievements || []).length}</div>
-                  <div className="text-[7.5px] uppercase tracking-wider font-bold text-amber-700">Logros</div>
+                  <div className="text-[7.5px] uppercase tracking-wider font-bold text-amber-700">{tt('Logros')}</div>
                 </div>
                 <div className="bg-emerald-50 rounded-md px-1 py-1.5 border border-emerald-100">
                   <div className="text-[12px] font-black text-emerald-700">{(c.career_history || []).length}</div>
-                  <div className="text-[7.5px] uppercase tracking-wider font-bold text-emerald-700">Clubes</div>
+                  <div className="text-[7.5px] uppercase tracking-wider font-bold text-emerald-700">{tt('Clubes')}</div>
                 </div>
               </div>
 
@@ -265,59 +268,59 @@ const CoachesManager = () => {
 
           {/* Tabs */}
           <div className="flex flex-wrap gap-1 bg-slate-100 p-1 rounded-lg">
-            <TabBtn active={tab === 'personal'} onClick={() => setTab('personal')}>👤 Personal</TabBtn>
-            <TabBtn active={tab === 'profesional'} onClick={() => setTab('profesional')}>💼 Profesional</TabBtn>
-            <TabBtn active={tab === 'educacion'} onClick={() => setTab('educacion')}>🎓 Educación</TabBtn>
-            <TabBtn active={tab === 'trayectoria'} onClick={() => setTab('trayectoria')}>📈 Trayectoria</TabBtn>
-            <TabBtn active={tab === 'logros'} onClick={() => setTab('logros')}>🏆 Logros</TabBtn>
-            <TabBtn active={tab === 'extra'} onClick={() => setTab('extra')}>✨ Extra</TabBtn>
+            <TabBtn active={tab === 'personal'} onClick={() => setTab('personal')}>{tt('👤 Personal')}</TabBtn>
+            <TabBtn active={tab === 'profesional'} onClick={() => setTab('profesional')}>{tt('💼 Profesional')}</TabBtn>
+            <TabBtn active={tab === 'educacion'} onClick={() => setTab('educacion')}>{tt('🎓 Educación')}</TabBtn>
+            <TabBtn active={tab === 'trayectoria'} onClick={() => setTab('trayectoria')}>{tt('📈 Trayectoria')}</TabBtn>
+            <TabBtn active={tab === 'logros'} onClick={() => setTab('logros')}>{tt('🏆 Logros')}</TabBtn>
+            <TabBtn active={tab === 'extra'} onClick={() => setTab('extra')}>{tt('✨ Extra')}</TabBtn>
           </div>
 
           {/* PERSONAL */}
           {tab === 'personal' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
               <div className="md:col-span-2 space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-600">Nombre completo *</label>
-                <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Ej: Brian Mendoza" data-testid="coach-name-input" />
+                <label className="text-[11px] font-bold uppercase text-slate-600">{tt('Nombre completo *')}</label>
+                <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder={tt('Ej: Brian Mendoza')} data-testid="coach-name-input" />
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-600">URL Foto</label>
-                <Input value={form.photo_url} onChange={e => setForm({ ...form, photo_url: e.target.value })} placeholder="https://..." />
+                <label className="text-[11px] font-bold uppercase text-slate-600">{tt('URL Foto')}</label>
+                <Input value={form.photo_url} onChange={e => setForm({ ...form, photo_url: e.target.value })} placeholder={tt('https://...')} />
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-600">Documento ID</label>
-                <Input value={form.document_id} onChange={e => setForm({ ...form, document_id: e.target.value })} placeholder="DNI / Cédula / Pasaporte" />
+                <label className="text-[11px] font-bold uppercase text-slate-600">{tt('Documento ID')}</label>
+                <Input value={form.document_id} onChange={e => setForm({ ...form, document_id: e.target.value })} placeholder={tt('DNI / Cédula / Pasaporte')} />
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-600">Fecha de nacimiento</label>
+                <label className="text-[11px] font-bold uppercase text-slate-600">{tt('Fecha de nacimiento')}</label>
                 <Input type="date" value={form.birth_date} onChange={e => setForm({ ...form, birth_date: e.target.value })} />
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-600">Nacionalidad</label>
-                <Input value={form.nationality} onChange={e => setForm({ ...form, nationality: e.target.value })} placeholder="Ej: Colombiana" />
+                <label className="text-[11px] font-bold uppercase text-slate-600">{tt('Nacionalidad')}</label>
+                <Input value={form.nationality} onChange={e => setForm({ ...form, nationality: e.target.value })} placeholder={tt('Ej: Colombiana')} />
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-600">Género</label>
+                <label className="text-[11px] font-bold uppercase text-slate-600">{tt('Género')}</label>
                 <Select value={form.gender || ''} onValueChange={v => setForm({ ...form, gender: v })}>
-                  <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={tt('Seleccionar')} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="M">Masculino</SelectItem>
-                    <SelectItem value="F">Femenino</SelectItem>
-                    <SelectItem value="O">Otro / Prefiere no decir</SelectItem>
+                    <SelectItem value="M">{tt('Masculino')}</SelectItem>
+                    <SelectItem value="F">{tt('Femenino')}</SelectItem>
+                    <SelectItem value="O">{tt('Otro / Prefiere no decir')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-600">Email</label>
-                <Input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="coach@email.com" />
+                <label className="text-[11px] font-bold uppercase text-slate-600">{tt('Email')}</label>
+                <Input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder={tt('coach@email.com')} />
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-600">Teléfono</label>
+                <label className="text-[11px] font-bold uppercase text-slate-600">{tt('Teléfono')}</label>
                 <Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="+57 300 123 4567" />
               </div>
               <div className="md:col-span-2 space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-600">Dirección</label>
-                <Input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} placeholder="Ciudad, país" />
+                <label className="text-[11px] font-bold uppercase text-slate-600">{tt('Dirección')}</label>
+                <Input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} placeholder={tt('Ciudad, país')} />
               </div>
             </div>
           )}
@@ -326,47 +329,47 @@ const CoachesManager = () => {
           {tab === 'profesional' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
               <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-600">Especialidad principal</label>
+                <label className="text-[11px] font-bold uppercase text-slate-600">{tt('Especialidad principal')}</label>
                 <Select value={form.specialty || ''} onValueChange={v => setForm({ ...form, specialty: v })}>
-                  <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={tt('Seleccionar')} /></SelectTrigger>
                   <SelectContent>{SPECIALTIES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-600">Sub-especialidad</label>
-                <Input value={form.sub_specialty} onChange={e => setForm({ ...form, sub_specialty: e.target.value })} placeholder="Ej: Hipertrofia funcional" />
+                <label className="text-[11px] font-bold uppercase text-slate-600">{tt('Sub-especialidad')}</label>
+                <Input value={form.sub_specialty} onChange={e => setForm({ ...form, sub_specialty: e.target.value })} placeholder={tt('Ej: Hipertrofia funcional')} />
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-600">Años de experiencia</label>
+                <label className="text-[11px] font-bold uppercase text-slate-600">{tt('Años de experiencia')}</label>
                 <Input type="number" min="0" max="80" value={form.years_experience} onChange={e => setForm({ ...form, years_experience: e.target.value })} />
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-600">Nivel / Certificación</label>
+                <label className="text-[11px] font-bold uppercase text-slate-600">{tt('Nivel / Certificación')}</label>
                 <Select value={form.level || ''} onValueChange={v => setForm({ ...form, level: v })}>
-                  <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={tt('Seleccionar')} /></SelectTrigger>
                   <SelectContent>{LEVELS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-600">N° Licencia</label>
-                <Input value={form.license_number} onChange={e => setForm({ ...form, license_number: e.target.value })} placeholder="Ej: COL-PF-2024-0123" />
+                <label className="text-[11px] font-bold uppercase text-slate-600">{tt('N° Licencia')}</label>
+                <Input value={form.license_number} onChange={e => setForm({ ...form, license_number: e.target.value })} placeholder={tt('Ej: COL-PF-2024-0123')} />
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-600">Organización actual</label>
-                <Input value={form.current_organization} onChange={e => setForm({ ...form, current_organization: e.target.value })} placeholder="Club, federación, escuela" />
+                <label className="text-[11px] font-bold uppercase text-slate-600">{tt('Organización actual')}</label>
+                <Input value={form.current_organization} onChange={e => setForm({ ...form, current_organization: e.target.value })} placeholder={tt('Club, federación, escuela')} />
               </div>
               <div className="md:col-span-2 space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-600">Rol en la organización</label>
-                <Input value={form.role_in_org} onChange={e => setForm({ ...form, role_in_org: e.target.value })} placeholder="Ej: Director de la división juvenil" />
+                <label className="text-[11px] font-bold uppercase text-slate-600">{tt('Rol en la organización')}</label>
+                <Input value={form.role_in_org} onChange={e => setForm({ ...form, role_in_org: e.target.value })} placeholder={tt('Ej: Director de la división juvenil')} />
               </div>
               <div className="md:col-span-2 space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-600">Idiomas</label>
+                <label className="text-[11px] font-bold uppercase text-slate-600">{tt('Idiomas')}</label>
                 <Input
                   value={(form.languages || []).join(', ')}
                   onChange={e => setForm({ ...form, languages: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
-                  placeholder="Español, Inglés, Portugués"
+                  placeholder={tt('Español, Inglés, Portugués')}
                 />
-                <p className="text-[10px] text-slate-400 italic">Separados por coma</p>
+                <p className="text-[10px] text-slate-400 italic">{tt('Separados por coma')}</p>
               </div>
             </div>
           )}
@@ -479,23 +482,23 @@ const CoachesManager = () => {
           {tab === 'extra' && (
             <div className="space-y-3 pt-2">
               <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-600">Biografía / Filosofía</label>
+                <label className="text-[11px] font-bold uppercase text-slate-600">{tt('Biografía / Filosofía')}</label>
                 <textarea
                   value={form.bio}
                   onChange={e => setForm({ ...form, bio: e.target.value })}
                   rows={4}
                   className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none"
-                  placeholder="Breve descripción profesional, filosofía de entrenamiento, motivaciones..."
+                  placeholder={tt('Breve descripción profesional, filosofía de entrenamiento, motivaciones...')}
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-600">Metodología propia</label>
+                <label className="text-[11px] font-bold uppercase text-slate-600">{tt('Metodología propia')}</label>
                 <textarea
                   value={form.methodology}
                   onChange={e => setForm({ ...form, methodology: e.target.value })}
                   rows={3}
                   className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none"
-                  placeholder="Pilares metodológicos, principios de entrenamiento, enfoque diferenciador..."
+                  placeholder={tt('Pilares metodológicos, principios de entrenamiento, enfoque diferenciador...')}
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -514,7 +517,7 @@ const CoachesManager = () => {
           )}
 
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={close}>Cancelar</Button>
+            <Button variant="outline" onClick={close}>{tt('Cancelar')}</Button>
             <Button onClick={save} className="bg-slate-900 hover:bg-slate-800 text-white" data-testid="coach-save-btn">
               {editing === 'new' ? 'Crear entrenador' : 'Guardar cambios'}
             </Button>

@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { tx as tt } from '../lib/autoTranslate';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -292,11 +294,11 @@ const EliminationBracket = ({ matches, onUpdateMatch, readOnly = false }) => {
 
   const handleFinishMatch = (match) => {
     if (match.score1 === null || match.score2 === null) {
-      toast.error('Ingresa ambos marcadores');
+      toast.error(tt('Ingresa ambos marcadores'));
       return;
     }
     if (match.score1 === match.score2) {
-      toast.error('No puede haber empate en eliminación directa');
+      toast.error(tt('No puede haber empate en eliminación directa'));
       return;
     }
     
@@ -431,15 +433,15 @@ const StandingsTable = ({ standings }) => {
         <thead>
           <tr className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
             <th className="px-3 py-3 text-left font-semibold rounded-tl-lg">#</th>
-            <th className="px-3 py-3 text-left font-semibold">Equipo</th>
-            <th className="px-3 py-3 text-center font-semibold">PJ</th>
-            <th className="px-3 py-3 text-center font-semibold">G</th>
-            <th className="px-3 py-3 text-center font-semibold">E</th>
-            <th className="px-3 py-3 text-center font-semibold">P</th>
-            <th className="px-3 py-3 text-center font-semibold">GF</th>
-            <th className="px-3 py-3 text-center font-semibold">GC</th>
-            <th className="px-3 py-3 text-center font-semibold">DIF</th>
-            <th className="px-3 py-3 text-center font-semibold rounded-tr-lg">PTS</th>
+            <th className="px-3 py-3 text-left font-semibold">{tt('Equipo')}</th>
+            <th className="px-3 py-3 text-center font-semibold">{tt('PJ')}</th>
+            <th className="px-3 py-3 text-center font-semibold">{tt('G')}</th>
+            <th className="px-3 py-3 text-center font-semibold">{tt('E')}</th>
+            <th className="px-3 py-3 text-center font-semibold">{tt('P')}</th>
+            <th className="px-3 py-3 text-center font-semibold">{tt('GF')}</th>
+            <th className="px-3 py-3 text-center font-semibold">{tt('GC')}</th>
+            <th className="px-3 py-3 text-center font-semibold">{tt('DIF')}</th>
+            <th className="px-3 py-3 text-center font-semibold rounded-tr-lg">{tt('PTS')}</th>
           </tr>
         </thead>
         <tbody>
@@ -493,7 +495,7 @@ const MatchList = ({ matches, onUpdateMatch, readOnly = false }) => {
 
   const handleFinishMatch = (match) => {
     if (match.score1 === null || match.score2 === null) {
-      toast.error('Ingresa ambos marcadores');
+      toast.error(tt('Ingresa ambos marcadores'));
       return;
     }
     
@@ -502,7 +504,7 @@ const MatchList = ({ matches, onUpdateMatch, readOnly = false }) => {
     else if (match.score2 > match.score1) winnerId = match.participant2_id;
     
     onUpdateMatch(match.id, { status: 'completed', winner_id: winnerId });
-    toast.success('Partido finalizado');
+    toast.success(tt('Partido finalizado'));
   };
 
   return (
@@ -573,7 +575,7 @@ const MatchList = ({ matches, onUpdateMatch, readOnly = false }) => {
             )}
             
             {match.status === 'completed' && (
-              <Badge className="bg-green-100 text-green-700">✓ Finalizado</Badge>
+              <Badge className="bg-green-100 text-green-700">{tt('✓ Finalizado')}</Badge>
             )}
           </div>
         </div>
@@ -594,7 +596,7 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
 
   const handleSave = () => {
     if (!formData.name) {
-      toast.error('Ingresa el nombre del torneo');
+      toast.error(tt('Ingresa el nombre del torneo'));
       return;
     }
     onSave(formData);
@@ -633,12 +635,12 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
           {step === 1 && (
             <div className="space-y-4">
               <div>
-                <Label className="font-semibold">Nombre del Torneo *</Label>
-                <Input placeholder="Ej: Copa Primavera 2026" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="mt-1" />
+                <Label className="font-semibold">{tt('Nombre del Torneo *')}</Label>
+                <Input placeholder={tt('Ej: Copa Primavera 2026')} value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="mt-1" />
               </div>
               
               <div>
-                <Label className="font-semibold">Deporte</Label>
+                <Label className="font-semibold">{tt('Deporte')}</Label>
                 {sportsCatalog.length > 0 ? (
                   <div className="mt-2 space-y-2 max-h-[180px] overflow-y-auto border rounded-lg p-2">
                     {sportsCatalog.map((category) => (
@@ -676,8 +678,8 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
               </div>
 
               <div>
-                <Label className="font-semibold">Descripción</Label>
-                <textarea placeholder="Describe el torneo..." value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="w-full mt-1 p-2 border rounded-lg text-sm h-16 resize-none" />
+                <Label className="font-semibold">{tt('Descripción')}</Label>
+                <textarea placeholder={tt('Describe el torneo...')} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="w-full mt-1 p-2 border rounded-lg text-sm h-16 resize-none" />
               </div>
             </div>
           )}
@@ -685,7 +687,7 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
           {step === 2 && (
             <div className="space-y-4">
               <div>
-                <Label className="font-semibold">Formato del Torneo *</Label>
+                <Label className="font-semibold">{tt('Formato del Torneo *')}</Label>
                 <div className="mt-2 grid grid-cols-2 gap-2">
                   {TOURNAMENT_FORMATS.map((format) => {
                     const Icon = format.icon;
@@ -704,7 +706,7 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
 
               {selectedFormat && (
                 <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
-                  <Label className="font-semibold text-amber-800">Número de Participantes</Label>
+                  <Label className="font-semibold text-amber-800">{tt('Número de Participantes')}</Label>
                   <div className="flex gap-2 mt-2">
                     {selectedFormat.recommended.map((num) => (
                       <button key={num} onClick={() => setFormData({ ...formData, max_participants: num })} className={`px-4 py-2 rounded-lg font-semibold ${formData.max_participants === num ? 'bg-amber-500 text-white' : 'bg-white border'}`}>
@@ -717,11 +719,11 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="font-semibold">Fecha Inicio</Label>
+                  <Label className="font-semibold">{tt('Fecha Inicio')}</Label>
                   <Input type="date" value={formData.start_date} onChange={(e) => setFormData({ ...formData, start_date: e.target.value })} className="mt-1" />
                 </div>
                 <div>
-                  <Label className="font-semibold">Fecha Fin</Label>
+                  <Label className="font-semibold">{tt('Fecha Fin')}</Label>
                   <Input type="date" value={formData.end_date} onChange={(e) => setFormData({ ...formData, end_date: e.target.value })} className="mt-1" />
                 </div>
               </div>
@@ -732,33 +734,33 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="font-semibold">Sede</Label>
-                  <Input placeholder="Estadio/Polideportivo" value={formData.venue} onChange={(e) => setFormData({ ...formData, venue: e.target.value })} className="mt-1" />
+                  <Label className="font-semibold">{tt('Sede')}</Label>
+                  <Input placeholder={tt('Estadio/Polideportivo')} value={formData.venue} onChange={(e) => setFormData({ ...formData, venue: e.target.value })} className="mt-1" />
                 </div>
                 <div>
-                  <Label className="font-semibold">Ciudad</Label>
-                  <Input placeholder="Madrid" value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} className="mt-1" />
+                  <Label className="font-semibold">{tt('Ciudad')}</Label>
+                  <Input placeholder={tt('Madrid')} value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} className="mt-1" />
                 </div>
               </div>
 
               <div>
-                <Label className="font-semibold">Reglas</Label>
-                <textarea placeholder="Reglas del torneo..." value={formData.rules} onChange={(e) => setFormData({ ...formData, rules: e.target.value })} className="w-full mt-1 p-2 border rounded-lg text-sm h-16 resize-none" />
+                <Label className="font-semibold">{tt('Reglas')}</Label>
+                <textarea placeholder={tt('Reglas del torneo...')} value={formData.rules} onChange={(e) => setFormData({ ...formData, rules: e.target.value })} className="w-full mt-1 p-2 border rounded-lg text-sm h-16 resize-none" />
               </div>
 
               <div>
-                <Label className="font-semibold">Premios</Label>
-                <textarea placeholder="Premios para los ganadores..." value={formData.prizes} onChange={(e) => setFormData({ ...formData, prizes: e.target.value })} className="w-full mt-1 p-2 border rounded-lg text-sm h-16 resize-none" />
+                <Label className="font-semibold">{tt('Premios')}</Label>
+                <textarea placeholder={tt('Premios para los ganadores...')} value={formData.prizes} onChange={(e) => setFormData({ ...formData, prizes: e.target.value })} className="w-full mt-1 p-2 border rounded-lg text-sm h-16 resize-none" />
               </div>
 
               {/* Preview */}
               <div className="p-4 bg-slate-50 rounded-xl">
-                <h4 className="font-bold text-slate-700 mb-2">Resumen</h4>
+                <h4 className="font-bold text-slate-700 mb-2">{tt('Resumen')}</h4>
                 <div className="grid grid-cols-2 gap-2 text-sm">
-                  <p><span className="text-slate-500">Nombre:</span> {formData.name || '-'}</p>
-                  <p><span className="text-slate-500">Formato:</span> {selectedFormat?.name || '-'}</p>
-                  <p><span className="text-slate-500">Participantes:</span> {formData.max_participants}</p>
-                  <p><span className="text-slate-500">Ciudad:</span> {formData.city || '-'}</p>
+                  <p><span className="text-slate-500">{tt('Nombre:')}</span> {formData.name || '-'}</p>
+                  <p><span className="text-slate-500">{tt('Formato:')}</span> {selectedFormat?.name || '-'}</p>
+                  <p><span className="text-slate-500">{tt('Participantes:')}</span> {formData.max_participants}</p>
+                  <p><span className="text-slate-500">{tt('Ciudad:')}</span> {formData.city || '-'}</p>
                 </div>
               </div>
             </div>
@@ -794,6 +796,7 @@ const TournamentManager = ({
   onUpdateTournament,
   onDeleteTournament
 }) => {
+  useTranslation();
   const [wizardOpen, setWizardOpen] = useState(false);
   const [selectedTournament, setSelectedTournament] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
@@ -822,11 +825,11 @@ const TournamentManager = ({
   // Agregar participante
   const handleAddParticipant = () => {
     if (!newParticipantName.trim()) {
-      toast.error('Ingresa un nombre');
+      toast.error(tt('Ingresa un nombre'));
       return;
     }
     if (participants.length >= (selectedTournament?.max_participants || 32)) {
-      toast.error('Se alcanzó el máximo de participantes');
+      toast.error(tt('Se alcanzó el máximo de participantes'));
       return;
     }
     const newParticipant = {
@@ -867,13 +870,13 @@ const TournamentManager = ({
     })));
     setEditParticipantId(null);
     setEditParticipantName('');
-    toast.success('Participante actualizado');
+    toast.success(tt('Participante actualizado'));
   };
 
   // Eliminar participante
   const handleRemoveParticipant = (id) => {
     if (fixtureGenerated) {
-      toast.error('No puedes eliminar participantes después de generar el fixture');
+      toast.error(tt('No puedes eliminar participantes después de generar el fixture'));
       return;
     }
     const updatedParticipants = participants.filter(p => p.id !== id);
@@ -889,13 +892,13 @@ const TournamentManager = ({
       });
     }
     
-    toast.success('Participante eliminado');
+    toast.success(tt('Participante eliminado'));
   };
 
   // Generar Fixture
   const handleGenerateFixture = () => {
     if (participants.length < 2) {
-      toast.error('Necesitas al menos 2 participantes');
+      toast.error(tt('Necesitas al menos 2 participantes'));
       return;
     }
     
@@ -983,7 +986,7 @@ const TournamentManager = ({
         });
       }
       
-      toast.success('Fixture reiniciado');
+      toast.success(tt('Fixture reiniciado'));
     }
   };
 
@@ -996,7 +999,7 @@ const TournamentManager = ({
         matches,
         participants_count: participants.length
       });
-      toast.success('Torneo guardado');
+      toast.success(tt('Torneo guardado'));
     }
   };
 
@@ -1026,8 +1029,8 @@ const TournamentManager = ({
             <div className="flex items-center gap-3">
               <Trophy className="w-7 h-7" />
               <div>
-                <h2 className="text-xl font-bold">Torneos y Competencias</h2>
-                <p className="text-white/80 text-sm">Gestiona campeonatos profesionalmente</p>
+                <h2 className="text-xl font-bold">{tt('Torneos y Competencias')}</h2>
+                <p className="text-white/80 text-sm">{tt('Gestiona campeonatos profesionalmente')}</p>
               </div>
             </div>
             <Button className="bg-white/20 hover:bg-white/30 border-white/30" onClick={() => setWizardOpen(true)}>
@@ -1040,7 +1043,7 @@ const TournamentManager = ({
         <div className="flex-shrink-0 p-4 bg-white border-b">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <Input placeholder="Buscar torneos..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
+            <Input placeholder={tt('Buscar torneos...')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
           </div>
         </div>
 
@@ -1076,8 +1079,8 @@ const TournamentManager = ({
           ) : (
             <div className="text-center py-16">
               <Trophy className="w-20 h-20 mx-auto text-slate-200 mb-4" />
-              <h3 className="text-xl font-semibold text-slate-600 mb-2">Sin Torneos</h3>
-              <p className="text-slate-500 mb-6">Crea tu primer torneo para comenzar</p>
+              <h3 className="text-xl font-semibold text-slate-600 mb-2">{tt('Sin Torneos')}</h3>
+              <p className="text-slate-500 mb-6">{tt('Crea tu primer torneo para comenzar')}</p>
               <Button className="bg-gradient-to-r from-orange-500 to-red-500" onClick={() => setWizardOpen(true)}>
                 <Plus className="w-4 h-4 mr-2" /> Crear Torneo
               </Button>
@@ -1088,7 +1091,7 @@ const TournamentManager = ({
         <TournamentWizard isOpen={wizardOpen} onClose={() => setWizardOpen(false)} sportsCatalog={sportsCatalog} onSave={(data) => {
           const newT = { ...data, id: Date.now(), status: 'draft', participants_count: 0, participants: [], matches: [] };
           onCreateTournament?.(newT);
-          toast.success('Torneo creado');
+          toast.success(tt('Torneo creado'));
         }} />
       </div>
     );
@@ -1119,7 +1122,7 @@ const TournamentManager = ({
             <Button variant="secondary" size="sm" onClick={handleDownloadPDF}>
               <Download className="w-4 h-4 mr-1" /> PDF
             </Button>
-            <Button variant="secondary" size="sm" onClick={() => { navigator.clipboard.writeText(window.location.href); toast.success('Enlace copiado'); }}>
+            <Button variant="secondary" size="sm" onClick={() => { navigator.clipboard.writeText(window.location.href); toast.success(tt('Enlace copiado')); }}>
               <Share2 className="w-4 h-4 mr-1" /> Compartir
             </Button>
           </div>
@@ -1147,13 +1150,13 @@ const TournamentManager = ({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <Card className="p-4">
               <h4 className="font-semibold text-slate-600 mb-3 flex items-center gap-2"><Calendar className="w-4 h-4" />Fechas</h4>
-              <p className="text-sm"><span className="text-slate-500">Inicio:</span> {selectedTournament.start_date || 'Por definir'}</p>
-              <p className="text-sm mt-1"><span className="text-slate-500">Fin:</span> {selectedTournament.end_date || 'Por definir'}</p>
+              <p className="text-sm"><span className="text-slate-500">{tt('Inicio:')}</span> {selectedTournament.start_date || 'Por definir'}</p>
+              <p className="text-sm mt-1"><span className="text-slate-500">{tt('Fin:')}</span> {selectedTournament.end_date || 'Por definir'}</p>
             </Card>
             <Card className="p-4">
               <h4 className="font-semibold text-slate-600 mb-3 flex items-center gap-2"><MapPin className="w-4 h-4" />Ubicación</h4>
-              <p className="text-sm"><span className="text-slate-500">Sede:</span> {selectedTournament.venue || 'Por definir'}</p>
-              <p className="text-sm mt-1"><span className="text-slate-500">Ciudad:</span> {selectedTournament.city || 'Por definir'}</p>
+              <p className="text-sm"><span className="text-slate-500">{tt('Sede:')}</span> {selectedTournament.venue || 'Por definir'}</p>
+              <p className="text-sm mt-1"><span className="text-slate-500">{tt('Ciudad:')}</span> {selectedTournament.city || 'Por definir'}</p>
             </Card>
             <Card className="p-4">
               <h4 className="font-semibold text-slate-600 mb-3 flex items-center gap-2"><Users className="w-4 h-4" />Participantes</h4>
@@ -1165,7 +1168,7 @@ const TournamentManager = ({
             
             {/* Acciones */}
             <Card className="p-4 lg:col-span-3">
-              <h4 className="font-semibold text-slate-600 mb-3">Acciones Rápidas</h4>
+              <h4 className="font-semibold text-slate-600 mb-3">{tt('Acciones Rápidas')}</h4>
               <div className="flex flex-wrap gap-2">
                 <Button onClick={() => { setActiveTab('participants'); setAddParticipantOpen(true); }}>
                   <UserPlus className="w-4 h-4 mr-1" /> Agregar Participante
@@ -1190,7 +1193,7 @@ const TournamentManager = ({
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-6 h-6 text-green-500" />
                   <div>
-                    <h4 className="font-semibold text-green-800">Fixture Generado</h4>
+                    <h4 className="font-semibold text-green-800">{tt('Fixture Generado')}</h4>
                     <p className="text-sm text-green-600">{matches.length} partidos programados • {matches.filter(m => m.status === 'completed').length} completados</p>
                   </div>
                   <Button size="sm" className="ml-auto" onClick={() => setActiveTab('bracket')}>
@@ -1254,7 +1257,7 @@ const TournamentManager = ({
             ) : (
               <div className="text-center py-12">
                 <Users className="w-16 h-16 mx-auto text-slate-200 mb-4" />
-                <p className="text-slate-500 mb-4">No hay participantes aún</p>
+                <p className="text-slate-500 mb-4">{tt('No hay participantes aún')}</p>
                 <Button onClick={() => setAddParticipantOpen(true)}>
                   <Plus className="w-4 h-4 mr-1" /> Agregar Primer Participante
                 </Button>
@@ -1271,12 +1274,12 @@ const TournamentManager = ({
                   </DialogTitle>
                 </DialogHeader>
                 <div className="py-4">
-                  <Label>Nombre del equipo/participante</Label>
-                  <Input placeholder="Ej: Real Madrid, Juan Pérez..." value={newParticipantName} onChange={(e) => setNewParticipantName(e.target.value)} className="mt-2" autoFocus onKeyDown={(e) => e.key === 'Enter' && handleAddParticipant()} />
+                  <Label>{tt('Nombre del equipo/participante')}</Label>
+                  <Input placeholder={tt('Ej: Real Madrid, Juan Pérez...')} value={newParticipantName} onChange={(e) => setNewParticipantName(e.target.value)} className="mt-2" autoFocus onKeyDown={(e) => e.key === 'Enter' && handleAddParticipant()} />
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setAddParticipantOpen(false)}>Cancelar</Button>
-                  <Button onClick={handleAddParticipant}>Agregar</Button>
+                  <Button variant="outline" onClick={() => setAddParticipantOpen(false)}>{tt('Cancelar')}</Button>
+                  <Button onClick={handleAddParticipant}>{tt('Agregar')}</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -1306,8 +1309,8 @@ const TournamentManager = ({
             ) : (
               <div className="text-center py-16">
                 <Brackets className="w-20 h-20 mx-auto text-slate-200 mb-4" />
-                <h3 className="text-xl font-semibold text-slate-600 mb-2">Sin Fixture</h3>
-                <p className="text-slate-500 mb-6">Agrega participantes y genera el fixture para ver el bracket</p>
+                <h3 className="text-xl font-semibold text-slate-600 mb-2">{tt('Sin Fixture')}</h3>
+                <p className="text-slate-500 mb-6">{tt('Agrega participantes y genera el fixture para ver el bracket')}</p>
                 <div className="flex justify-center gap-3">
                   <Button variant="outline" onClick={() => setActiveTab('participants')}>
                     <Users className="w-4 h-4 mr-1" /> Agregar Participantes ({participants.length})
@@ -1324,13 +1327,13 @@ const TournamentManager = ({
         {/* Tab: Tabla de Posiciones */}
         {activeTab === 'standings' && (selectedTournament.format === 'round_robin' || selectedTournament.format === 'league') && (
           <Card className="p-4">
-            <h3 className="font-bold text-lg mb-4">Tabla de Posiciones</h3>
+            <h3 className="font-bold text-lg mb-4">{tt('Tabla de Posiciones')}</h3>
             {standings.length > 0 ? (
               <StandingsTable standings={standings} />
             ) : (
               <div className="text-center py-12">
                 <ListOrdered className="w-16 h-16 mx-auto text-slate-200 mb-4" />
-                <p className="text-slate-500">La tabla se generará cuando haya partidos</p>
+                <p className="text-slate-500">{tt('La tabla se generará cuando haya partidos')}</p>
               </div>
             )}
           </Card>
@@ -1340,7 +1343,7 @@ const TournamentManager = ({
       <TournamentWizard isOpen={wizardOpen} onClose={() => setWizardOpen(false)} sportsCatalog={sportsCatalog} onSave={(data) => {
         const newT = { ...data, id: Date.now(), status: 'draft', participants_count: 0, participants: [], matches: [] };
         onCreateTournament?.(newT);
-        toast.success('Torneo creado');
+        toast.success(tt('Torneo creado'));
       }} />
     </div>
   );

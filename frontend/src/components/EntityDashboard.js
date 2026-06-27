@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { tx as tt } from '../lib/autoTranslate';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './ui/select';
@@ -28,6 +30,7 @@ const ENTITY_CONFIG = {
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316'];
 
 const EntityDashboard = ({ onNavigate }) => {
+  useTranslation();
   const [loading, setLoading] = useState(true);
   const [entities, setEntities] = useState([]);
   const [athletes, setAthletes] = useState([]);
@@ -59,7 +62,7 @@ const EntityDashboard = ({ onNavigate }) => {
       calculateDashboardData(entitiesRes.data || [], athletesRes.data || [], eventsRes.data?.events || []);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
-      toast.error('Error al cargar datos');
+      toast.error(tt('Error al cargar datos'));
     } finally {
       setLoading(false);
     }
@@ -148,7 +151,7 @@ const EntityDashboard = ({ onNavigate }) => {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
-        <span className="ml-2 text-slate-500">Cargando dashboard...</span>
+        <span className="ml-2 text-slate-500">{tt('Cargando dashboard...')}</span>
       </div>
     );
   }
@@ -158,15 +161,15 @@ const EntityDashboard = ({ onNavigate }) => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800">Dashboard por Entidad</h2>
-          <p className="text-slate-500">Estadísticas agregadas de tu organización deportiva</p>
+          <h2 className="text-2xl font-bold text-slate-800">{tt('Dashboard por Entidad')}</h2>
+          <p className="text-slate-500">{tt('Estadísticas agregadas de tu organización deportiva')}</p>
         </div>
         <Select value={selectedEntityId || 'all'} onValueChange={(v) => setSelectedEntityId(v === 'all' ? null : v)}>
           <SelectTrigger className="w-64">
-            <SelectValue placeholder="Seleccionar entidad" />
+            <SelectValue placeholder={tt('Seleccionar entidad')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">📊 Todas las entidades</SelectItem>
+            <SelectItem value="all">{tt('📊 Todas las entidades')}</SelectItem>
             {entities.map(entity => {
               const config = ENTITY_CONFIG[entity.entity_type] || {};
               return (
@@ -252,7 +255,7 @@ const EntityDashboard = ({ onNavigate }) => {
                 ) : (
                   <div className="text-center py-8 bg-slate-50 rounded-lg">
                     <Users className="w-12 h-12 mx-auto text-slate-300 mb-2" />
-                    <p className="text-slate-500">No hay atletas afiliados</p>
+                    <p className="text-slate-500">{tt('No hay atletas afiliados')}</p>
                     <Button variant="link" onClick={() => onNavigate?.('athletes')}>
                       Afiliar atletas
                     </Button>
@@ -268,7 +271,7 @@ const EntityDashboard = ({ onNavigate }) => {
                       <Activity className="w-5 h-5" />
                     </div>
                     <p className="text-3xl font-bold text-blue-800">{selectedEntity.athleteCount}</p>
-                    <p className="text-sm text-blue-600">Atletas totales</p>
+                    <p className="text-sm text-blue-600">{tt('Atletas totales')}</p>
                   </CardContent>
                 </Card>
                 
@@ -280,7 +283,7 @@ const EntityDashboard = ({ onNavigate }) => {
                     <p className="text-3xl font-bold text-green-800">
                       {selectedEntity.athletes.filter(a => a.level === 'elite' || a.level === 'avanzado').length}
                     </p>
-                    <p className="text-sm text-green-600">Nivel avanzado/elite</p>
+                    <p className="text-sm text-green-600">{tt('Nivel avanzado/elite')}</p>
                   </CardContent>
                 </Card>
 
@@ -292,7 +295,7 @@ const EntityDashboard = ({ onNavigate }) => {
                     <p className="text-3xl font-bold text-purple-800">
                       {Math.floor(Math.random() * 10) + 1}
                     </p>
-                    <p className="text-sm text-purple-600">Planes activos</p>
+                    <p className="text-sm text-purple-600">{tt('Planes activos')}</p>
                   </CardContent>
                 </Card>
               </div>
@@ -345,7 +348,7 @@ const EntityDashboard = ({ onNavigate }) => {
               ) : (
                 <div className="text-center py-12 text-slate-400">
                   <Users className="w-12 h-12 mx-auto mb-2 opacity-30" />
-                  <p>No hay atletas afiliados a entidades</p>
+                  <p>{tt('No hay atletas afiliados a entidades')}</p>
                 </div>
               )}
             </CardContent>
@@ -407,7 +410,7 @@ const EntityDashboard = ({ onNavigate }) => {
               ) : (
                 <div className="text-center py-8 text-slate-400">
                   <Calendar className="w-12 h-12 mx-auto mb-2 opacity-30" />
-                  <p>No hay competencias programadas</p>
+                  <p>{tt('No hay competencias programadas')}</p>
                   <Button variant="link" onClick={() => onNavigate?.('event-calendar')}>
                     Agregar evento
                   </Button>
@@ -430,7 +433,7 @@ const EntityDashboard = ({ onNavigate }) => {
                   <div className="flex items-start gap-3 p-3 bg-red-50 rounded-lg border border-red-100">
                     <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5" />
                     <div>
-                      <p className="font-medium text-red-800">Competencia próxima</p>
+                      <p className="font-medium text-red-800">{tt('Competencia próxima')}</p>
                       <p className="text-sm text-red-600">
                         {dashboardData.upcomingCompetitions[0]?.name} - Revisa los planes de entrenamiento
                       </p>
@@ -442,7 +445,7 @@ const EntityDashboard = ({ onNavigate }) => {
                   <div className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg border border-amber-100">
                     <Users className="w-5 h-5 text-amber-500 mt-0.5" />
                     <div>
-                      <p className="font-medium text-amber-800">Atletas sin afiliar</p>
+                      <p className="font-medium text-amber-800">{tt('Atletas sin afiliar')}</p>
                       <p className="text-sm text-amber-600">
                         {athletes.filter(a => !a.affiliations?.length).length} atletas no están afiliados a ninguna entidad
                       </p>
@@ -453,7 +456,7 @@ const EntityDashboard = ({ onNavigate }) => {
                 <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
                   <Activity className="w-5 h-5 text-blue-500 mt-0.5" />
                   <div>
-                    <p className="font-medium text-blue-800">Recomendación de carga</p>
+                    <p className="font-medium text-blue-800">{tt('Recomendación de carga')}</p>
                     <p className="text-sm text-blue-600">
                       Basado en el calendario, considera ajustar la intensidad esta semana
                     </p>

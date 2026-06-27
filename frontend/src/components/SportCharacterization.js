@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { tx as tt } from '../lib/autoTranslate';
+import { useTranslation } from 'react-i18next';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Textarea } from '../components/ui/textarea';
 import { Button } from '../components/ui/button';
@@ -9,6 +11,7 @@ import axios from 'axios';
 const BACKEND_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 
 const SportCharacterization = ({ athleteId, onSave }) => {
+  useTranslation();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
@@ -65,10 +68,10 @@ const SportCharacterization = ({ athleteId, onSave }) => {
         { ...formData, athlete_id: athleteId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success('Caracterización guardada correctamente');
+      toast.success(tt('Caracterización guardada correctamente'));
       if (onSave) onSave(formData);
     } catch (error) {
-      toast.error('Error al guardar la caracterización');
+      toast.error(tt('Error al guardar la caracterización'));
     } finally {
       setSaving(false);
     }
@@ -206,7 +209,7 @@ const SportCharacterization = ({ athleteId, onSave }) => {
     <div className="p-6 space-y-6 max-w-5xl mx-auto">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 rounded-xl shadow-lg">
-        <h1 className="text-2xl font-bold mb-2">Caracterización del Deporte</h1>
+        <h1 className="text-2xl font-bold mb-2">{tt('Caracterización del Deporte')}</h1>
         <p className="opacity-90 text-sm">
           Esta estructura proporciona una vista holística del deporte o actividad física,
           permitiendo entender las demandas específicas y orientar el entrenamiento.

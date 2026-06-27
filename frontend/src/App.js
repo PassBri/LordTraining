@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { GlobalContextProvider } from './context/GlobalContext';
 import { Toaster } from './components/ui/sonner';
 import { fetchActiveBranding, applyFavicon } from './utils/branding';
+import initPageTranslator from './pageTranslator';
 
 // Pages
 import LandingPage from './pages/LandingPage';
@@ -132,6 +133,7 @@ function AppRoutes() {
 function App() {
   React.useEffect(() => {
     fetchActiveBranding().then((b) => { if (b.favicon) applyFavicon(b.favicon); });
+    initPageTranslator();
   }, []);
   return (
     <BrowserRouter>

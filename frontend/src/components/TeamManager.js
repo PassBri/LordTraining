@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { tx as tt } from '../lib/autoTranslate';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -13,6 +15,7 @@ import { toast } from 'sonner';
 const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 
 const TeamManager = () => {
+  useTranslation();
   const [teams, setTeams] = useState([]);
   const [entities, setEntities] = useState([]);
   const [athletes, setAthletes] = useState([]);
@@ -74,7 +77,7 @@ const TeamManager = () => {
   };
 
   const handleSave = async () => {
-    if (!formData.name.trim()) { toast.error('El nombre es requerido'); return; }
+    if (!formData.name.trim()) { toast.error(tt('El nombre es requerido')); return; }
     setSaving(true);
     try {
       const token = getToken();
@@ -100,7 +103,7 @@ const TeamManager = () => {
         const err = await res.json();
         toast.error(err.detail || 'Error al guardar');
       }
-    } catch (e) { toast.error('Error al guardar'); }
+    } catch (e) { toast.error(tt('Error al guardar')); }
     setSaving(false);
   };
 
@@ -113,12 +116,12 @@ const TeamManager = () => {
         method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
-        toast.success('Equipo eliminado');
+        toast.success(tt('Equipo eliminado'));
         setShowDeleteModal(false);
         setTeamToDelete(null);
         fetchAll();
-      } else toast.error('Error al eliminar');
-    } catch (e) { toast.error('Error al eliminar'); }
+      } else toast.error(tt('Error al eliminar'));
+    } catch (e) { toast.error(tt('Error al eliminar')); }
     setSaving(false);
   };
 
@@ -128,9 +131,9 @@ const TeamManager = () => {
       const res = await fetch(`${API_URL}/api/teams/${teamId}/athletes/${athleteId}`, {
         method: 'POST', headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (res.ok) { toast.success('Atleta agregado'); fetchAll(); }
-      else toast.error('Error al agregar atleta');
-    } catch (e) { toast.error('Error al agregar atleta'); }
+      if (res.ok) { toast.success(tt('Atleta agregado')); fetchAll(); }
+      else toast.error(tt('Error al agregar atleta'));
+    } catch (e) { toast.error(tt('Error al agregar atleta')); }
   };
 
   const handleRemoveAthlete = async (teamId, athleteId) => {
@@ -139,9 +142,9 @@ const TeamManager = () => {
       const res = await fetch(`${API_URL}/api/teams/${teamId}/athletes/${athleteId}`, {
         method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (res.ok) { toast.success('Atleta removido'); fetchAll(); }
-      else toast.error('Error al remover atleta');
-    } catch (e) { toast.error('Error al remover atleta'); }
+      if (res.ok) { toast.success(tt('Atleta removido')); fetchAll(); }
+      else toast.error(tt('Error al remover atleta'));
+    } catch (e) { toast.error(tt('Error al remover atleta')); }
   };
 
   const getEntityName = (id) => entities.find(e => e.id === id)?.name || '';
@@ -158,8 +161,8 @@ const TeamManager = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-slate-800">Gestión de Equipos</h2>
-          <p className="text-xs text-slate-500">Crea equipos, asigna deportes, entidades y gestiona sus atletas</p>
+          <h2 className="text-xl font-bold text-slate-800">{tt('Gestión de Equipos')}</h2>
+          <p className="text-xs text-slate-500">{tt('Crea equipos, asigna deportes, entidades y gestiona sus atletas')}</p>
         </div>
         <Button onClick={openCreate} className="text-white text-xs h-8 px-3" style={{ backgroundColor: '#00838F' }} data-testid="new-team-btn">
           <Plus className="w-3.5 h-3.5 mr-1" /> Nuevo Equipo
@@ -171,8 +174,8 @@ const TeamManager = () => {
         <Card className="border-0 shadow-lg">
           <div className="text-center py-12 text-slate-400">
             <Shield className="w-14 h-14 mx-auto mb-3 opacity-20" />
-            <p className="font-medium text-slate-500">No hay equipos creados</p>
-            <p className="text-xs mt-1 text-slate-400">Crea tu primer equipo con el botón superior</p>
+            <p className="font-medium text-slate-500">{tt('No hay equipos creados')}</p>
+            <p className="text-xs mt-1 text-slate-400">{tt('Crea tu primer equipo con el botón superior')}</p>
             <Button onClick={openCreate} className="mt-4 text-white text-xs" style={{ backgroundColor: '#00838F' }} data-testid="create-first-team">
               <Plus className="w-3.5 h-3.5 mr-1" /> Crear Primer Equipo
             </Button>
@@ -201,7 +204,7 @@ const TeamManager = () => {
                   </div>
                   <div className="text-right mr-2">
                     <p className="text-lg font-bold" style={{ color: '#00838F' }}>{teamAthletes.length}</p>
-                    <p className="text-[10px] text-slate-400">atletas</p>
+                    <p className="text-[10px] text-slate-400">{tt('atletas')}</p>
                   </div>
                   <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                     <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => { setManagingTeam(team); setShowMembersModal(true); }} data-testid={`manage-team-${team.id}`}>
@@ -219,7 +222,7 @@ const TeamManager = () => {
                 {isExpanded && (
                   <div className="border-t border-slate-100 bg-slate-50 px-4 py-3">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-xs font-semibold text-slate-600">Miembros del equipo</p>
+                      <p className="text-xs font-semibold text-slate-600">{tt('Miembros del equipo')}</p>
                       <button onClick={() => { setManagingTeam(team); setShowMembersModal(true); }} className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ color: '#00838F', backgroundColor: '#E0F7FA' }}>
                         + Gestionar
                       </button>
@@ -239,7 +242,7 @@ const TeamManager = () => {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-xs text-slate-400 italic">Sin miembros asignados</p>
+                      <p className="text-xs text-slate-400 italic">{tt('Sin miembros asignados')}</p>
                     )}
                   </div>
                 )}
@@ -262,33 +265,33 @@ const TeamManager = () => {
           </DialogHeader>
           <div className="space-y-3 py-2">
             <div>
-              <Label className="text-xs text-slate-500 mb-1 block">Nombre del Equipo *</Label>
-              <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="Ej: Sub-17 Masculino" className="h-9 text-sm border-slate-200 bg-white text-slate-800" data-testid="team-form-name" />
+              <Label className="text-xs text-slate-500 mb-1 block">{tt('Nombre del Equipo *')}</Label>
+              <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder={tt('Ej: Sub-17 Masculino')} className="h-9 text-sm border-slate-200 bg-white text-slate-800" data-testid="team-form-name" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-xs text-slate-500 mb-1 block">Deporte</Label>
+                <Label className="text-xs text-slate-500 mb-1 block">{tt('Deporte')}</Label>
                 <Select value={formData.sport} onValueChange={(v) => setFormData({ ...formData, sport: v })}>
-                  <SelectTrigger className="h-9 text-sm border-slate-200 bg-white text-slate-800" data-testid="team-form-sport"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                  <SelectTrigger className="h-9 text-sm border-slate-200 bg-white text-slate-800" data-testid="team-form-sport"><SelectValue placeholder={tt('Seleccionar')} /></SelectTrigger>
                   <SelectContent className="bg-white">
                     {allSports.map(s => (
                       <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                     ))}
-                    {allSports.length === 0 && <SelectItem value="other">Otro</SelectItem>}
+                    {allSports.length === 0 && <SelectItem value="other">{tt('Otro')}</SelectItem>}
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label className="text-xs text-slate-500 mb-1 block">Categoría</Label>
-                <Input value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} placeholder="Ej: Sub-17, Senior" className="h-9 text-sm border-slate-200 bg-white text-slate-800" data-testid="team-form-category" />
+                <Label className="text-xs text-slate-500 mb-1 block">{tt('Categoría')}</Label>
+                <Input value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} placeholder={tt('Ej: Sub-17, Senior')} className="h-9 text-sm border-slate-200 bg-white text-slate-800" data-testid="team-form-category" />
               </div>
             </div>
             <div>
-              <Label className="text-xs text-slate-500 mb-1 block">Entidad Asociada</Label>
+              <Label className="text-xs text-slate-500 mb-1 block">{tt('Entidad Asociada')}</Label>
               <Select value={formData.entity_id || 'none'} onValueChange={(v) => setFormData({ ...formData, entity_id: v === 'none' ? '' : v })}>
-                <SelectTrigger className="h-9 text-sm border-slate-200 bg-white text-slate-800" data-testid="team-form-entity"><SelectValue placeholder="Sin entidad" /></SelectTrigger>
+                <SelectTrigger className="h-9 text-sm border-slate-200 bg-white text-slate-800" data-testid="team-form-entity"><SelectValue placeholder={tt('Sin entidad')} /></SelectTrigger>
                 <SelectContent className="bg-white">
-                  <SelectItem value="none">Sin entidad</SelectItem>
+                  <SelectItem value="none">{tt('Sin entidad')}</SelectItem>
                   {entities.map(e => (
                     <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
                   ))}
@@ -297,7 +300,7 @@ const TeamManager = () => {
             </div>
           </div>
           <DialogFooter className="gap-2 pt-2">
-            <Button variant="outline" onClick={() => setShowModal(false)} className="h-8 text-xs border-slate-300 text-slate-700 bg-white hover:bg-slate-50">Cancelar</Button>
+            <Button variant="outline" onClick={() => setShowModal(false)} className="h-8 text-xs border-slate-300 text-slate-700 bg-white hover:bg-slate-50">{tt('Cancelar')}</Button>
             <Button onClick={handleSave} disabled={saving} className="h-8 text-xs text-white" style={{ backgroundColor: '#00838F' }} data-testid="save-team-btn">
               {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : null}
               {saving ? 'Guardando...' : editingTeam ? 'Actualizar' : 'Crear Equipo'}
@@ -343,12 +346,12 @@ const TeamManager = () => {
                   })}
                 </div>
               ) : (
-                <p className="text-xs text-slate-400 italic px-2">Sin miembros</p>
+                <p className="text-xs text-slate-400 italic px-2">{tt('Sin miembros')}</p>
               )}
             </div>
             {/* Available Athletes */}
             <div>
-              <p className="text-xs font-semibold text-slate-500 mb-2">Atletas disponibles</p>
+              <p className="text-xs font-semibold text-slate-500 mb-2">{tt('Atletas disponibles')}</p>
               {athletes.filter(a => !(managingTeam?.athletes || []).includes(a.id)).length > 0 ? (
                 <div className="space-y-1">
                   {athletes.filter(a => !(managingTeam?.athletes || []).includes(a.id)).map(a => (
@@ -369,12 +372,12 @@ const TeamManager = () => {
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-slate-400 italic px-2">Todos los atletas ya están en el equipo</p>
+                <p className="text-xs text-slate-400 italic px-2">{tt('Todos los atletas ya están en el equipo')}</p>
               )}
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowMembersModal(false)} className="h-8 text-xs border-slate-300 text-slate-700 bg-white">Cerrar</Button>
+            <Button variant="outline" onClick={() => setShowMembersModal(false)} className="h-8 text-xs border-slate-300 text-slate-700 bg-white">{tt('Cerrar')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -388,11 +391,11 @@ const TeamManager = () => {
             </DialogTitle>
           </DialogHeader>
           <div className="py-3">
-            <p className="text-sm text-slate-700">¿Eliminar el equipo <strong>"{teamToDelete?.name}"</strong>?</p>
-            <p className="text-xs text-slate-500 mt-2">Los atletas asociados no serán eliminados.</p>
+            <p className="text-sm text-slate-700">{tt('¿Eliminar el equipo')} <strong>"{teamToDelete?.name}"</strong>?</p>
+            <p className="text-xs text-slate-500 mt-2">{tt('Los atletas asociados no serán eliminados.')}</p>
           </div>
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setShowDeleteModal(false)} className="h-9 text-sm border-slate-300 text-slate-700 bg-white">Cancelar</Button>
+            <Button variant="outline" onClick={() => setShowDeleteModal(false)} className="h-9 text-sm border-slate-300 text-slate-700 bg-white">{tt('Cancelar')}</Button>
             <Button onClick={handleDelete} disabled={saving} className="h-9 text-sm text-white bg-rose-600 hover:bg-rose-700">
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
               {saving ? 'Eliminando...' : 'Eliminar'}
