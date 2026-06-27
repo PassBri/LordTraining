@@ -74,7 +74,7 @@ function AppRoutes() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/blog" element={<BlogPage />} />
       <Route path="/blog/:slug" element={<BlogPostPage />} />
-      <Route path="/api-docs" element={<ApiDocsPage />} />
+      <Route path="/docs" element={<ApiDocsPage />} />
       <Route path="/support" element={<SupportPage />} />
       <Route path="/terminos" element={<LegalPage />} />
       <Route path="/privacidad" element={<LegalPage />} />

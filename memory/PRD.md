@@ -1,6 +1,10 @@
 # iTRAIN - Plataforma
 
-## [Jun 2026] Landing FASE 4 — Versión B "Material" (MD3) — DONE (screenshot). 4/4 versiones listas.
+## [Jun 2026] Landing FASE 5 — Páginas Resources (Blog/API Docs/Support) — DONE (iter_89: backend 20/20, gating 9/9; fix routing)
+- Backend `routes/resources.py`: Blog CRUD (`/api/resources/blog`), API Docs bloques editables (`/api/resources/api-docs`), Support (FAQ CRUD, settings de contacto, `/support/contact` público, `/support/messages`), **estado del sistema REAL** (`/api/resources/status` con `db.command('ping')` + latencia + uptime). Gating super admin (`is_super_admin`), seeds por defecto. MongoDB (no Supabase).
+- Frontend: páginas `/blog`, `/blog/:slug`, **`/docs`** (renombrada desde `/api-docs` por choque con el prefijo `/api*` del ingress → BUG CRÍTICO corregido), `/support`. `ResourceLayout` aplica el tema activo (heredan las 4 versiones vía clases slate). Admin `ResourcesManager` (sub-tabs Blog/Docs/Soporte) en SuperAdmin tab "Recursos". Enlace "Recursos" en el nav del landing (→/blog). Verificado backend 20/20, gating 9/9, páginas públicas por screenshot, y `/docs` ahora sirve HTML.
+
+
 - `landing/landingMaterial.css` (scoped a `[data-landing-theme="material"]`). MD3 dark: superficies `#121212`/`#1A1A1A`/`#2C2C2C`, texto `#E3E3E3`/`#C4C7C5`, outline `#444746`, **tipografía Roboto** (Google Fonts), **radios grandes 24px** en cards (16px chips), **botones pill (100px)**, **elevación/sombras MD3** en cards + estado hover (translateY + sombra elevada). Verificado por screenshot (hero Roboto + CTA pill 100px, pricing con cards elevadas y radios 24px). Reseteado a `classic`.
 - **Estado**: las 4 versiones del toggle están completas (Clásico, Futurista, Light, Material), conmutables en vivo desde Super Admin → "Apariencia de Landing", persistidas en MongoDB. Pendiente: validación integral con testing_agent (opcional) + FASE 5 (Resources).
 

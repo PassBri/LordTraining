@@ -15,7 +15,7 @@ export default function ApiDocsPage() {
   }, []);
 
   return (
-    <ResourceLayout active="/api-docs">
+    <ResourceLayout active="/docs">
       <div data-testid="api-docs-page">
         <p className="text-[#CCFF00] text-xs font-bold tracking-widest uppercase mb-2">Developers</p>
         <h1 className="text-4xl sm:text-5xl font-bold text-white mb-8" data-testid="api-docs-title">API Docs</h1>

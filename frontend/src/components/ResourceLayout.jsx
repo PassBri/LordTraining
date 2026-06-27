@@ -8,7 +8,7 @@ import '../landing/landingMaterial.css';
 
 const NAV = [
   { to: '/blog', label: 'Blog' },
-  { to: '/api-docs', label: 'API Docs' },
+  { to: '/docs', label: 'API Docs' },
   { to: '/support', label: 'Soporte' },
 ];
 
