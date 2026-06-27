@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight, CalendarDays, Loader2, X, Activity, Clock, Target, CheckCircle2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
@@ -18,11 +19,11 @@ const CAP_COLORS = {
   default: '#64748B',
 };
 
-const DAY_NAMES = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-const MONTH_NAMES = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
-];
+const CAP_KEY_MAP = {
+  fuerza: 'capFuerza', resistencia: 'capResistencia', velocidad: 'capVelocidad',
+  flexibilidad: 'capFlexibilidad', coordinacion: 'capCoordinacion', tecnica: 'capTecnica',
+  tactica: 'capTactica', recuperacion: 'capRecuperacion',
+};
 
 const ymd = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
@@ -35,9 +36,18 @@ const sessionColor = (sesion) => {
 };
 
 const SessionCalendar = ({ activePlan }) => {
+  const { t, i18n } = useTranslation();
   const { plan, sesiones, microciclos, mesociclos, macrociclos, cargarPlanCompleto, actualizarSesion, loading } = usePlanStore();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(null);
+  const localizedDayNames = useMemo(() => {
+    const monday = new Date(2024, 0, 1); // a Monday
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(monday); d.setDate(monday.getDate() + i);
+      const s = d.toLocaleDateString(i18n.language, { weekday: 'short' });
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    });
+  }, [i18n.language]);
   const [draggedSession, setDraggedSession] = useState(null);
   const [hoveringDay, setHoveringDay] = useState(null);
   const [acting, setActing] = useState(false);
@@ -132,12 +142,12 @@ const SessionCalendar = ({ activePlan }) => {
     try {
       const result = await actualizarSesion(draggedSession.id, { fecha: dateStr });
       if (result) {
-        toast.success(`Sesión movida al ${new Date(dateStr).toLocaleDateString('es')}`);
+        toast.success(`${t('sessionCalendar.sessionMoved')} ${new Date(dateStr).toLocaleDateString(i18n.language)}`);
       } else {
-        toast.error('No se pudo mover la sesión');
+        toast.error(t('sessionCalendar.moveFailed'));
       }
     } catch (err) {
-      toast.error('Error al mover sesión');
+      toast.error(t('sessionCalendar.moveError'));
     } finally {
       setActing(false);
       setDraggedSession(null);
@@ -149,8 +159,8 @@ const SessionCalendar = ({ activePlan }) => {
       <div className="min-h-[60vh] flex items-center justify-center bg-[#fafaf8]">
         <div className="text-center max-w-md">
           <CalendarDays className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-          <h3 className="text-base font-bold text-slate-700 mb-1">Sin plan activo</h3>
-          <p className="text-sm text-slate-500">Selecciona un plan en el panel lateral para ver su calendario de sesiones.</p>
+          <h3 className="text-base font-bold text-slate-700 mb-1">{t('sessionCalendar.noActivePlan')}</h3>
+          <p className="text-sm text-slate-500">{t('sessionCalendar.noActivePlanHint')}</p>
         </div>
       </div>
     );
@@ -177,12 +187,12 @@ const SessionCalendar = ({ activePlan }) => {
         <div className="relative max-w-6xl mx-auto px-6 py-6">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
-              <p className="text-[11px] font-bold tracking-[0.2em] uppercase text-white/60 mb-1.5">Calendario · {activePlan.name}</p>
-              <h1 className="text-[28px] font-bold text-white leading-tight">
-                {MONTH_NAMES[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+              <p className="text-[11px] font-bold tracking-[0.2em] uppercase text-white/60 mb-1.5">{t('sessionCalendar.calendar')} · {activePlan.name}</p>
+              <h1 className="text-[28px] font-bold text-white leading-tight capitalize">
+                {currentMonth.toLocaleDateString(i18n.language, { month: 'long' })} {currentMonth.getFullYear()}
               </h1>
               <p className="text-[12px] text-white/70 mt-1">
-                {totalSessionsThisMonth} sesiones programadas · arrastra para reagendar
+                {totalSessionsThisMonth} {t('sessionCalendar.scheduledSessions')}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -190,7 +200,7 @@ const SessionCalendar = ({ activePlan }) => {
                 <ChevronLeft className="w-5 h-5" />
               </Button>
               <Button onClick={goToday} variant="ghost" className="rounded-full h-10 px-4 bg-white text-indigo-900 hover:bg-white/90 text-[12px] font-bold tracking-wider uppercase" data-testid="cal-today-btn">
-                Hoy
+                {t('sessionCalendar.today')}
               </Button>
               <Button onClick={goNext} variant="ghost" size="sm" className="rounded-full h-10 w-10 p-0 bg-white/10 hover:bg-white/20 text-white border border-white/20" data-testid="cal-next-btn">
                 <ChevronRight className="w-5 h-5" />
@@ -211,8 +221,8 @@ const SessionCalendar = ({ activePlan }) => {
         >
           {/* Day headers */}
           <div className="grid grid-cols-7 border-b border-slate-100 bg-slate-50/60">
-            {DAY_NAMES.map(d => (
-              <div key={d} className="px-2 py-2.5 text-center text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            {localizedDayNames.map((d, di) => (
+              <div key={di} className="px-2 py-2.5 text-center text-[11px] font-bold uppercase tracking-wider text-slate-500">
                 {d}
               </div>
             ))}
@@ -263,17 +273,17 @@ const SessionCalendar = ({ activePlan }) => {
                           onClick={(e) => { e.stopPropagation(); setSelectedDay({ date: cell.date, sessions: [s] }); }}
                           className="px-1.5 py-1 rounded-md text-[10px] font-semibold leading-tight truncate cursor-grab active:cursor-grabbing hover:scale-[1.02] transition-transform"
                           style={{ background: color + '20', color: color, borderLeft: `3px solid ${color}` }}
-                          title={s.nombre || 'Sesión'}
+                          title={s.nombre || t('sessionCalendar.session')}
                           data-testid={`session-chip-${s.id}`}
                         >
                           {s.completada && <CheckCircle2 className="inline w-2.5 h-2.5 mr-1" />}
-                          {s.nombre || `Sesión ${s.orden_dia || ''}`}
+                          {s.nombre || `${t('sessionCalendar.session')} ${s.orden_dia || ''}`}
                         </div>
                       );
                     })}
                     {cellSessions.length > 3 && (
                       <div className="text-[9px] text-slate-500 px-1 font-semibold">
-                        +{cellSessions.length - 3} más
+                        +{cellSessions.length - 3} {t('sessionCalendar.more')}
                       </div>
                     )}
                   </div>
@@ -285,18 +295,18 @@ const SessionCalendar = ({ activePlan }) => {
 
         {/* Legend */}
         <div className="flex items-center gap-3 mt-4 flex-wrap text-[11px]">
-          <span className="font-bold uppercase tracking-wider text-slate-500">Capacidades:</span>
+          <span className="font-bold uppercase tracking-wider text-slate-500">{t('sessionCalendar.capacities')}</span>
           {Object.entries(CAP_COLORS).filter(([k]) => k !== 'default').map(([k, c]) => (
             <span key={k} className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-white border border-slate-200">
               <span className="w-2 h-2 rounded-full" style={{ background: c }} />
-              <span className="capitalize text-slate-600">{k}</span>
+              <span className="capitalize text-slate-600">{CAP_KEY_MAP[k] ? t(`sessionCalendar.${CAP_KEY_MAP[k]}`) : k}</span>
             </span>
           ))}
-          {acting && <span className="text-slate-400 ml-2 inline-flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Reagendando…</span>}
+          {acting && <span className="text-slate-400 ml-2 inline-flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> {t('sessionCalendar.rescheduling')}</span>}
         </div>
 
         <p className="mt-4 text-[11px] text-slate-400 text-center">
-          💡 Arrastra una sesión a otro día para reagendarla · Click en el día para ver detalles
+          💡 {t('sessionCalendar.dragHint')}
         </p>
       </div>
 
@@ -306,7 +316,7 @@ const SessionCalendar = ({ activePlan }) => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CalendarDays className="w-5 h-5 text-blue-600" />
-              {selectedDay && selectedDay.date.toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+              {selectedDay && selectedDay.date.toLocaleDateString(i18n.language, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-3 max-h-[60vh] overflow-y-auto">
@@ -318,10 +328,10 @@ const SessionCalendar = ({ activePlan }) => {
               return (
                 <div key={s.id} className="rounded-xl border border-slate-200 p-4 hover:shadow-sm transition-shadow" style={{ borderLeft: `4px solid ${color}` }}>
                   <div className="flex items-start justify-between gap-2">
-                    <h4 className="text-sm font-bold text-slate-900">{s.nombre || `Sesión ${s.orden_dia || ''}`}</h4>
+                    <h4 className="text-sm font-bold text-slate-900">{s.nombre || `${t('sessionCalendar.session')} ${s.orden_dia || ''}`}</h4>
                     {s.completada && (
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                        <CheckCircle2 className="w-2.5 h-2.5" /> Realizada
+                        <CheckCircle2 className="w-2.5 h-2.5" /> {t('sessionCalendar.done')}
                       </span>
                     )}
                   </div>
@@ -341,7 +351,7 @@ const SessionCalendar = ({ activePlan }) => {
                       )}
                       {micro && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-semibold uppercase tracking-wider">
-                          Sem {micro.numero_semana} · {micro.tipo || 'choque'}
+                          {t('sessionCalendar.week')} {micro.numero_semana} · {micro.tipo || 'choque'}
                         </span>
                       )}
                     </div>
@@ -378,7 +388,7 @@ const SessionCalendar = ({ activePlan }) => {
                     className="mt-3 w-full text-[11px] text-blue-700 hover:bg-blue-50 h-8"
                     data-testid={`open-in-periodization-${s.id}`}
                   >
-                    <Activity className="w-3 h-3 mr-1.5" /> Ver/editar en Periodización →
+                    <Activity className="w-3 h-3 mr-1.5" /> {t('sessionCalendar.openInPeriodization')} →
                   </Button>
                 </div>
               );

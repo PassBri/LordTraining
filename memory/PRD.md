@@ -2,6 +2,16 @@
 
 ## Credenciales: test@train.com / test123456
 
+## [Jun 2026] Multiidioma — FASE B (Portal Atleta) + FASE A MENOR COMPLETADAS
+- **Fase B Portal Atleta (COMPLETA, 12 idiomas):** internacionalizado `AthletePortalPanel.js` (tabs Mi Plan/Mi estado/Récords, registro diario/readiness, sliders, récords, capacidades, recordatorio "hoy", toasts) — los otros 3 archivos (`AthletePortalPublic.js`, `AthletePortalAuth.js`, `AthletePlanView.js`) ya estaban hechos. Namespace `athlete` en los 12 locales (todas las claves ya existían; sólo se añadió `athleteDefault`). Verificado en EN por screenshot (panel + tab "My status").
+- **Fase A menor (COMPLETA, 12 idiomas):**
+  - `ControlPanel.js`: sub-secciones inferiores con t() → Métricas Detalladas, Objetivos del Plan, Comparativa Semanal (vs semana anterior), Capacidades Físicas (radar), Distribución por Capacidad, Calendario de Sesiones (días localizados + leyenda Completada/Programada/Perdida), Próximas Competencias, Récords Personales + sus empty states. Fechas (`toLocaleDateString`) ahora usan `i18n.language` en vez de 'es-ES'. Claves nuevas bajo `dashboard.controlPanel.*` (incl. `weekdays`).
+  - `SessionCalendar.js`: i18n añadido (no tenía). Namespace nuevo `sessionCalendar` (incl. mapa de capacidades capFuerza..capRecuperacion). Días/mes localizados vía `i18n.language` (eliminados arrays DAY_NAMES/MONTH_NAMES). Toasts de drag&drop traducidos.
+  - `DashboardPage.js`: label del FAB "Sesiones" → `t('dashboard.nav.sessions')`.
+  - Script reutilizable usado: `python3 i18n_tools.py translate <spec.json>` (gpt-5.4) generó PT/AR/HI/ID/FR/DE/JA/KO/RU/ZH. Verificado en EN por screenshot (todas las sub-secciones del panel + Session Calendar M-T-W-T-F-S-S).
+- **Pendiente i18n:** Fase C (Periodización/Sesiones/Datos — incl. leyendas de charts InteractiveChart/AdvancedMetrics: "En vivo", "Estable", "Carga Acumulada", "Competitivo/Precompetitivo/...", "Zona Óptima", modal export PDF de ControlPanel), Fase D (Calculadoras/Scouting/Reportes/SuperAdmin), Landing (multi-sport section aún en ES).
+
+
 ## [Jun 2026] Multiidioma — FASE A (Shell del Dashboard) COMPLETADA
 - i18n (react-i18next) ya existía con 12 idiomas; localStorage key = `train_language`, fallback en i18n.js.
 - Claves nuevas añadidas bajo `dashboard.{shell,controlPanel,metrics,alerts,weekly,demo,nav}` en los 12 locales. ES/EN escritos a mano; PT/AR/HI/ID/FR/DE/JA/KO/RU traducidos con IA (script `/app/backend/translate_fase_a.py` usando emergentintegrations gpt-5.4); ZH completado a mano (presupuesto de la clave LLM se agotó).

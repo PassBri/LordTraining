@@ -101,7 +101,7 @@ const ControlPanel = ({
   activePlan = null,
   trainingPlans = []
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [volumeData, setVolumeData] = useState([]);
   const [intensityData, setIntensityData] = useState([]);
   const [phaseDistribution, setPhaseDistribution] = useState([]);
@@ -968,9 +968,9 @@ const ControlPanel = ({
                 <LayoutDashboard className="w-5 h-5 text-[#CCFF00]" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-900">Panel de Control</h2>
+                <h2 className="text-lg font-bold text-slate-900">{t('dashboard.controlPanel.title')}</h2>
                 <span className="text-[13px] text-slate-400">
-                  {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}
+                  {new Date().toLocaleDateString(i18n.language, { weekday: 'long', day: 'numeric', month: 'short' })}
                 </span>
               </div>
             </div>
@@ -1382,7 +1382,7 @@ const ControlPanel = ({
 
         {/* ===== SECCIÓN DE VISUALIZACIONES ADICIONALES ===== */}
         <div className="border-t border-slate-200 pt-5 mt-2">
-          <h3 className="text-sm font-semibold text-slate-700 mb-4">Métricas Detalladas</h3>
+          <h3 className="text-sm font-semibold text-slate-700 mb-4">{t('dashboard.controlPanel.detailedMetrics')}</h3>
         </div>
 
         {/* Row 3: Progreso de Objetivos + Comparativa Semanal + Radar */}
@@ -1393,22 +1393,22 @@ const ControlPanel = ({
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Target className="w-5 h-5 text-blue-500" />
-                Objetivos del Plan
+                {t('dashboard.controlPanel.objectivesTitle')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2.5 max-h-[260px] overflow-y-auto">
               {realObjectives.length === 0 ? (
                 <div className="py-8 flex flex-col items-center justify-center text-center text-slate-400 gap-2">
                   <Target className="w-8 h-8 text-slate-300" />
-                  <p className="text-sm">Aún sin objetivos definidos</p>
-                  <p className="text-xs text-slate-400">Define los objetivos del plan en Datos del plan → Objetivos.</p>
+                  <p className="text-sm">{t('dashboard.controlPanel.noObjectives')}</p>
+                  <p className="text-xs text-slate-400">{t('dashboard.controlPanel.noObjectivesHint')}</p>
                 </div>
               ) : realObjectives.map((obj) => (
                 <button
                   key={obj.id}
                   onClick={() => onNavigate && onNavigate('datos', 'objectives')}
                   className="w-full flex items-start gap-2.5 text-left rounded-lg p-1.5 -mx-1.5 hover:bg-slate-50 transition-colors group"
-                  title="Editar objetivos en Periodización"
+                  title={t('dashboard.controlPanel.editObjectivesTitle')}
                   data-testid={`panel-objective-${obj.id}`}
                 >
                   <span className="mt-1 w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: obj.color }} />
@@ -1428,16 +1428,16 @@ const ControlPanel = ({
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
                 <TrendingUp className="w-5 h-5 text-emerald-500" />
-                Comparativa Semanal
-                <span className="text-xs text-slate-400 font-normal ml-auto">vs semana anterior</span>
+                {t('dashboard.controlPanel.weeklyComparison')}
+                <span className="text-xs text-slate-400 font-normal ml-auto">{t('dashboard.controlPanel.vsLastWeek')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               {!weeklyComparison ? (
                 <div className="py-8 flex flex-col items-center justify-center text-center text-slate-400 gap-2">
                   <TrendingUp className="w-8 h-8 text-slate-300" />
-                  <p className="text-sm">Sin sesiones con fecha esta/última semana</p>
-                  <p className="text-xs text-slate-400">Programa sesiones con fecha para comparar semanas.</p>
+                  <p className="text-sm">{t('dashboard.controlPanel.noWeekSessions')}</p>
+                  <p className="text-xs text-slate-400">{t('dashboard.controlPanel.noWeekSessionsHint')}</p>
                 </div>
               ) : (
               <div className="space-y-3">
@@ -1450,7 +1450,7 @@ const ControlPanel = ({
                       <span className="text-sm text-slate-600">{item.metric}</span>
                       <div className="flex items-center gap-3">
                         <span className="text-xs text-slate-400">
-                          ant: {item.anterior}{item.unidad}
+                          {t('dashboard.controlPanel.prevShort')}: {item.anterior}{item.unidad}
                         </span>
                         <div className="flex items-center gap-1">
                           <span className="font-semibold text-slate-800">
@@ -1478,15 +1478,15 @@ const ControlPanel = ({
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Activity className="w-5 h-5 text-slate-400" />
-                Capacidades Físicas
+                {t('dashboard.controlPanel.physicalCapabilities')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {realCapabilities.length === 0 ? (
                 <div className="h-[200px] flex flex-col items-center justify-center text-center text-slate-400 gap-2">
                   <Activity className="w-8 h-8 text-slate-300" />
-                  <p className="text-sm">Aún sin datos de evaluación física</p>
-                  <p className="text-xs text-slate-400">Registra una evaluación física en Datos del plan para ver el radar.</p>
+                  <p className="text-sm">{t('dashboard.controlPanel.noPhysicalData')}</p>
+                  <p className="text-xs text-slate-400">{t('dashboard.controlPanel.noPhysicalDataHint')}</p>
                 </div>
               ) : (
               <ResponsiveContainer width="100%" height={200}>
@@ -1495,7 +1495,7 @@ const ControlPanel = ({
                   <PolarAngleAxis dataKey="ability" tick={{ fontSize: 10, fill: '#6B7280' }} />
                   <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 9 }} />
                   <Radar
-                    name="Capacidades"
+                    name={t('dashboard.controlPanel.capabilities')}
                     dataKey="value"
                     stroke="#007AFF"
                     fill="#007AFF"
@@ -1521,9 +1521,9 @@ const ControlPanel = ({
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Zap className="w-5 h-5 text-amber-500" />
-                Distribución por Capacidad
+                {t('dashboard.controlPanel.distributionByCapacity')}
                 <span className="text-xs text-slate-400 font-normal ml-auto">
-                  {calendarMonth.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
+                  {calendarMonth.toLocaleDateString(i18n.language, { month: 'long', year: 'numeric' })}
                 </span>
               </CardTitle>
             </CardHeader>
@@ -1531,8 +1531,8 @@ const ControlPanel = ({
               {capacityDistribution.length === 0 ? (
                 <div className="py-10 flex flex-col items-center justify-center text-center text-slate-400 gap-2">
                   <Target className="w-8 h-8 text-slate-300" />
-                  <p className="text-sm">Sin sesiones planificadas este mes</p>
-                  <p className="text-xs text-slate-400">Diseña sesiones en Periodización para ver la distribución.</p>
+                  <p className="text-sm">{t('dashboard.controlPanel.noSessionsThisMonth')}</p>
+                  <p className="text-xs text-slate-400">{t('dashboard.controlPanel.noSessionsThisMonthHint')}</p>
                 </div>
               ) : (
               <>
@@ -1569,11 +1569,11 @@ const ControlPanel = ({
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
                 <CalendarDays className="w-5 h-5 text-slate-400" />
-                Calendario de Sesiones
+                {t('dashboard.controlPanel.sessionCalendar')}
                 <div className="ml-auto flex items-center gap-1">
                   <button onClick={() => setCalendarMonth(d => new Date(d.getFullYear(), d.getMonth() - 1, 1))} className="p-1 rounded hover:bg-slate-100" data-testid="panel-cal-prev"><ChevronLeft className="w-4 h-4 text-slate-500" /></button>
                   <span className="text-xs text-slate-500 font-medium capitalize min-w-[110px] text-center">
-                    {calendarMonth.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
+                    {calendarMonth.toLocaleDateString(i18n.language, { month: 'long', year: 'numeric' })}
                   </span>
                   <button onClick={() => setCalendarMonth(d => new Date(d.getFullYear(), d.getMonth() + 1, 1))} className="p-1 rounded hover:bg-slate-100" data-testid="panel-cal-next"><ChevronRight className="w-4 h-4 text-slate-500" /></button>
                 </div>
@@ -1581,8 +1581,8 @@ const ControlPanel = ({
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-7 gap-1 mb-2">
-                {['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((day) => (
-                  <div key={day} className="text-center text-xs font-medium text-slate-400">{day}</div>
+                {['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((day, di) => (
+                  <div key={di} className="text-center text-xs font-medium text-slate-400">{(t('dashboard.controlPanel.weekdays').split(',')[di]) || day}</div>
                 ))}
               </div>
               <div className="grid grid-cols-7 gap-1">
@@ -1609,7 +1609,7 @@ const ControlPanel = ({
                         key={d}
                         onClick={() => daySessions.length > 0 && setSelectedCalendarDay({ date: dateObj, sessions: daySessions })}
                         className={`relative w-9 h-9 rounded-lg flex items-center justify-center text-xs font-medium transition-all ${cls} ${daySessions.length > 0 ? 'cursor-pointer hover:scale-110' : 'cursor-default'} ${isToday ? 'ring-2 ring-blue-400' : ''}`}
-                        title={daySessions.length > 0 ? `${daySessions.length} sesión(es) · ${status === 'completed' ? 'Completada' : status === 'missed' ? 'Perdida' : 'Programada'}` : 'Sin sesión'}
+                        title={daySessions.length > 0 ? `${daySessions.length} ${t('dashboard.controlPanel.sessionCount')} · ${status === 'completed' ? t('dashboard.controlPanel.legendCompleted') : status === 'missed' ? t('dashboard.controlPanel.legendMissed') : t('dashboard.controlPanel.legendScheduled')}` : t('dashboard.controlPanel.noSession')}
                         data-testid={`panel-day-${dateStr}`}
                       >
                         {d}
@@ -1621,11 +1621,11 @@ const ControlPanel = ({
                 })()}
               </div>
               <div className="flex items-center justify-center gap-4 mt-3 pt-3 border-t border-slate-100">
-                <div className="flex items-center gap-1 text-xs"><div className="w-3 h-3 rounded bg-emerald-100" /><span className="text-slate-500">Completada</span></div>
-                <div className="flex items-center gap-1 text-xs"><div className="w-3 h-3 rounded bg-amber-100" /><span className="text-slate-500">Programada</span></div>
-                <div className="flex items-center gap-1 text-xs"><div className="w-3 h-3 rounded bg-red-100" /><span className="text-slate-500">Perdida</span></div>
+                <div className="flex items-center gap-1 text-xs"><div className="w-3 h-3 rounded bg-emerald-100" /><span className="text-slate-500">{t('dashboard.controlPanel.legendCompleted')}</span></div>
+                <div className="flex items-center gap-1 text-xs"><div className="w-3 h-3 rounded bg-amber-100" /><span className="text-slate-500">{t('dashboard.controlPanel.legendScheduled')}</span></div>
+                <div className="flex items-center gap-1 text-xs"><div className="w-3 h-3 rounded bg-red-100" /><span className="text-slate-500">{t('dashboard.controlPanel.legendMissed')}</span></div>
               </div>
-              <p className="mt-2 text-[11px] text-slate-400 text-center">Click en un día con sesión para ver el detalle</p>
+              <p className="mt-2 text-[11px] text-slate-400 text-center">{t('dashboard.controlPanel.clickDayDetail')}</p>
             </CardContent>
           </Card>
         </div>
@@ -1638,15 +1638,15 @@ const ControlPanel = ({
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Trophy className="w-5 h-5 text-slate-400" />
-                Próximas Competencias
+                {t('dashboard.controlPanel.upcomingCompetitions')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {realCompetitions.length === 0 ? (
                 <div className="py-8 flex flex-col items-center justify-center text-center text-slate-400 gap-2">
                   <Trophy className="w-8 h-8 text-slate-300" />
-                  <p className="text-sm">Sin competencias próximas</p>
-                  <p className="text-xs text-slate-400">Agrega competencias del plan en Datos del plan.</p>
+                  <p className="text-sm">{t('dashboard.controlPanel.noUpcomingComps')}</p>
+                  <p className="text-xs text-slate-400">{t('dashboard.controlPanel.noUpcomingCompsHint')}</p>
                 </div>
               ) : realCompetitions.map((comp) => (
                 <div 
@@ -1666,7 +1666,7 @@ const ControlPanel = ({
                         {comp.location}
                         <span className="text-slate-300">•</span>
                         <Calendar className="w-3 h-3" />
-                        {new Date(comp.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                        {new Date(comp.date).toLocaleDateString(i18n.language, { day: 'numeric', month: 'short' })}
                       </div>
                     </div>
                     <div className={`px-3 py-1 rounded-full text-xs font-bold ${
@@ -1687,7 +1687,7 @@ const ControlPanel = ({
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Medal className="w-5 h-5 text-slate-400" />
-                Récords Personales
+                {t('dashboard.controlPanel.personalRecords')}
                 <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full ml-auto">PRs</span>
               </CardTitle>
             </CardHeader>
@@ -1696,8 +1696,8 @@ const ControlPanel = ({
                 {realRecords.length === 0 ? (
                   <div className="py-8 flex flex-col items-center justify-center text-center text-slate-400 gap-2">
                     <Medal className="w-8 h-8 text-slate-300" />
-                    <p className="text-sm">Aún sin récords registrados</p>
-                    <p className="text-xs text-slate-400">Completa los indicadores en "Análisis del Plan Anterior".</p>
+                    <p className="text-sm">{t('dashboard.controlPanel.noRecords')}</p>
+                    <p className="text-xs text-slate-400">{t('dashboard.controlPanel.noRecordsHint')}</p>
                   </div>
                 ) : realRecords.map((pr) => (
                   <div 

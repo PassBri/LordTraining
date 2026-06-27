@@ -4555,7 +4555,7 @@ const DashboardPage = () => {
                   <CalendarDays className="w-[18px] h-[18px] transition-transform duration-300" strokeWidth={2} />
                 </div>
                 <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-700 group-hover:text-slate-900 transition-colors duration-300 max-w-[60px]">
-                  Sesiones
+                  {t('dashboard.nav.sessions')}
                 </span>
               </button>
 

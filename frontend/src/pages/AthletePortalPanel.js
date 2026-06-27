@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Loader2, LogOut, Heart, Trophy, Activity, ClipboardList, BellRing, X } from 'lucide-react';
 import AthletePlanView from '../components/athlete/AthletePlanView';
@@ -7,6 +8,7 @@ import { athleteGetPlan, athleteCompleteSession, athleteSaveReadiness, athleteGe
 
 const AthletePortalPanel = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [tab, setTab] = useState('plan');
   const [plan, setPlan] = useState(null);
   const [records, setRecords] = useState({ records: [], capabilities: [] });
@@ -24,25 +26,25 @@ const AthletePortalPanel = () => {
       if (rd.data.today) { setTodayReadiness(rd.data.today); setReadiness(rd.data.today); }
     } catch (e) {
       if (e?.response?.status === 401) { localStorage.removeItem('athlete_token'); navigate('/atleta/login'); }
-      else toast.error('Error cargando datos');
+      else toast.error(t('athlete.errorLoading'));
     } finally { setLoading(false); }
-  }, [navigate]);
+  }, [navigate, t]);
 
   useEffect(() => { loadAll(); }, [loadAll]);
 
   const handleComplete = useCallback(async (sessionId, body) => {
     await athleteCompleteSession(sessionId, body);
-    toast.success('Sesión actualizada');
+    toast.success(t('athlete.sessionUpdated'));
     const p = await athleteGetPlan(); setPlan(p.data);
-  }, []);
+  }, [t]);
 
   const saveReadiness = async () => {
     setSavingR(true);
     try {
       const res = await athleteSaveReadiness(readiness);
       setTodayReadiness({ ...readiness, overall: res.data.overall });
-      toast.success(`Registrado · Disponibilidad ${res.data.overall}%`);
-    } catch { toast.error('No se pudo guardar'); }
+      toast.success(`${t('athlete.registered')} · ${t('athlete.kpiAdherence')} ${res.data.overall}%`);
+    } catch { toast.error(t('athlete.couldNotSave')); }
     finally { setSavingR(false); }
   };
 
@@ -56,10 +58,10 @@ const AthletePortalPanel = () => {
   if (loading) return <div className="min-h-screen bg-[#0a0e14] flex items-center justify-center"><Loader2 className="w-8 h-8 text-[#CCFF00] animate-spin" /></div>;
 
   const SLIDERS = [
-    { key: 'sleep', label: 'Calidad de sueño', color: '#3B82F6' },
-    { key: 'muscle_soreness', label: 'Dolor muscular', color: '#EF4444' },
-    { key: 'stress', label: 'Estrés', color: '#F59E0B' },
-    { key: 'motivation', label: 'Motivación', color: '#10B981' },
+    { key: 'sleep', label: t('athlete.sleepQuality'), color: '#3B82F6' },
+    { key: 'muscle_soreness', label: t('athlete.muscleSoreness'), color: '#EF4444' },
+    { key: 'stress', label: t('athlete.stress'), color: '#F59E0B' },
+    { key: 'motivation', label: t('athlete.motivation'), color: '#10B981' },
   ];
 
   return (
@@ -68,15 +70,15 @@ const AthletePortalPanel = () => {
         <div className="max-w-6xl mx-auto px-5 py-3 flex items-center justify-between">
           <span className="text-white font-bold tracking-tight">Lord<span className="text-[#CCFF00]">Training</span></span>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-slate-300">{info.name || 'Atleta'}</span>
+            <span className="text-sm text-slate-300">{info.name || t('athlete.athleteDefault', 'Atleta')}</span>
             <button onClick={logout} className="text-slate-400 hover:text-white" data-testid="athlete-logout"><LogOut className="w-4 h-4" /></button>
           </div>
         </div>
         <div className="max-w-6xl mx-auto px-5 flex gap-1">
-          {[{ id: 'plan', label: 'Mi Plan', icon: ClipboardList }, { id: 'readiness', label: 'Mi estado', icon: Heart }, { id: 'records', label: 'Récords', icon: Trophy }].map((t) => (
-            <button key={t.id} onClick={() => setTab(t.id)} data-testid={`athlete-tab-${t.id}`}
-              className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${tab === t.id ? 'border-[#CCFF00] text-[#CCFF00]' : 'border-transparent text-slate-400 hover:text-white'}`}>
-              <t.icon className="w-4 h-4" />{t.label}
+          {[{ id: 'plan', label: t('athlete.myPlan'), icon: ClipboardList }, { id: 'readiness', label: t('athlete.myState'), icon: Heart }, { id: 'records', label: t('athlete.records'), icon: Trophy }].map((t2) => (
+            <button key={t2.id} onClick={() => setTab(t2.id)} data-testid={`athlete-tab-${t2.id}`}
+              className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${tab === t2.id ? 'border-[#CCFF00] text-[#CCFF00]' : 'border-transparent text-slate-400 hover:text-white'}`}>
+              <t2.icon className="w-4 h-4" />{t2.label}
             </button>
           ))}
         </div>
@@ -89,13 +91,13 @@ const AthletePortalPanel = () => {
             <div className="flex-1">
               <p className="text-white font-semibold text-sm">
                 {todayPending.length > 0
-                  ? `Tienes entrenamiento hoy: ${todayPending.map(s => s.nombre).join(', ')}`
-                  : '¡Completaste tu entrenamiento de hoy! 💪'}
+                  ? `${t('athlete.reminderToday')} ${todayPending.map(s => s.nombre).join(', ')}`
+                  : `${t('athlete.reminderDone')} 💪`}
               </p>
               <p className="text-slate-300 text-xs mt-0.5">
                 {todayPending.length > 0
-                  ? 'Recuerda marcarlo como completado y registrar tu RPE al terminar.'
-                  : 'Buen trabajo. No olvides registrar tu estado en "Mi estado".'}
+                  ? t('athlete.reminderTodayHint')
+                  : t('athlete.reminderDoneHint')}
               </p>
             </div>
             <button onClick={() => setReminderDismissed(true)} className="text-slate-400 hover:text-white" data-testid="athlete-reminder-dismiss"><X className="w-4 h-4" /></button>
@@ -105,15 +107,15 @@ const AthletePortalPanel = () => {
           plan?.plan ? (
             <AthletePlanView athleteName={info.name} plan={plan.plan} sessions={plan.sessions} competitions={plan.competitions} onComplete={handleComplete} />
           ) : (
-            <div className="text-center py-20 text-slate-400">Aún no tienes un plan asignado. Contacta a tu entrenador.</div>
+            <div className="text-center py-20 text-slate-400">{t('athlete.noPlanAssigned')}</div>
           )
         )}
 
         {tab === 'readiness' && (
           <div className="max-w-lg mx-auto rounded-2xl bg-slate-900/70 border border-white/10 p-6" data-testid="athlete-readiness-form">
-            <h2 className="text-white font-semibold flex items-center gap-2 mb-1"><Heart className="w-5 h-5 text-[#CCFF00]" />Registro diario</h2>
-            <p className="text-slate-400 text-sm mb-5">Esto le ayuda a tu entrenador a ajustar tu carga.</p>
-            {todayReadiness && <div className="mb-5 rounded-xl bg-[#CCFF00]/10 border border-[#CCFF00]/30 p-3 text-center"><span className="text-slate-300 text-sm">Disponibilidad de hoy: </span><span className="text-[#CCFF00] font-bold text-lg">{todayReadiness.overall}%</span></div>}
+            <h2 className="text-white font-semibold flex items-center gap-2 mb-1"><Heart className="w-5 h-5 text-[#CCFF00]" />{t('athlete.dailyLog')}</h2>
+            <p className="text-slate-400 text-sm mb-5">{t('athlete.dailyLogHint')}</p>
+            {todayReadiness && <div className="mb-5 rounded-xl bg-[#CCFF00]/10 border border-[#CCFF00]/30 p-3 text-center"><span className="text-slate-300 text-sm">{t('athlete.availabilityToday')} </span><span className="text-[#CCFF00] font-bold text-lg">{todayReadiness.overall}%</span></div>}
             <div className="space-y-5">
               {SLIDERS.map((s) => (
                 <div key={s.key}>
@@ -121,9 +123,9 @@ const AthletePortalPanel = () => {
                   <input type="range" min="0" max="100" value={readiness[s.key]} onChange={(e) => setReadiness({ ...readiness, [s.key]: Number(e.target.value) })} className="w-full" style={{ accentColor: s.color }} data-testid={`readiness-${s.key}`} />
                 </div>
               ))}
-              <textarea value={readiness.notes || ''} onChange={(e) => setReadiness({ ...readiness, notes: e.target.value })} rows={2} placeholder="Notas (opcional)" className="w-full rounded-lg bg-white/5 border border-white/10 text-white text-sm p-2.5 placeholder:text-slate-500" data-testid="readiness-notes" />
+              <textarea value={readiness.notes || ''} onChange={(e) => setReadiness({ ...readiness, notes: e.target.value })} rows={2} placeholder={t('athlete.notesOptional')} className="w-full rounded-lg bg-white/5 border border-white/10 text-white text-sm p-2.5 placeholder:text-slate-500" data-testid="readiness-notes" />
               <button onClick={saveReadiness} disabled={savingR} className="w-full h-11 rounded-lg bg-[#CCFF00] text-slate-900 font-semibold flex items-center justify-center gap-2" data-testid="readiness-save">
-                {savingR ? <Loader2 className="w-4 h-4 animate-spin" /> : <Activity className="w-4 h-4" />}Guardar mi estado
+                {savingR ? <Loader2 className="w-4 h-4 animate-spin" /> : <Activity className="w-4 h-4" />}{t('athlete.saveMyState')}
               </button>
             </div>
           </div>
@@ -132,8 +134,8 @@ const AthletePortalPanel = () => {
         {tab === 'records' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5" data-testid="athlete-records">
             <div className="rounded-2xl bg-slate-900/70 border border-white/10 p-6">
-              <h2 className="text-white font-semibold flex items-center gap-2 mb-4"><Trophy className="w-5 h-5 text-amber-400" />Récords personales</h2>
-              {records.records.length === 0 ? <p className="text-slate-500 text-sm py-6 text-center">Aún sin récords registrados.</p> : (
+              <h2 className="text-white font-semibold flex items-center gap-2 mb-4"><Trophy className="w-5 h-5 text-amber-400" />{t('athlete.personalRecords')}</h2>
+              {records.records.length === 0 ? <p className="text-slate-500 text-sm py-6 text-center">{t('athlete.noRecords')}</p> : (
                 <div className="space-y-2.5">
                   {records.records.map((r, i) => (
                     <div key={i} className="flex items-center justify-between rounded-xl bg-white/5 p-3">
@@ -145,8 +147,8 @@ const AthletePortalPanel = () => {
               )}
             </div>
             <div className="rounded-2xl bg-slate-900/70 border border-white/10 p-6">
-              <h2 className="text-white font-semibold flex items-center gap-2 mb-4"><Activity className="w-5 h-5 text-[#CCFF00]" />Capacidades físicas</h2>
-              {records.capabilities.length === 0 ? <p className="text-slate-500 text-sm py-6 text-center">Aún sin evaluación física.</p> : (
+              <h2 className="text-white font-semibold flex items-center gap-2 mb-4"><Activity className="w-5 h-5 text-[#CCFF00]" />{t('athlete.physicalCapabilities')}</h2>
+              {records.capabilities.length === 0 ? <p className="text-slate-500 text-sm py-6 text-center">{t('athlete.noEvaluation')}</p> : (
                 <div className="space-y-3">
                   {records.capabilities.map((c, i) => (
                     <div key={i}>
