@@ -1,6 +1,14 @@
 # iTRAIN - Plataforma
 
-## [Jun 2026] REFACTOR FASE 1 — Frontend: code-splitting de DashboardPage.js con React.lazy() — VERIFICADO
+## [Jun 2026] Dual UI Theme: Modo Clásico ⟷ Modo Pro (WhatsApp Web) con toggle — VERIFICADO
+- **`context/UiModeContext.js`**: estado global `uiMode` ('classic'|'whatsapp'), persistido en localStorage ('lordtraining_theme'), `data-ui-mode` en <html>. Provider en App.js (envuelve toda la app).
+- **`components/ThemeToggle.js`**: botón con icono Sol/Luna + label "Modo Clásico/Modo Pro" (variantes light/dark). Visible en el header clásico (top-bar derecha) y en el sidebar del modo Pro → accesible desde el dashboard en ambos modos.
+- **Modo Clásico**: el dashboard actual sin cambios (top-bar de FABs + contenido claro).
+- **Modo Pro (WhatsApp Web)** en DashboardPage: `renderWhatsAppLayout()` → sidebar navy #0A0F1E al 30% (logo, toggle, lista vertical de módulos Panel/Datos/Scouting + Acciones Reporte/Sesiones + secciones del plan cuando aplica, item activo resaltado con borde/texto lima #CCFF00, footer con usuario+logout) y panel derecho claro #F0F2F5 al 70% (header blanco con título de sección + Coach AI, contenido en `<Suspense>` reutilizando `renderMainContent()`). Reusa el MISMO estado/navegación (sin duplicar funcionalidad). Modales y drawer Coach AI compartidos en ambos modos.
+- Transición de color 300ms en el root; preferencia recordada entre sesiones.
+- **Verificado (screenshots+consola)**: login → Panel en ambos modos, toggle Clásico↔Pro, navegación a Scouting en Pro renderiza OK; 0 errores de consola; webpack compila.
+
+
 - **30 componentes de sección pesados** (ControlPanel, CalculatorsHub, TournamentManager, SessionCalendar, ScoutingModule, TacticalBoardSection, PeriodizationComplete, HealthRecords, EvaluationSection, EntityDashboard, SmartAlerts, LoadPanel, FederationPanel, TrainingSystemHub, etc.) convertidos de import estático a `React.lazy(() => import(...))`.
 - Un único `<Suspense fallback={<Loader2 spinner/>}>` envuelve `{renderMainContent()}` (cubre `renderDataContent` también, ya que se renderiza una sección a la vez por navegación `activePanel`/`activeDataSection`).
 - Estáticos (siempre montados / fuera del boundary): modales (PDFExport/MasterReport/SessionsExport/AthletePortal/WeeklySummary), AITrainingAssistant, PlanSidebar, InfoSectionHeader, BrandLogo, LanguageSelector, UI components.

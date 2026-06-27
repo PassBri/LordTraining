@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { GlobalContextProvider } from './context/GlobalContext';
+import { UiModeProvider } from './context/UiModeContext';
 import { Toaster } from './components/ui/sonner';
 import { fetchActiveBranding, applyFavicon } from './utils/branding';
 import initPageTranslator from './pageTranslator';
@@ -139,8 +140,10 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <GlobalContextProvider>
-          <AppRoutes />
-          <Toaster position="top-right" richColors />
+          <UiModeProvider>
+            <AppRoutes />
+            <Toaster position="top-right" richColors />
+          </UiModeProvider>
         </GlobalContextProvider>
       </AuthProvider>
     </BrowserRouter>

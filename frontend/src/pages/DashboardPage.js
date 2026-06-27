@@ -67,6 +67,8 @@ const TournamentManager = lazy(() => import('../components/TournamentManager'));
 import AITrainingAssistant from '../components/AITrainingAssistant';
 import PlanSidebar from '../components/PlanSidebar';
 import SectionSkeleton from '../components/SectionSkeleton';
+import { useUiMode } from '../context/UiModeContext';
+import ThemeToggle from '../components/ThemeToggle';
 import { Badge } from '../components/ui/badge';
 
 const TacticalBoardSection = lazy(() => import('../components/TacticalBoardSection'));
@@ -83,6 +85,7 @@ const USER_ROLES = [
 
 const DashboardPage = () => {
   const { t } = useTranslation();
+  const { uiMode } = useUiMode();
   const modelSlug = (s) => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '').toLowerCase();
   const tModelName = (name) => name ? t('models.' + modelSlug(name), { defaultValue: name }) : name;
   const { user, logout, updateUser } = useAuth();
@@ -4386,8 +4389,150 @@ const DashboardPage = () => {
     );
   }
 
+  // ====== MODO WHATSAPP / PRO: layout con sidebar navy 30% + contenido claro 70% ======
+  const renderWhatsAppLayout = () => {
+    const navIconCls = 'w-[18px] h-[18px] shrink-0';
+    const primaryItems = [
+      { key: 'panel', label: t('dashboard.nav.panel'), icon: LayoutDashboard, active: activePanel === 'panel', onClick: () => setActivePanel('panel') },
+      { key: 'datos', label: t('dashboard.nav.data'), icon: Clipboard, active: activePanel === 'datos' && activeDataSection !== 'scouting', onClick: () => { setActivePanel('datos'); if (!activePlan) setActiveDataSection(null); } },
+      { key: 'scouting', label: 'Scouting', icon: Target, active: activePanel === 'datos' && activeDataSection === 'scouting', onClick: () => { setActivePanel('datos'); setActiveDataSection('scouting'); } },
+    ];
+    const actionItems = [
+      { key: 'report', label: t('dashboard.nav.report'), icon: FileBarChart2, onClick: () => setIsMasterReportOpen(true) },
+      { key: 'sessions', label: t('dashboard.nav.sessions'), icon: CalendarDays, onClick: () => { if (!activePlan?.id) { toast.warning(t('data.selecciona_un_plan_activo_primero')); return; } setIsSessionsExportOpen(true); } },
+    ];
+    const headerTitle = activePanel === 'panel'
+      ? t('dashboard.controlPanel.title', { defaultValue: 'Panel de Control' })
+      : (activeDataSection === 'scouting' ? 'Recruiting & Talent ID' : (currentSectionData?.title || t('dashboard.nav.data')));
+
+    return (
+      <div className="flex h-screen w-full overflow-hidden bg-[#F0F2F5]" data-testid="whatsapp-layout">
+        {/* ===== SIDEBAR (navy) ===== */}
+        <aside className="shrink-0 w-[30%] min-w-[280px] max-w-[360px] h-full bg-[#0A0F1E] text-white flex flex-col" data-testid="whatsapp-sidebar">
+          {/* Brand */}
+          <div className="flex items-center justify-between px-4 h-[60px] border-b border-white/10 shrink-0">
+            <BrandLogo variant="full" theme="light" size={32} />
+            <LanguageSelector variant="dark" compact />
+          </div>
+          {/* Theme toggle */}
+          <div className="px-4 py-3 border-b border-white/10 shrink-0">
+            <ThemeToggle variant="dark" className="w-full justify-center" />
+          </div>
+          {/* Nav list */}
+          <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-1 scrollbar-hide" data-testid="whatsapp-nav">
+            <p className="px-3 pt-1 pb-2 text-[10px] font-bold uppercase tracking-widest text-white/40">{t('dashboard.nav.panel')}</p>
+            {primaryItems.map((it) => {
+              const Icon = it.icon;
+              return (
+                <button
+                  key={it.key}
+                  onClick={it.onClick}
+                  data-testid={`wa-nav-${it.key}`}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    it.active ? 'bg-[#CCFF00]/10 text-[#CCFF00] border-l-4 border-[#CCFF00] pl-2' : 'text-white/80 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  <Icon className={navIconCls} strokeWidth={it.active ? 2.4 : 1.9} />
+                  <span className="truncate">{it.label}</span>
+                </button>
+              );
+            })}
+
+            <div className="h-px bg-white/10 my-3" />
+            <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-widest text-white/40">{t('dashboard.sections.tools', { defaultValue: 'Acciones' })}</p>
+            {actionItems.map((it) => {
+              const Icon = it.icon;
+              return (
+                <button
+                  key={it.key}
+                  onClick={it.onClick}
+                  data-testid={`wa-action-${it.key}`}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200"
+                >
+                  <Icon className={navIconCls} strokeWidth={1.9} />
+                  <span className="truncate">{it.label}</span>
+                </button>
+              );
+            })}
+
+            {/* Secciones del plan (solo en Datos con plan activo) */}
+            {activePanel === 'datos' && activePlan && activeDataSection !== 'scouting' && (
+              <div className="mt-4">
+                <div className="h-px bg-white/10 my-3" />
+                {planSections.map((section) => {
+                  const items = navItems.filter((n) => n.section === section.key);
+                  if (items.length === 0) return null;
+                  return (
+                    <div key={section.key} className="mb-2">
+                      <p className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-white/40 truncate">{section.title}</p>
+                      {items.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = activeDataSection === item.id;
+                        return (
+                          <button
+                            key={item.id}
+                            onClick={() => setActiveDataSection(item.id)}
+                            data-testid={`wa-section-${item.id}`}
+                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200 ${
+                              isActive ? 'bg-[#CCFF00]/10 text-[#CCFF00] border-l-4 border-[#CCFF00] pl-2' : 'text-white/70 hover:bg-white/10 hover:text-white'
+                            }`}
+                          >
+                            <Icon className="w-4 h-4 shrink-0" strokeWidth={isActive ? 2.4 : 1.8} />
+                            <span className="truncate">{item.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </nav>
+
+          {/* Footer user */}
+          <div className="px-4 py-3 border-t border-white/10 flex items-center gap-3 shrink-0" data-testid="whatsapp-user">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#CCFF00] to-emerald-400 text-slate-900 flex items-center justify-center font-bold text-sm shrink-0">
+              {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-white truncate">{user?.name}</p>
+              <p className="text-[11px] text-white/50 truncate">{user?.email}</p>
+            </div>
+            <button onClick={logout} className="text-white/60 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10" data-testid="wa-logout" title={t('dashboard.nav.logout', { defaultValue: 'Salir' })}>
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        </aside>
+
+        {/* ===== MAIN PANEL (light) ===== */}
+        <div className="flex-1 flex flex-col h-full overflow-hidden">
+          <header className="shrink-0 flex items-center justify-between px-6 h-[60px] bg-white shadow-sm z-10" data-testid="whatsapp-header">
+            <h1 className="text-base md:text-lg font-bold text-slate-900 truncate">{headerTitle}</h1>
+            <div className="flex items-center gap-3">
+              {activePlan && (
+                <span className="hidden sm:flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold">
+                  <CheckCircle className="w-3.5 h-3.5" /> {activePlan?.name || t('data.plan_activo_2')}
+                </span>
+              )}
+              <button onClick={() => setIsCoachDrawerOpen(true)} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 text-[#CCFF00] text-xs font-semibold hover:bg-[#151b2b] transition-colors" data-testid="wa-coach-ai">
+                <Brain className="w-4 h-4" /> Coach AI
+              </button>
+            </div>
+          </header>
+          <main className="flex-1 overflow-y-auto" data-testid="whatsapp-main">
+            <Suspense fallback={<SectionSkeleton />}>
+              {renderMainContent()}
+            </Suspense>
+          </main>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-[#fafaf8]">
+    <div className={`min-h-screen transition-colors duration-300 ${uiMode === 'whatsapp' ? 'bg-[#F0F2F5]' : 'bg-[#fafaf8]'}`}>
+      {uiMode !== 'whatsapp' ? (
+       <>
       {/* ====== GLOBAL CONTEXT BAR - Material Floating FABs ====== */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl shadow-sm" data-testid="global-context-bar">
         <div className="flex items-start px-3 pt-2.5 pb-1.5 gap-0 overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
@@ -4571,6 +4716,8 @@ const DashboardPage = () => {
 
           {/* Right: Testing + User Action FABs */}
           <div className="flex items-start gap-2 shrink-0 pl-2">
+            {/* Toggle de estilo (Clásico / Pro) */}
+            <ThemeToggle variant="light" className="hidden sm:inline-flex mr-1 mt-1" />
             {/* Alertas proactivas FAB */}
             <div className="relative">
               <button
@@ -4745,6 +4892,8 @@ const DashboardPage = () => {
           </Suspense>
         </div>
       </div>
+       </>
+      ) : renderWhatsAppLayout()}
 
       {/* ====== COACH AI FLOATING BUTTON ====== */}
       <button
