@@ -1,0 +1,28 @@
+{
+  "summary": "OWASP Phase 3 — IDOR closure on periodization V2 (/api/v2/*) fully validated against the preview backend. 28/28 pytest passing in /app/backend/tests/test_owasp_phase3_v2_idor.py. (1) Owner regression (Coach A test@train.com): GET/PUT /api/v2/macrociclos/{id}, GET/PUT /api/v2/mesociclos/{id}, GET /api/v2/microciclos/{id}, GET/PUT /api/v2/sesiones/{id}, GET /api/v2/planes/{id}/completo, /metricas, /historico all return 200 against a freshly built plan -> macro -> meso -> micro -> sesion -> ejercicio chain. (2) IDOR blocked: a brand-new Coach B token attacking Coach A's IDs returns 404 on every endpoint — macros (GET+PUT), mesos (GET+PUT), micros (GET), sesiones (GET+PUT), POST /api/v2/macrociclos/{A_macro}/mesociclos, POST /api/v2/sesiones/{A_sesion}/ejercicios, GET /api/v2/planes/{A_plan}/completo, /historico, /metricas. The get_plan_completo fallback chain does NOT leak Coach A's plan to Coach B because Coach B owns no V2 plans. (3) Previous regression intact: login returns token+refresh_token; /api/training-plans, /api/athletes, /api/plan-templates/levels return 200; security headers (X-Frame-Options=DENY, X-Content-Type-Options=nosniff, Content-Security-Policy, Referrer-Policy, Strict-Transport-Security) present; iter_87 IDOR on /api/sessions/{id}/complete still returns 404 for Coach B.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": { "ui_bugs": [], "integration_issues": [], "design_issues": [] },
+  "test_report_links": [
+    "/app/backend/tests/test_owasp_phase3_v2_idor.py",
+    "/app/test_reports/pytest/owasp_phase3.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "routes/periodization_v2.py::_own_plan/_own_macro/_own_meso/_own_micro/_own_sesion uniformly return 404 'no encontrado' both when the entity is missing and when caller is not the owner — correct, no info-leak (matches sessions.py pattern from iter_87).",
+    "routes/periodization_v2.py::get_plan_completo has 4 fallback strategies (exact match, _v1_id mapping, training_plans name match, best populated V2 plan). Each fallback is scoped to {coach_id: user['id']} so cross-coach leakage is structurally impossible. Verified: Coach B with no V2 plans cannot resolve Coach A's plan_id — returns 404 as expected.",
+    "routes/periodization_v2.py::update_ejercicio and DELETE /ejercicios-sesion/{ej_id} correctly look up the ejercicio first, then call _own_sesion(db, ej['sesion_id'], uid). Same pattern for capacidades via _own_plan. Good defense-in-depth.",
+    "POTENTIAL ISSUE (NOT BLOCKING): There is no public POST /api/v2/macrociclos endpoint — macros are only created via /api/v2/seed, /api/v2/sync-from-v1/{v1_plan_id}, or direct DB insert. If the V2 UI expects to create macrociclos directly, this gap may surface later. Not in scope for Phase 3 IDOR.",
+    "routes/periodization_v2.py::get_plan_alertas (/api/v2/planes/{id}/alertas) is NOT guarded by _own_plan — it calls validar_cambio_completo(db, plan_id) directly without checking coach_id. Any logged-in coach can query any plan's alertas. Suggest adding `await _own_plan(db, plan_id, user['id'])` at the top. Out of scope of this run but worth a follow-up.",
+    "Pydantic schemas MesocicloCreate/SesionCreate/EjercicioSesionCreate still require macrociclo_id/microciclo_id/sesion_id in the body even though the parent id is in the URL path — leads to confusing 422 if the client only sends the URL id. Suggest making these Optional and overriding from the path param. Cosmetic."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_owasp_phase3_v2_idor.py (new — 28 pytest cases: 10 owner regression + 12 IDOR-blocked + 6 prior-security regression)"
+  ],
+  "success_rate": { "backend": "100% (28/28)", "frontend": "N/A — frontend testing skipped per request" },
+  "test_credentials": "Coach A: test@train.com / test123456 (login_attempts is cleared before login to avoid lockout flake). Coach B: coachb_<uuid>@example.com / CoachB-Pass!2026 (registered fresh per run). .test/.local TLDs are rejected by EmailStr — use @example.com for disposable accounts.",
+  "seed_data_creation": "Per run: 1 plan TEST_IDOR_Plan_<hex> via POST /api/v2/planes, 1 macrociclo TEST_IDOR_Macro inserted directly to MongoDB (no public POST endpoint), 1 mesociclo + auto-generated microciclos + 1 sesion + 1 ejercicio via the V2 API. 1 v1 macro/meso/micro/session in macrocycles/mesocycles/microcycles/sessions collections for the iter_87 regression test. Plus Coach B user. All TEST_ data is torn down in the v2_chain fixture finalizer + per-test finally blocks.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Suite at /app/backend/tests/test_owasp_phase3_v2_idor.py is fully repeatable — each run creates a unique plan name and Coach B email. Uses pymongo directly for setup (MONGO_URL=mongodb://localhost:27017, DB_NAME=train_db). If running back-to-back, slowapi 10/min on /auth/login may cause flakiness; wait ~60s between runs. The mongo.login_attempts.delete_many({email: test@train.com}) call at session-start protects Coach A from accidental lockouts. iter_87 test_owasp_phase2.py + iter_86 test_security_hardening.py remain valid alongside this Phase 3 suite. NOTE for the next agent: /api/v2/planes/{id}/alertas currently has no ownership check — if hardening that endpoint, add a regression test here.",
+  "rca_of_the_issue": "N/A — no bugs reproduced. All Phase 3 hardening (16 V2 endpoints with cascading ownership checks up to plan.coach_id) verified end-to-end: owner keeps working (10/10), foreign coach is uniformly rejected with 404 (12/12), prior security guarantees intact (6/6)."
+}

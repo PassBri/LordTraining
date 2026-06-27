@@ -76,6 +76,47 @@ async def get_current_user(request: Request, credentials: HTTPAuthorizationCrede
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
+# OWASP — Helpers de propiedad: cada entidad v2 sube hasta plan.coach_id
+async def _own_plan(db, plan_id, uid):
+    p = await db.planes_entrenamiento.find_one({"id": plan_id, "coach_id": uid}, {"_id": 0})
+    if not p:
+        raise HTTPException(status_code=404, detail="Plan no encontrado")
+    return p
+
+
+async def _own_macro(db, macro_id, uid):
+    m = await db.macrociclos_v2.find_one({"id": macro_id}, {"_id": 0})
+    if not m:
+        raise HTTPException(status_code=404, detail="Macrociclo no encontrado")
+    await _own_plan(db, m.get("plan_id"), uid)
+    return m
+
+
+async def _own_meso(db, meso_id, uid):
+    z = await db.mesociclos_v2.find_one({"id": meso_id}, {"_id": 0})
+    if not z:
+        raise HTTPException(status_code=404, detail="Mesociclo no encontrado")
+    await _own_macro(db, z.get("macrociclo_id"), uid)
+    return z
+
+
+async def _own_micro(db, micro_id, uid):
+    w = await db.microciclos_v2.find_one({"id": micro_id}, {"_id": 0})
+    if not w:
+        raise HTTPException(status_code=404, detail="Microciclo no encontrado")
+    await _own_meso(db, w.get("mesociclo_id"), uid)
+    return w
+
+
+async def _own_sesion(db, sesion_id, uid):
+    se = await db.sesiones_v2.find_one({"id": sesion_id}, {"_id": 0})
+    if not se:
+        raise HTTPException(status_code=404, detail="Sesión no encontrada")
+    await _own_micro(db, se.get("microciclo_id"), uid)
+    return se
+
+
+
 # ============ PLANES ============
 
 @router.post("/planes")
@@ -251,7 +292,7 @@ async def get_plan_capacidades(plan_id: str, request: Request, user: dict = Depe
 @router.get("/macrociclos/{macro_id}")
 async def get_macrociclo(macro_id: str, request: Request, user: dict = Depends(get_current_user)):
     db = get_db(request)
-    macro = await db.macrociclos_v2.find_one({"id": macro_id}, {"_id": 0})
+    macro = await _own_macro(db, macro_id, user["id"])
     if not macro:
         raise HTTPException(404, "Macrociclo no encontrado")
     return macro
@@ -260,7 +301,7 @@ async def get_macrociclo(macro_id: str, request: Request, user: dict = Depends(g
 @router.put("/macrociclos/{macro_id}")
 async def update_macrociclo(macro_id: str, data: Dict[str, Any], request: Request, user: dict = Depends(get_current_user)):
     db = get_db(request)
-    macro = await db.macrociclos_v2.find_one({"id": macro_id}, {"_id": 0})
+    macro = await _own_macro(db, macro_id, user["id"])
     if not macro:
         raise HTTPException(404, "Macrociclo no encontrado")
 
@@ -279,7 +320,7 @@ async def update_macrociclo(macro_id: str, data: Dict[str, Any], request: Reques
 @router.post("/macrociclos/{macro_id}/mesociclos")
 async def add_mesociclo_a_macro(macro_id: str, meso: MesocicloCreate, request: Request, user: dict = Depends(get_current_user)):
     db = get_db(request)
-    macro = await db.macrociclos_v2.find_one({"id": macro_id}, {"_id": 0})
+    macro = await _own_macro(db, macro_id, user["id"])
     if not macro:
         raise HTTPException(404, "Macrociclo no encontrado")
 
@@ -310,7 +351,7 @@ async def add_mesociclo_a_macro(macro_id: str, meso: MesocicloCreate, request: R
 @router.get("/mesociclos/{meso_id}")
 async def get_mesociclo(meso_id: str, request: Request, user: dict = Depends(get_current_user)):
     db = get_db(request)
-    meso = await db.mesociclos_v2.find_one({"id": meso_id}, {"_id": 0})
+    meso = await _own_meso(db, meso_id, user["id"])
     if not meso:
         raise HTTPException(404, "Mesociclo no encontrado")
     return meso
@@ -319,7 +360,7 @@ async def get_mesociclo(meso_id: str, request: Request, user: dict = Depends(get
 @router.put("/mesociclos/{meso_id}")
 async def update_mesociclo(meso_id: str, data: Dict[str, Any], request: Request, user: dict = Depends(get_current_user)):
     db = get_db(request)
-    meso = await db.mesociclos_v2.find_one({"id": meso_id}, {"_id": 0})
+    meso = await _own_meso(db, meso_id, user["id"])
     if not meso:
         raise HTTPException(404, "Mesociclo no encontrado")
 
@@ -340,7 +381,7 @@ async def update_mesociclo(meso_id: str, data: Dict[str, Any], request: Request,
 async def generar_microciclos(meso_id: str, request: Request, user: dict = Depends(get_current_user)):
     """Genera microciclos automaticamente segun la duracion del mesociclo"""
     db = get_db(request)
-    meso = await db.mesociclos_v2.find_one({"id": meso_id}, {"_id": 0})
+    meso = await _own_meso(db, meso_id, user["id"])
     if not meso:
         raise HTTPException(404, "Mesociclo no encontrado")
 
@@ -398,7 +439,7 @@ async def generar_microciclos(meso_id: str, request: Request, user: dict = Depen
 @router.get("/microciclos/{micro_id}")
 async def get_microciclo(micro_id: str, request: Request, user: dict = Depends(get_current_user)):
     db = get_db(request)
-    micro = await db.microciclos_v2.find_one({"id": micro_id}, {"_id": 0})
+    micro = await _own_micro(db, micro_id, user["id"])
     if not micro:
         raise HTTPException(404, "Microciclo no encontrado")
     return micro
@@ -407,7 +448,7 @@ async def get_microciclo(micro_id: str, request: Request, user: dict = Depends(g
 @router.put("/microciclos/{micro_id}")
 async def update_microciclo(micro_id: str, data: Dict[str, Any], request: Request, user: dict = Depends(get_current_user)):
     db = get_db(request)
-    micro = await db.microciclos_v2.find_one({"id": micro_id}, {"_id": 0})
+    micro = await _own_micro(db, micro_id, user["id"])
     if not micro:
         raise HTTPException(404, "Microciclo no encontrado")
 
@@ -423,7 +464,7 @@ async def update_microciclo(micro_id: str, data: Dict[str, Any], request: Reques
 @router.post("/microciclos/{micro_id}/sesiones")
 async def add_sesion(micro_id: str, sesion: SesionCreate, request: Request, user: dict = Depends(get_current_user)):
     db = get_db(request)
-    micro = await db.microciclos_v2.find_one({"id": micro_id}, {"_id": 0})
+    micro = await _own_micro(db, micro_id, user["id"])
     if not micro:
         raise HTTPException(404, "Microciclo no encontrado")
 
@@ -452,7 +493,7 @@ async def add_sesion(micro_id: str, sesion: SesionCreate, request: Request, user
 @router.get("/sesiones/{sesion_id}")
 async def get_sesion(sesion_id: str, request: Request, user: dict = Depends(get_current_user)):
     db = get_db(request)
-    sesion = await db.sesiones_v2.find_one({"id": sesion_id}, {"_id": 0})
+    sesion = await _own_sesion(db, sesion_id, user["id"])
     if not sesion:
         raise HTTPException(404, "Sesion no encontrada")
 
@@ -466,7 +507,7 @@ async def get_sesion(sesion_id: str, request: Request, user: dict = Depends(get_
 @router.put("/sesiones/{sesion_id}")
 async def update_sesion(sesion_id: str, data: Dict[str, Any], request: Request, user: dict = Depends(get_current_user)):
     db = get_db(request)
-    sesion = await db.sesiones_v2.find_one({"id": sesion_id}, {"_id": 0})
+    sesion = await _own_sesion(db, sesion_id, user["id"])
     if not sesion:
         raise HTTPException(404, "Sesion no encontrada")
 
@@ -506,7 +547,7 @@ async def update_sesion(sesion_id: str, data: Dict[str, Any], request: Request, 
 @router.post("/sesiones/{sesion_id}/ejercicios")
 async def add_ejercicio(sesion_id: str, ej: EjercicioSesionCreate, request: Request, user: dict = Depends(get_current_user)):
     db = get_db(request)
-    sesion = await db.sesiones_v2.find_one({"id": sesion_id}, {"_id": 0})
+    sesion = await _own_sesion(db, sesion_id, user["id"])
     if not sesion:
         raise HTTPException(404, "Sesion no encontrada")
 
@@ -549,6 +590,7 @@ async def update_ejercicio(ej_id: str, data: Dict[str, Any], request: Request, u
     ej = await db.ejercicios_sesion.find_one({"id": ej_id}, {"_id": 0})
     if not ej:
         raise HTTPException(404, "Ejercicio no encontrado")
+    await _own_sesion(db, ej.get("sesion_id"), user["id"])
 
     allowed = [
         "ejercicio_base_id", "nombre", "orden", "capacidad_tipo",
@@ -572,6 +614,7 @@ async def delete_ejercicio(ej_id: str, request: Request, user: dict = Depends(ge
         raise HTTPException(404, "Ejercicio no encontrado")
 
     sesion_id = ej["sesion_id"]
+    await _own_sesion(db, sesion_id, user["id"])
     await db.ejercicios_sesion.delete_one({"id": ej_id})
 
     resultado = await propagar_cambio(db, "sesion", sesion_id)
@@ -634,6 +677,10 @@ async def update_capacidad(cap_id: str, data: Dict[str, Any], request: Request, 
     db = get_db(request)
     allowed = ["MEV", "MAV", "MRV"]
     updates = {k: v for k, v in data.items() if k in allowed}
+    cap = await db.capacidades_plan.find_one({"id": cap_id}, {"_id": 0})
+    if not cap:
+        raise HTTPException(404, "Capacidad no encontrada")
+    await _own_plan(db, cap.get("plan_id"), user["id"])
     if updates:
         await db.capacidades_plan.update_one({"id": cap_id}, {"$set": updates})
     cap = await db.capacidades_plan.find_one({"id": cap_id}, {"_id": 0})
@@ -677,7 +724,7 @@ async def crear_atleta(atleta: AtletaCreate, request: Request, user: dict = Depe
 @router.get("/atletas/{atleta_id}")
 async def get_atleta(atleta_id: str, request: Request, user: dict = Depends(get_current_user)):
     db = get_db(request)
-    atleta = await db.atletas_v2.find_one({"id": atleta_id}, {"_id": 0})
+    atleta = await db.atletas_v2.find_one({"id": atleta_id, "coach_id": user["id"]}, {"_id": 0})
     if not atleta:
         raise HTTPException(404, "Atleta no encontrado")
     return atleta
@@ -686,6 +733,9 @@ async def get_atleta(atleta_id: str, request: Request, user: dict = Depends(get_
 @router.get("/atletas/{atleta_id}/historico-cargas")
 async def get_historico(atleta_id: str, request: Request, dias: int = 28, user: dict = Depends(get_current_user)):
     db = get_db(request)
+    owned = await db.atletas_v2.find_one({"id": atleta_id, "coach_id": user["id"]}, {"_id": 0, "id": 1})
+    if not owned:
+        raise HTTPException(404, "Atleta no encontrado")
     desde = (datetime.now(timezone.utc) - timedelta(days=dias)).isoformat()
     cargas = await db.historico_cargas.find(
         {"atleta_id": atleta_id, "fecha": {"$gte": desde}}, {"_id": 0}
@@ -697,7 +747,7 @@ async def get_historico(atleta_id: str, request: Request, dias: int = 28, user: 
 async def get_plan_historico(plan_id: str, request: Request, dias: int = 200, user: dict = Depends(get_current_user)):
     """Get historico_cargas for a plan's athlete - used for ACWR chart"""
     db = get_db(request)
-    plan = await db.planes_entrenamiento.find_one({"id": plan_id}, {"_id": 0})
+    plan = await db.planes_entrenamiento.find_one({"id": plan_id, "coach_id": user["id"]}, {"_id": 0})
     if not plan:
         raise HTTPException(404, "Plan no encontrado")
 
