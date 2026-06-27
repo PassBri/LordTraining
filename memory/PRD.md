@@ -1,5 +1,12 @@
 # iTRAIN - Plataforma
 
+## [Jun 2026] REFACTOR FASE 1 — Incremento 2 (Segmentación) — VERIFICADO
+- **`core/models.py` (NUEVO)**: extraídos enums + ~50 modelos Pydantic (líneas 50-790 de server.py). server.py los reimporta con `from core.models import *`. Sin lógica de negocio, solo definiciones.
+- **`routes/plan_data.py` (NUEVO)**: extraídas las 13 rutas `/api/plan-data/*` (objetivos, evaluaciones, competencias, análisis previo, agregador). Patrón: `request.app.state.db` + `get_current_user` local (JWT). Registrado en server.py.
+- **server.py: 8485 → 7530 líneas** (-955). pyflakes limpio en archivos nuevos.
+- **Verificado E2E (curl)**: POST/GET objetivos=200, POST/GET competencias=200, agregador `/plan-data/{id}`=200, sin token=403. Datos de prueba limpiados. Frontend carga OK (smoke screenshot).
+- **Pendiente FASE 1**: seguir extrayendo grupos de server.py a `/routes/` (tournaments, entities/teams, athletes, periodización/análisis legacy, control-panel, tactical-boards, billing). Luego DashboardPage.js.
+
 ## [Jun 2026] FIX PORTALES (i18n global) + REFACTOR FASE 1 — Incremento 1 — VERIFICADO (iter_81)
 **Fix P0 — Traducción en Portales (Modales/Dropdowns/Toasts):** `pageTranslator.js` ahora observa `document.body` (antes `#root`) en `run()` e `initPageTranslator()`. Los portales de Shadcn/Radix (se inyectan fuera de #root) ahora SÍ se traducen. Verificado por testing_agent (iter_81): popover de Alertas en EN ("View weekly summary / Injury prevention / No alerts. All good."), sin freeze ni bucle (el flag `applying` desconecta el observer durante la escritura).
 **Refactor FASE 1 (incremental, SIN nuevas features):**
