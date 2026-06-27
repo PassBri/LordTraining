@@ -4468,7 +4468,8 @@ const DashboardPage = () => {
         </SheetContent>
       </Sheet>
 
-      {/* ====== COACH AI FLOATING BUTTON ====== */}
+      {/* ====== COACH AI FLOATING BUTTON (oculto en modo Pro) ====== */}
+      {uiMode !== 'whatsapp' && (
       <button
         onClick={() => setIsCoachDrawerOpen(true)}
         className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-slate-900 hover:bg-slate-800 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
@@ -4479,6 +4480,7 @@ const DashboardPage = () => {
           Coach AI
         </span>
       </button>
+      )}
 
       {/* ====== COACH AI DRAWER ====== */}
       {isCoachDrawerOpen && (

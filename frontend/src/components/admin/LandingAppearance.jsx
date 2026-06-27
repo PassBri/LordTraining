@@ -45,19 +45,48 @@ export const LandingAppearance = () => {
   const applyTheme = async (id) => {
     if (id === active || saving) return;
     setSaving(id);
+    const doPut = async (token) => fetch(`${BACKEND}/api/landing/theme`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ theme: id }),
+    });
     try {
-      const token = localStorage.getItem('train_token');
-      const res = await fetch(`${BACKEND}/api/landing/theme`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ theme: id }),
-      });
-      if (!res.ok) throw new Error('No autorizado');
+      let token = localStorage.getItem('train_token');
+      let res = await doPut(token);
+      // Si el access token expiró (401), refrescar y reintentar una vez
+      if (res.status === 401) {
+        const rt = localStorage.getItem('train_refresh_token');
+        if (rt) {
+          const rr = await fetch(`${BACKEND}/api/auth/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh_token: rt }),
+          });
+          if (rr.ok) {
+            const rd = await rr.json();
+            if (rd.token) {
+              localStorage.setItem('train_token', rd.token);
+              if (rd.refresh_token) localStorage.setItem('train_refresh_token', rd.refresh_token);
+              token = rd.token;
+              res = await doPut(token);
+            }
+          }
+        }
+      }
+      if (res.status === 401) {
+        toast.error('Tu sesión expiró. Vuelve a iniciar sesión e inténtalo de nuevo.');
+        return;
+      }
+      if (res.status === 403) {
+        toast.error('Solo el Super Admin puede cambiar la apariencia.');
+        return;
+      }
+      if (!res.ok) throw new Error('Error');
       const d = await res.json();
       setActive(d.active_theme);
       toast.success(`Apariencia del landing actualizada: ${THEMES.find(t => t.id === id)?.name}`);
     } catch (e) {
-      toast.error('No se pudo cambiar la apariencia (¿eres Super Admin?)');
+      toast.error('No se pudo cambiar la apariencia. Inténtalo de nuevo.');
     } finally {
       setSaving(null);
     }
