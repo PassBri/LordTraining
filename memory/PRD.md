@@ -1,6 +1,14 @@
 # iTRAIN - Plataforma
 
-## [Jun 2026] REFACTOR FASE 1 — COMPLETA: server.py 8.485 → 240 líneas (~97%) — VERIFICADO (iter_83: 54/54 tests, 100%)
+## [Jun 2026] REFACTOR FASE 1 — Frontend: code-splitting de DashboardPage.js con React.lazy() — VERIFICADO
+- **30 componentes de sección pesados** (ControlPanel, CalculatorsHub, TournamentManager, SessionCalendar, ScoutingModule, TacticalBoardSection, PeriodizationComplete, HealthRecords, EvaluationSection, EntityDashboard, SmartAlerts, LoadPanel, FederationPanel, TrainingSystemHub, etc.) convertidos de import estático a `React.lazy(() => import(...))`.
+- Un único `<Suspense fallback={<Loader2 spinner/>}>` envuelve `{renderMainContent()}` (cubre `renderDataContent` también, ya que se renderiza una sección a la vez por navegación `activePanel`/`activeDataSection`).
+- Estáticos (siempre montados / fuera del boundary): modales (PDFExport/MasterReport/SessionsExport/AthletePortal/WeeklySummary), AITrainingAssistant, PlanSidebar, InfoSectionHeader, BrandLogo, LanguageSelector, UI components.
+- **Beneficio**: el bundle inicial del dashboard se reduce; cada sección carga su chunk on-demand al navegar.
+- **Verificado (screenshots + consola)**: login → dashboard carga ControlPanel (lazy) completo con gráficos; navegación a ScoutingModule (lazy) renderiza OK; **0 errores de consola** (sin ChunkLoad/render errors). Webpack compila (solo warnings de hooks pre-existentes).
+- **Pendiente (opcional)**: extracción de la lógica JSX inline de `DashboardPage.js` (4.877 líneas) a subcomponentes en `/components/` — refactor mayor (requiere pasar ~50 vars de estado/handlers como props), mayor riesgo; diferido.
+
+ (~97%) — VERIFICADO (iter_83: 54/54 tests, 100%)
 **Monolito server.py totalmente segmentado.** server.py ahora solo contiene: `/` y `/health`, los `include_router(...)`, CORS, `app.state.db`, startup (índices + seed super admin) y shutdown. Re-exporta `get_current_user`/`hash_password` desde core.auth para imports legacy (`from server import get_current_user`).
 
 **Módulos base (NUEVOS):**

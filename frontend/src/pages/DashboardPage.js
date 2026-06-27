@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
@@ -9,8 +9,8 @@ import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { getDashboardStats, getAthletes, seedExercises, getTournaments, createTournament, deleteTournament, getTournament, addTournamentCategory, registerParticipant, generateBracket, getTournamentMatches, updateMatchScore, seedDemoData, clearDemoData } from '../services/api';
 import usePlanGate from '../hooks/usePlanGate';
-import SessionCalendar from '../components/SessionCalendar';
-import ScoutingModule from '../components/ScoutingModule';
+const SessionCalendar = lazy(() => import('../components/SessionCalendar'));
+const ScoutingModule = lazy(() => import('../components/ScoutingModule'));
 import { 
   Target, Send, Heart, Zap, Brain, ChevronLeft,
   FileText, Users, Clipboard, Calendar, BookOpen, 
@@ -29,46 +29,46 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { LanguageSelector } from '../components/LanguageSelector';
 import BrandLogo from '../components/BrandLogo';
-import PeriodizationModelsManager from '../components/PeriodizationModelsManager';
-import PDITechnicalSheet from '../components/PDITechnicalSheet';
+const PeriodizationModelsManager = lazy(() => import('../components/PeriodizationModelsManager'));
+const PDITechnicalSheet = lazy(() => import('../components/PDITechnicalSheet'));
 
-import HealthRecords from '../components/HealthRecords';
-import CompetitionAnalysis from '../components/CompetitionAnalysis';
-import TrainingStages from '../components/TrainingStages';
-import TrainingMethods from '../components/TrainingMethods';
-import TrainingLoad from '../components/TrainingLoad';
-import GraphicPlan from '../components/GraphicPlan';
-import AthleteSummary from '../components/AthleteSummary';
-import ExerciseLibrary from '../components/ExerciseLibrary';
+const HealthRecords = lazy(() => import('../components/HealthRecords'));
+const CompetitionAnalysis = lazy(() => import('../components/CompetitionAnalysis'));
+const TrainingStages = lazy(() => import('../components/TrainingStages'));
+const TrainingMethods = lazy(() => import('../components/TrainingMethods'));
+const TrainingLoad = lazy(() => import('../components/TrainingLoad'));
+const GraphicPlan = lazy(() => import('../components/GraphicPlan'));
+const AthleteSummary = lazy(() => import('../components/AthleteSummary'));
+const ExerciseLibrary = lazy(() => import('../components/ExerciseLibrary'));
 
-import PeriodizationComplete from '../components/PeriodizationComplete';
+const PeriodizationComplete = lazy(() => import('../components/PeriodizationComplete'));
 import InfoSectionHeader from '../components/InfoSectionHeader';
-import CoachesManager from '../components/CoachesManager';
-import PlanStaffPanel from '../components/PlanStaffPanel';
-import EntityManager from '../components/EntityManager';
-import TeamManager from '../components/TeamManager';
-import EvaluationSection from '../components/EvaluationSection';
-import EvaluationEvolution from '../components/EvaluationEvolution';
-import CalculatorsHub from '../components/calculators/CalculatorsHub';
-import AthleteProgress from '../components/AthleteProgress';
-import ControlPanel from '../components/ControlPanel';
-import EntityDashboard from '../components/EntityDashboard';
-import SmartAlerts from '../components/SmartAlerts';
+const CoachesManager = lazy(() => import('../components/CoachesManager'));
+const PlanStaffPanel = lazy(() => import('../components/PlanStaffPanel'));
+const EntityManager = lazy(() => import('../components/EntityManager'));
+const TeamManager = lazy(() => import('../components/TeamManager'));
+const EvaluationSection = lazy(() => import('../components/EvaluationSection'));
+const EvaluationEvolution = lazy(() => import('../components/EvaluationEvolution'));
+const CalculatorsHub = lazy(() => import('../components/calculators/CalculatorsHub'));
+const AthleteProgress = lazy(() => import('../components/AthleteProgress'));
+const ControlPanel = lazy(() => import('../components/ControlPanel'));
+const EntityDashboard = lazy(() => import('../components/EntityDashboard'));
+const SmartAlerts = lazy(() => import('../components/SmartAlerts'));
 import PDFExportModal from '../components/PDFExportModal';
 import MasterReportModal from '../components/MasterReportModal';
 import SessionsExportModal from '../components/SessionsExportModal';
 import AthletePortalShareModal from '../components/AthletePortalShareModal';
 import WeeklySummaryModal from '../components/WeeklySummaryModal';
-import LoadPanel from '../components/LoadPanel';
-import FederationPanel from '../components/FederationPanel';
-import ObjectivesIndicators from '../components/ObjectivesIndicators';
-import TrainingSystemHub from '../components/TrainingSystemHub';
-import TournamentManager from '../components/TournamentManager';
+const LoadPanel = lazy(() => import('../components/LoadPanel'));
+const FederationPanel = lazy(() => import('../components/FederationPanel'));
+const ObjectivesIndicators = lazy(() => import('../components/ObjectivesIndicators'));
+const TrainingSystemHub = lazy(() => import('../components/TrainingSystemHub'));
+const TournamentManager = lazy(() => import('../components/TournamentManager'));
 import AITrainingAssistant from '../components/AITrainingAssistant';
 import PlanSidebar from '../components/PlanSidebar';
 import { Badge } from '../components/ui/badge';
 
-import TacticalBoardSection from '../components/TacticalBoardSection';
+const TacticalBoardSection = lazy(() => import('../components/TacticalBoardSection'));
 
 // Definición de roles disponibles
 const USER_ROLES = [
@@ -4739,7 +4739,9 @@ const DashboardPage = () => {
       <div className="pt-[64px] h-screen max-h-screen overflow-hidden">
         {/* Main Content - Full Width */}
         <div className="h-full overflow-hidden">
-          {renderMainContent()}
+          <Suspense fallback={<div className="flex items-center justify-center h-full w-full" data-testid="section-loading"><Loader2 className="w-8 h-8 text-slate-400 animate-spin" /></div>}>
+            {renderMainContent()}
+          </Suspense>
         </div>
       </div>
 
