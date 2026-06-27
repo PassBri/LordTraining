@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import '../landing/landingThemes.css';
+import '../landing/landingFuturistic.css';
 import { Button } from '../components/ui/button';
 import { LanguageSelector } from '../components/LanguageSelector';
 import {

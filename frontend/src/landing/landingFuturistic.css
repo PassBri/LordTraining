@@ -1,0 +1,82 @@
+/* LordTraining — VERSIÓN C "Futurista" (Linear/Vercel/Stripe).
+   Overrides scoped a [data-landing-theme="futuristic"] que consumen las
+   variables de landingThemes.css. No afecta a las otras versiones. */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+/* Tipografía geométrica para títulos */
+.lt-theme[data-landing-theme="futuristic"] h1,
+.lt-theme[data-landing-theme="futuristic"] h2,
+.lt-theme[data-landing-theme="futuristic"] h3,
+.lt-theme[data-landing-theme="futuristic"] [data-testid="hero-headline"] {
+  font-family: 'Space Grotesk', 'Inter', sans-serif !important;
+  letter-spacing: -0.02em !important;
+  text-shadow: none !important;
+}
+
+/* Hero: título enorme 48-88px, line-height ajustado, una sola línea animada */
+.lt-theme[data-landing-theme="futuristic"] [data-testid="hero-headline"] {
+  font-size: clamp(2.4rem, 4.6vw, 3.75rem) !important;
+  line-height: 1.04 !important;
+  font-weight: 600 !important;
+  word-break: break-word;
+}
+/* H2 de secciones full-width: tamaño grande tipo Linear/Vercel */
+.lt-theme[data-landing-theme="futuristic"] h2 {
+  font-size: clamp(1.9rem, 3.8vw, 3rem) !important;
+  line-height: 1.08 !important;
+}
+.lt-theme[data-landing-theme="futuristic"] [data-testid="hero-headline"]::after {
+  content: '';
+  display: block;
+  height: 1px;
+  width: 180px;
+  margin: 28px auto 0;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  background-size: 200% 100%;
+  animation: ltLineSweep 3.2s linear infinite;
+  opacity: 0.85;
+}
+@media (min-width: 1024px) {
+  .lt-theme[data-landing-theme="futuristic"] [data-testid="hero-headline"]::after { margin-left: 0; }
+}
+@keyframes ltLineSweep {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Fondos cohesivos #050A14 (secciones) y superficies para cards */
+.lt-theme[data-landing-theme="futuristic"] [class*="bg-slate-9"] { background-color: var(--bg-base) !important; background-image: none !important; }
+.lt-theme[data-landing-theme="futuristic"] [class*="bg-slate-8"] { background-color: var(--bg-surface) !important; }
+.lt-theme[data-landing-theme="futuristic"] #pricing { background: var(--bg-base) !important; }
+.lt-theme[data-landing-theme="futuristic"] [data-testid="marquee-section"] {
+  background: var(--bg-surface) !important;
+  background-image: none !important;
+  border-top: 1px solid var(--border) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+.lt-theme[data-landing-theme="futuristic"] [data-testid="main-nav"] {
+  background-color: rgba(5, 10, 20, 0.72) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+/* Bordes 1px de baja opacidad */
+.lt-theme[data-landing-theme="futuristic"] [class*="border-slate"] { border-color: var(--border) !important; }
+.lt-theme[data-landing-theme="futuristic"] [class*="border-white"] { border-color: var(--border) !important; }
+
+/* Minimalismo: sin glows ni sombras recargadas; radios pequeños */
+.lt-theme[data-landing-theme="futuristic"] [class*="shadow-"] { box-shadow: none !important; }
+.lt-theme[data-landing-theme="futuristic"] [class*="rounded-2xl"],
+.lt-theme[data-landing-theme="futuristic"] [class*="rounded-xl"],
+.lt-theme[data-landing-theme="futuristic"] [class*="rounded-3xl"] { border-radius: var(--radius-card) !important; }
+
+/* Espacios en blanco generosos */
+.lt-theme[data-landing-theme="futuristic"] section { padding-top: 6.5rem !important; padding-bottom: 6.5rem !important; }
+.lt-theme[data-landing-theme="futuristic"] [data-testid="marquee-section"] { padding-top: 0 !important; padding-bottom: 0 !important; }
+
+/* CTA: nítido, sin glow (mantiene acento de marca) */
+.lt-theme[data-landing-theme="futuristic"] [data-testid="hero-cta-btn"],
+.lt-theme[data-landing-theme="futuristic"] [data-testid="signup-nav-btn"] {
+  border-radius: var(--radius-btn) !important;
+  box-shadow: none !important;
+}
