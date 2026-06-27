@@ -361,7 +361,7 @@ const EvaluationSection = ({ sectionId, activePlan, athletes = [], selectedAthle
       const eid = await handleSaveSilent();
       if (!eid) throw new Error('No se pudo guardar');
       const token = localStorage.getItem('train_token');
-      const r = await fetch(`${API_URL}/api/plan-data/evaluations-export/by-id/${eid}/pdf`, { headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(`${API_URL}/api/plan-data/evaluations-export/by-id/${eid}/pdf?lang=${(localStorage.getItem('train_language') || 'es').split('-')[0]}`, { headers: { Authorization: `Bearer ${token}` } });
       if (!r.ok) throw new Error('PDF error');
       const blob = await r.blob();
       const a = document.createElement('a');
@@ -380,7 +380,7 @@ const EvaluationSection = ({ sectionId, activePlan, athletes = [], selectedAthle
       const eid = await handleSaveSilent();
       if (!eid) throw new Error('No se pudo guardar');
       const token = localStorage.getItem('train_token');
-      const r = await fetch(`${API_URL}/api/plan-data/evaluations-export/by-id/${eid}/share`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(`${API_URL}/api/plan-data/evaluations-export/by-id/${eid}/share?lang=${(localStorage.getItem('train_language') || 'es').split('-')[0]}`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
       if (!r.ok) throw new Error();
       const d = await r.json();
       const fullUrl = `${window.location.origin}/api/plan-data/evaluations-export/shared/${d.share_id}`;
@@ -397,7 +397,7 @@ const EvaluationSection = ({ sectionId, activePlan, athletes = [], selectedAthle
       const eid = await handleSaveSilent();
       if (!eid) throw new Error('No se pudo guardar');
       const token = localStorage.getItem('train_token');
-      const r = await fetch(`${API_URL}/api/plan-data/evaluations-export/by-id/${eid}/share`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(`${API_URL}/api/plan-data/evaluations-export/by-id/${eid}/share?lang=${(localStorage.getItem('train_language') || 'es').split('-')[0]}`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
       if (!r.ok) throw new Error();
       const d = await r.json();
       const fullUrl = `${window.location.origin}/api/plan-data/evaluations-export/shared/${d.share_id}`;

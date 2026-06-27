@@ -21,6 +21,7 @@ import uuid
 import os
 import base64
 from motor.motor_asyncio import AsyncIOMotorClient
+from .pdf_i18n import translate_html
 
 router = APIRouter(prefix="/plan-data/evaluations-export", tags=["evaluations-export"])
 
@@ -410,14 +411,14 @@ async def delete_evaluation_by_id(evaluation_id: str, user=Depends(get_current_u
 
 
 @router.get("/by-id/{evaluation_id}/pdf")
-async def download_evaluation_pdf_by_id(evaluation_id: str, user=Depends(get_current_user_dep())):
+async def download_evaluation_pdf_by_id(evaluation_id: str, lang: str = "es", user=Depends(get_current_user_dep())):
     uid = _uid(user)
     doc = await _evals.find_one({"id": evaluation_id, "user_id": uid}, {"_id": 0})
     if not doc:
         raise HTTPException(404, "Control no encontrado")
     plan_name = await _get_plan_name(doc.get("plan_id"))
     athlete_name = await _get_athlete_name(doc.get("athlete_id"))
-    html = _build_html(doc, plan_name, athlete_name=athlete_name)
+    html = translate_html(_build_html(doc, plan_name, athlete_name=athlete_name), lang)
     try:
         pdf = await _render_pdf(html)
     except Exception as e:
@@ -434,7 +435,7 @@ class ShareEvalResponse(BaseModel):
 
 
 @router.post("/by-id/{evaluation_id}/share", response_model=ShareEvalResponse)
-async def create_eval_share_by_id(evaluation_id: str, user=Depends(get_current_user_dep())):
+async def create_eval_share_by_id(evaluation_id: str, lang: str = "es", user=Depends(get_current_user_dep())):
     uid = _uid(user)
     doc = await _evals.find_one({"id": evaluation_id, "user_id": uid}, {"_id": 0})
     if not doc:
@@ -448,13 +449,13 @@ async def create_eval_share_by_id(evaluation_id: str, user=Depends(get_current_u
         share_id = existing["share_id"]
         await _eval_shares.update_one(
             {"share_id": share_id},
-            {"$set": {"snapshot": snapshot, "updated_at": now}}
+            {"$set": {"snapshot": snapshot, "lang": lang, "updated_at": now}}
         )
     else:
         share_id = _new_id()
         await _eval_shares.insert_one({
             "share_id": share_id, "evaluation_id": evaluation_id, "user_id": uid,
-            "snapshot": snapshot, "created_at": now, "updated_at": now,
+            "snapshot": snapshot, "lang": lang, "created_at": now, "updated_at": now,
         })
     base = os.environ.get("PUBLIC_BASE_URL", "")
     share_url = f"{base}/api/plan-data/evaluations-export/shared/{share_id}" if base else f"/api/plan-data/evaluations-export/shared/{share_id}"
@@ -472,7 +473,7 @@ async def view_shared_eval(share_id: str):
     html = _build_html(snap, snap.get("plan_name") or "Plan",
                        athlete_name=snap.get("athlete_name") or "",
                        share_id=share_id)
-    return HTMLResponse(content=html)
+    return HTMLResponse(content=translate_html(html, share.get("lang") or "es"))
 
 
 @router.get("/shared/{share_id}/pdf")
@@ -484,6 +485,7 @@ async def download_shared_eval_pdf(share_id: str):
     html = _build_html(snap, snap.get("plan_name") or "Plan",
                        athlete_name=snap.get("athlete_name") or "",
                        share_id=share_id)
+    html = translate_html(html, share.get("lang") or "es")
     try:
         pdf = await _render_pdf(html)
     except Exception as e:

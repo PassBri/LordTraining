@@ -117,6 +117,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
     athlete_name: athleteName || 'Atleta',
     theme,
     layout,
+    lang: (localStorage.getItem('train_language') || 'es').split('-')[0],
   });
 
   const handleExport = async (format) => {

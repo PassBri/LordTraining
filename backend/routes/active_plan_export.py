@@ -13,6 +13,7 @@ import uuid
 import os
 import base64
 from motor.motor_asyncio import AsyncIOMotorClient
+from .pdf_i18n import translate_html
 
 router = APIRouter(prefix="/plan-data/objectives", tags=["active-plan-export"])
 
@@ -312,14 +313,14 @@ def _staff_section_html(staff: list) -> str:
 
 
 @router.get("/{plan_id}/pdf")
-async def download_objectives_pdf(plan_id: str, user=Depends(get_current_user_dep())):
+async def download_objectives_pdf(plan_id: str, lang: str = "es", user=Depends(get_current_user_dep())):
     uid = _get_user_id(user)
     doc = await _objectives.find_one({"plan_id": plan_id, "user_id": uid}, {"_id": 0})
     if not doc:
         raise HTTPException(404, "Aún no hay objetivos guardados. Haz clic en 'Guardar' primero.")
     plan_name = await _get_plan_name(plan_id)
     staff = await _get_plan_staff(plan_id, uid)
-    html = _build_html(doc, plan_name, staff_html=_staff_section_html(staff))
+    html = translate_html(_build_html(doc, plan_name, staff_html=_staff_section_html(staff)), lang)
     try:
         pdf = await _render_pdf(html)
     except Exception as e:
@@ -337,7 +338,7 @@ class ShareResponse(BaseModel):
 
 
 @router.post("/{plan_id}/share", response_model=ShareResponse)
-async def create_objectives_share_link(plan_id: str, user=Depends(get_current_user_dep())):
+async def create_objectives_share_link(plan_id: str, lang: str = "es", user=Depends(get_current_user_dep())):
     uid = _get_user_id(user)
     doc = await _objectives.find_one({"plan_id": plan_id, "user_id": uid}, {"_id": 0})
     if not doc:
@@ -349,7 +350,7 @@ async def create_objectives_share_link(plan_id: str, user=Depends(get_current_us
         share_id = existing["share_id"]
         await _obj_shares.update_one(
             {"share_id": share_id},
-            {"$set": {"snapshot": doc, "plan_name": plan_name, "staff": staff, "updated_at": datetime.now(timezone.utc).isoformat()}}
+            {"$set": {"snapshot": doc, "plan_name": plan_name, "staff": staff, "lang": lang, "updated_at": datetime.now(timezone.utc).isoformat()}}
         )
     else:
         share_id = uuid.uuid4().hex[:14]
@@ -361,6 +362,7 @@ async def create_objectives_share_link(plan_id: str, user=Depends(get_current_us
             "plan_name": plan_name,
             "snapshot": doc,
             "staff": staff,
+            "lang": lang,
             "created_at": now,
             "updated_at": now,
         })
@@ -376,7 +378,7 @@ async def view_shared_objectives(share_id: str):
         raise HTTPException(404, "Enlace no válido o expirado")
     staff_html = _staff_section_html(share.get("staff") or [])
     html = _build_html(share["snapshot"], share.get("plan_name") or "Plan de entrenamiento", share_id=share_id, staff_html=staff_html)
-    return HTMLResponse(content=html)
+    return HTMLResponse(content=translate_html(html, share.get("lang") or "es"))
 
 
 @router.get("/shared/{share_id}/pdf")
@@ -386,6 +388,7 @@ async def download_shared_objectives_pdf(share_id: str):
         raise HTTPException(404, "Enlace no válido o expirado")
     staff_html = _staff_section_html(share.get("staff") or [])
     html = _build_html(share["snapshot"], share.get("plan_name") or "Plan de entrenamiento", share_id=share_id, staff_html=staff_html)
+    html = translate_html(html, share.get("lang") or "es")
     try:
         pdf = await _render_pdf(html)
     except Exception as e:

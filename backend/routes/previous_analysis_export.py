@@ -16,6 +16,7 @@ import hashlib
 import json as _json
 import logging
 from motor.motor_asyncio import AsyncIOMotorClient
+from .pdf_i18n import translate_html
 
 router = APIRouter(prefix="/plan-data/previous-analysis", tags=["previous-analysis-export"])
 _logger = logging.getLogger("previous_analysis_export")
@@ -732,13 +733,13 @@ async def _get_plan_info(plan_id: str) -> dict:
 
 # ========================= PDF (autenticado) =========================
 @router.get("/{plan_id}/pdf")
-async def download_previous_analysis_pdf(plan_id: str, user=Depends(get_current_user_dep())):
+async def download_previous_analysis_pdf(plan_id: str, lang: str = "es", user=Depends(get_current_user_dep())):
     uid = _get_user_id(user)
     doc = await _analysis.find_one({"plan_id": plan_id, "user_id": uid}, {"_id": 0})
     if not doc:
         raise HTTPException(404, "Aún no hay análisis guardado. Haz clic en 'Guardar' primero.")
     info = await _get_plan_info(plan_id)
-    html = _build_html(doc, info["name"], model_key=info["model_key"], model_name=info["model_name"])
+    html = translate_html(_build_html(doc, info["name"], model_key=info["model_key"], model_name=info["model_name"]), lang)
     try:
         pdf = await _render_pdf(html)
     except Exception as e:
@@ -757,7 +758,7 @@ class ShareResponse(BaseModel):
 
 
 @router.post("/{plan_id}/share", response_model=ShareResponse)
-async def create_share_link(plan_id: str, user=Depends(get_current_user_dep())):
+async def create_share_link(plan_id: str, lang: str = "es", user=Depends(get_current_user_dep())):
     """Crea (o reutiliza) un share_id público del análisis del plan anterior."""
     uid = _get_user_id(user)
     doc = await _analysis.find_one({"plan_id": plan_id, "user_id": uid}, {"_id": 0})
@@ -772,7 +773,7 @@ async def create_share_link(plan_id: str, user=Depends(get_current_user_dep())):
         await _shares.update_one(
             {"share_id": share_id},
             {"$set": {"snapshot": doc, "plan_name": info["name"],
-                      "model_key": info["model_key"], "model_name": info["model_name"],
+                      "model_key": info["model_key"], "model_name": info["model_name"], "lang": lang,
                       "updated_at": datetime.now(timezone.utc).isoformat()}}
         )
     else:
@@ -786,6 +787,7 @@ async def create_share_link(plan_id: str, user=Depends(get_current_user_dep())):
             "model_key": info["model_key"],
             "model_name": info["model_name"],
             "snapshot": doc,
+            "lang": lang,
             "created_at": now,
             "updated_at": now,
         })
@@ -808,7 +810,7 @@ async def view_shared_previous_analysis(share_id: str):
         model_key=share.get("model_key") or "",
         model_name=share.get("model_name") or "",
     )
-    return HTMLResponse(content=html)
+    return HTMLResponse(content=translate_html(html, share.get("lang") or "es"))
 
 
 # ========================= SHARE (PDF público) =========================
@@ -823,6 +825,7 @@ async def download_shared_previous_analysis_pdf(share_id: str):
         model_key=share.get("model_key") or "",
         model_name=share.get("model_name") or "",
     )
+    html = translate_html(html, share.get("lang") or "es")
     try:
         pdf = await _render_pdf(html)
     except Exception as e:

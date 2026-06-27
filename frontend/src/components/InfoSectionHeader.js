@@ -32,7 +32,7 @@ export const InfoSectionHeader = ({
     setBusy(true);
     try {
       const token = localStorage.getItem('train_token');
-      const res = await fetch(`${API_URL}/api/info-export/${catalogType}/pdf`, {
+      const res = await fetch(`${API_URL}/api/info-export/${catalogType}/pdf?lang=${(localStorage.getItem('train_language') || 'es').split('-')[0]}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) {
@@ -61,7 +61,7 @@ export const InfoSectionHeader = ({
     setBusy(true);
     try {
       const token = localStorage.getItem('train_token');
-      const res = await fetch(`${API_URL}/api/info-export/${catalogType}/share`, {
+      const res = await fetch(`${API_URL}/api/info-export/${catalogType}/share?lang=${(localStorage.getItem('train_language') || 'es').split('-')[0]}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });

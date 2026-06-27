@@ -14,6 +14,7 @@ import uuid
 import os
 import base64
 from motor.motor_asyncio import AsyncIOMotorClient
+from .pdf_i18n import translate_html
 
 router = APIRouter(prefix="/info-export", tags=["info-catalog-export"])
 
@@ -772,7 +773,7 @@ def _build_coaches_html(items: List[Dict[str, Any]], coach_name: str = "", share
 
 
 @router.get("/{catalog_type}/pdf")
-async def download_catalog_pdf(catalog_type: str, user=Depends(get_current_user_dep())):
+async def download_catalog_pdf(catalog_type: str, lang: str = "es", user=Depends(get_current_user_dep())):
     _validate_type(catalog_type)
     uid = _get_user_id(user)
     items = await _fetch_items(catalog_type, uid)
@@ -783,6 +784,7 @@ async def download_catalog_pdf(catalog_type: str, user=Depends(get_current_user_
         html = _build_coaches_html(items, coach)
     else:
         html = _build_html(catalog_type, items, coach)
+    html = translate_html(html, lang)
     try:
         pdf = await _render_pdf(html)
     except Exception as e:
@@ -800,7 +802,7 @@ class CatalogShareResponse(BaseModel):
 
 
 @router.post("/{catalog_type}/share", response_model=CatalogShareResponse)
-async def create_catalog_share(catalog_type: str, user=Depends(get_current_user_dep())):
+async def create_catalog_share(catalog_type: str, lang: str = "es", user=Depends(get_current_user_dep())):
     _validate_type(catalog_type)
     uid = _get_user_id(user)
     items = await _fetch_items(catalog_type, uid)
@@ -814,13 +816,13 @@ async def create_catalog_share(catalog_type: str, user=Depends(get_current_user_
         share_id = existing["share_id"]
         await _shares.update_one(
             {"share_id": share_id},
-            {"$set": {"snapshot": snapshot, "updated_at": now}}
+            {"$set": {"snapshot": snapshot, "lang": lang, "updated_at": now}}
         )
     else:
         share_id = uuid.uuid4().hex[:14]
         await _shares.insert_one({
             "share_id": share_id, "catalog_type": catalog_type,
-            "user_id": uid, "snapshot": snapshot,
+            "user_id": uid, "snapshot": snapshot, "lang": lang,
             "created_at": now, "updated_at": now,
         })
     base = os.environ.get("PUBLIC_BASE_URL", "")
@@ -842,7 +844,7 @@ async def view_shared_catalog(share_id: str):
         html = _build_coaches_html(items, coach, share_id=share_id)
     else:
         html = _build_html(share["catalog_type"], items, coach, share_id=share_id)
-    return HTMLResponse(content=html)
+    return HTMLResponse(content=translate_html(html, share.get("lang") or "es"))
 
 
 @router.get("/shared/{share_id}/pdf")
@@ -859,6 +861,7 @@ async def download_shared_catalog_pdf(share_id: str):
         html = _build_coaches_html(items, coach, share_id=share_id)
     else:
         html = _build_html(share["catalog_type"], items, coach, share_id=share_id)
+    html = translate_html(html, share.get("lang") or "es")
     try:
         pdf = await _render_pdf(html)
     except Exception as e:

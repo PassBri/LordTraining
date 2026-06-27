@@ -2,7 +2,16 @@
 
 ## Credenciales: test@train.com / test123456
 
-## [Jun 2026] i18n FASE D — OrgTeamPage + PDFs multi-idioma del backend — VERIFICADO (testing_agent iter_78)
+## [Jun 2026] i18n FASE D — ko/zh OrgTeam COMPLETADO + lang en TODOS los generadores PDF
+- **OrgTeam ko/zh COMPLETADO**: re-ejecutado el script tras recarga de budget → `orgteam.lbl` ahora tiene 72 claves en los 12 idiomas (ko/zh ya no caen a fallback).
+- **`lang` extendido a TODOS los generadores PDF** (antes solo master_report). Cada endpoint PDF autenticado acepta `?lang=` y los endpoints `/share` guardan `lang` en el doc (los públicos `/shared` lo leen):
+  - `active_plan_export.py` (objetivos), `previous_analysis_export.py` (plan anterior + Gap IA), `info_catalog_export.py` (5 catálogos), `evaluations_export.py` (8 controles), `sessions_export.py` (SessionsExportModal: builder HERO vía translate_html + builder CLASSIC reportlab vía helper `_T(lang, s)`).
+  - Diccionario `routes/pdf_i18n.py` ampliado a **210 cadenas** (chrome) fusionando `routes/pdf_i18n_extra.json` (99 cadenas autogeneradas por LLM para los otros generadores + sesiones). Scripts: `i18n_pdf_extra.py`, `i18n_pdf_sessions.py`.
+  - Frontend: callers envían `?lang=` / `lang` desde `localStorage.train_language`: `DashboardPage.js` (objetivos+plan anterior pdf/share), `InfoSectionHeader.js`, `EvaluationSection.js`, `SessionsExportModal.js`.
+- **Verificado**: chrome de los 5 generadores resuelto correctamente (FR/DE/JA unit-test del dict); master_report E2E con PDF real; todos los imports backend OK; todos los .js compilan. El contenido dinámico de BD (nombres de ejercicios/atletas/objetivos del usuario) permanece en su idioma original (es).
+- **Nota perf (pre-existente, NO bug)**: el PDF del catálogo de Deportes (48 items + conic-gradients) tarda ~30s/página en WeasyPrint y puede dar 502 por timeout del gateway en preview; ajeno a i18n.
+
+
 - **OrgTeamPage.js (/org/team)** internacionalizado (ns `orgteam`, 72 claves slug-based via `tt()`). Auto-wrap con `wrap_file.py` (jsx=31/attrs=9/toasts=8) + fixes manuales (ROLE_LABELS envuelto, textos multilínea, fragmentos junto a expresiones, window.confirm, "Entrenadores ({n})", "Invitar" en 2 sitios). `useTranslation()` agregado al componente para re-render. Traducido a 10/12 idiomas vía `i18n_file_labels.py`. **ko y zh PENDIENTES** (budget LLM agotado → fallback a español; re-ejecutar `python3 i18n_file_labels.py "pages/OrgTeamPage.js" orgteam` tras recargar budget). Slug `invitar` agregado a mano a los 12 locales.
 - **PDFs multi-idioma (Reporte Maestro)**: nuevo módulo `/app/backend/routes/pdf_i18n.py` con dict `_P` (≈95 frases del "chrome" × 12 idiomas, autoradas a mano SIN LLM) + `translate_html(html, lang)` que reemplaza nodos de texto `>ES<` al idioma destino. `MasterReportPayload.lang` (default 'es'); `_build_html` aplica `translate_html` a body_html y footer_html. Frontend `MasterReportModal.js buildPayload()` envía `lang: i18n.language.split('-')[0]`. Verificado: PDF EN/FR/ZH con títulos/TOC/badges/tablas/footer localizados (cuerpo narrativo dinámico permanece en es). Backend 4/4 pytest PASS.
 - **Pendiente PDF**: aplicar el mismo `lang` a los OTROS generadores (evaluations_export, info_catalog_export, active_plan_export, previous_analysis_export, SessionsExportModal) — solo se cubrió master_report.py en este lote.

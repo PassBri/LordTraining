@@ -149,9 +149,22 @@ _P = {
 }
 
 
+# Fusionar cadenas-chrome adicionales de los otros generadores PDF (JSON externo).
+import os as _os
+import json as _json
+_ALL = dict(_P)
+try:
+    _extra_path = _os.path.join(_os.path.dirname(__file__), "pdf_i18n_extra.json")
+    with open(_extra_path, encoding="utf-8") as _f:
+        _ALL.update(_json.load(_f))
+except Exception:
+    pass
+
+
+
 def _table(lang):
     idx = LANGS.index(lang)
-    return {es: vals[idx] for es, vals in _P.items()}
+    return {es: vals[idx] for es, vals in _ALL.items()}
 
 
 def translate_html(html: str, lang: str) -> str:

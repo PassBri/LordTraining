@@ -734,7 +734,7 @@ const DashboardPage = () => {
       // Guardar primero para asegurar que los datos están al día
       await handleSavePreviousAnalysis();
       const token = localStorage.getItem('train_token');
-      const res = await fetch(`${API_URL}/api/plan-data/previous-analysis/${activePlan.id}/pdf`, {
+      const res = await fetch(`${API_URL}/api/plan-data/previous-analysis/${activePlan.id}/pdf?lang=${(localStorage.getItem('train_language') || 'es').split('-')[0]}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) {
@@ -763,7 +763,7 @@ const DashboardPage = () => {
     try {
       await handleSavePreviousAnalysis();
       const token = localStorage.getItem('train_token');
-      const res = await fetch(`${API_URL}/api/plan-data/previous-analysis/${activePlan.id}/share`, {
+      const res = await fetch(`${API_URL}/api/plan-data/previous-analysis/${activePlan.id}/share?lang=${(localStorage.getItem('train_language') || 'es').split('-')[0]}`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -824,7 +824,7 @@ const DashboardPage = () => {
     try {
       await handleSaveObjectives();
       const token = localStorage.getItem('train_token');
-      const res = await fetch(`${API_URL}/api/plan-data/objectives/${activePlan.id}/pdf`, {
+      const res = await fetch(`${API_URL}/api/plan-data/objectives/${activePlan.id}/pdf?lang=${(localStorage.getItem('train_language') || 'es').split('-')[0]}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) {
@@ -852,7 +852,7 @@ const DashboardPage = () => {
     try {
       await handleSaveObjectives();
       const token = localStorage.getItem('train_token');
-      const res = await fetch(`${API_URL}/api/plan-data/objectives/${activePlan.id}/share`, {
+      const res = await fetch(`${API_URL}/api/plan-data/objectives/${activePlan.id}/share?lang=${(localStorage.getItem('train_language') || 'es').split('-')[0]}`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
       });

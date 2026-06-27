@@ -29,10 +29,21 @@ import html as _html
 import asyncio
 
 from motor.motor_asyncio import AsyncIOMotorClient
+from .pdf_i18n import translate_html, _table as _pdf_table
 
 router = APIRouter(prefix="/sessions-export", tags=["sessions-export"])
 _client = AsyncIOMotorClient(os.environ['MONGO_URL'])
 _db = _client[os.environ['DB_NAME']]
+
+
+def _T(lang: str, s: str) -> str:
+    """Traduce una cadena-chrome de sesión al idioma `lang` (fallback al original)."""
+    if not lang or lang == "es":
+        return s
+    try:
+        return _pdf_table(lang).get(s, s)
+    except Exception:
+        return s
 
 
 def get_current_user_dep():
@@ -66,6 +77,7 @@ class SessionsExportRequest(BaseModel):
     theme: str = "light"             # "light" | "dark"
     layout: str = "classic"          # "classic" | "hero"
     athlete_name: Optional[str] = "Atleta"
+    lang: Optional[str] = "es"
 
 
 class SessionsShareRequest(BaseModel):
@@ -74,6 +86,7 @@ class SessionsShareRequest(BaseModel):
     theme: str = "light"
     layout: str = "classic"
     athlete_name: Optional[str] = "Atleta"
+    lang: Optional[str] = "es"
 
 
 # ---------------- Helpers ----------------
@@ -104,6 +117,7 @@ def _build_session_pdf_classic(
     micro_name: str = "",
     week_number: Any = None,
     theme: str = "light",
+    lang: str = "es",
 ) -> bytes:
     """PDF clásico tipo /api/export/session-pdf con soporte ligero de tema."""
     from reportlab.pdfgen import canvas
@@ -154,13 +168,13 @@ def _build_session_pdf_classic(
     title_color = HexColor('#0a0a0f') if is_dark else white
     c.setFillColor(title_color)
     c.setFont("Helvetica-Bold", 22)
-    c.drawString(text_x, height - 55, "SESIÓN DE ENTRENAMIENTO")
+    c.drawString(text_x, height - 55, _T(lang, "SESIÓN DE ENTRENAMIENTO"))
     c.setFont("Helvetica", 13)
-    c.drawString(text_x, height - 78, f"Atleta: {athlete_name}")
+    c.drawString(text_x, height - 78, f"{_T(lang, 'Atleta')}: {athlete_name}")
     extra_bits = []
     if meso_name: extra_bits.append(meso_name)
     if micro_name: extra_bits.append(micro_name)
-    if week_number is not None: extra_bits.append(f"Semana {week_number}")
+    if week_number is not None: extra_bits.append(f"{_T(lang, 'Semana')} {week_number}")
     if extra_bits:
         c.setFont("Helvetica", 10)
         c.drawString(text_x, height - 95, " · ".join(extra_bits))
@@ -168,10 +182,10 @@ def _build_session_pdf_classic(
     session_date = session_data.get('date', datetime.now().strftime('%Y-%m-%d'))
     day_name = session_data.get('dayName', '') or session_data.get('day', '')
     c.setFont("Helvetica-Bold", 12)
-    c.drawRightString(width - 50, height - 55, f"Fecha: {session_date}")
+    c.drawRightString(width - 50, height - 55, f"{_T(lang, 'Fecha')}: {session_date}")
     if day_name:
         c.setFont("Helvetica", 11)
-        c.drawRightString(width - 50, height - 72, f"Día: {day_name}")
+        c.drawRightString(width - 50, height - 72, f"{_T(lang, 'Día')}: {day_name}")
 
     y_position = height - 140
 
@@ -180,19 +194,19 @@ def _build_session_pdf_classic(
     c.roundRect(30, y_position - 15, width - 60, 25, 5, fill=1, stroke=0)
     c.setFillColor(white)
     c.setFont("Helvetica-Bold", 12)
-    c.drawString(45, y_position - 7, "OBJETIVOS DE LA SESIÓN")
+    c.drawString(45, y_position - 7, _T(lang, "OBJETIVOS DE LA SESIÓN"))
     y_position -= 35
 
     c.setFillColor(surface)
     c.roundRect(30, y_position - 100, width - 60, 100, 8, fill=1, stroke=0)
 
     obj_items = [
-        ('General', objectives.get('general', '')),
-        ('Físico', objectives.get('fisico', '')),
-        ('Técnico', objectives.get('tecnico', '')),
-        ('Táctico', objectives.get('tactico', '')),
-        ('Psicológico', objectives.get('psicologico', '')),
-        ('Teórico', objectives.get('teorico', '')),
+        (_T(lang, 'General'), objectives.get('general', '')),
+        (_T(lang, 'Físico'), objectives.get('fisico', '')),
+        (_T(lang, 'Técnico'), objectives.get('tecnico', '')),
+        (_T(lang, 'Táctico'), objectives.get('tactico', '')),
+        (_T(lang, 'Psicológico'), objectives.get('psicologico', '')),
+        (_T(lang, 'Teórico'), objectives.get('teorico', '')),
     ]
     obj_y = y_position - 15
     col1_x = 45
@@ -206,16 +220,16 @@ def _build_session_pdf_classic(
         c.drawString(x_pos, obj_y, f"{label}:")
         c.setFillColor(ink_muted)
         c.setFont("Helvetica", 9)
-        display_value = (str(value)[:40] if value else "Sin definir")
+        display_value = (str(value)[:40] if value else _T(lang, "Sin definir"))
         c.drawString(x_pos + 65, obj_y, display_value)
 
     y_position -= 115
 
     # ============ FASES ============
     phase_configs = [
-        ('inicial', 'FASE INICIAL (Calentamiento)', HexColor('#22c55e'), HexColor('#dcfce7') if not is_dark else HexColor('#0f1f15')),
-        ('principal', 'FASE PRINCIPAL', HexColor('#f97316'), HexColor('#ffedd5') if not is_dark else HexColor('#1f140a')),
-        ('final', 'FASE FINAL (Vuelta a la calma)', HexColor('#3b82f6'), HexColor('#dbeafe') if not is_dark else HexColor('#0a141f')),
+        ('inicial', _T(lang, 'FASE INICIAL (Calentamiento)'), HexColor('#22c55e'), HexColor('#dcfce7') if not is_dark else HexColor('#0f1f15')),
+        ('principal', _T(lang, 'FASE PRINCIPAL'), HexColor('#f97316'), HexColor('#ffedd5') if not is_dark else HexColor('#1f140a')),
+        ('final', _T(lang, 'FASE FINAL (Vuelta a la calma)'), HexColor('#3b82f6'), HexColor('#dbeafe') if not is_dark else HexColor('#0a141f')),
     ]
     for phase_key, phase_name, header_color, bg_color_phase in phase_configs:
         phase_data = phases.get(phase_key, {}) or {}
@@ -233,7 +247,7 @@ def _build_session_pdf_classic(
         c.setFont("Helvetica-Bold", 11)
         c.drawString(45, y_position - 7, phase_name)
         c.setFont("Helvetica", 10)
-        c.drawRightString(width - 50, y_position - 7, f"{len(activities)} ejercicios")
+        c.drawRightString(width - 50, y_position - 7, f"{len(activities)} {_T(lang, 'ejercicios')}")
         y_position -= 30
 
         if activities:
@@ -242,7 +256,7 @@ def _build_session_pdf_classic(
             c.roundRect(30, y_position - table_height + 10, width - 60, table_height, 5, fill=1, stroke=0)
             c.setFillColor(ink_muted)
             c.setFont("Helvetica-Bold", 8)
-            headers = ['Ejercicio', 'Cap.Física', 'Método', 'Series', 'Reps', 'Int.', 'Vol.', 'Recup.']
+            headers = [_T(lang, 'Ejercicio'), _T(lang, 'Cap.Física'), _T(lang, 'Método'), _T(lang, 'Series'), _T(lang, 'Reps'), _T(lang, 'Int.'), _T(lang, 'Vol.'), _T(lang, 'Recup.')]
             x_positions = [40, 140, 215, 285, 325, 365, 410, 460]
             for i, header in enumerate(headers):
                 c.drawString(x_positions[i], y_position - 5, header)
@@ -673,6 +687,7 @@ async def _generate_pdfs_for_request(
     theme: str,
     layout: str,
     athlete_name: str,
+    lang: str = "es",
 ) -> List[Tuple[str, bytes]]:
     """Devuelve [(filename, bytes), ...] preservando el orden de plan."""
     requested = set(session_ids)
@@ -687,7 +702,7 @@ async def _generate_pdfs_for_request(
     pdfs: List[Tuple[str, bytes]] = []
     if layout == "hero":
         for s, meso, micro, week in found:
-            html = _build_session_html_hero(s, athlete_name, meso, micro, week, theme)
+            html = translate_html(_build_session_html_hero(s, athlete_name, meso, micro, week, theme), lang)
             pdf = await _render_hero_pdf_bytes([html])
             name_slug = _slugify(s.get('name') or s.get('day') or 'sesion')
             date_part = s.get('date') or ''
@@ -700,7 +715,7 @@ async def _generate_pdfs_for_request(
             pdf = await loop.run_in_executor(
                 None,
                 lambda s=s, meso=meso, micro=micro, week=week:
-                _build_session_pdf_classic(s, athlete_name, meso, micro, week, theme),
+                _build_session_pdf_classic(s, athlete_name, meso, micro, week, theme, lang),
             )
             name_slug = _slugify(s.get('name') or s.get('day') or 'sesion')
             date_part = s.get('date') or ''
@@ -768,6 +783,7 @@ async def generate_sessions_export(req: SessionsExportRequest, user=Depends(get_
         theme=req.theme or "light",
         layout=req.layout or "classic",
         athlete_name=req.athlete_name or "Atleta",
+        lang=(req.lang or "es"),
     )
     content, media, filename = _combine_or_zip(pdfs, plan.get('name'), fmt, req.theme or "light", req.layout or "classic")
     return Response(content=content, media_type=media,
@@ -797,6 +813,7 @@ async def create_sessions_share(req: SessionsShareRequest, user=Depends(get_curr
         "layout": req.layout or "classic",
         "athlete_name": req.athlete_name or "Atleta",
         "plan_name": plan.get("name") or "Plan",
+        "lang": (req.lang or "es"),
         "created_at": datetime.now(timezone.utc),
         "expires_at": datetime.now(timezone.utc) + timedelta(days=30),
     }
@@ -831,6 +848,7 @@ async def download_shared_sessions_pdf(share_id: str, format: str = "combined"):
         theme=doc.get("theme", "light"),
         layout=doc.get("layout", "classic"),
         athlete_name=doc.get("athlete_name", "Atleta"),
+        lang=doc.get("lang", "es"),
     )
     content, media, filename = _combine_or_zip(
         pdfs, doc.get("plan_name"), fmt, doc.get("theme", "light"), doc.get("layout", "classic")
@@ -868,11 +886,12 @@ async def view_shared_sessions(share_id: str):
 
     theme = doc.get("theme", "light")
     athlete = doc.get("athlete_name", "Atleta")
+    _shlang = doc.get("lang", "es")
 
     # Render todas las sesiones como HTML hero, concatenadas como secciones de página
     section_htmls = []
     for s, meso, micro, week in found:
-        section_htmls.append(_build_session_html_hero(s, athlete, meso, micro, week, theme))
+        section_htmls.append(translate_html(_build_session_html_hero(s, athlete, meso, micro, week, theme), _shlang))
 
     # Tomar el head del primero, body de todos
     if not section_htmls:
