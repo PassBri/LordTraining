@@ -1,0 +1,40 @@
+{
+  "summary": "Tested OrgTeamPage (/org/team) i18n in EN/FR/DE AND backend master-report PDF generation with lang=es/en/fr. Backend: 4/4 pytest cases PASS (es/en/fr generate valid PDF >50KB with %PDF magic header, plus /styles endpoint). Frontend: Login super admin → /org/team renders correctly (no crash, no 'tt is not defined', no gate). Stat cards (Coaches/Active/Plans created/Total athletes), header 'Admin' badge, plan footer ('Plan: Enterprise · Max. coaches: Unlimited') and Invite Modal contents (title 'Invite coach', subtitle, Email, Full name, Role, Coach/Strength & Conditioning Coach/Analyst/Assistant) ALL TRANSLATE correctly to EN, FR (Entraîneurs/Actifs/Plans créés/Athlètes au total, Plan: Enterprise · Max. entraîneurs: Illimité, Administrateur) and DE (Trainer/Aktiv/Erstellte Pläne/Athleten gesamt, Max. Trainer: Unbegrenzt). However TWO hardcoded Spanish strings leak across ALL non-ES languages: the section heading 'Entrenadores ({count})' at OrgTeamPage.js:291 and the 'Invitar' button label (TWO locations: line 294 table header button, and line 382 modal submit). These strings are NOT wrapped in tt(). Plus the role label 'Administrador' rendered for the owner row appears translated to 'Administrator' in EN and 'Administrateur' in FR (via ROLE_LABELS+tt) — so that path works. NOTE: OrgTeamPage does NOT render a LanguageSelector in its header; lang switching tested via localStorage train_language + reload (per UI architecture this is the expected flow — selector lives elsewhere).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "OrgTeamPage table header", "issue": "Hardcoded 'Entrenadores (N)' at line 291 — not wrapped in tt(), shows in Spanish for EN/FR/DE", "selector": "h2 inside coaches-table header", "priority": "MEDIUM"},
+      {"component": "OrgTeamPage Invite button (table)", "issue": "Hardcoded 'Invitar' at line 294 — not wrapped in tt(), shows in Spanish for EN/FR/DE", "selector": "[data-testid=invite-coach-btn]", "priority": "MEDIUM"},
+      {"component": "OrgTeamPage Invite modal submit", "issue": "Hardcoded 'Invitar' at line 382 — not wrapped in tt(), shows in Spanish in the EN modal screenshot (button label 'Invitar')", "selector": "[data-testid=invite-confirm]", "priority": "MEDIUM"},
+      {"component": "OrgTeamPage temp-password modal title", "issue": "Hardcoded 'Contraseña temporal' at line 393 not wrapped in tt() (not visible in this run but will leak)", "selector": "[data-testid=temp-password-modal] DialogTitle", "priority": "LOW"},
+      {"component": "OrgTeamPage suspend/reactivate tooltip", "issue": "Hardcoded 'Reactivar'/'Suspender' at line 327 title attr — not wrapped in tt()", "selector": "[data-testid=toggle-{id}]", "priority": "LOW"},
+      {"component": "OrgTeamPage toast at line 158", "issue": "Hardcoded 'Reactivado'/'Suspendido' on toggle — not wrapped in tt()", "selector": "toast", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_master_report_i18n.py",
+    "/app/test_reports/pytest/master_report_i18n.xml"
+  ],
+  "action_items": [
+    "Wrap 'Entrenadores ({coaches.length})' at OrgTeamPage.js:291 with tt(): e.g. {tt('Entrenadores')} ({coaches.length})",
+    "Wrap the two 'Invitar' literals at OrgTeamPage.js:294 and 382 with tt('Invitar')",
+    "Wrap 'Contraseña temporal' (line 393), 'Reactivar'/'Suspender' title attrs (line 327), and the success toast literals 'Reactivado'/'Suspendido' (line 158) with tt() for full i18n coverage",
+    "OPTIONAL UX: add LanguageSelector component to OrgTeamPage header so users can switch language directly without going to Dashboard (current architecture forces page change)"
+  ],
+  "critical_code_review_comments": [
+    "OrgTeamPage.js: tt() helper (line 25-29) using i18nInstance.t(`orgteam.lbl.<slug>`, {defaultValue:s}) is a clean pattern and matches the SuperAdmin/Scouting/MasterReportModal approach. Verified to actually re-render via useTranslation() at line 40.",
+    "OrgTeamPage.js: ~6 string literals are NOT wrapped in tt(): line 291 ('Entrenadores'), line 294 ('Invitar'), line 327 ('Reactivar'/'Suspender'), line 158 ('Reactivado'/'Suspendido'), line 382 ('Invitar'), line 393 ('Contraseña temporal'). These cause visible Spanish leaks even in EN/FR/DE.",
+    "master_report.py: payload.lang plumbing through translate_html(body_html/footer_html) at line 1110-1112 is correct. Backend tests confirm es/en/fr all produce valid PDFs (>50KB, %PDF header).",
+    "pdf_i18n.py translate_html replaces text nodes — depends on Spanish source string presence; any new chrome label added must also be added to PDF_I18N dict otherwise it stays in ES."
+  ],
+  "updated_files": ["/app/backend/tests/test_master_report_i18n.py"],
+  "success_rate": {"backend": "100% (4/4 pytest cases)", "frontend": "~85% — stat cards/modal labels/footer/role-label/dialog title all translate; 6 hardcoded literals leak across all non-ES languages (Entrenadores count, Invitar x2, Contraseña temporal, Reactivar/Suspender, toggle toasts)"},
+  "test_credentials": "Super Admin: juegolaureado@gmail.com / LordTraining2026! (used, works, enterprise plan, org 'cuy' exists with 1 coach owner)",
+  "seed_data_creation": "None. localStorage train_language toggled to en/fr/de during test (browser session only).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend PDF i18n is fully validated via /app/backend/tests/test_master_report_i18n.py (es/en/fr). OrgTeamPage frontend i18n works for ~85% of strings; remaining hardcoded leaks are documented in ui_bugs above. The page has NO LanguageSelector in its own header — use localStorage 'train_language' or change via Dashboard before navigating.",
+  "rca_of_the_issue": "Hardcoded literals at OrgTeamPage.js:291 ('Entrenadores (N)'), :294 + :382 ('Invitar'), :327 (title attrs), :158 (toast strings), :393 ('Contraseña temporal') were missed when wrapping with tt(). Fix is mechanical: wrap each with {tt('...')}."
+}

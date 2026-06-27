@@ -20,6 +20,7 @@ from datetime import datetime, timezone
 import os
 import base64
 from motor.motor_asyncio import AsyncIOMotorClient
+from .pdf_i18n import translate_html
 
 router = APIRouter(prefix="/master-report", tags=["master-report"])
 _client = AsyncIOMotorClient(os.environ['MONGO_URL'])
@@ -172,6 +173,8 @@ class MasterReportPayload(BaseModel):
     # When sections.sessions=true, optionally filter the printed sessions.
     # Empty/None = print ALL sessions. Otherwise, only those whose id is in this list.
     selected_session_ids: Optional[List[str]] = None
+    # Idioma del receptor para localizar el "chrome" del PDF (títulos, badges, tablas).
+    lang: Optional[str] = "es"
 
 
 # ============= STYLES ENDPOINT =============
@@ -1100,8 +1103,13 @@ async def _build_html(payload: MasterReportPayload, user_id: str) -> str:
     # ====== FOOTER ======
     footer_html = f"""<div class="footer-brand">
   {f'<img src="data:image/png;base64,{icon_b64}" alt=""/>' if icon_b64 else ''}
-  Generado por <strong>LordTraining</strong> · {today}
+  <span>Generado por</span> <strong>LordTraining</strong> · {today}
 </div>"""
+
+    # ====== Localización del chrome (títulos/badges/tablas) al idioma del receptor ======
+    _lang = (payload.lang or "es")
+    body_html = translate_html(body_html, _lang)
+    footer_html = translate_html(footer_html, _lang)
 
     # ====== CSS PREMIUM ======
     css = f"""
@@ -1471,7 +1479,7 @@ h2 {{ font-family: 'Oswald', sans-serif; text-transform: uppercase; color: {prim
         "family=Russo+One&display=swap\" rel=\"stylesheet\"/>"
     )
 
-    return f"""<!DOCTYPE html><html lang="es">
+    return f"""<!DOCTYPE html><html lang="{_lang}">
 <head>
 <meta charset="UTF-8">
 <title>{_esc(plan_name)}</title>

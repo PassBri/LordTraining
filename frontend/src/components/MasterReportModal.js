@@ -160,6 +160,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
     cover: coverData,
     custom_intro: customIntro || '',
     custom_conclusions: customConclusions || '',
+    lang: (i18nInstance.language || 'es').split('-')[0],
     ...overrides,
   });
 
