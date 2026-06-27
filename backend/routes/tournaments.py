@@ -774,7 +774,7 @@ async def export_tournament_pdf(tournament_id: str, user: dict = Depends(get_cur
             for i, s in enumerate(standings, 1):
                 standings_data.append([
                     str(i),
-                    s.get("name", "N/A")[:20],
+                    (s.get("name") or "N/A")[:20],
                     str(s.get("played", 0)),
                     str(s.get("won", 0)),
                     str(s.get("drawn", 0)),
@@ -811,9 +811,9 @@ async def export_tournament_pdf(tournament_id: str, user: dict = Depends(get_cur
                 
                 match_data.append([
                     m.get("round_name", f"R{m.get('round_number', '?')}"),
-                    m.get("participant1_name", "TBD")[:15],
+                    (m.get("participant1_name") or "TBD")[:15],
                     score_str,
-                    m.get("participant2_name", "TBD")[:15],
+                    (m.get("participant2_name") or "TBD")[:15],
                     m.get("status", "scheduled").replace("_", " ").title()
                 ])
             

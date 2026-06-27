@@ -1,5 +1,15 @@
 # iTRAIN - Plataforma
 
+## [Jun 2026] REFACTOR FASE 1 — Incremento 3 (Segmentación masiva de server.py) — VERIFICADO (iter_82)
+**server.py: 8.485 → 4.528 líneas (~47% reducción).** 9 grupos de rutas extraídos a `/app/backend/routes/` (sin cambiar funcionalidad). Patrón uniforme: `get_db(request)→request.app.state.db` + `get_current_user` local (JWT) + `db=Depends(get_db)` inyectado en cada handler. Modelos compartidos en `core/models.py`.
+- **`core/models.py` (NUEVO)**: enums + ~50 modelos Pydantic + config de suscripción (SUBSCRIPTION_PRICES/LIMITS, PLAN_RANK, FEATURE_MIN_PLAN) + ExportPDFRequest. server.py los reimporta con `from core.models import *`.
+- **Routers nuevos**: `plan_data.py` (13 rutas /plan-data/*), `entities_teams.py`, `sports.py` (+seed_default_sports(db,coach_id), llamado lazy desde seed_super_admin), `athletes.py` (atletas+ejercicios), `tournaments.py` (CRUD+brackets+matches+standings+pdf; helpers incl. update_standings(db,...)), `tactical_boards.py` (IA+CRUD), `payments.py` (Stripe checkout/status/webhook), `dashboard_panel.py` (dashboard/stats + control-panel/stats + export-pdf), `athlete_data.py` (legacy: análisis previo, planeación sesiones, caracterización, salud, antropometría, periodización legacy, biblioteca, seed exercises — ~35 rutas + modelos inline).
+- **Limpieza server.py**: removidos imports muertos (ObjectId, ConfigDict, EmailStr, Enum, reportlab platypus/styles/units/colors no usados a nivel módulo). pyflakes limpio.
+- **Bug corregido (latente, expuesto en test)**: `export-pdf` de torneos daba 500 cuando un match tenía participante None (final sin decidir) → `m.get("participant1_name","TBD")` devolvía None y `[:15]` crasheaba. Fix: `(m.get(...) or "TBD")[:15]` (y standings name). Verificado 200.
+- **Testing**: iter_82 backend regression 28/29 PASS; el único crítico (export-pdf) corregido y verificado E2E. Smoke amplio de ~17 endpoints = 200 (404 solo en GETs sin datos, por diseño). Sigue inline en server.py: auth, training-plans, sessions/calendar, macrocycles/meso/micro, competitions, share de coaches/boards/sessions, export PDFs (plan/comprehensive/session/training-plan), AI plans/generate.
+- **Pendiente FASE 1**: (opcional) extraer rutas restantes de server.py (auth, training-plans, sessions/boards/coaches share, PDFs legacy); luego segmentar `DashboardPage.js` (4.877 líneas) con React.lazy()/subcomponentes.
+
+
 ## [Jun 2026] REFACTOR FASE 1 — Incremento 2 (Segmentación) — VERIFICADO
 - **`core/models.py` (NUEVO)**: extraídos enums + ~50 modelos Pydantic (líneas 50-790 de server.py). server.py los reimporta con `from core.models import *`. Sin lógica de negocio, solo definiciones.
 - **`routes/plan_data.py` (NUEVO)**: extraídas las 13 rutas `/api/plan-data/*` (objetivos, evaluaciones, competencias, análisis previo, agregador). Patrón: `request.app.state.db` + `get_current_user` local (JWT). Registrado en server.py.
