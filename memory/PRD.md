@@ -1,6 +1,13 @@
 # iTRAIN - Plataforma
 
-## [Jun 2026] Dual UI Theme: Modo Clásico ⟷ Modo Pro (WhatsApp Web) con toggle — VERIFICADO
+## [Jun 2026] Dual UI: mejoras UX (Sheet de planes clásico, sidebar Pro colapsable, búsqueda, título) — VERIFICADO
+- **Modo Clásico**: el `PlanSidebar` ya no ocupa espacio fijo; ahora se abre desde un botón "Planes" (ListChecks) en la barra superior → `Sheet` lateral izquierdo (`isPlansSheetOpen`). Contenido a ancho completo.
+- **Modo Pro — sidebar colapsable**: botón chevron (`PanelLeftClose/Open`, `proSidebarCollapsed`) reduce el sidebar a un rail de iconos (72px) y ensancha el contenido; footer/secciones se ocultan, módulos quedan icon-only con tooltip. Transición 300ms.
+- **Modo Pro — buscador** (`proSearch`, input "Buscar módulo o plan..."): filtra módulos primarios, acciones, planes y secciones por texto en vivo.
+- **Header Pro refinado**: muestra "Panel de Control" / "Recruiting & Talent ID" / label de la sección activa / nombre del plan / "Datos del Atleta" según contexto (ya no muestra siempre "Panel de Control").
+- **Verificado** (screenshots+consola): Sheet de planes en clásico, búsqueda y lista en Pro, colapso del sidebar; 0 errores de consola; webpack compila.
+
+
 - **`context/UiModeContext.js`**: estado global `uiMode` ('classic'|'whatsapp'), persistido en localStorage ('lordtraining_theme'), `data-ui-mode` en <html>. Provider en App.js (envuelve toda la app).
 - **`components/ThemeToggle.js`**: botón con icono Sol/Luna + label "Modo Clásico/Modo Pro" (variantes light/dark). Visible en el header clásico (top-bar derecha) y en el sidebar del modo Pro → accesible desde el dashboard en ambos modos.
 - **Modo Clásico**: el dashboard actual sin cambios (top-bar de FABs + contenido claro).

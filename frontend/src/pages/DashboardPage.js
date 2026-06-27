@@ -19,7 +19,8 @@ import {
   Building2, Trophy, Timer, Flame, Lightbulb, X, Trash2,
   Medal, LayoutGrid, Share2, History, Filter, CreditCard, Sparkles,
   AlertTriangle, CheckCircle, TrendingUp, RefreshCw, Copy, Printer, Gauge, Wrench,
-  Stethoscope, CalendarDays, Calculator, UsersRound, PieChart, MessageCircle, Link as LinkIcon, ArrowRight, FileBarChart2, Crown, Bell
+  Stethoscope, CalendarDays, Calculator, UsersRound, PieChart, MessageCircle, Link as LinkIcon, ArrowRight, FileBarChart2, Crown, Bell,
+  Search, PanelLeftClose, PanelLeftOpen, ListChecks, ChevronRight
 } from 'lucide-react';
 import { 
   Tooltip, ResponsiveContainer, RadarChart, Radar, PolarGrid, 
@@ -67,6 +68,7 @@ const TournamentManager = lazy(() => import('../components/TournamentManager'));
 import AITrainingAssistant from '../components/AITrainingAssistant';
 import PlanSidebar from '../components/PlanSidebar';
 import SectionSkeleton from '../components/SectionSkeleton';
+import { Sheet, SheetContent } from '../components/ui/sheet';
 import { useUiMode } from '../context/UiModeContext';
 import ThemeToggle from '../components/ThemeToggle';
 import { Badge } from '../components/ui/badge';
@@ -93,6 +95,9 @@ const DashboardPage = () => {
   const { allowed: canManageOrg } = usePlanGate('org_management');
   const [stats, setStats] = useState(null);
   const [athletes, setAthletes] = useState([]);
+  const [isPlansSheetOpen, setIsPlansSheetOpen] = useState(false);
+  const [proSidebarCollapsed, setProSidebarCollapsed] = useState(false);
+  const [proSearch, setProSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [showProfileDialog, setShowProfileDialog] = useState(false);
   const [updatingProfile, setUpdatingProfile] = useState(false);
@@ -4271,22 +4276,7 @@ const DashboardPage = () => {
 
       return (
         <div className="flex h-full" data-testid="datos-layout">
-          {/* ====== SIDEBAR DE PLANES (oculto en Modo Pro: va en el sidebar navy) ====== */}
-          {uiMode !== 'whatsapp' && (
-          <PlanSidebar
-            trainingPlans={trainingPlans}
-            loadingPlans={loadingPlans}
-            activePlan={activePlan}
-            onSelectPlan={handleSetActivePlan}
-            onDuplicatePlan={handleDuplicatePlan}
-            onSharePlan={handleSharePlan}
-            onDeletePlan={handleDeleteTrainingPlan}
-            onExportPDF={handleExportPDF}
-            onRefresh={fetchTrainingPlans}
-            onCreatePlan={() => setActiveDataSection('create-plan')}
-            t={t}
-          />
-          )}
+          {/* PlanSidebar movido: a un Sheet (Modo Clásico, botón superior) y al sidebar navy (Modo Pro) */}
 
           {/* ====== CONTENIDO PRINCIPAL ====== */}
           <div className="flex-1 flex flex-col min-h-0" data-testid="plan-content-area">
@@ -4403,62 +4393,106 @@ const DashboardPage = () => {
       { key: 'report', label: t('dashboard.nav.report'), icon: FileBarChart2, onClick: () => setIsMasterReportOpen(true) },
       { key: 'sessions', label: t('dashboard.nav.sessions'), icon: CalendarDays, onClick: () => { if (!activePlan?.id) { toast.warning(t('data.selecciona_un_plan_activo_primero')); return; } setIsSessionsExportOpen(true); } },
     ];
+    const activeNavLabel = navItems.find((n) => n.id === activeDataSection)?.label;
     const headerTitle = activePanel === 'panel'
       ? t('dashboard.controlPanel.title', { defaultValue: 'Panel de Control' })
-      : (activeDataSection === 'scouting' ? 'Recruiting & Talent ID' : (currentSectionData?.title || t('dashboard.nav.data')));
+      : activeDataSection === 'scouting'
+        ? 'Recruiting & Talent ID'
+        : (activeNavLabel || (activePlan ? activePlan.name : t('dashboard.nav.data', { defaultValue: 'Datos del Atleta' })));
+
+    // Buscador rápido (filtra módulos, acciones y planes)
+    const q = proSearch.trim().toLowerCase();
+    const match = (txt) => !q || (txt || '').toLowerCase().includes(q);
+    const fPrimary = primaryItems.filter((it) => match(it.label));
+    const fActions = actionItems.filter((it) => match(it.label));
+    const collapsed = proSidebarCollapsed;
 
     return (
       <div className="flex h-screen w-full overflow-hidden bg-[#F0F2F5]" data-testid="whatsapp-layout">
         {/* ===== SIDEBAR (navy) ===== */}
-        <aside className="shrink-0 w-[30%] min-w-[280px] max-w-[360px] h-full bg-[#0A0F1E] text-white flex flex-col" data-testid="whatsapp-sidebar">
-          {/* Brand */}
-          <div className="flex items-center justify-between px-4 h-[60px] border-b border-white/10 shrink-0">
-            <BrandLogo variant="full" theme="light" size={32} />
-            <LanguageSelector variant="dark" compact />
+        <aside className={`shrink-0 h-full bg-[#0A0F1E] text-white flex flex-col transition-all duration-300 ${collapsed ? 'w-[72px] min-w-[72px]' : 'w-[30%] min-w-[280px] max-w-[360px]'}`} data-testid="whatsapp-sidebar">
+          {/* Brand + collapse */}
+          <div className={`flex items-center h-[60px] border-b border-white/10 shrink-0 ${collapsed ? 'justify-center px-2' : 'justify-between px-4'}`}>
+            {!collapsed && (
+              <div className="flex items-center gap-2 min-w-0">
+                <BrandLogo variant="full" theme="light" size={32} />
+              </div>
+            )}
+            <button
+              onClick={() => setProSidebarCollapsed((v) => !v)}
+              data-testid="wa-collapse-toggle"
+              className="text-white/60 hover:text-white hover:bg-white/10 rounded-lg p-1.5 transition-colors shrink-0"
+              title={collapsed ? t('common.expand', { defaultValue: 'Expandir' }) : t('common.collapse', { defaultValue: 'Colapsar' })}
+            >
+              {collapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+            </button>
           </div>
-          {/* Theme toggle */}
-          <div className="px-4 py-3 border-b border-white/10 shrink-0">
-            <ThemeToggle variant="dark" className="w-full justify-center" />
-          </div>
+
+          {!collapsed && (
+            <>
+              {/* Theme toggle + language */}
+              <div className="px-4 py-3 border-b border-white/10 shrink-0 flex items-center gap-2">
+                <ThemeToggle variant="dark" className="flex-1 justify-center" />
+                <LanguageSelector variant="dark" compact />
+              </div>
+              {/* Search */}
+              <div className="px-3 pt-3 shrink-0">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                  <input
+                    type="text"
+                    value={proSearch}
+                    onChange={(e) => setProSearch(e.target.value)}
+                    placeholder={t('common.search_placeholder', { defaultValue: 'Buscar módulo o plan...' })}
+                    data-testid="wa-search"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-white/35 focus:outline-none focus:border-[#CCFF00]/50 focus:bg-white/10 transition-colors"
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
           {/* Nav list */}
-          <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-1 scrollbar-hide" data-testid="whatsapp-nav">
-            <p className="px-3 pt-1 pb-2 text-[10px] font-bold uppercase tracking-widest text-white/40">{t('dashboard.nav.panel')}</p>
-            {primaryItems.map((it) => {
+          <nav className={`flex-1 overflow-y-auto py-3 space-y-1 scrollbar-hide ${collapsed ? 'px-2' : 'px-3'}`} data-testid="whatsapp-nav">
+            {!collapsed && <p className="px-3 pt-1 pb-2 text-[10px] font-bold uppercase tracking-widest text-white/40">{t('dashboard.nav.panel')}</p>}
+            {fPrimary.map((it) => {
               const Icon = it.icon;
               return (
                 <button
                   key={it.key}
                   onClick={it.onClick}
                   data-testid={`wa-nav-${it.key}`}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                    it.active ? 'bg-[#CCFF00]/10 text-[#CCFF00] border-l-4 border-[#CCFF00] pl-2' : 'text-white/80 hover:bg-white/10 hover:text-white'
+                  title={it.label}
+                  className={`w-full flex items-center rounded-lg text-sm font-medium transition-all duration-200 ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2.5'} ${
+                    it.active ? `bg-[#CCFF00]/10 text-[#CCFF00] ${collapsed ? 'ring-1 ring-[#CCFF00]/40' : 'border-l-4 border-[#CCFF00] pl-2'}` : 'text-white/80 hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   <Icon className={navIconCls} strokeWidth={it.active ? 2.4 : 1.9} />
-                  <span className="truncate">{it.label}</span>
+                  {!collapsed && <span className="truncate">{it.label}</span>}
                 </button>
               );
             })}
 
-            <div className="h-px bg-white/10 my-3" />
-            <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-widest text-white/40">{t('dashboard.sections.tools', { defaultValue: 'Acciones' })}</p>
-            {actionItems.map((it) => {
+            {!collapsed && <div className="h-px bg-white/10 my-3" />}
+            {!collapsed && fActions.length > 0 && <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-widest text-white/40">{t('dashboard.sections.tools', { defaultValue: 'Acciones' })}</p>}
+            {fActions.map((it) => {
               const Icon = it.icon;
               return (
                 <button
                   key={it.key}
                   onClick={it.onClick}
                   data-testid={`wa-action-${it.key}`}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200"
+                  title={it.label}
+                  className={`w-full flex items-center rounded-lg text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200 ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2.5'}`}
                 >
                   <Icon className={navIconCls} strokeWidth={1.9} />
-                  <span className="truncate">{it.label}</span>
+                  {!collapsed && <span className="truncate">{it.label}</span>}
                 </button>
               );
             })}
 
-            {/* Lista de planes de entrenamiento (modo Pro, solo en Datos) */}
-            {activePanel === 'datos' && activeDataSection !== 'scouting' && (
+            {/* Lista de planes de entrenamiento (modo Pro, solo en Datos, expandido) */}
+            {!collapsed && activePanel === 'datos' && activeDataSection !== 'scouting' && (
               <div className="mt-4">
                 <div className="h-px bg-white/10 my-3" />
                 <div className="flex items-center justify-between px-3 pb-2">
@@ -4479,7 +4513,7 @@ const DashboardPage = () => {
                   <p className="px-3 py-2 text-xs text-white/40">{t('data.sin_planes', { defaultValue: 'Sin planes aún' })}</p>
                 ) : (
                   <div className="space-y-1 max-h-[34vh] overflow-y-auto scrollbar-hide pr-1">
-                    {trainingPlans.map((plan) => {
+                    {trainingPlans.filter((p) => match(p.name) || match(p.sport)).map((plan) => {
                       const isActive = activePlan?.id === plan.id;
                       return (
                         <button
@@ -4505,12 +4539,12 @@ const DashboardPage = () => {
               </div>
             )}
 
-            {/* Secciones del plan (solo en Datos con plan activo) */}
-            {activePanel === 'datos' && activePlan && activeDataSection !== 'scouting' && (
+            {/* Secciones del plan (solo en Datos con plan activo, expandido) */}
+            {!collapsed && activePanel === 'datos' && activePlan && activeDataSection !== 'scouting' && (
               <div className="mt-4">
                 <div className="h-px bg-white/10 my-3" />
                 {planSections.map((section) => {
-                  const items = navItems.filter((n) => n.section === section.key);
+                  const items = navItems.filter((n) => n.section === section.key && match(n.label));
                   if (items.length === 0) return null;
                   return (
                     <div key={section.key} className="mb-2">
@@ -4540,17 +4574,21 @@ const DashboardPage = () => {
           </nav>
 
           {/* Footer user */}
-          <div className="px-4 py-3 border-t border-white/10 flex items-center gap-3 shrink-0" data-testid="whatsapp-user">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#CCFF00] to-emerald-400 text-slate-900 flex items-center justify-center font-bold text-sm shrink-0">
+          <div className={`py-3 border-t border-white/10 flex items-center shrink-0 ${collapsed ? 'justify-center px-2' : 'gap-3 px-4'}`} data-testid="whatsapp-user">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#CCFF00] to-emerald-400 text-slate-900 flex items-center justify-center font-bold text-sm shrink-0" title={user?.name}>
               {user?.name?.charAt(0)?.toUpperCase() || 'U'}
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-white truncate">{user?.name}</p>
-              <p className="text-[11px] text-white/50 truncate">{user?.email}</p>
-            </div>
-            <button onClick={logout} className="text-white/60 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10" data-testid="wa-logout" title={t('dashboard.nav.logout', { defaultValue: 'Salir' })}>
-              <LogOut className="w-4 h-4" />
-            </button>
+            {!collapsed && (
+              <>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-white truncate">{user?.name}</p>
+                  <p className="text-[11px] text-white/50 truncate">{user?.email}</p>
+                </div>
+                <button onClick={logout} className="text-white/60 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10" data-testid="wa-logout" title={t('dashboard.nav.logout', { defaultValue: 'Salir' })}>
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </>
+            )}
           </div>
         </aside>
 
@@ -4626,6 +4664,21 @@ const DashboardPage = () => {
                   </button>
                 );
               })}
+
+              {/* Planes FAB — abre el Sheet con la lista de planes (ahorra espacio) */}
+              <button
+                onClick={() => setIsPlansSheetOpen(true)}
+                className="group flex flex-col items-center gap-1 shrink-0 outline-none"
+                data-testid="tab-planes"
+                title={t('data.planes_de_entrenamiento', { defaultValue: 'Planes de Entrenamiento' })}
+              >
+                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-500 shadow-sm border border-slate-100 hover:bg-slate-50 hover:shadow-md">
+                  <ListChecks className="w-[18px] h-[18px] transition-transform duration-300 group-hover:text-slate-700" strokeWidth={1.8} />
+                </div>
+                <span className="text-[8px] tracking-wide leading-tight text-center max-w-[56px] transition-colors duration-300 text-slate-400 font-medium group-hover:text-slate-600">
+                  {t('data.planes_corto', { defaultValue: 'Planes' })}
+                </span>
+              </button>
 
               {/* Scouting FAB — Recruiting & Talent ID */}
               {(() => {
@@ -4944,6 +4997,25 @@ const DashboardPage = () => {
       </div>
        </>
       ) : renderWhatsAppLayout()}
+
+      {/* ====== SHEET DE PLANES (Modo Clásico, abierto desde botón superior) ====== */}
+      <Sheet open={isPlansSheetOpen} onOpenChange={setIsPlansSheetOpen}>
+        <SheetContent side="left" className="p-0 w-[340px] sm:w-[360px] border-r-0" data-testid="plans-sheet">
+          <PlanSidebar
+            trainingPlans={trainingPlans}
+            loadingPlans={loadingPlans}
+            activePlan={activePlan}
+            onSelectPlan={(plan) => { handleSetActivePlan(plan); setIsPlansSheetOpen(false); }}
+            onDuplicatePlan={handleDuplicatePlan}
+            onSharePlan={handleSharePlan}
+            onDeletePlan={handleDeleteTrainingPlan}
+            onExportPDF={handleExportPDF}
+            onRefresh={fetchTrainingPlans}
+            onCreatePlan={() => { setActiveDataSection('create-plan'); setIsPlansSheetOpen(false); }}
+            t={t}
+          />
+        </SheetContent>
+      </Sheet>
 
       {/* ====== COACH AI FLOATING BUTTON ====== */}
       <button
