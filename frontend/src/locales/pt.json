@@ -342,7 +342,10 @@
       "panel": "Painel",
       "data": "Dados",
       "tools": "Ferramentas",
-      "calculators": "Calculadoras"
+      "calculators": "Calculadoras",
+      "scouting": "Scouting",
+      "report": "Relatório",
+      "sessions": "Sessões"
     },
     "controlPanel": {
       "title": "Painel de Controle",
@@ -366,7 +369,19 @@
       "low": "Baixo",
       "increasing": "Subindo",
       "decreasing": "Descendo",
-      "stable": "Estável"
+      "stable": "Estável",
+      "sleepQuality": "Qualidade do sono",
+      "muscleSoreness": "Dor muscular",
+      "stress": "Stress",
+      "motivation": "Motivação",
+      "trainingAnalysis": "Análise do Treino",
+      "interactiveCharts": "Gráficos interativos - usa os controlos para explorar",
+      "acuteLoad": "Carga Aguda (7d)",
+      "chronicLoad": "Carga Crónica (28d)",
+      "chartVolume": "Volume, Intensidade e Densidade",
+      "chartIntensity": "Intensidade e Recuperação",
+      "chartPhases": "Distribuição de Fases",
+      "chartLoad": "Carga de Treino Acumulada"
     },
     "plans": {
       "title": "Planos de Treinamento",
@@ -389,6 +404,64 @@
       "periodization": "Periodização",
       "visualization": "Visualização",
       "tools": "Ferramentas"
+    },
+    "shell": {
+      "allGood": "Tudo em ordem!",
+      "allGoodDesc": "O sistema está atualizado e pronto para o treino.",
+      "fabAthlete": "Atleta",
+      "fabTeam": "Equipa",
+      "fabAdmin": "Admin",
+      "fabPlan": "Plano",
+      "fabLogout": "Sair",
+      "fabSessions": "Sessões",
+      "fabAlerts": "Alertas",
+      "fabDemo": "Demo"
+    },
+    "metrics": {
+      "acwrTitle": "Rácio de Carga (ACWR)",
+      "acwrEmpty": "Sem carga registada",
+      "acwrEmptyHint": "Marca sessões como concluídas (com RPE) para calcular o ACWR.",
+      "adherenceTitle": "Adesão por Semana",
+      "adherenceEmpty": "Sem sessões agendadas",
+      "adherenceEmptyHint": "A adesão é calculada sobre sessões vencidas.",
+      "global": "global",
+      "lowReadinessTitle": "Atletas com baixa disponibilidade hoje",
+      "lowReadinessEmpty": "Todos os atletas com readiness ≥ 60% hoje. Bom sinal!",
+      "zoneOptimo": "Ótimo",
+      "zoneBajo": "Carga baixa",
+      "zonePrecaucion": "Precaução",
+      "zoneRiesgo": "Alto risco",
+      "zoneSinDatos": "Sem dados",
+      "zoneOptimoDesc": "Carga equilibrada (sweet spot 0.8–1.3)",
+      "zoneBajoDesc": "Possível subcarga / destreino",
+      "zonePrecaucionDesc": "Carga elevada, vigiar fadiga",
+      "zoneRiesgoDesc": "Risco de lesão por sobrecarga",
+      "zoneSinDatosDesc": "Regista sessões concluídas",
+      "sleep": "Sono",
+      "soreness": "Dor",
+      "stressShort": "Stress",
+      "motiv": "Motiv."
+    },
+    "alerts": {
+      "title": "Prevenção de lesões",
+      "empty": "Sem alertas. Tudo em ordem.",
+      "viewWeekly": "Ver resumo semanal"
+    },
+    "weekly": {
+      "title": "Resumo da semana",
+      "adherence": "Adesão",
+      "sessionsCompleted": "Sessões concluídas",
+      "acwrRisk": "Atletas em risco ACWR",
+      "lowAvailability": "Baixa disponibilidade",
+      "topCapacities": "Capacidades mais trabalhadas",
+      "activeAlerts": "Alertas ativas",
+      "noAlerts": "Sem alertas. Boa semana."
+    },
+    "demo": {
+      "title": "Dados de exemplo (onboarding)",
+      "load": "Carregar dados de exemplo",
+      "clear": "Remover dados de exemplo",
+      "loadConfirm": "Remover os dados de exemplo? As datas/conclusão das sessões de exemplo e as competições/avaliações de exemplo serão apagadas."
     }
   }
 }

@@ -338,7 +338,10 @@
       "panel": "Панель",
       "data": "Данные",
       "tools": "Инструменты",
-      "calculators": "Калькуляторы"
+      "calculators": "Калькуляторы",
+      "scouting": "Scouting",
+      "report": "Отчет",
+      "sessions": "Сессии"
     },
     "controlPanel": {
       "title": "Панель управления",
@@ -362,7 +365,19 @@
       "low": "Низкий",
       "increasing": "Растёт",
       "decreasing": "Падает",
-      "stable": "Стабильно"
+      "stable": "Стабильно",
+      "sleepQuality": "Качество сна",
+      "muscleSoreness": "Мышечная боль",
+      "stress": "Стресс",
+      "motivation": "Мотивация",
+      "trainingAnalysis": "Анализ тренировки",
+      "interactiveCharts": "Интерактивные графики – используйте элементы управления для просмотра",
+      "acuteLoad": "Острая нагрузка (7d)",
+      "chronicLoad": "Хроническая нагрузка (28d)",
+      "chartVolume": "Объем, интенсивность и плотность",
+      "chartIntensity": "Интенсивность и восстановление",
+      "chartPhases": "Распределение фаз",
+      "chartLoad": "Накопленная тренировочная нагрузка"
     },
     "plans": {
       "title": "Тренировочные планы",
@@ -385,6 +400,64 @@
       "periodization": "Периодизация",
       "visualization": "Визуализация",
       "tools": "Инструменты"
+    },
+    "shell": {
+      "allGood": "Все в порядке!",
+      "allGoodDesc": "Система обновлена и готова к тренировке.",
+      "fabAthlete": "Атлет",
+      "fabTeam": "Команда",
+      "fabAdmin": "Admin",
+      "fabPlan": "План",
+      "fabLogout": "Выйти",
+      "fabSessions": "Сессии",
+      "fabAlerts": "Оповещения",
+      "fabDemo": "Demo"
+    },
+    "metrics": {
+      "acwrTitle": "Соотношение нагрузки (ACWR)",
+      "acwrEmpty": "Нет зарегистрированной нагрузки",
+      "acwrEmptyHint": "Отмечайте сессии как завершенные (с RPE), чтобы рассчитать ACWR.",
+      "adherenceTitle": "Соблюдение по неделям",
+      "adherenceEmpty": "Нет запланированных сессий",
+      "adherenceEmptyHint": "Соблюдение рассчитывается по просроченным сессиям.",
+      "global": "общий",
+      "lowReadinessTitle": "Атлеты с низкой готовностью сегодня",
+      "lowReadinessEmpty": "У всех атлетов readiness ≥ 60% сегодня. Хороший знак!",
+      "zoneOptimo": "Оптимально",
+      "zoneBajo": "Низкая нагрузка",
+      "zonePrecaucion": "Осторожно",
+      "zoneRiesgo": "Высокий риск",
+      "zoneSinDatos": "Нет данных",
+      "zoneOptimoDesc": "Сбалансированная нагрузка (sweet spot 0.8–1.3)",
+      "zoneBajoDesc": "Возможна недонагрузка / детренированность",
+      "zonePrecaucionDesc": "Повышенная нагрузка, следите за усталостью",
+      "zoneRiesgoDesc": "Риск травмы из-за перегрузки",
+      "zoneSinDatosDesc": "Регистрируйте завершенные сессии",
+      "sleep": "Сон",
+      "soreness": "Боль",
+      "stressShort": "Стресс",
+      "motiv": "Мотив."
+    },
+    "alerts": {
+      "title": "Профилактика травм",
+      "empty": "Нет оповещений. Все в порядке.",
+      "viewWeekly": "Посмотреть сводку за неделю"
+    },
+    "weekly": {
+      "title": "Сводка за неделю",
+      "adherence": "Соблюдение",
+      "sessionsCompleted": "Завершенные сессии",
+      "acwrRisk": "Атлеты в зоне риска ACWR",
+      "lowAvailability": "Низкая доступность",
+      "topCapacities": "Наиболее прорабатываемые качества",
+      "activeAlerts": "Активные оповещения",
+      "noAlerts": "Нет оповещений. Хорошая неделя."
+    },
+    "demo": {
+      "title": "Пример данных (onboarding)",
+      "load": "Загрузить пример данных",
+      "clear": "Убрать пример данных",
+      "loadConfirm": "Убрать пример данных? Будут удалены даты/завершение примерных сессий и примерные соревнования/оценки."
     }
   }
 }

@@ -338,7 +338,10 @@
       "panel": "Panel",
       "data": "Data",
       "tools": "Alat",
-      "calculators": "Kalkulator"
+      "calculators": "Kalkulator",
+      "scouting": "Scouting",
+      "report": "Laporan",
+      "sessions": "Sesi"
     },
     "controlPanel": {
       "title": "Panel Kontrol",
@@ -362,7 +365,19 @@
       "low": "Rendah",
       "increasing": "Meningkat",
       "decreasing": "Menurun",
-      "stable": "Stabil"
+      "stable": "Stabil",
+      "sleepQuality": "Kualitas tidur",
+      "muscleSoreness": "Nyeri otot",
+      "stress": "Stres",
+      "motivation": "Motivasi",
+      "trainingAnalysis": "Analisis Latihan",
+      "interactiveCharts": "Grafik interaktif - Gunakan kontrol untuk menjelajah",
+      "acuteLoad": "Beban Akut (7d)",
+      "chronicLoad": "Beban Kronis (28d)",
+      "chartVolume": "Volume, Intensitas, dan Densitas",
+      "chartIntensity": "Intensitas dan Pemulihan",
+      "chartPhases": "Distribusi Fase",
+      "chartLoad": "Beban Latihan Akumulatif"
     },
     "plans": {
       "title": "Rencana Pelatihan",
@@ -385,6 +400,64 @@
       "periodization": "Periodisasi",
       "visualization": "Visualisasi",
       "tools": "Alat"
+    },
+    "shell": {
+      "allGood": "Semua baik!",
+      "allGoodDesc": "Sistem sudah diperbarui dan siap untuk latihan.",
+      "fabAthlete": "Atlet",
+      "fabTeam": "Tim",
+      "fabAdmin": "Admin",
+      "fabPlan": "Rencana",
+      "fabLogout": "Keluar",
+      "fabSessions": "Sesi",
+      "fabAlerts": "Peringatan",
+      "fabDemo": "Demo"
+    },
+    "metrics": {
+      "acwrTitle": "Rasio Beban (ACWR)",
+      "acwrEmpty": "Belum ada beban tercatat",
+      "acwrEmptyHint": "Tandai sesi sebagai selesai (dengan RPE) untuk menghitung ACWR.",
+      "adherenceTitle": "Kepatuhan per Minggu",
+      "adherenceEmpty": "Belum ada sesi terjadwal",
+      "adherenceEmptyHint": "Kepatuhan dihitung dari sesi yang sudah lewat.",
+      "global": "global",
+      "lowReadinessTitle": "Atlet dengan kesiapan rendah hari ini",
+      "lowReadinessEmpty": "Semua atlet dengan readiness ≥ 60% hari ini. Tanda bagus!",
+      "zoneOptimo": "Optimal",
+      "zoneBajo": "Beban rendah",
+      "zonePrecaucion": "Waspada",
+      "zoneRiesgo": "Risiko tinggi",
+      "zoneSinDatos": "Belum ada data",
+      "zoneOptimoDesc": "Beban seimbang (sweet spot 0.8–1.3)",
+      "zoneBajoDesc": "Kemungkinan beban kurang / detraining",
+      "zonePrecaucionDesc": "Beban tinggi, pantau kelelahan",
+      "zoneRiesgoDesc": "Risiko cedera akibat beban berlebih",
+      "zoneSinDatosDesc": "Catat sesi yang selesai",
+      "sleep": "Tidur",
+      "soreness": "Nyeri",
+      "stressShort": "Stres",
+      "motiv": "Motiv."
+    },
+    "alerts": {
+      "title": "Pencegahan cedera",
+      "empty": "Tidak ada peringatan. Semua baik.",
+      "viewWeekly": "Lihat ringkasan mingguan"
+    },
+    "weekly": {
+      "title": "Ringkasan minggu ini",
+      "adherence": "Kepatuhan",
+      "sessionsCompleted": "Sesi selesai",
+      "acwrRisk": "Atlet berisiko ACWR",
+      "lowAvailability": "Ketersediaan rendah",
+      "topCapacities": "Kapasitas yang paling banyak dilatih",
+      "activeAlerts": "Peringatan aktif",
+      "noAlerts": "Tidak ada peringatan. Minggu yang baik."
+    },
+    "demo": {
+      "title": "Data contoh (onboarding)",
+      "load": "Muat data contoh",
+      "clear": "Hapus data contoh",
+      "loadConfirm": "Hapus data contoh? Tanggal/penyelesaian sesi contoh serta kompetisi/evaluasi contoh akan dihapus."
     }
   }
 }

@@ -338,7 +338,10 @@
       "panel": "パネル",
       "data": "データ",
       "tools": "ツール",
-      "calculators": "計算機"
+      "calculators": "計算機",
+      "scouting": "Scouting",
+      "report": "レポート",
+      "sessions": "セッション"
     },
     "controlPanel": {
       "title": "コントロールパネル",
@@ -362,7 +365,19 @@
       "low": "低",
       "increasing": "上昇中",
       "decreasing": "下降中",
-      "stable": "安定"
+      "stable": "安定",
+      "sleepQuality": "睡眠の質",
+      "muscleSoreness": "筋肉痛",
+      "stress": "ストレス",
+      "motivation": "モチベーション",
+      "trainingAnalysis": "トレーニング分析",
+      "interactiveCharts": "インタラクティブチャート - 操作して確認",
+      "acuteLoad": "急性負荷 (7d)",
+      "chronicLoad": "慢性負荷 (28d)",
+      "chartVolume": "ボリューム・強度・密度",
+      "chartIntensity": "強度と回復",
+      "chartPhases": "フェーズ分布",
+      "chartLoad": "累積トレーニング負荷"
     },
     "plans": {
       "title": "トレーニングプラン",
@@ -385,6 +400,64 @@
       "periodization": "期分け",
       "visualization": "可視化",
       "tools": "ツール"
+    },
+    "shell": {
+      "allGood": "問題ありません！",
+      "allGoodDesc": "システムは最新で、トレーニングの準備ができています。",
+      "fabAthlete": "選手",
+      "fabTeam": "チーム",
+      "fabAdmin": "Admin",
+      "fabPlan": "プラン",
+      "fabLogout": "ログアウト",
+      "fabSessions": "セッション",
+      "fabAlerts": "アラート",
+      "fabDemo": "Demo"
+    },
+    "metrics": {
+      "acwrTitle": "負荷比率 (ACWR)",
+      "acwrEmpty": "記録された負荷はありません",
+      "acwrEmptyHint": "セッションを完了済み（RPEあり）にするとACWRを計算できます。",
+      "adherenceTitle": "週ごとの遵守率",
+      "adherenceEmpty": "予定されたセッションはありません",
+      "adherenceEmptyHint": "遵守率は期限切れのセッションを基準に計算されます。",
+      "global": "全体",
+      "lowReadinessTitle": "本日のコンディション低下選手",
+      "lowReadinessEmpty": "本日は全選手のreadinessが60%以上です。良い傾向です！",
+      "zoneOptimo": "最適",
+      "zoneBajo": "低負荷",
+      "zonePrecaucion": "注意",
+      "zoneRiesgo": "高リスク",
+      "zoneSinDatos": "データなし",
+      "zoneOptimoDesc": "バランスの取れた負荷 (sweet spot 0.8–1.3)",
+      "zoneBajoDesc": "負荷不足 / デトレーニングの可能性",
+      "zonePrecaucionDesc": "負荷が高め、疲労に注意",
+      "zoneRiesgoDesc": "過負荷によるケガのリスク",
+      "zoneSinDatosDesc": "完了済みセッションを記録してください",
+      "sleep": "睡眠",
+      "soreness": "痛み",
+      "stressShort": "ストレス",
+      "motiv": "意欲"
+    },
+    "alerts": {
+      "title": "ケガ予防",
+      "empty": "アラートはありません。問題ありません。",
+      "viewWeekly": "週間サマリーを見る"
+    },
+    "weekly": {
+      "title": "今週のサマリー",
+      "adherence": "遵守率",
+      "sessionsCompleted": "完了したセッション",
+      "acwrRisk": "ACWRリスクのある選手",
+      "lowAvailability": "低い出場可能性",
+      "topCapacities": "重点的に取り組んだ能力",
+      "activeAlerts": "有効なアラート",
+      "noAlerts": "アラートなし。良い週です。"
+    },
+    "demo": {
+      "title": "サンプルデータ (オンボーディング)",
+      "load": "サンプルデータを読み込む",
+      "clear": "サンプルデータを削除",
+      "loadConfirm": "サンプルデータを削除しますか？ サンプルセッションの日付/完了状況と、サンプルの大会/評価が削除されます。"
     }
   }
 }

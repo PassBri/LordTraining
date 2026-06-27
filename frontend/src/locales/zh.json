@@ -338,7 +338,10 @@
       "panel": "面板",
       "data": "数据",
       "tools": "工具",
-      "calculators": "计算器"
+      "calculators": "计算器",
+      "scouting": "Scouting",
+      "report": "报告",
+      "sessions": "训练课"
     },
     "controlPanel": {
       "title": "控制面板",
@@ -362,7 +365,19 @@
       "low": "低",
       "increasing": "上升",
       "decreasing": "下降",
-      "stable": "稳定"
+      "stable": "稳定",
+      "sleepQuality": "睡眠质量",
+      "muscleSoreness": "肌肉酸痛",
+      "stress": "压力",
+      "motivation": "积极性",
+      "trainingAnalysis": "训练分析",
+      "interactiveCharts": "交互式图表 - 使用控件进行探索",
+      "acuteLoad": "急性负荷 (7d)",
+      "chronicLoad": "慢性负荷 (28d)",
+      "chartVolume": "训练量、强度与密度",
+      "chartIntensity": "强度与恢复",
+      "chartPhases": "阶段分布",
+      "chartLoad": "累积训练负荷"
     },
     "plans": {
       "title": "训练计划",
@@ -385,6 +400,64 @@
       "periodization": "分期",
       "visualization": "可视化",
       "tools": "工具"
+    },
+    "shell": {
+      "allGood": "一切正常！",
+      "allGoodDesc": "系统已更新，准备好进行训练。",
+      "fabAthlete": "运动员",
+      "fabTeam": "团队",
+      "fabAdmin": "Admin",
+      "fabPlan": "计划",
+      "fabLogout": "退出",
+      "fabSessions": "训练课",
+      "fabAlerts": "提醒",
+      "fabDemo": "Demo"
+    },
+    "metrics": {
+      "acwrTitle": "负荷比值 (ACWR)",
+      "acwrEmpty": "暂无负荷记录",
+      "acwrEmptyHint": "将训练课标记为已完成（含 RPE）以计算 ACWR。",
+      "adherenceTitle": "每周依从性",
+      "adherenceEmpty": "暂无已安排训练课",
+      "adherenceEmptyHint": "依从性基于已到期的训练课计算。",
+      "global": "整体",
+      "lowReadinessTitle": "今日低可用性的运动员",
+      "lowReadinessEmpty": "今日所有运动员 readiness 均 ≥ 60%。好现象！",
+      "zoneOptimo": "最佳",
+      "zoneBajo": "负荷偏低",
+      "zonePrecaucion": "注意",
+      "zoneRiesgo": "高风险",
+      "zoneSinDatos": "无数据",
+      "zoneOptimoDesc": "负荷均衡（理想区间 0.8–1.3）",
+      "zoneBajoDesc": "可能负荷不足 / 去训练化",
+      "zonePrecaucionDesc": "负荷偏高，注意疲劳",
+      "zoneRiesgoDesc": "过载受伤风险",
+      "zoneSinDatosDesc": "记录已完成的训练课",
+      "sleep": "睡眠",
+      "soreness": "酸痛",
+      "stressShort": "压力",
+      "motiv": "积极性"
+    },
+    "alerts": {
+      "title": "伤病预防",
+      "empty": "暂无提醒。一切正常。",
+      "viewWeekly": "查看每周摘要"
+    },
+    "weekly": {
+      "title": "本周摘要",
+      "adherence": "依从性",
+      "sessionsCompleted": "已完成训练课",
+      "acwrRisk": "ACWR 风险运动员",
+      "lowAvailability": "低可用性",
+      "topCapacities": "训练最多的能力",
+      "activeAlerts": "当前提醒",
+      "noAlerts": "暂无提醒。这周不错。"
+    },
+    "demo": {
+      "title": "示例数据（onboarding）",
+      "load": "加载示例数据",
+      "clear": "移除示例数据",
+      "loadConfirm": "要移除示例数据吗？示例训练课的日期/完成状态以及示例比赛/评估将被删除。"
     }
   }
 }

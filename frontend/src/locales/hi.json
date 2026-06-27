@@ -338,7 +338,10 @@
       "panel": "पैनल",
       "data": "डेटा",
       "tools": "उपकरण",
-      "calculators": "कैलकुलेटर"
+      "calculators": "कैलकुलेटर",
+      "scouting": "Scouting",
+      "report": "रिपोर्ट",
+      "sessions": "सेशन"
     },
     "controlPanel": {
       "title": "नियंत्रण पैनल",
@@ -362,7 +365,19 @@
       "low": "कम",
       "increasing": "बढ़ रहा",
       "decreasing": "घट रहा",
-      "stable": "स्थिर"
+      "stable": "स्थिर",
+      "sleepQuality": "नींद की गुणवत्ता",
+      "muscleSoreness": "मांसपेशियों में दर्द",
+      "stress": "तनाव",
+      "motivation": "प्रेरणा",
+      "trainingAnalysis": "ट्रेनिंग विश्लेषण",
+      "interactiveCharts": "इंटरैक्टिव चार्ट - देखने के लिए कंट्रोल्स का उपयोग करें",
+      "acuteLoad": "तीव्र लोड (7d)",
+      "chronicLoad": "दीर्घकालिक लोड (28d)",
+      "chartVolume": "वॉल्यूम, तीव्रता और घनत्व",
+      "chartIntensity": "तीव्रता और रिकवरी",
+      "chartPhases": "चरणों का वितरण",
+      "chartLoad": "संचित ट्रेनिंग लोड"
     },
     "plans": {
       "title": "प्रशिक्षण योजनाएं",
@@ -385,6 +400,64 @@
       "periodization": "पीरियडाइज़ेशन",
       "visualization": "विज़ुअलाइज़ेशन",
       "tools": "उपकरण"
+    },
+    "shell": {
+      "allGood": "सब ठीक है!",
+      "allGoodDesc": "सिस्टम अपडेट है और ट्रेनिंग के लिए तैयार है।",
+      "fabAthlete": "एथलीट",
+      "fabTeam": "टीम",
+      "fabAdmin": "Admin",
+      "fabPlan": "प्लान",
+      "fabLogout": "लॉग आउट",
+      "fabSessions": "सेशन",
+      "fabAlerts": "अलर्ट",
+      "fabDemo": "Demo"
+    },
+    "metrics": {
+      "acwrTitle": "लोड अनुपात (ACWR)",
+      "acwrEmpty": "कोई लोड दर्ज नहीं",
+      "acwrEmptyHint": "ACWR की गणना के लिए सेशन को पूर्ण (RPE के साथ) चिह्नित करें।",
+      "adherenceTitle": "सप्ताह अनुसार अनुपालन",
+      "adherenceEmpty": "कोई सेशन निर्धारित नहीं",
+      "adherenceEmptyHint": "अनुपालन की गणना देय सेशनों पर होती है।",
+      "global": "ग्लोबल",
+      "lowReadinessTitle": "आज कम उपलब्धता वाले एथलीट",
+      "lowReadinessEmpty": "आज सभी एथलीटों की readiness ≥ 60% है। अच्छा संकेत!",
+      "zoneOptimo": "उत्तम",
+      "zoneBajo": "कम लोड",
+      "zonePrecaucion": "सावधानी",
+      "zoneRiesgo": "उच्च जोखिम",
+      "zoneSinDatos": "डेटा नहीं",
+      "zoneOptimoDesc": "संतुलित लोड (sweet spot 0.8–1.3)",
+      "zoneBajoDesc": "संभावित कम लोड / डी-ट्रेनिंग",
+      "zonePrecaucionDesc": "लोड अधिक है, थकान पर नज़र रखें",
+      "zoneRiesgoDesc": "अधिक लोड से चोट का जोखिम",
+      "zoneSinDatosDesc": "पूर्ण सेशन दर्ज करें",
+      "sleep": "नींद",
+      "soreness": "दर्द",
+      "stressShort": "तनाव",
+      "motiv": "प्रेर."
+    },
+    "alerts": {
+      "title": "चोट की रोकथाम",
+      "empty": "कोई अलर्ट नहीं। सब ठीक है।",
+      "viewWeekly": "साप्ताहिक सारांश देखें"
+    },
+    "weekly": {
+      "title": "सप्ताह का सारांश",
+      "adherence": "अनुपालन",
+      "sessionsCompleted": "पूर्ण सेशन",
+      "acwrRisk": "ACWR जोखिम वाले एथलीट",
+      "lowAvailability": "कम उपलब्धता",
+      "topCapacities": "सबसे अधिक काम की गई क्षमताएँ",
+      "activeAlerts": "सक्रिय अलर्ट",
+      "noAlerts": "कोई अलर्ट नहीं। अच्छा सप्ताह।"
+    },
+    "demo": {
+      "title": "उदाहरण डेटा (onboarding)",
+      "load": "उदाहरण डेटा लोड करें",
+      "clear": "उदाहरण डेटा हटाएँ",
+      "loadConfirm": "क्या उदाहरण डेटा हटाना है? उदाहरण सेशनों की तिथियाँ/पूर्णता और उदाहरण प्रतियोगिताएँ/मूल्यांकन मिटा दिए जाएँगे।"
     }
   }
 }

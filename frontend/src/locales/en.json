@@ -347,7 +347,10 @@
       "panel": "Dashboard",
       "data": "Data",
       "tools": "Tools",
-      "calculators": "Calculators"
+      "calculators": "Calculators",
+      "scouting": "Scouting",
+      "report": "Report",
+      "sessions": "Sessions"
     },
     "controlPanel": {
       "title": "Control Panel",
@@ -371,7 +374,19 @@
       "low": "Low",
       "increasing": "Increasing",
       "decreasing": "Decreasing",
-      "stable": "Stable"
+      "stable": "Stable",
+      "sleepQuality": "Sleep quality",
+      "muscleSoreness": "Muscle soreness",
+      "stress": "Stress",
+      "motivation": "Motivation",
+      "trainingAnalysis": "Training Analysis",
+      "interactiveCharts": "Interactive charts - Use the controls to explore",
+      "acuteLoad": "Acute load (7d)",
+      "chronicLoad": "Chronic load (28d)",
+      "chartVolume": "Volume, Intensity & Density",
+      "chartIntensity": "Intensity & Recovery",
+      "chartPhases": "Phase Distribution",
+      "chartLoad": "Accumulated Training Load"
     },
     "plans": {
       "title": "Training Plans",
@@ -407,6 +422,64 @@
       "periodization": "Periodization",
       "visualization": "Visualization",
       "tools": "Tools"
+    },
+    "shell": {
+      "allGood": "All set!",
+      "allGoodDesc": "The system is up to date and ready for training.",
+      "fabAthlete": "Athlete",
+      "fabTeam": "Team",
+      "fabAdmin": "Admin",
+      "fabPlan": "Plan",
+      "fabLogout": "Log out",
+      "fabSessions": "Sessions",
+      "fabAlerts": "Alerts",
+      "fabDemo": "Demo"
+    },
+    "metrics": {
+      "acwrTitle": "Workload Ratio (ACWR)",
+      "acwrEmpty": "No load recorded",
+      "acwrEmptyHint": "Mark sessions as completed (with RPE) to compute ACWR.",
+      "adherenceTitle": "Weekly Adherence",
+      "adherenceEmpty": "No scheduled sessions",
+      "adherenceEmptyHint": "Adherence is computed over due sessions.",
+      "global": "overall",
+      "lowReadinessTitle": "Athletes with low availability today",
+      "lowReadinessEmpty": "All athletes with readiness ≥ 60% today. Good sign!",
+      "zoneOptimo": "Optimal",
+      "zoneBajo": "Low load",
+      "zonePrecaucion": "Caution",
+      "zoneRiesgo": "High risk",
+      "zoneSinDatos": "No data",
+      "zoneOptimoDesc": "Balanced load (sweet spot 0.8–1.3)",
+      "zoneBajoDesc": "Possible undertraining / detraining",
+      "zonePrecaucionDesc": "Elevated load, watch fatigue",
+      "zoneRiesgoDesc": "Injury risk from overload",
+      "zoneSinDatosDesc": "Log completed sessions",
+      "sleep": "Sleep",
+      "soreness": "Soreness",
+      "stressShort": "Stress",
+      "motiv": "Motiv."
+    },
+    "alerts": {
+      "title": "Injury prevention",
+      "empty": "No alerts. All good.",
+      "viewWeekly": "View weekly summary"
+    },
+    "weekly": {
+      "title": "Week summary",
+      "adherence": "Adherence",
+      "sessionsCompleted": "Completed sessions",
+      "acwrRisk": "Athletes at ACWR risk",
+      "lowAvailability": "Low availability",
+      "topCapacities": "Most trained capacities",
+      "activeAlerts": "Active alerts",
+      "noAlerts": "No alerts. Good week."
+    },
+    "demo": {
+      "title": "Sample data (onboarding)",
+      "load": "Load sample data",
+      "clear": "Remove sample data",
+      "loadConfirm": "Remove the sample data? Dates/completion of sample sessions and sample competitions/evaluations will be deleted."
     }
   }
 }

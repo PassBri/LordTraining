@@ -338,7 +338,10 @@
       "panel": "Dashboard",
       "data": "Daten",
       "tools": "Werkzeuge",
-      "calculators": "Rechner"
+      "calculators": "Rechner",
+      "scouting": "Scouting",
+      "report": "Bericht",
+      "sessions": "Sitzungen"
     },
     "controlPanel": {
       "title": "Kontrollpanel",
@@ -362,7 +365,19 @@
       "low": "Niedrig",
       "increasing": "Steigend",
       "decreasing": "Sinkend",
-      "stable": "Stabil"
+      "stable": "Stabil",
+      "sleepQuality": "Schlafqualität",
+      "muscleSoreness": "Muskelkater",
+      "stress": "Stress",
+      "motivation": "Motivation",
+      "trainingAnalysis": "Trainingsanalyse",
+      "interactiveCharts": "Interaktive Diagramme – nutze die Steuerung zum Erkunden",
+      "acuteLoad": "Akute Belastung (7d)",
+      "chronicLoad": "Chronische Belastung (28d)",
+      "chartVolume": "Volumen, Intensität und Dichte",
+      "chartIntensity": "Intensität und Erholung",
+      "chartPhases": "Phasenverteilung",
+      "chartLoad": "Kumulierte Trainingsbelastung"
     },
     "plans": {
       "title": "Trainingspläne",
@@ -385,6 +400,64 @@
       "periodization": "Periodisierung",
       "visualization": "Visualisierung",
       "tools": "Werkzeuge"
+    },
+    "shell": {
+      "allGood": "Alles in Ordnung!",
+      "allGoodDesc": "Das System ist aktuell und bereit für das Training.",
+      "fabAthlete": "Athlet",
+      "fabTeam": "Team",
+      "fabAdmin": "Admin",
+      "fabPlan": "Plan",
+      "fabLogout": "Abmelden",
+      "fabSessions": "Sitzungen",
+      "fabAlerts": "Warnungen",
+      "fabDemo": "Demo"
+    },
+    "metrics": {
+      "acwrTitle": "Belastungsverhältnis (ACWR)",
+      "acwrEmpty": "Keine Belastung erfasst",
+      "acwrEmptyHint": "Markiere Sitzungen als abgeschlossen (mit RPE), um den ACWR zu berechnen.",
+      "adherenceTitle": "Adhärenz pro Woche",
+      "adherenceEmpty": "Keine Sitzungen geplant",
+      "adherenceEmptyHint": "Die Adhärenz wird auf Basis überfälliger Sitzungen berechnet.",
+      "global": "global",
+      "lowReadinessTitle": "Athleten mit geringer Verfügbarkeit heute",
+      "lowReadinessEmpty": "Alle Athleten heute mit Readiness ≥ 60%. Gutes Zeichen!",
+      "zoneOptimo": "Optimal",
+      "zoneBajo": "Niedrige Belastung",
+      "zonePrecaucion": "Vorsicht",
+      "zoneRiesgo": "Hohes Risiko",
+      "zoneSinDatos": "Keine Daten",
+      "zoneOptimoDesc": "Ausgewogene Belastung (sweet spot 0.8–1.3)",
+      "zoneBajoDesc": "Mögliche Unterbelastung / Trainingsverlust",
+      "zonePrecaucionDesc": "Hohe Belastung, Ermüdung beobachten",
+      "zoneRiesgoDesc": "Verletzungsrisiko durch Überlastung",
+      "zoneSinDatosDesc": "Abgeschlossene Sitzungen erfassen",
+      "sleep": "Schlaf",
+      "soreness": "Schmerzen",
+      "stressShort": "Stress",
+      "motiv": "Motiv."
+    },
+    "alerts": {
+      "title": "Verletzungsprävention",
+      "empty": "Keine Warnungen. Alles in Ordnung.",
+      "viewWeekly": "Wochenübersicht anzeigen"
+    },
+    "weekly": {
+      "title": "Wochenübersicht",
+      "adherence": "Adhärenz",
+      "sessionsCompleted": "Abgeschlossene Sitzungen",
+      "acwrRisk": "Athleten mit ACWR-Risiko",
+      "lowAvailability": "Geringe Verfügbarkeit",
+      "topCapacities": "Am meisten trainierte Fähigkeiten",
+      "activeAlerts": "Aktive Warnungen",
+      "noAlerts": "Keine Warnungen. Gute Woche."
+    },
+    "demo": {
+      "title": "Beispieldaten (Onboarding)",
+      "load": "Beispieldaten laden",
+      "clear": "Beispieldaten entfernen",
+      "loadConfirm": "Beispieldaten entfernen? Die Daten/Abschlüsse der Beispielsitzungen sowie die Beispiel-Wettkämpfe/-bewertungen werden gelöscht."
     }
   }
 }

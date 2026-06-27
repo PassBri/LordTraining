@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -100,6 +101,7 @@ const ControlPanel = ({
   activePlan = null,
   trainingPlans = []
 }) => {
+  const { t } = useTranslation();
   const [volumeData, setVolumeData] = useState([]);
   const [intensityData, setIntensityData] = useState([]);
   const [phaseDistribution, setPhaseDistribution] = useState([]);
@@ -617,8 +619,8 @@ const ControlPanel = ({
       newAlerts.push({
         type: 'success',
         icon: Trophy,
-        title: '¡Todo en orden!',
-        message: 'El sistema está actualizado y listo para el entrenamiento.',
+        title: t('dashboard.shell.allGood'),
+        message: t('dashboard.shell.allGoodDesc'),
         color: 'green'
       });
     }
@@ -1018,7 +1020,7 @@ const ControlPanel = ({
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Heart className="w-4 h-4 text-slate-400" />
-                  <h3 className="text-sm font-semibold text-slate-700">Readiness Score</h3>
+                  <h3 className="text-sm font-semibold text-slate-700">{t('dashboard.controlPanel.readiness')}</h3>
                 </div>
                 <span className="text-3xl font-bold text-slate-900" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>
                   {readinessScore.overall}%
@@ -1026,10 +1028,10 @@ const ControlPanel = ({
               </div>
               <div className="space-y-2.5">
                 {[
-                  { label: 'Calidad sueño', value: readinessScore.sleep, color: '#007AFF' },
-                  { label: 'Dolor muscular', value: readinessScore.muscle_soreness, color: '#EF4444' },
-                  { label: 'Estrés', value: readinessScore.stress, color: '#F59E0B' },
-                  { label: 'Motivación', value: readinessScore.motivation, color: '#10B981' },
+                  { label: t('dashboard.controlPanel.sleepQuality'), value: readinessScore.sleep, color: '#007AFF' },
+                  { label: t('dashboard.controlPanel.muscleSoreness'), value: readinessScore.muscle_soreness, color: '#EF4444' },
+                  { label: t('dashboard.controlPanel.stress'), value: readinessScore.stress, color: '#F59E0B' },
+                  { label: t('dashboard.controlPanel.motivation'), value: readinessScore.motivation, color: '#10B981' },
                 ].map((item) => (
                   <div key={item.label} className="flex items-center justify-between text-xs">
                     <span className="text-slate-500">{item.label}</span>
@@ -1047,8 +1049,8 @@ const ControlPanel = ({
                   readinessScore.overall >= 80 ? 'text-emerald-600' :
                   readinessScore.overall >= 60 ? 'text-amber-600' : 'text-red-600'
                 }`}>
-                  {readinessScore.overall >= 80 ? 'Listo para entrenar' :
-                   readinessScore.overall >= 60 ? 'Entrenamiento moderado' : 'Requiere descanso'}
+                  {readinessScore.overall >= 80 ? t('dashboard.controlPanel.readyToTrain') :
+                   readinessScore.overall >= 60 ? t('dashboard.controlPanel.moderateTraining') : t('dashboard.controlPanel.needsRest')}
                 </p>
               </div>
             </CardContent>
@@ -1060,7 +1062,7 @@ const ControlPanel = ({
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <Activity className="w-4 h-4 text-slate-400" />
-                  <h3 className="text-sm font-semibold text-slate-700">Ratio Carga Aguda:Crónica</h3>
+                  <h3 className="text-sm font-semibold text-slate-700">{t('dashboard.controlPanel.loadRatio')}</h3>
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                   trainingLoadRatio.status === 'optimal' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
@@ -1086,11 +1088,11 @@ const ControlPanel = ({
               </div>
               <div className="space-y-1.5 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Carga Aguda (7d)</span>
+                  <span className="text-slate-500">{t('dashboard.controlPanel.acuteLoad')}</span>
                   <span className="font-semibold text-slate-700">{trainingLoadRatio.acute} UA</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Carga Crónica (28d)</span>
+                  <span className="text-slate-500">{t('dashboard.controlPanel.chronicLoad')}</span>
                   <span className="font-semibold text-slate-700">{trainingLoadRatio.chronic} UA</span>
                 </div>
               </div>
@@ -1125,7 +1127,7 @@ const ControlPanel = ({
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div className="min-w-0 flex-1">
-                      <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">Plan Activo</p>
+                      <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">{t('dashboard.controlPanel.activePlan')}</p>
                       <p className="text-base font-bold mt-0.5 truncate">{activePlan.name}</p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-[11px] bg-white/15 px-2 py-0.5 rounded">{activePlan.total_weeks} sem</span>
@@ -1147,9 +1149,9 @@ const ControlPanel = ({
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">Plan Activo</p>
-                      <p className="text-sm font-medium mt-0.5 text-slate-600">Sin plan seleccionado</p>
-                      <p className="text-[11px] text-slate-400 mt-1">Click para seleccionar</p>
+                      <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">{t('dashboard.controlPanel.activePlan')}</p>
+                      <p className="text-sm font-medium mt-0.5 text-slate-600">{t('dashboard.controlPanel.noPlan')}</p>
+                      <p className="text-[11px] text-slate-400 mt-1">{t('dashboard.controlPanel.clickToSelect')}</p>
                     </div>
                     <div className="w-9 h-9 bg-slate-200 rounded-lg flex items-center justify-center">
                       <FileText className="w-4 h-4 text-slate-500" />
@@ -1168,7 +1170,7 @@ const ControlPanel = ({
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">Mis Planes</p>
+                    <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">{t('dashboard.controlPanel.myPlans')}</p>
                     <p className="text-2xl font-bold mt-0.5 text-slate-900" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>{trainingPlans.length}</p>
                   </div>
                   <div className="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
@@ -1187,7 +1189,7 @@ const ControlPanel = ({
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">Atletas</p>
+                    <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">{t('dashboard.controlPanel.athletes')}</p>
                     <p className="text-2xl font-bold mt-0.5 text-slate-900" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>{totalAthletes}</p>
                   </div>
                   <div className="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center">
@@ -1206,7 +1208,7 @@ const ControlPanel = ({
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">Eventos</p>
+                    <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">{t('dashboard.controlPanel.events')}</p>
                     <p className="text-2xl font-bold mt-0.5 text-slate-900" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>{upcomingEventsCount}</p>
                   </div>
                   <div className="w-9 h-9 bg-emerald-50 rounded-lg flex items-center justify-center">
@@ -1221,7 +1223,7 @@ const ControlPanel = ({
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">Sesiones</p>
+                    <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">{t('dashboard.controlPanel.sessions')}</p>
                     <p className="text-2xl font-bold mt-0.5 text-slate-900" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>{completedSessions}</p>
                   </div>
                   <div className="w-9 h-9 bg-amber-50 rounded-lg flex items-center justify-center">
@@ -1236,7 +1238,7 @@ const ControlPanel = ({
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">Ejercicios</p>
+                    <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">{t('dashboard.controlPanel.exercises')}</p>
                     <p className="text-2xl font-bold mt-0.5 text-slate-900" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>150+</p>
                   </div>
                   <div className="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center">
@@ -1251,7 +1253,7 @@ const ControlPanel = ({
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">Adherencia</p>
+                    <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">{t('dashboard.controlPanel.adherence')}</p>
                     <p className="text-2xl font-bold mt-0.5 text-slate-900" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>{panelStats?.completion_rate || 92}%</p>
                   </div>
                   <div className="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
@@ -1265,15 +1267,15 @@ const ControlPanel = ({
 
         {/* Charts Section Header */}
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-slate-700">Análisis de Entrenamiento</h3>
-          <p className="text-xs text-slate-400">Gráficos interactivos - Usa los controles para explorar</p>
+          <h3 className="text-sm font-semibold text-slate-700">{t('dashboard.controlPanel.trainingAnalysis')}</h3>
+          <p className="text-xs text-slate-400">{t('dashboard.controlPanel.interactiveCharts')}</p>
         </div>
 
         {/* Charts Row 1 - Interactive */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* Volumen + Intensidad + Densidad Combined Chart */}
           <InteractiveChart
-            title="Volumen, Intensidad y Densidad"
+            title={t('dashboard.controlPanel.chartVolume')}
             icon={BarChart3}
             data={volumeData}
             dataKeys={[
@@ -1293,7 +1295,7 @@ const ControlPanel = ({
 
           {/* Intensidad + Recuperación Chart */}
           <InteractiveChart
-            title="Intensidad y Recuperación"
+            title={t('dashboard.controlPanel.chartIntensity')}
             icon={TrendingUp}
             data={intensityData}
             dataKeys={[
@@ -1319,7 +1321,7 @@ const ControlPanel = ({
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Target className="w-5 h-5 text-slate-400" />
-                Distribución de Fases
+                {t('dashboard.controlPanel.chartPhases')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -1350,7 +1352,7 @@ const ControlPanel = ({
           {/* Carga Acumulada - Interactive Area Chart con Zonas de Referencia */}
           <div className="lg:col-span-2">
             <InteractiveChart
-              title="Carga de Entrenamiento Acumulada"
+              title={t('dashboard.controlPanel.chartLoad')}
               icon={Flame}
               data={loadData}
               dataKeys={[

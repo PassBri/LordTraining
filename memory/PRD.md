@@ -2,6 +2,15 @@
 
 ## Credenciales: test@train.com / test123456
 
+## [Jun 2026] Multiidioma — FASE A (Shell del Dashboard) COMPLETADA
+- i18n (react-i18next) ya existía con 12 idiomas; localStorage key = `train_language`, fallback en i18n.js.
+- Claves nuevas añadidas bajo `dashboard.{shell,controlPanel,metrics,alerts,weekly,demo,nav}` en los 12 locales. ES/EN escritos a mano; PT/AR/HI/ID/FR/DE/JA/KO/RU traducidos con IA (script `/app/backend/translate_fase_a.py` usando emergentintegrations gpt-5.4); ZH completado a mano (presupuesto de la clave LLM se agotó).
+- Componentes internacionalizados (useTranslation + t()): `ControlPanel.js` (Readiness, ratio carga, KPIs, Plan Activo, títulos de gráficas, banner "Todo en orden"), `AdvancedMetrics.js` (ACWR/adherencia/baja disponibilidad + zonas), `WeeklySummaryModal.js`, `DashboardPage.js` (FABs Alertas/Demo/Admin/Plan/Salir, nav Reporte, menús demo/alertas).
+- Verificado en EN por screenshot. **Pendiente Fase A menor**: nav "Sesiones", título "Panel de Control", "Estable", y sub-secciones inferiores del panel (objetivos, evaluación, radar, distribución por capacidad, calendario).
+- **Pendiente**: Fases B (Portal Atleta), C (Periodización/Sesiones/Datos), D (Calculadoras/Scouting/Reportes/SuperAdmin). Requieren recargar saldo de la Universal Key para traducir con IA.
+
+
+
 ## [Jun 2026] Resumen semanal del coach
 **Backend** `routes/coach_metrics.py`:
 - Refactor: lógica de alertas extraída a `_build_alerts(db, uid)` (reutilizada por /alerts y /weekly-summary).

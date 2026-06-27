@@ -1707,7 +1707,7 @@ const DashboardPage = () => {
     } finally { setDemoBusy(null); }
   };
   const handleClearDemo = async () => {
-    if (!window.confirm('¿Quitar los datos de ejemplo? Se borrarán las fechas/completado de las sesiones de ejemplo y las competencias/evaluaciones de ejemplo.')) return;
+    if (!window.confirm(t('dashboard.demo.loadConfirm'))) return;
     setDemoBusy('clear');
     try {
       const res = await clearDemoData();
@@ -4534,7 +4534,7 @@ const DashboardPage = () => {
                   <FileBarChart2 className="w-[18px] h-[18px] transition-transform duration-300" strokeWidth={2} />
                 </div>
                 <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-700 group-hover:text-slate-900 transition-colors duration-300 max-w-[60px]">
-                  Reporte
+                  {t('dashboard.nav.report')}
                 </span>
               </button>
 
@@ -4659,7 +4659,7 @@ const DashboardPage = () => {
                   )}
                 </div>
                 <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-rose-500 transition-colors duration-300">
-                  Alertas
+                  {t('dashboard.shell.fabAlerts')}
                 </span>
               </button>
               {alertsOpen && (
@@ -4671,13 +4671,13 @@ const DashboardPage = () => {
                       className="w-full flex items-center justify-between gap-2 px-2.5 py-2 mb-1 rounded-lg text-sm font-semibold text-[#007AFF] bg-blue-50 hover:bg-blue-100"
                       data-testid="open-weekly-summary-btn"
                     >
-                      <span className="flex items-center gap-1.5"><TrendingUp className="w-4 h-4" />Ver resumen semanal</span>
+                      <span className="flex items-center gap-1.5"><TrendingUp className="w-4 h-4" />{t('dashboard.alerts.viewWeekly')}</span>
                       <ArrowRight className="w-4 h-4" />
                     </button>
-                    <p className="text-[11px] text-slate-400 px-2 py-1 flex items-center gap-1.5"><Bell className="w-3 h-3" />Prevención de lesiones</p>
+                    <p className="text-[11px] text-slate-400 px-2 py-1 flex items-center gap-1.5"><Bell className="w-3 h-3" />{t('dashboard.alerts.title')}</p>
                     {coachAlerts.length === 0 ? (
                       <div className="flex items-center gap-2 px-2.5 py-4 text-sm text-slate-500">
-                        <CheckCircle className="w-4 h-4 text-emerald-500" />Sin alertas. Todo en orden.
+                        <CheckCircle className="w-4 h-4 text-emerald-500" />{t('dashboard.alerts.empty')}
                       </div>
                     ) : (
                       coachAlerts.map((a, i) => (
@@ -4709,14 +4709,14 @@ const DashboardPage = () => {
                   <Sparkles className="w-[18px] h-[18px] transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
                 </div>
                 <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-500 group-hover:text-slate-700 transition-colors duration-300">
-                  Demo
+                  {t('dashboard.shell.fabDemo')}
                 </span>
               </button>
               {demoMenuOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setDemoMenuOpen(false)} />
                   <div className="fixed top-[70px] right-4 z-[70] w-60 rounded-xl bg-white shadow-xl border border-slate-150 p-2" data-testid="demo-data-menu">
-                    <p className="text-[11px] text-slate-400 px-2 py-1">Datos de ejemplo (onboarding)</p>
+                    <p className="text-[11px] text-slate-400 px-2 py-1">{t('dashboard.demo.title')}</p>
                     <button
                       onClick={handleSeedDemo}
                       disabled={demoBusy !== null}
@@ -4724,7 +4724,7 @@ const DashboardPage = () => {
                       data-testid="demo-load-btn"
                     >
                       {demoBusy === 'seed' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4 text-emerald-600" />}
-                      Cargar datos de ejemplo
+                      {t('dashboard.demo.load')}
                     </button>
                     <button
                       onClick={handleClearDemo}
@@ -4733,7 +4733,7 @@ const DashboardPage = () => {
                       data-testid="demo-clear-btn"
                     >
                       {demoBusy === 'clear' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                      Quitar datos de ejemplo
+                      {t('dashboard.demo.clear')}
                     </button>
                   </div>
                 </>
@@ -4767,7 +4767,7 @@ const DashboardPage = () => {
                 <span className={`text-[8px] font-bold tracking-wide leading-tight text-center transition-colors duration-300 ${
                   user?.is_super_admin ? 'text-purple-700' : (canManageOrg ? 'text-slate-400 group-hover:text-emerald-600' : 'text-slate-300 group-hover:text-slate-400')
                 }`}>
-                  Admin
+                  {t('dashboard.shell.fabAdmin')}
                 </span>
               </button>
             </Link>
@@ -4782,7 +4782,7 @@ const DashboardPage = () => {
                   <CreditCard className="w-[18px] h-[18px] transition-transform duration-300 group-hover:text-violet-600" strokeWidth={1.8} />
                 </div>
                 <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-violet-600 transition-colors duration-300">
-                  Plan
+                  {t('dashboard.shell.fabPlan')}
                 </span>
               </button>
             </Link>
@@ -4797,7 +4797,7 @@ const DashboardPage = () => {
                 <LogOut className="w-[18px] h-[18px] transition-transform duration-300 group-hover:text-red-500" strokeWidth={1.8} />
               </div>
               <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-red-500 transition-colors duration-300">
-                Salir
+                {t('dashboard.shell.fabLogout')}
               </span>
             </button>
 

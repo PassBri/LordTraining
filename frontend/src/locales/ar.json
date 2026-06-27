@@ -338,7 +338,10 @@
       "panel": "اللوحة",
       "data": "البيانات",
       "tools": "الأدوات",
-      "calculators": "الآلات الحاسبة"
+      "calculators": "الآلات الحاسبة",
+      "scouting": "Scouting",
+      "report": "التقرير",
+      "sessions": "الجلسات"
     },
     "controlPanel": {
       "title": "لوحة التحكم",
@@ -362,7 +365,19 @@
       "low": "منخفض",
       "increasing": "متزايد",
       "decreasing": "متناقص",
-      "stable": "مستقر"
+      "stable": "مستقر",
+      "sleepQuality": "جودة النوم",
+      "muscleSoreness": "ألم العضلات",
+      "stress": "التوتر",
+      "motivation": "الدافعية",
+      "trainingAnalysis": "تحليل التدريب",
+      "interactiveCharts": "مخططات تفاعلية - استخدم عناصر التحكم للاستكشاف",
+      "acuteLoad": "الحمل الحاد (7d)",
+      "chronicLoad": "الحمل المزمن (28d)",
+      "chartVolume": "الحجم، الشدة والكثافة",
+      "chartIntensity": "الشدة والاستشفاء",
+      "chartPhases": "توزيع المراحل",
+      "chartLoad": "حمل التدريب التراكمي"
     },
     "plans": {
       "title": "خطط التدريب",
@@ -385,6 +400,64 @@
       "periodization": "الدورات",
       "visualization": "التصور",
       "tools": "الأدوات"
+    },
+    "shell": {
+      "allGood": "كل شيء على ما يرام!",
+      "allGoodDesc": "النظام محدّث وجاهز للتدريب.",
+      "fabAthlete": "اللاعب",
+      "fabTeam": "الفريق",
+      "fabAdmin": "Admin",
+      "fabPlan": "الخطة",
+      "fabLogout": "تسجيل الخروج",
+      "fabSessions": "الجلسات",
+      "fabAlerts": "التنبيهات",
+      "fabDemo": "Demo"
+    },
+    "metrics": {
+      "acwrTitle": "نسبة الحمل (ACWR)",
+      "acwrEmpty": "لا يوجد حمل مسجل",
+      "acwrEmptyHint": "ضع علامة على الجلسات كمكتملة (مع RPE) لحساب ACWR.",
+      "adherenceTitle": "الالتزام حسب الأسبوع",
+      "adherenceEmpty": "لا توجد جلسات مجدولة",
+      "adherenceEmptyHint": "يُحسب الالتزام بناءً على الجلسات المنتهية.",
+      "global": "عام",
+      "lowReadinessTitle": "اللاعبون ذوو الجاهزية المنخفضة اليوم",
+      "lowReadinessEmpty": "جميع اللاعبين لديهم readiness ≥ 60% اليوم. إشارة جيدة!",
+      "zoneOptimo": "مثالي",
+      "zoneBajo": "حمل منخفض",
+      "zonePrecaucion": "تحذير",
+      "zoneRiesgo": "مخاطر عالية",
+      "zoneSinDatos": "لا توجد بيانات",
+      "zoneOptimoDesc": "حمل متوازن (sweet spot 0.8–1.3)",
+      "zoneBajoDesc": "احتمال نقص حمل / فقدان تأهيل",
+      "zonePrecaucionDesc": "حمل مرتفع، راقب الإجهاد",
+      "zoneRiesgoDesc": "خطر إصابة بسبب الحمل الزائد",
+      "zoneSinDatosDesc": "سجّل جلسات مكتملة",
+      "sleep": "النوم",
+      "soreness": "الألم",
+      "stressShort": "التوتر",
+      "motiv": "الدافعية"
+    },
+    "alerts": {
+      "title": "الوقاية من الإصابات",
+      "empty": "لا توجد تنبيهات. كل شيء على ما يرام.",
+      "viewWeekly": "عرض الملخص الأسبوعي"
+    },
+    "weekly": {
+      "title": "ملخص الأسبوع",
+      "adherence": "الالتزام",
+      "sessionsCompleted": "الجلسات المكتملة",
+      "acwrRisk": "اللاعبون المعرضون لخطر ACWR",
+      "lowAvailability": "انخفاض الجاهزية",
+      "topCapacities": "أكثر القدرات تدريبًا",
+      "activeAlerts": "التنبيهات النشطة",
+      "noAlerts": "لا توجد تنبيهات. أسبوع جيد."
+    },
+    "demo": {
+      "title": "بيانات مثال (onboarding)",
+      "load": "تحميل بيانات المثال",
+      "clear": "إزالة بيانات المثال",
+      "loadConfirm": "هل تريد إزالة بيانات المثال؟ سيتم حذف تواريخ/إكمال جلسات المثال وكذلك المنافسات/التقييمات التجريبية."
     }
   }
 }
