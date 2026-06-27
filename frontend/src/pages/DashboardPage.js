@@ -7,8 +7,12 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { getDashboardStats, getAthletes, seedExercises, getTournaments, createTournament, deleteTournament, getTournament, addTournamentCategory, registerParticipant, generateBracket, getTournamentMatches, updateMatchScore, seedDemoData, clearDemoData } from '../services/api';
+import { getDashboardStats, getAthletes, seedExercises, seedDemoData, clearDemoData } from '../services/api';
 import usePlanGate from '../hooks/usePlanGate';
+import useGlobalContext from '../hooks/useGlobalContext';
+import useGeneratedPlans from '../hooks/useGeneratedPlans';
+import useSportsCatalog from '../hooks/useSportsCatalog';
+import useTournaments from '../hooks/useTournaments';
 const SessionCalendar = lazy(() => import('../components/SessionCalendar'));
 const ScoutingModule = lazy(() => import('../components/ScoutingModule'));
 import { 
@@ -141,59 +145,19 @@ const DashboardPage = () => {
   });
   const [activeAthleteTab, setActiveAthleteTab] = useState('athletes');
   
-  // Sports Catalog State
-  const [sportsCatalog, setSportsCatalog] = useState([]);
-  const [newCategory, setNewCategory] = useState({ name: '', icon: '🏆', color: '#3B82F6' });
-  const [newSport, setNewSport] = useState({ name: '', category_id: '', icon: '🏃' });
-  const [showAddCategory, setShowAddCategory] = useState(false);
-  const [showAddSport, setShowAddSport] = useState(null); // category_id or null
-  const [editingSportId, setEditingSportId] = useState(null);
-  const [editingSportCharacterization, setEditingSportCharacterization] = useState({});
-
-  // Sport-specific emoji mapping
-  const sportIcons = {
-    'boxeo': '🥊', 'boxing': '🥊',
-    'taekwondo': '🥋', 'karate': '🥋', 'judo': '🥋', 'artes marciales': '🥋',
-    'wrestling': '🤼', 'lucha': '🤼', 'lucha libre': '🤼',
-    'atletismo': '🏃‍♂️', 'track': '🏃‍♂️',
-    'natación': '🏊', 'swimming': '🏊', 'natacion': '🏊',
-    'fútbol': '⚽', 'futbol': '⚽', 'soccer': '⚽', 'football': '⚽',
-    'básquetbol': '🏀', 'baloncesto': '🏀', 'basketball': '🏀', 'basquetbol': '🏀',
-    'tenis': '🎾', 'tennis': '🎾', 'tenis de mesa': '🏓', 'ping pong': '🏓',
-    'ciclismo': '🚴', 'cycling': '🚴',
-    'voleibol': '🏐', 'volleyball': '🏐', 'voley': '🏐',
-    'béisbol': '⚾', 'baseball': '⚾', 'beisbol': '⚾', 'softball': '🥎',
-    'golf': '⛳',
-    'rugby': '🏉',
-    'hockey': '🏒', 'hockey sobre hielo': '🏒', 'hockey hierba': '🏑',
-    'gimnasia': '🤸', 'gymnastics': '🤸', 'gimnasia artística': '🤸', 'gimnasia rítmica': '🤸',
-    'esgrima': '🤺', 'fencing': '🤺',
-    'halterofilia': '🏋️', 'weightlifting': '🏋️', 'powerlifting': '🏋️', 'levantamiento de pesas': '🏋️',
-    'balonmano': '🤾', 'handball': '🤾',
-    'waterpolo': '🤽', 'polo acuático': '🤽',
-    'remo': '🚣', 'rowing': '🚣', 'canotaje': '🛶', 'kayak': '🛶',
-    'esquí': '⛷️', 'ski': '⛷️', 'esqui': '⛷️',
-    'patinaje': '⛸️', 'skating': '⛸️', 'patinaje artístico': '⛸️',
-    'triatlón': '🏊‍♂️', 'triatlon': '🏊‍♂️', 'triathlon': '🏊‍♂️',
-    'maratón': '🏅', 'maraton': '🏅', 'marathon': '🏅',
-    'surf': '🏄', 'surfing': '🏄',
-    'escalada': '🧗', 'climbing': '🧗',
-    'tiro con arco': '🏹', 'archery': '🏹',
-    'equitación': '🏇', 'horse riding': '🏇', 'equitacion': '🏇',
-    'badminton': '🏸', 'bádminton': '🏸',
-    'snowboard': '🏂',
-    'cricket': '🏏',
-    'polo': '🏇',
-    'vela': '⛵', 'sailing': '⛵',
-    'buceo': '🤿', 'diving': '🤿',
-    'crossfit': '💪', 'fitness': '💪',
-    'mma': '🥊', 'artes marciales mixtas': '🥊',
-  };
-  const getSportIcon = (sport) => {
-    if (sport.icon && sport.icon !== '🏃') return sport.icon;
-    const key = sport.name?.toLowerCase().trim();
-    return sportIcons[key] || '🏃‍♂️';
-  };
+  // Sports Catalog -> useSportsCatalog hook
+  const {
+    sportsCatalog, setSportsCatalog,
+    newCategory, setNewCategory,
+    newSport, setNewSport,
+    showAddCategory, setShowAddCategory,
+    showAddSport, setShowAddSport,
+    editingSportId, setEditingSportId,
+    editingSportCharacterization, setEditingSportCharacterization,
+    getSportIcon, allSports,
+    fetchSportsCatalog, handleCreateCategory, handleCreateSport,
+    handleDeleteSport, handleSaveSportCharacterization, handleDeleteCategory,
+  } = useSportsCatalog({ t });
 
   
   // PDF Export Modal State
@@ -208,7 +172,7 @@ const DashboardPage = () => {
   // ====== COACH AI DRAWER STATE ======
   const [isCoachDrawerOpen, setIsCoachDrawerOpen] = useState(false);
   const [coachDrawerTab, setCoachDrawerTab] = useState('coach'); // 'coach' or 'history'
-  const [generatedPlans, setGeneratedPlans] = useState([]); // List of generated plans
+  const { generatedPlans, setGeneratedPlans, saveGeneratedPlan, deletePlan } = useGeneratedPlans();
 
   // ====== PLAN ACTIVO STATE ======
   const [activePlan, setActivePlan] = useState(null); // El plan actualmente seleccionado
@@ -298,81 +262,16 @@ const DashboardPage = () => {
     }
   });
 
-  // ====== GLOBAL CONTEXT STATE (Barra Superior) ======
-  // Initialize from localStorage for persistence
-  const [globalContext, setGlobalContext] = useState(() => {
-    const saved = localStorage.getItem('train_global_context');
-    return saved ? JSON.parse(saved) : {
-      entityId: 'all',
-      teamId: 'all',
-      athleteId: 'all',
-      sportId: 'all'
-    };
-  });
+  // ====== GLOBAL CONTEXT (Barra Superior) -> useGlobalContext hook ======
+  const {
+    globalContext, setGlobalContext,
+    handleEntityChange, handleTeamChange, handleAthleteChange, handleSportChange,
+    filteredTeams, filteredAthletes,
+  } = useGlobalContext(teams, athletes);
 
-  // Save context to localStorage when it changes
-  useEffect(() => {
-    localStorage.setItem('train_global_context', JSON.stringify(globalContext));
-  }, [globalContext]);
+  // allSports -> useSportsCatalog hook
 
-  // Cascading filter handlers
-  const handleEntityChange = (value) => {
-    setGlobalContext({ entityId: value, teamId: 'all', athleteId: 'all', sportId: 'all' });
-  };
-
-  const handleTeamChange = (value) => {
-    setGlobalContext(prev => ({ ...prev, teamId: value, athleteId: 'all' }));
-  };
-
-  const handleAthleteChange = (value) => {
-    setGlobalContext(prev => ({ ...prev, athleteId: value }));
-  };
-
-  const handleSportChange = (value) => {
-    setGlobalContext(prev => ({ ...prev, sportId: value }));
-  };
-
-  // Filtered data based on context
-  const filteredTeams = globalContext.entityId === 'all' 
-    ? teams 
-    : teams.filter(t => t.federation === globalContext.entityId || t.club === globalContext.entityId);
-  
-  const filteredAthletes = athletes.filter(a => {
-    if (globalContext.entityId !== 'all' && a.federation !== globalContext.entityId && a.club !== globalContext.entityId) return false;
-    if (globalContext.teamId !== 'all' && a.team_id !== globalContext.teamId) return false;
-    return true;
-  });
-
-  // Get unique sports from catalog
-  const allSports = sportsCatalog.flatMap(cat => cat.sports || []);
-
-  // Load generated plans from localStorage on mount
-  useEffect(() => {
-    const savedPlans = localStorage.getItem('train_generated_plans');
-    if (savedPlans) {
-      setGeneratedPlans(JSON.parse(savedPlans));
-    }
-  }, []);
-
-  // Save a new generated plan
-  const saveGeneratedPlan = (plan) => {
-    const newPlan = {
-      id: Date.now().toString(),
-      ...plan,
-      createdAt: new Date().toISOString()
-    };
-    const updatedPlans = [newPlan, ...generatedPlans];
-    setGeneratedPlans(updatedPlans);
-    localStorage.setItem('train_generated_plans', JSON.stringify(updatedPlans));
-    return newPlan;
-  };
-
-  // Delete a plan
-  const deletePlan = (planId) => {
-    const updatedPlans = generatedPlans.filter(p => p.id !== planId);
-    setGeneratedPlans(updatedPlans);
-    localStorage.setItem('train_generated_plans', JSON.stringify(updatedPlans));
-  };
+  // Save a new generated plan / delete plan -> useGeneratedPlans hook
 
   // Start new plan creation
   const handleNewPlan = () => {
@@ -381,30 +280,27 @@ const DashboardPage = () => {
     toast.info(t('data.usa_el_coach_ai_para_ayudarte_a_planificar'));
   };
 
-  // Tournaments State - Load from API
-  const [tournaments, setTournaments] = useState([]);
-  const [tournamentDialogOpen, setTournamentDialogOpen] = useState(false);
-  const [selectedTournament, setSelectedTournament] = useState(null);
-  const [tournamentDetailView, setTournamentDetailView] = useState(false);
-  const [tournamentMatches, setTournamentMatches] = useState([]);
-  const [tournamentForm, setTournamentForm] = useState({
-    name: '', description: '', sport: '', format: 'single_elimination',
-    start_date: '', end_date: '', venue: '', city: '', scoring_system: 'standard',
-    points_win: 3, points_draw: 1, points_loss: 0, primary_color: '#3B82F6', secondary_color: '#10B981'
-  });
-  
-  // Fetch tournaments from API
-  const fetchTournaments = async () => {
-    try {
-      const token = localStorage.getItem('train_token');
-      const response = await fetch(`${(process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL))}/api/tournaments`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) { setTournaments(await response.json()); }
-    } catch (error) { console.error('Error fetching tournaments:', error); }
-  };
-
-  useEffect(() => { fetchTournaments(); }, []);
+  // Tournaments -> useTournaments hook
+  const {
+    tournaments, setTournaments,
+    tournamentDialogOpen, setTournamentDialogOpen,
+    selectedTournament, setSelectedTournament,
+    tournamentDetailView, setTournamentDetailView,
+    tournamentMatches, setTournamentMatches,
+    tournamentForm, setTournamentForm,
+    categoryDialogOpenTournament, setCategoryDialogOpenTournament,
+    tournamentCategoryForm, setTournamentCategoryForm,
+    registerDialogOpen, setRegisterDialogOpen,
+    selectedTournamentCategory, setSelectedTournamentCategory,
+    registrationForm, setRegistrationForm,
+    scoreDialogOpen, setScoreDialogOpen,
+    selectedMatch, setSelectedMatch,
+    scoreForm, setScoreForm,
+    TOURNAMENT_FORMATS, STATUS_COLORS, STATUS_LABELS, getFormatIcon,
+    fetchTournamentsData, fetchTournamentDetails,
+    handleCreateTournament, handleDeleteTournament, handleAddTournamentCategory,
+    handleRegisterParticipant, handleGenerateBracket, handleUpdateScore,
+  } = useTournaments({ t });
 
   // Cargar biblioteca de modelos y datos IA cacheados cuando el usuario entra a Plan Anterior
   useEffect(() => {
@@ -420,26 +316,6 @@ const DashboardPage = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeDataSection, activePlan?.id]);
-  
-  const [categoryDialogOpenTournament, setCategoryDialogOpenTournament] = useState(false);
-  const [tournamentCategoryForm, setTournamentCategoryForm] = useState({ name: '', gender: '', max_participants: '' });
-  const [registerDialogOpen, setRegisterDialogOpen] = useState(false);
-  const [selectedTournamentCategory, setSelectedTournamentCategory] = useState(null);
-  const [registrationForm, setRegistrationForm] = useState({ participant_type: 'team', participant_id: '', participant_name: '', seed: '' });
-  const [scoreDialogOpen, setScoreDialogOpen] = useState(false);
-  const [selectedMatch, setSelectedMatch] = useState(null);
-  const [scoreForm, setScoreForm] = useState({ participant1_score: '', participant2_score: '' });
-
-  // Tournament constants
-  const TOURNAMENT_FORMATS = [
-    { value: 'single_elimination', label: t('data.x_eliminacion_directa'), icon: '🏆' },
-    { value: 'double_elimination', label: t('data.x_doble_eliminacion'), icon: '🔄' },
-    { value: 'round_robin', label: 'Todos contra Todos', icon: '🔁' },
-    { value: 'group_stage_knockout', label: t('data.x_grupos_eliminacion'), icon: '📊' },
-    { value: 'league', label: 'Liga', icon: '📈' },
-  ];
-  const STATUS_COLORS = { draft: 'bg-slate-100 text-slate-700', registration: 'bg-blue-100 text-blue-700', in_progress: 'bg-green-100 text-green-700', completed: 'bg-purple-100 text-purple-700' };
-  const STATUS_LABELS = { draft: 'Borrador', registration: 'Inscripciones', in_progress: 'En Curso', completed: 'Finalizado' };
 
   // API Base URL
   const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
@@ -977,232 +853,6 @@ const DashboardPage = () => {
     }
   };
 
-  // Fetch Sports Catalog
-  const fetchSportsCatalog = async () => {
-    try {
-      const token = localStorage.getItem('train_token');
-      const response = await fetch(`${API_URL}/api/sports/catalog`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setSportsCatalog(data);
-      }
-    } catch (error) {
-      console.error('Error fetching sports catalog:', error);
-    }
-  };
-
-  // Create Sport Category
-  const handleCreateCategory = async () => {
-    if (!newCategory.name) return;
-    try {
-      const token = localStorage.getItem('train_token');
-      const response = await fetch(`${API_URL}/api/sports/categories`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(newCategory)
-      });
-      if (response.ok) {
-        await fetchSportsCatalog();
-        setNewCategory({ name: '', icon: '🏆', color: '#3B82F6' });
-        setShowAddCategory(false);
-      }
-    } catch (error) {
-      console.error('Error creating category:', error);
-    }
-  };
-
-  // Create Sport
-  const handleCreateSport = async (categoryId) => {
-    if (!newSport.name) return;
-    try {
-      const token = localStorage.getItem('train_token');
-      const response = await fetch(`${API_URL}/api/sports`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ name: newSport.name, category_id: categoryId })
-      });
-      if (response.ok) {
-        await fetchSportsCatalog();
-        setNewSport({ name: '', category_id: '' });
-        setShowAddSport(null);
-      }
-    } catch (error) {
-      console.error('Error creating sport:', error);
-    }
-  };
-
-  // Delete Sport
-  const handleDeleteSport = async (sportId) => {
-    if (!window.confirm('¿Eliminar este deporte?')) return;
-    try {
-      const token = localStorage.getItem('train_token');
-      await fetch(`${API_URL}/api/sports/${sportId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      await fetchSportsCatalog();
-    } catch (error) {
-      console.error('Error deleting sport:', error);
-    }
-  };
-
-  // Save Sport Characterization (technical characterization)
-  const handleSaveSportCharacterization = async (sportId, characterization) => {
-    try {
-      const token = localStorage.getItem('train_token');
-      const response = await fetch(`${API_URL}/api/sports/${sportId}/characterization`, {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
-        },
-        body: JSON.stringify({ characterization })
-      });
-      if (response.ok) {
-        await fetchSportsCatalog();
-        toast.success(t('data.caracterizacion_tecnica_guardada'));
-      }
-    } catch (error) {
-      console.error('Error saving sport characterization:', error);
-      toast.error(t('data.error_al_guardar_la_caracterizacion'));
-    }
-  };
-
-  // Delete Category
-  const handleDeleteCategory = async (categoryId) => {
-    if (!window.confirm('¿Eliminar esta categoría y todos sus deportes?')) return;
-    try {
-      const token = localStorage.getItem('train_token');
-      await fetch(`${API_URL}/api/sports/categories/${categoryId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      await fetchSportsCatalog();
-    } catch (error) {
-      console.error('Error deleting category:', error);
-    }
-  };
-
-  // Fetch tournaments
-  const fetchTournamentsData = async () => {
-    try {
-      const res = await getTournaments();
-      setTournaments(res.data);
-    } catch (error) {
-      console.error('Error fetching tournaments:', error);
-    }
-  };
-
-  const fetchTournamentDetails = async (tournamentId) => {
-    try {
-      const [tournamentRes, matchesRes] = await Promise.all([
-        getTournament(tournamentId),
-        getTournamentMatches(tournamentId)
-      ]);
-      setSelectedTournament(tournamentRes.data);
-      setTournamentMatches(matchesRes.data);
-      setTournamentDetailView(true);
-    } catch (error) {
-      toast.error(t('data.error_al_cargar_torneo'));
-    }
-  };
-
-  const handleCreateTournament = async () => {
-    if (!tournamentForm.name) return;
-    try {
-      await createTournament({ ...tournamentForm, categories: [] });
-      toast.success('Torneo creado');
-      setTournamentDialogOpen(false);
-      setTournamentForm({ name: '', description: '', sport: '', format: 'single_elimination', start_date: '', end_date: '', venue: '', city: '', scoring_system: 'standard', points_win: 3, points_draw: 1, points_loss: 0, primary_color: '#3B82F6', secondary_color: '#10B981' });
-      fetchTournamentsData();
-    } catch (error) {
-      toast.error(t('data.error_al_crear_torneo'));
-    }
-  };
-
-  const handleDeleteTournament = async (id, name) => {
-    if (!window.confirm(`¿Eliminar el torneo "${name}"?`)) return;
-    try {
-      await deleteTournament(id);
-      toast.success('Torneo eliminado');
-      fetchTournamentsData();
-    } catch (error) {
-      toast.error(t('data.error_al_eliminar_torneo'));
-    }
-  };
-
-  const handleAddTournamentCategory = async () => {
-    if (!selectedTournament || !tournamentCategoryForm.name) return;
-    try {
-      await addTournamentCategory(selectedTournament.id, {
-        name: tournamentCategoryForm.name,
-        gender: tournamentCategoryForm.gender || null,
-        max_participants: tournamentCategoryForm.max_participants ? parseInt(tournamentCategoryForm.max_participants) : null
-      });
-      toast.success(t('data.categoria_anadida'));
-      setCategoryDialogOpenTournament(false);
-      setTournamentCategoryForm({ name: '', gender: '', max_participants: '' });
-      fetchTournamentDetails(selectedTournament.id);
-    } catch (error) {
-      toast.error(t('data.error_al_anadir_categoria'));
-    }
-  };
-
-  const handleRegisterParticipant = async () => {
-    if (!selectedTournament || !selectedTournamentCategory || !registrationForm.participant_id) return;
-    try {
-      await registerParticipant(selectedTournament.id, selectedTournamentCategory.id, {
-        participant_type: registrationForm.participant_type,
-        participant_id: registrationForm.participant_id,
-        participant_name: registrationForm.participant_name,
-        seed: registrationForm.seed ? parseInt(registrationForm.seed) : null
-      });
-      toast.success('Participante inscrito');
-      setRegisterDialogOpen(false);
-      setRegistrationForm({ participant_type: 'team', participant_id: '', participant_name: '', seed: '' });
-      fetchTournamentDetails(selectedTournament.id);
-    } catch (error) {
-      toast.error(t('data.error_al_inscribir'));
-    }
-  };
-
-  const handleGenerateBracket = async (categoryId) => {
-    if (!selectedTournament) return;
-    try {
-      await generateBracket(selectedTournament.id, categoryId);
-      toast.success('Bracket generado');
-      fetchTournamentDetails(selectedTournament.id);
-    } catch (error) {
-      toast.error(t('data.error_al_generar_bracket'));
-    }
-  };
-
-  const handleUpdateScore = async () => {
-    if (!selectedTournament || !selectedMatch) return;
-    try {
-      await updateMatchScore(selectedTournament.id, selectedMatch.id, {
-        participant1_score: parseInt(scoreForm.participant1_score) || 0,
-        participant2_score: parseInt(scoreForm.participant2_score) || 0,
-        status: 'completed'
-      });
-      toast.success('Resultado actualizado');
-      setScoreDialogOpen(false);
-      setScoreForm({ participant1_score: '', participant2_score: '' });
-      fetchTournamentDetails(selectedTournament.id);
-    } catch (error) {
-      toast.error(t('data.error_al_actualizar_resultado'));
-    }
-  };
-
-  const getFormatIcon = (format) => TOURNAMENT_FORMATS.find(f => f.value === format)?.icon || '🏆';
 
   // Fetch athletes from backend
   const fetchAthletes = async () => {
@@ -1634,8 +1284,6 @@ const DashboardPage = () => {
     fetchData();
     fetchEntities();
     fetchTeams();
-    fetchSportsCatalog();
-    fetchTournamentsData();
     fetchTrainingPlans(); // Cargar planes de entrenamiento
   }, []);
 
