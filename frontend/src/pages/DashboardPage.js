@@ -3794,6 +3794,7 @@ const DashboardPage = () => {
           coachName={user?.full_name || user?.name || ''}
           activePlan={activePlan}
           competitions={planData?.competitions || []}
+          onPlanUpdated={(patch) => setActivePlan(prev => prev ? { ...prev, ...patch } : prev)}
         />
       );
     }

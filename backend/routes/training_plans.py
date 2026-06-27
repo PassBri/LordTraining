@@ -864,6 +864,32 @@ async def update_training_plan(plan_id: str, plan: TrainingPlanCreate, user: dic
     updated = await db.training_plans.find_one({"id": plan_id}, {"_id": 0})
     return TrainingPlanResponse(**updated)
 
+class AdjustDurationRequest(BaseModel):
+    total_weeks: int
+    main_competition_date: Optional[str] = None
+
+@router.patch("/training-plans/{plan_id}/duration")
+async def adjust_plan_duration(plan_id: str, body: AdjustDurationRequest, user: dict = Depends(get_current_user), db=Depends(get_db)):
+    """Ajuste ligero de la duración (semanas) del plan — usado por la re-sincronización (B3)."""
+    existing = await db.training_plans.find_one({"id": plan_id, "coach_id": user["id"]})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    total_weeks = max(1, min(208, int(body.total_weeks)))
+    from datetime import datetime as dt
+    sd = existing.get("start_date")
+    update_data = {"total_weeks": total_weeks, "updated_at": datetime.now(timezone.utc).isoformat()}
+    if sd:
+        try:
+            start = dt.fromisoformat(sd.replace('Z', '+00:00') if 'Z' in sd else sd)
+            update_data["end_date"] = (start + timedelta(weeks=total_weeks)).isoformat()
+        except Exception:
+            pass
+    if body.main_competition_date is not None:
+        update_data["main_competition_date"] = body.main_competition_date
+    await db.training_plans.update_one({"id": plan_id, "coach_id": user["id"]}, {"$set": update_data})
+    return {"ok": True, "total_weeks": total_weeks, "end_date": update_data.get("end_date")}
+
+
 @router.delete("/training-plans/{plan_id}")
 async def delete_training_plan(plan_id: str, user: dict = Depends(get_current_user), db=Depends(get_db)):
     """Delete a training plan and all associated data"""

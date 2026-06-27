@@ -1523,7 +1523,7 @@
     "por_bloques": "Por Bloques",
     "duracion": "Duración",
     "modelo_de_entrenamiento": "Modelo de entrenamiento",
-    "semana": "Semana",
+    "semana": "semana",
     "tipo_de_etapa": "Tipo de etapa",
     "tipo_de_macrociclo": "Tipo de macrociclo",
     "duracion_del_macrociclo": "Duracion del macrociclo",
@@ -1558,7 +1558,14 @@
     "semanas": "semanas",
     "no_hay_modelo": "Este plan no tiene un modelo de periodización asignado.",
     "configura_periodizacion_primero": "Configura primero la periodización (fases por semana) para autocargar valores.",
-    "error_cargar_plantilla": "Error al cargar la plantilla del modelo"
+    "error_cargar_plantilla": "Error al cargar la plantilla del modelo",
+    "conflicto_de_fechas": "Conflicto de fechas",
+    "conflicto_competencia_antes_inicio": "La fecha de competencia es anterior o igual a la fecha de inicio del plan.",
+    "conflicto_competencia_fuera": "La competencia principal cae fuera del plan. Amplía la duración para llegar a ella.",
+    "conflicto_competencia_temprana": "La competencia principal cae muy pronto respecto a la duración del plan.",
+    "ajustar_automaticamente": "Ajustar automáticamente",
+    "duracion_ajustada": "Duración ajustada",
+    "error_ajustar_duracion": "Error al ajustar la duración del plan"
   },
   "calculators": {
     "mod_planning_title": "Planificación Estructural",

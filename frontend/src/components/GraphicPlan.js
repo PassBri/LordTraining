@@ -31,6 +31,7 @@ import {
   Minimize2,
   FileInput,
   RefreshCw,
+  AlertTriangle,
   BarChart3,
   TrendingUp,
   Image,
@@ -156,7 +157,7 @@ const MICROCYCLE_TYPES = [
   { id: 'restablecimiento', label: 'Restablecimiento', color: 'bg-purple-200' }
 ];
 
-const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategory, coachName, activePlan, competitions = [] }) => {
+const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategory, coachName, activePlan, competitions = [], onPlanUpdated }) => {
   const { t } = useTranslation();
   // ═══ V2 STORE CONNECTION ═══
   const v2Store = usePlanStore();
@@ -677,8 +678,8 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     return () => { cancelled = true; window.removeEventListener('lordtraining:evaluation-saved', handler); };
   }, [activePlan?.id, activePlan?.start_date]);
 
-  // Total weeks based on cycle duration - MUST be defined before useMemo that uses it
-  const totalWeeks = CYCLE_DURATIONS[cycleDuration].weeks;
+  // Total weeks — usa las semanas REALES del plan (B2/B3); fallback al ciclo seleccionado.
+  const totalWeeks = activePlan?.total_weeks || CYCLE_DURATIONS[cycleDuration].weeks;
 
   // Calculate which weeks have events (including competitions from plan)
   const eventsByWeek = useMemo(() => {
@@ -743,6 +744,50 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
   const weeks = useMemo(() => {
     return Array.from({ length: totalWeeks }, (_, i) => i + 1);
   }, [totalWeeks]);
+
+  // ── B3: detección de conflictos de fecha + re-sincronización ──
+  const dateConflict = useMemo(() => {
+    const sd = activePlan?.start_date ? new Date(activePlan.start_date) : null;
+    const cd = activePlan?.main_competition_date ? new Date(activePlan.main_competition_date) : null;
+    if (!sd || !cd || isNaN(sd.getTime()) || isNaN(cd.getTime())) return null;
+    if (cd <= sd) {
+      return { type: 'before_start', message: t('graphicPlan.conflicto_competencia_antes_inicio'), suggestWeeks: null };
+    }
+    const compWeek = Math.max(1, Math.ceil((cd - sd) / (1000 * 60 * 60 * 24 * 7)));
+    if (compWeek > totalWeeks) {
+      return {
+        type: 'outside', suggestWeeks: compWeek,
+        message: `${t('graphicPlan.conflicto_competencia_fuera')} (${t('graphicPlan.semana')} ${compWeek} > ${totalWeeks})`,
+      };
+    }
+    if (compWeek < Math.ceil(totalWeeks * 0.6)) {
+      return {
+        type: 'too_early', suggestWeeks: compWeek,
+        message: `${t('graphicPlan.conflicto_competencia_temprana')} (${t('graphicPlan.semana')} ${compWeek}/${totalWeeks})`,
+      };
+    }
+    return null;
+  }, [activePlan, totalWeeks, t]);
+
+  const [adjustingDuration, setAdjustingDuration] = useState(false);
+  const handleAutoAdjustDuration = async () => {
+    if (!activePlan?.id || !dateConflict?.suggestWeeks) return;
+    setAdjustingDuration(true);
+    try {
+      const token = localStorage.getItem('train_token');
+      await axios.patch(`${BACKEND_URL}/api/training-plans/${activePlan.id}/duration`,
+        { total_weeks: dateConflict.suggestWeeks },
+        { headers: { Authorization: `Bearer ${token}` } });
+      toast.success(`${t('graphicPlan.duracion_ajustada')}: ${dateConflict.suggestWeeks} ${t('graphicPlan.semanas')}`);
+      if (onPlanUpdated) onPlanUpdated({ total_weeks: dateConflict.suggestWeeks });
+      window.dispatchEvent(new CustomEvent('lordtraining:plan-data-updated', { detail: { plan_id: activePlan.id } }));
+    } catch (e) {
+      console.error('Error adjusting duration:', e);
+      toast.error(t('graphicPlan.error_ajustar_duracion'));
+    } finally {
+      setAdjustingDuration(false);
+    }
+  };
   
   // Visible weeks based on scroll
   const displayedWeeks = useMemo(() => {
@@ -1688,6 +1733,24 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
         </CardHeader>
         
         <CardContent className="p-4" data-testid="graphic-plan-content">
+          {/* B3: Alerta de conflicto de fechas */}
+          {dateConflict && (
+            <div className="mb-4 p-3 rounded-lg border border-amber-300 bg-amber-50 flex items-start gap-3" data-testid="date-conflict-alert">
+              <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-bold text-amber-800">{t('graphicPlan.conflicto_de_fechas')}</p>
+                <p className="text-xs text-amber-700">{dateConflict.message}</p>
+              </div>
+              {dateConflict.suggestWeeks && (
+                <Button size="sm" className="bg-amber-600 hover:bg-amber-700 text-white flex-shrink-0"
+                  onClick={handleAutoAdjustDuration} disabled={adjustingDuration}
+                  data-testid="auto-adjust-duration-btn">
+                  {adjustingDuration ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-1" />}
+                  {t('graphicPlan.ajustar_automaticamente')}
+                </Button>
+              )}
+            </div>
+          )}
           {/* General Information */}
           <div className="mb-4 p-3 bg-gray-50 rounded-lg border">
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
