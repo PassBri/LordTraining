@@ -598,7 +598,7 @@ const LandingPage = () => {
         <div className="flex animate-stats-marquee whitespace-nowrap">
           {[...Array(4)].map((_, rep) => (
             <React.Fragment key={rep}>
-              {[{v:'17',k:'models'},{v:'6',k:'controls'},{v:'150+',k:'exercises'},{v:'5',k:'calculators'},{v:'30+',l:'Deportes'},{v:'12',l:'Periodizaciones'}].map((s,i) => (
+              {[{v:'17',k:'models'},{v:'6',k:'controls'},{v:'150+',k:'exercises'},{v:'5',k:'calculators'},{v:'30+',k:'sports'},{v:'12',k:'periodizations'}].map((s,i) => (
                 <span key={`${rep}-${i}`} className="inline-flex items-center gap-2.5 px-6">
                   <span className="text-[18px] md:text-[22px] font-black text-[#CCFF00] leading-none" style={{fontFamily:BC}}>{s.v}</span>
                   <span className="text-[13px] md:text-[15px] font-bold uppercase tracking-[0.1em] text-white/50 leading-none" style={{fontFamily:BC}}>{s.k ? t(`landing.hero.stats.${s.k}`) : s.l}</span>
@@ -651,9 +651,9 @@ const LandingPage = () => {
       `}</style>
       <div className="max-w-[1120px] mx-auto relative z-10">
         <Reveal direction="up" className="text-center mb-10">
-          <SectionTag>Pizarra Multi-Deporte</SectionTag>
-          <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-3" style={{fontFamily:INT}}>Diseña jugadas para <span className="text-[#CCFF00]">30+ deportes</span></h2>
-          <p className="text-slate-400 text-[14px] max-w-[520px] mx-auto">Canchas con medidas oficiales, renderizado 3D y físicas de precisión para cada disciplina.</p>
+          <SectionTag>{t('landing.multisport.tag')}</SectionTag>
+          <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-3" style={{fontFamily:INT}}>{t('landing.multisport.title_pre')} <span className="text-[#CCFF00]">30+ {t('landing.multisport.sports_word')}</span></h2>
+          <p className="text-slate-400 text-[14px] max-w-[520px] mx-auto">{t('landing.multisport.subtitle')}</p>
         </Reveal>
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -688,7 +688,7 @@ const LandingPage = () => {
         <div className="text-center mt-10">
           <button onClick={() => {const el = document.getElementById('more-sports-carousel'); el.style.display = el.style.display === 'block' ? 'none' : 'block'; if (el.style.display === 'block') el.scrollIntoView({behavior:'smooth', block:'center'});}} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 hover:border-[#CCFF00]/60 transition-all font-bold text-[13px]" style={{fontFamily:BC}} data-testid="more-sports-btn">
             <span className="w-6 h-6 rounded-full bg-[#CCFF00] text-slate-900 flex items-center justify-center text-[14px] font-black">+</span>
-            Ver 20 deportes más
+            {t('landing.multisport.see_more')}
           </button>
           <div id="more-sports-carousel" style={{display:'none'}} className="mt-6">
             <div className="relative overflow-x-auto pb-4 snap-x snap-mandatory" style={{scrollbarWidth:'thin'}} data-testid="more-sports-scroll">
@@ -727,14 +727,14 @@ const LandingPage = () => {
             <div className="text-center mt-5 text-[12px] text-slate-500">
               <span className="inline-flex items-center gap-2">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                Desliza para explorar · 22 deportes adicionales
+                {t('landing.multisport.swipe_hint')}
               </span>
             </div>
           </div>
           <div className="mt-6">
             <a href="/tactical-board.html">
               <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] h-11 px-7 text-[13px] font-bold rounded-xl" style={{fontFamily:BC}} data-testid="explore-all-sports-btn">
-                Explorar pizarra táctica <ArrowRight className="w-4 h-4 ml-2"/>
+                {t('landing.multisport.explore_board')} <ArrowRight className="w-4 h-4 ml-2"/>
               </Button>
             </a>
           </div>

@@ -39,7 +39,9 @@
         "models": "Modelos",
         "controls": "Controles",
         "exercises": "Ejercicios",
-        "calculators": "Calculadoras"
+        "calculators": "Calculadoras",
+        "sports": "Deportes",
+        "periodizations": "Periodizaciones"
       },
       "free_trial": "7 días gratis",
       "no_card": "Sin tarjeta",
@@ -286,6 +288,15 @@
       "t9_role": "Preparadora Física - Club de Voleibol Femenino",
       "t10_text": "Implementamos LordTraining como protocolo oficial para las convocatorias nacionales. La selección ahora llega con datos reales de carga de cada atleta. Es un antes y un después.",
       "t10_role": "Jefe de Alto Rendimiento - Federación Nacional de Triatlón"
+    },
+    "multisport": {
+      "tag": "Pizarra Multi-Deporte",
+      "title_pre": "Diseña jugadas para",
+      "sports_word": "deportes",
+      "subtitle": "Canchas con medidas oficiales, renderizado 3D y físicas de precisión para cada disciplina.",
+      "see_more": "Ver 20 deportes más",
+      "swipe_hint": "Desliza para explorar · 22 deportes adicionales",
+      "explore_board": "Explorar pizarra táctica"
     }
   },
   "auth": {

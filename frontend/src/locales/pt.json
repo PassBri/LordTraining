@@ -39,7 +39,9 @@
         "models": "Modelos",
         "controls": "Controles",
         "exercises": "Exercícios",
-        "calculators": "Calculadoras"
+        "calculators": "Calculadoras",
+        "sports": "Desportos",
+        "periodizations": "Periodizações"
       },
       "free_trial": "7 dias grátis",
       "no_card": "Sem cartão",
@@ -281,6 +283,15 @@
       "t9_role": "Preparadora Física - Clube de Vôlei Feminino",
       "t10_text": "Implementamos o LordTraining como protocolo oficial para as convocações nacionais. A seleção agora chega com dados reais de carga de cada atleta.",
       "t10_role": "Chefe de Alto Rendimento - Federação Nacional de Triathlon"
+    },
+    "multisport": {
+      "tag": "Quadro Multidesporto",
+      "title_pre": "Desenha jogadas para",
+      "sports_word": "desportos",
+      "subtitle": "Campos com medidas oficiais, renderização 3D e física de precisão para cada modalidade.",
+      "see_more": "Ver mais 20 desportos",
+      "swipe_hint": "Desliza para explorar · 22 desportos adicionais",
+      "explore_board": "Explorar quadro tático"
     }
   },
   "auth": {

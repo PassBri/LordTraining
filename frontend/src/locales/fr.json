@@ -39,7 +39,9 @@
         "models": "Modèles",
         "controls": "Contrôles",
         "exercises": "Exercices",
-        "calculators": "Calculatrices"
+        "calculators": "Calculatrices",
+        "sports": "Sports",
+        "periodizations": "Périodisations"
       },
       "free_trial": "7 jours gratuits",
       "no_card": "Sans carte",
@@ -281,6 +283,15 @@
       "t9_role": "Préparatrice Physique - Club de Volleyball Féminin",
       "t10_text": "Nous avons implémenté LordTraining comme protocole officiel pour les convocations nationales.",
       "t10_role": "Chef de Haute Performance - Fédération Nationale de Triathlon"
+    },
+    "multisport": {
+      "tag": "Tableau multi-sport",
+      "title_pre": "Concevez des tactiques pour les",
+      "sports_word": "sports",
+      "subtitle": "Terrains aux dimensions officielles, rendu 3D et physique de précision pour chaque discipline.",
+      "see_more": "Voir 20 sports de plus",
+      "swipe_hint": "Faites glisser pour explorer · 22 sports supplémentaires",
+      "explore_board": "Explorer le tableau tactique"
     }
   },
   "auth": {

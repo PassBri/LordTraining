@@ -39,7 +39,9 @@
         "models": "模型",
         "controls": "控制",
         "exercises": "练习",
-        "calculators": "计算器"
+        "calculators": "计算器",
+        "sports": "运动项目",
+        "periodizations": "周期化训练"
       },
       "free_trial": "7天免费",
       "no_card": "无需信用卡",
@@ -281,6 +283,15 @@
       "t9_role": "体能教练 - 女子排球俱乐部",
       "t10_text": "我们将LordTraining作为国家队选拔的官方协议。选拔队现在带着每位运动员的真实负荷数据到来。",
       "t10_role": "高水平训练主管 - 国家铁人三项联合会"
+    },
+    "multisport": {
+      "tag": "多运动战术板",
+      "title_pre": "为以下项目设计战术",
+      "sports_word": "运动",
+      "subtitle": "每个项目均配备官方尺寸场地、3D 渲染和高精度物理效果。",
+      "see_more": "查看更多 20 项运动",
+      "swipe_hint": "滑动探索 · 另外 22 项运动",
+      "explore_board": "探索战术板"
     }
   },
   "auth": {

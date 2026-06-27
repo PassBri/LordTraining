@@ -1,0 +1,37 @@
+{
+  "namespace": "landing",
+  "es": {
+    "multisport": {
+      "tag": "Pizarra Multi-Deporte",
+      "title_pre": "Diseña jugadas para",
+      "sports_word": "deportes",
+      "subtitle": "Canchas con medidas oficiales, renderizado 3D y físicas de precisión para cada disciplina.",
+      "see_more": "Ver 20 deportes más",
+      "swipe_hint": "Desliza para explorar · 22 deportes adicionales",
+      "explore_board": "Explorar pizarra táctica"
+    },
+    "hero": {
+      "stats": {
+        "sports": "Deportes",
+        "periodizations": "Periodizaciones"
+      }
+    }
+  },
+  "en": {
+    "multisport": {
+      "tag": "Multi-Sport Board",
+      "title_pre": "Design plays for",
+      "sports_word": "sports",
+      "subtitle": "Official-size courts, 3D rendering and precision physics for every discipline.",
+      "see_more": "See 20 more sports",
+      "swipe_hint": "Swipe to explore · 22 additional sports",
+      "explore_board": "Explore tactical board"
+    },
+    "hero": {
+      "stats": {
+        "sports": "Sports",
+        "periodizations": "Periodizations"
+      }
+    }
+  }
+}

@@ -39,7 +39,9 @@
         "models": "モデル",
         "controls": "コントロール",
         "exercises": "エクササイズ",
-        "calculators": "計算機"
+        "calculators": "計算機",
+        "sports": "スポーツ",
+        "periodizations": "ピリオダイゼーション"
       },
       "free_trial": "7日間無料",
       "no_card": "カード不要",
@@ -281,6 +283,15 @@
       "t9_role": "フィジカルコーチ - 女子バレーボールクラブ",
       "t10_text": "国家代表招集の公式プロトコルとしてLordTrainingを導入。選考チームは各選手の実際の負荷データを持って到着します。",
       "t10_role": "ハイパフォーマンス部門長 - 国立トライアスロン連盟"
+    },
+    "multisport": {
+      "tag": "マルチスポーツボード",
+      "title_pre": "戦術をデザイン",
+      "sports_word": "スポーツ",
+      "subtitle": "各競技に対応した公式サイズのコート、3Dレンダリング、高精度な物理演算。",
+      "see_more": "さらに20競技を見る",
+      "swipe_hint": "スワイプして探索 · さらに22競技",
+      "explore_board": "戦術ボードを探索"
     }
   },
   "auth": {

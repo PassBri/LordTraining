@@ -12,6 +12,12 @@
 - email: test@train.com
 - password: test123456
 
+## Auth (OWASP Fase 1 — Jun 2026)
+- Login (`POST /api/auth/login`) devuelve `token` (access, 60 min) + `refresh_token` (7 días).
+- Renovar access: `POST /api/auth/refresh` body `{refresh_token}` → nuevo token+refresh (rotación).
+- Brute force: 5 intentos fallidos por `{ip}:{email}` → bloqueo 15 min (429). Si una cuenta queda bloqueada en pruebas, limpiar colección Mongo `login_attempts` o esperar 15 min.
+- Frontend guarda `train_token` y `train_refresh_token` en localStorage; auto-logout por inactividad 30 min.
+
 ## Athlete Portal (Fase 3) — test accounts
 - Athlete (invited): juan.atleta@test.com / 8c6nkWqG  (assigned_plan_id 25b9abc7..., may have must_change_password)
 - Athlete (self-registered): maria@test.com / maria123

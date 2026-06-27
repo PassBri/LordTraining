@@ -39,7 +39,9 @@
         "models": "모델",
         "controls": "컨트롤",
         "exercises": "운동",
-        "calculators": "계산기"
+        "calculators": "계산기",
+        "sports": "스포츠",
+        "periodizations": "주기화 계획"
       },
       "free_trial": "7일 무료",
       "no_card": "카드 불필요",
@@ -281,6 +283,15 @@
       "t9_role": "피지컬 코치 - 여자 배구 클럽",
       "t10_text": "국가대표 소집을 위한 공식 프로토콜로 LordTraining을 도입했습니다.",
       "t10_role": "하이퍼포먼스 책임자 - 국가 트라이애슬론 연맹"
+    },
+    "multisport": {
+      "tag": "멀티 스포츠 보드",
+      "title_pre": "전술을 설계하세요",
+      "sports_word": "스포츠",
+      "subtitle": "각 종목별 공식 규격 코트, 3D 렌더링, 정밀한 물리 엔진을 제공합니다.",
+      "see_more": "스포츠 20종 더 보기",
+      "swipe_hint": "밀어서 탐색 · 추가 스포츠 22종",
+      "explore_board": "전술 보드 탐색"
     }
   },
   "auth": {

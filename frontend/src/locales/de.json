@@ -39,7 +39,9 @@
         "models": "Modelle",
         "controls": "Kontrollen",
         "exercises": "Übungen",
-        "calculators": "Rechner"
+        "calculators": "Rechner",
+        "sports": "Sportarten",
+        "periodizations": "Periodisierungen"
       },
       "free_trial": "7 Tage kostenlos",
       "no_card": "Keine Karte",
@@ -281,6 +283,15 @@
       "t9_role": "Athletiktrainerin - Damen-Volleyballclub",
       "t10_text": "Wir haben LordTraining als offizielles Protokoll für nationale Einberufungen eingeführt.",
       "t10_role": "Leiter Hochleistung - Nationaler Triathlonverband"
+    },
+    "multisport": {
+      "tag": "Multisport-Taktiktafel",
+      "title_pre": "Spielzüge entwerfen für",
+      "sports_word": "Sportarten",
+      "subtitle": "Spielfelder mit offiziellen Maßen, 3D-Rendering und präziser Physik für jede Disziplin.",
+      "see_more": "20 weitere Sportarten ansehen",
+      "swipe_hint": "Wischen zum Entdecken · 22 weitere Sportarten",
+      "explore_board": "Taktiktafel erkunden"
     }
   },
   "auth": {

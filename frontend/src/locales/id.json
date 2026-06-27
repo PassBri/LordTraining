@@ -39,7 +39,9 @@
         "models": "Model",
         "controls": "Kontrol",
         "exercises": "Latihan",
-        "calculators": "Kalkulator"
+        "calculators": "Kalkulator",
+        "sports": "Olahraga",
+        "periodizations": "Periodisasi"
       },
       "free_trial": "7 hari gratis",
       "no_card": "Tanpa kartu",
@@ -281,6 +283,15 @@
       "t9_role": "Pelatih Fisik - Klub Voli Putri",
       "t10_text": "Kami menerapkan LordTraining sebagai protokol resmi untuk pemanggilan nasional.",
       "t10_role": "Kepala Performa Tinggi - Federasi Triathlon Nasional"
+    },
+    "multisport": {
+      "tag": "Papan Multi-Olahraga",
+      "title_pre": "Rancang strategi untuk",
+      "sports_word": "olahraga",
+      "subtitle": "Lapangan dengan ukuran resmi, render 3D, dan fisika presisi untuk setiap cabang.",
+      "see_more": "Lihat 20 olahraga lainnya",
+      "swipe_hint": "Geser untuk menjelajah · 22 olahraga tambahan",
+      "explore_board": "Jelajahi papan taktik"
     }
   },
   "auth": {
