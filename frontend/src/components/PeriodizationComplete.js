@@ -249,6 +249,19 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     sessionsPerWeek: 5, athleteLevel: 'intermediate',
     mainObjective: '', mainCompetition: '', mainCompetitionDate: ''
   });
+
+  // ── B2: calcular semanas a partir de fecha de inicio → fecha de competencia principal ──
+  const computeWeeksFromDates = (startDate, compDate) => {
+    if (!startDate || !compDate) return null;
+    const s = new Date(startDate), c = new Date(compDate);
+    if (isNaN(s.getTime()) || isNaN(c.getTime()) || c <= s) return null;
+    const weeks = Math.ceil((c - s) / (1000 * 60 * 60 * 24 * 7));
+    return Math.max(1, Math.min(208, weeks));
+  };
+  // Semanas efectivas: prioriza las fechas (autollenado); si no hay competencia, usa el ciclo elegido.
+  const effectiveTotalWeeks = computeWeeksFromDates(planConfig.startDate, planConfig.mainCompetitionDate)
+    || CYCLE_DURATIONS[planConfig.duration]?.weeks || 52;
+
   
   // Expanded states
   const [expandedMacro, setExpandedMacro] = useState(null);
@@ -955,7 +968,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
   const generatePlanStructure = () => {
     const { duration, startDate, sessionsPerWeek, model, name } = planConfig;
-    const totalWeeks = CYCLE_DURATIONS[duration]?.weeks || 52;
+    const totalWeeks = computeWeeksFromDates(planConfig.startDate, planConfig.mainCompetitionDate)
+      || CYCLE_DURATIONS[duration]?.weeks || 52;
     
     // Create macrocycles based on duration
     const macrocycles = [];
@@ -1032,6 +1046,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       model,
       modelName: effectiveModels[model]?.name || model,
       duration,
+      totalWeeks,
       startDate,
       sessionsPerWeek,
       mainObjective: planConfig.mainObjective,
@@ -1357,7 +1372,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     setGenerating(true);
     try {
       const token = getToken();
-      const totalWeeks = CYCLE_DURATIONS[planConfig.duration]?.weeks || 52;
+      const totalWeeks = computeWeeksFromDates(planConfig.startDate, planConfig.mainCompetitionDate)
+        || CYCLE_DURATIONS[planConfig.duration]?.weeks || 52;
       
       const response = await fetch(`${API_URL}/api/generate-structure`, {
         method: 'POST',
@@ -1859,6 +1875,11 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{t('periodization.competitionDate')}</label>
                   <Input type="date" value={planConfig.mainCompetitionDate} onChange={(e) => setPlanConfig({ ...planConfig, mainCompetitionDate: e.target.value })} className="mt-0.5 h-8 text-xs" />
+                  {computeWeeksFromDates(planConfig.startDate, planConfig.mainCompetitionDate) && (
+                    <p className="text-[10px] text-emerald-600 font-semibold mt-1" data-testid="computed-weeks-hint">
+                      {computeWeeksFromDates(planConfig.startDate, planConfig.mainCompetitionDate)} semanas hasta la competencia
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -1882,7 +1903,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                   </div>
                   <div>
                     <p className="text-sm text-slate-500">{t('periodization.duration')}</p>
-                    <p className="font-bold text-slate-700">{CYCLE_DURATIONS[planConfig.duration]?.weeks || 52} semanas</p>
+                    <p className="font-bold text-slate-700">{effectiveTotalWeeks} semanas</p>
                   </div>
                   <div>
                     <p className="text-sm text-slate-500">{t('periodization.level')}</p>
@@ -1994,7 +2015,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                   </div>
                   <div>
                     <p className="text-sm text-slate-500">{t('periodization.duration')}</p>
-                    <p className="font-bold text-slate-700">{CYCLE_DURATIONS[planConfig.duration]?.weeks || 52} semanas</p>
+                    <p className="font-bold text-slate-700">{effectiveTotalWeeks} semanas</p>
                   </div>
                   <div>
                     <p className="text-sm text-slate-500">{t('periodization.sessionsPerWeekShort')}</p>

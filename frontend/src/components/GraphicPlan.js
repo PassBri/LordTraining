@@ -718,6 +718,24 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
       }
     });
     
+    // Competencia principal del plan (B2) — marcador de alta prioridad
+    if (activePlan?.main_competition_date) {
+      const compDate = new Date(activePlan.main_competition_date);
+      if (!isNaN(compDate.getTime())) {
+        const diffWeeks = Math.max(1, Math.ceil((compDate - startDate) / (1000 * 60 * 60 * 24 * 7)));
+        const weekNum = Math.min(diffWeeks, totalWeeks);
+        if (weekNum > 0) {
+          if (!result[weekNum]) result[weekNum] = [];
+          result[weekNum].push({
+            name: activePlan.main_competition || 'Competencia Principal',
+            date: activePlan.main_competition_date,
+            type: 'competition',
+            priority: 'high'
+          });
+        }
+      }
+    }
+
     return result;
   }, [events, competitions, totalWeeks, activePlan]);
   
