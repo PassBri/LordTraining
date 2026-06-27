@@ -1056,6 +1056,43 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
 
   // ── B1: Cargar plantilla del modelo (autollenado por fase, respeta ediciones manuales) ──
   const [loadingTemplate, setLoadingTemplate] = useState(false);
+
+  // ═══ Niveles del deportista: topes de carga (warning no bloqueante) ═══
+  const [levelCaps, setLevelCaps] = useState(null);
+  const [levelName, setLevelName] = useState(null);
+  useEffect(() => {
+    const lvl = activePlan?.athlete_level;
+    if (!lvl) { setLevelCaps(null); setLevelName(null); return; }
+    const token = localStorage.getItem('train_token');
+    const alias = { beginner: 'principiante', intermediate: 'semiprofesional', advanced: 'profesional', elite: 'elite' };
+    axios.get(`${BACKEND_URL}/api/plan-templates/levels`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(res => {
+        const levels = res.data?.levels || [];
+        const key = levels.find(l => l.level === lvl) ? lvl : (alias[lvl] || lvl);
+        const cfg = levels.find(l => l.level === key);
+        if (cfg) {
+          setLevelCaps({ max_load: cfg.max_load, max_volume: cfg.max_volume, max_intensity: cfg.max_intensity });
+          setLevelName(cfg.name);
+        } else { setLevelCaps(null); setLevelName(null); }
+      })
+      .catch(() => { setLevelCaps(null); setLevelName(null); });
+  }, [activePlan?.athlete_level]);
+
+  // Semanas cuya carga/volumen/intensidad exceden el tope del nivel (warning)
+  const loadWarnings = useMemo(() => {
+    if (!levelCaps) return [];
+    const out = [];
+    (loadChartDataFull || []).forEach(d => {
+      if (d.carga > levelCaps.max_load) out.push({ week: d.weekNum, type: t('graphicPlan.carga', { defaultValue: 'Carga' }), value: Math.round(d.carga), max: levelCaps.max_load });
+    });
+    (volumeIntensityChartDataFull || []).forEach(d => {
+      if (d.volumen > levelCaps.max_volume) out.push({ week: d.weekNum, type: t('graphicPlan.volumen', { defaultValue: 'Volumen' }), value: Math.round(d.volumen), max: levelCaps.max_volume });
+      if (d.intensidad > levelCaps.max_intensity) out.push({ week: d.weekNum, type: t('graphicPlan.intensidad', { defaultValue: 'Intensidad' }), value: Math.round(d.intensidad), max: levelCaps.max_intensity });
+    });
+    return out.sort((a, b) => a.week - b.week);
+  }, [levelCaps, loadChartDataFull, volumeIntensityChartDataFull, t]);
+
+
   const PREP_COMPONENTS = ['general_physical', 'specific_physical', 'technical', 'tactical', 'psychological', 'theoretical'];
   // Fallback de fase si el modelo no define exactamente esa fase genérica
   const PHASE_FALLBACK = {
@@ -1081,7 +1118,8 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     setLoadingTemplate(true);
     try {
       const token = localStorage.getItem('train_token');
-      const res = await axios.get(`${BACKEND_URL}/api/plan-templates/${modelKey}`, {
+      const levelParam = activePlan?.athlete_level ? `?level=${encodeURIComponent(activePlan.athlete_level)}` : '';
+      const res = await axios.get(`${BACKEND_URL}/api/plan-templates/${modelKey}${levelParam}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const tplPhases = res.data?.phases || {};
@@ -1787,7 +1825,31 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
               )}
             </div>
           )}
-          {/* General Information */}
+          {/* Advertencia de exceso de carga según nivel del deportista (no bloqueante) */}
+          {levelCaps && loadWarnings.length > 0 && (
+            <div className="mb-4 p-3 rounded-lg border border-orange-300 bg-orange-50 flex items-start gap-3" data-testid="level-load-warning">
+              <AlertTriangle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-orange-800">
+                  {t('graphicPlan.exceso_carga_nivel', { defaultValue: 'Cargas por encima del nivel' })}
+                  {levelName ? ` · ${levelName}` : ''}
+                </p>
+                <p className="text-xs text-orange-700 mb-1">
+                  {t('graphicPlan.exceso_carga_nivel_desc', { defaultValue: 'Estas semanas superan el tope sugerido para el nivel del deportista (tope carga {{l}}% · vol {{v}}% · int {{i}}%):', l: levelCaps.max_load, v: levelCaps.max_volume, i: levelCaps.max_intensity })}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {loadWarnings.slice(0, 24).map((w, idx) => (
+                    <span key={idx} className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-orange-200 text-orange-800" data-testid={`level-warning-chip-${idx}`}>
+                      S{w.week} · {w.type} {w.value}% &gt; {w.max}%
+                    </span>
+                  ))}
+                  {loadWarnings.length > 24 && (
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-orange-200 text-orange-800">+{loadWarnings.length - 24}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
           <div className="mb-4 p-3 bg-gray-50 rounded-lg border">
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
               <div>

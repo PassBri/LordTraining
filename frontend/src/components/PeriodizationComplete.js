@@ -246,7 +246,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
   const [wizardStep, setWizardStep] = useState(1);
   const [planConfig, setPlanConfig] = useState({
     name: '', model: '', sport: 'general', duration: 'annual', startDate: '', 
-    sessionsPerWeek: 5, athleteLevel: 'intermediate',
+    sessionsPerWeek: 5, athleteLevel: 'amateur',
     mainObjective: '', mainCompetition: '', mainCompetitionDate: ''
   });
 
@@ -1077,6 +1077,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         total_weeks: plan.totalWeeks || CYCLE_DURATIONS[plan.duration]?.weeks || 52,
         start_date: plan.startDate,
         sessions_per_week: plan.sessionsPerWeek || 5,
+        athlete_level: plan.athleteLevel || planConfig.athleteLevel || null,
         main_objective: plan.mainObjective || '',
         main_competition: plan.mainCompetition || null,
         main_competition_date: plan.mainCompetitionDate || null,
@@ -1496,7 +1497,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           </Button>
           <Button className="bg-slate-900 hover:bg-slate-800 text-white rounded-lg h-9 text-[12px] font-semibold" onClick={() => { 
             setWizardStep(1); 
-            setPlanConfig({ name: '', model: '', sport: 'general', duration: 'annual', startDate: '', sessionsPerWeek: 5, athleteLevel: 'intermediate', mainObjective: '', mainCompetition: '', mainCompetitionDate: '' }); 
+            setPlanConfig({ name: '', model: '', sport: 'general', duration: 'annual', startDate: '', sessionsPerWeek: 5, athleteLevel: 'amateur', mainObjective: '', mainCompetition: '', mainCompetitionDate: '' }); 
             setGeneratedStructure(null);
             setActiveView('create'); 
           }} data-testid="new-plan-btn">
@@ -1770,15 +1771,17 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
               {/* Athlete Level */}
               <div className="pt-2 border-t flex items-center gap-3 flex-wrap">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">{t('periodization.athleteLevel')}</span>
-                <div className="flex gap-1.5 flex-wrap">
+                <div className="flex gap-1.5 flex-wrap" data-testid="athlete-level-selector">
                   {[
-                    { id: 'beginner', name: t('catalog.level_beginner'), desc: '< 1 año' },
-                    { id: 'intermediate', name: t('catalog.level_intermediate'), desc: '1-3 años' },
-                    { id: 'advanced', name: t('catalog.level_advanced'), desc: '3-6 años' },
-                    { id: 'elite', name: t('catalog.level_elite'), desc: '6+ años' }
+                    { id: 'principiante', name: t('catalog.level_principiante', { defaultValue: 'Principiante' }), desc: '< 1 año' },
+                    { id: 'amateur', name: t('catalog.level_amateur', { defaultValue: 'Amateur' }), desc: '1-2 años' },
+                    { id: 'semiprofesional', name: t('catalog.level_semiprofesional', { defaultValue: 'Semiprofesional' }), desc: '2-4 años' },
+                    { id: 'profesional', name: t('catalog.level_profesional', { defaultValue: 'Profesional' }), desc: '4-6 años' },
+                    { id: 'elite', name: t('catalog.level_elite', { defaultValue: 'Élite / Olímpico' }), desc: '6+ años' }
                   ].map(level => (
                     <button 
                       key={level.id}
+                      data-testid={`athlete-level-${level.id}`}
                       className={`px-3 py-1 rounded-md border text-left transition-all ${planConfig.athleteLevel === level.id ? 'border-[#CCFF00] bg-[#CCFF00]/10 ring-1 ring-[#CCFF00]' : 'border-slate-200 hover:border-slate-900'}`}
                       onClick={() => setPlanConfig({ ...planConfig, athleteLevel: level.id })}
                     >

@@ -484,14 +484,19 @@ async def generate_training_structure(request: StructureGenerationRequest, user:
     # Determine sessions per week
     sessions_per_week = request.sessions_per_week or sport_config["sessions_per_week"]
     
-    # Level adjustments
+    # Level adjustments — soporta los 5 niveles del sistema + alias legacy
     level_multipliers = {
+        "principiante": {"volume": 0.75, "intensity": 0.78, "sessions": 0.80},
+        "amateur": {"volume": 0.85, "intensity": 0.88, "sessions": 0.90},
+        "semiprofesional": {"volume": 1.0, "intensity": 1.0, "sessions": 1.0},
+        "profesional": {"volume": 1.10, "intensity": 1.05, "sessions": 1.0},
+        "elite": {"volume": 1.15, "intensity": 1.10, "sessions": 1.0},
+        # legacy ids
         "beginner": {"volume": 0.75, "intensity": 0.80, "sessions": 0.80},
         "intermediate": {"volume": 1.0, "intensity": 1.0, "sessions": 1.0},
         "advanced": {"volume": 1.10, "intensity": 1.05, "sessions": 1.0},
-        "elite": {"volume": 1.15, "intensity": 1.10, "sessions": 1.0}
     }
-    level_mult = level_multipliers.get(athlete_level, level_multipliers["intermediate"])
+    level_mult = level_multipliers.get(athlete_level, level_multipliers["semiprofesional"])
     
     # Parse start date
     from datetime import datetime as dt
@@ -726,6 +731,7 @@ async def create_training_plan(plan: TrainingPlanCreate, user: dict = Depends(ge
         "start_date": plan.start_date,
         "end_date": end.isoformat(),
         "sessions_per_week": plan.sessions_per_week,
+        "athlete_level": plan.athlete_level,
         "main_objective": plan.main_objective,
         "main_competition": plan.main_competition,
         "main_competition_date": plan.main_competition_date,
@@ -849,6 +855,7 @@ async def update_training_plan(plan_id: str, plan: TrainingPlanCreate, user: dic
         "start_date": plan.start_date,
         "end_date": end.isoformat(),
         "sessions_per_week": plan.sessions_per_week,
+        "athlete_level": plan.athlete_level,
         "main_objective": plan.main_objective,
         "main_competition": plan.main_competition,
         "main_competition_date": plan.main_competition_date,

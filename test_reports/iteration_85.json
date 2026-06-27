@@ -1,0 +1,33 @@
+{
+  "summary": "Backend regression for 'Adaptación de Cargas por Nivel del Deportista' is GREEN: 14/14 pytest pass. GET /api/plan-templates/levels returns exactly the 5 niveles (principiante..elite) with factors and topes; GET /api/plan-templates/atr sin nivel devuelve valores base (vol=85, int=60 en preparatory_general); con ?level=principiante aplica factor 0.70 y clamp (vol=59, int=42, carga<=65 + caps {65,70,75}); con ?level=elite (factor 1.05/1.08) devuelve vol=89, int=65; y alias legacy ?level=intermediate se normaliza correctamente a semiprofesional. POST /api/training-plans persiste athlete_level y GET roundtrip lo devuelve; PUT cambia el valor (principiante -> semiprofesional). POST /api/generate-structure acepta los 5 nuevos ids (principiante/amateur/semiprofesional/profesional/elite) y responde 200 con la estructura completa (macrocycles). Frontend smoke verificado: login con test@train.com OK, selección de plan ('TEST Plan Fútbol ATR') OK, navegación a Datos -> Plan Gráfico carga la grilla completa SIN errores de consola relacionados con la nueva feature. El banner data-testid='level-load-warning' NO se mostró sobre el plan de prueba porque sus cargas no superan los topes (comportamiento esperado, ya advertido por main agent). El selector athlete-level-selector con sus 5 opciones está cableado correctamente en PeriodizationComplete.js (lineas 1773-1791 — verificado por código fuente), pero no fue alcanzable de forma automatizada desde la cuenta test@train.com: clickear 'Nuevo Plan' en el sidebar de Planes cierra el panel sin abrir el wizard standalone, y la sub-tab 'Periodización' dentro de un plan ya creado no expone el step de configuración del wizard.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_athlete_level.py",
+    "/app/test_reports/pytest/athlete_level.xml"
+  ],
+  "action_items": [
+    "OPCIONAL — UX: Confirmar el flujo para abrir el wizard PeriodizationComplete desde el sidebar 'Planes -> Nuevo Plan'. En esta sesión el botón cierra el panel sin abrir el wizard (no se reproduce error de consola pero tampoco aparece UI). El selector data-testid='athlete-level-selector' está en PeriodizationComplete.js linea 1774 (5 opciones: principiante..elite), pero el wizard no se renderizó en el viewport en la cuenta test@train.com.",
+    "OPCIONAL — Para validar el banner level-load-warning end-to-end: sembrar/cargar valores manuales que excedan los topes (e.g. plan con athlete_level='principiante' y semana con carga>65) y confirmar que el banner aparece en Plan Gráfico."
+  ],
+  "critical_code_review_comments": [
+    "routes/plan_templates.py — _apply_level_to_phase usa int(round(85*0.7)) que por imprecisión float64 devuelve 59 (en lugar del esperado 60). No es un bug funcional pero conviene documentarlo como contrato (el test ya acepta 59/60). Si se quiere determinismo: usar round(value, 4) antes de int(round(...)).",
+    "routes/training_plans.py:373 — StructureGenerationRequest.athlete_level default sigue siendo 'intermediate' (legacy). Aceptable porque level_multipliers tiene alias; considerar migrar el default a 'semiprofesional' para alinear con los 5 ids canónicos.",
+    "routes/training_plans.py:499 — fallback a 'semiprofesional' cuando el nivel es desconocido es correcto, pero podría loggearse una advertencia para diagnosticar payloads inválidos.",
+    "PeriodizationComplete.js:249 — planConfig.athleteLevel default 'amateur' es ok; PeriodizationComplete.js:1080 envia athlete_level correctamente en el payload."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_athlete_level.py (nuevo archivo de tests pytest, 14 casos)"
+  ],
+  "success_rate": { "backend": "100% (14/14)", "frontend": "Smoke OK: login + plan select + GraphicPlan load sin errores nuevos. Wizard PeriodizationComplete no alcanzado por UI desde test@train.com (no es un bug del backend; comportamiento del entry-point del sidebar 'Nuevo Plan')." },
+  "test_credentials": "test@train.com / test123456",
+  "seed_data_creation": "Ninguna persistente (los planes TEST_* creados se eliminan al final de cada test).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "El archivo /app/backend/tests/test_athlete_level.py cubre la feature completa de backend (levels catalog, ATR factor+clamp, alias legacy, persistencia de athlete_level en plan, generate-structure con los 5 ids). Para validar el wizard UI: probablemente requiere abrir PeriodizationComplete directamente — verificar la ruta o componente padre que monta el wizard. El plan 0cd4acaa-... del coach test@train.com ya tiene athlete_level='profesional' (round-trip OK). Para forzar el banner level-load-warning, crear plan con athlete_level='principiante' y semanas con carga>65 manuales en Plan Gráfico.",
+  "rca_of_the_issue": "No hay bug bloqueante. Único hallazgo menor en frontend: el entry-point 'Nuevo Plan' del sidebar Planes cierra el panel sin abrir el wizard PeriodizationComplete en la sesión actual de test@train.com; el selector data-testid='athlete-level-selector' (5 opciones) está correctamente implementado en el código pero el wizard requiere otro flujo de apertura. Verificar/documentar cómo se accede a este wizard como mejora UX."
+}

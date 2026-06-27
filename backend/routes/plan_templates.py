@@ -13,12 +13,67 @@ Los valores se cachean en la colección Mongo `plan_templates` (editable),
 y se calculan a partir del modelo si aún no existen.
 """
 from fastapi import APIRouter, Depends, HTTPException
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 from core.auth import get_current_user, get_db
 from routes.training_plans import MODEL_PHASE_DISTRIBUTIONS, PERIODIZATION_MODELS_INFO
 
 router = APIRouter(prefix="/plan-templates", tags=["plan-templates"])
+
+# =============== NIVELES DEL DEPORTISTA (cargas sugeridas + topes) ===============
+# Cada nivel define factores que escalan los valores sugeridos del modelo
+# (volumen/intensidad) y topes máximos (max_*) usados para advertencias no
+# bloqueantes en el Plan Gráfico. Rangos estándar (editables vía colección Mongo
+# `level_load_templates`).
+LEVEL_LOAD_TEMPLATES: Dict[str, Any] = {
+    "principiante":    {"name": "Principiante",      "order": 1, "volume_factor": 0.70, "intensity_factor": 0.70, "max_load": 65,  "max_volume": 70,  "max_intensity": 75},
+    "amateur":         {"name": "Amateur",           "order": 2, "volume_factor": 0.82, "intensity_factor": 0.82, "max_load": 78,  "max_volume": 82,  "max_intensity": 85},
+    "semiprofesional": {"name": "Semiprofesional",   "order": 3, "volume_factor": 0.92, "intensity_factor": 0.92, "max_load": 88,  "max_volume": 92,  "max_intensity": 92},
+    "profesional":     {"name": "Profesional",       "order": 4, "volume_factor": 1.00, "intensity_factor": 1.00, "max_load": 95,  "max_volume": 100, "max_intensity": 98},
+    "elite":           {"name": "Élite / Olímpico",  "order": 5, "volume_factor": 1.05, "intensity_factor": 1.08, "max_load": 100, "max_volume": 100, "max_intensity": 100},
+}
+
+# Alias de niveles antiguos (4 niveles legacy del wizard) → 5 niveles canónicos
+LEVEL_ALIAS = {
+    "beginner": "principiante",
+    "intermediate": "semiprofesional",
+    "advanced": "profesional",
+    "elite": "elite",
+}
+
+
+def _normalize_level(level: Optional[str]) -> Optional[str]:
+    if not level:
+        return None
+    lv = str(level).strip().lower()
+    return lv if lv in LEVEL_LOAD_TEMPLATES else LEVEL_ALIAS.get(lv)
+
+
+async def _get_level_config(db, level_key: str) -> Optional[Dict[str, Any]]:
+    """Sirve la config del nivel desde Mongo (editable) o desde el default."""
+    stored = await db.level_load_templates.find_one({"level": level_key}, {"_id": 0})
+    if stored:
+        return stored
+    base = LEVEL_LOAD_TEMPLATES.get(level_key)
+    return ({"level": level_key, **base}) if base else None
+
+
+def _apply_level_to_phase(phase: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
+    """Escala vol/int por los factores del nivel y aplica topes; recalcula carga."""
+    vol = min(int(round(phase["volumen"] * cfg["volume_factor"])), cfg["max_volume"])
+    inten = min(int(round(phase["intensidad"] * cfg["intensity_factor"])), cfg["max_intensity"])
+    is_transition = phase.get("carga", 0) <= 35 and phase["volumen"] <= 40
+    carga = int(round(min(vol, inten) * 0.6)) if is_transition else int(round(0.55 * vol + 0.45 * inten))
+    carga = min(carga, cfg["max_load"])
+    return {
+        **phase,
+        "volumen": vol,
+        "intensidad": inten,
+        "carga": carga,
+        "recuperacion": max(0, 100 - carga),
+    }
+
+
 
 # Defaults para modelos sin entrada en MODEL_PHASE_DISTRIBUTIONS (creados según su lógica).
 DEFAULT_MODEL_DISTRIBUTIONS: Dict[str, Any] = {
@@ -127,15 +182,41 @@ async def list_templates(user: dict = Depends(get_current_user)):
     return {"models": [{"key": k, "name": v.get("name", k)} for k, v in PERIODIZATION_MODELS_INFO.items()]}
 
 
+@router.get("/levels")
+async def list_levels(user: dict = Depends(get_current_user), db=Depends(get_db)):
+    """Catálogo de niveles del deportista con factores y topes (editable en Mongo)."""
+    out = []
+    for key in sorted(LEVEL_LOAD_TEMPLATES, key=lambda k: LEVEL_LOAD_TEMPLATES[k]["order"]):
+        cfg = await _get_level_config(db, key)
+        out.append(cfg)
+    return {"levels": out}
+
+
 @router.get("/{model_key}")
-async def get_template(model_key: str, user: dict = Depends(get_current_user), db=Depends(get_db)):
+async def get_template(model_key: str, level: Optional[str] = None,
+                       user: dict = Depends(get_current_user), db=Depends(get_db)):
     # 1) Servir desde la colección si existe (editable)
     stored = await db.plan_templates.find_one({"model": model_key}, {"_id": 0})
     if stored:
-        return stored
-    # 2) Calcular desde el modelo y cachear
-    tpl = build_model_template(model_key)
-    if not tpl:
-        raise HTTPException(status_code=404, detail=f"Modelo '{model_key}' no encontrado")
-    await db.plan_templates.update_one({"model": model_key}, {"$set": tpl}, upsert=True)
+        tpl = stored
+    else:
+        # 2) Calcular desde el modelo y cachear
+        tpl = build_model_template(model_key)
+        if not tpl:
+            raise HTTPException(status_code=404, detail=f"Modelo '{model_key}' no encontrado")
+        await db.plan_templates.update_one({"model": model_key}, {"$set": tpl}, upsert=True)
+
+    # 3) Cruzar con el nivel del deportista (factores + topes)
+    level_key = _normalize_level(level)
+    if level_key:
+        cfg = await _get_level_config(db, level_key)
+        if cfg:
+            adjusted = {ph: _apply_level_to_phase(vals, cfg) for ph, vals in (tpl.get("phases") or {}).items()}
+            tpl = {
+                **tpl,
+                "phases": adjusted,
+                "level": level_key,
+                "level_name": cfg.get("name", level_key),
+                "caps": {"max_load": cfg["max_load"], "max_volume": cfg["max_volume"], "max_intensity": cfg["max_intensity"]},
+            }
     return tpl

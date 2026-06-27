@@ -710,6 +710,7 @@ class TrainingPlanCreate(BaseModel):
     total_weeks: int
     start_date: str
     sessions_per_week: int = 5
+    athlete_level: Optional[str] = None  # principiante, amateur, semiprofesional, profesional, elite
     main_objective: str = ""
     main_competition: Optional[str] = None
     main_competition_date: Optional[str] = None
@@ -728,6 +729,7 @@ class TrainingPlanResponse(BaseModel):
     start_date: str
     end_date: str
     sessions_per_week: int
+    athlete_level: Optional[str] = None
     main_objective: str
     main_competition: Optional[str] = None
     main_competition_date: Optional[str] = None
