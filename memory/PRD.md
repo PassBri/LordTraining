@@ -1,6 +1,9 @@
 # iTRAIN - Plataforma
 
-## [Jun 2026] Landing FASE 2 — Versión C "Futurista" — DONE (screenshot)
+## [Jun 2026] Landing FASE 3 — Versión D "Light" — DONE (screenshot)
+- `landing/landingLight.css` (scoped a `[data-landing-theme="light"]`). Invierte el landing dark→claro: fondos `#FFFFFF`/`#F5F7FA`, texto navy `#0A0F1E`, slate→gris medio `#4A5568`, bordes `#E2E8F0`, cards blancas con sombra suave, CTAs navy con texto `#CCFF00`. Acento lime se reserva a la franja navy (marquee) y CTAs (no como texto sobre blanco). Fix clave: los precios usaban `color:'#fff'` inline → forzados a navy con `[data-testid^="price-"]`. Verificado hero/multi-deporte/marquee/pricing por screenshot. Reseteado a `classic`.
+
+
 - `landing/landingFuturistic.css` (scoped a `[data-landing-theme="futuristic"]`, consume variables de landingThemes.css; NO afecta otras versiones). Importado en LandingPage.js.
 - Hero: título Space Grotesk clamp 60px (sin desbordar la columna del gráfico) + una sola línea animada bajo el headline (`::after` con gradiente `ltLineSweep`). H2 full-width grandes (clamp ~32-48px). Fondos cohesivos `#050A14` (secciones) / surface (cards), bordes 1px de baja opacidad (`var(--border)`), sin glows/sombras (minimalista), nav/marquee/pricing reestilizados, espacios generosos (section padding 6.5rem). Fade-in al scroll ya provisto por el componente `Reveal` existente. Verificado por screenshot (hero + pricing). Tema reseteado a `classic` por defecto.
 

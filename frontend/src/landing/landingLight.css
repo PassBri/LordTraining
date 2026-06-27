@@ -1,0 +1,70 @@
+/* LordTraining — VERSIÓN D "Light" (Notion / Linear light mode).
+   Overrides scoped a [data-landing-theme="light"]. Invierte el landing dark
+   a claro: fondos blanco/#F5F7FA, texto navy, CTA navy con texto #CCFF00,
+   cards con sombra suave y bordes #E2E8F0. No afecta a las otras versiones. */
+
+/* ---- Fondos ---- */
+.lt-theme[data-landing-theme="light"][data-landing-theme] { background-color: #FFFFFF !important; }
+.lt-theme[data-landing-theme="light"] [class*="bg-slate-950"] { background-color: #FFFFFF !important; background-image: none !important; }
+.lt-theme[data-landing-theme="light"] [class*="bg-slate-900"] { background-color: #F5F7FA !important; background-image: none !important; }
+.lt-theme[data-landing-theme="light"] #pricing { background: #F5F7FA !important; }
+.lt-theme[data-landing-theme="light"] [data-testid="marquee-section"] {
+  background: #0A0F1E !important;           /* franja navy: aquí SÍ va el acento #CCFF00 */
+  background-image: none !important;
+  border-top: 1px solid #E2E8F0 !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+}
+.lt-theme[data-landing-theme="light"] [data-testid="main-nav"] {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+}
+
+/* ---- Cards (superficies elevadas) ---- */
+.lt-theme[data-landing-theme="light"] [class*="bg-slate-800"],
+.lt-theme[data-landing-theme="light"] [class*="bg-slate-850"] {
+  background-color: #FFFFFF !important;
+  background-image: none !important;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03) !important;
+  border: 1px solid #E2E8F0 !important;
+}
+
+/* ---- Texto: navy / gris medio ---- */
+.lt-theme[data-landing-theme="light"] [class*="text-white"] { color: #0A0F1E !important; }
+.lt-theme[data-landing-theme="light"] [class*="text-slate-3"],
+.lt-theme[data-landing-theme="light"] [class*="text-slate-4"],
+.lt-theme[data-landing-theme="light"] [class*="text-slate-5"],
+.lt-theme[data-landing-theme="light"] [class*="text-slate-6"] { color: #4A5568 !important; }
+
+/* El acento lime no contrasta sobre blanco → texto resaltado pasa a navy.
+   (El acento #CCFF00 se reserva para la franja navy y los CTA navy). */
+.lt-theme[data-landing-theme="light"] [class*="text-[#CCFF00]"] { color: #0A0F1E !important; }
+/* …pero dentro de la franja navy y de los CTA navy, el acento vuelve a #CCFF00 */
+.lt-theme[data-landing-theme="light"] [data-testid="marquee-section"] [class*="text-[#CCFF00]"],
+.lt-theme[data-landing-theme="light"] [data-testid="marquee-section"] [class*="text-white"] { color: #CCFF00 !important; }
+.lt-theme[data-landing-theme="light"] [data-testid="marquee-section"] [class*="text-slate"] { color: rgba(255,255,255,0.65) !important; }
+
+/* ---- Bordes ---- */
+.lt-theme[data-landing-theme="light"] [class*="border-slate"],
+.lt-theme[data-landing-theme="light"] [class*="border-white"] { border-color: #E2E8F0 !important; }
+
+/* ---- CTAs: navy con texto #CCFF00 ---- */
+.lt-theme[data-landing-theme="light"] button[class*="bg-[#CCFF00]"],
+.lt-theme[data-landing-theme="light"] a[class*="bg-[#CCFF00]"],
+.lt-theme[data-landing-theme="light"] [data-testid="hero-cta-btn"],
+.lt-theme[data-landing-theme="light"] [data-testid="signup-nav-btn"] {
+  background-color: #0A0F1E !important;
+  color: #CCFF00 !important;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08) !important;
+}
+.lt-theme[data-landing-theme="light"] [data-testid="hero-cta-btn"] *,
+.lt-theme[data-landing-theme="light"] [data-testid="signup-nav-btn"] *,
+.lt-theme[data-landing-theme="light"] button[class*="bg-[#CCFF00]"] * { color: #CCFF00 !important; }
+
+/* Botones secundarios (borde) sobre claro */
+.lt-theme[data-landing-theme="light"] [data-testid="hero-secondary-btn"] {
+  background-color: #FFFFFF !important;
+  color: #0A0F1E !important;
+}
+
+/* Precios: usan color inline #fff/lime → forzar navy para contraste en claro */
+.lt-theme[data-landing-theme="light"] [data-testid^="price-"] { color: #0A0F1E !important; }
