@@ -1,0 +1,40 @@
+{
+  "summary": "Holistic backend regression for FASE 1 router refactor (9 grupos extraídos a /app/backend/routes/). Pytest 28/29 PASSED (96.5%). All extracted routers respond correctly with the same routes that previously lived in server.py: auth (still in server.py), plan_data, entities_teams, sports, athletes, tactical_boards, payments, dashboard_panel (including control-panel/export-pdf that internally calls get_control_panel_stats — NO 500), athlete_data (legacy). The full tournament happy path also works through bracket generation, score update (which triggers update_standings) and standings — but the FINAL step GET /api/tournaments/{id}/export-pdf returns 500 because matches with None participant names crash in routes/tournaments.py line 814/816. Note: the review request used some imprecise URLs (e.g. POST /api/plan-data/competitions/{plan_id}, /api/tournaments/{id}/register, /api/tournaments/{id}/generate-bracket, /api/tournaments/{id}/standings) — the ACTUAL routes after refactor are POST /api/plan-data/competitions (no plan_id) and /api/tournaments/{id}/categories/{cat_id}/{register|generate-bracket} + /api/tournaments/{id}/standings/{category_id}. The test was adjusted to call the real routes (those routes match what is registered in routes/plan_data.py and routes/tournaments.py).",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "GET /api/tournaments/{tournament_id}/export-pdf",
+        "issue": "500 TypeError: 'NoneType' object is not subscriptable at routes/tournaments.py:814 and :816. `m.get('participant1_name', 'TBD')[:15]` and `m.get('participant2_name', 'TBD')[:15]` crash when the field exists but is None (byes / not-yet-played matches with placeholders). Reproduce: create tournament with 4 teams, generate bracket, complete only one match -> the final-round match has participant1/2 = None -> export-pdf 500.",
+        "priority": "HIGH"
+      }
+    ],
+    "minor": []
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_refactor_regression.py",
+    "/app/test_reports/pytest/refactor_regression.xml"
+  ],
+  "action_items": [
+    "Fix routes/tournaments.py lines 814 & 816: replace `m.get('participant1_name', 'TBD')[:15]` with `(m.get('participant1_name') or 'TBD')[:15]` (and same for participant2_name). dict.get default only fires on missing keys, not on None values. This is the only regression-equivalent failure in the refactor smoke test.",
+    "(Optional doc fix) Review request listed wrong URLs for plan-data/competitions POST and several tournament sub-routes. Update PRD/specs so future tests use POST /api/plan-data/competitions (body carries plan_id) and /api/tournaments/{id}/categories/{cat_id}/{register,generate-bracket} + /api/tournaments/{id}/standings/{category_id}."
+  ],
+  "critical_code_review_comments": [
+    "routes/tournaments.py:814,816 — `dict.get(key, default)[:15]` is unsafe when value can be None. Same anti-pattern should be audited across the file: any `m.get(x, default)[...]` or string operation on a possibly-None field is a latent 500.",
+    "routes/tournaments.py is large (~849 lines). For a FASE 1 split it is acceptable but the file mixes CRUD, bracket generation, standings updates and PDF export — consider further splitting export_tournament_pdf into a /routes/tournaments_pdf.py in FASE 2 for testability.",
+    "routes/payments.py:38 — `create_checkout` requires `origin_url` in body (Pydantic-required) BEFORE the free-plan 400 check. That means clients sending `{plan: 'free'}` without origin_url get 422, not 400. Not a regression (was the same in server.py), but worth normalising into a single 400 'Cannot checkout free plan' regardless of origin_url presence.",
+    "routes/plan_data.py POST `/plan-data/competitions` has no plan_id in the URL while GET/PUT/DELETE for the same resource do — slightly inconsistent. Consider POST `/plan-data/competitions/{plan_id}` to match the GET path (would require a router and frontend change, so flag only).",
+    "All extracted routers correctly use `request.app.state.db` via `get_db` and a local `get_current_user` JWT dependency — DI is clean and the existing /api prefix is preserved everywhere. Good refactor.",
+    "Login still returns the legacy key `token` (not `access_token`) — keep the contract or do a coordinated rename across frontend (`localStorage.access_token` vs `token` consumers) in a future iteration."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_refactor_regression.py (NEW — holistic regression suite for the FASE 1 router split)"
+  ],
+  "success_rate": {"backend": "96.5% (28/29)", "frontend": "skipped (backend-only run)"},
+  "test_credentials": "Coach: test@train.com / test123456 (login JSON key = 'token').",
+  "seed_data_creation": "Per-test transient data only: 1 plan_competition doc with TEST_ prefix, 1 plan_objectives doc, 1 team (created+deleted), 1 tactical board (created+deleted), 1 training_methods upsert for the coach, 1 tournament with 1 category and 4 TEST_Team_ participants + 2 semifinal matches + 1 completed score update. TestZzzCleanup deleted tournaments/teams/boards at the end (best-effort). The training_methods doc for test@train.com is left in place (upserted by user_id).",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Run `pytest /app/backend/tests/test_refactor_regression.py -v` against the preview URL to retest. The ONE remaining failure (tournament PDF) is a None-handling bug in routes/tournaments.py:814,816 — once main agent applies `(m.get('participant_X_name') or 'TBD')[:15]`, all 29 tests should pass. Real route paths to use (review request had typos): POST /api/plan-data/competitions (body has plan_id, name, date, priority); POST /api/tournaments/{id}/categories/{cat_id}/register; POST /api/tournaments/{id}/categories/{cat_id}/generate-bracket; GET /api/tournaments/{id}/standings/{cat_id}.",
+  "rca_of_the_issue": "RCA for the export-pdf 500: In routes/tournaments.py at lines 814 and 816 the code does `m.get('participant1_name', 'TBD')[:15]` and `m.get('participant2_name', 'TBD')[:15]`. dict.get's default value only fires when the KEY is missing — it does NOT fire when the value is None. When the bracket has a future-round match whose participants haven't been resolved yet (e.g. only 1 of 2 semifinals completed in a 4-team single-elimination bracket), the final-round match document is persisted with participant1_name=None / participant2_name=None, so the slice [:15] raises TypeError: 'NoneType' object is not subscriptable. Mitigation: `(m.get('participant1_name') or 'TBD')[:15]` and same for participant2_name. This is a 2-line fix. Same anti-pattern should be audited across the file."
+}

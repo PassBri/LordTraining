@@ -746,3 +746,70 @@ class LoadCalculationResponse(BaseModel):
     result: Dict[str, Any]
     formula_used: str
     explanation: str
+
+
+# =============== SUBSCRIPTION CONFIG (extraído de server.py) ===============
+SUBSCRIPTION_PRICES = {
+    SubscriptionPlan.STARTER: 9.99,
+    SubscriptionPlan.BASIC: 19.99,      # Pro — Entrenador
+    SubscriptionPlan.PRO: 49.99,        # Club / Academia
+    SubscriptionPlan.ENTERPRISE: 149.99 # Institucional
+}
+
+SUBSCRIPTION_LIMITS = {
+    SubscriptionPlan.FREE: {"athletes": 3, "plans": 1, "ai_generations": 3, "pdf_exports": 10},
+    SubscriptionPlan.STARTER: {"athletes": 5, "plans": 2, "ai_generations": 10, "pdf_exports": 50},
+    SubscriptionPlan.BASIC: {"athletes": 20, "plans": 999, "ai_generations": 50, "pdf_exports": 999},
+    SubscriptionPlan.PRO: {"athletes": 999, "plans": 999, "ai_generations": 150, "pdf_exports": 999},
+    SubscriptionPlan.ENTERPRISE: {"athletes": 999, "plans": 999, "ai_generations": 999, "pdf_exports": 999}
+}
+
+# Plan rank for "minimum tier" feature gating
+PLAN_RANK = {
+    SubscriptionPlan.FREE: 0,
+    SubscriptionPlan.STARTER: 1,
+    SubscriptionPlan.BASIC: 2,       # Pro
+    SubscriptionPlan.PRO: 3,         # Club / Academia
+    SubscriptionPlan.ENTERPRISE: 4   # Institucional
+}
+
+# Each feature mapped to its minimum required plan
+FEATURE_MIN_PLAN = {
+    # Starter+
+    "exercise_library_full": SubscriptionPlan.STARTER,
+    "pdf_export_basic": SubscriptionPlan.STARTER,
+    "diagnostics_basic": SubscriptionPlan.STARTER,
+    # Pro (BASIC) +
+    "tactical_board": SubscriptionPlan.BASIC,
+    "calendar": SubscriptionPlan.BASIC,
+    "pdf_excel_export": SubscriptionPlan.BASIC,
+    "diagnostics_full": SubscriptionPlan.BASIC,
+    "email_support": SubscriptionPlan.BASIC,
+    "unlimited_plans": SubscriptionPlan.BASIC,
+    # Club (PRO) +
+    "atr_periodization": SubscriptionPlan.PRO,
+    "advanced_models": SubscriptionPlan.PRO,
+    "template_customization": SubscriptionPlan.PRO,
+    "priority_support": SubscriptionPlan.PRO,
+    "exercise_diagrams": SubscriptionPlan.PRO,
+    "unlimited_athletes": SubscriptionPlan.PRO,
+    # Institutional (ENTERPRISE) only
+    "multi_coach": SubscriptionPlan.ENTERPRISE,
+    "coordination_panel": SubscriptionPlan.ENTERPRISE,
+    "group_analytics": SubscriptionPlan.ENTERPRISE,
+    "custom_api": SubscriptionPlan.ENTERPRISE,
+    "training_included": SubscriptionPlan.ENTERPRISE,
+    "support_24_7": SubscriptionPlan.ENTERPRISE,
+    "dedicated_onboarding": SubscriptionPlan.ENTERPRISE,
+    "unlimited_ai": SubscriptionPlan.ENTERPRISE,
+    "org_management": SubscriptionPlan.PRO,  # Club+ pueden tener organización con coaches
+}
+
+
+class ExportPDFRequest(BaseModel):
+    include_summary: bool = True
+    include_volume_chart: bool = True
+    include_intensity_chart: bool = True
+    include_calendar: bool = True
+    athlete_id: Optional[str] = None
+    custom_sections: Optional[List[str]] = None
