@@ -6,6 +6,7 @@ import { Input } from './ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
 import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
+import AthleteRanking from './AthleteRanking';
 import { 
   Users, Calendar, Target, Activity, Dumbbell, TrendingUp, 
   BarChart3, Heart, Zap, ArrowUpRight, ArrowDownRight,
@@ -99,7 +100,8 @@ const ControlPanel = ({
   onCreateEvent,
   onCreateMacrocycle,
   activePlan = null,
-  trainingPlans = []
+  trainingPlans = [],
+  globalContext = null
 }) => {
   const { t, i18n } = useTranslation();
   const [volumeData, setVolumeData] = useState([]);
@@ -1517,6 +1519,9 @@ const ControlPanel = ({
 
         {/* Row 3.5: Métricas Avanzadas — ACWR + Adherencia + Baja disponibilidad */}
         <AdvancedMetrics metrics={coachMetrics} onNavigate={onNavigate} />
+
+        {/* Row 3.6: Ranking / comparativa de atletas */}
+        <AthleteRanking globalContext={globalContext} />
 
         {/* Row 4: Zonas de Entrenamiento + Mini Calendario */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">

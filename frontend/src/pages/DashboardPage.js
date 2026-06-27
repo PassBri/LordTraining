@@ -4034,6 +4034,7 @@ const DashboardPage = () => {
         onNavigate={handleNavigateFromPanel}
         activePlan={activePlan}
         trainingPlans={trainingPlans}
+        globalContext={globalContext}
       />
     );
   };

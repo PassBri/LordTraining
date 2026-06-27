@@ -1,5 +1,10 @@
 # iTRAIN - Plataforma
 
+## [Jun 2026] Ranking / comparativa de atletas en Panel del coach — VERIFICADO
+- **Backend** `routes/coach_ranking.py` (registrado /api): `GET /api/coach/athlete-ranking?team_id=&federation=&club=`. Combina por atleta: `readiness` (último `athlete_readiness.overall` 0–100) + `evaluation_avg` (promedio de global_pct de `plan_evaluations_v2`). Score = promedio de señales disponibles; ordena desc (atletas con datos primero, rank 1..n).
+- **Frontend** `components/AthleteRanking.js` montado en `ControlPanel` (Panel del coach, tras AdvancedMetrics). Top-3 con medallas, barras comparativas escaladas, badge de score con color, breakdown R/E, y pestañas ordenables Score/Readiness/Eval. (`ranking-sort-*`). Filtra por contexto global (entidad/equipo) → params federation/club/team_id. i18n vía defaultValue (ES) + traductor DOM.
+- Verificado con datos sembrados: Juan 88 > Carlos 64 > Luis 40; orden por Score/Readiness funciona.
+
 ## [Jun 2026] B3+ redistribución proporcional + banner de conflicto en Periodización — VERIFICADO
 - **B3+**: `handleAutoAdjustDuration` (GraphicPlan.js) ahora redistribuye proporcionalmente al cambiar nº de semanas vía `remapWeekKeys(obj, oldTotal, newTotal, sep)`: aplica a load_chart, volint_chart, preparation, physical, volume, intensity, duration_chart, volume_values (sep '_') y manual_cells (sep ':'). Verificado: sem 5→8, 11→18 (11→18 semanas).
 - **Banner en Periodización**: `PeriodizationComplete.js` `renderPlanDetail` muestra el mismo banner de conflicto (data-testid `periodization-date-conflict`) usando start_date/main_competition_date/total_weeks del plan. Verificado en vista Estructura ("competencia fuera del plan, semana 18 > 11"). Reusa las i18n keys graphicPlan.conflicto_*.
