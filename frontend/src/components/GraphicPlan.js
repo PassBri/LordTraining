@@ -55,6 +55,29 @@ const CYCLE_DURATIONS = {
   quarter: { label: 'Trimestral (3 meses)', weeks: 12, months: 3 }
 };
 
+// ── Feature A: unidades de medida del Volumen por fila/capacidad ──
+// Set completo de unidades disponibles para todas las filas.
+const VOLUME_UNITS = [
+  { id: 'pct', label: '%', suffix: '%' },
+  { id: 'km', label: 'Kilómetros (km)', suffix: 'km' },
+  { id: 'm', label: 'Metros (m)', suffix: 'm' },
+  { id: 'min', label: 'Minutos (min)', suffix: 'min' },
+  { id: 'h', label: 'Horas (h)', suffix: 'h' },
+  { id: 'ton', label: 'Tonelaje (kg)', suffix: 'kg' },
+  { id: 'reps', label: 'Series·Reps', suffix: 'reps' },
+];
+const UNIT_SUFFIX = VOLUME_UNITS.reduce((acc, u) => { acc[u.id] = u.suffix; return acc; }, {});
+// Unidad sugerida por defecto según la capacidad (el set completo sigue disponible).
+const CAPACITY_DEFAULT_UNIT = {
+  volumen: 'pct',
+  endurance: 'km',
+  strength: 'ton',
+  speed: 'm',
+  coordination: 'pct',
+  flexibility: 'pct',
+};
+
+
 // Intensity levels
 const INTENSITY_LEVELS = [
   { id: 'very_high', label: 'Muy alta', range: '98%-100%', color: 'bg-red-600', volumeLabel: 'Máximo' },
@@ -201,8 +224,14 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     // Manual chart overrides (0-5 scale, clickable)
     load_chart: {},
     volint_chart: {},
-    duration_chart: {}
+    duration_chart: {},
+    // Per-row volume unit preferences { rowId: { unit, mode } } + real values { rowId_week: number }
+    volume_units: {},
+    volume_values: {}
   });
+
+  // Inline edit state for value-mode cells { rowId, week }
+  const [editingCell, setEditingCell] = useState(null);
 
   // Import periodization data when available
   const importPeriodizationData = useCallback((macrocycle) => {
@@ -1113,6 +1142,54 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
   };
 
   // Cell click handler
+  // ── Feature A helpers: unidades del Volumen por fila ──
+  const getUnitCfg = (rowId) => {
+    const fallback = { unit: CAPACITY_DEFAULT_UNIT[rowId] || 'pct', mode: 'label' };
+    return { ...fallback, ...(planData.volume_units?.[rowId] || {}) };
+  };
+  const setUnitCfg = (rowId, patch) => {
+    setPlanData(prev => ({
+      ...prev,
+      volume_units: {
+        ...(prev.volume_units || {}),
+        [rowId]: { ...{ unit: CAPACITY_DEFAULT_UNIT[rowId] || 'pct', mode: 'label' }, ...(prev.volume_units?.[rowId] || {}), ...patch },
+      },
+    }));
+  };
+  const getRealValue = (rowId, week) => {
+    const v = planData.volume_values?.[`${rowId}_${week}`];
+    return (v === undefined || v === null || v === '') ? null : Number(v);
+  };
+  const setRealValue = (rowId, week, val) => {
+    setPlanData(prev => {
+      const vv = { ...(prev.volume_values || {}) };
+      if (val === '' || val === null || val === undefined || isNaN(Number(val))) delete vv[`${rowId}_${week}`];
+      else vv[`${rowId}_${week}`] = Number(val);
+      return { ...prev, volume_values: vv };
+    });
+  };
+
+  // Adaptar datos de gráficas grandes/PDF: en filas en modo "valor real" usar el valor real.
+  const _adaptChartForUnits = (fullData, weekList, rowIds) => {
+    if (!rowIds.some(id => getUnitCfg(id).mode === 'value')) return fullData;
+    return fullData.map((row, idx) => {
+      const week = weekList[idx];
+      const out = { ...row };
+      rowIds.forEach(id => { if (getUnitCfg(id).mode === 'value') out[id] = getRealValue(id, week) || 0; });
+      return out;
+    });
+  };
+  const _adaptDataKeys = (baseKeys) => baseKeys.map(k => {
+    const cfg = getUnitCfg(k.key);
+    if (cfg.mode === 'value' && cfg.unit !== 'pct') {
+      return { ...k, name: `${k.name.replace(/\s*%$/, '')} (${UNIT_SUFFIX[cfg.unit]})` };
+    }
+    return k;
+  });
+  const VOLINT_UNIT_ROWS = ['volumen'];
+  const PHYS_UNIT_ROWS = ['endurance', 'strength', 'speed', 'coordination', 'flexibility'];
+  const anyValueMode = (rowIds) => rowIds.some(id => getUnitCfg(id).mode === 'value');
+
   const handleCellClick = (section, rowId, weekIndex) => {
     setPlanData(prev => {
       const sectionData = { ...prev[section] };
@@ -1238,16 +1315,77 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
   };
 
   // ═══ INLINE CHART ROW: Proportional bars perfectly aligned with week columns ═══
-  const InlineChartRow = ({ label, data, dataKey, color, maxVal = 100, rowHeight = 40, onCellClick, section }) => {
+  const InlineChartRow = ({ label, data, dataKey, color, maxVal = 100, rowHeight = 40, onCellClick, section, enableUnits = false }) => {
+    const rowId = dataKey;
+    const cfg = enableUnits ? getUnitCfg(rowId) : null;
+    const isValueMode = enableUnits && cfg?.mode === 'value';
+    const suffix = enableUnits ? (UNIT_SUFFIX[cfg.unit] || '') : '';
+    // En modo "valor real" la barra se escala al máximo real de la fila.
+    const realVals = isValueMode ? displayedWeeks.map(w => getRealValue(rowId, w) || 0) : [];
+    const realMax = isValueMode ? Math.max(1, ...realVals) : 1;
     return (
       <tr>
         <td className="sticky left-0 bg-gray-50 px-2 py-0 text-[10px] border border-gray-300 z-10" style={{ width: 160 }}>
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-sm flex-shrink-0" style={{ backgroundColor: color }} />
-            <span className="truncate">{label}</span>
+            <span className="truncate flex-1">{label}{enableUnits && cfg.unit !== 'pct' ? ` (${suffix})` : ''}</span>
+            {enableUnits && (
+              <div className="flex items-center gap-0.5 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                <Select value={cfg.unit} onValueChange={(v) => setUnitCfg(rowId, { unit: v })}>
+                  <SelectTrigger className="h-5 px-1 text-[9px] w-[58px] border-gray-300" data-testid={`unit-select-${rowId}`}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {VOLUME_UNITS.map(u => (
+                      <SelectItem key={u.id} value={u.id} className="text-xs">{u.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <button
+                  type="button"
+                  onClick={() => setUnitCfg(rowId, { mode: isValueMode ? 'label' : 'value' })}
+                  title={isValueMode ? 'Modo: valor real (clic para escala 1–10)' : 'Modo: escala 1–10 (clic para valor real)'}
+                  data-testid={`unit-mode-${rowId}`}
+                  className={`h-5 w-5 rounded text-[9px] font-bold flex items-center justify-center border ${isValueMode ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-gray-500 border-gray-300'}`}
+                >
+                  {isValueMode ? '#' : '~'}
+                </button>
+              </div>
+            )}
           </div>
         </td>
         {displayedWeeks.map((week, i) => {
+          if (isValueMode) {
+            const rv = getRealValue(rowId, week);
+            const isEditing = editingCell && editingCell.rowId === rowId && editingCell.week === week;
+            const barH = rv ? Math.max(2, (rv / realMax) * (rowHeight - 6)) : 0;
+            return (
+              <td key={`${dataKey}-${week}`}
+                className="border border-gray-200 p-0 relative cursor-text hover:bg-emerald-50"
+                style={{ height: rowHeight }}
+                onClick={() => setEditingCell({ rowId, week })}
+                data-testid={`chart-${dataKey}-${week}`}>
+                {isEditing ? (
+                  <input
+                    type="number"
+                    autoFocus
+                    defaultValue={rv ?? ''}
+                    onBlur={(e) => { setRealValue(rowId, week, e.target.value); setEditingCell(null); }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { setRealValue(rowId, week, e.target.value); setEditingCell(null); } if (e.key === 'Escape') setEditingCell(null); }}
+                    className="absolute inset-0 w-full h-full text-center text-[9px] outline-none border-2 border-emerald-500 z-10"
+                    data-testid={`chart-input-${dataKey}-${week}`}
+                  />
+                ) : rv != null ? (
+                  <>
+                    <div className="absolute bottom-0 left-[1px] right-[1px] rounded-t-sm transition-all" style={{ height: barH, backgroundColor: color, opacity: 0.8 }} />
+                    <span className="absolute top-[1px] left-0 right-0 text-center text-[7px] font-bold leading-none" style={{ color }}>{rv}</span>
+                  </>
+                ) : (
+                  <span className="absolute inset-0 flex items-center justify-center text-[8px] text-gray-300">+</span>
+                )}
+              </td>
+            );
+          }
           const weekData = data[i];
           const value = weekData?.[dataKey] || 0;
           const effectiveMax = maxVal === 'auto' ? Math.max(1, ...data.map(d => d?.[dataKey] || 0)) : maxVal;
@@ -1920,16 +2058,16 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                   chartConfig={{
                     title: 'Volumen, Intensidad y Densidad',
                     icon: TrendingUp,
-                    data: volumeIntensityChartDataFull,
-                    dataKeys: [
+                    data: _adaptChartForUnits(volumeIntensityChartDataFull, weeks, VOLINT_UNIT_ROWS),
+                    dataKeys: _adaptDataKeys([
                       { key: 'volumen', name: 'Volumen %', color: '#22C55E' },
                       { key: 'intensidad', name: 'Intensidad %', color: '#EF4444' }
-                    ],
+                    ]),
                     chartType: 'line',
-                    yAxisDomain: [0, 100]
+                    yAxisDomain: anyValueMode(VOLINT_UNIT_ROWS) ? [0, 'auto'] : [0, 100]
                   }}
                 />
-                <InlineChartRow label="Volumen %" data={volumeIntensityChartData} dataKey="volumen" color="#22C55E" maxVal={100} onCellClick={handleCellClick} section="volint_chart" />
+                <InlineChartRow label="Volumen %" data={volumeIntensityChartData} dataKey="volumen" color="#22C55E" maxVal={100} onCellClick={handleCellClick} section="volint_chart" enableUnits />
                 <InlineChartRow label="Intensidad %" data={volumeIntensityChartData} dataKey="intensidad" color="#EF4444" maxVal={100} onCellClick={handleCellClick} section="volint_chart" />
 
                 {/* CHART 2: Preparación por Componentes */}
@@ -1970,23 +2108,23 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                   chartConfig={{
                     title: 'Preparacion Fisica por Capacidades',
                     icon: Heart,
-                    data: physicalChartDataFull,
-                    dataKeys: [
+                    data: _adaptChartForUnits(physicalChartDataFull, weeks, PHYS_UNIT_ROWS),
+                    dataKeys: _adaptDataKeys([
                       { key: 'endurance', name: 'Resistencia', color: '#DC2626' },
                       { key: 'strength', name: 'Fuerza', color: '#EA580C' },
                       { key: 'speed', name: 'Velocidad', color: '#CA8A04' },
                       { key: 'coordination', name: 'Coordinación', color: '#16A34A' },
                       { key: 'flexibility', name: 'Flexibilidad', color: '#3B82F6' }
-                    ],
+                    ]),
                     chartType: 'line',
-                    yAxisDomain: [0, 100]
+                    yAxisDomain: anyValueMode(PHYS_UNIT_ROWS) ? [0, 'auto'] : [0, 100]
                   }}
                 />
-                <InlineChartRow label="Resistencia" data={physicalChartData} dataKey="endurance" color="#DC2626" maxVal={100} onCellClick={handleCellClick} section="physical" />
-                <InlineChartRow label="Fuerza" data={physicalChartData} dataKey="strength" color="#EA580C" maxVal={100} onCellClick={handleCellClick} section="physical" />
-                <InlineChartRow label="Velocidad" data={physicalChartData} dataKey="speed" color="#CA8A04" maxVal={100} onCellClick={handleCellClick} section="physical" />
-                <InlineChartRow label="Coordinación" data={physicalChartData} dataKey="coordination" color="#16A34A" maxVal={100} onCellClick={handleCellClick} section="physical" />
-                <InlineChartRow label="Flexibilidad" data={physicalChartData} dataKey="flexibility" color="#3B82F6" maxVal={100} onCellClick={handleCellClick} section="physical" />
+                <InlineChartRow label="Resistencia" data={physicalChartData} dataKey="endurance" color="#DC2626" maxVal={100} onCellClick={handleCellClick} section="physical" enableUnits />
+                <InlineChartRow label="Fuerza" data={physicalChartData} dataKey="strength" color="#EA580C" maxVal={100} onCellClick={handleCellClick} section="physical" enableUnits />
+                <InlineChartRow label="Velocidad" data={physicalChartData} dataKey="speed" color="#CA8A04" maxVal={100} onCellClick={handleCellClick} section="physical" enableUnits />
+                <InlineChartRow label="Coordinación" data={physicalChartData} dataKey="coordination" color="#16A34A" maxVal={100} onCellClick={handleCellClick} section="physical" enableUnits />
+                <InlineChartRow label="Flexibilidad" data={physicalChartData} dataKey="flexibility" color="#3B82F6" maxVal={100} onCellClick={handleCellClick} section="physical" enableUnits />
 
                 {/* CHART 4: Duración y Actividad Semanal */}
                 <ChartSectionHeader

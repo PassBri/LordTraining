@@ -1,5 +1,12 @@
 # iTRAIN - Plataforma
 
+## [Jun 2026] FEATURE A — Selector de unidad del Volumen por fila/capacidad (Plan Gráfico) — VERIFICADO
+- En `GraphicPlan.js`: cada fila objetivo tiene selector de **unidad** (%, km, m, min, h, tonelaje kg, series·reps) + toggle de **modo** (`label` escala 1–10 / `value` valor real). Aplica a: fila "Volumen %" (section volint_chart, key `volumen`) y a las 5 capacidades físicas (endurance/strength/speed/coordination/flexibility).
+- Defaults sugeridos por capacidad (`CAPACITY_DEFAULT_UNIT`): Resistencia→km, Fuerza→tonelaje, Velocidad→m, Coordinación→%, Flexibilidad→%, Volumen→%. Set completo disponible para todas.
+- **Modo label**: mantiene escala 1–10; muestra la unidad en el rótulo de la fila. **Modo value**: celdas editables (input numérico inline, estado `editingCell`), barras auto-escaladas al máximo real de la fila; valores reales en `planData.volume_values[`${rowId}_${week}`]`.
+- Gráficas grandes/PDF adaptadas: `_adaptChartForUnits` inyecta valores reales y `_adaptDataKeys` añade sufijo de unidad al nombre de serie; `yAxisDomain` pasa a `[0,'auto']` si hay modo value.
+- **Persistencia por plan/atleta** en `planData.volume_units` + `planData.volume_values` (colección `graphic_plans` vía `POST/GET /api/graphic-plan` — SIN cambios de backend, planData es Dict[str,Any]). Round-trip API verificado (POST 200 → GET devuelve los datos). 6 selectores renderizados y modo value editable verificados por screenshot.
+
 ## [Jun 2026] FASE 2 refactor (hooks) + i18n Evaluación + Toggle ícono + Scouting en sidebar Pro — VERIFICADO
 - **FASE 2 (extracción de hooks de `DashboardPage.js`)**: creados 4 custom hooks que reducen ~360 líneas del monolito y consumidos destructurando los MISMOS nombres (JSX intacto):
   - `hooks/useGlobalContext.js` (filtros barra superior entidad/equipo/atleta/deporte + persistencia + filteredTeams/filteredAthletes).
