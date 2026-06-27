@@ -1,7 +1,7 @@
 // MÓDULOS 1 (Planificación estructural) + 10 (Periodización avanzada)
 import React, { useState, useMemo } from 'react';
 import { Calendar, Layers, Activity, Clock, Repeat, RotateCw, Target, GitBranch } from 'lucide-react';
-import { CalcCard, Field, Select, BigResult, MiniStat, num, fmt } from './CalcShared';
+import { CalcCard, Field, Select, BigResult, MiniStat, useCalcT, num, fmt } from './CalcShared';
 
 // ========= MÓDULO 1 — PLANIFICACIÓN ESTRUCTURAL =========
 
@@ -206,6 +206,7 @@ export const CalcSession = () => {
 // ========= MÓDULO 10 — PERIODIZACIÓN AVANZADA =========
 
 export const GenLinear = () => {
+  const tc = useCalcT();
   const [weeks, setWeeks] = useState(12);
   const [startVol, setStartVol] = useState(100);
   const [startInt, setStartInt] = useState(60);
@@ -228,9 +229,9 @@ export const GenLinear = () => {
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead><tr className="border-b border-slate-200">
-            <th className="text-left p-1 font-bold text-slate-500">Sem</th>
-            <th className="text-right p-1 font-bold text-blue-500">Vol %</th>
-            <th className="text-right p-1 font-bold text-red-500">Int %</th>
+            <th className="text-left p-1 font-bold text-slate-500">{tc('Sem')}</th>
+            <th className="text-right p-1 font-bold text-blue-500">{tc('Vol %')}</th>
+            <th className="text-right p-1 font-bold text-red-500">{tc('Int %')}</th>
           </tr></thead>
           <tbody>
             {grid.map(r => (
@@ -275,6 +276,7 @@ export const GenDUP = () => {
 };
 
 export const GenBlocks = () => {
+  const tc = useCalcT();
   const [weeks, setWeeks] = useState(12);
   const w = num(weeks);
   const fases = [
@@ -289,10 +291,10 @@ export const GenBlocks = () => {
         {fases.map(f => (
           <div key={f.f} className="rounded-xl p-3" style={{ background: `${f.c}15`, borderLeft: `4px solid ${f.c}` }}>
             <div className="flex items-center justify-between">
-              <span className="font-bold text-sm" style={{ color: f.c }}>{f.f}</span>
+              <span className="font-bold text-sm" style={{ color: f.c }}>{tc(f.f)}</span>
               <span className="text-xs font-bold tabular-nums">{f.dur} sem</span>
             </div>
-            <p className="text-[11px] text-slate-600 mt-1">{f.goal}</p>
+            <p className="text-[11px] text-slate-600 mt-1">{tc(f.goal)}</p>
           </div>
         ))}
       </div>
@@ -301,6 +303,7 @@ export const GenBlocks = () => {
 };
 
 export const GenReverse = () => {
+  const tc = useCalcT();
   const [comp, setComp] = useState('2024-12-15');
   const fases = [
     { name: 'Tapering', delta: -2, c: '#10B981', desc: '2 sem antes · descarga 40%' },
@@ -317,9 +320,9 @@ export const GenReverse = () => {
           const d = new Date(cd); d.setDate(d.getDate() + f.delta * 7);
           return (
             <div key={f.name} className="flex items-center gap-2 p-2 rounded-md text-xs" style={{ background: `${f.c}10`, borderLeft: `3px solid ${f.c}` }}>
-              <span className="font-bold w-32" style={{ color: f.c }}>{f.name}</span>
+              <span className="font-bold w-32" style={{ color: f.c }}>{tc(f.name)}</span>
               <span className="font-mono tabular-nums">{d.toISOString().split('T')[0]}</span>
-              <span className="flex-1 text-slate-600 text-[10px]">{f.desc}</span>
+              <span className="flex-1 text-slate-600 text-[10px]">{tc(f.desc)}</span>
             </div>
           );
         })}

@@ -9,14 +9,20 @@
 - **Claves nuevas traducidas a 12 idiomas** vía 4 specs: i18n_sessions_gap_spec, i18n_sessions_toasts_spec, i18n_period_gap_spec, i18n_period_micro_spec. Todos los locales válidos.
 - **Pendiente (data-driven, NO UI)**: nombres de micro/sesión/tipo de sesión ("Semana 1"/"Sesión 1"/"general") y nombres de fase/macro ("Preparatorio General/Precompetitivo") vienen del backend — requieren mapa de override por fase si se quiere localizar.
 
-## [Jun 2026] i18n FASE D — EN PROGRESO
-- **CalculatorsHub.js COMPLETADO** (namespace nuevo `calculators`, 30 claves × 12 idiomas): los 10 títulos+descripciones de módulos (resueltos por id vía `t('calculators.mod_<id>_title/_desc')`), hub hero (título/subtítulo/descripción), "Modules"/"Saved results", "MODULE {{n}}", "{{n}} calc.", toggle de historial. Verificado por screenshot en EN (hub completo).
-- **PENDIENTE (próximos lotes, i18n desde cero — ninguno tiene useTranslation aún)**:
-  - Internos de calculadoras: `Module1_10.js` (378), `Module2_5_6.js` (333), `Module3_4_7_8_9.js` (481), `CalcSaveBar.js` (233). Las cadenas viven como props (`title=`, `subtitle=`, `label=`, `unit=`) que se pasan a `CalcShared` (CalcCard/Field/Select/BigResult/MiniStat). Cientos de labels.
-  - `pages/SuperAdminPage.js` (906) — finanzas/admin.
-  - `components/MasterReportModal.js` (857) — reportes.
-  - `components/ScoutingModule.js` (1110) + ScoutingContacts/Map/Alerts.
-- **Estrategia**: un módulo por lote (audit/extracción manual de props → spec es/en → i18n_tools.py translate → reemplazos t() → verificar). Validar exit codes por presupuesto LLM.
+## [Jun 2026] i18n FASE D — Calculadoras COMPLETADO (10/12 idiomas) — VERIFICADO EN
+- **CalculatorsHub.js COMPLETADO** (namespace `calculators`, 12 idiomas): títulos+descripciones de módulos (por id), hub hero, Modules/Saved results, MODULE {{n}}, calc. Verificado.
+- **Internos de calculadoras COMPLETADO** vía auto-traducción:
+  - `CalcShared.js` exporta `useCalcT()` → helper `tc(raw)` slug-based (`calculators.lbl.<slug>`, fallback al original). CalcCard/Field/Select/BigResult/MiniStat auto-traducen sus props (title/subtitle/label/unit/sub/placeholder/badge/option.label) → ~500 cadenas SIN editar cada calculadora.
+  - Render directos envueltos con `tc`: Module2_5_6 `z.goal`; Module1_10 `th` (Sem/Vol%/Int%), GenBlocks `f.f`/`f.goal`, GenReverse `f.name`/`f.desc`; Module3 `z.label`, Monotonía 'Cargas (7d)'/placeholder.
+  - `CalcSaveBar.js`: i18n con `t()` (23 claves, 12 idiomas) — Save to athlete, diálogo, historial, toasts. Verificado EN.
+- **Mapa `calculators.lbl`** (494 slugs) vía `/app/backend/i18n_calc_labels.py` (extracción comprehensiva: props + goal/name + literales de ternarios + texto JSX directo):
+  - ✅ Completo (494): es, en, pt, ar, hi, id, fr, de, ja, ru
+  - ⚠️ ko: parcial (~340) · zh: 0 (fallback a español)
+  - **ACCIÓN PENDIENTE (tras recargar budget LLM)**: re-ejecutar `python3 /app/backend/i18n_calc_labels.py` (idempotente) para completar ko y zh. El budget se agotó en este lote grande.
+- **Long-tail menor restante**: labels dinámicos por template (`SEM ${i}`, "Microciclo ${tipo}...") computados en runtime → requieren pequeño refactor para localizar.
+
+## [Jun 2026] i18n FASE D — PENDIENTE (próximos lotes)
+- `pages/SuperAdminPage.js` (906) · `components/MasterReportModal.js` (857) · `components/ScoutingModule.js` (1110) + Contacts/Map/Alerts. Flujo: spec es/en → `i18n_tools.py translate` → `t()`.
 
 
 

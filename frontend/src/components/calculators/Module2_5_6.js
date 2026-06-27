@@ -1,7 +1,7 @@
 // MÓDULOS 2 (Carga y Fuerza), 5 (Biomecánica), 6 (Tests)
 import React, { useState, useMemo } from 'react';
 import { Dumbbell, Zap, Activity, Target, Award, Gauge, TrendingUp, Trophy, Layers } from 'lucide-react';
-import { CalcCard, Field, Select, BigResult, MiniStat, num, round, fmt } from './CalcShared';
+import { CalcCard, Field, Select, BigResult, MiniStat, useCalcT, num, round, fmt } from './CalcShared';
 
 // ========= MÓDULO 2 =========
 
@@ -48,6 +48,7 @@ export const Calc1RM = () => {
 
 // %1RM → Zonas
 export const CalcPercentage1RM = () => {
+  const tc = useCalcT();
   const [oneRM, setOneRM] = useState(100);
   const w = num(oneRM);
   const zones = [
@@ -67,7 +68,7 @@ export const CalcPercentage1RM = () => {
           return (
             <div key={z.range} className="flex items-center gap-2 p-2 rounded-lg" style={{ background: `${z.color}10`, borderLeft: `3px solid ${z.color}` }}>
               <span className="text-xs font-bold tabular-nums" style={{ color: z.color, minWidth: '60px' }}>{z.range}</span>
-              <span className="text-xs flex-1 font-semibold">{z.goal}</span>
+              <span className="text-xs flex-1 font-semibold">{tc(z.goal)}</span>
               <span className="text-xs text-slate-500">{z.reps} reps</span>
               <span className="text-xs font-mono font-bold tabular-nums">{fmt(wLo, 1)}–{fmt(wHi, 1)} kg</span>
             </div>

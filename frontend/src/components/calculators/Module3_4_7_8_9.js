@@ -1,11 +1,12 @@
 // MÓDULOS 3 (Intensidad), 4 (Control de carga), 7 (Antropometría), 8 (Nutrición), 9 (Médico)
 import React, { useState, useMemo } from 'react';
 import { Heart, Activity, Zap, BarChart3, Ruler, Scale, Apple, Droplets, Brain, Bed } from 'lucide-react';
-import { CalcCard, Field, Select, BigResult, MiniStat, num, fmt, round } from './CalcShared';
+import { CalcCard, Field, Select, BigResult, MiniStat, useCalcT, num, fmt, round } from './CalcShared';
 
 // ========= MÓDULO 3 — INTENSIDAD =========
 
 export const CalcHRZones = () => {
+  const tc = useCalcT();
   const [edad, setEdad] = useState(28);
   const [fcrep, setFcrep] = useState(60);
   const [fcmaxReal, setFcmaxReal] = useState('');
@@ -30,7 +31,7 @@ export const CalcHRZones = () => {
           const hi = Math.round(num(fcrep) + reserva * z.hi / 100);
           return (
             <div key={z.label} className="flex items-center gap-2 p-1.5 rounded-md text-xs" style={{ background: `${z.color}10`, borderLeft: `3px solid ${z.color}` }}>
-              <span className="font-bold flex-1" style={{ color: z.color }}>{z.label}</span>
+              <span className="font-bold flex-1" style={{ color: z.color }}>{tc(z.label)}</span>
               <span className="text-slate-500">{z.lo}-{z.hi}%</span>
               <span className="font-mono font-bold tabular-nums">{lo}-{hi} lpm</span>
             </div>
@@ -145,6 +146,7 @@ export const CalcTSB = () => {
 };
 
 export const CalcMonotonia = () => {
+  const tc = useCalcT();
   const [cargas, setCargas] = useState('300,420,380,500,450,200,0');
   const arr = cargas.split(',').map(s => num(s)).filter(v => !isNaN(v));
   const media = arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
@@ -155,9 +157,9 @@ export const CalcMonotonia = () => {
   return (
     <CalcCard title="Monotonía de Foster + Strain" subtitle="Media/SD diaria · Strain = Total × Monotonía" icon={BarChart3} color="#7C3AED" badge="Módulo 4" testid="calc-monotonia">
       <div className="grid grid-cols-3 items-center gap-2">
-        <label className="text-xs font-semibold text-slate-600">Cargas (7d)</label>
+        <label className="text-xs font-semibold text-slate-600">{tc('Cargas (7d)')}</label>
         <textarea value={cargas} onChange={(e) => setCargas(e.target.value)} className="col-span-2 h-16 text-xs border rounded p-2 font-mono"
-          placeholder="separadas por coma" />
+          placeholder={tc('separadas por coma')} />
       </div>
       <div className="grid grid-cols-3 gap-2">
         <MiniStat label="Total" value={fmt(total, 0)} />
