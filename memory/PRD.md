@@ -1,5 +1,9 @@
 # iTRAIN - Plataforma
 
+## [Jun 2026] B3+ redistribución proporcional + banner de conflicto en Periodización — VERIFICADO
+- **B3+**: `handleAutoAdjustDuration` (GraphicPlan.js) ahora redistribuye proporcionalmente al cambiar nº de semanas vía `remapWeekKeys(obj, oldTotal, newTotal, sep)`: aplica a load_chart, volint_chart, preparation, physical, volume, intensity, duration_chart, volume_values (sep '_') y manual_cells (sep ':'). Verificado: sem 5→8, 11→18 (11→18 semanas).
+- **Banner en Periodización**: `PeriodizationComplete.js` `renderPlanDetail` muestra el mismo banner de conflicto (data-testid `periodization-date-conflict`) usando start_date/main_competition_date/total_weeks del plan. Verificado en vista Estructura ("competencia fuera del plan, semana 18 > 11"). Reusa las i18n keys graphicPlan.conflicto_*.
+
 ## [Jun 2026] B3 — Re-sincronización en vivo + alerta de conflicto de fechas — VERIFICADO
 - `GraphicPlan.js`: `totalWeeks` ahora usa `activePlan.total_weeks` (semanas REALES, ya no el bucket 52/26/12) → columnas exactas. `dateConflict` (useMemo) detecta: competencia ≤ inicio (`before_start`), competencia fuera del plan (`outside`, compWeek > totalWeeks) y competencia muy temprana (`too_early`, compWeek < 60%). Banner ámbar `date-conflict-alert` con mensaje + botón **"Ajustar automáticamente"**.
 - `handleAutoAdjustDuration` → `PATCH /api/training-plans/{id}/duration` (endpoint nuevo ligero en training_plans.py: ajusta total_weeks + recalcula end_date, opcional main_competition_date). Tras ajustar, `onPlanUpdated({total_weeks})` actualiza `activePlan` en DashboardPage → el Plan Gráfico recalcula columnas EN VIVO (useMemo) y reubica la competencia. Verificado: 11→18 semanas, 🏆 a la semana 18, alerta se limpia.

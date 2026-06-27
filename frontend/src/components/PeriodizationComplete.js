@@ -2104,6 +2104,32 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
     return (
       <div className="space-y-5">
+        {/* B3: Alerta de conflicto de fechas (visible donde se editan fechas/etapas) */}
+        {(() => {
+          const sd = selectedPlan.startDate || selectedPlan.start_date;
+          const cd = selectedPlan.mainCompetitionDate || selectedPlan.main_competition_date;
+          const tw = selectedPlan.totalWeeks || selectedPlan.total_weeks;
+          if (!sd || !cd || !tw) return null;
+          const s = new Date(sd), c = new Date(cd);
+          if (isNaN(s.getTime()) || isNaN(c.getTime())) return null;
+          let msg = null;
+          if (c <= s) msg = t('graphicPlan.conflicto_competencia_antes_inicio');
+          else {
+            const compWeek = Math.max(1, Math.ceil((c - s) / (1000 * 60 * 60 * 24 * 7)));
+            if (compWeek > tw) msg = `${t('graphicPlan.conflicto_competencia_fuera')} (${t('graphicPlan.semana')} ${compWeek} > ${tw})`;
+            else if (compWeek < Math.ceil(tw * 0.6)) msg = `${t('graphicPlan.conflicto_competencia_temprana')} (${t('graphicPlan.semana')} ${compWeek}/${tw})`;
+          }
+          if (!msg) return null;
+          return (
+            <div className="p-3 rounded-xl border border-amber-300 bg-amber-50 flex items-start gap-3" data-testid="periodization-date-conflict">
+              <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-bold text-amber-800">{t('graphicPlan.conflicto_de_fechas')}</p>
+                <p className="text-xs text-amber-700">{msg}</p>
+              </div>
+            </div>
+          );
+        })()}
         {/* Hero header */}
         <div className="relative bg-slate-900 rounded-2xl overflow-hidden" data-testid="plan-detail-header">
           <div className="absolute inset-0 opacity-[0.06]">

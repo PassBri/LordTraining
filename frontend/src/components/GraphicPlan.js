@@ -770,16 +770,52 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
   }, [activePlan, totalWeeks, t]);
 
   const [adjustingDuration, setAdjustingDuration] = useState(false);
+
+  // Remapea claves por semana (`${id}_${week}` o `${section}:${id}:${week}`) de oldTotal→newTotal proporcionalmente.
+  const remapWeekKeys = (obj, oldTotal, newTotal, sep = '_') => {
+    if (!obj || oldTotal <= 0) return obj || {};
+    const out = {};
+    Object.entries(obj).forEach(([key, val]) => {
+      const idx = key.lastIndexOf(sep);
+      if (idx === -1) { out[key] = val; return; }
+      const prefix = key.slice(0, idx);
+      const wk = parseInt(key.slice(idx + sep.length), 10);
+      if (isNaN(wk)) { out[key] = val; return; }
+      const newWk = Math.max(1, Math.min(newTotal, Math.round(wk * newTotal / oldTotal)));
+      out[`${prefix}${sep}${newWk}`] = val;
+    });
+    return out;
+  };
+
   const handleAutoAdjustDuration = async () => {
     if (!activePlan?.id || !dateConflict?.suggestWeeks) return;
+    const oldTotal = totalWeeks;
+    const newTotal = dateConflict.suggestWeeks;
     setAdjustingDuration(true);
     try {
       const token = localStorage.getItem('train_token');
       await axios.patch(`${BACKEND_URL}/api/training-plans/${activePlan.id}/duration`,
-        { total_weeks: dateConflict.suggestWeeks },
+        { total_weeks: newTotal },
         { headers: { Authorization: `Bearer ${token}` } });
-      toast.success(`${t('graphicPlan.duracion_ajustada')}: ${dateConflict.suggestWeeks} ${t('graphicPlan.semanas')}`);
-      if (onPlanUpdated) onPlanUpdated({ total_weeks: dateConflict.suggestWeeks });
+
+      // Redistribución proporcional de cargas/valores por semana (B3+)
+      if (oldTotal && newTotal && oldTotal !== newTotal) {
+        setPlanData(prev => ({
+          ...prev,
+          load_chart: remapWeekKeys(prev.load_chart, oldTotal, newTotal),
+          volint_chart: remapWeekKeys(prev.volint_chart, oldTotal, newTotal),
+          preparation: remapWeekKeys(prev.preparation, oldTotal, newTotal),
+          physical: remapWeekKeys(prev.physical, oldTotal, newTotal),
+          volume: remapWeekKeys(prev.volume, oldTotal, newTotal),
+          intensity: remapWeekKeys(prev.intensity, oldTotal, newTotal),
+          duration_chart: remapWeekKeys(prev.duration_chart, oldTotal, newTotal),
+          volume_values: remapWeekKeys(prev.volume_values, oldTotal, newTotal),
+          manual_cells: remapWeekKeys(prev.manual_cells, oldTotal, newTotal, ':'),
+        }));
+      }
+
+      toast.success(`${t('graphicPlan.duracion_ajustada')}: ${newTotal} ${t('graphicPlan.semanas')}`);
+      if (onPlanUpdated) onPlanUpdated({ total_weeks: newTotal });
       window.dispatchEvent(new CustomEvent('lordtraining:plan-data-updated', { detail: { plan_id: activePlan.id } }));
     } catch (e) {
       console.error('Error adjusting duration:', e);
