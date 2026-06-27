@@ -1,108 +1,107 @@
 {
-  "project_context": {
-    "domain": "Sports Management SaaS (LordTraining)",
-    "archetype": "2 (Performance Pro) - Tactical, Elite Athleticism, High Contrast",
-    "theme": "dark",
-    "core_problem": "Navigation cognitive overload, unrecognizable active states, microscopic text (8px), flat visual hierarchy combining 3 distinct levels of navigation into one row of circles."
+  "theme": {
+    "archetype": "2 (Performance Pro)",
+    "domain": "Sports, Fitness, Athletics SaaS",
+    "primary_mode": "dark_sidebar_light_content"
   },
-  "design_system": {
-    "colors": {
-      "base": {
-        "obsidian": "#0A0A0A",
-        "surface": "#171717",
-        "surface_hover": "#262626",
-        "border": "#333333"
-      },
-      "brand": {
-        "volt_lime": "#CCFF00",
-        "athletic_blue": "#007AFF"
-      },
-      "text": {
-        "primary": "#FFFFFF",
-        "secondary": "#A1A1AA",
-        "muted": "#71717A",
-        "active": "#CCFF00"
-      },
-      "section_accents": {
-        "diagnostico": "rose",
-        "informacion": "indigo",
-        "evaluacion": "emerald",
-        "competencias": "violet",
-        "periodizacion": "cyan",
-        "plan_grafico": "amber",
-        "herramientas": "slate"
-      }
+  "colors": {
+    "navy": "#0A0F1E",
+    "lime": "#CCFF00",
+    "light_gray": "#F0F2F5",
+    "white": "#FFFFFF"
+  },
+  "typography": {
+    "headings": {
+      "font": "Outfit",
+      "weights": ["600", "700"],
+      "usage": "Headers, Module Titles, KPIs"
     },
-    "typography": {
-      "fonts": {
-        "heading": "Barlow Condensed, sans-serif",
-        "body": "Inter, DM Sans, sans-serif"
-      },
-      "sizes": {
-        "nav_main": "text-sm md:text-base font-semibold tracking-wide",
-        "nav_section": "text-sm font-medium",
-        "nav_sub": "text-sm font-normal",
-        "forbidden": "NEVER use 8px (text-[8px]). Absolute minimum size is text-xs (12px) for overlines or tiny badges, and text-sm (14px) for interactive navigation labels."
-      }
-    },
-    "spacing_and_layout": {
-      "strategy": "Spatial Separation. Never combine global navigation (Group A) and contextual data navigation (Group B & C) in the same horizontal plane.",
-      "padding": "Generous padding for touch targets: min h-10, px-4, py-2."
+    "body": {
+      "font": "Manrope",
+      "weights": ["400", "500", "600"],
+      "usage": "Data tables, sidebars, buttons"
     }
   },
-  "navigation_blueprint": {
-    "architectural_shift": "Move from a single overloaded Topbar to a 'Global Topbar + Contextual Sidebar' layout. This naturally solves the 'too many options' problem.",
-    "level_1_global_topbar": {
-      "description": "Group A items (Panel, Datos, Scouting, Reporte, Sesiones). A persistent horizontal bar at the top.",
-      "layout": "flex items-center justify-between w-full h-16 px-6 bg-[#0A0A0A] border-b border-[#333333]",
-      "nav_group": "flex items-center gap-2 md:gap-6",
-      "item_structure": "Row-based. Icon on left, Text on right (hidden on extremely small mobile, but default visible).",
-      "states": {
-        "default": "text-zinc-400 flex items-center gap-2 px-3 py-2 rounded-md transition-all duration-200",
-        "hover": "text-white bg-zinc-800/50",
-        "active": "text-[#CCFF00] bg-[#CCFF00]/10 ring-1 ring-[#CCFF00]/20 font-bold",
-        "focus": "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#CCFF00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0A0A]"
-      },
-      "right_actions": "Group D (FABs: SuperAdmin, Idioma, Perfil) remain on the far right of the Topbar, separated by an auto-margin or flex spacer."
+  "layout_modes": {
+    "classic_mode": {
+      "description": "El dashboard ACTUAL tal cual. Se mantiene intacto.",
+      "background": "#FFFFFF",
+      "nav": "Top horizontal navigation with icons",
+      "cards": "White with subtle borders",
+      "accent": "#CCFF00",
+      "brand": "#0A0F1E"
     },
-    "level_2_and_3_contextual_sidebar": {
-      "description": "When the user is in the 'Datos' panel, a Left Sidebar appears managing Group B (Sections) and Group C (Sub-sections). This utilizes an Accordion pattern.",
-      "layout": "w-64 h-[calc(100vh-64px)] flex-shrink-0 border-r border-[#333333] bg-[#0A0A0A] overflow-y-auto hidden md:block",
-      "mobile_strategy": "On mobile, this becomes a slide-out drawer or an expandable Shadcn Accordion right below the header.",
-      "group_b_sections_accordion_header": {
-        "description": "The 7 colored sections. Instead of filling the whole circle with color, use the color as a sophisticated accent (e.g., a left border or a tiny 8px dot).",
-        "classes": "flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors",
-        "active_classes": "bg-zinc-900 text-white font-bold border-l-4",
-        "color_implementation": "Dynamically apply border-l-{color}-500 when active, or render a <div className='w-2 h-2 rounded-full bg-{color}-500' /> next to the label. This tames the 'rainbow' effect while keeping the mental mapping."
+    "whatsapp_mode": {
+      "description": "Inspired by WhatsApp Web. Left fixed sidebar + Right main content.",
+      "sidebar": {
+        "width": "30%",
+        "max_width": "360px",
+        "min_width": "280px",
+        "background": "#0A0F1E",
+        "text_color": "#FFFFFF",
+        "active_item_highlight": "#CCFF00"
       },
-      "group_c_sub_sections_accordion_content": {
-        "description": "The 1 to 9 items inside a specific Group B section. Shown in a vertical list directly under the expanded Section header.",
-        "classes": "flex flex-col pl-10 pr-4 py-1 space-y-1 bg-[#0A0A0A]",
-        "item_classes": "flex items-center px-3 py-2 text-sm text-zinc-400 rounded-md transition-colors hover:text-white hover:bg-zinc-800/50",
-        "active_item_classes": "text-[#007AFF] bg-[#007AFF]/10 font-semibold",
-        "active_item_indicator": "Instead of full shapes, the active sub-item gets a subtle colored background and primary brand text color."
+      "main_panel": {
+        "width": "70%",
+        "flex": "1",
+        "background": "#F0F2F5"
+      },
+      "cards": {
+        "background": "#FFFFFF",
+        "shadow": "shadow-sm",
+        "border": "border-none or extremely subtle border-gray-100"
+      },
+      "buttons": {
+        "background": "#0A0F1E",
+        "text_color": "#CCFF00",
+        "hover": "bg-[#151b2b]"
       }
+    }
+  },
+  "interactions": {
+    "theme_toggle": {
+      "state_storage": "localStorage (key: 'lordtraining_theme', values: 'classic' | 'whatsapp')",
+      "transition": "transition-all duration-300 ease-in-out",
+      "icons": "lucide-react (Sun/Moon or classic/pro toggle)",
+      "data_testid": "theme-toggle-button"
+    }
+  },
+  "components": {
+    "SidebarNav": {
+      "style": "flex flex-col gap-2 p-4 h-full overflow-y-auto bg-[#0A0F1E] text-white",
+      "item_style": "flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-colors hover:bg-white/10",
+      "active_item_style": "bg-[#CCFF00]/10 text-[#CCFF00] border-l-4 border-[#CCFF00]"
     },
-    "alternative_horizontal_only_pattern": {
-      "description": "If the business explicitly refuses a Left Sidebar, implement a Two-Tier Horizontal Architecture.",
-      "tier_1": "Top Bar: Group A (exactly as defined above).",
-      "tier_2": "Secondary Sticky Bar below Top Bar. Uses a scrollable Tab List (Shadcn Tabs) for Group B. Active state is a bold border-bottom: border-b-2 border-{color}-500.",
-      "tier_3_subnav": "Pill-based horizontal scroll under Tier 2 for Group C. flex gap-2 overflow-x-auto. Pills are px-4 py-1.5 rounded-full text-sm. Active pill is bg-[#007AFF] text-white."
+    "MainContent": {
+      "style": "flex-1 flex flex-col h-full bg-[#F0F2F5] overflow-y-auto p-6 md:p-8"
+    },
+    "TopHeader": {
+      "style": "flex justify-between items-center px-6 py-4 bg-white shadow-sm z-10 w-full",
+      "toggle_placement": "Right side, next to user profile"
     }
   },
-  "prioritized_action_plan": {
-    "step_1": "Kill the 8px circles: Immediately switch all navigation items to a Text + Icon Flex Row pattern with a minimum text size of 14px (text-sm).",
-    "step_2": "Fix Active States: Replace the 'fill color change' with high-contrast Active States. Use bg-[brand]/10 + text-[brand] + font-bold. The user must know instantly where they are.",
-    "step_3": "Separate Global from Contextual: Extract Group B and Group C from the Top Navigation bar. Move them into a Left Sidebar (Accordion) or a distinct secondary horizontal tab bar when 'Datos' is active.",
-    "step_4": "Tame the Rainbow Colors: Stop using the 7 section colors as massive filled shapes. Use them as subtle visual cues (left borders, 8px dots, or thin underlines) to reduce visual fatigue.",
-    "step_5": "Accessibility Pass: Ensure every interactive item has a focus ring (focus-visible:ring-2), clear contrast (WCAG AA), and proper data-testid attributes for testing."
+  "media": {
+    "avatars": [
+      {
+        "url": "https://images.pexels.com/photos/6699959/pexels-photo-6699959.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Athlete/Coach Avatar Placeholder 1"
+      },
+      {
+        "url": "https://images.pexels.com/photos/10340260/pexels-photo-10340260.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Athlete/Coach Avatar Placeholder 2"
+      }
+    ]
   },
-  "testing_attributes": {
-    "rule": "Every single navigation element MUST include a data-testid attribute.",
-    "examples": {
-      "group_a_item": "data-testid='nav-main-datos-button'",
-      "group_b_header": "data-testid='nav-section-evaluacion-accordion'",
-      "group_c_item": "data-testid='nav-sub-atletas-link'"
-    }
-  }
+  "instructions_to_main_agent": [
+    "Create a React Context or useThemeToggle hook to manage 'classic' vs 'whatsapp' layout modes. Store preference in localStorage.",
+    "Implement the Layout wrapper for the Dashboard. If 'classic', render the existing layout. If 'whatsapp', render a 100vh split layout: <div className='flex h-screen w-full transition-all duration-300'>.",
+    "Inside WhatsApp mode: Left Sidebar (bg-[#0A0F1E], max-w-[360px]) + Right Panel (bg-[#F0F2F5], flex-1).",
+    "Use lucide-react icons for the Sidebar modules (Panel de Control, Datos del Atleta, Reportes, etc.).",
+    "Highlight the active Sidebar item with text-[#CCFF00], bg-[#CCFF00]/10, and a border-l-4 border-[#CCFF00].",
+    "Style the primary buttons across the dashboard as bg-[#0A0F1E] text-[#CCFF00].",
+    "Ensure the theme toggle switch is visible in the header, uses a Sun/Moon icon, and includes data-testid='theme-toggle-button'.",
+    "Add 'data-testid' to all critical interactive elements (sidebar links, cards, buttons).",
+    "Ensure all CSS transitions utilize duration-300 for a smooth layout shift.",
+    "For routes outside the Dashboard, apply the requested color theming but maintain their default layout (WhatsApp layout is ONLY for the Dashboard)."
+  ]
 }
