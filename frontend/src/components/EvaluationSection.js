@@ -199,7 +199,7 @@ const TemplatesModal = ({ open, onClose, evaluationType, color, currentAspects, 
 // =============================================================
 // MAIN
 // =============================================================
-const EvaluationSection = ({ sectionId, activePlan, athletes = [], selectedAthleteId }) => {
+const EvaluationSection = ({ sectionId, activePlan, athletes = [], selectedAthleteId, onSelectAthlete }) => {
   const config = EVAL_CONFIGS[sectionId];
   const Icon = config?.icon;
   const [controls, setControls] = useState([]);  // Lista de controles guardados (resumen)
@@ -550,6 +550,20 @@ const EvaluationSection = ({ sectionId, activePlan, athletes = [], selectedAthle
       {/* Multi-control selector + Date + Title */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-3" data-testid={`eval-${evalType}-controls-bar`}>
         <div className="flex items-start gap-3 flex-wrap">
+          {onSelectAthlete && (
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1"><User className="w-3 h-3" />Atleta evaluado</label>
+              <select
+                value={selectedAthleteId || ''}
+                onChange={(e) => onSelectAthlete(e.target.value || null)}
+                data-testid={`eval-${evalType}-athlete-select`}
+                className="h-9 px-3 rounded-lg border-2 text-sm font-semibold text-slate-700 min-w-[200px]"
+                style={{ borderColor: selectedAthleteId ? config.color : '#e2e8f0' }}>
+                <option value="">— Sin atleta (nivel plan) —</option>
+                {athletes.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+              </select>
+            </div>
+          )}
           <div className="flex flex-col gap-1">
             <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1"><Calendar className="w-3 h-3" />Fecha del control</label>
             <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-9 w-44" data-testid={`eval-${evalType}-date-input`} />

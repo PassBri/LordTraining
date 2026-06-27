@@ -3727,49 +3727,49 @@ const DashboardPage = () => {
 
     // Render Anthropometric Data (legacy redirect to new EvaluationSection)
     if (activeDataSection === 'anthropometric' || activeDataSection === 'control-anthropometric') {
-      return <EvaluationSection key={activeDataSection} sectionId="control-anthropometric" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
+      return <EvaluationSection key={activeDataSection} sectionId="control-anthropometric" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} onSelectAthlete={setSelectedAthleteId} />;
     }
 
     // ====== NUEVAS SECCIONES DE EVALUACIÓN ======
 
     // Análisis Biomecánico (legacy redirect to new EvaluationSection)
     if (activeDataSection === 'biomechanical' || activeDataSection === 'control-biomechanical') {
-      return <EvaluationSection key={activeDataSection} sectionId="control-biomechanical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
+      return <EvaluationSection key={activeDataSection} sectionId="control-biomechanical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} onSelectAthlete={setSelectedAthleteId} />;
     }
 
     // Control Médico
     if (activeDataSection === 'control-medical') {
-      return <EvaluationSection key={activeDataSection} sectionId="control-medical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
+      return <EvaluationSection key={activeDataSection} sectionId="control-medical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} onSelectAthlete={setSelectedAthleteId} />;
     }
 
     // Control Físico
     if (activeDataSection === 'control-physical') {
-      return <EvaluationSection key={activeDataSection} sectionId="control-physical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
+      return <EvaluationSection key={activeDataSection} sectionId="control-physical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} onSelectAthlete={setSelectedAthleteId} />;
     }
 
     // Control Técnico
     if (activeDataSection === 'control-technical') {
-      return <EvaluationSection key={activeDataSection} sectionId="control-technical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
+      return <EvaluationSection key={activeDataSection} sectionId="control-technical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} onSelectAthlete={setSelectedAthleteId} />;
     }
 
     // Control Táctico
     if (activeDataSection === 'control-tactical') {
-      return <EvaluationSection key={activeDataSection} sectionId="control-tactical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
+      return <EvaluationSection key={activeDataSection} sectionId="control-tactical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} onSelectAthlete={setSelectedAthleteId} />;
     }
 
     // Control Psicológico
     if (activeDataSection === 'control-psychological') {
-      return <EvaluationSection key={activeDataSection} sectionId="control-psychological" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
+      return <EvaluationSection key={activeDataSection} sectionId="control-psychological" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} onSelectAthlete={setSelectedAthleteId} />;
     }
 
     // Control Teórico
     if (activeDataSection === 'control-theoretical') {
-      return <EvaluationSection key={activeDataSection} sectionId="control-theoretical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
+      return <EvaluationSection key={activeDataSection} sectionId="control-theoretical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} onSelectAthlete={setSelectedAthleteId} />;
     }
 
     // Evolución de Controles
     if (activeDataSection === 'evaluation-evolution') {
-      return <EvaluationEvolution activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
+      return <EvaluationEvolution activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} onSelectAthlete={setSelectedAthleteId} />;
     }
 
     // Calculadoras Hub (10 módulos)
