@@ -44,7 +44,8 @@ i18n
     fallbackLng: 'es',
     supportedLngs: ['en', 'es', 'pt', 'ar', 'hi', 'id', 'fr', 'de', 'ja', 'ko', 'ru', 'zh'],
     detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
+      order: ['querystring', 'localStorage', 'navigator', 'htmlTag'],
+      lookupQuerystring: 'lng',
       lookupLocalStorage: 'train_language',
       caches: ['localStorage'],
     },
