@@ -4271,7 +4271,8 @@ const DashboardPage = () => {
 
       return (
         <div className="flex h-full" data-testid="datos-layout">
-          {/* ====== SIDEBAR DE PLANES ====== */}
+          {/* ====== SIDEBAR DE PLANES (oculto en Modo Pro: va en el sidebar navy) ====== */}
+          {uiMode !== 'whatsapp' && (
           <PlanSidebar
             trainingPlans={trainingPlans}
             loadingPlans={loadingPlans}
@@ -4285,6 +4286,7 @@ const DashboardPage = () => {
             onCreatePlan={() => setActiveDataSection('create-plan')}
             t={t}
           />
+          )}
 
           {/* ====== CONTENIDO PRINCIPAL ====== */}
           <div className="flex-1 flex flex-col min-h-0" data-testid="plan-content-area">
@@ -4454,6 +4456,54 @@ const DashboardPage = () => {
                 </button>
               );
             })}
+
+            {/* Lista de planes de entrenamiento (modo Pro, solo en Datos) */}
+            {activePanel === 'datos' && activeDataSection !== 'scouting' && (
+              <div className="mt-4">
+                <div className="h-px bg-white/10 my-3" />
+                <div className="flex items-center justify-between px-3 pb-2">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">
+                    {t('data.planes_de_entrenamiento', { defaultValue: 'Planes de Entrenamiento' })}
+                  </p>
+                  <button
+                    onClick={() => setActiveDataSection('create-plan')}
+                    data-testid="wa-create-plan"
+                    className="inline-flex items-center gap-1 text-[10px] font-bold text-[#CCFF00] hover:text-white transition-colors"
+                  >
+                    <Plus className="w-3 h-3" /> {t('data.nuevo', { defaultValue: 'Nuevo' })}
+                  </button>
+                </div>
+                {loadingPlans ? (
+                  <p className="px-3 py-2 text-xs text-white/40">{t('common.loading', { defaultValue: 'Cargando...' })}</p>
+                ) : trainingPlans.length === 0 ? (
+                  <p className="px-3 py-2 text-xs text-white/40">{t('data.sin_planes', { defaultValue: 'Sin planes aún' })}</p>
+                ) : (
+                  <div className="space-y-1 max-h-[34vh] overflow-y-auto scrollbar-hide pr-1">
+                    {trainingPlans.map((plan) => {
+                      const isActive = activePlan?.id === plan.id;
+                      return (
+                        <button
+                          key={plan.id}
+                          onClick={() => handleSetActivePlan(plan)}
+                          data-testid={`wa-plan-${plan.id}`}
+                          className={`w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-200 ${
+                            isActive ? 'bg-[#CCFF00]/10 border-l-4 border-[#CCFF00] pl-2' : 'hover:bg-white/10'
+                          }`}
+                        >
+                          <Clipboard className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#CCFF00]' : 'text-white/50'}`} strokeWidth={isActive ? 2.4 : 1.8} />
+                          <span className="min-w-0 flex-1">
+                            <span className={`block text-[13px] font-semibold truncate ${isActive ? 'text-[#CCFF00]' : 'text-white/85'}`}>{plan.name}</span>
+                            <span className="block text-[10px] text-white/40 truncate">
+                              {[plan.sport, plan.total_weeks ? `${plan.total_weeks} ${t('periodization.weeksLower', { defaultValue: 'sem' })}` : null].filter(Boolean).join(' · ')}
+                            </span>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Secciones del plan (solo en Datos con plan activo) */}
             {activePanel === 'datos' && activePlan && activeDataSection !== 'scouting' && (
