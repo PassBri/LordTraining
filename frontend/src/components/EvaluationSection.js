@@ -6,11 +6,12 @@ import { Badge } from './ui/badge';
 import {
   Heart, Dumbbell, Target, Layers, Brain, BookOpen, FileText, Activity,
   Ruler, AlertTriangle, CheckCircle, Save, Loader2, Plus, Trash2,
-  FileDown, Link2, Send, Library, Star, X, Calendar, ChevronRight
+  FileDown, Link2, Send, Library, Star, X, Calendar, ChevronRight, User, Users
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { EvaluationMiniChart } from './EvaluationEvolution';
 import { useDynamicTranslations } from '../lib/i18nDynamic';
+import EvaluationTeamMode from './EvaluationTeamMode';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 
@@ -215,6 +216,7 @@ const EvaluationSection = ({ sectionId, activePlan, athletes = [], selectedAthle
   const [showTemplates, setShowTemplates] = useState(false);
   const [templatesRefresh, setTemplatesRefresh] = useState(0);
   const [fromTemplate, setFromTemplate] = useState('');
+  const [viewMode, setViewMode] = useState('individual'); // 'individual' | 'team'
 
   const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
   const evalType = config?.type;
@@ -500,9 +502,23 @@ const EvaluationSection = ({ sectionId, activePlan, athletes = [], selectedAthle
         </div>
         <div className="flex items-center gap-1.5 flex-wrap">
           {activePlan && <Badge variant="outline" className="text-xs">{activePlan.name}</Badge>}
-          {selectedAthlete && <Badge variant="outline" className="text-xs bg-slate-50">{selectedAthlete.name}</Badge>}
-          {fromTemplate && !activeId && <Badge className="text-xs" style={{ background: `${config.color}20`, color: config.color }}>Tpl: {fromTemplate}</Badge>}
+          {viewMode === 'individual' && selectedAthlete && <Badge variant="outline" className="text-xs bg-slate-50">{selectedAthlete.name}</Badge>}
+          {viewMode === 'individual' && fromTemplate && !activeId && <Badge className="text-xs" style={{ background: `${config.color}20`, color: config.color }}>Tpl: {fromTemplate}</Badge>}
         </div>
+        {/* Toggle Individual / Equipo */}
+        <div className="flex items-center gap-1 bg-slate-100 rounded-full p-1" data-testid={`eval-${evalType}-mode-toggle`}>
+          <button onClick={() => setViewMode('individual')} data-testid={`eval-${evalType}-mode-individual`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition ${viewMode === 'individual' ? 'text-white shadow' : 'text-slate-600 hover:text-slate-900'}`}
+            style={viewMode === 'individual' ? { background: config.color } : {}}>
+            <User className="w-3.5 h-3.5" /> Individual
+          </button>
+          <button onClick={() => setViewMode('team')} data-testid={`eval-${evalType}-mode-team`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition ${viewMode === 'team' ? 'text-white shadow' : 'text-slate-600 hover:text-slate-900'}`}
+            style={viewMode === 'team' ? { background: config.color } : {}}>
+            <Users className="w-3.5 h-3.5" /> Equipo
+          </button>
+        </div>
+        {viewMode === 'individual' && (
         <div className="flex items-center gap-1.5 ml-auto">
           <Button size="sm" variant="default" onClick={handleNewControl} data-testid={`eval-${evalType}-new-control-btn`} style={{ background: config.color }} className="text-white" title={`Nuevo control de ${config.title}`}>
             <Plus className="w-4 h-4 mr-1" /> Nuevo control
@@ -523,8 +539,14 @@ const EvaluationSection = ({ sectionId, activePlan, athletes = [], selectedAthle
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 mr-1" />}Guardar
           </Button>
         </div>
+        )}
       </div>
 
+      {viewMode === 'team' && (
+        <EvaluationTeamMode activePlan={activePlan} evalType={evalType} color={config.color} title={config.title} athletes={athletes} />
+      )}
+
+      {viewMode === 'individual' && (<>
       {/* Multi-control selector + Date + Title */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-3" data-testid={`eval-${evalType}-controls-bar`}>
         <div className="flex items-start gap-3 flex-wrap">
@@ -646,6 +668,8 @@ const EvaluationSection = ({ sectionId, activePlan, athletes = [], selectedAthle
           </CardContent>
         </Card>
       )}
+
+      </>)}
 
       <TemplatesModal open={showTemplates} onClose={() => setShowTemplates(false)} evaluationType={evalType}
         color={config.color} currentAspects={aspects} onLoadTemplate={handleLoadTemplate}

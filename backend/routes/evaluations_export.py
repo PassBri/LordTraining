@@ -496,6 +496,119 @@ async def download_shared_eval_pdf(share_id: str):
     )
 
 
+# ---------- 6b. GROUP / TEAM MODE (agregación grupal) ----------
+
+class GroupEvalPayload(BaseModel):
+    plan_id: str
+    evaluation_type: str
+    athlete_ids: List[str] = Field(default_factory=list)
+
+
+def _norm_aspect_pct(a: Dict[str, Any]) -> Optional[float]:
+    """Porcentaje normalizado 0-100 de un aspecto medido, o None si sin medir."""
+    v = a.get("value")
+    if v is None or v == "":
+        return None
+    try:
+        v = float(v)
+        mn = float(a.get("scale_min", 0))
+        mx = float(a.get("scale_max", 10))
+    except Exception:
+        return None
+    if mx == mn:
+        return None
+    return max(0.0, min(100.0, (v - mn) / (mx - mn) * 100))
+
+
+@router.post("/group")
+async def group_evaluation(payload: GroupEvalPayload, user=Depends(get_current_user_dep())):
+    """Agregación grupal: toma el control MÁS RECIENTE de cada atleta del grupo
+    para (plan, tipo) y calcula promedio del equipo, ranking interno, promedio
+    por aspecto/categoría y áreas críticas (promedio < 60%)."""
+    if payload.evaluation_type not in EVAL_META:
+        raise HTTPException(400, f"Tipo inválido: {payload.evaluation_type}")
+    uid = _uid(user)
+    athlete_ids = [a for a in (payload.athlete_ids or []) if a]
+    if not athlete_ids:
+        return {"group_size": 0, "with_data": 0, "team_avg": 0,
+                "ranking": [], "aspects": [], "categories": [], "critical": []}
+
+    # Nombres de atletas
+    name_map: Dict[str, str] = {}
+    cur_a = _athletes.find({"id": {"$in": athlete_ids}}, {"_id": 0, "id": 1, "name": 1})
+    async for ad in cur_a:
+        name_map[ad["id"]] = ad.get("name") or ad["id"]
+
+    ranking: List[Dict[str, Any]] = []
+    # acumuladores por aspecto (clave = label normalizado) y por categoría
+    aspect_acc: Dict[str, Dict[str, Any]] = {}
+    cat_acc: Dict[str, Dict[str, float]] = {}
+
+    for aid in athlete_ids:
+        doc = await _evals.find_one(
+            {"plan_id": payload.plan_id, "user_id": uid,
+             "evaluation_type": payload.evaluation_type, "athlete_id": aid},
+            {"_id": 0}, sort=[("date", -1), ("updated_at", -1)]
+        )
+        entry = {"athlete_id": aid, "name": name_map.get(aid, aid),
+                 "global_pct": 0, "measured": 0, "total": 0, "has_data": False,
+                 "date": ""}
+        if doc:
+            aspects = doc.get("aspects") or []
+            entry["total"] = len(aspects)
+            entry["date"] = doc.get("date") or ""
+            norms = []
+            for a in aspects:
+                pct = _norm_aspect_pct(a)
+                if pct is None:
+                    continue
+                norms.append(pct)
+                label = (a.get("label") or "—").strip()
+                cat = (a.get("category") or "General").strip()
+                ac = aspect_acc.setdefault(label, {"label": label, "category": cat, "sum": 0.0, "count": 0})
+                ac["sum"] += pct
+                ac["count"] += 1
+                cc = cat_acc.setdefault(cat, {"sum": 0.0, "count": 0})
+                cc["sum"] += pct
+                cc["count"] += 1
+            entry["measured"] = len(norms)
+            if norms:
+                entry["global_pct"] = round(sum(norms) / len(norms))
+                entry["has_data"] = True
+        ranking.append(entry)
+
+    # Ordenar: con datos primero (desc por global_pct), luego sin datos
+    ranking.sort(key=lambda e: (e["has_data"], e["global_pct"]), reverse=True)
+    for i, e in enumerate(ranking):
+        e["rank"] = i + 1 if e["has_data"] else None
+
+    with_data = [e for e in ranking if e["has_data"]]
+    team_avg = round(sum(e["global_pct"] for e in with_data) / len(with_data)) if with_data else 0
+
+    aspects_out = [
+        {"label": v["label"], "category": v["category"],
+         "avg_pct": round(v["sum"] / v["count"]), "count": v["count"]}
+        for v in aspect_acc.values() if v["count"]
+    ]
+    aspects_out.sort(key=lambda x: x["avg_pct"])
+    categories_out = [
+        {"category": k, "avg_pct": round(v["sum"] / v["count"])}
+        for k, v in cat_acc.items() if v["count"]
+    ]
+    categories_out.sort(key=lambda x: x["avg_pct"])
+    critical = [a for a in aspects_out if a["avg_pct"] < 60]
+
+    return {
+        "group_size": len(athlete_ids),
+        "with_data": len(with_data),
+        "team_avg": team_avg,
+        "ranking": ranking,
+        "aspects": aspects_out,
+        "categories": categories_out,
+        "critical": critical,
+    }
+
+
 # ---------- 7. CATCH-ALL: GET por (plan, type) — DEBE SER EL ÚLTIMO ----------
 
 @router.get("/{plan_id}/{evaluation_type}")

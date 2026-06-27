@@ -1,0 +1,52 @@
+{
+  "summary": "Group/Team Evaluation Mode (Fase A) — Backend 7/7 PASS, Frontend full happy-path PASS. Verified POST /api/plan-data/evaluations-export/group returns correct schema (group_size, with_data, team_avg, ranking[], aspects[], categories[], critical[]); ranking is sorted desc by global_pct with 'rank' field; critical only contains aspects with avg_pct<60; empty athlete_ids returns zeroed payload; invalid evaluation_type → 400; unauthenticated → 401/403. Frontend: after login as test@train.com, opened Plan Test API → Evaluación → Control Físico. Toggle Individual/Equipo works, group selector exposes 3 modes (team / category / national_team) plus eval-physical-group-select; selecting 'Selección Sub-17' renders KPI eval-physical-team-avg=52%, ranking with Juan Pérez (65% rank 1) and Carlos Pérez (40% rank 2), and a critical-areas card with Velocidad 35%. Switching back to Individual restores Guardar/Plantillas/PDF buttons.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "EvaluationSection header on Control Físico",
+        "issues": [
+          "Header title in the screenshot still showed 'Control Médico — Estado de salud y aptitud...' even though the active subnav highlighted is 'Control Físico' and all data-testids resolve to eval-physical-*. Possibly a stale header from the previous Control Médico subtab not re-rendering when the subnav changes. Functional flow is not blocked, but visually inconsistent. Reproduce: navigate Datos → Evaluación → click Control Médico first, then click Control Físico; observe the title bar."
+        ]
+      },
+      {
+        "screen": "EvaluationTeamMode group select (eval-physical-group-select)",
+        "issues": [
+          "React hydration warning in console: 'In HTML, <span> cannot be a child of <option>.' — the native <select> currently wraps option labels in <span> with an icon. Cosmetic but creates noisy warnings; either move the icon out of <option> or render the select via a non-native (shadcn) component."
+        ]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_evaluations_group_mode.py",
+    "/app/test_reports/pytest/eval_group_results.xml"
+  ],
+  "action_items": [
+    "(low) Fix the EvaluationSection header to refresh title/subtitle when subnav switches between Control Médico/Físico/Técnico/... — likely a missing dependency in the useEffect that derives `config` from the route key, or the header is reading from a state that lags one render.",
+    "(low) Remove <span>/icon nesting inside <option> elements in EvaluationTeamMode's group-select to silence the React hydration warning."
+  ],
+  "critical_code_review_comments": [
+    "routes/evaluations_export.py::group_evaluation — correctly validates evaluation_type against EVAL_META (400 for unknown), uses _norm_aspect_pct to clip pct to [0,100], sorts ranking by (has_data, global_pct) desc and assigns rank only to entries with data. team_avg averages only with-data entries → matches expected 52 for seed (65+40)/2.",
+    "EvaluationSection.js — toggle viewMode 'individual'/'team' renders <EvaluationTeamMode/> conditionally and hides the individual action bar (Guardar/Plantillas/PDF) which is correct; data-testids `eval-${evalType}-mode-toggle/individual/team` are exposed and stable.",
+    "EvaluationTeamMode.jsx — fetches /api/teams and /api/entities?entity_type=national_team in parallel on mount; correctly resolves athlete→team membership from team.athletes array (with fallback to athlete.team_id). Reset of selectedGroup on groupMode change is well handled.",
+    "Note: backend EVAL_META key is 'physical' but frontend URL/subnav uses 'control-physical' (mapped via SECTION_CONFIG type='physical'). Anyone writing direct API tests must use 'physical' for evaluation_type — this is a known mapping and is documented in EvaluationSection.js SECTION_CONFIG."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_evaluations_group_mode.py (new — 7 pytest cases for /group endpoint)"
+  ],
+  "success_rate": {
+    "backend": "100% (7/7)",
+    "frontend": "100% (all required data-testids resolved; team-avg/ranking/critical render correctly; toggle round-trip works)"
+  },
+  "test_credentials": "Coach: test@train.com / test123456 (login via /auth, testid login-email-input / login-password-input / login-submit-btn). Seeded plan name: 'Plan Test API' (id 0cd4acaa-7e8e-463d-b4ac-54c3a47a766b). Seeded team: 'Selección Sub-17' (id a773758f-c043-4bb8-8e18-bf5ab1d706c0) containing Juan Pérez and Carlos Pérez.",
+  "seed_data_creation": "No new seed created by this run. Reused the main-agent's seeded data: 2 physical evaluations (Juan global 65%, Carlos global 40%; Velocidad avg 35% across team).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend group endpoint test lives at /app/backend/tests/test_evaluations_group_mode.py. It depends on the main agent's seeded plan/team/evaluations being present (plan 0cd4acaa-..., team a773758f-..., athletes Juan Pérez & Carlos Pérez). If the seed is wiped, the happy-path / ranking / critical / team_avg tests will fail with empty payload; refresh the seed before re-running. Endpoint accepts evaluation_type='physical' (not 'control-physical'). Frontend nav path: /auth → login → tab-datos → welcome-open-plans-btn → click 'Plan Test API' → section-tab-evaluacion (note: 'evaluacion', no tilde and no trailing -e) → subnav-control-physical. Then toggle via eval-physical-mode-team / eval-physical-mode-individual.",
+  "rca_of_the_issue": "N/A — no blocking issues found. Two minor cosmetic findings documented above (header stale title between subtabs; <span> inside <option> hydration warning)."
+}
