@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -8,6 +9,7 @@ import { Calendar, Target, Activity, Plus, Trash2, Save, Download, Heart, Loader
 import { toast } from 'sonner';
 
 const SessionPlanning = ({ athleteId, onSave }) => {
+  const { t } = useTranslation();
   const [saving, setSaving] = useState(false);
   const [sessionData, setSessionData] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -34,13 +36,13 @@ const SessionPlanning = ({ athleteId, onSave }) => {
   });
 
   const capacidadOptions = [
-    { value: 'fuerza', label: 'Fuerza' },
-    { value: 'resistencia', label: 'Resistencia' },
-    { value: 'velocidad', label: 'Velocidad' },
-    { value: 'flexibilidad', label: 'Flexibilidad' },
-    { value: 'coordinacion', label: 'Coordinación' },
-    { value: 'potencia', label: 'Potencia' },
-    { value: 'agilidad', label: 'Agilidad' }
+    { value: 'fuerza', label: t('sessions.cap_fuerza') },
+    { value: 'resistencia', label: t('sessions.cap_resistencia') },
+    { value: 'velocidad', label: t('sessions.cap_velocidad') },
+    { value: 'flexibilidad', label: t('sessions.cap_flexibilidad') },
+    { value: 'coordinacion', label: t('sessions.cap_coordinacion') },
+    { value: 'potencia', label: t('sessions.cap_potencia') },
+    { value: 'agilidad', label: t('sessions.cap_agilidad') }
   ];
 
   const handleObjectiveChange = (field, value) => {
@@ -81,7 +83,7 @@ const SessionPlanning = ({ athleteId, onSave }) => {
 
   const removeActivity = (phase, activityId) => {
     if (sessionData.phases[phase].length <= 1) {
-      toast.error('Debe haber al menos una actividad por fase');
+      toast.error(t('sessions.tMinOneActivity'));
       return;
     }
     setSessionData(prev => ({
@@ -98,17 +100,17 @@ const SessionPlanning = ({ athleteId, onSave }) => {
     try {
       // Aquí se conectaría con el backend
       await new Promise(resolve => setTimeout(resolve, 1000));
-      toast.success('Sesión guardada correctamente');
+      toast.success(t('sessions.tSessionSaved'));
       if (onSave) onSave(sessionData);
     } catch (error) {
-      toast.error('Error al guardar la sesión');
+      toast.error(t('sessions.tSaveError'));
     } finally {
       setSaving(false);
     }
   };
 
   const handleExport = () => {
-    toast.success('Exportando sesión a PDF...');
+    toast.success(t('sessions.tExportingPdf'));
   };
 
   const renderPhaseTable = (phase, phaseName, bgColor) => (
@@ -137,16 +139,16 @@ const SessionPlanning = ({ athleteId, onSave }) => {
         <table className="w-full text-sm">
           <thead className={bgColor}>
             <tr>
-              <th className="p-2 text-left font-medium">Medios</th>
-              <th className="p-2 text-left font-medium">Capacidad Física</th>
-              <th className="p-2 text-left font-medium">Métodos</th>
-              <th className="p-2 text-left font-medium">Series</th>
-              <th className="p-2 text-left font-medium">Repeticiones</th>
-              <th className="p-2 text-left font-medium">Intensidad</th>
-              <th className="p-2 text-left font-medium">Volumen</th>
-              <th className="p-2 text-left font-medium">Proc. Organizativo</th>
-              <th className="p-2 text-left font-medium">Recuperación</th>
-              <th className="p-2 text-center font-medium">Acciones</th>
+              <th className="p-2 text-left font-medium">{t('sessions.means')}</th>
+              <th className="p-2 text-left font-medium">{t('sessions.physicalCapacity')}</th>
+              <th className="p-2 text-left font-medium">{t('sessions.methods')}</th>
+              <th className="p-2 text-left font-medium">{t('sessions.series')}</th>
+              <th className="p-2 text-left font-medium">{t('sessions.repetitions')}</th>
+              <th className="p-2 text-left font-medium">{t('sessions.intensity')}</th>
+              <th className="p-2 text-left font-medium">{t('sessions.volume')}</th>
+              <th className="p-2 text-left font-medium">{t('sessions.orgProc')}</th>
+              <th className="p-2 text-left font-medium">{t('sessions.recovery')}</th>
+              <th className="p-2 text-center font-medium">{t('sessions.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -157,7 +159,7 @@ const SessionPlanning = ({ athleteId, onSave }) => {
                     value={activity.medios}
                     onChange={(e) => handlePhaseActivityChange(phase, activity.id, 'medios', e.target.value)}
                     className="h-8 text-xs"
-                    placeholder="Ejercicio..."
+                    placeholder={t('sessions.phExercise')}
                   />
                 </td>
                 <td className="p-1">
@@ -166,7 +168,7 @@ const SessionPlanning = ({ athleteId, onSave }) => {
                     onValueChange={(v) => handlePhaseActivityChange(phase, activity.id, 'capacidad', v)}
                   >
                     <SelectTrigger className="h-8 text-xs">
-                      <SelectValue placeholder="Selecc..." />
+                      <SelectValue placeholder={t('sessions.phSelect')} />
                     </SelectTrigger>
                     <SelectContent>
                       {capacidadOptions.map(opt => (
@@ -180,7 +182,7 @@ const SessionPlanning = ({ athleteId, onSave }) => {
                     value={activity.metodos}
                     onChange={(e) => handlePhaseActivityChange(phase, activity.id, 'metodos', e.target.value)}
                     className="h-8 text-xs"
-                    placeholder="Método..."
+                    placeholder={t('sessions.phMethod')}
                   />
                 </td>
                 <td className="p-1">
@@ -226,7 +228,7 @@ const SessionPlanning = ({ athleteId, onSave }) => {
                     value={activity.procedimiento}
                     onChange={(e) => handlePhaseActivityChange(phase, activity.id, 'procedimiento', e.target.value)}
                     className="h-8 text-xs"
-                    placeholder="Individual..."
+                    placeholder={t('sessions.phIndividual')}
                   />
                 </td>
                 <td className="p-1">
@@ -260,7 +262,7 @@ const SessionPlanning = ({ athleteId, onSave }) => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Planificación de Entrenamiento</h1>
+          <h1 className="text-2xl font-bold text-gray-800">{t('sessions.trainingPlanning')}</h1>
           <p className="text-amber-600 text-sm">Sesión #{sessionData.sessionNumber}</p>
         </div>
         <div className="flex items-center gap-3">
@@ -281,61 +283,61 @@ const SessionPlanning = ({ athleteId, onSave }) => {
         <CardContent className="p-5">
           <div className="flex items-center gap-2 mb-4">
             <Target className="w-5 h-5 text-amber-600" />
-            <h2 className="font-semibold text-gray-800">Objetivos de la Sesión</h2>
+            <h2 className="font-semibold text-gray-800">{t('sessions.sessionObjectivesTitle')}</h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-sm text-gray-600">Objetivo General:</label>
+              <label className="text-sm text-gray-600">{t('sessions.generalObjective')}</label>
               <Input 
                 value={sessionData.objectives.general}
                 onChange={(e) => handleObjectiveChange('general', e.target.value)}
-                placeholder="Objetivo principal de la sesión..."
+                placeholder={t('sessions.phMainObjective')}
                 className="border-gray-200"
               />
             </div>
             <div className="space-y-1">
-              <label className="text-sm text-gray-600">Objetivo Físico:</label>
+              <label className="text-sm text-gray-600">{t('sessions.physicalObjective')}</label>
               <Input 
                 value={sessionData.objectives.physical}
                 onChange={(e) => handleObjectiveChange('physical', e.target.value)}
-                placeholder="Desarrollo de capacidades físicas..."
+                placeholder={t('sessions.phPhysDev')}
                 className="border-gray-200"
               />
             </div>
             <div className="space-y-1">
-              <label className="text-sm text-gray-600">Objetivo Técnico:</label>
+              <label className="text-sm text-gray-600">{t('sessions.technicalObjective')}</label>
               <Input 
                 value={sessionData.objectives.technical}
                 onChange={(e) => handleObjectiveChange('technical', e.target.value)}
-                placeholder="Mejora técnica específica..."
+                placeholder={t('sessions.phTechImprove')}
                 className="border-gray-200"
               />
             </div>
             <div className="space-y-1">
-              <label className="text-sm text-gray-600">Objetivo Táctico:</label>
+              <label className="text-sm text-gray-600">{t('sessions.tacticalObjective')}</label>
               <Input 
                 value={sessionData.objectives.tactical}
                 onChange={(e) => handleObjectiveChange('tactical', e.target.value)}
-                placeholder="Desarrollo táctico..."
+                placeholder={t('sessions.phTacticalDev')}
                 className="border-gray-200"
               />
             </div>
             <div className="space-y-1">
-              <label className="text-sm text-gray-600">Objetivo Psicológico:</label>
+              <label className="text-sm text-gray-600">{t('sessions.psychObjective')}</label>
               <Input 
                 value={sessionData.objectives.psychological}
                 onChange={(e) => handleObjectiveChange('psychological', e.target.value)}
-                placeholder="Aspecto mental a trabajar..."
+                placeholder={t('sessions.phMental')}
                 className="border-gray-200"
               />
             </div>
             <div className="space-y-1">
-              <label className="text-sm text-gray-600">Objetivo Teórico:</label>
+              <label className="text-sm text-gray-600">{t('sessions.theoreticalObjective')}</label>
               <Input 
                 value={sessionData.objectives.theoretical}
                 onChange={(e) => handleObjectiveChange('theoretical', e.target.value)}
-                placeholder="Conocimiento teórico..."
+                placeholder={t('sessions.phTheory')}
                 className="border-gray-200"
               />
             </div>
@@ -348,7 +350,7 @@ const SessionPlanning = ({ athleteId, onSave }) => {
         <CardContent className="p-5">
           <div className="flex items-center gap-2 mb-4">
             <Activity className="w-5 h-5 text-amber-600" />
-            <h2 className="font-semibold text-gray-800">Estructura de la Sesión</h2>
+            <h2 className="font-semibold text-gray-800">{t('sessions.sessionStructureTitle')}</h2>
           </div>
 
           {renderPhaseTable('initial', 'Fase Inicial', 'bg-blue-50 text-blue-700')}
@@ -363,11 +365,11 @@ const SessionPlanning = ({ athleteId, onSave }) => {
           <CardContent className="p-5">
             <div className="flex items-center gap-2 mb-4">
               <Heart className="w-5 h-5 text-red-500" />
-              <h2 className="font-semibold text-gray-800">Monitoreo de Frecuencia Cardíaca</h2>
+              <h2 className="font-semibold text-gray-800">{t('sessions.hrMonitoringTitle')}</h2>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-sm text-gray-600">FC Reposo:</label>
+                <label className="text-sm text-gray-600">{t('sessions.restHrColon')}</label>
                 <Input 
                   type="number"
                   value={sessionData.heartRate.resting}
@@ -380,7 +382,7 @@ const SessionPlanning = ({ athleteId, onSave }) => {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-sm text-gray-600">FC Máxima:</label>
+                <label className="text-sm text-gray-600">{t('sessions.maxHrColon')}</label>
                 <Input 
                   type="number"
                   value={sessionData.heartRate.max}
@@ -398,11 +400,11 @@ const SessionPlanning = ({ athleteId, onSave }) => {
 
         <Card className="border-gray-200 shadow-sm">
           <CardContent className="p-5">
-            <h2 className="font-semibold text-gray-800 mb-4">Retroalimentación</h2>
+            <h2 className="font-semibold text-gray-800 mb-4">{t('sessions.feedback')}</h2>
             <Textarea 
               value={sessionData.feedback}
               onChange={(e) => setSessionData(prev => ({ ...prev, feedback: e.target.value }))}
-              placeholder="Observaciones y comentarios de la sesión..."
+              placeholder={t('sessions.phObservations')}
               className="min-h-[100px] border-gray-200"
             />
           </CardContent>

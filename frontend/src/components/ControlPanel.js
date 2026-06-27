@@ -1074,9 +1074,9 @@ const ControlPanel = ({
                   trainingLoadRatio.status === 'warning' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
                   trainingLoadRatio.status === 'danger' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-blue-50 text-blue-700 border border-blue-200'
                 }`}>
-                  {trainingLoadRatio.status === 'optimal' ? 'Óptimo' :
-                   trainingLoadRatio.status === 'warning' ? 'Precaución' :
-                   trainingLoadRatio.status === 'danger' ? 'Riesgo' : 'Bajo'}
+                  {trainingLoadRatio.status === 'optimal' ? t('dashboard.controlPanel.statusOptimal') :
+                   trainingLoadRatio.status === 'warning' ? t('dashboard.controlPanel.statusWarning') :
+                   trainingLoadRatio.status === 'danger' ? t('dashboard.controlPanel.statusDanger') : t('dashboard.controlPanel.statusLow')}
                 </span>
               </div>
               <div className="flex items-end gap-4 mb-3">

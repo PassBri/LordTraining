@@ -365,14 +365,23 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     return map[apiCat] || 'custom';
   };
 
+  const modelSlug = (s) => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '').toLowerCase();
+  const tModelName = (name) => t('models.' + modelSlug(name), { defaultValue: name });
+
   // Construir modelos efectivos: combina los de API (con defaults + custom del usuario)
   // Si la API responde, usa esos. Caso contrario fallback a PERIODIZATION_MODELS hardcoded.
   const effectiveModels = React.useMemo(() => {
-    if (apiModels.length === 0) return PERIODIZATION_MODELS;
+    if (apiModels.length === 0) {
+      const dict = {};
+      Object.entries(PERIODIZATION_MODELS).forEach(([id, m]) => {
+        dict[id] = { ...m, name: tModelName(m.name) };
+      });
+      return dict;
+    }
     const dict = {};
     apiModels.forEach(m => {
       dict[m.id] = {
-        name: m.name,
+        name: tModelName(m.name),
         category: mapCategory(m.category),
         description: m.description || '',
         author: m.author || '',
@@ -383,7 +392,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       };
     });
     return dict;
-  }, [apiModels]);
+  }, [apiModels, t]);
 
   const effectiveCategories = React.useMemo(() => ({
     ...MODEL_CATEGORIES,
@@ -832,18 +841,18 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
   
   // Helper to find sport name from both catalogs
   const getSportName = (sportId) => {
+    let raw = planConfig.sportName || sportId;
     // First check user's custom sports
     for (const category of userSports) {
       const sport = category.sports?.find(s => s.id === sportId);
-      if (sport) return sport.name;
+      if (sport) { raw = sport.name; break; }
     }
     // Then check static catalog
     for (const category of Object.keys(sportsCatalog)) {
       const sport = sportsCatalog[category]?.find(s => s.id === sportId);
-      if (sport) return sport.name;
+      if (sport) { raw = sport.name; break; }
     }
-    // Fallback to planConfig.sportName or the id itself
-    return planConfig.sportName || sportId;
+    return t('catalog.sport_' + sportId, { defaultValue: raw });
   };
   
   const generateDefaultSessions = (count) => {
@@ -1709,7 +1718,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                             className={`p-2 rounded-md border text-left cursor-pointer transition-all ${planConfig.sport === sport.id ? 'border-[#CCFF00] bg-[#CCFF00]/10 ring-1 ring-[#CCFF00]' : 'border-blue-200 hover:border-slate-900 hover:bg-blue-50/50'}`}
                             onClick={() => setPlanConfig({ ...planConfig, sport: sport.id, sportName: sport.name, sessionsPerWeek: sport.sessions_per_week || 4 })}
                           >
-                            <p className="font-bold text-slate-800 text-[11px] truncate leading-tight">{sport.name}</p>
+                            <p className="font-bold text-slate-800 text-[11px] truncate leading-tight">{t('catalog.sport_' + sport.id, { defaultValue: sport.name })}</p>
                             <p className="text-[9px] text-slate-400">{sport.sessions_per_week || 4}/{t('loadPanel.semShort')}</p>
                           </button>
                         ))}
@@ -1723,7 +1732,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
               {Object.entries(sportsCatalog).map(([category, sports]) => (
                 <div key={category} className="space-y-1.5">
                   <div className="px-2 py-1 rounded-md bg-slate-100 border-l-2 border-slate-400 flex items-center gap-1.5">
-                    <h4 className="font-bold text-slate-700 text-[11px] uppercase tracking-wider">{category === 'strength' ? '💪 Fuerza' : category === 'endurance' ? '🏃 Resistencia' : category === 'speed' ? '⚡ Velocidad' : category === 'team' ? '⚽ Equipos' : category === 'combat' ? '🥊 Combate' : category === 'racquet' ? '🎾 Raqueta' : category === 'fitness' ? '🏋️ Fitness' : '🏅 General'}</h4>
+                    <h4 className="font-bold text-slate-700 text-[11px] uppercase tracking-wider">{category === 'strength' ? '💪' : category === 'endurance' ? '🏃' : category === 'speed' ? '⚡' : category === 'team' ? '⚽' : category === 'combat' ? '🥊' : category === 'racquet' ? '🎾' : category === 'fitness' ? '🏋️' : '🏅'} {t('catalog.cat_' + category, { defaultValue: category })}</h4>
                     <span className="text-[9px] text-slate-400 ml-auto">{sports.length}</span>
                   </div>
                   <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-1.5">
@@ -1734,7 +1743,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                         className={`p-2 rounded-md border text-left cursor-pointer transition-all ${planConfig.sport === sport.id ? 'border-[#CCFF00] bg-[#CCFF00]/10 ring-1 ring-[#CCFF00]' : 'border-slate-200 hover:border-slate-900 hover:bg-slate-50'}`}
                         onClick={() => setPlanConfig({ ...planConfig, sport: sport.id, sportName: sport.name, sessionsPerWeek: sport.sessions_per_week })}
                       >
-                        <p className="font-bold text-slate-800 text-[11px] truncate leading-tight">{sport.name}</p>
+                        <p className="font-bold text-slate-800 text-[11px] truncate leading-tight">{t('catalog.sport_' + sport.id, { defaultValue: sport.name })}</p>
                         <p className="text-[9px] text-slate-400">{sport.sessions_per_week}/{t('loadPanel.semShort')}</p>
                       </button>
                     ))}
@@ -1747,10 +1756,10 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">{t('periodization.athleteLevel')}</span>
                 <div className="flex gap-1.5 flex-wrap">
                   {[
-                    { id: 'beginner', name: 'Principiante', desc: '< 1 año' },
-                    { id: 'intermediate', name: 'Intermedio', desc: '1-3 años' },
-                    { id: 'advanced', name: 'Avanzado', desc: '3-6 años' },
-                    { id: 'elite', name: 'Élite', desc: '6+ años' }
+                    { id: 'beginner', name: t('catalog.level_beginner'), desc: '< 1 año' },
+                    { id: 'intermediate', name: t('catalog.level_intermediate'), desc: '1-3 años' },
+                    { id: 'advanced', name: t('catalog.level_advanced'), desc: '3-6 años' },
+                    { id: 'elite', name: t('catalog.level_elite'), desc: '6+ años' }
                   ].map(level => (
                     <button 
                       key={level.id}

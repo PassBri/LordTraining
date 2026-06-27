@@ -33,7 +33,7 @@ const PlanSidebar = ({
           <button
             onClick={() => setIsCollapsed(false)}
             className="w-9 h-9 bg-slate-900 rounded-lg flex items-center justify-center hover:bg-slate-800 transition-colors"
-            title="Expandir panel de planes"
+            title={t('dashboard.plans.expandPanel')}
           >
             <ChevronRight className="w-4 h-4 text-[#CCFF00]" />
           </button>
@@ -87,7 +87,7 @@ const PlanSidebar = ({
             <button
               onClick={onRefresh}
               className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
-              title="Actualizar"
+              title={t('dashboard.plans.refresh')}
               data-testid="sidebar-refresh-btn"
             >
               <RefreshCw className="w-3 h-3" />
@@ -95,7 +95,7 @@ const PlanSidebar = ({
             <button
               onClick={() => setIsCollapsed(true)}
               className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
-              title="Colapsar"
+              title={t('dashboard.plans.collapse')}
               data-testid="sidebar-collapse-btn"
             >
               <ChevronLeft className="w-3 h-3" />
@@ -121,7 +121,7 @@ const PlanSidebar = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar plan..."
+              placeholder={t('dashboard.plans.searchPlan')}
               className="w-full h-8 pl-8 pr-3 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#007AFF] focus:border-[#007AFF] text-slate-700 placeholder:text-slate-400"
               data-testid="sidebar-search-input"
             />
@@ -159,16 +159,16 @@ const PlanSidebar = ({
                         </h4>
                         {isActive && (
                           <Badge className="bg-[#007AFF] text-white text-[8px] px-1 py-0 h-3.5 shrink-0 rounded">
-                            Activo
+                            {t('dashboard.plans.active')}
                           </Badge>
                         )}
                       </div>
                       <div className="flex items-center gap-1 mt-0.5 flex-wrap">
-                        <span className="text-[10px] text-slate-400 truncate max-w-[80px]">{plan.sport || 'General'}</span>
+                        <span className="text-[10px] text-slate-400 truncate max-w-[80px]">{plan.sport ? t('catalog.sport_'+plan.sport,{defaultValue:plan.sport}) : t('dashboard.plans.sportGeneral')}</span>
                         <span className="text-slate-200 text-[8px]">|</span>
-                        <span className="text-[10px] text-slate-400">{plan.total_weeks} sem</span>
+                        <span className="text-[10px] text-slate-400">{plan.total_weeks} {t('dashboard.plans.weeksShort')}</span>
                         <span className="text-slate-200 text-[8px]">|</span>
-                        <span className="text-[10px] text-slate-400 truncate max-w-[70px]">{plan.model_name || plan.model}</span>
+                        <span className="text-[10px] text-slate-400 truncate max-w-[70px]">{t('models.'+(plan.model_name||plan.model||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'_').replace(/^_+|_+$/g,'').toLowerCase(),{defaultValue:plan.model_name||plan.model})}</span>
                       </div>
                     </div>
                     {/* Hover actions */}
@@ -212,7 +212,7 @@ const PlanSidebar = ({
         ) : searchQuery ? (
           <div className="flex flex-col items-center justify-center p-6 text-center">
             <Search className="w-8 h-8 text-slate-200 mb-2" />
-            <p className="text-[11px] text-slate-400">Sin resultados para "{searchQuery}"</p>
+            <p className="text-[11px] text-slate-400">{t('dashboard.plans.noResultsFor')} "{searchQuery}"</p>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center p-6 text-center h-48">

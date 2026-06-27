@@ -2,6 +2,35 @@
 
 ## Credenciales: test@train.com / test123456
 
+## [Jun 2026] Multiidioma — FASE C3 (config sesiones) + FASE C4 (Datos) COMPLETADAS (12 idiomas)
+- **C3 config de sesiones:** capacidades, métodos, procedimientos organizativos, objetivos (OBJETIVO FÍSICO/...), fases HR, zonas HR, stats FC, modelos de progresión y labels de fila → traducidos vía id-keyed maps (`sessions.cap_*`, `met_*`, `proc_*`, `prog_*`, etc.) en `SessionEditor.js` y `SessionPlanning.js`. ru/zh de `sessions` re-traducidos tras recarga de budget.
+- **C4 Datos COMPLETO:**
+  - `DashboardPage.js`: namespace `data` (~200 claves auto-extraídas + traducidas por LLM a 12 idiomas incluyendo EN). 208+50+ reemplazos (JSX multilínea, attrs, ~46 toasts, labels de config, nav sub-tabs, radar/achievement, status badges, placeholders dinámicos con interpolación).
+  - `GraphicPlan.js`: namespace `graphicPlan` (i18n desde cero, 45 reemplazos).
+  - `PlanSidebar.js`: búsqueda, badges, tarjetas de plan (deporte vía `catalog.sport_*`, modelo vía slug `models.*`, semanas).
+  - Nombres de modelo/deporte traducidos en GAP analysis y cards (`tModelName` + `catalog.sport_*` con defaultValue).
+  - Roles de usuario (`USER_ROLES`) movidos a `nameKey` + resueltos en render (fix de crash "t is not defined" por config a nivel de módulo).
+- **Verificado en EN por screenshot** (vista Análisis Previo completa, sidebar, radar, sin errores de runtime). Compila limpio.
+- **Pendiente:** Fase D (Calculadoras / Scouting / Reportes / Super Admin). Gap menor: micro-labels profundos de `CAPACITY_CONFIG` (subtipos/refs técnicas) en SessionEditor.
+
+
+## [Jun 2026] Multiidioma — FASE C3 (Sesiones) parcial + ⚠️ BUDGET LLM AGOTADO
+- **Namespace `sessions`** (135 claves) aplicado en: `SessionsExportModal.js`, `SessionPlanning.js`, `SessionEditor.js` (i18n desde cero en los 3). Cubre: títulos, labels, ~30 placeholders, ~25 tooltips (title=), ~18 toasts, badges de estado (Completada/Planificada/En curso), monitoreo HR, materiales, pizarras, etc. (96+ reemplazos solo en SessionEditor). Hooks añadidos a componentes anidados (TacticalBoardPreview, MiniBoardPlayer).
+- **⚠️ BUDGET DEL EMERGENT LLM KEY AGOTADO** a mitad de la traducción de `sessions` (Current cost 2.59 > Max 2.546). Resultado:
+  - `sessions` traducido a: es, en, pt, ar, hi, id, fr, de, ja, ko (10 idiomas). **FALTAN ru y zh** → caen a fallback `es` (config `fallbackLng:'es'`, NO se rompen, muestran español).
+  - **Labels de config aún SIN traducir** en SessionEditor/SessionPlanning (bloqueados por budget): objetivos (OBJETIVO FÍSICO/TÉCNICO/TÁCTICO/PSICOLÓGICO/TEÓRICO), fases (Inicial/Principal/Final/Después), capacidades (Fuerza/Resistencia/Velocidad/Coordinación), zonas HR (Aeróbico base, etc.), "FC Máxima".
+- **Acción requerida del usuario:** recargar budget en Profile → Universal Key → Add Balance (o activar auto top-up) para: (1) ru/zh de `sessions`, (2) labels de config de sesiones, (3) **C4 Datos** y (4) **Fase D**.
+- Verificado: compila sin errores; en.json tiene las 135 claves; badge ACWR ahora "Optimal" (fix C1).
+
+
+## [Jun 2026] Multiidioma — Localización de DATOS del backend (deportes + modelos) COMPLETADA
+- **Enfoque elegido:** mapa de override en FRONTEND (sin tocar API en producción). i18next `t(key, {defaultValue: rawName})` → traduce si existe clave, si no usa el nombre del backend.
+- **Catálogo de deportes** (namespace `catalog`): 24 deportes mapeados por **id slug estable** (`catalog.sport_<id>`), 8 categorías (`catalog.cat_<key>`: strength/endurance/speed/team/combat/racquet/fitness/general) y 4 niveles de atleta (`catalog.level_<id>`). Aplicado en `getSportName()`, grilla del wizard y headers de categoría. Verificado en EN (STRENGTH/ENDURANCE/... + Powerlifting/Swimming/Football...).
+- **Modelos de periodización** (namespace `models`, 35 entradas): los ids son UUID inestables entre entornos → se mapean por **nombre** vía slug determinista (`modelSlug()` NFD+regex idéntico en JS y Python). Helper `tModelName(name)` aplicado en `effectiveModels` (rama API y rama fallback `PERIODIZATION_MODELS`).
+- **Nota:** El bloque "MY SPORTS" del wizard es el catálogo **custom del usuario** (`/api/sports/catalog`) → se mantiene como lo nombró el usuario (correcto). Los nombres de modelo TAMBIÉN aparecen en el componente GAP Analysis / Análisis Previo (parte de C4/GraphicPlan) → pendiente aplicar `tModelName` ahí.
+- **Fix menor C1:** badge de estado ACWR del card ("Óptimo/Precaución/Riesgo/Bajo") → `dashboard.controlPanel.status*`.
+
+
 ## [Jun 2026] Multiidioma — FASE C2 (Periodización) frontend COMPLETADA + hallazgo de datos
 - **LoadPanel.js** (i18n desde cero): namespace `loadPanel`. ACWR zonas (Detraining/Optimal/Caution/Overload + desc), KPIs (Carga aguda/crónica, Tendencia, RPE prom.), rangos, charts (Magnitud de Carga, Carga por mesociclo), tendencia traducida vía `trend_<estable|creciente|decreciente>`. Verificado.
 - **MesoMevMavMrvChart.js** (i18n desde cero, claves en `loadPanel`): título proyección MEV→MAV→MRV, leyendas (Series/Volumen/Intensidad/Densidad), botones de modo (Barras/Líneas/Mixta/Puntos), tooltip Descarga. Corregida colisión de variable `t` del .map → `m`.

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
@@ -38,6 +39,7 @@ const BOARD_SPORTS = {
 
 // ─── Preview component for saved tactical board ───
 const TacticalBoardPreview = ({ board }) => {
+  const { t } = useTranslation();
   const boardSport = BOARD_SPORTS[board.sport] || BOARD_SPORTS.football;
   const els = board.elements || [];
 
@@ -100,6 +102,7 @@ const TacticalBoardPreview = ({ board }) => {
 // Cuando el SVG contiene animaciones SMIL (<animate>, <animateMotion>), expone una barra de
 // controles (Play/Pausa/Reset + scrubber) en una fila separada debajo del SVG.
 const MiniBoardPlayer = ({ svgHtml, editHref, onEditClick, onRemove, testIdPrefix }) => {
+  const { t } = useTranslation();
   const wrapperRef = useRef(null);
   const svgElRef = useRef(null);
   const rafRef = useRef(null);
@@ -209,7 +212,7 @@ const MiniBoardPlayer = ({ svgHtml, editHref, onEditClick, onRemove, testIdPrefi
               type="button"
               onClick={handlePause}
               className="w-5 h-5 rounded-full bg-white hover:bg-white text-slate-900 flex items-center justify-center shadow transition-transform hover:scale-110 flex-shrink-0"
-              title="Pausar"
+              title={t('sessions.pause')}
               data-testid={`${testIdPrefix}-pause`}
             >
               <Pause className="w-2.5 h-2.5" fill="currentColor" />
@@ -219,7 +222,7 @@ const MiniBoardPlayer = ({ svgHtml, editHref, onEditClick, onRemove, testIdPrefi
               type="button"
               onClick={handlePlay}
               className="w-5 h-5 rounded-full bg-[#c8f700] hover:bg-[#d9ff3a] text-slate-900 flex items-center justify-center shadow transition-transform hover:scale-110 flex-shrink-0"
-              title="Reproducir"
+              title={t('sessions.play')}
               data-testid={`${testIdPrefix}-play`}
             >
               <Play className="w-2.5 h-2.5" fill="currentColor" />
@@ -229,7 +232,7 @@ const MiniBoardPlayer = ({ svgHtml, editHref, onEditClick, onRemove, testIdPrefi
             type="button"
             onClick={handleReset}
             className="w-5 h-5 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition-transform hover:scale-110 border border-white/20 flex-shrink-0"
-            title="Reiniciar"
+            title={t('sessions.restart')}
             data-testid={`${testIdPrefix}-reset`}
           >
             <RotateCcw className="w-2.5 h-2.5" />
@@ -245,7 +248,7 @@ const MiniBoardPlayer = ({ svgHtml, editHref, onEditClick, onRemove, testIdPrefi
             onMouseDown={stop}
             className="flex-1 h-1 accent-[#c8f700] cursor-pointer"
             style={{minWidth:'30px'}}
-            title="Línea de tiempo"
+            title={t('sessions.timeline')}
             data-testid={`${testIdPrefix}-scrubber`}
           />
           <span className="text-[8px] font-bold text-white/70 tabular-nums flex-shrink-0" style={{fontFamily:DM,minWidth:'28px',textAlign:'right'}}>
@@ -659,7 +662,7 @@ const SessionEditor = ({
         });
         setExpandedBoard(boardEditContextRef.current.actId);
         boardEditContextRef.current = null;
-        toast.success('Pizarra vinculada a la actividad');
+        toast.success(t('sessions.tBoardLinked'));
       }
     };
     window.addEventListener('message', handleMessage);
@@ -834,9 +837,9 @@ const SessionEditor = ({
         detailedData: sessionData
       };
       await onSave(updatedSession);
-      toast.success('Sesión guardada correctamente');
+      toast.success(t('sessions.tSessionSaved'));
     } catch (error) {
-      toast.error('Error al guardar la sesión');
+      toast.error(t('sessions.tSaveError'));
     }
   };
 
@@ -853,7 +856,7 @@ const SessionEditor = ({
     
     try {
       const token = localStorage.getItem('train_token');
-      if (!token) { toast.error('Sesión expirada'); setExporting(false); return; }
+      if (!token) { toast.error(t('sessions.tSessionExpired')); setExporting(false); return; }
       
       toast.info(mode === 'boards' ? 'Generando PDF de pizarras...' : 'Generando PDF...');
       
@@ -891,10 +894,10 @@ const SessionEditor = ({
       a.click();
       window.URL.revokeObjectURL(url);
       
-      toast.success('PDF descargado');
+      toast.success(t('sessions.tPdfDownloaded'));
     } catch (error) {
       console.error('Error PDF:', error);
-      toast.error('Error al generar el PDF. Inténtalo de nuevo.');
+      toast.error(t('sessions.tPdfGenError'));
     } finally {
       setExporting(false);
     }
@@ -909,12 +912,12 @@ const SessionEditor = ({
       const token = localStorage.getItem('train_token');
       
       if (!token) {
-        toast.error('Sesión expirada. Por favor inicia sesión nuevamente.');
+        toast.error(t('sessions.tSessionExpiredLogin'));
         setExporting(false);
         return;
       }
       
-      toast.info('Generando enlace...');
+      toast.info(t('sessions.tGeneratingLink'));
       
       // Capturar la imagen de la sesión
       let imageBase64 = null;
@@ -945,7 +948,7 @@ const SessionEditor = ({
         }
       } catch (imgError) {
         console.error('Error capturing image:', imgError);
-        toast.warning('No se pudo capturar la imagen, se compartirá solo los datos');
+        toast.warning(t('sessions.tImageCaptureWarn'));
       }
       
       const sesCode = `SES-${String(session?.sessionIndex || session?.dayName || '001').padStart(3, '0')}`;
@@ -993,10 +996,10 @@ const SessionEditor = ({
     try {
       await navigator.clipboard.writeText(shareLink);
       setLinkCopied(true);
-      toast.success('Enlace copiado al portapapeles');
+      toast.success(t('sessions.tLinkCopied'));
       setTimeout(() => setLinkCopied(false), 3000);
     } catch (error) {
-      toast.error('Error al copiar enlace');
+      toast.error(t('sessions.tCopyLinkError'));
     }
   };
 
@@ -1029,11 +1032,11 @@ const SessionEditor = ({
 
               {/* Exercise + picker */}
               <div className="relative w-[200px] flex-shrink-0">
-                <Input value={act.ejercicio} onChange={(e) => updateActividad(faseKey, idx, 'ejercicio', e.target.value)} onFocus={() => { setShowExercisePicker(`${faseKey}-${idx}`); setPickerCat(null); setPickerSub(null); }} placeholder="Ejercicio..." className="h-9 text-[13px] font-semibold border-slate-200 text-slate-900 rounded-lg px-2.5 focus:ring-1 focus:ring-[#84cc16] focus:border-[#84cc16]" data-testid={`exercise-input-${faseKey}-${idx}`} style={{fontFamily:DM}} />
+                <Input value={act.ejercicio} onChange={(e) => updateActividad(faseKey, idx, 'ejercicio', e.target.value)} onFocus={() => { setShowExercisePicker(`${faseKey}-${idx}`); setPickerCat(null); setPickerSub(null); }} placeholder={t('sessions.phExercise')} className="h-9 text-[13px] font-semibold border-slate-200 text-slate-900 rounded-lg px-2.5 focus:ring-1 focus:ring-[#84cc16] focus:border-[#84cc16]" data-testid={`exercise-input-${faseKey}-${idx}`} style={{fontFamily:DM}} />
                 {showExercisePicker === `${faseKey}-${idx}` && (
                   <div className="absolute left-0 top-[40px] bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 99999, minWidth: '380px' }} onMouseDown={(e) => e.preventDefault()}>
                     <div className="p-2 border-b bg-slate-50">
-                      <Input placeholder="Buscar ejercicio..." value={exerciseSearchTerm} onChange={(e) => { setExerciseSearchTerm(e.target.value); setPickerCat(null); setPickerSub(null); }} className="h-7 text-xs bg-white" autoFocus />
+                      <Input placeholder={t('sessions.phSearchExercise')} value={exerciseSearchTerm} onChange={(e) => { setExerciseSearchTerm(e.target.value); setPickerCat(null); setPickerSub(null); }} className="h-7 text-xs bg-white" autoFocus />
                     </div>
                     {exerciseSearchTerm ? (
                       <div className="max-h-48 overflow-y-auto p-1">
@@ -1043,7 +1046,7 @@ const SessionEditor = ({
                             <p className="text-slate-400 text-[9px]">{ej.categoria} &middot; {ej.subcategoria}</p>
                           </button>
                         ))}
-                        {getFilteredExercises().length === 0 && <p className="text-center text-slate-400 py-3 text-xs">Sin resultados</p>}
+                        {getFilteredExercises().length === 0 && <p className="text-center text-slate-400 py-3 text-xs">{t('sessions.noResults')}</p>}
                       </div>
                     ) : (
                       <div className="flex" style={{ maxHeight: '220px' }}>
@@ -1053,7 +1056,7 @@ const SessionEditor = ({
                           ))}
                         </div>
                         <div className="flex-1 overflow-y-auto">
-                          {!pickerCat ? <p className="text-center text-slate-300 py-6 text-xs">Selecciona categoría</p> : (
+                          {!pickerCat ? <p className="text-center text-slate-300 py-6 text-xs">{t('sessions.selectCategory')}</p> : (
                             <div className="p-1">
                               {exercisesCat[pickerCat]?.subcategorias && Object.entries(exercisesCat[pickerCat].subcategorias).map(([subId, sub]) => (
                                 <div key={subId} className="mb-0.5">
@@ -1070,20 +1073,20 @@ const SessionEditor = ({
                         </div>
                       </div>
                     )}
-                    <button className="w-full text-center text-slate-400 py-1 border-t bg-slate-50 text-[10px] hover:text-slate-600" onClick={() => setShowExercisePicker(null)}>Cerrar</button>
+                    <button className="w-full text-center text-slate-400 py-1 border-t bg-slate-50 text-[10px] hover:text-slate-600" onClick={() => setShowExercisePicker(null)}>{t('sessions.close')}</button>
                   </div>
                 )}
               </div>
 
               {/* Descripción — input inline truncado */}
               <div className="flex-1 min-w-[140px]">
-                <Input value={act.descripcion||''} onChange={(e) => updateActividad(faseKey, idx, 'descripcion', e.target.value)} placeholder="Descripción, grupos musculares, variantes..." className="h-9 text-[12px] border-slate-200 text-slate-700 rounded-lg px-2.5 focus:ring-1 focus:ring-[#84cc16] focus:border-[#84cc16] truncate" style={{fontFamily:DM}} data-testid={`exercise-desc-${faseKey}-${idx}`} />
+                <Input value={act.descripcion||''} onChange={(e) => updateActividad(faseKey, idx, 'descripcion', e.target.value)} placeholder={t('sessions.phDescMuscle')} className="h-9 text-[12px] border-slate-200 text-slate-700 rounded-lg px-2.5 focus:ring-1 focus:ring-[#84cc16] focus:border-[#84cc16] truncate" style={{fontFamily:DM}} data-testid={`exercise-desc-${faseKey}-${idx}`} />
               </div>
 
               {/* Capacidad pill */}
               <Select value={act.capacidadFisica} onValueChange={(v) => updateActividad(faseKey, idx, 'capacidadFisica', v)}>
                 <SelectTrigger className="h-7 text-[10px] font-semibold w-auto min-w-[86px] border-0 rounded-full px-2.5 flex-shrink-0" style={{background:'rgba(132,204,22,0.12)',color:'#3f6212'}} data-testid={`capacity-select-${faseKey}-${idx}`}><SelectValue /></SelectTrigger>
-                <SelectContent>{CAPACIDADES_FISICAS.map(cap => <SelectItem key={cap.id} value={cap.id} className="text-xs">{cap.name}</SelectItem>)}</SelectContent>
+                <SelectContent>{CAPACIDADES_FISICAS.map(cap => <SelectItem key={cap.id} value={cap.id} className="text-xs">{t('sessions.cap_'+cap.id,{defaultValue:cap.name})}</SelectItem>)}</SelectContent>
               </Select>
 
               {/* Intensidad inline */}
@@ -1123,16 +1126,16 @@ const SessionEditor = ({
               </div>
 
               {/* Progresión — pills compactas */}
-              <div className="flex items-center gap-0.5 flex-shrink-0 pl-1 border-l border-slate-100" title="Modelo de progresión">
+              <div className="flex items-center gap-0.5 flex-shrink-0 pl-1 border-l border-slate-100" title={t('sessions.progModel')}>
                 {MODELOS_PROGRESION.map(m => (
                   <button
                     key={m.id}
                     onClick={() => updateActividad(faseKey, idx, 'progresion', { ...prog, modelo: m.id })}
                     className={`text-[9px] font-bold uppercase tracking-wide px-1.5 py-1 rounded transition-all ${prog.modelo === m.id ? 'bg-[#CCFF00] text-slate-900' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'}`}
-                    title={m.desc}
+                    title={t('sessions.prog_'+m.id+'_desc',{defaultValue:m.desc})}
                     data-testid={`progresion-${m.id}-${faseKey}-${idx}`}
                   >
-                    {m.name.slice(0,3)}
+                    {t('sessions.prog_'+m.id,{defaultValue:m.name}).slice(0,3)}
                   </button>
                 ))}
               </div>
@@ -1142,7 +1145,7 @@ const SessionEditor = ({
                 <button
                   onClick={() => setExpandedBoard(act.id)}
                   className={`w-[56px] h-[48px] rounded-md overflow-hidden border transition-all flex-shrink-0 ${isBoardOpen ? 'border-[#84cc16] ring-2 ring-[#c8f700]/40' : 'border-slate-200 hover:border-[#c8f700] hover:shadow-md'}`}
-                  title="Ver mini-pizarra"
+                  title={t('sessions.viewMiniBoard')}
                   data-testid={`toggle-board-${faseKey}-${idx}`}
                   dangerouslySetInnerHTML={{ __html: act.boardThumbnail }}
                   style={{ padding: 0 }}
@@ -1151,7 +1154,7 @@ const SessionEditor = ({
                 <button
                   onClick={() => setExpandedBoard(act.id)}
                   className="w-[56px] h-[48px] rounded-md border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all flex-shrink-0"
-                  title="Añadir pizarra"
+                  title={t('sessions.addBoard')}
                   data-testid={`toggle-board-${faseKey}-${idx}`}
                 >
                   <LayoutGrid className="w-4 h-4" />
@@ -1163,7 +1166,7 @@ const SessionEditor = ({
                 <button
                   onClick={() => setExpandedPanels(prev => ({ ...prev, [panelKey]: !prev[panelKey] }))}
                   className={`p-1.5 rounded-lg transition-colors ${isExpanded ? 'bg-slate-100 text-slate-700' : 'text-slate-300 hover:text-[#84cc16] hover:bg-slate-50'}`}
-                  title="Carga y Progresión avanzada"
+                  title={t('sessions.advLoadProg')}
                   data-testid={`toggle-advanced-${faseKey}-${idx}`}
                 >
                   <Gauge className="w-3.5 h-3.5" />
@@ -1171,7 +1174,7 @@ const SessionEditor = ({
                 <button
                   onClick={() => {const dup={...act,id:`act-${Date.now()}`};setSessionData(prev=>({...prev,fases:{...prev.fases,[faseKey]:{...prev.fases[faseKey],actividades:[...prev.fases[faseKey].actividades,dup]}}}));}}
                   className="p-1.5 rounded-lg text-slate-300 hover:text-[#84cc16] hover:bg-slate-50 transition-colors"
-                  title="Duplicar"
+                  title={t('sessions.duplicate')}
                   data-testid={`duplicate-${faseKey}-${idx}`}
                 >
                   <Copy className="w-3.5 h-3.5" />
@@ -1179,7 +1182,7 @@ const SessionEditor = ({
                 <button
                   onClick={() => deleteActividad(faseKey, idx)}
                   className="p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-slate-50 transition-colors"
-                  title="Eliminar"
+                  title={t('sessions.delete')}
                   data-testid={`delete-${faseKey}-${idx}`}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -1196,7 +1199,7 @@ const SessionEditor = ({
                       <LayoutGrid className="w-3.5 h-3.5" style={{color:'#0a0a0f'}} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <SheetTitle className="text-[13px] font-bold text-white tracking-tight truncate" style={{fontFamily:DM}}>Pizarra Táctica</SheetTitle>
+                      <SheetTitle className="text-[13px] font-bold text-white tracking-tight truncate" style={{fontFamily:DM}}>{t('sessions.tacticalBoard')}</SheetTitle>
                       <p className="text-[10px] text-white/50 truncate" style={{fontFamily:DM}}>{act.ejercicio || 'Sin ejercicio'}</p>
                     </div>
                   </div>
@@ -1231,8 +1234,8 @@ const SessionEditor = ({
                       data-testid={`open-board-${faseKey}-${idx}`}
                     >
                       <LayoutGrid className="w-8 h-8" />
-                      <span className="text-[12px] font-bold uppercase tracking-wide">Crear pizarra</span>
-                      <span className="text-[10px] text-slate-400">Abre el tactical-board en nueva pestaña</span>
+                      <span className="text-[12px] font-bold uppercase tracking-wide">{t('sessions.createBoard')}</span>
+                      <span className="text-[10px] text-slate-400">{t('sessions.openTacticalNewTab')}</span>
                     </a>
                   )}
                 </div>
@@ -1245,55 +1248,55 @@ const SessionEditor = ({
                 {/* Todo en un solo flex-wrap: fields + métricas */}
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px]" style={{fontFamily:DM}}>
                   <div className="flex items-center gap-1">
-                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Reps</span>
+                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">{t('sessions.repsShort')}</span>
                     <Input value={act.repeticiones || ''} onChange={(e) => updateActividad(faseKey, idx, 'repeticiones', e.target.value)} placeholder={capCfg.volPh} className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 focus:bg-white rounded-md px-1.5 w-[60px] shadow-none focus:ring-0" data-testid={`reps-adv-${faseKey}-${idx}`} />
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Subtipo</span>
+                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">{t('sessions.subtype')}</span>
                     <Select value={act.subtipo || ''} onValueChange={(v) => updateActividad(faseKey, idx, 'subtipo', v)}>
                       <SelectTrigger className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[80px] shadow-none focus:ring-0"><SelectValue placeholder="—" /></SelectTrigger>
                       <SelectContent>{capCfg.subtipos.map(s => <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">U.Vol</span>
+                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">{t('sessions.uVol')}</span>
                     <Select value={act.unidadVolumen || capCfg.unidadesVol[0]} onValueChange={(v) => updateActividad(faseKey, idx, 'unidadVolumen', v)}>
                       <SelectTrigger className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[64px] shadow-none focus:ring-0"><SelectValue /></SelectTrigger>
                       <SelectContent>{capCfg.unidadesVol.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">U.Int</span>
+                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">{t('sessions.uInt')}</span>
                     <Select value={act.unidadIntensidad || capCfg.unidadesInt[0]} onValueChange={(v) => updateActividad(faseKey, idx, 'unidadIntensidad', v)}>
                       <SelectTrigger className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[64px] shadow-none focus:ring-0"><SelectValue /></SelectTrigger>
                       <SelectContent>{capCfg.unidadesInt.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Descanso</span>
+                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">{t('sessions.restNoun')}</span>
                     <Input value={act.recuperacion || ''} onChange={(e) => updateActividad(faseKey, idx, 'recuperacion', e.target.value)} placeholder={capCfg.recPh} className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 focus:bg-white rounded-md px-1.5 w-[70px] shadow-none focus:ring-0" data-testid={`descanso-adv-${faseKey}-${idx}`} />
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Frecuencia</span>
+                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">{t('sessions.frequency')}</span>
                     <Input value={act.frecuencia || ''} onChange={(e) => updateActividad(faseKey, idx, 'frecuencia', e.target.value)} placeholder={capCfg.freqPh} className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 focus:bg-white rounded-md px-1.5 w-[80px] shadow-none focus:ring-0" />
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Método</span>
+                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">{t('sessions.method')}</span>
                     <Select value={act.metodo} onValueChange={(v) => updateActividad(faseKey, idx, 'metodo', v)}>
                       <SelectTrigger className="h-6 text-[11px] font-semibold border-0 bg-blue-50 text-blue-700 rounded-full px-2 w-auto min-w-[80px]"><SelectValue /></SelectTrigger>
-                      <SelectContent>{METODOS_ENTRENAMIENTO.map(met => <SelectItem key={met.id} value={met.id} className="text-xs">{met.name}</SelectItem>)}</SelectContent>
+                      <SelectContent>{METODOS_ENTRENAMIENTO.map(met => <SelectItem key={met.id} value={met.id} className="text-xs">{t('sessions.met_'+met.id,{defaultValue:met.name})}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Organización</span>
+                    <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">{t('sessions.organization')}</span>
                     <Select value={act.procOrganizativo} onValueChange={(v) => updateActividad(faseKey, idx, 'procOrganizativo', v)}>
                       <SelectTrigger className="h-6 text-[11px] font-semibold border-0 bg-emerald-50 text-emerald-700 rounded-full px-2 w-auto min-w-[80px]"><SelectValue /></SelectTrigger>
-                      <SelectContent>{PROC_ORGANIZATIVO.map(proc => <SelectItem key={proc.id} value={proc.id} className="text-xs">{proc.name}</SelectItem>)}</SelectContent>
+                      <SelectContent>{PROC_ORGANIZATIVO.map(proc => <SelectItem key={proc.id} value={proc.id} className="text-xs">{t('sessions.proc_'+proc.id,{defaultValue:proc.name})}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
                   {capCfg.showComplejidad && (
                     <div className="flex items-center gap-1">
-                      <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">Complej.</span>
+                      <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">{t('sessions.complexityShort')}</span>
                       <input type="range" min={1} max={5} value={act.complejidad || 3} onChange={(e) => updateActividad(faseKey, idx, 'complejidad', parseInt(e.target.value))} className="w-14 h-1 accent-violet-500 cursor-pointer" />
                       <span className="text-[11px] font-black text-violet-600 w-4 text-center" style={{fontFamily:DM}}>{act.complejidad || 3}</span>
                     </div>
@@ -1303,19 +1306,19 @@ const SessionEditor = ({
                   <span className="w-px h-4 bg-slate-200 mx-1" />
 
                   {/* Métricas inline */}
-                  <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">C.Total</span><span className="text-[12px] font-black text-slate-800">{met.cargaTotal}</span></span>
-                  <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">C.Sesión</span><span className="text-[12px] font-black text-slate-800">{met.cargaSesion}</span></span>
+                  <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">{t('sessions.cTotal')}</span><span className="text-[12px] font-black text-slate-800">{met.cargaTotal}</span></span>
+                  <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">{t('sessions.cSession')}</span><span className="text-[12px] font-black text-slate-800">{met.cargaSesion}</span></span>
                   {met.ratioDensidad != null && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">T:D</span><span className="text-[12px] font-black text-slate-800">1:{Math.round(1/met.ratioDensidad) || '?'}</span></span>}
-                  {met.seriesPorMin > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">Densidad</span><span className="text-[12px] font-black text-slate-800">{met.seriesPorMin}</span></span>}
-                  {met.tiempoTotalMin > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">Trab:Desc</span><span className="text-[11px] font-bold text-slate-800">{met.tiempoTrabajo}:{met.tiempoDescanso}m</span></span>}
-                  {met.neuroCarga > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-indigo-500">NeuroCarga</span><span className="text-[12px] font-black text-slate-800">{met.neuroCarga}</span></span>}
-                  {met.zonaFC && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-rose-500">Zona FC</span><span className="text-[11px] font-bold text-slate-800">{met.zonaFC}</span></span>}
-                  {met.zonaFuerza && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">Zona</span><span className="text-[11px] font-bold text-slate-800">{met.zonaFuerza}</span></span>}
+                  {met.seriesPorMin > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">{t('sessions.density')}</span><span className="text-[12px] font-black text-slate-800">{met.seriesPorMin}</span></span>}
+                  {met.tiempoTotalMin > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">{t('sessions.workRest')}</span><span className="text-[11px] font-bold text-slate-800">{met.tiempoTrabajo}:{met.tiempoDescanso}m</span></span>}
+                  {met.neuroCarga > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-indigo-500">{t('sessions.neuroLoad')}</span><span className="text-[12px] font-black text-slate-800">{met.neuroCarga}</span></span>}
+                  {met.zonaFC && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-rose-500">{t('sessions.hrZone')}</span><span className="text-[11px] font-bold text-slate-800">{met.zonaFC}</span></span>}
+                  {met.zonaFuerza && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">{t('sessions.zone')}</span><span className="text-[11px] font-bold text-slate-800">{met.zonaFuerza}</span></span>}
                 </div>
 
                 {/* Materiales */}
                 <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-200/60">
-                  <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400 mr-1" style={{fontFamily:DM}}>Materiales</span>
+                  <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400 mr-1" style={{fontFamily:DM}}>{t('sessions.materials')}</span>
                   {actMateriales.map((mat, mi) => (
                     <span key={mi} className="group inline-flex items-center gap-1 text-[10px] font-semibold pl-2 pr-1 py-0.5 rounded-full cursor-pointer transition-all hover:shadow-sm" style={{background:'rgba(168,85,247,0.07)',color:'#7c3aed',border:'1px solid rgba(168,85,247,0.18)'}}
                       onClick={() => {
@@ -1326,7 +1329,7 @@ const SessionEditor = ({
                           updateActividad(faseKey, idx, 'materiales', nm);
                         }
                       }}
-                      title="Clic para editar"
+                      title={t('sessions.clickToEdit')}
                       data-testid={`material-tag-${faseKey}-${idx}-${mi}`}
                     >
                       {mat}
@@ -1341,7 +1344,7 @@ const SessionEditor = ({
                     </PopoverTrigger>
                     <PopoverContent className="w-[300px] p-0" align="start" side="bottom">
                       <div className="p-2.5 border-b border-slate-100 bg-slate-50/80">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Materiales</span>
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">{t('sessions.materials')}</span>
                       </div>
                       <form className="p-2.5 border-b border-slate-100" onSubmit={(e) => {
                         e.preventDefault();
@@ -1353,7 +1356,7 @@ const SessionEditor = ({
                         }
                       }}>
                         <div className="flex gap-1.5">
-                          <Input name="nuevoMaterial" placeholder="Nuevo material personalizado..." className="h-8 text-[12px] flex-1" data-testid={`custom-material-input-${faseKey}-${idx}`} />
+                          <Input name="nuevoMaterial" placeholder={t('sessions.phNewMaterial')} className="h-8 text-[12px] flex-1" data-testid={`custom-material-input-${faseKey}-${idx}`} />
                           <Button type="submit" size="sm" className="h-8 px-3 text-[11px] bg-purple-600 hover:bg-purple-700 text-white" data-testid={`custom-material-add-${faseKey}-${idx}`}>
                             <Plus className="w-3.5 h-3.5" />
                           </Button>
@@ -1366,7 +1369,7 @@ const SessionEditor = ({
                           </button>
                         ))}
                         {MATERIALES_DISPONIBLES.filter(m => !actMateriales.includes(m)).length === 0 && (
-                          <p className="col-span-2 text-center text-slate-400 py-3 text-xs">Todos los materiales predefinidos agregados</p>
+                          <p className="col-span-2 text-center text-slate-400 py-3 text-xs">{t('sessions.allMaterialsAdded')}</p>
                         )}
                       </div>
                     </PopoverContent>
@@ -1379,7 +1382,7 @@ const SessionEditor = ({
           );
         })}
         {fase.actividades.length === 0 && (
-          <div className="text-center py-6 text-slate-400 text-sm">No hay actividades en esta fase</div>
+          <div className="text-center py-6 text-slate-400 text-sm">{t('sessions.noActivitiesPhase')}</div>
         )}
       </div>
     );
@@ -1409,7 +1412,7 @@ const SessionEditor = ({
             .se-field-input::placeholder { font-weight: 400; color: rgba(0,0,0,0.35); }
             .se-section-title { font-size: 15px; font-weight: 600; color: #fff; font-family: 'DM Sans', sans-serif; }
           `}</style>
-          <DialogTitle className="sr-only">Sesión de entrenamiento</DialogTitle>
+          <DialogTitle className="sr-only">{t('sessions.trainingSession')}</DialogTitle>
           <p id="session-editor-desc" className="sr-only">Editor completo de sesión de entrenamiento con objetivos, actividades y monitoreo</p>
           <div className="sticky top-0 z-10" style={{background:'#0a0a0f',fontFamily:DM}}>
             <div className="flex items-center gap-3 px-5 py-3">
@@ -1431,7 +1434,7 @@ const SessionEditor = ({
                     onChange={(e) => setSessionData(prev => ({...prev, sessionName: e.target.value}))}
                     className="bg-transparent text-white border-0 outline-none truncate w-auto max-w-[280px]"
                     style={{fontFamily:DM,fontSize:'17px',fontWeight:600}}
-                    placeholder="Nombre de la sesión..."
+                    placeholder={t('sessions.phSessionName')}
                     data-testid="session-name-input"
                   />
                   <span className="text-[9px] font-bold px-2.5 py-1 rounded-full flex-shrink-0" style={{background:'#9EFF00',color:'#0f0f13',fontFamily:BC,letterSpacing:'0.04em'}}>SES-{String(session?.sessionIndex || session?.dayName || '001').padStart(3,'0')}</span>
@@ -1482,9 +1485,9 @@ const SessionEditor = ({
                 </div>
                 {/* Estado: 12px, completada = 600 */}
                 <select value={sessionData.sessionStatus} onChange={(e) => setSessionData(prev => ({...prev, sessionStatus: e.target.value}))} className="h-7 rounded-lg px-2.5 border-0 outline-none cursor-pointer" style={{fontSize:'12px',fontWeight: sessionData.sessionStatus === 'completada' ? 600 : 500,background:'rgba(204,255,0,0.08)',border:'0.5px solid rgba(204,255,0,0.15)',color:'rgba(255,255,255,0.9)',colorScheme:'dark',fontFamily:DM}}>
-                  <option value="planificada" style={{background:'#12131a',color:'#fff'}}>Planificada</option>
-                  <option value="en_curso" style={{background:'#12131a',color:'#fff'}}>En curso</option>
-                  <option value="completada" style={{background:'#12131a',color:'#fff'}}>Completada</option>
+                  <option value="planificada" style={{background:'#12131a',color:'#fff'}}>{t('sessions.planned')}</option>
+                  <option value="en_curso" style={{background:'#12131a',color:'#fff'}}>{t('sessions.inProgress')}</option>
+                  <option value="completada" style={{background:'#12131a',color:'#fff'}}>{t('sessions.completed')}</option>
                 </select>
               </div>
             </div>
@@ -1492,28 +1495,28 @@ const SessionEditor = ({
             <div className="flex items-center gap-3 px-5 py-2" style={{background:'#12131a',borderTop:'0.5px solid rgba(255,255,255,0.06)',borderBottom:'0.5px solid rgba(255,255,255,0.06)'}}>
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
                 <Users className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.5)'}} />
-                <input value={sessionData.team} onChange={(e) => setSessionData(prev => ({...prev, team: e.target.value}))} className="se-input h-6 bg-transparent border-0 outline-none w-full min-w-[60px]" style={{color:'rgba(255,255,255,0.85)',fontSize:'12px',fontWeight:500}} placeholder="Equipo / Atleta" />
+                <input value={sessionData.team} onChange={(e) => setSessionData(prev => ({...prev, team: e.target.value}))} className="se-input h-6 bg-transparent border-0 outline-none w-full min-w-[60px]" style={{color:'rgba(255,255,255,0.85)',fontSize:'12px',fontWeight:500}} placeholder={t('sessions.phTeamAthlete')} />
               </div>
               <div style={{width:'0.5px',height:'16px',background:'rgba(255,255,255,0.12)'}} />
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
                 <User className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.5)'}} />
-                <input value={sessionData.coach} onChange={(e) => setSessionData(prev => ({...prev, coach: e.target.value}))} className="se-input h-6 bg-transparent border-0 outline-none w-full min-w-[60px]" style={{color:'rgba(255,255,255,0.85)',fontSize:'12px',fontWeight:500}} placeholder="Entrenador..." />
+                <input value={sessionData.coach} onChange={(e) => setSessionData(prev => ({...prev, coach: e.target.value}))} className="se-input h-6 bg-transparent border-0 outline-none w-full min-w-[60px]" style={{color:'rgba(255,255,255,0.85)',fontSize:'12px',fontWeight:500}} placeholder={t('sessions.phCoach')} />
               </div>
               <div style={{width:'0.5px',height:'16px',background:'rgba(255,255,255,0.12)'}} />
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
                 <MapPin className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.5)'}} />
-                <input value={sessionData.location} onChange={(e) => setSessionData(prev => ({...prev, location: e.target.value}))} className="se-input h-6 bg-transparent border-0 outline-none w-full min-w-[60px]" style={{color:'rgba(255,255,255,0.85)',fontSize:'12px',fontWeight:500}} placeholder="Lugar" />
+                <input value={sessionData.location} onChange={(e) => setSessionData(prev => ({...prev, location: e.target.value}))} className="se-input h-6 bg-transparent border-0 outline-none w-full min-w-[60px]" style={{color:'rgba(255,255,255,0.85)',fontSize:'12px',fontWeight:500}} placeholder={t('sessions.phPlace')} />
               </div>
               <div style={{width:'0.5px',height:'16px',background:'rgba(255,255,255,0.12)'}} />
               <div className="flex items-center gap-1.5 w-[140px] flex-shrink-0">
                 <Activity className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.5)'}} />
                 <select value={sessionData.sessionType} onChange={(e) => setSessionData(prev => ({...prev, sessionType: e.target.value}))} className="h-6 bg-transparent border-0 outline-none cursor-pointer w-full" style={{color:'rgba(255,255,255,0.85)',fontSize:'12px',fontWeight:500,colorScheme:'dark',fontFamily:DM}}>
-                  <option value="tecnico-tactico" style={{background:'#12131a',color:'#fff'}}>Técnico-Táctico</option>
-                  <option value="fisico" style={{background:'#12131a',color:'#fff'}}>Físico</option>
-                  <option value="recuperacion" style={{background:'#12131a',color:'#fff'}}>Recuperación</option>
-                  <option value="evaluacion" style={{background:'#12131a',color:'#fff'}}>Evaluación</option>
-                  <option value="competicion" style={{background:'#12131a',color:'#fff'}}>Competición</option>
-                  <option value="mixto" style={{background:'#12131a',color:'#fff'}}>Mixto</option>
+                  <option value="tecnico-tactico" style={{background:'#12131a',color:'#fff'}}>{t('sessions.techTactical')}</option>
+                  <option value="fisico" style={{background:'#12131a',color:'#fff'}}>{t('sessions.physical')}</option>
+                  <option value="recuperacion" style={{background:'#12131a',color:'#fff'}}>{t('sessions.recovery')}</option>
+                  <option value="evaluacion" style={{background:'#12131a',color:'#fff'}}>{t('sessions.evaluation')}</option>
+                  <option value="competicion" style={{background:'#12131a',color:'#fff'}}>{t('sessions.competition')}</option>
+                  <option value="mixto" style={{background:'#12131a',color:'#fff'}}>{t('sessions.mixed')}</option>
                 </select>
               </div>
               <div style={{width:'0.5px',height:'16px',background:'rgba(255,255,255,0.12)'}} />
@@ -1521,7 +1524,7 @@ const SessionEditor = ({
                 <Zap className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.5)'}} />
                 {sessionData.estimatedLoad ? (
                   <>
-                    <input value={sessionData.estimatedLoad} onChange={(e) => setSessionData(prev => ({...prev, estimatedLoad: e.target.value}))} className="se-input h-6 bg-transparent border-0 outline-none w-full" style={{color:'rgba(255,255,255,0.85)',fontSize:'12px',fontWeight:500}} placeholder="Carga" />
+                    <input value={sessionData.estimatedLoad} onChange={(e) => setSessionData(prev => ({...prev, estimatedLoad: e.target.value}))} className="se-input h-6 bg-transparent border-0 outline-none w-full" style={{color:'rgba(255,255,255,0.85)',fontSize:'12px',fontWeight:500}} placeholder={t('sessions.phLoad')} />
                     <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${
                       parseFloat(sessionData.estimatedLoad) > 70 ? 'bg-red-500/25 text-red-400' :
                       parseFloat(sessionData.estimatedLoad) > 40 ? 'bg-amber-500/25 text-amber-400' :
@@ -1555,7 +1558,7 @@ const SessionEditor = ({
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#CCFF00'}}>
                       <Target className="w-3.5 h-3.5 text-slate-900" />
                     </div>
-                    <span className="se-section-title flex-1">Objetivos de la sesión</span>
+                    <span className="se-section-title flex-1">{t('sessions.sessionObjectivesLower')}</span>
                     <ChevronDown className={`w-4 h-4 text-white/60 transition-transform ${sectionOpen.objetivos ? 'rotate-180' : ''}`} />
                   </CardTitle>
                 </CardHeader>
@@ -1563,12 +1566,12 @@ const SessionEditor = ({
                 <CardContent className="p-5 bg-white">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {[
-                      { key: 'general', label: 'OBJETIVO GENERAL', placeholder: 'Objetivo principal de la sesión...' },
-                      { key: 'fisico', label: 'OBJETIVO FÍSICO', placeholder: 'Desarrollo de capacidades físicas...' },
-                      { key: 'tecnico', label: 'OBJETIVO TÉCNICO', placeholder: 'Mejora técnica específica...' },
-                      { key: 'tactico', label: 'OBJETIVO TÁCTICO', placeholder: 'Desarrollo táctico...' },
-                      { key: 'psicologico', label: 'OBJETIVO PSICOLÓGICO', placeholder: 'Aspecto mental a trabajar...' },
-                      { key: 'teorico', label: 'OBJETIVO TEÓRICO', placeholder: 'Conocimiento teórico...' },
+                      { key: 'general', label: t('sessions.objGeneral'), placeholder: 'Objetivo principal de la sesión...' },
+                      { key: 'fisico', label: t('sessions.objFisico'), placeholder: 'Desarrollo de capacidades físicas...' },
+                      { key: 'tecnico', label: t('sessions.objTecnico'), placeholder: 'Mejora técnica específica...' },
+                      { key: 'tactico', label: t('sessions.objTactico'), placeholder: 'Desarrollo táctico...' },
+                      { key: 'psicologico', label: t('sessions.objPsicologico'), placeholder: 'Aspecto mental a trabajar...' },
+                      { key: 'teorico', label: t('sessions.objTeorico'), placeholder: 'Conocimiento teórico...' },
                     ].map(obj => (
                       <div key={obj.key} className="space-y-1">
                         <label className="se-field-label">{obj.label}</label>
@@ -1598,7 +1601,7 @@ const SessionEditor = ({
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#CCFF00'}}>
                       <Zap className="w-3.5 h-3.5 text-slate-900" />
                     </div>
-                    <span className="se-section-title flex-1">Estructura de la sesión</span>
+                    <span className="se-section-title flex-1">{t('sessions.sessionStructureLower')}</span>
                     <ChevronDown className={`w-4 h-4 text-white/60 transition-transform ${sectionOpen.estructura ? 'rotate-180' : ''}`} />
                   </CardTitle>
                 </CardHeader>
@@ -1676,8 +1679,8 @@ const SessionEditor = ({
                         <Watch className="w-3.5 h-3.5 text-slate-900" />
                       </div>
                       <div>
-                        <span className="se-section-title">Monitoreo de rendimiento</span>
-                        <p style={{fontSize:'10px',fontWeight:400,color:'rgba(255,255,255,0.4)',marginTop:'2px'}}>Datos de frecuencia cardíaca y biométricos</p>
+                        <span className="se-section-title">{t('sessions.perfMonitoring')}</span>
+                        <p style={{fontSize:'10px',fontWeight:400,color:'rgba(255,255,255,0.4)',marginTop:'2px'}}>{t('sessions.hrBiometric')}</p>
                       </div>
                     </CardTitle>
                     <div className="flex items-center gap-2">
@@ -1715,22 +1718,22 @@ const SessionEditor = ({
                     const subPhaseKeys = ['fcFaseInicial','fcFasePrincipal','fcFaseFinal'];
                     const hasSubPhases = subPhaseKeys.some(k => m[k] && parseInt(m[k]) > 0);
                     const phases = [
-                      { id: 'antes',   label: 'Antes',    key: 'fcAntesEntrenamiento',    color: '#3B82F6', tPct: 0.00 },
+                      { id: 'antes',   label: t('sessions.phaseAntes'),    key: 'fcAntesEntrenamiento',    color: '#3B82F6', tPct: 0.00 },
                     ];
                     if (hasSubPhases) {
                       phases.push(
-                        { id: 'inicial',   label: 'Inicial',   key: 'fcFaseInicial',   color: '#f59e0b', tPct: 0.20, subPhase: true },
-                        { id: 'principal', label: 'Principal', key: 'fcFasePrincipal', color: '#EF4444', tPct: 0.50, subPhase: true },
-                        { id: 'final',     label: 'Final',     key: 'fcFaseFinal',     color: '#ec4899', tPct: 0.85, subPhase: true },
+                        { id: 'inicial',   label: t('sessions.phaseInicial'),   key: 'fcFaseInicial',   color: '#f59e0b', tPct: 0.20, subPhase: true },
+                        { id: 'principal', label: t('sessions.phasePrincipal'), key: 'fcFasePrincipal', color: '#EF4444', tPct: 0.50, subPhase: true },
+                        { id: 'final',     label: t('sessions.phaseFinal'),     key: 'fcFaseFinal',     color: '#ec4899', tPct: 0.85, subPhase: true },
                       );
                     } else {
-                      phases.push({ id: 'durante', label: 'Durante', key: 'fcDuranteEntrenamiento', color: '#EF4444', tPct: 0.50 });
+                      phases.push({ id: 'durante', label: t('sessions.phaseDurante'), key: 'fcDuranteEntrenamiento', color: '#EF4444', tPct: 0.50 });
                     }
                     phases.push(
-                      { id: 'despues', label: 'Después',  key: 'fcDespuesEntrenamiento',  color: '#10B981', tPct: 1.00 },
-                      { id: 'recup1',  label: "Recup 1'", key: 'fcRecuperacion1min',      color: '#14B8A6', tAfter: 1 },
-                      { id: 'recup3',  label: "Recup 3'", key: 'fcRecuperacion3min',      color: '#A855F7', tAfter: 3 },
-                      { id: 'recup5',  label: "Recup 5'", key: 'fcRecuperacion5min',      color: '#6366F1', tAfter: 5 },
+                      { id: 'despues', label: t('sessions.phaseDespues'),  key: 'fcDespuesEntrenamiento',  color: '#10B981', tPct: 1.00 },
+                      { id: 'recup1',  label: `${t('sessions.recupShort')} 1'`, key: 'fcRecuperacion1min',      color: '#14B8A6', tAfter: 1 },
+                      { id: 'recup3',  label: `${t('sessions.recupShort')} 3'`, key: 'fcRecuperacion3min',      color: '#A855F7', tAfter: 3 },
+                      { id: 'recup5',  label: `${t('sessions.recupShort')} 5'`, key: 'fcRecuperacion5min',      color: '#6366F1', tAfter: 5 },
                     );
                     if (m.mostrarRecuperacion10min) phases.push({ id: 'recup10', label: "Recup 10'", key: 'fcRecuperacion10min', color: '#EC4899', tAfter: 10 });
                     // Duración de la sesión (del header superior, editable por el usuario). Cap: 3h (180min)
@@ -1815,11 +1818,11 @@ const SessionEditor = ({
 
                     // Zone definitions (single source of truth)
                     const ZONE_DEFS = [
-                      { z:'Z1', range:'50-60%', name:'Recuperación',    color:'#059669', bg:'#d1fae5', min:0.50, max:0.60 },
-                      { z:'Z2', range:'60-70%', name:'Aeróbico base',   color:'#65a30d', bg:'#ecfccb', min:0.60, max:0.70 },
-                      { z:'Z3', range:'70-80%', name:'Tempo',           color:'#ca8a04', bg:'#fef9c3', min:0.70, max:0.80 },
-                      { z:'Z4', range:'80-90%', name:'Umbral',          color:'#ea580c', bg:'#ffedd5', min:0.80, max:0.90 },
-                      { z:'Z5', range:'90-100%',name:'VO2max',          color:'#dc2626', bg:'#fee2e2', min:0.90, max:1.00 }
+                      { z:'Z1', range:'50-60%', name:t('sessions.zone_recuperacion'),    color:'#059669', bg:'#d1fae5', min:0.50, max:0.60 },
+                      { z:'Z2', range:'60-70%', name:t('sessions.zone_aerobico'),   color:'#65a30d', bg:'#ecfccb', min:0.60, max:0.70 },
+                      { z:'Z3', range:'70-80%', name:t('sessions.zone_tempo'),           color:'#ca8a04', bg:'#fef9c3', min:0.70, max:0.80 },
+                      { z:'Z4', range:'80-90%', name:t('sessions.zone_umbral'),          color:'#ea580c', bg:'#ffedd5', min:0.80, max:0.90 },
+                      { z:'Z5', range:'90-100%',name:t('sessions.zone_vo2max'),          color:'#dc2626', bg:'#fee2e2', min:0.90, max:1.00 }
                     ];
 
                     // Bandas horizontales en el chart para cada zona (visible sobre el gráfico)
@@ -1876,15 +1879,15 @@ const SessionEditor = ({
                       <div className="w-full flex flex-col gap-1.5 py-1">
                         {/* Línea 1: Fases de entrenamiento — Antes, Sub-fases del Durante (Inicial/Principal/Final), Después */}
                         <div className={rowStyle}>
-                          {rowLabel('Entrenamiento', '#334155')}
-                          {pill({ id: 'antes',   label: 'Antes',   key: 'fcAntesEntrenamiento',   color: '#3B82F6' })}
-                          {pill({ id: 'inicial',   label: 'Inicial',   key: 'fcFaseInicial',   color: '#f59e0b' })}
-                          {pill({ id: 'principal', label: 'Principal', key: 'fcFasePrincipal', color: '#EF4444' })}
-                          {pill({ id: 'final',     label: 'Final',     key: 'fcFaseFinal',     color: '#ec4899' })}
-                          {pill({ id: 'despues', label: 'Después', key: 'fcDespuesEntrenamiento', color: '#10B981' })}
+                          {rowLabel(t('sessions.rowTraining'), '#334155')}
+                          {pill({ id: 'antes',   label: t('sessions.phaseAntes'),   key: 'fcAntesEntrenamiento',   color: '#3B82F6' })}
+                          {pill({ id: 'inicial',   label: t('sessions.phaseInicial'),   key: 'fcFaseInicial',   color: '#f59e0b' })}
+                          {pill({ id: 'principal', label: t('sessions.phasePrincipal'), key: 'fcFasePrincipal', color: '#EF4444' })}
+                          {pill({ id: 'final',     label: t('sessions.phaseFinal'),     key: 'fcFaseFinal',     color: '#ec4899' })}
+                          {pill({ id: 'despues', label: t('sessions.phaseDespues'), key: 'fcDespuesEntrenamiento', color: '#10B981' })}
                           {!hasSubPhases && (
-                            <span className="text-[9px] text-slate-400 italic ml-1" style={{fontFamily:DM}} title="Inicial (20%), Principal (50%), Final (85%) de la duración">
-                              Llena Inicial/Principal/Final para mayor detalle
+                            <span className="text-[9px] text-slate-400 italic ml-1" style={{fontFamily:DM}} title={t('sessions.phaseDurations')}>
+                              {t('sessions.fillPhasesHint')}
                             </span>
                           )}
                         </div>
@@ -1893,7 +1896,7 @@ const SessionEditor = ({
 
                         {/* Línea 2: Recuperación */}
                         <div className={rowStyle}>
-                          {rowLabel('Recuperación', '#7c3aed')}
+                          {rowLabel(t('sessions.recovery'), '#7c3aed')}
                           {recupPhases.map(pill)}
                           <button
                             onClick={() => setSessionData(prev => ({ ...prev, monitoreo: { ...prev.monitoreo, mostrarRecuperacion10min: !prev.monitoreo.mostrarRecuperacion10min } }))}
@@ -1901,7 +1904,7 @@ const SessionEditor = ({
                             style={{fontFamily:DM}}
                             data-testid="toggle-recup-10min"
                           >
-                            {m.mostrarRecuperacion10min ? "✓ Recup 10'" : "+ Recup 10'"}
+                            {m.mostrarRecuperacion10min ? `✓ ${t('sessions.recupShort')} 10'` : `+ ${t('sessions.recupShort')} 10'`}
                           </button>
                         </div>
 
@@ -1909,11 +1912,11 @@ const SessionEditor = ({
 
                         {/* Línea 3: Estadísticas (referencias) */}
                         <div className={rowStyle}>
-                          {rowLabel('Estadísticas', '#0891b2')}
+                          {rowLabel(t('sessions.rowStats'), '#0891b2')}
                           {[
-                            { id: 'reposo', label: 'FC Reposo', key: 'fcReposo', color: '#65a30d' },
-                            { id: 'media',  label: 'FC Media',  key: 'fcMedia',  color: '#d97706' },
-                            { id: 'maxima', label: 'FC Máxima', key: 'fcMaxima', color: '#dc2626' }
+                            { id: 'reposo', label: t('sessions.fcReposo'), key: 'fcReposo', color: '#65a30d' },
+                            { id: 'media',  label: t('sessions.fcMedia'),  key: 'fcMedia',  color: '#d97706' },
+                            { id: 'maxima', label: t('sessions.fcMaxima'), key: 'fcMaxima', color: '#dc2626' }
                           ].map(r => (
                             <div key={r.id} className="flex items-center gap-1 px-1.5 py-0.5 rounded-md border" style={{background:'#fff', borderColor:r.color}} data-testid={`fc-ref-${r.id}`}>
                               <span className="w-2 h-2 rounded-full" style={{background:r.color}} />
@@ -1935,7 +1938,7 @@ const SessionEditor = ({
 
                         {/* Línea 4: Zonas de Frecuencia Cardíaca + Zona Objetivo + Cumplimiento */}
                         <div className={rowStyle}>
-                          {rowLabel('Zonas FC', '#be185d')}
+                          {rowLabel(t('sessions.rowZonesFc'), '#be185d')}
                           {hasZones && (
                             <button
                               type="button"
@@ -1993,7 +1996,7 @@ const SessionEditor = ({
                               )}
                             </>
                           ) : (
-                            <span className="text-[10px] text-slate-400 italic" style={{fontFamily:DM}}>Ingresa FC Reposo + FC Máxima para calcular zonas</span>
+                            <span className="text-[10px] text-slate-400 italic" style={{fontFamily:DM}}>{t('sessions.enterHrToCalc')}</span>
                           )}
                         </div>
                       </div>
@@ -2001,7 +2004,7 @@ const SessionEditor = ({
 
                     return (
                       <InteractiveChart
-                        title="Frecuencia cardíaca por fases"
+                        title={t('sessions.hrByPhases')}
                         icon={Heart}
                         data={chartData}
                         dataKeys={[{ key: 'bpm', color: '#ef4444', name: 'FC (bpm)' }]}
@@ -2064,8 +2067,8 @@ const SessionEditor = ({
                           className="[&>span]:bg-gradient-to-r [&>span]:from-green-500 [&>span]:via-amber-500 [&>span]:to-red-500"
                         />
                         <div className="flex justify-between text-[10px] text-slate-400 mt-1">
-                          <span>Bajo</span>
-                          <span>Alto</span>
+                          <span>{t('sessions.low')}</span>
+                          <span>{t('sessions.high')}</span>
                         </div>
                       </div>
 
@@ -2094,8 +2097,8 @@ const SessionEditor = ({
                           className="[&>span]:bg-gradient-to-r [&>span]:from-red-500 [&>span]:via-amber-500 [&>span]:to-blue-500"
                         />
                         <div className="flex justify-between text-[10px] text-slate-400 mt-1">
-                          <span>Deshidratado</span>
-                          <span>Óptimo</span>
+                          <span>{t('sessions.dehydrated')}</span>
+                          <span>{t('sessions.optimal')}</span>
                         </div>
                       </div>
 
@@ -2125,8 +2128,8 @@ const SessionEditor = ({
                           className="[&>span]:bg-indigo-500"
                         />
                         <div className="flex justify-between text-[10px] text-slate-400 mt-1">
-                          <span>Malo</span>
-                          <span>Excelente</span>
+                          <span>{t('sessions.bad')}</span>
+                          <span>{t('sessions.excellent')}</span>
                         </div>
                       </div>
 
@@ -2156,8 +2159,8 @@ const SessionEditor = ({
                           className="[&>span]:bg-gradient-to-r [&>span]:from-red-500 [&>span]:via-yellow-500 [&>span]:to-green-500"
                         />
                         <div className="flex justify-between text-[10px] text-slate-400 mt-1">
-                          <span>Bajo</span>
-                          <span>Alto</span>
+                          <span>{t('sessions.low')}</span>
+                          <span>{t('sessions.high')}</span>
                         </div>
                       </div>
                     </div>
@@ -2178,7 +2181,7 @@ const SessionEditor = ({
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#CCFF00'}}>
                       <AlertCircle className="w-3.5 h-3.5 text-slate-900" />
                     </div>
-                    <span className="se-section-title flex-1">Observaciones y retroalimentación</span>
+                    <span className="se-section-title flex-1">{t('sessions.observationsFeedback')}</span>
                     <ChevronDown className={`w-4 h-4 text-white/60 transition-transform ${sectionOpen.retro ? 'rotate-180' : ''}`} />
                   </CardTitle>
                 </CardHeader>
@@ -2187,7 +2190,7 @@ const SessionEditor = ({
                   <Textarea
                     value={sessionData.retroalimentacion}
                     onChange={(e) => setSessionData(prev => ({ ...prev, retroalimentacion: e.target.value }))}
-                    placeholder="Observaciones y comentarios de la sesión..."
+                    placeholder={t('sessions.phObservations')}
                     className="se-field-input min-h-[100px] resize-none bg-slate-50 border-slate-200 focus:border-[#CCFF00] focus:ring-[#CCFF00]/20"
                     data-testid="retroalimentacion"
                   />
@@ -2219,9 +2222,9 @@ const SessionEditor = ({
                 data-testid="export-pdf-btn"
               >
                 {exporting ? (
-                  <><Activity className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generando...</>
+                  <><Activity className="w-3.5 h-3.5 mr-1.5 animate-spin" />{t('sessions.generating')}</>
                 ) : (
-                  <><Moon className="w-3.5 h-3.5 mr-1" />PDF oscuro</>
+                  <><Moon className="w-3.5 h-3.5 mr-1" />{t('sessions.pdfDark')}</>
                 )}
               </Button>
               <Button 
@@ -2232,9 +2235,9 @@ const SessionEditor = ({
                 className="border-white/15 text-white/60 hover:bg-white/5 hover:text-white text-[11px] h-8"
               >
                 {exporting ? (
-                  <><Activity className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generando...</>
+                  <><Activity className="w-3.5 h-3.5 mr-1.5 animate-spin" />{t('sessions.generating')}</>
                 ) : (
-                  <><Sun className="w-3.5 h-3.5 mr-1" />PDF claro</>
+                  <><Sun className="w-3.5 h-3.5 mr-1" />{t('sessions.pdfLight')}</>
                 )}
               </Button>
 
@@ -2249,12 +2252,12 @@ const SessionEditor = ({
                 disabled={exporting}
                 className="border-white/15 text-white/60 hover:bg-white/5 hover:text-white text-[11px] h-8"
                 data-testid="export-boards-dark-btn"
-                title="PDF con cuadrícula de ejercicios y sus pizarras (tema oscuro)"
+                title={t('sessions.pdfGridDark')}
               >
                 {exporting ? (
-                  <><Activity className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generando...</>
+                  <><Activity className="w-3.5 h-3.5 mr-1.5 animate-spin" />{t('sessions.generating')}</>
                 ) : (
-                  <><LayoutGrid className="w-3.5 h-3.5 mr-1" />Pizarras oscuras</>
+                  <><LayoutGrid className="w-3.5 h-3.5 mr-1" />{t('sessions.boardsDark')}</>
                 )}
               </Button>
               <Button
@@ -2264,12 +2267,12 @@ const SessionEditor = ({
                 disabled={exporting}
                 className="border-white/15 text-white/60 hover:bg-white/5 hover:text-white text-[11px] h-8"
                 data-testid="export-boards-light-btn"
-                title="PDF con cuadrícula de ejercicios y sus pizarras (tema claro)"
+                title={t('sessions.pdfGridLight')}
               >
                 {exporting ? (
-                  <><Activity className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generando...</>
+                  <><Activity className="w-3.5 h-3.5 mr-1.5 animate-spin" />{t('sessions.generating')}</>
                 ) : (
-                  <><LayoutGrid className="w-3.5 h-3.5 mr-1" />Pizarras claras</>
+                  <><LayoutGrid className="w-3.5 h-3.5 mr-1" />{t('sessions.boardsLight')}</>
                 )}
               </Button>
             </div>
@@ -2307,7 +2310,7 @@ const SessionEditor = ({
                 <Link2 className="w-5 h-5" style={{color:'#CCFF00'}} />
               </div>
               <div>
-                <DialogTitle className="text-white text-base font-bold" style={{fontFamily:DM}}>Compartir sesión</DialogTitle>
+                <DialogTitle className="text-white text-base font-bold" style={{fontFamily:DM}}>{t('sessions.shareSession')}</DialogTitle>
                 <p className="text-white/40 text-[11px] mt-0.5">
                   El deportista podrá ver la sesión sin necesidad de iniciar sesión
                 </p>
@@ -2317,7 +2320,7 @@ const SessionEditor = ({
           
           <div className="p-5 space-y-4">
             <div className="space-y-1.5">
-              <label className="se-field-label">ENLACE PÚBLICO DE SOLO LECTURA</label>
+              <label className="se-field-label">{t('sessions.publicReadonlyLink')}</label>
               <div className="flex gap-2">
                 <input
                   value={shareLink}
@@ -2342,7 +2345,7 @@ const SessionEditor = ({
               <div className="flex items-start gap-2.5">
                 <Eye className="w-4 h-4 mt-0.5" style={{color:'#CCFF00'}} />
                 <div>
-                  <p className="text-[12px] font-semibold text-slate-800">Vista del deportista</p>
+                  <p className="text-[12px] font-semibold text-slate-800">{t('sessions.athleteView')}</p>
                   <p className="text-[11px] text-slate-500 mt-0.5">
                     El deportista verá la sesión completa con objetivos, ejercicios y parámetros de entrenamiento.
                   </p>

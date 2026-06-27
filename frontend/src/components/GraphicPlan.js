@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
@@ -133,6 +134,7 @@ const MICROCYCLE_TYPES = [
 ];
 
 const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategory, coachName, activePlan, competitions = [] }) => {
+  const { t } = useTranslation();
   // ═══ V2 STORE CONNECTION ═══
   const v2Store = usePlanStore();
   const v2Macros = v2Store.macrociclos;
@@ -341,7 +343,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     }));
 
     setHasImportedData(true);
-    toast.success('Datos de periodización importados correctamente');
+    toast.success(t('graphicPlan.datos_de_periodizacion_importados_correcta'));
   }, [athleteName]);
 
   // ═══ V2 SYNC: Auto-sync V1 plan to V2 when activePlan loads ═══
@@ -912,10 +914,10 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
-      toast.success('Plan gráfico guardado exitosamente');
+      toast.success(t('graphicPlan.plan_grafico_guardado_exitosamente'));
     } catch (error) {
       console.error('Error saving plan:', error);
-      toast.error('Error al guardar el plan');
+      toast.error(t('graphicPlan.error_al_guardar_el_plan'));
     } finally {
       setSaving(false);
     }
@@ -961,7 +963,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
       toast.success('Imagen descargada');
     } catch (e) {
       console.error(e);
-      toast.error('Error al descargar la gráfica');
+      toast.error(t('graphicPlan.error_al_descargar_la_grafica'));
     } finally { setSharing(false); }
   };
 
@@ -979,10 +981,10 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
       const d = await r.json();
       const fullUrl = `${window.location.origin}/api/graphic-plan/shared/${d.share_id}`;
       await navigator.clipboard.writeText(fullUrl);
-      toast.success('Enlace de la gráfica copiado');
+      toast.success(t('graphicPlan.enlace_de_la_grafica_copiado'));
     } catch (e) {
       console.error(e);
-      toast.error('Error al compartir la gráfica');
+      toast.error(t('graphicPlan.error_al_compartir_la_grafica'));
     } finally { setSharing(false); }
   };
 
@@ -1001,10 +1003,10 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
       const fullUrl = `${window.location.origin}/api/graphic-plan/shared/${d.share_id}`;
       const msg = encodeURIComponent(`📊 ${chartConfig.title}\n${activePlan?.name || ''}\n\n${fullUrl}`);
       window.open(`https://wa.me/?text=${msg}`, '_blank');
-      toast.success('Compartiendo por WhatsApp');
+      toast.success(t('graphicPlan.compartiendo_por_whatsapp'));
     } catch (e) {
       console.error(e);
-      toast.error('Error al compartir');
+      toast.error(t('graphicPlan.error_al_compartir'));
     } finally { setSharing(false); }
   };
 
@@ -1012,7 +1014,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     setExportingPdf(true);
     try {
       const planElement = document.querySelector('[data-testid="graphic-plan-content"]');
-      if (!planElement) { toast.error('No se encontró el plan gráfico'); return; }
+      if (!planElement) { toast.error(t('graphicPlan.no_se_encontro_el_plan_grafico')); return; }
       const canvas = await html2canvas(planElement, { backgroundColor: '#ffffff', scale: 2, useCORS: true, logging: false });
       const imgData = canvas.toDataURL('image/png');
       // jsPDF dynamically
@@ -1035,7 +1037,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     setSharing(true);
     try {
       const planElement = document.querySelector('[data-testid="graphic-plan-content"]');
-      if (!planElement) { toast.error('No se encontró el plan gráfico'); return; }
+      if (!planElement) { toast.error(t('graphicPlan.no_se_encontro_el_plan_grafico')); return; }
       const canvas = await html2canvas(planElement, { backgroundColor: '#ffffff', scale: 1.5, useCORS: true, logging: false });
       const imgData = canvas.toDataURL('image/png');
       const token = localStorage.getItem('train_token');
@@ -1048,7 +1050,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
       const d = await r.json();
       const fullUrl = `${window.location.origin}/api/graphic-plan/shared/${d.share_id}`;
       await navigator.clipboard.writeText(fullUrl);
-      toast.success('Enlace copiado al portapapeles');
+      toast.success(t('graphicPlan.enlace_copiado_al_portapapeles'));
     } catch { toast.error('Error compartiendo'); }
     setSharing(false);
   };
@@ -1071,7 +1073,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
       const fullUrl = `${window.location.origin}/api/graphic-plan/shared/${d.share_id}`;
       const msg = encodeURIComponent(`📊 Plan Gráfico · ${activePlan?.name || ''}\n\n${fullUrl}`);
       window.open(`https://wa.me/?text=${msg}`, '_blank');
-      toast.success('Compartiendo por WhatsApp');
+      toast.success(t('graphicPlan.compartiendo_por_whatsapp'));
     } catch { toast.error('Error compartiendo'); }
     setSharing(false);
   };
@@ -1082,7 +1084,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
       // Find the plan content element
       const planElement = document.querySelector('[data-testid="graphic-plan-content"]');
       if (!planElement) {
-        toast.error('No se encontró el plan gráfico');
+        toast.error(t('graphicPlan.no_se_encontro_el_plan_grafico'));
         return;
       }
       
@@ -1104,7 +1106,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
       toast.success('Imagen exportada exitosamente');
     } catch (error) {
       console.error('Error exporting image:', error);
-      toast.error('Error al exportar imagen');
+      toast.error(t('graphicPlan.error_al_exportar_imagen'));
     } finally {
       setExportingImage(false);
     }
@@ -1291,7 +1293,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                 onClick={() => handleChartShareLink(chartConfig)}
                 disabled={sharing}
                 className="p-1 rounded hover:bg-black/10 transition-colors disabled:opacity-40"
-                title="Compartir enlace de la gráfica"
+                title={t('graphicPlan.compartir_enlace_de_la_grafica')}
                 data-testid={`chart-share-${slug}`}
               >
                 <Share2 className="w-3.5 h-3.5" />
@@ -1300,7 +1302,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                 onClick={() => handleChartShareWhatsApp(chartConfig)}
                 disabled={sharing}
                 className="p-1 rounded hover:bg-emerald-200/40 text-emerald-700 transition-colors disabled:opacity-40"
-                title="Compartir por WhatsApp"
+                title={t('graphicPlan.compartir_por_whatsapp')}
                 data-testid={`chart-whatsapp-${slug}`}
               >
                 <MessageCircle className="w-3.5 h-3.5" />
@@ -1317,7 +1319,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
               <button
                 onClick={() => setExpandedChart(chartConfig)}
                 className="p-1 rounded hover:bg-black/10 transition-colors"
-                title="Expandir gráfico interactivo"
+                title={t('graphicPlan.expandir_grafico_interactivo')}
                 data-testid={`expand-chart-${slug}`}
               >
                 <Maximize2 className="w-3.5 h-3.5" />
@@ -1376,9 +1378,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
         <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-t-lg">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-6 h-6" />
-              Plan Gráfico de Periodización
-            </CardTitle>
+              <Calendar className="w-6 h-6" />{t('graphicPlan.plan_grafico_de_periodizacion')}</CardTitle>
             <div className="flex items-center gap-2">
               {periodizationData && (
                 <Button
@@ -1389,16 +1389,14 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                     setHasImportedData(false);
                     importPeriodizationData(periodizationData);
                   }}
-                  title="Reimportar datos de periodización"
+                  title={t('graphicPlan.reimportar_datos_de_periodizacion')}
                 >
                   <RefreshCw className="w-4 h-4 mr-1" />
                   Sincronizar
                 </Button>
               )}
               {hasImportedData && (
-                <span className="text-xs bg-green-400 px-2 py-1 rounded-full">
-                  Datos importados
-                </span>
+                <span className="text-xs bg-green-400 px-2 py-1 rounded-full">{t('graphicPlan.datos_importados')}</span>
               )}
               <Button size="sm" variant="ghost" className="text-white hover:bg-white/10"
                 onClick={handleExportPDF} disabled={exportingPdf}
@@ -1443,7 +1441,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                 disabled={saving}
               >
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                <span className="ml-1">Guardar</span>
+                <span className="ml-1">{t('graphicPlan.guardar')}</span>
               </Button>
             </div>
           </div>
@@ -1454,31 +1452,31 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
           <div className="mb-4 p-3 bg-gray-50 rounded-lg border">
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
               <div>
-                <label className="text-xs font-medium text-gray-600">Deporte</label>
+                <label className="text-xs font-medium text-gray-600">{t('graphicPlan.deporte')}</label>
                 <Input
                   value={generalInfo.sport}
                   onChange={(e) => setGeneralInfo({ ...generalInfo, sport: e.target.value })}
-                  placeholder="Deporte"
+                  placeholder={t('graphicPlan.deporte')}
                   className="h-8 text-sm"
                   data-testid="input-sport"
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-600">Categoría</label>
+                <label className="text-xs font-medium text-gray-600">{t('graphicPlan.categoria')}</label>
                 <Input
                   value={generalInfo.category}
                   onChange={(e) => setGeneralInfo({ ...generalInfo, category: e.target.value })}
-                  placeholder="Categoría"
+                  placeholder={t('graphicPlan.categoria')}
                   className="h-8 text-sm"
                   data-testid="input-category"
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-600">Atleta</label>
+                <label className="text-xs font-medium text-gray-600">{t('graphicPlan.atleta')}</label>
                 <Input
                   value={generalInfo.athlete}
                   onChange={(e) => setGeneralInfo({ ...generalInfo, athlete: e.target.value })}
-                  placeholder="Atleta"
+                  placeholder={t('graphicPlan.atleta')}
                   className="h-8 text-sm"
                   data-testid="input-athlete"
                 />
@@ -1494,7 +1492,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-600">Tipo de Periodización</label>
+                <label className="text-xs font-medium text-gray-600">{t('graphicPlan.tipo_de_periodizacion')}</label>
                 <Select 
                   value={generalInfo.periodizationType} 
                   onValueChange={(v) => setGeneralInfo({ ...generalInfo, periodizationType: v })}
@@ -1505,7 +1503,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                   <SelectContent>
                     <SelectItem value="tradicional">Tradicional</SelectItem>
                     <SelectItem value="atr">ATR</SelectItem>
-                    <SelectItem value="bloques">Por Bloques</SelectItem>
+                    <SelectItem value="bloques">{t('graphicPlan.por_bloques')}</SelectItem>
                     <SelectItem value="ondulante">Ondulante</SelectItem>
                     <SelectItem value="lineal">Lineal</SelectItem>
                     <SelectItem value="polarizado">Polarizado</SelectItem>
@@ -1514,11 +1512,11 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                 </Select>
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-600">Duración</label>
+                <label className="text-xs font-medium text-gray-600">{t('graphicPlan.duracion')}</label>
                 <Input
                   value={generalInfo.duration}
                   onChange={(e) => setGeneralInfo({ ...generalInfo, duration: e.target.value })}
-                  placeholder="Duración"
+                  placeholder={t('graphicPlan.duracion')}
                   className="h-8 text-sm"
                   data-testid="input-duration"
                   readOnly={!!activePlan?.total_weeks}
@@ -1526,7 +1524,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-600">Modelo de entrenamiento</label>
+                <label className="text-xs font-medium text-gray-600">{t('graphicPlan.modelo_de_entrenamiento')}</label>
                 <Input
                   value={generalInfo.model}
                   onChange={(e) => setGeneralInfo({ ...generalInfo, model: e.target.value })}
@@ -1546,9 +1544,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
               {/* Week Numbers Header */}
               <thead>
                 <tr className="bg-gray-200">
-                  <th className="sticky left-0 bg-gray-200 px-2 py-1 border border-gray-300 text-left" style={{ width: 160 }}>
-                    Semana
-                  </th>
+                  <th className="sticky left-0 bg-gray-200 px-2 py-1 border border-gray-300 text-left" style={{ width: 160 }}>{t('graphicPlan.semana')}</th>
                   {displayedWeeks.map(week => {
                     const startDate = activePlan?.start_date ? new Date(activePlan.start_date) : null;
                     let weekDate = '';
@@ -1598,9 +1594,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                   })}
                 </tr>
                 <tr>
-                  <td className="sticky left-0 bg-amber-50/60 px-2 py-1 text-xs border border-gray-300" style={{ width: 160 }}>
-                    Tipo de etapa
-                  </td>
+                  <td className="sticky left-0 bg-amber-50/60 px-2 py-1 text-xs border border-gray-300" style={{ width: 160 }}>{t('graphicPlan.tipo_de_etapa')}</td>
                   {displayedWeeks.map(week => {
                     const typeId = planData.phases?.[week];
                     const type = MACROCYCLE_TYPES.find(t => t.id === typeId);
@@ -1640,9 +1634,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                 
                 {/* Tipo de macrociclo (text labels) */}
                 <tr>
-                  <td className="sticky left-0 bg-gray-50 px-2 py-1 text-xs border border-gray-300">
-                    Tipo de macrociclo
-                  </td>
+                  <td className="sticky left-0 bg-gray-50 px-2 py-1 text-xs border border-gray-300">{t('graphicPlan.tipo_de_macrociclo')}</td>
                   {displayedWeeks.map(week => {
                     const typeId = planData.macrocycles?.[week];
                     const type = MACROCYCLE_TYPES.find(t => t.id === typeId);
@@ -1656,9 +1648,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                 
                 {/* Macrocycle Duration */}
                 <tr>
-                  <td className="sticky left-0 bg-gray-50 px-2 py-1 text-xs border border-gray-300">
-                    Duracion del macrociclo
-                  </td>
+                  <td className="sticky left-0 bg-gray-50 px-2 py-1 text-xs border border-gray-300">{t('graphicPlan.duracion_del_macrociclo')}</td>
                   {displayedWeeks.map(week => {
                     // Find which macro this week belongs to and show its duration
                     let durLabel = '';
@@ -1728,8 +1718,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                     <tr data-testid="gp-mev-projection-row">
                       <td className="sticky left-0 bg-cyan-50 px-2 py-1 text-[11px] font-semibold border border-gray-300 text-cyan-700" style={{ width: 160 }}>
                         <span className="flex items-center gap-1.5">
-                          <BarChart3 className="w-3 h-3" /> Proyección
-                        </span>
+                          <BarChart3 className="w-3 h-3" />{t('graphicPlan.proyeccion')}</span>
                       </td>
                       {displayedWeeks.map(week => {
                         const info = weekToMeso[week];
@@ -1772,9 +1761,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                 
                 {/* Microcycle type */}
                 <tr>
-                  <td className="sticky left-0 bg-gray-50 px-2 py-1 text-xs border border-gray-300">
-                    Tipo de microciclo
-                  </td>
+                  <td className="sticky left-0 bg-gray-50 px-2 py-1 text-xs border border-gray-300">{t('graphicPlan.tipo_de_microciclo')}</td>
                   {displayedWeeks.map(week => {
                     const typeId = planData.microcycles?.[week];
                     const type = MICROCYCLE_TYPES.find(t => t.id === typeId);
@@ -1788,9 +1775,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
 
                 {/* Training frequency (moved up) */}
                 <tr>
-                  <td className="sticky left-0 bg-gray-100 px-2 py-1 text-xs font-medium border border-gray-300">
-                    Frecuencia de entrenamiento
-                  </td>
+                  <td className="sticky left-0 bg-gray-100 px-2 py-1 text-xs font-medium border border-gray-300">{t('graphicPlan.frecuencia_de_entrenamiento')}</td>
                   {displayedWeeks.map(week => (
                     <td key={`freq-${week}`} className="w-6 h-6 border border-gray-300">
                       <input
@@ -1907,7 +1892,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
 
                 {/* CHART 1: Magnitud de Carga y Recuperación */}
                 <ChartSectionHeader
-                  title="Magnitud de Carga y Recuperación"
+                  title={t('graphicPlan.magnitud_de_carga_y_recuperacion')}
                   icon={Activity}
                   bgColor="bg-red-50"
                   textColor="text-red-800"
@@ -1928,7 +1913,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
 
                 {/* CHART 2: Volumen, Intensidad y Densidad */}
                 <ChartSectionHeader
-                  title="Volumen e Intensidad"
+                  title={t('graphicPlan.volumen_e_intensidad')}
                   icon={TrendingUp}
                   bgColor="bg-green-50"
                   textColor="text-green-800"
@@ -1949,7 +1934,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
 
                 {/* CHART 2: Preparación por Componentes */}
                 <ChartSectionHeader
-                  title="Preparación por Componentes"
+                  title={t('graphicPlan.preparacion_por_componentes')}
                   icon={Dumbbell}
                   bgColor="bg-indigo-50"
                   textColor="text-indigo-800"
@@ -1978,7 +1963,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
 
                 {/* CHART 3: Preparación Física por Capacidades */}
                 <ChartSectionHeader
-                  title="Capacidades Físicas"
+                  title={t('graphicPlan.capacidades_fisicas')}
                   icon={Heart}
                   bgColor="bg-orange-50"
                   textColor="text-orange-800"
@@ -2005,7 +1990,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
 
                 {/* CHART 4: Duración y Actividad Semanal */}
                 <ChartSectionHeader
-                  title="Duración y Actividad"
+                  title={t('graphicPlan.duracion_y_actividad')}
                   icon={Timer}
                   bgColor="bg-teal-50"
                   textColor="text-teal-800"
@@ -2039,7 +2024,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                     <BarChart3 className="w-5 h-5 text-[#CCFF00]" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-base tracking-tight">Proyección MEV → MAV → MRV</h3>
+                    <h3 className="font-bold text-base tracking-tight">{t('graphicPlan.proyeccion_mev_mav_mrv')}</h3>
                     <p className="text-[11px] text-slate-300">{mevChartMeso?.name || 'Mesociclo'} · {(mevChartMeso?.microcycles || []).length} microciclos</p>
                   </div>
                 </div>

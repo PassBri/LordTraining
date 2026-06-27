@@ -84,16 +84,18 @@ import TacticalBoardSection from '../components/TacticalBoardSection';
 
 // Definición de roles disponibles
 const USER_ROLES = [
-  { id: 'admin', name: 'Administrador', description: 'Acceso total al sistema', icon: Shield },
-  { id: 'coach', name: 'Entrenador', description: 'Puede crear planes para múltiples atletas', icon: UserCheck },
-  { id: 'personal_trainer', name: 'Entrenador Personal', description: 'Enfocado en clientes individuales', icon: Dumbbell },
-  { id: 'athlete', name: 'Atleta', description: 'Solo puede ver su propio plan', icon: User },
-  { id: 'team', name: 'Equipo', description: 'Grupo de atletas con plan compartido', icon: Users },
-  { id: 'user', name: 'Usuario', description: 'Rol básico sin atletas asignados', icon: UserCircle }
+  { id: 'admin', name: 'Administrador', nameKey: 'data.role_admin', description: 'Acceso total al sistema', icon: Shield },
+  { id: 'coach', name: 'Entrenador', nameKey: 'data.role_coach', description: 'Puede crear planes para múltiples atletas', icon: UserCheck },
+  { id: 'personal_trainer', name: 'Entrenador Personal', nameKey: 'data.role_personal_trainer', description: 'Enfocado en clientes individuales', icon: Dumbbell },
+  { id: 'athlete', name: 'Atleta', nameKey: 'data.atleta_2', description: 'Solo puede ver su propio plan', icon: User },
+  { id: 'team', name: 'Equipo', nameKey: 'data.equipo', description: 'Grupo de atletas con plan compartido', icon: Users },
+  { id: 'user', name: 'Usuario', nameKey: 'data.role_user', description: 'Rol básico sin atletas asignados', icon: UserCircle }
 ];
 
 const DashboardPage = () => {
   const { t } = useTranslation();
+  const modelSlug = (s) => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '').toLowerCase();
+  const tModelName = (name) => name ? t('models.' + modelSlug(name), { defaultValue: name }) : name;
   const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const { allowed: canManageOrg } = usePlanGate('org_management');
@@ -378,7 +380,7 @@ const DashboardPage = () => {
   const handleNewPlan = () => {
     setIsCoachDrawerOpen(true);
     setCoachDrawerTab('coach');
-    toast.info('Usa el Coach AI para ayudarte a planificar');
+    toast.info(t('data.usa_el_coach_ai_para_ayudarte_a_planificar'));
   };
 
   // Tournaments State - Load from API
@@ -432,10 +434,10 @@ const DashboardPage = () => {
 
   // Tournament constants
   const TOURNAMENT_FORMATS = [
-    { value: 'single_elimination', label: 'Eliminación Directa', icon: '🏆' },
-    { value: 'double_elimination', label: 'Doble Eliminación', icon: '🔄' },
+    { value: 'single_elimination', label: t('data.x_eliminacion_directa'), icon: '🏆' },
+    { value: 'double_elimination', label: t('data.x_doble_eliminacion'), icon: '🔄' },
     { value: 'round_robin', label: 'Todos contra Todos', icon: '🔁' },
-    { value: 'group_stage_knockout', label: 'Grupos + Eliminación', icon: '📊' },
+    { value: 'group_stage_knockout', label: t('data.x_grupos_eliminacion'), icon: '📊' },
     { value: 'league', label: 'Liga', icon: '📈' },
   ];
   const STATUS_COLORS = { draft: 'bg-slate-100 text-slate-700', registration: 'bg-blue-100 text-blue-700', in_progress: 'bg-green-100 text-green-700', completed: 'bg-purple-100 text-purple-700' };
@@ -596,7 +598,7 @@ const DashboardPage = () => {
   // Función genérica para guardar evaluaciones
   const handleSaveEvaluation = async (evaluationType, data) => {
     if (!activePlan) {
-      toast.error('Selecciona un plan primero');
+      toast.error(t('data.selecciona_un_plan_primero'));
       return;
     }
     setSavingEvaluation(true);
@@ -619,14 +621,14 @@ const DashboardPage = () => {
       });
       toast.success(`${evaluationType.charAt(0).toUpperCase() + evaluationType.slice(1)} guardado`);
     } catch (error) {
-      toast.error('Error al guardar');
+      toast.error(t('data.error_al_guardar'));
     }
     setSavingEvaluation(false);
   };
 
   // Guardar análisis del plan anterior
   const handleSavePreviousAnalysis = async () => {
-    if (!activePlan) { toast.error('Selecciona un plan primero'); return; }
+    if (!activePlan) { toast.error(t('data.selecciona_un_plan_primero')); return; }
     setSavingEvaluation(true);
     try {
       const token = localStorage.getItem('train_token');
@@ -643,10 +645,10 @@ const DashboardPage = () => {
           data: previousAnalysisData
         })
       });
-      if (res.ok) toast.success('Análisis del plan anterior guardado');
-      else toast.error('Error al guardar análisis');
+      if (res.ok) toast.success(t('data.analisis_del_plan_anterior_guardado'));
+      else toast.error(t('data.error_al_guardar_analisis'));
     } catch (error) {
-      toast.error('Error al guardar análisis');
+      toast.error(t('data.error_al_guardar_analisis'));
     }
     setSavingEvaluation(false);
   };
@@ -687,9 +689,9 @@ const DashboardPage = () => {
   };
 
   const handleGenerateGapAnalysisAI = async (forceRefresh = false) => {
-    if (!activePlan) { toast.error('Selecciona un plan primero'); return; }
+    if (!activePlan) { toast.error(t('data.selecciona_un_plan_primero')); return; }
     if (aiSelectedModels.length === 0) {
-      toast.error('Selecciona al menos un modelo de periodización');
+      toast.error(t('data.selecciona_al_menos_un_modelo_de_periodiza'));
       return;
     }
     setAiGapLoading(true);
@@ -714,12 +716,12 @@ const DashboardPage = () => {
       const data = await res.json();
       setAiGapData(data);
       if (data.cached) {
-        toast.success('Análisis cargado desde caché');
+        toast.success(t('data.analisis_cargado_desde_cache'));
       } else {
         toast.success(`Análisis generado con ${aiGapProvider === 'openai' ? 'GPT-5.2' : 'Claude Sonnet 4.5'}`);
       }
     } catch (error) {
-      toast.error('Error generando análisis con IA');
+      toast.error(t('data.error_generando_analisis_con_ia'));
     } finally {
       setAiGapLoading(false);
     }
@@ -727,7 +729,7 @@ const DashboardPage = () => {
 
   // Descargar PDF del plan anterior (estilo whitepaper)
   const handleDownloadPreviousAnalysisPDF = async () => {
-    if (!activePlan) { toast.error('Selecciona un plan primero'); return; }
+    if (!activePlan) { toast.error(t('data.selecciona_un_plan_primero')); return; }
     try {
       // Guardar primero para asegurar que los datos están al día
       await handleSavePreviousAnalysis();
@@ -751,13 +753,13 @@ const DashboardPage = () => {
       URL.revokeObjectURL(url);
       toast.success('PDF descargado');
     } catch (error) {
-      toast.error('Error al descargar PDF');
+      toast.error(t('data.error_al_descargar_pdf'));
     }
   };
 
   // Crear link de compartición y copiar al portapapeles
   const handleSharePreviousAnalysisLink = async () => {
-    if (!activePlan) { toast.error('Selecciona un plan primero'); return; }
+    if (!activePlan) { toast.error(t('data.selecciona_un_plan_primero')); return; }
     try {
       await handleSavePreviousAnalysis();
       const token = localStorage.getItem('train_token');
@@ -776,7 +778,7 @@ const DashboardPage = () => {
       }
       return publicUrl;
     } catch (error) {
-      toast.error('Error al crear enlace');
+      toast.error(t('data.error_al_crear_enlace'));
       return null;
     }
   };
@@ -794,7 +796,7 @@ const DashboardPage = () => {
 
   // Guardar objetivos del plan
   const handleSaveObjectives = async () => {
-    if (!activePlan) { toast.error('Selecciona un plan primero'); return; }
+    if (!activePlan) { toast.error(t('data.selecciona_un_plan_primero')); return; }
     setSavingEvaluation(true);
     try {
       const token = localStorage.getItem('train_token');
@@ -808,17 +810,17 @@ const DashboardPage = () => {
           data: objectivesData
         })
       });
-      if (res.ok) toast.success('Objetivos del plan guardados');
-      else toast.error('Error al guardar objetivos');
+      if (res.ok) toast.success(t('data.objetivos_del_plan_guardados'));
+      else toast.error(t('data.error_al_guardar_objetivos'));
     } catch (error) {
-      toast.error('Error al guardar objetivos');
+      toast.error(t('data.error_al_guardar_objetivos'));
     }
     setSavingEvaluation(false);
   };
 
   // ====== Plan Activo: PDF / Share / WhatsApp ======
   const handleDownloadObjectivesPDF = async () => {
-    if (!activePlan) { toast.error('Selecciona un plan primero'); return; }
+    if (!activePlan) { toast.error(t('data.selecciona_un_plan_primero')); return; }
     try {
       await handleSaveObjectives();
       const token = localStorage.getItem('train_token');
@@ -841,12 +843,12 @@ const DashboardPage = () => {
       URL.revokeObjectURL(url);
       toast.success('PDF descargado');
     } catch (error) {
-      toast.error('Error al descargar PDF');
+      toast.error(t('data.error_al_descargar_pdf'));
     }
   };
 
   const handleShareObjectivesLink = async () => {
-    if (!activePlan) { toast.error('Selecciona un plan primero'); return null; }
+    if (!activePlan) { toast.error(t('data.selecciona_un_plan_primero')); return null; }
     try {
       await handleSaveObjectives();
       const token = localStorage.getItem('train_token');
@@ -865,7 +867,7 @@ const DashboardPage = () => {
       }
       return publicUrl;
     } catch (error) {
-      toast.error('Error al crear enlace');
+      toast.error(t('data.error_al_crear_enlace'));
       return null;
     }
   };
@@ -887,7 +889,7 @@ const DashboardPage = () => {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      toast.success('Plan eliminado');
+      toast.success(t('data.plan_eliminado'));
       
       // Si era el plan activo, limpiarlo
       if (activePlan?.id === planId) {
@@ -896,7 +898,7 @@ const DashboardPage = () => {
       
       fetchTrainingPlans();
     } catch (error) {
-      toast.error('Error al eliminar plan');
+      toast.error(t('data.error_al_eliminar_plan'));
     }
   };
 
@@ -912,10 +914,10 @@ const DashboardPage = () => {
         toast.success(t('dashboard.plans.duplicated'));
         fetchTrainingPlans();
       } else {
-        toast.error('Error al duplicar');
+        toast.error(t('data.error_al_duplicar'));
       }
     } catch (error) {
-      toast.error('Error al duplicar plan');
+      toast.error(t('data.error_al_duplicar_plan'));
     }
   };
 
@@ -944,10 +946,10 @@ const DashboardPage = () => {
           toast.success(t('dashboard.plans.shared'));
         }
       } else {
-        toast.error('Error al compartir');
+        toast.error(t('data.error_al_compartir'));
       }
     } catch (error) {
-      toast.error('Error al compartir plan');
+      toast.error(t('data.error_al_compartir_plan'));
     }
   };
 
@@ -970,10 +972,10 @@ const DashboardPage = () => {
         URL.revokeObjectURL(url);
         toast.success(t('dashboard.plans.exported'));
       } else {
-        toast.error('Error al exportar PDF');
+        toast.error(t('data.error_al_exportar_pdf'));
       }
     } catch (error) {
-      toast.error('Error al exportar PDF');
+      toast.error(t('data.error_al_exportar_pdf'));
     }
   };
 
@@ -1068,11 +1070,11 @@ const DashboardPage = () => {
       });
       if (response.ok) {
         await fetchSportsCatalog();
-        toast.success('Caracterización técnica guardada');
+        toast.success(t('data.caracterizacion_tecnica_guardada'));
       }
     } catch (error) {
       console.error('Error saving sport characterization:', error);
-      toast.error('Error al guardar la caracterización');
+      toast.error(t('data.error_al_guardar_la_caracterizacion'));
     }
   };
 
@@ -1111,7 +1113,7 @@ const DashboardPage = () => {
       setTournamentMatches(matchesRes.data);
       setTournamentDetailView(true);
     } catch (error) {
-      toast.error('Error al cargar torneo');
+      toast.error(t('data.error_al_cargar_torneo'));
     }
   };
 
@@ -1124,7 +1126,7 @@ const DashboardPage = () => {
       setTournamentForm({ name: '', description: '', sport: '', format: 'single_elimination', start_date: '', end_date: '', venue: '', city: '', scoring_system: 'standard', points_win: 3, points_draw: 1, points_loss: 0, primary_color: '#3B82F6', secondary_color: '#10B981' });
       fetchTournamentsData();
     } catch (error) {
-      toast.error('Error al crear torneo');
+      toast.error(t('data.error_al_crear_torneo'));
     }
   };
 
@@ -1135,7 +1137,7 @@ const DashboardPage = () => {
       toast.success('Torneo eliminado');
       fetchTournamentsData();
     } catch (error) {
-      toast.error('Error al eliminar torneo');
+      toast.error(t('data.error_al_eliminar_torneo'));
     }
   };
 
@@ -1147,12 +1149,12 @@ const DashboardPage = () => {
         gender: tournamentCategoryForm.gender || null,
         max_participants: tournamentCategoryForm.max_participants ? parseInt(tournamentCategoryForm.max_participants) : null
       });
-      toast.success('Categoría añadida');
+      toast.success(t('data.categoria_anadida'));
       setCategoryDialogOpenTournament(false);
       setTournamentCategoryForm({ name: '', gender: '', max_participants: '' });
       fetchTournamentDetails(selectedTournament.id);
     } catch (error) {
-      toast.error('Error al añadir categoría');
+      toast.error(t('data.error_al_anadir_categoria'));
     }
   };
 
@@ -1170,7 +1172,7 @@ const DashboardPage = () => {
       setRegistrationForm({ participant_type: 'team', participant_id: '', participant_name: '', seed: '' });
       fetchTournamentDetails(selectedTournament.id);
     } catch (error) {
-      toast.error('Error al inscribir');
+      toast.error(t('data.error_al_inscribir'));
     }
   };
 
@@ -1181,7 +1183,7 @@ const DashboardPage = () => {
       toast.success('Bracket generado');
       fetchTournamentDetails(selectedTournament.id);
     } catch (error) {
-      toast.error('Error al generar bracket');
+      toast.error(t('data.error_al_generar_bracket'));
     }
   };
 
@@ -1198,7 +1200,7 @@ const DashboardPage = () => {
       setScoreForm({ participant1_score: '', participant2_score: '' });
       fetchTournamentDetails(selectedTournament.id);
     } catch (error) {
-      toast.error('Error al actualizar resultado');
+      toast.error(t('data.error_al_actualizar_resultado'));
     }
   };
 
@@ -1257,11 +1259,11 @@ const DashboardPage = () => {
         toast.success('Rol actualizado correctamente');
         setShowProfileDialog(false);
       } else {
-        toast.error('Error al actualizar el perfil');
+        toast.error(t('data.error_al_actualizar_el_perfil'));
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error('Error al actualizar el perfil');
+      toast.error(t('data.error_al_actualizar_el_perfil'));
     }
     setUpdatingProfile(false);
   };
@@ -1301,14 +1303,14 @@ const DashboardPage = () => {
       if (response.ok) {
         await fetchAthletes();
         setNewAthlete({ name: '', email: '', birthDate: '', gender: '', sport: '', category: '', level: '', federation: '', club: '', school: '', team_id: '' });
-        toast.success('Atleta creado exitosamente');
+        toast.success(t('data.atleta_creado_exitosamente'));
       } else {
         const error = await response.json();
         toast.error(error.detail || 'Error al crear atleta');
       }
     } catch (error) {
       console.error('Error creating athlete:', error);
-      toast.error('Error al crear atleta');
+      toast.error(t('data.error_al_crear_atleta'));
     }
     setSavingAthlete(false);
   };
@@ -1531,49 +1533,49 @@ const DashboardPage = () => {
     { id: 'plan-manager', label: t('dashboard.plans.title'), icon: Clipboard, section: 'planes' },
     
     // === 1. DIAGNÓSTICO / PUNTO DE PARTIDA ===
-    { id: 'prev-plan', label: 'Plan Anterior', icon: History, section: 'punto-partida' },
+    { id: 'prev-plan', label: t('data.x_plan_anterior'), icon: History, section: 'punto-partida' },
     { id: 'objectives', label: t('dashboard.controlPanel.activePlan'), icon: Target, section: 'punto-partida' },
     
     // === 2. INFORMACIÓN BASE ===
-    { id: 'entities', label: 'Entidades', icon: Building2, section: 'informacion' },
-    { id: 'federation-panel', label: 'Federación', icon: Crown, section: 'informacion' },
-    { id: 'teams', label: 'Equipos', icon: UsersRound, section: 'informacion' },
+    { id: 'entities', label: t('data.navEntities'), icon: Building2, section: 'informacion' },
+    { id: 'federation-panel', label: t('data.x_federacion'), icon: Crown, section: 'informacion' },
+    { id: 'teams', label: t('data.navTeams'), icon: UsersRound, section: 'informacion' },
     { id: 'athletes', label: t('dashboard.controlPanel.athletes'), icon: User, section: 'informacion' },
-    { id: 'sports', label: 'Deportes', icon: Medal, section: 'informacion' },
-    { id: 'tournaments', label: 'Torneos', icon: Shield, section: 'informacion' },
-    { id: 'coaches', label: 'Entrenadores', icon: UserCheck, section: 'informacion' },
+    { id: 'sports', label: t('data.deportes'), icon: Medal, section: 'informacion' },
+    { id: 'tournaments', label: t('data.navTournaments'), icon: Shield, section: 'informacion' },
+    { id: 'coaches', label: t('data.navCoaches'), icon: UserCheck, section: 'informacion' },
     
     // === 3. EVALUACIÓN / CONTROLES ===
-    { id: 'control-medical', label: 'Control Médico', icon: Stethoscope, section: 'evaluacion' },
-    { id: 'control-anthropometric', label: 'Antropometría', icon: LineChart, section: 'evaluacion' },
-    { id: 'control-physical', label: 'Control Físico', icon: Dumbbell, section: 'evaluacion' },
-    { id: 'control-biomechanical', label: 'Biomecánica', icon: Activity, section: 'evaluacion' },
-    { id: 'control-technical', label: 'Control Técnico', icon: Target, section: 'evaluacion' },
-    { id: 'control-tactical', label: 'Control Táctico', icon: Layers, section: 'evaluacion' },
-    { id: 'control-psychological', label: 'Control Psicológico', icon: Brain, section: 'evaluacion' },
-    { id: 'control-theoretical', label: 'Control Teórico', icon: BookOpen, section: 'evaluacion' },
-    { id: 'evaluation-evolution', label: 'Evolución de Controles', icon: TrendingUp, section: 'evaluacion' },
+    { id: 'control-medical', label: t('data.x_control_medico'), icon: Stethoscope, section: 'evaluacion' },
+    { id: 'control-anthropometric', label: t('data.x_antropometria'), icon: LineChart, section: 'evaluacion' },
+    { id: 'control-physical', label: t('data.x_control_fisico'), icon: Dumbbell, section: 'evaluacion' },
+    { id: 'control-biomechanical', label: t('data.x_biomecanica'), icon: Activity, section: 'evaluacion' },
+    { id: 'control-technical', label: t('data.x_control_tecnico'), icon: Target, section: 'evaluacion' },
+    { id: 'control-tactical', label: t('data.x_control_tactico'), icon: Layers, section: 'evaluacion' },
+    { id: 'control-psychological', label: t('data.x_control_psicologico'), icon: Brain, section: 'evaluacion' },
+    { id: 'control-theoretical', label: t('data.x_control_teorico'), icon: BookOpen, section: 'evaluacion' },
+    { id: 'evaluation-evolution', label: t('data.x_evolucion_de_controles'), icon: TrendingUp, section: 'evaluacion' },
     
     // === 4. COMPETENCIAS ===
     { id: 'competitions', label: t('dashboard.sections.competitions'), icon: Trophy, section: 'competencias' },
     
     // === 5. PERIODIZACIÓN (sub-secciones directas sin tab intermedio) ===
-    { id: 'period-overview', label: 'Resumen', icon: Gauge, section: 'periodizacion' },
-    { id: 'period-structure', label: 'Estructura', icon: LayoutGrid, section: 'periodizacion' },
-    { id: 'period-load', label: 'Carga', icon: Flame, section: 'periodizacion' },
+    { id: 'period-overview', label: t('data.navSummary'), icon: Gauge, section: 'periodizacion' },
+    { id: 'period-structure', label: t('data.navStructure'), icon: LayoutGrid, section: 'periodizacion' },
+    { id: 'period-load', label: t('data.navLoad'), icon: Flame, section: 'periodizacion' },
     
     // === 6. PLAN GRÁFICO ===
-    { id: 'graphic-plan', label: 'Plan Gráfico', icon: PieChart, section: 'visualizacion' },
-    { id: 'calendar-view', label: 'Calendario', icon: CalendarDays, section: 'visualizacion' },
-    { id: 'smart-alerts', label: 'Alertas', icon: Zap, section: 'visualizacion' },
+    { id: 'graphic-plan', label: t('data.x_plan_grafico'), icon: PieChart, section: 'visualizacion' },
+    { id: 'calendar-view', label: t('data.navCalendar'), icon: CalendarDays, section: 'visualizacion' },
+    { id: 'smart-alerts', label: t('data.navAlerts'), icon: Zap, section: 'visualizacion' },
     
     // === 7. HERRAMIENTAS ===
     { id: 'calculators', label: t('dashboard.nav.calculators'), icon: Calculator, section: 'herramientas' },
     { id: 'pdi-sheet', label: 'LordTraining PDI', icon: Brain, section: 'herramientas' },
-    { id: 'periodization-models', label: 'Modelos', icon: Layers, section: 'herramientas' },
-    { id: 'exercises', label: 'Métodos', icon: Timer, section: 'herramientas' },
+    { id: 'periodization-models', label: t('data.navModels'), icon: Layers, section: 'herramientas' },
+    { id: 'exercises', label: t('data.x_metodos'), icon: Timer, section: 'herramientas' },
     { id: 'exercises-lib', label: t('dashboard.controlPanel.exercises'), icon: Dumbbell, section: 'herramientas' },
-    { id: 'tactical-board', label: 'Pizarra Tactica', icon: LayoutGrid, section: 'herramientas' },
+    { id: 'tactical-board', label: t('data.navTacticalBoard'), icon: LayoutGrid, section: 'herramientas' },
   ];
 
   // ====== PLAN SECTIONS & COLORS (top-level for top bar integration) ======
@@ -1583,7 +1585,7 @@ const DashboardPage = () => {
     { key: 'evaluacion', title: t('dashboard.sections.evaluation'), color: 'emerald', icon: Heart },
     { key: 'competencias', title: t('dashboard.sections.competitions'), color: 'violet', icon: Trophy },
     { key: 'periodizacion', title: t('dashboard.sections.periodization'), color: 'cyan', icon: Calendar },
-    { key: 'visualizacion', title: 'Plan Gráfico', color: 'amber', icon: BarChart },
+    { key: 'visualizacion', title: t('data.x_plan_grafico'), color: 'amber', icon: BarChart },
     { key: 'herramientas', title: t('dashboard.sections.tools'), color: 'slate', icon: Wrench },
   ];
 
@@ -1843,13 +1845,13 @@ const DashboardPage = () => {
                             </h3>
                             <div className="flex items-center gap-2 mt-1 flex-wrap">
                               <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
-                                {plan.total_weeks} sem
+                                {plan.total_weeks} {t('dashboard.plans.weeksShort')}
                               </span>
                               <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs font-medium rounded-full truncate max-w-[100px]">
-                                {plan.model_name || plan.model}
+                                {tModelName(plan.model_name || plan.model)}
                               </span>
                               {plan.sport && (
-                                <span className="text-xs text-slate-500 truncate">{plan.sport}</span>
+                                <span className="text-xs text-slate-500 truncate">{t('catalog.sport_'+plan.sport,{defaultValue:plan.sport})}</span>
                               )}
                             </div>
                           </div>
@@ -1951,7 +1953,7 @@ const DashboardPage = () => {
             <div className="w-16 h-16 bg-amber-50 rounded-xl flex items-center justify-center mx-auto mb-5">
               <AlertTriangle className="w-8 h-8 text-amber-600" />
             </div>
-            <h2 className="text-xl font-bold text-slate-800 mb-2">Selecciona un Plan</h2>
+            <h2 className="text-xl font-bold text-slate-800 mb-2">{t('data.selecciona_un_plan')}</h2>
             <p className="text-slate-500 text-sm mb-6">
               Para acceder a esta sección necesitas tener un plan de entrenamiento activo. 
               Los datos se guardarán asociados al plan seleccionado.
@@ -1960,9 +1962,7 @@ const DashboardPage = () => {
               onClick={() => setActiveDataSection(null)}
               className="bg-slate-900 hover:bg-slate-800 text-white rounded-lg px-6"
             >
-              <Clipboard className="w-4 h-4 mr-2" />
-              Seleccionar Plan
-            </Button>
+              <Clipboard className="w-4 h-4 mr-2" />{t('data.seleccionar_plan')}</Button>
           </div>
         </div>
       );
@@ -1972,7 +1972,7 @@ const DashboardPage = () => {
     if (!activeDataSection) {
       return (
         <div className="flex flex-col items-center justify-center h-full gap-6 p-8">
-          <p className="text-slate-400 text-lg">Selecciona una sección del menú para ver los detalles</p>
+          <p className="text-slate-400 text-lg">{t('data.selecciona_una_seccion_del_menu_para_ver_l')}</p>
           
           {/* Card del Plan Activo */}
           <div className="bg-white p-6 rounded-xl border border-slate-200 max-w-lg w-full shadow-sm">
@@ -1981,10 +1981,10 @@ const DashboardPage = () => {
                 <Clipboard className="w-6 h-6 text-[#CCFF00]" />
               </div>
               <div className="flex-1">
-                <p className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">Plan Activo</p>
+                <p className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">{t('data.plan_activo')}</p>
                 <h3 className="font-bold text-lg text-slate-800">{activePlan.name}</h3>
                 <p className="text-sm text-slate-500">
-                  {activePlan.total_weeks} semanas • {activePlan.model_name || activePlan.model}
+                  {activePlan.total_weeks} {t('periodization.weeksLower')} • {tModelName(activePlan.model_name || activePlan.model)}
                 </p>
               </div>
               <Button
@@ -2001,10 +2001,10 @@ const DashboardPage = () => {
           {/* Selector de Atleta */}
           {athletes.length > 0 && (
             <div className="flex items-center gap-3">
-              <span className="text-sm text-slate-500">Atleta:</span>
+              <span className="text-sm text-slate-500">{t('data.atleta')}</span>
               <Select value={selectedAthleteId || ''} onValueChange={setSelectedAthleteId}>
                 <SelectTrigger className="w-56">
-                  <SelectValue placeholder="Seleccionar atleta" />
+                  <SelectValue placeholder={t('data.seleccionar_atleta')} />
                 </SelectTrigger>
                 <SelectContent>
                   {athletes.map(a => (
@@ -2053,7 +2053,7 @@ const DashboardPage = () => {
           <InfoSectionHeader
             catalogType="athletes"
             title="Atletas"
-            subtitle="Plantilla de atletas registrados · perfiles deportivos"
+            subtitle={t('data.plantilla_de_atletas_registrados_perfiles_')}
             icon={User}
             color="#F59E0B"
             onRefresh={async () => { try { await fetchAthletes(); } catch (e) { /* silent */ } }}
@@ -2066,17 +2066,13 @@ const DashboardPage = () => {
                 <div className="bg-white border-b border-slate-200 text-slate-900 py-4 px-5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-lg font-semibold">
-                      <Trophy className="w-5 h-5" />
-                      Catálogo de Deportes
-                    </div>
+                      <Trophy className="w-5 h-5" />{t('data.catalogo_de_deportes')}</div>
                     <Button 
                       size="sm"
                       className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
                       onClick={() => setShowAddCategory(true)}
                     >
-                      <Plus className="w-4 h-4 mr-1" />
-                      Nueva Categoría
-                    </Button>
+                      <Plus className="w-4 h-4 mr-1" />{t('data.nueva_categoria')}</Button>
                   </div>
                 </div>
                 <CardContent className="p-5">
@@ -2084,14 +2080,14 @@ const DashboardPage = () => {
                   {showAddCategory && (
                     <div className="mb-5 p-4 bg-amber-50 border border-slate-200 rounded-xl">
                       <div className="flex items-center justify-between mb-3">
-                        <h4 className="font-semibold text-amber-900">Nueva Categoría</h4>
+                        <h4 className="font-semibold text-amber-900">{t('data.nueva_categoria')}</h4>
                         <Button variant="ghost" size="sm" onClick={() => setShowAddCategory(false)}>
                           <X className="w-4 h-4" />
                         </Button>
                       </div>
                       <div className="flex flex-wrap gap-3 items-end">
                         <Input 
-                          placeholder="Nombre de categoría" 
+                          placeholder={t('data.nombre_de_categoria')} 
                           className="flex-1 min-w-[200px]"
                           value={newCategory.name}
                           onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
@@ -2108,9 +2104,7 @@ const DashboardPage = () => {
                           value={newCategory.color}
                           onChange={(e) => setNewCategory({...newCategory, color: e.target.value})}
                         />
-                        <Button onClick={handleCreateCategory} className="bg-slate-900 hover:bg-slate-800">
-                          Crear
-                        </Button>
+                        <Button onClick={handleCreateCategory} className="bg-slate-900 hover:bg-slate-800">{t('data.crear')}</Button>
                       </div>
                     </div>
                   )}
@@ -2168,7 +2162,7 @@ const DashboardPage = () => {
                           {showAddSport === category.id ? (
                             <div className="flex items-center gap-2 mt-2 pt-2 border-t">
                               <Input 
-                                placeholder="Nuevo deporte" 
+                                placeholder={t('data.nuevo_deporte')} 
                                 className="h-8 text-sm flex-1"
                                 value={newSport.name}
                                 onChange={(e) => setNewSport({...newSport, name: e.target.value})}
@@ -2198,9 +2192,7 @@ const DashboardPage = () => {
                               className="w-full mt-2 text-slate-500 hover:text-slate-700 border border-dashed border-slate-300"
                               onClick={() => { setShowAddSport(category.id); setNewSport({ name: '', category_id: category.id }); }}
                             >
-                              <Plus className="w-4 h-4 mr-1" />
-                              Agregar deporte
-                            </Button>
+                              <Plus className="w-4 h-4 mr-1" />{t('data.agregar_deporte')}</Button>
                           )}
                         </div>
                       </div>
@@ -2250,7 +2242,7 @@ const DashboardPage = () => {
                     });
                     if (res.ok) { fetchTournaments(); toast.success('Torneo creado'); }
                     else { const err = await res.json(); toast.error(err.detail || 'Error al crear torneo'); }
-                  } catch (e) { toast.error('Error al crear torneo'); }
+                  } catch (e) { toast.error(t('data.error_al_crear_torneo')); }
                 }}
                 onUpdateTournament={async (id, updatedData) => {
                   try {
@@ -2273,7 +2265,7 @@ const DashboardPage = () => {
                       headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (res.ok) { fetchTournaments(); toast.success('Torneo eliminado'); }
-                  } catch (e) { toast.error('Error al eliminar torneo'); }
+                  } catch (e) { toast.error(t('data.error_al_eliminar_torneo')); }
                 }}
               />
             </Card>
@@ -2315,7 +2307,7 @@ const DashboardPage = () => {
                   </button>
                 ))}
                 {filteredAthletes.length === 0 && (
-                  <span className="text-sm text-slate-400 italic py-2">Sin atletas</span>
+                  <span className="text-sm text-slate-400 italic py-2">{t('data.sin_atletas')}</span>
                 )}
               </div>
 
@@ -2330,7 +2322,7 @@ const DashboardPage = () => {
                       : 'bg-emerald-500 text-white hover:bg-emerald-600'
                   }`}
                   data-testid="add-athlete-fab"
-                  title="Agregar nuevo atleta"
+                  title={t('data.agregar_nuevo_atleta')}
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -2343,26 +2335,24 @@ const DashboardPage = () => {
               <div className="bg-slate-50 border-b border-slate-200 px-4 py-4">
                 <div className="max-w-4xl mx-auto">
                   <h4 className="font-semibold mb-3 text-slate-700 text-sm flex items-center gap-2">
-                    <UserPlus className="w-4 h-4" />
-                    Registrar Nuevo Atleta
-                  </h4>
+                    <UserPlus className="w-4 h-4" />{t('data.registrar_nuevo_atleta')}</h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     <Input placeholder="Nombre completo" className="h-9 text-sm border-slate-200" value={newAthlete.name} onChange={(e) => setNewAthlete({...newAthlete, name: e.target.value})} data-testid="new-athlete-name" />
                     <Input placeholder="Email" type="email" className="h-9 text-sm border-slate-200" value={newAthlete.email} onChange={(e) => setNewAthlete({...newAthlete, email: e.target.value})} />
-                    <Input placeholder="Fecha nacimiento" type="date" className="h-9 text-sm border-slate-200" value={newAthlete.birthDate} onChange={(e) => setNewAthlete({...newAthlete, birthDate: e.target.value})} />
+                    <Input placeholder={t('data.fecha_nacimiento')} type="date" className="h-9 text-sm border-slate-200" value={newAthlete.birthDate} onChange={(e) => setNewAthlete({...newAthlete, birthDate: e.target.value})} />
                     <Select value={newAthlete.gender} onValueChange={(v) => setNewAthlete({...newAthlete, gender: v})}>
-                      <SelectTrigger className="h-9 text-sm border-slate-200"><SelectValue placeholder="Género" /></SelectTrigger>
+                      <SelectTrigger className="h-9 text-sm border-slate-200"><SelectValue placeholder={t('data.genero')} /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="masculino">Masculino</SelectItem>
                         <SelectItem value="femenino">Femenino</SelectItem>
                       </SelectContent>
                     </Select>
                     <Select value={newAthlete.sport} onValueChange={(v) => setNewAthlete({...newAthlete, sport: v})}>
-                      <SelectTrigger className="h-9 text-sm border-slate-200"><SelectValue placeholder="Deporte" /></SelectTrigger>
+                      <SelectTrigger className="h-9 text-sm border-slate-200"><SelectValue placeholder={t('data.deporte')} /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="football">Fútbol</SelectItem>
+                        <SelectItem value="football">{t('data.futbol')}</SelectItem>
                         <SelectItem value="athletics">Atletismo</SelectItem>
-                        <SelectItem value="swimming">Natación</SelectItem>
+                        <SelectItem value="swimming">{t('data.natacion')}</SelectItem>
                         <SelectItem value="cycling">Ciclismo</SelectItem>
                         <SelectItem value="basketball">Baloncesto</SelectItem>
                         <SelectItem value="tennis">Tenis</SelectItem>
@@ -2371,9 +2361,9 @@ const DashboardPage = () => {
                         <SelectItem value="other">Otro</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Input placeholder="Categoría" className="h-9 text-sm border-slate-200" value={newAthlete.category} onChange={(e) => setNewAthlete({...newAthlete, category: e.target.value})} />
+                    <Input placeholder={t('data.categoria')} className="h-9 text-sm border-slate-200" value={newAthlete.category} onChange={(e) => setNewAthlete({...newAthlete, category: e.target.value})} />
                     <Select value={newAthlete.level} onValueChange={(v) => setNewAthlete({...newAthlete, level: v})}>
-                      <SelectTrigger className="h-9 text-sm border-slate-200"><SelectValue placeholder="Nivel" /></SelectTrigger>
+                      <SelectTrigger className="h-9 text-sm border-slate-200"><SelectValue placeholder={t('data.nivel')} /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="principiante">Principiante</SelectItem>
                         <SelectItem value="intermedio">Intermedio</SelectItem>
@@ -2385,37 +2375,37 @@ const DashboardPage = () => {
                   {/* Afiliaciones */}
                   <div className="grid grid-cols-4 gap-2 mt-2">
                     <Select value={newAthlete.federation || 'none'} onValueChange={(v) => setNewAthlete({...newAthlete, federation: v === 'none' ? '' : v})}>
-                      <SelectTrigger className="h-9 text-sm border-slate-200 bg-white"><SelectValue placeholder="Federación" /></SelectTrigger>
+                      <SelectTrigger className="h-9 text-sm border-slate-200 bg-white"><SelectValue placeholder={t('data.federacion')} /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">Sin federación</SelectItem>
+                        <SelectItem value="none">{t('data.sin_federacion')}</SelectItem>
                         {entityFederations.map(f => (<SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>))}
                       </SelectContent>
                     </Select>
                     <Select value={newAthlete.club || 'none'} onValueChange={(v) => setNewAthlete({...newAthlete, club: v === 'none' ? '' : v})}>
-                      <SelectTrigger className="h-9 text-sm border-slate-200 bg-white"><SelectValue placeholder="Club" /></SelectTrigger>
+                      <SelectTrigger className="h-9 text-sm border-slate-200 bg-white"><SelectValue placeholder={t('data.club')} /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">Sin club</SelectItem>
+                        <SelectItem value="none">{t('data.sin_club')}</SelectItem>
                         {entityClubs.map(c => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
                       </SelectContent>
                     </Select>
                     <Select value={newAthlete.school || 'none'} onValueChange={(v) => setNewAthlete({...newAthlete, school: v === 'none' ? '' : v})}>
-                      <SelectTrigger className="h-9 text-sm border-slate-200 bg-white"><SelectValue placeholder="Escuela" /></SelectTrigger>
+                      <SelectTrigger className="h-9 text-sm border-slate-200 bg-white"><SelectValue placeholder={t('data.escuela')} /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">Sin escuela</SelectItem>
+                        <SelectItem value="none">{t('data.sin_escuela')}</SelectItem>
                         {entitySchools.map(s => (<SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>))}
                       </SelectContent>
                     </Select>
                     <Select value={newAthlete.team_id || 'none'} onValueChange={(v) => setNewAthlete({...newAthlete, team_id: v === 'none' ? '' : v})}>
-                      <SelectTrigger className="h-9 text-sm border-slate-200 bg-white" data-testid="athlete-team-select"><SelectValue placeholder="Equipo" /></SelectTrigger>
+                      <SelectTrigger className="h-9 text-sm border-slate-200 bg-white" data-testid="athlete-team-select"><SelectValue placeholder={t('data.equipo')} /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">Sin equipo</SelectItem>
+                        <SelectItem value="none">{t('data.sin_equipo')}</SelectItem>
                         {teams.map(t => (<SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>))}
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="mt-3 flex items-center justify-between">
                     {entities.length === 0 && (
-                      <p className="text-xs text-slate-500">Crea entidades en <strong>Organización</strong> para afiliar atletas</p>
+                      <p className="text-xs text-slate-500">Crea entidades en <strong>{t('data.organizacion')}</strong>{t('data.para_afiliar_atletas')}</p>
                     )}
                     <div className="flex gap-2 ml-auto">
                       <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setShowAddAthleteForm(false)}>
@@ -2451,8 +2441,8 @@ const DashboardPage = () => {
                   <div className="w-20 h-20 mx-auto rounded-full bg-slate-100 flex items-center justify-center mb-4">
                     <User className="w-10 h-10 text-slate-300" />
                   </div>
-                  <p className="text-slate-500 font-medium text-lg">Selecciona un atleta</p>
-                  <p className="text-sm text-slate-400 mt-1">Haz clic en uno de los círculos de arriba para ver su perfil completo</p>
+                  <p className="text-slate-500 font-medium text-lg">{t('data.selecciona_un_atleta')}</p>
+                  <p className="text-sm text-slate-400 mt-1">{t('data.haz_clic_en_uno_de_los_circulos_de_arriba_')}</p>
                 </div>
               )}
             </div>
@@ -2469,7 +2459,7 @@ const DashboardPage = () => {
           <InfoSectionHeader
             catalogType="teams"
             title="Equipos"
-            subtitle="Equipos deportivos · plantillas · staff técnico"
+            subtitle={t('data.equipos_deportivos_plantillas_staff_tecnic')}
             icon={UsersRound}
             color="#10B981"
           />
@@ -2484,8 +2474,8 @@ const DashboardPage = () => {
         <div className="p-4 space-y-4 overflow-y-auto h-full bg-[#fafaf8]">
           <InfoSectionHeader
             catalogType="sports"
-            title="Deportes"
-            subtitle="Catálogo de deportes con caracterización técnica"
+            title={t('data.deportes')}
+            subtitle={t('data.catalogo_de_deportes_con_caracterizacion_t')}
             icon={Medal}
             color="#EF4444"
             onRefresh={fetchSportsCatalog}
@@ -2495,17 +2485,13 @@ const DashboardPage = () => {
               <div className="bg-white border-b border-slate-200 text-slate-900 py-4 px-5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-lg font-semibold">
-                    <Trophy className="w-5 h-5" />
-                    Catálogo de Deportes
-                  </div>
+                    <Trophy className="w-5 h-5" />{t('data.catalogo_de_deportes')}</div>
                   <Button 
                     size="sm"
                     className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
                     onClick={() => setShowAddCategory(true)}
                   >
-                    <Plus className="w-4 h-4 mr-1" />
-                    Nueva Categoría
-                  </Button>
+                    <Plus className="w-4 h-4 mr-1" />{t('data.nueva_categoria')}</Button>
                 </div>
               </div>
               <CardContent className="p-5">
@@ -2513,14 +2499,14 @@ const DashboardPage = () => {
                 {showAddCategory && (
                   <div className="mb-5 p-4 bg-amber-50 border border-slate-200 rounded-xl">
                     <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-semibold text-amber-900">Nueva Categoría</h4>
+                      <h4 className="font-semibold text-amber-900">{t('data.nueva_categoria')}</h4>
                       <Button variant="ghost" size="sm" onClick={() => setShowAddCategory(false)}>
                         <X className="w-4 h-4" />
                       </Button>
                     </div>
                     <div className="flex flex-wrap gap-3 items-end">
                       <Input 
-                        placeholder="Nombre de categoría" 
+                        placeholder={t('data.nombre_de_categoria')} 
                         className="flex-1 min-w-[200px]"
                         value={newCategory.name}
                         onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
@@ -2537,9 +2523,7 @@ const DashboardPage = () => {
                         value={newCategory.color}
                         onChange={(e) => setNewCategory({...newCategory, color: e.target.value})}
                       />
-                      <Button onClick={handleCreateCategory} className="bg-slate-900 hover:bg-slate-800">
-                        Crear
-                      </Button>
+                      <Button onClick={handleCreateCategory} className="bg-slate-900 hover:bg-slate-800">{t('data.crear')}</Button>
                     </div>
                   </div>
                 )}
@@ -2567,9 +2551,7 @@ const DashboardPage = () => {
                               setShowAddSport(category.id);
                             }}
                           >
-                            <Plus className="w-4 h-4 mr-1" />
-                            Agregar Deporte
-                          </Button>
+                            <Plus className="w-4 h-4 mr-1" />{t('data.agregar_deporte_2')}</Button>
                           <Button 
                             variant="ghost" 
                             size="sm" 
@@ -2586,7 +2568,7 @@ const DashboardPage = () => {
                         <div className="p-4 bg-slate-50 border-b">
                           <div className="flex flex-wrap gap-3 items-end">
                             <Input 
-                              placeholder="Nombre del deporte" 
+                              placeholder={t('data.nombre_del_deporte')} 
                               className="flex-1 min-w-[200px]"
                               value={newSport.name}
                               onChange={(e) => setNewSport({...newSport, name: e.target.value})}
@@ -2600,9 +2582,7 @@ const DashboardPage = () => {
                             <Button 
                               onClick={() => handleCreateSport(category.id)} 
                               className="bg-slate-900 hover:bg-slate-800"
-                            >
-                              Crear
-                            </Button>
+                            >{t('data.crear')}</Button>
                             <Button variant="ghost" onClick={() => setShowAddSport(null)}>
                               Cancelar
                             </Button>
@@ -2675,12 +2655,12 @@ const DashboardPage = () => {
                                     {sport.characterization && Object.keys(sport.characterization).length > 0 ? (
                                       <div className="flex items-center gap-1 text-[8px] font-semibold text-emerald-700">
                                         <CheckCircle className="w-3 h-3" />
-                                        <span>Caracterización guardada</span>
+                                        <span>{t('data.caracterizacion_guardada')}</span>
                                       </div>
                                     ) : (
                                       <div className="flex items-center gap-1 text-[8px] font-medium text-slate-400 italic">
                                         <FileText className="w-3 h-3" />
-                                        <span>Sin caracterizar</span>
+                                        <span>{t('data.sin_caracterizar')}</span>
                                       </div>
                                     )}
                                     <div className="flex items-center gap-1">
@@ -2692,7 +2672,7 @@ const DashboardPage = () => {
                                           setEditingSportId(sport.id);
                                           setEditingSportCharacterization(sport.characterization || {});
                                         }}
-                                        title="Editar Caracterización Técnica"
+                                        title={t('data.editar_caracterizacion_tecnica')}
                                         data-testid={`sport-edit-${sport.id}`}
                                       >
                                         <FileText className="w-3.5 h-3.5" />
@@ -2702,7 +2682,7 @@ const DashboardPage = () => {
                                         size="sm"
                                         className="h-7 w-7 p-0 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md"
                                         onClick={() => handleDeleteSport(sport.id)}
-                                        title="Eliminar deporte"
+                                        title={t('data.eliminar_deporte')}
                                         data-testid={`sport-delete-${sport.id}`}
                                       >
                                         <Trash2 className="w-3.5 h-3.5" />
@@ -2714,7 +2694,7 @@ const DashboardPage = () => {
                             })}
                           </div>
                         ) : (
-                          <p className="text-center text-slate-400 py-4">Sin deportes en esta categoría</p>
+                          <p className="text-center text-slate-400 py-4">{t('data.sin_deportes_en_esta_categoria')}</p>
                         )}
                       </div>
                     </div>
@@ -2730,8 +2710,8 @@ const DashboardPage = () => {
                           <div className="flex items-center gap-3">
                             <FileText className="w-6 h-6" />
                             <div>
-                              <h3 className="font-bold text-lg">Caracterización Técnica</h3>
-                              <p className="text-sm text-blue-100">Define los parámetros técnicos del deporte</p>
+                              <h3 className="font-bold text-lg">{t('data.caracterizacion_tecnica')}</h3>
+                              <p className="text-sm text-blue-100">{t('data.define_los_parametros_tecnicos_del_deporte')}</p>
                             </div>
                           </div>
                           <Button 
@@ -2750,38 +2730,38 @@ const DashboardPage = () => {
                       <div className="p-5 space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <Label className="text-sm font-medium text-slate-700">Tipo de Deporte</Label>
+                            <Label className="text-sm font-medium text-slate-700">{t('data.tipo_de_deporte')}</Label>
                             <Select 
                               value={editingSportCharacterization.type || ''} 
                               onValueChange={(v) => setEditingSportCharacterization({...editingSportCharacterization, type: v})}
                             >
-                              <SelectTrigger><SelectValue placeholder="Seleccionar tipo" /></SelectTrigger>
+                              <SelectTrigger><SelectValue placeholder={t('data.seleccionar_tipo')} /></SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="individual">Individual</SelectItem>
                                 <SelectItem value="colectivo">Colectivo</SelectItem>
                                 <SelectItem value="combate">Combate</SelectItem>
-                                <SelectItem value="precision">Precisión</SelectItem>
+                                <SelectItem value="precision">{t('data.precision')}</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
                           <div>
-                            <Label className="text-sm font-medium text-slate-700">Sistema Energético Predominante</Label>
+                            <Label className="text-sm font-medium text-slate-700">{t('data.sistema_energetico_predominante')}</Label>
                             <Select 
                               value={editingSportCharacterization.energySystem || ''} 
                               onValueChange={(v) => setEditingSportCharacterization({...editingSportCharacterization, energySystem: v})}
                             >
-                              <SelectTrigger><SelectValue placeholder="Seleccionar sistema" /></SelectTrigger>
+                              <SelectTrigger><SelectValue placeholder={t('data.seleccionar_sistema')} /></SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="aerobico">Aeróbico</SelectItem>
-                                <SelectItem value="anaerobico-lactico">Anaeróbico Láctico</SelectItem>
-                                <SelectItem value="anaerobico-alactico">Anaeróbico Aláctico</SelectItem>
+                                <SelectItem value="aerobico">{t('data.aerobico')}</SelectItem>
+                                <SelectItem value="anaerobico-lactico">{t('data.anaerobico_lactico')}</SelectItem>
+                                <SelectItem value="anaerobico-alactico">{t('data.anaerobico_alactico')}</SelectItem>
                                 <SelectItem value="mixto">Mixto</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
                         </div>
                         <div>
-                          <Label className="text-sm font-medium text-slate-700">Capacidades Físicas Principales</Label>
+                          <Label className="text-sm font-medium text-slate-700">{t('data.capacidades_fisicas_principales')}</Label>
                           <Textarea 
                             placeholder="Ej: Fuerza explosiva, Resistencia, Velocidad, Flexibilidad..."
                             value={editingSportCharacterization.physicalCapabilities || ''}
@@ -2790,18 +2770,18 @@ const DashboardPage = () => {
                           />
                         </div>
                         <div>
-                          <Label className="text-sm font-medium text-slate-700">Habilidades Técnicas</Label>
+                          <Label className="text-sm font-medium text-slate-700">{t('data.habilidades_tecnicas')}</Label>
                           <Textarea 
-                            placeholder="Ej: Pase, Recepción, Tiro, Conducción..."
+                            placeholder={t('data.ej_pase_recepcion_tiro_conduccion')}
                             value={editingSportCharacterization.technicalSkills || ''}
                             onChange={(e) => setEditingSportCharacterization({...editingSportCharacterization, technicalSkills: e.target.value})}
                             className="mt-1"
                           />
                         </div>
                         <div>
-                          <Label className="text-sm font-medium text-slate-700">Factores Tácticos</Label>
+                          <Label className="text-sm font-medium text-slate-700">{t('data.factores_tacticos')}</Label>
                           <Textarea 
-                            placeholder="Ej: Sistemas de juego, Estrategias, Roles..."
+                            placeholder={t('data.ej_sistemas_de_juego_estrategias_roles')}
                             value={editingSportCharacterization.tacticalFactors || ''}
                             onChange={(e) => setEditingSportCharacterization({...editingSportCharacterization, tacticalFactors: e.target.value})}
                             className="mt-1"
@@ -2825,9 +2805,7 @@ const DashboardPage = () => {
                               setEditingSportCharacterization({});
                             }}
                           >
-                            <Save className="w-4 h-4 mr-2" />
-                            Guardar Caracterización
-                          </Button>
+                            <Save className="w-4 h-4 mr-2" />{t('data.guardar_caracterizacion')}</Button>
                         </div>
                       </div>
                     </div>
@@ -2847,7 +2825,7 @@ const DashboardPage = () => {
           <InfoSectionHeader
             catalogType="tournaments"
             title="Torneos"
-            subtitle="Calendario de competencias · brackets · participantes"
+            subtitle={t('data.calendario_de_competencias_brackets_partic')}
             icon={Shield}
             color="#8B5CF6"
             onRefresh={fetchTournaments}
@@ -2922,9 +2900,7 @@ const DashboardPage = () => {
             <div className="bg-white border-b border-slate-200 text-slate-900 py-4 px-5 rounded-t-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-lg font-semibold">
-                  <Calendar className="w-5 h-5" />
-                  Calendario de Eventos y Competencias
-                </div>
+                  <Calendar className="w-5 h-5" />{t('data.calendario_de_eventos_y_competencias')}</div>
                 {selectedAthleteId && (
                   <span className="text-sm bg-slate-100 text-slate-600 px-3 py-1 rounded-full">{events.length} eventos</span>
                 )}
@@ -2934,20 +2910,18 @@ const DashboardPage = () => {
               {!selectedAthleteId ? (
                 <div className="text-center py-12 text-slate-400">
                   <Users className="w-16 h-16 mx-auto mb-3 opacity-30" />
-                  <p className="font-medium">Selecciona un atleta primero</p>
-                  <p className="text-sm mt-1">Ve a la sección "Atletas" y selecciona uno para gestionar sus eventos</p>
+                  <p className="font-medium">{t('data.selecciona_un_atleta_primero')}</p>
+                  <p className="text-sm mt-1">{t('data.ve_a_la_seccion_atletas_y_selecciona_uno_p')}</p>
                 </div>
               ) : (
                 <>
                   {/* Formulario nuevo evento */}
                   <div className="bg-violet-50/50 p-4 rounded-xl mb-5 border border-violet-100">
                     <h4 className="font-semibold mb-3 text-violet-900 flex items-center gap-2">
-                      <Plus className="w-4 h-4" />
-                      Agregar Evento/Competencia
-                    </h4>
+                      <Plus className="w-4 h-4" />{t('data.agregar_evento_competencia')}</h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       <Input 
-                        placeholder="Nombre del evento" 
+                        placeholder={t('data.nombre_del_evento')} 
                         className="h-10 border-violet-200 focus:border-violet-400" 
                         value={newEvent.name}
                         onChange={(e) => setNewEvent({...newEvent, name: e.target.value})}
@@ -2955,10 +2929,10 @@ const DashboardPage = () => {
                       <Select value={newEvent.type} onValueChange={(v) => setNewEvent({...newEvent, type: v})}>
                         <SelectTrigger className="h-10 border-violet-200"><SelectValue placeholder="Tipo" /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="competencia_principal">Competencia Principal</SelectItem>
-                          <SelectItem value="competencia_secundaria">Competencia Secundaria</SelectItem>
-                          <SelectItem value="test">Test/Evaluación</SelectItem>
-                          <SelectItem value="concentracion">Concentración</SelectItem>
+                          <SelectItem value="competencia_principal">{t('data.competencia_principal')}</SelectItem>
+                          <SelectItem value="competencia_secundaria">{t('data.competencia_secundaria')}</SelectItem>
+                          <SelectItem value="test">{t('data.test_evaluacion')}</SelectItem>
+                          <SelectItem value="concentracion">{t('data.concentracion')}</SelectItem>
                           <SelectItem value="viaje">Viaje</SelectItem>
                         </SelectContent>
                       </Select>
@@ -2977,7 +2951,7 @@ const DashboardPage = () => {
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
                       <Input 
-                        placeholder="Objetivo" 
+                        placeholder={t('data.objetivo')} 
                         className="h-10 col-span-2 border-violet-200 focus:border-violet-400" 
                         value={newEvent.objective}
                         onChange={(e) => setNewEvent({...newEvent, objective: e.target.value})}
@@ -3006,7 +2980,7 @@ const DashboardPage = () => {
                     {events.length === 0 ? (
                       <div className="text-center py-8 text-slate-400">
                         <Calendar className="w-12 h-12 mx-auto mb-2 opacity-30" />
-                        <p>No hay eventos registrados para este atleta</p>
+                        <p>{t('data.no_hay_eventos_registrados_para_este_atlet')}</p>
                       </div>
                     ) : (
                       events.map(event => {
@@ -3064,12 +3038,12 @@ const DashboardPage = () => {
     if (activeDataSection === 'objectives') {
       const aspectRows = [
         { key: 'general', label: 'General', color: '#94a3b8', hover: '#f8fafc' },
-        { key: 'fisicaGeneral', label: 'Prep. Física General', color: '#3b82f6', hover: '#eff6ff' },
-        { key: 'fisicaEspecial', label: 'Prep. Física Especial', color: '#007AFF', hover: '#eff6ff' },
-        { key: 'tecnica', label: 'Prep. Técnica', color: '#10b981', hover: '#ecfdf5' },
-        { key: 'tactica', label: 'Prep. Táctica', color: '#f59e0b', hover: '#fffbeb' },
-        { key: 'teorica', label: 'Prep. Teórica', color: '#06b6d4', hover: '#ecfeff' },
-        { key: 'psicologica', label: 'Prep. Psicológica', color: '#ec4899', hover: '#fdf2f8' }
+        { key: 'fisicaGeneral', label: t('data.x_prep_fisica_general'), color: '#3b82f6', hover: '#eff6ff' },
+        { key: 'fisicaEspecial', label: t('data.x_prep_fisica_especial'), color: '#007AFF', hover: '#eff6ff' },
+        { key: 'tecnica', label: t('data.x_prep_tecnica'), color: '#10b981', hover: '#ecfdf5' },
+        { key: 'tactica', label: t('data.x_prep_tactica'), color: '#f59e0b', hover: '#fffbeb' },
+        { key: 'teorica', label: t('data.x_prep_teorica'), color: '#06b6d4', hover: '#ecfeff' },
+        { key: 'psicologica', label: t('data.x_prep_psicologica'), color: '#ec4899', hover: '#fdf2f8' }
       ];
       return (
         <div className="p-4 space-y-4 overflow-y-auto h-full bg-[#fafaf8]">
@@ -3080,26 +3054,25 @@ const DashboardPage = () => {
                 <Target className="w-5 h-5 text-[#CCFF00]" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-base font-bold text-slate-900 truncate">Plan Activo</h1>
-                <p className="text-[11px] text-slate-500 truncate">Información general · Objetivos por horizonte temporal y aspecto de preparación</p>
+                <h1 className="text-base font-bold text-slate-900 truncate">{t('data.plan_activo')}</h1>
+                <p className="text-[11px] text-slate-500 truncate">{t('data.x_informacion_general_objetivos_por_horizonte_')}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-slate-300 hover:bg-slate-50" onClick={handleDownloadObjectivesPDF} disabled={savingEvaluation || !activePlan} data-testid="active-plan-pdf-btn" title="Descargar PDF estilo Whitepaper">
                 <Download className="w-3.5 h-3.5 mr-1.5" />PDF
               </Button>
-              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-slate-300 hover:bg-slate-50" onClick={handleShareObjectivesLink} disabled={savingEvaluation || !activePlan} data-testid="active-plan-link-btn" title="Copiar enlace público al portapapeles">
-                <LinkIcon className="w-3.5 h-3.5 mr-1.5" />Enlace
+              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-slate-300 hover:bg-slate-50" onClick={handleShareObjectivesLink} disabled={savingEvaluation || !activePlan} data-testid="active-plan-link-btn" title={t('data.copiar_enlace_publico_al_portapapeles')}>
+                <LinkIcon className="w-3.5 h-3.5 mr-1.5" />{t('sessions.link')}
               </Button>
-              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-emerald-300 text-emerald-700 hover:bg-emerald-50 bg-emerald-50/40" onClick={handleShareObjectivesWhatsApp} disabled={savingEvaluation || !activePlan} data-testid="active-plan-whatsapp-btn" title="Compartir por WhatsApp">
+              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-emerald-300 text-emerald-700 hover:bg-emerald-50 bg-emerald-50/40" onClick={handleShareObjectivesWhatsApp} disabled={savingEvaluation || !activePlan} data-testid="active-plan-whatsapp-btn" title={t('data.compartir_por_whatsapp')}>
                 <MessageCircle className="w-3.5 h-3.5 mr-1.5" />WhatsApp
               </Button>
-              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-[#007AFF]/40 text-[#007AFF] hover:bg-blue-50 bg-blue-50/40" onClick={() => activePlan ? setIsAthletePortalOpen(true) : toast.error('Selecciona un plan activo primero')} disabled={!activePlan} data-testid="active-plan-athlete-btn" title="Enviar al atleta (enlace + cuenta)">
-                <Send className="w-3.5 h-3.5 mr-1.5" />Atleta
-              </Button>
+              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-[#007AFF]/40 text-[#007AFF] hover:bg-blue-50 bg-blue-50/40" onClick={() => activePlan ? setIsAthletePortalOpen(true) : toast.error(t('data.selecciona_un_plan_activo_primero'))} disabled={!activePlan} data-testid="active-plan-athlete-btn" title={t('data.enviar_al_atleta_enlace_cuenta')}>
+                <Send className="w-3.5 h-3.5 mr-1.5" />{t('data.atleta_2')}</Button>
               <Button className="bg-slate-900 hover:bg-slate-800 text-white h-9 text-xs px-4" onClick={handleSaveObjectives} disabled={savingEvaluation || !activePlan} data-testid="active-plan-save-btn">
                 <Save className="w-3.5 h-3.5 mr-1.5" />
-                {savingEvaluation ? 'Guardando...' : 'Guardar'}
+                {savingEvaluation ? t('data.btnSaving') : t('data.btnSave')}
               </Button>
             </div>
           </div>
@@ -3107,7 +3080,7 @@ const DashboardPage = () => {
           {!activePlan && (
             <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-2.5 text-xs flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-              Selecciona un plan activo en el panel izquierdo para guardar y compartir.
+              {t('data.selecciona_plan_guardar',{defaultValue:'Select an active plan in the left panel to save and share.'})}
             </div>
           )}
 
@@ -3115,20 +3088,18 @@ const DashboardPage = () => {
           <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-[#007AFF]">
             <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
               <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                <FileText className="w-4 h-4 text-[#007AFF]" />
-                Información General del Plan
-              </CardTitle>
+                <FileText className="w-4 h-4 text-[#007AFF]" />{t('data.informacion_general_del_plan')}</CardTitle>
             </CardHeader>
             <CardContent className="p-3.5">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Deporte / Objetivo</label>
-                  <Input data-testid="obj-deporte" placeholder="Ej: Fútbol pretemporada" className="border-slate-200 h-9 text-sm" value={objectivesData.deporteObjetivo} onChange={(e) => setObjectivesData({...objectivesData, deporteObjetivo: e.target.value})} />
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">{t('data.deporte_objetivo')}</label>
+                  <Input data-testid="obj-deporte" placeholder={t('data.ej_futbol_pretemporada')} className="border-slate-200 h-9 text-sm" value={objectivesData.deporteObjetivo} onChange={(e) => setObjectivesData({...objectivesData, deporteObjetivo: e.target.value})} />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Categoría</label>
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">{t('data.categoria')}</label>
                   <Select value={objectivesData.categoria} onValueChange={(val) => setObjectivesData({...objectivesData, categoria: val})}>
-                    <SelectTrigger data-testid="obj-categoria" className="h-9 text-sm border-slate-200"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                    <SelectTrigger data-testid="obj-categoria" className="h-9 text-sm border-slate-200"><SelectValue placeholder={t('data.seleccionar')} /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="infantil">Infantil</SelectItem>
                       <SelectItem value="cadete">Cadete</SelectItem>
@@ -3141,32 +3112,32 @@ const DashboardPage = () => {
                 </div>
                 <div className="space-y-1">
                   <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Edad / Rango</label>
-                  <Input data-testid="obj-edad" placeholder="Ej: 18-22 años" className="border-slate-200 h-9 text-sm" value={objectivesData.edad} onChange={(e) => setObjectivesData({...objectivesData, edad: e.target.value})} />
+                  <Input data-testid="obj-edad" placeholder={t('data.ej_18_22_anos')} className="border-slate-200 h-9 text-sm" value={objectivesData.edad} onChange={(e) => setObjectivesData({...objectivesData, edad: e.target.value})} />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Clasificación / Nivel</label>
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">{t('data.clasificacion_nivel')}</label>
                   <Select value={objectivesData.clasificacion} onValueChange={(val) => setObjectivesData({...objectivesData, clasificacion: val})}>
-                    <SelectTrigger data-testid="obj-clasificacion" className="h-9 text-sm border-slate-200"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                    <SelectTrigger data-testid="obj-clasificacion" className="h-9 text-sm border-slate-200"><SelectValue placeholder={t('data.seleccionar')} /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="iniciacion">Iniciación</SelectItem>
-                      <SelectItem value="formacion">Formación</SelectItem>
+                      <SelectItem value="iniciacion">{t('data.iniciacion')}</SelectItem>
+                      <SelectItem value="formacion">{t('data.formacion')}</SelectItem>
                       <SelectItem value="perfeccionamiento">Perfeccionamiento</SelectItem>
                       <SelectItem value="alto-rendimiento">Alto Rendimiento</SelectItem>
-                      <SelectItem value="elite">Élite</SelectItem>
+                      <SelectItem value="elite">{t('data.elite')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Fecha de Inicio</label>
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">{t('data.fecha_de_inicio')}</label>
                   <Input data-testid="obj-fecha-inicio" type="date" className="border-slate-200 h-9 text-sm" value={objectivesData.fechaInicio} onChange={(e) => setObjectivesData({...objectivesData, fechaInicio: e.target.value})} />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Fecha de Finalización</label>
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">{t('data.fecha_de_finalizacion')}</label>
                   <Input data-testid="obj-fecha-fin" type="date" className="border-slate-200 h-9 text-sm" value={objectivesData.fechaFin} onChange={(e) => setObjectivesData({...objectivesData, fechaFin: e.target.value})} />
                 </div>
                 <div className="space-y-1 sm:col-span-2 lg:col-span-3">
                   <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Entrenador Responsable</label>
-                  <Input data-testid="obj-entrenador" placeholder="Nombre del entrenador" className="border-slate-200 h-9 text-sm" value={objectivesData.entrenador} onChange={(e) => setObjectivesData({...objectivesData, entrenador: e.target.value})} />
+                  <Input data-testid="obj-entrenador" placeholder={t('data.nombre_del_entrenador')} className="border-slate-200 h-9 text-sm" value={objectivesData.entrenador} onChange={(e) => setObjectivesData({...objectivesData, entrenador: e.target.value})} />
                 </div>
               </div>
             </CardContent>
@@ -3186,7 +3157,7 @@ const DashboardPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3.5 space-y-2">
-                <p className="text-[11px] text-slate-500 italic">Pico anual · objetivo principal del macrociclo</p>
+                <p className="text-[11px] text-slate-500 italic">{t('data.pico_anual_objetivo_principal_del_macrocic')}</p>
                 {[0, 1, 2].map((idx) => (
                   <div key={idx} className="flex items-start gap-2">
                     <span className="w-5 h-5 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center text-[8px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
@@ -3208,7 +3179,7 @@ const DashboardPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3.5 space-y-2">
-                <p className="text-[11px] text-slate-500 italic">Bloques 4-6 semanas · capacidades específicas</p>
+                <p className="text-[11px] text-slate-500 italic">{t('data.bloques_4_6_semanas_capacidades_especifica')}</p>
                 {[0, 1, 2].map((idx) => (
                   <div key={idx} className="flex items-start gap-2">
                     <span className="w-5 h-5 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center text-[8px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
@@ -3230,7 +3201,7 @@ const DashboardPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3.5 space-y-2">
-                <p className="text-[11px] text-slate-500 italic">Semana actual · sesiones inmediatas</p>
+                <p className="text-[11px] text-slate-500 italic">{t('data.semana_actual_sesiones_inmediatas')}</p>
                 {[0, 1, 2].map((idx) => (
                   <div key={idx} className="flex items-start gap-2">
                     <span className="w-5 h-5 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-[8px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
@@ -3245,9 +3216,7 @@ const DashboardPage = () => {
           <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-violet-500">
             <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
               <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                <Layers className="w-4 h-4 text-violet-500" />
-                Objetivos por Aspecto de Preparación
-                <span className="ml-auto text-[8px] font-medium text-slate-500 italic">7 aspectos deportivos</span>
+                <Layers className="w-4 h-4 text-violet-500" />{t('data.objetivos_por_aspecto_de_preparacion')}<span className="ml-auto text-[8px] font-medium text-slate-500 italic">7 aspectos deportivos</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
@@ -3256,7 +3225,7 @@ const DashboardPage = () => {
                   <thead className="bg-slate-900">
                     <tr>
                       <th className="px-3 py-2 text-left text-[8px] font-black uppercase tracking-wider w-44" style={{ color: '#CCFF00' }}>Aspecto</th>
-                      <th className="px-3 py-2 text-left text-[8px] font-black uppercase tracking-wider" style={{ color: '#CCFF00' }}>Objetivo</th>
+                      <th className="px-3 py-2 text-left text-[8px] font-black uppercase tracking-wider" style={{ color: '#CCFF00' }}>{t('data.objetivo')}</th>
                       <th className="px-3 py-2 text-left text-[8px] font-black uppercase tracking-wider w-72" style={{ color: '#CCFF00' }}>Indicador</th>
                     </tr>
                   </thead>
@@ -3273,7 +3242,7 @@ const DashboardPage = () => {
                           <textarea data-testid={`obj-aspecto-${row.key}-obj`} className="w-full p-1.5 border border-slate-200 rounded-md text-[12px] resize-none" rows={1} placeholder={`Objetivo de ${row.label.toLowerCase()}...`} value={objectivesData.porAspecto[row.key]?.objetivo || ''} onChange={(e) => setObjectivesData({...objectivesData, porAspecto: {...objectivesData.porAspecto, [row.key]: {...objectivesData.porAspecto[row.key], objetivo: e.target.value}}})} />
                         </td>
                         <td className="px-3 py-1.5">
-                          <textarea data-testid={`obj-aspecto-${row.key}-ind`} className="w-full p-1.5 border border-slate-200 rounded-md text-[12px] resize-none" rows={1} placeholder="¿Cómo se medirá?" value={objectivesData.porAspecto[row.key]?.indicador || ''} onChange={(e) => setObjectivesData({...objectivesData, porAspecto: {...objectivesData.porAspecto, [row.key]: {...objectivesData.porAspecto[row.key], indicador: e.target.value}}})} />
+                          <textarea data-testid={`obj-aspecto-${row.key}-ind`} className="w-full p-1.5 border border-slate-200 rounded-md text-[12px] resize-none" rows={1} placeholder={t('data.como_se_medira')} value={objectivesData.porAspecto[row.key]?.indicador || ''} onChange={(e) => setObjectivesData({...objectivesData, porAspecto: {...objectivesData.porAspecto, [row.key]: {...objectivesData.porAspecto[row.key], indicador: e.target.value}}})} />
                         </td>
                       </tr>
                     ))}
@@ -3290,10 +3259,10 @@ const DashboardPage = () => {
           <div className="rounded-xl p-4 flex items-start gap-3" style={{ background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', borderLeft: '4px solid #CCFF00' }}>
             <Sparkles className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-[12px] font-bold text-slate-800 mb-1">Objetivos SMART</p>
+              <p className="text-[12px] font-bold text-slate-800 mb-1">{t('data.objetivos_smart')}</p>
               <p className="text-[11.5px] text-slate-700 leading-relaxed">
                 La claridad de estos objetivos es crítica para guiar el desarrollo del programa. Cada objetivo debe ser
-                <strong> Específico, Medible, Alcanzable, Relevante y Temporal</strong>. Validar periódicamente con el cuerpo técnico.
+                <strong>{t('data.especifico_medible_alcanzable_relevante_y_')}</strong>. Validar periódicamente con el cuerpo técnico.
               </p>
             </div>
           </div>
@@ -3306,7 +3275,7 @@ const DashboardPage = () => {
       const indicadorKeys = ['vo2max', 'sentadilla', 'sprint', 'cmj', 'flexibilidad'];
       const indicadorLabels = ['VO2 Máx', '1RM Sentadilla', 'Sprint 30m', 'CMJ (salto)', 'Flexibilidad'];
       const cumplKeys = ['general', 'fisica', 'tecnica', 'tactica', 'psicologica', 'teorica', 'reglamento'];
-      const cumplLabels = ['Objetivo General', 'Preparación Física', 'Preparación Técnica', 'Preparación Táctica', 'Preparación Psicológica', 'Preparación Teórica', 'Reglamento del Deporte'];
+      const cumplLabels = [t('data.cumpl_general'), t('data.cumpl_fisica'), t('data.cumpl_tecnica'), t('data.cumpl_tactica'), t('data.cumpl_psicologica'), t('data.cumpl_teorica'), t('data.cumpl_reglamento')];
 
       // Perfiles ideales esperados por modelo de periodización (benchmark) — 7 áreas
       const MODEL_PROFILES = {
@@ -3332,23 +3301,23 @@ const DashboardPage = () => {
                 <History className="w-5 h-5 text-[#CCFF00]" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-base font-bold text-slate-900 truncate">Análisis del Plan Anterior</h1>
-                <p className="text-[11px] text-slate-500 truncate">Evaluación retrospectiva · Identifica fortalezas y oportunidades para el próximo ciclo</p>
+                <h1 className="text-base font-bold text-slate-900 truncate">{t('data.analisis_del_plan_anterior')}</h1>
+                <p className="text-[11px] text-slate-500 truncate">{t('data.x_evaluacion_retrospectiva_identifica_fortalez')}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-slate-300 hover:bg-slate-50" onClick={handleDownloadPreviousAnalysisPDF} disabled={savingEvaluation || !activePlan} data-testid="prev-download-pdf-btn" title="Descargar PDF estilo Whitepaper">
                 <Download className="w-3.5 h-3.5 mr-1.5" />PDF
               </Button>
-              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-slate-300 hover:bg-slate-50" onClick={handleSharePreviousAnalysisLink} disabled={savingEvaluation || !activePlan} data-testid="prev-share-link-btn" title="Copiar enlace público al portapapeles">
-                <LinkIcon className="w-3.5 h-3.5 mr-1.5" />Enlace
+              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-slate-300 hover:bg-slate-50" onClick={handleSharePreviousAnalysisLink} disabled={savingEvaluation || !activePlan} data-testid="prev-share-link-btn" title={t('data.copiar_enlace_publico_al_portapapeles')}>
+                <LinkIcon className="w-3.5 h-3.5 mr-1.5" />{t('sessions.link')}
               </Button>
-              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-emerald-300 text-emerald-700 hover:bg-emerald-50 bg-emerald-50/40" onClick={handleShareWhatsApp} disabled={savingEvaluation || !activePlan} data-testid="prev-share-whatsapp-btn" title="Compartir por WhatsApp">
+              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-emerald-300 text-emerald-700 hover:bg-emerald-50 bg-emerald-50/40" onClick={handleShareWhatsApp} disabled={savingEvaluation || !activePlan} data-testid="prev-share-whatsapp-btn" title={t('data.compartir_por_whatsapp')}>
                 <MessageCircle className="w-3.5 h-3.5 mr-1.5" />WhatsApp
               </Button>
               <Button className="bg-slate-900 hover:bg-slate-800 text-white h-9 text-xs px-4" onClick={handleSavePreviousAnalysis} disabled={savingEvaluation || !activePlan} data-testid="prev-save-btn">
                 <Save className="w-3.5 h-3.5 mr-1.5" />
-                {savingEvaluation ? 'Guardando...' : 'Guardar'}
+                {savingEvaluation ? t('data.btnSaving') : t('data.btnSave')}
               </Button>
             </div>
           </div>
@@ -3356,7 +3325,7 @@ const DashboardPage = () => {
           {!activePlan && (
             <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-2.5 text-xs flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-              Selecciona un plan activo en el panel izquierdo para guardar y compartir el análisis.
+              {t('data.selecciona_plan_guardar_analisis',{defaultValue:'Select an active plan in the left panel to save and share the analysis.'})}
             </div>
           )}
 
@@ -3365,28 +3334,26 @@ const DashboardPage = () => {
             <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-[#007AFF] lg:col-start-1">
               <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                  <Calendar className="w-4 h-4 text-[#007AFF]" />
-                  Información del Plan Anterior
-                </CardTitle>
+                  <Calendar className="w-4 h-4 text-[#007AFF]" />{t('data.informacion_del_plan_anterior')}</CardTitle>
               </CardHeader>
               <CardContent className="p-3.5 space-y-2.5">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Fecha de Inicio</label>
+                    <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">{t('data.fecha_de_inicio')}</label>
                     <Input data-testid="prev-fecha-inicio" type="date" className="border-slate-200 h-9 text-sm" value={previousAnalysisData.fechaInicio} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, fechaInicio: e.target.value})} />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Fecha de Finalización</label>
+                    <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">{t('data.fecha_de_finalizacion')}</label>
                     <Input data-testid="prev-fecha-fin" type="date" className="border-slate-200 h-9 text-sm" value={previousAnalysisData.fechaFinalizacion} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, fechaFinalizacion: e.target.value})} />
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Duración Total (semanas)</label>
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">{t('data.duracion_total_semanas')}</label>
                   <Input data-testid="prev-duracion" type="number" placeholder="Ej: 12" className="border-slate-200 h-9 text-sm" value={previousAnalysisData.duracionSemanas} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, duracionSemanas: e.target.value})} />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Objetivo Principal del Plan</label>
-                  <textarea data-testid="prev-objetivo" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="¿Cuál era el objetivo principal?" value={previousAnalysisData.objetivoPrincipal} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, objetivoPrincipal: e.target.value})} />
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">{t('data.objetivo_principal_del_plan')}</label>
+                  <textarea data-testid="prev-objetivo" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={t('data.cual_era_el_objetivo_principal')} value={previousAnalysisData.objetivoPrincipal} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, objetivoPrincipal: e.target.value})} />
                 </div>
               </CardContent>
             </Card>
@@ -3395,15 +3362,13 @@ const DashboardPage = () => {
             <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-emerald-500 lg:col-start-2 lg:row-start-1 lg:row-end-6 lg:h-full flex flex-col">
               <CardHeader className="bg-white border-b border-slate-100 py-3 px-4 flex-shrink-0">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                  <CheckCircle className="w-4 h-4 text-emerald-500" />
-                  Cumplimiento de Objetivos
-                </CardTitle>
+                  <CheckCircle className="w-4 h-4 text-emerald-500" />{t('data.cumplimiento_de_objetivos')}</CardTitle>
               </CardHeader>
               <CardContent className="p-3.5 space-y-2.5 flex flex-col flex-1 min-h-0">
                 {/* Radar interactivo — feedback visual en tiempo real */}
                 <div className="rounded-xl p-2.5" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}>
                   <div className="flex items-center justify-center gap-3 mb-1 flex-wrap">
-                    <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase" style={{ background: '#CCFF00', color: '#0f172a' }}>Perfil de Cumplimiento</span>
+                    <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase" style={{ background: '#CCFF00', color: '#0f172a' }}>{t('data.perfil_de_cumplimiento')}</span>
                     <div className="flex items-center gap-3 text-[9px]">
                       <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: '#CCFF00' }}></span><span className="text-white/90 font-semibold uppercase tracking-wider">Real</span></div>
                       <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm border border-dashed" style={{ background: 'rgba(255,255,255,0.15)', borderColor: 'rgba(255,255,255,0.6)' }}></span><span className="text-white/80 font-semibold uppercase tracking-wider">Ideal · {modelNameLabel}</span></div>
@@ -3413,17 +3378,9 @@ const DashboardPage = () => {
                     <RadarChart data={cumplKeys.map((k, i) => {
                       const raw = previousAnalysisData.cumplimiento?.[k];
                       const item = (typeof raw === 'object' && raw !== null) ? raw : { porcentaje: 50 };
-                      const shortMap = {
-                        'Objetivo General': 'Obj. General',
-                        'Preparación Física': 'Prep. Física',
-                        'Preparación Técnica': 'Prep. Técnica',
-                        'Preparación Táctica': 'Prep. Táctica',
-                        'Preparación Psicológica': 'Prep. Psicol.',
-                        'Preparación Teórica': 'Prep. Teórica',
-                        'Reglamento del Deporte': 'Reglamento',
-                      };
+                      const shortLabels = [t('data.short_general'), t('data.short_fisica'), t('data.short_tecnica'), t('data.short_tactica'), t('data.short_psicol'), t('data.short_teorica'), t('data.short_reglamento')];
                       return {
-                        area: shortMap[cumplLabels[i]] || cumplLabels[i],
+                        area: shortLabels[i] || cumplLabels[i],
                         pct: Number(item.porcentaje ?? 0),
                         ideal: Number(benchmarkProfile[k] ?? 0),
                       };
@@ -3432,10 +3389,10 @@ const DashboardPage = () => {
                       <PolarAngleAxis dataKey="area" tick={{ fill: '#fff', fontSize: 10, fontWeight: 700 }} />
                       <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 9 }} axisLine={false} />
                       {/* Ideal/benchmark del modelo (detrás) */}
-                      <Radar name="Ideal" dataKey="ideal" stroke="rgba(255,255,255,0.65)" strokeDasharray="4 4" fill="rgba(255,255,255,0.08)" fillOpacity={1} strokeWidth={1.5} dot={false} />
+                      <Radar name={t('data.radar_ideal')} dataKey="ideal" stroke="rgba(255,255,255,0.65)" strokeDasharray="4 4" fill="rgba(255,255,255,0.08)" fillOpacity={1} strokeWidth={1.5} dot={false} />
                       {/* Real (encima) */}
-                      <Radar name="Real" dataKey="pct" stroke="#CCFF00" fill="#CCFF00" fillOpacity={0.4} strokeWidth={2} dot={{ fill: '#CCFF00', r: 3, strokeWidth: 1, stroke: '#fff' }} />
-                      <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #CCFF00', borderRadius: 8, fontSize: 12 }} labelStyle={{ color: '#CCFF00', fontWeight: 700 }} formatter={(v, n) => [`${v}%`, n === 'Real' ? 'Tu cumplimiento' : `Ideal (${modelNameLabel})`]} />
+                      <Radar name={t('data.radar_real')} dataKey="pct" stroke="#CCFF00" fill="#CCFF00" fillOpacity={0.4} strokeWidth={2} dot={{ fill: '#CCFF00', r: 3, strokeWidth: 1, stroke: '#fff' }} />
+                      <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #CCFF00', borderRadius: 8, fontSize: 12 }} labelStyle={{ color: '#CCFF00', fontWeight: 700 }} formatter={(v, n) => [`${v}%`, n === t('data.radar_real') ? t('data.radar_your') : `${t('data.radar_ideal')} (${modelNameLabel})`]} />
                     </RadarChart>
                   </ResponsiveContainer>
                 </div>
@@ -3446,9 +3403,9 @@ const DashboardPage = () => {
                     const raw = previousAnalysisData.cumplimiento?.[k];
                     const item = (typeof raw === 'object' && raw !== null) ? raw : { descripcion: '', porcentaje: 50 };
                     const pct = Number(item.porcentaje ?? 50);
-                    const estado = pct >= 85 ? { lbl: 'Cumplido Total', color: '#10B981', bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700' }
-                                 : pct >= 40 ? { lbl: 'Cumplido Parcial', color: '#F59E0B', bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700' }
-                                              : { lbl: 'No Cumplido', color: '#EF4444', bg: 'bg-rose-50', border: 'border-rose-200', text: 'text-rose-700' };
+                    const estado = pct >= 85 ? { lbl: t('data.status_total'), color: '#10B981', bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700' }
+                                 : pct >= 40 ? { lbl: t('data.status_partial'), color: '#F59E0B', bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700' }
+                                              : { lbl: t('data.status_no'), color: '#EF4444', bg: 'bg-rose-50', border: 'border-rose-200', text: 'text-rose-700' };
                     const updateItem = (field, value) => {
                       setPreviousAnalysisData({
                         ...previousAnalysisData,
@@ -3491,7 +3448,7 @@ const DashboardPage = () => {
                           data-testid={`prev-cumpl-desc-${k}`}
                           className="w-full p-2 border border-slate-200 rounded-md text-xs resize-none bg-white/60 focus:bg-white"
                           rows={1}
-                          placeholder={`¿Qué se logró en ${obj.toLowerCase()}?`}
+                          placeholder={t('data.whatAchievedIn',{section:obj.toLowerCase()})}
                           value={item.descripcion || ''}
                           onChange={(e) => updateItem('descripcion', e.target.value)}
                         />
@@ -3524,7 +3481,7 @@ const DashboardPage = () => {
                         <div className="h-full rounded-full transition-all duration-700 shadow-md" style={{ width: `${pctG}%`, background: 'linear-gradient(90deg, #0f172a 0%, #1e293b 100%)' }} />
                       </div>
                       <div className="flex items-center justify-between mt-3 text-[8px] lg:text-[11px] text-slate-800/75 font-semibold">
-                        <span className="italic">Promedio automático de las 7 áreas</span>
+                        <span className="italic">{t('data.promedio_automatico_de_las_7_areas')}</span>
                         <span className="uppercase tracking-wider">{pctG >= 85 ? '✓ Excelente' : pctG >= 70 ? '◐ Bueno' : pctG >= 50 ? '○ Aceptable' : '◌ Mejorar'}</span>
                       </div>
                     </div>
@@ -3537,16 +3494,14 @@ const DashboardPage = () => {
             <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-[#007AFF] lg:col-start-1">
               <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                  <TrendingUp className="w-4 h-4 text-[#007AFF]" />
-                  Fortalezas del Plan Anterior
-                </CardTitle>
+                  <TrendingUp className="w-4 h-4 text-[#007AFF]" />{t('data.fortalezas_del_plan_anterior')}</CardTitle>
               </CardHeader>
               <CardContent className="p-3.5 space-y-2">
-                <p className="text-[11px] text-slate-500">¿Qué funcionó bien? ¿Qué aspectos se deben mantener?</p>
+                <p className="text-[11px] text-slate-500">{t('data.x_que_funciono_bien_que_aspectos_se_deben_mant')}</p>
                 {[0, 1, 2].map((idx) => (
                   <div key={idx} className="flex items-start gap-2">
                     <span className="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-[8px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
-                    <textarea data-testid={`prev-fortaleza-${idx}`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={`Fortaleza ${idx + 1}...`} value={previousAnalysisData.fortalezas[idx]} onChange={(e) => { const arr = [...previousAnalysisData.fortalezas]; arr[idx] = e.target.value; setPreviousAnalysisData({...previousAnalysisData, fortalezas: arr}); }} />
+                    <textarea data-testid={`prev-fortaleza-${idx}`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={`${t('data.phStrength')} ${idx + 1}...`} value={previousAnalysisData.fortalezas[idx]} onChange={(e) => { const arr = [...previousAnalysisData.fortalezas]; arr[idx] = e.target.value; setPreviousAnalysisData({...previousAnalysisData, fortalezas: arr}); }} />
                   </div>
                 ))}
               </CardContent>
@@ -3556,16 +3511,14 @@ const DashboardPage = () => {
             <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-amber-500 lg:col-start-1">
               <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                  <AlertTriangle className="w-4 h-4 text-amber-500" />
-                  Debilidades y Áreas de Mejora
-                </CardTitle>
+                  <AlertTriangle className="w-4 h-4 text-amber-500" />{t('data.debilidades_y_areas_de_mejora')}</CardTitle>
               </CardHeader>
               <CardContent className="p-3.5 space-y-2">
-                <p className="text-[11px] text-slate-500">¿Qué no funcionó? ¿Qué se debe cambiar o mejorar?</p>
+                <p className="text-[11px] text-slate-500">{t('data.x_que_no_funciono_que_se_debe_cambiar_o_mejora')}</p>
                 {[0, 1, 2].map((idx) => (
                   <div key={idx} className="flex items-start gap-2">
                     <span className="w-5 h-5 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-[8px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
-                    <textarea data-testid={`prev-debilidad-${idx}`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={`Debilidad/Mejora ${idx + 1}...`} value={previousAnalysisData.debilidades[idx]} onChange={(e) => { const arr = [...previousAnalysisData.debilidades]; arr[idx] = e.target.value; setPreviousAnalysisData({...previousAnalysisData, debilidades: arr}); }} />
+                    <textarea data-testid={`prev-debilidad-${idx}`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={`${t('data.phWeakness')} ${idx + 1}...`} value={previousAnalysisData.debilidades[idx]} onChange={(e) => { const arr = [...previousAnalysisData.debilidades]; arr[idx] = e.target.value; setPreviousAnalysisData({...previousAnalysisData, debilidades: arr}); }} />
                   </div>
                 ))}
               </CardContent>
@@ -3575,9 +3528,7 @@ const DashboardPage = () => {
             <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-emerald-500 lg:col-start-1">
               <CardHeader className="bg-white border-b border-slate-100 py-3 px-4 flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                  <BarChart className="w-4 h-4 text-emerald-500" />
-                  Indicadores de Rendimiento
-                </CardTitle>
+                  <BarChart className="w-4 h-4 text-emerald-500" />{t('data.indicadores_de_rendimiento')}</CardTitle>
                 <Button
                   size="sm"
                   variant="outline"
@@ -3591,15 +3542,12 @@ const DashboardPage = () => {
                     });
                   }}
                 >
-                  <Plus className="w-3 h-3 mr-1" />Añadir
-                </Button>
+                  <Plus className="w-3 h-3 mr-1" />{t('data.anadir')}</Button>
               </CardHeader>
               <CardContent className="p-3">
                 {(!previousAnalysisData.indicadoresLista || previousAnalysisData.indicadoresLista.length === 0) ? (
                   <div className="text-center py-6 text-slate-400 text-xs">
-                    <BarChart className="w-8 h-8 mx-auto mb-2 opacity-40" />
-                    Sin indicadores. Haz clic en <strong className="text-emerald-600">Añadir</strong> para crear el primero.
-                  </div>
+                    <BarChart className="w-8 h-8 mx-auto mb-2 opacity-40" />{t('data.sin_indicadores_haz_clic_en')}<strong className="text-emerald-600">{t('data.anadir')}</strong>{t('data.para_crear_el_primero')}</div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-xs">
@@ -3693,14 +3641,12 @@ const DashboardPage = () => {
             <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-rose-500 lg:col-start-1">
               <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                  <Heart className="w-4 h-4 text-rose-500" />
-                  Lesiones y Problemas de Salud
-                </CardTitle>
+                  <Heart className="w-4 h-4 text-rose-500" />{t('data.lesiones_y_problemas_de_salud')}</CardTitle>
               </CardHeader>
               <CardContent className="p-3.5 space-y-2.5">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">¿Hubo lesiones?</label>
+                    <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">{t('data.x_hubo_lesiones')}</label>
                     <Select value={previousAnalysisData.lesiones} onValueChange={(val) => setPreviousAnalysisData({...previousAnalysisData, lesiones: val})}>
                       <SelectTrigger className="h-9 text-sm" data-testid="prev-lesiones-select"><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -3712,13 +3658,13 @@ const DashboardPage = () => {
                     </Select>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Días perdidos</label>
+                    <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">{t('data.dias_perdidos')}</label>
                     <Input data-testid="prev-dias-perdidos" type="number" placeholder="0" className="border-slate-200 h-9 text-sm" value={previousAnalysisData.diasPerdidos} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, diasPerdidos: e.target.value})} />
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Descripción (causa, recuperación)</label>
-                  <textarea data-testid="prev-desc-lesiones" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder="Describir las lesiones ocurridas, su causa probable y tiempo de recuperación..." value={previousAnalysisData.descripcionLesiones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, descripcionLesiones: e.target.value})} />
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">{t('data.descripcion_causa_recuperacion')}</label>
+                  <textarea data-testid="prev-desc-lesiones" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={t('data.x_describir_las_lesiones_ocurridas_su_causa_pr')} value={previousAnalysisData.descripcionLesiones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, descripcionLesiones: e.target.value})} />
                 </div>
               </CardContent>
             </Card>
@@ -3735,11 +3681,11 @@ const DashboardPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Conclusiones Principales</label>
-                  <textarea data-testid="prev-conclusiones" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm resize-none" rows={3} placeholder="Resumen de los principales aprendizajes del plan anterior..." value={previousAnalysisData.conclusiones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, conclusiones: e.target.value})} />
+                  <textarea data-testid="prev-conclusiones" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm resize-none" rows={3} placeholder={t('data.resumen_de_los_principales_aprendizajes_de')} value={previousAnalysisData.conclusiones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, conclusiones: e.target.value})} />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Recomendaciones para el Próximo Plan</label>
-                  <textarea data-testid="prev-recomendaciones" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm resize-none" rows={3} placeholder="Qué mantener, qué cambiar, qué nuevos enfoques aplicar..." value={previousAnalysisData.recomendaciones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, recomendaciones: e.target.value})} />
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">{t('data.recomendaciones_para_el_proximo_plan')}</label>
+                  <textarea data-testid="prev-recomendaciones" className="w-full p-2.5 border border-slate-200 rounded-lg text-sm resize-none" rows={3} placeholder={t('data.que_mantener_que_cambiar_que_nuevos_enfoqu')} value={previousAnalysisData.recomendaciones} onChange={(e) => setPreviousAnalysisData({...previousAnalysisData, recomendaciones: e.target.value})} />
                 </div>
                 </div>
                 {/* CTA: Generar próximo plan basado en este análisis */}
@@ -3772,7 +3718,7 @@ const DashboardPage = () => {
                         }));
                         toast.success('Datos preparados', { description: 'El nuevo plan se basará en este análisis y la mayor brecha detectada.' });
                       } catch (err) {
-                        toast.info('Continuando al wizard...');
+                        toast.info(t('data.continuando_al_wizard'));
                       }
                       // Navegar al wizard "Crear Plan" (apertura directa con seed pre-cargado)
                       setActivePanel('datos');
@@ -3784,8 +3730,8 @@ const DashboardPage = () => {
                         <Plus className="w-5 h-5 text-slate-900" strokeWidth={2.5} />
                       </div>
                       <div className="min-w-0">
-                        <div className="text-[8px] font-black uppercase tracking-widest" style={{ color: '#CCFF00' }}>Cierra el ciclo</div>
-                        <div className="text-sm font-bold truncate">Generar próximo plan basado en este análisis</div>
+                        <div className="text-[8px] font-black uppercase tracking-widest" style={{ color: '#CCFF00' }}>{t('data.cierra_el_ciclo')}</div>
+                        <div className="text-sm font-bold truncate">{t('data.generar_proximo_plan_basado_en_este_analis')}</div>
                       </div>
                     </div>
                     <ArrowRight className="w-5 h-5 flex-shrink-0 transition-transform group-hover:translate-x-1" />
@@ -3806,8 +3752,8 @@ const DashboardPage = () => {
                     <Sparkles className="w-4 h-4 text-slate-900" />
                   </div>
                   <div className="leading-tight">
-                    <div className="text-[8px] font-black uppercase tracking-[0.2em]" style={{ color: '#CCFF00' }}>Gap Analysis con IA</div>
-                    <div className="text-sm font-bold text-white">Diagnóstico Cruzado vs Modelos de Periodización</div>
+                    <div className="text-[8px] font-black uppercase tracking-[0.2em]" style={{ color: '#CCFF00' }}>{t('data.gap_analysis_con_ia')}</div>
+                    <div className="text-sm font-bold text-white">{t('data.diagnostico_cruzado_vs_modelos_de_periodiz')}</div>
                   </div>
                 </div>
                 {aiGapData && (
@@ -3902,7 +3848,7 @@ const DashboardPage = () => {
                       disabled={aiGapLoading}
                       className="text-[8px] text-slate-500 hover:text-slate-900 underline"
                       data-testid="ai-force-refresh-btn"
-                    >Forzar regeneración</button>
+                    >{t('data.forzar_regeneracion')}</button>
                   )}
                 </div>
               </div>
@@ -3911,7 +3857,7 @@ const DashboardPage = () => {
               {!aiGapData && !aiGapLoading && (
                 <div className="bg-gradient-to-br from-slate-50 to-white border border-dashed border-slate-300 rounded-xl p-6 text-center" data-testid="ai-empty-state">
                   <Sparkles className="w-10 h-10 mx-auto mb-2 text-slate-300" />
-                  <p className="text-sm font-bold text-slate-700 mb-1">Análisis Inteligente de Brechas</p>
+                  <p className="text-sm font-bold text-slate-700 mb-1">{t('data.analisis_inteligente_de_brechas')}</p>
                   <p className="text-[12px] text-slate-500 max-w-md mx-auto leading-relaxed">
                     Compara tu rendimiento real con los modelos de periodización seleccionados.
                     La IA generará 3-5 recomendaciones accionables específicas para cerrar las brechas detectadas.
@@ -3942,7 +3888,7 @@ const DashboardPage = () => {
                     <div className="rounded-xl border border-slate-200 overflow-hidden">
                       <div className="bg-slate-900 text-[#CCFF00] px-3 py-2 text-[8px] font-black uppercase tracking-widest grid grid-cols-[1fr_auto_70px] gap-2">
                         <span>Modelo</span>
-                        <span>Brechas top 3</span>
+                        <span>{t('data.brechas_top_3')}</span>
                         <span className="text-right">Coincidencia</span>
                       </div>
                       <div className="divide-y divide-slate-100">
@@ -3954,9 +3900,9 @@ const DashboardPage = () => {
                           const coincColor = coinc >= 75 ? '#10B981' : coinc >= 50 ? '#F59E0B' : '#EF4444';
                           return (
                             <div key={idx} className="grid grid-cols-[1fr_auto_70px] gap-2 items-center px-3 py-2 hover:bg-slate-50">
-                              <div className="font-bold text-slate-800 text-[12px] truncate">{c.model_name}</div>
+                              <div className="font-bold text-slate-800 text-[12px] truncate">{tModelName(c.model_name)}</div>
                               <div className="flex flex-wrap gap-1 justify-start max-w-md">
-                                {top3.length === 0 ? <span className="text-[11px] text-slate-400">Sin brechas</span> :
+                                {top3.length === 0 ? <span className="text-[11px] text-slate-400">{t('data.sin_brechas')}</span> :
                                   top3.map((g, gi) => (
                                     <span key={gi} className="text-[8px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200">
                                       {g.label} <span className="text-red-600">−{g.gap}%</span>
@@ -3995,7 +3941,7 @@ const DashboardPage = () => {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="text-[13px] font-bold text-slate-900 leading-snug">{title}</div>
-                                {r.area && <div className="text-[8px] font-semibold text-slate-500 mt-0.5">Área: <span className="text-slate-700">{r.area}</span></div>}
+                                {r.area && <div className="text-[8px] font-semibold text-slate-500 mt-0.5">{t('data.area')}<span className="text-slate-700">{r.area}</span></div>}
                               </div>
                               <span
                                 className="text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-full whitespace-nowrap flex-shrink-0"
@@ -4239,7 +4185,7 @@ const DashboardPage = () => {
           <InfoSectionHeader
             catalogType="coaches"
             title="Entrenadores"
-            subtitle="Staff técnico · perfiles profesionales · trayectoria · campeonatos"
+            subtitle={t('data.staff_tecnico_perfiles_profesionales_traye')}
             icon={UserCheck}
             color="#0EA5E9"
           />
@@ -4267,13 +4213,13 @@ const DashboardPage = () => {
         <div className="p-4">
           <div className="max-w-3xl mx-auto">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-slate-800 mb-2">Alertas Inteligentes de Entrenamiento</h2>
-              <p className="text-slate-500">Recomendaciones basadas en evaluaciones y calendario de competencias</p>
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">{t('data.alertas_inteligentes_de_entrenamiento')}</h2>
+              <p className="text-slate-500">{t('data.recomendaciones_basadas_en_evaluaciones_y_')}</p>
               {athletes.length > 0 && (
                 <div className="mt-4">
                   <Select value={selectedAthleteId || ''} onValueChange={setSelectedAthleteId}>
                     <SelectTrigger className="w-64">
-                      <SelectValue placeholder="Seleccionar atleta" />
+                      <SelectValue placeholder={t('data.seleccionar_atleta')} />
                     </SelectTrigger>
                     <SelectContent>
                       {athletes.map(a => (
@@ -4304,7 +4250,7 @@ const DashboardPage = () => {
           {athletes.length > 0 && (
             <Select value={selectedAthleteId || ''} onValueChange={setSelectedAthleteId}>
               <SelectTrigger className="w-48">
-                <SelectValue placeholder="Seleccionar atleta" />
+                <SelectValue placeholder={t('data.seleccionar_atleta')} />
               </SelectTrigger>
               <SelectContent>
                 {athletes.map(a => (
@@ -4316,9 +4262,7 @@ const DashboardPage = () => {
         </div>
         <Card className="bg-white shadow-lg">
           <CardContent className="p-6 text-center">
-            <p className="text-gray-500 mb-4">
-              Esta sección está en desarrollo
-            </p>
+            <p className="text-gray-500 mb-4">{t('data.esta_seccion_esta_en_desarrollo')}</p>
             <p className="text-sm text-gray-400">
               Pronto podrás gestionar {sectionLabel?.toLowerCase()}
             </p>
@@ -4361,15 +4305,15 @@ const DashboardPage = () => {
                   <Clipboard className="w-5 h-5 text-[#CCFF00]" />
                 </div>
                 <div className="flex flex-col">
-                  <p className="text-[8px] text-slate-400 uppercase tracking-[0.15em] font-bold leading-none mb-0.5">Plan Activo</p>
+                  <p className="text-[8px] text-slate-400 uppercase tracking-[0.15em] font-bold leading-none mb-0.5">{t('data.plan_activo')}</p>
                   <h2 className="text-slate-900 font-bold text-base leading-tight">{activePlan.name}</h2>
                 </div>
                 <div className="hidden sm:flex items-center gap-1.5 ml-1">
                   <span className="px-2.5 py-1 bg-slate-100 text-slate-600 text-[11px] font-semibold rounded-full">
-                    {activePlan.total_weeks} semanas
+                    {activePlan.total_weeks} {t('periodization.weeksLower')}
                   </span>
                   <span className="px-2.5 py-1 bg-[#E0F7FA] text-[#00838F] text-[11px] font-semibold rounded-full">
-                    {activePlan.model_name || activePlan.model}
+                    {tModelName(activePlan.model_name || activePlan.model)}
                   </span>
                   {activePlan.sport && (
                     <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-[11px] font-semibold rounded-full">
@@ -4384,9 +4328,7 @@ const DashboardPage = () => {
                 onClick={() => handleSetActivePlan(null)}
                 className="border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg text-xs h-8"
               >
-                <ChevronLeft className="w-3.5 h-3.5 mr-1" />
-                Cambiar Plan
-              </Button>
+                <ChevronLeft className="w-3.5 h-3.5 mr-1" />{t('data.cambiar_plan')}</Button>
           </div>
 
           {/* Data Content */}
@@ -4404,18 +4346,16 @@ const DashboardPage = () => {
                 <div className="w-20 h-20 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
                   <Clipboard className="w-10 h-10 text-slate-300" />
                 </div>
-                <h2 className="text-xl font-bold text-slate-800 mb-2">Selecciona un Plan</h2>
+                <h2 className="text-xl font-bold text-slate-800 mb-2">{t('data.selecciona_un_plan')}</h2>
                 <p className="text-slate-500 text-sm mb-6">
-                  Elige un plan de entrenamiento del panel izquierdo para acceder a sus secciones y datos.
+                  {t('data.elige_plan_secciones',{defaultValue:'Choose a training plan from the left panel to access its sections and data.'})}
                 </p>
                 <Button
                   onClick={() => setActiveDataSection('create-plan')}
                   className="bg-slate-900 hover:bg-slate-800 text-white rounded-lg"
                   data-testid="welcome-create-plan-btn"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Crear Nuevo Plan
-                </Button>
+                  <Plus className="w-4 h-4 mr-2" />{t('data.crear_nuevo_plan')}</Button>
               </div>
             </div>
           )}
@@ -4511,7 +4451,7 @@ const DashboardPage = () => {
                     onClick={() => { setActivePanel('datos'); setActiveDataSection('scouting'); }}
                     className="group flex flex-col items-center gap-1 shrink-0 outline-none"
                     data-testid="tab-scouting"
-                    title="Recruiting & Talent ID — Identifica el talento"
+                    title={t('data.recruiting_talent_id_identifica_el_talento')}
                   >
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${scoutActive ? 'bg-slate-900 text-[#CCFF00] shadow-lg shadow-slate-900/30' : 'bg-white text-slate-700 shadow-md border-2 border-[#CCFF00] hover:shadow-lg hover:bg-[#CCFF00]/15'}`}>
                       <Target className="w-[18px] h-[18px] transition-transform duration-300" strokeWidth={scoutActive ? 2.5 : 2} />
@@ -4528,7 +4468,7 @@ const DashboardPage = () => {
                 onClick={() => setIsMasterReportOpen(true)}
                 className="group flex flex-col items-center gap-1 shrink-0 outline-none"
                 data-testid="header-master-report-btn"
-                title="Reporte Maestro · 5 estilos · selección de secciones · logo del club"
+                title={t('data.reporte_maestro_5_estilos_seleccion_de_sec')}
               >
                 <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-700 shadow-md border-2 border-[#CCFF00] hover:shadow-lg hover:bg-[#CCFF00]/15">
                   <FileBarChart2 className="w-[18px] h-[18px] transition-transform duration-300" strokeWidth={2} />
@@ -4542,14 +4482,14 @@ const DashboardPage = () => {
               <button
                 onClick={() => {
                   if (!activePlan?.id) {
-                    toast.warning('Selecciona un plan activo primero');
+                    toast.warning(t('data.selecciona_un_plan_activo_primero'));
                     return;
                   }
                   setIsSessionsExportOpen(true);
                 }}
                 className="group flex flex-col items-center gap-1 shrink-0 outline-none"
                 data-testid="header-sessions-export-btn"
-                title="Exportar sesiones específicas a PDF (combinado o ZIP individual)"
+                title={t('data.exportar_sesiones_especificas_a_pdf_combin')}
               >
                 <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-700 shadow-md border-2 border-sky-400 hover:shadow-lg hover:bg-sky-50">
                   <CalendarDays className="w-[18px] h-[18px] transition-transform duration-300" strokeWidth={2} />
@@ -4648,7 +4588,7 @@ const DashboardPage = () => {
                 onClick={() => setAlertsOpen(o => !o)}
                 className="group flex flex-col items-center gap-1 shrink-0 outline-none relative"
                 data-testid="alerts-fab"
-                title="Alertas de prevención (ACWR / disponibilidad)"
+                title={t('data.alertas_de_prevencion_acwr_disponibilidad')}
               >
                 <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg hover:text-rose-500">
                   <Bell className="w-[18px] h-[18px] transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
@@ -4703,7 +4643,7 @@ const DashboardPage = () => {
                 onClick={() => setDemoMenuOpen(o => !o)}
                 className="group flex flex-col items-center gap-1 shrink-0 outline-none"
                 data-testid="demo-data-fab"
-                title="Cargar o quitar datos de ejemplo"
+                title={t('data.cargar_o_quitar_datos_de_ejemplo')}
               >
                 <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#CCFF00]/15 text-slate-700 shadow-md border border-[#CCFF00]/50 hover:shadow-lg hover:bg-[#CCFF00]/25">
                   <Sparkles className="w-[18px] h-[18px] transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
@@ -4856,9 +4796,7 @@ const DashboardPage = () => {
                     <h2 className="font-bold text-xl tracking-tight">Coach AI</h2>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                      <p className="text-[11px] text-slate-300 font-medium tracking-wide">
-                        Asistente de entrenamiento · En línea
-                      </p>
+                      <p className="text-[11px] text-slate-300 font-medium tracking-wide">{t('data.asistente_de_entrenamiento_en_linea')}</p>
                     </div>
                   </div>
                 </div>
@@ -4891,14 +4829,12 @@ const DashboardPage = () => {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-slate-900 truncate">{user?.name}</p>
                   <p className="text-[11px] text-slate-500">
-                    {USER_ROLES.find(r => r.id === user?.role)?.name || user?.role || 'Usuario'}
+                    {(() => { const r = USER_ROLES.find(r => r.id === user?.role); return r ? t(r.nameKey, { defaultValue: r.name }) : (user?.role || 'Usuario'); })()}
                   </p>
                 </div>
                 {activePlan && (
                   <div className="flex items-center gap-1.5 text-[8px] px-2 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold">
-                    <CheckCircle className="w-3 h-3" />
-                    Plan activo
-                  </div>
+                    <CheckCircle className="w-3 h-3" />{t('data.plan_activo_2')}</div>
                 )}
               </div>
             </div>

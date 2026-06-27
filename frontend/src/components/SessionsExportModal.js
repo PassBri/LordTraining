@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
@@ -46,6 +47,7 @@ function downloadBlob(blob, filename) {
 }
 
 export default function SessionsExportModal({ open, onOpenChange, plan, athleteName }) {
+  const { t } = useTranslation();
   const [tree, setTree] = useState({ items: [], total_sessions: 0 });
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(new Set());
@@ -64,7 +66,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
       .then(r => setTree(r.data || { items: [], total_sessions: 0 }))
       .catch(() => {
         setTree({ items: [], total_sessions: 0 });
-        toast.error('No se pudieron cargar las sesiones del plan');
+        toast.error(t('sessions.tCantLoadSessions'));
       })
       .finally(() => setLoading(false));
   }, [open, plan]);
@@ -119,7 +121,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
 
   const handleExport = async (format) => {
     if (selected.size === 0) {
-      toast.warning('Debes seleccionar al menos una sesión');
+      toast.warning(t('sessions.tSelectAtLeastOne'));
       return;
     }
     setExporting(format);
@@ -148,7 +150,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
 
   const handleShare = async (target /* 'link' | 'whatsapp' */) => {
     if (selected.size === 0) {
-      toast.warning('Debes seleccionar al menos una sesión');
+      toast.warning(t('sessions.tSelectAtLeastOne'));
       return;
     }
     setSharing(true);
@@ -164,7 +166,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
       if (target === 'whatsapp') {
         const msg = `LordTraining · ${plan?.name || 'Plan'} · ${selected.size} sesion${selected.size !== 1 ? 'es' : ''} de entrenamiento\n\nVer en línea: ${url}`;
         window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-        toast.success('Abriendo WhatsApp…');
+        toast.success(t('sessions.tOpeningWhatsapp'));
       } else {
         await navigator.clipboard.writeText(url);
         toast.success('Enlace copiado · página de solo lectura', { description: url });
@@ -217,7 +219,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
           <div className="flex items-center gap-2 flex-wrap">
             {/* Tema */}
             <div className="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden shadow-sm">
-              <span className="px-2.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Tema</span>
+              <span className="px-2.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('sessions.theme')}</span>
               <button
                 onClick={() => setTheme('light')}
                 data-testid="sessions-export-theme-light"
@@ -240,7 +242,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
 
             {/* Layout */}
             <div className="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden shadow-sm">
-              <span className="px-2.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Layout</span>
+              <span className="px-2.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('sessions.layout')}</span>
               <button
                 onClick={() => setLayout('classic')}
                 data-testid="sessions-export-layout-classic"
@@ -291,7 +293,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
           ) : tree.items.length === 0 ? (
             <div className="text-center py-16 text-slate-500">
               <Calendar className="w-10 h-10 mx-auto mb-3 opacity-40" />
-              <p className="text-sm">El plan activo aún no tiene sesiones programadas.</p>
+              <p className="text-sm">{t('sessions.noSessionsScheduled')}</p>
             </div>
           ) : (
             <div className="space-y-5">
@@ -501,12 +503,12 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                   disabled={!!exporting || sharing || totalSelected === 0}
                   data-testid="sessions-export-link-btn"
                   className="h-9 border-sky-300 text-sky-700 hover:bg-sky-50"
-                  title="Copiar enlace de compartir"
+                  title={t('sessions.copyShareLink')}
                 >
                   {sharing
                     ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     : <LinkIcon className="w-3.5 h-3.5" />}
-                  <span className="ml-1.5 hidden sm:inline">Enlace</span>
+                  <span className="ml-1.5 hidden sm:inline">{t('sessions.link')}</span>
                 </Button>
                 <Button
                   variant="outline" size="sm"
@@ -514,7 +516,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                   disabled={!!exporting || sharing || totalSelected === 0}
                   data-testid="sessions-export-whatsapp-btn"
                   className="h-9 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
-                  title="Compartir por WhatsApp"
+                  title={t('sessions.shareWhatsapp')}
                 >
                   <MessageCircle className="w-3.5 h-3.5" />
                   <span className="ml-1.5 hidden sm:inline">WhatsApp</span>
