@@ -3727,44 +3727,44 @@ const DashboardPage = () => {
 
     // Render Anthropometric Data (legacy redirect to new EvaluationSection)
     if (activeDataSection === 'anthropometric' || activeDataSection === 'control-anthropometric') {
-      return <EvaluationSection sectionId="control-anthropometric" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
+      return <EvaluationSection key={activeDataSection} sectionId="control-anthropometric" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
     }
 
     // ====== NUEVAS SECCIONES DE EVALUACIÓN ======
 
     // Análisis Biomecánico (legacy redirect to new EvaluationSection)
     if (activeDataSection === 'biomechanical' || activeDataSection === 'control-biomechanical') {
-      return <EvaluationSection sectionId="control-biomechanical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
+      return <EvaluationSection key={activeDataSection} sectionId="control-biomechanical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
     }
 
     // Control Médico
     if (activeDataSection === 'control-medical') {
-      return <EvaluationSection sectionId="control-medical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
+      return <EvaluationSection key={activeDataSection} sectionId="control-medical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
     }
 
     // Control Físico
     if (activeDataSection === 'control-physical') {
-      return <EvaluationSection sectionId="control-physical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
+      return <EvaluationSection key={activeDataSection} sectionId="control-physical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
     }
 
     // Control Técnico
     if (activeDataSection === 'control-technical') {
-      return <EvaluationSection sectionId="control-technical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
+      return <EvaluationSection key={activeDataSection} sectionId="control-technical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
     }
 
     // Control Táctico
     if (activeDataSection === 'control-tactical') {
-      return <EvaluationSection sectionId="control-tactical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
+      return <EvaluationSection key={activeDataSection} sectionId="control-tactical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
     }
 
     // Control Psicológico
     if (activeDataSection === 'control-psychological') {
-      return <EvaluationSection sectionId="control-psychological" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
+      return <EvaluationSection key={activeDataSection} sectionId="control-psychological" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
     }
 
     // Control Teórico
     if (activeDataSection === 'control-theoretical') {
-      return <EvaluationSection sectionId="control-theoretical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
+      return <EvaluationSection key={activeDataSection} sectionId="control-theoretical" activePlan={activePlan} athletes={athletes} selectedAthleteId={selectedAthleteId} />;
     }
 
     // Evolución de Controles
