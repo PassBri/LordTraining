@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import InteractiveChart from './InteractiveChart';
 import usePlanStore from '../stores/planStore';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
@@ -231,6 +232,7 @@ const mirrorVI = (node) => {
 
 // ============ COMPONENTE PRINCIPAL ============
 const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreated, showWizardOnly = false, onBack, focusTarget = null }) => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [activeView, setActiveView] = useState(showWizardOnly ? 'create' : 'history');
@@ -425,7 +427,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
   const dismissSeed = () => {
     setSeedDismissed(true);
     clearNextPlanSeed();
-    toast.info('Pre-selección descartada');
+    toast.info(t('periodization.tPreselectDiscarded'));
   };
 
   const [generatedStructure, setGeneratedStructure] = useState(null);
@@ -621,7 +623,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     rebuildPlanData(updatedPlan);
     setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
     setSelectedPlan(updatedPlan);
-    toast.success('Macrociclo eliminado');
+    toast.success(t('periodization.tMacroDeleted'));
   };
 
   // MESOCICLO CRUD
@@ -676,7 +678,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     rebuildPlanData(updatedPlan);
     setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
     setSelectedPlan(updatedPlan);
-    toast.success('Mesociclo eliminado');
+    toast.success(t('periodization.tMesoDeleted'));
   };
 
   // MICROCICLO CRUD
@@ -719,7 +721,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     rebuildPlanData(updatedPlan);
     setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
     setSelectedPlan(updatedPlan);
-    toast.success('Microciclo eliminado');
+    toast.success(t('periodization.tMicroDeleted'));
   };
 
   // SESION CRUD
@@ -776,7 +778,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       console.error('Error saving session to API:', e);
     }
     
-    toast.success('Sesión guardada');
+    toast.success(t('periodization.tSessionSaved'));
   };
 
   const handleDeleteSession = (macroIdx, mesoIdx, microIdx, sessionIdx) => {
@@ -785,7 +787,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     updatedPlan.macrocycles[macroIdx].mesocycles[mesoIdx].microcycles[microIdx].sessions.splice(sessionIdx, 1);
     setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
     setSelectedPlan(updatedPlan);
-    toast.success('Sesión eliminada');
+    toast.success(t('periodization.tSessionDeleted'));
   };
 
   // Edición rápida de Volumen / Intensidad de la sesión (modal con fondo blanco)
@@ -822,7 +824,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     setSelectedPlan(updatedPlan);
     setEditModal({ type: null, data: null, indices: null });
     savePlanToAPI(updatedPlan).catch(e => console.error('Error guardando sesión:', e));
-    toast.success('Sesión actualizada');
+    toast.success(t('periodization.tSessionUpdated'));
   };
 
 
@@ -1155,7 +1157,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
   const handleCreatePlan = async () => {
     if (!planConfig.startDate || !planConfig.model) {
-      toast.error('Completa los campos requeridos');
+      toast.error(t('periodization.tCompleteRequired'));
       return;
     }
     const plan = generatePlanStructure();
@@ -1166,7 +1168,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     setPlans(prev => [savedPlan, ...prev]);
     setSelectedPlan(savedPlan);
     setActiveView('detail');
-    toast.success('Plan creado y guardado exitosamente');
+    toast.success(t('periodization.tPlanCreatedSaved'));
     clearNextPlanSeed();
 
     // Callback to parent component
@@ -1181,7 +1183,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     const savedPlan = await savePlanToAPI(selectedPlan);
     setPlans(prev => prev.map(p => p.id === savedPlan.id ? savedPlan : p));
     setSelectedPlan(savedPlan);
-    toast.success('Plan guardado exitosamente');
+    toast.success(t('periodization.tPlanSaved'));
     
     // Re-sync V2 cascade
     if (savedPlan.apiId) {
@@ -1212,7 +1214,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       setSelectedPlan(null);
       setActiveView('history');
     }
-    toast.success('Plan eliminado');
+    toast.success(t('periodization.tPlanDeleted'));
   };
 
   const handleDuplicatePlan = async (planId) => {
@@ -1245,12 +1247,12 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     const savedPlan = await savePlanToAPI(duplicated);
     
     setPlans(prev => [savedPlan, ...prev]);
-    toast.success('Plan duplicado exitosamente');
+    toast.success(t('periodization.tPlanDuplicated'));
   };
 
   const handleSharePlan = async () => {
     if (!selectedPlan?.apiId) {
-      toast.error('Guarda el plan primero');
+      toast.error(t('periodization.tSavePlanFirst'));
       return;
     }
     
@@ -1269,17 +1271,17 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         navigator.clipboard.writeText(shareUrl);
         
         setSelectedPlan(prev => ({ ...prev, shareToken: data.share_token }));
-        toast.success('Link copiado al portapapeles');
+        toast.success(t('periodization.tLinkCopied'));
       }
     } catch (error) {
       console.error('Error sharing:', error);
-      toast.error('Error al compartir');
+      toast.error(t('periodization.tShareError'));
     }
   };
 
   const handleExportPDF = async () => {
     if (!selectedPlan?.apiId) {
-      toast.error('Guarda el plan primero para exportar');
+      toast.error(t('periodization.tSavePlanFirstExport'));
       return;
     }
     
@@ -1297,11 +1299,11 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         a.download = `plan_${selectedPlan.name.replace(/\s+/g, '_')}.pdf`;
         a.click();
         window.URL.revokeObjectURL(url);
-        toast.success('PDF descargado');
+        toast.success(t('periodization.tPdfDownloaded'));
       }
     } catch (error) {
       console.error('Error exporting:', error);
-      toast.error('Error al exportar');
+      toast.error(t('periodization.tExportError'));
     }
   };
 
@@ -1331,7 +1333,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       }
     } catch (error) {
       console.error('Calculation error:', error);
-      toast.error('Error en el cálculo');
+      toast.error(t('periodization.tCalcError'));
     }
     return null;
   };
@@ -1339,7 +1341,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
   // ============ AUTO GENERATE STRUCTURE ============
   const generateAutoStructure = async () => {
     if (!planConfig.model || !planConfig.sport || !planConfig.startDate) {
-      toast.error('Selecciona modelo, deporte y fecha de inicio');
+      toast.error(t('periodization.tSelectModelSportDate'));
       return;
     }
     
@@ -1368,14 +1370,14 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       if (response.ok) {
         const data = await response.json();
         setGeneratedStructure(data);
-        toast.success('Estructura generada exitosamente');
+        toast.success(t('periodization.tStructGenerated'));
       } else {
         const error = await response.json();
-        toast.error(error.detail || 'Error al generar estructura');
+        toast.error(error.detail || t('periodization.tGenStructError'));
       }
     } catch (error) {
       console.error('Generation error:', error);
-      toast.error('Error al generar estructura');
+      toast.error(t('periodization.tGenStructError'));
     } finally {
       setGenerating(false);
     }
@@ -1384,7 +1386,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
   // Create plan from generated structure
   const handleCreateFromGenerated = async () => {
     if (!generatedStructure) {
-      toast.error('Primero genera la estructura');
+      toast.error(t('periodization.tGenStructFirst'));
       return;
     }
     
@@ -1441,7 +1443,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     setSelectedPlan(savedPlan);
     setActiveView('detail');
     setGeneratedStructure(null);
-    toast.success('Plan creado exitosamente con estructura generada');
+    toast.success(t('periodization.tPlanCreatedStruct'));
     clearNextPlanSeed();
 
     // Callback to parent component
@@ -1459,7 +1461,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
             <Activity className="w-5 h-5 text-[#CCFF00]" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-800">Planes de Periodizacion</h2>
+            <h2 className="text-lg font-bold text-slate-800">{t('periodization.periodizationPlans')}</h2>
             <p className="text-slate-400 text-[13px]">{plans.length} planes creados</p>
           </div>
         </div>
@@ -1481,16 +1483,16 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       {loading ? (
         <div className="text-center py-16">
           <Loader2 className="w-10 h-10 animate-spin text-blue-500 mx-auto mb-4" />
-          <p className="text-slate-400 text-sm">Cargando planes...</p>
+          <p className="text-slate-400 text-sm">{t('periodization.loadingPlans')}</p>
         </div>
       ) : plans.length === 0 ? (
         <div className="text-center py-16 bg-slate-50/50 rounded-2xl border-2 border-dashed border-slate-200">
           <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Calendar className="w-8 h-8 text-slate-300" />
           </div>
-          <h3 className="text-base font-semibold text-slate-500 mb-2">Sin planes de periodizacion</h3>
-          <p className="text-slate-400 mb-5 text-sm">Crea tu primer plan con el wizard inteligente</p>
-          <Button onClick={() => setActiveView('create')} className="bg-slate-900 text-white rounded-lg"><Plus className="w-4 h-4 mr-2" /> Crear Plan</Button>
+          <h3 className="text-base font-semibold text-slate-500 mb-2">{t('periodization.noPeriodizationPlans')}</h3>
+          <p className="text-slate-400 mb-5 text-sm">{t('periodization.createFirstPlan')}</p>
+          <Button onClick={() => setActiveView('create')} className="bg-slate-900 text-white rounded-lg"><Plus className="w-4 h-4 mr-2" /> {t('periodization.createPlan')}</Button>
         </div>
       ) : (
         <div className="space-y-3">
@@ -1524,7 +1526,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                   </div>
                   <div className="flex items-center gap-2">
                     {plan.apiId && (
-                      <span className="text-[10px] px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-full font-medium border border-emerald-200">Guardado</span>
+                      <span className="text-[10px] px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-full font-medium border border-emerald-200">{t('periodization.saved')}</span>
                     )}
                     {/* Phase mini bar */}
                     {plan.macrocycles?.length > 0 && (
@@ -1554,7 +1556,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
   // ============ RENDER: CREATE WIZARD ============
   const renderCreate = () => {
-    const stepLabels = ['Deporte', 'Modelo', 'Duración', 'Estructura', 'Resumen'];
+    const stepLabels = [t('periodization.sport'), t('periodization.model'), t('periodization.duration'), t('periodization.stepStructure'), t('periodization.stepSummary')];
     const canAdvance = !((wizardStep === 1 && !planConfig.sport) || (wizardStep === 2 && !planConfig.model) || (wizardStep === 3 && !planConfig.startDate));
     return (
     <div className="w-full" data-testid="create-plan-wizard">
@@ -1571,19 +1573,19 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: '#CCFF00' }}>Cierra el ciclo</span>
+                <span className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: '#CCFF00' }}>{t('periodization.closeCycle')}</span>
                 <span className="text-[9px] font-bold uppercase tracking-wider text-white/40">·</span>
-                <span className="text-[9px] font-bold uppercase tracking-wider text-white/60">Análisis del Plan Anterior</span>
+                <span className="text-[9px] font-bold uppercase tracking-wider text-white/60">{t('periodization.prevAnalysis')}</span>
               </div>
               <h3 className="text-[15px] font-black text-white leading-tight mb-1.5">
                 Detectamos que vienes del análisis del Plan Anterior
               </h3>
               <p className="text-[12px] text-white/75 leading-snug mb-2">
                 {nextPlanSeed.source_model_name && (
-                  <>Hemos pre-seleccionado el modelo <span className="font-bold text-[#CCFF00]">{nextPlanSeed.source_model_name}</span>. </>
+                  <>{t('periodization.preSelectedModel')} <span className="font-bold text-[#CCFF00]">{nextPlanSeed.source_model_name}</span>. </>
                 )}
                 {nextPlanSeed.focus_area && PREV_AREA_LABELS[nextPlanSeed.focus_area] && (
-                  <>La fase de <span className="font-bold text-[#CCFF00]">{PREV_AREA_LABELS[nextPlanSeed.focus_area]}</span> tendrá énfasis aumentado por mayor brecha vs ideal. </>
+                  <>{t('periodization.phaseOf')} <span className="font-bold text-[#CCFF00]">{PREV_AREA_LABELS[nextPlanSeed.focus_area]}</span> {t('periodization.phaseEmphasis')} </>
                 )}
                 Tus recomendaciones se cargaron como objetivo principal.
               </p>
@@ -1607,7 +1609,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
               data-testid="seed-dismiss-btn"
               onClick={dismissSeed}
               className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors"
-              title="Descartar pre-selección"
+              title={t('periodization.discardPreselect')}
             >
               <X className="w-4 h-4" />
             </button>
@@ -1623,8 +1625,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
               <Target className="w-4 h-4 text-slate-900" />
             </div>
             <div className="leading-tight">
-              <h2 className="text-sm font-black text-white tracking-tight">Crear Plan de Entrenamiento</h2>
-              <p className="text-[10px] text-white/50">Paso {wizardStep} de 5 · {stepLabels[wizardStep - 1]}</p>
+              <h2 className="text-sm font-black text-white tracking-tight">{t('periodization.createTrainingPlan')}</h2>
+              <p className="text-[10px] text-white/50">{t('periodization.stepCounter', { n: wizardStep })} · {stepLabels[wizardStep - 1]}</p>
             </div>
           </div>
           <Button
@@ -1694,7 +1696,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                 <div className="space-y-2">
                   <div className="px-2 py-1 rounded-md bg-gradient-to-r from-blue-100 to-indigo-100 border-l-2 border-blue-500 flex items-center gap-1.5">
                     <span className="text-xs">⭐</span>
-                    <h4 className="font-bold text-blue-700 text-[11px] uppercase tracking-wider">Mis Deportes</h4>
+                    <h4 className="font-bold text-blue-700 text-[11px] uppercase tracking-wider">{t('periodization.mySports')}</h4>
                   </div>
                   {userSports.filter(cat => cat.sports?.length > 0).map(category => (
                     <div key={category.id}>
@@ -1708,7 +1710,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                             onClick={() => setPlanConfig({ ...planConfig, sport: sport.id, sportName: sport.name, sessionsPerWeek: sport.sessions_per_week || 4 })}
                           >
                             <p className="font-bold text-slate-800 text-[11px] truncate leading-tight">{sport.name}</p>
-                            <p className="text-[9px] text-slate-400">{sport.sessions_per_week || 4}/sem</p>
+                            <p className="text-[9px] text-slate-400">{sport.sessions_per_week || 4}/{t('loadPanel.semShort')}</p>
                           </button>
                         ))}
                       </div>
@@ -1733,7 +1735,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                         onClick={() => setPlanConfig({ ...planConfig, sport: sport.id, sportName: sport.name, sessionsPerWeek: sport.sessions_per_week })}
                       >
                         <p className="font-bold text-slate-800 text-[11px] truncate leading-tight">{sport.name}</p>
-                        <p className="text-[9px] text-slate-400">{sport.sessions_per_week}/sem</p>
+                        <p className="text-[9px] text-slate-400">{sport.sessions_per_week}/{t('loadPanel.semShort')}</p>
                       </button>
                     ))}
                   </div>
@@ -1742,7 +1744,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
               
               {/* Athlete Level */}
               <div className="pt-2 border-t flex items-center gap-3 flex-wrap">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Nivel atleta:</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">{t('periodization.athleteLevel')}</span>
                 <div className="flex gap-1.5 flex-wrap">
                   {[
                     { id: 'beginner', name: 'Principiante', desc: '< 1 año' },
@@ -1814,7 +1816,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           {/* STEP 3: DURATION */}
           {wizardStep === 3 && (
             <div className="space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 pb-2 border-b border-slate-100">Duración del Ciclo</h3>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 pb-2 border-b border-slate-100">{t('periodization.cycleDuration')}</h3>
               <div className="grid grid-cols-3 md:grid-cols-6 gap-1.5">
                 {Object.entries(CYCLE_DURATIONS).map(([id, dur]) => (
                   <button
@@ -1824,29 +1826,29 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                     onClick={() => setPlanConfig({ ...planConfig, duration: id })}
                   >
                     <p className="text-lg font-black text-slate-900 leading-none">{dur.weeks}</p>
-                    <p className="text-[9px] text-slate-400 uppercase">semanas</p>
+                    <p className="text-[9px] text-slate-400 uppercase">{t('periodization.weeksLower')}</p>
                     <p className="text-[10px] font-bold text-slate-700 truncate">{dur.label}</p>
                   </button>
                 ))}
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
                 <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Fecha de Inicio</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{t('periodization.startDate')}</label>
                   <Input type="date" value={planConfig.startDate} onChange={(e) => setPlanConfig({ ...planConfig, startDate: e.target.value })} className="mt-0.5 h-8 text-xs" />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Sesiones/Semana</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{t('periodization.sessionsPerWeek')}</label>
                   <Select value={planConfig.sessionsPerWeek.toString()} onValueChange={(v) => setPlanConfig({ ...planConfig, sessionsPerWeek: parseInt(v) })}>
                     <SelectTrigger className="mt-0.5 h-8 text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent>{[3, 4, 5, 6, 7].map(n => <SelectItem key={n} value={n.toString()}>{n}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Competencia Principal</label>
-                  <Input placeholder="Opcional" value={planConfig.mainCompetition} onChange={(e) => setPlanConfig({ ...planConfig, mainCompetition: e.target.value })} className="mt-0.5 h-8 text-xs" />
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{t('periodization.mainCompetition')}</label>
+                  <Input placeholder={t('periodization.phOptional')} value={planConfig.mainCompetition} onChange={(e) => setPlanConfig({ ...planConfig, mainCompetition: e.target.value })} className="mt-0.5 h-8 text-xs" />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Fecha Competencia</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{t('periodization.competitionDate')}</label>
                   <Input type="date" value={planConfig.mainCompetitionDate} onChange={(e) => setPlanConfig({ ...planConfig, mainCompetitionDate: e.target.value })} className="mt-0.5 h-8 text-xs" />
                 </div>
               </div>
@@ -1856,25 +1858,25 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           {/* STEP 4: STRUCTURE GENERATION */}
           {wizardStep === 4 && (
             <div className="space-y-6">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 pb-3 border-b border-slate-100">Generar Estructura Automática</h3>
-              <p className="text-center text-slate-500">El sistema generará la estructura óptima basada en el modelo, deporte y duración seleccionados</p>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 pb-3 border-b border-slate-100">{t('periodization.generateAuto')}</h3>
+              <p className="text-center text-slate-500">{t('periodization.systemWillGenerate')}</p>
               
               <div className="bg-slate-50 p-4 rounded-xl">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                   <div>
-                    <p className="text-sm text-slate-500">Deporte</p>
+                    <p className="text-sm text-slate-500">{t('periodization.sport')}</p>
                     <p className="font-bold text-slate-700">{getSportName(planConfig.sport)}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-500">Modelo</p>
+                    <p className="text-sm text-slate-500">{t('periodization.model')}</p>
                     <p className="font-bold text-slate-700">{effectiveModels[planConfig.model]?.name || planConfig.model}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-500">Duración</p>
+                    <p className="text-sm text-slate-500">{t('periodization.duration')}</p>
                     <p className="font-bold text-slate-700">{CYCLE_DURATIONS[planConfig.duration]?.weeks || 52} semanas</p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-500">Nivel</p>
+                    <p className="text-sm text-slate-500">{t('periodization.level')}</p>
                     <p className="font-bold text-slate-700 capitalize">{planConfig.athleteLevel}</p>
                   </div>
                 </div>
@@ -1887,12 +1889,12 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                   className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3 text-lg"
                 >
                   {generating ? (
-                    <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Generando...</>
+                    <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> {t('periodization.generating')}</>
                   ) : (
-                    <><Activity className="w-5 h-5 mr-2" /> Generar Estructura Científica</>
+                    <><Activity className="w-5 h-5 mr-2" /> {t('periodization.generateScientific')}</>
                   )}
                 </Button>
-                {!planConfig.startDate && <p className="text-sm text-red-500 mt-2">Selecciona fecha de inicio en el paso anterior</p>}
+                {!planConfig.startDate && <p className="text-sm text-red-500 mt-2">{t('periodization.selectStartDatePrev')}</p>}
               </div>
               
               {/* Generated Structure Preview */}
@@ -1900,34 +1902,34 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                 <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200 space-y-4">
                   <div className="flex items-center gap-2 text-green-700">
                     <CheckCircle className="w-6 h-6" />
-                    <h4 className="font-bold text-lg">Estructura Generada Exitosamente</h4>
+                    <h4 className="font-bold text-lg">{t('periodization.structGeneratedHeading')}</h4>
                   </div>
                   
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-center">
                     <div className="bg-white p-3 rounded-lg shadow-sm">
                       <p className="text-2xl font-bold text-blue-600">{generatedStructure.summary.total_macrocycles}</p>
-                      <p className="text-xs text-slate-500">Macrociclos</p>
+                      <p className="text-xs text-slate-500">{t('periodization.macrocyclesTab')}</p>
                     </div>
                     <div className="bg-white p-3 rounded-lg shadow-sm">
                       <p className="text-2xl font-bold text-purple-600">{generatedStructure.summary.total_mesocycles}</p>
-                      <p className="text-xs text-slate-500">Mesociclos</p>
+                      <p className="text-xs text-slate-500">{t('periodization.mesocyclesTab')}</p>
                     </div>
                     <div className="bg-white p-3 rounded-lg shadow-sm">
                       <p className="text-2xl font-bold text-green-600">{generatedStructure.summary.total_microcycles}</p>
-                      <p className="text-xs text-slate-500">Microciclos</p>
+                      <p className="text-xs text-slate-500">{t('periodization.microcyclesTab')}</p>
                     </div>
                     <div className="bg-white p-3 rounded-lg shadow-sm">
                       <p className="text-2xl font-bold text-orange-600">{generatedStructure.summary.total_sessions}</p>
-                      <p className="text-xs text-slate-500">Sesiones</p>
+                      <p className="text-xs text-slate-500">{t('periodization.sessions')}</p>
                     </div>
                     <div className="bg-white p-3 rounded-lg shadow-sm">
                       <p className="text-2xl font-bold text-slate-700">{generatedStructure.summary.avg_volume}%</p>
-                      <p className="text-xs text-slate-500">Vol. Promedio</p>
+                      <p className="text-xs text-slate-500">{t('periodization.avgVol')}</p>
                     </div>
                   </div>
                   
                   <div className="bg-white p-4 rounded-lg">
-                    <h5 className="font-semibold text-slate-700 mb-2">Fases del Plan:</h5>
+                    <h5 className="font-semibold text-slate-700 mb-2">{t('periodization.planPhases')}</h5>
                     <div className="flex flex-wrap gap-2">
                       {generatedStructure.summary.phases.map((phase, i) => (
                         <Badge key={i} className="bg-blue-100 text-blue-700">
@@ -1938,7 +1940,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                   </div>
                   
                   <div className="bg-white p-4 rounded-lg">
-                    <h5 className="font-semibold text-slate-700 mb-2">Cualidades Principales:</h5>
+                    <h5 className="font-semibold text-slate-700 mb-2">{t('periodization.mainQualities')}</h5>
                     <div className="flex flex-wrap gap-2">
                       {generatedStructure.primary_qualities.map((q, i) => (
                         <Badge key={i} className="bg-green-100 text-green-700 capitalize">
@@ -1955,9 +1957,9 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           {/* STEP 5: SUMMARY */}
           {wizardStep === 5 && (
             <div className="space-y-6">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 pb-3 border-b border-slate-100">Resumen Final</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 pb-3 border-b border-slate-100">{t('periodization.finalSummary')}</h3>
               <div>
-                <label className="text-sm font-medium">Nombre del Plan</label>
+                <label className="text-sm font-medium">{t('periodization.planName')}</label>
                 <Input 
                   placeholder={`Plan ${getSportName(planConfig.sport)} - ${effectiveModels[planConfig.model]?.name || ''}`} 
                   value={planConfig.name} 
@@ -1966,27 +1968,27 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                 />
               </div>
               <div>
-                <label className="text-sm font-medium">Objetivo Principal</label>
-                <textarea className="w-full mt-1 p-3 border rounded-lg" rows={3} placeholder="Descripción del objetivo..." value={planConfig.mainObjective} onChange={(e) => setPlanConfig({ ...planConfig, mainObjective: e.target.value })} />
+                <label className="text-sm font-medium">{t('periodization.mainObjective')}</label>
+                <textarea className="w-full mt-1 p-3 border rounded-lg" rows={3} placeholder={t('periodization.phObjectiveDesc')} value={planConfig.mainObjective} onChange={(e) => setPlanConfig({ ...planConfig, mainObjective: e.target.value })} />
               </div>
               
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl">
-                <h4 className="font-bold text-slate-700 mb-4 text-center">Configuración del Plan</h4>
+                <h4 className="font-bold text-slate-700 mb-4 text-center">{t('periodization.planConfig')}</h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                   <div>
-                    <p className="text-sm text-slate-500">Deporte</p>
+                    <p className="text-sm text-slate-500">{t('periodization.sport')}</p>
                     <p className="font-bold text-slate-700">{getSportName(planConfig.sport)}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-500">Modelo</p>
+                    <p className="text-sm text-slate-500">{t('periodization.model')}</p>
                     <p className="font-bold text-blue-600">{effectiveModels[planConfig.model]?.name || planConfig.model}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-500">Duración</p>
+                    <p className="text-sm text-slate-500">{t('periodization.duration')}</p>
                     <p className="font-bold text-slate-700">{CYCLE_DURATIONS[planConfig.duration]?.weeks || 52} semanas</p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-500">Sesiones/Sem</p>
+                    <p className="text-sm text-slate-500">{t('periodization.sessionsPerWeekShort')}</p>
                     <p className="font-bold text-slate-700">{planConfig.sessionsPerWeek}</p>
                   </div>
                 </div>
@@ -1996,19 +1998,19 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                     <div className="grid grid-cols-4 gap-4 text-center">
                       <div>
                         <p className="text-2xl font-bold text-blue-600">{generatedStructure.summary.total_macrocycles}</p>
-                        <p className="text-xs text-slate-500">Macrociclos</p>
+                        <p className="text-xs text-slate-500">{t('periodization.macrocyclesTab')}</p>
                       </div>
                       <div>
                         <p className="text-2xl font-bold text-purple-600">{generatedStructure.summary.total_mesocycles}</p>
-                        <p className="text-xs text-slate-500">Mesociclos</p>
+                        <p className="text-xs text-slate-500">{t('periodization.mesocyclesTab')}</p>
                       </div>
                       <div>
                         <p className="text-2xl font-bold text-green-600">{generatedStructure.summary.total_microcycles}</p>
-                        <p className="text-xs text-slate-500">Microciclos</p>
+                        <p className="text-xs text-slate-500">{t('periodization.microcyclesTab')}</p>
                       </div>
                       <div>
                         <p className="text-2xl font-bold text-orange-600">{generatedStructure.summary.total_sessions}</p>
-                        <p className="text-xs text-slate-500">Sesiones</p>
+                        <p className="text-xs text-slate-500">{t('periodization.sessions')}</p>
                       </div>
                     </div>
                   </div>
@@ -2104,11 +2106,11 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                       <div className="w-px h-8 bg-slate-700 mx-1" />
                       <div>
                         <div className="text-xl font-black text-white leading-none" style={{ fontFamily: BC }}>{v2Metricas.tonelaje_global_kg ? `${(v2Metricas.tonelaje_global_kg / 1000).toFixed(1)}t` : '0'}</div>
-                        <div className="text-[10px] mt-0.5 text-orange-400">Tonelaje</div>
+                        <div className="text-[10px] mt-0.5 text-orange-400">{t('periodization.tonnage')}</div>
                       </div>
                       <div>
                         <div className="text-xl font-black text-white leading-none" style={{ fontFamily: BC }}>{Math.round(v2Metricas.progreso_global || 0)}%</div>
-                        <div className="text-[10px] mt-0.5 text-emerald-400">Progreso</div>
+                        <div className="text-[10px] mt-0.5 text-emerald-400">{t('periodization.progress')}</div>
                       </div>
                     </>
                   )}
@@ -2147,7 +2149,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                   {v2Alertas.length} alerta{v2Alertas.length !== 1 ? 's' : ''} del motor de cascada
                 </span>
               </div>
-              <span className="text-[10px] font-medium text-slate-400">V2 Auto-calculado</span>
+              <span className="text-[10px] font-medium text-slate-400">{t('periodization.v2autocalc')}</span>
             </div>
             <div className="px-4 py-2 space-y-1 max-h-[120px] overflow-y-auto bg-white">
               {v2Alertas.slice(0, 8).map((alerta, i) => (
@@ -2315,12 +2317,12 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                 )}
                 {macroCarga > 0 && (
                   <div className="flex items-center gap-1.5 bg-violet-50 px-2.5 py-1 rounded-lg">
-                    <span className="text-[10px] text-violet-400">Carga</span>
+                    <span className="text-[10px] text-violet-400">{t('periodization.load')}</span>
                     <span className="text-[11px] font-bold text-violet-600">{macroCarga.toFixed(0)} UA</span>
                   </div>
                 )}
                 <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg">
-                  <span className="text-[10px] text-slate-400">Progreso</span>
+                  <span className="text-[10px] text-slate-400">{t('periodization.progress')}</span>
                   <div className="w-10"><MiniBar value={macroProgreso} color="#10B981" /></div>
                   <span className="text-[11px] font-bold text-slate-600">{Math.round(macroProgreso)}%</span>
                 </div>
@@ -2334,7 +2336,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           {isExpanded && (
             <div className="border-t border-slate-100 bg-slate-50/60">
               <div className="flex justify-between items-center px-5 pt-3 pb-2">
-                <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Mesociclos</span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">{t('periodization.mesocyclesTab')}</span>
                 <Button size="sm" variant="outline" className="h-7 text-[11px] rounded-md border-slate-300" onClick={() => handleAddMesocycle(macroIdx)}>
                   <Plus className="w-3 h-3 mr-1" /> Mesociclo
                 </Button>
@@ -2369,7 +2371,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                             <span className="text-[10px] text-slate-400">{meso.microcycles?.length || 0} sem</span>
                             <span className="text-[10px] text-slate-400">{mesoSessions} ses</span>
                             <div className="flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded">
-                              <span className="text-[9px] text-slate-400">Carga</span>
+                              <span className="text-[9px] text-slate-400">{t('periodization.load')}</span>
                               <div className="w-8"><MiniBar value={mesoLoad * 100} color={mesoColor} h="h-1" /></div>
                               <span className="text-[10px] font-semibold" style={{ color: mesoColor }}>{Math.round(mesoLoad * 100)}%</span>
                             </div>
@@ -2398,7 +2400,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
                         {/* MEV → MAV → MRV chart REMOVED · ahora aparece dentro del Plan Gráfico por mesociclo */}
                         <div className="flex justify-between items-center mb-3">
-                          <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Microciclos</span>
+                          <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">{t('periodization.microcyclesTab')}</span>
                           <Button size="sm" variant="outline" className="h-6 text-[10px] rounded-md border-slate-200 px-2" onClick={() => handleAddMicrocycle(macroIdx, mesoIdx)}>
                             <Plus className="w-2.5 h-2.5 mr-1" /> Semana
                           </Button>
@@ -2467,7 +2469,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                     <span className="text-slate-500 font-medium">{sessions.length} ses</span>
                                     <span className="text-slate-400">{totalDuration}min</span>
                                     <div className="flex items-center gap-1.5">
-                                      <span className="text-slate-400">Carga</span>
+                                      <span className="text-slate-400">{t('periodization.load')}</span>
                                       <div className="w-12"><MiniBar value={microLoad} color={microColor} h="h-1.5" /></div>
                                       <span className="font-bold" style={{ color: microColor }}>{microLoad}%</span>
                                     </div>
@@ -2483,8 +2485,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                     })()}
                                     <span className="font-semibold" style={{color: completedSessions > 0 ? '#10b981' : '#94a3b8'}}>{completedSessions}/{sessions.length}</span>
                                   </div>
-                                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg" onClick={() => handleEditMicrocycle(micro, macroIdx, mesoIdx, microIdx)} title="Editar"><Edit2 className="w-3.5 h-3.5" /></Button>
-                                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg" onClick={() => handleDeleteMicrocycle(macroIdx, mesoIdx, microIdx)} title="Eliminar"><Trash2 className="w-3.5 h-3.5" /></Button>
+                                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg" onClick={() => handleEditMicrocycle(micro, macroIdx, mesoIdx, microIdx)} title={t('periodization.edit')}><Edit2 className="w-3.5 h-3.5" /></Button>
+                                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg" onClick={() => handleDeleteMicrocycle(macroIdx, mesoIdx, microIdx)} title={t('periodization.delete')}><Trash2 className="w-3.5 h-3.5" /></Button>
                                 </div>
                               </div>
 
@@ -2493,7 +2495,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                 <div className="border-t px-4 pb-4 pt-3" style={{borderColor:'rgba(0,0,0,0.05)',background:'rgba(248,250,252,0.5)'}}>
                                   <div className="flex justify-between items-center mb-3">
                                     <div className="flex items-center gap-3">
-                                      <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-500" style={{fontFamily:"'DM Sans',sans-serif"}}>Sesiones</span>
+                                      <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-500" style={{fontFamily:"'DM Sans',sans-serif"}}>{t('periodization.sessions')}</span>
                                       <div className="flex items-center gap-2 text-[9px]">
                                         {SESSION_TYPES.slice(0, 5).map(st => (
                                           <span key={st.id} className="flex items-center gap-1 text-slate-400"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: st.color }} />{st.name}</span>
@@ -2573,7 +2575,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                             <button
                                               className="p-0.5 rounded-full bg-white shadow-md hover:bg-blue-50 transition-colors"
                                               onClick={() => handleEditSessionVI(session, macroIdx, mesoIdx, microIdx, sIdx)}
-                                              title="Editar volumen / intensidad"
+                                              title={t('periodization.editVolInt')}
                                               data-testid={`session-${sIdx}-edit-btn`}
                                             >
                                               <Edit2 className="w-2.5 h-2.5 text-blue-500" />
@@ -2581,7 +2583,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                             <button
                                               className="p-0.5 rounded-full bg-white shadow-md hover:bg-red-50 transition-colors"
                                               onClick={() => handleDeleteSession(macroIdx, mesoIdx, microIdx, sIdx)}
-                                              title="Eliminar"
+                                              title={t('periodization.delete')}
                                               data-testid={`session-${sIdx}-delete-btn`}
                                             >
                                               <Trash2 className="w-2.5 h-2.5 text-red-400" />
@@ -2712,14 +2714,14 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden" data-testid="calendar-view">
         <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
           <CalendarDays className="w-4 h-4 text-slate-400" />
-          <h3 className="text-sm font-semibold text-slate-800">Vista Calendario</h3>
+          <h3 className="text-sm font-semibold text-slate-800">{t('periodization.calendarView')}</h3>
           <span className="text-[11px] text-slate-400 ml-2">{weeklyData.length} semanas</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="bg-slate-50">
-                <th className="px-4 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400 sticky left-0 bg-slate-50 z-10 min-w-[140px]">Semana</th>
+                <th className="px-4 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400 sticky left-0 bg-slate-50 z-10 min-w-[140px]">{t('periodization.week')}</th>
                 {['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'].map(day => (
                   <th key={day} className="px-2 py-2.5 text-center text-[11px] font-bold uppercase tracking-wider text-slate-400 min-w-[100px]">{day}</th>
                 ))}
@@ -2851,7 +2853,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       <div className="space-y-4">
         {/* Main Chart — using InteractiveChart component */}
         <InteractiveChart
-          title="Periodizacion del Plan"
+          title={t('periodization.planPeriodization')}
           icon={TrendingUp}
           data={chartData}
           dataKeys={[
@@ -2873,8 +2875,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         {/* Phase Distribution — Enhanced */}
         <div className="bg-white rounded-xl border border-slate-200 overflow-hidden" data-testid="phase-distribution">
           <div className="px-5 pt-4 pb-3 border-b border-slate-100">
-            <h3 className="text-[14px] font-bold text-slate-800" style={{fontFamily:"'DM Sans',sans-serif"}}>Distribucion de Fases del Macrociclo</h3>
-            <p className="text-[11px] text-slate-400 mt-0.5">Proporcion de semanas, volumen e intensidad por fase</p>
+            <h3 className="text-[14px] font-bold text-slate-800" style={{fontFamily:"'DM Sans',sans-serif"}}>{t('periodization.phaseDistribMacro')}</h3>
+            <p className="text-[11px] text-slate-400 mt-0.5">{t('periodization.phaseProportion')}</p>
           </div>
 
           {/* Timeline bar */}
@@ -2946,7 +2948,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                         </div>
                       ))}
                       <div className="flex items-center justify-between pt-2 mt-1" style={{borderTop:`1px solid ${phase.color}10`}}>
-                        <span className="text-[9px] font-semibold text-slate-400">Carga prom.</span>
+                        <span className="text-[9px] font-semibold text-slate-400">{t('periodization.avgLoad')}</span>
                         <span className="text-[13px] font-black" style={{color: phase.color}}>{phaseAvgCarga}</span>
                       </div>
                     </div>
@@ -2985,40 +2987,40 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           <DialogHeader><DialogTitle className="text-slate-900">{editModal.indices?.isNew ? 'Nuevo Macrociclo' : 'Editar Macrociclo'}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <label className="text-sm font-medium text-slate-700">Nombre</label>
+              <label className="text-sm font-medium text-slate-700">{t('periodization.name')}</label>
               <Input value={editModal.data?.name || ''} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, name: e.target.value } })} className="mt-1 bg-white text-slate-900" />
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700">Fase</label>
+              <label className="text-sm font-medium text-slate-700">{t('periodization.phase')}</label>
               <Select value={editModal.data?.phase?.id || ''} onValueChange={(v) => setEditModal({ ...editModal, data: { ...editModal.data, phase: MACROCYCLE_PHASES.find(p => p.id === v) } })}>
                 <SelectTrigger className="mt-1 bg-white text-slate-900"><SelectValue /></SelectTrigger>
                 <SelectContent>{MACROCYCLE_PHASES.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700">Semanas</label>
+              <label className="text-sm font-medium text-slate-700">{t('periodization.weeks')}</label>
               <Input type="number" value={editModal.data?.weeks || 4} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, weeks: parseInt(e.target.value) } })} className="mt-1 bg-white text-slate-900" />
             </div>
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className="text-sm font-medium text-slate-700">Volumen %</label>
+                <label className="text-sm font-medium text-slate-700">{t('periodization.volumePct')}</label>
                 <Input type="number" min="0" max="100" value={editModal.data?.volume_percent ?? editModal.data?.phase?.volumePercent ?? 80} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, volume_percent: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="macro-volume-input" />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700">Intensidad %</label>
+                <label className="text-sm font-medium text-slate-700">{t('periodization.intensityPct')}</label>
                 <Input type="number" min="0" max="100" value={editModal.data?.intensity_percent ?? editModal.data?.phase?.intensityPercent ?? 60} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, intensity_percent: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="macro-intensity-input" />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700">Progreso %</label>
+                <label className="text-sm font-medium text-slate-700">{t('periodization.progressPct')}</label>
                 <Input type="number" min="0" max="100" value={editModal.data?.progress ?? 0} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, progress: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="macro-progress-input" />
               </div>
             </div>
           </div>
           <DialogFooter className="flex items-center justify-between sm:justify-between">
-            <span className="text-[12px] text-slate-500 mr-auto">Vol. total acumulado: <strong className="text-slate-800">{editModal.data?.volume_total ?? '—'}</strong></span>
+            <span className="text-[12px] text-slate-500 mr-auto">{t('periodization.totalVolAccum')} <strong className="text-slate-800">{editModal.data?.volume_total ?? '—'}</strong></span>
             <div className="flex gap-2">
-              <Button variant="outline" className="border-slate-300 text-slate-700" onClick={() => setEditModal({ type: null, data: null, indices: null })}>Cancelar</Button>
-              <Button className="bg-slate-900 hover:bg-slate-800 text-white" onClick={handleSaveMacrocycle} data-testid="save-macrocycle-btn">Guardar</Button>
+              <Button variant="outline" className="border-slate-300 text-slate-700" onClick={() => setEditModal({ type: null, data: null, indices: null })}>{t('periodization.cancel')}</Button>
+              <Button className="bg-slate-900 hover:bg-slate-800 text-white" onClick={handleSaveMacrocycle} data-testid="save-macrocycle-btn">{t('periodization.save')}</Button>
             </div>
           </DialogFooter>
         </DialogContent>
@@ -3030,11 +3032,11 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           <DialogHeader><DialogTitle className="text-slate-900">{editModal.indices?.isNew ? 'Nuevo Mesociclo' : 'Editar Mesociclo'}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <label className="text-sm font-medium text-slate-700">Nombre</label>
+              <label className="text-sm font-medium text-slate-700">{t('periodization.name')}</label>
               <Input value={editModal.data?.name || ''} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, name: e.target.value } })} className="mt-1 bg-white text-slate-900" />
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700">Tipo</label>
+              <label className="text-sm font-medium text-slate-700">{t('periodization.type')}</label>
               <Select value={editModal.data?.type?.id || ''} onValueChange={(v) => setEditModal({ ...editModal, data: { ...editModal.data, type: MESOCYCLE_TYPES.find(t => t.id === v) } })}>
                 <SelectTrigger className="mt-1 bg-white text-slate-900"><SelectValue /></SelectTrigger>
                 <SelectContent>{MESOCYCLE_TYPES.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}</SelectContent>
@@ -3042,30 +3044,30 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
             </div>
             {editModal.indices?.isNew && (
               <div>
-                <label className="text-sm font-medium text-slate-700">Semanas</label>
+                <label className="text-sm font-medium text-slate-700">{t('periodization.weeks')}</label>
                 <Input type="number" value={editModal.data?.weeks || 4} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, weeks: parseInt(e.target.value) } })} className="mt-1 bg-white text-slate-900" />
               </div>
             )}
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className="text-sm font-medium text-slate-700">Volumen %</label>
+                <label className="text-sm font-medium text-slate-700">{t('periodization.volumePct')}</label>
                 <Input type="number" min="0" max="100" value={editModal.data?.volume_percent ?? editModal.data?.volume ?? 80} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, volume_percent: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="meso-volume-input" />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700">Intensidad %</label>
+                <label className="text-sm font-medium text-slate-700">{t('periodization.intensityPct')}</label>
                 <Input type="number" min="0" max="100" value={editModal.data?.intensity_percent ?? editModal.data?.intensity ?? 70} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, intensity_percent: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="meso-intensity-input" />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700">Progreso %</label>
+                <label className="text-sm font-medium text-slate-700">{t('periodization.progressPct')}</label>
                 <Input type="number" min="0" max="100" value={editModal.data?.progress ?? 0} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, progress: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="meso-progress-input" />
               </div>
             </div>
           </div>
           <DialogFooter className="flex items-center justify-between sm:justify-between">
-            <span className="text-[12px] text-slate-500 mr-auto">Vol. total acumulado: <strong className="text-slate-800">{editModal.data?.volume_total ?? '—'}</strong></span>
+            <span className="text-[12px] text-slate-500 mr-auto">{t('periodization.totalVolAccum')} <strong className="text-slate-800">{editModal.data?.volume_total ?? '—'}</strong></span>
             <div className="flex gap-2">
-              <Button variant="outline" className="border-slate-300 text-slate-700" onClick={() => setEditModal({ type: null, data: null, indices: null })}>Cancelar</Button>
-              <Button className="bg-slate-900 hover:bg-slate-800 text-white" onClick={handleSaveMesocycle} data-testid="save-mesocycle-btn">Guardar</Button>
+              <Button variant="outline" className="border-slate-300 text-slate-700" onClick={() => setEditModal({ type: null, data: null, indices: null })}>{t('periodization.cancel')}</Button>
+              <Button className="bg-slate-900 hover:bg-slate-800 text-white" onClick={handleSaveMesocycle} data-testid="save-mesocycle-btn">{t('periodization.save')}</Button>
             </div>
           </DialogFooter>
         </DialogContent>
@@ -3077,11 +3079,11 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           <DialogHeader><DialogTitle className="text-slate-900">{editModal.indices?.isNew ? 'Nuevo Microciclo' : 'Editar Microciclo'}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <label className="text-sm font-medium text-slate-700">Nombre</label>
+              <label className="text-sm font-medium text-slate-700">{t('periodization.name')}</label>
               <Input value={editModal.data?.name || ''} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, name: e.target.value } })} className="mt-1 bg-white text-slate-900" />
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700">Tipo</label>
+              <label className="text-sm font-medium text-slate-700">{t('periodization.type')}</label>
               <Select value={editModal.data?.type?.id || ''} onValueChange={(v) => setEditModal({ ...editModal, data: { ...editModal.data, type: MICROCYCLE_TYPES_ARRAY.find(t => t.id === v) } })}>
                 <SelectTrigger className="mt-1 bg-white text-slate-900"><SelectValue /></SelectTrigger>
                 <SelectContent>{MICROCYCLE_TYPES_ARRAY.map(t => <SelectItem key={t.id} value={t.id}>{t.name} ({t.loadPercent}%)</SelectItem>)}</SelectContent>
@@ -3089,24 +3091,24 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
             </div>
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className="text-sm font-medium text-slate-700">Volumen %</label>
+                <label className="text-sm font-medium text-slate-700">{t('periodization.volumePct')}</label>
                 <Input type="number" min="0" max="100" value={editModal.data?.volume ?? 100} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, volume: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="micro-volume-input" />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700">Intensidad %</label>
+                <label className="text-sm font-medium text-slate-700">{t('periodization.intensityPct')}</label>
                 <Input type="number" min="0" max="100" value={editModal.data?.intensity ?? 70} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, intensity: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="micro-intensity-input" />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700">Progreso %</label>
+                <label className="text-sm font-medium text-slate-700">{t('periodization.progressPct')}</label>
                 <Input type="number" min="0" max="100" value={editModal.data?.progress ?? 0} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, progress: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="micro-progress-input" />
               </div>
             </div>
           </div>
           <DialogFooter className="flex items-center justify-between sm:justify-between">
-            <span className="text-[12px] text-slate-500 mr-auto">Vol. total acumulado: <strong className="text-slate-800">{editModal.data?.volume_total ?? '—'}</strong></span>
+            <span className="text-[12px] text-slate-500 mr-auto">{t('periodization.totalVolAccum')} <strong className="text-slate-800">{editModal.data?.volume_total ?? '—'}</strong></span>
             <div className="flex gap-2">
-              <Button variant="outline" className="border-slate-300 text-slate-700" onClick={() => setEditModal({ type: null, data: null, indices: null })}>Cancelar</Button>
-              <Button className="bg-slate-900 hover:bg-slate-800 text-white" onClick={handleSaveMicrocycle} data-testid="save-microcycle-btn">Guardar</Button>
+              <Button variant="outline" className="border-slate-300 text-slate-700" onClick={() => setEditModal({ type: null, data: null, indices: null })}>{t('periodization.cancel')}</Button>
+              <Button className="bg-slate-900 hover:bg-slate-800 text-white" onClick={handleSaveMicrocycle} data-testid="save-microcycle-btn">{t('periodization.save')}</Button>
             </div>
           </DialogFooter>
         </DialogContent>
@@ -3115,34 +3117,34 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       {/* Session Quick-Edit Modal (Volumen / Intensidad) */}
       <Dialog open={editModal.type === 'session'} onOpenChange={() => setEditModal({ type: null, data: null, indices: null })}>
         <DialogContent className="max-w-lg bg-white text-slate-900 border border-slate-200">
-          <DialogHeader><DialogTitle className="text-slate-900">Editar Sesión</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="text-slate-900">{t('periodization.editSession')}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-sm font-medium text-slate-700">Nombre</label>
-                <Input value={editModal.data?.name || ''} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, name: e.target.value } })} className="mt-1 bg-white text-slate-900" placeholder="Sesión" data-testid="session-name-input" />
+                <label className="text-sm font-medium text-slate-700">{t('periodization.name')}</label>
+                <Input value={editModal.data?.name || ''} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, name: e.target.value } })} className="mt-1 bg-white text-slate-900" placeholder={t('periodization.phSession')} data-testid="session-name-input" />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700">Duración (min)</label>
+                <label className="text-sm font-medium text-slate-700">{t('periodization.durationMin')}</label>
                 <Input type="number" min="0" value={editModal.data?.duration ?? 60} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, duration: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="session-duration-input" />
               </div>
             </div>
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className="text-sm font-medium text-slate-700">Volumen %</label>
+                <label className="text-sm font-medium text-slate-700">{t('periodization.volumePct')}</label>
                 <Input type="number" min="0" max="100" value={editModal.data?.volume ?? 100} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, volume: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="session-volume-input" />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700">Intensidad %</label>
+                <label className="text-sm font-medium text-slate-700">{t('periodization.intensityPct')}</label>
                 <Input type="number" min="0" max="100" value={editModal.data?.intensity ?? 70} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, intensity: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="session-intensity-input" />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700">Progreso %</label>
+                <label className="text-sm font-medium text-slate-700">{t('periodization.progressPct')}</label>
                 <Input type="number" min="0" max="100" value={editModal.data?.progress ?? 0} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, progress: parseInt(e.target.value) || 0 } })} className="mt-1 bg-white text-slate-900" data-testid="session-progress-input" />
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700">Nivel de intensidad</label>
+              <label className="text-sm font-medium text-slate-700">{t('periodization.intensityLevel')}</label>
               <div className="flex gap-2 mt-1">
                 {[{ id: 'low', label: 'Baja', val: 40, color: '#10B981' }, { id: 'medium', label: 'Media', val: 65, color: '#F59E0B' }, { id: 'high', label: 'Alta', val: 85, color: '#EF4444' }].map(lvl => {
                   const active = viLevel(editModal.data?.intensity ?? 70) === lvl.id;
@@ -3163,10 +3165,10 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
             </div>
           </div>
           <DialogFooter className="flex items-center justify-between sm:justify-between">
-            <span className="text-[12px] text-slate-500 mr-auto">La suma se recalcula en cascada hacia micro/meso/macro.</span>
+            <span className="text-[12px] text-slate-500 mr-auto">{t('periodization.cascadeRecalc')}</span>
             <div className="flex gap-2">
-              <Button variant="outline" className="border-slate-300 text-slate-700" onClick={() => setEditModal({ type: null, data: null, indices: null })}>Cancelar</Button>
-              <Button className="bg-slate-900 hover:bg-slate-800 text-white" onClick={handleSaveSessionVI} data-testid="save-session-btn">Guardar</Button>
+              <Button variant="outline" className="border-slate-300 text-slate-700" onClick={() => setEditModal({ type: null, data: null, indices: null })}>{t('periodization.cancel')}</Button>
+              <Button className="bg-slate-900 hover:bg-slate-800 text-white" onClick={handleSaveSessionVI} data-testid="save-session-btn">{t('periodization.save')}</Button>
             </div>
           </DialogFooter>
         </DialogContent>
@@ -3222,15 +3224,15 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           {/* Calculator Forms */}
           {calculatorType === '1rm' && (
             <div className="space-y-4">
-              <h4 className="font-bold text-slate-700">Calcular 1RM (Repetición Máxima)</h4>
-              <p className="text-sm text-slate-500">Fórmulas: Brzycki, Epley, Lander</p>
+              <h4 className="font-bold text-slate-700">{t('periodization.calc1rm')}</h4>
+              <p className="text-sm text-slate-500">{t('periodization.formulas1rm')}</p>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-slate-600">Peso levantado (kg)</label>
+                  <label className="text-sm font-medium text-slate-600">{t('periodization.weightLifted')}</label>
                   <Input type="number" id="calc-weight" placeholder="80" className="mt-1" />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-600">Repeticiones</label>
+                  <label className="text-sm font-medium text-slate-600">{t('periodization.reps')}</label>
                   <Input type="number" id="calc-reps" placeholder="8" className="mt-1" />
                 </div>
               </div>
@@ -3246,19 +3248,19 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           
           {calculatorType === 'heart_rate_zones' && (
             <div className="space-y-4">
-              <h4 className="font-bold text-slate-700">Zonas de Frecuencia Cardíaca</h4>
-              <p className="text-sm text-slate-500">Fórmula de Karvonen</p>
+              <h4 className="font-bold text-slate-700">{t('periodization.hrZones')}</h4>
+              <p className="text-sm text-slate-500">{t('periodization.karvonen')}</p>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-slate-600">Edad</label>
+                  <label className="text-sm font-medium text-slate-600">{t('periodization.age')}</label>
                   <Input type="number" id="calc-age" placeholder="30" className="mt-1" />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-600">FC Reposo</label>
+                  <label className="text-sm font-medium text-slate-600">{t('periodization.restingHr')}</label>
                   <Input type="number" id="calc-resting" placeholder="60" className="mt-1" />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-600">FC Máx (opcional)</label>
+                  <label className="text-sm font-medium text-slate-600">{t('periodization.maxHrOptional')}</label>
                   <Input type="number" id="calc-maxhr" placeholder="190" className="mt-1" />
                 </div>
               </div>
@@ -3275,21 +3277,21 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           
           {calculatorType === 'vo2max' && (
             <div className="space-y-4">
-              <h4 className="font-bold text-slate-700">Cálculo de VO2máx</h4>
+              <h4 className="font-bold text-slate-700">{t('periodization.vo2calc')}</h4>
               <div>
-                <label className="text-sm font-medium text-slate-600">Tipo de Test</label>
+                <label className="text-sm font-medium text-slate-600">{t('periodization.testType')}</label>
                 <Select onValueChange={(v) => document.getElementById('calc-test-type').value = v}>
-                  <SelectTrigger className="mt-1"><SelectValue placeholder="Seleccionar test" /></SelectTrigger>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder={t('periodization.phSelectTest')} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="cooper">Test de Cooper (12 min)</SelectItem>
+                    <SelectItem value="cooper">{t('periodization.cooperTest')}</SelectItem>
                     <SelectItem value="rockport">Rockport Walk Test</SelectItem>
-                    <SelectItem value="1mile">Test 1.5 Millas</SelectItem>
+                    <SelectItem value="1mile">{t('periodization.test15miles')}</SelectItem>
                   </SelectContent>
                 </Select>
                 <input type="hidden" id="calc-test-type" defaultValue="cooper" />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-600">Distancia (metros) / Tiempo (minutos)</label>
+                <label className="text-sm font-medium text-slate-600">{t('periodization.distanceTime')}</label>
                 <Input type="number" id="calc-distance" placeholder="2400" className="mt-1" />
               </div>
               <Button onClick={() => {
@@ -3304,24 +3306,24 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           
           {calculatorType === 'volume_distribution' && (
             <div className="space-y-4">
-              <h4 className="font-bold text-slate-700">Distribución de Volumen</h4>
+              <h4 className="font-bold text-slate-700">{t('periodization.volumeDistrib')}</h4>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-slate-600">Volumen Total</label>
+                  <label className="text-sm font-medium text-slate-600">{t('periodization.totalVolume')}</label>
                   <Input type="number" id="calc-volume" placeholder="1000" className="mt-1" />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-600">Semanas</label>
+                  <label className="text-sm font-medium text-slate-600">{t('periodization.weeks')}</label>
                   <Input type="number" id="calc-weeks" placeholder="12" className="mt-1" />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-600">Progresión</label>
+                  <label className="text-sm font-medium text-slate-600">{t('periodization.progression')}</label>
                   <Select onValueChange={(v) => document.getElementById('calc-progression').value = v}>
-                    <SelectTrigger className="mt-1"><SelectValue placeholder="Tipo" /></SelectTrigger>
+                    <SelectTrigger className="mt-1"><SelectValue placeholder={t('periodization.phType')} /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="linear">Lineal</SelectItem>
-                      <SelectItem value="undulating">Ondulatorio</SelectItem>
-                      <SelectItem value="step">Escalón (3:1)</SelectItem>
+                      <SelectItem value="linear">{t('periodization.modelLinear')}</SelectItem>
+                      <SelectItem value="undulating">{t('periodization.modelUndulating')}</SelectItem>
+                      <SelectItem value="step">{t('periodization.stepScale')}</SelectItem>
                     </SelectContent>
                   </Select>
                   <input type="hidden" id="calc-progression" defaultValue="linear" />
@@ -3340,8 +3342,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           
           {calculatorType === 'intensity_scale' && (
             <div className="space-y-4">
-              <h4 className="font-bold text-slate-700">Escalas de Intensidad</h4>
-              <p className="text-sm text-slate-500">Visualiza las escalas estándar de intensidad</p>
+              <h4 className="font-bold text-slate-700">{t('periodization.intensityScales')}</h4>
+              <p className="text-sm text-slate-500">{t('periodization.viewIntensityScales')}</p>
               <Button onClick={() => runCalculation('intensity_scale', {})} className="bg-blue-600 hover:bg-blue-700 text-white">
                 Ver Escalas
               </Button>
@@ -3351,7 +3353,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           {/* Results */}
           {calculatorResult && (
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
-              <h4 className="font-bold text-blue-800 mb-2">Resultados</h4>
+              <h4 className="font-bold text-blue-800 mb-2">{t('periodization.results')}</h4>
               <p className="text-sm text-blue-600 mb-4">{calculatorResult.explanation}</p>
               
               {calculatorType === '1rm' && calculatorResult.result && (
@@ -3375,7 +3377,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                     </div>
                   </div>
                   <div className="bg-white rounded-lg p-4">
-                    <h5 className="font-semibold text-slate-700 mb-2">Zonas de Entrenamiento</h5>
+                    <h5 className="font-semibold text-slate-700 mb-2">{t('periodization.trainingZones')}</h5>
                     {Object.entries(calculatorResult.result.recommended_zones || {}).map(([zone, value]) => (
                       <p key={zone} className="text-sm text-slate-600"><strong>{zone.replace('_', ' ')}:</strong> {value}</p>
                     ))}
@@ -3438,7 +3440,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                     </div>
                   </div>
                   <div>
-                    <h5 className="font-semibold text-slate-700 mb-2">Tipos de Microciclo</h5>
+                    <h5 className="font-semibold text-slate-700 mb-2">{t('periodization.microcycleTypes')}</h5>
                     <div className="grid grid-cols-3 gap-2">
                       {Object.entries(calculatorResult.result.microcycle_types || {}).map(([type, data]) => (
                         <div key={type} className="bg-white rounded p-2">
@@ -3455,7 +3457,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={() => setCalculatorOpen(false)}>Cerrar</Button>
+          <Button variant="outline" onClick={() => setCalculatorOpen(false)}>{t('periodization.close')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

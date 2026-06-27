@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from './ui/card';
 import {
   ResponsiveContainer, ComposedChart, Bar, Line, Area, XAxis, YAxis,
@@ -21,6 +22,7 @@ import {
  *   • Tendencia + alertas inteligentes
  */
 export default function LoadPanel({ activePlan }) {
+  const { t } = useTranslation();
   // Extraer microciclos directamente del activePlan (estructura plan→macro→meso→micro→sesiones).
   // Calcular carga total (UA = vol*int/100), RPE prom, ACWR por semana de manera autónoma.
   // Fallback inteligente: usa detailed_data.fases si existe, si no usa los campos directos
@@ -99,7 +101,7 @@ export default function LoadPanel({ activePlan }) {
             rpe: avgRpe,
             sessions: sesCount,
             duration: Math.round(sumDuration),
-            meso: meso.name || 'Mesociclo',
+            meso: meso.name || t('loadPanel.mesoDefault'),
             mesoColor: meso.color || '#0ea5e9',
           });
           weekCounter++;
@@ -139,19 +141,19 @@ export default function LoadPanel({ activePlan }) {
   }, [data]);
 
   const acwrZone = (acwr) => {
-    if (acwr === 0) return { label: 'Sin datos', color: '#94a3b8', bg: '#f1f5f9' };
-    if (acwr < 0.8) return { label: 'Detraining', color: '#0EA5E9', bg: '#e0f2fe', desc: 'Carga insuficiente — riesgo de pérdida de adaptaciones.' };
-    if (acwr <= 1.3) return { label: 'Zona óptima', color: '#10B981', bg: '#d1fae5', desc: 'Equilibrio ideal entre fitness y fatiga.' };
-    if (acwr <= 1.5) return { label: 'Precaución', color: '#F59E0B', bg: '#fef3c7', desc: 'Carga aguda elevada — monitorear recuperación.' };
-    return { label: 'Sobrecarga', color: '#EF4444', bg: '#fee2e2', desc: 'Riesgo alto de lesión — reducir volumen o intensidad.' };
+    if (acwr === 0) return { label: t('loadPanel.zoneNoData'), color: '#94a3b8', bg: '#f1f5f9' };
+    if (acwr < 0.8) return { label: t('loadPanel.zoneDetraining'), color: '#0EA5E9', bg: '#e0f2fe', desc: t('loadPanel.zoneDetrainingDesc') };
+    if (acwr <= 1.3) return { label: t('loadPanel.zoneOptimal'), color: '#10B981', bg: '#d1fae5', desc: t('loadPanel.zoneOptimalDesc') };
+    if (acwr <= 1.5) return { label: t('loadPanel.zoneCaution'), color: '#F59E0B', bg: '#fef3c7', desc: t('loadPanel.zoneCautionDesc') };
+    return { label: t('loadPanel.zoneOverload'), color: '#EF4444', bg: '#fee2e2', desc: t('loadPanel.zoneOverloadDesc') };
   };
 
   if (!activePlan) {
     return (
       <Card className="p-12 text-center bg-gradient-to-br from-slate-50 to-white">
         <Flame className="w-14 h-14 text-slate-300 mx-auto mb-3" />
-        <h3 className="text-lg font-bold text-slate-700">Carga</h3>
-        <p className="text-sm text-slate-500 mt-2">Selecciona un plan activo para ver la magnitud de carga, ACWR y tendencias.</p>
+        <h3 className="text-lg font-bold text-slate-700">{t('loadPanel.title')}</h3>
+        <p className="text-sm text-slate-500 mt-2">{t('loadPanel.noPlanHint')}</p>
       </Card>
     );
   }
@@ -160,10 +162,9 @@ export default function LoadPanel({ activePlan }) {
     return (
       <Card className="p-12 text-center">
         <Activity className="w-14 h-14 text-slate-300 mx-auto mb-3" />
-        <h3 className="text-lg font-bold text-slate-700">Sin datos de carga aún</h3>
+        <h3 className="text-lg font-bold text-slate-700">{t('loadPanel.noData')}</h3>
         <p className="text-sm text-slate-500 mt-2">
-          Cuando agregues sesiones con series, repeticiones, intensidad y RPE,
-          aquí verás el cálculo automático de carga (UA), ACWR y tendencias.
+          {t('loadPanel.noDataHint')}
         </p>
       </Card>
     );
@@ -180,14 +181,14 @@ export default function LoadPanel({ activePlan }) {
             <Flame className="w-5 h-5 text-[#CCFF00]" />
           </div>
           <div>
-            <div className="text-[10px] uppercase tracking-[0.18em] text-slate-400 font-bold">Carga · Plan activo</div>
-            <div className="text-sm font-bold">{activePlan.name || 'Plan sin nombre'}</div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-slate-400 font-bold">{t('loadPanel.bannerEyebrow')}</div>
+            <div className="text-sm font-bold">{activePlan.name || t('loadPanel.planUnnamed')}</div>
           </div>
         </div>
         <div className="hidden md:flex items-center gap-4 text-[11px]">
-          {activePlan.sport && <span><span className="text-slate-400">Deporte:</span> <strong className="capitalize">{activePlan.sport}</strong></span>}
-          {activePlan.model_name && <span><span className="text-slate-400">Modelo:</span> <strong>{activePlan.model_name}</strong></span>}
-          <span><span className="text-slate-400">Semanas:</span> <strong>{data.length}</strong></span>
+          {activePlan.sport && <span><span className="text-slate-400">{t('loadPanel.sport')}</span> <strong className="capitalize">{activePlan.sport}</strong></span>}
+          {activePlan.model_name && <span><span className="text-slate-400">{t('loadPanel.model')}</span> <strong>{activePlan.model_name}</strong></span>}
+          <span><span className="text-slate-400">{t('loadPanel.weeks')}</span> <strong>{data.length}</strong></span>
         </div>
       </div>
 
@@ -201,10 +202,10 @@ export default function LoadPanel({ activePlan }) {
               <div className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center">
                 <Flame className="w-4 h-4 text-rose-600" />
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Carga aguda</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{t('loadPanel.acuteLoad')}</span>
             </div>
             <div className="text-3xl font-black text-slate-900 leading-none">{stats.carga_aguda}</div>
-            <div className="text-[10px] text-slate-400 mt-1">UA · última semana</div>
+            <div className="text-[10px] text-slate-400 mt-1">{t('loadPanel.uaLastWeek')}</div>
           </CardContent>
         </Card>
         {/* Carga crónica */}
@@ -215,10 +216,10 @@ export default function LoadPanel({ activePlan }) {
               <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
                 <Shield className="w-4 h-4 text-blue-600" />
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Carga crónica</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{t('loadPanel.chronicLoad')}</span>
             </div>
             <div className="text-3xl font-black text-slate-900 leading-none">{stats.carga_cronica}</div>
-            <div className="text-[10px] text-slate-400 mt-1">UA · prom. 4 sem</div>
+            <div className="text-[10px] text-slate-400 mt-1">{t('loadPanel.uaAvg4w')}</div>
           </CardContent>
         </Card>
         {/* ACWR */}
@@ -253,10 +254,10 @@ export default function LoadPanel({ activePlan }) {
                 : stats.trend === 'decreciente' ? <TrendingDown className="w-4 h-4 text-sky-600" />
                 : <BarChart3 className="w-4 h-4 text-slate-500" />}
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Tendencia</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{t('loadPanel.trendTitle')}</span>
             </div>
-            <div className="text-2xl font-black text-slate-900 leading-none capitalize">{stats.trend}</div>
-            <div className="text-[10px] text-slate-400 mt-1">RPE prom. {stats.avgRPE}</div>
+            <div className="text-2xl font-black text-slate-900 leading-none capitalize">{t(`loadPanel.trend_${stats.trend}`)}</div>
+            <div className="text-[10px] text-slate-400 mt-1">{t('loadPanel.rpeAvg')} {stats.avgRPE}</div>
           </CardContent>
         </Card>
       </div>
@@ -278,9 +279,9 @@ export default function LoadPanel({ activePlan }) {
           </div>
           <p className="text-[12px] mt-1" style={{ color: zone.color }}>{zone.desc}</p>
           <div className="flex items-center gap-3 mt-2 text-[10px] text-slate-600">
-            <span>· Zona óptima: <strong>0.8 — 1.3</strong></span>
-            <span>· Precaución: <strong>1.3 — 1.5</strong></span>
-            <span>· Sobrecarga: <strong>&gt; 1.5</strong></span>
+            <span>· {t('loadPanel.rangeOptimal')} <strong>0.8 — 1.3</strong></span>
+            <span>· {t('loadPanel.rangeCaution')} <strong>1.3 — 1.5</strong></span>
+            <span>· {t('loadPanel.rangeOverload')} <strong>&gt; 1.5</strong></span>
           </div>
         </div>
       </div>
@@ -290,9 +291,9 @@ export default function LoadPanel({ activePlan }) {
         <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <BarChart3 className="w-4 h-4 text-rose-600" />
-            <h3 className="text-sm font-bold text-slate-800">Magnitud de Carga · Volumen · Intensidad</h3>
+            <h3 className="text-sm font-bold text-slate-800">{t('loadPanel.chartTitle')}</h3>
           </div>
-          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{data.length} semanas</span>
+          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{data.length} {t('loadPanel.weeksUnit')}</span>
         </div>
         <CardContent className="p-3">
           <ResponsiveContainer width="100%" height={300}>
@@ -309,9 +310,9 @@ export default function LoadPanel({ activePlan }) {
               {/* ACWR safe band */}
               <ReferenceLine yAxisId="right" y={1.3} stroke="#F59E0B" strokeDasharray="4 4" strokeWidth={1} />
               <ReferenceLine yAxisId="right" y={1.5} stroke="#EF4444" strokeDasharray="4 4" strokeWidth={1} />
-              <Bar yAxisId="left" dataKey="carga" name="Carga (UA)" fill="#EF4444" radius={[6, 6, 0, 0]} maxBarSize={42} fillOpacity={0.85} />
-              <Bar yAxisId="left" dataKey="vol" name="Volumen" fill="#84cc16" radius={[6, 6, 0, 0]} maxBarSize={42} fillOpacity={0.55} />
-              <Line yAxisId="left" type="monotone" dataKey="int" name="Intensidad %" stroke="#F59E0B" strokeWidth={2} dot={{ r: 3, fill: '#F59E0B' }} activeDot={{ r: 5 }} />
+              <Bar yAxisId="left" dataKey="carga" name={t('loadPanel.seriesCarga')} fill="#EF4444" radius={[6, 6, 0, 0]} maxBarSize={42} fillOpacity={0.85} />
+              <Bar yAxisId="left" dataKey="vol" name={t('loadPanel.seriesVol')} fill="#84cc16" radius={[6, 6, 0, 0]} maxBarSize={42} fillOpacity={0.55} />
+              <Line yAxisId="left" type="monotone" dataKey="int" name={t('loadPanel.seriesInt')} stroke="#F59E0B" strokeWidth={2} dot={{ r: 3, fill: '#F59E0B' }} activeDot={{ r: 5 }} />
               <Area yAxisId="right" type="monotone" dataKey="acwr" name="ACWR" stroke="#8B5CF6" fill="#8B5CF6" fillOpacity={0.12} strokeWidth={2} dot={{ r: 3, fill: '#8B5CF6' }} />
             </ComposedChart>
           </ResponsiveContainer>
@@ -323,9 +324,9 @@ export default function LoadPanel({ activePlan }) {
         <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-indigo-600" />
-            <h3 className="text-sm font-bold text-slate-800">Carga por mesociclo</h3>
+            <h3 className="text-sm font-bold text-slate-800">{t('loadPanel.mesoLoadTitle')}</h3>
           </div>
-          <span className="text-[10px] text-slate-400">Distribución porcentual del volumen</span>
+          <span className="text-[10px] text-slate-400">{t('loadPanel.mesoLoadSub')}</span>
         </div>
         <CardContent className="p-3">
           {(() => {
@@ -354,7 +355,7 @@ export default function LoadPanel({ activePlan }) {
                       </div>
                       <div className="w-20 text-right">
                         <span className="text-[12px] font-bold" style={{ color }}>{g.total} UA</span>
-                        <div className="text-[9px] text-slate-400">{g.weeks.length} sem</div>
+                        <div className="text-[9px] text-slate-400">{g.weeks.length} {t('loadPanel.semShort')}</div>
                       </div>
                     </div>
                   );
@@ -368,24 +369,24 @@ export default function LoadPanel({ activePlan }) {
       {/* Footer summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card className="p-3" data-testid="summary-total">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total</div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{t('loadPanel.total')}</div>
           <div className="text-2xl font-black text-slate-900 mt-1">{stats.totalCarga}</div>
-          <div className="text-[10px] text-slate-500">UA acumuladas</div>
+          <div className="text-[10px] text-slate-500">{t('loadPanel.uaAccum')}</div>
         </Card>
         <Card className="p-3" data-testid="summary-peak">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Pico</div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{t('loadPanel.peak')}</div>
           <div className="text-2xl font-black text-rose-600 mt-1">{stats.peakWeek.carga}</div>
           <div className="text-[10px] text-slate-500">{stats.peakWeek.week} · {stats.peakWeek.meso}</div>
         </Card>
         <Card className="p-3" data-testid="summary-min">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Mínimo</div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{t('loadPanel.min')}</div>
           <div className="text-2xl font-black text-emerald-600 mt-1">{stats.minWeek.carga}</div>
-          <div className="text-[10px] text-slate-500">{stats.minWeek.week} · descarga</div>
+          <div className="text-[10px] text-slate-500">{stats.minWeek.week} · {t('loadPanel.discharge')}</div>
         </Card>
         <Card className="p-3" data-testid="summary-rpe">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">RPE prom.</div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{t('loadPanel.rpeAvg')}</div>
           <div className="text-2xl font-black text-amber-600 mt-1">{stats.avgRPE}</div>
-          <div className="text-[10px] text-slate-500">Escala 1-10</div>
+          <div className="text-[10px] text-slate-500">{t('loadPanel.scale110')}</div>
         </Card>
       </div>
     </div>
