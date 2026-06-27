@@ -403,6 +403,9 @@ const CAPACITY_CONFIG = {
   }
 };
 
+// Slug estable para mapear micro-labels de CAPACITY_CONFIG a claves i18n (sessions.capcfg.*)
+const slugCap = (s) => (s || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+
 const MODELOS_PROGRESION = [
   { id: 'lineal', name: 'Lineal', desc: 'Incremento constante semana a semana' },
   { id: 'ondulada', name: 'Ondulada', desc: 'Alternancia de cargas alta/baja' },
@@ -611,6 +614,8 @@ const SessionEditor = ({
   athleteId,
   athleteName
 }) => {
+  const { t } = useTranslation();
+  const tCap = (s) => s ? t(`sessions.capcfg.${slugCap(s)}`, { defaultValue: s }) : s;
   const [sessionData, setSessionData] = useState(SESION_INICIAL);
   const [expandedPhases, setExpandedPhases] = useState({
     inicial: true,
@@ -1090,9 +1095,9 @@ const SessionEditor = ({
               </Select>
 
               {/* Intensidad inline */}
-              <div className="flex-shrink-0 w-[130px]" title={`Intensidad (${intUnit}) · Ref: ${capCfg.intRef}`}>
+              <div className="flex-shrink-0 w-[130px]" title={`Intensidad (${tCap(intUnit)}) · Ref: ${tCap(capCfg.intRef)}`}>
                 <div className="flex items-baseline justify-between mb-0.5">
-                  <span className="text-[8px] font-semibold uppercase tracking-wider text-slate-400" style={{fontFamily:DM}}>Int ({intUnit})</span>
+                  <span className="text-[8px] font-semibold uppercase tracking-wider text-slate-400" style={{fontFamily:DM}}>Int ({tCap(intUnit)})</span>
                   <span className="text-[13px] font-black" style={{color:intColor,fontFamily:DM}}>{act.intensidad}<span className="text-[8px] opacity-50">{intSuffix}</span></span>
                 </div>
                 <div className="h-1 rounded-full overflow-hidden" style={{background:'#f1f5f9'}}>
@@ -1105,8 +1110,8 @@ const SessionEditor = ({
               <div className="flex items-start gap-1.5 flex-shrink-0">
                 {[
                   { label:'Series', value:act.series, key:'series', type:'number', ph: capCfg.serPh, w:'w-[48px]' },
-                  { label: volUnit, value:act.volumen, key:'volumen', ph: capCfg.volPh, w:'w-[60px]' },
-                  { label: capCfg.medidaLabel || 'Medida', value:act.medida, key:'medida', ph: capCfg.medidaPh || '', w:'w-[56px]' },
+                  { label: tCap(volUnit), value:act.volumen, key:'volumen', ph: capCfg.volPh, w:'w-[60px]' },
+                  { label: tCap(capCfg.medidaLabel) || 'Medida', value:act.medida, key:'medida', ph: capCfg.medidaPh || '', w:'w-[56px]' },
                   { label:'Recup', value:act.recuperacion, key:'recuperacion', ph: capCfg.recPh, w:'w-[56px]' }
                 ].map(s => (
                   <div key={s.key} className={`${s.w} text-center`}>
@@ -1255,21 +1260,21 @@ const SessionEditor = ({
                     <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">{t('sessions.subtype')}</span>
                     <Select value={act.subtipo || ''} onValueChange={(v) => updateActividad(faseKey, idx, 'subtipo', v)}>
                       <SelectTrigger className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[80px] shadow-none focus:ring-0"><SelectValue placeholder="—" /></SelectTrigger>
-                      <SelectContent>{capCfg.subtipos.map(s => <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>)}</SelectContent>
+                      <SelectContent>{capCfg.subtipos.map(s => <SelectItem key={s} value={s} className="text-xs">{tCap(s)}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
                   <div className="flex items-center gap-1">
                     <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">{t('sessions.uVol')}</span>
                     <Select value={act.unidadVolumen || capCfg.unidadesVol[0]} onValueChange={(v) => updateActividad(faseKey, idx, 'unidadVolumen', v)}>
                       <SelectTrigger className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[64px] shadow-none focus:ring-0"><SelectValue /></SelectTrigger>
-                      <SelectContent>{capCfg.unidadesVol.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}</SelectContent>
+                      <SelectContent>{capCfg.unidadesVol.map(u => <SelectItem key={u} value={u} className="text-xs">{tCap(u)}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
                   <div className="flex items-center gap-1">
                     <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">{t('sessions.uInt')}</span>
                     <Select value={act.unidadIntensidad || capCfg.unidadesInt[0]} onValueChange={(v) => updateActividad(faseKey, idx, 'unidadIntensidad', v)}>
                       <SelectTrigger className="h-6 text-[11px] border-0 bg-white hover:bg-slate-50 rounded-md px-1.5 w-auto min-w-[64px] shadow-none focus:ring-0"><SelectValue /></SelectTrigger>
-                      <SelectContent>{capCfg.unidadesInt.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}</SelectContent>
+                      <SelectContent>{capCfg.unidadesInt.map(u => <SelectItem key={u} value={u} className="text-xs">{tCap(u)}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
                   <div className="flex items-center gap-1">
@@ -1312,8 +1317,8 @@ const SessionEditor = ({
                   {met.seriesPorMin > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">{t('sessions.density')}</span><span className="text-[12px] font-black text-slate-800">{met.seriesPorMin}</span></span>}
                   {met.tiempoTotalMin > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">{t('sessions.workRest')}</span><span className="text-[11px] font-bold text-slate-800">{met.tiempoTrabajo}:{met.tiempoDescanso}m</span></span>}
                   {met.neuroCarga > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-indigo-500">{t('sessions.neuroLoad')}</span><span className="text-[12px] font-black text-slate-800">{met.neuroCarga}</span></span>}
-                  {met.zonaFC && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-rose-500">{t('sessions.hrZone')}</span><span className="text-[11px] font-bold text-slate-800">{met.zonaFC}</span></span>}
-                  {met.zonaFuerza && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">{t('sessions.zone')}</span><span className="text-[11px] font-bold text-slate-800">{met.zonaFuerza}</span></span>}
+                  {met.zonaFC && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-rose-500">{t('sessions.hrZone')}</span><span className="text-[11px] font-bold text-slate-800">{tCap(met.zonaFC)}</span></span>}
+                  {met.zonaFuerza && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">{t('sessions.zone')}</span><span className="text-[11px] font-bold text-slate-800">{tCap(met.zonaFuerza)}</span></span>}
                 </div>
 
                 {/* Materiales */}

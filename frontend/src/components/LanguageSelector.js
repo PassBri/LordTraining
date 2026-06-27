@@ -21,29 +21,96 @@ const LANGUAGES = [
 export const LanguageSelector = ({ variant = 'light', compact = false, fabStyle = false }) => {
   const { i18n } = useTranslation();
   const [open, setOpen] = useState(false);
-  const ref = useRef(null);
+  const [coords, setCoords] = useState({ top: 0, left: 0 });
+  const triggerRef = useRef(null);
+  const menuRef = useRef(null);
+
+  const isDark = variant === 'dark';
+  const isRtl = typeof document !== 'undefined' && document.documentElement.dir === 'rtl';
+  const MENU_WIDTH = 180;
+
+  const computeCoords = useCallback(() => {
+    if (!triggerRef.current) return;
+    const r = triggerRef.current.getBoundingClientRect();
+    const gap = 6;
+    let left = isRtl ? r.left : r.right - MENU_WIDTH;
+    // keep within viewport horizontally
+    left = Math.max(8, Math.min(left, window.innerWidth - MENU_WIDTH - 8));
+    setCoords({ top: r.bottom + gap, left });
+  }, [isRtl]);
+
+  const toggle = () => {
+    if (!open) computeCoords();
+    setOpen((o) => !o);
+  };
 
   useEffect(() => {
-    const handleClick = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    if (!open) return;
+    const handleClickOutside = (e) => {
+      if (
+        triggerRef.current && !triggerRef.current.contains(e.target) &&
+        menuRef.current && !menuRef.current.contains(e.target)
+      ) {
+        setOpen(false);
+      }
     };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
+    const handleReposition = () => computeCoords();
+    document.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('resize', handleReposition);
+    window.addEventListener('scroll', handleReposition, true);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('resize', handleReposition);
+      window.removeEventListener('scroll', handleReposition, true);
+    };
+  }, [open, computeCoords]);
 
   const currentLang = LANGUAGES.find(l => l.code === i18n.language) || LANGUAGES[0];
-  const isDark = variant === 'dark';
 
   const handleChange = (code) => {
     i18n.changeLanguage(code);
     setOpen(false);
   };
 
+  const dropdown = open ? createPortal(
+    <div
+      ref={menuRef}
+      className={`fixed rounded-xl border shadow-2xl py-1 ${
+        isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+      }`}
+      style={{ top: coords.top, left: coords.left, width: MENU_WIDTH, zIndex: 99999 }}
+      data-testid="language-selector-dropdown"
+    >
+      {LANGUAGES.map((lang) => (
+        <button
+          key={lang.code}
+          onClick={() => handleChange(lang.code)}
+          className={`w-full flex items-center gap-2.5 px-3 py-2 text-[13px] transition-colors ${
+            i18n.language === lang.code
+              ? isDark ? 'bg-white/10 text-white font-semibold' : 'bg-slate-50 text-slate-900 font-semibold'
+              : isDark ? 'text-slate-300 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-50'
+          }`}
+          data-testid={`lang-option-${lang.code}`}
+        >
+          <span className={`text-[10px] font-bold uppercase w-5 text-center ${
+            isDark ? 'text-slate-500' : 'text-slate-400'
+          }`}>{lang.flag}</span>
+          <span>{lang.label}</span>
+          {i18n.language === lang.code && (
+            <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#007AFF]" />
+          )}
+        </button>
+      ))}
+    </div>,
+    document.body
+  ) : null;
+
   return (
-    <div className="relative" ref={ref} data-testid="language-selector">
+    <div className="relative" data-testid="language-selector">
       {fabStyle ? (
         <button
-          onClick={() => setOpen(!open)}
+          ref={triggerRef}
+          onClick={toggle}
           className="group flex flex-col items-center gap-1 shrink-0 outline-none"
           data-testid="language-selector-trigger"
         >
@@ -62,7 +129,8 @@ export const LanguageSelector = ({ variant = 'light', compact = false, fabStyle 
         </button>
       ) : (
         <button
-          onClick={() => setOpen(!open)}
+          ref={triggerRef}
+          onClick={toggle}
           className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[12px] font-medium transition-colors ${
             isDark
               ? 'text-slate-300 hover:text-white hover:bg-white/10'
@@ -74,39 +142,7 @@ export const LanguageSelector = ({ variant = 'light', compact = false, fabStyle 
           {!compact && <span>{currentLang.flag}</span>}
         </button>
       )}
-
-      {open && (
-        <div
-          className={`absolute top-full mt-1 rounded-xl border shadow-xl z-[100] min-w-[160px] py-1 ${
-            isDark
-              ? 'bg-slate-800 border-slate-700'
-              : 'bg-white border-slate-200'
-          }`}
-          style={{ [document.documentElement.dir === 'rtl' ? 'left' : 'right']: 0 }}
-          data-testid="language-selector-dropdown"
-        >
-          {LANGUAGES.map((lang) => (
-            <button
-              key={lang.code}
-              onClick={() => handleChange(lang.code)}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 text-[13px] transition-colors ${
-                i18n.language === lang.code
-                  ? isDark ? 'bg-white/10 text-white font-semibold' : 'bg-slate-50 text-slate-900 font-semibold'
-                  : isDark ? 'text-slate-300 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-50'
-              }`}
-              data-testid={`lang-option-${lang.code}`}
-            >
-              <span className={`text-[10px] font-bold uppercase w-5 text-center ${
-                isDark ? 'text-slate-500' : 'text-slate-400'
-              }`}>{lang.flag}</span>
-              <span>{lang.label}</span>
-              {i18n.language === lang.code && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#007AFF]" />
-              )}
-            </button>
-          ))}
-        </div>
-      )}
+      {dropdown}
     </div>
   );
 };
