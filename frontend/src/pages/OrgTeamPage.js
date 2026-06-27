@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import i18nInstance from '../i18n';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import {
   Users, UserPlus, Shield, KeyRound, Pause, Play, Trash2, Copy,
@@ -15,6 +17,16 @@ import {
   updateCoach, resetCoachPassword, removeCoach, getOrgStats,
 } from '../services/api';
 import usePlanGate from '../hooks/usePlanGate';
+
+// i18n: auto-traducción slug-based (orgteam.lbl.*)
+const _slug = (s) => (s == null ? '' : s.toString()).toLowerCase()
+  .replace(/á/g,'a').replace(/é/g,'e').replace(/í/g,'i').replace(/ó/g,'o').replace(/ú/g,'u').replace(/ñ/g,'n')
+  .replace(/₂/g,'2').replace(/²/g,'2').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+const tt = (s) => {
+  if (s == null || s === '' || typeof s === 'number') return s;
+  const k = _slug(s);
+  return k ? i18nInstance.t(`orgteam.lbl.${k}`, { defaultValue: s }) : s;
+};
 
 const ROLE_LABELS = {
   coach: 'Entrenador',
