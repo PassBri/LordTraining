@@ -2587,7 +2587,8 @@
       "con_sus_credenciales": "avec ses identifiants.",
       "de_la_organizacion_mantendra_su_cuenta_pero_perdera_acceso_al_plan": "de l'organisation ? Il conservera son compte mais perdra l'accès au plan.",
       "generar_nueva_contrasena_temporal_para": "Générer un nouveau mot de passe temporaire pour",
-      "remover_a": "Supprimer"
+      "remover_a": "Supprimer",
+      "invitar": "Inviter"
     }
   }
 }

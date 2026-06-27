@@ -2587,7 +2587,8 @@
       "con_sus_credenciales": "mit seinen Zugangsdaten.",
       "de_la_organizacion_mantendra_su_cuenta_pero_perdera_acceso_al_plan": "aus der Organisation entfernen? Das Konto bleibt bestehen, aber der Zugriff auf den Plan geht verloren.",
       "generar_nueva_contrasena_temporal_para": "Neues temporäres Passwort erstellen für",
-      "remover_a": "Entfernen"
+      "remover_a": "Entfernen",
+      "invitar": "Einladen"
     }
   }
 }

@@ -2502,5 +2502,10 @@
       "prospects": "潜力球员",
       "warning": "警告"
     }
+  },
+  "orgteam": {
+    "lbl": {
+      "invitar": "邀请"
+    }
   }
 }

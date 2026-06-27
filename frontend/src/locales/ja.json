@@ -2587,7 +2587,8 @@
       "con_sus_credenciales": "認証情報とともに。",
       "de_la_organizacion_mantendra_su_cuenta_pero_perdera_acceso_al_plan": "を組織から削除しますか？アカウントは維持されますが、プランへのアクセスは失われます。",
       "generar_nueva_contrasena_temporal_para": "の新しい一時パスワードを生成しますか",
-      "remover_a": "を削除しますか"
+      "remover_a": "を削除しますか",
+      "invitar": "招待"
     }
   }
 }

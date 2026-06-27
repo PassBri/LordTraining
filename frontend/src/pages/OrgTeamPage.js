@@ -288,10 +288,10 @@ const OrgTeamPage = () => {
           <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-slate-500" />
-              <h2 className="text-[13px] font-semibold text-slate-800">Entrenadores ({coaches.length})</h2>
+              <h2 className="text-[13px] font-semibold text-slate-800">{tt('Entrenadores')} ({coaches.length})</h2>
             </div>
             <Button onClick={() => setInviteOpen(true)} size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white h-8 text-[12px]" data-testid="invite-coach-btn">
-              <UserPlus className="w-3.5 h-3.5 mr-1.5" /> Invitar
+              <UserPlus className="w-3.5 h-3.5 mr-1.5" /> {tt('Invitar')}
             </Button>
           </div>
           <div className="divide-y divide-slate-100">
@@ -379,7 +379,7 @@ const OrgTeamPage = () => {
               </select>
             </div>
             <Button onClick={handleInvite} disabled={acting} className="w-full bg-emerald-500 hover:bg-emerald-600 text-white" data-testid="invite-confirm">
-              {acting ? <Loader2 className="w-4 h-4 animate-spin" /> : <><UserPlus className="w-4 h-4 mr-1.5" /> Invitar</>}
+              {acting ? <Loader2 className="w-4 h-4 animate-spin" /> : <><UserPlus className="w-4 h-4 mr-1.5" /> {tt('Invitar')}</>}
             </Button>
           </div>
         </DialogContent>

@@ -2587,7 +2587,8 @@
       "con_sus_credenciales": "مع بيانات اعتماده.",
       "de_la_organizacion_mantendra_su_cuenta_pero_perdera_acceso_al_plan": "من المنظمة؟ سيحتفظ بحسابه لكنه سيفقد الوصول إلى الخطة.",
       "generar_nueva_contrasena_temporal_para": "هل تريد إنشاء كلمة مرور مؤقتة جديدة لـ",
-      "remover_a": "هل تريد إزالة"
+      "remover_a": "هل تريد إزالة",
+      "invitar": "دعوة"
     }
   }
 }

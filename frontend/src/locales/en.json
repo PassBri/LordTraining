@@ -2612,7 +2612,8 @@
       "con_sus_credenciales": "with their credentials.",
       "de_la_organizacion_mantendra_su_cuenta_pero_perdera_acceso_al_plan": "from the organization? They will keep their account but lose access to the plan.",
       "generar_nueva_contrasena_temporal_para": "Generate a new temporary password for",
-      "remover_a": "Remove"
+      "remover_a": "Remove",
+      "invitar": "Invite"
     }
   }
 }

@@ -2587,7 +2587,8 @@
       "con_sus_credenciales": "उसकी क्रेडेंशियल्स के साथ।",
       "de_la_organizacion_mantendra_su_cuenta_pero_perdera_acceso_al_plan": "संगठन से? वह अपना खाता बनाए रखेगा, लेकिन प्लान का एक्सेस खो देगा।",
       "generar_nueva_contrasena_temporal_para": "क्या इसके लिए नया अस्थायी पासवर्ड बनाना है",
-      "remover_a": "क्या हटाना है"
+      "remover_a": "क्या हटाना है",
+      "invitar": "आमंत्रित करें"
     }
   }
 }

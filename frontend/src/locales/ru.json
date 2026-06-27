@@ -2587,7 +2587,8 @@
       "con_sus_credenciales": "с его учётными данными.",
       "de_la_organizacion_mantendra_su_cuenta_pero_perdera_acceso_al_plan": "из организации? Он сохранит аккаунт, но потеряет доступ к плану.",
       "generar_nueva_contrasena_temporal_para": "Создать новый временный пароль для",
-      "remover_a": "Удалить"
+      "remover_a": "Удалить",
+      "invitar": "Пригласить"
     }
   }
 }

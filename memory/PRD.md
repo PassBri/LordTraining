@@ -2,6 +2,12 @@
 
 ## Credenciales: test@train.com / test123456
 
+## [Jun 2026] i18n FASE D — OrgTeamPage + PDFs multi-idioma del backend — VERIFICADO (testing_agent iter_78)
+- **OrgTeamPage.js (/org/team)** internacionalizado (ns `orgteam`, 72 claves slug-based via `tt()`). Auto-wrap con `wrap_file.py` (jsx=31/attrs=9/toasts=8) + fixes manuales (ROLE_LABELS envuelto, textos multilínea, fragmentos junto a expresiones, window.confirm, "Entrenadores ({n})", "Invitar" en 2 sitios). `useTranslation()` agregado al componente para re-render. Traducido a 10/12 idiomas vía `i18n_file_labels.py`. **ko y zh PENDIENTES** (budget LLM agotado → fallback a español; re-ejecutar `python3 i18n_file_labels.py "pages/OrgTeamPage.js" orgteam` tras recargar budget). Slug `invitar` agregado a mano a los 12 locales.
+- **PDFs multi-idioma (Reporte Maestro)**: nuevo módulo `/app/backend/routes/pdf_i18n.py` con dict `_P` (≈95 frases del "chrome" × 12 idiomas, autoradas a mano SIN LLM) + `translate_html(html, lang)` que reemplaza nodos de texto `>ES<` al idioma destino. `MasterReportPayload.lang` (default 'es'); `_build_html` aplica `translate_html` a body_html y footer_html. Frontend `MasterReportModal.js buildPayload()` envía `lang: i18n.language.split('-')[0]`. Verificado: PDF EN/FR/ZH con títulos/TOC/badges/tablas/footer localizados (cuerpo narrativo dinámico permanece en es). Backend 4/4 pytest PASS.
+- **Pendiente PDF**: aplicar el mismo `lang` a los OTROS generadores (evaluations_export, info_catalog_export, active_plan_export, previous_analysis_export, SessionsExportModal) — solo se cubrió master_report.py en este lote.
+
+
 ## [Jun 2026] i18n GAPS visibles (Sesiones + Periodización) COMPLETADOS — VERIFICADO E2E
 - **SessionsExportModal.js** (namespace `sessions`): traducido título "Export Sessions", subtítulo, contador "{{sel}} of {{total}} selected", THEME Light/Dark, LAYOUT Classic/Boards, All/Clear, "Select all ({{n}})"/Remove all/Remove, "WEEK {{n}}", "Day {{n}}", "{{n}} ex.", footer (sessionCount plural, Format:/Theme:, "Select the sessions you want to print"), Cancel, Combined PDF, y toasts (ZIP/PDF downloaded, link copied, share/export errors, WhatsApp msg). Fechas con `i18n.language`. Verificado por screenshot en EN.
 - **SessionEditor.js**: añadidas claves `sessions.{share,exit,save,add,chooseDate,phaseInicial,phasePrincipal,phaseFinal,activity_one/other}`. Fase headers traducidos vía `t('sessions.phase'+Cap(faseKey))`, contador actividades con plural i18next, botones footer Compartir/Salir/Guardar, "Elegir fecha". `i18n` agregado al hook.

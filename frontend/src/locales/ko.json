@@ -2506,5 +2506,10 @@
       "prospects": "유망주",
       "warning": "경고"
     }
+  },
+  "orgteam": {
+    "lbl": {
+      "invitar": "초대"
+    }
   }
 }
