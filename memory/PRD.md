@@ -1,5 +1,25 @@
 # iTRAIN - Plataforma
 
+## [Jun 2026] REFACTOR FASE 1 — COMPLETA: server.py 8.485 → 240 líneas (~97%) — VERIFICADO (iter_83: 54/54 tests, 100%)
+**Monolito server.py totalmente segmentado.** server.py ahora solo contiene: `/` y `/health`, los `include_router(...)`, CORS, `app.state.db`, startup (índices + seed super admin) y shutdown. Re-exporta `get_current_user`/`hash_password` desde core.auth para imports legacy (`from server import get_current_user`).
+
+**Módulos base (NUEVOS):**
+- `core/models.py`: enums + ~50 modelos Pydantic + config suscripción (SUBSCRIPTION_PRICES/LIMITS, PLAN_RANK, FEATURE_MIN_PLAN) + ExportPDFRequest.
+- `core/auth.py`: get_db (request.app.state.db), get_current_user, hash_password, verify_password, create_token, calculate_load, has_plan_feature, require_plan_feature.
+
+**14 routers extraídos a /app/backend/routes/** (patrón uniforme: get_db + get_current_user + db=Depends(get_db) por handler; rutas públicas con db inyectado manual):
+1ª ola: plan_data, entities_teams, sports (+seed_default_sports(db,coach_id)), athletes, tournaments (brackets/standings/pdf; update_standings(db,...)), tactical_boards, payments, dashboard_panel, athlete_data (legacy ~35 rutas).
+2ª ola: auth (+catálogos), training_plans (SPORT_CONFIGS/MODEL_PHASE_DISTRIBUTIONS/PERIODIZATION_MODELS_INFO + generate-structure + CRUD + calculadoras + export + plans/generate IA), sessions (macro/meso/micro/sesiones/competencias), exports (plan/comprehensive/session PDF), sharing (shares + perfiles públicos coach + OG PNG + descargas PDF públicas).
+
+**Limpieza**: imports muertos removidos de server.py (fastapi/pydantic/typing/reportlab/jwt/bcrypt/LlmChat sin uso). pyflakes limpio en todos los routers nuevos.
+
+**Bug corregido (iter_82)**: export-pdf de torneos daba 500 con participante None → `(get(...) or "TBD")`. Verificado.
+
+**Testing**: iter_83 = 54/54 PASS (suite pytest test_refactor_regression.py + test_refactor_regression_wave2.py). Cubre los 14 routers, re-exports legacy, y el fix de torneos.
+
+**Pendiente FASE 1**: Frontend — segmentar `DashboardPage.js` (4.877 líneas) con React.lazy()/subcomponentes.
+
+
 ## [Jun 2026] REFACTOR FASE 1 — Incremento 3 (Segmentación masiva de server.py) — VERIFICADO (iter_82)
 **server.py: 8.485 → 4.528 líneas (~47% reducción).** 9 grupos de rutas extraídos a `/app/backend/routes/` (sin cambiar funcionalidad). Patrón uniforme: `get_db(request)→request.app.state.db` + `get_current_user` local (JWT) + `db=Depends(get_db)` inyectado en cada handler. Modelos compartidos en `core/models.py`.
 - **`core/models.py` (NUEVO)**: enums + ~50 modelos Pydantic + config de suscripción (SUBSCRIPTION_PRICES/LIMITS, PLAN_RANK, FEATURE_MIN_PLAN) + ExportPDFRequest. server.py los reimporta con `from core.models import *`.
