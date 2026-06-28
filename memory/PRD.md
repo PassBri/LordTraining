@@ -1,5 +1,13 @@
 # iTRAIN - Plataforma
 
+## [Jun 2026] Plan Gráfico — múltiples fechas por celda — VERIFICADO iter_98
+- Celdas de Eventos/Competencias y Monitoreo/Evaluaciones soportan VARIAS fechas por semana (`${rowId}_dates_${week}` = array; legacy `_date_` soportado). `getCellDates` resuelve.
+- Render claro: badge con el nº de fechas si >1, DD/MM si =1, dot si activa sin fecha. Tooltip lista las fechas.
+- Modal multi-fecha: lista con "Agregar fecha"/quitar (comp-modal-add-date, comp-modal-date-<i>, comp-modal-date-remove-<i>) y "Quitar todo".
+- `syncCellEvents`: crea N eventos en events_calendar (baseKey `gp_<section>_<rowId>_<week>_<i>`, limpia previos) → aparecen como chips en el Calendario Drag & Drop. Requiere atleta seleccionado.
+- PENDIENTE (siguiente): arrastre bidireccional (mover evento en el calendario → actualizar su semana en el Plan Gráfico).
+
+
 ## [Jun 2026] Plan Gráfico → Calendario Drag & Drop (fuente única) — VERIFICADO iter_97
 - Las fechas asignadas en celdas del Plan Gráfico (Eventos/Competencias, Monitoreo/Evaluaciones, Competencia principal/secundaria) crean/actualizan eventos en la colección `events_calendar` por atleta vía `syncCalendarEvent` (POST /api/events-calendar) en `GraphicPlan.js`.
 - `SessionCalendar.js` (calendar-view, el calendario Drag & Drop) ahora recibe prop `events` y superpone chips `event-chip-*` (color por tipo: Competencia rojo/ámbar, Evaluación cyan, Recuperación violeta) además de las sesiones.
