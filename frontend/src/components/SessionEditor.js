@@ -301,7 +301,9 @@ const CAPACIDADES_FISICAS = [
   { id: 'coordinacion', name: 'Coordinación' },
   { id: 'equilibrio', name: 'Equilibrio' },
   { id: 'agilidad', name: 'Agilidad' },
-  { id: 'potencia', name: 'Potencia' }
+  { id: 'potencia', name: 'Potencia' },
+  { id: 'psicologica', name: 'Psicológica' },
+  { id: 'teorica', name: 'Teórica' }
 ];
 
 // Métodos de entrenamiento predefinidos
@@ -334,7 +336,7 @@ const CAPACITY_CONFIG = {
   fuerza: {
     subtipos: ['Maxima','Explosiva','Resistencia'],
     unidadesInt: ['%1RM','RPE'],
-    unidadesVol: ['Reps','kg totales'],
+    unidadesVol: ['Series x Reps','kg','%1RM','Tonelaje (kg)'],
     volLabel: 'Reps', volPh: '10-12', serPh: '3-6',
     intRef: '85-100%', denPh: '3-5 min', recPh: '3-5 min', freqPh: '2-4x/sem',
     medidaLabel: 'Kg', medidaPh: '80',
@@ -343,7 +345,7 @@ const CAPACITY_CONFIG = {
   resistencia: {
     subtipos: ['Aerobica','Anaerobica','Mixta'],
     unidadesInt: ['%FCmax','%FCres','RPE'],
-    unidadesVol: ['Minutos','Metros','Km'],
+    unidadesVol: ['Km','Metros','Minutos','Horas'],
     volLabel: 'Minutos', volPh: '30-120', serPh: '1-12',
     intRef: 'Z1-Z5', denPh: 'Continuo', recPh: '1:3', freqPh: '3-5x/sem',
     medidaLabel: 'Km', medidaPh: '5',
@@ -352,7 +354,7 @@ const CAPACITY_CONFIG = {
   velocidad: {
     subtipos: ['Reaccion','Desplazamiento','Gestual'],
     unidadesInt: ['%Vmax','RPE'],
-    unidadesVol: ['Metros','Sprints'],
+    unidadesVol: ['Metros','Segundos','Sprints'],
     volLabel: 'Metros', volPh: '10-60', serPh: '6-10',
     intRef: 'Maxima', denPh: '1:10-1:20', recPh: '3-5 min', freqPh: '2-3x/sem',
     medidaLabel: 'Metros', medidaPh: '400'
@@ -360,7 +362,7 @@ const CAPACITY_CONFIG = {
   flexibilidad: {
     subtipos: ['Estatica','Dinamica','FNP'],
     unidadesInt: ['ROM','RPE'],
-    unidadesVol: ['Segundos','Series'],
+    unidadesVol: ['Segundos','Reps'],
     volLabel: 'Segundos', volPh: '30-60', serPh: '2-4',
     intRef: 'Submaxima', denPh: '20-30s', recPh: '20-30s', freqPh: '5-7x/sem',
     medidaLabel: 'ROM (°)', medidaPh: '45'
@@ -368,8 +370,8 @@ const CAPACITY_CONFIG = {
   coordinacion: {
     subtipos: ['Equilibrio','Ritmo','Orientacion','Diferenciacion','Acoplamiento','Agilidad'],
     unidadesInt: ['Escala 1-5','RPE'],
-    unidadesVol: ['Tareas','Minutos'],
-    volLabel: 'Tareas', volPh: '5-10', serPh: '3-5',
+    unidadesVol: ['Reps','Minutos','Nº ejercicios'],
+    volLabel: 'Reps', volPh: '5-10', serPh: '3-5',
     intRef: 'Moderada', denPh: 'Alta var.', recPh: '1-2 min', freqPh: '3-5x/sem',
     medidaLabel: 'Tareas', medidaPh: '5',
     showComplejidad: true
@@ -395,11 +397,27 @@ const CAPACITY_CONFIG = {
   potencia: {
     subtipos: ['Tren superior','Tren inferior','Total'],
     unidadesInt: ['%1RM','RPE','Watts'],
-    unidadesVol: ['Reps','kg totales'],
+    unidadesVol: ['Series x Reps','Watts','%1RM'],
     volLabel: 'Reps', volPh: '3-6', serPh: '3-5',
     intRef: '30-70%', denPh: '2-4 min', recPh: '2-4 min', freqPh: '2-3x/sem',
     medidaLabel: 'Kg', medidaPh: '60',
     showDeficit: true
+  },
+  psicologica: {
+    subtipos: ['Activacion','Concentracion','Visualizacion','Relajacion'],
+    unidadesInt: ['Escala 1-5','RPE'],
+    unidadesVol: ['Minutos','Nº sesiones'],
+    volLabel: 'Minutos', volPh: '10-20', serPh: '1-3',
+    intRef: 'Moderada', denPh: 'Continuo', recPh: '-', freqPh: '2-4x/sem',
+    medidaLabel: 'Minutos', medidaPh: '15'
+  },
+  teorica: {
+    subtipos: ['Tactica','Reglamento','Video analisis','Estrategia'],
+    unidadesInt: ['Escala 1-5','RPE'],
+    unidadesVol: ['Minutos','Nº sesiones'],
+    volLabel: 'Minutos', volPh: '20-45', serPh: '1-2',
+    intRef: 'Baja', denPh: 'Continuo', recPh: '-', freqPh: '1-3x/sem',
+    medidaLabel: 'Minutos', medidaPh: '30'
   }
 };
 
@@ -746,6 +764,32 @@ const SessionEditor = ({
 
   // Actualizar actividad
   const updateActividad = (faseKey, actIdx, field, value) => {
+    // Al cambiar la capacidad: adaptar la unidad de volumen y preguntar si conservar el valor
+    if (field === 'capacidadFisica') {
+      setSessionData(prev => {
+        const newActividades = [...prev.fases[faseKey].actividades];
+        const cur = newActividades[actIdx];
+        const newCfg = CAPACITY_CONFIG[value] || CAPACITY_CONFIG.fuerza;
+        const newUnit = newCfg.unidadesVol[0];
+        let keepVal = true;
+        const hasVal = cur.volumen !== '' && cur.volumen !== null && cur.volumen !== undefined;
+        if (hasVal && (cur.capacidadFisica !== value)) {
+          // eslint-disable-next-line no-alert
+          keepVal = window.confirm(
+            `Cambiaste la capacidad a "${value}".\nLa unidad de volumen cambiará a "${newUnit}".\n\n¿Conservar el valor actual (${cur.volumen})?\n\nAceptar = conservar · Cancelar = resetear`
+          );
+        }
+        newActividades[actIdx] = {
+          ...cur,
+          capacidadFisica: value,
+          unidadVolumen: newUnit,
+          unidadIntensidad: newCfg.unidadesInt[0],
+          volumen: keepVal ? cur.volumen : '',
+        };
+        return { ...prev, fases: { ...prev.fases, [faseKey]: { ...prev.fases[faseKey], actividades: newActividades } } };
+      });
+      return;
+    }
     setSessionData(prev => {
       const newActividades = [...prev.fases[faseKey].actividades];
       newActividades[actIdx] = {

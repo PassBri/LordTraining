@@ -819,3 +819,4 @@ class ExportPDFRequest(BaseModel):
     include_calendar: bool = True
     athlete_id: Optional[str] = None
     custom_sections: Optional[List[str]] = None
+    cards_data: Optional[List[Dict[str, Any]]] = None

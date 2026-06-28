@@ -307,6 +307,27 @@ async def export_control_panel_pdf(request: ExportPDFRequest, user: dict = Depen
     story.append(Paragraph(f"Generado: {datetime.now().strftime('%d/%m/%Y %H:%M')}", styles['Normal']))
     story.append(Paragraph(f"Entrenador: {user.get('name', user.get('email'))}", styles['Normal']))
     story.append(Spacer(1, 20))
+
+    # SECCIÓN: Tarjetas del Panel de Control (seleccionadas por el coach)
+    if request.cards_data:
+        story.append(Paragraph("Métricas del Panel de Control", heading_style))
+        cards_table_data = [["Indicador", "Valor"]]
+        for c in request.cards_data:
+            cards_table_data.append([str(c.get("label", "")), str(c.get("value", ""))])
+        cards_table = Table(cards_table_data, colWidths=[3.2*inch, 1.8*inch])
+        cards_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), HexColor('#0F172A')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+            ('BACKGROUND', (0, 1), (-1, -1), HexColor('#F8FAFC')),
+            ('GRID', (0, 0), (-1, -1), 1, HexColor('#CBD5E1')),
+            ('FONTSIZE', (0, 1), (-1, -1), 10),
+        ]))
+        story.append(cards_table)
+        story.append(Spacer(1, 20))
     
     # SECCIÓN 1: Resumen General
     if request.include_summary:

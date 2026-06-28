@@ -118,7 +118,11 @@ const ControlPanel = ({
     include_summary: true,
     include_volume_chart: true,
     include_intensity_chart: true,
-    include_calendar: true
+    include_calendar: true,
+    cards: {
+      readiness: true, acwr: true, active_plan: true, my_plans: true,
+      athletes: true, events: true, sessions: true, exercises: true, adherence: true,
+    }
   });
   const [exporting, setExporting] = useState(false);
   const [dataSource, setDataSource] = useState('local'); // 'local' or 'api'
@@ -930,13 +934,26 @@ const ControlPanel = ({
     setExporting(true);
     try {
       const token = localStorage.getItem('train_token');
+      // Tarjetas del Panel (label + valor actual mostrado)
+      const allCards = [
+        { key: 'readiness', label: 'Readiness Score', value: `${readinessScore?.overall ?? 0}%` },
+        { key: 'acwr', label: 'Ratio Carga Aguda:Crónica', value: `${trainingLoadRatio?.ratio ?? '-'}` },
+        { key: 'active_plan', label: 'Plan Activo', value: activePlan?.name || '—' },
+        { key: 'my_plans', label: 'Mis Planes', value: `${trainingPlans?.length ?? 0}` },
+        { key: 'athletes', label: 'Atletas', value: `${athletes?.length ?? panelStats?.athletes_count ?? 0}` },
+        { key: 'events', label: 'Eventos', value: `${panelStats?.upcoming_events_count ?? events?.length ?? 0}` },
+        { key: 'sessions', label: 'Sesiones', value: `${panelStats?.total_sessions ?? 0}` },
+        { key: 'exercises', label: 'Ejercicios', value: '150+' },
+        { key: 'adherence', label: 'Adherencia', value: `${coachMetrics?.adherence ?? panelStats?.completion_rate ?? 0}%` },
+      ];
+      const cards_data = allCards.filter(c => exportOptions.cards?.[c.key]).map(c => ({ label: c.label, value: c.value }));
       const response = await fetch(`${API_URL}/api/control-panel/export-pdf`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(exportOptions)
+        body: JSON.stringify({ ...exportOptions, cards_data })
       });
 
       if (response.ok) {
@@ -1169,7 +1186,7 @@ const ControlPanel = ({
             {activePlan ? (
               <Card 
                 className="bg-slate-900 text-white border-0 shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 col-span-2 md:col-span-1"
-                onClick={() => onNavigate && onNavigate('datos', 'training-system')}
+                onClick={() => onNavigate && onNavigate('datos', 'period-overview')}
                 data-testid="active-plan-card"
               >
                 <CardContent className="p-3">
@@ -1179,7 +1196,7 @@ const ControlPanel = ({
                       <p className="text-base font-bold mt-0.5 truncate">{activePlan.name}</p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-[11px] bg-white/15 px-2 py-0.5 rounded">{activePlan.total_weeks} sem</span>
-                        <span className="text-[11px] text-slate-400">{activePlan.model_name || activePlan.model}</span>
+                        <span className="text-[11px] text-slate-400">{(() => { const m = activePlan.model_name || activePlan.model || ''; return /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(m) ? '' : m; })()}</span>
                       </div>
                     </div>
                     <div className="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center shrink-0 ml-2">
@@ -1850,7 +1867,7 @@ const ControlPanel = ({
 
       {/* Modal de Exportación PDF */}
       <Dialog open={showExportModal} onOpenChange={setShowExportModal}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-white border border-slate-200 shadow-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <FileText className="w-5 h-5 text-red-500" />
@@ -1910,6 +1927,34 @@ const ControlPanel = ({
                   <Calendar className="w-4 h-4 text-slate-400" />
                   {t('dashboard.controlPanel.exportCalendar')}
                 </Label>
+              </div>
+            </div>
+
+            {/* Tarjetas del Panel de Control */}
+            <div className="pt-2 border-t border-slate-100">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Tarjetas del Panel</p>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { key: 'readiness', label: 'Readiness Score' },
+                  { key: 'acwr', label: 'Ratio Carga' },
+                  { key: 'active_plan', label: 'Plan Activo' },
+                  { key: 'my_plans', label: 'Mis Planes' },
+                  { key: 'athletes', label: 'Atletas' },
+                  { key: 'events', label: 'Eventos' },
+                  { key: 'sessions', label: 'Sesiones' },
+                  { key: 'exercises', label: 'Ejercicios' },
+                  { key: 'adherence', label: 'Adherencia' },
+                ].map(card => (
+                  <div key={card.key} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`card-${card.key}`}
+                      checked={!!exportOptions.cards?.[card.key]}
+                      onCheckedChange={(checked) => setExportOptions({ ...exportOptions, cards: { ...exportOptions.cards, [card.key]: checked } })}
+                      data-testid={`export-card-${card.key}`}
+                    />
+                    <Label htmlFor={`card-${card.key}`} className="text-[13px] cursor-pointer text-slate-700">{card.label}</Label>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

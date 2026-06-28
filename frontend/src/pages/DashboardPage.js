@@ -247,12 +247,15 @@ const DashboardPage = () => {
   const [aiGapProvider, setAiGapProvider] = useState('openai'); // openai | anthropic
   const [aiSelectedModels, setAiSelectedModels] = useState([]); // model_keys
   const [periodLibrary, setPeriodLibrary] = useState([]); // [{id, name, category, ...}]
-  // Resuelve el nombre legible del modelo de un plan (model_name → biblioteca por id → fallback)
+  // Resuelve el nombre legible del modelo de un plan (biblioteca por id → model_name no-UUID → fallback)
+  const isUuidLike = (v) => typeof v === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(v);
   const resolveModelName = (plan) => {
     if (!plan) return '';
-    if (plan.model_name) return tModelName(plan.model_name);
-    const found = (periodLibrary || []).find(m => m.id === plan.model);
-    return tModelName(found?.name || plan.model || '');
+    const byId = (periodLibrary || []).find(m => m.id === plan.model);
+    if (byId?.name) return tModelName(byId.name);
+    if (plan.model_name && !isUuidLike(plan.model_name)) return tModelName(plan.model_name);
+    if (plan.model && !isUuidLike(plan.model)) return tModelName(plan.model);
+    return '—';
   };
 
   // ====== OBJECTIVES STATE ======
@@ -3962,7 +3965,7 @@ const DashboardPage = () => {
                   </span>
                   {activePlan.sport && (
                     <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-[11px] font-semibold rounded-full">
-                      {activePlan.sport}
+                      {(allSports.find(s => s.id === activePlan.sport)?.name) || activePlan.sport}
                     </span>
                   )}
                 </div>

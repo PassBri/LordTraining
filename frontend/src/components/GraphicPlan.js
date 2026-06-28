@@ -608,7 +608,10 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
         }
       }
       // Resolver nombres legibles (los planes guardan IDs en sport/model)
-      const modelName = activePlan.model_name || modelMap[activePlan.model] || activePlan.model;
+      const isUuidLike = (v) => typeof v === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(v);
+      const modelName = modelMap[activePlan.model]
+        || (activePlan.model_name && !isUuidLike(activePlan.model_name) ? activePlan.model_name : null)
+        || (!isUuidLike(activePlan.model) ? activePlan.model : '—');
       // Derivar tipo de periodización (familia) desde el nombre/clave del modelo
       const derivePeriodType = (key, name) => {
         const s = `${key || ''} ${name || ''}`.toLowerCase();
@@ -1052,11 +1055,12 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     const manualPri = planData.duration_chart?.[`principal_${week}`];
     const manualVc = planData.duration_chart?.[`vueltaCalma_${week}`];
     if (manualCal !== undefined || manualPri !== undefined || manualVc !== undefined) {
+      // Valores manuales en minutos (tiempo semanal)
       return {
         week: `S${week}`, weekNum: week,
-        calentamiento: (manualCal || 0) * 10, principal: (manualPri || 0) * 10,
-        vueltaCalma: (manualVc || 0) * 10,
-        total: ((manualCal || 0) + (manualPri || 0) + (manualVc || 0)) * 10, sesiones: 0,
+        calentamiento: (manualCal || 0), principal: (manualPri || 0),
+        vueltaCalma: (manualVc || 0),
+        total: ((manualCal || 0) + (manualPri || 0) + (manualVc || 0)), sesiones: 0,
       };
     }
     const v2Micro = v2Micros.find(m => m.numero_semana === week);
@@ -2528,9 +2532,9 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                     yAxisDomain: [0, 'auto']
                   }}
                 />
-                <InlineChartRow label="Calentamiento" data={durationChartData} dataKey="calentamiento" color="#FBBF24" maxVal="auto" onCellClick={handleCellClick} section="duration_chart" />
-                <InlineChartRow label="Parte principal" data={durationChartData} dataKey="principal" color="#3B82F6" maxVal="auto" onCellClick={handleCellClick} section="duration_chart" />
-                <InlineChartRow label="Vuelta a la calma" data={durationChartData} dataKey="vueltaCalma" color="#14B8A6" maxVal="auto" onCellClick={handleCellClick} section="duration_chart" />
+                <InlineChartRow label="Calentamiento (min)" data={durationChartData} dataKey="calentamiento" color="#FBBF24" maxVal="auto" onCellClick={handleCellClick} section="duration_chart" />
+                <InlineChartRow label="Parte principal (min)" data={durationChartData} dataKey="principal" color="#3B82F6" maxVal="auto" onCellClick={handleCellClick} section="duration_chart" />
+                <InlineChartRow label="Vuelta a la calma (min)" data={durationChartData} dataKey="vueltaCalma" color="#14B8A6" maxVal="auto" onCellClick={handleCellClick} section="duration_chart" />
 
               </tbody>
             </table>
