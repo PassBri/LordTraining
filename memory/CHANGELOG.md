@@ -1,6 +1,11 @@
 # CHANGELOG — LordTraining
 
-## 2026-06-28 (noche) — Vista consolidada de Equipo en el Calendario
+## 2026-06-28 (noche 2) — Fix Torneos + Theming completo del Landing + diagnóstico 403 prod
+- **Fix Torneos**: la sección Torneos lanzaba `ReferenceError: fetchTournaments is not defined` (el hook exporta `fetchTournamentsData`). Corregidas las 4 referencias en DashboardPage.js. Ahora abre sin error. (iter_108 PASS preview · producción requiere redeploy)
+- **Theming completo del Landing (4 temas)**: reescrito `landingThemes.css` como motor de overrides scoped `.lt-theme[data-landing-theme="X"]` que re-tematiza TODO el landing en runtime sin tocar JSX: mapeo de superficies (bg-slate-950/900/800 → tokens), textos (text-white/slate → tokens), bordes, radios por tema (Futurista 4px / Material 24px), sombras y glow. Resolución de clases de doble uso (text-slate-900 en tarjetas blancas vs botones de acento lima). Override quirúrgico para Light de las bandas con gradientes oscuros fijos (`0a0f19/1a2033`). Verificado visualmente Light (fondo claro + texto oscuro) y Futurista (negro + glow lima + esquinas rectas). Save de tema verificado en preview (iter_108 PASS).
+- **403 al guardar tema en producción**: es config, no código (el backend funciona en preview). El Super Admin solo se habilita si `SUPER_ADMIN_EMAIL`/`SUPER_ADMIN_PASSWORD` están en el entorno de producción y se RE-DESPLIEGA (el seed promueve la cuenta al arrancar). Mejorados los mensajes de error del panel para mostrar el status HTTP exacto y diagnosticar.
+
+
 - **Calendario consolidado por Equipo**: al seleccionar un Equipo, el Calendario Drag & Drop muestra los eventos de TODOS los atletas del equipo. Cada chip lleva una insignia con la INICIAL del atleta y un COLOR único auto-asignado; arriba se muestra una LEYENDA (`team-calendar-legend`) con inicial+nombre+color por atleta. (iter_107 PASS)
 - **Arrastre con alcance (Modo Equipo)**: al soltar un chip en otro día, un `confirm` pregunta el alcance → Aceptar = reprogramar para TODO el equipo · Cancelar = solo ese atleta. Implementado vía `rescheduleEventForAthlete` (por atleta: events_calendar + planData) + `handleEventReschedule(ev, newDate, scope)`. (iter_107 PASS)
 - **Modo Individual** intacto: sin leyenda, sin insignia de inicial, arrastre directo sin preguntar alcance. (iter_107 PASS)
