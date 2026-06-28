@@ -456,15 +456,22 @@ const LandingPage = () => {
       fetchActiveBranding().then((b) => { if (b.landing) setLandingLogo(b.landing); }));
   }, []);
 
-  // Apariencia del landing (tema global elegido por el super admin) — guardado en MongoDB
-  const [landingTheme, setLandingTheme] = useState('classic');
+  // Apariencia del landing (tema global elegido por el super admin) — guardado en MongoDB.
+  // Si la URL trae ?previewTheme=<id> (desde el panel Super Admin), se usa SOLO para previsualizar
+  // sin publicarlo (no se consulta ni modifica el tema activo de la BD).
+  const VALID_THEMES = ['classic', 'material', 'futuristic', 'light'];
+  const previewTheme = (() => {
+    try { const p = new URLSearchParams(window.location.search).get('previewTheme'); return VALID_THEMES.includes(p) ? p : null; } catch (_) { return null; }
+  })();
+  const [landingTheme, setLandingTheme] = useState(previewTheme || 'classic');
   useEffect(() => {
+    if (previewTheme) return; // modo vista previa: no sobreescribir con el tema activo
     const BACKEND = process.env.REACT_APP_BACKEND_URL;
     fetch(`${BACKEND}/api/landing/theme`)
       .then(r => r.json())
       .then(d => { if (d?.active_theme) setLandingTheme(d.active_theme); })
       .catch(() => {});
-  }, []);
+  }, [previewTheme]);
 
   // Enlaces de redes sociales (configurados por el super admin) — guardado en MongoDB
   const [socialLinks, setSocialLinks] = useState({});
@@ -521,6 +528,13 @@ const LandingPage = () => {
       @keyframes shieldGlow { 0%,100% { opacity: 0.55; transform: scale(0.92); } 50% { opacity: 1; transform: scale(1.08); } }
       @keyframes shieldFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
     `}</style>
+
+    {/* Aviso de Vista Previa (solo cuando ?previewTheme=...) */}
+    {previewTheme && (
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[100] bg-[#CCFF00] text-slate-900 px-4 py-2 rounded-full shadow-2xl text-sm font-bold flex items-center gap-2" data-testid="preview-theme-banner">
+        Vista previa: tema "{previewTheme}" · no publicado
+      </div>
+    )}
 
     {/* NAV — Dark, cinematic */}
     <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/40" data-testid="main-nav">

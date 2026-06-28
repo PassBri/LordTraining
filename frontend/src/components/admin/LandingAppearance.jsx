@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Check, Loader2, Save, Globe } from 'lucide-react';
+import { Check, Loader2, Save, Globe, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 
 const BACKEND = process.env.REACT_APP_BACKEND_URL;
@@ -210,17 +210,19 @@ export const LandingAppearance = () => {
     <div data-testid="landing-appearance-section">
       <div className="mb-5">
         <h2 className="text-xl font-bold text-slate-900">Apariencia de Landing</h2>
-        <p className="text-sm text-slate-500">Elige la versión visual que verán todos los visitantes. El cambio se aplica en tiempo real.</p>
+        <p className="text-sm text-slate-500">Usa <span className="font-semibold">Vista previa</span> para probar un tema en una pestaña nueva sin publicarlo. Pulsa la tarjeta para <span className="font-semibold">activarlo</span> para todos los visitantes.</p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {THEMES.map(th => {
           const isActive = active === th.id;
           return (
-            <button
+            <div
               key={th.id}
               data-testid={`landing-theme-${th.id}`}
               onClick={() => applyTheme(th.id)}
-              className={`text-left rounded-xl p-3 border-2 transition-all ${isActive ? 'border-[#CCFF00] ring-2 ring-[#CCFF00]/30' : 'border-slate-700 hover:border-slate-500'}`}
+              role="button"
+              tabIndex={0}
+              className={`text-left rounded-xl p-3 border-2 transition-all cursor-pointer ${isActive ? 'border-[#CCFF00] ring-2 ring-[#CCFF00]/30' : 'border-slate-700 hover:border-slate-500'}`}
               style={{ background: '#0f172a' }}
             >
               <ThemePreview th={th} />
@@ -237,7 +239,15 @@ export const LandingAppearance = () => {
                   </span>
                 ) : null}
               </div>
-            </button>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); window.open(`/?previewTheme=${th.id}`, '_blank', 'noopener'); }}
+                className="mt-3 w-full inline-flex items-center justify-center gap-1.5 h-8 rounded-lg border border-slate-600 text-slate-200 text-[12px] font-semibold hover:border-[#CCFF00]/50 hover:text-[#CCFF00] transition-colors"
+                data-testid={`landing-theme-preview-${th.id}`}
+              >
+                <Eye className="w-3.5 h-3.5" /> Vista previa
+              </button>
+            </div>
           );
         })}
       </div>
