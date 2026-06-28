@@ -1,21 +1,22 @@
-/* LordTraining — Sistema de temas del landing (toggle global del super admin).
-   Fase 1: define los tokens CSS de las 4 versiones + efecto base visible.
-   Las fases 2-4 (Futurista/Light/Material) consumirán estas variables por sección.
-   Especificidad .lt-theme[data-landing-theme] (0,2,0) vence a clases Tailwind sueltas. */
+/* LordTraining — Motor de temas del landing (toggle global del super admin).
+   CSS Specificity Override Engine: las reglas .lt-theme[data-landing-theme="X"] (0,2,0)
+   vencen a las clases Tailwind sueltas (0,1,0), re-tematizando TODO el landing en runtime
+   sin reescribir el JSX. Acento de marca (#CCFF00 / #C9A84C) NUNCA se sobreescribe. */
 
+/* ── Tokens por tema ───────────────────────────────────────────── */
 .lt-theme[data-landing-theme="classic"] {
   --bg-base: #050A14;
-  --bg-surface: #0C1322;
+  --bg-surface: #0B1221;
+  --bg-surface-elevated: #121A2F;
   --text-primary: #FFFFFF;
-  --text-secondary: #A0AEC0;
+  --text-secondary: #94A3B8;
   --accent: #CCFF00;
   --accent-gold: #C9A84C;
-  --border: rgba(255, 255, 255, 0.1);
-  --btn-primary-bg: #CCFF00;
-  --btn-primary-text: #050A14;
-  --radius-card: 12px;
+  --border: #1E293B;
+  --radius-card: 16px;
   --radius-btn: 8px;
-  --shadow-card: none;
+  --shadow-card: 0 10px 30px -10px rgba(0,0,0,0.5);
+  --accent-glow: rgba(204, 255, 0, 0.15);
   background-color: #050A14;
 }
 
@@ -24,51 +25,108 @@
   --bg-surface: #1E1E1E;
   --bg-surface-elevated: #2C2C2C;
   --text-primary: #E3E3E3;
-  --text-secondary: #C4C7C5;
+  --text-secondary: #A0A0A0;
   --accent: #CCFF00;
   --accent-gold: #C9A84C;
-  --border: #444746;
-  --btn-primary-bg: #CCFF00;
-  --btn-primary-text: #121212;
+  --border: #333333;
   --radius-card: 24px;
-  --radius-btn: 100px;
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-  --shadow-elevated: 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12), 0 5px 5px -3px rgba(0,0,0,0.2);
+  --radius-btn: 9999px;
+  --shadow-card: 0 8px 16px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3);
+  --accent-glow: transparent;
   background-color: #121212;
 }
 
 .lt-theme[data-landing-theme="futuristic"] {
-  --bg-base: #050A14;
-  --bg-surface: #080D1A;
-  --bg-surface-elevated: #0A0F1E;
+  --bg-base: #030508;
+  --bg-surface: #060B14;
+  --bg-surface-elevated: #0A1224;
   --text-primary: #FFFFFF;
-  --text-secondary: #888888;
+  --text-secondary: #7E8C9A;
   --accent: #CCFF00;
   --accent-gold: #C9A84C;
-  --border: rgba(255, 255, 255, 0.08);
-  --btn-primary-bg: #FFFFFF;
-  --btn-primary-text: #050A14;
+  --border: #1A2B4C;
   --radius-card: 4px;
   --radius-btn: 4px;
-  --shadow-card: none;
-  --shadow-elevated: 0 0 20px rgba(204, 255, 0, 0.15);
-  background-color: #050A14;
+  --shadow-card: 0 0 20px rgba(204, 255, 0, 0.05), inset 0 0 0 1px rgba(204, 255, 0, 0.1);
+  --accent-glow: rgba(204, 255, 0, 0.4);
+  background-color: #030508;
 }
 
 .lt-theme[data-landing-theme="light"] {
-  --bg-base: #FFFFFF;
-  --bg-surface: #F5F7FA;
+  --bg-base: #F8FAFC;
+  --bg-surface: #FFFFFF;
   --bg-surface-elevated: #FFFFFF;
   --text-primary: #0A0F1E;
-  --text-secondary: #4A5568;
+  --text-secondary: #475569;
   --accent: #CCFF00;
   --accent-gold: #C9A84C;
   --border: #E2E8F0;
-  --btn-primary-bg: #0A0F1E;
-  --btn-primary-text: #CCFF00;
   --radius-card: 16px;
   --radius-btn: 8px;
-  --shadow-card: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
-  --shadow-elevated: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-  background-color: #FFFFFF;
+  --shadow-card: 0 10px 25px -5px rgba(0,0,0,0.05);
+  --accent-glow: rgba(204, 255, 0, 0.3);
+  background-color: #F8FAFC;
+}
+
+/* ── Mapeo global de superficies / textos / bordes ─────────────── */
+.lt-theme[data-landing-theme] .bg-slate-950,
+.lt-theme[data-landing-theme] .bg-black { background-color: var(--bg-base) !important; transition: background-color 0.3s ease; }
+.lt-theme[data-landing-theme] .bg-slate-900 { background-color: var(--bg-surface) !important; transition: background-color 0.3s ease; }
+.lt-theme[data-landing-theme] .bg-slate-800,
+.lt-theme[data-landing-theme] .bg-slate-700,
+.lt-theme[data-landing-theme] .bg-slate-600 { background-color: var(--bg-surface-elevated) !important; transition: background-color 0.3s ease; }
+
+.lt-theme[data-landing-theme] .text-white { color: var(--text-primary) !important; transition: color 0.3s ease; }
+.lt-theme[data-landing-theme] .text-slate-300,
+.lt-theme[data-landing-theme] .text-slate-400,
+.lt-theme[data-landing-theme] .text-slate-500 { color: var(--text-secondary) !important; transition: color 0.3s ease; }
+
+.lt-theme[data-landing-theme] .border-slate-600,
+.lt-theme[data-landing-theme] .border-slate-700,
+.lt-theme[data-landing-theme] .border-slate-800 { border-color: var(--border) !important; transition: border-color 0.3s ease; }
+
+/* ── Radios estructurales por tema (tarjetas y botones) ────────── */
+.lt-theme[data-landing-theme] .rounded-xl,
+.lt-theme[data-landing-theme] .rounded-2xl { border-radius: var(--radius-card) !important; transition: border-radius 0.3s ease; }
+.lt-theme[data-landing-theme] button.rounded-md,
+.lt-theme[data-landing-theme] button.rounded-lg,
+.lt-theme[data-landing-theme] button.rounded-full,
+.lt-theme[data-landing-theme] .rounded-full { border-radius: var(--radius-btn) !important; transition: border-radius 0.3s ease; }
+
+/* ── Resolución de clases de DOBLE USO ─────────────────────────── */
+/* Las tarjetas blancas (.bg-white) en temas OSCUROS se invierten a superficie elevada;
+   los botones de acento lima (bg-[#CCFF00] text-slate-900) NO están dentro de .bg-white
+   por lo que conservan su texto oscuro de forma orgánica. */
+.lt-theme:not([data-landing-theme="light"]) .bg-white {
+  background-color: var(--bg-surface-elevated) !important;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+}
+.lt-theme:not([data-landing-theme="light"]) .bg-white .text-slate-900 { color: var(--text-primary) !important; }
+.lt-theme:not([data-landing-theme="light"]) .bg-white .text-slate-800 { color: var(--text-primary) !important; }
+.lt-theme:not([data-landing-theme="light"]) .bg-white .text-slate-600,
+.lt-theme:not([data-landing-theme="light"]) .bg-white .text-slate-500 { color: var(--text-secondary) !important; }
+
+/* ── Matices por tema ──────────────────────────────────────────── */
+/* Material: sin bordes, apoyado en elevación */
+.lt-theme[data-landing-theme="material"] .bg-slate-900,
+.lt-theme[data-landing-theme="material"] .bg-slate-800 { border: none !important; box-shadow: var(--shadow-card); }
+
+/* Futurista: glow lima sutil en superficies */
+.lt-theme[data-landing-theme="futuristic"] .bg-slate-900 { box-shadow: var(--shadow-card); border: 1px solid rgba(204, 255, 0, 0.12); }
+
+/* Light: tarjetas con borde + sombra suave para separar del fondo claro */
+.lt-theme[data-landing-theme="light"] .bg-slate-900,
+.lt-theme[data-landing-theme="light"] .bg-slate-800,
+.lt-theme[data-landing-theme="light"] .bg-white { box-shadow: var(--shadow-card); border: 1px solid var(--border); }
+/* En Light, los textos oscuros sobre superficies claras se mantienen legibles */
+.lt-theme[data-landing-theme="light"] .text-slate-600 { color: var(--text-secondary) !important; }
+
+/* Bandas/divisores con gradientes oscuros fijos (from/via/to #0a0f19,#1a2033): aclararlos en Light */
+.lt-theme[data-landing-theme="light"] [class*="0a0f19"],
+.lt-theme[data-landing-theme="light"] [class*="1a2033"] {
+  background-image: none !important;
+  background-color: var(--bg-surface) !important;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }

@@ -191,12 +191,16 @@ export const LandingAppearance = () => {
         toast.error('Solo el Super Admin puede cambiar la apariencia.');
         return;
       }
-      if (!res.ok) throw new Error('Error');
+      if (!res.ok) {
+        let detail = '';
+        try { const j = await res.json(); detail = j.detail || ''; } catch (_) {}
+        throw new Error(`HTTP ${res.status}${detail ? ' · ' + detail : ''}`);
+      }
       const d = await res.json();
       setActive(d.active_theme);
       toast.success(`Apariencia del landing actualizada: ${THEMES.find(t => t.id === id)?.name}`);
     } catch (e) {
-      toast.error('No se pudo cambiar la apariencia. Inténtalo de nuevo.');
+      toast.error(`No se pudo cambiar la apariencia (${e.message || 'error de red/CORS'}). Inténtalo de nuevo.`);
     } finally {
       setSaving(null);
     }

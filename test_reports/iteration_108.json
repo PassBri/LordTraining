@@ -1,0 +1,24 @@
+{
+  "summary": "PASS · Verified both fixes in PREVIEW. (1) TORNEOS: no ReferenceError 'fetchTournaments is not defined' — section renders TournamentManager UI cleanly (existing tournaments visible). (2) LANDING THEME (Super Admin): PUT /api/landing/theme works — switching to Futurista shows success toast 'Apariencia del landing actualizada: Futurista' and Activa badge moves; revert to Clásico LORD also succeeds with proper toast. No 403/error toasts.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "DashboardPage.js line ~2620: TournamentManager now correctly wired to fetchTournamentsData via onRefresh; onCreate/onUpdate/onDelete inline handlers in lines 2007-2056 also call fetchTournamentsData. The previous ReferenceError ('fetchTournaments is not defined') is resolved.",
+    "LandingAppearance.jsx applyTheme has robust 401→refresh-token retry path and explicit 403 handling with localized error messages. Theme list contains 4 themes: classic, material, futuristic, light (testid landing-theme-<id>). Active badge marker testid 'landing-theme-active-badge'.",
+    "Test_credentials.md not consulted in this run — preview Super Admin credentials provided directly in request (juegolaureado@gmail.com / LordTraining2026!) work correctly against /admin/super and PUT /api/landing/theme."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "test_credentials": "Coach: test@train.com / test123456; Super Admin (preview): juegolaureado@gmail.com / LordTraining2026!",
+  "seed_data_creation": "No new seed data. Existing tournaments ('Copa Primavera 2026', 'TEST_Copa UI 2026') already present in coach's data.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "TORNEOS nav requires: tab-planes → activate any sidebar-plan-* → tab-datos → section-tab-informacion → subnav-tournaments. The 'Información' section tab must be clicked first because subnav buttons render only for the active section. Super Admin Panel route is /admin/super (NOT /admin — /admin redirects to landing). Apariencia tab id is 'appearance' and contains testids landing-theme-{classic|material|futuristic|light}; active card has child [data-testid=landing-theme-active-badge]. Toasts render via sonner with selector [data-sonner-toast]. Theme switching toast verified for both Futurista and Clásico LORD with no console errors.",
+  "rca of the issue": "Original bug RCA: useTournaments hook exports fetchTournamentsData but DashboardPage.js was calling fetchTournaments → ReferenceError on Torneos section click. Fix: rename all references to fetchTournamentsData (verified at lines 2032/2046/2056/2620). Landing theme in preview: backend PUT /api/landing/theme works for super admin (verified via UI flow — toast success + Activa badge migration confirms 200 response)."
+}
