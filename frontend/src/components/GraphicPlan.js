@@ -787,10 +787,31 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     });
   };
 
+  // Sincroniza un evento del Plan Gráfico con el Calendario Drag & Drop (events_calendar por atleta)
+  const syncCalendarEvent = async ({ key, name, date, type, priority = 'C', remove = false }) => {
+    if (!athleteId) return false; // el calendario es por atleta
+    let updated;
+    if (remove) {
+      updated = events.filter(e => e.id !== key);
+    } else {
+      const ev = { id: key, name, date, type, priority, source: 'graphic_plan' };
+      updated = events.some(e => e.id === key)
+        ? events.map(e => (e.id === key ? { ...e, ...ev } : e))
+        : [...events, ev];
+    }
+    setEvents(updated);
+    try {
+      const token = localStorage.getItem('train_token');
+      await axios.post(`${BACKEND_URL}/api/events-calendar`, { athlete_id: athleteId, events: updated },
+        { headers: { Authorization: `Bearer ${token}` } });
+      return true;
+    } catch (e) { return false; }
+  };
+
   // Guardar/activar (o quitar) la fecha de una celda genérica en planData
   const applyCellDate = (remove = false) => {
     if (!compModal || compModal.kind !== 'cell') return;
-    const { section, rowId, week, date } = compModal;
+    const { section, rowId, week, date, label } = compModal;
     setPlanData(prev => {
       const sec = { ...(prev[section] || {}) };
       if (remove) {
@@ -802,7 +823,18 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
       }
       return { ...prev, [section]: sec };
     });
-    toast.success(remove ? 'Marca eliminada' : 'Fecha asignada');
+    // Sincronizar con el calendario
+    syncCalendarEvent({
+      key: `gp_${section}_${rowId}_${week}`,
+      name: label,
+      date,
+      type: section === 'monitoring' ? 'Evaluación' : 'Entrenamiento',
+      priority: 'C',
+      remove,
+    }).then(synced => {
+      if (remove) { toast.success('Marca eliminada'); return; }
+      toast.success(synced ? 'Fecha asignada y añadida al calendario' : 'Fecha asignada (selecciona un atleta para verla en el calendario)');
+    });
     setCompModal(null);
   };
 
@@ -833,7 +865,8 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
           { headers }
         );
         onPlanUpdated && onPlanUpdated({ main_competition: compModal.name || 'Competencia Principal', main_competition_date: compModal.date });
-        toast.success('Competencia principal actualizada');
+        await syncCalendarEvent({ key: 'gp_main_competition', name: compModal.name || 'Competencia Principal', date: compModal.date, type: 'Competencia', priority: 'A' });
+        toast.success('Competencia principal actualizada' + (athleteId ? ' y añadida al calendario' : ''));
       } else {
         const res = await axios.post(
           `${BACKEND_URL}/api/plan-data/competitions`,
@@ -841,7 +874,8 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
           { headers }
         );
         setLocalCompetitions(prev => [...prev, res.data]);
-        toast.success('Competencia secundaria agregada (sincronizada con módulo Competencias)');
+        await syncCalendarEvent({ key: `gp_sec_${res.data.id || compModal.date}`, name: compModal.name || 'Competencia Secundaria', date: compModal.date, type: 'Competencia', priority: 'B' });
+        toast.success('Competencia secundaria agregada (sincronizada con módulo Competencias' + (athleteId ? ' y calendario' : '') + ')');
       }
       setCompModal(null);
     } catch (e) {

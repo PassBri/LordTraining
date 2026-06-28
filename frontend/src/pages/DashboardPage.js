@@ -1188,6 +1188,14 @@ const DashboardPage = () => {
     }
   }, [selectedAthleteId]);
 
+  // Refrescar eventos al entrar al Calendario (las fechas del Plan Gráfico ya están en el backend)
+  useEffect(() => {
+    if (activeDataSection === 'calendar-view' && selectedAthleteId) {
+      fetchEvents(selectedAthleteId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeDataSection]);
+
   // Navigation items for "Datos" panel - ESTRUCTURA JERÁRQUICA DEL PLAN DE ENTRENAMIENTO
   // Basado en la metodología científica de planificación deportiva (Padilla, Matveiev, etc.)
   const navItems = [
