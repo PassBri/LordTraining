@@ -717,8 +717,13 @@ const SessionEditor = ({
     return () => window.removeEventListener('exercise-library-updated', handler);
   }, [fetchUserLib]);
 
-  // Cargar datos de la sesión existente
+  // Cargar datos de la sesión existente — SOLO cuando cambia la sesión (id), no en cada
+  // re-render del padre (que pasa un objeto `session` nuevo inline y borraría las ediciones).
+  const loadedSessionIdRef = useRef(undefined);
   useEffect(() => {
+    const sid = session?.id ?? null;
+    if (loadedSessionIdRef.current === sid) return; // misma sesión ya cargada → no pisar ediciones
+    loadedSessionIdRef.current = sid;
     if (session && session.detailedData) {
       setSessionData(session.detailedData);
     } else {
