@@ -1,0 +1,42 @@
+{
+  "summary": "Verified Super Admin → 'Apariencia de Landing' end-to-end on the PREVIEW environment. The user-reported failure (toast error when changing landing theme) is NOT reproducible in preview. Login as juegolaureado@gmail.com / LordTraining2026! succeeds; navigating to /admin/super and clicking the 'Apariencia de Landing' tab renders the 4 theme cards; clicking the 'Futurista' card (from current active 'material') triggers PUT /api/landing/theme → HTTP 200 with body {\"active_theme\":\"futuristic\"}; success toast 'Apariencia del landing actualizada: Futurista' is shown; the 'Activa' badge moves to the Futurista card; a follow-up GET /api/landing/theme returns {\"active_theme\":\"futuristic\"} confirming persistence. localStorage train_token is present (len=257). No 401/403/500 observed.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "SuperAdmin (Apariencia de Landing tab)",
+        "issues": [
+          "On viewport 1920x1080 the section title 'Apariencia de Landing' (h2) renders with very low contrast / appears almost invisible against the white card background (text-white inside a white panel). Visible in the screenshot — title row is empty-looking. The subtitle slate-400 reads fine. Likely a theming mismatch: LandingAppearance.jsx uses className='text-xl font-bold text-white' but the SuperAdminPage container in this build has a white/light background. Recommend changing to text-slate-900 or letting the parent decide."
+        ]
+      },
+      {
+        "screen": "Sonner toaster",
+        "issues": [
+          "The same success toast renders 4 duplicate copies in the DOM (data-sonner-toast appears 4x with identical text). Visually only one is shown, but the duplicated nodes suggest the Toaster is mounted multiple times (likely both in App.js root and in SuperAdminPage / a parent). Not blocking but worth de-duplicating."
+        ]
+      }
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Inform the user that on PREVIEW the flow is working: PUT /api/landing/theme returns 200 and the UI correctly updates the 'Activa' badge + shows the success toast. The reported failure is therefore environment-specific (PRODUCTION lordtraining.com) and must be reproduced/diagnosed there — most likely causes in PROD: (a) the SUPER_ADMIN_PASSWORD secret in production does not match what the user is typing, so login returns a token for a non-super user → PUT returns 403 → frontend shows 'Solo el Super Admin...'; (b) the prod user's stored is_super_admin flag was overwritten during a recent seed/migration; (c) CORS/cookie/proxy issue on prod returning a non-2xx that triggers the generic 'No se pudo cambiar la apariencia' toast. Ask the user to open DevTools → Network on lordtraining.com, repeat the action, and share the exact HTTP status + response body of PUT /api/landing/theme — that pinpoints the branch in applyTheme that fires.",
+    "(low) Fix h2 'Apariencia de Landing' contrast in LandingAppearance.jsx (text-white on light background).",
+    "(low) Investigate duplicated Sonner Toaster mounts (4 identical toast nodes in DOM)."
+  ],
+  "critical_code_review_comments": [
+    "LandingAppearance.jsx applyTheme() correctly handles 401 with one refresh-token retry, surfaces 403 with the Super Admin message, and only shows the generic 'No se pudo...' on other non-2xx — implementation looks correct.",
+    "routes/landing_settings.py _require_super correctly distinguishes 401 (invalid/expired JWT) from 403 (valid user but not super_admin); valid themes set is {classic,material,futuristic,light} and matches the frontend THEMES list.",
+    "Cards expose data-testid='landing-theme-{id}' and the active marker exposes data-testid='landing-theme-active-badge' — good for testing.",
+    "Minor: the GET /api/landing/theme is called 4 times during this test run (initial load + theme card mount + after PUT). Two of those happen before the user even interacts with the Apariencia tab because LandingAppearance is mounted inside the section while the parent SuperAdminPage may render it eagerly. Consider lazy mounting per active tab."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "n/a (frontend-only request)", "frontend": "100% (login + tab navigation + PUT 200 + toast + badge + persistence all pass)" },
+  "test_credentials": "Super Admin: juegolaureado@gmail.com / LordTraining2026! (preview env). Login via /auth (data-testid login-email-input / login-password-input / login-submit-btn).",
+  "seed_data_creation": "None. Test left the preview active_theme set to 'futuristic' (was 'material' before). If undesired, main agent can flip it back via the same UI or PUT.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "To reproduce: login as super admin → goto /admin/super → click visible text 'Apariencia de Landing' (tab buttons have no data-testid; use get_by_text exact=True) → click [data-testid=landing-theme-{material|futuristic|light|classic}] → observe PUT /api/landing/theme. The LandingAppearance section root has data-testid='landing-appearance-section' and the active badge has data-testid='landing-theme-active-badge'. Captured network log showed PUT → 200 {active_theme:'futuristic'}.",
+  "rca_of_the_issue": "Not reproducible in PREVIEW. The frontend code path is correct: applyTheme() reads train_token from localStorage, PUTs to /api/landing/theme, on 200 updates active state and shows the Spanish success toast. The user's report of an error toast in production therefore stems from one of the explicit non-success branches: 401 → 'Tu sesión expiró...', 403 → 'Solo el Super Admin...', or other non-2xx → 'No se pudo cambiar la apariencia...'. Need the user (or a prod-aware agent) to capture the exact HTTP status of PUT /api/landing/theme on lordtraining.com to confirm which branch triggers. Most likely candidate is 403 (production user does not have is_super_admin=true in the prod Mongo) — preview and production use SEPARATE databases per /app/memory/test_credentials.md."
+}
