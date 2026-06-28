@@ -1,119 +1,92 @@
 {
-  "project_name": "LordTraining Landing Page - Theme Engine",
-  "domain": "Sports Coaching Platform",
-  "archetype": "The Performance Pro (Modified for Multi-Theme)",
-  "primary_brand_colors": {
-    "accent": "#CCFF00",
-    "accent_gold": "#C9A84C"
-  },
-  "theming_strategy": {
-    "concept": "CSS Specificity Override Engine",
-    "description": "Uses CSS overrides bound to `.lt-theme[data-landing-theme='X']` to hijack hardcoded Tailwind utility classes. This achieves a complete visual overhaul at runtime without massive JSX rewrites.",
-    "theme_variables": {
-      "classic": {
-        "--bg-base": "#050A14",
-        "--bg-surface": "#0B1221",
-        "--bg-surface-elevated": "#121A2F",
-        "--text-primary": "#FFFFFF",
-        "--text-secondary": "#94A3B8",
-        "--border": "#1E293B",
-        "--radius-card": "16px",
-        "--radius-btn": "8px",
-        "--shadow-card": "0 10px 30px -10px rgba(0,0,0,0.5)",
-        "--accent-glow": "rgba(204, 255, 0, 0.15)"
-      },
-      "material": {
-        "--bg-base": "#121212",
-        "--bg-surface": "#1E1E1E",
-        "--bg-surface-elevated": "#2C2C2C",
-        "--text-primary": "#E3E3E3",
-        "--text-secondary": "#A0A0A0",
-        "--border": "#333333",
-        "--radius-card": "24px",
-        "--radius-btn": "9999px",
-        "--shadow-card": "0 8px 16px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3)",
-        "--accent-glow": "transparent"
-      },
-      "futuristic": {
-        "--bg-base": "#030508",
-        "--bg-surface": "#060B14",
-        "--bg-surface-elevated": "#0A1224",
-        "--text-primary": "#FFFFFF",
-        "--text-secondary": "#7E8C9A",
-        "--border": "#1A2B4C",
-        "--radius-card": "4px",
-        "--radius-btn": "4px",
-        "--shadow-card": "0 0 20px rgba(204, 255, 0, 0.05), inset 0 0 0 1px rgba(204, 255, 0, 0.1)",
-        "--accent-glow": "rgba(204, 255, 0, 0.4)"
-      },
-      "light": {
-        "--bg-base": "#F8FAFC",
-        "--bg-surface": "#FFFFFF",
-        "--bg-surface-elevated": "#FFFFFF",
-        "--text-primary": "#0A0F1E",
-        "--text-secondary": "#475569",
-        "--border": "#E2E8F0",
-        "--radius-card": "16px",
-        "--radius-btn": "8px",
-        "--shadow-card": "0 10px 25px -5px rgba(0,0,0,0.05)",
-        "--accent-glow": "rgba(204, 255, 0, 0.3)"
-      }
+  "global_guidelines": {
+    "brand_identity": "LordTraining - High-end sports periodization/coaching SaaS.",
+    "core_accents": {
+      "lime": "#CCFF00",
+      "gold": "#C9A84C"
     }
   },
-  "css_override_blueprint": {
-    "global_mapping": [
-      ".lt-theme[data-landing-theme] .bg-slate-950 { background-color: var(--bg-base) !important; transition: background-color 0.3s ease; }",
-      ".lt-theme[data-landing-theme] .bg-slate-900 { background-color: var(--bg-surface) !important; transition: background-color 0.3s ease; }",
-      ".lt-theme[data-landing-theme] .bg-slate-800 { background-color: var(--bg-surface-elevated) !important; transition: background-color 0.3s ease; }",
-      ".lt-theme[data-landing-theme] .text-white { color: var(--text-primary) !important; transition: color 0.3s ease; }",
-      ".lt-theme[data-landing-theme] .text-slate-400, .lt-theme[data-landing-theme] .text-slate-300, .lt-theme[data-landing-theme] .text-slate-500 { color: var(--text-secondary) !important; transition: color 0.3s ease; }",
-      ".lt-theme[data-landing-theme] .border-slate-800, .lt-theme[data-landing-theme] .border-slate-700 { border-color: var(--border) !important; transition: border-color 0.3s ease; }"
-    ],
-    "structural_mapping": [
-      ".lt-theme[data-landing-theme] .rounded-xl, .lt-theme[data-landing-theme] .rounded-2xl { border-radius: var(--radius-card) !important; transition: border-radius 0.3s ease; }",
-      ".lt-theme[data-landing-theme] button.rounded-md, .lt-theme[data-landing-theme] button.rounded-lg, .lt-theme[data-landing-theme] a[class*='px-'][class*='py-'] { border-radius: var(--radius-btn) !important; transition: border-radius 0.3s ease; }"
-    ]
+  "themes": {
+    "light": {
+      "description": "Clean, readable Notion/Linear style. Solves contrast failures.",
+      "tokens": {
+        "bg_base": "#F9FAFB",
+        "surface": "#FFFFFF",
+        "surface_elevated": "#F3F4F6",
+        "text_primary": "#050A14",
+        "text_secondary": "#4B5563",
+        "border": "#E5E7EB",
+        "accent_ink": "#0A0F1E"
+      },
+      "accent_rules": "Lime (#CCFF00) fails WCAG on white. Reserve Lime for dark CTA bands, footers, or hover states on dark buttons. Use navy/ink (#0A0F1E) as the primary accent color on light surfaces."
+    },
+    "futuristic": {
+      "description": "Refined matte graphite-ceramic aesthetic. Neutral grays, sophisticated, ZERO blue.",
+      "tokens": {
+        "bg_base": "#121212",
+        "surface": "#1C1C1C",
+        "surface_elevated": "#262626",
+        "text_primary": "#F5F5F7",
+        "text_secondary": "#A1A1AA",
+        "border": "#333333",
+        "shadow_treatment": "inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 20px rgba(0, 0, 0, 0.5)",
+        "radius": "0.5rem"
+      },
+      "typography_overrides": {
+        "hero_clamp": "clamp(2rem, 3vw + 1rem, 3rem)",
+        "h2_clamp": "clamp(1.5rem, 2vw + 1rem, 2.25rem)",
+        "reasoning": "Tighter, tasteful type sizes prevent layout breakage and deliver a premium, controlled futuristic look."
+      },
+      "accent_rules": "Use the Lime accent extremely sparingly (e.g., small glowing dot indicators or a single 1px active line) to maintain the graphite-ceramic mood."
+    },
+    "classic": {
+      "description": "Base dark navy with signature lime and gold. (Sanity Pass)",
+      "tokens": {
+        "bg_base": "#050A14",
+        "surface": "#0A0F1E",
+        "surface_elevated": "#111827",
+        "text_primary": "#F8FAFC",
+        "text_secondary": "#94A3B8",
+        "border": "#1E293B"
+      },
+      "sanity_pass": "Overall solid. Ensure Lime text on navy has sufficient font-weight (font-medium+) for legibility. Keep surface elevations distinct."
+    },
+    "material": {
+      "description": "Elevation and shadow-driven theme. (Sanity Pass)",
+      "tokens": {
+        "bg_base": "#0F172A",
+        "surface": "#1E293B",
+        "surface_elevated": "#334155",
+        "text_primary": "#F1F5F9",
+        "text_secondary": "#94A3B8",
+        "border": "#475569"
+      },
+      "sanity_pass": "Ensure drop shadows are colored with the brand hue (rgba(5,10,20, 0.4)) rather than pure black to avoid muddying the colors."
+    }
   },
-  "double_use_resolution": {
-    "problem": "The class `text-slate-900` is used BOTH on white cards (needs to be inverted to light text in dark themes) AND on lime brand buttons (needs to remain dark always).",
-    "solution": "DO NOT globally override `.text-slate-900`. Use Contextual Targetting for the cards instead.",
-    "css_implementation": [
-      "/* 1. Target white cards in dark themes (Classic, Material, Futuristic) */",
-      ".lt-theme:not([data-landing-theme='light']) .bg-white { background-color: var(--bg-surface-elevated) !important; border: 1px solid var(--border); box-shadow: var(--shadow-card); }",
-      "/* 2. Invert the text ONLY inside those white cards */",
-      ".lt-theme:not([data-landing-theme='light']) .bg-white .text-slate-900 { color: var(--text-primary) !important; }",
-      ".lt-theme:not([data-landing-theme='light']) .bg-white .text-slate-600 { color: var(--text-secondary) !important; }",
-      "/* 3. Result: Lime buttons like `<button class='bg-[#CCFF00] text-slate-900'>` are NOT inside `.bg-white`, so they preserve their dark text organically. */"
-    ]
+  "components": {
+    "multi_sport_tactical_board": {
+      "problem": "Rainbow/childish look due to vivid sport-specific gradients.",
+      "solution": "Professional, restrained approach.",
+      "guidelines": {
+        "board_surface": "Desaturate and unify. Use the theme's 'surface_elevated' consistently across ALL sports.",
+        "pitch_lines": "Use a subtle monochrome tint (e.g., 'text_secondary' at 20-30% opacity) for court lines.",
+        "interactive_elements": "Reserve vivid colors exclusively for player nodes, routes, and arrows using the brand Lime (#CCFF00) and Gold (#C9A84C).",
+        "sport_differentiation": "Differentiate sports using small muted icons or a 2px colored top-border, rather than flooding the entire card background."
+      }
+    },
+    "testimonials": {
+      "problem": "Light theme renders dark-on-dark due to hardcoded background classes.",
+      "solution": "Remove hardcoded navy classes. Ensure cards inherit 'surface' or 'surface_elevated' variables natively so they adapt correctly when switching to Light theme."
+    }
   },
-  "theme_specific_nuances": {
-    "light": [
-      "/* Ensure cards have shadow and white background in light mode */",
-      ".lt-theme[data-landing-theme='light'] .bg-slate-900, .lt-theme[data-landing-theme='light'] .bg-white { box-shadow: var(--shadow-card); border: 1px solid var(--border); }"
-    ],
-    "futuristic": [
-      "/* Add cyber glow to elevated surfaces */",
-      ".lt-theme[data-landing-theme='futuristic'] .bg-slate-900 { box-shadow: var(--shadow-card); border: 1px solid rgba(204, 255, 0, 0.15); }"
-    ],
-    "material": [
-      "/* Remove borders for material design, rely on heavy elevation */",
-      ".lt-theme[data-landing-theme='material'] .bg-slate-900 { border: none !important; box-shadow: var(--shadow-card); }"
-    ]
-  },
-  "untouchable_classes": [
-    ".bg-[#CCFF00]",
-    ".text-[#CCFF00]",
-    ".bg-lime-400",
-    ".text-lime-400",
-    ".bg-[#C9A84C]",
-    ".text-[#C9A84C]"
-  ],
   "instructions_to_main_agent": [
-    "1. Inject the `theme_variables` and `css_override_blueprint` into your main CSS file (e.g., globals.css or App.css).",
-    "2. Crucially add the `double_use_resolution` CSS exactly as provided to resolve the card vs. lime button contrast conflict.",
-    "3. Do NOT run string replacements in the JSX to change tailwind utility classes. Rely on this CSS Override Engine.",
-    "4. Ensure ALL interactive elements (buttons, theme toggles, cards) include `data-testid` attributes (e.g. `data-testid='theme-toggle-light'`).",
-    "5. Verify that in 'Light' theme, the hero section (originally `bg-slate-950`) successfully flips to `#F8FAFC` and its `text-white` flips to `#0A0F1E`.",
-    "6. Verify that in 'Futuristic', everything adopts sharp corners (4px radius) and subtle lime box-shadows."
+    "Create or update /app/frontend/src/index.css to implement the four CSS variable groups: .lt-theme[data-landing-theme='classic'], 'light', 'futuristic', 'material'.",
+    "Map Tailwind utility classes to these CSS variables to remove hardcoding (e.g. replacing hardcoded Tailwind colors with var(--surface)).",
+    "Refactor the testimonials carousel and pricing cards to use theme-aware variables instead of hardcoded dark classes that break the Light theme.",
+    "Implement the clamped typography variables explicitly in the 'futuristic' theme selector (Hero clamp to max 3rem).",
+    "Refactor the multi-sport tactical board to remove rainbow gradients. Apply a uniform theme surface with low-opacity pitch lines and accent-only interactive nodes.",
+    "Ensure every interactive element (buttons, tabs, theme-toggles) has a 'data-testid' attribute.",
+    "Apply 'accent_ink' logic for the Light theme to avoid WCAG contrast failures with the Lime color."
   ]
 }
