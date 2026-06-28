@@ -1,0 +1,41 @@
+{
+  "summary": "Re-tested after fix of CRITICAL bug from iter_99: athlete-team-selector is NOW persistent in the Plan Activo bar across all Datos sub-sections (DashboardPage.js line ~4047). TAREA 2 (team replication) FULLY verified end-to-end. TAREA 3 (bidirectional drag) partially verified: event creation in Plan Gráfico works (cell shows date), but drag-and-drop on Calendar could not be exercised in this session because gp_ chips did not appear after calendar prev-month navigation (likely calendar month did not advance to April 2026 where the event lives, or chip testid pattern differs). TAREA 1 (SessionEditor capacity unit change) was NOT reached in this session due to plan auto-deselecting when switching active athlete (Juan Perez has different assigned_plan_id).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "TAREA 3 calendar drag-back-to-Graphic", "issue": "Could not validate drag in Calendar: after navigating to subnav-calendar-view, no event-chip-gp_* chips were visible. The Plan Gráfico cell-activities-training-6 correctly shows '15/04' after save (POST /api/events-calendar OK), so gp_ event exists in backend for the athlete, but it is not rendered in the calendar view shown by default (June 2026). Chevron-left navigation to previous month occasionally throws DOM-detached/timeout while month changes. Need either (a) auto-jump calendar to the event date when only one event exists, or (b) a stable [data-testid] on month-prev / month-next buttons in SessionCalendar.", "affected_selectors": ["[data-testid^='event-chip-gp_']", "svg.lucide-chevron-left"]},
+    {"flow": "TAREA 1 SessionEditor reach", "issue": "Switching the persistent selector to an individual athlete (e.g. Juan Pérez, who has a different assigned_plan_id) causes the active plan to deselect (UI returns to 'Selecciona un Plan' welcome). This blocks navigation to section-tab-periodizacion when an individual athlete is chosen, because the section-tab buttons depend on an active plan. Either: (a) selector should NOT clear the active plan when switching athletes; OR (b) main agent must keep Team-mode for TAREA 1 too.", "affected_selectors": ["[data-testid='section-tab-periodizacion']", "[data-testid='athlete-team-selector']"]}
+    ],
+    "design_issues": [
+      {"screen": "Various modals", "issues": ["Console warns repeatedly: DialogContent requires DialogTitle for screen-reader accessibility. Wrap titles or add VisuallyHidden where appropriate.", "Console warn: 'A component is changing an uncontrolled input to be controlled' on date input inside comp-date-modal — initialize the value to '' instead of undefined.", "Several '404 Failed to load resource' in console — investigate which static/asset 404s."]}
+    ]
+  },
+  "verified_features": [
+    "FIX CONFIRMED: athlete-team-selector now visible in persistent Plan Activo bar in ALL Datos sub-sections (Diagnóstico/Información/Periodización/Visualización).",
+    "TAREA 2 STEP-BY-STEP: (1) Select team 'Selección Sub-17 (2)' from athlete-team-selector — badge 'Modo Equipo: 2 atletas' renders. (2) Navigate to Visualización → Plan Gráfico — banner [data-testid='graphic-team-mode-banner'] shows 'Modo Equipo · Selección Sub-17'. (3) Click cell-activities-training-6 → comp-date-modal opens. (4) Add date 2026-04-15 → Guardar. (5) TOAST shown: '1 fecha(s) añadida(s) al calendario · replicado a 2 atletas del equipo'. (6) Network confirms two POST /api/events-calendar calls (one per athlete in team) — replication backend-confirmed.",
+    "TAREA 3 PARTIAL: cell-activities-training-6 in Plan Gráfico correctly stores the date (cell text '15/04') after POST /api/events-calendar. Drag step itself NOT exercised due to calendar view issue above."
+  ],
+  "test_report_links": ["/app/test_reports/iteration_100.json"],
+  "action_items": [
+    "MEDIUM (TAREA 3): In SessionCalendar.js, add stable data-testid to prev/next month buttons (e.g. data-testid='calendar-prev-month'/'calendar-next-month') and consider auto-navigating the calendar to the closest month containing an event when the calendar opens. This blocks both manual UX and automated testing of the bidirectional drag.",
+    "MEDIUM (TAREA 1): The selector switch should NOT cause the active plan to deselect. In DashboardPage handler for athlete selection (around line 4059), do not unset activePlan when changing selectedAthleteId — just update the displayed athlete; keep the user inside the currently active plan.",
+    "LOW: Fix the Radix DialogContent accessibility warnings (DialogTitle missing) in comp-date-modal and SessionEditor modals.",
+    "LOW: Initialize the date input value in comp-date-modal to '' to silence the controlled-input warning.",
+    "LOW: 'Failed to load resource: 404' appears multiple times in console — locate the missing asset/API and fix or remove."
+  ],
+  "critical_code_review_comments": [
+    "FIX VERIFIED: DashboardPage.js:4046–4095 — selector moved out of the welcome-only block to a persistent bar; renders whenever (athletes.length>0 || teams.length>0) AND a plan is active. Works as expected.",
+    "DashboardPage.js (athlete change handler around 4059–4061): switching selectedAthleteId via the selector may indirectly cause plan view to clear if the athlete's assigned_plan_id differs from the current activePlan.id. Verify that setSelectedAthleteId() does not trigger any effect that calls handleSetActivePlan(null) or filters plans list. This caused TAREA 1 to be unreachable in this run.",
+    "SessionCalendar.js: prev/next month buttons lack data-testid — add for testability.",
+    "GraphicPlan.js + DashboardPage: TAREA 2 replication works correctly (two POSTs to /api/events-calendar confirmed). No code changes needed."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only)", "frontend": "TAREA 2: 100% verified end-to-end. TAREA 3: ~60% (event creation OK; drag step not exercisable due to calendar view limitations). TAREA 1: 0% (blocked by plan auto-deselect on athlete switch)."},
+  "test_credentials": "test@train.com / test123456 (used)",
+  "seed_data_creation": "None. Used existing team 'Selección Sub-17' (2 athletes), plan 'Plan Test API' (ATR Issurin, 26 weeks).",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Selector fix CONFIRMED working. TAREA 2 end-to-end PASS. For TAREA 3 retest, either (a) wait for testid on month-nav buttons, or (b) in the test, after creating the gp_ event note its date and navigate calendar to that exact month before searching for event-chip-gp_*. For TAREA 1, keep TEAM selected (not individual athlete) when navigating to section-tab-periodizacion to avoid the plan being deselected — or main agent should fix the plan-deselect side-effect first. Active plan id seen in network: 4336b777-bb98-48ac-a74c-5f45c6bec06b. Juan Perez athlete id: d6b95b43-c35f-4453-a727-412001c43c6d.",
+  "rca_of_remaining_issues": "(1) TAREA 3 untested in calendar: SessionCalendar opens at current month (June 2026), gp_ event saved for 2026-04-15 lives in April. Month navigation buttons have no data-testid and dispatching click on svg.lucide-chevron-left was unreliable. (2) TAREA 1 unreachable: switching athlete in the persistent selector caused a re-render that returned the UI to the welcome 'Selecciona un Plan' screen. Probable cause: an effect tied to selectedAthleteId clears activePlan when the athlete's assigned_plan_id does not match activePlan.id. Needs investigation in DashboardPage useEffect listing selectedAthleteId."
+}

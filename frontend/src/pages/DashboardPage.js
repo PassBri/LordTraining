@@ -1735,57 +1735,6 @@ const DashboardPage = () => {
             </div>
           </div>
           
-          {/* Selector de Atleta o Equipo */}
-          {(athletes.length > 0 || teams.length > 0) && (
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-slate-500">Atleta o Equipo</span>
-              <Select
-                value={selectedTeamId ? `t:${selectedTeamId}` : (selectedAthleteId ? `a:${selectedAthleteId}` : '')}
-                onValueChange={(v) => {
-                  if (v.startsWith('t:')) {
-                    const teamId = v.slice(2);
-                    const team = teams.find(tm => tm.id === teamId);
-                    const roster = (team?.athletes || []);
-                    setSelectedTeamId(teamId);
-                    // Atleta representante (primero del equipo) para la grilla/calendario/badges
-                    setSelectedAthleteId(roster[0] || null);
-                  } else if (v.startsWith('a:')) {
-                    setSelectedTeamId(null);
-                    setSelectedAthleteId(v.slice(2));
-                  }
-                }}
-              >
-                <SelectTrigger className="w-64" data-testid="athlete-team-selector">
-                  <SelectValue placeholder="Seleccionar atleta o equipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  {teams.length > 0 && (
-                    <SelectGroup>
-                      <SelectLabel>Equipos</SelectLabel>
-                      {teams.map(tm => (
-                        <SelectItem key={tm.id} value={`t:${tm.id}`} data-testid={`select-team-${tm.id}`}>
-                          {tm.name} ({(tm.athletes || []).length})
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  )}
-                  {athletes.length > 0 && (
-                    <SelectGroup>
-                      <SelectLabel>{t('data.atleta')}s</SelectLabel>
-                      {athletes.map(a => (
-                        <SelectItem key={a.id} value={`a:${a.id}`}>{a.name}</SelectItem>
-                      ))}
-                    </SelectGroup>
-                  )}
-                </SelectContent>
-              </Select>
-              {selectedTeamId && (
-                <span className="text-xs font-semibold text-[#1565C0] bg-blue-50 px-2.5 py-1 rounded-full" data-testid="team-mode-badge">
-                  Modo Equipo: {(teams.find(tm => tm.id === selectedTeamId)?.athletes || []).length} atletas
-                </span>
-              )}
-            </div>
-          )}
         </div>
       );
     }
@@ -4093,6 +4042,57 @@ const DashboardPage = () => {
               >
                 <ChevronLeft className="w-3.5 h-3.5 mr-1" />{t('data.cambiar_plan')}</Button>
           </div>
+
+          {/* Selector persistente Atleta o Equipo (visible en todas las secciones de Datos) */}
+          {(athletes.length > 0 || teams.length > 0) && (
+            <div className="bg-white border-b border-slate-200 px-5 py-2 flex items-center gap-3 flex-wrap">
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Atleta o Equipo</span>
+              <Select
+                value={selectedTeamId ? `t:${selectedTeamId}` : (selectedAthleteId ? `a:${selectedAthleteId}` : '')}
+                onValueChange={(v) => {
+                  if (v.startsWith('t:')) {
+                    const teamId = v.slice(2);
+                    const team = teams.find(tm => tm.id === teamId);
+                    const roster = (team?.athletes || []);
+                    setSelectedTeamId(teamId);
+                    setSelectedAthleteId(roster[0] || null);
+                  } else if (v.startsWith('a:')) {
+                    setSelectedTeamId(null);
+                    setSelectedAthleteId(v.slice(2));
+                  }
+                }}
+              >
+                <SelectTrigger className="w-64 h-8" data-testid="athlete-team-selector">
+                  <SelectValue placeholder="Seleccionar atleta o equipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  {teams.length > 0 && (
+                    <SelectGroup>
+                      <SelectLabel>Equipos</SelectLabel>
+                      {teams.map(tm => (
+                        <SelectItem key={tm.id} value={`t:${tm.id}`} data-testid={`select-team-${tm.id}`}>
+                          {tm.name} ({(tm.athletes || []).length})
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  )}
+                  {athletes.length > 0 && (
+                    <SelectGroup>
+                      <SelectLabel>{t('data.atleta')}s</SelectLabel>
+                      {athletes.map(a => (
+                        <SelectItem key={a.id} value={`a:${a.id}`}>{a.name}</SelectItem>
+                      ))}
+                    </SelectGroup>
+                  )}
+                </SelectContent>
+              </Select>
+              {selectedTeamId && (
+                <span className="text-xs font-semibold text-[#1565C0] bg-blue-50 px-2.5 py-1 rounded-full" data-testid="team-mode-badge">
+                  Modo Equipo: {(teams.find(tm => tm.id === selectedTeamId)?.athletes || []).length} atletas
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Data Content */}
           <div className="flex-1 overflow-y-auto bg-[#fafaf8]">
