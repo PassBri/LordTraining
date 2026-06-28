@@ -1,5 +1,12 @@
 # CHANGELOG — LordTraining
 
+## 2026-06-28 — Sincronización Calendario ↔ Plan Gráfico + Asignación por Equipo + Fix Sesiones
+- **Selector "Atleta o Equipo"** (DashboardPage, barra persistente del Plan Activo, panel Datos): combo agrupado Equipos/Atletas. Al elegir un Equipo se muestra badge "Modo Equipo: N atletas" y banner azul en Plan Gráfico. (iter_100 PASS)
+- **Asignación masiva por Equipo**: al asignar/quitar fechas en celdas del Plan Gráfico en Modo Equipo, los eventos se replican (merge, no sobrescribe) al `events_calendar` de TODOS los atletas del equipo. Helper `replicateToTeam` en GraphicPlan.js (fetch+merge+POST por atleta). (iter_100 PASS)
+- **Arrastre BIDIRECCIONAL Calendario→Plan Gráfico**: chips de eventos del Plan Gráfico (`gp_*`) ahora son draggable en SessionCalendar; al soltar en otro día se llama `onEventReschedule` (DashboardPage) que actualiza `events_calendar` y mueve la fecha en `graphic_plans.planData` a la semana recalculada desde `activePlan.start_date`. El calendario auto-salta al mes del primer evento. (iter_104 PASS)
+- **FIX Sesiones (Volumen por Capacidad)**: bug de reconciliación — al cambiar Capacidad Física los rótulos de columna (Int/Volumen/Medida) no se actualizaban. Causa raíz: `session` prop inline en PeriodizationComplete + `useEffect([session])` reseteaba el estado. Fixes: (a) `sessionEditorSession` memoizado, (b) `loadedSessionIdRef` (reset solo al cambiar session.id), (c) key compuesta en la fila de actividad `${act.id}-${capacidadFisica}-${unidadVolumen}-${unidadIntensidad}`. (iter_104 PASS — Fuerza→Resistencia→Teórica adapta %1RM/Reps/Kg → %FCmax/Km/Km → Escala 1-5/Minutos/Minutos)
+
+
 ## 2026-06-24
 - **Periodización · Estructura editable**: modales de Macro/Meso/Microciclo ahora con FONDO BLANCO legible + campos editables Volumen %, Intensidad %, Progreso %. Suma/consolidación automática (rollup promedio) sesiones→micro→meso→macro; edición manual queda bloqueada (viLocked) y se respeta. Verificado E2E (iteration_64.json, 100%).
 - **Auth · Auto-login tras registro**: al crear cuenta entra directo al dashboard (o al checkout si venía de un plan). Mejora conversión.
