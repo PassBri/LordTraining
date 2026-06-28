@@ -1,0 +1,45 @@
+{
+  "summary": "Re-verificación TAREA 1 tras el fix (mover window.confirm fuera del updater de setState). RESULTADO: el fix NO funciona. Los rótulos de columna del SessionEditor SIGUEN sin actualizarse al cambiar la Capacidad Física. Se reprodujo limpiamente: login → activar Plan Test API → tab-datos → section-tab-periodizacion → subnav-period-structure → expandir Macro 'Preparación General' → expandir Meso 1 - Acumulación → '+ Semana' → Guardar (Microciclo creado, 5 sesiones auto-generadas) → expandir 'Nueva Semana' → click [data-testid='session-0'] → SessionEditor abierto → click 'Agregar' en FASE INICIAL → capacity-select-inicial-0 visible con default 'Fuerza'. Lecturas: INITIAL='INT (%1RM)' / 'REPS' / 'KG' ✓. Cambio a Resistencia (confirm aceptado): SIGUE 'INT (%1RM)' / 'REPS' / 'KG' ❌ (esperado '%FCmax' + 'Km'). Cambio a Teórica: SIGUE 'INT (%1RM)' / 'REPS' / 'KG' ❌ (esperado 'Escala 1-5' + 'Minutos'). El chip de capacidad SÍ refleja el cambio ('Teórica' visible en el screenshot final), pero los <span data-testid='int-label-…'> y 'stat-label-…' se quedan fijos en los valores de Fuerza. TAREA 3 no se ejecutó en esta iteración para conservar el foco en la validación del fix de TAREA 1.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "SessionEditor — renderActividadesTable / FASE INICIAL row", "issue": "Tras el fix (confirm fuera del updater), los data-testids int-label-inicial-0, stat-label-volumen-inicial-0 y stat-label-medida-inicial-0 SIGUEN mostrando los valores de Fuerza ('INT (%1RM)','REPS','KG') después de cambiar la Capacidad Física a Resistencia o Teórica. El chip de capacidad (capacity-select-inicial-0) sí actualiza su SelectValue, y (según iter_101) el texto del window.confirm también referencia la nueva unidad — por lo tanto el setState parcialmente impacta el modelo pero el JSX de los rótulos no rebindea a la nueva unidad.", "selector": "[data-testid='int-label-inicial-0'], [data-testid='stat-label-volumen-inicial-0'], [data-testid='stat-label-medida-inicial-0']", "priority": "HIGH"}
+    ],
+    "integration_issues": [
+      {"flow": "TAREA 3 - arrastre bidireccional Calendario→Plan Gráfico", "issue": "NO ejecutado en iter_102. Recomendado re-test una vez TAREA 1 quede realmente arreglada.", "affected_selectors": ["[data-testid^='event-chip-gp_']", "[data-testid^='day-cell-']"]}
+    ],
+    "design_issues": [
+      {"screen": "Modales (Nuevo Microciclo, Select de capacidad)", "issues": ["Sigue apareciendo el warning 'DialogContent requires a DialogTitle' en consola. Pendiente desde iter_101."]}
+    ]
+  },
+  "verified_features": [
+    "Login /auth con test@train.com/test123456 → /dashboard.",
+    "tab-planes → sidebar-plan-* activa el plan.",
+    "tab-datos → section-tab-periodizacion → subnav-period-structure carga correctamente.",
+    "Expandir macro/meso vía click en su texto funciona (clic en 'Preparación General' luego en 'Meso 1 - Acumulación').",
+    "'+ Semana' abre modal y al Guardar crea el microciclo + 5 sesiones (toast 'Microciclo creado'). Esta vez SÍ se renderizaron las 5 sesiones (session-0..session-14 detectados) sin recargar.",
+    "[data-testid='session-0'] abre SessionEditor a pantalla completa.",
+    "'Agregar' en FASE INICIAL agrega la fila y aparece capacity-select-inicial-0 con default 'Fuerza' y rótulos correctos de Fuerza.",
+    "El dropdown de capacidad muestra las 10 opciones (Fuerza, Resistencia, Velocidad, Flexibilidad, Coordinación, Equilibrio, Agilidad, Potencia, Psicológica, Teórica)."
+  ],
+  "test_report_links": [],
+  "action_items": [
+    "HIGH (TAREA 1): El fix actual (confirm fuera del updater) NO resuelve el bug visible. Investigar por qué los rótulos no re-renderizan: (a) verificar que renderActividadesTable se re-invoca con la nueva referencia de `fase` (puede que el caller pase una referencia de fase memoizada/cacheada y la `act` iterada no contenga `unidadIntensidad`/`unidadVolumen` actualizados); (b) considerar derivar SIEMPRE intUnit/volUnit desde `capCfg.unidadesInt[0]` / `capCfg.unidadesVol[0]` (es decir, ignorar el OR con `act.unidadIntensidad`/`act.unidadVolumen` o asegurar que esos campos SIEMPRE se actualicen junto con capacidadFisica — que es lo que ya hace updateActividad líneas 787-789, pero por algún motivo no llega al DOM); (c) añadir un useEffect/key={act.capacidadFisica} en la fila para forzar remontaje; (d) confirmar con un console.log dentro del render del span que `intUnit` y `volUnit` cambian al cambiar la capacidad — si no cambian, el problema es de estado; si sí cambian, el problema es de re-render del padre.",
+    "HIGH: Re-validar TAREA 3 una vez TAREA 1 esté realmente arreglado.",
+    "LOW: Resolver warning de Radix DialogTitle accesibilidad (pendiente desde iter_101).",
+    "LOW: Resolver el 404 de recurso en carga del dashboard (pendiente desde iter_101)."
+  ],
+  "critical_code_review_comments": [
+    "components/SessionEditor.js updateActividad (~766): la implementación parece correcta — se actualizan capacidadFisica, unidadVolumen, unidadIntensidad — pero el resultado visible al usuario NO refleja ese cambio. Hay que verificar que `sessionData` está realmente siendo el state efectivo del componente y no shadowed por una prop/snapshot. Sospecha: el caller de renderActividadesTable o de SessionEditor está pasando un `fase`/`session` memoizado que no se invalida al actualizar el state interno.",
+    "components/SessionEditor.js render (~1065-1175): el binding usa `const capCfg = CAPACITY_CONFIG[act.capacidadFisica] || CAPACITY_CONFIG.fuerza;` y `const intUnit = act.unidadIntensidad || capCfg.unidadesInt[0];`. Si `act` viene de una `fase` con referencia estable (memoizada en el caller) las actualizaciones a sessionData no actualizarán `act`. Recomiendo: añadir un `console.log(act.capacidadFisica, act.unidadIntensidad, intUnit)` justo antes del span del rótulo y confirmar en consola si cambia tras el setSessionData.",
+    "Las 15 sesiones detectadas (session-0..14) sugieren que pueden venir de múltiples microciclos del mismo meso o de microciclos previos persistidos — verificar IDs únicos."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "TAREA 1: 0% (FIX FALLIDO — bug sigue presente). TAREA 3: 0% (no ejecutado)."},
+  "test_credentials": "test@train.com / test123456",
+  "seed_data_creation": "Creado un microciclo 'Nueva Semana' bajo 'Meso 1 - Acumulación' del Plan Test API en esta iteración. Se generaron 5 sesiones auto. Una actividad fue agregada a FASE INICIAL de session-0.",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Reproducción del bug en 3 minutos: login → tab-planes → activar primer plan → tab-datos → section-tab-periodizacion → subnav-period-structure → click 'Preparación General' → click 'Meso 1 - Acumulación' → '+ Semana' → Guardar (Microciclo creado) → click 'Nueva Semana' → click [data-testid='session-0'] → click 'Agregar' (primera ocurrencia, FASE INICIAL) → leer [data-testid='int-label-inicial-0'] = 'INT (%1RM)' (correcto, default Fuerza). Click capacity-select-inicial-0 → option 'Resistencia' → aceptar confirm (page.on('dialog', lambda d: asyncio.create_task(d.accept()))) → leer otra vez int-label-inicial-0 → SIGUE 'INT (%1RM)' (BUG). Idem para 'Teórica'. El chip 'Teórica' SÍ se muestra en el SelectValue pero los rótulos no cambian. Validar con un console.log en el render para distinguir entre bug de estado vs bug de re-render.",
+  "rca_of_the_issue": "HIPÓTESIS ACTUALIZADA: el fix de mover window.confirm fuera del updater de setState era necesario pero no suficiente. Aún hay un problema de propagación del state hacia el JSX de los rótulos. Posibilidades: (1) renderActividadesTable es invocado con una `fase` referencia memoizada por el componente padre (useMemo en la lista de fases) que no se invalida cuando sessionData.fases cambia parcialmente — pero esto es contradictorio con que el chip de capacidad SÍ actualice; (2) hay un `useMemo` o `React.memo` envolviendo la fila de actividad que solo se re-renderiza si cambia `act.id` o `act.ejercicio` pero no si cambian unidades; (3) los campos `unidadIntensidad`/`unidadVolumen` no se persisten en el state efectivo aunque el setSessionData los incluya (revisar si hay un reducer o middleware que los está filtrando); (4) en line 1070 `const volUnit = act.unidadVolumen || capCfg.unidadesVol[0];` y line 1069 `const intUnit = act.unidadIntensidad || capCfg.unidadesInt[0];` — si `act.unidadIntensidad` quedó persistido como '%1RM' truthy desde la creación inicial y el setSessionData NO lo está sobrescribiendo (porque el spread `...c` lo está reponiendo por orden), seguirá ganando el operador OR. Acción recomendada para el main agent: temporalmente forzar `intUnit = capCfg.unidadesInt[0]` (sin OR con act.unidadIntensidad) y ver si los rótulos cambian — si cambian, el bug está en la persistencia de unidadIntensidad/unidadVolumen; si no cambian, el bug está en el re-render del componente."
+}

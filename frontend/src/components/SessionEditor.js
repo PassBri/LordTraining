@@ -766,25 +766,28 @@ const SessionEditor = ({
   const updateActividad = (faseKey, actIdx, field, value) => {
     // Al cambiar la capacidad: adaptar la unidad de volumen y preguntar si conservar el valor
     if (field === 'capacidadFisica') {
+      const cur = sessionData.fases?.[faseKey]?.actividades?.[actIdx];
+      if (!cur) return;
+      const newCfg = CAPACITY_CONFIG[value] || CAPACITY_CONFIG.fuerza;
+      const newUnit = newCfg.unidadesVol[0];
+      const newIntUnit = newCfg.unidadesInt[0];
+      let keepVal = true;
+      const hasVal = cur.volumen !== '' && cur.volumen !== null && cur.volumen !== undefined;
+      if (hasVal && cur.capacidadFisica !== value) {
+        // eslint-disable-next-line no-alert
+        keepVal = window.confirm(
+          `Cambiaste la capacidad a "${value}".\nLa unidad de volumen cambiará a "${newUnit}".\n\n¿Conservar el valor actual (${cur.volumen})?\n\nAceptar = conservar · Cancelar = resetear`
+        );
+      }
       setSessionData(prev => {
         const newActividades = [...prev.fases[faseKey].actividades];
-        const cur = newActividades[actIdx];
-        const newCfg = CAPACITY_CONFIG[value] || CAPACITY_CONFIG.fuerza;
-        const newUnit = newCfg.unidadesVol[0];
-        let keepVal = true;
-        const hasVal = cur.volumen !== '' && cur.volumen !== null && cur.volumen !== undefined;
-        if (hasVal && (cur.capacidadFisica !== value)) {
-          // eslint-disable-next-line no-alert
-          keepVal = window.confirm(
-            `Cambiaste la capacidad a "${value}".\nLa unidad de volumen cambiará a "${newUnit}".\n\n¿Conservar el valor actual (${cur.volumen})?\n\nAceptar = conservar · Cancelar = resetear`
-          );
-        }
+        const c = newActividades[actIdx];
         newActividades[actIdx] = {
-          ...cur,
+          ...c,
           capacidadFisica: value,
           unidadVolumen: newUnit,
-          unidadIntensidad: newCfg.unidadesInt[0],
-          volumen: keepVal ? cur.volumen : '',
+          unidadIntensidad: newIntUnit,
+          volumen: keepVal ? c.volumen : '',
         };
         return { ...prev, fases: { ...prev.fases, [faseKey]: { ...prev.fases[faseKey], actividades: newActividades } } };
       });
@@ -1141,7 +1144,7 @@ const SessionEditor = ({
               {/* Intensidad inline */}
               <div className="flex-shrink-0 w-[130px]" title={`Intensidad (${tCap(intUnit)}) · Ref: ${tCap(capCfg.intRef)}`}>
                 <div className="flex items-baseline justify-between mb-0.5">
-                  <span className="text-[8px] font-semibold uppercase tracking-wider text-slate-400" style={{fontFamily:DM}}>Int ({tCap(intUnit)})</span>
+                  <span className="text-[8px] font-semibold uppercase tracking-wider text-slate-400" style={{fontFamily:DM}} data-testid={`int-label-${faseKey}-${idx}`}>Int ({tCap(intUnit)})</span>
                   <span className="text-[13px] font-black" style={{color:intColor,fontFamily:DM}}>{act.intensidad}<span className="text-[8px] opacity-50">{intSuffix}</span></span>
                 </div>
                 <div className="h-1 rounded-full overflow-hidden" style={{background:'#f1f5f9'}}>
@@ -1159,7 +1162,7 @@ const SessionEditor = ({
                   { label:'Recup', value:act.recuperacion, key:'recuperacion', ph: capCfg.recPh, w:'w-[56px]' }
                 ].map(s => (
                   <div key={s.key} className={`${s.w} text-center`}>
-                    <span className="text-[8px] font-semibold uppercase tracking-wider text-slate-400 block leading-tight" style={{fontFamily:DM}}>{s.label}</span>
+                    <span className="text-[8px] font-semibold uppercase tracking-wider text-slate-400 block leading-tight" style={{fontFamily:DM}} data-testid={`stat-label-${s.key}-${faseKey}-${idx}`}>{s.label}</span>
                     <Input
                       value={s.value}
                       type={s.type||'text'}
