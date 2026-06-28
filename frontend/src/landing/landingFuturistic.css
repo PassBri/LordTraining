@@ -14,17 +14,17 @@
   text-shadow: none !important;
 }
 
-/* Hero: título enorme 48-88px, line-height ajustado, una sola línea animada */
+/* Hero: título controlado (máx 3rem) para no romper el layout */
 .lt-theme[data-landing-theme="futuristic"] [data-testid="hero-headline"] {
-  font-size: clamp(2.4rem, 4.6vw, 3.75rem) !important;
-  line-height: 1.04 !important;
+  font-size: clamp(1.9rem, 2.2vw + 0.6rem, 2.5rem) !important;
+  line-height: 1.08 !important;
   font-weight: 600 !important;
   word-break: break-word;
 }
-/* H2 de secciones full-width: tamaño grande tipo Linear/Vercel */
+/* H2 de secciones: tamaño tasteful (máx 2.25rem) */
 .lt-theme[data-landing-theme="futuristic"] h2 {
-  font-size: clamp(1.9rem, 3.8vw, 3rem) !important;
-  line-height: 1.08 !important;
+  font-size: clamp(1.5rem, 2vw + 1rem, 2.25rem) !important;
+  line-height: 1.12 !important;
 }
 .lt-theme[data-landing-theme="futuristic"] [data-testid="hero-headline"]::after {
   content: '';
@@ -55,8 +55,15 @@
   border-top: 1px solid var(--border) !important;
   border-bottom: 1px solid var(--border) !important;
 }
+/* Bandas/divisores con gradientes navy fijos (#0a0f19/#1a2033) → grafito neutro */
+.lt-theme[data-landing-theme="futuristic"] [class*="0a0f19"],
+.lt-theme[data-landing-theme="futuristic"] [class*="1a2033"] {
+  background-image: none !important;
+  background-color: var(--bg-surface) !important;
+  border-color: var(--border) !important;
+}
 .lt-theme[data-landing-theme="futuristic"] [data-testid="main-nav"] {
-  background-color: rgba(5, 10, 20, 0.72) !important;
+  background-color: rgba(18, 18, 18, 0.78) !important;
   border-bottom: 1px solid var(--border) !important;
 }
 

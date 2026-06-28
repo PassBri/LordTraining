@@ -68,3 +68,29 @@
 
 /* Precios: usan color inline #fff/lime → forzar navy para contraste en claro */
 .lt-theme[data-landing-theme="light"] [data-testid^="price-"] { color: #0A0F1E !important; }
+
+/* Hero headline: garantizar navy oscuro legible en claro (spans lima+white → ink) */
+.lt-theme[data-landing-theme="light"] [data-testid="hero-headline"],
+.lt-theme[data-landing-theme="light"] [data-testid="hero-headline"] span { color: #050A14 !important; }
+
+/* ---- FIX contraste: tarjetas de testimonios (fondo navy inline #161b24) ---- */
+.lt-theme[data-landing-theme="light"] [data-testid^="testimonial-"] > div {
+  background: #FFFFFF !important;
+  border: 1px solid #E5E7EB !important;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03) !important;
+}
+.lt-theme[data-landing-theme="light"] [data-testid^="testimonial-"] [class*="text-white"] { color: #0A0F1E !important; }
+.lt-theme[data-landing-theme="light"] [data-testid^="testimonial-"] [class*="border-t"] { border-color: #E5E7EB !important; }
+
+/* ---- FIX contraste: tarjeta de audiencia "coaches" (acento lima ilegible en blanco) ---- */
+/* El lima #CCFF00 falla WCAG sobre blanco → se reemplaza por oliva oscuro legible y CTA navy. */
+.lt-theme[data-landing-theme="light"] [data-testid="audience-coaches"] p { color: #5C6B00 !important; }
+.lt-theme[data-landing-theme="light"] [data-testid="audience-coaches"] li svg { color: #5C6B00 !important; }
+.lt-theme[data-landing-theme="light"] [data-testid="audience-cta-coaches"] {
+  background: #0A0F1E !important;
+  border-color: #0A0F1E !important;
+  color: #CCFF00 !important;
+}
+.lt-theme[data-landing-theme="light"] [data-testid="audience-cta-coaches"] svg { color: #CCFF00 !important; }
+/* El ícono pequeño del header coaches (relleno lima) conserva su badge: el texto interno usa navy */
+.lt-theme[data-landing-theme="light"] [data-testid="audience-coaches"] h3 { color: #050A14 !important; }

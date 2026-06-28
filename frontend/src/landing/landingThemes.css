@@ -36,36 +36,38 @@
   background-color: #121212;
 }
 
+/* Futurista "Cerámica": grafito mate neutro, CERO azul, lima muy puntual. */
 .lt-theme[data-landing-theme="futuristic"] {
-  --bg-base: #030508;
-  --bg-surface: #060B14;
-  --bg-surface-elevated: #0A1224;
-  --text-primary: #FFFFFF;
-  --text-secondary: #7E8C9A;
+  --bg-base: #121212;
+  --bg-surface: #1C1C1C;
+  --bg-surface-elevated: #262626;
+  --text-primary: #F5F5F7;
+  --text-secondary: #A1A1AA;
   --accent: #CCFF00;
   --accent-gold: #C9A84C;
-  --border: #1A2B4C;
-  --radius-card: 4px;
-  --radius-btn: 4px;
-  --shadow-card: 0 0 20px rgba(204, 255, 0, 0.05), inset 0 0 0 1px rgba(204, 255, 0, 0.1);
-  --accent-glow: rgba(204, 255, 0, 0.4);
-  background-color: #030508;
+  --border: #333333;
+  --radius-card: 8px;
+  --radius-btn: 6px;
+  --shadow-card: inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 20px rgba(0,0,0,0.5);
+  --accent-glow: rgba(204, 255, 0, 0.12);
+  background-color: #121212;
 }
 
 .lt-theme[data-landing-theme="light"] {
-  --bg-base: #F8FAFC;
+  --bg-base: #F9FAFB;
   --bg-surface: #FFFFFF;
-  --bg-surface-elevated: #FFFFFF;
-  --text-primary: #0A0F1E;
-  --text-secondary: #475569;
+  --bg-surface-elevated: #F3F4F6;
+  --text-primary: #050A14;
+  --text-secondary: #4B5563;
   --accent: #CCFF00;
   --accent-gold: #C9A84C;
-  --border: #E2E8F0;
+  --accent-ink: #0A0F1E;
+  --border: #E5E7EB;
   --radius-card: 16px;
   --radius-btn: 8px;
-  --shadow-card: 0 10px 25px -5px rgba(0,0,0,0.05);
+  --shadow-card: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
   --accent-glow: rgba(204, 255, 0, 0.3);
-  background-color: #F8FAFC;
+  background-color: #F9FAFB;
 }
 
 /* ── Mapeo global de superficies / textos / bordes ─────────────── */
@@ -112,8 +114,8 @@
 .lt-theme[data-landing-theme="material"] .bg-slate-900,
 .lt-theme[data-landing-theme="material"] .bg-slate-800 { border: none !important; box-shadow: var(--shadow-card); }
 
-/* Futurista: glow lima sutil en superficies */
-.lt-theme[data-landing-theme="futuristic"] .bg-slate-900 { box-shadow: var(--shadow-card); border: 1px solid rgba(204, 255, 0, 0.12); }
+/* Futurista cerámico: borde neutro grafito + sombra mate (sin glow lima en superficies) */
+.lt-theme[data-landing-theme="futuristic"] .bg-slate-900 { box-shadow: var(--shadow-card); border: 1px solid var(--border); }
 
 /* Light: tarjetas con borde + sombra suave para separar del fondo claro */
 .lt-theme[data-landing-theme="light"] .bg-slate-900,

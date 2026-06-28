@@ -1,5 +1,12 @@
 # CHANGELOG — LordTraining
 
+## 2026-06-30 — Refinamiento de paletas del Landing (4 temas) + multideporte profesional
+- **Tema LIGHT — fix de contraste (bug del usuario)**: las tarjetas de testimonios usaban `background:#161b24` INLINE (no se re-tematizaba) con texto forzado a navy → texto oscuro sobre fondo oscuro ilegible. Fix en `landingLight.css`: `[data-testid^="testimonial-"] > div` → fondo blanco + borde/sombra suave (override `!important` vence al inline). También: hero headline garantizado navy `#050A14`; tarjeta de audiencia "coaches" (acento lima ilegible sobre blanco) → subtítulo/checks a oliva oscuro `#5C6B00` y CTA a navy con texto lima. Tokens light refinados (Notion/Linear: bg `#F9FAFB`, surface `#FFF`, elevated `#F3F4F6`, ink `#0A0F1E`).
+- **Tema FUTURISTA — repaletado a "cerámica" grafito neutro (cero azul)**: tokens cambiados de navy-azul a grafito mate (bg `#121212`, surface `#1C1C1C`, elevated `#262626`, texto `#F5F5F7/#A1A1AA`, borde neutro `#333`, sombra mate cerámica, radios 8px). Bordes de superficie de lima→neutro. Bandas/nav/marquee neutralizados. Lima reservada a acentos puntuales (verbos del hero, línea animada).
+- **Tema FUTURISTA — tipografía controlada**: hero clamp reducido a `clamp(1.9rem,2.2vw+0.6rem,2.5rem)` (antes 3.75rem) y H2 a `clamp(1.5rem,2vw+1rem,2.25rem)` para no romper el layout.
+- **Sección Multi-Deporte más profesional**: tableros SVG desaturados (`filter: saturate(0.5) brightness(0.82)`, hover sube a 0.72) + overlay grafito cohesivo; carrusel de deportes extra con gradiente muted (borde superior 2px de color para diferenciar, sin inundar el fondo). Menos "arcoíris", más premium.
+- Blueprint en `/app/design_guidelines.json`. Verificado: compila limpio; futurista (hero/palette) confirmado por screenshot; light/multideporte vía CSS determinista (el tool de screenshot solo captura el tope). Tema activo en prod sigue 'classic' (intacto).
+
 ## 2026-06-29 — Vista previa de temas del Landing (sin publicar)
 - **Botón "Vista previa" por tema** en el panel Super Admin (Apariencia de Landing): abre `/?previewTheme=<id>` en pestaña nueva. (`landing-theme-preview-<id>`)
 - **Landing soporta `?previewTheme=<id>`**: renderiza el tema indicado SIN consultar ni modificar el tema activo de la BD; muestra un aviso flotante "Vista previa: tema X · no publicado" (`preview-theme-banner`). Verificado visualmente: con BD en 'classic', `/?previewTheme=light` muestra el landing en claro sin publicar.

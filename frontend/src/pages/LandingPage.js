@@ -736,6 +736,8 @@ const LandingPage = () => {
         @keyframes sport-arrow { 0%,30% { stroke-dashoffset: 100 } 70%,100% { stroke-dashoffset: 0 } }
         @keyframes sport-pulse { 0%,100% { opacity:0.6 } 50% { opacity:1 } }
         .sport-card { will-change: transform }
+        .sport-card svg { filter: saturate(0.5) brightness(0.82) contrast(1.02); transition: filter 0.3s ease; }
+        .sport-card:hover svg { filter: saturate(0.72) brightness(0.92) contrast(1.03); }
         .sport-card svg .anim-ball { animation: sport-ball 4s ease-in-out infinite }
         .sport-card svg .anim-player { animation: sport-player 4s ease-in-out infinite }
         .sport-card svg .anim-arrow { stroke-dasharray:100; animation: sport-arrow 4s ease-in-out infinite }
@@ -764,7 +766,7 @@ const LandingPage = () => {
             <a key={i} href="/tactical-board.html" onClick={handleBoardClick} className="sport-card group relative rounded-2xl overflow-hidden border border-slate-800 hover:border-[#CCFF00]/60 transition-all hover:scale-[1.04] hover:shadow-[0_14px_32px_-6px_rgba(204,255,0,0.28)]" data-testid={`sport-card-${sport.name.toLowerCase()}`}>
               <div className="aspect-[3/4] relative">
                 <svg viewBox="0 0 100 140" className="w-full h-full block" preserveAspectRatio="xMidYMid slice" dangerouslySetInnerHTML={{__html: sport.svg}} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/15 pointer-events-none"/>
+                <div className="absolute inset-0 pointer-events-none" style={{background:'linear-gradient(to top, rgba(5,10,20,0.92) 0%, rgba(5,10,20,0.18) 45%, rgba(5,10,20,0.35) 100%)'}}/>
                 <div className="absolute top-2 right-2 flex items-center gap-1.5 px-2 py-1 rounded-md bg-black/55 backdrop-blur-sm border border-[#CCFF00]/25">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#CCFF00] animate-pulse"/>
                   <span className="text-[8px] font-bold uppercase tracking-[0.12em] text-[#CCFF00]" style={{fontFamily:BC}}>LIVE</span>
@@ -795,8 +797,9 @@ const LandingPage = () => {
                   {name:'Karate', c:'#78716c'},{name:'Taekwondo', c:'#b91c1c'},{name:'MMA', c:'#1f2937'},{name:'Judo', c:'#450a0a'}
                 ].map((sp, i) => (
                   <a key={i} href="/tactical-board.html" onClick={handleBoardClick} className="group relative flex-shrink-0 w-[150px] snap-start rounded-xl overflow-hidden border border-slate-800 hover:border-[#CCFF00]/60 hover:scale-[1.05] transition-all" data-testid={`extra-sport-${sp.name.toLowerCase().replace(/\s+/g,'-')}`}>
-                    <div className="aspect-[3/4] relative flex flex-col items-center justify-center p-3" style={{background:`linear-gradient(135deg, ${sp.c} 0%, ${sp.c}88 50%, #0a0f19 100%)`}}>
-                      <div className="absolute inset-0" style={{backgroundImage:'radial-gradient(circle at 50% 30%, rgba(255,255,255,0.12) 0%, transparent 55%)'}}/>
+                    <div className="aspect-[3/4] relative flex flex-col items-center justify-center p-3" style={{background:`linear-gradient(160deg, ${sp.c}33 0%, #0c1320 55%, #060b14 100%)`}}>
+                      <div className="absolute inset-0" style={{backgroundImage:'radial-gradient(circle at 50% 30%, rgba(255,255,255,0.06) 0%, transparent 55%)'}}/>
+                      <div className="absolute top-0 left-0 right-0 h-[2px]" style={{background:sp.c, opacity:0.7}}/>
                       <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/40 backdrop-blur border border-[#CCFF00]/25">
                         <span className="text-[7.5px] font-black tracking-[0.1em] text-[#CCFF00]" style={{fontFamily:BC}}>3D</span>
                       </div>
