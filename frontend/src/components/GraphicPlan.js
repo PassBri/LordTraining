@@ -201,6 +201,9 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     duration: '',
     model: ''
   });
+  // Catálogos para resolver IDs (deporte/modelo) → nombre legible
+  const [sportMap, setSportMap] = useState({});
+  const [modelMap, setModelMap] = useState({});
   
   // Plan data structure
   const [planData, setPlanData] = useState({
@@ -598,15 +601,31 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
           }
         }
       }
+      // Resolver nombres legibles (los planes guardan IDs en sport/model)
+      const modelName = activePlan.model_name || modelMap[activePlan.model] || activePlan.model;
+      // Derivar tipo de periodización (familia) desde el nombre/clave del modelo
+      const derivePeriodType = (key, name) => {
+        const s = `${key || ''} ${name || ''}`.toLowerCase();
+        if (s.includes('pdi') || s.includes('dual integrada')) return 'pdi';
+        if (s.includes('atr')) return 'atr';
+        if (s.includes('bloque')) return 'bloques';
+        if (s.includes('polariz')) return 'polarizado';
+        if (s.includes('ondula') || s.includes('dup') || s.includes('no lineal') || s.includes('nonlinear')) return 'ondulante';
+        if (s.includes('lineal') || s.includes('linear')) return 'lineal';
+        if (s.includes('tradicional') || s.includes('matveiev') || s.includes('matveev')) return 'tradicional';
+        const known = ['tradicional', 'atr', 'bloques', 'ondulante', 'lineal', 'polarizado', 'pdi'];
+        return known.includes((key || '').toLowerCase()) ? key.toLowerCase() : '';
+      };
+      const periodType = derivePeriodType(activePlan.model, modelName);
       setGeneralInfo(prev => ({
         ...prev,
-        sport: activePlan.sport || prev.sport,
+        sport: (sportMap[activePlan.sport] || activePlan.sport_name || activePlan.sport) || prev.sport,
         category: athleteCategory || activePlan.category || prev.category,
         athlete: athleteName || prev.athlete,
         coach: coachName || activePlan.coach_name || prev.coach,
-        periodizationType: activePlan.model || prev.periodizationType || 'tradicional',
+        periodizationType: periodType || prev.periodizationType || 'tradicional',
         duration: durationStr || prev.duration,
-        model: activePlan.model_name || activePlan.model || prev.model,
+        model: modelName || prev.model,
       }));
       if (activePlan.macrocycles?.length > 0 && !v2Micros.length) {
         importPeriodizationData(activePlan.macrocycles[0]);
@@ -1056,6 +1075,34 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
 
   // ── B1: Cargar plantilla del modelo (autollenado por fase, respeta ediciones manuales) ──
   const [loadingTemplate, setLoadingTemplate] = useState(false);
+
+  // Cargar catálogos (deportes + modelos de periodización) → mapas id→nombre
+  useEffect(() => {
+    const token = localStorage.getItem('train_token');
+    const headers = { Authorization: `Bearer ${token}` };
+    // Deportes (estructura anidada categoría→deportes; ambos tienen id+name)
+    axios.get(`${BACKEND_URL}/api/sports/catalog`, { headers })
+      .then(res => {
+        const map = {};
+        const walk = (o) => {
+          if (Array.isArray(o)) { o.forEach(walk); return; }
+          if (o && typeof o === 'object') {
+            if (o.id && o.name) map[o.id] = o.name;
+            Object.values(o).forEach(walk);
+          }
+        };
+        walk(res.data);
+        setSportMap(map);
+      }).catch(() => {});
+    // Modelos de periodización (id→name)
+    axios.get(`${BACKEND_URL}/api/periodization-library`, { headers })
+      .then(res => {
+        const items = Array.isArray(res.data) ? res.data : (res.data?.models || res.data?.items || []);
+        const map = {};
+        (items || []).forEach(m => { if (m && m.id && m.name) map[m.id] = m.name; });
+        setModelMap(map);
+      }).catch(() => {});
+  }, []);
 
   // ═══ Niveles del deportista: topes de carga (warning no bloqueante) ═══
   const [levelCaps, setLevelCaps] = useState(null);
