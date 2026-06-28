@@ -1,155 +1,119 @@
 {
-  "project": "LordTraining Landing Page - 4 Themes Implementation",
-  "theme_strategy": {
-    "architecture": "CSS Variables applied via [data-theme=\"<theme_name>\"] attribute on the <html> or :root element.",
-    "global_transition": "All thematic properties (background-color, color, border-color, box-shadow) MUST include a transition of 300ms ease-in-out. Use: 'transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;' on global elements.",
-    "core_restrictions": "DO NOT change textual content, pricing table structure, LORD logo, Hotmart integration, language translation button logic/visibility, or section order. No parallax. No heavy/distracting animations."
+  "project_name": "LordTraining Landing Page - Theme Engine",
+  "domain": "Sports Coaching Platform",
+  "archetype": "The Performance Pro (Modified for Multi-Theme)",
+  "primary_brand_colors": {
+    "accent": "#CCFF00",
+    "accent_gold": "#C9A84C"
   },
-  "typography_guide": {
-    "version_a_classic": {
-      "family": "'Inter', sans-serif",
-      "heading_weight": "700",
-      "tracking": "normal"
-    },
-    "version_b_material": {
-      "family": "'Google Sans', 'Roboto', sans-serif",
-      "heading_weight": "500",
-      "tracking": "normal",
-      "line_height": "1.4"
-    },
-    "version_c_futuristic": {
-      "family": "'Space Grotesk', 'Inter', sans-serif",
-      "heading_weight": "600",
-      "tracking": "-0.03em",
-      "hero_title_size": "clamp(60px, 8vw, 100px)",
-      "line_height": "1.05"
-    },
-    "version_d_light": {
-      "family": "'Inter', sans-serif",
-      "heading_weight": "600",
-      "tracking": "-0.01em",
-      "line_height": "1.5"
-    }
-  },
-  "design_tokens": {
-    "version_a_classic": {
-      "css_variables": {
+  "theming_strategy": {
+    "concept": "CSS Specificity Override Engine",
+    "description": "Uses CSS overrides bound to `.lt-theme[data-landing-theme='X']` to hijack hardcoded Tailwind utility classes. This achieves a complete visual overhaul at runtime without massive JSX rewrites.",
+    "theme_variables": {
+      "classic": {
         "--bg-base": "#050A14",
-        "--bg-surface": "#0C1322",
+        "--bg-surface": "#0B1221",
+        "--bg-surface-elevated": "#121A2F",
         "--text-primary": "#FFFFFF",
-        "--text-secondary": "#A0AEC0",
-        "--accent": "#CCFF00",
-        "--accent-gold": "#C9A84C",
-        "--border": "rgba(255,255,255,0.1)",
-        "--btn-primary-bg": "#CCFF00",
-        "--btn-primary-text": "#050A14",
-        "--radius-card": "12px",
+        "--text-secondary": "#94A3B8",
+        "--border": "#1E293B",
+        "--radius-card": "16px",
         "--radius-btn": "8px",
-        "--shadow-card": "none"
-      }
-    },
-    "version_b_material": {
-      "css_variables": {
+        "--shadow-card": "0 10px 30px -10px rgba(0,0,0,0.5)",
+        "--accent-glow": "rgba(204, 255, 0, 0.15)"
+      },
+      "material": {
         "--bg-base": "#121212",
         "--bg-surface": "#1E1E1E",
         "--bg-surface-elevated": "#2C2C2C",
         "--text-primary": "#E3E3E3",
-        "--text-secondary": "#C4C7C5",
-        "--accent": "#CCFF00",
-        "--accent-gold": "#C9A84C",
-        "--border": "#444746",
-        "--btn-primary-bg": "#CCFF00",
-        "--btn-primary-text": "#121212",
+        "--text-secondary": "#A0A0A0",
+        "--border": "#333333",
         "--radius-card": "24px",
-        "--radius-btn": "100px",
-        "--shadow-card": "0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)",
-        "--shadow-elevated": "0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12), 0 5px 5px -3px rgba(0,0,0,0.2)"
-      }
-    },
-    "version_c_futuristic": {
-      "css_variables": {
-        "--bg-base": "#050A14",
-        "--bg-surface": "#080D1A",
-        "--bg-surface-elevated": "#0A0F1E",
+        "--radius-btn": "9999px",
+        "--shadow-card": "0 8px 16px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3)",
+        "--accent-glow": "transparent"
+      },
+      "futuristic": {
+        "--bg-base": "#030508",
+        "--bg-surface": "#060B14",
+        "--bg-surface-elevated": "#0A1224",
         "--text-primary": "#FFFFFF",
-        "--text-secondary": "#888888",
-        "--accent": "#CCFF00",
-        "--accent-gold": "#C9A84C",
-        "--border": "rgba(255,255,255,0.08)",
-        "--btn-primary-bg": "#FFFFFF",
-        "--btn-primary-text": "#050A14",
+        "--text-secondary": "#7E8C9A",
+        "--border": "#1A2B4C",
         "--radius-card": "4px",
         "--radius-btn": "4px",
-        "--shadow-card": "none",
-        "--shadow-elevated": "0 0 20px rgba(204, 255, 0, 0.15)"
-      }
-    },
-    "version_d_light": {
-      "css_variables": {
-        "--bg-base": "#FFFFFF",
-        "--bg-surface": "#F5F7FA",
+        "--shadow-card": "0 0 20px rgba(204, 255, 0, 0.05), inset 0 0 0 1px rgba(204, 255, 0, 0.1)",
+        "--accent-glow": "rgba(204, 255, 0, 0.4)"
+      },
+      "light": {
+        "--bg-base": "#F8FAFC",
+        "--bg-surface": "#FFFFFF",
         "--bg-surface-elevated": "#FFFFFF",
         "--text-primary": "#0A0F1E",
-        "--text-secondary": "#4A5568",
-        "--accent": "#CCFF00",
-        "--accent-gold": "#C9A84C",
+        "--text-secondary": "#475569",
         "--border": "#E2E8F0",
-        "--btn-primary-bg": "#0A0F1E",
-        "--btn-primary-text": "#CCFF00",
         "--radius-card": "16px",
         "--radius-btn": "8px",
-        "--shadow-card": "0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03)",
-        "--shadow-elevated": "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)"
+        "--shadow-card": "0 10px 25px -5px rgba(0,0,0,0.05)",
+        "--accent-glow": "rgba(204, 255, 0, 0.3)"
       }
     }
   },
-  "section_treatments": {
-    "hero": {
-      "version_b_material": "Centered or 50/50 layout. Use pill-shaped primary buttons. Add a subtle shadow to the CTA. Software badge should be fully rounded.",
-      "version_c_futuristic": "Massive typography (60-100px). Minimalist pill/rectangular CTA. Implement a SINGLE 1px animated glowing line (Scanner effect) across the hero. Fade-in on scroll.",
-      "version_d_light": "High contrast text. Navy CTA (#0A0F1E) with lime (#CCFF00) text. Clean, generous spacing. Subtle inner shadow on the badge."
-    },
-    "multi_sport_board": {
-      "version_b_material": "Elevated cards (Shadow 1) with surface color #1E1E1E. Rounded 24px.",
-      "version_c_futuristic": "Bento grid approach. Flat dark cards #080D1A with 1px low opacity border. No shadow.",
-      "version_d_light": "White cards on #F5F7FA background. Soft shadow, #E2E8F0 border."
-    },
-    "features": {
-      "version_b_material": "Material icons, rounded feature containers, hover elevation lift.",
-      "version_c_futuristic": "Extremely generous whitespace. Grid layout. 1px borders dividing features (Linear style shell).",
-      "version_d_light": "Notion-like simplicity. Left-aligned, crisp typography. Soft grey containers."
-    },
-    "pricing_table": {
-      "rules": "DO NOT change text, pricing tiers, or layout structure.",
-      "version_b_material": "Elevated central/popular card. Rounded top headers.",
-      "version_c_futuristic": "Flat cards. Popular card distinguished by a 1px glowing neon border.",
-      "version_d_light": "White cards. Navy CTA for the popular tier."
-    }
+  "css_override_blueprint": {
+    "global_mapping": [
+      ".lt-theme[data-landing-theme] .bg-slate-950 { background-color: var(--bg-base) !important; transition: background-color 0.3s ease; }",
+      ".lt-theme[data-landing-theme] .bg-slate-900 { background-color: var(--bg-surface) !important; transition: background-color 0.3s ease; }",
+      ".lt-theme[data-landing-theme] .bg-slate-800 { background-color: var(--bg-surface-elevated) !important; transition: background-color 0.3s ease; }",
+      ".lt-theme[data-landing-theme] .text-white { color: var(--text-primary) !important; transition: color 0.3s ease; }",
+      ".lt-theme[data-landing-theme] .text-slate-400, .lt-theme[data-landing-theme] .text-slate-300, .lt-theme[data-landing-theme] .text-slate-500 { color: var(--text-secondary) !important; transition: color 0.3s ease; }",
+      ".lt-theme[data-landing-theme] .border-slate-800, .lt-theme[data-landing-theme] .border-slate-700 { border-color: var(--border) !important; transition: border-color 0.3s ease; }"
+    ],
+    "structural_mapping": [
+      ".lt-theme[data-landing-theme] .rounded-xl, .lt-theme[data-landing-theme] .rounded-2xl { border-radius: var(--radius-card) !important; transition: border-radius 0.3s ease; }",
+      ".lt-theme[data-landing-theme] button.rounded-md, .lt-theme[data-landing-theme] button.rounded-lg, .lt-theme[data-landing-theme] a[class*='px-'][class*='py-'] { border-radius: var(--radius-btn) !important; transition: border-radius 0.3s ease; }"
+    ]
   },
-  "pages_treatments": {
-    "blog": {
-      "version_b_material": "Card-based layout (image on top, text below). Rounded 24px, subtle shadows.",
-      "version_c_futuristic": "1px grid list. Hovering over a blog post faintly glows the border. Sharp corners.",
-      "version_d_light": "Clean, light cards with soft shadows. Serif/Sans mix for editorial feel if possible, else stick to Inter."
-    },
-    "api_docs": {
-      "version_b_material": "Floating Action Button (FAB) for navigation, Material sidebar.",
-      "version_c_futuristic": "Stripe-inspired. Dark canvas, 2-column layout. Berkeley/JetBrains Mono for code. Sharp neon syntax highlighting.",
-      "version_d_light": "Linear light docs style. High contrast syntax highlighting on #F5F7FA code blocks."
-    },
-    "support": {
-      "version_b_material": "Material Expansion Panels for FAQs. Filled text fields for form.",
-      "version_c_futuristic": "Flat accordions with 1px border bottoms. Minimalist input lines (border bottom only).",
-      "version_d_light": "Clean boxed accordions. Standard outlined inputs."
-    }
+  "double_use_resolution": {
+    "problem": "The class `text-slate-900` is used BOTH on white cards (needs to be inverted to light text in dark themes) AND on lime brand buttons (needs to remain dark always).",
+    "solution": "DO NOT globally override `.text-slate-900`. Use Contextual Targetting for the cards instead.",
+    "css_implementation": [
+      "/* 1. Target white cards in dark themes (Classic, Material, Futuristic) */",
+      ".lt-theme:not([data-landing-theme='light']) .bg-white { background-color: var(--bg-surface-elevated) !important; border: 1px solid var(--border); box-shadow: var(--shadow-card); }",
+      "/* 2. Invert the text ONLY inside those white cards */",
+      ".lt-theme:not([data-landing-theme='light']) .bg-white .text-slate-900 { color: var(--text-primary) !important; }",
+      ".lt-theme:not([data-landing-theme='light']) .bg-white .text-slate-600 { color: var(--text-secondary) !important; }",
+      "/* 3. Result: Lime buttons like `<button class='bg-[#CCFF00] text-slate-900'>` are NOT inside `.bg-white`, so they preserve their dark text organically. */"
+    ]
   },
+  "theme_specific_nuances": {
+    "light": [
+      "/* Ensure cards have shadow and white background in light mode */",
+      ".lt-theme[data-landing-theme='light'] .bg-slate-900, .lt-theme[data-landing-theme='light'] .bg-white { box-shadow: var(--shadow-card); border: 1px solid var(--border); }"
+    ],
+    "futuristic": [
+      "/* Add cyber glow to elevated surfaces */",
+      ".lt-theme[data-landing-theme='futuristic'] .bg-slate-900 { box-shadow: var(--shadow-card); border: 1px solid rgba(204, 255, 0, 0.15); }"
+    ],
+    "material": [
+      "/* Remove borders for material design, rely on heavy elevation */",
+      ".lt-theme[data-landing-theme='material'] .bg-slate-900 { border: none !important; box-shadow: var(--shadow-card); }"
+    ]
+  },
+  "untouchable_classes": [
+    ".bg-[#CCFF00]",
+    ".text-[#CCFF00]",
+    ".bg-lime-400",
+    ".text-lime-400",
+    ".bg-[#C9A84C]",
+    ".text-[#C9A84C]"
+  ],
   "instructions_to_main_agent": [
-    "1. Do not rewrite textual content, pricing data, or core structural components. Only wrap/style them using the defined CSS variables.",
-    "2. Implement a theme switcher widget (e.g., floating or in the footer) that toggles the data-theme attribute on <html> between 'classic', 'material', 'futuristic', and 'light'.",
-    "3. Apply 'transition: all 0.3s ease' globally to backgrounds, text colors, and borders to ensure the 300ms smooth theme switch.",
-    "4. For Version C (futuristic), implement a single 1px glowing animated line in the hero section using CSS animations or Framer Motion.",
-    "5. Build the Resources pages (Blog, API Docs, Support) reusing the token system so they automatically adapt to the 4 themes.",
-    "6. Ensure the language selector (12 idiomas) remains visible, functioning, and properly themed across all 4 versions.",
-    "7. MUST add `data-testid` to all interactive elements."
+    "1. Inject the `theme_variables` and `css_override_blueprint` into your main CSS file (e.g., globals.css or App.css).",
+    "2. Crucially add the `double_use_resolution` CSS exactly as provided to resolve the card vs. lime button contrast conflict.",
+    "3. Do NOT run string replacements in the JSX to change tailwind utility classes. Rely on this CSS Override Engine.",
+    "4. Ensure ALL interactive elements (buttons, theme toggles, cards) include `data-testid` attributes (e.g. `data-testid='theme-toggle-light'`).",
+    "5. Verify that in 'Light' theme, the hero section (originally `bg-slate-950`) successfully flips to `#F8FAFC` and its `text-white` flips to `#0A0F1E`.",
+    "6. Verify that in 'Futuristic', everything adopts sharp corners (4px radius) and subtle lime box-shadows."
   ]
 }
