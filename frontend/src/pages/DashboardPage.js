@@ -247,6 +247,13 @@ const DashboardPage = () => {
   const [aiGapProvider, setAiGapProvider] = useState('openai'); // openai | anthropic
   const [aiSelectedModels, setAiSelectedModels] = useState([]); // model_keys
   const [periodLibrary, setPeriodLibrary] = useState([]); // [{id, name, category, ...}]
+  // Resuelve el nombre legible del modelo de un plan (model_name → biblioteca por id → fallback)
+  const resolveModelName = (plan) => {
+    if (!plan) return '';
+    if (plan.model_name) return tModelName(plan.model_name);
+    const found = (periodLibrary || []).find(m => m.id === plan.model);
+    return tModelName(found?.name || plan.model || '');
+  };
 
   // ====== OBJECTIVES STATE ======
   const [objectivesData, setObjectivesData] = useState({
@@ -317,6 +324,9 @@ const DashboardPage = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeDataSection, activePlan?.id]);
+
+  // Cargar biblioteca de modelos al montar (para resolver nombres de modelo en sidebar/tiles)
+  useEffect(() => { fetchPeriodLibrary(); /* eslint-disable-next-line */ }, []);
 
   // API Base URL
   const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
@@ -1495,7 +1505,7 @@ const DashboardPage = () => {
                                 {plan.total_weeks} {t('dashboard.plans.weeksShort')}
                               </span>
                               <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs font-medium rounded-full truncate max-w-[100px]">
-                                {tModelName(plan.model_name || plan.model)}
+                                {resolveModelName(plan)}
                               </span>
                               {plan.sport && (
                                 <span className="text-xs text-slate-500 truncate">{t('catalog.sport_'+plan.sport,{defaultValue:plan.sport})}</span>
@@ -1631,7 +1641,7 @@ const DashboardPage = () => {
                 <p className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">{t('data.plan_activo')}</p>
                 <h3 className="font-bold text-lg text-slate-800">{activePlan.name}</h3>
                 <p className="text-sm text-slate-500">
-                  {activePlan.total_weeks} {t('periodization.weeksLower')} • {tModelName(activePlan.model_name || activePlan.model)}
+                  {activePlan.total_weeks} {t('periodization.weeksLower')} • {resolveModelName(activePlan)}
                 </p>
               </div>
               <Button
@@ -3948,7 +3958,7 @@ const DashboardPage = () => {
                     {activePlan.total_weeks} {t('periodization.weeksLower')}
                   </span>
                   <span className="px-2.5 py-1 bg-[#E0F7FA] text-[#00838F] text-[11px] font-semibold rounded-full">
-                    {tModelName(activePlan.model_name || activePlan.model)}
+                    {resolveModelName(activePlan)}
                   </span>
                   {activePlan.sport && (
                     <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-[11px] font-semibold rounded-full">
@@ -4464,6 +4474,7 @@ const DashboardPage = () => {
             onRefresh={fetchTrainingPlans}
             onCreatePlan={() => { setActiveDataSection('create-plan'); setIsPlansSheetOpen(false); }}
             getSportName={(id) => (allSports.find(s => s.id === id)?.name) || id}
+            getModelName={resolveModelName}
             t={t}
           />
         </SheetContent>

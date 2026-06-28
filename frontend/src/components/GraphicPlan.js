@@ -204,6 +204,8 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
   // Catálogos para resolver IDs (deporte/modelo) → nombre legible
   const [sportMap, setSportMap] = useState({});
   const [modelMap, setModelMap] = useState({});
+  // Último plan cuya periodización se importó (para reimportar al cambiar de plan)
+  const lastImportedPlanRef = useRef(null);
   
   // Plan data structure
   const [planData, setPlanData] = useState({
@@ -627,11 +629,12 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
         duration: durationStr || prev.duration,
         model: modelName || prev.model,
       }));
-      if (activePlan.macrocycles?.length > 0 && !v2Micros.length) {
+      if (activePlan.macrocycles?.length > 0 && lastImportedPlanRef.current !== activePlan.id) {
+        lastImportedPlanRef.current = activePlan.id;
         importPeriodizationData(activePlan.macrocycles[0]);
       }
     }
-  }, [activePlan, athleteName, athleteCategory, coachName, importPeriodizationData, v2Micros.length]);
+  }, [activePlan, athleteName, athleteCategory, coachName, importPeriodizationData, sportMap, modelMap]);
 
   // Load calendar events
   useEffect(() => {

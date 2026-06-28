@@ -17,6 +17,7 @@ const PlanSidebar = ({
   onRefresh,
   onCreatePlan,
   getSportName,
+  getModelName,
   t
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -173,7 +174,7 @@ const PlanSidebar = ({
                         <span className="text-slate-200 text-[8px]">|</span>
                         <span className="text-[10px] text-slate-400">{plan.total_weeks} {t('dashboard.plans.weeksShort')}</span>
                         <span className="text-slate-200 text-[8px]">|</span>
-                        <span className="text-[10px] text-slate-400 truncate max-w-[70px]">{plan.model_name || t('models.'+(plan.model||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'_').replace(/^_+|_+$/g,'').toLowerCase(),{defaultValue:plan.model})}</span>
+                        <span className="text-[10px] text-slate-400 truncate max-w-[70px]">{getModelName ? getModelName(plan) : (plan.model_name || plan.model)}</span>
                       </div>
                     </div>
                   </div>
