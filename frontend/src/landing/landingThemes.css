@@ -124,9 +124,14 @@
 
 /* Bandas/divisores con gradientes oscuros fijos (from/via/to #0a0f19,#1a2033): aclararlos en Light */
 .lt-theme[data-landing-theme="light"] [class*="0a0f19"],
-.lt-theme[data-landing-theme="light"] [class*="1a2033"] {
+.lt-theme[data-landing-theme="light"] [class*="1a2033"],
+.lt-theme[data-landing-theme="light"] [data-testid="marquee-section"] {
   background-image: none !important;
   background-color: var(--bg-surface) !important;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
+}
+/* Texto de la banda de deportes (usa text-white/35) → legible sobre fondo claro */
+.lt-theme[data-landing-theme="light"] [data-testid="marquee-section"] span {
+  color: var(--text-secondary) !important;
 }

@@ -495,6 +495,25 @@ const LandingPage = () => {
     }
   };
 
+  // Publicar el tema en vista previa (activarlo para todos) — requiere super admin
+  const [publishState, setPublishState] = useState('idle'); // idle | saving | done | error
+  const publishPreviewTheme = async () => {
+    if (!previewTheme || publishState === 'saving') return;
+    const token = localStorage.getItem('train_token');
+    if (!token) { setPublishState('error'); return; }
+    setPublishState('saving');
+    try {
+      const BACKEND = process.env.REACT_APP_BACKEND_URL;
+      const res = await fetch(`${BACKEND}/api/landing/theme`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ theme: previewTheme }),
+      });
+      if (res.ok) { setPublishState('done'); }
+      else { setPublishState('error'); }
+    } catch (e) { setPublishState('error'); }
+  };
+
   const handlePlanCheckout = (landingKey) => {
     const tier = LANDING_TIER_MAP[landingKey] || 'starter';
     const cycle = billingCycle;
@@ -531,8 +550,29 @@ const LandingPage = () => {
 
     {/* Aviso de Vista Previa (solo cuando ?previewTheme=...) */}
     {previewTheme && (
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[100] bg-[#CCFF00] text-slate-900 px-4 py-2 rounded-full shadow-2xl text-sm font-bold flex items-center gap-2" data-testid="preview-theme-banner">
-        Vista previa: tema "{previewTheme}" · no publicado
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[100] bg-[#CCFF00] text-slate-900 px-4 py-2.5 rounded-full shadow-2xl text-sm font-bold flex items-center gap-3" data-testid="preview-theme-banner">
+        {publishState === 'done' ? (
+          <>
+            <span>✓ Tema "{previewTheme}" activado para todos</span>
+            <a href="/" className="underline hover:no-underline text-slate-900/80">Ver publicado</a>
+          </>
+        ) : (
+          <>
+            <span>Vista previa: tema "{previewTheme}" · no publicado</span>
+            <button
+              type="button"
+              onClick={publishPreviewTheme}
+              disabled={publishState === 'saving'}
+              className="bg-slate-900 text-[#CCFF00] px-3 py-1.5 rounded-full text-xs font-bold hover:bg-slate-800 transition-colors disabled:opacity-60"
+              data-testid="preview-activate-btn"
+            >
+              {publishState === 'saving' ? 'Activando…' : 'Activar este tema'}
+            </button>
+            {publishState === 'error' && (
+              <span className="text-red-700 text-xs" data-testid="preview-activate-error">Inicia sesión como Super Admin</span>
+            )}
+          </>
+        )}
       </div>
     )}
 
