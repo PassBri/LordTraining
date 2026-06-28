@@ -310,6 +310,12 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
   const [sessionEditorOpen, setSessionEditorOpen] = useState(false);
   const [editingSession, setEditingSession] = useState(null);
   const [editingSessionLocation, setEditingSessionLocation] = useState(null);
+  // Objeto estable para SessionEditor: solo cambia cuando cambia la sesión editada (evita resets del editor)
+  const sessionEditorSession = React.useMemo(() => (
+    editingSession
+      ? { ...editingSession, detailedData: editingSession?.sessionData || editingSession?.detailed_data || null }
+      : null
+  ), [editingSession]);
   
   // Calculator modal
   const [calculatorOpen, setCalculatorOpen] = useState(false);
@@ -3254,10 +3260,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         <SessionEditor
           isOpen={sessionEditorOpen}
           onClose={() => { setSessionEditorOpen(false); setEditingSession(null); setEditingSessionLocation(null); }}
-          session={{
-            ...editingSession,
-            detailedData: editingSession?.sessionData || editingSession?.detailed_data || null
-          }}
+          session={sessionEditorSession}
           onSave={handleSaveSession}
         />
       )}

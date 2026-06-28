@@ -1078,7 +1078,7 @@ const SessionEditor = ({
           const intSuffix = (intUnit === '%1RM' || intUnit === '%FCmax' || intUnit === '%FCres' || intUnit === '%Vmax') ? '%' : '';
           const isBoardOpen = expandedBoard === act.id;
           return (
-          <div key={act.id} className="rounded-lg bg-white overflow-visible transition-shadow hover:shadow-md" style={{ position: 'relative', zIndex: showExercisePicker === `${faseKey}-${idx}` ? 1000 : 1, border: '1px solid rgba(0,0,0,0.06)' }}>
+          <div key={`${act.id}-${act.capacidadFisica}-${act.unidadVolumen}-${act.unidadIntensidad}`} className="rounded-lg bg-white overflow-visible transition-shadow hover:shadow-md" style={{ position: 'relative', zIndex: showExercisePicker === `${faseKey}-${idx}` ? 1000 : 1, border: '1px solid rgba(0,0,0,0.06)' }}>
 
             {/* === FILA PRINCIPAL (72px) === */}
             <div className="flex items-center gap-2.5 px-3" style={{minHeight:'72px'}}>

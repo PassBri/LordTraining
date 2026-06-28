@@ -1,0 +1,35 @@
+{
+  "summary": "Re-verificación iter_104: TAREA 1 (FIX3 rótulos por capacidad) PASS y TAREA 3 (drag bidireccional Calendario→Plan Gráfico) PASS. Ambos fixes funcionan correctamente. Para TAREA 1 los <span> de int-label, stat-label-volumen y stat-label-medida ahora cambian al cambiar capacidadFisica gracias al composite key en la fila + memoización de la session prop. Para TAREA 3 el chip arrastrado en el calendario se movió a un día +14 y al volver al Plan Gráfico la celda original (training-6=05/04) quedó vacía y la nueva celda (training-8=19/04) muestra la fecha — confirmando que el rescheduling propaga del calendario al plan gráfico.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Modales (varios componentes Radix Dialog)", "issues": ["WARNING persistente: 'DialogContent requires a DialogTitle' aparece en consola al abrir modales. >=5 iteraciones pendiente. Solo accesibilidad — no bloquea funcionalidad."]}
+    ]
+  },
+  "verified_features": [
+    "TAREA 1 PASS - Login → activar plan → tab-datos → section-tab-periodizacion → subnav-period-structure → expandir Macro 'Preparación General' → expandir Meso 'Meso 1 - Acumulación' → crear/abrir 'Nueva Semana' → session-0 → Agregar actividad en FASE INICIAL → leer rótulos iniciales: 'Int (%1RM)', 'Reps', 'Kg' (Fuerza). Cambiar capacidad a 'Resistencia': los <span> mostraron 'Int (%FCmax)', 'Km', 'Km' ✓. Cambiar a 'Teórica': los <span> mostraron 'Int (Escala 1-5)', 'Minutos', 'Minutos' ✓.",
+    "TAREA 3 PASS - tab-datos → athlete-team-selector → seleccionar Equipo 'Selección Sub-17 (2)' (Modo Equipo válido) → section-tab-visualizacion → subnav-graphic-plan → click cell-activities-training-6 → modal comp-date-modal con fecha 04/05/2025 → click 'Guardar' (scoped al comp-date-modal). Toast 'Datos de periodización importados correctamente'. Switch a subnav-calendar-view: event-chip-gp_activities_training_6_0 aparece en day-cell-2025-04-05. drag_to nativo a day-cell-2025-04-19 (+14 días). Al regresar a subnav-graphic-plan, la celda cell-activities-training-8 muestra '19/04' y cell-activities-training-6 está vacía — confirmación visual de que el reschedule del calendario propagó al plan gráfico (drag bidireccional funcional)."
+  ],
+  "test_report_links": [],
+  "action_items": [
+    "LOW: Resolver warning Radix DialogTitle (>=5 iteraciones pendiente). Envolver DialogTitle con VisuallyHidden donde aplique.",
+    "LOW: 404 de recurso en carga del dashboard sigue presente (pendiente desde iter_101). Inspeccionar Network panel para identificar la URL fallida.",
+    "LOW (cosmético): Modal comp-date-modal no usa role=\"dialog\" (es un <div> custom). Considerar agregar role=\"dialog\" + aria-labelledby para accesibilidad y para facilitar tests con selectors estándar.",
+    "LOW: Las <option> del athlete-team-selector tienen data-value=null en el DOM (los textos sí están presentes). Confirmar si la prop value se está bindeando correctamente — no bloquea funcionalidad pero limita selección programática por value."
+  ],
+  "critical_code_review_comments": [
+    "FIX3 confirmado efectivo: el composite key `${act.id}-${act.capacidadFisica}-${act.unidadVolumen}-${act.unidadIntensidad}` en /app/frontend/src/components/SessionEditor.js:1081 forza el remontaje del DOM al cambiar capacidad. El useMemo de sessionEditorSession en PeriodizationComplete.js:314 evita re-creación inline del objeto session. Ambos son fixes correctos y mínimamente invasivos.",
+    "OBSERVACIÓN: forzar remontaje vía key es una solución pragmática que funciona, pero implica que cada cambio de capacidad/unidad descarta el estado local de la fila (e.g., foco del usuario, descripción no guardada). Si el usuario escribe en 'Descripción' y luego cambia capacidad, el input se desmonta. Verificar UX con el equipo si esto es aceptable. Solución alternativa más fina: useMemo del objeto capCfg + key estable, pero requiere debugging del problema de reconciliación original.",
+    "El warning de input controlado/no-controlado ('A component is changing an uncontrolled input to be controlled') aparece al seleccionar el athlete-team-selector — revisar bindings de value/defaultValue en pages/DashboardPage.js."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "TAREA 1: 100% PASS. TAREA 3: 100% PASS."},
+  "test_credentials": "test@train.com / test123456",
+  "seed_data_creation": "Creado 'Nueva Semana' en Meso 1 - Acumulación (no había micros). Agregada actividad-0 en FASE INICIAL de session-0. En Plan Gráfico: asignada fecha 04/05/2025 a cell-activities-training-6 (creando gp_activities_training_6_0), luego movida a 19/04 vía drag en calendario.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "iter_104: TAREA 1 y TAREA 3 ambas PASS. FIX3 (composite key + memoización de session prop) resolvió definitivamente el bug de reconciliación de rótulos. Drag bidireccional Calendario→Plan Gráfico está funcional con drag_to nativo HTML5 (no necesitó dispatch manual). Trick útil para futuras pruebas: el modal de fecha en Plan Gráfico es <div data-testid='comp-date-modal'> (no role=dialog), así que usar selector '[data-testid=\"comp-date-modal\"] button:has-text(\"Guardar\")'. Para el athlete-team-selector las opciones tienen value=null pero los textContent funcionan; en este test se usó la opción de Equipo 'Selección Sub-17 (2)' (Modo Equipo) — funciona equivalentemente al Modo Atleta para asignar fechas en Plan Gráfico.",
+  "rca_of_the_issue": "iter_104 confirma que la hipótesis de iter_103 era correcta: el problema era de RECONCILIACIÓN de React DOM (los <span> compartían el mismo nodo DOM entre renders y la diff del texto se perdía por alguna interacción con Radix Select). El FIX3 resuelve esto forzando remount completo del wrapper <div> de la fila vía composite key que incluye capacidadFisica + unidadVolumen + unidadIntensidad. Resultado: PASS."
+}
