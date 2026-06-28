@@ -1179,13 +1179,12 @@ const DashboardPage = () => {
     }
   };
 
-  // Reprogramar un evento al arrastrarlo en el Calendario → sincroniza Plan Gráfico (bidireccional)
-  const handleEventReschedule = async (ev, newDateStr) => {
-    if (!selectedAthleteId || !ev?.id || !newDateStr) return false;
+  // Reprograma un evento gp_ para UN atleta: actualiza events_calendar + planData (graphic_plans)
+  const rescheduleEventForAthlete = async (athleteId, ev, newDateStr) => {
+    if (!athleteId || !ev?.id || !newDateStr) return false;
     const token = localStorage.getItem('train_token');
     const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
 
-    // Calcular nº de semana del Plan Gráfico desde la fecha (inicio del plan)
     const weekFromDate = (dateStr) => {
       const sd = activePlan?.start_date ? new Date(activePlan.start_date) : null;
       if (!sd || isNaN(sd.getTime())) return null;
@@ -1194,57 +1193,86 @@ const DashboardPage = () => {
       return Math.max(1, Math.floor(diffDays / 7) + 1);
     };
 
-    // Parse del id de eventos del Plan Gráfico: gp_<section>_<rowId>_<week>_<i>
+    // Traer los eventos actuales del atleta
+    let evts = [];
+    try {
+      const r = await fetch(`${API_URL}/api/events-calendar/${athleteId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      if (r.ok) { const d = await r.json(); evts = d.events || []; }
+    } catch (e) { return false; }
+    const target = evts.find(e => e.id === ev.id);
+    if (!target) return false;
+    const oldDate = target.date;
+
+    // Parse gp_<section>_<rowId>_<week>_<i>
     const m = String(ev.id).match(/^gp_([a-z]+)_(.+)_(\d+)_(\d+)$/);
     const newWeek = weekFromDate(newDateStr);
-    let newId = ev.id;
-    let section = null, rowId = null, oldWeek = null;
+    let newId = ev.id, section = null, rowId = null, oldWeek = null;
     if (m) {
       section = m[1]; rowId = m[2]; oldWeek = parseInt(m[3], 10);
       if (newWeek && newWeek !== oldWeek) {
         const baseKey = `gp_${section}_${rowId}_${newWeek}`;
-        const used = events.filter(e => (e.id || '').startsWith(baseKey)).length;
+        const used = evts.filter(e => (e.id || '').startsWith(baseKey)).length;
         newId = `${baseKey}_${used}`;
       }
     }
 
-    // 1) Actualizar events_calendar del atleta (fecha + posible id)
-    const updatedEvents = events.map(e => e.id === ev.id ? { ...e, id: newId, date: newDateStr } : e);
+    // 1) events_calendar
+    const updatedEvents = evts.map(e => e.id === ev.id ? { ...e, id: newId, date: newDateStr } : e);
     try {
       await fetch(`${API_URL}/api/events-calendar`, {
-        method: 'POST', headers,
-        body: JSON.stringify({ athlete_id: selectedAthleteId, events: updatedEvents })
+        method: 'POST', headers, body: JSON.stringify({ athlete_id: athleteId, events: updatedEvents })
       });
-      setEvents(updatedEvents);
     } catch (e) { return false; }
 
-    // 2) Si es un evento de celda del Plan Gráfico → mover la fecha en planData (graphic_plans)
+    // 2) planData (graphic_plans) si es celda
     if (m && (section === 'activities' || section === 'monitoring') && newWeek) {
       try {
-        const r = await fetch(`${API_URL}/api/graphic-plan/${selectedAthleteId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const r = await fetch(`${API_URL}/api/graphic-plan/${athleteId}`, { headers: { 'Authorization': `Bearer ${token}` } });
         if (r.ok) {
           const gp = await r.json();
           const planData = gp.planData || {};
           const sec = { ...(planData[section] || {}) };
-          // Quitar la fecha vieja de la celda de oldWeek
-          const oldArr = (sec[`${rowId}_dates_${oldWeek}`] || []).filter(d => d && d.slice(0, 10) !== (ev.date || '').slice(0, 10));
+          const oldArr = (sec[`${rowId}_dates_${oldWeek}`] || []).filter(d => d && d.slice(0, 10) !== (oldDate || '').slice(0, 10));
           if (oldArr.length === 0) {
             delete sec[`${rowId}_${oldWeek}`]; delete sec[`${rowId}_date_${oldWeek}`]; delete sec[`${rowId}_dates_${oldWeek}`];
           } else {
             sec[`${rowId}_dates_${oldWeek}`] = oldArr; sec[`${rowId}_date_${oldWeek}`] = oldArr[0]; sec[`${rowId}_${oldWeek}`] = true;
           }
-          // Añadir la fecha nueva a la celda de newWeek
           const newArr = [...((sec[`${rowId}_dates_${newWeek}`]) || []).filter(Boolean), newDateStr];
           sec[`${rowId}_dates_${newWeek}`] = newArr; sec[`${rowId}_date_${newWeek}`] = newArr[0]; sec[`${rowId}_${newWeek}`] = true;
           planData[section] = sec;
           await fetch(`${API_URL}/api/graphic-plan`, {
             method: 'POST', headers,
-            body: JSON.stringify({ athlete_id: selectedAthleteId, generalInfo: gp.generalInfo || {}, planData, cycleDuration: gp.cycleDuration || 'annual' })
+            body: JSON.stringify({ athlete_id: athleteId, generalInfo: gp.generalInfo || {}, planData, cycleDuration: gp.cycleDuration || 'annual' })
           });
         }
       } catch (e) { /* el evento ya se movió en el calendario */ }
     }
     return true;
+  };
+
+  // Reprogramar un evento al arrastrarlo en el Calendario → sincroniza Plan Gráfico (bidireccional)
+  // scope: 'all' (todo el equipo) | 'single' (solo ese atleta). athleteId del chip en ev._athleteId (modo equipo).
+  const handleEventReschedule = async (ev, newDateStr, scope = 'single') => {
+    if (!ev?.id || !newDateStr) return false;
+    let targets;
+    if (selectedTeamId) {
+      const roster = (teams.find(tm => tm.id === selectedTeamId)?.athletes) || [];
+      targets = scope === 'all' ? roster : [ev._athleteId || selectedAthleteId];
+    } else {
+      targets = [selectedAthleteId];
+    }
+    targets = [...new Set(targets.filter(Boolean))];
+    if (targets.length === 0) return false;
+    let ok = false;
+    for (const aid of targets) {
+      const r = await rescheduleEventForAthlete(aid, ev, newDateStr);
+      ok = ok || r;
+    }
+    // Refrescar la vista (equipo o individual)
+    if (selectedTeamId) { await fetchTeamEvents(); }
+    else if (selectedAthleteId) { await fetchEvents(selectedAthleteId); }
+    return ok;
   };
 
   // Fetch objectives for selected athlete
@@ -1298,11 +1326,12 @@ const DashboardPage = () => {
 
   // Refrescar eventos al entrar al Calendario (las fechas del Plan Gráfico ya están en el backend)
   useEffect(() => {
-    if (activeDataSection === 'calendar-view' && selectedAthleteId) {
-      fetchEvents(selectedAthleteId);
+    if (activeDataSection === 'calendar-view') {
+      if (selectedTeamId) { fetchTeamEvents(); }
+      else if (selectedAthleteId) { fetchEvents(selectedAthleteId); }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeDataSection]);
+  }, [activeDataSection, selectedTeamId]);
 
   // Navigation items for "Datos" panel - ESTRUCTURA JERÁRQUICA DEL PLAN DE ENTRENAMIENTO
   // Basado en la metodología científica de planificación deportiva (Padilla, Matveiev, etc.)
@@ -2641,7 +2670,7 @@ const DashboardPage = () => {
 
     // Render Calendario section inline - COMPLETE
     if (activeDataSection === 'calendar-view') {
-      return <SessionCalendar activePlan={activePlan} events={events} selectedAthleteId={selectedAthleteId} onEventReschedule={handleEventReschedule} />;
+      return <SessionCalendar activePlan={activePlan} events={selectedTeamId ? teamEvents : events} selectedAthleteId={selectedAthleteId} onEventReschedule={handleEventReschedule} teamMode={!!selectedTeamId} teamName={selectedTeam?.name || null} />;
     }
 
     // Render Generar con IA section inline - COMPLETE

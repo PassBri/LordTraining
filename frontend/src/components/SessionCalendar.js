@@ -35,7 +35,7 @@ const sessionColor = (sesion) => {
   return CAP_COLORS.default;
 };
 
-const SessionCalendar = ({ activePlan, events = [], selectedAthleteId = null, onEventReschedule = null }) => {
+const SessionCalendar = ({ activePlan, events = [], selectedAthleteId = null, onEventReschedule = null, teamMode = false, teamName = null }) => {
   const { t, i18n } = useTranslation();
   const { plan, sesiones, microciclos, mesociclos, macrociclos, cargarPlanCompleto, actualizarSesion, loading } = usePlanStore();
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -93,6 +93,18 @@ const SessionCalendar = ({ activePlan, events = [], selectedAthleteId = null, on
     });
     return map;
   }, [events]);
+
+  // Leyenda de atletas del equipo (color + inicial) derivada de los eventos consolidados
+  const teamLegend = useMemo(() => {
+    if (!teamMode) return [];
+    const map = {};
+    (events || []).forEach(ev => {
+      if (ev._athleteId && !map[ev._athleteId]) {
+        map[ev._athleteId] = { id: ev._athleteId, name: ev._athleteName || 'Atleta', initial: ev._athleteInitial || '?', color: ev._athleteColor || '#64748b' };
+      }
+    });
+    return Object.values(map);
+  }, [teamMode, events]);
 
   // Auto-saltar al mes del evento del Plan Gráfico más cercano (para que el chip sea visible al entrar)
   const didAutoJump = useRef(false);
@@ -182,11 +194,22 @@ const SessionCalendar = ({ activePlan, events = [], selectedAthleteId = null, on
       setDraggedEvent(null);
       if ((ev.date || '').slice(0, 10) === dateStr) return;
       if (!onEventReschedule) { toast.error(t('sessionCalendar.moveFailed')); return; }
+      // En Modo Equipo: preguntar el alcance (todo el equipo vs solo ese atleta)
+      let scope = 'single';
+      if (teamMode) {
+        // eslint-disable-next-line no-alert
+        const all = window.confirm(
+          `Reprogramar "${ev.name || 'evento'}" de ${ev._athleteName || 'este atleta'}.\n\nAceptar = reprogramar para TODO el equipo\nCancelar = solo para ${ev._athleteName || 'este atleta'}`
+        );
+        scope = all ? 'all' : 'single';
+      }
       setActing(true);
       try {
-        const ok = await onEventReschedule(ev, dateStr);
-        if (ok) toast.success(`${t('sessionCalendar.sessionMoved')} ${new Date(dateStr).toLocaleDateString(i18n.language)}`);
-        else toast.error(t('sessionCalendar.moveFailed'));
+        const ok = await onEventReschedule(ev, dateStr, scope);
+        if (ok) {
+          const suffix = teamMode ? (scope === 'all' ? ' · todo el equipo' : ` · solo ${ev._athleteName || 'atleta'}`) : '';
+          toast.success(`${t('sessionCalendar.sessionMoved')} ${new Date(dateStr).toLocaleDateString(i18n.language)}${suffix}`);
+        } else toast.error(t('sessionCalendar.moveFailed'));
       } catch (err) {
         toast.error(t('sessionCalendar.moveError'));
       } finally {
@@ -271,6 +294,18 @@ const SessionCalendar = ({ activePlan, events = [], selectedAthleteId = null, on
       </div>
 
       <div className="max-w-6xl mx-auto px-6 -mt-4 relative z-10">
+        {/* Leyenda de Equipo (consolidado): inicial + color por atleta */}
+        {teamMode && teamLegend.length > 0 && (
+          <div className="mb-3 bg-white rounded-xl border border-slate-200 shadow-sm px-4 py-2.5 flex items-center gap-3 flex-wrap" data-testid="team-calendar-legend">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Equipo{teamName ? ` · ${teamName}` : ''}:</span>
+            {teamLegend.map(a => (
+              <span key={a.id} className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-700" data-testid={`team-legend-${a.id}`}>
+                <span className="inline-flex items-center justify-center text-[8px] font-extrabold rounded-full text-white" style={{ width: 16, height: 16, background: a.color }}>{a.initial}</span>
+                {a.name}
+              </span>
+            ))}
+          </div>
+        )}
         {/* Calendar grid card */}
         <div
           ref={containerRef}
@@ -347,27 +382,32 @@ const SessionCalendar = ({ activePlan, events = [], selectedAthleteId = null, on
                       </div>
                     )}
                     {/* Event chips (Plan Gráfico / Competencias) */}
-                    {(eventsByDay[dateStr] || []).slice(0, 2).map((ev, ei) => {
-                      const c = eventColor(ev);
-                      const isGp = (ev.id || '').startsWith('gp_');
+                    {(eventsByDay[dateStr] || []).slice(0, teamMode ? 3 : 2).map((ev, ei) => {
+                      const c = (teamMode && ev._athleteColor) ? ev._athleteColor : eventColor(ev);
                       const draggableEvent = !!onEventReschedule;
                       return (
                         <div
-                          key={`ev-${ev.id || ei}`}
+                          key={`ev-${ev._athleteId || ''}-${ev.id || ei}`}
                           draggable={draggableEvent}
                           onDragStart={draggableEvent ? (e) => { e.stopPropagation(); handleEventDragStart(e, ev); } : undefined}
-                          className={`px-1.5 py-1 rounded-md text-[10px] font-semibold leading-tight truncate ${draggableEvent ? 'cursor-grab active:cursor-grabbing hover:scale-[1.02] transition-transform' : ''}`}
+                          className={`px-1.5 py-1 rounded-md text-[10px] font-semibold leading-tight truncate flex items-center gap-1 ${draggableEvent ? 'cursor-grab active:cursor-grabbing hover:scale-[1.02] transition-transform' : ''}`}
                           style={{ background: c + '22', color: c, borderLeft: `3px solid ${c}` }}
-                          title={`${ev.name || 'Evento'}${ev.source === 'graphic_plan' ? ' · Plan Gráfico (arrastra para reprogramar)' : ''}`}
-                          data-testid={`event-chip-${ev.id || ei}`}
+                          title={teamMode
+                            ? `${ev._athleteName || 'Atleta'} · ${ev.name || 'Evento'} (arrastra para reprogramar)`
+                            : `${ev.name || 'Evento'}${ev.source === 'graphic_plan' ? ' · Plan Gráfico (arrastra para reprogramar)' : ''}`}
+                          data-testid={`event-chip-${teamMode ? (ev._athleteId || '') + '-' : ''}${ev.id || ei}`}
                         >
-                          <span className="inline-block w-1.5 h-1.5 rounded-full mr-1 align-middle" style={{ background: c }} />
-                          {ev.name || 'Evento'}
+                          {teamMode && ev._athleteInitial ? (
+                            <span className="inline-flex items-center justify-center text-[8px] font-extrabold rounded-full flex-shrink-0" style={{ width: 14, height: 14, background: c, color: '#fff' }}>{ev._athleteInitial}</span>
+                          ) : (
+                            <span className="inline-block w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: c }} />
+                          )}
+                          <span className="truncate">{ev.name || 'Evento'}</span>
                         </div>
                       );
                     })}
-                    {(eventsByDay[dateStr]?.length || 0) > 2 && (
-                      <div className="text-[9px] text-slate-500 px-1 font-semibold">+{eventsByDay[dateStr].length - 2}</div>
+                    {(eventsByDay[dateStr]?.length || 0) > (teamMode ? 3 : 2) && (
+                      <div className="text-[9px] text-slate-500 px-1 font-semibold">+{eventsByDay[dateStr].length - (teamMode ? 3 : 2)}</div>
                     )}
                   </div>
                 </div>

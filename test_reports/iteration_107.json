@@ -1,0 +1,27 @@
+{
+  "summary": "PASS · Consolidated Team view in Calendar (Drag & Drop) works end-to-end. Team mode shows legend with athlete initials+colors, multi-chips per day (one per athlete with initial badge), drag triggers window.confirm asking scope (Accept=team / Cancel=single) with correct toasts. Individual mode shows no legend, no initial badge, drag does not prompt scope.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "[Minor / Testability] Add data-testid='select-athlete-<id>' to individual athlete SelectItem entries in DashboardPage.js (line ~4151). Currently only team options have data-testid; individual athlete options have no testid which makes automated testing harder. Suggested: <SelectItem ... data-testid={`select-athlete-${a.id}`}>{a.name}</SelectItem>"
+  ],
+  "critical_code_review_comments": [
+    "DashboardPage.js line 4151: individual athlete SelectItem missing data-testid (Equipos have it via select-team-<id>, but Atletas group does not). Inconsistent with the rest of the testid coverage in the selector. Functionally OK but reduces testability.",
+    "Toast precision verified: Plan Gráfico replication toast shows '2 fecha(s) añadida(s) al calendario · replicado a 2 atletas del equipo' (GraphicPlan.js:876). Drag toasts: 'Sesión movida al <date> · todo el equipo' (scope=all) and 'Sesión movida al <date> · solo <athlete>' (scope=single) (SessionCalendar.js:210-211). Individual mode emits 'Sesión movida al <date>' (no suffix). All match spec.",
+    "SessionCalendar.js correctly differentiates chip visuals: team mode renders initial badge (14x14, w-14 h-14 with color background and white text), individual mode renders 1.5x1.5 dot (w-1.5 h-1.5 rounded-full). Verified at runtime.",
+    "rescheduleEventForAthlete + handleEventReschedule with scope='all' iterate teamAthleteIds correctly. Verified: scope=all moved chips for BOTH athletes (CP also moved despite drag originating on JP chip)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "test_credentials": "Coach: test@train.com / test123456 — Team used: 'Selección Sub-17' (2 athletes: Juan Pérez = JP, Carlos Pérez = CP) — Plan activated: 'Plan Test API' (start 01/15/2024, 26 weeks, ATR Issurin)",
+  "seed_data_creation": "Used existing seeded plan/team. Added a date assignment in cell-activities-training-6 of the team's Graphic Plan to seed events for the calendar (replicated to 2 athletes).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "iter_107 fully validated the new consolidated Team Calendar feature (drag&drop with scope confirm). Detailed results: (1) Setup flow: tab-planes -> activate plan -> tab-datos -> athlete-team-selector -> select-team-<id> ('Selección Sub-17' has 2 atletas) -> 'Modo Equipo: 2 atletas' badge appears. (2) Plan Gráfico (subnav-graphic-plan) -> click cell-activities-training-6 -> comp-date-modal opens -> click comp-modal-add-date -> comp-modal-save -> toast '2 fecha(s) añadida(s) al calendario · replicado a 2 atletas del equipo' (REPLICATION OK). (3) subnav-calendar-view in team mode: data-testid='team-calendar-legend' present with 2 items team-legend-<athleteId> (JP Juan Pérez, CP Carlos Pérez); calendar auto-jumps to event month (Abril 2025); day-cell-2025-04-05 had 3 chips event-chip-<athleteId>-<eventId> (initial badges visible). (4) DRAG TEAM SCOPE (accept): drag JP chip from 04-05 to 04-19 -> window.confirm appears with full Spanish prompt -> accepted -> toast 'Sesión movida al 19/4/2025 · todo el equipo' -> both JP and CP chips moved (04-05 lost CP_6_0 too, 04-19 gained CP_8_0). (5) DRAG SINGLE SCOPE (cancel): drag JP chip from 04-05 to 04-12 -> window.confirm appears -> dismissed -> toast 'Sesión movida al 12/4/2025 · solo Juan Pérez' -> only JP moved (CP stayed at 04-05). (6) INDIVIDUAL MODE: select Juan Pérez individually -> team-mode-badge=None, team-calendar-legend=None, chips have 1.5x1.5 colored dot instead of initial badge, drag fires NO confirm dialog, toast shows simple 'Sesión movida al <date>' without scope suffix. NOTE: Individual athlete SelectItem entries in athlete-team-selector lack data-testid='select-athlete-<id>'; testers must use role='option' + text or value 'a:<id>' to pick them. Console errors: only Radix DialogTitle a11y warnings (cosmetic) and an unrelated 404 (cached resource). Zero PageErrors.",
+  "rca of the issue": "N/A — no defects found in scope. Only minor testability improvement suggested (add data-testid to individual athlete options in athlete-team-selector)."
+}
