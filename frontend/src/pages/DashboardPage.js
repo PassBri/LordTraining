@@ -2029,7 +2029,7 @@ const DashboardPage = () => {
                         secondary_color: newTournament.secondary_color || '#10B981'
                       })
                     });
-                    if (res.ok) { fetchTournaments(); toast.success('Torneo creado'); }
+                    if (res.ok) { fetchTournamentsData(); toast.success('Torneo creado'); }
                     else { const err = await res.json(); toast.error(err.detail || 'Error al crear torneo'); }
                   } catch (e) { toast.error(t('data.error_al_crear_torneo')); }
                 }}
@@ -2043,7 +2043,7 @@ const DashboardPage = () => {
                       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                       body: JSON.stringify(merged)
                     });
-                    fetchTournaments();
+                    fetchTournamentsData();
                   } catch (e) { console.error('Error updating tournament:', e); }
                 }}
                 onDeleteTournament={async (id) => {
@@ -2053,7 +2053,7 @@ const DashboardPage = () => {
                       method: 'DELETE',
                       headers: { 'Authorization': `Bearer ${token}` }
                     });
-                    if (res.ok) { fetchTournaments(); toast.success('Torneo eliminado'); }
+                    if (res.ok) { fetchTournamentsData(); toast.success('Torneo eliminado'); }
                   } catch (e) { toast.error(t('data.error_al_eliminar_torneo')); }
                 }}
               />
@@ -2617,7 +2617,7 @@ const DashboardPage = () => {
             subtitle={t('data.calendario_de_competencias_brackets_partic')}
             icon={Shield}
             color="#8B5CF6"
-            onRefresh={fetchTournaments}
+            onRefresh={fetchTournamentsData}
           />
           <Card className="border-0 shadow-lg overflow-hidden">
             <TournamentManager
