@@ -1,5 +1,13 @@
 # CHANGELOG — LordTraining
 
+## 2026-06-28 (tarde) — Redes Sociales (Admin) + Pizarra Táctica con login
+- **Enlaces de Redes Sociales en Super Admin**: nueva sección en el tab "Apariencia de Landing" (componente `SocialLinksEditor` en LandingAppearance.jsx) con inputs para X, LinkedIn, Instagram, TikTok, YouTube, Facebook. Backend `GET /api/landing/social` (público) y `PUT /api/landing/social` (solo super admin, normaliza URLs a https://) en `landing_settings.py` (colección landing_settings, MongoDB). (iter_105 PASS)
+- **Footer del landing dinámico**: los íconos sociales del pie ahora se renderizan desde los enlaces guardados (solo se muestran los que tienen URL; abren en nueva pestaña). Se añadieron íconos TikTok, YouTube y Facebook. (iter_105 PASS)
+- **Pizarra Táctica exige login (opción B)**: en el landing, al hacer clic en tarjetas de deporte o "Explorar pizarra" estando deslogueado, redirige a `/auth` (NO abre la pizarra) y guarda `postLoginRedirect`; tras iniciar sesión, abre `/tactical-board.html`. (iter_105 PASS)
+- **Fix regresión**: faltaba `useMemo` en el import de React de DashboardPage.js (introducido al scaffolding del calendario de equipo) → causaba "useMemo is not defined" en /dashboard. Corregido. (iter_106 PASS)
+- **EN PROGRESO (scaffolding)**: vista consolidada de Equipo en el Calendario (estado `teamEvents`, `fetchTeamEvents`, `teamAthleteMeta` con inicial+color por atleta) — pendiente de cablear a SessionCalendar y refactor de `handleEventReschedule` con alcance (todo el equipo / solo ese atleta).
+
+
 ## 2026-06-28 — Sincronización Calendario ↔ Plan Gráfico + Asignación por Equipo + Fix Sesiones
 - **Selector "Atleta o Equipo"** (DashboardPage, barra persistente del Plan Activo, panel Datos): combo agrupado Equipos/Atletas. Al elegir un Equipo se muestra badge "Modo Equipo: N atletas" y banner azul en Plan Gráfico. (iter_100 PASS)
 - **Asignación masiva por Equipo**: al asignar/quitar fechas en celdas del Plan Gráfico en Modo Equipo, los eventos se replican (merge, no sobrescribe) al `events_calendar` de TODOS los atletas del equipo. Helper `replicateToTeam` en GraphicPlan.js (fetch+merge+POST por atleta). (iter_100 PASS)
