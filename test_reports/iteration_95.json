@@ -1,0 +1,28 @@
+{
+  "summary": "Frontend-only validation of Plan Gráfico cell-date assignment (Eventos/Competencias + Monitoreo/Evaluaciones) AND Panel Export PDF modal with bg-white + checkboxes. ALL 4 ACCEPTANCE CRITERIA PASS. Plan Gráfico renders sin pantalla en blanco; cell-monitoring-physical-* / cell-monitoring-medical-* and cell-activities-training-* exist (24 cells each). Click on cell opens comp-date-modal with kind='cell' (no nombre field), title = row label ('Control físico' / 'Entrenamiento'). Saving a date colors the cell (bg-orange-500 / bg-blue-200) and shows DD/MM text inside; reopening shows comp-modal-remove (Quitar) button. Panel open-export-pdf-btn opens DialogContent bg-white with full set of 9 export-card-* checkboxes (readiness, acwr, active_plan, my_plans, athletes, events, sessions, exercises, adherence) and 'Descargar PDF' button which successfully downloads reporte_train_2026-06-28.pdf.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Panel — Export PDF modal", "issues": ["Console warning still present: 'DialogContent requires a DialogTitle' (radix a11y). Wrap with VisuallyHidden DialogTitle to remove the warning. Non-blocking."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "(LOW / OPTIONAL) Add VisuallyHidden DialogTitle to the export PDF DialogContent to remove the recurring radix-ui DialogContent/DialogTitle accessibility warning in the console."
+  ],
+  "critical_code_review_comments": [
+    "GraphicPlan.js renderBooleanCell now correctly opens openCellDateModal(section, rowId, week, label, dateVal, isActive) and the comp-date-modal kind='cell' branch hides the 'Nombre' input and shows Quitar when active. Verified end-to-end.",
+    "GraphicPlan.js applyCellDate persists state in planData[section] under keys `${rowId}_${week}` (boolean active) and `${rowId}_date_${week}` (YYYY-MM-DD). DD/MM rendered via dateVal.split('-').slice(1).reverse().join('/'). Verified.",
+    "ControlPanel.js open-export-pdf-btn correctly wires to handleViewReports which opens the DialogContent with bg-white + the 9 export-card-* checkboxes + Descargar PDF. Verified PDF generation works (file name reporte_train_<date>.pdf)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only)", "frontend": "100% — PASS: (1) Plan Gráfico renderiza sin pantalla en blanco (Eventos / Competencias + Monitoreo / Evaluaciones visibles). (2) Fecha en celda Monitoreo: clic en cell-monitoring-physical-3 abre comp-date-modal con título 'Control físico', sin campo nombre, guardar fecha colorea (bg-orange-500) y muestra '15/03'; reabrir muestra Quitar. (3) Fecha en celda Eventos: clic en cell-activities-training-2 abre modal título 'Entrenamiento', guardar fecha colorea (bg-blue-200) y muestra '10/04'. (4) Export PDF modal: open-export-pdf-btn abre modal bg-white con sección 'Tarjetas del Panel' y 9 checkboxes export-card-* (readiness/acwr/active_plan/my_plans/athletes/events/sessions/exercises/adherence); 'Descargar PDF' descarga el PDF correctamente (reporte_train_2026-06-28.pdf)."},
+  "test_credentials": "Super Admin: juegolaureado@gmail.com / LordTraining2026! (preview)",
+  "seed_data_creation": "Saved 2 cell dates via the new modal: monitoring.physical_3 = 2026-03-15 and activities.training_2 = 2026-04-10 on plan 25b9abc7 (Boxeo). These are persisted via the standard updatePlanData flow.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Navigation path: tab-planes → click first [data-testid^='sidebar-plan-'] → Esc → tab-datos → section-tab-visualizacion → subnav-graphic-plan. Cells in BooleanSparklineRow rows of Monitoreo use testid pattern cell-monitoring-<rowId>-<week> (rowId in: medical, anthropometry, physical, biomechanics, technical, tactical, psychological, theoretical). Cells in Eventos use cell-activities-<rowId>-<week> (rowId in: training, doping, recovery; competitions are separate cells with their own modal). Modal data-testids: comp-date-modal, comp-modal-name (hidden for kind='cell'), comp-modal-date, comp-modal-save, comp-modal-cancel, comp-modal-remove (only when active). Plan Activo card on Panel header has [data-testid='open-export-pdf-btn'] near the top-right header (PDF Alertas neighbor). All 9 export-card-* checkboxes are present.",
+  "rca_of_the_issue": "No bug. Previous iter_94 failures were caused by missing open-export-pdf-btn wiring and missing per-cell date modal — both implemented and verified in iter_95. Iter_94 also reported active-plan-card propagation issue but it was not in the current testing scope; sidebar plan selection now properly drives Plan Activo header (verified 'Plan Deporte General - ATR (Issurin)' shown on header after sidebar selection)."
+}

@@ -1068,7 +1068,7 @@ const ControlPanel = ({
               <Button size="sm" className="h-9 w-9 bg-slate-100 hover:bg-slate-200 text-slate-600 border-0 rounded-xl" onClick={handleSave}>
                 <Save className="w-4 h-4" />
               </Button>
-              <Button size="sm" className="h-9 w-9 bg-slate-100 hover:bg-slate-200 text-slate-600 border-0 rounded-xl" onClick={handleViewReports}>
+              <Button size="sm" className="h-9 w-9 bg-slate-100 hover:bg-slate-200 text-slate-600 border-0 rounded-xl" onClick={handleViewReports} data-testid="open-export-pdf-btn" title="Exportar reporte PDF del panel">
                 <Download className="w-4 h-4" />
               </Button>
             </div>

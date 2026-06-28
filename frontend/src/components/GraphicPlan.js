@@ -777,6 +777,35 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     return d.toISOString().split('T')[0];
   };
 
+  // Abrir el modal de fecha para una celda genérica (eventos/monitoreo)
+  const openCellDateModal = (section, rowId, week, label, dateVal, active) => {
+    setCompModal({
+      kind: 'cell', section, rowId, week,
+      label: label || rowId,
+      date: dateVal || weekToDate(week),
+      active: !!active,
+    });
+  };
+
+  // Guardar/activar (o quitar) la fecha de una celda genérica en planData
+  const applyCellDate = (remove = false) => {
+    if (!compModal || compModal.kind !== 'cell') return;
+    const { section, rowId, week, date } = compModal;
+    setPlanData(prev => {
+      const sec = { ...(prev[section] || {}) };
+      if (remove) {
+        delete sec[`${rowId}_${week}`];
+        delete sec[`${rowId}_date_${week}`];
+      } else {
+        sec[`${rowId}_${week}`] = true;
+        if (date) sec[`${rowId}_date_${week}`] = date;
+      }
+      return { ...prev, [section]: sec };
+    });
+    toast.success(remove ? 'Marca eliminada' : 'Fecha asignada');
+    setCompModal(null);
+  };
+
   // Abrir el modal de fecha al hacer clic en una celda de competencia
   const openCompModal = (type, week) => {
     if (type === 'main_competition') {
@@ -793,6 +822,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
   // Guardar la competencia (principal → plan; secundaria → plan_competitions)
   const saveCompModal = async () => {
     if (!compModal || !activePlan) return;
+    if (compModal.kind === 'cell') { applyCellDate(false); return; }
     const token = localStorage.getItem('train_token');
     const headers = { Authorization: `Bearer ${token}` };
     try {
@@ -1620,17 +1650,27 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
   };
 
   // Render boolean cell
-  const renderBooleanCell = (section, rowId, weekIndex, activeColor = 'bg-blue-500') => {
+  const renderBooleanCell = (section, rowId, weekIndex, activeColor = 'bg-blue-500', label = '') => {
     const key = `${rowId}_${weekIndex}`;
     const isActive = planData[section]?.[key];
-    
+    const dateVal = planData[section]?.[`${rowId}_date_${weekIndex}`];
+    const dayLabel = dateVal ? dateVal.split('-').slice(1).reverse().join('/') : '';
+
     return (
       <td
         key={`${section}-${rowId}-${weekIndex}`}
-        className={`w-6 h-6 border border-gray-300 cursor-pointer hover:bg-gray-100 ${isActive ? activeColor : ''}`}
-        onClick={() => handleCellClick(section, rowId, weekIndex)}
+        className={`relative w-6 h-6 border border-gray-300 cursor-pointer hover:bg-amber-100 ${isActive ? activeColor : ''}`}
+        onClick={() => openCellDateModal(section, rowId, weekIndex, label, dateVal, isActive)}
+        title={dateVal ? `${label} · ${dayLabel}` : `Asignar fecha de ${label || rowId} (semana ${weekIndex})`}
         data-testid={`cell-${section}-${rowId}-${weekIndex}`}
-      />
+      >
+        {isActive && dateVal && (
+          <span className="absolute inset-0 flex items-center justify-center text-[7px] font-bold text-white leading-none">{dayLabel}</span>
+        )}
+        {isActive && !dateVal && (
+          <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-white/70" />
+        )}
+      </td>
     );
   };
 
@@ -2369,7 +2409,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                           />
                         );
                       }
-                      return renderBooleanCell('activities', act.id, week, act.color);
+                      return renderBooleanCell('activities', act.id, week, act.color, act.label);
                     })}
                   </tr>
                   );
@@ -2399,7 +2439,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
 
                 {/* MONITORING AREA sub-rows with colored squares */}
                 {MONITORING_AREAS.map(area => {
-                  const monColors = { medical: 'bg-red-100', anthropometric: 'bg-cyan-100', physical: 'bg-orange-100', biomechanical: 'bg-emerald-100', technical: 'bg-yellow-100', tactical: 'bg-green-100', psychological: 'bg-blue-100', theoretical: 'bg-purple-100' };
+                  const monColors = { medical: 'bg-red-500', anthropometric: 'bg-cyan-500', physical: 'bg-orange-500', biomechanical: 'bg-emerald-500', technical: 'bg-yellow-500', tactical: 'bg-green-500', psychological: 'bg-blue-500', theoretical: 'bg-purple-500' };
                   return (
                     <tr key={`mon-${area.id}`} className="bg-cyan-50/50">
                       <td className="sticky left-0 bg-cyan-50/50 px-2 py-0 text-[10px] border border-gray-300 z-10 pl-4" style={{ width: 160 }}>
@@ -2408,7 +2448,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                           {area.label}
                         </div>
                       </td>
-                      {displayedWeeks.map(week => renderBooleanCell('monitoring', area.id, week, monColors[area.id] || 'bg-slate-200'))}
+                      {displayedWeeks.map(week => renderBooleanCell('monitoring', area.id, week, monColors[area.id] || 'bg-slate-400', area.label))}
                     </tr>
                   );
                 })}
@@ -2795,9 +2835,10 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4" onClick={() => setCompModal(null)} data-testid="comp-date-modal">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-5" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-base font-bold text-slate-900 mb-1">
-              {compModal.type === 'main_competition' ? 'Competencia principal' : 'Competencia secundaria'}
+              {compModal.kind === 'cell' ? compModal.label : (compModal.type === 'main_competition' ? 'Competencia principal' : 'Competencia secundaria')}
             </h3>
-            <p className="text-xs text-slate-500 mb-4">Semana {compModal.week} · La fecha se sincroniza con el módulo Datos → Competencias.</p>
+            <p className="text-xs text-slate-500 mb-4">Semana {compModal.week} · {compModal.kind === 'cell' ? 'Asigna la fecha específica; las celdas con fecha se marcan en color.' : 'La fecha se sincroniza con el módulo Datos → Competencias.'}</p>
+            {compModal.kind !== 'cell' && (<>
             <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Nombre</label>
             <input
               type="text"
@@ -2807,6 +2848,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
               className="w-full h-10 px-3 mt-1 mb-3 rounded-lg border border-slate-200 text-sm"
               data-testid="comp-modal-name"
             />
+            </>)}
             <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Fecha específica</label>
             <input
               type="date"
@@ -2815,9 +2857,14 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
               className="w-full h-10 px-3 mt-1 mb-4 rounded-lg border border-slate-200 text-sm"
               data-testid="comp-modal-date"
             />
-            <div className="flex items-center justify-end gap-2">
-              <button onClick={() => setCompModal(null)} className="px-3 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100" data-testid="comp-modal-cancel">Cancelar</button>
-              <button onClick={saveCompModal} disabled={!compModal.date} className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800 disabled:opacity-50" data-testid="comp-modal-save">Guardar fecha</button>
+            <div className="flex items-center justify-between gap-2">
+              {compModal.kind === 'cell' && compModal.active ? (
+                <button onClick={() => applyCellDate(true)} className="px-3 py-2 rounded-lg text-sm font-semibold text-red-600 hover:bg-red-50" data-testid="comp-modal-remove">Quitar</button>
+              ) : <span />}
+              <div className="flex items-center gap-2">
+                <button onClick={() => setCompModal(null)} className="px-3 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100" data-testid="comp-modal-cancel">Cancelar</button>
+                <button onClick={saveCompModal} disabled={!compModal.date} className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800 disabled:opacity-50" data-testid="comp-modal-save">Guardar fecha</button>
+              </div>
             </div>
           </div>
         </div>
