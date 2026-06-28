@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Plus, RefreshCw, Copy, Share2, Trash2, Clipboard, Loader2, Printer, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
+import { PlanBadge } from './PlanIconPicker';
+import { resolvePlanBadge } from '../lib/planIcons';
 
 const PlanSidebar = ({
   trainingPlans,
@@ -14,6 +16,7 @@ const PlanSidebar = ({
   onExportPDF,
   onRefresh,
   onCreatePlan,
+  getSportName,
   t
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -49,18 +52,18 @@ const PlanSidebar = ({
         <div className="flex-1 overflow-y-auto flex flex-col items-center py-2 gap-1">
           {trainingPlans.map((plan) => {
             const isActive = activePlan?.id === plan.id;
+            const badge = resolvePlanBadge(plan, getSportName ? getSportName(plan.sport) : '');
             return (
               <button
                 key={plan.id}
                 onClick={() => onSelectPlan(plan)}
-                className={`w-9 h-9 rounded-lg flex items-center justify-center text-[11px] font-bold transition-all ${
-                  isActive
-                    ? 'bg-[#007AFF] text-white shadow-sm'
-                    : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
+                  isActive ? 'ring-2 ring-[#007AFF] ring-offset-1' : 'opacity-80 hover:opacity-100'
                 }`}
                 title={plan.name}
+                data-testid={`sidebar-collapsed-plan-${plan.id}`}
               >
-                {plan.name.charAt(0).toUpperCase()}
+                <PlanBadge icon={badge.icon} color={badge.color} size={36} />
               </button>
             );
           })}
@@ -152,6 +155,8 @@ const PlanSidebar = ({
                   data-testid={`sidebar-plan-${plan.id}`}
                 >
                   <div className="flex items-start justify-between gap-1">
+                  <div className="flex items-start gap-2 min-w-0 flex-1">
+                    {(() => { const b = resolvePlanBadge(plan, getSportName ? getSportName(plan.sport) : ''); return <PlanBadge icon={b.icon} color={b.color} size={34} className="mt-0.5" />; })()}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
                         <h4 className={`text-[13px] font-medium truncate leading-tight ${isActive ? 'text-[#007AFF]' : 'text-slate-700'}`}>
@@ -164,13 +169,14 @@ const PlanSidebar = ({
                         )}
                       </div>
                       <div className="flex items-center gap-1 mt-0.5 flex-wrap">
-                        <span className="text-[10px] text-slate-400 truncate max-w-[80px]">{plan.sport ? t('catalog.sport_'+plan.sport,{defaultValue:plan.sport}) : t('dashboard.plans.sportGeneral')}</span>
+                        <span className="text-[10px] text-slate-400 truncate max-w-[80px]">{plan.sport ? (getSportName ? getSportName(plan.sport) : t('catalog.sport_'+plan.sport,{defaultValue:plan.sport})) : t('dashboard.plans.sportGeneral')}</span>
                         <span className="text-slate-200 text-[8px]">|</span>
                         <span className="text-[10px] text-slate-400">{plan.total_weeks} {t('dashboard.plans.weeksShort')}</span>
                         <span className="text-slate-200 text-[8px]">|</span>
-                        <span className="text-[10px] text-slate-400 truncate max-w-[70px]">{t('models.'+(plan.model_name||plan.model||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'_').replace(/^_+|_+$/g,'').toLowerCase(),{defaultValue:plan.model_name||plan.model})}</span>
+                        <span className="text-[10px] text-slate-400 truncate max-w-[70px]">{plan.model_name || t('models.'+(plan.model||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'_').replace(/^_+|_+$/g,'').toLowerCase(),{defaultValue:plan.model})}</span>
                       </div>
                     </div>
+                  </div>
                     {/* Hover actions */}
                     <div className="flex items-center gap-0 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 -mr-1">
                       <button

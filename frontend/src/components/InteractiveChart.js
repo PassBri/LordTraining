@@ -94,6 +94,16 @@ const InteractiveChart = ({
   const [crosshairData, setCrosshairData] = useState(null);
   const [showCrosshair, setShowCrosshair] = useState(true);
   const chartContainerRef = useRef(null);
+  // Series ocultas (toggle desde la leyenda)
+  const [hiddenSeries, setHiddenSeries] = useState(() => new Set());
+  const toggleSeries = (key) => {
+    if (!key) return;
+    setHiddenSeries(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  };
 
   // Filtrar datos según el rango de tiempo seleccionado.
   // Si el rango pedido (ej. 2A=104, 4A=208) supera la longitud de los datos,
@@ -285,9 +295,16 @@ const InteractiveChart = ({
         wrapperStyle={{ 
           fontSize: '12px', 
           paddingTop: '10px',
-          color: isFullscreenMode ? '#D1D5DB' : undefined
+          color: isFullscreenMode ? '#D1D5DB' : undefined,
+          cursor: 'pointer'
         }}
         iconType="circle"
+        onClick={(o) => toggleSeries(o?.dataKey || o?.payload?.dataKey)}
+        formatter={(value, entry) => {
+          const key = entry?.dataKey || entry?.payload?.dataKey;
+          const off = key && hiddenSeries.has(key);
+          return <span style={{ opacity: off ? 0.35 : 1, textDecoration: off ? 'line-through' : 'none' }}>{value}</span>;
+        }}
       />,
       brush: showBrush && filteredData.length > 4 ? (
         <Brush 
@@ -399,6 +416,7 @@ const InteractiveChart = ({
                 key={dk.key}
                 dataKey={dk.key}
                 name={dk.name}
+                hide={hiddenSeries.has(dk.key)}
                 fill={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6'}
                 radius={[4, 4, 0, 0]}
               />
@@ -424,6 +442,7 @@ const InteractiveChart = ({
                 type="monotone"
                 dataKey={dk.key}
                 name={dk.name}
+                hide={hiddenSeries.has(dk.key)}
                 stroke={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6'}
                 strokeWidth={2}
                 dot={{ r: 4, fill: dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6' }}
@@ -453,6 +472,7 @@ const InteractiveChart = ({
                 type="monotone"
                 dataKey={dk.key}
                 name={dk.name}
+                hide={hiddenSeries.has(dk.key)}
                 stroke={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6'}
                 fill={`url(#gradient-${dk.key})`}
                 strokeWidth={2}
@@ -479,6 +499,7 @@ const InteractiveChart = ({
                 key={dk.key}
                 dataKey={dk.key}
                 name={dk.name}
+                hide={hiddenSeries.has(dk.key)}
                 fill={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6'}
               />
             ))}
@@ -506,6 +527,7 @@ const InteractiveChart = ({
                     key={dk.key}
                     dataKey={dk.key}
                     name={dk.name}
+                hide={hiddenSeries.has(dk.key)}
                     fill={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6'}
                     radius={[4, 4, 0, 0]}
                     opacity={idx === 1 ? 0.8 : 1}
@@ -518,6 +540,7 @@ const InteractiveChart = ({
                   type="monotone"
                   dataKey={dk.key}
                   name={dk.name}
+                hide={hiddenSeries.has(dk.key)}
                   stroke={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6'}
                   strokeWidth={3}
                   dot={{ r: 4, fill: dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6' }}

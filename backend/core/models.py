@@ -714,6 +714,8 @@ class TrainingPlanCreate(BaseModel):
     main_objective: str = ""
     main_competition: Optional[str] = None
     main_competition_date: Optional[str] = None
+    icon: Optional[str] = None  # clave de ícono lucide (ej "boxing") o emoji
+    icon_color: Optional[str] = None  # color hex del badge
     macrocycles: List[TrainingPlanMacrocycle] = []
 
 class TrainingPlanResponse(BaseModel):
@@ -733,6 +735,8 @@ class TrainingPlanResponse(BaseModel):
     main_objective: str
     main_competition: Optional[str] = None
     main_competition_date: Optional[str] = None
+    icon: Optional[str] = None
+    icon_color: Optional[str] = None
     macrocycles: List[Dict[str, Any]] = []
     status: str = "active"
     share_token: Optional[str] = None

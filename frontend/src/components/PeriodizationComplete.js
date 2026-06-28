@@ -23,6 +23,8 @@ import {
 } from 'recharts';
 import SessionEditor from './SessionEditor';
 import DashboardGeneral from './DashboardGeneral';
+import PlanIconPicker from './PlanIconPicker';
+import { autoIconForSport } from '../lib/planIcons';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 
@@ -247,7 +249,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
   const [planConfig, setPlanConfig] = useState({
     name: '', model: '', sport: 'general', duration: 'annual', startDate: '', 
     sessionsPerWeek: 5, athleteLevel: 'amateur',
-    mainObjective: '', mainCompetition: '', mainCompetitionDate: ''
+    mainObjective: '', mainCompetition: '', mainCompetitionDate: '',
+    icon: '', iconColor: ''
   });
 
   // ── B2: calcular semanas a partir de fecha de inicio → fecha de competencia principal ──
@@ -1081,6 +1084,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         main_objective: plan.mainObjective || '',
         main_competition: plan.mainCompetition || null,
         main_competition_date: plan.mainCompetitionDate || null,
+        icon: plan.icon || null,
+        icon_color: plan.iconColor || null,
         macrocycles: plan.macrocycles.map(macro => ({
           id: macro.id,
           name: macro.name,
@@ -1431,6 +1436,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       mainObjective: planConfig.mainObjective || generatedStructure.primary_qualities.join(', '),
       mainCompetition: planConfig.mainCompetition,
       mainCompetitionDate: planConfig.mainCompetitionDate,
+      icon: planConfig.icon || autoIconForSport(generatedStructure.sport_name || getSportName(planConfig.sport)).icon,
+      iconColor: planConfig.iconColor || autoIconForSport(generatedStructure.sport_name || getSportName(planConfig.sport)).color,
       macrocycles: generatedStructure.macrocycles.map(macro => ({
         ...macro,
         phase: {
@@ -1998,6 +2005,15 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                   value={planConfig.name} 
                   onChange={(e) => setPlanConfig({ ...planConfig, name: e.target.value })} 
                   className="mt-1" 
+                />
+              </div>
+              <div data-testid="wizard-plan-icon">
+                <label className="text-sm font-medium">Ícono del plan</label>
+                <p className="text-xs text-slate-400 mb-2">Para reconocerlo fácil en la lista (incluso colapsada).</p>
+                <PlanIconPicker
+                  icon={planConfig.icon || autoIconForSport(getSportName(planConfig.sport)).icon}
+                  color={planConfig.iconColor || autoIconForSport(getSportName(planConfig.sport)).color}
+                  onChange={({ icon, color }) => setPlanConfig({ ...planConfig, icon, iconColor: color })}
                 />
               </div>
               <div>

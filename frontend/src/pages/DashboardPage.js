@@ -4463,6 +4463,7 @@ const DashboardPage = () => {
             onExportPDF={handleExportPDF}
             onRefresh={fetchTrainingPlans}
             onCreatePlan={() => { setActiveDataSection('create-plan'); setIsPlansSheetOpen(false); }}
+            getSportName={(id) => (allSports.find(s => s.id === id)?.name) || id}
             t={t}
           />
         </SheetContent>

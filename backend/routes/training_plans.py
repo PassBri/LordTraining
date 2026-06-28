@@ -735,6 +735,8 @@ async def create_training_plan(plan: TrainingPlanCreate, user: dict = Depends(ge
         "main_objective": plan.main_objective,
         "main_competition": plan.main_competition,
         "main_competition_date": plan.main_competition_date,
+        "icon": plan.icon,
+        "icon_color": plan.icon_color,
         "macrocycles": macrocycles_with_ids,
         "status": "active",
         "share_token": None,
@@ -859,6 +861,8 @@ async def update_training_plan(plan_id: str, plan: TrainingPlanCreate, user: dic
         "main_objective": plan.main_objective,
         "main_competition": plan.main_competition,
         "main_competition_date": plan.main_competition_date,
+        "icon": plan.icon,
+        "icon_color": plan.icon_color,
         "macrocycles": macrocycles_with_ids,
         "updated_at": now
     }
