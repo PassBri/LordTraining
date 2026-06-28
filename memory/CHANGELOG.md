@@ -1,5 +1,10 @@
 # CHANGELOG — LordTraining
 
+## 2026-06-30 — Fix login responsive (no cabía en una pantalla en PC)
+- **Causa**: el logo del login era enorme (`h-[300px] sm:h-[360px]`) y empujaba el formulario fuera de la vista → en ventanas de escritorio había que hacer scroll para ver email/contraseña/botón.
+- **Fix** (`AuthPage.js`): logo reducido a `h-[120px] sm:h-[150px] lg:h-[170px]`, márgenes verticales compactados (logo/idioma/subtítulo/tabs de mb-5/mb-6 → mb-3/mb-4) y `py-8` en la columna del formulario. Ahora todo el login (logo, título, pestañas, email, contraseña, botón y enlaces legales) cabe en una sola pantalla sin scroll. Verificado por screenshot en preview.
+- Pendiente usuario: **Deploy** para llevar el fix a lordtraining.com (el reporte fue en producción).
+
 ## 2026-06-30 — Refinamiento de paletas del Landing (4 temas) + multideporte profesional
 - **Tema LIGHT — fix de contraste (bug del usuario)**: las tarjetas de testimonios usaban `background:#161b24` INLINE (no se re-tematizaba) con texto forzado a navy → texto oscuro sobre fondo oscuro ilegible. Fix en `landingLight.css`: `[data-testid^="testimonial-"] > div` → fondo blanco + borde/sombra suave (override `!important` vence al inline). También: hero headline garantizado navy `#050A14`; tarjeta de audiencia "coaches" (acento lima ilegible sobre blanco) → subtítulo/checks a oliva oscuro `#5C6B00` y CTA a navy con texto lima. Tokens light refinados (Notion/Linear: bg `#F9FAFB`, surface `#FFF`, elevated `#F3F4F6`, ink `#0A0F1E`).
 - **Tema FUTURISTA — repaletado a "cerámica" grafito neutro (cero azul)**: tokens cambiados de navy-azul a grafito mate (bg `#121212`, surface `#1C1C1C`, elevated `#262626`, texto `#F5F5F7/#A1A1AA`, borde neutro `#333`, sombra mate cerámica, radios 8px). Bordes de superficie de lima→neutro. Bandas/nav/marquee neutralizados. Lima reservada a acentos puntuales (verbos del hero, línea animada).

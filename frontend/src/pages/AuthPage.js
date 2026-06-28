@@ -426,15 +426,15 @@ const AuthPage = () => {
       <style>{`.auth-reset h1,.auth-reset h2,.auth-reset h3,.auth-reset h4{font-family:inherit;font-weight:inherit;text-transform:none;letter-spacing:normal;}`}</style>
 
       {/* Left — Form (dark theme matching landing) */}
-      <div className="w-full lg:w-[45%] flex flex-col justify-center px-8 md:px-14 lg:px-16" style={{background:'#0b0e14'}}>
+      <div className="w-full lg:w-[45%] flex flex-col justify-center px-8 md:px-14 lg:px-16 py-8" style={{background:'#0b0e14'}}>
         <div className="max-w-[380px] w-full mx-auto">
 
           {/* Brand logo — top of page */}
-          <Link to="/" className="flex flex-col items-center mb-5 group" data-testid="auth-brand-logo">
+          <Link to="/" className="flex flex-col items-center mb-3 group" data-testid="auth-brand-logo">
             <img
               src={loginLogo}
               alt="LordTraining"
-              className="relative h-[300px] sm:h-[360px] w-auto transition-transform group-hover:scale-105"
+              className="relative h-[120px] sm:h-[150px] lg:h-[170px] w-auto transition-transform group-hover:scale-105"
               style={{ animation: 'authShieldFloat 3s ease-in-out infinite' }}
             />
           </Link>
@@ -443,7 +443,7 @@ const AuthPage = () => {
           `}</style>
 
           {/* Back + Language (below shield) */}
-          <div className="flex items-center justify-end mb-6">
+          <div className="flex items-center justify-end mb-4">
             <div className="flex items-center gap-2">
               <LanguageSelector variant="dark" compact />
               <Link to="/" className="flex items-center gap-1 text-[12px] text-slate-500 hover:text-white transition-colors">
@@ -460,13 +460,13 @@ const AuthPage = () => {
           <p className="text-[13px] text-slate-400 mb-1 text-center" data-testid="auth-subtitle">
             {t('common.tagline')}
           </p>
-          <p className="text-[12px] text-slate-500 mb-6 text-center">
+          <p className="text-[12px] text-slate-500 mb-4 text-center">
             {t('auth.login.freeTrial')} · <a href="/#pricing" className="text-[#c8f700] hover:underline">{t('landing.nav.pricing')}</a>
           </p>
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6 bg-slate-800/50 p-1 rounded-lg h-10 border border-slate-700/30">
+            <TabsList className="grid w-full grid-cols-2 mb-4 bg-slate-800/50 p-1 rounded-lg h-10 border border-slate-700/30">
               <TabsTrigger
                 value="login"
                 className="rounded-md text-[13px] font-medium text-slate-400 data-[state=active]:bg-[#c8f700] data-[state=active]:text-[#0b0e14] data-[state=active]:shadow-sm data-[state=active]:font-bold"
