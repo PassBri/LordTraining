@@ -901,6 +901,29 @@ async def adjust_plan_duration(plan_id: str, body: AdjustDurationRequest, user: 
     return {"ok": True, "total_weeks": total_weeks, "end_date": update_data.get("end_date")}
 
 
+class MainCompetitionRequest(BaseModel):
+    main_competition: Optional[str] = None
+    main_competition_date: Optional[str] = None
+
+@router.patch("/training-plans/{plan_id}/competition")
+async def update_main_competition(plan_id: str, body: MainCompetitionRequest, user: dict = Depends(get_current_user), db=Depends(get_db)):
+    """Actualiza la competencia principal del plan (nombre + fecha). Usado desde el Plan Gráfico."""
+    existing = await db.training_plans.find_one({"id": plan_id, "coach_id": user["id"]})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    update_data = {"updated_at": datetime.now(timezone.utc).isoformat()}
+    if body.main_competition is not None:
+        update_data["main_competition"] = body.main_competition
+    if body.main_competition_date is not None:
+        update_data["main_competition_date"] = body.main_competition_date
+    await db.training_plans.update_one({"id": plan_id, "coach_id": user["id"]}, {"$set": update_data})
+    return {
+        "ok": True,
+        "main_competition": update_data.get("main_competition", existing.get("main_competition")),
+        "main_competition_date": update_data.get("main_competition_date", existing.get("main_competition_date")),
+    }
+
+
 @router.delete("/training-plans/{plan_id}")
 async def delete_training_plan(plan_id: str, user: dict = Depends(get_current_user), db=Depends(get_db)):
     """Delete a training plan and all associated data"""

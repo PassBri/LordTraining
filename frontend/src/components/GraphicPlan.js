@@ -190,6 +190,10 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
   
   // Calendar events
   const [events, setEvents] = useState([]);
+  // Competencias del plan (sincronizadas con el módulo Competencias) + modal de fecha
+  const [localCompetitions, setLocalCompetitions] = useState(competitions);
+  const [compModal, setCompModal] = useState(null); // { type, week, date, name, id }
+  useEffect(() => { setLocalCompetitions(competitions); }, [competitions]);
   
   // General information
   const [generalInfo, setGeneralInfo] = useState({
@@ -723,7 +727,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     });
 
     // Add competitions from plan data
-    competitions.forEach(comp => {
+    localCompetitions.forEach(comp => {
       if (comp.date) {
         const compDate = new Date(comp.date);
         const diffTime = compDate - startDate;
@@ -760,7 +764,57 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     }
 
     return result;
-  }, [events, competitions, totalWeeks, activePlan]);
+  }, [events, localCompetitions, totalWeeks, activePlan]);
+
+  // Convierte un nº de semana a fecha ISO (YYYY-MM-DD) según el inicio del plan
+  const weekToDate = (week) => {
+    const sd = activePlan?.start_date ? new Date(activePlan.start_date) : new Date();
+    const d = new Date(sd);
+    d.setDate(d.getDate() + (Math.max(1, week) - 1) * 7);
+    return d.toISOString().split('T')[0];
+  };
+
+  // Abrir el modal de fecha al hacer clic en una celda de competencia
+  const openCompModal = (type, week) => {
+    if (type === 'main_competition') {
+      setCompModal({
+        type, week,
+        name: activePlan?.main_competition || 'Competencia Principal',
+        date: activePlan?.main_competition_date ? activePlan.main_competition_date.split('T')[0] : weekToDate(week),
+      });
+    } else {
+      setCompModal({ type, week, name: '', date: weekToDate(week), id: null });
+    }
+  };
+
+  // Guardar la competencia (principal → plan; secundaria → plan_competitions)
+  const saveCompModal = async () => {
+    if (!compModal || !activePlan) return;
+    const token = localStorage.getItem('train_token');
+    const headers = { Authorization: `Bearer ${token}` };
+    try {
+      if (compModal.type === 'main_competition') {
+        await axios.patch(
+          `${BACKEND_URL}/api/training-plans/${activePlan.id}/competition`,
+          { main_competition: compModal.name || 'Competencia Principal', main_competition_date: compModal.date },
+          { headers }
+        );
+        onPlanUpdated && onPlanUpdated({ main_competition: compModal.name || 'Competencia Principal', main_competition_date: compModal.date });
+        toast.success('Competencia principal actualizada');
+      } else {
+        const res = await axios.post(
+          `${BACKEND_URL}/api/plan-data/competitions`,
+          { plan_id: activePlan.id, athlete_id: athleteId, name: compModal.name || 'Competencia Secundaria', date: compModal.date, importance: 'secundaria' },
+          { headers }
+        );
+        setLocalCompetitions(prev => [...prev, res.data]);
+        toast.success('Competencia secundaria agregada (sincronizada con módulo Competencias)');
+      }
+      setCompModal(null);
+    } catch (e) {
+      toast.error('No se pudo guardar la competencia');
+    }
+  };
   
   // Generate week numbers for display
   const weeks = useMemo(() => {
@@ -2289,7 +2343,9 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                 </tr>
 
                 {/* ACTIVITY TYPE sub-rows with colored squares */}
-                {ACTIVITY_TYPES.map(act => (
+                {ACTIVITY_TYPES.map(act => {
+                  const isComp = act.id === 'main_competition' || act.id === 'secondary_competition';
+                  return (
                   <tr key={`act-${act.id}`} className="bg-purple-50/50">
                     <td className="sticky left-0 bg-purple-50/50 px-2 py-0 text-[10px] border border-gray-300 z-10 pl-4" style={{ width: 160 }}>
                       <div className="flex items-center gap-1.5">
@@ -2297,9 +2353,23 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                         {act.label}
                       </div>
                     </td>
-                    {displayedWeeks.map(week => renderBooleanCell('activities', act.id, week, act.color))}
+                    {displayedWeeks.map(week => {
+                      if (isComp) {
+                        const active = !!planData.activities?.[`${act.id}_${week}`];
+                        return (
+                          <td key={`${act.id}-${week}`}
+                            className={`w-6 h-6 border border-gray-300 cursor-pointer hover:bg-amber-100 ${active ? act.color : ''}`}
+                            onClick={() => openCompModal(act.id, week)}
+                            title={`Asignar fecha de ${act.label.toLowerCase()} (semana ${week})`}
+                            data-testid={`comp-cell-${act.id}-${week}`}
+                          />
+                        );
+                      }
+                      return renderBooleanCell('activities', act.id, week, act.color);
+                    })}
                   </tr>
-                ))}
+                  );
+                })}
 
                 {/* MONITORING (moved up, compact) */}
                 <tr className="bg-cyan-50">
@@ -2712,6 +2782,39 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
               }
               yAxisDomain={offscreenChart.yAxisDomain || [0, 100]}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Modal: asignar fecha de competencia (sincronizado con módulo Competencias) */}
+      {compModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4" onClick={() => setCompModal(null)} data-testid="comp-date-modal">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-5" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-base font-bold text-slate-900 mb-1">
+              {compModal.type === 'main_competition' ? 'Competencia principal' : 'Competencia secundaria'}
+            </h3>
+            <p className="text-xs text-slate-500 mb-4">Semana {compModal.week} · La fecha se sincroniza con el módulo Datos → Competencias.</p>
+            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Nombre</label>
+            <input
+              type="text"
+              value={compModal.name}
+              onChange={(e) => setCompModal({ ...compModal, name: e.target.value })}
+              placeholder={compModal.type === 'main_competition' ? 'Competencia Principal' : 'Competencia Secundaria'}
+              className="w-full h-10 px-3 mt-1 mb-3 rounded-lg border border-slate-200 text-sm"
+              data-testid="comp-modal-name"
+            />
+            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Fecha específica</label>
+            <input
+              type="date"
+              value={compModal.date}
+              onChange={(e) => setCompModal({ ...compModal, date: e.target.value })}
+              className="w-full h-10 px-3 mt-1 mb-4 rounded-lg border border-slate-200 text-sm"
+              data-testid="comp-modal-date"
+            />
+            <div className="flex items-center justify-end gap-2">
+              <button onClick={() => setCompModal(null)} className="px-3 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100" data-testid="comp-modal-cancel">Cancelar</button>
+              <button onClick={saveCompModal} disabled={!compModal.date} className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800 disabled:opacity-50" data-testid="comp-modal-save">Guardar fecha</button>
+            </div>
           </div>
         </div>
       )}
