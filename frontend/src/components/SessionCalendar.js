@@ -94,6 +94,23 @@ const SessionCalendar = ({ activePlan, events = [], selectedAthleteId = null, on
     return map;
   }, [events]);
 
+  // Auto-saltar al mes del evento del Plan Gráfico más cercano (para que el chip sea visible al entrar)
+  const didAutoJump = useRef(false);
+  useEffect(() => {
+    if (didAutoJump.current) return;
+    const dated = (events || []).filter(e => e && e.date).map(e => e.date.slice(0, 10)).sort();
+    if (!dated.length) return;
+    const now = new Date();
+    const todayStr = ymd(now);
+    // Preferir el primer evento >= hoy; si no hay, usar el último pasado
+    const target = dated.find(d => d >= todayStr) || dated[dated.length - 1];
+    const td = new Date(target + 'T00:00:00');
+    if (!isNaN(td.getTime()) && (td.getMonth() !== now.getMonth() || td.getFullYear() !== now.getFullYear())) {
+      setCurrentMonth(new Date(td.getFullYear(), td.getMonth(), 1));
+    }
+    didAutoJump.current = true;
+  }, [events]);
+
   // Build calendar grid for current month (Monday-first)
   const grid = useMemo(() => {
     const year = currentMonth.getFullYear();

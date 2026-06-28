@@ -1,0 +1,47 @@
+{
+  "summary": "Tested TAREA 1 (SessionEditor capacity-driven unit labels) end-to-end. TAREA 3 not exercised due to time constraints. TAREA 1: capacity-select-inicial-0 selector works and dispatches the JS confirm dialog with correct text ('La unidad de volumen cambiará a Km' for Resistencia, 'Minutos' for Teórica) — but the rendered column LABELS in the actividad row do NOT update after the change. After switching to Teórica, labels still show 'INT (%1RM)', 'REPS', 'KG' instead of 'Int (Escala 1-5)', 'Minutos', 'Minutos'. Same for Resistencia (still %1RM/REPS/KG instead of %FCmax/Km/Metros). Capacity value chip updates ('Fuerza' → 'Resistencia' → 'Teórica') and confirm dialog text matches CAPACITY_CONFIG, so backing state changes; the UI column header bindings (SessionEditor.js columnas dinámicas 1142–1175) appear to ignore the new capacity for the first FASE INICIAL activity. BUG.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "SessionEditor — FASE INICIAL actividad row", "issue": "After changing data-testid='capacity-select-inicial-0' from Fuerza → Resistencia → Teórica (confirm dialog accepted), the inline column labels above each input still render the Fuerza set ('INT (%1RM)', 'REPS', 'KG') instead of switching to the capacity-specific set. Expected per CAPACITY_CONFIG: Resistencia → 'Int (%FCmax)' + Km/Metros/Minutos; Teórica → 'Int (Escala 1-5)' + Minutos. Confirmed: capacity value chip updates correctly and the confirm() text uses the new unit, so the data model changes but the rendered headers do not re-bind.", "selector": "[data-testid='capacity-select-inicial-0']", "priority": "HIGH"}
+    ],
+    "integration_issues": [
+      {"flow": "Microciclo persistence", "issue": "Creating a 'Nueva Semana' microciclo on 'Meso 1 - Acumulación' shows 'Plan guardado exitosamente' toast and renders 5 auto-generated session chips in the current view, but after full logout/login the macro stats revert to '0 sem · 0 ses' and the micro+sessions are gone (Plan Test API consistently re-opens with 0 sem despite multiple successful save toasts). Either the save is local-only, or the meso/micro relation is dropped server-side.", "affected_selectors": ["button:has-text('Semana')", "text=/Nueva Semana/"]},
+      {"flow": "TAREA 3 bidirectional drag", "issue": "Not exercised in this iteration. Prior iter_100 reported event-chip-gp_* not visible after calendar navigation; with auto-jump (didAutoJump) it should now land on the event month, but I did not have remaining budget to validate. Recommend re-running this case specifically after main agent fixes TAREA 1 labels."}
+    ],
+    "design_issues": [
+      {"screen": "Modals (comp-date-modal, Nuevo Microciclo, Exportar Sesiones, capacity Select)", "issues": ["Repeated console errors: DialogContent requires DialogTitle for accessibility. Wrap each title in VisuallyHidden or add DialogTitle.", "Repeated 'Failed to load resource: 404' on dashboard load — locate and remove."]}
+    ]
+  },
+  "verified_features": [
+    "Login via /auth + 'Iniciar Sesión' button works (test@train.com / test123456 → /dashboard).",
+    "tab-planes opens plans sheet; sidebar-plan-<id> activates the selected plan ('Plan Activo: Plan Test API' bar appears).",
+    "tab-datos → section-tab-periodizacion → subnav-period-structure navigation works.",
+    "Macrociclo and Mesociclo expand correctly when clicked on the row text.",
+    "'+ Semana' opens 'Nuevo Microciclo' dialog; saving auto-generates 5 sessions (Lun-Vie) with capacities Fuerza/Resistencia/Velocidad/Técnica/Recuperación and corresponding badges.",
+    "session-0..session-N chips are clickable and open SessionEditor full-screen.",
+    "'Agregar' on FASE INICIAL adds an actividad row and renders capacity-select-inicial-0 with default 'Fuerza'.",
+    "TAREA 1 partial: the JS confirm() dialog text correctly references the new unit ('volumen cambiará a Km' for Resistencia, 'Minutos' for Teórica). Capacity chip updates to the selected option. ⚠ Column labels in the row do NOT update — see ui_bugs."
+  ],
+  "test_report_links": ["/app/test_reports/iteration_101.json"],
+  "action_items": [
+    "HIGH (TAREA 1): In SessionEditor.js columnas dinámicas (~1142–1175), the per-column header labels (Int/Vol/Medida) must derive from the current actividad.capacidad (CAPACITY_CONFIG[capacidad]) rather than a fixed Fuerza set. Re-check whether updateActividad (line ~766) is updating the capacidad field on the actividad object that the header JSX reads from. The capacity chip updates fine, suggesting headers are reading from a different/cached state or from the fase-level capacity instead of the actividad-level capacity.",
+    "MEDIUM: Microciclos created from the Estructura tree do not persist across full reload (sessions+micro disappear after re-login). Verify backend POST for microciclo/sessions is being sent and that periodization GET returns the saved children.",
+    "LOW: Add data-testid='actividad-row-<idx>' on each actividad row and data-testid for the unit labels (e.g. 'col-int-label-<fase>-<idx>') so the unit change can be asserted automatically without DOM scraping.",
+    "LOW: Fix Radix DialogTitle accessibility warnings + 404 asset still pending from iter_100."
+  ],
+  "critical_code_review_comments": [
+    "SessionEditor.js lines 1142–1175: column header labels likely hard-coded for the Fuerza schema or read from a stale closure. Should re-render from CAPACITY_CONFIG[actividad.capacidad] each render.",
+    "updateActividad (line ~766) updates capacidad but the visible headers don't react — likely a state/key mismatch (headers may key on session.capacidad or fase.capacidad rather than actividad.capacidad).",
+    "PeriodizationComplete.js: macro/meso text rows toggle expand on text click, but no data-testid on the chevron — adding data-testid='macro-toggle-<id>' / 'meso-toggle-<id>' / 'micro-toggle-<id>' would make automated drilling deterministic.",
+    "Microciclo save endpoint does not persist children across sessions — investigate /api/periodization or equivalent."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only)", "frontend": "TAREA 1: 50% (selector + dialog OK, column labels NOT updating — HIGH bug). TAREA 3: 0% (not exercised this iteration)."},
+  "test_credentials": "test@train.com / test123456",
+  "seed_data_creation": "Created Microciclo 'Nueva Semana' under Meso 1 - Acumulación in plan 0cd4acaa-7e8e-463d-b4ac-54c3a47a766b (Plan Test API). 5 auto-generated sessions. Added one actividad to FASE INICIAL of session-0. NOTE: this does not persist across reload.",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "To reproduce TAREA 1 bug: (1) login → activate Plan Test API (id 0cd4acaa-7e8e-463d-b4ac-54c3a47a766b) → tab-datos → section-tab-periodizacion → subnav-period-structure. (2) Click row text 'Preparación General', then 'Meso 1 - Acumulación', click '+ Semana', click 'Guardar' on the modal. Expand the new 'Nueva Semana'. (3) Click [data-testid='session-0'] → SessionEditor opens. Click first 'Agregar' (FASE INICIAL) — capacity-select-inicial-0 appears with 'Fuerza'. Headers show INT (%1RM)/REPS/KG (correct for Fuerza). (4) Click capacity-select-inicial-0 → option 'Resistencia' → accept confirm. Capacity chip updates to 'Resistencia' but headers still show INT (%1RM)/REPS/KG instead of %FCmax/Km/etc. (5) Same for Teórica. TAREA 3 not exercised — pick it up in next iteration once auto-jump test ids exist for cal nav.",
+  "rca_of_the_issue": "TAREA 1 root cause hypothesis: In SessionEditor.js the columnas-dinámicas JSX reads its labels from either (a) a memoized config captured at first render, or (b) from the fase-level / session-level capacity (e.g. session.capacidad which stays 'Fuerza' for SES-Lun) instead of from actividad.capacidad (which is what capacity-select-inicial-0 actually mutates). updateActividad(idx, {capacidad: 'resistencia'}) appears to update the row's capacidad field (the chip + confirm text both use it), but the column header JSX is keyed off a different variable. Confirm by inspecting whether CAPACITY_CONFIG lookup uses the same identifier as the chip's SelectValue."
+}
