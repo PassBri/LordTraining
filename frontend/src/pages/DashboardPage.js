@@ -6,7 +6,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from '../components/ui/select';
 import { getDashboardStats, getAthletes, seedExercises, seedDemoData, clearDemoData } from '../services/api';
 import usePlanGate from '../hooks/usePlanGate';
 import useGlobalContext from '../hooks/useGlobalContext';
@@ -113,6 +113,7 @@ const DashboardPage = () => {
   const [scoutingTab, setScoutingTab] = useState('prospects');
   const [activeDataSection, setActiveDataSection] = useState(null); // null = welcome state in datos
   const [selectedAthleteId, setSelectedAthleteId] = useState(null);
+  const [selectedTeamId, setSelectedTeamId] = useState(null);
   const [activeSubTab, setActiveSubTab] = useState('macrociclo');
   const [chatMessages, setChatMessages] = useState([
     { type: 'ai', text: 'Bienvenido al asistente de planificación deportiva. ¿En qué puedo ayudarte hoy?' }
@@ -1139,6 +1140,74 @@ const DashboardPage = () => {
     }
   };
 
+  // Reprogramar un evento al arrastrarlo en el Calendario → sincroniza Plan Gráfico (bidireccional)
+  const handleEventReschedule = async (ev, newDateStr) => {
+    if (!selectedAthleteId || !ev?.id || !newDateStr) return false;
+    const token = localStorage.getItem('train_token');
+    const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+
+    // Calcular nº de semana del Plan Gráfico desde la fecha (inicio del plan)
+    const weekFromDate = (dateStr) => {
+      const sd = activePlan?.start_date ? new Date(activePlan.start_date) : null;
+      if (!sd || isNaN(sd.getTime())) return null;
+      const d = new Date(dateStr);
+      const diffDays = Math.floor((d - sd) / (1000 * 60 * 60 * 24));
+      return Math.max(1, Math.floor(diffDays / 7) + 1);
+    };
+
+    // Parse del id de eventos del Plan Gráfico: gp_<section>_<rowId>_<week>_<i>
+    const m = String(ev.id).match(/^gp_([a-z]+)_(.+)_(\d+)_(\d+)$/);
+    const newWeek = weekFromDate(newDateStr);
+    let newId = ev.id;
+    let section = null, rowId = null, oldWeek = null;
+    if (m) {
+      section = m[1]; rowId = m[2]; oldWeek = parseInt(m[3], 10);
+      if (newWeek && newWeek !== oldWeek) {
+        const baseKey = `gp_${section}_${rowId}_${newWeek}`;
+        const used = events.filter(e => (e.id || '').startsWith(baseKey)).length;
+        newId = `${baseKey}_${used}`;
+      }
+    }
+
+    // 1) Actualizar events_calendar del atleta (fecha + posible id)
+    const updatedEvents = events.map(e => e.id === ev.id ? { ...e, id: newId, date: newDateStr } : e);
+    try {
+      await fetch(`${API_URL}/api/events-calendar`, {
+        method: 'POST', headers,
+        body: JSON.stringify({ athlete_id: selectedAthleteId, events: updatedEvents })
+      });
+      setEvents(updatedEvents);
+    } catch (e) { return false; }
+
+    // 2) Si es un evento de celda del Plan Gráfico → mover la fecha en planData (graphic_plans)
+    if (m && (section === 'activities' || section === 'monitoring') && newWeek) {
+      try {
+        const r = await fetch(`${API_URL}/api/graphic-plan/${selectedAthleteId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (r.ok) {
+          const gp = await r.json();
+          const planData = gp.planData || {};
+          const sec = { ...(planData[section] || {}) };
+          // Quitar la fecha vieja de la celda de oldWeek
+          const oldArr = (sec[`${rowId}_dates_${oldWeek}`] || []).filter(d => d && d.slice(0, 10) !== (ev.date || '').slice(0, 10));
+          if (oldArr.length === 0) {
+            delete sec[`${rowId}_${oldWeek}`]; delete sec[`${rowId}_date_${oldWeek}`]; delete sec[`${rowId}_dates_${oldWeek}`];
+          } else {
+            sec[`${rowId}_dates_${oldWeek}`] = oldArr; sec[`${rowId}_date_${oldWeek}`] = oldArr[0]; sec[`${rowId}_${oldWeek}`] = true;
+          }
+          // Añadir la fecha nueva a la celda de newWeek
+          const newArr = [...((sec[`${rowId}_dates_${newWeek}`]) || []).filter(Boolean), newDateStr];
+          sec[`${rowId}_dates_${newWeek}`] = newArr; sec[`${rowId}_date_${newWeek}`] = newArr[0]; sec[`${rowId}_${newWeek}`] = true;
+          planData[section] = sec;
+          await fetch(`${API_URL}/api/graphic-plan`, {
+            method: 'POST', headers,
+            body: JSON.stringify({ athlete_id: selectedAthleteId, generalInfo: gp.generalInfo || {}, planData, cycleDuration: gp.cycleDuration || 'annual' })
+          });
+        }
+      } catch (e) { /* el evento ya se movió en el calendario */ }
+    }
+    return true;
+  };
+
   // Fetch objectives for selected athlete
   const fetchObjectives = async (athleteId) => {
     try {
@@ -1666,20 +1735,55 @@ const DashboardPage = () => {
             </div>
           </div>
           
-          {/* Selector de Atleta */}
-          {athletes.length > 0 && (
+          {/* Selector de Atleta o Equipo */}
+          {(athletes.length > 0 || teams.length > 0) && (
             <div className="flex items-center gap-3">
-              <span className="text-sm text-slate-500">{t('data.atleta')}</span>
-              <Select value={selectedAthleteId || ''} onValueChange={setSelectedAthleteId}>
-                <SelectTrigger className="w-56">
-                  <SelectValue placeholder={t('data.seleccionar_atleta')} />
+              <span className="text-sm text-slate-500">Atleta o Equipo</span>
+              <Select
+                value={selectedTeamId ? `t:${selectedTeamId}` : (selectedAthleteId ? `a:${selectedAthleteId}` : '')}
+                onValueChange={(v) => {
+                  if (v.startsWith('t:')) {
+                    const teamId = v.slice(2);
+                    const team = teams.find(tm => tm.id === teamId);
+                    const roster = (team?.athletes || []);
+                    setSelectedTeamId(teamId);
+                    // Atleta representante (primero del equipo) para la grilla/calendario/badges
+                    setSelectedAthleteId(roster[0] || null);
+                  } else if (v.startsWith('a:')) {
+                    setSelectedTeamId(null);
+                    setSelectedAthleteId(v.slice(2));
+                  }
+                }}
+              >
+                <SelectTrigger className="w-64" data-testid="athlete-team-selector">
+                  <SelectValue placeholder="Seleccionar atleta o equipo" />
                 </SelectTrigger>
                 <SelectContent>
-                  {athletes.map(a => (
-                    <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
-                  ))}
+                  {teams.length > 0 && (
+                    <SelectGroup>
+                      <SelectLabel>Equipos</SelectLabel>
+                      {teams.map(tm => (
+                        <SelectItem key={tm.id} value={`t:${tm.id}`} data-testid={`select-team-${tm.id}`}>
+                          {tm.name} ({(tm.athletes || []).length})
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  )}
+                  {athletes.length > 0 && (
+                    <SelectGroup>
+                      <SelectLabel>{t('data.atleta')}s</SelectLabel>
+                      {athletes.map(a => (
+                        <SelectItem key={a.id} value={`a:${a.id}`}>{a.name}</SelectItem>
+                      ))}
+                    </SelectGroup>
+                  )}
                 </SelectContent>
               </Select>
+              {selectedTeamId && (
+                <span className="text-xs font-semibold text-[#1565C0] bg-blue-50 px-2.5 py-1 rounded-full" data-testid="team-mode-badge">
+                  Modo Equipo: {(teams.find(tm => tm.id === selectedTeamId)?.athletes || []).length} atletas
+                </span>
+              )}
             </div>
           )}
         </div>
@@ -2549,7 +2653,7 @@ const DashboardPage = () => {
 
     // Render Calendario section inline - COMPLETE
     if (activeDataSection === 'calendar-view') {
-      return <SessionCalendar activePlan={activePlan} events={events} />;
+      return <SessionCalendar activePlan={activePlan} events={events} selectedAthleteId={selectedAthleteId} onEventReschedule={handleEventReschedule} />;
     }
 
     // Render Generar con IA section inline - COMPLETE
@@ -3806,15 +3910,18 @@ const DashboardPage = () => {
     // Render Graphic Plan
     if (activeDataSection === 'graphic-plan') {
       const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
+      const selectedTeam = teams.find(tm => tm.id === selectedTeamId);
       return (
         <GraphicPlan 
           athleteId={selectedAthleteId} 
           periodizationData={periodizationData}
-          athleteName={selectedAthlete?.name}
+          athleteName={selectedTeam ? selectedTeam.name : selectedAthlete?.name}
           athleteCategory={selectedAthlete?.category || selectedAthlete?.classification}
           coachName={user?.full_name || user?.name || ''}
           activePlan={activePlan}
           competitions={planData?.competitions || []}
+          teamAthleteIds={selectedTeam ? (selectedTeam.athletes || []) : null}
+          teamName={selectedTeam?.name || null}
           onPlanUpdated={(patch) => setActivePlan(prev => prev ? { ...prev, ...patch } : prev)}
         />
       );

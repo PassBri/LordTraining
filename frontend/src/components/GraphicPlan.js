@@ -40,7 +40,8 @@ import {
   Share2,
   MessageCircle,
   Plus,
-  X
+  X,
+  Users
 } from 'lucide-react';import { toast } from 'sonner';
 import axios from 'axios';
 import html2canvas from 'html2canvas';
@@ -159,7 +160,7 @@ const MICROCYCLE_TYPES = [
   { id: 'restablecimiento', label: 'Restablecimiento', color: 'bg-purple-200' }
 ];
 
-const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategory, coachName, activePlan, competitions = [], onPlanUpdated }) => {
+const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategory, coachName, activePlan, competitions = [], onPlanUpdated, teamAthleteIds = null, teamName = null }) => {
   const { t } = useTranslation();
   // ═══ V2 STORE CONNECTION ═══
   const v2Store = usePlanStore();
@@ -785,6 +786,27 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     setCompModal({ kind: 'cell', section, rowId, week, label: label || rowId, dates: list, active: !!active });
   };
 
+  // Replica eventos a TODOS los atletas del equipo (excepto el representante, ya guardado).
+  // Para cada atleta: fetch sus eventos, reemplaza los del mismo baseKey, y guarda (merge, no sobrescribe).
+  const replicateToTeam = async ({ baseKey, newEvs }) => {
+    if (!Array.isArray(teamAthleteIds) || teamAthleteIds.length === 0) return;
+    const token = localStorage.getItem('train_token');
+    const headers = { Authorization: `Bearer ${token}` };
+    const others = teamAthleteIds.filter(id => id && id !== athleteId);
+    await Promise.all(others.map(async (aid) => {
+      let existing = [];
+      try {
+        const r = await axios.get(`${BACKEND_URL}/api/events-calendar/${aid}`, { headers });
+        existing = r.data?.events || [];
+      } catch (e) { existing = []; }
+      const kept = existing.filter(e => !(e.id || '').startsWith(baseKey));
+      const updated = [...kept, ...newEvs];
+      try {
+        await axios.post(`${BACKEND_URL}/api/events-calendar`, { athlete_id: aid, events: updated }, { headers });
+      } catch (e) { /* continuar con los demás */ }
+    }));
+  };
+
   // Sincroniza un evento del Plan Gráfico con el Calendario Drag & Drop (events_calendar por atleta)
   const syncCalendarEvent = async ({ key, name, date, type, priority = 'C', remove = false }) => {
     if (!athleteId) return false; // el calendario es por atleta
@@ -802,6 +824,9 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
       const token = localStorage.getItem('train_token');
       await axios.post(`${BACKEND_URL}/api/events-calendar`, { athlete_id: athleteId, events: updated },
         { headers: { Authorization: `Bearer ${token}` } });
+      // Modo equipo: replicar a todos los atletas del equipo
+      const newEvs = remove ? [] : [{ id: key, name, date, type, priority, source: 'graphic_plan' }];
+      await replicateToTeam({ baseKey: key, newEvs });
       return true;
     } catch (e) { return false; }
   };
@@ -817,6 +842,8 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
       const token = localStorage.getItem('train_token');
       await axios.post(`${BACKEND_URL}/api/events-calendar`, { athlete_id: athleteId, events: updated },
         { headers: { Authorization: `Bearer ${token}` } });
+      // Modo equipo: replicar a todos los atletas del equipo
+      await replicateToTeam({ baseKey, newEvs });
       return true;
     } catch (e) { return false; }
   };
@@ -846,9 +873,10 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
       type: section === 'monitoring' ? 'Evaluación' : 'Entrenamiento',
       priority: 'C',
     }).then(synced => {
+      const teamSuffix = (Array.isArray(teamAthleteIds) && teamAthleteIds.length) ? ` · replicado a ${teamAthleteIds.length} atletas del equipo` : '';
       toast.success(dates.length === 0
         ? 'Marca eliminada'
-        : (synced ? `${dates.length} fecha(s) añadida(s) al calendario` : `${dates.length} fecha(s) asignada(s) (selecciona un atleta para el calendario)`));
+        : (synced ? `${dates.length} fecha(s) añadida(s) al calendario${teamSuffix}` : `${dates.length} fecha(s) asignada(s) (selecciona un atleta para el calendario)`));
     });
     setCompModal(null);
   };
@@ -2016,6 +2044,16 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
         </CardHeader>
         
         <CardContent className="p-4" data-testid="graphic-plan-content">
+          {/* Modo Equipo: las fechas se replican a todos los atletas del equipo */}
+          {Array.isArray(teamAthleteIds) && teamAthleteIds.length > 0 && (
+            <div className="mb-4 p-3 rounded-lg border border-blue-300 bg-blue-50 flex items-start gap-3" data-testid="graphic-team-mode-banner">
+              <Users className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-bold text-blue-800">Modo Equipo{teamName ? ` · ${teamName}` : ''}</p>
+                <p className="text-xs text-blue-700">Las fechas de Eventos/Competencias y Monitoreo que asignes se replicarán al calendario de los {teamAthleteIds.length} atletas del equipo.</p>
+              </div>
+            </div>
+          )}
           {/* B3: Alerta de conflicto de fechas */}
           {dateConflict && (
             <div className="mb-4 p-3 rounded-lg border border-amber-300 bg-amber-50 flex items-start gap-3" data-testid="date-conflict-alert">

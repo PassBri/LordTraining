@@ -35,7 +35,7 @@ const sessionColor = (sesion) => {
   return CAP_COLORS.default;
 };
 
-const SessionCalendar = ({ activePlan, events = [] }) => {
+const SessionCalendar = ({ activePlan, events = [], selectedAthleteId = null, onEventReschedule = null }) => {
   const { t, i18n } = useTranslation();
   const { plan, sesiones, microciclos, mesociclos, macrociclos, cargarPlanCompleto, actualizarSesion, loading } = usePlanStore();
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -49,6 +49,7 @@ const SessionCalendar = ({ activePlan, events = [] }) => {
     });
   }, [i18n.language]);
   const [draggedSession, setDraggedSession] = useState(null);
+  const [draggedEvent, setDraggedEvent] = useState(null);
   const [hoveringDay, setHoveringDay] = useState(null);
   const [acting, setActing] = useState(false);
 
@@ -149,9 +150,33 @@ const SessionCalendar = ({ activePlan, events = [] }) => {
     setHoveringDay(dateStr);
   };
   const handleDragLeave = () => setHoveringDay(null);
+  const handleEventDragStart = (e, ev) => {
+    setDraggedEvent(ev);
+    setDraggedSession(null);
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', ev.id || ''); } catch (_) {}
+  };
   const handleDrop = async (e, dateStr) => {
     e.preventDefault();
     setHoveringDay(null);
+    // Arrastre de un EVENTO (Plan Gráfico / Competencia) → reprogramar bidireccional
+    if (draggedEvent) {
+      const ev = draggedEvent;
+      setDraggedEvent(null);
+      if ((ev.date || '').slice(0, 10) === dateStr) return;
+      if (!onEventReschedule) { toast.error(t('sessionCalendar.moveFailed')); return; }
+      setActing(true);
+      try {
+        const ok = await onEventReschedule(ev, dateStr);
+        if (ok) toast.success(`${t('sessionCalendar.sessionMoved')} ${new Date(dateStr).toLocaleDateString(i18n.language)}`);
+        else toast.error(t('sessionCalendar.moveFailed'));
+      } catch (err) {
+        toast.error(t('sessionCalendar.moveError'));
+      } finally {
+        setActing(false);
+      }
+      return;
+    }
     if (!draggedSession || draggedSession.fecha?.slice(0, 10) === dateStr) {
       setDraggedSession(null);
       return;
@@ -263,7 +288,7 @@ const SessionCalendar = ({ activePlan, events = [] }) => {
                   onClick={() => cellSessions.length > 0 && setSelectedDay({ date: cell.date, sessions: cellSessions })}
                   className={`min-h-[112px] border-r border-b border-slate-100 p-1.5 flex flex-col gap-1 cursor-pointer transition-all duration-200 ${
                     !cell.isCurrentMonth ? 'bg-slate-50/40 opacity-40' : 'hover:bg-blue-50/30'
-                  } ${isHovering && draggedSession ? 'bg-blue-100 ring-2 ring-inset ring-blue-400' : ''}`}
+                  } ${isHovering && (draggedSession || draggedEvent) ? 'bg-blue-100 ring-2 ring-inset ring-blue-400' : ''}`}
                   data-testid={`day-cell-${dateStr}`}
                 >
                   <div className={`flex items-center justify-between text-[11px] font-semibold mb-0.5 ${
@@ -307,12 +332,16 @@ const SessionCalendar = ({ activePlan, events = [] }) => {
                     {/* Event chips (Plan Gráfico / Competencias) */}
                     {(eventsByDay[dateStr] || []).slice(0, 2).map((ev, ei) => {
                       const c = eventColor(ev);
+                      const isGp = (ev.id || '').startsWith('gp_');
+                      const draggableEvent = !!onEventReschedule;
                       return (
                         <div
                           key={`ev-${ev.id || ei}`}
-                          className="px-1.5 py-1 rounded-md text-[10px] font-semibold leading-tight truncate"
+                          draggable={draggableEvent}
+                          onDragStart={draggableEvent ? (e) => { e.stopPropagation(); handleEventDragStart(e, ev); } : undefined}
+                          className={`px-1.5 py-1 rounded-md text-[10px] font-semibold leading-tight truncate ${draggableEvent ? 'cursor-grab active:cursor-grabbing hover:scale-[1.02] transition-transform' : ''}`}
                           style={{ background: c + '22', color: c, borderLeft: `3px solid ${c}` }}
-                          title={`${ev.name || 'Evento'}${ev.source === 'graphic_plan' ? ' · Plan Gráfico' : ''}`}
+                          title={`${ev.name || 'Evento'}${ev.source === 'graphic_plan' ? ' · Plan Gráfico (arrastra para reprogramar)' : ''}`}
                           data-testid={`event-chip-${ev.id || ei}`}
                         >
                           <span className="inline-block w-1.5 h-1.5 rounded-full mr-1 align-middle" style={{ background: c }} />
