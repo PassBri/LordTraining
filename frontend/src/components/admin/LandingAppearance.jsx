@@ -95,8 +95,8 @@ export const LandingAppearance = () => {
   return (
     <div data-testid="landing-appearance-section">
       <div className="mb-5">
-        <h2 className="text-xl font-bold text-white">Apariencia de Landing</h2>
-        <p className="text-sm text-slate-400">Elige la versión visual que verán todos los visitantes. El cambio se aplica en tiempo real.</p>
+        <h2 className="text-xl font-bold text-slate-900">Apariencia de Landing</h2>
+        <p className="text-sm text-slate-500">Elige la versión visual que verán todos los visitantes. El cambio se aplica en tiempo real.</p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {THEMES.map(th => {
