@@ -1,8 +1,118 @@
 import React, { useEffect, useState } from 'react';
-import { Check, Loader2 } from 'lucide-react';
+import { Check, Loader2, Save, Globe } from 'lucide-react';
 import { toast } from 'sonner';
 
 const BACKEND = process.env.REACT_APP_BACKEND_URL;
+
+const SOCIAL_FIELDS = [
+  { id: 'x', label: 'X (Twitter)', placeholder: 'https://x.com/lordtraining' },
+  { id: 'linkedin', label: 'LinkedIn', placeholder: 'https://linkedin.com/company/lordtraining' },
+  { id: 'instagram', label: 'Instagram', placeholder: 'https://instagram.com/lordtraining' },
+  { id: 'tiktok', label: 'TikTok', placeholder: 'https://tiktok.com/@lordtraining' },
+  { id: 'youtube', label: 'YouTube', placeholder: 'https://youtube.com/@lordtraining' },
+  { id: 'facebook', label: 'Facebook', placeholder: 'https://facebook.com/lordtraining' },
+];
+
+// PUT con manejo de refresh token (reutilizable)
+const putWithAuth = async (url, body) => {
+  const doPut = async (token) => fetch(url, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(body),
+  });
+  let token = localStorage.getItem('train_token');
+  let res = await doPut(token);
+  if (res.status === 401) {
+    const rt = localStorage.getItem('train_refresh_token');
+    if (rt) {
+      const rr = await fetch(`${BACKEND}/api/auth/refresh`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: rt }),
+      });
+      if (rr.ok) {
+        const rd = await rr.json();
+        if (rd.token) {
+          localStorage.setItem('train_token', rd.token);
+          if (rd.refresh_token) localStorage.setItem('train_refresh_token', rd.refresh_token);
+          res = await doPut(rd.token);
+        }
+      }
+    }
+  }
+  return res;
+};
+
+const SocialLinksEditor = () => {
+  const [links, setLinks] = useState(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetch(`${BACKEND}/api/landing/social`)
+      .then(r => r.json())
+      .then(d => setLinks(d?.links || {}))
+      .catch(() => setLinks({}));
+  }, []);
+
+  const save = async () => {
+    if (saving || !links) return;
+    setSaving(true);
+    try {
+      const res = await putWithAuth(`${BACKEND}/api/landing/social`, links);
+      if (res.status === 401) { toast.error('Tu sesión expiró. Vuelve a iniciar sesión.'); return; }
+      if (res.status === 403) { toast.error('Solo el Super Admin puede editar las redes sociales.'); return; }
+      if (!res.ok) throw new Error('Error');
+      const d = await res.json();
+      setLinks(d.links || links);
+      toast.success('Enlaces de redes sociales guardados');
+    } catch (e) {
+      toast.error('No se pudieron guardar los enlaces. Inténtalo de nuevo.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="mt-10 pt-8 border-t border-slate-700/40" data-testid="social-links-section">
+      <div className="mb-5 flex items-center gap-2">
+        <Globe className="w-5 h-5 text-[#CCFF00]" />
+        <div>
+          <h2 className="text-xl font-bold text-slate-900">Redes Sociales</h2>
+          <p className="text-sm text-slate-500">Agrega los enlaces de las redes de LordTraining. Aparecerán como íconos en el pie del landing. Deja vacío para ocultar un ícono.</p>
+        </div>
+      </div>
+      {links === null ? (
+        <div className="flex items-center gap-2 text-slate-400 text-sm"><Loader2 className="w-4 h-4 animate-spin" /> Cargando…</div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {SOCIAL_FIELDS.map(f => (
+              <div key={f.id}>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">{f.label}</label>
+                <input
+                  type="url"
+                  value={links[f.id] || ''}
+                  onChange={(e) => setLinks(prev => ({ ...prev, [f.id]: e.target.value }))}
+                  placeholder={f.placeholder}
+                  className="w-full h-10 px-3 rounded-lg border border-slate-300 text-sm text-slate-800 focus:border-[#1565C0] focus:ring-1 focus:ring-[#1565C0] outline-none"
+                  data-testid={`social-input-${f.id}`}
+                />
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={save}
+            disabled={saving}
+            className="mt-5 inline-flex items-center gap-2 h-11 px-6 rounded-full bg-[#1565C0] text-white font-bold text-sm hover:bg-[#0d4a91] transition-colors disabled:opacity-60"
+            data-testid="social-save-btn"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Guardar enlaces
+          </button>
+        </>
+      )}
+    </div>
+  );
+};
 
 const THEMES = [
   { id: 'classic', name: 'Clásico LORD', desc: 'Diseño actual', bg: '#050A14', surface: '#0C1322', text: '#FFFFFF', accent: '#CCFF00' },
@@ -127,6 +237,7 @@ export const LandingAppearance = () => {
           );
         })}
       </div>
+      <SocialLinksEditor />
     </div>
   );
 };

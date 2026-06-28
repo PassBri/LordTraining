@@ -466,6 +466,28 @@ const LandingPage = () => {
       .catch(() => {});
   }, []);
 
+  // Enlaces de redes sociales (configurados por el super admin) — guardado en MongoDB
+  const [socialLinks, setSocialLinks] = useState({});
+  useEffect(() => {
+    const BACKEND = process.env.REACT_APP_BACKEND_URL;
+    fetch(`${BACKEND}/api/landing/social`)
+      .then(r => r.json())
+      .then(d => { if (d?.links) setSocialLinks(d.links); })
+      .catch(() => {});
+  }, []);
+
+  // Pizarra Táctica desde el landing → exige iniciar sesión (opción B)
+  const handleBoardClick = (e) => {
+    if (e) e.preventDefault();
+    const token = localStorage.getItem('train_token');
+    if (token) {
+      window.location.href = '/tactical-board.html';
+    } else {
+      try { sessionStorage.setItem('postLoginRedirect', '/tactical-board.html'); } catch (_) {}
+      navigate('/auth');
+    }
+  };
+
   const handlePlanCheckout = (landingKey) => {
     const tier = LANDING_TIER_MAP[landingKey] || 'starter';
     const cycle = billingCycle;
@@ -685,7 +707,7 @@ const LandingPage = () => {
             {name:'Rugby', svg:`<defs><linearGradient id="gradRgb" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#16a34a"/><stop offset="100%" stop-color="#14532d"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradRgb)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="22" x2="97" y2="22"/><line x1="3" y1="118" x2="97" y2="118"/><line x1="3" y1="70" x2="97" y2="70" stroke-dasharray="3 2"/><line x1="3" y1="35" x2="97" y2="35" stroke-dasharray="1 2"/><line x1="3" y1="105" x2="97" y2="105" stroke-dasharray="1 2"/></g><ellipse cx="50" cy="70" rx="4.5" ry="7" fill="#78350f" stroke="#fff" stroke-width="0.6" transform="rotate(15 50 70)"/><line class="anim-arrow" x1="30" y1="55" x2="70" y2="85" stroke="#fbbf24" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="3 2"/><circle cx="30" cy="55" r="3.2" fill="#dc2626" stroke="#fff" stroke-width="0.6"/><circle cx="70" cy="85" r="3.2" fill="#2563eb" stroke="#fff" stroke-width="0.6"/>`},
             {name:'Hockey', svg:`<defs><linearGradient id="gradHck" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563eb"/><stop offset="100%" stop-color="#172554"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradHck)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="70" x2="97" y2="70"/><circle cx="50" cy="70" r="7"/><rect x="30" y="3" width="40" height="12"/><rect x="30" y="125" width="40" height="12"/></g><circle cx="50" cy="70" r="0.8" fill="#fff"/><circle cx="42" cy="55" r="3.2" fill="#dc2626" stroke="#fff" stroke-width="0.6"/><path d="M 40,53 L 36,45" stroke="#0f172a" stroke-width="1.4" stroke-linecap="round"/><circle cx="62" cy="90" r="3.2" fill="#f59e0b" stroke="#fff" stroke-width="0.6"/><path d="M 60,88 L 64,80" stroke="#0f172a" stroke-width="1.4" stroke-linecap="round"/><line class="anim-arrow" x1="42" y1="55" x2="62" y2="85" stroke="#fbbf24" stroke-width="1.2" stroke-dasharray="2 2"/><circle cx="42" cy="55" r="1.4" fill="#0a0a0a" class="anim-ball" style="--bx:20px;--by:30px;--bx2:20px;--by2:32px"/>`},
           ].map((sport, i) => (
-            <a key={i} href="/tactical-board.html" className="sport-card group relative rounded-2xl overflow-hidden border border-slate-800 hover:border-[#CCFF00]/60 transition-all hover:scale-[1.04] hover:shadow-[0_14px_32px_-6px_rgba(204,255,0,0.28)]" data-testid={`sport-card-${sport.name.toLowerCase()}`}>
+            <a key={i} href="/tactical-board.html" onClick={handleBoardClick} className="sport-card group relative rounded-2xl overflow-hidden border border-slate-800 hover:border-[#CCFF00]/60 transition-all hover:scale-[1.04] hover:shadow-[0_14px_32px_-6px_rgba(204,255,0,0.28)]" data-testid={`sport-card-${sport.name.toLowerCase()}`}>
               <div className="aspect-[3/4] relative">
                 <svg viewBox="0 0 100 140" className="w-full h-full block" preserveAspectRatio="xMidYMid slice" dangerouslySetInnerHTML={{__html: sport.svg}} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/15 pointer-events-none"/>
@@ -718,7 +740,7 @@ const LandingPage = () => {
                   {name:'Ciclismo', c:'#fbbf24'},{name:'Natacion', c:'#06b6d4'},{name:'Boxeo', c:'#be185d'},
                   {name:'Karate', c:'#78716c'},{name:'Taekwondo', c:'#b91c1c'},{name:'MMA', c:'#1f2937'},{name:'Judo', c:'#450a0a'}
                 ].map((sp, i) => (
-                  <a key={i} href="/tactical-board.html" className="group relative flex-shrink-0 w-[150px] snap-start rounded-xl overflow-hidden border border-slate-800 hover:border-[#CCFF00]/60 hover:scale-[1.05] transition-all" data-testid={`extra-sport-${sp.name.toLowerCase().replace(/\s+/g,'-')}`}>
+                  <a key={i} href="/tactical-board.html" onClick={handleBoardClick} className="group relative flex-shrink-0 w-[150px] snap-start rounded-xl overflow-hidden border border-slate-800 hover:border-[#CCFF00]/60 hover:scale-[1.05] transition-all" data-testid={`extra-sport-${sp.name.toLowerCase().replace(/\s+/g,'-')}`}>
                     <div className="aspect-[3/4] relative flex flex-col items-center justify-center p-3" style={{background:`linear-gradient(135deg, ${sp.c} 0%, ${sp.c}88 50%, #0a0f19 100%)`}}>
                       <div className="absolute inset-0" style={{backgroundImage:'radial-gradient(circle at 50% 30%, rgba(255,255,255,0.12) 0%, transparent 55%)'}}/>
                       <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/40 backdrop-blur border border-[#CCFF00]/25">
@@ -748,7 +770,7 @@ const LandingPage = () => {
             </div>
           </div>
           <div className="mt-6">
-            <a href="/tactical-board.html">
+            <a href="/tactical-board.html" onClick={handleBoardClick}>
               <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] h-11 px-7 text-[13px] font-bold rounded-xl" style={{fontFamily:BC}} data-testid="explore-all-sports-btn">
                 {t('landing.multisport.explore_board')} <ArrowRight className="w-4 h-4 ml-2"/>
               </Button>
@@ -1337,13 +1359,16 @@ const LandingPage = () => {
           {/* Social */}
           <div>
             <h4 className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400 mb-4" style={{fontFamily:BC}}>Social</h4>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3" data-testid="footer-social-icons">
               {[
-                {l:'X',svg:'M18.9 1.2h3.7l-8 9.2L24 22.8h-7.4l-5.8-7.6-6.6 7.6H.5l8.6-9.8L0 1.2h7.6l5.2 6.9 6.1-6.9ZM17.6 20.6h2L6.5 3.3H4.3l13.3 17.3Z'},
-                {l:'LinkedIn',svg:'M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2ZM8 19H5v-9h3v9ZM6.5 8.25A1.75 1.75 0 118.25 6.5 1.75 1.75 0 016.5 8.25ZM20 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0014 14.19V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66V19Z'},
-                {l:'Instagram',svg:'M12 2.2c2.7 0 3 0 4.1.06 1 .05 1.5.2 1.9.33a3.2 3.2 0 011.2.77c.34.34.6.72.77 1.2.14.37.29.9.33 1.88.05 1.08.06 1.4.06 4.1s0 3-.06 4.1c-.05 1-.2 1.5-.33 1.9a3.4 3.4 0 01-2 2c-.37.13-.9.28-1.88.32-1.08.05-1.4.06-4.1.06s-3 0-4.1-.06c-1-.04-1.5-.2-1.9-.33a3.4 3.4 0 01-2-2c-.13-.37-.28-.9-.32-1.88C2.22 15 2.2 14.7 2.2 12s0-3 .06-4.1c.04-1 .2-1.5.33-1.9a3.2 3.2 0 01.77-1.2 3.2 3.2 0 011.2-.76c.37-.14.9-.29 1.88-.33 1.08-.06 1.4-.06 4.1-.06ZM12 7a5 5 0 100 10 5 5 0 000-10Zm0 8.2a3.2 3.2 0 110-6.4 3.2 3.2 0 010 6.4Zm5.2-7.4a1.2 1.2 0 100-2.4 1.2 1.2 0 000 2.4Z'}
-              ].map(s => (
-                <a key={s.l} href="#" className="w-9 h-9 bg-slate-900 border border-slate-800 rounded-lg flex items-center justify-center hover:border-[#CCFF00]/40 hover:bg-slate-800 transition-all group" aria-label={s.l}>
+                {id:'x',l:'X',svg:'M18.9 1.2h3.7l-8 9.2L24 22.8h-7.4l-5.8-7.6-6.6 7.6H.5l8.6-9.8L0 1.2h7.6l5.2 6.9 6.1-6.9ZM17.6 20.6h2L6.5 3.3H4.3l13.3 17.3Z'},
+                {id:'linkedin',l:'LinkedIn',svg:'M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2ZM8 19H5v-9h3v9ZM6.5 8.25A1.75 1.75 0 118.25 6.5 1.75 1.75 0 016.5 8.25ZM20 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0014 14.19V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66V19Z'},
+                {id:'instagram',l:'Instagram',svg:'M12 2.2c2.7 0 3 0 4.1.06 1 .05 1.5.2 1.9.33a3.2 3.2 0 011.2.77c.34.34.6.72.77 1.2.14.37.29.9.33 1.88.05 1.08.06 1.4.06 4.1s0 3-.06 4.1c-.05 1-.2 1.5-.33 1.9a3.4 3.4 0 01-2 2c-.37.13-.9.28-1.88.32-1.08.05-1.4.06-4.1.06s-3 0-4.1-.06c-1-.04-1.5-.2-1.9-.33a3.4 3.4 0 01-2-2c-.13-.37-.28-.9-.32-1.88C2.22 15 2.2 14.7 2.2 12s0-3 .06-4.1c.04-1 .2-1.5.33-1.9a3.2 3.2 0 01.77-1.2 3.2 3.2 0 011.2-.76c.37-.14.9-.29 1.88-.33 1.08-.06 1.4-.06 4.1-.06ZM12 7a5 5 0 100 10 5 5 0 000-10Zm0 8.2a3.2 3.2 0 110-6.4 3.2 3.2 0 010 6.4Zm5.2-7.4a1.2 1.2 0 100-2.4 1.2 1.2 0 000 2.4Z'},
+                {id:'tiktok',l:'TikTok',svg:'M16.6 5.82a4.28 4.28 0 01-1.06-2.82h-3.2v12.66a2.34 2.34 0 01-2.34 2.34 2.34 2.34 0 01-2.34-2.34 2.34 2.34 0 012.34-2.34c.24 0 .48.04.7.1v-3.27a5.6 5.6 0 00-.7-.05A5.6 5.6 0 003.4 15.66 5.6 5.6 0 009 21.26a5.6 5.6 0 005.6-5.6V9.01a7.5 7.5 0 004.36 1.4V7.2a4.28 4.28 0 01-2.36-1.38Z'},
+                {id:'youtube',l:'YouTube',svg:'M23.5 6.5a3 3 0 00-2.1-2.12C19.5 3.86 12 3.86 12 3.86s-7.5 0-9.4.52A3 3 0 00.5 6.5 31.3 31.3 0 000 12a31.3 31.3 0 00.5 5.5 3 3 0 002.1 2.12c1.9.52 9.4.52 9.4.52s7.5 0 9.4-.52a3 3 0 002.1-2.12A31.3 31.3 0 0024 12a31.3 31.3 0 00-.5-5.5ZM9.6 15.5v-7l6.2 3.5-6.2 3.5Z'},
+                {id:'facebook',l:'Facebook',svg:'M22 12a10 10 0 10-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0022 12Z'},
+              ].filter(s => socialLinks[s.id]).map(s => (
+                <a key={s.id} href={socialLinks[s.id]} target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-slate-900 border border-slate-800 rounded-lg flex items-center justify-center hover:border-[#CCFF00]/40 hover:bg-slate-800 transition-all group" aria-label={s.l} data-testid={`footer-social-${s.id}`}>
                   <svg viewBox="0 0 24 24" className="w-4 h-4 fill-slate-500 group-hover:fill-[#CCFF00] transition-colors"><path d={s.svg}/></svg>
                 </a>
               ))}

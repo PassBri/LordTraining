@@ -1,0 +1,38 @@
+{
+  "summary": "iter_105 — Las 4 tareas del review PASS. (1) Footer dinámico de redes sociales filtra correctamente por URL no vacía. (2) Pizarra Táctica gating: clic en sport-card estando deslogueado redirige a /auth y setea sessionStorage.postLoginRedirect. (3) Tras login con coach, redirige a /tactical-board.html y la pizarra carga (SVG del campo de fútbol visible). (4) Super Admin → /admin/super → tab 'Apariencia de Landing' → sección Redes Sociales con los 6 inputs; guardar LinkedIn muestra toast 'Enlaces de redes sociales guardados' y persiste tras reload.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "DashboardPage", "issues": ["PAGEERROR: 'useMemo is not defined' al cargar /dashboard tras login (pre-existente, no bloquea el flujo bajo prueba — el redirect a /tactical-board.html funciona). Falta import de useMemo en algún componente de DashboardPage."]},
+      {"screen": "Super Admin (varios)", "issues": ["Console hydration error: '<span> cannot be a child of <option>'. Cosmético/accesibilidad, no bloquea."]}
+    ]
+  },
+  "verified_features": [
+    "TAREA 1 PASS — Landing público (deslogueado), footer-social-icons existe. Render dinámico verificado: footer-social-x href=https://x.com/lordtraining target=_blank, footer-social-instagram href=https://instagram.com/lordtraining target=_blank, footer-social-youtube href=https://youtube.com/@lord target=_blank. Los íconos vacíos NO renderizan: footer-social-linkedin count=0, footer-social-tiktok count=0, footer-social-facebook count=0.",
+    "TAREA 2 PASS — Sin train_token, clic en [data-testid='sport-card-fútbol'] redirige a /auth (page.url incluye '/auth'). sessionStorage.getItem('postLoginRedirect') === '/tactical-board.html'. NO se abrió /tactical-board.html antes del login.",
+    "TAREA 3 PASS — En /auth con postLoginRedirect seteado, login con test@train.com/test123456 → page.url === '/tactical-board.html'. La pizarra carga correctamente (el campo de fútbol FIFA 105m x 68m se renderiza en SVG, no en <canvas>; toolbars Dibujo/Personas/Formaciones/Implementos/Fuerza/Cardio visibles). Considerar que el test del usuario decía 'si canvas carga, es correcto', pero el board real usa SVG — funcionalmente correcto.",
+    "TAREA 4 PASS — Login super admin (juegolaureado@gmail.com / LordTraining2026!) → /admin/super → tab 'Apariencia de Landing'. [data-testid='social-links-section'] existe. Los 6 inputs existen con valores iniciales correctos: x='https://x.com/lordtraining', instagram='https://instagram.com/lordtraining', youtube='https://youtube.com/@lord', linkedin/tiktok/facebook=''. Cambié LinkedIn a 'https://linkedin.com/company/lordtraining' → clic en [data-testid='social-save-btn'] → toast 'Enlaces de redes sociales guardados' visible. Reload + re-click tab Apariencia → linkedin input mantiene el nuevo valor ✓ PERSISTIDO. Cleanup ejecutado: revertí linkedin a vacío para no contaminar TAREA 1."
+  ],
+  "test_report_links": [],
+  "action_items": [
+    "MEDIUM (pre-existente): 'useMemo is not defined' al cargar DashboardPage tras login. Falta `import { useMemo } from 'react'` en alguno de los componentes referenciados desde DashboardPage. No bloquea la TAREA 3 porque el redirect a /tactical-board.html ocurre antes de que el usuario interactúe con el dashboard, pero el componente <DashboardPage> reporta error boundary missing.",
+    "LOW: La ruta del Super Admin es '/admin/super' (no '/admin' como decía el review_request). Si el equipo quiere alinear, agregar redirect /admin → /admin/super para super_admins, o documentar la URL correcta.",
+    "LOW: Hydration warning '<span> cannot be a child of <option>' en SuperAdminPage. Inspeccionar los <select>/<option> en la página."
+  ],
+  "critical_code_review_comments": [
+    "El gating de Pizarra Táctica en LandingPage.handleBoardClick funciona correctamente: previene default del <a href='/tactical-board.html'>, setea sessionStorage.postLoginRedirect='/tactical-board.html', y navega a /auth si no hay train_token. Bien implementado.",
+    "AuthPage lee sessionStorage.postLoginRedirect tras login exitoso (verificado: redirect a /tactical-board.html post-login). Considerar borrar sessionStorage.postLoginRedirect después de consumirlo para evitar redirects fantasma en sesiones futuras (verificar si ya lo hace).",
+    "LandingAppearance.SocialLinksEditor renderiza los 6 inputs con data-testid consistentes y un save-btn único. El backend PUT/GET /api/landing/social ya verificado por main agent vía curl. Frontend respeta correctamente el contrato.",
+    "Footer de LandingPage filtra correctamente por URL truthy: solo renderiza íconos cuando socialLinks[k] tiene valor. Diseño correcto."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skip backend)", "frontend": "4/4 tareas PASS — 100%"},
+  "test_credentials": "Super Admin: juegolaureado@gmail.com / LordTraining2026!. Coach: test@train.com / test123456.",
+  "seed_data_creation": "Modifiqué temporalmente social_links.linkedin a 'https://linkedin.com/company/lordtraining' para verificar persistencia, luego revertí a vacío en cleanup para mantener el estado original (X/Instagram/YouTube con URL; LinkedIn/TikTok/Facebook vacíos).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "iter_105: las 4 funcionalidades nuevas de LordTraining (footer redes sociales dinámico, gating de pizarra táctica, redirect post-login, editor de redes en Super Admin) están 100% funcionales. Nota: el Super Admin vive en '/admin/super' (no '/admin'). El review_request dice 'canvas' pero la pizarra real usa SVG — funcionalmente correcto. Pre-existente: PAGEERROR 'useMemo is not defined' en DashboardPage (no bloquea redirect a /tactical-board.html). Footer testid format: footer-social-{x|instagram|youtube|linkedin|tiktok|facebook}.",
+  "rca_of_the_issue": "n/a — feature additions verificadas, sin bugs en el alcance del review."
+}

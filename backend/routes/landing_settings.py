@@ -17,10 +17,23 @@ JWT_ALGORITHM = "HS256"
 
 VALID_THEMES = {"classic", "material", "futuristic", "light"}
 _SETTINGS_KEY = "landing_appearance"
+_SOCIAL_KEY = "social_links"
+
+# Plataformas soportadas para enlaces de redes sociales
+SOCIAL_PLATFORMS = ["x", "linkedin", "instagram", "tiktok", "youtube", "facebook"]
 
 
 class ThemePayload(BaseModel):
     theme: str
+
+
+class SocialLinksPayload(BaseModel):
+    x: str = ""
+    linkedin: str = ""
+    instagram: str = ""
+    tiktok: str = ""
+    youtube: str = ""
+    facebook: str = ""
 
 
 async def _require_super(request: Request, credentials: HTTPAuthorizationCredentials = Depends(security)):
@@ -57,3 +70,27 @@ async def db_set_theme(db, theme, uid):
         {"$set": {"active_theme": theme, "updated_by": uid, "updated_at": datetime.now(timezone.utc).isoformat()}},
         upsert=True,
     )
+
+
+@router.get("/social")
+async def get_social_links(db=Depends(get_db)):
+    """Público — el landing consulta los enlaces de redes sociales activos."""
+    doc = await db.landing_settings.find_one({"key": _SOCIAL_KEY}, {"_id": 0})
+    links = (doc or {}).get("links", {})
+    return {"links": {p: (links.get(p) or "") for p in SOCIAL_PLATFORMS}}
+
+
+@router.put("/social")
+async def set_social_links(payload: SocialLinksPayload, request: Request, user=Depends(_require_super)):
+    def clean(url: str) -> str:
+        url = (url or "").strip()
+        if url and not url.startswith(("http://", "https://")):
+            url = "https://" + url
+        return url
+    links = {p: clean(getattr(payload, p, "")) for p in SOCIAL_PLATFORMS}
+    await request.app.state.db.landing_settings.update_one(
+        {"key": _SOCIAL_KEY},
+        {"$set": {"links": links, "updated_by": user["id"], "updated_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True,
+    )
+    return {"links": links}

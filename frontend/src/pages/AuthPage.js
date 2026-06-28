@@ -364,6 +364,12 @@ const AuthPage = () => {
     try {
       await login(loginEmail, loginPassword);
       toast.success(t('common.welcome') + '!');
+      const postRedirect = sessionStorage.getItem('postLoginRedirect');
+      if (postRedirect) {
+        sessionStorage.removeItem('postLoginRedirect');
+        window.location.href = postRedirect;
+        return;
+      }
       const pending = sessionStorage.getItem('pending_checkout');
       if (pending) {
         sessionStorage.removeItem('pending_checkout');
@@ -389,6 +395,12 @@ const AuthPage = () => {
       // Auto-login right after a successful registration (better conversion)
       await login(registerEmail, registerPassword);
       toast.success(t('common.welcome') + '!');
+      const postRedirect = sessionStorage.getItem('postLoginRedirect');
+      if (postRedirect) {
+        sessionStorage.removeItem('postLoginRedirect');
+        window.location.href = postRedirect;
+        return;
+      }
       const pending = sessionStorage.getItem('pending_checkout');
       if (pending) {
         sessionStorage.removeItem('pending_checkout');
