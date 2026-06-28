@@ -1,0 +1,37 @@
+{
+  "summary": "Frontend-only retest of Plan Gráfico → SessionCalendar event sync. END-TO-END FLOW WORKS: con un atleta seleccionado, asignar fecha en celda 'Competencia principal' (comp-cell-main_competition-12) → modal abre (comp-modal-date/name/save visibles) → toast 'Competencia principal actualizada y añadida al calendario' → POST /api/events-calendar persiste → Al navegar a subnav-calendar-view, SessionCalendar muestra el chip 'event-chip-gp_main_competition' con el nombre 'Test Competencia' en el día 2026-05-15 (verificado por DOM y screenshot, SIN RECARGA). El refetch automático al entrar a calendar-view (useEffect en DashboardPage line 1193) funciona correctamente y el prop events llega a SessionCalendar.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "GraphicPlan monitoring cells", "issue": "El click en cell-monitoring-physical-5 (fila Control físico) NO abrió el modal en la prueba (modal=False, comp-modal-date=False). En cambio, comp-cell-main_competition-12 (Competencia principal) sí abre el modal correctamente. Posible causa: la celda monitoring quedaba fuera del viewport horizontal o un re-render virtualizó la fila; requiere confirmación manual. La feature de monitoring podría no ser funcional aunque el path de competencia sí lo es.", "selector": "[data-testid='cell-monitoring-physical-5']", "priority": "HIGH"},
+      {"component": "DashboardPage athlete selector", "issue": "El combobox de selección de atleta SÓLO aparece en el landing de Datos (cuando !activeDataSection). Una vez dentro de una subsección no hay forma de cambiar atleta. Además al entrar a tab-datos, activeDataSection ya viene seteado a 'prev-plan' (no a null), por lo que el selector landing NO se ve y el usuario debe pasar por Información → Atletas → click en avatar para fijar selectedAthleteId. Es contraintuitivo y bloqueante para descubrir la feature.", "selector": "(selector contextual)", "priority": "HIGH"},
+      {"component": "Dialog accessibility", "issue": "Consola: 'DialogContent requires a DialogTitle for the component to be accessible'. Repetido varias veces.", "selector": "DialogContent (modales radix)", "priority": "LOW"}
+    ],
+    "integration_issues": [
+      {"flow": "Plan Gráfico (cells monitoring) → Calendar", "issue": "No fue posible validar la celda 'Control físico' (cell-monitoring-physical-*) por no abrirse el modal en la prueba. La sincronización para Competencia principal sí está validada end-to-end.", "affected_selectors": ["[data-testid='cell-monitoring-physical-5']", "[data-testid='comp-modal-date']"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_97.json"],
+  "action_items": [
+    "(HIGH) Reproducir manualmente y arreglar: cell-monitoring-physical-N debe abrir el modal igual que comp-cell-main_competition-N. Verificar onClick={openCellDateModal(...)} en renderBooleanCell (línea ~1697) y que la celda no esté tapada por un overlay/título sticky. Posiblemente scroll-into-view horizontal.",
+    "(HIGH) Mostrar el selector de atleta en TODAS las subsecciones de Datos (no sólo en el landing). Sugerencia: mover el <Select> al header de Datos para que esté siempre visible y que selectedAthleteId pueda cambiarse desde graphic-plan/calendar-view sin volver al landing.",
+    "(MEDIUM) Al entrar a tab-datos sin sección activa, no setear activeDataSection automáticamente a 'prev-plan'; dejarlo en null para que aparezca el landing con el selector de atleta y se vea el flujo correctamente.",
+    "(LOW) Agregar DialogTitle (o VisuallyHidden) a todos los DialogContent para resolver el warning de accesibilidad de Radix.",
+    "(LOW) Investigar los 404 recurrentes que aparecen en network/console — pueden ser endpoints opcionales pero ensucian la consola."
+  ],
+  "critical_code_review_comments": [
+    "GraphicPlan.syncCalendarEvent (línea 791) — retorna false silenciosamente si no hay athleteId. Una vez que el usuario llega a la celda, el guardado de fecha en planData ocurre pero el sync al calendario se omite sin feedback. Considerar bloquear el botón Guardar o mostrar toast 'Selecciona un atleta para sincronizar' antes de cerrar el modal.",
+    "DashboardPage events state vs GraphicPlan events state: ambos componentes mantienen estados separados. Funciona porque DashboardPage hace refetch al entrar a calendar-view. Si en el futuro se permite ver el calendario sin salir de graphic-plan, habrá desincronización. Recomendado lifting state up o un context compartido.",
+    "DashboardPage.js sigue teniendo el bloque 'activeDataSection === events' (línea 2564) sin nav entry — es código muerto. Eliminar o agregar subnav-events.",
+    "SessionCalendar.eventsByDay y eventColor están correctamente implementados; render condicional de event-chip-* funciona y respeta truncate/slice(0,2)+overflow."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only; backend roundtrip validado via fetch /api/events-calendar/{athlete_id})", "frontend": "70% — Flujo Competencia principal → Calendar VALIDADO. Flujo Monitoreo (Control físico) NO se pudo validar por modal no abierto. Selector de atleta UX deficiente."},
+  "test_credentials": "Super Admin: juegolaureado@gmail.com / LordTraining2026!. Atleta usado: María López (id acb4ca06-8386-4c0b-b829-35d8ad7e45fc).",
+  "seed_data_creation": "Se creó un evento 'Test Competencia' con fecha 2026-05-15 en events_calendar del atleta María López (events list contains {id: gp_main_competition, name: Test Competencia, date: 2026-05-15, type: Competencia, priority: A, source: graphic_plan}).",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "REPRO PASO A PASO: 1) Login super admin. 2) tab-planes → primer sidebar-plan (Plan Deporte General - ATR Issurin). 3) tab-datos. 4) section-tab-informacion → subnav-athletes → click avatar 'María' para setear selectedAthleteId (NO usar el combobox: en la sección donde estaba sólo había uno de Lesiones). 5) section-tab-visualizacion → subnav-graphic-plan. 6) Buscar y clickear comp-cell-main_competition-12 → modal abre OK. Llenar comp-modal-name y comp-modal-date='2026-05-15' → comp-modal-save. 7) subnav-calendar-view (sin recargar) → verificar que aparezca event-chip-gp_main_competition con texto 'Test Competencia' en day-cell-2026-05-15. ✅ FUNCIONA. PENDIENTE: probar manualmente cell-monitoring-physical-N (Control físico) — en automation el modal NO abrió, requiere confirmar si es un bug real (puede ser que scroll horizontal no haya alcanzado la celda).",
+  "rca_of_the_issue": "El FIX previo de SessionCalendar (consumir prop events y renderizar event-chip-*) ESTÁ FUNCIONANDO correctamente. El refetch en useEffect (DashboardPage.js:1192-1197) trae eventos persistidos al entrar a calendar-view. Estado anterior (iter_96): SessionCalendar no consumía events. Estado actual: SessionCalendar lo consume y renderiza correctamente. Bug residual: (a) UX del selector de atleta (sólo en landing), y (b) el modal de las celdas de monitoreo (cell-monitoring-*) no se abrió en la prueba aunque la celda existe en el DOM. Mitigación sugerida: lifting del selector de atleta al header global de Datos + auditar el onClick del renderBooleanCell por interferencias de overlay/scroll."
+}

@@ -2549,7 +2549,7 @@ const DashboardPage = () => {
 
     // Render Calendario section inline - COMPLETE
     if (activeDataSection === 'calendar-view') {
-      return <SessionCalendar activePlan={activePlan} />;
+      return <SessionCalendar activePlan={activePlan} events={events} />;
     }
 
     // Render Generar con IA section inline - COMPLETE

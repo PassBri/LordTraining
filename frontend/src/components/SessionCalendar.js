@@ -35,7 +35,7 @@ const sessionColor = (sesion) => {
   return CAP_COLORS.default;
 };
 
-const SessionCalendar = ({ activePlan }) => {
+const SessionCalendar = ({ activePlan, events = [] }) => {
   const { t, i18n } = useTranslation();
   const { plan, sesiones, microciclos, mesociclos, macrociclos, cargarPlanCompleto, actualizarSesion, loading } = usePlanStore();
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -74,6 +74,24 @@ const SessionCalendar = ({ activePlan }) => {
     });
     return map;
   }, [sesiones]);
+
+  // Eventos del Plan Gráfico / Competencias (events_calendar) por día
+  const eventColor = (ev) => {
+    const t = `${ev.type || ''}`.toLowerCase();
+    if (t.includes('competen')) return ev.priority === 'A' ? '#EF4444' : '#F59E0B';
+    if (t.includes('evalua') || t.includes('monitor')) return '#06B6D4';
+    if (t.includes('recuper')) return '#8B5CF6';
+    return '#3B82F6';
+  };
+  const eventsByDay = useMemo(() => {
+    const map = {};
+    (events || []).forEach(ev => {
+      if (!ev.date) return;
+      const key = ev.date.slice(0, 10);
+      (map[key] = map[key] || []).push(ev);
+    });
+    return map;
+  }, [events]);
 
   // Build calendar grid for current month (Monday-first)
   const grid = useMemo(() => {
@@ -285,6 +303,25 @@ const SessionCalendar = ({ activePlan }) => {
                       <div className="text-[9px] text-slate-500 px-1 font-semibold">
                         +{cellSessions.length - 3} {t('sessionCalendar.more')}
                       </div>
+                    )}
+                    {/* Event chips (Plan Gráfico / Competencias) */}
+                    {(eventsByDay[dateStr] || []).slice(0, 2).map((ev, ei) => {
+                      const c = eventColor(ev);
+                      return (
+                        <div
+                          key={`ev-${ev.id || ei}`}
+                          className="px-1.5 py-1 rounded-md text-[10px] font-semibold leading-tight truncate"
+                          style={{ background: c + '22', color: c, borderLeft: `3px solid ${c}` }}
+                          title={`${ev.name || 'Evento'}${ev.source === 'graphic_plan' ? ' · Plan Gráfico' : ''}`}
+                          data-testid={`event-chip-${ev.id || ei}`}
+                        >
+                          <span className="inline-block w-1.5 h-1.5 rounded-full mr-1 align-middle" style={{ background: c }} />
+                          {ev.name || 'Evento'}
+                        </div>
+                      );
+                    })}
+                    {(eventsByDay[dateStr]?.length || 0) > 2 && (
+                      <div className="text-[9px] text-slate-500 px-1 font-semibold">+{eventsByDay[dateStr].length - 2}</div>
                     )}
                   </div>
                 </div>
