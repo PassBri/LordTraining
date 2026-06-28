@@ -1,5 +1,11 @@
 # iTRAIN - Plataforma
 
+## [Jun 2026] Plan Gráfico → Calendario Drag & Drop (fuente única) — VERIFICADO iter_97
+- Las fechas asignadas en celdas del Plan Gráfico (Eventos/Competencias, Monitoreo/Evaluaciones, Competencia principal/secundaria) crean/actualizan eventos en la colección `events_calendar` por atleta vía `syncCalendarEvent` (POST /api/events-calendar) en `GraphicPlan.js`.
+- `SessionCalendar.js` (calendar-view, el calendario Drag & Drop) ahora recibe prop `events` y superpone chips `event-chip-*` (color por tipo: Competencia rojo/ámbar, Evaluación cyan, Recuperación violeta) además de las sesiones.
+- `DashboardPage.js` pasa `events` a SessionCalendar y refetch al entrar a `calendar-view` (aparece sin recargar). Requiere atleta seleccionado (calendario es por atleta).
+
+
 ## [Jun 2026] Sesión iterativa — Plan Gráfico, Iconos de Plan, Export PDF, Sesiones (VERIFICADO iter_93/94/95)
 - **Plan Icon/Logo por plan** (VERIFICADO iter_92): `lib/planIcons.js` + `PlanIconPicker.jsx` (íconos lucide + emoji + color, autoasignación por deporte). Backend `icon`/`icon_color` en TrainingPlan (create/update/response). Picker en wizard (PeriodizationComplete). Badge en PlanSidebar (colapsado + expandido). [PENDIENTE: edición de ícono post-creación; subir imagen propia = futuro, requiere object storage.]
 - **Leyendas clicables** en InteractiveChart (toggle de series, hide + tachado). VERIFICADO iter_92.
