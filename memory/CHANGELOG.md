@@ -1,5 +1,11 @@
 # CHANGELOG — LordTraining
 
+## 2026-06-30 — Login: panel derecho (pizarra demo) — Material Design + proporción
+- **Quitado** el texto inferior tipo tiza "Los mejores no improvisan." del panel derecho.
+- **Proporción**: el contenedor del tablero pasó de márgenes 8%/12%/14% a 13%/17% → tablero más contenido y equilibrado (ya no domina); radio 16px + sombra de elevación.
+- **Material Design** en tarjetas HUD (cabecera de sesión, Readiness, ACWR, Adherencia): `rounded-2xl`, superficie `rgba(18,20,28,0.9)`, borde 1px sutil, blur 16px y sombra de elevación `0 8px 24px` → look cohesivo flotando sobre el lienzo. Verificado por screenshot en preview.
+- Pendiente usuario: **Deploy** (reporte en producción).
+
 ## 2026-06-30 — Fix login responsive (no cabía en una pantalla en PC)
 - **Causa**: el logo del login era enorme (`h-[300px] sm:h-[360px]`) y empujaba el formulario fuera de la vista → en ventanas de escritorio había que hacer scroll para ver email/contraseña/botón.
 - **Fix** (`AuthPage.js`): logo reducido a `h-[120px] sm:h-[150px] lg:h-[170px]`, márgenes verticales compactados (logo/idioma/subtítulo/tabs de mb-5/mb-6 → mb-3/mb-4) y `py-8` en la columna del formulario. Ahora todo el login (logo, título, pestañas, email, contraseña, botón y enlaces legales) cabe en una sola pantalla sin scroll. Verificado por screenshot en preview.

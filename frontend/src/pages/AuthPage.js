@@ -193,7 +193,7 @@ const AuthVisual = () => {
   <div className="relative h-full overflow-hidden" style={{background:'#08090e'}}>
 
     {/* Field container */}
-    <div className="absolute overflow-hidden" style={{top:'12%',left:'8%',right:'8%',bottom:'14%',background:'#1e3a1e',borderRadius:'4px'}}>
+    <div className="absolute overflow-hidden" style={{top:'17%',left:'13%',right:'13%',bottom:'17%',background:'#1e3a1e',borderRadius:'16px',boxShadow:'0 12px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)'}}>
       {/* SVG field lines */}
       <svg className="absolute inset-0 w-full h-full" viewBox={sport.vb} preserveAspectRatio="xMidYMid meet"
         style={{opacity:visible?1:0,transition:'opacity 0.6s ease'}}>
@@ -237,7 +237,7 @@ const AuthVisual = () => {
 
     {/* HUD — Session header */}
     <div className="absolute left-1/2 -translate-x-1/2" style={{top:'5%'}}>
-      <div className="flex items-center gap-2.5 px-4 py-2 rounded-lg whitespace-nowrap" style={{background:'rgba(8,9,14,0.85)',border:'0.5px solid rgba(255,255,255,0.1)',backdropFilter:'blur(12px)'}}>
+      <div className="flex items-center gap-2.5 px-4 py-2 rounded-2xl whitespace-nowrap" style={{background:'rgba(18,20,28,0.9)',border:'1px solid rgba(255,255,255,0.08)',backdropFilter:'blur(16px)',boxShadow:'0 8px 24px rgba(0,0,0,0.45)'}}>
         <BrandLogo variant="icon" theme="light" size={18} />
         <span className="text-[13px] font-semibold text-white/80">{t('auth.visual.week')} · {t('auth.visual.phase')}</span>
         <span className="w-[5px] h-[5px] rounded-full bg-[#c8f700] ml-1" style={{animation:'livePulse 1.5s infinite'}}/>
@@ -246,8 +246,8 @@ const AuthVisual = () => {
     </div>
 
     {/* HUD — Readiness */}
-    <div className="absolute" style={{top:'14%',left:'16px'}}>
-      <div className="px-3 py-3 rounded-lg" style={{background:'rgba(8,9,14,0.85)',border:'0.5px solid rgba(255,255,255,0.1)',backdropFilter:'blur(12px)'}}>
+    <div className="absolute" style={{top:'16%',left:'18px'}}>
+      <div className="px-3.5 py-3 rounded-2xl" style={{background:'rgba(18,20,28,0.9)',border:'1px solid rgba(255,255,255,0.08)',backdropFilter:'blur(16px)',boxShadow:'0 8px 24px rgba(0,0,0,0.45)'}}>
         <span className="text-[10px] text-white/35 uppercase tracking-[0.12em] font-bold block mb-1.5">{t('auth.visual.readiness')}</span>
         <div className="flex items-center gap-2">
           <svg width="44" height="44" className="-rotate-90">
@@ -265,8 +265,8 @@ const AuthVisual = () => {
     </div>
 
     {/* HUD — ACWR */}
-    <div className="absolute" style={{top:'14%',right:'16px'}}>
-      <div className="px-3 py-3 rounded-lg" style={{background:'rgba(8,9,14,0.85)',border:'0.5px solid rgba(255,255,255,0.1)',backdropFilter:'blur(12px)'}}>
+    <div className="absolute" style={{top:'16%',right:'18px'}}>
+      <div className="px-3.5 py-3 rounded-2xl" style={{background:'rgba(18,20,28,0.9)',border:'1px solid rgba(255,255,255,0.08)',backdropFilter:'blur(16px)',boxShadow:'0 8px 24px rgba(0,0,0,0.45)'}}>
         <span className="text-[8px] text-white/30 uppercase tracking-[0.12em] font-bold block mb-1">{t('auth.visual.acwr')}</span>
         <span className="text-[26px] font-black text-[#378ADD] leading-none block" style={{fontFamily:BC}}>{acwr}</span>
         <svg viewBox="0 0 80 20" className="w-20 h-5 mt-1.5">
@@ -277,8 +277,8 @@ const AuthVisual = () => {
     </div>
 
     {/* HUD — Adherence */}
-    <div className="absolute" style={{bottom:'22%',right:'16px'}}>
-      <div className="px-3 py-2.5 rounded-lg" style={{background:'rgba(8,9,14,0.85)',border:'0.5px solid rgba(255,255,255,0.08)',backdropFilter:'blur(12px)'}}>
+    <div className="absolute" style={{bottom:'24%',right:'18px'}}>
+      <div className="px-3.5 py-2.5 rounded-2xl" style={{background:'rgba(18,20,28,0.9)',border:'1px solid rgba(255,255,255,0.08)',backdropFilter:'blur(16px)',boxShadow:'0 8px 24px rgba(0,0,0,0.45)'}}>
         <span className="text-[24px] font-black text-[#c8f700] leading-none block" style={{fontFamily:BC}}>94%</span>
         <span className="text-[10px] text-white/30 uppercase tracking-[0.1em] mt-0.5 block">{t('auth.visual.adherence')}</span>
       </div>
@@ -312,12 +312,6 @@ const AuthVisual = () => {
           </div>
         ))}
       </div>
-    </div>
-
-    {/* Chalk signature — Caveat font */}
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet"/>
-    <div className="absolute z-10 pointer-events-none" style={{bottom:'88px',right:'20px',opacity:0.25,transform:'rotate(-2deg)'}}>
-      <span className="text-[34px] text-white" style={{fontFamily:'Caveat, cursive'}}>Los mejores no improvisan.</span>
     </div>
 
     <style>{`
