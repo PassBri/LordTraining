@@ -1,6 +1,12 @@
 # CHANGELOG — LordTraining
 
-## 2026-06-28 (tarde) — Redes Sociales (Admin) + Pizarra Táctica con login
+## 2026-06-28 (noche) — Vista consolidada de Equipo en el Calendario
+- **Calendario consolidado por Equipo**: al seleccionar un Equipo, el Calendario Drag & Drop muestra los eventos de TODOS los atletas del equipo. Cada chip lleva una insignia con la INICIAL del atleta y un COLOR único auto-asignado; arriba se muestra una LEYENDA (`team-calendar-legend`) con inicial+nombre+color por atleta. (iter_107 PASS)
+- **Arrastre con alcance (Modo Equipo)**: al soltar un chip en otro día, un `confirm` pregunta el alcance → Aceptar = reprogramar para TODO el equipo · Cancelar = solo ese atleta. Implementado vía `rescheduleEventForAthlete` (por atleta: events_calendar + planData) + `handleEventReschedule(ev, newDate, scope)`. (iter_107 PASS)
+- **Modo Individual** intacto: sin leyenda, sin insignia de inicial, arrastre directo sin preguntar alcance. (iter_107 PASS)
+- Helpers nuevos en DashboardPage: `teamEvents`/`fetchTeamEvents`/`teamAthleteMeta` (TEAM_PALETTE + iniciales). En SessionCalendar: `teamMode`/`teamName`/`teamLegend`.
+
+
 - **Enlaces de Redes Sociales en Super Admin**: nueva sección en el tab "Apariencia de Landing" (componente `SocialLinksEditor` en LandingAppearance.jsx) con inputs para X, LinkedIn, Instagram, TikTok, YouTube, Facebook. Backend `GET /api/landing/social` (público) y `PUT /api/landing/social` (solo super admin, normaliza URLs a https://) en `landing_settings.py` (colección landing_settings, MongoDB). (iter_105 PASS)
 - **Footer del landing dinámico**: los íconos sociales del pie ahora se renderizan desde los enlaces guardados (solo se muestran los que tienen URL; abren en nueva pestaña). Se añadieron íconos TikTok, YouTube y Facebook. (iter_105 PASS)
 - **Pizarra Táctica exige login (opción B)**: en el landing, al hacer clic en tarjetas de deporte o "Explorar pizarra" estando deslogueado, redirige a `/auth` (NO abre la pizarra) y guarda `postLoginRedirect`; tras iniciar sesión, abre `/tactical-board.html`. (iter_105 PASS)

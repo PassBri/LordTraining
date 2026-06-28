@@ -4148,7 +4148,7 @@ const DashboardPage = () => {
                     <SelectGroup>
                       <SelectLabel>{t('data.atleta')}s</SelectLabel>
                       {athletes.map(a => (
-                        <SelectItem key={a.id} value={`a:${a.id}`}>{a.name}</SelectItem>
+                        <SelectItem key={a.id} value={`a:${a.id}`} data-testid={`select-athlete-${a.id}`}>{a.name}</SelectItem>
                       ))}
                     </SelectGroup>
                   )}
