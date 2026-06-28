@@ -114,6 +114,7 @@ const DashboardPage = () => {
   const [activeDataSection, setActiveDataSection] = useState(null); // null = welcome state in datos
   const [selectedAthleteId, setSelectedAthleteId] = useState(null);
   const [selectedTeamId, setSelectedTeamId] = useState(null);
+  const [teamEvents, setTeamEvents] = useState([]);
   const [activeSubTab, setActiveSubTab] = useState('macrociclo');
   const [chatMessages, setChatMessages] = useState([
     { type: 'ai', text: 'Bienvenido al asistente de planificación deportiva. ¿En qué puedo ayudarte hoy?' }
@@ -1080,6 +1081,44 @@ const DashboardPage = () => {
       console.error('Error fetching events:', error);
       setEvents([]);
     }
+  };
+
+  // ── Vista consolidada de Equipo: color + inicial por atleta ──
+  const TEAM_PALETTE = ['#2563eb', '#16a34a', '#db2777', '#ea580c', '#7c3aed', '#0891b2', '#ca8a04', '#dc2626', '#0d9488', '#9333ea', '#65a30d', '#e11d48'];
+  const athleteInitials = (name = '') => {
+    const parts = String(name).trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return '?';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  };
+  const selectedTeam = teams.find(tm => tm.id === selectedTeamId) || null;
+  const teamRoster = selectedTeam?.athletes || [];
+  // mapa athleteId → {name, initial, color}
+  const teamAthleteMeta = useMemo(() => {
+    const map = {};
+    teamRoster.forEach((aid, i) => {
+      const a = athletes.find(at => at.id === aid);
+      map[aid] = { name: a?.name || 'Atleta', initial: athleteInitials(a?.name || ''), color: TEAM_PALETTE[i % TEAM_PALETTE.length] };
+    });
+    return map;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTeamId, teams, athletes]);
+
+  // Trae y fusiona los eventos de TODOS los atletas del equipo (etiquetados por atleta)
+  const fetchTeamEvents = async () => {
+    if (!selectedTeamId || teamRoster.length === 0) { setTeamEvents([]); return; }
+    const token = localStorage.getItem('train_token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    const results = await Promise.all(teamRoster.map(async (aid) => {
+      try {
+        const r = await fetch(`${API_URL}/api/events-calendar/${aid}`, { headers });
+        if (!r.ok) return [];
+        const d = await r.json();
+        const meta = teamAthleteMeta[aid] || {};
+        return (d.events || []).map(e => ({ ...e, _athleteId: aid, _athleteName: meta.name, _athleteInitial: meta.initial, _athleteColor: meta.color }));
+      } catch (e) { return []; }
+    }));
+    setTeamEvents(results.flat());
   };
 
   // Save events
