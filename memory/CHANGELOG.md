@@ -1,5 +1,10 @@
 # CHANGELOG — LordTraining
 
+## 2026-06-30 — Fix: el Super Admin no aparecía al entrar (solo tras recargar)
+- **Causa raíz**: `POST /api/auth/login` devolvía un objeto `user` PARCIAL (sin `is_super_admin`, `org_id`, `org_role`), mientras `GET /api/auth/me` (que se llama al recargar) sí devuelve el `UserResponse` completo. El frontend hacía `setUser(response.data.user)` → tras el login la UI no reconocía al super admin (botón "Admin" no violeta); al recargar, `/me` traía el flag y aparecía.
+- **Fix** (`routes/auth.py`): login ahora devuelve `UserResponse(**user).model_dump(mode="json")` — el MISMO objeto que `/me`, con `is_super_admin` incluido. `UserResponse` tiene `extra="ignore"` → no filtra el hash de password (verificado). Enums/fechas serializados con `mode="json"`. Consultado con integration_expert (regla de auth). Verificado por curl: super admin → `is_super_admin:true`, sin leak de password; usuario normal OK.
+- Pendiente usuario: **Deploy** (reporte en producción).
+
 ## 2026-06-30 — Login: panel derecho (pizarra demo) — Material Design + proporción
 - **Quitado** el texto inferior tipo tiza "Los mejores no improvisan." del panel derecho.
 - **Proporción**: el contenedor del tablero pasó de márgenes 8%/12%/14% a 13%/17% → tablero más contenido y equilibrado (ya no domina); radio 16px + sombra de elevación.

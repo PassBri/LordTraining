@@ -106,13 +106,7 @@ async def login(credentials: UserLogin, request: Request, db=Depends(get_db)):
     return {
         "token": token,
         "refresh_token": refresh,
-        "user": {
-            "id": user["id"],
-            "email": user["email"],
-            "name": user["name"],
-            "role": user["role"],
-            "subscription": user["subscription"]
-        }
+        "user": UserResponse(**user).model_dump(mode="json"),
     }
 
 
