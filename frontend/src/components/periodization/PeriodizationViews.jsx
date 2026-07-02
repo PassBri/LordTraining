@@ -66,20 +66,21 @@ const flattenMicros = (plan, resolvePhase, getMicroMetrics) => {
 /* ══════════════════ VISTA ÁRBOL JERÁRQUICO ══════════════════ */
 export const TreeView = ({ plan, resolvePhase, getMicroMetrics, onEditMicro }) => {
   const [open, setOpen] = useState({});
-  const toggle = (k) => setOpen((p) => ({ ...p, [k]: !p[k] }));
+  const isOpen = (k, def) => (k in open ? open[k] : def);
+  const toggle = (k, def) => setOpen((p) => ({ ...p, [k]: !(k in p ? p[k] : def) }));
 
   return (
     <div className="space-y-2 animate-[fadeIn_0.3s_ease]" data-testid="periodization-tree-view">
       {(plan?.macrocycles || []).map((macro, macroIdx) => {
         const phase = resolvePhase(macro);
         const mk = `ma-${macroIdx}`;
-        const macroOpen = open[mk] !== false; // abierto por defecto
+        const macroOpen = isOpen(mk, true); // abierto por defecto
         return (
           <div key={macro.id || macroIdx} className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <button
               className="w-full flex items-center gap-2.5 px-4 py-3 hover:bg-slate-50 transition-colors text-left"
               style={{ borderLeft: `4px solid ${phase.color}` }}
-              onClick={() => toggle(mk)}
+              onClick={() => toggle(mk, true)}
               data-testid={`tree-macro-${macroIdx}`}
             >
               <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${macroOpen ? 'rotate-90' : ''}`} />
@@ -91,11 +92,11 @@ export const TreeView = ({ plan, resolvePhase, getMicroMetrics, onEditMicro }) =
             </button>
             {macroOpen && (macro.mesocycles || []).map((meso, mesoIdx) => {
               const ek = `me-${macroIdx}-${mesoIdx}`;
-              const mesoOpen = open[ek] !== false;
+              const mesoOpen = isOpen(ek, true);
               const mesoColor = meso.type?.color || '#64748B';
               return (
                 <div key={meso.id || mesoIdx} className="ml-6 border-l border-slate-100">
-                  <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-slate-50 transition-colors text-left" onClick={() => toggle(ek)} data-testid={`tree-meso-${macroIdx}-${mesoIdx}`}>
+                  <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-slate-50 transition-colors text-left" onClick={() => toggle(ek, true)} data-testid={`tree-meso-${macroIdx}-${mesoIdx}`}>
                     <ChevronRight className={`w-3.5 h-3.5 text-slate-400 transition-transform ${mesoOpen ? 'rotate-90' : ''}`} />
                     <Layers className="w-3.5 h-3.5" style={{ color: mesoColor }} />
                     <span className="font-semibold text-[12px] text-slate-700">{meso.name}</span>
@@ -104,7 +105,7 @@ export const TreeView = ({ plan, resolvePhase, getMicroMetrics, onEditMicro }) =
                   </button>
                   {mesoOpen && (meso.microcycles || []).map((micro, microIdx) => {
                     const mkk = `mi-${macroIdx}-${mesoIdx}-${microIdx}`;
-                    const microOpen = !!open[mkk];
+                    const microOpen = isOpen(mkk, false);
                     const mm = getMicroMetrics(macroIdx, mesoIdx, microIdx);
                     const microColor = micro.type?.color || '#94a3b8';
                     return (

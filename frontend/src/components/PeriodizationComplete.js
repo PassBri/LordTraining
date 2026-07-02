@@ -778,7 +778,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     rebuildPlanData(updatedPlan);
     setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
     setSelectedPlan(updatedPlan);
-    savePlanToAPI(updatedPlan).then(() => toast.success('Guardado', { duration: 900 })).catch(e => console.error('Error autosave micro:', e));
+    toast.success('Guardado', { duration: 1200 });
+    savePlanToAPI(updatedPlan).catch(e => { console.error('Error autosave micro:', e); toast.error('No se pudo guardar'); });
   };
 
   // ── Mover microciclo entre macrociclos (Vista Kanban) ──

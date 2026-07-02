@@ -1,8 +1,17 @@
 # CHANGELOG — LordTraining
 
-## 2026-06-30 — Fix: el Super Admin no aparecía al entrar (solo tras recargar)
-- **Causa raíz**: `POST /api/auth/login` devolvía un objeto `user` PARCIAL (sin `is_super_admin`, `org_id`, `org_role`), mientras `GET /api/auth/me` (que se llama al recargar) sí devuelve el `UserResponse` completo. El frontend hacía `setUser(response.data.user)` → tras el login la UI no reconocía al super admin (botón "Admin" no violeta); al recargar, `/me` traía el flag y aparecía.
-- **Fix** (`routes/auth.py`): login ahora devuelve `UserResponse(**user).model_dump(mode="json")` — el MISMO objeto que `/me`, con `is_super_admin` incluido. `UserResponse` tiene `extra="ignore"` → no filtra el hash de password (verificado). Enums/fechas serializados con `mode="json"`. Consultado con integration_expert (regla de auth). Verificado por curl: super admin → `is_super_admin:true`, sin leak de password; usuario normal OK.
+## 2026-06-30 — Periodización FASE 1: vistas nuevas + indicadores de carga + Excel
+- **3 vistas nuevas** en el detalle de Periodización (junto a Dashboard/Estructura/Calendario/Gráfico): **Árbol Jerárquico** (colapsable Macro→Meso→Micro→Sesión), **Kanban** (columnas por macrociclo, tarjetas de microciclos arrastrables entre columnas con persistencia) y **Tabla Compacta** (una fila por microciclo, edición inline de Vol/Int/Carga + selector de tipo, autosave a MongoDB).
+- **Indicadores de carga por color** (verde Óptima / amarillo Precaución/Detraining / rojo Sobrecarga) combinando **ACWR + carga%** (peor caso gana). Helper `loadStatus` en PeriodizationViews.jsx.
+- **Exportar a Excel real (.xlsx)** desde la Tabla → endpoint backend `POST /api/periodization/export-excel` (openpyxl, con estilos y colores de estado). Verificado E2E por curl.
+- **Vista persistida por usuario** vía localStorage (`lt_periodization_view`).
+- Archivos: `frontend/src/components/periodization/PeriodizationViews.jsx` (nuevo), `PeriodizationComplete.js` (tabs+handlers updateMicroField/moveMicrocycle/export+persistencia), `backend/routes/periodization_export.py` (nuevo). Sin cambios en el modelo de datos.
+- Testing agent: 95% (iteration_110). Corregidos: toggle de Árbol a 1 clic y toast 'Guardado' optimista. Regresión de vistas existentes OK.
+
+## 2026-06-30 — Plan Gráfico: fix compartir (clipboard) + Super Admin login consistente
+- **Compartir gráfica (bug HIGH iteration_109)**: el `catch` mostraba "Error al compartir" aunque el enlace SÍ se creaba, porque `navigator.clipboard.writeText` lanza `NotAllowedError` en contextos sandbox. Fix (`GraphicPlan.js`): helper `copyToClipboard` con fallback `execCommand`, y si falla, modal con el enlace para copiar manualmente (data-testid share-url-input/share-url-copy-btn). Mismo patrón defensivo en WhatsApp.
+- **Super Admin login**: `POST /api/auth/login` devolvía un objeto `user` PARCIAL (sin `is_super_admin`, `org_id`, `org_role`), mientras `GET /api/auth/me` (que se llama al recargar) sí devuelve el `UserResponse` completo. El frontend hacía `setUser(response.data.user)` → tras el login la UI no reconocía al super admin (botón "Admin" no violeta); al recargar, `/me` traía el flag y aparecía.
+- **Fix** (`routes/auth.py`): login ahora devuelve `UserResponse(**user).model_dump(mode="json")` — el MISMO objeto que `/me`, con `is_super_admin` incluido. `UserResponse` tiene `extra="ignore"` → no filtra el hash de password (verificado). Consultado con integration_expert (regla de auth).
 - Pendiente usuario: **Deploy** (reporte en producción).
 
 ## 2026-06-30 — Login: panel derecho (pizarra demo) — Material Design + proporción
