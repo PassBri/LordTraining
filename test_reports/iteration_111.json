@@ -1,0 +1,52 @@
+{
+  "summary": "Frontend E2E testing of Periodización Fases 2-5 (Material FAB, breadcrumb, search/filters, autosave/undo, history, duplicate meso, comparator) on Super Admin plan 'Plan Deporte General - ATR (Issurin)' (4 macros/12 mesos/47 micros). Most features PASS. A few blockers found on duplicate-meso and edit-cell selectors, plus one missing testid.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "PeriodizationViews.TableView", "issue": "No element matches [data-testid^='table-cell-vol-'] on the Tabla view. Screenshot confirms Vol%/Int% columns render as plain text (all zeros), so autosave/undo edit flow could NOT be triggered from Vol column. The `field` value used in table-cell-${field} does not appear to be 'vol' (may be 'volumen' / 'volume_percent' / etc.). Please verify the actual data-testid and align with review-request contract ('table-cell-vol-*' / 'table-input-vol-*').", "selector": "[data-testid^='table-cell-vol-']", "priority": "HIGH"},
+      {"component": "PeriodizationComplete.renderDetail structure view", "issue": "Duplicate-meso button [data-testid='duplicate-meso-0-0'] count=0 in Estructura view. Macros may need to be expanded first; the macrocycle-0 collapsible header does not auto-expand mesos. Expected: duplicate button visible on each meso row per the spec.", "selector": "[data-testid='duplicate-meso-0-0']", "priority": "HIGH"},
+      {"component": "PeriodizationComplete view tabs", "issue": "No element with [data-testid='view-graphic'] (view-graphic timeout). Other view tabs (view-structure/table/tree/kanban/calendar/dashboard) work. Either 'graphic' view is named differently (e.g. view-graph / view-chart) or the testid is missing.", "selector": "[data-testid='view-graphic']", "priority": "MEDIUM"},
+      {"component": "History dialog", "issue": "history-list count=0 after opening 'Historial'. Since no edit could be made (see Vol cell bug), history is empty — cannot confirm autosave writes entries end-to-end from UI. Endpoint verified by main agent via curl.", "selector": "[data-testid='history-list']", "priority": "MEDIUM"},
+      {"component": "Radix Dialog (history/comparator)", "issue": "Console warning: 'DialogContent requires a DialogTitle for accessibility'. Add a <DialogTitle> (or VisuallyHidden wrapper) inside history-dialog and comparator-dialog.", "selector": "[role='dialog']", "priority": "LOW"},
+      {"component": "filter-phase <select>", "issue": "React hydration warning in console: '<span> cannot be a child of <select>' inside filter-phase options (caused by dev instrumentation wrapper). Harmless but noisy in dev logs.", "selector": "[data-testid='filter-phase']", "priority": "LOW"}
+    ],
+    "integration_issues": [
+      {"flow": "Autosave + Undo (Fase 4)", "issue": "Could not exercise flow from UI because table-cell-vol-* selectors don't exist. Please confirm and update selectors, then re-test.", "affected_selectors": ["[data-testid^='table-cell-vol-']","[data-testid='autosave-status']","[data-testid='undo-btn']"]},
+      {"flow": "Duplicate mesocycle (Fase 5)", "issue": "Duplicate button not exposed on default Estructura render. Need auto-expand or ensure duplicate-meso-{macroIdx}-{mesoIdx} testid present regardless of expansion state.", "affected_selectors": ["[data-testid='duplicate-meso-0-0']"]}
+    ],
+    "design_issues": []
+  },
+  "test_results_passed": {
+    "breadcrumb": "PASS - visible, text = 'Periodización › Plan Deporte General - ATR (Issurin) › Estructura'",
+    "filters_panel_table": "PASS - filters, search input, filter-phase, filter-microtype, filter-load all visible",
+    "search_filter_table": "PASS - 47 rows initial, 'zzznomatch' -> 0 rows, Limpiar clears back to 47",
+    "phase_filter_table": "PASS - options=[Todas,Preparatorio General,Preparatorio Específico,Precompetitivo,Competitivo,Transición]; index 1 -> 0 rows (no matching micros for that phase)",
+    "load_filter_overload": "PASS - 47 -> 12 rows when filter-load='overload'",
+    "tree_view_filter": "PASS - 4 macros, 'zzznomatch' -> 0 macros (hidden)",
+    "kanban_view": "PASS - 4 kanban-col-* columns rendered",
+    "fab": "PASS - fab-main-btn visible; click reveals fab-add-macro + fab-add-meso",
+    "comparator": "PASS - compare-btn opens dialog, compare-plan-select shows 3 options; selecting another plan renders both compare-col-0 and compare-col-1",
+    "regression_views": "PASS for view-structure, view-calendar, view-dashboard, view-tree, view-kanban, view-table. FAIL for view-graphic (testid not found)"
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Verify actual data-testid used for editable Vol/Int/Carga table cells (spec says 'table-cell-vol-*' / 'table-input-vol-*'). Fix mismatch so autosave+undo flow is testable and matches contract.",
+    "Ensure duplicate-meso-{i}-{j} button is present/visible on Estructura view without requiring manual macro expansion OR auto-expand first macro on view mount.",
+    "Add data-testid='view-graphic' to the Gráfico tab (or align spec).",
+    "Add <DialogTitle> to history dialog & comparator dialog to fix Radix a11y warning.",
+    "Re-run autosave/undo/history end-to-end after selector fixes."
+  ],
+  "critical_code_review_comments": [
+    "PeriodizationComplete.js is very large (>3500 lines). Consider splitting FAB, breadcrumb+filters bar, history dialog and comparator into dedicated sub-components under /components/periodization/.",
+    "select> options are wrapped by dev instrumentation causing hydration warning; verify dev-only impact, ok for prod.",
+    "History endpoint integration works (curl verified by main agent); UI empty state ok, but consider showing 'Sin cambios registrados aún' when list is empty."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped)", "frontend": "~75% (9 of 12 test buckets pass)"},
+  "test_credentials": "juegolaureado@gmail.com / LordTraining2026! (Super Admin) — verified working",
+  "seed_data_creation": "None; used existing 'Plan Deporte General - ATR (Issurin)' (47 micros)",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Navigation path: Login -> click 'Planes' in top nav (opens sidebar) -> click a plan name in the sidebar (this SETS active plan, does NOT navigate). Then click top nav 'Datos' -> click sub-tab 'Periodización' -> click sub-tab 'Estructura'. This mounts <PeriodizationComplete>. There is NO top nav item literally called 'Periodización' at the very top level. Breadcrumb, FAB, filters, comparator all present and functional. Blockers: (1) Vol cell testid mismatch prevents autosave/undo test; (2) duplicate-meso button count=0 on default Estructura render. Fase 1 tree/kanban/table filtering all confirmed working with the new `filters` prop.",
+  "rca_of_the_issue": "Selector contract mismatch: review-request lists table-cell-vol-* and duplicate-meso-{i}-{j}, but on the live UI Vol cells render as plain <span> or use a different `field` string, and duplicate-meso is only rendered inside a collapsed macro. Both are testability/contract issues, not runtime bugs (comparator, filters, FAB, breadcrumb, view navigation all functional)."
+}

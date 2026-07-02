@@ -27,6 +27,26 @@ export const loadStatus = ({ acwr, load } = {}) => {
 
 const microLoadOf = (micro) => micro?.type?.load ?? micro?.type?.loadPercent ?? micro?.load_percent ?? 70;
 
+// Fase 3 — coincidencia con buscador + filtros (fase / tipo micro / carga)
+export const matchesFilters = ({ macro, meso, micro, phase, acwr, load }, filters) => {
+  if (!filters) return true;
+  const { search, phase: fp, microType, load: fl } = filters;
+  if (fp && fp !== 'all' && phase?.id !== fp) return false;
+  if (microType && microType !== 'all' && micro?.type?.id !== microType) return false;
+  if (fl && fl !== 'all') {
+    const st = loadStatus({ acwr, load });
+    const key = st.key === 'detraining' ? 'caution' : st.key;
+    if (key !== fl) return false;
+  }
+  if (search && search.trim()) {
+    const q = search.trim().toLowerCase();
+    const hay = `${macro?.name || ''} ${meso?.name || ''} ${micro?.name || ''} ${micro?.type?.name || ''}`.toLowerCase();
+    if (!hay.includes(q)) return false;
+  }
+  return true;
+};
+const hasActiveFilters = (f) => !!f && (f.search?.trim() || (f.phase && f.phase !== 'all') || (f.microType && f.microType !== 'all') || (f.load && f.load !== 'all'));
+
 const LoadChip = ({ acwr, load, size = 'sm' }) => {
   const s = loadStatus({ acwr, load });
   return (
@@ -64,10 +84,15 @@ const flattenMicros = (plan, resolvePhase, getMicroMetrics) => {
 };
 
 /* ══════════════════ VISTA ÁRBOL JERÁRQUICO ══════════════════ */
-export const TreeView = ({ plan, resolvePhase, getMicroMetrics, onEditMicro }) => {
+export const TreeView = ({ plan, filters, resolvePhase, getMicroMetrics, onEditMicro }) => {
   const [open, setOpen] = useState({});
   const isOpen = (k, def) => (k in open ? open[k] : def);
   const toggle = (k, def) => setOpen((p) => ({ ...p, [k]: !(k in p ? p[k] : def) }));
+  const active = hasActiveFilters(filters);
+  const microVisible = (macro, meso, micro, macroIdx, mesoIdx, microIdx) => {
+    const mm = getMicroMetrics(macroIdx, mesoIdx, microIdx);
+    return matchesFilters({ macro, meso, micro, phase: resolvePhase(macro), acwr: mm?.ACWR || 0, load: microLoadOf(micro) }, filters);
+  };
 
   return (
     <div className="space-y-2 animate-[fadeIn_0.3s_ease]" data-testid="periodization-tree-view">
@@ -75,6 +100,10 @@ export const TreeView = ({ plan, resolvePhase, getMicroMetrics, onEditMicro }) =
         const phase = resolvePhase(macro);
         const mk = `ma-${macroIdx}`;
         const macroOpen = isOpen(mk, true); // abierto por defecto
+        if (active) {
+          const anyVis = (macro.mesocycles || []).some((me, mei) => (me.microcycles || []).some((mi, mii) => microVisible(macro, me, mi, macroIdx, mei, mii)));
+          if (!anyVis) return null;
+        }
         return (
           <div key={macro.id || macroIdx} className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <button
@@ -94,6 +123,7 @@ export const TreeView = ({ plan, resolvePhase, getMicroMetrics, onEditMicro }) =
               const ek = `me-${macroIdx}-${mesoIdx}`;
               const mesoOpen = isOpen(ek, true);
               const mesoColor = meso.type?.color || '#64748B';
+              if (active && !(meso.microcycles || []).some((mi, mii) => microVisible(macro, meso, mi, macroIdx, mesoIdx, mii))) return null;
               return (
                 <div key={meso.id || mesoIdx} className="ml-6 border-l border-slate-100">
                   <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-slate-50 transition-colors text-left" onClick={() => toggle(ek, true)} data-testid={`tree-meso-${macroIdx}-${mesoIdx}`}>
@@ -106,6 +136,7 @@ export const TreeView = ({ plan, resolvePhase, getMicroMetrics, onEditMicro }) =
                   {mesoOpen && (meso.microcycles || []).map((micro, microIdx) => {
                     const mkk = `mi-${macroIdx}-${mesoIdx}-${microIdx}`;
                     const microOpen = isOpen(mkk, false);
+                    if (active && !microVisible(macro, meso, micro, macroIdx, mesoIdx, microIdx)) return null;
                     const mm = getMicroMetrics(macroIdx, mesoIdx, microIdx);
                     const microColor = micro.type?.color || '#94a3b8';
                     return (
@@ -143,9 +174,10 @@ export const TreeView = ({ plan, resolvePhase, getMicroMetrics, onEditMicro }) =
 };
 
 /* ══════════════════ VISTA KANBAN ══════════════════ */
-export const KanbanView = ({ plan, resolvePhase, getMicroMetrics, onMoveMicro }) => {
+export const KanbanView = ({ plan, filters, resolvePhase, getMicroMetrics, onMoveMicro }) => {
   const [dragItem, setDragItem] = useState(null);
   const [overCol, setOverCol] = useState(null);
+  const active = hasActiveFilters(filters);
 
   return (
     <div className="flex gap-4 overflow-x-auto pb-4 animate-[fadeIn_0.3s_ease]" data-testid="periodization-kanban-view">
@@ -172,8 +204,9 @@ export const KanbanView = ({ plan, resolvePhase, getMicroMetrics, onMoveMicro })
               </div>
             </div>
             <div className="p-2.5 space-y-2 min-h-[80px]">
-              {micros.map(({ micro, mesoIdx, microIdx }) => {
+              {micros.map(({ meso, micro, mesoIdx, microIdx }) => {
                 const mm = getMicroMetrics(macroIdx, mesoIdx, microIdx);
+                if (active && !matchesFilters({ macro, meso, micro, phase, acwr: mm?.ACWR || 0, load: microLoadOf(micro) }, filters)) return null;
                 const microColor = micro.type?.color || '#94a3b8';
                 return (
                   <div
@@ -207,8 +240,10 @@ export const KanbanView = ({ plan, resolvePhase, getMicroMetrics, onMoveMicro })
 };
 
 /* ══════════════════ VISTA TABLA COMPACTA ══════════════════ */
-export const TableView = ({ plan, resolvePhase, getMicroMetrics, MICRO_TYPES, onUpdateMicroField, onExportExcel }) => {
-  const rows = useMemo(() => flattenMicros(plan, resolvePhase, getMicroMetrics), [plan, resolvePhase, getMicroMetrics]);
+export const TableView = ({ plan, filters, resolvePhase, getMicroMetrics, MICRO_TYPES, onUpdateMicroField, onExportExcel }) => {
+  const allRows = useMemo(() => flattenMicros(plan, resolvePhase, getMicroMetrics), [plan, resolvePhase, getMicroMetrics]);
+  const active = hasActiveFilters(filters);
+  const rows = active ? allRows.filter((r) => matchesFilters({ macro: r.macro, meso: r.meso, micro: r.micro, phase: r.phase, acwr: r.acwr, load: r.load }, filters)) : allRows;
 
   const buildExcelRows = () => rows.map((r, i) => {
     const s = loadStatus({ acwr: r.acwr, load: r.load });

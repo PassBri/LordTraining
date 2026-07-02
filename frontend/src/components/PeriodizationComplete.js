@@ -25,8 +25,8 @@ import SessionEditor from './SessionEditor';
 import DashboardGeneral from './DashboardGeneral';
 import PlanIconPicker from './PlanIconPicker';
 import { autoIconForSport } from '../lib/planIcons';
-import { TreeView, KanbanView, TableView } from './periodization/PeriodizationViews';
-import { ListTree, Kanban, Table2 } from 'lucide-react';
+import { TreeView, KanbanView, TableView, loadStatus } from './periodization/PeriodizationViews';
+import { ListTree, Kanban, Table2, Search, Undo2 } from 'lucide-react';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 
@@ -248,6 +248,55 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     setViewModeState(v);
     try { localStorage.setItem('lt_periodization_view', v); } catch (_) { /* ignore */ }
   };
+  // Fase 3 — navegación: buscador + filtros + FAB
+  const [planSearch, setPlanSearch] = useState('');
+  const [filterPhase, setFilterPhase] = useState('all');
+  const [filterMicroType, setFilterMicroType] = useState('all');
+  const [filterLoad, setFilterLoad] = useState('all');
+  const [fabOpen, setFabOpen] = useState(false);
+  const periodizationFilters = { search: planSearch, phase: filterPhase, microType: filterMicroType, load: filterLoad };
+  const filtersActive = planSearch || filterPhase !== 'all' || filterMicroType !== 'all' || filterLoad !== 'all';
+  // Fase 4 — autosave / deshacer / historial
+  const [autoSaveStatus, setAutoSaveStatus] = useState(''); // '', 'saving', 'saved'
+  const undoStackRef = React.useRef([]);
+  const [canUndo, setCanUndo] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyEntries, setHistoryEntries] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  // Fase 5 — comparador de planes
+  const [comparatorOpen, setComparatorOpen] = useState(false);
+  const [comparePlanId, setComparePlanId] = useState('');
+
+  const planSummary = (plan) => {
+    if (!plan) return null;
+    const macros = plan.macrocycles || [];
+    let mesos = 0, micros = 0, loadSum = 0, loadN = 0;
+    const phases = [];
+    macros.forEach((ma) => {
+      const ph = resolvePhase(ma);
+      const wk = (ma.mesocycles || []).reduce((s, me) => s + (me.microcycles || []).length, 0);
+      phases.push({ name: ph.name, color: ph.color, weeks: wk });
+      mesos += (ma.mesocycles || []).length;
+      (ma.mesocycles || []).forEach((me) => (me.microcycles || []).forEach((mi) => {
+        micros += 1; const l = mi.type?.load ?? mi.type?.loadPercent ?? mi.load_percent; if (l) { loadSum += l; loadN += 1; }
+      }));
+    });
+    return { name: plan.name, weeks: plan.totalWeeks || micros, macros: macros.length, mesos, micros, avgLoad: loadN ? Math.round(loadSum / loadN) : 0, phases };
+  };
+
+  const clonePlan = (p) => (typeof structuredClone === 'function' ? structuredClone(p) : JSON.parse(JSON.stringify(p)));
+  const pushUndo = (prevPlan) => {
+    try { undoStackRef.current.push(clonePlan(prevPlan)); if (undoStackRef.current.length > 30) undoStackRef.current.shift(); setCanUndo(true); } catch (_) { /* ignore */ }
+  };
+  const logPlanHistory = (plan, summary) => {
+    if (!plan?.apiId && !plan?.id) return;
+    fetch(`${API_URL}/api/periodization/history`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+      body: JSON.stringify({ plan_id: plan.apiId || plan.id, plan_name: plan.name || 'Plan', change_summary: summary, snapshot: { macrocycles: plan.macrocycles || [] } })
+    }).catch(() => {});
+  };
+  const markSaved = () => { setAutoSaveStatus('saved'); setTimeout(() => setAutoSaveStatus(s => (s === 'saved' ? '' : s)), 1500); };
   
   // Plans - Now loaded from API
   const [plans, setPlans] = useState([]);
@@ -765,6 +814,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
   // ── Edición inline de micro (Vista Tabla) — autosave a MongoDB ──
   const updateMicroField = (macroIdx, mesoIdx, microIdx, field, value) => {
+    pushUndo(selectedPlan);
     const updatedPlan = { ...selectedPlan };
     const micro = updatedPlan.macrocycles?.[macroIdx]?.mesocycles?.[mesoIdx]?.microcycles?.[microIdx];
     if (!micro) return;
@@ -778,8 +828,8 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     rebuildPlanData(updatedPlan);
     setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
     setSelectedPlan(updatedPlan);
-    toast.success('Guardado', { duration: 1200 });
-    savePlanToAPI(updatedPlan).catch(e => { console.error('Error autosave micro:', e); toast.error('No se pudo guardar'); });
+    setAutoSaveStatus('saving');
+    savePlanToAPI(updatedPlan).then(() => { markSaved(); logPlanHistory(updatedPlan, `Editó ${field} de ${micro.name || 'microciclo'}`); }).catch(e => { console.error('Error autosave micro:', e); toast.error('No se pudo guardar'); setAutoSaveStatus(''); });
   };
 
   // ── Mover microciclo entre macrociclos (Vista Kanban) ──
@@ -791,14 +841,88 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     if (!targetMacro.mesocycles || targetMacro.mesocycles.length === 0) {
       toast.error('El macrociclo destino no tiene mesociclos'); return;
     }
+    pushUndo(selectedPlan);
     const [moved] = srcMicros.splice(from.microIdx, 1);
     if (!moved) return;
     targetMacro.mesocycles[targetMacro.mesocycles.length - 1].microcycles.push(moved);
     rebuildPlanData(updatedPlan);
     setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
     setSelectedPlan(updatedPlan);
-    savePlanToAPI(updatedPlan).then(() => toast.success('Microciclo movido', { duration: 1000 })).catch(e => console.error(e));
+    setAutoSaveStatus('saving');
+    savePlanToAPI(updatedPlan).then(() => { markSaved(); logPlanHistory(updatedPlan, `Movió ${moved.name || 'microciclo'} a ${targetMacro.name}`); }).catch(e => console.error(e));
   };
+
+  // ── Deshacer (Ctrl+Z) ──
+  const handleUndo = () => {
+    const prev = undoStackRef.current.pop();
+    if (!prev) { setCanUndo(false); return; }
+    setCanUndo(undoStackRef.current.length > 0);
+    rebuildPlanData(prev);
+    setPlans(p => p.map(pl => pl.id === prev.id ? prev : pl));
+    setSelectedPlan(prev);
+    setAutoSaveStatus('saving');
+    savePlanToAPI(prev).then(() => { markSaved(); toast.success('Cambio deshecho'); }).catch(e => console.error(e));
+  };
+
+  // ── Duplicar mesociclo completo (Fase 5) ──
+  const handleDuplicateMesocycle = (macroIdx, mesoIdx) => {
+    const src = selectedPlan.macrocycles?.[macroIdx]?.mesocycles?.[mesoIdx];
+    if (!src) return;
+    pushUndo(selectedPlan);
+    const copy = clonePlan(src);
+    const reId = (o) => { if (o && typeof o === 'object') { if ('id' in o) o.id = `${o.id || 'x'}-copy-${Math.random().toString(36).slice(2, 7)}`; Object.values(o).forEach(v => { if (Array.isArray(v)) v.forEach(reId); }); } };
+    reId(copy);
+    copy.name = `${src.name || 'Mesociclo'} (copia)`;
+    const updatedPlan = { ...selectedPlan };
+    updatedPlan.macrocycles[macroIdx].mesocycles.splice(mesoIdx + 1, 0, copy);
+    rebuildPlanData(updatedPlan);
+    setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
+    setSelectedPlan(updatedPlan);
+    setAutoSaveStatus('saving');
+    savePlanToAPI(updatedPlan).then(() => { markSaved(); logPlanHistory(updatedPlan, `Duplicó mesociclo ${src.name || ''}`); toast.success('Mesociclo duplicado'); }).catch(e => console.error(e));
+  };
+
+  // ── Historial de cambios ──
+  const openHistory = async () => {
+    setHistoryOpen(true); setLoadingHistory(true);
+    try {
+      const pid = selectedPlan?.apiId || selectedPlan?.id;
+      const r = await fetch(`${API_URL}/api/periodization/history/${pid}`, { headers: { Authorization: `Bearer ${getToken()}` } });
+      const d = await r.json();
+      setHistoryEntries(d.entries || []);
+    } catch (e) { console.error(e); toast.error('No se pudo cargar el historial'); }
+    finally { setLoadingHistory(false); }
+  };
+  const restoreHistory = async (entryId) => {
+    if (!window.confirm('¿Restaurar esta versión del plan? Se sobrescribirá la estructura actual.')) return;
+    try {
+      const r = await fetch(`${API_URL}/api/periodization/history/entry/${entryId}`, { headers: { Authorization: `Bearer ${getToken()}` } });
+      const d = await r.json();
+      if (!d?.snapshot?.macrocycles) { toast.error('Versión sin datos'); return; }
+      pushUndo(selectedPlan);
+      const updatedPlan = { ...selectedPlan, macrocycles: d.snapshot.macrocycles };
+      rebuildPlanData(updatedPlan);
+      setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
+      setSelectedPlan(updatedPlan);
+      savePlanToAPI(updatedPlan).then(() => { markSaved(); }).catch(() => {});
+      setHistoryOpen(false);
+      toast.success('Versión restaurada');
+    } catch (e) { console.error(e); toast.error('No se pudo restaurar'); }
+  };
+
+  // Ctrl+Z / Cmd+Z para deshacer (sólo en vista detalle, fuera de inputs)
+  React.useEffect(() => {
+    const onKey = (e) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z') && activeView === 'detail') {
+        const tag = (e.target?.tagName || '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+        e.preventDefault();
+        handleUndo();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [activeView, selectedPlan]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Exportar Tabla Compacta a Excel real (.xlsx) ──
   const handleExportPeriodizationExcel = async (rows) => {
@@ -2316,6 +2440,62 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           </div>
         )}
 
+        {/* Fase 3 — Breadcrumb siempre visible + Fase 4 controles */}
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <nav className="flex items-center gap-1.5 text-[11px] text-slate-400 flex-wrap" data-testid="periodization-breadcrumb">
+            <button onClick={() => { setActiveView('history'); setSelectedPlan(null); }} className="hover:text-slate-700 transition-colors font-medium">Periodización</button>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-slate-600 font-semibold truncate max-w-[220px]">{selectedPlan.name}</span>
+            <ChevronRight className="w-3 h-3" />
+            <span className="capitalize font-semibold" style={{ color: '#C9A84C' }}>{({ dashboard: 'Dashboard', structure: 'Estructura', tree: 'Árbol', kanban: 'Kanban', table: 'Tabla', calendar: 'Calendario', chart: 'Gráfico' })[viewMode] || viewMode}</span>
+          </nav>
+          <div className="flex items-center gap-2">
+            {autoSaveStatus === 'saving' && <span className="text-[10px] text-slate-400 flex items-center gap-1" data-testid="autosave-status"><Loader2 className="w-3 h-3 animate-spin" /> Guardando…</span>}
+            {autoSaveStatus === 'saved' && <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1" data-testid="autosave-status"><Check className="w-3 h-3" /> Guardado</span>}
+            <button onClick={handleUndo} disabled={!canUndo} className="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors" title="Deshacer (Ctrl+Z)" data-testid="undo-btn">
+              <Undo2 className="w-3.5 h-3.5" /> Deshacer
+            </button>
+            <button onClick={openHistory} className="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors" title="Historial de cambios" data-testid="history-btn">
+              <History className="w-3.5 h-3.5" /> Historial
+            </button>
+            <button onClick={() => { setComparePlanId(''); setComparatorOpen(true); }} className="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors" title="Comparar con otro plan" data-testid="compare-btn">
+              <Layers className="w-3.5 h-3.5" /> Comparar
+            </button>
+          </div>
+        </div>
+
+        {/* Fase 3 — Buscador + filtros (para Árbol / Kanban / Tabla) */}
+        {['tree', 'kanban', 'table'].includes(viewMode) && (
+          <div className="flex items-center gap-2 flex-wrap bg-white rounded-2xl border border-slate-200 shadow-sm p-2.5" data-testid="periodization-filters">
+            <div className="relative flex-1 min-w-[180px]">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+              <input
+                value={planSearch}
+                onChange={(e) => setPlanSearch(e.target.value)}
+                placeholder="Buscar en el plan…"
+                className="w-full h-8 pl-8 pr-2 text-[12px] rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-slate-400 transition-colors"
+                data-testid="periodization-search-input"
+              />
+            </div>
+            {[
+              { label: 'Fase', value: filterPhase, set: setFilterPhase, opts: [{ id: 'all', name: 'Todas las fases' }, ...MACROCYCLE_PHASES.map(p => ({ id: p.id, name: p.name }))], tid: 'filter-phase' },
+              { label: 'Tipo', value: filterMicroType, set: setFilterMicroType, opts: [{ id: 'all', name: 'Todos los tipos' }, ...MICROCYCLE_TYPES_ARRAY.map(t2 => ({ id: t2.id, name: t2.name }))], tid: 'filter-microtype' },
+              { label: 'Carga', value: filterLoad, set: setFilterLoad, opts: [{ id: 'all', name: 'Toda carga' }, { id: 'optimal', name: 'Óptima' }, { id: 'caution', name: 'Precaución' }, { id: 'overload', name: 'Sobrecarga' }], tid: 'filter-load' },
+            ].map(f => (
+              <select key={f.tid} value={f.value} onChange={(e) => f.set(e.target.value)} data-testid={f.tid}
+                className={`h-8 text-[11px] rounded-full border px-2.5 font-medium transition-colors ${f.value !== 'all' ? 'border-[#C9A84C] bg-[#C9A84C]/10 text-slate-800' : 'border-slate-200 bg-slate-50 text-slate-500'}`}>
+                {f.opts.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+              </select>
+            ))}
+            {filtersActive && (
+              <button onClick={() => { setPlanSearch(''); setFilterPhase('all'); setFilterMicroType('all'); setFilterLoad('all'); }}
+                className="h-8 px-2.5 text-[11px] rounded-full bg-slate-800 text-white font-medium hover:bg-slate-700 transition-colors" data-testid="clear-filters-btn">
+                Limpiar
+              </button>
+            )}
+          </div>
+        )}
+
         {/* View Mode Tabs - Floating Round Style */}
         <div className="flex items-start gap-4 pt-2" data-testid="view-mode-tabs">
           {[
@@ -2341,16 +2521,125 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         {viewMode === 'dashboard' && selectedPlan?.apiId && <DashboardGeneral planId={selectedPlan.apiId} />}
         {viewMode === 'structure' && renderStructureView()}
         {viewMode === 'tree' && (
-          <TreeView plan={selectedPlan} resolvePhase={resolvePhase} getMicroMetrics={getV2MicroMetrics} onEditMicro={handleEditMicrocycle} />
+          <TreeView plan={selectedPlan} filters={periodizationFilters} resolvePhase={resolvePhase} getMicroMetrics={getV2MicroMetrics} onEditMicro={handleEditMicrocycle} />
         )}
         {viewMode === 'kanban' && (
-          <KanbanView plan={selectedPlan} resolvePhase={resolvePhase} getMicroMetrics={getV2MicroMetrics} onMoveMicro={moveMicrocycle} />
+          <KanbanView plan={selectedPlan} filters={periodizationFilters} resolvePhase={resolvePhase} getMicroMetrics={getV2MicroMetrics} onMoveMicro={moveMicrocycle} />
         )}
         {viewMode === 'table' && (
-          <TableView plan={selectedPlan} resolvePhase={resolvePhase} getMicroMetrics={getV2MicroMetrics} MICRO_TYPES={MICROCYCLE_TYPES_ARRAY} onUpdateMicroField={updateMicroField} onExportExcel={handleExportPeriodizationExcel} />
+          <TableView plan={selectedPlan} filters={periodizationFilters} resolvePhase={resolvePhase} getMicroMetrics={getV2MicroMetrics} MICRO_TYPES={MICROCYCLE_TYPES_ARRAY} onUpdateMicroField={updateMicroField} onExportExcel={handleExportPeriodizationExcel} />
         )}
         {viewMode === 'calendar' && renderCalendarView()}
         {viewMode === 'chart' && renderChartView()}
+
+        {/* Fase 2 — FAB (Floating Action Button) para agregar rápido */}
+        <div className="fixed z-40 flex flex-col items-end gap-2" style={{ right: '5.5rem', bottom: '1.5rem' }} data-testid="periodization-fab">
+          {fabOpen && (
+            <div className="flex flex-col items-end gap-2 animate-[fadeIn_0.2s_ease]">
+              <button
+                onClick={() => { handleAddMacrocycle(); setFabOpen(false); }}
+                className="flex items-center gap-2 bg-white text-slate-800 rounded-full pl-3 pr-4 py-2 shadow-lg border border-slate-200 text-[12px] font-semibold hover:shadow-xl transition-all"
+                data-testid="fab-add-macro"
+              >
+                <span className="w-6 h-6 rounded-full flex items-center justify-center text-white" style={{ backgroundColor: '#007AFF' }}><Plus className="w-3.5 h-3.5" /></span>
+                Macrociclo
+              </button>
+              <button
+                onClick={() => {
+                  const lastMacro = (selectedPlan.macrocycles || []).length - 1;
+                  if (lastMacro < 0) { toast.error('Primero crea un macrociclo'); setFabOpen(false); return; }
+                  handleAddMesocycle(lastMacro); setFabOpen(false);
+                }}
+                className="flex items-center gap-2 bg-white text-slate-800 rounded-full pl-3 pr-4 py-2 shadow-lg border border-slate-200 text-[12px] font-semibold hover:shadow-xl transition-all"
+                data-testid="fab-add-meso"
+              >
+                <span className="w-6 h-6 rounded-full flex items-center justify-center text-white" style={{ backgroundColor: '#8B5CF6' }}><Plus className="w-3.5 h-3.5" /></span>
+                Mesociclo
+              </button>
+            </div>
+          )}
+          <button
+            onClick={() => setFabOpen(o => !o)}
+            className="w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-105"
+            style={{ backgroundColor: '#CCFF00', color: '#0A0F1E' }}
+            title="Agregar rápido"
+            data-testid="fab-main-btn"
+          >
+            <Plus className={`w-6 h-6 transition-transform duration-300 ${fabOpen ? 'rotate-45' : ''}`} strokeWidth={2.6} />
+          </button>
+        </div>
+
+        {/* Fase 4 — Diálogo Historial de cambios */}
+        <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
+          <DialogContent className="max-w-lg p-0 overflow-hidden">
+            <div className="px-5 py-3 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
+              <h3 className="font-bold text-base flex items-center gap-2"><History className="w-4 h-4" style={{ color: '#CCFF00' }} /> Historial de cambios</h3>
+              <p className="text-[11px] text-slate-300">Últimas modificaciones del plan · restaura una versión anterior.</p>
+            </div>
+            <div className="p-4 max-h-[60vh] overflow-y-auto">
+              {loadingHistory ? (
+                <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-slate-400" /></div>
+              ) : historyEntries.length === 0 ? (
+                <p className="text-center text-slate-400 text-sm py-8">Aún no hay cambios registrados.</p>
+              ) : (
+                <div className="space-y-2" data-testid="history-list">
+                  {historyEntries.map((h) => (
+                    <div key={h.entry_id} className="flex items-center justify-between gap-3 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors">
+                      <div className="min-w-0">
+                        <div className="text-[12px] font-semibold text-slate-800 truncate">{h.change_summary}</div>
+                        <div className="text-[10px] text-slate-400">{h.user_name} · {h.created_at ? new Date(h.created_at).toLocaleString('es') : ''}</div>
+                      </div>
+                      <button onClick={() => restoreHistory(h.entry_id)} className="shrink-0 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-800 text-white hover:bg-slate-700 transition-colors" data-testid={`restore-${h.entry_id}`}>Restaurar</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Fase 5 — Diálogo Comparador de planes */}
+        <Dialog open={comparatorOpen} onOpenChange={setComparatorOpen}>
+          <DialogContent className="max-w-3xl p-0 overflow-hidden">
+            <div className="px-5 py-3 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
+              <h3 className="font-bold text-base flex items-center gap-2"><Layers className="w-4 h-4" style={{ color: '#CCFF00' }} /> Comparar planes</h3>
+              <p className="text-[11px] text-slate-300">Compara el plan actual con otro lado a lado.</p>
+            </div>
+            <div className="p-4">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-[12px] text-slate-500">Comparar con:</span>
+                <select value={comparePlanId} onChange={(e) => setComparePlanId(e.target.value)} className="flex-1 h-9 text-[12px] rounded-lg border border-slate-200 px-2 bg-white" data-testid="compare-plan-select">
+                  <option value="">Selecciona un plan…</option>
+                  {(plans || []).filter(p => p.id !== selectedPlan.id).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {[planSummary(selectedPlan), planSummary((plans || []).find(p => p.id === comparePlanId))].map((sm, idx) => (
+                  <div key={idx} className="rounded-2xl border border-slate-200 p-4" data-testid={`compare-col-${idx}`}>
+                    {sm ? (
+                      <>
+                        <div className="font-bold text-slate-800 text-[13px] truncate mb-2">{sm.name}</div>
+                        <div className="grid grid-cols-2 gap-2 mb-3">
+                          {[{ l: 'Semanas', v: sm.weeks }, { l: 'Macrociclos', v: sm.macros }, { l: 'Mesociclos', v: sm.mesos }, { l: 'Microciclos', v: sm.micros }, { l: 'Carga media', v: `${sm.avgLoad}%` }].map((s) => (
+                            <div key={s.l} className="bg-slate-50 rounded-lg px-2.5 py-1.5"><div className="text-[15px] font-black text-slate-800">{s.v}</div><div className="text-[9px] text-slate-400">{s.l}</div></div>
+                          ))}
+                        </div>
+                        <div className="flex h-3 rounded-full overflow-hidden mb-2">
+                          {sm.phases.map((ph, i) => <div key={i} title={`${ph.name} · ${ph.weeks} sem`} style={{ backgroundColor: ph.color, width: `${(ph.weeks / Math.max(1, sm.weeks)) * 100}%` }} />)}
+                        </div>
+                        <div className="space-y-1">
+                          {sm.phases.map((ph, i) => <div key={i} className="flex items-center gap-1.5 text-[10px] text-slate-500"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: ph.color }} />{ph.name} · {ph.weeks} sem</div>)}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center text-slate-300 text-sm py-10">{idx === 1 ? 'Selecciona un plan para comparar' : '—'}</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   };
@@ -2550,6 +2839,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                               );
                             })()}
                           </div>
+                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-emerald-600" title="Duplicar mesociclo" onClick={() => handleDuplicateMesocycle(macroIdx, mesoIdx)} data-testid={`duplicate-meso-${macroIdx}-${mesoIdx}`}><Copy className="w-3 h-3" /></Button>
                           <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-blue-600" onClick={() => handleEditMesocycle(meso, macroIdx, mesoIdx)}><Edit2 className="w-3 h-3" /></Button>
                           <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-red-500" onClick={() => handleDeleteMesocycle(macroIdx, mesoIdx)}><Trash2 className="w-3 h-3" /></Button>
                         </div>

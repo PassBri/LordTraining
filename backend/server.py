@@ -76,6 +76,9 @@ app.include_router(graphic_plan_share_router, prefix="/api")
 from routes.periodization_export import router as periodization_export_router
 app.include_router(periodization_export_router, prefix="/api")
 
+from routes.periodization_history import router as periodization_history_router
+app.include_router(periodization_history_router, prefix="/api")
+
 from routes.master_report import router as master_report_router
 app.include_router(master_report_router, prefix="/api")
 
