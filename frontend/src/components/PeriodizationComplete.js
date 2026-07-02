@@ -823,7 +823,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     } else {
       const num = value === '' || value == null ? undefined : Math.max(0, Number(value) || 0);
       micro[field] = num;
-      if (field === 'load_percent' && micro.type) micro.type = { ...micro.type, load: num };
+      if (field === 'load_percent' && micro.type && typeof micro.type === 'object') micro.type = { ...micro.type, load: num };
     }
     rebuildPlanData(updatedPlan);
     setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
@@ -2521,10 +2521,10 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         {viewMode === 'dashboard' && selectedPlan?.apiId && <DashboardGeneral planId={selectedPlan.apiId} />}
         {viewMode === 'structure' && renderStructureView()}
         {viewMode === 'tree' && (
-          <TreeView plan={selectedPlan} filters={periodizationFilters} resolvePhase={resolvePhase} getMicroMetrics={getV2MicroMetrics} onEditMicro={handleEditMicrocycle} />
+          <TreeView plan={selectedPlan} filters={periodizationFilters} resolvePhase={resolvePhase} getMicroMetrics={getV2MicroMetrics} onEditMicro={handleEditMicrocycle} MICRO_TYPES={MICROCYCLE_TYPES_ARRAY} MESO_TYPES={MESOCYCLE_TYPES} />
         )}
         {viewMode === 'kanban' && (
-          <KanbanView plan={selectedPlan} filters={periodizationFilters} resolvePhase={resolvePhase} getMicroMetrics={getV2MicroMetrics} onMoveMicro={moveMicrocycle} />
+          <KanbanView plan={selectedPlan} filters={periodizationFilters} resolvePhase={resolvePhase} getMicroMetrics={getV2MicroMetrics} onMoveMicro={moveMicrocycle} MICRO_TYPES={MICROCYCLE_TYPES_ARRAY} />
         )}
         {viewMode === 'table' && (
           <TableView plan={selectedPlan} filters={periodizationFilters} resolvePhase={resolvePhase} getMicroMetrics={getV2MicroMetrics} MICRO_TYPES={MICROCYCLE_TYPES_ARRAY} onUpdateMicroField={updateMicroField} onExportExcel={handleExportPeriodizationExcel} />

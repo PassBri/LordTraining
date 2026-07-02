@@ -1,0 +1,39 @@
+{
+  "summary": "Frontend-only e2e test of the redesigned Evaluación 'Aspectos' view (EvaluationSection.js) inside Control Médico. Verified table-by-default toggle, category tables with icon/color/count, connected real data, inline edit + autosave (Guardando…/Guardado), out-of-range red styling, mini % bar, add row, delete row with confirm, toggle to Formulario (regression cards) and back, and regression on Fortalezas / Áreas de mejora / manual Save / evolution chart. All acceptance criteria PASS.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Global Radix dialogs (plans-sheet)", "issues": ["DialogContent missing DialogTitle — accessibility warning in console (not blocking UX). Wrap title with VisuallyHidden."]},
+      {"screen": "EvaluationSection athlete select (line ~646)", "issues": ["React hydration error: <span> cannot be a child of <option>. Caused by nested elements/instrumentation inside <option>. Should render plain text inside <option> only."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "(Optional) Wrap Radix DialogContent title with a VisuallyHidden DialogTitle to remove a11y warnings.",
+    "(Optional) Ensure <option> children in the athlete select render only text (no <span>) to fix React hydration warning."
+  ],
+  "critical_code_review_comments": [
+    "EvaluationSection.js AspectTable + autosave path is clean and well-tested. displayMode defaults to 'table' as required (line 278). scheduleAutoSave debounces 1.2s (line 384-387). aspectPct/aspectOutOfRange helpers correctly clamp 0-100 and detect >max/<min. All required data-testids exist (eval-{type}-toolbar, view-table, view-form, table-{cat}, trow-{id}, tvalue-{id}, tremove-{id}, tadd, autosave).",
+    "Console warnings about accessibility DialogTitle and <span> inside <option> should be addressed for hygiene."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (per request)", "frontend": "100% (8/8 acceptance criteria)"},
+  "test_credentials": "test@train.com / test123456 (Coach)",
+  "seed_data_creation": "None — reused existing plan 'Plan Test API' owned by test coach; Control Médico had category 'Gen' with 2 aspects (Métrica A: min 0/max 100/target 60/value 80). Autosaved values persisted from previous tests.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "To reach the evaluation table: login (test@train.com/test123456) → Datos tab → 'Ver mis planes' → select 'Plan Test API' → click top-nav Evaluación icon → subnav 'Control Médico'. Toolbar is [data-testid=eval-medical-toolbar]; toggle buttons eval-medical-view-table (default selected with bg-white shadow) / eval-medical-view-form; tables eval-medical-table-{category}; rows eval-medical-trow-{aspectId}; value input eval-medical-tvalue-{aspectId}; delete eval-medical-tremove-{aspectId}; add eval-medical-tadd; autosave indicator eval-medical-autosave shows 'Guardando…' then 'Guardado'. Persistence uses POST /api/plan-data/evaluations-export (MongoDB).",
+  "verified_flows": {
+    "toolbar_and_default_table_view": "PASS — toolbar visible; view-table selected by default (bg-white shadow class present).",
+    "table_renders_with_real_data": "PASS — eval-medical-table-Gen renders 2 aspects; first row {label:'Métrica A', unit:'', min:'0', max:'100', target:'60', value:'80'}; header columns Aspecto/Unidad/Mín/Máx/Objetivo/Valor Medido/% Cumplimiento/Nota confirmed.",
+    "inline_edit_autosave": "PASS — typing '42' into tvalue triggers autosave indicator that reaches 'Guardado' state within ~1.5s. Existing value 80 already persisted from previous runs confirms MongoDB persistence.",
+    "out_of_range_red": "PASS — value 999999 (>max 100) applies bg-red-50, border-red-300, text-red-600 on the cell.",
+    "add_row_per_category": "PASS — clicking eval-medical-tadd appended a new row (2→3).",
+    "delete_row_confirm": "PASS — clicking eval-medical-tremove-{id} triggered a browser confirm; on accept the row was removed (3→2) and autosaved.",
+    "toggle_form_view_regression": "PASS — eval-medical-view-form renders 12 legacy aspect cards; toggle back to eval-medical-view-table restores the table.",
+    "regression_manual_save_and_textareas_and_evolution_chart": "PASS — eval-medical-fortalezas, eval-medical-areas-mejora, eval-medical-save-btn, and 'Evolución de este control' chart all present and interactive."
+  },
+  "rca of the issue": "No functional issues found. Only two non-blocking console warnings: (1) Radix DialogContent missing DialogTitle (a11y); (2) React hydration error: <span> nested inside <option> in the athlete select dropdown. Both are hygiene items unrelated to the current Aspectos redesign."
+}

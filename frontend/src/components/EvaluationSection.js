@@ -5,7 +5,7 @@ import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import {
   Heart, Dumbbell, Target, Layers, Brain, BookOpen, FileText, Activity,
-  Ruler, AlertTriangle, CheckCircle, Save, Loader2, Plus, Trash2,
+  Ruler, AlertTriangle, CheckCircle, Save, Loader2, Plus, Trash2, Table2, List,
   FileDown, Link2, Send, Library, Star, X, Calendar, ChevronRight, User, Users
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -95,6 +95,64 @@ const AspectRow = ({ aspect, color, onChange, onRemove, testidPrefix, tr }) => {
     </div>
   );
 };
+
+// ===== Tabla de Aspectos (nueva vista) =====
+const aspectPct = (a) => {
+  const v = parseFloat(a.value), mn = parseFloat(a.scale_min), mx = parseFloat(a.scale_max);
+  if (isNaN(v) || isNaN(mn) || isNaN(mx) || mx === mn) return null;
+  return Math.max(0, Math.min(100, ((v - mn) / (mx - mn)) * 100));
+};
+const aspectOutOfRange = (a) => {
+  const v = parseFloat(a.value); if (isNaN(v)) return false;
+  const mn = parseFloat(a.scale_min), mx = parseFloat(a.scale_max);
+  return (!isNaN(mn) && v < mn) || (!isNaN(mx) && v > mx);
+};
+
+const AspectTable = ({ items, color, category, onChange, onRemoveConfirm, onAdd, testidPrefix }) => {
+  const cell = "w-full h-8 px-2 rounded-md border border-transparent hover:border-slate-200 focus:border-slate-800 focus:bg-white outline-none bg-transparent transition-colors";
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-[12px]" style={{ minWidth: 720 }} data-testid={`${testidPrefix}-table-${category}`}>
+        <thead>
+          <tr className="text-slate-500 border-b border-slate-200 bg-slate-50/80">
+            {['Aspecto', 'Unidad', 'Mín', 'Máx', 'Objetivo', 'Valor Medido', '% Cumplimiento', 'Nota', ''].map((h, i) => (
+              <th key={i} className="px-2 py-2 text-left font-semibold whitespace-nowrap">{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((a, idx) => {
+            const pct = aspectPct(a); const oor = aspectOutOfRange(a);
+            return (
+              <tr key={a.id} className={`border-b border-slate-100 ${idx % 2 ? 'bg-slate-50/40' : 'bg-white'}`} data-testid={`${testidPrefix}-trow-${a.id}`}>
+                <td className="px-1 py-0.5"><input className={cell + " font-semibold text-slate-800"} value={a.label || ''} placeholder="Aspecto" onChange={(e) => onChange({ ...a, label: e.target.value })} data-testid={`${testidPrefix}-tlabel-${a.id}`} /></td>
+                <td className="px-1 py-0.5 w-16"><input className={cell + " text-center"} value={a.scale_unit || ''} placeholder="ud" onChange={(e) => onChange({ ...a, scale_unit: e.target.value })} /></td>
+                <td className="px-1 py-0.5 w-16"><input type="number" className={cell + " text-center"} value={a.scale_min} onChange={(e) => onChange({ ...a, scale_min: e.target.value })} /></td>
+                <td className="px-1 py-0.5 w-16"><input type="number" className={cell + " text-center"} value={a.scale_max} onChange={(e) => onChange({ ...a, scale_max: e.target.value })} /></td>
+                <td className="px-1 py-0.5 w-16"><input type="number" className={cell + " text-center"} value={a.target ?? ''} placeholder="—" onChange={(e) => onChange({ ...a, target: e.target.value })} /></td>
+                <td className="px-1 py-0.5 w-20"><input type="number" className={cell + " text-center font-bold " + (oor ? 'bg-red-50 border-red-300 text-red-600' : '')} value={a.value ?? ''} placeholder="—" onChange={(e) => onChange({ ...a, value: e.target.value })} data-testid={`${testidPrefix}-tvalue-${a.id}`} /></td>
+                <td className="px-2 py-0.5 w-32">
+                  {pct == null ? <span className="text-slate-300">—</span> : (
+                    <div className="flex items-center gap-1.5">
+                      <div className="flex-1 h-1.5 rounded-full bg-slate-200 overflow-hidden"><div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: oor ? '#EF4444' : color }} /></div>
+                      <span className="text-[10px] font-bold tabular-nums" style={{ color: oor ? '#EF4444' : color }}>{pct.toFixed(0)}%</span>
+                    </div>
+                  )}
+                </td>
+                <td className="px-1 py-0.5"><input className={cell + " text-slate-500"} value={a.notes || ''} placeholder="—" onChange={(e) => onChange({ ...a, notes: e.target.value })} /></td>
+                <td className="px-1 py-0.5 w-8"><button onClick={() => onRemoveConfirm(a.id)} className="text-slate-300 hover:text-red-500 transition-colors" data-testid={`${testidPrefix}-tremove-${a.id}`}><Trash2 className="w-3.5 h-3.5" /></button></td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <button onClick={() => onAdd(category)} className="mt-2 inline-flex items-center gap-1 text-[12px] font-semibold px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors" style={{ color }} data-testid={`${testidPrefix}-tadd`}>
+        <Plus className="w-3.5 h-3.5" /> Agregar aspecto
+      </button>
+    </div>
+  );
+};
+
 
 // ===== Templates Modal =====
 const TemplatesModal = ({ open, onClose, evaluationType, color, currentAspects, onLoadTemplate, onSaveTemplate, refreshFlag }) => {
@@ -217,6 +275,9 @@ const EvaluationSection = ({ sectionId, activePlan, athletes = [], selectedAthle
   const [templatesRefresh, setTemplatesRefresh] = useState(0);
   const [fromTemplate, setFromTemplate] = useState('');
   const [viewMode, setViewMode] = useState('individual'); // 'individual' | 'team'
+  const [displayMode, setDisplayMode] = useState('table'); // 'table' (nueva, default) | 'form'
+  const [autoSaveState, setAutoSaveState] = useState(''); // '', 'saving', 'saved'
+  const autoSaveTimerRef = React.useRef(null);
 
   const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
   const evalType = config?.type;
@@ -305,9 +366,31 @@ const EvaluationSection = ({ sectionId, activePlan, athletes = [], selectedAthle
 
   if (!config) return null;
 
-  const updateAspect = (u) => setAspects(prev => prev.map(a => a.id === u.id ? u : a));
-  const removeAspect = (id) => setAspects(prev => prev.filter(a => a.id !== id));
-  const addAspect = () => setAspects(prev => [...prev, blankAspect()]);
+  // Autosave (MongoDB) con debounce
+  const autoSaveNow = async () => {
+    if (!activePlan) return;
+    setAutoSaveState('saving');
+    try {
+      const token = localStorage.getItem('train_token');
+      const r = await fetch(`${API_URL}/api/plan-data/evaluations-export`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(buildPayload())
+      });
+      if (r.ok) { const d = await r.json(); if (d.id) setActiveId(d.id); setAutoSaveState('saved'); setTimeout(() => setAutoSaveState(s => (s === 'saved' ? '' : s)), 1500); }
+      else setAutoSaveState('');
+    } catch (_) { setAutoSaveState(''); }
+  };
+  const scheduleAutoSave = () => {
+    if (!activePlan) return;
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    autoSaveTimerRef.current = setTimeout(autoSaveNow, 1200);
+  };
+
+  const updateAspect = (u) => { setAspects(prev => prev.map(a => a.id === u.id ? u : a)); scheduleAutoSave(); };
+  const removeAspect = (id) => { setAspects(prev => prev.filter(a => a.id !== id)); scheduleAutoSave(); };
+  const addAspect = (category) => setAspects(prev => [...prev, { ...blankAspect(), category: typeof category === 'string' && category ? category : 'General' }]);
+  const removeAspectConfirm = (id) => { if (window.confirm('¿Eliminar este aspecto?')) removeAspect(id); };
 
   const handleNewControl = () => {
     if (aspects.some(a => a.value !== '' && a.value !== null && !isNaN(parseFloat(a.value))) && !window.confirm('¿Crear un control nuevo? El que estás editando no se perderá si ya lo guardaste.')) return;
@@ -631,25 +714,46 @@ const EvaluationSection = ({ sectionId, activePlan, athletes = [], selectedAthle
         <EvaluationMiniChart controls={controls} color={config.color} type={evalType} />
       )}
 
+      {!loading && (
+        <div className="flex items-center justify-between gap-2 flex-wrap" data-testid={`eval-${evalType}-toolbar`}>
+          <div className="inline-flex items-center rounded-full bg-slate-100 p-1" role="tablist">
+            <button onClick={() => setDisplayMode('table')} className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-full transition-all ${displayMode === 'table' ? 'bg-white shadow text-slate-900' : 'text-slate-500'}`} data-testid={`eval-${evalType}-view-table`}>
+              <Table2 className="w-3.5 h-3.5" /> Tabla
+            </button>
+            <button onClick={() => setDisplayMode('form')} className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-full transition-all ${displayMode === 'form' ? 'bg-white shadow text-slate-900' : 'text-slate-500'}`} data-testid={`eval-${evalType}-view-form`}>
+              <List className="w-3.5 h-3.5" /> Formulario
+            </button>
+          </div>
+          {autoSaveState === 'saving' && <span className="text-[11px] text-slate-400 flex items-center gap-1" data-testid={`eval-${evalType}-autosave`}><Loader2 className="w-3 h-3 animate-spin" /> Guardando…</span>}
+          {autoSaveState === 'saved' && <span className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1" data-testid={`eval-${evalType}-autosave`}><CheckCircle className="w-3 h-3" /> Guardado</span>}
+        </div>
+      )}
+
       {!loading && Object.entries(grouped).map(([cat, items]) => (
-        <Card key={cat} className="border-0 shadow-sm" data-testid={`eval-${evalType}-category-${cat}`}>
+        <Card key={cat} className="border border-slate-200 shadow-sm rounded-2xl overflow-hidden" data-testid={`eval-${evalType}-category-${cat}`}>
           <CardHeader className="bg-white border-b border-slate-100 py-3">
             <CardTitle className="text-sm flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full" style={{ background: config.color }} />
+              <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: config.color + '18', color: config.color }}>
+                {config.icon ? <config.icon className="w-4 h-4" /> : <div className="w-2 h-2 rounded-full" style={{ background: config.color }} />}
+              </span>
               <span className="font-bold text-slate-900">{cat}</span>
               <Badge variant="outline" className="text-[10px] ml-auto">{items.length} aspecto{items.length === 1 ? '' : 's'}</Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-3 space-y-2 bg-slate-50/40">
-            {items.map(a => (
-              <AspectRow key={a.id} aspect={a} color={config.color} onChange={updateAspect} onRemove={removeAspect} testidPrefix={`eval-${evalType}`} tr={tr} />
-            ))}
+          <CardContent className={displayMode === 'table' ? 'p-3 bg-white' : 'p-3 space-y-2 bg-slate-50/40'}>
+            {displayMode === 'table' ? (
+              <AspectTable items={items} color={config.color} category={cat} onChange={updateAspect} onRemoveConfirm={removeAspectConfirm} onAdd={addAspect} testidPrefix={`eval-${evalType}`} />
+            ) : (
+              items.map(a => (
+                <AspectRow key={a.id} aspect={a} color={config.color} onChange={updateAspect} onRemove={removeAspect} testidPrefix={`eval-${evalType}`} tr={tr} />
+              ))
+            )}
           </CardContent>
         </Card>
       ))}
 
       {!loading && (
-        <Button onClick={addAspect} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-solid"
+        <Button onClick={() => addAspect('General')} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-solid"
           style={{ borderColor: config.color, color: config.color }} data-testid={`eval-${evalType}-add-aspect-btn`}>
           <Plus className="w-5 h-5 mr-2" /> Agregar aspecto a evaluar
         </Button>

@@ -25,7 +25,25 @@ export const loadStatus = ({ acwr, load } = {}) => {
   return map[level];
 };
 
-const microLoadOf = (micro) => micro?.type?.load ?? micro?.type?.loadPercent ?? micro?.load_percent ?? 70;
+// Resolutores tolerantes a nombres de campo (API usa inglés y type como string)
+const resolveMicroType = (micro, MICRO_TYPES = []) => {
+  const t = micro?.type;
+  const storedLoad = micro?.load_percent;
+  if (t && typeof t === 'object') return { id: t.id, name: t.name || t.id || '-', color: t.color || '#94a3b8', load: storedLoad ?? t.load ?? t.loadPercent ?? 70 };
+  const found = (MICRO_TYPES || []).find((x) => x.id === t) || {};
+  return { id: t || '', name: found.name || t || '-', color: found.color || '#94a3b8', load: storedLoad ?? found.loadPercent ?? 70 };
+};
+const resolveMesoType = (meso, MESO_TYPES = []) => {
+  const t = meso?.type;
+  if (t && typeof t === 'object') return { id: t.id, name: t.name || t.id || '-', color: t.color || '#64748B' };
+  const found = (MESO_TYPES || []).find((x) => x.id === t) || {};
+  return { id: t || '', name: found.name || t || '-', color: found.color || '#64748B' };
+};
+const microVol = (micro) => micro?.volume ?? micro?.volumen ?? 0;
+const microInt = (micro) => micro?.intensity ?? micro?.intensidad ?? 0;
+const weekOf = (micro) => micro?.week_number ?? micro?.numero_semana ?? '';
+const sessionsOf = (micro) => micro?.sessions || [];
+const microLoadOf = (micro, MICRO_TYPES) => resolveMicroType(micro, MICRO_TYPES).load;
 
 // Fase 3 — coincidencia con buscador + filtros (fase / tipo micro / carga)
 export const matchesFilters = ({ macro, meso, micro, phase, acwr, load }, filters) => {
@@ -62,7 +80,7 @@ const LoadChip = ({ acwr, load, size = 'sm' }) => {
 };
 
 // Aplana todos los micros con sus índices y contexto
-const flattenMicros = (plan, resolvePhase, getMicroMetrics) => {
+const flattenMicros = (plan, resolvePhase, getMicroMetrics, MICRO_TYPES) => {
   const rows = [];
   (plan?.macrocycles || []).forEach((macro, macroIdx) => {
     const phase = resolvePhase(macro);
@@ -72,10 +90,10 @@ const flattenMicros = (plan, resolvePhase, getMicroMetrics) => {
         rows.push({
           macroIdx, mesoIdx, microIdx, macro, meso, micro, phase,
           acwr: m?.ACWR || 0,
-          load: microLoadOf(micro),
-          volumen: micro.volumen ?? (m?.vol_calculado != null ? Math.round(m.vol_calculado) : phase.volumePercent),
-          intensidad: micro.intensidad ?? (m?.int_calculado != null ? Math.round(m.int_calculado) : phase.intensityPercent),
-          sesiones: (micro.sessions || []).length,
+          load: microLoadOf(micro, MICRO_TYPES),
+          volumen: microVol(micro) || (m?.vol_calculado ? Math.round(m.vol_calculado) : 0),
+          intensidad: microInt(micro) || (m?.int_calculado ? Math.round(m.int_calculado) : 0),
+          sesiones: sessionsOf(micro).length,
         });
       });
     });
@@ -84,14 +102,14 @@ const flattenMicros = (plan, resolvePhase, getMicroMetrics) => {
 };
 
 /* ══════════════════ VISTA ÁRBOL JERÁRQUICO ══════════════════ */
-export const TreeView = ({ plan, filters, resolvePhase, getMicroMetrics, onEditMicro }) => {
+export const TreeView = ({ plan, filters, resolvePhase, getMicroMetrics, onEditMicro, MICRO_TYPES = [], MESO_TYPES = [] }) => {
   const [open, setOpen] = useState({});
   const isOpen = (k, def) => (k in open ? open[k] : def);
   const toggle = (k, def) => setOpen((p) => ({ ...p, [k]: !(k in p ? p[k] : def) }));
   const active = hasActiveFilters(filters);
   const microVisible = (macro, meso, micro, macroIdx, mesoIdx, microIdx) => {
     const mm = getMicroMetrics(macroIdx, mesoIdx, microIdx);
-    return matchesFilters({ macro, meso, micro, phase: resolvePhase(macro), acwr: mm?.ACWR || 0, load: microLoadOf(micro) }, filters);
+    return matchesFilters({ macro, meso, micro: { ...micro, type: resolveMicroType(micro, MICRO_TYPES) }, phase: resolvePhase(macro), acwr: mm?.ACWR || 0, load: microLoadOf(micro, MICRO_TYPES) }, filters);
   };
 
   return (
@@ -122,7 +140,8 @@ export const TreeView = ({ plan, filters, resolvePhase, getMicroMetrics, onEditM
             {macroOpen && (macro.mesocycles || []).map((meso, mesoIdx) => {
               const ek = `me-${macroIdx}-${mesoIdx}`;
               const mesoOpen = isOpen(ek, true);
-              const mesoColor = meso.type?.color || '#64748B';
+              const mesoT = resolveMesoType(meso, MESO_TYPES);
+              const mesoColor = mesoT.color;
               if (active && !(meso.microcycles || []).some((mi, mii) => microVisible(macro, meso, mi, macroIdx, mesoIdx, mii))) return null;
               return (
                 <div key={meso.id || mesoIdx} className="ml-6 border-l border-slate-100">
@@ -130,7 +149,7 @@ export const TreeView = ({ plan, filters, resolvePhase, getMicroMetrics, onEditM
                     <ChevronRight className={`w-3.5 h-3.5 text-slate-400 transition-transform ${mesoOpen ? 'rotate-90' : ''}`} />
                     <Layers className="w-3.5 h-3.5" style={{ color: mesoColor }} />
                     <span className="font-semibold text-[12px] text-slate-700">{meso.name}</span>
-                    <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{ color: mesoColor, backgroundColor: mesoColor + '15' }}>{meso.type?.name || '-'}</span>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{ color: mesoColor, backgroundColor: mesoColor + '15' }}>{mesoT.name}</span>
                     <span className="text-[10px] text-slate-400">· {meso.microcycles?.length || 0} micros</span>
                   </button>
                   {mesoOpen && (meso.microcycles || []).map((micro, microIdx) => {
@@ -138,26 +157,29 @@ export const TreeView = ({ plan, filters, resolvePhase, getMicroMetrics, onEditM
                     const microOpen = isOpen(mkk, false);
                     if (active && !microVisible(macro, meso, micro, macroIdx, mesoIdx, microIdx)) return null;
                     const mm = getMicroMetrics(macroIdx, mesoIdx, microIdx);
-                    const microColor = micro.type?.color || '#94a3b8';
+                    const microT = resolveMicroType(micro, MICRO_TYPES);
+                    const microColor = microT.color;
+                    const sess = sessionsOf(micro);
                     return (
                       <div key={micro.id || microIdx} className="ml-6 border-l border-slate-100">
                         <div className="flex items-center gap-2 px-4 py-2 hover:bg-slate-50 transition-colors">
                           <button onClick={() => toggle(mkk)} className="flex items-center gap-2 flex-1 text-left" data-testid={`tree-micro-${macroIdx}-${mesoIdx}-${microIdx}`}>
                             <ChevronRight className={`w-3 h-3 text-slate-300 transition-transform ${microOpen ? 'rotate-90' : ''}`} />
                             <span className="w-1.5 h-5 rounded-full" style={{ backgroundColor: microColor }} />
-                            <span className="text-[12px] font-medium text-slate-700">{micro.name}</span>
-                            <span className="text-[9px] text-slate-400">{micro.type?.name || ''}</span>
+                            <span className="text-[12px] font-medium text-slate-700">{micro.name || `Semana ${weekOf(micro)}`}</span>
+                            <span className="text-[9px] text-slate-400">{microT.name}</span>
+                            <span className="text-[9px] text-slate-300">V{microVol(micro)} · I{microInt(micro)}</span>
                           </button>
-                          <LoadChip acwr={mm?.ACWR} load={microLoadOf(micro)} size="xs" />
-                          <span className="text-[10px] text-slate-400">{(micro.sessions || []).length} ses.</span>
+                          <LoadChip acwr={mm?.ACWR} load={microLoadOf(micro, MICRO_TYPES)} size="xs" />
+                          <span className="text-[10px] text-slate-400">{sess.length} ses.</span>
                           <button onClick={() => onEditMicro(micro, macroIdx, mesoIdx, microIdx)} className="text-[10px] text-blue-500 hover:underline">Editar</button>
                         </div>
-                        {microOpen && (micro.sessions || []).map((s, si) => (
+                        {microOpen && sess.map((s, si) => (
                           <div key={s.id || si} className="ml-8 flex items-center gap-2 px-4 py-1.5 text-[11px] text-slate-500 border-l border-slate-100">
                             <Dumbbell className="w-3 h-3 text-slate-300" />
-                            <span className="font-medium text-slate-600">{s.name || s.day || `Sesión ${si + 1}`}</span>
-                            {s.duration ? <span className="text-slate-400">· {s.duration}min</span> : null}
-                            {s.rpe ? <span className="text-slate-400">· RPE {s.rpe}</span> : null}
+                            <span className="font-medium text-slate-600">{s.name || (s.day ? `Día ${s.day}` : `Sesión ${si + 1}`)}</span>
+                            {(s.duration_minutes || s.duration) ? <span className="text-slate-400">· {s.duration_minutes || s.duration}min</span> : null}
+                            {s.session_type ? <span className="text-slate-400">· {s.session_type}</span> : null}
                           </div>
                         ))}
                       </div>
@@ -174,7 +196,7 @@ export const TreeView = ({ plan, filters, resolvePhase, getMicroMetrics, onEditM
 };
 
 /* ══════════════════ VISTA KANBAN ══════════════════ */
-export const KanbanView = ({ plan, filters, resolvePhase, getMicroMetrics, onMoveMicro }) => {
+export const KanbanView = ({ plan, filters, resolvePhase, getMicroMetrics, onMoveMicro, MICRO_TYPES = [] }) => {
   const [dragItem, setDragItem] = useState(null);
   const [overCol, setOverCol] = useState(null);
   const active = hasActiveFilters(filters);
@@ -206,8 +228,9 @@ export const KanbanView = ({ plan, filters, resolvePhase, getMicroMetrics, onMov
             <div className="p-2.5 space-y-2 min-h-[80px]">
               {micros.map(({ meso, micro, mesoIdx, microIdx }) => {
                 const mm = getMicroMetrics(macroIdx, mesoIdx, microIdx);
-                if (active && !matchesFilters({ macro, meso, micro, phase, acwr: mm?.ACWR || 0, load: microLoadOf(micro) }, filters)) return null;
-                const microColor = micro.type?.color || '#94a3b8';
+                const microT = resolveMicroType(micro, MICRO_TYPES);
+                if (active && !matchesFilters({ macro, meso, micro: { ...micro, type: microT }, phase, acwr: mm?.ACWR || 0, load: microT.load }, filters)) return null;
+                const microColor = microT.color;
                 return (
                   <div
                     key={micro.id || `${mesoIdx}-${microIdx}`}
@@ -220,13 +243,13 @@ export const KanbanView = ({ plan, filters, resolvePhase, getMicroMetrics, onMov
                   >
                     <div className="flex items-center gap-1.5">
                       <GripVertical className="w-3 h-3 text-slate-300" />
-                      <span className="text-[12px] font-semibold text-slate-800 flex-1 truncate">{micro.name}</span>
+                      <span className="text-[12px] font-semibold text-slate-800 flex-1 truncate">{micro.name || `Semana ${weekOf(micro)}`}</span>
                     </div>
                     <div className="flex items-center justify-between mt-1.5">
-                      <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{ color: microColor, backgroundColor: microColor + '12' }}>{micro.type?.name || '-'}</span>
-                      <LoadChip acwr={mm?.ACWR} load={microLoadOf(micro)} size="xs" />
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{ color: microColor, backgroundColor: microColor + '12' }}>{microT.name}</span>
+                      <LoadChip acwr={mm?.ACWR} load={microT.load} size="xs" />
                     </div>
-                    <div className="text-[9px] text-slate-400 mt-1">{(micro.sessions || []).length} sesiones · carga {microLoadOf(micro)}%</div>
+                    <div className="text-[9px] text-slate-400 mt-1">{sessionsOf(micro).length} sesiones · V{microVol(micro)} · I{microInt(micro)} · carga {microT.load}%</div>
                   </div>
                 );
               })}
@@ -241,15 +264,15 @@ export const KanbanView = ({ plan, filters, resolvePhase, getMicroMetrics, onMov
 
 /* ══════════════════ VISTA TABLA COMPACTA ══════════════════ */
 export const TableView = ({ plan, filters, resolvePhase, getMicroMetrics, MICRO_TYPES, onUpdateMicroField, onExportExcel }) => {
-  const allRows = useMemo(() => flattenMicros(plan, resolvePhase, getMicroMetrics), [plan, resolvePhase, getMicroMetrics]);
+  const allRows = useMemo(() => flattenMicros(plan, resolvePhase, getMicroMetrics, MICRO_TYPES), [plan, resolvePhase, getMicroMetrics, MICRO_TYPES]);
   const active = hasActiveFilters(filters);
-  const rows = active ? allRows.filter((r) => matchesFilters({ macro: r.macro, meso: r.meso, micro: r.micro, phase: r.phase, acwr: r.acwr, load: r.load }, filters)) : allRows;
+  const rows = active ? allRows.filter((r) => matchesFilters({ macro: r.macro, meso: r.meso, micro: { ...r.micro, type: resolveMicroType(r.micro, MICRO_TYPES) }, phase: r.phase, acwr: r.acwr, load: r.load }, filters)) : allRows;
 
   const buildExcelRows = () => rows.map((r, i) => {
     const s = loadStatus({ acwr: r.acwr, load: r.load });
     return {
       semana: `S${i + 1}`, macro: r.macro.name, fase: r.phase.name, meso: r.meso.name,
-      tipo: r.micro.type?.name || '', volumen: r.volumen, intensidad: r.intensidad,
+      tipo: resolveMicroType(r.micro, MICRO_TYPES).name, volumen: r.volumen, intensidad: r.intensidad,
       carga: r.load, sesiones: r.sesiones, acwr: r.acwr || null, estado: s.key,
     };
   });
@@ -293,26 +316,27 @@ export const TableView = ({ plan, filters, resolvePhase, getMicroMetrics, MICRO_
           </thead>
           <tbody>
             {rows.map((r, i) => {
-              const microColor = r.micro.type?.color || '#94a3b8';
+              const microT = resolveMicroType(r.micro, MICRO_TYPES);
+              const microColor = microT.color;
               return (
-                <tr key={`${r.macroIdx}-${r.mesoIdx}-${r.microIdx}`} className="border-b border-slate-100 hover:bg-slate-50/60 transition-colors" data-testid={`table-row-${i}`}>
+                <tr key={`${r.macroIdx}-${r.mesoIdx}-${r.microIdx}`} className={`border-b border-slate-100 hover:bg-slate-50/60 transition-colors ${i % 2 === 1 ? 'bg-slate-50/40' : ''}`} data-testid={`table-row-${i}`}>
                   <td className="px-2.5 py-1.5 font-semibold text-slate-500">S{i + 1}</td>
                   <td className="px-2.5 py-1.5 whitespace-nowrap"><span className="inline-flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: r.phase.color }} />{r.macro.name}</span></td>
                   <td className="px-2.5 py-1.5 text-slate-500 whitespace-nowrap">{r.phase.name}</td>
                   <td className="px-2.5 py-1.5 text-slate-600 whitespace-nowrap">{r.meso.name}</td>
                   <td className="px-2.5 py-1.5">
                     <select
-                      value={r.micro.type?.id || ''}
-                      onChange={(e) => { const t = MICRO_TYPES.find((x) => x.id === e.target.value); if (t) onUpdateMicroField(r.macroIdx, r.mesoIdx, r.microIdx, 'tipo', { ...t, load: t.loadPercent }); }}
+                      value={microT.id || ''}
+                      onChange={(e) => onUpdateMicroField(r.macroIdx, r.mesoIdx, r.microIdx, 'tipo', e.target.value)}
                       className="text-[10px] border border-slate-200 rounded px-1 py-0.5 bg-white"
                       style={{ color: microColor }}
                       data-testid={`table-tipo-${r.macroIdx}-${r.mesoIdx}-${r.microIdx}`}
                     >
-                      {MICRO_TYPES.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                      {(MICRO_TYPES || []).map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
                     </select>
                   </td>
-                  <td className="px-2.5 py-1.5"><EditNum value={r.volumen} field="volumen" r={r} /></td>
-                  <td className="px-2.5 py-1.5"><EditNum value={r.intensidad} field="intensidad" r={r} /></td>
+                  <td className="px-2.5 py-1.5"><EditNum value={r.volumen} field="volume" r={r} /></td>
+                  <td className="px-2.5 py-1.5"><EditNum value={r.intensidad} field="intensity" r={r} /></td>
                   <td className="px-2.5 py-1.5"><EditNum value={r.load} field="load_percent" r={r} /></td>
                   <td className="px-2.5 py-1.5 text-center text-slate-500">{r.sesiones}</td>
                   <td className="px-2.5 py-1.5 text-center font-semibold" style={{ color: loadStatus({ acwr: r.acwr, load: r.load }).color }}>{r.acwr ? r.acwr.toFixed(2) : '—'}</td>
