@@ -145,7 +145,14 @@ export function adaptarDatosProgresion(mesociclos = [], microciclos = [], sesion
 }
 
 // ── GANTT / TIMELINE ──
-export function adaptarDatosGantt(plan, macrociclos = [], mesociclos = []) {
+const MICRO_COLORS = {
+  entrante: '#94A3B8', activacion: '#38BDF8', ordinario: '#3B82F6', corriente: '#3B82F6',
+  carga: '#6366F1', desarrollador: '#6366F1', choque: '#EF4444', impacto: '#EF4444',
+  competitivo: '#F59E0B', precompetitivo: '#F97316', recuperacion: '#A78BFA',
+  descarga: '#5AB88A', activador: '#22C55E', estabilizador: '#10B981', realizacion: '#EC4899',
+};
+
+export function adaptarDatosGantt(plan, macrociclos = [], mesociclos = [], microciclos = [], sesiones = []) {
   if (!plan) return { niveles: [], totalSemanas: 0 };
   const totalSemanas = plan.duracion_semanas || macrociclos.reduce((s, m) => s + (m.duracion_semanas || 0), 0) || 52;
 
@@ -172,13 +179,35 @@ export function adaptarDatosGantt(plan, macrociclos = [], mesociclos = []) {
     });
   });
 
-  return {
-    totalSemanas,
-    niveles: [
-      { nombre: 'Plan', bloques: [{ id: plan.id, inicio: 0, fin: totalSemanas, label: plan.nombre, color: '#1D6FD1' }] },
-      { nombre: 'Macrociclos', bloques: macrosBloques },
-      { nombre: 'Mesociclos', bloques: mesosBloques },
-      { nombre: 'Descargas', bloques: descargasBloques },
-    ]
-  };
+  // Microciclos: un bloque por semana (usa numero_semana; fallback a orden secuencial).
+  const microsSorted = [...microciclos].sort((a, b) => (a.numero_semana || 0) - (b.numero_semana || 0));
+  const microsBloques = microsSorted.map((mic, idx) => {
+    const wk = mic.numero_semana ? mic.numero_semana - 1 : idx;
+    const dur = mic.duracion_semanas || 1;
+    const nSes = sesiones.filter(s => s.microciclo_id === mic.id).length;
+    return {
+      id: mic.id, inicio: wk, fin: wk + dur,
+      label: mic.nombre || `S${mic.numero_semana || idx + 1}`,
+      color: MICRO_COLORS[mic.tipo] || '#64748B',
+      tipo: mic.tipo, vol: r(mic.vol_calculado), int: r(mic.int_calculado),
+      carga: r(mic.carga_total), sesiones: nSes,
+    };
+  });
+
+  // Sesiones: intensidad por semana (nº de sesiones) para mini-barras.
+  const sesionesBloques = microsBloques
+    .filter(mb => mb.sesiones > 0)
+    .map(mb => ({ inicio: mb.inicio, fin: mb.fin, label: `${mb.sesiones}`, color: '#0EA5E9', count: mb.sesiones }));
+  const maxSes = Math.max(1, ...sesionesBloques.map(b => b.count));
+
+  const niveles = [
+    { nombre: 'Plan', bloques: [{ id: plan.id, inicio: 0, fin: totalSemanas, label: plan.nombre, color: '#1D6FD1' }] },
+    { nombre: 'Macrociclos', bloques: macrosBloques },
+    { nombre: 'Mesociclos', bloques: mesosBloques },
+    { nombre: 'Microciclos', bloques: microsBloques },
+  ];
+  if (sesionesBloques.length) niveles.push({ nombre: 'Sesiones', bloques: sesionesBloques, tipo: 'intensity', maxCount: maxSes });
+  niveles.push({ nombre: 'Descargas', bloques: descargasBloques });
+
+  return { totalSemanas, niveles };
 }

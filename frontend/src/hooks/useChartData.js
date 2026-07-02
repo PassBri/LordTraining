@@ -53,5 +53,7 @@ export function useGanttChart() {
   const plan = usePlanStore(useShallow(s => s.plan));
   const macrociclos = usePlanStore(useShallow(s => s.macrociclos));
   const mesociclos = usePlanStore(useShallow(s => s.mesociclos));
-  return useMemo(() => adaptarDatosGantt(plan, macrociclos, mesociclos), [plan, macrociclos, mesociclos]);
+  const microciclos = usePlanStore(useShallow(s => s.microciclos));
+  const sesiones = usePlanStore(useShallow(s => s.sesiones));
+  return useMemo(() => adaptarDatosGantt(plan, macrociclos, mesociclos, microciclos, sesiones), [plan, macrociclos, mesociclos, microciclos, sesiones]);
 }

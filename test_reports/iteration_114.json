@@ -1,0 +1,42 @@
+{
+  "summary": "Frontend-only e2e verification of two changes on plan 'Plan Deporte General - ATR (Issurin)' (Boxeo, 47 sem, v2): (A) Plan Gráfico → Volumen/Intensidad independence and (B) Periodización → Dashboard 'Timeline del Plan' redesign (GanttPlanChart). Both PASS.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Radix DialogContent (Planes sheet)", "issues": ["Pre-existing a11y warnings: 'DialogContent requires a DialogTitle' and 'Missing Description/aria-describedby'. Non-blocking, already reported in iteration_113."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "(Optional, carried over) Wrap Radix DialogContent titles with VisuallyHidden DialogTitle to clean a11y console warnings."
+  ],
+  "critical_code_review_comments": [
+    "GraphicPlan.js: Intensidad row correctly renders enableUnits controls (unit-select-intensidad + unit-mode-intensidad found). VOLINT_UNIT_ROWS now includes 'intensidad'.",
+    "_buildVolIntData correctly computes vol and int bases independently — verified in UI: editing volumen week 1 to 42 kept intensidad week 1 = 65 (previously bug would zero it out).",
+    "DashboardGeneral.js renders <GanttPlanChart/> only when planStore.plan is loaded (post syncFromV1 + cargarPlanCompleto). Confirmed the flakiness note: the Dashboard subtab (view-dashboard) is only mounted inside the plan detail (Datos → Periodización → click into plan Estructura row) — clicking the top-level 'Periodización' icon shows the overview screen with Resumen/Estructura/Carga subtabs; the Dashboard/Estructura/Árbol/Kanban/Tabla/Calendario/Gráfico subtabs (with view-dashboard testid) live one level deeper. This is not a bug per current design but is worth confirming with product.",
+    "GanttPlanChart svg is continuously resized via ResizeObserver; Playwright reported 'element is not stable' during scroll_into_view — non-blocking for users but could be smoothed by debouncing width updates."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (per request)", "frontend": "100% on the two requested features"},
+  "test_credentials": "Super admin juegolaureado@gmail.com / LordTraining2026! (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "None — used seeded 'Plan Deporte General - ATR (Issurin)' (Boxeo, 47 sem, 5 mesociclos, 4 ses/sem, 188 sesiones). New overrides persisted for the run: intensidad S1=65, volumen S1=42.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Reach the Timeline del Plan: login super admin → click 'Planes' in top nav → select 'Plan Deporte General - ATR (Issurin)' → top nav 'Datos' → sub icon 'Periodización' → this shows the overview cards (Periodización/Evaluaciones/Carga/Control) with subtabs Resumen/Estructura/Carga. Click 'Estructura' (or any Periodización subtab besides Resumen) to enter plan detail — this brings the Dashboard/Estructura/Árbol/Kanban/Tabla/Calendario/Gráfico subrow with testids view-dashboard, view-structure, view-tree, view-kanban, view-table, view-calendar, view-chart. Click view-dashboard to see GanttPlanChart (data-testid=gantt-chart) + zoom testids gantt-zoom-semana/mes/trimestre/todo. Plan Gráfico volumen/int controls testids: unit-select-volumen, unit-mode-volumen, unit-select-intensidad, unit-mode-intensidad; cell testids chart-{row}-{week}; edit input chart-input-{row}-{week}.",
+  "verified_flows": {
+    "login_super_admin": "PASS — reached /dashboard within 5s.",
+    "plan_selection_ATR_Issurin": "PASS — 'Planes' sheet opened, 'Plan Deporte General - ATR (Issurin)' Boxeo 47 sem selected; Plan Activo card shows '47 sem · ATR (Issurin)', Eventos=4, Sesiones=64.",
+    "plan_grafico_intensidad_unit_controls_visible": "PASS — Intensidad row now shows both unit-select-intensidad (%) and unit-mode-intensidad (~/#) — previously missing.",
+    "plan_grafico_intensidad_numeric_edit": "PASS — clicked unit-mode-intensidad (~ → #), clicked chart-intensidad-1 cell, typed 65, Enter → cell displays '65' (chart-input-intensidad-1 accepted the value and it was saved).",
+    "plan_grafico_vol_int_independence": "PASS (CRITICAL FIX CONFIRMED) — after saving intensidad S1=65, switched volumen to # mode and edited chart-volumen-1 to 42. Post-edit: chart-intensidad-1 still shows '65' (was NOT reset to 0 or changed). Bug from earlier session is fixed.",
+    "periodizacion_dashboard_timeline": "PASS — [data-testid=gantt-chart] renders. Header 'Timeline del Plan 47 sem'. Legend shows 5 microciclo types + Sesiones: Ordinario/Carga · Choque/Impacto · Competitivo · Recuperación · Sesiones. Zoom controls gantt-zoom-semana, gantt-zoom-mes, gantt-zoom-trimestre, gantt-zoom-todo all present and clickable. Timeline fills full available width in default (Todo) view — no visible cutoff. Material Design cards for Macrociclos/Mesociclos/Semanas/Sesiones present above."
+  },
+  "console_errors_observed": [
+    "`DialogContent` requires a `DialogTitle` (accessibility warning, pre-existing)",
+    "Warning: Missing `Description` or `aria-describedby` for {DialogContent} (pre-existing)",
+    "One 404 on a resource load (not related to Gantt/Vol-Int flows; no functional impact observed)"
+  ],
+  "rca of the issue": "Not applicable — both requested changes verified working. Small note: DashboardGeneral only mounts inside plan detail (selectedPlan must exist in PeriodizationComplete). Reached via Datos → Periodización → click any subtab besides Resumen. GanttPlanChart's ResizeObserver causes brief instability but does not affect UX."
+}
