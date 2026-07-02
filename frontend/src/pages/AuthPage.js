@@ -170,7 +170,7 @@ const AuthVisual = () => {
     t('auth.visual.phrase1'),
     t('auth.visual.phrase2'),
     t('auth.visual.phrase3')
-  ], 55, 25, 2800);
+  ], 28, 14, 1400);
   const readiness = useCountUp(85, 1200);
   const acwr = useCountUp(0.87, 1000);
   const [sportIdx, setSportIdx] = useState(0);
@@ -182,8 +182,8 @@ const AuthVisual = () => {
       setTimeout(() => {
         setSportIdx(prev => (prev + 1) % SPORTS.length);
         setVisible(true);
-      }, 700);
-    }, 8000);
+      }, 350);
+    }, 3500);
     return () => clearInterval(interval);
   }, []);
 
@@ -196,7 +196,7 @@ const AuthVisual = () => {
     <div className="absolute overflow-hidden" style={{top:'17%',left:'13%',right:'13%',bottom:'17%',background:'#1e3a1e',borderRadius:'16px',boxShadow:'0 12px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)'}}>
       {/* SVG field lines */}
       <svg className="absolute inset-0 w-full h-full" viewBox={sport.vb} preserveAspectRatio="xMidYMid meet"
-        style={{opacity:visible?1:0,transition:'opacity 0.6s ease'}}>
+        style={{opacity:visible?1:0,transition:'opacity 0.3s ease'}}>
         <g stroke="rgba(255,255,255,0.7)" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"
           dangerouslySetInnerHTML={{__html: sport.svg}} />
       </svg>
@@ -208,18 +208,18 @@ const AuthVisual = () => {
 
       {/* X markers */}
       {sport.xs.map(([x,y],i) => (
-        <div key={`x${sportIdx}-${i}`} className="absolute pointer-events-none select-none" style={{left:`${x}%`,top:`${y}%`,transform:'translate(-50%,-50%)',color:'rgba(255,255,255,0.8)',fontSize:'20px',fontWeight:900,fontFamily:'Arial,sans-serif',lineHeight:1,opacity:visible?1:0,transition:'opacity 0.5s ease'}}>
+        <div key={`x${sportIdx}-${i}`} className="absolute pointer-events-none select-none" style={{left:`${x}%`,top:`${y}%`,transform:'translate(-50%,-50%)',color:'rgba(255,255,255,0.8)',fontSize:'20px',fontWeight:900,fontFamily:'Arial,sans-serif',lineHeight:1,opacity:visible?1:0,transition:'opacity 0.3s ease'}}>
           ✕
         </div>
       ))}
       {/* O markers */}
       {sport.os.map(([x,y],i) => (
-        <div key={`o${sportIdx}-${i}`} className="absolute pointer-events-none" style={{left:`${x}%`,top:`${y}%`,transform:'translate(-50%,-50%)',width:18,height:18,borderRadius:'50%',border:'2.5px solid rgba(255,255,255,0.7)',opacity:visible?1:0,transition:'opacity 0.5s ease'}}/>
+        <div key={`o${sportIdx}-${i}`} className="absolute pointer-events-none" style={{left:`${x}%`,top:`${y}%`,transform:'translate(-50%,-50%)',width:18,height:18,borderRadius:'50%',border:'2.5px solid rgba(255,255,255,0.7)',opacity:visible?1:0,transition:'opacity 0.3s ease'}}/>
       ))}
 
       {/* Tactical arrows */}
       <svg className="absolute inset-0 w-full h-full" viewBox={sport.vb} preserveAspectRatio="xMidYMid meet"
-        style={{opacity:visible?1:0,transition:'opacity 0.6s ease'}}>
+        style={{opacity:visible?1:0,transition:'opacity 0.3s ease'}}>
         <defs><marker id="tA" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
           <path d="M0,0 L8,3 L0,6" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="1.5" strokeLinecap="round"/>
         </marker></defs>

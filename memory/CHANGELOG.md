@@ -1,5 +1,13 @@
 # CHANGELOG — LordTraining
 
+## 2026-07-02 — Login: animaciones más rápidas + Periodización Fases 2-5
+- **Login (panel derecho)**: acelerado el **typewriter** de frases (typing 55→28ms, deleting 25→14ms, pausa 2800→1400ms) y el **carrusel de escenarios deportivos** (intervalo 8000→3500ms, fade 700→350ms; transiciones de opacidad 0.6/0.5s→0.3s). `AuthPage.js`.
+- **Periodización FASE 2 (Material Design 3)**: chips de filtro, cards con elevación/redondeo, transiciones 300ms y **FAB** (botón flotante lima) con speed-dial para agregar Macro/Meso rápido.
+- **FASE 3 (Navegación)**: **breadcrumb** siempre visible, **buscador** dentro del plan y **filtros** por fase / tipo micro / carga (ocultan sin re-indexar, preservando edición/arrastre). Aplican a Árbol/Kanban/Tabla.
+- **FASE 4 (Edición avanzada)**: indicador de **autosave** (Guardando…/Guardado), **Deshacer (Ctrl+Z)** con pila de snapshots, e **Historial de cambios** en MongoDB (`periodization_history`: log/list/restore con quién/qué/cuándo + restaurar versión).
+- **FASE 5**: **Duplicar mesociclo** completo (con sesiones) y **Comparador de planes** lado a lado (semanas/macros/mesos/micros/carga media + barra de distribución de fases). Plantillas rápidas (ATR/Tradicional/Bloques) ya existen vía el asistente de creación. *Planificado vs Real* queda pendiente (requiere plumbing de datos ejecutados).
+- Backend nuevo: `routes/periodization_history.py`. Testing: iteration_111/112 — contrato de testids 100% verificado; flujos E2E limitados por una flakiness de navegación post-login PREEXISTENTE en DashboardPage (al seleccionar plan a veces no propaga `activePlan`), marcada por QA como no relacionada con estas features.
+
 ## 2026-06-30 — Periodización FASE 1: vistas nuevas + indicadores de carga + Excel
 - **3 vistas nuevas** en el detalle de Periodización (junto a Dashboard/Estructura/Calendario/Gráfico): **Árbol Jerárquico** (colapsable Macro→Meso→Micro→Sesión), **Kanban** (columnas por macrociclo, tarjetas de microciclos arrastrables entre columnas con persistencia) y **Tabla Compacta** (una fila por microciclo, edición inline de Vol/Int/Carga + selector de tipo, autosave a MongoDB).
 - **Indicadores de carga por color** (verde Óptima / amarillo Precaución/Detraining / rojo Sobrecarga) combinando **ACWR + carga%** (peor caso gana). Helper `loadStatus` en PeriodizationViews.jsx.
