@@ -25,6 +25,8 @@ import SessionEditor from './SessionEditor';
 import DashboardGeneral from './DashboardGeneral';
 import PlanIconPicker from './PlanIconPicker';
 import { autoIconForSport } from '../lib/planIcons';
+import { TreeView, KanbanView, TableView } from './periodization/PeriodizationViews';
+import { ListTree, Kanban, Table2 } from 'lucide-react';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 
@@ -239,7 +241,13 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
   const [saving, setSaving] = useState(false);
   const [activeView, setActiveView] = useState(showWizardOnly ? 'create' : 'history');
   const [selectedPlan, setSelectedPlan] = useState(null);
-  const [viewMode, setViewMode] = useState('structure'); // structure, calendar, chart
+  const [viewMode, setViewModeState] = useState(() => {
+    try { return localStorage.getItem('lt_periodization_view') || 'structure'; } catch (_) { return 'structure'; }
+  }); // structure, tree, kanban, table, calendar, chart, dashboard
+  const setViewMode = (v) => {
+    setViewModeState(v);
+    try { localStorage.setItem('lt_periodization_view', v); } catch (_) { /* ignore */ }
+  };
   
   // Plans - Now loaded from API
   const [plans, setPlans] = useState([]);
@@ -753,6 +761,66 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
     setSelectedPlan(updatedPlan);
     toast.success(t('periodization.tMicroDeleted'));
+  };
+
+  // ── Edición inline de micro (Vista Tabla) — autosave a MongoDB ──
+  const updateMicroField = (macroIdx, mesoIdx, microIdx, field, value) => {
+    const updatedPlan = { ...selectedPlan };
+    const micro = updatedPlan.macrocycles?.[macroIdx]?.mesocycles?.[mesoIdx]?.microcycles?.[microIdx];
+    if (!micro) return;
+    if (field === 'tipo') {
+      micro.type = value;
+    } else {
+      const num = value === '' || value == null ? undefined : Math.max(0, Number(value) || 0);
+      micro[field] = num;
+      if (field === 'load_percent' && micro.type) micro.type = { ...micro.type, load: num };
+    }
+    rebuildPlanData(updatedPlan);
+    setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
+    setSelectedPlan(updatedPlan);
+    savePlanToAPI(updatedPlan).then(() => toast.success('Guardado', { duration: 900 })).catch(e => console.error('Error autosave micro:', e));
+  };
+
+  // ── Mover microciclo entre macrociclos (Vista Kanban) ──
+  const moveMicrocycle = (from, toMacroIdx) => {
+    const updatedPlan = { ...selectedPlan };
+    const srcMicros = updatedPlan.macrocycles?.[from.macroIdx]?.mesocycles?.[from.mesoIdx]?.microcycles;
+    const targetMacro = updatedPlan.macrocycles?.[toMacroIdx];
+    if (!srcMicros || !targetMacro) return;
+    if (!targetMacro.mesocycles || targetMacro.mesocycles.length === 0) {
+      toast.error('El macrociclo destino no tiene mesociclos'); return;
+    }
+    const [moved] = srcMicros.splice(from.microIdx, 1);
+    if (!moved) return;
+    targetMacro.mesocycles[targetMacro.mesocycles.length - 1].microcycles.push(moved);
+    rebuildPlanData(updatedPlan);
+    setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
+    setSelectedPlan(updatedPlan);
+    savePlanToAPI(updatedPlan).then(() => toast.success('Microciclo movido', { duration: 1000 })).catch(e => console.error(e));
+  };
+
+  // ── Exportar Tabla Compacta a Excel real (.xlsx) ──
+  const handleExportPeriodizationExcel = async (rows) => {
+    try {
+      const token = getToken();
+      const r = await fetch(`${API_URL}/api/periodization/export-excel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ plan_name: selectedPlan?.name || 'Plan de Periodización', rows })
+      });
+      if (!r.ok) throw new Error('export-failed');
+      const blob = await r.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${(selectedPlan?.name || 'plan').replace(/\s+/g, '_')}.xlsx`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      toast.success('Excel descargado');
+    } catch (e) {
+      console.error(e);
+      toast.error('Error al exportar a Excel');
+    }
   };
 
   // SESION CRUD
@@ -2252,6 +2320,9 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           {[
             { id: 'dashboard', icon: Activity, label: 'Dashboard', color: '#0891B2' },
             { id: 'structure', icon: Layers, label: t('periodization.viewStructure'), color: '#007AFF' },
+            { id: 'tree', icon: ListTree, label: 'Árbol', color: '#C9A84C' },
+            { id: 'kanban', icon: Kanban, label: 'Kanban', color: '#0A0F1E' },
+            { id: 'table', icon: Table2, label: 'Tabla', color: '#059669' },
             { id: 'calendar', icon: CalendarDays, label: t('periodization.viewCalendar'), color: '#8B5CF6' },
             { id: 'chart', icon: BarChart3, label: t('periodization.viewChart'), color: '#10B981' }
           ].map(({ id, icon: Icon, label, color }) => (
@@ -2268,6 +2339,15 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
         {viewMode === 'dashboard' && selectedPlan?.apiId && <DashboardGeneral planId={selectedPlan.apiId} />}
         {viewMode === 'structure' && renderStructureView()}
+        {viewMode === 'tree' && (
+          <TreeView plan={selectedPlan} resolvePhase={resolvePhase} getMicroMetrics={getV2MicroMetrics} onEditMicro={handleEditMicrocycle} />
+        )}
+        {viewMode === 'kanban' && (
+          <KanbanView plan={selectedPlan} resolvePhase={resolvePhase} getMicroMetrics={getV2MicroMetrics} onMoveMicro={moveMicrocycle} />
+        )}
+        {viewMode === 'table' && (
+          <TableView plan={selectedPlan} resolvePhase={resolvePhase} getMicroMetrics={getV2MicroMetrics} MICRO_TYPES={MICROCYCLE_TYPES_ARRAY} onUpdateMicroField={updateMicroField} onExportExcel={handleExportPeriodizationExcel} />
+        )}
         {viewMode === 'calendar' && renderCalendarView()}
         {viewMode === 'chart' && renderChartView()}
       </div>

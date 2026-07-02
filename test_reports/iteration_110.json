@@ -1,0 +1,49 @@
+{
+  "summary": "Phase 1 Periodización new views (Árbol / Kanban / Tabla) tested end-to-end with Super Admin on plan 'Plan Deporte General - ATR (Issurin)' (4 macros, 12 mesos, 47 micros). All 3 new views render with correct data-testids, load chips, inline editing, Excel export, and per-user persistence via localStorage. Regression on Dashboard/Estructura/Calendario/Gráfico OK.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "TreeView (PeriodizationViews.jsx)",
+        "issue": "First click on a macro/meso row does NOT toggle collapse. Default state derives from `open[mk] !== false` (open), but toggle sets `!p[k]` which turns undefined→true — still evaluates open. It takes 2 clicks to collapse the first time. Observed: 1st click → mesos still visible (5), 2nd click → collapsed (0). Fix: initialize state to true or use `!(open[mk] !== false)` in toggle.",
+        "selector": "[data-testid=\"tree-macro-0\"]",
+        "priority": "MEDIUM"
+      },
+      {
+        "component": "TableView inline edit — autosave toast",
+        "issue": "After editing a Vol cell (0 → 77) and pressing Enter, the value updates correctly in the cell and persists, but the 'Guardado' toast was NOT detected via [data-sonner-toast]/[role=status] selectors (empty array). Value save works, only the visual confirmation toast may be missing or dismissed too fast. Please verify updateMicroField shows toast.success('Guardado') in PeriodizationComplete.js (~line 767).",
+        "selector": "[data-testid^=\"table-input-volumen-\"]",
+        "priority": "LOW"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "TreeView: fix first-click toggle for macros/mesos so a single click collapses the initially-open row.",
+    "TableView inline edit: verify 'Guardado' toast is fired on autosave (updateMicroField). Value persists correctly but toast not observed."
+  ],
+  "critical_code_review_comments": [
+    "PeriodizationComplete.js is 3638 lines — recommend splitting (render*, handlers, view components) to keep <700 lines per file.",
+    "TreeView toggle logic in PeriodizationViews.jsx has an off-by-one state (undefined→true both = 'open').",
+    "Kanban HTML5 drag-and-drop was NOT verified in this run (Playwright HTML5 drag automation unreliable). Cards render draggable=true (47/47). Manual/QA verification recommended for the moveMicrocycle persistence path."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "n/a (skipped)", "frontend": "95%" },
+  "test_credentials": "juegolaureado@gmail.com / LordTraining2026! (Super Admin). Rich plan used: 'Plan Deporte General - ATR (Issurin)' 47 sem, 4 macros / 12 mesos / 47 micros.",
+  "seed_data_creation": "None. Used existing seeded plan.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Route to reach detail view: login → tab-planes → click a plan card (activates plan) → tab-datos → section-tab-periodizacion → click text 'Estructura' (subnav-period-structure). PeriodizationComplete renders view-mode-tabs with 7 tabs. Plans available for SuperAdmin: 'Plan Deporte General - Boxeo (ATR Issurin)' (2x), 'Plan Deporte General - Judo (Ondulada)'. The Matveiev plan mentioned in the review does not exist in the preview DB.",
+  "detailed_results": {
+    "view_tabs_present": {"view-dashboard":1,"view-structure":1,"view-tree":1,"view-kanban":1,"view-table":1,"view-calendar":1,"view-chart":1},
+    "tree_view": {"periodization-tree-view":1,"macros":4,"load_chips":27,"toggle_bug":"1st click does not collapse; requires 2 clicks initially"},
+    "kanban_view": {"periodization-kanban-view":1,"columns":4,"cards":47,"draggable_cards":47,"drag_drop_automation":"not attempted (HTML5 drag unreliable in Playwright)"},
+    "table_view": {"periodization-table-view":1,"rows":47,"tipo_selects":47,"export_btn":1},
+    "inline_edit": {"cell":"table-cell-volumen-0-0-0","original":"0","new_value":"77","persisted_in_cell":true,"toast_detected":false},
+    "excel_export": {"download_triggered":true,"filename":"Plan_Deporte_General_-_ATR_(Issurin).xlsx"},
+    "persistence": {"lt_periodization_view_before_reload":"table","lt_periodization_view_after_reload":"table","table_view_active_after_reload_and_renav":true},
+    "regression": {"view-structure":"OK","view-calendar":"OK","view-chart":"OK","view-dashboard":"OK"}
+  }
+}
