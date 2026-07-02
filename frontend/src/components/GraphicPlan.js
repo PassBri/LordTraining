@@ -1383,6 +1383,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
   // Offscreen capture: when set, renders an InteractiveChart in a hidden container
   // so we can capture an image of it without showing the dialog
   const [offscreenChart, setOffscreenChart] = useState(null);
+  const [shareUrlModal, setShareUrlModal] = useState(null);
   const offscreenRef = useRef(null);
 
   // Wait until offscreen chart is rendered, then capture & return base64 PNG
@@ -1419,6 +1420,27 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     } finally { setSharing(false); }
   };
 
+  // Copia robusta al portapapeles con fallback (execCommand) para contextos sin permiso
+  const copyToClipboard = async (text) => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (e) { /* cae al fallback */ }
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e) { return false; }
+  };
+
   const handleChartShareLink = async (chartConfig) => {
     setSharing(true);
     try {
@@ -1429,11 +1451,16 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ plan_id: activePlan?.id, image_b64: imgData, plan_name: `${activePlan?.name || 'Plan'} · ${chartConfig.title}` })
       });
-      if (!r.ok) throw new Error();
+      if (!r.ok) throw new Error('share-failed');
       const d = await r.json();
       const fullUrl = `${window.location.origin}/api/graphic-plan/shared/${d.share_id}`;
-      await navigator.clipboard.writeText(fullUrl);
-      toast.success(t('graphicPlan.enlace_de_la_grafica_copiado'));
+      // El enlace YA está creado; la copia es secundaria y no debe romper el flujo
+      const copied = await copyToClipboard(fullUrl);
+      if (copied) {
+        toast.success(t('graphicPlan.enlace_de_la_grafica_copiado'));
+      } else {
+        setShareUrlModal(fullUrl); // mostrar enlace para copiar manualmente
+      }
     } catch (e) {
       console.error(e);
       toast.error(t('graphicPlan.error_al_compartir_la_grafica'));
@@ -1450,7 +1477,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ plan_id: activePlan?.id, image_b64: imgData, plan_name: `${activePlan?.name || 'Plan'} · ${chartConfig.title}` })
       });
-      if (!r.ok) throw new Error();
+      if (!r.ok) throw new Error('share-failed');
       const d = await r.json();
       const fullUrl = `${window.location.origin}/api/graphic-plan/shared/${d.share_id}`;
       const msg = encodeURIComponent(`📊 ${chartConfig.title}\n${activePlan?.name || ''}\n\n${fullUrl}`);
@@ -2885,6 +2912,30 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
 
         </CardContent>
       </Card>
+
+      {/* Dialog for expanded interactive chart — full premium experience */}
+      <Dialog open={!!shareUrlModal} onOpenChange={() => setShareUrlModal(null)}>
+        <DialogContent className="max-w-md p-0 overflow-hidden">
+          <div className="px-5 py-3 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
+            <h3 className="font-bold text-base flex items-center gap-2"><Share2 className="w-4 h-4 text-[#CCFF00]" /> Enlace de la gráfica</h3>
+            <p className="text-[11px] text-slate-300">Copia este enlace para compartir (solo lectura).</p>
+          </div>
+          <div className="p-4 space-y-3">
+            <input
+              readOnly
+              value={shareUrlModal || ''}
+              onFocus={(e) => e.target.select()}
+              className="w-full text-xs border border-slate-300 rounded-lg px-3 py-2 bg-slate-50"
+              data-testid="share-url-input"
+            />
+            <Button
+              className="w-full bg-slate-900 hover:bg-slate-800 text-white"
+              onClick={async () => { const ok = await copyToClipboard(shareUrlModal); if (ok) { toast.success('Enlace copiado'); setShareUrlModal(null); } }}
+              data-testid="share-url-copy-btn"
+            >Copiar enlace</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Dialog for expanded interactive chart — full premium experience */}
       <Dialog open={!!expandedChart} onOpenChange={() => setExpandedChart(null)}>
