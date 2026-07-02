@@ -74,6 +74,7 @@ const UNIT_SUFFIX = VOLUME_UNITS.reduce((acc, u) => { acc[u.id] = u.suffix; retu
 // Unidad sugerida por defecto según la capacidad (el set completo sigue disponible).
 const CAPACITY_DEFAULT_UNIT = {
   volumen: 'pct',
+  intensidad: 'pct',
   endurance: 'km',
   strength: 'ton',
   speed: 'm',
@@ -1062,39 +1063,39 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
   const _buildVolIntData = (weekList) => weekList.map(week => {
     const manualVol = planData.volint_chart?.[`volumen_${week}`];
     const manualInt = planData.volint_chart?.[`intensidad_${week}`];
-    if (manualVol !== undefined || manualInt !== undefined) {
-      return {
-        week: `S${week}`, weekNum: week,
-        volumen: (manualVol || 0) * 10, intensidad: (manualInt || 0) * 10,
-        mesociclo: MESOCYCLE_TYPES.find(t => t.id === planData.mesocycles?.[week])?.label || '',
-        tonelaje: 0, carga: 0,
-      };
-    }
+
+    // Base calculada (V2 micro o agregación de volume/intensity) — SIN acoplar vol e int.
+    let baseVol = 0, baseInt = 0, tonelaje = 0, carga = 0;
     const v2Micro = v2Micros.find(m => m.numero_semana === week);
     if (v2Micro && (v2Micro.vol_calculado > 0 || v2Micro.int_calculado > 0)) {
-      return {
-        week: `S${week}`, weekNum: week,
-        volumen: Math.round(v2Micro.vol_calculado), intensidad: Math.round(v2Micro.int_calculado),
-        mesociclo: MESOCYCLE_TYPES.find(t => t.id === planData.mesocycles?.[week])?.label || '',
-        tonelaje: Math.round(v2Micro.tonelaje_kg || 0), carga: Math.round(v2Micro.carga_total || 0),
-      };
+      baseVol = Math.round(v2Micro.vol_calculado);
+      baseInt = Math.round(v2Micro.int_calculado);
+      tonelaje = Math.round(v2Micro.tonelaje_kg || 0);
+      carga = Math.round(v2Micro.carga_total || 0);
+    } else {
+      let volumeSum = 0, volumeCount = 0;
+      INTENSITY_LEVELS.forEach(level => {
+        const value = planData.volume?.[`${level.id}_${week}`];
+        if (value) { volumeSum += value; volumeCount++; }
+      });
+      let intensitySum = 0, intensityCount = 0;
+      INTENSITY_LEVELS.forEach((level, idx) => {
+        const value = planData.intensity?.[`${level.id}_${week}`];
+        if (value) { intensitySum += value * (100 - idx * 15); intensityCount += value; }
+      });
+      baseVol = volumeCount > 0 ? Math.round(volumeSum / volumeCount * 20) : 0;
+      baseInt = intensityCount > 0 ? Math.round(intensitySum / intensityCount) : 0;
     }
-    let volumeSum = 0, volumeCount = 0;
-    INTENSITY_LEVELS.forEach(level => {
-      const value = planData.volume?.[`${level.id}_${week}`];
-      if (value) { volumeSum += value; volumeCount++; }
-    });
-    let intensitySum = 0, intensityCount = 0;
-    INTENSITY_LEVELS.forEach((level, idx) => {
-      const value = planData.intensity?.[`${level.id}_${week}`];
-      if (value) { intensitySum += value * (100 - idx * 15); intensityCount += value; }
-    });
+
+    // Overrides manuales INDEPENDIENTES: editar volumen no toca intensidad y viceversa.
+    const volumen = manualVol !== undefined ? manualVol * 10 : baseVol;
+    const intensidad = manualInt !== undefined ? manualInt * 10 : baseInt;
+
     return {
       week: `S${week}`, weekNum: week,
-      volumen: volumeCount > 0 ? Math.round(volumeSum / volumeCount * 20) : 0,
-      intensidad: intensityCount > 0 ? Math.round(intensitySum / intensityCount) : 0,
+      volumen, intensidad,
       mesociclo: MESOCYCLE_TYPES.find(t => t.id === planData.mesocycles?.[week])?.label || '',
-      tonelaje: 0, carga: 0,
+      tonelaje, carga,
     };
   });
   const volumeIntensityChartData = useMemo(() => _buildVolIntData(displayedWeeks), [displayedWeeks, planData.volume, planData.intensity, planData.mesocycles, planData.volint_chart, v2Micros]);
@@ -1636,7 +1637,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     }
     return k;
   });
-  const VOLINT_UNIT_ROWS = ['volumen'];
+  const VOLINT_UNIT_ROWS = ['volumen', 'intensidad'];
   const PHYS_UNIT_ROWS = ['endurance', 'strength', 'speed', 'coordination', 'flexibility'];
   const anyValueMode = (rowIds) => rowIds.some(id => getUnitCfg(id).mode === 'value');
 
@@ -2664,7 +2665,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                   }}
                 />
                 <InlineChartRow label="Volumen %" data={volumeIntensityChartData} dataKey="volumen" color="#22C55E" maxVal={100} onCellClick={handleCellClick} section="volint_chart" enableUnits />
-                <InlineChartRow label="Intensidad %" data={volumeIntensityChartData} dataKey="intensidad" color="#EF4444" maxVal={100} onCellClick={handleCellClick} section="volint_chart" />
+                <InlineChartRow label="Intensidad %" data={volumeIntensityChartData} dataKey="intensidad" color="#EF4444" maxVal={100} onCellClick={handleCellClick} section="volint_chart" enableUnits />
 
                 {/* CHART 2: Preparación por Componentes */}
                 <ChartSectionHeader
