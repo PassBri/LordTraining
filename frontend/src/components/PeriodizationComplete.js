@@ -2572,6 +2572,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         {/* Fase 4 — Diálogo Historial de cambios */}
         <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
           <DialogContent className="max-w-lg p-0 overflow-hidden">
+            <DialogTitle className="sr-only">Historial de cambios</DialogTitle>
             <div className="px-5 py-3 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
               <h3 className="font-bold text-base flex items-center gap-2"><History className="w-4 h-4" style={{ color: '#CCFF00' }} /> Historial de cambios</h3>
               <p className="text-[11px] text-slate-300">Últimas modificaciones del plan · restaura una versión anterior.</p>
@@ -2601,6 +2602,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         {/* Fase 5 — Diálogo Comparador de planes */}
         <Dialog open={comparatorOpen} onOpenChange={setComparatorOpen}>
           <DialogContent className="max-w-3xl p-0 overflow-hidden">
+            <DialogTitle className="sr-only">Comparar planes</DialogTitle>
             <div className="px-5 py-3 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
               <h3 className="font-bold text-base flex items-center gap-2"><Layers className="w-4 h-4" style={{ color: '#CCFF00' }} /> Comparar planes</h3>
               <p className="text-[11px] text-slate-300">Compara el plan actual con otro lado a lado.</p>

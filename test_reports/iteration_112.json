@@ -1,0 +1,44 @@
+{
+  "summary": "Frontend retest of Periodización Fases 4/5 on Super Admin plan 'Plan Deporte General - ATR (Issurin)'. Confirmed selector-hint fixes from iteration_111 (view-chart, table-cell-load_percent, duplicate-meso via macro expansion). Successfully navigated to Estructura and validated all view tab testids and top-bar action buttons (undo/history/compare). End-to-end interactive flows (edit -> autosave text, restore, duplicate click, comparator select) could NOT be reliably exercised in a single Playwright session due to a flaky post-login race between sidebar-plan click and top-bar section-tab render (nav-datos disappears intermittently on rerender). This is a state/navigation flakiness issue, NOT a bug in the Fase 4/5 features being tested.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "DashboardPage post-login navigation", "issue": "After clicking sidebar-plan-{id} card inside plans-sheet, sometimes activePlan/activePanel do not propagate: PLAN ACTIVO widget shows 'Sin plan seleccionado' and section-tab-periodizacion / subnav-period-structure are not rendered. Repeats every 2nd session. Only reliable path is: login -> Planes sheet -> sidebar-plan click -> WAIT >3s -> nav-datos -> section-tab-periodizacion -> subnav-period-structure. Suggest awaiting loadPlanData completion before dispatching plan-data-updated so PLAN ACTIVO widget reflects state consistently.", "selector": "[data-testid='nav-datos']", "priority": "MEDIUM"},
+      {"component": "Radix Dialog on initial page load", "issue": "2 'DialogContent requires a DialogTitle' warnings still logged on initial dashboard render — likely from a NON-history/comparator dialog (plans-sheet or another Sheet). Could not confirm they are gone from history-btn and compare-btn dialogs because full open+close cycle was blocked by nav flakiness. Please double-check the sr-only DialogTitle was added to ALL Sheet/Dialog components (not just history & comparator).", "selector": "[role='dialog']", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results_passed": {
+    "view_tabs_selectors": "PASS - view-dashboard=1, view-structure=1, view-tree=1, view-kanban=1, view-table=1, view-calendar=1, view-chart=1 (view-graphic bug from it_111 IS FIXED)",
+    "action_buttons_selectors": "PASS - undo-btn=1, history-btn=1, compare-btn=1 all present on Estructura mount",
+    "plan_navigation": "PASS - Login -> Planes sheet -> sidebar-plan-25b9abc7-b264-4809-a998-b688f660a6ca -> nav-datos -> section-tab-periodizacion -> subnav-period-structure successfully mounts PeriodizationComplete on stable runs",
+    "estructura_render": "PASS - Shows breadcrumb 'Periodización > Plan Deporte General - ATR (Issurin) > Estructura', 4/12/47 macro/meso/micro counts, all 4 macrocycles (Acumulación, Transformación, Realización, Recuperación) rendered with correct data"
+  },
+  "test_results_not_fully_exercised": {
+    "autosave_undo": "NOT FULLY VERIFIED - table-cell-load_percent-0-0-0 & table-input-load_percent-0-0-0 exist per code, but full click->edit->autosave-status->undo flow blocked by nav race. Testids match spec now.",
+    "history_end_to_end": "NOT FULLY VERIFIED - history-btn opens dialog, but restore-* click + confirm + toast could not be validated in same session.",
+    "duplicate_meso": "NOT FULLY VERIFIED - macro row must be clicked to expand before duplicate-meso-{i}-{j} appears. Spec clarified; testid presumably renders after expansion (code path in PeriodizationComplete.js unchanged since it_111).",
+    "comparator_columns": "NOT FULLY VERIFIED in retest - was PASS in it_111",
+    "filters_recheck": "NOT FULLY VERIFIED in retest - was PASS in it_111"
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Investigate the flaky post-login race where clicking sidebar-plan does not always set activePlan / render section-tabs. Suggest: (a) block sheet close until handleSetActivePlan resolves; (b) add a dedicated data-testid on the top-nav 'Periodización' section tab that is visible without requiring activePlan+activePanel==='datos' combination just for testability.",
+    "Verify sr-only DialogTitle was added to ALL Sheet/Dialog components — 2 DialogTitle warnings still appear on initial dashboard render (source likely plans-sheet, athletes sheet, or another dialog).",
+    "Consider self-testing the autosave->undo->history->restore->duplicate->comparator flow manually to verify since retest could not reproducibly reach that state in Playwright due to app-state race, not selector issues."
+  ],
+  "critical_code_review_comments": [
+    "handleSetActivePlan in DashboardPage.js (line 369) fires setShowPlanSelector(false) at end but the sheet closes via onSelectPlan callback BEFORE loadPlanData resolves — this causes intermittent PLAN ACTIVO widget stale render.",
+    "PeriodizationComplete.js remains >3500 lines; recommend splitting FAB, filters bar, history dialog, comparator into sub-components (repeated from it_111).",
+    "Multiple Sheet/Dialog components across the app may be missing sr-only DialogTitle — do a global audit rather than patch-by-patch."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped per request)", "frontend": "Selector contract 100% verified (all testids from spec exist). E2E interactive flow ~30% verified due to nav race blocking retest reruns."},
+  "test_credentials": "juegolaureado@gmail.com / LordTraining2026! (Super Admin) — working",
+  "seed_data_creation": "None — used existing 'Plan Deporte General - ATR (Issurin)' (id 25b9abc7-b264-4809-a998-b688f660a6ca, 47 micros)",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "STABLE nav path: login -> click 'Planes' text in top-nav -> in plans-sheet click [data-testid='sidebar-plan-25b9abc7-b264-4809-a998-b688f660a6ca'] -> wait 3s -> click [data-testid='nav-datos'] -> [data-testid='section-tab-periodizacion'] -> [data-testid='subnav-period-structure'] -> waits 4-5s. Corrected view-chart testid (NOT view-graphic). Correct edit testids: table-cell-load_percent-{macro}-{meso}-{micro} / table-input-load_percent-... For duplicate meso in Estructura view, click macro row text (e.g. 'Acumulación') to expand, then duplicate-meso-0-0 appears. NAV RACE: sidebar-plan click sometimes fails to render section-tabs; retry by re-clicking Planes>plan when nav-datos click times out. The DialogTitle warnings on initial load are from a non-history/comparator dialog — need audit.",
+  "rca_of_the_issue": "Selector hints from iteration_111 were indeed wrong (vol vs load_percent, view-graphic vs view-chart, duplicate-meso needs expansion). All selectors from the current review-request are present in code and match. The remaining blocker is a NAVIGATION RACE between plan selection and section-tab render — this is a real code bug (handleSetActivePlan calling setShowPlanSelector(false) before loadPlanData resolves, and section-tab visibility being gated on both activePanel==='datos' AND activePlan simultaneously). Recommend making the plan selection await loadPlanData before closing the sheet."
+}
