@@ -1026,35 +1026,41 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
   const _buildLoadData = (weekList) => weekList.map(week => {
     const manualCarga = planData.load_chart?.[`carga_${week}`];
     const manualRecup = planData.load_chart?.[`recuperacion_${week}`];
-    if (manualCarga !== undefined || manualRecup !== undefined) {
-      return {
-        week: `S${week}`, weekNum: week,
-        carga: (manualCarga || 0) * 10, recuperacion: (manualRecup || 0) * 10,
-        fase: MACROCYCLE_TYPES.find(t => t.id === planData.phases?.[week])?.label || '',
-        cargaUA: 0, ACWR: 0, RPE: 0,
-      };
-    }
+
+    // Base auto (independiente): carga desde vol/int real → varía por semana y no satura.
+    let baseCarga = 0, cargaUA = 0, ACWR = 0, RPE = 0;
     const v2Micro = v2Micros.find(m => m.numero_semana === week);
-    if (v2Micro && v2Micro.carga_total > 0) {
-      const maxCarga = Math.max(...v2Micros.map(m => m.carga_total || 0), 1);
-      const cargaPct = Math.round((v2Micro.carga_total / maxCarga) * 100);
-      return {
-        week: `S${week}`, weekNum: week,
-        carga: cargaPct, recuperacion: Math.max(0, 100 - cargaPct),
-        fase: MACROCYCLE_TYPES.find(t => t.id === planData.phases?.[week])?.label || '',
-        cargaUA: Math.round(v2Micro.carga_total), ACWR: v2Micro.ACWR || 0, RPE: v2Micro.RPE_promedio || 0,
-      };
+    if (v2Micro && (v2Micro.carga_total > 0 || v2Micro.vol_calculado > 0 || v2Micro.int_calculado > 0)) {
+      const vol = v2Micro.vol_calculado || 0;
+      const int = v2Micro.int_calculado || 0;
+      if (vol > 0 || int > 0) {
+        baseCarga = Math.round(Math.min(100, 0.55 * vol + 0.45 * int));
+      } else {
+        const maxCarga = Math.max(...v2Micros.map(m => m.carga_total || 0), 1);
+        baseCarga = Math.round((v2Micro.carga_total / maxCarga) * 100);
+      }
+      cargaUA = Math.round(v2Micro.carga_total || 0);
+      ACWR = v2Micro.ACWR || 0;
+      RPE = v2Micro.RPE_promedio || 0;
+    } else {
+      let totalLoad = 0;
+      INTENSITY_LEVELS.forEach((level, idx) => {
+        const value = planData.intensity?.[`${level.id}_${week}`] || 0;
+        totalLoad += value * (5 - idx);
+      });
+      baseCarga = Math.min(100, totalLoad * 20);
     }
-    let totalLoad = 0;
-    INTENSITY_LEVELS.forEach((level, idx) => {
-      const value = planData.intensity?.[`${level.id}_${week}`] || 0;
-      totalLoad += value * (5 - idx);
-    });
+    const baseRecup = Math.max(0, 100 - baseCarga);
+
+    // Overrides manuales INDEPENDIENTES: editar carga no toca recuperación y viceversa.
+    const carga = manualCarga !== undefined ? manualCarga * 10 : baseCarga;
+    const recuperacion = manualRecup !== undefined ? manualRecup * 10 : baseRecup;
+
     return {
       week: `S${week}`, weekNum: week,
-      carga: Math.min(100, totalLoad * 20), recuperacion: Math.max(0, 100 - totalLoad * 20),
+      carga, recuperacion,
       fase: MACROCYCLE_TYPES.find(t => t.id === planData.phases?.[week])?.label || '',
-      cargaUA: 0, ACWR: 0, RPE: 0,
+      cargaUA, ACWR, RPE,
     };
   });
   const loadChartData = useMemo(() => _buildLoadData(displayedWeeks), [displayedWeeks, planData.intensity, planData.phases, planData.load_chart, v2Micros]);
