@@ -1,0 +1,35 @@
+{
+  "summary": "GraphicPlan → Duración y Actividad fixes verified in PREVIEW (coach test@train.com, Team-mode 26-week plan). BUG#1 PASS: parts are fully independent — after setting principal=60, then calentamiento=20, then vueltaCalma=15 on week1, values become {cal:20, pri:60, vc:15}; principal did NOT reset to 0/auto when calentamiento was edited (previous bug is fixed). FEATURE#2 PASS: clicking any duración cell reveals data-testid=chart-input-{dataKey}-{week} numeric input; typed value renders in bar/number after Enter. BUG#3 PARTIAL: view-all-weeks-btn correctly absent for the 26-week plan (only appears when totalWeeks>52); no plan >52 weeks exists in the seeded coach account, so horizontal scroll for a long plan could NOT be reproduced end-to-end. Presets 12s/24s/36s/52s and week-slider-thumb are rendered but slider offset stays 0 (expected because 26≤visibleWeeks). BUG#4 EXPAND PASS: expand-chart-duración-y-actividad opens the modal and InteractiveChart renders correctly — 6 recharts <svg> surfaces, 81 <rect class=recharts-bar-rectangle>, 328 recharts elements; screenshot shows full bar chart (yellow calentamiento, blue principal, teal vueltaCalma across S1–S26 with S13–S52 empty as expected on annual view). BUG#4 SHARE FAIL: clicking chart-share-duración-y-actividad shows toast 'Error al compartir la gráfica' and console 'NotAllowedError: Failed to execute writeText on Clipboard: Write permission denied'. RCA below.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "GraphicPlan.handleChartShareLink (line 1422)", "issue": "The single try/catch wraps BOTH the backend POST /api/graphic-plan/share AND navigator.clipboard.writeText(url). When clipboard permission is denied (any non-secure/sandboxed context, iframes, headless testing, some mobile browsers) writeText throws and the catch surfaces toast.error('Error al compartir la gráfica') to the user — even though the share record has already been created server-side. User perceives share as broken. Same defensive pattern needed in handleChartShareWhatsApp (line 1443) for symmetry (though wa.me open works there).", "selector": "[data-testid=chart-share-duración-y-actividad]", "priority": "HIGH"}
+    ],
+    "integration_issues": [
+      {"flow": "Compartir enlace de gráfica", "issue": "Backend share endpoint apparently succeeded (call happens before clipboard) but user never gets the URL because clipboard failure short-circuits the success toast. Cannot verify shared viewer page {origin}/api/graphic-plan/shared/{id} quality until share flow returns the URL to the UI.", "affected_selectors": ["[data-testid^=chart-share-]"]}
+    ],
+    "design_issues": [
+      {"screen": "Radix Dialog usages (expand modal, others)", "issues": ["Multiple `DialogContent requires a DialogTitle` a11y console errors + Missing Description warnings — pre-existing, not blocking, but should be wrapped with VisuallyHidden DialogTitle."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Split try/catch in handleChartShareLink: on successful POST show a fallback UI (modal with the copyable URL) or fall back to document.execCommand('copy') via a temporary textarea; only show error when the POST itself fails. Same treatment for handleChartShareWhatsApp.",
+    "Ensure a long plan (>52 weeks — e.g. annual→biannual/olympic via Duración selector, or seed a 104-week plan) exists in test account so BUG#3 horizontal-scroll + week-slider drag on the >52w path can be verified. Currently only the 26-week 'Plan Test API' is available.",
+    "Optional: add VisuallyHidden DialogTitle to expand & other DialogContent to clear the recurring a11y console errors."
+  ],
+  "critical_code_review_comments": [
+    "_buildDurationData (~1160): correctly implements per-part fallback (manualCal/manualPri/manualVc || autoWarmup/autoMain/autoVc) — verified in browser: setting principal to explicit 60 preserves cal auto=50 and vc auto=49; then setting cal=20 leaves principal=60 (was the reported regression).",
+    "setDurationValue writing planData.duration_chart[`${rowId}_${week}`] and clearing on empty is correct; InlineChartRow editableValue+chart-input-{dataKey}-{week} testids present and functional.",
+    "handleChartShareLink error handling is too coarse (see UI bug). Consider using useClipboard hook or wrapping only the clipboard call.",
+    "'view-all-weeks-btn' only rendered when totalWeeks>52 (line 2776 condition) — correct, but there is no long plan in the seeded data to visually confirm horizontal-scroll behaviour of the outer div.overflow-x-auto and slider thumb dragging with visibleWeeks=totalWeeks."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "BUG#1 PASS, FEATURE#2 PASS, BUG#3 PARTIAL (no >52w plan), BUG#4 EXPAND PASS, BUG#4 SHARE FAIL"},
+  "test_credentials": "coach test@train.com / test123456 (from request; consulted /app/memory/test_credentials.md — not read this run since credentials provided directly).",
+  "seed_data_creation": "None. Used existing 'Plan Test API' (26 sem, ATR Issurin) with Selección Sub-17 team athlete.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Path: /auth login → tab-planes → activate any sidebar-plan-* → tab-datos → click 'Seleccionar atleta o equipo' combobox → pick first option → section-tab-visualizacion → subnav-graphic-plan. Duración section testids: chart-{calentamiento|principal|vueltaCalma}-{weekNum}, input testids chart-input-{dataKey}-{week}. Chart action testids use ES-locale slug with accented chars: expand-chart-duración-y-actividad, chart-share-duración-y-actividad (title lowercased with spaces→'-'). Preset buttons don't have accessible role names; select by text ('12s','24s','36s','52s') via page.locator('button:has-text(\"12s\")'). navigator.clipboard denied in Playwright by default — grant with context.grant_permissions(['clipboard-read','clipboard-write'], origin=BASE) if you want to verify share success toast + URL.",
+  "rca of the issue": "Share bug RCA: /app/frontend/src/components/GraphicPlan.js handleChartShareLink (lines 1422-1441) contains one try{...}catch{} block that includes both the POST to /api/graphic-plan/share AND `await navigator.clipboard.writeText(fullUrl)`. In Playwright (and many real browser contexts where clipboard is blocked by permission policy / non-user-gesture) writeText throws NotAllowedError, jumping to catch → toast.error('Error al compartir la gráfica'). The backend record was already created (fetch resolved with r.ok=true, d.share_id available in scope before the writeText call). Fix: wrap only the clipboard call in its own try/catch OR fall back to prompt()/hidden textarea+execCommand('copy'). Reproduction: login as coach, open Plan Gráfico, click Share2 icon in 'Duración y Actividad' header → toast error appears though shared row exists in DB. Mitigation: also render the returned URL in a small dialog so users always see something copyable."
+}

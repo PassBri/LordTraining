@@ -1161,24 +1161,22 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     const manualCal = planData.duration_chart?.[`calentamiento_${week}`];
     const manualPri = planData.duration_chart?.[`principal_${week}`];
     const manualVc = planData.duration_chart?.[`vueltaCalma_${week}`];
-    if (manualCal !== undefined || manualPri !== undefined || manualVc !== undefined) {
-      // Valores manuales en minutos (tiempo semanal)
-      return {
-        week: `S${week}`, weekNum: week,
-        calentamiento: (manualCal || 0), principal: (manualPri || 0),
-        vueltaCalma: (manualVc || 0),
-        total: ((manualCal || 0) + (manualPri || 0) + (manualVc || 0)), sesiones: 0,
-      };
-    }
+    // Auto (derivado de las sesiones) — se usa como fallback POR PARTE
     const v2Micro = v2Micros.find(m => m.numero_semana === week);
     const sessions = v2Micro ? v2Sesiones.filter(s => s.microciclo_id === v2Micro.id) : [];
     const totalMin = sessions.reduce((s, se) => s + (se.duracion_minutos || 0), 0);
-    const warmup = Math.round(totalMin * 0.15);
-    const main = Math.round(totalMin * 0.70);
+    const autoWarmup = Math.round(totalMin * 0.15);
+    const autoMain = Math.round(totalMin * 0.70);
+    const autoVc = Math.max(0, totalMin - autoWarmup - autoMain);
+    // Cada parte es INDEPENDIENTE: valor manual si existe, si no el auto.
+    const calentamiento = manualCal !== undefined ? manualCal : autoWarmup;
+    const principal = manualPri !== undefined ? manualPri : autoMain;
+    const vueltaCalma = manualVc !== undefined ? manualVc : autoVc;
     return {
       week: `S${week}`, weekNum: week,
-      calentamiento: warmup, principal: main, vueltaCalma: totalMin - warmup - main,
-      total: totalMin, sesiones: sessions.length,
+      calentamiento, principal, vueltaCalma,
+      total: calentamiento + principal + vueltaCalma,
+      sesiones: sessions.length,
     };
   });
   const durationChartData = useMemo(() => _buildDurationData(displayedWeeks), [displayedWeeks, v2Micros, v2Sesiones, planData.duration_chart]);
@@ -1634,6 +1632,21 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     });
   };
 
+  // Edición directa de minutos (Duración y Actividad) — cada parte independiente
+  const setDurationValue = (rowId, week, rawVal) => {
+    setPlanData(prev => {
+      const sectionData = { ...(prev.duration_chart || {}) };
+      const key = `${rowId}_${week}`;
+      if (rawVal === '' || rawVal == null) {
+        delete sectionData[key]; // vacío → vuelve al valor automático
+      } else {
+        const num = Math.max(0, Math.round(Number(rawVal)) || 0);
+        sectionData[key] = num;
+      }
+      return { ...prev, duration_chart: sectionData };
+    });
+  };
+
   // Set cycle type for a week range
   const setCycleType = (section, typeId, startWeek, endWeek) => {
     setPlanData(prev => {
@@ -1764,7 +1777,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
   };
 
   // ═══ INLINE CHART ROW: Proportional bars perfectly aligned with week columns ═══
-  const InlineChartRow = ({ label, data, dataKey, color, maxVal = 100, rowHeight = 40, onCellClick, section, enableUnits = false }) => {
+  const InlineChartRow = ({ label, data, dataKey, color, maxVal = 100, rowHeight = 40, onCellClick, section, enableUnits = false, editableValue = false, onEditValue }) => {
     const rowId = dataKey;
     const cfg = enableUnits ? getUnitCfg(rowId) : null;
     const isValueMode = enableUnits && cfg?.mode === 'value';
@@ -1840,6 +1853,36 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
           const effectiveMax = maxVal === 'auto' ? Math.max(1, ...data.map(d => d?.[dataKey] || 0)) : maxVal;
           const barH = effectiveMax > 0 ? Math.max(0, (value / effectiveMax) * (rowHeight - 6)) : 0;
           const isClickable = !!onCellClick;
+          if (editableValue) {
+            const isEditing = editingCell && editingCell.rowId === rowId && editingCell.week === week;
+            return (
+              <td key={`${dataKey}-${week}`}
+                className="border border-gray-200 p-0 relative cursor-text hover:bg-teal-50"
+                style={{ height: rowHeight }}
+                onClick={() => setEditingCell({ rowId, week })}
+                data-testid={`chart-${dataKey}-${week}`}>
+                {isEditing ? (
+                  <input
+                    type="number"
+                    min="0"
+                    autoFocus
+                    defaultValue={value || ''}
+                    onBlur={(e) => { onEditValue(dataKey, week, e.target.value); setEditingCell(null); }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { onEditValue(dataKey, week, e.target.value); setEditingCell(null); } if (e.key === 'Escape') setEditingCell(null); }}
+                    className="absolute inset-0 w-full h-full text-center text-[9px] outline-none border-2 border-teal-500 z-10"
+                    data-testid={`chart-input-${dataKey}-${week}`}
+                  />
+                ) : value > 0 ? (
+                  <>
+                    <div className="absolute bottom-0 left-[1px] right-[1px] rounded-t-sm transition-all" style={{ height: barH, backgroundColor: color, opacity: 0.8 }} />
+                    <span className="absolute top-[1px] left-0 right-0 text-center text-[7px] font-bold leading-none" style={{ color }}>{Math.round(value)}</span>
+                  </>
+                ) : (
+                  <span className="absolute inset-0 flex items-center justify-center text-[8px] text-gray-300">+</span>
+                )}
+              </td>
+            );
+          }
           return (
             <td key={`${dataKey}-${week}`}
               className={`border border-gray-200 p-0 relative ${isClickable ? 'cursor-pointer hover:bg-gray-100 active:bg-gray-200' : ''}`}
@@ -2188,7 +2231,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
 
           {/* Main Grid */}
           <div className="overflow-x-auto border rounded-lg">
-            <table className="w-full border-collapse text-xs" style={{ tableLayout: 'fixed' }}>
+            <table className="w-full border-collapse text-xs" style={{ tableLayout: 'fixed', minWidth: 160 + displayedWeeks.length * 30 }}>
               {/* Week Numbers Header */}
               <thead>
                 <tr className="bg-gray-200">
@@ -2671,9 +2714,9 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                     yAxisDomain: [0, 'auto']
                   }}
                 />
-                <InlineChartRow label="Calentamiento (min)" data={durationChartData} dataKey="calentamiento" color="#FBBF24" maxVal="auto" onCellClick={handleCellClick} section="duration_chart" />
-                <InlineChartRow label="Parte principal (min)" data={durationChartData} dataKey="principal" color="#3B82F6" maxVal="auto" onCellClick={handleCellClick} section="duration_chart" />
-                <InlineChartRow label="Vuelta a la calma (min)" data={durationChartData} dataKey="vueltaCalma" color="#14B8A6" maxVal="auto" onCellClick={handleCellClick} section="duration_chart" />
+                <InlineChartRow label="Calentamiento (min)" data={durationChartData} dataKey="calentamiento" color="#FBBF24" maxVal="auto" editableValue onEditValue={setDurationValue} />
+                <InlineChartRow label="Parte principal (min)" data={durationChartData} dataKey="principal" color="#3B82F6" maxVal="auto" editableValue onEditValue={setDurationValue} />
+                <InlineChartRow label="Vuelta a la calma (min)" data={durationChartData} dataKey="vueltaCalma" color="#14B8A6" maxVal="auto" editableValue onEditValue={setDurationValue} />
 
               </tbody>
             </table>
@@ -2730,6 +2773,14 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                     className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-all ${visibleWeeks === n ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
                   >{n}s</button>
                 ))}
+                {totalWeeks > 52 && (
+                  <button
+                    onClick={() => { setVisibleWeeks(totalWeeks); setViewOffset(0); }}
+                    className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-all ${visibleWeeks >= totalWeeks ? 'bg-teal-600 text-white' : 'bg-teal-50 text-teal-700 hover:bg-teal-100'}`}
+                    title="Ver todo el plan (desplázate horizontalmente)"
+                    data-testid="view-all-weeks-btn"
+                  >Todo</button>
+                )}
               </div>
             </div>
             <div className="relative h-7 select-none" data-testid="week-slider-track">
