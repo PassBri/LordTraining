@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { Trash2, Plus, Save, FileText, BookOpen, LifeBuoy } from 'lucide-react';
+import { Trash2, Plus, Save, FileText, BookOpen, LifeBuoy, Video } from 'lucide-react';
 
 const BACKEND = process.env.REACT_APP_BACKEND_URL;
 const authHeaders = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('train_token')}` });
@@ -160,14 +160,81 @@ const SupportAdmin = () => {
   );
 };
 
+// ---------- VIDEOS ----------
+const VideosAdmin = () => {
+  const [videos, setVideos] = useState([]);
+  const blank = { title: '', description: '', video_url: '', thumbnail_url: '', order: 0, published: true };
+  const [editing, setEditing] = useState(null);
+
+  const load = () => fetch(`${BACKEND}/api/resources/videos?all=true`).then(r => r.json()).then(d => setVideos(d.videos || []));
+  useEffect(() => { load(); }, []);
+
+  const save = async () => {
+    if (!editing.title) { toast.error('Título requerido'); return; }
+    if (!editing.video_url) { toast.error('Enlace del video requerido'); return; }
+    const url = editing.id ? `${BACKEND}/api/resources/videos/${editing.id}` : `${BACKEND}/api/resources/videos`;
+    const res = await fetch(url, { method: editing.id ? 'PUT' : 'POST', headers: authHeaders(), body: JSON.stringify({ ...editing, order: Number(editing.order) || 0 }) });
+    if (!res.ok) { toast.error('Error al guardar (¿Super Admin?)'); return; }
+    toast.success('Video guardado'); setEditing(null); load();
+  };
+  const remove = async (id) => {
+    await fetch(`${BACKEND}/api/resources/videos/${id}`, { method: 'DELETE', headers: authHeaders() });
+    toast.success('Eliminado'); load();
+  };
+
+  return (
+    <div data-testid="admin-videos">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="font-bold text-white">Video Tutoriales ({videos.length})</h3>
+        <button onClick={() => setEditing({ ...blank })} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#CCFF00] text-slate-900 text-sm font-bold" data-testid="video-new-btn"><Plus className="w-4 h-4" />Nuevo</button>
+      </div>
+      <p className="text-xs text-slate-500 mb-4">Pega el enlace de YouTube o Vimeo. La miniatura se genera automáticamente (para otros enlaces puedes pegar una URL de miniatura).</p>
+      {editing && (
+        <div className="rounded-xl bg-slate-900 border border-slate-700 p-4 mb-4 space-y-2" data-testid="video-editor">
+          <input className={inp} placeholder="Título del tutorial" value={editing.title} onChange={e => setEditing({ ...editing, title: e.target.value })} data-testid="video-title-input" />
+          <textarea className={inp} rows={2} placeholder="Descripción breve" value={editing.description} onChange={e => setEditing({ ...editing, description: e.target.value })} data-testid="video-desc-input" />
+          <input className={inp} placeholder="Enlace del video (YouTube / Vimeo / URL)" value={editing.video_url} onChange={e => setEditing({ ...editing, video_url: e.target.value })} data-testid="video-url-input" />
+          <div className="grid grid-cols-2 gap-2">
+            <input className={inp} placeholder="URL miniatura (opcional)" value={editing.thumbnail_url} onChange={e => setEditing({ ...editing, thumbnail_url: e.target.value })} data-testid="video-thumb-input" />
+            <input className={inp} type="number" placeholder="Orden" value={editing.order} onChange={e => setEditing({ ...editing, order: e.target.value })} />
+          </div>
+          <label className="flex items-center gap-2 text-sm text-slate-300"><input type="checkbox" checked={editing.published} onChange={e => setEditing({ ...editing, published: e.target.checked })} />Publicado</label>
+          <div className="flex gap-2">
+            <button onClick={save} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#CCFF00] text-slate-900 text-sm font-bold" data-testid="video-save-btn"><Save className="w-4 h-4" />Guardar</button>
+            <button onClick={() => setEditing(null)} className="px-3 py-1.5 rounded-lg bg-slate-700 text-white text-sm">Cancelar</button>
+          </div>
+        </div>
+      )}
+      <div className="space-y-2">
+        {videos.map(v => (
+          <div key={v.id} className="flex items-center gap-3 rounded-lg bg-slate-900 border border-slate-700 px-3 py-2.5">
+            <div className="w-20 h-12 rounded bg-slate-800 overflow-hidden flex items-center justify-center shrink-0">
+              {v.thumbnail_url ? <img src={v.thumbnail_url} alt="" className="w-full h-full object-cover" /> : <Video className="w-5 h-5 text-slate-600" />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className="text-sm font-medium text-white block truncate">{v.title}</span>
+              <span className="text-[11px] text-slate-500 capitalize">{v.platform}{!v.published && ' · borrador'}</span>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <button onClick={() => setEditing(v)} className="text-xs text-slate-300 hover:text-white">Editar</button>
+              <button onClick={() => remove(v.id)} className="text-red-400 hover:text-red-300"><Trash2 className="w-4 h-4" /></button>
+            </div>
+          </div>
+        ))}
+        {videos.length === 0 && <p className="text-sm text-slate-500">Aún no hay videos. Agrega el primero.</p>}
+      </div>
+    </div>
+  );
+};
+
 export const ResourcesManager = () => {
   const [tab, setTab] = useState('blog');
-  const tabs = [['blog', 'Blog', FileText], ['docs', 'API Docs', BookOpen], ['support', 'Soporte', LifeBuoy]];
+  const tabs = [['blog', 'Blog', FileText], ['videos', 'Videos', Video], ['docs', 'API Docs', BookOpen], ['support', 'Soporte', LifeBuoy]];
   return (
     <div data-testid="resources-manager">
       <div className="mb-5">
         <h2 className="text-xl font-bold text-white">Recursos</h2>
-        <p className="text-sm text-slate-400">Gestiona Blog, API Docs y Soporte. Visibles en las 4 versiones del landing.</p>
+        <p className="text-sm text-slate-400">Gestiona Blog, Videos, API Docs y Soporte. Visibles en el landing.</p>
       </div>
       <div className="flex gap-2 mb-5 border-b border-slate-800 pb-3">
         {tabs.map(([id, label, Icon]) => (
@@ -178,6 +245,7 @@ export const ResourcesManager = () => {
         ))}
       </div>
       {tab === 'blog' && <BlogAdmin />}
+      {tab === 'videos' && <VideosAdmin />}
       {tab === 'docs' && <DocsAdmin />}
       {tab === 'support' && <SupportAdmin />}
     </div>

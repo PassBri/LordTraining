@@ -259,3 +259,95 @@ async def system_status(request: Request, db=Depends(get_db)):
         "uptime_seconds": uptime_s,
         "checked_at": _now(),
     }
+
+
+# ===================== VIDEO TUTORIALES =====================
+import json as _json
+import urllib.request as _urlreq
+
+_YT_RE = re.compile(r'(?:youtu\.be/|youtube\.com/(?:watch\?v=|embed/|shorts/|v/))([\w-]{11})')
+_VIMEO_RE = re.compile(r'vimeo\.com/(?:video/)?(\d+)')
+
+
+def _parse_video(url: str, thumbnail_url: str = ""):
+    """Detecta plataforma, id, embed y miniatura a partir de un enlace."""
+    url = (url or "").strip()
+    platform, vid, embed, thumb = "link", "", url, (thumbnail_url or "").strip()
+    m = _YT_RE.search(url)
+    if m:
+        platform, vid = "youtube", m.group(1)
+        embed = f"https://www.youtube.com/embed/{vid}"
+        if not thumb:
+            thumb = f"https://img.youtube.com/vi/{vid}/hqdefault.jpg"
+        return platform, vid, embed, thumb
+    m = _VIMEO_RE.search(url)
+    if m:
+        platform, vid = "vimeo", m.group(1)
+        embed = f"https://player.vimeo.com/video/{vid}"
+        if not thumb:
+            try:
+                req = _urlreq.Request(
+                    f"https://vimeo.com/api/oembed.json?url=https://vimeo.com/{vid}",
+                    headers={"User-Agent": "Mozilla/5.0"})
+                with _urlreq.urlopen(req, timeout=6) as r:
+                    thumb = _json.loads(r.read().decode()).get("thumbnail_url", "") or ""
+            except Exception:
+                thumb = ""
+        return platform, vid, embed, thumb
+    return platform, vid, embed, thumb
+
+
+class VideoIn(BaseModel):
+    title: str
+    description: str = ""
+    video_url: str
+    thumbnail_url: str = ""
+    order: int = 0
+    published: bool = True
+
+
+@router.get("/videos")
+async def list_videos(db=Depends(get_db), all: bool = False):
+    q = {} if all else {"published": True}
+    vids = await db.landing_videos.find(q, {"_id": 0}).sort("order", 1).to_list(200)
+    return {"videos": vids}
+
+
+@router.post("/videos")
+async def create_video(payload: VideoIn, request: Request, user=Depends(_require_super)):
+    db = request.app.state.db
+    platform, vid, embed, thumb = _parse_video(payload.video_url, payload.thumbnail_url)
+    doc = {
+        "id": uuid.uuid4().hex,
+        "title": payload.title, "description": payload.description,
+        "video_url": payload.video_url.strip(), "platform": platform,
+        "video_id": vid, "embed_url": embed, "thumbnail_url": thumb,
+        "order": payload.order, "published": payload.published,
+        "created_at": _now(),
+    }
+    await db.landing_videos.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+@router.put("/videos/{video_id}")
+async def update_video(video_id: str, payload: VideoIn, request: Request, user=Depends(_require_super)):
+    db = request.app.state.db
+    platform, vid, embed, thumb = _parse_video(payload.video_url, payload.thumbnail_url)
+    upd = {
+        "title": payload.title, "description": payload.description,
+        "video_url": payload.video_url.strip(), "platform": platform,
+        "video_id": vid, "embed_url": embed, "thumbnail_url": thumb,
+        "order": payload.order, "published": payload.published,
+    }
+    res = await db.landing_videos.update_one({"id": video_id}, {"$set": upd})
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Video no encontrado")
+    return await db.landing_videos.find_one({"id": video_id}, {"_id": 0})
+
+
+@router.delete("/videos/{video_id}")
+async def delete_video(video_id: str, request: Request, user=Depends(_require_super)):
+    db = request.app.state.db
+    await db.landing_videos.delete_one({"id": video_id})
+    return {"ok": True}

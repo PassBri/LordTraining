@@ -11,7 +11,8 @@ import {
   Check, Target, Brain, Calendar, BarChart3, Users,
   ArrowRight, Activity, FileText, Dumbbell,
   Heart, Ruler, Eye, Sparkles, Layers, LineChart,
-  ChevronRight, ChevronLeft, Zap, Shield, GraduationCap, Globe, UserCheck, Building2
+  ChevronRight, ChevronLeft, Zap, Shield, GraduationCap, Globe, UserCheck, Building2,
+  PlayCircle, X as XIcon, Video
 } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
 
@@ -575,6 +576,101 @@ const ScoutingSection = ({ t }) => {
 };
 
 
+/* ═══════════════ VIDEO TUTORIALES ═══════════════ */
+const VideoTutorialsSection = ({ t }) => {
+  const [videos, setVideos] = useState([]);
+  const [active, setActive] = useState(null);
+
+  useEffect(() => {
+    const BACKEND = process.env.REACT_APP_BACKEND_URL;
+    fetch(`${BACKEND}/api/resources/videos`)
+      .then(r => r.ok ? r.json() : { videos: [] })
+      .then(d => setVideos(d.videos || []))
+      .catch(() => setVideos([]));
+  }, []);
+
+  if (!videos.length) return null;
+
+  return (
+    <section id="tutoriales" className="py-20 px-6 bg-zinc-950 relative overflow-hidden" data-testid="video-tutorials-section">
+      <div className="absolute top-1/4 -right-32 w-96 h-96 rounded-full bg-[#D4AF37]/[0.04] blur-3xl pointer-events-none" />
+      <div className="max-w-[1120px] mx-auto relative z-10">
+        <Reveal direction="up" className="text-center mb-12">
+          <SectionTag>Video Tutoriales</SectionTag>
+          <h2 className="text-[28px] md:text-[40px] font-bold text-white leading-[1.12] mb-3" style={{fontFamily:INT}} data-testid="video-tutorials-title">
+            Aprende a usar <span className="text-[#D4AF37]">LordTraining</span>
+          </h2>
+          <p className="text-zinc-300 text-[15px] md:text-[17px] max-w-[640px] mx-auto">
+            Videos cortos que explican cómo manejar cada sección de la plataforma, paso a paso.
+          </p>
+        </Reveal>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="video-tutorials-grid">
+          {videos.map((v, i) => (
+            <Reveal key={v.id} direction="up" delay={i * 0.06}>
+              <button
+                onClick={() => setActive(v)}
+                data-testid={`video-card-${v.id}`}
+                className="group text-left w-full rounded-2xl overflow-hidden border border-zinc-800 bg-gradient-to-br from-zinc-900 to-zinc-950 hover:border-[#D4AF37]/40 transition-all hover:-translate-y-1 shadow-lg">
+                <div className="relative aspect-video bg-zinc-800 overflow-hidden">
+                  {v.thumbnail_url ? (
+                    <img src={v.thumbnail_url} alt={v.title} loading="lazy"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900">
+                      <Video className="w-10 h-10 text-zinc-600" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/25 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                    <PlayCircle className="w-14 h-14 text-white/90 group-hover:text-[#D4AF37] group-hover:scale-110 transition-all drop-shadow-lg" strokeWidth={1.5} />
+                  </div>
+                </div>
+                <div className="p-4">
+                  <h3 className="text-[15px] font-bold text-white leading-snug mb-1.5 line-clamp-2" style={{fontFamily:INT}}>{v.title}</h3>
+                  {v.description && <p className="text-[13px] text-zinc-400 leading-[1.5] line-clamp-3">{v.description}</p>}
+                </div>
+              </button>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+
+      {active && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4"
+          onClick={() => setActive(null)} data-testid="video-modal">
+          <div className="relative w-full max-w-3xl" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setActive(null)} data-testid="video-modal-close"
+              className="absolute -top-11 right-0 text-white/70 hover:text-white flex items-center gap-1 text-sm">
+              <XIcon className="w-5 h-5" /> Cerrar
+            </button>
+            <div className="rounded-2xl overflow-hidden border border-zinc-700 bg-black shadow-2xl">
+              {active.embed_url && active.platform !== 'link' ? (
+                <div className="aspect-video">
+                  <iframe src={active.embed_url} title={active.title} className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen />
+                </div>
+              ) : (
+                <div className="aspect-video flex flex-col items-center justify-center gap-3 p-6 text-center">
+                  <Video className="w-10 h-10 text-[#D4AF37]" />
+                  <a href={active.video_url} target="_blank" rel="noopener noreferrer"
+                    className="text-[#D4AF37] font-bold underline text-sm">Abrir video en una nueva pestaña</a>
+                </div>
+              )}
+            </div>
+            <div className="mt-4">
+              <h3 className="text-white font-bold text-lg" style={{fontFamily:INT}}>{active.title}</h3>
+              {active.description && <p className="text-zinc-400 text-sm mt-1">{active.description}</p>}
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+};
+
+
+
 /* ═══════════════════════════════ PAGE ═══════════════════════════════ */
 const LANDING_TIER_MAP = { starter: 'starter', pro: 'basic', club: 'pro', inst: 'enterprise' };
 
@@ -837,6 +933,9 @@ const LandingPage = () => {
 
     {/* SCOUTING & TALENT IDENTIFICATION — segunda sección */}
     <ScoutingSection t={t} />
+
+    {/* VIDEO TUTORIALES — gestionable desde Super Admin */}
+    <VideoTutorialsSection t={t} />
 
     {/* MARQUEE SCROLLING — Palabras moviéndose */}
     <section className="relative bg-gradient-to-r from-[#18181b] via-[#27272a] to-[#18181b] border-y border-[#D4AF37]/15 overflow-hidden" data-testid="marquee-section">
