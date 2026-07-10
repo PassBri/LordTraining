@@ -302,15 +302,58 @@ class VideoIn(BaseModel):
     description: str = ""
     video_url: str
     thumbnail_url: str = ""
+    category: str = "general"
     order: int = 0
     published: bool = True
 
 
+# Categorías/módulos de tutoriales (key → etiqueta ES)
+VIDEO_CATEGORIES = {
+    "periodizacion": "Periodización",
+    "evaluacion": "Evaluación",
+    "pizarra": "Pizarra Táctica",
+    "sesiones": "Sesiones",
+    "calendario": "Calendario",
+    "calculadoras": "Calculadoras",
+    "reportes": "Reportes",
+    "scouting": "Scouting",
+    "portal": "Portal del Atleta",
+    "general": "General",
+}
+
+DEFAULT_VIDEOS = [
+    {"title": "Cómo construir tu plan de periodización", "description": "Aprende a estructurar macro, meso y microciclos en el motor de periodización.", "video_url": "https://www.youtube.com/results?search_query=periodizacion+deportiva", "thumbnail_url": "https://images.unsplash.com/photo-1526232761682-d26e03ac148e?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "category": "periodizacion", "order": 1},
+    {"title": "Evaluación física de tus atletas", "description": "Registra controles físicos, técnicos y médicos y sigue la evolución del deportista.", "video_url": "https://www.youtube.com/results?search_query=evaluacion+fisica+deportiva", "thumbnail_url": "https://images.unsplash.com/photo-1529932398402-e0b30f66a559?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "category": "evaluacion", "order": 2},
+    {"title": "Diseña jugadas en la Pizarra Táctica", "description": "Crea y anima jugadas para más de 30 deportes con la pizarra dinámica.", "video_url": "https://www.youtube.com/results?search_query=basketball+tactics+board", "thumbnail_url": "https://images.unsplash.com/photo-1600534220378-df36338afc40?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "category": "pizarra", "order": 3},
+    {"title": "Planifica sesiones de entrenamiento", "description": "Arma sesiones por capacidades con volumen, intensidad y monitoreo de carga.", "video_url": "https://www.youtube.com/results?search_query=planificacion+sesion+entrenamiento", "thumbnail_url": "https://images.unsplash.com/photo-1585757318177-0570a997dc3a?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "category": "sesiones", "order": 4},
+    {"title": "Scouting y detección de talento", "description": "Gestiona prospectos, pipeline y evaluaciones por nivel del deportista.", "video_url": "https://www.youtube.com/results?search_query=sports+scouting+talent", "thumbnail_url": "https://images.unsplash.com/photo-1525973132219-a04334a76080?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "category": "scouting", "order": 5},
+    {"title": "Genera reportes avanzados en PDF", "description": "Exporta reportes profesionales del atleta y del equipo con un clic.", "video_url": "https://www.youtube.com/results?search_query=deporte+reporte+rendimiento", "thumbnail_url": "https://images.unsplash.com/photo-1587960184060-aa880aabdd04?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "category": "reportes", "order": 6},
+]
+
+
+async def _seed_videos(db):
+    if await db.landing_videos.count_documents({}) == 0:
+        for v in DEFAULT_VIDEOS:
+            platform, vid, embed, thumb = _parse_video(v["video_url"], v.get("thumbnail_url", ""))
+            await db.landing_videos.insert_one({
+                "id": uuid.uuid4().hex, "title": v["title"], "description": v["description"],
+                "video_url": v["video_url"], "platform": platform, "video_id": vid,
+                "embed_url": embed, "thumbnail_url": thumb, "category": v["category"],
+                "order": v["order"], "published": True, "created_at": _now(),
+            })
+
+
+@router.get("/video-categories")
+async def video_categories():
+    return {"categories": VIDEO_CATEGORIES}
+
+
 @router.get("/videos")
 async def list_videos(db=Depends(get_db), all: bool = False):
+    await _seed_videos(db)
     q = {} if all else {"published": True}
     vids = await db.landing_videos.find(q, {"_id": 0}).sort("order", 1).to_list(200)
-    return {"videos": vids}
+    return {"videos": vids, "categories": VIDEO_CATEGORIES}
 
 
 @router.post("/videos")
@@ -322,6 +365,7 @@ async def create_video(payload: VideoIn, request: Request, user=Depends(_require
         "title": payload.title, "description": payload.description,
         "video_url": payload.video_url.strip(), "platform": platform,
         "video_id": vid, "embed_url": embed, "thumbnail_url": thumb,
+        "category": payload.category or "general",
         "order": payload.order, "published": payload.published,
         "created_at": _now(),
     }
@@ -338,6 +382,7 @@ async def update_video(video_id: str, payload: VideoIn, request: Request, user=D
         "title": payload.title, "description": payload.description,
         "video_url": payload.video_url.strip(), "platform": platform,
         "video_id": vid, "embed_url": embed, "thumbnail_url": thumb,
+        "category": payload.category or "general",
         "order": payload.order, "published": payload.published,
     }
     res = await db.landing_videos.update_one({"id": video_id}, {"$set": upd})

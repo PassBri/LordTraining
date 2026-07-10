@@ -579,15 +579,31 @@ const ScoutingSection = ({ t }) => {
 /* ═══════════════ VIDEO TUTORIALES ═══════════════ */
 const VideoTutorialsSection = ({ t }) => {
   const [videos, setVideos] = useState([]);
+  const [catLabels, setCatLabels] = useState({});
+  const [activeCat, setActiveCat] = useState('all');
   const [active, setActive] = useState(null);
+  const scrollRef = useRef(null);
 
   useEffect(() => {
     const BACKEND = process.env.REACT_APP_BACKEND_URL;
     fetch(`${BACKEND}/api/resources/videos`)
       .then(r => r.ok ? r.json() : { videos: [] })
-      .then(d => setVideos(d.videos || []))
+      .then(d => { setVideos(d.videos || []); setCatLabels(d.categories || {}); })
       .catch(() => setVideos([]));
   }, []);
+
+  const cats = React.useMemo(() => {
+    const present = [];
+    videos.forEach(v => { const c = v.category || 'general'; if (!present.includes(c)) present.push(c); });
+    return present;
+  }, [videos]);
+
+  const filtered = activeCat === 'all' ? videos : videos.filter(v => (v.category || 'general') === activeCat);
+
+  const scrollBy = (dir) => {
+    const el = scrollRef.current;
+    if (el) el.scrollBy({ left: dir * Math.min(el.clientWidth * 0.8, 640), behavior: 'smooth' });
+  };
 
   if (!videos.length) return null;
 
@@ -595,7 +611,7 @@ const VideoTutorialsSection = ({ t }) => {
     <section id="tutoriales" className="py-20 px-6 bg-zinc-950 relative overflow-hidden" data-testid="video-tutorials-section">
       <div className="absolute top-1/4 -right-32 w-96 h-96 rounded-full bg-[#D4AF37]/[0.04] blur-3xl pointer-events-none" />
       <div className="max-w-[1120px] mx-auto relative z-10">
-        <Reveal direction="up" className="text-center mb-12">
+        <Reveal direction="up" className="text-center mb-8">
           <SectionTag>Video Tutoriales</SectionTag>
           <h2 className="text-[28px] md:text-[40px] font-bold text-white leading-[1.12] mb-3" style={{fontFamily:INT}} data-testid="video-tutorials-title">
             Aprende a usar <span className="text-[#D4AF37]">LordTraining</span>
@@ -605,13 +621,42 @@ const VideoTutorialsSection = ({ t }) => {
           </p>
         </Reveal>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="video-tutorials-grid">
-          {videos.map((v, i) => (
-            <Reveal key={v.id} direction="up" delay={i * 0.06}>
+        {/* Pestañas por categoría/módulo */}
+        {cats.length > 1 && (
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-8" data-testid="video-category-tabs">
+            <button onClick={() => setActiveCat('all')} data-testid="video-cat-all"
+              className={`px-4 py-1.5 rounded-full text-[13px] font-bold transition-all ${activeCat === 'all' ? 'bg-[#D4AF37] text-[#09090b]' : 'bg-zinc-900 border border-zinc-800 text-zinc-300 hover:border-[#D4AF37]/40'}`}>
+              Todos
+            </button>
+            {cats.map(c => (
+              <button key={c} onClick={() => setActiveCat(c)} data-testid={`video-cat-${c}`}
+                className={`px-4 py-1.5 rounded-full text-[13px] font-bold transition-all ${activeCat === c ? 'bg-[#D4AF37] text-[#09090b]' : 'bg-zinc-900 border border-zinc-800 text-zinc-300 hover:border-[#D4AF37]/40'}`}>
+                {catLabels[c] || c}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Carrusel */}
+        <div className="relative">
+          <button onClick={() => scrollBy(-1)} aria-label="Anterior" data-testid="video-carousel-prev"
+            className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-zinc-900 border border-zinc-700 text-white items-center justify-center hover:bg-[#D4AF37] hover:text-[#09090b] transition-colors shadow-lg">
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button onClick={() => scrollBy(1)} aria-label="Siguiente" data-testid="video-carousel-next"
+            className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-zinc-900 border border-zinc-700 text-white items-center justify-center hover:bg-[#D4AF37] hover:text-[#09090b] transition-colors shadow-lg">
+            <ChevronRight className="w-5 h-5" />
+          </button>
+
+          <div ref={scrollRef} data-testid="video-tutorials-carousel"
+            className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-1 px-1"
+            style={{ scrollbarWidth: 'none' }}>
+            {filtered.map((v) => (
               <button
+                key={v.id}
                 onClick={() => setActive(v)}
                 data-testid={`video-card-${v.id}`}
-                className="group text-left w-full rounded-2xl overflow-hidden border border-zinc-800 bg-gradient-to-br from-zinc-900 to-zinc-950 hover:border-[#D4AF37]/40 transition-all hover:-translate-y-1 shadow-lg">
+                className="group text-left shrink-0 snap-start w-[280px] md:w-[340px] rounded-2xl overflow-hidden border border-zinc-800 bg-gradient-to-br from-zinc-900 to-zinc-950 hover:border-[#D4AF37]/40 transition-all hover:-translate-y-1 shadow-lg">
                 <div className="relative aspect-video bg-zinc-800 overflow-hidden">
                   {v.thumbnail_url ? (
                     <img src={v.thumbnail_url} alt={v.title} loading="lazy"
@@ -624,14 +669,19 @@ const VideoTutorialsSection = ({ t }) => {
                   <div className="absolute inset-0 bg-black/25 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                     <PlayCircle className="w-14 h-14 text-white/90 group-hover:text-[#D4AF37] group-hover:scale-110 transition-all drop-shadow-lg" strokeWidth={1.5} />
                   </div>
+                  {v.category && catLabels[v.category] && (
+                    <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-sm text-[10px] font-bold text-[#D4AF37] uppercase tracking-wide">
+                      {catLabels[v.category]}
+                    </span>
+                  )}
                 </div>
                 <div className="p-4">
                   <h3 className="text-[15px] font-bold text-white leading-snug mb-1.5 line-clamp-2" style={{fontFamily:INT}}>{v.title}</h3>
                   {v.description && <p className="text-[13px] text-zinc-400 leading-[1.5] line-clamp-3">{v.description}</p>}
                 </div>
               </button>
-            </Reveal>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 
@@ -668,6 +718,7 @@ const VideoTutorialsSection = ({ t }) => {
     </section>
   );
 };
+
 
 
 

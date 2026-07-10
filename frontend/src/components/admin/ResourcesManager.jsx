@@ -163,10 +163,11 @@ const SupportAdmin = () => {
 // ---------- VIDEOS ----------
 const VideosAdmin = () => {
   const [videos, setVideos] = useState([]);
-  const blank = { title: '', description: '', video_url: '', thumbnail_url: '', order: 0, published: true };
+  const [cats, setCats] = useState({});
+  const blank = { title: '', description: '', video_url: '', thumbnail_url: '', category: 'general', order: 0, published: true };
   const [editing, setEditing] = useState(null);
 
-  const load = () => fetch(`${BACKEND}/api/resources/videos?all=true`).then(r => r.json()).then(d => setVideos(d.videos || []));
+  const load = () => fetch(`${BACKEND}/api/resources/videos?all=true`).then(r => r.json()).then(d => { setVideos(d.videos || []); setCats(d.categories || {}); });
   useEffect(() => { load(); }, []);
 
   const save = async () => {
@@ -195,9 +196,12 @@ const VideosAdmin = () => {
           <textarea className={inp} rows={2} placeholder="Descripción breve" value={editing.description} onChange={e => setEditing({ ...editing, description: e.target.value })} data-testid="video-desc-input" />
           <input className={inp} placeholder="Enlace del video (YouTube / Vimeo / URL)" value={editing.video_url} onChange={e => setEditing({ ...editing, video_url: e.target.value })} data-testid="video-url-input" />
           <div className="grid grid-cols-2 gap-2">
-            <input className={inp} placeholder="URL miniatura (opcional)" value={editing.thumbnail_url} onChange={e => setEditing({ ...editing, thumbnail_url: e.target.value })} data-testid="video-thumb-input" />
+            <select className={inp} value={editing.category || 'general'} onChange={e => setEditing({ ...editing, category: e.target.value })} data-testid="video-category-select">
+              {Object.entries(cats).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
+            </select>
             <input className={inp} type="number" placeholder="Orden" value={editing.order} onChange={e => setEditing({ ...editing, order: e.target.value })} />
           </div>
+          <input className={inp} placeholder="URL miniatura (opcional)" value={editing.thumbnail_url} onChange={e => setEditing({ ...editing, thumbnail_url: e.target.value })} data-testid="video-thumb-input" />
           <label className="flex items-center gap-2 text-sm text-slate-300"><input type="checkbox" checked={editing.published} onChange={e => setEditing({ ...editing, published: e.target.checked })} />Publicado</label>
           <div className="flex gap-2">
             <button onClick={save} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#CCFF00] text-slate-900 text-sm font-bold" data-testid="video-save-btn"><Save className="w-4 h-4" />Guardar</button>
@@ -213,7 +217,7 @@ const VideosAdmin = () => {
             </div>
             <div className="flex-1 min-w-0">
               <span className="text-sm font-medium text-white block truncate">{v.title}</span>
-              <span className="text-[11px] text-slate-500 capitalize">{v.platform}{!v.published && ' · borrador'}</span>
+              <span className="text-[11px] text-slate-500 capitalize">{cats[v.category] || v.category || 'General'} · {v.platform}{!v.published && ' · borrador'}</span>
             </div>
             <div className="flex gap-2 shrink-0">
               <button onClick={() => setEditing(v)} className="text-xs text-slate-300 hover:text-white">Editar</button>
