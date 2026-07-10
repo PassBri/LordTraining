@@ -1,5 +1,9 @@
 # CHANGELOG — LordTraining
 
+## 2026-07-10 — Landing: gráficas y canchas más sobrias (estilo pizarra)
+- **Gráfica estadística del hero (`PeriodizationMiniChart`)**: se eliminó el tri-color chillón (azul `#3B82F6` / rosa `#F43F5E` / esmeralda) → **paleta monocromática dorada** (bronce `#7A6428` → oro `#D4AF37` → oro claro `#EAD9A0`). Legend, tooltip, etiquetas de fase y KPIs (Carga/ACWR/Monotonía/Adherencia) pasados a zinc/dorado.
+- **Canchas SVG multideporte**: unificadas a **grafito monocromo estilo pizarra táctica** vía CSS `filter: grayscale(1) brightness(0.6) ... sepia hue-rotate` (sin reescribir los 10 SVG). Se quitó el color por deporte (verde/naranja/cian…); acento dorado solo en badges LIVE y nombres. Carrusel de deportes extra unificado a grafito+dorado (se dejó de usar `sp.c`). Verificado por screenshot.
+
 ## 2026-07-10 — Landing: rediseño "Tactical Minimalism" (más profesional/startup)
 - **Dirección de diseño** (blueprint del design_agent en `/app/design_guidelines.json`): look premium estilo Vercel/Linear. Se reemplazó el estilo "neón/gamer" por uno sobrio y elegante.
 - **Paleta neutralizada**: fondos de slate (azulado) → **zinc/obsidiana neutro** (#09090b/#18181b/#27272a) en todo `LandingPage.js` (global slate→zinc).

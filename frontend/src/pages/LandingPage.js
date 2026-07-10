@@ -125,9 +125,9 @@ const PeriodizationMiniChart = ({ t }) => {
   const intData = [40,45,50,55,52,58,65,70,62,68,75,78,72,78,82,85,80,85,88,90,85,90,92,95];
   const denData = [60,55,52,48,58,55,50,65,60,55,48,70,65,60,52,72,68,60,55,75,70,65,58,80];
   const phases = [
-    {n:t('landing.chart.accumulation'),c:'#3B82F6'},
+    {n:t('landing.chart.accumulation'),c:'#7A6428'},
     {n:t('landing.chart.transformation'),c:'#D4AF37'},
-    {n:t('landing.chart.realization'),c:'#F43F5E'}
+    {n:t('landing.chart.realization'),c:'#EAD9A0'}
   ];
   const wkLabels = Array.from({length:24},(_,i) => i%4===0 ? `S${i+1}` : '');
 
@@ -146,9 +146,9 @@ const PeriodizationMiniChart = ({ t }) => {
             </div>
           </div>
           <div className="flex gap-2">
-            <span className="px-2.5 py-1 bg-blue-500/20 text-blue-400 rounded-md text-[9px] font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-400"/>{t('landing.chart.vol')}</span>
+            <span className="px-2.5 py-1 bg-zinc-500/20 text-zinc-300 rounded-md text-[9px] font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-zinc-400"/>{t('landing.chart.vol')}</span>
             <span className="px-2.5 py-1 bg-[#D4AF37]/20 text-[#D4AF37] rounded-md text-[9px] font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]"/>{t('landing.chart.int')}</span>
-            <span className="px-2.5 py-1 bg-rose-500/20 text-rose-400 rounded-md text-[9px] font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-rose-400"/>{t('landing.chart.den')}</span>
+            <span className="px-2.5 py-1 bg-[#EAD9A0]/15 text-[#EAD9A0] rounded-md text-[9px] font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#EAD9A0]"/>{t('landing.chart.den')}</span>
           </div>
         </div>
         {/* Phase labels */}
@@ -168,9 +168,9 @@ const PeriodizationMiniChart = ({ t }) => {
                 <div key={i} className="flex-1 flex flex-col items-center gap-[1px] h-full justify-end relative cursor-crosshair"
                   onMouseEnter={() => setHoverIdx(i)}>
                   <div className="w-full flex items-end gap-[1px] h-full">
-                    <div className="flex-1 rounded-t-sm transition-all duration-150" style={{height:`${volData[i]}%`, background:'#3B82F6', opacity: isHover ? 1 : 0.7, transform: isHover ? 'scaleX(1.3)' : 'scaleX(1)'}} />
+                    <div className="flex-1 rounded-t-sm transition-all duration-150" style={{height:`${volData[i]}%`, background:'#7A6428', opacity: isHover ? 1 : 0.7, transform: isHover ? 'scaleX(1.3)' : 'scaleX(1)'}} />
                     <div className="flex-1 rounded-t-sm transition-all duration-150" style={{height:`${intData[i]}%`, background:'#D4AF37', opacity: isHover ? 1 : 0.65, transform: isHover ? 'scaleX(1.3)' : 'scaleX(1)'}} />
-                    <div className="flex-1 rounded-t-sm transition-all duration-150" style={{height:`${denData[i]}%`, background:'#F43F5E', opacity: isHover ? 1 : 0.6, transform: isHover ? 'scaleX(1.3)' : 'scaleX(1)'}} />
+                    <div className="flex-1 rounded-t-sm transition-all duration-150" style={{height:`${denData[i]}%`, background:'#EAD9A0', opacity: isHover ? 1 : 0.6, transform: isHover ? 'scaleX(1.3)' : 'scaleX(1)'}} />
                   </div>
                   {/* Crosshair line */}
                   {isHover && <div className="absolute top-0 left-1/2 w-px h-full bg-white/30 -translate-x-1/2 pointer-events-none" />}
@@ -189,7 +189,7 @@ const PeriodizationMiniChart = ({ t }) => {
                 <div className="text-[9px] text-zinc-400 font-bold mb-1.5" style={{fontFamily:BC}}>{t('landing.chart.week')} {hoverIdx+1}</div>
                 <div className="space-y-1">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="flex items-center gap-1 text-[9px] text-blue-400"><span className="w-1.5 h-1.5 rounded-full bg-blue-400"/>{t('landing.chart.volume')}</span>
+                    <span className="flex items-center gap-1 text-[9px] text-zinc-300"><span className="w-1.5 h-1.5 rounded-full bg-zinc-400"/>{t('landing.chart.volume')}</span>
                     <span className="text-[10px] font-black text-white" style={{fontFamily:BC}}>{volData[hoverIdx]}%</span>
                   </div>
                   <div className="flex items-center justify-between gap-3">
@@ -197,7 +197,7 @@ const PeriodizationMiniChart = ({ t }) => {
                     <span className="text-[10px] font-black text-white" style={{fontFamily:BC}}>{intData[hoverIdx]}%</span>
                   </div>
                   <div className="flex items-center justify-between gap-3">
-                    <span className="flex items-center gap-1 text-[9px] text-rose-400"><span className="w-1.5 h-1.5 rounded-full bg-rose-400"/>{t('landing.chart.density')}</span>
+                    <span className="flex items-center gap-1 text-[9px] text-[#EAD9A0]"><span className="w-1.5 h-1.5 rounded-full bg-[#EAD9A0]"/>{t('landing.chart.density')}</span>
                     <span className="text-[10px] font-black text-white" style={{fontFamily:BC}}>{denData[hoverIdx]}%</span>
                   </div>
                 </div>
@@ -217,10 +217,10 @@ const PeriodizationMiniChart = ({ t }) => {
             <ReadinessGauge size={52} t={t} />
           </div>
           {[
-            {l:t('landing.chart.totalLoad'),v:'2,847 UA',c:'text-blue-400'},
+            {l:t('landing.chart.totalLoad'),v:'2,847 UA',c:'text-zinc-200'},
             {l:'ACWR',v:'0.87',c:'text-[#D4AF37]'},
-            {l:t('landing.chart.monotony'),v:'1.24',c:'text-rose-400'},
-            {l:t('landing.chart.adherence'),v:'94%',c:'text-emerald-400'},
+            {l:t('landing.chart.monotony'),v:'1.24',c:'text-zinc-200'},
+            {l:t('landing.chart.adherence'),v:'94%',c:'text-[#D4AF37]'},
           ].map(s => (
             <div key={s.l} className="flex-1 text-center group cursor-default">
               <div className={`text-[14px] font-black leading-none ${s.c} group-hover:scale-110 transition-transform`} style={{fontFamily:BC}}>{s.v}</div>
@@ -872,8 +872,8 @@ const LandingPage = () => {
         @keyframes sport-arrow { 0%,30% { stroke-dashoffset: 100 } 70%,100% { stroke-dashoffset: 0 } }
         @keyframes sport-pulse { 0%,100% { opacity:0.6 } 50% { opacity:1 } }
         .sport-card { will-change: transform }
-        .sport-card svg { filter: saturate(0.5) brightness(0.82) contrast(1.02); transition: filter 0.3s ease; }
-        .sport-card:hover svg { filter: saturate(0.72) brightness(0.92) contrast(1.03); }
+        .sport-card svg { filter: grayscale(1) brightness(0.6) contrast(1.08) sepia(0.28) hue-rotate(178deg) saturate(0.5); transition: filter 0.3s ease; }
+        .sport-card:hover svg { filter: grayscale(1) brightness(0.74) contrast(1.08) sepia(0.28) hue-rotate(178deg) saturate(0.5); }
         .sport-card svg .anim-ball { animation: sport-ball 4s ease-in-out infinite }
         .sport-card svg .anim-player { animation: sport-player 4s ease-in-out infinite }
         .sport-card svg .anim-arrow { stroke-dasharray:100; animation: sport-arrow 4s ease-in-out infinite }
@@ -902,7 +902,7 @@ const LandingPage = () => {
             <a key={i} href="/tactical-board.html" onClick={handleBoardClick} className="sport-card group relative rounded-2xl overflow-hidden border border-zinc-800 hover:border-[#D4AF37]/60 transition-all hover:scale-[1.04] hover:shadow-[0_14px_32px_-6px_rgba(212,175,55,0.28)]" data-testid={`sport-card-${sport.name.toLowerCase()}`}>
               <div className="aspect-[3/4] relative">
                 <svg viewBox="0 0 100 140" className="w-full h-full block" preserveAspectRatio="xMidYMid slice" dangerouslySetInnerHTML={{__html: sport.svg}} />
-                <div className="absolute inset-0 pointer-events-none" style={{background:'linear-gradient(to top, rgba(5,10,20,0.92) 0%, rgba(5,10,20,0.18) 45%, rgba(5,10,20,0.35) 100%)'}}/>
+                <div className="absolute inset-0 pointer-events-none" style={{background:'linear-gradient(to top, rgba(9,9,11,0.92) 0%, rgba(9,9,11,0.15) 45%, rgba(9,9,11,0.35) 100%)'}}/>
                 <div className="absolute top-2 right-2 flex items-center gap-1.5 px-2 py-1 rounded-md bg-black/55 backdrop-blur-sm border border-[#D4AF37]/25">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse"/>
                   <span className="text-[8px] font-bold uppercase tracking-[0.12em] text-[#D4AF37]" style={{fontFamily:BC}}>LIVE</span>
@@ -933,9 +933,9 @@ const LandingPage = () => {
                   {name:'Karate', c:'#78716c'},{name:'Taekwondo', c:'#b91c1c'},{name:'MMA', c:'#1f2937'},{name:'Judo', c:'#450a0a'}
                 ].map((sp, i) => (
                   <a key={i} href="/tactical-board.html" onClick={handleBoardClick} className="group relative flex-shrink-0 w-[150px] snap-start rounded-xl overflow-hidden border border-zinc-800 hover:border-[#D4AF37]/60 hover:scale-[1.05] transition-all" data-testid={`extra-sport-${sp.name.toLowerCase().replace(/\s+/g,'-')}`}>
-                    <div className="aspect-[3/4] relative flex flex-col items-center justify-center p-3" style={{background:`linear-gradient(160deg, ${sp.c}33 0%, #0c1320 55%, #060b14 100%)`}}>
+                    <div className="aspect-[3/4] relative flex flex-col items-center justify-center p-3" style={{background:'linear-gradient(160deg, rgba(212,175,55,0.10) 0%, #18181b 55%, #09090b 100%)'}}>
                       <div className="absolute inset-0" style={{backgroundImage:'radial-gradient(circle at 50% 30%, rgba(255,255,255,0.06) 0%, transparent 55%)'}}/>
-                      <div className="absolute top-0 left-0 right-0 h-[2px]" style={{background:sp.c, opacity:0.7}}/>
+                      <div className="absolute top-0 left-0 right-0 h-[2px]" style={{background:'#D4AF37', opacity:0.6}}/>
                       <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/40 backdrop-blur border border-[#D4AF37]/25">
                         <span className="text-[7.5px] font-black tracking-[0.1em] text-[#D4AF37]" style={{fontFamily:BC}}>3D</span>
                       </div>
