@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Loader2, LogOut, Heart, Trophy, Activity, ClipboardList, BellRing, X } from 'lucide-react';
 import AthletePlanView from '../components/athlete/AthletePlanView';
+import LevelBadge from '../components/LevelBadge';
 import { athleteGetPlan, athleteCompleteSession, athleteSaveReadiness, athleteGetReadiness, athleteGetRecords } from '../services/athleteApi';
 
 const AthletePortalPanel = () => {
@@ -70,6 +71,7 @@ const AthletePortalPanel = () => {
         <div className="max-w-6xl mx-auto px-5 py-3 flex items-center justify-between">
           <span className="text-white font-bold tracking-tight">Lord<span className="text-[#CCFF00]">Training</span></span>
           <div className="flex items-center gap-3">
+            {records.evaluation_score != null && <LevelBadge score={records.evaluation_score} size="sm" />}
             <span className="text-sm text-slate-300">{info.name || t('athlete.athleteDefault', 'Atleta')}</span>
             <button onClick={logout} className="text-slate-400 hover:text-white" data-testid="athlete-logout"><LogOut className="w-4 h-4" /></button>
           </div>

@@ -166,11 +166,7 @@ const SPORTS = [
 /* ═══ RIGHT PANEL — TACTICAL BOARD ═══ */
 const AuthVisual = () => {
   const { t } = useTranslation();
-  const typedText = useTypewriter([
-    t('auth.visual.phrase1'),
-    t('auth.visual.phrase2'),
-    t('auth.visual.phrase3')
-  ], 28, 14, 1400);
+  const typedText = t('auth.visual.phrase1');
   const readiness = useCountUp(85, 1200);
   const acwr = useCountUp(0.87, 1000);
   const [sportIdx, setSportIdx] = useState(0);
@@ -193,7 +189,7 @@ const AuthVisual = () => {
   <div className="relative h-full overflow-hidden" style={{background:'#09090b'}}>
 
     {/* Field container */}
-    <div className="absolute overflow-hidden" style={{top:'17%',left:'13%',right:'13%',bottom:'17%',background:'#1c160b',borderRadius:'16px',boxShadow:'0 12px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)'}}>
+    <div className="absolute overflow-hidden" style={{top:'17%',left:'13%',right:'13%',bottom:'17%',background:'#171d24',borderRadius:'16px',boxShadow:'0 12px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)'}}>
       {/* SVG field lines */}
       <svg className="absolute inset-0 w-full h-full" viewBox={sport.vb} preserveAspectRatio="xMidYMid meet"
         style={{opacity:visible?1:0,transition:'opacity 0.3s ease'}}>
@@ -284,11 +280,11 @@ const AuthVisual = () => {
       </div>
     </div>
 
-    {/* Typewriter top */}
+    {/* Headline top (estático) */}
     <div className="absolute top-0 left-0 right-0 z-20 px-7 pt-6 pb-14 overflow-visible" style={{background:'linear-gradient(to bottom, rgba(8,9,14,0.95) 0%, rgba(8,9,14,0.6) 60%, transparent 100%)'}}>
-      <div className="mb-1.5 overflow-visible">
-        <h2 className="text-[22px] font-semibold text-white/90 whitespace-nowrap" style={{fontFamily:INT}}>
-          {typedText}<span className="inline-block w-[1.5px] h-[17px] bg-[#D4AF37] ml-0.5" style={{animation:'blink 0.53s step-end infinite'}}/>
+      <div className="mb-1.5">
+        <h2 className="text-[22px] leading-tight font-semibold text-white/90" style={{fontFamily:INT}}>
+          {typedText}
         </h2>
       </div>
       <p className="text-[12px] text-white/30">{t('auth.visual.system_line')}</p>

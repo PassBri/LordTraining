@@ -691,6 +691,28 @@ def _value_color(v, target, scale_min, scale_max):
     return "#EF4444"
 
 
+def _level_badge_html(score) -> str:
+    """Badge de nivel (medalla) según el score de evaluación 0-100."""
+    try:
+        s = float(score)
+    except Exception:
+        return ""
+    if s >= 90:
+        label, grad, txt = "NIVEL DIAMANTE", "linear-gradient(135deg,#BEEBF8,#6FB9D2)", "#0B3A4A"
+    elif s >= 75:
+        label, grad, txt = "NIVEL ORO", "linear-gradient(135deg,#F0D77A,#C49A2B)", "#3D2E05"
+    elif s >= 60:
+        label, grad, txt = "NIVEL PLATA", "linear-gradient(135deg,#E6EAF0,#A9B0BD)", "#2A2E36"
+    elif s >= 40:
+        label, grad, txt = "NIVEL BRONCE", "linear-gradient(135deg,#E0AC7C,#B0703B)", "#3A230F"
+    else:
+        label, grad, txt = "EN DESARROLLO", "linear-gradient(135deg,#D8DCE2,#9CA3AF)", "#374151"
+    return (f'<span style="display:inline-block;background:{grad};color:{txt};'
+            f'padding:5pt 14pt;border-radius:20pt;font-size:10pt;font-weight:800;'
+            f'letter-spacing:1px;">{label}</span>')
+
+
+
 def _build_html(eval_doc: dict, plan_name: str, athlete_name: str = "",
                 share_id: Optional[str] = None) -> str:
     et = eval_doc.get("evaluation_type") or "medical"
@@ -851,6 +873,7 @@ def _build_html(eval_doc: dict, plan_name: str, athlete_name: str = "",
   <div>
     <div class="lbl">Promedio Global Normalizado</div>
     <div style="font-size: 11pt; opacity: 0.85; margin-top: 4pt;">{title}</div>
+    {(f'<div style="margin-top:9pt;">' + _level_badge_html(global_avg) + '</div>') if measured_count else ''}
   </div>
   <div style="text-align:right;">
     <div class="num">{global_avg:.0f}<span style="font-size:14pt;opacity:0.7">%</span></div>

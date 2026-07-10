@@ -1,5 +1,11 @@
 # CHANGELOG — LordTraining
 
+## 2026-07-10 — Fix login (título + pizarra) + Badge de nivel en portal atleta y PDF
+- **Login (`AuthPage.js`)**: (1) el título con efecto máquina-de-escribir que se cortaba/desaparecía → ahora **estático** (`t('auth.visual.phrase1')`, sin cursor ni nowrap). (2) La pizarra de preview tenía fondo **marrón** (`#1c160b`, resultado de mapear el verde) → corregido a **grafito chalkboard `#171d24`** con líneas de tiza. Verificado por screenshot.
+- **Badge de nivel (medallas) en PDF de evaluación (`evaluations_export.py`)**: nuevo `_level_badge_html(score)` (umbrales 90/75/60/40 = Diamante/Oro/Plata/Bronce/En desarrollo, gradiente metálico inline) inyectado en la tarjeta "Promedio Global Normalizado" cuando hay medidas.
+- **Badge en portal del atleta**: `GET /me/records` (`athlete_portal.py`) ahora calcula y devuelve `evaluation_score` (promedio de aspectos normalizados 0-100 de `plan_evaluations_v2`); `AthletePortalPanel.js` muestra `<LevelBadge>` en el header. Backend arranca OK, frontend compila, umbrales verificados por unit test.
+- NOTA: verificación E2E completa del badge en portal (requiere login de atleta) y en PDF (requiere descargar un reporte) queda pendiente de validación del usuario / testing agent.
+
 ## 2026-07-10 — Fix contraste app + franja del título del landing
 - **Contraste (bug del re-skin dorado)**: el remapeo azul→oro había vuelto ilegibles píldoras/badges (texto dorado sobre oro) y botones (texto blanco sobre oro), porque perdió la info de tono (tints vs sólidos). **Solución**: se revirtieron TODOS los internos de la app al estado previo al re-skin (`6f58d33`) → diseño original con contrastes correctos. Se conservó: dorado de marca vía tema central `index.css` (botones/activos), login oscuro, landing, feature de badges de nivel, y logo en oro legible (`#B8912A`). Se reaplicó la integración de LevelBadge en Evaluación y Ranking.
 - **Franja del título (landing)**: se eliminó la animación de onda/ECG dorada que se movía detrás de "SOFTWARE DE PERIODIZACIÓN DEPORTIVA" (distraía). Ahora es un **divisor elegante estático**: texto más pequeño con tracking amplio (eyebrow premium), flanqueado por hairlines dorados y rombos. Verificado por screenshot.

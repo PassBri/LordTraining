@@ -522,7 +522,34 @@ async def athlete_records(request: Request, ath: dict = Depends(get_current_athl
                 vals = [float(res[k]) for k in keys if res.get(k) not in (None, "")]
                 if vals:
                     capabilities.append({"ability": label, "value": round(sum(vals) / len(vals))})
-    return {"records": records, "capabilities": capabilities}
+    # Nivel del atleta según score de evaluación (aspectos normalizados 0-100)
+    evaluation_score = None
+    if plan_id:
+        try:
+            evs = await db.plan_evaluations_v2.find({"plan_id": plan_id}, {"_id": 0}).to_list(50)
+            pcts = []
+            for ev2 in evs:
+                ns, nc = 0.0, 0
+                for a in (ev2.get("aspects") or []):
+                    v = a.get("value")
+                    if v is None or v == "":
+                        continue
+                    try:
+                        v = float(v)
+                        mn = float(a.get("scale_min", 0))
+                        mx = float(a.get("scale_max", 10))
+                    except Exception:
+                        continue
+                    if mx != mn:
+                        ns += max(0.0, min(100.0, (v - mn) / (mx - mn) * 100.0))
+                        nc += 1
+                if nc:
+                    pcts.append(ns / nc)
+            if pcts:
+                evaluation_score = round(sum(pcts) / len(pcts))
+        except Exception:
+            evaluation_score = None
+    return {"records": records, "capabilities": capabilities, "evaluation_score": evaluation_score}
 
 
 async def crear_indices_portal(db):
