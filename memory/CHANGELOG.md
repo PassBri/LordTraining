@@ -1,5 +1,9 @@
 # CHANGELOG — LordTraining
 
+## 2026-07-10 — Paleta de medallas + coherencia landing↔pizarra táctica
+- **Landing → paleta de medallas** (💎 diamante `#8FCFE6`, 🥇 oro `#D4AF37`, 🥈 plata `#C3C9D4`, 🥉 bronce `#C6864E`): se remapearon TODOS los acentos vivos restantes (azules/cianes→diamante, morados/verdes→plata, rojos/rosas/naranjas→bronce, ámbar→oro) tanto en clases Tailwind como en hex. Afecta gráficas de features, avatares (Central + testimonios), secciones de audiencias, how-it-works y quote marks. Resultado armónico y metálico, temático de deporte.
+- **Pizarra táctica real (`public/tactical-board.html`) — estilo pizarra + oro**: lima neón (`#CCFF00`/`#c8f700`/`#a5d400`/rgba lima) → oro `#D4AF37`; superficies navy (`#0b1120`/`#0f172a`/`#13213a`/`#060a15`) → grafito neutro; `--primary`/`--accent` a oro. El **campo oscuro** pasó de verde `#1f4a34` a **grafito frío `#171d24`** con tiza blanca (`getFieldColors`), igualando las miniaturas del landing. El tablero ahora **abre en modo oscuro por defecto** (`loadTheme` default dark salvo preferencia 'light' guardada). Verificado por screenshot.
+
 ## 2026-07-10 — Landing: gráficas y canchas más sobrias (estilo pizarra)
 - **Gráfica estadística del hero (`PeriodizationMiniChart`)**: se eliminó el tri-color chillón (azul `#3B82F6` / rosa `#F43F5E` / esmeralda) → **paleta monocromática dorada** (bronce `#7A6428` → oro `#D4AF37` → oro claro `#EAD9A0`). Legend, tooltip, etiquetas de fase y KPIs (Carga/ACWR/Monotonía/Adherencia) pasados a zinc/dorado.
 - **Canchas SVG multideporte**: unificadas a **grafito monocromo estilo pizarra táctica** vía CSS `filter: grayscale(1) brightness(0.6) ... sepia hue-rotate` (sin reescribir los 10 SVG). Se quitó el color por deporte (verde/naranja/cian…); acento dorado solo en badges LIVE y nombres. Carrusel de deportes extra unificado a grafito+dorado (se dejó de usar `sp.c`). Verificado por screenshot.

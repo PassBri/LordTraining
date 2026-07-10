@@ -11,9 +11,9 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
- --brand:#CCFF00;--brand-dim:rgba(204,255,0,0.14);--brand-glow:rgba(204,255,0,0.35);
+ --brand:#D4AF37;--brand-dim:rgba(212,175,55,0.14);--brand-glow:rgba(212,175,55,0.35);
  --bg:#f7f8fb;--panel:#ffffff;--surface:#ffffff;--surface-2:#f1f4f9;
- --primary:#2563eb;--primary-dim:rgba(37,99,235,0.10);--accent:#10b981;
+ --primary:#D4AF37;--primary-dim:rgba(212,175,55,0.12);--accent:#D4AF37;
  --text:#0f172a;--text-sec:#475569;--text-muted:#94a3b8;
  --border:#e4e8ef;--border-strong:#cbd5e1;--hover:#eef1f6;
  --input-bg:#ffffff;--card-bg:#ffffff;
@@ -23,12 +23,12 @@
  --font-display:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
 }
 html.dark{
- --bg:#0b1120;--panel:#0f172a;--surface:#13213a;--surface-2:#0f1b30;
- --primary:#CCFF00;--primary-dim:rgba(204,255,0,0.12);--accent:#CCFF00;
+ --bg:#0d0f12;--panel:#15181d;--surface:#1b1f26;--surface-2:#141821;
+ --primary:#D4AF37;--primary-dim:rgba(212,175,55,0.12);--accent:#D4AF37;
  --text:#e6edf3;--text-sec:#94a3b8;--text-muted:#64748b;
  --border:rgba(148,163,184,0.14);--border-strong:rgba(148,163,184,0.28);--hover:rgba(148,163,184,0.08);
- --input-bg:#0f172a;--card-bg:#0f172a;
- --canvas-bg:#060a15;--field-bg:#0b1120;--field-stroke:rgba(226,232,240,0.4);--field-fill-dim:rgba(226,232,240,0.02);
+ --input-bg:#15181d;--card-bg:#15181d;
+ --canvas-bg:#0e1114;--field-bg:#141a1e;--field-stroke:rgba(226,232,240,0.42);--field-fill-dim:rgba(226,232,240,0.02);
  --shadow:rgba(0,0,0,0.4);--shadow-md:rgba(0,0,0,0.55);--shadow-lg:rgba(0,0,0,0.7);
 }
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;-webkit-font-smoothing:antialiased;letter-spacing:-0.005em}
@@ -57,20 +57,20 @@ body.viewer-mode .pb-drawer-toggle,
 body.viewer-mode #timeline-bar{display:none !important}
 body.viewer-mode #canvas-wrap{border-radius:0}
 body.viewer-mode #viewer-bar{display:flex !important}
-#viewer-bar{display:none;position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:1000;background:rgba(15,23,42,0.92);backdrop-filter:blur(14px);border:1px solid rgba(200,247,0,0.3);border-radius:14px;padding:8px 12px;gap:10px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,0.4);color:#fff;font-family:system-ui;flex-wrap:wrap;max-width:calc(100vw - 40px)}
-#viewer-bar .vw-logo{display:flex;align-items:center;gap:6px;font-weight:900;font-size:14px;color:#c8f700;letter-spacing:0.02em}
+#viewer-bar{display:none;position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:1000;background:rgba(15,23,42,0.92);backdrop-filter:blur(14px);border:1px solid rgba(212,175,55,0.3);border-radius:14px;padding:8px 12px;gap:10px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,0.4);color:#fff;font-family:system-ui;flex-wrap:wrap;max-width:calc(100vw - 40px)}
+#viewer-bar .vw-logo{display:flex;align-items:center;gap:6px;font-weight:900;font-size:14px;color:#D4AF37;letter-spacing:0.02em}
 #viewer-bar .vw-title{font-size:13px;font-weight:600;color:rgba(255,255,255,0.92);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #viewer-bar .vw-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:#fff;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:0.04em;display:flex;align-items:center;gap:5px;transition:all .15s}
-#viewer-bar .vw-btn:hover{background:rgba(200,247,0,0.15);border-color:rgba(200,247,0,0.4);color:#c8f700}
-#viewer-bar .vw-btn.primary{background:linear-gradient(135deg,#c8f700,#a5d400);color:#0b0f19;border-color:transparent}
+#viewer-bar .vw-btn:hover{background:rgba(212,175,55,0.15);border-color:rgba(212,175,55,0.4);color:#D4AF37}
+#viewer-bar .vw-btn.primary{background:linear-gradient(135deg,#D4AF37,#c49b2f);color:#0b0f19;border-color:transparent}
 #viewer-bar .vw-btn.primary:hover{filter:brightness(1.1)}
-#viewer-fab{display:none;position:fixed;bottom:24px;right:24px;z-index:1000;background:linear-gradient(135deg,#c8f700,#a5d400);color:#0b0f19;padding:14px 22px;border-radius:999px;font-size:14px;font-weight:900;letter-spacing:0.04em;cursor:pointer;border:none;box-shadow:0 10px 30px rgba(200,247,0,0.4);text-transform:uppercase;font-family:'Oswald',sans-serif}
+#viewer-fab{display:none;position:fixed;bottom:24px;right:24px;z-index:1000;background:linear-gradient(135deg,#D4AF37,#c49b2f);color:#0b0f19;padding:14px 22px;border-radius:999px;font-size:14px;font-weight:900;letter-spacing:0.04em;cursor:pointer;border:none;box-shadow:0 10px 30px rgba(212,175,55,0.4);text-transform:uppercase;font-family:'Oswald',sans-serif}
 body.viewer-mode #viewer-fab{display:inline-flex;align-items:center;gap:8px}
 .sb-header{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border);gap:10px;position:relative}
 .sb-header .brand-text{font-size:13px;font-weight:900;letter-spacing:0.22em;color:var(--text);margin-right:auto}
 .logo{width:36px;height:36px;background:transparent;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
 .logo::after{content:'';position:absolute;inset:-2px;border-radius:13px;background:radial-gradient(circle,var(--brand-glow),transparent 70%);opacity:0.5;z-index:-1;filter:blur(7px)}
-.logo img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 5px rgba(204,255,0,0.25))}
+.logo img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 5px rgba(212,175,55,0.25))}
 .logo span{font-size:16px;font-weight:900;color:#0a0f1f;font-family:var(--font-display)}
 .sb-close{width:30px;height:30px;border-radius:8px;background:var(--hover);display:flex;align-items:center;justify-content:center;color:var(--text-muted);transition:all .15s}
 .sb-close:hover{background:var(--surface-2);color:var(--text);transform:rotate(90deg)}
@@ -154,7 +154,7 @@ html.dark .tool-circle::after{background:linear-gradient(180deg,rgba(255,255,255
 /* Tool group color themes */
 .tool-circle[data-grp="1"]{background:rgba(241,245,249,0.8);color:#475569}
 .tool-circle[data-grp="1"].active{background:#475569;color:#fff;border-color:#475569}
-.tool-circle[data-grp="2"]{background:rgba(200,247,0,0.12);color:#65a30d;border-color:rgba(200,247,0,0.3)}
+.tool-circle[data-grp="2"]{background:rgba(212,175,55,0.12);color:#65a30d;border-color:rgba(212,175,55,0.3)}
 .tool-circle[data-grp="2"].active{background:#65a30d;color:#fff;border-color:#65a30d}
 .tool-circle[data-grp="3"]{background:rgba(139,92,246,0.08);color:#7c3aed;border-color:rgba(139,92,246,0.2)}
 .tool-circle[data-grp="3"].active{background:#7c3aed;color:#fff;border-color:#7c3aed}
@@ -238,7 +238,7 @@ html.dark .asp-item.active{background:var(--brand);color:#0a0f1f;border-color:va
 .vb-btn{padding:7px 16px;border-radius:999px;font-size:11px;font-weight:700;color:var(--text-sec);transition:all .2s cubic-bezier(.2,.8,.2,1);white-space:nowrap;letter-spacing:0.03em;min-width:44px;text-align:center}
 .vb-btn:hover{color:var(--text);background:var(--hover)}
 .vb-btn.active{background:var(--panel);color:var(--text);box-shadow:0 2px 8px -2px var(--shadow-md),0 0 0 1px var(--border);font-weight:800}
-html.dark .vb-btn.active{background:var(--brand);color:#0a0f1f;box-shadow:0 3px 12px var(--brand-glow),0 0 0 1px rgba(204,255,0,0.4)}
+html.dark .vb-btn.active{background:var(--brand);color:#0a0f1f;box-shadow:0 3px 12px var(--brand-glow),0 0 0 1px rgba(212,175,55,0.4)}
 .vb-icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text-sec);background:var(--surface);border:1px solid var(--border);font-size:14px;transition:all .2s cubic-bezier(.2,.8,.2,1);box-shadow:0 1px 3px var(--shadow),0 2px 8px -3px var(--shadow-md)}
 .vb-icon svg{width:16px;height:16px}
 .vb-icon:hover{background:var(--panel);color:var(--text);border-color:var(--border-strong);transform:translateY(-1px);box-shadow:0 4px 12px -2px var(--shadow-md),0 0 0 3px var(--primary-dim)}
@@ -249,13 +249,13 @@ html.dark .vb-icon.vb-icon-toggle.active{background:var(--brand);color:#0a0f1f}
 #canvas-inner.hide-measures .fld-measure{display:none}
 #canvas-inner.hide-zones .fld-zone{display:none}
 /* Scoreboard overlay */
-#scoreboard{position:absolute;top:72px;left:18px;z-index:30;display:none;align-items:center;gap:10px;padding:7px 12px;background:linear-gradient(135deg,rgba(20,20,30,0.92),rgba(40,40,60,0.92));backdrop-filter:blur(12px);border:1px solid rgba(200,247,0,0.35);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,0.4);font-family:'Oswald',sans-serif;color:#fff;letter-spacing:0.08em;cursor:move;user-select:none;touch-action:none}
-#scoreboard::before{content:'⋮⋮';position:absolute;left:4px;top:50%;transform:translateY(-50%);color:rgba(200,247,0,0.35);font-size:9px;letter-spacing:-1px;pointer-events:none}
+#scoreboard{position:absolute;top:72px;left:18px;z-index:30;display:none;align-items:center;gap:10px;padding:7px 12px;background:linear-gradient(135deg,rgba(20,20,30,0.92),rgba(40,40,60,0.92));backdrop-filter:blur(12px);border:1px solid rgba(212,175,55,0.35);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,0.4);font-family:'Oswald',sans-serif;color:#fff;letter-spacing:0.08em;cursor:move;user-select:none;touch-action:none}
+#scoreboard::before{content:'⋮⋮';position:absolute;left:4px;top:50%;transform:translateY(-50%);color:rgba(212,175,55,0.35);font-size:9px;letter-spacing:-1px;pointer-events:none}
 #scoreboard{padding-left:18px}
 #scoreboard.show{display:flex}
 .sb-team{display:flex;flex-direction:column;align-items:center;min-width:52px}
 .sb-team-name{font-size:9px;opacity:0.85;font-weight:700;letter-spacing:0.15em;text-transform:uppercase}
-.sb-team-score{font-size:26px;font-weight:800;line-height:1;color:#caf000;text-shadow:0 0 12px rgba(200,247,0,0.6)}
+.sb-team-score{font-size:26px;font-weight:800;line-height:1;color:#caf000;text-shadow:0 0 12px rgba(212,175,55,0.6)}
 .sb-team.team-a .sb-team-score{color:#ff6b6b;text-shadow:0 0 12px rgba(255,107,107,0.6)}
 .sb-team.team-b .sb-team-score{color:#6bb4ff;text-shadow:0 0 12px rgba(107,180,255,0.6)}
 .sb-divider{font-size:24px;font-weight:800;opacity:0.4}
@@ -263,7 +263,7 @@ html.dark .vb-icon.vb-icon-toggle.active{background:var(--brand);color:#0a0f1f}
 .sb-reset:hover{background:rgba(255,255,255,0.1);color:#fff}
 /* Goal flash animation */
 @keyframes goalflash{0%{opacity:0;transform:translate(-50%,-50%) scale(0.3)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}80%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.2)}}
-#goal-flash{position:absolute;top:50%;left:50%;z-index:35;pointer-events:none;font-family:'Oswald',sans-serif;font-size:72px;font-weight:900;letter-spacing:0.15em;color:#caf000;text-shadow:0 0 30px rgba(200,247,0,0.9),0 4px 16px rgba(0,0,0,0.8);opacity:0}
+#goal-flash{position:absolute;top:50%;left:50%;z-index:35;pointer-events:none;font-family:'Oswald',sans-serif;font-size:72px;font-weight:900;letter-spacing:0.15em;color:#caf000;text-shadow:0 0 30px rgba(212,175,55,0.9),0 4px 16px rgba(0,0,0,0.8);opacity:0}
 #goal-flash.active{animation:goalflash 1.6s cubic-bezier(0.25,1,0.5,1)}
 /* Theme toggle - more prominent */
 #theme-toggle{width:44px;height:44px;border-radius:50%;background:var(--surface);border:1px solid var(--border-strong);color:var(--text);position:relative;box-shadow:0 2px 8px -2px var(--shadow-md)}
@@ -287,13 +287,13 @@ html.dark #theme-toggle{color:var(--brand)}
 html.dark #field-layer text.fld-measure{stroke:var(--panel)}
 html.dark #field-layer text.fld-measure[data-mono="1"]{fill:rgba(235,235,235,0.95)!important}
 /* ═══ Botones premium TOP / PRES en el sidebar ═══ */
-.sb-prem-btn{position:relative;display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:9px;background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);color:#c8f700;border:1px solid transparent;background-clip:padding-box;font-size:10px;font-weight:900;letter-spacing:0.1em;text-decoration:none;cursor:pointer;box-shadow:0 2px 10px -1px rgba(200,247,0,0.25),inset 0 1px 0 rgba(255,255,255,0.06);transition:all .18s cubic-bezier(.4,0,.2,1);overflow:hidden;isolation:isolate}
-.sb-prem-btn::before{content:'';position:absolute;inset:0;padding:1.2px;border-radius:inherit;background:linear-gradient(135deg,#c8f700 0%,#84cc16 45%,#c8f700 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
-.sb-prem-btn::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(200,247,0,0.35),transparent);transform:skewX(-20deg);transition:left .7s cubic-bezier(.4,0,.2,1);pointer-events:none}
-.sb-prem-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px -2px rgba(200,247,0,0.5),inset 0 1px 0 rgba(255,255,255,0.1);color:#e4ff66}
+.sb-prem-btn{position:relative;display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:9px;background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);color:#D4AF37;border:1px solid transparent;background-clip:padding-box;font-size:10px;font-weight:900;letter-spacing:0.1em;text-decoration:none;cursor:pointer;box-shadow:0 2px 10px -1px rgba(212,175,55,0.25),inset 0 1px 0 rgba(255,255,255,0.06);transition:all .18s cubic-bezier(.4,0,.2,1);overflow:hidden;isolation:isolate}
+.sb-prem-btn::before{content:'';position:absolute;inset:0;padding:1.2px;border-radius:inherit;background:linear-gradient(135deg,#D4AF37 0%,#84cc16 45%,#D4AF37 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.sb-prem-btn::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(212,175,55,0.35),transparent);transform:skewX(-20deg);transition:left .7s cubic-bezier(.4,0,.2,1);pointer-events:none}
+.sb-prem-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px -2px rgba(212,175,55,0.5),inset 0 1px 0 rgba(255,255,255,0.1);color:#e4ff66}
 .sb-prem-btn:hover::after{left:140%}
 .sb-prem-btn:active{transform:translateY(0) scale(0.97)}
-.sb-prem-btn svg{filter:drop-shadow(0 0 4px rgba(200,247,0,0.5))}
+.sb-prem-btn svg{filter:drop-shadow(0 0 4px rgba(212,175,55,0.5))}
 /* ═══ MODO PRESENTACIÓN (pantalla completa, UI minimalista) ═══ */
 body.presentation-mode #sidebar,
 body.presentation-mode #panel,
@@ -306,12 +306,12 @@ body.presentation-mode #canvas{padding:0 !important;background:#0a0f19 !importan
 body.presentation-mode #canvas-inner{border-radius:0 !important;background:transparent !important}
 body.presentation-mode #topbar{height:36px !important;opacity:0.3;transition:opacity .3s}
 body.presentation-mode #topbar:hover{opacity:1}
-body.presentation-mode .exit-presentation{position:fixed;top:14px;right:14px;z-index:9999;padding:8px 14px;border-radius:10px;background:rgba(10,15,25,0.85);color:#c8f700;border:1px solid rgba(200,247,0,0.4);font-size:12px;font-weight:800;cursor:pointer;backdrop-filter:blur(10px);box-shadow:0 6px 20px rgba(0,0,0,0.5);display:flex;align-items:center;gap:6px;letter-spacing:0.05em;text-transform:uppercase}
-body.presentation-mode .exit-presentation:hover{background:rgba(200,247,0,0.15);transform:scale(1.05)}
+body.presentation-mode .exit-presentation{position:fixed;top:14px;right:14px;z-index:9999;padding:8px 14px;border-radius:10px;background:rgba(10,15,25,0.85);color:#D4AF37;border:1px solid rgba(212,175,55,0.4);font-size:12px;font-weight:800;cursor:pointer;backdrop-filter:blur(10px);box-shadow:0 6px 20px rgba(0,0,0,0.5);display:flex;align-items:center;gap:6px;letter-spacing:0.05em;text-transform:uppercase}
+body.presentation-mode .exit-presentation:hover{background:rgba(212,175,55,0.15);transform:scale(1.05)}
 body.presentation-mode .presentation-controls{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;gap:8px;padding:8px 12px;border-radius:14px;background:rgba(10,15,25,0.85);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(12px);box-shadow:0 8px 28px rgba(0,0,0,0.5)}
 body.presentation-mode .presentation-controls button{padding:6px 12px;border-radius:8px;background:rgba(255,255,255,0.08);color:#e8e8e8;border:1px solid rgba(255,255,255,0.1);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:0.04em}
-body.presentation-mode .presentation-controls button:hover{background:rgba(200,247,0,0.2);color:#c8f700;border-color:rgba(200,247,0,0.3)}
-body.presentation-mode .presentation-controls button.active{background:#c8f700;color:#0a0f1f;border-color:#c8f700}
+body.presentation-mode .presentation-controls button:hover{background:rgba(212,175,55,0.2);color:#D4AF37;border-color:rgba(212,175,55,0.3)}
+body.presentation-mode .presentation-controls button.active{background:#D4AF37;color:#0a0f1f;border-color:#D4AF37}
 /* Joystick */
 #joystick{position:absolute;bottom:18px;right:70px;z-index:20;display:none}
 #joystick.show{display:flex;flex-direction:column;align-items:center}
@@ -389,7 +389,7 @@ html.dark #ctx-menu{background:rgba(15,23,42,0.95)}
 .ctx-item:hover{background:var(--hover);color:var(--text)}
 .ctx-sep{height:1px;background:var(--border);margin:4px 0}
 /* Selection, grid, handles */
-.sel-box{fill:rgba(37,99,235,0.06);stroke:var(--primary);stroke-width:1;stroke-dasharray:4 2;pointer-events:none}
+.sel-box{fill:rgba(212,175,55,0.08);stroke:var(--primary);stroke-width:1;stroke-dasharray:4 2;pointer-events:none}
 .grid-line{stroke:var(--field-stroke);stroke-width:0.5}
 .handle{fill:var(--brand);stroke:#fff;stroke-width:2;cursor:pointer;r:5;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3))}
 .handle-rotate{fill:var(--brand);stroke:#fff;stroke-width:2;cursor:grab;r:5;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3))}
@@ -497,9 +497,9 @@ html.dark .cp-use:hover{background:#d9ff33;box-shadow:0 6px 18px var(--brand-glo
  <!-- CANVAS (maximized) -->
  <div id="canvas-wrap">
   <!-- Medir cercanía (Bochas/Petanca) -->
-  <div id="measure-panel" data-testid="measure-panel" style="display:none;position:absolute;top:72px;right:14px;z-index:31;background:linear-gradient(135deg,rgba(20,20,30,0.92),rgba(40,40,60,0.92));backdrop-filter:blur(12px);border:1px solid rgba(200,247,0,0.35);border-radius:12px;padding:10px 12px;color:#fff;font-family:'Oswald',sans-serif;letter-spacing:0.04em;min-width:180px;max-width:220px;box-shadow:0 8px 28px rgba(0,0,0,0.4)">
-   <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:0.08em;color:#c8f700;margin-bottom:8px;text-transform:uppercase"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 3 18"/><polyline points="21 6 21 18"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="6" x2="12" y2="18"/></svg>Cercanía al Jack</div>
-   <button onclick="S.toggleMeasure()" id="measure-toggle" data-testid="measure-toggle" style="width:100%;padding:7px 10px;border-radius:8px;background:#c8f700;color:#0a0f19;border:none;font-size:11px;font-weight:800;cursor:pointer;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:6px">Mostrar</button>
+  <div id="measure-panel" data-testid="measure-panel" style="display:none;position:absolute;top:72px;right:14px;z-index:31;background:linear-gradient(135deg,rgba(20,20,30,0.92),rgba(40,40,60,0.92));backdrop-filter:blur(12px);border:1px solid rgba(212,175,55,0.35);border-radius:12px;padding:10px 12px;color:#fff;font-family:'Oswald',sans-serif;letter-spacing:0.04em;min-width:180px;max-width:220px;box-shadow:0 8px 28px rgba(0,0,0,0.4)">
+   <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:0.08em;color:#D4AF37;margin-bottom:8px;text-transform:uppercase"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 3 18"/><polyline points="21 6 21 18"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="6" x2="12" y2="18"/></svg>Cercanía al Jack</div>
+   <button onclick="S.toggleMeasure()" id="measure-toggle" data-testid="measure-toggle" style="width:100%;padding:7px 10px;border-radius:8px;background:#D4AF37;color:#0a0f19;border:none;font-size:11px;font-weight:800;cursor:pointer;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:6px">Mostrar</button>
    <div id="measure-list" style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.85);max-height:180px;overflow-y:auto;display:none"></div>
   </div>
   <!-- Scoreboard overlay (auto-shown for team sports) -->
@@ -771,7 +771,7 @@ const FIELDS = Object.assign({}, FIELD_VARIANT_SVGS, {
 'Maraton':{bg:'#ffffff',svg:`<path d="M150 720 L150 560 L450 560 L450 380 L150 380 L150 200 L450 200 L450 80" fill="none" stroke-width="20" stroke="rgba(0,0,0,0.05)" stroke-linecap="round" stroke-linejoin="round"/><path d="M150 720 L150 560 L450 560 L450 380 L150 380 L150 200 L450 200 L450 80" fill="none" stroke-width="2" stroke-dasharray="6 4"/>`},
 'Gimnasia':{bg:'#ffffff',svg:`<rect x="100" y="200" width="400" height="400" fill="rgba(0,0,0,0.03)" rx="3" stroke="rgba(0,0,0,0.2)"/><line x1="300" y1="200" x2="300" y2="600" stroke="rgba(0,0,0,0.06)" stroke-dasharray="4 3"/><line x1="100" y1="400" x2="500" y2="400" stroke="rgba(0,0,0,0.06)" stroke-dasharray="4 3"/><text x="300" y="192" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">12 m</text><text x="92" y="400" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 92 400)">12 m</text><text x="300" y="640" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">GIMNASIA ARTISTICA (FIG) · Suelo 12x12m</text>`},
 'Golf':{bg:'#ffffff',svg:`<rect x="40" y="40" width="520" height="720" fill="rgba(60,140,60,0.08)" rx="4"/><path d="M40 40 L560 40 L560 760 L40 760 Z" fill="none" stroke-width="1" stroke="rgba(0,0,0,0.2)"/><path d="M60 700 Q100 620 180 560 Q260 500 280 400 Q300 280 380 180 Q450 100 520 80" fill="none" stroke="rgba(140,200,120,0.45)" stroke-width="80" stroke-linecap="round" stroke-linejoin="round"/><path d="M60 700 Q100 620 180 560 Q260 500 280 400 Q300 280 380 180 Q450 100 520 80" fill="none" stroke="rgba(60,140,60,0.25)" stroke-width="78" stroke-linecap="round" stroke-linejoin="round"/><rect x="35" y="680" width="60" height="35" rx="3" fill="rgba(160,120,80,0.35)" stroke="rgba(100,70,40,0.7)" stroke-width="1.2"/><circle cx="50" cy="695" r="3" fill="rgba(255,255,255,0.9)" stroke="rgba(0,0,0,0.3)"/><circle cx="65" cy="695" r="3" fill="rgba(255,255,255,0.9)" stroke="rgba(0,0,0,0.3)"/><circle cx="80" cy="695" r="3" fill="rgba(255,255,255,0.9)" stroke="rgba(0,0,0,0.3)"/><text class="fld-measure fld-zone" x="65" y="738" text-anchor="middle" fill="rgba(90,60,30,0.9)" font-size="9" font-weight="700">TEE</text><ellipse cx="220" cy="540" rx="38" ry="22" fill="rgba(240,210,140,0.85)" stroke="rgba(180,140,60,0.8)" stroke-width="1.2"/><text class="fld-measure fld-zone" x="220" y="545" text-anchor="middle" fill="rgba(120,80,20,0.9)" font-size="9" font-weight="700">BUNKER</text><ellipse cx="320" cy="320" rx="32" ry="18" fill="rgba(240,210,140,0.85)" stroke="rgba(180,140,60,0.8)" stroke-width="1.2"/><path d="M410 140 Q360 100 310 140 Q280 180 250 220" fill="none" stroke="rgba(60,120,200,0.35)" stroke-width="16" stroke-linecap="round"/><text class="fld-measure fld-zone" x="260" y="225" text-anchor="middle" fill="rgba(40,80,160,0.75)" font-size="8" font-weight="700">AGUA</text><ellipse cx="500" cy="100" rx="55" ry="40" fill="rgba(100,180,90,0.55)" stroke="rgba(40,120,40,0.95)" stroke-width="1.8"/><circle cx="500" cy="100" r="5" fill="#000"/><line x1="500" y1="100" x2="500" y2="55" stroke="rgba(40,40,40,0.9)" stroke-width="2"/><polygon points="500,55 500,45 520,52" fill="rgba(255,60,60,0.95)" stroke="rgba(180,20,20,1)" stroke-width="0.8"/><text class="fld-measure fld-zone" x="500" y="115" text-anchor="middle" fill="rgba(20,60,20,0.95)" font-size="9" font-weight="700">GREEN · HOYO</text>${Array.from({length:8},(_,i)=>`<text class="fld-measure fld-zone" x="${70+i*62}" y="755" text-anchor="middle" fill="rgba(80,80,80,0.55)" font-size="8">${i*60}m</text>`).join('')}<text x="300" y="30" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">HOYO PAR 4 · 380 yd (347 m)</text><text x="300" y="790" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">GOLF (R&amp;A/USGA) · Fairway · Rough · Bunkers · Water hazard · Green</text>`},
-'Escalada':{bg:'#ffffff',svg:`<rect x="120" y="30" width="360" height="740" rx="4" fill="rgba(180,140,100,0.1)" stroke="rgba(120,80,40,0.6)" stroke-width="2"/><rect x="120" y="30" width="360" height="30" rx="0" fill="rgba(0,0,0,0.08)"/><text class="fld-measure fld-zone" x="300" y="50" text-anchor="middle" fill="rgba(40,40,40,0.9)" font-size="10" font-weight="700">TOP OUT (15m)</text>${Array.from({length:14},(_,i)=>`<line x1="120" y1="${80+i*50}" x2="480" y2="${80+i*50}" stroke="rgba(120,80,40,0.15)" stroke-dasharray="4 6"/>`).join('')}${[[200,100,'green'],[280,150,'green'],[360,200,'yellow'],[220,250,'yellow'],[320,310,'yellow'],[400,360,'orange'],[240,420,'orange'],[350,470,'orange'],[180,510,'red'],[290,550,'red'],[390,600,'red'],[230,650,'red'],[330,700,'red'],[300,745,'red']].map(([x,y,c])=>{const colors={green:'rgba(60,200,60,',yellow:'rgba(255,200,60,',orange:'rgba(255,140,60,',red:'rgba(255,60,60,'};return`<circle cx="${x}" cy="${y}" r="11" fill="${colors[c]}0.35)" stroke="${colors[c]}0.9)" stroke-width="1.8"/><circle cx="${x-2}" cy="${y-2}" r="3" fill="${colors[c]}0.7)"/>`}).join('')}${[[200,100,280,150],[280,150,360,200],[360,200,320,310],[220,250,320,310],[320,310,400,360],[400,360,350,470],[240,420,350,470],[350,470,290,550],[180,510,290,550],[290,550,390,600],[390,600,330,700],[230,650,330,700],[330,700,300,745]].map(([x1,y1,x2,y2])=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(200,247,0,0.35)" stroke-width="2" stroke-dasharray="4 3"/>`).join('')}${[120,192,264,336,408,480].map(x=>`<line x1="${x}" y1="30" x2="${x}" y2="770" stroke="rgba(120,80,40,0.08)"/>`).join('')}${[[155,50],[195,55],[445,70],[405,65],[260,340],[390,420]].map(([x,y])=>`<polygon points="${x-6},${y-4} ${x+6},${y-4} ${x+4},${y+4} ${x-4},${y+4}" fill="rgba(120,80,40,0.25)" stroke="rgba(80,50,20,0.6)" stroke-width="0.6"/>`).join('')}${Array.from({length:5},(_,i)=>`<rect x="160" y="${100+i*140}" width="8" height="12" fill="rgba(80,80,80,0.6)" rx="1"/><rect x="432" y="${100+i*140}" width="8" height="12" fill="rgba(80,80,80,0.6)" rx="1"/>`).join('')}<rect x="470" y="50" width="14" height="22" fill="rgba(255,60,60,0.8)" stroke="rgba(120,20,20,1)" rx="1"/><text class="fld-measure fld-zone" x="477" y="65" text-anchor="middle" fill="#fff" font-size="8" font-weight="900">ANC</text><rect x="200" y="745" width="200" height="20" rx="3" fill="rgba(255,100,60,0.3)" stroke="rgba(255,100,60,0.7)"/><text class="fld-measure fld-zone" x="300" y="759" text-anchor="middle" fill="rgba(120,60,20,0.95)" font-size="10" font-weight="700">COLCHONETA / INICIO</text><text x="300" y="22" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">6 m</text><text x="112" y="400" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 112 400)">15 m</text><text x="300" y="790" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">ESCALADA (IFSC) · Lead · Presas verde→rojo · Ruta · Anclaje · Colchoneta</text>`},
+'Escalada':{bg:'#ffffff',svg:`<rect x="120" y="30" width="360" height="740" rx="4" fill="rgba(180,140,100,0.1)" stroke="rgba(120,80,40,0.6)" stroke-width="2"/><rect x="120" y="30" width="360" height="30" rx="0" fill="rgba(0,0,0,0.08)"/><text class="fld-measure fld-zone" x="300" y="50" text-anchor="middle" fill="rgba(40,40,40,0.9)" font-size="10" font-weight="700">TOP OUT (15m)</text>${Array.from({length:14},(_,i)=>`<line x1="120" y1="${80+i*50}" x2="480" y2="${80+i*50}" stroke="rgba(120,80,40,0.15)" stroke-dasharray="4 6"/>`).join('')}${[[200,100,'green'],[280,150,'green'],[360,200,'yellow'],[220,250,'yellow'],[320,310,'yellow'],[400,360,'orange'],[240,420,'orange'],[350,470,'orange'],[180,510,'red'],[290,550,'red'],[390,600,'red'],[230,650,'red'],[330,700,'red'],[300,745,'red']].map(([x,y,c])=>{const colors={green:'rgba(60,200,60,',yellow:'rgba(255,200,60,',orange:'rgba(255,140,60,',red:'rgba(255,60,60,'};return`<circle cx="${x}" cy="${y}" r="11" fill="${colors[c]}0.35)" stroke="${colors[c]}0.9)" stroke-width="1.8"/><circle cx="${x-2}" cy="${y-2}" r="3" fill="${colors[c]}0.7)"/>`}).join('')}${[[200,100,280,150],[280,150,360,200],[360,200,320,310],[220,250,320,310],[320,310,400,360],[400,360,350,470],[240,420,350,470],[350,470,290,550],[180,510,290,550],[290,550,390,600],[390,600,330,700],[230,650,330,700],[330,700,300,745]].map(([x1,y1,x2,y2])=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(212,175,55,0.35)" stroke-width="2" stroke-dasharray="4 3"/>`).join('')}${[120,192,264,336,408,480].map(x=>`<line x1="${x}" y1="30" x2="${x}" y2="770" stroke="rgba(120,80,40,0.08)"/>`).join('')}${[[155,50],[195,55],[445,70],[405,65],[260,340],[390,420]].map(([x,y])=>`<polygon points="${x-6},${y-4} ${x+6},${y-4} ${x+4},${y+4} ${x-4},${y+4}" fill="rgba(120,80,40,0.25)" stroke="rgba(80,50,20,0.6)" stroke-width="0.6"/>`).join('')}${Array.from({length:5},(_,i)=>`<rect x="160" y="${100+i*140}" width="8" height="12" fill="rgba(80,80,80,0.6)" rx="1"/><rect x="432" y="${100+i*140}" width="8" height="12" fill="rgba(80,80,80,0.6)" rx="1"/>`).join('')}<rect x="470" y="50" width="14" height="22" fill="rgba(255,60,60,0.8)" stroke="rgba(120,20,20,1)" rx="1"/><text class="fld-measure fld-zone" x="477" y="65" text-anchor="middle" fill="#fff" font-size="8" font-weight="900">ANC</text><rect x="200" y="745" width="200" height="20" rx="3" fill="rgba(255,100,60,0.3)" stroke="rgba(255,100,60,0.7)"/><text class="fld-measure fld-zone" x="300" y="759" text-anchor="middle" fill="rgba(120,60,20,0.95)" font-size="10" font-weight="700">COLCHONETA / INICIO</text><text x="300" y="22" text-anchor="middle" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">6 m</text><text x="112" y="400" text-anchor="end" class="fld-measure" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui" transform="rotate(-90 112 400)">15 m</text><text x="300" y="790" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">ESCALADA (IFSC) · Lead · Presas verde→rojo · Ruta · Anclaje · Colchoneta</text>`},
 'Surf':{bg:'#ffffff',svg:`<rect x="0" y="40" width="600" height="640" fill="rgba(60,160,220,0.18)"/>${Array.from({length:12},(_,i)=>`<path d="M0 ${80+i*50} Q150 ${50+i*50} 300 ${80+i*50} T600 ${80+i*50}" fill="none" stroke="rgba(60,160,220,${0.18+i*0.025})" stroke-width="${1+i*0.3}" stroke-linecap="round"/>`).join('')}${Array.from({length:6},(_,i)=>`<path d="M0 ${440+i*35} Q150 ${420+i*35} 300 ${440+i*35} T600 ${440+i*35}" fill="none" stroke="rgba(255,255,255,${0.3+i*0.08})" stroke-width="${2+i*0.4}" stroke-linecap="round"/>`).join('')}<path d="M0 680 Q100 665 200 675 T400 680 T600 670 L600 760 L0 760 Z" fill="rgba(240,220,170,0.6)" stroke="rgba(200,170,100,0.6)" stroke-width="1.5"/>${Array.from({length:40},(_,i)=>`<circle cx="${20+i*15}" cy="${690+(i%3)*15+Math.random()*10}" r="1.2" fill="rgba(200,180,120,0.7)"/>`).join('')}<line x1="40" y1="300" x2="560" y2="300" stroke="rgba(80,140,200,0.5)" stroke-width="1" stroke-dasharray="10 6"/><text class="fld-measure fld-zone" x="300" y="295" text-anchor="middle" fill="rgba(40,80,140,0.9)" font-size="9" font-weight="700">LINE-UP (out back)</text><line x1="40" y1="480" x2="560" y2="480" stroke="rgba(200,60,60,0.45)" stroke-width="1" stroke-dasharray="10 6"/><text class="fld-measure fld-zone" x="300" y="475" text-anchor="middle" fill="rgba(160,40,40,0.9)" font-size="9" font-weight="700">TAKE-OFF ZONE (punto critico)</text><line x1="40" y1="620" x2="560" y2="620" stroke="rgba(200,160,40,0.45)" stroke-width="1" stroke-dasharray="10 6"/><text class="fld-measure fld-zone" x="300" y="615" text-anchor="middle" fill="rgba(180,120,20,0.9)" font-size="9" font-weight="700">ZONA INSIDE (espuma)</text>${[[150,400],[280,420],[420,390]].map(([x,y])=>`<rect x="${x-5}" y="${y-22}" width="10" height="44" rx="4" fill="rgba(255,255,255,0.85)" stroke="rgba(100,100,100,0.6)" stroke-width="0.8"/><circle cx="${x}" cy="${y-10}" r="5" fill="rgba(255,220,180,0.9)" stroke="rgba(80,50,20,0.7)" stroke-width="0.6"/>`).join('')}<text class="fld-measure fld-zone" x="300" y="725" text-anchor="middle" fill="rgba(120,90,40,0.9)" font-size="9" font-weight="700">PLAYA · ARENA</text><text x="300" y="30" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">OCEANO · DIRECCION DEL SWELL ↓</text><text x="300" y="785" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">SURF (WSL) · Line-up · Take-off · Inside · Playa</text>`},
 'Skateboarding':{bg:'#ffffff',svg:`<rect x="40" y="40" width="520" height="720" fill="rgba(200,200,200,0.15)" rx="4"/><circle cx="160" cy="200" r="95" fill="rgba(120,140,160,0.25)" stroke="rgba(80,100,130,0.7)" stroke-width="2"/><circle cx="160" cy="200" r="75" fill="rgba(140,160,180,0.3)" stroke="rgba(80,100,130,0.5)" stroke-width="1.5" stroke-dasharray="5 3"/><circle cx="160" cy="200" r="50" fill="rgba(160,180,200,0.4)" stroke="rgba(80,100,130,0.4)" stroke-width="1"/><text class="fld-measure fld-zone" x="160" y="205" text-anchor="middle" fill="rgba(40,60,80,0.9)" font-size="10" font-weight="700">BOWL</text><rect x="300" y="120" width="220" height="140" rx="6" fill="rgba(180,190,200,0.3)" stroke="rgba(100,120,140,0.7)" stroke-width="1.5"/><path d="M300 120 L310 135 L510 135 L520 120" fill="rgba(140,160,180,0.4)" stroke="rgba(80,100,130,0.5)"/><text class="fld-measure fld-zone" x="410" y="195" text-anchor="middle" fill="rgba(40,60,80,0.9)" font-size="10" font-weight="700">FUNBOX + LEDGE</text><line x1="320" y1="185" x2="500" y2="185" stroke="rgba(180,100,40,0.8)" stroke-width="4" stroke-linecap="round"/><text class="fld-measure fld-zone" x="410" y="230" text-anchor="middle" fill="rgba(160,80,30,0.9)" font-size="8" font-weight="700">LEDGE/RAIL</text><path d="M60 400 L540 400 L540 440 L60 440 Z" fill="rgba(100,120,140,0.4)" stroke="rgba(60,80,100,0.9)" stroke-width="1.5"/><path d="M60 400 Q60 380 80 380 L520 380 Q540 380 540 400" fill="none" stroke="rgba(80,100,130,0.9)" stroke-width="2"/><path d="M60 440 Q60 460 80 460 L520 460 Q540 460 540 440" fill="none" stroke="rgba(80,100,130,0.9)" stroke-width="2"/><text class="fld-measure fld-zone" x="300" y="425" text-anchor="middle" fill="rgba(40,60,80,0.95)" font-size="11" font-weight="700">HALF-PIPE (rampa 4m)</text><polygon points="100,540 280,540 280,620 240,640 100,640" fill="rgba(140,160,180,0.35)" stroke="rgba(80,100,130,0.8)" stroke-width="1.5"/><text class="fld-measure fld-zone" x="190" y="590" text-anchor="middle" fill="rgba(40,60,80,0.9)" font-size="10" font-weight="700">QUARTER-PIPE</text><path d="M320 550 L450 550 L470 640 L340 640 Z" fill="rgba(180,140,100,0.35)" stroke="rgba(140,100,50,0.8)" stroke-width="1.5"/><text class="fld-measure fld-zone" x="395" y="595" text-anchor="middle" fill="rgba(100,70,20,0.9)" font-size="9" font-weight="700">KICKER</text><rect x="480" y="540" width="60" height="100" rx="3" fill="rgba(220,180,60,0.25)" stroke="rgba(160,120,40,0.7)" stroke-width="1.5"/><text class="fld-measure fld-zone" x="510" y="595" text-anchor="middle" fill="rgba(120,80,20,0.9)" font-size="8" font-weight="700">STAIR</text>${[[510,550],[510,565],[510,580],[510,595],[510,610],[510,625]].map(([x,y])=>`<line x1="${x-25}" y1="${y}" x2="${x+25}" y2="${y}" stroke="rgba(120,80,20,0.6)" stroke-width="0.8"/>`).join('')}<rect x="80" y="680" width="400" height="40" rx="3" fill="rgba(220,220,220,0.3)" stroke="rgba(160,160,160,0.6)" stroke-width="1"/><text class="fld-measure fld-zone" x="280" y="705" text-anchor="middle" fill="rgba(80,80,80,0.9)" font-size="9" font-weight="700">AREA LIBRE / FLAT</text><text x="300" y="30" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">SKATE PARK · 30 x 50 m</text><text x="300" y="755" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">SKATEBOARDING (WST) · Bowl · Half-pipe · Funbox · Kicker · Stair · Rail</text>`},
 'Orientacion':{bg:'#fffdf4',svg:`<rect x="20" y="40" width="560" height="720" fill="rgba(250,245,220,0.4)" stroke="rgba(120,80,40,0.4)" stroke-width="1.5"/>${[[200,150,'closed'],[300,200,'closed'],[400,180,'closed'],[280,300,'closed'],[180,320,'closed'],[420,340,'closed'],[250,450,'closed'],[380,480,'closed'],[200,580,'closed'],[380,620,'closed'],[300,700,'closed']].map(([cx,cy])=>{let res='';for(let i=0;i<5;i++){const rx=30+i*15,ry=20+i*12;res+=`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="none" stroke="rgba(140,100,60,${0.45-i*0.06})" stroke-width="${i===4?1.5:1}" stroke-dasharray="${i%2?'3 2':'none'}"/>`;}return res;}).join('')}${[[80,500,140,600,'blue'],[470,200,520,350,'blue']].map(([x1,y1,x2,y2])=>`<path d="M${x1} ${y1} Q${(x1+x2)/2+20} ${(y1+y2)/2} ${x2} ${y2}" fill="none" stroke="rgba(60,140,200,0.6)" stroke-width="8" stroke-linecap="round"/>`).join('')}${[[60,300,200,250],[360,100,450,250]].map(([x1,y1,x2,y2])=>`<path d="M${x1} ${y1} Q${(x1+x2)/2} ${(y1+y2)/2+30} ${x2} ${y2}" fill="none" stroke="rgba(80,80,80,0.4)" stroke-width="2" stroke-dasharray="8 6"/>`).join('')}${Array.from({length:30},(_,i)=>{const x=60+Math.random()*480;const y=60+Math.random()*680;return`<circle cx="${x}" cy="${y}" r="1.5" fill="rgba(60,140,60,0.55)"/>`}).join('')}${Array.from({length:15},(_,i)=>{const x=60+Math.random()*480;const y=60+Math.random()*680;return`<path d="M${x-3} ${y+4} L${x} ${y-5} L${x+3} ${y+4} Z" fill="rgba(40,120,40,0.65)"/>`}).join('')}<polygon points="100,650 115,680 85,680" fill="rgba(255,60,60,0.9)" stroke="rgba(120,20,20,1)" stroke-width="1.2"/><text class="fld-measure fld-zone" x="100" y="695" text-anchor="middle" fill="rgba(120,20,20,0.95)" font-size="9" font-weight="800">START</text>${[[200,560,'1'],[310,470,'2'],[430,380,'3'],[280,270,'4'],[180,180,'5'],[420,120,'6']].map(([x,y,n])=>`<circle cx="${x}" cy="${y}" r="14" fill="none" stroke="rgba(200,40,160,0.95)" stroke-width="2.5"/><text class="fld-measure fld-zone" x="${x+22}" y="${y+4}" fill="rgba(160,20,120,1)" font-size="12" font-weight="900">${n}</text>`).join('')}<circle cx="500" cy="70" r="14" fill="none" stroke="rgba(200,40,160,0.95)" stroke-width="2.5"/><circle cx="500" cy="70" r="8" fill="none" stroke="rgba(200,40,160,0.95)" stroke-width="2"/><text class="fld-measure fld-zone" x="522" y="74" fill="rgba(160,20,120,1)" font-size="11" font-weight="900">FIN</text>${[[100,650,200,560],[200,560,310,470],[310,470,430,380],[430,380,280,270],[280,270,180,180],[180,180,420,120],[420,120,500,70]].map(([x1,y1,x2,y2])=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(200,40,160,0.55)" stroke-width="1.5" stroke-dasharray="6 4"/>`).join('')}<g transform="translate(520,550)"><circle cx="0" cy="0" r="22" fill="rgba(255,255,255,0.9)" stroke="rgba(0,0,0,0.7)" stroke-width="1.5"/><polygon points="0,-18 -5,8 0,4 5,8" fill="rgba(255,60,60,0.95)"/><polygon points="0,18 -5,-8 0,-4 5,-8" fill="rgba(40,40,40,0.9)"/><text x="0" y="-25" text-anchor="middle" font-size="9" font-weight="900" fill="rgba(40,40,40,0.9)">N</text></g><g transform="translate(55,720)"><rect x="0" y="0" width="100" height="14" fill="rgba(255,255,255,0.95)" stroke="rgba(0,0,0,0.7)" stroke-width="1"/><rect x="0" y="0" width="20" height="14" fill="rgba(40,40,40,0.9)"/><rect x="40" y="0" width="20" height="14" fill="rgba(40,40,40,0.9)"/><rect x="80" y="0" width="20" height="14" fill="rgba(40,40,40,0.9)"/><text x="50" y="26" text-anchor="middle" font-size="8" font-weight="700" fill="rgba(40,40,40,0.9)">0         250m         500m</text></g><text x="300" y="30" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(40,40,40,1)" data-mono="1" font-size="11" font-family="system-ui">MAPA DE ORIENTACION (ISOM) · Escala 1:10.000</text><text x="300" y="780" text-anchor="middle" class="fld-measure fld-zone" fill="rgba(90,90,90,0.85)" data-mono="1" font-size="9" font-family="system-ui">ORIENTACION (IOF) · Curvas nivel · Puntos control · Brujula · Leyenda</text>`},
@@ -839,7 +839,7 @@ const TOOLS = [
  {id:'eraser',label:'Borrar',icon:'<rect x="4" y="7" width="10" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.5" transform="rotate(-20 9 10)"/>',group:1},
  {id:'sep1',group:0},
  // ── PERSONAS ──
- {id:'playerA',label:'Jugador A',icon:'<circle cx="9" cy="9" r="7" fill="rgba(200,247,0,0.2)" stroke="#c8f700" stroke-width="1.5"/><text x="9" y="12" text-anchor="middle" font-size="8" fill="#c8f700" font-weight="700">X</text>',group:2},
+ {id:'playerA',label:'Jugador A',icon:'<circle cx="9" cy="9" r="7" fill="rgba(212,175,55,0.2)" stroke="#D4AF37" stroke-width="1.5"/><text x="9" y="12" text-anchor="middle" font-size="8" fill="#D4AF37" font-weight="700">X</text>',group:2},
  {id:'playerB',label:'Jugador B',icon:'<circle cx="9" cy="9" r="7" fill="rgba(51,65,85,0.1)" stroke="#334155" stroke-width="1.5"/>',group:2},
  {id:'goalkeeper',label:'Portero',icon:'<circle cx="9" cy="9" r="7" fill="rgba(239,159,39,0.2)" stroke="#EF9F27" stroke-width="1.5"/><text x="9" y="12" text-anchor="middle" font-size="7" fill="#EF9F27" font-weight="700">GK</text>',group:2},
  {id:'p_coach',label:'Entrenador',icon:'<circle cx="9" cy="6" r="4" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1"/><rect x="5" y="10" width="8" height="6" rx="2" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="0.8"/><rect x="12" y="8" width="4" height="5" rx="1" fill="currentColor" opacity="0.3"/>',group:2},
@@ -858,7 +858,7 @@ const TOOLS = [
  {id:'d_row',label:'Fila',icon:'<circle cx="3" cy="9" r="2" fill="currentColor"/><circle cx="7.5" cy="9" r="2" fill="currentColor"/><circle cx="12" cy="9" r="2" fill="currentColor"/><circle cx="16.5" cy="9" r="2" fill="currentColor"/>',group:3},
  {id:'d_circle',label:'Circulo',icon:'<circle cx="9" cy="3" r="1.5" fill="currentColor"/><circle cx="14" cy="6" r="1.5" fill="currentColor"/><circle cx="15" cy="12" r="1.5" fill="currentColor"/><circle cx="9" cy="15" r="1.5" fill="currentColor"/><circle cx="3" cy="12" r="1.5" fill="currentColor"/><circle cx="3" cy="6" r="1.5" fill="currentColor"/>',group:3},
  {id:'d_grid',label:'Grilla',icon:'<circle cx="4" cy="5" r="1.5" fill="currentColor"/><circle cx="9" cy="5" r="1.5" fill="currentColor"/><circle cx="14" cy="5" r="1.5" fill="currentColor"/><circle cx="4" cy="10" r="1.5" fill="currentColor"/><circle cx="9" cy="10" r="1.5" fill="currentColor"/><circle cx="14" cy="10" r="1.5" fill="currentColor"/><circle cx="4" cy="15" r="1.5" fill="currentColor"/><circle cx="9" cy="15" r="1.5" fill="currentColor"/><circle cx="14" cy="15" r="1.5" fill="currentColor"/>',group:3},
- {id:'d_pairs',label:'Parejas',icon:'<circle cx="5" cy="6" r="2" fill="#c8f700"/><circle cx="13" cy="6" r="2" fill="white"/><line x1="7" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="0.8"/><circle cx="5" cy="13" r="2" fill="#c8f700"/><circle cx="13" cy="13" r="2" fill="white"/><line x1="7" y1="13" x2="11" y2="13" stroke="currentColor" stroke-width="0.8"/>',group:3},
+ {id:'d_pairs',label:'Parejas',icon:'<circle cx="5" cy="6" r="2" fill="#D4AF37"/><circle cx="13" cy="6" r="2" fill="white"/><line x1="7" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="0.8"/><circle cx="5" cy="13" r="2" fill="#D4AF37"/><circle cx="13" cy="13" r="2" fill="white"/><line x1="7" y1="13" x2="11" y2="13" stroke="currentColor" stroke-width="0.8"/>',group:3},
  {id:'d_diamond',label:'Rombo',icon:'<circle cx="9" cy="3" r="1.5" fill="currentColor"/><circle cx="15" cy="9" r="1.5" fill="currentColor"/><circle cx="9" cy="15" r="1.5" fill="currentColor"/><circle cx="3" cy="9" r="1.5" fill="currentColor"/>',group:3},
  {id:'d_triangle',label:'Triangulo',icon:'<circle cx="9" cy="3" r="1.5" fill="currentColor"/><circle cx="3" cy="15" r="1.5" fill="currentColor"/><circle cx="15" cy="15" r="1.5" fill="currentColor"/>',group:3},
  {id:'sep3',group:0},
@@ -1949,7 +1949,7 @@ flashGoal(label) {
 
  loadTheme() {
   const saved = localStorage.getItem('tb_theme');
-  if (saved === 'dark') {
+  if (saved !== 'light') {
    document.documentElement.classList.add('dark');
    ST.theme = 'dark';
    document.getElementById('theme-icon-sun').style.display = 'none';
@@ -1962,12 +1962,12 @@ flashGoal(label) {
  getFieldColors() {
   const dark = ST.theme === 'dark';
   return {
-   bg: dark ? '#1f4a34' : '#ffffff',
-   stroke: dark ? 'rgba(245,240,225,0.88)' : 'rgba(0,0,0,0.65)',
-   fillDim: dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
-   surface3d: dark ? '#1f4a34' : '#ffffff',
-   front3d: dark ? '#2a5e43' : '#e2e8f0',
-   right3d: dark ? '#163a28' : '#cbd5e1'
+   bg: dark ? '#171d24' : '#ffffff',
+   stroke: dark ? 'rgba(236,240,246,0.85)' : 'rgba(0,0,0,0.65)',
+   fillDim: dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
+   surface3d: dark ? '#171d24' : '#ffffff',
+   front3d: dark ? '#212932' : '#e2e8f0',
+   right3d: dark ? '#10151b' : '#cbd5e1'
   };
  },
 
@@ -2525,7 +2525,7 @@ flashGoal(label) {
    // Route line first (so holds appear on top)
    for(let i=0;i<holdPoints.length-1;i++){
     const p1=holdPoints[i].p, p2=holdPoints[i+1].p;
-    L += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="rgba(200,247,0,0.6)" stroke-width="1.8" stroke-dasharray="5 3"/>`;
+    L += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="rgba(212,175,55,0.6)" stroke-width="1.8" stroke-dasharray="5 3"/>`;
    }
    // Holds
    holdPoints.forEach(({p,col})=>{
@@ -4571,7 +4571,7 @@ flashGoal(label) {
 
  // ── TEXT STYLE PICKER (sport-themed fonts) ──
  showTextStylePicker(anchorBtn) {
-  if (!ST.textStyle) ST.textStyle = { font:'Bebas Neue', color:'#CCFF00', size:32, stroke:null, shadow:true, italic:false, gradient:null };
+  if (!ST.textStyle) ST.textStyle = { font:'Bebas Neue', color:'#D4AF37', size:32, stroke:null, shadow:true, italic:false, gradient:null };
   const ts = ST.textStyle;
   const overlay = document.getElementById('modal-overlay');
   const mc = document.getElementById('modal-card');
@@ -4587,13 +4587,13 @@ flashGoal(label) {
    { id:'Rubik Mono One', label:'Block', preview:'LVL' },
    { id:'Bowlby One', label:'Graffiti', preview:'X1' }
   ];
-  const COLORS = ['#CCFF00','#ef4444','#3b82f6','#22c55e','#eab308','#f97316','#8b5cf6','#ec4899','#06b6d4','#ffffff','#0f172a'];
+  const COLORS = ['#D4AF37','#ef4444','#3b82f6','#22c55e','#eab308','#f97316','#8b5cf6','#ec4899','#06b6d4','#ffffff','#0f172a'];
   const GRADIENTS = [
-   { id:'lime-blue', name:'Neon LED', from:'#CCFF00', to:'#3b82f6' },
+   { id:'lime-blue', name:'Neon LED', from:'#D4AF37', to:'#3b82f6' },
    { id:'fire', name:'Fuego', from:'#fbbf24', to:'#ef4444' },
    { id:'ocean', name:'Oceano', from:'#06b6d4', to:'#8b5cf6' },
    { id:'sunset', name:'Atardecer', from:'#f97316', to:'#ec4899' },
-   { id:'toxic', name:'Toxico', from:'#CCFF00', to:'#22c55e' },
+   { id:'toxic', name:'Toxico', from:'#D4AF37', to:'#22c55e' },
    { id:'royal', name:'Real', from:'#6366f1', to:'#ec4899' },
    { id:'ice', name:'Hielo', from:'#ffffff', to:'#06b6d4' },
    { id:'champion', name:'Campeon', from:'#fbbf24', to:'#f97316' }
@@ -5969,7 +5969,7 @@ flashGoal(label) {
      else { dh = H * 0.86; dw = dh * aspectSvg; }
      ctx.drawImage(img, (W-dw)/2, (H-dh)/2, dw, dh);
      // Branding
-     ctx.fillStyle = '#c8f700';
+     ctx.fillStyle = '#D4AF37';
      ctx.font = 'bold 36px system-ui, Arial';
      ctx.fillText('LordTraining', 40, H - 40);
      ctx.fillStyle = 'rgba(255,255,255,0.78)';
@@ -6039,7 +6039,7 @@ flashGoal(label) {
  _toast(msg, dur) {
   const t = document.createElement('div');
   t.textContent = msg;
-  t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(15,23,42,0.96);color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:10000;box-shadow:0 10px 30px rgba(0,0,0,0.4);border:1px solid rgba(204,255,0,0.4);backdrop-filter:blur(8px);letter-spacing:0.02em;transition:opacity .4s';
+  t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(15,23,42,0.96);color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:10000;box-shadow:0 10px 30px rgba(0,0,0,0.4);border:1px solid rgba(212,175,55,0.4);backdrop-filter:blur(8px);letter-spacing:0.02em;transition:opacity .4s';
   document.body.appendChild(t);
   const d = dur || 2200;
   setTimeout(() => t.style.opacity='0', d);
@@ -7144,9 +7144,9 @@ S.init();
 
 <!-- Viewer mode floating bar and play FAB (shown when ?s=... is present) -->
 <div id="viewer-bar">
- <div class="vw-logo"><img src="/brand/lordtraining-scale.png" alt="" style="width:20px;height:20px;object-fit:contain;filter:drop-shadow(0 1px 3px rgba(204,255,0,0.3))"/>LordTraining</div>
+ <div class="vw-logo"><img src="/brand/lordtraining-scale.png" alt="" style="width:20px;height:20px;object-fit:contain;filter:drop-shadow(0 1px 3px rgba(212,175,55,0.3))"/>LordTraining</div>
  <div class="vw-title" id="viewer-title">Jugada táctica</div>
- <div class="vw-views" id="viewer-views" style="display:none;align-items:center;gap:4px;font-size:11px;font-weight:700;color:rgba(200,247,0,0.9);letter-spacing:0.04em;padding:4px 9px;background:rgba(200,247,0,0.08);border:1px solid rgba(200,247,0,0.25);border-radius:8px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span id="viewer-views-count">—</span> <span style="opacity:0.7">entrenadores</span></div>
+ <div class="vw-views" id="viewer-views" style="display:none;align-items:center;gap:4px;font-size:11px;font-weight:700;color:rgba(212,175,55,0.9);letter-spacing:0.04em;padding:4px 9px;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.25);border-radius:8px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span id="viewer-views-count">—</span> <span style="opacity:0.7">entrenadores</span></div>
  <button class="vw-btn" id="vw-replay" data-testid="vw-replay" onclick="(function(){try{S.startPlayback();}catch(e){} })()" title="Reproducir"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>Reproducir</button>
  <button class="vw-btn" id="vw-download" data-testid="vw-download" onclick="S.exportPNG && S.exportPNG()" title="Descargar imagen"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PNG</button>
  <button class="vw-btn primary" id="vw-duplicate" data-testid="vw-duplicate" onclick="(function(){try{const p=new URLSearchParams(window.location.search);const sid=p.get('s');if(sid){fetch(window.location.origin+'/api/boards/duplicate/'+encodeURIComponent(sid),{method:'POST'}).catch(()=>{});}}catch(e){}localStorage.setItem('tb_import_shared', JSON.stringify({sport:ST.sport,elements:ST.elements||[]}));window.location.href=window.location.origin+window.location.pathname;})()" title="Duplicar en mi pizarra"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicar</button>

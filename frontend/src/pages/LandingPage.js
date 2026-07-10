@@ -266,7 +266,7 @@ const MarqueeStrip = ({ t }) => {
 
 const DataRings = () => (
   <div className="relative w-[52px] h-[52px]">
-    {[{r:24,c:'#007AFF',off:20},{r:18,c:'#D4AF37',off:35},{r:12,c:'#F43F5E',off:15}].map(({r,c,off},i) => (
+    {[{r:24,c:'#8FCFE6',off:20},{r:18,c:'#D4AF37',off:35},{r:12,c:'#C6864E',off:15}].map(({r,c,off},i) => (
       <svg key={i} className="absolute inset-0" viewBox="0 0 52 52">
         <circle cx="26" cy="26" r={r} fill="none" stroke={c} strokeWidth="2.5" strokeDasharray={`${(2*Math.PI*r*(100-off)/100)} ${2*Math.PI*r}`} strokeLinecap="round" transform="rotate(-90 26 26)" opacity="0.8" />
       </svg>
@@ -295,7 +295,7 @@ const ReadinessGauge = ({ size = 96, t }) => {
 
 const TeamFormation = () => (
   <div className="flex items-center -space-x-2">
-    {[{bg:'bg-blue-500',t:'JP'},{bg:'bg-emerald-500',t:'MA'},{bg:'bg-purple-500',t:'LC'},{bg:'bg-amber-500',t:'DR'},{bg:'bg-rose-500',t:'+5'}].map((p, i) => (
+    {[{bg:'bg-[#8FCFE6]',t:'JP'},{bg:'bg-[#C3C9D4]',t:'MA'},{bg:'bg-[#C3C9D4]',t:'LC'},{bg:'bg-[#D4AF37]',t:'DR'},{bg:'bg-[#C6864E]',t:'+5'}].map((p, i) => (
       <div key={i} className={`w-7 h-7 ${p.bg} rounded-full flex items-center justify-center text-[8px] font-bold text-white border-2 border-white`}>{p.t}</div>
     ))}
   </div>
@@ -312,7 +312,7 @@ const ShowcaseChart = ({ t }) => {
           const h = hIdx === i;
           return (
             <div key={i} className="flex-1 flex items-end gap-[1px] h-full cursor-crosshair relative" onMouseEnter={() => setHIdx(i)}>
-              <div className="flex-1 rounded-t-sm transition-all duration-150" style={{height:`${p}%`, background:'#3B82F6', opacity: h ? 1 : 0.6}} />
+              <div className="flex-1 rounded-t-sm transition-all duration-150" style={{height:`${p}%`, background:'#8FCFE6', opacity: h ? 1 : 0.6}} />
               <div className="flex-1 rounded-t-sm transition-all duration-150" style={{height:`${executed[i]}%`, background:'#D4AF37', opacity: h ? 1 : 0.5}} />
               {h && <div className="absolute top-0 left-1/2 w-px h-full bg-white/25 -translate-x-1/2 pointer-events-none" />}
             </div>
@@ -324,7 +324,7 @@ const ShowcaseChart = ({ t }) => {
           <div className="bg-zinc-900/95 backdrop-blur-lg border border-zinc-600/60 rounded-lg px-2.5 py-1.5 shadow-xl">
             <div className="text-[10px] text-zinc-400 mb-1" style={{fontFamily:BC}}>{t('landing.chart.week')} {hIdx+1}</div>
             <div className="flex items-center gap-3 text-[11px]">
-              <span className="text-blue-400 font-bold">{t('landing.chart.planned')}: {planned[hIdx]}%</span>
+              <span className="text-[#8FCFE6] font-bold">{t('landing.chart.planned')}: {planned[hIdx]}%</span>
               <span className="text-[#D4AF37] font-bold">{t('landing.chart.executed')}: {executed[hIdx]}%</span>
             </div>
           </div>
@@ -337,15 +337,15 @@ const ShowcaseChart = ({ t }) => {
 /* ═══ TESTIMONIALS CAROUSEL ═══ */
 const TESTIMONIAL_META = [
   { id:1, initials:'CM', name:'C.M.', segment:'coach', color:'#D4AF37' },
-  { id:2, initials:'AR', name:'A.R.', segment:'club', color:'#378ADD' },
-  { id:3, initials:'DT', name:'D.T.', segment:'federation', color:'#E24B4A' },
-  { id:4, initials:'MV', name:'M.V.', segment:'club', color:'#378ADD' },
-  { id:5, initials:'LP', name:'L.P.', segment:'school', color:'#7F77DD' },
-  { id:6, initials:'RG', name:'R.G.', segment:'federation', color:'#E24B4A' },
+  { id:2, initials:'AR', name:'A.R.', segment:'club', color:'#8FCFE6' },
+  { id:3, initials:'DT', name:'D.T.', segment:'federation', color:'#C6864E' },
+  { id:4, initials:'MV', name:'M.V.', segment:'club', color:'#8FCFE6' },
+  { id:5, initials:'LP', name:'L.P.', segment:'school', color:'#C3C9D4' },
+  { id:6, initials:'RG', name:'R.G.', segment:'federation', color:'#C6864E' },
   { id:7, initials:'JF', name:'J.F.', segment:'coach', color:'#D4AF37' },
-  { id:8, initials:'SC', name:'S.C.', segment:'school', color:'#7F77DD' },
+  { id:8, initials:'SC', name:'S.C.', segment:'school', color:'#C3C9D4' },
   { id:9, initials:'BM', name:'B.M.', segment:'coach', color:'#D4AF37' },
-  { id:10, initials:'HQ', name:'H.Q.', segment:'federation', color:'#E24B4A' },
+  { id:10, initials:'HQ', name:'H.Q.', segment:'federation', color:'#C6864E' },
 ];
 
 const TestimonialsCarousel = ({ t }) => {
@@ -702,7 +702,7 @@ const LandingPage = () => {
               {publishState === 'saving' ? 'Activando…' : 'Activar este tema'}
             </button>
             {publishState === 'error' && (
-              <span className="text-red-700 text-xs" data-testid="preview-activate-error">Inicia sesión como Super Admin</span>
+              <span className="text-[#C6864E] text-xs" data-testid="preview-activate-error">Inicia sesión como Super Admin</span>
             )}
           </>
         )}
@@ -888,16 +888,16 @@ const LandingPage = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {[
-            {name:'Fútbol', svg:`<defs><linearGradient id="gradFld" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#14a34a"/><stop offset="100%" stop-color="#0d5c2a"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradFld)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="70" x2="97" y2="70"/><circle cx="50" cy="70" r="10"/><circle cx="50" cy="70" r="0.8" fill="#fff"/><rect x="28" y="3" width="44" height="16"/><rect x="36" y="3" width="28" height="6"/><rect x="28" y="121" width="44" height="16"/><rect x="36" y="131" width="28" height="6"/><path d="M 28,19 Q 50,28 72,19"/><path d="M 28,121 Q 50,112 72,121"/></g><line class="anim-arrow" x1="35" y1="95" x2="65" y2="55" stroke="#fbbf24" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="3 2"/><circle cx="35" cy="95" r="3.2" fill="#3b82f6" stroke="#fff" stroke-width="0.8"/><circle cx="65" cy="55" r="3.2" fill="#3b82f6" stroke="#fff" stroke-width="0.8"/><circle cx="50" cy="115" r="3.2" fill="#dc2626" stroke="#fff" stroke-width="0.8"/><circle cx="35" cy="95" r="1.5" fill="#fff" stroke="#000" stroke-width="0.2" class="anim-ball" style="--bx:30px;--by:-40px;--bx2:38px;--by2:-45px"/>`},
-            {name:'Baloncesto', svg:`<defs><linearGradient id="gradBsk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e07a30"/><stop offset="100%" stop-color="#8b4414"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradBsk)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="70" x2="97" y2="70"/><circle cx="50" cy="70" r="9"/><path d="M 3,3 Q 50,24 97,3"/><path d="M 3,137 Q 50,116 97,137"/><rect x="34" y="3" width="32" height="22"/><rect x="34" y="115" width="32" height="22"/><circle cx="50" cy="25" r="5"/><circle cx="50" cy="115" r="5"/></g><circle cx="50" cy="14" r="1.5" fill="#ff6b35"/><circle cx="50" cy="126" r="1.5" fill="#ff6b35"/><line class="anim-arrow" x1="32" y1="85" x2="55" y2="55" stroke="#fbbf24" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="3 2"/><circle cx="32" cy="85" r="3.2" fill="#dc2626" stroke="#fff" stroke-width="0.8"/><circle cx="55" cy="55" r="3.2" fill="#dc2626" stroke="#fff" stroke-width="0.8"/><circle cx="45" cy="100" r="3.2" fill="#1e3a8a" stroke="#fff" stroke-width="0.8"/><circle cx="32" cy="85" r="1.8" fill="#ff6b35" stroke="#7c2d12" stroke-width="0.3" class="anim-ball" style="--bx:23px;--by:-30px;--bx2:33px;--by2:-45px"/>`},
-            {name:'Voleibol', svg:`<defs><linearGradient id="gradVly" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0891b2"/><stop offset="100%" stop-color="#0c4a6e"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradVly)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="70" x2="97" y2="70" stroke-width="1.5"/><line x1="3" y1="44" x2="97" y2="44" stroke-dasharray="3 2"/><line x1="3" y1="96" x2="97" y2="96" stroke-dasharray="3 2"/></g><rect x="3" y="68" width="94" height="4" fill="#fff" opacity="0.3"/><line x1="3" y1="68" x2="97" y2="68" stroke="#fff" stroke-width="0.3"/><line x1="3" y1="72" x2="97" y2="72" stroke="#fff" stroke-width="0.3"/><circle cx="30" cy="22" r="3" fill="#fbbf24" stroke="#000" stroke-width="0.3"/><circle cx="50" cy="22" r="3" fill="#fbbf24" stroke="#000" stroke-width="0.3"/><circle cx="70" cy="22" r="3" fill="#fbbf24" stroke="#000" stroke-width="0.3"/><circle cx="30" cy="118" r="3" fill="#dc2626" stroke="#000" stroke-width="0.3"/><circle cx="50" cy="118" r="3" fill="#dc2626" stroke="#000" stroke-width="0.3"/><circle cx="70" cy="118" r="3" fill="#dc2626" stroke="#000" stroke-width="0.3"/><circle cx="50" cy="35" r="2.5" fill="#fff" stroke="#fbbf24" stroke-width="0.5" class="anim-ball" style="--bx:0px;--by:55px;--bx2:0px;--by2:60px"/>`},
-            {name:'Tejo', svg:`<defs><linearGradient id="gradTej" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c99568"/><stop offset="100%" stop-color="#7a5635"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradTej)"/><rect x="25" y="3" width="50" height="134" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="0.8"/><rect x="37" y="10" width="26" height="26" fill="#1e3a8a" stroke="#fff" stroke-width="0.8"/><line x1="37" y1="36" x2="63" y2="10" stroke="#dc2626" stroke-width="0.8" opacity="0.75"/><line x1="37" y1="10" x2="63" y2="36" stroke="#dc2626" stroke-width="0.8" opacity="0.75"/><circle cx="50" cy="23" r="3.5" fill="#2d1508" stroke="#d4a017" stroke-width="0.8"/><line class="anim-arrow" x1="50" y1="110" x2="50" y2="30" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="2 2"/><circle cx="42" cy="70" r="3.5" fill="#94a3b8" stroke="#0f172a" stroke-width="0.6"/><circle cx="58" cy="85" r="3.5" fill="#dc2626" stroke="#0f172a" stroke-width="0.6"/><circle cx="50" cy="110" r="4" fill="#94a3b8" stroke="#0f172a" stroke-width="0.8" class="anim-ball" style="--bx:0px;--by:-80px;--bx2:0px;--by2:-87px"/><line x1="25" y1="125" x2="75" y2="125" stroke="#fff" stroke-width="0.8" stroke-dasharray="3 2"/>`},
-            {name:'Bolirana', svg:`<defs><linearGradient id="gradBol" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#064e2b"/><stop offset="100%" stop-color="#022017"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradBol)"/><rect x="28" y="8" width="44" height="124" fill="#166534" stroke="#0f4023" stroke-width="0.8" rx="2"/><rect x="32" y="14" width="36" height="26" fill="#18181b" stroke="#fbbf24" stroke-width="0.6"/><ellipse cx="50" cy="26" rx="8" ry="5" fill="#dc2626"/><ellipse cx="48" cy="22" rx="6" ry="3" fill="#b91c1c"/><circle cx="46" cy="20" r="0.9" fill="#fca5a5"/><circle cx="52" cy="20" r="0.9" fill="#fca5a5"/><g><circle cx="40" cy="50" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="50" cy="50" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="60" cy="50" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="40" cy="65" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="60" cy="65" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="40" cy="80" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="50" cy="80" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="60" cy="80" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/></g><circle cx="50" cy="65" r="3.2" fill="#d4a017" stroke="#78350f" stroke-width="0.5"/><text x="50" y="66.5" text-anchor="middle" font-size="2.2" fill="#0a0a0a" font-weight="900" font-family="Arial">SAPO</text><circle cx="50" cy="115" r="2.6" fill="#94a3b8" stroke="#0f172a" stroke-width="0.5" class="anim-ball" style="--bx:0px;--by:-50px;--bx2:0px;--by2:-55px"/>`},
-            {name:'Rana', svg:`<defs><linearGradient id="gradRna" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#166534"/><stop offset="100%" stop-color="#052e16"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradRna)"/><rect x="30" y="42" width="40" height="50" fill="#18181b" stroke="#d4a017" stroke-width="1"/><ellipse cx="50" cy="65" rx="11" ry="9" fill="#b91c1c" stroke="#fff" stroke-width="0.6"/><circle cx="45" cy="60" r="2" fill="#fff"/><circle cx="55" cy="60" r="2" fill="#fff"/><circle cx="45" cy="60.5" r="0.9" fill="#000"/><circle cx="55" cy="60.5" r="0.9" fill="#000"/><ellipse cx="50" cy="70" rx="4" ry="2.5" fill="#1a0505"/><circle cx="35" cy="105" r="3.2" fill="#94a3b8" stroke="#0f172a" stroke-width="0.5" class="anim-pulse"/><circle cx="58" cy="115" r="3.2" fill="#94a3b8" stroke="#0f172a" stroke-width="0.5" class="anim-pulse"/><line class="anim-arrow" x1="50" y1="120" x2="50" y2="75" stroke="#fbbf24" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="2 2"/><circle cx="50" cy="120" r="3.8" fill="#c0c0c0" stroke="#0f172a" stroke-width="0.6" class="anim-ball" style="--bx:0px;--by:-50px;--bx2:0px;--by2:-55px"/>`},
-            {name:'Tenis', svg:`<defs><linearGradient id="gradTns" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#059669"/><stop offset="100%" stop-color="#014230"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradTns)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="10" y="10" width="80" height="120"/><line x1="10" y1="70" x2="90" y2="70" stroke-width="1.3"/><line x1="20" y1="35" x2="80" y2="35"/><line x1="20" y1="105" x2="80" y2="105"/><line x1="50" y1="35" x2="50" y2="105" stroke-dasharray="2 2"/><line x1="20" y1="10" x2="20" y2="130"/><line x1="80" y1="10" x2="80" y2="130"/></g><line class="anim-arrow" x1="35" y1="50" x2="65" y2="90" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="2 2"/><circle cx="35" cy="50" r="3.2" fill="#fbbf24"/><circle cx="65" cy="90" r="3.2" fill="#fbbf24"/><circle cx="50" cy="20" r="2.3" fill="#e4ff66" stroke="#000" stroke-width="0.3" class="anim-ball" style="--bx:-15px;--by:30px;--bx2:0px;--by2:60px"/>`},
-            {name:'Petanca', svg:`<defs><linearGradient id="gradPet" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a16207"/><stop offset="100%" stop-color="#451a03"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradPet)"/><rect x="5" y="5" width="90" height="130" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.4"/><circle cx="50" cy="70" r="2" fill="#fbbf24" stroke="#000" stroke-width="0.4" class="anim-pulse"/><circle cx="38" cy="55" r="4" fill="#b91c1c" stroke="#000" stroke-width="0.5"/><circle cx="38" cy="54" r="1.3" fill="#ef4444" opacity="0.6"/><circle cx="62" cy="58" r="4" fill="#b91c1c" stroke="#000" stroke-width="0.5"/><circle cx="62" cy="57" r="1.3" fill="#ef4444" opacity="0.6"/><circle cx="42" cy="82" r="4" fill="#1e40af" stroke="#000" stroke-width="0.5"/><circle cx="42" cy="81" r="1.3" fill="#3b82f6" opacity="0.6"/><circle cx="58" cy="85" r="4" fill="#1e40af" stroke="#000" stroke-width="0.5"/><circle cx="58" cy="84" r="1.3" fill="#3b82f6" opacity="0.6"/><circle cx="48" cy="105" r="4" fill="#1e40af" stroke="#000" stroke-width="0.5"/><line class="anim-arrow" x1="48" y1="105" x2="50" y2="70" stroke="#fbbf24" stroke-width="1" stroke-dasharray="2 2"/>`},
-            {name:'Rugby', svg:`<defs><linearGradient id="gradRgb" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#16a34a"/><stop offset="100%" stop-color="#14532d"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradRgb)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="22" x2="97" y2="22"/><line x1="3" y1="118" x2="97" y2="118"/><line x1="3" y1="70" x2="97" y2="70" stroke-dasharray="3 2"/><line x1="3" y1="35" x2="97" y2="35" stroke-dasharray="1 2"/><line x1="3" y1="105" x2="97" y2="105" stroke-dasharray="1 2"/></g><ellipse cx="50" cy="70" rx="4.5" ry="7" fill="#78350f" stroke="#fff" stroke-width="0.6" transform="rotate(15 50 70)"/><line class="anim-arrow" x1="30" y1="55" x2="70" y2="85" stroke="#fbbf24" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="3 2"/><circle cx="30" cy="55" r="3.2" fill="#dc2626" stroke="#fff" stroke-width="0.6"/><circle cx="70" cy="85" r="3.2" fill="#2563eb" stroke="#fff" stroke-width="0.6"/>`},
-            {name:'Hockey', svg:`<defs><linearGradient id="gradHck" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563eb"/><stop offset="100%" stop-color="#172554"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradHck)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="70" x2="97" y2="70"/><circle cx="50" cy="70" r="7"/><rect x="30" y="3" width="40" height="12"/><rect x="30" y="125" width="40" height="12"/></g><circle cx="50" cy="70" r="0.8" fill="#fff"/><circle cx="42" cy="55" r="3.2" fill="#dc2626" stroke="#fff" stroke-width="0.6"/><path d="M 40,53 L 36,45" stroke="#0f172a" stroke-width="1.4" stroke-linecap="round"/><circle cx="62" cy="90" r="3.2" fill="#f59e0b" stroke="#fff" stroke-width="0.6"/><path d="M 60,88 L 64,80" stroke="#0f172a" stroke-width="1.4" stroke-linecap="round"/><line class="anim-arrow" x1="42" y1="55" x2="62" y2="85" stroke="#fbbf24" stroke-width="1.2" stroke-dasharray="2 2"/><circle cx="42" cy="55" r="1.4" fill="#0a0a0a" class="anim-ball" style="--bx:20px;--by:30px;--bx2:20px;--by2:32px"/>`},
+            {name:'Fútbol', svg:`<defs><linearGradient id="gradFld" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C3C9D4"/><stop offset="100%" stop-color="#0d5c2a"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradFld)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="70" x2="97" y2="70"/><circle cx="50" cy="70" r="10"/><circle cx="50" cy="70" r="0.8" fill="#fff"/><rect x="28" y="3" width="44" height="16"/><rect x="36" y="3" width="28" height="6"/><rect x="28" y="121" width="44" height="16"/><rect x="36" y="131" width="28" height="6"/><path d="M 28,19 Q 50,28 72,19"/><path d="M 28,121 Q 50,112 72,121"/></g><line class="anim-arrow" x1="35" y1="95" x2="65" y2="55" stroke="#D4AF37" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="3 2"/><circle cx="35" cy="95" r="3.2" fill="#8FCFE6" stroke="#fff" stroke-width="0.8"/><circle cx="65" cy="55" r="3.2" fill="#8FCFE6" stroke="#fff" stroke-width="0.8"/><circle cx="50" cy="115" r="3.2" fill="#C6864E" stroke="#fff" stroke-width="0.8"/><circle cx="35" cy="95" r="1.5" fill="#fff" stroke="#000" stroke-width="0.2" class="anim-ball" style="--bx:30px;--by:-40px;--bx2:38px;--by2:-45px"/>`},
+            {name:'Baloncesto', svg:`<defs><linearGradient id="gradBsk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C6864E"/><stop offset="100%" stop-color="#8b4414"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradBsk)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="70" x2="97" y2="70"/><circle cx="50" cy="70" r="9"/><path d="M 3,3 Q 50,24 97,3"/><path d="M 3,137 Q 50,116 97,137"/><rect x="34" y="3" width="32" height="22"/><rect x="34" y="115" width="32" height="22"/><circle cx="50" cy="25" r="5"/><circle cx="50" cy="115" r="5"/></g><circle cx="50" cy="14" r="1.5" fill="#C6864E"/><circle cx="50" cy="126" r="1.5" fill="#C6864E"/><line class="anim-arrow" x1="32" y1="85" x2="55" y2="55" stroke="#D4AF37" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="3 2"/><circle cx="32" cy="85" r="3.2" fill="#C6864E" stroke="#fff" stroke-width="0.8"/><circle cx="55" cy="55" r="3.2" fill="#C6864E" stroke="#fff" stroke-width="0.8"/><circle cx="45" cy="100" r="3.2" fill="#8FCFE6" stroke="#fff" stroke-width="0.8"/><circle cx="32" cy="85" r="1.8" fill="#C6864E" stroke="#7c2d12" stroke-width="0.3" class="anim-ball" style="--bx:23px;--by:-30px;--bx2:33px;--by2:-45px"/>`},
+            {name:'Voleibol', svg:`<defs><linearGradient id="gradVly" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8FCFE6"/><stop offset="100%" stop-color="#8FCFE6"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradVly)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="70" x2="97" y2="70" stroke-width="1.5"/><line x1="3" y1="44" x2="97" y2="44" stroke-dasharray="3 2"/><line x1="3" y1="96" x2="97" y2="96" stroke-dasharray="3 2"/></g><rect x="3" y="68" width="94" height="4" fill="#fff" opacity="0.3"/><line x1="3" y1="68" x2="97" y2="68" stroke="#fff" stroke-width="0.3"/><line x1="3" y1="72" x2="97" y2="72" stroke="#fff" stroke-width="0.3"/><circle cx="30" cy="22" r="3" fill="#D4AF37" stroke="#000" stroke-width="0.3"/><circle cx="50" cy="22" r="3" fill="#D4AF37" stroke="#000" stroke-width="0.3"/><circle cx="70" cy="22" r="3" fill="#D4AF37" stroke="#000" stroke-width="0.3"/><circle cx="30" cy="118" r="3" fill="#C6864E" stroke="#000" stroke-width="0.3"/><circle cx="50" cy="118" r="3" fill="#C6864E" stroke="#000" stroke-width="0.3"/><circle cx="70" cy="118" r="3" fill="#C6864E" stroke="#000" stroke-width="0.3"/><circle cx="50" cy="35" r="2.5" fill="#fff" stroke="#D4AF37" stroke-width="0.5" class="anim-ball" style="--bx:0px;--by:55px;--bx2:0px;--by2:60px"/>`},
+            {name:'Tejo', svg:`<defs><linearGradient id="gradTej" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c99568"/><stop offset="100%" stop-color="#7a5635"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradTej)"/><rect x="25" y="3" width="50" height="134" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="0.8"/><rect x="37" y="10" width="26" height="26" fill="#8FCFE6" stroke="#fff" stroke-width="0.8"/><line x1="37" y1="36" x2="63" y2="10" stroke="#C6864E" stroke-width="0.8" opacity="0.75"/><line x1="37" y1="10" x2="63" y2="36" stroke="#C6864E" stroke-width="0.8" opacity="0.75"/><circle cx="50" cy="23" r="3.5" fill="#2d1508" stroke="#d4a017" stroke-width="0.8"/><line class="anim-arrow" x1="50" y1="110" x2="50" y2="30" stroke="#D4AF37" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="2 2"/><circle cx="42" cy="70" r="3.5" fill="#94a3b8" stroke="#0f172a" stroke-width="0.6"/><circle cx="58" cy="85" r="3.5" fill="#C6864E" stroke="#0f172a" stroke-width="0.6"/><circle cx="50" cy="110" r="4" fill="#94a3b8" stroke="#0f172a" stroke-width="0.8" class="anim-ball" style="--bx:0px;--by:-80px;--bx2:0px;--by2:-87px"/><line x1="25" y1="125" x2="75" y2="125" stroke="#fff" stroke-width="0.8" stroke-dasharray="3 2"/>`},
+            {name:'Bolirana', svg:`<defs><linearGradient id="gradBol" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#064e2b"/><stop offset="100%" stop-color="#022017"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradBol)"/><rect x="28" y="8" width="44" height="124" fill="#166534" stroke="#0f4023" stroke-width="0.8" rx="2"/><rect x="32" y="14" width="36" height="26" fill="#18181b" stroke="#D4AF37" stroke-width="0.6"/><ellipse cx="50" cy="26" rx="8" ry="5" fill="#C6864E"/><ellipse cx="48" cy="22" rx="6" ry="3" fill="#C6864E"/><circle cx="46" cy="20" r="0.9" fill="#C6864E"/><circle cx="52" cy="20" r="0.9" fill="#C6864E"/><g><circle cx="40" cy="50" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="50" cy="50" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="60" cy="50" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="40" cy="65" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="60" cy="65" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="40" cy="80" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="50" cy="80" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="60" cy="80" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/></g><circle cx="50" cy="65" r="3.2" fill="#d4a017" stroke="#78350f" stroke-width="0.5"/><text x="50" y="66.5" text-anchor="middle" font-size="2.2" fill="#0a0a0a" font-weight="900" font-family="Arial">SAPO</text><circle cx="50" cy="115" r="2.6" fill="#94a3b8" stroke="#0f172a" stroke-width="0.5" class="anim-ball" style="--bx:0px;--by:-50px;--bx2:0px;--by2:-55px"/>`},
+            {name:'Rana', svg:`<defs><linearGradient id="gradRna" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#166534"/><stop offset="100%" stop-color="#052e16"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradRna)"/><rect x="30" y="42" width="40" height="50" fill="#18181b" stroke="#d4a017" stroke-width="1"/><ellipse cx="50" cy="65" rx="11" ry="9" fill="#C6864E" stroke="#fff" stroke-width="0.6"/><circle cx="45" cy="60" r="2" fill="#fff"/><circle cx="55" cy="60" r="2" fill="#fff"/><circle cx="45" cy="60.5" r="0.9" fill="#000"/><circle cx="55" cy="60.5" r="0.9" fill="#000"/><ellipse cx="50" cy="70" rx="4" ry="2.5" fill="#1a0505"/><circle cx="35" cy="105" r="3.2" fill="#94a3b8" stroke="#0f172a" stroke-width="0.5" class="anim-pulse"/><circle cx="58" cy="115" r="3.2" fill="#94a3b8" stroke="#0f172a" stroke-width="0.5" class="anim-pulse"/><line class="anim-arrow" x1="50" y1="120" x2="50" y2="75" stroke="#D4AF37" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="2 2"/><circle cx="50" cy="120" r="3.8" fill="#c0c0c0" stroke="#0f172a" stroke-width="0.6" class="anim-ball" style="--bx:0px;--by:-50px;--bx2:0px;--by2:-55px"/>`},
+            {name:'Tenis', svg:`<defs><linearGradient id="gradTns" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C3C9D4"/><stop offset="100%" stop-color="#014230"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradTns)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="10" y="10" width="80" height="120"/><line x1="10" y1="70" x2="90" y2="70" stroke-width="1.3"/><line x1="20" y1="35" x2="80" y2="35"/><line x1="20" y1="105" x2="80" y2="105"/><line x1="50" y1="35" x2="50" y2="105" stroke-dasharray="2 2"/><line x1="20" y1="10" x2="20" y2="130"/><line x1="80" y1="10" x2="80" y2="130"/></g><line class="anim-arrow" x1="35" y1="50" x2="65" y2="90" stroke="#D4AF37" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="2 2"/><circle cx="35" cy="50" r="3.2" fill="#D4AF37"/><circle cx="65" cy="90" r="3.2" fill="#D4AF37"/><circle cx="50" cy="20" r="2.3" fill="#e4ff66" stroke="#000" stroke-width="0.3" class="anim-ball" style="--bx:-15px;--by:30px;--bx2:0px;--by2:60px"/>`},
+            {name:'Petanca', svg:`<defs><linearGradient id="gradPet" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a16207"/><stop offset="100%" stop-color="#451a03"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradPet)"/><rect x="5" y="5" width="90" height="130" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.4"/><circle cx="50" cy="70" r="2" fill="#D4AF37" stroke="#000" stroke-width="0.4" class="anim-pulse"/><circle cx="38" cy="55" r="4" fill="#C6864E" stroke="#000" stroke-width="0.5"/><circle cx="38" cy="54" r="1.3" fill="#C6864E" opacity="0.6"/><circle cx="62" cy="58" r="4" fill="#C6864E" stroke="#000" stroke-width="0.5"/><circle cx="62" cy="57" r="1.3" fill="#C6864E" opacity="0.6"/><circle cx="42" cy="82" r="4" fill="#8FCFE6" stroke="#000" stroke-width="0.5"/><circle cx="42" cy="81" r="1.3" fill="#8FCFE6" opacity="0.6"/><circle cx="58" cy="85" r="4" fill="#8FCFE6" stroke="#000" stroke-width="0.5"/><circle cx="58" cy="84" r="1.3" fill="#8FCFE6" opacity="0.6"/><circle cx="48" cy="105" r="4" fill="#8FCFE6" stroke="#000" stroke-width="0.5"/><line class="anim-arrow" x1="48" y1="105" x2="50" y2="70" stroke="#D4AF37" stroke-width="1" stroke-dasharray="2 2"/>`},
+            {name:'Rugby', svg:`<defs><linearGradient id="gradRgb" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C3C9D4"/><stop offset="100%" stop-color="#14532d"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradRgb)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="22" x2="97" y2="22"/><line x1="3" y1="118" x2="97" y2="118"/><line x1="3" y1="70" x2="97" y2="70" stroke-dasharray="3 2"/><line x1="3" y1="35" x2="97" y2="35" stroke-dasharray="1 2"/><line x1="3" y1="105" x2="97" y2="105" stroke-dasharray="1 2"/></g><ellipse cx="50" cy="70" rx="4.5" ry="7" fill="#78350f" stroke="#fff" stroke-width="0.6" transform="rotate(15 50 70)"/><line class="anim-arrow" x1="30" y1="55" x2="70" y2="85" stroke="#D4AF37" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="3 2"/><circle cx="30" cy="55" r="3.2" fill="#C6864E" stroke="#fff" stroke-width="0.6"/><circle cx="70" cy="85" r="3.2" fill="#8FCFE6" stroke="#fff" stroke-width="0.6"/>`},
+            {name:'Hockey', svg:`<defs><linearGradient id="gradHck" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8FCFE6"/><stop offset="100%" stop-color="#8FCFE6"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradHck)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="70" x2="97" y2="70"/><circle cx="50" cy="70" r="7"/><rect x="30" y="3" width="40" height="12"/><rect x="30" y="125" width="40" height="12"/></g><circle cx="50" cy="70" r="0.8" fill="#fff"/><circle cx="42" cy="55" r="3.2" fill="#C6864E" stroke="#fff" stroke-width="0.6"/><path d="M 40,53 L 36,45" stroke="#0f172a" stroke-width="1.4" stroke-linecap="round"/><circle cx="62" cy="90" r="3.2" fill="#D4AF37" stroke="#fff" stroke-width="0.6"/><path d="M 60,88 L 64,80" stroke="#0f172a" stroke-width="1.4" stroke-linecap="round"/><line class="anim-arrow" x1="42" y1="55" x2="62" y2="85" stroke="#D4AF37" stroke-width="1.2" stroke-dasharray="2 2"/><circle cx="42" cy="55" r="1.4" fill="#0a0a0a" class="anim-ball" style="--bx:20px;--by:30px;--bx2:20px;--by2:32px"/>`},
           ].map((sport, i) => (
             <a key={i} href="/tactical-board.html" onClick={handleBoardClick} className="sport-card group relative rounded-2xl overflow-hidden border border-zinc-800 hover:border-[#D4AF37]/60 transition-all hover:scale-[1.04] hover:shadow-[0_14px_32px_-6px_rgba(212,175,55,0.28)]" data-testid={`sport-card-${sport.name.toLowerCase()}`}>
               <div className="aspect-[3/4] relative">
@@ -924,13 +924,13 @@ const LandingPage = () => {
             <div className="relative overflow-x-auto pb-4 snap-x snap-mandatory" style={{scrollbarWidth:'thin'}} data-testid="more-sports-scroll">
               <div className="flex gap-3 px-4" style={{width:'max-content'}}>
                 {[
-                  {name:'Futsal', c:'#9333ea'},{name:'Minitejo', c:'#a57856'},{name:'Padel', c:'#059669'},
-                  {name:'Bochas', c:'#16a34a'},{name:'Badminton', c:'#f59e0b'},{name:'Squash', c:'#0ea5e9'},
-                  {name:'Golf', c:'#65a30d'},{name:'Tiro con Arco', c:'#dc2626'},{name:'Dardos', c:'#7c3aed'},
-                  {name:'Boliche', c:'#ea580c'},{name:'Bolo Criollo', c:'#78350f'},{name:'Handball', c:'#2563eb'},
-                  {name:'Beisbol', c:'#991b1b'},{name:'Escalada', c:'#0891b2'},{name:'Atletismo', c:'#e11d48'},
-                  {name:'Ciclismo', c:'#fbbf24'},{name:'Natacion', c:'#06b6d4'},{name:'Boxeo', c:'#be185d'},
-                  {name:'Karate', c:'#78716c'},{name:'Taekwondo', c:'#b91c1c'},{name:'MMA', c:'#1f2937'},{name:'Judo', c:'#450a0a'}
+                  {name:'Futsal', c:'#C3C9D4'},{name:'Minitejo', c:'#a57856'},{name:'Padel', c:'#C3C9D4'},
+                  {name:'Bochas', c:'#C3C9D4'},{name:'Badminton', c:'#D4AF37'},{name:'Squash', c:'#8FCFE6'},
+                  {name:'Golf', c:'#C3C9D4'},{name:'Tiro con Arco', c:'#C6864E'},{name:'Dardos', c:'#C3C9D4'},
+                  {name:'Boliche', c:'#C6864E'},{name:'Bolo Criollo', c:'#78350f'},{name:'Handball', c:'#8FCFE6'},
+                  {name:'Beisbol', c:'#C6864E'},{name:'Escalada', c:'#8FCFE6'},{name:'Atletismo', c:'#C6864E'},
+                  {name:'Ciclismo', c:'#D4AF37'},{name:'Natacion', c:'#8FCFE6'},{name:'Boxeo', c:'#C6864E'},
+                  {name:'Karate', c:'#78716c'},{name:'Taekwondo', c:'#C6864E'},{name:'MMA', c:'#1f2937'},{name:'Judo', c:'#450a0a'}
                 ].map((sp, i) => (
                   <a key={i} href="/tactical-board.html" onClick={handleBoardClick} className="group relative flex-shrink-0 w-[150px] snap-start rounded-xl overflow-hidden border border-zinc-800 hover:border-[#D4AF37]/60 hover:scale-[1.05] transition-all" data-testid={`extra-sport-${sp.name.toLowerCase().replace(/\s+/g,'-')}`}>
                     <div className="aspect-[3/4] relative flex flex-col items-center justify-center p-3" style={{background:'linear-gradient(160deg, rgba(212,175,55,0.10) 0%, #18181b 55%, #09090b 100%)'}}>
@@ -996,7 +996,7 @@ const LandingPage = () => {
               </div>
               {/* Mini phase labels */}
               <div className="hidden md:flex gap-1.5 mt-1">
-                {[{k:'accumulation',c:'#3B82F6'},{k:'transformation',c:'#D4AF37'},{k:'realization',c:'#F43F5E'}].map(p => (
+                {[{k:'accumulation',c:'#8FCFE6'},{k:'transformation',c:'#D4AF37'},{k:'realization',c:'#C6864E'}].map(p => (
                   <span key={p.k} className="px-2 py-0.5 rounded text-[8px] font-bold" style={{background:p.c+'20', color:p.c, fontFamily:BC}}>{t(`landing.chart.${p.k}`).substring(0,3).toUpperCase()}</span>
                 ))}
               </div>
@@ -1010,9 +1010,9 @@ const LandingPage = () => {
                   [68,78,62],[80,85,56],[86,88,50],[52,90,72],[62,85,65],[75,90,58],[82,92,52],[48,95,78]
                 ].map((d,i) => (
                   <div key={i} className="flex-1 flex items-end gap-[1px] h-full">
-                    <div className="flex-1 rounded-t-sm" style={{height:`${d[0]}%`, background:'#3B82F6', opacity:0.85}} />
+                    <div className="flex-1 rounded-t-sm" style={{height:`${d[0]}%`, background:'#8FCFE6', opacity:0.85}} />
                     <div className="flex-1 rounded-t-sm" style={{height:`${d[1]}%`, background:'#D4AF37', opacity:0.8}} />
-                    <div className="flex-1 rounded-t-sm" style={{height:`${d[2]}%`, background:'#F43F5E', opacity:0.7}} />
+                    <div className="flex-1 rounded-t-sm" style={{height:`${d[2]}%`, background:'#C6864E', opacity:0.7}} />
                   </div>
                 ))}
               </div>
@@ -1023,7 +1023,7 @@ const LandingPage = () => {
               </div>
               {/* Bottom stat row */}
               <div className="flex items-center gap-4 mt-3 pt-2 border-t border-zinc-700/30">
-                {[{l:t('landing.chart.volume'),v:'2,847 UA',c:'#3B82F6'},{l:t('landing.chart.intensity'),v:'78%',c:'#D4AF37'},{l:t('landing.chart.density'),v:'1.24',c:'#F43F5E'},{l:t('landing.chart.weeksLabel'),v:'24',c:'#64748b'}].map(s => (
+                {[{l:t('landing.chart.volume'),v:'2,847 UA',c:'#8FCFE6'},{l:t('landing.chart.intensity'),v:'78%',c:'#D4AF37'},{l:t('landing.chart.density'),v:'1.24',c:'#C6864E'},{l:t('landing.chart.weeksLabel'),v:'24',c:'#64748b'}].map(s => (
                   <div key={s.l} className="flex items-center gap-1.5">
                     <div className="w-1.5 h-1.5 rounded-full" style={{background:s.c}} />
                     <span className="text-[10px] font-bold" style={{color:s.c, fontFamily:BC}}>{s.v}</span>
@@ -1040,8 +1040,8 @@ const LandingPage = () => {
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-7 flex flex-col justify-between h-full" data-testid="feature-team">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center"><Users className="w-4 h-4 text-white" /></div>
-                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-blue-400" style={{fontFamily:BC}}>{t('landing.marquee.m_central')}</span>
+                <div className="w-8 h-8 bg-[#8FCFE6] rounded-lg flex items-center justify-center"><Users className="w-4 h-4 text-white" /></div>
+                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#8FCFE6]" style={{fontFamily:BC}}>{t('landing.marquee.m_central')}</span>
               </div>
               <h3 className="text-[20px] font-semibold text-white mb-2">{t('landing.features.m2_title')}</h3>
               <p className="text-[13px] text-zinc-400 leading-[1.6]">{t('landing.features.m2_desc')}</p>
@@ -1049,9 +1049,9 @@ const LandingPage = () => {
             {/* Realistic athlete list */}
             <div className="mt-4 space-y-2">
               {[
-                {n:'Juan Pérez',s:t('landing.chart.athletics'),v:'VO2: 52.3',c:'bg-blue-500'},
-                {n:'María López',s:t('landing.chart.swimming'),v:'1RM: 95kg',c:'bg-emerald-500'},
-                {n:'Carlos Díaz',s:t('landing.chart.football'),v:'ACWR: 0.91',c:'bg-purple-500'},
+                {n:'Juan Pérez',s:t('landing.chart.athletics'),v:'VO2: 52.3',c:'bg-[#8FCFE6]'},
+                {n:'María López',s:t('landing.chart.swimming'),v:'1RM: 95kg',c:'bg-[#C3C9D4]'},
+                {n:'Carlos Díaz',s:t('landing.chart.football'),v:'ACWR: 0.91',c:'bg-[#C3C9D4]'},
               ].map((a,i) => (
                 <div key={i} className="flex items-center gap-2.5 bg-zinc-800/60 rounded-lg px-3 py-2 border border-zinc-700/30">
                   <div className={`w-7 h-7 ${a.c} rounded-full flex items-center justify-center text-[9px] font-bold text-white`}>{a.n.split(' ').map(w=>w[0]).join('')}</div>
@@ -1080,7 +1080,7 @@ const LandingPage = () => {
             <div className="flex items-end justify-between mt-4">
               <div className="flex items-center gap-2">
                 {['GPT','AUTO','SMART'].map((txt,i) => (
-                  <span key={txt} className={`px-2.5 py-1 rounded-md text-[10px] font-bold ${i===0?'bg-blue-500/15 text-blue-400':i===1?'bg-zinc-800 text-zinc-400':'bg-emerald-500/15 text-emerald-400'}`} style={{fontFamily:BC}}>{txt}</span>
+                  <span key={txt} className={`px-2.5 py-1 rounded-md text-[10px] font-bold ${i===0?'bg-[#8FCFE6]/15 text-[#8FCFE6]':i===1?'bg-zinc-800 text-zinc-400':'bg-[#C3C9D4]/15 text-[#C3C9D4]'}`} style={{fontFamily:BC}}>{txt}</span>
                 ))}
               </div>
               <div className="relative w-12 h-12">
@@ -1163,12 +1163,12 @@ const LandingPage = () => {
             </p>
             <div className="grid grid-cols-2 gap-2.5">
               {[
-                {icon:Heart,label: t('landing.features.m1_title'),color:'bg-red-500'},
-                {icon:Ruler,label: t('landing.features.m2_title'),color:'bg-blue-500'},
-                {icon:Dumbbell,label: t('landing.features.m4_title'),color:'bg-emerald-500'},
-                {icon:Eye,label: t('landing.features.m5_title'),color:'bg-purple-500'},
-                {icon:Target,label: t('landing.features.m6_title'),color:'bg-amber-500'},
-                {icon:Brain,label: t('landing.features.m8_title'),color:'bg-pink-500'},
+                {icon:Heart,label: t('landing.features.m1_title'),color:'bg-[#C6864E]'},
+                {icon:Ruler,label: t('landing.features.m2_title'),color:'bg-[#8FCFE6]'},
+                {icon:Dumbbell,label: t('landing.features.m4_title'),color:'bg-[#C3C9D4]'},
+                {icon:Eye,label: t('landing.features.m5_title'),color:'bg-[#C3C9D4]'},
+                {icon:Target,label: t('landing.features.m6_title'),color:'bg-[#D4AF37]'},
+                {icon:Brain,label: t('landing.features.m8_title'),color:'bg-[#C6864E]'},
               ].map(({icon:I,label,color}) => (
                 <div key={label} className="flex items-center gap-2.5 bg-white/[0.04] border border-white/[0.05] rounded-xl px-3.5 py-2.5">
                   <div className={`w-7 h-7 ${color} rounded-lg flex items-center justify-center`}><I className="w-3.5 h-3.5 text-white" /></div>
@@ -1181,20 +1181,20 @@ const LandingPage = () => {
             <div className="bg-zinc-800/50 backdrop-blur rounded-2xl border border-zinc-700/30 p-6 shadow-2xl">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <div className="flex gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-red-500" /><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /><div className="w-2.5 h-2.5 rounded-full bg-emerald-500" /></div>
+                  <div className="flex gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#C6864E]" /><div className="w-2.5 h-2.5 rounded-full bg-[#D4AF37]" /><div className="w-2.5 h-2.5 rounded-full bg-[#C3C9D4]" /></div>
                   <span className="text-[12px] text-zinc-400 ml-2 font-mono">LordTraining {t('landing.chart.dashboard')} v3.0</span>
                 </div>
                 <div className="flex gap-3">
-                  <span className="flex items-center gap-1.5 text-[11px] font-bold text-blue-400"><span className="w-2 h-2 rounded-full bg-blue-400"/>{t('landing.chart.volume')}</span>
+                  <span className="flex items-center gap-1.5 text-[11px] font-bold text-[#8FCFE6]"><span className="w-2 h-2 rounded-full bg-[#8FCFE6]"/>{t('landing.chart.volume')}</span>
                   <span className="flex items-center gap-1.5 text-[11px] font-bold text-[#D4AF37]"><span className="w-2 h-2 rounded-full bg-[#D4AF37]"/>{t('landing.chart.intensity')}</span>
-                  <span className="flex items-center gap-1.5 text-[11px] font-bold text-rose-400"><span className="w-2 h-2 rounded-full bg-rose-400"/>{t('landing.chart.density')}</span>
+                  <span className="flex items-center gap-1.5 text-[11px] font-bold text-[#C6864E]"><span className="w-2 h-2 rounded-full bg-[#C6864E]"/>{t('landing.chart.density')}</span>
                 </div>
               </div>
               {/* Interactive mini chart */}
               <ShowcaseChart t={t} />
               {/* Bottom area chart */}
               <div className="h-20 relative mt-4">
-                <div className="absolute inset-0"><AnimatedLineWave color="#3B82F6" amplitude={25} speed="6s" /></div>
+                <div className="absolute inset-0"><AnimatedLineWave color="#8FCFE6" amplitude={25} speed="6s" /></div>
                 <div className="absolute inset-0"><AnimatedLineWave color="#D4AF37" amplitude={20} speed="8s" /></div>
               </div>
             </div>
@@ -1225,9 +1225,9 @@ const LandingPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12" data-testid="audiences-grid">
           {[
             { key:'coaches', icon: UserCheck, color:'#D4AF37', bg:'bg-[#D4AF37]/10', border:'border-[#D4AF37]/20', iconBg:'bg-[#D4AF37]', iconText:'text-zinc-900' },
-            { key:'clubs', icon: Building2, color:'#3B82F6', bg:'bg-blue-500/10', border:'border-blue-500/20', iconBg:'bg-blue-500', iconText:'text-white' },
-            { key:'schools', icon: GraduationCap, color:'#8B5CF6', bg:'bg-purple-500/10', border:'border-purple-500/20', iconBg:'bg-purple-500', iconText:'text-white' },
-            { key:'federations', icon: Globe, color:'#F43F5E', bg:'bg-rose-500/10', border:'border-rose-500/20', iconBg:'bg-rose-500', iconText:'text-white' },
+            { key:'clubs', icon: Building2, color:'#8FCFE6', bg:'bg-[#8FCFE6]/10', border:'border-[#8FCFE6]/20', iconBg:'bg-[#8FCFE6]', iconText:'text-white' },
+            { key:'schools', icon: GraduationCap, color:'#C3C9D4', bg:'bg-[#C3C9D4]/10', border:'border-[#C3C9D4]/20', iconBg:'bg-[#C3C9D4]', iconText:'text-white' },
+            { key:'federations', icon: Globe, color:'#C6864E', bg:'bg-[#C6864E]/10', border:'border-[#C6864E]/20', iconBg:'bg-[#C6864E]', iconText:'text-white' },
           ].map((seg, idx) => {
             const Icon = seg.icon;
             return (
@@ -1302,11 +1302,11 @@ const LandingPage = () => {
 
           {[
             { n:'01', icon: Target, color:'#D4AF37', key:'step1' },
-            { n:'02', icon: Calendar, color:'#3B82F6', key:'step2' },
-            { n:'03', icon: Layers, color:'#8B5CF6', key:'step3' },
-            { n:'04', icon: Users, color:'#F59E0B', key:'step4' },
-            { n:'05', icon: Activity, color:'#10B981', key:'step5' },
-            { n:'06', icon: BarChart3, color:'#F43F5E', key:'step6' },
+            { n:'02', icon: Calendar, color:'#8FCFE6', key:'step2' },
+            { n:'03', icon: Layers, color:'#C3C9D4', key:'step3' },
+            { n:'04', icon: Users, color:'#D4AF37', key:'step4' },
+            { n:'05', icon: Activity, color:'#C3C9D4', key:'step5' },
+            { n:'06', icon: BarChart3, color:'#C6864E', key:'step6' },
           ].map((step, idx) => {
             const Icon = step.icon;
             const isLeft = idx % 2 === 0;
@@ -1396,7 +1396,7 @@ const LandingPage = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {[
             { key:'starter', price:'9.99', num:'01', color:'#64748b', pop:false, fcount:6 },
-            { key:'pro', price:'19.99', num:'02', color:'#378ADD', pop:false, fcount:7 },
+            { key:'pro', price:'19.99', num:'02', color:'#8FCFE6', pop:false, fcount:7 },
             { key:'club', price:'49.99', num:'03', color:'#D4AF37', pop:true, fcount:8 },
             { key:'inst', price:'149.99', num:'04', color:'#EF9F27', pop:false, fcount:9 },
           ].map((plan, idx) => {
@@ -1572,9 +1572,9 @@ const LandingPage = () => {
         <div className="pt-6 border-t border-zinc-800/40 flex items-center justify-between">
           <p className="text-[12px] text-zinc-600">© 2026 LordTraining. {t('landing.footer.copyright')}</p>
           <div className="flex gap-4">
-            <Link to="/terminos" className="text-[12px] text-zinc-600 hover:text-amber-400 cursor-pointer transition-colors" data-testid="footer-link-terms">{t('legal.terms', 'Términos')}</Link>
-            <Link to="/privacidad" className="text-[12px] text-zinc-600 hover:text-amber-400 cursor-pointer transition-colors" data-testid="footer-link-privacy">{t('legal.privacy', 'Privacidad')}</Link>
-            <Link to="/politicas" className="text-[12px] text-zinc-600 hover:text-amber-400 cursor-pointer transition-colors" data-testid="footer-link-policies">{t('legal.policies', 'Políticas')}</Link>
+            <Link to="/terminos" className="text-[12px] text-zinc-600 hover:text-[#D4AF37] cursor-pointer transition-colors" data-testid="footer-link-terms">{t('legal.terms', 'Términos')}</Link>
+            <Link to="/privacidad" className="text-[12px] text-zinc-600 hover:text-[#D4AF37] cursor-pointer transition-colors" data-testid="footer-link-privacy">{t('legal.privacy', 'Privacidad')}</Link>
+            <Link to="/politicas" className="text-[12px] text-zinc-600 hover:text-[#D4AF37] cursor-pointer transition-colors" data-testid="footer-link-policies">{t('legal.policies', 'Políticas')}</Link>
           </div>
         </div>
       </div>
