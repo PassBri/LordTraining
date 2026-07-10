@@ -1,14 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { GraduationCap, X, PlayCircle, Video, Loader2 } from 'lucide-react';
 
 const BACKEND = process.env.REACT_APP_BACKEND_URL;
+const SEEN_KEY = 'lt_seen_tutorials';
+
+const getSeen = () => {
+  try { return new Set(JSON.parse(localStorage.getItem(SEEN_KEY) || '[]')); }
+  catch { return new Set(); }
+};
+const saveSeen = (set) => localStorage.setItem(SEEN_KEY, JSON.stringify(Array.from(set)));
 
 // Mapea el módulo actual del dashboard a una categoría de tutorial.
 export const resolveTutorialCategory = (activePanel, activeDataSection, section) => {
   if (activePanel === 'scouting') return 'scouting';
   if (activePanel === 'report') return 'reportes';
   if (activePanel === 'panel') return 'general';
-  // dentro de "datos": por id específico primero, luego por sección
   const byId = {
     'tactical-board': 'pizarra',
     'calculators': 'calculadoras',
@@ -33,21 +39,34 @@ const HelpTutorialButton = ({ category = 'general' }) => {
   const [catLabels, setCatLabels] = useState({});
   const [loading, setLoading] = useState(false);
   const [active, setActive] = useState(null);
+  const [seen, setSeen] = useState(getSeen);
 
-  const load = () => {
+  const load = useCallback(() => {
     setLoading(true);
     fetch(`${BACKEND}/api/resources/videos`)
       .then((r) => (r.ok ? r.json() : { videos: [] }))
       .then((d) => { setVideos(d.videos || []); setCatLabels(d.categories || {}); })
       .catch(() => setVideos([]))
       .finally(() => setLoading(false));
-  };
+  }, []);
 
-  useEffect(() => { if (open && !videos.length) load(); }, [open]); // eslint-disable-line
+  // Cargar al montar para poder mostrar el indicador "Nuevo".
+  useEffect(() => { load(); }, [load]);
+
+  const markSeen = (id) => {
+    setSeen((prev) => {
+      if (prev.has(id)) return prev;
+      const next = new Set(prev); next.add(id); saveSeen(next); return next;
+    });
+  };
 
   const matched = videos.filter((v) => (v.category || 'general') === category);
   const list = matched.length ? matched : videos;
   const heading = matched.length ? (catLabels[category] || 'este módulo') : 'LordTraining';
+
+  // "Nuevo" = video no visto por este entrenador.
+  const unseenCount = videos.filter((v) => !seen.has(v.id)).length;
+  const contextualUnseen = list.filter((v) => !seen.has(v.id)).length;
 
   return (
     <>
@@ -57,6 +76,12 @@ const HelpTutorialButton = ({ category = 'general' }) => {
         title="Ver tutoriales de esta sección"
         className="fixed bottom-6 left-6 z-40 flex items-center gap-2 px-4 h-11 rounded-full bg-[#0A0F1E] text-[#D4AF37] border border-[#D4AF37]/40 shadow-lg hover:bg-[#111830] hover:-translate-y-0.5 transition-all font-semibold text-sm">
         <GraduationCap className="w-4 h-4" /> Tutoriales
+        {unseenCount > 0 && (
+          <span data-testid="help-tutorials-badge"
+            className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#EF4444] text-white text-[10px] font-black flex items-center justify-center border-2 border-[#0a0e14] animate-pulse">
+            {unseenCount}
+          </span>
+        )}
       </button>
 
       {open && (
@@ -66,6 +91,7 @@ const HelpTutorialButton = ({ category = 'general' }) => {
               <div>
                 <p className="text-[11px] uppercase tracking-wider text-[#D4AF37] font-bold">Ayuda / Tutoriales</p>
                 <h3 className="text-white font-bold">Aprende sobre {heading}</h3>
+                {contextualUnseen > 0 && <p className="text-[11px] text-[#EF4444] font-semibold mt-0.5">{contextualUnseen} sin ver</p>}
               </div>
               <button onClick={() => setOpen(false)} className="text-slate-400 hover:text-white" data-testid="help-tutorials-close"><X className="w-5 h-5" /></button>
             </div>
@@ -81,32 +107,39 @@ const HelpTutorialButton = ({ category = 'general' }) => {
               {!loading && !matched.length && videos.length > 0 && (
                 <p className="text-xs text-slate-500">No hay un tutorial específico para esta sección todavía. Aquí tienes todos los disponibles.</p>
               )}
-              {!loading && list.map((v) => (
-                <button key={v.id} onClick={() => setActive(active?.id === v.id ? null : v)} data-testid={`help-video-${v.id}`}
-                  className="w-full text-left rounded-xl overflow-hidden border border-white/10 bg-slate-900/60 hover:border-[#D4AF37]/40 transition-all">
-                  {active?.id === v.id && v.embed_url && v.platform !== 'link' ? (
-                    <div className="aspect-video">
-                      <iframe src={`${v.embed_url}?autoplay=1`} title={v.title} className="w-full h-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
-                    </div>
-                  ) : (
-                    <div className="relative aspect-video bg-slate-800">
-                      {v.thumbnail_url ? <img src={v.thumbnail_url} alt={v.title} className="w-full h-full object-cover" loading="lazy" />
-                        : <div className="w-full h-full flex items-center justify-center"><Video className="w-8 h-8 text-slate-600" /></div>}
-                      <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
-                        <PlayCircle className="w-12 h-12 text-white/90" strokeWidth={1.5} />
+              {!loading && list.map((v) => {
+                const isNew = !seen.has(v.id);
+                const playing = active?.id === v.id;
+                return (
+                  <button key={v.id} onClick={() => { setActive(playing ? null : v); markSeen(v.id); }} data-testid={`help-video-${v.id}`}
+                    className="w-full text-left rounded-xl overflow-hidden border border-white/10 bg-slate-900/60 hover:border-[#D4AF37]/40 transition-all">
+                    {playing && v.embed_url && v.platform !== 'link' ? (
+                      <div className="aspect-video">
+                        <iframe src={`${v.embed_url}?autoplay=1`} title={v.title} className="w-full h-full"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
                       </div>
-                      {v.category && catLabels[v.category] && (
-                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/60 text-[9px] font-bold text-[#D4AF37] uppercase">{catLabels[v.category]}</span>
-                      )}
+                    ) : (
+                      <div className="relative aspect-video bg-slate-800">
+                        {v.thumbnail_url ? <img src={v.thumbnail_url} alt={v.title} className="w-full h-full object-cover" loading="lazy" />
+                          : <div className="w-full h-full flex items-center justify-center"><Video className="w-8 h-8 text-slate-600" /></div>}
+                        <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
+                          <PlayCircle className="w-12 h-12 text-white/90" strokeWidth={1.5} />
+                        </div>
+                        {v.category && catLabels[v.category] && (
+                          <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/60 text-[9px] font-bold text-[#D4AF37] uppercase">{catLabels[v.category]}</span>
+                        )}
+                        {isNew && (
+                          <span data-testid={`help-video-new-${v.id}`} className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-[#EF4444] text-white text-[9px] font-black uppercase tracking-wide">Nuevo</span>
+                        )}
+                      </div>
+                    )}
+                    <div className="p-3">
+                      <p className="text-white text-sm font-semibold leading-snug">{v.title}</p>
+                      {v.description && <p className="text-slate-400 text-xs mt-1 line-clamp-2">{v.description}</p>}
                     </div>
-                  )}
-                  <div className="p-3">
-                    <p className="text-white text-sm font-semibold leading-snug">{v.title}</p>
-                    {v.description && <p className="text-slate-400 text-xs mt-1 line-clamp-2">{v.description}</p>}
-                  </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
