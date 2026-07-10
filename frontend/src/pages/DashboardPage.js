@@ -70,6 +70,7 @@ const ObjectivesIndicators = lazy(() => import('../components/ObjectivesIndicato
 const TrainingSystemHub = lazy(() => import('../components/TrainingSystemHub'));
 const TournamentManager = lazy(() => import('../components/TournamentManager'));
 import AITrainingAssistant from '../components/AITrainingAssistant';
+import HelpTutorialButton, { resolveTutorialCategory } from '../components/HelpTutorialButton';
 import PlanSidebar from '../components/PlanSidebar';
 import SectionSkeleton from '../components/SectionSkeleton';
 import { Sheet, SheetContent } from '../components/ui/sheet';
@@ -4644,6 +4645,9 @@ const DashboardPage = () => {
       </div>
        </>
       ) : renderWhatsAppLayout()}
+
+      {/* ====== BOTÓN AYUDA / TUTORIALES (contextual por módulo, ambos modos) ====== */}
+      <HelpTutorialButton category={resolveTutorialCategory(activePanel, activeDataSection, currentSection)} />
 
       {/* ====== SHEET DE PLANES (Modo Clásico, abierto desde botón superior) ====== */}
       <Sheet open={isPlansSheetOpen} onOpenChange={setIsPlansSheetOpen}>
