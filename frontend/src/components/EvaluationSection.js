@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { EvaluationMiniChart } from './EvaluationEvolution';
+import LevelBadge from './LevelBadge';
 import { useDynamicTranslations } from '../lib/i18nDynamic';
 import EvaluationTeamMode from './EvaluationTeamMode';
 
@@ -690,6 +691,11 @@ const EvaluationSection = ({ sectionId, activePlan, athletes = [], selectedAthle
           <p className="text-[10px] font-bold uppercase tracking-wider opacity-80">% Promedio</p>
           <p className="text-3xl font-extrabold tabular-nums">{globalAvg.toFixed(0)}<span className="text-base opacity-70">%</span></p>
           <div className="h-1.5 bg-white/20 rounded-full mt-2 overflow-hidden"><div className="h-full bg-white rounded-full" style={{ width: `${globalAvg}%` }} /></div>
+          {aspects.some(a => a.value !== '' && a.value != null) && (
+            <div className="mt-2.5" data-testid="eval-level-badge">
+              <LevelBadge score={globalAvg} size="sm" />
+            </div>
+          )}
         </div>
         <div className="rounded-2xl p-4 bg-white border border-slate-200 shadow-sm">
           <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Aspectos</p>

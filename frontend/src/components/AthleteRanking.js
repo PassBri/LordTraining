@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { Card } from './ui/card';
 import { Trophy, Medal, ArrowUpDown, Users, Loader2 } from 'lucide-react';
+import LevelBadge from './LevelBadge';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -104,6 +105,7 @@ export const AthleteRanking = ({ globalContext, onOpenAthlete }) => {
                 </div>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
+                {r.has_data && <LevelBadge score={r.evaluation_avg ?? r.score} size="sm" showLabel={false} />}
                 <span className="hidden sm:inline text-[11px] text-slate-400 w-16 text-right">
                   R {r.readiness ?? '—'} · E {r.evaluation_avg ?? '—'}
                 </span>

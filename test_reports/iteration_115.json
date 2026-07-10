@@ -1,0 +1,48 @@
+{
+  "summary": "Frontend-only verification of new 'LevelBadge' (medal-tier badge) on plan 'Plan Deporte General - ATR (Issurin)' (Boxeo, 47 sem). Verified badge on EvaluationSection hero '% Promedio' AND on AthleteRanking rows. All 4 threshold levels (Diamante/Oro/Plata/Bronce) mapped correctly. Rookie (<40) not observed directly but code path trivial. No regressions in login, dashboard, evaluation, ranking.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Radix DialogContent (Planes sheet, Reporte Maestro modal)", "issues": ["Pre-existing a11y warnings 'DialogContent requires a DialogTitle' — carried over from iteration 113/114, non-blocking."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "LevelBadge.jsx: clean, small, self-contained. Thresholds 90/75/60/40 match spec. getLevel returns null on non-numeric input (protects against NaN) and LevelBadge returns null in that case (no crash). data-testid='level-badge-<key>' pattern is consistent.",
+    "EvaluationSection.js hero conditional 'aspects.some(a => a.value !== \\'\\' && a.value != null)' correctly hides the badge on empty controls (0% with no measured aspects) — verified with three real 0% history items that render NO badge.",
+    "AthleteRanking.js correctly gates badge behind r.has_data (only rows with data show badge). showLabel={false} verified — text label absent, icon + tooltip only. Uses r.evaluation_avg ?? r.score which is spec-compliant.",
+    "Pre-existing hydration warning about <span> inside <option> in EvaluationSection athlete-select (react-devtools/x-ve overlay artifact) — not related to LevelBadge, but should be looked at eventually as it triggers 'cannot be a child of' React warning.",
+    "Pre-existing 404 on one resource (unchanged from iteration 114). No functional impact."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (per request)", "frontend": "100% on the LevelBadge feature (eval + ranking)"},
+  "test_credentials": "Super admin juegolaureado@gmail.com / LordTraining2026! (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "Modified 'Valor Medido' of aspect 'FC en reposo' (id f7a0c722e2) inside the 74% history control of Control Médico for plan 'Plan Deporte General - ATR (Issurin)'. Final value = 85 (last commit reached 88% Oro). Also changed 'Presión arterial sistólica' Valor to 167 (100%). This shifted that historical control to 88% (from 74%). Non-destructive — original was easily re-editable, but tester did NOT restore the original value 69. If subsequent tests need the original 74% control, main agent may want to restore.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Reach the badges: login super admin → 'Planes' button top-nav → select 'Plan Deporte General - ATR (Issurin)' → 'Datos' top-nav → 'Evaluación' section-tab (data-testid=section-tab-evaluacion). The hero '% Promedio' card renders the LevelBadge inside a wrapper data-testid='eval-level-badge' → inner span data-testid='level-badge-<key>' with key in {diamond, gold, silver, bronze, rookie}. Threshold map: >=90 diamond, 75-89 gold, 60-74 silver, 40-59 bronze, <40 rookie. To trigger badge you need at least one aspect with a measured value. To change % Promedio use 'Formulario' subtab (eval-medical-view-form) and edit the input with testid eval-medical-aspect-value-<aspectId>; the Valor Medido is mapped linearly across scale_min/scale_max of the aspect. For AthleteRanking: default Panel de Control (activePanel!='datos') → scroll to Ranking del Equipo (data-testid=athlete-ranking-card). Rows: data-testid=ranking-row-<athleteId>. Rows with r.has_data render a compact icon-only LevelBadge (showLabel=false) next to the R/E stats. Rows without data (opacity-50) render NO badge.",
+  "verified_flows": {
+    "login_super_admin": "PASS — reached /dashboard within 5s.",
+    "plan_selection_ATR_Issurin": "PASS — 'Planes' sheet opened, plan 'Plan Deporte General - ATR (Issurin)' Boxeo 47 sem selected; Plan Activo card shows '47 sem · ATR (Issurin)', Eventos=4, Sesiones=64.",
+    "datos_evaluacion_module_navigation": "PASS — data-testid=section-tab-evaluacion clicked, Control Médico loaded with 5 history items.",
+    "eval_level_badge_wrapper_present": "PASS — eval-level-badge div renders in the hero '% Promedio' card only when at least one aspect has value.",
+    "eval_level_badge_bronze_50pct": "PASS — 50% control renders level-badge-bronze with label 'Bronce' and title 'Nivel Bronce · 50 pts'.",
+    "eval_level_badge_silver_74pct": "PASS — 74% history control renders level-badge-silver with label 'Plata' and title 'Nivel Plata · 74 pts'.",
+    "eval_level_badge_gold_80_and_88pct": "PASS — Editing FC en reposo Valor Medido to 76 yielded %=80 → level-badge-gold. Editing to 85 (with Presión arterial=167) yielded %=88 → level-badge-gold, title 'Nivel Oro · 88 pts'.",
+    "eval_level_badge_diamond_96_and_100pct": "PASS — Editing FC en reposo Valor Medido to 100 yielded %=100 → level-badge-diamond. To 95 → %=96 → level-badge-diamond.",
+    "eval_level_badge_hidden_at_0pct_no_measured": "PASS — All three 0% history controls render eval-level-badge=absent (or wrapper present but no inner LevelBadge because aspects.some returns false).",
+    "athlete_ranking_card_visible_on_panel": "PASS — data-testid=athlete-ranking-card present on default Panel de Control.",
+    "athlete_ranking_badge_gold_score75": "PASS — Row 'sds' (score 75, R 75, E —) renders level-badge-gold, icon-only (no text label), title 'Nivel Oro · 75 pts'.",
+    "athlete_ranking_no_badge_for_rows_without_data": "PASS — 8 rows without data (score '—', R '—', E '—', opacity-50) render NO badge, as expected.",
+    "no_console_errors_regressions": "PASS on LevelBadge feature — no new errors introduced. Only pre-existing warnings (DialogTitle a11y, one 404, <span>-in-<option> hydration warning) observed, all from prior iterations."
+  },
+  "console_errors_observed": [
+    "`DialogContent` requires a `DialogTitle` — pre-existing (iteration 113/114).",
+    "One 404 on a resource load — pre-existing.",
+    "Hydration warning: <span> cannot be a child of <option> (EvaluationSection line 647 athlete-select) — pre-existing artifact from visual editor overlay, non-blocking."
+  ],
+  "rca of the issue": "N/A — feature works as designed. Threshold mapping in LevelBadge.js matches spec exactly (>=90/75/60/40 → diamond/gold/silver/bronze; else rookie). Conditional rendering in EvaluationSection ensures badge is hidden until at least one aspect has a numeric value. AthleteRanking correctly gates badge on r.has_data and passes showLabel={false} for icon-only compact display."
+}
