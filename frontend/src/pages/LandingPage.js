@@ -442,6 +442,139 @@ const TestimonialsCarousel = ({ t }) => {
   );
 };
 
+/* ═══ SCOUTING & TALENT IDENTIFICATION SECTION ═══ */
+const SCOUT_IMG = 'https://images.unsplash.com/photo-1591805953001-f6ad7822d736?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200';
+
+const ScoutingSection = ({ t }) => {
+  const tools = [
+    { icon: Activity, title: 'Evaluación de atletas', desc: 'Registra pruebas físicas, técnicas y tácticas.' },
+    { icon: Users, title: 'Comparación de jugadores', desc: 'Compara múltiples atletas mediante indicadores clave.' },
+    { icon: LineChart, title: 'Seguimiento del desarrollo', desc: 'Visualiza la evolución del rendimiento a lo largo del tiempo.' },
+    { icon: FileText, title: 'Reportes profesionales', desc: 'Genera informes para clubes, academias o procesos de selección.' },
+    { icon: Layers, title: 'Base de datos de talentos', desc: 'Organiza y filtra jugadores según edad, posición, rendimiento o potencial.' },
+    { icon: BarChart3, title: 'Dashboards analíticos', desc: 'Transforma datos en información útil para la toma de decisiones.' },
+  ];
+  const benefits = [
+    'Identifica talento con mayor precisión.',
+    'Reduce la subjetividad en las evaluaciones.',
+    'Centraliza toda la información del atleta.',
+    'Facilita el trabajo colaborativo entre entrenadores y scouts.',
+    'Optimiza procesos de reclutamiento y seguimiento.',
+    'Toma decisiones respaldadas por datos.',
+  ];
+  const audiences = [
+    { icon: Building2, label: 'Clubes' },
+    { icon: GraduationCap, label: 'Academias' },
+    { icon: Shield, label: 'Federaciones' },
+    { icon: UserCheck, label: 'Entrenadores' },
+  ];
+
+  return (
+    <section id="scouting" className="py-20 px-6 bg-slate-950 relative overflow-hidden" data-testid="scouting-section">
+      {/* ambient glow */}
+      <div className="absolute top-1/3 -left-32 w-96 h-96 rounded-full bg-[#CCFF00]/[0.04] blur-3xl pointer-events-none" />
+      <div className="max-w-[1120px] mx-auto relative z-10">
+        {/* Header */}
+        <Reveal direction="up" className="text-center mb-12">
+          <SectionTag>Scouting &amp; Talent ID</SectionTag>
+          <h2 className="text-[28px] md:text-[40px] font-bold text-white leading-[1.12] mb-3" style={{fontFamily:INT}} data-testid="scouting-title">
+            Scouting &amp; <span className="text-[#CCFF00]">Talent Identification</span>
+          </h2>
+          <p className="text-slate-300 text-[15px] md:text-[17px] max-w-[640px] mx-auto mb-4">
+            Descubre, evalúa y desarrolla el talento con herramientas respaldadas por datos.
+          </p>
+          <p className="text-slate-400 text-[13px] md:text-[14px] leading-[1.7] max-w-[720px] mx-auto">
+            LordTraining ofrece un ecosistema de herramientas diseñadas para entrenadores, scouts y organizaciones deportivas que buscan tomar mejores decisiones en la identificación y seguimiento de atletas. Centraliza la información, evalúa el rendimiento y compara perfiles utilizando métricas objetivas para reducir el sesgo en la toma de decisiones.
+          </p>
+        </Reveal>
+
+        {/* Image + Benefits */}
+        <div className="grid lg:grid-cols-2 gap-8 items-center mb-14">
+          <Reveal direction="left">
+            <div className="relative rounded-2xl overflow-hidden border border-slate-800 shadow-2xl" data-testid="scouting-image">
+              <img src={SCOUT_IMG} alt="Scout analizando datos y observando jugadores" className="w-full h-[300px] md:h-[360px] object-cover" loading="lazy" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
+              {/* floating stat card */}
+              <div className="absolute bottom-4 left-4 bg-slate-900/90 backdrop-blur-md border border-slate-700/60 rounded-xl px-4 py-3 shadow-xl flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-[#CCFF00]/15 flex items-center justify-center">
+                  <Eye className="w-4.5 h-4.5 text-[#CCFF00]" />
+                </div>
+                <div>
+                  <div className="text-[15px] font-black text-white leading-none" style={{fontFamily:BC}}>Análisis objetivo</div>
+                  <div className="text-[10px] text-slate-400 mt-0.5">Decisiones basadas en datos</div>
+                </div>
+              </div>
+              <div className="absolute top-4 right-4 bg-slate-900/90 backdrop-blur-md border border-slate-700/60 rounded-xl px-3 py-2 shadow-xl">
+                <div className="text-[18px] font-black text-[#CCFF00] leading-none" style={{fontFamily:BC}}>−42%</div>
+                <div className="text-[9px] text-slate-400 mt-0.5">sesgo en evaluación</div>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal direction="right">
+            <h3 className="text-[13px] font-black uppercase tracking-[0.14em] text-[#CCFF00] mb-4" style={{fontFamily:BC}}>Beneficios</h3>
+            <ul className="space-y-3" data-testid="scouting-benefits">
+              {benefits.map((b, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="mt-0.5 w-5 h-5 rounded-full bg-[#CCFF00]/15 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-[#CCFF00]" strokeWidth={3} />
+                  </span>
+                  <span className="text-[14px] text-slate-300 leading-[1.5]">{b}</span>
+                </li>
+              ))}
+            </ul>
+            {/* Audience pills */}
+            <div className="flex flex-wrap gap-2.5 mt-6">
+              {audiences.map((a) => (
+                <span key={a.label} className="inline-flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-full px-3.5 py-1.5 text-[12px] font-bold text-slate-300">
+                  <a.icon className="w-3.5 h-3.5 text-[#CCFF00]" /> {a.label}
+                </span>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+
+        {/* Tools grid */}
+        <Reveal direction="up" className="mb-4 text-center">
+          <h3 className="text-[20px] md:text-[24px] font-bold text-white" style={{fontFamily:INT}}>Herramientas disponibles</h3>
+        </Reveal>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-14" data-testid="scouting-tools">
+          {tools.map((tool, i) => (
+            <Reveal key={tool.title} direction="up" delay={i * 0.06}>
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 h-full group hover:border-[#CCFF00]/50 transition-all duration-300 hover:-translate-y-1" data-testid={`scouting-tool-${i}`}>
+                <div className="w-12 h-12 rounded-xl bg-[#CCFF00]/10 border border-[#CCFF00]/20 flex items-center justify-center mb-4 group-hover:bg-[#CCFF00]/20 transition-colors">
+                  <tool.icon className="w-6 h-6 text-[#CCFF00]" />
+                </div>
+                <h4 className="text-[16px] font-bold text-white mb-1.5" style={{fontFamily:INT}}>{tool.title}</h4>
+                <p className="text-[13px] text-slate-400 leading-[1.6]">{tool.desc}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <Reveal direction="up">
+          <div className="relative rounded-3xl overflow-hidden border border-[#CCFF00]/20 bg-gradient-to-br from-slate-900 to-slate-950 px-6 py-10 md:px-12 md:py-12 text-center" data-testid="scouting-cta">
+            <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-80 h-40 rounded-full bg-[#CCFF00]/[0.06] blur-3xl pointer-events-none" />
+            <h3 className="relative text-[24px] md:text-[32px] font-bold text-white mb-2" style={{fontFamily:INT}}>
+              Empieza a descubrir talento con <span className="text-[#CCFF00]">LordTraining</span>
+            </h3>
+            <p className="relative text-[14px] text-slate-400 mb-7 max-w-[520px] mx-auto">
+              Herramientas profesionales de scouting para clubes, academias, federaciones y entrenadores.
+            </p>
+            <Link to="/auth" className="relative inline-block">
+              <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] h-12 px-8 text-[13px] font-bold rounded-xl shadow-lg shadow-[#CCFF00]/20 transition-all hover:-translate-y-0.5" style={{fontFamily:BC}} data-testid="scouting-cta-btn">
+                Optimizar mi Scouting <ArrowRight className="w-4 h-4 ml-2 inline" />
+              </Button>
+            </Link>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+};
+
+
 /* ═══════════════════════════════ PAGE ═══════════════════════════════ */
 const LANDING_TIER_MAP = { starter: 'starter', pro: 'basic', club: 'pro', inst: 'enterprise' };
 
@@ -706,6 +839,9 @@ const LandingPage = () => {
         `}</style>
       </div>
     </section>
+
+    {/* SCOUTING & TALENT IDENTIFICATION — segunda sección */}
+    <ScoutingSection t={t} />
 
     {/* MARQUEE SCROLLING — Palabras moviéndose */}
     <section className="relative bg-gradient-to-r from-[#0a0f19] via-[#1a2033] to-[#0a0f19] border-y border-[#CCFF00]/15 overflow-hidden" data-testid="marquee-section">
