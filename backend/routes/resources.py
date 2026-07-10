@@ -322,12 +322,12 @@ VIDEO_CATEGORIES = {
 }
 
 DEFAULT_VIDEOS = [
-    {"title": "Cómo construir tu plan de periodización", "description": "Aprende a estructurar macro, meso y microciclos en el motor de periodización.", "video_url": "https://www.youtube.com/results?search_query=periodizacion+deportiva", "thumbnail_url": "https://images.unsplash.com/photo-1526232761682-d26e03ac148e?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "category": "periodizacion", "order": 1},
-    {"title": "Evaluación física de tus atletas", "description": "Registra controles físicos, técnicos y médicos y sigue la evolución del deportista.", "video_url": "https://www.youtube.com/results?search_query=evaluacion+fisica+deportiva", "thumbnail_url": "https://images.unsplash.com/photo-1529932398402-e0b30f66a559?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "category": "evaluacion", "order": 2},
-    {"title": "Diseña jugadas en la Pizarra Táctica", "description": "Crea y anima jugadas para más de 30 deportes con la pizarra dinámica.", "video_url": "https://www.youtube.com/results?search_query=basketball+tactics+board", "thumbnail_url": "https://images.unsplash.com/photo-1600534220378-df36338afc40?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "category": "pizarra", "order": 3},
-    {"title": "Planifica sesiones de entrenamiento", "description": "Arma sesiones por capacidades con volumen, intensidad y monitoreo de carga.", "video_url": "https://www.youtube.com/results?search_query=planificacion+sesion+entrenamiento", "thumbnail_url": "https://images.unsplash.com/photo-1585757318177-0570a997dc3a?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "category": "sesiones", "order": 4},
-    {"title": "Scouting y detección de talento", "description": "Gestiona prospectos, pipeline y evaluaciones por nivel del deportista.", "video_url": "https://www.youtube.com/results?search_query=sports+scouting+talent", "thumbnail_url": "https://images.unsplash.com/photo-1525973132219-a04334a76080?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "category": "scouting", "order": 5},
-    {"title": "Genera reportes avanzados en PDF", "description": "Exporta reportes profesionales del atleta y del equipo con un clic.", "video_url": "https://www.youtube.com/results?search_query=deporte+reporte+rendimiento", "thumbnail_url": "https://images.unsplash.com/photo-1587960184060-aa880aabdd04?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "category": "reportes", "order": 6},
+    {"title": "Cómo construir tu plan de periodización", "description": "Aprende a estructurar macro, meso y microciclos en el motor de periodización.", "video_url": "https://www.youtube.com/watch?v=VtJwIt4WFpc", "thumbnail_url": "https://images.unsplash.com/photo-1526232761682-d26e03ac148e?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "category": "periodizacion", "order": 1},
+    {"title": "Evaluación física de tus atletas", "description": "Registra controles físicos, técnicos y médicos y sigue la evolución del deportista.", "video_url": "https://www.youtube.com/watch?v=DTt1SXSO5Is", "thumbnail_url": "https://images.unsplash.com/photo-1529932398402-e0b30f66a559?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "category": "evaluacion", "order": 2},
+    {"title": "Diseña jugadas en la Pizarra Táctica", "description": "Crea y anima jugadas para más de 30 deportes con la pizarra dinámica.", "video_url": "https://www.youtube.com/watch?v=ODFfaKfVM7E", "thumbnail_url": "https://images.unsplash.com/photo-1600534220378-df36338afc40?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "category": "pizarra", "order": 3},
+    {"title": "Planifica sesiones de entrenamiento", "description": "Arma sesiones por capacidades con volumen, intensidad y monitoreo de carga.", "video_url": "https://www.youtube.com/watch?v=A0rJxzjbWss", "thumbnail_url": "https://images.unsplash.com/photo-1585757318177-0570a997dc3a?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "category": "sesiones", "order": 4},
+    {"title": "Scouting y detección de talento", "description": "Gestiona prospectos, pipeline y evaluaciones por nivel del deportista.", "video_url": "https://www.youtube.com/watch?v=nckkvbxgnUM", "thumbnail_url": "https://images.unsplash.com/photo-1525973132219-a04334a76080?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "category": "scouting", "order": 5},
+    {"title": "Genera reportes avanzados en PDF", "description": "Exporta reportes profesionales del atleta y del equipo con un clic.", "video_url": "https://www.youtube.com/watch?v=DacqJsq8MyI", "thumbnail_url": "https://images.unsplash.com/photo-1587960184060-aa880aabdd04?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "category": "reportes", "order": 6},
 ]
 
 
@@ -396,3 +396,15 @@ async def delete_video(video_id: str, request: Request, user=Depends(_require_su
     db = request.app.state.db
     await db.landing_videos.delete_one({"id": video_id})
     return {"ok": True}
+
+
+class ReorderIn(BaseModel):
+    ids: List[str] = []
+
+
+@router.post("/videos/reorder")
+async def reorder_videos(payload: ReorderIn, request: Request, user=Depends(_require_super)):
+    db = request.app.state.db
+    for i, vid in enumerate(payload.ids):
+        await db.landing_videos.update_one({"id": vid}, {"$set": {"order": i + 1}})
+    return {"ok": True, "count": len(payload.ids)}

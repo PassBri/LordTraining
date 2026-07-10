@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { Trash2, Plus, Save, FileText, BookOpen, LifeBuoy, Video } from 'lucide-react';
+import { Trash2, Plus, Save, FileText, BookOpen, LifeBuoy, Video, GripVertical } from 'lucide-react';
 
 const BACKEND = process.env.REACT_APP_BACKEND_URL;
 const authHeaders = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('train_token')}` });
@@ -166,9 +166,21 @@ const VideosAdmin = () => {
   const [cats, setCats] = useState({});
   const blank = { title: '', description: '', video_url: '', thumbnail_url: '', category: 'general', order: 0, published: true };
   const [editing, setEditing] = useState(null);
+  const [dragIdx, setDragIdx] = useState(null);
 
   const load = () => fetch(`${BACKEND}/api/resources/videos?all=true`).then(r => r.json()).then(d => { setVideos(d.videos || []); setCats(d.categories || {}); });
   useEffect(() => { load(); }, []);
+
+  const onDrop = async (toIdx) => {
+    if (dragIdx === null || dragIdx === toIdx) { setDragIdx(null); return; }
+    const next = [...videos];
+    const [moved] = next.splice(dragIdx, 1);
+    next.splice(toIdx, 0, moved);
+    setVideos(next);
+    setDragIdx(null);
+    const res = await fetch(`${BACKEND}/api/resources/videos/reorder`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ ids: next.map(v => v.id) }) });
+    if (res.ok) toast.success('Orden actualizado'); else toast.error('Error al reordenar');
+  };
 
   const save = async () => {
     if (!editing.title) { toast.error('Título requerido'); return; }
@@ -189,18 +201,15 @@ const VideosAdmin = () => {
         <h3 className="font-bold text-white">Video Tutoriales ({videos.length})</h3>
         <button onClick={() => setEditing({ ...blank })} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#CCFF00] text-slate-900 text-sm font-bold" data-testid="video-new-btn"><Plus className="w-4 h-4" />Nuevo</button>
       </div>
-      <p className="text-xs text-slate-500 mb-4">Pega el enlace de YouTube o Vimeo. La miniatura se genera automáticamente (para otros enlaces puedes pegar una URL de miniatura).</p>
+      <p className="text-xs text-slate-500 mb-4">Pega el enlace de YouTube o Vimeo. La miniatura se genera automáticamente. Arrastra <GripVertical className="w-3 h-3 inline" /> para reordenar el carrusel.</p>
       {editing && (
         <div className="rounded-xl bg-slate-900 border border-slate-700 p-4 mb-4 space-y-2" data-testid="video-editor">
           <input className={inp} placeholder="Título del tutorial" value={editing.title} onChange={e => setEditing({ ...editing, title: e.target.value })} data-testid="video-title-input" />
           <textarea className={inp} rows={2} placeholder="Descripción breve" value={editing.description} onChange={e => setEditing({ ...editing, description: e.target.value })} data-testid="video-desc-input" />
           <input className={inp} placeholder="Enlace del video (YouTube / Vimeo / URL)" value={editing.video_url} onChange={e => setEditing({ ...editing, video_url: e.target.value })} data-testid="video-url-input" />
-          <div className="grid grid-cols-2 gap-2">
-            <select className={inp} value={editing.category || 'general'} onChange={e => setEditing({ ...editing, category: e.target.value })} data-testid="video-category-select">
-              {Object.entries(cats).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
-            </select>
-            <input className={inp} type="number" placeholder="Orden" value={editing.order} onChange={e => setEditing({ ...editing, order: e.target.value })} />
-          </div>
+          <select className={inp} value={editing.category || 'general'} onChange={e => setEditing({ ...editing, category: e.target.value })} data-testid="video-category-select">
+            {Object.entries(cats).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
+          </select>
           <input className={inp} placeholder="URL miniatura (opcional)" value={editing.thumbnail_url} onChange={e => setEditing({ ...editing, thumbnail_url: e.target.value })} data-testid="video-thumb-input" />
           <label className="flex items-center gap-2 text-sm text-slate-300"><input type="checkbox" checked={editing.published} onChange={e => setEditing({ ...editing, published: e.target.checked })} />Publicado</label>
           <div className="flex gap-2">
@@ -210,8 +219,15 @@ const VideosAdmin = () => {
         </div>
       )}
       <div className="space-y-2">
-        {videos.map(v => (
-          <div key={v.id} className="flex items-center gap-3 rounded-lg bg-slate-900 border border-slate-700 px-3 py-2.5">
+        {videos.map((v, idx) => (
+          <div key={v.id} draggable
+            onDragStart={() => setDragIdx(idx)}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={() => onDrop(idx)}
+            onDragEnd={() => setDragIdx(null)}
+            data-testid={`video-row-${v.id}`}
+            className={`flex items-center gap-3 rounded-lg bg-slate-900 border px-3 py-2.5 cursor-move transition-all ${dragIdx === idx ? 'border-[#CCFF00] opacity-60' : 'border-slate-700'}`}>
+            <GripVertical className="w-4 h-4 text-slate-500 shrink-0" data-testid={`video-drag-${v.id}`} />
             <div className="w-20 h-12 rounded bg-slate-800 overflow-hidden flex items-center justify-center shrink-0">
               {v.thumbnail_url ? <img src={v.thumbnail_url} alt="" className="w-full h-full object-cover" /> : <Video className="w-5 h-5 text-slate-600" />}
             </div>
