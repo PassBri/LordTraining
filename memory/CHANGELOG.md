@@ -1,5 +1,9 @@
 # CHANGELOG — LordTraining
 
+## 2026-07-10 — Fix contraste app + franja del título del landing
+- **Contraste (bug del re-skin dorado)**: el remapeo azul→oro había vuelto ilegibles píldoras/badges (texto dorado sobre oro) y botones (texto blanco sobre oro), porque perdió la info de tono (tints vs sólidos). **Solución**: se revirtieron TODOS los internos de la app al estado previo al re-skin (`6f58d33`) → diseño original con contrastes correctos. Se conservó: dorado de marca vía tema central `index.css` (botones/activos), login oscuro, landing, feature de badges de nivel, y logo en oro legible (`#B8912A`). Se reaplicó la integración de LevelBadge en Evaluación y Ranking.
+- **Franja del título (landing)**: se eliminó la animación de onda/ECG dorada que se movía detrás de "SOFTWARE DE PERIODIZACIÓN DEPORTIVA" (distraía). Ahora es un **divisor elegante estático**: texto más pequeño con tracking amplio (eyebrow premium), flanqueado por hairlines dorados y rombos. Verificado por screenshot.
+
 ## 2026-07-10 — Fix: revertir colores de gráficas/Datos (el re-skin dorado saturaba)
 - El remapeo azul→oro había sobre-saturado las vistas de **Datos** (filas del Plan Gráfico todas doradas) y borrado los **acentos significativos de las gráficas** (Volumen/Intensidad/Densidad, fases, ciclos).
 - **Solución**: se revirtieron al estado previo al re-skin (commit `6f58d33`) SOLO los componentes de visualización: `GraphicPlan.js`, `PeriodizationComplete.js`, `PeriodizationViews.jsx`, `PeriodizationComparator/Models/Planner/Wizard`, `TrainingLoad/Stages`, `InteractiveChart`, `DashboardGeneral`, `LoadMetricsDashboard`, `LoadPanel`, `AdvancedMetrics`, `AthleteProgress`, `EvaluationEvolution`, `ComprehensiveTrainingPlanner`, `ControlPanel` y todo `components/charts/*`. Recuperan sus colores originales (macro azul, meso cian, micro rojo/verde, fases, etc.).

@@ -20,15 +20,15 @@ function StatusBadge() {
   return (
     <div className="rounded-xl bg-slate-800 border border-slate-700 p-5" data-testid="system-status">
       <div className="flex items-center gap-2 mb-3">
-        {ok ? <CheckCircle2 className="w-5 h-5 text-[#D4AF37]" /> : <AlertTriangle className="w-5 h-5 text-orange-400" />}
+        {ok ? <CheckCircle2 className="w-5 h-5 text-[#CCFF00]" /> : <AlertTriangle className="w-5 h-5 text-orange-400" />}
         <h3 className="font-bold text-white" data-testid="system-status-overall">{ok ? 'Todos los sistemas operativos' : 'Servicio degradado'}</h3>
       </div>
       <div className="space-y-2">
         {(st.components || []).map((c, i) => (
           <div key={i} className="flex items-center justify-between text-sm">
             <span className="text-slate-300">{c.name}{c.latency_ms != null ? ` · ${c.latency_ms}ms` : ''}</span>
-            <span className={`flex items-center gap-1.5 font-medium ${c.status === 'operational' ? 'text-[#D4AF37]' : 'text-orange-400'}`}>
-              <span className={`w-2 h-2 rounded-full ${c.status === 'operational' ? 'bg-[#D4AF37]' : 'bg-orange-400'}`} />
+            <span className={`flex items-center gap-1.5 font-medium ${c.status === 'operational' ? 'text-[#CCFF00]' : 'text-orange-400'}`}>
+              <span className={`w-2 h-2 rounded-full ${c.status === 'operational' ? 'bg-[#CCFF00]' : 'bg-orange-400'}`} />
               {c.status === 'operational' ? 'Operativo' : 'Caído'}
             </span>
           </div>
@@ -68,7 +68,7 @@ export default function SupportPage() {
   return (
     <ResourceLayout active="/support">
       <div data-testid="support-page">
-        <p className="text-[#D4AF37] text-xs font-bold tracking-widest uppercase mb-2">Resources</p>
+        <p className="text-[#CCFF00] text-xs font-bold tracking-widest uppercase mb-2">Resources</p>
         <h1 className="text-4xl sm:text-5xl font-bold text-white mb-3" data-testid="support-title">Soporte</h1>
         <p className="text-slate-400 mb-8 max-w-2xl">{settings.intro || '¿Necesitas ayuda? Estamos para ti.'}</p>
 
@@ -95,9 +95,9 @@ export default function SupportPage() {
               <input data-testid="contact-name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Nombre" className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm" />
               <input data-testid="contact-email" type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="Email" className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm" />
               <textarea data-testid="contact-message" value={form.message} onChange={e => setForm({ ...form, message: e.target.value })} placeholder="Mensaje" rows={4} className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm" />
-              <button type="submit" disabled={sending} data-testid="contact-submit" className="w-full py-2.5 rounded-lg bg-[#D4AF37] text-slate-900 font-bold text-sm disabled:opacity-60">{sending ? 'Enviando…' : 'Enviar mensaje'}</button>
+              <button type="submit" disabled={sending} data-testid="contact-submit" className="w-full py-2.5 rounded-lg bg-[#CCFF00] text-slate-900 font-bold text-sm disabled:opacity-60">{sending ? 'Enviando…' : 'Enviar mensaje'}</button>
               {settings.email && <p className="text-xs text-slate-500 text-center">o escríbenos a <span className="text-slate-300">{settings.email}</span></p>}
-              {settings.tutorials_url && <a href={settings.tutorials_url} className="block text-center text-xs text-[#D4AF37]">Ver tutoriales y videos →</a>}
+              {settings.tutorials_url && <a href={settings.tutorials_url} className="block text-center text-xs text-[#CCFF00]">Ver tutoriales y videos →</a>}
             </form>
           </div>
         </div>

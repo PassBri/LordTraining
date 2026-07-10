@@ -25,7 +25,7 @@ const MD3 = {
   outline: '#79747E',
   // Sport accents
   principal: '#D4AF37',       // gold for principal competitions
-  secundaria: '#D4AF37',      // blue for secondary
+  secundaria: '#3B82F6',      // blue for secondary
   imprevista: '#94A3B8',      // gray for unexpected
   upcoming: '#10B981',        // green
   past: '#64748B',            // slate
@@ -234,7 +234,7 @@ const CompetitionAnalysis = ({ athleteId, onSave, activePlan }) => {
   };
   const categoryConfig = {
     principal:  { label: 'Principal (A)',  color: MD3.principal, bg: '#FFF7E6', border: '#FCD34D' },
-    secundaria: { label: 'Secundaria (B)', color: MD3.secundaria, bg: '#DBEAFE', border: '#D4AF37' },
+    secundaria: { label: 'Secundaria (B)', color: MD3.secundaria, bg: '#DBEAFE', border: '#93C5FD' },
     imprevista: { label: 'Imprevista (C)', color: MD3.imprevista, bg: '#F1F5F9', border: '#CBD5E1' },
   };
 
@@ -296,7 +296,7 @@ const CompetitionAnalysis = ({ athleteId, onSave, activePlan }) => {
             {/* Información Básica */}
             <div>
               <h3 className="flex items-center gap-2 text-base font-semibold mb-4 text-gray-700">
-                <Trophy className="h-4 w-4 text-[#B8912A]" />
+                <Trophy className="h-4 w-4 text-blue-600" />
                 Información Básica
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -401,7 +401,7 @@ const CompetitionAnalysis = ({ athleteId, onSave, activePlan }) => {
             {/* Objetivos y Preparación */}
             <div>
               <h3 className="flex items-center gap-2 text-base font-semibold mb-4 text-gray-700">
-                <Target className="h-4 w-4 text-[#B8912A]" />
+                <Target className="h-4 w-4 text-blue-600" />
                 Objetivos y Preparación
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -429,7 +429,7 @@ const CompetitionAnalysis = ({ athleteId, onSave, activePlan }) => {
             {/* Indicadores y Recuperación */}
             <div>
               <h3 className="flex items-center gap-2 text-base font-semibold mb-4 text-gray-700">
-                <Activity className="h-4 w-4 text-[#B8912A]" />
+                <Activity className="h-4 w-4 text-blue-600" />
                 Indicadores y Recuperación
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

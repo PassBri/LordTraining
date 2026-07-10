@@ -28,9 +28,9 @@ const ALERT_TYPES = {
   },
   load_increase: {
     icon: TrendingUp,
-    color: 'text-[#B8912A]',
-    bgColor: 'bg-[#D4AF37]',
-    borderColor: 'border-[#B8912A]',
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-50',
+    borderColor: 'border-blue-200',
     title: 'Aumentar Carga Recomendado'
   },
   load_decrease: {
@@ -236,7 +236,7 @@ const SmartAlerts = ({ athleteId, athleteName, onNavigate }) => {
     return (
       <Card className="border-0 shadow-md">
         <CardContent className="p-6 flex items-center justify-center">
-          <Loader2 className="w-6 h-6 animate-spin text-[#B8912A] mr-2" />
+          <Loader2 className="w-6 h-6 animate-spin text-indigo-500 mr-2" />
           <span className="text-slate-500">Analizando datos...</span>
         </CardContent>
       </Card>
@@ -309,7 +309,7 @@ const SmartAlerts = ({ athleteId, athleteName, onNavigate }) => {
 
       {/* Recommendations Card */}
       <Card className="border-0 shadow-md overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-[#D4AF37] to-[#D4AF37] text-white py-3">
+        <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Zap className="w-5 h-5" />
             Recomendaciones de Carga

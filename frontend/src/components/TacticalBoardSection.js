@@ -83,7 +83,7 @@ const TacticalBoardSection = ({ token }) => {
       <Card className="border-0 shadow-md overflow-hidden">
         <div className="bg-white border-b border-slate-200 py-3 px-4 flex items-center justify-between">
           <span className="font-semibold text-slate-700 text-sm">Mis Pizarras ({boards.length})</span>
-          <Button onClick={() => window.open('/tactical-board.html', '_blank')} className="bg-[#D4AF37] hover:bg-[#b5e000] text-[#1a2800] font-semibold" data-testid="open-tactical-board-btn">
+          <Button onClick={() => window.open('/tactical-board.html', '_blank')} className="bg-[#c8f700] hover:bg-[#b5e000] text-[#1a2800] font-semibold" data-testid="open-tactical-board-btn">
             <Plus className="w-4 h-4 mr-1" /> Nueva Pizarra
           </Button>
         </div>
@@ -117,7 +117,7 @@ const TacticalBoardSection = ({ token }) => {
                       </div>
                     )}
                     <div className="absolute top-1.5 right-1.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={(e) => { e.stopPropagation(); duplicateBoard(board); }} className="p-1.5 bg-white rounded-lg shadow hover:bg-[#D4AF37] transition-colors" title="Duplicar"><Copy className="w-3.5 h-3.5 text-slate-700" /></button>
+                      <button onClick={(e) => { e.stopPropagation(); duplicateBoard(board); }} className="p-1.5 bg-white rounded-lg shadow hover:bg-blue-50 transition-colors" title="Duplicar"><Copy className="w-3.5 h-3.5 text-slate-700" /></button>
                       <button onClick={(e) => { e.stopPropagation(); exportPNG(board); }} className="p-1.5 bg-white rounded-lg shadow hover:bg-green-50 transition-colors" title="Exportar PNG"><Download className="w-3.5 h-3.5 text-slate-700" /></button>
                       {board.id && (
                         <button onClick={(e) => { e.stopPropagation(); deleteBoard(board.id); }} className="p-1.5 bg-white rounded-lg shadow hover:bg-red-50 transition-colors" title="Eliminar"><Trash2 className="w-3.5 h-3.5 text-red-500" /></button>
@@ -143,9 +143,9 @@ const TacticalBoardSection = ({ token }) => {
           <Gamepad2 className="w-6 h-6 mx-auto mb-1.5 text-green-600" />
           <p className="text-[10px] text-[#5a7a20] mt-0.5">Jugadores, conos, balones, flechas</p>
         </div>
-        <div className="bg-[#D4AF37] rounded-lg p-3 border border-[#B8912A] text-center">
-          <Lightbulb className="w-6 h-6 mx-auto mb-1.5 text-[#B8912A]" />
-          <p className="text-[10px] text-[#B8912A] mt-0.5">Vista plana, perspectiva e isometrica</p>
+        <div className="bg-blue-50 rounded-lg p-3 border border-blue-200 text-center">
+          <Lightbulb className="w-6 h-6 mx-auto mb-1.5 text-blue-600" />
+          <p className="text-[10px] text-blue-600 mt-0.5">Vista plana, perspectiva e isometrica</p>
         </div>
         <div className="bg-purple-50 rounded-lg p-3 border border-purple-200 text-center">
           <Download className="w-6 h-6 mx-auto mb-1.5 text-purple-600" />

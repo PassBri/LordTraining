@@ -39,7 +39,7 @@ const PlanSidebar = ({
             className="w-9 h-9 bg-slate-900 rounded-lg flex items-center justify-center hover:bg-slate-800 transition-colors"
             title={t('dashboard.plans.expandPanel')}
           >
-            <ChevronRight className="w-4 h-4 text-[#D4AF37]" />
+            <ChevronRight className="w-4 h-4 text-[#CCFF00]" />
           </button>
           <div className="w-px h-4 bg-slate-200" />
           <button
@@ -79,7 +79,7 @@ const PlanSidebar = ({
       <div className="px-4 py-3 bg-slate-900 shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Clipboard className="w-4 h-4 text-[#D4AF37]" />
+            <Clipboard className="w-4 h-4 text-[#CCFF00]" />
             <h2 className="text-[13px] font-semibold text-white">{t('dashboard.plans.title')}</h2>
             {trainingPlans.length > 0 && (
               <span className="px-1.5 py-0.5 bg-white/15 text-white/80 text-[10px] font-medium rounded-full">
@@ -149,7 +149,7 @@ const PlanSidebar = ({
                   key={plan.id}
                   className={`group px-3 py-2.5 cursor-pointer transition-all ${
                     isActive
-                      ? 'bg-[#D4AF37]/80 border-l-[3px] border-l-[#007AFF]'
+                      ? 'bg-blue-50/80 border-l-[3px] border-l-[#007AFF]'
                       : 'border-l-[3px] border-l-transparent hover:bg-slate-50'
                   }`}
                   onClick={() => onSelectPlan(plan)}
@@ -182,7 +182,7 @@ const PlanSidebar = ({
                     <div className="flex items-center gap-0 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 -mr-1">
                       <button
                         onClick={(e) => { e.stopPropagation(); onDuplicatePlan(plan.id); }}
-                        className="p-1 rounded text-slate-300 hover:text-[#B8912A] hover:bg-[#D4AF37] transition-colors"
+                        className="p-1 rounded text-slate-300 hover:text-blue-600 hover:bg-blue-50 transition-colors"
                         title={t('dashboard.plans.duplicate')}
                         data-testid={`sidebar-dup-${plan.id}`}
                       >

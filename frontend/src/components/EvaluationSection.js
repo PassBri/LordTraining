@@ -18,7 +18,7 @@ const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEN
 
 const EVAL_CONFIGS = {
   'control-medical':       { type: 'medical',       title: 'Control Médico',       subtitle: 'Estado de salud y aptitud para el entrenamiento', icon: Heart,    color: '#EF4444', accent: 'red' },
-  'control-physical':      { type: 'physical',      title: 'Control Físico',       subtitle: 'Capacidades físicas y condición',                  icon: Dumbbell, color: '#D4AF37', accent: 'blue' },
+  'control-physical':      { type: 'physical',      title: 'Control Físico',       subtitle: 'Capacidades físicas y condición',                  icon: Dumbbell, color: '#3B82F6', accent: 'blue' },
   'control-technical':     { type: 'technical',     title: 'Control Técnico',      subtitle: 'Habilidades técnicas específicas del deporte',     icon: Target,   color: '#8B5CF6', accent: 'violet' },
   'control-tactical':      { type: 'tactical',      title: 'Control Táctico',      subtitle: 'Comprensión táctica y toma de decisiones',         icon: Layers,   color: '#F59E0B', accent: 'amber' },
   'control-psychological': { type: 'psychological', title: 'Control Psicológico',  subtitle: 'Bienestar mental y habilidades psicológicas',      icon: Brain,    color: '#EC4899', accent: 'pink' },

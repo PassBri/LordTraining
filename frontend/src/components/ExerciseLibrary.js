@@ -27,8 +27,8 @@ const COLOR_PALETTE = [
   { id: 'emerald', border: 'border-l-emerald-500', bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-700', swatch: 'bg-emerald-500' },
   { id: 'teal', border: 'border-l-teal-500', bg: 'bg-teal-50', text: 'text-teal-700', dot: 'bg-teal-500', badge: 'bg-teal-100 text-teal-700', swatch: 'bg-teal-500' },
   { id: 'cyan', border: 'border-l-cyan-500', bg: 'bg-cyan-50', text: 'text-cyan-700', dot: 'bg-cyan-500', badge: 'bg-cyan-100 text-cyan-700', swatch: 'bg-cyan-500' },
-  { id: 'blue', border: 'border-l-blue-500', bg: 'bg-[#D4AF37]', text: 'text-[#B8912A]', dot: 'bg-[#D4AF37]', badge: 'bg-[#D4AF37] text-[#B8912A]', swatch: 'bg-[#D4AF37]' },
-  { id: 'indigo', border: 'border-l-indigo-500', bg: 'bg-[#D4AF37]', text: 'text-[#B8912A]', dot: 'bg-[#D4AF37]', badge: 'bg-[#D4AF37] text-[#B8912A]', swatch: 'bg-[#D4AF37]' },
+  { id: 'blue', border: 'border-l-blue-500', bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500', badge: 'bg-blue-100 text-blue-700', swatch: 'bg-blue-500' },
+  { id: 'indigo', border: 'border-l-indigo-500', bg: 'bg-indigo-50', text: 'text-indigo-700', dot: 'bg-indigo-500', badge: 'bg-indigo-100 text-indigo-700', swatch: 'bg-indigo-500' },
   { id: 'violet', border: 'border-l-violet-500', bg: 'bg-violet-50', text: 'text-violet-700', dot: 'bg-violet-500', badge: 'bg-violet-100 text-violet-700', swatch: 'bg-violet-500' },
   { id: 'purple', border: 'border-l-purple-500', bg: 'bg-purple-50', text: 'text-purple-700', dot: 'bg-purple-500', badge: 'bg-purple-100 text-purple-700', swatch: 'bg-purple-500' },
   { id: 'fuchsia', border: 'border-l-fuchsia-500', bg: 'bg-fuchsia-50', text: 'text-fuchsia-700', dot: 'bg-fuchsia-500', badge: 'bg-fuchsia-100 text-fuchsia-700', swatch: 'bg-fuchsia-500' },
@@ -384,7 +384,7 @@ export const EJERCICIOS_INICIALES = {
   },
   'movilidad_articular': {
     nombre: 'Movilidad Articular',
-    color: 'bg-[#D4AF37] text-[#B8912A] border-[#B8912A]',
+    color: 'bg-blue-100 text-blue-700 border-blue-300',
     subcategorias: {
       'cuello_hombros': {
         nombre: 'Cuello y Hombros',
@@ -821,7 +821,7 @@ const ExerciseLibrary = ({ athleteId }) => {
   }, [categories, searchTerm, selectedCategory, filterEquipo, showOnlyFavorites, favorites]);
 
   if (loading) {
-    return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-[#B8912A]" /></div>;
+    return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>;
   }
 
   return (
@@ -962,8 +962,8 @@ const ExerciseLibrary = ({ athleteId }) => {
             <div key={catId} data-testid={`category-${catId}`}>
               {/* Category Edit Panel */}
               {editingCategory === catId && (
-                <div className="p-4 bg-white rounded-xl border border-[#B8912A] shadow-md mb-2 space-y-3">
-                  <h4 className="font-semibold text-sm text-[#B8912A]">Editar Categoría: {cat.nombre}</h4>
+                <div className="p-4 bg-white rounded-xl border border-blue-300 shadow-md mb-2 space-y-3">
+                  <h4 className="font-semibold text-sm text-blue-700">Editar Categoría: {cat.nombre}</h4>
                   <Input value={cat.nombre} onChange={(e) => setCategories(prev => ({ ...prev, [catId]: { ...prev[catId], nombre: e.target.value } }))}
                     className="rounded-lg h-8 text-sm" />
                   <div>
@@ -982,7 +982,7 @@ const ExerciseLibrary = ({ athleteId }) => {
                       })}
                     </div>
                   </div>
-                  <Button size="sm" onClick={() => setEditingCategory(null)} className="bg-[#D4AF37] hover:bg-[#D4AF37] rounded-lg text-xs">
+                  <Button size="sm" onClick={() => setEditingCategory(null)} className="bg-blue-600 hover:bg-blue-700 rounded-lg text-xs">
                     <Save className="w-3 h-3 mr-1" /> Listo
                   </Button>
                 </div>
@@ -1081,7 +1081,7 @@ const ExerciseLibrary = ({ athleteId }) => {
                                 const diff = DIFFICULTY_LEVELS.find(d => d.id === ex.dificultad);
                                 const isEditing = editingExercise === `${catId}_${subId}_${exIdx}`;
                                 return (
-                                  <div key={exIdx} className={`p-3 rounded-lg border transition-all ${isEditing ? 'bg-[#D4AF37] border-[#B8912A] shadow-md' : 'bg-slate-50 border-slate-100 hover:border-slate-300 hover:shadow-sm'}`} data-testid={`exercise-card-${exIdx}`}>
+                                  <div key={exIdx} className={`p-3 rounded-lg border transition-all ${isEditing ? 'bg-blue-50 border-blue-300 shadow-md' : 'bg-slate-50 border-slate-100 hover:border-slate-300 hover:shadow-sm'}`} data-testid={`exercise-card-${exIdx}`}>
                                     <div className="flex items-start justify-between mb-1.5">
                                       {isEditing ? (
                                         <Input value={ex.nombre} onChange={(e) => updateExercise(catId, subId, exIdx, 'nombre', e.target.value)} className="h-6 text-xs rounded-md flex-1 mr-1" />

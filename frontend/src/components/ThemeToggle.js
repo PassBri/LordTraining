@@ -13,7 +13,7 @@ export const ThemeToggle = ({ variant = 'light', className = '' }) => {
   const skin =
     variant === 'dark'
       ? 'bg-white/10 text-white hover:bg-white/20 border border-white/15'
-      : 'bg-slate-900 text-[#D4AF37] hover:bg-[#151b2b] border border-slate-900 shadow-sm';
+      : 'bg-slate-900 text-[#CCFF00] hover:bg-[#151b2b] border border-slate-900 shadow-sm';
 
   return (
     <button

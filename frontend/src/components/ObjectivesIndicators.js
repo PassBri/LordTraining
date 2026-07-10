@@ -24,7 +24,7 @@ import axios from 'axios';
 const BACKEND_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com')===-1?process.env.REACT_APP_BACKEND_URL:(typeof window!=='undefined'?window.location.origin:process.env.REACT_APP_BACKEND_URL));
 
 const objectiveCategories = [
-  { id: 'performance', label: 'Rendimiento', color: 'bg-[#D4AF37]', icon: TrendingUp },
+  { id: 'performance', label: 'Rendimiento', color: 'bg-blue-500', icon: TrendingUp },
   { id: 'physical', label: 'Físico', color: 'bg-green-500', icon: Target },
   { id: 'technical', label: 'Técnico', color: 'bg-purple-500', icon: Target },
   { id: 'tactical', label: 'Táctico', color: 'bg-orange-500', icon: Target },
@@ -194,7 +194,7 @@ const ObjectivesIndicators = ({ athleteId }) => {
   };
 
   if (loading) {
-    return <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-[#B8912A]" /></div>;
+    return <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>;
   }
 
   const activeObjectives = objectives.filter(o => o.status === 'active');
@@ -214,10 +214,10 @@ const ObjectivesIndicators = ({ athleteId }) => {
 
       {/* Resumen */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-[#D4AF37] border-[#B8912A]">
+        <Card className="bg-blue-50 border-blue-200">
           <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-[#B8912A]">{objectives.length}</p>
-            <p className="text-xs text-[#B8912A]/70">Total Objetivos</p>
+            <p className="text-2xl font-bold text-blue-600">{objectives.length}</p>
+            <p className="text-xs text-blue-600/70">Total Objetivos</p>
           </CardContent>
         </Card>
         <Card className="bg-green-50 border-green-200">
@@ -263,7 +263,7 @@ const ObjectivesIndicators = ({ athleteId }) => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className={`text-xs px-2 py-1 rounded ${obj.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-[#D4AF37] text-[#B8912A]'}`}>
+                      <span className={`text-xs px-2 py-1 rounded ${obj.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
                         {obj.status === 'completed' ? 'Completado' : 'Activo'}
                       </span>
                       <Button size="sm" variant="ghost" onClick={() => editObjective(obj)}>

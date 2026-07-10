@@ -48,9 +48,9 @@ const TacticalBoardPreview = ({ board }) => {
       case 'playerX':
         return (
           <g key={el.id} transform={`translate(${el.x},${el.y})`}>
-            <circle r="11" fill="rgba(212,175,55,0.15)" stroke="#D4AF37" strokeWidth="2"/>
-            <text textAnchor="middle" dy="0.35em" fontSize="12" fill="#D4AF37" fontWeight="900" fontFamily="Arial,sans-serif" style={{userSelect:'none'}}>X</text>
-            {el.label && <text y="-15" textAnchor="middle" fontSize="8" fill="rgba(212,175,55,0.8)" fontWeight="bold" style={{userSelect:'none'}}>{el.label}</text>}
+            <circle r="11" fill="rgba(200,247,0,0.15)" stroke="#c8f700" strokeWidth="2"/>
+            <text textAnchor="middle" dy="0.35em" fontSize="12" fill="#c8f700" fontWeight="900" fontFamily="Arial,sans-serif" style={{userSelect:'none'}}>X</text>
+            {el.label && <text y="-15" textAnchor="middle" fontSize="8" fill="rgba(200,247,0,0.8)" fontWeight="bold" style={{userSelect:'none'}}>{el.label}</text>}
           </g>
         );
       case 'playerO':
@@ -192,7 +192,7 @@ const MiniBoardPlayer = ({ svgHtml, editHref, onEditClick, onRemove, testIdPrefi
         target="_blank"
         rel="opener"
         onClick={(e) => { if (onEditClick) onEditClick(e); }}
-        className="block w-full flex-1 rounded-lg border border-slate-200 bg-white cursor-pointer hover:border-[#D4AF37] hover:shadow-md overflow-hidden transition-all"
+        className="block w-full flex-1 rounded-lg border border-slate-200 bg-white cursor-pointer hover:border-[#c8f700] hover:shadow-md overflow-hidden transition-all"
         style={{minHeight:'95px'}}
         data-testid={`${testIdPrefix}-thumb`}
         dangerouslySetInnerHTML={{ __html: svgHtml }}
@@ -202,7 +202,7 @@ const MiniBoardPlayer = ({ svgHtml, editHref, onEditClick, onRemove, testIdPrefi
       {hasAnim && (
         <div
           className="mt-1 flex items-center gap-1 px-1.5 py-1 rounded-md"
-          style={{background:'#0a0a0f',border:'1px solid rgba(212,175,55,0.15)'}}
+          style={{background:'#0a0a0f',border:'1px solid rgba(204,255,0,0.15)'}}
           onClick={stop}
           onMouseDown={stop}
           data-testid={`${testIdPrefix}-controls`}
@@ -221,7 +221,7 @@ const MiniBoardPlayer = ({ svgHtml, editHref, onEditClick, onRemove, testIdPrefi
             <button
               type="button"
               onClick={handlePlay}
-              className="w-5 h-5 rounded-full bg-[#D4AF37] hover:bg-[#d9ff3a] text-slate-900 flex items-center justify-center shadow transition-transform hover:scale-110 flex-shrink-0"
+              className="w-5 h-5 rounded-full bg-[#c8f700] hover:bg-[#d9ff3a] text-slate-900 flex items-center justify-center shadow transition-transform hover:scale-110 flex-shrink-0"
               title={t('sessions.play')}
               data-testid={`${testIdPrefix}-play`}
             >
@@ -246,7 +246,7 @@ const MiniBoardPlayer = ({ svgHtml, editHref, onEditClick, onRemove, testIdPrefi
             onChange={handleScrub}
             onClick={stop}
             onMouseDown={stop}
-            className="flex-1 h-1 accent-[#D4AF37] cursor-pointer"
+            className="flex-1 h-1 accent-[#c8f700] cursor-pointer"
             style={{minWidth:'30px'}}
             title={t('sessions.timeline')}
             data-testid={`${testIdPrefix}-scrubber`}
@@ -272,7 +272,7 @@ const MiniBoardPlayer = ({ svgHtml, editHref, onEditClick, onRemove, testIdPrefi
         rel="opener"
         onClick={(e) => { if (onEditClick) onEditClick(e); }}
         className="mt-1 flex items-center justify-center gap-1 h-6 rounded-md text-[9px] font-bold uppercase tracking-wider transition-all hover:brightness-110 no-underline"
-        style={{background:'#0a0a0f',color:'#D4AF37',fontFamily:DM,border:'1px solid rgba(212,175,55,0.3)'}}
+        style={{background:'#0a0a0f',color:'#c8f700',fontFamily:DM,border:'1px solid rgba(204,255,0,0.3)'}}
         data-testid={`${testIdPrefix}-edit-btn`}
       >
         <Pencil className="w-2.5 h-2.5" /> Editar
@@ -569,7 +569,7 @@ const SESION_INICIAL = {
     final: {
       nombre: 'Fase Final',
       color: 'border-l-blue-500',
-      bgColor: 'bg-[#D4AF37]',
+      bgColor: 'bg-blue-50',
       actividades: []
     }
   },
@@ -1083,7 +1083,7 @@ const SessionEditor = ({
             {/* === FILA PRINCIPAL (72px) === */}
             <div className="flex items-center gap-2.5 px-3" style={{minHeight:'72px'}}>
               {/* Icon */}
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{background:'#D4AF37'}}>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{background:'#CCFF00'}}>
                 <Dumbbell className="w-4 h-4" style={{color:'#0a0a0f'}} />
               </div>
 
@@ -1188,7 +1188,7 @@ const SessionEditor = ({
                   <button
                     key={m.id}
                     onClick={() => updateActividad(faseKey, idx, 'progresion', { ...prog, modelo: m.id })}
-                    className={`text-[9px] font-bold uppercase tracking-wide px-1.5 py-1 rounded transition-all ${prog.modelo === m.id ? 'bg-[#D4AF37] text-slate-900' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'}`}
+                    className={`text-[9px] font-bold uppercase tracking-wide px-1.5 py-1 rounded transition-all ${prog.modelo === m.id ? 'bg-[#CCFF00] text-slate-900' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'}`}
                     title={t('sessions.prog_'+m.id+'_desc',{defaultValue:m.desc})}
                     data-testid={`progresion-${m.id}-${faseKey}-${idx}`}
                   >
@@ -1201,7 +1201,7 @@ const SessionEditor = ({
               {act.boardThumbnail ? (
                 <button
                   onClick={() => setExpandedBoard(act.id)}
-                  className={`w-[56px] h-[48px] rounded-md overflow-hidden border transition-all flex-shrink-0 ${isBoardOpen ? 'border-[#84cc16] ring-2 ring-[#D4AF37]/40' : 'border-slate-200 hover:border-[#D4AF37] hover:shadow-md'}`}
+                  className={`w-[56px] h-[48px] rounded-md overflow-hidden border transition-all flex-shrink-0 ${isBoardOpen ? 'border-[#84cc16] ring-2 ring-[#c8f700]/40' : 'border-slate-200 hover:border-[#c8f700] hover:shadow-md'}`}
                   title={t('sessions.viewMiniBoard')}
                   data-testid={`toggle-board-${faseKey}-${idx}`}
                   dangerouslySetInnerHTML={{ __html: act.boardThumbnail }}
@@ -1210,7 +1210,7 @@ const SessionEditor = ({
               ) : (
                 <button
                   onClick={() => setExpandedBoard(act.id)}
-                  className="w-[56px] h-[48px] rounded-md border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300 hover:border-[#D4AF37] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all flex-shrink-0"
+                  className="w-[56px] h-[48px] rounded-md border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all flex-shrink-0"
                   title={t('sessions.addBoard')}
                   data-testid={`toggle-board-${faseKey}-${idx}`}
                 >
@@ -1252,7 +1252,7 @@ const SessionEditor = ({
               <SheetContent side="right" className="w-[460px] sm:max-w-[460px] p-0 bg-white border-l border-slate-200" data-testid={`board-drawer-${faseKey}-${idx}`}>
                 <SheetHeader className="px-5 py-4 border-b border-slate-100" style={{background:'linear-gradient(135deg, #0a0a0f 0%, #1a1b26 100%)'}}>
                   <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{background:'#D4AF37'}}>
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{background:'#CCFF00'}}>
                       <LayoutGrid className="w-3.5 h-3.5" style={{color:'#0a0a0f'}} />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -1287,7 +1287,7 @@ const SessionEditor = ({
                       target="_blank"
                       rel="opener"
                       onClick={() => { boardEditContextRef.current = { faseKey, actId: act.id }; setExpandedBoard(null); }}
-                      className="flex flex-col items-center justify-center gap-2 h-[240px] rounded-xl border-2 border-dashed border-slate-200 text-slate-400 hover:border-[#D4AF37] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all no-underline"
+                      className="flex flex-col items-center justify-center gap-2 h-[240px] rounded-xl border-2 border-dashed border-slate-200 text-slate-400 hover:border-[#c8f700] hover:text-[#3a5a00] hover:bg-[#f8ffe0]/30 transition-all no-underline"
                       data-testid={`open-board-${faseKey}-${idx}`}
                     >
                       <LayoutGrid className="w-8 h-8" />
@@ -1340,7 +1340,7 @@ const SessionEditor = ({
                   <div className="flex items-center gap-1">
                     <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">{t('sessions.method')}</span>
                     <Select value={act.metodo} onValueChange={(v) => updateActividad(faseKey, idx, 'metodo', v)}>
-                      <SelectTrigger className="h-6 text-[11px] font-semibold border-0 bg-[#D4AF37] text-[#B8912A] rounded-full px-2 w-auto min-w-[80px]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="h-6 text-[11px] font-semibold border-0 bg-blue-50 text-blue-700 rounded-full px-2 w-auto min-w-[80px]"><SelectValue /></SelectTrigger>
                       <SelectContent>{METODOS_ENTRENAMIENTO.map(met => <SelectItem key={met.id} value={met.id} className="text-xs">{t('sessions.met_'+met.id,{defaultValue:met.name})}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
@@ -1368,7 +1368,7 @@ const SessionEditor = ({
                   {met.ratioDensidad != null && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">T:D</span><span className="text-[12px] font-black text-slate-800">1:{Math.round(1/met.ratioDensidad) || '?'}</span></span>}
                   {met.seriesPorMin > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">{t('sessions.density')}</span><span className="text-[12px] font-black text-slate-800">{met.seriesPorMin}</span></span>}
                   {met.tiempoTotalMin > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-violet-500">{t('sessions.workRest')}</span><span className="text-[11px] font-bold text-slate-800">{met.tiempoTrabajo}:{met.tiempoDescanso}m</span></span>}
-                  {met.neuroCarga > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-[#B8912A]">{t('sessions.neuroLoad')}</span><span className="text-[12px] font-black text-slate-800">{met.neuroCarga}</span></span>}
+                  {met.neuroCarga > 0 && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-indigo-500">{t('sessions.neuroLoad')}</span><span className="text-[12px] font-black text-slate-800">{met.neuroCarga}</span></span>}
                   {met.zonaFC && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-rose-500">{t('sessions.hrZone')}</span><span className="text-[11px] font-bold text-slate-800">{tCap(met.zonaFC)}</span></span>}
                   {met.zonaFuerza && <span className="flex items-baseline gap-1"><span className="text-[9px] font-bold uppercase tracking-wide text-cyan-500">{t('sessions.zone')}</span><span className="text-[11px] font-bold text-slate-800">{tCap(met.zonaFuerza)}</span></span>}
                 </div>
@@ -1476,7 +1476,7 @@ const SessionEditor = ({
               {/* Logo */}
               <div className="flex items-center gap-2.5 flex-shrink-0">
                 <div className="w-9 h-9 flex items-center justify-center" data-testid="session-editor-brand-logo">
-                  <img src="/brand/lordtraining-scale.png" alt="LordTraining" className="w-full h-full object-contain" style={{filter:'drop-shadow(0 2px 6px rgba(212,175,55,0.25))'}} />
+                  <img src="/brand/lordtraining-scale.png" alt="LordTraining" className="w-full h-full object-contain" style={{filter:'drop-shadow(0 2px 6px rgba(204,255,0,0.25))'}} />
                 </div>
                 <span className="text-[15px] font-black tracking-tight" style={{fontFamily:BC}}>
                   LordTraining
@@ -1506,8 +1506,8 @@ const SessionEditor = ({
               <div className="flex items-center gap-1.5 flex-shrink-0">
                 <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
                   <PopoverTrigger asChild>
-                    <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg cursor-pointer hover:opacity-80 transition-opacity" style={{background:'rgba(212,175,55,0.08)',border:'0.5px solid rgba(212,175,55,0.15)',fontFamily:DM}}>
-                      <Calendar className="w-3.5 h-3.5" style={{color:'#D4AF37',opacity:0.6}} />
+                    <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg cursor-pointer hover:opacity-80 transition-opacity" style={{background:'rgba(204,255,0,0.08)',border:'0.5px solid rgba(204,255,0,0.15)',fontFamily:DM}}>
+                      <Calendar className="w-3.5 h-3.5" style={{color:'#CCFF00',opacity:0.6}} />
                       <span style={{fontSize:'12px',fontWeight:500,color:'rgba(255,255,255,0.9)'}}>
                         {sessionDate ? sessionDate.toLocaleDateString(i18n.language, {day:'2-digit',month:'short',year:'numeric'}) : t('sessions.chooseDate')}
                       </span>
@@ -1520,7 +1520,7 @@ const SessionEditor = ({
                       onSelect={(d) => { setSessionDate(d); setDatePopoverOpen(false); }}
                       className="text-white"
                       classNames={{
-                        day_selected: "bg-[#D4AF37] text-black hover:bg-[#b8e600]",
+                        day_selected: "bg-[#CCFF00] text-black hover:bg-[#b8e600]",
                         day_today: "bg-white/10 text-white",
                         day: "text-white/80 hover:bg-white/10 h-8 w-8 rounded-md",
                         caption_label: "text-white text-sm font-bold",
@@ -1533,15 +1533,15 @@ const SessionEditor = ({
                   </PopoverContent>
                 </Popover>
                 {/* Duración: 12px, weight 500 */}
-                <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg" style={{background:'rgba(212,175,55,0.08)',border:'0.5px solid rgba(212,175,55,0.15)'}}>
-                  <Clock className="w-3.5 h-3.5 flex-shrink-0" style={{color:'#D4AF37',opacity:0.6}} />
+                <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg" style={{background:'rgba(204,255,0,0.08)',border:'0.5px solid rgba(204,255,0,0.15)'}}>
+                  <Clock className="w-3.5 h-3.5 flex-shrink-0" style={{color:'#CCFF00',opacity:0.6}} />
                   <div className="flex items-center">
                     <input value={sessionData.duration} onChange={(e) => setSessionData(prev => ({...prev, duration: e.target.value}))} className="w-7 h-5 bg-transparent border-0 p-0 text-right outline-none" style={{fontSize:'12px',fontWeight:500,color:'rgba(255,255,255,0.9)',fontFamily:DM}} placeholder="90" />
                     <span style={{fontSize:'12px',fontWeight:500,color:'rgba(255,255,255,0.9)',marginLeft:'2px'}}>min</span>
                   </div>
                 </div>
                 {/* Estado: 12px, completada = 600 */}
-                <select value={sessionData.sessionStatus} onChange={(e) => setSessionData(prev => ({...prev, sessionStatus: e.target.value}))} className="h-7 rounded-lg px-2.5 border-0 outline-none cursor-pointer" style={{fontSize:'12px',fontWeight: sessionData.sessionStatus === 'completada' ? 600 : 500,background:'rgba(212,175,55,0.08)',border:'0.5px solid rgba(212,175,55,0.15)',color:'rgba(255,255,255,0.9)',colorScheme:'dark',fontFamily:DM}}>
+                <select value={sessionData.sessionStatus} onChange={(e) => setSessionData(prev => ({...prev, sessionStatus: e.target.value}))} className="h-7 rounded-lg px-2.5 border-0 outline-none cursor-pointer" style={{fontSize:'12px',fontWeight: sessionData.sessionStatus === 'completada' ? 600 : 500,background:'rgba(204,255,0,0.08)',border:'0.5px solid rgba(204,255,0,0.15)',color:'rgba(255,255,255,0.9)',colorScheme:'dark',fontFamily:DM}}>
                   <option value="planificada" style={{background:'#12131a',color:'#fff'}}>{t('sessions.planned')}</option>
                   <option value="en_curso" style={{background:'#12131a',color:'#fff'}}>{t('sessions.inProgress')}</option>
                   <option value="completada" style={{background:'#12131a',color:'#fff'}}>{t('sessions.completed')}</option>
@@ -1551,22 +1551,22 @@ const SessionEditor = ({
             {/* ══ SUBHEADER ══ */}
             <div className="flex items-center gap-3 px-5 py-2" style={{background:'#12131a',borderTop:'0.5px solid rgba(255,255,255,0.06)',borderBottom:'0.5px solid rgba(255,255,255,0.06)'}}>
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                <Users className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(212,175,55,0.5)'}} />
+                <Users className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.5)'}} />
                 <input value={sessionData.team} onChange={(e) => setSessionData(prev => ({...prev, team: e.target.value}))} className="se-input h-6 bg-transparent border-0 outline-none w-full min-w-[60px]" style={{color:'rgba(255,255,255,0.85)',fontSize:'12px',fontWeight:500}} placeholder={t('sessions.phTeamAthlete')} />
               </div>
               <div style={{width:'0.5px',height:'16px',background:'rgba(255,255,255,0.12)'}} />
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                <User className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(212,175,55,0.5)'}} />
+                <User className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.5)'}} />
                 <input value={sessionData.coach} onChange={(e) => setSessionData(prev => ({...prev, coach: e.target.value}))} className="se-input h-6 bg-transparent border-0 outline-none w-full min-w-[60px]" style={{color:'rgba(255,255,255,0.85)',fontSize:'12px',fontWeight:500}} placeholder={t('sessions.phCoach')} />
               </div>
               <div style={{width:'0.5px',height:'16px',background:'rgba(255,255,255,0.12)'}} />
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                <MapPin className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(212,175,55,0.5)'}} />
+                <MapPin className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.5)'}} />
                 <input value={sessionData.location} onChange={(e) => setSessionData(prev => ({...prev, location: e.target.value}))} className="se-input h-6 bg-transparent border-0 outline-none w-full min-w-[60px]" style={{color:'rgba(255,255,255,0.85)',fontSize:'12px',fontWeight:500}} placeholder={t('sessions.phPlace')} />
               </div>
               <div style={{width:'0.5px',height:'16px',background:'rgba(255,255,255,0.12)'}} />
               <div className="flex items-center gap-1.5 w-[140px] flex-shrink-0">
-                <Activity className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(212,175,55,0.5)'}} />
+                <Activity className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.5)'}} />
                 <select value={sessionData.sessionType} onChange={(e) => setSessionData(prev => ({...prev, sessionType: e.target.value}))} className="h-6 bg-transparent border-0 outline-none cursor-pointer w-full" style={{color:'rgba(255,255,255,0.85)',fontSize:'12px',fontWeight:500,colorScheme:'dark',fontFamily:DM}}>
                   <option value="tecnico-tactico" style={{background:'#12131a',color:'#fff'}}>{t('sessions.techTactical')}</option>
                   <option value="fisico" style={{background:'#12131a',color:'#fff'}}>{t('sessions.physical')}</option>
@@ -1578,7 +1578,7 @@ const SessionEditor = ({
               </div>
               <div style={{width:'0.5px',height:'16px',background:'rgba(255,255,255,0.12)'}} />
               <div className="flex items-center gap-1.5 w-[120px] flex-shrink-0">
-                <Zap className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(212,175,55,0.5)'}} />
+                <Zap className="w-3.5 h-3.5 flex-shrink-0" style={{color:'rgba(204,255,0,0.5)'}} />
                 {sessionData.estimatedLoad ? (
                   <>
                     <input value={sessionData.estimatedLoad} onChange={(e) => setSessionData(prev => ({...prev, estimatedLoad: e.target.value}))} className="se-input h-6 bg-transparent border-0 outline-none w-full" style={{color:'rgba(255,255,255,0.85)',fontSize:'12px',fontWeight:500}} placeholder={t('sessions.phLoad')} />
@@ -1612,7 +1612,7 @@ const SessionEditor = ({
                   data-testid="toggle-section-objetivos"
                 >
                   <CardTitle className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#D4AF37'}}>
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#CCFF00'}}>
                       <Target className="w-3.5 h-3.5 text-slate-900" />
                     </div>
                     <span className="se-section-title flex-1">{t('sessions.sessionObjectivesLower')}</span>
@@ -1636,7 +1636,7 @@ const SessionEditor = ({
                           value={sessionData.objetivos[obj.key]}
                           onChange={(e) => updateObjetivo(obj.key, e.target.value)}
                           placeholder={obj.placeholder}
-                          className="se-field-input bg-slate-50 border-slate-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]/20 h-9"
+                          className="se-field-input bg-slate-50 border-slate-200 focus:border-[#CCFF00] focus:ring-[#CCFF00]/20 h-9"
                           data-testid={`objetivo-${obj.key}`}
                         />
                       </div>
@@ -1655,7 +1655,7 @@ const SessionEditor = ({
                   data-testid="toggle-section-estructura"
                 >
                   <CardTitle className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#D4AF37'}}>
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#CCFF00'}}>
                       <Zap className="w-3.5 h-3.5 text-slate-900" />
                     </div>
                     <span className="se-section-title flex-1">{t('sessions.sessionStructureLower')}</span>
@@ -1667,9 +1667,9 @@ const SessionEditor = ({
                   {/* Fases */}
                   {Object.entries(sessionData.fases).map(([faseKey, fase]) => {
                     const faseColors = {
-                      inicial: { border: 'border-l-[#D4AF37]', accent: '#D4AF37', accentDark: '#3a5a00', bg: 'bg-[#D4AF37]/5', header: '', text: 'text-[#3a5a00]', btn: 'border-[#D4AF37] text-[#3a5a00] hover:bg-[#D4AF37]/10', icon: <Zap className="w-4 h-4" /> },
+                      inicial: { border: 'border-l-[#CCFF00]', accent: '#CCFF00', accentDark: '#3a5a00', bg: 'bg-[#CCFF00]/5', header: '', text: 'text-[#3a5a00]', btn: 'border-[#CCFF00] text-[#3a5a00] hover:bg-[#CCFF00]/10', icon: <Zap className="w-4 h-4" /> },
                       principal: { border: 'border-l-slate-800', accent: '#0a0a0f', accentDark: '#ffffff', bg: 'bg-slate-50', header: '', text: 'text-slate-800', btn: 'border-slate-700 text-slate-800 hover:bg-slate-100', icon: <Target className="w-4 h-4" /> },
-                      final: { border: 'border-l-[#D4AF37]', accent: '#D4AF37', accentDark: '#ffffff', bg: 'bg-[#D4AF37]/50', header: '', text: 'text-[#B8912A]', btn: 'border-[#B8912A] text-[#B8912A] hover:bg-[#D4AF37]', icon: <Activity className="w-4 h-4" /> }
+                      final: { border: 'border-l-[#3B82F6]', accent: '#3B82F6', accentDark: '#ffffff', bg: 'bg-blue-50/50', header: '', text: 'text-blue-700', btn: 'border-blue-400 text-blue-700 hover:bg-blue-50', icon: <Activity className="w-4 h-4" /> }
                     };
                     const colors = faseColors[faseKey];
                     
@@ -1732,7 +1732,7 @@ const SessionEditor = ({
                 >
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#D4AF37'}}>
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#CCFF00'}}>
                         <Watch className="w-3.5 h-3.5 text-slate-900" />
                       </div>
                       <div>
@@ -1745,7 +1745,7 @@ const SessionEditor = ({
                         variant="outline"
                         size="sm"
                         className={`text-[10px] h-7 ${sessionData.monitoreo.dispositivoConectado 
-                          ? 'border-[#D4AF37]/50 bg-[#D4AF37]/10 text-[#D4AF37] hover:bg-[#D4AF37]/20' 
+                          ? 'border-[#CCFF00]/50 bg-[#CCFF00]/10 text-[#CCFF00] hover:bg-[#CCFF00]/20' 
                           : 'border-white/20 bg-transparent text-white/60 hover:bg-white/5'}`}
                         onClick={() => {
                           setSessionData(prev => ({
@@ -1775,7 +1775,7 @@ const SessionEditor = ({
                     const subPhaseKeys = ['fcFaseInicial','fcFasePrincipal','fcFaseFinal'];
                     const hasSubPhases = subPhaseKeys.some(k => m[k] && parseInt(m[k]) > 0);
                     const phases = [
-                      { id: 'antes',   label: t('sessions.phaseAntes'),    key: 'fcAntesEntrenamiento',    color: '#D4AF37', tPct: 0.00 },
+                      { id: 'antes',   label: t('sessions.phaseAntes'),    key: 'fcAntesEntrenamiento',    color: '#3B82F6', tPct: 0.00 },
                     ];
                     if (hasSubPhases) {
                       phases.push(
@@ -1937,7 +1937,7 @@ const SessionEditor = ({
                         {/* Línea 1: Fases de entrenamiento — Antes, Sub-fases del Durante (Inicial/Principal/Final), Después */}
                         <div className={rowStyle}>
                           {rowLabel(t('sessions.rowTraining'), '#334155')}
-                          {pill({ id: 'antes',   label: t('sessions.phaseAntes'),   key: 'fcAntesEntrenamiento',   color: '#D4AF37' })}
+                          {pill({ id: 'antes',   label: t('sessions.phaseAntes'),   key: 'fcAntesEntrenamiento',   color: '#3B82F6' })}
                           {pill({ id: 'inicial',   label: t('sessions.phaseInicial'),   key: 'fcFaseInicial',   color: '#f59e0b' })}
                           {pill({ id: 'principal', label: t('sessions.phasePrincipal'), key: 'fcFasePrincipal', color: '#EF4444' })}
                           {pill({ id: 'final',     label: t('sessions.phaseFinal'),     key: 'fcFaseFinal',     color: '#ec4899' })}
@@ -2133,12 +2133,12 @@ const SessionEditor = ({
                       <div className="bg-slate-50 rounded-xl p-4">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs font-medium text-slate-600 flex items-center gap-1">
-                            <Droplets className="w-3 h-3 text-[#B8912A]" />
+                            <Droplets className="w-3 h-3 text-blue-500" />
                             Hidratación                          </span>
                           <span className={`text-xs font-bold ${
                             sessionData.monitoreo.nivelHidratacion < 50 ? 'text-red-600' :
                             sessionData.monitoreo.nivelHidratacion < 70 ? 'text-amber-600' :
-                            'text-[#B8912A]'
+                            'text-blue-600'
                           }`}>
                             {sessionData.monitoreo.nivelHidratacion}%
                           </span>
@@ -2151,7 +2151,7 @@ const SessionEditor = ({
                           }))}
                           max={100}
                           step={5}
-                          className="[&>span]:bg-gradient-to-r [&>span]:from-red-500 [&>span]:via-amber-500 [&>span]:to-[#D4AF37]"
+                          className="[&>span]:bg-gradient-to-r [&>span]:from-red-500 [&>span]:via-amber-500 [&>span]:to-blue-500"
                         />
                         <div className="flex justify-between text-[10px] text-slate-400 mt-1">
                           <span>{t('sessions.dehydrated')}</span>
@@ -2163,13 +2163,13 @@ const SessionEditor = ({
                       <div className="bg-slate-50 rounded-xl p-4">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs font-medium text-slate-600 flex items-center gap-1">
-                            <Moon className="w-3 h-3 text-[#B8912A]" />
+                            <Moon className="w-3 h-3 text-indigo-500" />
                             Calidad de Sueño
                           </span>
                           <span className={`text-xs font-bold ${
                             sessionData.monitoreo.calidadSueno < 50 ? 'text-red-600' :
                             sessionData.monitoreo.calidadSueno < 70 ? 'text-amber-600' :
-                            'text-[#B8912A]'
+                            'text-indigo-600'
                           }`}>
                             {sessionData.monitoreo.calidadSueno}%
                           </span>
@@ -2182,7 +2182,7 @@ const SessionEditor = ({
                           }))}
                           max={100}
                           step={5}
-                          className="[&>span]:bg-[#D4AF37]"
+                          className="[&>span]:bg-indigo-500"
                         />
                         <div className="flex justify-between text-[10px] text-slate-400 mt-1">
                           <span>{t('sessions.bad')}</span>
@@ -2235,7 +2235,7 @@ const SessionEditor = ({
                   data-testid="toggle-section-retro"
                 >
                   <CardTitle className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#D4AF37'}}>
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:'#CCFF00'}}>
                       <AlertCircle className="w-3.5 h-3.5 text-slate-900" />
                     </div>
                     <span className="se-section-title flex-1">{t('sessions.observationsFeedback')}</span>
@@ -2248,7 +2248,7 @@ const SessionEditor = ({
                     value={sessionData.retroalimentacion}
                     onChange={(e) => setSessionData(prev => ({ ...prev, retroalimentacion: e.target.value }))}
                     placeholder={t('sessions.phObservations')}
-                    className="se-field-input min-h-[100px] resize-none bg-slate-50 border-slate-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]/20"
+                    className="se-field-input min-h-[100px] resize-none bg-slate-50 border-slate-200 focus:border-[#CCFF00] focus:ring-[#CCFF00]/20"
                     data-testid="retroalimentacion"
                   />
                 </CardContent>
@@ -2258,7 +2258,7 @@ const SessionEditor = ({
           </div>
 
           {/* Footer */}
-          <div className="sticky bottom-0 border-t px-5 py-3 flex justify-between items-center gap-3 flex-wrap" style={{background:'#0a0a0f',borderColor:'rgba(212,175,55,0.08)',fontFamily:DM}}>
+          <div className="sticky bottom-0 border-t px-5 py-3 flex justify-between items-center gap-3 flex-wrap" style={{background:'#0a0a0f',borderColor:'rgba(204,255,0,0.08)',fontFamily:DM}}>
             <div className="flex items-center gap-2 flex-wrap">
               <Button 
                 variant="outline"
@@ -2346,7 +2346,7 @@ const SessionEditor = ({
               <Button 
                 size="sm"
                 className="text-[12px] font-bold h-8 px-5 rounded-lg shadow-lg"
-                style={{background:'#D4AF37',color:'#0a0a0f',fontFamily:BC}}
+                style={{background:'#CCFF00',color:'#0a0a0f',fontFamily:BC}}
                 onClick={handleSave}
                 data-testid="save-session-btn"
               >
@@ -2363,8 +2363,8 @@ const SessionEditor = ({
         <DialogContent className="max-w-md bg-white p-0 overflow-hidden rounded-2xl">
           <div className="p-5" style={{background:'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)'}}>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:'rgba(212,175,55,0.15)'}}>
-                <Link2 className="w-5 h-5" style={{color:'#D4AF37'}} />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:'rgba(204,255,0,0.15)'}}>
+                <Link2 className="w-5 h-5" style={{color:'#CCFF00'}} />
               </div>
               <div>
                 <DialogTitle className="text-white text-base font-bold" style={{fontFamily:DM}}>{t('sessions.shareSession')}</DialogTitle>
@@ -2398,9 +2398,9 @@ const SessionEditor = ({
               </div>
             </div>
             
-            <div className="rounded-xl p-3" style={{background:'rgba(212,175,55,0.06)',border:'1px solid rgba(212,175,55,0.12)'}}>
+            <div className="rounded-xl p-3" style={{background:'rgba(204,255,0,0.06)',border:'1px solid rgba(204,255,0,0.12)'}}>
               <div className="flex items-start gap-2.5">
-                <Eye className="w-4 h-4 mt-0.5" style={{color:'#D4AF37'}} />
+                <Eye className="w-4 h-4 mt-0.5" style={{color:'#CCFF00'}} />
                 <div>
                   <p className="text-[12px] font-semibold text-slate-800">{t('sessions.athleteView')}</p>
                   <p className="text-[11px] text-slate-500 mt-0.5">
@@ -2423,7 +2423,7 @@ const SessionEditor = ({
                 size="sm"
                 onClick={handleCopyLink}
                 className="text-[12px] font-bold"
-                style={{background:'#D4AF37',color:'#0a0a0f',fontFamily:BC}}
+                style={{background:'#CCFF00',color:'#0a0a0f',fontFamily:BC}}
               >
                 <Copy className="w-3.5 h-3.5 mr-1.5" />
                 Copiar Enlace

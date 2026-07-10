@@ -1084,7 +1084,7 @@ const DashboardPage = () => {
   };
 
   // ── Vista consolidada de Equipo: color + inicial por atleta ──
-  const TEAM_PALETTE = ['#D4AF37', '#16a34a', '#db2777', '#ea580c', '#7c3aed', '#0891b2', '#ca8a04', '#dc2626', '#0d9488', '#9333ea', '#65a30d', '#e11d48'];
+  const TEAM_PALETTE = ['#2563eb', '#16a34a', '#db2777', '#ea580c', '#7c3aed', '#0891b2', '#ca8a04', '#dc2626', '#0d9488', '#9333ea', '#65a30d', '#e11d48'];
   const athleteInitials = (name = '') => {
     const parts = String(name).trim().split(/\s+/).filter(Boolean);
     if (parts.length === 0) return '?';
@@ -1397,9 +1397,9 @@ const DashboardPage = () => {
   ];
 
   const colorClasses = {
-    blue: { bg: 'bg-[#D4AF37]', hover: 'hover:bg-[#D4AF37]', shadow: 'shadow-[#D4AF37]', light: 'bg-[#D4AF37]', text: 'text-[#B8912A]', border: 'border-[#B8912A]' },
+    blue: { bg: 'bg-blue-600', hover: 'hover:bg-blue-700', shadow: 'shadow-blue-200', light: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-500' },
     rose: { bg: 'bg-rose-500', hover: 'hover:bg-rose-600', shadow: 'shadow-rose-200', light: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-500' },
-    indigo: { bg: 'bg-[#007AFF]', hover: 'hover:bg-[#D4AF37]', shadow: 'shadow-[#D4AF37]', light: 'bg-[#D4AF37]', text: 'text-[#007AFF]', border: 'border-[#B8912A]' },
+    indigo: { bg: 'bg-[#007AFF]', hover: 'hover:bg-indigo-600', shadow: 'shadow-indigo-200', light: 'bg-indigo-50', text: 'text-[#007AFF]', border: 'border-indigo-500' },
     emerald: { bg: 'bg-emerald-500', hover: 'hover:bg-emerald-600', shadow: 'shadow-emerald-200', light: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-500' },
     violet: { bg: 'bg-violet-500', hover: 'hover:bg-violet-600', shadow: 'shadow-violet-200', light: 'bg-violet-50', text: 'text-violet-600', border: 'border-violet-500' },
     cyan: { bg: 'bg-cyan-600', hover: 'hover:bg-cyan-700', shadow: 'shadow-cyan-200', light: 'bg-cyan-50', text: 'text-cyan-600', border: 'border-cyan-600' },
@@ -1554,7 +1554,7 @@ const DashboardPage = () => {
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-1">
                 <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center">
-                  <Clipboard className="w-5 h-5 text-[#D4AF37]" />
+                  <Clipboard className="w-5 h-5 text-[#CCFF00]" />
                 </div>
                 <div>
                   <h1 className="text-xl font-bold text-slate-900">{t('dashboard.plans.title')}</h1>
@@ -1617,7 +1617,7 @@ const DashboardPage = () => {
 
             {loadingPlans ? (
               <div className="text-center py-16">
-                <Loader2 className="w-10 h-10 animate-spin text-[#B8912A] mx-auto mb-4" />
+                <Loader2 className="w-10 h-10 animate-spin text-blue-500 mx-auto mb-4" />
                 <p className="text-slate-500">{t('dashboard.plans.loading')}</p>
               </div>
             ) : trainingPlans.length > 0 ? (
@@ -1629,8 +1629,8 @@ const DashboardPage = () => {
                       key={plan.id}
                       className={`group bg-white border rounded-xl p-4 cursor-pointer transition-all duration-200 hover:shadow-lg ${
                         isActive 
-                          ? 'border-[#B8912A] ring-2 ring-[#B8912A] shadow-md' 
-                          : 'border-slate-200 hover:border-[#B8912A]'
+                          ? 'border-blue-400 ring-2 ring-blue-100 shadow-md' 
+                          : 'border-slate-200 hover:border-blue-300'
                       }`}
                       onClick={() => handleSetActivePlan(plan)}
                       data-testid={`plan-card-${plan.id}`}
@@ -1639,17 +1639,17 @@ const DashboardPage = () => {
                         <div className="flex items-center gap-3 flex-1 min-w-0">
                           <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                             isActive 
-                              ? 'bg-[#D4AF37]' 
-                              : 'bg-slate-100 group-hover:bg-[#D4AF37]'
+                              ? 'bg-blue-600' 
+                              : 'bg-slate-100 group-hover:bg-blue-100'
                           }`}>
-                            <Clipboard className={`w-6 h-6 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-[#B8912A]'}`} />
+                            <Clipboard className={`w-6 h-6 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-blue-600'}`} />
                           </div>
                           <div className="min-w-0 flex-1">
-                            <h3 className={`font-semibold truncate ${isActive ? 'text-[#B8912A]' : 'text-slate-800'}`}>
+                            <h3 className={`font-semibold truncate ${isActive ? 'text-blue-700' : 'text-slate-800'}`}>
                               {plan.name}
                             </h3>
                             <div className="flex items-center gap-2 mt-1 flex-wrap">
-                              <span className="px-2 py-0.5 bg-[#D4AF37] text-[#B8912A] text-xs font-medium rounded-full">
+                              <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
                                 {plan.total_weeks} {t('dashboard.plans.weeksShort')}
                               </span>
                               <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs font-medium rounded-full truncate max-w-[100px]">
@@ -1663,7 +1663,7 @@ const DashboardPage = () => {
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
                           {isActive && (
-                            <Badge className="bg-[#D4AF37] text-white text-xs mr-2">{t('dashboard.plans.active')}</Badge>
+                            <Badge className="bg-blue-600 text-white text-xs mr-2">{t('dashboard.plans.active')}</Badge>
                           )}
                           <Button
                             variant="ghost"
@@ -1673,7 +1673,7 @@ const DashboardPage = () => {
                               e.stopPropagation();
                               handleDuplicatePlan(plan.id);
                             }}
-                            className="text-slate-400 hover:text-[#B8912A] hover:bg-[#D4AF37] rounded-lg h-8 w-8 p-0"
+                            className="text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg h-8 w-8 p-0"
                             data-testid={`plan-duplicate-${plan.id}`}
                           >
                             <Copy className="w-4 h-4" />
@@ -1734,7 +1734,7 @@ const DashboardPage = () => {
                 </p>
                 <Button
                   onClick={() => setActiveDataSection('training-system')}
-                  className="bg-[#D4AF37] hover:bg-[#D4AF37] text-white rounded-xl"
+                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   {t('dashboard.plans.createFirst')}
@@ -1783,7 +1783,7 @@ const DashboardPage = () => {
           <div className="bg-white p-6 rounded-xl border border-slate-200 max-w-lg w-full shadow-sm">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center">
-                <Clipboard className="w-6 h-6 text-[#D4AF37]" />
+                <Clipboard className="w-6 h-6 text-[#CCFF00]" />
               </div>
               <div className="flex-1">
                 <p className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">{t('data.plan_activo')}</p>
@@ -2025,7 +2025,7 @@ const DashboardPage = () => {
                         points_win: newTournament.points_win || 3,
                         points_draw: newTournament.points_draw || 1,
                         points_loss: newTournament.points_loss || 0,
-                        primary_color: newTournament.primary_color || '#D4AF37',
+                        primary_color: newTournament.primary_color || '#3B82F6',
                         secondary_color: newTournament.secondary_color || '#10B981'
                       })
                     });
@@ -2083,13 +2083,13 @@ const DashboardPage = () => {
                   >
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-200 ${
                       selectedAthleteId === athlete.id
-                        ? 'bg-[#D4AF37] text-white shadow-lg shadow-[#D4AF37]'
+                        ? 'bg-[#1565C0] text-white shadow-lg shadow-blue-200'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}>
                       {athlete.name?.charAt(0)?.toUpperCase()}
                     </div>
                     <span className={`text-[8px] max-w-[48px] truncate font-medium transition-colors ${
-                      selectedAthleteId === athlete.id ? 'text-[#D4AF37]' : 'text-slate-400 group-hover:text-slate-600'
+                      selectedAthleteId === athlete.id ? 'text-[#1565C0]' : 'text-slate-400 group-hover:text-slate-600'
                     }`}>
                       {athlete.name?.split(' ')[0]}
                     </span>
@@ -2323,7 +2323,7 @@ const DashboardPage = () => {
                     <div key={category.id} className="border border-slate-200 rounded-xl overflow-hidden">
                       <div 
                         className="px-4 py-3 flex items-center justify-between"
-                        style={{ background: `linear-gradient(135deg, ${category.color || '#D4AF37'}, ${category.color || '#D4AF37'}dd)` }}
+                        style={{ background: `linear-gradient(135deg, ${category.color || '#3B82F6'}, ${category.color || '#3B82F6'}dd)` }}
                       >
                         <div className="flex items-center gap-2 text-white">
                           <span className="text-xl">{category.icon || '🏆'}</span>
@@ -2390,7 +2390,7 @@ const DashboardPage = () => {
                               const ringColor = pct >= 80 ? '#10b981' : pct >= 40 ? '#f59e0b' : '#cbd5e1';
                               const typeLabels = { individual: 'Individual', colectivo: 'Colectivo', combate: 'Combate', precision: 'Precisión', raquetas: 'Raquetas', agua: 'Acuático' };
                               const energyLabels = { aerobico: 'Aeróbico', 'anaerobico-lactico': 'Anaer. Láctico', 'anaerobico-alactico': 'Anaer. Aláctico', mixto: 'Mixto' };
-                              const typeColors = { individual: 'bg-[#D4AF37] text-[#B8912A] border-[#B8912A]', colectivo: 'bg-emerald-50 text-emerald-700 border-emerald-200', combate: 'bg-red-50 text-red-700 border-red-200', precision: 'bg-violet-50 text-violet-700 border-violet-200', raquetas: 'bg-amber-50 text-amber-700 border-amber-200', agua: 'bg-cyan-50 text-cyan-700 border-cyan-200' };
+                              const typeColors = { individual: 'bg-sky-50 text-sky-700 border-sky-200', colectivo: 'bg-emerald-50 text-emerald-700 border-emerald-200', combate: 'bg-red-50 text-red-700 border-red-200', precision: 'bg-violet-50 text-violet-700 border-violet-200', raquetas: 'bg-amber-50 text-amber-700 border-amber-200', agua: 'bg-cyan-50 text-cyan-700 border-cyan-200' };
                               const energyColors = { aerobico: 'bg-emerald-50 text-emerald-700 border-emerald-200', 'anaerobico-lactico': 'bg-amber-50 text-amber-700 border-amber-200', 'anaerobico-alactico': 'bg-red-50 text-red-700 border-red-200', mixto: 'bg-violet-50 text-violet-700 border-violet-200' };
                               return (
                                 <div
@@ -2456,7 +2456,7 @@ const DashboardPage = () => {
                                       <Button
                                         variant="ghost"
                                         size="sm"
-                                        className="h-7 w-7 p-0 text-slate-500 hover:text-[#B8912A] hover:bg-[#D4AF37] rounded-md"
+                                        className="h-7 w-7 p-0 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-md"
                                         onClick={() => {
                                           setEditingSportId(sport.id);
                                           setEditingSportCharacterization(sport.characterization || {});
@@ -2500,7 +2500,7 @@ const DashboardPage = () => {
                             <FileText className="w-6 h-6" />
                             <div>
                               <h3 className="font-bold text-lg">{t('data.caracterizacion_tecnica')}</h3>
-                              <p className="text-sm text-[#B8912A]">{t('data.define_los_parametros_tecnicos_del_deporte')}</p>
+                              <p className="text-sm text-blue-100">{t('data.define_los_parametros_tecnicos_del_deporte')}</p>
                             </div>
                           </div>
                           <Button 
@@ -2587,7 +2587,7 @@ const DashboardPage = () => {
                             Cancelar
                           </Button>
                           <Button 
-                            className="bg-[#D4AF37] hover:bg-[#D4AF37]"
+                            className="bg-blue-600 hover:bg-blue-700"
                             onClick={() => {
                               handleSaveSportCharacterization(editingSportId, editingSportCharacterization);
                               setEditingSportId(null);
@@ -2776,7 +2776,7 @@ const DashboardPage = () => {
                         const priorityColors = {
                           alta: { bg: 'bg-emerald-50', border: 'border-slate-200', bar: 'bg-emerald-500', badge: 'bg-emerald-50 text-emerald-700' },
                           media: { bg: 'bg-amber-50', border: 'border-slate-200', bar: 'bg-amber-500', badge: 'bg-amber-100 text-amber-700' },
-                          baja: { bg: 'bg-[#D4AF37]', border: 'border-slate-200', bar: 'bg-[#007AFF]', badge: 'bg-[#D4AF37] text-[#B8912A]' }
+                          baja: { bg: 'bg-indigo-50', border: 'border-slate-200', bar: 'bg-[#007AFF]', badge: 'bg-blue-50 text-blue-700' }
                         };
                         const colors = priorityColors[event.priority] || priorityColors.media;
                         const typeLabels = {
@@ -2827,7 +2827,7 @@ const DashboardPage = () => {
     if (activeDataSection === 'objectives') {
       const aspectRows = [
         { key: 'general', label: 'General', color: '#94a3b8', hover: '#f8fafc' },
-        { key: 'fisicaGeneral', label: t('data.x_prep_fisica_general'), color: '#D4AF37', hover: '#eff6ff' },
+        { key: 'fisicaGeneral', label: t('data.x_prep_fisica_general'), color: '#3b82f6', hover: '#eff6ff' },
         { key: 'fisicaEspecial', label: t('data.x_prep_fisica_especial'), color: '#007AFF', hover: '#eff6ff' },
         { key: 'tecnica', label: t('data.x_prep_tecnica'), color: '#10b981', hover: '#ecfdf5' },
         { key: 'tactica', label: t('data.x_prep_tactica'), color: '#f59e0b', hover: '#fffbeb' },
@@ -2840,7 +2840,7 @@ const DashboardPage = () => {
           <div className="flex items-center justify-between flex-wrap gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3 shadow-sm">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-10 h-10 bg-gradient-to-br from-slate-900 to-slate-700 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
-                <Target className="w-5 h-5 text-[#D4AF37]" />
+                <Target className="w-5 h-5 text-[#CCFF00]" />
               </div>
               <div className="min-w-0">
                 <h1 className="text-base font-bold text-slate-900 truncate">{t('data.plan_activo')}</h1>
@@ -2857,7 +2857,7 @@ const DashboardPage = () => {
               <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-emerald-300 text-emerald-700 hover:bg-emerald-50 bg-emerald-50/40" onClick={handleShareObjectivesWhatsApp} disabled={savingEvaluation || !activePlan} data-testid="active-plan-whatsapp-btn" title={t('data.compartir_por_whatsapp')}>
                 <MessageCircle className="w-3.5 h-3.5 mr-1.5" />WhatsApp
               </Button>
-              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-[#007AFF]/40 text-[#007AFF] hover:bg-[#D4AF37] bg-[#D4AF37]/40" onClick={() => activePlan ? setIsAthletePortalOpen(true) : toast.error(t('data.selecciona_un_plan_activo_primero'))} disabled={!activePlan} data-testid="active-plan-athlete-btn" title={t('data.enviar_al_atleta_enlace_cuenta')}>
+              <Button variant="outline" size="sm" className="h-9 text-xs px-3 border-[#007AFF]/40 text-[#007AFF] hover:bg-blue-50 bg-blue-50/40" onClick={() => activePlan ? setIsAthletePortalOpen(true) : toast.error(t('data.selecciona_un_plan_activo_primero'))} disabled={!activePlan} data-testid="active-plan-athlete-btn" title={t('data.enviar_al_atleta_enlace_cuenta')}>
                 <Send className="w-3.5 h-3.5 mr-1.5" />{t('data.atleta_2')}</Button>
               <Button className="bg-slate-900 hover:bg-slate-800 text-white h-9 text-xs px-4" onClick={handleSaveObjectives} disabled={savingEvaluation || !activePlan} data-testid="active-plan-save-btn">
                 <Save className="w-3.5 h-3.5 mr-1.5" />
@@ -2986,15 +2986,15 @@ const DashboardPage = () => {
                     <Target className="w-4 h-4 text-[#007AFF]" />
                     Corto Plazo
                   </div>
-                  <Badge className="bg-[#D4AF37] text-[#B8912A] border border-[#B8912A] text-[9px] uppercase tracking-wider font-bold">Microciclo</Badge>
+                  <Badge className="bg-blue-50 text-blue-700 border border-blue-200 text-[9px] uppercase tracking-wider font-bold">Microciclo</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3.5 space-y-2">
                 <p className="text-[11px] text-slate-500 italic">{t('data.semana_actual_sesiones_inmediatas')}</p>
                 {[0, 1, 2].map((idx) => (
                   <div key={idx} className="flex items-start gap-2">
-                    <span className="w-5 h-5 bg-[#D4AF37] text-[#B8912A] rounded-full flex items-center justify-center text-[8px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
-                    <textarea data-testid={`obj-corto-${idx}`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none focus:ring-1 focus:ring-[#B8912A] focus:border-[#B8912A]" rows={2} placeholder={`Objetivo ${idx + 1}...`} value={objectivesData.cortoPlazo[idx]} onChange={(e) => { const arr = [...objectivesData.cortoPlazo]; arr[idx] = e.target.value; setObjectivesData({...objectivesData, cortoPlazo: arr}); }} />
+                    <span className="w-5 h-5 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-[8px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
+                    <textarea data-testid={`obj-corto-${idx}`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500" rows={2} placeholder={`Objetivo ${idx + 1}...`} value={objectivesData.cortoPlazo[idx]} onChange={(e) => { const arr = [...objectivesData.cortoPlazo]; arr[idx] = e.target.value; setObjectivesData({...objectivesData, cortoPlazo: arr}); }} />
                   </div>
                 ))}
               </CardContent>
@@ -3013,9 +3013,9 @@ const DashboardPage = () => {
                 <table className="w-full">
                   <thead className="bg-slate-900">
                     <tr>
-                      <th className="px-3 py-2 text-left text-[8px] font-black uppercase tracking-wider w-44" style={{ color: '#D4AF37' }}>Aspecto</th>
-                      <th className="px-3 py-2 text-left text-[8px] font-black uppercase tracking-wider" style={{ color: '#D4AF37' }}>{t('data.objetivo')}</th>
-                      <th className="px-3 py-2 text-left text-[8px] font-black uppercase tracking-wider w-72" style={{ color: '#D4AF37' }}>Indicador</th>
+                      <th className="px-3 py-2 text-left text-[8px] font-black uppercase tracking-wider w-44" style={{ color: '#CCFF00' }}>Aspecto</th>
+                      <th className="px-3 py-2 text-left text-[8px] font-black uppercase tracking-wider" style={{ color: '#CCFF00' }}>{t('data.objetivo')}</th>
+                      <th className="px-3 py-2 text-left text-[8px] font-black uppercase tracking-wider w-72" style={{ color: '#CCFF00' }}>Indicador</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -3045,7 +3045,7 @@ const DashboardPage = () => {
           {activePlan?.id && <PlanStaffPanel planId={activePlan.id} />}
 
           {/* SMART Callout */}
-          <div className="rounded-xl p-4 flex items-start gap-3" style={{ background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', borderLeft: '4px solid #D4AF37' }}>
+          <div className="rounded-xl p-4 flex items-start gap-3" style={{ background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', borderLeft: '4px solid #CCFF00' }}>
             <Sparkles className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-[12px] font-bold text-slate-800 mb-1">{t('data.objetivos_smart')}</p>
@@ -3087,7 +3087,7 @@ const DashboardPage = () => {
           <div className="flex items-center justify-between flex-wrap gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3 shadow-sm">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-10 h-10 bg-gradient-to-br from-slate-900 to-slate-700 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
-                <History className="w-5 h-5 text-[#D4AF37]" />
+                <History className="w-5 h-5 text-[#CCFF00]" />
               </div>
               <div className="min-w-0">
                 <h1 className="text-base font-bold text-slate-900 truncate">{t('data.analisis_del_plan_anterior')}</h1>
@@ -3157,9 +3157,9 @@ const DashboardPage = () => {
                 {/* Radar interactivo — feedback visual en tiempo real */}
                 <div className="rounded-xl p-2.5" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}>
                   <div className="flex items-center justify-center gap-3 mb-1 flex-wrap">
-                    <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase" style={{ background: '#D4AF37', color: '#0f172a' }}>{t('data.perfil_de_cumplimiento')}</span>
+                    <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase" style={{ background: '#CCFF00', color: '#0f172a' }}>{t('data.perfil_de_cumplimiento')}</span>
                     <div className="flex items-center gap-3 text-[9px]">
-                      <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: '#D4AF37' }}></span><span className="text-white/90 font-semibold uppercase tracking-wider">Real</span></div>
+                      <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: '#CCFF00' }}></span><span className="text-white/90 font-semibold uppercase tracking-wider">Real</span></div>
                       <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm border border-dashed" style={{ background: 'rgba(255,255,255,0.15)', borderColor: 'rgba(255,255,255,0.6)' }}></span><span className="text-white/80 font-semibold uppercase tracking-wider">Ideal · {modelNameLabel}</span></div>
                     </div>
                   </div>
@@ -3180,8 +3180,8 @@ const DashboardPage = () => {
                       {/* Ideal/benchmark del modelo (detrás) */}
                       <Radar name={t('data.radar_ideal')} dataKey="ideal" stroke="rgba(255,255,255,0.65)" strokeDasharray="4 4" fill="rgba(255,255,255,0.08)" fillOpacity={1} strokeWidth={1.5} dot={false} />
                       {/* Real (encima) */}
-                      <Radar name={t('data.radar_real')} dataKey="pct" stroke="#D4AF37" fill="#D4AF37" fillOpacity={0.4} strokeWidth={2} dot={{ fill: '#D4AF37', r: 3, strokeWidth: 1, stroke: '#fff' }} />
-                      <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #D4AF37', borderRadius: 8, fontSize: 12 }} labelStyle={{ color: '#D4AF37', fontWeight: 700 }} formatter={(v, n) => [`${v}%`, n === t('data.radar_real') ? t('data.radar_your') : `${t('data.radar_ideal')} (${modelNameLabel})`]} />
+                      <Radar name={t('data.radar_real')} dataKey="pct" stroke="#CCFF00" fill="#CCFF00" fillOpacity={0.4} strokeWidth={2} dot={{ fill: '#CCFF00', r: 3, strokeWidth: 1, stroke: '#fff' }} />
+                      <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #CCFF00', borderRadius: 8, fontSize: 12 }} labelStyle={{ color: '#CCFF00', fontWeight: 700 }} formatter={(v, n) => [`${v}%`, n === t('data.radar_real') ? t('data.radar_your') : `${t('data.radar_ideal')} (${modelNameLabel})`]} />
                     </RadarChart>
                   </ResponsiveContainer>
                 </div>
@@ -3258,11 +3258,11 @@ const DashboardPage = () => {
                     setTimeout(() => setPreviousAnalysisData(prev => ({ ...prev, porcentajeCumplimiento: pctG })), 0);
                   }
                   return (
-                    <div className="mt-auto p-5 lg:p-6 rounded-2xl text-slate-900 shadow-lg flex flex-col justify-center" style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #a3e635 100%)', minHeight: '180px' }}>
+                    <div className="mt-auto p-5 lg:p-6 rounded-2xl text-slate-900 shadow-lg flex flex-col justify-center" style={{ background: 'linear-gradient(135deg, #CCFF00 0%, #a3e635 100%)', minHeight: '180px' }}>
                       <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                         <div className="flex items-center gap-2">
                           <span className="text-[12px] lg:text-[13px] font-black uppercase tracking-[0.2em]">% Global de Cumplimiento</span>
-                          <span className="text-[8px] font-bold px-2 py-1 rounded-md bg-slate-900/85 text-[#D4AF37] uppercase tracking-wider">Auto</span>
+                          <span className="text-[8px] font-bold px-2 py-1 rounded-md bg-slate-900/85 text-[#CCFF00] uppercase tracking-wider">Auto</span>
                         </div>
                         <span className="text-5xl lg:text-6xl font-black tabular-nums leading-none" data-testid="prev-porcentaje-global" style={{ color: '#0f172a', letterSpacing: '-0.04em' }}>{pctG}<span className="text-2xl lg:text-3xl font-bold ml-1 align-top">%</span></span>
                       </div>
@@ -3289,7 +3289,7 @@ const DashboardPage = () => {
                 <p className="text-[11px] text-slate-500">{t('data.x_que_funciono_bien_que_aspectos_se_deben_mant')}</p>
                 {[0, 1, 2].map((idx) => (
                   <div key={idx} className="flex items-start gap-2">
-                    <span className="w-5 h-5 bg-[#D4AF37] text-[#B8912A] rounded-full flex items-center justify-center text-[8px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
+                    <span className="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-[8px] font-bold flex-shrink-0 mt-1.5">{idx + 1}</span>
                     <textarea data-testid={`prev-fortaleza-${idx}`} className="w-full p-2 border border-slate-200 rounded-lg text-sm resize-none" rows={2} placeholder={`${t('data.phStrength')} ${idx + 1}...`} value={previousAnalysisData.fortalezas[idx]} onChange={(e) => { const arr = [...previousAnalysisData.fortalezas]; arr[idx] = e.target.value; setPreviousAnalysisData({...previousAnalysisData, fortalezas: arr}); }} />
                   </div>
                 ))}
@@ -3515,11 +3515,11 @@ const DashboardPage = () => {
                     }}
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: '#D4AF37' }}>
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: '#CCFF00' }}>
                         <Plus className="w-5 h-5 text-slate-900" strokeWidth={2.5} />
                       </div>
                       <div className="min-w-0">
-                        <div className="text-[8px] font-black uppercase tracking-widest" style={{ color: '#D4AF37' }}>{t('data.cierra_el_ciclo')}</div>
+                        <div className="text-[8px] font-black uppercase tracking-widest" style={{ color: '#CCFF00' }}>{t('data.cierra_el_ciclo')}</div>
                         <div className="text-sm font-bold truncate">{t('data.generar_proximo_plan_basado_en_este_analis')}</div>
                       </div>
                     </div>
@@ -3533,20 +3533,20 @@ const DashboardPage = () => {
           {/* (Conclusiones y Recomendaciones se renderizan ahora dentro del grid, en col 2) */}
 
           {/* ====== GAP ANALYSIS CON IA ====== */}
-          <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-[#D4AF37]" data-testid="ai-gap-analysis-card">
-            <CardHeader className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b-2 border-[#D4AF37] py-3 px-4">
+          <Card className="border-0 shadow-md overflow-hidden border-l-4 border-l-[#CCFF00]" data-testid="ai-gap-analysis-card">
+            <CardHeader className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b-2 border-[#CCFF00] py-3 px-4">
               <CardTitle className="flex items-center justify-between gap-2 text-sm font-bold text-white flex-wrap">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: '#D4AF37', boxShadow: '0 0 12px rgba(212,175,55,0.4)' }}>
+                  <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: '#CCFF00', boxShadow: '0 0 12px rgba(204,255,0,0.4)' }}>
                     <Sparkles className="w-4 h-4 text-slate-900" />
                   </div>
                   <div className="leading-tight">
-                    <div className="text-[8px] font-black uppercase tracking-[0.2em]" style={{ color: '#D4AF37' }}>{t('data.gap_analysis_con_ia')}</div>
+                    <div className="text-[8px] font-black uppercase tracking-[0.2em]" style={{ color: '#CCFF00' }}>{t('data.gap_analysis_con_ia')}</div>
                     <div className="text-sm font-bold text-white">{t('data.diagnostico_cruzado_vs_modelos_de_periodiz')}</div>
                   </div>
                 </div>
                 {aiGapData && (
-                  <span className="text-[8px] font-bold uppercase tracking-wider px-2 py-1 rounded-full" style={{ background: 'rgba(212,175,55,0.15)', color: '#D4AF37', border: '1px solid rgba(212,175,55,0.4)' }}>
+                  <span className="text-[8px] font-bold uppercase tracking-wider px-2 py-1 rounded-full" style={{ background: 'rgba(204,255,0,0.15)', color: '#CCFF00', border: '1px solid rgba(204,255,0,0.4)' }}>
                     {(aiGapData.provider || '').toUpperCase()} · {aiGapData.llm_model || ''}
                   </span>
                 )}
@@ -3562,13 +3562,13 @@ const DashboardPage = () => {
                       type="button"
                       onClick={() => setAiGapProvider('openai')}
                       data-testid="ai-provider-openai"
-                      className={`flex-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold border-2 transition-all ${aiGapProvider === 'openai' ? 'border-slate-900 bg-slate-900 text-[#D4AF37]' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-400'}`}
+                      className={`flex-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold border-2 transition-all ${aiGapProvider === 'openai' ? 'border-slate-900 bg-slate-900 text-[#CCFF00]' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-400'}`}
                     >GPT-5.2</button>
                     <button
                       type="button"
                       onClick={() => setAiGapProvider('anthropic')}
                       data-testid="ai-provider-anthropic"
-                      className={`flex-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold border-2 transition-all ${aiGapProvider === 'anthropic' ? 'border-slate-900 bg-slate-900 text-[#D4AF37]' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-400'}`}
+                      className={`flex-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold border-2 transition-all ${aiGapProvider === 'anthropic' ? 'border-slate-900 bg-slate-900 text-[#CCFF00]' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-400'}`}
                     >Claude 4.5</button>
                   </div>
                 </div>
@@ -3597,7 +3597,7 @@ const DashboardPage = () => {
                             }}
                             className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-all ${
                               isSelected
-                                ? 'border-slate-900 bg-slate-900 text-[#D4AF37] shadow-sm'
+                                ? 'border-slate-900 bg-slate-900 text-[#CCFF00] shadow-sm'
                                 : reachedCap
                                   ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
                                   : 'border-slate-300 bg-white text-slate-700 hover:border-slate-900 hover:bg-slate-50'
@@ -3620,7 +3620,7 @@ const DashboardPage = () => {
                     disabled={aiGapLoading || !activePlan || aiSelectedModels.length === 0}
                     data-testid="ai-generate-btn"
                     className="px-4 py-2 rounded-lg font-bold text-[12px] uppercase tracking-wider transition-all flex items-center gap-1.5 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ background: '#D4AF37', color: '#0f172a', boxShadow: aiGapLoading ? 'none' : '0 4px 12px rgba(212,175,55,0.4)' }}
+                    style={{ background: '#CCFF00', color: '#0f172a', boxShadow: aiGapLoading ? 'none' : '0 4px 12px rgba(204,255,0,0.4)' }}
                   >
                     {aiGapLoading ? (
                       <><Loader2 className="w-4 h-4 animate-spin" /> Generando...</>
@@ -3666,7 +3666,7 @@ const DashboardPage = () => {
                 <div className="space-y-3" data-testid="ai-gap-results">
                   {/* Executive Summary */}
                   {aiGapData.executive_summary && (
-                    <div className="rounded-xl p-3.5 border-l-4 border-[#D4AF37]" style={{ background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)' }}>
+                    <div className="rounded-xl p-3.5 border-l-4 border-[#CCFF00]" style={{ background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)' }}>
                       <div className="text-[9px] font-black uppercase tracking-widest text-slate-700 mb-1">Resumen Ejecutivo</div>
                       <p className="text-[12.5px] text-slate-800 leading-relaxed italic">{aiGapData.executive_summary}</p>
                     </div>
@@ -3675,7 +3675,7 @@ const DashboardPage = () => {
                   {/* Tabla comparativa por modelo */}
                   {Array.isArray(aiGapData.comparisons) && aiGapData.comparisons.length > 0 && (
                     <div className="rounded-xl border border-slate-200 overflow-hidden">
-                      <div className="bg-slate-900 text-[#D4AF37] px-3 py-2 text-[8px] font-black uppercase tracking-widest grid grid-cols-[1fr_auto_70px] gap-2">
+                      <div className="bg-slate-900 text-[#CCFF00] px-3 py-2 text-[8px] font-black uppercase tracking-widest grid grid-cols-[1fr_auto_70px] gap-2">
                         <span>Modelo</span>
                         <span>{t('data.brechas_top_3')}</span>
                         <span className="text-right">Coincidencia</span>
@@ -3723,9 +3723,9 @@ const DashboardPage = () => {
                         const title = r.title || r.titulo || `Recomendación ${i + 1}`;
                         const desc = r.description || r.descripcion || '';
                         return (
-                          <div key={i} className="bg-white border border-slate-200 rounded-xl p-3 border-l-4 hover:shadow-md transition-shadow" style={{ borderLeftColor: '#D4AF37' }} data-testid={`ai-rec-${i}`}>
+                          <div key={i} className="bg-white border border-slate-200 rounded-xl p-3 border-l-4 hover:shadow-md transition-shadow" style={{ borderLeftColor: '#CCFF00' }} data-testid={`ai-rec-${i}`}>
                             <div className="flex items-start gap-2.5 mb-1.5">
-                              <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-[12px] font-black bg-slate-900" style={{ color: '#D4AF37' }}>
+                              <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-[12px] font-black bg-slate-900" style={{ color: '#CCFF00' }}>
                                 {i + 1}
                               </div>
                               <div className="flex-1 min-w-0">
@@ -3953,7 +3953,7 @@ const DashboardPage = () => {
             title="Entidades"
             subtitle="Federaciones, clubes, escuelas y organizaciones deportivas"
             icon={Building2}
-            color="#D4AF37"
+            color="#0EA5E9"
           />
           <EntityManager />
         </div>
@@ -3980,7 +3980,7 @@ const DashboardPage = () => {
             title="Entrenadores"
             subtitle={t('data.staff_tecnico_perfiles_profesionales_traye')}
             icon={UserCheck}
-            color="#D4AF37"
+            color="#0EA5E9"
           />
           <CoachesManager />
         </div>
@@ -4039,7 +4039,7 @@ const DashboardPage = () => {
     return (
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-[#B8912A]">{sectionLabel}</h2>
+          <h2 className="text-2xl font-bold text-blue-600">{sectionLabel}</h2>
           {athletes.length > 0 && (
             <Select value={selectedAthleteId || ''} onValueChange={setSelectedAthleteId}>
               <SelectTrigger className="w-48">
@@ -4082,7 +4082,7 @@ const DashboardPage = () => {
           <div className="bg-white border-b border-slate-200 px-5 py-3 flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center shadow-md">
-                  <Clipboard className="w-5 h-5 text-[#D4AF37]" />
+                  <Clipboard className="w-5 h-5 text-[#CCFF00]" />
                 </div>
                 <div className="flex flex-col">
                   <p className="text-[8px] text-slate-400 uppercase tracking-[0.15em] font-bold leading-none mb-0.5">{t('data.plan_activo')}</p>
@@ -4155,7 +4155,7 @@ const DashboardPage = () => {
                 </SelectContent>
               </Select>
               {selectedTeamId && (
-                <span className="text-xs font-semibold text-[#D4AF37] bg-[#D4AF37] px-2.5 py-1 rounded-full" data-testid="team-mode-badge">
+                <span className="text-xs font-semibold text-[#1565C0] bg-blue-50 px-2.5 py-1 rounded-full" data-testid="team-mode-badge">
                   Modo Equipo: {(teams.find(tm => tm.id === selectedTeamId)?.athletes || []).length} atletas
                 </span>
               )}
@@ -4246,7 +4246,7 @@ const DashboardPage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
-        <Loader2 className="w-8 h-8 animate-spin text-[#B8912A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
     );
   }
@@ -4282,7 +4282,7 @@ const DashboardPage = () => {
             <div className="flex items-start gap-2">
               {[
                 { key: 'panel', icon: LayoutDashboard, label: t('dashboard.nav.panel'), color: 'bg-slate-900', shadow: 'shadow-slate-900/30' },
-                { key: 'datos', icon: Clipboard, label: t('dashboard.nav.data'), color: 'bg-[#007AFF]', shadow: 'shadow-[#D4AF37]/30' },
+                { key: 'datos', icon: Clipboard, label: t('dashboard.nav.data'), color: 'bg-[#007AFF]', shadow: 'shadow-blue-500/30' },
               ].map((nav) => {
                 const NavIcon = nav.icon;
                 const isActive = activePanel === nav.key;
@@ -4337,7 +4337,7 @@ const DashboardPage = () => {
                     data-testid="tab-scouting"
                     title={t('data.recruiting_talent_id_identifica_el_talento')}
                   >
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${scoutActive ? 'bg-slate-900 text-[#D4AF37] shadow-lg shadow-slate-900/30' : 'bg-white text-slate-700 shadow-md border-2 border-[#D4AF37] hover:shadow-lg hover:bg-[#D4AF37]/15'}`}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${scoutActive ? 'bg-slate-900 text-[#CCFF00] shadow-lg shadow-slate-900/30' : 'bg-white text-slate-700 shadow-md border-2 border-[#CCFF00] hover:shadow-lg hover:bg-[#CCFF00]/15'}`}>
                       <Target className="w-[18px] h-[18px] transition-transform duration-300" strokeWidth={scoutActive ? 2.5 : 2} />
                     </div>
                     <span className={`text-[8px] font-bold tracking-wide leading-tight text-center max-w-[60px] transition-colors duration-300 ${scoutActive ? 'text-slate-900' : 'text-slate-700 group-hover:text-slate-900'}`}>
@@ -4354,7 +4354,7 @@ const DashboardPage = () => {
                 data-testid="header-master-report-btn"
                 title={t('data.reporte_maestro_5_estilos_seleccion_de_sec')}
               >
-                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-700 shadow-md border-2 border-[#D4AF37] hover:shadow-lg hover:bg-[#D4AF37]/15">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-700 shadow-md border-2 border-[#CCFF00] hover:shadow-lg hover:bg-[#CCFF00]/15">
                   <FileBarChart2 className="w-[18px] h-[18px] transition-transform duration-300" strokeWidth={2} />
                 </div>
                 <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-700 group-hover:text-slate-900 transition-colors duration-300 max-w-[60px]">
@@ -4375,7 +4375,7 @@ const DashboardPage = () => {
                 data-testid="header-sessions-export-btn"
                 title={t('data.exportar_sesiones_especificas_a_pdf_combin')}
               >
-                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-700 shadow-md border-2 border-[#B8912A] hover:shadow-lg hover:bg-[#D4AF37]">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-700 shadow-md border-2 border-sky-400 hover:shadow-lg hover:bg-sky-50">
                   <CalendarDays className="w-[18px] h-[18px] transition-transform duration-300" strokeWidth={2} />
                 </div>
                 <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-700 group-hover:text-slate-900 transition-colors duration-300 max-w-[60px]">
@@ -4494,7 +4494,7 @@ const DashboardPage = () => {
                   <div className="fixed top-[70px] right-4 z-[70] w-80 rounded-xl bg-white shadow-xl border border-slate-150 p-2 max-h-[70vh] overflow-y-auto" data-testid="alerts-menu">
                     <button
                       onClick={() => { setAlertsOpen(false); setSummaryOpen(true); }}
-                      className="w-full flex items-center justify-between gap-2 px-2.5 py-2 mb-1 rounded-lg text-sm font-semibold text-[#007AFF] bg-[#D4AF37] hover:bg-[#D4AF37]"
+                      className="w-full flex items-center justify-between gap-2 px-2.5 py-2 mb-1 rounded-lg text-sm font-semibold text-[#007AFF] bg-blue-50 hover:bg-blue-100"
                       data-testid="open-weekly-summary-btn"
                     >
                       <span className="flex items-center gap-1.5"><TrendingUp className="w-4 h-4" />{t('dashboard.alerts.viewWeekly')}</span>
@@ -4531,7 +4531,7 @@ const DashboardPage = () => {
                 data-testid="demo-data-fab"
                 title={t('data.cargar_o_quitar_datos_de_ejemplo')}
               >
-                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#D4AF37]/15 text-slate-700 shadow-md border border-[#D4AF37]/50 hover:shadow-lg hover:bg-[#D4AF37]/25">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#CCFF00]/15 text-slate-700 shadow-md border border-[#CCFF00]/50 hover:shadow-lg hover:bg-[#CCFF00]/25">
                   <Sparkles className="w-[18px] h-[18px] transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
                 </div>
                 <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-500 group-hover:text-slate-700 transition-colors duration-300">
@@ -4697,13 +4697,13 @@ const DashboardPage = () => {
             {/* Drawer Header */}
             <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-5 shrink-0 relative overflow-hidden">
               {/* Decorative glow */}
-              <div className="absolute -top-12 -right-12 w-40 h-40 bg-[#D4AF37]/15 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-[#D4AF37]/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -top-12 -right-12 w-40 h-40 bg-[#CCFF00]/15 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
 
               <div className="flex items-center justify-between relative z-10">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-[#D4AF37]/15 border border-[#D4AF37]/40 rounded-2xl flex items-center justify-center shadow-lg shadow-[#D4AF37]/10">
-                    <Brain className="w-6 h-6 text-[#D4AF37]" strokeWidth={2.2} />
+                  <div className="w-12 h-12 bg-[#CCFF00]/15 border border-[#CCFF00]/40 rounded-2xl flex items-center justify-center shadow-lg shadow-[#CCFF00]/10">
+                    <Brain className="w-6 h-6 text-[#CCFF00]" strokeWidth={2.2} />
                   </div>
                   <div>
                     <h2 className="font-bold text-xl tracking-tight">Coach AI</h2>
@@ -4736,7 +4736,7 @@ const DashboardPage = () => {
             {/* Drawer Footer — minimal user info */}
             <div className="border-t border-slate-200 bg-white px-4 py-3 shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-gradient-to-br from-[#D4AF37] to-[#D4AF37] text-white rounded-full flex items-center justify-center font-bold text-sm shadow-sm">
+                <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-sm">
                   {user?.name?.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">

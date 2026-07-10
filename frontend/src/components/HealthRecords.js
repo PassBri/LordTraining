@@ -114,7 +114,7 @@ const HealthRecords = ({ athleteId, recordType = 'all', onSave }) => {
     switch (type) {
       case 'lesion': return <AlertTriangle className="w-4 h-4 text-red-500" />;
       case 'enfermedad': return <Activity className="w-4 h-4 text-orange-500" />;
-      case 'medicamento': return <Pill className="w-4 h-4 text-[#B8912A]" />;
+      case 'medicamento': return <Pill className="w-4 h-4 text-blue-500" />;
       default: return <Heart className="w-4 h-4 text-gray-500" />;
     }
   };
@@ -160,7 +160,7 @@ const HealthRecords = ({ athleteId, recordType = 'all', onSave }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[#B8912A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
     );
   }
@@ -168,7 +168,7 @@ const HealthRecords = ({ athleteId, recordType = 'all', onSave }) => {
   return (
     <div className="p-6 space-y-6 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#D4AF37] to-[#D4AF37] text-white p-6 rounded-xl shadow-lg">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 rounded-xl shadow-lg">
         <h1 className="text-2xl font-bold mb-2">{getTitle()}</h1>
         <p className="opacity-90 text-sm">
           Registro detallado de condiciones de salud, lesiones, tratamientos y medicamentos
@@ -180,7 +180,7 @@ const HealthRecords = ({ athleteId, recordType = 'all', onSave }) => {
       <Card className="shadow-md border-gray-200">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-3 text-lg">
-            <div className="p-2 rounded-lg bg-[#D4AF37] text-[#B8912A]">
+            <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
               <Heart className="h-5 w-5" />
             </div>
             Nuevo Registro
@@ -322,7 +322,7 @@ const HealthRecords = ({ athleteId, recordType = 'all', onSave }) => {
             <Button
               onClick={addRecord}
               disabled={saving}
-              className="bg-[#D4AF37] hover:bg-[#D4AF37] text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
               data-testid="add-health-record-btn"
             >
               {saving ? (

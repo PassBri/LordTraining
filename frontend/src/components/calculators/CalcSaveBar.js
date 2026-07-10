@@ -32,7 +32,7 @@ const dedupe = (items) => {
 };
 
 // ───────── Barra de guardado dentro de cada CalcCard ─────────
-export const SaveResultBar = ({ store, color = '#D4AF37' }) => {
+export const SaveResultBar = ({ store, color = '#3B82F6' }) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [snapshot, setSnapshot] = useState(null);

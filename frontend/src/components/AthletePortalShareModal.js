@@ -137,8 +137,8 @@ const AthletePortalShareModal = ({ open, onOpenChange, plan, athletes = [] }) =>
                 {busy === 'code' ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <KeyRound className="w-4 h-4 mr-1.5" />}Generar código
               </Button>
               {code && (
-                <div className="mt-3 rounded-lg bg-[#D4AF37] border border-[#B8912A] p-3 text-sm" data-testid="portal-code">
-                  <p className="text-[#B8912A]">Código: <span className="font-mono font-bold text-lg">{code}</span></p>
+                <div className="mt-3 rounded-lg bg-blue-50 border border-blue-200 p-3 text-sm" data-testid="portal-code">
+                  <p className="text-blue-800">Código: <span className="font-mono font-bold text-lg">{code}</span></p>
                   <div className="flex items-center gap-2 mt-2">
                     <Input readOnly value={registerUrl} className="h-8 text-xs font-mono" />
                     <Button size="sm" variant="outline" className="h-8 px-2.5" onClick={() => copy(registerUrl)}><Copy className="w-4 h-4" /></Button>

@@ -21,7 +21,7 @@ const tt = (s) => {
 };
 
 const ROLES = [
-  ['agent', 'Agente', '#D4AF37'], ['representative', 'Representante', '#8b5cf6'],
+  ['agent', 'Agente', '#0ea5e9'], ['representative', 'Representante', '#8b5cf6'],
   ['parent', 'Padre / Tutor', '#10b981'], ['institution', 'Institución', '#f59e0b'],
   ['club', 'Club', '#ef4444'], ['scout', 'Ojeador', '#64748b'], ['other', 'Otro', '#475569'],
 ];
@@ -55,14 +55,14 @@ export default function ScoutingContacts({ prospects = [] }) {
   return (
     <div data-testid="scouting-contacts">
       <div className="flex items-center gap-2 mb-4 flex-wrap">
-        <button onClick={() => setFilter('')} className="px-3 py-1.5 rounded-full text-xs font-bold transition" style={!filter ? { background: '#0f172a', color: '#D4AF37' } : { background: '#fff', color: '#64748b', border: '1px solid #e2e8f0' }} data-testid="contacts-filter-all">{tt('Todos')} · {contacts.length}</button>
+        <button onClick={() => setFilter('')} className="px-3 py-1.5 rounded-full text-xs font-bold transition" style={!filter ? { background: '#0f172a', color: '#CCFF00' } : { background: '#fff', color: '#64748b', border: '1px solid #e2e8f0' }} data-testid="contacts-filter-all">{tt('Todos')} · {contacts.length}</button>
         {ROLES.map(([k, l, c]) => {
           const n = contacts.filter(x => x.role === k).length;
           if (!n) return null;
           return <button key={k} onClick={() => setFilter(k)} className="px-3 py-1.5 rounded-full text-xs font-bold transition" style={filter === k ? { background: c, color: '#fff' } : { background: '#fff', color: '#64748b', border: '1px solid #e2e8f0' }} data-testid={`contacts-filter-${k}`}>{tt(l)} · {n}</button>;
         })}
         <div className="flex-1" />
-        <Button onClick={() => setEditing(emptyContact())} className="bg-[#D4AF37] text-slate-900 hover:bg-[#b8e600] font-bold rounded-full" data-testid="contacts-new-btn"><Plus className="w-4 h-4 mr-1" />{tt('Nuevo Contacto')}</Button>
+        <Button onClick={() => setEditing(emptyContact())} className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] font-bold rounded-full" data-testid="contacts-new-btn"><Plus className="w-4 h-4 mr-1" />{tt('Nuevo Contacto')}</Button>
       </div>
 
       {!shown.length ? (
@@ -83,7 +83,7 @@ export default function ScoutingContacts({ prospects = [] }) {
                     <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded" style={{ background: rm[2] + '22', color: rm[2] }}>{tt(rm[1])}</span>
                   </div>
                   <div className="flex gap-1">
-                    <button onClick={() => setEditing(c)} className="text-slate-300 hover:text-[#B8912A] p-1" data-testid={`contact-edit-${c.id}`}><Edit2 className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => setEditing(c)} className="text-slate-300 hover:text-blue-600 p-1" data-testid={`contact-edit-${c.id}`}><Edit2 className="w-3.5 h-3.5" /></button>
                     <button onClick={() => del(c.id)} className="text-slate-300 hover:text-red-500 p-1" data-testid={`contact-delete-${c.id}`}><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
                 </div>
@@ -157,7 +157,7 @@ function ContactForm({ initial, prospects, onClose, onSaved }) {
             <label className="text-[11px] font-bold text-slate-500 uppercase">{tt('Prospectos vinculados')}</label>
             <div className="mt-1 flex flex-wrap gap-1.5 max-h-32 overflow-y-auto p-2 bg-slate-50 rounded-lg border border-slate-200">
               {prospects.length ? prospects.map(p => (
-                <button key={p.id} type="button" onClick={() => toggleLink(p.id)} className="text-[11px] px-2 py-1 rounded-full font-bold transition" style={f.linked_prospect_ids.includes(p.id) ? { background: '#0f172a', color: '#D4AF37' } : { background: '#fff', color: '#64748b', border: '1px solid #e2e8f0' }} data-testid={`contact-link-${p.id}`}>{p.name}</button>
+                <button key={p.id} type="button" onClick={() => toggleLink(p.id)} className="text-[11px] px-2 py-1 rounded-full font-bold transition" style={f.linked_prospect_ids.includes(p.id) ? { background: '#0f172a', color: '#CCFF00' } : { background: '#fff', color: '#64748b', border: '1px solid #e2e8f0' }} data-testid={`contact-link-${p.id}`}>{p.name}</button>
               )) : <span className="text-[11px] text-slate-400">{tt('Sin prospectos aún.')}</span>}
             </div>
           </div>

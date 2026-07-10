@@ -25,12 +25,12 @@ const PHASE_NAMES = {
 
 // Colores de fases
 const PHASE_COLORS = {
-  'preparatory_general': '#D4AF37',
+  'preparatory_general': '#3B82F6',
   'preparatory_specific': '#8B5CF6',
   'precompetitive': '#F59E0B',
   'competitive': '#10B981',
   'transition': '#6B7280',
-  'accumulation': '#D4AF37',
+  'accumulation': '#3B82F6',
   'transformation': '#8B5CF6',
   'realization': '#10B981'
 };
@@ -148,7 +148,7 @@ const PlansList = ({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-[#B8912A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
       </div>
     );
   }
@@ -164,7 +164,7 @@ const PlansList = ({
           </p>
         </div>
         <Button 
-          className="bg-[#D4AF37] hover:bg-[#D4AF37] gap-2"
+          className="bg-blue-600 hover:bg-blue-700 gap-2"
           onClick={onCreateNew}
           data-testid="create-new-plan-btn"
         >
@@ -188,7 +188,7 @@ const PlansList = ({
               de periodización para comenzar a planificar su preparación.
             </p>
             <Button 
-              className="bg-[#D4AF37] hover:bg-[#D4AF37] gap-2"
+              className="bg-blue-600 hover:bg-blue-700 gap-2"
               onClick={onCreateNew}
             >
               <Plus className="w-4 h-4" />
@@ -226,7 +226,7 @@ const PlansList = ({
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                           isActive ? 'bg-green-100 text-green-700' :
                           isCompleted ? 'bg-slate-100 text-slate-600' :
-                          'bg-[#D4AF37] text-[#B8912A]'
+                          'bg-blue-100 text-blue-700'
                         }`}>
                           {isActive ? 'En progreso' : isCompleted ? 'Completado' : 'Pendiente'}
                         </span>
@@ -278,7 +278,7 @@ const PlansList = ({
                           <span className="text-slate-500">Fase actual:</span>
                           <span 
                             className="px-2 py-0.5 rounded text-white text-xs font-medium"
-                            style={{ backgroundColor: currentPhase.phaseColor || PHASE_COLORS[currentPhase.phaseId] || '#D4AF37' }}
+                            style={{ backgroundColor: currentPhase.phaseColor || PHASE_COLORS[currentPhase.phaseId] || '#3B82F6' }}
                           >
                             {currentPhase.phaseName || PHASE_NAMES[currentPhase.phaseId] || 'Fase'}
                           </span>
@@ -305,7 +305,7 @@ const PlansList = ({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-slate-600 hover:text-[#B8912A]"
+                        className="text-slate-600 hover:text-blue-600"
                         onClick={() => handleViewDetails(plan)}
                         data-testid={`view-plan-${plan.id}`}
                       >
@@ -388,7 +388,7 @@ const PlansList = ({
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-[#B8912A]" />
+              <BarChart3 className="w-5 h-5 text-blue-500" />
               {selectedPlan?.name || 'Detalles del Plan'}
             </DialogTitle>
           </DialogHeader>
@@ -441,7 +441,7 @@ const PlansList = ({
                           <div className="flex items-center gap-3">
                             <div 
                               className="w-3 h-10 rounded"
-                              style={{ backgroundColor: meso.phaseColor || PHASE_COLORS[meso.phaseId] || '#D4AF37' }}
+                              style={{ backgroundColor: meso.phaseColor || PHASE_COLORS[meso.phaseId] || '#3B82F6' }}
                             />
                             <div>
                               <p className="font-medium text-slate-800">

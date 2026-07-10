@@ -18,14 +18,14 @@ export default function BlogPage() {
   return (
     <ResourceLayout active="/blog">
       <div data-testid="blog-page">
-        <p className="text-[#D4AF37] text-xs font-bold tracking-widest uppercase mb-2">Resources</p>
+        <p className="text-[#CCFF00] text-xs font-bold tracking-widest uppercase mb-2">Resources</p>
         <h1 className="text-4xl sm:text-5xl font-bold text-white mb-3" data-testid="blog-title">Blog</h1>
         <p className="text-slate-400 mb-8 max-w-2xl">Artículos sobre ciencia del deporte: periodización, nutrición, táctica y tecnología deportiva.</p>
 
         <div className="flex flex-wrap gap-2 mb-8">
           {['Todas', ...cats].map(c => (
             <button key={c} data-testid={`blog-cat-${c}`} onClick={() => setCat(c)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium border ${cat === c ? 'bg-[#D4AF37] text-slate-900 border-[#D4AF37]' : 'border-slate-700 text-slate-300 hover:border-slate-500'}`}>
+              className={`px-3 py-1.5 rounded-full text-sm font-medium border ${cat === c ? 'bg-[#CCFF00] text-slate-900 border-[#CCFF00]' : 'border-slate-700 text-slate-300 hover:border-slate-500'}`}>
               {c}
             </button>
           ))}
@@ -39,7 +39,7 @@ export default function BlogPage() {
                 {p.image_url ? <img src={p.image_url} alt={p.title} className="w-full h-full object-cover" /> : <span className="text-slate-600 text-sm">LordTraining</span>}
               </div>
               <div className="p-5 flex flex-col flex-1">
-                <span className="text-[11px] font-bold text-[#D4AF37] uppercase tracking-wide">{p.category}</span>
+                <span className="text-[11px] font-bold text-[#CCFF00] uppercase tracking-wide">{p.category}</span>
                 <h3 className="text-lg font-bold text-white mt-1.5 mb-2">{p.title}</h3>
                 <p className="text-sm text-slate-400 line-clamp-3 flex-1">{p.summary}</p>
                 <span className="text-xs text-slate-500 mt-3">{(p.created_at || '').slice(0, 10)}</span>

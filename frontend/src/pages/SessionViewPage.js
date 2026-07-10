@@ -17,12 +17,12 @@ const ORG = { individual:'Individual', parejas:'Parejas', grupos:'Grupos', equip
 
 // Paletas de colores
 const DARK = {
-  bg: '#0a0a0f', headerBg: 'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)', headerBorder: 'rgba(212,175,55,0.08)',
+  bg: '#0a0a0f', headerBg: 'linear-gradient(135deg, #0a0a0f 0%, #14151e 100%)', headerBorder: 'rgba(204,255,0,0.08)',
   card: '#12131a', cardBorder: 'rgba(255,255,255,0.06)', sectionBorder: 'rgba(255,255,255,0.06)',
   title: '#fff', text: 'rgba(255,255,255,0.8)', muted: 'rgba(255,255,255,0.4)', subtle: 'rgba(255,255,255,0.3)',
-  label: 'rgba(212,175,55,0.5)', cellBg: 'rgba(255,255,255,0.03)', cellBorder: 'rgba(255,255,255,0.06)',
-  barBg: 'rgba(255,255,255,0.08)', badge: '#9EFF00', badgeText: '#0f0f13', accent: '#D4AF37',
-  logoCircle: '#D4AF37', logoText: '#0f172a', boardBg: '#fff'
+  label: 'rgba(204,255,0,0.5)', cellBg: 'rgba(255,255,255,0.03)', cellBorder: 'rgba(255,255,255,0.06)',
+  barBg: 'rgba(255,255,255,0.08)', badge: '#9EFF00', badgeText: '#0f0f13', accent: '#CCFF00',
+  logoCircle: '#CCFF00', logoText: '#0f172a', boardBg: '#fff'
 };
 const LIGHT = {
   bg: '#ffffff', headerBg: '#f8f9fb', headerBorder: '#e5e7eb',
@@ -30,7 +30,7 @@ const LIGHT = {
   title: '#111827', text: '#374151', muted: '#6b7280', subtle: '#9ca3af',
   label: '#4d7c0f', cellBg: '#f3f4f6', cellBorder: '#e5e7eb',
   barBg: '#e5e7eb', badge: '#4d7c0f', badgeText: '#fff', accent: '#65a30d',
-  logoCircle: '#D4AF37', logoText: '#0f172a', boardBg: '#fff'
+  logoCircle: '#CCFF00', logoText: '#0f172a', boardBg: '#fff'
 };
 
 const SessionViewPage = () => {
@@ -97,9 +97,9 @@ const SessionViewPage = () => {
   const feedback = session.retroalimentacion || '';
 
   const phaseTheme = {
-    inicial: { accent: isLight ? '#4d7c0f' : '#D4AF37', bg: isLight ? 'rgba(77,124,15,0.05)' : 'rgba(212,175,55,0.06)', border: isLight ? 'rgba(77,124,15,0.2)' : 'rgba(212,175,55,0.2)' },
+    inicial: { accent: isLight ? '#4d7c0f' : '#CCFF00', bg: isLight ? 'rgba(77,124,15,0.05)' : 'rgba(204,255,0,0.06)', border: isLight ? 'rgba(77,124,15,0.2)' : 'rgba(204,255,0,0.2)' },
     principal: { accent: isLight ? '#374151' : '#fff', bg: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.04)', border: isLight ? '#e5e7eb' : 'rgba(255,255,255,0.1)' },
-    final: { accent: '#D4AF37', bg: isLight ? 'rgba(59,130,246,0.04)' : 'rgba(59,130,246,0.06)', border: isLight ? 'rgba(59,130,246,0.15)' : 'rgba(59,130,246,0.2)' }
+    final: { accent: '#3B82F6', bg: isLight ? 'rgba(59,130,246,0.04)' : 'rgba(59,130,246,0.06)', border: isLight ? 'rgba(59,130,246,0.15)' : 'rgba(59,130,246,0.2)' }
   };
   const phaseNames = { inicial: 'Fase inicial', principal: 'Fase principal', final: 'Fase final' };
 
@@ -133,7 +133,7 @@ const SessionViewPage = () => {
               {/* PDF Dark */}
               <button onClick={() => handleDownloadPDF('dark')} disabled={!!downloading}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-medium transition-all"
-                style={{background:'rgba(15,15,19,0.9)',color:'#D4AF37',border:'1px solid rgba(212,175,55,0.3)'}}>
+                style={{background:'rgba(15,15,19,0.9)',color:'#CCFF00',border:'1px solid rgba(204,255,0,0.3)'}}>
                 {downloading === 'dark' ? <Activity className="w-3 h-3 animate-spin" /> : <Moon className="w-3 h-3" />} PDF oscuro
               </button>
               {/* PDF Light */}
@@ -200,7 +200,7 @@ const SessionViewPage = () => {
                             <div className="flex items-center gap-2 mb-2">
                               <Dumbbell className="w-3.5 h-3.5 flex-shrink-0" style={{color:c.accent}} />
                               <span className="font-semibold text-[13px] truncate" style={{color:T.title}}>{act.ejercicio || 'Sin ejercicio'}</span>
-                              {act.capacidadFisica && <span className="text-[8px] px-2 py-0.5 rounded-full flex-shrink-0" style={{background: isLight ? 'rgba(77,124,15,0.1)' : 'rgba(212,175,55,0.1)',color:T.label,border:`1px solid ${isLight ? 'rgba(77,124,15,0.2)' : 'rgba(212,175,55,0.15)'}`}}>{CAP[act.capacidadFisica] || act.capacidadFisica}</span>}
+                              {act.capacidadFisica && <span className="text-[8px] px-2 py-0.5 rounded-full flex-shrink-0" style={{background: isLight ? 'rgba(77,124,15,0.1)' : 'rgba(204,255,0,0.1)',color:T.label,border:`1px solid ${isLight ? 'rgba(77,124,15,0.2)' : 'rgba(204,255,0,0.15)'}`}}>{CAP[act.capacidadFisica] || act.capacidadFisica}</span>}
                             </div>
                             {act.descripcion && <p className="text-[11px] mb-2" style={{color:T.subtle}}>{act.descripcion}</p>}
                             <div className="flex flex-wrap gap-x-4 gap-y-1">
@@ -307,7 +307,7 @@ const SessionViewPage = () => {
             <CardContent className="p-5 space-y-5">
               {(mon.fcAntesEntrenamiento || mon.fcDuranteEntrenamiento) && (() => {
                 const fcVisible = [
-                  { l:'Antes', v:mon.fcAntesEntrenamiento, c:'#D4AF37' },
+                  { l:'Antes', v:mon.fcAntesEntrenamiento, c:'#3b82f6' },
                   { l:'Durante', v:mon.fcDuranteEntrenamiento, c:'#ef4444' },
                   { l:'Después', v:mon.fcDespuesEntrenamiento, c:'#22c55e' },
                   { l:"Recup 1'", v:mon.fcRecuperacion1min, c:'#14b8a6' },
@@ -335,7 +335,7 @@ const SessionViewPage = () => {
                   <p className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{color:T.label}}>Frecuencia cardíaca general</p>
                   <div className="grid grid-cols-3 gap-3">
                     {[
-                      { l:'FC Reposo', v:mon.fcReposo, c: isLight ? '#16a34a' : '#D4AF37' },
+                      { l:'FC Reposo', v:mon.fcReposo, c: isLight ? '#16a34a' : '#CCFF00' },
                       { l:'FC Media', v:mon.fcMedia, c:'#f59e0b' },
                       { l:'FC Máxima', v:mon.fcMaxima, c:'#ef4444' }
                     ].filter(x => x.v).map((x, i) => (
@@ -354,7 +354,7 @@ const SessionViewPage = () => {
                   <div className="grid grid-cols-2 gap-3">
                     {[
                       { l:'Nivel de fatiga', v:mon.nivelFatiga, from:'#22c55e', to:'#ef4444' },
-                      { l:'Hidratación', v:mon.nivelHidratacion, from:'#ef4444', to:'#D4AF37' },
+                      { l:'Hidratación', v:mon.nivelHidratacion, from:'#ef4444', to:'#3b82f6' },
                       { l:'Calidad de sueño', v:mon.calidadSueno, from:'#6366f1', to:'#818cf8' },
                       { l:'Nivel de energía', v:mon.nivelEnergia, from:'#ef4444', to:'#22c55e' }
                     ].filter(x => x.v).map((x, i) => (
@@ -372,7 +372,7 @@ const SessionViewPage = () => {
                 </div>
               )}
               {mon.dispositivoConectado && (
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{background: isLight ? 'rgba(77,124,15,0.05)' : 'rgba(212,175,55,0.06)',border:`1px solid ${isLight ? 'rgba(77,124,15,0.15)' : 'rgba(212,175,55,0.1)'}`}}>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{background: isLight ? 'rgba(77,124,15,0.05)' : 'rgba(204,255,0,0.06)',border:`1px solid ${isLight ? 'rgba(77,124,15,0.15)' : 'rgba(204,255,0,0.1)'}`}}>
                   <Activity className="w-3.5 h-3.5" style={{color:T.accent}} />
                   <span className="text-[11px]" style={{color:T.muted}}>Dispositivo conectado: <span className="font-medium" style={{color:T.text}}>{mon.nombreDispositivo || 'Reloj inteligente'}</span></span>
                 </div>

@@ -10,8 +10,8 @@ const WeeklySummaryModal = ({ open, onOpenChange, summary }) => {
   const s = summary || {};
   const kpis = [
     { label: t('dashboard.weekly.adherence'), value: `${s.adherence ?? 0}%`, icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-    { label: t('dashboard.weekly.sessionsCompleted'), value: `${s.sessions_completed ?? 0}/${s.sessions_due ?? 0}`, icon: CheckCircle2, color: 'text-[#B8912A]', bg: 'bg-[#D4AF37]' },
-    { label: t('dashboard.weekly.acwrRisk'), value: s.athletes_acwr_risk ?? 0, icon: Gauge, color: 'text-[#B8912A]', bg: 'bg-[#D4AF37]' },
+    { label: t('dashboard.weekly.sessionsCompleted'), value: `${s.sessions_completed ?? 0}/${s.sessions_due ?? 0}`, icon: CheckCircle2, color: 'text-blue-600', bg: 'bg-blue-50' },
+    { label: t('dashboard.weekly.acwrRisk'), value: s.athletes_acwr_risk ?? 0, icon: Gauge, color: 'text-indigo-600', bg: 'bg-indigo-50' },
     { label: t('dashboard.weekly.lowAvailability'), value: s.athletes_low_readiness_streak ?? 0, icon: HeartPulse, color: 'text-rose-600', bg: 'bg-rose-50' },
   ];
 

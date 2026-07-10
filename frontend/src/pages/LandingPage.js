@@ -730,19 +730,14 @@ const LandingPage = () => {
           </div>
         </div>
       </div>
-      {/* Tagline strip — full width with animated performance wave */}
-      <div className="relative overflow-hidden bg-zinc-900/80 border-t border-zinc-800/30">
-        {/* Animated wave behind text */}
-        <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 1200 40">
-          <path d="M0 20 Q50 8,100 20 T200 20 T300 20 T400 20 T500 20 T600 20 T700 20 T800 20 T900 20 T1000 20 T1100 20 T1200 20" fill="none" stroke="#D4AF37" strokeWidth="1" opacity="0.15">
-            <animate attributeName="d" dur="3s" repeatCount="indefinite" values="M0 20 Q50 8,100 20 T200 20 T300 20 T400 20 T500 20 T600 20 T700 20 T800 20 T900 20 T1000 20 T1100 20 T1200 20;M0 20 Q50 32,100 20 T200 20 T300 20 T400 20 T500 20 T600 20 T700 20 T800 20 T900 20 T1000 20 T1100 20 T1200 20;M0 20 Q50 8,100 20 T200 20 T300 20 T400 20 T500 20 T600 20 T700 20 T800 20 T900 20 T1000 20 T1100 20 T1200 20" />
-          </path>
-          <path d="M0 20 L80 20 L90 6 L100 34 L110 12 L120 28 L130 20 L1200 20" fill="none" stroke="#D4AF37" strokeWidth="1.5" opacity="0.25" strokeLinecap="round">
-            <animateTransform attributeName="transform" type="translate" values="-200,0;1200,0" dur="4s" repeatCount="indefinite" />
-          </path>
-        </svg>
-        <div className="relative z-10 py-2.5 px-6 text-center">
-          <p className="text-[20px] md:text-[24px] font-black uppercase tracking-[0.08em] text-[#D4AF37]" style={{fontFamily:BC}}>{t('landing.hero.tagline')}</p>
+      {/* Tagline strip — divisor elegante estático (sin animación) */}
+      <div className="relative bg-zinc-900/80 border-t border-zinc-800/40">
+        <div className="py-2.5 px-6 flex items-center justify-center gap-3 md:gap-4">
+          <span className="hidden sm:block h-px w-14 md:w-28 bg-gradient-to-r from-transparent to-[#D4AF37]/45" />
+          <span className="hidden sm:block w-1.5 h-1.5 rotate-45 bg-[#D4AF37]/70" />
+          <p className="text-[12px] md:text-[14px] font-bold uppercase tracking-[0.24em] text-[#D4AF37]/90" style={{fontFamily:BC}}>{t('landing.hero.tagline')}</p>
+          <span className="hidden sm:block w-1.5 h-1.5 rotate-45 bg-[#D4AF37]/70" />
+          <span className="hidden sm:block h-px w-14 md:w-28 bg-gradient-to-l from-transparent to-[#D4AF37]/45" />
         </div>
       </div>
     </nav>

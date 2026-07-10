@@ -13,7 +13,7 @@ const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEN
 
 // Quick action buttons
 const QUICK_ACTIONS = [
-  { icon: Dumbbell, label: "Ejercicios", type: "exercise", color: "text-[#B8912A] bg-[#D4AF37]" },
+  { icon: Dumbbell, label: "Ejercicios", type: "exercise", color: "text-blue-600 bg-blue-50" },
   { icon: BarChart, label: "Cargas", type: "load", color: "text-green-600 bg-green-50" },
   { icon: Clock, label: "Progresión", type: "progression", color: "text-purple-600 bg-purple-50" },
   { icon: Heart, label: "Recuperación", type: "recovery", color: "text-red-600 bg-red-50" }
@@ -168,7 +168,7 @@ const AITrainingAssistant = ({
     // Convert **bold** to <strong>
     formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     // Convert bullet points
-    formatted = formatted.replace(/^• /gm, '<span class="text-[#B8912A] mr-1">•</span>');
+    formatted = formatted.replace(/^• /gm, '<span class="text-blue-500 mr-1">•</span>');
     // Convert newlines to <br>
     formatted = formatted.replace(/\n/g, '<br/>');
     
@@ -205,7 +205,7 @@ const AITrainingAssistant = ({
             className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {msg.type === 'user' ? (
-              <div className="max-w-[85%] bg-[#D4AF37] text-white rounded-2xl rounded-br-sm px-4 py-2 text-sm">
+              <div className="max-w-[85%] bg-blue-600 text-white rounded-2xl rounded-br-sm px-4 py-2 text-sm">
                 {msg.text}
               </div>
             ) : (
@@ -225,7 +225,7 @@ const AITrainingAssistant = ({
                         key={i}
                         variant="ghost"
                         size="sm"
-                        className="h-6 px-2 text-xs text-[#B8912A] bg-[#D4AF37] hover:bg-[#D4AF37]"
+                        className="h-6 px-2 text-xs text-blue-600 bg-blue-50 hover:bg-blue-100"
                         onClick={() => handleSendMessage(suggestion)}
                       >
                         {suggestion}
@@ -243,7 +243,7 @@ const AITrainingAssistant = ({
         {isLoading && (
           <div className="flex justify-start">
             <div className="bg-slate-100 rounded-2xl px-4 py-3 flex items-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin text-[#B8912A]" />
+              <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
               <span className="text-sm text-slate-500">Pensando...</span>
             </div>
           </div>
@@ -289,7 +289,7 @@ const AITrainingAssistant = ({
           <Button 
             onClick={() => handleSendMessage()}
             disabled={isLoading || !inputMessage.trim()}
-            className="h-10 w-10 p-0 bg-[#D4AF37] hover:bg-[#D4AF37]"
+            className="h-10 w-10 p-0 bg-blue-600 hover:bg-blue-700"
           >
             {isLoading ? (
               <Loader2 className="w-4 h-4 animate-spin" />

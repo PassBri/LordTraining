@@ -22,7 +22,7 @@ export const InfoSectionHeader = ({
   title,
   subtitle,
   icon: Icon,
-  color = '#D4AF37',
+  color = '#CCFF00',
   onRefresh,
   rightExtra,
 }) => {

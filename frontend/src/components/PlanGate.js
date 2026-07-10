@@ -16,7 +16,7 @@ const PLAN_LABELS = {
 const PLAN_COLORS = {
   free: '#94A3B8',
   starter: '#64748B',
-  basic: '#D4AF37',
+  basic: '#378ADD',
   pro: '#10B981',
   enterprise: '#EF9F27',
 };

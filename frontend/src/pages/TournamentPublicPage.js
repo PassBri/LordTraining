@@ -9,7 +9,7 @@ import {
 
 const STATUS_COLORS = {
   draft: 'bg-slate-100 text-slate-700',
-  registration: 'bg-[#D4AF37] text-[#B8912A]',
+  registration: 'bg-blue-100 text-blue-700',
   seeding: 'bg-amber-100 text-amber-700',
   in_progress: 'bg-green-100 text-green-700',
   completed: 'bg-purple-100 text-purple-700',
@@ -202,7 +202,7 @@ const TournamentPublicPage = () => {
                                 <td className="px-3 py-2 text-center">{s.goals_for}</td>
                                 <td className="px-3 py-2 text-center">{s.goals_against}</td>
                                 <td className="px-3 py-2 text-center">{s.goal_difference}</td>
-                                <td className="px-3 py-2 text-center font-bold text-[#B8912A]">{s.points}</td>
+                                <td className="px-3 py-2 text-center font-bold text-blue-600">{s.points}</td>
                               </tr>
                             ))}
                           </tbody>

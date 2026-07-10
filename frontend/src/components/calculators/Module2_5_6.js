@@ -25,12 +25,12 @@ export const Calc1RM = () => {
   const avg = formulas ? Object.values(formulas).filter(v => v != null).reduce((a, b) => a + b, 0) / Object.values(formulas).filter(v => v != null).length : null;
 
   return (
-    <CalcCard title="1RM — Repetición Máxima" subtitle="7 fórmulas científicas + promedio ponderado" icon={Dumbbell} color="#D4AF37" badge="Módulo 2" testid="calc-1rm">
+    <CalcCard title="1RM — Repetición Máxima" subtitle="7 fórmulas científicas + promedio ponderado" icon={Dumbbell} color="#3B82F6" badge="Módulo 2" testid="calc-1rm">
       <Field label="Peso levantado" value={peso} onChange={setPeso} unit="kg" testid="calc-1rm-peso" />
       <Field label="Repeticiones" value={reps} onChange={setReps} unit="reps" testid="calc-1rm-reps" />
       {formulas && (
         <>
-          <BigResult value={fmt(avg, 1)} label="1RM Promedio Ponderado" unit="kg" color="#D4AF37" sub="Recomendado para programación" />
+          <BigResult value={fmt(avg, 1)} label="1RM Promedio Ponderado" unit="kg" color="#3B82F6" sub="Recomendado para programación" />
           <div className="grid grid-cols-2 gap-2 mt-2">
             <MiniStat label="Epley" value={fmt(formulas.epley, 1, ' kg')} />
             <MiniStat label="Brzycki" value={fmt(formulas.brzycki, 1, ' kg')} />
@@ -56,7 +56,7 @@ export const CalcPercentage1RM = () => {
     { range: '80-90%', goal: 'Fuerza', reps: '3-6', color: '#EA580C' },
     { range: '70-80%', goal: 'Hipertrofia', reps: '8-12', color: '#CA8A04' },
     { range: '60-70%', goal: 'Resistencia muscular', reps: '12-15', color: '#16A34A' },
-    { range: '<60%', goal: 'Resistencia local / Recuperación', reps: '15+', color: '#D4AF37' },
+    { range: '<60%', goal: 'Resistencia local / Recuperación', reps: '15+', color: '#3B82F6' },
   ];
   return (
     <CalcCard title="% de 1RM → Zonas de entrenamiento" subtitle="Carga relativa por objetivo" icon={Target} color="#8B5CF6" badge="Módulo 2" testid="calc-percent-1rm">
@@ -106,7 +106,7 @@ export const CalcVolume = () => {
       <BigResult value={fmt(volumen, 0)} label="Volumen total (tonelaje)" unit="kg" color="#EF4444" />
       <div className="grid grid-cols-3 gap-2">
         <MiniStat label="MEV (mín)" value={`${mevMavMrv[0]} sets`} color="#16A34A" />
-        <MiniStat label="MAV (óptimo)" value={`${mevMavMrv[1]} sets`} color="#D4AF37" />
+        <MiniStat label="MAV (óptimo)" value={`${mevMavMrv[1]} sets`} color="#3B82F6" />
         <MiniStat label="MRV (máx)" value={`${mevMavMrv[2]} sets`} color="#DC2626" />
       </div>
       <p className="text-[10px] text-slate-500 italic">Sets semanales por grupo muscular · MEV: Mínimo Volumen Efectivo · MAV: Adaptación Máxima · MRV: Recuperable</p>
@@ -288,14 +288,14 @@ export const CalcIPFPoints = () => {
   const denom = C[0] - C[1] * Math.exp(-C[2] * w);
   const pts = t * 100 / denom;
   return (
-    <CalcCard title="IPF GL Points" subtitle="Goodlift Points — comparativa internacional" icon={Award} color="#D4AF37" badge="Módulo 6" testid="calc-ipf">
+    <CalcCard title="IPF GL Points" subtitle="Goodlift Points — comparativa internacional" icon={Award} color="#3B82F6" badge="Módulo 6" testid="calc-ipf">
       <Field label="Peso corporal" value={bw} onChange={setBw} unit="kg" />
       <Field label="Total" value={total} onChange={setTotal} unit="kg" />
       <Select label="Categoría" value={event} onChange={setEvent} options={[
         { value: 'classic_men', label: 'Classic Hombres' }, { value: 'classic_women', label: 'Classic Mujeres' },
         { value: 'raw_men', label: 'Raw Hombres' }, { value: 'raw_women', label: 'Raw Mujeres' }
       ]} />
-      <BigResult value={fmt(pts, 1)} label="IPF GL Points" color="#D4AF37" sub={pts > 100 ? 'Élite IPF' : pts > 80 ? 'Avanzado' : 'Intermedio'} />
+      <BigResult value={fmt(pts, 1)} label="IPF GL Points" color="#3B82F6" sub={pts > 100 ? 'Élite IPF' : pts > 80 ? 'Avanzado' : 'Intermedio'} />
     </CalcCard>
   );
 };

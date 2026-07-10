@@ -56,7 +56,7 @@ export const AthleteRanking = ({ globalContext, onOpenAthlete }) => {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className="w-9 h-9 bg-slate-900 rounded-lg flex items-center justify-center">
-            <Trophy className="w-4.5 h-4.5 text-[#D4AF37]" />
+            <Trophy className="w-4.5 h-4.5 text-[#CCFF00]" />
           </div>
           <div>
             <h3 className="text-base font-bold text-slate-900">{t('ranking.title', { defaultValue: 'Ranking del Equipo' })}</h3>

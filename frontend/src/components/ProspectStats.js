@@ -65,11 +65,11 @@ export default function ProspectStats({ prospectId, sport, onStatsChanged }) {
         {[['matches', 'Por Partido/Competencia', Calendar], ['season', 'Temporada', TrendingUp]].map(([k, l, Icon]) => (
           <button key={k} onClick={() => setTab(k)} data-testid={`stats-tab-${k}`}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition"
-            style={tab === k ? { background: '#0f172a', color: '#D4AF37' } : { background: '#f1f5f9', color: '#64748b' }}>
+            style={tab === k ? { background: '#0f172a', color: '#CCFF00' } : { background: '#f1f5f9', color: '#64748b' }}>
             <Icon className="w-3.5 h-3.5" /> {l}
           </button>
         ))}
-        <Button size="sm" onClick={() => setAddOpen(true)} className="ml-auto bg-[#D4AF37] text-slate-900 hover:bg-[#b8e600] font-bold" data-testid="stats-add-btn"><Plus className="w-4 h-4 mr-1" />Registrar</Button>
+        <Button size="sm" onClick={() => setAddOpen(true)} className="ml-auto bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] font-bold" data-testid="stats-add-btn"><Plus className="w-4 h-4 mr-1" />Registrar</Button>
       </div>
 
       {tab === 'matches' && (
@@ -133,10 +133,10 @@ function SeasonView({ agg, labelMap }) {
       {/* Best performance */}
       {best && (
         <div className="rounded-xl p-4 flex items-center gap-3" style={{ background: 'linear-gradient(120deg,#0f172a,#13203a)' }}>
-          <Trophy className="w-8 h-8 text-[#D4AF37]" />
+          <Trophy className="w-8 h-8 text-[#CCFF00]" />
           <div>
             <div className="text-[10px] uppercase text-slate-400 font-bold">Mejor actuación</div>
-            <div className="text-white font-black">{best.opponent || best.competition || best.date} · {labelMap[agg.primary] || agg.primary}: <span className="text-[#D4AF37]">{best.metrics?.[agg.primary]}</span></div>
+            <div className="text-white font-black">{best.opponent || best.competition || best.date} · {labelMap[agg.primary] || agg.primary}: <span className="text-[#CCFF00]">{best.metrics?.[agg.primary]}</span></div>
             <div className="text-[11px] text-slate-400">{best.date} {best.competition ? `· ${best.competition}` : ''}</div>
           </div>
         </div>
@@ -156,7 +156,7 @@ function SeasonView({ agg, labelMap }) {
             <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#94a3b8' }} />
             <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} />
             <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12 }} />
-            <Line type="monotone" dataKey={chartKey} stroke="#0f172a" strokeWidth={2.5} dot={{ r: 4, fill: '#D4AF37', stroke: '#0f172a', strokeWidth: 2 }} />
+            <Line type="monotone" dataKey={chartKey} stroke="#0f172a" strokeWidth={2.5} dot={{ r: 4, fill: '#CCFF00', stroke: '#0f172a', strokeWidth: 2 }} />
           </LineChart>
         </ResponsiveContainer>
       </div>

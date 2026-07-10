@@ -20,14 +20,14 @@ const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEN
 
 const ENTITY_CONFIG = {
   federation: { icon: Landmark, color: '#F59E0B', label: 'Federación', emoji: '🏛️' },
-  club: { icon: Building2, color: '#D4AF37', label: 'Club', emoji: '🏢' },
+  club: { icon: Building2, color: '#3B82F6', label: 'Club', emoji: '🏢' },
   school: { icon: School, color: '#10B981', label: 'Escuela', emoji: '🏫' },
   national_team: { icon: null, color: '#EF4444', label: 'Selección', emoji: '🇺🇳' },
   team: { icon: null, color: '#8B5CF6', label: 'Equipo', emoji: '⚽' },
   league: { icon: Trophy, color: '#F97316', label: 'Liga', emoji: '🏆' }
 };
 
-const COLORS = ['#D4AF37', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316'];
+const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316'];
 
 const EntityDashboard = ({ onNavigate }) => {
   useTranslation();
@@ -150,7 +150,7 @@ const EntityDashboard = ({ onNavigate }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-[#B8912A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
         <span className="ml-2 text-slate-500">{tt('Cargando dashboard...')}</span>
       </div>
     );
@@ -211,13 +211,13 @@ const EntityDashboard = ({ onNavigate }) => {
       {selectedEntity ? (
         // Entity Detail View
         <Card className="border-0 shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-[#D4AF37] to-purple-600 text-white">
+          <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="text-3xl">{selectedEntity.config.emoji}</span>
                 <div>
                   <CardTitle className="text-xl">{selectedEntity.name}</CardTitle>
-                  <p className="text-[#B8912A]">{selectedEntity.config.label} • {selectedEntity.city}, {selectedEntity.country}</p>
+                  <p className="text-indigo-100">{selectedEntity.config.label} • {selectedEntity.city}, {selectedEntity.country}</p>
                 </div>
               </div>
               <Button variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20" onClick={() => setSelectedEntityId(null)}>
@@ -238,8 +238,8 @@ const EntityDashboard = ({ onNavigate }) => {
                     {selectedEntity.athletes.map(athlete => (
                       <div key={athlete.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-[#D4AF37] rounded-full flex items-center justify-center">
-                            <span className="text-[#B8912A] font-bold">{athlete.name?.charAt(0)}</span>
+                          <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                            <span className="text-indigo-600 font-bold">{athlete.name?.charAt(0)}</span>
                           </div>
                           <div>
                             <p className="font-medium text-slate-800">{athlete.name}</p>
@@ -265,13 +265,13 @@ const EntityDashboard = ({ onNavigate }) => {
 
               {/* Quick Stats */}
               <div className="space-y-4">
-                <Card className="bg-gradient-to-br from-[#D4AF37] to-[#D4AF37] border-[#B8912A]">
+                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
                   <CardContent className="p-4">
-                    <div className="text-[#B8912A] mb-2">
+                    <div className="text-blue-600 mb-2">
                       <Activity className="w-5 h-5" />
                     </div>
-                    <p className="text-3xl font-bold text-[#B8912A]">{selectedEntity.athleteCount}</p>
-                    <p className="text-sm text-[#B8912A]">{tt('Atletas totales')}</p>
+                    <p className="text-3xl font-bold text-blue-800">{selectedEntity.athleteCount}</p>
+                    <p className="text-sm text-blue-600">{tt('Atletas totales')}</p>
                   </CardContent>
                 </Card>
                 
@@ -309,7 +309,7 @@ const EntityDashboard = ({ onNavigate }) => {
           <Card className="border-0 shadow-md">
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <Users className="w-5 h-5 text-[#B8912A]" />
+                <Users className="w-5 h-5 text-indigo-500" />
                 Distribución de Atletas por Entidad
               </CardTitle>
             </CardHeader>
@@ -370,7 +370,7 @@ const EntityDashboard = ({ onNavigate }) => {
                   <YAxis tick={{ fontSize: 11 }} />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="sesiones" name="Sesiones" fill="#D4AF37" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="sesiones" name="Sesiones" fill="#3B82F6" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="evaluaciones" name="Evaluaciones" fill="#10B981" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -453,11 +453,11 @@ const EntityDashboard = ({ onNavigate }) => {
                   </div>
                 )}
 
-                <div className="flex items-start gap-3 p-3 bg-[#D4AF37] rounded-lg border border-[#B8912A]">
-                  <Activity className="w-5 h-5 text-[#B8912A] mt-0.5" />
+                <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                  <Activity className="w-5 h-5 text-blue-500 mt-0.5" />
                   <div>
-                    <p className="font-medium text-[#B8912A]">{tt('Recomendación de carga')}</p>
-                    <p className="text-sm text-[#B8912A]">
+                    <p className="font-medium text-blue-800">{tt('Recomendación de carga')}</p>
+                    <p className="text-sm text-blue-600">
                       Basado en el calendario, considera ajustar la intensidad esta semana
                     </p>
                   </div>

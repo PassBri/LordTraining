@@ -198,10 +198,10 @@ const AthleteCharacterization = ({ athleteId, onSave }) => {
 
   const getColorClasses = (color) => {
     const colors = {
-      blue: 'text-[#B8912A] bg-[#D4AF37]',
+      blue: 'text-blue-600 bg-blue-50',
       purple: 'text-purple-600 bg-purple-50',
       red: 'text-red-600 bg-red-50',
-      indigo: 'text-[#B8912A] bg-[#D4AF37]',
+      indigo: 'text-indigo-600 bg-indigo-50',
       teal: 'text-teal-600 bg-teal-50',
       green: 'text-green-600 bg-green-50',
       amber: 'text-amber-600 bg-amber-50',
@@ -215,7 +215,7 @@ const AthleteCharacterization = ({ athleteId, onSave }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[#B8912A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
     );
   }
@@ -223,7 +223,7 @@ const AthleteCharacterization = ({ athleteId, onSave }) => {
   return (
     <div className="p-6 space-y-6 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#D4AF37] to-[#D4AF37] text-white p-6 rounded-xl shadow-lg">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 rounded-xl shadow-lg">
         <h1 className="text-2xl font-bold mb-2">{tt('Caracterización del Deportista')}</h1>
         <p className="opacity-90 text-sm">
           Diagnóstico completo de las condiciones del deportista para la planificación
@@ -252,7 +252,7 @@ const AthleteCharacterization = ({ athleteId, onSave }) => {
                       value={formData[field.name]}
                       onChange={(e) => handleInputChange(field.name, e.target.value)}
                       placeholder={field.placeholder}
-                      className="border-gray-200 focus:border-[#B8912A]"
+                      className="border-gray-200 focus:border-blue-500"
                       data-testid={`athlete-${field.name}`}
                     />
                   ) : (
@@ -260,7 +260,7 @@ const AthleteCharacterization = ({ athleteId, onSave }) => {
                       value={formData[field.name]}
                       onChange={(e) => handleInputChange(field.name, e.target.value)}
                       placeholder={field.placeholder}
-                      className="min-h-[100px] resize-y border-gray-200 focus:border-[#B8912A]"
+                      className="min-h-[100px] resize-y border-gray-200 focus:border-blue-500"
                       data-testid={`athlete-${field.name}`}
                     />
                   )}
@@ -276,7 +276,7 @@ const AthleteCharacterization = ({ athleteId, onSave }) => {
         <Button 
           onClick={handleSave}
           disabled={saving}
-          className="bg-[#D4AF37] hover:bg-[#D4AF37] text-white px-8 py-2 shadow-lg"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 shadow-lg"
           data-testid="save-athlete-char-btn"
         >
           {saving ? (

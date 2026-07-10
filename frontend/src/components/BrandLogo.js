@@ -33,7 +33,7 @@ const BrandLogo = ({
 
   const isDark = theme === 'dark'; // fondo claro
   const textColor = isDark ? '#0f172a' : '#ffffff';
-  const accent = '#D4AF37';
+  const accent = '#B8912A';
 
   // Shield variant — only the heraldic shield image (no extra text)
   if (variant === 'shield') {

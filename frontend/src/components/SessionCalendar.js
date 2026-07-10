@@ -11,7 +11,7 @@ const CAP_COLORS = {
   fuerza: '#F97316',
   resistencia: '#EF4444',
   velocidad: '#EAB308',
-  flexibilidad: '#D4AF37',
+  flexibilidad: '#3B82F6',
   coordinacion: '#10B981',
   tecnica: '#8B5CF6',
   tactica: '#EC4899',
@@ -82,7 +82,7 @@ const SessionCalendar = ({ activePlan, events = [], selectedAthleteId = null, on
     if (t.includes('competen')) return ev.priority === 'A' ? '#EF4444' : '#F59E0B';
     if (t.includes('evalua') || t.includes('monitor')) return '#06B6D4';
     if (t.includes('recuper')) return '#8B5CF6';
-    return '#D4AF37';
+    return '#3B82F6';
   };
   const eventsByDay = useMemo(() => {
     const map = {};
@@ -262,7 +262,7 @@ const SessionCalendar = ({ activePlan, events = [], selectedAthleteId = null, on
   return (
     <div className="min-h-full bg-[#fafaf8] pb-12">
       {/* MD3 Hero */}
-      <div className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #312E81 100%)' }}>
+      <div className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1E3A8A 0%, #312E81 100%)' }}>
         <div className="absolute inset-0 opacity-10" style={{
           backgroundImage: 'radial-gradient(circle at 30% 50%, rgba(255,255,255,0.3) 1px, transparent 1px)',
           backgroundSize: '28px 28px'
@@ -282,7 +282,7 @@ const SessionCalendar = ({ activePlan, events = [], selectedAthleteId = null, on
               <Button onClick={goPrev} variant="ghost" size="sm" className="rounded-full h-10 w-10 p-0 bg-white/10 hover:bg-white/20 text-white border border-white/20" data-testid="cal-prev-btn">
                 <ChevronLeft className="w-5 h-5" />
               </Button>
-              <Button onClick={goToday} variant="ghost" className="rounded-full h-10 px-4 bg-white text-[#B8912A] hover:bg-white/90 text-[12px] font-bold tracking-wider uppercase" data-testid="cal-today-btn">
+              <Button onClick={goToday} variant="ghost" className="rounded-full h-10 px-4 bg-white text-indigo-900 hover:bg-white/90 text-[12px] font-bold tracking-wider uppercase" data-testid="cal-today-btn">
                 {t('sessionCalendar.today')}
               </Button>
               <Button onClick={goNext} variant="ghost" size="sm" className="rounded-full h-10 w-10 p-0 bg-white/10 hover:bg-white/20 text-white border border-white/20" data-testid="cal-next-btn">
@@ -339,14 +339,14 @@ const SessionCalendar = ({ activePlan, events = [], selectedAthleteId = null, on
                   onDrop={(e) => handleDrop(e, dateStr)}
                   onClick={() => cellSessions.length > 0 && setSelectedDay({ date: cell.date, sessions: cellSessions })}
                   className={`min-h-[112px] border-r border-b border-slate-100 p-1.5 flex flex-col gap-1 cursor-pointer transition-all duration-200 ${
-                    !cell.isCurrentMonth ? 'bg-slate-50/40 opacity-40' : 'hover:bg-[#D4AF37]/30'
-                  } ${isHovering && (draggedSession || draggedEvent) ? 'bg-[#D4AF37] ring-2 ring-inset ring-[#B8912A]' : ''}`}
+                    !cell.isCurrentMonth ? 'bg-slate-50/40 opacity-40' : 'hover:bg-blue-50/30'
+                  } ${isHovering && (draggedSession || draggedEvent) ? 'bg-blue-100 ring-2 ring-inset ring-blue-400' : ''}`}
                   data-testid={`day-cell-${dateStr}`}
                 >
                   <div className={`flex items-center justify-between text-[11px] font-semibold mb-0.5 ${
-                    isToday ? 'text-[#B8912A]' : 'text-slate-700'
+                    isToday ? 'text-blue-700' : 'text-slate-700'
                   }`}>
-                    <span className={isToday ? 'inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#D4AF37] text-white font-bold text-[11px]' : ''}>
+                    <span className={isToday ? 'inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-white font-bold text-[11px]' : ''}>
                       {cell.date.getDate()}
                     </span>
                     {cellSessions.length > 0 && (
@@ -438,7 +438,7 @@ const SessionCalendar = ({ activePlan, events = [], selectedAthleteId = null, on
         <DialogContent className="max-w-md bg-white" data-testid="day-detail-modal">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <CalendarDays className="w-5 h-5 text-[#B8912A]" />
+              <CalendarDays className="w-5 h-5 text-blue-600" />
               {selectedDay && selectedDay.date.toLocaleDateString(i18n.language, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </DialogTitle>
           </DialogHeader>
@@ -468,12 +468,12 @@ const SessionCalendar = ({ activePlan, events = [], selectedAthleteId = null, on
                         </span>
                       )}
                       {meso && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#D4AF37] text-[#B8912A] font-semibold uppercase tracking-wider">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-semibold uppercase tracking-wider">
                           {meso.tipo || meso.nombre || `Meso ${meso.numero}`}
                         </span>
                       )}
                       {micro && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#D4AF37] text-[#B8912A] font-semibold uppercase tracking-wider">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-semibold uppercase tracking-wider">
                           {t('sessionCalendar.week')} {micro.numero_semana} · {micro.tipo || 'choque'}
                         </span>
                       )}
@@ -508,7 +508,7 @@ const SessionCalendar = ({ activePlan, events = [], selectedAthleteId = null, on
                     onClick={() => { setSelectedDay(null); window.dispatchEvent(new CustomEvent('navigate-periodization', { detail: { sessionId: s.id, microId: micro?.id } })); }}
                     variant="ghost"
                     size="sm"
-                    className="mt-3 w-full text-[11px] text-[#B8912A] hover:bg-[#D4AF37] h-8"
+                    className="mt-3 w-full text-[11px] text-blue-700 hover:bg-blue-50 h-8"
                     data-testid={`open-in-periodization-${s.id}`}
                   >
                     <Activity className="w-3 h-3 mr-1.5" /> {t('sessionCalendar.openInPeriodization')} →

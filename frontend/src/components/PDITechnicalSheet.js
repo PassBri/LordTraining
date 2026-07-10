@@ -43,15 +43,15 @@ const PDITechnicalSheet = () => {
       {/* HERO HEADER */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-6 md:p-8">
         <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[#D4AF37]/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#D4AF37]/20 rounded-full blur-3xl" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[#CCFF00]/20 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl" />
         </div>
         <div className="relative flex items-start gap-5 flex-wrap">
-          <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-[#D4AF37] flex items-center justify-center shadow-2xl shadow-[#D4AF37]/40 flex-shrink-0">
+          <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-[#CCFF00] flex items-center justify-center shadow-2xl shadow-[#CCFF00]/40 flex-shrink-0">
             <Brain className="w-10 h-10 md:w-12 md:h-12 text-slate-900" />
           </div>
           <div className="flex-1 min-w-[280px]">
-            <div className="inline-block px-2 py-0.5 rounded-full bg-[#D4AF37]/20 border border-[#D4AF37]/30 text-[10px] font-bold text-[#D4AF37] uppercase tracking-wider mb-2">
+            <div className="inline-block px-2 py-0.5 rounded-full bg-[#CCFF00]/20 border border-[#CCFF00]/30 text-[10px] font-bold text-[#CCFF00] uppercase tracking-wider mb-2">
               Modelo exclusivo LordTraining
             </div>
             <h1 className="text-2xl md:text-4xl font-black tracking-tight leading-none mb-2">
@@ -68,7 +68,7 @@ const PDITechnicalSheet = () => {
           <Button
             onClick={downloadWhitepaper}
             disabled={downloading}
-            className="bg-[#D4AF37] text-slate-900 hover:bg-[#b8e600] font-bold gap-2 shadow-lg"
+            className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] font-bold gap-2 shadow-lg"
             data-testid="pdi-download-whitepaper-btn"
           >
             {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
@@ -108,13 +108,13 @@ const PDITechnicalSheet = () => {
 // ======================= OVERVIEW TAB =======================
 const OverviewTab = () => {
   const principles = [
-    { title: 'PAI · Perfil Adaptativo Individual', desc: 'Representación digital de cada atleta: tipo adaptativo, umbrales MEV/MAV/MRV, historial de lesiones, RPE/HRV diario, carga acumulada.', icon: User, color: '#D4AF37' },
+    { title: 'PAI · Perfil Adaptativo Individual', desc: 'Representación digital de cada atleta: tipo adaptativo, umbrales MEV/MAV/MRV, historial de lesiones, RPE/HRV diario, carga acumulada.', icon: User, color: '#3B82F6' },
     { title: 'CSE · Coherencia de Sistema de Equipo', desc: 'El equipo como sistema emergente: modelo de juego, picos colectivos, calendario de competiciones, dinámica grupal.', icon: Users, color: '#8B5CF6' },
-    { title: 'Motor de Convergencia', desc: 'Algoritmo que procesa la capa colectiva + individual y genera el CIA (Contenido Individual Adaptado) ajustado en tiempo real.', icon: Cpu, color: '#D4AF37' },
+    { title: 'Motor de Convergencia', desc: 'Algoritmo que procesa la capa colectiva + individual y genera el CIA (Contenido Individual Adaptado) ajustado en tiempo real.', icon: Cpu, color: '#CCFF00' },
   ];
 
   const phases = [
-    { name: 'Fase de Inducción Adaptativa', duration: '4-6 sem', vol: 90, int: 55, color: '#D4AF37' },
+    { name: 'Fase de Inducción Adaptativa', duration: '4-6 sem', vol: 90, int: 55, color: '#3B82F6' },
     { name: 'Fase de Carga Progresiva', duration: '3-5 sem', vol: 70, int: 80, color: '#8B5CF6' },
     { name: 'Fase de Pico de Rendimiento', duration: '2-4 sem', vol: 45, int: 95, color: '#10B981' },
     { name: 'Fase de Sostenimiento Adaptativo', duration: 'Temporada', vol: 55, int: 78, color: '#F59E0B' },
@@ -126,7 +126,7 @@ const OverviewTab = () => {
       {/* Philosophy */}
       <section className="bg-white border rounded-xl p-6">
         <h2 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
-          <Target className="w-5 h-5 text-[#D4AF37] fill-[#D4AF37]" /> Principio de Tensión Productiva
+          <Target className="w-5 h-5 text-[#CCFF00] fill-[#CCFF00]" /> Principio de Tensión Productiva
         </h2>
         <p className="text-sm text-slate-600 leading-relaxed mb-3">
           El entrenamiento óptimo en deportes de equipo <strong>no surge</strong> de maximizar solo al individuo
@@ -231,7 +231,7 @@ const ArchitectureTab = () => {
   return (
     <div className="space-y-6">
       <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 md:p-10 text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_50%_50%,_#D4AF37_0%,_transparent_70%)]" />
+        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_50%_50%,_#CCFF00_0%,_transparent_70%)]" />
 
         <h2 className="text-xl md:text-2xl font-black mb-1 text-center relative z-10">Arquitectura de 3 capas</h2>
         <p className="text-xs text-white/50 text-center mb-8 relative z-10">Pasa el cursor sobre cada capa para explorar</p>
@@ -260,7 +260,7 @@ const ArchitectureTab = () => {
             label="MOTOR DE CONVERGENCIA"
             subtitle="Algoritmo en tiempo real: ZTI · PDP · RP"
             icon={Cpu}
-            color="#D4AF37"
+            color="#CCFF00"
             index={1}
             hovered={hovered}
             setHovered={setHovered}
@@ -278,7 +278,7 @@ const ArchitectureTab = () => {
             label="CAPA INDIVIDUAL (PAI)"
             subtitle="5 tipos adaptativos · MEV/MAV/MRV · Historial"
             icon={User}
-            color="#D4AF37"
+            color="#3B82F6"
             index={2}
             hovered={hovered}
             setHovered={setHovered}
@@ -296,7 +296,7 @@ const ArchitectureTab = () => {
       <div className="grid md:grid-cols-2 gap-4">
         <div className="bg-white border rounded-xl p-5">
           <h3 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
-            <ArrowRight className="w-4 h-4 text-[#D4AF37]" /> Flujo Top-Down
+            <ArrowRight className="w-4 h-4 text-[#CCFF00]" /> Flujo Top-Down
           </h3>
           <ol className="space-y-2 text-xs text-slate-600">
             <li><span className="font-bold text-slate-900">1.</span> El coach define el Macrociclo Colectivo (calendario + competiciones + picos).</li>
@@ -306,7 +306,7 @@ const ArchitectureTab = () => {
         </div>
         <div className="bg-white border rounded-xl p-5">
           <h3 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
-            <ArrowRight className="w-4 h-4 text-[#B8912A] rotate-180" /> Flujo Bottom-Up
+            <ArrowRight className="w-4 h-4 text-blue-500 rotate-180" /> Flujo Bottom-Up
           </h3>
           <ol className="space-y-2 text-xs text-slate-600">
             <li><span className="font-bold text-slate-900">1.</span> El atleta reporta RPE matinal + HRV cada día.</li>
@@ -373,9 +373,9 @@ const Layer3D = ({ label, subtitle, icon: Icon, color, index, hovered, setHovere
 const Connector = ({ direction }) => (
   <div className="py-2 flex justify-center">
     <div className="flex flex-col items-center gap-0.5">
-      <div className="w-0.5 h-6 bg-gradient-to-b from-white/5 via-[#D4AF37]/40 to-white/5" />
+      <div className="w-0.5 h-6 bg-gradient-to-b from-white/5 via-[#CCFF00]/40 to-white/5" />
       <div className="text-[9px] text-white/30 tabular-nums">{direction === 'down' ? '▼ ajusta' : '▲ reporta'}</div>
-      <div className="w-0.5 h-6 bg-gradient-to-b from-white/5 via-[#D4AF37]/40 to-white/5" />
+      <div className="w-0.5 h-6 bg-gradient-to-b from-white/5 via-[#CCFF00]/40 to-white/5" />
     </div>
   </div>
 );
@@ -501,7 +501,7 @@ const SimulatorTab = () => {
       {/* INPUTS - left 2 cols */}
       <div className="lg:col-span-2 space-y-4">
         <h2 className="font-bold text-slate-900 flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-[#D4AF37]" /> Inputs del atleta
+          <Sparkles className="w-5 h-5 text-[#CCFF00]" /> Inputs del atleta
         </h2>
 
         <div className="bg-white border rounded-xl p-5 space-y-5">
@@ -599,7 +599,7 @@ const SimulatorTab = () => {
             title="Volumen"
             mc={result.mc.vol}
             cia={result.vol}
-            color="#D4AF37"
+            color="#3B82F6"
             testid="pdi-sim-vol-out"
           />
           <ComparisonCard
@@ -622,7 +622,7 @@ const SimulatorTab = () => {
             <ul className="space-y-1.5 text-xs text-slate-700" data-testid="pdi-sim-reasons">
               {result.reasons.map((r, i) => (
                 <li key={i} className="flex gap-2">
-                  <span className="text-[#D4AF37]">▸</span>{r}
+                  <span className="text-[#CCFF00]">▸</span>{r}
                 </li>
               ))}
             </ul>
@@ -630,7 +630,7 @@ const SimulatorTab = () => {
         </div>
 
         <div className="bg-slate-900 text-white rounded-xl p-4 text-[11px] flex items-start gap-2">
-          <Shield className="w-4 h-4 text-[#D4AF37] flex-shrink-0 mt-0.5" />
+          <Shield className="w-4 h-4 text-[#CCFF00] flex-shrink-0 mt-0.5" />
           <p className="text-white/70">
             Este simulador refleja la lógica del Motor de Convergencia (ZTI + PDP + RP). La implementación completa en
             producción integra GPS, historial de lesiones, HRV continuo y modelos ML de predicción de lesión.

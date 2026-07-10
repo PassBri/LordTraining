@@ -22,14 +22,14 @@ export default function PublicScoutingProfile() {
       .catch(() => setState('error'));
   }, [shareId]);
 
-  if (state === 'loading') return <Center><Loader2 className="w-8 h-8 animate-spin text-[#D4AF37]" /></Center>;
+  if (state === 'loading') return <Center><Loader2 className="w-8 h-8 animate-spin text-[#CCFF00]" /></Center>;
   if (state === 'error') return (
     <Center>
       <div className="text-center">
         <Target className="w-12 h-12 text-slate-600 mx-auto mb-3" />
         <h1 className="text-white text-xl font-black">Ficha no disponible</h1>
         <p className="text-slate-400 text-sm mt-1">Este enlace fue desactivado o no existe.</p>
-        <Link to="/" className="inline-block mt-4 text-[#D4AF37] font-bold text-sm">Ir a LordTraining →</Link>
+        <Link to="/" className="inline-block mt-4 text-[#CCFF00] font-bold text-sm">Ir a LordTraining →</Link>
       </div>
     </Center>
   );
@@ -56,12 +56,12 @@ export default function PublicScoutingProfile() {
         {/* Top bar */}
         <div className="flex items-center justify-between mb-5">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#D4AF37] flex items-center justify-center"><Target className="w-5 h-5 text-slate-900" strokeWidth={2.5} /></div>
-            <span className="text-white font-black tracking-tight">Lord<span className="text-[#D4AF37]">Training</span></span>
+            <div className="w-8 h-8 rounded-lg bg-[#CCFF00] flex items-center justify-center"><Target className="w-5 h-5 text-slate-900" strokeWidth={2.5} /></div>
+            <span className="text-white font-black tracking-tight">Lord<span className="text-[#CCFF00]">Training</span></span>
           </Link>
           <div className="flex items-center gap-2">
             <button onClick={() => downloadPdf('dark')} disabled={dl} data-testid="public-pdf-dark-btn"
-              className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-[#D4AF37] text-sm font-bold px-3 py-2 rounded-full border border-white/20 transition disabled:opacity-60">
+              className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-[#CCFF00] text-sm font-bold px-3 py-2 rounded-full border border-white/20 transition disabled:opacity-60">
               {dl ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />} PDF Oscuro
             </button>
             <button onClick={() => downloadPdf('light')} disabled={dl} data-testid="public-pdf-light-btn"
@@ -74,15 +74,15 @@ export default function PublicScoutingProfile() {
         {/* Hero card */}
         <div className="rounded-3xl overflow-hidden border border-white/10" style={{ background: 'linear-gradient(160deg,#0f172a,#13203a 60%,#0b1220)', boxShadow: '0 30px 70px -20px rgba(0,0,0,.7)' }} data-testid="public-profile">
           <div className="p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-center sm:items-start">
-            <div className="w-36 h-44 rounded-2xl overflow-hidden border-2 border-[#D4AF37] shrink-0 bg-slate-800">
+            <div className="w-36 h-44 rounded-2xl overflow-hidden border-2 border-[#CCFF00] shrink-0 bg-slate-800">
               {p.has_photo
                 ? <img src={`${API_URL}/api/recruiting/public/${shareId}/photo`} alt={p.name} className="w-full h-full object-cover" />
                 : <div className="w-full h-full flex items-center justify-center text-5xl font-black text-slate-600">{(p.name || '?').slice(0, 1)}</div>}
             </div>
             <div className="flex-1 text-center sm:text-left">
-              <div className="text-[10px] font-black uppercase tracking-[2px] text-[#D4AF37] mb-1">Scouting Report</div>
+              <div className="text-[10px] font-black uppercase tracking-[2px] text-[#CCFF00] mb-1">Scouting Report</div>
               <h1 className="text-white text-4xl font-black leading-none" style={{ fontFamily: "'DM Sans',sans-serif" }}>{p.name}</h1>
-              <div className="text-[#D4AF37] font-bold mt-2">{p.position || '—'} · {p.sport_name || p.sport}</div>
+              <div className="text-[#CCFF00] font-bold mt-2">{p.position || '—'} · {p.sport_name || p.sport}</div>
               <div className="text-slate-300 text-sm mt-3 flex flex-wrap gap-x-4 gap-y-1 justify-center sm:justify-start">
                 {p.current_club && <span>🏟 {p.current_club}</span>}
                 {p.age && <span>🎂 {p.age} años</span>}
@@ -126,7 +126,7 @@ export default function PublicScoutingProfile() {
                   {Object.entries(p.key_stats).map(([k, v]) => (
                     <div key={k} className="bg-black/30 rounded-xl p-2.5 text-center border border-white/5">
                       <div className="text-[8px] text-slate-400 uppercase tracking-wide">{k}</div>
-                      <div className="text-[#D4AF37] font-black text-lg">{v}</div>
+                      <div className="text-[#CCFF00] font-black text-lg">{v}</div>
                     </div>
                   ))}
                 </div>
@@ -153,13 +153,13 @@ export default function PublicScoutingProfile() {
                   const training = p.video_links.filter(v => v.type === 'training');
                   return (<div className="space-y-3">
                     {playing.length > 0 && <div><div className="text-[10px] font-bold text-emerald-400 uppercase mb-1.5">Jugando</div><VideoGallery videos={playing} dark /></div>}
-                    {training.length > 0 && <div><div className="text-[10px] font-bold text-[#B8912A] uppercase mb-1.5">Entrenando</div><VideoGallery videos={training} dark /></div>}
+                    {training.length > 0 && <div><div className="text-[10px] font-bold text-sky-400 uppercase mb-1.5">Entrenando</div><VideoGallery videos={training} dark /></div>}
                   </div>);
                 })()}
               </>)}
               {(p.market_value != null || (p.sponsorships || []).length > 0) && (<>
                 <H className="mt-4">Valor & Patrocinios</H>
-                {p.market_value != null && <div className="text-2xl font-black text-[#D4AF37]">{p.market_currency || 'USD'} {Number(p.market_value).toLocaleString()}</div>}
+                {p.market_value != null && <div className="text-2xl font-black text-[#CCFF00]">{p.market_currency || 'USD'} {Number(p.market_value).toLocaleString()}</div>}
                 {(p.sponsorships || []).length > 0 && <div className="flex flex-wrap gap-1.5 mt-1">{p.sponsorships.map((s, i) => <span key={i} className="text-[11px] bg-white/10 rounded-full px-2.5 py-1 text-slate-200">{s.name}</span>)}</div>}
               </>)}
               {(p.transfers || []).length > 0 && (<>
@@ -174,7 +174,7 @@ export default function PublicScoutingProfile() {
               {p.achievements?.length > 0 && (<>
                 <H className="mt-4">Logros</H>
                 <ul className="space-y-1.5">
-                  {p.achievements.map((a, i) => <li key={i} className="flex items-start gap-2 text-sm text-slate-300"><Award className="w-4 h-4 text-[#D4AF37] mt-0.5 shrink-0" />{a}</li>)}
+                  {p.achievements.map((a, i) => <li key={i} className="flex items-start gap-2 text-sm text-slate-300"><Award className="w-4 h-4 text-[#CCFF00] mt-0.5 shrink-0" />{a}</li>)}
                 </ul>
               </>)}
             </div>
@@ -190,12 +190,12 @@ export default function PublicScoutingProfile() {
         </div>
 
         {/* Viral CTA */}
-        <div className="mt-6 rounded-2xl border border-[#D4AF37]/30 bg-[#D4AF37]/5 p-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="mt-6 rounded-2xl border border-[#CCFF00]/30 bg-[#CCFF00]/5 p-5 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-center sm:text-left">
             <div className="text-white font-black">¿Eres entrenador o club?</div>
             <div className="text-slate-400 text-sm">Crea fichas de scouting profesionales como esta con LordTraining.</div>
           </div>
-          <Link to="/auth" data-testid="public-cta-btn" className="flex items-center gap-2 bg-[#D4AF37] text-slate-900 font-black px-5 py-2.5 rounded-full hover:bg-[#b8e600] transition shrink-0">
+          <Link to="/auth" data-testid="public-cta-btn" className="flex items-center gap-2 bg-[#CCFF00] text-slate-900 font-black px-5 py-2.5 rounded-full hover:bg-[#b8e600] transition shrink-0">
             Empezar gratis <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -206,7 +206,7 @@ export default function PublicScoutingProfile() {
 }
 
 const Center = ({ children }) => <div className="min-h-screen flex items-center justify-center" style={{ background: '#0b1220' }}>{children}</div>;
-const H = ({ children, className = '' }) => <div className={`text-[11px] font-black uppercase tracking-wide text-[#D4AF37] mb-3 ${className}`}>{children}</div>;
+const H = ({ children, className = '' }) => <div className={`text-[11px] font-black uppercase tracking-wide text-[#CCFF00] mb-3 ${className}`}>{children}</div>;
 const Block = ({ title, color, items }) => (
   <div className="mt-3">
     <div className="text-[10px] uppercase text-slate-400 font-bold mb-1">{title}</div>

@@ -336,7 +336,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
       >
         <DialogHeader className="px-6 pt-5 pb-4 border-b border-slate-200 bg-gradient-to-r from-slate-900 to-slate-800">
           <DialogTitle className="flex items-center gap-3 text-white">
-            <div className="w-10 h-10 rounded-xl bg-[#D4AF37] flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 rounded-xl bg-[#CCFF00] flex items-center justify-center shadow-lg">
               <FileBarChart2 className="w-5 h-5 text-slate-900" />
             </div>
             <div className="flex-1">
@@ -359,7 +359,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
                 onClick={() => setActiveTab(t.id)}
                 data-testid={`mr-tab-${t.id}`}
                 className={`px-3 h-7 text-[11px] font-bold uppercase tracking-wider rounded-md transition ${
-                  activeTab === t.id ? 'bg-[#D4AF37] text-slate-900' : 'text-slate-300 hover:text-white'
+                  activeTab === t.id ? 'bg-[#CCFF00] text-slate-900' : 'text-slate-300 hover:text-white'
                 }`}>{tt(t.label)}</button>
             ))}
           </div>
@@ -648,7 +648,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
                 <h3 className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
                   Secciones a incluir
                 </h3>
-                <span className="text-[11px] text-slate-600 bg-[#D4AF37] px-2 py-0.5 rounded-full font-bold">
+                <span className="text-[11px] text-slate-600 bg-[#CCFF00] px-2 py-0.5 rounded-full font-bold">
                   {totalSelected} seleccionadas
                 </span>
               </div>
@@ -814,7 +814,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
                 onClick={() => handleShare('link')}
                 disabled={generating || previewing || sharing}
                 data-testid="mr-share-link-btn"
-                className="h-9 border-[#B8912A] text-[#B8912A] hover:bg-[#D4AF37]"
+                className="h-9 border-sky-300 text-sky-700 hover:bg-sky-50"
                 title={tt('Copiar enlace público del reporte')}>
                 {sharing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <LinkIcon className="w-3.5 h-3.5" />}
                 <span className="ml-1.5 hidden sm:inline">{tt('Enlace')}</span>
@@ -854,7 +854,7 @@ export default function MasterReportModal({ open, onOpenChange, plan, athleteNam
                 size="sm"
                 onClick={handleGenerate}
                 disabled={generating}
-                className="h-9 text-xs bg-slate-900 hover:bg-slate-800 text-[#D4AF37] font-bold px-4"
+                className="h-9 text-xs bg-slate-900 hover:bg-slate-800 text-[#CCFF00] font-bold px-4"
                 data-testid="mr-generate-btn">
                 {generating ? (
                   <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generando…</>

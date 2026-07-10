@@ -48,7 +48,7 @@ const photoUrl = (p) => p ? `${API_URL}/api/recruiting/files/${p}?auth=${token()
 
 const STAGES = [
   { key: 'prospect', label: 'Prospect', color: '#64748b' },
-  { key: 'contacted', label: 'Contacted', color: '#D4AF37' },
+  { key: 'contacted', label: 'Contacted', color: '#0ea5e9' },
   { key: 'trial', label: 'Trial', color: '#f59e0b' },
   { key: 'decision', label: 'Decision', color: '#8b5cf6' },
 ];
@@ -124,12 +124,12 @@ export default function ScoutingModule({ activeTab, onTabChange } = {}) {
     <div className="p-4 sm:p-6 max-w-[1400px] mx-auto" data-testid="scouting-module">
       {/* Header */}
       <div className="rounded-2xl p-5 mb-5 relative overflow-hidden" style={{ background: 'linear-gradient(120deg,#0f172a 0%,#13203a 55%,#0b1220 100%)' }}>
-        <div className="absolute -right-8 -top-8 opacity-10"><Target className="w-40 h-40 text-[#D4AF37]" /></div>
+        <div className="absolute -right-8 -top-8 opacity-10"><Target className="w-40 h-40 text-[#CCFF00]" /></div>
         <div className="flex items-center gap-3 relative">
-          <div className="w-12 h-12 rounded-xl bg-[#D4AF37] flex items-center justify-center shadow-lg"><Target className="w-7 h-7 text-slate-900" strokeWidth={2.5} /></div>
+          <div className="w-12 h-12 rounded-xl bg-[#CCFF00] flex items-center justify-center shadow-lg"><Target className="w-7 h-7 text-slate-900" strokeWidth={2.5} /></div>
           <div>
             <h1 className="text-white text-2xl font-black tracking-tight" style={{ fontFamily: "'DM Sans',sans-serif" }}>{tt('Recruiting & Talent ID')}</h1>
-            <p className="text-[#D4AF37] text-sm font-medium">{tt('Identifica el talento. Construye el futuro.')}</p>
+            <p className="text-[#CCFF00] text-sm font-medium">{tt('Identifica el talento. Construye el futuro.')}</p>
           </div>
         </div>
       </div>
@@ -141,14 +141,14 @@ export default function ScoutingModule({ activeTab, onTabChange } = {}) {
           return (
             <button key={t.key} onClick={() => setTab(t.key)} data-testid={`scouting-tab-${t.key}`}
               className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all"
-              style={active ? { background: '#0f172a', color: '#D4AF37' } : { background: '#fff', color: '#475569', border: '1px solid #e2e8f0' }}>
+              style={active ? { background: '#0f172a', color: '#CCFF00' } : { background: '#fff', color: '#475569', border: '1px solid #e2e8f0' }}>
               <Icon className="w-4 h-4" /> {tt(t.label)}
             </button>
           );
         })}
         <div className="flex-1" />
         {tab === 'prospects' && (
-          <Button onClick={() => setEditing(emptyProspect())} data-testid="scouting-new-prospect-btn" className="bg-[#D4AF37] text-slate-900 hover:bg-[#b8e600] font-bold rounded-full">
+          <Button onClick={() => setEditing(emptyProspect())} data-testid="scouting-new-prospect-btn" className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] font-bold rounded-full">
             <Plus className="w-4 h-4 mr-1" /> {tt('Nuevo Prospecto')}
           </Button>
         )}
@@ -205,14 +205,14 @@ function ProspectCard({ p, onOpen, onEdit, draggable, onDragStart, compact }) {
         )}
         <div className="absolute bottom-2 left-3 right-3">
           <div className="text-white font-black text-lg leading-tight truncate" style={{ fontFamily: "'DM Sans',sans-serif" }}>{p.name}</div>
-          <div className="text-[#D4AF37] text-[11px] font-bold truncate">{p.position || '—'} · {p.sport_name || p.sport}</div>
+          <div className="text-[#CCFF00] text-[11px] font-bold truncate">{p.position || '—'} · {p.sport_name || p.sport}</div>
         </div>
       </div>
       <div className="px-3 py-2 flex items-center justify-between">
         <div className="text-[11px] text-slate-500 truncate flex items-center gap-1"><MapPin className="w-3 h-3" />{p.current_club || 'Sin club'}{p.age ? ` · ${p.age}a` : ''}</div>
         <div className="flex items-center gap-1">
           {verdict && <span className="text-[9px] font-black px-1.5 py-0.5 rounded" style={{ background: verdictColor(verdict) + '22', color: verdictColor(verdict) }}>{verdict}</span>}
-          {onEdit && <button onClick={(e) => { e.stopPropagation(); onEdit(p); }} className="text-slate-300 hover:text-[#B8912A] p-1"><Edit2 className="w-3.5 h-3.5" /></button>}
+          {onEdit && <button onClick={(e) => { e.stopPropagation(); onEdit(p); }} className="text-slate-300 hover:text-blue-600 p-1"><Edit2 className="w-3.5 h-3.5" /></button>}
         </div>
       </div>
     </div>
@@ -374,7 +374,7 @@ function EvaluationTab({ prospects, onSaved }) {
                         <div className="flex justify-between items-center text-[12px] mb-1">
                           <span className="text-slate-600 font-medium flex items-center gap-1.5">
                             {tt(cr.label)}
-                            {cr.custom && <span className="text-[8px] font-black uppercase px-1 py-0.5 rounded" style={{ background: cr.scope === 'global' ? '#8b5cf622' : cr.scope === 'sport' ? '#D4AF3722' : '#64748b22', color: cr.scope === 'global' ? '#8b5cf6' : cr.scope === 'sport' ? '#D4AF37' : '#64748b' }}>{cr.scope === 'global' ? 'club' : cr.scope === 'sport' ? 'deporte' : 'propio'}</span>}
+                            {cr.custom && <span className="text-[8px] font-black uppercase px-1 py-0.5 rounded" style={{ background: cr.scope === 'global' ? '#8b5cf622' : cr.scope === 'sport' ? '#0ea5e922' : '#64748b22', color: cr.scope === 'global' ? '#8b5cf6' : cr.scope === 'sport' ? '#0ea5e9' : '#64748b' }}>{cr.scope === 'global' ? 'club' : cr.scope === 'sport' ? 'deporte' : 'propio'}</span>}
                           </span>
                           <div className="flex items-center gap-2">
                             <span className="font-black" style={{ color: scoreColor(val) }}>{val}</span>
@@ -434,10 +434,10 @@ function EvaluationTab({ prospects, onSaved }) {
               <div className="flex gap-1 mb-3">
                 {[['openai', 'GPT-5.5'], ['anthropic', 'Claude 4.6']].map(([v, l]) => (
                   <button key={v} onClick={() => setAiProvider(v)} className="flex-1 py-1.5 rounded-lg text-[11px] font-bold border transition"
-                    style={aiProvider === v ? { background: '#0f172a', color: '#D4AF37', borderColor: '#0f172a' } : { background: '#fff', color: '#64748b', borderColor: '#e2e8f0' }} data-testid={`ai-provider-${v}`}>{l}</button>
+                    style={aiProvider === v ? { background: '#0f172a', color: '#CCFF00', borderColor: '#0f172a' } : { background: '#fff', color: '#64748b', borderColor: '#e2e8f0' }} data-testid={`ai-provider-${v}`}>{l}</button>
                 ))}
               </div>
-              <Button onClick={runAI} disabled={aiLoading} data-testid="ai-run-btn" className="w-full bg-[#D4AF37] text-slate-900 hover:bg-[#b8e600] font-bold mb-3">
+              <Button onClick={runAI} disabled={aiLoading} data-testid="ai-run-btn" className="w-full bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] font-bold mb-3">
                 {aiLoading ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Sparkles className="w-4 h-4 mr-1" />} Generar informe
               </Button>
               {ai && <AIReport ai={ai} />}
@@ -668,13 +668,13 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
         {/* Hero */}
         <div className="relative p-6 text-white" style={{ background: 'linear-gradient(120deg,#0f172a,#13203a 60%,#0b1220)' }}>
           <div className="flex gap-5 items-center">
-            <div className="w-28 h-32 rounded-2xl overflow-hidden border-2 border-[#D4AF37] shrink-0 bg-slate-800">
+            <div className="w-28 h-32 rounded-2xl overflow-hidden border-2 border-[#CCFF00] shrink-0 bg-slate-800">
               {p.photo_path ? <img src={photoUrl(p.photo_path)} alt={p.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-4xl font-black text-slate-600">{p.name.slice(0, 1)}</div>}
             </div>
             <div className="flex-1 min-w-0">
               <div className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase inline-block mb-1" style={{ background: sm.color, color: '#fff' }}>{tt(sm.label)}{p.outcome ? ` · ${p.outcome}` : ''}</div>
               <h2 className="text-3xl font-black leading-none" style={{ fontFamily: "'DM Sans',sans-serif" }}>{p.name}</h2>
-              <div className="text-[#D4AF37] font-bold text-sm mt-1">{p.position || '—'} · {p.sport_name || p.sport}</div>
+              <div className="text-[#CCFF00] font-bold text-sm mt-1">{p.position || '—'} · {p.sport_name || p.sport}</div>
               <div className="text-slate-300 text-[12px] mt-2 flex flex-wrap gap-x-3 gap-y-1">
                 {p.current_club && <span>🏟 {p.current_club}</span>}{p.age && <span>🎂 {p.age} años</span>}
                 {p.height_cm && <span>📏 {p.height_cm} cm</span>}{p.weight_kg && <span>⚖ {p.weight_kg} kg</span>}
@@ -689,11 +689,11 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
           {/* Action bar */}
           <div className="flex flex-wrap gap-2 mt-5">
             <Button size="sm" onClick={() => onEdit(p)} className="bg-white/10 hover:bg-white/20 text-white border border-white/20" data-testid="detail-edit-btn"><Edit2 className="w-3.5 h-3.5 mr-1" />Editar</Button>
-            <Button size="sm" onClick={() => pdf('dark')} disabled={pdfLoading} className="bg-slate-900 hover:bg-slate-800 text-[#D4AF37] border border-white/20" data-testid="detail-pdf-dark-btn">{pdfLoading ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <FileDown className="w-3.5 h-3.5 mr-1" />}PDF Oscuro</Button>
+            <Button size="sm" onClick={() => pdf('dark')} disabled={pdfLoading} className="bg-slate-900 hover:bg-slate-800 text-[#CCFF00] border border-white/20" data-testid="detail-pdf-dark-btn">{pdfLoading ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <FileDown className="w-3.5 h-3.5 mr-1" />}PDF Oscuro</Button>
             <Button size="sm" onClick={() => pdf('light')} disabled={pdfLoading} className="bg-white hover:bg-slate-100 text-slate-900 border border-white/20" data-testid="detail-pdf-light-btn">{pdfLoading ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <FileDown className="w-3.5 h-3.5 mr-1" />}PDF Claro</Button>
             <Button size="sm" onClick={openShare} className="bg-white/10 hover:bg-white/20 text-white border border-white/20" data-testid="detail-share-btn"><Share2 className="w-3.5 h-3.5 mr-1" />Compartir</Button>
             {!p.converted_athlete_id ? (
-              <Button size="sm" onClick={() => setConvertOpen(true)} className="bg-[#D4AF37] text-slate-900 hover:bg-[#b8e600] font-bold" data-testid="detail-convert-btn"><UserPlus className="w-3.5 h-3.5 mr-1" />Reclutar → Atleta</Button>
+              <Button size="sm" onClick={() => setConvertOpen(true)} className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] font-bold" data-testid="detail-convert-btn"><UserPlus className="w-3.5 h-3.5 mr-1" />Reclutar → Atleta</Button>
             ) : <span className="text-[11px] text-emerald-300 self-center flex items-center gap-1"><Award className="w-4 h-4" />Reclutado como atleta</span>}
             <Button size="sm" onClick={del} className="bg-red-500/20 hover:bg-red-500/30 text-red-200 border border-red-400/30 ml-auto"><Trash2 className="w-3.5 h-3.5" /></Button>
             <button onClick={onClose} className="absolute top-3 right-3 text-white/60 hover:text-white"><X className="w-5 h-5" /></button>
@@ -705,7 +705,7 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
           {[['resumen', 'Resumen'], ['estadisticas', 'Estadísticas']].map(([k, l]) => (
             <button key={k} onClick={() => setDetailTab(k)} data-testid={`detail-tab-${k}`}
               className="px-3 py-1.5 rounded-full text-xs font-bold transition"
-              style={detailTab === k ? { background: '#0f172a', color: '#D4AF37' } : { background: '#f1f5f9', color: '#64748b' }}>{l}</button>
+              style={detailTab === k ? { background: '#0f172a', color: '#CCFF00' } : { background: '#f1f5f9', color: '#64748b' }}>{l}</button>
           ))}
         </div>
 
@@ -723,7 +723,7 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
             {Object.keys(p.key_stats || {}).length > 0 && (<>
               <SectionTitle className="mt-4">{tt('Stats clave')}</SectionTitle>
               <div className="grid grid-cols-3 gap-2">{Object.entries(p.key_stats).map(([k, v]) => (
-                <div key={k} className="bg-slate-900 rounded-lg p-2 text-center"><div className="text-[8px] text-slate-400 uppercase">{k}</div><div className="text-[#D4AF37] font-black">{v}</div></div>
+                <div key={k} className="bg-slate-900 rounded-lg p-2 text-center"><div className="text-[8px] text-slate-400 uppercase">{k}</div><div className="text-[#CCFF00] font-black">{v}</div></div>
               ))}</div></>)}
           </div>
           {/* AI */}
@@ -856,7 +856,7 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setConvertOpen(false)}>{tt('Cancelar')}</Button>
-                <Button className="bg-[#D4AF37] text-slate-900 hover:bg-[#b8e600] font-bold" onClick={convert} data-testid="convert-confirm-btn">{tt('Reclutar')}</Button>
+                <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] font-bold" onClick={convert} data-testid="convert-confirm-btn">{tt('Reclutar')}</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>

@@ -2,7 +2,7 @@ import React from 'react';
 import { PLAN_ICONS, PLAN_COLORS, PLAN_EMOJIS, getPlanIconComponent, isEmojiIcon } from '../lib/planIcons';
 
 // Badge visual del plan (ícono lucide o emoji sobre color)
-export const PlanBadge = ({ icon, color = '#D4AF37', size = 36, className = '' }) => {
+export const PlanBadge = ({ icon, color = '#3B82F6', size = 36, className = '' }) => {
   const Icon = getPlanIconComponent(icon);
   const px = `${size}px`;
   const iconSize = Math.round(size * 0.55);

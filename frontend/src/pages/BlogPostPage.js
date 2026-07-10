@@ -23,7 +23,7 @@ export default function BlogPostPage() {
         {notFound && <p className="text-slate-400 mt-6">Artículo no encontrado.</p>}
         {post && (
           <article className="mt-6">
-            <span className="text-[11px] font-bold text-[#D4AF37] uppercase tracking-wide">{post.category}</span>
+            <span className="text-[11px] font-bold text-[#CCFF00] uppercase tracking-wide">{post.category}</span>
             <h1 className="text-3xl sm:text-4xl font-bold text-white mt-2 mb-3" data-testid="blog-post-title">{post.title}</h1>
             <p className="text-xs text-slate-500 mb-6">{(post.created_at || '').slice(0, 10)}</p>
             {post.image_url && <img src={post.image_url} alt={post.title} className="w-full rounded-xl mb-6 border border-slate-700" />}

@@ -31,7 +31,7 @@ const BlogAdmin = () => {
     <div data-testid="admin-blog">
       <div className="flex justify-between items-center mb-4">
         <h3 className="font-bold text-white">Blog ({posts.length})</h3>
-        <button onClick={() => setEditing({ ...blank })} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#D4AF37] text-slate-900 text-sm font-bold" data-testid="blog-new-btn"><Plus className="w-4 h-4" />Nuevo</button>
+        <button onClick={() => setEditing({ ...blank })} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#CCFF00] text-slate-900 text-sm font-bold" data-testid="blog-new-btn"><Plus className="w-4 h-4" />Nuevo</button>
       </div>
       {editing && (
         <div className="rounded-xl bg-slate-900 border border-slate-700 p-4 mb-4 space-y-2" data-testid="blog-editor">
@@ -44,7 +44,7 @@ const BlogAdmin = () => {
           <textarea className={inp} rows={5} placeholder="Cuerpo del artículo" value={editing.body} onChange={e => setEditing({ ...editing, body: e.target.value })} />
           <label className="flex items-center gap-2 text-sm text-slate-300"><input type="checkbox" checked={editing.published} onChange={e => setEditing({ ...editing, published: e.target.checked })} />Publicado</label>
           <div className="flex gap-2">
-            <button onClick={save} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#D4AF37] text-slate-900 text-sm font-bold" data-testid="blog-save-btn"><Save className="w-4 h-4" />Guardar</button>
+            <button onClick={save} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#CCFF00] text-slate-900 text-sm font-bold" data-testid="blog-save-btn"><Save className="w-4 h-4" />Guardar</button>
             <button onClick={() => setEditing(null)} className="px-3 py-1.5 rounded-lg bg-slate-700 text-white text-sm">Cancelar</button>
           </div>
         </div>
@@ -85,7 +85,7 @@ const DocsAdmin = () => {
           </div>
         ))}
       </div>
-      <button onClick={save} className="mt-4 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#D4AF37] text-slate-900 text-sm font-bold" data-testid="docs-save-btn"><Save className="w-4 h-4" />Guardar bloques</button>
+      <button onClick={save} className="mt-4 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#CCFF00] text-slate-900 text-sm font-bold" data-testid="docs-save-btn"><Save className="w-4 h-4" />Guardar bloques</button>
     </div>
   );
 };
@@ -125,14 +125,14 @@ const SupportAdmin = () => {
         </div>
         <input className={`${inp} mb-2`} placeholder="URL tutoriales/videos" value={settings.tutorials_url || ''} onChange={e => setSettings({ ...settings, tutorials_url: e.target.value })} />
         <input className={`${inp} mb-2`} placeholder="Texto introductorio" value={settings.intro || ''} onChange={e => setSettings({ ...settings, intro: e.target.value })} />
-        <button onClick={saveSettings} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#D4AF37] text-slate-900 text-sm font-bold" data-testid="support-settings-save"><Save className="w-4 h-4" />Guardar contacto</button>
+        <button onClick={saveSettings} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#CCFF00] text-slate-900 text-sm font-bold" data-testid="support-settings-save"><Save className="w-4 h-4" />Guardar contacto</button>
       </div>
       <div>
         <h3 className="font-bold text-white mb-3">FAQ ({faqs.length})</h3>
         <div className="rounded-xl bg-slate-900 border border-slate-700 p-3 mb-3 space-y-2">
           <input className={inp} placeholder="Pregunta" value={newFaq.question} onChange={e => setNewFaq({ ...newFaq, question: e.target.value })} data-testid="faq-q-input" />
           <textarea className={inp} rows={2} placeholder="Respuesta" value={newFaq.answer} onChange={e => setNewFaq({ ...newFaq, answer: e.target.value })} />
-          <button onClick={addFaq} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#D4AF37] text-slate-900 text-sm font-bold" data-testid="faq-add-btn"><Plus className="w-4 h-4" />Agregar FAQ</button>
+          <button onClick={addFaq} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#CCFF00] text-slate-900 text-sm font-bold" data-testid="faq-add-btn"><Plus className="w-4 h-4" />Agregar FAQ</button>
         </div>
         <div className="space-y-2">
           {faqs.map(f => (

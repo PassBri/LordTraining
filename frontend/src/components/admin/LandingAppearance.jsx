@@ -74,7 +74,7 @@ const SocialLinksEditor = () => {
   return (
     <div className="mt-10 pt-8 border-t border-slate-700/40" data-testid="social-links-section">
       <div className="mb-5 flex items-center gap-2">
-        <Globe className="w-5 h-5 text-[#D4AF37]" />
+        <Globe className="w-5 h-5 text-[#CCFF00]" />
         <div>
           <h2 className="text-xl font-bold text-slate-900">Redes Sociales</h2>
           <p className="text-sm text-slate-500">Agrega los enlaces de las redes de LordTraining. Aparecerán como íconos en el pie del landing. Deja vacío para ocultar un ícono.</p>
@@ -93,7 +93,7 @@ const SocialLinksEditor = () => {
                   value={links[f.id] || ''}
                   onChange={(e) => setLinks(prev => ({ ...prev, [f.id]: e.target.value }))}
                   placeholder={f.placeholder}
-                  className="w-full h-10 px-3 rounded-lg border border-slate-300 text-sm text-slate-800 focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] outline-none"
+                  className="w-full h-10 px-3 rounded-lg border border-slate-300 text-sm text-slate-800 focus:border-[#1565C0] focus:ring-1 focus:ring-[#1565C0] outline-none"
                   data-testid={`social-input-${f.id}`}
                 />
               </div>
@@ -102,7 +102,7 @@ const SocialLinksEditor = () => {
           <button
             onClick={save}
             disabled={saving}
-            className="mt-5 inline-flex items-center gap-2 h-11 px-6 rounded-full bg-[#D4AF37] text-white font-bold text-sm hover:bg-[#0d4a91] transition-colors disabled:opacity-60"
+            className="mt-5 inline-flex items-center gap-2 h-11 px-6 rounded-full bg-[#1565C0] text-white font-bold text-sm hover:bg-[#0d4a91] transition-colors disabled:opacity-60"
             data-testid="social-save-btn"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -115,8 +115,8 @@ const SocialLinksEditor = () => {
 };
 
 const THEMES = [
-  { id: 'classic', name: 'Clásico LORD', desc: 'Diseño actual', bg: '#050A14', surface: '#0C1322', text: '#FFFFFF', accent: '#D4AF37' },
-  { id: 'material', name: 'Material', desc: 'Material Design 3', bg: '#121212', surface: '#2C2C2C', text: '#E3E3E3', accent: '#D4AF37' },
+  { id: 'classic', name: 'Clásico LORD', desc: 'Diseño actual', bg: '#050A14', surface: '#0C1322', text: '#FFFFFF', accent: '#CCFF00' },
+  { id: 'material', name: 'Material', desc: 'Material Design 3', bg: '#121212', surface: '#2C2C2C', text: '#E3E3E3', accent: '#CCFF00' },
   { id: 'futuristic', name: 'Futurista', desc: 'Linear · Vercel · Stripe', bg: '#050A14', surface: '#0A0F1E', text: '#FFFFFF', accent: '#FFFFFF' },
   { id: 'light', name: 'Light', desc: 'Notion · Linear light', bg: '#FFFFFF', surface: '#F5F7FA', text: '#0A0F1E', accent: '#0A0F1E' },
 ];
@@ -222,7 +222,7 @@ export const LandingAppearance = () => {
               onClick={() => applyTheme(th.id)}
               role="button"
               tabIndex={0}
-              className={`text-left rounded-xl p-3 border-2 transition-all cursor-pointer ${isActive ? 'border-[#D4AF37] ring-2 ring-[#D4AF37]/30' : 'border-slate-700 hover:border-slate-500'}`}
+              className={`text-left rounded-xl p-3 border-2 transition-all cursor-pointer ${isActive ? 'border-[#CCFF00] ring-2 ring-[#CCFF00]/30' : 'border-slate-700 hover:border-slate-500'}`}
               style={{ background: '#0f172a' }}
             >
               <ThemePreview th={th} />
@@ -232,9 +232,9 @@ export const LandingAppearance = () => {
                   <p className="text-[11px] text-slate-400">{th.desc}</p>
                 </div>
                 {saving === th.id ? (
-                  <Loader2 className="w-5 h-5 text-[#D4AF37] animate-spin" />
+                  <Loader2 className="w-5 h-5 text-[#CCFF00] animate-spin" />
                 ) : isActive ? (
-                  <span className="flex items-center gap-1 text-[11px] font-bold text-[#D4AF37] bg-[#D4AF37]/10 px-2 py-1 rounded-full" data-testid="landing-theme-active-badge">
+                  <span className="flex items-center gap-1 text-[11px] font-bold text-[#CCFF00] bg-[#CCFF00]/10 px-2 py-1 rounded-full" data-testid="landing-theme-active-badge">
                     <Check className="w-3.5 h-3.5" /> Activa
                   </span>
                 ) : null}
@@ -242,7 +242,7 @@ export const LandingAppearance = () => {
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); window.open(`/?previewTheme=${th.id}`, '_blank', 'noopener'); }}
-                className="mt-3 w-full inline-flex items-center justify-center gap-1.5 h-8 rounded-lg border border-slate-600 text-slate-200 text-[12px] font-semibold hover:border-[#D4AF37]/50 hover:text-[#D4AF37] transition-colors"
+                className="mt-3 w-full inline-flex items-center justify-center gap-1.5 h-8 rounded-lg border border-slate-600 text-slate-200 text-[12px] font-semibold hover:border-[#CCFF00]/50 hover:text-[#CCFF00] transition-colors"
                 data-testid={`landing-theme-preview-${th.id}`}
               >
                 <Eye className="w-3.5 h-3.5" /> Vista previa

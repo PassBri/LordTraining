@@ -93,11 +93,11 @@ const PlanStaffPanel = ({ planId }) => {
       <CardHeader className="bg-white border-b border-slate-100 py-3 px-4">
         <CardTitle className="flex items-center justify-between gap-2 text-sm font-bold text-slate-800">
           <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-[#B8912A]" />
+            <Users className="w-4 h-4 text-sky-500" />
             Cuerpo Técnico Asignado
             <span className="text-[10px] font-medium text-slate-500 italic">{staff.length} miembro{staff.length === 1 ? '' : 's'}</span>
           </div>
-          <Button size="sm" variant="outline" className="h-8 text-[11px] border-[#B8912A] text-[#B8912A] hover:bg-[#D4AF37]" onClick={openAssignDialog} data-testid="staff-assign-btn">
+          <Button size="sm" variant="outline" className="h-8 text-[11px] border-sky-300 text-sky-700 hover:bg-sky-50" onClick={openAssignDialog} data-testid="staff-assign-btn">
             <UserPlus className="w-3.5 h-3.5 mr-1" /> Asignar entrenador
           </Button>
         </CardTitle>
@@ -117,10 +117,10 @@ const PlanStaffPanel = ({ planId }) => {
                     {s.photo_url ? (
                       <img src={s.photo_url} alt={s.name} className="w-10 h-10 rounded-full object-cover border-2 border-white shadow" />
                     ) : (
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-black text-sm shadow" style={{ background: 'linear-gradient(135deg, #D4AF37, #0f172a)' }}>{initial}</div>
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-black text-sm shadow" style={{ background: 'linear-gradient(135deg, #0ea5e9, #0f172a)' }}>{initial}</div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <div className="text-[9px] font-black uppercase tracking-wider text-[#B8912A]">{s.role}</div>
+                      <div className="text-[9px] font-black uppercase tracking-wider text-sky-600">{s.role}</div>
                       <div className="font-bold text-[12px] text-slate-900 truncate leading-tight">{s.name}</div>
                       <div className="text-[10px] text-slate-500 truncate">{s.specialty || '—'}</div>
                     </div>
@@ -138,7 +138,7 @@ const PlanStaffPanel = ({ planId }) => {
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="max-w-2xl bg-white border border-slate-200 shadow-2xl" data-testid="staff-assign-dialog">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2"><UserPlus className="w-5 h-5 text-[#B8912A]" /> Asignar Entrenador al Plan</DialogTitle>
+            <DialogTitle className="flex items-center gap-2"><UserPlus className="w-5 h-5 text-sky-500" /> Asignar Entrenador al Plan</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 pt-2">
             <div className="relative">
@@ -158,9 +158,9 @@ const PlanStaffPanel = ({ planId }) => {
                     disabled={isAssigned}
                     onClick={() => setSelectedCoach(c.id)}
                     data-testid={`staff-pick-${c.id}`}
-                    className={`w-full text-left px-3 py-2 flex items-center gap-3 transition-colors ${isAssigned ? 'opacity-40 cursor-not-allowed' : isSelected ? 'bg-[#D4AF37] ring-2 ring-[#B8912A] ring-inset' : 'hover:bg-slate-50'}`}
+                    className={`w-full text-left px-3 py-2 flex items-center gap-3 transition-colors ${isAssigned ? 'opacity-40 cursor-not-allowed' : isSelected ? 'bg-sky-50 ring-2 ring-sky-300 ring-inset' : 'hover:bg-slate-50'}`}
                   >
-                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-black text-sm shadow" style={{ background: 'linear-gradient(135deg, #D4AF37, #0f172a)' }}>{(c.name || 'C')[0].toUpperCase()}</div>
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-black text-sm shadow" style={{ background: 'linear-gradient(135deg, #0ea5e9, #0f172a)' }}>{(c.name || 'C')[0].toUpperCase()}</div>
                     <div className="flex-1 min-w-0">
                       <div className="font-bold text-[13px] text-slate-900 truncate">{c.name}</div>
                       <div className="text-[11px] text-slate-500 truncate">{c.specialty || '—'} · {c.years_experience || 0} años exp.</div>
